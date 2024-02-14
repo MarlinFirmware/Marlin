@@ -400,6 +400,35 @@ bool MarlinUI::detected() {
   return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+  void MarlinUI::draw_custom_bootscreen(const uint8_t) {
+    const uint8_t PROGMEM * const chars = custom_start_char;
+
+    TERN_(HAS_CUSTOMCHAR0, createChar_P(0x0, customChar0));
+    TERN_(HAS_CUSTOMCHAR1, createChar_P(0x1, customChar1));
+    TERN_(HAS_CUSTOMCHAR2, createChar_P(0x2, customChar2));
+    TERN_(HAS_CUSTOMCHAR3, createChar_P(0x3, customChar3));
+    TERN_(HAS_CUSTOMCHAR4, createChar_P(0x4, customChar4));
+    TERN_(HAS_CUSTOMCHAR5, createChar_P(0x5, customChar5));
+    TERN_(HAS_CUSTOMCHAR6, createChar_P(0x6, customChar6));
+    TERN_(HAS_CUSTOMCHAR7, createChar_P(0x7, customChar7));
+
+    lcd.clear();
+    for (lcd_uint_t y = 0; y < CUSTOM_BOOTSCREEN_CHAR_HEIGHT; y++)
+      for (lcd_uint_t x = 0; x < CUSTOM_BOOTSCREEN_CHAR_WIDTH; x++)
+        lcd_put_lchar(x + lcd_uint_t(CUSTOM_BOOTSCREEN_X), y + lcd_uint_t(CUSTOM_BOOTSCREEN_Y), pgm_read_byte(&chars[y * CUSTOM_BOOTSCREEN_CHAR_WIDTH + x]));
+  }
+
+  // Shows the custom bootscreen and delays
+  void MarlinUI::show_custom_bootscreen() {
+    draw_custom_bootscreen();
+    #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+      #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+    #endif
+    safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+  }
+#endif // SHOW_CUSTOM_BOOTSCREEN
+
 #if HAS_SLOW_BUTTONS
   uint8_t MarlinUI::read_slow_buttons() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
@@ -466,6 +495,8 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
   }
 
   void MarlinUI::show_bootscreen() {
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+
     set_custom_characters(CHARSET_BOOT);
     lcd.clear();
 

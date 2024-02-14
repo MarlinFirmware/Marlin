@@ -27,6 +27,34 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #include "../../../_Bootscreen.h"
+
+  #ifndef CUSTOM_BOOTSCREEN_CHARWIDTH
+    #define CUSTOM_BOOTSCREEN_CHARWIDTH LCD_WIDTH
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_CHAR_HEIGHT
+    #define CUSTOM_BOOTSCREEN_CHAR_HEIGHT (sizeof(custom_start_char) / (CUSTOM_BOOTSCREEN_CHAR_WIDTH))
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X ((LCD_WIDTH  - (CUSTOM_BOOTSCREEN_CHAR_WIDTH)) / 2)
+  #endif
+
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - (CUSTOM_BOOTSCREEN_CHAR_HEIGHT)) / 2)
+  #endif
+
+  static_assert(CUSTOM_BOOTSCREEN_CHAR_WIDTH <= LCD_WIDTH, "CUSTOM_BOOTSCREEN_CHAR_WIDTH is larger than LCD_WIDTH.");
+  static_assert(CUSTOM_BOOTSCREEN_CHAR_HEIGHT <= LCD_HEIGHT, "CUSTOM_BOOTSCREEN_CHAR_HEIGHT is larger than LCD_HEIGHT.");
+  static_assert(CUSTOM_BOOTSCREEN_CHAR_WIDTH + CUSTOM_BOOTSCREEN_X <= LCD_WIDTH, "CUSTOM_BOOTSCREEN_CHAR_WIDTH + CUSTOM_BOOTSCREEN_X is larger than LCD_WIDTH.");
+  static_assert(CUSTOM_BOOTSCREEN_CHAR_HEIGHT + CUSTOM_BOOTSCREEN_Y <= LCD_HEIGHT, "CUSTOM_BOOTSCREEN_CHAR_HEIGHT + CUSTOM_BOOTSCREEN_Y is larger than LCD_HEIGHT.");
+  static_assert(sizeof(custom_start_char) % CUSTOM_BOOTSCREEN_CHAR_WIDTH == 0, "size of custom_start_char array is not evenly divisible by CUSTOM_BOOTSCREEN_CHAR_WIDTH.");
+
+#endif
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
 
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
