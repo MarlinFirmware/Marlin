@@ -116,7 +116,7 @@ int16_t update_time_value = 0;
 bool poweroff_continue = false;
 char commandbuf[30];
 
-static int16_t change_page_number = 0;
+static SovolPage change_page_number = ID_Startup;
 
 uint16_t remain_time = 0;
 
@@ -300,7 +300,7 @@ void RTS::init() {
 
   /**************************some info init*******************************/
   sendData(0, PRINT_PROCESS_ICON_VP);
-  change_page_number = card.flag.mounted ? (dark_mode ? 1 : 56) : 0;
+  change_page_number = card.flag.mounted ? (dark_mode ? ID_Home_D : ID_Home_L) : ID_Startup;
 }
 
 int16_t RTS::receiveData() {
@@ -511,7 +511,7 @@ void RTS::sendData(const uint32_t n, const uint32_t addr, const uint8_t cmd/*=Va
 
 void RTS::sdCardStop() {
   waitway = 7;
-  change_page_number = 1;
+  change_page_number = ID_Home_D;
   card.flag.abort_sd_printing = true;
 
   IF_DISABLED(SD_ABORT_NO_COOLDOWN, thermalManager.disable_all_heaters());
@@ -594,7 +594,7 @@ void RTS::handleData() {
         sendData(0, PRINT_SURPLUS_TIME_HOUR_VP);
         sendData(0, PRINT_SURPLUS_TIME_MIN_VP);
 
-        change_page_number = 1;
+        change_page_number = ID_Home_D;
       }
       else if (recdat.data[0] == 3) { // Enter the tone interface
         waitway = 6;
@@ -613,15 +613,15 @@ void RTS::handleData() {
       else if (recdat.data[0] == 6) { // Light mode
         dark_mode = false;
         BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
-        gotoPage(ID_Home_D);
-        change_page_number = 56;
+        gotoPage(ID_Home_L);
+        change_page_number = ID_Home_L;
         settings.save();
       }
       else if (recdat.data[0] == 7) { // Dark mode
         dark_mode = true;
         BL24CXX::writeOneByte(FONT_EEPROM, dark_mode);
-        gotoPage(ID_Home_L);
-        change_page_number = 1;
+        gotoPage(ID_Home_D);
+        change_page_number = ID_Home_D;
         settings.save();
       }
       break;
@@ -692,7 +692,7 @@ void RTS::handleData() {
         sendData(1, Wait_VP);
         gotoPage(ID_Processing_L, ID_Processing_D);
         // Reject to receive cmd
-        change_page_number = 12;
+        change_page_number = ID_PrintResume_D;
         waitway = 1;
         card.pauseSDPrint();
         pause_action_flag = true;
@@ -1174,7 +1174,7 @@ void RTS::handleData() {
 
           poweroff_continue = true;
           gotoPage(ID_PrintHeating_L, ID_PrintHeating_D);
-          change_page_number = 11;
+          change_page_number = ID_PrintStatus_D;
           update_time_value = 0;
           start_print_flag = true;
           print_state = 2;
@@ -1475,14 +1475,14 @@ void RTS::handleData() {
 
     case ChangePageKey:
       switch (change_page_number) {
-        case 36: case 76: break;
+        case ID_Resume_D: case ID_Settings_L: break; // This makes no sense & change_page_number is never set to those values
 
-        case 11:
+        case ID_PrintStatus_D:
           refreshTime();
           start_print_flag = false;
           break;
 
-        case 12: gotoPage(ID_PrintResume_L, ID_PrintResume_D); break;
+        case ID_PrintResume_D: gotoPage(ID_PrintResume_L, ID_PrintResume_D); break;
 
         default:
           if (card.isPrinting()) {
@@ -1492,7 +1492,7 @@ void RTS::handleData() {
             refreshTime();
           }
           else
-            sendData(change_page_number + ExchangePageBase, ExchangepageAddr);
+            gotoPage(change_page_number);
           break;
       }
 
@@ -1609,8 +1609,8 @@ void RTS::onIdle() {
 
     if (!poweroff_continue && power_off_type_yes) {
       update_time_value = RTS_UPDATE_VALUE;
-      change_page_number = dark_mode ? 1 : 56;
-      gotoPage((SovolPage)change_page_number);
+      change_page_number = dark_mode ? ID_Home_D : ID_Home_L;
+      gotoPage(change_page_number);
     }
     return;
   }
