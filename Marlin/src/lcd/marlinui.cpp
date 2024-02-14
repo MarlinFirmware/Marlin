@@ -1055,18 +1055,23 @@ void MarlinUI::init() {
                 const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
                 encoder_mult_prev_ms = ms;
 
-                if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoder_multiplier = 100;
-                else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoder_multiplier = 10;
+                if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
+                  encoder_multiplier = 100;
+                else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
+                  encoder_multiplier = 10;
+                else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
+                  encoder_multiplier = 5;
 
                 // Enable to output the encoder steps per second value
                 //#define ENCODER_RATE_MULTIPLIER_DEBUG
                 #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                  SERIAL_ECHO_START();
-                  SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                  SERIAL_ECHOPGM("  Multiplier: ", encoder_multiplier);
-                  SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                  SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                  SERIAL_EOL();
+                  SERIAL_ECHO_MSG(
+                    "Enc Step Rate: ", encoderStepRate,
+                    "  Mult: ", encoder_multiplier,
+                    "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
+                    "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
+                    "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
+                  );
                 #endif
               }
 
