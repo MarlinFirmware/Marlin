@@ -41,7 +41,7 @@
 void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first, unless just Z raise (G27 P3)
   if (parser.seenval('P')) {
-    const int8_t pv = parser.value_int();
+    const uint8_t pv = parser.ushortval('P');
     if (pv != 3) {
       if (homing_needed_error()) return;
     }
