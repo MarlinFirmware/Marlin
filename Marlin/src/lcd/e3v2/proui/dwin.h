@@ -80,7 +80,8 @@ enum processID : uint8_t {
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
-    #elif ENABLED(MPC_AUTOTUNE)
+    #endif
+    #if ENABLED(MPC_AUTOTUNE)
       MPCTEMP_START,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
