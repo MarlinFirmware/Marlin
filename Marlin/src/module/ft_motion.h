@@ -59,7 +59,7 @@ typedef struct FTConfig {
 
   #if HAS_EXTRUDERS
     bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
-    uint16_t linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
+    float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
 } ft_config_t;
 

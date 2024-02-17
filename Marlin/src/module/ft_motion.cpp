@@ -632,7 +632,7 @@ void FTMotion::makeVector() {
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
       float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
-      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.000001;
+      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001;
 
       e_raw_z1 = traj.e[makeVector_batchIdx];
       e_advanced_z1 += dedt_adj * (FTM_TS);
