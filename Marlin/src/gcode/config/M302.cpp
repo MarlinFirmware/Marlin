@@ -25,6 +25,11 @@
 #if ENABLED(PREVENT_COLD_EXTRUSION)
 
 #include "../gcode.h"
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #include "../../module/temperature.h"
 
 /**

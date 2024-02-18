@@ -63,7 +63,7 @@ void GcodeSuite::M0_M1() {
       #endif
     }
 
-  #if ENABLED(DWIN_LCD_PROUI) // ExtUI with icon, string, button title
+  #elif ENABLED(DWIN_LCD_PROUI) // ExtUI with icon, string, button title
 
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(ICON_Continue_1, parser.string_arg, GET_TEXT_F(MSG_USERWAIT));
