@@ -44,7 +44,6 @@ def enabled_defines(filepath):
     # This will avoid false positives from #defines in comments
     f = re.sub(r'/\*.*?\*/', '', '\n'.join(f), flags=re.DOTALL).split("\n")
 
-    a = []
     for line in f:
         sline = line.strip()
         m = re.match(spatt, sline) # @section ...
