@@ -77,6 +77,21 @@ namespace ExtUI {
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
+  constexpr axis_t axis_to_axis_t(const AxisEnum a) {
+    switch (a) {
+      TERN_(HAS_X_AXIS, case X_AXIS:)
+      default: return X;
+      OPTCODE(HAS_Y_AXIS, case Y_AXIS: return Y)
+      OPTCODE(HAS_Z_AXIS, case Z_AXIS: return Z)
+      OPTCODE(HAS_I_AXIS, case I_AXIS: return I)
+      OPTCODE(HAS_J_AXIS, case J_AXIS: return J)
+      OPTCODE(HAS_K_AXIS, case K_AXIS: return K)
+      OPTCODE(HAS_U_AXIS, case U_AXIS: return U)
+      OPTCODE(HAS_V_AXIS, case V_AXIS: return V)
+      OPTCODE(HAS_W_AXIS, case W_AXIS: return W)
+    }
+  }
+
   #if HAS_MESH
     typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
   #endif

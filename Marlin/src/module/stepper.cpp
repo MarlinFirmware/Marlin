@@ -553,7 +553,7 @@ void Stepper::enable_axis(const AxisEnum axis) {
   }
   mark_axis_enabled(axis);
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(axis));
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
 /**
