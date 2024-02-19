@@ -3817,40 +3817,42 @@ void drawMaxAccelMenu() {
 #endif // MPC_EDIT_MENU || MPC_AUTOTUNE_MENU
 
 #if HAS_PID_HEATING
-  void setPID(celsius_t t, heater_id_t h) {
-    gcode.process_subcommands_now(
-      MString<60>(F("G28OXY\nG0Z5F300\nG0X"), X_CENTER, F("Y"), Y_CENTER, F("F5000\nM84\nM400"))
-    );
-    thermalManager.PID_autotune(t, h, hmiData.pidCycles, true);
-  }
-  void setPidCycles() { setPIntOnClick(3, 50); }
-#endif
 
-#if ALL(HAS_PID_HEATING, PID_EDIT_MENU)
+  #if ENABLED(PID_AUTOTUNE_MENU)
+    void setPID(celsius_t t, heater_id_t h) {
+      gcode.process_subcommands_now(
+        MString<60>(F("G28OXY\nG0Z5F300\nG0X"), X_CENTER, F("Y"), Y_CENTER, F("F5000\nM84\nM400"))
+      );
+      thermalManager.PID_autotune(t, h, hmiData.pidCycles, true);
+    }
+    void setPidCycles() { setPIntOnClick(3, 50); }
+  #endif
 
-  void setKp() { setPFloatOnClick(0, 1000, 2); }
-  void applyPIDi() {
-    *menuData.floatPtr = scalePID_i(menuData.value / POW(10, 2));
-    TERN_(PIDTEMP, thermalManager.updatePID());
-  }
-  void applyPIDd() {
-    *menuData.floatPtr = scalePID_d(menuData.value / POW(10, 2));
-    TERN_(PIDTEMP, thermalManager.updatePID());
-  }
-  void setKi() {
-    menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
-    const float value = unscalePID_i(*menuData.floatPtr);
-    setFloatOnClick(0, 1000, 2, value, applyPIDi);
-  }
-  void setKd() {
-    menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
-    const float value = unscalePID_d(*menuData.floatPtr);
-    setFloatOnClick(0, 1000, 2, value, applyPIDd);
-  }
-  void onDrawPIDi(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
-  void onDrawPIDd(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_d(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
+  #if ENABLED(PID_EDIT_MENU)
+    void setKp() { setPFloatOnClick(0, 1000, 2); }
+    void applyPIDi() {
+      *menuData.floatPtr = scalePID_i(menuData.value / POW(10, 2));
+      TERN_(PIDTEMP, thermalManager.updatePID());
+    }
+    void applyPIDd() {
+      *menuData.floatPtr = scalePID_d(menuData.value / POW(10, 2));
+      TERN_(PIDTEMP, thermalManager.updatePID());
+    }
+    void setKi() {
+      menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
+      const float value = unscalePID_i(*menuData.floatPtr);
+      setFloatOnClick(0, 1000, 2, value, applyPIDi);
+    }
+    void setKd() {
+      menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
+      const float value = unscalePID_d(*menuData.floatPtr);
+      setFloatOnClick(0, 1000, 2, value, applyPIDd);
+    }
+    void onDrawPIDi(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
+    void onDrawPIDd(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_d(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
+  #endif // PID_EDIT_MENU
 
-#endif // HAS_PID_HEATING && PID_EDIT_MENU
+#endif // HAS_PID_HEATING
 
 #if ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
 
