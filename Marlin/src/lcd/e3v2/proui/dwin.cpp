@@ -269,7 +269,6 @@ Menu *stepsMenu = nullptr;
   #if ENABLED(PROUI_MESH_EDIT)
     Menu *editMeshMenu = nullptr;
   #endif
-  Menu *meshInsetMenu = nullptr;
 #endif
 #if ENABLED(SHAPING_MENU)
   Menu *inputShapingMenu = nullptr;

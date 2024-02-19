@@ -372,7 +372,6 @@ void drawMaxAccelMenu();
   #if ENABLED(PROUI_MESH_EDIT)
     void drawEditMeshMenu();
   #endif
-  void drawMeshInsetMenu();
 #endif
 #if HAS_TRINAMIC_CONFIG
   void drawTrinamicConfigMenu();

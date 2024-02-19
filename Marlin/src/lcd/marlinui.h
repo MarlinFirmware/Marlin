@@ -203,15 +203,6 @@ public:
     static float mesh_inset_max_x;
     static float mesh_inset_min_y;
     static float mesh_inset_max_y;
-    // TODO: workaround for mesh inset not working for MESH_BED_LEVELING
-    // #undef  MESH_MIN_X
-    // #undef  MESH_MAX_X
-    // #undef  MESH_MIN_Y
-    // #undef  MESH_MAX_Y
-    // #define MESH_MIN_X ui.mesh_inset_min_x
-    // #define MESH_MAX_X ui.mesh_inset_max_x
-    // #define MESH_MIN_Y ui.mesh_inset_min_y
-    // #define MESH_MAX_Y ui.mesh_inset_max_y
   #endif
 
   static void init();
