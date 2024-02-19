@@ -49,7 +49,7 @@ typedef struct {
   layer,
   width, height, length;
 
-  void setname(PGM_P const fn);
+  void setname(const char * const fn);
   void clear();
 
 } fileprop_t;
