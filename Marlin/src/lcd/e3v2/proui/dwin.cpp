@@ -1346,9 +1346,9 @@ void eachMomentUpdate() {
       #endif
 
       // Elapsed print time
-      const uint16_t min = print_job_timer.duration();
-      if (_printtime.minute() + 1 <= min) { // 1 minute update
-        _printtime.value = min;
+      const duration_t min = print_job_timer.duration();
+      if ((min.value % 60) == 0) { // 1 minute update
+        _printtime = min;
         drawPrintProgressElapsed();
       }
     }
