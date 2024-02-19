@@ -107,3 +107,18 @@
     #define E0_SLAVE_ADDRESS 3
   #endif
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default usage LCD connector
+#define UART1_RX_PIN                        PA10  // default usage LCD connector
+#define UART2_TX_PIN                        PA2   // default usage TFT connector
+#define UART2_RX_PIN                        PA3   // default usage TFT connector
+#define UART3_TX_PIN                        PB10  // default usage Y_STEP_PIN
+#define UART3_RX_PIN                        PB11  // default usage Y_ENABLE_PIN
+#define UART4_TX_PIN                        PC10  // default usage TMC UART
+#define UART4_RX_PIN                        PC11  // default usage TMC UART
+#define UART5_TX_PIN                        PC12  // default usage POWER_LOSS_PIN
+#define UART5_RX_PIN                        PD2   // default usage E0_ENABLE_PIN
