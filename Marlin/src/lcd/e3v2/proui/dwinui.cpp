@@ -135,7 +135,7 @@ void DWINUI::moveBy(xy_int_t point) {
 }
 
 // Draw a Centered string using arbitrary x1 and x2 margins
-void DWINUI::drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string) {
+void DWINUI::drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, PGM_P const string) {
   const uint16_t x = _MAX(0U, x2 + x1 - strlen_P(string) * fontWidth(fid)) / 2 - 1;
   dwinDrawString(bShow, fid, color, bColor, x, y, string);
 }
@@ -160,11 +160,11 @@ void DWINUI::drawChar(uint16_t color, const char c) {
 //  color: Character color
 //  *string: The string
 //  rlimit: For draw less chars than string length use rlimit
-void DWINUI::drawString(const char * const string, uint16_t rlimit) {
+void DWINUI::drawString(PGM_P const string, uint16_t rlimit) {
   dwinDrawString(false, fontID, textColor, backColor, cursor.x, cursor.y, string, rlimit);
   moveBy(strlen(string) * fontWidth(fontID), 0);
 }
-void DWINUI::drawString(uint16_t color, const char * const string, uint16_t rlimit) {
+void DWINUI::drawString(uint16_t color, PGM_P const string, uint16_t rlimit) {
   dwinDrawString(false, fontID, color, backColor, cursor.x, cursor.y, string, rlimit);
   moveBy(strlen(string) * fontWidth(fontID), 0);
 }
@@ -214,7 +214,7 @@ void DWINUI::ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
 
 // ------------------------- Buttons ------------------------------//
 
-void DWINUI::drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption) {
+void DWINUI::drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, PGM_P const caption) {
   dwinDrawRectangle(1, bcolor, x1, y1, x2, y2);
   drawCenteredString(0, fontID, color, bcolor, x1, x2, (y2 + y1 - fontHeight()) / 2, caption);
 }
@@ -327,7 +327,7 @@ void Title::draw() {
   if (DWINUI::onTitleDraw != nullptr) (*DWINUI::onTitleDraw)(this);
 }
 
-void Title::setCaption(const char * const titleStr) {
+void Title::setCaption(PGM_P const titleStr) {
   frameid = 0;
   if ( caption == titleStr ) return;
   const uint8_t len = _MIN(sizeof(caption) - 1, strlen(titleStr));
@@ -335,7 +335,7 @@ void Title::setCaption(const char * const titleStr) {
   caption[len] = '\0';
 }
 
-void Title::showCaption(const char * const titleStr) {
+void Title::showCaption(PGM_P const titleStr) {
   setCaption(titleStr);
   draw();
 }

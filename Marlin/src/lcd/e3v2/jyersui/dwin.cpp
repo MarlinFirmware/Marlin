@@ -213,7 +213,7 @@ public:
     scrollpos = 0;
   }
 
-  const char* scroll(size_t& pos, Buffer &buf, const char * text, bool *updated = nullptr) {
+  const char* scroll(size_t& pos, Buffer &buf, PGM_P text, bool *updated = nullptr) {
     const size_t len = strlen(text);
     if (len > SIZE) {
       if (updated) *updated = true;
@@ -430,8 +430,8 @@ private:
 //
 
 struct JyersDWIN::EEPROM_Settings JyersDWIN::eeprom_settings{0};
-constexpr const char * const JyersDWIN::color_names[11];
-constexpr const char * const JyersDWIN::preheat_modes[3];
+constexpr PGM_P const JyersDWIN::color_names[11];
+constexpr PGM_P const JyersDWIN::preheat_modes[3];
 
 // Clear a part of the screen
 //  4=Entire screen
@@ -457,7 +457,7 @@ void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool sel
   }
 }
 
-void JyersDWIN::drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
+void JyersDWIN::drawOption(const uint8_t value, PGM_P const * options, const uint8_t row, const bool selected/*=false*/, const bool color/*=false*/) {
   const uint16_t bColor = selected ? COLOR_SELECT : COLOR_BG_BLACK,
                  tColor = color ? getColor(value, COLOR_WHITE, false) : COLOR_WHITE;
   dwinDrawRectangle(1, bColor, 202, MBASE(row) + 14, 258, MBASE(row) - 2);
@@ -481,7 +481,7 @@ uint16_t JyersDWIN::getColor(const uint8_t color, const uint16_t original, const
   return COLOR_WHITE;
 }
 
-void JyersDWIN::drawTitle(const char * const ctitle) {
+void JyersDWIN::drawTitle(PGM_P const ctitle) {
   dwinDrawString(false, DWIN_FONT_HEAD, getColor(eeprom_settings.menu_top_txt, COLOR_WHITE, false), COLOR_BG_BLUE, (DWIN_WIDTH - strlen(ctitle) * STAT_CHR_W) / 2, 5, ctitle);
 }
 void JyersDWIN::drawTitle(FSTR_P const ftitle) {
@@ -494,7 +494,7 @@ void _decorateMenuItem(uint8_t row, uint8_t icon, bool more) {
   dwinDrawLine(jyersDWIN.getColor(jyersDWIN.eeprom_settings.menu_split_line, COLOR_LINE, true), 16, MBASE(row) + 33, 256, MBASE(row) + 33); // Draw Menu Line
 }
 
-void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, const char * const label1, const char * const label2, const bool more/*=false*/, const bool centered/*=false*/) {
+void JyersDWIN::drawMenuItem(const uint8_t row, const uint8_t icon/*=0*/, PGM_P const label1, PGM_P const label2, const bool more/*=false*/, const bool centered/*=false*/) {
   const uint8_t label_offset_y = label2 ? MENU_CHR_H * 3 / 5 : 0,
                 label1_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label1 ? strlen(label1) : 0) * MENU_CHR_W) / 2),
                 label2_offset_x = !centered ? LBLX : LBLX * 4/5 + _MAX(LBLX * 1U/5, (DWIN_WIDTH - LBLX - (label2 ? strlen(label2) : 0) * MENU_CHR_W) / 2);
@@ -4486,12 +4486,12 @@ void JyersDWIN::optionControl() {
     else if (valuepointer == &preheat_modes)
       preheatmode = tempvalue;
 
-    drawOption(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, false, (valuepointer == &color_names));
+    drawOption(tempvalue, static_cast<PGM_P const *>(valuepointer), selection - scrollpos, false, (valuepointer == &color_names));
     dwinUpdateLCD();
     return;
   }
   LIMIT(tempvalue, valuemin, valuemax);
-  drawOption(tempvalue, static_cast<const char * const *>(valuepointer), selection - scrollpos, true);
+  drawOption(tempvalue, static_cast<PGM_P const *>(valuepointer), selection - scrollpos, true);
   dwinUpdateLCD();
 }
 
@@ -4842,9 +4842,9 @@ void JyersDWIN::modifyValue(int8_t &value, const_float_t min, const_float_t max,
   setupValue((float)value, min, max, unit, 5);
 }
 
-void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, const uint8_t max) {
+void JyersDWIN::modifyOption(const uint8_t value, PGM_P const * options, const uint8_t max) {
   tempvalue = value;
-  valuepointer = const_cast<const char * *>(options);
+  valuepointer = const_cast<PGM_P *>(options);
   valuemin = 0;
   valuemax = max;
   process = Proc_Option;
@@ -4856,7 +4856,7 @@ void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, 
 // Main Functions
 //
 
-void JyersDWIN::updateStatus(const char * const text) {
+void JyersDWIN::updateStatus(PGM_P const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
     for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
     filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
@@ -4877,7 +4877,7 @@ void JyersDWIN::startPrint(const bool sd) {
       #if ENABLED(POWER_LOSS_RECOVERY)
         if (recovery.valid()) {
           MediaFile *diveDir = nullptr;
-          const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
+          PGM_P const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
           card.selectFileByName(fname);
         }
       #endif
@@ -5091,7 +5091,7 @@ void JyersDWIN::saveSettings(char * const buff) {
   memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
-void JyersDWIN::loadSettings(const char * const buff) {
+void JyersDWIN::loadSettings(PGM_P const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
   TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;

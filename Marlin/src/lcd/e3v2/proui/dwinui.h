@@ -213,9 +213,9 @@ public:
   uint8_t frameid = 0;
   rect_t frame = {0};
   void draw();
-  void setCaption(const char * const titleStr);
+  void setCaption(PGM_P const titleStr);
   inline void setCaption(FSTR_P fTitle) { setCaption((char *)fTitle); }
-  void showCaption(const char * const titleStr);
+  void showCaption(PGM_P const titleStr);
   inline void showCaption(FSTR_P fTitle) { showCaption((char *)fTitle); }
   void setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
   void setFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
@@ -426,8 +426,8 @@ namespace DWINUI {
   //  color: Character color
   //  *string: The string
   //  rlimit: For draw less chars than string length use rlimit
-  void drawString(const char * const string, uint16_t rlimit = 0xFFFF);
-  void drawString(uint16_t color, const char * const string, uint16_t rlimit = 0xFFFF);
+  void drawString(PGM_P const string, uint16_t rlimit = 0xFFFF);
+  void drawString(uint16_t color, PGM_P const string, uint16_t rlimit = 0xFFFF);
   inline void drawString(FSTR_P  string, uint16_t rlimit = 0xFFFF) {
     drawString(FTOP(string), rlimit);
   }
@@ -441,25 +441,25 @@ namespace DWINUI {
   //  bColor: Background color
   //  x/y: Upper-left coordinate of the string
   //  *string: The string
-  inline void drawString(uint16_t x, uint16_t y, const char * const string) {
+  inline void drawString(uint16_t x, uint16_t y, PGM_P const string) {
     dwinDrawString(false, fontID, textColor, backColor, x, y, string);
   }
   inline void drawString(uint16_t x, uint16_t y, FSTR_P fTitle) {
     dwinDrawString(false, fontID, textColor, backColor, x, y, FTOP(fTitle));
   }
-  inline void drawString(uint16_t color, uint16_t x, uint16_t y, const char * const string) {
+  inline void drawString(uint16_t color, uint16_t x, uint16_t y, PGM_P const string) {
     dwinDrawString(false, fontID, color, backColor, x, y, string);
   }
   inline void drawString(uint16_t color, uint16_t x, uint16_t y, FSTR_P fTitle) {
     dwinDrawString(false, fontID, color, backColor, x, y, fTitle);
   }
-  inline void drawString(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
+  inline void drawString(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, PGM_P const string) {
     dwinDrawString(true, fontID, color, bgcolor, x, y, string);
   }
   inline void drawString(uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P fTitle) {
     dwinDrawString(true, fontID, color, bgcolor, x, y, fTitle);
   }
-  inline void drawString(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, const char * const string) {
+  inline void drawString(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, PGM_P const string) {
     dwinDrawString(true, fid, color, bgcolor, x, y, string);
   }
   inline void drawString(fontid_t fid, uint16_t color, uint16_t bgcolor, uint16_t x, uint16_t y, FSTR_P fTitle) {
@@ -473,29 +473,29 @@ namespace DWINUI {
   //  bColor: Background color
   //  y: Upper coordinate of the string
   //  *string: The string
-  void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
-  inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
+  void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, PGM_P const string);
+  inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, PGM_P const string) {
     drawCenteredString(bShow, fid, color, bColor, 0, DWIN_WIDTH, y, string);
   }
   inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, FSTR_P string) {
     drawCenteredString(bShow, fid, color, bColor, y, FTOP(string));
   }
-  inline void drawCenteredString(uint16_t color, uint16_t bcolor, uint16_t y, const char * const string) {
+  inline void drawCenteredString(uint16_t color, uint16_t bcolor, uint16_t y, PGM_P const string) {
     drawCenteredString(true, fontID, color, bcolor, y, string);
   }
-  inline void drawCenteredString(fontid_t fid, uint16_t color, uint16_t y, const char * const string) {
+  inline void drawCenteredString(fontid_t fid, uint16_t color, uint16_t y, PGM_P const string) {
     drawCenteredString(false, fid, color, backColor, y, string);
   }
   inline void drawCenteredString(fontid_t fid, uint16_t color, uint16_t y, FSTR_P fTitle) {
     drawCenteredString(false, fid, color, backColor, y, fTitle);
   }
-  inline void drawCenteredString(uint16_t color, uint16_t y, const char * const string) {
+  inline void drawCenteredString(uint16_t color, uint16_t y, PGM_P const string) {
     drawCenteredString(false, fontID, color, backColor, y, string);
   }
   inline void drawCenteredString(uint16_t color, uint16_t y, FSTR_P fTitle) {
     drawCenteredString(false, fontID, color, backColor, y, fTitle);
   }
-  inline void drawCenteredString(uint16_t y, const char * const string) {
+  inline void drawCenteredString(uint16_t y, PGM_P const string) {
     drawCenteredString(false, fontID, textColor, backColor, y, string);
   }
   inline void drawCenteredString(uint16_t y, FSTR_P fTitle) {
@@ -540,7 +540,7 @@ namespace DWINUI {
 
   // ------------------------- Buttons ------------------------------//
 
-  void drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const char * const caption);
+  void drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, PGM_P const caption);
   inline void drawButton(uint16_t color, uint16_t bcolor, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, FSTR_P caption) {
     drawButton(color, bcolor, x1, y1, x2, y2, FTOP(caption));
   }

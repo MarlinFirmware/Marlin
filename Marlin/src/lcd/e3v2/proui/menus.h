@@ -90,17 +90,17 @@ public:
   uint8_t frameid = 0;
   rect_t frame = {0};
   using CustomMenuItem::CustomMenuItem;
-  MenuItem(uint8_t cicon, const char * const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
+  MenuItem(uint8_t cicon, PGM_P const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
   MenuItem(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
   void setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-  void setCaption(const char * const text=nullptr);
+  void setCaption(PGM_P const text=nullptr);
 };
 
 class MenuItemPtr: public MenuItem {
 public:
   void *value = nullptr;
   using MenuItem::MenuItem;
-  MenuItemPtr(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val);
+  MenuItemPtr(uint8_t cicon, PGM_P const text, OnDrawItem ondraw, OnClickItem onclick, void* val);
   MenuItemPtr(uint8_t cicon, FSTR_P text, OnDrawItem ondraw, OnClickItem onclick, void* val) : MenuItemPtr(cicon, FTOP(text), ondraw, onclick, val){}
 };
 
@@ -129,7 +129,7 @@ void drawTitle(Title* aTitle);
 void drawMenuCursor(const int8_t line);
 void eraseMenuCursor(const int8_t line);
 void eraseMenuText(const int8_t line);
-void drawMenuLine(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false, bool selected=false);
+void drawMenuLine(const uint8_t line, const uint8_t icon=0, PGM_P const label=nullptr, bool more=false, bool selected=false);
 void drawMenuLine(const uint8_t line, const uint8_t icon=0, FSTR_P label=nullptr, bool more=false, bool selected=false);
 void drawCheckboxLine(const uint8_t line, const bool checked);
 void showCheckboxLine(const bool checked);
@@ -203,12 +203,12 @@ bool isMenu(Menu* menu);
 
 // Add elements to the menuItems array
 CustomMenuItem* menuItemAdd(OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
-MenuItem* menuItemAdd(uint8_t cicon, const char * const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
+MenuItem* menuItemAdd(uint8_t cicon, PGM_P const text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
 inline MenuItem* menuItemAdd(uint8_t cicon, FSTR_P text=nullptr, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr) {
   return menuItemAdd(cicon, FTOP(text), ondraw, onclick);
 }
 MenuItem* menuItemAdd(uint8_t cicon, uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, OnDrawItem ondraw=nullptr, OnClickItem onclick=nullptr);
-MenuItem* editItemAdd(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val);
+MenuItem* editItemAdd(uint8_t cicon, PGM_P const text, OnDrawItem ondraw, OnClickItem onclick, void* val);
 inline MenuItem* editItemAdd(uint8_t cicon, FSTR_P text, OnDrawItem ondraw, OnClickItem onclick, void* val) {
   return editItemAdd(cicon, FTOP(text), ondraw, onclick, val);
 }

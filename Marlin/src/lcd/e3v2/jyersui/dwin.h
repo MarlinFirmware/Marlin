@@ -197,17 +197,17 @@ public:
     uint8_t coordinates_split_line : 4;
   } eeprom_settings;
 
-  static constexpr const char * const color_names[11] = { "Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black" };
-  static constexpr const char * const preheat_modes[3] = { "Both", "Hotend", "Bed" };
+  static constexpr PGM_P const color_names[11] = { "Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black" };
+  static constexpr PGM_P const preheat_modes[3] = { "Both", "Hotend", "Bed" };
 
   static void clearScreen(const uint8_t e=3);
   static void drawFloat(const_float_t value, const uint8_t row, const bool selected=false, const uint8_t minunit=10);
-  static void drawOption(const uint8_t value, const char * const * options, const uint8_t row, const bool selected=false, const bool color=false);
+  static void drawOption(const uint8_t value, PGM_P const * options, const uint8_t row, const bool selected=false, const bool color=false);
   static uint16_t getColor(const uint8_t color, const uint16_t original, const bool light=false);
   static void drawCheckbox(const uint8_t row, const bool value);
-  static void drawTitle(const char * const title);
+  static void drawTitle(PGM_P const title);
   static void drawTitle(FSTR_P const title);
-  static void drawMenuItem(const uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, const bool more=false, const bool centered=false);
+  static void drawMenuItem(const uint8_t row, uint8_t icon=0, PGM_P const label1=nullptr, PGM_P const label2=nullptr, const bool more=false, const bool centered=false);
   static void drawMenuItem(const uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, const bool more=false, const bool centered=false);
   static void drawMenu(const uint8_t menu, const uint8_t select=0, const uint8_t scroll=0);
   static void redrawMenu(const bool lastproc=true, const bool lastsel=false, const bool lastmenu=false);
@@ -254,9 +254,9 @@ public:
   static void modifyValue(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
   static void modifyValue(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
   static void modifyValue(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
-  static void modifyOption(const uint8_t value, const char * const * options, const uint8_t max);
+  static void modifyOption(const uint8_t value, PGM_P const * options, const uint8_t max);
 
-  static void updateStatus(const char * const text);
+  static void updateStatus(PGM_P const text);
   static void startPrint(const bool sd);
   static void stopPrint();
   static void update();
@@ -264,7 +264,7 @@ public:
   static void screenUpdate();
   static void audioFeedback(const bool success=true);
   static void saveSettings(char * const buff);
-  static void loadSettings(const char * const buff);
+  static void loadSettings(PGM_P const buff);
   static void resetSettings();
 };
 

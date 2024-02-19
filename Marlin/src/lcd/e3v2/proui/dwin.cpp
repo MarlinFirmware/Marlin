@@ -462,7 +462,7 @@ void popupPauseOrStop() {
 //
 // Draw status line
 //
-void dwinDrawStatusLine(const char *text) {
+void dwinDrawStatusLine(PGM_P text) {
   dwinDrawRectangle(1, hmiData.colorStatusBg, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
   if (text) DWINUI::drawCenteredString(hmiData.colorStatusTxt, STATUS_Y + 2, text);
 }
@@ -508,7 +508,7 @@ void dwinDrawStatusMessage() {
       // Get a pointer to the next valid UTF8 character
       // and the string remaining length
       uint8_t rlen;
-      const char *stat = ui.status_and_len(rlen);
+      PGM_P stat = ui.status_and_len(rlen);
       dwinDrawRectangle(1, hmiData.colorStatusBg, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
       DWINUI::moveTo(0, STATUS_Y + 2);
       DWINUI::drawString(hmiData.colorStatusTxt, stat, LCD_WIDTH);
@@ -578,7 +578,7 @@ void iconResumeOrPause() {
 }
 
 // Update filename on print
-void dwinPrintHeader(const char *text = nullptr) {
+void dwinPrintHeader(PGM_P text = nullptr) {
   static char headertxt[31] = "";  // Print header text
   if (text) {
     const int8_t size = _MIN(30U, strlen_P(text));
@@ -1380,7 +1380,7 @@ void eachMomentUpdate() {
       DWINUI::drawButton(BTN_Continue, 146, 280);
     }
     MediaFile *dir = nullptr;
-    const char * const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
+    PGM_P const filename = card.diveToFile(true, dir, recovery.info.sd_filename);
     card.selectFileByName(filename);
     DWINUI::drawCenteredString(hmiData.colorPopupTxt, 207, card.longest_filename());
     dwinPrintHeader(card.longest_filename()); // Save filename
@@ -1837,7 +1837,7 @@ void dwinCopySettingsTo(char * const buff) {
   memcpy(buff, &hmiData, eeprom_data_size);
 }
 
-void dwinCopySettingsFrom(const char * const buff) {
+void dwinCopySettingsFrom(PGM_P const buff) {
   memcpy(&hmiData, buff, sizeof(hmi_data_t));
   if (hmiData.colorText == hmiData.colorBackground) dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);

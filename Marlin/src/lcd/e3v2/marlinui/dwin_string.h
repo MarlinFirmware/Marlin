@@ -80,8 +80,8 @@ class DWIN_String {
      * @param cstr The string
      * @param max_len Character limit
      */
-    static void add(const char *cstr, uint8_t max_len=MAX_STRING_LENGTH);
-    static void set(const char *cstr) { set(); add(cstr); }
+    static void add(PGM_P cstr, uint8_t max_len=MAX_STRING_LENGTH);
+    static void set(PGM_P cstr) { set(); add(cstr); }
 
     /**
      * @brief Append / Set F-string
@@ -100,8 +100,8 @@ class DWIN_String {
      * @param cstr An SRAM C-string to use for $ substitution
      * @param fstr A ROM F-string to use for $ substitution
      */
-    static void add(const char *tpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr);
-    static void set(const char *tpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(tpl, index, cstr, fstr); }
+    static void add(PGM_P tpl, const int8_t index, PGM_P cstr=nullptr, FSTR_P const fstr=nullptr);
+    static void set(PGM_P tpl, const int8_t index, PGM_P cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(tpl, index, cstr, fstr); }
 
     /**
      * @brief Append / Set F-string with optional substitution
@@ -111,8 +111,8 @@ class DWIN_String {
      * @param cstr An SRAM C-string to use for $ substitution
      * @param fstr A ROM F-string to use for $ substitution
      */
-    static void add(FSTR_P const ftpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { add(FTOP(ftpl), index, cstr, fstr); }
-    static void set(FSTR_P const ftpl, const int8_t index, const char *cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(ftpl, index, cstr, fstr); }
+    static void add(FSTR_P const ftpl, const int8_t index, PGM_P cstr=nullptr, FSTR_P const fstr=nullptr) { add(FTOP(ftpl), index, cstr, fstr); }
+    static void set(FSTR_P const ftpl, const int8_t index, PGM_P cstr=nullptr, FSTR_P const fstr=nullptr) { set(); add(ftpl, index, cstr, fstr); }
 
     // Common string ops
     static void trim(const char character=' ');

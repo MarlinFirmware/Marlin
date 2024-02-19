@@ -404,7 +404,7 @@ void _decorateMenuItem(const uint8_t line, const uint8_t icon, bool more) {
   if (icon) drawMenuIcon(line, icon);
   if (more) drawMoreIcon(line);
 }
-void drawMenuItem(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
+void drawMenuItem(const uint8_t line, const uint8_t icon=0, PGM_P const label=nullptr, bool more=false) {
   if (label) dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, LBLX, MBASE(line) - 1, (char*)label);
   _decorateMenuItem(line, icon, more);
 }
@@ -413,7 +413,7 @@ void drawMenuItem(const uint8_t line, const uint8_t icon=0, FSTR_P const flabel=
   _decorateMenuItem(line, icon, more);
 }
 
-void drawMenuLine(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
+void drawMenuLine(const uint8_t line, const uint8_t icon=0, PGM_P const label=nullptr, bool more=false) {
   drawMenuItem(line, icon, label, more);
   dwinDrawLine(COLOR_LINE, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
@@ -4306,7 +4306,7 @@ void dwinLevelingDone() {
   if (checkkey == ID_Leveling) gotoMainMenu();
 }
 
-void dwinStatusChanged(const char * const cstr/*=nullptr*/) {
+void dwinStatusChanged(PGM_P const cstr/*=nullptr*/) {
   dwinDrawRectangle(1, COLOR_BG_BLUE, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 24);
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen(cstr) * MENU_CHR_W) / 2;
   dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLUE, x, STATUS_Y + 3, cstr);

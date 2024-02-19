@@ -260,7 +260,7 @@ void gotoPowerLossRecovery();
 void gotoConfirmToPrint();
 void dwinDrawDashboard(); // Status Area
 void drawMainArea();      // Redraw main area
-void dwinDrawStatusLine(const char *text = ""); // Draw simple status text
+void dwinDrawStatusLine(PGM_P text = ""); // Draw simple status text
 void dwinRedrawDash();     // Redraw Dash and Status line
 void dwinRedrawScreen();   // Redraw all screen elements
 void hmiMainMenu();        // Main process screen
@@ -289,10 +289,10 @@ void dwinPrintAborted();
 #if HAS_FILAMENT_SENSOR
   void dwinFilamentRunout(const uint8_t extruder);
 #endif
-void dwinPrintHeader(const char *text);
+void dwinPrintHeader(PGM_P text);
 void dwinSetColorDefaults();
 void dwinCopySettingsTo(char * const buff);
-void dwinCopySettingsFrom(const char * const buff);
+void dwinCopySettingsFrom(PGM_P const buff);
 void dwinSetDataDefaults();
 void dwinRebootScreen();
 

@@ -64,7 +64,7 @@ inline void dwinLong(size_t &i, const uint32_t lval) {
 // Send the data in the buffer plus the packet tail
 void dwinSend(size_t &i);
 
-inline void dwinText(size_t &i, const char * const string, uint16_t rlimit=0xFFFF) {
+inline void dwinText(size_t &i, PGM_P const string, uint16_t rlimit=0xFFFF) {
   if (!string) return;
   const size_t len = _MIN(sizeof(dwinSendBuf) - i, _MIN(strlen(string), rlimit));
   if (len == 0) return;
@@ -172,7 +172,7 @@ void dwinFrameAreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  x/y: Upper-left coordinate of the string
 //  *string: The string
 //  rlimit: For draw less chars than string length use rlimit
-void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit=0xFFFF);
+void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, PGM_P const string, uint16_t rlimit=0xFFFF);
 
 inline void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, FSTR_P const ftitle) {
   #ifdef __AVR__

@@ -159,7 +159,7 @@ void dwinSRAMToPic(uint8_t picID) {
 
 //--------------------------Test area -------------------------
 
-//void dwinReadSRAM(uint16_t addr, const uint8_t length, const char * const data) {
+//void dwinReadSRAM(uint16_t addr, const uint8_t length, PGM_P const data) {
 //  size_t i = 0;
 //  dwinByte(i, 0x32);
 //  dwinByte(i, 0x5A);  // 0x5A Read from SRAM - 0xA5 Read from Flash

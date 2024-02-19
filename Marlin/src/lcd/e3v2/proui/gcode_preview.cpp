@@ -53,7 +53,7 @@
 Preview preview;
 fileprop_t fileprop;
 
-void fileprop_t::setname(const char * const fn) {
+void fileprop_t::setname(PGM_P const fn) {
   const uint8_t len = _MIN(sizeof(name) - 1, strlen(fn));
   memcpy(name, fn, len);
   name[len] = '\0';
@@ -70,10 +70,10 @@ void fileprop_t::clear() {
   height = width = length = 0;
 }
 
-void getValue(const char * const buf, PGM_P const key, float &value) {
+void getValue(PGM_P const buf, PGM_P const key, float &value) {
   if (value != 0.0f) return;
 
-  const char *posptr = strstr_P(buf, key);
+  PGM_P posptr = strstr_P(buf, key);
   if (posptr == nullptr) return;
 
   char num[10] = "";
@@ -90,8 +90,8 @@ void getValue(const char * const buf, PGM_P const key, float &value) {
 }
 
 bool Preview::hasPreview() {
-  const char * const tbstart = PSTR("; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT));
-  const char *posptr = nullptr;
+  PGM_P const tbstart = PSTR("; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT));
+  PGM_P posptr = nullptr;
   uint32_t indx = 0;
   float tmp = 0;
 
