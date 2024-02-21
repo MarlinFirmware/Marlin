@@ -2448,7 +2448,7 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
         ));
       }
       else {
-        #if DISBLED(PROUI_MESH_EDIT)
+        #if DISABLED(PROUI_MESH_EDIT)
           // AUTO_BED_LEVELING_BILINEAR does not define MESH_INSET
           #ifndef   MESH_MIN_X
             #define MESH_MIN_X (_MAX(X_MIN_BED + PROBING_MARGIN, X_MIN_POS))
