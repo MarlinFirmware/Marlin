@@ -420,9 +420,7 @@ void drawMaxAccelMenu();
   #endif
 #endif
 
-// /**
-//  * ProUI extra features
-//  */
+// ProUI extra features
 #if PROUI_GRID_PNTS
   #undef  GRID_MAX_POINTS_X
   #undef  GRID_MAX_POINTS_Y
