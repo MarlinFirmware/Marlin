@@ -2215,8 +2215,9 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   }
   #if CASELIGHT_USES_BRIGHTNESS
     bool enableLiveCaseLightBrightness = true;
-    void liveCaseLightBrightness() { caselight.brightness = menuData.value; caselight.update_brightness(); }
-    void setCaseLightBrightness() { setIntOnClick(0, 255, caselight.brightness, liveCaseLightBrightness, enableLiveCaseLightBrightness ? liveCaseLightBrightness : nullptr); }
+    void applyCaseLightBrightness() { caselight.brightness = menuData.value; }
+    void liveCaseLightBrightness() { caselight.update_brightness(); }
+    void setCaseLightBrightness() { setIntOnClick(0, 255, caselight.brightness, applyCaseLightBrightness, enableLiveCaseLightBrightness ? liveCaseLightBrightness : nullptr); }
   #endif
 #endif
 
