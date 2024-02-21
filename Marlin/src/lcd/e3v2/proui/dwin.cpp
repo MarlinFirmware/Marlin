@@ -1347,10 +1347,9 @@ void eachMomentUpdate() {
 
       // Elapsed print time
       const duration_t min = print_job_timer.duration();
-      if ((min.value % 60) == 0) { // 1 minute update
-        _printtime = min;
-        drawPrintProgressElapsed();
-      }
+      //if ((min.value % 60) == 0) // 1 minute update, else every second
+      _printtime = min;
+      drawPrintProgressElapsed();
     }
     #if ENABLED(POWER_LOSS_RECOVERY)
       else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // Resume print before power off
