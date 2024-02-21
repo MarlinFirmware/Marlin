@@ -193,12 +193,7 @@ struct duration_t {
                    m = uint16_t(this->minute() % 60UL);
     if (with_days) {
       const uint16_t d = this->day();
-      if (d > 0) {
-        sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
-      }
-      else {
-        sprintf_P(buffer, PSTR("%02hu:%02hu"), h % 24, m);  // 23:45
-      }
+      sprintf_P(buffer, PSTR("%hud %02hu:%02hu"), d, h % 24, m);  // 1d 23:45
       return strlen_P(buffer);
     }
     else if (!h) {
