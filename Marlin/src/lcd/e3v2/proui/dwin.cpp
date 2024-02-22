@@ -2255,7 +2255,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void setEnableSound() { toggleCheckboxLine(ui.sound_on); }
 #endif
 
-#if HAS_MESH && USE_GRID_MESHVIEWER
+#if ALL(HAS_MESH, USE_GRID_MESHVIEWER)
   void setViewMesh() { toggleCheckboxLine(bedLevelTools.view_mesh); }
 #endif
 
