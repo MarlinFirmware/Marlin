@@ -274,3 +274,25 @@
 #define SD_MISO_PIN                         PC11
 #define SD_MOSI_PIN                         PC12
 #define SD_DETECT_PIN                       PI3
+
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
+
+  /**
+   *                 -----
+   * (ESP-RX4)  PA1 | 1 8 | GND
+   *  (ESP-EN)   -- | 2 7 | --  (ESP-IO2)
+   * (ESP-RST)   -- | 3 6 | --  (ESP-IO0)
+   *           3.3V | 4 5 | PA0 (ESP-TX4)
+   *                 -----
+   *               WIFI-ESP01
+   */
+  #define ESP_WIFI_MODULE_COM                  4  // Must also set either SERIAL_PORT / SERIAL_PORT_2 / SERIAL_PORT_3 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT / SERIAL_PORT_2 / SERIAL_PORT_3
+  #define ESP_WIFI_MODULE_RESET_PIN         -1
+  #define ESP_WIFI_MODULE_ENABLE_PIN        -1
+  #define ESP_WIFI_MODULE_GPIO0_PIN         -1
+  #define ESP_WIFI_MODULE_GPIO2_PIN         -1
+#endif
