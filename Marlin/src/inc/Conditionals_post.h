@@ -2487,13 +2487,8 @@
 // PID heating
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #define HAS_PID_HEATING 1
-  #if ENABLED(DWIN_LCD_PROUI)
-    #if ANY(PIDTEMP, PIDTEMPBED)
-      #define PROUI_PID_TUNE 1
-    #endif
-    #if HAS_MESH && !USE_GRID_MESHVIEWER
-      #define USE_GRID_MESHVIEWER 1
-    #endif
+  #if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
+    #define PROUI_PID_TUNE 1
   #endif
 #endif
 
@@ -3177,6 +3172,12 @@
 
 #if NEEDS_THREE_PROBE_POINTS && defined(PROBE_PT_1)
   #define HAS_FIXED_3POINT 1  // Points are defined for ABL/UBL. Else calculated in probe.get_three_points.
+#endif
+
+#if ENABLED(DWIN_LCD_PROUI) && HAS_MESH
+  #ifndef USE_GRID_MESHVIEWER
+    #define USE_GRID_MESHVIEWER 1
+  #endif
 #endif
 
 /**
