@@ -782,7 +782,7 @@ void unified_bed_leveling::shift_mesh_height() {
         ? find_furthest_invalid_mesh_point()
         : find_closest_mesh_point_of_type(INVALID, nearby, true);
 
-      if (best.pos.x >= 0) { // mesh point found and is reachable by probe
+      if (best.pos.x >= 0) { // Mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
         const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
         z_values[best.pos.x][best.pos.y] = isnan(measured_z) ? HUGE_VALF : measured_z; // Mark invalid point already probed with HUGE_VALF to omit it in the next loop
