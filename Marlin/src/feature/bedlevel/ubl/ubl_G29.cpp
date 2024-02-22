@@ -1383,7 +1383,6 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
           continue;
 
         // Reachable. Check if it's the best_so_far location to the nozzle.
-
         const xy_pos_t diff = current_position - mpos;
         const float distance = (ref - mpos).magnitude() + diff.magnitude() * 0.1f;
 
