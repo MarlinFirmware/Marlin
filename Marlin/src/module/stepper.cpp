@@ -3531,7 +3531,7 @@ void Stepper::report_positions() {
     );
 
     // Check endstops on every step
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
+    TERN_(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
 
     // Also handle babystepping here
     TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
