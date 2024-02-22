@@ -23,6 +23,10 @@
 
 #include "env_validate.h"
 
+#if HAS_MULTI_HOTEND
+  #error "BOARD_LDO_LEVIATHAN_V1_2 only supports 1 hotend."
+#endif
+
 #define BOARD_INFO_NAME "LDO Leviathan V1.2"
 #define BOARD_WEBSITE_URL "github.com/MotorDynamicsLab/Leviathan"
 
