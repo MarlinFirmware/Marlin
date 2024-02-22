@@ -40,12 +40,13 @@
 #include "../../../core/debug_out.h"
 
 #if !UBL_SEGMENTED
-
-  // TODO: The first and last parts of a move might result in very short segment(s)
-  //       after getting split on the cell boundary, so moves like that should not
-  //       get split. This will be most common for moves that start/end near the
-  //       corners of cells. To fix the issue, simply check if the start/end of the line
-  //       is very close to a cell boundary in advance and don't split the line there.
+  /**
+  * TODO: The first and last parts of a move might result in very short segment(s)
+  *       after getting split on the cell boundary, so moves like that should not
+  *       get split. This will be most common for moves that start/end near the
+  *       corners of cells. To fix the issue, simply check if the start/end of the line
+  *       is very close to a cell boundary in advance and don't split the line there.
+  */
 
   void unified_bed_leveling::line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t extruder) {
     /**
@@ -72,11 +73,11 @@
       #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
         // For a move off the UBL mesh, use a constant Z raise
         if (!cell_index_x_valid(end.x) || !cell_index_y_valid(end.y)) {
-
-          // Note: There is no Z Correction in this case. We are off the mesh and don't know what
-          // a reasonable correction would be, UBL_Z_RAISE_WHEN_OFF_MESH will be used instead of
-          // a calculated (Bi-Linear interpolation) correction.
-
+          /**
+          * NOTE: There is no Z Correction in this case. We are off the mesh and don't know what
+          * a reasonable correction would be, UBL_Z_RAISE_WHEN_OFF_MESH will be used instead of
+          * a calculated (Bi-Linear interpolation) correction.
+          */
           end.z += UBL_Z_RAISE_WHEN_OFF_MESH;
           planner.buffer_segment(end, scaled_fr_mm_s, extruder);
           current_position = destination;
@@ -105,7 +106,6 @@
      * Past this point the move is known to cross one or more mesh lines. Check for the most common
      * case - crossing only one X or Y line - after details are worked out to reduce computation.
      */
-
     const xy_float_t dist = end - start;
     const xy_bool_t neg { dist.x < 0, dist.y < 0 };
     const xy_uint8_t ineg { uint8_t(neg.x), uint8_t(neg.y) };
@@ -119,7 +119,6 @@
      * Also select a scaling factor based on the larger of the X and Y
      * components. The larger of the two is used to preserve precision.
      */
-
     const xy_float_t ad = sign * dist;
     const bool use_x_dist = ad.x > ad.y;
 
@@ -133,7 +132,7 @@
 
     xy_uint8_t icell = istart;
 
-    const float ratio = dist.y / dist.x,        // Allow divide by zero
+    const float ratio = dist.y / dist.x, // Allow divide by zero
                 c = start.y - ratio * start.x;
 
     const bool inf_ratio_flag = isinf(ratio);
@@ -144,8 +143,8 @@
      * Handle vertical lines that stay within one column.
      * These need not be perfectly vertical.
      */
-    if (iadd.x == 0) {        // Vertical line?
-      icell.y += ineg.y;      // Line going down? Just go to the bottom.
+    if (iadd.x == 0) {   // Vertical line?
+      icell.y += ineg.y; // Line going down? Just go to the bottom.
       while (icell.y != iend.y + ineg.y) {
         icell.y += iadd.y;
         const float next_mesh_line_y = get_mesh_y(icell.y);
@@ -172,7 +171,7 @@
          * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
         if (dest.y != start.y) {
-          if (!inf_normalized_flag) { // fall-through faster than branch
+          if (!inf_normalized_flag) { // Fall-through faster than branch
             on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
             TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
             dest.z = start.z + on_axis_distance * z_normalized_dist;
@@ -202,13 +201,13 @@
      * Handle horizontal lines that stay within one row.
      * These need not be perfectly horizontal.
      */
-    if (iadd.y == 0) {      // Horizontal line?
-      icell.x += ineg.x;     // Heading left? Just go to the left edge of the cell for the first move.
+    if (iadd.y == 0) {   // Horizontal line?
+      icell.x += ineg.x; // Heading left? Just go to the left edge of the cell for the first move.
 
       while (icell.x != iend.x + ineg.x) {
         icell.x += iadd.x;
         dest.x = get_mesh_x(icell.x);
-        dest.y = ratio * dest.x + c;    // Calculate Y at the next X mesh line
+        dest.y = ratio * dest.x + c; // Calculate Y at the next X mesh line
 
         float z0 = z_correction_for_y_on_vertical_mesh_line(dest.y, icell.x, icell.y)
                      * planner.fade_scaling_factor_for_z(end.z);
@@ -251,7 +250,6 @@
     /**
      * Generic case of a line crossing both X and Y Mesh lines.
      */
-
     xy_uint8_t cnt = istart.diff(iend);
 
     icell += ineg;
@@ -261,14 +259,14 @@
       const float next_mesh_line_x = get_mesh_x(icell.x + iadd.x),
                   next_mesh_line_y = get_mesh_y(icell.y + iadd.y);
 
-      dest.y = ratio * next_mesh_line_x + c;    // Calculate Y at the next X mesh line
-      dest.x = (next_mesh_line_y - c) / ratio;  // Calculate X at the next Y mesh line
-                                                // (No need to worry about ratio == 0.
-                                                //  In that case, it was already detected
-                                                //  as a vertical line move above.)
+      dest.y = ratio * next_mesh_line_x + c;   // Calculate Y at the next X mesh line
+      dest.x = (next_mesh_line_y - c) / ratio; // Calculate X at the next Y mesh line
+                                               // (No need to worry about ratio == 0.
+                                               //  In that case, it was already detected
+                                               //  as a vertical line move above.)
 
       if (neg.x == (dest.x > next_mesh_line_x)) { // Check if we hit the Y line first
-        // Yes!  Crossing a Y Mesh Line next
+        // Yes! Crossing a Y Mesh Line next
         float z0 = z_correction_for_x_on_horizontal_mesh_line(dest.x, icell.x - ineg.x, icell.y + iadd.y)
                    * planner.fade_scaling_factor_for_z(end.z);
 
@@ -295,7 +293,7 @@
         cnt.y--;
       }
       else {
-        // Yes!  Crossing a X Mesh Line next
+        // Yes! Crossing a X Mesh Line next
         float z0 = z_correction_for_y_on_vertical_mesh_line(dest.y, icell.x + iadd.x, icell.y - ineg.y)
                    * planner.fade_scaling_factor_for_z(end.z);
 
@@ -350,11 +348,10 @@
    * This calls planner.buffer_segment multiple times for small incremental moves.
    * Returns true if did NOT move, false if moved (requires current_position update).
    */
-
   bool __O2 unified_bed_leveling::line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s) {
 
-    if (!position_is_reachable(destination))  // fail if moving outside reachable boundary
-      return true;                            // did not move, so current_position still accurate
+    if (!position_is_reachable(destination)) // Fail if moving outside reachable boundary
+      return true;                           // did not move, so current_position still accurate
 
     const xyze_pos_t total = destination - current_position;
 
@@ -380,10 +377,10 @@
     #endif
 
     xyze_float_t diff = total * inv_segments;
-
-    // Note that E segment distance could vary slightly as z mesh height
-    // changes for each segment, but small enough to ignore.
-
+    /**
+     * NOTE: E segment distance could vary slightly as z mesh height
+     * changes for each segment, but small enough to ignore.
+     */
     xyze_pos_t raw = current_position;
 
     // Just do plain segmentation if UBL is inactive or the target is above the fade height
@@ -395,7 +392,6 @@
       planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
       return false; // Did not set current from destination
     }
-
     // Otherwise perform per-segment leveling
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -405,15 +401,16 @@
     // Move to first segment destination
     raw += diff;
 
-    for (;;) {  // for each mesh cell encountered during the move
+    for (;;) { // For each mesh cell encountered during the move
 
-      // Compute mesh cell invariants that remain constant for all segments within cell.
-      // Note for cell index, if point is outside the mesh grid (in MESH_INSET perimeter)
-      // the bilinear interpolation from the adjacent cell within the mesh will still work.
-      // Inner loop will exit each time (because out of cell bounds) but will come back
-      // in top of loop and again re-find same adjacent cell and use it, just less efficient
-      // for mesh inset area.
-
+      /**
+       * Compute mesh cell invariants that remain constant for all segments within cell.
+       * Note for cell index, if point is outside the mesh grid (in MESH_INSET perimeter)
+       * the bilinear interpolation from the adjacent cell within the mesh will still work.
+       * Inner loop will exit each time (because out of cell bounds) but will come back
+       * in top of loop and again re-find same adjacent cell and use it, just less efficient
+       * for mesh inset area.
+       */
       xy_int8_t icell = {
         int8_t((raw.x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST)),
         int8_t((raw.y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST))
@@ -423,68 +420,67 @@
 
       const int8_t ncellx = _MIN(icell.x+1, GRID_MAX_CELLS_X),
                    ncelly = _MIN(icell.y+1, GRID_MAX_CELLS_Y);
-      float z_x0y0 = z_values[icell.x][icell.y],  // z at lower left corner
-            z_x1y0 = z_values[ncellx ][icell.y],  // z at upper left corner
-            z_x0y1 = z_values[icell.x][ncelly ],  // z at lower right corner
-            z_x1y1 = z_values[ncellx ][ncelly ];  // z at upper right corner
+      float z_x0y0 = z_values[icell.x][icell.y], // Z at lower left corner
+            z_x1y0 = z_values[ncellx ][icell.y], // Z at upper left corner
+            z_x0y1 = z_values[icell.x][ncelly ], // Z at lower right corner
+            z_x1y1 = z_values[ncellx ][ncelly ]; // Z at upper right corner
 
-      if (isnan(z_x0y0)) z_x0y0 = 0;              // ideally activating planner.leveling_active (G29 A)
-      if (isnan(z_x1y0)) z_x1y0 = 0;              //   should refuse if any invalid mesh points
-      if (isnan(z_x0y1)) z_x0y1 = 0;              //   in order to avoid isnan tests per cell,
-      if (isnan(z_x1y1)) z_x1y1 = 0;              //   thus guessing zero for undefined points
+      if (isnan(z_x0y0)) z_x0y0 = 0; // Ideally activating planner.leveling_active (G29 A)
+      if (isnan(z_x1y0)) z_x1y0 = 0; // should refuse if any invalid mesh points
+      if (isnan(z_x0y1)) z_x0y1 = 0; // in order to avoid isnan tests per cell,
+      if (isnan(z_x1y1)) z_x1y1 = 0; // thus guessing zero for undefined points
 
       const xy_pos_t pos = { get_mesh_x(icell.x), get_mesh_y(icell.y) };
       xy_pos_t cell = raw - pos;
 
-      const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST),   // z slope per x along y0 (lower left to lower right)
-                  z_xmy1 = (z_x1y1 - z_x0y1) * RECIPROCAL(MESH_X_DIST);   // z slope per x along y1 (upper left to upper right)
+      const float z_xmy0 = (z_x1y0 - z_x0y0) * RECIPROCAL(MESH_X_DIST), // Z slope per x along y0 (lower left to lower right)
+                  z_xmy1 = (z_x1y1 - z_x0y1) * RECIPROCAL(MESH_X_DIST); // Z slope per x along y1 (upper left to upper right)
 
-            float z_cxy0 = z_x0y0 + z_xmy0 * cell.x;        // z height along y0 at cell.x (changes for each cell.x in cell)
+            float z_cxy0 = z_x0y0 + z_xmy0 * cell.x;         // Z height along y0 at cell.x (changes for each cell.x in cell)
 
-      const float z_cxy1 = z_x0y1 + z_xmy1 * cell.x,        // z height along y1 at cell.x
-                  z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cell.x from y0 to y1
+      const float z_cxy1 = z_x0y1 + z_xmy1 * cell.x,         // Z height along y1 at cell.x
+                  z_cxyd = z_cxy1 - z_cxy0;                  // Z height difference along cell.x from y0 to y1
 
-            float z_cxym = z_cxyd * RECIPROCAL(MESH_Y_DIST); // z slope per y along cell.x from pos.y to y1 (changes for each cell.x in cell)
+            float z_cxym = z_cxyd * RECIPROCAL(MESH_Y_DIST); // Z slope per Y along cell.x from pos.y to y1 (changes for each cell.x in cell)
 
-      //    float z_cxcy = z_cxy0 + z_cxym * cell.y;        // interpolated mesh z height along cell.x at cell.y (do inside the segment loop)
+      /**
+       * As subsequent segments step through this cell, the z_cxy0 intercept will change
+       * and the z_cxym slope will change, both as a function of cell.x within the cell, and
+       * each change by a constant for fixed segment lengths.
+       */
+      const float z_sxy0 = z_xmy0 * diff.x,                                      // Per-segment adjustment to z_cxy0
+                  z_sxym = (z_xmy1 - z_xmy0) * RECIPROCAL(MESH_Y_DIST) * diff.x; // Per-segment adjustment to z_cxym
 
-      // As subsequent segments step through this cell, the z_cxy0 intercept will change
-      // and the z_cxym slope will change, both as a function of cell.x within the cell, and
-      // each change by a constant for fixed segment lengths.
+      for (;;) { // For all segments within this mesh cell
 
-      const float z_sxy0 = z_xmy0 * diff.x,                                       // per-segment adjustment to z_cxy0
-                  z_sxym = (z_xmy1 - z_xmy0) * RECIPROCAL(MESH_Y_DIST) * diff.x;  // per-segment adjustment to z_cxym
+        if (--segments == 0) raw = destination; // If this is last segment, use destination for exact
 
-      for (;;) {  // for all segments within this mesh cell
+        const float z_cxcy = (z_cxy0 + z_cxym * cell.y)              // Interpolated mesh Z height along cell.x at cell.y
+          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // Apply fade factor to interpolated height
 
-        if (--segments == 0) raw = destination;     // if this is last segment, use destination for exact
-
-        const float z_cxcy = (z_cxy0 + z_cxym * cell.y) // interpolated mesh z height along cell.x at cell.y
-          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
-
-        const float oldz = raw.z; raw.z += z_cxcy;
+        const float oldz = raw.z;
+        raw.z += z_cxcy;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);
         raw.z = oldz;
 
-        if (segments == 0)                        // done with last segment
-          return false;                           // didn't set current from destination
+        if (segments == 0) // Done with last segment
+          return false;    // Didn't set current from destination
 
         raw += diff;
         cell += diff;
 
-        if (!WITHIN(cell.x, 0, MESH_X_DIST) || !WITHIN(cell.y, 0, MESH_Y_DIST))    // done within this cell, break to next
+        if (!WITHIN(cell.x, 0, MESH_X_DIST) || !WITHIN(cell.y, 0, MESH_Y_DIST)) // Done within this cell, break to next
           break;
 
         // Next segment still within same mesh cell, adjust the per-segment
         // slope and intercept to compute next z height.
+        z_cxy0 += z_sxy0; // Adjust z_cxy0 by per-segment z_sxy0
+        z_cxym += z_sxym; // Adjust z_cxym by per-segment z_sxym
 
-        z_cxy0 += z_sxy0;   // adjust z_cxy0 by per-segment z_sxy0
-        z_cxym += z_sxym;   // adjust z_cxym by per-segment z_sxym
+      } // Segment loop
+    } // Cell loop
 
-      } // segment loop
-    } // cell loop
-
-    return false; // caller will update current_position
+    return false; // Caller will update current_position
   }
 
 #endif // UBL_SEGMENTED
