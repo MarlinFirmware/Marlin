@@ -168,3 +168,4 @@ __pycache__
 tags
 *.logs
 *.bak
+.vscode/extensions.json
