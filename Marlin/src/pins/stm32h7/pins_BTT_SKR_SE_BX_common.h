@@ -72,30 +72,44 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                          PG13
+#define X_STEP_PIN                          PG13  // X
 #define X_DIR_PIN                           PG12
 #define X_ENABLE_PIN                        PG14
 #define X_CS_PIN                            PG10
 
-#define Y_STEP_PIN                          PB3
+#define Y_STEP_PIN                          PB3   // Y
 #define Y_DIR_PIN                           PD3
 #define Y_ENABLE_PIN                        PB4
 #define Y_CS_PIN                            PD4
 
-#define Z_STEP_PIN                          PD7
-#define Z_DIR_PIN                           PD6
-#define Z_ENABLE_PIN                        PG9
-#define Z_CS_PIN                            PD5
+#ifdef BX_SWAP_ZM_E1M
+  #define Z_STEP_PIN                        PA8   // E1
+  #define Z_DIR_PIN                         PC9
+  #define Z_ENABLE_PIN                      PD2
+  #define Z_CS_PIN                          PC8
+#else
+  #define Z_STEP_PIN                        PD7   // Z1
+  #define Z_DIR_PIN                         PD6
+  #define Z_ENABLE_PIN                      PG9
+  #define Z_CS_PIN                          PD5
+#endif
 
-#define E0_STEP_PIN                         PC14
+#define E0_STEP_PIN                         PC14  // E0
 #define E0_DIR_PIN                          PC13
 #define E0_ENABLE_PIN                       PC15
 #define E0_CS_PIN                           PI8
 
-#define E1_STEP_PIN                         PA8
-#define E1_DIR_PIN                          PC9
-#define E1_ENABLE_PIN                       PD2
-#define E1_CS_PIN                           PC8
+#ifdef BX_SWAP_ZM_E1M
+  #define E1_STEP_PIN                       PD7   // Z1
+  #define E1_DIR_PIN                        PD6
+  #define E1_ENABLE_PIN                     PG9
+  #define E1_CS_PIN                         PD5
+#else
+  #define E1_STEP_PIN                       PA8   // E1
+  #define E1_DIR_PIN                        PC9
+  #define E1_ENABLE_PIN                     PD2
+  #define E1_CS_PIN                         PC8
+#endif
 
 //
 // SPI pins for TMC2130 stepper drivers
@@ -138,14 +152,24 @@
   #define Y_SERIAL_TX_PIN                   PD4
   #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
-  #define Z_SERIAL_TX_PIN                   PD5
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
+  #ifdef BX_SWAP_ZM_E1M
+    #define Z_SERIAL_TX_PIN                 PC8
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+  #else
+    #define Z_SERIAL_TX_PIN                 PD5
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+  #endif
 
   #define E0_SERIAL_TX_PIN                  PI8
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
-  #define E1_SERIAL_TX_PIN                  PC8
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
+  #ifdef BX_SWAP_ZM_E1M
+    #define E1_SERIAL_TX_PIN                PD5
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
+  #else
+    #define E1_SERIAL_TX_PIN                PC8
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
+  #endif
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
