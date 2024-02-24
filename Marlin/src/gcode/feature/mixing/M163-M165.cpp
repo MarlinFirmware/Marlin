@@ -74,12 +74,14 @@ void GcodeSuite::M164() {
    *   D[factor] Mix factor for extruder stepper 4
    *   H[factor] Mix factor for extruder stepper 5
    *   I[factor] Mix factor for extruder stepper 6
+   *   J[factor] Mix factor for extruder stepper 7
+   *   K[factor] Mix factor for extruder stepper 8
    */
   void GcodeSuite::M165() {
     // Get mixing parameters from the G-Code
     // The total "must" be 1.0 (but it will be normalized)
     // If no mix factors are given, the old mix is preserved
-    const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'H', 'I') };
+    const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'H', 'I', 'J', 'K') };
     uint8_t mix_bits = 0;
     MIXER_STEPPER_LOOP(i) {
       if (parser.seenval(mixing_codes[i])) {
