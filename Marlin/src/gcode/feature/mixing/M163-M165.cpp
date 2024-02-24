@@ -98,4 +98,10 @@ void GcodeSuite::M164() {
 
 #endif // DIRECT_MIXING_IN_G1
 
+#if ENABLED(REPORT_VTOOLS_MIX)
+  void GcodeSuite::M167() {
+    mixer.report_vtools();
+  }
+#endif // REPORT_VTOOLS_MIX
+
 #endif // MIXING_EXTRUDER

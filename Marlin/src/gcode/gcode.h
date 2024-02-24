@@ -853,6 +853,9 @@ private:
     #if ENABLED(GRADIENT_MIX)
       static void M166();
     #endif
+    #if ENABLED(REPORT_VTOOLS_MIX)
+      static void M167();
+    #endif
   #endif
 
   #if DISABLED(NO_VOLUMETRICS)
