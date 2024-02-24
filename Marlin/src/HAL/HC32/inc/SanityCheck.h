@@ -74,3 +74,7 @@
     #error "HC32 HAL uses a custom panic handler. Do not define PANIC_USARTx_TX_PIN."
   #endif
 #endif
+
+#if ENABLED(SERIAL_DMA) && !defined(USART_RX_DMA_SUPPORT)
+  #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
+#endif
