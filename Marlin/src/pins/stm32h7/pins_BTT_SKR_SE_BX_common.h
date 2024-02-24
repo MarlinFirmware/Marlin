@@ -23,7 +23,10 @@
 
 #include "env_validate.h"
 
+#define BOARD_WEBSITE_URL    "github.com/bigtreetech/BIQU-BX"
 #define DEFAULT_MACHINE_NAME "BIQU BX"
+
+#define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
@@ -33,17 +36,26 @@
 //#define SWD_DEBUG                               // Use pins PA13 and PA14 on STM32H7 for the SWD debugger
 
 //
+// Trinamic Stallguard pins
+//
+#define X_DIAG_PIN                          PB11  // X-
+#define Y_DIAG_PIN                          PB12  // Y-
+#define Z_DIAG_PIN                          PD12  // Z-
+#define E0_DIAG_PIN                         PD13  // X+
+#define E1_DIAG_PIN                         PB13  // Y+
+
+//
 // Limit Switches
 //
-#define X_MIN_PIN                           PB11
-#define X_MAX_PIN                           PD13
-#define Y_MIN_PIN                           PB12
-#define Y_MAX_PIN                           PB13
-#define Z_MIN_PIN                           PD12
-#define Z_MAX_PIN                           PD11
+#define X_MIN_PIN                     X_DIAG_PIN  // X-
+#define X_MAX_PIN                    E0_DIAG_PIN  // X+
+#define Y_MIN_PIN                     Y_DIAG_PIN  // Y-
+#define Y_MAX_PIN                    E1_DIAG_PIN  // Y+
+#define Z_MIN_PIN                     Z_DIAG_PIN  // Z-
+#define Z_MAX_PIN                           PD11  // Z+
 
-#define FIL_RUNOUT_PIN                      PD13
-#define FIL_RUNOUT2_PIN                     PB13
+#define FIL_RUNOUT_PIN               E0_DIAG_PIN  // X+
+#define FIL_RUNOUT2_PIN              E1_DIAG_PIN  // Y+
 
 #ifndef SWD_DEBUG
   #define LED_PIN                           PA13
@@ -53,13 +65,13 @@
 #define POWER_MONITOR_PIN                   PB0
 #define RPI_POWER_PIN                       PE5
 
-#define SERVO0_PIN                          PA2
+#define SERVO0_PIN                          PA2   // PROBE
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PH2   // Probe
+  #define Z_MIN_PROBE_PIN                   PH2   // PROBE
 #endif
 
 //
@@ -188,15 +200,15 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC4
-#define HEATER_1_PIN                        PC5
-#define HEATER_BED_PIN                      PA4
+#define HEATER_0_PIN                        PC4   // HE0
+#define HEATER_1_PIN                        PC5   // HE1
+#define HEATER_BED_PIN                      PA4   // BED
 
-#define FAN0_PIN                            PA5   // "FAN0"
-#define FAN1_PIN                            PA6   // "FAN1"
-#define FAN2_PIN                            PA7   // "FAN2"
+#define FAN0_PIN                            PA5   // FAN0
+#define FAN1_PIN                            PA6   // FAN1
+#define FAN2_PIN                            PA7   // FAN2 / DCOT
 
-#define BOARD_NEOPIXEL_PIN                  PH3
+#define BOARD_NEOPIXEL_PIN                  PH3   // RGB
 #define NEOPIXEL2_PIN                       PB1
 
 #if HAS_LTDC_TFT
