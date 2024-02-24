@@ -126,7 +126,7 @@ class Mixer {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
       const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
-        LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5])
+        LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7])
       ));
 
       // Scale all values so their maximum is COLOR_A_MASK
@@ -134,8 +134,8 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(
-          F("Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]),
-          F(" ] to Color [ "), LIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]),
+          F("Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]),
+          F(" ] to Color [ "), LIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5], tcolor[6], tcolor[7]),
           F(" ]")
         );
       #endif
@@ -148,8 +148,8 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(F("V-tool "), j,
-          F(" [ "), LIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]),
-          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+          F(" [ "), LIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5], color[j][6], color[j][7]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]), F(" ]")
         );
       #endif
     }
@@ -192,8 +192,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(
-          F("Gradient [ "), LIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]),
-          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+          F("Gradient [ "), LIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], 
+            gradient.color[4], gradient.color[5], gradient.color[6], gradient.color[7]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]), F(" ]")
         );
       #endif
     }
