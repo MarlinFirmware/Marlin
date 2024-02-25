@@ -101,7 +101,7 @@ void GcodeSuite::M164() {
   }
 
   void GcodeSuite::M165_report(const bool forReplay/*=true*/) {
-    report_heading_etc(forReplay, F(STR_CURRENT_VTOOLS));
+    gcode.report_heading_etc(forReplay, F(STR_CURRENT_VTOOLS));
     VTOOLS_LOOP(i) {
       // Get mixes from all tools as a percentage
       mixer.refresh_collector(100.0, i);
