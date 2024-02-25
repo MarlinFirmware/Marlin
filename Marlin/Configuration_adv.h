@@ -1595,7 +1595,7 @@
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
   
-  #ifdef U8GLIB_SSD1309
+  #if ENABLED(U8GLIB_SSD1309)
     //#define USE_LCD_DOUBLE_BUFFERING    // Updates the display in a single batch and skips unchanged areas, enhancing performance. (costs 1kB of RAM)
   #endif
 
