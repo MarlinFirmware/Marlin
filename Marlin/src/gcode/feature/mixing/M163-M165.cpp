@@ -94,17 +94,12 @@ void GcodeSuite::M164() {
         if (!TEST(mix_bits, i)) mixer.set_collector(i, 0.0f);
       mixer.normalize();
     }
-  
-    #if ENABLED(REPORT_VTOOLS_MIX)
-      if (parser.seen_test('R')) M165_report();
-    #endif
+    // Report the latest V-tool mixes
+    if (parser.seen_test('R')) M165_report();
   }
 
   void GcodeSuite::M165_report(const bool forReplay/*=true*/) {
-    TERN_(REPORT_VTOOLS_MIX, return);
-
-    report_heading_etc(forReplay, F("Current virtual tool mixes"));
-    SERIAL_ECHO_START();
+    report_heading_etc(forReplay, F(STR_CURRENT_VTOOLS));
     VTOOLS_LOOP(i) {
       MIXER_STEPPER_LOOP(j) {
         // Not yet implemented.
