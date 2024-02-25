@@ -116,7 +116,7 @@ void Mixer::reset_vtools() {
     #endif
     ZERO(collector);
   #endif
-} 
+}
 
 // called at boot
 void Mixer::init() {
