@@ -346,7 +346,7 @@
  *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
  *   - This implementation supports up to two mixing extruders.
  *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
- *   - Enable REPORT_VTOOLS_MIX to output the current mix ratio of all virtual tools with M167.
+ *   - Enable REPORT_VTOOLS_MIX to output the current mix ratio of all virtual tools with 'M165 R'.
  */
 //#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
@@ -355,7 +355,9 @@
   //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
   //#define GRADIENT_MIX           // Support for gradient mixing with M166 and LCD
   //#define MIXING_PRESETS         // Assign 8 default V-tool presets for 2 or 3 MIXING_STEPPERS
-  #define REPORT_VTOOLS_MIX        // Use M167 to output the current mix ratio of all virtual tools
+  #if ENABLED(DIRECT_MIXING_IN_G1)
+    #define REPORT_VTOOLS_MIX      // Use M165 R to output the mix ratio of all virtual tools
+  #endif
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif

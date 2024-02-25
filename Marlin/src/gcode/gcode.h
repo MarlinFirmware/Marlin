@@ -178,7 +178,6 @@
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
  * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
- * M167 - Report the mix factors of all virtual tools.
  * M190 - Set bed target temperature and wait. R<temp> Set target temperature and wait. S<temp> Set, but only wait when heating. (Requires TEMP_SENSOR_BED)
  * M192 - Wait for probe to reach target temperature. (Requires TEMP_SENSOR_PROBE)
  * M193 - R<temp> Wait for cooler to reach target temp. ** Wait for cooling. **
@@ -849,12 +848,10 @@ private:
     static void M164();
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();
+      static void M165_report(const bool forReplay=true);
     #endif
     #if ENABLED(GRADIENT_MIX)
       static void M166();
-    #endif
-    #if ENABLED(REPORT_VTOOLS_MIX)
-      static void M167();
     #endif
   #endif
 

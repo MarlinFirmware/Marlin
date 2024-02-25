@@ -118,12 +118,6 @@ void Mixer::reset_vtools() {
   #endif
 } 
 
-#if ENABLED(REPORT_VTOOLS_MIX)
-  void Mixer::report_vtools() {
-    // Not yet implemented
-  }
-#endif
-
 // called at boot
 void Mixer::init() {
 

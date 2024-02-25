@@ -707,9 +707,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #if ENABLED(GRADIENT_MIX)
           case 166: M166(); break;                                // M166: Set Gradient Mix
         #endif
-        #if ENABLED(REPORT_VTOOLS_MIX)
-          case 167: M167(); break;                                // M166: Report mixes of all virtual extruders
-        #endif
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)
