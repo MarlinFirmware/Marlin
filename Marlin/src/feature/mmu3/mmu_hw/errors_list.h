@@ -32,7 +32,9 @@
 #include "inttypes.h"
 #include "src/core/language.h"
 #include "src/lcd/marlinui.h"
-#include <avr/pgmspace.h>
+#ifdef __AVR__
+  #include <avr/pgmspace.h>
+#endif
 #include "buttons.h"
 #include "../strlen_cx.h"
 #include "../mmu2_supported_version.h"
