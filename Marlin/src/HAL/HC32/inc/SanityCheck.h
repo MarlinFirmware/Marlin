@@ -20,6 +20,18 @@
  *
  */
 #pragma once
+#include <core_util.h>
+
+#if !defined(ARDUINO_CORE_VERSION_INT) || !defined(GET_VERSION_INT)
+  // version macros were introduced in arduino core version 1.1.0
+  // below that version, we polyfill them
+  #define GET_VERSION_INT(major, minor, patch) ((major * 100000) + (minor * 1000) + patch)
+  #define ARDUINO_CORE_VERSION_INT GET_VERSION_INT(1, 0, 0)
+#endif
+
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 0, 0)
+  #error "The HC32 HAL is not compatible with Arduino Core versions < 1.0.0. Consider updating the Arduino Core."
+#endif
 
 #ifndef BOARD_XTAL_FREQUENCY
   #error "BOARD_XTAL_FREQUENCY is required for HC32F460."
@@ -75,6 +87,12 @@
   #endif
 #endif
 
-#if ENABLED(SERIAL_DMA) && !defined(USART_RX_DMA_SUPPORT)
-  #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
+#if ENABLED(SERIAL_DMA)
+  #if !defined(USART_RX_DMA_SUPPORT)
+    #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
+  #endif
+
+  #if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 1, 0)
+    #error "SERIAL_DMA is not supported with arduino core version < 1.1.0."
+  #endif
 #endif
