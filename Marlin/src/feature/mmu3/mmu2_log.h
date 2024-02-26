@@ -27,8 +27,6 @@
 #pragma once
 #ifdef __AVR__
   #include <avr/pgmspace.h>
-#else
-  #include <pgmspace.h>
 #endif
 
 // Beware - before changing this prefix, think twice
