@@ -227,7 +227,6 @@ void menu_configuration();
 #endif // CUSTOM_MENU_MAIN
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  // This menu item is last with an encoder. Otherwise, somewhere in the middle.
   #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     #define FILAMENT_CHANGE_ITEM() YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, \
                                     GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"))
@@ -368,10 +367,6 @@ void menu_main() {
     }
   #endif
 
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
-  #endif
-
   #if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
     SUBMENU(MSG_LEDS, menu_led);
   #endif
@@ -501,6 +496,10 @@ void menu_main() {
         GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
       );
     });
+  #endif
+
+  #if ENABLED(LCD_INFO_MENU)
+    SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
   END_MENU();
