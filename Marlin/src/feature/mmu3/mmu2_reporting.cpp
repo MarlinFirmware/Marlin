@@ -24,7 +24,9 @@
  * mmu2_reporting.cpp
  */
 
-#include <avr/pgmspace.h>
+#ifdef __AVR__
+  #include <avr/pgmspace.h>
+#endif
 
 #include "src/MarlinCore.h"
 #if HAS_PRUSA_MMU3
@@ -48,11 +50,6 @@
   #include "messages.h"
   #include "ultralcd.h"
   #include "sound.h"
-
-  #ifndef HAS_WIRED_LCD
-    #define LCD_WIDTH 21
-  #endif
-
 
   namespace MMU2 {
 
