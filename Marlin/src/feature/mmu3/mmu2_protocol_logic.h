@@ -55,7 +55,7 @@ public:
 
     } // namespace std
   #else // ifdef __AVR__
-    #include <pgmspace.h>
+    // #include <pgmspace.h>
 
     #include <array>
     #include "mmu_hw/error_codes.h"
