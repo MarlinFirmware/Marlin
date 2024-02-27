@@ -58,11 +58,9 @@
 #endif
 
 #if TEMP_SENSOR_SOC
-  #if !defined(TEMP_SOC_PIN)
+  #ifndef TEMP_SOC_PIN
     #error "TEMP_SOC_PIN must be defined to use TEMP_SENSOR_SOC."
-  #endif
-
-  #if defined(TEMP_SOC_PIN) && IS_GPIO_PIN(TEMP_SOC_PIN)
+  #elif IS_GPIO_PIN(TEMP_SOC_PIN)
     #error "TEMP_SOC_PIN must not be a valid GPIO pin to avoid conflicts."
   #endif
 #endif

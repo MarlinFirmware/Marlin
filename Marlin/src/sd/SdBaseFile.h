@@ -67,7 +67,6 @@ uint8_t const LS_DATE = 1,    // ls() flag to print modify date
               LS_SIZE = 2,    // ls() flag to print file size
               LS_R = 4;       // ls() flag for recursive list of subdirectories
 
-
 // flags for timestamp
 uint8_t const T_ACCESS = 1,   // Set the file's last access date
               T_CREATE = 2,   // Set the file's creation date and time

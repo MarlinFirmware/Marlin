@@ -202,6 +202,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
 
   #define KILL_PIN                            32

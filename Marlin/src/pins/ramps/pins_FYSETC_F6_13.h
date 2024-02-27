@@ -192,7 +192,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_04_PIN
 #define LED_PIN                               13
 #define KILL_PIN                              41
 
@@ -230,9 +229,15 @@
 #define EXP2_08_PIN                           -1  // RESET
 
 //
-// LCDs and Controllers
+// SD Card
 //
+
+#define SDSS                         EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN
+
+//
+// LCD / Controller
+//
 
 #if ENABLED(FYSETC_242_OLED_12864)
   #define BTN_EN1                    EXP1_01_PIN

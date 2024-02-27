@@ -26,6 +26,14 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used in menu items titles:
+ *
+ *   $ displays an inserted string
+ *   { displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
 #define DISPLAY_CHARSET_ISO10646_TR
@@ -102,21 +110,21 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Başlangıç Seç");
   LSTR MSG_LAST_VALUE_SP                  = _UxGT("Son değer ");
 
-  LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL;
-  LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";
-  LSTR MSG_PREHEAT_1_END                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-  LSTR MSG_PREHEAT_1_END_E                = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Ayar");
+  LSTR MSG_PREHEAT_1                      = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL;                   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL " ~";              // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Nozul ~"); // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tüm");     // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Tabla");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("ÖnIsıtma ") PREHEAT_1_LABEL _UxGT(" Ayar");    // Çalışma gerekli Hata
 
-  LSTR MSG_PREHEAT_M                      = _UxGT("ÖnIsıtma $");
-  LSTR MSG_PREHEAT_M_H                    = _UxGT("ÖnIsıtma $ ~");
-  LSTR MSG_PREHEAT_M_END                  = _UxGT("ÖnIsıtma $ Nozul");
-  LSTR MSG_PREHEAT_M_END_E                = _UxGT("ÖnIsıtma $ Nozul ~");
-  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("ÖnIsıtma $ Tüm");
-  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("ÖnIsıtma $ Tabla");
-  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("ÖnIsıtma $ Ayar");
+  LSTR MSG_PREHEAT_M                      = _UxGT("ÖnIsıtma $");         // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("ÖnIsıtma $ ~");       // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("ÖnIsıtma $ Nozul");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("ÖnIsıtma $ Nozul ~"); // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("ÖnIsıtma $ Tüm");     // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("ÖnIsıtma $ Tabla");   // Çalışma gerekli Hata
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("ÖnIsıtma $ Ayar");    // Çalışma gerekli Hata
 
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Nozul Ön Isıtma");
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("Özel Ön Isıtma");
@@ -197,8 +205,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Ölçüm");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Tablayı Kaldır & Ölç");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Sonrakine Git");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL'yi Etkinleştir");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL'yi Etkisizleştir");
+  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL'i Aktifleştir");
+  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL'i Pasifleştir");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Nozul Sıcaklığı");
@@ -213,8 +221,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Soğuk Mesh Oluştur");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Mesh Yükseklik Ayarı");
   LSTR MSG_UBL_MESH_HEIGHT_AMOUNT         = _UxGT("Yükseklik miktarı");
-  LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Doğrulama Mesh");
-  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Doğrulama Mesh ($)");
+  LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Mesh Doğrulama");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("Mesh Doğrulama ($)");
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Özel Mesh Doğrulama");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26 Isıtma Tablası");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("G26 Isıtma Memesi");
@@ -230,25 +238,25 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Mesh Seviyesi");
   LSTR MSG_UBL_SIDE_POINTS                = _UxGT("Yan Noktalar");
   LSTR MSG_UBL_MAP_TYPE                   = _UxGT("Haritalama Türü");
-  LSTR MSG_UBL_OUTPUT_MAP                 = _UxGT("Mesh Çıkış Haritası");
+  LSTR MSG_UBL_OUTPUT_MAP                 = _UxGT("Mesh Çikis Haritası"); // Çalışma gerekli Hata
   LSTR MSG_UBL_OUTPUT_MAP_HOST            = _UxGT("Host için Çıktı");
   LSTR MSG_UBL_OUTPUT_MAP_CSV             = _UxGT("CSV için Çıktı");
   LSTR MSG_UBL_OUTPUT_MAP_BACKUP          = _UxGT("Yedekleme Kapalı");
   LSTR MSG_UBL_INFO_UBL                   = _UxGT("UBL Çıkış Bilgisi");
   LSTR MSG_UBL_FILLIN_AMOUNT              = _UxGT("Dolgu Miktarı");
   LSTR MSG_UBL_MANUAL_FILLIN              = _UxGT("Manuel Dolgu");
-  LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Akıllı Dogu");
+  LSTR MSG_UBL_SMART_FILLIN               = _UxGT("Akıllı Dolgu");
   LSTR MSG_UBL_FILLIN_MESH                = _UxGT("Mesh Dolgu");
   LSTR MSG_UBL_MESH_FILLED                = _UxGT("Eksikler Dolduruldu");
   LSTR MSG_UBL_MESH_INVALID               = _UxGT("Geçersiz Mesh");
-  LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Tümünü Geçersiz Kıl");
-  LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Yakını Geçersiz Kıl");
-  LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Tümünü İnce Ayarla");
+  LSTR MSG_UBL_INVALIDATE_ALL             = _UxGT("Tumunu Gecersiz Kil"); // Çalışma gerekli Hata
+  LSTR MSG_UBL_INVALIDATE_CLOSEST         = _UxGT("Yakini Gecersiz Kil"); // Çalışma gerekli Hata
+  LSTR MSG_UBL_FINE_TUNE_ALL              = _UxGT("Tumunu İnce Ayarla");  // Çalışma gerekli Hata
   LSTR MSG_UBL_FINE_TUNE_CLOSEST          = _UxGT("Yakını İnce Ayarla");
   LSTR MSG_UBL_STORAGE_MESH_MENU          = _UxGT("Mesh Depolama");
   LSTR MSG_UBL_STORAGE_SLOT               = _UxGT("Bellek Yuvası");
   LSTR MSG_UBL_LOAD_MESH                  = _UxGT("Tabla Mesh Yükle");
-  LSTR MSG_UBL_SAVE_MESH                  = _UxGT("Tabla Mesh Kayıt Et");
+  LSTR MSG_UBL_SAVE_MESH                  = _UxGT("Tabla Mesh Kaydet");
   LSTR MSG_UBL_INVALID_SLOT               = _UxGT("Önce Mesh Yuvası Seç");
   LSTR MSG_MESH_LOADED                    = _UxGT("Mesh %i yüklendi");
   LSTR MSG_MESH_SAVED                     = _UxGT("Mesh %i kayıtlandı");
@@ -260,11 +268,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_Z_OFFSET_STOPPED           = _UxGT("Z-Ofset Durduruldu");
   LSTR MSG_UBL_STEP_BY_STEP_MENU          = _UxGT("Adım Adım UBL");
   LSTR MSG_UBL_1_BUILD_COLD_MESH          = _UxGT("1.Soğuk Mesh Oluştur");
-  LSTR MSG_UBL_2_SMART_FILLIN             = _UxGT("2.Akıllı Dogu");
-  LSTR MSG_UBL_3_VALIDATE_MESH_MENU       = _UxGT("3.Doğrulama Mesh");
-  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Tümünü İnce Ayarla");
-  LSTR MSG_UBL_5_VALIDATE_MESH_MENU       = _UxGT("5.Doğrulama Mesh");
-  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Tümünü İnce Ayarla");
+  LSTR MSG_UBL_2_SMART_FILLIN             = _UxGT("2.Akıllı Dolgu");
+  LSTR MSG_UBL_3_VALIDATE_MESH_MENU       = _UxGT("3.Mesh Dogrulama");      // Çalışma gerekli Hata
+  LSTR MSG_UBL_4_FINE_TUNE_ALL            = _UxGT("4.Tumunu ince Ayarla");  // Çalışma gerekli Hata
+  LSTR MSG_UBL_5_VALIDATE_MESH_MENU       = _UxGT("5.Mesh Dogrulama");      // Çalışma gerekli Hata
+  LSTR MSG_UBL_6_FINE_TUNE_ALL            = _UxGT("6.Tumunu ince Ayarla");  // Çalışma gerekli Hata
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Tabla Mesh Kaydet");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontrolü");
@@ -335,8 +343,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_AUTOTEMP                       = _UxGT("Oto. Sıcaklık");
   LSTR MSG_LCD_ON                         = _UxGT("Açık");
   LSTR MSG_LCD_OFF                        = _UxGT("Kapalı");
-  LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyon");
-  LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Kalibrasyon * PID");
+  LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyonu");
+  LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("* PID Kalibrasyonu");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Döngüleri");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID ayarı yapıldı");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kalibrasyon başarısız!");
@@ -346,13 +354,13 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Kalibrasyon başarısız! Kötü ekstruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Kalibrasyon başarısız! Sıcaklık çok yüksek.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Kalibrasyon başarısız! Zaman aşımı.");
-  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Isı kaybı test ediliyor");
+  LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Isı kaybı testi");
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT(">200C Isıtma");
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Ortam ısısına soğutma");
-  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Otomatik Ayarı");
-  LSTR MSG_MPC_EDIT                       = _UxGT("Düzenle * MPC");
+  LSTR MSG_MPC_AUTOTUNE                   = _UxGT("MPC Kalibrasyonu");
+  LSTR MSG_MPC_EDIT                       = _UxGT("* MPC Düzenle");
   LSTR MSG_MPC_POWER                      = _UxGT("Isıtıcı Gücü");
-  LSTR MSG_MPC_POWER_E                    = _UxGT("Güç *");
+  LSTR MSG_MPC_POWER_E                    = _UxGT("* Gücü");
   LSTR MSG_MPC_BLOCK_HEAT_CAPACITY        = _UxGT("Isı Kapasitesi");
   LSTR MSG_MPC_BLOCK_HEAT_CAPACITY_E      = _UxGT("Isı Kap. *");
   LSTR MSG_SENSOR_RESPONSIVENESS          = _UxGT("Sensör Hassasiyeti");
@@ -390,8 +398,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_A_RETRACT                      = _UxGT("G.Çekme Hızı");
   LSTR MSG_A_TRAVEL                       = _UxGT("Gezinme Hızı");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("Biçimleme @ aktif");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("Biçimleme @ pasif");
+  LSTR MSG_SHAPING_ENABLE                 = _UxGT("@ Biçimlemeyi Aç");
+  LSTR MSG_SHAPING_DISABLE                = _UxGT("@ Biçimlemeyi Kapat");
   LSTR MSG_SHAPING_FREQ                   = _UxGT("@ frekans");
   LSTR MSG_SHAPING_ZETA                   = _UxGT("@ sönümleme");
   LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");
@@ -458,7 +466,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_CURRENT                        = _UxGT("Akım");
   LSTR MSG_VOLTAGE                        = _UxGT("Voltaj");
   LSTR MSG_POWER                          = _UxGT("Güç");
-  LSTR MSG_START_PRINT                    = _UxGT("Yaz. Başlat");
+  LSTR MSG_START_PRINT                    = _UxGT("Yazdırmayı Başlat");
   LSTR MSG_BUTTON_NEXT                    = _UxGT("İleri");
   LSTR MSG_BUTTON_INIT                    = _UxGT("Başlat");
   LSTR MSG_BUTTON_STOP                    = _UxGT("Durdur");
@@ -576,9 +584,9 @@ namespace LanguageNarrow_tr {
   LSTR MSG_HOME_FIRST                     = _UxGT("Önce %s Sıfırla");
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Prob Ayarları");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Prob Ofsetleri");
-  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofset");
-  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofset");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofset");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofseti");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofseti");
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofseti");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Prob Payı");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z İlerleme Hızı");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS modunu aç");
