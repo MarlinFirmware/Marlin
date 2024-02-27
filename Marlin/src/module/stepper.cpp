@@ -2739,7 +2739,11 @@ hal_timer_t Stepper::block_phase_isr() {
         ne_edividend = advance_dividend.e;
         const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
         ne_scale = (1L << 24) * scale;
-        if (current_block->direction_bits.e) {
+        if (current_block->direction_bits.e && 
+            (false NUM_AXIS_GANG(
+            || current_block->steps.a, || current_block->steps.b, || current_block->steps.c,
+            || current_block->steps.i, || current_block->steps.j, || current_block->steps.k,
+            || current_block->steps.u, || current_block->steps.v, || current_block->steps.w))) {
           ne_fix.A = (1L << 24) * ne.A;
           ne_fix.B = (1L << 24) * ne.B;
           ne_fix.C = (1L << 24) * ne.C;
