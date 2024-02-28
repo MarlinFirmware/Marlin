@@ -3049,7 +3049,7 @@
 //#define PCA9533
 
 //Inverting fan pin
-#define FAN_INVERTING
+//#define FAN_INVERTING
 
 /**
  * RGB LED / LED Strip Control
