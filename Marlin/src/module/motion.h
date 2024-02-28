@@ -260,7 +260,9 @@ inline float home_bump_mm(const AxisEnum axis) {
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 
-void report_real_position();
+#if ANY(AUTO_REPORT_REAL_POSITION, M114_REALTIME)
+  void report_real_position();
+#endif
 void report_current_position();
 void report_current_position_projected();
 
