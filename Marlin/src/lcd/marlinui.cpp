@@ -1291,7 +1291,7 @@ void MarlinUI::init() {
     void MarlinUI::update_buttons() {
       const millis_t now = millis();
 
-      #if HAS_ENCODER_WHEEL
+      #if HAS_MARLINUI_ENCODER
 
         const int8_t delta = get_encoder_delta(now);
         if (delta) {
@@ -1301,7 +1301,7 @@ void MarlinUI::init() {
           #endif
         }
 
-      #endif // HAS_ENCODER_WHEEL
+      #endif // HAS_MARLINUI_ENCODER
 
       if (PENDING(now, next_button_update_ms)) return;
 
@@ -1341,7 +1341,7 @@ void MarlinUI::init() {
 
         buttons = (newbuttons | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
           #if ALL(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
-            | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
+            | (touch_buttons & TERN(HAS_MARLINUI_ENCODER, ~(EN_A | EN_B), 0xFF))
           #endif
         );
 
@@ -1388,10 +1388,14 @@ void MarlinUI::init() {
 
 #endif // HAS_WIRED_LCD
 
-#if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2 || HAS_TFT_LVGL_UI
+#if MARLINUI_ENCODER_DELTA
 
   #define ENCODER_DEBOUNCE_MS 2
 
+  /**
+   * Get the encoder delta (-2 -1 0 +1 +2) since the last call, reading the live encoder state.
+   * Pins may be debounced to filter noise.
+   */
   int8_t MarlinUI::get_encoder_delta(const millis_t &now/*=millis()*/) {
 
     typedef struct { bool a:1, b:1; } enc_t;
@@ -1434,7 +1438,7 @@ void MarlinUI::init() {
 
   } // get_encoder_delta
 
-#endif
+#endif // MARLINUI_ENCODER_DELTA
 
 void MarlinUI::completion_feedback(const bool good/*=true*/) {
   wake_display(); // Wake the screen for all audio feedback
