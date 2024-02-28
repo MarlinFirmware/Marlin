@@ -49,22 +49,6 @@ void Encoder_tick() {
   TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
 }
 
-// Encoder initialization
-void encoderConfiguration() {
-  #if BUTTON_EXISTS(EN1)
-    SET_INPUT_PULLUP(BTN_EN1);
-  #endif
-  #if BUTTON_EXISTS(EN2)
-    SET_INPUT_PULLUP(BTN_EN2);
-  #endif
-  #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
-  #endif
-  #if HAS_BEEPER
-    SET_OUTPUT(BEEPER_PIN);     // TODO: Use buzzer.h which already inits this
-  #endif
-}
-
 // Analyze encoder value and return state
 EncoderState encoderReceiveAnalyze() {
   const millis_t now = millis();

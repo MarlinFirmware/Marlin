@@ -216,7 +216,6 @@ void tft_lvgl_init() {
 
   tft_style_init();
   filament_pin_setup();
-  lv_encoder_pin_init();
 
   #if ENABLED(MKS_WIFI_MODULE)
     mks_esp_wifi_init();
@@ -444,34 +443,6 @@ lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   if (sd_read_addr_offset) *pos_p = 0;
   else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / small_image_size * 200 + 4;
   return LV_FS_RES_OK;
-}
-
-void lv_encoder_pin_init() {
-  #if BUTTON_EXISTS(EN1)
-    SET_INPUT_PULLUP(BTN_EN1);
-  #endif
-  #if BUTTON_EXISTS(EN2)
-    SET_INPUT_PULLUP(BTN_EN2);
-  #endif
-  #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
-  #endif
-
-  #if BUTTON_EXISTS(BACK)
-    SET_INPUT_PULLUP(BTN_BACK);
-  #endif
-  #if BUTTON_EXISTS(UP)
-    SET_INPUT(BTN_UP);
-  #endif
-  #if BUTTON_EXISTS(DOWN)
-    SET_INPUT(BTN_DOWN);
-  #endif
-  #if BUTTON_EXISTS(LEFT)
-    SET_INPUT(BTN_LEFT);
-  #endif
-  #if BUTTON_EXISTS(RIGHT)
-    SET_INPUT(BTN_RIGHT);
-  #endif
 }
 
 void lv_update_encoder() {

@@ -228,34 +228,32 @@ void MarlinUI::init() {
 
   init_lcd();
 
-  #if HAS_DIGITAL_BUTTONS
-    #if BUTTON_EXISTS(EN1)
-      SET_INPUT_PULLUP(BTN_EN1);
-    #endif
-    #if BUTTON_EXISTS(EN2)
-      SET_INPUT_PULLUP(BTN_EN2);
-    #endif
-    #if BUTTON_EXISTS(ENC)
-      SET_INPUT_PULLUP(BTN_ENC);
-    #endif
-    #if BUTTON_EXISTS(ENC_EN)
-      SET_INPUT_PULLUP(BTN_ENC_EN);
-    #endif
-    #if BUTTON_EXISTS(BACK)
-      SET_INPUT_PULLUP(BTN_BACK);
-    #endif
-    #if BUTTON_EXISTS(UP)
-      SET_INPUT(BTN_UP);
-    #endif
-    #if BUTTON_EXISTS(DOWN)
-      SET_INPUT(BTN_DOWN);
-    #endif
-    #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LEFT);
-    #endif
-    #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RIGHT);
-    #endif
+  #if BUTTON_EXISTS(EN1)
+    SET_INPUT_PULLUP(BTN_EN1);
+  #endif
+  #if BUTTON_EXISTS(EN2)
+    SET_INPUT_PULLUP(BTN_EN2);
+  #endif
+  #if BUTTON_EXISTS(ENC)
+    SET_INPUT_PULLUP(BTN_ENC);
+  #endif
+  #if BUTTON_EXISTS(ENC_EN)
+    SET_INPUT_PULLUP(BTN_ENC_EN);
+  #endif
+  #if BUTTON_EXISTS(BACK)
+    SET_INPUT_PULLUP(BTN_BACK);
+  #endif
+  #if BUTTON_EXISTS(UP)
+    SET_INPUT(BTN_UP);
+  #endif
+  #if BUTTON_EXISTS(DOWN)
+    SET_INPUT(BTN_DOWN);
+  #endif
+  #if BUTTON_EXISTS(LFT)
+    SET_INPUT(BTN_LEFT);
+  #endif
+  #if BUTTON_EXISTS(RT)
+    SET_INPUT(BTN_RIGHT);
   #endif
 
   #if HAS_SHIFT_ENCODER
@@ -1301,7 +1299,7 @@ void MarlinUI::init() {
           #endif
         }
 
-      #endif // HAS_MARLINUI_ENCODER
+      #endif
 
       if (PENDING(now, next_button_update_ms)) return;
 
