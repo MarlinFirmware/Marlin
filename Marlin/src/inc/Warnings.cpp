@@ -682,7 +682,7 @@
 #endif
 
 #if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988 (A4988), E=A4988, A=TMC2208 (TMC2208_STANDALONE), B=TMC2209 (TMC2209_STANDALONE), H=TMC2225 (TMC2208_STANDALONE), H8=HR4988 (A4988)). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988 (Use A4988), E=A4988, A=TMC2208 (Use TMC2208_STANDALONE), B=TMC2209 (Use TMC2209_STANDALONE), H=TMC2225 (Use TMC2208_STANDALONE), H8=HR4988 (Use A4988)). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
