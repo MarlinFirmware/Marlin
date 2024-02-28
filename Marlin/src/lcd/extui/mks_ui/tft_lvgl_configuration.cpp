@@ -460,7 +460,6 @@ void lv_encoder_pin_init() {
   #if BUTTON_EXISTS(BACK)
     SET_INPUT_PULLUP(BTN_BACK);
   #endif
-
   #if BUTTON_EXISTS(UP)
     SET_INPUT(BTN_UP);
   #endif
@@ -477,34 +476,46 @@ void lv_encoder_pin_init() {
 
 void lv_update_encoder() {
 
-  #if ANY_BUTTON(EN1, EN2, ENC, BACK)
+  #if ANY_BUTTON(EN1, EN2)
+    constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;   // We can fill in
+    static uint8_t pulse_count;
+    pulse_count += ui.get_encoder_delta();
+    const int8_t fullSteps = pulse_count / epps;
+    pulse_count -= fullSteps * epps;
+    enc_diff += fullSteps;
+  #endif
 
+  #if ANY_BUTTON(ENC, BACK, UP, DOWN, LEFT, RIGHT)
     static millis_t last_encoder_ms;
     const millis_t now = millis(), diffTime = getTickDiff(now, last_encoder_ms);
     if (diffTime <= 50) return;
+  #endif
 
-    //if (BUTTON_PRESSED(BACK)) {}
-
-    static uint8_t old_enc;
-    const uint8_t enc = (BUTTON_PRESSED(EN1) ? B01 : 0) | (BUTTON_PRESSED(EN2) ? B10 : 0);
-    if (enc != old_enc) {
-      if (old_enc == 0) {
-        switch (enc) {
-          case 1: --enc_diff; last_encoder_ms = now; break;
-          case 2: ++enc_diff; last_encoder_ms = now; break;
-        }
-      }
-      old_enc = enc;
-    }
-
+  #if BUTTON_EXISTS(ENC)
     static uint8_t old_button_enc = LV_INDEV_STATE_REL;
     const uint8_t enc_c = BUTTON_PRESSED(ENC) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     if (enc_c != old_button_enc) {
       indev_enc_state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
       old_button_enc = enc_c;
     }
+  #endif
 
-  #endif // ANY_BUTTON
+  #if BUTTON_EXISTS(BACK)
+    if (BUTTON_PRESSED(BACK)) {}
+  #endif
+  #if BUTTON_EXISTS(UP)
+    if (BUTTON_PRESSED(UP)) {}
+  #endif
+  #if BUTTON_EXISTS(DOWN)
+    if (BUTTON_PRESSED(DOWN)) {}
+  #endif
+  #if BUTTON_EXISTS(LEFT)
+    if (BUTTON_PRESSED(LEFT)) {}
+  #endif
+  #if BUTTON_EXISTS(RIGHT)
+    if (BUTTON_PRESSED(RIGHT)) {}
+  #endif
+
 }
 
 #ifdef __PLAT_NATIVE_SIM__

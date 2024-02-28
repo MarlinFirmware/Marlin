@@ -250,7 +250,7 @@ public:
     }
   #endif
 
-  #if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2
+  #if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_ENCODER_WHEEL) || HAS_DWIN_E3V2 || HAS_TFT_LVGL_UI
     static int8_t get_encoder_delta(const millis_t &now=millis());
   #endif
 

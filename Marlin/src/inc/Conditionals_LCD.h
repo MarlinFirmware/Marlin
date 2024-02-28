@@ -893,10 +893,11 @@
   #endif
 #endif
 
-// FSMC/SPI TFT Panels (LVGL)
+// FSMC/SPI TFT Panels (LVGL) with encoder click wheel
 #if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
   #define SERIAL_RUNTIME_HOOK 1
+  #define STD_ENCODER_PULSES_PER_STEP 4
 #endif
 
 // FSMC/SPI TFT Panels
