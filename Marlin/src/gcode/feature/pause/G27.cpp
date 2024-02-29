@@ -39,10 +39,12 @@
  *             4 = No Z raise. Just XY parking.
  */
 void GcodeSuite::G27() {
-  // Don't allow nozzle parking without homing first, unless just Z raise (G27 P3)
+  // Don't allow nozzle parking without homing first, unless just Z raise (G27 P3) or just XY parking (G27 P4)
   const uint8_t pv = parser.ushortval('P');
-  if (pv != 3) {
-    if (homing_needed_error()) return;
+  switch (pv) {
+    case 3: break;
+    case 4: if (axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS)) break;
+    default: if (homing_needed_error()) return;
   }
   nozzle.park(pv);
 }
