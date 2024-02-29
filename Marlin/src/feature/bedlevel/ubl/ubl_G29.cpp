@@ -1446,14 +1446,14 @@ bool unified_bed_leveling::smart_fill_one(const uint8_t x, const uint8_t y, cons
   return false;
 }
 
-typedef struct { TERN(PROUI_GRID_PNTS, int, uint8_t) sx, ex, sy, ey; bool yfirst; } smart_fill_info;
+typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
 void unified_bed_leveling::smart_fill_mesh() {
   static const smart_fill_info
-    info0 PROGMEM = { 0,  GRID_MAX_POINTS_X, 0,        (GRID_MAX_POINTS_Y) - 2,    false },  // Bottom of the mesh looking up
-    info1 PROGMEM = { 0,  GRID_MAX_POINTS_X,           (GRID_MAX_POINTS_Y) - 1, 0, false },  // Top of the mesh looking down
-    info2 PROGMEM = { 0, (GRID_MAX_POINTS_X) - 2, 0,    GRID_MAX_POINTS_Y,         true  },  // Left side of the mesh looking right
-    info3 PROGMEM = {    (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,         true  };  // Right side of the mesh looking left
+    info0 PROGMEM = { 0, GRID_MAX_POINTS_X, 0,         uint8_t((GRID_MAX_POINTS_Y) - 2),    false }, // Bottom of the mesh looking up
+    info1 PROGMEM = { 0, GRID_MAX_POINTS_X,            uint8_t((GRID_MAX_POINTS_Y) - 1), 0, false }, // Top of the mesh looking down
+    info2 PROGMEM = { 0, uint8_t((GRID_MAX_POINTS_X) - 2), 0,    GRID_MAX_POINTS_Y,         true  }, // Left side of the mesh looking right
+    info3 PROGMEM = {    uint8_t((GRID_MAX_POINTS_X) - 1), 0, 0, GRID_MAX_POINTS_Y,         true  }; // Right side of the mesh looking left
   static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
   for (uint8_t i = 0; i < COUNT(info); ++i) {
