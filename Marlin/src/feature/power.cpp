@@ -60,7 +60,7 @@ bool Power::psu_on;
   millis_t Power::lastPowerOn;
 #endif
 
-#if PIN_EXISTS(PS_ON_EDM)
+#if PSU_TRACK_STATE_MS
   millis_t Power::last_state_change_ms = 0;
 #endif
 
@@ -94,11 +94,11 @@ void Power::power_on() {
   #if ENABLED(PSU_OFF_REDUNDANT)
     OUT_WRITE(PS_ON1_PIN, TERN_(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  #if PIN_EXISTS(PS_ON_EDM)
-    last_state_change_ms = millis();
-  #endif
+  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
+
   restore_stepper_drivers();
   TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
 
@@ -130,9 +130,7 @@ void Power::power_off() {
   #if ENABLED(PSU_OFF_REDUNDANT)
     OUT_WRITE(PS_ON1_PIN, IF_DISABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  #if PIN_EXISTS(PS_ON_EDM)
-    last_state_change_ms = millis();
-  #endif
+  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
 
   psu_on = false;
 
