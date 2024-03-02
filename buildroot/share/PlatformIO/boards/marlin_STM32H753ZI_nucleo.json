@@ -1,0 +1,45 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m7",
+    "extra_flags": "-DSTM32H7xx -DSTM32H753xx",
+    "f_cpu": "400000000L",
+    "mcu": "stm32h753zit6",
+    "product_line": "STM32H753xx"
+  },
+  "connectivity": [
+    "can",
+    "ethernet"
+  ],
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32H753ZI",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_target": "stm32h7x",
+    "svd_path": "STM32H753.svd"
+  },
+  "frameworks": [
+    "cmsis",
+    "stm32cube",
+    "zephyr"
+  ],
+  "name": "ST Nucleo H753ZI",
+  "upload": {
+    "maximum_ram_size": 884736,
+    "maximum_size": 2097152,
+    "protocol": "stlink",
+    "protocols": [
+      "jlink",
+      "cmsis-dap",
+      "stlink",
+      "blackmagic",
+      "mbed"
+    ]
+  },
+  "url": "https://www.st.com/en/evaluation-tools/nucleo-h753zi.html",
+  "vendor": "ST"
+}
