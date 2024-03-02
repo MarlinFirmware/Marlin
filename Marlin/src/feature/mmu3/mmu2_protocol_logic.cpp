@@ -36,7 +36,7 @@
     #define _millis millis
   #else
     // irrelevant on Buddy FW, just keep "_millis" as "millis"
-    #include <wiring_time.h>
+    // #include <wiring_time.h>
     #define _millis millis
     #ifdef UNITTEST
       #define strncmp_P strncmp
