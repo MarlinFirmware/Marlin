@@ -736,6 +736,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 ) {
   do_blocking_move_to(NUM_AXIS_ELEM_(raw) fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
 }
+
 #if HAS_X_AXIS
   void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_x(", rx, ", ", fr_mm_s, ")");
@@ -749,6 +750,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 #endif
 
 #if HAS_Y_AXIS
+
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_y(", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
@@ -758,14 +760,62 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
       fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
     );
   }
-#endif
+
+  void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_xy(", rx, ", ", ry, ", ", fr_mm_s, ")");
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(rx, ry, current_position.z,
+                     current_position.i, current_position.j, current_position.k,
+                     current_position.u, current_position.v, current_position.w)
+      fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
+    );
+  }
+
+  void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
+  }
+
+#endif // HAS_Y_AXIS
 
 #if HAS_Z_AXIS
+
   void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_z(", rz, ", ", fr_mm_s, ")");
     do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
   }
-#endif
+
+  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, z,
+                     current_position.i, current_position.j, current_position.k,
+                     current_position.u, current_position.v, current_position.w)
+      fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
+    );
+  }
+
+  void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
+    UNUSED(with_probe);
+    float zdest = zclear;
+    TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
+    NOMORE(zdest, Z_MAX_POS);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, " [", current_position.z, " to ", zdest, "], ", lower_allowed, ")");
+    if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
+    do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
+  }
+  void do_z_clearance_by(const_float_t zclear) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
+    do_z_clearance(current_position.z + zclear, false);
+  }
+  void do_move_after_z_homing() {
+    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
+    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+      do_z_clearance(Z_POST_CLEARANCE, true, true);
+    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
+      probe.move_z_after_probing();
+    #endif
+  }
+
+#endif // HAS_Z_AXIS
 
 #if HAS_I_AXIS
   void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/
@@ -860,53 +910,6 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
       NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, raw.v, w)
       fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s)
     );
-  }
-#endif
-
-#if HAS_Y_AXIS
-  void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_xy(", rx, ", ", ry, ", ", fr_mm_s, ")");
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(rx, ry, current_position.z,
-                     current_position.i, current_position.j, current_position.k,
-                     current_position.u, current_position.v, current_position.w)
-      fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
-    );
-  }
-  void do_blocking_move_to_xy(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to_xy(raw.x, raw.y, fr_mm_s);
-  }
-#endif
-
-#if HAS_Z_AXIS
-  void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, z,
-                     current_position.i, current_position.j, current_position.k,
-                     current_position.u, current_position.v, current_position.w)
-      fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, 0.0f)
-    );
-  }
-  void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
-    UNUSED(with_probe);
-    float zdest = zclear;
-    TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
-    NOMORE(zdest, Z_MAX_POS);
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, " [", current_position.z, " to ", zdest, "], ", lower_allowed, ")");
-    if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
-    do_blocking_move_to_z(zdest, TERN(HAS_BED_PROBE, z_probe_fast_mm_s, homing_feedrate(Z_AXIS)));
-  }
-  void do_z_clearance_by(const_float_t zclear) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
-    do_z_clearance(current_position.z + zclear, false);
-  }
-  void do_move_after_z_homing() {
-    DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-      do_z_clearance(Z_POST_CLEARANCE, true, true);
-    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
-      probe.move_z_after_probing();
-    #endif
   }
 #endif
 
