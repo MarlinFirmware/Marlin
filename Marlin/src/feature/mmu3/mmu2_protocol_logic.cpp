@@ -262,6 +262,8 @@
       for ( uint8_t i; i < len; i++) {
         MMU2_SERIAL.write(txbuff[i]);
       }
+    #elif defined(TARGET_LPC1768)
+      MMU2_SERIAL.write(txbuff);
     #else
       MMU2_SERIAL.write(txbuff, len);
     #endif
