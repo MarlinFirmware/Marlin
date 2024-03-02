@@ -301,17 +301,6 @@ public:
 
   // Units modes: Inches, Fahrenheit, Kelvin
 
-  static constexpr bool axis_is_rotational(const AxisEnum axis) {
-    return (false
-      || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-      || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-      || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-      || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-      || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-      || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-    );
-  }
-
   #if ENABLED(INCH_MODE_SUPPORT)
     static float mm_to_linear_unit(const_float_t mm)     { return mm / linear_unit_factor; }
     static float mm_to_volumetric_unit(const_float_t mm) { return mm / (volumetric_enabled ? volumetric_unit_factor : linear_unit_factor); }

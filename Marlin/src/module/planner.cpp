@@ -2008,8 +2008,8 @@ bool Planner::_populate_block(
   #endif
 
   SECONDARY_AXIS_CODE(
-    dm.i = (dist._i > 0), dm.j = (dist._j > 0), dm.k = (dist._k > 0),
-    dm.u = (dist._u > 0), dm.v = (dist._v > 0), dm.w = (dist._w > 0)
+    dm.i = (dist.i > 0), dm.j = (dist.j > 0), dm.k = (dist.k > 0),
+    dm.u = (dist.u > 0), dm.v = (dist.v > 0), dm.w = (dist.w > 0)
   );
 
   #if HAS_EXTRUDERS
@@ -2074,7 +2074,7 @@ bool Planner::_populate_block(
     #else // default non-h-bot planning
       ABS(dist.a), ABS(dist.b), ABS(dist.c)
     #endif
-    , ABS(dist._i), ABS(dist._j), ABS(dist._k), ABS(dist._u), ABS(dist._v), ABS(dist._w)
+    , ABS(dist.i), ABS(dist.j), ABS(dist.k), ABS(dist.u), ABS(dist.v), ABS(dist.w)
   ));
 
   /**
@@ -2126,8 +2126,8 @@ bool Planner::_populate_block(
   #endif
 
   SECONDARY_AXIS_CODE(
-    dist_mm._i = dist._i * mm_per_step[I_AXIS], dist_mm._j = dist._j * mm_per_step[J_AXIS], dist_mm._k = dist._k * mm_per_step[K_AXIS],
-    dist_mm._u = dist._u * mm_per_step[U_AXIS], dist_mm._v = dist._v * mm_per_step[V_AXIS], dist_mm._w = dist._w * mm_per_step[W_AXIS]
+    dist_mm.i = dist.i * mm_per_step[I_AXIS], dist_mm.j = dist.j * mm_per_step[J_AXIS], dist_mm.k = dist.k * mm_per_step[K_AXIS],
+    dist_mm.u = dist.u * mm_per_step[U_AXIS], dist_mm.v = dist.v * mm_per_step[V_AXIS], dist_mm.w = dist.w * mm_per_step[W_AXIS]
   );
 
   TERN_(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
@@ -2140,8 +2140,8 @@ bool Planner::_populate_block(
 
   if (true NUM_AXIS_GANG(
       && block->steps.a < MIN_STEPS_PER_SEGMENT, && block->steps.b < MIN_STEPS_PER_SEGMENT, && block->steps.c < MIN_STEPS_PER_SEGMENT,
-      && block->steps._i < MIN_STEPS_PER_SEGMENT, && block->steps._j < MIN_STEPS_PER_SEGMENT, && block->steps._k < MIN_STEPS_PER_SEGMENT,
-      && block->steps._u < MIN_STEPS_PER_SEGMENT, && block->steps._v < MIN_STEPS_PER_SEGMENT, && block->steps._w < MIN_STEPS_PER_SEGMENT
+      && block->steps.i < MIN_STEPS_PER_SEGMENT, && block->steps.j < MIN_STEPS_PER_SEGMENT, && block->steps.k < MIN_STEPS_PER_SEGMENT,
+      && block->steps.u < MIN_STEPS_PER_SEGMENT, && block->steps.v < MIN_STEPS_PER_SEGMENT, && block->steps.w < MIN_STEPS_PER_SEGMENT
     )
   ) {
     block->millimeters = TERN0(HAS_EXTRUDERS, ABS(dist_mm.e));
@@ -2186,8 +2186,8 @@ bool Planner::_populate_block(
     #if NUM_AXES
       _MAX(LOGICAL_AXIS_LIST(esteps,
         block->steps.a, block->steps.b, block->steps.c,
-        block->steps._i, block->steps._j, block->steps._k,
-        block->steps._u, block->steps._v, block->steps._w
+        block->steps.i, block->steps.j, block->steps.k,
+        block->steps.u, block->steps.v, block->steps.w
       ))
     #elif HAS_EXTRUDERS
       esteps
@@ -2962,12 +2962,12 @@ bool Planner::buffer_segment(const abce_pos_t &abce
       int32_t(LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS])),
       int32_t(LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS])),
       int32_t(LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS])),
-      int32_t(LROUND(abce._i * settings.axis_steps_per_mm[I_AXIS])),
-      int32_t(LROUND(abce._j * settings.axis_steps_per_mm[J_AXIS])),
-      int32_t(LROUND(abce._k * settings.axis_steps_per_mm[K_AXIS])),
-      int32_t(LROUND(abce._u * settings.axis_steps_per_mm[U_AXIS])),
-      int32_t(LROUND(abce._v * settings.axis_steps_per_mm[V_AXIS])),
-      int32_t(LROUND(abce._w * settings.axis_steps_per_mm[W_AXIS]))
+      int32_t(LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS])),
+      int32_t(LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS])),
+      int32_t(LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS])),
+      int32_t(LROUND(abce.u * settings.axis_steps_per_mm[U_AXIS])),
+      int32_t(LROUND(abce.v * settings.axis_steps_per_mm[V_AXIS])),
+      int32_t(LROUND(abce.w * settings.axis_steps_per_mm[W_AXIS]))
     )
   };
 
@@ -3226,12 +3226,12 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
       LROUND(abce.a * settings.axis_steps_per_mm[A_AXIS]),
       LROUND(abce.b * settings.axis_steps_per_mm[B_AXIS]),
       LROUND(abce.c * settings.axis_steps_per_mm[C_AXIS]),
-      LROUND(abce._i * settings.axis_steps_per_mm[I_AXIS]),
-      LROUND(abce._j * settings.axis_steps_per_mm[J_AXIS]),
-      LROUND(abce._k * settings.axis_steps_per_mm[K_AXIS]),
-      LROUND(abce._u * settings.axis_steps_per_mm[U_AXIS]),
-      LROUND(abce._v * settings.axis_steps_per_mm[V_AXIS]),
-      LROUND(abce._w * settings.axis_steps_per_mm[W_AXIS])
+      LROUND(abce.i * settings.axis_steps_per_mm[I_AXIS]),
+      LROUND(abce.j * settings.axis_steps_per_mm[J_AXIS]),
+      LROUND(abce.k * settings.axis_steps_per_mm[K_AXIS]),
+      LROUND(abce.u * settings.axis_steps_per_mm[U_AXIS]),
+      LROUND(abce.v * settings.axis_steps_per_mm[V_AXIS]),
+      LROUND(abce.w * settings.axis_steps_per_mm[W_AXIS])
     )
   );
 
