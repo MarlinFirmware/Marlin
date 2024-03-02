@@ -23,6 +23,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../MarlinCore.h" // for printingIsPaused
+#include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
@@ -824,6 +825,13 @@ void MarlinUI::init() {
 
       const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
+      /**
+       * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
+       * (see get_destination_from_command). For moves involving only rotational axes, the planner will convert
+       * back to the feedrate in degrees-per-time unit.
+       */
+      const feedRate_t fr = parser.axis_is_rotational(axis) && parser.using_inch_units() ? IN_TO_MM(fr_mm_s) : fr_mm_s;
+
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
@@ -850,13 +858,13 @@ void MarlinUI::init() {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        prepare_internal_move_to_destination(fr);  // will set current_position from destination
         processing = false;
 
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s,
+        planner.buffer_line(current_position, fr,
           TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
         );
 
