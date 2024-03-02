@@ -1063,7 +1063,7 @@ inline void tmc_standby_setup() {
  *  - Init the buzzer, possibly a custom timer
  *  - Init more optional hardware:
  *    • Color LED illumination
- *    • Neopixel illumination
+ *    • NeoPixel illumination
  *    • Controller Fan
  *    • Creality DWIN LCD (show boot image)
  *    • Tare the Probe if possible

@@ -129,7 +129,6 @@ extern "C" {
 #define Is_udd_vbus_transition()          (Tst_bits(UOTGHS->UOTGHS_SR, UOTGHS_SR_VBUSTI))
 //! @}
 
-
 //! @name UOTGHS device attach control
 //! These macros manage the UOTGHS Device attach.
 //! @{
@@ -140,7 +139,6 @@ extern "C" {
   //! Test if the device is detached
 #define Is_udd_detached()                 (Tst_bits(UOTGHS->UOTGHS_DEVCTRL, UOTGHS_DEVCTRL_DETACH))
 //! @}
-
 
 //! @name UOTGHS device bus events control
 //! These macros manage the UOTGHS Device bus events.
@@ -246,7 +244,6 @@ extern "C" {
 #define udd_get_configured_address()              (Rd_bitfield(UOTGHS->UOTGHS_DEVCTRL, UOTGHS_DEVCTRL_UADD_Msk))
 //! @}
 
-
 //! @name UOTGHS Device endpoint drivers
 //! These macros manage the common features of the endpoints.
 //! @{
@@ -329,7 +326,6 @@ extern "C" {
   //! Returns data toggle
 #define udd_data_toggle(ep)                       (Rd_bitfield(UOTGHS_ARRAY(UOTGHS_DEVEPTISR[0], ep), UOTGHS_DEVEPTISR_DTSEQ_Msk))
 //! @}
-
 
 //! @name UOTGHS Device control endpoint
 //! These macros control the endpoints.
@@ -530,7 +526,6 @@ extern "C" {
   //! Tests if IN sending interrupt is enabled
 #define Is_udd_in_send_interrupt_enabled(ep)      (Tst_bits(UOTGHS_ARRAY(UOTGHS_DEVEPTIMR[0], ep), UOTGHS_DEVEPTIMR_TXINE))
 
-
   //! Get 64-, 32-, 16- or 8-bit access to FIFO data register of selected endpoint.
   //! @param ep Endpoint of which to access FIFO data register
   //! @param scale Data scale in bits: 64, 32, 16 or 8
@@ -651,7 +646,6 @@ typedef struct {
 //! @}
 //! @}
 //! @}
-
 
 /// @cond 0
 /**INDENT-OFF**/

@@ -170,8 +170,39 @@
 #endif
 
 //
+// EXP Headers
+//
+#define EXP1_01_PIN                           84  // PH2
+#define EXP1_02_PIN                            9  // PH6
+#define EXP1_03_PIN                           18  // TX1
+#define EXP1_04_PIN                           82  // PD5
+#define EXP1_05_PIN                           19  // RX1
+#define EXP1_06_PIN                           70  // PG4
+#define EXP1_07_PIN                           85  // PH7
+#define EXP1_08_PIN                           71  // PG3
+
+#define EXP2_01_PIN                           50  // MISO
+#define EXP2_02_PIN                           52  // SCK
+#define EXP2_03_PIN                           72  // PJ2
+#define EXP2_04_PIN                           53  // SDSS
+#define EXP2_05_PIN                           14  // TX3
+#define EXP2_06_PIN                           51  // MOSI
+#define EXP2_07_PIN                           15  // RX3
+#define EXP2_08_PIN                           -1  // RESET
+
+#define EXP3_01_PIN                           62  // PK0 (A8)
+#define EXP3_02_PIN                           76  // PJ5
+#define EXP3_03_PIN                           20  // SDA
+#define EXP3_04_PIN                           -1  // GND
+#define EXP3_05_PIN                           21  // SCL
+#define EXP3_06_PIN                           16  // RX2
+#define EXP3_07_PIN                           -1  // GND
+#define EXP3_08_PIN                           17  // TX2
+
+//
 // LCD / Controller
 //
+
 #if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
 
   #define KILL_PIN                            32
@@ -179,26 +210,26 @@
   #if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
 
     #if ENABLED(CR10_STOCKDISPLAY)
-      #define LCD_PINS_RS                     85
-      #define LCD_PINS_EN                     71
-      #define LCD_PINS_D4                     70
-      #define BTN_EN1                         18
-      #define BTN_EN2                         19
+      #define LCD_PINS_RS            EXP1_07_PIN
+      #define LCD_PINS_EN            EXP1_08_PIN
+      #define LCD_PINS_D4            EXP1_06_PIN
+      #define BTN_EN1                EXP1_03_PIN
+      #define BTN_EN2                EXP1_05_PIN
     #else
-      #define LCD_PINS_RS                     82
-      #define LCD_PINS_EN                     18  // On 0.6b, use 61
-      #define LCD_PINS_D4                     19  // On 0.6b, use 59
-      #define LCD_PINS_D5                     70
-      #define LCD_PINS_D6                     85
-      #define LCD_PINS_D7                     71
-      #define BTN_EN1                         14
-      #define BTN_EN2                         72
+      #define LCD_PINS_RS            EXP1_04_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN  // On 0.6b, use 61
+      #define LCD_PINS_D4            EXP1_05_PIN  // On 0.6b, use 59
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
+      #define BTN_EN1                EXP2_05_PIN
+      #define BTN_EN2                EXP2_03_PIN
     #endif
 
-    #define BTN_ENC                            9  // AUX-2
-    #define BEEPER_PIN                        84  // AUX-4
+    #define BTN_ENC                  EXP1_02_PIN  // AUX-2
+    #define BEEPER_PIN               EXP1_01_PIN  // AUX-4
 
-    #define SD_DETECT_PIN                     15
+    #define SD_DETECT_PIN            EXP2_07_PIN
 
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
       #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder

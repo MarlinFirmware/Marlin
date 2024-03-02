@@ -75,15 +75,14 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 
 PrintJobRecovery recovery;
 
-#ifndef POWER_LOSS_PURGE_LEN
-  #define POWER_LOSS_PURGE_LEN 0
-#endif
-
 #if DISABLED(BACKUP_POWER_SUPPLY)
   #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
 #endif
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
+#endif
+#ifndef POWER_LOSS_PURGE_LEN
+  #define POWER_LOSS_PURGE_LEN 0
 #endif
 
 // Allow power-loss recovery to be aborted
@@ -228,6 +227,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #endif
 
     TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
+
+    TERN_(HAS_HEATED_CHAMBER, info.target_temperature_chamber = thermalManager.degTargetChamber());
 
     TERN_(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
 
@@ -382,6 +383,12 @@ void PrintJobRecovery::resume() {
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
     PROCESS_SUBCOMMANDS_NOW(F("M420S0"));
+  #endif
+
+  #if HAS_HEATED_CHAMBER
+    // Restore the chamber temperature
+    const celsius_t ct = info.target_temperature_chamber;
+    if (ct) PROCESS_SUBCOMMANDS_NOW(TS(F("M191S"), ct));
   #endif
 
   #if HAS_HEATED_BED
@@ -632,6 +639,10 @@ void PrintJobRecovery::resume() {
 
         #if HAS_HEATED_BED
           DEBUG_ECHOLNPGM("target_temperature_bed: ", info.target_temperature_bed);
+        #endif
+
+        #if HAS_HEATED_CHAMBER
+          DEBUG_ECHOLNPGM("target_temperature_chamber: ", info.target_temperature_chamber);
         #endif
 
         #if HAS_FAN

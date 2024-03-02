@@ -129,31 +129,60 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SDSS                             MINI_06
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                       2
 #endif
 
+/**
+ * MegaController LCD/SD Connector
+ *
+ *     SDD   MOSI  SDSS  --   RESET  --  LCDSS  A0    KILL  ENC
+ *     49    51    53           |         45    47    12    10
+ *     PL0   PB2   PB0          |         PL4   PL2   PB6   PB4
+ *    ----------------------------------------------------------
+ *   |  2     4     6     8    10    12    14    16    18    20 |
+ *   |  1     3     5     7     9    11    13    15    17    19 |
+ *    ----------------------------------------------------------
+ *     |     PB3   PB1    |     |         PL5   PL3   PL1   PB5
+ *     |     50    52     |     |         44    46    48    11
+ *     5V    MISO  SCK   GND   3V3   --   BL    BEEP  EN1   EN2
+ */
+#define MINI_02                               49  // SD_DETECT
+#define MINI_03                               50  // MISO
+#define MINI_04                               51  // MOSI
+#define MINI_05                               52  // SCK
+#define MINI_06                               53  // SDSS
+#define MINI_13                               44  // BACKLIGHT
+#define MINI_14                               45  // LCDSS
+#define MINI_15                               46  // BEEP
+#define MINI_16                               47  // A0
+#define MINI_17                               48  // EN1
+#define MINI_18                               12  // KILL
+#define MINI_19                               11  // EN2
+#define MINI_20                               10  // ENC
+
 //
 // LCD / Controller
 //
+
 #if ENABLED(MINIPANEL)
 
-  #define BEEPER_PIN                          46
+  #define BEEPER_PIN                     MINI_15
 
-  #define DOGLCD_A0                           47
-  #define DOGLCD_CS                           45
-  #define LCD_BACKLIGHT_PIN                   44  // backlight LED on PA3
+  #define DOGLCD_A0                      MINI_16
+  #define DOGLCD_CS                      MINI_14
+  #define LCD_BACKLIGHT_PIN              MINI_13  // backlight LED on PA3
 
-  #define KILL_PIN                            12
+  #define KILL_PIN                       MINI_18
 
-  #define BTN_EN1                             48
-  #define BTN_EN2                             11
-  #define BTN_ENC                             10
+  #define BTN_ENC                        MINI_20
+  #define BTN_EN1                        MINI_17
+  #define BTN_EN2                        MINI_19
 
-  #define SD_DETECT_PIN                       49
+  #define SD_DETECT_PIN                  MINI_02
 
   //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 

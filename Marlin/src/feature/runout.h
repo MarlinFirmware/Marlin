@@ -341,7 +341,6 @@ class FilamentSensorBase {
       }
   };
 
-
 /********************************* RESPONSE TYPE *********************************/
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE

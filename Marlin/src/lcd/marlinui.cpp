@@ -23,6 +23,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../MarlinCore.h" // for printingIsPaused
+#include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
@@ -214,13 +215,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   millis_t MarlinUI::screen_timeout_ms = 0;
   void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_ms = sleep_timeout_minutes ? millis() + sleep_timeout_minutes * 60UL * 1000UL : 0;
-    sleep_display(false);
+    screen_timeout_ms = sleep_timeout_minutes ? millis() + MIN_TO_MS(sleep_timeout_minutes) : 0;
+    wake_display();
   }
-
-  #if !HAS_TOUCH_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
-    void MarlinUI::sleep_display(const bool sleep) {} // if unimplemented
-  #endif
 
 #endif
 
@@ -402,12 +399,7 @@ void MarlinUI::init() {
     bool MarlinUI::screen_changed;
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
-      bool MarlinUI::encoderRateMultiplierEnabled;
-      millis_t MarlinUI::lastEncoderMovementMillis = 0;
-      void MarlinUI::enable_encoder_multiplier(const bool onoff) {
-        encoderRateMultiplierEnabled = onoff;
-        lastEncoderMovementMillis = 0;
-      }
+      bool MarlinUI::encoder_multiplier_enabled;
     #endif
 
     #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
@@ -618,8 +610,6 @@ void MarlinUI::init() {
 
   void MarlinUI::status_screen() {
 
-    TERN_(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLY(false));
-
     #if BASIC_PROGRESS_BAR
 
       //
@@ -766,25 +756,9 @@ void MarlinUI::init() {
     draw_kill_screen();
   }
 
-  #if HAS_TOUCH_SLEEP
-    #if HAS_TOUCH_BUTTONS
-      #include "touch/touch_buttons.h"
-    #else
-      #include "tft/touch.h"
-    #endif
-    // Wake up a sleeping TFT
-    void MarlinUI::wakeup_screen() {
-      TERN(HAS_TOUCH_BUTTONS, touchBt.wakeUp(), touch.wakeUp());
-    }
-    #if HAS_DISPLAY_SLEEP && !HAS_MARLINUI_U8GLIB // without DOGM (COLOR_UI)
-      void MarlinUI::sleep_display(const bool sleep) {
-        if (!sleep) wakeup_screen(); // relay extra wake up events
-      }
-    #endif
-  #endif
-
   void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up the TFT with most buttons
+    wake_display(); // Wake the screen for any click sound
+
     TERN_(HAS_MARLINUI_MENU, refresh());
 
     #if HAS_ENCODER_ACTION
@@ -847,58 +821,64 @@ void MarlinUI::init() {
       if (processing) return;   // Prevent re-entry from idle() calls
 
       // Add a manual move to the queue?
-      if (axis != NO_AXIS_ENUM && ELAPSED(millis(), start_time) && !planner.is_full()) {
+      if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-        const feedRate_t fr = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
-        #if IS_KINEMATIC
+      /**
+       * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
+       * (see get_destination_from_command). For moves involving only rotational axes, the planner will convert
+       * back to the feedrate in degrees-per-time unit.
+       */
+      const feedRate_t fr = parser.axis_is_rotational(axis) && parser.using_inch_units() ? IN_TO_MM(fr_mm_s) : fr_mm_s;
 
-          #if HAS_MULTI_EXTRUDER
-            REMEMBER(ae, active_extruder);
-            #if MULTI_E_MANUAL
-              if (axis == E_AXIS) active_extruder = e_index;
-            #endif
+      #if IS_KINEMATIC
+
+        #if HAS_MULTI_EXTRUDER
+          REMEMBER(ae, active_extruder);
+          #if MULTI_E_MANUAL
+            if (axis == E_AXIS) active_extruder = e_index;
           #endif
-
-          // Apply a linear offset to a single axis
-          if (axis == ALL_AXES_ENUM)
-            destination = all_axes_destination;
-          else if (axis <= LOGICAL_AXES) {
-            destination = current_position;
-            destination[axis] += offset;
-          }
-
-          // Reset for the next move
-          offset = 0;
-          axis = NO_AXIS_ENUM;
-
-          // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
-          // move_to_destination. This will cause idle() to be called, which can then call this function while the
-          // previous invocation is being blocked. Modifications to offset shouldn't be made while
-          // processing is true or the planner will get out of sync.
-          processing = true;
-          prepare_internal_move_to_destination(fr OPTARG(HAS_ROTATIONAL_AXES, fr));  // will set current_position from destination
-          processing = false;
-
-        #else
-
-          #if HAS_ROTATIONAL_AXES
-            PlannerHints hints;
-            hints.fr_deg_s = fr;
-          #endif
-
-          // For Cartesian / Core motion simply move to the current_position
-          planner.buffer_line(current_position, fr
-            , TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
-            OPTARG(HAS_ROTATIONAL_AXES, hints)
-          );
-
-          //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr);
-
-          axis = NO_AXIS_ENUM;
-
         #endif
-      }
+
+        // Apply a linear offset to a single axis
+        if (axis == ALL_AXES_ENUM)
+          destination = all_axes_destination;
+        else if (axis <= LOGICAL_AXES) {
+          destination = current_position;
+          destination[axis] += offset;
+        }
+
+        // Reset for the next move
+        offset = 0;
+        axis = NO_AXIS_ENUM;
+
+        // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
+        // move_to_destination. This will cause idle() to be called, which can then call this function while the
+        // previous invocation is being blocked. Modifications to offset shouldn't be made while
+        // processing is true or the planner will get out of sync.
+        processing = true;
+        prepare_internal_move_to_destination(fr OPTARG(HAS_ROTATIONAL_AXES, fr));  // will set current_position from destination
+        processing = false;
+
+      #else
+
+        #if HAS_ROTATIONAL_AXES
+          PlannerHints hints;
+          hints.fr_deg_s = fr;
+        #endif
+
+        // For Cartesian / Core motion simply move to the current_position
+        planner.buffer_line(current_position, fr
+          , TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
+          OPTARG(HAS_ROTATIONAL_AXES, hints)
+        );
+
+        //SERIAL_ECHOLNPGM("Add planner.move with Axis ", C(AXIS_CHAR(axis)), " at FR ", fr_mm_s);
+
+        axis = NO_AXIS_ENUM;
+
+      #endif
     }
 
     //
@@ -1070,7 +1050,7 @@ void MarlinUI::init() {
             abs_diff = epps;                                            // Treat as a full step size
             encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
           }
-          TERN_(HAS_TOUCH_SLEEP, if (lastEncoderDiff != encoderDiff) wakeup_screen());
+          if (lastEncoderDiff != encoderDiff) wake_display();
           lastEncoderDiff = encoderDiff;
         #endif
 
@@ -1080,41 +1060,42 @@ void MarlinUI::init() {
 
             #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              int32_t encoderMultiplier = 1;
+              int32_t encoder_multiplier = 1;
 
-              if (encoderRateMultiplierEnabled) {
-                const float encoderMovementSteps = float(abs_diff) / epps;
+              if (encoder_multiplier_enabled) {
+                // Note that the rate is always calculated between two passes through the
+                // loop and that the abs of the encoderDiff value is tracked.
+                static millis_t encoder_mult_prev_ms = 0;
+                const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
+                encoder_mult_prev_ms = ms;
 
-                if (lastEncoderMovementMillis) {
-                  // Note that the rate is always calculated between two passes through the
-                  // loop and that the abs of the encoderDiff value is tracked.
-                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+                if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
+                  encoder_multiplier = 100;
+                else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
+                  encoder_multiplier = 10;
+                else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
+                  encoder_multiplier = 5;
 
-                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-
-                  // Enable to output the encoder steps per second value
-                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                    SERIAL_ECHO_START();
-                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                    SERIAL_EOL();
-                  #endif
-                }
-
-                lastEncoderMovementMillis = ms;
-              } // encoderRateMultiplierEnabled
+                // Enable to output the encoder steps per second value
+                //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                  SERIAL_ECHO_MSG(
+                    "Enc Step Rate: ", encoderStepRate,
+                    "  Mult: ", encoder_multiplier,
+                    "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
+                    "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
+                    "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
+                  );
+                #endif
+              }
 
             #else
 
-              constexpr int32_t encoderMultiplier = 1;
+              constexpr int32_t encoder_multiplier = 1;
 
             #endif // ENCODER_RATE_MULTIPLIER
 
-            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+            if (can_encode()) encoderPosition += (encoderDiff * encoder_multiplier) / epps;
 
             encoderDiff = 0;
           }
@@ -1455,14 +1436,14 @@ void MarlinUI::init() {
 
   #endif // HAS_ENCODER_ACTION
 
-  #if HAS_SOUND
-    void MarlinUI::completion_feedback(const bool good/*=true*/) {
-      TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); // Wake up on rotary encoder click...
-      if (good) OKAY_BUZZ(); else ERR_BUZZ();
-    }
-  #endif
-
 #endif // HAS_WIRED_LCD
+
+void MarlinUI::completion_feedback(const bool good/*=true*/) {
+  wake_display(); // Wake the screen for all audio feedback
+  #if HAS_SOUND
+    if (good) OKAY_BUZZ(); else ERR_BUZZ();
+  #endif
+}
 
 void MarlinUI::host_notify_P(PGM_P const pstr) {
   TERN_(HOST_STATUS_NOTIFICATIONS, hostui.notify_P(pstr));
@@ -1581,7 +1562,7 @@ void MarlinUI::host_notify(const char * const cstr) {
    */
   void MarlinUI::_set_alert(const char * const ustr, const int8_t level, const bool pgm) {
     pgm ? set_status_and_level_P(ustr, level) : set_status_and_level(ustr, level);
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
+    wake_display();
     TERN_(HAS_MARLINUI_MENU, return_to_status());
   }
 
@@ -1729,7 +1710,8 @@ void MarlinUI::host_notify(const char * const cstr) {
       defer_status_screen();
     #endif
 
-    TERN_(HAS_TOUCH_SLEEP, wakeup_screen());
+    wake_display();
+
     TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("UI Pause"), F("Resume")));
 
     LCD_MESSAGE(MSG_PRINT_PAUSED);

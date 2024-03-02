@@ -248,7 +248,7 @@ void reset_trinamic_drivers();
   static constexpr chopper_timing_t chopper_timing_I = CHOPPER_TIMING_I;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define I_ENABLE_INIT() NOOP
-    #define I_ENABLE_WRITE(STATE) stepperI.toff((STATE)==I_ENABLE_ON ? chopper_timing.toff : 0)
+    #define I_ENABLE_WRITE(STATE) stepperI.toff((STATE)==I_ENABLE_ON ? chopper_timing_I.toff : 0)
     #define I_ENABLE_READ() stepperI.isEnabled()
   #endif
   #if AXIS_HAS_DEDGE(I)
@@ -262,7 +262,7 @@ void reset_trinamic_drivers();
   static constexpr chopper_timing_t chopper_timing_J = CHOPPER_TIMING_J;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define J_ENABLE_INIT() NOOP
-    #define J_ENABLE_WRITE(STATE) stepperJ.toff((STATE)==J_ENABLE_ON ? chopper_timing.toff : 0)
+    #define J_ENABLE_WRITE(STATE) stepperJ.toff((STATE)==J_ENABLE_ON ? chopper_timing_J.toff : 0)
     #define J_ENABLE_READ() stepperJ.isEnabled()
   #endif
   #if AXIS_HAS_DEDGE(J)
@@ -276,7 +276,7 @@ void reset_trinamic_drivers();
   static constexpr chopper_timing_t chopper_timing_K = CHOPPER_TIMING_K;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
     #define K_ENABLE_INIT() NOOP
-    #define K_ENABLE_WRITE(STATE) stepperK.toff((STATE)==K_ENABLE_ON ? chopper_timing.toff : 0)
+    #define K_ENABLE_WRITE(STATE) stepperK.toff((STATE)==K_ENABLE_ON ? chopper_timing_K.toff : 0)
     #define K_ENABLE_READ() stepperK.isEnabled()
   #endif
   #if AXIS_HAS_DEDGE(K)

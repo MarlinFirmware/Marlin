@@ -104,9 +104,9 @@ void disable_steppers();
   #if HAS_EXTRUDERS
     void e_select();
   #endif
-#endif
-#if HAS_TOUCH_SLEEP
-  bool lcd_sleep_task();
+  #if HAS_DISPLAY_SLEEP
+    bool lcd_sleep_task();
+  #endif
 #endif
 
 void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater);

@@ -235,6 +235,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
