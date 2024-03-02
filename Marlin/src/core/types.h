@@ -963,30 +963,6 @@ public:
         bool HX:1, HY:1, HZ:1;
       #endif
     };
-    // Joints ja, jb, jc, e ... ha, hb, hc
-    struct {
-      bool LOGICAL_AXIS_LIST(e:1, ja:1, jb:1, jc:1, ji:1, jj:1, jk:1, ju:1, jv:1, jw:1);
-      #if EXTRUDERS > 1
-        #define _EN_ITEM(N) bool _e##N:1;
-        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
-        #undef _EN_ITEM
-      #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool ha:1, hb:1, hc:1;
-      #endif
-    };
-    // Joints JA, JB, JC, E ... HA, HB, HC
-    struct {
-      bool LOGICAL_AXIS_LIST(E:1, JA:1, JB:1, JC:1, JI:1, JJ:1, JK:1, JU:1, JV:1, JW:1);
-      #if EXTRUDERS > 1
-        #define _EN_ITEM(N) bool _E##N:1;
-        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
-        #undef _EN_ITEM
-      #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool HA:1, HB:1, HC:1;
-      #endif
-    };
   };
 
   AxisBits() { reset(); }
