@@ -21,11 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32H7)
-  #include "env_validate.h"
-#else
-  #include "../stm32h7/env_validate.h"
-#endif
+#include "env_validate.h"
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
