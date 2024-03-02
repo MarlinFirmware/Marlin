@@ -215,6 +215,10 @@ public:
 
   static void ls(const uint8_t lsflags=0);
 
+  #if ENABLED(PANELDUE)
+    static void lsJSON(const uint8_t depth, SdFile parent);
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
     static void openJobRecoveryFile(const bool read);
@@ -240,6 +244,8 @@ public:
   static int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
   static void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
+
+  //static inline int16_t get()                            { sdpos = file.curPosition(); return (int16_t)file.read(); }
 
   // TODO: rename to diskIODriver()
   static DiskIODriver* diskIODriver() { return driver; }
@@ -352,6 +358,9 @@ private:
     MediaFile parent, const char * const prepend, const uint8_t lsflags
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
+  #if ENABLED(PANELDUE)
+    static void printListingJSON(const uint8_t depth, SdFile parent);
+  #endif
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();
