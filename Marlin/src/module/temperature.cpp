@@ -408,6 +408,8 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   uint8_t Temperature::soft_pwm_controller_speed = FAN_OFF_PWM;
 #endif
 
+uint8_t Temperature::extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED;
+
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef BOARD_OPENDRAIN_MOSFETS
   #define _INIT_SOFT_FAN(P) OUT_WRITE_OD(P, ENABLED(FAN_INVERTING) ? LOW : HIGH)
@@ -1460,7 +1462,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       #if ALL(HAS_FANCHECK, HAS_PWMFANCHECK)
         #define _AUTOFAN_SPEED() fan_check.is_measuring() ? 255 : EXTRUDER_AUTO_FAN_SPEED
       #else
-        #define _AUTOFAN_SPEED() EXTRUDER_AUTO_FAN_SPEED
+        #define _AUTOFAN_SPEED() extruder_fan_speed
       #endif
       #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break;
       #define _AUTOFAN_NOT(N)

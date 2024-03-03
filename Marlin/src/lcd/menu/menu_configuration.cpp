@@ -354,6 +354,9 @@ void menu_advanced_settings();
 
   #include "../../feature/controllerfan.h"
 
+namespace LanguageNarrow_en {
+  static LSTR MSG_E_FAN = _UxGT("Extruder fan speed");
+}
   void menu_controller_fan() {
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
@@ -363,6 +366,7 @@ void menu_advanced_settings();
       EDIT_ITEM_FAST(percent, MSG_CONTROLLER_FAN_SPEED, &controllerFan.settings.active_speed, CONTROLLERFAN_SPEED_MIN, 255);
       EDIT_ITEM(uint16_4, MSG_CONTROLLER_FAN_DURATION, &controllerFan.settings.duration, 0, 4800);
     }
+    EDIT_ITEM_FAST(percent, MSG_E_FAN, &Temperature::extruder_fan_speed, 0, 255);
     END_MENU();
   }
 
