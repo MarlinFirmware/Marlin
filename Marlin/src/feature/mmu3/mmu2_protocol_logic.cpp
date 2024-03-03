@@ -257,13 +257,11 @@
     #endif
     uint8_t len = Protocol::EncodeWriteRequest(rq.value, rq.value2, txbuff);
 
-    #ifdef __AVR__
+    #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
       for ( uint8_t i; i < len; i++) {
         MMU2_SERIAL.write(txbuff[i]);
       }
-    #elif defined(TARGET_LPC1768)
-      MMU2_SERIAL.write(txbuff);
     #else
       MMU2_SERIAL.write(txbuff, len);
     #endif
