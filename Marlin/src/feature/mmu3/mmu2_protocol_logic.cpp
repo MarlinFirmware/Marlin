@@ -231,13 +231,13 @@
   }
 
   void ProtocolLogic::SendMsg(RequestMsg rq) {
-    #ifdef __AVR__
+    #if defined(__AVR__) || defined(TARGET_LPC1768)
       // Buddy FW cannot use stack-allocated txbuff - DMA doesn't work with CCMRAM
       // No restrictions on MK3/S/+ though
       uint8_t txbuff[Protocol::MaxRequestSize()];
     #endif
     uint8_t len = Protocol::EncodeRequest(rq, txbuff);
-    #ifdef __AVR__
+    #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
       for ( uint8_t i; i < len; i++) {
         MMU2_SERIAL.write(txbuff[i]);
@@ -250,7 +250,7 @@
   }
 
   void ProtocolLogic::SendWriteMsg(RequestMsg rq) {
-    #ifdef __AVR__
+    #if defined(__AVR__) || defined(TARGET_LPC1768)
       // Buddy FW cannot use stack-allocated txbuff - DMA doesn't work with CCMRAM
       // No restrictions on MK3/S/+ though
       uint8_t txbuff[Protocol::MaxRequestSize()];
