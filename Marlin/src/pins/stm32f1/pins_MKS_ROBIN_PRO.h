@@ -44,11 +44,11 @@
 //
 // Onboard I2C EEPROM
 //
-  #define IIC_BL24CXX_EEPROM                // Use I2C EEPROM onboard IC (AT24C04C, Size 4K, PageSize 16B)
-  #define MARLIN_EEPROM_SIZE                0x1000  // 4K
-  #define IIC_EEPROM_SDA                    PB7
-  #define IIC_EEPROM_SCL                    PB6
-  #define EEPROM_DEVICE_ADDRESS             0xA0
+#define IIC_BL24CXX_EEPROM                // Use I2C EEPROM onboard IC (AT24C04C, Size 4K, PageSize 16B)
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K
+#define IIC_EEPROM_SDA                      PB7
+#define IIC_EEPROM_SCL                      PB6
+#define EEPROM_DEVICE_ADDRESS             0xA0
 
 //
 // SPI
@@ -412,12 +412,13 @@
   #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_MOSI_PIN                PB15
 #endif
+
 //
 // MKS WIFI pins
 //
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_RESET_PIN                    PA5
-  #define WIFI_SERIAL                        1  // USART1
+  #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO1_PIN                      PC7
-  #define WIFI_IO0_PIN                      NC // N.C. 
-#endif // MKS_WIFI_MODULE
+  #define WIFI_IO0_PIN                      -1    // N.C.
+#endif
