@@ -247,6 +247,57 @@ void menu_info_board() {
         TERN_(MESH_BED_LEVELING, MSG_MESH_LEVELING)               // Mesh Leveling
       );
     #endif
+    #if ENABLED(PIDTEMP)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        STATIC_ITEM(MSG_PID_AUTOTUNE, SS_DEFAULT);
+      #else
+        STATIC_ITEM_F(F("PID"), SS_DEFAULT);                        // Hotend temp control
+      #endif
+    #elif ENABLED(MPCTEMP)
+      #if ENABLED(MPC_AUTOTUNE_MENU)
+        STATIC_ITEM(MSG_MPC_AUTOTUNE, SS_DEFAULT);
+      #else
+        STATIC_ITEM_F(F("MPC"), SS_DEFAULT);
+      #endif
+    #else
+      STATIC_ITEM_F(F("Bang-Bang"), SS_DEFAULT);
+    #endif
+    #if ENABLED(AUTOTEMP)
+      STATIC_ITEM(MSG_AUTOTEMP, SS_DEFAULT);
+    #endif
+    #if ENABLED(CLASSIC_JERK)
+      STATIC_ITEM(MSG_JERK, SS_DEFAULT);
+    #else
+      STATIC_ITEM(MSG_JUNCTION_DEVIATION, SS_DEFAULT);
+    #endif
+    #if ENABLED(LIN_ADVANCE)
+      STATIC_ITEM(MSG_LINEAR_ADVANCE, SS_DEFAULT);
+    #endif
+    #if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+      STATIC_ITEM(MSG_INPUT_SHAPING, SS_DEFAULT);
+    #endif
+    #if ENABLED(BACKLASH_COMPENSATION)
+      STATIC_ITEM(MSG_BACKLASH, SS_DEFAULT);
+    #endif
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+      STATIC_ITEM(MSG_BACKLASH_SMOOTHING, SS_DEFAULT);
+    #endif
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      STATIC_ITEM(MSG_OUTAGE_RECOVERY, SS_DEFAULT);
+    #endif
+    #if ENABLED(BABYSTEPPING)
+      #if ENABLED(BABYSTEP_XY)
+        STATIC_ITEM(MSG_BABYSTEP_N, SS_DEFAULT);
+      #else
+        STATIC_ITEM(MSG_BABYSTEP_Z, SS_DEFAULT);
+      #endif
+    #endif
+    #if ENABLED(FWRETRACT)
+      STATIC_ITEM(MSG_FWRETRACT, SS_DEFAULT);
+    #endif
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      STATIC_ITEM(MSG_FILAMENTCHANGE, SS_DEFAULT);
+    #endif
     STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     END_SCREEN();
   }
