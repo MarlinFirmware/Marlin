@@ -34,6 +34,7 @@
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "BTT EBB42 V1.1"
 #endif
+#define BOARD_WEBSITE_URL "github.com/bigtreetech/EBB/tree/master/EBB%20CAN%20V1.1%20(STM32G0B1)/EBB42%20CAN%20V1.1"
 
 //
 // EEPROM
@@ -104,7 +105,9 @@
   #endif
 
   // Default TMC slave addresses
-  #ifndef E0_SLAVE_ADDRESS
+  #ifdef E0_SLAVE_ADDRESS
+    static_assert(E0_SLAVE_ADDRESS == 0b00, "E0_SLAVE_ADDRESS must be 0b00 for BOARD_BTT_EBB42_V1_1.");
+  #else
     #define E0_SLAVE_ADDRESS 0b00
   #endif
 #endif

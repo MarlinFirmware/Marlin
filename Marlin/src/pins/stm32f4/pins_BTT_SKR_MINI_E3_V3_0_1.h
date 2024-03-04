@@ -128,16 +128,24 @@
   #define E0_HARDWARE_SERIAL MSerial6
 
   // Default TMC slave addresses
-  #ifndef X_SLAVE_ADDRESS
+  #ifdef X_SLAVE_ADDRESS
+    static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  #else
     #define X_SLAVE_ADDRESS                    0
   #endif
-  #ifndef Y_SLAVE_ADDRESS
+  #ifdef Y_SLAVE_ADDRESS
+    static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  #else
     #define Y_SLAVE_ADDRESS                    2
   #endif
-  #ifndef Z_SLAVE_ADDRESS
+  #ifdef Z_SLAVE_ADDRESS
+    static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  #else
     #define Z_SLAVE_ADDRESS                    1
   #endif
-  #ifndef E0_SLAVE_ADDRESS
+  #ifdef E0_SLAVE_ADDRESS
+    static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  #else
     #define E0_SLAVE_ADDRESS                   3
   #endif
 #endif

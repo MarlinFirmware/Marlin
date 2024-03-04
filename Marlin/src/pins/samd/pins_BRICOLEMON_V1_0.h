@@ -620,27 +620,6 @@
 #endif
 
 #if HAS_TMC_UART
-
-  /**
-   * Address for the UART Configuration of the TMC2209. Override in Configuration files.
-   * To test TMC2209 Steppers enable TMC_DEBUG in Configuration_adv.h and test the M122 command with voltage on the steppers.
-   */
-  #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                 0b00
-  #endif
-  #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                 0b01
-  #endif
-  #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                 0b10
-  #endif
-  #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                0b11
-  #endif
-  #ifndef E1_SLAVE_ADDRESS
-    #define E1_SLAVE_ADDRESS                0b00
-  #endif
-
   /**
    * TMC2208/TMC2209 stepper drivers
    *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
@@ -653,7 +632,37 @@
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial2
 
-  #define TMC_BAUD_RATE 250000
+  // Default TMC slave addresses
+  #ifdef X_SLAVE_ADDRESS
+    static_assert(X_SLAVE_ADDRESS == 0b00, "X_SLAVE_ADDRESS must be 0b00 for BOARD_BRICOLEMON_V1_0.");
+  #else
+    #define X_SLAVE_ADDRESS                 0b00
+  #endif
+  #ifdef Y_SLAVE_ADDRESS
+    static_assert(Y_SLAVE_ADDRESS == 0b01, "Y_SLAVE_ADDRESS must be 0b01 for BOARD_BRICOLEMON_V1_0.");
+  #else
+    #define Y_SLAVE_ADDRESS                 0b01
+  #endif
+  #ifdef Z_SLAVE_ADDRESS
+    static_assert(Z_SLAVE_ADDRESS == 0b10, "Z_SLAVE_ADDRESS must be 0b10 for BOARD_BRICOLEMON_V1_0.");
+  #else
+    #define Z_SLAVE_ADDRESS                 0b10
+  #endif
+  #ifdef E0_SLAVE_ADDRESS
+    static_assert(E0_SLAVE_ADDRESS == 0b11, "E0_SLAVE_ADDRESS must be 0b11 for BOARD_BRICOLEMON_V1_0.");
+  #else
+    #define E0_SLAVE_ADDRESS                0b11
+  #endif
+  #ifdef E1_SLAVE_ADDRESS
+    static_assert(E1_SLAVE_ADDRESS == 0b00, "E0_SLAVE_ADDRESS must be 0b00 for BOARD_BRICOLEMON_V1_0.");
+  #else
+    #define E1_SLAVE_ADDRESS                0b00
+  #endif
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200 // 250000
+  #endif
 
   //
   // Software serial
