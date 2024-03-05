@@ -30,14 +30,14 @@
 FTMotion ftMotion;
 
 #if !HAS_X_AXIS
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZV, "ftMotionMode_ZV requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVD, "ftMotionMode_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVDD, "ftMotionMode_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_ZVDDD, "ftMotionMode_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_EI, "ftMotionMode_EI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_2HEI, "ftMotionMode_2HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_3HEI, "ftMotionMode_3HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_MODE == ftMotionMode_MZV, "ftMotionMode_MZV requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZV, "ftMotionCmpnstr_t_ZV requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVDD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVDDD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_EI, "ftMotionCmpnstr_t_EI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_2HEI, "ftMotionCmpnstr_t_2HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_3HEI, "ftMotionCmpnstr_t_3HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_MZV, "ftMotionCmpnstr_t_MZV requires at least one linear axis.");
 #endif
 #if !HAS_DYNAMIC_FREQ_MM
   static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
@@ -109,10 +109,10 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
 // Shaping variables.
 #if HAS_X_AXIS
   FTMotion::shaping_t FTMotion::shaping = {
-    0, 0,
-    x:{ { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
+    0,
+    x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
+      y:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } }           // ena, d_zi, Ai, Ni, max_i
     #endif
   };
 #endif
@@ -146,7 +146,7 @@ void FTMotion::runoutBlock() {
   startPosn = endPosn_prevBlock;
   ratio.reset();
 
-  max_intervals = cfg.modeHasShaper() ? shaper_intervals : 0;
+  max_intervals = (CMPNSTR_HAS_SHAPER(X_AXIS) || CMPNSTR_HAS_SHAPER(Y_AXIS)) ? shaper_intervals : 0;
   if (max_intervals <= TERN(FTM_UNIFIED_BWS, FTM_BATCH_SIZE, min_max_intervals - (FTM_BATCH_SIZE)))
     max_intervals = min_max_intervals;
 
@@ -246,186 +246,130 @@ void FTMotion::loop() {
 #if HAS_X_AXIS
 
   // Refresh the gains used by shaping functions.
-  // To be called on init or mode or zeta change.
+  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionCmpnstr_t shaper, const_float_t zeta, const_float_t vtol) {
 
-  void FTMotion::Shaping::updateShapingA(float zeta[]/*=cfg.zeta*/, float vtol[]/*=cfg.vtol*/) {
+    const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
+                K2 = sq(K);
 
-    const float Kx = exp(-zeta[0] * M_PI / sqrt(1.0f - sq(zeta[0]))),
-                Ky = exp(-zeta[1] * M_PI / sqrt(1.0f - sq(zeta[1]))),
-                Kx2 = sq(Kx),
-                Ky2 = sq(Ky);
+    switch (shaper) {
 
-    switch (cfg.mode) {
-
-      case ftMotionMode_ZV:
+      case ftMotionCmpnstr_ZV:
         max_i = 1U;
-        x.Ai[0] = 1.0f / (1.0f + Kx);
-        x.Ai[1] = x.Ai[0] * Kx;
-
-        y.Ai[0] = 1.0f / (1.0f + Ky);
-        y.Ai[1] = y.Ai[0] * Ky;
+        Ai[0] = 1.0f / (1.0f + K);
+        Ai[1] = Ai[0] * K;
         break;
 
-      case ftMotionMode_ZVD:
+      case ftMotionCmpnstr_ZVD:
         max_i = 2U;
-        x.Ai[0] = 1.0f / (1.0f + 2.0f * Kx + Kx2);
-        x.Ai[1] = x.Ai[0] * 2.0f * Kx;
-        x.Ai[2] = x.Ai[0] * Kx2;
-
-        y.Ai[0] = 1.0f / (1.0f + 2.0f * Ky + Ky2);
-        y.Ai[1] = y.Ai[0] * 2.0f * Ky;
-        y.Ai[2] = y.Ai[0] * Ky2;
+        Ai[0] = 1.0f / (1.0f + 2.0f * K + K2);
+        Ai[1] = Ai[0] * 2.0f * K;
+        Ai[2] = Ai[0] * K2;
         break;
 
-      case ftMotionMode_ZVDD:
+      case ftMotionCmpnstr_ZVDD:
         max_i = 3U;
-        x.Ai[0] = 1.0f / (1.0f + 3.0f * Kx + 3.0f * Kx2 + cu(Kx));
-        x.Ai[1] = x.Ai[0] * 3.0f * Kx;
-        x.Ai[2] = x.Ai[0] * 3.0f * Kx2;
-        x.Ai[3] = x.Ai[0] * cu(Kx);
-
-        y.Ai[0] = 1.0f / (1.0f + 3.0f * Ky + 3.0f * Ky2 + cu(Ky));
-        y.Ai[1] = y.Ai[0] * 3.0f * Ky;
-        y.Ai[2] = y.Ai[0] * 3.0f * Ky2;
-        y.Ai[3] = y.Ai[0] * cu(Ky);
+        Ai[0] = 1.0f / (1.0f + 3.0f * K + 3.0f * K2 + cu(K));
+        Ai[1] = Ai[0] * 3.0f * K;
+        Ai[2] = Ai[0] * 3.0f * K2;
+        Ai[3] = Ai[0] * cu(K);
         break;
 
-      case ftMotionMode_ZVDDD:
+      case ftMotionCmpnstr_ZVDDD:
         max_i = 4U;
-        x.Ai[0] = 1.0f / (1.0f + 4.0f * Kx + 6.0f * Kx2 + 4.0f * cu(Kx) + sq(Kx2));
-        x.Ai[1] = x.Ai[0] * 4.0f * Kx;
-        x.Ai[2] = x.Ai[0] * 6.0f * Kx2;
-        x.Ai[3] = x.Ai[0] * 4.0f * cu(Kx);
-        x.Ai[4] = x.Ai[0] * sq(Kx2);
-
-        y.Ai[0] = 1.0f / (1.0f + 4.0f * Ky + 6.0f * Ky2 + 4.0f * cu(Ky) + sq(Ky2));
-        y.Ai[1] = y.Ai[0] * 4.0f * Ky;
-        y.Ai[2] = y.Ai[0] * 6.0f * Ky2;
-        y.Ai[3] = y.Ai[0] * 4.0f * cu(Ky);
-        y.Ai[4] = y.Ai[0] * sq(Ky2);
+        Ai[0] = 1.0f / (1.0f + 4.0f * K + 6.0f * K2 + 4.0f * cu(K) + sq(K2));
+        Ai[1] = Ai[0] * 4.0f * K;
+        Ai[2] = Ai[0] * 6.0f * K2;
+        Ai[3] = Ai[0] * 4.0f * cu(K);
+        Ai[4] = Ai[0] * sq(K2);
         break;
 
-      case ftMotionMode_EI: {
+      case ftMotionCmpnstr_EI: {
         max_i = 2U;
-        x.Ai[0] = 0.25f * (1.0f + vtol[0]);
-        x.Ai[1] = 0.50f * (1.0f - vtol[0]) * Kx;
-        x.Ai[2] = x.Ai[0] * Kx2;
+        Ai[0] = 0.25f * (1.0f + vtol);
+        Ai[1] = 0.50f * (1.0f - vtol) * K;
+        Ai[2] = Ai[0] * K2;
 
-        y.Ai[0] = 0.25f * (1.0f + vtol[1]);
-        y.Ai[1] = 0.50f * (1.0f - vtol[1]) * Ky;
-        y.Ai[2] = y.Ai[0] * Ky2;
-
-        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2]);
-        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2]);
+        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2]);
         for (uint32_t i = 0U; i < 3U; i++) {
-          x.Ai[i] *= X_adj;
-          y.Ai[i] *= Y_adj;
+          Ai[i] *= adj;
         }
       }
       break;
 
-      case ftMotionMode_2HEI: {
+      case ftMotionCmpnstr_2HEI: {
         max_i = 3U;
-        const float vtolx2 = sq(vtol[0]);
+        const float vtolx2 = sq(vtol);
         const float X = pow(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
-        x.Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
-        x.Ai[1] = (0.5f - x.Ai[0]) * Kx;
-        x.Ai[2] = x.Ai[1] * Kx;
-        x.Ai[3] = x.Ai[0] * cu(Kx);
+        Ai[0] = (3.0f * sq(X) + 2.0f * X + 3.0f * vtolx2) / (16.0f * X);
+        Ai[1] = (0.5f - Ai[0]) * K;
+        Ai[2] = Ai[1] * K;
+        Ai[3] = Ai[0] * cu(K);
 
-        const float vtoly2 = sq(vtol[1]);
-        const float Y = pow(vtoly2 * (sqrt(1.0f - vtoly2) + 1.0f), 1.0f / 3.0f);
-        y.Ai[0] = (3.0f * sq(Y) + 2.0f * Y + 3.0f * vtoly2) / (16.0f * Y);
-        y.Ai[1] = (0.5f - y.Ai[0]) * Ky;
-        y.Ai[2] = y.Ai[1] * Ky;
-        y.Ai[3] = y.Ai[0] * cu(Ky);
-
-        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3]);
-        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2] + y.Ai[3]);
+        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3]);
         for (uint32_t i = 0U; i < 4U; i++) {
-          x.Ai[i] *= X_adj;
-          y.Ai[i] *= Y_adj;
+          Ai[i] *= adj;
         }
       }
       break;
 
-      case ftMotionMode_3HEI: {
+      case ftMotionCmpnstr_3HEI: {
         max_i = 4U;
-        x.Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol[0] + 2.0f * sqrt( 2.0f * ( vtol[0] + 1.0f ) * vtol[0] ) );
-        x.Ai[1] = 0.25f * ( 1.0f - vtol[0] ) * Kx;
-        x.Ai[2] = ( 0.5f * ( 1.0f + vtol[0] ) - 2.0f * x.Ai[0] ) * Kx2;
-        x.Ai[3] = x.Ai[1] * Kx2;
-        x.Ai[4] = x.Ai[0] * sq(Kx2);
+        Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol + 2.0f * sqrt( 2.0f * ( vtol + 1.0f ) * vtol ) );
+        Ai[1] = 0.25f * ( 1.0f - vtol ) * K;
+        Ai[2] = ( 0.5f * ( 1.0f + vtol ) - 2.0f * Ai[0] ) * K2;
+        Ai[3] = Ai[1] * K2;
+        Ai[4] = Ai[0] * sq(K2);
 
-        y.Ai[0] = 0.0625f * (1.0f + 3.0f * vtol[1] + 2.0f * sqrt(2.0f * (vtol[1] + 1.0f) * vtol[1]));
-        y.Ai[1] = 0.25f * (1.0f - vtol[1]) * Ky;
-        y.Ai[2] = (0.5f * (1.0f + vtol[1]) - 2.0f * y.Ai[0]) * Ky2;
-        y.Ai[3] = y.Ai[1] * Ky2;
-        y.Ai[4] = y.Ai[0] * sq(Ky2);
-
-        const float X_adj = 1.0f / (x.Ai[0] + x.Ai[1] + x.Ai[2] + x.Ai[3] + x.Ai[4]);
-        const float Y_adj = 1.0f / (y.Ai[0] + y.Ai[1] + y.Ai[2] + y.Ai[3] + y.Ai[4]);
+        const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3] + Ai[4]);
         for (uint32_t i = 0U; i < 5U; i++) {
-          x.Ai[i] *= X_adj;
-          y.Ai[i] *= Y_adj;
+          Ai[i] *= adj;
         }
       }
       break;
 
-      case ftMotionMode_MZV: {
+      case ftMotionCmpnstr_MZV: {
         max_i = 2U;
-        const float Bx = 1.4142135623730950488016887242097f * Kx;
-        x.Ai[0] = 1.0f / (1.0f + Bx + Kx2);
-        x.Ai[1] = x.Ai[0] * Bx;
-        x.Ai[2] = x.Ai[0] * Kx2;
-
-        const float By = 1.4142135623730950488016887242097f * Ky;
-        y.Ai[0] = 1.0f / (1.0f + By + Ky2);
-        y.Ai[1] = y.Ai[0] * By;
-        y.Ai[2] = y.Ai[0] * Ky2;
+        const float Bx = 1.4142135623730950488016887242097f * K;
+        Ai[0] = 1.0f / (1.0f + Bx + K2);
+        Ai[1] = Ai[0] * Bx;
+        Ai[2] = Ai[0] * K2;
       }
       break;
 
       default:
-        ZERO(x.Ai);
-        ZERO(y.Ai);
+        ZERO(Ai);
         max_i = 0;
     }
 
   }
-
-  void FTMotion::updateShapingA(float zeta[]/*=cfg.zeta*/, float vtol[]/*=cfg.vtol*/) {
-    shaping.updateShapingA(zeta, vtol);
-  }
-
+  
   // Refresh the indices used by shaping functions.
-  // To be called when frequencies change.
-
-  void FTMotion::AxisShaping::updateShapingN(const_float_t f, const_float_t df) {
-    // Protections omitted for DBZ and for index exceeding array length.
-    switch (cfg.mode) {
-      case ftMotionMode_ZV:
+  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionCmpnstr_t shaper, const_float_t f, const_float_t zeta) {
+    // Note that protections are omitted for DBZ and for index exceeding array length.
+    const float df = sqrt ( 1.f - sq(zeta) );
+    switch (shaper) {
+      case ftMotionCmpnstr_ZV:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         break;
-      case ftMotionMode_ZVD:
-      case ftMotionMode_EI:
+      case ftMotionCmpnstr_ZVD:
+      case ftMotionCmpnstr_EI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
-      case ftMotionMode_ZVDD:
-      case ftMotionMode_2HEI:
+      case ftMotionCmpnstr_ZVDD:
+      case ftMotionCmpnstr_2HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         break;
-      case ftMotionMode_ZVDDD:
-      case ftMotionMode_3HEI:
+      case ftMotionCmpnstr_ZVDDD:
+      case ftMotionCmpnstr_3HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         Ni[4] = Ni[3] + Ni[1];
         break;
-      case ftMotionMode_MZV:
+      case ftMotionCmpnstr_MZV:
         Ni[1] = round((0.375f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
@@ -433,13 +377,14 @@ void FTMotion::loop() {
     }
   }
 
-  void FTMotion::updateShapingN(const_float_t xf OPTARG(HAS_Y_AXIS, const_float_t yf), float zeta[]/*=cfg.zeta*/) {
-    const float xdf = sqrt(1.0f - sq(zeta[0]));
-    shaping.x.updateShapingN(xf, xdf);
-
+  void FTMotion::update_shaping_params() {
+    shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
+    shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+    shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
     #if HAS_Y_AXIS
-      const float ydf = sqrt(1.0f - sq(zeta[1]));
-      shaping.y.updateShapingN(yf, ydf);
+      shaping.y.set_axis_shaping_A(cfg.cmpnstr[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
+      shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+      shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
     #endif
   }
 
@@ -483,10 +428,7 @@ int32_t FTMotion::stepperCmdBuffItems() {
 
 // Initializes storage variables before startup.
 void FTMotion::init() {
-  #if HAS_X_AXIS
-    refreshShapingN();
-    updateShapingA();
-  #endif
+  update_shaping_params();
   reset(); // Precautionary.
 }
 
@@ -649,7 +591,10 @@ void FTMotion::makeVector() {
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
                  const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx]
           OPTARG(HAS_Y_AXIS, yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx]);
-          updateShapingN(_MAX(xf, FTM_MIN_SHAPE_FREQ) OPTARG(HAS_Y_AXIS, _MAX(yf, FTM_MIN_SHAPE_FREQ)));
+          shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+          #if HAS_Y_AXIS
+            shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
+          #endif
         }
         break;
     #endif
@@ -658,8 +603,10 @@ void FTMotion::makeVector() {
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
-        updateShapingN(      cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx]
-          OPTARG(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx]) );
+        shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+        #if HAS_Y_AXIS
+          shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
+        #endif
         break;
     #endif
 
@@ -668,24 +615,27 @@ void FTMotion::makeVector() {
 
   // Apply shaping if in mode.
   #if HAS_X_AXIS
-    if (cfg.modeHasShaper()) {
-      shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
-      traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
-      #if HAS_Y_AXIS
-        shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
-        traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
-      #endif
-      for (uint32_t i = 1U; i <= shaping.max_i; i++) {
-        const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-        traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
-        #if HAS_Y_AXIS
-          const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-          traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
-        #endif
+      if (shaping.x.ena) {
+        shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
+        traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+        for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
+          const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
+          traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+        }
       }
+
+      #if HAS_Y_AXIS
+        if (shaping.y.ena) {
+          shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
+          traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
+          for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
+            const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
+            traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+          }
+        }
+      #endif
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
-    }
-  #endif
+    #endif
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
