@@ -1130,8 +1130,8 @@
   #define FTM_SHAPING_DEFAULT_ZETA_X    0.1f      // Zeta used by input shapers for X axis
   #define FTM_SHAPING_DEFAULT_ZETA_Y    0.1f      // Zeta used by input shapers for Y axis
 
-  #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
-  #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+  #define FTM_SHAPING_DEFAULT_V_TOL_X   0.05f     // Vibration tolerance used by EI input shapers for X axis
+  #define FTM_SHAPING_DEFAULT_V_TOL_Y   0.05f     // Vibration tolerance used by EI input shapers for Y axis
 
   //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
 
