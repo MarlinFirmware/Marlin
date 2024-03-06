@@ -133,8 +133,6 @@ bool BLTouch::deploy_proc() {
 
 // Do a STOW
 bool BLTouch::stow_proc() {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch STOW requested");
-
   /**
    * A STOW will clear a triggered condition in the probe (10ms pulse).
    * At the moment that we come in here, we might (pulse) or will (SW mode) see the trigger on the pin.
@@ -142,6 +140,7 @@ bool BLTouch::stow_proc() {
    * NOTE: If the probe is deployed AND in an ALARM condition, this STOW will not pull up the pin
    * and the ALARM condition will still be there. --> ANTClabs should change this behavior maybe
    */
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch STOW requested");
 
   // Attempt to STOW, wait for STOW_DELAY or ALARM
   if (_stow_query_alarm()) {
