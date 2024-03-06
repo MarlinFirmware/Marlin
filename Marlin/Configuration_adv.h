@@ -1127,8 +1127,8 @@
   #define FTM_SHAPING_DEFAULT_Y_FREQ   37.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
   #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
+  #define FTM_SHAPING_DEFAULT_ZETA_X    0.1f      // Zeta used by input shapers for X axis
+  #define FTM_SHAPING_DEFAULT_ZETA_Y    0.1f      // Zeta used by input shapers for Y axis
 
   #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
