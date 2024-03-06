@@ -378,13 +378,17 @@ void FTMotion::loop() {
   }
 
   void FTMotion::update_shaping_params() {
-    shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-    shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
     shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
+    if(shaping.x.ena) {
+      shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
+      shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+    }
     #if HAS_Y_AXIS
-      shaping.y.set_axis_shaping_A(cfg.cmpnstr[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
-      shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
       shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
+      if(shaping.y.ena) {
+        shaping.y.set_axis_shaping_A(cfg.cmpnstr[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
+        shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+      }
     #endif
   }
 
