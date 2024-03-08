@@ -3492,13 +3492,19 @@ void Stepper::report_positions() {
     #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
 
     /**
+     * Set bits in axis_did_move for any axes moving in this block,
+     * clearing the bits at the start of each new segment.
+     */
+    if (TEST(command, FT_BIT_START)) axis_did_move.reset();
+
+    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
+    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
+
+    /**
      * Update direction bits for steppers that were stepped by this command.
      * HX, HY, HZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
      */
-
-    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
 
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
@@ -3570,8 +3576,6 @@ void Stepper::report_positions() {
       // A block is done processing when the command buffer has been
       // filled, not necessarily when it's done running.
       if (!ftMotion.getBlockProcDn()) return;
-
-      axis_did_move.reset();
       planner.release_current_block();
     }
 

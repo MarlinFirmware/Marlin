@@ -131,6 +131,8 @@ constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 
 // Public functions.
 
+static bool markBlockStart = false;
+
 // Sets controller states to begin processing a block.
 // Called by Stepper::ftMotion_blockQueueUpdate, invoked from the main loop.
 void FTMotion::startBlockProc() {
@@ -186,7 +188,10 @@ void FTMotion::loop() {
 
   if (blockProcRdy) {
     if (!blockProcRdy_z1) { // One-shot.
-      if (!blockDataIsRunout) loadBlockData(stepper.current_block);
+      if (!blockDataIsRunout) {
+        loadBlockData(stepper.current_block);
+        markBlockStart = true;
+      }
       else blockDataIsRunout = false;
     }
     while (!blockProcDn && !batchRdy && (makeVector_idx - makeVector_idx_z1 < (FTM_POINTS_PER_LOOP)))
@@ -738,6 +743,12 @@ void FTMotion::convertToSteps(const uint32_t idx) {
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     cmd = 0;
+
+    // Mark the start of a new block
+    if (markBlockStart) {
+      cmd = _BV(FT_BIT_START);
+      markBlockStart = false;
+    }
 
     // Accumulate the errors for all axes
     err_P += delta;
