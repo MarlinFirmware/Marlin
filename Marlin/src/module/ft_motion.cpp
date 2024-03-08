@@ -167,11 +167,13 @@ void FTMotion::loop() {
 
   if (!cfg.mode) return;
 
-  // Handle block abort with the following sequence:
-  // 1. Zero out commands in stepper ISR.
-  // 2. Drain the motion buffer, stop processing until they are emptied.
-  // 3. Reset all the states / memory.
-  // 4. Signal ready for new block.
+  /**
+   * Handle block abort with the following sequence:
+   * 1. Zero out commands in stepper ISR.
+   * 2. Drain the motion buffer, stop processing until they are emptied.
+   * 3. Reset all the states / memory.
+   * 4. Signal ready for new block.
+   */
   if (stepper.abort_current_block) {
     if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
     reset();
@@ -481,7 +483,7 @@ void FTMotion::init() {
   reset(); // Precautionary.
 }
 
-// Loads / converts block data from planner to fixed-time control variables.
+// Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
 
   const float totalLength = current_block->millimeters,
@@ -565,7 +567,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
    *  f_s * T1_P : (mm) Distance traveled during the accel phase
    *  f_e * T3_P : (mm) Distance traveled during the decel phase
    */
-  F_P = (2.0f * totalLength - f_s * T1_P - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
+  const float adist = f_s * T1_P;
+  F_P = (2.0f * totalLength - adist - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
 
   // Calculate the acceleration and deceleration rates
   accel_P = N1 ? ((F_P - f_s) / T1_P) : 0.0f;
@@ -573,7 +576,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   decel_P = (f_e - F_P) / T3_P;
 
   // Calculate the distance traveled during the accel phase
-  s_1e = f_s * T1_P + 0.5f * accel_P * sq(T1_P);
+  s_1e = adist + 0.5f * accel_P * sq(T1_P);
 
   // Calculate the distance traveled during the decel phase
   s_2e = s_1e + F_P * T2_P;
@@ -598,7 +601,6 @@ void FTMotion::makeVector() {
   else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
     dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
-    //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
@@ -737,12 +739,14 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     cmd = 0;
 
+    // Accumulate the errors for all axes
     err_P += delta;
 
     // Set up step/dir bits for all axes
     #define _COMMAND_RUN(AXIS) command_set[_AXIS(AXIS)](err_P[_AXIS(AXIS)], steps[_AXIS(AXIS)], cmd, _BV(FT_BIT_DIR_##AXIS), _BV(FT_BIT_STEP_##AXIS));
     LOGICAL_AXIS_MAP(_COMMAND_RUN);
 
+    // Next circular buffer index
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       stepperCmdBuff_produceIdx = 0;
 

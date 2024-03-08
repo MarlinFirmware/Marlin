@@ -3562,7 +3562,7 @@ void Stepper::report_positions() {
 
   } // Stepper::ftMotion_stepper
 
-  // Called from FTMotion::loop which is called from Marlin idle()
+  // Called from FTMotion::loop (when !blockProcRdy) which is called from Marlin idle()
   void Stepper::ftMotion_blockQueueUpdate() {
 
     if (current_block) {
