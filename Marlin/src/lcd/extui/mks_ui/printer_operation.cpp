@@ -39,6 +39,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../../../feature/runout.h"
+#endif
+
 extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
@@ -101,6 +105,7 @@ void printer_state_polling() {
       update_spi_flash();
     }
   }
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (uiCfg.print_state == REPRINTED) {
       #if HAS_HOTEND
@@ -118,6 +123,7 @@ void printer_state_polling() {
       #endif
 
       recovery.resume();
+
       #if 0
         // Move back to the saved XY
         char str_1[16], str_2[16];
@@ -140,75 +146,34 @@ void printer_state_polling() {
     }
   #endif
 
-  if (uiCfg.print_state == WORKING)
-    filament_check();
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    if (uiCfg.print_state == WORKING) filament_check();
+  #endif
 
   TERN_(MKS_WIFI_MODULE, wifi_looping());
 }
 
-void filament_pin_setup() {
-  #if PIN_EXISTS(MT_DET_1)
-    SET_INPUT_PULLUP(MT_DET_1_PIN);
-  #endif
-  #if PIN_EXISTS(MT_DET_2)
-    SET_INPUT_PULLUP(MT_DET_2_PIN);
-  #endif
-  #if PIN_EXISTS(MT_DET_3)
-    SET_INPUT_PULLUP(MT_DET_3_PIN);
-  #endif
-}
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-void filament_check() {
-  #if ANY_PIN(MT_DET_1, MT_DET_2, MT_DET_3)
-    const int FIL_DELAY = 20;
-  #endif
-  #if PIN_EXISTS(MT_DET_1)
-    static int fil_det_count_1 = 0;
-    if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
-      fil_det_count_1++;
-    else if (fil_det_count_1 > 0)
-      fil_det_count_1--;
-  #endif
+  void filament_check() {
+    static bool ranout = false;
+    if (runout.filament_ran_out != ranout) {
+      ranout = runout.filament_ran_out;
+      if (ranout) {
+        clear_cur_ui();
+        stop_print_time();
+        uiCfg.print_state = PAUSING;
 
-  #if PIN_EXISTS(MT_DET_2)
-    static int fil_det_count_2 = 0;
-    if (READ(MT_DET_2_PIN) == MT_DET_PIN_STATE)
-      fil_det_count_2++;
-    else if (fil_det_count_2 > 0)
-      fil_det_count_2--;
-  #endif
+        if (gCfgItems.from_flash_pic)
+          flash_preview_begin = true;
+        else
+          default_preview_flg = true;
 
-  #if PIN_EXISTS(MT_DET_3)
-    static int fil_det_count_3 = 0;
-    if (READ(MT_DET_3_PIN) == MT_DET_PIN_STATE)
-      fil_det_count_3++;
-    else if (fil_det_count_3 > 0)
-      fil_det_count_3--;
-  #endif
-
-  if (false
-    #if PIN_EXISTS(MT_DET_1)
-      || fil_det_count_1 >= FIL_DELAY
-    #endif
-    #if PIN_EXISTS(MT_DET_2)
-      || fil_det_count_2 >= FIL_DELAY
-    #endif
-    #if PIN_EXISTS(MT_DET_3)
-      || fil_det_count_3 >= FIL_DELAY
-    #endif
-  ) {
-    clear_cur_ui();
-    card.pauseSDPrint();
-    stop_print_time();
-    uiCfg.print_state = PAUSING;
-
-    if (gCfgItems.from_flash_pic)
-      flash_preview_begin = true;
-    else
-      default_preview_flg = true;
-
-    lv_draw_printing();
+        lv_draw_printing();
+      }
+    }
   }
-}
+
+#endif // FILAMENT_RUNOUT_SENSOR
 
 #endif // HAS_TFT_LVGL_UI
