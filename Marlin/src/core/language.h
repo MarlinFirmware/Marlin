@@ -321,6 +321,7 @@
 #define STR_TEMPERATURE_UNITS               "Temperature Units"
 #define STR_USER_THERMISTORS                "User thermistors"
 #define STR_DELAYED_POWEROFF                "Delayed poweroff"
+#define STR_CURRENT_VTOOLS                  "Current virtual tool mixes"
 
 //
 // Endstop Names used by Endstops::report_states
