@@ -64,7 +64,7 @@ namespace ExtUI {
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
   enum result_t   : uint8_t { PID_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
-  struct probe_limits { float xmin, ymin, xmax, ymax; };
+  struct probe_limits_t { float xmin, ymin, xmax, ymax; };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -348,7 +348,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
-    probe_limits getBedProbeLimits();
+    probe_limits_t getBedProbeLimits();
   #endif
 
   // Backlash Control
