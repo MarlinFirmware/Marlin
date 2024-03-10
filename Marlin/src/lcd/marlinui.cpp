@@ -1402,18 +1402,19 @@ void MarlinUI::init() {
 
     #if ENCODER_DEBOUNCE_MS
 
-      static enc_t enc;
-      static enc_t old_live;
+      static enc_t enc, old_live;
+      static millis_t bounce_ms;
 
-      static millis_t en_A_bounce_ms;
-      if (old_live.a != live_enc.a) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-      else if (ELAPSED(now, en_A_bounce_ms)) enc.a = live_enc.a;
+      if (old_live.a != live_enc.a || old_live.b != live_enc.b) {
+        bounce_ms = now + (ENCODER_DEBOUNCE_MS); // Wait for states to settle
+        old_live = live_enc;
+        return 0;
+      }
 
-      static millis_t en_B_bounce_ms;
-      if (old_live.b != live_enc.b) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-      else if (ELAPSED(now, en_B_bounce_ms)) enc.b = live_enc.b;
-
-      old_live = live_enc;
+      if (ELAPSED(now, bounce_ms)) {
+        enc.a = live_enc.a;
+        enc.b = live_enc.b;
+      }
 
     #else
 
@@ -1421,12 +1422,12 @@ void MarlinUI::init() {
 
     #endif
 
-    static uint8_t old_pos;
-    const uint8_t pos = (enc.a ^ enc.b) | (enc.a << 1); // 0:00  1:10  2:11  3:01
+    static uint8_t old_ab;
+    const uint8_t ab = (enc.a ^ enc.b) | (enc.a << 1); // 0:00  1:10  2:11  3:01
     int8_t delta = 0;
-    if (pos != old_pos) {
-      delta = (pos - old_pos + 4 + 1) % 4 - 1;
-      old_pos = pos;
+    if (ab != old_ab) {
+      delta = (ab - old_ab + 4 + 1) % 4 - 1;
+      old_ab = ab;
 
       static int8_t last_dir;
       if (delta == 2) delta = last_dir * 2;
