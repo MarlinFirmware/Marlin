@@ -408,8 +408,8 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    FSTR_P ftmode;
-    FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)];
+    FSTR_P ftmode {};
+    FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)] { TERN_(HAS_Y_AXIS,)};
 
     switch (c.mode) {
       case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
