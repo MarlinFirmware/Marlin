@@ -116,6 +116,7 @@ void menu_info_thermistors() {
   #if TEMP_SENSOR_1 != 0
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
+    #undef THERMISTOR_ID
     THERM_ITEMS(STR_E1, HEATER_1, WATCH_HOTENDS);
   #endif
 
