@@ -54,6 +54,9 @@
     #if HAS_HEATED_BED
       if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
     #endif
+    #if HAS_HEATED_CHAMBER
+      if (indb >= 0 && ui.material_preset[indb].chamber_temp > 0) setTargetChamber(ui.material_preset[indb].chamber_temp);
+    #endif
     #if HAS_FAN
       if (indh >= 0) {
         const uint8_t fan_index = active_extruder < (FAN_COUNT) ? active_extruder : 0;
