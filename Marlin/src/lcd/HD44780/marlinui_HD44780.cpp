@@ -420,7 +420,7 @@ bool MarlinUI::detected() {
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
   void MarlinUI::draw_custom_bootscreen(const uint8_t) {
-    const uint8_t PROGMEM * const chars = custom_start_char;
+    const uint8_t * const chars = custom_start_char;
 
     set_custom_characters(CHARSET_BOOT_CUSTOM);
 
