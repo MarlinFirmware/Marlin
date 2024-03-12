@@ -414,13 +414,8 @@ bool MarlinUI::detected() {
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
   void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
-    const uint8_t sy = (
-      #ifdef CUSTOM_BOOTSCREEN_Y
-        CUSTOM_BOOTSCREEN_Y
-      #else
-        (LCD_HEIGHT - COUNT(custom_boot_lines)) / 2
-      #endif
-    );
+    set_custom_characters(CHARSET_BOOT_CUSTOM);
+    lcd.clear();
     const int8_t sx = (
       #ifdef CUSTOM_BOOTSCREEN_X
         CUSTOM_BOOTSCREEN_X
@@ -428,11 +423,24 @@ bool MarlinUI::detected() {
         -1
       #endif
     );
+    const uint8_t sy = (
+      #ifdef CUSTOM_BOOTSCREEN_Y
+        CUSTOM_BOOTSCREEN_Y
+      #else
+        (LCD_HEIGHT - COUNT(custom_boot_lines)) / 2
+      #endif
+    );
     for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
       PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
-      const uint8_t x = sx >= 0 ? sx : (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
-      lcd_moveto(x, sy + i);
-      lcd_put_u8str_max_P(pstr, LCD_WIDTH - x);
+      uint8_t clen = 0;
+      for (lcd_uint_t j = 0; j < LCD_WIDTH; ++j) {
+        const lchar_t c = pgm_read_byte(&pstr[j]);
+        if (!c && !pgm_read_byte(pstr + j + 1)) break;
+        ++clen;
+      }
+      const lcd_uint_t x = sx >= 0 ? sx : (LCD_WIDTH - clen) / 2;
+      for (lcd_uint_t j = 0; j < clen; ++j)
+        lcd_put_lchar(x + j, sy + i, pgm_read_byte(&pstr[j]));
     }
   }
 
