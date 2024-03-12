@@ -216,6 +216,8 @@ void GcodeSuite::M493() {
           case ftMotionCmpnstr_NONE:
           case ftMotionCmpnstr_ZV:
           case ftMotionCmpnstr_ZVD:
+          case ftMotionCmpnstr_ZVDD:
+          case ftMotionCmpnstr_ZVDDD:
           case ftMotionCmpnstr_EI:
           case ftMotionCmpnstr_2HEI:
           case ftMotionCmpnstr_3HEI:
@@ -239,6 +241,8 @@ void GcodeSuite::M493() {
             case ftMotionCmpnstr_NONE:
             case ftMotionCmpnstr_ZV:
             case ftMotionCmpnstr_ZVD:
+            case ftMotionCmpnstr_ZVDD:
+            case ftMotionCmpnstr_ZVDDD:
             case ftMotionCmpnstr_EI:
             case ftMotionCmpnstr_2HEI:
             case ftMotionCmpnstr_3HEI:
