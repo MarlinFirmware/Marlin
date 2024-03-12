@@ -432,15 +432,12 @@ bool MarlinUI::detected() {
     );
     for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
       PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
-      uint8_t clen = 0;
-      for (lcd_uint_t j = 0; j < LCD_WIDTH; ++j) {
-        const lchar_t c = pgm_read_byte(&pstr[j]);
-        if (!c && !pgm_read_byte(pstr + j + 1)) break;
-        ++clen;
-      }
+      const uint8_t clen = utf8_strlen_P(pstr);
       const lcd_uint_t x = sx >= 0 ? sx : (LCD_WIDTH - clen) / 2;
-      for (lcd_uint_t j = 0; j < clen; ++j)
-        lcd_put_lchar(x + j, sy + i, pgm_read_byte(&pstr[j]));
+      for (lcd_uint_t j = 0; j < clen; ++j) {
+        const lchar_t c = pgm_read_byte(&pstr[j]);
+        lcd_put_lchar(x + j, sy + i, c == '\x08' ? '\x00' : c);
+      }
     }
   }
 
