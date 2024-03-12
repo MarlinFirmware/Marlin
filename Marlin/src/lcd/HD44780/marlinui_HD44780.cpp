@@ -431,7 +431,7 @@ bool MarlinUI::detected() {
     for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
       PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
       const uint8_t x = sx >= 0 ? sx : (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
-      lcd_moveto(x, CUSTOM_BOOTSCREEN_Y + i);
+      lcd_moveto(x, sy + i);
       lcd_put_u8str_max_P(pstr, LCD_WIDTH - x);
     }
   }
