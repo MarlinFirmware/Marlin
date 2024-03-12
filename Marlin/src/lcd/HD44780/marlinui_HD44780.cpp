@@ -331,15 +331,30 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // HAS_MEDIA
 
-  #if ENABLED(SHOW_BOOTSCREEN)
-    // Set boot screen corner characters
-    if (screen_charset == CHARSET_BOOT) {
-      for (uint8_t i = 4; i--;)
-        createChar_P(i, corner[i]);
-    }
-    else
-  #endif
-    { // Info Screen uses 5 special characters
+  switch (screen_charset) {
+
+    #if ENABLED(SHOW_BOOTSCREEN)
+      case CHARSET_BOOT: {
+        // Set boot screen corner characters
+        for (uint8_t i = 4; i--;) createChar_P(i, corner[i]);
+      } break;
+    #endif
+
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      case CHARSET_BOOT_CUSTOM:
+        TERN_(HAS_CUSTOM_BOOT_CHAR_0, createChar_P(0x0, customBootChar0));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_1, createChar_P(0x1, customBootChar1));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_2, createChar_P(0x2, customBootChar2));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_3, createChar_P(0x3, customBootChar3));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_4, createChar_P(0x4, customBootChar4));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_5, createChar_P(0x5, customBootChar5));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_6, createChar_P(0x6, customBootChar6));
+        TERN_(HAS_CUSTOM_BOOT_CHAR_7, createChar_P(0x7, customBootChar7));
+        break;
+    #endif
+
+    default: {
+      // Info Screen uses 5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
@@ -361,7 +376,9 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
             createChar_P(LCD_STR_FOLDER[0], folder);
           #endif
         }
-    }
+    } break;
+
+  }
 
 }
 
@@ -401,17 +418,11 @@ bool MarlinUI::detected() {
 }
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
   void MarlinUI::draw_custom_bootscreen(const uint8_t) {
     const uint8_t PROGMEM * const chars = custom_start_char;
 
-    TERN_(HAS_CUSTOMCHAR0, createChar_P(0x0, customChar0));
-    TERN_(HAS_CUSTOMCHAR1, createChar_P(0x1, customChar1));
-    TERN_(HAS_CUSTOMCHAR2, createChar_P(0x2, customChar2));
-    TERN_(HAS_CUSTOMCHAR3, createChar_P(0x3, customChar3));
-    TERN_(HAS_CUSTOMCHAR4, createChar_P(0x4, customChar4));
-    TERN_(HAS_CUSTOMCHAR5, createChar_P(0x5, customChar5));
-    TERN_(HAS_CUSTOMCHAR6, createChar_P(0x6, customChar6));
-    TERN_(HAS_CUSTOMCHAR7, createChar_P(0x7, customChar7));
+    set_custom_characters(CHARSET_BOOT_CUSTOM);
 
     lcd.clear();
     for (lcd_uint_t y = 0; y < CUSTOM_BOOTSCREEN_CHAR_HEIGHT; y++)
@@ -427,6 +438,7 @@ bool MarlinUI::detected() {
     #endif
     safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
   }
+
 #endif // SHOW_CUSTOM_BOOTSCREEN
 
 #if HAS_SLOW_BUTTONS
