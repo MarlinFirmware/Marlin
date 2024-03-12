@@ -341,16 +341,10 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     #endif
 
     #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-      case CHARSET_BOOT_CUSTOM:
-        TERN_(HAS_CUSTOM_BOOT_CHAR_0, createChar_P(0x0, customBootChar0));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_1, createChar_P(0x1, customBootChar1));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_2, createChar_P(0x2, customBootChar2));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_3, createChar_P(0x3, customBootChar3));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_4, createChar_P(0x4, customBootChar4));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_5, createChar_P(0x5, customBootChar5));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_6, createChar_P(0x6, customBootChar6));
-        TERN_(HAS_CUSTOM_BOOT_CHAR_7, createChar_P(0x7, customBootChar7));
-        break;
+      case CHARSET_BOOT_CUSTOM: {
+        for (uint8_t i = COUNT(customBootChars); i--;)
+          createChar_P(i, customBootChars[i]);
+      } break;
     #endif
 
     default: {
@@ -419,15 +413,27 @@ bool MarlinUI::detected() {
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
-  void MarlinUI::draw_custom_bootscreen(const uint8_t) {
-    const uint8_t * const chars = custom_start_char;
-
-    set_custom_characters(CHARSET_BOOT_CUSTOM);
-
-    lcd.clear();
-    for (lcd_uint_t y = 0; y < CUSTOM_BOOTSCREEN_CHAR_HEIGHT; y++)
-      for (lcd_uint_t x = 0; x < CUSTOM_BOOTSCREEN_CHAR_WIDTH; x++)
-        lcd_put_lchar(x + lcd_uint_t(CUSTOM_BOOTSCREEN_X), y + lcd_uint_t(CUSTOM_BOOTSCREEN_Y), pgm_read_byte(&chars[y * CUSTOM_BOOTSCREEN_CHAR_WIDTH + x]));
+  void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
+    const uint8_t sy = (
+      #ifdef CUSTOM_BOOTSCREEN_Y
+        CUSTOM_BOOTSCREEN_Y
+      #else
+        (LCD_HEIGHT - COUNT(custom_boot_lines)) / 2
+      #endif
+    );
+    const int8_t sx = (
+      #ifdef CUSTOM_BOOTSCREEN_X
+        CUSTOM_BOOTSCREEN_X
+      #else
+        -1
+      #endif
+    );
+    for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
+      PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
+      const uint8_t x = sx >= 0 ? sx : (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
+      lcd_moveto(x, CUSTOM_BOOTSCREEN_Y + i);
+      lcd_put_u8str_max_P(pstr, LCD_WIDTH - x);
+    }
   }
 
   // Shows the custom bootscreen and delays

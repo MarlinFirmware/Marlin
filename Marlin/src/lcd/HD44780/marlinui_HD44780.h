@@ -31,27 +31,13 @@
 
   #include "../../../_Bootscreen.h"
 
-  #ifndef CUSTOM_BOOTSCREEN_CHARWIDTH
-    #define CUSTOM_BOOTSCREEN_CHARWIDTH LCD_WIDTH
+  #ifdef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOT_LAST COUNT(custom_boot_lines) + CUSTOM_BOOTSCREEN_Y
+  #else
+    #define CUSTOM_BOOT_LAST COUNT(custom_boot_lines)
   #endif
 
-  #ifndef CUSTOM_BOOTSCREEN_CHAR_HEIGHT
-    #define CUSTOM_BOOTSCREEN_CHAR_HEIGHT (sizeof(custom_start_char) / (CUSTOM_BOOTSCREEN_CHAR_WIDTH))
-  #endif
-
-  #ifndef CUSTOM_BOOTSCREEN_X
-    #define CUSTOM_BOOTSCREEN_X ((LCD_WIDTH  - (CUSTOM_BOOTSCREEN_CHAR_WIDTH)) / 2)
-  #endif
-
-  #ifndef CUSTOM_BOOTSCREEN_Y
-    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - (CUSTOM_BOOTSCREEN_CHAR_HEIGHT)) / 2)
-  #endif
-
-  static_assert(CUSTOM_BOOTSCREEN_CHAR_WIDTH <= LCD_WIDTH, "CUSTOM_BOOTSCREEN_CHAR_WIDTH is larger than LCD_WIDTH.");
-  static_assert(CUSTOM_BOOTSCREEN_CHAR_HEIGHT <= LCD_HEIGHT, "CUSTOM_BOOTSCREEN_CHAR_HEIGHT is larger than LCD_HEIGHT.");
-  static_assert(CUSTOM_BOOTSCREEN_CHAR_WIDTH + CUSTOM_BOOTSCREEN_X <= LCD_WIDTH, "CUSTOM_BOOTSCREEN_CHAR_WIDTH + CUSTOM_BOOTSCREEN_X is larger than LCD_WIDTH.");
-  static_assert(CUSTOM_BOOTSCREEN_CHAR_HEIGHT + CUSTOM_BOOTSCREEN_Y <= LCD_HEIGHT, "CUSTOM_BOOTSCREEN_CHAR_HEIGHT + CUSTOM_BOOTSCREEN_Y is larger than LCD_HEIGHT.");
-  static_assert(sizeof(custom_start_char) % CUSTOM_BOOTSCREEN_CHAR_WIDTH == 0, "size of custom_start_char array is not evenly divisible by CUSTOM_BOOTSCREEN_CHAR_WIDTH.");
+  static_assert(CUSTOM_BOOT_LAST <= LCD_HEIGHT, "custom_boot_lines (plus CUSTOM_BOOTSCREEN_Y) doesn't fit on the selected LCD.");
 
 #endif
 
