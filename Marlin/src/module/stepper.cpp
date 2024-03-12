@@ -3475,6 +3475,8 @@ void Stepper::report_positions() {
    */
   void Stepper::ftMotion_stepper() {
 
+    static AxisBits direction_bits{0};
+
     // Check if the buffer is empty.
     ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
     if (!ftMotion.sts_stepperBusy) return;
@@ -3488,18 +3490,34 @@ void Stepper::report_positions() {
 
     USING_TIMED_PULSE();
 
-    // Get FT Motion command flags for axis STEP / DIR
-    #define _FTM_STEP(AXIS) TEST(command, FT_BIT_STEP_##AXIS)
-    #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
+    AxisBits axis_step;
+    axis_step = LOGICAL_AXIS_ARRAY(
+      TEST(command, FT_BIT_STEP_E),
+      TEST(command, FT_BIT_STEP_X), TEST(command, FT_BIT_STEP_Y), TEST(command, FT_BIT_STEP_Z),
+      TEST(command, FT_BIT_STEP_I), TEST(command, FT_BIT_STEP_J), TEST(command, FT_BIT_STEP_K),
+      TEST(command, FT_BIT_STEP_U), TEST(command, FT_BIT_STEP_V), TEST(command, FT_BIT_STEP_W)
+    );
 
-    /**
-     * Set bits in axis_did_move for any axes moving in this block,
-     * clearing the bits at the start of each new segment.
-     */
-    if (TEST(command, FT_BIT_START)) axis_did_move.reset();
+    direction_bits = LOGICAL_AXIS_ARRAY(
+      axis_step.e ? TEST(command, FT_BIT_DIR_E) : direction_bits.e,
+      axis_step.x ? TEST(command, FT_BIT_DIR_X) : direction_bits.x,
+      axis_step.y ? TEST(command, FT_BIT_DIR_Y) : direction_bits.y,
+      axis_step.z ? TEST(command, FT_BIT_DIR_Z) : direction_bits.z,
+      axis_step.i ? TEST(command, FT_BIT_DIR_I) : direction_bits.i,
+      axis_step.j ? TEST(command, FT_BIT_DIR_J) : direction_bits.j,
+      axis_step.k ? TEST(command, FT_BIT_DIR_K) : direction_bits.k,
+      axis_step.u ? TEST(command, FT_BIT_DIR_U) : direction_bits.u,
+      axis_step.v ? TEST(command, FT_BIT_DIR_V) : direction_bits.v,
+      axis_step.w ? TEST(command, FT_BIT_DIR_W) : direction_bits.w
+    );
 
-    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
+    // Apply directions (which will apply to the entire linear move)
+    LOGICAL_AXIS_CODE(
+      E_APPLY_DIR(direction_bits.e, false),
+      X_APPLY_DIR(direction_bits.x, false), Y_APPLY_DIR(direction_bits.y, false), Z_APPLY_DIR(direction_bits.z, false),
+      I_APPLY_DIR(direction_bits.i, false), J_APPLY_DIR(direction_bits.j, false), K_APPLY_DIR(direction_bits.k, false),
+      U_APPLY_DIR(direction_bits.u, false), V_APPLY_DIR(direction_bits.v, false), W_APPLY_DIR(direction_bits.w, false)
+    );
 
     /**
      * Update direction bits for steppers that were stepped by this command.
@@ -3507,8 +3525,13 @@ void Stepper::report_positions() {
      * when the block was fetched and are not overwritten here.
      */
 
-    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_SET_DIR);
+    // Start a step pulse
+    LOGICAL_AXIS_CODE(
+      E_APPLY_STEP(axis_step.e, false),
+      X_APPLY_STEP(axis_step.x, false), Y_APPLY_STEP(axis_step.y, false), Z_APPLY_STEP(axis_step.z, false),
+      I_APPLY_STEP(axis_step.i, false), J_APPLY_STEP(axis_step.j, false), K_APPLY_STEP(axis_step.k, false),
+      U_APPLY_STEP(axis_step.u, false), V_APPLY_STEP(axis_step.v, false), W_APPLY_STEP(axis_step.w, false)
+    );
 
     if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
       // Apply directions (generally applying to the entire linear move)
@@ -3533,8 +3556,13 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
-    LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
+    LOGICAL_AXIS_CODE(
+      if (axis_step.e) count_position.e += direction_bits.e ? 1 : -1, if (axis_step.x) count_position.x += direction_bits.x ? 1 : -1,
+      if (axis_step.y) count_position.y += direction_bits.y ? 1 : -1, if (axis_step.z) count_position.z += direction_bits.z ? 1 : -1,
+      if (axis_step.i) count_position.i += direction_bits.i ? 1 : -1, if (axis_step.j) count_position.j += direction_bits.j ? 1 : -1,
+      if (axis_step.k) count_position.k += direction_bits.k ? 1 : -1, if (axis_step.u) count_position.u += direction_bits.u ? 1 : -1,
+      if (axis_step.v) count_position.v += direction_bits.v ? 1 : -1, if (axis_step.w) count_position.w += direction_bits.w ? 1 : -1
+    );
 
     // Provide EDGE flags for E stepper(s)
     #if HAS_EXTRUDERS
@@ -3549,10 +3577,10 @@ void Stepper::report_positions() {
 
     // Only wait for axes without edge stepping
     const bool any_wait = false LOGICAL_AXIS_GANG(
-      || (!e_axis_has_dedge  && _FTM_STEP(E)),
-      || (!AXIS_HAS_DEDGE(X) && _FTM_STEP(X)), || (!AXIS_HAS_DEDGE(Y) && _FTM_STEP(Y)), || (!AXIS_HAS_DEDGE(Z) && _FTM_STEP(Z)),
-      || (!AXIS_HAS_DEDGE(I) && _FTM_STEP(I)), || (!AXIS_HAS_DEDGE(J) && _FTM_STEP(J)), || (!AXIS_HAS_DEDGE(K) && _FTM_STEP(K)),
-      || (!AXIS_HAS_DEDGE(U) && _FTM_STEP(U)), || (!AXIS_HAS_DEDGE(V) && _FTM_STEP(V)), || (!AXIS_HAS_DEDGE(W) && _FTM_STEP(W))
+      || (!e_axis_has_dedge && axis_step.e),
+      || (!AXIS_HAS_DEDGE(X) && axis_step.x), || (!AXIS_HAS_DEDGE(Y) && axis_step.y), || (!AXIS_HAS_DEDGE(Z) && axis_step.z),
+      || (!AXIS_HAS_DEDGE(I) && axis_step.i), || (!AXIS_HAS_DEDGE(J) && axis_step.j), || (!AXIS_HAS_DEDGE(K) && axis_step.k),
+      || (!AXIS_HAS_DEDGE(U) && axis_step.u), || (!AXIS_HAS_DEDGE(V) && axis_step.v), || (!AXIS_HAS_DEDGE(W) && axis_step.w)
     );
 
     // Allow pulses to be registered by stepper drivers
@@ -3562,10 +3590,8 @@ void Stepper::report_positions() {
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
 
-    // Check endstops on every step using axis_did_move as set by every step
-    // TODO: Update endstop states less frequently to save processing.
-    // NOTE: endstops.poll is still called at 1KHz by Temperature ISR.
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, if ((bool)axis_did_move) endstops.update());
+    // Also handle babystepping here
+    TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
 
   } // Stepper::ftMotion_stepper
 
