@@ -413,23 +413,21 @@ bool MarlinUI::detected() {
 
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X -1
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - COUNT(custom_boot_lines)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
+
   void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
     set_custom_characters(CHARSET_BOOT_CUSTOM);
     lcd.clear();
-    const int8_t sx = (
-      #ifdef CUSTOM_BOOTSCREEN_X
-        CUSTOM_BOOTSCREEN_X
-      #else
-        -1
-      #endif
-    );
-    const uint8_t sy = (
-      #ifdef CUSTOM_BOOTSCREEN_Y
-        CUSTOM_BOOTSCREEN_Y
-      #else
-        (LCD_HEIGHT - COUNT(custom_boot_lines)) / 2
-      #endif
-    );
+    const int8_t sx = CUSTOM_BOOTSCREEN_X;
+    const uint8_t sy = CUSTOM_BOOTSCREEN_Y;
     for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
       PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
       const uint8_t clen = utf8_strlen_P(pstr);
@@ -444,9 +442,6 @@ bool MarlinUI::detected() {
   // Shows the custom bootscreen and delays
   void MarlinUI::show_custom_bootscreen() {
     draw_custom_bootscreen();
-    #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
-      #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
-    #endif
     safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
   }
 
