@@ -39,8 +39,6 @@
   #include "../../libs/hex_print.h"
 #endif
 
-//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   inline void cap_line(FSTR_P const name, const bool ena=true) {
     #if ENABLED(MINIMAL_CAP_LINES)
@@ -124,10 +122,10 @@ void GcodeSuite::M115() {
     serial_index_t port = queue.ring_buffer.command_port();
 
     // PAREN_COMMENTS
-    TERN_(PAREN_COMMENTS, cap_line(F("PAREN_COMMENTS")));
+    cap_line(F("PAREN_COMMENTS"), ENABLED(PAREN_COMMENTS));
 
     // QUOTED_STRINGS
-    TERN_(GCODE_QUOTED_STRINGS, cap_line(F("QUOTED_STRINGS")));
+    cap_line(F("QUOTED_STRINGS"), ENABLED(GCODE_QUOTED_STRINGS));
 
     // SERIAL_XON_XOFF
     cap_line(F("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
@@ -188,6 +186,9 @@ void GcodeSuite::M115() {
     // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
     cap_line(F("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
+    // HAS_DISPLAY
+    cap_line(F("DISPLAY"), ENABLED(HAS_DISPLAY));
+
     // PROMPT SUPPORT (M876)
     cap_line(F("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
@@ -229,6 +230,9 @@ void GcodeSuite::M115() {
     // ARC_SUPPORT (G2-G3)
     cap_line(F("ARCS"), ENABLED(ARC_SUPPORT));
 
+    // BEZIER_CURVE_SUPPORT (G5)
+    cap_line(F("BEZIERS"), ENABLED(BEZIER_CURVE_SUPPORT));
+
     // BABYSTEPPING (M290)
     cap_line(F("BABYSTEPPING"), ENABLED(BABYSTEPPING));
 
@@ -246,6 +250,39 @@ void GcodeSuite::M115() {
 
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
+
+    // SINGLE_NOZZLE
+    cap_line(F("SINGLE_NOZZLE"), ENABLED(SINGLENOZZLE));
+
+    // HEATED_BED
+    cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
+
+    // MIXING_EXTRUDER
+    cap_line(F("MIXING_EXTRUDER"), ENABLED(MIXING_EXTRUDER));
+
+    // DUAL_X_CARRIAGE
+    cap_line(F("DUAL_X_CARRIAGE"), ENABLED(DUAL_X_CARRIAGE));
+
+    // NOZZLE_PARK_FEATURE
+    cap_line(F("NOZZLE_PARKING"), ENABLED(NOZZLE_PARK_FEATURE));
+
+    // NOZZLE_CLEAN_FEATURE
+    cap_line(F("NOZZLE_CLEANING"), ENABLED(NOZZLE_CLEAN_FEATURE));
+
+    // INPUT_SHAPING
+    cap_line(F("INPUT_SHAPING"), ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y));
+
+    // LIN_ADVANCE
+    cap_line(F("LINEAR_ADVANCE"), ENABLED(LIN_ADVANCE));
+
+    // FIRMWARE_RETRACT
+    cap_line(F("FIRMWARE_RETRACT"), ENABLED(FWRETRACT));
+
+    // POWER_LOSS_RECOVERY
+    cap_line(F("POWER_LOSS_RECOVERY"), ENABLED(POWER_LOSS_RECOVERY));
+
+    // DIRECT_STEPPING
+    cap_line(F("DIRECT_STEPPING"), ENABLED(DIRECT_STEPPING));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
@@ -294,6 +331,51 @@ void GcodeSuite::M115() {
             "}" // max
           "}" // work
         "}" // area
+      );
+    #endif
+
+    // Temperatures
+    #if ENABLED(M115_TEMPERATURE_REPORT)
+      SERIAL_ECHOLNPGM(
+        "temperatures:{"
+          "t0:{min:", HEATER_0_MINTEMP, ",max:", HEATER_0_MAXTEMP, "}"
+          #if TEMP_SENSOR_1
+            ",t1:{min:", HEATER_1_MINTEMP, ",max:", HEATER_1_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_2
+            ",t2:{min:", HEATER_2_MINTEMP, ",max:", HEATER_2_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_3
+            ",t3:{min:", HEATER_3_MINTEMP, ",max:", HEATER_3_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_4
+            ",t4:{min:", HEATER_4_MINTEMP, ",max:", HEATER_4_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_5
+            ",t5:{min:", HEATER_5_MINTEMP, ",max:", HEATER_5_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_6
+            ",t6:{min:", HEATER_6_MINTEMP, ",max:", HEATER_6_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_7
+            ",t7:{min:", HEATER_7_MINTEMP, ",max:", HEATER_7_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_BED
+            ",bed:{min:", BED_MINTEMP, ",max:", BED_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_CHAMBER
+            ",chamber:{min:", CHAMBER_MINTEMP, ",max:", CHAMBER_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_COOLER
+            ",cooler:{min:", COOLER_MINTEMP, ",max:", COOLER_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_BOARD
+            ",board:{min:", BOARD_MINTEMP, ",max:", BOARD_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_SOC
+            ",soc:{max:", SOC_MAXTEMP, "}"
+          #endif
+        "}"
       );
     #endif
 
