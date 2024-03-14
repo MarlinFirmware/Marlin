@@ -477,6 +477,10 @@
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
+#if DISABLED(PSU_OFF_REDUNDANT) || !defined(PS_ON1_PIN)
+  #undef PS_ON1_PIN
+  #define PS_ON1_PIN -1
+#endif
 #ifndef KILL_PIN
   #define KILL_PIN -1
 #endif
