@@ -307,10 +307,28 @@ void GcodeSuite::M115() {
         "temperatures:{"
           "t0:{min:", HEATER_0_MINTEMP, ",max:", HEATER_0_MAXTEMP, "}"
           #if TEMP_SENSOR_1
-          ",t1:{min:", HEATER_1_MINTEMP, ",max:", HEATER_1_MAXTEMP, "}"
+            ",t1:{min:", HEATER_1_MINTEMP, ",max:", HEATER_1_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_2
+            ",t2:{min:", HEATER_2_MINTEMP, ",max:", HEATER_2_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_3
+            ",t3:{min:", HEATER_3_MINTEMP, ",max:", HEATER_3_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_4
+            ",t4:{min:", HEATER_4_MINTEMP, ",max:", HEATER_4_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_5
+            ",t5:{min:", HEATER_5_MINTEMP, ",max:", HEATER_5_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_6
+            ",t6:{min:", HEATER_6_MINTEMP, ",max:", HEATER_6_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_7
+            ",t7:{min:", HEATER_7_MINTEMP, ",max:", HEATER_7_MAXTEMP, "}"
           #endif
           #if TEMP_SENSOR_BED
-          ",bed:{min:", BED_MINTEMP, ",max:", BED_MAXTEMP, "}"
+            ",bed:{min:", BED_MINTEMP, ",max:", BED_MAXTEMP, "}"
           #endif
         "}"
       );
