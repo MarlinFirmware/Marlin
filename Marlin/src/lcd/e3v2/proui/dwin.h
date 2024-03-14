@@ -158,7 +158,9 @@ typedef struct {
     IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
     uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
-  TERN_(PROUI_GRID_PNTS, uint8_t grid_max_points = DEF_GRID_MAX_POINTS);
+  #if PROUI_GRID_PNTS
+    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
@@ -328,6 +330,7 @@ void drawPrintFileMenu();
 void drawControlMenu();
 void drawAdvancedSettingsMenu();
 void drawPrepareMenu();
+void drawLevelMenu();
 void drawMoveMenu();
 void drawTrammingMenu();
 #if HAS_HOME_OFFSET
@@ -429,12 +432,13 @@ void drawMaxAccelMenu();
   #define GRID_MAX_POINTS_Y hmiData.grid_max_points
   #define GRID_MAX_POINTS  (hmiData.grid_max_points * hmiData.grid_max_points)
 #endif
+
 #if HAS_BED_PROBE
   #undef Z_PROBE_FEEDRATE_SLOW
   #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
 #endif
 
-#if HAS_MESH
+#if ENABLED(PROUI_MESH_EDIT)
   #undef  MESH_MIN_X
   #undef  MESH_MAX_X
   #undef  MESH_MIN_Y

@@ -198,7 +198,7 @@ public:
     TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
-  #if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #if ALL(DWIN_LCD_PROUI, PROUI_MESH_EDIT)
     static float mesh_inset_min_x;
     static float mesh_inset_max_x;
     static float mesh_inset_min_y;

@@ -582,9 +582,9 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // MESH_INSET workaround
+  // Editable MESH_INSET
   //
-  #if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #if ALL(DWIN_LCD_PROUI, PROUI_MESH_EDIT)
     float ui_mesh_inset_min_x;
     float ui_mesh_inset_max_x;
     float ui_mesh_inset_min_y;
@@ -1637,9 +1637,9 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // MESH_INSET workaround
+    // Editable MESH_INSET
     //
-    #if ALL(DWIN_LCD_PROUI, HAS_MESH)
+    #if ALL(DWIN_LCD_PROUI, PROUI_MESH_EDIT)
       EEPROM_WRITE(ui.mesh_inset_min_x);
       EEPROM_WRITE(ui.mesh_inset_max_x);
       EEPROM_WRITE(ui.mesh_inset_min_y);
@@ -2720,8 +2720,8 @@ void MarlinSettings::postprocess() {
         if (!validating) dwinCopySettingsFrom(dwin_data);
       }
 
-        // MESH_INSET workaround
-        #if ALL(DWIN_LCD_PROUI, HAS_MESH)
+        // Editable MESH_INSET
+        #if ENABLED(PROUI_MESH_EDIT)
           _FIELD_TEST(ui_mesh_inset_min_x);
           EEPROM_READ(ui.mesh_inset_min_x);
           _FIELD_TEST(ui_mesh_inset_max_x);
@@ -3239,9 +3239,9 @@ void MarlinSettings::reset() {
   TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
 
   //
-  // MESH_INSET workaround
+  // Editable MESH_INSET
   //
-  #if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #if ALL(DWIN_LCD_PROUI, PROUI_MESH_EDIT)
     ui.mesh_inset_min_x = MESH_INSET;
     ui.mesh_inset_max_x = (X_BED_SIZE - MESH_INSET);
     ui.mesh_inset_min_y = MESH_INSET;
