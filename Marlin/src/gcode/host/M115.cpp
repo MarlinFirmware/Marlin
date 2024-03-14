@@ -330,6 +330,21 @@ void GcodeSuite::M115() {
           #if TEMP_SENSOR_BED
             ",bed:{min:", BED_MINTEMP, ",max:", BED_MAXTEMP, "}"
           #endif
+          #if TEMP_SENSOR_CHAMBER
+            ",chamber:{min:", CHAMBER_MINTEMP, ",max:", CHAMBER_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_COOLER
+            ",cooler:{min:", COOLER_MINTEMP, ",max:", COOLER_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_BOARD
+            ",board:{min:", BOARD_MINTEMP, ",max:", BOARD_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_PROBE
+            ",probe:{min:", PROBE_MINTEMP, ",max:", PROBE_MAXTEMP, "}"
+          #endif
+          #if TEMP_SENSOR_SOC
+            ",soc:{max:", SOC_MAXTEMP, "}"
+          #endif
         "}"
       );
     #endif
