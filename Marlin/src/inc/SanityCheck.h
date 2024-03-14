@@ -3740,6 +3740,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "POWER_OFF_DELAY must be a positive value."
   #elif ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN) && !(defined(AUTO_POWER_E_TEMP) || defined(AUTO_POWER_CHAMBER_TEMP) || defined(AUTO_POWER_COOLER_TEMP))
     #error "POWER_OFF_WAIT_FOR_COOLDOWN requires AUTO_POWER_E_TEMP, AUTO_POWER_CHAMBER_TEMP, and/or AUTO_POWER_COOLER_TEMP."
+  #elif ENABLED(PSU_OFF_REDUNDANT) && !PIN_EXISTS(PS_ON1)
+    #error "PSU_OFF_REDUNDANT requires PS_ON1_PIN."
   #endif
 #endif
 

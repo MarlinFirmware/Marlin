@@ -140,7 +140,7 @@ bool MarlinUI::detected() { return true; }
         uint8_t *dst = (uint8_t*)bmp;
 
         auto rle_nybble = [&](const uint16_t i) -> uint8_t {
-          const uint8_t b = bmp_rle[i / 2];
+          const uint8_t b = pgm_read_byte(&bmp_rle[i / 2]);
           return (i & 1 ? b & 0xF : b >> 4);
         };
 
