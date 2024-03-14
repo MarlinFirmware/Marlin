@@ -35,6 +35,10 @@
 // Inline laser power
 #include "../module/planner.h"
 
+#if ANY(SPINDLE_LASER_USE_PWM, SPINDLE_STEPPER)
+  #define PWM_ABLE_SPINDLE 1
+#endif
+
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
 #define PCT_TO_SERVO(X) ((X) * 180 / 100)
 
@@ -124,7 +128,7 @@ public:
 
   FORCE_INLINE static void refresh() { apply_power(power); }
 
-  #if ENABLED(SPINDLE_LASER_USE_PWM)
+  #if PWM_ABLE_SPINDLE
 
     private:
 
@@ -150,7 +154,7 @@ public:
       );
     }
 
-  #endif // SPINDLE_LASER_USE_PWM
+  #endif // PWM_ABLE_SPINDLE
 
   /**
    * Correct power to configured range
@@ -197,7 +201,7 @@ public:
   static void set_enabled(bool enable) {
     switch (cutter_mode) {
       case CUTTER_MODE_STANDARD:
-        apply_power(enable ? TERN(SPINDLE_LASER_USE_PWM, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
+        apply_power(enable ? TERN(PWM_ABLE_SPINDLE, (power ?: (unitPower ? upower_to_ocr(cpwr_to_upwr(SPEED_POWER_STARTUP)) : 0)), 255) : 0);
         break;
       case CUTTER_MODE_CONTINUOUS:
       case CUTTER_MODE_DYNAMIC:
@@ -251,11 +255,13 @@ public:
     #if ENABLED(SPINDLE_FEATURE)
       static void enable_with_dir(const bool reverse) {
         isReadyForUI = true;
-        const uint8_t ocr = TERN(SPINDLE_LASER_USE_PWM, upower_to_ocr(menuPower), 255);
+        const uint8_t ocr = TERN(PWM_ABLE_SPINDLE, upower_to_ocr(menuPower), 255);
+        SERIAL_ECHOLNPGM("OCR1: ", ocr);
         if (menuPower)
           power = ocr;
         else
           menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
+        SERIAL_ECHOLNPGM("menuPower: ", menuPower);
         unitPower = menuPower;
         set_reverse(reverse);
         set_enabled(true);
@@ -265,7 +271,7 @@ public:
       FORCE_INLINE static void enable_same_dir() { enable_with_dir(is_reverse()); }
     #endif // SPINDLE_FEATURE
 
-    #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #if PWM_ABLE_SPINDLE
       static void update_from_mpower() {
         if (isReadyForUI) power = upower_to_ocr(menuPower);
         unitPower = menuPower;

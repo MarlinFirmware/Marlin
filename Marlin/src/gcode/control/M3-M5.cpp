@@ -97,7 +97,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
       cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
 
     // PWM not implied, power converted to OCR from unit definition and on/off if not PWM.
-    cutter.power = TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0);
+    cutter.power = TERN(PWM_ABLE_SPINDLE, cutter.upower_to_ocr(cutter.unitPower), cutter.unitPower > 0 ? 255 : 0);
   };
 
   if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {  // Laser power in inline mode
@@ -119,7 +119,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     cutter.apply_power(
       #if ENABLED(SPINDLE_SERVO)
         cutter.unitPower
-      #elif ENABLED(SPINDLE_LASER_USE_PWM)
+      #elif PWM_ABLE_SPINDLE
         cutter.upower_to_ocr(cutter.unitPower)
       #else
         cutter.unitPower > 0 ? 255 : 0
