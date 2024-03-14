@@ -245,17 +245,11 @@ void GcodeSuite::M115() {
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
-    // FSR_PROBING
-    cap_line(F("FSR_PROBING"), ENABLED(HAS_FSR) || ENABLED(HAS_Z_MIN_ADC));
-
     // SINGLE_NOZZLE
     cap_line(F("SINGLE_NOZZLE"), ENABLED(SINGLENOZZLE));
 
     // HEATED_BED
     cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
-
-    // DELTA
-    cap_line(F("DELTA"), ENABLED(DELTA));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
