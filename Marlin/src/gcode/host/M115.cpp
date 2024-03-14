@@ -248,6 +248,9 @@ void GcodeSuite::M115() {
     // SINGLE_NOZZLE
     cap_line(F("SINGLE_NOZZLE"), ENABLED(SINGLENOZZLE));
 
+    // DIRECT_DRIVE
+    cap_line(F("DIRECT_DRIVE"), ENABLED(ADVANCED_PAUSE_FEATURE) && TERN(FILAMENT_CHANGE_UNLOAD_LENGTH < 100);
+
     // HEATED_BED
     cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
 
@@ -338,9 +341,6 @@ void GcodeSuite::M115() {
           #endif
           #if TEMP_SENSOR_BOARD
             ",board:{min:", BOARD_MINTEMP, ",max:", BOARD_MAXTEMP, "}"
-          #endif
-          #if TEMP_SENSOR_PROBE
-            ",probe:{min:", PROBE_MINTEMP, ",max:", PROBE_MAXTEMP, "}"
           #endif
           #if TEMP_SENSOR_SOC
             ",soc:{max:", SOC_MAXTEMP, "}"
