@@ -1247,6 +1247,10 @@
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
  * Override with M203
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
+ *
+ * Note: If you are using INPUT_SHAPING, these XY values have a very
+ * significant impact on RAM usage, and you should set these to a
+ * realistic maximum for your printer.
  */
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
 
