@@ -119,10 +119,10 @@ typedef struct {
   #if HAS_PID_HEATING
     int16_t pidCycles = DEF_PIDCYCLES;
     #if ENABLED(PIDTEMP)
-      celsius_t hotendPidT = DEF_HOTENDPIDT;
+      celsius_t hotendPIDT = DEF_HOTENDPIDT;
     #endif
     #if ENABLED(PIDTEMPBED)
-      celsius_t bedPidT = DEF_BEDPIDT;
+      celsius_t bedPIDT = DEF_BEDPIDT;
     #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -382,7 +382,7 @@ void drawMaxAccelMenu();
 #if HAS_PID_HEATING
   #include "../../../module/temperature.h"
   void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
-  void dwinPidTuning(tempcontrol_t result);
+  void dwinPIDTuning(tempcontrol_t result);
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_AUTOTUNE_MENU)
       void hotendPID();

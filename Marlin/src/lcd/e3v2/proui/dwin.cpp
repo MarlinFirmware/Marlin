@@ -1549,7 +1549,7 @@ void dwinLevelingDone() {
           DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:     Celsius"));
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, F("for NOZZLE is running."));
           _maxtemp = thermalManager.hotend_maxtemp[0];
-          _target = hmiData.hotendPidT;
+          _target = hmiData.hotendPIDT;
           break;
       #endif
       #if ENABLED(PIDTEMPBED)
@@ -1558,7 +1558,7 @@ void dwinLevelingDone() {
           DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("PID target:     Celsius"));
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, F("for BED is running."));
           _maxtemp = BED_MAXTEMP;
-          _target = hmiData.bedPidT;
+          _target = hmiData.bedPIDT;
           break;
       #endif
     }
@@ -1623,16 +1623,16 @@ void dwinLevelingDone() {
     hmiData.pidCycles = c;
     switch (hid) {
       #if ENABLED(PIDTEMP)
-        case 0 ... HOTENDS - 1: hmiData.hotendPidT = temp; break;
+        case 0 ... HOTENDS - 1: hmiData.hotendPIDT = temp; break;
       #endif
       #if ENABLED(PIDTEMPBED)
-        case H_BED: hmiData.bedPidT = temp; break;
+        case H_BED: hmiData.bedPIDT = temp; break;
       #endif
       default: break;
     }
   }
 
-  void dwinPidTuning(tempcontrol_t result) {
+  void dwinPIDTuning(tempcontrol_t result) {
     hmiValue.tempControl = result;
     switch (result) {
       #if ENABLED(PIDTEMP)
@@ -1798,8 +1798,8 @@ static_assert(ExtUI::eeprom_data_size >= sizeof(hmi_data_t), "Insufficient space
 void dwinSetDataDefaults() {
   dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
-  TERN_(PIDTEMP, hmiData.hotendPidT = DEF_HOTENDPIDT);
-  TERN_(PIDTEMPBED, hmiData.bedPidT = DEF_BEDPIDT);
+  TERN_(PIDTEMP, hmiData.hotendPIDT = DEF_HOTENDPIDT);
+  TERN_(PIDTEMPBED, hmiData.bedPIDT = DEF_BEDPIDT);
   TERN_(HAS_PID_HEATING, hmiData.pidCycles = DEF_PIDCYCLES);
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     hmiData.extMinT = EXTRUDE_MINTEMP;
@@ -3825,7 +3825,7 @@ void drawMaxAccelMenu() {
       );
       thermalManager.PID_autotune(t, h, hmiData.pidCycles, true);
     }
-    void setPidCycles() { setPIntOnClick(3, 50); }
+    void setPIDCycles() { setPIntOnClick(3, 50); }
   #endif
 
   #if ENABLED(PID_EDIT_MENU)
@@ -3857,8 +3857,8 @@ void drawMaxAccelMenu() {
 #if ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
 
   #if ENABLED(PID_AUTOTUNE_MENU)
-    void hotendPID() { setPID(hmiData.hotendPidT, H_E0); }
-    void setHotendPidT() { setPIntOnClick(MIN_ETEMP, MAX_ETEMP); }
+    void hotendPID() { setPID(hmiData.hotendPIDT, H_E0); }
+    void setHotendPIDT() { setPIntOnClick(MIN_ETEMP, MAX_ETEMP); }
   #endif
 
   void drawHotendPIDMenu() {
@@ -3867,8 +3867,8 @@ void drawMaxAccelMenu() {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if ENABLED(PID_AUTOTUNE_MENU)
         MENU_ITEM_F(ICON_PIDNozzle, STR_HOTEND_PID, onDrawMenuItem, hotendPID);
-        EDIT_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawPIntMenu, setHotendPidT, &hmiData.hotendPidT);
-        EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPidCycles, &hmiData.pidCycles);
+        EDIT_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawPIntMenu, setHotendPIDT, &hmiData.hotendPIDT);
+        EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPIDCycles, &hmiData.pidCycles);
       #endif
       #if ENABLED(PID_EDIT_MENU)
         EDIT_ITEM_F(ICON_PIDValue, "Set Kp: ", onDrawPFloat2Menu, setKp, &thermalManager.temp_hotend[0].pid.Kp);
@@ -3887,8 +3887,8 @@ void drawMaxAccelMenu() {
 #if ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
 
   #if ENABLED(PID_AUTOTUNE_MENU)
-    void bedPID() { setPID(hmiData.bedPidT, H_BED); }
-    void setBedPidT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
+    void bedPID() { setPID(hmiData.bedPIDT, H_BED); }
+    void setBedPIDT() { setPIntOnClick(MIN_BEDTEMP, MAX_BEDTEMP); }
   #endif
 
   void drawBedPIDMenu() {
@@ -3897,8 +3897,8 @@ void drawMaxAccelMenu() {
       BACK_ITEM(drawAdvancedSettingsMenu);
       #if ENABLED(PID_AUTOTUNE_MENU)
         MENU_ITEM_F(ICON_PIDBed, STR_BED_PID, onDrawMenuItem,bedPID);
-        EDIT_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawPIntMenu, setBedPidT, &hmiData.bedPidT);
-        EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPidCycles, &hmiData.pidCycles);
+        EDIT_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawPIntMenu, setBedPIDT, &hmiData.bedPIDT);
+        EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPIDCycles, &hmiData.pidCycles);
       #endif
       #if ENABLED(PID_EDIT_MENU)
         EDIT_ITEM_F(ICON_PIDValue, "Set Kp: ", onDrawPFloat2Menu, setKp, &thermalManager.temp_bed.pid.Kp);

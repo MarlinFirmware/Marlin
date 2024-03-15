@@ -283,7 +283,7 @@ void AnycubicTFT::handleSpecialMenu() {
             break;
 
           case '9': // "<09HtBedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
+            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed PID"));
             injectCommands(F("M303 E-1 S65 C6 U1"));
             break;
         }
@@ -328,7 +328,7 @@ void AnycubicTFT::handleSpecialMenu() {
             break;
 
           case '4': // "<04HtbedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
+            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed PID"));
             injectCommands(F("M303 E-1 S65 C6 U1"));
             break;
 

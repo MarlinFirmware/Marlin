@@ -79,8 +79,7 @@ namespace ExtUI {
 
   constexpr axis_t axis_to_axis_t(const AxisEnum a) {
     switch (a) {
-      TERN_(HAS_X_AXIS, case X_AXIS:)
-      default: return X;
+      TERN_(HAS_X_AXIS, case X_AXIS: return X;)
       OPTCODE(HAS_Y_AXIS, case Y_AXIS: return Y)
       OPTCODE(HAS_Z_AXIS, case Z_AXIS: return Z)
       OPTCODE(HAS_I_AXIS, case I_AXIS: return I)
@@ -89,6 +88,7 @@ namespace ExtUI {
       OPTCODE(HAS_U_AXIS, case U_AXIS: return U)
       OPTCODE(HAS_V_AXIS, case V_AXIS: return V)
       OPTCODE(HAS_W_AXIS, case W_AXIS: return W)
+      default: return X;
     }
   }
 
@@ -545,11 +545,11 @@ namespace ExtUI {
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst);
+    void onPIDTuning(const result_t rst);
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp);
   #endif
   #if ENABLED(MPC_AUTOTUNE)
-    void onMpcTuning(const result_t rst);
+    void onMPCTuning(const result_t rst);
   #endif
   #if ENABLED(PLATFORM_M997_SUPPORT)
     void onFirmwareFlash();

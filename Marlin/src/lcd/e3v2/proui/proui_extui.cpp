@@ -195,15 +195,15 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        case PID_STARTED:        dwinPidTuning(PIDTEMP_START);      break;
-        case PID_BED_STARTED:    dwinPidTuning(PIDTEMPBED_START);   break;
-        case PID_BAD_HEATER_ID:  dwinPidTuning(PID_BAD_HEATER_ID);  break;
-        case PID_TEMP_TOO_HIGH:  dwinPidTuning(PID_TEMP_TOO_HIGH);  break;
-        case PID_TUNING_TIMEOUT: dwinPidTuning(PID_TUNING_TIMEOUT); break;
-        case PID_DONE:           dwinPidTuning(AUTOTUNE_DONE);      break;
+        case PID_STARTED:        dwinPIDTuning(PIDTEMP_START);      break;
+        case PID_BED_STARTED:    dwinPIDTuning(PIDTEMPBED_START);   break;
+        case PID_BAD_HEATER_ID:  dwinPIDTuning(PID_BAD_HEATER_ID);  break;
+        case PID_TEMP_TOO_HIGH:  dwinPIDTuning(PID_TEMP_TOO_HIGH);  break;
+        case PID_TUNING_TIMEOUT: dwinPIDTuning(PID_TUNING_TIMEOUT); break;
+        case PID_DONE:           dwinPIDTuning(AUTOTUNE_DONE);      break;
 
       }
     }
@@ -215,7 +215,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)
-    void onMpcTuning(const result_t rst) {
+    void onMPCTuning(const result_t rst) {
       // Called for temperature MPC tuning result
       switch (rst) {
         case MPC_STARTED:     dwinMPCTuning(MPCTEMP_START);   break;

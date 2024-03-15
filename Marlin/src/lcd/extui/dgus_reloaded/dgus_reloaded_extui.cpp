@@ -174,7 +174,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       screen.pidTuning(rst);
     }
@@ -184,7 +184,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)
-    void onMpcTuning(const result_t rst) {
+    void onMPCTuning(const result_t rst) {
       // Called for temperature PID tuning result
     }
   #endif
