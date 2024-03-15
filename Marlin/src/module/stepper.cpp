@@ -559,7 +559,7 @@ void Stepper::enable_axis(const AxisEnum axis) {
 /**
  * Mark an axis as disabled and power off its stepper(s).
  * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
- * Discussion: It's basically just stepper ENA pins that are shared across axes, not whole steppers.
+ * DISCUSSION: It's basically just stepper ENA pins that are shared across axes, not whole steppers.
  *             Used on MCUs with a shortage of pins. We already track the overlap of ENA pins, so now
  *             we just need stronger logic to track which ENA pins are being set more than once.
  *
@@ -585,7 +585,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
-    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(axis));
+    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(axis_to_axis_t(axis)));
   }
 
   return can_disable;
