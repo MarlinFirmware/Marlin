@@ -94,6 +94,11 @@
     #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
   #endif
 
+  // USART_RX_DMA_SUPPORT does not implement core_hook_usart_rx_irq, which is required for the emergency parser
+  #if ENABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is not supported with SERIAL_DMA. Please disable either SERIAL_DMA or EMERGENCY_PARSER."
+  #endif
+
   #if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 1, 0)
     #error "SERIAL_DMA is not supported with arduino core version < 1.1.0."
   #endif
