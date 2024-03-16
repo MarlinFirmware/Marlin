@@ -140,6 +140,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5

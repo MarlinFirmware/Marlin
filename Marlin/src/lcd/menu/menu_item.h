@@ -287,8 +287,8 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
   FSTR_P const flabel = FLABEL;                                \
   if (CLICKED()) {                                             \
-    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     MenuItem_##TYPE::action(flabel, ##V);                      \
+    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     if (ui.screen_changed) return;                             \
   }                                                            \
   if (ui.should_draw())                                        \

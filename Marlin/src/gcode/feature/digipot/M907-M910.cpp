@@ -126,6 +126,8 @@ void GcodeSuite::M907() {
 #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
       SERIAL_ECHOLNPGM_P(                                     // PWM-based has 3 values:

@@ -60,6 +60,10 @@ bool Power::psu_on;
   millis_t Power::lastPowerOn;
 #endif
 
+#if PSU_TRACK_STATE_MS
+  millis_t Power::last_state_change_ms = 0;
+#endif
+
 /**
  * Initialize pins & state for the power manager.
  *
@@ -87,8 +91,14 @@ void Power::power_on() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
+  #if ENABLED(PSU_OFF_REDUNDANT)
+    OUT_WRITE(PS_ON1_PIN, TERN_(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
+  #endif
+  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
+
   restore_stepper_drivers();
   TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
 
@@ -102,11 +112,11 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
-  SERIAL_ECHOLNPGM(STR_POWEROFF);
-
   TERN_(HAS_SUICIDE, suicide());
 
   if (!psu_on) return;
+
+  SERIAL_ECHOLNPGM(STR_POWEROFF);
 
   #ifdef PSU_POWEROFF_GCODE
     gcode.process_subcommands_now(F(PSU_POWEROFF_GCODE));
@@ -117,6 +127,11 @@ void Power::power_off() {
   #endif
 
   OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE);
+  #if ENABLED(PSU_OFF_REDUNDANT)
+    OUT_WRITE(PS_ON1_PIN, IF_DISABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
+  #endif
+  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+
   psu_on = false;
 
   #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)

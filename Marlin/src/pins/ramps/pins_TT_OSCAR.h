@@ -304,9 +304,9 @@
 #define EXP2_07_PIN                           49  // SD_DET
 #define EXP2_08_PIN                           41  // KILL / RESET
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
 #if HAS_WIRED_LCD
 

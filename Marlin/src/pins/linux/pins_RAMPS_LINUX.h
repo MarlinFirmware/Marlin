@@ -399,9 +399,9 @@
 #define EXP2_07_PIN                           49  // SD_DET
 #define EXP2_08_PIN                           41  // KILL
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
