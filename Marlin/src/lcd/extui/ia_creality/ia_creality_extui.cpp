@@ -352,6 +352,10 @@ void onSettingsLoaded(const bool success) {
 
 void onPostprocessSettings() {}
 
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  void onSetMinExtrusionTemp(const celsius_t) {}
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   void onSetPowerLoss(const bool onoff) {
     // Called when power-loss is enabled/disabled
@@ -429,7 +433,9 @@ void stopPrint() { ui.abort_print(); }
 void onPrintDone() {}
 
 void onSteppersDisabled() {}
-void onSteppersEnabled() {}
+void onSteppersEnabled()  {}
+void onAxisDisabled(const axis_t) {}
+void onAxisEnabled(const axis_t) {}
 
 } // ExtUI
 
