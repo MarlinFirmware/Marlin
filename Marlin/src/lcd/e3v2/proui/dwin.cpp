@@ -1620,7 +1620,7 @@ void dwinLevelingDone() {
 #if HAS_PID_HEATING
 
   void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-    hmiData.pidCycles = c;
+    hmiData.pidCycles = count;
     switch (hid) {
       #if ENABLED(PIDTEMP)
         case 0 ... HOTENDS - 1: hmiData.hotendPIDT = temp; break;

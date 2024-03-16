@@ -1259,18 +1259,19 @@ namespace ExtUI {
 //
 // MarlinUI passthroughs to ExtUI
 //
+#if DISABLED(HAS_DWIN_E3V2)
+  void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 
-void MarlinUI::init_lcd() { ExtUI::onStartup(); }
+  void MarlinUI::update() { ExtUI::onIdle(); }
 
-void MarlinUI::update() { ExtUI::onIdle(); }
-
-void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
-  using namespace ExtUI;
-  if (!flags.printer_killed) {
-    flags.printer_killed = true;
-    onPrinterKilled(error, component);
+  void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
+    using namespace ExtUI;
+    if (!flags.printer_killed) {
+      flags.printer_killed = true;
+      onPrinterKilled(error, component);
+    }
   }
-}
+#endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 

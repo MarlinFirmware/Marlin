@@ -45,13 +45,13 @@
 
 #if ENABLED(DWIN_LCD_PROUI)
 
-#include "dwin.h"
+#include "dwin_popup.h"
 
 #include "../../extui/ui_api.h"
-#include "../../module/stepper.h"
+#include "../../../module/stepper.h"
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
-  #include "../../../feature/temperature.h"
+  #include "../../../module/temperature.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -69,13 +69,13 @@ namespace ExtUI {
   void onMediaError() {}
   void onMediaRemoved() {}
 
-  void onHeatingError(const heater_id_t header_id) {
+  void onHeatingError(const heater_id_t heater_id) {
     dwinPopupTemperature(heater_id, 0);
   }
-  void onMinTempError(const heater_id_t header_id) {
+  void onMinTempError(const heater_id_t heater_id) {
     dwinPopupTemperature(heater_id, 0);
   }
-  void onMaxTempError(const heater_id_t header_id) {
+  void onMaxTempError(const heater_id_t heater_id) {
     dwinPopupTemperature(heater_id, 1);
   }
 
@@ -88,7 +88,7 @@ namespace ExtUI {
     dwinFilamentRunout(extruder);
   }
 
-  void onUserConfirmRequired(const char * const msg) {
+  void onUserConfirmRequired(const char * const cstr) {
     // TODO: A version of this method that takes an icon and button title,
     // or implement some kind of ExtUI enum.
     onUserConfirmRequired(ICON_Continue_1, cstr, GET_TEXT_F(MSG_USERWAIT));
@@ -200,9 +200,9 @@ namespace ExtUI {
       switch (rst) {
         case PID_STARTED:        dwinPIDTuning(PIDTEMP_START);      break;
         case PID_BED_STARTED:    dwinPIDTuning(PIDTEMPBED_START);   break;
-        case PID_BAD_HEATER_ID:  dwinPIDTuning(PID_BAD_HEATER_ID);  break;
-        case PID_TEMP_TOO_HIGH:  dwinPIDTuning(PID_TEMP_TOO_HIGH);  break;
-        case PID_TUNING_TIMEOUT: dwinPIDTuning(PID_TUNING_TIMEOUT); break;
+        case PID_BAD_HEATER_ID:  dwinPIDTuning(tempcontrol_t(PID_BAD_HEATER_ID));  break;
+        case PID_TEMP_TOO_HIGH:  dwinPIDTuning(tempcontrol_t(PID_TEMP_TOO_HIGH));  break;
+        case PID_TUNING_TIMEOUT: dwinPIDTuning(tempcontrol_t(PID_TUNING_TIMEOUT)); break;
         case PID_DONE:           dwinPIDTuning(AUTOTUNE_DONE);      break;
 
       }
@@ -233,7 +233,7 @@ namespace ExtUI {
   void onSteppersDisabled() {}
   void onSteppersEnabled()  {}
   void onAxisDisabled(const axis_t axis) {
-    stepper.set_axis_untrusted(axis); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    set_axis_untrusted(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
 
