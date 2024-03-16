@@ -73,6 +73,8 @@ typedef bool (*statusResetFunc_t)();
 
   #if HAS_MARLINUI_MENU
 
+    #include "lcdprint.h"
+
     #if !HAS_GRAPHICAL_TFT
       void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
       inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
