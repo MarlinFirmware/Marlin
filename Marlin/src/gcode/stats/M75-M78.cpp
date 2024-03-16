@@ -36,8 +36,8 @@
 /**
  * M75: Start print timer
  *
- *      ProUI: If the print fails to start and any text is
- *             included in the command, print it in the header.
+ * ProUI: If the print fails to start and any text is
+ *        included in the command, print it in the header.
  */
 void GcodeSuite::M75() {
   startOrResumeJob(); // ... ExtUI::onPrintTimerStarted()
