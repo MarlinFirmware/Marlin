@@ -71,7 +71,7 @@ namespace ExtUI {
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
       const uint8_t extruder/*=active_extruder*/
     ) {
-      stdOnPauseMode();
+      stdOnPauseMode(message, mode, extruder);
     }
   #endif
 

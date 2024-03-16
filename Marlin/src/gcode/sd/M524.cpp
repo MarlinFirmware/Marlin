@@ -28,9 +28,9 @@
 #include "../../sd/cardreader.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extui/marlinui.h"
+  #include "../../lcd/marlinui.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
-
 /**
  * M524: Abort the current SD print job (started with M24)
  */

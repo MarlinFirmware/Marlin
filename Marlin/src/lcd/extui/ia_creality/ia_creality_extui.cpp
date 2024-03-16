@@ -248,7 +248,7 @@ void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn)
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
     const uint8_t extruder/*=active_extruder*/
   ) {
-    stdOnPauseMode();
+    stdOnPauseMode(message, mode, extruder);
   }
 #endif
 

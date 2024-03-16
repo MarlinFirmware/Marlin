@@ -69,17 +69,38 @@ namespace ExtUI {
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
   enum result_t   : uint8_t {
-    PID_STARTED, PID_BED_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE,
-    MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE
+    /*
+    #if HAS_PID_HEATING
+      PID_STARTED, PID_BED_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE
+    #endif
+    #if ALL(HAS_PID_HEATING, MPC_AUTOTUNE)
+      ,
+    #endif
+    #if ENABLED(MPC_AUTOTUNE)
+      MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE
+    #endif
+    */
+    OPTITEM(HAS_PID_HEATING, PID_STARTED)
+    OPTITEM(HAS_PID_HEATING, PID_BED_STARTED)
+    OPTITEM(HAS_PID_HEATING, PID_BAD_HEATER_ID)
+    OPTITEM(HAS_PID_HEATING, PID_TEMP_TOO_HIGH)
+    OPTITEM(HAS_PID_HEATING, PID_TUNING_TIMEOUT)
+    OPTITEM(HAS_PID_HEATING, PID_DONE)
+
+    OPTITEM(MPC_AUTOTUNE, MPC_STARTED)
+    OPTITEM(MPC_AUTOTUNE, MPC_TEMP_ERROR)
+    OPTITEM(MPC_AUTOTUNE, MPC_INTERRUPTED)
+    OPTITEM(MPC_AUTOTUNE, MPC_DONE)
   };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
-  constexpr axis_t axis_to_axis_t(const AxisEnum a) {
+  inline const axis_t axis_to_axis_t(const AxisEnum a) {
     switch (a) {
-      TERN_(HAS_X_AXIS, case X_AXIS: return X;)
+      TERN_(HAS_X_AXIS, case X_AXIS:)
+      default: return X;
       OPTCODE(HAS_Y_AXIS, case Y_AXIS: return Y)
       OPTCODE(HAS_Z_AXIS, case Z_AXIS: return Z)
       OPTCODE(HAS_I_AXIS, case I_AXIS: return I)
@@ -88,7 +109,6 @@ namespace ExtUI {
       OPTCODE(HAS_U_AXIS, case U_AXIS: return U)
       OPTCODE(HAS_V_AXIS, case V_AXIS: return V)
       OPTCODE(HAS_W_AXIS, case W_AXIS: return W)
-      default: return X;
     }
   }
 

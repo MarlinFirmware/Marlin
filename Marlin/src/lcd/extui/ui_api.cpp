@@ -106,7 +106,7 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#if ADVANCED_PAUSE_FEATURE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"
 #endif
 
@@ -1116,7 +1116,7 @@ namespace ExtUI {
   }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
-  #if ADVANCED_PAUSE_FEATURE
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
     PauseMode getPauseMode() { return pause_mode; }
   #endif
