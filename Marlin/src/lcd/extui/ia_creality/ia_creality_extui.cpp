@@ -273,25 +273,6 @@ void onFactoryReset() {
   show_status = true;
 }
 
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
-
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
-  if (waitway == 3)
-    if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
-      rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
-  #if HAS_MESH
-    uint8_t abl_probe_index = 0;
-    for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-      for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-        const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-        const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-        if (point.x == xpos && outer == ypos)
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
-        ++abl_probe_index;
-      }
-  #endif
-}
-
 static_assert(eeprom_data_size >= sizeof(creality_dwin_settings_t), "Insufficient space in EEPROM for UI parameters");
 
 void onStoreSettings(char *buff) {
@@ -352,6 +333,53 @@ void onSettingsLoaded(const bool success) {
 
 void onPostprocessSettings() {}
 
+#if HAS_LEVELING
+  void onLevelingStart() {}
+
+  void onLevelingDone() {
+    #if HAS_MESH
+      if (ExtUI::getLevelingIsValid()) {
+        uint8_t abl_probe_index = 0;
+        for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+          for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+            const bool zig = outer & 1;
+            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
+            ++abl_probe_index;
+          }
+
+        rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
+        setLevelingActive(true);
+      }
+      else {
+        rts.sendData(2, AutoLevelIcon); /*Off*/
+        setLevelingActive(false);
+      }
+    #endif
+  }
+#endif
+
+#if HAS_MESH
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
+
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    if (waitway == 3)
+      if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
+        rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
+    #if HAS_MESH
+      uint8_t abl_probe_index = 0;
+      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+          const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
+          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+          if (point.x == xpos && outer == ypos)
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
+          ++abl_probe_index;
+        }
+    #endif
+  }
+#endif
+
 #if ENABLED(PREVENT_COLD_EXTRUSION)
   void onSetMinExtrusionTemp(const celsius_t) {}
 #endif
@@ -401,30 +429,6 @@ void onPostprocessSettings() {}
 #if ENABLED(PLATFORM_M997_SUPPORT)
   void onFirmwareFlash() {}
 #endif
-
-void onLevelingStart() {}
-
-void onLevelingDone() {
-  #if HAS_MESH
-    if (ExtUI::getLevelingIsValid()) {
-      uint8_t abl_probe_index = 0;
-      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-          const bool zig = outer & 1;
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
-          ++abl_probe_index;
-        }
-
-      rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
-      setLevelingActive(true);
-    }
-    else {
-      rts.sendData(2, AutoLevelIcon); /*Off*/
-      setLevelingActive(false);
-    }
-  #endif
-}
 
 void onHomingStart() {}
 void onHomingDone() {}
