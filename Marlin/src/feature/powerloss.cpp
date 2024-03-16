@@ -364,11 +364,9 @@ void PrintJobRecovery::write() {
 }
 
 #if ENABLED(PLR_HEAT_BED_ON_REBOOT)
-void PrintJobRecovery::set_bed_temp(bool turn_on) {
-    // Set the bed temperature
-  const celsius_t bt = turn_on ? info.target_temperature_bed + PLR_HEAT_BED_RAISE: 0;
-  PROCESS_SUBCOMMANDS_NOW(TS(F("M190S"), bt));
-}
+  void PrintJobRecovery::set_bed_temp(const bool on) {
+    PROCESS_SUBCOMMANDS_NOW(TS(F("M190S"), on ? info.target_temperature_bed + PLR_HEAT_BED_EXTRA : 0));
+  }
 #endif
 
 /**
