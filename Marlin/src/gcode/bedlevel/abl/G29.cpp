@@ -432,7 +432,7 @@ G29_TYPE GcodeSuite::G29() {
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp() : LEVELING_BED_TEMP)
+          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
         );
       #endif
     }
