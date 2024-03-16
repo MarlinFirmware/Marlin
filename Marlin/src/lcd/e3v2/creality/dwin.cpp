@@ -4197,7 +4197,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            queue.inject(F("M1000C"));
             hmiStartFrame(true);
             return;
           }

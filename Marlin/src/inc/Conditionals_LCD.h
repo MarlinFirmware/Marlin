@@ -1041,9 +1041,6 @@
 #endif
 
 // Aliases for LCD features
-#if ENABLED(POWER_LOSS_RECOVERY) && ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-  #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
-#endif
 #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DWIN_E3V2 1
 #endif

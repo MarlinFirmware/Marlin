@@ -1352,7 +1352,7 @@ void eachMomentUpdate() {
         drawPrintProgressElapsed();
       }
     }
-    #if ENABLED(POWER_LOSS_RECOVERY)
+    #if HAS_PLR_UI_FLAG
       else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
         return gotoPowerLossRecovery();
       }
