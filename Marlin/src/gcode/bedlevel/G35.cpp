@@ -96,8 +96,10 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(tramming_points[i], PROBE_PT_RAISE);
     if (isnan(z_probed_height)) {
       SERIAL_ECHOLN(
-        F("G35 failed at point "), i + 1, F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
-        FPSTR(SP_X_STR), tramming_points[i].x, FPSTR(SP_Y_STR), tramming_points[i].y
+        F("G35 failed at point "), i + 1,
+        F(" ("), FPSTR(pgm_read_ptr(&tramming_point_name[i])), C(')'),
+        FPSTR(SP_X_STR), tramming_points[i].x,
+        FPSTR(SP_Y_STR), tramming_points[i].y
       );
       err_break = true;
       break;
