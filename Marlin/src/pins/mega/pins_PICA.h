@@ -43,15 +43,6 @@
   #define BOARD_INFO_NAME "PICA"
 #endif
 
-/*
-// Note that these are the "pins" that correspond to the analog inputs on the arduino mega.
-// These are not the same as the physical pin numbers
-  AD0 = 54;   AD1 = 55;   AD2 = 56;   AD3 = 57;
-  AD4 = 58;   AD5 = 59;   AD6 = 60;   AD7 = 61;
-  AD8 = 62;   AD9 = 63;   AD10 = 64;  AD11 = 65;
-  AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
-*/
-
 //
 // Servos
 //
@@ -136,25 +127,53 @@
 //
 // SD Support
 //
-#define SD_DETECT_PIN                         49
-#define SDSS                                  53
+#define SD_DETECT_PIN                EXP2_07_PIN
+#define SDSS                         EXP2_04_PIN
+
+/**                      PICA Expansion Headers
+ *               ------                            ------
+ *    (BEEP) 29 | 1  2 | 31 (ENC)       (MISO) 50 | 1  2 | 52 (SCK)
+ *  (LCD_EN) 30 | 3  4 | 33 (LCD_RS)     (EN1) 47 | 3  4 | 53 (SDSS)
+ *  (LCD_D4) 35   5  6 | 32 (LCD_D5)     (EN2) 48   5  6 | 51 (MOSI)
+ *  (LCD_D6) 37 | 7  8 | 36 (LCD_D7)   (SDDET) 49 | 7  8 | 41 (KILL)
+ *          GND | 9 10 | 5V                    -- | 9 10 | --
+ *               ------                            ------
+ *                EXP1                              EXP2
+ */
+#define EXP1_01_PIN                           29  // BEEPER
+#define EXP1_02_PIN                           31  // ENC
+#define EXP1_03_PIN                           30  // LCD_EN
+#define EXP1_04_PIN                           33  // LCD_RS
+#define EXP1_05_PIN                           35  // LCD_D4
+#define EXP1_06_PIN                           32  // LCD_D5
+#define EXP1_07_PIN                           37  // LCD_D6
+#define EXP1_08_PIN                           36  // LCD_D7
+
+#define EXP2_01_PIN                           50  // MISO
+#define EXP2_02_PIN                           52  // SCK
+#define EXP2_03_PIN                           47  // EN1
+#define EXP2_04_PIN                           53  // SDSS
+#define EXP2_05_PIN                           48  // EN2
+#define EXP2_06_PIN                           51  // MOSI
+#define EXP2_07_PIN                           49  // SDDET
+#define EXP2_08_PIN                           41  // KILL
 
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                            29
+#define BEEPER_PIN                   EXP1_01_PIN
 
 #if HAS_WIRED_LCD
-  #define LCD_PINS_RS                         33
-  #define LCD_PINS_EN                         30
-  #define LCD_PINS_D4                         35
-  #define LCD_PINS_D5                         32
-  #define LCD_PINS_D6                         37
-  #define LCD_PINS_D7                         36
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
 
-  #define BTN_EN1                             47
-  #define BTN_EN2                             48
-  #define BTN_ENC                             31
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_SDSS                            53
+  #define LCD_SDSS                   EXP2_04_PIN
 #endif

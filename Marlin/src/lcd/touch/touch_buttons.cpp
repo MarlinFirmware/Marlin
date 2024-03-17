@@ -37,7 +37,7 @@
   #error "Unknown Touch Screen Type."
 #endif
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
   millis_t TouchButtons::next_sleep_ms;
 #endif
 
@@ -58,7 +58,9 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.init();
-  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
+  #if HAS_DISPLAY_SLEEP
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+  #endif
 }
 
 uint8_t TouchButtons::read_buttons() {
@@ -70,10 +72,10 @@ uint8_t TouchButtons::read_buttons() {
       const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION
                                 ? touchIO.getRawPoint(&y, &x)
                                 : touchIO.getRawPoint(&x, &y);
-      #if HAS_TOUCH_SLEEP
+      #if HAS_DISPLAY_SLEEP
         if (is_touched)
           wakeUp();
-        else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        else if (next_sleep_ms && !isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
           sleepTimeout();
       #endif
 
@@ -129,7 +131,7 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
 
   void TouchButtons::sleepTimeout() {
     #if HAS_LCD_BRIGHTNESS
@@ -139,6 +141,7 @@ uint8_t TouchButtons::read_buttons() {
     #endif
     next_sleep_ms = TSLP_SLEEPING;
   }
+
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
@@ -147,9 +150,13 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
-#endif // HAS_TOUCH_SLEEP
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (!sleep) touchBt.wakeUp();
+  }
+
+#endif // HAS_DISPLAY_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

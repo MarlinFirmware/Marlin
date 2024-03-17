@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "Biqu BX"
+#define DEFAULT_MACHINE_NAME "BIQU BX"
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
@@ -60,6 +60,13 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PH2   // Probe
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -165,7 +172,7 @@
 #define FAN1_PIN                            PA6   // "FAN1"
 #define FAN2_PIN                            PA7   // "FAN2"
 
-#define NEOPIXEL_PIN                        PH3
+#define BOARD_NEOPIXEL_PIN                  PH3
 #define NEOPIXEL2_PIN                       PB1
 
 #if HAS_LTDC_TFT

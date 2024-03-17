@@ -56,6 +56,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -175,6 +182,19 @@
 #define EXP1_06_PIN                         PB9
 #define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB7
+
+/*   -----
+ *   | 1 | RST
+ *   | 2 | PA3 RX2
+ *   | 3 | PA2 TX2
+ *   | 4 | GND
+ *   | 5 | 5V
+ *   -----
+ *    TFT
+ */
+
+#define TFT_02                              PA3
+#define TFT_03                              PA2
 
 #if HAS_WIRED_LCD
 
@@ -340,9 +360,8 @@
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
 //
-// SD Support
+// SD Card
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

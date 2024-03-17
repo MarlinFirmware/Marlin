@@ -14,7 +14,9 @@
 # build_all_examples [...] branch [resume-from]
 #
 
-. mfutil
+HERE=`dirname $0`
+
+. "$HERE/mfutil"
 
 GITREPO=https://github.com/MarlinFirmware/Configurations.git
 STAT_FILE=./.pio/.buildall
@@ -123,7 +125,7 @@ CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/
 for CONF in $CONF_TREE ; do
 
   # Get a config's directory name
-  DIR=$( echo $CONF | sed "s|$TMP/config/examples/||" )
+  DIR=$( echo $CONF | "$SED" "s|$TMP/config/examples/||" )
 
   # If looking for a config, skip others
   [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue

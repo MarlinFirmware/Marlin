@@ -162,31 +162,29 @@
  * Connector pinouts
  *
  *            ------                            ------                             ----
- * (SDA) D17 | 1  2 | (A1) D30             3V3 | 1  2 | D4 (SS)             J3_RX |1  2| J3_TX
- * (SCL) D16 | 3  4 | (A2) D29             GND | 3  4 | RESET            (TXO) D9 |3  4| D8 (RX0) D8
- *       D11 | 5  6   (A3) D28      (MOSI) D5  | 5  6   D7 (SCK)           USB_RX |5  6| USB_TX
- *       D10 | 7  8 | (A4) D27 D10         5V  | 7  8 | D6 (MISO)                  ----
- *       5V  | 9 10 | GND                J3_RX | 9 10 | J3_TX
+ * (SDA)  17 | 1  2 | 30 (A1)              3V3 | 1  2 | 4 (SS)              J3_RX |1  2| J3_TX
+ * (SCL)  16 | 3  4 | 29 (A2)              GND | 3  4 | RESET            (TXO)  9 |3  4| 8 (RX0)
+ *        11 | 5  6   28 (A3)       (MOSI)   5 | 5  6   7 (SCK)            USB_RX |5  6| USB_TX
+ *        10 | 7  8 | 27 (A4)               5V | 7  8 | 6 (MISO)                   ----
+ *        5V | 9 10 | GND                J3_RX | 9 10 | J3_TX                     USB_BLE
  *            ------                            ------
- *             LCD                                J3                              USB_BLE
+ *             LCD                                J3
  */
-
-#define EXP1_01_PIN                           17
-#define EXP1_02_PIN                           30
-#define EXP1_03_PIN                           16
-#define EXP1_04_PIN                           29
-#define EXP1_05_PIN                           11
-#define EXP1_06_PIN                           28
-#define EXP1_07_PIN                           10
-#define EXP1_08_PIN                           27
-#define EXP1_09_PIN                           -1  // 5V
-#define EXP1_10_PIN                           -1  // GND
+#define EXP1_01_PIN                           17  // BEEPER / ENC
+#define EXP1_02_PIN                           30  // LCD_D4 / SERVO
+#define EXP1_03_PIN                           16  // ENC    / LCD_EN
+#define EXP1_04_PIN                           29  // SERVO  / LCD_RS
+#define EXP1_05_PIN                           11  // EN1    / LCD_D4
+#define EXP1_06_PIN                           28  // LCD_EN / EN1
+#define EXP1_07_PIN                           10  // EN2
+#define EXP1_08_PIN                           27  // LCD_RS / BEEPER
 
 /**
  * LCD / Controller
  *
  * Only the following displays are supported:
  *  ZONESTAR_LCD
+ *  ANET_FULL_GRAPHICS_LCD
  *  CTC_A10S_A13
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */

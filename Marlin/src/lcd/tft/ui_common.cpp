@@ -188,7 +188,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
 
 #endif
 
-#if HAS_TOUCH_SLEEP
+#if ALL(TOUCH_SCREEN, HAS_DISPLAY_SLEEP)
 
   bool lcd_sleep_task() {
     static bool sleepCleared;
@@ -207,7 +207,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     return false;
   }
 
-#endif // HAS_TOUCH_SLEEP
+#endif
 
 void text_line(const uint16_t y, uint16_t color) {
   tft.canvas(0, y, TFT_WIDTH, MENU_ITEM_HEIGHT);
@@ -264,7 +264,6 @@ void drawBtn(const int x, const int y, const char *label, intptr_t data, const M
 
   TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
-
 
 //
 // lcdprint.h functions

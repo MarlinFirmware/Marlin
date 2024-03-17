@@ -702,7 +702,7 @@ void MarlinSettings::postprocess() {
   if (oldpos != current_position)
     report_current_position();
 
-  // Moved as last update due to interference with Neopixel init
+  // Moved as last update due to interference with NeoPixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
   TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
   TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
@@ -729,7 +729,8 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::sd_update_status() {
     uint8_t val;
-    persistentStore.read_data(SD_FIRMWARE_UPDATE_EEPROM_ADDR, &val);
+    int pos = SD_FIRMWARE_UPDATE_EEPROM_ADDR;
+    persistentStore.read_data(pos, &val);
     return (val == SD_FIRMWARE_UPDATE_ACTIVE_VALUE);
   }
 
@@ -856,7 +857,7 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummyf);
         #endif
       #else
-        const xyze_pos_t planner_max_jerk = LOGICAL_AXIS_ARRAY(float(DEFAULT_EJERK), 10, 10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4);
+        const xyze_pos_t planner_max_jerk = LOGICAL_AXIS_ARRAY(5, 10, 10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4);
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -1861,8 +1862,10 @@ void MarlinSettings::postprocess() {
 
         EEPROM_READ(planner.settings.min_segment_time_us);
 
-        float tmp2[NUM_AXES + e_factors];
-        EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          float tmp2[NUM_AXES + e_factors];
+          EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        #endif
 
         feedRate_t tmp3[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
@@ -3465,7 +3468,7 @@ void MarlinSettings::reset() {
     #if HAS_BACKLIGHT_TIMEOUT
       ui.backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
     #elif HAS_DISPLAY_SLEEP
-      ui.sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
+      ui.sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
     #endif
   #endif
 
