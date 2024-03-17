@@ -247,6 +247,16 @@ void menu_info_board() {
         TERN_(MESH_BED_LEVELING, MSG_MESH_LEVELING)               // Mesh Leveling
       );
     #endif
+    #if ANY(ARC_SUPPORT,BEZIER_CURVE_SUPPORT)
+      #if BOTH(ARC_SUPPORT,BEZIER_CURVE_SUPPORT)
+        #define ARC_BEZIER_STRING "Arc/Bezier"
+      #elif ENABLED(ARC_SUPPORT)
+        #define ARC_BEZIER_STRING "Arc"
+      #else
+        #define ARC_BEZIER_STRING "Bezier"
+      #endif
+      STATIC_ITEM_F(F(ARC_BEZIER_STRING), SS_DEFAULT);
+    #endif
     #if ENABLED(PIDTEMP)
       #if ENABLED(PID_AUTOTUNE_MENU)
         STATIC_ITEM(MSG_PID_AUTOTUNE, SS_DEFAULT);
