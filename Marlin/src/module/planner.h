@@ -267,7 +267,7 @@ typedef struct PlannerBlock {
              final_adv_steps;               // Advance steps for exit speed pressure
   #endif
 
-  #define MINIMAL_STEP_RATE 120              // to prevent timer overflow?
+  #define MINIMAL_STEP_RATE _MIN((1 / (STEPPER_TIMER_RATE / HAL_TIMER_TYPE_MAX), 1)   // to prevent timer overflow?
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
