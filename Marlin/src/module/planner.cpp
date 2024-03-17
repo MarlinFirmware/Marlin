@@ -730,8 +730,6 @@ void Planner::init() {
   #endif
 #endif
 
-#define MINIMAL_STEP_RATE 120
-
 /**
  * Get the current block for processing
  * and mark the block as busy.
