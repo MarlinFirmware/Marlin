@@ -2458,7 +2458,7 @@ hal_timer_t Stepper::block_phase_isr() {
         && planner.laser_inline.status.isPowered                  // isPowered flag set on any parsed G1, G2, G3, or G5 move; cleared on any others.
         && current_block                                          // ESP32 isr can call call block_phase_isr() more than once discarding the block!
         ) {
-        if (laser.last_block_power != current_block->laser.power) {   // Prevent constant update without change
+        if (cutter.last_block_power != current_block->laser.power) {   // Prevent constant update without change
           cutter.apply_power(current_block->laser.power);
           cutter.last_block_power = current_block->laser.power;
         }
