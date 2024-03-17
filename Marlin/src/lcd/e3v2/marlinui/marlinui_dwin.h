@@ -73,10 +73,10 @@ extern dwin_font_t dwin_font;
 #define MENU_LINE_HEIGHT (MENU_FONT_HEIGHT + EXTRA_ROW_HEIGHT)
 
 // Character matrix width x height based on menu font
-#define LCD_PIXEL_WIDTH     DWIN_WIDTH
-#define LCD_PIXEL_HEIGHT    DWIN_HEIGHT
-#define LCD_WIDTH           ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
-#define LCD_HEIGHT          ((LCD_PIXEL_HEIGHT) / (MENU_LINE_HEIGHT))
+#define LCD_PIXEL_WIDTH  DWIN_WIDTH
+#define LCD_PIXEL_HEIGHT DWIN_HEIGHT
+#define LCD_WIDTH        ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
+#define LCD_HEIGHT       ((LCD_PIXEL_HEIGHT) / (MENU_LINE_HEIGHT))
 
 #if DWIN_FONT_EDIT == font6x12
   #define EDIT_FONT_WIDTH    6

@@ -1021,7 +1021,7 @@ void hmiSDCardUpdate() {
       currentMenu = nullptr;
       drawPrintFileMenu();
     }
-    if (!DWIN_lcd_sd_status && sdPrinting()) ui.abort_print();  // Media removed while printing
+    if (!DWIN_lcd_sd_status && sdPrinting()) ExtUI::stopPrint();  // Media removed while printing
   }
 }
 
@@ -1145,8 +1145,8 @@ void hmiMainMenu() {
 // Pause or Stop popup
 void onClickPauseOrStop() {
   switch (select_print.now) {
-    case PRINT_PAUSE_RESUME: if (hmiFlag.select_flag) ui.pause_print(); break; // Confirm pause
-    case PRINT_STOP: if (hmiFlag.select_flag) ui.abort_print(); break; // Stop confirmed then abort print
+    case PRINT_PAUSE_RESUME: if (hmiFlag.select_flag) ExtUI::pausePrint(); break; // Confirm pause
+    case PRINT_STOP: if (hmiFlag.select_flag) ExtUI::stopPrint(); break; // Stop confirmed then abort print
     default: break;
   }
   return gotoPrintProcess();

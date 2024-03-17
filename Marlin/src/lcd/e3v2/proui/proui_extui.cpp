@@ -81,12 +81,14 @@ namespace ExtUI {
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
   void onPrintTimerStarted() {}
-  void onPrintTimerPaused() { ui.pause_print(); }
+  void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
 
-  void onFilamentRunout(const extruder_t extruder) {
-    dwinFilamentRunout(extruder);
-  }
+  #if HAS_FILAMENT_SENSOR
+    void onFilamentRunout(const extruder_t extruder) {
+      dwinFilamentRunout(extruder);
+    }
+  #endif
 
   void onUserConfirmRequired(const char * const cstr) {
     // TODO: A version of this method that takes an icon and button title,
@@ -108,18 +110,18 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
       if (mode != PAUSE_MODE_SAME) pause_mode = mode;
       switch (message) {
-        case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING));    break;               // M125
-        case PAUSE_MESSAGE_CHANGING: dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT));   break;               // pause_print (M125, M600)
+        case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break; // M125
+        case PAUSE_MESSAGE_CHANGING: dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break; // pause_print (M125, M600)
         case PAUSE_MESSAGE_WAITING:  dwinPopupPause(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING), BTN_Continue); break;
         case PAUSE_MESSAGE_INSERT:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT), BTN_Continue); break;
-        case PAUSE_MESSAGE_LOAD:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD));   break;
-        case PAUSE_MESSAGE_UNLOAD:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;               // Unload of pause and Unload of M702
+        case PAUSE_MESSAGE_LOAD:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
+        case PAUSE_MESSAGE_UNLOAD:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break; // Unload of pause and Unload of M702
         case PAUSE_MESSAGE_PURGE:    dwinPopupPause(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))); break;
         case PAUSE_MESSAGE_OPTION:   gotoFilamentPurge(); break;
         case PAUSE_MESSAGE_RESUME:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-        case PAUSE_MESSAGE_HEAT:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT), BTN_Continue);   break;
+        case PAUSE_MESSAGE_HEAT:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT), BTN_Continue); break;
         case PAUSE_MESSAGE_HEATING:  dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-        case PAUSE_MESSAGE_STATUS:   hmiReturnScreen(); break;                                                    // Exit from Pause, Load and Unload
+        case PAUSE_MESSAGE_STATUS:   hmiReturnScreen(); break; // Exit from Pause, Load and Unload
         default: break;
       }
     }
@@ -127,11 +129,6 @@ namespace ExtUI {
 
   void onHomingStart() { dwinHomingStart(); }
   void onHomingDone() { dwinHomingDone(); }
-
-  void stopPrint() {
-    ui.abort_print();
-    hmiFlag.abort_flag = true;
-  }
 
   void onPrintDone() {}
 
@@ -231,7 +228,7 @@ namespace ExtUI {
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
     set_axis_untrusted(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }

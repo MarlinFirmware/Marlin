@@ -1177,6 +1177,7 @@ namespace ExtUI {
   // Pause/Resume/Stop are implemented in MarlinUI
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
+  void stopPrint()   { ui.abort_print(); }
 
   // Simplest approach is to make an SRAM copy
   void onUserConfirmRequired(FSTR_P const fstr) {

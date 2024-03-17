@@ -63,7 +63,6 @@ namespace ExtUI {
   void onPrintTimerPaused()  { chiron.timerEvent(AC_timer_paused);  }
   void onPrintTimerStopped() { chiron.timerEvent(AC_timer_stopped); }
 
-  void stopPrint() { ui.abort_print(); }
   void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t)            { chiron.filamentRunout(); }
@@ -186,7 +185,7 @@ namespace ExtUI {
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t) {}
   void onAxisEnabled(const axis_t) {}
 }

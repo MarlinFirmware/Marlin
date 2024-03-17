@@ -84,7 +84,6 @@ namespace ExtUI {
   }
   void onPrintTimerPaused() {}
 
-  void stopPrint() { ui.abort_print(); }
   void onPrintDone() {}
 
   void onFilamentRunout(const extruder_t extruder) {
@@ -221,7 +220,7 @@ namespace ExtUI {
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t) {}
   void onAxisEnabled(const axis_t) {}
 }

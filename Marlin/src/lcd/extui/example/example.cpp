@@ -85,7 +85,6 @@ namespace ExtUI {
   void onHomingStart() {}
   void onHomingDone() {}
 
-  void stopPrint() { ui.abort_print(); }
   void onPrintDone() {}
 
   void onFactoryReset() {}
@@ -192,7 +191,7 @@ namespace ExtUI {
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t) {}
   void onAxisEnabled(const axis_t) {}
 }

@@ -117,10 +117,6 @@ namespace ExtUI {
     screen.homingDone();
   }
 
-  void stopPrint() {
-    ui.abort_print();
-  }
-
   void onPrintDone() {}
 
   void onFactoryReset() {

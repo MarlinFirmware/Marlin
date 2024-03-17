@@ -302,7 +302,7 @@ void onLoadSettings(const char *buff) {
 }
 
 void onSettingsStored(const bool success) {
-  // This is called after the entire EEPROM has been written,
+  // Called after the entire EEPROM has been written,
   // whether successful or not.
 }
 
@@ -433,11 +433,10 @@ void onPostprocessSettings() {}
 void onHomingStart() {}
 void onHomingDone() {}
 
-void stopPrint() { ui.abort_print(); }
 void onPrintDone() {}
 
 void onSteppersDisabled() {}
-void onSteppersEnabled()  {}
+void onSteppersEnabled() {}
 void onAxisDisabled(const axis_t) {}
 void onAxisEnabled(const axis_t) {}
 
