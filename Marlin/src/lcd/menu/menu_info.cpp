@@ -248,7 +248,7 @@ void menu_info_board() {
       );
     #endif
     #if ANY(ARC_SUPPORT,BEZIER_CURVE_SUPPORT)
-      #if BOTH(ARC_SUPPORT,BEZIER_CURVE_SUPPORT)
+      #if ALL(ARC_SUPPORT,BEZIER_CURVE_SUPPORT)
         #define ARC_BEZIER_STRING "Arc/Bezier"
       #elif ENABLED(ARC_SUPPORT)
         #define ARC_BEZIER_STRING "Arc"
