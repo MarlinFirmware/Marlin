@@ -307,6 +307,9 @@ void menu_info_board() {
     #if ENABLED(FT_MOTION)
       STATIC_ITEM(MSG_FIXED_TIME_MOTION, SS_DEFAULT);
     #endif
+    #if ANY(MEATPACK_ON_SERIAL_PORT_1,MEATPACK_ON_SERIAL_PORT_2)
+      STATIC_ITEM_F(F("Meatpack"), SS_DEFAULT);
+    #endif
     STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     END_SCREEN();
   }
