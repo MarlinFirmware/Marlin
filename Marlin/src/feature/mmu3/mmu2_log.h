@@ -62,21 +62,21 @@ static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
 
     #define MMU2_ECHO_MSGLN(S)   \
             do {                     \
-              SERIAL_ECHO_START;   \
+              SERIAL_ECHO_START();   \
               SERIAL_MMU2();       \
               SERIAL_ECHOLN(S);    \
             } while (0)
     #define MMU2_ERROR_MSGLN(S) MMU2_ECHO_MSGLN(S) //! @todo Decide MMU errors  on serial line
     #define MMU2_ECHO_MSGRPGM(S) \
             do {                     \
-              SERIAL_ECHO_START;   \
+              SERIAL_ECHO_START();   \
               SERIAL_MMU2();       \
               SERIAL_ECHO_P(S);  \
             } while (0)
     #define MMU2_ERROR_MSGRPGM(S) MMU2_ECHO_MSGRPGM(S) //! @todo Decide MMU errors  on serial line
     #define MMU2_ECHO_MSG(S)     \
             do {                     \
-              SERIAL_ECHO_START;   \
+              SERIAL_ECHO_START();   \
               SERIAL_MMU2();       \
               SERIAL_ECHO(S);      \
             } while (0)
