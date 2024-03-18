@@ -4512,7 +4512,7 @@
   #elif HAS_PRUSA_MMU3
     // MMU3 Specific settings
 
-    #define MAX_RETRIES 3 // TODO: This has the same purpose of MMU2_C0_RETRY
+    #define MMU2_MAX_RETRIES 3 // TODO: This has the same purpose of MMU2_C0_RETRY
 
     // Nominal distance from the extruder gear to the nozzle tip is 87mm
     // However, some slipping may occur and we need separate distances for
