@@ -184,6 +184,11 @@
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
+ *  H         Hold the current X/Y position when executing a home Z, or if
+ *            multiple axes are homed, the position when Z home is executed.
+ *            When using a probe for Z Home, positions close to the edge may
+ *            fail with position unreachable due to probe/nozzle offset.  This
+ *            can be used to avoid a model.
  *
  * Cartesian/SCARA parameters
  *
@@ -507,7 +512,12 @@ void GcodeSuite::G28() {
             #endif
 
             #if ENABLED(Z_SAFE_HOMING)
-              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+              // H means hold the current X/Y position when probing.
+              // Otherwise move to the define safe X/Y position before homing Z.
+              if (!parser.seen_test('H'))
+                home_z_safely();
+              else
+                homeaxis(Z_AXIS);
             #else
               homeaxis(Z_AXIS);
             #endif
