@@ -288,7 +288,7 @@ void menu_mmu2_statistics() {
 void action_mmu2_reset() {
   #if HAS_PRUSA_MMU3
     #ifdef MMU2_RST_PIN
-      MMU2::mmu2.Reset(MMU2::MMU2::ResetForm::Hardware);
+      MMU2::mmu2.Reset(MMU2::MMU2::ResetForm::ResetPin);
     #else
       MMU2::mmu2.Reset(MMU2::MMU2::ResetForm::Software);
     #endif
