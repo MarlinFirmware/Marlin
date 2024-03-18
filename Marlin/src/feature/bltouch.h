@@ -78,6 +78,10 @@ public:
 
   static float z_extra_clearance() { return TERN0(HAS_BLTOUCH_HS_MODE, high_speed_mode ? BLTOUCH_HS_EXTRA_CLEARANCE : 0); }
 
+  #if ENABLED(BLTOUCH_VALIDATE_ON_HOMING)
+    static bool validate();
+  #endif
+
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
   static bool deploy()              { return deploy_proc(); }
   static bool stow()                { return stow_proc(); }

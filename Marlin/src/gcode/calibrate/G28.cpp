@@ -506,15 +506,21 @@ void GcodeSuite::G28() {
               stepper.set_separate_multi_axis(false);
             #endif
 
-            #if ENABLED(Z_SAFE_HOMING)
-              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
-            #else
-              homeaxis(Z_AXIS);
-            #endif
+            if (TERN1(BLTOUCH_VALIDATE_ON_HOMING, bltouch.validate())) {
+              #if ENABLED(Z_SAFE_HOMING)
+                if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+              #else
+                homeaxis(Z_AXIS);
+              #endif
 
-            #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
-              finalRaiseZ = true;
-            #endif
+              #if ANY(Z_HOME_TO_MIN, ALLOW_Z_AFTER_HOMING)
+                finalRaiseZ = true;
+              #endif
+            }
+            else {
+              LCD_MESSAGE(MSG_BLTOUCH_VALIDATE_FAILED);
+              SERIAL_ECHO_MSG(STR_ERR_PROBING_FAILED);
+            }
           }
         #endif
 
