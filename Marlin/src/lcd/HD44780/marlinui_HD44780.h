@@ -27,6 +27,20 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #include "../../../_Bootscreen.h"
+
+  #ifdef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOT_LAST COUNT(custom_boot_lines) + CUSTOM_BOOTSCREEN_Y
+  #else
+    #define CUSTOM_BOOT_LAST COUNT(custom_boot_lines)
+  #endif
+
+  static_assert(CUSTOM_BOOT_LAST <= LCD_HEIGHT, "custom_boot_lines (plus CUSTOM_BOOTSCREEN_Y) doesn't fit on the selected LCD.");
+
+#endif
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
 
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
