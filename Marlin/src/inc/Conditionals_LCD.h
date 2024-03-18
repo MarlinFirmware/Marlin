@@ -89,6 +89,7 @@
   #define _PRUSA_MMU1             1
   #define _PRUSA_MMU2             2
   #define _PRUSA_MMU2S            3
+  #define _CHAMELEON              4
   #define _EXTENDABLE_EMU_MMU2   12
   #define _EXTENDABLE_EMU_MMU2S  13
   #define _MMU CAT(_,MMU_MODEL)
@@ -100,6 +101,8 @@
   #elif _MMU % 10 == _PRUSA_MMU2S
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
+  #elif MMU_MODEL == CHAMELEON
+    #define HAS_CHAMELEON 1
   #endif
   #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
@@ -109,6 +112,7 @@
   #undef _PRUSA_MMU1
   #undef _PRUSA_MMU2
   #undef _PRUSA_MMU2S
+  #undef _CHAMELEON
   #undef _EXTENDABLE_EMU_MMU2
   #undef _EXTENDABLE_EMU_MMU2S
 #endif
@@ -144,7 +148,7 @@
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 
-#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+#elif HAS_PRUSA_MMU2 || HAS_CHAMELEON // Multi-Material Unit
 
   #define E_STEPPERS      1
   #define E_MANUAL        1
