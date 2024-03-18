@@ -66,7 +66,7 @@
 
   bool pgm_is_whitespace(const char *c_addr);
   bool pgm_is_interpunction(const char *c_addr);
-  static const char* lcd_display_message_fullscreen_nonBlocking_P(const char *msg);
+  // static const char* lcd_display_message_fullscreen_nonBlocking_P(const char *msg);
   extern const char* lcd_display_message_fullscreen_P(const char *msg);
   void lcd_show_choices_prompt_P(uint8_t selected, const char *first_choice, const char *second_choice, uint8_t second_col, const char *third_choice=nullptr);
   extern void lcd_show_fullscreen_message_and_wait_P(const char *msg);

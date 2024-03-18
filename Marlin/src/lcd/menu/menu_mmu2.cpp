@@ -237,7 +237,7 @@ void menu_mmu2_toolchange_stat_total(){
   sprintf_P(buffer1, PSTR("%u"), MMU2::operation_statistics.tool_change_counter);
 
   char buffer2[LCD_WIDTH];
-  sprintf_P(buffer2, PSTR("%u"), MMU2::operation_statistics.tool_change_total_counter);
+  sprintf_P(buffer2, PSTR("%lu"), MMU2::operation_statistics.tool_change_total_counter);
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
