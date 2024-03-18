@@ -595,7 +595,7 @@
     , buttonCode(Buttons::NoButton)
     , lastFSensor((uint8_t)WhereIsFilament())
     , regIndex(0)
-    , retryAttempts(MAX_RETRIES)
+    , retryAttempts(MMU2_MAX_RETRIES)
     , inAutoRetry(false) {
     // @@TODO currently, I don't see a way of writing the initialization better :(
     // I'd like to write something like: initRegs8 { extraLoadDistance, pulleySlowFeedrate }
@@ -905,7 +905,7 @@
 
   void ProtocolLogic::ResetRetryAttempts() {
     SERIAL_ECHOLNPGM("ResetRetryAttempts");
-    retryAttempts = MAX_RETRIES;
+    retryAttempts = MMU2_MAX_RETRIES;
   }
 
   void __attribute__((noinline)) ProtocolLogic::ResetCommunicationTimeoutAttempts() {
