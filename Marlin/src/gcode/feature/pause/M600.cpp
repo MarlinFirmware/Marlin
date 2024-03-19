@@ -36,12 +36,12 @@
 
 #if HAS_PRUSA_MMU3
   #include "../../../feature/mmu3/mmu2.h"
-  #if ENABLED(MMU2_MENUS)
+  #if ENABLED(MMU_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
   #endif
 #elif HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
-  #if ENABLED(MMU2_MENUS)
+  #if ENABLED(MMU_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
   #endif
 #endif
@@ -108,9 +108,9 @@ void GcodeSuite::M600() {
 
   bool standardM600 = true;
   #if HAS_PRUSA_MMU3
-    standardM600 = TERN1(MMU2_MENUS, !MMU2::mmu2.mmu_hw_enabled);
+    standardM600 = TERN1(MMU_MENUS, !MMU2::mmu2.mmu_hw_enabled);
   #elif HAS_PRUSA_MMU2
-    standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+    standardM600 = TERN1(MMU_MENUS, !mmu2.enabled());
   #endif
 
   // Show initial "wait for start" message
@@ -173,7 +173,7 @@ void GcodeSuite::M600() {
         DXC_PASS
       );
     } else {
-      #if ENABLED(MMU2_MENUS)
+      #if ENABLED(MMU_MENUS)
         bool automatic = strcmp_P(parser.string_arg, "AUTO") == 0;
         mmu2_M600(automatic);
         resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);

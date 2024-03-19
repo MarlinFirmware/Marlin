@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_MENU, MMU2_MENUS)
+#if ALL(HAS_MARLINUI_MENU, MMU_MENUS)
 
 #include "../../MarlinCore.h"
 
@@ -424,4 +424,4 @@ uint8_t mmu2_choose_filament() {
   return feeder_index;
 }
 
-#endif // HAS_MARLINUI_MENU && MMU2_MENUS
+#endif // HAS_MARLINUI_MENU && MMU_MENUS

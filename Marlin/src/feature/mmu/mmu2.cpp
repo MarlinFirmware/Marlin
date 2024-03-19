@@ -526,7 +526,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
 
       switch (*special) {
         case '?': {
-          #if ENABLED(MMU2_MENUS)
+          #if ENABLED(MMU_MENUS)
             const uint8_t index = mmu2_choose_filament();
             while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
             load_to_nozzle(index);
@@ -536,7 +536,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
         } break;
 
         case 'x': {
-          #if ENABLED(MMU2_MENUS)
+          #if ENABLED(MMU_MENUS)
             planner.synchronize();
             const uint8_t index = mmu2_choose_filament();
             stepper.disable_extruder();
@@ -614,7 +614,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
     switch (*special) {
       case '?': {
         DEBUG_ECHOLNPGM("case ?\n");
-        #if ENABLED(MMU2_MENUS)
+        #if ENABLED(MMU_MENUS)
           uint8_t index = mmu2_choose_filament();
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           load_to_nozzle(index);
@@ -625,7 +625,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
 
       case 'x': {
         DEBUG_ECHOLNPGM("case x\n");
-        #if ENABLED(MMU2_MENUS)
+        #if ENABLED(MMU_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
           stepper.disable_extruder();
@@ -729,7 +729,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
     switch (*special) {
       case '?': {
         DEBUG_ECHOLNPGM("case ?\n");
-        #if ENABLED(MMU2_MENUS)
+        #if ENABLED(MMU_MENUS)
           uint8_t index = mmu2_choose_filament();
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           load_to_nozzle(index);
@@ -740,7 +740,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
 
       case 'x': {
         DEBUG_ECHOLNPGM("case x\n");
-        #if ENABLED(MMU2_MENUS)
+        #if ENABLED(MMU_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
           stepper.disable_extruder();
