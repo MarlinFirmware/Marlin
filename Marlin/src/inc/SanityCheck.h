@@ -613,12 +613,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_MARLINUI_MENU
     #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
-  #elif ENABLED(MMU2_MENUS) && !HAS_MARLINUI_MENU
-    #error "MMU2_MENUS requires an LCD supporting MarlinUI."
+  #elif ENABLED(MMU_MENUS) && !HAS_MARLINUI_MENU
+    #error "MMU_MENUS requires an LCD supporting MarlinUI."
   #elif HAS_PRUSA_MMU3 && !HAS_MARLINUI_MENU
     #error "MMU3 requires an LCD supporting MarlinUI."
-  #elif HAS_PRUSA_MMU3 && DISABLED(MMU2_MENUS)
-    #error "MMU3 requires MMU2_MENUS."
+  #elif HAS_PRUSA_MMU3 && DISABLED(MMU_MENUS)
+    #error "MMU3 requires MMU_MENUS."
   #elif HAS_PRUSA_MMU3 && DISABLED(EEPROM_SETTINGS)
     #error "MMU3 requires EEPROM_SETTINGS."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
