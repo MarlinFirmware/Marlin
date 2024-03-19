@@ -229,13 +229,13 @@ void menu_info_board() {
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
     STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);         // My3DPrinter
     #ifdef MACHINE_ABOUT_LINE1
-      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE1), SS_DEFAULT);          // About1
+      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE1), SS_DEFAULT);
     #endif
     #ifdef MACHINE_ABOUT_LINE2
-      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE2), SS_DEFAULT);          // About2
+      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE2), SS_DEFAULT);
     #endif
     #ifdef MACHINE_ABOUT_LINE3
-      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE3), SS_DEFAULT);          // About3
+      STATIC_ITEM_F(F(MACHINE_ABOUT_LINE3), SS_DEFAULT);
     #endif
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if HAS_LEVELING
@@ -261,7 +261,7 @@ void menu_info_board() {
       #if ENABLED(PID_AUTOTUNE_MENU)
         STATIC_ITEM(MSG_PID_AUTOTUNE, SS_DEFAULT);
       #else
-        STATIC_ITEM_F(F("PID"), SS_DEFAULT);                        // Hotend temp control
+        STATIC_ITEM_F(F("PID"), SS_DEFAULT);
       #endif
     #elif ENABLED(MPCTEMP)
       #if ENABLED(MPC_AUTOTUNE_MENU)
@@ -312,7 +312,7 @@ void menu_info_board() {
       STATIC_ITEM(MSG_FILAMENTCHANGE, SS_DEFAULT);
     #endif
      #if ENABLED(XY_FREQUENCY_LIMIT)
-      PSTRING_ITEM(MSG_XY_FREQUENCY_LIMIT, STRINGIFY(XY_FREQUENCY_LIMIT), SS_DEFAULT); // Baud: 250000
+      PSTRING_ITEM(MSG_XY_FREQUENCY_LIMIT, STRINGIFY(XY_FREQUENCY_LIMIT), SS_DEFAULT);
     #endif
     #if ENABLED(FT_MOTION)
       STATIC_ITEM(MSG_FIXED_TIME_MOTION, SS_DEFAULT);
@@ -320,7 +320,7 @@ void menu_info_board() {
     #if ANY(MEATPACK_ON_SERIAL_PORT_1,MEATPACK_ON_SERIAL_PORT_2)
       STATIC_ITEM_F(F("Meatpack"), SS_DEFAULT);
     #endif
-    STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
+    STATIC_ITEM_F(F(WEBSITE_URL));
     END_SCREEN();
   }
 
