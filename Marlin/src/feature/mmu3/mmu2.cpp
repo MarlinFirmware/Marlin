@@ -108,7 +108,7 @@ namespace MMU2 {
 
   void MMU2::Status() {
     // Useful information to see during bootup and change state
-    SERIAL_ECHOLN(F("MMU is "), mmu_hw_enabled ? MSG_ON : MSG_OFF);
+    SERIAL_ECHOLN(F("MMU is "), mmu_hw_enabled ? GET_TEXT_F(MSG_ON) : GET_TEXT_F(MSG_OFF));
   }
 
   void MMU2::Start() {
@@ -301,7 +301,7 @@ namespace MMU2 {
       else {
         marlin_stop_and_save_print_to_ram();
         resume_print();
-        queue.enqueue_now(MSG_M600); // Save print and run M600 command
+        queue.enqueue_now(F("M600")); // Save print and run M600 command
       }
     }
   }

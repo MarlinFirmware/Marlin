@@ -27,11 +27,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-// Beware - before changing this prefix, think twice
-// you'd need to change appmain.cpp app_marlin_serial_output_write_hook
-// and MMU2::ReportError + MMU2::ReportProgress
-FSTR_P const mmu2Magic = F("MMU2:");
-
 namespace MMU2 {
 
   // Report the msg into the general logging subsystem (through Marlin's SERIAL_ECHO stuff)
@@ -52,7 +47,7 @@ namespace MMU2 {
 
 #ifndef UNITTEST
 
-  #define SERIAL_MMU2() { SERIAL_ECHO(mmu2Magic); }
+  #define SERIAL_MMU2() { SERIAL_ECHO(F("MMU2:")); }
 
   #define MMU2_ECHO_MSGLN(S) do { \
       SERIAL_ECHO_START();        \

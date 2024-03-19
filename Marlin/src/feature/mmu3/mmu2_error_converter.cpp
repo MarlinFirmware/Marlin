@@ -208,7 +208,7 @@ namespace MMU2 {
     return (FSTR_P const)pgm_read_ptr(&btnOperation[bi - 1]);
   }
 
-  FSTR_P const PrusaErrorButtonMore() { return MSG_BTN_MORE; }
+  FSTR_P const PrusaErrorButtonMore() { return GET_TEXT_F(MSG_BTN_MORE); }
 
   Buttons ButtonPressed(ErrorCode ec) {
     if (buttonSelectedOperation == ButtonOperations::NoOperation || buttonSelectedOperation == ButtonOperations::MoreInfo)
