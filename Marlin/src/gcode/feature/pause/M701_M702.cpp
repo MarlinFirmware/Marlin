@@ -104,7 +104,7 @@ void GcodeSuite::M701() {
 
   // Load filament
   #if HAS_PRUSA_MMU3
-    MMU2::mmu2.load_filament_to_nozzle(target_extruder);
+    mmu2.load_filament_to_nozzle(target_extruder);
   #elif HAS_PRUSA_MMU2
     mmu2.load_to_nozzle(target_extruder);
   #else
@@ -201,7 +201,7 @@ void GcodeSuite::M702() {
 
   // Unload filament
   #if HAS_PRUSA_MMU3
-    MMU2::mmu2.unload();
+    mmu2.unload();
   #elif HAS_PRUSA_MMU2
     mmu2.unload();
   #else

@@ -22,14 +22,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_MENU, MMU_MENUS)
+#if ENABLED(MMU_MENUS)
 
 #include "../../MarlinCore.h"
 
 #if HAS_PRUSA_MMU3
-  #include "src/feature/mmu3/mmu2.h"
-  #include "src/feature/mmu3/mmu2_reporting.h"
-  #include "src/feature/mmu3/SpoolJoin.h"
+  #include "../../feature/mmu3/mmu2.h"
+  #include "../../feature/mmu3/mmu2_reporting.h"
+  #include "../../feature/mmu3/SpoolJoin.h"
 #else
   #include "../../feature/mmu/mmu2.h"
 #endif
@@ -45,11 +45,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  #if HAS_PRUSA_MMU3
-    MMU2::mmu2.load_filament_to_nozzle(tool);
-  #else
-    mmu2.load_to_nozzle(tool);
-  #endif
+  TERN(HAS_PRUSA_MMU3, mmu2.load_filament_to_nozzle(tool), mmu2.load_to_nozzle(tool));
   ui.reset_status();
 }
 
@@ -57,12 +53,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-
-  #if HAS_PRUSA_MMU3
-    MMU2::mmu2.load_filament(tool);
-  #else
-    mmu2.load_to_feeder(tool);
-  #endif
+  TERN(HAS_PRUSA_MMU3, mmu2.load_filament(tool), mmu2.load_to_feeder(tool));
   ui.reset_status();
 }
 
@@ -93,37 +84,25 @@ void _mmu2_eject_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  #if HAS_PRUSA_MMU3
-    if (MMU2::mmu2.eject_filament(index, true)) ui.reset_status();
-  #else
-    if (mmu2.eject_filament(index, true)) ui.reset_status();
-  #endif
+  if (mmu2.eject_filament(index, true)) ui.reset_status();
 }
 
 void _mmu2_cut_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_CUTTING_FILAMENT), int(index + 1));
-  #if HAS_PRUSA_MMU3
-    if (MMU2::mmu2.cut_filament(index, true)) ui.reset_status();
-  #endif
+  if (TERN0(HAS_PRUSA_MMU3, mmu2.cut_filament(index, true)))
+    ui.reset_status();
 }
 
 void action_mmu2_unload_filament() {
   ui.reset_status();
   ui.return_to_status();
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
-  #if HAS_PRUSA_MMU3
-    while (!MMU2::mmu2.unload()){
-      safe_delay(50);
-      MMU2::marlin_idle(true);
-    }
-  #else
-    while (!mmu2.unload()){
-      safe_delay(50);
-      idle();
-    }
-  #endif
+  while (!mmu2.unload()) {
+    safe_delay(50);
+    TERN(HAS_PRUSA_MMU3, MMU2::marlin_idle(true), idle());
+  }
   ui.reset_status();
 }
 
@@ -137,10 +116,11 @@ void menu_mmu2_eject_filament() {
 // Cutter
 
 #if HAS_PRUSA_MMU3
-void menu_mmu2_cutter_set_mode(uint8_t mode){MMU2::mmu2.cutter_mode = mode;}
-void menu_mmu2_cutter_disable(){menu_mmu2_cutter_set_mode(0);}
-void menu_mmu2_cutter_enable(){menu_mmu2_cutter_set_mode(1);}
-void menu_mmu2_cutter_always(){menu_mmu2_cutter_set_mode(2);}
+
+void menu_mmu2_cutter_set_mode(uint8_t mode) { mmu2.cutter_mode = mode; }
+void menu_mmu2_cutter_disable() { menu_mmu2_cutter_set_mode(0); }
+void menu_mmu2_cutter_enable() { menu_mmu2_cutter_set_mode(1); }
+void menu_mmu2_cutter_always() { menu_mmu2_cutter_set_mode(2); }
 
 void menu_mmu2_cutter() {
   START_MENU();
@@ -159,18 +139,16 @@ void menu_mmu2_cut_filament() {
 }
 
 // SpoolJoin
-void spool_join_status() {SpoolJoin::spooljoin.initSpoolJoinStatus();}
-
+void spool_join_status() { SpoolJoin::spooljoin.initSpoolJoinStatus(); }
 
 // Fail Stats Menu
-void menu_mmu2_fail_stats_last_print(){
+void menu_mmu2_fail_stats_last_print() {
   if (ui.use_click()) return ui.go_back();
-  char buffer1[LCD_WIDTH];
-  char buffer2[LCD_WIDTH];
+  char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH];
 
   // had to cast the uint8_t values to uint16_t before formatting them.
-  uint16_t fail_num = MMU2::operation_statistics.fail_num;
-  uint16_t load_fail_num = MMU2::operation_statistics.load_fail_num;
+  const uint16_t fail_num = MMU2::operation_statistics.fail_num;
+  const uint16_t load_fail_num = MMU2::operation_statistics.load_fail_num;
 
   sprintf_P(buffer1, PSTR("%hu"), fail_num);
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
@@ -188,50 +166,48 @@ void menu_mmu2_fail_stats_last_print(){
   END_SCREEN();
 }
 
-void menu_mmu2_fail_stas_total(){
+void menu_mmu2_fail_stas_total() {
   if (ui.use_click()) return ui.go_back();
-  char buffer1[LCD_WIDTH];
-  char buffer2[LCD_WIDTH];
-  char buffer3[LCD_WIDTH];
+  char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH], buffer3[LCD_WIDTH];
 
   sprintf_P(buffer1, PSTR("%hu"), MMU2::operation_statistics.fail_total_num);
   sprintf_P(buffer2, PSTR("%hu"), MMU2::operation_statistics.load_fail_total_num);
-  sprintf_P(buffer3, PSTR("%hu"), MMU2::mmu2.TMCFailures());
+  sprintf_P(buffer3, PSTR("%hu"), mmu2.TMCFailures());
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_TOTAL_FAILURES, SS_INVERT);
   #ifndef __AVR__
-  // TODO: I couldn't make this work on AVR
-  PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
-  PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
-  PSTRING_ITEM(MSG_MMU_POWER_FAILS, buffer3, SS_FULL);
+    // TODO: I couldn't make this work on AVR
+    PSTRING_ITEM(MSG_MMU_FAILS, buffer1, SS_FULL);
+    PSTRING_ITEM(MSG_MMU_LOAD_FAILS, buffer2, SS_FULL);
+    PSTRING_ITEM(MSG_MMU_POWER_FAILS, buffer3, SS_FULL);
   #endif
   END_SCREEN();
 }
 
-#ifdef MARLIN_DEV_MODE
-void menu_mmu2_dev_increment_fail_stat(){
-  MMU2::operation_statistics.increment_mmu_fails();
-}
+#if ENABLED(MARLIN_DEV_MODE)
+  void menu_mmu2_dev_increment_fail_stat() {
+    MMU2::operation_statistics.increment_mmu_fails();
+  }
 
-void menu_mmu2_dev_increment_load_fail_stat(){
-  MMU2::operation_statistics.increment_load_fails();
-}
+  void menu_mmu2_dev_increment_load_fail_stat() {
+    MMU2::operation_statistics.increment_load_fails();
+  }
 #endif
 
-static void mmu2_reset_fail_stats(){
+static void mmu2_reset_fail_stats() {
   bool result = MMU2::operation_statistics.reset_fail_stats();
   ui.go_back();
   MarlinUI::completion_feedback(result);
 }
 
-static void mmu2_reset_stats(){
+static void mmu2_reset_stats() {
   bool result = MMU2::operation_statistics.reset_stats();
   ui.go_back();
   MarlinUI::completion_feedback(result);
 }
 
-void menu_mmu2_toolchange_stat_total(){
+void menu_mmu2_toolchange_stat_total() {
   if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH];
   sprintf_P(buffer1, PSTR("%u"), MMU2::operation_statistics.tool_change_counter);
@@ -242,13 +218,12 @@ void menu_mmu2_toolchange_stat_total(){
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
   #ifndef __AVR__
-  // TODO: I couldn't make this work on AVR
-  if(printJobOngoing()){
-    PSTRING_ITEM(MSG_MMU_CURRENT_PRINT, buffer1, SS_FULL);
-  } else {
-    PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
-  }
-  PSTRING_ITEM(MSG_MMU_TOTAL, buffer2, SS_FULL);
+    // TODO: I couldn't make this work on AVR
+    if (printJobOngoing())
+      PSTRING_ITEM(MSG_MMU_CURRENT_PRINT, buffer1, SS_FULL);
+    else
+      PSTRING_ITEM(MSG_MMU_LAST_PRINT, buffer1, SS_FULL);
+    PSTRING_ITEM(MSG_MMU_TOTAL, buffer2, SS_FULL);
   #endif
   END_SCREEN();
 }
@@ -256,7 +231,7 @@ void menu_mmu2_toolchange_stat_total(){
 void menu_mmu2_statistics() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  #ifdef MARLIN_DEV_MODE
+  #if ENABLED(MARLIN_DEV_MODE)
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_FAILS, menu_mmu2_dev_increment_fail_stat);
     ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu2_dev_increment_load_fail_stat);
   #endif
@@ -287,10 +262,10 @@ void menu_mmu2_statistics() {
 
 void action_mmu2_reset() {
   #if HAS_PRUSA_MMU3
-    #ifdef MMU2_RST_PIN
-      MMU2::mmu2.Reset(MMU2::MMU2::ResetForm::ResetPin);
+    #if PIN_EXISTS(MMU2_RST)
+      mmu2.Reset(MMU2::MMU2::ResetForm::ResetPin);
     #else
-      MMU2::mmu2.Reset(MMU2::MMU2::ResetForm::Software);
+      mmu2.Reset(MMU2::MMU2::ResetForm::Software);
     #endif
   #else
     mmu2.init();
@@ -305,7 +280,7 @@ void menu_mmu2() {
   BACK_ITEM(MSG_MAIN_MENU);
 
   // MMU2/MMU3 Commands
-  if (!busy && TERN1(HAS_PRUSA_MMU3, MMU2::mmu2.mmu_hw_enabled)){
+  if (!busy && TERN1(HAS_PRUSA_MMU3, mmu2.mmu_hw_enabled)) {
     SUBMENU(MSG_MMU2_LOAD_FILAMENT, menu_mmu2_load_filament);
     SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_load_to_nozzle);
     SUBMENU(MSG_MMU2_EJECT_FILAMENT, menu_mmu2_eject_filament);
@@ -315,13 +290,12 @@ void menu_mmu2() {
   #if HAS_PRUSA_MMU3
     // MMU3 Enable/Disable
     #ifndef __AVR__
-      editable.state = MMU2::mmu2.mmu_hw_enabled;
-      EDIT_ITEM_F(bool, F("MMU"), &MMU2::mmu2.mmu_hw_enabled, []{
-        if(editable.state){
-          MMU2::mmu2.Stop();
-        } else {
-          MMU2::mmu2.Start();
-        }
+      editable.state = mmu2.mmu_hw_enabled;
+      EDIT_ITEM_F(bool, F("MMU"), &mmu2.mmu_hw_enabled, []{
+        if (editable.state)
+          mmu2.Stop();
+        else
+          mmu2.Start();
       });
     #endif
 
@@ -329,12 +303,12 @@ void menu_mmu2() {
     EDIT_ITEM(bool, MSG_MMU_SPOOL_JOIN, &SpoolJoin::spooljoin.enabled, spool_join_status);
 
     // Cutter Enable/Disable
-    bool cutter_enabled = MMU2::mmu2.cutter_mode != 0;
+    bool cutter_enabled = mmu2.cutter_mode != 0;
     editable.state = cutter_enabled;
     EDIT_ITEM(bool, MSG_MMU_CUTTER, &cutter_enabled, []{
       menu_mmu2_cutter_set_mode((uint8_t)!editable.state);
     });
-    if (!busy && MMU2::cutter_enabled() && MMU2::mmu2.mmu_hw_enabled){
+    if (!busy && MMU2::cutter_enabled() && mmu2.mmu_hw_enabled) {
       SUBMENU(MSG_MMU2_CUT_FILAMENT, menu_mmu2_cut_filament);
     }
 
@@ -342,7 +316,7 @@ void menu_mmu2() {
     SUBMENU(MSG_MMU_STATISTICS, menu_mmu2_statistics);
   #endif
 
-  if (TERN1(HAS_PRUSA_MMU3, MMU2::mmu2.mmu_hw_enabled)){
+  if (TERN1(HAS_PRUSA_MMU3, mmu2.mmu_hw_enabled)) {
     ACTION_ITEM(MSG_MMU2_RESET, action_mmu2_reset);
   }
 
@@ -375,20 +349,16 @@ void menu_mmu2_choose_filament() {
 //
 
 void menu_mmu2_pause() {
-  #if HAS_PRUSA_MMU3
-    feeder_index = MMU2::mmu2.get_current_tool();
-  #else
-    feeder_index = mmu2.get_current_tool();
-  #endif
+  feeder_index = mmu2.get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
   #if HAS_PRUSA_MMU3
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ MMU2::mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ MMU2::mmu2.load_filament(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ MMU2::mmu2.load_filament_to_nozzle(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
+    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_filament(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_filament_to_nozzle(feeder_index); });
   #else
     ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
     ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
@@ -397,22 +367,22 @@ void menu_mmu2_pause() {
   END_MENU();
 }
 
-void mmu2_M600(bool automatic) {
+void mmu2_M600(const bool automatic/*=false*/) {
   // Disable automatic switching if MMU3 is not enabled or spool join is disabled
   #if HAS_PRUSA_MMU3
-    if(automatic && SpoolJoin::spooljoin.enabled){
+    if (automatic && SpoolJoin::spooljoin.enabled) {
       uint8_t slot;
       slot = SpoolJoin::spooljoin.nextSlot();
-      MMU2::mmu2.load_filament_to_nozzle(slot);
-    } else {
-  #endif
-      ui.defer_status_screen();
-      ui.goto_screen(menu_mmu2_pause);
-      wait_for_mmu_menu = true;
-      while (wait_for_mmu_menu) idle();
-  #if HAS_PRUSA_MMU3
+      mmu2.load_filament_to_nozzle(slot);
+      return;
     }
+  #else
+    UNUSED(automatic);
   #endif
+  ui.defer_status_screen();
+  ui.goto_screen(menu_mmu2_pause);
+  wait_for_mmu_menu = true;
+  while (wait_for_mmu_menu) idle();
 }
 
 uint8_t mmu2_choose_filament() {
@@ -424,4 +394,4 @@ uint8_t mmu2_choose_filament() {
   return feeder_index;
 }
 
-#endif // HAS_MARLINUI_MENU && MMU_MENUS
+#endif // MMU_MENUS

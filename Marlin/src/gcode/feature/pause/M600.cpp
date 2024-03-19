@@ -106,12 +106,7 @@ void GcodeSuite::M600() {
     }
   #endif
 
-  bool standardM600 = true;
-  #if HAS_PRUSA_MMU3
-    standardM600 = TERN1(MMU_MENUS, !MMU2::mmu2.mmu_hw_enabled);
-  #elif HAS_PRUSA_MMU2
-    standardM600 = TERN1(MMU_MENUS, !mmu2.enabled());
-  #endif
+  const bool standardM600 = TERN1(MMU_MENUS, TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu2.mmu_hw_enabled));
 
   // Show initial "wait for start" message
   if (standardM600)
@@ -172,9 +167,10 @@ void GcodeSuite::M600() {
         false
         DXC_PASS
       );
-    } else {
+    }
+    else {
       #if ENABLED(MMU_MENUS)
-        bool automatic = strcmp_P(parser.string_arg, "AUTO") == 0;
+        const bool automatic = strcmp_P(parser.string_arg, PSTR("AUTO")) == 0;
         mmu2_M600(automatic);
         resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
       #endif

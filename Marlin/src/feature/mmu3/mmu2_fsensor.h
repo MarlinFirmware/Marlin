@@ -19,23 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_fsensor.h
  */
 
-#pragma once
-#include "src/core/macros.h"
+#include "../../core/macros.h"
 #include <stdint.h>
 
+#define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
 
-#if ANY(HAS_PRUSA_MMU3, HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
-#else
-  #define FILAMENT_PRESENT() true
-#endif
-
-#if HAS_PRUSA_MMU3
   namespace MMU2 {
 
   /// Can be used to block printer's filament sensor handling - to avoid errorneous injecting of M600
@@ -59,4 +53,3 @@ public:
   FilamentState WhereIsFilament();
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

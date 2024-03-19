@@ -19,15 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * ultralcd.h
  */
 
-#pragma once
-#include "src/MarlinCore.h"
-#if HAS_PRUSA_MMU3
-  #include "src/lcd/marlinui.h"
+#include "../../MarlinCore.h"
+
+  #include "../../lcd/marlinui.h"
 
   #define LCD_LEFT_BUTTON_CHOICE 0
   #define LCD_MIDDLE_BUTTON_CHOICE 1
@@ -48,12 +48,10 @@
   class LcdUpdateDisabler {
     public:
       LcdUpdateDisabler() : m_updateEnabled(ui.lcdDrawUpdate) {
-        #ifdef HAS_WIRED_LCD
-          ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-        #endif
+        TERN_(HAS_WIRED_LCD, ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE);
       }
       ~LcdUpdateDisabler() {
-        #ifdef HAS_WIRED_LCD
+        #if HAS_WIRED_LCD
           ui.lcdDrawUpdate = m_updateEnabled;
           ui.clear_lcd();
           ui.update();
@@ -73,4 +71,3 @@
   uint8_t lcdui_print_extruder(void);
   extern void lcd_space(uint8_t n);
   void lcd_insert_char_into_status(uint8_t position, const char message);
-#endif // HAS_PRUSA_MMU3

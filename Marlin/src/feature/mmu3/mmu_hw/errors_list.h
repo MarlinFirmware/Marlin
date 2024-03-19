@@ -19,19 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * errors_list.h
  */
 
-#if HAS_PRUSA_MMU3
 // Extracted from Prusa-Error-Codes repo
 // Subject to automation and optimization
 // BEWARE - this file shall be included only into mmu2_error_converter.cpp, not anywhere else!
-#pragma once
 #include "inttypes.h"
-#include "src/core/language.h"
-#include "src/lcd/marlinui.h"
+#include "../../../core/language.h"
+#include "../../../lcd/marlinui.h"
 #ifdef __AVR__
   #include <avr/pgmspace.h>
 #endif
@@ -427,4 +426,3 @@ static_assert( sizeof(errorCodes) / sizeof(errorCodes[0]) == sizeof(errorTitles)
 static_assert( sizeof(errorCodes) / sizeof(errorCodes[0]) == sizeof(errorButtons) / sizeof (errorButtons[0]));
 
 } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

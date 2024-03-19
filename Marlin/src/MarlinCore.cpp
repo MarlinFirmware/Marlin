@@ -788,11 +788,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
-    #if HAS_PRUSA_MMU3
-      if(!MMU2::mmu2.Enabled())
-    #elif HAS_PRUSA_MMU2
-      if (!mmu2.enabled())
-    #endif
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu2.enabled()))
       runout.run();
   #endif
 
@@ -858,7 +854,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Update the Průša MMU2
   #if HAS_PRUSA_MMU3
-    MMU2::mmu2.mmu_loop();
+    mmu2.mmu_loop();
   #elif HAS_PRUSA_MMU2
     mmu2.mmu_loop();
   #endif
@@ -1598,13 +1594,9 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU3
-    if( MMU2::mmu2.mmu_hw_enabled){
-      SETUP_RUN(MMU2::mmu2.Start());
-    }
-    SETUP_RUN([]{
-      MMU2::mmu2.Status();
-      SpoolJoin::spooljoin.initSpoolJoinStatus();
-    });
+    if (mmu2.mmu_hw_enabled) SETUP_RUN(mmu2.Start());
+    SETUP_RUN(mmu2.Status());
+    SETUP_RUN(SpoolJoin::spooljoin.initSpoolJoinStatus());
   #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif

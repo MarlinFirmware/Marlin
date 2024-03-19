@@ -24,12 +24,12 @@
  * sound.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
   #include <Arduino.h>
   // #include "backlight.h"
   // #include "fastio.h"
-  #include "src/libs/buzzer.h"
+  #include "../../libs/buzzer.h"
   #include "sound.h"
 
 
@@ -57,20 +57,11 @@
 
   void Sound_CycleState(void) {
     switch (eSoundMode) {
-      case e_SOUND_MODE_LOUD:
-        eSoundMode = e_SOUND_MODE_ONCE;
-        break;
-      case e_SOUND_MODE_ONCE:
-        eSoundMode = e_SOUND_MODE_SILENT;
-        break;
-      case e_SOUND_MODE_SILENT:
-        eSoundMode = e_SOUND_MODE_BLIND;
-        break;
-      case e_SOUND_MODE_BLIND:
-        eSoundMode = e_SOUND_MODE_LOUD;
-        break;
-      default:
-        eSoundMode = e_SOUND_MODE_LOUD;
+      case e_SOUND_MODE_LOUD:   eSoundMode = e_SOUND_MODE_ONCE; break;
+      case e_SOUND_MODE_ONCE:   eSoundMode = e_SOUND_MODE_SILENT; break;
+      case e_SOUND_MODE_SILENT: eSoundMode = e_SOUND_MODE_BLIND; break;
+      case e_SOUND_MODE_BLIND:  eSoundMode = e_SOUND_MODE_LOUD; break;
+      default:                  eSoundMode = e_SOUND_MODE_LOUD;
     }
     Sound_SaveMode();
   }
@@ -78,15 +69,16 @@
   // if critical is true then silent and once mode is ignored
   void __attribute__((noinline)) Sound_MakeCustom(uint16_t ms, uint16_t tone_, bool critical) {
     if (critical || eSoundMode != e_SOUND_MODE_SILENT)
-      // if(!tone_) {
-      //      WRITE(BEEPER, HIGH);
-      //      _delay(ms);
-      //      WRITE(BEEPER, LOW);
-      // } else {
-      //      _tone(BEEPER, tone_);
-      //      _delay(ms);
-      //      _noTone(BEEPER);
-      // }
+      //if (!tone_) {
+      //  WRITE(BEEPER, HIGH);
+      //  _delay(ms);
+      //  WRITE(BEEPER, LOW);
+      //}
+      //else {
+      //  _tone(BEEPER, tone_);
+      //  _delay(ms);
+      //  _noTone(BEEPER);
+      //}
       BUZZ(ms, tone_);
   }
 

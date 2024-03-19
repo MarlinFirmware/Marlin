@@ -19,17 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_error_converter.h
  */
 
-#pragma once
 #include <stdint.h>
 #include <stddef.h>
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
-#if HAS_PRUSA_MMU3
 
   namespace MMU2 {
 
@@ -75,4 +74,3 @@
   Buttons ButtonAvailable(ErrorCode ec);
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

@@ -19,18 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_reporting.h
  */
 
-#pragma once
-#include "src/MarlinCore.h"
-#if HAS_PRUSA_MMU3
+#include "../../MarlinCore.h"
+
   #include <stdint.h>
   #include "mmu_hw/error_codes.h"
   #include "mmu_hw/progress_codes.h"
-
 
   namespace MMU2 {
 
@@ -170,4 +169,3 @@ private:
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

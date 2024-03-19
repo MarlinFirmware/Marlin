@@ -24,20 +24,10 @@
  * mmu2.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #if HAS_PRUSA_MMU3
-  #include "src/lcd/marlinui.h"
-  #include "src/core/language.h"
-  #include "src/module/planner.h"
-  #include "src/module/motion.h"
-  #include "src/gcode/parser.h"
-  #include "src/gcode/queue.h"
-  #include "src/feature/runout.h"
-  #if HAS_LEVELING
-    #include "src/feature/bedlevel/bedlevel.h"
-  #endif
-  #include "src/feature/pause.h"
-  #include "src/libs/stopwatch.h"
+
   #include "mmu2.h"
   #include "mmu2_error_converter.h"
   #include "mmu2_fsensor.h"
@@ -53,11 +43,29 @@
 
   #include "messages.h"
 
-  // #ifdef __AVR__
+  #include "../../MarlinCore.h"
+  #include "../../lcd/marlinui.h"
+  #include "../../core/language.h"
+  #include "../../module/planner.h"
+  #include "../../module/motion.h"
+  #include "../../gcode/parser.h"
+  #include "../../gcode/queue.h"
+  #include "../runout.h"
+  #if HAS_LEVELING
+    #include "../bedlevel/bedlevel.h"
+  #endif
+  #include "../pause.h"
+  #include "../../libs/stopwatch.h"
+
   // As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
   // Saves at least 800B of code size
-  // static_assert(EXTRUDERS == 1);
-  // #endif
+  //#ifdef __AVR__
+  //static_assert(EXTRUDERS == 1);
+  //#endif
+
+#define MMU2_NO_TOOL 99
+
+MMU2::MMU2 mmu2;
 
   namespace MMU2 {
 
@@ -74,8 +82,6 @@
     });
     // MakeSound(Prompt);
   }
-
-  MMU2 mmu2;
 
   uint8_t MMU2::cutter_mode;    // initialized by settings.load
   int MMU2::cutter_mode_addr;   // initialized by settings.load
@@ -99,16 +105,11 @@
     , loadFilamentStarted(false)
     , unloadFilamentStarted(false)
     , toolchange_counter(0)
-    , tmcFailures(0) {
-  }
+    , tmcFailures(0) { }
 
   void MMU2::Status() {
     // Useful information to see during bootup and change state
-    SERIAL_ECHOPGM("MMU is ");
-    if (mmu_hw_enabled)
-      SERIAL_ECHOLN_P(_O(MSG_ON));
-    else
-      SERIAL_ECHOLN_P(_O(MSG_OFF));
+    SERIAL_ECHOLN(F("MMU is "), mmu_hw_enabled ? F(MSG_ON) : F(MSG_OFF));
   }
 
   void MMU2::Start() {
@@ -116,6 +117,7 @@
 
     #if ENABLED(EEPROM_SETTINGS)
       // save mmu_hw_enabled to eeprom
+      // TODO: Move to settings.cpp (for now)
       persistentStore.access_start();
       persistentStore.write_data(mmu_hw_enabled_addr, mmu_hw_enabled);
       persistentStore.access_finish();
@@ -125,12 +127,12 @@
     MMU2_SERIAL.begin(MMU_BAUD);
 
     PowerOn();
-    MMU2_SERIAL.flush(); // make sure the UART buffer is clear before starting communication
+    MMU2_SERIAL.flush(); // Make sure the UART buffer is clear before starting communication
 
     SetCurrentTool(MMU2_NO_TOOL);
     state = xState::Connecting;
 
-    // start the communication
+    // Start communication
     logic.Start();
     logic.ResetRetryAttempts();
     logic.ResetCommunicationTimeoutAttempts();
@@ -172,20 +174,11 @@
 
   void MMU2::Reset(ResetForm level) {
     switch (level) {
-      case Software:
-        ResetX0();
-        break;
-      case ResetPin:
-        TriggerResetPin();
-        break;
-      case CutThePower:
-        PowerCycle();
-        break;
-      case EraseEEPROM:
-        ResetX42();
-        break;
-      default:
-        break;
+      case Software:    ResetX0(); break;
+      case ResetPin:    TriggerResetPin(); break;
+      case CutThePower: PowerCycle(); break;
+      case EraseEEPROM: ResetX42(); break;
+      default: break;
     }
   }
 
@@ -209,17 +202,12 @@
     Start();
   }
 
-  void MMU2::PowerOff() {
-    power_off();
-  }
-
-  void MMU2::PowerOn() {
-    power_on();
-  }
+  void MMU2::PowerOff() { power_off(); }
+  void MMU2::PowerOn() { power_on(); }
 
   bool MMU2::ReadRegister(uint8_t address) {
-    if (!WaitForMMUReady())
-      return false;
+    if (!WaitForMMUReady()) return false;
+
     do {
       logic.ReadRegister(address); // we may signal the accepted/rejected status of the response as return value of this function
     } while (!manage_response(false, false));
@@ -230,8 +218,8 @@
   }
 
   bool __attribute__((noinline)) MMU2::WriteRegister(uint8_t address, uint16_t data) {
-    if (!WaitForMMUReady())
-      return false;
+
+    if (!WaitForMMUReady()) return false;
 
     // special cases - intercept requests of registers which influence the printer's behaviour too + perform the change even on the printer's side
     switch (address) {
@@ -259,8 +247,7 @@
     // here, but this gets called only in Marlin's task, so thread safety
     // should be kept
     static bool avoidRecursion = false;
-    if (avoidRecursion)
-      return;
+    if (avoidRecursion) return;
     avoidRecursion = true;
 
     mmu_loop_inner(true);
@@ -273,12 +260,11 @@
     CheckErrorScreenUserInput();
   }
 
-
   /**
    * Check if there are extruder moves planned ahead.
    *
    * TODO: This should go to the planner, but for now keep it here!
-  */
+   */
   bool MMU2::e_active() {
     unsigned char e_active = 0;
     block_t *block;
@@ -290,7 +276,7 @@
         block_index = (block_index + 1) & (BLOCK_BUFFER_SIZE - 1);
       }
     }
-    return (e_active > 0) ? true : false;
+    return (e_active > 0);
   }
 
   /**
@@ -302,21 +288,19 @@
    * before switching to the next slot. There will be a little bit of filament
    * left when the new filament is extruded SpoolJoin is not intended to be used with
    * multi color/material prints so this should be fine.
-  */
+   */
   void MMU2::CheckFINDARunout() {
     if (!FindaDetectsFilament()
         // && printJobOngoing()
         && parser.codenum != 600
-        #if HAS_LEVELING
-          && planner.leveling_active
-        #endif
+        && TERN1(HAS_LEVELING, planner.leveling_active)
         && all_axes_homed()
         && e_active()
         #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           && runout.enabled // to prevent M600 to be triggered during M600 AUTO
           && !FILAMENT_PRESENT() // so the filament is totally consumed
         #endif
-        ) {
+    ) {
       SERIAL_ECHOLN_P("FINDA filament runout!");
       if (SpoolJoin::spooljoin.isSpoolJoinEnabled() && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN) { // Can't auto if F=?
         #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
@@ -350,13 +334,11 @@
 
   bool MMU2::WaitForMMUReady() {
     switch (State()) {
-      case xState::Stopped:
-        return false;
+      case xState::Stopped: return false;
       case xState::Connecting:
       // shall we wait until the MMU reconnects?
       // fire-up a fsm_dlg and show "MMU not responding"?
-      default:
-        return true;
+      default: return true;
     }
   }
 
@@ -387,26 +369,27 @@
     const float tryload_length = MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH - logic.ExtraLoadDistance();
     TryLoadUnloadReporter tlur(tryload_length);
 
-    /* The position is a triangle wave
-    // current position is not zero, it is an offset
-    //
-    // Keep in mind that the relationship between machine position
-    // and pixel index is not linear. The area around the amplitude
-    // needs to be taken care of carefully. The current implementation
-    // handles each move separately so there is no need to watch for the change
-    // in the slope's sign or check the last machine position.
-    //              y(x)
-    //              ▲
-    //              │     ^◄────────── tryload_length + current_position
-    //   machine    │    / \
-    //   position   │   /   \◄────────── stepper_position_mm + current_position
-    //    (mm)      │  /     \
-    //              │ /       \
-    //              │/         \◄───────current_position
-    //              └──────────────► x
-    //              0           19
-    //                 pixel #
-    */
+    /**
+     * The position is a triangle wave.
+     * Current position is not zero, it is an offset
+     *
+     * Keep in mind that the relationship between machine position
+     * and pixel index is not linear. The area around the amplitude
+     * needs to be taken care of carefully. The current implementation
+     * handles each move separately so there is no need to watch for the change
+     * in the slope's sign or check the last machine position.
+     *              y(x)
+     *              ▲
+     *              │     ^◄────────── tryload_length + current_position
+     *   machine    │    / \
+     *   position   │   /   \◄────────── stepper_position_mm + current_position
+     *    (mm)      │  /     \
+     *              │ /       \
+     *              │/         \◄───────current_position
+     *              └──────────────► x
+     *              0           19
+     *                 pixel #
+     */
 
     bool filament_inserted = true; // expect success
     // Pixel index will go from 0 to 10, then back from 10 to 0
@@ -421,8 +404,7 @@
       }
     }
     Disable_E0();
-    if (!filament_inserted)
-      IncrementLoadFails();
+    if (!filament_inserted) IncrementLoadFails();
     tlur.DumpToSerial();
     return filament_inserted;
   }
@@ -435,8 +417,9 @@
         Disable_E0(); // it may seem counterintuitive to disable the E-motor, but it gets enabled in the planner whenever the E-motor is to move
         tool_change_extruder = slot;
         logic.ToolChange(slot); // let the MMU pull the filament out and push a new one in
-        if (manage_response(true, true))
-          break;
+
+        if (manage_response(true, true)) break;
+
         // otherwise: failed to perform the command - unload first and then let it run again
         IncrementMMUFails();
 
@@ -450,18 +433,18 @@
         // but honestly - if the MMU restarts during every toolchange,
         // something else is seriously broken and stopping a print is probably our best option.
       }
-      if (VerifyFilamentEnteredPTFE()) {
-        return true; // success
-      } else {         // Prepare a retry attempt
-        UnloadInner();
-        if (retries == MMU2_MAX_RETRIES - 1 && cutter_enabled()){
-          CutFilamentInner(slot); // try cutting filament tip at the last attempt
-          retries = 0; // reset retries every MMU2_MAX_RETRIES
-        }
+      if (VerifyFilamentEnteredPTFE()) return true; // success
+
+      // Prepare a retry attempt
+      UnloadInner();
+      if (retries == (MMU2_MAX_RETRIES) - 1 && cutter_enabled()) {
+        CutFilamentInner(slot); // try cutting filament tip at the last attempt
+        retries = 0; // reset retries every MMU2_MAX_RETRIES
       }
+
       ++retries;
     }
-    return false; // couldn't accomplish the task
+    return false; // Couldn't accomplish the task
   }
 
   void MMU2::ToolChangeCommon(uint8_t slot) {
@@ -486,8 +469,7 @@
   }
 
   bool MMU2::tool_change(uint8_t slot) {
-    if (!WaitForMMUReady())
-      return false;
+    if (!WaitForMMUReady()) return false;
 
     if (slot != extruder) {
       if (// FindaDetectsFilament()
@@ -1198,6 +1180,7 @@
           }
         }
         break;
+
       case ProgressCode::FeedingToFSensor:
         if (loadFilamentStarted) {
           switch (WhereIsFilament()) {
@@ -1240,4 +1223,5 @@
   }
 
   } // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3

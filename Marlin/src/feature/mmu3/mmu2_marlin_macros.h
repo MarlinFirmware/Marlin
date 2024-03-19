@@ -19,19 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_marlin_macros.h
  */
 
-/// This file will not be the same on Marlin1 and Marlin2.
-/// Its purpose is to unify different macros in either of Marlin incarnations.
-#pragma once
+// This file will not be the same on Marlin1 and Marlin2.
+// Its purpose is to unify different macros in either of Marlin incarnations.
 
 #ifdef __AVR__
-  #include "src/MarlinCore.h"
+  #include "../../MarlinCore.h"
   // brings _O and _T macros into MMU
-  #include "src/core/language.h"
+  #include "../../core/language.h"
   #include "../../gcode/gcode.h"
   // we don't have these in Marlin 2.x so just define them here again
   #define _O(x)                             x

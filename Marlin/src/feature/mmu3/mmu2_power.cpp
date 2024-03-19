@@ -24,41 +24,42 @@
  * mmu2_power.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_PRUSA_MMU3
+
 #include "mmu2.h"
 #include "mmu2_power.h"
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 
-#include "src/core/macros.h"
-#include "src/core/boards.h"
-#include "src/pins/pins.h"
+#include "../../core/macros.h"
+#include "../../core/boards.h"
+#include "../../pins/pins.h"
 
-#if HAS_PRUSA_MMU3
-  namespace MMU2 {
+namespace MMU2 {
 
-  // On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
-  void power_on() {
-    #if PIN_EXISTS(MMU2_RST)
-      WRITE(MMU2_RST_PIN, 1);
-      SET_OUTPUT(MMU2_RST_PIN); // setup reset pin
-    #endif // MMU_HWRESET
+// On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
+void power_on() {
+  #if PIN_EXISTS(MMU2_RST)
+    OUT_WRITE(MMU2_RST_PIN, HIGH);
+  #endif
+  reset();
+}
 
-    reset();
-  }
+void power_off() {}
 
-  void power_off() {
-  }
+void reset() {
+  #if PIN_EXISTS(MMU2_RST) // HW - pulse reset pin
+    WRITE(MMU2_RST_PIN, LOW);
+    safe_delay(100);
+    WRITE(MMU2_RST_PIN, HIGH);
+  #else
+    mmu2.Reset(MMU2::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
+  #endif
+  // otherwise HW reset is not available
+}
 
-  void reset() {
-    #if PIN_EXISTS(MMU2_RST) // HW - pulse reset pin
-      WRITE(MMU2_RST_PIN, 0);
-      safe_delay(100);
-      WRITE(MMU2_RST_PIN, 1);
-    #else
-      mmu2.Reset(MMU2::Software); // @@TODO needs to be redesigned, this power implementation shall not know anything about the MMU itself
-    #endif
-    // otherwise HW reset is not available
-  }
+} // namespace MMU2
 
-  } // namespace MMU2
 #endif // HAS_PRUSA_MMU3
