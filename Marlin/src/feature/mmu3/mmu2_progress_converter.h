@@ -19,18 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_progress_converter.h
  */
 
-#pragma once
-#include <stdint.h>
-#include <stddef.h>
 #include "mmu_hw/progress_codes.h"
+
+#include "../../HAL/shared/Marduino.h"
 
 namespace MMU2 {
 
-const char *ProgressCodeToText(ProgressCode pc);
+FSTR_P const ProgressCodeToText(const ProgressCode pc);
 
 }

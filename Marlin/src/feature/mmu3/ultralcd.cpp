@@ -28,13 +28,14 @@
 
 #if HAS_PRUSA_MMU3
 
-  #include "ultralcd.h"
-  #include "../../lcd/menu/menu_item.h"
-  #include "../../gcode/gcode.h"
-  #include "../../lcd/marlinui.h"
-  #include "mmu2.h"
-  #include "mmu2_marlin_macros.h"
-  #include "mmu_hw/errors_list.h"
+#include "mmu2.h"
+#include "mmu2_marlin_macros.h"
+#include "mmu_hw/errors_list.h"
+#include "ultralcd.h"
+
+#include "../../lcd/menu/menu_item.h"
+#include "../../gcode/gcode.h"
+#include "../../lcd/marlinui.h"
 
   //! @brief Show a two-choice prompt on the last line of the LCD
   //! @param selected Show first choice as selected if true, the second otherwise
@@ -109,9 +110,10 @@
    * @param msg message to be displayed from PROGMEM
    * @return rest of the text (to be displayed on next page)
    */
-  static const char* lcd_display_message_fullscreen_nonBlocking_P(const char *msg) {
-    const char *msgend = msg;
-    // bool multi_screen = false;
+  static FSTR_P const lcd_display_message_fullscreen_nonBlocking(FSTR_P const fmsg) {
+    PGM_P msg = FTOP(fmsg);
+    PGM_P msgend = msg;
+    //bool multi_screen = false;
     for (uint8_t row = 0; row < LCD_HEIGHT; ++row) {
       if (pgm_read_byte(msgend) == 0) break;
       SETCURSOR(0, row);
@@ -121,15 +123,14 @@
       if (pgm_is_whitespace(msg) && ++msg == nullptr) break; // End of the message.
 
       uint8_t linelen = (strlen_P(msg) > LCD_WIDTH) ? LCD_WIDTH : strlen_P(msg);
-      const char *msgend2 = msg + linelen;
+      PGM_P const msgend2 = msg + linelen;
       msgend = msgend2;
       if (row == 3 && linelen == LCD_WIDTH) {
         // Last line of the display, full line shall be displayed.
         // Find out, whether this message will be split into multiple screens.
-        // multi_screen = pgm_read_byte(msgend) != 0;
+        //multi_screen = pgm_read_byte(msgend) != 0;
         // We do not need this...
-        // if (multi_screen)
-        //   msgend = (msgend2 -= 2);
+        //if (multi_screen) msgend = (msgend2 -= 2);
       }
       if (pgm_read_byte(msgend) != 0 && !pgm_is_whitespace(msgend) && !pgm_is_interpunction(msgend)) {
         // Splitting a word. Find the start of the current word.
@@ -151,18 +152,18 @@
     //  // Display the double down arrow.
     //  lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_ARROW_2_DOWN[0]);
     //}
-    //return multi_screen ? msgend : NULL;
-    return msgend;
+    //return multi_screen ? msgend : nullptr;
+    return FPSTR(msgend);
   }
 
-  const char* lcd_display_message_fullscreen_P(const char *msg) {
+  FSTR_P const lcd_display_message_fullscreen(FSTR_P const fmsg) {
     // Disable update of the screen by the usual lcd_update(0) routine.
     #if HAS_WIRED_LCD
       //ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
-      return lcd_display_message_fullscreen_nonBlocking_P(msg);
+      return lcd_display_message_fullscreen_nonBlocking(fmsg);
     #else
-      return msg
+      return fmsg
     #endif
   }
 
@@ -172,15 +173,15 @@
    * This function is blocking.
    * @param msg message to be displayed from PROGMEM
    */
-  void lcd_show_fullscreen_message_and_wait_P(const char *msg) {
+  void lcd_show_fullscreen_message_and_wait(FSTR_P const fmsg) {
     LcdUpdateDisabler lcdUpdateDisabler;
-    const char *msg_next = lcd_display_message_fullscreen_P(msg);
-    bool multi_screen = msg_next != nullptr;
+    FSTR_P fmsg_next = lcd_display_message_fullscreen(fmsg);
+    const bool multi_screen = fmsg_next != nullptr;
     ui.use_click();
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     // Until confirmed by a button click.
     for (;;) {
-      if (msg_next == nullptr) {
+      if (fmsg_next == nullptr) {
         // Display the confirm char.
         //lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_CONFIRM[0]);
       }
@@ -189,19 +190,18 @@
         idle(true);
         safe_delay(50);
         if (ui.use_click()) {
-          if (msg_next == nullptr) {
+          if (fmsg_next == nullptr) {
             KEEPALIVE_STATE(IN_HANDLER);
             return ui.go_back();
           }
           if (!multi_screen) break;
-          if (msg_next == nullptr) msg_next = msg;
-          msg_next = lcd_display_message_fullscreen_P(msg_next);
+          if (fmsg_next == nullptr) fmsg_next = fmsg;
+          fmsg_next = lcd_display_message_fullscreen(fmsg_next);
         }
       }
       //if (multi_screen) {
-      //  if (msg_next == nullptr)
-      //    msg_next = msg;
-      //  msg_next = lcd_display_message_fullscreen_P(msg_next);
+      //  if (fmsg_next == nullptr) fmsg_next = fmsg;
+      //  fmsg_next = lcd_display_message_fullscreen(fmsg_next);
       //}
     }
   }

@@ -52,30 +52,22 @@
 
 namespace MMU2 {
 
-  /// Beware - on AVR/MK3S:
-  /// Changing the supportedMmuVersion numbers requires patching MSG_DESC_FW_UPDATE_NEEDED and all its related translations by hand.
-  ///
-  /// The message reads:
-  ///   "MMU FW version is incompatible with printer FW.Update to version 2.1.9."
-  ///
-  /// Currently, this is not possible to perform automatically at compile time with the existing languages/translations infrastructure.
-  /// To save space a "dumb" solution was chosen + a few static_assert checks in errors_list.h preventing the code from compiling when the string doesn't match.
-  static constexpr uint8_t supportedMmuFWVersion[3] PROGMEM = { mmuVersionMajor, mmuVersionMinor, mmuVersionPatch };
+  static constexpr uint8_t supportedMmuFWVersion[] PROGMEM = { mmuVersionMajor, mmuVersionMinor, mmuVersionPatch };
 
   const Register ProtocolLogic::regs8Addrs[ProtocolLogic::regs8Count] PROGMEM = {
-    Register::FINDA_State,         // FINDA state
-    Register::Set_Get_Selector_Slot, // Selector slot
-    Register::Set_Get_Idler_Slot,  // Idler slot
+    Register::FINDA_State,            // FINDA state
+    Register::Set_Get_Selector_Slot,  // Selector slot
+    Register::Set_Get_Idler_Slot,     // Idler slot
   };
 
   const Register ProtocolLogic::regs16Addrs[ProtocolLogic::regs16Count] PROGMEM = {
-    Register::MMU_Errors,        // MMU errors - aka statistics
-    Register::Get_Pulley_Position, // Pulley position [mm]
+    Register::MMU_Errors,             // MMU errors - aka statistics
+    Register::Get_Pulley_Position,    // Pulley position [mm]
   };
 
   const Register ProtocolLogic::initRegs8Addrs[ProtocolLogic::initRegs8Count] PROGMEM = {
-    Register::Extra_Load_Distance, // extra load distance [mm]
-    Register::Pulley_Slow_Feedrate, // pulley slow feedrate [mm/s]
+    Register::Extra_Load_Distance,    // Extra load distance [mm]
+    Register::Pulley_Slow_Feedrate,   // Pulley slow feedrate [mm/s]
   };
 
   void ProtocolLogic::CheckAndReportAsyncEvents() {
@@ -296,11 +288,9 @@ namespace MMU2 {
     }
     else {
       mmuFwVersion[stage] = rsp.paramValue;
-      if (mmuFwVersion[stage] != pgm_read_byte(supportedMmuFWVersion + stage)) {
-        if (--retries == 0)
-          return VersionMismatch;
-        else
-          SendVersion(stage);
+      if (mmuFwVersion[stage] != pgm_read_byte(&supportedMmuFWVersion[stage])) {
+        if (--retries == 0) return VersionMismatch;
+        SendVersion(stage);
       }
       else {
         ResetCommunicationTimeoutAttempts(); // got a meaningful response from the MMU, stop data layer timeout tracking

@@ -86,7 +86,7 @@ public:
     VersionMismatch,    ///< the MMU reports its firmware version incompatible with our implementation
     PrinterError,       ///< printer's explicit error - MMU is fine, but the printer was unable to complete the requested operation
     CommunicationRecovered,
-    ButtonPushed,       ///< The MMU reported the user pushed one of its three buttons.
+    ButtonPushed        ///< The MMU reported the user pushed one of its three buttons.
   };
 
   /*inline*/ constexpr uint32_t linkLayerTimeout = 2000;               ///< default link layer communication timeout

@@ -171,8 +171,8 @@ template<> void SERIAL_ECHO(const p_float_t pf);
 template<> void SERIAL_ECHO(const w_float_t wf);
 
 // Specializations for F-string
-template<> void SERIAL_ECHO(const FSTR_P fstr);
-template<> void SERIAL_ECHOLN(const FSTR_P fstr);
+template<> void SERIAL_ECHO(FSTR_P const fstr);
+template<> void SERIAL_ECHOLN(FSTR_P const fstr);
 
 // Print any number of items with arbitrary types (except loose PROGMEM strings)
 template <typename T, typename ... Args>

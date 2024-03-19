@@ -214,9 +214,8 @@ namespace MMU2 {
 
   void EndReport(CommandInProgress /*cip*/, ProgressCode /*ec*/) {
     // clear the status msg line - let the printed filename get visible again
-    if (!printJobOngoing())
-      ui.set_status(MSG_WELCOME);
-    // custom_message_type = CustomMsg::Status;
+    if (!printJobOngoing()) ui.reset_status();
+    //custom_message_type = CustomMsg::Status;
   }
 
   /**
@@ -240,7 +239,7 @@ namespace MMU2 {
 
   static bool drawing_more_info_screen = false;
   static bool msg_next_is_consumed = false;
-  static char *msg_next = nullptr;
+  static FSTR_P msg_next = nullptr;
 
   /**
    * Display more info about the error. If the error message doesn't fit into
@@ -255,34 +254,26 @@ namespace MMU2 {
     #if HAS_WIRED_LCD
       if (drawing_more_info_screen) return;
       drawing_more_info_screen = true;
-      const char *msg = PrusaErrorDesc(editable.uint8);
+      FSTR_P fmsg = PrusaErrorDesc(editable.uint8);
       if (ui.use_click()) {
         if (msg_next_is_consumed) {
           msg_next_is_consumed = false;
           drawing_more_info_screen = false;
           msg_next = nullptr;
-          // prevent this function to be triggered again...
+          // Prevent this function being triggered again...
           SetButtonResponse(ButtonOperations::NoOperation);
           return ui.go_back();
         }
-        else {
-          msg = msg_next;
-        }
+        fmsg = msg_next;
       }
       else if (msg_next_is_consumed) {
-        msg = msg_next;
+        fmsg = msg_next;
       }
 
-      const char *msg_next_int = lcd_display_message_fullscreen_P(msg);
-      if (strlen_P(msg_next_int) == 0) {
-        msg_next_is_consumed = true;
-      }
-      else {
-        msg_next_is_consumed = false;
-        strcpy(msg_next, msg_next_int);
-      }
-      // Set the button response to MoreInfo so we keep coming back to this
-      // screen until all messages are consumed
+      FSTR_P const msg_next_int = lcd_display_message_fullscreen(fmsg);
+      msg_next_is_consumed = strlen_P(FTOP(msg_next_int)) == 0;
+      if (!msg_next_is_consumed) msg_next = msg_next_int;
+      // Set the button response to MoreInfo so we keep coming back to this screen until all messages are consumed
       SetButtonResponse(ButtonOperations::MoreInfo);
     #else
       // no lcd, no error display... just break the loop...
@@ -309,40 +300,38 @@ namespace MMU2 {
       bool two_choices = false;
 
       // Read and determine what operations should be shown on the menu
-      const uint8_t button_operation = PrusaErrorButtons(ei);
-      const uint8_t button_op_right  = BUTTON_OP_RIGHT(button_operation);
-      const uint8_t button_op_middle = BUTTON_OP_MIDDLE(button_operation);
+      const uint8_t button_operation = PrusaErrorButtons(ei),
+                    button_op_right  = BUTTON_OP_RIGHT(button_operation),
+                    button_op_middle = BUTTON_OP_MIDDLE(button_operation);
 
       // Check if the menu should have three or two choices
-      if (button_op_right == (uint8_t)ButtonOperations::NoOperation)
+      if (button_op_right == (uint8_t)ButtonOperations::NoOperation) {
         // Two operations not specified, the error menu should only show two choices
         two_choices = true;
+      }
 
       START_MENU();
       #ifndef __AVR__
         // TODO: I couldn't make this work on AVR
-        STATIC_ITEM_F(F(PrusaErrorTitle(ei)), SS_DEFAULT | SS_INVERT);
+        STATIC_ITEM_F(PrusaErrorTitle(ei), SS_DEFAULT | SS_INVERT);
 
-        // write the help page and error code
+        // Write the help page and error code
         MString<LCD_WIDTH> url("");
-        url.appendf(
-          "prusa.io/04%hu",
-          PrusaErrorCode(ei)
-        );
-        STATIC_ITEM_F(F(url.buffer()));
+        url.appendf("prusa.io/04%hu", PrusaErrorCode(ei));
+        STATIC_ITEM_F(nullptr, SS_DEFAULT, url.buffer());
 
-        // ReportErrorHookSensorLineRender();
+        //ReportErrorHookSensorLineRender();
 
         editable.uint8 = button_op_middle;
         ACTION_ITEM_F(
-          F(PrusaErrorButtonTitle(button_op_middle)),
+          PrusaErrorButtonTitle(button_op_middle),
           []{ SetButtonResponse((ButtonOperations)editable.uint8); }
         );
 
         if (!two_choices) {
           editable.uint8 = button_op_right;
           ACTION_ITEM_F(
-            F(PrusaErrorButtonTitle(button_op_right)),
+            PrusaErrorButtonTitle(button_op_right),
             []{ SetButtonResponse((ButtonOperations)editable.uint8); }
           );
         }
@@ -350,7 +339,7 @@ namespace MMU2 {
         // Add a More Info option
         editable.uint8 = ei;
         ACTION_ITEM_F(
-          F(PrusaErrorButtonMore()),
+          PrusaErrorButtonMore(),
           []{
             // only when the menu item is used push the current screen back
             ui.push_current_screen();
@@ -363,13 +352,21 @@ namespace MMU2 {
       #endif // !__AVR__
 
       // Render the choices
-      //lcd_show_choices_prompt_P(
-      //  two_choices ? LCD_LEFT_BUTTON_CHOICE : LCD_MIDDLE_BUTTON_CHOICE,
-      //  PrusaErrorButtonTitle(button_op_middle),
-      //  two_choices ? PrusaErrorButtonMore() : PrusaErrorButtonTitle(button_op_right),
-      //  two_choices ? 18 : 9,
-      //  two_choices ? nullptr : PrusaErrorButtonMore()
-      //);
+      //if (two_choices) {
+      //  lcd_show_choices_prompt_P(
+      //   LCD_LEFT_BUTTON_CHOICE,
+      //   PrusaErrorButtonTitle(button_op_middle),
+      //   FTOP(PrusaErrorButtonMore()),
+      //   18, nullptr
+      //  );
+      //}
+      //else {
+      //  lcd_show_choices_prompt_P(LCD_MIDDLE_BUTTON_CHOICE,
+      //   PrusaErrorButtonTitle(button_op_middle),
+      //   PrusaErrorButtonTitle(button_op_right),
+      //   9, FTOP(PrusaErrorButtonMore())
+      //  );
+      //}
 
       END_MENU();
       //ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -462,7 +459,7 @@ namespace MMU2 {
         msg_next = nullptr;
         editable.uint8 = ei;
         ui.defer_status_screen();
-        ui.goto_screen([]{ReportErrorHookStaticRender(editable.uint8);});
+        ui.goto_screen([]{ ReportErrorHookStaticRender(editable.uint8); });
       #endif
       ReportErrorHookState = ReportErrorHookStates::MONITOR_SELECTION;
     }
@@ -511,11 +508,10 @@ namespace MMU2 {
   }
 
   TryLoadUnloadReporter::TryLoadUnloadReporter(float delta_mm)
-    : dpixel0(0)
-    , dpixel1(0)
-    , lcd_cursor_col(0)
-    , pixel_per_mm(0.5F * float(LCD_WIDTH) / (delta_mm)) {
-    // lcd_clearstatus();
+    : dpixel0(0), dpixel1(0), lcd_cursor_col(0)
+    , pixel_per_mm(0.5F * float(LCD_WIDTH) / (delta_mm)
+  ) {
+    //lcd_clearstatus();
     ui.reset_status();
   }
 
@@ -575,28 +571,30 @@ namespace MMU2 {
     Sound_MakeSound((eSOUND_TYPE)s);
   }
 
-  static void FullScreenMsg(const char *pgmS, uint8_t slot) {
+  static void fullScreenMsg(FSTR_P const fstr, uint8_t slot) {
     #if HAS_WIRED_LCD
       ui.clear_lcd();
       #ifndef __AVR__
         SETCURSOR(0, 1);
-        lcd_put_u8str_P(pgmS);
+        lcd_put_u8str(fstr);
         lcd_put_lchar(' ');
         lcd_put_int(slot + 1);
+      #else
+        UNUSED(fstr);
       #endif
       ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       ui.screen_changed = true;
     #endif
   }
 
-  void FullScreenMsgCut(uint8_t slot) { FullScreenMsg(MSG_CUT_FILAMENT, slot); }
-  void FullScreenMsgEject(uint8_t slot) { FullScreenMsg(MSG_EJECT_FROM_MMU, slot); }
-  void FullScreenMsgTest(uint8_t slot) { FullScreenMsg(MSG_TESTING_FILAMENT, slot); }
-  void FullScreenMsgLoad(uint8_t slot) { FullScreenMsg(MSG_LOADING_FILAMENT, slot); }
+  void fullScreenMsgCut(uint8_t slot)   { fullScreenMsg(MSG_CUT_FILAMENT, slot); }
+  void fullScreenMsgEject(uint8_t slot) { fullScreenMsg(MSG_EJECT_FROM_MMU, slot); }
+  void fullScreenMsgTest(uint8_t slot)  { fullScreenMsg(MSG_TESTING_FILAMENT, slot); }
+  void fullScreenMsgLoad(uint8_t slot)  { fullScreenMsg(MSG_LOADING_FILAMENT, slot); }
 
-  void FullScreenMsgRestoringTemperature() {
+  void fullScreenMsgRestoringTemperature() {
     #if HAS_WIRED_LCD
-      lcd_display_message_fullscreen_P("MMU Retry: Restoring temperature..."); ////MSG_MMU_RESTORE_TEMP c=20 r=4
+      lcd_display_message_fullscreen(F("MMU Retry: Restoring temperature..."));
     #endif
   }
 
@@ -638,16 +636,16 @@ namespace MMU2 {
     TuneItem item;           // 3 bytes
   };
 
-  // static_assert(sizeof(_menu_tune_data_t) == 18);
-  // static_assert(sizeof(menu_data)>= sizeof(_menu_tune_data_t), "_menu_tune_data_t doesn't fit into menu_data");
+  //static_assert(sizeof(_menu_tune_data_t) == 18);
+  //static_assert(sizeof(menu_data)>= sizeof(_menu_tune_data_t), "_menu_tune_data_t doesn't fit into menu_data");
 
   void tuneIdlerStallguardThresholdMenu() {
     // const uint8_t menu_data[32] = "Set Stallguard Threshold";
-    // // static constexpr _menu_tune_data_t * const _md = (_menu_tune_data_t*)&(menu_data[0]);
+    // //static constexpr _menu_tune_data_t * const _md = (_menu_tune_data_t*)&(menu_data[0]);
     // static constexpr _menu_tune_data_t * const _md = (_menu_tune_data_t*)&(menu_data[0]);
 
     // // Do not timeout the screen, otherwise there will be FW crash (menu recursion)
-    // // lcd_timeoutToStatus.stop();
+    // //lcd_timeoutToStatus.stop();
     //if (_md->status == 0) {
     //  _md->status = 1; // Menu entered for the first time
 
@@ -695,12 +693,11 @@ namespace MMU2 {
     mmu2.WriteRegister(address, (uint16_t)value);
     putErrorScreenToSleep = false;
     ui.return_to_status();
-    return;
   }
 
   void tuneIdlerStallguardThreshold() {
     putErrorScreenToSleep = true;
-    // menu_submenu(tuneIdlerStallguardThresholdMenu);
+    //menu_submenu(tuneIdlerStallguardThresholdMenu);
   }
 
 } // namespace MMU2
