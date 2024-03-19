@@ -24,16 +24,17 @@
  * ultralcd.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
+
 #if HAS_PRUSA_MMU3
+
   #include "ultralcd.h"
-  #include "src/lcd/menu/menu_item.h"
-  #include "src/gcode/gcode.h"
-  #include "src/lcd/marlinui.h"
+  #include "../../lcd/menu/menu_item.h"
+  #include "../../gcode/gcode.h"
+  #include "../../lcd/marlinui.h"
   #include "mmu2.h"
   #include "mmu2_marlin_macros.h"
   #include "mmu_hw/errors_list.h"
-
 
   //! @brief Show a two-choice prompt on the last line of the LCD
   //! @param selected Show first choice as selected if true, the second otherwise
@@ -77,15 +78,15 @@
   uint8_t lcdui_print_extruder(void) {
     uint8_t chars = 1;
     lcd_space(1);
-    if (MMU2::mmu2.get_current_tool() == MMU2::mmu2.get_tool_change_tool()) {
+    if (mmu2.get_current_tool() == mmu2.get_tool_change_tool()) {
       lcd_put_lchar('F');
-      lcd_put_lchar(MMU2::mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : MMU2::mmu2.get_current_tool() + '1');
+      lcd_put_lchar(mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_current_tool() + '1');
       chars += 2;
     }
     else {
-      lcd_put_lchar(MMU2::mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : MMU2::mmu2.get_current_tool() + '1');
+      lcd_put_lchar(mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_current_tool() + '1');
       lcd_put_lchar('>');
-      lcd_put_lchar(MMU2::mmu2.get_tool_change_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : MMU2::mmu2.get_tool_change_tool() + '1');
+      lcd_put_lchar(mmu2.get_tool_change_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_tool_change_tool() + '1');
       chars += 3;
     }
     return chars;
@@ -113,15 +114,12 @@
     const char *msgend = msg;
     // bool multi_screen = false;
     for (uint8_t row = 0; row < LCD_HEIGHT; ++row) {
-      if(pgm_read_byte(msgend) == 0)
-        break;
+      if (pgm_read_byte(msgend) == 0) break;
       SETCURSOR(0, row);
 
       // Previous row ended with a complete word, so the first character in the
       // next row is a whitespace. We can skip the whitespace on a new line.
-      if (pgm_is_whitespace(msg) && ++msg == nullptr)
-        // End of the message.
-        break;
+      if (pgm_is_whitespace(msg) && ++msg == nullptr) break; // End of the message.
 
       uint8_t linelen = (strlen_P(msg) > LCD_WIDTH) ? LCD_WIDTH : strlen_P(msg);
       const char *msgend2 = msg + linelen;
@@ -137,9 +135,7 @@
       if (pgm_read_byte(msgend) != 0 && !pgm_is_whitespace(msgend) && !pgm_is_interpunction(msgend)) {
         // Splitting a word. Find the start of the current word.
         while (msgend > msg && !pgm_is_whitespace(msgend - 1)) --msgend;
-        if (msgend == msg)
-          // Found a single long word, which cannot be split. Just cut it.
-          msgend = msgend2;
+        if (msgend == msg) msgend = msgend2; // Found a single long word, which cannot be split. Just cut it.
       }
       for (; msg < msgend; ++msg) {
         char c = char(pgm_read_byte(msg));
@@ -157,7 +153,6 @@
     // return multi_screen ? msgend : NULL;
     return msgend;
   }
-
 
   const char* lcd_display_message_fullscreen_P(const char *msg) {
     // Disable update of the screen by the usual lcd_update(0) routine.
@@ -222,4 +217,5 @@
     str[position] = message;
     ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_REDRAW_NOW; // force redraw
   }
+
 #endif // HAS_PRUSA_MMU3

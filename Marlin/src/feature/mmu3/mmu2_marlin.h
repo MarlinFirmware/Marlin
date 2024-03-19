@@ -19,26 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_marlin.h
  */
 
-/// The sole purpose of this interface is to separate Marlin1/Marlin2 from the MMU top logic layer.
-/// Why?
-/// - unify implementation among MK3 and Buddy FW
-/// - enable unit testing of MMU top layer
-#pragma once
-#include <stdint.h>
-#include "src/MarlinCore.h"
+#include "../../inc/MarlinConfig.h"
 
-#if HAS_PRUSA_MMU3
   namespace MMU2 {
+  // This interface separates Marlin1/Marlin2 from the MMU top logic layer.
+  // - Unify implementation among MK3 and Buddy FW
+  // - Enable unit testing of MMU top layer
 
-  void extruder_move(const float distance, const float feed_rate, const bool sync=true);
-  void extruder_schedule_turning(float feed_rate);
+  void extruder_move(const_float_t distance, const_float_t feedRate_mm_s, const bool sync=true);
+  void extruder_schedule_turning(const_float_t feedRate_mm_s);
 
-  float move_raise_z(float delta);
+  float move_raise_z(const_float_t delta);
 
   void planner_abort_queued_moves();
   void planner_synchronize();
@@ -74,4 +71,3 @@
   bool all_axes_homed();
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

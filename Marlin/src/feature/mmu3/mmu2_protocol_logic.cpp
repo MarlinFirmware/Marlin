@@ -24,7 +24,7 @@
  * mmu2_protocol_logic.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
   #include "mmu2_protocol_logic.h"
   #include "mmu2_log.h"
@@ -856,7 +856,8 @@
         // i.e. only try to find some planned command if we just finished the Idle cycle
         if (!ActivatePlannedRequest()) {                           // if nothing is planned, switch to Idle
           SwitchToIdle();
-        } else if (ExpectsResponse()){
+        }
+        else if (ExpectsResponse()) {
           // if the previous cycle was Idle and now we have planned a new command -> avoid returning Finished
           currentStatus = Processing;
         }
@@ -891,8 +892,7 @@
   }
 
   uint8_t ProtocolLogic::CommandInProgress() const {
-    if (currentScope != Scope::Command)
-      return 0;
+    if (currentScope != Scope::Command) return 0;
     return (uint8_t)ReqMsg().code;
   }
 
@@ -914,11 +914,11 @@
   }
 
   bool DropOutFilter::Record(StepStatus ss) {
-    if (occurrences == maxOccurrences)
-      cause = ss;
+    if (occurrences == maxOccurrences) cause = ss;
     --occurrences;
     return occurrences == 0;
   }
 
   } // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3

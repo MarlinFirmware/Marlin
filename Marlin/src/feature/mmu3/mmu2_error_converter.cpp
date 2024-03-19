@@ -25,7 +25,7 @@
  */
 
 #include <stdio.h>
-#include "src/core/language.h"
+#include "../../core/language.h"
 #if HAS_PRUSA_MMU3
   #include "mmu2_error_converter.h"
   #include "mmu_hw/error_codes.h"
@@ -53,7 +53,7 @@
   static uint8_t FindErrorIndex(uint16_t pec) {
     constexpr uint16_t errorCodesSize = sizeof(errorCodes) / sizeof(errorCodes[0]);
     constexpr const auto *errorCodesEnd = errorCodes + errorCodesSize;
-    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](uint16_t ed){
+    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](uint16_t ed) {
       return ed == pec;
     });
     return (i != errorCodesEnd) ? (i - errorCodes) : (errorCodesSize - 1);
@@ -379,7 +379,7 @@
     buttonSelectedOperation = rsp;
   }
 
-  ButtonOperations GetButtonResponse(){
+  ButtonOperations GetButtonResponse() {
     return buttonSelectedOperation;
   }
 

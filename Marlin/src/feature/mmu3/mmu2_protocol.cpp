@@ -24,7 +24,7 @@
  * mmu2_protocol.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
   /// @file
   #include "mmu2_protocol.h"

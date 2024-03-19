@@ -24,15 +24,20 @@
  * mmu2_marlin1.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
 /// MK3 / Marlin1 implementation of support routines for the MMU2
-#include "src/MarlinCore.h"
-#include "src/module/stepper.h"
-#include "src/module/planner.h"
-#include "src/module/temperature.h"
+
 #if HAS_PRUSA_MMU3
-  #include "src/feature/pause.h"
-  #include "src/libs/nozzle.h"
-  #include "mmu2_marlin.h"
+
+#include "../../MarlinCore.h"
+#include "../../module/stepper.h"
+#include "../../module/planner.h"
+#include "../../module/temperature.h"
+
+#include "../../feature/pause.h"
+#include "../../libs/nozzle.h"
+#include "mmu2_marlin.h"
 
   namespace MMU2 {
 
@@ -45,30 +50,29 @@
     planner_synchronize();
   }
 
-  void extruder_move(const float delta, const float feedRate, const bool sync /*=true*/) {
-    current_position[E_AXIS] += delta / planner.e_factor[active_extruder];
-    planner_line_to_current_position(feedRate);
-    if (sync)
-      planner.synchronize();
+  void extruder_move(const_float_t delta, const_float_t feedRate_mm_s, const bool sync/*=true*/) {
+    current_position.e += delta / planner.e_factor[active_extruder];
+    planner_line_to_current_position(feedRate_mm_s);
+    if (sync) planner.synchronize();
   }
 
-  float move_raise_z(float delta) {
-    // return raise_z(delta);
+  float move_raise_z(const_float_t delta) {
+    //return raise_z(delta);
     xyze_pos_t current_position_before = current_position;
     do_z_clearance_by(delta);
     return (current_position - current_position_before).z;
   }
 
   void planner_abort_queued_moves() {
-    // planner_abort_hard();
+    //planner_abort_hard();
     quickstop_stepper();
 
-    // // Unblock the planner. This should be safe in the
-    // // toolchange context. Currently we are mainly aborting
-    // // excess E-moves after detecting filament during toolchange.
-    // // If a MMU error is reported, the planner must be unblocked
-    // // as well so the extruder can be parked safely.
-    // planner_aborted = false;
+    // Unblock the planner. This should be safe in the
+    // toolchange context. Currently we are mainly aborting
+    // excess E-moves after detecting filament during toolchange.
+    // If a MMU error is reported, the planner must be unblocked
+    // as well so the extruder can be parked safely.
+    //planner_aborted = false;
     // eoyilmaz: we don't need this part, the print is not aborted
   }
 
@@ -81,7 +85,7 @@
   }
 
   float planner_get_machine_position_E_mm() {
-    return current_position[E_AXIS];
+    return current_position.e;
   }
 
   float stepper_get_machine_position_E_mm() {
@@ -89,11 +93,11 @@
   }
 
   float planner_get_current_position_E() {
-    return current_position[E_AXIS];
+    return current_position.e;
   }
 
   void planner_set_current_position_E(float e) {
-    current_position[E_AXIS] = e;
+    current_position.e = e;
   }
 
   xyz_pos_t planner_current_position() {
@@ -120,17 +124,11 @@
     #endif
   }
 
-  bool marlin_printingIsActive() {
-    return printingIsActive();
-  }
+  bool marlin_printingIsActive() { return printingIsActive(); }
 
-  void marlin_manage_heater() {
-    thermalManager.task();
-  }
+  void marlin_manage_heater() { thermalManager.task(); }
 
-  void marlin_manage_inactivity(bool b) {
-    idle(b);
-  }
+  void marlin_manage_inactivity(const bool b) { idle(b); }
 
   void marlin_idle(bool b) {
     thermalManager.task();
@@ -149,11 +147,9 @@
 
   void marlin_stop_and_save_print_to_ram() {
     // stop_and_save_print_to_ram(0,0);
-    #if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
-      #if ALL(ADVANCED_PAUSE_FEATURE, NOZZLE_PARK_FEATURE)
-        xyz_pos_t park_point = NOZZLE_PARK_POINT;
-        pause_print(0, park_point);
-      #endif
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      constexpr xyz_pos_t park_point = NOZZLE_PARK_POINT;
+      pause_print(0, park_point);
     #endif
   }
 
@@ -179,19 +175,11 @@
   }
 
   void Enable_E0() {
-    stepper.enable_extruder(
-      #if HAS_EXTRUDERS
-        0
-      #endif
-      );
+    stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0));
   }
 
   void Disable_E0() {
-    stepper.disable_extruder(
-      #if HAS_EXTRUDERS
-        0
-      #endif
-      );
+    stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0));
   }
 
   bool all_axes_homed() {
@@ -199,4 +187,5 @@
   }
 
   } // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3

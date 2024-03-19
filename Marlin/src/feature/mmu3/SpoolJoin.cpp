@@ -24,12 +24,12 @@
  * SpoolJoin.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
   #include "SpoolJoin.h"
-  #include "src/module/settings.h"
+  #include "../../module/settings.h"
   #include "messages.h"
-  #include "src/core/language.h"
+  #include "../../core/language.h"
 
 
   namespace SpoolJoin {

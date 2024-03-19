@@ -19,42 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2.h
  */
 
-#pragma once
-#include "src/MarlinCore.h"
-#if HAS_PRUSA_MMU3
-  #include "mmu2_state.h"
-  #include "mmu2_marlin.h"
+#include "mmu2_state.h"
+#include "mmu2_marlin.h"
+
+#include "mmu2_protocol_logic.h"
+
+#include "../../MarlinCore.h"
 
   #ifdef __AVR__
-    #include "mmu2_protocol_logic.h"
     typedef float feedRate_t;
-
   #else
-    #include "mmu2_protocol_logic.h"
-    // #include <atomic>
+    //#include <atomic>
   #endif
 
-  // struct E_Step;
-
   struct E_Step {
-    float extrude; ///< extrude distance in mm
+    float extrude;  ///< extrude distance in mm
     float feedRate; ///< feed rate in mm/s
   };
 
-  static constexpr E_Step ramming_sequence[] PROGMEM = {MMU2_RAMMING_SEQUENCE};
-
-  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = {MMU2_LOAD_TO_NOZZLE_SEQUENCE};
+  static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
+  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
 
   namespace MMU2 {
 
   // general MMU setup for MK3
   enum : uint8_t {
-    FILAMENT_UNKNOWN = 0xffU
+    FILAMENT_UNKNOWN = 0xFFU
   };
 
   struct Version {
@@ -65,7 +61,7 @@
   /// Intentionally named MMU2 to be (almost) a drop-in replacement for the previous implementation.
   /// Most of the public methods share the original naming convention as well.
   class MMU2 {
-public:
+  public:
     MMU2();
 
     /// Powers ON the MMU, then initializes the UART and protocol logic
@@ -79,7 +75,7 @@ public:
 
     inline xState State() const { return state; }
 
-    inline bool Enabled() const { mmu_hw_enabled = State() == xState::Active; return mmu_hw_enabled;}
+    inline bool enabled() const { mmu_hw_enabled = State() == xState::Active; return mmu_hw_enabled; }
 
     /// Different levels of resetting the MMU
     enum ResetForm : uint8_t {
@@ -281,12 +277,15 @@ public:
                                   // with the M709 S0 or M709 S1 commands
                                   // and the last state is stored in the
                                   // EEPROM
+
     static int mmu_hw_enabled_addr; // EEPROM addr for mmu_hw_enabled
 
     bool e_active();
+
     #ifndef UNITTEST
-private:
+      private:
     #endif
+
     /// Perform software self-reset of the MMU (sends an X0 command)
     void ResetX0();
 
@@ -415,9 +414,8 @@ private:
     uint16_t tmcFailures;
   };
 
-  /// following Marlin's way of doing stuff - one and only instance of MMU implementation in the code base
-  /// + avoiding buggy singletons on the AVR platform
-  extern MMU2 mmu2;
-
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3
+
+/// following Marlin's way of doing stuff - one and only instance of MMU implementation in the code base
+/// + avoiding buggy singletons on the AVR platform
+extern MMU2::MMU2 mmu2;

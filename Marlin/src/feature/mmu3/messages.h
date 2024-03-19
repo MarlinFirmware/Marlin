@@ -24,7 +24,7 @@
  * messages.h
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 
 // Common serial messages
 #define MSG_MARLIN "Marlin"
@@ -243,7 +243,7 @@ extern const char MSG_WATCHDOG_RESET[];
 extern const char MSG_Z_MAX[];
 extern const char MSG_Z_MIN[];
 extern const char MSG_ZPROBE_OUT[];
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if HAS_LEVELING
   extern const char MSG_ZPROBE_ZOFFSET[];
 #endif
 extern const char MSG_TMC_OVERTEMP[];

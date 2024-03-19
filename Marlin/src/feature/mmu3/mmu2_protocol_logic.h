@@ -19,14 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_protocol_logic.h
  */
 
-#pragma once
-#include "src/MarlinCore.h"
-#if HAS_PRUSA_MMU3
+#include "../../MarlinCore.h"
+
   #include <stdint.h>
 
   #ifdef __AVR__
@@ -424,4 +424,3 @@ private:
   };
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

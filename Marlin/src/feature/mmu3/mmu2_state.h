@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_state.h
@@ -27,8 +28,7 @@
 /**
  * @brief status of mmu
  */
-#pragma once
-#if HAS_PRUSA_MMU3
+
   #include <stdint.h>
   namespace MMU2 {
   /// States of a printer with the MMU:
@@ -45,4 +45,3 @@
   };
 
   } // namespace MMU2
-#endif // HAS_PRUSA_MMU3

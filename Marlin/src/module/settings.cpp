@@ -1776,9 +1776,9 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(MMU2::operation_statistics.load_fail_num); // EEPROM_MMU_LOAD_FAIL
       EEPROM_WRITE(MMU2::operation_statistics.tool_change_counter);
       EEPROM_WRITE(MMU2::operation_statistics.tool_change_total_counter); // EEPROM_MMU_MATERIAL_CHANGES
-      EEPROM_WRITE(MMU2::mmu2.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
-      EEPROM_WRITE(MMU2::mmu2.stealth_mode); // EEPROM_MMU_STEALTH
-      EEPROM_WRITE(MMU2::mmu2.mmu_hw_enabled); // EEPROM_MMU_ENABLED
+      EEPROM_WRITE(mmu2.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
+      EEPROM_WRITE(mmu2.stealth_mode); // EEPROM_MMU_STEALTH
+      EEPROM_WRITE(mmu2.mmu_hw_enabled); // EEPROM_MMU_ENABLED
     #endif
 
     //
@@ -2900,14 +2900,14 @@ void MarlinSettings::postprocess() {
         MMU2::operation_statistics.tool_change_total_counter_addr = eeprom_index;
         EEPROM_READ(MMU2::operation_statistics.tool_change_total_counter); // EEPROM_MMU_MATERIAL_CHANGES
 
-        MMU2::mmu2.cutter_mode_addr = eeprom_index;
-        EEPROM_READ(MMU2::mmu2.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
+        mmu2.cutter_mode_addr = eeprom_index;
+        EEPROM_READ(mmu2.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
 
-        MMU2::mmu2.stealth_mode_addr = eeprom_index;
-        EEPROM_READ(MMU2::mmu2.stealth_mode); // EEPROM_MMU_STEALTH
+        mmu2.stealth_mode_addr = eeprom_index;
+        EEPROM_READ(mmu2.stealth_mode); // EEPROM_MMU_STEALTH
 
-        MMU2::mmu2.mmu_hw_enabled_addr = eeprom_index;
-        EEPROM_READ(MMU2::mmu2.mmu_hw_enabled); // EEPROM_MMU_ENABLED
+        mmu2.mmu_hw_enabled_addr = eeprom_index;
+        EEPROM_READ(mmu2.mmu_hw_enabled); // EEPROM_MMU_ENABLED
       #endif
 
       //
@@ -3734,9 +3734,9 @@ void MarlinSettings::reset() {
   #if HAS_PRUSA_MMU3
       SpoolJoin::spooljoin.enabled = false;
       MMU2::operation_statistics.reset_stats();
-      MMU2::mmu2.cutter_mode = 0;
-      MMU2::mmu2.stealth_mode = 0;
-      MMU2::mmu2.mmu_hw_enabled = true;
+      mmu2.cutter_mode = 0;
+      mmu2.stealth_mode = 0;
+      mmu2.mmu_hw_enabled = true;
   #endif
 
   //
@@ -4067,20 +4067,16 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("MMU                ");
-      serialprintln_onoff(MMU2::mmu2.mmu_hw_enabled);
+      serialprintln_onoff(mmu2.mmu_hw_enabled);
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("Stealth Mode       ");
-      serialprintln_onoff(MMU2::mmu2.stealth_mode);
+      serialprintln_onoff(mmu2.stealth_mode);
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("Cutter             ");
-      #ifdef MMU_HAS_CUTTER
-        if(MMU2::mmu2.cutter_mode == 0){
-          serialprintln_onoff(false);
-        } else {
-          serialprintln_onoff(true);
-        }
+      #if ENABLED(MMU_HAS_CUTTER)
+        serialprintln_onoff(mmu2.cutter_mode != 0);
       #else
         SERIAL_ECHOLNPGM("Disabled");
       #endif
@@ -4115,7 +4111,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("Power Fails        ");
-      SERIAL_ECHOLN(MMU2::mmu2.TMCFailures());
+      SERIAL_ECHOLN(mmu2.TMCFailures());
 
     #endif
   }

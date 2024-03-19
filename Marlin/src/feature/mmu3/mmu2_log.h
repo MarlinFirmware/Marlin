@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_log.h
  */
 
-#pragma once
 #ifdef __AVR__
   #include <avr/pgmspace.h>
 #endif
@@ -34,7 +34,6 @@
 // and MMU2::ReportError + MMU2::ReportProgress
 static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
 
-#if HAS_PRUSA_MMU3
   namespace MMU2 {
 
   /// Report the msg into the general logging subsystem (through Marlin's SERIAL_ECHO stuff)
@@ -53,9 +52,9 @@ static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
 
   #ifndef UNITTEST
     #ifdef __AVR__
-      #include "src/MarlinCore.h"
+      #include "../../MarlinCore.h"
     #else
-      #include "src/core/serial.h"
+      #include "../../core/serial.h"
     #endif
     #define SERIAL_MMU2() \
             { SERIAL_ECHO_P(mmu2Magic); }
@@ -93,4 +92,3 @@ static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
     #define SERIAL_ECHOLN(S)    /*marlinLogSim.AppendLine(S)*/
 
   #endif                            // #ifndef UNITTEST
-#endif // HAS_PRUSA_MMU3

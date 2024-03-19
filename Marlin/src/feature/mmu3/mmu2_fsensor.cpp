@@ -24,9 +24,9 @@
  * mmu2_fsensor.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
-  #include "src/feature/runout.h"
+  #include "../../feature/runout.h"
   #include "mmu2_fsensor.h"
   namespace MMU2 {
 

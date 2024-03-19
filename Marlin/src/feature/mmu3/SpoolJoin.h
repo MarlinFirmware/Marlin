@@ -19,15 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * SpoolJoin.h
  */
 
-#pragma once
-#include <stdint.h>
-#include "src/MarlinCore.h"
-#if HAS_PRUSA_MMU3
+#include "../../MarlinCore.h"
+
+  #include <stdint.h>
+
   // See documentation here: https://help.prusa3d.com/article/spooljoin-mmu2s_134252
 
   namespace SpoolJoin {
@@ -74,4 +75,3 @@ private:
   extern SpoolJoin spooljoin;
 
   } // namespace SpoolJoin
-#endif // HAS_PRUSA_MMU3

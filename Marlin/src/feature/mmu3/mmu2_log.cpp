@@ -24,7 +24,7 @@
  * mmu2_log.cpp
  */
 
-#include "src/MarlinCore.h"
+#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
   #include "mmu2_log.h"
   namespace MMU2 {

@@ -24,7 +24,7 @@
  * mmu2_progress_converter.cpp
  */
 
-#include "src/core/language.h"
+#include "../../core/language.h"
 #if HAS_PRUSA_MMU3
   #include "mmu2_progress_converter.h"
   #ifdef __AVR__

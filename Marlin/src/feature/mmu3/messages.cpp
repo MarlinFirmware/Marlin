@@ -24,14 +24,15 @@
  * messages.cpp
  */
 
-#include "src/core/language.h"
+#include "../../core/language.h"
 #include "messages.h"
 #include "mmu_hw/errors_list.h"
 
 #if HAS_PRUSA_MMU3
+
   // For the custom characters
   // #include "lcd.h"
-  #include "src/lcd/marlinui.h"
+  #include "../../lcd/marlinui.h"
 
   // internationalized messages
   const char MSG_ALWAYS[] PROGMEM = ISTR("Always"); ////MSG_ALWAYS c=6
@@ -237,7 +238,7 @@
   const char MSG_Z_MAX[] PROGMEM = "z_max: "; ////
   const char MSG_Z_MIN[] PROGMEM = "z_min: "; ////
   const char MSG_ZPROBE_OUT[] PROGMEM = "Z probe out. bed"; ////
-  #ifdef ENABLE_AUTO_BED_LEVELING
+  #if HAS_LEVELING
     const char MSG_ZPROBE_ZOFFSET[] PROGMEM = "Z Offset"; ////
   #endif
   const char MSG_TMC_OVERTEMP[] PROGMEM = "TMC DRIVER OVERTEMP"; ////
@@ -281,4 +282,5 @@
   const char MSG_M600[] PROGMEM = "M600";
   const char MSG_M701[] PROGMEM = "M701";
   const char MSG_M702[] PROGMEM = "M702";
+
 #endif // HAS_PRUSA_MMU3
