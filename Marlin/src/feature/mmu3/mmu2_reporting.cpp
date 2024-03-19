@@ -587,10 +587,10 @@ namespace MMU2 {
     #endif
   }
 
-  void fullScreenMsgCut(uint8_t slot)   { fullScreenMsg(MSG_CUT_FILAMENT, slot); }
-  void fullScreenMsgEject(uint8_t slot) { fullScreenMsg(MSG_EJECT_FROM_MMU, slot); }
-  void fullScreenMsgTest(uint8_t slot)  { fullScreenMsg(MSG_TESTING_FILAMENT, slot); }
-  void fullScreenMsgLoad(uint8_t slot)  { fullScreenMsg(MSG_LOADING_FILAMENT, slot); }
+  void fullScreenMsgCut(uint8_t slot)   { fullScreenMsg(GET_TEXT_F(MSG_CUT_FILAMENT), slot); }
+  void fullScreenMsgEject(uint8_t slot) { fullScreenMsg(GET_TEXT_F(MSG_EJECT_FROM_MMU), slot); }
+  void fullScreenMsgTest(uint8_t slot)  { fullScreenMsg(GET_TEXT_F(MSG_TESTING_FILAMENT), slot); }
+  void fullScreenMsgLoad(uint8_t slot)  { fullScreenMsg(GET_TEXT_F(MSG_LOADING_FILAMENT), slot); }
 
   void fullScreenMsgRestoringTemperature() {
     #if HAS_WIRED_LCD
