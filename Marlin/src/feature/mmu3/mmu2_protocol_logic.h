@@ -101,10 +101,10 @@ namespace MMU2 {
     static_assert(maxOccurrences > 1, "we should really silently ignore at least 1 comm drop out if recovered immediately afterwards");
     DropOutFilter() = default;
 
-    // @returns true if the error should be reported to higher levels (max. number of consecutive occurrences reached)
+    // @return true if the error should be reported to higher levels (max. number of consecutive occurrences reached)
     bool Record(StepStatus ss);
 
-    // @returns the initial cause which started this drop out event
+    // @return the initial cause which started this drop out event
     inline StepStatus InitialCause() const { return cause; }
 
     // Rearms the object for further processing - basically call this once the MMU responds with something meaningful (e.g. S0 A2)
@@ -143,7 +143,7 @@ namespace MMU2 {
     // Beware - this call doesn't send anything to the MMU.
     // The MMU gets the newly set value either by a communication restart or via an explicit WriteRegister call
     inline void PlanExtraLoadDistance(uint8_t eld_mm) { initRegs8[0] = eld_mm; }
-    // @returns the currently preset extra load distance
+    // @return the currently preset extra load distance
     inline uint8_t ExtraLoadDistance() const { return initRegs8[0]; }
 
     // Sets the Pulley slow feed rate to be reported to the MMU.
@@ -152,7 +152,7 @@ namespace MMU2 {
     inline void PlanPulleySlowFeedRate(uint8_t psfr) {
       initRegs8[1] = psfr;
     }
-    // @returns the currently preset Pulley slow feed rate
+    // @return the currently preset Pulley slow feed rate
     inline uint8_t PulleySlowFeedRate() const {
       return initRegs8[1]; // even though MMU register 0x14 is 16bit, reasonable speeds are way below 255mm/s - saving space ;)
     }
@@ -160,13 +160,13 @@ namespace MMU2 {
     // Step the state machine
     StepStatus Step();
 
-    // @returns the current/latest error code as reported by the MMU
+    // @return the current/latest error code as reported by the MMU
     ErrorCode Error() const { return errorCode; }
 
-    // @returns the current/latest process code as reported by the MMU
+    // @return the current/latest process code as reported by the MMU
     ProgressCode Progress() const { return progressCode; }
 
-    // @returns the current/latest button code as reported by the MMU
+    // @return the current/latest button code as reported by the MMU
     Buttons Button() const { return buttonCode; }
 
     uint8_t CommandInProgress() const;
@@ -241,7 +241,7 @@ namespace MMU2 {
     Scope currentScope;
 
     // basic scope members
-    // @returns true if the state machine is waiting for a response from the MMU
+    // @return true if the state machine is waiting for a response from the MMU
     bool ExpectsResponse() const { return ((uint8_t)scopeState & (uint8_t)ScopeState::NotExpectsResponse) == 0; }
 
     // Common internal states of the derived sub-automata
@@ -270,18 +270,18 @@ namespace MMU2 {
 
     ScopeState scopeState; //!< internal state of the sub-automaton
 
-    // @returns the status of processing of the FINDA query response
+    // @return the status of processing of the FINDA query response
     // @param finishedRV returned value in case the message was successfully received and processed
     // @param nextState is a state where the state machine should transfer to after the message was successfully received and processed
     // StepStatus ProcessFINDAReqSent(StepStatus finishedRV, State nextState);
 
-    // @returns the status of processing of the statistics query response
+    // @return the status of processing of the statistics query response
     // @param finishedRV returned value in case the message was successfully received and processed
     // @param nextState is a state where the state machine should transfer to after the message was successfully received and processed
     // StepStatus ProcessStatisticsReqSent(StepStatus finishedRV, State nextState);
 
     // Called repeatedly while waiting for a query (Q0) period.
-    // All event checks to report immediately from the printer to the MMU shall be done in this method.
+    // All event checks to report immediately from the printer to the MMU should be done in this method.
     // So far, the only such a case is the filament sensor, but there can be more like this in the future.
     void CheckAndReportAsyncEvents();
     void SendQuery();
@@ -290,7 +290,7 @@ namespace MMU2 {
     void StartReading16bitRegisters();
     ScopeState ProcessRead16bitRegister(ProtocolLogic::ScopeState stateAtEnd);
     void StartWritingInitRegisters();
-    // @returns true when all registers have been written into the MMU
+    // @return true when all registers have been written into the MMU
     bool ProcessWritingInitRegister();
     void SendAndUpdateFilamentSensor();
     void SendButton(uint8_t btn);
@@ -394,4 +394,4 @@ namespace MMU2 {
     friend class MMU2;
   };
 
-} // namespace MMU2
+} // MMU2

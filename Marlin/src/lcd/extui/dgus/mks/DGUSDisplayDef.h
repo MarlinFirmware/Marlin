@@ -235,9 +235,9 @@ enum DGUS_ScreenID : uint8_t {
   #endif
 
   DGUS_SCREEN_CONFIRM                = 240,
-  DGUS_SCREEN_KILL                   = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_KILL                   = 250, //!< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
   DGUS_SCREEN_WAITING                = 251,
-  DGUS_SCREEN_POPUP                  = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_POPUP                  = 252, //!< special target, popup screen will also return this code to say "return to previous screen"
   DGUS_SCREEN_UNUSED                 = 255
 };
 

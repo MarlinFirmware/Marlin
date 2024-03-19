@@ -185,6 +185,6 @@ namespace MMU2 {
     return axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS);
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

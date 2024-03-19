@@ -163,14 +163,14 @@
   // static ShortTimer beep_timer; // Timer to keep track of continous beeping
   static bool bFirst; // true if the first beep has occurred, e_SOUND_MODE_ONCE
 
-  /// @brief Handles sound when waiting for user input
-  /// the function must be non-blocking. It is up to the caller
-  /// to call this function repeatedly.
-  /// Make sure to call sound_wait_for_user_reset() when the user has clicked the knob
-  ///     Loud - should continuously beep
-  ///     Silent - should be silent
-  ///     Once - should beep once
-  ///     Assist/Blind - as loud with beep and click on knob rotation and press
+  // @brief Handles sound when waiting for user input
+  // the function must be non-blocking. It is up to the caller
+  // to call this function repeatedly.
+  // Make sure to call sound_wait_for_user_reset() when the user has clicked the knob
+  //     Loud - should continuously beep
+  //     Silent - should be silent
+  //     Once - should beep once
+  //     Assist/Blind - as loud with beep and click on knob rotation and press
   void sound_wait_for_user() {
     #if BEEPER > 0
       if (eSoundMode == e_SOUND_MODE_SILENT) return;
@@ -194,7 +194,7 @@
     #endif // BEEPER > 0
   }
 
-  /// @brief Resets the global state of sound_wait_for_user()
+  // @brief Resets the global state of sound_wait_for_user()
   void sound_wait_for_user_reset() {
     // beep_timer.stop();
     bFirst = false;

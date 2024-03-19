@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_power.h
  */
 
-#pragma once
 namespace MMU2 {
 
 void power_on();
@@ -33,4 +33,4 @@ void power_off();
 
 void reset();
 
-} // namespace MMU2
+} // MMU2

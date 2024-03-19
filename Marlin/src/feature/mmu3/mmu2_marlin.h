@@ -70,4 +70,4 @@
 
   bool all_axes_homed();
 
-  } // namespace MMU2
+  } // MMU2

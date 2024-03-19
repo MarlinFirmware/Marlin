@@ -164,7 +164,7 @@ namespace MMU2 {
       Matched
     };
 
-    /// @returns true when "ok\n" gets detected
+    // @return true when "ok\n" gets detected
     State Detect(uint8_t c) {
       // consume old MMU FW's data if any -> avoid confusion of protocol decoder
       if (ok == 0 && c == 'o') {
@@ -864,7 +864,7 @@ namespace MMU2 {
         break;
       case CommandError:
         LogError(PSTR("Command Error"));
-        // we shall probably transfer into the Idle state and await further instructions from the upper layer
+        // we should probably transfer into the Idle state and await further instructions from the upper layer
         // Idle state may solve the problem of keeping up the heart beat running
         break;
       case VersionMismatch:
@@ -911,6 +911,6 @@ namespace MMU2 {
     return occurrences == 0;
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

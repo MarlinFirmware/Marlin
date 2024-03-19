@@ -19,26 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_crc.h
  */
 
-#pragma once
 #include <stdint.h>
 
 namespace modules {
 
-// clang-format off
 // prevent silly indenting of the whole file
 
-/// Contains all the necessary functions for computation of CRC
+// Contains all the necessary functions for computation of CRC
 namespace crc {
 
 class CRC8 {
 public:
-  /// Compute/update CRC8 CCIIT from 8bits.
-  /// Details: https://www.nongnu.org/avr-libc/user-manual/group__util__crc.html
+  // Compute/update CRC8 CCIIT from 8bits.
+  // Details: https://www.nongnu.org/avr-libc/user-manual/group__util__crc.html
   static uint8_t CCITT_update(uint8_t crc, uint8_t b);
 
   static constexpr uint8_t CCITT_updateCX(uint8_t crc, uint8_t b) {
@@ -55,7 +54,7 @@ public:
     return data;
   }
 
-  /// Compute/update CRC8 CCIIT from 16bits (convenience wrapper)
+  // Compute/update CRC8 CCIIT from 16bits (convenience wrapper)
   static constexpr uint8_t CCITT_updateW(uint8_t crc, uint16_t w) {
     union U {
       uint8_t b[2];
@@ -70,6 +69,5 @@ public:
 
 } // namespace crc
 
-// clang-format on
 
 } // namespace modules

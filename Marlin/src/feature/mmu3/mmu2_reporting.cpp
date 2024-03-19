@@ -123,7 +123,7 @@ namespace MMU2 {
   /**
    * Reset only per print operation statistics and update EEPROM.
    *
-   * @returns true if everything went okay, false otherwise.
+   * @return true if everything went okay, false otherwise.
   */
   bool OperationStatistics::reset_per_print_stats() {
     // Update data
@@ -151,7 +151,7 @@ namespace MMU2 {
    * This will keep the tool change counter change counters and delete anything
    * else.
    *
-   * @returns true if everything went okay, false otherwise.
+   * @return true if everything went okay, false otherwise.
   */
   bool OperationStatistics::reset_fail_stats() {
     // Update data
@@ -178,7 +178,7 @@ namespace MMU2 {
   /**
    * Reset all operation statistics and update EEPROM.
    *
-   * @returns true if everything went okay, false otherwise.
+   * @return true if everything went okay, false otherwise.
   */
   bool OperationStatistics::reset_stats() {
     // Update data
@@ -699,6 +699,6 @@ namespace MMU2 {
     //menu_submenu(tuneIdlerStallguardThresholdMenu);
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

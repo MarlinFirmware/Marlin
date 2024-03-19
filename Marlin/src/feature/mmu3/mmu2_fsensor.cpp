@@ -60,6 +60,6 @@ namespace MMU2 {
     return FILAMENT_PRESENT() ? FilamentState::AT_FSENSOR : FilamentState::NOT_PRESENT;
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * registers.h
  */
 
-#pragma once
 #include <stdint.h>
 
 namespace MMU2 {
@@ -67,4 +67,4 @@ enum class Register : uint8_t {
   Reserved = 0x21,
 };
 
-} // namespace MMU2
+} // MMU2

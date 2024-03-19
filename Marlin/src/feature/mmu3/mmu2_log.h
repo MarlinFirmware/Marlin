@@ -43,7 +43,7 @@ namespace MMU2 {
   void LogEchoEvent_P(PGM_P const pstr);
   inline void LogEchoEvent(FSTR_P const fstr) { LogEchoEvent_P(FTOP(fstr)); }
 
-} // namespace MMU2
+} // MMU2
 
 #ifndef UNITTEST
 

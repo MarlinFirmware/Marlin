@@ -42,6 +42,6 @@ namespace MMU2 {
     LogEchoEvent_P(pstr);
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

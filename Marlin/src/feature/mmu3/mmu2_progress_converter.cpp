@@ -77,6 +77,6 @@ namespace MMU2 {
      : static_cast<FSTR_P const>(pgm_read_ptr(&progressTexts[0]));
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3
