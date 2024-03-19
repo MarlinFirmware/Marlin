@@ -41,11 +41,9 @@
 #include "strlen_cx.h"
 #include "SpoolJoin.h"
 
-#include "messages.h"
+#include "../../inc/MarlinConfig.h"
 
-#include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
-#include "../../core/language.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
 #include "../../gcode/parser.h"
@@ -327,7 +325,7 @@ namespace MMU2 {
     }
   }
 
-  bool MMU2::RetryIfPossible(ErrorCode ec) {
+  bool MMU2::RetryIfPossible(const ErrorCode ec) {
     if (logic.RetryAttempts()) {
       SetButtonResponse(ButtonOperations::Retry);
       // check, that Retry is actually allowed on that operation

@@ -220,7 +220,7 @@
     /// Automagically "press" a Retry button if we have any retry attempts left
     /// @param ec ErrorCode enum value
     /// @returns true if auto-retry is ongoing, false when retry is unavailable or retry attempts are all used up
-    bool RetryIfPossible(ErrorCode ec);
+    bool RetryIfPossible(const ErrorCode ec);
 
     /// @return count for toolchange in current print
     inline uint16_t ToolChangeCounter() const { return toolchange_counter; }
@@ -237,7 +237,7 @@
     inline uint16_t GetLastReadRegisterValue() const {
       return lastReadRegisterValue;
     }
-    inline void InvokeErrorScreen(ErrorCode ec) {
+    inline void InvokeErrorScreen(const ErrorCode ec) {
       // The printer may not raise an error when the MMU is busy
       if (!logic.CommandInProgress()              // MMU must not be busy
           && MMUCurrentErrorCode() == ErrorCode::OK // The protocol must not be in error state

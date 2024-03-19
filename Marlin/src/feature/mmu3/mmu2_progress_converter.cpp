@@ -35,7 +35,6 @@
 #endif
 #include "mmu_hw/progress_codes.h"
 #include "mmu_hw/errors_list.h"
-#include "messages.h"
 
 namespace MMU2 {
 

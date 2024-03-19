@@ -34,7 +34,7 @@
 
   /// Translates MMU2::ErrorCode into an index of Prusa-Error-Codes
   /// Basically this is the way to obtain an index into all other functions in this API
-  uint8_t PrusaErrorCodeIndex(ErrorCode ec);
+  uint8_t PrusaErrorCodeIndex(const ErrorCode ec);
 
   /// @returns pointer to a PROGMEM string representing the Title of the Prusa-Error-Codes error
   /// @param i index of the error - obtained by calling ErrorCodeIndex
@@ -54,23 +54,20 @@
 
   /// @returns pointer to a PROGMEM string representing the Title of a button
   /// @param i index of the error - obtained by calling PrusaErrorButtons + extracting low or high nibble from the Btns pair
-  FSTR_P const PrusaErrorButtonTitle(uint8_t bi);
-
-  /// @returns pointer to a PROGMEM string representing the "More" button
-  FSTR_P const PrusaErrorButtonMore();
+  FSTR_P const PrusaErrorButtonTitle(const uint8_t bi);
 
   /// Sets the selected button for later pick-up by the MMU state machine.
   /// Used to save the GUI selection/decoupling
-  void SetButtonResponse(ButtonOperations rsp);
+  void SetButtonResponse(const ButtonOperations rsp);
   ButtonOperations GetButtonResponse();
 
   /// @returns button index/code based on currently processed error/screen
   /// Clears the "pressed" button upon exit
-  Buttons ButtonPressed(ErrorCode ec);
+  Buttons ButtonPressed(const ErrorCode ec);
 
   /// @returns button index/code based on currently processed error/screen
   /// Used as a subfunction of ButtonPressed.
   /// Does not clear the "pressed" button upon exit
-  Buttons ButtonAvailable(ErrorCode ec);
+  Buttons ButtonAvailable(const ErrorCode ec);
 
   } // namespace MMU2

@@ -38,7 +38,6 @@
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/errors_list.h"
-#include "messages.h"
 #include "ultralcd.h"
 #include "sound.h"
 
@@ -339,7 +338,7 @@ namespace MMU2 {
         // Add a More Info option
         editable.uint8 = ei;
         ACTION_ITEM_F(
-          PrusaErrorButtonMore(),
+          GET_TEXT_F(MSG_BTN_MORE),
           []{
             // only when the menu item is used push the current screen back
             ui.push_current_screen();
@@ -356,7 +355,7 @@ namespace MMU2 {
       //  lcd_show_choices_prompt_P(
       //   LCD_LEFT_BUTTON_CHOICE,
       //   PrusaErrorButtonTitle(button_op_middle),
-      //   FTOP(PrusaErrorButtonMore()),
+      //   GET_TEXT(MSG_BTN_MORE),
       //   18, nullptr
       //  );
       //}
@@ -364,7 +363,7 @@ namespace MMU2 {
       //  lcd_show_choices_prompt_P(LCD_MIDDLE_BUTTON_CHOICE,
       //   PrusaErrorButtonTitle(button_op_middle),
       //   PrusaErrorButtonTitle(button_op_right),
-      //   9, FTOP(PrusaErrorButtonMore())
+      //   9, GET_TEXT(MSG_BTN_MORE)
       //  );
       //}
 
