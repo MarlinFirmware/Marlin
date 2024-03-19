@@ -30,7 +30,7 @@
 // Beware - before changing this prefix, think twice
 // you'd need to change appmain.cpp app_marlin_serial_output_write_hook
 // and MMU2::ReportError + MMU2::ReportProgress
-static constexpr char mmu2Magic[] PROGMEM = "MMU2:";
+FSTR_P const mmu2Magic = F("MMU2:");
 
 namespace MMU2 {
 
@@ -38,19 +38,21 @@ namespace MMU2 {
   // @param msg pointer to a string in PROGMEM
   // On the AVR platform this variant reads the input string from PROGMEM.
   // On the ARM platform it calls LogErrorEvent directly (silently expecting the compiler to optimize it away)
-  void LogErrorEvent_P(const char *msg_P);
+  void LogErrorEvent_P(PGM_P const pstr);
+  inline void LogErrorEvent(FSTR_P const fstr) { LogErrorEvent_P(FTOP(fstr)); }
 
   // Report the msg into the general logging subsystem (through Marlin's SERIAL_ECHO stuff)
   // @param msg pointer to a string in PROGMEM
   // On the AVR platform this variant reads the input string from PROGMEM.
   // On the ARM platform it calls LogErrorEvent directly (silently expecting the compiler to optimize it away)
-  void LogEchoEvent_P(const char *msg_P);
+  void LogEchoEvent_P(PGM_P const pstr);
+  inline void LogEchoEvent(FSTR_P const fstr) { LogEchoEvent_P(FTOP(fstr)); }
 
 } // namespace MMU2
 
 #ifndef UNITTEST
 
-  #define SERIAL_MMU2() { SERIAL_ECHO_P(mmu2Magic); }
+  #define SERIAL_MMU2() { SERIAL_ECHO(mmu2Magic); }
 
   #define MMU2_ECHO_MSGLN(S) do { \
       SERIAL_ECHO_START();        \

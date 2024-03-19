@@ -27,11 +27,11 @@
 
 #include "../../MarlinCore.h"
 
-  #include <stdint.h>
-  #include "mmu_hw/error_codes.h"
-  #include "mmu_hw/progress_codes.h"
+#include <stdint.h>
+#include "mmu_hw/error_codes.h"
+#include "mmu_hw/progress_codes.h"
 
-  namespace MMU2 {
+namespace MMU2 {
 
   enum CommandInProgress : uint8_t {
     NoCommand = 0,
@@ -51,7 +51,7 @@
    * The data is initialized by the settings.load() method.
   */
   class OperationStatistics {
-public:
+    public:
 
     void increment_load_fails();
     void increment_mmu_fails();
@@ -106,7 +106,7 @@ public:
     void Progress(bool sensorState);
     void DumpToSerial();
 
-private:
+    private:
     /// @brief Add one block to the progress bar
     /// @param col pixel position on the LCD status line, should range from 0 to (LCD_WIDTH - 1)
     /// @param sensorState if true, filament is not present, else filament is present. This controls which character to render
@@ -155,11 +155,11 @@ private:
 
   void MakeSound(SoundType s);
 
-  void FullScreenMsgCut(uint8_t slot);
-  void FullScreenMsgEject(uint8_t slot);
-  void FullScreenMsgTest(uint8_t slot);
-  void FullScreenMsgLoad(uint8_t slot);
-  void FullScreenMsgRestoringTemperature();
+  void fullScreenMsgCut(uint8_t slot);
+  void fullScreenMsgEject(uint8_t slot);
+  void fullScreenMsgTest(uint8_t slot);
+  void fullScreenMsgLoad(uint8_t slot);
+  void fullScreenMsgRestoringTemperature();
 
   void ScreenUpdateEnable();
   void ScreenClear();
@@ -168,4 +168,4 @@ private:
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
 
-  } // namespace MMU2
+} // namespace MMU2

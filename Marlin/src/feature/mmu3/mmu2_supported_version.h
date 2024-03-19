@@ -19,18 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * mmu2_supported_version.h
  */
 
-#pragma once
 #include <stdint.h>
 
-namespace MMU2 {
-
-static constexpr uint8_t mmuVersionMajor = 3;
-static constexpr uint8_t mmuVersionMinor = 0;
-static constexpr uint8_t mmuVersionPatch = 2;
-
-} // namespace MMU2
+#define mmuVersionMajor 3
+#define mmuVersionMinor 0
+#define mmuVersionPatch 2

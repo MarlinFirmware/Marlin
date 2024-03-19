@@ -73,6 +73,9 @@
  *  T[toolhead] - Select extruder for filament change
  *  R[temp]     - Resume temperature (in current units)
  *
+ * With MMU_MENUS:
+ *  A           - Automatic
+ *
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
@@ -170,7 +173,7 @@ void GcodeSuite::M600() {
     }
     else {
       #if ENABLED(MMU_MENUS)
-        const bool automatic = strcmp_P(parser.string_arg, PSTR("AUTO")) == 0;
+        const bool automatic = parser.seen_test('A');
         mmu2_M600(automatic);
         resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
       #endif

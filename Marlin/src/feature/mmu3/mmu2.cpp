@@ -108,7 +108,7 @@ namespace MMU2 {
 
   void MMU2::Status() {
     // Useful information to see during bootup and change state
-    SERIAL_ECHOLN(F("MMU is "), mmu_hw_enabled ? FPSTR(MSG_ON) : FPSTR(MSG_OFF));
+    SERIAL_ECHOLN(F("MMU is "), mmu_hw_enabled ? MSG_ON : MSG_OFF);
   }
 
   void MMU2::Start() {
@@ -296,12 +296,12 @@ namespace MMU2 {
           runout.filament_ran_out = false; // trying to disable the purge more / continue message
           runout.enabled = false;
         #endif
-        queue.enqueue_now_P(PSTR("M600 AUTO")); // save print and run M600 command
+        queue.enqueue_now(F("M600A")); // Save print and run M600 command
       }
       else {
         marlin_stop_and_save_print_to_ram();
         resume_print();
-        queue.enqueue_now_P(MSG_M600);// save print and run M600 command
+        queue.enqueue_now(MSG_M600); // Save print and run M600 command
       }
     }
   }
@@ -591,7 +591,7 @@ namespace MMU2 {
   bool MMU2::cut_filament(uint8_t slot, bool enableFullScreenMsg /*= true*/) {
     if (!WaitForMMUReady()) return false;
 
-    if (enableFullScreenMsg) FullScreenMsgCut(slot);
+    if (enableFullScreenMsg) fullScreenMsgCut(slot);
 
     // Scope for ReportingRAII
     {
@@ -608,7 +608,7 @@ namespace MMU2 {
   }
 
   bool MMU2::loading_test(uint8_t slot) {
-    FullScreenMsgTest(slot);
+    fullScreenMsgTest(slot);
     tool_change(slot);
     planner_synchronize();
     unload();
@@ -619,7 +619,7 @@ namespace MMU2 {
   bool MMU2::load_filament(uint8_t slot) {
     if (!WaitForMMUReady()) return false;
 
-    FullScreenMsgLoad(slot);
+    fullScreenMsgLoad(slot);
 
     // Scope for ReportingRAII
     {
@@ -641,7 +641,7 @@ namespace MMU2 {
 
     WaitForHotendTargetTempBeep();
 
-    FullScreenMsgLoad(slot);
+    fullScreenMsgLoad(slot);
 
     // Scope for ReportingRAII
     {
@@ -665,7 +665,7 @@ namespace MMU2 {
   bool MMU2::eject_filament(uint8_t slot, bool enableFullScreenMsg /* = true */) {
     if (!WaitForMMUReady()) return false;
 
-    if (enableFullScreenMsg) FullScreenMsgEject(slot);
+    if (enableFullScreenMsg) fullScreenMsgEject(slot);
 
     // Scope for ReportingRAII
     {
@@ -689,7 +689,7 @@ namespace MMU2 {
   }
 
   void MMU2::Button(uint8_t index) {
-    LogEchoEvent_P(PSTR("Button"));
+    LogEchoEvent(F("Button"));
     logic.Button(index);
   }
 
@@ -704,13 +704,13 @@ namespace MMU2 {
       Disable_E0();
       resume_hotend_temp = thermal_degTargetHotend();
       mmu_print_saved |= SavedState::CooldownPending;
-      LogEchoEvent_P(PSTR("Heater cooldown pending"));
+      LogEchoEvent(F("Heater cooldown pending"));
     }
   }
 
   void MMU2::SaveAndPark(bool move_axes) {
     if (mmu_print_saved == SavedState::None) { // First occurrence. Save current position, park print head, disable nozzle heater.
-      LogEchoEvent_P(PSTR("Saving and parking"));
+      LogEchoEvent(F("Saving and parking"));
       Disable_E0();
       planner_synchronize();
 
@@ -735,15 +735,15 @@ namespace MMU2 {
     if ((mmu_print_saved & SavedState::CooldownPending)) {
       // Clear the "pending" flag if we haven't cooled yet.
       mmu_print_saved &= ~(SavedState::CooldownPending);
-      LogEchoEvent_P(PSTR("Cooldown flag cleared"));
+      LogEchoEvent(F("Cooldown flag cleared"));
     }
     if ((mmu_print_saved & SavedState::Cooldown) && resume_hotend_temp) {
-      LogEchoEvent_P(PSTR("Resuming Temp"));
+      LogEchoEvent(F("Resuming Temp"));
       // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
       SERIAL_ECHOLN(resume_hotend_temp);
       mmu_print_saved &= ~(SavedState::Cooldown);
       thermal_setTargetHotend(resume_hotend_temp);
-      FullScreenMsgRestoringTemperature();
+      fullScreenMsgRestoringTemperature();
       // @todo better report the event and let the GUI do its work somewhere else
       ReportErrorHookSensorLineRender();
       waitForHotendTargetTemp(100, [] {
@@ -752,14 +752,14 @@ namespace MMU2 {
         ReportErrorHookDynamicRender();
       });
       ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
-      LogEchoEvent_P(PSTR("Hotend temperature reached"));
+      LogEchoEvent(F("Hotend temperature reached"));
       ScreenClear();
     }
   }
 
   void MMU2::ResumeUnpark() {
     if (mmu_print_saved & SavedState::ParkExtruder) {
-      LogEchoEvent_P(PSTR("Resuming XYZ"));
+      LogEchoEvent(F("Resuming XYZ"));
 
       // Move XY to starting position, then Z
       motion_do_blocking_move_to_xy(resume_position.x, resume_position.x, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
@@ -867,18 +867,18 @@ namespace MMU2 {
       if (mmu_print_saved & SavedState::CooldownPending) {
         if (!nozzle_timer.isRunning()) {
           nozzle_timer.start();
-          LogEchoEvent_P(PSTR("Cooling Timeout started"));
+          LogEchoEvent(F("Cooling Timeout started"));
         }
         else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000ul)) { // mins->msec.
           mmu_print_saved &= ~(SavedState::CooldownPending);
           mmu_print_saved |= SavedState::Cooldown;
           thermal_setTargetHotend(0);
-          LogEchoEvent_P(PSTR("Heater cooldown"));
+          LogEchoEvent(F("Heater cooldown"));
         }
       }
       else if (nozzle_timer.isRunning()) {
         nozzle_timer.stop();
-        LogEchoEvent_P(PSTR("Cooling timer stopped"));
+        LogEchoEvent(F("Cooling timer stopped"));
       }
 
       switch (logicStepLastStatus) {
@@ -949,7 +949,7 @@ namespace MMU2 {
 
       case ButtonPushed:
         lastButton = logic.Button();
-        LogEchoEvent_P(PSTR("MMU Button pushed"));
+        LogEchoEvent(F("MMU Button pushed"));
         CheckUserInput(); // Process the button immediately
         break;
 
@@ -1049,7 +1049,7 @@ namespace MMU2 {
     if (ec != lastErrorCode) { // deduplicate: only report changes in error codes into the log
       lastErrorCode = ec;
       lastErrorSource = res;
-      LogErrorEvent_P(_O(PrusaErrorTitle(PrusaErrorCodeIndex(ec))));
+      LogErrorEvent(PrusaErrorTitle(PrusaErrorCodeIndex(ec)));
 
       if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED && ec != ErrorCode::FILAMENT_CHANGE) {
         IncrementMMUFails();
@@ -1079,21 +1079,11 @@ namespace MMU2 {
       // or if 'Retry' operation is not available
       // raise the MMU error screen and wait for user input
       ReportErrorHook((CommandInProgress)logic.CommandInProgress(), ec, uint8_t(lastErrorSource));
-
-    static_assert(
-         mmu2Magic[0] == 'M'
-      && mmu2Magic[1] == 'M'
-      && mmu2Magic[2] == 'U'
-      && mmu2Magic[3] == '2'
-      && mmu2Magic[4] == ':'
-      && strlen_constexpr(mmu2Magic) == 5,
-      "MMU2 logging prefix mismatch, must be updated at various spots"
-    );
   }
 
   void MMU2::ReportProgress(ProgressCode pc) {
     ReportProgressHook((CommandInProgress)logic.CommandInProgress(), pc);
-    LogEchoEvent_P(_O(ProgressCodeToText(pc)));
+    LogEchoEvent(ProgressCodeToText(pc));
   }
 
   void MMU2::OnMMUProgressMsg(ProgressCode pc) {

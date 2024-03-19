@@ -41,8 +41,7 @@ namespace MMU2 {
   template <class InputIt, class UnaryPredicate>
   constexpr InputIt find_if_cx(InputIt first, InputIt last, UnaryPredicate p) {
     for (; first != last; ++first) {
-      if (p(*first))
-        return first;
+      if (p(*first)) return first;
     }
     return last;
   }
@@ -197,30 +196,19 @@ namespace MMU2 {
     return FindErrorIndex(ERR_OTHER_UNKNOWN_ERROR);
   }
 
-  uint16_t PrusaErrorCode(uint8_t i) {
-    return pgm_read_word(errorCodes + i);
-  }
+  uint16_t PrusaErrorCode(const uint8_t i) { return pgm_read_word(&errorCodes[i]); }
 
-  const char * PrusaErrorTitle(uint8_t i) {
-    return (const char *)pgm_read_ptr(errorTitles + i);
-  }
+  FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorTitles[i]); }
+  FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorDescs[i]); }
 
-  const char * PrusaErrorDesc(uint8_t i) {
-    return (const char *)pgm_read_ptr(errorDescs + i);
-  }
+  uint8_t PrusaErrorButtons(const uint8_t i) { return pgm_read_byte(errorButtons + i); }
 
-  uint8_t PrusaErrorButtons(uint8_t i) {
-    return pgm_read_byte(errorButtons + i);
-  }
-
-  const char * PrusaErrorButtonTitle(uint8_t bi) {
+  FSTR_P const PrusaErrorButtonTitle(const uint8_t bi) {
     // -1 represents the hidden NoOperation button which is not drawn in any way
-    return (const char *)pgm_read_ptr(btnOperation + bi - 1);
+    return (FSTR_P const)pgm_read_ptr(&btnOperation[bi - 1]);
   }
 
-  const char * PrusaErrorButtonMore() {
-    return MSG_BTN_MORE;
-  }
+  FSTR_P const PrusaErrorButtonMore() { return MSG_BTN_MORE; }
 
   Buttons ButtonPressed(ErrorCode ec) {
     if (buttonSelectedOperation == ButtonOperations::NoOperation || buttonSelectedOperation == ButtonOperations::MoreInfo)
