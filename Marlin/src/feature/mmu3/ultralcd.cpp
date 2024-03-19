@@ -24,7 +24,7 @@
  * ultralcd.cpp
  */
 
-#include "../../MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if HAS_PRUSA_MMU3
 
@@ -102,7 +102,6 @@
     return c == '.' || c == ',' || c == ':' || c == ';' || c == '?' || c == '!' || c == '/';
   }
 
-
   /**
    * @brief show full screen message
    *
@@ -138,26 +137,28 @@
         if (msgend == msg) msgend = msgend2; // Found a single long word, which cannot be split. Just cut it.
       }
       for (; msg < msgend; ++msg) {
-        char c = char(pgm_read_byte(msg));
-        if (c == '\n')
+        const char c = char(pgm_read_byte(msg));
+        if (c == '\n') {
           // Abort early if '\n' is encountered.
           // This character is used to force the following words to be printed on the next line.
           break;
+        }
         lcd_put_lchar(c);
       }
     }
     // We do not need this part...
-    // if (multi_screen)
-    //   // Display the double down arrow.
-    //   lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_ARROW_2_DOWN[0]);
-    // return multi_screen ? msgend : NULL;
+    //if (multi_screen) {
+    //  // Display the double down arrow.
+    //  lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_ARROW_2_DOWN[0]);
+    //}
+    //return multi_screen ? msgend : NULL;
     return msgend;
   }
 
   const char* lcd_display_message_fullscreen_P(const char *msg) {
     // Disable update of the screen by the usual lcd_update(0) routine.
     #if HAS_WIRED_LCD
-      // ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
+      //ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
       ui.clear_lcd();
       return lcd_display_message_fullscreen_nonBlocking_P(msg);
     #else
@@ -174,48 +175,43 @@
   void lcd_show_fullscreen_message_and_wait_P(const char *msg) {
     LcdUpdateDisabler lcdUpdateDisabler;
     const char *msg_next = lcd_display_message_fullscreen_P(msg);
-    bool multi_screen = msg_next != NULL;
+    bool multi_screen = msg_next != nullptr;
     ui.use_click();
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     // Until confirmed by a button click.
     for (;;) {
-      if (msg_next == NULL)
+      if (msg_next == nullptr) {
         // Display the confirm char.
-        // lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_CONFIRM[0]);
+        //lcd_put_lchar(LCD_WIDTH - 2, LCD_HEIGHT - 2, LCD_STR_CONFIRM[0]);
+      }
       // Wait for 5 seconds before displaying the next text.
       for (uint8_t i = 0; i < 100; ++i) {
         idle(true);
         safe_delay(50);
         if (ui.use_click()) {
-          if (msg_next == NULL) {
+          if (msg_next == nullptr) {
             KEEPALIVE_STATE(IN_HANDLER);
             return ui.go_back();
-          } else {
-            // break;
-            if (multi_screen) {
-              if (msg_next == NULL)
-                msg_next = msg;
-              msg_next = lcd_display_message_fullscreen_P(msg_next);
-            } else {
-              break;
-            }
           }
+          if (!multi_screen) break;
+          if (msg_next == nullptr) msg_next = msg;
+          msg_next = lcd_display_message_fullscreen_P(msg_next);
         }
       }
-    //   if (multi_screen) {
-    //     if (msg_next == NULL)
-    //       msg_next = msg;
-    //     msg_next = lcd_display_message_fullscreen_P(msg_next);
-    //   }
+      //if (multi_screen) {
+      //  if (msg_next == nullptr)
+      //    msg_next = msg;
+      //  msg_next = lcd_display_message_fullscreen_P(msg_next);
+      //}
     }
   }
 
   void lcd_insert_char_into_status(uint8_t position, const char message) {
-    if (position > LCD_WIDTH - 1) return;
-    // int size = ui.status_message.length();
+    if (position >= LCD_WIDTH) return;
+    //int size = ui.status_message.length();
     char *str = ui.status_message.buffer();
     str[position] = message;
-    ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_REDRAW_NOW; // force redraw
+    ui.refresh(LCDVIEW_REDRAW_NOW); // force redraw
   }
 
 #endif // HAS_PRUSA_MMU3

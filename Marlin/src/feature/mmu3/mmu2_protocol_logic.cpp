@@ -24,11 +24,13 @@
  * mmu2_protocol_logic.cpp
  */
 
-#include "../../MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #if HAS_PRUSA_MMU3
-  #include "mmu2_protocol_logic.h"
-  #include "mmu2_log.h"
-  #include "mmu2_fsensor.h"
+
+#include "mmu2_protocol_logic.h"
+#include "mmu2_log.h"
+#include "mmu2_fsensor.h"
 
   #ifdef __AVR__
     // on MK3/S/+ we shuffle the timers a bit, thus "_millis" may not equal "millis"
@@ -48,7 +50,7 @@
   #include <string.h>
   #include "mmu2_supported_version.h"
 
-  namespace MMU2 {
+namespace MMU2 {
 
   /// Beware - on AVR/MK3S:
   /// Changing the supportedMmuVersion numbers requires patching MSG_DESC_FW_UPDATE_NEEDED and all its related translations by hand.
@@ -919,6 +921,6 @@
     return occurrences == 0;
   }
 
-  } // namespace MMU2
+} // namespace MMU2
 
 #endif // HAS_PRUSA_MMU3

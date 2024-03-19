@@ -24,23 +24,24 @@
  * mmu2_protocol.cpp
  */
 
-#include "../../MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #if HAS_PRUSA_MMU3
-  /// @file
-  #include "mmu2_protocol.h"
 
-  // protocol definition
-  // command: Q0
-  // meaning: query operation status
-  // Query/command: query
-  // Expected reply from the MMU:
-  //  any of the running operation statuses: OID: [T|L|U|E|C|W|K][0-4]
-  //  <OID> P[0-9]      : command being processed i.e. operation running, may contain a state number
-  //  <OID> E[0-9][0-9] : error 1-9 while doing a tool change
-  //  <OID> F[0-9]      : operation finished - will be repeated to "Q" messages until a new command is issued
+#include "mmu2_protocol.h"
 
-  namespace modules {
-  namespace protocol {
+// protocol definition
+// command: Q0
+// meaning: query operation status
+// Query/command: query
+// Expected reply from the MMU:
+//  any of the running operation statuses: OID: [T|L|U|E|C|W|K][0-4]
+//  <OID> P[0-9]      : command being processed i.e. operation running, may contain a state number
+//  <OID> E[0-9][0-9] : error 1-9 while doing a tool change
+//  <OID> F[0-9]      : operation finished - will be repeated to "Q" messages until a new command is issued
+
+namespace modules {
+namespace protocol {
 
   // decoding automaton
   // states:  input -> transition into state
@@ -411,6 +412,7 @@
     return 1 + UInt8ToHex(crc, dst + 1);
   }
 
-  } // namespace protocol
-  } // namespace modules
+} // namespace protocol
+} // namespace modules
+
 #endif // HAS_PRUSA_MMU3

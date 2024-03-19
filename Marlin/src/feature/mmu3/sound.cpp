@@ -24,14 +24,13 @@
  * sound.cpp
  */
 
-#include "../../MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #if HAS_PRUSA_MMU3
-  #include <Arduino.h>
-  // #include "backlight.h"
-  // #include "fastio.h"
+
+  //#include "backlight.h"
   #include "../../libs/buzzer.h"
   #include "sound.h"
-
 
   // eSOUND_MODE eSoundMode=e_SOUND_MODE_LOUD;
   // doesn't matter if Sound_Init is called (i.e. the value is in the EEPROM)
@@ -200,4 +199,5 @@
     // beep_timer.stop();
     bFirst = false;
   }
+
 #endif // HAS_PRUSA_MMU3

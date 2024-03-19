@@ -24,34 +24,33 @@
  * mmu2_reporting.cpp
  */
 
-#ifdef __AVR__
-  #include <avr/pgmspace.h>
-#endif
+#include "../../inc/MarlinConfig.h"
 
-#include "../../MarlinCore.h"
 #if HAS_PRUSA_MMU3
-  #include "../../core/language.h"
-  #include "../../gcode/gcode.h"
-  #include "../../feature/host_actions.h"
-  #include "../../lcd/marlinui.h"
-  #include "../../lcd/menu/menu.h"
-  #include "../../lcd/menu/menu_item.h"
-  #include "../../module/temperature.h"
-  #include "mmu2.h"
-  #include "mmu2_log.h"
-  #include "mmu2_fsensor.h"
-  #include "mmu2_reporting.h"
-  #include "mmu2_error_converter.h"
-  #include "mmu2_marlin_macros.h"
-  #include "mmu2_progress_converter.h"
-  #include "mmu_hw/buttons.h"
-  #include "mmu_hw/error_codes.h"
-  #include "mmu_hw/errors_list.h"
-  #include "messages.h"
-  #include "ultralcd.h"
-  #include "sound.h"
 
-  namespace MMU2 {
+#include "mmu2.h"
+#include "mmu2_log.h"
+#include "mmu2_fsensor.h"
+#include "mmu2_reporting.h"
+#include "mmu2_error_converter.h"
+#include "mmu2_marlin_macros.h"
+#include "mmu2_progress_converter.h"
+#include "mmu_hw/buttons.h"
+#include "mmu_hw/error_codes.h"
+#include "mmu_hw/errors_list.h"
+#include "messages.h"
+#include "ultralcd.h"
+#include "sound.h"
+
+#include "../../core/language.h"
+#include "../../gcode/gcode.h"
+#include "../../feature/host_actions.h"
+#include "../../lcd/marlinui.h"
+#include "../../lcd/menu/menu.h"
+#include "../../lcd/menu/menu_item.h"
+#include "../../module/temperature.h"
+
+namespace MMU2 {
 
   OperationStatistics operation_statistics;
 
@@ -704,5 +703,6 @@
     // menu_submenu(tuneIdlerStallguardThresholdMenu);
   }
 
-  } // namespace MMU2
+} // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3

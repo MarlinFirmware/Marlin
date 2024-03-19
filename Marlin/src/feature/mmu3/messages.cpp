@@ -24,11 +24,13 @@
  * messages.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_PRUSA_MMU3
+
 #include "../../core/language.h"
 #include "messages.h"
 #include "mmu_hw/errors_list.h"
-
-#if HAS_PRUSA_MMU3
 
   // For the custom characters
   // #include "lcd.h"

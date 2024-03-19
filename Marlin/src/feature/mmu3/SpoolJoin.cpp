@@ -24,30 +24,26 @@
  * SpoolJoin.cpp
  */
 
-#include "../../MarlinCore.h"
+#include "../../inc/MarlinConfigPre.h"
+
 #if HAS_PRUSA_MMU3
-  #include "SpoolJoin.h"
-  #include "../../module/settings.h"
-  #include "messages.h"
-  #include "../../core/language.h"
 
+#include "SpoolJoin.h"
+#include "../../module/settings.h"
+#include "messages.h"
+#include "../../core/language.h"
 
-  namespace SpoolJoin {
+namespace SpoolJoin {
 
   SpoolJoin spooljoin;
   bool SpoolJoin::enabled; // Initialized by settings.load
   int SpoolJoin::epprom_addr; // Initialized by settings.load
 
-  SpoolJoin::SpoolJoin()
-    : currentMMUSlot(0) {
-  }
+  SpoolJoin::SpoolJoin() : currentMMUSlot(0) {}
 
   void SpoolJoin::initSpoolJoinStatus() {
     // Useful information to see during bootup
-    if (enabled)
-      SERIAL_ECHOLNPGM("SpoolJoin is On");
-    else
-      SERIAL_ECHOLNPGM("SpoolJoin is Off");
+    SERIAL_ECHOLN(F("SpoolJoin is "), enabled ? F("On") : F("Off"));
   }
 
   void SpoolJoin::toggleSpoolJoin() {
@@ -63,27 +59,17 @@
     #endif
   }
 
-  bool SpoolJoin::isSpoolJoinEnabled() {
-    // the enable var is initialized by settings.load()
-    return enabled;
-  }
+  bool SpoolJoin::isSpoolJoinEnabled() { return enabled; }
 
-  void SpoolJoin::setSlot(uint8_t slot) {
-    currentMMUSlot = slot;
-  }
+  void SpoolJoin::setSlot(uint8_t slot) { currentMMUSlot = slot; }
 
   uint8_t SpoolJoin::nextSlot() {
-    SERIAL_ECHOPGM("SpoolJoin: ");
-    SERIAL_ECHO((int)currentMMUSlot);
-
-    if (currentMMUSlot >= 4) currentMMUSlot = 0;
-    else currentMMUSlot++;
-
-    SERIAL_ECHOPGM(" -> ");
-    SERIAL_ECHOLN((int)currentMMUSlot);
-
+    SERIAL_ECHOPGM("SpoolJoin: ", currentMMUSlot);
+    if (++currentMMUSlot >= 4) currentMMUSlot = 0;
+    SERIAL_ECHOLNPGM(" -> ", currentMMUSlot);
     return currentMMUSlot;
   }
 
-  }
+} // namespace SpoolJoin
+
 #endif // HAS_PRUSA_MMU3
