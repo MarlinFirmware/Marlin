@@ -24,17 +24,20 @@
  * mmu2_progress_converter.cpp
  */
 
-#include "../../core/language.h"
-#if HAS_PRUSA_MMU3
-  #include "mmu2_progress_converter.h"
-  #ifdef __AVR__
-    #include <avr/pgmspace.h>
-  #endif
-  #include "mmu_hw/progress_codes.h"
-  #include "mmu_hw/errors_list.h"
-  #include "messages.h"
+#include "../../inc/MarlinConfigPre.h"
 
-  namespace MMU2 {
+#if HAS_PRUSA_MMU3
+
+#include "../../core/language.h"
+#include "mmu2_progress_converter.h"
+#ifdef __AVR__
+  #include <avr/pgmspace.h>
+#endif
+#include "mmu_hw/progress_codes.h"
+#include "mmu_hw/errors_list.h"
+#include "messages.h"
+
+namespace MMU2 {
   // 01234567890123456789
   static const char MSG_PROGRESS_OK[] PROGMEM                = ISTR("OK");////MSG_PROGRESS_OK c=4
   static const char MSG_PROGRESS_ENGAGE_IDLER[] PROGMEM      = ISTR("Engaging idler");////MSG_PROGRESS_ENGAGE_IDLER c=20
@@ -100,5 +103,6 @@
      : static_cast<const char *>(pgm_read_ptr(&progressTexts[0]));
   }
 
-  } // namespace MMU2
+} // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3

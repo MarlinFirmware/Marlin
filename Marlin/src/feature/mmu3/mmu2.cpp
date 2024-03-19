@@ -28,46 +28,46 @@
 
 #if HAS_PRUSA_MMU3
 
-  #include "mmu2.h"
-  #include "mmu2_error_converter.h"
-  #include "mmu2_fsensor.h"
-  #include "mmu2_log.h"
-  #include "mmu2_marlin.h"
-  #include "mmu2_marlin_macros.h"
-  #include "mmu2_power.h"
-  #include "mmu2_progress_converter.h"
-  #include "mmu2_reporting.h"
+#include "mmu2.h"
+#include "mmu2_error_converter.h"
+#include "mmu2_fsensor.h"
+#include "mmu2_log.h"
+#include "mmu2_marlin.h"
+#include "mmu2_marlin_macros.h"
+#include "mmu2_power.h"
+#include "mmu2_progress_converter.h"
+#include "mmu2_reporting.h"
 
-  #include "strlen_cx.h"
-  #include "SpoolJoin.h"
+#include "strlen_cx.h"
+#include "SpoolJoin.h"
 
-  #include "messages.h"
+#include "messages.h"
 
-  #include "../../MarlinCore.h"
-  #include "../../lcd/marlinui.h"
-  #include "../../core/language.h"
-  #include "../../module/planner.h"
-  #include "../../module/motion.h"
-  #include "../../gcode/parser.h"
-  #include "../../gcode/queue.h"
-  #include "../runout.h"
-  #if HAS_LEVELING
-    #include "../bedlevel/bedlevel.h"
-  #endif
-  #include "../pause.h"
-  #include "../../libs/stopwatch.h"
+#include "../../MarlinCore.h"
+#include "../../lcd/marlinui.h"
+#include "../../core/language.h"
+#include "../../module/planner.h"
+#include "../../module/motion.h"
+#include "../../gcode/parser.h"
+#include "../../gcode/queue.h"
+#include "../runout.h"
+#if HAS_LEVELING
+  #include "../bedlevel/bedlevel.h"
+#endif
+#include "../pause.h"
+#include "../../libs/stopwatch.h"
 
-  // As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
-  // Saves at least 800B of code size
-  //#ifdef __AVR__
-  //static_assert(EXTRUDERS == 1);
-  //#endif
+// As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
+// Saves at least 800B of code size
+//#ifdef __AVR__
+//static_assert(EXTRUDERS == 1);
+//#endif
 
 #define MMU2_NO_TOOL 99
 
 MMU2::MMU2 mmu2;
 
-  namespace MMU2 {
+namespace MMU2 {
 
   template <typename F>
   void waitForHotendTargetTemp(uint16_t delay, F f) {
@@ -1222,6 +1222,6 @@ MMU2::MMU2 mmu2;
     }
   }
 
-  } // namespace MMU2
+} // namespace MMU2
 
 #endif // HAS_PRUSA_MMU3

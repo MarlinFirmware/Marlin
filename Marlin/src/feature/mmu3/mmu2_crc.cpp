@@ -24,6 +24,10 @@
  * mmu2_crc.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_PRUSA_MMU3
+
 #include "mmu2_crc.h"
 
 #ifdef __AVR__
@@ -31,17 +35,19 @@
 #endif
 
 namespace modules {
-// clang-format off
+
 namespace crc {
-#ifdef __AVR__
-  uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
+
+uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
+  #ifdef __AVR__
     return _crc8_ccitt_update(crc, b);
-  }
-#else
-  uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
+  #else
     return CCITT_updateCX(crc, b);
-  }
-#endif
+  #endif
+}
+
 } // namespace crc
-// clang-format on
+
 } // namespace modules
+
+#endif // HAS_PRUSA_MMU3

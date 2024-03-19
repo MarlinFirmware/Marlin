@@ -24,14 +24,16 @@
  * mmu2_error_converter.cpp
  */
 
-#include <stdio.h>
-#include "../../core/language.h"
-#if HAS_PRUSA_MMU3
-  #include "mmu2_error_converter.h"
-  #include "mmu_hw/error_codes.h"
-  #include "mmu_hw/errors_list.h"
+#include "../../inc/MarlinConfigPre.h"
 
-  namespace MMU2 {
+#if HAS_PRUSA_MMU3
+
+#include "../../core/language.h"
+#include "mmu2_error_converter.h"
+#include "mmu_hw/error_codes.h"
+#include "mmu_hw/errors_list.h"
+
+namespace MMU2 {
 
   static ButtonOperations buttonSelectedOperation = ButtonOperations::NoOperation;
 
@@ -383,5 +385,6 @@
     return buttonSelectedOperation;
   }
 
-  } // namespace MMU2
+} // namespace MMU2
+
 #endif // HAS_PRUSA_MMU3
