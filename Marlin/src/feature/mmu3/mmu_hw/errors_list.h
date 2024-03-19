@@ -25,9 +25,11 @@
  * errors_list.h
  */
 
-// Extracted from Prusa-Error-Codes repo
-// Subject to automation and optimization
-// BEWARE - this file shall be included only into mmu2_error_converter.cpp, not anywhere else!
+/**
+ * Extracted from Prusa-Error-Codes repo
+ * Subject to automation and optimization
+ * BEWARE - This file should only be included by mmu2_error_converter.cpp!
+ */
 #include "inttypes.h"
 #include "../../../core/language.h"
 #include "../../../lcd/marlinui.h"
@@ -347,4 +349,4 @@ static_assert(COUNT(errorCodes) == COUNT(errorDescs));
 static_assert(COUNT(errorCodes) == COUNT(errorTitles));
 static_assert(COUNT(errorCodes) == COUNT(errorButtons));
 
-} // namespace MMU2
+} // MMU2

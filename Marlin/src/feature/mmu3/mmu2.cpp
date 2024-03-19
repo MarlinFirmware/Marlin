@@ -319,8 +319,8 @@ namespace MMU2 {
     switch (State()) {
       case xState::Stopped: return false;
       case xState::Connecting:
-      // shall we wait until the MMU reconnects?
-      // fire-up a fsm_dlg and show "MMU not responding"?
+      // Should we wait until the MMU reconnects?
+      // Fire up a fsm_dlg and show "MMU not responding"?
       default: return true;
     }
   }
@@ -823,7 +823,7 @@ namespace MMU2 {
         SetPrinterButtonOperation(btn);
         break;
       case Buttons::ResetMMU:
-        Reset(ResetPin); // we cannot do power cycle on the MK3
+        Reset(ResetPin); // Cannot do power cycle on the MK3
         // ... but mmu2_power.cpp knows this and triggers a soft-reset instead.
         break;
       case Buttons::DisableMMU:
@@ -832,7 +832,7 @@ namespace MMU2 {
         Status();
         break;
       case Buttons::StopPrint:
-        // @@TODO not sure if we shall handle this high level operation at this spot
+        // @@TODO Unsure if we should handle this high level operation at this spot
         break;
       default: break;
     }
@@ -856,7 +856,7 @@ namespace MMU2 {
 
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
-      // So in this case we shall decide if the operation is:
+      // So in this case we should decide if the operation is:
       // - still running -> wait normally in idle()
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
@@ -1052,8 +1052,7 @@ namespace MMU2 {
       if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED && ec != ErrorCode::FILAMENT_CHANGE) {
         IncrementMMUFails();
 
-        // check if it is a "power" failure - we consider TMC-related errors as power failures
-        // clang-format off
+        // Check if it is a "power" failure. TMC-related errors are considered power failures.
         static constexpr uint16_t tmcMask =
           (  (uint16_t)ErrorCode::TMC_IOIN_MISMATCH
            | (uint16_t)ErrorCode::TMC_RESET
@@ -1063,7 +1062,7 @@ namespace MMU2 {
            | (uint16_t)ErrorCode::TMC_OVER_TEMPERATURE_ERROR
            | (uint16_t)ErrorCode::MMU_SOLDERING_NEEDS_ATTENTION ) & 0x7FFFU; // skip the top bit
 
-        static_assert(tmcMask == 0x7E00); // just make sure we fail compilation if any of the TMC error codes change
+        static_assert(tmcMask == 0x7E00); // Just make sure we fail compilation if any of the TMC error codes change
 
         if ((uint16_t)ec & tmcMask) { // @@TODO can be optimized to uint8_t operation
           // TMC-related errors are from 0x8200 higher
@@ -1181,6 +1180,6 @@ namespace MMU2 {
     }
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

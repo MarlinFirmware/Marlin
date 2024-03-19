@@ -19,19 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * progress_codes.h
  */
 
-#pragma once
 #include <stdint.h>
 
-/// A complete set of progress codes which may be reported while running a high-level command/operation
-/// This header file shall be included in the printer's firmware as well as a reference,
-/// therefore the progress codes have been extracted to one place
+/**
+ * A complete set of progress codes which may be reported while running a high-level command/operation.
+ * This header file should be included in the printer's firmware as well as a reference, so the progress
+ * codes are extracted to one place.
+ */
 enum class ProgressCode : uint_fast8_t {
-  OK = 0, ///< finished ok
+  OK = 0, //!< finished ok
 
   EngagingIdler, // P1
   DisengagingIdler, // P2
@@ -66,5 +68,5 @@ enum class ProgressCode : uint_fast8_t {
 
   FeedingToFSensor, // P28
 
-  Empty = 0xff // dummy empty state
+  Empty = 0xFF // dummy empty state
 };

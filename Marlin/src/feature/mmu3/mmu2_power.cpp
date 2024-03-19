@@ -60,6 +60,6 @@ void reset() {
   // otherwise HW reset is not available
 }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

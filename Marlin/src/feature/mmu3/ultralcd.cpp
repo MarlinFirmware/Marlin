@@ -126,7 +126,7 @@
       PGM_P const msgend2 = msg + linelen;
       msgend = msgend2;
       if (row == 3 && linelen == LCD_WIDTH) {
-        // Last line of the display, full line shall be displayed.
+        // Last line of the display, full line should be displayed.
         // Find out, whether this message will be split into multiple screens.
         //multi_screen = pgm_read_byte(msgend) != 0;
         // We do not need this...

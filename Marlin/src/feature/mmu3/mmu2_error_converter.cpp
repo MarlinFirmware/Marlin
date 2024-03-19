@@ -224,7 +224,7 @@ namespace MMU2 {
     // The list of responses which occur in mmu error dialogs
     // Return button index or perform some action on the MK3 by itself (like Reset MMU)
     // Based on Prusa-Error-Codes errors_list.h
-    // So far hardcoded, but shall be generated in the future
+    // So far hardcoded, but should be generated in the future
     switch (PrusaErrorCode(ei)) {
       case ERR_MECHANICAL_FINDA_DIDNT_TRIGGER:
       case ERR_MECHANICAL_FINDA_FILAMENT_STUCK:
@@ -371,6 +371,6 @@ namespace MMU2 {
     return buttonSelectedOperation;
   }
 
-} // namespace MMU2
+} // MMU2
 
 #endif // HAS_PRUSA_MMU3

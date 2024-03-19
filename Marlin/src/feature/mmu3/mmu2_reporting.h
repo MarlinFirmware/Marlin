@@ -52,7 +52,6 @@ namespace MMU2 {
   */
   class OperationStatistics {
     public:
-
     void increment_load_fails();
     void increment_mmu_fails();
     void increment_tool_change_counter();
@@ -76,28 +75,28 @@ namespace MMU2 {
 
   extern OperationStatistics operation_statistics;
 
-  /// Called at the begin of every MMU operation
+  // Called at the begin of every MMU operation
   void BeginReport(CommandInProgress cip, ProgressCode ec);
 
-  /// Called at the end of every MMU operation
+  // Called at the end of every MMU operation
   void EndReport(CommandInProgress cip, ProgressCode ec);
 
-  /// Checks for error screen user input, if the error screen is open
+  // Checks for error screen user input, if the error screen is open
   void CheckErrorScreenUserInput();
 
-  /// Return true if the error screen is sleeping in the background
-  /// Error screen sleeps when the firmware is rendering complementary
-  /// UI to resolve the error screen, for example tuning Idler Stallguard Threshold
+  // Return true if the error screen is sleeping in the background
+  // Error screen sleeps when the firmware is rendering complementary
+  // UI to resolve the error screen, for example tuning Idler Stallguard Threshold
   bool TuneMenuEntered();
 
-  /// @brief Called when the MMU or MK3S sends operation error (even repeatedly).
-  /// Render MMU error screen on the LCD. This must be non-blocking
-  /// and allow the MMU and printer to communicate with each other.
-  /// @param[in] ec error code
-  /// @param[in] es error source
+  // @brief Called when the MMU or MK3S sends operation error (even repeatedly).
+  // Render MMU error screen on the LCD. This must be non-blocking
+  // and allow the MMU and printer to communicate with each other.
+  // @param[in] ec error code
+  // @param[in] es error source
   void ReportErrorHook(CommandInProgress cip, ErrorCode ec, uint8_t es);
 
-  /// Called when the MMU sends operation progress update
+  // Called when the MMU sends operation progress update
   void ReportProgressHook(CommandInProgress cip, ProgressCode ec);
 
   struct TryLoadUnloadReporter {
@@ -107,13 +106,12 @@ namespace MMU2 {
     void DumpToSerial();
 
     private:
-    /// @brief Add one block to the progress bar
-    /// @param col pixel position on the LCD status line, should range from 0 to (LCD_WIDTH - 1)
-    /// @param sensorState if true, filament is not present, else filament is present. This controls which character to render
+    // @brief Add one block to the progress bar
+    // @param col pixel position on the LCD status line, should range from 0 to (LCD_WIDTH - 1)
+    // @param sensorState if true, filament is not present, else filament is present. This controls which character to render
     void Render(uint8_t col, bool sensorState);
 
-    uint8_t dpixel0;
-    uint8_t dpixel1;
+    uint8_t dpixel0, dpixel1;
     uint8_t lcd_cursor_col;
     // The total length is twice delta_mm. Divide that length by number of pixels
     // available to get length per pixel.
@@ -121,30 +119,29 @@ namespace MMU2 {
     float pixel_per_mm;
   };
 
-  /// Remders the sensor status line. Also used by the "resume temperature" screen.
+  // Remders the sensor status line. Also used by the "resume temperature" screen.
   void ReportErrorHookDynamicRender();
 
-  /// Renders the static part of the sensor state line. Also used by "resuming temperature screen"
+  // Renders the static part of the sensor state line. Also used by "resuming temperature screen"
   void ReportErrorHookSensorLineRender();
 
-  /// @returns true if the MMU is communicating and available
-  /// can change at runtime
-  // bool MMUAvailable();
+  // @return true if the MMU is communicating and available. Can change at runtime.
+  //bool MMUAvailable();
 
-  /// Global Enable/Disable use MMU (to be stored in EEPROM)
-  // bool UseMMU();
+  // Global Enable/Disable use MMU (to be stored in EEPROM)
+  //bool UseMMU();
 
-  /// Disables MMU in EEPROM
-  // void DisableMMUInSettings();
+  // Disable MMU in EEPROM
+  //void DisableMMUInSettings();
 
-  /// Increments EEPROM cell - number of failed loads into the nozzle
-  /// Note: technically, this is not an MMU error but an error of the printer.
+  // Increments EEPROM cell - number of failed loads into the nozzle
+  // Note: technically, this is not an MMU error but an error of the printer.
   void IncrementLoadFails();
 
-  /// Increments EEPROM cell - number of MMU errors
+  // Increments EEPROM cell - number of MMU errors
   void IncrementMMUFails();
 
-  /// @returns true when Cutter is enabled in the menus
+  // @return true when Cutter is enabled in the menus
   bool cutter_enabled();
 
   // Beware: enum values intentionally chosen to match the 8bit FW to save code size
@@ -168,4 +165,4 @@ namespace MMU2 {
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
 
-} // namespace MMU2
+} // MMU2
