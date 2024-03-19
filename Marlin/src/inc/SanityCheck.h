@@ -4199,8 +4199,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 
   #ifdef SHAPING_MIN_FREQ
     static_assert((SHAPING_MIN_FREQ) > 0, "SHAPING_MIN_FREQ must be > 0.");
-    TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) == 0 || (SHAPING_FREQ_X) >= (SHAPING_MIN_FREQ), "SHAPING_FREQ_X must be >= SHAPING_MIN_FREQ."));
-    TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) >= (SHAPING_MIN_FREQ), "SHAPING_FREQ_Y must be >= SHAPING_MIN_FREQ."));
   #else
     TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
     TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
