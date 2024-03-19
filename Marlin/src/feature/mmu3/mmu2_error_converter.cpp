@@ -74,7 +74,7 @@ namespace MMU2 {
     return (uint16_t)ec & (uint16_t)mask;
   }
 
-  uint8_t PrusaErrorCodeIndex(ErrorCode ec) {
+  uint8_t PrusaErrorCodeIndex(const ErrorCode ec) {
     switch (ec) {
       case ErrorCode::FINDA_DIDNT_SWITCH_ON:
         return FindErrorIndex(ERR_MECHANICAL_FINDA_DIDNT_TRIGGER);
@@ -208,9 +208,7 @@ namespace MMU2 {
     return (FSTR_P const)pgm_read_ptr(&btnOperation[bi - 1]);
   }
 
-  FSTR_P const PrusaErrorButtonMore() { return GET_TEXT_F(MSG_BTN_MORE); }
-
-  Buttons ButtonPressed(ErrorCode ec) {
+  Buttons ButtonPressed(const ErrorCode ec) {
     if (buttonSelectedOperation == ButtonOperations::NoOperation || buttonSelectedOperation == ButtonOperations::MoreInfo)
       return Buttons::NoButton; // no button
 
@@ -220,7 +218,7 @@ namespace MMU2 {
     return result;
   }
 
-  Buttons ButtonAvailable(ErrorCode ec) {
+  Buttons ButtonAvailable(const ErrorCode ec) {
     uint8_t ei = PrusaErrorCodeIndex(ec);
 
     // The list of responses which occur in mmu error dialogs

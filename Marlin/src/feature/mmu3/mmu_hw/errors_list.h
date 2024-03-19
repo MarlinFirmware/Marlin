@@ -36,7 +36,6 @@
 #endif
 #include "buttons.h"
 #include "../strlen_cx.h"
-#include "../messages.h"
 #include "../ultralcd.h"
 
 namespace MMU2 {

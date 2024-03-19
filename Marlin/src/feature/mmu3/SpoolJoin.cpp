@@ -30,7 +30,6 @@
 
 #include "SpoolJoin.h"
 #include "../../module/settings.h"
-#include "messages.h"
 #include "../../core/language.h"
 
 namespace SpoolJoin {

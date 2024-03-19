@@ -110,7 +110,7 @@
       , value2(value)
       , crc8(ComputeCRC8()) {}
 
-    constexpr uint8_t CRC() const { return crc8; }
+    constexpr uint8_t getCRC() const { return crc8; }
   };
 
   /// A response message - responses are being sent from the MMU into the printer as a response to a request message.
@@ -136,7 +136,7 @@
       this->request.crc8 = ComputeCRC8();
     }
 
-    constexpr uint8_t CRC() const { return request.crc8; }
+    constexpr uint8_t getCRC() const { return request.crc8; }
   };
 
   /// Combined commandStatus and its value into one data structure (optimization purposes)
@@ -251,24 +251,24 @@ public:
 private:
     #endif
     enum class RequestStates : uint8_t {
-      Code, ///< starting state - expects message code
-      Value, ///< expecting code value
-      Address, ///< expecting address for Write command
-      WriteValue, ///< value to be written (Write command)
-      CRC, ///< CRC
-      Error ///< automaton in error state
+      Code,       //!< starting state - expects message code
+      Value,      //!< expecting code value
+      Address,    //!< expecting address for Write command
+      WriteValue, //!< value to be written (Write command)
+      CRC,        //!< CRC
+      Error       //!< automaton in error state
     };
 
     RequestStates rqState;
     RequestMsg requestMsg;
 
     enum class ResponseStates : uint8_t {
-      RequestCode, ///< starting state - expects message code
+      RequestCode,  ///< starting state - expects message code
       RequestValue, ///< expecting code value
-      ParamCode, ///< expecting param code
-      ParamValue, ///< expecting param value
-      CRC, ///< expecting CRC value
-      Error ///< automaton in error state
+      ParamCode,    ///< expecting param code
+      ParamValue,   ///< expecting param value
+      CRC,          ///< expecting CRC value
+      Error         ///< automaton in error state
     };
 
     ResponseStates rspState;

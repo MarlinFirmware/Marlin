@@ -172,7 +172,7 @@ namespace protocol {
     txbuff[0] = (uint8_t)msg.code;
     uint8_t i = 1 + UInt8ToHex(msg.value, txbuff + 1);
 
-    i += AppendCRC(msg.CRC(), txbuff + i);
+    i += AppendCRC(msg.getCRC(), txbuff + i);
 
     txbuff[i] = '\n';
     ++i;
@@ -186,7 +186,7 @@ namespace protocol {
     // dump the value
     i += UInt16ToHex(value, txbuff + i);
 
-    i += AppendCRC(msg.CRC(), txbuff + i);
+    i += AppendCRC(msg.getCRC(), txbuff + i);
 
     txbuff[i] = '\n';
     ++i;
@@ -322,7 +322,7 @@ namespace protocol {
     uint8_t i = BeginEncodeRequest(rsp.request, txbuff);
     txbuff[i] = (uint8_t)ar;
     ++i;
-    i += AppendCRC(rsp.CRC(), txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     ++i;
     return i;
@@ -338,7 +338,7 @@ namespace protocol {
     txbuff[i] = (uint8_t)rsp.paramCode;
     ++i;
     i += UInt16ToHex(rsp.paramValue, txbuff + i);
-    i += AppendCRC(rsp.CRC(), txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     return i + 1;
   }
@@ -354,7 +354,7 @@ namespace protocol {
     if (accepted)
       // dump the value
       i += UInt16ToHex(value2, txbuff + i);
-    i += AppendCRC(rsp.CRC(), txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     return i + 1;
   }
