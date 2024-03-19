@@ -1066,8 +1066,7 @@ namespace MMU2 {
         loadFilamentStarted = false;
         planner_abort_queued_moves(); // Abort excess E-moves to be safe
         break;
-      default:
-        break;
+      default: break;
     }
 
     if (ec != lastErrorCode) { // deduplicate: only report changes in error codes into the log
@@ -1081,19 +1080,20 @@ namespace MMU2 {
         // check if it is a "power" failure - we consider TMC-related errors as power failures
         // clang-format off
         static constexpr uint16_t tmcMask =
-          ((uint16_t)ErrorCode::TMC_IOIN_MISMATCH
+          (  (uint16_t)ErrorCode::TMC_IOIN_MISMATCH
            | (uint16_t)ErrorCode::TMC_RESET
            | (uint16_t)ErrorCode::TMC_UNDERVOLTAGE_ON_CHARGE_PUMP
            | (uint16_t)ErrorCode::TMC_SHORT_TO_GROUND
            | (uint16_t)ErrorCode::TMC_OVER_TEMPERATURE_WARN
            | (uint16_t)ErrorCode::TMC_OVER_TEMPERATURE_ERROR
-           | (uint16_t)ErrorCode::MMU_SOLDERING_NEEDS_ATTENTION ) & 0x7fffU; // skip the top bit
-        // clang-format on
-        static_assert(tmcMask == 0x7e00); // just make sure we fail compilation if any of the TMC error codes change
+           | (uint16_t)ErrorCode::MMU_SOLDERING_NEEDS_ATTENTION ) & 0x7FFFU; // skip the top bit
 
-        if ((uint16_t)ec & tmcMask) // @@TODO can be optimized to uint8_t operation
+        static_assert(tmcMask == 0x7E00); // just make sure we fail compilation if any of the TMC error codes change
+
+        if ((uint16_t)ec & tmcMask) { // @@TODO can be optimized to uint8_t operation
           // TMC-related errors are from 0x8200 higher
           IncrementTMCFailures();
+        }
       }
     }
 
@@ -1103,13 +1103,15 @@ namespace MMU2 {
       // raise the MMU error screen and wait for user input
       ReportErrorHook((CommandInProgress)logic.CommandInProgress(), ec, uint8_t(lastErrorSource));
 
-    static_assert(mmu2Magic[0] == 'M'
+    static_assert(
+         mmu2Magic[0] == 'M'
       && mmu2Magic[1] == 'M'
       && mmu2Magic[2] == 'U'
       && mmu2Magic[3] == '2'
       && mmu2Magic[4] == ':'
       && strlen_constexpr(mmu2Magic) == 5,
-      "MMU2 logging prefix mismatch, must be updated at various spots");
+      "MMU2 logging prefix mismatch, must be updated at various spots"
+    );
   }
 
   void MMU2::ReportProgress(ProgressCode pc) {
@@ -1129,9 +1131,9 @@ namespace MMU2 {
     lastProgressCode = pc;
     switch (pc) {
       case ProgressCode::UnloadingToFinda:
-        if ((CommandInProgress)logic.CommandInProgress() == CommandInProgress::UnloadFilament
-            || ((CommandInProgress)logic.CommandInProgress() == CommandInProgress::ToolChange)
-            ) {
+        if (  (CommandInProgress)logic.CommandInProgress() == CommandInProgress::UnloadFilament
+          || ((CommandInProgress)logic.CommandInProgress() == CommandInProgress::ToolChange)
+        ) {
           // If MK3S sent U0 command, ramming sequence takes care of releasing the filament.
           // If Toolchange is done while printing, PrusaSlicer takes care of releasing the filament
           // If printing is not in progress, ToolChange will issue a U0 command.
@@ -1149,9 +1151,7 @@ namespace MMU2 {
         planner_synchronize();
         loadFilamentStarted = true;
         break;
-      default:
-        // do nothing yet
-        break;
+      default: break; // do nothing yet
     }
   }
 
@@ -1164,7 +1164,7 @@ namespace MMU2 {
     const float extrude_distance = _MIN(
       _MAX(EXTRUDE_MAXLENGTH - 1, 1),
       pulley_slow_feedrate
-      );
+    );
 
     switch (pc) {
       case ProgressCode::UnloadingToFinda:
@@ -1210,15 +1210,12 @@ namespace MMU2 {
                 extruder_move(extrude_distance, pulley_slow_feedrate, false);
               }
               break;
-            default:
-              // Abort here?
-              break;
+            default: break; // Abort here?
           }
         }
         break;
-      default:
-        // do nothing yet
-        break;
+
+      default: break; // do nothing yet
     }
   }
 
