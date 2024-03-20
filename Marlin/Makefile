@@ -342,6 +342,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1204)
 else ifeq ($(HARDWARE_MOTHERBOARD),1205)
 # Rambo ThinkerV2
 else ifeq ($(HARDWARE_MOTHERBOARD),1206)
+# Mini-Rambo 1.3a as CNC
+else ifeq ($(HARDWARE_MOTHERBOARD),1207)
 
 #
 # Other ATmega1280, ATmega2560

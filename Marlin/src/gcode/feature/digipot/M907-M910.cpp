@@ -129,11 +129,16 @@ void GcodeSuite::M907() {
     TERN_(MARLIN_SMALL_BUILD, return);
 
     report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
-    #if HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_PWM && HAS_EXTRUDERS
       SERIAL_ECHOLNPGM_P(                                     // PWM-based has 3 values:
           PSTR("  M907 X"), stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
         , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
         , SP_E_STR,         stepper.motor_current_setting[2]  // E
+      );
+	#elif HAS_MOTOR_CURRENT_PWM
+		SERIAL_ECHOLNPGM_P(                                     // PWM-based has 2 values:
+          PSTR("  M907 X"), stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
+        , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
       );
     #elif HAS_MOTOR_CURRENT_SPI
       SERIAL_ECHOPGM("  M907");                               // SPI-based has 5 values:
