@@ -21,11 +21,18 @@
  */
 #pragma once
 
+#ifndef PINS_DEBUGGING
+  #error "PINS_DEBUGGING not defined but tried to include debug header!"
+#endif
+
 #include <Arduino.h>
 
 #ifndef NUM_DIGITAL_PINS
    // Only in ST's Arduino core (STM32duino, STM32Core)
    #error "Expected NUM_DIGITAL_PINS not found"
+#endif
+#ifndef NUM_ANALOG_INPUTS
+  #error "Expected NUM_ANALOG_INPUTS not found"
 #endif
 
 /**
@@ -107,15 +114,32 @@ const XrefInfo pin_xref[] PROGMEM = {
 /**
  * Translation of routines & variables used by pinsDebug.h
  */
+#ifndef __STRINGIFY
+  #define __STRINGIFY(x) #x
+#endif
+#define TOSTRING(x) __STRINGIFY(x)
+#define _STM32_PLATDEFPATH(x) TOSTRING(platdefs/x.h)
+#if defined(_STM32_PLATDEFS)
+  #if __has_include(_STM32_PLATDEFPATH(_STM32_PLATDEFS))
+    #include _STM32_PLATDEFPATH(_STM32_PLATDEFS)
+  #endif
+#endif
 
-#if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
-  #define HAS_HIGH_ANALOG_PINS 1
+#ifndef NUM_ANALOG_FIRST
+  #warning "Preprocessor macro NUM_ANALOG_FIRST is not defined but PINS_DEBUGGING is enabled; ignoring analog pin debug functions."
 #endif
-#ifndef NUM_ANALOG_LAST
+
+#ifdef NUM_ANALOG_FIRST
+  #if NUM_ANALOG_FIRST >= NUM_DIGITAL_PINS
+    #define HAS_HIGH_ANALOG_PINS 1
+  #endif
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
+  #define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
+  #define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
+#else
+  #define NUMBER_PINS_TOTAL (NUM_DIGITAL_PINS)
+  #define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1))
 #endif
-#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
-#define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define PRINT_PIN(Q)
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
@@ -170,8 +194,11 @@ bool GET_PINMODE(const pin_t Ard_num) {
 }
 
 int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
-  if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
-    return Ard_num - NUM_ANALOG_FIRST;
+
+  #ifdef NUM_ANALOG_FIRST
+    if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
+      return Ard_num - NUM_ANALOG_FIRST;
+  #endif
 
   const uint32_t ind = digitalPinToAnalogInput(Ard_num);
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
@@ -209,10 +236,13 @@ void print_port(const pin_t Ard_num) {
 
   // Print number to be used with M42
   int calc_p = Ard_num;
-  if (Ard_num > NUM_DIGITAL_PINS) {
-    calc_p -= NUM_ANALOG_FIRST;
-    if (calc_p > 7) calc_p += 8;
-  }
+  #ifdef NUM_ANALOG_FIRST
+    if (Ard_num > NUM_DIGITAL_PINS) {
+      calc_p -= NUM_ANALOG_FIRST;
+      if (calc_p > 7) calc_p += 8;
+    }
+  #endif
+
   SERIAL_ECHOPGM(" M42 P", calc_p);
   SERIAL_CHAR(' ');
   if (calc_p < 100) {
