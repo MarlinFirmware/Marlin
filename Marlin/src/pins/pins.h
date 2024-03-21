@@ -498,6 +498,13 @@
   #include "lpc1769/pins_FLY_CDY.h"                 // LPC1769                              env:LPC1769
 
 //
+// LPC5528 ARM Cortex M33
+//
+
+#elif MB(MKS_OWL)
+  #include "lpc5528/pins_MKS_OWL.h"             // LPC5528                                env:MKS_OWL
+
+//
 // Due (ATSAM) boards
 //
 

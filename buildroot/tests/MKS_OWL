@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Build tests for LPC1768 (NXP ARM Cortex-M3)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+#restore_configs
+#opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+#exec_test $1 $2 "Default Configuration" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_OWL SERIAL_PORT -1
+opt_enable SDSUPPORT FAN_SOFT_PWM
+opt_disable USE_WATCHDOG
+
+exec_test $1 $2 "MKS_OWL" "$3"
+
+# clean up
+restore_configs
