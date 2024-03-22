@@ -80,15 +80,15 @@ namespace MMU2 {
     //MakeSound(Prompt);
   }
 
-  uint8_t MMU2::cutter_mode;    // initialized by settings.load
-  int MMU2::cutter_mode_addr;   // initialized by settings.load
-  uint8_t MMU2::stealth_mode;   // initialized by settings.load
-  int MMU2::stealth_mode_addr;  // initialized by settings.load
+  uint8_t MMU2::cutter_mode;    // Initialized by settings.load
+  int MMU2::cutter_mode_addr;   // Initialized by settings.load
+  uint8_t MMU2::stealth_mode;   // Initialized by settings.load
+  int MMU2::stealth_mode_addr;  // Initialized by settings.load
   // TODO: Currently, by logic, the value stored in the EEPROM for is ignored and
   //       mmu_hw_enabled is always overwritten by the MMU State. Thus restarting
   //       printer will always set the MMU as senabled.
-  bool MMU2::mmu_hw_enabled;    // initialized by settings.load
-  int MMU2::mmu_hw_enabled_addr; // initialized by settings.load
+  bool MMU2::mmu_hw_enabled;    // Initialized by settings.load
+  int MMU2::mmu_hw_enabled_addr; // Initialized by settings.load
 
   MMU2::MMU2()
     : logic(MMU2_TOOL_CHANGE_LOAD_LENGTH, MMU2_LOAD_TO_NOZZLE_FEED_RATE)
@@ -285,7 +285,7 @@ namespace MMU2 {
         #endif
     ) {
       SERIAL_ECHOLN_P("FINDA filament runout!");
-      if (SpoolJoin::spooljoin.isSpoolJoinEnabled() && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN) { // Can't auto if F=?
+      if (spooljoin.isEnabled() && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN) { // Can't auto if F=?
         #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           // set the current tool to FILAMENT_UNKNOWN so that we don't try to unload it
           extruder = MMU2_NO_TOOL;
@@ -442,7 +442,7 @@ namespace MMU2 {
     }
 
     SetCurrentTool(slot); // filament change is finished
-    SpoolJoin::spooljoin.setSlot(slot);
+    spooljoin.setSlot(slot);
 
     ++toolchange_counter;
 

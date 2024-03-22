@@ -139,7 +139,7 @@ void menu_mmu2_cut_filament() {
 }
 
 // SpoolJoin
-void spool_join_status() { SpoolJoin::spooljoin.initSpoolJoinStatus(); }
+void spool_join_status() { spooljoin.initStatus(); }
 
 // Fail Stats Menu
 void menu_mmu2_fail_stats_last_print() {
@@ -300,7 +300,7 @@ void menu_mmu2() {
     #endif
 
     // SpoolJoin Enable/Disable
-    EDIT_ITEM(bool, MSG_MMU_SPOOL_JOIN, &SpoolJoin::spooljoin.enabled, spool_join_status);
+    EDIT_ITEM(bool, MSG_MMU_SPOOL_JOIN, &spooljoin.enabled, spool_join_status);
 
     // Cutter Enable/Disable
     bool cutter_enabled = mmu2.cutter_mode != 0;
@@ -370,9 +370,9 @@ void menu_mmu2_pause() {
 void mmu2_M600(const bool automatic/*=false*/) {
   // Disable automatic switching if MMU3 is not enabled or spool join is disabled
   #if HAS_PRUSA_MMU3
-    if (automatic && SpoolJoin::spooljoin.enabled) {
+    if (automatic && spooljoin.enabled) {
       uint8_t slot;
-      slot = SpoolJoin::spooljoin.nextSlot();
+      slot = spooljoin.nextSlot();
       mmu2.load_filament_to_nozzle(slot);
       return;
     }
