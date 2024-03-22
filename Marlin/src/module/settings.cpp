@@ -1787,7 +1787,7 @@ void MarlinSettings::postprocess() {
     // MMU3
     //
     #if HAS_PRUSA_MMU3
-      EEPROM_WRITE(SpoolJoin::spooljoin.enabled); // EEPROM_SPOOL_JOIN
+      EEPROM_WRITE(spooljoin.enabled); // EEPROM_SPOOL_JOIN
       // for testing purposes fill with default values
       EEPROM_WRITE(MMU2::operation_statistics.fail_total_num); //EEPROM_MMU_FAIL_TOT
       EEPROM_WRITE(MMU2::operation_statistics.fail_num); // EEPROM_MMU_FAIL
@@ -2925,8 +2925,8 @@ void MarlinSettings::postprocess() {
       // MMU3
       //
       #if HAS_PRUSA_MMU3
-        SpoolJoin::spooljoin.epprom_addr = eeprom_index;
-        EEPROM_READ(SpoolJoin::spooljoin.enabled);  // EEPROM_SPOOL_JOIN
+        spooljoin.epprom_addr = eeprom_index;
+        EEPROM_READ(spooljoin.enabled);  // EEPROM_SPOOL_JOIN
 
         MMU2::operation_statistics.fail_total_num_addr = eeprom_index;
         EEPROM_READ(MMU2::operation_statistics.fail_total_num); //EEPROM_MMU_FAIL_TOT
@@ -3822,7 +3822,7 @@ void MarlinSettings::reset() {
   // MMU Settings
   //
   #if HAS_PRUSA_MMU3
-      SpoolJoin::spooljoin.enabled = false;
+      spooljoin.enabled = false;
       MMU2::operation_statistics.reset_stats();
       mmu2.cutter_mode = 0;
       mmu2.stealth_mode = 0;
@@ -4173,7 +4173,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("SpoolJoin          ");
-      serialprintln_onoff(SpoolJoin::spooljoin.enabled);
+      serialprintln_onoff(spooljoin.enabled);
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("Tool Changes       ");

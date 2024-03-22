@@ -32,43 +32,42 @@
 #include "../../module/settings.h"
 #include "../../core/language.h"
 
-namespace SpoolJoin {
+SpoolJoin spooljoin;
 
-  SpoolJoin spooljoin;
-  bool SpoolJoin::enabled; // Initialized by settings.load
-  int SpoolJoin::epprom_addr; // Initialized by settings.load
+bool SpoolJoin::enabled;            // Initialized by settings.load
+int SpoolJoin::epprom_addr;         // Initialized by settings.load
+uint8_t SpoolJoin::currentMMUSlot;
 
-  SpoolJoin::SpoolJoin() : currentMMUSlot(0) {}
+SpoolJoin::SpoolJoin() { setSlot(0); }
 
-  void SpoolJoin::initSpoolJoinStatus() {
-    // Useful information to see during bootup
-    SERIAL_ECHOLN(F("SpoolJoin is "), enabled ? F("On") : F("Off"));
-  }
+void SpoolJoin::initStatus() {
+  // Useful information to see during bootup
+  SERIAL_ECHOLN(F("SpoolJoin is "), enabled ? F("On") : F("Off"));
+}
 
-  void SpoolJoin::toggleSpoolJoin() {
-    // Toggle enabled value.
-    enabled = !enabled;
+void SpoolJoin::toggle() {
+  // Toggle enabled value.
+  enabled = !enabled;
 
-    // Following Prusa's implementation let's save the value to the EEPROM
-    #if ENABLED(EEPROM_SETTINGS)
-      persistentStore.access_start();
-      persistentStore.write_data(epprom_addr, enabled);
-      persistentStore.access_finish();
-      settings.save();
-    #endif
-  }
+  // Following Prusa's implementation let's save the value to the EEPROM
+  // TODO: Move to settings.cpp
+  #if ENABLED(EEPROM_SETTINGS)
+    persistentStore.access_start();
+    persistentStore.write_data(epprom_addr, enabled);
+    persistentStore.access_finish();
+    settings.save();
+  #endif
+}
 
-  bool SpoolJoin::isSpoolJoinEnabled() { return enabled; }
+bool SpoolJoin::isEnabled() { return enabled; }
 
-  void SpoolJoin::setSlot(uint8_t slot) { currentMMUSlot = slot; }
+void SpoolJoin::setSlot(const uint8_t slot) { currentMMUSlot = slot; }
 
-  uint8_t SpoolJoin::nextSlot() {
-    SERIAL_ECHOPGM("SpoolJoin: ", currentMMUSlot);
-    if (++currentMMUSlot >= 4) currentMMUSlot = 0;
-    SERIAL_ECHOLNPGM(" -> ", currentMMUSlot);
-    return currentMMUSlot;
-  }
-
-} // namespace SpoolJoin
+uint8_t SpoolJoin::nextSlot() {
+  SERIAL_ECHOPGM("SpoolJoin: ", currentMMUSlot);
+  if (++currentMMUSlot >= 4) currentMMUSlot = 0;
+  SERIAL_ECHOLNPGM(" -> ", currentMMUSlot);
+  return currentMMUSlot;
+}
 
 #endif // HAS_PRUSA_MMU3
