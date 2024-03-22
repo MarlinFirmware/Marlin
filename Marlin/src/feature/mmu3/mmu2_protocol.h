@@ -27,18 +27,18 @@
 
 #include "../../MarlinCore.h"
 
-  #include <stdint.h>
-  #include "mmu2_crc.h"
+#include <stdint.h>
+#include "mmu2_crc.h"
 
-  // prevent ARM HAL macros from breaking our code
-  #undef CRC
+// prevent ARM HAL macros from breaking our code
+#undef CRC
 
-  namespace modules {
+namespace modules {
 
-  // @brief The MMU communication protocol implementation and related stuff.
-  //
-  // See description of the new protocol in the MMU 2021 doc
-  namespace protocol {
+// @brief The MMU communication protocol implementation and related stuff.
+//
+// See description of the new protocol in the MMU 2021 doc
+namespace protocol {
 
   // Definition of request message codes
   enum class RequestMsgCodes : uint8_t {
@@ -160,13 +160,12 @@
   // Beware - in the decoding more, it is meant to be a statefull instance which works through public methods
   // processing one input byte per call.
   class Protocol {
-public:
-    inline Protocol()
+  public:
+    Protocol()
       : rqState(RequestStates::Code)
       , requestMsg(RequestMsgCodes::unknown, 0)
       , rspState(ResponseStates::RequestCode)
-      , responseMsg(RequestMsg(RequestMsgCodes::unknown, 0), ResponseMsgParamCodes::unknown, 0) {
-    }
+      , responseMsg(RequestMsg(RequestMsgCodes::unknown, 0), ResponseMsgParamCodes::unknown, 0) {}
 
     // Takes the input byte c and steps one step through the state machine
     // @return state of the message being decoded
@@ -248,8 +247,9 @@ public:
     }
 
     #ifndef UNITTEST
-private:
+      private:
     #endif
+
     enum class RequestStates : uint8_t {
       Code,       //!< starting state - expects message code
       Value,      //!< expecting code value
@@ -288,51 +288,17 @@ private:
     }
     static constexpr uint8_t Char2Nibble(uint8_t c) {
       switch (c) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          return c - '0';
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'f':
-          return c - 'a' + 10;
-        default:
-          return 0;
+        case '0' ... '9': return c - '0';
+        case 'a' ... 'f': return c - 'a' + 10;
+        default: return 0;
       }
     }
 
     static constexpr uint8_t Nibble2Char(uint8_t n) {
       switch (n) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-          return n + '0';
-        case 0xa:
-        case 0xb:
-        case 0xc:
-        case 0xd:
-        case 0xe:
-        case 0xf:
-          return n - 10 + 'a';
-        default:
-          return 0;
+        case 0x0 ... 0x9: return n + '0';
+        case 0xA ... 0xF: return n - 10 + 'a';
+        default: return 0;
       }
     }
 
@@ -347,7 +313,6 @@ private:
     static uint8_t AppendCRC(uint8_t crc, uint8_t *dst);
   };
 
-  } // namespace protocol
-  } // namespace modules
+} // namespace protocol
+} // namespace modules
 
-  namespace mp = modules::protocol;

@@ -721,26 +721,9 @@ namespace MMU2 {
 
   constexpr char NibbleToChar(uint8_t c) {
     switch (c) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-      case 9:
-        return c + '0';
-      case 10:
-      case 11:
-      case 12:
-      case 13:
-      case 14:
-      case 15:
-        return (c - 10) + 'a';
-      default:
-        return 0;
+      case 0x0 ... 0x9: return c + '0';
+      case 0xA ... 0xF: return (c - 10) + 'a';
+      default: return 0;
     }
   }
 
