@@ -673,7 +673,7 @@ typedef struct SettingsDataStruct {
     uint8_t cutter_mode;          // EEPROM_MMU_CUTTER_ENABLED
     uint8_t stealth_mode;         // EEPROM_MMU_STEALTH
     bool mmu_hw_enabled;          // EEPROM_MMU_ENABLED
-    // uint32_t material_changes  
+    // uint32_t material_changes
   #endif
 
 } SettingsData;
@@ -4201,7 +4201,7 @@ void MarlinSettings::reset() {
 
       CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
       SERIAL_ECHOPGM("Power Fails        ");
-      SERIAL_ECHOLN(mmu2.TMCFailures());
+      SERIAL_ECHOLN(mmu2.tmcFailures());
 
     #endif
   }

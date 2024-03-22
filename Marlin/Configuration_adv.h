@@ -4554,12 +4554,12 @@
 
     /**
      * SpoolJoin Consumes All Filament -- EXPERIMENTAL
-     * 
+     *
      * SpoolJoin normally triggers when FINDA sensor untriggers while printing.
      * This is the default behaviour and it doesn't consume all the filament
      * before triggering a filament change. This leaves some filament in the
      * current slot and before switching to the next slot it is unloaded.
-     * 
+     *
      * Enabling this option will trigger the filament change when both FINDA
      * and Filament Runout Sensor triggers during the print and it allows the
      * filament in the current slot to be completely consumed before doing the

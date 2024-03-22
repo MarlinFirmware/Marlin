@@ -108,7 +108,7 @@ namespace MMU2 {
     inline StepStatus InitialCause() const { return cause; }
 
     // Rearms the object for further processing - basically call this once the MMU responds with something meaningful (e.g. S0 A2)
-    inline void Reset() { occurrences = maxOccurrences; }
+    inline void reset() { occurrences = maxOccurrences; }
 
     private:
     StepStatus cause;
@@ -121,10 +121,10 @@ namespace MMU2 {
     ProtocolLogic(uint8_t extraLoadDistance, uint8_t pulleySlowFeedrate);
 
     // Start/Enable communication with the MMU
-    void Start();
+    void start();
 
     // Stop/Disable communication with the MMU
-    void Stop();
+    void stop();
 
     // Issue commands to the MMU
     void ToolChange(uint8_t slot);
@@ -134,21 +134,21 @@ namespace MMU2 {
     void EjectFilament(uint8_t slot);
     void CutFilament(uint8_t slot);
     void ResetMMU(uint8_t mode=0);
-    void Button(uint8_t index);
-    void Home(uint8_t mode);
-    void ReadRegister(uint8_t address);
-    void WriteRegister(uint8_t address, uint16_t data);
+    void button(uint8_t index);
+    void home(uint8_t mode);
+    void readRegister(uint8_t address);
+    void writeRegister(uint8_t address, uint16_t data);
 
     // Set the extra load distance to be reported to the MMU.
     // Beware - this call doesn't send anything to the MMU.
-    // The MMU gets the newly set value either by a communication restart or via an explicit WriteRegister call
+    // The MMU gets the newly set value either by a communication restart or via an explicit writeRegister call
     inline void PlanExtraLoadDistance(uint8_t eld_mm) { initRegs8[0] = eld_mm; }
     // @return the currently preset extra load distance
     inline uint8_t ExtraLoadDistance() const { return initRegs8[0]; }
 
     // Sets the Pulley slow feed rate to be reported to the MMU.
     // Beware - this call doesn't send anything to the MMU.
-    // The MMU gets the newly set value either by a communication restart or via an explicit WriteRegister call
+    // The MMU gets the newly set value either by a communication restart or via an explicit writeRegister call
     inline void PlanPulleySlowFeedRate(uint8_t psfr) {
       initRegs8[1] = psfr;
     }
@@ -167,19 +167,19 @@ namespace MMU2 {
     ProgressCode Progress() const { return progressCode; }
 
     // @return the current/latest button code as reported by the MMU
-    Buttons Button() const { return buttonCode; }
+    Buttons button() const { return buttonCode; }
 
     uint8_t CommandInProgress() const;
 
     inline bool Running() const { return state == State::Running; }
 
-    inline bool FindaPressed() const { return regs8[0]; }
+    inline bool findaPressed() const { return regs8[0]; }
 
     inline uint16_t FailStatistics() const { return regs16[0]; }
 
-    inline uint8_t MmuFwVersionMajor() const { return mmuFwVersion[0]; }
-    inline uint8_t MmuFwVersionMinor() const { return mmuFwVersion[1]; }
-    inline uint8_t MmuFwVersionRevision() const { return mmuFwVersion[2]; }
+    inline uint8_t mmuFwVersionMajor() const { return mmuFwVersion[0]; }
+    inline uint8_t mmuFwVersionMinor() const { return mmuFwVersion[1]; }
+    inline uint8_t mmuFwVersionRevision() const { return mmuFwVersion[2]; }
 
     // Current number of retry attempts left
     constexpr uint8_t RetryAttempts() const { return retryAttempts; }
@@ -197,7 +197,7 @@ namespace MMU2 {
     inline void SetInAutoRetry(const bool iar) { inAutoRetry = iar; }
 
     inline void SetPrinterError(const ErrorCode ec) { explicitPrinterError = ec; }
-    inline void ClearPrinterError() { explicitPrinterError = ErrorCode::OK; }
+    inline void clearPrinterError() { explicitPrinterError = ErrorCode::OK; }
     inline bool IsPrinterError() const { return explicitPrinterError != ErrorCode::OK; }
     inline ErrorCode PrinterError() const { return explicitPrinterError; }
 

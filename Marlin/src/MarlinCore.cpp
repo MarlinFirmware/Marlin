@@ -1594,8 +1594,8 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU3
-    if (mmu2.mmu_hw_enabled) SETUP_RUN(mmu2.Start());
-    SETUP_RUN(mmu2.Status());
+    if (mmu2.mmu_hw_enabled) SETUP_RUN(mmu2.start());
+    SETUP_RUN(mmu2.status());
     SETUP_RUN(spooljoin.initStatus());
   #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());

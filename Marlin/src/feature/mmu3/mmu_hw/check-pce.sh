@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# download Prusa Error Codes for MMU 
+# download Prusa Error Codes for MMU
 #wget https://raw.githubusercontent.com/3d-gussner/Prusa-Error-Codes/master/04_MMU/error-codes.yaml --output-document=error-codes.yaml
 wget https://raw.githubusercontent.com/prusa3d/Prusa-Error-Codes/master/04_MMU/error-codes.yaml --output-document=error-codes.yaml
 

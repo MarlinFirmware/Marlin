@@ -105,7 +105,7 @@ void GcodeSuite::M707() {
   if ( mmu2.enabled() ) {
     if ( parser.seenval('A') ) {
       char *address = parser.stringval('A');
-      mmu2.ReadRegister(uint8_t(strtol(address, NULL, 16)));
+      mmu2.readRegister(uint8_t(strtol(address, NULL, 16)));
     }
   }
 }
@@ -137,7 +137,7 @@ void GcodeSuite::M708() {
       data = parser.ushortval('X', 0);
     }
     if (addr) {
-      mmu2.WriteRegister(addr, data);
+      mmu2.writeRegister(addr, data);
     }
   }
 }
@@ -168,20 +168,20 @@ void GcodeSuite::M708() {
 void GcodeSuite::M709() {
   if (parser.seenval('S')) {
     switch (parser.byteval('S', -1)) {
-      case 0: mmu2.Stop(); break;
-      case 1: mmu2.Start(); break;
+      case 0: mmu2.stop(); break;
+      case 1: mmu2.start(); break;
       default: break;
     }
   }
   if (mmu2.enabled() && parser.seenval('X')) {
     switch (parser.byteval('X', -1)) {
-      case  0: mmu2.Reset(MMU2::MMU2::Software); break;
-      case  1: mmu2.Reset(MMU2::MMU2::ResetPin); break;
-      case 42: mmu2.Reset(MMU2::MMU2::EraseEEPROM); break;
+      case  0: mmu2.reset(MMU2::MMU2::Software); break;
+      case  1: mmu2.reset(MMU2::MMU2::ResetPin); break;
+      case 42: mmu2.reset(MMU2::MMU2::EraseEEPROM); break;
       default: break;
     }
   }
-  mmu2.Status();
+  mmu2.status();
 }
 
 #endif // HAS_PRUSA_MMU3

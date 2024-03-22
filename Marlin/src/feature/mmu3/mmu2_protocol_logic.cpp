@@ -375,7 +375,7 @@ namespace MMU2 {
     if (Elapsed(heartBeatPeriod)) { // this basically means, that we are waiting until there is some traffic on
       while (MMU2_SERIAL.read() != -1); // clear the input buffer
       // switch to StartSeq
-      Start();
+      start();
     }
     return Processing;
   }
@@ -596,14 +596,14 @@ namespace MMU2 {
     initRegs8[1] = pulleySlowFeedrate;
   }
 
-  void ProtocolLogic::Start() {
+  void ProtocolLogic::start() {
     state = State::InitSequence;
     currentScope = Scope::StartSeq;
     protocol.ResetResponseDecoder(); // important - finished delayed restart relies on this
     StartSeqRestart();
   }
 
-  void ProtocolLogic::Stop() {
+  void ProtocolLogic::stop() {
     state = State::Stopped;
     currentScope = Scope::Stopped;
   }
@@ -636,19 +636,19 @@ namespace MMU2 {
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Reset, mode));
   }
 
-  void ProtocolLogic::Button(uint8_t index) {
+  void ProtocolLogic::button(uint8_t index) {
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Button, index));
   }
 
-  void ProtocolLogic::Home(uint8_t mode) {
-    PlanGenericRequest(RequestMsg(RequestMsgCodes::Home, mode));
+  void ProtocolLogic::home(uint8_t mode) {
+    PlanGenericRequest(RequestMsg(RequestMsgCodes::home, mode));
   }
 
-  void ProtocolLogic::ReadRegister(uint8_t address) {
+  void ProtocolLogic::readRegister(uint8_t address) {
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Read, address));
   }
 
-  void ProtocolLogic::WriteRegister(uint8_t address, uint16_t data) {
+  void ProtocolLogic::writeRegister(uint8_t address, uint16_t data) {
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Write, address, data));
   }
 
@@ -805,7 +805,7 @@ namespace MMU2 {
   StepStatus ProtocolLogic::HandleCommunicationTimeout() {
     MMU2_SERIAL.flush(); // clear the output buffer
     protocol.ResetResponseDecoder();
-    Start();
+    start();
     return SuppressShortDropOuts(PSTR("Communication timeout"), CommunicationTimeout);
   }
 
@@ -885,7 +885,7 @@ namespace MMU2 {
 
   void __attribute__((noinline)) ProtocolLogic::ResetCommunicationTimeoutAttempts() {
     SERIAL_ECHOLNPGM("RSTCommTimeout");
-    dataTO.Reset();
+    dataTO.reset();
   }
 
   bool DropOutFilter::Record(StepStatus ss) {

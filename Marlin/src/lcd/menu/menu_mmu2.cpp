@@ -172,7 +172,7 @@ void menu_mmu2_fail_stas_total() {
 
   sprintf_P(buffer1, PSTR("%hu"), MMU2::operation_statistics.fail_total_num);
   sprintf_P(buffer2, PSTR("%hu"), MMU2::operation_statistics.load_fail_total_num);
-  sprintf_P(buffer3, PSTR("%hu"), mmu2.TMCFailures());
+  sprintf_P(buffer3, PSTR("%hu"), mmu2.tmcFailures());
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_TOTAL_FAILURES, SS_INVERT);
@@ -263,9 +263,9 @@ void menu_mmu2_statistics() {
 void action_mmu2_reset() {
   #if HAS_PRUSA_MMU3
     #if PIN_EXISTS(MMU2_RST)
-      mmu2.Reset(MMU2::MMU2::ResetForm::ResetPin);
+      mmu2.reset(MMU2::MMU2::ResetForm::ResetPin);
     #else
-      mmu2.Reset(MMU2::MMU2::ResetForm::Software);
+      mmu2.reset(MMU2::MMU2::ResetForm::Software);
     #endif
   #else
     mmu2.init();
@@ -293,9 +293,9 @@ void menu_mmu2() {
       editable.state = mmu2.mmu_hw_enabled;
       EDIT_ITEM_F(bool, F("MMU"), &mmu2.mmu_hw_enabled, []{
         if (editable.state)
-          mmu2.Stop();
+          mmu2.stop();
         else
-          mmu2.Start();
+          mmu2.start();
       });
     #endif
 
