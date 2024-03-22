@@ -55,7 +55,7 @@ namespace protocol {
   // msgvalue  0-9 ->msgvalue
   //           \n ->start successfully accepted command
 
-  DecodeStatus Protocol::decodeRequest(uint8_t c) {
+  DecodeStatus Protocol::DecodeRequest(uint8_t c) {
     switch (rqState) {
       case RequestStates::Code:
         switch (c) {
@@ -87,12 +87,12 @@ namespace protocol {
             return DecodeStatus::Error;
         }
       case RequestStates::Value:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           requestMsg.value <<= 4U;
-          requestMsg.value |= char2Nybble(c);
+          requestMsg.value |= Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
-        else if (isCRCSeparator(c)) {
+        else if (IsCRCSeparator(c)) {
           rqState = RequestStates::CRC;
           return DecodeStatus::NeedMoreData;
         }
@@ -102,9 +102,9 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       case RequestStates::Address:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           requestMsg.value <<= 4U;
-          requestMsg.value |= char2Nybble(c);
+          requestMsg.value |= Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
         else if (c == ' ') { // end of address, value coming
@@ -117,12 +117,12 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       case RequestStates::WriteValue:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           requestMsg.value2 <<= 4U;
-          requestMsg.value2 |= char2Nybble(c);
+          requestMsg.value2 |= Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
-        else if (isCRCSeparator(c)) {
+        else if (IsCRCSeparator(c)) {
           rqState = RequestStates::CRC;
           return DecodeStatus::NeedMoreData;
         }
@@ -132,12 +132,12 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       case RequestStates::CRC:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           requestMsg.crc8 <<= 4U;
-          requestMsg.crc8 |= char2Nybble(c);
+          requestMsg.crc8 |= Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
-        else if (isNewLine(c)) {
+        else if (IsNewLine(c)) {
           // check CRC at this spot
           if (requestMsg.crc8 != requestMsg.ComputeCRC8()) {
             // CRC mismatch
@@ -156,7 +156,7 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       default: // case error:
-        if (isNewLine(c)) {
+        if (IsNewLine(c)) {
           rqState = RequestStates::Code;
           return DecodeStatus::MessageCompleted;
         }
@@ -168,32 +168,32 @@ namespace protocol {
     }
   }
 
-  uint8_t Protocol::encodeRequest(const RequestMsg &msg, uint8_t *txbuff) {
+  uint8_t Protocol::EncodeRequest(const RequestMsg &msg, uint8_t *txbuff) {
     txbuff[0] = (uint8_t)msg.code;
-    uint8_t i = 1 + uInt8ToHex(msg.value, txbuff + 1);
+    uint8_t i = 1 + UInt8ToHex(msg.value, txbuff + 1);
 
-    i += appendCRC(msg.getCRC(), txbuff + i);
+    i += AppendCRC(msg.getCRC(), txbuff + i);
 
     txbuff[i] = '\n';
     ++i;
     return i;
-    static_assert(7 <= maxRequestSize(), "Request message length exceeded the maximum size, increase the magic constant in maxRequestSize()");
+    static_assert(7 <= MaxRequestSize(), "Request message length exceeded the maximum size, increase the magic constant in MaxRequestSize()");
   }
 
-  uint8_t Protocol::encodeWriteRequest(uint8_t address, uint16_t value, uint8_t *txbuff) {
+  uint8_t Protocol::EncodeWriteRequest(uint8_t address, uint16_t value, uint8_t *txbuff) {
     const RequestMsg msg(RequestMsgCodes::Write, address, value);
-    uint8_t i = beginEncodeRequest(msg, txbuff);
+    uint8_t i = BeginEncodeRequest(msg, txbuff);
     // dump the value
-    i += uInt16ToHex(value, txbuff + i);
+    i += UInt16ToHex(value, txbuff + i);
 
-    i += appendCRC(msg.getCRC(), txbuff + i);
+    i += AppendCRC(msg.getCRC(), txbuff + i);
 
     txbuff[i] = '\n';
     ++i;
     return i;
   }
 
-  DecodeStatus Protocol::decodeResponse(uint8_t c) {
+  DecodeStatus Protocol::DecodeResponse(uint8_t c) {
     switch (rspState) {
       case ResponseStates::RequestCode:
         switch (c) {
@@ -228,9 +228,9 @@ namespace protocol {
             return DecodeStatus::Error;
         }
       case ResponseStates::RequestValue:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           responseMsg.request.value <<= 4U;
-          responseMsg.request.value += char2Nybble(c);
+          responseMsg.request.value += Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
         else if (c == ' ') {
@@ -259,12 +259,12 @@ namespace protocol {
             return DecodeStatus::Error;
         }
       case ResponseStates::ParamValue:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           responseMsg.paramValue <<= 4U;
-          responseMsg.paramValue += char2Nybble(c);
+          responseMsg.paramValue += Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
-        else if (isCRCSeparator(c)) {
+        else if (IsCRCSeparator(c)) {
           rspState = ResponseStates::CRC;
           return DecodeStatus::NeedMoreData;
         }
@@ -274,12 +274,12 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       case ResponseStates::CRC:
-        if (isHexDigit(c)) {
+        if (IsHexDigit(c)) {
           responseMsg.request.crc8 <<= 4U;
-          responseMsg.request.crc8 += char2Nybble(c);
+          responseMsg.request.crc8 += Char2Nibble(c);
           return DecodeStatus::NeedMoreData;
         }
-        else if (isNewLine(c)) {
+        else if (IsNewLine(c)) {
           // check CRC at this spot
           if (responseMsg.request.crc8 != responseMsg.ComputeCRC8()) {
             // CRC mismatch
@@ -298,7 +298,7 @@ namespace protocol {
           return DecodeStatus::Error;
         }
       default: // case error:
-        if (isNewLine(c)) {
+        if (IsNewLine(c)) {
           rspState = ResponseStates::RequestCode;
           return DecodeStatus::MessageCompleted;
         }
@@ -309,7 +309,7 @@ namespace protocol {
     }
   }
 
-  uint8_t Protocol::encodeResponseCmdAR(const RequestMsg &msg, ResponseMsgParamCodes ar, uint8_t *txbuff) {
+  uint8_t Protocol::EncodeResponseCmdAR(const RequestMsg &msg, ResponseMsgParamCodes ar, uint8_t *txbuff) {
     // BEWARE:
     // ResponseMsg rsp(RequestMsg(msg.code, msg.value), ar, 0);
     // ... is NOT the same as:
@@ -319,47 +319,47 @@ namespace protocol {
     // It is because this was the only place where the original request kept its value2 non-zero.
     // In the response, we must make sure value2 is actually zero unless being sent along with it (which is not right now)
     const ResponseMsg rsp(RequestMsg(msg.code, msg.value), ar, 0); // this needs some cleanup @@TODO - check assembly how bad is it
-    uint8_t i = beginEncodeRequest(rsp.request, txbuff);
+    uint8_t i = BeginEncodeRequest(rsp.request, txbuff);
     txbuff[i] = (uint8_t)ar;
     ++i;
-    i += appendCRC(rsp.getCRC(), txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     ++i;
     return i;
   }
 
-  uint8_t Protocol::encodeResponseReadFINDA(const RequestMsg &msg, uint8_t findaValue, uint8_t *txbuff) {
-    return encodeResponseRead(msg, true, findaValue, txbuff);
+  uint8_t Protocol::EncodeResponseReadFINDA(const RequestMsg &msg, uint8_t findaValue, uint8_t *txbuff) {
+    return EncodeResponseRead(msg, true, findaValue, txbuff);
   }
 
-  uint8_t Protocol::encodeResponseQueryOperation(const RequestMsg &msg, ResponseCommandStatus rcs, uint8_t *txbuff) {
+  uint8_t Protocol::EncodeResponseQueryOperation(const RequestMsg &msg, ResponseCommandStatus rcs, uint8_t *txbuff) {
     const ResponseMsg rsp(msg, rcs.code, rcs.value);
-    uint8_t i = beginEncodeRequest(msg, txbuff);
+    uint8_t i = BeginEncodeRequest(msg, txbuff);
     txbuff[i] = (uint8_t)rsp.paramCode;
     ++i;
-    i += uInt16ToHex(rsp.paramValue, txbuff + i);
-    i += appendCRC(rsp.getCRC(), txbuff + i);
+    i += UInt16ToHex(rsp.paramValue, txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     return i + 1;
   }
 
-  uint8_t Protocol::encodeResponseRead(const RequestMsg &msg, bool accepted, uint16_t value2, uint8_t *txbuff) {
+  uint8_t Protocol::EncodeResponseRead(const RequestMsg &msg, bool accepted, uint16_t value2, uint8_t *txbuff) {
     const ResponseMsg rsp(msg,
                           accepted ? ResponseMsgParamCodes::Accepted : ResponseMsgParamCodes::Rejected,
                           accepted ? value2 : 0 // be careful about this value for CRC computation - rejected status doesn't have any meaningful value which could be reconstructed from the textual form of the message
                           );
-    uint8_t i = beginEncodeRequest(msg, txbuff);
+    uint8_t i = BeginEncodeRequest(msg, txbuff);
     txbuff[i] = (uint8_t)rsp.paramCode;
     ++i;
     if (accepted)
       // dump the value
-      i += uInt16ToHex(value2, txbuff + i);
-    i += appendCRC(rsp.getCRC(), txbuff + i);
+      i += UInt16ToHex(value2, txbuff + i);
+    i += AppendCRC(rsp.getCRC(), txbuff + i);
     txbuff[i] = '\n';
     return i + 1;
   }
 
-  uint8_t Protocol::uInt8ToHex(uint8_t value, uint8_t *dst) {
+  uint8_t Protocol::UInt8ToHex(uint8_t value, uint8_t *dst) {
     if (value == 0) {
       *dst = '0';
       return 1;
@@ -368,16 +368,16 @@ namespace protocol {
     uint8_t v = value >> 4U;
     uint8_t charsOut = 1;
     if (v != 0) { // skip the first '0' if any
-      *dst = nybble2Char(v);
+      *dst = Nibble2Char(v);
       ++dst;
       charsOut = 2;
     }
     v = value & 0xfU;
-    *dst = nybble2Char(v);
+    *dst = Nibble2Char(v);
     return charsOut;
   }
 
-  uint8_t Protocol::uInt16ToHex(uint16_t value, uint8_t *dst) {
+  uint8_t Protocol::UInt16ToHex(uint16_t value, uint8_t *dst) {
     constexpr uint16_t topNibbleMask = 0xf000;
     if (value == 0) {
       *dst = '0';
@@ -392,24 +392,24 @@ namespace protocol {
     for (uint8_t i = 0; i < charsOut; ++i) {
       uint8_t n = (value & topNibbleMask) >> (8U + 4U);
       value <<= 4U;
-      *dst = nybble2Char(n);
+      *dst = Nibble2Char(n);
       ++dst;
     }
     return charsOut;
   }
 
-  uint8_t Protocol::beginEncodeRequest(const RequestMsg &msg, uint8_t *dst) {
+  uint8_t Protocol::BeginEncodeRequest(const RequestMsg &msg, uint8_t *dst) {
     dst[0] = (uint8_t)msg.code;
 
-    uint8_t i = 1 + uInt8ToHex(msg.value, dst + 1);
+    uint8_t i = 1 + UInt8ToHex(msg.value, dst + 1);
 
     dst[i] = ' ';
     return i + 1;
   }
 
-  uint8_t Protocol::appendCRC(uint8_t crc, uint8_t *dst) {
+  uint8_t Protocol::AppendCRC(uint8_t crc, uint8_t *dst) {
     dst[0] = '*'; // reprap-style separator of CRC
-    return 1 + uInt8ToHex(crc, dst + 1);
+    return 1 + UInt8ToHex(crc, dst + 1);
   }
 
 } // namespace protocol

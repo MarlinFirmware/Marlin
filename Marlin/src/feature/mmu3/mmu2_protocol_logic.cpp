@@ -189,9 +189,9 @@ namespace MMU2 {
     while ((c = MMU2_SERIAL.read()) >= 0) {
       ++bytesConsumed;
       RecordReceivedByte(c);
-      switch (protocol.decodeResponse(c)) {
+      switch (protocol.DecodeResponse(c)) {
         case DecodeStatus::MessageCompleted:
-          rsp = protocol.getResponseMsg();
+          rsp = protocol.GetResponseMsg();
           LogResponse();
           // @@TODO reset direction of communication
           RecordUARTActivity(); // something has happened on the UART, update the timeout record
@@ -228,9 +228,9 @@ namespace MMU2 {
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // Buddy FW cannot use stack-allocated txbuff - DMA doesn't work with CCMRAM
       // No restrictions on MK3/S/+ though
-      uint8_t txbuff[Protocol::maxRequestSize()];
+      uint8_t txbuff[Protocol::MaxRequestSize()];
     #endif
-    uint8_t len = Protocol::encodeRequest(rq, txbuff);
+    uint8_t len = Protocol::EncodeRequest(rq, txbuff);
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
       for ( uint8_t i = 0; i < len; i++) {
@@ -247,9 +247,9 @@ namespace MMU2 {
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // Buddy FW cannot use stack-allocated txbuff - DMA doesn't work with CCMRAM
       // No restrictions on MK3/S/+ though
-      uint8_t txbuff[Protocol::maxRequestSize()];
+      uint8_t txbuff[Protocol::MaxRequestSize()];
     #endif
-    uint8_t len = Protocol::encodeWriteRequest(rq.value, rq.value2, txbuff);
+    uint8_t len = Protocol::EncodeWriteRequest(rq.value, rq.value2, txbuff);
 
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
@@ -599,7 +599,7 @@ namespace MMU2 {
   void ProtocolLogic::Start() {
     state = State::InitSequence;
     currentScope = Scope::StartSeq;
-    protocol.resetResponseDecoder(); // important - finished delayed restart relies on this
+    protocol.ResetResponseDecoder(); // important - finished delayed restart relies on this
     StartSeqRestart();
   }
 
@@ -751,7 +751,7 @@ namespace MMU2 {
   }
 
   void ProtocolLogic::LogRequestMsg(const uint8_t *txbuff, uint8_t size) {
-    constexpr uint_fast8_t rqs = modules::protocol::Protocol::maxRequestSize() + 1;
+    constexpr uint_fast8_t rqs = modules::protocol::Protocol::MaxRequestSize() + 1;
     char tmp[rqs] = ">";
     static char lastMsg[rqs] = "";
     for (uint8_t i = 0; i < size; ++i) {
@@ -804,7 +804,7 @@ namespace MMU2 {
 
   StepStatus ProtocolLogic::HandleCommunicationTimeout() {
     MMU2_SERIAL.flush(); // clear the output buffer
-    protocol.resetResponseDecoder();
+    protocol.ResetResponseDecoder();
     Start();
     return SuppressShortDropOuts(PSTR("Communication timeout"), CommunicationTimeout);
   }

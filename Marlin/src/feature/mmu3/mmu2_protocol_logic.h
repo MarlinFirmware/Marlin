@@ -361,7 +361,7 @@ namespace MMU2 {
     uint8_t lastFSensor;        //!< last state of filament sensor
 
     #ifndef __AVR__
-      uint8_t txbuff[Protocol::maxRequestSize()]; //!< In Buddy FW - a static transmit buffer needs to exist as DMA cannot be used from CCMRAM.
+      uint8_t txbuff[Protocol::MaxRequestSize()]; //!< In Buddy FW - a static transmit buffer needs to exist as DMA cannot be used from CCMRAM.
       //!< On MK3/S/+ the transmit buffer is allocated on the stack without restrictions
     #endif
 

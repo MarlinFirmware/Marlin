@@ -27,6 +27,13 @@
 
 #include <stdint.h>
 
+namespace modules {
+
+// prevent silly indenting of the whole file
+
+// Contains all the necessary functions for computation of CRC
+namespace crc {
+
 class CRC8 {
 public:
   // Compute/update CRC8 CCIIT from 8bits.
@@ -60,4 +67,7 @@ public:
   }
 };
 
-extern CRC8 crc8;
+} // namespace crc
+
+
+} // namespace modules
