@@ -4308,6 +4308,7 @@
                                           // See class CodeProfiler.
   //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multi-stepping 1 to 128 on this LED matrix row.
   //#define MAX7219_DEBUG_SLOWDOWN      6 // Count (mod 16) how many times SLOWDOWN has reduced print speed.
+  //#define MAX7219_REINIT_ON_POWERUP     // Re-initialize MAX7129 when power supply turns on
 #endif
 
 /**
