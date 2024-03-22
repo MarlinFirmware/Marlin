@@ -34,6 +34,10 @@
 #include "../module/temperature.h"
 #include "../MarlinCore.h"
 
+#if ENABLED(MAX7219_REINIT_ON_POWERUP)
+  #include "max7219.h"
+#endif
+
 #if ENABLED(PS_OFF_SOUND)
   #include "../libs/buzzer.h"
 #endif
@@ -100,6 +104,9 @@ void Power::power_on() {
   safe_delay(PSU_POWERUP_DELAY);
 
   restore_stepper_drivers();
+
+  TERN_(MAX7219_REINIT_ON_POWERUP, max7219.init());
+
   TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
 
   #ifdef PSU_POWERUP_GCODE
