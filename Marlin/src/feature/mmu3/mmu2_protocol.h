@@ -85,9 +85,9 @@
 
     constexpr uint8_t ComputeCRC8() const {
       uint8_t crc = 0;
-      crc = modules::crc::CRC8::CCITT_updateCX(0, (uint8_t)code);
-      crc = modules::crc::CRC8::CCITT_updateCX(crc, value);
-      crc = modules::crc::CRC8::CCITT_updateW(crc, value2);
+      crc = crc8.CCITT_updateCX(0, (uint8_t)code);
+      crc = crc8.CCITT_updateCX(crc, value);
+      crc = crc8.CCITT_updateW(crc, value2);
       return crc;
     }
 
@@ -121,8 +121,8 @@
 
     constexpr uint8_t ComputeCRC8() const {
       uint8_t crc = request.ComputeCRC8();
-      crc = modules::crc::CRC8::CCITT_updateCX(crc, (uint8_t)paramCode);
-      crc = modules::crc::CRC8::CCITT_updateW(crc, paramValue);
+      crc = crc8.CCITT_updateCX(crc, (uint8_t)paramCode);
+      crc = crc8.CCITT_updateW(crc, paramValue);
       return crc;
     }
 
