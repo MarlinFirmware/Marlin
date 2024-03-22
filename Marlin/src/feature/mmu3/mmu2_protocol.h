@@ -169,50 +169,50 @@ namespace protocol {
 
     // Takes the input byte c and steps one step through the state machine
     // @return state of the message being decoded
-    DecodeStatus DecodeRequest(uint8_t c);
+    DecodeStatus decodeRequest(uint8_t c);
 
     // Decodes response message in rxbuff
     // @return decoded response message structure
-    DecodeStatus DecodeResponse(uint8_t c);
+    DecodeStatus decodeResponse(uint8_t c);
 
     // Encodes request message msg into txbuff memory
     // It is expected the txbuff is large enough to fit the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeRequest(const RequestMsg &msg, uint8_t *txbuff);
+    static uint8_t encodeRequest(const RequestMsg &msg, uint8_t *txbuff);
 
     // Encodes Write request message msg into txbuff memory
     // It is expected the txbuff is large enough to fit the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeWriteRequest(uint8_t address, uint16_t value, uint8_t *txbuff);
+    static uint8_t encodeWriteRequest(uint8_t address, uint16_t value, uint8_t *txbuff);
 
     // @return the maximum byte length necessary to encode a request message
     // Beneficial in case of pre-allocating a buffer for enconding a RequestMsg.
-    static constexpr uint8_t MaxRequestSize() { return 13; }
+    static constexpr uint8_t maxRequestSize() { return 13; }
 
     // @return the maximum byte length necessary to encode a response message
     // Beneficial in case of pre-allocating a buffer for enconding a ResponseMsg.
-    static constexpr uint8_t MaxResponseSize() { return 14; }
+    static constexpr uint8_t maxResponseSize() { return 14; }
 
     // Encode generic response Command Accepted or Rejected
     // @param msg source request message for this response
     // @param ar code of response parameter
     // @param txbuff where to format the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeResponseCmdAR(const RequestMsg &msg, ResponseMsgParamCodes ar, uint8_t *txbuff);
+    static uint8_t encodeResponseCmdAR(const RequestMsg &msg, ResponseMsgParamCodes ar, uint8_t *txbuff);
 
     // Encode response to Read FINDA query
     // @param msg source request message for this response
     // @param findaValue 1/0 (on/off) status of FINDA
     // @param txbuff where to format the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeResponseReadFINDA(const RequestMsg &msg, uint8_t findaValue, uint8_t *txbuff);
+    static uint8_t encodeResponseReadFINDA(const RequestMsg &msg, uint8_t findaValue, uint8_t *txbuff);
 
     // Encode response to Version query
     // @param msg source request message for this response
     // @param value version number (0-255)
     // @param txbuff where to format the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeResponseVersion(const RequestMsg &msg, uint16_t value, uint8_t *txbuff);
+    static uint8_t encodeResponseVersion(const RequestMsg &msg, uint16_t value, uint8_t *txbuff);
 
     // Encode response to Query operation status
     // @param msg source request message for this response
@@ -220,7 +220,7 @@ namespace protocol {
     // @param value related to status of operation(e.g. error code or progress)
     // @param txbuff where to format the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeResponseQueryOperation(const RequestMsg &msg, ResponseCommandStatus rcs, uint8_t *txbuff);
+    static uint8_t encodeResponseQueryOperation(const RequestMsg &msg, ResponseCommandStatus rcs, uint8_t *txbuff);
 
     // Encode response to Read query
     // @param msg source request message for this response
@@ -228,23 +228,19 @@ namespace protocol {
     // @param value2 variable value
     // @param txbuff where to format the message
     // @return number of bytes written into txbuff
-    static uint8_t EncodeResponseRead(const RequestMsg &msg, bool accepted, uint16_t value2, uint8_t *txbuff);
+    static uint8_t encodeResponseRead(const RequestMsg &msg, bool accepted, uint16_t value2, uint8_t *txbuff);
 
     // @return the most recently lexed request message
-    inline const RequestMsg GetRequestMsg() const { return requestMsg; }
+    inline const RequestMsg getRequestMsg() const { return requestMsg; }
 
     // @return the most recently lexed response message
-    inline const ResponseMsg GetResponseMsg() const { return responseMsg; }
+    inline const ResponseMsg getResponseMsg() const { return responseMsg; }
 
     // resets the internal request decoding state (typically after an error)
-    void ResetRequestDecoder() {
-      rqState = RequestStates::Code;
-    }
+    void resetRequestDecoder() { rqState = RequestStates::Code; }
 
     // resets the internal response decoding state (typically after an error)
-    void ResetResponseDecoder() {
-      rspState = ResponseStates::RequestCode;
-    }
+    void resetResponseDecoder() { rspState = ResponseStates::RequestCode; }
 
     #ifndef UNITTEST
       private:
@@ -274,19 +270,19 @@ namespace protocol {
     ResponseStates rspState;
     ResponseMsg responseMsg;
 
-    static constexpr bool IsNewLine(uint8_t c) {
+    static constexpr bool isNewLine(uint8_t c) {
       return c == '\n' || c == '\r';
     }
-    static constexpr bool IsDigit(uint8_t c) {
+    static constexpr bool isDigit(uint8_t c) {
       return c >= '0' && c <= '9';
     }
-    static constexpr bool IsCRCSeparator(uint8_t c) {
+    static constexpr bool isCRCSeparator(uint8_t c) {
       return c == '*';
     }
-    static constexpr bool IsHexDigit(uint8_t c) {
+    static constexpr bool isHexDigit(uint8_t c) {
       return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
     }
-    static constexpr uint8_t Char2Nibble(uint8_t c) {
+    static constexpr uint8_t char2Nybble(uint8_t c) {
       switch (c) {
         case '0' ... '9': return c - '0';
         case 'a' ... 'f': return c - 'a' + 10;
@@ -294,7 +290,7 @@ namespace protocol {
       }
     }
 
-    static constexpr uint8_t Nibble2Char(uint8_t n) {
+    static constexpr uint8_t nybble2Char(uint8_t n) {
       switch (n) {
         case 0x0 ... 0x9: return n + '0';
         case 0xA ... 0xF: return n - 10 + 'a';
@@ -303,14 +299,14 @@ namespace protocol {
     }
 
     // @return number of characters written
-    static uint8_t UInt8ToHex(uint8_t value, uint8_t *dst);
+    static uint8_t uInt8ToHex(uint8_t value, uint8_t *dst);
 
     // @return number of characters written
-    static uint8_t UInt16ToHex(uint16_t value, uint8_t *dst);
+    static uint8_t uInt16ToHex(uint16_t value, uint8_t *dst);
 
-    static uint8_t BeginEncodeRequest(const RequestMsg &msg, uint8_t *dst);
+    static uint8_t beginEncodeRequest(const RequestMsg &msg, uint8_t *dst);
 
-    static uint8_t AppendCRC(uint8_t crc, uint8_t *dst);
+    static uint8_t appendCRC(uint8_t crc, uint8_t *dst);
   };
 
 } // namespace protocol
