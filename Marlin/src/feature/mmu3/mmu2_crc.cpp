@@ -34,9 +34,7 @@
   #include <util/crc16.h>
 #endif
 
-namespace modules {
-
-namespace crc {
+CRC8 crc8;
 
 uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
   #ifdef __AVR__
@@ -45,9 +43,5 @@ uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
     return CCITT_updateCX(crc, b);
   #endif
 }
-
-} // namespace crc
-
-} // namespace modules
 
 #endif // HAS_PRUSA_MMU3
