@@ -223,8 +223,8 @@ namespace MMU2 {
    */
   extern void ReportErrorHookDynamicRender(void) {
     #if HAS_WIRED_LCD
-      // beware - this optimization abuses the fact, that FindaDetectsFilament returns 0 or 1 and '0' is followed by '1' in the ASCII table
-      lcd_put_int(3, LCD_HEIGHT - 1, mmu2.FindaDetectsFilament() + '0');
+      // beware - this optimization abuses the fact, that findaDetectsFilament returns 0 or 1 and '0' is followed by '1' in the ASCII table
+      lcd_put_int(3, LCD_HEIGHT - 1, mmu2.findaDetectsFilament() + '0');
       lcd_put_int(8, LCD_HEIGHT - 1, FILAMENT_PRESENT() + '0');
 
       // print active/changing filament slot
@@ -245,7 +245,7 @@ namespace MMU2 {
    * the screen, clicking the LCD button will go to the next screen to display
    * the rest of the message, until no messages left to display and a final
    * click will return to the previous screen.
-   * 
+   *
    * This gets the message data from the "editable.uint8" which is set in the
    * action item.
    */
@@ -427,7 +427,7 @@ namespace MMU2 {
     if (is_mmu_error_monitor_active) {
       // Call this every iteration to keep the knob rotation responsive
       // This includes when mmu_loop is called within manage_response
-      ReportErrorHook((CommandInProgress)mmu2.GetCommandInProgress(), mmu2.GetLastErrorCode(), mmu2.MMULastErrorSource());
+      ReportErrorHook((CommandInProgress)mmu2.getCommandInProgress(), mmu2.getLastErrorCode(), mmu2.mmuLastErrorSource());
     }
   }
 
@@ -438,7 +438,7 @@ namespace MMU2 {
   void ReportErrorHook(CommandInProgress /*cip*/, ErrorCode ec, uint8_t /*es*/) {
     if (putErrorScreenToSleep) return;
 
-    if (mmu2.MMUCurrentErrorCode() == ErrorCode::OK && mmu2.MMULastErrorSource() == MMU2::ErrorSourceMMU) {
+    if (mmu2.mmuCurrentErrorCode() == ErrorCode::OK && mmu2.mmuLastErrorSource() == MMU2::ErrorSourceMMU) {
       // If the error code suddenly changes to OK, that means
       // a button was pushed on the MMU and the LCD should
       // dismiss the error screen until MMU raises a new error
@@ -649,17 +649,17 @@ namespace MMU2 {
     //  _md->status = 1; // Menu entered for the first time
 
     //  // Fetch the TuneItem from PROGMEM
-    //  const uint8_t offset = (mmu2.MMUCurrentErrorCode() == ErrorCode::HOMING_IDLER_FAILED) ? 1 : 0;
+    //  const uint8_t offset = (mmu2.mmuCurrentErrorCode() == ErrorCode::HOMING_IDLER_FAILED) ? 1 : 0;
     //  memcpy_P(&(_md->item), &TuneItems[offset], sizeof(TuneItem));
 
     //  // Fetch the value which is currently in MMU EEPROM
-    //  mmu2.ReadRegister(_md->item.address);
-    //  _md->currentValue = mmu2.GetLastReadRegisterValue();
+    //  mmu2.readRegister(_md->item.address);
+    //  _md->currentValue = mmu2.getLastReadRegisterValue();
     //}
 
     // //MENU_BEGIN();
     // //ON_MENU_LEAVE(
-    // //    mmu2.WriteRegister(_md->item.address, (uint16_t)_md->currentValue);
+    // //    mmu2.writeRegister(_md->item.address, (uint16_t)_md->currentValue);
     // //    putErrorScreenToSleep = false;
     // //    lcd_return_to_status();
     // //    return;
@@ -689,7 +689,7 @@ namespace MMU2 {
   }
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value) {
-    mmu2.WriteRegister(address, (uint16_t)value);
+    mmu2.writeRegister(address, (uint16_t)value);
     putErrorScreenToSleep = false;
     ui.return_to_status();
   }

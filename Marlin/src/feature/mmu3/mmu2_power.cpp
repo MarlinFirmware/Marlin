@@ -55,7 +55,7 @@ void reset() {
     safe_delay(100);
     WRITE(MMU2_RST_PIN, HIGH);
   #else
-    mmu2.Reset(MMU2::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
+    mmu2.reset(MMU2::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
   #endif
   // otherwise HW reset is not available
 }

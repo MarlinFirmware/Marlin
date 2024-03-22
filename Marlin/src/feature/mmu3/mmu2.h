@@ -65,17 +65,17 @@
     MMU2();
 
     // Powers ON the MMU, then initializes the UART and protocol logic
-    void Start();
+    void start();
 
     // Stops the protocol logic, closes the UART, powers OFF the MMU
-    void Stop();
+    void stop();
 
     // Serial output of MMU state
-    void Status();
+    void status();
 
-    inline xState State() const { return state; }
+    xState state() const { return state; }
 
-    inline bool enabled() const { mmu_hw_enabled = State() == xState::Active; return mmu_hw_enabled; }
+    bool enabled() const { mmu_hw_enabled = state() == xState::Active; return mmu_hw_enabled; }
 
     // Different levels of resetting the MMU
     enum ResetForm : uint8_t {
@@ -102,28 +102,28 @@
 
     // Tune value in MMU registers as a way to recover from errors
     // e.g. Idler Stallguard threshold
-    void Tune();
+    void tune();
 
     // Perform a reset of the MMU
     // @param level physical form of the reset
-    void Reset(ResetForm level);
+    void reset(ResetForm level);
 
     // Power off the MMU (cut the power)
-    void PowerOff();
+    void powerOff();
 
     // Power on the MMU
-    void PowerOn();
+    void powerOn();
 
     // Read from a MMU register (See gcode M707)
     // @param address Address of register in hexidecimal
     // @return true upon success
-    bool ReadRegister(uint8_t address);
+    bool readRegister(uint8_t address);
 
     // Write from a MMU register (See gcode M708)
     // @param address Address of register in hexidecimal
     // @param data Data to write to register
     // @return true upon success
-    bool WriteRegister(uint8_t address, uint16_t data);
+    bool writeRegister(uint8_t address, uint16_t data);
 
     // The main loop of MMU processing.
     // Doesn't loop (block) inside, performs just one step of logic state machines.
@@ -181,33 +181,33 @@
 
     // Issue a "button" click into the MMU - to be used from Error screens of the MMU
     // to select one of the 3 possible options to resolve the issue
-    void Button(uint8_t index);
+    void button(uint8_t index);
 
     // Issue an explicit "homing" command into the MMU
-    void Home(uint8_t mode);
+    void home(uint8_t mode);
 
     // @return current state of FINDA (true=filament present, false=filament not present)
-    inline bool FindaDetectsFilament() const { return logic.FindaPressed(); }
+    bool findaDetectsFilament() const { return logic.findaPressed(); }
 
-    inline uint16_t TotalFailStatistics() const { return logic.FailStatistics(); }
+    uint16_t totalFailStatistics() const { return logic.FailStatistics(); }
 
     // @return Current error code
-    inline ErrorCode MMUCurrentErrorCode() const { return logic.Error(); }
+    ErrorCode mmuCurrentErrorCode() const { return logic.Error(); }
 
     // @return Command in progress
-    inline uint8_t GetCommandInProgress() const { return logic.CommandInProgress(); }
+    uint8_t getCommandInProgress() const { return logic.CommandInProgress(); }
 
     // @return Last error source
-    inline ErrorSource MMULastErrorSource() const { return lastErrorSource; }
+    ErrorSource mmuLastErrorSource() const { return lastErrorSource; }
 
     // @return Last error code
-    inline ErrorCode GetLastErrorCode() const { return lastErrorCode; }
+    ErrorCode getLastErrorCode() const { return lastErrorCode; }
 
     // @return the version of the connected MMU FW.
     // In the future we'll return the trully detected FW version
-    Version GetMMUFWVersion() const {
-      if (State() == xState::Active) {
-        return { logic.MmuFwVersionMajor(), logic.MmuFwVersionMinor(), logic.MmuFwVersionRevision() };
+    Version getMMUFWVersion() const {
+      if (state() == xState::Active) {
+        return { logic.mmuFwVersionMajor(), logic.mmuFwVersionMinor(), logic.mmuFwVersionRevision() };
       }
       else {
         return { 0, 0, 0 };
@@ -215,57 +215,55 @@
     }
 
     // Method to read-only mmu_print_saved
-    inline bool MMU_PRINT_SAVED() const { return mmu_print_saved != SavedState::None; }
+    bool MMU_PRINT_SAVED() const { return mmu_print_saved != SavedState::None; }
 
     // Automagically "press" a Retry button if we have any retry attempts left
     // @param ec ErrorCode enum value
     // @return true if auto-retry is ongoing, false when retry is unavailable or retry attempts are all used up
-    bool RetryIfPossible(const ErrorCode ec);
+    bool retryIfPossible(const ErrorCode ec);
 
     // @return count for toolchange in current print
-    inline uint16_t ToolChangeCounter() const { return toolchange_counter; }
+    uint16_t toolChangeCounter() const { return toolchange_counter; }
 
     // Set toolchange counter to zero
-    inline void ClearToolChangeCounter() { toolchange_counter = 0; }
+    void resetToolChangeCounter() { toolchange_counter = 0; }
 
-    inline uint16_t TMCFailures() const { return tmcFailures; }
-    inline void IncrementTMCFailures() { ++tmcFailures; }
-    inline void ClearTMCFailures() { tmcFailures = 0; }
+    uint16_t tmcFailures() const { return _tmcFailures; }
+    void incrementTMCFailures() { ++_tmcFailures; }
+    void resetTMCFailures() { _tmcFailures = 0; }
 
-    // Retrieve cached value parsed from ReadRegister()
+    // Retrieve cached value parsed from readRegister()
     // or using M707
-    inline uint16_t GetLastReadRegisterValue() const {
+    uint16_t getLastReadRegisterValue() const {
       return lastReadRegisterValue;
     }
-    inline void InvokeErrorScreen(const ErrorCode ec) {
-      // The printer may not raise an error when the MMU is busy
-      if (!logic.CommandInProgress()              // MMU must not be busy
-          && MMUCurrentErrorCode() == ErrorCode::OK // The protocol must not be in error state
-          && lastErrorCode != ec
-          )                                     // The error code is not a duplicate
-
-        ReportError(ec, ErrorSource::ErrorSourcePrinter);
+    void invokeErrorScreen(const ErrorCode ec) {
+      if (logic.CommandInProgress()) return;        // MMU must not be busy
+      if (lastErrorCode == ec) return;              // The error code is not a duplicate
+      if (mmuCurrentErrorCode() == ErrorCode::OK) { // The protocol must not be in error state
+        reportError(ec, ErrorSource::ErrorSourcePrinter);
+      }
     }
 
-    void ClearPrinterError() {
-      logic.ClearPrinterError();
+    void clearPrinterError() {
+      logic.clearPrinterError();
       lastErrorCode = ErrorCode::OK;
       lastErrorSource = ErrorSource::ErrorSourceNone;
     }
 
     // @brief Queue a button operation which the printer can act upon
     // @param btn Button operation
-    inline void SetPrinterButtonOperation(Buttons btn) {
+    void setPrinterButtonOperation(Buttons btn) {
       printerButtonOperation = btn;
     }
 
     // @brief Get the printer button operation
     // @return currently set printer button operation, it can be NoButton if nothing is queued
-    inline Buttons GetPrinterButtonOperation() {
+    Buttons getPrinterButtonOperation() {
       return printerButtonOperation;
     }
 
-    inline void ClearPrinterButtonOperation() {
+    void clearPrinterButtonOperation() {
       printerButtonOperation = Buttons::NoButton;
     }
 
@@ -287,20 +285,20 @@
     #endif
 
     // Perform software self-reset of the MMU (sends an X0 command)
-    void ResetX0();
+    void resetX0();
 
     // Perform software self-reset of the MMU + erase its EEPROM (sends X2a command)
-    void ResetX42();
+    void resetX42();
 
     // Trigger reset pin of the MMU
-    void TriggerResetPin();
+    void triggerResetPin();
 
     // Perform power cycle of the MMU (cold boot)
     // Please note this is a blocking operation (sleeps for some time inside while doing the power cycle)
-    void PowerCycle();
+    void powerCycle();
 
     // Stop the communication, but keep the MMU powered on (for scenarios with incorrect FW version)
-    void StopKeepPowered();
+    void stopKeepPowered();
 
     // Along with the mmu_loop method, this loops until a response from the MMU is received and acts upon.
     // In case of an error, it parks the print head and turns off nozzle heating
@@ -316,7 +314,7 @@
     // and reports progress and errors if needed to attached ExtUIs.
     // Updates the global state of MMU (Active/Connecting/Stopped) at runtime, see @ref State
     // @param reportErrors true if Errors should raise MMU Error screen, false otherwise
-    StepStatus LogicStep(bool reportErrors);
+    StepStatus logicStep(bool reportErrors);
 
     void filament_ramming();
     void execute_extruder_sequence(const E_Step *sequence, uint8_t steps);
@@ -325,68 +323,68 @@
     // Reports an error into attached ExtUIs
     // @param ec error code, see ErrorCode
     // @param res reporter error source, is either Printer (0) or MMU (1)
-    void ReportError(ErrorCode ec, ErrorSource res);
+    void reportError(ErrorCode ec, ErrorSource res);
 
     // Reports progress of operations into attached ExtUIs
     // @param pc progress code, see ProgressCode
-    void ReportProgress(ProgressCode pc);
+    void reportProgress(ProgressCode pc);
 
     // Responds to a change of MMU's progress
     // - plans additional steps, e.g. starts the E-motor after fsensor trigger
     // The function is quite complex, because it needs to handle asynchronnous
     // progress and error reports coming from the MMU without an explicit command
     // - typically after MMU's start or after some HW issue on the MMU.
-    // It must ensure, that calls to @ref ReportProgress and/or @ref ReportError are
+    // It must ensure, that calls to @ref reportProgress and/or @ref reportError are
     // only executed after @ref BeginReport has been called first.
-    void OnMMUProgressMsg(ProgressCode pc);
+    void onMMUProgressMsg(ProgressCode pc);
     // Progress code changed - act accordingly
-    void OnMMUProgressMsgChanged(ProgressCode pc);
+    void onMMUProgressMsgChanged(ProgressCode pc);
     // Repeated calls when progress code remains the same
-    void OnMMUProgressMsgSame(ProgressCode pc);
+    void onMMUProgressMsgSame(ProgressCode pc);
 
     // @brief Save hotend temperature and set flag to cooldown hotend after 60 minutes
     // @param turn_off_nozzle if true, the hotend temperature will be set to 0degC after 60 minutes
-    void SaveHotendTemp(bool turn_off_nozzle);
+    void saveHotendTemp(bool turn_off_nozzle);
 
     // Save print and park the print head
-    void SaveAndPark(bool move_axes);
+    void saveAndPark(bool move_axes);
 
     // Resume hotend temperature, if it was cooled. Safe to call if we aren't saved.
-    void ResumeHotendTemp();
+    void resumeHotendTemp();
 
     // Resume position, if the extruder was parked. Safe to all if state was not saved.
-    void ResumeUnpark();
+    void resumeUnpark();
 
     // Check for any button/user input coming from the printer's UI
-    void CheckUserInput();
+    void checkUserInput();
 
     // @brief Check whether to trigger a FINDA runout. If triggered this function will call M600 AUTO
     // if SpoolJoin is enabled, otherwise M600 is called without AUTO which will prompt the user
     // for the next filament slot to use
-    void CheckFINDARunout();
+    void checkFINDARunout();
 
     // Entry check of all external commands.
     // It can wait until the MMU becomes ready.
     // Optionally, it can also emit/display an error screen and the user can decide what to do next.
     // @return false if the MMU is not ready to perform the command (for whatever reason)
-    bool WaitForMMUReady();
+    bool waitForMMUReady();
 
     // After MMU completes a tool-change command
     // the printer will push the filament by a constant distance. If the Fsensor untriggers
     // at any moment the test fails. Else the test passes, and the E-motor retracts the
     // filament back to its original position.
     // @return false if test fails, true otherwise
-    bool VerifyFilamentEnteredPTFE();
+    bool verifyFilamentEnteredPTFE();
 
     // Common processing of pushing filament into the extruder - shared by tool_change, load_to_nozzle and probably others
-    void ToolChangeCommon(uint8_t slot);
-    bool ToolChangeCommonOnce(uint8_t slot);
+    void toolChangeCommon(uint8_t slot);
+    bool toolChangeCommonOnce(uint8_t slot);
 
-    void HelpUnloadToFinda();
-    void UnloadInner();
-    void CutFilamentInner(uint8_t slot);
+    void helpUnloadToFinda();
+    void unloadInner();
+    void cutFilamentInner(uint8_t slot);
 
-    void SetCurrentTool(uint8_t ex);
+    void setCurrentTool(uint8_t ex);
 
     ProtocolLogic logic;        //!< implementation of the protocol logic layer
     uint8_t extruder;           //!< currently active slot in the MMU ... somewhat... not sure where to get it from yet
@@ -411,7 +409,7 @@
     bool unloadFilamentStarted;
 
     uint16_t toolchange_counter;
-    uint16_t tmcFailures;
+    uint16_t _tmcFailures;
   };
 
   } // MMU2
