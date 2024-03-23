@@ -31,6 +31,24 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+// static_warning works like a static_assert but only emits a (messy) warning.
+#ifdef __GNUC__
+  namespace mfwarn {
+    struct true_type {};
+    struct false_type {};
+    template <int test> struct converter : public true_type {};
+    template <> struct converter<0> : public false_type {};
+  }
+  #define static_warning(cond, msg) \
+    struct CAT(static_warning, __LINE__) { \
+      void _(::mfwarn::false_type const&) __attribute__((deprecated(msg))) {}; \
+      void _(::mfwarn::true_type const&) {}; \
+      CAT(static_warning, __LINE__)() {_(::mfwarn::converter<(cond)>());} \
+    }
+#else
+  #define static_warning(...)
+#endif
+
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
   #ifdef __LONG_MAX__
@@ -664,7 +682,8 @@
 #endif
 
 #if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
@@ -678,10 +697,11 @@
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
-#if !USE_SENSORLESS
+#if !USE_SENSORLESS && HAS_DIAG_PINS
   #if ENABLED(USES_DIAG_JUMPERS) && DISABLED(DIAG_JUMPERS_REMOVED)
     #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled. (Define DIAG_JUMPERS_REMOVED to suppress this warning.)"
-  #elif ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
+  #endif
+  #if ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
     #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0) (Define DIAG_PINS_REMOVED to suppress this warning.)"
   #endif
 #endif

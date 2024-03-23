@@ -38,6 +38,8 @@
 
 #include "tft.h"
 
+Touch touch;
+
 bool Touch::enabled = true;
 int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
@@ -48,7 +50,7 @@ millis_t Touch::next_touch_ms = 0,
          Touch::repeat_delay,
          Touch::touch_time;
 TouchControlType Touch::touch_control_type = NONE;
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
 #endif
 #if HAS_RESUME_CONTINUE
@@ -59,7 +61,7 @@ void Touch::init() {
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.init();
-  TERN_(HAS_TOUCH_SLEEP, wakeUp());
+  TERN_(HAS_DISPLAY_SLEEP, wakeUp());
   enable();
 }
 
@@ -278,7 +280,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
     #endif
   #endif
 
-  #if HAS_TOUCH_SLEEP
+  #if HAS_DISPLAY_SLEEP
     if (is_touched)
       wakeUp();
     else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
@@ -288,7 +290,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
   return is_touched;
 }
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
 
   void Touch::sleepTimeout() {
     #if HAS_LCD_BRIGHTNESS
@@ -308,12 +310,14 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       next_touch_ms = millis() + 100;
       safe_delay(20);
     }
-    next_sleep_ms = millis() + MIN_TO_MS(ui.sleep_timeout_minutes);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
-#endif // HAS_TOUCH_SLEEP
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (!sleep) touch.wakeUp();
+  }
 
-Touch touch;
+#endif // HAS_DISPLAY_SLEEP
 
 bool MarlinUI::touch_pressed() {
   return touch.is_clicked();

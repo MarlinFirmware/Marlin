@@ -854,11 +854,11 @@ volatile bool Temperature::raw_temps_ready = false;
         #endif
       } // every 2 seconds
 
-      // Timeout after MAX_CYCLE_TIME_PID_AUTOTUNE minutes since the last undershoot/overshoot cycle
-      #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
-        #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+      // Timeout after PID_AUTOTUNE_MAX_CYCLE_MINS minutes since the last undershoot/overshoot cycle
+      #ifndef PID_AUTOTUNE_MAX_CYCLE_MINS
+        #define PID_AUTOTUNE_MAX_CYCLE_MINS 20L
       #endif
-      if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
+      if ((ms - _MIN(t1, t2)) > MIN_TO_MS(PID_AUTOTUNE_MAX_CYCLE_MINS)) {
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
         TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TUNING_TIMEOUT));
         TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
@@ -910,11 +910,6 @@ volatile bool Temperature::raw_temps_ready = false;
         if (set_result)
           GHV(_set_chamber_pid(tune_pid), _set_bed_pid(tune_pid), _set_hotend_pid(heater_id, tune_pid));
 
-        TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(oldcolor));
-
-        TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
-
         goto EXIT_M303;
       }
     }
@@ -922,12 +917,10 @@ volatile bool Temperature::raw_temps_ready = false;
 
     disable_all_heaters();
 
-    TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(oldcolor));
-
-    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-    TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
-
     EXIT_M303:
+      TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(oldcolor));
+      TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
+      TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
       TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       return;
   }
@@ -2278,6 +2271,8 @@ void Temperature::task() {
   }
 
   void Temperature::M305_report(const uint8_t t_index, const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     gcode.report_heading_etc(forReplay, F(STR_USER_THERMISTORS));
     SERIAL_ECHOPGM("  M305 P", AS_DIGIT(t_index));
 

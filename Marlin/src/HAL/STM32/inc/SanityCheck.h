@@ -28,7 +28,6 @@
 //  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 //#endif
 
-
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
   #if USE_FALLBACK_EEPROM
@@ -59,8 +58,9 @@
  * Check for common serial pin conflicts
  */
 #define _CHECK_SERIAL_PIN(N) (( \
-    BTN_EN1 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN0_PIN == N || \
-    SDIO_D2_PIN == N || SDIO_D3_PIN == N || SDIO_CK_PIN == N || SDIO_CMD_PIN == N \
+    BTN_EN1 == N || BTN_EN2 == N ||DOGLCD_CS == N || HEATER_BED_PIN == N || FAN0_PIN == N || \
+    SDIO_D2_PIN == N || SDIO_D3_PIN == N || SDIO_CK_PIN == N || SDIO_CMD_PIN == N || \
+    Y_STEP_PIN == N || Y_ENABLE_PIN == N || E0_ENABLE_PIN == N || POWER_LOSS_PIN == N \
   ))
 #define CHECK_SERIAL_PIN(T,N) defined(UART##N##_##T##_PIN) && _CHECK_SERIAL_PIN(UART##N##_##T##_PIN)
 #if SERIAL_IN_USE(1)

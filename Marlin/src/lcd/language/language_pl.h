@@ -467,7 +467,6 @@ namespace LanguageNarrow_pl {
 
   LSTR MSG_GAMES                          = _UxGT("Gry");
 
-
   LSTR MSG_EDIT_PASSWORD                  = _UxGT("Zmień hasło");
   LSTR MSG_LOGIN_REQUIRED                 = _UxGT("Wymagane zalogowanie");
   LSTR MSG_PASSWORD_SETTINGS              = _UxGT("Ustawienia hasła");

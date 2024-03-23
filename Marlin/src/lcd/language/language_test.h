@@ -44,21 +44,17 @@
 //   Kanji (an other Japanese symbol set) uses far more than two codepages. So currently I don't see a chance to map the Unicodes. Its not
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
 
-
 // Select the better font for full graphic displays.
 //#define DISPLAY_CHARSET_ISO10646_1
 //#define DISPLAY_CHARSET_ISO10646_5
 //#define DISPLAY_CHARSET_ISO10646_GREEK
 //#define DISPLAY_CHARSET_ISO10646_KANA
 
-
-
 // next 5 lines select variants in this file only
 #define DISPLAYTEST
 //#define WEST
 //#define CYRIL
 //#define KANA
-
 
 // TESTSTRINGS
 
