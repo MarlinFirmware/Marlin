@@ -233,12 +233,11 @@ void menu_configuration();
 #endif
 
 void menu_main() {
-  const bool busy = printingIsActive()
-    #if HAS_MEDIA
-      , card_detected = card.isMounted()
-      , card_open = card_detected && card.isFileOpen()
-    #endif
-  ;
+  const bool busy = printingIsActive();
+  #if HAS_MEDIA
+    const bool card_detected = card.isMounted(),
+               card_open = card_detected && card.isFileOpen();
+  #endif
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
@@ -275,12 +274,12 @@ void menu_main() {
   else {
     #if ALL(HAS_MEDIA, MEDIA_MENU_AT_TOP)
       // BEGIN MEDIA MENU
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-      #endif
-
       if (card_detected) {
         if (!card_open) {
+          #if ENABLED(MENU_ADDAUTOSTART)
+            ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+          #endif
+
           #if HAS_SD_DETECT
             GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
             #if ENABLED(MULTI_VOLUME)
@@ -392,12 +391,12 @@ void menu_main() {
 
   #if HAS_MEDIA && DISABLED(MEDIA_MENU_AT_TOP)
     // BEGIN MEDIA MENU
-    #if ENABLED(MENU_ADDAUTOSTART)
-      ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-    #endif
-
     if (card_detected) {
       if (!card_open) {
+        #if ENABLED(MENU_ADDAUTOSTART)
+          ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+        #endif
+
         #if HAS_SD_DETECT
           GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
           #if ENABLED(MULTI_VOLUME)
