@@ -1123,4 +1123,10 @@ class Planner {
 
 #define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
 
+#define ANY_AXIS_MOVES(BLOCK)  \
+  (false NUM_AXIS_GANG(        \
+  || BLOCK->steps.a, || BLOCK->steps.b, || BLOCK->steps.c, \
+  || BLOCK->steps.i, || BLOCK->steps.j, || BLOCK->steps.k, \
+  || BLOCK->steps.u, || BLOCK->steps.v, || BLOCK->steps.w))
+
 extern Planner planner;
