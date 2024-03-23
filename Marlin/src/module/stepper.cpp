@@ -2456,7 +2456,8 @@ hal_timer_t Stepper::block_phase_isr() {
        */
       if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC
         && planner.laser_inline.status.isPowered                  // isPowered flag set on any parsed G1, G2, G3, or G5 move; cleared on any others.
-        && cutter.last_block_power != current_block->laser.power  // Prevent constant update without change
+        && current_block                                          // Block may not be available if steps completed (see discard_current_block() above)
+        && cutter.last_block_power != current_block->laser.power  // Only update if the power changed
       ) {
         cutter.apply_power(current_block->laser.power);
         cutter.last_block_power = current_block->laser.power;
