@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -36,16 +36,13 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             12
-#define X_MAX_PIN                           -1 //30
-#define Y_MIN_PIN                             11
-#define Y_MAX_PIN                           -1//  24
+#define X_STOP_PIN                            12
+#define Y_STOP_PIN                            11
+
 #define Z_MIN_PIN                             10
 #define Z_MAX_PIN                             23
 
-//same as X_MAX_PIN and Y_MAX_PIN for now
-#define I_MIN_PIN                             30
-#define I_MAX_PIN                             -1
+#define I_STOP_PIN                            30  // Same as X/Y_MAX_PIN for now
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -69,9 +66,9 @@
 #define Z_DIR_PIN                             47
 #define Z_ENABLE_PIN                          27
 
-#define I_STEP_PIN                           34
-#define I_DIR_PIN                            43
-#define I_ENABLE_PIN                         26
+#define I_STEP_PIN                            34
+#define I_DIR_PIN                             43
+#define I_ENABLE_PIN                          26
 
 // Microstepping pins
 #define X_MS1_PIN                             40
@@ -80,8 +77,8 @@
 #define Y_MS2_PIN                             39
 #define Z_MS1_PIN                             68
 #define Z_MS2_PIN                             67
-#define I_MS1_PIN                            65
-#define I_MS2_PIN                            66
+#define I_MS1_PIN                             65
+#define I_MS2_PIN                             66
 
 #define MOTOR_CURRENT_PWM_XY_PIN              46
 #define MOTOR_CURRENT_PWM_Z_PIN               45
@@ -90,7 +87,7 @@
 #ifndef MOTOR_CURRENT_PWM_RANGE
   #define MOTOR_CURRENT_PWM_RANGE            2000
 #endif
-#define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
+#define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
 
 //
 // Temperature Sensors
@@ -104,9 +101,7 @@
 //
 #define HEATER_0_PIN                           3
 #define HEATER_1_PIN                           7
-#if !MB(MINIRAMBO_10A)
-  #define HEATER_2_PIN                         6
-#endif
+#define HEATER_2_PIN                           6
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN0_PIN
@@ -119,18 +114,16 @@
 //
 #define SDSS                                  53
 #define LED_PIN                               13
-#if !MB(MINIRAMBO_10A)
-  #define CASE_LIGHT_PIN                       9
-#endif
+#define CASE_LIGHT_PIN                         9
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-// Use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN                4  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN               18  // Pullup!
-#define SPINDLE_DIR_PIN                     19
+  // Use P1 connector for spindle pins
+  #define SPINDLE_LASER_PWM_PIN                4  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
+  #define SPINDLE_DIR_PIN                     19
 #endif
 
 //
@@ -139,9 +132,7 @@
 #if HAS_PRUSA_MMU1
   #define E_MUX0_PIN                          17
   #define E_MUX1_PIN                          16
-  #if !MB(MINIRAMBO_10A)
-    #define E_MUX2_PIN                        78  // 84 in MK2 Firmware, with BEEPER as 78
-  #endif
+  #define E_MUX2_PIN                          78  // 84 in MK2 Firmware, with BEEPER as 78
 #endif
 
 //
@@ -150,49 +141,26 @@
 
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
-  #if !MB(MINIRAMBO_10A)
-    #define KILL_PIN                          32
-  #endif
+  #define KILL_PIN                            32
 
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
-    #if MB(MINIRAMBO_10A)
+    // AUX-4
+    #define BEEPER_PIN                        84
 
-      #define BEEPER_PIN                      78
+    // AUX-2
+    #define BTN_EN1                           14
+    #define BTN_EN2                           72
+    #define BTN_ENC                            9
 
-      #define BTN_EN1                         80
-      #define BTN_EN2                         73
-      #define BTN_ENC                         21
+    #define LCD_PINS_RS                       82
+    #define LCD_PINS_EN                       18
+    #define LCD_PINS_D4                       19
+    #define LCD_PINS_D5                       70
+    #define LCD_PINS_D6                       85
+    #define LCD_PINS_D7                       71
 
-      #define LCD_PINS_RS                     38
-      #define LCD_PINS_EN                      5
-      #define LCD_PINS_D4                     14
-      #define LCD_PINS_D5                     15
-      #define LCD_PINS_D6                     32
-      #define LCD_PINS_D7                     31
-
-      #define SD_DETECT_PIN                   72
-
-    #else // !MINIRAMBO_10A
-
-      // AUX-4
-      #define BEEPER_PIN                      84
-
-      // AUX-2
-      #define BTN_EN1                         14
-      #define BTN_EN2                         72
-      #define BTN_ENC                          9
-
-      #define LCD_PINS_RS                     82
-      #define LCD_PINS_EN                     18
-      #define LCD_PINS_D4                     19
-      #define LCD_PINS_D5                     70
-      #define LCD_PINS_D6                     85
-      #define LCD_PINS_D7                     71
-
-      #define SD_DETECT_PIN                   15
-
-    #endif // !MINIRAMBO_10A
+    #define SD_DETECT_PIN                     15
 
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
       #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder

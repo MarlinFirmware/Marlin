@@ -1140,8 +1140,6 @@ void MarlinUI::draw_status_screen() {
       rotate_progress();
     #endif
 
-  // LCD_INFO_SCREEN_STYLE 1
-
   #elif LCD_INFO_SCREEN_STYLE == 2
 
     // ========== Line 1 ==========
@@ -1149,7 +1147,7 @@ void MarlinUI::draw_status_screen() {
     //
     // X Coordinate
     //
-	lcd_moveto(0, 0);
+    lcd_moveto(0, 0);
     _draw_axis_value(X_AXIS, ftostr52sp(LOGICAL_X_POSITION(current_position.x)), blink);
 
     //
@@ -1159,21 +1157,21 @@ void MarlinUI::draw_status_screen() {
     _draw_axis_value(Y_AXIS, ftostr52sp(LOGICAL_Y_POSITION(current_position.y)), blink);
 
     // ========== Line 2 ==========
-	lcd_moveto(0, 1);
+    lcd_moveto(0, 1);
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
 
-	lcd_moveto(LCD_WIDTH - 9, 1);
+    lcd_moveto(LCD_WIDTH - 9, 1);
     _draw_axis_value(I_AXIS, ftostr52sp(LOGICAL_I_POSITION(current_position.i)), blink);
-    
-	// ========== Line 3 ==========
-	lcd_moveto(0, 2);
-	lcd_put_lchar('F');
-	
-	lcd_moveto(LCD_WIDTH - 9, 2);
-	lcd_put_lchar('S');
+
+    // ========== Line 3 ==========
+    lcd_moveto(0, 2);
+    lcd_put_lchar('F');
+
+    lcd_moveto(LCD_WIDTH - 9, 2);
+    lcd_put_lchar('S');
     
 
-  #endif // LCD_INFO_SCREEN_STYLE 2
+  #endif // LCD_INFO_SCREEN_STYLE
 
   // ========= Last Line ========
 
