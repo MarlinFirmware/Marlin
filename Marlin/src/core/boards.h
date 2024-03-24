@@ -143,7 +143,6 @@
 #define BOARD_EINSY_RETRO             1204  // Einsy Retro
 #define BOARD_SCOOVO_X9H              1205  // abee Scoovo X9H
 #define BOARD_RAMBO_THINKERV2         1206  // ThinkerV2
-#define BOARD_MINIRAMBO_CNC           1207  // Mini-Rambo 1.3a as CNC with X, Y, Z, E as I
 
 //
 // Other ATmega1280, ATmega2560

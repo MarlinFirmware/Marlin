@@ -271,8 +271,6 @@
   #include "rambo/pins_RAMBO.h"                     // ATmega2560                           env:rambo
 #elif MB(MINIRAMBO, MINIRAMBO_10A)
   #include "rambo/pins_MINIRAMBO.h"                 // ATmega2560                           env:rambo
-#elif MB(MINIRAMBO_CNC)
-  #include "rambo/pins_MINIRAMBO_CNC.h"             // ATmega2560                           env:rambo
 #elif MB(EINSY_RAMBO)
   #include "rambo/pins_EINSY_RAMBO.h"               // ATmega2560                           env:rambo
 #elif MB(EINSY_RETRO)
