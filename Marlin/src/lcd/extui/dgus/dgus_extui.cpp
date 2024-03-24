@@ -33,6 +33,8 @@
 #include "DGUSDisplayDef.h"
 #include "DGUSScreenHandler.h"
 
+extern const char NUL_STR[];
+
 namespace ExtUI {
 
   void onStartup() {
@@ -43,8 +45,20 @@ namespace ExtUI {
   void onIdle() { screen.loop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
-    screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
-    screen.gotoScreen(DGUS_SCREEN_KILL);
+    DGUS_ScreenID screenID = DGUS_SCREEN_KILL;
+    #if DGUS_LCD_UI_CREALITY_TOUCH
+      if (strcmp_P(FTOP(error), GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(FTOP(error), GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0)
+        screenID = DGUS_SCREEN_THERMAL_RUNAWAY;
+      else if (strcmp_P(FTOP(error), GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0)
+        screenID = DGUS_SCREEN_HEATING_FAILED;
+      else if (strcmp_P(FTOP(error), GET_TEXT(MSG_ERR_MINTEMP)) == 0)
+        screenID = DGUS_SCREEN_THERMISTOR_ERROR;
+      screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, GET_TEXT_F(MSG_PLEASE_RESET), FPSTR(NUL_STR), true, true, true, true);
+    #else
+      screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
+    #endif
+
+    screen.gotoScreen(screenID);
     while (!screen.loop());  // Wait while anything is left to be sent
   }
 
@@ -52,31 +66,65 @@ namespace ExtUI {
   void onMediaError()    { TERN_(HAS_MEDIA, screen.sdCardError()); }
   void onMediaRemoved()  { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
+    TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.buzzer(frequency, duration));
+  }
+
   void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
+
+  void onPrintTimerPaused() {
+    #if DGUS_LCD_UI_CREALITY_TOUCH
+      // Handle M28 Pause SD print - But only if we're not waiting on a user
+      if (isPrintingFromMediaPaused() && screen.getCurrentScreen() == DGUS_SCREEN_PRINT_RUNNING)
+        screen.gotoScreen(DGUS_SCREEN_PRINT_PAUSED);
+    #endif
+  }
+
   void onPrintTimerStopped() {}
-  void onFilamentRunout(const extruder_t extruder) {}
+
+  void onFilamentRunout(const extruder_t extruder) { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.filamentRunout()); }
+
+  inline void onUserConfirmed() {
+    screen.setupConfirmAction(nullptr);
+    #if DGUS_LCD_UI_CREALITY_TOUCH
+      //SERIAL_ECHOLNPGM("User confirmation invoked");
+      setUserConfirmed();
+    #else
+      screen.popToOldScreen();
+    #endif
+  }
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
-      screen.setupConfirmAction(setUserConfirmed);
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        //SERIAL_ECHOLNPGM("User confirmation requested: ", msg);
+        screen.setstatusmessagePGM(msg);
+        screen.setupConfirmAction(onUserConfirmed);
+        screen.sendInfoScreen(F("Confirmation required"), FPSTR(msg), FPSTR(NUL_STR), FPSTR(NUL_STR), true, true, false, true);
+      #else
+        screen.sendInfoScreen(F("Please confirm."), nullptr, FPSTR(msg), nullptr, true, true, false, true);
+        screen.setupConfirmAction(setUserConfirmed);
+      #endif
       screen.gotoScreen(DGUS_SCREEN_POPUP);
     }
-    else if (screen.getCurrentScreen() == DGUS_SCREEN_POPUP) {
-      screen.setupConfirmAction(nullptr);
+    else if (screen.getCurrentScreen() == DGUS_SCREEN_POPUP ) {
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        //SERIAL_ECHOLNPGM("User confirmation canceled");
+        //screen.setupConfirmAction(nullptr);
+        screen.setstatusmessagePGM(nullptr);
+      #else
+        screen.setupConfirmAction(nullptr);
+      #endif
       screen.popToOldScreen();
     }
   }
 
   void onStatusChanged(const char * const msg) { screen.setStatusMessage(msg); }
 
-  void onHomingStart() {}
-  void onHomingDone() {}
-  void onPrintDone() {}
-
-  void onFactoryReset() {}
+  void onHomingStart()  { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onHomingStart()); }
+  void onHomingDone()   { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onHomingDone()); }
+  void onFactoryReset() { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onFactoryReset()); }
+  void onPrintDone()    { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onPrintDone()); }
 
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
@@ -113,17 +161,23 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING
-    void onLevelingStart() {}
+    void onLevelingStart() { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onLevelingStart()); }
     void onLevelingDone() {}
   #endif
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
+      TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.onLevelingUpdate(xpos, ypos));
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        // Only called for UBL
+        if (state == G29_START) screen.onLevelingStart();
+        screen.onLevelingUpdate(xpos, ypos);
+      #endif
     }
   #endif
 
@@ -142,30 +196,33 @@ namespace ExtUI {
 
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
-      // Called for temperature PID tuning result
-      switch (rst) {
-        case PID_STARTED:
-          screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
-          break;
-        case PID_BAD_HEATER_ID:
-          screen.setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
-          break;
-        case PID_TEMP_TOO_HIGH:
-          screen.setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
-          break;
-        case PID_TUNING_TIMEOUT:
-          screen.setStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
-          break;
-        case PID_DONE:
-          screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
-          break;
-      }
-      screen.gotoScreen(DGUS_SCREEN_MAIN);
+      #if DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+        // Called for temperature PID tuning result
+        switch (rst) {
+          case PID_STARTED:
+            screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+            break;
+          case PID_BAD_HEATER_ID:
+            screen.setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
+            break;
+          case PID_TEMP_TOO_HIGH:
+            screen.setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
+            break;
+          case PID_TUNING_TIMEOUT:
+            screen.setStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
+            break;
+          case PID_DONE:
+            screen.setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
+            break;
+        }
+        screen.gotoScreen(DGUS_SCREEN_MAIN);
+      #endif
     }
   #endif
 
-  void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersDisabled() { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.handleStepperState(false)); }
+  void onSteppersEnabled()  { TERN_(DGUS_LCD_UI_CREALITY_TOUCH, screen.handleStepperState(true)); }
+
 }
 
 #endif // HAS_DGUS_LCD_CLASSIC
