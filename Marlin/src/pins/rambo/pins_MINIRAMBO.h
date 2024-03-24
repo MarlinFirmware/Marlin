@@ -31,9 +31,7 @@
 
 #include "env_validate.h"
 
-#if ENABLED(MINIRAMBO_CNC)
-  #define BOARD_INFO_NAME "Mini RAMBo CNC"
-#else
+#ifndef BOARD_INFO_NAME
   #if MB(MINIRAMBO_10A)
     #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
   #else
@@ -52,7 +50,7 @@
 #define Z_MAX_PIN                             23
 
 #if HAS_I_AXIS
-  #define I_STOP_PIN                          30  // Same as X/Y_MAX_PIN for now
+  #define I_STOP_PIN                          30  // X_MAX (for now)
 #endif
 
 //
@@ -135,14 +133,16 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if ENABLED(MINIRAMBO_CNC)
-    #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM
-  #else
-    // Use P1 connector for spindle pins
+  // Use P1 connector for spindle pins
+  #ifndef SPINDLE_LASER_PWM_PIN
     #define SPINDLE_LASER_PWM_PIN              9  // Hardware PWM
   #endif
-  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
-  #define SPINDLE_DIR_PIN                     19
+  #ifndef SPINDLE_LASER_ENA_PIN
+    #define SPINDLE_LASER_ENA_PIN             18  // Pullup!
+  #endif
+  #ifndef SPINDLE_DIR_PIN
+    #define SPINDLE_DIR_PIN                   19
+  #endif
 #endif
 
 //
