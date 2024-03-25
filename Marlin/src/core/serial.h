@@ -250,6 +250,10 @@ inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR
   print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
 }
 
+bool sr_file_open(const char * filename);
+bool sr_file_close();
+extern size_t sr_write_res;
+
 #define SERIAL_POS(SUFFIX,VAR) do { print_xyz(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
 #define SERIAL_XYZ(PREFIX,V...) do { print_xyz(V, F(PREFIX)); }while(0)
 
