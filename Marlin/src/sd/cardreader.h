@@ -59,6 +59,7 @@ extern const char M23_STR[], M24_STR[];
 #if ENABLED(MULTI_VOLUME)
   #define SV_SD_ONBOARD      1
   #define SV_USB_FLASH_DRIVE 2
+  #define SV_SDIO_ONBOARD    3
   #define _VOLUME_ID(N) _CAT(SV_, N)
   #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
   #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
@@ -257,9 +258,14 @@ public:
     static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
 
-  #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
-    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+  #if NEED_SD2CARD_SPI
+    typedef DiskIODriver_SPI_SD sdcard_driver_t;
     static sdcard_driver_t media_driver_sdcard;
+  #endif
+
+  #if NEED_SD2CARD_SDIO
+    typedef DiskIODriver_SDIO sdiocard_driver_t;
+    static sdiocard_driver_t media_driver_sdiocard;
   #endif
 
 private:

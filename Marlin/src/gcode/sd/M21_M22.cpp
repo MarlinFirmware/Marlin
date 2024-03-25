@@ -28,25 +28,49 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M21: Init SD Card
+ * M21: Select / Mount the SD Card or USB Flash Drive
  *
  * With MULTI_VOLUME:
  *  P0 or S - Change to the SD Card and mount it
  *  P1 or U - Change to the USB Drive and mount it
+ *  P2 or O - Change to the SDIO Card and mount it
  */
 void GcodeSuite::M21() {
   #if ENABLED(MULTI_VOLUME)
-    const int8_t vol = parser.intval('P', -1);
-    if (vol == 0 || parser.seen_test('S'))       // "S" for SD Card
-      card.changeMedia(&card.media_driver_sdcard);
-    else if (vol == 1 || parser.seen_test('U'))  // "U" for USB
-      card.changeMedia(&card.media_driver_usbFlash);
-  #endif
+    static int8_t vol = (
+      #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
+        1
+      #else
+        0
+      #endif
+    );
+    const int8_t newvol = (
+                                     parser.seen_test('S')  ? 0 : // "S" for SD Card
+      TERN0(USB_FLASH_DRIVE_SUPPORT, parser.seen_test('U')) ? 1 : // "U" for USB
+      TERN0(SDIO_SUPPORT,            parser.seen_test('O')) ? 2 : // "O" for SDIO (usually onboard)
+                                     parser.intval('P', vol)      // "P" for integer volume number
+    );
+
+    if (newvol != vol) {
+      vol = newvol;
+      switch (newvol + 1) {
+        default: card.changeMedia(&card.media_driver_sdcard); break;
+        #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+          case SV_USB_FLASH_DRIVE: card.changeMedia(&card.media_driver_usbFlash); break;
+        #endif
+        #if ENABLED(SDIO_SUPPORT)
+          case SV_SDIO_ONBOARD: card.changeMedia(&card.media_driver_sdiocard); break;
+        #endif
+      }
+    }
+
+  #endif // MULTI_VOLUME
+
   card.mount();
 }
 
 /**
- * M22: Release SD Card
+ * M22: Release the SD Card or USB Flash Drive
  */
 void GcodeSuite::M22() {
   if (!IS_SD_PRINTING()) card.release();
