@@ -86,7 +86,7 @@ extern "C" {
 #define PH1  50      // | 50      |            |            |                       |                      |                                   | OSC_OUT   |
 //                      |---------|------------|------------|-----------------------|----------------------|-----------------------------------|-----------|
 
-/// This must be a literal
+// This must be a literal
 #define NUM_DIGITAL_PINS        51
 #define NUM_ANALOG_INPUTS       16
 
