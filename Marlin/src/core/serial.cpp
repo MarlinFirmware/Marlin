@@ -27,6 +27,8 @@
   #include "../feature/ethernet.h"
 #endif
 
+#include <stdlib.h> // dtostrf
+
 // Echo commands to the terminal by default in dev mode
 uint8_t marlin_debug_flags = TERN(MARLIN_DEV_MODE, MARLIN_DEBUG_ECHO, MARLIN_DEBUG_NONE);
 
