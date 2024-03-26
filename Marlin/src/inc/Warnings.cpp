@@ -860,3 +860,17 @@
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif
+
+/**
+ * Board and LCD have differently-keyed plugs
+ */
+#if ALL(HAS_LCD_SELECTED, EXP_REVERSE_KEYED)
+  #warning "CAUTION! The MOTHERBOARD and LCD have oppositely-keyed EXP plugs."
+#endif
+
+/**
+ * LCD Controller using old pin definition method
+ */
+#ifdef LCD_MIGRATION_WARNING
+  #warning "The selected LCD is not yet migrated to the new system."
+#endif
