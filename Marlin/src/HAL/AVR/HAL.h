@@ -141,7 +141,7 @@ typedef Servo hal_servo_t;
     #error "LCD_SERIAL_PORT must be from 0 to 3."
   #endif
   #define LCD_SERIAL lcdSerial
-  #if HAS_DGUS_LCD
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
     #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
   #endif
 #endif
