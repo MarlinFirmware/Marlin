@@ -95,8 +95,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
     mixer_comp_t color[MIXING_STEPPERS];      // The push-pull color
-    mixer_perc_t push_mix[MIXING_STEPPERS],   // The percentage components of the push-pull tool
-                 pull_mix[MIXING_STEPPERS];
+    mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
   } pushpull_t;
   #if MIXING_PUSH_PULL_MM
   //current_position.e += MIXING_PUSH_PULL_MM;
@@ -200,29 +199,14 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) pushpull.pull_mix[i] = mix[i];
       update_mix_from_vtool(new_vtool);
       MIXER_STEPPER_LOOP(i) {
-        mix[i] = collector[i] - pushpull.pull_mix[i];
+        mix[i] -= pushpull.pull_mix[i];
         if (mix[i] < 0) {
           pushpull.direction_bits |= 1 << i;
-          pushpull.push_mix[i] = 0;
-          pushpull.pull_mix[i] = -1.0f * mix[i];
-          mix[i] = pushpull.pull_mix[i]; // ensure all values in mix are positive
-        } else {
-          pushpull.push_mix[i] = mix[i];
-          pushpull.pull_mix[i] = 0;
-        }
+          mix[i] *= -1.0f; // ensure all values in mix are positive
+        } 
       }
 
     copy_mix_to_color(pushpull.color);
-    #if 0
-    // Scale each component to the largest one in terms of COLOR_A_MASK
-    // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
-    const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
-      LIST_N(MIXING_STEPPERS, 
-        pushpull.mix[0], pushpull.mix[1], pushpull.mix[2], pushpull.mix[3], 
-        pushpull.mix[4], pushpull.mix[5], pushpull.mix[6], pushpull.mix[7])
-    ));
-    MIXER_STEPPER_LOOP(i) pushpull.color[i] = pushpull.mix[i] * scale;
-    #endif 
 
     }
   #endif // PUSH_PULL_TOOLCHANGE
