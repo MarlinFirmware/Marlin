@@ -37,12 +37,22 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   FORCE_INLINE void mod_probe_offset(const_float_t offs) {
     if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
       SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+
+      #if ENABLED(E3S1PRO_RTS)
+        zprobe_zoffset = probe.offset.z;
+        rts.sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      #endif
+
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
@@ -92,6 +102,12 @@ void GcodeSuite::M290() {
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+
+      #if ENABLED(E3S1PRO_RTS)
+        zprobe_zoffset = probe.offset.z;
+        rts.sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      #endif
+
     #endif
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)

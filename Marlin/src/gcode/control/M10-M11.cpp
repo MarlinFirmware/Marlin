@@ -25,7 +25,10 @@
 #if ENABLED(AIR_EVACUATION)
 
 #include "../gcode.h"
-#include "../../feature/spindle_laser.h"
+
+#if HAS_LASER_E3S1PRO
+  #include "../../feature/spindle_laser.h"
+#endif
 
 /**
  * M10: Vacuum or Blower On

@@ -65,6 +65,12 @@ bool printer_busy();
 
 extern bool wait_for_heatup;
 
+#if ENABLED(E3S1PRO_RTS)
+  extern bool wait_for_heatup;
+  extern uint8_t language_change_font;
+  extern uint8_t g_soundSetOffOn;
+#endif
+
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);

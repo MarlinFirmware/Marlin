@@ -28,6 +28,10 @@
 #include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M414: Set the language for the UI
  *
@@ -36,8 +40,10 @@
  */
 void GcodeSuite::M414() {
 
-  if (parser.seenval('S'))
+  if (parser.seenval('S')) {
+    TERN_(E3S1PRO_RTS, language_change_font = parser.value_byte());
     ui.set_language(parser.value_byte());
+  }
   else
     M414_report();
 

@@ -28,6 +28,10 @@
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/probe.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M851: Set the nozzle-to-probe offsets in current units
  */
@@ -71,8 +75,12 @@ void GcodeSuite::M851() {
 
   if (parser.seenval('Z')) {
     const float z = parser.value_float();
-    if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
+    if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
       offs.z = z;
+      #if ENABLED(E3S1PRO_RTS)
+        rts.sendData(offs.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      #endif
+    }
     else {
       SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Z out of range (", PROBE_OFFSET_ZMIN, " to ", PROBE_OFFSET_ZMAX, ")"));
       ok = false;
@@ -96,7 +104,7 @@ void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
       PSTR("  M851 X0 Y0 Z")
     #endif
     , LINEAR_UNIT(probe.offset.z)
-    , PSTR(" ;")
+    , PSTR(" ; Probe Offset")
   );
   say_units();
 }

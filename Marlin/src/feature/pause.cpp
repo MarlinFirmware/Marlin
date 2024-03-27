@@ -74,6 +74,10 @@
   #include "powerloss.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #include "../libs/nozzle.h"
 #include "pause.h"
 
@@ -149,6 +153,11 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
+
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+  #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
@@ -275,7 +284,14 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
     do {
       if (purge_length > 0) {
         // "Wait for filament purge"
-        if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
+        if (show_lcd) {
+          ui.pause_show_message(PAUSE_MESSAGE_PURGE);
+
+          #if ENABLED(E3S1PRO_RTS)
+            rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+            rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+          #endif
+        }
 
         // Extrude filament to get into hotend
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
@@ -288,7 +304,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
+          #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI, E3S1PRO_RTS)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
@@ -353,7 +369,14 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
     return false;
   }
 
-  if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
+  if (show_lcd){
+    ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
+
+    #if ENABLED(E3S1PRO_RTS)
+      rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+      rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+    #endif
+  }
 
   // Retract filament
   unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
@@ -416,6 +439,12 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
 
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(exchangePageBase + 7, exchangePageAddr);
+    change_page_font = 7;
+    sdcard_pause_check = true;
+  #endif
+
   // Indicate that the printer is paused
   ++did_pause_print;
 
@@ -467,6 +496,11 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
   if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
   if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
 
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+  #endif
+
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
@@ -503,6 +537,13 @@ void show_continue_prompt(const bool is_reload) {
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
+
+  #if ENABLED(E3S1PRO_RTS)
+    rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+    rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+    //rts.sendData(beepSound, soundAddr);
+  #endif
+
   SERIAL_ECHO_START();
   SERIAL_ECHO(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
@@ -532,6 +573,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_NOZZLE_PARKED)));
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_NOZZLE_PARKED)));
+
   wait_for_user = true;    // LCD click or M108 will clear this
   while (wait_for_user) {
     impatient_beep(max_beep_count);
@@ -544,6 +586,11 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     // re-heat the nozzle, re-show the continue prompt, restart idle timers, start over
     if (nozzle_timed_out) {
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
+      #if ENABLED(E3S1PRO_RTS)
+        rts.sendData(exchangePageBase + 7, exchangePageAddr);
+        rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
+        rts.sendData(thermalManager.degTargetHotend(0), HEAD_SET_TEMP_VP);
+      #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_HEATER_TIMEOUT), GET_TEXT_F(MSG_REHEAT)));
@@ -559,6 +606,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, GET_TEXT_F(MSG_REHEATING)));
 
       LCD_MESSAGE(MSG_REHEATING);
+      //TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(GET_TEXT_F(MSG_REHEATING)));
 
       // Re-enable the heaters if they timed out
       HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
@@ -575,6 +623,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_REHEATDONE)));
+
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_REHEATDONE));
       #else
@@ -586,7 +635,9 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       nozzle_timed_out = false;
       first_impatient_beep(max_beep_count);
     }
-    idle_no_sleep();
+
+    TERN(E3S1PRO_RTS, wait_for_user = false, idle_no_sleep());
+
   }
   TERN_(DUAL_X_CARRIAGE, set_duplication_enabled(saved_ext_dup_mode, saved_ext));
 }
@@ -719,6 +770,8 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   #endif
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());
+
+  TERN_(E3S1PRO_RTS, pause_menu_response = PAUSE_RESPONSE_WAIT_FOR);
 
   ui.reset_status();
   ui.return_to_status();

@@ -30,6 +30,10 @@
 
 #include "runout.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 FilamentMonitor runout;
 
 bool FilamentMonitorBase::enabled = true,
@@ -61,6 +65,10 @@ bool FilamentMonitorBase::enabled = true,
 #include "../MarlinCore.h"
 #include "../feature/pause.h"
 #include "../gcode/queue.h"
+
+#if ENABLED(E3S1PRO_RTS)
+  #include "../module/temperature.h"
+#endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "host_actions.h"
@@ -100,6 +108,13 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   const bool run_runout_script = !runout.host_handling;
+
+  #if ENABLED(E3S1PRO_RTS)
+    temphot = thermalManager.degTargetHotend(0);
+    rts.sendData(exchangePageBase + 7, exchangePageAddr);
+    change_page_font = 7;
+    sdcard_pause_check = true;
+  #endif
 
   #if ENABLED(HOST_ACTION_COMMANDS)
 

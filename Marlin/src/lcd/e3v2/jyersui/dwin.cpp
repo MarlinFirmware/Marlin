@@ -4614,7 +4614,7 @@ void JyersDWIN::printScreenControl() {
               #endif
               TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
-              TERN_(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
+              TERN_(HAS_MEDIA, queue.inject_P(M24_STR));
             #endif
           }
           else {

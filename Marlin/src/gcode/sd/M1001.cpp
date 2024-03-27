@@ -55,6 +55,14 @@
   #include "../../feature/host_actions.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
+#if HAS_LASER_E3S1PRO
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #ifndef PE_LEDS_COMPLETED_TIME
   #define PE_LEDS_COMPLETED_TIME (30*60)
 #endif
@@ -101,15 +109,26 @@ void GcodeSuite::M1001() {
     }
   #endif
 
-  // Inject SD_FINISHED_RELEASECOMMAND, if any
+  const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
+  #ifdef SD_FINISHED_RELEASECOMMAND_LASER
+    if (is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND_LASER));
+  #endif
   #ifdef SD_FINISHED_RELEASECOMMAND
-    process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
+    if (!is_laser) process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPrintDone());
 
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
+
+  #if HAS_LASER_E3S1PRO
+    if (laser_device.is_laser_device()) {
+      rts.sendData(exchangePageBase + 60, exchangePageAddr);
+      change_page_font = 60;
+    }
+  #endif
+
 }
 
 #endif // HAS_MEDIA

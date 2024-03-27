@@ -60,6 +60,10 @@
   #include "../../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -223,6 +227,7 @@ void GcodeSuite::G28() {
     set_and_report_grblstate(M_HOMING);
   #endif
 
+  TERN_(E3S1PRO_RTS, home_flag = true);
   TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
@@ -655,12 +660,28 @@ void GcodeSuite::G28() {
   TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
+  #if ENABLED(E3S1PRO_RTS)
+    RTS_MoveAxisHoming();
+    rts.sendData(0, MOTOR_FREE_ICON_VP);
+    home_flag = false;
+  #endif
+
   report_current_position();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
+  #if ENABLED(E3S1PRO_RTS)
+    const bool is_laser = TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device());
+    if (is_laser) {
+      do_blocking_move_to_xy(0, 10, homing_feedrate(X_AXIS));
+    }
+    else {
+      RTS_MoveAxisHoming();
+      rts.sendData(0, MOTOR_FREE_ICON_VP);
+    }
+  #endif
+
   #ifdef EVENT_GCODE_AFTER_HOMING
     gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));
   #endif
-
 }

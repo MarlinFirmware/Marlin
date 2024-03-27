@@ -80,6 +80,19 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
   TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
 }
 
+#if HAS_LASER_E3S1PRO
+  void Babystep::add_mm_laser(const AxisEnum axis, const_float_t mm) {
+    add_steps_laser(axis, mm * planner.settings.axis_steps_per_mm[axis]);
+  }
+  void Babystep::add_steps_laser(const AxisEnum axis, const int16_t distance) {
+    accum += distance; // Count up babysteps for the UI
+    steps[BS_AXIS_IND(axis)] += distance;
+    TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] += distance);
+    TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
+    TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+  }
+#endif
+
 #if ENABLED(EP_BABYSTEPPING)
   // Step Z for M293 / M294
   void Babystep::z_up()   { if (BABYSTEP_ALLOWED()) add_steps(Z_AXIS, +BABYSTEP_SIZE_Z); }

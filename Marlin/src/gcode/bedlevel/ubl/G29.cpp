@@ -35,6 +35,10 @@
   #include "../../../module/motion.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 void GcodeSuite::G29() {
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
@@ -42,6 +46,11 @@ void GcodeSuite::G29() {
   bedlevel.G29();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+
+  #if ENABLED(E3S1PRO_RTS) && GRID_MAX_POINTS_X == 7
+    rts.sendData(100, AUTO_LEVELING_PERCENT_DATA_VP);
+  #endif
+
 }
 
 #endif // AUTO_BED_LEVELING_UBL

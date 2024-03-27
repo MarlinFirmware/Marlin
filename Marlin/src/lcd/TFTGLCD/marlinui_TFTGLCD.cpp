@@ -557,8 +557,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
     lcd_moveto(10, 5); lcd_put_u8str(F("ILAZ"));
     ammeter.read();
     lcd_moveto(11, 6);
-    if (ammeter.current <= 0.999f)
-    {
+    if (ammeter.current <= 0.999f) {
       lcd_put_u8str("mA");
       lcd_moveto(10, 7);
       lcd_put_u8str(F(" ")); lcd_put_u8str(ui16tostr3rj(uint16_t(ammeter.current * 1000 + 0.5f)));

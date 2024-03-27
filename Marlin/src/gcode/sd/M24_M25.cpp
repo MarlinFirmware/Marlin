@@ -47,6 +47,10 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
+#if HAS_LASER_E3S1PRO
+  #include "../../feature/spindle_laser.h"
+#endif
+
 /**
  * M24: Start or Resume SD Print
  */
@@ -66,6 +70,13 @@ void GcodeSuite::M24() {
     if (did_pause_print) {
       resume_print(); // will call print_job_timer.start()
       return;
+    }
+  #endif
+
+  #if HAS_LASER_E3S1PRO
+    if (laser_device.is_laser_device()) {
+      laser_device.remove_card_before_is_printing = true;
+      cutter.apply_power(laser_device.power);
     }
   #endif
 
@@ -108,6 +119,13 @@ void GcodeSuite::M25() {
     #endif
 
     print_job_timer.pause();
+
+    #if HAS_LASER_E3S1PRO
+      if (laser_device.is_laser_device()) {
+        laser_device.pause_before_position = current_position;
+        laser_device.power = cutter.power;
+      }
+    #endif
 
     TERN_(DGUS_LCD_UI_MKS, MKS_pause_print_move());
 
