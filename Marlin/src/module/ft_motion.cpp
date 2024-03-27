@@ -474,38 +474,8 @@ void FTMotion::reset() {
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
 
-  NUM_AXIS_CODE(
-    axis_pos_move_end_ti[A_AXIS] = 0,
-    axis_pos_move_end_ti[B_AXIS] = 0,
-    axis_pos_move_end_ti[C_AXIS] = 0,
-    axis_pos_move_end_ti[I_AXIS] = 0,
-    axis_pos_move_end_ti[J_AXIS] = 0,
-    axis_pos_move_end_ti[K_AXIS] = 0,
-    axis_pos_move_end_ti[U_AXIS] = 0,
-    axis_pos_move_end_ti[V_AXIS] = 0,
-    axis_pos_move_end_ti[W_AXIS] = 0
-  );
-  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    axis_pos_move_end_ti[X_HEAD] = 0;
-    axis_pos_move_end_ti[Y_HEAD] = 0;
-  #endif
-
-  NUM_AXIS_CODE(
-    axis_neg_move_end_ti[A_AXIS] = 0,
-    axis_neg_move_end_ti[B_AXIS] = 0,
-    axis_neg_move_end_ti[C_AXIS] = 0,
-    axis_neg_move_end_ti[I_AXIS] = 0,
-    axis_neg_move_end_ti[J_AXIS] = 0,
-    axis_neg_move_end_ti[K_AXIS] = 0,
-    axis_neg_move_end_ti[U_AXIS] = 0,
-    axis_neg_move_end_ti[V_AXIS] = 0,
-    axis_neg_move_end_ti[W_AXIS] = 0
-  );
-  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    axis_neg_move_end_ti[X_HEAD] = 0;
-    axis_neg_move_end_ti[Y_HEAD] = 0;
-  #endif
-
+  ZERO(axis_pos_move_end_ti);
+  ZERO(axis_neg_move_end_ti);
 }
 
 // Private functions.

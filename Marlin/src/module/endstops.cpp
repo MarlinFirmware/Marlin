@@ -802,8 +802,8 @@ void Endstops::update() {
 
   #if HAS_X_AXIS
     #if ENABLED(FT_MOTION)
-      const bool x_moving_pos = ftMotion.axis_moving_pos(X_AXIS_HEAD);
-      const bool x_moving_neg = ftMotion.axis_moving_neg(X_AXIS_HEAD);
+      const bool x_moving_pos = ftMotion.axis_moving_pos(X_AXIS_HEAD),
+                 x_moving_neg = ftMotion.axis_moving_neg(X_AXIS_HEAD);
       #define X_MOVE_TEST x_moving_pos || x_moving_neg
       #define X_NEG_DIR_TEST x_moving_neg
     #else
@@ -844,8 +844,8 @@ void Endstops::update() {
 
   #if HAS_Y_AXIS
     #if ENABLED(FT_MOTION)
-      const bool y_moving_pos = ftMotion.axis_moving_pos(Y_AXIS_HEAD);
-      const bool y_moving_neg = ftMotion.axis_moving_neg(Y_AXIS_HEAD);
+      const bool y_moving_pos = ftMotion.axis_moving_pos(Y_AXIS_HEAD),
+                 y_moving_neg = ftMotion.axis_moving_neg(Y_AXIS_HEAD);
       #define Y_MOVE_TEST y_moving_pos || y_moving_neg
       #define Y_NEG_DIR_TEST y_moving_neg
     #else
@@ -886,8 +886,8 @@ void Endstops::update() {
 
   #if HAS_Z_AXIS
     #if ENABLED(FT_MOTION)
-      const bool z_moving_pos = ftMotion.axis_moving_pos(Z_AXIS_HEAD);
-      const bool z_moving_neg = ftMotion.axis_moving_neg(Z_AXIS_HEAD);
+      const bool z_moving_pos = ftMotion.axis_moving_pos(Z_AXIS_HEAD),
+                 z_moving_neg = ftMotion.axis_moving_neg(Z_AXIS_HEAD);
       #define Z_MOVE_TEST z_moving_pos || z_moving_neg
       #define Z_NEG_DIR_TEST z_moving_neg
     #else
