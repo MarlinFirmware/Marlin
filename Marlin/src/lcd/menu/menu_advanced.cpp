@@ -792,6 +792,10 @@ void menu_advanced_settings() {
     );
   #endif
 
+  #if ENABLED(EXPORT_SETTINGS)
+    ACTION_ITEM(MSG_EXPORT_SETTINGS, ui.export_settings);
+  #endif
+
   END_MENU();
 }
 

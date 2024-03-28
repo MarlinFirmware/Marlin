@@ -1889,3 +1889,8 @@
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
   #define SPI_FLASH_BACKUP 1
 #endif
+
+#if ALL(HAS_MEDIA, HAS_MARLINUI_MENU)
+  #define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
+  #define SERIAL_2_FILE   // Dump serial output to file, needed for export settings
+#endif

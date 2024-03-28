@@ -1877,6 +1877,16 @@ void MarlinUI::host_notify(const char * const cstr) {
 
 #endif
 
+#if ENABLED(EXPORT_SETTINGS)
+  void MarlinUI::export_settings() {
+    if (sr_file_open("M503.gc")) {
+      settings.report(true);
+      completion_feedback(sr_file_close() && sr_write_res != -1);
+    } else
+      completion_feedback(false);
+  }
+#endif
+
 #if ALL(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
 
   void MarlinUI::pause_show_message(
