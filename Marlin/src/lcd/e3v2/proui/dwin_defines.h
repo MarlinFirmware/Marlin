@@ -30,14 +30,6 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_MESH
-  #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
-  #if ENABLED(PROUI_MESH_EDIT)
-    #define Z_OFFSET_MIN  -3.0  // (mm)
-    #define Z_OFFSET_MAX   3.0  // (mm)
-  #endif
-#endif
-
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
@@ -84,13 +76,24 @@
 #else
   #define DEF_Z_AFTER_HOMING 0
 #endif
-#define DEF_HOTENDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 195)
-#define DEF_BEDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 60)
+#define DEF_HOTENDPIDT PREHEAT_1_TEMP_HOTEND
+#define DEF_BEDPIDT PREHEAT_1_TEMP_BED
 #define DEF_PIDCYCLES 5
 
 /**
  * ProUI internal feature flags
  */
+#if HAS_MESH
+  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset + points
+  #if ENABLED(PROUI_MESH_EDIT)
+    #define Z_OFFSET_MIN  -3.0  // (mm)
+    #define Z_OFFSET_MAX   3.0  // (mm)
+  #endif
+  #define PROUI_GRID_PNTS 1   // Add a menu item to change GRID_MAX_POINTS - grid array
+#endif
+#if HAS_BED_PROBE
+  #define PROUI_ITEM_ZFRS     // Add a menu item to change Z_PROBE_FEEDRATE_SLOW - probe speed
+#endif
 #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
   #define PROUI_MEDIASORT     // Enable option to sort G-code files
 #endif
@@ -114,3 +117,44 @@
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
+
+/**
+ * ProUI extra features
+ */
+#if HAS_BED_PROBE
+  constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
+#endif
+
+#if PROUI_GRID_PNTS
+  constexpr uint8_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
+  #define GRID_MIN 3
+  #define GRID_LIMIT 9
+#endif
+
+#if ENABLED(PROUI_MESH_EDIT)
+  #ifndef   MESH_INSET
+    #define MESH_INSET 10
+  #endif
+  #ifndef   MESH_MIN_X
+    #define MESH_MIN_X MESH_INSET
+  #endif
+  #ifndef   MESH_MIN_Y
+    #define MESH_MIN_Y MESH_INSET
+  #endif
+  #ifndef   MESH_MAX_X
+    #define MESH_MAX_X  X_BED_SIZE - (MESH_INSET)
+  #endif
+  #ifndef   MESH_MAX_Y
+    #define MESH_MAX_Y  Y_BED_SIZE - (MESH_INSET)
+  #endif
+  constexpr uint16_t DEF_MESH_MIN_X = MESH_MIN_X;
+  constexpr uint16_t DEF_MESH_MAX_X = MESH_MAX_X;
+  constexpr uint16_t DEF_MESH_MIN_Y = MESH_MIN_Y;
+  constexpr uint16_t DEF_MESH_MAX_Y = MESH_MAX_Y;
+  #define MIN_MESH_INSET 0
+  #define MAX_MESH_INSET X_BED_SIZE
+#endif
+
+#ifndef MULTIPLE_PROBING
+  #define MULTIPLE_PROBING 0
+#endif

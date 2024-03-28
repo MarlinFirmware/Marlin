@@ -154,6 +154,13 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
+  #if HAS_BED_PROBE
+    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
+    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
+  #endif
+  #if PROUI_GRID_PNTS
+    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
@@ -190,6 +197,7 @@ typedef struct {
   bool pause_flag:1;    // printing is paused
   bool select_flag:1;   // Popup button selected
   bool home_flag:1;     // homing in course
+  bool cancel_lev:1;    // cancel abl
 } hmi_flag_t;
 
 extern hmi_flag_t hmiFlag;
@@ -213,9 +221,13 @@ uint32_t getHash(char * str);
     void saveMesh();
   #endif
 #endif
+#if HAS_BED_PROBE
+  void autoLevel();
+#else
+  void homeZAndDisable();
+#endif
 void rebootPrinter();
 void disableMotors();
-void autoLevel();
 void autoHome();
 #if HAS_PREHEAT
   #define _DOPREHEAT(N) void DoPreheat##N();
@@ -247,9 +259,6 @@ void doCoolDown();
   void ublMeshSave();
   void ublMeshLoad();
 #endif
-#if DISABLED(HAS_BED_PROBE)
-  void homeZAndDisable();
-#endif
 
 // Other
 void gotoPrintProcess();
@@ -278,8 +287,10 @@ void dwinHomingDone();
 #if HAS_MESH
   void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
-void dwinLevelingStart();
-void dwinLevelingDone();
+#if HAS_LEVELING
+  void dwinLevelingStart();
+  void dwinLevelingDone();
+#endif
 void dwinPrintStarted();
 void dwinPrintPause();
 void dwinPrintResume();
@@ -319,6 +330,7 @@ void drawPrintFileMenu();
 void drawControlMenu();
 void drawAdvancedSettingsMenu();
 void drawPrepareMenu();
+void drawLevelMenu();
 void drawMoveMenu();
 void drawTrammingMenu();
 #if HAS_HOME_OFFSET
@@ -409,4 +421,31 @@ void drawMaxAccelMenu();
   #if ENABLED(MPC_AUTOTUNE)
     void dwinMPCTuning(tempcontrol_t result);
   #endif
+#endif
+
+// ProUI extra features
+#if PROUI_GRID_PNTS
+  #undef  GRID_MAX_POINTS_X
+  #undef  GRID_MAX_POINTS_Y
+  #undef  GRID_MAX_POINTS
+  #define GRID_MAX_POINTS_X hmiData.grid_max_points
+  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
+  #define GRID_MAX_POINTS  (hmiData.grid_max_points * hmiData.grid_max_points)
+#endif
+
+#if HAS_BED_PROBE
+  #undef Z_PROBE_FEEDRATE_SLOW
+  #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
+#endif
+
+#if ENABLED(PROUI_MESH_EDIT)
+  #undef  MESH_MIN_X
+  #undef  MESH_MAX_X
+  #undef  MESH_MIN_Y
+  #undef  MESH_MAX_Y
+  #include "../../marlinui.h"
+  #define MESH_MIN_X ui.mesh_inset_min_x
+  #define MESH_MAX_X ui.mesh_inset_max_x
+  #define MESH_MIN_Y ui.mesh_inset_min_y
+  #define MESH_MAX_Y ui.mesh_inset_max_y
 #endif

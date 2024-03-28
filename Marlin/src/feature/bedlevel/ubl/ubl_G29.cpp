@@ -44,6 +44,10 @@
   #include "../../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/e3v2/proui/meshviewer.h"
+#endif
+
 #if ENABLED(UBL_HILBERT_CURVE)
   #include "../hilbert_curve.h"
 #endif
@@ -306,9 +310,10 @@ void unified_bed_leveling::G29() {
   // Check for commands that require the printer to be homed
   if (may_move) {
     planner.synchronize();
-    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+    #if ENABLED(DWIN_LCD_PROUI)
       save_ubl_active_state_and_disable();
       gcode.process_subcommands_now(F("G28Z"));
+      gcode.process_subcommands_now(F("G28XY"));
       restore_ubl_active_state_and_leave();
     #else
       // Send 'N' to force homing before G29 (internal only)
@@ -768,7 +773,7 @@ void unified_bed_leveling::shift_mesh_height() {
       SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_MAX_POINTS, ".");
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_MAX_POINTS)));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
-      TERN_(DWIN_LCD_PROUI, dwinRedrawScreen());
+      TERN_(DWIN_LCD_PROUI, if (!hmiFlag.cancel_lev) { dwinRedrawScreen(); } else { break; })
 
       #if HAS_MARLINUI_MENU
         if (ui.button_pressed()) {
@@ -799,10 +804,13 @@ void unified_bed_leveling::shift_mesh_height() {
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
           ExtUI::onMeshUpdate(best.pos, measured_z);
         #endif
+        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(best.pos.x, best.pos.y, measured_z));
       }
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
     } while (best.pos.x >= 0 && --count);
+
+    TERN_(DWIN_LCD_PROUI, if (hmiFlag.cancel_lev) { goto EXIT_PROBE_MESH; })
 
     GRID_LOOP(x, y) if (z_values[x][y] == HUGE_VALF) z_values[x][y] = NAN; // Restore NAN for HUGE_VALF marks
 
@@ -813,7 +821,7 @@ void unified_bed_leveling::shift_mesh_height() {
     probe.stow();
     TERN_(HAS_MARLINUI_MENU, ui.capture());
 
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     restore_ubl_active_state_and_leave();
 
@@ -823,7 +831,7 @@ void unified_bed_leveling::shift_mesh_height() {
     );
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
+    TERN_(DWIN_LCD_PROUI, EXIT_PROBE_MESH: dwinLevelingDone());
   }
 
 #endif // HAS_BED_PROBE
@@ -1184,9 +1192,9 @@ bool unified_bed_leveling::G29_parse_parameters() {
   }
 
   param.XY_seen.x = parser.seenval('X');
-  float sx = param.XY_seen.x ? parser.value_float() : current_position.x;
+  float sx = param.XY_seen.x ? parser.value_float() : current_position.x - TERN0(HAS_BED_PROBE, probe.offset.x);
   param.XY_seen.y = parser.seenval('Y');
-  float sy = param.XY_seen.y ? parser.value_float() : current_position.y;
+  float sy = param.XY_seen.y ? parser.value_float() : current_position.y - TERN0(HAS_BED_PROBE, probe.offset.y);
 
   if (param.XY_seen.x != param.XY_seen.y) {
     SERIAL_ECHOLNPGM("Both X & Y locations must be specified.\n");
@@ -1195,8 +1203,8 @@ bool unified_bed_leveling::G29_parse_parameters() {
 
   // If X or Y are not valid, use center of the bed values
   // (for UBL_HILBERT_CURVE default to lower-left corner instead)
-  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER);
-  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER);
+  if (!COORDINATE_OKAY(sx, X_MIN_BED, X_MAX_BED)) sx = TERN(UBL_HILBERT_CURVE, 0, X_CENTER - TERN0(HAS_BED_PROBE, probe.offset.x));
+  if (!COORDINATE_OKAY(sy, Y_MIN_BED, Y_MAX_BED)) sy = TERN(UBL_HILBERT_CURVE, 0, Y_CENTER - TERN0(HAS_BED_PROBE, probe.offset.y));
 
   if (err_flag) return UBL_ERR;
 
@@ -1442,10 +1450,10 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
 void unified_bed_leveling::smart_fill_mesh() {
   static const smart_fill_info
-    info0 PROGMEM = { 0, GRID_MAX_POINTS_X,       0, (GRID_MAX_POINTS_Y) - 2, false },  // Bottom of the mesh looking up
-    info1 PROGMEM = { 0, GRID_MAX_POINTS_X,     (GRID_MAX_POINTS_Y) - 1, 0,   false },  // Top of the mesh looking down
-    info2 PROGMEM = { 0, (GRID_MAX_POINTS_X) - 2, 0, GRID_MAX_POINTS_Y,       true  },  // Left side of the mesh looking right
-    info3 PROGMEM = { (GRID_MAX_POINTS_X) - 1, 0, 0, GRID_MAX_POINTS_Y,       true  };  // Right side of the mesh looking left
+    info0 PROGMEM = { 0, GRID_MAX_POINTS_X, 0, uint8_t((GRID_MAX_POINTS_Y) - 2),    false }, // Bottom of the mesh looking up
+    info1 PROGMEM = { 0, GRID_MAX_POINTS_X,    uint8_t((GRID_MAX_POINTS_Y) - 1), 0, false }, // Top of the mesh looking down
+    info2 PROGMEM = { 0, uint8_t((GRID_MAX_POINTS_X) - 2), 0,    GRID_MAX_POINTS_Y, true  }, // Left side of the mesh looking right
+    info3 PROGMEM = {    uint8_t((GRID_MAX_POINTS_X) - 1), 0, 0, GRID_MAX_POINTS_Y, true  }; // Right side of the mesh looking left
   static const smart_fill_info * const info[] PROGMEM = { &info0, &info1, &info2, &info3 };
 
   for (uint8_t i = 0; i < COUNT(info); ++i) {
@@ -1513,7 +1521,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
 
       probe.stow();
-      probe.move_z_after_probing();
+      TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
       if (abort_flag) {
         SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1599,7 +1607,7 @@ void unified_bed_leveling::smart_fill_mesh() {
       }
     }
     probe.stow();
-    probe.move_z_after_probing();
+    TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
     if (abort_flag || finish_incremental_LSF(&lsf_results)) {
       SERIAL_ECHOLNPGM("Could not complete LSF!");
@@ -1680,7 +1688,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     // being extrapolated so that nearby points will have greater influence on
     // the point being extrapolated.  Then extrapolate the mesh point from WLSF.
 
-    static_assert((GRID_MAX_POINTS_Y) <= 16, "GRID_MAX_POINTS_Y too big");
+    static_assert((TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y)) <= 16, "GRID_MAX_POINTS_Y too big");
     uint16_t bitmap[GRID_MAX_POINTS_X] = { 0 };
     struct linear_fit_data lsf_results;
 
