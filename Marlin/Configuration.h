@@ -3408,6 +3408,11 @@
 //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
 
 //
+// Ender-3 S1 Pro Resistive Touch Screen
+//
+//#define E3S1PRO_RTS
+
+//
 // Touch Screen Settings
 //
 //#define TOUCH_SCREEN

@@ -27,15 +27,41 @@
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 /**
  * M117: Set LCD Status Message
  */
 void GcodeSuite::M117() {
 
-  if (parser.string_arg && parser.string_arg[0])
-    ui.set_status_no_expire(parser.string_arg);
-  else
-    ui.reset_status();
+  #if ENABLED(E3S1PRO_RTS)
+    // Clear out RTS status areas
+    for (int j = 0 ; j < TEXTBYTELEN ; j++) {
+      rts.sendData(0, PRINT_FILE_TEXT_VP + j);
+      rts.sendData(0, SELECT_FILE_TEXT_VP + j);
+    }
+
+    if (parser.string_arg && parser.string_arg[0]) {
+      char msg[20];
+
+      if (strlen(parser.string_arg) >= TEXTBYTELEN) {
+        strncpy(msg, parser.string_arg, TEXTBYTELEN - 1);
+        msg[TEXTBYTELEN - 1] = '\0';
+      }
+      else
+        strcpy(msg, parser.string_arg);
+
+      rts.sendData(msg, PRINT_FILE_TEXT_VP);
+      rts.sendData(msg, SELECT_FILE_TEXT_VP);
+    }
+  #else
+    if (parser.string_arg && parser.string_arg[0])
+      ui.set_status_no_expire(parser.string_arg);
+    else
+      ui.reset_status();
+  #endif
 
 }
 

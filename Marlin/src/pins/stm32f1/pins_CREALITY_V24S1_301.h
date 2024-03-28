@@ -30,10 +30,10 @@
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Creality v24S1 only supports 1 hotend / E stepper."
-  #define E_ERROR 1
+  #define E_ERROR                              1
 #endif
 
-#if ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if DISABLED(E3S1PRO_RTS) && ALL(BLTOUCH, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #error "Disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN when using BLTOUCH with Creality V24S1-301."
 #endif
 
@@ -54,7 +54,7 @@
 //
 // Limit Switches
 //
-#define Z_STOP_PIN                          PA15
+#define Z_STOP_PIN                          PC14
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PC14  // BLTouch IN
@@ -90,9 +90,25 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
+
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    #define IIC_EEPROM_SDA                  PA11
+    #define IIC_EEPROM_SCL                  PA12
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+  #elif ENABLED(SDCARD_EEPROM_EMULATION)
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
+  #endif
+
+  #define EEPROM_PLR
+  #if ENABLED(EEPROM_PLR)
+    #define PLR_ADDR                         800
+  #endif
+
   //#define HEATER_0_PIN                    -1
   //#define HEATER_BED_PIN                  -1
-  #define FAN0_PIN                          -1
+  #define FAN0_PIN                          PA0
+  #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
   #define SPINDLE_LASER_PWM_PIN             PC0   // Bed FET
   #define SPINDLE_LASER_ENA_PIN             PC0   // FET 1
   #define SPINDLE_DIR_PIN                   PC0   // FET 4

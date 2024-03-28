@@ -216,27 +216,29 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(LASER_FEATURE)
-    if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
-      // Set the cutter power in the planner to configure this move
-      cutter.last_feedrate_mm_m = 0;
-      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
-        planner.laser_inline.status.isPowered = true;
-        if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
-        if (parser.seenval('S')) {
-          const float v = parser.value_float(),
-                      u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
-          cutter.menuPower = cutter.unitPower = u;
-          cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
+    if (laser_device.is_laser_device()) {
+      if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
+        // Set the cutter power in the planner to configure this move
+        cutter.last_feedrate_mm_m = 0;
+        if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
+          planner.laser_inline.status.isPowered = true;
+          if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
+          if (parser.seenval('S')) {
+            const float v = parser.value_float(),
+                        u = TERN(LASER_POWER_TRAP, v, cutter.power_to_range(v));
+            cutter.menuPower = cutter.unitPower = u;
+            cutter.inline_power(TERN(SPINDLE_LASER_USE_PWM, cutter.upower_to_ocr(u), u > 0 ? 255 : 0));
+          }
+        }
+        else if (parser.codenum == 0) {
+          // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
+          if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
+          cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
         }
       }
-      else if (parser.codenum == 0) {
-        // For dynamic mode we need to flag isPowered off, dynamic power is calculated in the stepper based on feedrate.
-        if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC) planner.laser_inline.status.isPowered = false;
-        cutter.inline_power(0); // This is planner-based so only set power and do not disable inline control flags.
-      }
+      else if (parser.codenum == 0)
+        cutter.apply_power(0);
     }
-    else if (parser.codenum == 0)
-      cutter.apply_power(0);
   #endif // LASER_FEATURE
 }
 
@@ -1213,6 +1215,10 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
+  #if ENABLED(E3S1PRO_RTS)
+    extern int change_page_font;
+  #endif
+
   /**
    * Output a "busy" message at regular intervals
    * while the machine is not accepting commands.
@@ -1230,7 +1236,8 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          if (TERN1(E3S1PRO_RTS, change_page_font == 7))
+            SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:

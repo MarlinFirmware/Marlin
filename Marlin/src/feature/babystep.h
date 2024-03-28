@@ -59,6 +59,11 @@ public:
     }
   #endif
 
+  #if HAS_LASER_E3S1PRO
+    void add_mm_laser(const AxisEnum axis, const_float_t mm);
+    void add_steps_laser(const AxisEnum axis, const int16_t distance);
+  #endif
+
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const_float_t mm);
 

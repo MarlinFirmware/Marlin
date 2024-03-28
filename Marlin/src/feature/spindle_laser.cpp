@@ -182,4 +182,8 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
   void SpindleLaser::air_assist_toggle()  { TOGGLE(AIR_ASSIST_PIN); } // Toggle state
 #endif
 
+#if HAS_LASER_E3S1PRO
+  class spindle_laser_soft_pwm laser_device;
+#endif
+
 #endif // HAS_CUTTER

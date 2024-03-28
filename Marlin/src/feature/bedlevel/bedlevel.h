@@ -23,6 +23,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 #if ANY(RESTORE_LEVELING_AFTER_G28, ENABLE_LEVELING_AFTER_G28)
   #define CAN_SET_LEVELING_AFTER_G28 1
 #endif
@@ -67,6 +71,11 @@ class TemporaryBedLevelingState {
     #include "ubl/ubl.h"
   #elif ENABLED(MESH_BED_LEVELING)
     #include "mbl/mesh_bed_leveling.h"
+  #endif
+
+  #if ENABLED(E3S1PRO_RTS)
+    #define Z_VALUES(X,Y) Z_VALUES_ARR[X][Y]
+    #define _GET_MESH_POS(M) { _GET_MESH_X(M.a), _GET_MESH_Y(M.b) }
   #endif
 
   #if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)

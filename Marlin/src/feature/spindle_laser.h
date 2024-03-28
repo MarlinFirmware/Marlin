@@ -35,6 +35,10 @@
 // Inline laser power
 #include "../module/planner.h"
 
+#if HAS_LASER_E3S1PRO
+  #include "e3s1pro_laser.h"
+#endif
+
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
 #define PCT_TO_SERVO(X) ((X) * 180 / 100)
 
@@ -224,7 +228,10 @@ public:
     static void set_reverse(const bool reverse);
     static bool is_reverse() { return READ(SPINDLE_DIR_PIN) == SPINDLE_INVERT_DIR; }
   #else
-    static void set_reverse(const bool) {}
+    static void set_reverse(const bool dyn) {
+      TERN_(E3S1PRO_RTS, cutter_mode = dyn ? CUTTER_MODE_DYNAMIC : CUTTER_MODE_STANDARD);
+      UNUSED(dyn);
+    }
     static bool is_reverse() { return false; }
   #endif
 

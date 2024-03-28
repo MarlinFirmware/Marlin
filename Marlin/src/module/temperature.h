@@ -148,6 +148,12 @@ enum ADCSensorState : char {
 //
 
 typedef struct { float p, i, d; } raw_pid_t;
+
+#if ENABLED(E3S1PRO_RTS)
+  typedef struct { float p, i, d, c; } raw_pidc_t;
+  typedef struct { float p, i, d, f; } raw_pidf_t;
+#endif
+
 typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #if HAS_PID_HEATING
@@ -1425,5 +1431,21 @@ class Temperature {
 
     #endif // HAS_THERMAL_PROTECTION
 };
+
+#if ALL(EEPROM_DEMARCATE, E3S1PRO_RTS)
+    typedef struct demarcate_data
+    {
+      uint8_t demarcate_save_flag;
+      int8_t  demarcate_set_nozzle[DEMARCATE_NUMBER];
+      int8_t  demarcate_set_bed[DEMARCATE_NUMBER];
+      uint8_t demarcate_crc;
+    }DEMARCATE_T;
+
+    extern DEMARCATE_T demarcate_data;
+#endif
+
+#if ENABLED(E3S1PRO_RTS)
+  extern raw_pid_t g_autoPID;
+#endif
 
 extern Temperature thermalManager;

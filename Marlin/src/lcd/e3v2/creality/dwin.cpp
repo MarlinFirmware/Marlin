@@ -152,7 +152,11 @@ typedef struct {
 
 select_t select_page{0}, select_file{0}, select_print{0}, select_prepare{0}
        , select_control{0}, select_axis{0}, select_temp{0}, select_motion{0}, select_tune{0}
-       , select_advset{0}, select_speed{0}, select_acc{0}, select_jerk{0}, select_step{0}, select_item{0};
+       , select_advset{0}, select_speed{0}, select_acc{0}, select_jerk{0}, select_step{0}, select_item{0}
+      #if ENABLED(LASER_FEATURE)
+       , select_laser_fdm{0}
+      #endif
+       ;
 
 #if HAS_PREHEAT
   select_t select_PLA{0};

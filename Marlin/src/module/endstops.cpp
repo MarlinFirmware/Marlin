@@ -54,6 +54,10 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(E3S1PRO_RTS)
+  #include "../lcd/rts/e3s1pro/lcd_rts.h"
+#endif
+
 Endstops endstops;
 
 // private:
@@ -263,8 +267,25 @@ void Endstops::not_homing() {
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
-    if (trigger_state()) hit_on_purpose();
-    else kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+
+    if (trigger_state()) {
+      hit_on_purpose();
+    } else {
+
+      #if ENABLED(E3S1PRO_RTS)
+        waitway = 0;
+        // Displays the exception interface after 3 failures
+        // jump2page_num(PG_ABNORMAL);
+        // change_page_font = PG_ABNORMAL;
+        // Failed to homing move
+        // rts.sendData(Error_202, ABNORMAL_PAGE_TEXT_VP);
+        // rts.sendData(0, Window_fault_probe_VP);
+        // rts.sendData(0, Window_fault_home_VP);
+        errorway = 2;
+      #endif
+
+      kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+    }
   }
 #endif
 
