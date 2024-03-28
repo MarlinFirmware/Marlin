@@ -635,6 +635,9 @@ void menu_configuration() {
 
   #if HAS_FILAMENT_SENSOR
     EDIT_ITEM(bool, MSG_RUNOUT_SENSOR, &runout.enabled, runout.reset);
+    #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+      EDIT_ITEM(bool, MSG_SWAP_SENSORS, &runout.swap_sensors);
+    #endif
   #endif
 
   #if HAS_FANCHECK

@@ -83,6 +83,10 @@ class FilamentMonitorBase {
   public:
     static bool enabled, filament_ran_out;
 
+    #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+      static bool swap_sensors;
+    #endif
+
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
     #else
@@ -205,8 +209,14 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout pin states
     static uint8_t poll_runout_pins() {
+      #if ENABLED(FIL_RUNOUT_SWAP_SENSORS)
+        if (runout.swap_sensors)
+          return (READ(FIL_RUNOUT2_PIN) ? _BV((1) - 1) : 0) | (READ(FIL_RUNOUT1_PIN) ? _BV((2) - 1) : 0);
+      #endif
+
       #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
       return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
+
       #undef _OR_RUNOUT
     }
 
