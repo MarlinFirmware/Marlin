@@ -72,6 +72,7 @@ void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
       , " B", recovery.bed_temp_threshold
     #endif
   );
+  SERIAL_ECHO(" ; ");
   serialprintln_onoff(recovery.enabled);
 }
 
