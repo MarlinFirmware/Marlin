@@ -38,6 +38,7 @@
 #define CLASS_TMC2160 TMC2160Stepper
 #define CLASS_TMC2208 TMC2208Stepper
 #define CLASS_TMC2209 TMC2209Stepper
+#define CLASS_TMC2240 TMC2240Stepper
 #define CLASS_TMC2660 TMC2660Stepper
 #define CLASS_TMC5130 TMC5130Stepper
 #define CLASS_TMC5160 TMC5160Stepper
@@ -108,7 +109,7 @@
   #define CHOPPER_TIMING_E CHOPPER_TIMING
 #endif
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
   void tmc_serial_begin();
 #endif
 

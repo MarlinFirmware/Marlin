@@ -64,7 +64,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if HAS_TMCx1x0 || HAS_TMC220x
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -73,7 +73,7 @@
     #endif
   };
 
-  #if HAS_TMCX1X0
+  #if HAS_TMCx1x0
 
     #if ENABLED(TMC_DEBUG)
       static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
@@ -132,7 +132,7 @@
       return data;
     }
 
-  #endif // HAS_TMCX1X0
+  #endif // HAS_TMCx1x0
 
   #if HAS_TMC220x
 
@@ -228,7 +228,7 @@
     st.printLabel();
     SString<60> report(':', pwm_scale);
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if HAS_TMCx1x0 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
       #if HAS_STALLGUARD
@@ -574,7 +574,7 @@
       }
     }
   #endif
-  #if HAS_TMCX1X0
+  #if HAS_TMCx1x0
     static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('*'); break;
@@ -961,7 +961,7 @@
     #endif
     TMC_REPORT("CS actual",          TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
-    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_TMC220x
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2660) || HAS_TMC220x
       TMC_REPORT("vsense\t",         TMC_VSENSE);
     #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
@@ -989,10 +989,10 @@
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
     TMC_REPORT("uStep count",        TMC_MSCNT);
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_TMCX1X0 || HAS_TMC220x
+    #if HAS_TMCx1x0 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
     #endif
-    #if HAS_TMCX1X0
+    #if HAS_TMCx1x0
       DRV_REPORT("stallguard",       TMC_STALLGUARD);
       DRV_REPORT("fsactive",         TMC_FSACTIVE);
     #endif
@@ -1017,7 +1017,7 @@
 
   #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_long(st.REG_CASE(), ':'); break
 
-  #if HAS_TMCX1X0
+  #if HAS_TMCx1x0
     static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
       switch (i) {
         PRINT_TMC_REGISTER(TCOOLTHRS);
@@ -1201,6 +1201,21 @@
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
     st.en_spreadCycle(!restore_stealth);
     st.TCOOLTHRS(0);
+  }
+
+  bool tmc_enable_stallguard(TMC2240Stepper &st) {
+    const bool stealthchop_was_enabled = st.en_pwm_mode();
+
+    st.TCOOLTHRS(0xFFFFF);
+    st.en_pwm_mode(false);
+    st.diag0_stall(true);
+
+    return stealthchop_was_enabled;
+  }
+  void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth) {
+    st.TCOOLTHRS(0);
+    st.en_pwm_mode(restore_stealth);
+    st.diag0_stall(false);
   }
 
   bool tmc_enable_stallguard(TMC2660Stepper) {

@@ -46,7 +46,11 @@ enum StealthIndex : uint8_t {
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #if HAS_DRIVER(TMC2240)
+    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #else
+    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #endif
 #else
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
 #endif
@@ -56,6 +60,7 @@ enum StealthIndex : uint8_t {
 #else
   #define TMC_UART_HW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(&ST##_HARDWARE_SERIAL, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
 #endif
+
 #define TMC_UART_SW_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, float(ST##_RSENSE), ST##_SLAVE_ADDRESS)
 
 #define _TMC_SPI_DEFINE(IC, ST, AI) __TMC_SPI_DEFINE(IC, ST, TMC_##ST##_LABEL, AI)
@@ -292,7 +297,7 @@ enum StealthIndex : uint8_t {
 //
 // TMC2208/2209 Driver objects and inits
 //
-#if HAS_TMC220x
+#if HAS_TMC_UART
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
@@ -750,6 +755,57 @@ enum StealthIndex : uint8_t {
     delay(200);
   }
 #endif // TMC2209
+
+#if HAS_DRIVER(TMC2240)
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void tmc_init(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t hyb_thrs, const bool stealth, const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier) {
+    st.begin();
+    TMC2240_n::GCONF_t gconf{0};
+    gconf.en_pwm_mode = !stealth;
+    st.GCONF(gconf.sr);
+    st.en_pwm_mode(stealth);
+    st.stored.stealthChop_enabled = stealth;
+
+    TMC2240_n::DRV_CONF_t drv_conf{0};
+    drv_conf.current_range=TMC2240_CURRENT_RANGE;
+    st.DRV_CONF(drv_conf.sr);
+
+    //SERIAL_ECHOLNPGM("mA=", mA);
+    st.rms_current(mA, hold_multiplier);
+
+    st.iholddelay(6);
+    st.irundelay(4);
+
+    TMC2240_n::CHOPCONF_t chopconf{0};
+    chopconf.toff = chop_init.toff;       //  3
+    chopconf.intpol = interpolate;        //  1
+    chopconf.hstrt = chop_init.hstrt - 1; //  6 - 1
+    chopconf.hend = chop_init.hend + 3;   // -1 + 3
+    chopconf.TBL    = 2;
+    chopconf.tpfd   = 4;
+
+    st.CHOPCONF(chopconf.sr);
+    st.microsteps(microsteps);
+    //st.CHOPCONF(0x14410153);  // 0x14410153
+
+    TMC2240_n::PWMCONF_t  pwmconf{0};
+    pwmconf.pwm_ofs = 30;
+    pwmconf.pwm_autoscale = 1;
+    pwmconf.pwm_autograd = 1;
+    pwmconf.pwm_reg = 4;
+    pwmconf.pwm_lim = 12;
+    st.PWMCONF(pwmconf.sr);
+    st.TPOWERDOWN(10);
+
+    //st.GCONF(0x00);
+    //st.IHOLD_IRUN(0x04071F03);
+    //st.CHOPCONF(0x14410153);  // 0x14410153
+    //st.PWMCONF(0xC40C1E1D);
+    st.GSTAT(0x07);
+    st.GSTAT(0x00);
+    delay(200);
+  }
+#endif // TMC2240
 
 #if HAS_DRIVER(TMC2660)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
