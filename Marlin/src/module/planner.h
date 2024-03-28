@@ -369,6 +369,12 @@ typedef struct PlannerSettings {
             travel_acceleration;                // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
  feedRate_t min_feedrate_mm_s,                  // (mm/s) M205 S - Minimum linear feedrate
             min_travel_feedrate_mm_s;           // (mm/s) M205 T - Minimum travel feedrate
+  #if HAS_ROTATIONAL_AXES
+         float angular_acceleration,            // (°/s^2) M204 I - Normal acceleration for angular moves. DEFAULT ANGULAR ACCELERATION for all angular printing moves.
+               angular_travel_acceleration;     // (°/s^2) M204 J - Normal acceleration for angular travel moves. DEFAULT ANGULAR ACCELERATION for all angular NON printing moves.
+    feedRate_t min_feedrate_deg_s,              // (°/s) M205 P - Minimum linear feedrate
+               min_travel_feedrate_deg_s;       // (°/s) M205 Q - Minimum travel feedrate
+  #endif
 } planner_settings_t;
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
@@ -420,11 +426,11 @@ struct PlannerHints {
                                       // i.e., at or below the exit speed of the segment that the planner
                                       // would calculate if it knew the as-yet-unbuffered path
   #endif
-
   #if HAS_ROTATIONAL_AXES
+    feedRate_t fr_deg_s = 0.0;        // Feedrate in °/s. For moves involving only rotational axes
     bool cartesian_move = true;       // True if linear motion of the tool centerpoint relative to the workpiece occurs.
                                       // False if no movement of the tool center point relative to the work piece occurs
-                                      // (i.e. the tool rotates around the tool centerpoint)
+                                      // (i.e. tool rotates around the tool centerpoint)
   #endif
   PlannerHints(const_float_t mm=0.0f) : millimeters(mm) {}
 };
@@ -888,7 +894,7 @@ class Planner {
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
+      friend void do_homing_move(const AxisEnum, const float, const feedRate_t OPTARG(HAS_ROTATIONAL_AXES, const feedRate_t), const bool);
   #endif
 
     /**

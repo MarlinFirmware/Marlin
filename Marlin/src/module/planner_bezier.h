@@ -35,4 +35,5 @@ void cubic_b_spline(
   const xy_pos_t (&offsets)[2],     // a pair of offsets
   const_feedRate_t scaled_fr_mm_s,  // mm/s scaled by feedrate %
   const uint8_t extruder
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t scaled_fr_deg_s)  // mm/s scaled by feedrate %
 );

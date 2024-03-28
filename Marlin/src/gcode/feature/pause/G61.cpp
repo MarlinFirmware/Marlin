@@ -71,13 +71,19 @@ void GcodeSuite::G61() {
   if (!TEST(saved_slots[slot >> 3], slot & 0x07)) return;
 
   // Apply any given feedrate over 0.0
-  REMEMBER(saved, feedrate_mm_s);
+  REMEMBER(saved_fr, feedrate_mm_s);
+  #if HAS_ROTATIONAL_AXES
+    REMEMBER(saved_afr, feedrate_deg_s);
+  #endif
   const float fr = parser.linearval('F');
-  if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
+  if (fr > 0.0f) {
+    feedrate_mm_s = fr;
+    TERN_(HAS_ROTATIONAL_AXES, feedrate_deg_s = LINEAR_UNIT(fr));
+  }
 
   if (!parser.seen_axis()) {
     DEBUG_ECHOLNPGM("Default position restore");
-    do_blocking_move_to(stored_position[slot], feedrate_mm_s);
+    do_blocking_move_to(stored_position[slot], feedrate_mm_s OPTARG(HAS_ROTATIONAL_AXES, feedrate_deg_s));
     SYNC_E(stored_position[slot].e);
   }
   else {

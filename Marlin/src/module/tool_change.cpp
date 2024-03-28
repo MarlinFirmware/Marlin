@@ -148,7 +148,7 @@
 
 // Move to position routines
 void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
-  line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
+  line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale OPTARG(HAS_ROTATIONAL_AXES, planner.settings.max_feedrate_mm_s[fr_axis]));
 }
 void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.2f); }
 void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
@@ -201,7 +201,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_ECHOPGM("(2) Couple extruder ", new_tool);
     DEBUG_POS(" to new extruder GrabPos", current_position);
-
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
     planner.synchronize();
 
@@ -647,7 +646,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move X SwitchPos", current_position);
 
-    line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS] * 0.25f);
+    line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS] * 0.25f OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
 
     // 2. Release and place toolhead in the dock
 
@@ -656,14 +655,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
-    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
+    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY;
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
-    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
+    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
 
     // 3. Move to new toolhead position
 
@@ -681,7 +680,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
     DEBUG_POS("Move Y SwitchPos + Release", current_position);
-    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
+    line_to_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] OPTARG(HAS_ROTATIONAL_AXES, 0.0f));
 
     current_position.y = SWITCHING_TOOLHEAD_Y_POS;
 
@@ -856,7 +855,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     ) {
       DEBUG_ECHOLNPGM("MoveX to ", xhome);
       current_position.x = xhome;
-      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);   // Park the current head
+      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS] OPTARG(HAS_ROTATIONAL_AXES, 0.0f));   // Park the current head
       planner.synchronize();
     }
 
@@ -1025,6 +1024,10 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    */
   void tool_change_prime() {
 
+    #if HAS_ROTATIONAL_AXES
+      PlannerHints hints;
+    #endif
+
     DEBUG_SECTION(tcp, "tool_change_prime", true);
 
     if (!too_cold(active_extruder)) {
@@ -1061,7 +1064,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
               current_position.w = toolchange_settings.change_point.w
             );
           #endif
-          planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
+          TERN_(HAS_ROTATIONAL_AXES, hints.fr_deg_s = MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder OPTARG(HAS_ROTATIONAL_AXES, hints));
           planner.synchronize();
         }
       #endif
@@ -1072,13 +1076,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // Move back
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
-          #if ENABLED(TOOLCHANGE_NO_RETURN)
-            destination.x = current_position.x;
-            destination.y = current_position.y;
-          #endif
-          do_blocking_move_to_xy(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
-          do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
-          planner.synchronize();
+          TERN_(TOOLCHANGE_NO_RETURN, destination.set(current_position.x, current_position.y));
+          TERN_(HAS_ROTATIONAL_AXES, hints.fr_deg_s = DPM_TO_DPS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          const float destz = destination.z;
+          destination.z = current_position.z;
+          planner.buffer_line(destination, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder OPTARG(HAS_ROTATIONAL_AXES, hints));
+          current_position = destination;
+          current_position.z = destz;
+          planner.buffer_line(destination, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder OPTARG(HAS_ROTATIONAL_AXES, hints));
         }
       #endif
 
@@ -1220,6 +1225,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       TERN_(SWITCHING_NOZZLE_TWO_SERVOS, raise_nozzle(old_tool));
 
       REMEMBER(fr, feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
+      #if HAS_ROTATIONAL_AXES
+        REMEMBER(angular_fr, feedrate_deg_s, XY_PROBE_FEEDRATE_MM_S);
+        PlannerHints hints;
+        hints.fr_deg_s = XY_PROBE_FEEDRATE_MM_S;
+      #endif
 
       #if HAS_SOFTWARE_ENDSTOPS
         #if HAS_HOTEND_OFFSET
@@ -1258,7 +1268,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
               current_position.w = toolchange_settings.change_point.w
             );
           #endif
-          planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
+          TERN_(HAS_ROTATIONAL_AXES, hints.fr_deg_s = DPM_TO_DPS(TOOLCHANGE_PARK_XY_FEEDRATE));
+          planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool OPTARG(HAS_ROTATIONAL_AXES, hints));
           planner.synchronize();
         }
       #endif
@@ -1341,7 +1352,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           // If the original position is within tool store area, go to X origin at once
           if (destination.y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
             current_position.x = X_MIN_POS;
-            planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
+            planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool OPTARG(HAS_ROTATIONAL_AXES, hints));
             planner.synchronize();
           }
         #else

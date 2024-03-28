@@ -68,7 +68,7 @@ void lcd_move_axis(const AxisEnum axis) {
       }
     #endif
 
-    // Get the new position
+    // Get the new mm / degree position
     const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     (void)ui.manual_move.apply_diff(axis, diff, min, max);
     ui.manual_move.soon(axis);
@@ -78,7 +78,7 @@ void lcd_move_axis(const AxisEnum axis) {
   if (ui.should_draw()) {
     MenuEditItemBase::itemIndex = axis;
     const float pos = ui.manual_move.axis_value(axis);
-    if (parser.using_inch_units() && !parser.axis_is_rotational(axis)) {
+    if (parser.axis_unit_factor(axis) != 1.0f && !parser.axis_is_rotational(axis)) {
       const float imp_pos = parser.per_axis_value(axis, pos);
       MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_MOVE_N), ftostr63(imp_pos));
     }
@@ -163,7 +163,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   #endif
   #define __MOVE_SUB(L,T,D) if (rotational[axis] || _LINEAR_LIMIT(D)) SUBMENU_S(F(T), L, []{ _goto_manual_move(D); })
 
-  if (rotational[axis]) {
+  if (parser.axis_is_rotational(axis)) {
     #ifdef MANUAL_MOVE_DISTANCE_DEG
       #define _MOVE_DEG(D) __MOVE_SUB(MSG_MOVE_N_DEG, STRINGIFY(D), D);
       MAP(_MOVE_DEG, MANUAL_MOVE_DISTANCE_DEG)

@@ -104,12 +104,15 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
  * The default feedrate for many moves, set by the most recent move
  */
 extern feedRate_t feedrate_mm_s;
+#if HAS_ROTATIONAL_AXES
+  extern feedRate_t feedrate_deg_s;
+#endif
 
 /**
  * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
  */
 extern int16_t feedrate_percentage;
-#define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
+#define FR_SCALED(V) ((V) * 0.01f * feedrate_percentage)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
@@ -332,7 +335,10 @@ void sync_plan_position();
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
  */
-void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
+void line_to_current_position(
+  const_feedRate_t fr_mm_s=feedrate_mm_s
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=feedrate_deg_s)
+);
 
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s);
@@ -340,28 +346,52 @@ void line_to_current_position(const_feedRate_t fr_mm_s=feedrate_mm_s);
 
 void prepare_line_to_destination();
 
-void _internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f OPTARG(IS_KINEMATIC, const bool is_fast=false));
+void _internal_move_to_destination(
+  const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  OPTARG(IS_KINEMATIC, const bool is_fast=false)
+);
 
-inline void prepare_internal_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
-  _internal_move_to_destination(fr_mm_s);
+inline void prepare_internal_move_to_destination(
+  const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+) {
+  _internal_move_to_destination(fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
 }
 
 #if IS_KINEMATIC
-  void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s=MMS_SCALED(feedrate_mm_s));
+  void prepare_fast_move_to_destination(
+    const_feedRate_t scaled_fr_mm_s=FR_SCALED(feedrate_mm_s)
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 
-  inline void prepare_internal_fast_move_to_destination(const_feedRate_t fr_mm_s=0.0f) {
-    _internal_move_to_destination(fr_mm_s, true);
+  inline void prepare_internal_fast_move_to_destination(
+    const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  ) {
+    _internal_move_to_destination(fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s), true);
   }
 #endif
 
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
-
+void do_blocking_move_to(
+  NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+);
+void do_blocking_move_to(
+  const xy_pos_t &raw, const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+);
+void do_blocking_move_to(
+  const xyz_pos_t &raw, const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+);
+void do_blocking_move_to(
+  const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f
+  OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+);
 #if HAS_X_AXIS
   void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -372,28 +402,63 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_I_AXIS
-  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_i(
+    const_float_t ri, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyz_i(
+    const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 #if HAS_J_AXIS
-  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyzi_j(
+    const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 #if HAS_K_AXIS
-  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_k(
+    const_float_t rk, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyzij_k(
+    const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 #if HAS_U_AXIS
-  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_u(
+    const_float_t ru, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyzijk_u(
+    const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 #if HAS_V_AXIS
-  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_v(
+    const_float_t rv, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyzijku_v(
+    const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 #if HAS_W_AXIS
-  void do_blocking_move_to_w(const float rw, const feedRate_t &fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const float w, const feedRate_t &fr_mm_s=0.0f);
+  void do_blocking_move_to_w(
+    const_float_t rw, const feedRate_t fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
+  void do_blocking_move_to_xyzijkuv_w(
+    const xyze_pos_t &raw, const_float_t w, const feedRate_t &fr_mm_s=0.0f
+    OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
+  );
 #endif
 
 #if HAS_Y_AXIS

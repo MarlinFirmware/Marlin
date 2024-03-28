@@ -144,6 +144,9 @@ void GcodeSuite::M240() {
 
     feedRate_t fr_mm_s = parser.feedrateval('F');
     if (fr_mm_s) NOLESS(fr_mm_s, 10.0f);
+    #if HAS_ROTATIONAL_AXES
+      const feedRate_t fr_deg_s = LINEAR_UNIT(fr_mm_s);
+    #endif
 
     constexpr xyz_pos_t photo_position = PHOTO_POSITION;
     xyz_pos_t raw = {
@@ -152,7 +155,7 @@ void GcodeSuite::M240() {
       (parser.seenval('Z') ? parser.value_linear_units() : photo_position.z) + current_position.z
     };
     apply_motion_limits(raw);
-    do_blocking_move_to(raw, fr_mm_s);
+    do_blocking_move_to(raw, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
 
     #ifdef PHOTO_SWITCH_POSITION
       constexpr xy_pos_t photo_switch_position = PHOTO_SWITCH_POSITION;
@@ -187,7 +190,7 @@ void GcodeSuite::M240() {
       const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
       while (PENDING(millis(), timeout)) idle();
     #endif
-    do_blocking_move_to(old_pos, fr_mm_s);
+    do_blocking_move_to(old_pos, fr_mm_s OPTARG(HAS_ROTATIONAL_AXES, fr_deg_s));
     #ifdef PHOTO_RETRACT_MM
       e_move_m240(rval, sval);
     #endif

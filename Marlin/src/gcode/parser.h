@@ -331,6 +331,8 @@ public:
 
   #else
 
+    static float axis_unit_factor(const AxisEnum) { return 1.0f; }
+
     static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
     static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 

@@ -199,35 +199,35 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_1 = Z_PROBE_ALLEN_KEY_DEPLOY_1;
-      do_blocking_move_to(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
+      do_blocking_move_to(deploy_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_2
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_2 = Z_PROBE_ALLEN_KEY_DEPLOY_2;
-      do_blocking_move_to(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
+      do_blocking_move_to(deploy_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_3 = Z_PROBE_ALLEN_KEY_DEPLOY_3;
-      do_blocking_move_to(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
+      do_blocking_move_to(deploy_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_4
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_4 = Z_PROBE_ALLEN_KEY_DEPLOY_4;
-      do_blocking_move_to(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
+      do_blocking_move_to(deploy_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_5
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t deploy_5 = Z_PROBE_ALLEN_KEY_DEPLOY_5;
-      do_blocking_move_to(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
+      do_blocking_move_to(deploy_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE)));
     #endif
   }
 
@@ -237,85 +237,91 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_1 = Z_PROBE_ALLEN_KEY_STOW_1;
-      do_blocking_move_to(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
+      do_blocking_move_to(stow_1, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_2
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_2 = Z_PROBE_ALLEN_KEY_STOW_2;
-      do_blocking_move_to(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
+      do_blocking_move_to(stow_2, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_3
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_3 = Z_PROBE_ALLEN_KEY_STOW_3;
-      do_blocking_move_to(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
+      do_blocking_move_to(stow_3, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE)));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_4
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_4 = Z_PROBE_ALLEN_KEY_STOW_4;
-      do_blocking_move_to(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
+      do_blocking_move_to(stow_4, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE)) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
     #endif
     #ifdef Z_PROBE_ALLEN_KEY_STOW_5
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0f
       #endif
       constexpr xyz_pos_t stow_5 = Z_PROBE_ALLEN_KEY_STOW_5;
-      do_blocking_move_to(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
+      do_blocking_move_to(stow_5, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE)));
     #endif
   }
 
 #elif ENABLED(MAG_MOUNTED_PROBE)
 
-  typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
+  typedef struct {
+    feedRate_t fr_mm_min;
+    #if HAS_ROTATIONAL_AXES
+      feedRate_t fr_deg_min;
+    #endif
+    xyz_pos_t where;
+  } mag_probe_move_t;
 
   inline void run_deploy_moves() {
     #ifdef MAG_MOUNTED_DEPLOY_1
       constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
-      do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
+      do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(deploy_1.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_2
       constexpr mag_probe_move_t deploy_2 = MAG_MOUNTED_DEPLOY_2;
-      do_blocking_move_to(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min));
+      do_blocking_move_to(deploy_2.where, MMM_TO_MMS(deploy_2.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(deploy_2.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_3
       constexpr mag_probe_move_t deploy_3 = MAG_MOUNTED_DEPLOY_3;
-      do_blocking_move_to(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min));
+      do_blocking_move_to(deploy_3.where, MMM_TO_MMS(deploy_3.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(deploy_3.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_4
       constexpr mag_probe_move_t deploy_4 = MAG_MOUNTED_DEPLOY_4;
-      do_blocking_move_to(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min));
+      do_blocking_move_to(deploy_4.where, MMM_TO_MMS(deploy_4.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(deploy_4.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_DEPLOY_5
       constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
-      do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
+      do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(deploy_5.fr_deg_min)));
     #endif
   }
 
   inline void run_stow_moves() {
     #ifdef MAG_MOUNTED_STOW_1
       constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
-      do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
+      do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(stow_1.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_STOW_2
       constexpr mag_probe_move_t stow_2 = MAG_MOUNTED_STOW_2;
-      do_blocking_move_to(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min));
+      do_blocking_move_to(stow_2.where, MMM_TO_MMS(stow_2.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(stow_2.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_STOW_3
       constexpr mag_probe_move_t stow_3 = MAG_MOUNTED_STOW_3;
-      do_blocking_move_to(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min));
+      do_blocking_move_to(stow_3.where, MMM_TO_MMS(stow_3.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(stow_3.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_STOW_4
       constexpr mag_probe_move_t stow_4 = MAG_MOUNTED_STOW_4;
-      do_blocking_move_to(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min));
+      do_blocking_move_to(stow_4.where, MMM_TO_MMS(stow_4.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(stow_4.fr_deg_min)));
     #endif
     #ifdef MAG_MOUNTED_STOW_5
       constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
-      do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
+      do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min) OPTARG(HAS_ROTATIONAL_AXES, DPM_TO_DPS(stow_5.fr_deg_min)));
     #endif
   }
 
@@ -980,7 +986,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" point");
 
   // Move the probe to the starting XYZ
-  do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
+  do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S) OPTARG(HAS_ROTATIONAL_AXES, feedRate_t(XY_PROBE_FEEDRATE_MM_S)));
 
   #if ENABLED(BD_SENSOR)
 

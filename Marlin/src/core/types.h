@@ -297,6 +297,8 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 // Conversion macros
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
+#define DPM_TO_DPS(DP_M) feedRate_t(static_cast<float>(DP_M) / 60.0f)
+#define DPS_TO_DPM(DP_S) (static_cast<float>(DP_S) * 60.0f)
 
 // Packaged character for C macro and other usage
 typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
@@ -959,30 +961,6 @@ public:
       #undef _EN_ITEM
       #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
         bool HX:1, HY:1, HZ:1;
-      #endif
-    };
-    // a, b, c, e ... ha, hb, hc
-    struct {
-      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
-      #if EXTRUDERS > 1
-        #define _EN_ITEM(N) bool _e##N:1;
-        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
-        #undef _EN_ITEM
-      #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool ha:1, hb:1, hc:1;
-      #endif
-    };
-    // A, B, C, E ... HA, HB, HC
-    struct {
-      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
-      #if EXTRUDERS > 1
-        #define _EN_ITEM(N) bool _E##N:1;
-        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
-        #undef _EN_ITEM
-      #endif
-      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool HA:1, HB:1, HC:1;
       #endif
     };
   };

@@ -2296,27 +2296,19 @@ bool Planner::_populate_block(
     }
   #endif // HAS_EXTRUDERS
 
-  if (esteps)
-    NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
-  else
-    NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
+  // Keep the feedrate above the minimum
+  NOLESS(fr_mm_s, esteps ? settings.min_feedrate_mm_s : settings.min_travel_feedrate_mm_s);
+  #if HAS_ROTATIONAL_AXES
+    feedRate_t fr_deg_s = hints.fr_deg_s;
+    NOLESS(fr_deg_s, esteps ? settings.min_feedrate_deg_s : settings.min_travel_feedrate_deg_s);
+  #endif
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move involving XYZ axes takes 0.5s. So this will give 2.0.
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
-  float inverse_secs = inverse_millimeters * (
-    #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
-      /**
-       * Workaround for premature feedrate conversion
-       * from in/s to mm/s by get_distance_from_command.
-       */
-      cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
-    #else
-      fr_mm_s
-    #endif
-  );
+  float inverse_secs = inverse_millimeters * (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? fr_deg_s :) fr_mm_s);
 
   // Get the number of non busy movements in queue (non busy means that they can be altered)
   const uint8_t moves_queued = nonbusy_movesplanned();
@@ -2485,7 +2477,10 @@ bool Planner::_populate_block(
     }while(0)
 
     // Start with print or travel acceleration
-    accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
+    accel = CEIL(steps_per_mm * (
+      esteps ? (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.angular_acceleration :) settings.acceleration)
+             : (TERN_(HAS_ROTATIONAL_AXES, !cartesian_move ? settings.angular_travel_acceleration :) settings.travel_acceleration)
+    ));
 
     #if ENABLED(LIN_ADVANCE)
       // Linear advance is currently not ready for HAS_I_AXIS
@@ -3077,20 +3072,12 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
   #if IS_KINEMATIC
 
-    #if HAS_JUNCTION_DEVIATION
-      const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
-        cart.e - position_cart.e,
-        cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
-        cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
-      );
-    #else
-      const xyz_pos_t cart_dist_mm = NUM_AXIS_ARRAY(
-        cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
-        cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
-        cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
-      );
-    #endif
+    const xyze_pos_t cart_dist_mm = LOGICAL_AXIS_ARRAY(
+      cart.e - position_cart.e,
+      cart.x - position_cart.x, cart.y - position_cart.y, cart.z - position_cart.z,
+      cart.i - position_cart.i, cart.j - position_cart.j, cart.k - position_cart.k,
+      cart.u - position_cart.u, cart.v - position_cart.v, cart.w - position_cart.w
+    );
 
     // Cartesian XYZ to kinematic ABC, stored in global 'delta'
     inverse_kinematics(machine);
