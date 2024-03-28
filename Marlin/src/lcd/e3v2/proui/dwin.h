@@ -154,6 +154,9 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
+  #if !HAS_BED_PROBE
+    float manualZOffset = 0.0f;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
@@ -210,6 +213,7 @@ uint32_t getHash(char * str);
   void readEEPROM();
   void resetEEPROM();
   #if HAS_MESH
+    void manualMeshSave();
     void saveMesh();
   #endif
 #endif
@@ -236,9 +240,6 @@ void doCoolDown();
 #if ENABLED(NOZZLE_PARK_FEATURE)
   void parkHead();
 #endif
-#if HAS_ONESTEP_LEVELING
-  void trammingwizard();
-#endif
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   void applyLEDColor();
 #endif
@@ -259,7 +260,7 @@ void gotoPowerLossRecovery();
 void gotoConfirmToPrint();
 void dwinDrawDashboard(); // Status Area
 void drawMainArea();      // Redraw main area
-void dwinDrawStatusLine(const char *text = ""); // Draw simple status text
+void dwinDrawStatusLine(PGM_P text = ""); // Draw simple status text
 void dwinRedrawDash();     // Redraw Dash and Status line
 void dwinRedrawScreen();   // Redraw all screen elements
 void hmiMainMenu();        // Main process screen
@@ -288,10 +289,10 @@ void dwinPrintAborted();
 #if HAS_FILAMENT_SENSOR
   void dwinFilamentRunout(const uint8_t extruder);
 #endif
-void dwinPrintHeader(const char *text);
+void dwinPrintHeader(PGM_P text);
 void dwinSetColorDefaults();
 void dwinCopySettingsTo(char * const buff);
-void dwinCopySettingsFrom(const char * const buff);
+void dwinCopySettingsFrom(PGM_P const buff);
 void dwinSetDataDefaults();
 void dwinRebootScreen();
 
@@ -326,6 +327,8 @@ void drawTrammingMenu();
 #endif
 #if HAS_BED_PROBE
   void drawProbeSetMenu();
+  void trammingwizard();
+  float tram(uint8_t point, bool stow_probe=true);
 #endif
 void drawFilSetMenu();
 #if ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)

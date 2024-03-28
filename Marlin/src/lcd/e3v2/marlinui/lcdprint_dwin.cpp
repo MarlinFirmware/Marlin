@@ -83,7 +83,7 @@ int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
  *
  * Draw a UTF-8 string
  */
-static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_byte, const pixel_len_t max_length) {
+static int lcd_put_u8str_max_cb(PGM_P utf8_str, read_byte_cb_t cb_read_byte, const pixel_len_t max_length) {
   const uint8_t *p = (uint8_t *)utf8_str;
   dwin_string.set();
   while (dwin_string.length < max_length) {
@@ -97,7 +97,7 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_by
   return dwin_string.length;
 }
 
-int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
+int lcd_put_u8str_max(PGM_P utf8_str, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
@@ -105,7 +105,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 
-lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char * const cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
+lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, PGM_P const cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   dwin_string.set(ptpl, ind, cstr, fstr);
   dwin_string.truncate(maxlen);
   dwinDrawString(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());

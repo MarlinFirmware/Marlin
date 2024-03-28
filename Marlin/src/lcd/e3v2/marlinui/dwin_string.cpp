@@ -49,7 +49,7 @@ uint8_t read_byte(const uint8_t *byte) { return *byte; }
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
-void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/) {
+void DWIN_String::add(PGM_P tpl, const int8_t index, PGM_P cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/) {
   lchar_t wc;
 
   while (*tpl) {
@@ -79,7 +79,7 @@ void DWIN_String::add(const char *tpl, const int8_t index, const char *cstr/*=nu
   eol();
 }
 
-void DWIN_String::add(const char *cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
+void DWIN_String::add(PGM_P cstr, uint8_t max_len/*=MAX_STRING_LENGTH*/) {
   lchar_t wc;
   while (*cstr && max_len) {
     cstr = get_utf8_value_cb(cstr, read_byte, wc);

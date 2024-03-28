@@ -42,16 +42,8 @@
   #define DASH_REDRAW 1
 #endif
 
-#if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  #define HAS_ONESTEP_LEVELING 1
-#endif
-
 #if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
   #define JUST_BABYSTEP 1
-#endif
-
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
 #endif
 
 #define defColorBackground  RGB(1, 12, 8)
@@ -109,8 +101,12 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
+#if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE, HAS_MESH)
+  #define HAS_TRAMMING_WIZARD 1  // Manual mesh not have a probe
+#endif
 #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
+//#define SMOOTH_ENCODER_MENUITEMS  // Menu items value faster/smooth change rate

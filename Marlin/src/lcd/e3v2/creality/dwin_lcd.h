@@ -45,3 +45,9 @@
 //  xEnd/yEnd: Lower-right of virtual area
 //  x/y: Screen paste point
 void dwinFrameAreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Draw an Icon
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);

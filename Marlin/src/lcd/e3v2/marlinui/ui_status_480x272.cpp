@@ -68,7 +68,7 @@ bool old_is_printing;
 // Homed but unknown... '123' <-> '   '.
 // Homed and known, display constantly.
 //
-void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, const uint16_t x, const uint16_t y) {
+void _draw_axis_value(const AxisEnum axis, PGM_P value, const bool blink, const uint16_t x, const uint16_t y) {
   const bool x_redraw = !ui.did_first_redraw || old_is_printing != print_job_timer.isRunning();
   if (x_redraw) {
     dwin_string.set('X' + axis);
@@ -250,7 +250,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater, const uint16_t x
 /**
  * Draw the current "feed rate" percentage preceded by the >> character
  */
-FORCE_INLINE void _draw_feedrate_status(const char *value, uint16_t x, uint16_t y) {
+FORCE_INLINE void _draw_feedrate_status(PGM_P value, uint16_t x, uint16_t y) {
   if (!ui.did_first_redraw) {
     dwin_string.set(LCD_STR_FEEDRATE);
     dwinDrawString(true, font14x28, COLOR_ICONBLUE, COLOR_BG_BLACK, x, y, S(dwin_string.string()));

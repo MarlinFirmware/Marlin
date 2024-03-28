@@ -199,13 +199,6 @@ public:
   }
 
   static void init();
-
-  #if HAS_DISPLAY || HAS_DWIN_E3V2
-    static void init_lcd();
-  #else
-    static void init_lcd() {}
-  #endif
-
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
   #if HAS_WIRED_LCD
@@ -372,7 +365,7 @@ public:
   static void host_notify(FSTR_P const fstr) { host_notify_P(FTOP(fstr)); }
   static void host_notify(const char * const cstr);
 
-  #if HAS_STATUS_MESSAGE
+  #if HAS_DISPLAY
 
     #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -507,8 +500,10 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
+  static void init_lcd() IF_DISABLED(HAS_DISPLAY, {});
+
   // Periodic or as-needed display update
-  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
+  static void update() IF_DISABLED(HAS_DISPLAY, {});
 
   #if HAS_DISPLAY
 
@@ -609,11 +604,6 @@ public:
       static bool did_first_redraw;
     #endif
 
-    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-      static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
-    #endif
-
     static void draw_kill_screen();
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
     #if DISABLED(LIGHTWEIGHT_UI)
@@ -624,6 +614,11 @@ public:
 
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
+  #endif
+
+  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+    static void zoffset_overlay(const int8_t dir);
+    static void zoffset_overlay(const_float_t zvalue);
   #endif
 
   #if !HAS_WIRED_LCD
@@ -888,7 +883,7 @@ private:
     static constexpr bool defer_return_to_status = false;
   #endif
 
-  #if HAS_STATUS_MESSAGE
+  #if HAS_DISPLAY
     static void finish_status(const bool persist);
   #endif
 

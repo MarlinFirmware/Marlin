@@ -377,7 +377,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
-    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR)));
+    TERN_(DWIN_LCD_PROUI, dwinPopupContinue(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR)));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_status();
@@ -777,7 +777,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm lower.
-  const float z_probe_low_point = zoffs + z_min_point -float((!axis_is_trusted(Z_AXIS)) * 10);
+  const float z_probe_low_point = zoffs + z_min_point - float((!axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
   // Double-probing does a fast probe followed by a slow probe

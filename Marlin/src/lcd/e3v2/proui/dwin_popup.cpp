@@ -54,12 +54,6 @@ void drawSelectHighlight(const bool sel, const uint16_t ypos) {
   dwinDrawRectangle(0, c2, 144, ypos - 2, 247, ypos + 39);
 }
 
-void dwinPopupContinue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2) {
-  hmiSaveProcessID(ID_WaitResponse);
-  dwinDrawPopup(icon, fmsg1, fmsg2, BTN_Continue);  // Button Continue
-  dwinUpdateLCD();
-}
-
 void dwinPopupConfirmCancel(const uint8_t icon, FSTR_P const fmsg2) {
   dwinDrawPopup(ICON_BLTouch, F("Please confirm"), fmsg2);
   DWINUI::drawButton(BTN_Confirm, 26, 280);

@@ -773,7 +773,7 @@ private:
     static void M115();
   #endif
 
-  #if HAS_STATUS_MESSAGE
+  #if HAS_DISPLAY
     static void M117();
   #endif
 

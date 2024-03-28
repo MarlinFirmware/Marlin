@@ -30,6 +30,12 @@
 
 #include "../common/dwin_api.h"
 
+// Draw an Icon
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
+void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
+
 // Picture ID
 #define DWIN_Boot_Horiz      0
 #define DWIN_Boot_Vert       1

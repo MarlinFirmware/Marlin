@@ -37,10 +37,6 @@
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
-#endif
-
 #if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
   #define JUST_BABYSTEP 1
 #endif
@@ -408,7 +404,7 @@ void _decorateMenuItem(const uint8_t line, const uint8_t icon, bool more) {
   if (icon) drawMenuIcon(line, icon);
   if (more) drawMoreIcon(line);
 }
-void drawMenuItem(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
+void drawMenuItem(const uint8_t line, const uint8_t icon=0, PGM_P const label=nullptr, bool more=false) {
   if (label) dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, LBLX, MBASE(line) - 1, (char*)label);
   _decorateMenuItem(line, icon, more);
 }
@@ -417,7 +413,7 @@ void drawMenuItem(const uint8_t line, const uint8_t icon=0, FSTR_P const flabel=
   _decorateMenuItem(line, icon, more);
 }
 
-void drawMenuLine(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr, bool more=false) {
+void drawMenuLine(const uint8_t line, const uint8_t icon=0, PGM_P const label=nullptr, bool more=false) {
   drawMenuItem(line, icon, label, more);
   dwinDrawLine(COLOR_LINE, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
@@ -568,7 +564,7 @@ void dwinDrawLabel(const uint8_t row, FSTR_P title) {
   dwinDrawLabel(row, (char*)title);
 }
 
-void dwinDrawSignedFloat(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, int32_t value) {
+void dwinDrawSignedFloat(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   dwinDrawString(true, size, COLOR_WHITE, bColor, x - 8, y, value < 0 ? F("-") : F(" "));
   dwinDrawFloatValue(true, true, 0, size, COLOR_WHITE, bColor, iNum, fNum, x, y, value < 0 ? -value : value);
 }
@@ -1057,7 +1053,7 @@ void drawMotionMenu() {
     clearPopupArea();
     drawPopupBkgd105();
     if (toohigh) {
-      dwinIconShow(ICON, ICON_TempTooHigh, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooHigh, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 237, 386,  52, 285); // Temp Too High
         dwinFrameAreaCopy(1, 151, 389, 185, 402, 187, 285);
@@ -1069,7 +1065,7 @@ void drawMotionMenu() {
       }
     }
     else {
-      dwinIconShow(ICON, ICON_TempTooLow, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooLow, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 270, 386, 52, 285); // Tenp Too Low
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
@@ -1092,7 +1088,7 @@ void drawPopupBkgd60() {
   void popupWindowETempTooLow() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_TempTooLow, 102, 105);
+    dwinIconShow(ICON, ICON_TempTooLow, 100, 105);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 103, 371, 136, 386, 69, 240);      // Nozzle Too Cold
       dwinFrameAreaCopy(1, 170, 371, 270, 386, 69 + 33, 240);
@@ -1127,7 +1123,7 @@ void popupWindowResume() {
 void popupWindowHome(const bool parking/*=false*/) {
   clearMainWindow();
   drawPopupBkgd60();
-  dwinIconShow(ICON, ICON_BLTouch, 101, 105);
+  dwinIconShow(ICON, ICON_BLTouch, 100, 105);
   if (hmiIsChinese()) {
     dwinFrameAreaCopy(1, 0, 371, 33, 386, 85, 240);       // Wait for Move to Complete
     dwinFrameAreaCopy(1, 203, 286, 271, 302, 118, 240);
@@ -1144,7 +1140,7 @@ void popupWindowHome(const bool parking/*=false*/) {
   void popupWindowLeveling() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_AutoLeveling, 101, 105);
+    dwinIconShow(ICON, ICON_AutoLeveling, 100, 105);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 0, 371, 100, 386, 84, 240);    // Wait for Leveling
       dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
@@ -1823,6 +1819,8 @@ void MarlinUI::update() {
 }
 
 void MarlinUI::refresh() { /* Nothing to see here */ }
+
+void MarlinUI::kill_screen(FSTR_P const, FSTR_P const) { /* Nothing to see here */ }
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
@@ -4308,7 +4306,7 @@ void dwinLevelingDone() {
   if (checkkey == ID_Leveling) gotoMainMenu();
 }
 
-void dwinStatusChanged(const char * const cstr/*=nullptr*/) {
+void dwinStatusChanged(PGM_P const cstr/*=nullptr*/) {
   dwinDrawRectangle(1, COLOR_BG_BLUE, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 24);
   const int8_t x = _MAX(0U, DWIN_WIDTH - strlen(cstr) * MENU_CHR_W) / 2;
   dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLUE, x, STATUS_Y + 3, cstr);

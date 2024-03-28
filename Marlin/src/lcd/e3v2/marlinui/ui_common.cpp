@@ -216,7 +216,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Get a pointer to the next valid UTF8 character
       // and the string remaining length
       uint8_t rlen;
-      const char *stat = status_and_len(rlen);
+      PGM_P stat = status_and_len(rlen);
       lcd_put_u8str_max(stat, max_status_chars);
 
       // If the string doesn't completely fill the line...
@@ -305,7 +305,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   // Draw a static line of text in the same idiom as a menu item
 
-  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, const char *vstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style/*=SS_DEFAULT*/, PGM_P vstr/*=nullptr*/) {
     // Call mark_as_selected to draw a bigger selection box
     // and draw the text without a background
     if (!mark_as_selected(row, (bool)(style & SS_INVERT), true)) return;
@@ -386,7 +386,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   //
   // Draw a menu item with an editable value
   //
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, PGM_P const inStr, const bool pgm) {
     if (!mark_as_selected(row, sel)) return;
 
     ui.set_font(DWIN_FONT_MENU);
@@ -464,7 +464,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   void MenuItem_confirm::draw_select_screen(
     FSTR_P const yes, FSTR_P const no, const bool yesno,
-    FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
+    FSTR_P const fpre, PGM_P const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/
   ) {
     ui.set_font(DWIN_FONT_MENU);
     dwin_font.solid = false;

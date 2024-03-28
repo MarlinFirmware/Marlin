@@ -58,11 +58,9 @@ public:
   static uint8_t tilt_grid;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool undefined=false);
     static bool createPlaneFromMesh();
-  #else
-    static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y);
   #endif
+  static void manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y, bool reset=false);
   static void manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool zmove=false);
   static void moveToXYZ();
   static void moveToXY();

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_STATUS_MESSAGE
+#if HAS_DISPLAY
 
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
@@ -39,4 +39,4 @@ void GcodeSuite::M117() {
 
 }
 
-#endif // HAS_STATUS_MESSAGE
+#endif // HAS_DISPLAY
