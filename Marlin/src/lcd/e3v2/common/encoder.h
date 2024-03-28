@@ -86,8 +86,6 @@ inline bool applyEncoder(const EncoderState &encoder_diffState, T &valref) {
   #define RGB_SCALE_WARM_WHITE    RGB_SCALE_R10_G7_B4
   #define RGB_SCALE_COOL_WHITE    RGB_SCALE_R10_G8_B7
 
-  extern unsigned int LED_DataArray[LED_NUM];
-
   // LED light operation
   void LED_Action();
 
