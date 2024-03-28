@@ -85,7 +85,7 @@ EncoderState encoderReceiveAnalyze() {
       next_click_update_ms = millis() + 300;
       Encoder_tick();
       #if PIN_EXISTS(LCD_LED)
-        //LED_Action();
+        LED_Action();
       #endif
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
       if (!ui.backlight) {
@@ -174,8 +174,10 @@ EncoderState encoderReceiveAnalyze() {
   // LED light operation
   void LED_Action() {
     LED_Control(RGB_SCALE_WARM_WHITE, 0x0F);
+    //LED_GraduallyControl(RGB_SCALE_COOL_WHITE, 0x0F, 1000);
     delay(30);
     LED_Control(RGB_SCALE_WARM_WHITE, 0x00);
+    //LED_GraduallyControl(RGB_SCALE_COOL_WHITE, 0x00, 1000);
   }
 
   // LED initialization
@@ -223,7 +225,7 @@ EncoderState encoderReceiveAnalyze() {
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
   void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval) {
-    struct { uint8_t g, r, b; } led_data[LED_NUM];
+    struct { int g, r, b; } led_data[LED_NUM];
     for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5:
