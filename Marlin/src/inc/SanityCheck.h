@@ -1716,6 +1716,45 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Assert that the homing current must not be greater than the base current.
+ * Current may be reduced "to prevent damage" but in fact it's typically reduced to prevent spurious
+ * DIAG triggering from fast high torque moves with large jerk values which are more prone to cause binding.
+ */
+#define _BAD_HOME_CURRENT(N) (N##_CURRENT_HOME > N##_CURRENT) ||
+#if MAIN_AXIS_MAP(_BAD_HOME_CURRENT) MAP(_BAD_HOME_CURRENT, X2, Y2, Z2, Z3, Z4) 0
+  #ifndef ALLOW_HIGHER_CURRENT_HOME
+    #error "*_CURRENT_HOME should be <= *_CURRENT. Define ALLOW_HIGHER_CURRENT_HOME in your configuration to continue anyway."
+  #else
+    #define HIGHER_CURRENT_HOME_WARNING 1
+  #endif
+#endif
+#undef _BAD_HOME_CURRENT
+
+#if defined(SENSORLESS_HOMING)
+  #if !HAS_CURRENT_HOME(X) || defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
+    #define NO_X_HOMING_CURRENT_WARN 1
+  #elif !HAS_CURRENT_HOME(Y) || defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
+    #define NO_Y_HOMING_CURRENT_WARN 1
+  #endif
+#endif
+
+#if defined(SENSORLESS_PROBING) // Had to separate for some reason
+  #if defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
+    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #define NO_Z_HOMING_CURRENT_WARN 1
+  #endif
+#endif
+
+#if ENABLED(PROBING_USE_CURRENT_HOME)
+  #if !HAS_BED_PROBE
+    #error "PROBING_USE_CURRENT_HOME requires a bed probe."
+  #elif defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
+    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #error "PROBING_USE_CURRENT_HOME requires Z_CURRENT_HOME, and it must differ from Z_CURRENT."
+  #endif
+#endif
+
+/**
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
