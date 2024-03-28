@@ -114,9 +114,9 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
 #if HAS_X_AXIS
   FTMotion::shaping_t FTMotion::shaping = {
     0, 0,
-    x:{ { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
+    x:{ false, { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
+      y:{ false, { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
     #endif
   };
 #endif

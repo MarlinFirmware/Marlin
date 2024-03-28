@@ -654,6 +654,8 @@ class Stepper {
     }
 
     #if ENABLED(FT_MOTION)
+      // Manage the planner
+      static void ftMotion_blockQueueUpdate();
       // Set current position in steps when reset flag is set in M493 and planner already synchronized
       static void ftMotion_syncPosition();
     #endif

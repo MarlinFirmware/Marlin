@@ -132,6 +132,9 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
+    static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
+    static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
+
   private:
 
     static xyze_trajectory_t traj;
@@ -154,6 +157,8 @@ class FTMotion {
 
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
+
+    static constexpr uint32_t PROP_BATCHES = CEIL(FTM_WINDOW_SIZE/FTM_BATCH_SIZE) - 1; // Number of batches needed to propagate the current trajectory to the stepper.
 
     #define _DIVCEIL(A,B) (((A) + (B) - 1) / (B))
     static constexpr uint32_t _ftm_ratio = TERN(FTM_UNIFIED_BWS, 2, _DIVCEIL(FTM_WINDOW_SIZE, FTM_BATCH_SIZE)),
