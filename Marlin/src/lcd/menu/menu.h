@@ -243,6 +243,9 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    void goto_lcd_babystep_mesh_zoffset();
+  #endif
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)

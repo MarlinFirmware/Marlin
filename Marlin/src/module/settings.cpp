@@ -251,6 +251,12 @@ typedef struct SettingsDataStruct {
   float runout_distance_mm;                             // M412 D
 
   //
+  // GLOBAL_MESH_Z_OFFSET
+  //
+  float bedlevel_z_offset;                              // M423 Zn     bedlevel.z_base_offset
+                                                        // G29 S4 Zn   also for MESH_BED_LEVELING
+
+  //
   // ENABLE_LEVELING_FADE_HEIGHT
   //
   float planner_z_fade_height;                          // M420 Zn  planner.z_fade_height
@@ -266,7 +272,6 @@ typedef struct SettingsDataStruct {
   //
   // MESH_BED_LEVELING
   //
-  float mbl_z_offset;                                   // bedlevel.z_offset
   uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   uint16_t mesh_check;                                  // Hash to check against X/Y
   float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
@@ -918,7 +923,10 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
+      const float zog = TERN(GLOBAL_MESH_Z_OFFSET, bedlevel.z_base_offset, 0.0f);
+      EEPROM_WRITE(zog);
+
+      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, DEFAULT_LEVELING_FADE_HEIGHT);
       EEPROM_WRITE(zfh);
     }
 
@@ -948,7 +956,6 @@ void MarlinSettings::postprocess() {
       const uint8_t mesh_num_x = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3),
                     mesh_num_y = TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3);
 
-      EEPROM_WRITE(TERN(MESH_BED_LEVELING, bedlevel.z_offset, dummyf));
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
 
@@ -1949,7 +1956,11 @@ void MarlinSettings::postprocess() {
       //
       // Global Leveling
       //
-      EEPROM_READ(TERN(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height, dummyf));
+      EEPROM_READ(dummyf);
+      TERN_(GLOBAL_MESH_Z_OFFSET, if (!validating) bedlevel.z_base_offset = dummyf);
+
+      EEPROM_READ(dummyf);
+      TERN_(ENABLE_LEVELING_FADE_HEIGHT, if (!validating) new_z_fade_height = dummyf);
 
       //
       // AUTOTEMP
@@ -1966,7 +1977,6 @@ void MarlinSettings::postprocess() {
       {
         uint8_t mesh_num_x, mesh_num_y;
         uint16_t mesh_check;
-        EEPROM_READ(dummyf);
         EEPROM_READ_ALWAYS(mesh_num_x);
         EEPROM_READ_ALWAYS(mesh_num_y);
 
@@ -1978,7 +1988,6 @@ void MarlinSettings::postprocess() {
         }
 
         #if ENABLED(MESH_BED_LEVELING)
-          if (!validating) bedlevel.z_offset = dummyf;
           if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
             EEPROM_READ(bedlevel.z_values);
@@ -3230,7 +3239,8 @@ void MarlinSettings::reset() {
   //
   // Global Leveling
   //
-  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
+  TERN_(GLOBAL_MESH_Z_OFFSET, bedlevel.z_base_offset = 0.0f);
+  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
   TERN_(HAS_LEVELING, reset_bed_level());
 
   //
@@ -3755,6 +3765,8 @@ void MarlinSettings::reset() {
 
       gcode.M420_report(forReplay);
 
+      TERN_(GLOBAL_MESH_Z_OFFSET, gcode.M424_report(forReplay));
+
       #if ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
@@ -3764,8 +3776,6 @@ void MarlinSettings::reset() {
               SERIAL_ECHOLN(F("  G29 S3 I"), px, F(" J"), py, FPSTR(SP_Z_STR), p_float_t(LINEAR_UNIT(bedlevel.z_values[px][py]), 5));
             }
           }
-          CONFIG_ECHO_START();
-          SERIAL_ECHOLNPGM("  G29 S4 Z", p_float_t(LINEAR_UNIT(bedlevel.z_offset), 5));
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)

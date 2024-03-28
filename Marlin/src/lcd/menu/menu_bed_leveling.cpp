@@ -36,6 +36,10 @@
   #include "../../module/probe.h"
 #endif
 
+#if ENABLED(BABYSTEP_GLOBAL_Z)
+  #include "../../feature/babystep.h"
+#endif
+
 #if HAS_GRAPHICAL_TFT
   #include "../tft/tft.h"
   #if ENABLED(TOUCH_SCREEN)
@@ -240,6 +244,10 @@ void menu_bed_leveling() {
   const bool is_homed = all_axes_trusted(),
              is_valid = leveling_is_valid();
 
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    const bool can_babystep = babystep.can_babystep(Z_AXIS);
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
@@ -275,21 +283,25 @@ void menu_bed_leveling() {
   #endif
 
   //
-  // Mesh Bed Leveling Z-Offset
+  // Leveling Z-Offset
   //
-  #if ENABLED(MESH_BED_LEVELING)
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
     #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
       #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
     #else
       #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
     #endif
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_base_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+  #endif
+
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, goto_lcd_babystep_mesh_zoffset);
   #endif
 
   #if ENABLED(PROBE_OFFSET_WIZARD)
@@ -304,6 +316,7 @@ void menu_bed_leveling() {
     ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
     ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
+
   END_MENU();
 }
 

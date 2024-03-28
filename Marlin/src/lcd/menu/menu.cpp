@@ -35,6 +35,10 @@
   #include "../../libs/buzzer.h"
 #endif
 
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+  #include "../../feature/babystep.h"
+#endif
+
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/probe.h"
 #endif
@@ -224,6 +228,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
     enable_encoder_multiplier(false);
 
+    TERN_(ENCODER_RATE_MULTIPLIER, enable_encoder_multiplier(false));
+
     set_selection(false);
   }
 }
@@ -285,14 +291,12 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  #include "../../feature/babystep.h"
-
   void lcd_babystep_zoffset() {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     ui.defer_status_screen();
     const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
     if (ui.encoderPosition) {
-      const int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
+      const int16_t babystep_increment = int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
       ui.encoderPosition = 0;
 
       const float diff = planner.mm_per_step[Z_AXIS] * babystep_increment,
@@ -327,6 +331,33 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   }
 
 #endif // BABYSTEP_ZPROBE_OFFSET
+
+#if ENABLED(BABYSTEP_GLOBAL_Z)
+
+  void lcd_babystep_mesh_zoffset() {
+    if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+
+    if (ui.encoderPosition) {
+      // Change the Z offset without babystepping, since planner.apply_leveling will use it.
+      const float new_z_offset = home_offset[Z_AXIS] + planner.mm_per_step[Z_AXIS] * int16_t(ui.encoderPosition) * BABYSTEP_SIZE_Z;
+      set_home_offset(Z_AXIS, new_z_offset);
+      ui.encoderPosition = 0;
+      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    }
+
+    if (ui.should_draw()) {
+      MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
+      TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(home_offset[Z_AXIS]));
+    }
+  }
+
+  void goto_lcd_babystep_mesh_zoffset() {
+    ui.defer_status_screen();
+    TERN_(ENCODER_RATE_MULTIPLIER, ui.enable_encoder_multiplier(true));
+    ui.goto_screen(lcd_babystep_mesh_zoffset);
+  }
+
+#endif // BABYSTEP_GLOBAL_Z
 
 void _lcd_draw_homing() {
   if (ui.should_draw()) {

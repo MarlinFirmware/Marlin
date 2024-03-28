@@ -56,6 +56,10 @@
   #endif
 #endif
 
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z_OFFSET)
+  #include "../../feature/babystep.h"
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
@@ -339,10 +343,17 @@ void menu_advanced_settings();
 
   void menu_touchmi() {
     ui.defer_status_screen();
+
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      const bool can_babystep = babystep.can_babystep(Z_AXIS);
+    #endif
+
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    #endif
     GCODES_ITEM(MSG_TOUCHMI_INIT, F("M851 Z0\nG28\nG1 F200 Z0"));
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
     GCODES_ITEM(MSG_TOUCHMI_SAVE, F("M500\nG1 F200 Z10"));
     GCODES_ITEM(MSG_TOUCHMI_ZTEST, F("G28\nG1 F200 Z0"));
     END_MENU();
@@ -547,6 +558,10 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
+  #if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+    const bool can_babystep = babystep.can_babystep(Z_AXIS);
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
 
@@ -563,9 +578,13 @@ void menu_configuration() {
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+  #endif
+
+  #if ENABLED(BABYSTEP_GLOBAL_Z)
+    if (can_babystep) SUBMENU(MSG_ZPROBE_ZOFFSET, goto_lcd_babystep_mesh_zoffset);
   #endif
 
   //
