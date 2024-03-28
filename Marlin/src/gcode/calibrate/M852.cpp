@@ -36,6 +36,19 @@
  *  K[yz_factor] - New YZ skew factor
  */
 void GcodeSuite::M852() {
+  if (parser.seenval('A')) {
+    const float a = parser.value_linear_units();
+    if (parser.seenval('B')) {
+      const float b  = parser.value_linear_units();
+      if (parser.seenval('D')) {
+        const float c = parser.value_linear_units();
+        planner.skew_factor.xy = _SKEW_FACTOR(a, b, c);
+        gcode.M852_report(0);
+      }
+    }
+  }
+
+
   if (!parser.seen("SIJK")) return M852_report();
 
   uint8_t badval = 0, setval = 0;
