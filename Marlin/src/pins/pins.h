@@ -818,6 +818,8 @@
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
 #elif MB(BLACKBEEZMINI_V1)
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
+#elif MB(LDO_LEVIATHAN_V1_2)
+  #include "stm32f4/pins_LDO_LEVIATHAN_V1_2.h"      // STM32F4                              env:LDO_LEVIATHAN_V1_2
 
 //
 // ARM Cortex-M7
