@@ -231,7 +231,17 @@ void menu_tune() {
     #endif
   #endif
 
+  //
+  //FT_MOTION
+  //
+  #if ENABLED(FT_MOTION_MENU)
+    extern void menu_tune_ft_motion();
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
+  #endif
+
   END_MENU();
 }
+
+
 
 #endif // HAS_MARLINUI_MENU
