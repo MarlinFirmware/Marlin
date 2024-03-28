@@ -107,6 +107,9 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
+    static millis_t axis_pos_move_end_ti[NUM_AXIS_ENUMS],
+                    axis_neg_move_end_ti[NUM_AXIS_ENUMS];
+
     // Public methods
     static void init();
     static void startBlockProc();                         // Set controller states to begin processing a block.
@@ -206,6 +209,9 @@ class FTMotion {
     static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
+
+    FORCE_INLINE static int32_t num_samples_cmpnstr_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
+
 
 }; // class FTMotion
 

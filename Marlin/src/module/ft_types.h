@@ -47,7 +47,9 @@ enum dynFreqMode_t : uint8_t {
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
 
+// TODO: Convert ft_command_t to a struct with bitfields instead of using a primitive type
 enum {
+  FT_BIT_START,
   LIST_N(DOUBLE(LOGICAL_AXES),
     FT_BIT_DIR_E, FT_BIT_STEP_E,
     FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
