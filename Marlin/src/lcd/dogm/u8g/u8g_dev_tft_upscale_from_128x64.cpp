@@ -53,12 +53,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT)
 
 #include "HAL_LCD_com_defines.h"
-#include "marlinui_DOGM.h"
+#include "../marlinui_DOGM.h"
 
 #include <string.h>
 
@@ -66,7 +66,7 @@
   #define HAS_LCD_IO 1
 #endif
 
-#include "../tft_io/tft_io.h"
+#include "../../tft_io/tft_io.h"
 TFT_IO tftio;
 
 #define WIDTH  LCD_PIXEL_WIDTH
@@ -74,12 +74,12 @@ TFT_IO tftio;
 #define PAGE_HEIGHT 8
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../tft_io/touch_calibration.h"
-  #include "../marlinui.h"
+  #include "../../tft_io/touch_calibration.h"
+  #include "../../marlinui.h"
 #endif
 
-#include "../touch/touch_buttons.h"
-#include "../scaled_tft.h"
+#include "../../touch/touch_buttons.h"
+#include "../../scaled_tft.h"
 
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)

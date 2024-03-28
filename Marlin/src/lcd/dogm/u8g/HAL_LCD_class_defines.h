@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 // use this file to create the public interface for device drivers that are NOT in the U8G library
 

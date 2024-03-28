@@ -27,7 +27,7 @@
 
 #include <U8glib-HAL.h>
 
-#include HAL_PATH(../.., u8g/LCD_defines.h)
+#include HAL_PATH(../../.., u8g/LCD_defines.h)
 
 #if HAS_FSMC_GRAPHICAL_TFT || HAS_SPI_GRAPHICAL_TFT || HAS_LTDC_GRAPHICAL_TFT
   uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);

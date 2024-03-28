@@ -336,6 +336,12 @@ class Stepper {
       static ne_coeff_t ne;
     #endif
 
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+      static bool adaptive_step_smoothing_enabled;
+    #else
+      static constexpr bool adaptive_step_smoothing_enabled = true;
+    #endif
+
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -377,7 +383,7 @@ class Stepper {
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
     #else
-      static constexpr uint8_t oversampling_factor = 0;
+      static constexpr uint8_t oversampling_factor = 0; // Without smoothing apply no shift
     #endif
 
     // Delta error variables for the Bresenham line tracer

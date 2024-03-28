@@ -886,7 +886,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
    * If STATUS_EXPIRE_SECONDS is zero, only the status is shown.
    */
   if (forceUpdate || status_changed()) {
-    TERN_(STATUS_MESSAGE_SCROLLING, ui.status_scroll_offset = 0);
+    TERN_(STATUS_MESSAGE_SCROLLING, ui.reset_status_scroll());
     #if STATUS_EXPIRE_SECONDS
       countdown = !ui.status_message.empty() ? STATUS_EXPIRE_SECONDS : 0;
     #endif

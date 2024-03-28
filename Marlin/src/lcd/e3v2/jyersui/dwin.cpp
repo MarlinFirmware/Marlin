@@ -5158,6 +5158,7 @@ void MarlinUI::init_lcd() {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
     switch (message) {
       case PAUSE_MESSAGE_INSERT:  jyersDWIN.confirmHandler(Popup_FilInsert);  break;
       case PAUSE_MESSAGE_PURGE:

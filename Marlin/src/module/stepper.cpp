@@ -203,11 +203,21 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 #endif
 
+#if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    bool Stepper::adaptive_step_smoothing_enabled; // Initialized by settings.load()
+  #else
+    constexpr bool Stepper::adaptive_step_smoothing_enabled; // = true
+  #endif
+  // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
+  uint8_t Stepper::oversampling_factor;
+#else
+  constexpr uint8_t Stepper::oversampling_factor; // = 0
+#endif
+
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
 #endif
-
-IF_DISABLED(ADAPTIVE_STEP_SMOOTHING, constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -542,12 +552,30 @@ void Stepper::enable_axis(const AxisEnum axis) {
     default: break;
   }
   mark_axis_enabled(axis);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
+/**
+ * Mark an axis as disabled and power off its stepper(s).
+ * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
+ * DISCUSSION: It's basically just stepper ENA pins that are shared across axes, not whole steppers.
+ *             Used on MCUs with a shortage of pins. We already track the overlap of ENA pins, so now
+ *             we just need stronger logic to track which ENA pins are being set more than once.
+ *
+ *             It would be better to use a bit mask (i.e., Flags<NUM_DISTINCT_AXIS_ENUMS>).
+ *             While the method try_to_disable in gcode/control/M17_M18_M84.cpp does use the
+ *             bit mask, it is still only at the axis level.
+ * TODO: Power off steppers that don't share another axis. Currently axis-based steppers turn off as a unit.
+ *       So we'd need to power off the off axis, then power on the on axis (for a microsecond).
+ *       A global solution would keep a usage count when enabling or disabling a stepper, but this partially
+ *       defeats the purpose of an on/off mask.
+ */
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
 
-  TERN_(DWIN_LCD_PROUI, set_axis_untrusted(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+  // This scheme prevents shared steppers being disabled. It should consider several axes at once
+  // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
   const bool can_disable = can_axis_disable(axis);
@@ -557,7 +585,9 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
+    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
   }
+
   return can_disable;
 }
 
@@ -2619,7 +2649,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
 
         // Decide if axis smoothing is possible
-        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+        if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate

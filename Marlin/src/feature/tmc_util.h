@@ -144,15 +144,13 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       #endif
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
+    #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr int8_t sgt_min = -64,
@@ -207,12 +205,10 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
     #endif
 };
 
@@ -269,15 +265,13 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
+    #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr uint8_t sgt_min = 0,
@@ -315,12 +309,10 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr int8_t sgt_min = -64,

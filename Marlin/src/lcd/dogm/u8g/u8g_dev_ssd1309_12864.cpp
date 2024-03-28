@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_MARLINUI_U8GLIB
 

@@ -151,8 +151,8 @@ class PrintJobRecovery {
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
-    #if HAS_DWIN_E3V2_BASIC
-      static bool dwin_flag;
+    #if HAS_PLR_UI_FLAG
+      static bool ui_flag_resume;     //!< Flag the UI to show a dialog to Resume (M1000) or Cancel (M1000C)
     #endif
 
     static void init();

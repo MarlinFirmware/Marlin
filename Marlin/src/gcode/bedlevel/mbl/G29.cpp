@@ -40,8 +40,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -144,7 +142,6 @@ void GcodeSuite::G29() {
         queue.inject(F("G29S2"));
 
         TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-        TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
 
         return;
       }
@@ -170,7 +167,6 @@ void GcodeSuite::G29() {
         // Save Z for the previous mesh position
         bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
-        TERN_(DWIN_LCD_PROUI, dwinMeshUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
@@ -237,7 +233,6 @@ void GcodeSuite::G29() {
       if (parser.seenval('Z')) {
         bedlevel.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
-        TERN_(DWIN_LCD_PROUI, dwinMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

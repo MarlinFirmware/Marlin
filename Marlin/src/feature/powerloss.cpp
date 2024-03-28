@@ -48,8 +48,8 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if HAS_DWIN_E3V2_BASIC
-  bool PrintJobRecovery::dwin_flag; // = false
+#if HAS_PLR_UI_FLAG
+  bool PrintJobRecovery::ui_flag_resume; // = false
 #endif
 
 #include "../sd/cardreader.h"
