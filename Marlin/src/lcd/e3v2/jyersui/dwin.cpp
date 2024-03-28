@@ -5143,7 +5143,6 @@ void MarlinUI::init_lcd() {
   if (dwinHandshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
   dwinFrameSetDir(1); // Orientation 90°
   dwinUpdateLCD();     // Show bootscreen (first image)
-  encoderConfiguration();
   for (uint16_t t = 0; t <= 100; t += 2) {
     dwinIconShow(ICON, ICON_Bar, 15, 260);
     dwinDrawRectangle(1, COLOR_BG_BLACK, 15 + t * 242 / 100, 260, 257, 280);

@@ -216,7 +216,6 @@ void tft_lvgl_init() {
 
   tft_style_init();
   filament_pin_setup();
-  lv_encoder_pin_init();
 
   #if ENABLED(MKS_WIFI_MODULE)
     mks_esp_wifi_init();
@@ -331,12 +330,12 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 }
 
 int16_t enc_diff = 0;
-lv_indev_state_t state = LV_INDEV_STATE_REL;
+lv_indev_state_t indev_enc_state = LV_INDEV_STATE_REL; // ENC button is pressed or released
 
 bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
-  (void) indev_drv;   // Unused
+  UNUSED(indev_drv);
 
-  data->state = state;
+  data->state = indev_enc_state;
   data->enc_diff = enc_diff;
   enc_diff = 0;
 
@@ -446,101 +445,49 @@ lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   return LV_FS_RES_OK;
 }
 
-void lv_encoder_pin_init() {
-  #if BUTTON_EXISTS(EN1)
-    SET_INPUT_PULLUP(BTN_EN1);
+void lv_update_encoder() {
+
+  #if ANY_BUTTON(EN1, EN2)
+    constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;   // We can fill in
+    static uint8_t pulse_count;
+    pulse_count += ui.get_encoder_delta();
+    const int8_t fullSteps = pulse_count / epps;
+    pulse_count -= fullSteps * epps;
+    enc_diff += fullSteps;
   #endif
-  #if BUTTON_EXISTS(EN2)
-    SET_INPUT_PULLUP(BTN_EN2);
+
+  #if ANY_BUTTON(ENC, BACK, UP, DOWN, LEFT, RIGHT)
+    static millis_t last_encoder_ms;
+    const millis_t now = millis(), diffTime = getTickDiff(now, last_encoder_ms);
+    if (diffTime <= 50) return;
   #endif
+
   #if BUTTON_EXISTS(ENC)
-    SET_INPUT_PULLUP(BTN_ENC);
+    static uint8_t old_button_enc = LV_INDEV_STATE_REL;
+    const uint8_t enc_c = BUTTON_PRESSED(ENC) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+    if (enc_c != old_button_enc) {
+      indev_enc_state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
+      old_button_enc = enc_c;
+    }
   #endif
 
   #if BUTTON_EXISTS(BACK)
-    SET_INPUT_PULLUP(BTN_BACK);
+    if (BUTTON_PRESSED(BACK)) {}
   #endif
-
   #if BUTTON_EXISTS(UP)
-    SET_INPUT(BTN_UP);
+    if (BUTTON_PRESSED(UP)) {}
   #endif
   #if BUTTON_EXISTS(DOWN)
-    SET_INPUT(BTN_DOWN);
+    if (BUTTON_PRESSED(DOWN)) {}
   #endif
   #if BUTTON_EXISTS(LEFT)
-    SET_INPUT(BTN_LEFT);
+    if (BUTTON_PRESSED(LEFT)) {}
   #endif
   #if BUTTON_EXISTS(RIGHT)
-    SET_INPUT(BTN_RIGHT);
+    if (BUTTON_PRESSED(RIGHT)) {}
   #endif
+
 }
-
-#if 1 // HAS_ENCODER_ACTION
-
-  void lv_update_encoder() {
-    static uint32_t encoder_time1;
-    uint32_t tmpTime, diffTime = 0;
-    tmpTime = millis();
-    diffTime = getTickDiff(tmpTime, encoder_time1);
-    if (diffTime > 50) {
-
-      #if HAS_ENCODER_WHEEL
-
-        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-          uint8_t newbutton = 0;
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-
-        #else
-
-          constexpr uint8_t newbutton = 0;
-
-        #endif
-
-        static uint8_t buttons = 0;
-        buttons = newbutton;
-        static uint8_t lastEncoderBits;
-
-        #define encrot0 0
-        #define encrot1 1
-        #define encrot2 2
-
-        uint8_t enc = 0;
-        if (buttons & EN_A) enc |= B01;
-        if (buttons & EN_B) enc |= B10;
-        if (enc != lastEncoderBits) {
-          switch (enc) {
-            case encrot1:
-              if (lastEncoderBits == encrot0) {
-                enc_diff--;
-                encoder_time1 = tmpTime;
-              }
-              break;
-            case encrot2:
-              if (lastEncoderBits == encrot0) {
-                enc_diff++;
-                encoder_time1 = tmpTime;
-              }
-              break;
-          }
-          lastEncoderBits = enc;
-        }
-        static uint8_t last_button_state = LV_INDEV_STATE_REL;
-        const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-        if (enc_c != last_button_state) {
-          state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-          last_button_state = enc_c;
-        }
-
-      #endif // HAS_ENCODER_WHEEL
-
-    } // encoder_time1
-  }
-
-#endif // HAS_ENCODER_ACTION
 
 #ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>
