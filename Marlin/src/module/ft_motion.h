@@ -175,6 +175,7 @@ class FTMotion {
     #if HAS_X_AXIS
 
       typedef struct AxisShaping {
+        bool ena = false;                 // Enabled indication.
         float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
         float Ai[5];                      // Shaping gain vector.
         uint32_t Ni[5];                   // Shaping time index vector.
