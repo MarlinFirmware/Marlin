@@ -845,7 +845,6 @@ namespace LanguageNarrow_it {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Non ammesso durante la stampa");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Non ammesso mentre è in riposo");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Nessun file selezionato");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperatura troppo bassa");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Esecuzione del comando...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("PID letto disabilitato");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID disabilitato");
@@ -884,6 +883,7 @@ namespace LanguageWide_it {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo totale");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Lavoro più lungo");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Totale estruso");
+    LSTR MSG_TEMP_TOO_LOW                 = _UxGT("Temperatura troppo bassa");
   #endif
 }
 
