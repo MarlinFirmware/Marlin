@@ -352,17 +352,30 @@ namespace LanguageNarrow_en {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("On");
   LSTR MSG_LCD_OFF                        = _UxGT("Off");
+
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autotune * PID");
   LSTR MSG_PID_CYCLE                      = _UxGT("PID Cycles");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Autotune failed!");
+
+  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for Nozzle is running.");
+  LSTR MSG_PID_FOR_BED                    = _UxGT("for BED is running.");
+  LSTR MSG_PID_FOR_CHAMBER                = _UxGT("for CHAMBER is running.");
+
+  LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
+  LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
+  LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
+
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
+
   LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
+
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
+
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Testing heat loss");
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Heating to >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT         = _UxGT("Cooling to ambient");
@@ -378,6 +391,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient Co. *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN     = _UxGT("Fan coeff.");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Fan coeff. *");
+
   LSTR MSG_SELECT_E                       = _UxGT("Select *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Jerk");

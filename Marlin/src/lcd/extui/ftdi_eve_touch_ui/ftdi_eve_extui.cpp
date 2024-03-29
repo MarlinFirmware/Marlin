@@ -181,6 +181,7 @@ namespace ExtUI {
       switch (rst) {
         case PID_STARTED:
         case PID_BED_STARTED:
+        case PID_CHAMBER_STARTED:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
         case PID_BAD_HEATER_ID:

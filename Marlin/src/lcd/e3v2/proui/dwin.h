@@ -73,10 +73,18 @@ enum processID : uint8_t {
 
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
-  enum tempcontrol_t : uint8_t {
+  enum TempControl {
+    AUTOTUNE_DONE,
     #if HAS_PID_HEATING
-      PIDTEMP_START,
-      PIDTEMPBED_START,
+      #if ENABLED(PIDTEMP)
+        PIDTEMP_START,
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        PIDTEMPBED_START,
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        PIDTEMPCHAMBER_START,
+      #endif
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
@@ -86,8 +94,10 @@ enum processID : uint8_t {
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
-    AUTOTUNE_DONE
+    TEMPCONTROL_COUNT
   };
+
+  typedef bits_t(TEMPCONTROL_COUNT) tempcontrol_t;
 
 #endif
 
@@ -123,6 +133,9 @@ typedef struct {
     #endif
     #if ENABLED(PIDTEMPBED)
       celsius_t bedPIDT = DEF_BEDPIDT;
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      celsius_t chamberPIDT = DEF_CHAMBERPIDT;
     #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -194,8 +207,8 @@ extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
 // Popups
-#if HAS_HOTEND || HAS_HEATED_BED
-  void dwinPopupTemperature(const int_fast8_t heater_id, const bool toohigh);
+#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+  void dwinPopupTemperature(const int_fast8_t heater_id, const uint8_t state);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   void popupPowerLossRecovery();
@@ -383,20 +396,24 @@ void drawMaxAccelMenu();
   #include "../../../module/temperature.h"
   void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
   void dwinPIDTuning(tempcontrol_t result);
-  #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_AUTOTUNE_MENU)
-      void hotendPID();
-    #endif
-    #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+    #if ENABLED(PIDTEMP)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void hotendPID();
+      #endif
       void drawHotendPIDMenu();
     #endif
-  #endif
-  #if ENABLED(PIDTEMPBED)
-    #if ENABLED(PID_AUTOTUNE_MENU)
-      void bedPID();
-    #endif
-    #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+    #if ENABLED(PIDTEMPBED)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void bedPID();
+      #endif
       void drawBedPIDMenu();
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void chamberPID();
+      #endif
+      void drawChamberPIDMenu();
     #endif
   #endif
 #endif

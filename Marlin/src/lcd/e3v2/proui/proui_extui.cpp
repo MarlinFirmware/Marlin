@@ -70,13 +70,13 @@ namespace ExtUI {
   void onMediaRemoved() {}
 
   void onHeatingError(const heater_id_t heater_id) {
-    dwinPopupTemperature(heater_id, 0);
+    dwinPopupTemperature(heater_id, 2); // "Heating failed"
   }
   void onMinTempError(const heater_id_t heater_id) {
-    dwinPopupTemperature(heater_id, 0);
+    dwinPopupTemperature(heater_id, 0); // "Too low"
   }
   void onMaxTempError(const heater_id_t heater_id) {
-    dwinPopupTemperature(heater_id, 1);
+    dwinPopupTemperature(heater_id, 1); // "Too high"
   }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
@@ -195,12 +195,13 @@ namespace ExtUI {
     void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        case PID_STARTED:        dwinPIDTuning(PIDTEMP_START);      break;
-        case PID_BED_STARTED:    dwinPIDTuning(PIDTEMPBED_START);   break;
-        case PID_BAD_HEATER_ID:  dwinPIDTuning(tempcontrol_t(PID_BAD_HEATER_ID));  break;
-        case PID_TEMP_TOO_HIGH:  dwinPIDTuning(tempcontrol_t(PID_TEMP_TOO_HIGH));  break;
-        case PID_TUNING_TIMEOUT: dwinPIDTuning(tempcontrol_t(PID_TUNING_TIMEOUT)); break;
-        case PID_DONE:           dwinPIDTuning(AUTOTUNE_DONE);      break;
+        case PID_STARTED:         dwinPIDTuning(PIDTEMP_START);                      break;
+        case PID_BED_STARTED:     dwinPIDTuning(PIDTEMPBED_START);                   break;
+        case PID_CHAMBER_STARTED: dwinPIDTuning(PIDTEMPCHAMBER_START);               break;
+        case PID_BAD_HEATER_ID:   dwinPIDTuning(tempcontrol_t(PID_BAD_HEATER_ID));   break;
+        case PID_TEMP_TOO_HIGH:   dwinPIDTuning(tempcontrol_t(PID_TEMP_TOO_HIGH));   break;
+        case PID_TUNING_TIMEOUT:  dwinPIDTuning(tempcontrol_t(PID_TUNING_TIMEOUT));  break;
+        case PID_DONE:            dwinPIDTuning(AUTOTUNE_DONE);                      break;
 
       }
     }

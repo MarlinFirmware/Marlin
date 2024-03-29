@@ -1388,9 +1388,11 @@
 #endif
 
 // Power-Loss Recovery
-#if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
-  #define HAS_PLR_BED_THRESHOLD 1
-#endif
-#if ENABLED(POWER_LOSS_RECOVERY) && ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-  #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #ifdef PLR_BED_THRESHOLD
+    #define HAS_PLR_BED_THRESHOLD 1
+  #endif
+  #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+    #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
+  #endif
 #endif

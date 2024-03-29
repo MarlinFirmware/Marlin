@@ -161,12 +161,14 @@ namespace ExtUI {
     void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        case PID_STARTED:        break;
-        case PID_BED_STARTED:    break;
-        case PID_BAD_HEATER_ID:  break;
-        case PID_TEMP_TOO_HIGH:  break;
-        case PID_TUNING_TIMEOUT: break;
-        case PID_DONE:           break;
+        case PID_STARTED:
+        case PID_BED_STARTED:
+        case PID_CHAMBER_STARTED: break;
+        case PID_BAD_HEATER_ID:   break;
+        case PID_TEMP_TOO_HIGH:   break;
+        case PID_TUNING_TIMEOUT:  break;
+        case PID_DONE:            break;
+        case PID_DONE:            break;
       }
     }
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
