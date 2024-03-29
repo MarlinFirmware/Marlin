@@ -350,6 +350,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fact");
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
+  LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
   LSTR MSG_LCD_ON                         = _UxGT("On");
   LSTR MSG_LCD_OFF                        = _UxGT("Off");
 
@@ -369,8 +370,6 @@ namespace LanguageNarrow_en {
 
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
-
-  LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
 
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
