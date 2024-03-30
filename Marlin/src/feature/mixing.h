@@ -96,8 +96,6 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
       + Switch to new tool
       - */
 
-  #include "../module/motion.h"
-
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
     mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
@@ -193,13 +191,10 @@ class Mixer {
   #if ENABLED(PUSH_PULL_TOOLCHANGE)
     static pushpull_t pushpull;
 
-    // Switch to new tool but with a push/pull extruder movement
-    static void T_pushpull(const uint_fast8_t new_vtool) {
-      if (new_vtool == selected_vtool) return T(new_vtool);
-
+    static void update_pushpull_tool(const uint_fast8_t new_vtool){
       pushpull.direction_bits = 0;
+      if (new_vtool == selected_vtool) return;
 
-      // Populate mixes
       update_mix_from_vtool();
       MIXER_STEPPER_LOOP(i) pushpull.pull_mix[i] = mix[i];
       update_mix_from_vtool(new_vtool);
@@ -211,17 +206,6 @@ class Mixer {
         } 
       }
       copy_mix_to_color(color[MIXER_PUSHPULL_TOOL]);
-
-      // Extrude
-      T(MIXER_PUSHPULL_TOOL);
-      float resume_current_e = current_position.e;
-      unscaled_e_move(MIXING_PUSH_PULL_MM, MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE));
-
-      // Reset and switch to new tool
-      pushpull.direction_bits = 0;
-      current_position.e = resume_current_e;
-      sync_plan_position_e();
-      T(new_vtool);
     }
   #endif // PUSH_PULL_TOOLCHANGE
 

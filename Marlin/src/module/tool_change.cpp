@@ -66,6 +66,9 @@
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    #include "stepper.h"
+  #endif
 #endif
 
 #if HAS_LEVELING
@@ -1121,8 +1124,23 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     #if MIXING_VIRTUAL_TOOLS > 1
       #if ENABLED(PUSH_PULL_TOOLCHANGE)
-        if (!too_cold(active_extruder)) mixer.T_pushpull(new_tool);
-        else mixer.T(new_tool);
+        if (!too_cold(active_extruder)) {
+          mixer.update_pushpull_tool(new_tool);
+
+          // Extrude
+          mixer.T(MIXER_PUSHPULL_TOOL);
+          float resume_current_e = current_position.e;
+          stepper.apply_directions();
+          unscaled_e_move(MIXING_PUSH_PULL_MM, MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE));
+
+          // Reset and switch to new tool
+          mixer.pushpull.direction_bits = 0;
+          stepper.apply_directions();
+          current_position.e = resume_current_e;
+          sync_plan_position_e();
+        } else SERIAL_ECHO_MSG(STR_ERR_PUSHPULL_TOO_COLD);
+        
+        mixer.T(new_tool);
       #else
         // T0-Tnnn: Switch virtual tool by changing the index to the mix
         mixer.T(new_tool);
