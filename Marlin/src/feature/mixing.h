@@ -193,7 +193,7 @@ class Mixer {
 
     static void update_pushpull_tool(const uint_fast8_t new_vtool){
       pushpull.direction_bits = 0;
-      if (new_vtool == selected_vtool) return;
+      if (new_vtool == selected_vtool) return; // Prevent resultant tool being 0 across all extruders
 
       update_mix_from_vtool();
       MIXER_STEPPER_LOOP(i) pushpull.pull_mix[i] = mix[i];
