@@ -111,9 +111,6 @@ class FTMotion {
 
     // Public methods
     static void init();
-    static void startBlockProc();                         // Set controller states to begin processing a block.
-    static bool getBlockProcDn() { return blockProcDn; }  // Return true if the controller no longer needs the current block.
-    static void runoutBlock();                            // Move any free data points to the stepper buffer even if a full batch isn't ready.
     static void loop();                                   // Controller main, to be invoked from non-isr task.
 
     #if HAS_X_AXIS
@@ -128,10 +125,8 @@ class FTMotion {
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
 
-    static bool blockProcRdy, blockProcRdy_z1, blockProcDn;
+    static bool blockProcRdy;
     static bool batchRdy, batchRdyForInterp;
-    static bool runoutEna;
-    static bool blockDataIsRunout;
 
     // Trapezoid data variables.
     static xyze_pos_t   startPosn,          // (mm) Start position of block
@@ -146,19 +141,14 @@ class FTMotion {
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
 
-    #define _DIVCEIL(A,B) (((A) + (B) - 1) / (B))
-    static constexpr uint32_t _ftm_ratio = TERN(FTM_UNIFIED_BWS, 2, _DIVCEIL(FTM_WINDOW_SIZE, FTM_BATCH_SIZE)),
-                              shaper_intervals = (FTM_BATCH_SIZE) * _DIVCEIL(FTM_ZMAX, FTM_BATCH_SIZE),
-                              min_max_intervals = (FTM_BATCH_SIZE) * _ftm_ratio;
+    static constexpr uint32_t PROP_BATCHES = CEIL(FTM_WINDOW_SIZE/FTM_BATCH_SIZE) - 1; // Number of batches needed to propagate the current trajectory to the stepper.
 
     // Make vector variables.
     static uint32_t makeVector_idx,
-                    makeVector_idx_z1,
                     makeVector_batchIdx;
 
     // Interpolation variables.
-    static uint32_t interpIdx,
-                    interpIdx_z1;
+    static uint32_t interpIdx;
 
     static xyze_long_t steps;
 
@@ -196,6 +186,8 @@ class FTMotion {
     #endif
 
     // Private methods
+    static void discard_planner_block_protected();
+    static void runoutBlock();
     static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
     static void makeVector();

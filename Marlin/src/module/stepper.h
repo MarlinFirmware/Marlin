@@ -654,8 +654,6 @@ class Stepper {
     }
 
     #if ENABLED(FT_MOTION)
-      // Manage the planner
-      static void ftMotion_blockQueueUpdate();
       // Set current position in steps when reset flag is set in M493 and planner already synchronized
       static void ftMotion_syncPosition();
     #endif
@@ -677,6 +675,9 @@ class Stepper {
 
     // Calculate timing interval and steps-per-ISR for the given step rate
     static hal_timer_t calc_multistep_timer_interval(uint32_t step_rate);
+
+    // Evaluate axis motions and set bits in axis_did_move
+    static void set_axis_moved_for_current_block();
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static void calc_nonlinear_e(uint32_t step_rate);
