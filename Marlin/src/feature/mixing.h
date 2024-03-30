@@ -51,10 +51,13 @@ enum MixTool {
   #if HAS_MIXER_SYNC_CHANNEL
     , MIXER_AUTORETRACT_TOOL
   #endif
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    , MIXER_PUSHPULL_TOOL
+  #endif
   , NR_MIXING_VIRTUAL_TOOLS
 };
 
-#define MAX_VTOOLS TERN(HAS_MIXER_SYNC_CHANNEL, 254, 255)
+#define MAX_VTOOLS  (255 TERN_(PUSH_PULL_TOOLCHANGE, -1) TERN_(HAS_MIXER_SYNC_CHANNEL, -1))
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
 
 #define VTOOLS_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_VIRTUAL_TOOLS; VAR++)
@@ -84,23 +87,21 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
       + subtract to get float pushpull vtool
       + normalise push/pull colors to 1.0 / -1.0 and multiply by COLOR_A_MASK to get uint pushpull vtool
         - e.g. normalize(push-tool); normalize(-1 * pull-vtool); recombine for pushpull tool
-      - Invert directions on extruders where input < 0
+      + Invert directions on extruders where input < 0
         + e.g. if pull[i] > 0 then mixing_pushpull_bits |= 1U<<i
         - Probably needs a TERN0(PUSH_PULL_TOOLCHANGE, ...)
-      - Advance extruder by MIXING_PUSH_PULL_MM
+      + Advance extruder by MIXING_PUSH_PULL_MM
         + Optionally, scale extruder so that max(pushpull[]) = 1.0
-      - Remove directional inversions e.g. mixing_pushpull_bits = 0
+      + Remove directional inversions e.g. mixing_pushpull_bits = 0
+      + Switch to new tool
       - */
+
+  #include "../module/motion.h"
 
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
-    mixer_comp_t color[MIXING_STEPPERS];      // The push-pull color
     mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
   } pushpull_t;
-  #if MIXING_PUSH_PULL_MM
-  //current_position.e += MIXING_PUSH_PULL_MM;
-  //planner.buffer_line(current_position, MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE), new_tool);
-  #endif
 #endif
 
 /**
@@ -126,11 +127,11 @@ class Mixer {
   FORCE_INLINE static uint8_t get_current_vtool() { return selected_vtool; }
 
   #if ENABLED(PUSH_PULL_TOOLCHANGE)
-    FORCE_INLINE static uint8_t get_pushpull_directions() { return pushpull.direction_bits; }
+    // Outputs true for positive direction
+    FORCE_INLINE static bool e_dir(uint_fast8_t VAR) { return !TEST(pushpull.direction_bits, VAR); }
   #endif
 
   FORCE_INLINE static void T(const uint_fast8_t c) {
-    TERN_(PUSH_PULL_TOOLCHANGE, push_pull_vtool(c));
     selected_vtool = c;
     TERN_(GRADIENT_VTOOL, refresh_gradient());
     TERN_(HAS_DUAL_MIXING, update_mix_from_vtool());
@@ -189,9 +190,13 @@ class Mixer {
 
   #endif // PUSH_PULL_TOOLCHANGE || HAS_DUAL_MIXING || GRADIENT_MIX
 
-    #if ENABLED(PUSH_PULL_TOOLCHANGE)
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
     static pushpull_t pushpull;
-    static void push_pull_vtool(const uint_fast8_t new_vtool) {
+
+    // Switch to new tool but with a push/pull extruder movement
+    static void T_pushpull(const uint_fast8_t new_vtool) {
+      if (new_vtool == selected_vtool) return T(new_vtool);
+
       pushpull.direction_bits = 0;
 
       // Populate mixes
@@ -201,13 +206,22 @@ class Mixer {
       MIXER_STEPPER_LOOP(i) {
         mix[i] -= pushpull.pull_mix[i];
         if (mix[i] < 0) {
-          pushpull.direction_bits |= 1 << i;
+          SBI(pushpull.direction_bits, i);
           mix[i] *= -1.0f; // ensure all values in mix are positive
         } 
       }
+      copy_mix_to_color(color[MIXER_PUSHPULL_TOOL]);
 
-    copy_mix_to_color(pushpull.color);
+      // Extrude
+      T(MIXER_PUSHPULL_TOOL);
+      float resume_current_e = current_position.e;
+      unscaled_e_move(MIXING_PUSH_PULL_MM, MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE));
 
+      // Reset and switch to new tool
+      pushpull.direction_bits = 0;
+      current_position.e = resume_current_e;
+      sync_plan_position_e();
+      T(new_vtool);
     }
   #endif // PUSH_PULL_TOOLCHANGE
 

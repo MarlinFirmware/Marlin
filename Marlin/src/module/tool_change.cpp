@@ -892,6 +892,22 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // DUAL_X_CARRIAGE
 
+#if ANY(TOOLCHANGE_FILAMENT_SWAP, PUSH_PULL_TOOLCHANGE)
+  /**
+   * Check if too cold to move the specified tool
+   *
+   * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
+   * Returns FALSE if able to move.
+   */
+  bool too_cold(uint8_t toolID){
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
+      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
+      return true;
+    }
+    return false;
+  }
+#endif // TOOLCHANGE_FILAMENT_SWAP || PUSH_PULL_TOOLCHANGE
+
 /**
  * Prime active tool using TOOLCHANGE_FILAMENT_SWAP settings
  */
@@ -914,20 +930,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
     #endif
-  }
-
-  /**
-   * Check if too cold to move the specified tool
-   *
-   * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
-   * Returns FALSE if able to  move.
-   */
-  bool too_cold(uint8_t toolID){
-    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
-      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -1118,8 +1120,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       return invalid_extruder_error(new_tool);
 
     #if MIXING_VIRTUAL_TOOLS > 1
-      // T0-Tnnn: Switch virtual tool by changing the index to the mix
-      mixer.T(new_tool);
+      if (ENABLED(PUSH_PULL_TOOLCHANGE) && !too_cold(active_extruder))
+        mixer.T_pushpull(new_tool);
+      else
+        // T0-Tnnn: Switch virtual tool by changing the index to the mix
+        mixer.T(new_tool);
     #endif
 
   #elif HAS_PRUSA_MMU2
