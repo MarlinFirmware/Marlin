@@ -80,22 +80,6 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
 #endif
 
 #if ENABLED(PUSH_PULL_TOOLCHANGE)
-  /* Implementation plan:
-    - Algorithm
-      + Get curent v-tool e.g. refresh_collector(), 
-      + Get new v-tool    e.g. refresh_collector(1.0, new_tool)
-      + subtract to get float pushpull vtool
-      + normalise push/pull colors to 1.0 / -1.0 and multiply by COLOR_A_MASK to get uint pushpull vtool
-        - e.g. normalize(push-tool); normalize(-1 * pull-vtool); recombine for pushpull tool
-      + Invert directions on extruders where input < 0
-        + e.g. if pull[i] > 0 then mixing_pushpull_bits |= 1U<<i
-        - Probably needs a TERN0(PUSH_PULL_TOOLCHANGE, ...)
-      + Advance extruder by MIXING_PUSH_PULL_MM
-        + Optionally, scale extruder so that max(pushpull[]) = 1.0
-      + Remove directional inversions e.g. mixing_pushpull_bits = 0
-      + Switch to new tool
-      - */
-
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
     mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
