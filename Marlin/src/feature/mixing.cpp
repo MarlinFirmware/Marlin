@@ -42,7 +42,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX, PUSH_PULL_TOOLCHANGE)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
