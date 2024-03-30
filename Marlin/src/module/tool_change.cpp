@@ -892,7 +892,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // DUAL_X_CARRIAGE
 
-#if ANY(TOOLCHANGE_FILAMENT_SWAP, PUSH_PULL_TOOLCHANGE)
+#if ANY(TOOLCHANGE_FILAMENT_SWAP, MIXING_EXTRUDER)
   /**
    * Check if too cold to move the specified tool
    *
@@ -906,7 +906,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     }
     return false;
   }
-#endif // TOOLCHANGE_FILAMENT_SWAP || PUSH_PULL_TOOLCHANGE
+#endif // TOOLCHANGE_FILAMENT_SWAP || MIXING_EXTRUDER
 
 /**
  * Prime active tool using TOOLCHANGE_FILAMENT_SWAP settings
@@ -1120,11 +1120,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       return invalid_extruder_error(new_tool);
 
     #if MIXING_VIRTUAL_TOOLS > 1
-      if (ENABLED(PUSH_PULL_TOOLCHANGE) && !too_cold(active_extruder))
-        mixer.T_pushpull(new_tool);
-      else
+      #if ENABLED(PUSH_PULL_TOOLCHANGE)
+        if (!too_cold(active_extruder)) mixer.T_pushpull(new_tool);
+        else mixer.T(new_tool);
+      #else
         // T0-Tnnn: Switch virtual tool by changing the index to the mix
         mixer.T(new_tool);
+      #endif
     #endif
 
   #elif HAS_PRUSA_MMU2

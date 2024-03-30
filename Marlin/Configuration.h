@@ -354,7 +354,7 @@
   //#define DIRECT_MIXING_IN_G1    // Allow ABCDHIJK mix factors in G1 movement commands, and R for reporting all V-tool mixes
   //#define GRADIENT_MIX           // Support for gradient mixing with M166 and LCD
   //#define MIXING_PRESETS         // Assign 8 default V-tool presets for 2 or 3 MIXING_STEPPERS
-  //#define PUSH_PULL_TOOLCHANGE   // Simultaneously pull the old V-tool and push the new V-tool into the melt chamber
+  //#define PUSH_PULL_TOOLCHANGE   // Simultaneously push the new V-tool and pull the old V-tool into the melt chamber
   #if ENABLED(GRADIENT_MIX)
     //#define GRADIENT_VTOOL       // Add M166 T to use a V-tool index as a Gradient alias
   #endif

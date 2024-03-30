@@ -501,7 +501,7 @@ xyze_int8_t Stepper::count_direction{0};
 
 #if ENABLED(MIXING_EXTRUDER)
   #if ENABLED(PUSH_PULL_TOOLCHANGE)
-    #define E_APPLY_DIR(FWD,Q) do{ MIXER_STEPPER_LOOP(j) { if (FWD == mixer.e_dir(j)) { FWD_E_DIR(j); } else { REV_E_DIR(j); } }while(0)
+    #define E_APPLY_DIR(FWD,Q) do{ MIXER_STEPPER_LOOP(j) do{ if (FWD == mixer.e_dir(j)) { FWD_E_DIR(j); } else { REV_E_DIR(j); } }while(0); }while(0) 
   #else
     #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { MIXER_STEPPER_LOOP(j) FWD_E_DIR(j); } else { MIXER_STEPPER_LOOP(j) REV_E_DIR(j); } }while(0)
   #endif
