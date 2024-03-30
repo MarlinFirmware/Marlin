@@ -1153,9 +1153,12 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
       #if HAS_ROTATIONAL_AXES
         if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          is_cartesian_move = false;
+          // Move involves no linear axes. Calculate angular distance in accordance with LinuxCNC
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+        }
+        if (!UNEAR_ZERO(distance_sqr)) {
+          // Move involves rotational axes, not just the extruder
+          is_cartesian_move = false;
         }
       #endif
 
@@ -2180,6 +2183,7 @@ void prepare_line_to_destination() {
       do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
+
         // Check for a broken endstop
         EndstopEnum es;
         switch (axis) {
@@ -2187,11 +2191,20 @@ void prepare_line_to_destination() {
           MAIN_AXIS_MAP(_ESCASE)
           default: break;
         }
+
+        #if ENABLED(DUAL_X_CARRIAGE)
+          if (axis == X_AXIS && axis_home_dir > 0) {
+            es = X_MAX;
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
+          }
+        #endif
+
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
           kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
-      #endif
+
+      #endif // DETECT_BROKEN_ENDSTOP
 
       #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
         if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
