@@ -1119,9 +1119,6 @@ namespace ExtUI {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
     PauseMode getPauseMode() { return pause_mode; }
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
 

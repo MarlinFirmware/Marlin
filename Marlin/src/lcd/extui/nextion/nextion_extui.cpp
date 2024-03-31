@@ -176,7 +176,6 @@ namespace ExtUI {
   void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t) {}
   void onAxisEnabled(const axis_t) {}
-
 }
 
 #endif // NEXTION_TFT
