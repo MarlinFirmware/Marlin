@@ -83,6 +83,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
     mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
+    float scale;                              // The scale to multiply the extruder speed and length
   } pushpull_t;
 #endif
 
@@ -190,6 +191,10 @@ class Mixer {
         } 
       }
       copy_mix_to_color(color[MIXER_PUSHPULL_TOOL]);
+      
+      float ctot = 0;
+      MIXER_STEPPER_LOOP(i) ctot += color[MIXER_PUSHPULL_TOOL][i];
+      pushpull.scale = ctot / (COLOR_A_MASK);
     }
   #endif // PUSH_PULL_TOOLCHANGE
 

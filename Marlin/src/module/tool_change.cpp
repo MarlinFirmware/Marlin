@@ -1132,8 +1132,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           mixer.T(MIXER_PUSHPULL_TOOL);
           float resume_current_e = current_position.e;
           stepper.apply_directions();
-          // Double mm and feedrate since tool would be normalised to 2.0
-          unscaled_e_move(MIXING_PUSH_PULL_MM * 2, MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * 2);
+          unscaled_e_move(MIXING_PUSH_PULL_MM * mixer.pushpull.scale, 
+                          MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * mixer.pushpull.scale);
 
           // Reset and switch to new tool
           mixer.pushpull.direction_bits = 0;
