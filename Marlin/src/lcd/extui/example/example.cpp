@@ -168,7 +168,6 @@ namespace ExtUI {
         case PID_TEMP_TOO_HIGH:   break;
         case PID_TUNING_TIMEOUT:  break;
         case PID_DONE:            break;
-        case PID_DONE:            break;
       }
     }
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
