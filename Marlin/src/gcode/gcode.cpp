@@ -210,7 +210,7 @@ void GcodeSuite::get_destination_from_command() {
       print_job_timer.incFilamentUsed(destination.e - current_position.e);
   #endif
 
-  // Get ABCDHIJK mixing factors
+  // Get ABCDLMNO mixing factors
   #if ALL(MIXING_EXTRUDER, DIRECT_MIXING_IN_G1)
     M165();
   #endif
