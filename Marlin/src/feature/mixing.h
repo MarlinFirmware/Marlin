@@ -82,7 +82,6 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
 #if ENABLED(PUSH_PULL_TOOLCHANGE)
   typedef struct {
     uint8_t direction_bits;                   // Extruder direction, where 1 is negative
-    mixer_perc_t pull_mix[MIXING_STEPPERS];   // The percentage components of the pull tool
     float scale;                              // The scale to multiply the extruder speed and length
   } pushpull_t;
 #endif
@@ -179,12 +178,13 @@ class Mixer {
     static void update_pushpull_tool(const uint_fast8_t new_vtool){
       pushpull.direction_bits = 0;
       if (new_vtool == selected_vtool) return; // Prevent resultant tool being 0 across all extruders
-
+      
+      mixer_perc_t pull_mix[MIXING_STEPPERS] = {0};
       update_mix_from_vtool();
-      MIXER_STEPPER_LOOP(i) pushpull.pull_mix[i] = mix[i];
+      MIXER_STEPPER_LOOP(i) pull_mix[i] = mix[i];
       update_mix_from_vtool(new_vtool);
       MIXER_STEPPER_LOOP(i) {
-        mix[i] -= pushpull.pull_mix[i];
+        mix[i] -= pull_mix[i];
         if (mix[i] < 0) {
           SBI(pushpull.direction_bits, i);
           mix[i] *= -1.0f; // ensure all values in mix are positive

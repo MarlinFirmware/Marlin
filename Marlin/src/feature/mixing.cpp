@@ -157,7 +157,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 #if ENABLED(PUSH_PULL_TOOLCHANGE)
   pushpull_t Mixer::pushpull = {
     0,  // e_directions
-    {0}, // pull_mix {}
+    0,  // scale
   };
 #endif
 
