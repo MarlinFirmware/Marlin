@@ -1126,27 +1126,24 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if ENABLED(PUSH_PULL_TOOLCHANGE)
         if (too_cold(active_extruder)) SERIAL_ECHO_MSG(STR_ERR_PUSHPULL_TOO_COLD);
         else if (new_tool != mixer.get_current_vtool()) {
-          mixer.update_pushpull_tool(new_tool);
+          float resume_current_e = current_position.e;
+          
+          // Set up Push/Pull tool
+          mixer.update_pushpull_tool(new_tool); stepper.apply_directions();
+          mixer.T(MIXER_PUSHPULL_TOOL);
 
           // Extrude
-          mixer.T(MIXER_PUSHPULL_TOOL);
-          float resume_current_e = current_position.e;
-          stepper.apply_directions();
           unscaled_e_move(MIXING_PUSH_PULL_MM * mixer.pushpull.scale, 
                           MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * mixer.pushpull.scale);
 
-          // Reset and switch to new tool
-          mixer.pushpull.direction_bits = 0;
-          stepper.apply_directions();
-          current_position.e = resume_current_e;
-          sync_plan_position_e();
+          // Reset
+          mixer.pushpull.direction_bits = 0; stepper.apply_directions();
+          current_position.e = resume_current_e; sync_plan_position_e();
         }
-        
-        mixer.T(new_tool);
-      #else
-        // T0-Tnnn: Switch virtual tool by changing the index to the mix
-        mixer.T(new_tool);
-      #endif
+      #endif 
+
+      // T0-Tnnn: Switch virtual tool by changing the index to the mix
+      mixer.T(new_tool);
     #endif
 
   #elif HAS_PRUSA_MMU2
