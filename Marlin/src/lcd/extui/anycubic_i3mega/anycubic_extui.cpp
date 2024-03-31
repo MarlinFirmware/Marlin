@@ -38,21 +38,26 @@ namespace ExtUI {
   void onStartup()        { anycubicTFT.onSetup(); }
   void onIdle()           { anycubicTFT.onCommandScan(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { anycubicTFT.onKillTFT(); }
+
   void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
   void onMediaError()     { anycubicTFT.onSDCardError(); }
   void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
   void onPrintTimerStarted()  { anycubicTFT.onPrintTimerStarted(); }
   void onPrintTimerPaused()   { anycubicTFT.onPrintTimerPaused(); }
   void onPrintTimerStopped()  { anycubicTFT.onPrintTimerStopped(); }
+
   void onFilamentRunout(const extruder_t extruder)   { anycubicTFT.onFilamentRunout(); }
   void onUserConfirmRequired(const char * const msg) { anycubicTFT.onUserConfirmRequired(msg); }
+
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
   void onHomingDone() {}
+
   void onPrintDone() {}
 
   void onFactoryReset() {}
@@ -119,13 +124,13 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
     }
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
 }
 
 #endif // ANYCUBIC_LCD_I3MEGA

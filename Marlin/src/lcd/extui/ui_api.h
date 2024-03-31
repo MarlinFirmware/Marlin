@@ -57,17 +57,42 @@ namespace ExtUI {
   // in the EEPROM when the methods onStoreSettings and
   // onLoadSettings are called.
 
-  static constexpr size_t eeprom_data_size = 48;
+  #ifndef EXTUI_EEPROM_DATA_SIZE
+    #define EXTUI_EEPROM_DATA_SIZE 48
+  #endif
+  static constexpr size_t eeprom_data_size = EXTUI_EEPROM_DATA_SIZE;
 
   enum axis_t     : uint8_t { X, Y, Z, I, J, K, U, V, W, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t { PID_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  enum result_t   : uint8_t {
+    OPTITEM(HAS_PID_HEATING, PID_STARTED)
+    OPTITEM(HAS_PID_HEATING, PID_BED_STARTED)
+    OPTITEM(HAS_PID_HEATING, PID_BAD_HEATER_ID)
+    OPTITEM(HAS_PID_HEATING, PID_TEMP_TOO_HIGH)
+    OPTITEM(HAS_PID_HEATING, PID_TUNING_TIMEOUT)
+    OPTITEM(HAS_PID_HEATING, PID_DONE)
+  };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
+
+  inline const axis_t axis_to_axis_t(const AxisEnum a) {
+    switch (a) {
+      TERN_(HAS_X_AXIS, case X_AXIS:)
+      default: return X;
+      OPTCODE(HAS_Y_AXIS, case Y_AXIS: return Y)
+      OPTCODE(HAS_Z_AXIS, case Z_AXIS: return Z)
+      OPTCODE(HAS_I_AXIS, case I_AXIS: return I)
+      OPTCODE(HAS_J_AXIS, case J_AXIS: return J)
+      OPTCODE(HAS_K_AXIS, case K_AXIS: return K)
+      OPTCODE(HAS_U_AXIS, case U_AXIS: return U)
+      OPTCODE(HAS_V_AXIS, case V_AXIS: return V)
+      OPTCODE(HAS_W_AXIS, case W_AXIS: return W)
+    }
+  }
 
   #if HAS_MESH
     typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -458,38 +483,49 @@ namespace ExtUI {
    */
   void onStartup();
   void onIdle();
+
   void onMediaInserted();
   void onMediaError();
   void onMediaRemoved();
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration=0);
+
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
   void onSurviveInKilled();
+
   void onPrintTimerStarted();
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onPrintDone();
+
   void onFilamentRunout(const extruder_t extruder);
+
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired(FSTR_P const fstr);
+
   void onStatusChanged(const char * const msg);
   void onStatusChanged(FSTR_P const fstr);
+
   void onHomingStart();
   void onHomingDone();
+
   void onSteppersDisabled();
   void onSteppersEnabled();
+
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);
   void onPostprocessSettings();
   void onSettingsStored(const bool success);
   void onSettingsLoaded(const bool success);
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onSetPowerLoss(const bool onoff);
     void onPowerLoss();
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst);
+    void onPIDTuning(const result_t rst);
   #endif
 };
 
