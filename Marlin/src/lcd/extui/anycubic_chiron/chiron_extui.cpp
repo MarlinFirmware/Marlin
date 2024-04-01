@@ -58,12 +58,14 @@ namespace ExtUI {
   void onPrintTimerStarted() { chiron.timerEvent(AC_timer_started); }
   void onPrintTimerPaused()  { chiron.timerEvent(AC_timer_paused);  }
   void onPrintTimerStopped() { chiron.timerEvent(AC_timer_stopped); }
+
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { chiron.filamentRunout();             }
+  void onFilamentRunout(const extruder_t)            { chiron.filamentRunout(); }
 
-  void onUserConfirmRequired(const char * const msg) { chiron.confirmationRequest(msg);     }
-  void onStatusChanged(const char * const msg)       { chiron.statusChange(msg);            }
+  void onUserConfirmRequired(const char * const msg) { chiron.confirmationRequest(msg); }
+
+  void onStatusChanged(const char * const msg)       { chiron.statusChange(msg); }
 
   void onHomingStart() {}
   void onHomingDone() {}
@@ -133,13 +135,13 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
     }
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
 }
 
 #endif // ANYCUBIC_LCD_CHIRON
