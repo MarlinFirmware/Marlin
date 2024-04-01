@@ -1125,20 +1125,23 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #if MIXING_VIRTUAL_TOOLS > 1
       #if ENABLED(PUSH_PULL_TOOLCHANGE)
         if (too_cold(active_extruder)) SERIAL_ECHO_MSG(STR_ERR_PUSHPULL_TOO_COLD);
-        else if (new_tool != mixer.get_current_vtool()) {
-          float resume_current_e = current_position.e;
-          
-          // Set up Push/Pull tool
-          mixer.update_pushpull_tool(new_tool); stepper.apply_directions();
-          mixer.T(MIXER_PUSHPULL_TOOL);
+        else {          
+          mixer.update_pushpull_tool(new_tool);
 
-          // Extrude
-          unscaled_e_move(MIXING_PUSH_PULL_MM * mixer.pushpull.scale, 
-                          MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * mixer.pushpull.scale);
+          if (mixer.pushpull.scale > 0) {
+            // Enable Push/Pull V-Tool
+            stepper.apply_directions();
+            mixer.T(MIXER_PUSHPULL_TOOL);
 
-          // Reset
-          mixer.pushpull.direction_bits = 0; stepper.apply_directions();
-          current_position.e = resume_current_e; sync_plan_position_e();
+            // Extrude
+            float resume_current_e = current_position.e;
+            unscaled_e_move(MIXING_PUSH_PULL_MM * mixer.pushpull.scale, 
+                            MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * mixer.pushpull.scale);
+
+            // Reset
+            mixer.pushpull.direction_bits = 0; stepper.apply_directions();
+            current_position.e = resume_current_e; sync_plan_position_e();
+          }
         }
       #endif 
 

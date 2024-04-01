@@ -108,11 +108,6 @@ class Mixer {
 
   FORCE_INLINE static uint8_t get_current_vtool() { return selected_vtool; }
 
-  #if ENABLED(PUSH_PULL_TOOLCHANGE)
-    // Outputs true for positive direction
-    FORCE_INLINE static bool e_dir(uint_fast8_t VAR) { return !TEST(pushpull.direction_bits, VAR); }
-  #endif
-
   FORCE_INLINE static void T(const uint_fast8_t c) {
     selected_vtool = c;
     TERN_(GRADIENT_VTOOL, refresh_gradient());
@@ -174,10 +169,14 @@ class Mixer {
 
   #if ENABLED(PUSH_PULL_TOOLCHANGE)
     static pushpull_t pushpull;
+    
+    // Outputs true for positive direction. Used in Stepper.
+    FORCE_INLINE static bool e_dir(uint_fast8_t VAR) { return !TEST(pushpull.direction_bits, VAR); }
 
+    // Update the push/pull v-tool, its direction bits and scale factor
     static void update_pushpull_tool(const uint_fast8_t new_vtool){
-      pushpull.direction_bits = 0;
-      if (new_vtool == selected_vtool) return; // Prevent resultant tool being 0 across all extruders
+      pushpull.direction_bits = 0; pushpull.scale = 0;
+      if (new_vtool == selected_vtool) return;
       
       mixer_perc_t pull_mix[MIXING_STEPPERS] = {0};
       update_mix_from_vtool();
@@ -187,8 +186,8 @@ class Mixer {
         mix[i] -= pull_mix[i];
         if (mix[i] < 0) {
           SBI(pushpull.direction_bits, i);
-          mix[i] *= -1.0f; // ensure all values in mix are positive
-        } 
+          mix[i] *= -1.0f;
+        }
       }
       copy_mix_to_color(color[MIXER_PUSHPULL_TOOL]);
       
