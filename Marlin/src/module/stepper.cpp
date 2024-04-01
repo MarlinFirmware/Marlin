@@ -203,11 +203,16 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 #endif
 
+#if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+  // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
+  uint8_t Stepper::oversampling_factor;
+#else
+  constexpr uint8_t Stepper::oversampling_factor; // = 0
+#endif
+
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
 #endif
-
-IF_DISABLED(ADAPTIVE_STEP_SMOOTHING, constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -544,6 +549,21 @@ void Stepper::enable_axis(const AxisEnum axis) {
   mark_axis_enabled(axis);
 }
 
+/**
+ * Mark an axis as disabled and power off its stepper(s).
+ * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
+ * DISCUSSION: It's basically just stepper ENA pins that are shared across axes, not whole steppers.
+ *             Used on MCUs with a shortage of pins. We already track the overlap of ENA pins, so now
+ *             we just need stronger logic to track which ENA pins are being set more than once.
+ *
+ *             It would be better to use a bit mask (i.e., Flags<NUM_DISTINCT_AXIS_ENUMS>).
+ *             While the method try_to_disable in gcode/control/M17_M18_M84.cpp does use the
+ *             bit mask, it is still only at the axis level.
+ * TODO: Power off steppers that don't share another axis. Currently axis-based steppers turn off as a unit.
+ *       So we'd need to power off the off axis, then power on the on axis (for a microsecond).
+ *       A global solution would keep a usage count when enabling or disabling a stepper, but this partially
+ *       defeats the purpose of an on/off mask.
+ */
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
 
@@ -558,6 +578,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       default: break;
     }
   }
+
   return can_disable;
 }
 

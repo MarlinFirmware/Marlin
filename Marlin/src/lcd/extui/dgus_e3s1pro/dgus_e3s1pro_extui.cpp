@@ -117,19 +117,15 @@ namespace ExtUI {
     screen.configurationStoreRead(success);
   }
 
+  #if HAS_LEVELING
+    void onLevelingStart() { screen.levelingStart(); }
+    void onLevelingDone() { screen.levelingEnd(); }
+  #endif
+
   #if HAS_MESH
-    void onLevelingStart() {
-      screen.levelingStart();
-    }
-
-    void onLevelingDone() {
-      screen.levelingEnd();
-    }
-
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       screen.meshUpdate(xpos, ypos);
     }
-
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) { }
   #endif
 
@@ -147,7 +143,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       screen.pidTuning(rst);
     }

@@ -23,6 +23,12 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+//
+// e3v2/common/dwin_api.h
+//
+// Included by: e3v2/*/dwin_lcd.h
+//
+
 #if ENABLED(DWIN_MARLINUI_LANDSCAPE)
   #define DWIN_WIDTH  480
   #define DWIN_HEIGHT 272
