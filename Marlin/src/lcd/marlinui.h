@@ -53,6 +53,10 @@
   #include "e3v2/proui/dwin.h"
 #endif
 
+#if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
+  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+#endif
+
 typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
@@ -753,7 +757,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}
