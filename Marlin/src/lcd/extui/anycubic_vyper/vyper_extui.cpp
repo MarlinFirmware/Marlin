@@ -58,12 +58,14 @@ namespace ExtUI {
   void onPrintTimerStarted() { dgus.timerEvent(AC_timer_started); }
   void onPrintTimerPaused()  { dgus.timerEvent(AC_timer_paused);  }
   void onPrintTimerStopped() { dgus.timerEvent(AC_timer_stopped); }
+
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { dgus.filamentRunout();         }
+  void onFilamentRunout(const extruder_t)            { dgus.filamentRunout(); }
 
   void onUserConfirmRequired(const char * const msg) { dgus.confirmationRequest(msg); }
-  void onStatusChanged(const char * const msg)       { dgus.statusChange(msg);        }
+
+  void onStatusChanged(const char * const msg)       { dgus.statusChange(msg); }
 
   void onHomingStart()    { dgus.homingStart(); }
   void onHomingDone()     { dgus.homingComplete(); }
@@ -135,7 +137,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
         case PID_STARTED:        break;
@@ -148,7 +150,7 @@ namespace ExtUI {
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
 }
 
 #endif // ANYCUBIC_LCD_VYPER

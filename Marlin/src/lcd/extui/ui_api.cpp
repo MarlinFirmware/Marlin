@@ -20,9 +20,9 @@
  *
  */
 
-/**************
- * ui_api.cpp *
- **************/
+/*************************************
+ * ui_api.cpp - Shared ExtUI methods *
+ *************************************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -1119,7 +1119,7 @@ namespace ExtUI {
   #if M600_PURGE_MORE_RESUMABLE
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
     PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
-    PauseMode getPauseMode() { return pause_mode;}
+    PauseMode getPauseMode() { return pause_mode; }
   #endif
 
   void printFile(const char *filename) {
@@ -1225,7 +1225,9 @@ namespace ExtUI {
 
 } // namespace ExtUI
 
-// At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
+//
+// MarlinUI passthroughs to ExtUI
+//
 
 void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 

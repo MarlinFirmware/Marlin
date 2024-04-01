@@ -249,41 +249,14 @@ void onFactoryReset() {
   show_status = true;
 }
 
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
-
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
-  if (waitway == 3)
-    if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
-      rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
-  #if HAS_MESH
-    uint8_t abl_probe_index = 0;
-    for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-      for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-        const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-        const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-        if (point.x == xpos && outer == ypos)
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
-        ++abl_probe_index;
-      }
-  #endif
-}
+static_assert(eeprom_data_size >= sizeof(creality_dwin_settings_t), "Insufficient space in EEPROM for UI parameters");
 
 void onStoreSettings(char *buff) {
-  static_assert(
-    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
-    "Insufficient space in EEPROM for UI parameters"
-  );
-
   // Write to buffer
   memcpy(buff, &dwin_settings, sizeof(creality_dwin_settings_t));
 }
 
 void onLoadSettings(const char *buff) {
-  static_assert(
-    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
-    "Insufficient space in EEPROM for UI parameters"
-    );
-
   creality_dwin_settings_t eepromSettings;
   memcpy(&eepromSettings, buff, sizeof(creality_dwin_settings_t));
 
@@ -305,7 +278,7 @@ void onLoadSettings(const char *buff) {
 }
 
 void onSettingsStored(const bool success) {
-  // This is called after the entire EEPROM has been written,
+  // Called after the entire EEPROM has been written,
   // whether successful or not.
 }
 
@@ -334,6 +307,55 @@ void onSettingsLoaded(const bool success) {
   rts.setTouchScreenConfiguration();
 }
 
+void onPostprocessSettings() {}
+
+#if HAS_LEVELING
+  void onLevelingStart() {}
+
+  void onLevelingDone() {
+    #if HAS_MESH
+      if (ExtUI::getLevelingIsValid()) {
+        uint8_t abl_probe_index = 0;
+        for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+          for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+            const bool zig = outer & 1;
+            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
+            ++abl_probe_index;
+          }
+
+        rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
+        setLevelingActive(true);
+      }
+      else {
+        rts.sendData(2, AutoLevelIcon); /*Off*/
+        setLevelingActive(false);
+      }
+    #endif
+  }
+#endif
+
+#if HAS_MESH
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
+
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    if (waitway == 3)
+      if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
+        rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
+    #if HAS_MESH
+      uint8_t abl_probe_index = 0;
+      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+          const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
+          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+          if (point.x == xpos && outer == ypos)
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
+          ++abl_probe_index;
+        }
+    #endif
+  }
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   void onSetPowerLoss(const bool onoff) {
     // Called when power-loss is enabled/disabled
@@ -351,7 +373,7 @@ void onSettingsLoaded(const bool success) {
 #endif
 
 #if HAS_PID_HEATING
-  void onPidTuning(const result_t rst) {
+  void onPIDTuning(const result_t rst) {
     // Called for temperature PID tuning result
     rts.sendData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rts.sendData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -367,37 +389,14 @@ void onSettingsLoaded(const bool success) {
   }
 #endif
 
-void onLevelingStart() {}
-
-void onLevelingDone() {
-  #if HAS_MESH
-    if (ExtUI::getLevelingIsValid()) {
-      uint8_t abl_probe_index = 0;
-      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-          const bool zig = outer & 1;
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
-          ++abl_probe_index;
-        }
-
-      rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
-      setLevelingActive(true);
-    }
-    else {
-      rts.sendData(2, AutoLevelIcon); /*Off*/
-      setLevelingActive(false);
-    }
-  #endif
-}
-
-void onSteppersEnabled() {}
-void onPrintDone() {}
 void onHomingStart() {}
 void onHomingDone() {}
-void onSteppersDisabled() {}
-void onPostprocessSettings() {}
 
-} // namespace ExtUI
+void onPrintDone() {}
+
+void onSteppersDisabled() {}
+void onSteppersEnabled() {}
+
+} // ExtUI
 
 #endif // DGUS_LCD_UI_IA_CREALITY
