@@ -47,19 +47,26 @@ namespace ExtUI {
   }
   void onIdle() {}
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
+
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
+
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
+
   void onFilamentRunout(const extruder_t extruder) {}
+
   void onUserConfirmRequired(const char * const msg) {}
+
   void onStatusChanged(const char * const msg) {}
 
   void onHomingStart() {}
   void onHomingDone() {}
+
   void onPrintDone() {}
 
   void onFactoryReset() {}
@@ -126,20 +133,21 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        case PID_STARTED:        break;
-        case PID_BAD_HEATER_ID:  break;
-        case PID_TEMP_TOO_HIGH:  break;
-        case PID_TUNING_TIMEOUT: break;
-        case PID_DONE:           break;
+        case PID_STARTED:
+        case PID_BED_STARTED:
+        case PID_BAD_HEATER_ID:   break;
+        case PID_TEMP_TOO_HIGH:   break;
+        case PID_TUNING_TIMEOUT:  break;
+        case PID_DONE:            break;
       }
     }
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI

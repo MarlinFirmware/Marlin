@@ -1491,7 +1491,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
 
     else if (ENABLED(DWIN_LCD_PROUI))
-        msg = F("");
+      msg = F("");
     else
       return;
 
@@ -1605,9 +1605,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     #endif
 
-    #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
-      status_scroll_offset = 0;
-    #endif
+    TERN_(STATUS_MESSAGE_SCROLLING, reset_status_scroll());
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, dwinStatusChanged(status_message));
@@ -1622,7 +1620,7 @@ void MarlinUI::host_notify(const char * const cstr) {
       if (status_scroll_offset < status_message.glyphs())
         while (!START_OF_UTF8_CHAR(status_message[++status_scroll_offset]));
       else
-        status_scroll_offset = 0;
+        reset_status_scroll();
     }
 
     char* MarlinUI::status_and_len(uint8_t &len) {
@@ -1669,8 +1667,11 @@ void MarlinUI::host_notify(const char * const cstr) {
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
       wait_for_heatup = wait_for_user = false;
-      card.abortFilePrintSoon();
-    #endif
+      if (IS_SD_PRINTING())
+        card.abortFilePrintSoon();
+      else if (card.isMounted())
+        card.closefile();
+      #endif
     #ifdef ACTION_ON_CANCEL
       hostui.cancel();
     #endif
@@ -1698,6 +1699,16 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
+  /**
+   * - Synchronize and put up a wait screen
+   * - Wake the display
+   * - Tell the host to present a "Resume" option
+   * - Print "Paused" on the display
+   * - One of three possibilities follow:
+   *   - If Parking, Print a message, send M125 P (which parks and waits), then M24 which will resume SD printing.
+   *   - If media exists call M25 to pause the SD print.
+   *   - For a host-only printer tell the host to pause the print in progress.
+   */
   void MarlinUI::pause_print() {
     #if HAS_MARLINUI_MENU
       synchronize(GET_TEXT_F(MSG_PAUSING));
@@ -1884,7 +1895,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     const PauseMode mode/*=PAUSE_MODE_SAME*/,
     const uint8_t extruder/*=active_extruder*/
   ) {
-    pause_mode = mode;
+    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
     ExtUI::pauseModeStatus = message;
     switch (message) {
       case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;

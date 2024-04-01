@@ -84,6 +84,7 @@ namespace ExtUI {
 
   void onHomingStart() {}
   void onHomingDone() {}
+
   void onPrintDone() {}
 
   void onFactoryReset() {
@@ -138,14 +139,14 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const result_t rst) {
       // Called for temperature PID tuning result
       screen.pidTuning(rst);
     }
   #endif
 
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
 }
 
 #endif // DGUS_LCD_UI_RELOADED
