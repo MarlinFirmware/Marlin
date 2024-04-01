@@ -175,7 +175,7 @@ namespace ExtUI {
   #endif
 
   #if HAS_PID_HEATING
-    void onPIDTuning(const result_t rst) {
+    void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       //SERIAL_ECHOLNPGM("OnPIDTuning:", rst);
       switch (rst) {
@@ -205,7 +205,7 @@ namespace ExtUI {
   #endif // HAS_PID_HEATING
 
   #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const result_t rst) {
+    void onMPCTuning(const mpcresult_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
         case MPC_STARTED:

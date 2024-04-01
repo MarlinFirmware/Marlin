@@ -401,7 +401,7 @@ void onPostprocessSettings() {}
 #endif
 
 #if HAS_PID_HEATING
-  void onPIDTuning(const result_t rst) {
+  void onPIDTuning(const pidresult_t rst) {
     // Called for temperature PID tuning result
     rts.sendData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rts.sendData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -421,7 +421,7 @@ void onPostprocessSettings() {}
 #endif
 
 #if ENABLED(MPC_AUTOTUNE)
-  void onMPCTuning(const result_t rst) {
+  void onMPCTuning(const mpcresult_t rst) {
     // Called for temperature PID tuning result
   }
 #endif

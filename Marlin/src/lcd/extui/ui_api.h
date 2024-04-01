@@ -68,31 +68,12 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t {
-    /*
-    #if HAS_PID_HEATING
-      PID_STARTED, PID_BED_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE
-    #endif
-    #if ALL(HAS_PID_HEATING, MPC_AUTOTUNE)
-      ,
-    #endif
-    #if ENABLED(MPC_AUTOTUNE)
-      MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE
-    #endif
-    */
-    OPTITEM(HAS_PID_HEATING, PID_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BED_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_CHAMBER_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BAD_HEATER_ID)
-    OPTITEM(HAS_PID_HEATING, PID_TEMP_TOO_HIGH)
-    OPTITEM(HAS_PID_HEATING, PID_TUNING_TIMEOUT)
-    OPTITEM(HAS_PID_HEATING, PID_DONE)
-
-    OPTITEM(MPC_AUTOTUNE, MPC_STARTED)
-    OPTITEM(MPC_AUTOTUNE, MPC_TEMP_ERROR)
-    OPTITEM(MPC_AUTOTUNE, MPC_INTERRUPTED)
-    OPTITEM(MPC_AUTOTUNE, MPC_DONE)
-  };
+  #if HAS_PID_HEATING
+    enum pidresult_t : uint8_t { PID_STARTED, PID_BED_STARTED, PID_CHAMBER_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  #endif
+  #if ENABLED(MPC_AUTOTUNE)
+    enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
+  #endif
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -566,11 +547,11 @@ namespace ExtUI {
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING
-    void onPIDTuning(const result_t rst);
+    void onPIDTuning(const pidresult_t rst);
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp);
   #endif
   #if ENABLED(MPC_AUTOTUNE)
-    void onMPCTuning(const result_t rst);
+    void onMPCTuning(const mpcresult_t rst);
   #endif
   #if ENABLED(PLATFORM_M997_SUPPORT)
     void onFirmwareFlash();

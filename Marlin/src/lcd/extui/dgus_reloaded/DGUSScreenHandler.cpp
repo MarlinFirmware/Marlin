@@ -305,7 +305,7 @@ void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
 
 #if HAS_PID_HEATING
 
-  void DGUSScreenHandler::pidTuning(const ExtUI::result_t rst) {
+  void DGUSScreenHandler::pidTuning(const ExtUI::pidresult_t rst) {
     switch (rst) {
       case ExtUI::PID_STARTED:
       case ExtUI::PID_BED_STARTED:
