@@ -1890,8 +1890,6 @@ void MarlinUI::update() {
   dwinHandleScreen(); // Rotary encoder update
 }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
-
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
@@ -1928,8 +1926,7 @@ void dwinRedrawScreen() {
   }
 
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
-    //if (mode == PAUSE_MODE_SAME) return;
-    pause_mode = mode;
+    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
     switch (message) {
       case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING));    break;                // M125
       case PAUSE_MESSAGE_CHANGING: dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT));   break;                // pause_print (M125, M600)

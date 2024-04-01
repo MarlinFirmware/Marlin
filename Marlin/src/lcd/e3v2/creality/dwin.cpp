@@ -1822,8 +1822,6 @@ void MarlinUI::update() {
   dwinHandleScreen(); // Rotary encoder update
 }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
-
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
 #endif
