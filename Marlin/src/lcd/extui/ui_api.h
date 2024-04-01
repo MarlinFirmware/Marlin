@@ -66,15 +66,9 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t {
-    OPTITEM(HAS_PID_HEATING, PID_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BED_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BAD_HEATER_ID)
-    OPTITEM(HAS_PID_HEATING, PID_TEMP_TOO_HIGH)
-    OPTITEM(HAS_PID_HEATING, PID_TUNING_TIMEOUT)
-    OPTITEM(HAS_PID_HEATING, PID_DONE)
-  };
-
+  #if HAS_PID_HEATING
+    enum result_t : uint8_t { PID_STARTED, PID_BED_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  #endif
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
