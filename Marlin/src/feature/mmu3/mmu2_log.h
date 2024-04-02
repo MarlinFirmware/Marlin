@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   // Report the msg into the general logging subsystem (through Marlin's SERIAL_ECHO stuff)
   // @param msg pointer to a string in PROGMEM
@@ -43,11 +43,11 @@ namespace MMU2 {
   void LogEchoEvent_P(PGM_P const pstr);
   inline void LogEchoEvent(FSTR_P const fstr) { LogEchoEvent_P(FTOP(fstr)); }
 
-} // MMU2
+} // MMU3
 
 #ifndef UNITTEST
 
-  #define SERIAL_MMU2() { SERIAL_ECHO(F("MMU2:")); }
+  #define SERIAL_MMU2() { SERIAL_ECHO(F("MMU3:")); }
 
   #define MMU2_ECHO_MSGLN(S) do { \
       SERIAL_ECHO_START();        \

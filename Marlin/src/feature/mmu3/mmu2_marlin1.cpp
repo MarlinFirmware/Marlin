@@ -22,7 +22,7 @@
 
 /**
  * mmu2_marlin1.cpp
- * MK3 / Marlin1 implementation of support routines for the MMU2
+ * MK3 / Marlin1 implementation of support routines for the MMU3
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -38,7 +38,7 @@
 #include "../../libs/nozzle.h"
 #include "mmu2_marlin.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   static void planner_line_to_current_position(float feedRate_mm_s) {
     line_to_current_position(feedRate_mm_s);
@@ -185,6 +185,6 @@ namespace MMU2 {
     return axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS);
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

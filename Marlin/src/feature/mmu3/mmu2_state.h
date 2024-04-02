@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-namespace MMU2 {
+namespace MMU3 {
   /**
    * @brief status of mmu
    *
@@ -45,4 +45,4 @@ namespace MMU2 {
     Stopped     //!< The user doesn't want the printer to work with the MMU. The MMU itself is not powered and does not work at all.
   };
 
-} // MMU2
+} // MMU3

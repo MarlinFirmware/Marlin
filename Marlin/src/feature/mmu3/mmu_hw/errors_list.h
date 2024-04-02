@@ -40,7 +40,7 @@
 #include "../strlen_cx.h"
 #include "../ultralcd.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
 static constexpr uint8_t ERR_MMU_CODE = 4;
 
@@ -349,4 +349,4 @@ static_assert(COUNT(errorCodes) == COUNT(errorDescs));
 static_assert(COUNT(errorCodes) == COUNT(errorTitles));
 static_assert(COUNT(errorCodes) == COUNT(errorButtons));
 
-} // MMU2
+} // MMU3

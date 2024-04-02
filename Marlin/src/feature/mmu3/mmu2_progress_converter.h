@@ -29,7 +29,7 @@
 
 #include "../../HAL/shared/Marduino.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
 FSTR_P const ProgressCodeToText(const ProgressCode pc);
 

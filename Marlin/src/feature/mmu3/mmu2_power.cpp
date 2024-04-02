@@ -37,7 +37,7 @@
 #include "../../core/boards.h"
 #include "../../pins/pins.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
 // On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
 void power_on() {
@@ -55,11 +55,11 @@ void reset() {
     safe_delay(100);
     WRITE(MMU2_RST_PIN, HIGH);
   #else
-    mmu2.reset(MMU2::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
+    mmu3.reset(MMU3::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
   #endif
   // otherwise HW reset is not available
 }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

@@ -50,7 +50,7 @@
   #include <string.h>
   #include "mmu2_supported_version.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   static constexpr uint8_t supportedMmuFWVersion[] PROGMEM = { mmuVersionMajor, mmuVersionMinor, mmuVersionPatch };
 
@@ -894,6 +894,6 @@ namespace MMU2 {
     return occurrences == 0;
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

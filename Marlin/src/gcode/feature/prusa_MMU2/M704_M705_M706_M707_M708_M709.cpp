@@ -32,13 +32,13 @@
 static void gcodes_M704_M705_M706(uint16_t gcode) {
   const int8_t mmuSlotIndex = parser.intval('P', -1);
 
-  if (mmu2.enabled() && WITHIN(mmuSlotIndex, 0, EXTRUDERS - 1)) {
+  if (mmu3.enabled() && WITHIN(mmuSlotIndex, 0, EXTRUDERS - 1)) {
     switch (gcode) {
-      case 704: mmu2.load_to_feeder(mmuSlotIndex); break;
-      case 705: mmu2.eject_filament(mmuSlotIndex, false); break;
+      case 704: mmu3.load_to_feeder(mmuSlotIndex); break;
+      case 705: mmu3.eject_filament(mmuSlotIndex, false); break;
       case 706:
         #if ENABLED(MMU_HAS_CUTTER)
-          if (mmu2.cutter_mode > 0) mmu2.cut_filament(mmuSlotIndex);
+          if (mmu3.cutter_mode > 0) mmu3.cut_filament(mmuSlotIndex);
         #endif
         break;
       default: break;
@@ -102,10 +102,10 @@ void GcodeSuite::M706() {
  *
  */
 void GcodeSuite::M707() {
-  if (mmu2.enabled() ) {
+  if (mmu3.enabled() ) {
     if (parser.seenval('A') ) {
       char *address = parser.stringval('A');
-      mmu2.readRegister(uint8_t(strtol(address, NULL, 16)));
+      mmu3.readRegister(uint8_t(strtol(address, NULL, 16)));
     }
   }
 }
@@ -126,7 +126,7 @@ void GcodeSuite::M707() {
  * Does nothing if A parameter is missing or if MMU is not enabled.
  */
 void GcodeSuite::M708() {
-  if (mmu2.enabled() ) {
+  if (mmu3.enabled() ) {
     uint8_t addr = 0;
     if (parser.seenval('A') ) {
       char *address = parser.stringval('A');
@@ -137,7 +137,7 @@ void GcodeSuite::M708() {
       data = parser.ushortval('X', 0);
     }
     if (addr) {
-      mmu2.writeRegister(addr, data);
+      mmu3.writeRegister(addr, data);
     }
   }
 }
@@ -168,20 +168,20 @@ void GcodeSuite::M708() {
 void GcodeSuite::M709() {
   if (parser.seenval('S')) {
     switch (parser.byteval('S', -1)) {
-      case 0: mmu2.stop(); break;
-      case 1: mmu2.start(); break;
+      case 0: mmu3.stop(); break;
+      case 1: mmu3.start(); break;
       default: break;
     }
   }
-  if (mmu2.enabled() && parser.seenval('X')) {
+  if (mmu3.enabled() && parser.seenval('X')) {
     switch (parser.byteval('X', -1)) {
-      case  0: mmu2.reset(MMU2::MMU2::Software); break;
-      case  1: mmu2.reset(MMU2::MMU2::ResetPin); break;
-      case 42: mmu2.reset(MMU2::MMU2::EraseEEPROM); break;
+      case  0: mmu3.reset(MMU3::MMU3::Software); break;
+      case  1: mmu3.reset(MMU3::MMU3::ResetPin); break;
+      case 42: mmu3.reset(MMU3::MMU3::EraseEEPROM); break;
       default: break;
     }
   }
-  mmu2.status();
+  mmu3.status();
 }
 
 #endif // HAS_PRUSA_MMU3

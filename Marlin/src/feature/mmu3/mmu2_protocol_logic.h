@@ -65,8 +65,8 @@
 
 #endif // !__AVR__
 
-// New MMU2 protocol logic
-namespace MMU2 {
+// New MMU3 protocol logic
+namespace MMU3 {
 
   using namespace modules::protocol;
 
@@ -391,7 +391,7 @@ namespace MMU2 {
     uint8_t retryAttempts;
     bool inAutoRetry;
 
-    friend class MMU2;
+    friend class MMU3;
   };
 
-} // MMU2
+} // MMU3

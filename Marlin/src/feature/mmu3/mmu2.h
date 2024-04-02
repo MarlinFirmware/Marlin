@@ -46,7 +46,7 @@
   static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
   static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
 
-  namespace MMU2 {
+  namespace MMU3 {
 
   // general MMU setup for MK3
   enum : uint8_t {
@@ -58,11 +58,11 @@
   };
 
   // Top-level interface between Logic and Marlin.
-  // Intentionally named MMU2 to be (almost) a drop-in replacement for the previous implementation.
+  // Intentionally named MMU3 to be (almost) a drop-in replacement for the previous implementation.
   // Most of the public methods share the original naming convention as well.
-  class MMU2 {
+  class MMU3 {
   public:
-    MMU2();
+    MMU3();
 
     // Powers ON the MMU, then initializes the UART and protocol logic
     void start();
@@ -412,8 +412,8 @@
     uint16_t _tmcFailures;
   };
 
-  } // MMU2
+  } // MMU3
 
 // following Marlin's way of doing stuff - one and only instance of MMU implementation in the code base
 // + avoiding buggy singletons on the AVR platform
-extern MMU2::MMU2 mmu2;
+extern MMU3::MMU3 mmu3;

@@ -31,7 +31,7 @@
 #include "../../feature/runout.h"
 #include "mmu2_fsensor.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   #if HAS_FILAMENT_SENSOR
 
@@ -60,6 +60,6 @@ namespace MMU2 {
     return FILAMENT_PRESENT() ? FilamentState::AT_FSENSOR : FilamentState::NOT_PRESENT;
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

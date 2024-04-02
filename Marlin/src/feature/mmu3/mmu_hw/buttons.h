@@ -31,7 +31,7 @@
 #define BUTTON_OP_RIGHT(X)  ((X & 0xF0) >> 4)
 #define BUTTON_OP_MIDDLE(X) (X & 0x0F)
 
-namespace MMU2 {
+namespace MMU3 {
 
 // Will be mapped onto dialog button responses in the FW
 // Those responses have their unique+translated texts as well
@@ -70,4 +70,4 @@ constexpr uint_least8_t buttons_to_uint8t(Buttons b) {
   return static_cast<uint8_t>(b);
 }
 
-} // MMU2
+} // MMU3

@@ -70,7 +70,7 @@ void GcodeSuite::T(const int8_t tool_index) {
 
   #if HAS_PRUSA_MMU3
     if (parser.string_arg) {
-      mmu2.tool_change(parser.string_arg[0], uint8_t(tool_index));   // Special commands T?/Tx/Tc
+      mmu3.tool_change(parser.string_arg[0], uint8_t(tool_index));   // Special commands T?/Tx/Tc
       return;
     }
   #elif HAS_PRUSA_MMU2

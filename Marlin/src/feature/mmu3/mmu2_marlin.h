@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-  namespace MMU2 {
+  namespace MMU3 {
   // This interface separates Marlin1/Marlin2 from the MMU top logic layer.
   // - Unify implementation among MK3 and Buddy FW
   // - Enable unit testing of MMU top layer
@@ -70,4 +70,4 @@
 
   bool all_axes_homed();
 
-  } // MMU2
+  } // MMU3

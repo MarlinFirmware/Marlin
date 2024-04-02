@@ -79,15 +79,15 @@
   uint8_t lcdui_print_extruder(void) {
     uint8_t chars = 1;
     lcd_space(1);
-    if (mmu2.get_current_tool() == mmu2.get_tool_change_tool()) {
+    if (mmu3.get_current_tool() == mmu3.get_tool_change_tool()) {
       lcd_put_lchar('F');
-      lcd_put_lchar(mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_current_tool() + '1');
+      lcd_put_lchar(mmu3.get_current_tool() == (uint8_t)MMU3::FILAMENT_UNKNOWN ? '?' : mmu3.get_current_tool() + '1');
       chars += 2;
     }
     else {
-      lcd_put_lchar(mmu2.get_current_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_current_tool() + '1');
+      lcd_put_lchar(mmu3.get_current_tool() == (uint8_t)MMU3::FILAMENT_UNKNOWN ? '?' : mmu3.get_current_tool() + '1');
       lcd_put_lchar('>');
-      lcd_put_lchar(mmu2.get_tool_change_tool() == (uint8_t)MMU2::FILAMENT_UNKNOWN ? '?' : mmu2.get_tool_change_tool() + '1');
+      lcd_put_lchar(mmu3.get_tool_change_tool() == (uint8_t)MMU3::FILAMENT_UNKNOWN ? '?' : mmu3.get_tool_change_tool() + '1');
       chars += 3;
     }
     return chars;

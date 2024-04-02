@@ -30,7 +30,7 @@
 
 #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
 
-namespace MMU2 {
+namespace MMU3 {
 
   // Can be used to block printer's filament sensor handling - to avoid errorneous injecting of M600
   // while doing a toolchange with the MMU
@@ -52,4 +52,4 @@ namespace MMU2 {
 
   FilamentState WhereIsFilament();
 
-} // MMU2
+} // MMU3

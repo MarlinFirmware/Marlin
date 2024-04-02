@@ -45,7 +45,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu2.load_to_nozzle(tool), mmu2.load_to_nozzle(tool));
+  TERN(HAS_PRUSA_MMU3, mmu3.load_to_nozzle(tool), mmu2.load_to_nozzle(tool));
   ui.reset_status();
 }
 
@@ -53,7 +53,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu2.load_to_feeder(tool), mmu2.load_to_feeder(tool));
+  TERN(HAS_PRUSA_MMU3, mmu3.load_to_feeder(tool), mmu2.load_to_feeder(tool));
   ui.reset_status();
 }
 
@@ -91,7 +91,7 @@ void _mmu2_cut_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_CUTTING_FILAMENT), int(index + 1));
-  if (TERN0(HAS_PRUSA_MMU3, mmu2.cut_filament(index, true)))
+  if (TERN0(HAS_PRUSA_MMU3, mmu3.cut_filament(index, true)))
     ui.reset_status();
 }
 
@@ -99,9 +99,9 @@ void action_mmu2_unload_filament() {
   ui.reset_status();
   ui.return_to_status();
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
-  while (!mmu2.unload()) {
+  while (!TERN(HAS_PRUSA_MMU3, mmu3.unload(), mmu2.unload())) {
     safe_delay(50);
-    TERN(HAS_PRUSA_MMU3, MMU2::marlin_idle(true), idle());
+    TERN(HAS_PRUSA_MMU3, mmu3.marlin_idle(true), idle());
   }
   ui.reset_status();
 }
@@ -117,21 +117,21 @@ void menu_mmu2_eject_filament() {
 
 #if HAS_PRUSA_MMU3
 
-void menu_mmu2_cutter_set_mode(uint8_t mode) { mmu2.cutter_mode = mode; }
-void menu_mmu2_cutter_disable() { menu_mmu2_cutter_set_mode(0); }
-void menu_mmu2_cutter_enable() { menu_mmu2_cutter_set_mode(1); }
-void menu_mmu2_cutter_always() { menu_mmu2_cutter_set_mode(2); }
+void menu_mmu3_cutter_set_mode(uint8_t mode) { mmu3.cutter_mode = mode; }
+void menu_mmu3_cutter_disable() { menu_mmu3_cutter_set_mode(0); }
+void menu_mmu3_cutter_enable() { menu_mmu3_cutter_set_mode(1); }
+void menu_mmu3_cutter_always() { menu_mmu3_cutter_set_mode(2); }
 
-void menu_mmu2_cutter() {
+void menu_mmu3_cutter() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  ACTION_ITEM(MSG_MMU_CUTTER_MODE_DISABLE, menu_mmu2_cutter_disable);
-  ACTION_ITEM(MSG_MMU_CUTTER_MODE_ENABLE, menu_mmu2_cutter_enable);
-  ACTION_ITEM(MSG_MMU_CUTTER_MODE_ALWAYS, menu_mmu2_cutter_always);
+  ACTION_ITEM(MSG_MMU_CUTTER_MODE_DISABLE, menu_mmu3_cutter_disable);
+  ACTION_ITEM(MSG_MMU_CUTTER_MODE_ENABLE, menu_mmu3_cutter_enable);
+  ACTION_ITEM(MSG_MMU_CUTTER_MODE_ALWAYS, menu_mmu3_cutter_always);
   END_MENU();
 }
 
-void menu_mmu2_cut_filament() {
+void menu_mmu3_cut_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
   EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_cut_filament(MenuItemBase::itemIndex); });
@@ -142,13 +142,13 @@ void menu_mmu2_cut_filament() {
 void spool_join_status() { spooljoin.initStatus(); }
 
 // Fail Stats Menu
-void menu_mmu2_fail_stats_last_print() {
+void menu_mmu3_fail_stats_last_print() {
   if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH];
 
   // had to cast the uint8_t values to uint16_t before formatting them.
-  const uint16_t fail_num = MMU2::operation_statistics.fail_num;
-  const uint16_t load_fail_num = MMU2::operation_statistics.load_fail_num;
+  const uint16_t fail_num = MMU3::operation_statistics.fail_num;
+  const uint16_t load_fail_num = MMU3::operation_statistics.load_fail_num;
 
   sprintf_P(buffer1, PSTR("%hu"), fail_num);
   sprintf_P(buffer2, PSTR("%hu"), load_fail_num);
@@ -166,13 +166,13 @@ void menu_mmu2_fail_stats_last_print() {
   END_SCREEN();
 }
 
-void menu_mmu2_fail_stas_total() {
+void menu_mmu3_fail_stas_total() {
   if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH], buffer3[LCD_WIDTH];
 
-  sprintf_P(buffer1, PSTR("%hu"), MMU2::operation_statistics.fail_total_num);
-  sprintf_P(buffer2, PSTR("%hu"), MMU2::operation_statistics.load_fail_total_num);
-  sprintf_P(buffer3, PSTR("%hu"), mmu2.tmcFailures());
+  sprintf_P(buffer1, PSTR("%hu"), MMU3::operation_statistics.fail_total_num);
+  sprintf_P(buffer2, PSTR("%hu"), MMU3::operation_statistics.load_fail_total_num);
+  sprintf_P(buffer3, PSTR("%hu"), mmu3.tmcFailures());
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_TOTAL_FAILURES, SS_INVERT);
@@ -186,34 +186,34 @@ void menu_mmu2_fail_stas_total() {
 }
 
 #if ENABLED(MARLIN_DEV_MODE)
-  void menu_mmu2_dev_increment_fail_stat() {
-    MMU2::operation_statistics.increment_mmu_fails();
+  void menu_mmu3_dev_increment_fail_stat() {
+    MMU3::operation_statistics.increment_mmu_fails();
   }
 
-  void menu_mmu2_dev_increment_load_fail_stat() {
-    MMU2::operation_statistics.increment_load_fails();
+  void menu_mmu3_dev_increment_load_fail_stat() {
+    MMU3::operation_statistics.increment_load_fails();
   }
 #endif
 
-static void mmu2_reset_fail_stats() {
-  bool result = MMU2::operation_statistics.reset_fail_stats();
+static void mmu3_reset_fail_stats() {
+  bool result = MMU3::operation_statistics.reset_fail_stats();
   ui.go_back();
   MarlinUI::completion_feedback(result);
 }
 
-static void mmu2_reset_stats() {
-  bool result = MMU2::operation_statistics.reset_stats();
+static void mmu3_reset_stats() {
+  bool result = MMU3::operation_statistics.reset_stats();
   ui.go_back();
   MarlinUI::completion_feedback(result);
 }
 
-void menu_mmu2_toolchange_stat_total() {
+void menu_mmu3_toolchange_stat_total() {
   if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH];
-  sprintf_P(buffer1, PSTR("%u"), MMU2::operation_statistics.tool_change_counter);
+  sprintf_P(buffer1, PSTR("%u"), MMU3::operation_statistics.tool_change_counter);
 
   char buffer2[LCD_WIDTH];
-  sprintf_P(buffer2, PSTR("%lu"), MMU2::operation_statistics.tool_change_total_counter);
+  sprintf_P(buffer2, PSTR("%lu"), MMU3::operation_statistics.tool_change_total_counter);
 
   START_SCREEN();
   STATIC_ITEM(MSG_MMU_MATERIAL_CHANGES, SS_INVERT);
@@ -228,32 +228,33 @@ void menu_mmu2_toolchange_stat_total() {
   END_SCREEN();
 }
 
-void menu_mmu2_statistics() {
+void menu_mmu3_statistics() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
   #if ENABLED(MARLIN_DEV_MODE)
-    ACTION_ITEM(MSG_MMU_DEV_INCREMENT_FAILS, menu_mmu2_dev_increment_fail_stat);
-    ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu2_dev_increment_load_fail_stat);
+    ACTION_ITEM(MSG_MMU_DEV_INCREMENT_FAILS, menu_mmu3_dev_increment_fail_stat);
+    ACTION_ITEM(MSG_MMU_DEV_INCREMENT_LOAD_FAILS, menu_mmu3_dev_increment_load_fail_stat);
   #endif
 
   SUBMENU(
     TERN(printJobOngoing(), MSG_MMU_CURRENT_PRINT_FAILURES, MSG_MMU_LAST_PRINT_FAILURES),
-    menu_mmu2_fail_stats_last_print
+    menu_mmu3_fail_stats_last_print
   );
-  SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu2_fail_stas_total);
-  SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu2_toolchange_stat_total);
+  SUBMENU(MSG_MMU_TOTAL_FAILURES, menu_mmu3_fail_stas_total);
+  SUBMENU(MSG_MMU_MATERIAL_CHANGES, menu_mmu3_toolchange_stat_total);
   CONFIRM_ITEM(MSG_MMU_RESET_FAIL_STATS,
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-    mmu2_reset_fail_stats, nullptr,
+    mmu3_reset_fail_stats, nullptr,
     GET_TEXT_F(MSG_MMU_RESET_FAIL_STATS), (const char *)nullptr, F("?")
   );
   CONFIRM_ITEM(MSG_MMU_RESET_STATS,
     MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
-    mmu2_reset_stats, nullptr,
+    mmu3_reset_stats, nullptr,
     GET_TEXT_F(MSG_MMU_RESET_STATS), (const char *)nullptr, F("?")
   );
   END_MENU();
 }
+
 #endif // HAS_PRUSA_MMU3
 
 //
@@ -263,9 +264,9 @@ void menu_mmu2_statistics() {
 void action_mmu2_reset() {
   #if HAS_PRUSA_MMU3
     #if PIN_EXISTS(MMU2_RST)
-      mmu2.reset(MMU2::MMU2::ResetForm::ResetPin);
+      mmu3.reset(MMU3::MMU3::ResetForm::ResetPin);
     #else
-      mmu2.reset(MMU2::MMU2::ResetForm::Software);
+      mmu3.reset(MMU3::MMU3::ResetForm::Software);
     #endif
   #else
     mmu2.init();
@@ -280,7 +281,7 @@ void menu_mmu2() {
   BACK_ITEM(MSG_MAIN_MENU);
 
   // MMU2/MMU3 Commands
-  if (!busy && TERN1(HAS_PRUSA_MMU3, mmu2.mmu_hw_enabled)) {
+  if (!busy && TERN1(HAS_PRUSA_MMU3, mmu3.mmu_hw_enabled)) {
     SUBMENU(MSG_MMU2_LOAD_FILAMENT, menu_mmu2_load_filament);
     SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE, menu_mmu2_load_to_nozzle);
     SUBMENU(MSG_MMU2_EJECT_FILAMENT, menu_mmu2_eject_filament);
@@ -290,12 +291,12 @@ void menu_mmu2() {
   #if HAS_PRUSA_MMU3
     // MMU3 Enable/Disable
     #ifndef __AVR__
-      editable.state = mmu2.mmu_hw_enabled;
-      EDIT_ITEM_F(bool, F("MMU"), &mmu2.mmu_hw_enabled, []{
+      editable.state = mmu3.mmu_hw_enabled;
+      EDIT_ITEM_F(bool, F("MMU"), &mmu3.mmu_hw_enabled, []{
         if (editable.state)
-          mmu2.stop();
+          mmu3.stop();
         else
-          mmu2.start();
+          mmu3.start();
       });
     #endif
 
@@ -303,20 +304,20 @@ void menu_mmu2() {
     EDIT_ITEM(bool, MSG_MMU_SPOOL_JOIN, &spooljoin.enabled, spool_join_status);
 
     // Cutter Enable/Disable
-    bool cutter_enabled = mmu2.cutter_mode != 0;
+    bool cutter_enabled = mmu3.cutter_mode != 0;
     editable.state = cutter_enabled;
     EDIT_ITEM(bool, MSG_MMU_CUTTER, &cutter_enabled, []{
-      menu_mmu2_cutter_set_mode((uint8_t)!editable.state);
+      menu_mmu3_cutter_set_mode((uint8_t)!editable.state);
     });
-    if (!busy && MMU2::cutter_enabled() && mmu2.mmu_hw_enabled) {
-      SUBMENU(MSG_MMU2_CUT_FILAMENT, menu_mmu2_cut_filament);
+    if (!busy && mmu3.cutter_enabled() && mmu3.mmu_hw_enabled) {
+      SUBMENU(MSG_MMU2_CUT_FILAMENT, menu_mmu3_cut_filament);
     }
 
     // Statistics
-    SUBMENU(MSG_MMU_STATISTICS, menu_mmu2_statistics);
+    SUBMENU(MSG_MMU_STATISTICS, menu_mmu3_statistics);
   #endif
 
-  if (TERN1(HAS_PRUSA_MMU3, mmu2.mmu_hw_enabled)) {
+  if (TERN1(HAS_PRUSA_MMU3, mmu3.mmu_hw_enabled)) {
     ACTION_ITEM(MSG_MMU2_RESET, action_mmu2_reset);
   }
 
@@ -356,9 +357,9 @@ void menu_mmu2_pause() {
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
   #if HAS_PRUSA_MMU3
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu3.unload(); });
+    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu3.load_to_feeder(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu3.load_to_nozzle(feeder_index); });
   #else
     ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
     ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
@@ -373,7 +374,7 @@ void mmu2_M600(const bool automatic/*=false*/) {
     if (automatic && spooljoin.enabled) {
       uint8_t slot;
       slot = spooljoin.nextSlot();
-      mmu2.load_to_nozzle(slot);
+      mmu3.load_to_nozzle(slot);
       return;
     }
   #else

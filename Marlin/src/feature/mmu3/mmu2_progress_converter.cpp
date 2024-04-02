@@ -36,7 +36,7 @@
 #include "mmu_hw/progress_codes.h"
 #include "mmu_hw/errors_list.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   FSTR_P const progressTexts[] PROGMEM = {
     GET_TEXT_F(MSG_PROGRESS_OK),
@@ -77,6 +77,6 @@ namespace MMU2 {
      : static_cast<FSTR_P const>(pgm_read_ptr(&progressTexts[0]));
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

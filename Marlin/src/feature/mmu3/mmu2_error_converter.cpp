@@ -33,7 +33,7 @@
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/errors_list.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   static ButtonOperations buttonSelectedOperation = ButtonOperations::NoOperation;
 
@@ -371,6 +371,6 @@ namespace MMU2 {
     return buttonSelectedOperation;
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

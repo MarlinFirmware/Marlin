@@ -1128,7 +1128,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     UNUSED(no_move);
 
-    mmu2.tool_change(new_tool);
+    mmu3.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 

@@ -30,7 +30,7 @@
 
 #include "mmu2_log.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   void LogEchoEvent_P(PGM_P const pstr) {
     SERIAL_ECHO_START(); // @@TODO Decide MMU errors on serial line
@@ -42,6 +42,6 @@ namespace MMU2 {
     LogEchoEvent_P(pstr);
   }
 
-} // MMU2
+} // MMU3
 
 #endif // HAS_PRUSA_MMU3

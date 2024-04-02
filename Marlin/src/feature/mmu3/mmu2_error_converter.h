@@ -30,9 +30,9 @@
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
 
-  namespace MMU2 {
+  namespace MMU3 {
 
-  // Translates MMU2::ErrorCode into an index of Prusa-Error-Codes
+  // Translates MMU3::ErrorCode into an index of Prusa-Error-Codes
   // Basically this is the way to obtain an index into all other functions in this API
   uint8_t PrusaErrorCodeIndex(const ErrorCode ec);
 
@@ -70,4 +70,4 @@
   // Does not clear the "pressed" button upon exit
   Buttons ButtonAvailable(const ErrorCode ec);
 
-  } // MMU2
+  } // MMU3

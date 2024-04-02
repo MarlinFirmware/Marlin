@@ -31,7 +31,7 @@
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/progress_codes.h"
 
-namespace MMU2 {
+namespace MMU3 {
 
   enum CommandInProgress : uint8_t {
     NoCommand = 0,
@@ -165,4 +165,4 @@ namespace MMU2 {
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
 
-} // MMU2
+} // MMU3

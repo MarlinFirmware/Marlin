@@ -25,7 +25,7 @@
  * mmu2_power.h
  */
 
-namespace MMU2 {
+namespace MMU3 {
 
 void power_on();
 
@@ -33,4 +33,4 @@ void power_off();
 
 void reset();
 
-} // MMU2
+} // MMU3

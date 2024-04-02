@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 
-namespace MMU2 {
+namespace MMU3 {
 
 // Register map for MMU
 enum class Register : uint8_t {
@@ -67,4 +67,4 @@ enum class Register : uint8_t {
   Reserved = 0x21,
 };
 
-} // MMU2
+} // MMU3
