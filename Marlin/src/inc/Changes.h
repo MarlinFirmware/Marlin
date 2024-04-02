@@ -699,6 +699,8 @@
   #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
 #elif defined(CALIBRATION_MEASUREMENT_RESOLUTION)
   #error "CALIBRATION_MEASUREMENT_RESOLUTION is no longer needed and should be removed."
+#elif defined(MMU2_MENUS)
+  #error "MMU2_MENUS is now MMU_MENUS."
 #endif
 
 // Changes to Probe Temp Compensation (#17392)
