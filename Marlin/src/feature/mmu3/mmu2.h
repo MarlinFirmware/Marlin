@@ -73,7 +73,7 @@
     // Serial output of MMU state
     void status();
 
-    xState state() const { return state; }
+    xState state() const { return _state; }
 
     bool enabled() const { mmu_hw_enabled = state() == xState::Active; return mmu_hw_enabled; }
 
@@ -402,7 +402,7 @@
 
     StepStatus logicStepLastStatus;
 
-    enum xState state;
+    enum xState _state;
 
     uint8_t mmu_print_saved;
     bool loadFilamentStarted;

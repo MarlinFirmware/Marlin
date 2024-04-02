@@ -97,7 +97,7 @@ namespace MMU3 {
     , resume_position()
     , resume_hotend_temp(0)
     , logicStepLastStatus(StepStatus::Finished)
-    , state(xState::Stopped)
+    , _state(xState::Stopped)
     , mmu_print_saved(SavedState::None)
     , loadFilamentStarted(false)
     , unloadFilamentStarted(false)
@@ -127,7 +127,7 @@ namespace MMU3 {
     MMU2_SERIAL.flush(); // Make sure the UART buffer is clear before starting communication
 
     setCurrentTool(MMU2_NO_TOOL);
-    state = xState::Connecting;
+    _state = xState::Connecting;
 
     // Start communication
     logic.start();
@@ -151,7 +151,7 @@ namespace MMU3 {
       settings.save();
     #endif
 
-    state = xState::Stopped;
+    _state = xState::Stopped;
     logic.stop();
     MMU2_SERIAL.end();
   }
@@ -964,12 +964,12 @@ namespace MMU3 {
               break;
 
             case CommunicationTimeout:
-              state = xState::Connecting;
+              _state = xState::Connecting;
               reportError(ErrorCode::MMU_NOT_RESPONDING, ErrorSourcePrinter);
               break;
 
             case ProtocolError:
-              state = xState::Connecting;
+              _state = xState::Connecting;
               reportError(ErrorCode::PROTOCOL_ERROR, ErrorSourcePrinter);
               break;
 
@@ -988,7 +988,7 @@ namespace MMU3 {
         }
     }
 
-    if (logic.Running()) state = xState::Active;
+    if (logic.Running()) _state = xState::Active;
 
     return ss;
   }
