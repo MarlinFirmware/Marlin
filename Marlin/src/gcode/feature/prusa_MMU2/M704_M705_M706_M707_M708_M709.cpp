@@ -28,13 +28,13 @@
 #include "../../../module/settings.h"
 #include "../../../feature/mmu3/mmu2.h"
 
-// Common gcode shared by the gcodes. This saves some flash memory
+// Shared by the G-codes below to save flash memory.
 static void gcodes_M704_M705_M706(uint16_t gcode) {
   const int8_t mmuSlotIndex = parser.intval('P', -1);
 
   if (mmu2.enabled() && WITHIN(mmuSlotIndex, 0, EXTRUDERS - 1)) {
     switch (gcode) {
-      case 704: mmu2.load_filament(mmuSlotIndex); break;
+      case 704: mmu2.load_to_feeder(mmuSlotIndex); break;
       case 705: mmu2.eject_filament(mmuSlotIndex, false); break;
       case 706:
         #if ENABLED(MMU_HAS_CUTTER)
@@ -102,8 +102,8 @@ void GcodeSuite::M706() {
  *
  */
 void GcodeSuite::M707() {
-  if ( mmu2.enabled() ) {
-    if ( parser.seenval('A') ) {
+  if (mmu2.enabled() ) {
+    if (parser.seenval('A') ) {
       char *address = parser.stringval('A');
       mmu2.readRegister(uint8_t(strtol(address, NULL, 16)));
     }
@@ -126,14 +126,14 @@ void GcodeSuite::M707() {
  * Does nothing if A parameter is missing or if MMU is not enabled.
  */
 void GcodeSuite::M708() {
-  if ( mmu2.enabled() ) {
+  if (mmu2.enabled() ) {
     uint8_t addr = 0;
-    if ( parser.seenval('A') ) {
+    if (parser.seenval('A') ) {
       char *address = parser.stringval('A');
       addr = uint8_t(strtol(address, NULL, 16));
     }
     uint16_t data = 0;
-    if ( parser.seenval('X') ) {
+    if (parser.seenval('X') ) {
       data = parser.ushortval('X', 0);
     }
     if (addr) {

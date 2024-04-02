@@ -45,7 +45,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu2.load_filament_to_nozzle(tool), mmu2.load_to_nozzle(tool));
+  TERN(HAS_PRUSA_MMU3, mmu2.load_to_nozzle(tool), mmu2.load_to_nozzle(tool));
   ui.reset_status();
 }
 
@@ -53,7 +53,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
-  TERN(HAS_PRUSA_MMU3, mmu2.load_filament(tool), mmu2.load_to_feeder(tool));
+  TERN(HAS_PRUSA_MMU3, mmu2.load_to_feeder(tool), mmu2.load_to_feeder(tool));
   ui.reset_status();
 }
 
@@ -357,8 +357,8 @@ void menu_mmu2_pause() {
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
   #if HAS_PRUSA_MMU3
     ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_filament(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_filament_to_nozzle(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
+    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
   #else
     ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
     ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
@@ -373,7 +373,7 @@ void mmu2_M600(const bool automatic/*=false*/) {
     if (automatic && spooljoin.enabled) {
       uint8_t slot;
       slot = spooljoin.nextSlot();
-      mmu2.load_filament_to_nozzle(slot);
+      mmu2.load_to_nozzle(slot);
       return;
     }
   #else

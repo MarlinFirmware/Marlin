@@ -145,11 +145,11 @@
 
     // Load (insert) filament just into the MMU (not into printer's nozzle)
     // @return false if the operation cannot be performed (Stopped)
-    bool load_filament(uint8_t slot);
+    bool load_to_feeder(uint8_t slot);
 
     // Load (push) filament from the MMU into the printer's nozzle
     // @return false if the operation cannot be performed (Stopped or cold extruder)
-    bool load_filament_to_nozzle(uint8_t slot);
+    bool load_to_nozzle(uint8_t slot);
 
     // Move MMU's selector aside and push the selected filament forward.
     // Usable for improving filament's tip or pulling the remaining piece of filament out completely.

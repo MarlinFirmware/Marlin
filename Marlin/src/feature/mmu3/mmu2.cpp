@@ -487,7 +487,7 @@ namespace MMU2 {
     switch (code) {
       case '?': {
         waitForHotendTargetTemp(100, []{});
-        load_filament_to_nozzle(slot);
+        load_to_nozzle(slot);
       }
       break;
 
@@ -614,7 +614,7 @@ namespace MMU2 {
     return true;
   }
 
-  bool MMU2::load_filament(uint8_t slot) {
+  bool MMU2::load_to_feeder(uint8_t slot) {
     if (!waitForMMUReady()) return false;
 
     fullScreenMsgLoad(slot);
@@ -634,7 +634,7 @@ namespace MMU2 {
     return true;
   }
 
-  bool MMU2::load_filament_to_nozzle(uint8_t slot) {
+  bool MMU2::load_to_nozzle(uint8_t slot) {
     if (!waitForMMUReady()) return false;
 
     WaitForHotendTargetTempBeep();
