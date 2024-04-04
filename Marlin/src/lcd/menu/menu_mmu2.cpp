@@ -84,7 +84,7 @@ void _mmu2_eject_filament(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (mmu2.eject_filament(index, true)) ui.reset_status();
+  if (mmu3.eject_filament(index, true)) ui.reset_status();
 }
 
 void _mmu2_cut_filament(uint8_t index) {
@@ -101,7 +101,7 @@ void action_mmu2_unload_filament() {
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
   while (!TERN(HAS_PRUSA_MMU3, mmu3.unload(), mmu2.unload())) {
     safe_delay(50);
-    TERN(HAS_PRUSA_MMU3, mmu3.marlin_idle(true), idle());
+    TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), idle());
   }
   ui.reset_status();
 }
@@ -309,7 +309,7 @@ void menu_mmu2() {
     EDIT_ITEM(bool, MSG_MMU_CUTTER, &cutter_enabled, []{
       menu_mmu3_cutter_set_mode((uint8_t)!editable.state);
     });
-    if (!busy && mmu3.cutter_enabled() && mmu3.mmu_hw_enabled) {
+    if (!busy && MMU3::cutter_enabled() && mmu3.mmu_hw_enabled) {
       SUBMENU(MSG_MMU2_CUT_FILAMENT, menu_mmu3_cut_filament);
     }
 
@@ -350,7 +350,7 @@ void menu_mmu2_choose_filament() {
 //
 
 void menu_mmu2_pause() {
-  feeder_index = mmu2.get_current_tool();
+  feeder_index = mmu3.get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);

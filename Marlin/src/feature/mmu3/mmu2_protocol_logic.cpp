@@ -641,7 +641,7 @@ namespace MMU3 {
   }
 
   void ProtocolLogic::home(uint8_t mode) {
-    PlanGenericRequest(RequestMsg(RequestMsgCodes::home, mode));
+    PlanGenericRequest(RequestMsg(RequestMsgCodes::Home, mode));
   }
 
   void ProtocolLogic::readRegister(uint8_t address) {

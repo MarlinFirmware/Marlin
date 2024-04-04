@@ -196,7 +196,7 @@ namespace MMU3 {
     return FindErrorIndex(ERR_OTHER_UNKNOWN_ERROR);
   }
 
-  uint16_t PrusaErrorCode(const uint8_t i) { return pgm_read_word(&errorCodes[i]); }
+  uint16_t PrusaErrorCode(const uint8_t i) { return (uint16_t)pgm_read_word(&errorCodes[i]); }
 
   FSTR_P const PrusaErrorTitle(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorTitles[i]); }
   FSTR_P const PrusaErrorDesc(const uint8_t i) { return (FSTR_P const)pgm_read_ptr(&errorDescs[i]); }

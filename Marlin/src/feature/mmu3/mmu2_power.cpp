@@ -44,12 +44,12 @@ void power_on() {
   #if PIN_EXISTS(MMU2_RST)
     OUT_WRITE(MMU2_RST_PIN, HIGH);
   #endif
-  reset();
+  power_reset();
 }
 
 void power_off() {}
 
-void reset() {
+void power_reset() {
   #if PIN_EXISTS(MMU2_RST) // HW - pulse reset pin
     WRITE(MMU2_RST_PIN, LOW);
     safe_delay(100);

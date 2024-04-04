@@ -181,7 +181,7 @@ namespace MMU3 {
     stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0));
   }
 
-  bool all_axes_homed() {
+  bool xy_are_trusted() {
     return axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS);
   }
 

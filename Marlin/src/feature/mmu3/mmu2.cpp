@@ -181,7 +181,7 @@ namespace MMU3 {
   void MMU3::resetX0() { logic.ResetMMU(); } // Send soft reset
   void MMU3::resetX42() { logic.ResetMMU(42); }
 
-  void MMU3::triggerResetPin() { reset(); }
+  void MMU3::triggerResetPin() { power_reset(); }
 
   void MMU3::powerCycle() {
     // cut the power to the MMU and after a while restore it
@@ -277,7 +277,7 @@ namespace MMU3 {
         //&& printJobOngoing()
         && parser.codenum != 600
         && TERN1(HAS_LEVELING, planner.leveling_active)
-        && all_axes_homed()
+        && xy_are_trusted()
         && e_active()
         #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           && runout.enabled // to prevent M600 to be triggered during M600 AUTO
@@ -724,7 +724,7 @@ namespace MMU3 {
         // right after the current one is solved.
 
         // Move XY aside
-        if (all_axes_homed()) nozzle_park();
+        if (xy_are_trusted()) nozzle_park();
       }
     }
   }
@@ -746,7 +746,7 @@ namespace MMU3 {
       ReportErrorHookSensorLineRender();
       waitForHotendTargetTemp(100, [] {
         marlin_manage_inactivity(true);
-        mmu_loop_inner(false);
+        mmu3.mmu_loop_inner(false);
         ReportErrorHookDynamicRender();
       });
       ScreenUpdateEnable(); // temporary hack to stop this locking the printer...

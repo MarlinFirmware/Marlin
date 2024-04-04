@@ -31,6 +31,6 @@ void power_on();
 
 void power_off();
 
-void reset();
+void power_reset();
 
 } // MMU3
