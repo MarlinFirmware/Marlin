@@ -1594,6 +1594,8 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(DWIN_LCD_PROUI)
+    SETUP_RUN(ExtUI::onStartup());
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)

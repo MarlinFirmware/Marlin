@@ -212,9 +212,9 @@ EncoderState encoderReceiveAnalyze() {
     for (uint8_t i = 0; i < LED_NUM; i++) {
       LED_DataArray[i] = 0;
       switch (RGB_Scale) {
-        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = uint32_t(luminance * 10/10) << 8 | uint32_t(luminance * 7/10) << 16 | uint8_t(luminance * 5/10); break;
-        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = uint32_t(luminance * 10/10) << 8 | uint32_t(luminance * 7/10) << 16 | uint8_t(luminance * 4/10); break;
-        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = uint32_t(luminance * 10/10) << 8 | uint32_t(luminance * 8/10) << 16 | uint8_t(luminance * 7/10); break;
+        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 7/10) << 16 | uint8_t(luminance * 5/10); break;
+        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 7/10) << 16 | uint8_t(luminance * 4/10); break;
+        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 8/10) << 16 | uint8_t(luminance * 7/10); break;
       }
     }
     LED_WriteData();

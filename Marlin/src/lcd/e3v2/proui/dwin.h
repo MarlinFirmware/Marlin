@@ -73,18 +73,12 @@ enum processID : uint8_t {
 
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
-  enum TempControl {
+  enum tempcontrol_t : uint8_t {
     AUTOTUNE_DONE,
     #if HAS_PID_HEATING
-      #if ENABLED(PIDTEMP)
-        PIDTEMP_START,
-      #endif
-      #if ENABLED(PIDTEMPBED)
-        PIDTEMPBED_START,
-      #endif
-      #if ENABLED(PIDTEMPCHAMBER)
-        PIDTEMPCHAMBER_START,
-      #endif
+      OPTITEM(PIDTEMP, PIDTEMP_START)
+      OPTITEM(PIDTEMPBED, PIDTEMPBED_START)
+      OPTITEM(PIDTEMPCHAMBER, PIDTEMPCHAMBER_START)
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
@@ -94,10 +88,7 @@ enum processID : uint8_t {
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
-    TEMPCONTROL_COUNT
   };
-
-  typedef bits_t(TEMPCONTROL_COUNT) tempcontrol_t;
 
 #endif
 
@@ -307,8 +298,6 @@ void dwinSetDataDefaults();
 void dwinRebootScreen();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void dwinPopupPause(FSTR_P const fmsg, uint8_t button=0);
-  void drawPopupFilamentPurge();
   void gotoFilamentPurge();
 #endif
 

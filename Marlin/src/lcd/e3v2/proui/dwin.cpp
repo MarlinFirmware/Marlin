@@ -457,15 +457,15 @@ void popupPauseOrStop() {
     }
     else {
       FSTR_P heaterstr = nullptr;
-           if (TERN0(HAS_HEATED_BED,     heater_id == H_BED))     heaterstr = F("Bed");
-      else if (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER)) heaterstr = F("Chamber");
+      if      (TERN0(HAS_HEATED_CHAMBER, heater_id == H_CHAMBER)) heaterstr = F("Chamber");
+      else if (TERN0(HAS_HEATED_BED,     heater_id == H_BED))     heaterstr = F("Bed");
       else if (TERN0(HAS_HOTEND,         heater_id >= 0))         heaterstr = F("Nozzle");
       FSTR_P errorstr;
       uint8_t icon;
       switch (state) {
         case 0:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_LOW);       icon = ICON_TempTooLow;  break;
         case 1:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_HIGH);      icon = ICON_TempTooHigh; break;
-        default: errorstr = GET_TEXT_F(MSG_ERR_HEATING_FAILED); icon = ICON_Temperature; break; // May be thermal runaway, temp malfunction, etc.
+        default: errorstr = GET_TEXT_F(MSG_ERR_HEATING_FAILED); icon = ICON_Info_1; break; // May be thermal runaway, temp malfunction, etc.
       }
       dwinShowPopup(icon, heaterstr, errorstr, BTN_Continue);
     }
@@ -1966,18 +1966,6 @@ void dwinRedrawScreen() {
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-
-  void dwinPopupPause(FSTR_P const fmsg, uint8_t button/*=0*/) {
-    hmiSaveProcessID(button ? ID_WaitResponse : ID_NothingToDo);
-    dwinShowPopup(ICON_Pause_1, GET_TEXT_F(MSG_ADVANCED_PAUSE), fmsg, button);
-  }
-
-  void drawPopupFilamentPurge() {
-    dwinDrawPopup(ICON_AutoLeveling, GET_TEXT_F(MSG_ADVANCED_PAUSE), GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
-    DWINUI::drawButton(BTN_Purge, 26, 280);
-    DWINUI::drawButton(BTN_Continue, 146, 280);
-    drawSelectHighlight(true);
-  }
 
   void onClickFilamentPurge() {
     if (hmiFlag.select_flag)

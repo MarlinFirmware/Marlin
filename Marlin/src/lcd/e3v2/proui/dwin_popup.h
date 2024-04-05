@@ -42,6 +42,10 @@ void dwinPopupContinue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg
 void dwinPopupConfirmCancel(const uint8_t icon, FSTR_P const fmsg2);
 void gotoPopup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nullptr, const popupChangeFunc_t fnChange=nullptr);
 void hmiPopup();
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void dwinPopupPause(FSTR_P const fmsg, uint8_t button=0);
+  void drawPopupFilamentPurge();
+#endif
 
 inline void drawPopupBkgd() {
   dwinDrawRectangle(1, hmiData.colorPopupBg, 14, 60, 258, 330);
