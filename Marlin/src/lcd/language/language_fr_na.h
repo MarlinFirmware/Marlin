@@ -263,6 +263,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Oper. expiree");
 
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
+
   LSTR MSG_SELECT_E                       = _UxGT("Selectionner *");
   LSTR MSG_ACC                            = _UxGT("Acceleration");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -601,7 +603,6 @@ namespace LanguageNarrow_fr_na {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");

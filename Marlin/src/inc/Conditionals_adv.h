@@ -323,6 +323,13 @@
   #define HAS_LINEAR_E_JERK 1
 #endif
 
+// Some displays can toggle Adaptive Step Smoothing.
+// The state is saved to EEPROM.
+// In future this may be added to a G-code such as M205 A.
+#if ALL(ADAPTIVE_STEP_SMOOTHING, DWIN_LCD_PROUI)
+  #define ADAPTIVE_STEP_SMOOTHING_TOGGLE
+#endif
+
 /**
  * Temperature Sensors; define what sensor(s) we have.
  */
@@ -1381,6 +1388,11 @@
 #endif
 
 // Power-Loss Recovery
-#if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
-  #define HAS_PLR_BED_THRESHOLD 1
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #ifdef PLR_BED_THRESHOLD
+    #define HAS_PLR_BED_THRESHOLD 1
+  #endif
+  #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+    #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
+  #endif
 #endif
