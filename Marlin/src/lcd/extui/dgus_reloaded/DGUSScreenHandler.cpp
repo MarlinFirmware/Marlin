@@ -307,11 +307,17 @@ void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
 
   void DGUSScreenHandler::pidTuning(const ExtUI::pidresult_t rst) {
     switch (rst) {
-      case ExtUI::PID_STARTED:
-      case ExtUI::PID_BED_STARTED:
-      case ExtUI::PID_CHAMBER_STARTED:
-        setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
-        break;
+      #if ENABLED(PIDTEMP)
+        case ExtUI::PID_STARTED:
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        case ExtUI::PID_BED_STARTED:
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        case ExtUI::PID_CHAMBER_STARTED:
+          setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+          break;
+      #endif
       case ExtUI::PID_BAD_HEATER_ID:
         setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
