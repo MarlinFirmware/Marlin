@@ -256,7 +256,7 @@
 
     icell += ineg;
 
-    while (cnt.x || cnt.y) {
+    while (cnt) {
 
       const float next_mesh_line_x = get_mesh_x(icell.x + iadd.x),
                   next_mesh_line_y = get_mesh_y(icell.y + iadd.y);
