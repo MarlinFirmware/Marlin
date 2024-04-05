@@ -225,7 +225,7 @@ EncoderState encoderReceiveAnalyze() {
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
   void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval) {
-    struct { int g, r, b; } led_data[LED_NUM];
+    struct { uint8_t g, r, b; } led_data[LED_NUM];
     for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5:
