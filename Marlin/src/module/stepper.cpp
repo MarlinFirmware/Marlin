@@ -203,11 +203,21 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
 #endif
 
+#if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    bool Stepper::adaptive_step_smoothing_enabled; // Initialized by settings.load()
+  #else
+    constexpr bool Stepper::adaptive_step_smoothing_enabled; // = true
+  #endif
+  // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
+  uint8_t Stepper::oversampling_factor;
+#else
+  constexpr uint8_t Stepper::oversampling_factor; // = 0
+#endif
+
 #if ENABLED(FREEZE_FEATURE)
   bool Stepper::frozen; // = false
 #endif
-
-IF_DISABLED(ADAPTIVE_STEP_SMOOTHING, constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -542,12 +552,30 @@ void Stepper::enable_axis(const AxisEnum axis) {
     default: break;
   }
   mark_axis_enabled(axis);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
+/**
+ * Mark an axis as disabled and power off its stepper(s).
+ * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
+ * DISCUSSION: It's basically just stepper ENA pins that are shared across axes, not whole steppers.
+ *             Used on MCUs with a shortage of pins. We already track the overlap of ENA pins, so now
+ *             we just need stronger logic to track which ENA pins are being set more than once.
+ *
+ *             It would be better to use a bit mask (i.e., Flags<NUM_DISTINCT_AXIS_ENUMS>).
+ *             While the method try_to_disable in gcode/control/M17_M18_M84.cpp does use the
+ *             bit mask, it is still only at the axis level.
+ * TODO: Power off steppers that don't share another axis. Currently axis-based steppers turn off as a unit.
+ *       So we'd need to power off the off axis, then power on the on axis (for a microsecond).
+ *       A global solution would keep a usage count when enabling or disabling a stepper, but this partially
+ *       defeats the purpose of an on/off mask.
+ */
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
 
-  TERN_(DWIN_LCD_PROUI, set_axis_untrusted(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+  // This scheme prevents shared steppers being disabled. It should consider several axes at once
+  // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
   const bool can_disable = can_axis_disable(axis);
@@ -557,7 +585,9 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
+    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
   }
+
   return can_disable;
 }
 
@@ -2456,7 +2486,8 @@ hal_timer_t Stepper::block_phase_isr() {
        */
       if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC
         && planner.laser_inline.status.isPowered                  // isPowered flag set on any parsed G1, G2, G3, or G5 move; cleared on any others.
-        && cutter.last_block_power != current_block->laser.power  // Prevent constant update without change
+        && current_block                                          // Block may not be available if steps completed (see discard_current_block() above)
+        && cutter.last_block_power != current_block->laser.power  // Only update if the power changed
       ) {
         cutter.apply_power(current_block->laser.power);
         cutter.last_block_power = current_block->laser.power;
@@ -2618,7 +2649,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
 
         // Decide if axis smoothing is possible
-        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+        if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
@@ -4118,22 +4149,22 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_I_MS_PINS
-        case  I_AXIS: WRITE(I_MS1_PIN, ms1); break
+        case  I_AXIS: WRITE(I_MS1_PIN, ms1); break;
       #endif
       #if HAS_J_MS_PINS
-        case  J_AXIS: WRITE(J_MS1_PIN, ms1); break
+        case  J_AXIS: WRITE(J_MS1_PIN, ms1); break;
       #endif
       #if HAS_K_MS_PINS
-        case  K_AXIS: WRITE(K_MS1_PIN, ms1); break
+        case  K_AXIS: WRITE(K_MS1_PIN, ms1); break;
       #endif
       #if HAS_U_MS_PINS
-        case  U_AXIS: WRITE(U_MS1_PIN, ms1); break
+        case  U_AXIS: WRITE(U_MS1_PIN, ms1); break;
       #endif
       #if HAS_V_MS_PINS
-        case  V_AXIS: WRITE(V_MS1_PIN, ms1); break
+        case  V_AXIS: WRITE(V_MS1_PIN, ms1); break;
       #endif
       #if HAS_W_MS_PINS
-        case  W_AXIS: WRITE(W_MS1_PIN, ms1); break
+        case  W_AXIS: WRITE(W_MS1_PIN, ms1); break;
       #endif
       #if HAS_E0_MS_PINS
         case  E_AXIS: WRITE(E0_MS1_PIN, ms1); break;
@@ -4198,22 +4229,22 @@ void Stepper::report_positions() {
           break;
       #endif
       #if HAS_I_MS_PINS
-        case  I_AXIS: WRITE(I_MS2_PIN, ms2); break
+        case  I_AXIS: WRITE(I_MS2_PIN, ms2); break;
       #endif
       #if HAS_J_MS_PINS
-        case  J_AXIS: WRITE(J_MS2_PIN, ms2); break
+        case  J_AXIS: WRITE(J_MS2_PIN, ms2); break;
       #endif
       #if HAS_K_MS_PINS
-        case  K_AXIS: WRITE(K_MS2_PIN, ms2); break
+        case  K_AXIS: WRITE(K_MS2_PIN, ms2); break;
       #endif
       #if HAS_U_MS_PINS
-        case  U_AXIS: WRITE(U_MS2_PIN, ms2); break
+        case  U_AXIS: WRITE(U_MS2_PIN, ms2); break;
       #endif
       #if HAS_V_MS_PINS
-        case  V_AXIS: WRITE(V_MS2_PIN, ms2); break
+        case  V_AXIS: WRITE(V_MS2_PIN, ms2); break;
       #endif
       #if HAS_W_MS_PINS
-        case  W_AXIS: WRITE(W_MS2_PIN, ms2); break
+        case  W_AXIS: WRITE(W_MS2_PIN, ms2); break;
       #endif
       #if HAS_E0_MS_PINS
         case  E_AXIS: WRITE(E0_MS2_PIN, ms2); break;
@@ -4277,23 +4308,23 @@ void Stepper::report_positions() {
           #endif
           break;
       #endif
-      #if HAS_I_MS_PINS
-        case  I_AXIS: WRITE(I_MS3_PIN, ms3); break
+      #if HAS_I_MS_PINS && PIN_EXISTS(I_MS3)
+        case  I_AXIS: WRITE(I_MS3_PIN, ms3); break;
       #endif
-      #if HAS_J_MS_PINS
-        case  J_AXIS: WRITE(J_MS3_PIN, ms3); break
+      #if HAS_J_MS_PINS && PIN_EXISTS(J_MS3)
+        case  J_AXIS: WRITE(J_MS3_PIN, ms3); break;
       #endif
-      #if HAS_K_MS_PINS
-        case  K_AXIS: WRITE(K_MS3_PIN, ms3); break
+      #if HAS_K_MS_PINS && PIN_EXISTS(K_MS3)
+        case  K_AXIS: WRITE(K_MS3_PIN, ms3); break;
       #endif
-      #if HAS_U_MS_PINS
-        case  U_AXIS: WRITE(U_MS3_PIN, ms3); break
+      #if HAS_U_MS_PINS && PIN_EXISTS(U_MS3)
+        case  U_AXIS: WRITE(U_MS3_PIN, ms3); break;
       #endif
-      #if HAS_V_MS_PINS
-        case  V_AXIS: WRITE(V_MS3_PIN, ms3); break
+      #if HAS_V_MS_PINS && PIN_EXISTS(V_MS3)
+        case  V_AXIS: WRITE(V_MS3_PIN, ms3); break;
       #endif
-      #if HAS_W_MS_PINS
-        case  W_AXIS: WRITE(W_MS3_PIN, ms3); break
+      #if HAS_W_MS_PINS && PIN_EXISTS(W_MS3)
+        case  W_AXIS: WRITE(W_MS3_PIN, ms3); break;
       #endif
       #if HAS_E0_MS_PINS && PIN_EXISTS(E0_MS3)
         case  E_AXIS: WRITE(E0_MS3_PIN, ms3); break;
