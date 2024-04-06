@@ -1139,7 +1139,39 @@ void MarlinUI::draw_status_screen() {
       TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(LCD_WIDTH - 9, 2));
       rotate_progress();
     #endif
-  #endif // LCD_INFO_SCREEN_STYLE 1
+
+  #elif LCD_INFO_SCREEN_STYLE == 2
+
+    // ========== Line 1 ==========
+
+    //
+    // X Coordinate
+    //
+    lcd_moveto(0, 0);
+    _draw_axis_value(X_AXIS, ftostr52sp(LOGICAL_X_POSITION(current_position.x)), blink);
+
+    //
+    // Y Coordinate
+    //
+    lcd_moveto(LCD_WIDTH - 9, 0);
+    _draw_axis_value(Y_AXIS, ftostr52sp(LOGICAL_Y_POSITION(current_position.y)), blink);
+
+    // ========== Line 2 ==========
+    lcd_moveto(0, 1);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+
+    lcd_moveto(LCD_WIDTH - 9, 1);
+    _draw_axis_value(I_AXIS, ftostr52sp(LOGICAL_I_POSITION(current_position.i)), blink);
+
+    // ========== Line 3 ==========
+    lcd_moveto(0, 2);
+    lcd_put_lchar('F');
+
+    lcd_moveto(LCD_WIDTH - 9, 2);
+    lcd_put_lchar('S');
+    
+
+  #endif // LCD_INFO_SCREEN_STYLE
 
   // ========= Last Line ========
 

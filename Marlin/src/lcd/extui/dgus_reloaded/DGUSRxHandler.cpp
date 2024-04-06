@@ -598,7 +598,7 @@ void DGUSRxHandler::filamentMove(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (ExtUI::getActualTemp_celsius(extruder) < (float)EXTRUDE_MINTEMP) {
-    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW));
+    screen.setStatusMessage(GET_TEXT_F(MSG_TEMP_TOO_LOW));
     return;
   }
 
