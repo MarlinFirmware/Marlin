@@ -3972,7 +3972,7 @@ void drawMaxAccelMenu() {
       if (SET_MENU_F(chamberPIDMenu, STR_CHAMBER_PID " Settings", 8)) {
         BACK_ITEM(drawAdvancedSettingsMenu);
         #if ENABLED(PID_AUTOTUNE_MENU)
-          MENU_ITEM_F(ICON_PIDChamber, STR_CHAMBER_PID, onDrawMenuItem,chamberPID);
+          MENU_ITEM_F(ICON_PIDChamber, STR_CHAMBER_PID, onDrawMenuItem, chamberPID);
           EDIT_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawPIntMenu, setChamberPIDT, &hmiData.chamberPIDT);
           EDIT_ITEM(ICON_PIDCycles, MSG_PID_CYCLE, onDrawPIntMenu, setPIDCycles, &hmiData.pidCycles);
         #endif
