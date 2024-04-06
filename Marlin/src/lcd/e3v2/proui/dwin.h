@@ -96,77 +96,6 @@ enum processID : uint8_t {
 #define DWIN_ENGLISH 0
 
 typedef struct {
-  // Color settings
-  uint16_t colorBackground;
-  uint16_t colorCursor;
-  uint16_t colorTitleBg;
-  uint16_t colorTitleTxt;
-  uint16_t colorText;
-  uint16_t colorSelected;
-  uint16_t colorSplitLine;
-  uint16_t colorHighlight;
-  uint16_t colorStatusBg;
-  uint16_t colorStatusTxt;
-  uint16_t colorPopupBg;
-  uint16_t colorPopupTxt;
-  uint16_t colorAlertBg;
-  uint16_t colorAlertTxt;
-  uint16_t colorPercentTxt;
-  uint16_t colorBarfill;
-  uint16_t colorIndicator;
-  uint16_t colorCoordinate;
-
-  // Temperatures
-  #if PROUI_PID_TUNE
-    int16_t pidCycles = DEF_PIDCYCLES;
-    #if ENABLED(PIDTEMP)
-      int16_t hotendPidT = DEF_HOTENDPIDT;
-    #endif
-    #if ENABLED(PIDTEMPBED)
-      int16_t bedPidT = DEF_BEDPIDT;
-    #endif
-  #endif
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    int16_t extMinT = EXTRUDE_MINTEMP;
-  #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    int16_t bedLevT = LEVELING_BED_TEMP;
-  #endif
-  #if ENABLED(BAUD_RATE_GCODE)
-    bool baud115K = false;
-  #endif
-  #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
-    bool fullManualTramming = false;
-  #endif
-  #if ENABLED(PROUI_MEDIASORT)
-    bool mediaSort = true;
-  #endif
-  bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
-  #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
-  #endif
-  #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor ledColor = defColorLeds;
-  #endif
-  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-    bool adaptiveStepSmoothing = true;
-  #endif
-  #if HAS_GCODE_PREVIEW
-    bool enablePreview = true;
-  #endif
-  #if HAS_BED_PROBE
-    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
-    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
-  #endif
-  #if PROUI_GRID_PNTS
-    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
-  #endif
-} hmi_data_t;
-
-extern hmi_data_t hmiData;
-static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
-
-typedef struct {
   int8_t r, g, b;
   void set(int8_t _r, int8_t _g, int8_t _b) { r = _r; g = _g; b = _b; }
   int8_t& operator[](const int i) {
@@ -424,20 +353,6 @@ void drawMaxAccelMenu();
 #endif
 
 // ProUI extra features
-#if PROUI_GRID_PNTS
-  #undef  GRID_MAX_POINTS_X
-  #undef  GRID_MAX_POINTS_Y
-  #undef  GRID_MAX_POINTS
-  #define GRID_MAX_POINTS_X hmiData.grid_max_points
-  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
-  #define GRID_MAX_POINTS  (hmiData.grid_max_points * hmiData.grid_max_points)
-#endif
-
-#if HAS_BED_PROBE
-  #undef Z_PROBE_FEEDRATE_SLOW
-  #define Z_PROBE_FEEDRATE_SLOW hmiData.zprobeFeed
-#endif
-
 #if ENABLED(PROUI_MESH_EDIT)
   #undef  MESH_MIN_X
   #undef  MESH_MAX_X
