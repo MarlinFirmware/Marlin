@@ -46,8 +46,10 @@
 
 #include "../marlinui.h"
 #include "../../gcode/gcode.h"
+#include "../../module/temperature.h"
 
-#if M600_PURGE_MORE_RESUMABLE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../../module/motion.h"
   #include "../../feature/pause.h"
 #endif
 
@@ -66,14 +68,12 @@ namespace ExtUI {
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER, COOLER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
-  enum result_t   : uint8_t {
-    OPTITEM(HAS_PID_HEATING, PID_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BED_STARTED)
-    OPTITEM(HAS_PID_HEATING, PID_BAD_HEATER_ID)
-    OPTITEM(HAS_PID_HEATING, PID_TEMP_TOO_HIGH)
-    OPTITEM(HAS_PID_HEATING, PID_TUNING_TIMEOUT)
-    OPTITEM(HAS_PID_HEATING, PID_DONE)
-  };
+  #if HAS_PID_HEATING
+    enum pidresult_t : uint8_t { PID_STARTED, PID_BED_STARTED, PID_CHAMBER_STARTED, PID_BAD_HEATER_ID, PID_TEMP_TOO_HIGH, PID_TUNING_TIMEOUT, PID_DONE };
+  #endif
+  #if ENABLED(MPC_AUTOTUNE)
+    enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
+  #endif
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -234,6 +234,9 @@ namespace ExtUI {
     bool getLevelingIsValid();
     void onLevelingStart();
     void onLevelingDone();
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      celsius_t getLevelingBedTemp();
+    #endif
     #if HAS_MESH
       // Mesh data, utilities, events
       bed_mesh_t& getMeshArray();
@@ -312,10 +315,9 @@ namespace ExtUI {
   bool awaitingUserConfirm();
   void setUserConfirmed();
 
-  #if M600_PURGE_MORE_RESUMABLE
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     // "Purge More" has a control screen
     void setPauseMenuResponse(PauseMenuResponse);
-    extern PauseMessage pauseModeStatus;
     PauseMode getPauseMode();
   #endif
 
@@ -488,6 +490,10 @@ namespace ExtUI {
   void onMediaError();
   void onMediaRemoved();
 
+  void onHeatingError(const heater_id_t header_id);
+  void onMinTempError(const heater_id_t header_id);
+  void onMaxTempError(const heater_id_t header_id);
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration=0);
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component);
@@ -503,6 +509,17 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired(FSTR_P const fstr);
 
+  // For fancy LCDs include an icon ID, message, and translated button title
+  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn);
+  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn);
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    // Standard stdOnPauseMode sets pauseModeStatus and calls onUserConfirmRequired
+    extern PauseMessage pauseModeStatus;
+    void stdOnPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+    void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
+  #endif
+
   void onStatusChanged(const char * const msg);
   void onStatusChanged(FSTR_P const fstr);
 
@@ -511,6 +528,8 @@ namespace ExtUI {
 
   void onSteppersDisabled();
   void onSteppersEnabled();
+  void onAxisDisabled(const axis_t axis);
+  void onAxisEnabled(const axis_t axis);
 
   void onFactoryReset();
   void onStoreSettings(char *);
@@ -519,13 +538,23 @@ namespace ExtUI {
   void onSettingsStored(const bool success);
   void onSettingsLoaded(const bool success);
 
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    void onSetMinExtrusionTemp(const celsius_t t);
+  #endif
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onSetPowerLoss(const bool onoff);
     void onPowerLoss();
     void onPowerLossResume();
   #endif
   #if HAS_PID_HEATING
-    void onPIDTuning(const result_t rst);
+    void onPIDTuning(const pidresult_t rst);
+    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+  #endif
+  #if ENABLED(MPC_AUTOTUNE)
+    void onMPCTuning(const mpcresult_t rst);
+  #endif
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    void onFirmwareFlash();
   #endif
 };
 

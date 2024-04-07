@@ -360,8 +360,17 @@ namespace LanguageNarrow_en {
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Autotune failed!");
 
+  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for Nozzle is running.");
+  LSTR MSG_PID_FOR_BED                    = _UxGT("for BED is running.");
+  LSTR MSG_PID_FOR_CHAMBER                = _UxGT("for CHAMBER is running.");
+
+  LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
+  LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
+  LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
+
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
 
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
@@ -841,7 +850,7 @@ namespace LanguageNarrow_en {
 
   LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
   LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
-  LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Probe Z-Offset to ");
+  LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
 
   LSTR MSG_SOUND                          = _UxGT("Sound");
 
@@ -881,7 +890,6 @@ namespace LanguageNarrow_en {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Not allowed during print");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Not allowed while idle");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("No file selected");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature too low");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Executing command...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID disabled");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID disabled");
