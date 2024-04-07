@@ -4169,8 +4169,8 @@ void eachMomentUpdate() {
     gotoMainMenu();
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
-    else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      recovery.dwin_flag = false;
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
 
       auto update_selection = [&](const bool sel) {
         hmiFlag.select_flag = sel;
@@ -4197,7 +4197,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            queue.inject(F("M1000C"));
             hmiStartFrame(true);
             return;
           }

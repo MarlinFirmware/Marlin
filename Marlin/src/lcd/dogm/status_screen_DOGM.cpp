@@ -323,7 +323,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
       } // PAGE_CONTAINS
 
-      #if HAS_MULTI_EXTRUDER && DISABLED(SLIM_LCD_MENUS)
+      #if HAS_MULTI_EXTRUDER && NONE(SLIM_LCD_MENUS, STATUS_HOTEND_NUMBERLESS, SINGLENOZZLE)
         if (active_extruder == heater_id)
           u8g.drawBitmapP(_MAX(0, STATUS_HOTEND_X(heater_id) - 6), STATUS_HEATERS_Y + 3, 1, 5, status_active_extruder_indicator_bmp);
       #endif
