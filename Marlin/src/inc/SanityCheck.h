@@ -3617,6 +3617,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
   #endif
+  static_assert(WITHIN(Z_STEPPER_ALIGN_ACC, 0.001, 1.0), "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0");
 #endif
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
