@@ -1035,16 +1035,13 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE, DWIN_LCD_PROUI)
   #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
 #endif
 
 // Aliases for LCD features
-#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-  #define HAS_DWIN_E3V2_BASIC 1
-#endif
-#if ANY(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
   #define HAS_DWIN_E3V2 1
 #endif
 
@@ -1058,6 +1055,7 @@
 #if ENABLED(DWIN_LCD_PROUI)
   #define DO_LIST_BIN_FILES 1
   #define LCD_BRIGHTNESS_DEFAULT 127
+  #define STATUS_DO_CLEAR_EMPTY
 #endif
 
 // Serial Controllers require LCD_SERIAL_PORT
@@ -1092,6 +1090,7 @@
    *  - draw_kill_screen
    *  - kill_screen
    *  - draw_status_message
+   *    (calling advance_status_scroll, status_and_len for a scrolling status message)
    */
   #define HAS_DISPLAY 1
 #endif

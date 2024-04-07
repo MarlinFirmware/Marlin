@@ -77,8 +77,6 @@
   #include "lcd/e3v2/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
-  #elif ENABLED(DWIN_LCD_PROUI)
-    #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
@@ -670,6 +668,12 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
   TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
+
+  #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL) && PIN_EXISTS(PS_ON_EDM)
+    if ( ELAPSED(ms, powerManager.last_state_change_ms + PS_EDM_RESPONSE)
+      && (READ(PS_ON_PIN) != READ(PS_ON_EDM_PIN) || TERN0(PSU_OFF_REDUNDANT, extDigitalRead(PS_ON1_PIN) != extDigitalRead(PS_ON1_EDM_PIN)))
+    ) kill(GET_TEXT_F(MSG_POWER_EDM_FAULT));
+  #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > (EXTRUDER_RUNOUT_MINTEMP)
@@ -1588,11 +1592,11 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if HAS_DWIN_E3V2_BASIC
+  #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
   #endif
 
-  #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(ui.reset_status(true));  // Show service messages or keep current status
   #endif
 

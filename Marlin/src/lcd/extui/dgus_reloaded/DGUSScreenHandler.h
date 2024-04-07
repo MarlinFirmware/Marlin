@@ -66,7 +66,7 @@ public:
   #endif
 
   #if HAS_PID_HEATING
-    static void pidTuning(const ExtUI::result_t rst);
+    static void pidTuning(const ExtUI::pidresult_t rst);
   #endif
 
   static void setMessageLine(const char * const msg, const uint8_t line);

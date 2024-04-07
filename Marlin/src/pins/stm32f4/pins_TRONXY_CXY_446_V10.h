@@ -219,7 +219,7 @@
       #define TOUCH_ORIENTATION  TOUCH_LANDSCAPE
     #endif
   #endif
-   
+
   #if ENABLED(MKS_ROBIN_TFT43)
     #ifndef TOUCH_CALIBRATION_X
       #define TOUCH_CALIBRATION_X          17184
@@ -237,7 +237,7 @@
       #define TOUCH_ORIENTATION  TOUCH_LANDSCAPE
     #endif
   #endif
-#else 
+#else
   #error "TRONXY CXY 446 V10 only supports TFT with FSMC interface."
 #endif
 
