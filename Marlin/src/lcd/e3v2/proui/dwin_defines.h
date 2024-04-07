@@ -30,6 +30,10 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+//#define TJC_DISPLAY           // Enable for TJC display
+//#define DACAI_DISPLAY         // Enable for DACAI display
+//#define TITLE_CENTERED        // Center Menu Title Text
+
 #if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
   #if ENABLED(PROUI_MESH_EDIT)
@@ -96,6 +100,11 @@
 #else
   #define DEF_BEDPIDT 60
 #endif
+#ifdef PREHEAT_1_TEMP_CHAMBER
+  #define DEF_CHAMBERPIDT PREHEAT_1_TEMP_CHAMBER
+#else
+  #define DEF_CHAMBERPIDT 0
+#endif
 #define DEF_PIDCYCLES 5
 
 /**
@@ -113,7 +122,7 @@
 #if ENABLED(LIN_ADVANCE)
   #define PROUI_ITEM_ADVK     // Tune > Linear Advance
 #endif
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
 #endif
 #if PROUI_TUNING_GRAPH

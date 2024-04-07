@@ -204,6 +204,11 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 #endif
 
 #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    bool Stepper::adaptive_step_smoothing_enabled; // Initialized by settings.load()
+  #else
+    constexpr bool Stepper::adaptive_step_smoothing_enabled; // = true
+  #endif
   // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
   uint8_t Stepper::oversampling_factor;
 #else
@@ -547,6 +552,8 @@ void Stepper::enable_axis(const AxisEnum axis) {
     default: break;
   }
   mark_axis_enabled(axis);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
 /**
@@ -567,7 +574,8 @@ void Stepper::enable_axis(const AxisEnum axis) {
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
 
-  TERN_(DWIN_LCD_PROUI, set_axis_untrusted(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+  // This scheme prevents shared steppers being disabled. It should consider several axes at once
+  // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
   const bool can_disable = can_axis_disable(axis);
@@ -577,6 +585,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
+    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
   }
 
   return can_disable;
@@ -2640,7 +2649,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
 
         // Decide if axis smoothing is possible
-        if (TERN1(DWIN_LCD_PROUI, hmiData.adaptiveStepSmoothing)) {
+        if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
@@ -2761,7 +2770,7 @@ hal_timer_t Stepper::block_phase_isr() {
         ne_edividend = advance_dividend.e;
         const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
         ne_scale = (1L << 24) * scale;
-        if (current_block->direction_bits.e) {
+        if (current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
           ne_fix.A = (1L << 24) * ne.A;
           ne_fix.B = (1L << 24) * ne.B;
           ne_fix.C = (1L << 24) * ne.C;

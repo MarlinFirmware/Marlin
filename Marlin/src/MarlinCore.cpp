@@ -77,8 +77,6 @@
   #include "lcd/e3v2/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/e3v2/creality/dwin.h"
-  #elif ENABLED(DWIN_LCD_PROUI)
-    #include "lcd/e3v2/proui/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
   #endif
@@ -1594,11 +1592,11 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if HAS_DWIN_E3V2_BASIC
+  #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
   #endif
 
-  #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(ui.reset_status(true));  // Show service messages or keep current status
   #endif
 

@@ -98,6 +98,10 @@ void onMediaRemoved() {
   }
 }
 
+void onHeatingError(const heater_id_t header_id) {}
+void onMinTempError(const heater_id_t header_id) {}
+void onMaxTempError(const heater_id_t header_id) {}
+
 void onPlayTone(const uint16_t, const uint16_t/*=0*/) {
   rts.sendData(StartSoundSet, SoundAddr);
 }
@@ -228,6 +232,26 @@ void onUserConfirmRequired(const char *const msg) {
   lastPauseMsgState = ExtUI::pauseModeStatus;
 }
 
+// For fancy LCDs include an icon ID, message, and translated button title
+void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  onUserConfirmRequired(cstr);
+  UNUSED(icon); UNUSED(fBtn);
+}
+void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  onUserConfirmRequired(fstr);
+  UNUSED(icon); UNUSED(fBtn);
+}
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void onPauseMode(
+    const PauseMessage message,
+    const PauseMode mode/*=PAUSE_MODE_SAME*/,
+    const uint8_t extruder/*=active_extruder*/
+  ) {
+    stdOnPauseMode(message, mode, extruder);
+  }
+#endif
+
 void onStatusChanged(const char *const statMsg) {
   for (int16_t j = 0; j < 20; j++) // Clear old message
     rts.sendData(' ', StatusMessageString + j);
@@ -356,6 +380,10 @@ void onPostprocessSettings() {}
   }
 #endif
 
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  void onSetMinExtrusionTemp(const celsius_t) {}
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   void onSetPowerLoss(const bool onoff) {
     // Called when power-loss is enabled/disabled
@@ -373,7 +401,7 @@ void onPostprocessSettings() {}
 #endif
 
 #if HAS_PID_HEATING
-  void onPIDTuning(const result_t rst) {
+  void onPIDTuning(const pidresult_t rst) {
     // Called for temperature PID tuning result
     rts.sendData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rts.sendData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -387,6 +415,19 @@ void onPostprocessSettings() {}
     #endif
     onStatusChanged(F("PID Tune Finished"));
   }
+  void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+    // Called by M303 to update the UI
+  }
+#endif
+
+#if ENABLED(MPC_AUTOTUNE)
+  void onMPCTuning(const mpcresult_t rst) {
+    // Called for temperature PID tuning result
+  }
+#endif
+
+#if ENABLED(PLATFORM_M997_SUPPORT)
+  void onFirmwareFlash() {}
 #endif
 
 void onHomingStart() {}
@@ -396,6 +437,8 @@ void onPrintDone() {}
 
 void onSteppersDisabled() {}
 void onSteppersEnabled() {}
+void onAxisDisabled(const axis_t) {}
+void onAxisEnabled(const axis_t) {}
 
 } // ExtUI
 

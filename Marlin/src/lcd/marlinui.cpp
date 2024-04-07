@@ -48,8 +48,6 @@ MarlinUI ui;
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
 #endif
@@ -69,7 +67,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   MString<MAX_MESSAGE_LENGTH> MarlinUI::status_message;
@@ -1490,7 +1488,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
 
-    else if (ENABLED(DWIN_LCD_PROUI))
+    else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
       msg = F("");
     else
       return;
@@ -1609,7 +1607,6 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, dwinStatusChanged(status_message));
-    TERN_(DWIN_LCD_PROUI, dwinCheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.updateStatus(status_message));
   }
 
@@ -1885,36 +1882,6 @@ void MarlinUI::host_notify(const char * const cstr) {
       zoffset_overlay(dir);
     }
   #endif
-
-#endif
-
-#if ALL(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
-
-  void MarlinUI::pause_show_message(
-    const PauseMessage message,
-    const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
-  ) {
-    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
-    ExtUI::pauseModeStatus = message;
-    switch (message) {
-      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;
-      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break;
-      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;
-      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING)); break;
-      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT)); break;
-      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
-      case PAUSE_MESSAGE_PURGE:
-        ExtUI::onUserConfirmRequired(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
-        break;
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
-      case PAUSE_MESSAGE_STATUS:   break;
-      default: break;
-    }
-  }
 
 #endif
 

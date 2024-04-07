@@ -2462,11 +2462,7 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
-  if (true NUM_AXIS_GANG(
-      && !block->steps.a, && !block->steps.b, && !block->steps.c,
-      && !block->steps.i, && !block->steps.j, && !block->steps.k,
-      && !block->steps.u, && !block->steps.v, && !block->steps.w)
-  ) {                                                             // Is this a retract / recover move?
+  if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
   }
   else {
