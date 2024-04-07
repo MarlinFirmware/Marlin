@@ -222,6 +222,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
 
     TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
+    enable_encoder_multiplier(false);
 
     set_selection(false);
   }
@@ -255,7 +256,6 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
  */
 void scroll_screen(const uint8_t limit, const bool is_menu) {
   ui.encoder_direction_menus();
-  ENCODER_RATE_MULTIPLY(false);
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (ui.first_page) {
     encoderLine = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);

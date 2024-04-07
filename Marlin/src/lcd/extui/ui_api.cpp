@@ -20,9 +20,9 @@
  *
  */
 
-/**************
- * ui_api.cpp *
- **************/
+/*************************************
+ * ui_api.cpp - Shared ExtUI methods *
+ *************************************/
 
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
@@ -106,7 +106,7 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#if M600_PURGE_MORE_RESUMABLE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../feature/pause.h"
 #endif
 
@@ -1116,10 +1116,39 @@ namespace ExtUI {
   }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
-  #if M600_PURGE_MORE_RESUMABLE
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
+    PauseMode getPauseMode() { return pause_mode; }
+
     PauseMessage pauseModeStatus = PAUSE_MESSAGE_STATUS;
-    PauseMode getPauseMode() { return pause_mode;}
+
+    void stdOnPauseMode(
+      const PauseMessage message,
+      const PauseMode mode/*=PAUSE_MODE_SAME*/,
+      const uint8_t extruder/*=active_extruder*/
+    ) {
+      if (mode != PAUSE_MODE_SAME) pause_mode = mode;
+      pauseModeStatus = message;
+      switch (message) {
+        case PAUSE_MESSAGE_PARKING:  onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;
+        case PAUSE_MESSAGE_CHANGING: onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break;
+        case PAUSE_MESSAGE_UNLOAD:   onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;
+        case PAUSE_MESSAGE_WAITING:  onUserConfirmRequired(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING)); break;
+        case PAUSE_MESSAGE_INSERT:   onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT)); break;
+        case PAUSE_MESSAGE_LOAD:     onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
+        case PAUSE_MESSAGE_PURGE:    onUserConfirmRequired(
+                                       GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))
+                                     );
+                                     break;
+        case PAUSE_MESSAGE_RESUME:   onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
+        case PAUSE_MESSAGE_HEAT:     onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
+        case PAUSE_MESSAGE_HEATING:  onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
+        case PAUSE_MESSAGE_OPTION:   onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
+        case PAUSE_MESSAGE_STATUS:   break;
+        default: break;
+      }
+    }
+
   #endif
 
   void printFile(const char *filename) {
@@ -1225,18 +1254,33 @@ namespace ExtUI {
 
 } // namespace ExtUI
 
-// At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
+//
+// MarlinUI passthroughs to ExtUI
+//
+#if DISABLED(HAS_DWIN_E3V2)
+  void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 
-void MarlinUI::init_lcd() { ExtUI::onStartup(); }
+  void MarlinUI::update() { ExtUI::onIdle(); }
 
-void MarlinUI::update() { ExtUI::onIdle(); }
-
-void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
-  using namespace ExtUI;
-  if (!flags.printer_killed) {
-    flags.printer_killed = true;
-    onPrinterKilled(error, component);
+  void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {
+    using namespace ExtUI;
+    if (!flags.printer_killed) {
+      flags.printer_killed = true;
+      onPrinterKilled(error, component);
+    }
   }
-}
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+  void MarlinUI::pause_show_message(
+    const PauseMessage message,
+    const PauseMode mode/*=PAUSE_MODE_SAME*/,
+    const uint8_t extruder/*=active_extruder*/
+  ) {
+    ExtUI::onPauseMode(message, mode, extruder);
+  }
+
+#endif
 
 #endif // EXTENSIBLE_UI

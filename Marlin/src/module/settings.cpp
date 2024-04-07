@@ -75,11 +75,13 @@
   #include "../feature/z_stepper_align.h"
 #endif
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
+#if ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
   #include "../lcd/e3v2/proui/bedlevel_tools.h"
+#endif
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
@@ -491,6 +493,13 @@ typedef struct SettingsDataStruct {
   uint32_t motor_current_setting[MOTOR_CURRENT_COUNT];  // M907 X Z E ...
 
   //
+  // Adaptive Step Smoothing state
+  //
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    bool adaptive_step_smoothing_enabled;               // G-code pending
+  #endif
+
+  //
   // CNC_COORDINATE_SYSTEMS
   //
   #if NUM_AXES
@@ -537,9 +546,7 @@ typedef struct SettingsDataStruct {
   //
   // Ender-3 V2 DWIN
   //
-  #if ENABLED(DWIN_LCD_PROUI)
-    uint8_t dwin_data[eeprom_data_size];
-  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     uint8_t dwin_settings[jyersDWIN.eeprom_data_size];
   #endif
 
@@ -1531,6 +1538,14 @@ void MarlinSettings::postprocess() {
     }
 
     //
+    // Adaptive Step Smoothing state
+    //
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+      _FIELD_TEST(adaptive_step_smoothing_enabled);
+      EEPROM_WRITE(stepper.adaptive_step_smoothing_enabled);
+    #endif
+
+    //
     // CNC Coordinate Systems
     //
     #if NUM_AXES
@@ -1606,17 +1621,8 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Creality DWIN User Data
+    // JyersUI DWIN User Data
     //
-    #if ENABLED(DWIN_LCD_PROUI)
-    {
-      _FIELD_TEST(dwin_data);
-      char dwin_data[eeprom_data_size] = { 0 };
-      dwinCopySettingsTo(dwin_data);
-      EEPROM_WRITE(dwin_data);
-    }
-    #endif
-
     #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     {
       _FIELD_TEST(dwin_settings);
@@ -1934,7 +1940,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-          runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -2115,7 +2121,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_HOTEND)
           EEPROM_READ(ptc.z_offsets_hotend);
         #endif
-        ptc.reset_index();
+        if (!validating) ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -2600,6 +2606,13 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // Adaptive Step Smoothing state
+      //
+      #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+        EEPROM_READ(stepper.adaptive_step_smoothing_enabled);
+      #endif
+
+      //
       // CNC Coordinate System
       //
       #if NUM_AXES
@@ -2668,11 +2681,13 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(backlash_smoothing_mm);
 
         #if ENABLED(BACKLASH_GCODE)
+        if (!validating) {
           LOOP_NUM_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, backlash_distance_mm[axis]);
           backlash.set_correction_uint8(backlash_correction);
           #ifdef BACKLASH_SMOOTHING_MM
             backlash.set_smoothing_mm(backlash_smoothing_mm);
           #endif
+        }
         #endif
       }
       #endif // NUM_AXES
@@ -2690,16 +2705,9 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // DWIN User Data
+      // JyersUI User Data
       //
-      #if ENABLED(DWIN_LCD_PROUI)
-      {
-        const char dwin_data[eeprom_data_size] = { 0 };
-        _FIELD_TEST(dwin_data);
-        EEPROM_READ(dwin_data);
-        if (!validating) dwinCopySettingsFrom(dwin_data);
-      }
-      #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+      #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
         const char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_settings);
@@ -2781,7 +2789,7 @@ void MarlinSettings::postprocess() {
         uint8_t ui_language;
         EEPROM_READ(ui_language);
         if (ui_language >= NUM_LANGUAGES) ui_language = 0;
-        ui.set_language(ui_language);
+        if (!validating) ui.set_language(ui_language);
       }
       #endif
 
@@ -2807,8 +2815,10 @@ void MarlinSettings::postprocess() {
       {
         float _data[2];
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(X_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(X_AXIS, _data[0]);
+          stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+        }
       }
       #endif
 
@@ -2816,8 +2826,10 @@ void MarlinSettings::postprocess() {
       {
         float _data[2];
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(Y_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(Y_AXIS, _data[0]);
+          stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+        }
       }
       #endif
 
@@ -3545,6 +3557,13 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Adaptive Step Smoothing state
+  //
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    stepper.adaptive_step_smoothing_enabled = true;
+  #endif
+
+  //
   // CNC Coordinate System
   //
   TERN_(CNC_COORDINATE_SYSTEMS, (void)gcode.select_coordinate_system(-1)); // Go back to machine space
@@ -3588,11 +3607,6 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
-
-  //
-  // Ender-3 V2 with ProUI
-  //
-  TERN_(DWIN_LCD_PROUI, dwinSetDataDefaults());
 
   //
   // Model predictive control

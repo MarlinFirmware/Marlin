@@ -217,9 +217,6 @@
   #define KILL_PIN_STATE                    HIGH
 #endif
 
-// Random Info
-#define USB_SERIAL                          -1    // USB Serial
-
 /**
  *                  ------                                      ------
  *   (BEEPER) PB2  | 1  2 | PE10 (BTN_ENC)    (SPI1 MISO) PA6  | 1  2 | PA5 (SPI1 SCK)

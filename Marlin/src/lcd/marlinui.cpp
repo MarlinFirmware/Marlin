@@ -23,6 +23,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "../MarlinCore.h" // for printingIsPaused
+#include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
@@ -47,8 +48,6 @@ MarlinUI ui;
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
 #endif
@@ -68,7 +67,7 @@ MarlinUI ui;
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_STATUS_MESSAGE
-  #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
   MString<MAX_MESSAGE_LENGTH> MarlinUI::status_message;
@@ -398,12 +397,7 @@ void MarlinUI::init() {
     bool MarlinUI::screen_changed;
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
-      bool MarlinUI::encoderRateMultiplierEnabled;
-      millis_t MarlinUI::lastEncoderMovementMillis = 0;
-      void MarlinUI::enable_encoder_multiplier(const bool onoff) {
-        encoderRateMultiplierEnabled = onoff;
-        lastEncoderMovementMillis = 0;
-      }
+      bool MarlinUI::encoder_multiplier_enabled;
     #endif
 
     #if ANY(REVERSE_MENU_DIRECTION, REVERSE_SELECT_DIRECTION)
@@ -613,8 +607,6 @@ void MarlinUI::init() {
   #endif
 
   void MarlinUI::status_screen() {
-
-    TERN_(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLY(false));
 
     #if BASIC_PROGRESS_BAR
 
@@ -831,6 +823,13 @@ void MarlinUI::init() {
 
       const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
 
+      /**
+       * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
+       * (see get_destination_from_command). For moves involving only rotational axes, the planner will convert
+       * back to the feedrate in degrees-per-time unit.
+       */
+      const feedRate_t fr = parser.axis_is_rotational(axis) && parser.using_inch_units() ? IN_TO_MM(fr_mm_s) : fr_mm_s;
+
       #if IS_KINEMATIC
 
         #if HAS_MULTI_EXTRUDER
@@ -857,13 +856,13 @@ void MarlinUI::init() {
         // previous invocation is being blocked. Modifications to offset shouldn't be made while
         // processing is true or the planner will get out of sync.
         processing = true;
-        prepare_internal_move_to_destination(fr_mm_s);  // will set current_position from destination
+        prepare_internal_move_to_destination(fr);  // will set current_position from destination
         processing = false;
 
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        planner.buffer_line(current_position, fr_mm_s,
+        planner.buffer_line(current_position, fr,
           TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder
         );
 
@@ -1053,41 +1052,42 @@ void MarlinUI::init() {
 
             #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              int32_t encoderMultiplier = 1;
+              int32_t encoder_multiplier = 1;
 
-              if (encoderRateMultiplierEnabled) {
-                const float encoderMovementSteps = float(abs_diff) / epps;
+              if (encoder_multiplier_enabled) {
+                // Note that the rate is always calculated between two passes through the
+                // loop and that the abs of the encoderDiff value is tracked.
+                static millis_t encoder_mult_prev_ms = 0;
+                const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
+                encoder_mult_prev_ms = ms;
 
-                if (lastEncoderMovementMillis) {
-                  // Note that the rate is always calculated between two passes through the
-                  // loop and that the abs of the encoderDiff value is tracked.
-                  const float encoderStepRate = encoderMovementSteps / float(ms - lastEncoderMovementMillis) * 1000;
+                if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
+                  encoder_multiplier = 100;
+                else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
+                  encoder_multiplier = 10;
+                else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
+                  encoder_multiplier = 5;
 
-                  if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
-                  else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-
-                  // Enable to output the encoder steps per second value
-                  //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                  #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                    SERIAL_ECHO_START();
-                    SERIAL_ECHOPGM("Enc Step Rate: ", encoderStepRate);
-                    SERIAL_ECHOPGM("  Multiplier: ", encoderMultiplier);
-                    SERIAL_ECHOPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                    SERIAL_ECHOPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                    SERIAL_EOL();
-                  #endif
-                }
-
-                lastEncoderMovementMillis = ms;
-              } // encoderRateMultiplierEnabled
+                // Enable to output the encoder steps per second value
+                //#define ENCODER_RATE_MULTIPLIER_DEBUG
+                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                  SERIAL_ECHO_MSG(
+                    "Enc Step Rate: ", encoderStepRate,
+                    "  Mult: ", encoder_multiplier,
+                    "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
+                    "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
+                    "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
+                  );
+                #endif
+              }
 
             #else
 
-              constexpr int32_t encoderMultiplier = 1;
+              constexpr int32_t encoder_multiplier = 1;
 
             #endif // ENCODER_RATE_MULTIPLIER
 
-            if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+            if (can_encode()) encoderPosition += (encoderDiff * encoder_multiplier) / epps;
 
             encoderDiff = 0;
           }
@@ -1488,8 +1488,8 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
 
-    else if (ENABLED(DWIN_LCD_PROUI))
-        msg = F("");
+    else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
+      msg = F("");
     else
       return;
 
@@ -1603,13 +1603,10 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     #endif
 
-    #if ENABLED(STATUS_MESSAGE_SCROLLING) && ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
-      status_scroll_offset = 0;
-    #endif
+    TERN_(STATUS_MESSAGE_SCROLLING, reset_status_scroll());
 
     TERN_(EXTENSIBLE_UI, ExtUI::onStatusChanged(status_message));
     TERN_(DWIN_CREALITY_LCD, dwinStatusChanged(status_message));
-    TERN_(DWIN_LCD_PROUI, dwinCheckStatusMessage());
     TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.updateStatus(status_message));
   }
 
@@ -1620,7 +1617,7 @@ void MarlinUI::host_notify(const char * const cstr) {
       if (status_scroll_offset < status_message.glyphs())
         while (!START_OF_UTF8_CHAR(status_message[++status_scroll_offset]));
       else
-        status_scroll_offset = 0;
+        reset_status_scroll();
     }
 
     char* MarlinUI::status_and_len(uint8_t &len) {
@@ -1667,8 +1664,11 @@ void MarlinUI::host_notify(const char * const cstr) {
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
       wait_for_heatup = wait_for_user = false;
-      card.abortFilePrintSoon();
-    #endif
+      if (IS_SD_PRINTING())
+        card.abortFilePrintSoon();
+      else if (card.isMounted())
+        card.closefile();
+      #endif
     #ifdef ACTION_ON_CANCEL
       hostui.cancel();
     #endif
@@ -1696,6 +1696,16 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
+  /**
+   * - Synchronize and put up a wait screen
+   * - Wake the display
+   * - Tell the host to present a "Resume" option
+   * - Print "Paused" on the display
+   * - One of three possibilities follow:
+   *   - If Parking, Print a message, send M125 P (which parks and waits), then M24 which will resume SD printing.
+   *   - If media exists call M25 to pause the SD print.
+   *   - For a host-only printer tell the host to pause the print in progress.
+   */
   void MarlinUI::pause_print() {
     #if HAS_MARLINUI_MENU
       synchronize(GET_TEXT_F(MSG_PAUSING));
@@ -1872,36 +1882,6 @@ void MarlinUI::host_notify(const char * const cstr) {
       zoffset_overlay(dir);
     }
   #endif
-
-#endif
-
-#if ALL(EXTENSIBLE_UI, ADVANCED_PAUSE_FEATURE)
-
-  void MarlinUI::pause_show_message(
-    const PauseMessage message,
-    const PauseMode mode/*=PAUSE_MODE_SAME*/,
-    const uint8_t extruder/*=active_extruder*/
-  ) {
-    pause_mode = mode;
-    ExtUI::pauseModeStatus = message;
-    switch (message) {
-      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;
-      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break;
-      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;
-      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING)); break;
-      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT)); break;
-      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
-      case PAUSE_MESSAGE_PURGE:
-        ExtUI::onUserConfirmRequired(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)));
-        break;
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
-      case PAUSE_MESSAGE_STATUS:   break;
-      default: break;
-    }
-  }
 
 #endif
 
