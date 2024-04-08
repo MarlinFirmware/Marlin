@@ -501,8 +501,7 @@ public:
    */
   static void status_printf_P(int8_t level, PGM_P const pfmt, ...);
 
-  template<typename... Args>
-  static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
+  static void status_printf(int8_t level, FSTR_P const ffmt, ...) { status_printf_P(level, FTOP(ffmt)); }
 
   // Periodic or as-needed display update
   static void update() IF_DISABLED(HAS_UI_UPDATE, {});
