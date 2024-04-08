@@ -85,7 +85,7 @@ EncoderState encoderReceiveAnalyze() {
       next_click_update_ms = millis() + 300;
       Encoder_tick();
       #if PIN_EXISTS(LCD_LED)
-        LED_Action();
+        //LED_Action();
       #endif
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
       if (!ui.backlight) {
@@ -169,15 +169,13 @@ EncoderState encoderReceiveAnalyze() {
 #if PIN_EXISTS(LCD_LED)
 
   // Take the low 24 valid bits  24Bit: G7 G6 G5 G4 G3 G2 G1 G0 R7 R6 R5 R4 R3 R2 R1 R0 B7 B6 B5 B4 B3 B2 B1 B0
-  uint32_t LED_DataArray[LED_NUM];
+  uint16_t LED_DataArray[LED_NUM];
 
   // LED light operation
   void LED_Action() {
     LED_Control(RGB_SCALE_WARM_WHITE, 0x0F);
-    //LED_GraduallyControl(RGB_SCALE_COOL_WHITE, 0x0F, 1000);
     delay(30);
     LED_Control(RGB_SCALE_WARM_WHITE, 0x00);
-    //LED_GraduallyControl(RGB_SCALE_COOL_WHITE, 0x00, 1000);
   }
 
   // LED initialization
@@ -212,9 +210,9 @@ EncoderState encoderReceiveAnalyze() {
     for (uint8_t i = 0; i < LED_NUM; i++) {
       LED_DataArray[i] = 0;
       switch (RGB_Scale) {
-        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 7/10) << 16 | uint8_t(luminance * 5/10); break;
-        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 7/10) << 16 | uint8_t(luminance * 4/10); break;
-        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = uint8_t(luminance * 10/10) << 8 | uint8_t(luminance * 8/10) << 16 | uint8_t(luminance * 7/10); break;
+        case RGB_SCALE_R10_G7_B5: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 7/10) << 16 | luminance * 5/10; break;
+        case RGB_SCALE_R10_G7_B4: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 7/10) << 16 | luminance * 4/10; break;
+        case RGB_SCALE_R10_G8_B7: LED_DataArray[i] = (luminance * 10/10) << 8 | (luminance * 8/10) << 16 | luminance * 7/10; break;
       }
     }
     LED_WriteData();
@@ -229,13 +227,13 @@ EncoderState encoderReceiveAnalyze() {
     for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5:
-          led_data[i] = { uint8_t(luminance * 7/10), uint8_t(luminance * 10/10), uint8_t(luminance * 5/10) };
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 5/10 };
           break;
         case RGB_SCALE_R10_G7_B4:
-          led_data[i] = { uint8_t(luminance * 7/10), uint8_t(luminance * 10/10), uint8_t(luminance * 4/10) };
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 4/10 };
           break;
         case RGB_SCALE_R10_G8_B7:
-          led_data[i] = { uint8_t(luminance * 8/10), uint8_t(luminance * 10/10), uint8_t(luminance * 7/10) };
+          led_data[i] = { luminance * 8/10, luminance * 10/10, luminance * 7/10 };
           break;
       }
     }
