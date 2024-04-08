@@ -454,6 +454,8 @@ void popupPauseOrStop() {
       else {
         // Chinese "Temp Error"
       }
+      DWINUI::drawIconWB(ICON_Confirm_C, 86, 280);
+      dwinUpdateLCD();
     }
     else {
       FSTR_P heaterstr = nullptr;
@@ -467,7 +469,7 @@ void popupPauseOrStop() {
         case 1:  errorstr = GET_TEXT_F(MSG_TEMP_TOO_HIGH);      icon = ICON_TempTooHigh; break;
         default: errorstr = GET_TEXT_F(MSG_ERR_HEATING_FAILED); icon = ICON_Info_1; break; // May be thermal runaway, temp malfunction, etc.
       }
-      dwinShowPopup(icon, heaterstr, errorstr, BTN_Continue);
+      dwinPopupContinue(icon, heaterstr, errorstr);
     }
   }
 #endif
@@ -1234,6 +1236,7 @@ void drawMainArea() {
           #if ENABLED(PIDTEMPCHAMBER)
             case PIDTEMPCHAMBER_START: drawCPlot(); break;
           #endif
+        default: break;
         } break;
     #endif
     case ID_Popup:            popupDraw(); break;
