@@ -74,6 +74,34 @@
   #define Z_DIAG_PIN                          47
   #define E0_DIAG_PIN                         21
   #define E1_DIAG_PIN                         20
+
+    // Default TMC slave addresses
+  #ifdef X_SLAVE_ADDRESS
+    static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_DAGOMA_D6.");
+  #else
+    #define X_SLAVE_ADDRESS                    0
+  #endif
+  #ifdef Y_SLAVE_ADDRESS
+    static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_DAGOMA_D6.");
+  #else
+    #define Y_SLAVE_ADDRESS                    1
+  #endif
+  #ifdef Z_SLAVE_ADDRESS
+    static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_DAGOMA_D6.");
+  #else
+    #define Z_SLAVE_ADDRESS                    2
+  #endif
+  #ifdef E0_SLAVE_ADDRESS
+    static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
+  #else
+    #define E0_SLAVE_ADDRESS                   3
+  #endif
+  #ifdef E1_SLAVE_ADDRESS
+    static_assert(E1_SLAVE_ADDRESS == 3, "E1_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
+  #else
+    #define E1_SLAVE_ADDRESS                   3
+  #endif
+
 #endif
 
 //
