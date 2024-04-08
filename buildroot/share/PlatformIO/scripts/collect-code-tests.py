@@ -30,15 +30,15 @@ def register_test_suites():
 			actions=[
 				f"echo ====== Configuring for marlin_{name} ======",
 				"restore_configs",
-				"opt_set MOTHERBOARD BOARD_LINUX_RAMPS",
+				"opt_set MOTHERBOARD BOARD_SIMULATED",
 			] + configuration + [
 				f"echo ====== Finished configuring for marlin_{name} ======",
-				f"platformio test -e linux_native -f {name}",
+				f"platformio test -e linux_native_test -f {name}",
 				f"restore_configs",
 			],
 			title="Marlin: {}".format(name.lower().title().replace("_", " ")),
 			description=(
-				f"Rin a Marlin test suite, with the appropriate configuration, "
+				f"Run a Marlin test suite, with the appropriate configuration, "
 				f"that sits in {path}"
 			),
 		)
@@ -46,7 +46,7 @@ def register_test_suites():
 		name="test-marlin",
 		dependencies=None,
 		actions=[
-			f"platformio run -t marlin_{path.parent.name}"
+			f"platformio run -t marlin_{path.parent.name} -e linux_native_test"
 			for path in test_suites
 		],
 		title="Marlin: Test all code test suites",

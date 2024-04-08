@@ -12,9 +12,9 @@ help:
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
 	@echo "make tests-all-local           : Run all tests locally"
 	@echo "make tests-all-local-docker    : Run all tests locally, using docker"
-	@echo "make tests-code-single-ci      : Run a single code test from inside the CI"
-	@echo "make tests-code-single-local   : Run a single code test locally"
-	@echo "make tests-code-single-local-docker : Run a single code test locally, using docker-compose"
+#	@echo "make tests-code-single-ci      : Run a single code test from inside the CI"
+#	@echo "make tests-code-single-local   : Run a single code test locally"
+#	@echo "make tests-code-single-local-docker : Run a single code test locally, using docker-compose"
 	@echo "make tests-code-all-local      : Run all code tests locally"
 	@echo "make tests-code-all-local-docker : Run all code tests locally, using docker-compose"
 	@echo "make setup-local-docker        : Setup local docker-compose"
@@ -59,34 +59,29 @@ tests-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
 	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) $(MAKE) tests-all-local VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD)
 
-tests-code-single-ci:
-	export GIT_RESET_HARD=true
-	$(MAKE) tests-code-single-local TEST_TARGET=$(TEST_TARGET)
-.PHONY: tests-code-single-ci
+#tests-code-single-ci:
+#	export GIT_RESET_HARD=true
+#	$(MAKE) tests-code-single-local TEST_TARGET=$(TEST_TARGET)
 
 # TODO: How can we limit tests with ONLY_TEST with platformio?
-tests-code-single-local:
-	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-code-all-local" ; return 1; fi
-	platformio run -t marlin_$(TEST_TARGET)
-.PHONY: tests-code-single-local
+#tests-code-single-local:
+#	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-code-all-local" ; return 1; fi
+#	platformio run -t marlin_$(TEST_TARGET)
 
-tests-code-single-local-docker:
-	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-code-all-local-docker" ; return 1; fi
-	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
-	$(CONTAINER_RT_BIN) run --rm marlin $(MAKE) tests-code-single-local TEST_TARGET=$(TEST_TARGET) ONLY_TEST="$(ONLY_TEST)"
-.PHONY: tests-code-single-local-docker
+#tests-code-single-local-docker:
+#	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-code-all-local-docker" ; return 1; fi
+#	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
+#	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS)  $(CONTAINER_IMAGE) $(MAKE) tests-code-single-local TEST_TARGET=$(TEST_TARGET) ONLY_TEST="$(ONLY_TEST)"
 
 tests-code-all-local:
-	platformio run -t test-marlin
-.PHONY: tests-code-all-local
+	platformio run -t test-marlin -e linux_native_test
 
 tests-code-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
-	$(CONTAINER_RT_BIN) run --rm marlin $(MAKE) tests-code-all-local
-.PHONY: tests-code-all-local-dockerS
+	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS)  $(CONTAINER_IMAGE) $(MAKE) tests-code-all-local
 
 setup-local-docker:
-	$(CONTAINER_RT_BIN) build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
+	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
 PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
 
