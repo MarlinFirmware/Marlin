@@ -145,7 +145,6 @@ void FTMotion::loop() {
     if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
     discard_planner_block_protected();
     reset();
-    blockProcRdy = false;                 // Set queueing to look for next block.
     stepper.abort_current_block = false;  // Abort finished.
   }
 
@@ -200,7 +199,7 @@ void FTMotion::loop() {
       LOGICAL_AXIS_MAP_LC(TCOPY);
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]));
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], BATCH_SIDX_IN_WINDOW * sizeof(traj.A[0]));
       LOGICAL_AXIS_MAP_LC(TSHIFT);
     #endif
 
