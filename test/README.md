@@ -37,4 +37,4 @@ Since Marlin only compiles code required by the configuration, a separate test b
 1. This folder contains a set of INI configuration files (See `config.ini`), each containing a distinct set of configuration options for unit testing. All applicable unit tests will be run for each of these configurations.
 2. The `Marlin/tests` folder contains the CPP code for all Unit Tests. Marlin macros (`ENABLED(feature)`, `TERN(FEATURE, A, B)`, etc.) are used to determine which tests should be registered and to alter test behavior.
 3. The `linux_native_test` PlatformIO environment specifies a script to collect all the tests from this folder and add them to PlatformIO's list of test targets.
-4. Tests are built and executed by the `Makefile` commands `tests-code-all-local` or `tests-code-all-local-docker`.
+4. Tests are built and executed by the `Makefile` commands `unit-test-all-local` or `unit-test-all-local-docker`.

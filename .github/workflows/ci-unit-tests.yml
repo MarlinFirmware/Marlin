@@ -70,4 +70,4 @@ jobs:
 
     - name: Run All Unit Tests
       run: |
-        make tests-code-all-local
+        make unit-test-all-local

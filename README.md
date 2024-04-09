@@ -98,12 +98,12 @@ You can contribute patches by submitting a Pull Request to the ([bugfix-2.1.x](h
     - Single: `make tests-config-all-local-docker TEST_TARGET=...`
   - To run all unit test suites:
     - Using PIO: `platformio run -t test-marlin`
-    - Using Make: `make tests-code-all-local`
-    - Using Docker + make: `maker tests-code-all-local-docker`
+    - Using Make: `make unit-test-all-local`
+    - Using Docker + make: `maker unit-test-all-local-docker`
   - To run a single unit test suite:
     - Using PIO: `platformio run -t marlin_<test-suite-name>`
-    - Using make: `make tests-code-single-local TEST_TARGET=<test-suite-name>`
-    - Using Docker + make: `maker tests-code-single-local-docker TEST_TARGET=<test-suite-name>`
+    - Using make: `make unit-test-single-local TEST_TARGET=<test-suite-name>`
+    - Using Docker + make: `maker unit-test-single-local-docker TEST_TARGET=<test-suite-name>`
 - If your feature can be unit tested, add one or more unit tests. For more information see our documentation on [Unit Tests](test).
 
 ## Contributors

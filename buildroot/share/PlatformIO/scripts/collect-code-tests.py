@@ -19,9 +19,11 @@ if pioutil.is_pio_build():
 
     def register_test_suites():
         """Register all the test suites"""
+        targets = []
         test_suites = collect_test_suites()
         for path in test_suites:
             name = re.sub(r'^\d+-|\.ini$', '', path.name)
+            targets += [name];
 
             env.AddCustomTarget(
                 name = f"marlin_{name}",
@@ -38,18 +40,19 @@ if pioutil.is_pio_build():
                 description = (
                     f"Run a Marlin test suite, with the appropriate configuration, "
                     f"that sits in {path}"
-                ),
+                )
             )
+
         env.AddCustomTarget(
             name = "test-marlin",
             dependencies = None,
             actions = [
-                f"platformio run -t marlin_{path.parent.name} -e linux_native_test"
-                for path in test_suites
+                f"platformio run -t marlin_{name} -e linux_native_test"
+                for name in targets
             ],
             title = "Marlin: Test all code test suites",
             description = (
-                f"Run all Marlin code test suites ({len(test_suites)} found)."
+                f"Run all Marlin code test suites ({len(targets)} found)."
             ),
         )
 
