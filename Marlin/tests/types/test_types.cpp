@@ -1,8 +1,7 @@
 #include "../test/marlin_tests.h"
 #include "src/core/types.h"
 
-MARLIN_TEST(types, XYval_const_as_bools)
-{
+MARLIN_TEST(types, XYval_const_as_bools) {
   const XYval<int> xy_const_true = {1, 2};
   TEST_ASSERT_TRUE(xy_const_true);
 
@@ -10,8 +9,7 @@ MARLIN_TEST(types, XYval_const_as_bools)
   TEST_ASSERT_FALSE(xy_const_false);
 }
 
-MARLIN_TEST(types, XYval_non_const_as_bools)
-{
+MARLIN_TEST(types, XYval_non_const_as_bools) {
   XYval<int> xy_true = {1, 2};
   TEST_ASSERT_TRUE(xy_true);
 
@@ -19,8 +17,7 @@ MARLIN_TEST(types, XYval_non_const_as_bools)
   TEST_ASSERT_FALSE(xy_false);
 }
 
-MARLIN_TEST(types, XYZval_const_as_bools)
-{
+MARLIN_TEST(types, XYZval_const_as_bools) {
   const XYZval<int> xyz_const_true = {1, 2, 3};
   TEST_ASSERT_TRUE(xyz_const_true);
 
@@ -28,8 +25,7 @@ MARLIN_TEST(types, XYZval_const_as_bools)
   TEST_ASSERT_FALSE(xyz_const_false);
 }
 
-MARLIN_TEST(types, XYZval_non_const_as_bools)
-{
+MARLIN_TEST(types, XYZval_non_const_as_bools) {
   XYZval<int> xyz_true = {1, 2, 3};
   TEST_ASSERT_TRUE(xyz_true);
 
@@ -37,8 +33,7 @@ MARLIN_TEST(types, XYZval_non_const_as_bools)
   TEST_ASSERT_FALSE(xyz_false);
 }
 
-MARLIN_TEST(types, XYZEval_const_as_bools)
-{
+MARLIN_TEST(types, XYZEval_const_as_bools) {
   const XYZEval<int> xyze_const_true = {1, 2, 3, 4};
   TEST_ASSERT_TRUE(xyze_const_true);
 
@@ -46,8 +41,7 @@ MARLIN_TEST(types, XYZEval_const_as_bools)
   TEST_ASSERT_FALSE(xyze_const_false);
 }
 
-MARLIN_TEST(types, XYZEval_non_const_as_bools)
-{
+MARLIN_TEST(types, XYZEval_non_const_as_bools) {
   XYZEval<int> xyze_true = {1, 2, 3, 4};
   TEST_ASSERT_TRUE(xyze_true);
 
@@ -55,8 +49,7 @@ MARLIN_TEST(types, XYZEval_non_const_as_bools)
   TEST_ASSERT_FALSE(xyze_false);
 }
 
-MARLIN_TEST(types, Flags_const_as_bools)
-{
+MARLIN_TEST(types, Flags_const_as_bools) {
   const Flags<32> flags_const_false = {0};
   TEST_ASSERT_FALSE(flags_const_false);
 
@@ -64,8 +57,7 @@ MARLIN_TEST(types, Flags_const_as_bools)
   TEST_ASSERT_TRUE(flags_const_true);
 }
 
-MARLIN_TEST(types, Flags_non_const_as_bools)
-{
+MARLIN_TEST(types, Flags_non_const_as_bools) {
   Flags<32> flags_false = {0};
   TEST_ASSERT_FALSE(flags_false);
 
@@ -73,8 +65,7 @@ MARLIN_TEST(types, Flags_non_const_as_bools)
   TEST_ASSERT_TRUE(flags_true);
 }
 
-MARLIN_TEST(types, AxisFlags_const_as_bools)
-{
+MARLIN_TEST(types, AxisFlags_const_as_bools) {
   const AxisFlags axis_flags_const_false = {0};
   TEST_ASSERT_FALSE(axis_flags_const_false);
 
@@ -82,8 +73,7 @@ MARLIN_TEST(types, AxisFlags_const_as_bools)
   TEST_ASSERT_TRUE(axis_flags_const_true);
 }
 
-MARLIN_TEST(types, AxisFlags_non_const_as_bools)
-{
+MARLIN_TEST(types, AxisFlags_non_const_as_bools) {
   AxisFlags axis_flags_false = {0};
   TEST_ASSERT_FALSE(axis_flags_false);
 
@@ -91,8 +81,7 @@ MARLIN_TEST(types, AxisFlags_non_const_as_bools)
   TEST_ASSERT_TRUE(axis_flags_true);
 }
 
-MARLIN_TEST(types, AxisBits_const_as_bools)
-{
+MARLIN_TEST(types, AxisBits_const_as_bools) {
   const AxisBits axis_bits_const_false = {0};
   TEST_ASSERT_FALSE(axis_bits_const_false);
 
@@ -100,8 +89,7 @@ MARLIN_TEST(types, AxisBits_const_as_bools)
   TEST_ASSERT_TRUE(axis_bits_const_true);
 }
 
-MARLIN_TEST(types, AxisBits_non_const_as_bools)
-{
+MARLIN_TEST(types, AxisBits_non_const_as_bools) {
   AxisBits axis_bits_false = {0};
   TEST_ASSERT_FALSE(axis_bits_false);
 

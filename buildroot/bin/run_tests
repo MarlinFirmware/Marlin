@@ -76,9 +76,7 @@ exec_test_failing () {
     # not present
     not_found=()
     for string in "${strings[@]}" ; do
-      if [[ ! $output =~ $string ]] ; then
-        not_found+=("$string")
-      fi
+      [[ $output =~ $string ]] || not_found+=("$string")
     done
     # If we didn't find some of the strings we need to fail
     if [[ ${#not_found[@]} -ne 0 ]] ; then

@@ -95,7 +95,7 @@ Proposed patches should be submitted as a Pull Request against the ([bugfix-2.1.
     - Directly: `platformio run -t marlin_<test-suite-name>`
     - With make: `make tests-code-single-local TEST_TARGET=<test-suite-name>`
     - With Docker & make: `maker tests-code-single-local-docker  TEST_TARGET=<test-suite-name>`
-- If possible, write some new tests. See [the test documentation](test)
+- If possible, write some new tests. See [the test documentation](test).
 
 ## Marlin Support
 

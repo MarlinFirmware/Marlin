@@ -24,12 +24,12 @@ A: Yes and No. Of course if you refactor code that unit tests use directly, it w
 A: That's a great question, without a known immediate answer. It is likely possible to debug them interactively through PlatformIO, but that can at times take some creativity to configure. Unit tests are generally extremely small, so even without interactive debugging it can get you fairly close to the cause of the problem.
 
 ### Unit test architecture
-We are currently using [platformio unit tests](https://docs.platformio.org/en/latest/plus/unit-testing.html).
+We are currently using [PlatformIO unit tests](https://docs.platformio.org/en/latest/plus/unit-testing.html).
 
 Due to Marlin's reliance on conditional compilation, it is not possible to test all Marlin features from a single test binary.
-To enable unit testing on a variety of configurations, the following technique is employed:
+The following technique is used to unit test a variety of configurations:
 
-1. Each test beneath this folder defines configuration changes that should be made on top of the default Marlin coniguration. This uses the same tools and syntax as the previously described Configuration Compilation tests.
-2. Tests are added in the Marlin/tests folder. They use typical Marlin techniques such as `#if ENABLED(feature)` to determine whether the configuration is suitable to register a test, or to alter test behavior.
-3. The PlatformIO `linux_native_test` environment utilizes an extra script which collects the tests from this folder, and inserts them into PlatformIO as test targets.
-4. The Makefile commands `tests-code-all-local` and `tests-code-all-local-docker` are used to build and execute the tests.
+1. The tests within this folder define configuration changes to apply to the default Marlin configuration. This uses the same tools and syntax as the previously described Configuration Compilation tests. We'll soon replace these with files based on `config.ini`.
+2. Tests are defined as CPP files in the `Marlin/tests` folder. They use typical Marlin techniques such as `#if ENABLED(feature)` to register tests or alter test behavior according to the configuration.
+3. The PlatformIO environment `linux_native_test` is defined to use an extra script to collect the tests from this folder and insert them into PlatformIO as test targets.
+4. Tests are built and executed by the `Makefile` commands `tests-code-all-local` or `tests-code-all-local-docker`.

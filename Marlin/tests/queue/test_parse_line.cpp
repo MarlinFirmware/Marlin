@@ -15,30 +15,26 @@ static void test_parse_line(const char *command, const char *expected) {
   TEST_ASSERT_EQUAL_STRING(expected, buffer);
 }
 
-MARLIN_TEST(parse_line, g1_x_and_parenthesis_comment)
-{
-#if ENABLED(PAREN_COMMENTS)
-  test_parse_line("G0 X10 (Z30)", "G0 X10 ");
-#else
-  test_parse_line("G0 X10 (Z30)", "G0 X10 (Z30)");
-#endif
+MARLIN_TEST(parse_line, g1_x_and_parenthesis_comment) {
+  #if ENABLED(PAREN_COMMENTS)
+    test_parse_line("G0 X10 (Z30)", "G0 X10 ");
+  #else
+    test_parse_line("G0 X10 (Z30)", "G0 X10 (Z30)");
+  #endif
 }
 
-MARLIN_TEST(parse_line, g1_x_and_parenthesis_inline_comment)
-{
-#if ENABLED(PAREN_COMMENTS)
-  test_parse_line("G0 X10 (Y20) Z30", "G0 X10  Z30");
-#else
-  test_parse_line("G0 X10 (Y20) Z30", "G0 X10 (Y20) Z30");
-#endif
+MARLIN_TEST(parse_line, g1_x_and_parenthesis_inline_comment) {
+  #if ENABLED(PAREN_COMMENTS)
+    test_parse_line("G0 X10 (Y20) Z30", "G0 X10  Z30");
+  #else
+    test_parse_line("G0 X10 (Y20) Z30", "G0 X10 (Y20) Z30");
+  #endif
 }
 
-MARLIN_TEST(parse_line, g1_xz)
-{
+MARLIN_TEST(parse_line, g1_xz) {
   test_parse_line("G0 X10 Z30", "G0 X10 Z30");
 }
 
-MARLIN_TEST(parse_line, g1_x_and_comment)
-{
+MARLIN_TEST(parse_line, g1_x_and_comment) {
   test_parse_line("G0 X10 ; Z30", "G0 X10 ");
 }

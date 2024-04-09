@@ -28,7 +28,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-
 #define PS_NORMAL 0
 #define PS_EOL    1
 #define PS_QUOTED 2
@@ -86,7 +85,6 @@ inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD
       sis = PS_EOL;             // Skip the rest on overflow
   }
 }
-
 
 class GCodeQueue {
 public:
