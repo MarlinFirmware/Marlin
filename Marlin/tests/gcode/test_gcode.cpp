@@ -10,7 +10,7 @@ MARLIN_TEST(gcode, process_parsed_command) {
 }
 
 MARLIN_TEST(gcode, parse_g1_xz) {
-  const char current_command[] = "G0 X10 Z30";
+  char current_command[] = "G0 X10 Z30";
   parser.command_letter = -128;
   parser.codenum = -1;
   parser.parse(current_command);
@@ -23,7 +23,7 @@ MARLIN_TEST(gcode, parse_g1_xz) {
 }
 
 MARLIN_TEST(gcode, parse_g1_nxz) {
-  const char current_command[] = "N123 G0 X10 Z30";
+  char current_command[] = "N123 G0 X10 Z30";
   parser.command_letter = -128;
   parser.codenum = -1;
   parser.parse(current_command);
