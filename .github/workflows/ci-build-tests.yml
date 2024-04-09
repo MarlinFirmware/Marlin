@@ -27,7 +27,7 @@ on:
 
 jobs:
   test_builds:
-    name: CI - All Build Tests
+    name: Build Test
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest

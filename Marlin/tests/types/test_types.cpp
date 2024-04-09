@@ -127,12 +127,12 @@ MARLIN_TEST(types, MString1) {
   str20.append(1234.5f).append(',').append(' ')
        .append(2345.67).append(',').append(' ');
 
-  TEST_ASSERT_TRUE(strcmp_P(str20.str, PSTR("F-string, 1234.50, 2")) == 0);
+  TEST_ASSERT_TRUE(strcmp_P(str20, PSTR("F-string, 1234.50, 2")) == 0);
 
   // Truncate to "F-string"
   str20.trunc(8);
 
-  TEST_ASSERT_FALSE(strcmp_P(str20.str, PSTR("F-string")) != 0);
+  TEST_ASSERT_FALSE(strcmp_P(&str20, PSTR("F-string")) != 0);
 }
 
 MARLIN_TEST(types, MString2) {
@@ -141,7 +141,7 @@ MARLIN_TEST(types, MString2) {
 }
 
 MARLIN_TEST(types, SString) {
-  // Hello World!-123456------   <spaces!33
+  // Hello World!-123456------   < spaces!33
   // ^ eol! ... 1234.50*2345.602 = 2895645.67
   SString<100> str(F("Hello"));
   str.append(F(" World!"));
@@ -154,8 +154,7 @@ MARLIN_TEST(types, SString) {
   str += int8_t(33);
   str.eol();
   str += "^ eol!";
+  str.append(" ... ", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602);
 
-  str.append("...", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602);
-
-  TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   <spaces!33\n^ eol! ... 1234.50*2345.602 = 2895645.67")) == 0);
+  TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   < spaces!33\n^ eol!...1234.50*2345.602 = 2895645.67")) == 0);
 }
