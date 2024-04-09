@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
     def collect_test_suites():
         """Get all the test suites"""
         from pathlib import Path
-        return list(Path("./test").glob("*.ini"))
+        return sorted(list(Path("./test").glob("*.ini")))
 
     def register_test_suites():
         """Register all the test suites"""
