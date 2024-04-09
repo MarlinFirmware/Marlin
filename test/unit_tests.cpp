@@ -20,31 +20,33 @@
  *
  */
 
-// This provides the main() function which is used for all compiled test binaries.
-// It collects all the tests defined in the code and runs them through Unity.
+/**
+ * Provide the main() function used for all compiled unit test binaries.
+ * It collects all the tests defined in the code and runs them through Unity.
+ */
 
-#include "marlin_tests.h"
+#include "unit_tests.h"
 
-static std::list<MarlinTest*> allMarlinTests;
+static std::list<MarlinTest*> all_marlin_tests;
 
 MarlinTest::MarlinTest(const std::string _name, const void(*_test)(), const int _line)
 : name(_name), test(_test), line(_line) {
-  allMarlinTests.push_back(this);
+  all_marlin_tests.push_back(this);
 }
 
 void MarlinTest::run() {
   UnityDefaultTestRun((UnityTestFunction)test, name.c_str(), line);
 }
 
-void runAllMarlinTests() {
-  for (const auto registration : allMarlinTests) {
+void run_all_marlin_tests() {
+  for (const auto registration : all_marlin_tests) {
     registration->run();
   }
 }
 
 int main(int argc, char **argv) {
   UNITY_BEGIN();
-  runAllMarlinTests();
+  run_all_marlin_tests();
   UNITY_END();
   return 0;
 }

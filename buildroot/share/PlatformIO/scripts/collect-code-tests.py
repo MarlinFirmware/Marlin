@@ -1,6 +1,6 @@
 #
 # collect-code-tests.py
-# Convenience script to collect all code tests
+# Convenience script to collect all code tests. Used by env:linux_native_test in native.ini.
 #
 
 import pioutil
@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
     def collect_test_suites():
         """Get all the test suites"""
         from pathlib import Path
-        return list(Path("./test").glob("test_*/config.ini"))
+        return list(Path("./test").glob("*.ini"))
 
     def register_test_suites():
         """Register all the test suites"""
@@ -23,9 +23,9 @@ if pioutil.is_pio_build():
         for path in test_suites:
             name = path.parent.name
             env.AddCustomTarget(
-                name=f"marlin_{name}",
-                dependencies=None,
-                actions=[
+                name = f"marlin_{name}",
+                dependencies = None,
+                actions = [
                     f"echo ====== Configuring for marlin_{name} ======",
                     "restore_configs",
                     f"cp -f {path} ./Marlin/config.ini",
@@ -33,23 +33,22 @@ if pioutil.is_pio_build():
                     f"platformio test -e linux_native_test -f {name}",
                     "restore_configs",
                 ],
-                title="Marlin: {}".format(name.lower().title().replace("_", " ")),
-                description=(
+                title = "Marlin: {}".format(name.lower().title().replace("_", " ")),
+                description = (
                     f"Run a Marlin test suite, with the appropriate configuration, "
                     f"that sits in {path}"
                 ),
             )
         env.AddCustomTarget(
-            name="test-marlin",
-            dependencies=None,
-            actions=[
+            name = "test-marlin",
+            dependencies = None,
+            actions = [
                 f"platformio run -t marlin_{path.parent.name} -e linux_native_test"
                 for path in test_suites
             ],
-            title="Marlin: Test all code test suites",
-            description=(
-                f"Run all Marlin code test suites ({len(test_suites)} found), each "
-                f"with the appropriate configuration"
+            title = "Marlin: Test all code test suites",
+            description = (
+                f"Run all Marlin code test suites ({len(test_suites)} found)."
             ),
         )
 
