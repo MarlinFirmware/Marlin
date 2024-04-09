@@ -1647,7 +1647,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     va_list args;
     va_start(args, pfmt);
-    vsnprintf_P(&msg, 30, FTOP(pfmt), args);
+    vsnprintf_P(&msg, 30, pfmt, args);
     va_end(args);
 
     host_notify(msg);
