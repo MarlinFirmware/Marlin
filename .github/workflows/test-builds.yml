@@ -181,11 +181,13 @@ jobs:
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
 
-  # For now try running these all together. Ideally we would run them separately,
-  # in order to provide more detailed feedback.
+  # This runs all unit tests as a single job. While it should be possible to break this up into
+  # multiple jobs, they currently run quickly and finish long before the compilation tests.
   run_unit_tests:
     name: Run All Unit Tests
-    if: github.repository == 'MarlinFirmware/Marlin'
+    # These tests will only be able to run on the bugfix-2.1.x branch, until the next release
+    # pulls them into additional branches.
+    if: github.repository == 'MarlinFirmware/Marlin' && github.ref == 'refs/heads/bugfix-2.1.x'
 
     runs-on: ubuntu-latest
 
