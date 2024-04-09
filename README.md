@@ -113,6 +113,7 @@ Marlin is constantly improving thanks to a huge number of contributors from all 
 ## Project Leadership
 
 Name|Role|Link|Donate
+----|----|----|----
 🇺🇸|Scott Lahteine|Project Lead|[[@thinkyhead](https://github.com/thinkyhead)]|[💸 Donate](https://www.thinkyhead.com/donate-to-marlin)
 🇺🇸|Roxanne Neufeld|Admin|[[@Roxy-3D](https://github.com/Roxy-3D)]|
 🇺🇸|Keith Bennett|Admin|[[@thisiskeithb](https://github.com/thisiskeithb)]|[💸 Donate](https://github.com/sponsors/thisiskeithb)
