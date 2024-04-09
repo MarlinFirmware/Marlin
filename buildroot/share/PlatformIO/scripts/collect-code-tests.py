@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
     def collect_test_suites():
         """Get all the test suites"""
         from pathlib import Path
-        return list(Path("./test").glob("test_*/test_all.ini"))
+        return list(Path("./test").glob("test_*/config.ini"))
 
     def register_test_suites():
         """Register all the test suites"""
@@ -29,11 +29,10 @@ if pioutil.is_pio_build():
                 actions=[
                     f"echo ====== Configuring for marlin_{name} ======",
                     "restore_configs",
-                    "opt_set MOTHERBOARD BOARD_SIMULATED",
-                ] + configuration + [
-                    f"echo ====== Finished configuring for marlin_{name} ======",
+                    f"cp -f {path} ./Marlin/config.ini",
+                    "python ./buildroot/share/PlatformIO/scripts/configuration.py",
                     f"platformio test -e linux_native_test -f {name}",
-                    f"restore_configs",
+                    "restore_configs",
                 ],
                 title="Marlin: {}".format(name.lower().title().replace("_", " ")),
                 description=(
@@ -55,49 +54,6 @@ if pioutil.is_pio_build():
             ),
         )
 
-    def get_configuration(path):
-        """Get the configuration from a test suite"""
-        code_lines = path.read_text().splitlines()
-
-        # Find start index
-        start_indexes = [
-            index
-            for index, line in enumerate(code_lines)
-            if 'START_CONFIGURATION' in line
-        ]
-        if not start_indexes:
-            raise Exception(
-                f"Test suite {path.name} did not contain 'START_CONFIGURATION'")
-        elif len(start_indexes) > 1:
-            raise Exception(
-                f"Test suite {path.name} contained too many instances of "
-                f"'START_CONFIGURATION'")
-        start_index, = start_indexes
-
-        # Find end index
-        end_indexes = [
-            index
-            for index, line in enumerate(code_lines)
-            if 'END_CONFIGURATION' in line
-        ]
-        if not end_indexes:
-            raise Exception(
-                f"Test suite {path.name} did not contain 'END_CONFIGURATION'")
-        elif len(end_indexes) > 1:
-            raise Exception(
-                f"Test suite {path.name} contained too many instances of "
-                f"'END_CONFIGURATION'")
-        end_index, = end_indexes
-
-        # Remove whitespace, empty lines, and commented out lines
-        configuration_lines = code_lines[start_index + 1:end_index]
-        configuration_lines = [line.strip() for line in configuration_lines]
-        configuration_lines = list(filter(None, configuration_lines))
-        configuration_lines = [
-            line
-            for line in configuration_lines
-            if not line.startswith("//")
-        ]
 
     def get_configuration(path):
         """Get the configuration from a test suite"""
