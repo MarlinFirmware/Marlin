@@ -118,3 +118,42 @@ MARLIN_TEST(types, AxisBits_non_const_as_bools) {
   AxisBits axis_bits_true = {1};
   TEST_ASSERT_TRUE(axis_bits_true);
 }
+
+MARLIN_TEST(types, SString) {
+  // String with cutoff at 20 chars:
+  // "F-string, 1234.50, 2"
+  SString<20> str20;
+  str20 = F("F-string, ");
+  str20.append(1234.5f).append(',').append(' ')
+       .append(2345.67).append(',').append(' ');
+
+  TEST_ASSERT_TRUE(strcmp_P(str20.str, PSTR("F-string, 1234.50, 2")) == 0);
+
+  // Truncate to "F-string"
+  str20.trunc(8);
+
+  TEST_ASSERT_TRUE(strcmp_P(str20.str, PSTR("F-string")) == 0);
+
+  // 100 dashes, but chopped down to DEFAULT_MSTRING_SIZE (20)
+  TSS(repchr_t('-', 100));
+
+  TEST_ASSERT_TRUE(strlen(str20.str) == 20);
+
+  // Hello World!-123456------   <spaces!33
+  // ^ eol! ... 1234.50*2345.602 = 2895645.67
+  SString<100> str(F("Hello"));
+  str.append(F(" World!"));
+  str += '-';
+  str += uint8_t(123);
+  str += F("456");
+  str += repchr_t('-', 6);
+  str += Spaces(3);
+  str += "< spaces!";
+  str += int8_t(33);
+  str.eol();
+  str += "^ eol!";
+
+  str.append("...", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602);
+
+  TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   <spaces!33\n^ eol! ... 1234.50*2345.602 = 2895645.67")) == 0);
+}
