@@ -1229,6 +1229,8 @@ void drawMainArea() {
         switch (hmiValue.tempControl) {
           #if ENABLED(PIDTEMP)
             case PIDTEMP_START: drawHPlot(); break;
+          #elif ENABLED(MPCTEMP)
+            case MPCTEMP_START: drawHPlot(); break;
           #endif
           #if ENABLED(PIDTEMPBED)
             case PIDTEMPBED_START: drawBPlot(); break;
@@ -1705,13 +1707,21 @@ void dwinLevelingDone() {
       #if ENABLED(PIDTEMPBED)
         case PIDTEMPBED_START:
           hmiSaveProcessID(ID_PIDProcess);
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
           dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_BED));
+          #endif
           break;
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case PIDTEMPCHAMBER_START:
           hmiSaveProcessID(ID_PIDProcess);
+          #if PROUI_TUNING_GRAPH
+            dwinDrawPIDMPCPopup();
+          #else
           dwinDrawPopup(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_PID_FOR_CHAMBER));
+          #endif
           break;
       #endif
       case PID_BAD_HEATER_ID:
@@ -1859,6 +1869,7 @@ void dwinSetDataDefaults() {
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
   TERN_(PIDTEMP, hmiData.hotendPIDT = DEF_HOTENDPIDT);
   TERN_(PIDTEMPBED, hmiData.bedPIDT = DEF_BEDPIDT);
+  TERN_(PIDTEMPCHAMBER, hmiData.chamberPIDT = DEF_CHAMBERPIDT);
   TERN_(HAS_PID_HEATING, hmiData.pidCycles = DEF_PIDCYCLES);
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     hmiData.extMinT = EXTRUDE_MINTEMP;
@@ -3091,8 +3102,11 @@ void drawPrepareMenu() {
     #endif
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
-      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
-      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
+      #if ANY(PIDTEMP, MPCTEMP)
+        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      #endif
+      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot));
+      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawCPlot));
     #endif
     MENU_ITEM(ICON_Language, MSG_UI_LANGUAGE, onDrawLanguage, setLanguage);
   }
@@ -3422,8 +3436,11 @@ void drawTuneMenu() {
       EDIT_ITEM(ICON_RemainTime, MSG_SCREEN_TIMEOUT, onDrawPIntMenu, setTimer, &ui.backlight_timeout_minutes);
     #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
-      MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
-      MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot);
+      #if ANY(PIDTEMP, MPCTEMP)
+        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+      #endif
+      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot));
+      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawCPlot));
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
       EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);

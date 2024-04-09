@@ -71,7 +71,7 @@ enum processID : uint8_t {
   ID_NothingToDo
 };
 
-#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
+#if ANY(HAS_PID_HEATING, MPCTEMP)
 
   enum tempcontrol_t : uint8_t {
     AUTOTUNE_DONE,
@@ -83,7 +83,7 @@ enum processID : uint8_t {
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
     #endif
-    #if ENABLED(MPC_AUTOTUNE)
+    #if ENABLED(MPCTEMP)
       MPCTEMP_START,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
@@ -317,6 +317,7 @@ void dwinRebootScreen();
   void dwinDrawPlot(tempcontrol_t result);
   void drawHPlot();
   void drawBPlot();
+  void drawCPlot();
 #endif
 
 // Menu drawing functions
