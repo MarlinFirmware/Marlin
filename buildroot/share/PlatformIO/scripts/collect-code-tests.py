@@ -15,7 +15,7 @@ if pioutil.is_pio_build():
     def collect_test_suites():
         """Get all the test suites"""
         from pathlib import Path
-        return list(Path("./test").glob("test_*/test_all.cpp"))
+        return list(Path("./test").glob("test_*/test_all.ini"))
 
     def register_test_suites():
         """Register all the test suites"""
@@ -99,6 +99,20 @@ if pioutil.is_pio_build():
             if not line.startswith("//")
         ]
 
+    def get_configuration(path):
+        """Get the configuration from a test suite"""
+        configuration_lines = path.read_text().splitlines()
+
+        # Remove whitespace, empty lines, and commented out lines
+        configuration_lines = [line.strip() for line in configuration_lines]
+        configuration_lines = list(filter(None, configuration_lines))
+        configuration_lines = [
+            line
+            for line in configuration_lines
+            if not line.startswith("//")
+        ]
+
         return configuration_lines
+
 
     register_test_suites()
