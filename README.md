@@ -41,7 +41,7 @@ Marlin is optimized to build with the **PlatformIO IDE** extension for **Visual 
 
 ## 8-Bit AVR Boards
 
-A core tenet of this project is to keep supporting 8-bit AVR boards while also maintaining a single codebase that applies equally to all machines. We want casual hobbyists and tingkerers to benefit from the community's innovations just as much as those with fancier machines. Plus, those old AVR-based machines are often the best for your testing and feedback!
+We intend to continue supporting 8-bit AVR boards in perpetuity, maintaining a single codebase that can apply to all machines. We want casual hobbyists and tinkerers and owners of older machines to benefit from the community's innovations just as much as those with fancier machines. Plus, those old AVR-based machines are often the best for your testing and feedback!
 
 ## Hardware Abstraction Layer (HAL)
 
@@ -73,7 +73,7 @@ Every new HAL opens up a world of hardware. At this time we need HALs for RP2040
 
 ## Marlin Support
 
-The Issue Queue is reserved for Bug Reports and Feature Requests. Please use the following resources get help with configuration and troubleshooting:
+The Issue Queue is reserved for Bug Reports and Feature Requests. Please use the following resources for help with configuration and troubleshooting:
 
 - [Marlin Documentation](https://marlinfw.org) - Official Marlin documentation
 - [Marlin Discord](https://discord.gg/n5NJ59y) - Discuss issues with Marlin users and developers
