@@ -114,15 +114,15 @@ Marlin is constantly improving thanks to a huge number of contributors from all 
 
 Name|Role|Link|Donate
 ----|----|----|----
-🇺🇸|Scott Lahteine|Project Lead|[[@thinkyhead](https://github.com/thinkyhead)]|[💸 Donate](https://www.thinkyhead.com/donate-to-marlin)
-🇺🇸|Roxanne Neufeld|Admin|[[@Roxy-3D](https://github.com/Roxy-3D)]|
-🇺🇸|Keith Bennett|Admin|[[@thisiskeithb](https://github.com/thisiskeithb)]|[💸 Donate](https://github.com/sponsors/thisiskeithb)
-🇺🇸|Jason Smith|Admin|[[@sjasonsmith](https://github.com/sjasonsmith)]|
-🇧🇷|Victor Oliveira|Admin|[[@rhapsodyv](https://github.com/rhapsodyv)]|
-🇬🇧|Chris Pepper|Admin|[[@p3p](https://github.com/p3p)]|
-🇳🇿|Peter Ellens|Admin|[[@ellensp](https://github.com/ellensp)]|[💸 Donate](https://ko-fi.com/ellensp)
-🇺🇸|Bob Kuhn|Admin|[[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]|
-🇳🇱|Erik van der Zalm|Founder|[[@ErikZalm](https://github.com/ErikZalm)]|[💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+🇺🇸 Scott Lahteine|Project Lead|[[@thinkyhead](https://github.com/thinkyhead)]|[💸 Donate](https://www.thinkyhead.com/donate-to-marlin)
+🇺🇸 Roxanne Neufeld|Admin|[[@Roxy-3D](https://github.com/Roxy-3D)]|
+🇺🇸 Keith Bennett|Admin|[[@thisiskeithb](https://github.com/thisiskeithb)]|[💸 Donate](https://github.com/sponsors/thisiskeithb)
+🇺🇸 Jason Smith|Admin|[[@sjasonsmith](https://github.com/sjasonsmith)]|
+🇧🇷 Victor Oliveira|Admin|[[@rhapsodyv](https://github.com/rhapsodyv)]|
+🇬🇧 Chris Pepper|Admin|[[@p3p](https://github.com/p3p)]|
+🇳🇿 Peter Ellens|Admin|[[@ellensp](https://github.com/ellensp)]|[💸 Donate](https://ko-fi.com/ellensp)
+🇺🇸 Bob Kuhn|Admin|[[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]|
+🇳🇱 Erik van der Zalm|Founder|[[@ErikZalm](https://github.com/ErikZalm)]|[💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 ## License
 
