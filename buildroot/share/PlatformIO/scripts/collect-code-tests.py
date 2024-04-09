@@ -6,7 +6,7 @@
 import pioutil
 if pioutil.is_pio_build():
 
-    import os
+    import os, re
     Import("env")
     Import("projenv")
 
