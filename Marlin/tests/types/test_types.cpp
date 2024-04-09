@@ -119,10 +119,10 @@ MARLIN_TEST(types, AxisBits_non_const_as_bools) {
   TEST_ASSERT_TRUE(axis_bits_true);
 }
 
-MARLIN_TEST(types, SString) {
+MARLIN_TEST(types, MString1) {
   // String with cutoff at 20 chars:
   // "F-string, 1234.50, 2"
-  SString<20> str20;
+  MString<20> str20;
   str20 = F("F-string, ");
   str20.append(1234.5f).append(',').append(' ')
        .append(2345.67).append(',').append(' ');
@@ -132,13 +132,15 @@ MARLIN_TEST(types, SString) {
   // Truncate to "F-string"
   str20.trunc(8);
 
-  TEST_ASSERT_TRUE(strcmp_P(str20.str, PSTR("F-string")) == 0);
+  TEST_ASSERT_FALSE(strcmp_P(str20.str, PSTR("F-string")) != 0);
+}
 
+MARLIN_TEST(types, MString2) {
   // 100 dashes, but chopped down to DEFAULT_MSTRING_SIZE (20)
-  TSS(repchr_t('-', 100));
+  TEST_ASSERT_TRUE(TSS(repchr_t('-', 100)).length() == 20);
+}
 
-  TEST_ASSERT_TRUE(strlen(str20.str) == 20);
-
+MARLIN_TEST(types, SString) {
   // Hello World!-123456------   <spaces!33
   // ^ eol! ... 1234.50*2345.602 = 2895645.67
   SString<100> str(F("Hello"));
