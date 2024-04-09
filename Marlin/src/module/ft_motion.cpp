@@ -29,7 +29,7 @@
 
 FTMotion ftMotion;
 
-#if !HAS_X_AXIS
+#if NONE(HAS_X_AXIS, HAS_Y_AXIS)
   static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZV, "ftMotionCmpnstr_t_ZV requires at least one linear axis.");
   static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
   static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVDD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
@@ -103,7 +103,7 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
 // Shaping variables.
-#if HAS_X_AXIS
+#if ANY(HAS_X_AXIS, HAS_Y_AXIS)
   FTMotion::shaping_t FTMotion::shaping = {
     0,
     x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
@@ -224,7 +224,7 @@ void FTMotion::loop() {
 
 }
 
-#if HAS_X_AXIS
+#if ANY(HAS_X_AXIS, HAS_Y_AXIS)
 
   // Refresh the gains used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionCmpnstr_t shaper, const_float_t zeta, const_float_t vtol) {
@@ -361,11 +361,13 @@ void FTMotion::loop() {
   }
 
   void FTMotion::update_shaping_params() {
-    shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
-    if(shaping.x.ena) {
-      shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-      shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
-    }
+    #if HAS_X_AXIS
+      shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
+      if(shaping.x.ena) {
+        shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
+        shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+      }
+    #endif
     #if HAS_Y_AXIS
       shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
       if(shaping.y.ena) {
@@ -375,7 +377,7 @@ void FTMotion::loop() {
     #endif
   }
 
-#endif // HAS_X_AXIS
+#endif // HAS_X_AXIS or HAS_Y_AXIS
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
@@ -396,8 +398,8 @@ void FTMotion::reset() {
 
   stepper.axis_did_move.reset();
 
-  #if HAS_X_AXIS
-    ZERO(shaping.x.d_zi);
+  #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
+    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
@@ -433,7 +435,7 @@ void FTMotion::runoutBlock() {
   int32_t n_to_fill_batch = FTM_WINDOW_SIZE - makeVector_batchIdx;
   
   // This line is to be modified for FBS use; do not optimize out.
-  int32_t n_to_settle_cmpnstr = ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0;
+  int32_t n_to_settle_cmpnstr = (TERN_(HAS_X_AXIS, shaping.x.ena) || TERN_(HAS_Y_AXIS, shaping.y.ena )) ? FTM_ZMAX : 0;
 
   int32_t n_to_fill_batch_after_settling = (n_to_settle_cmpnstr > n_to_fill_batch) ?
     FTM_BATCH_SIZE - ((n_to_settle_cmpnstr - n_to_fill_batch) % FTM_BATCH_SIZE) : n_to_fill_batch - n_to_settle_cmpnstr;
@@ -604,10 +606,12 @@ void FTMotion::makeVector() {
     #if HAS_DYNAMIC_FREQ_MM
       case dynFreqMode_Z_BASED:
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
-                 const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx]
-          OPTARG(HAS_Y_AXIS, yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx]);
-          shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+          #if HAS_X_AXIS
+            const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx];
+            shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+          #endif
           #if HAS_Y_AXIS
+            const float yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
             shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
           #endif
         }
@@ -618,7 +622,9 @@ void FTMotion::makeVector() {
       case dynFreqMode_MASS_BASED:
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
-        shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+        #if HAS_X_AXIS
+          shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+        #endif
         #if HAS_Y_AXIS
           shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
         #endif

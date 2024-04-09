@@ -464,37 +464,24 @@ void menu_move() {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_xcmpn);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[X_AXIS]); MENU_ITEM_ADDON_END();
+
+        if CMPNSTR_HAS_SHAPER(X_AXIS) {
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
+          if CMPNSTR_IS_EISHAPER(X_AXIS)
+            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        }
       #endif
       #if HAS_Y_AXIS
         SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_ycmpn);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[Y_AXIS]); MENU_ITEM_ADDON_END();
-      #endif
-
-      #if HAS_X_AXIS
-        if CMPNSTR_HAS_SHAPER(X_AXIS)
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-      #endif
-      #if HAS_Y_AXIS
-        if CMPNSTR_HAS_SHAPER(Y_AXIS)
+        
+        if CMPNSTR_HAS_SHAPER(Y_AXIS) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-      #endif
-
-      #if HAS_X_AXIS
-        if CMPNSTR_HAS_SHAPER(X_AXIS)
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
-      #endif
-      #if HAS_Y_AXIS
-        if CMPNSTR_HAS_SHAPER(Y_AXIS)
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
-      #endif
-
-      #if HAS_X_AXIS
-        if CMPNSTR_IS_EISHAPER(X_AXIS)
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
-      #endif
-      #if HAS_Y_AXIS
-        if CMPNSTR_IS_EISHAPER(Y_AXIS)
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
+          if CMPNSTR_IS_EISHAPER(Y_AXIS)
+            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
+        }
       #endif
 
       #if HAS_DYNAMIC_FREQ

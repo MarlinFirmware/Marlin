@@ -39,7 +39,7 @@
 typedef struct FTConfig {
   ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
 
-  #if HAS_X_AXIS
+  #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
     ftMotionCmpnstr_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =               // Compensation mode.
       { FTM_DEFAULT_X_COMPENSATOR OPTARG(HAS_Y_AXIS, FTM_DEFAULT_Y_COMPENSATOR) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
@@ -96,7 +96,7 @@ class FTMotion {
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
 
-      #if HAS_X_AXIS
+      #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
         update_shaping_params();
       #endif
 
@@ -113,7 +113,7 @@ class FTMotion {
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
 
-    #if HAS_X_AXIS
+    #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
       // Refreshes the gains and indices used by shaping functions.
       static void update_shaping_params(void);
     #endif
@@ -153,7 +153,7 @@ class FTMotion {
     static xyze_long_t steps;
 
     // Shaping variables.
-    #if HAS_X_AXIS
+    #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
 
       typedef struct AxisShaping {
         bool ena = false;                 // Enabled indication.
@@ -178,7 +178,7 @@ class FTMotion {
 
       static shaping_t shaping; // Shaping data
 
-    #endif // HAS_X_AXIS
+    #endif // HAS_X_AXIS or HAS_Y_AXIS
 
     // Linear advance variables.
     #if HAS_EXTRUDERS

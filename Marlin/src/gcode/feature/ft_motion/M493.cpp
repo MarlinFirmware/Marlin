@@ -49,24 +49,25 @@ void say_shaping() {
       }
       SERIAL_ECHOPGM(" shaping");
     }
-    #if HAS_Y_AXIS
-      if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
-        SERIAL_ECHOPGM(" and with Y/B axis ");
-        switch (ftMotion.cfg.cmpnstr[Y_AXIS]) {
-          default: break;
-          case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
-          case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-          case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-          case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-          case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
-          case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-          case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-          case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
-        }
-        SERIAL_ECHOPGM(" shaping");
-      }
-    #endif
   #endif
+  #if HAS_Y_AXIS
+    if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+      SERIAL_ECHOPGM(" and with Y/B axis ");
+      switch (ftMotion.cfg.cmpnstr[Y_AXIS]) {
+        default: break;
+        case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
+        case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+        case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+        case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+        case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
+        case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+        case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+        case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
+      }
+      SERIAL_ECHOPGM(" shaping");
+    }
+  #endif
+  
   SERIAL_ECHOLNPGM(".");
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED),
@@ -126,19 +127,21 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   SERIAL_ECHOPGM("  M493 S", c.mode);
   #if HAS_X_AXIS
     SERIAL_ECHOPGM(" A", c.baseFreq[X_AXIS]);
-    #if HAS_Y_AXIS
-      SERIAL_ECHOPGM(" B", c.baseFreq[Y_AXIS]);
-    #endif
   #endif
+  #if HAS_Y_AXIS
+    SERIAL_ECHOPGM(" B", c.baseFreq[Y_AXIS]);
+  #endif
+
   #if HAS_DYNAMIC_FREQ
     SERIAL_ECHOPGM(" D", c.dynFreqMode);
     #if HAS_X_AXIS
       SERIAL_ECHOPGM(" F", c.dynFreqK[X_AXIS]);
-      #if HAS_Y_AXIS
-        SERIAL_ECHOPGM(" H", c.dynFreqK[Y_AXIS]);
-      #endif
+    #endif
+    #if HAS_Y_AXIS
+      SERIAL_ECHOPGM(" H", c.dynFreqK[Y_AXIS]);
     #endif
   #endif
+  
   #if HAS_EXTRUDERS
     SERIAL_ECHOPGM(" P", c.linearAdvEna, " K", c.linearAdvK);
   #endif
@@ -229,32 +232,32 @@ void GcodeSuite::M493() {
         }
       }
     }
+  #endif
 
-    #if HAS_Y_AXIS
-      // Parse 'Y' mode parameter.
-      if (parser.seenval('Y')) {
-        const ftMotionCmpnstr_t newmm = (ftMotionCmpnstr_t)parser.value_byte();
+  #if HAS_Y_AXIS
+    // Parse 'Y' mode parameter.
+    if (parser.seenval('Y')) {
+      const ftMotionCmpnstr_t newmm = (ftMotionCmpnstr_t)parser.value_byte();
 
-        if (newmm != ftMotion.cfg.cmpnstr[Y_AXIS]) {
-          switch (newmm) {
-            default: SERIAL_ECHOLNPGM("?Invalid compensator / shaper [Y] value."); return;
-            case ftMotionCmpnstr_NONE:
-            case ftMotionCmpnstr_ZV:
-            case ftMotionCmpnstr_ZVD:
-            case ftMotionCmpnstr_ZVDD:
-            case ftMotionCmpnstr_ZVDDD:
-            case ftMotionCmpnstr_EI:
-            case ftMotionCmpnstr_2HEI:
-            case ftMotionCmpnstr_3HEI:
-            case ftMotionCmpnstr_MZV:
-              flag.update_shpr_params = true;
-              ftMotion.cfg.cmpnstr[Y_AXIS] = newmm;
-              flag.report_h = true;
-              break;
-          }
+      if (newmm != ftMotion.cfg.cmpnstr[Y_AXIS]) {
+        switch (newmm) {
+          default: SERIAL_ECHOLNPGM("?Invalid compensator / shaper [Y] value."); return;
+          case ftMotionCmpnstr_NONE:
+          case ftMotionCmpnstr_ZV:
+          case ftMotionCmpnstr_ZVD:
+          case ftMotionCmpnstr_ZVDD:
+          case ftMotionCmpnstr_ZVDDD:
+          case ftMotionCmpnstr_EI:
+          case ftMotionCmpnstr_2HEI:
+          case ftMotionCmpnstr_3HEI:
+          case ftMotionCmpnstr_MZV:
+            flag.update_shpr_params = true;
+            ftMotion.cfg.cmpnstr[Y_AXIS] = newmm;
+            flag.report_h = true;
+             break;
         }
       }
-    #endif
+    }
   #endif
 
   #if HAS_EXTRUDERS
