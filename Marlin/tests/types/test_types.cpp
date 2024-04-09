@@ -156,5 +156,5 @@ MARLIN_TEST(types, SString) {
   str += "^ eol!";
   str.append(" ... ", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602);
 
-  TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   < spaces!33\n^ eol!...1234.50*2345.602 = 2895645.67")) == 0);
+  TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   < spaces!33\n^ eol! ... 1234.50*2345.602 = 2895645.67")) == 0);
 }
