@@ -184,7 +184,7 @@ jobs:
   # For now try running these all together. Ideally we would run them separately,
   # in order to provide more detailed feedback.
   run_unit_tests:
-    name: Run Code All Local Test
+    name: Run All Unit Tests
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
