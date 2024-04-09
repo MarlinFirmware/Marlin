@@ -21,7 +21,8 @@ if pioutil.is_pio_build():
         """Register all the test suites"""
         test_suites = collect_test_suites()
         for path in test_suites:
-            name = path.parent.name
+            name = re.sub(r'^\d+-|\.ini$', '', path.name)
+
             env.AddCustomTarget(
                 name = f"marlin_{name}",
                 dependencies = None,
