@@ -22,7 +22,6 @@ if pioutil.is_pio_build():
         test_suites = collect_test_suites()
         for path in test_suites:
             name = path.parent.name
-            configuration = get_configuration(path)
             env.AddCustomTarget(
                 name=f"marlin_{name}",
                 dependencies=None,
@@ -53,22 +52,5 @@ if pioutil.is_pio_build():
                 f"with the appropriate configuration"
             ),
         )
-
-
-    def get_configuration(path):
-        """Get the configuration from a test suite"""
-        configuration_lines = path.read_text().splitlines()
-
-        # Remove whitespace, empty lines, and commented out lines
-        configuration_lines = [line.strip() for line in configuration_lines]
-        configuration_lines = list(filter(None, configuration_lines))
-        configuration_lines = [
-            line
-            for line in configuration_lines
-            if not line.startswith("//")
-        ]
-
-        return configuration_lines
-
 
     register_test_suites()
