@@ -38,61 +38,6 @@ exec_test () {
 }
 export -f exec_test
 
-# Example to pass strings (or valid regexes) to check:
-# exec_test_failing $1 $2 "Title" "$3" "String to look for" "Another string" ...
-# Or if if you have long strings:
-# strings=("String to look for"
-# "Another string
-# ...)
-# exec_test_failing $1 $2 "Title" "$3" "${strings[@]}"
-exec_test_failing () {
-  printf "\n\033[0;32m[Test failing $2] \033[0m$3...\n"
-  # Check to see if we should skip tests
-  if [[ -n "$4" ]] ; then
-    if [[ "$4" != "$3" ]] ; then
-      printf "\033[1;33mSkipped\033[0m\n"
-      return 0
-    fi
-  fi
-  # Capture the output, so that we can test against it
-  set +e
-  output=$(platformio run --project-dir $1 -e $2 --silent 2>&1)
-  set -e
-  if [[ $? -ne 0 ]] ; then
-    # If the build didn't fail, the test failed
-    if [[ $GIT_RESET_HARD == "true" ]]; then
-      echo git reset --hard HEAD
-    else
-      restore_configs
-    fi
-    printf "\033[0;31mFailed: there was no error!\033[0m\n"
-    return 1
-  else
-    # The strings to check come as the extra arguments. These strings should be
-    # valid regexes - or plain strings
-    shift 4
-    strings=("$@")
-    # We want to find all the strings provided - keep a note of those that are
-    # not present
-    not_found=()
-    for string in "${strings[@]}" ; do
-      [[ $output =~ $string ]] || not_found+=("$string")
-    done
-    # If we didn't find some of the strings we need to fail
-    if [[ ${#not_found[@]} -ne 0 ]] ; then
-      echo -e "$output"
-      printf "\033[0;31mFailed: Couldn't find ${#not_found[@]} strings in error\033[0m\n"
-      for string in "${not_found[@]}" ; do
-        printf "\033[0;31m * $string\033[0m\n"
-      done
-      return 1
-    fi
-    printf "\033[0;32mPassed: there was an error as expected and matched ${#strings[@]} strings in it\033[0m\n"
-    return 0
-  fi
-}
-export -f exec_test_failing
-
 printf "Running \033[0;32m$2\033[0m Tests\n"
 
 if [[ $2 = "ALL" ]]; then
