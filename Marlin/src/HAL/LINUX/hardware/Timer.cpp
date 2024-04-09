@@ -37,10 +37,7 @@ Timer::Timer() {
 }
 
 Timer::~Timer() {
-  if (timerid != 0) {
-    timer_delete(timerid);
-    timerid = 0;
-  }
+  timer_delete(timerid);
 }
 
 void Timer::init(uint32_t sig_id, uint32_t sim_freq, callback_fn* fn) {
