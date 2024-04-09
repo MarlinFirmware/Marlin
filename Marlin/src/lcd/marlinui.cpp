@@ -1642,12 +1642,12 @@ void MarlinUI::host_notify(const char * const cstr) {
   void MarlinUI::_set_status_and_level(const char * const ustr, const int8_t=0, const bool pgm) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
-  void MarlinUI::status_printf(int8_t level, PGM_P const pfmt, ...) {
+  void MarlinUI::status_printf(int8_t level, FSTR_P const pfmt, ...) {
     MString<30> msg;
 
     va_list args;
     va_start(args, pfmt);
-    vsnprintf_P(&msg, 30, pfmt, args);
+    vsnprintf_P(&msg, 30, FTOP(pfmt), args);
     va_end(args);
 
     host_notify(msg);
