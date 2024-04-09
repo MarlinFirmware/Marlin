@@ -1,9 +1,9 @@
 #
-# test-builds.yml
+# CI-run-compilation-tests.yml
 # Do test builds to catch compile errors
 #
 
-name: CI
+name: CI - Compilation Tests
 
 on:
   pull_request:
@@ -27,7 +27,7 @@ on:
 
 jobs:
   test_builds:
-    name: Run All Tests
+    name: Run All Compilation Tests
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
@@ -180,47 +180,3 @@ jobs:
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
-
-  # This runs all unit tests as a single job. While it should be possible to break this up into
-  # multiple jobs, they currently run quickly and finish long before the compilation tests.
-  run_unit_tests:
-    name: Run All Unit Tests
-    # These tests will only be able to run on the bugfix-2.1.x branch, until the next release
-    # pulls them into additional branches.
-    if: github.repository == 'MarlinFirmware/Marlin' && github.ref == 'refs/heads/bugfix-2.1.x'
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Check out the PR
-      uses: actions/checkout@v4
-
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    - name: Cache PlatformIO
-      uses: actions/cache@v4
-      with:
-        path: ~/.platformio
-        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
-
-    - name: Select Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
-
-    - name: Install PlatformIO
-      run: |
-        pip install -U platformio
-        pio upgrade --dev
-        pio pkg update --global
-
-    - name: Run All Unit Tests
-      run: |
-        make tests-code-all-local
