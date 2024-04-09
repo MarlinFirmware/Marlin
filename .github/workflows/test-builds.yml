@@ -180,3 +180,45 @@ jobs:
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}
+
+  # For now try running these all together. Ideally we would run them separately,
+  # in order to provide more detailed feedback.
+  run_unit_tests:
+    name: Run Code All Local Test
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the PR
+      uses: actions/checkout@v4
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v4
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+    - name: Select Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        architecture: 'x64'
+
+    - name: Install PlatformIO
+      run: |
+        pip install -U platformio
+        pio upgrade --dev
+        pio pkg update --global
+
+    - name: Run All Unit Tests
+      run: |
+        make tests-code-all-local
