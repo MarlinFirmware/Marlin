@@ -499,9 +499,7 @@ public:
    *
    * @param pfmt    A constant format P-string
    */
-  static void status_printf_P(int8_t level, PGM_P const pfmt, ...);
-
-  static void status_printf(int8_t level, FSTR_P const ffmt, ...) { status_printf_P(level, FTOP(ffmt)); }
+  static void status_printf(int8_t level, FSTR_P const pfmt, ...);
 
   // Periodic or as-needed display update
   static void update() IF_DISABLED(HAS_UI_UPDATE, {});
