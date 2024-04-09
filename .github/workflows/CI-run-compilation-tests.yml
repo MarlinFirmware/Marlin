@@ -19,7 +19,6 @@ on:
     branches:
     - bugfix-2.1.x
     - 2.1.x
-    - InWork/costas/2024_better-tests-rebased-squashed2
     paths-ignore:
     - config/**
     - data/**
@@ -29,7 +28,7 @@ on:
 jobs:
   test_builds:
     name: Run All Compilation Tests
-    if: github.repository == 'sjasonsmith/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 

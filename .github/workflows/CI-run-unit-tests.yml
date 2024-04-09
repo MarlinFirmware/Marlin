@@ -19,7 +19,6 @@ on:
   push:
     branches:
     - bugfix-2.1.x
-    - InWork/costas/2024_better-tests-rebased-squashed2
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
     paths-ignore:
@@ -35,7 +34,7 @@ jobs:
     name: Run All Unit Tests
     # These tests will only be able to run on the bugfix-2.1.x branch, until the next release
     # pulls them into additional branches.
-    if: github.repository == 'sjasonsmith/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
