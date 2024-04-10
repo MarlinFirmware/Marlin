@@ -82,7 +82,3 @@ void dwinIconShow(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y);
 #include "../common/dwin_color.h"
 
 #define Color_Bg_Heading  0x3344  // Static Heading
-
-// Character matrix width x height
-//#define LCD_WIDTH ((DWIN_WIDTH) / 8)
-//#define LCD_HEIGHT ((DWIN_HEIGHT) / 12)

@@ -126,17 +126,21 @@ void dwinWriteToMem(uint8_t mem, uint16_t addr, uint16_t length, uint8_t *data) 
   }
 }
 
-// Draw an Icon from SRAM without background transparency for DACAI Screens support
-void dacaiIconShow(uint16_t x, uint16_t y, uint16_t addr) {
-  NOMORE(x, DWIN_WIDTH - 1);
-  NOMORE(y, DWIN_HEIGHT - 1);
-  size_t i = 0;
-  dwinByte(i, 0x70);
-  dwinWord(i, x);
-  dwinWord(i, y);
-  dwinWord(i, addr);
-  dwinSend(i);
-}
+#if ENABLED(DACAI_DISPLAY)
+
+  // Draw an Icon from SRAM without background transparency for DACAI Screens support
+  void dacaiIconShow(uint16_t x, uint16_t y, uint16_t addr) {
+    NOMORE(x, DWIN_WIDTH - 1);
+    NOMORE(y, DWIN_HEIGHT - 1);
+    size_t i = 0;
+    dwinByte(i, 0x70);
+    dwinWord(i, x);
+    dwinWord(i, y);
+    dwinWord(i, addr);
+    dwinSend(i);
+  }
+
+#endif
 
 void dwinIconShow(uint16_t x, uint16_t y, uint16_t addr) {
   #if ENABLED(DACAI_DISPLAY)

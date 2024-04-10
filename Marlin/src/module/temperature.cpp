@@ -52,8 +52,6 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -723,13 +721,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
     TERN_(HAS_FAN_LOGIC, fan_update_ms = next_temp_ms + fan_update_interval_ms);
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_STARTED));
-    TERN_(PROUI_PID_TUNE, dwinPidTuning(isbed ? PIDTEMPBED_START : PIDTEMP_START));
+    TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ischamber ? ExtUI::pidresult_t::PID_CHAMBER_STARTED : isbed ? ExtUI::pidresult_t::PID_BED_STARTED : ExtUI::pidresult_t::PID_STARTED));
 
     if (target > GHV(CHAMBER_MAX_TARGET, BED_MAX_TARGET, hotend_max_target(heater_id))) {
       SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
-      TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
-      TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TEMP_TOO_HIGH));
+      TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_TEMP_TOO_HIGH));
       TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH)));
       return;
     }
@@ -822,8 +818,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #endif
       if (current_temp > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TEMP_TOO_HIGH);
-        TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TEMP_TOO_HIGH));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TEMP_TOO_HIGH));
+        TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_TEMP_TOO_HIGH));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH)));
         break;
       }
@@ -860,8 +855,7 @@ volatile bool Temperature::raw_temps_ready = false;
       #endif
       if ((ms - _MIN(t1, t2)) > MIN_TO_MS(PID_AUTOTUNE_MAX_CYCLE_MINS)) {
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
-        TERN_(PROUI_PID_TUNE, dwinPidTuning(PID_TUNING_TIMEOUT));
-        TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_TUNING_TIMEOUT));
+        TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
@@ -918,9 +912,8 @@ volatile bool Temperature::raw_temps_ready = false;
     disable_all_heaters();
 
     EXIT_M303:
-      TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPidTuningDone(oldcolor));
-      TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_DONE));
-      TERN_(PROUI_PID_TUNE, dwinPidTuning(AUTOTUNE_DONE));
+      TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onPIDTuningDone(oldcolor));
+      TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_DONE));
       TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
       return;
   }
@@ -1137,7 +1130,7 @@ volatile bool Temperature::raw_temps_ready = false;
       // Ensure we don't drift too far from the window between the last sampled temp and the target temperature
       if (!WITHIN(current_temp, get_sample_3_temp() - 15.0f, hotend.target + 15.0f)) {
         SERIAL_ECHOLNPGM(STR_MPC_TEMPERATURE_ERROR);
-        TERN_(DWIN_LCD_PROUI, dwinMPCTuning(MPC_TEMP_ERROR));
+        TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_TEMP_ERROR));
         wait_for_heatup = false;
         return FAILED;
       }
@@ -1175,7 +1168,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     if (!wait_for_heatup) {
       SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_INTERRUPTED);
-      TERN_(DWIN_LCD_PROUI, dwinMPCTuning(MPC_INTERRUPTED));
+      TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_INTERRUPTED));
       return MeasurementState::CANCELLED;
     }
 
@@ -1202,12 +1195,8 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Determine ambient temperature.
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
-    #if ENABLED(DWIN_LCD_PROUI)
-      dwinMPCTuning(MPCTEMP_START);
-      LCD_ALERTMESSAGE(MSG_MPC_COOLING_TO_AMBIENT);
-    #else
-      LCD_MESSAGE(MSG_COOLING);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPCTEMP_START));
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_COOLING_TO_AMBIENT), LCD_MESSAGE(MSG_COOLING));
 
     if (tuner.measure_ambient_temp() != MPC_autotuner::MeasurementState::SUCCESS) return;
     hotend.modeled_ambient_temp = tuner.get_ambient_temp();
@@ -1293,7 +1282,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
-    TERN_(DWIN_LCD_PROUI, dwinMPCTuning(AUTOTUNE_DONE));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_DONE));
 
     SERIAL_ECHOLNPGM("MPC_BLOCK_HEAT_CAPACITY ", mpc.block_heat_capacity);
     SERIAL_ECHOLNPGM("MPC_SENSOR_RESPONSIVENESS ", p_float_t(mpc.sensor_responsiveness, 4));
@@ -1532,15 +1521,17 @@ void Temperature::_temp_error(
 }
 
 void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
-    dwinPopupTemperature(1);
+  #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(1));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMaxTempError(heater_id));
   #endif
   _TEMP_ERROR(heater_id, F(STR_T_MAXTEMP), MSG_ERR_MAXTEMP, deg);
 }
 
 void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
-  #if HAS_DWIN_E3V2_BASIC && (HAS_HOTEND || HAS_HEATED_BED)
-    dwinPopupTemperature(0);
+  #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMinTempError(heater_id));
   #endif
   _TEMP_ERROR(heater_id, F(STR_T_MINTEMP), MSG_ERR_MINTEMP, deg);
 }
@@ -1765,7 +1756,8 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           if (watch_hotend[e].check(temp))          // Increased enough?
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
-            TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
+            TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+            TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(e));
             _TEMP_ERROR(e, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, temp);
           }
         }
@@ -1795,7 +1787,8 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         if (watch_bed.check(deg))               // Increased enough?
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
-          TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
+          TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+          TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(H_BED));
           _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, deg);
         }
       }
@@ -3247,13 +3240,15 @@ void Temperature::init() {
       } // fall through
 
       case TRRunaway:
-        TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
+        TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+        TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(heater_id));
         _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current);
         break;
 
       #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
         case TRMalfunction:
-          TERN_(HAS_DWIN_E3V2_BASIC, dwinPopupTemperature(0));
+          TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+          TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(heater_id));
           _TEMP_ERROR(heater_id, F(STR_T_THERMAL_MALFUNCTION), MSG_ERR_TEMP_MALFUNCTION, current);
           break;
       #endif

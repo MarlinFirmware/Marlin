@@ -1204,14 +1204,14 @@
 //#define INPUT_SHAPING_Y
 #if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y)
   #if ENABLED(INPUT_SHAPING_X)
-    #define SHAPING_FREQ_X  40          // (Hz) The default dominant resonant frequency on the X axis.
-    #define SHAPING_ZETA_X  0.15f       // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
+    #define SHAPING_FREQ_X  40.0        // (Hz) The default dominant resonant frequency on the X axis.
+    #define SHAPING_ZETA_X   0.15       // Damping ratio of the X axis (range: 0.0 = no damping to 1.0 = critical damping).
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    #define SHAPING_FREQ_Y  40          // (Hz) The default dominant resonant frequency on the Y axis.
-    #define SHAPING_ZETA_Y  0.15f       // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
+    #define SHAPING_FREQ_Y  40.0        // (Hz) The default dominant resonant frequency on the Y axis.
+    #define SHAPING_ZETA_Y   0.15       // Damping ratio of the Y axis (range: 0.0 = no damping to 1.0 = critical damping).
   #endif
-  //#define SHAPING_MIN_FREQ  20        // By default the minimum of the shaping frequencies. Override to affect SRAM usage.
+  //#define SHAPING_MIN_FREQ  20.0      // (Hz) By default the minimum of the shaping frequencies. Override to affect SRAM usage.
   //#define SHAPING_MAX_STEPRATE 10000  // By default the maximum total step rate of the shaped axes. Override to affect SRAM usage.
   //#define SHAPING_MENU                // Add a menu to the LCD to set shaping parameters.
 #endif
@@ -1270,11 +1270,11 @@
  * XY Frequency limit
  * Reduce resonance by limiting the frequency of small zigzag infill moves.
  * See https://hydraraptor.blogspot.com/2010/12/frequency-limit.html
- * Use M201 F<freq> G<min%> to change limits at runtime.
+ * Use M201 F<freq> S<min%> to change limits at runtime.
  */
 //#define XY_FREQUENCY_LIMIT      10 // (Hz) Maximum frequency of small zigzag infill moves. Set with M201 F<hertz>.
 #ifdef XY_FREQUENCY_LIMIT
-  #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 G<min%>.
+  #define XY_FREQUENCY_MIN_PERCENT 5 // (%) Minimum FR percentage to apply. Set with M201 S<min%>.
 #endif
 
 //
@@ -3558,7 +3558,7 @@
  * Add the M3, M4, and M5 commands to turn the spindle/laser on and off, and
  * to set spindle speed, spindle direction, and laser power.
  *
- * SuperPid is a router/spindle speed controller used in the CNC milling community.
+ * SuperPID is a router/spindle speed controller used in the CNC milling community.
  * Marlin can be used to turn the spindle on and off. It can also be used to set
  * the spindle speed from 5,000 to 30,000 RPM.
  *
@@ -4308,6 +4308,7 @@
                                           // See class CodeProfiler.
   //#define MAX7219_DEBUG_MULTISTEPPING 6 // Show multi-stepping 1 to 128 on this LED matrix row.
   //#define MAX7219_DEBUG_SLOWDOWN      6 // Count (mod 16) how many times SLOWDOWN has reduced print speed.
+  //#define MAX7219_REINIT_ON_POWERUP     // Re-initialize MAX7129 when power supply turns on
 #endif
 
 /**
