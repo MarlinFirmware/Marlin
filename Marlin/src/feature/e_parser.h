@@ -79,6 +79,9 @@ public:
 
   static void update(State &state, const uint8_t c);
 
+  static bool isEnabled() { return enabled;}
+
+private:
   static bool enabled;
 };
 
