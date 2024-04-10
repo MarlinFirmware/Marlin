@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,11 +21,19 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Dagoma3D D6 supports up to 2 hotends / E-steppers."
 #endif
 
 #define BOARD_INFO_NAME "Dagoma3D D6"
+
+#define X_DIAG_PIN                            43
+#define Y_DIAG_PIN                            41
+#define Z_DIAG_PIN                            47
+#define E0_DIAG_PIN                           21
+#define E1_DIAG_PIN                           20
 
 //
 // Endstops
@@ -46,7 +54,7 @@
   #define BOARD_ST7920_DELAY_3               250
 #endif
 
-#define KILL_PIN                            -1  // NC
+#define KILL_PIN                              -1  // NC
 
 #define LCD_CONTRAST_DEFAULT                 255
 
@@ -69,13 +77,7 @@
   #define E1_SERIAL_RX_PIN                    12
   #define E1_SERIAL_TX_PIN                    12
 
-  #define X_DIAG_PIN                          43
-  #define Y_DIAG_PIN                          41
-  #define Z_DIAG_PIN                          47
-  #define E0_DIAG_PIN                         21
-  #define E1_DIAG_PIN                         20
-
-    // Default TMC slave addresses
+  // Default TMC slave addresses
   #ifdef X_SLAVE_ADDRESS
     static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_DAGOMA_D6.");
   #else
