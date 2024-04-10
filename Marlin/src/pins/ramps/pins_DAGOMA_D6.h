@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "env_validate.h"
-
 #if HOTENDS > 2 || E_STEPPERS > 2
   #error "Dagoma3D D6 supports up to 2 hotends / E-steppers."
 #endif
