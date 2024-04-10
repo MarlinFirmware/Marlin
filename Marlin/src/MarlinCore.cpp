@@ -484,7 +484,6 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #endif
 
     static int killCount = 0;   // make the inactivity button a bit less responsive
-    const int killDelay = KILL_DELAY;
     if (kill_state())
       killCount++;
     else if (killCount > 0)
@@ -493,7 +492,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // Exceeded threshold and we can confirm that it was not accidental
     // KILL the machine
     // ----------------------------------------------------------------
-    if (killCount >= killDelay) {
+    if (killCount >= KILL_DELAY) {
       SERIAL_ERROR_START();
       SERIAL_ECHOPGM(STR_KILL_PRE);
       SERIAL_ECHOLNPGM(STR_KILL_BUTTON);
