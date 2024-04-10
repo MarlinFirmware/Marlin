@@ -505,7 +505,8 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     (void)check_tool_sensor_stats(active_extruder, true);
 
     /**
-     * 1. Move to switch position of current toolhead
+     * 1. Move xy to switch position of current toolhead
+     * 2. Move z to switch position
      * 2. Unlock tool and drop it in the dock
      * 3. Move to the new toolhead
      * 4. Grab and lock the new toolhead
@@ -528,6 +529,14 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
     slow_line_to_current(Y_AXIS);
+    #if ENABLED(SWITCHING_TOOLHEAD_Z_POS)
+      current_position.z = SWITCHING_TOOLHEAD_Z_POS;
+
+      DEBUG_SYNCHRONIZE();
+      DEBUG_POS("Move Z SwitchPos", current_position);
+
+      fast_line_to_current(Z_AXIS);
+    #endif
 
     // 2. Unlock tool and drop it in the dock
     TERN_(TOOL_SENSOR, tool_sensor_disabled = true);
@@ -1237,7 +1246,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #if NONE(TOOLCHANGE_ZRAISE_BEFORE_RETRACT, HAS_SWITCHING_NOZZLE)
         if (can_move_away && TERN1(TOOLCHANGE_PARK, toolchange_settings.enable_park)) {
           // Do a small lift to avoid the workpiece in the move back (below)
-          current_position.z += toolchange_settings.z_raise;
+          // Or move to SAFE_TOOLCHANGE_START_Z, if enabled
+          #if ENABLED(SAFE_TOOLCHANGE_START_Z)
+            current_position.z = SAFE_TOOLCHANGE_START_Z;
+          #else
+            current_position.z += toolchange_settings.z_raise;
+          #endif
           TERN_(HAS_SOFTWARE_ENDSTOPS, NOMORE(current_position.z, soft_endstop.max.z));
           fast_line_to_current(Z_AXIS);
         }
