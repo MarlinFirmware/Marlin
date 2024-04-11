@@ -335,10 +335,10 @@
     #endif
   #else
     #ifndef TMC_SPI_MOSI
-      #define TMC_SPI_MOSI                 AUX3_03
+      #define TMC_SPI_MOSI                 AUX3_04
     #endif
     #ifndef TMC_SPI_MISO
-      #define TMC_SPI_MISO                 AUX3_04
+      #define TMC_SPI_MISO                 AUX3_03
     #endif
     #ifndef TMC_SPI_SCK
       #define TMC_SPI_SCK                  AUX3_05
