@@ -137,4 +137,4 @@ bool unload_filament(
 
   constexpr uint8_t did_pause_print = 0;
 
-#endif // ADVANCED_PAUSE_FEATURE
+#endif // !ADVANCED_PAUSE_FEATURE
