@@ -1668,7 +1668,7 @@ void MarlinUI::host_notify(const char * const cstr) {
         card.abortFilePrintSoon();
       else if (card.isMounted())
         card.closefile();
-      #endif
+    #endif
     #ifdef ACTION_ON_CANCEL
       hostui.cancel();
     #endif
