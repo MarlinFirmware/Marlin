@@ -1024,3 +1024,28 @@ MARLIN_TEST(macros_value_functions, DECIMAL_SIGNED) {
   TEST_ASSERT_FALSE(DECIMAL_SIGNED('9' + 1)); // Edge case: ':' is just after '9' in ASCII
   TEST_ASSERT_FALSE(DECIMAL_SIGNED('e')); // 'e' is not a decimal character, but can appear in scientific notation
 }
+
+MARLIN_TEST(macros_array, COUNT) {
+  // Test COUNT macro
+  int array[10];
+  TEST_ASSERT_EQUAL(10, COUNT(array)); // The array has 10 elements
+}
+
+MARLIN_TEST(macros_array, ZERO) {
+  // Test ZERO macro
+  int array[5] = {1, 2, 3, 4, 5};
+  ZERO(array);
+  for (auto& element : array) {
+    TEST_ASSERT_EQUAL(0, element); // All elements should be zero
+  }
+}
+
+MARLIN_TEST(macros_array, COPY) {
+  // Test COPY macro
+  int array1[5] = {1, 2, 3, 4, 5};
+  int array2[5] = {0};
+  COPY(array2, array1);
+  for (const auto& element : array1) {
+    TEST_ASSERT_EQUAL(element, array2[&element - &array1[0]]); // All elements should be equal
+  }
+}
