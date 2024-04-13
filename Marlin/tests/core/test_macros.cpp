@@ -1085,3 +1085,77 @@ MARLIN_TEST(macros_expansion, GANG_N_1) {
   TEST_ASSERT_EQUAL(4, 0 GANG_N_1(2, +2));
   TEST_ASSERT_EQUAL(32, 0 GANG_N_1(16, +2));
 }
+
+MARLIN_TEST(macros_expansion, LIST_N) {
+  std::vector<int> expected, result;
+  int compare_size;
+
+  expected = {};
+  result = {LIST_N(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = {1};
+  result = {LIST_N(1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = {1, 2};
+  result = {LIST_N(2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  result = {LIST_N(16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+}
+
+MARLIN_TEST(macros_expansion, LIST_N_1) {
+  std::vector<int> expected, result;
+  int compare_size;
+
+  expected = {};
+  result = {LIST_N_1(0, 1)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = {2};
+  result = {LIST_N_1(1, 2)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = {1, 1};
+  result = {LIST_N_1(2, 1)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+
+  expected = std::vector<int>(16, 1);
+  result = {LIST_N_1(16, 1)};
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+  compare_size = _MIN(expected.size(), result.size());
+  for (int i = 0; i < compare_size; i++) {
+    TEST_ASSERT_EQUAL(expected[i], result[i]);
+  }
+}
