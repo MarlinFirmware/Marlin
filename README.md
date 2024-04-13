@@ -122,7 +122,7 @@ Name|Role|Link|Donate
 🇬🇧 Chris Pepper|Admin|[[@p3p](https://github.com/p3p)]|
 🇳🇿 Peter Ellens|Admin|[[@ellensp](https://github.com/ellensp)]|[💸 Donate](https://ko-fi.com/ellensp)
 🇺🇸 Bob Kuhn|Admin|[[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]|
-🇳🇱 Erik van der Zalm|Founder|[[@ErikZalm](https://github.com/ErikZalm)]|[💸 Donate](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+🇳🇱 Erik van der Zalm|Founder|[[@ErikZalm](https://github.com/ErikZalm)]|
 
 ## License
 
