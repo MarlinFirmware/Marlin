@@ -1159,3 +1159,25 @@ MARLIN_TEST(macros_expansion, LIST_N_1) {
     TEST_ASSERT_EQUAL(expected[i], result[i]);
   }
 }
+
+MARLIN_TEST(macros_expansion, ARRAY_N) {
+  // Test ARRAY_N macro
+  std::array<int, 5> expected = {1, 2, 3, 4, 5};
+  std::array<int, 5> result = ARRAY_N(5, 1, 2, 3, 4, 5);
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+
+  std::array<int, 3> expected2 = {1, 2, 3};
+  std::array<int, 3> result2 = ARRAY_N(3, 1, 2, 3);
+  TEST_ASSERT_EQUAL(expected2.size(), result2.size());
+}
+
+MARLIN_TEST(macros_expansion, ARRAY_N_1) {
+  // Test ARRAY_N_1 macro
+  std::array<int, 5> expected = {2, 2, 2, 2, 2};
+  std::array<int, 5> result = ARRAY_N_1(5, 2);
+  TEST_ASSERT_EQUAL(expected.size(), result.size());
+
+  std::array<int, 3> expected2 = {1, 1, 1};
+  std::array<int, 3> result2 = ARRAY_N_1(3, 1);
+  TEST_ASSERT_EQUAL(expected2.size(), result2.size());
+}
