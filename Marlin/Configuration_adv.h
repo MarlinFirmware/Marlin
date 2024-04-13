@@ -4680,7 +4680,7 @@
 //#define MARLIN_SMALL_BUILD
 
 #if ALL(HAS_MEDIA, HAS_MARLINUI_MENU)
-  //#define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
+  #define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
 #endif
 
 #if ENABLED(EXPORT_SETTINGS)
