@@ -549,3 +549,65 @@ MARLIN_TEST(macros_options, MANY) {
   #undef OPTION_ENABLED
   #undef OPTION_DISABLED
 }
+
+
+// Ternary macros
+MARLIN_TEST(macros_options, TERN) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test TERN macro
+  TEST_ASSERT_EQUAL(1, TERN(OPTION_ENABLED, 1, 0)); // OPTION_ENABLED is enabled, so it should return '1'
+  TEST_ASSERT_EQUAL(0, TERN(OPTION_DISABLED, 1, 0)); // OPTION_DISABLED is disabled, so it should return '0'
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, TERN0) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test TERN0 macro
+  TEST_ASSERT_EQUAL(1, TERN0(OPTION_ENABLED, 1)); // OPTION_ENABLED is enabled, so it should return '1'
+  TEST_ASSERT_EQUAL(0, TERN0(OPTION_DISABLED, 1)); // OPTION_DISABLED is disabled, so it should return '0'
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, TERN1) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test TERN1 macro
+  TEST_ASSERT_EQUAL(0, TERN1(OPTION_ENABLED, 0)); // OPTION_ENABLED is enabled, so it should return '0'
+  TEST_ASSERT_EQUAL(1, TERN1(OPTION_DISABLED, 0)); // OPTION_DISABLED is disabled, so it should return '1'
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, TERN_) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test TERN_ macro by conditionally inverting the input
+  TEST_ASSERT_EQUAL(-1, TERN_(OPTION_ENABLED, -)1); // OPTION_ENABLED is enabled, so it should return '1'
+  TEST_ASSERT_EQUAL(1, TERN_(OPTION_DISABLED, -)1); // OPTION_DISABLED is disabled, so it should return nothing
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, IF_DISABLED) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test IF_DISABLED macro by conditionally inverting the input
+  TEST_ASSERT_EQUAL(1, IF_DISABLED(OPTION_ENABLED, -)1); // OPTION_ENABLED is enabled, so it should return nothing
+  TEST_ASSERT_EQUAL(-1, IF_DISABLED(OPTION_DISABLED, -)1); // OPTION_DISABLED is disabled, so it should return '1'
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
