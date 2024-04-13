@@ -99,7 +99,7 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST)
   #warning "Your Configuration provides no method to acquire user feedback!"
 #endif
 
