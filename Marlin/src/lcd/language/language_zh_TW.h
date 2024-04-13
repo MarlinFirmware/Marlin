@@ -402,6 +402,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("      雙線性調平"); // "Bilinear Leveling"
   LSTR MSG_UBL_LEVELING                   = _UxGT("統一熱床調平(UBL)"); // "Unified Bed Leveling"
   LSTR MSG_MESH_LEVELING                  = _UxGT("網格調平"); // "Mesh Leveling"
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("網格設置"); // "Mesh Settings"
   LSTR MSG_INFO_STATS_MENU                = _UxGT("印表機統計"); // "Printer Stats"
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("主板訊息"); // "Board Info"
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("溫度計"); // "Thermistors"

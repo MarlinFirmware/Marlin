@@ -422,6 +422,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilineární rovnání");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mřížkové rovnání");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Nastavení sítě");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Statistika");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info o desce");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");

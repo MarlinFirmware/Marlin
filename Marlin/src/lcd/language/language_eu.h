@@ -261,6 +261,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Berdinketa bilinearra");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Sare berdinketa");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Sarearen ezarpenak");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Inprima. estatis.");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Txartelaren Info.");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistoreak");

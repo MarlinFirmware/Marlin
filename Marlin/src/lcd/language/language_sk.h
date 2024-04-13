@@ -616,8 +616,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_LEVELING                   = _UxGT("UBL rovnanie");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mriežkové rovnanie");
   LSTR MSG_MESH_DONE                      = _UxGT("Mriežka dokončená");
-  LSTR MSG_INFO_STATS_MENU                = _UxGT("Štatistika");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mriežka nastavenia");
   LSTR MSG_RESET_STATS                    = _UxGT("Vynulovať štatis.?");
+  LSTR MSG_INFO_STATS_MENU                = _UxGT("Štatistika");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. o doske");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudéry");

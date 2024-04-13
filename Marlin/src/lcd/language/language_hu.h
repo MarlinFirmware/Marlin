@@ -504,6 +504,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Egységes ágy szintezés");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Háló szintezés");
   LSTR MSG_MESH_DONE                      = _UxGT("Háló szintezés kész");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Hálós beállítások");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Statisztikák");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Alaplap infó");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termisztorok");

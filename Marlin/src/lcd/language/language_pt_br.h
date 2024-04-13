@@ -375,6 +375,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelamento Bilinear");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelamento UBL");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelamento da Malha");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Malha Configuração");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estatísticas");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. da Placa");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");

@@ -401,6 +401,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Poziomowanie liniowe");
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Poziomowanie biliniowe");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Poziomowanie siatką");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Siatki Ustawienia");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Statystyki");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info płyty");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");

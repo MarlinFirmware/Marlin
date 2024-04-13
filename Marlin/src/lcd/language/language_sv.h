@@ -488,6 +488,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinjär Nivellering");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Enhetlig Bädd Nivellering (UBL)");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nät Nivellering");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Nät Inställningar");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Skrivar Stats");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Kort Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistor");

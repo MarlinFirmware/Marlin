@@ -523,6 +523,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_LEVELING                     = _UxGT("UBL");
   LSTR MSG_MESH_LEVELING                    = _UxGT("Вирівнювання сітки");
   LSTR MSG_MESH_DONE                        = _UxGT("Зондування виконано");
+  LSTR MSG_MESH_SETTINGS                    = _UxGT("Сітка Параметри");
 
   LSTR MSG_INFO_STATS_MENU                  = _UxGT("Статистика принтера");
   LSTR MSG_INFO_BOARD_MENU                  = _UxGT("Про плату");

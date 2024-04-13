@@ -447,6 +447,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelación Bilineal");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelación UBL");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelación en Malla");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Configuración Malla");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estatísticas");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Placa nai");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");

@@ -466,6 +466,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Niveau lit unifie");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Niveau par grille");
   LSTR MSG_MESH_DONE                      = _UxGT("Niveau termine");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Reglages de maillage");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Stats. imprimante");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Infos carte");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistances");

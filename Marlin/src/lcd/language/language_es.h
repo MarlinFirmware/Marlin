@@ -432,6 +432,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelando Bilineal");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelando UBL");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelando en Mallado");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Ajustes en Mallado");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estadísticas Imp.");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. Controlador");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");

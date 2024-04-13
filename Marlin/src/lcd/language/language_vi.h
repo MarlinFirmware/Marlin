@@ -356,6 +356,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("San Lấp Song Tuyến");                  // Bilinear Leveling
   LSTR MSG_UBL_LEVELING                   = _UxGT("San Lấp Bàn Thống Nhất");              // Unified Bed Leveling
   LSTR MSG_MESH_LEVELING                  = _UxGT("Lưới San Lấp");                        // Mesh Leveling
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Lưới Cài Đặt");                        // Mesh Settings
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Thống Kê Máy In");                     // Printer Stats
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Thông Tin Bo Mạch");                   // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Điện Trở Nhiệt");                      // Thermistors

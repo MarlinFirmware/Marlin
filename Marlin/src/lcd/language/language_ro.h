@@ -454,6 +454,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelare Bilineara");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelarea Patului Unificata");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelare Mesh");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Setari");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Status Imprimanta");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Informatii Placa");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistoare");

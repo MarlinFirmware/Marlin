@@ -619,11 +619,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_CHAMBER_COOLING                = _UxGT("Kabin Soğuyor...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Lazer Soğuyor...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Kalibrasyonu");
-  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Delta Kalibrasyonu sürüyor");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Ayarla X");
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Ayarla Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Ayarla Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Ayarla Merkez");
+  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Delta Kalibrasyonu sürüyor");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Delta Ayarları");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Oto Kalibrasyon");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Çapral Mil");
@@ -637,8 +637,9 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Birleşik Tabla Hiza.");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Seviyeleme");
   LSTR MSG_MESH_DONE                      = _UxGT("Mesh sondalama tamam");
-  LSTR MSG_INFO_STATS_MENU                = _UxGT("İstatistikler");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Ayarları");
   LSTR MSG_RESET_STATS                    = _UxGT("Yazdırma istatistik Sıfırla?");
+  LSTR MSG_INFO_STATS_MENU                = _UxGT("İstatistikler");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Kontrolcü Bilgisi");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistörler");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Ekstruderler");
