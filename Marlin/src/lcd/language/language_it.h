@@ -233,9 +233,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_G26_LEAVING                    = _UxGT("Uscita da G26");
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Valida mesh pers.");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Continua mesh");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Livell. mesh");
-  LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Livell. 3 Punti");
-  LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Livell. griglia mesh");
+  LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Livella 3 Punti");
+  LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Livel. griglia mesh");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Livella mesh");
   LSTR MSG_UBL_SIDE_POINTS                = _UxGT("Punti laterali");
   LSTR MSG_UBL_MAP_TYPE                   = _UxGT("Tipo di mappa");

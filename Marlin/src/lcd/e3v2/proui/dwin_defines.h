@@ -133,3 +133,4 @@
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
+#define PROUI_ITEM_ENC        // Enable option to reverse encoder direction | Control > Advanced Settings

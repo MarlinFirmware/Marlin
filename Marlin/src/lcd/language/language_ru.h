@@ -191,7 +191,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_G26_CANCELED                     = _UxGT("G26 завершена");
   LSTR MSG_G26_LEAVING                      = _UxGT("Выйти из G26");
   LSTR MSG_UBL_CONTINUE_MESH                = _UxGT("Продолжить сетку");
-  LSTR MSG_UBL_MESH_LEVELING                = _UxGT("Выравнивание сетки");
   LSTR MSG_UBL_3POINT_MESH_LEVELING         = _UxGT("3-точечное выравн.");
   LSTR MSG_UBL_GRID_MESH_LEVELING           = _UxGT("Выравнивание сеткой");
   LSTR MSG_UBL_MESH_LEVEL                   = _UxGT("Выровнять сетку");

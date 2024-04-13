@@ -164,7 +164,6 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26已取消");
   LSTR MSG_G26_LEAVING                    = _UxGT("离开G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("继续热床网格"); // "Continue Bed Mesh"
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("网格调平"); // "Mesh Leveling"
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("三点调平"); // "3-Point Leveling"
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("格子网格调平"); // "Grid Mesh Leveling"
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("调平网格"); // "Level Mesh"

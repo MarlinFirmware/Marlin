@@ -162,7 +162,6 @@ namespace LanguageNarrow_cz {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Canceled");
   LSTR MSG_G26_LEAVING                    = _UxGT("Leaving G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Pokračovat v síťi");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Síťové rovnání");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-bodové rovnání");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Mřížkové rovnání");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Srovnat podložku");

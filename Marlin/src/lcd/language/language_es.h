@@ -160,7 +160,6 @@ namespace LanguageNarrow_es {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Cancelado");
   LSTR MSG_G26_LEAVING                    = _UxGT("Dejando G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Contin. Mallado cama");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Nivelando Mallado");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Nivelando 3Puntos");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Niv. Mall. cuadri");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Nivel de Mallado");

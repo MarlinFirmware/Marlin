@@ -589,6 +589,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Encoder Rate
+  //
+  #if ENABLED(PROUI_ITEM_ENC)
+    bool rev_rate;
+  #endif
+
+  //
   // Fan tachometer check
   //
   #if HAS_FANCHECK
@@ -1681,6 +1688,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Encoder Rate
+    //
+    #if ENABLED(PROUI_ITEM_ENC)
+      EEPROM_WRITE(ui.rev_rate);
+    #endif
+
+    //
     // Fan tachometer check
     //
     #if HAS_FANCHECK
@@ -2763,6 +2777,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Encoder Rate
+      //
+      #if ENABLED(PROUI_ITEM_ENC)
+        _FIELD_TEST(rev_rate);
+        EEPROM_READ(ui.rev_rate);
+      #endif
+
+      //
       // Fan tachometer check
       //
       #if HAS_FANCHECK
@@ -3232,6 +3254,13 @@ void MarlinSettings::reset() {
   //
   #if ENABLED(SOUND_MENU_ITEM)
     ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
+  #endif
+
+  //
+  // Encoder Rate
+  //
+  #if ENABLED(PROUI_ITEM_ENC)
+    ui.rev_rate = false;
   #endif
 
   //

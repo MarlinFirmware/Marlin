@@ -232,7 +232,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 İptal edildi");
   LSTR MSG_G26_LEAVING                    = _UxGT("Çıkış G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Tabla Mesh Devam et");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Mesh Seviyeleme");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-Nokta Seviyeleme");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Kafes Mesh Seviyeleme");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Mesh Seviyesi");

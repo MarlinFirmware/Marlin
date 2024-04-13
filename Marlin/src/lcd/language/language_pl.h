@@ -170,7 +170,6 @@ namespace LanguageNarrow_pl {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Przewane");
   LSTR MSG_G26_LEAVING                    = _UxGT("Opuszczanie G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Kontynuuj tworzenie siatki");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Poziomowanie siatką");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Poziomowaie 3-punktowe");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Poziomowaie według siatki");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Poziomuj siatkę");

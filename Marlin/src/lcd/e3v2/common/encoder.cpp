@@ -48,6 +48,11 @@
 
 EncoderRate encoderRate;
 
+#if ENABLED(PROUI_ITEM_ENC)
+  EncoderState direction1;
+  EncoderState direction2;
+#endif
+
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
   TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
@@ -120,9 +125,20 @@ EncoderState encoderReceiveAnalyze() {
     lastEncoderBits = newbutton;
   }
 
+  #if ENABLED(PROUI_ITEM_ENC)
+    if (ui.rev_rate == true) {
+      direction1 = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
+      direction2 = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
+    }
+    else {
+      direction1 = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
+      direction2 = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
+    }
+  #endif
+
   if (ABS(temp_diff) >= ENCODER_PULSES_PER_STEP) {
-    if (temp_diff > 0) temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW);
-    else temp_diffState = TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW);
+    if (temp_diff > 0) { temp_diffState = TERN(PROUI_ITEM_ENC, direction1, TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CCW, ENCODER_DIFF_CW)); }
+    else { temp_diffState = TERN(PROUI_ITEM_ENC, direction2, TERN(REVERSE_ENCODER_DIRECTION, ENCODER_DIFF_CW, ENCODER_DIFF_CCW)); }
 
     #if ENABLED(ENCODER_RATE_MULTIPLIER)
 

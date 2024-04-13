@@ -132,7 +132,6 @@ namespace LanguageNarrow_vi {
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Thẩm tra lưới");                        // Validate Mesh
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Thẩm tra lưới tự chọn");                // Validate custom mesh
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Tiếp tục xây lưới bàn");                // Continue Bed Mesh
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Đang san lấp lưới");                    // Mesh Leveling
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Đang san lấp 3-điểm");                  // 3-Point Leveling
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Đang san lấp lưới phẳng");              // Grid (planar) Mesh Leveling
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Làm bằng lưới");                        // Level Mesh

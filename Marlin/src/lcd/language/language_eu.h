@@ -104,7 +104,6 @@ namespace LanguageNarrow_eu {
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Sarearen altuera doitu");
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Sarea balioetsi");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Ohe sarea balioetsi");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Sare berdinketa");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3 puntuko berdinketa");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Lauki-sare berdinketa");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Sarea berdindu");

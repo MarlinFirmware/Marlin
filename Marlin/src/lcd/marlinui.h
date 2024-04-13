@@ -202,6 +202,10 @@ public:
     TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
+  #if ENABLED(PROUI_ITEM_ENC)
+    static bool rev_rate;
+  #endif
+
   static void init();
 
   #if HAS_DISPLAY || HAS_DWIN_E3V2
