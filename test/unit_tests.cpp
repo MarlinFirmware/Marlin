@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,28 +20,33 @@
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+/**
+ * Provide the main() function used for all compiled unit test binaries.
+ * It collects all the tests defined in the code and runs them through Unity.
+ */
 
-#if ENABLED(MARLIN_TEST_BUILD)
+#include "unit_tests.h"
 
-#include "../module/endstops.h"
-#include "../module/motion.h"
-#include "../module/planner.h"
-#include "../module/settings.h"
-#include "../module/stepper.h"
-#include "../module/temperature.h"
+static std::list<MarlinTest*> all_marlin_tests;
 
-// Individual tests are localized in each module.
-// Each test produces its own report.
-
-// Startup tests are run at the end of setup()
-void runStartupTests() {
-  // Call post-setup tests here to validate behaviors.
+MarlinTest::MarlinTest(const std::string _name, const void(*_test)(), const int _line)
+: name(_name), test(_test), line(_line) {
+  all_marlin_tests.push_back(this);
 }
 
-// Periodic tests are run from within loop()
-void runPeriodicTests() {
-  // Call periodic tests here to validate behaviors.
+void MarlinTest::run() {
+  UnityDefaultTestRun((UnityTestFunction)test, name.c_str(), line);
 }
 
-#endif // MARLIN_TEST_BUILD
+void run_all_marlin_tests() {
+  for (const auto registration : all_marlin_tests) {
+    registration->run();
+  }
+}
+
+int main(int argc, char **argv) {
+  UNITY_BEGIN();
+  run_all_marlin_tests();
+  UNITY_END();
+  return 0;
+}
