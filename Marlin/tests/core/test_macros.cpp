@@ -868,7 +868,7 @@ MARLIN_TEST(macros_pins, ANY_PIN) {
 #define BTN_BUTTON2 2
 #define BTN_BUTTON3 -1
 
-MARLIN_TEST(macros_button_functions, BUTTON_EXISTS) {
+MARLIN_TEST(macros_buttons, BUTTON_EXISTS) {
   // Test BUTTON_EXISTS macro
   int button1_exists, button2_exists, button3_exists, button4_exists;
 
@@ -902,7 +902,7 @@ MARLIN_TEST(macros_button_functions, BUTTON_EXISTS) {
   TEST_ASSERT_FALSE(button4_exists);
 }
 
-MARLIN_TEST(macros_button_functions, BUTTONS_EXIST) {
+MARLIN_TEST(macros_buttons, BUTTONS_EXIST) {
   // Test BUTTONS_EXIST macro
   int buttons1_2_exist, buttons1_3_exist;
 
@@ -922,7 +922,7 @@ MARLIN_TEST(macros_button_functions, BUTTONS_EXIST) {
   TEST_ASSERT_FALSE(buttons1_3_exist);
 }
 
-MARLIN_TEST(macros_button_functions, ANY_BUTTON) {
+MARLIN_TEST(macros_buttons, ANY_BUTTON) {
   // Test ANY_BUTTON macro
   int any_button1_3, any_button3_4;
 
@@ -946,3 +946,81 @@ MARLIN_TEST(macros_button_functions, ANY_BUTTON) {
 #undef BTN_BUTTON1
 #undef BTN_BUTTON2
 #undef BTN_BUTTON3
+
+
+MARLIN_TEST(macros_value_functions, WITHIN) {
+  // Test WITHIN macro
+  TEST_ASSERT_TRUE(WITHIN(5, 1, 10)); // 5 is within 1 and 10
+  TEST_ASSERT_TRUE(WITHIN(1, 1, 10)); // Edge case: 1 is the lower limit
+  TEST_ASSERT_TRUE(WITHIN(10, 1, 10)); // Edge case: 10 is the upper limit
+  TEST_ASSERT_FALSE(WITHIN(0, 1, 10)); // Edge case: 0 is just below the lower limit
+  TEST_ASSERT_FALSE(WITHIN(11, 1, 10)); // Edge case: 11 is just above the upper limit
+  TEST_ASSERT_FALSE(WITHIN(15, 1, 10)); // 15 is not within 1 and 10
+}
+
+MARLIN_TEST(macros_value_functions, ISEOL) {
+  // Test ISEOL macro
+  TEST_ASSERT_TRUE(ISEOL('\n')); // '\n' is an end-of-line character
+  TEST_ASSERT_TRUE(ISEOL('\r')); // '\r' is an end-of-line character
+  TEST_ASSERT_FALSE(ISEOL('a')); // 'a' is not an end-of-line character
+}
+
+MARLIN_TEST(macros_value_functions, NUMERIC) {
+  // Test NUMERIC macro
+  TEST_ASSERT_TRUE(NUMERIC('0')); // Edge case: '0' is the lowest numeric character
+  TEST_ASSERT_TRUE(NUMERIC('5')); // '5' is a numeric character
+  TEST_ASSERT_TRUE(NUMERIC('9')); // Edge case: '9' is the highest numeric character
+  TEST_ASSERT_FALSE(NUMERIC('0' - 1)); // Edge case: '/' is just before '0' in ASCII
+  TEST_ASSERT_FALSE(NUMERIC('9' + 1)); // Edge case: ':' is just after '9' in ASCII
+  TEST_ASSERT_FALSE(NUMERIC('a')); // 'a' is not a numeric character
+}
+
+MARLIN_TEST(macros_value_functions, DECIMAL) {
+  // Test DECIMAL macro
+  TEST_ASSERT_TRUE(DECIMAL('0')); // Edge case: '0' is the lowest numeric character
+  TEST_ASSERT_TRUE(DECIMAL('5')); // '5' is a numeric character
+  TEST_ASSERT_TRUE(DECIMAL('9')); // Edge case: '9' is the highest numeric character
+  TEST_ASSERT_TRUE(DECIMAL('.')); // '.' is a decimal character
+  TEST_ASSERT_FALSE(DECIMAL('0' - 1)); // Edge case: '/' is just before '0' in ASCII
+  TEST_ASSERT_FALSE(DECIMAL('9' + 1)); // Edge case: ':' is just after '9' in ASCII
+  TEST_ASSERT_FALSE(DECIMAL('-')); // '-' is not a decimal character, but can appear in numbers
+  TEST_ASSERT_FALSE(DECIMAL('+')); // '+' is not a decimal character, but can appear in numbers
+  TEST_ASSERT_FALSE(DECIMAL('e')); // 'e' is not a decimal character, but can appear in scientific notation
+}
+
+MARLIN_TEST(macros_value_functions, HEXCHR) {
+  // Test HEXCHR macro
+  TEST_ASSERT_EQUAL(0, HEXCHR('0')); // Edge case: '0' is the lowest numeric character
+  TEST_ASSERT_EQUAL(9, HEXCHR('9')); // Edge case: '9' is the highest numeric character
+  TEST_ASSERT_EQUAL(10, HEXCHR('a')); // 'a' is a hex character with value 10
+  TEST_ASSERT_EQUAL(10, HEXCHR('A')); // 'A' is a hex character with value 10
+  TEST_ASSERT_EQUAL(15, HEXCHR('f')); // Edge case: 'f' is the highest lowercase hex character
+  TEST_ASSERT_EQUAL(15, HEXCHR('F')); // Edge case: 'F' is the highest uppercase hex character
+  TEST_ASSERT_EQUAL(-1, HEXCHR('g')); // 'g' is not a hex character
+}
+
+MARLIN_TEST(macros_value_functions, NUMERIC_SIGNED) {
+  // Test NUMERIC_SIGNED macro
+  TEST_ASSERT_TRUE(NUMERIC_SIGNED('0')); // Edge case: '0' is the lowest numeric character
+  TEST_ASSERT_TRUE(NUMERIC_SIGNED('5')); // '5' is a numeric character
+  TEST_ASSERT_TRUE(NUMERIC_SIGNED('9')); // Edge case: '9' is the highest numeric character
+  TEST_ASSERT_TRUE(NUMERIC_SIGNED('-')); // '-' is not a numeric character, but can appear in signed numbers
+  TEST_ASSERT_TRUE(NUMERIC_SIGNED('+')); // '+' is not a numeric character, but can appear in signed numbers
+  TEST_ASSERT_FALSE(NUMERIC_SIGNED('.')); // '.' is not a numeric character
+  TEST_ASSERT_FALSE(NUMERIC_SIGNED('0' - 1)); // Edge case: '/' is just before '0' in ASCII
+  TEST_ASSERT_FALSE(NUMERIC_SIGNED('9' + 1)); // Edge case: ':' is just after '9' in ASCII
+  TEST_ASSERT_FALSE(NUMERIC_SIGNED('e')); // 'e' is not a numeric character, but can appear in scientific notation
+}
+
+MARLIN_TEST(macros_value_functions, DECIMAL_SIGNED) {
+  // Test DECIMAL_SIGNED macro
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('0')); // Edge case: '0' is the lowest numeric character
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('5')); // '5' is a decimal character
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('9')); // Edge case: '9' is the highest numeric character
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('-')); // '-' is not a numeric character, but can appear in signed numbers
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('+')); // '+' is not a numeric character, but can appear in signed numbers
+  TEST_ASSERT_TRUE(DECIMAL_SIGNED('.')); // '.' is a decimal character
+  TEST_ASSERT_FALSE(DECIMAL_SIGNED('0' - 1)); // Edge case: '/' is just before '0' in ASCII
+  TEST_ASSERT_FALSE(DECIMAL_SIGNED('9' + 1)); // Edge case: ':' is just after '9' in ASCII
+  TEST_ASSERT_FALSE(DECIMAL_SIGNED('e')); // 'e' is not a decimal character, but can appear in scientific notation
+}
