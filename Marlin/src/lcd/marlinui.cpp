@@ -2020,6 +2020,16 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       zoffset_overlay(dir);
     }
   #endif
+#if ENABLED(EXPORT_SETTINGS)
+  void MarlinUI::export_settings() {
+    if (sr_file_open("M503.gc")) {
+      settings.report(true);
+      completion_feedback(sr_file_close() && sr_write_res != -1);
+    } else
+      completion_feedback(false);
+  }
+#endif
+
 
 #endif // HAS_MARLINUI_MENU
 
