@@ -33,7 +33,7 @@
  */
 class MarlinTest {
 public:
-    MarlinTest(const std::string name, const void(*test)(), const int line);
+    MarlinTest(const std::string name, const void(*test)(), const char *_file, const int line);
     /**
      * Run the test via Unity
      */
@@ -45,6 +45,7 @@ public:
      */
     const std::string name;
     const void(*test)();
+    const std::string file;
     const int line;
 };
 
@@ -66,7 +67,7 @@ public:
 #define MARLIN_TEST(SUITE, NAME) \
     class _MARLIN_TEST_CLASS_NAME(SUITE, NAME) : public MarlinTest { \
     public: \
-        _MARLIN_TEST_CLASS_NAME(SUITE, NAME)() : MarlinTest(#NAME, (const void(*)())&TestBody, __LINE__) {} \
+        _MARLIN_TEST_CLASS_NAME(SUITE, NAME)() : MarlinTest(#SUITE "___" #NAME, (const void(*)())&TestBody, __FILE__, __LINE__) {} \
         static void TestBody(); \
     }; \
     const _MARLIN_TEST_CLASS_NAME(SUITE, NAME) _MARLIN_TEST_INSTANCE_NAME(SUITE, NAME); \
