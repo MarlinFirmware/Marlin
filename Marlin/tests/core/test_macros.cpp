@@ -611,3 +611,56 @@ MARLIN_TEST(macros_options, IF_DISABLED) {
   #undef OPTION_ENABLED
   #undef OPTION_DISABLED
 }
+
+MARLIN_TEST(macros_options, OPTITEM) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test OPTITEM macro with multiple arguments
+  int enabledArray[] = {OPTITEM(OPTION_ENABLED, 1, 2)};
+  int disabledArray[] = {OPTITEM(OPTION_DISABLED, 1, 2)};
+  TEST_ASSERT_EQUAL(2, sizeof(enabledArray) / sizeof(int)); // OPTION_ENABLED is enabled, so it should return an array of size 2
+  TEST_ASSERT_EQUAL(0, sizeof(disabledArray) / sizeof(int)); // OPTION_DISABLED is disabled, so it should return an array of size 0
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, OPTARG) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test OPTARG macro with multiple arguments
+  int enabledArgs[] = {0 OPTARG(OPTION_ENABLED, 1, 2)};
+  int disabledArgs[] = {0 OPTARG(OPTION_DISABLED, 1, 2)};
+  
+  int sumEnabledArgs = 0;
+  for (const auto& arg : enabledArgs) {
+    sumEnabledArgs += arg;
+  }
+
+  int sumDisabledArgs = 0;
+  for (const auto& arg : disabledArgs) {
+    sumDisabledArgs += arg;
+  }
+
+  TEST_ASSERT_EQUAL(3, sumEnabledArgs); // OPTION_ENABLED is enabled, so it should return 3
+  TEST_ASSERT_EQUAL(0, sumDisabledArgs); // OPTION_DISABLED is disabled, so it should return 0
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_options, OPTCODE) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test OPTCODE macro with a single argument
+  int enabledCode = 0; OPTCODE(OPTION_ENABLED, enabledCode = 1);
+  int disabledCode = 0; OPTCODE(OPTION_DISABLED, disabledCode = 1);
+  TEST_ASSERT_EQUAL(1, enabledCode); // OPTION_ENABLED is enabled, so it should return 1
+  TEST_ASSERT_EQUAL(0, disabledCode); // OPTION_DISABLED is disabled, so it should return 0
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
