@@ -4679,7 +4679,7 @@
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
 
-#if ALL(HAS_MEDIA, HAS_MARLINUI_MENU)
+#if ALL(HAS_MEDIA, HAS_MARLINUI_MENU) && DISABLED(SDCARD_READONLY)
   #define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
 #endif
 
