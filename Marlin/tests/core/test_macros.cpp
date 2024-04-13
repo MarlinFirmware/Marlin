@@ -777,3 +777,172 @@ MARLIN_TEST(macros_optional_math, DIV_TERN) {
   #undef OPTION_DISABLED
 }
 
+
+// Mock pin definitions
+#define PIN1_PIN 1
+#define PIN2_PIN 2
+#define PIN3_PIN -1
+
+MARLIN_TEST(macros_pins, PIN_EXISTS) {
+  // Test PIN_EXISTS macro
+  int pin1_exists, pin2_exists, pin3_exists, pin4_exists;
+
+  #if PIN_EXISTS(PIN1)
+    pin1_exists = 1;
+  #else
+    pin1_exists = 0;
+  #endif
+
+  #if PIN_EXISTS(PIN2)
+    pin2_exists = 1;
+  #else
+    pin2_exists = 0;
+  #endif
+
+  #if PIN_EXISTS(PIN3)
+    pin3_exists = 1;
+  #else
+    pin3_exists = 0;
+  #endif
+
+  #if PIN_EXISTS(PIN4)
+    pin4_exists = 1;
+  #else
+    pin4_exists = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(pin1_exists);
+  TEST_ASSERT_TRUE(pin2_exists);
+  TEST_ASSERT_FALSE(pin3_exists);
+  TEST_ASSERT_FALSE(pin4_exists);
+}
+
+MARLIN_TEST(macros_pins, PINS_EXIST) {
+  // Test PINS_EXIST macro
+  int pins1_2_exist, pins1_3_exist;
+
+  #if PINS_EXIST(PIN1, PIN2)
+    pins1_2_exist = 1;
+  #else
+    pins1_2_exist = 0;
+  #endif
+
+  #if PINS_EXIST(PIN1, PIN3)
+    pins1_3_exist = 1;
+  #else
+    pins1_3_exist = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(pins1_2_exist);
+  TEST_ASSERT_FALSE(pins1_3_exist);
+}
+
+MARLIN_TEST(macros_pins, ANY_PIN) {
+  // Test ANY_PIN macro
+  int any_pin1_3, any_pin3_4;
+
+  #if ANY_PIN(PIN1, PIN3)
+    any_pin1_3 = 1;
+  #else
+    any_pin1_3 = 0;
+  #endif
+
+  #if ANY_PIN(PIN3, PIN4)
+    any_pin3_4 = 1;
+  #else
+    any_pin3_4 = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(any_pin1_3);
+  TEST_ASSERT_FALSE(any_pin3_4);
+}
+
+// Undefine mock pin definitions
+#undef PIN1_PIN
+#undef PIN2_PIN
+#undef PIN3_PIN
+
+
+// Mock button definitions
+#define BTN_BUTTON1 1
+#define BTN_BUTTON2 2
+#define BTN_BUTTON3 -1
+
+MARLIN_TEST(macros_button_functions, BUTTON_EXISTS) {
+  // Test BUTTON_EXISTS macro
+  int button1_exists, button2_exists, button3_exists, button4_exists;
+
+  #if BUTTON_EXISTS(BUTTON1)
+    button1_exists = 1;
+  #else
+    button1_exists = 0;
+  #endif
+
+  #if BUTTON_EXISTS(BUTTON2)
+    button2_exists = 1;
+  #else
+    button2_exists = 0;
+  #endif
+
+  #if BUTTON_EXISTS(BUTTON3)
+    button3_exists = 1;
+  #else
+    button3_exists = 0;
+  #endif
+
+  #if BUTTON_EXISTS(BUTTON4)
+    button4_exists = 1;
+  #else
+    button4_exists = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(button1_exists);
+  TEST_ASSERT_TRUE(button2_exists);
+  TEST_ASSERT_FALSE(button3_exists);
+  TEST_ASSERT_FALSE(button4_exists);
+}
+
+MARLIN_TEST(macros_button_functions, BUTTONS_EXIST) {
+  // Test BUTTONS_EXIST macro
+  int buttons1_2_exist, buttons1_3_exist;
+
+  #if BUTTONS_EXIST(BUTTON1, BUTTON2)
+    buttons1_2_exist = 1;
+  #else
+    buttons1_2_exist = 0;
+  #endif
+
+  #if BUTTONS_EXIST(BUTTON1, BUTTON3)
+    buttons1_3_exist = 1;
+  #else
+    buttons1_3_exist = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(buttons1_2_exist);
+  TEST_ASSERT_FALSE(buttons1_3_exist);
+}
+
+MARLIN_TEST(macros_button_functions, ANY_BUTTON) {
+  // Test ANY_BUTTON macro
+  int any_button1_3, any_button3_4;
+
+  #if ANY_BUTTON(BUTTON1, BUTTON3)
+    any_button1_3 = 1;
+  #else
+    any_button1_3 = 0;
+  #endif
+
+  #if ANY_BUTTON(BUTTON3, BUTTON4)
+    any_button3_4 = 1;
+  #else
+    any_button3_4 = 0;
+  #endif
+
+  TEST_ASSERT_TRUE(any_button1_3);
+  TEST_ASSERT_FALSE(any_button3_4);
+}
+
+// Undefine mock button definitions
+#undef BTN_BUTTON1
+#undef BTN_BUTTON2
+#undef BTN_BUTTON3
