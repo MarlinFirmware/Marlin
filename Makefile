@@ -12,7 +12,12 @@ help:
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
 	@echo "make tests-all-local           : Run all tests locally"
 	@echo "make tests-all-local-docker    : Run all tests locally, using docker"
-	@echo "make setup-local-docker        : Build the local docker image"
+#	@echo "make unit-test-single-ci      : Run a single code test from inside the CI"
+#	@echo "make unit-test-single-local   : Run a single code test locally"
+#	@echo "make unit-test-single-local-docker : Run a single code test locally, using docker-compose"
+	@echo "make unit-test-all-local      : Run all code tests locally"
+	@echo "make unit-test-all-local-docker : Run all code tests locally, using docker-compose"
+	@echo "make setup-local-docker        : Setup local docker-compose"
 	@echo ""
 	@echo "Options for testing:"
 	@echo "  TEST_TARGET          Set when running tests-single-*, to select the"
@@ -43,7 +48,7 @@ tests-single-local:
 tests-single-local-docker:
 	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-all-local-docker" ; return 1; fi
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
-	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) $(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
+	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) make tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
 
 tests-all-local:
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
@@ -52,10 +57,31 @@ tests-all-local:
 
 tests-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
-	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) $(MAKE) tests-all-local VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD)
+	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) make tests-all-local VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD)
+
+#unit-test-single-ci:
+#	export GIT_RESET_HARD=true
+#	$(MAKE) unit-test-single-local TEST_TARGET=$(TEST_TARGET)
+
+# TODO: How can we limit tests with ONLY_TEST with platformio?
+#unit-test-single-local:
+#	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make unit-test-all-local" ; return 1; fi
+#	platformio run -t marlin_$(TEST_TARGET)
+
+#unit-test-single-local-docker:
+#	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make unit-test-all-local-docker" ; return 1; fi
+#	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
+#	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS)  $(CONTAINER_IMAGE) make unit-test-single-local TEST_TARGET=$(TEST_TARGET) ONLY_TEST="$(ONLY_TEST)"
+
+unit-test-all-local:
+	platformio run -t test-marlin -e linux_native_test
+
+unit-test-all-local-docker:
+	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
+	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS)  $(CONTAINER_IMAGE) make unit-test-all-local
 
 setup-local-docker:
-	$(CONTAINER_RT_BIN) build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
+	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
 PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
 
