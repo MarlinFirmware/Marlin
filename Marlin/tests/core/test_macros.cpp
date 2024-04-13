@@ -664,3 +664,116 @@ MARLIN_TEST(macros_options, OPTCODE) {
   #undef OPTION_ENABLED
   #undef OPTION_DISABLED
 }
+
+MARLIN_TEST(macros_optional_math, PLUS_TERN0) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test PLUS_TERN0 macro
+  int enabledPlus = 5 PLUS_TERN0(OPTION_ENABLED, 2);
+  int disabledPlus = 5 PLUS_TERN0(OPTION_DISABLED, 2);
+  TEST_ASSERT_EQUAL(7, enabledPlus); // OPTION_ENABLED is enabled, so it should return 7
+  TEST_ASSERT_EQUAL(5, disabledPlus); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, MINUS_TERN0) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test MINUS_TERN0 macro
+  int enabledMinus = 5 MINUS_TERN0(OPTION_ENABLED, 2);
+  int disabledMinus = 5 MINUS_TERN0(OPTION_DISABLED, 2);
+  TEST_ASSERT_EQUAL(3, enabledMinus); // OPTION_ENABLED is enabled, so it should return 3
+  TEST_ASSERT_EQUAL(5, disabledMinus); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, MUL_TERN1) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test MUL_TERN1 macro
+  int enabledMul = 5 MUL_TERN1(OPTION_ENABLED, 2);
+  int disabledMul = 5 MUL_TERN1(OPTION_DISABLED, 2);
+  TEST_ASSERT_EQUAL(10, enabledMul); // OPTION_ENABLED is enabled, so it should return 10
+  TEST_ASSERT_EQUAL(5, disabledMul); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, DIV_TERN1) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test DIV_TERN1 macro
+  int enabledDiv = 10 DIV_TERN1(OPTION_ENABLED, 2);
+  int disabledDiv = 10 DIV_TERN1(OPTION_DISABLED, 2);
+  TEST_ASSERT_EQUAL(5, enabledDiv); // OPTION_ENABLED is enabled, so it should return 5
+  TEST_ASSERT_EQUAL(10, disabledDiv); // OPTION_DISABLED is disabled, so it should return 10
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, SUM_TERN) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test SUM_TERN macro
+  int enabledSum = SUM_TERN(OPTION_ENABLED, 5, 2);
+  int disabledSum = SUM_TERN(OPTION_DISABLED, 5, 2);
+  TEST_ASSERT_EQUAL(7, enabledSum); // OPTION_ENABLED is enabled, so it should return 7
+  TEST_ASSERT_EQUAL(5, disabledSum); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, DIFF_TERN) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test DIFF_TERN macro
+  int enabledDiff = DIFF_TERN(OPTION_ENABLED, 5, 2);
+  int disabledDiff = DIFF_TERN(OPTION_DISABLED, 5, 2);
+  TEST_ASSERT_EQUAL(3, enabledDiff); // OPTION_ENABLED is enabled, so it should return 3
+  TEST_ASSERT_EQUAL(5, disabledDiff); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, MUL_TERN) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test MUL_TERN macro
+  int enabledMul = MUL_TERN(OPTION_ENABLED, 5, 2);
+  int disabledMul = MUL_TERN(OPTION_DISABLED, 5, 2);
+  TEST_ASSERT_EQUAL(10, enabledMul); // OPTION_ENABLED is enabled, so it should return 10
+  TEST_ASSERT_EQUAL(5, disabledMul); // OPTION_DISABLED is disabled, so it should return 5
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
+MARLIN_TEST(macros_optional_math, DIV_TERN) {
+  #define OPTION_ENABLED 1
+  #define OPTION_DISABLED 0
+
+  // Test DIV_TERN macro
+  int enabledDiv = DIV_TERN(OPTION_ENABLED, 10, 2);
+  int disabledDiv = DIV_TERN(OPTION_DISABLED, 10, 2);
+  TEST_ASSERT_EQUAL(5, enabledDiv); // OPTION_ENABLED is enabled, so it should return 5
+  TEST_ASSERT_EQUAL(10, disabledDiv); // OPTION_DISABLED is disabled, so it should return 10
+
+  #undef OPTION_ENABLED
+  #undef OPTION_DISABLED
+}
+
