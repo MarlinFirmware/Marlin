@@ -144,3 +144,29 @@ void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix/*=nullptr*
   #endif
   if (suffix) SERIAL_ECHO(suffix); else SERIAL_EOL();
 }
+
+#if ENABLED(SERIAL_2_FILE)
+  #include <src/sd/SdFile.h>
+  #include <src/sd/cardreader.h>
+
+  MediaFile sr_dump_file;
+  size_t sr_write_res;
+
+  bool sr_file_open(const char * filename)
+  {
+    sr_write_res = 0;
+    MediaFile root = card.getroot();
+    return sr_dump_file.open(&root, filename, O_CREAT | O_WRITE | O_TRUNC);
+  }
+
+  void serial2file(uint8_t c)
+  {
+    if (sr_dump_file.isOpen() && sr_write_res != -1)
+      sr_write_res = sr_dump_file.write(c);
+  }
+
+  bool sr_file_close()
+  {
+    return sr_dump_file.close();
+  }
+#endif
