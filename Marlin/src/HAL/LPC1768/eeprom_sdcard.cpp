@@ -49,7 +49,7 @@ bool eeprom_file_open = false;
   #define MARLIN_EEPROM_SIZE size_t(0x1000) // 4KiB of Emulated EEPROM
 #endif
 
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
@@ -91,7 +91,7 @@ bool PersistentStore::access_finish() {
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
   #if ENABLED(DEBUG_SD_EEPROM_EMULATION)
     FSTR_P const rw_str = write ? F("write") : F("read");
-    SERIAL_ECHOLN(AS_CHAR(' '), rw_str, F("_data("), pos, AS_CHAR(','), *value, AS_CHAR(','), size, F(", ...)"));
+    SERIAL_ECHOLN(C(' '), rw_str, F("_data("), pos, C(','), *value, C(','), size, F(", ...)"));
     if (total)
       SERIAL_ECHOLN(F(" f_"), rw_str, F("()="), s, F("\n size="), size, F("\n bytes_"), write ? F("written=") : F("read="), total);
     else

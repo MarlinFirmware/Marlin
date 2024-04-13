@@ -65,6 +65,13 @@
 #define Z_MAX_PIN                    E0_DIAG_PIN
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PE4
@@ -188,25 +195,27 @@
   #define KILL_PIN_STATE                    HIGH
 #endif
 
-// Random Info
-#define USB_SERIAL              -1  // USB Serial
-#define WIFI_SERIAL              3  // USART3
-#define MKS_WIFI_MODULE_SERIAL   1  // USART1
-#define MKS_WIFI_MODULE_SPI      2  // SPI2
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-// MKS WIFI MODULE
+//
+// MKS WiFi Module
+//
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
+  #define MKS_WIFI_MODULE_SERIAL               1  // USART1
+  #define MKS_WIFI_MODULE_SPI                  2  // SPI2
+#else
+  #define WIFI_SERIAL_PORT                     3  // USART3
 #endif
 
-// MKS TEST
-#if ENABLED(MKS_TEST)
+//
+// MKS Testing for code in lcd/extui/mks_ui
+//
+#if ALL(TFT_LVGL_UI, MKS_TEST)
   #define MKS_TEST_POWER_LOSS_PIN           PA13  // PW_DET
   #define MKS_TEST_PS_ON_PIN                PB2   // PW_OFF
 #endif
@@ -278,6 +287,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN
   #define TFT_SCK_PIN                EXP2_02_PIN

@@ -679,7 +679,6 @@
 #define PF7_PWM     0
 #define PF7_DDR     DDRF
 
-
 /**
  * Some of the pin mapping functions of the Teensduino extension to the Arduino IDE
  * do not function the same as the other Arduino extensions.

@@ -135,9 +135,9 @@
  * Options: A4988, A5984, DRV8825, LV8729, TB6560, TB6600, TMC2100,
  *          TMC2130, TMC2130_STANDALONE, TMC2160, TMC2160_STANDALONE,
  *          TMC2208, TMC2208_STANDALONE, TMC2209, TMC2209_STANDALONE,
- *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
- *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
- * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
+ *          TMC2660, TMC2660_STANDALONE, TMC5130, TMC5130_STANDALONE,
+ *          TMC5160, TMC5160_STANDALONE
+ * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 #define X_DRIVER_TYPE  A4988
 #define Y_DRIVER_TYPE  A4988
@@ -401,9 +401,18 @@
   //#define PS_OFF_SOUND            // Beep 1s when power off
   #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
 
-  //#define PSU_DEFAULT_OFF               // Keep power off until enabled directly with M80
-  //#define PSU_POWERUP_DELAY      250    // (ms) Delay for the PSU to warm up to full power
-  //#define LED_POWEROFF_TIMEOUT 10000    // (ms) Turn off LEDs after power-off, with this amount of delay
+  //#define PSU_DEFAULT_OFF             // Keep power off until enabled directly with M80
+  //#define PSU_POWERUP_DELAY      250  // (ms) Delay for the PSU to warm up to full power
+  //#define LED_POWEROFF_TIMEOUT 10000  // (ms) Turn off LEDs after power-off, with this amount of delay
+
+  //#define PSU_OFF_REDUNDANT           // Second pin for redundant power control
+  //#define PSU_OFF_REDUNDANT_INVERTED  // Redundant pin state is the inverse of PSU_ACTIVE_STATE
+
+  //#define PS_ON1_PIN               6  // Redundant pin required to enable power in combination with PS_ON_PIN
+
+  //#define PS_ON_EDM_PIN            8  // External Device Monitoring pins for external power control relay feedback. Fault on mismatch.
+  //#define PS_ON1_EDM_PIN           9
+  #define PS_EDM_RESPONSE          250  // (ms) Time to allow for relay action
 
   //#define POWER_OFF_TIMER               // Enable M81 D<seconds> to power off after a delay
   //#define POWER_OFF_WAIT_FOR_COOLDOWN   // Enable M81 S to power off only after cooldown
@@ -513,10 +522,10 @@
  * ================================================================
  *  SPI RTD/Thermocouple Boards
  * ================================================================
- *    -5 : MAX31865 with Pt100/Pt1000, 2, 3, or 4-wire  (only for sensors 0-1)
+ *    -5 : MAX31865 with Pt100/Pt1000, 2, 3, or 4-wire  (only for sensors 0-2 and bed)
  *                  NOTE: You must uncomment/set the MAX31865_*_OHMS_n defines below.
- *    -3 : MAX31855 with Thermocouple, -200°C to +700°C (only for sensors 0-1)
- *    -2 : MAX6675  with Thermocouple, 0°C to +700°C    (only for sensors 0-1)
+ *    -3 : MAX31855 with Thermocouple, -200°C to +700°C (only for sensors 0-2 and bed)
+ *    -2 : MAX6675  with Thermocouple, 0°C to +700°C    (only for sensors 0-2 and bed)
  *
  *  NOTE: Ensure TEMP_n_CS_PIN is set in your pins file for each TEMP_SENSOR_n using an SPI Thermocouple. By default,
  *        Hardware SPI on the default serial bus is used. If you have also set TEMP_n_SCK_PIN and TEMP_n_MISO_PIN,
@@ -892,8 +901,16 @@
 //#define COREYX
 //#define COREZX
 //#define COREZY
-//#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
+
+//
+// MarkForged Kinematics
+// See https://reprap.org/forum/read.php?152,504042
+//
+//#define MARKFORGED_XY
 //#define MARKFORGED_YX
+#if ANY(MARKFORGED_XY, MARKFORGED_YX)
+  //#define MARKFORGED_INVERSE  // Enable for an inverted Markforged kinematics belt path
+#endif
 
 // Enable for a belt style printer with endless "Z" motion
 //#define BELTPRINTER
@@ -998,9 +1015,6 @@
     // Radius around the center where the arm cannot reach
     #define MIDDLE_DEAD_ZONE_R   0  // (mm)
 
-    #define THETA_HOMING_OFFSET  0  // Calculated from Calibration Guide and M360 / M114. See https://www.morgan3dp.com/morgan-calibration-guide/
-    #define PSI_HOMING_OFFSET    0  // Calculated from Calibration Guide and M364 / M114. See https://www.morgan3dp.com/morgan-calibration-guide/
-
   #elif ENABLED(MP_SCARA)
 
     #define SCARA_OFFSET_THETA1  12 // degrees
@@ -1019,23 +1033,19 @@
   #define DEFAULT_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define TPARA_LINKAGE_1 120       // (mm)
-  #define TPARA_LINKAGE_2 120       // (mm)
+  #define TPARA_LINKAGE_1 120     // (mm)
+  #define TPARA_LINKAGE_2 120     // (mm)
 
-  // SCARA tower offset (position of Tower relative to bed zero position)
-  // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-  #define TPARA_OFFSET_X    0       // (mm)
-  #define TPARA_OFFSET_Y    0       // (mm)
-  #define TPARA_OFFSET_Z    0       // (mm)
+  // TPARA tower offset (position of Tower relative to bed zero position)
+  // This needs to be reasonably accurate as it defines the printbed position in the TPARA space.
+  #define TPARA_OFFSET_X    0     // (mm)
+  #define TPARA_OFFSET_Y    0     // (mm)
+  #define TPARA_OFFSET_Z    0     // (mm)
 
   #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
 
   // Radius around the center where the arm cannot reach
   #define MIDDLE_DEAD_ZONE_R   0  // (mm)
-
-  // Calculated from Calibration Guide and M360 / M114. See https://www.morgan3dp.com/morgan-calibration-guide/
-  #define THETA_HOMING_OFFSET  0
-  #define PSI_HOMING_OFFSET    0
 #endif
 
 // @section polar
@@ -1223,10 +1233,15 @@
 
 /**
  * Default Axis Steps Per Unit (linear=steps/mm, rotational=steps/°)
- * Override with M92
+ * Override with M92 (when enabled below)
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
+
+/**
+ * Enable support for M92. Disable to save at least ~530 bytes of flash.
+ */
+#define EDITABLE_STEPS_PER_UNIT
 
 /**
  * Default Max Feed Rate (linear=mm/s, rotational=°/s)
@@ -1278,6 +1293,7 @@
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0
   #define DEFAULT_ZJERK  0.3
+  #define DEFAULT_EJERK  5.0
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -1292,8 +1308,6 @@
     #define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...or, set your own edit limits
   #endif
 #endif
-
-#define DEFAULT_EJERK    5.0  // May be used by Linear Advance
 
 /**
  * Junction Deviation Factor
@@ -1430,6 +1444,20 @@
  * Uses I2C port, so it requires I2C library markyue/Panda_SoftMasterI2C.
  */
 //#define BD_SENSOR
+#if ENABLED(BD_SENSOR)
+  //#define BD_SENSOR_PROBE_NO_STOP // Probe bed without stopping at each probe point
+#endif
+
+/**
+ * BIQU MicroProbe
+ *
+ * A lightweight, solenoid-driven probe.
+ * For information about this sensor https://github.com/bigtreetech/MicroProbe
+ *
+ * Also requires: PROBE_ENABLE_DISABLE
+ */
+//#define BIQU_MICROPROBE_V1  // Triggers HIGH
+//#define BIQU_MICROPROBE_V2  // Triggers LOW
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
@@ -1755,10 +1783,13 @@
  */
 //#define Z_IDLE_HEIGHT Z_HOME_POS
 
-//#define Z_CLEARANCE_FOR_HOMING  4 // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
-                                    // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
+//#define Z_CLEARANCE_FOR_HOMING  4   // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
+                                      // You'll need this much clearance above Z_MAX_POS to avoid grinding.
 
-//#define Z_AFTER_HOMING         10 // (mm) Height to move to after homing (if Z was homed)
+//#define Z_AFTER_HOMING         10   // (mm) Height to move to after homing (if Z was homed)
+//#define XY_AFTER_HOMING { 10, 10 }  // (mm) Move to an XY position after homing (and raising Z)
+
+//#define EVENT_GCODE_AFTER_HOMING "M300 P440 S200"  // Commands to run after G28 (and move to XY_AFTER_HOMING)
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
@@ -2018,7 +2049,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+//#define EVENT_GCODE_AFTER_G29 "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable one of
@@ -2040,7 +2071,7 @@
 /**
  * Enable detailed logging of G28, G29, M48, etc.
  * Turn on with the command 'M111 S32'.
- * NOTE: Requires a lot of PROGMEM!
+ * NOTE: Requires a lot of flash!
  */
 //#define DEBUG_LEVELING_FEATURE
 
@@ -2243,8 +2274,8 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
-  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
+  #define Z_SAFE_HOMING_X_POINT X_CENTER  // (mm) X point for Z homing
+  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // (mm) Y point for Z homing
   //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
 #endif
 
@@ -2329,7 +2360,7 @@
  */
 //#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of flash. Disable for release!
-#define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
+#define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save flash.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
@@ -2605,9 +2636,9 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 
 /**
- * Info Screen Style (0:Classic, 1:Průša)
+ * Info Screen Style (0:Classic, 1:Průša, 2:CNC)
  *
- * :[0:'Classic', 1:'Průša']
+ * :[0:'Classic', 1:'Průša', 2:'CNC']
  */
 #define LCD_INFO_SCREEN_STYLE 0
 
@@ -3002,8 +3033,13 @@
 //#define BTT_MINI_12864
 
 //
+// BEEZ MINI 12864 is an alias for FYSETC_MINI_12864_2_1. Type A/B. NeoPixel RGB Backlight.
+//
+//#define BEEZ_MINI_12864
+
+//
 // Factory display for Creality CR-10 / CR-7 / Ender-3
-// https://www.aliexpress.com/item/32833148327.html
+// https://marlinfw.org/docs/hardware/controllers.html#cr10_stockdisplay
 //
 // Connect to EXP1 on RAMPS and compatible boards.
 //
@@ -3015,14 +3051,14 @@
 //#define ENDER2_STOCKDISPLAY
 
 //
-// ANET and Tronxy Graphical Controller
-//
-// Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
-// A clone of the RepRapDiscount full graphics display but with
-// different pins/wiring (see pins_ANET_10.h). Enable one of these.
+// ANET and Tronxy 128×64 Full Graphics Controller as used on Anet A6
 //
 //#define ANET_FULL_GRAPHICS_LCD
-//#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
+
+//
+// GUCOCO CTC 128×64 Full Graphics Controller as used on GUCOCO CTC A10S
+//
+//#define CTC_A10S_A13
 
 //
 // AZSMZ 12864 LCD with SD
@@ -3380,7 +3416,6 @@
   #define BUTTON_DELAY_MENU     250 // (ms) Button repeat delay for menus
 
   //#define DISABLE_ENCODER         // Disable the click encoder, if any
-  //#define TOUCH_IDLE_SLEEP_MINS 5 // (minutes) Display Sleep after a period of inactivity. Set with M255 S.
 
   #define TOUCH_SCREEN_CALIBRATION
 

@@ -23,6 +23,8 @@
 /**
  * feature/pause.cpp - Pause feature support functions
  * This may be combined with related G-codes if features are consolidated.
+ *
+ * Note: Calls to ui.pause_show_message are passed to either ExtUI or MarlinUI.
  */
 
 #include "../inc/MarlinConfigPre.h"
@@ -60,8 +62,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 #include "../lcd/marlinui.h"
@@ -89,7 +89,9 @@ static xyze_pos_t resume_position;
   PauseMode pause_mode = PAUSE_MODE_PAUSE_PRINT;
 #endif
 
-fil_change_settings_t fc_settings[EXTRUDERS];
+#if ENABLED(CONFIGURE_FILAMENT_CHANGE)
+  fil_change_settings_t fc_settings[EXTRUDERS];
+#endif
 
 #if HAS_MEDIA
   #include "../sd/cardreader.h"
@@ -146,7 +148,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
       thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
   #endif
 
-  ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode); UNUSED(mode);
+  ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode);
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
@@ -286,8 +288,8 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
-          #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-            ui.pause_show_message(PAUSE_MESSAGE_OPTION); // Also sets PAUSE_RESPONSE_WAIT_FOR
+          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+            ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
           #endif

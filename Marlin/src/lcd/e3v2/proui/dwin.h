@@ -53,30 +53,38 @@ enum processID : uint8_t {
   ID_MainMenu,
   ID_Menu,
   ID_SetInt,
-  ID_SetPInt,
-  ID_SetIntNoDraw,
   ID_SetFloat,
+  ID_SetPInt,
   ID_SetPFloat,
+  ID_SetIntNoDraw,
   ID_PrintProcess,
   ID_Popup,
   ID_Leveling,
   ID_Locked,
-  ID_Reboot,
-  ID_PrintDone,
   ID_ESDiagProcess,
+  ID_PrintDone,
   ID_WaitResponse,
   ID_Homing,
   ID_PIDProcess,
+  ID_PlotProcess,
   ID_MPCProcess,
   ID_NothingToDo
 };
 
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE)
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
-  enum tempcontrol_t : uint8_t {
-    #if PROUI_PID_TUNE
-      PIDTEMP_START,
-      PIDTEMPBED_START,
+  enum TempControl {
+    AUTOTUNE_DONE,
+    #if HAS_PID_HEATING
+      #if ENABLED(PIDTEMP)
+        PIDTEMP_START,
+      #endif
+      #if ENABLED(PIDTEMPBED)
+        PIDTEMPBED_START,
+      #endif
+      #if ENABLED(PIDTEMPCHAMBER)
+        PIDTEMPCHAMBER_START,
+      #endif
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
@@ -86,8 +94,10 @@ enum processID : uint8_t {
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
-    AUTOTUNE_DONE
+    TEMPCONTROL_COUNT
   };
+
+  typedef bits_t(TEMPCONTROL_COUNT) tempcontrol_t;
 
 #endif
 
@@ -116,20 +126,23 @@ typedef struct {
   uint16_t colorCoordinate;
 
   // Temperatures
-  #if PROUI_PID_TUNE
+  #if HAS_PID_HEATING
     int16_t pidCycles = DEF_PIDCYCLES;
     #if ENABLED(PIDTEMP)
-      int16_t hotendPidT = DEF_HOTENDPIDT;
+      celsius_t hotendPIDT = DEF_HOTENDPIDT;
     #endif
     #if ENABLED(PIDTEMPBED)
-      int16_t bedPidT = DEF_BEDPIDT;
+      celsius_t bedPIDT = DEF_BEDPIDT;
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      celsius_t chamberPIDT = DEF_CHAMBERPIDT;
     #endif
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
-    int16_t extMinT = EXTRUDE_MINTEMP;
+    celsius_t extMinT = EXTRUDE_MINTEMP;
   #endif
   #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    int16_t bedLevT = LEVELING_BED_TEMP;
+    celsius_t bedLevT = LEVELING_BED_TEMP;
   #endif
   #if ENABLED(BAUD_RATE_GCODE)
     bool baud115K = false;
@@ -143,12 +156,10 @@ typedef struct {
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
+    #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor ledColor = defColorLeds;
-  #endif
-  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-    bool adaptiveStepSmoothing = true;
   #endif
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
@@ -156,7 +167,8 @@ typedef struct {
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
-static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
+
+#define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
 
 typedef struct {
   int8_t r, g, b;
@@ -173,12 +185,14 @@ typedef struct {
 
 typedef struct {
   rgb_t color;                        // Color
-  #if ANY(PROUI_PID_TUNE, MPCTEMP)
+  #if ANY(HAS_PID_HEATING, MPCTEMP)
     tempcontrol_t tempControl = AUTOTUNE_DONE;
   #endif
   uint8_t select = 0;                 // Auxiliary selector variable
   AxisEnum axis = X_AXIS;             // Axis Select
 } hmi_value_t;
+
+extern hmi_value_t hmiValue;
 
 typedef struct {
   uint8_t language;
@@ -189,13 +203,12 @@ typedef struct {
   bool home_flag:1;     // homing in course
 } hmi_flag_t;
 
-extern hmi_value_t hmiValue;
 extern hmi_flag_t hmiFlag;
 extern uint8_t checkkey;
 
 // Popups
-#if HAS_HOTEND || HAS_HEATED_BED
-  void dwinPopupTemperature(const bool toohigh);
+#if HAS_HOTEND || HAS_HEATED_BED || HAS_HEATED_CHAMBER
+  void dwinPopupTemperature(const int_fast8_t heater_id, const uint8_t state);
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   void popupPowerLossRecovery();
@@ -286,7 +299,7 @@ void dwinPrintAborted();
 #if HAS_FILAMENT_SENSOR
   void dwinFilamentRunout(const uint8_t extruder);
 #endif
-void dwinPrintHeader(const char *text);
+void dwinPrintHeader(const char * const cstr=nullptr);
 void dwinSetColorDefaults();
 void dwinCopySettingsTo(char * const buff);
 void dwinCopySettingsFrom(const char * const buff);
@@ -310,6 +323,11 @@ void dwinRebootScreen();
 #endif
 #if HAS_ESDIAG
   void drawEndStopDiag();
+#endif
+#if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
+  void dwinDrawPlot(tempcontrol_t result);
+  void drawHPlot();
+  void drawBPlot();
 #endif
 
 // Menu drawing functions
@@ -341,10 +359,12 @@ void drawFilamentManMenu();
 void drawTemperatureMenu();
 void drawMaxSpeedMenu();
 void drawMaxAccelMenu();
-#if HAS_CLASSIC_JERK
+#if ENABLED(CLASSIC_JERK)
   void drawMaxJerkMenu();
 #endif
-void drawStepsMenu();
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  void drawStepsMenu();
+#endif
 #if ANY(HAS_BED_PROBE, BABYSTEPPING)
   void drawZOffsetWizMenu();
 #endif
@@ -372,28 +392,29 @@ void drawStepsMenu();
 #endif
 
 // PID
-#if PROUI_PID_TUNE
+#if HAS_PID_HEATING
   #include "../../../module/temperature.h"
-  void dwinStartM303(const bool seenC, const int c, const bool seenS, const heater_id_t hid, const celsius_t temp);
-  void dwinPidTuning(tempcontrol_t result);
-  #if PROUI_TUNING_GRAPH
-    void dwinDrawPIDMPCPopup();
-  #endif
-#endif
-#if ENABLED(PIDTEMP)
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    void hotendPID();
-  #endif
+  void dwinStartM303(const int count, const heater_id_t hid, const celsius_t temp);
+  void dwinPIDTuning(tempcontrol_t result);
   #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void drawHotendPIDMenu();
-  #endif
-#endif
-#if ENABLED(PIDTEMPBED)
-  #if ENABLED(PID_AUTOTUNE_MENU)
-    void bedPID();
-  #endif
-  #if ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
-    void drawBedPIDMenu();
+    #if ENABLED(PIDTEMP)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void hotendPID();
+      #endif
+      void drawHotendPIDMenu();
+    #endif
+    #if ENABLED(PIDTEMPBED)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void bedPID();
+      #endif
+      void drawBedPIDMenu();
+    #endif
+    #if ENABLED(PIDTEMPCHAMBER)
+      #if ENABLED(PID_AUTOTUNE_MENU)
+        void chamberPID();
+      #endif
+      void drawChamberPIDMenu();
+    #endif
   #endif
 #endif
 
@@ -405,4 +426,8 @@ void drawStepsMenu();
   #if ENABLED(MPC_AUTOTUNE)
     void dwinMPCTuning(tempcontrol_t result);
   #endif
+#endif
+
+#if PROUI_TUNING_GRAPH
+  void dwinDrawPIDMPCPopup();
 #endif

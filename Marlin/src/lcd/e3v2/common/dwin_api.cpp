@@ -153,21 +153,23 @@ void dwinFrameClear(const uint16_t color) {
   dwinSend(i);
 }
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
-  size_t i = 0;
-  dwinByte(i, 0x02);
-  dwinWord(i, color);
-  dwinByte(i, width);
-  dwinByte(i, height);
-  dwinWord(i, x);
-  dwinWord(i, y);
-  dwinSend(i);
-}
+#if DISABLED(TJC_DISPLAY)
+  // Draw a point
+  //  color: point color
+  //  width: point width   0x01-0x0F
+  //  height: point height 0x01-0x0F
+  //  x,y: upper left point
+  void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    size_t i = 0;
+    dwinByte(i, 0x02);
+    dwinWord(i, color);
+    dwinByte(i, width);
+    dwinByte(i, height);
+    dwinWord(i, x);
+    dwinWord(i, y);
+    dwinSend(i);
+  }
+#endif
 
 // Draw a line
 //  color: Line segment color
@@ -234,7 +236,7 @@ void dwinFrameAreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 //  rlimit: To limit the drawn string length
 void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit/*=0xFFFF*/) {
-  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
+  #if ENABLED(DWIN_CREALITY_LCD)
     dwinDrawRectangle(1, bColor, x, y, x + (fontWidth(size) * strlen_P(string)), y + fontHeight(size));
   #endif
   constexpr uint8_t widthAdjust = 0;

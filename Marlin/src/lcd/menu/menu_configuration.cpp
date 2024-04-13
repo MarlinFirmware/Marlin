@@ -31,6 +31,7 @@
 #include "menu_item.h"
 
 #include "../../MarlinCore.h"
+#include "../../module/temperature.h"
 
 #if ENABLED(LCD_ENDSTOP_TEST)
   #include "../../module/endstops.h"
@@ -262,9 +263,11 @@ void menu_advanced_settings();
 
     if (c.timeout) GCODES_ITEM(MSG_HOTEND_IDLE_DISABLE, F("M87"));
     EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
-    EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, HEATER_0_MAXTEMP);
-    EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, HEATER_0_MAXTEMP);
-    EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAXTEMP);
+    EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, thermalManager.hotend_max_target(0));
+    EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, thermalManager.hotend_max_target(0));
+    #if HAS_HEATED_BED
+      EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAX_TARGET);
+    #endif
 
     END_MENU();
   }
@@ -397,10 +400,10 @@ void menu_advanced_settings();
 #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
 
   void _menu_configuration_preheat_settings() {
-    #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
-    #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
-    #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
-    #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
+    #define _MIN_ITEM(N) HEATER_##N##_MINTEMP,
+    #define _MAX_ITEM(N) thermalManager.hotend_max_target(0),
+    #define MINTARGET_ALL _MIN(REPEAT(HOTENDS, _MIN_ITEM) 999)
+    #define MAXTARGET_ALL _MAX(REPEAT(HOTENDS, _MAX_ITEM) 0)
     const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
     STATIC_ITEM_F(ui.get_preheat_label(m), SS_DEFAULT|SS_INVERT);
@@ -410,7 +413,7 @@ void menu_advanced_settings();
       EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
     #endif
     #if HAS_TEMP_HOTEND
-      EDIT_ITEM(int3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - (HOTEND_OVERSHOOT));
+      EDIT_ITEM(int3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTARGET_ALL, MAXTARGET_ALL);
     #endif
     #if HAS_HEATED_BED
       EDIT_ITEM(int3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
@@ -618,10 +621,12 @@ void menu_configuration() {
   //
   // Set display backlight / sleep timeout
   //
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
-    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.backlight_timeout_minutes, ui.backlight_timeout_min, ui.backlight_timeout_max, ui.refresh_backlight_timeout);
-  #elif HAS_DISPLAY_SLEEP
-    EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
+  #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+    #if HAS_BACKLIGHT_TIMEOUT
+      EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.backlight_timeout_minutes, ui.backlight_timeout_min, ui.backlight_timeout_max, ui.refresh_backlight_timeout);
+    #elif HAS_DISPLAY_SLEEP
+      EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
+    #endif
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -638,6 +643,9 @@ void menu_configuration() {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     EDIT_ITEM(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
+    #if HAS_PLR_BED_THRESHOLD
+      EDIT_ITEM(int3, MSG_RESUME_BED_TEMP, &recovery.bed_temp_threshold, 0, BED_MAX_TARGET);
+    #endif
   #endif
 
   // Preheat configurations

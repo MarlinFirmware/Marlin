@@ -78,7 +78,7 @@ bool XPT2046::getRawPoint(int16_t * const x, int16_t * const y) {
   if (isBusy() || !isTouched()) return false;
   *x = getRawData(XPT2046_X);
   *y = getRawData(XPT2046_Y);
-  return true;
+  return isTouched();
 }
 
 uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {

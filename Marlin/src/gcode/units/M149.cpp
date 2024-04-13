@@ -37,8 +37,10 @@ void GcodeSuite::M149() {
 }
 
 void GcodeSuite::M149_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_TEMPERATURE_UNITS));
-  SERIAL_ECHOLN(F("  M149 "), AS_CHAR(parser.temp_units_code()), F(" ; Units in "), parser.temp_units_name());
+  SERIAL_ECHOLN(F("  M149 "), C(parser.temp_units_code()), F(" ; Units in "), parser.temp_units_name());
 }
 
 #endif // TEMPERATURE_UNITS_SUPPORT

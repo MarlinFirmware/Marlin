@@ -700,6 +700,10 @@
   #include "stm32f1/pins_KEDI_CONTROLLER_V1_2.h"    // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
 #elif MB(MD_D301)
   #include "stm32f1/pins_MD_D301.h"                 // STM32F1                              env:mingda_d301 env:mingda_d301_maple
+#elif MB(VOXELAB_AQUILA)
+  #include "gd32f1/pins_VOXELAB_AQUILA.h"           // GD32F1, N32G4, STM32F1               env:GD32F103RC_voxelab_maple env:N32G455RE_voxelab_maple env:STM32F103RE_creality_maple env:STM32F103RE_creality
+#elif MB(SPRINGER_CONTROLLER)
+  #include "stm32f1/pins_ORCA_3D_SPRINGER.h"        // STM32F1                              env:STM32F103VC_orca3d
 
 //
 // ARM Cortex-M4F
@@ -794,14 +798,16 @@
   #include "stm32f4/pins_ARTILLERY_RUBY.h"          // STM32F4                              env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
   #include "stm32f4/pins_CREALITY_V24S1_301F4.h"    // STM32F4                              env:STM32F401RC_creality env:STM32F401RC_creality_nobootloader env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
+#elif MB(CREALITY_CR4NTXXC10)
+  #include "stm32f4/pins_CREALITY_CR4NTXXC10.h"     // STM32F4                              env:STM32F401RE_freeruns env:STM32F401RE_freeruns_jlink env:STM32F401RE_freeruns_stlink
 #elif MB(OPULO_LUMEN_REV4)
   #include "stm32f4/pins_OPULO_LUMEN_REV4.h"        // STM32F4                              env:Opulo_Lumen_REV4
 #elif MB(FYSETC_SPIDER_KING407)
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h"   // STM32F4                              env:FYSETC_SPIDER_KING407
 #elif MB(MKS_SKIPR_V1)
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"          // STM32F4                              env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
-#elif MB(TRONXY_V10)
-  #include "stm32f4/pins_TRONXY_V10.h"              // STM32F4                              env:STM32F446_tronxy
+#elif MB(TRONXY_CXY_446_V10)
+  #include "stm32f4/pins_TRONXY_CXY_446_V10.h"      // STM32F4                              env:TRONXY_CXY_446_V10 env:TRONXY_CXY_446_V10_usb_flash_drive
 #elif MB(CREALITY_F401RE)
   #include "stm32f4/pins_CREALITY_F401.h"           // STM32F4                              env:STM32F401RE_creality
 #elif MB(BLACKPILL_CUSTOM)
@@ -812,6 +818,8 @@
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:STM32F407VG_mellow_fly_e3
 #elif MB(MELLOW_FLY_E3_PRO_V3)
   #include "stm32f4/pins_MELLOW_FLY_E3_PRO_V3.h"    // STM32F4                              env:STM32F407VG_mellow_fly_e3
+#elif MB(BLACKBEEZMINI_V1)
+  #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 
 //
 // ARM Cortex-M7
@@ -835,6 +843,10 @@
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"  // STM32H7                              env:STM32H723ZE_btt
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"    // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_MANTA_M8P_V2_0)
+  #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"      // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_KRAKEN_V1_0)
+  #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"         // STM32H7                              env:STM32H723ZG_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
 #elif MB(T41U5XBB)
@@ -888,6 +900,15 @@
   #include "samd/pins_MINITRONICS20.h"              // SAMD21                               env:SAMD21_minitronics20
 
 //
+// HC32 ARM Cortex-M4
+//
+
+#elif MB(AQUILA_V101)
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+#elif MB(CREALITY_ENDER2P_V24S4)
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
+
+//
 // Custom board (with custom PIO env)
 //
 
@@ -937,6 +958,7 @@
   #define BOARD_LINUX_RAMPS             99926
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
+  #define BOARD_TRONXY_V10              99929
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -996,6 +1018,8 @@
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif MB(BTT_MANTA_M4P_V1_0)
     #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
+  #elif MB(TRONXY_V10)
+    #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
@@ -1034,8 +1058,14 @@
   #undef BOARD_LINUX_RAMPS
   #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
+  #undef BOARD_TRONXY_V10
 
 #endif
+
+//
+// LCD / Controller Pins based on board expansion headers with adapters
+//
+#include "pins_lcd.h"
 
 //
 // Post-process pins according to configured settings

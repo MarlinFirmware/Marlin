@@ -256,7 +256,7 @@
 
         say_waiting_for_probe_heating();
         SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
-        const millis_t probe_timeout_ms = millis() + SEC_TO_MS(900UL);
+        const millis_t probe_timeout_ms = millis() + MIN_TO_MS(15);
         while (thermalManager.degProbe() < target_probe) {
           if (report_temps(next_temp_report, probe_timeout_ms)) {
             SERIAL_ECHOLNPGM("!Probe heating timed out.");

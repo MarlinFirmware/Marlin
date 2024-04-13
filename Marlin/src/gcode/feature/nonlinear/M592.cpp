@@ -28,8 +28,9 @@
 #include "../../../module/stepper.h"
 
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
   report_heading(forReplay, F(STR_NONLINEAR_EXTRUSION));
-  SERIAL_ECHOLNPGM("  M593 A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
+  SERIAL_ECHOLNPGM("  M592 A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
 }
 
 /**
@@ -43,6 +44,8 @@ void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
  * Only adjusts forward extrusions, since those are the ones affected by backpressure.
  */
 void GcodeSuite::M592() {
+  if (!parser.seen_any()) return M592_report();
+
   if (parser.seenval('A')) stepper.ne.A = parser.value_float();
   if (parser.seenval('B')) stepper.ne.B = parser.value_float();
   if (parser.seenval('C')) stepper.ne.C = parser.value_float();

@@ -424,13 +424,15 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER_STR(VP_PrintsTotal, nullptr, VP_PrintsTotal_LEN, nullptr, screen.sendPrintsTotalToDisplay),
   #endif
 
-  VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  #if HAS_HOTEND
-    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
-    #if HAS_MULTI_HOTEND
-      VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    #if HAS_HOTEND
+      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+      #if HAS_MULTI_HOTEND
+        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+      #endif
     #endif
   #endif
 

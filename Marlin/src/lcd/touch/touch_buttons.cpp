@@ -37,7 +37,7 @@
   #error "Unknown Touch Screen Type."
 #endif
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
   millis_t TouchButtons::next_sleep_ms;
 #endif
 
@@ -58,7 +58,9 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.init();
-  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
+  #if HAS_DISPLAY_SLEEP
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+  #endif
 }
 
 uint8_t TouchButtons::read_buttons() {
@@ -66,13 +68,14 @@ uint8_t TouchButtons::read_buttons() {
     int16_t x, y;
 
     #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
+
       const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION
                                 ? touchIO.getRawPoint(&y, &x)
                                 : touchIO.getRawPoint(&x, &y);
-      #if HAS_TOUCH_SLEEP
+      #if HAS_DISPLAY_SLEEP
         if (is_touched)
           wakeUp();
-        else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        else if (next_sleep_ms && !isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
           sleepTimeout();
       #endif
 
@@ -88,13 +91,16 @@ uint8_t TouchButtons::read_buttons() {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         const calibrationState state = touch_calibration.get_calibration_state();
         if (WITHIN(state, CALIBRATION_TOP_LEFT, CALIBRATION_BOTTOM_LEFT)) {
-          if (!no_touch && touch_calibration.handleTouch(xy_int_t({x, y}))) ui.refresh();
+          if (!no_touch && touch_calibration.handleTouch(x, y)) ui.refresh();
           no_touch = true;
           return 0;
         }
+        x = int16_t((int32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = int16_t((int32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
+      #else
+        x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       #endif
-      x = uint16_t((uint32_t(x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
-      y = uint16_t((uint32_t(y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
 
     #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
 
@@ -125,7 +131,7 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
 
   void TouchButtons::sleepTimeout() {
     #if HAS_LCD_BRIGHTNESS
@@ -135,6 +141,7 @@ uint8_t TouchButtons::read_buttons() {
     #endif
     next_sleep_ms = TSLP_SLEEPING;
   }
+
   void TouchButtons::wakeUp() {
     if (isSleeping()) {
       #if HAS_LCD_BRIGHTNESS
@@ -143,9 +150,13 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
-#endif // HAS_TOUCH_SLEEP
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (!sleep) touchBt.wakeUp();
+  }
+
+#endif // HAS_DISPLAY_SLEEP
 
 #endif // HAS_TOUCH_BUTTONS

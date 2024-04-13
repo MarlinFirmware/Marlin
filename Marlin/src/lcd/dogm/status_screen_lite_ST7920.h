@@ -83,8 +83,10 @@ class ST7920_Lite_Status_Screen {
     static void draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate=false);
     static void draw_fan_speed(const uint8_t value);
     #if HAS_PRINT_PROGRESS
+      #if HAS_TIME_DISPLAY
+        static char* prepare_time_string(const duration_t &time, char prefix=' ');
+      #endif
       static void draw_progress_bar(const uint8_t value);
-      static char* prepare_time_string(const duration_t &time, char prefix=' ');
       static void draw_progress_string(uint8_t addr, const char *str);
       static void update_progress(const bool forceUpdate);
     #endif

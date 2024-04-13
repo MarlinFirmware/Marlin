@@ -57,8 +57,10 @@ enum TouchControlType : uint16_t {
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
-  xy_uint_t pos;
-  xy_uint_t size;
+  uint16_t x;
+  uint16_t y;
+  uint16_t width;
+  uint16_t height;
   intptr_t data;
 } touch_control_t;
 
@@ -69,13 +71,12 @@ typedef struct __attribute__((__packed__)) {
 #define UBL_REPEAT_DELAY    125
 #define FREE_MOVE_RANGE     32
 
-#define TSLP_PREINIT  0
 #define TSLP_SLEEPING 1
 
 class Touch {
   private:
     static TOUCH_DRIVER_CLASS io;
-    static xy_int_t point;
+    static int16_t x, y;
     static bool enabled;
 
     static touch_control_t controls[MAX_CONTROLS];
@@ -85,7 +86,7 @@ class Touch {
     static millis_t next_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
-    static bool get_point(xy_int_t &point);
+    static bool get_point(int16_t * const x, int16_t * const y);
     static void touch(touch_control_t *control);
     static void hold(touch_control_t *control, millis_t delay=0);
 
@@ -103,7 +104,7 @@ class Touch {
     }
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
-    #if HAS_TOUCH_SLEEP
+    #if HAS_DISPLAY_SLEEP
       static millis_t next_sleep_ms;
       static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
       static void sleepTimeout();

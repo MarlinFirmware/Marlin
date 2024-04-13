@@ -788,7 +788,7 @@ void Endstops::update() {
       G38_did_trigger = true;
       #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
       #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
-      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      const Flags<NUM_AXES> moving = { uvalue_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
       MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif
@@ -1360,7 +1360,7 @@ void Endstops::update() {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
         };
       #else
         #define debug_current(...)

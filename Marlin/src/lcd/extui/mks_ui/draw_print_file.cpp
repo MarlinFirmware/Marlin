@@ -474,7 +474,7 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
         wcscpy(outStr, beginIndex);
     #else
       if ((int)strlen(beginIndex) > len)
-        strncpy(outStr, beginIndex, len);
+        strlcpy(outStr, beginIndex, len + 1);
       else
         strcpy(outStr, beginIndex);
     #endif
@@ -485,17 +485,17 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
         wcsncpy(outStr, (const WCHAR *)beginIndex, len - 3);
         wcscat(outStr, (const WCHAR *)gFileTail);
       #else
-        //strncpy(outStr, beginIndex, len - 3);
-        strncpy(outStr, beginIndex, len - 4);
+        strlcpy(outStr, beginIndex, len - 3);
         strcat_P(outStr, PSTR("~.g"));
       #endif
     }
     else {
+      const size_t strsize = strIndex2 - beginIndex + 1;
       #if _LFN_UNICODE
-        wcsncpy(outStr, (const WCHAR *)beginIndex, strIndex2 - beginIndex + 1);
+        wcsncpy(outStr, (const WCHAR *)beginIndex, strsize);
         wcscat(outStr, (const WCHAR *)&gFileTail[3]);
       #else
-        strncpy(outStr, beginIndex, strIndex2 - beginIndex + 1);
+        strlcpy(outStr, beginIndex, strsize + 1);
         strcat_P(outStr, PSTR("g"));
       #endif
     }

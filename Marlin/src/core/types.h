@@ -198,7 +198,7 @@ typedef Flags<8> flags_8_t;
 typedef Flags<16> flags_16_t;
 
 // Flags for some axis states, with per-axis aliases xyzijkuvwe
-typedef struct AxisFlags {
+typedef struct {
   union {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
@@ -212,7 +212,7 @@ typedef struct AxisFlags {
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
   FI operator bool() const                   { return flags; }
-} axis_flags_t;
+} AxisFlags;
 
 //
 // Enumerated axis indices
@@ -298,9 +298,9 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
-// Packaged character for AS_CHAR macro and other usage
+// Packaged character for C macro and other usage
 typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
-#define AS_CHAR(C) serial_char_t(C)
+#define C(c) serial_char_t(c)
 
 // Packaged types: float with precision and/or width; a repeated space/character
 typedef struct WFloat { float value; char width; char prec;
@@ -309,10 +309,10 @@ typedef struct WFloat { float value; char width; char prec;
 typedef struct PFloat { float value; char prec;
                         PFloat(float v, char p) : value(v), prec(p) {}
                       } p_float_t;
-typedef struct RepChr { char asc; uint8_t count;
+typedef struct RepChr { char asc; int8_t count;
                         RepChr(char a, uint8_t c) : asc(a), count(c) {}
                       } repchr_t;
-typedef struct Spaces { uint8_t count;
+typedef struct Spaces { int8_t count;
                         Spaces(uint8_t c) : count(c) {}
                       } spaces_t;
 
@@ -449,7 +449,7 @@ struct XYval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return x || y; }
   // Smallest element
@@ -599,7 +599,7 @@ struct XYZval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 NUM_AXIS_GANG(|| x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
@@ -747,7 +747,7 @@ struct XYZEval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 LOGICAL_AXIS_GANG(|| e, || x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
@@ -937,7 +937,7 @@ public:
   typedef bits_t(NUM_AXIS_ENUMS) el;
   union {
     el bits;
-    // x, y, z ... e0, e1, e2 ... hx, hy, hz
+    // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
@@ -949,7 +949,7 @@ public:
         bool hx:1, hy:1, hz:1;
       #endif
     };
-    // X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
+    // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
@@ -963,7 +963,7 @@ public:
     };
     // a, b, c, e ... ha, hb, hc
     struct {
-      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _e##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -975,7 +975,7 @@ public:
     };
     // A, B, C, E ... HA, HB, HC
     struct {
-      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _E##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)

@@ -82,6 +82,8 @@
   #error "Z_ENDSTOP_SERVO_NR is now Z_PROBE_SERVO_NR."
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
+#elif defined(ALLOW_LOW_EJERK)
+  #error "ALLOW_LOW_EJERK is deprecated and should be removed."
 #elif defined(XY_TRAVEL_SPEED)
   #error "XY_TRAVEL_SPEED is now XY_PROBE_FEEDRATE."
 #elif defined(XY_PROBE_SPEED)
@@ -283,11 +285,11 @@
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN."
 #elif defined(HAVE_TMCDRIVER)
-  #error "HAVE_TMCDRIVER is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "HAVE_TMCDRIVER is obsolete."
 #elif defined(STEALTHCHOP)
   #error "STEALTHCHOP is now STEALTHCHOP_(XY|Z|E)."
 #elif defined(HAVE_TMC26X)
-  #error "HAVE_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "HAVE_TMC26X is now obsolete."
 #elif defined(HAVE_TMC2130)
   #error "HAVE_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130."
 #elif defined(HAVE_TMC2208)
@@ -296,10 +298,10 @@
   #error "HAVE_L6470DRIVER is obsolete. L64xx stepper drivers are no longer supported in Marlin."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) || defined(Z3_IS_TMC) \
    || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC) || defined(E6_IS_TMC) || defined(E7_IS_TMC)
-  #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "[AXIS]_IS_TMC is now obsolete."
 #elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) || defined(Z3_IS_TMC26X) \
    || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X) || defined(E5_IS_TMC26X) || defined(E6_IS_TMC26X) || defined(E7_IS_TMC26X)
-  #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "[AXIS]_IS_TMC26X is now obsolete."
 #elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) || defined(Z3_IS_TMC2130) \
    || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130) || defined(E5_IS_TMC2130) || defined(E6_IS_TMC2130) || defined(E7_IS_TMC2130)
   #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130."
@@ -579,6 +581,18 @@
   #error "Y_DUAL_STEPPER_DRIVERS is no longer needed and should be removed."
 #elif defined(NUM_Z_STEPPER_DRIVERS)
   #error "NUM_Z_STEPPER_DRIVERS is no longer needed and should be removed."
+#elif defined(SNMM)
+  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif defined(MK2_MULTIPLEXER)
+  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif defined(PRUSA_MMU2)
+  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
+#elif defined(PRUSA_MMU2_S_MODE)
+  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
+#elif defined(SMUFF_EMU_MMU2)
+  #error "SMUFF_EMU_MMU2 is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2 instead."
+#elif defined(SMUFF_EMU_MMU2S)
+  #error "SMUFF_EMU_MMU2S is obsolete. Define MMU_MODEL as EXTENDABLE_EMU_MMU2S instead."
 #elif defined(LEVEL_BED_CORNERS)
   #error "LEVEL_BED_CORNERS is now LCD_BED_TRAMMING."
 #elif defined(LEVEL_CORNERS_INSET_LFRB) || defined(LEVEL_CORNERS_HEIGHT) || defined(LEVEL_CORNERS_Z_HOP) || defined(LEVEL_CORNERS_USE_PROBE) || defined(LEVEL_CORNERS_PROBE_TOLERANCE) || defined(LEVEL_CORNERS_VERIFY_RAISED) || defined(LEVEL_CORNERS_AUDIO_FEEDBACK)
@@ -586,7 +600,9 @@
 #elif defined(LEVEL_CENTER_TOO)
   #error "LEVEL_CENTER_TOO is now BED_TRAMMING_INCLUDE_CENTER."
 #elif defined(TOUCH_IDLE_SLEEP)
-  #error "TOUCH_IDLE_SLEEP (seconds) is now TOUCH_IDLE_SLEEP_MINS (minutes)."
+  #error "TOUCH_IDLE_SLEEP (seconds) is now DISPLAY_SLEEP_MINUTES (minutes)."
+#elif defined(TOUCH_IDLE_SLEEP_MINS)
+  #error "TOUCH_IDLE_SLEEP_MINS is now DISPLAY_SLEEP_MINUTES."
 #elif defined(LCD_BACKLIGHT_TIMEOUT)
   #error "LCD_BACKLIGHT_TIMEOUT (seconds) is now LCD_BACKLIGHT_TIMEOUT_MINS (minutes)."
 #elif defined(LCD_SET_PROGRESS_MANUALLY)
@@ -669,13 +685,43 @@
   #error "Z_PROBE_OFFSET_RANGE_(MIN|MAX) is now PROBE_OFFSET_Z(MIN|MAX)."
 #elif defined(LARGE_MOVE_ITEMS)
   #error "LARGE_MOVE_ITEMS is obsolete. Instead define MANUAL_MOVE_DISTANCE_MM and MANUAL_MOVE_DISTANCE_IN."
+#elif defined(SDIO_SUPPORT)
+  #error "SDIO_SUPPORT is now ONBOARD_SDIO."
+#elif defined(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+  #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
+#elif defined(Z_PROBE_END_SCRIPT)
+  #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
+#elif defined(WIFI_SERIAL)
+  #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
 #endif
+
+// Changes to Probe Temp Compensation (#17392)
+#if HAS_PTC && TEMP_SENSOR_PROBE && TEMP_SENSOR_BED
+  #if defined(PTC_PARK_POS_X) || defined(PTC_PARK_POS_Y) || defined(PTC_PARK_POS_Z)
+    #error "PTC_PARK_POS_[XYZ] is now PTC_PARK_POS (array)."
+  #elif defined(PTC_PROBE_POS_X) || defined(PTC_PROBE_POS_Y)
+    #error "PTC_PROBE_POS_[XY] is now PTC_PROBE_POS (array)."
+  #endif
+#endif
+
+// Consolidate TMC26X, validate migration (#24373)
+#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
+#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
+#if DO(ISMAX,||,ALL_AXIS_NAMES)
+  #error "*_MAX_CURRENT is now set with *_CURRENT."
+#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+  #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
+#endif
+#undef _ISMAX_1
+#undef _ISSNS_1
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470
 #define _L6474              0x6474
 #define _L6480              0x6480
 #define _POWERSTEP01        0xF00D
+#define _TMC26X             0x2600
+#define _TMC26X_STANDALONE  0x2601
 #if HAS_DRIVER(L6470)
   #error "L6470 stepper drivers are no longer supported in Marlin."
 #elif HAS_DRIVER(L6474)
@@ -684,8 +730,12 @@
   #error "L6480 stepper drivers are no longer supported in Marlin."
 #elif HAS_DRIVER(POWERSTEP01)
   #error "POWERSTEP01 stepper drivers are no longer supported in Marlin."
+#elif HAS_DRIVER(TMC26X) || HAS_DRIVER(TMC26X_STANDALONE)
+  #error "TMC26X stepper drivers are no longer supported in Marlin."
 #endif
 #undef _L6470
 #undef _L6474
 #undef _L6480
 #undef _POWERSTEP01
+#undef _TMC26X
+#undef _TMC26X_STANDALONE

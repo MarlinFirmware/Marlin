@@ -142,7 +142,6 @@ Regular users can open and close their own issues, but only the administrators c
 
  🇳🇱  **Erik van der Zalm**
        [@ErikZalm](https://github.com/ErikZalm)
-       [<kbd>  Donate 💸  </kbd>](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 </td></tr>
 </table>
