@@ -1036,16 +1036,35 @@ MARLIN_TEST(macros_array, ZERO) {
   int array[5] = {1, 2, 3, 4, 5};
   ZERO(array);
   for (auto& element : array) {
-    TEST_ASSERT_EQUAL(0, element); // All elements should be zero
+    TEST_ASSERT_EQUAL(0, element);
   }
 }
 
 MARLIN_TEST(macros_array, COPY) {
-  // Test COPY macro
   int array1[5] = {1, 2, 3, 4, 5};
   int array2[5] = {0};
   COPY(array2, array1);
   for (const auto& element : array1) {
     TEST_ASSERT_EQUAL(element, array2[&element - &array1[0]]); // All elements should be equal
   }
+}
+
+MARLIN_TEST(macros_expansion, CODE_N) {
+  int a = 0;
+  CODE_N(0, a+=1, a+=2, a+=3, a+=4, a+=5, a+=6, a+=7, a+=8, a+=9, a+=10, a+=11, a+=12, a+=13, a+=14, a+=15, a+=16, a+=17, a+=18, a+=19, a+=20);
+  TEST_ASSERT_EQUAL(0, a);
+
+  a = 0;
+  CODE_N(1, a+=1, a+=2, a+=3, a+=4, a+=5, a+=6, a+=7, a+=8, a+=9, a+=10, a+=11, a+=12, a+=13, a+=14, a+=15, a+=16, a+=17, a+=18, a+=19, a+=20);
+  TEST_ASSERT_EQUAL(1, a);
+
+  a = 0;
+  CODE_N(2, a+=1, a+=2, a+=3, a+=4, a+=5, a+=6, a+=7, a+=8, a+=9, a+=10, a+=11, a+=12, a+=13, a+=14, a+=15, a+=16, a+=17, a+=18, a+=19, a+=20);
+  TEST_ASSERT_EQUAL(3, a);
+
+  a = 0;
+  CODE_N(16, a+=1, a+=2, a+=3, a+=4, a+=5, a+=6, a+=7, a+=8, a+=9, a+=10, a+=11, a+=12, a+=13, a+=14, a+=15, a+=16, a+=17, a+=18, a+=19, a+=20);
+  TEST_ASSERT_EQUAL(136, a);
+
+  // 16 is the highest number supported by the CODE_N macro
 }
