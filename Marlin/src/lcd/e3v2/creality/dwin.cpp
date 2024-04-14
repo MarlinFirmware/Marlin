@@ -1809,6 +1809,21 @@ void make_name_without_ext(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) 
 
 void hmiSDCardInit() { card.cdroot(); }
 
+void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
+  clearMainWindow();
+  drawPopupBkgd60();
+  dwinIconShow(ICON, ICON_Info_1, 81, 90);
+  uint8_t slen = utf8_strlen(lcd_error);
+  if (hmiIsChinese()) {
+    // Chinese "Printer Killed"
+  }
+  else {
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 15) / 2, 210, GET_TEXT_F(MSG_PRINTER_KILLED));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * slen) / 2, 240, lcd_error);
+    dwinDrawString(true, font8x16, COLOR_ERROR_RED, COLOR_BG_WINDOW, (272 - 8 * 20) / 2, 270, GET_TEXT_F(MSG_TURN_OFF));
+  }
+}
+
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
