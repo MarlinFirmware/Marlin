@@ -1315,3 +1315,44 @@ MARLIN_TEST(macros_math, SUB) {
   TEST_ASSERT_EQUAL(0, SUB10(10));
   TEST_ASSERT_EQUAL(5, SUB10(15));
 }
+
+
+// Define a helper macro for testing
+#define TEST_OP(i) ++counter;
+#define TEST_OP2(i, j) counter += j;
+
+MARLIN_TEST(macros_repeat, REPEAT) {
+  int counter = 0;
+  REPEAT(5, TEST_OP);
+  TEST_ASSERT_EQUAL(5, counter);
+}
+
+MARLIN_TEST(macros_repeat, REPEAT_1) {
+  int counter = 0;
+  REPEAT_1(5, TEST_OP);
+  TEST_ASSERT_EQUAL(5, counter);
+}
+
+MARLIN_TEST(macros_repeat, REPEAT2) {
+  int counter = 0;
+  REPEAT2(5, TEST_OP2, 1);
+  TEST_ASSERT_EQUAL(5, counter);
+}
+
+MARLIN_TEST(macros_repeat, RREPEAT) {
+  int counter = 0;
+  RREPEAT(5, TEST_OP);
+  TEST_ASSERT_EQUAL(5, counter);
+}
+
+MARLIN_TEST(macros_repeat, RREPEAT_1) {
+  int counter = 0;
+  RREPEAT_1(5, TEST_OP);
+  TEST_ASSERT_EQUAL(5, counter);
+}
+
+MARLIN_TEST(macros_repeat, RREPEAT2) {
+  int counter = 0;
+  RREPEAT2(5, TEST_OP2, 1);
+  TEST_ASSERT_EQUAL(5, counter);
+}
