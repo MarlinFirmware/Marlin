@@ -2707,16 +2707,6 @@ void MarlinSettings::postprocess() {
       //
       // JyersUI User Data
       //
-      #if ENABLED(DWIN_LCD_PROUI)
-      // {
-      //   const char dwin_data[eeprom_data_size] = { 0 };
-      //   _FIELD_TEST(dwin_data);
-      //   EEPROM_READ(dwin_data);
-      //   if (!validating) dwinCopySettingsFrom(dwin_data);
-      // }
-
-
-      // #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
         const char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };

@@ -4250,10 +4250,10 @@ void drawMaxAccelMenu() {
         EDIT_ITEM(ICON_MeshEditX, MSG_MESH_X, onDrawPInt8Menu, setEditMeshX, &bedLevelTools.mesh_x);
         EDIT_ITEM(ICON_MeshEditY, MSG_MESH_Y, onDrawPInt8Menu, setEditMeshY, &bedLevelTools.mesh_y);
         editZValueItem = EDIT_ITEM(ICON_MeshEditZ, MSG_MESH_EDIT_Z, onDrawPFloat2Menu, setEditZValue, &bedlevel.z_values[bedLevelTools.mesh_x][bedLevelTools.mesh_y]);
-        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_X, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_min_x);
-        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_max_x);
-        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_Y, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_min_y);
-        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setMeshInset, &ui.mesh_inset_max_y);
+        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_x);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_X, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_x);
+        EDIT_ITEM(200 /*ICON_Box*/, MSG_MESH_MIN_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_min_y);
+        EDIT_ITEM(ICON_ProbeMargin, MSG_MESH_MAX_Y, onDrawPFloatMenu, setMeshInset, &hmiData.mesh_max_y);
         //MENU_ITEM(254 /*ICON_AxisC*/, MSG_MESH_AMAX, onDrawMenuItem, maxMeshArea);
         //MENU_ITEM(ICON_SetHome, MSG_MESH_CENTER, onDrawMenuItem, centerMeshArea);
       }

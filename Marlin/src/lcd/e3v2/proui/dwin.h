@@ -105,72 +105,6 @@ enum processID : uint8_t {
 #define DWIN_ENGLISH 0
 
 typedef struct {
-  // Color settings
-  uint16_t colorBackground;
-  uint16_t colorCursor;
-  uint16_t colorTitleBg;
-  uint16_t colorTitleTxt;
-  uint16_t colorText;
-  uint16_t colorSelected;
-  uint16_t colorSplitLine;
-  uint16_t colorHighlight;
-  uint16_t colorStatusBg;
-  uint16_t colorStatusTxt;
-  uint16_t colorPopupBg;
-  uint16_t colorPopupTxt;
-  uint16_t colorAlertBg;
-  uint16_t colorAlertTxt;
-  uint16_t colorPercentTxt;
-  uint16_t colorBarfill;
-  uint16_t colorIndicator;
-  uint16_t colorCoordinate;
-
-  // Temperatures
-  #if HAS_PID_HEATING
-    int16_t pidCycles = DEF_PIDCYCLES;
-    #if ENABLED(PIDTEMP)
-      celsius_t hotendPIDT = DEF_HOTENDPIDT;
-    #endif
-    #if ENABLED(PIDTEMPBED)
-      celsius_t bedPIDT = DEF_BEDPIDT;
-    #endif
-    #if ENABLED(PIDTEMPCHAMBER)
-      celsius_t chamberPIDT = DEF_CHAMBERPIDT;
-    #endif
-  #endif
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    celsius_t extMinT = EXTRUDE_MINTEMP;
-  #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    celsius_t bedLevT = LEVELING_BED_TEMP;
-  #endif
-  #if ENABLED(BAUD_RATE_GCODE)
-    bool baud115K = false;
-  #endif
-  #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
-    bool fullManualTramming = false;
-  #endif
-  #if ENABLED(PROUI_MEDIASORT)
-    bool mediaSort = true;
-  #endif
-  bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
-  #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
-    #define Z_POST_CLEARANCE hmiData.zAfterHoming
-  #endif
-  #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor ledColor = defColorLeds;
-  #endif
-  #if HAS_GCODE_PREVIEW
-    bool enablePreview = true;
-  #endif
-} hmi_data_t;
-
-extern hmi_data_t hmiData;
-
-#define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
-
-typedef struct {
   int8_t r, g, b;
   void set(int8_t _r, int8_t _g, int8_t _b) { r = _r; g = _g; b = _b; }
   int8_t& operator[](const int i) {
@@ -439,11 +373,12 @@ void drawMaxAccelMenu();
   #undef  MESH_MAX_X
   #undef  MESH_MIN_Y
   #undef  MESH_MAX_Y
-  #include "../../marlinui.h"
-  #define MESH_MIN_X ui.mesh_inset_min_x
-  #define MESH_MAX_X ui.mesh_inset_max_x
-  #define MESH_MIN_Y ui.mesh_inset_min_y
-  #define MESH_MAX_Y ui.mesh_inset_max_y
+  #define MESH_MIN_X hmiData.mesh_inset_min_x
+  #define MESH_MAX_X hmiData.mesh_inset_max_x
+  #define MESH_MIN_Y hmiData.mesh_inset_min_y
+  #define MESH_MAX_Y hmiData.mesh_inset_max_y
+#endif
+
 #if PROUI_TUNING_GRAPH
   void dwinDrawPIDMPCPopup();
 #endif

@@ -135,9 +135,9 @@
 #if ENABLED(LIN_ADVANCE)
   #define PROUI_ITEM_ADVK     // Tune > Linear Advance
 #endif
-#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+//#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
-#endif
+//#endif
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
@@ -211,14 +211,15 @@ typedef struct {
   uint16_t colorCoordinate;
 
   // Temperatures
-  #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
-    int16_t pidCycles = DEF_PIDCYCLES;
-  #endif
+  int16_t pidCycles = DEF_PIDCYCLES;
   #if ENABLED(PIDTEMP)
-    int16_t hotendPidT = DEF_HOTENDPIDT;
+    celsius_t hotendPIDT = DEF_HOTENDPIDT;
   #endif
   #if ENABLED(PIDTEMPBED)
-    int16_t bedPidT = DEF_BEDPIDT;
+    celsius_t bedPIDT = DEF_BEDPIDT;
+  #endif
+  #if ENABLED(PIDTEMPCHAMBER)
+    celsius_t chamberPIDT = DEF_CHAMBERPIDT;
   #endif
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     int16_t extMinT = EXTRUDE_MINTEMP;
@@ -240,12 +241,10 @@ typedef struct {
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
     uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
+    #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LEDColor ledColor = defColorLeds;
-  #endif
-  #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-    bool adaptiveStepSmoothing = true;
   #endif
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
@@ -260,10 +259,18 @@ typedef struct {
   #if HAS_EXTRUDERS
     bool Invert_E0 = DEF_INVERT_E0_DIR;
   #endif
+  #if ENABLED(PROUI_MESH_EDIT)
+    float mesh_min_x = DEF_MESH_MIN_X;
+    float mesh_max_x = DEF_MESH_MAX_X;
+    float mesh_min_y = DEF_MESH_MIN_Y;
+    float mesh_max_y = DEF_MESH_MAX_Y;
+  #endif
 } hmi_data_t;
 
 extern hmi_data_t hmiData;
-static constexpr size_t eeprom_data_size = sizeof(hmi_data_t);
+
+#define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
+
 
 // ProUI extra feature redefines
 #if PROUI_GRID_PNTS

@@ -95,7 +95,11 @@ namespace ExtUI {
   }
 
   #if HAS_MESH
-    typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    #if PROUI_GRID_PNTS
+      typedef float bed_mesh_t[GRID_LIMIT][GRID_LIMIT];
+    #else
+      typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+    #endif
   #endif
 
   /**
