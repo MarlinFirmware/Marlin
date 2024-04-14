@@ -27,6 +27,9 @@
 
 #define BOARD_INFO_NAME "Dagoma3D D6"
 
+//
+// Trinamic Stallguard pins
+//
 #define X_DIAG_PIN                            43
 #define Y_DIAG_PIN                            41
 #define Z_DIAG_PIN                            47
@@ -40,16 +43,27 @@
 #define Y_STOP_PIN                             3
 #define Z_STOP_PIN                            15
 
-#define FIL_RUNOUT_PIN                        39
-#if EXTRUDERS > 1
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      39
+#endif
+#if EXTRUDERS > 1 && !defined(FIL_RUNOUT2_PIN)
   #define FIL_RUNOUT2_PIN                     14
 #endif
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #define BOARD_ST7920_DELAY_1                 0
-  #define BOARD_ST7920_DELAY_2               250
-  #define BOARD_ST7920_DELAY_3               250
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1               0
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2             250
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3             250
+  #endif
 #endif
 
 #define KILL_PIN                              -1  // NC
