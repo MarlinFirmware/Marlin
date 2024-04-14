@@ -90,31 +90,26 @@
   #define E1_SERIAL_TX_PIN                    12
 
   // Default TMC slave addresses
-  #ifdef X_SLAVE_ADDRESS
-    static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_DAGOMA_D6.");
-  #else
+  #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS                    0
   #endif
-  #ifdef Y_SLAVE_ADDRESS
-    static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_DAGOMA_D6.");
-  #else
+  #ifndef Y_SLAVE_ADDRESS
     #define Y_SLAVE_ADDRESS                    1
   #endif
-  #ifdef Z_SLAVE_ADDRESS
-    static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_DAGOMA_D6.");
-  #else
+  #ifndef Z_SLAVE_ADDRESS
     #define Z_SLAVE_ADDRESS                    2
   #endif
-  #ifdef E0_SLAVE_ADDRESS
-    static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
-  #else
+  #ifndef E0_SLAVE_ADDRESS
     #define E0_SLAVE_ADDRESS                   3
   #endif
-  #ifdef E1_SLAVE_ADDRESS
-    static_assert(E1_SLAVE_ADDRESS == 3, "E1_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
-  #else
+  #ifndef E1_SLAVE_ADDRESS
     #define E1_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_DAGOMA_D6.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_DAGOMA_D6.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_DAGOMA_D6.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
+  static_assert(E1_SLAVE_ADDRESS == 3, "E1_SLAVE_ADDRESS must be 3 for BOARD_DAGOMA_D6.");
 
 #endif
 
