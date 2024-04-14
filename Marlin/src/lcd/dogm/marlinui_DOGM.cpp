@@ -377,7 +377,13 @@ void MarlinUI::draw_kill_screen() {
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep/*=true*/) { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) { 
+    static bool asleep = false;
+    if (asleep != sleep){
+      sleep ? u8g.sleepOn() : u8g.sleepOff(); 
+      asleep = sleep;
+    }
+  }
 #endif
 
 #if HAS_LCD_BRIGHTNESS

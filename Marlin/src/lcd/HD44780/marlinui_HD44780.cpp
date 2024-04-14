@@ -1169,7 +1169,7 @@ void MarlinUI::draw_status_screen() {
 
     lcd_moveto(LCD_WIDTH - 9, 2);
     lcd_put_lchar('S');
-    
+
 
   #endif // LCD_INFO_SCREEN_STYLE
 

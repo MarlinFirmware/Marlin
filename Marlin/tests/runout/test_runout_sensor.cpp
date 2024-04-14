@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,28 +20,17 @@
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../test/unit_tests.h"
 
-#if ENABLED(MARLIN_TEST_BUILD)
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-#include "../module/endstops.h"
-#include "../module/motion.h"
-#include "../module/planner.h"
-#include "../module/settings.h"
-#include "../module/stepper.h"
-#include "../module/temperature.h"
+#include <src/feature/runout.h>
 
-// Individual tests are localized in each module.
-// Each test produces its own report.
-
-// Startup tests are run at the end of setup()
-void runStartupTests() {
-  // Call post-setup tests here to validate behaviors.
+MARLIN_TEST(runout, poll_runout_states) {
+  FilamentSensorBase sensor;
+  // Expected default value is one bit set for each extruder
+  uint8_t expected = static_cast<uint8_t>(~(~0u << NUM_RUNOUT_SENSORS));
+  TEST_ASSERT_EQUAL(expected, sensor.poll_runout_states());
 }
 
-// Periodic tests are run from within loop()
-void runPeriodicTests() {
-  // Call periodic tests here to validate behaviors.
-}
-
-#endif // MARLIN_TEST_BUILD
+#endif
