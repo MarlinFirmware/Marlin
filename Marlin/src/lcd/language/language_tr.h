@@ -341,6 +341,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Çarpan");
   LSTR MSG_AUTOTEMP                       = _UxGT("Oto. Sıcaklık");
+  LSTR MSG_TIMEOUT                        = _UxGT("Zaman aşımı");
   LSTR MSG_LCD_ON                         = _UxGT("Açık");
   LSTR MSG_LCD_OFF                        = _UxGT("Kapalı");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyonu");
@@ -350,7 +351,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kalibrasyon başarısız!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Kötü ekstruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Sıcaklık çok yüksek.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Zaman aşımı");
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Sıcaklık çok düşük");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Kalibrasyon başarısız! Kötü ekstruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Kalibrasyon başarısız! Sıcaklık çok yüksek.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Kalibrasyon başarısız! Zaman aşımı.");
@@ -867,7 +868,6 @@ namespace LanguageNarrow_tr {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Yazdırma sırasında izin verilmez");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Boştayken izin verilmez");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Seçili dosya yok");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Sıcaklık çok düşük");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Komut yürütülüyor...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Tabla PID pasif");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID devre dışı");

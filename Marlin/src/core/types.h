@@ -449,7 +449,7 @@ struct XYval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return x || y; }
   // Smallest element
@@ -599,7 +599,7 @@ struct XYZval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 NUM_AXIS_GANG(|| x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
@@ -747,7 +747,7 @@ struct XYZEval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 LOGICAL_AXIS_GANG(|| e, || x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element

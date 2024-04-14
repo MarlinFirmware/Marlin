@@ -30,6 +30,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  #include "../lcd/e3v2/proui/dwin.h" // for Z_POST_CLEARANCE
+#endif
+
 #if IS_SCARA
   #include "scara.h"
 #elif ENABLED(POLAR)
@@ -407,13 +411,20 @@ void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
 #if HAS_Z_AXIS
-  #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    #include "../lcd/e3v2/proui/dwin.h"
-    #define Z_POST_CLEARANCE hmiData.zAfterHoming
-  #elif defined(Z_AFTER_HOMING)
-    #define Z_POST_CLEARANCE Z_AFTER_HOMING
-  #else
-    #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+  // #if ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+  //   #include "../lcd/e3v2/proui/dwin.h"
+  //   #define Z_POST_CLEARANCE hmiData.zAfterHoming
+  // #elif defined(Z_AFTER_HOMING)
+  //   #define Z_POST_CLEARANCE Z_AFTER_HOMING
+  // #else
+  //   #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+  // #endif
+  #ifndef Z_POST_CLEARANCE  // May be set by proui/dwin.h :-P
+    #ifdef Z_AFTER_HOMING
+      #define Z_POST_CLEARANCE Z_AFTER_HOMING
+    #else
+      #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
+    #endif
   #endif
   void do_z_clearance(const_float_t zclear, const bool with_probe=true, const bool lower_allowed=false);
   void do_z_clearance_by(const_float_t zclear);
