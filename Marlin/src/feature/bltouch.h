@@ -68,10 +68,10 @@ class BLTouch {
 public:
 
   static void init(const bool set_voltage=false);
-  static bool od_5v_mode;        // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
+  static bool od_5v_mode;         // Initialized by settings.load, 0 = Open Drain; 1 = 5V Drain
 
   #if HAS_BLTOUCH_HS_MODE
-    static bool high_speed_mode; // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
+    static bool high_speed_mode;  // Initialized by settings.load, 0 = Low Speed; 1 = High Speed
   #else
     static constexpr bool high_speed_mode = false;
   #endif
@@ -79,27 +79,27 @@ public:
   static float z_extra_clearance() { return TERN0(HAS_BLTOUCH_HS_MODE, high_speed_mode ? BLTOUCH_HS_EXTRA_CLEARANCE : 0); }
 
   // DEPLOY and STOW are wrapped for error handling - these are used by homing and by probing
-  static bool deploy()             { return deploy_proc(); }
-  static bool stow()               { return stow_proc(); }
-  static bool status()             { return status_proc(); }
+  static bool deploy()              { return deploy_proc(); }
+  static bool stow()                { return stow_proc(); }
+  static bool status()              { return status_proc(); }
 
   // Native BLTouch commands ("Underscore"...), used in lcd menus and internally
-  static void _reset()             { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
+  static void _reset()              { command(BLTOUCH_RESET, BLTOUCH_RESET_DELAY); }
 
-  static void _selftest()          { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
+  static void _selftest()           { command(BLTOUCH_SELFTEST, BLTOUCH_DELAY); }
 
-  static void _set_SW_mode()       { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
-  static void _reset_SW_mode()     { if (triggered()) _stow(); else _deploy(); }
+  static void _set_SW_mode()        { command(BLTOUCH_SW_MODE, BLTOUCH_DELAY); }
+  static void _reset_SW_mode()      { if (triggered()) _stow(); else _deploy(); }
 
-  static void _set_5V_mode()       { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
-  static void _set_OD_mode()       { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
-  static void _mode_store()        { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
+  static void _set_5V_mode()        { command(BLTOUCH_5V_MODE, BLTOUCH_SET5V_DELAY); }
+  static void _set_OD_mode()        { command(BLTOUCH_OD_MODE, BLTOUCH_SETOD_DELAY); }
+  static void _mode_store()         { command(BLTOUCH_MODE_STORE, BLTOUCH_MODE_STORE_DELAY); }
 
-  static void _deploy()            { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  static void _stow()              { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
+  static void _deploy()             { command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
+  static void _stow()               { command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
 
-  static void mode_conv_5V()       { mode_conv_proc(true); }
-  static void mode_conv_OD()       { mode_conv_proc(false); }
+  static void mode_conv_5V()        { mode_conv_proc(true); }
+  static void mode_conv_OD()        { mode_conv_proc(false); }
 
   static bool triggered();
 

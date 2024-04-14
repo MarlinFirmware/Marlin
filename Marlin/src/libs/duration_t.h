@@ -27,7 +27,7 @@ struct duration_t {
   /**
    * @brief Duration is stored in seconds
    */
-  millis_t value;
+  uint32_t value;
 
   /**
    * @brief Constructor
@@ -40,7 +40,7 @@ struct duration_t {
    *
    * @param seconds The number of seconds
    */
-  duration_t(millis_t const &seconds) {
+  duration_t(uint32_t const &seconds) {
     this->value = seconds;
   }
 
@@ -51,7 +51,7 @@ struct duration_t {
    * @param value The number of seconds to compare to
    * @return True if both durations are equal
    */
-  bool operator==(const millis_t &value) const {
+  bool operator==(const uint32_t &value) const {
     return (this->value == value);
   }
 
@@ -62,7 +62,7 @@ struct duration_t {
    * @param value The number of seconds to compare to
    * @return False if both durations are equal
    */
-  bool operator!=(const millis_t &value) const {
+  bool operator!=(const uint32_t &value) const {
     return ! this->operator==(value);
   }
 
@@ -86,7 +86,7 @@ struct duration_t {
    * @brief Format the duration as hours
    * @return The number of hours
    */
-  inline millis_t hour() const {
+  inline uint32_t hour() const {
     return this->minute() / 60;
   }
 
@@ -94,7 +94,7 @@ struct duration_t {
    * @brief Format the duration as minutes
    * @return The number of minutes
    */
-  inline millis_t minute() const {
+  inline uint32_t minute() const {
     return this->second() / 60;
   }
 
@@ -102,7 +102,7 @@ struct duration_t {
    * @brief Format the duration as seconds
    * @return The number of seconds
    */
-  inline millis_t second() const {
+  inline uint32_t second() const {
     return this->value;
   }
 

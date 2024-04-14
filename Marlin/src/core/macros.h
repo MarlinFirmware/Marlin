@@ -134,71 +134,6 @@
 
 #endif
 
-//
-// Primitives supporting precompiler REPEAT
-//
-#define FIRST(a,...)     a
-#define SECOND(a,b,...)  b
-#define THIRD(a,b,c,...) c
-
-// Concatenate symbol names, without or with pre-expansion
-#define _CAT(a,V...) a##V
-#define CAT(a,V...) _CAT(a,V)
-
-// Defer expansion
-#define EMPTY()
-#define DEFER(M)  M EMPTY()
-#define DEFER2(M) M EMPTY EMPTY()()
-#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
-#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
-
-// Force define expansion
-#define EVAL           EVAL16
-#define EVAL1(V...)    V
-#define EVAL2(V...)    EVAL1(EVAL1(V))
-#define EVAL4(V...)    EVAL2(EVAL2(V))
-#define EVAL8(V...)    EVAL4(EVAL4(V))
-#define EVAL16(V...)   EVAL8(EVAL8(V))
-#define EVAL32(V...)   EVAL16(EVAL16(V))
-#define EVAL64(V...)   EVAL32(EVAL32(V))
-#define EVAL128(V...)  EVAL64(EVAL64(V))
-#define EVAL256(V...)  EVAL128(EVAL128(V))
-#define EVAL512(V...)  EVAL256(EVAL256(V))
-#define EVAL1024(V...) EVAL512(EVAL512(V))
-#define EVAL2048(V...) EVAL1024(EVAL1024(V))
-#define EVAL4096(V...) EVAL2048(EVAL2048(V))
-
-#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
-#define PROBE() ~, 1                    // Second item will be 1 if this is passed
-#define _NOT_0 PROBE()
-#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
-#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
-
-#define _IF_ELSE(TF) _CAT(_IF_, TF)
-#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
-
-#define _IF_1(V...) V _IF_1_ELSE
-#define _IF_0(...)    _IF_0_ELSE
-
-#define _IF_1_ELSE(...)
-#define _IF_0_ELSE(V...) V
-
-// Simple Inline IF Macros, friendly to use in other macro definitions
-#define IF(O, A, B) ((O) ? (A) : (B))
-#define IF_0(O, A) IF(O, A, 0)
-#define IF_1(O, A) IF(O, A, 1)
-
-#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
-#define _END_OF_ARGUMENTS_() 0
-
-// Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
-#define _NUM_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define NUM_ARGS(V...) _NUM_ARGS(0,V,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
-
-// Use TWO_ARGS(__VA_ARGS__) to get whether there are 1, 2, or >2 arguments
-#define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
-
 // Macros to chain up to 40 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
@@ -244,6 +179,10 @@
 #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
 #define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
 
+// Concatenate symbol names, without or with pre-expansion
+#define _CAT(a,V...) a##V
+#define CAT(a,V...) _CAT(a,V)
+
 // Recognize "true" values: blank, 1, 0x1, true
 #define _ISENA_     ~,1
 #define _ISENA_1    ~,1
@@ -263,13 +202,13 @@
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
 // Ternary pre-compiler macros conceal non-emitted content from the compiler
-#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
-#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
-#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
 #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
 #define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 #define IF_DISABLED(O,A)    TERN(O,,A)
 
 // Macros to conditionally emit array items and function arguments
@@ -432,6 +371,14 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
+
+// Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
+#define _NUM_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define NUM_ARGS(V...) _NUM_ARGS(0,V,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+
+// Use TWO_ARGS(__VA_ARGS__) to get whether there are 1, 2, or >2 arguments
+#define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
+#define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
 
 #ifdef __cplusplus
 
@@ -666,6 +613,59 @@
 #define SUB8(N)  SUB4(SUB4(N))
 #define SUB9(N)  SUB4(SUB5(N))
 #define SUB10(N) SUB5(SUB5(N))
+
+//
+// Primitives supporting precompiler REPEAT
+//
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
+
+// Defer expansion
+#define EMPTY()
+#define DEFER(M)  M EMPTY()
+#define DEFER2(M) M EMPTY EMPTY()()
+#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
+#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
+
+// Force define expansion
+#define EVAL           EVAL16
+#define EVAL4096(V...) EVAL2048(EVAL2048(V))
+#define EVAL2048(V...) EVAL1024(EVAL1024(V))
+#define EVAL1024(V...) EVAL512(EVAL512(V))
+#define EVAL512(V...)  EVAL256(EVAL256(V))
+#define EVAL256(V...)  EVAL128(EVAL128(V))
+#define EVAL128(V...)  EVAL64(EVAL64(V))
+#define EVAL64(V...)   EVAL32(EVAL32(V))
+#define EVAL32(V...)   EVAL16(EVAL16(V))
+#define EVAL16(V...)   EVAL8(EVAL8(V))
+#define EVAL8(V...)    EVAL4(EVAL4(V))
+#define EVAL4(V...)    EVAL2(EVAL2(V))
+#define EVAL2(V...)    EVAL1(EVAL1(V))
+#define EVAL1(V...)    V
+
+#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
+#define PROBE() ~, 1                    // Second item will be 1 if this is passed
+#define _NOT_0 PROBE()
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
+
+#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
+#define _IF_ELSE(TF) _CAT(_IF_, TF)
+
+#define _IF_1(V...) V _IF_1_ELSE
+#define _IF_0(...)    _IF_0_ELSE
+
+#define _IF_1_ELSE(...)
+#define _IF_0_ELSE(V...) V
+
+#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
+#define _END_OF_ARGUMENTS_() 0
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
 
 //
 // REPEAT core macros. Recurse N times with ascending I.

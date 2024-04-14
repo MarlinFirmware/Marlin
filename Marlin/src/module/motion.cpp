@@ -219,24 +219,22 @@ inline void report_logical_position(const xyze_pos_t &rpos) {
   #endif
 }
 
-#if ANY(AUTO_REPORT_REAL_POSITION, M114_REALTIME)
-  // Report the real current position according to the steppers.
-  // Forward kinematics and un-leveling are applied.
-  void report_real_position() {
-    get_cartesian_from_steppers();
-    xyze_pos_t npos = LOGICAL_AXIS_ARRAY(
-      planner.get_axis_position_mm(E_AXIS),
-      cartes.x, cartes.y, cartes.z,
-      cartes.i, cartes.j, cartes.k,
-      cartes.u, cartes.v, cartes.w
-    );
+// Report the real current position according to the steppers.
+// Forward kinematics and un-leveling are applied.
+void report_real_position() {
+  get_cartesian_from_steppers();
+  xyze_pos_t npos = LOGICAL_AXIS_ARRAY(
+    planner.get_axis_position_mm(E_AXIS),
+    cartes.x, cartes.y, cartes.z,
+    cartes.i, cartes.j, cartes.k,
+    cartes.u, cartes.v, cartes.w
+  );
 
-    TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
+  TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
 
-    report_logical_position(npos);
-    report_more_positions();
-  }
-#endif
+  report_logical_position(npos);
+  report_more_positions();
+}
 
 // Report the logical current position according to the most recent G-code command
 void report_current_position() {
