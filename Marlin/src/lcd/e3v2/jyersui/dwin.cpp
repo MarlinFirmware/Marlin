@@ -450,10 +450,10 @@ void JyersDWIN::drawFloat(const_float_t value, const uint8_t row, const bool sel
   const uint16_t xpos = 240 - (digits * 8);
   dwinDrawRectangle(1, COLOR_BG_BLACK, 194, MBASE(row), 234 - (digits * 8), MBASE(row) + 16);
   if (isnan(value))
-    dwinDrawString(true, DWIN_FONT_MENU, COLOR_WHITE, bColor, xpos - 8, MBASE(row), F(" NaN"));
+    dwinDrawString(true, DWIN_FONT_MENU, COLOR_WHITE, bColor, xpos - MENU_CHR_W, MBASE(row), F(" NaN"));
   else {
     dwinDrawFloatValue(true, true, 0, DWIN_FONT_MENU, COLOR_WHITE, bColor, digits - log10(minunit) + 1, log10(minunit), xpos, MBASE(row), (value < 0 ? -value : value));
-    dwinDrawString(true, DWIN_FONT_MENU, COLOR_WHITE, bColor, xpos - 8, MBASE(row), value < 0 ? F("-") : F(" "));
+    dwinDrawString(true, DWIN_FONT_MENU, COLOR_WHITE, bColor, xpos - MENU_CHR_W, MBASE(row), value < 0 ? F("-") : F(" "));
   }
 }
 
@@ -698,7 +698,7 @@ void JyersDWIN::drawPrintFilename(const bool reset/*=false*/) {
     size_t outlen = 0;
     const char* outstr = scroller.scroll(outlen, buf, filename);
     dwinDrawRectangle(1, COLOR_BG_BLACK, 8, 50, DWIN_WIDTH - 8, 80);
-    const int8_t npos = (DWIN_WIDTH - outlen * MENU_CHR_W) / 2;
+    const int8_t npos = (DWIN_WIDTH - MENU_CHR_W * outlen) / 2;
     dwinDrawString(false, DWIN_FONT_MENU, COLOR_WHITE, COLOR_BG_BLACK, npos, 60, outstr);
   }
 }
@@ -783,7 +783,7 @@ void JyersDWIN::drawSDList(const bool removed/*=false*/) {
   else {
     drawMenuItem(0, ICON_Back, GET_TEXT_F(MSG_BACK));
     dwinDrawRectangle(1, COLOR_BG_RED, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), GET_TEXT_F(MSG_NO_MEDIA));
+    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, (DWIN_WIDTH - 16 * 8) / 2, MBASE(3), GET_TEXT_F(MSG_NO_MEDIA));
   }
   dwinDrawRectangle(1, getColor(eeprom_settings.cursor_color, COLOR_RECTANGLE), 0, MBASE(0) - 18, 14, MBASE(0) + 33);
 }
@@ -925,9 +925,9 @@ void JyersDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const l
   dwinDrawRectangle(1, COLOR_BG_WINDOW, 14, 60, 258, 350);
   const uint8_t ypos = (mode == Proc_Popup || mode == Proc_Confirm) ? 150 : 230;
   if (icon > 0) dwinIconShow(ICON, icon, 101, 105);
-  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * strlen_P(FTOP(line1))) / 2, ypos, line1);
-  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * strlen_P(FTOP(line2))) / 2, ypos + 30, line2);
-  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * strlen_P(FTOP(line3))) / 2, ypos + 60, line3);
+  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * strlen_P(FTOP(line1))) / 2, ypos, line1);
+  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * strlen_P(FTOP(line2))) / 2, ypos + 30, line2);
+  dwinDrawString(true, DWIN_FONT_MENU, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * strlen_P(FTOP(line3))) / 2, ypos + 60, line3);
   if (mode == Proc_Popup) {
     selection = 0;
     dwinDrawRectangle(1, COLOR_CONFIRM, 26, 280, 125, 317);
@@ -968,12 +968,12 @@ void JyersDWIN::updateStatusBar(const bool refresh/*=false*/) {
     new_msg = false;
     if (process == Proc_Print) {
       dwinDrawRectangle(1, COLOR_GREY, 8, 214, DWIN_WIDTH - 8, 238);
-      const int8_t npos = (DWIN_WIDTH - len * MENU_CHR_W) / 2;
+      const int8_t npos = (DWIN_WIDTH - MENU_CHR_W * len) / 2;
       dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.status_bar_text, COLOR_WHITE), COLOR_BG_BLACK, npos, 219, dispmsg);
     }
     else {
       dwinDrawRectangle(1, COLOR_BG_BLACK, 8, 352, DWIN_WIDTH - 8, 376);
-      const int8_t npos = (DWIN_WIDTH - len * MENU_CHR_W) / 2;
+      const int8_t npos = (DWIN_WIDTH - MENU_CHR_W * len) / 2;
       dwinDrawString(false, DWIN_FONT_MENU, getColor(eeprom_settings.status_bar_text, COLOR_WHITE), COLOR_BG_BLACK, npos, 357, dispmsg);
     }
   }

@@ -115,8 +115,8 @@ constexpr uint16_t MROWS = TROWS - 1,   // Last Row Index
 
 #define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, dwin_zoffset)
 
-#define DWIN_BOTTOM (DWIN_HEIGHT-1)
-#define DWIN_RIGHT (DWIN_WIDTH-1)
+#define DWIN_BOTTOM (DWIN_HEIGHT - 1)
+#define DWIN_RIGHT (DWIN_WIDTH - 1)
 
 // Value Init
 hmi_value_t hmiValues;
@@ -1112,9 +1112,9 @@ void popupWindowResume() {
     dwinIconShow(ICON, ICON_Continue_C, 146, 307);
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 14) / 2, 115, F("Continue Print"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 22) / 2, 192, F("It looks like the last"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 22) / 2, 212, F("file was interrupted."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 14) / 2, 115, F("Continue Print"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 22) / 2, 192, F("It looks like the last"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 21) / 2, 212, F("file was interrupted."));
     dwinIconShow(ICON, ICON_Cancel_E,    26, 307);
     dwinIconShow(ICON, ICON_Continue_E, 146, 307);
   }
@@ -1130,8 +1130,8 @@ void popupWindowHome(const bool parking/*=false*/) {
     dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
   }
 }
 
@@ -1146,8 +1146,8 @@ void popupWindowHome(const bool parking/*=false*/) {
       dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
     }
     else {
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
     }
   }
 
@@ -1174,8 +1174,8 @@ void popupwindowPauseOrStop() {
     dwinIconShow(ICON, ICON_Cancel_C, 146, 280);
   }
   else {
-         if (select_print.now == PRINT_PAUSE_RESUME) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
-    else if (select_print.now == PRINT_STOP) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
+         if (select_print.now == PRINT_PAUSE_RESUME) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
+    else if (select_print.now == PRINT_STOP) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
     dwinIconShow(ICON, ICON_Confirm_E, 26, 280);
     dwinIconShow(ICON, ICON_Cancel_E, 146, 280);
   }
@@ -1231,7 +1231,7 @@ void gotoPrintProcess() {
 
   // Copy into filebuf string before entry
   char * const name = card.longest_filename();
-  const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
+  const int8_t npos = _MAX(0U, DWIN_WIDTH - MENU_CHR_W * strlen(name)) / 2;
   dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, npos, 60, name);
 
   dwinIconShow(ICON, ICON_PrintTime,   17, 163);
@@ -1818,9 +1818,9 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
     // Chinese "Printer Killed"
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 15) / 2, 210, GET_TEXT_F(MSG_PRINTER_KILLED));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * slen) / 2, 240, lcd_error);
-    dwinDrawString(true, font8x16, COLOR_ERROR_RED, COLOR_BG_WINDOW, (272 - 8 * 20) / 2, 270, GET_TEXT_F(MSG_TURN_OFF));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 15) / 2, 210, GET_TEXT_F(MSG_PRINTER_KILLED));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * slen) / 2, 240, lcd_error);
+    dwinDrawString(true, font8x16, COLOR_ERROR_RED, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 20) / 2, 270, GET_TEXT_F(MSG_TURN_OFF));
   }
 }
 
@@ -1932,7 +1932,7 @@ void redrawSDList() {
   }
   else {
     dwinDrawRectangle(1, COLOR_BG_RED, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
+    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, (DWIN_WIDTH - 16 * 8) / 2, MBASE(3), F("No Media"));
   }
 }
 
@@ -1985,7 +1985,7 @@ void hmiSDCardUpdate() {
 //
 void drawStatusArea(const bool with_update) {
 
-  dwinDrawRectangle(1, COLOR_BG_BLACK, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
+  dwinDrawRectangle(1, COLOR_BG_BLACK, 0, STATUS_Y, DWIN_WIDTH, DWIN_BOTTOM);
 
   #if HAS_HOTEND
     dwinIconShow(ICON, ICON_HotendTemp, 10, 383);
@@ -2048,8 +2048,8 @@ void hmiStartFrame(const bool with_update) {
 void drawInfoMenu() {
   clearMainWindow();
 
-  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, F(MACHINE_SIZE));
-  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, F(SHORT_BUILD_VERSION));
+  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - MENU_CHR_W * strlen(MACHINE_SIZE)) / 2, 122, F(MACHINE_SIZE));
+  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - MENU_CHR_W * strlen(SHORT_BUILD_VERSION)) / 2, 195, F(SHORT_BUILD_VERSION));
 
   if (hmiIsChinese()) {
     dwinFrameTitleCopy(30, 17, 28, 13);                   // "Info"
@@ -2069,7 +2069,7 @@ void drawInfoMenu() {
     dwinFrameAreaCopy(1, 146, 151, 254, 161,  82, 175);   // "Firmware Version"
     dwinFrameAreaCopy(1,   1, 164,  96, 175,  89, 248);   // "Contact details"
   }
-  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - strlen(CORP_WEBSITE) * MENU_CHR_W) / 2, 268, F(CORP_WEBSITE));
+  dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLACK, (DWIN_WIDTH - MENU_CHR_W * strlen(CORP_WEBSITE)) / 2, 268, F(CORP_WEBSITE));
 
   drawBackFirst();
   for (uint8_t i = 0; i < 3; ++i) {
@@ -4122,7 +4122,7 @@ void eachMomentUpdate() {
       drawPrintProgressBar();
 
       // show print done confirm
-      dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
+      dwinDrawRectangle(1, COLOR_BG_BLACK, 0, 250, DWIN_RIGHT, STATUS_Y);
       dwinIconShow(ICON, hmiIsChinese() ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
     }
     else if (hmiFlag.pause_flag != printingIsPaused()) {
@@ -4197,7 +4197,7 @@ void eachMomentUpdate() {
       update_selection(true);
 
       char * const name = card.longest_filename();
-      const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
+      const int8_t npos = _MAX(0U, DWIN_WIDTH - MENU_CHR_W * strlen(name)) / 2;
       dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, npos, 252, name);
       dwinUpdateLCD();
 
@@ -4319,7 +4319,7 @@ void dwinLevelingDone() {
 
 void dwinStatusChanged(PGM_P const cstr/*=nullptr*/) {
   dwinDrawRectangle(1, COLOR_BG_BLUE, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 24);
-  const int8_t x = _MAX(0U, DWIN_WIDTH - strlen(cstr) * MENU_CHR_W) / 2;
+  const int8_t x = _MAX(0U, DWIN_WIDTH - MENU_CHR_W * strlen(cstr)) / 2;
   dwinDrawString(false, font8x16, COLOR_WHITE, COLOR_BG_BLUE, x, STATUS_Y + 3, cstr);
   dwinUpdateLCD();
 }
