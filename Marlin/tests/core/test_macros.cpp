@@ -1262,3 +1262,56 @@ MARLIN_TEST(macros_math, MIN_MAX) {
   TEST_ASSERT_EQUAL_FLOAT(0.5f, _MAX(-1.5f, 0.5f));
   TEST_ASSERT_EQUAL_FLOAT(0.5f, _MAX(0.5f, -1.5f));
 }
+
+MARLIN_TEST(macros_math, INCREMENT) {
+  TEST_ASSERT_EQUAL(1, INCREMENT(0));
+  TEST_ASSERT_EQUAL(21, INCREMENT(20));
+  // 20 is the highest number supported by the INCREMENT macro
+}
+
+MARLIN_TEST(macros_math, ADD) {
+  // Test smallest add
+  TEST_ASSERT_EQUAL(0, ADD0(0));
+  TEST_ASSERT_EQUAL(10, ADD0(10));
+
+  // Test largest add
+  TEST_ASSERT_EQUAL(10, ADD10(0));
+  TEST_ASSERT_EQUAL(20, ADD10(10));
+}
+
+MARLIN_TEST(macros_math, SUM) {
+  // Test smallest sum
+  TEST_ASSERT_EQUAL(3, SUM(0, 3));
+  TEST_ASSERT_EQUAL(7, SUM(3, 4));
+
+  // Test largest sum
+  TEST_ASSERT_EQUAL(15, SUM(10, 5));
+  TEST_ASSERT_EQUAL(19, SUM(9, 10));
+}
+
+MARLIN_TEST(macros_math, DOUBLE) {
+  // Test double
+  TEST_ASSERT_EQUAL(0, DOUBLE(0));
+  TEST_ASSERT_EQUAL(2, DOUBLE(1));
+  TEST_ASSERT_EQUAL(4, DOUBLE(2));
+  TEST_ASSERT_EQUAL(20, DOUBLE(10));
+}
+
+MARLIN_TEST(macros_math, DECREMENT) {
+  TEST_ASSERT_EQUAL(0, DECREMENT(1));
+  TEST_ASSERT_EQUAL(14, DECREMENT(15));
+}
+
+MARLIN_TEST(macros_math, SUB) {
+  // Test smallest subtraction
+  TEST_ASSERT_EQUAL(0, SUB0(0));
+  TEST_ASSERT_EQUAL(10, SUB0(10));
+
+  // Test subtracting 1
+  TEST_ASSERT_EQUAL(0, SUB1(1));
+  TEST_ASSERT_EQUAL(5, SUB1(6));
+
+  // Test largest subtraction
+  TEST_ASSERT_EQUAL(0, SUB10(10));
+  TEST_ASSERT_EQUAL(5, SUB10(15));
+}
