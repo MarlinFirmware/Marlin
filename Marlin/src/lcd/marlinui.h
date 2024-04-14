@@ -53,7 +53,7 @@
   #include "e3v2/proui/dwin.h"
 #endif
 
-#if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
+#if ENABLED(IS_DWIN_MARLINUI)
   #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 

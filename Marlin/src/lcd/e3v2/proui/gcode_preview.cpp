@@ -70,10 +70,10 @@ void fileprop_t::clear() {
   height = width = length = 0;
 }
 
-void getValue(const char * const buf, const char * const key, float &value) {
+void getValue(const char * const buf, PGM_P const key, float &value) {
   if (value != 0.0f) return;
 
-  const char * posptr = strstr_P(buf, key);
+  const char *posptr = strstr_P(buf, key);
   if (posptr == nullptr) return;
 
   char num[10] = "";
@@ -91,7 +91,7 @@ void getValue(const char * const buf, const char * const key, float &value) {
 
 bool Preview::hasPreview() {
   const char * const tbstart = PSTR("; thumbnail begin " STRINGIFY(THUMBWIDTH) "x" STRINGIFY(THUMBHEIGHT));
-  const char * posptr = nullptr;
+  const char *posptr = nullptr;
   uint32_t indx = 0;
   float tmp = 0;
 
@@ -176,7 +176,7 @@ bool Preview::hasPreview() {
 void Preview::drawFromSD() {
   hasPreview();
 
-  MString<45> buf;
+  TString buf;
   dwinDrawRectangle(1, hmiData.colorBackground, 0, 0, DWIN_WIDTH, STATUS_Y - 1);
   if (fileprop.time) {
     buf.setf(F("Estimated time: %i:%02i"), (uint16_t)fileprop.time / 3600, ((uint16_t)fileprop.time % 3600) / 60);

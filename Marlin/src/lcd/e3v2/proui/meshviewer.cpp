@@ -87,7 +87,7 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
     else DWINUI::drawSignedFloat(meshfont, 1, 2, px(x) - 3 * fs, fy, z);
   }
   else {
-    char msg[9] = "";
+    char msg[9]; msg[0] = '\0';
     switch (v) {
       case -999 ... -100:
       case  100 ...  999: DWINUI::drawSignedFloat(meshfont, 1, 1, px(x) - 3 * fs, fy, z); break;

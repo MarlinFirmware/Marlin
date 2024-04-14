@@ -97,7 +97,7 @@
 
 #define MAX_XY_OFFSET 100
 
-#if HAS_ZOFFSET_ITEM && HAS_BED_PROBE
+#if ALL(HAS_ZOFFSET_ITEM, HAS_BED_PROBE)
   #define MAX_Z_OFFSET  20
   #define MIN_Z_OFFSET -20
 #else
@@ -3970,7 +3970,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       }
       break;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
 
       case ID_PreheatHotend:
 
@@ -4281,7 +4281,7 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #endif
     case ID_Tune:           return TUNE_TOTAL;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
       case ID_PreheatHotend: return PREHEATHOTEND_TOTAL;
     #endif
 
