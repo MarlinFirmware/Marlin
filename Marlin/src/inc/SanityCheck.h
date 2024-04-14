@@ -1837,6 +1837,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1."
+  #elif (X2_HOME_POS <= X1_MAX_POS) || (X2_MAX_POS < X1_MAX_POS)
+    #error "DUAL_X_CARRIAGE will crash if X1 can meet or exceed X2 travel."
   #endif
 #endif
 
@@ -3935,11 +3937,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
     #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND)
+#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT)
+#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif defined(WIFI_SSID) || defined(WIFI_PWD)
+#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
