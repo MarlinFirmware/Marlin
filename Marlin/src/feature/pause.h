@@ -57,9 +57,7 @@ enum PauseMessage : char {
 };
 
 #if M600_PURGE_MORE_RESUMABLE
-  /**
-   * Input methods can Purge More, Resume, or request input
-   */
+  // Input methods can Purge More, Resume, or request input
   enum PauseMenuResponse : char {
     PAUSE_RESPONSE_WAIT_FOR,
     PAUSE_RESPONSE_EXTRUDE_MORE,

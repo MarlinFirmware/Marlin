@@ -1,9 +1,9 @@
 #
-# test-builds.yml
+# ci-build-tests.yml
 # Do test builds to catch compile errors
 #
 
-name: CI
+name: CI - Build Tests
 
 on:
   pull_request:
@@ -27,7 +27,7 @@ on:
 
 jobs:
   test_builds:
-    name: Run All Tests
+    name: Build Test
     if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
