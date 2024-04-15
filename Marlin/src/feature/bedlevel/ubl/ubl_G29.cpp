@@ -313,7 +313,6 @@ void unified_bed_leveling::G29() {
     #if ENABLED(DWIN_LCD_PROUI)
       save_ubl_active_state_and_disable();
       gcode.process_subcommands_now(F("G28Z"));
-      gcode.process_subcommands_now(F("G28XY"));
       restore_ubl_active_state(false); // ...without telling ExtUI "done"
     #else
       // Send 'N' to force homing before G29 (internal only)
@@ -821,10 +820,14 @@ void unified_bed_leveling::shift_mesh_height() {
 
     TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
-    do_blocking_move_to_xy(
-      constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
-      constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
-    );
+    #if ENABLED(DWIN_LCD_PROUI)
+      bedlevel.smart_fill_mesh();
+    #else
+      do_blocking_move_to_xy(
+        constrain(nearby.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
+        constrain(nearby.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
+      );
+    #endif
 
     TERN_(DWIN_LCD_PROUI, EXIT_PROBE_MESH:);
     restore_ubl_active_state();
@@ -1772,8 +1775,8 @@ void unified_bed_leveling::smart_fill_mesh() {
     SERIAL_EOL();
 
     SERIAL_ECHOPGM("Y-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i) {
-      SERIAL_ECHO(p_float_t(LOGICAL_Y_POSITION(get_mesh_y(i)), 3), F("  "));
+    for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; ++j) {
+      SERIAL_ECHO(p_float_t(LOGICAL_Y_POSITION(get_mesh_y(j)), 3), F("  "));
       serial_delay(25);
     }
     SERIAL_EOL();

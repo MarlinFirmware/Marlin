@@ -76,7 +76,7 @@ public:
   }
 
   static float get_mesh_x(const uint8_t i) { return index_to_xpos[i]; }
-  static float get_mesh_y(const uint8_t i) { return index_to_ypos[i]; }
+  static float get_mesh_y(const uint8_t j) { return index_to_ypos[j]; }
 
   static uint8_t cell_index_x(const_float_t x) {
     int8_t cx = (x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST);

@@ -32,15 +32,15 @@
 #include <stddef.h>
 #include "../../../core/types.h"
 
-//#define TJC_DISPLAY           // Enable for TJC display
-//#define DACAI_DISPLAY         // Enable for DACAI display
-//#define TITLE_CENTERED        // Center Menu Title Text
+//#define TJC_DISPLAY         // Enable for TJC display
+//#define DACAI_DISPLAY       // Enable for DACAI display
+//#define TITLE_CENTERED      // Center Menu Title Text
 
 #if HAS_MESH
-  #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
+  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset + points
   #if ENABLED(PROUI_MESH_EDIT)
-    #define Z_OFFSET_MIN  -3.0  // (mm)
-    #define Z_OFFSET_MAX   3.0  // (mm)
+    #define Z_OFFSET_MIN -3.0 // (mm)
+    #define Z_OFFSET_MAX  3.0 // (mm)
   #endif
 #endif
 
@@ -135,9 +135,9 @@
 #if ENABLED(LIN_ADVANCE)
   #define PROUI_ITEM_ADVK     // Tune > Linear Advance
 #endif
-//#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+#if DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
-//#endif
+#endif
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
@@ -249,21 +249,21 @@ typedef struct {
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
-  #if HAS_BED_PROBE
-    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
-    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
-  #endif
-  #if PROUI_GRID_PNTS
-    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
-  #endif
-  #if HAS_EXTRUDERS
-    bool Invert_E0 = DEF_INVERT_E0_DIR;
-  #endif
   #if ENABLED(PROUI_MESH_EDIT)
     float mesh_min_x = DEF_MESH_MIN_X;
     float mesh_max_x = DEF_MESH_MAX_X;
     float mesh_min_y = DEF_MESH_MIN_Y;
     float mesh_max_y = DEF_MESH_MAX_Y;
+  #endif
+  #if PROUI_GRID_PNTS
+    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
+  #endif
+  #if HAS_BED_PROBE
+    IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
+    uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
+  #endif
+  #if HAS_EXTRUDERS
+    bool Invert_E0 = DEF_INVERT_E0_DIR;
   #endif
 } hmi_data_t;
 
@@ -271,8 +271,18 @@ extern hmi_data_t hmiData;
 
 #define EXTUI_EEPROM_DATA_SIZE sizeof(hmi_data_t)
 
-
 // ProUI extra feature redefines
+#if ENABLED(PROUI_MESH_EDIT)
+  #undef  MESH_MIN_X
+  #undef  MESH_MAX_X
+  #undef  MESH_MIN_Y
+  #undef  MESH_MAX_Y
+  #define MESH_MIN_X hmiData.mesh_min_x
+  #define MESH_MAX_X hmiData.mesh_max_x
+  #define MESH_MIN_Y hmiData.mesh_min_y
+  #define MESH_MAX_Y hmiData.mesh_max_y
+#endif
+
 #if PROUI_GRID_PNTS
   #undef  GRID_MAX_POINTS_X
   #undef  GRID_MAX_POINTS_Y

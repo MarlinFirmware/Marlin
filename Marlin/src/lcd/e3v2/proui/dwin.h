@@ -367,18 +367,6 @@ void drawMaxAccelMenu();
   #endif
 #endif
 
-// ProUI extra features
-#if ENABLED(PROUI_MESH_EDIT)
-  #undef  MESH_MIN_X
-  #undef  MESH_MAX_X
-  #undef  MESH_MIN_Y
-  #undef  MESH_MAX_Y
-  #define MESH_MIN_X hmiData.mesh_min_x
-  #define MESH_MAX_X hmiData.mesh_max_x
-  #define MESH_MIN_Y hmiData.mesh_min_y
-  #define MESH_MAX_Y hmiData.mesh_max_y
-#endif
-
 #if PROUI_TUNING_GRAPH
   void dwinDrawPIDMPCPopup();
 #endif
