@@ -4162,7 +4162,7 @@ void drawMaxAccelMenu() {
     void setEditMeshX() { hmiValue.select = 0; setIntOnClick(0, GRID_MAX_POINTS_X - 1, bedLevelTools.mesh_x, applyEditMeshX, liveEditMesh); }
     void setEditMeshY() { hmiValue.select = 1; setIntOnClick(0, GRID_MAX_POINTS_Y - 1, bedLevelTools.mesh_y, applyEditMeshY, liveEditMesh); }
     void setEditZValue() { setPFloatOnClick(Z_OFFSET_MIN, Z_OFFSET_MAX, 3); }
-    void applyMeshInset() { reset_bed_level(); redrawItem(); }
+    void applyMeshInset() { set_bed_leveling_enabled(false); reset_bed_level(); redrawItem(); }
     void setMeshInset() { setPFloatOnClick(X_MIN_POS, X_MAX_POS, UNITFDIGITS, applyMeshInset);  }
   #endif
 
