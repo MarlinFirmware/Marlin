@@ -794,12 +794,17 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
-  uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
-           final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
+  uint32_t initial_rate = LROUND(block->nominal_rate * entry_factor),
+           final_rate = LROUND(block->nominal_rate * exit_factor); // (steps per second)
 
-  // Limit minimal step rate (Otherwise the timer will overflow.)
+  // Legacy check against supposed timer overflow. However Stepper::calc_timer_interval() already
+  // should protect against it. But removing results in less smooth motion for switching direction
+  // moves. This is because the current discrete stepping math diverges from physical motion under
+  // constant acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOMORE(initial_rate, block->nominal_rate);
+  NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
@@ -807,9 +812,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Steps for acceleration, plateau and deceleration
-  int32_t plateau_steps = block->step_event_count;
-  uint32_t accelerate_steps = 0,
-           decelerate_steps = 0;
+  int32_t plateau_steps = block->step_event_count,
+          accelerate_steps = 0,
+          decelerate_steps = 0;
 
   const int32_t accel = block->acceleration_steps_per_s2;
   float inverse_accel = 0.0f;
@@ -818,10 +823,11 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     const float half_inverse_accel = 0.5f * inverse_accel,
                 nominal_rate_sq = sq(float(block->nominal_rate)),
                 // Steps required for acceleration, deceleration to/from nominal rate
-                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(final_rate)));
-          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(initial_rate)));
+                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(final_rate))),
+                accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(initial_rate)));
+    // Aims to fully reach nominal and final rates
     accelerate_steps = CEIL(accelerate_steps_float);
-    decelerate_steps = FLOOR(decelerate_steps_float);
+    decelerate_steps = CEIL(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
     plateau_steps -= accelerate_steps + decelerate_steps;
@@ -831,13 +837,13 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     // Calculate accel / braking time in order to reach the final_rate exactly
     // at the end of this block.
     if (plateau_steps < 0) {
-      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
-      accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
+      accelerate_steps = LROUND((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
+      LIMIT(accelerate_steps, 0, int32_t(block->step_event_count));
       decelerate_steps = block->step_event_count - accelerate_steps;
 
       #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
-        cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
+        NOMORE(cruise_rate, final_speed(initial_rate, accel, accelerate_steps));
       #endif
     }
   }

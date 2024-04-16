@@ -193,6 +193,7 @@ bool Stepper::abort_current_block;
   ;
 #endif
 
+// In timer_ticks
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
 #if MULTISTEPPING_LIMIT > 1
@@ -2299,7 +2300,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Step events not completed yet...
 
       // Are we in acceleration phase ?
-      if (step_events_completed <= accelerate_until) { // Calculate new timer value
+      if (step_events_completed < accelerate_until) { // Calculate new timer value
 
         #if ENABLED(S_CURVE_ACCELERATION)
           // Get the next speed to use (Jerk limited!)
@@ -2316,6 +2317,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // step_rate to timer interval and steps per stepper isr
         interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
+        deceleration_time = 0; // Reset since we're doing acceleration first.
 
         #if ENABLED(NONLINEAR_EXTRUSION)
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2355,30 +2357,24 @@ hal_timer_t Stepper::block_phase_isr() {
         #endif
       }
       // Are we in Deceleration phase ?
-      else if (step_events_completed > decelerate_after) {
+      else if (step_events_completed >= decelerate_after) {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
-
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
             // Initialize the Bézier speed curve
             _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time_inverse);
             bezier_2nd_half = true;
-            // The first point starts at cruise rate. Just save evaluation of the Bézier curve
-            step_rate = current_block->cruise_rate;
           }
-          else {
-            // Calculate the next speed to use
-            step_rate = deceleration_time < current_block->deceleration_time
-              ? _eval_bezier_curve(deceleration_time)
-              : current_block->final_rate;
-          }
-
+          // Calculate the next speed to use
+          step_rate = deceleration_time < current_block->deceleration_time
+            ? _eval_bezier_curve(deceleration_time)
+            : current_block->final_rate;
         #else
           // Using the old trapezoidal control
           step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
-          if (step_rate < acc_step_rate) { // Still decelerating?
+          if (step_rate < acc_step_rate) {
             step_rate = acc_step_rate - step_rate;
             NOLESS(step_rate, current_block->final_rate);
           }
@@ -2442,6 +2438,9 @@ hal_timer_t Stepper::block_phase_isr() {
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+          // Prepare for deceleration
+          IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
+          deceleration_time = ticks_nominal / 2;
 
           #if ENABLED(NONLINEAR_EXTRUSION)
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
@@ -2640,9 +2639,6 @@ hal_timer_t Stepper::block_phase_isr() {
       );
       axis_did_move = didmove;
 
-      // No acceleration / deceleration time elapsed so far
-      acceleration_time = deceleration_time = 0;
-
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
         // Otherwise assume no axis smoothing (via oversampling)
@@ -2783,7 +2779,8 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Calculate the initial timer interval
       interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
-      acceleration_time += interval;
+      // Initialize ac/deceleration time as if half the time passed.
+      acceleration_time = deceleration_time = interval / 2;
 
       #if ENABLED(NONLINEAR_EXTRUSION)
         calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
