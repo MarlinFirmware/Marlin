@@ -175,7 +175,7 @@
 #elif MB(MKS_GEN_13)
   #include "ramps/pins_MKS_GEN_13.h"                // ATmega2560, ATmega1280               env:mega2560 env:mega1280
 #elif MB(MKS_GEN_L)
-  #include "ramps/pins_MKS_GEN_L.h"                 // ATmega2560, ATmega1280               env:mega2560 env:mega1280
+  #include "ramps/pins_MKS_GEN_L.h"                 // ATmega2560                           env:mega2560
 #elif MB(KFB_2)
   #include "ramps/pins_BIQU_KFB_2.h"                // ATmega2560                           env:mega2560
 #elif MB(ZRIB_V20)

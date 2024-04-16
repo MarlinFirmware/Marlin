@@ -231,16 +231,22 @@
   #define MOSFET_D_PIN                        -1
 #endif
 
-#define HEATER_0_PIN                MOSFET_A_PIN
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN              MOSFET_A_PIN
+#endif
 
 #if FET_ORDER_EFB                                 // Hotend, Fan, Bed
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
 #elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              MOSFET_B_PIN
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN            MOSFET_B_PIN
+  #endif
 #elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              MOSFET_B_PIN
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN            MOSFET_B_PIN
+  #endif
   #ifndef HEATER_BED_PIN
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
@@ -253,9 +259,13 @@
     #define HEATER_BED_PIN          MOSFET_C_PIN
   #endif
   #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
-    #define HEATER_1_PIN            MOSFET_D_PIN
+    #ifndef HEATER_1_PIN
+      #define HEATER_1_PIN          MOSFET_D_PIN
+    #endif
   #else
-    #define FAN1_PIN                MOSFET_D_PIN
+    #ifndef FAN1_PIN
+      #define FAN1_PIN              MOSFET_D_PIN
+    #endif
   #endif
 #endif
 
