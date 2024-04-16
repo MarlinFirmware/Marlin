@@ -38,15 +38,15 @@
 // Heaters / Fans
 //
 
-#define HEATER_BED_PIN                         8  // H-BED
-#define HEATER_0_PIN                          10  // HE0
+//#define HEATER_BED_PIN                       8  // H-BED / "MOSFET_C_PIN"
+//#define HEATER_0_PIN                        10  // HE0   / "MOSFET_A_PIN"
 #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
   #define HEATER_1_PIN                         7  // HE1
 #else
   #define FAN1_PIN                             7  // HE1
 #endif
 
-#define FAN0_PIN                               9  // FAN
+//#define FAN0_PIN                             9  // FAN / "MOSFET_B_PIN"
 
 //
 // CS Pins wired to avoid conflict with the LCD
