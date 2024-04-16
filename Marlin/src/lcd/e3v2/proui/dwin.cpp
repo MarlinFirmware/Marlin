@@ -295,8 +295,8 @@ bool isPrinting() { return printingIsActive() || printingIsPaused(); }
 bool sdPrinting() { return isPrinting() && IS_SD_FILE_OPEN(); }
 bool hostPrinting() { return isPrinting() && !IS_SD_FILE_OPEN(); }
 
-#define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
-                                            // BL24CXX::check() uses 0x00
+#define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01 // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
+                                          // BL24CXX::check() uses 0x00
 
 inline bool hmiIsChinese() { return hmiFlag.language == DWIN_CHINESE; }
 
@@ -442,17 +442,18 @@ void popupPauseOrStop() {
       drawPopupBkgd();
       if (state == 1) {
         DWINUI::drawIcon(ICON_TempTooHigh, 102, 165);
-        dwinFrameAreaCopy(1, 103, 371, 237, 386, 52, 285);
+        dwinFrameAreaCopy(1, 103, 371, 237, 386,  52, 285);
         dwinFrameAreaCopy(1, 151, 389, 185, 402, 187, 285);
-        dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
+        dwinFrameAreaCopy(1, 189, 389, 271, 402,  95, 310);
       }
       else if (state == 0) {
         DWINUI::drawIcon(ICON_TempTooLow, 102, 165);
-        dwinFrameAreaCopy(1, 103, 371, 270, 386, 52, 285);
+        dwinFrameAreaCopy(1, 103, 371, 271, 386, 52, 285);
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
-      else {
-        // Chinese "Temp Error"
+      else { // Chinese "Temp Error"
+        dwinFrameAreaCopy(1, 221, 320, 253, 336, 52, 285); // Stop
+        dwinFrameAreaCopy(1, 220, 304, 254, 319, 95, 310); // Printer
       }
     }
     else {
@@ -528,9 +529,9 @@ void dwinDrawStatusMessage() {
 
       // If the string doesn't completely fill the line...
       if (rlen < LCD_WIDTH) {
-        DWINUI::drawChar(hmiData.colorStatusTxt, '.');     // Always at 1+ spaces left, draw a dot
-        uint8_t chars = LCD_WIDTH - rlen;                  // Amount of space left in characters
-        if (--chars) {                                     // Draw a second dot if there's space
+        DWINUI::drawChar(hmiData.colorStatusTxt, '.'); // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;              // Amount of space left in characters
+        if (--chars) {                                 // Draw a second dot if there's space
           DWINUI::drawChar(hmiData.colorStatusTxt, '.');
           if (--chars)
             DWINUI::drawString(hmiData.colorStatusTxt, ui.status_message, chars); // Print a second copy of the message
@@ -552,8 +553,8 @@ void dwinDrawStatusMessage() {
 
 void drawPrintLabels() {
   if (hmiIsChinese()) {
-    dwinFrameAreaCopy(1,  0, 72,  63, 86,  41, 173);  // Printing Time
-    dwinFrameAreaCopy(1, 65, 72, 128, 86, 176, 173);  // Remain
+    dwinFrameAreaCopy(1,  0, 72,  63, 86,  41, 173); // Printing Time
+    dwinFrameAreaCopy(1, 65, 72, 128, 86, 176, 173); // Remain
   }
   else {
     DWINUI::drawString( 46, 173, GET_TEXT_F(MSG_INFO_PRINT_TIME));
@@ -592,7 +593,7 @@ void ICON_ResumeOrPause() {
 // Print a string (up to 30 characters) in the header,
 // e.g., The filename or string sent with M75.
 void dwinPrintHeader(const char * const cstr/*=nullptr*/) {
-  static char headertxt[31] = "";  // Print header text
+  static char headertxt[31] = ""; // Print header text
   if (cstr) {
     const int8_t size = _MIN(30U, strlen(cstr));
     for (uint8_t i = 0; i < size; ++i) headertxt[i] = cstr[i];
@@ -606,7 +607,7 @@ void dwinPrintHeader(const char * const cstr/*=nullptr*/) {
 
 void drawPrintProcess() {
   if (hmiIsChinese())
-    title.frameCopy(30, 1, 42, 14);                     // "Printing"
+    title.frameCopy(30, 1, 42, 14); // "Printing"
   else
     title.showCaption(GET_TEXT_F(MSG_PRINTING));
   DWINUI::clearMainArea();
@@ -672,10 +673,10 @@ void gotoPrintDone() {
 void drawMainMenu() {
   DWINUI::clearMainArea();
   if (hmiIsChinese())
-    title.frameCopy(2, 2, 26, 13);   // "Home" etc
+    title.frameCopy(2, 2, 26, 13); // "Home" etc
   else
     title.showCaption(MACHINE_NAME);
-  DWINUI::drawIcon(ICON_LOGO, 71, 52);  // CREALITY logo
+  DWINUI::drawIcon(ICON_LOGO, 71, 52); // CREALITY logo
   ICON_Print();
   ICON_Prepare();
   ICON_Control();
@@ -906,7 +907,7 @@ void makeNameWithoutExt(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) {
     dst[--pos] = '.';
   }
 
-  dst[len] = '\0';      // End it
+  dst[len] = '\0'; // End it
 
   // Copy down to 0
   while (pos--) dst[pos] = src[pos];
@@ -981,10 +982,10 @@ void onClickSDItem() {
     }
     else if ((selected >= 1 + hasUpDir) && (shift_len > MENU_CHAR_LIMIT)) {
       uint8_t shift_new = _MIN(shift_amt + 1, shift_len - MENU_CHAR_LIMIT); // Try to shift by...
-      drawSDItemShifted(shift_new);               // Draw the item
-      if (shift_new == shift_amt)                 // Scroll reached the end
-        shift_new = -1;                           // Reset
-      shift_amt = shift_new;                      // Set new scroll
+      drawSDItemShifted(shift_new); // Draw the item
+      if (shift_new == shift_amt)   // Scroll reached the end
+        shift_new = -1;             // Reset
+      shift_amt = shift_new;        // Set new scroll
     }
   }
 
@@ -1040,7 +1041,7 @@ void hmiSDCardUpdate() {
       currentMenu = nullptr;
       drawPrintFileMenu();
     }
-    if (!DWIN_lcd_sd_status && sdPrinting()) ExtUI::stopPrint();  // Media removed while printing
+    if (!DWIN_lcd_sd_status && sdPrinting()) ExtUI::stopPrint(); // Media removed while printing
   }
 }
 
@@ -1093,15 +1094,15 @@ void dwinDrawDashboard() {
 void drawInfoMenu() {
   DWINUI::clearMainArea();
   if (hmiIsChinese())
-    title.frameCopy(30, 17, 28, 13);                      // "Info"
+    title.frameCopy(30, 17, 28, 13); // "Info"
   else
     title.showCaption(GET_TEXT_F(MSG_INFO_SCREEN));
   drawMenuLine(0, ICON_Back, GET_TEXT_F(MSG_BACK), false, true);
 
   if (hmiIsChinese()) {
-    dwinFrameAreaCopy(1, 197, 149, 252, 161, 108, 102);   // "Size"
-    dwinFrameAreaCopy(1,   1, 164,  56, 176, 108, 175);   // "Firmware Version"
-    dwinFrameAreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
+    dwinFrameAreaCopy(1, 197, 149, 252, 161, 108, 102); // "Size"
+    dwinFrameAreaCopy(1,   1, 164,  56, 176, 108, 175); // "Firmware Version"
+    dwinFrameAreaCopy(1,  58, 164, 113, 176, 105, 248); // "Contact Details"
     DWINUI::drawCenteredString(268, F(CORP_WEBSITE));
   }
   else {
@@ -1198,7 +1199,7 @@ void hmiPrinting() {
     switch (select_print.now) {
       case PRINT_SETUP: drawTuneMenu(); break;
       case PRINT_PAUSE_RESUME:
-        if (printingIsPaused()) {  // If printer is already in pause
+        if (printingIsPaused()) { // If printer is already in pause
           ExtUI::resumePrint();
           break;
         }
@@ -1468,7 +1469,7 @@ void dwinHandleScreen() {
   }
 }
 
-bool idIsPopUp() {    // If ID is popup...
+bool idIsPopUp() { // If ID is popup...
   switch (checkkey) {
     TERN_(HAS_BED_PROBE, case ID_Leveling:)
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
@@ -1905,7 +1906,7 @@ void dwinCopySettingsFrom(const char * const buff) {
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  delay(750);   // Wait to wakeup screen
+  delay(750); // Wait to wakeup screen
   const bool hs = dwinHandshake(); UNUSED(hs);
   dwinFrameSetDir(1);
   dwinJPGCacheTo1(Language_English);
@@ -1914,7 +1915,7 @@ void MarlinUI::init_lcd() {
 
 void dwinInitScreen() {
   dwinSetColorDefaults();
-  hmiInit();   // Draws boot screen
+  hmiInit(); // Draws boot screen
   DWINUI::init();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
   DWINUI::onTitleDraw = drawTitle;
@@ -1981,10 +1982,10 @@ void dwinRedrawScreen() {
 
   void onClickFilamentPurge() {
     if (hmiFlag.select_flag)
-      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;  // "Purge More" button
+      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE; // "Purge More" button
     else {
       hmiSaveProcessID(ID_NothingToDo);
-      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;  // "Continue" button
+      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT; // "Continue" button
     }
   }
 
@@ -2038,7 +2039,7 @@ void dwinRedrawScreen() {
 
   void onClickConfirmToPrint() {
     dwinResetStatusLine();
-    if (hmiFlag.select_flag) {     // Confirm
+    if (hmiFlag.select_flag) { // Confirm
       gotoMainMenu();
       return card.openAndPrintFile(card.filename);
     }
@@ -2096,7 +2097,7 @@ void gotoConfirmToPrint() {
 
 // Reset Printer
 void rebootPrinter() {
-  wait_for_heatup = wait_for_user = false;    // Stop waiting for heating/user
+  wait_for_heatup = wait_for_user = false; // Stop waiting for heating/user
   thermalManager.disable_all_heaters();
   planner.finish_and_disable();
   dwinRebootScreen();
@@ -2111,7 +2112,7 @@ void gotoInfoMenu() {
 
 void disableMotors() { queue.inject(F("M84")); }
 
-void autoLevel() {   // Always reacquire the Z "home" position
+void autoLevel() { // Always reacquire the Z "home" position
   queue.inject(F(TERN(AUTO_BED_LEVELING_UBL, "G29P1", "G29")));
 }
 
@@ -2173,7 +2174,7 @@ void doCoolDown() { thermalManager.cooldown(); }
 
 void setLanguage() {
   hmiToggleLanguage();
-  currentMenu = nullptr;  // Invalidate menu to full redraw
+  currentMenu = nullptr; // Invalidate menu to full redraw
   drawPrepareMenu();
 }
 
@@ -2182,7 +2183,7 @@ void setLiveMove() { toggleCheckboxLine(enableLiveMove); }
 void axisMove(AxisEnum axis) {
   #if HAS_HOTEND
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(0)) {
-      gcode.process_subcommands_now(F("G92E0"));  // Reset extruder position
+      gcode.process_subcommands_now(F("G92E0")); // Reset extruder position
       return dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
     }
   #endif
@@ -2673,7 +2674,7 @@ void onDrawBack(MenuItem* menuitem, int8_t line) {
 }
 
 void onDrawTempSubMenu(MenuItem* menuitem, int8_t line) {
-  if (hmiIsChinese()) menuitem->setFrame(1,  57, 104,  84, 116);
+  if (hmiIsChinese()) menuitem->setFrame(1, 57, 104, 84, 116);
   onDrawSubMenu(menuitem, line);
 }
 
@@ -2694,7 +2695,7 @@ void onDrawMotionSubMenu(MenuItem* menuitem, int8_t line) {
   }
 
   void onDrawResetEeprom(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) menuitem->setFrame(1,   1, 118,  56, 131);
+    if (hmiIsChinese()) menuitem->setFrame(1, 1, 118, 56, 131);
     onDrawMenuItem(menuitem, line);
   }
 #endif
@@ -2751,21 +2752,18 @@ void onDrawAutoHome(MenuItem* menuitem, int8_t line) {
 #endif
 
 #if HAS_HOTEND
-  void onDrawPreheat1(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) menuitem->setFrame(1, 100, 89, 151, 101);
-    onDrawMenuItem(menuitem, line);
-  }
-  #if PREHEAT_COUNT > 1
-    void onDrawPreheat2(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) menuitem->setFrame(1, 180, 89, 233, 100);
-      onDrawMenuItem(menuitem, line);
-    }
-  #endif
+  #define _DRAW_PREHEAT(N) void onDrawPreheat##N(MenuItem* menuitem, int8_t line) \
+    { if (N == 1) { \
+        if (hmiIsChinese()) menuitem->setFrame(1, 100, 89, 151, 101); } \
+      else if (N == 2) { \
+        if (hmiIsChinese()) menuitem->setFrame(1, 180, 89, 233, 100); } \
+      onDrawMenuItem(menuitem, line); }
+  REPEAT_1(PREHEAT_COUNT, _DRAW_PREHEAT)
 #endif
 
 #if HAS_PREHEAT
   void onDrawCooldown(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) menuitem->setFrame(1, 1, 104,  56, 117);
+    if (hmiIsChinese()) menuitem->setFrame(1, 1, 104, 56, 117);
     onDrawMenuItem(menuitem, line);
   }
 #endif
@@ -2868,7 +2866,7 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
   void onDrawMaxSpeedX(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));   // X
+      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line)); // X
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -2878,7 +2876,7 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
   void onDrawMaxSpeedY(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));       // Y
+      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line)); // Y
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -2888,7 +2886,7 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
   void onDrawMaxSpeedZ(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);  // Z
+      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3); // Z
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -2898,7 +2896,7 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
   void onDrawMaxSpeedE(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line));     // E
+      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(line)); // E
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -2907,7 +2905,7 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
 void onDrawAcc(MenuItem* menuitem, int8_t line) {
   if (hmiIsChinese()) {
     menuitem->setFrame(1, 173, 133, 200, 147);
-    dwinFrameAreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line) + 1);   // ...Acceleration
+    dwinFrameAreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line) + 1); // ...Acceleration
   }
   onDrawSubMenu(menuitem, line);
 }
@@ -2917,7 +2915,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 200, 147);
       dwinFrameAreaCopy(1, 28,  149,  69, 161, LBLX + 27, MBASE(line));
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line));   // X
+      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(line)); // X
     }
     onDrawPInt32Menu(menuitem, line);
   }
@@ -2927,8 +2925,8 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawMaxAccelY(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
-      dwinFrameAreaCopy(1,  1, 150,   7, 160, LBLX + 71, MBASE(line));    // Y
+      dwinFrameAreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line));
+      dwinFrameAreaCopy(1,  1, 150,  7, 160, LBLX + 71, MBASE(line)); // Y
     }
     onDrawPInt32Menu(menuitem, line);
   }
@@ -2938,8 +2936,8 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawMaxAccelZ(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
-      dwinFrameAreaCopy(1,  9, 150,  16, 160, LBLX + 71, MBASE(line));    // Z
+      dwinFrameAreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line));
+      dwinFrameAreaCopy(1,  9, 150, 16, 160, LBLX + 71, MBASE(line)); // Z
     }
     onDrawPInt32Menu(menuitem, line);
   }
@@ -2949,8 +2947,8 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawMaxAccelE(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 28, 149,  69, 161, LBLX + 27, MBASE(line));
-      dwinFrameAreaCopy(1, 18, 150,  25, 160, LBLX + 71, MBASE(line));    // E
+      dwinFrameAreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(line));
+      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 71, MBASE(line)); // E
     }
     onDrawPInt32Menu(menuitem, line);
   }
@@ -2961,8 +2959,8 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawJerk(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
-      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+      dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line) + 1);
+      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line)); // ...Jerk
     }
     onDrawSubMenu(menuitem, line);
   }
@@ -3023,7 +3021,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawStepsX(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
+      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line)); // X
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -3033,7 +3031,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawStepsY(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
+      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 44, MBASE(line)); // Y
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -3043,7 +3041,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawStepsZ(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
+      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 44, MBASE(line)); // Z
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -3054,7 +3052,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void onDrawStepsE(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 153, 148, 194, 161);
-      dwinFrameAreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
+      dwinFrameAreaCopy(1, 18, 150, 25, 160, LBLX + 44, MBASE(line)); // E
     }
     onDrawPFloatMenu(menuitem, line);
   }
@@ -3095,7 +3093,7 @@ void drawPrepareMenu() {
       #endif
     #endif
     #if HAS_PREHEAT
-      #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheat##N);
+      #define _ITEM_PREHEAT(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, DoPreheat##N);
       REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT)
     #endif
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
@@ -3142,14 +3140,14 @@ void drawControlMenu() {
     MENU_ITEM(ICON_Motion, MSG_MOTION, onDrawMotionSubMenu, drawMotionMenu);
     #if ENABLED(CASE_LIGHT_MENU)
       #if CASELIGHT_USES_BRIGHTNESS
-        enableLiveCaseLightBrightness = true;  // Allow live update of brightness in control menu
+        enableLiveCaseLightBrightness = true; // Allow live update of brightness in control menu
         MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawSubMenu, drawCaseLightMenu);
       #else
         MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
       #endif
     #endif
     #if ENABLED(LED_CONTROL_MENU)
-      enableLiveLedColor = true;  // Allow live update of color in control menu
+      enableLiveLedColor = true; // Allow live update of color in control menu
       MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
@@ -3249,7 +3247,7 @@ void drawMoveMenu() {
       EDIT_ITEM(ICON_MoveZ, MSG_MOVE_Z, onDrawMoveZ, setMoveZ, &current_position.z);
     #endif
     #if HAS_HOTEND
-      gcode.process_subcommands_now(F("G92E0"));  // Reset extruder position
+      gcode.process_subcommands_now(F("G92E0")); // Reset extruder position
       EDIT_ITEM(ICON_Extruder, MSG_MOVE_E, onDrawMoveE, setMoveE, &current_position.e);
     #endif
   }
@@ -3564,7 +3562,7 @@ void drawMotionMenu() {
       checkkey = ID_Menu;
       if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
         BACK_ITEM(drawFilamentManMenu);
-        #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawMenuItem, DoPreheatHotend##N);
+        #define _ITEM_PREHEAT_HE(N) MENU_ITEM(ICON_Preheat##N, MSG_PREHEAT_##N, onDrawPreheat##N, DoPreheatHotend##N);
         REPEAT_1(PREHEAT_COUNT, _ITEM_PREHEAT_HE)
       }
       updateMenu(preheatHotendMenu);
