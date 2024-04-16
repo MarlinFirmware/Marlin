@@ -23,8 +23,6 @@
 
 /**
  * Makerbase MKS SBASE pin assignments
- * Schematic (V1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
- * Origin (V1.3): http://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
  */
 
 #include "env_validate.h"
