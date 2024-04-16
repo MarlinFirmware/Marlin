@@ -321,12 +321,13 @@
 //#define SAFE_TOOLCHANGE_START_Z           200
 
 #if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  //#define SWITCHING_TOOLHEAD_Z_POS        100         // (mm) Z position of the toolhead dock.
+                                                        // Leave this option disabled if the bed can move in Z direction
+  //#define SWITCHING_TOOLHEAD_Z_CLEAR       60         // (mm) Minimum distance from dock along Z for unobstructed X axis if the tools are placed onto the dock in Z direction
   #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
   #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
   #define SWITCHING_TOOLHEAD_X_POS          { 215, 0 }  // (mm) X positions for parking the extruders
-  //#define SWITCHING_TOOLHEAD_Z_POS        100         // (mm) Z position of the toolhead dock.
-                                                        // Leave disabled if dock is on the frame of a CORE_XY machine
   #if ENABLED(SWITCHING_TOOLHEAD)
     #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
     #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
@@ -367,7 +368,7 @@
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
+// For the other hotends it is their distance from the extruder 0 hotend in negative axis direction.
 //#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relative X-offset for each nozzle
 //#define HOTEND_OFFSET_Y { 0.0, 5.00 }  // (mm) relative Y-offset for each nozzle
 //#define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
