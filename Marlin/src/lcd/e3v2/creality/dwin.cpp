@@ -858,7 +858,7 @@ void drawControlMenu() {
       itemAreaCopy(117, 104, 172, 116, CSCROL(CONTROL_CASE_SAVE));  // "Store Configuration"
       itemAreaCopy(174, 103, 229, 116, CSCROL(CONTROL_CASE_LOAD));  // "Read Configuration"
       itemAreaCopy(  1, 118,  56, 131, CSCROL(CONTROL_CASE_RESET)); // "Reset Configuration"
-    #endi
+    #endif
   }
   else {
     #ifdef USE_STRING_TITLES
