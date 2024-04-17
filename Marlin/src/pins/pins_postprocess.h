@@ -1247,7 +1247,7 @@
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
     #define J_DIR_PIN    _EPIN(J_E_INDEX, DIR)
     #define J_ENABLE_PIN _EPIN(J_E_INDEX, ENABLE)
-    #if I_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
+    #if J_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
       #error "No E stepper plug left for J!"
     #else
       #define AUTO_ASSIGNED_J_STEPPER 1
