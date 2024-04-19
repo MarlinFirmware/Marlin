@@ -42,7 +42,7 @@ struct mesh_index_pair;
 #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
-  typedef int16_t mesh_store_t[TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_X)][TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y)];
+  typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 typedef struct {

@@ -118,17 +118,17 @@ void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _
  */
 void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
-    TERN(PROUI_GRID_PNTS, const, constexpr) uint8_t ctrx2 = 0, xend = GRID_MAX_POINTS_X - 1;
+    constexpr uint8_t ctrx2 = 0, xend = GRID_MAX_POINTS_X - 1;
   #else
-    TERN(PROUI_GRID_PNTS, const, constexpr) uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2,  // left-of-center
+    constexpr uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2,  // left-of-center
                       ctrx2 = (GRID_MAX_POINTS_X) / 2, // right-of-center
                       xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
-    TERN(PROUI_GRID_PNTS, const, constexpr) uint8_t ctry2 = 0, yend = GRID_MAX_POINTS_Y - 1;
+    constexpr uint8_t ctry2 = 0, yend = GRID_MAX_POINTS_Y - 1;
   #else
-    TERN(PROUI_GRID_PNTS, const, constexpr) uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2,  // top-of-center
+    constexpr uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2,  // top-of-center
                       ctry2 = (GRID_MAX_POINTS_Y) / 2, // bottom-of-center
                       yend = ctry1;
   #endif

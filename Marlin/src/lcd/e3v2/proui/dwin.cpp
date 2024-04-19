@@ -1908,10 +1908,6 @@ void dwinSetDataDefaults() {
     IF_DISABLED(BD_SENSOR, hmiData.multiple_probing = MULTIPLE_PROBING);
     hmiData.zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
   #endif
-  #if ENABLED(PROUI_GRID_PNTS)
-    hmiData.grid_max_points = DEF_GRID_MAX_POINTS;
-  #endif
-
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -4117,30 +4113,6 @@ void drawMaxAccelMenu() {
 //=============================================================================
 
 #if HAS_MESH
-  #if PROUI_GRID_PNTS
-    void drawMeshPoints(bool selected, int8_t line, int8_t value) {
-      char mpmsg[10];
-      sprintf(mpmsg, "%ix%i", value, value);
-      if (selected) { DWINUI::drawString(DWINUI::textColor, hmiData.colorSelected, VALX + MENU_CHR_H, MBASE(line), mpmsg); }
-      else { DWINUI::drawString(VALX + MENU_CHR_H, MBASE(line), mpmsg); }
-    }
-    void onDrawMeshPoints(MenuItem* menuitem, int8_t line) {
-      onDrawMenuItem(menuitem, line);
-      drawMeshPoints(false, line, hmiData.grid_max_points);
-      redrawItem();
-    }
-
-    void applyMeshPoints() { hmiData.grid_max_points = menuData.value; redrawItem(); }
-
-    void setMeshPoints() { setPIntOnClick(GRID_MIN, GRID_LIMIT, applyMeshPoints); }
-
-    // void ApplyMeshPoints() { applyMeshPoints(); redrawMenu(); }
-    // void LiveMeshPoints() { drawMeshPoints(true, currentMenu->line(), menuData.value); }
-    void SetMeshPoints() {
-      setOnClick(ID_SetIntNoDraw, GRID_MIN, GRID_LIMIT, 0, hmiData.grid_max_points, applyMeshPoints);
-      drawMeshPoints(true, currentMenu->line(), hmiData.grid_max_points);
-    }
-  #endif
 
   void applyMeshFadeHeight() { set_z_fade_height(planner.z_fade_height); }
   void setMeshFadeHeight() { setPFloatOnClick(0, 100, 1, applyMeshFadeHeight); }
@@ -4214,14 +4186,10 @@ void drawMaxAccelMenu() {
 
   void drawMeshSetMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 14)) {
+    if (SET_MENU(meshMenu, MSG_MESH_LEVELING, 12)) {
       BACK_ITEM(drawLevelMenu);
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         EDIT_ITEM(ICON_Temperature, MSG_UBL_SET_TEMP_BED, onDrawPIntMenu, setBedLevT, &hmiData.bedLevT);
-      #endif
-      #if PROUI_GRID_PNTS
-        EDIT_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawPInt8Menu, setMeshPoints, &hmiData.grid_max_points);
-        MENU_ITEM(ICON_MeshPoints, MSG_MESH_POINTS, onDrawMeshPoints, SetMeshPoints);
       #endif
       EDIT_ITEM(ICON_SetZOffset, MSG_Z_FADE_HEIGHT, onDrawPFloatMenu, setMeshFadeHeight, &planner.z_fade_height);
       EDIT_ITEM(ICON_UBLActive, MSG_ACTIVATE_MESH, onDrawChkbMenu, setMeshActive, &planner.leveling_active);

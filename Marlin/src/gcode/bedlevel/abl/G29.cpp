@@ -107,7 +107,7 @@ public:
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
     static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    TERN(PROUI_GRID_PNTS, const, static constexpr) grid_count_t abl_points = GRID_MAX_POINTS;
+    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
   #if ABL_USES_GRID
@@ -123,7 +123,7 @@ public:
       bool                topography_map;
       xy_uint8_t          grid_points;
     #else // Bilinear
-      IF_DISABLED(PROUI_GRID_PNTS, static constexpr) xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+      static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -141,10 +141,8 @@ public:
 };
 
 #if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
-  #if DISABLED(PROUI_GRID_PNTS)
-    constexpr xy_uint8_t G29_State::grid_points;
-    constexpr grid_count_t G29_State::abl_points;
-  #endif
+  constexpr xy_uint8_t G29_State::grid_points;
+  constexpr grid_count_t G29_State::abl_points;
 #endif
 
 /**

@@ -35,15 +35,9 @@
   mesh_bed_leveling bedlevel;
 
   float mesh_bed_leveling::z_offset,
-     #if PROUI_GRID_PNTS
-        mesh_bed_leveling::index_to_xpos[GRID_LIMIT],
-        mesh_bed_leveling::index_to_ypos[GRID_LIMIT];
-        bed_mesh_t mesh_bed_leveling::z_values;
-     #else
         mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
         bed_mesh_t mesh_bed_leveling::z_values;
-     #endif
 
   mesh_bed_leveling::mesh_bed_leveling() {
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)

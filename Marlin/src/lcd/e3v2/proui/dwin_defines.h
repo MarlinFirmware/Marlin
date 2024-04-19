@@ -118,7 +118,6 @@
     #define Z_OFFSET_MIN  -3.0  // (mm)
     #define Z_OFFSET_MAX   3.0  // (mm)
   #endif
-  #define PROUI_GRID_PNTS 1   // Add a menu item to change GRID_MAX_POINTS - grid array
 #endif
 #if HAS_BED_PROBE
   #define PROUI_ITEM_ZFRS     // Add a menu item to change Z_PROBE_FEEDRATE_SLOW - probe speed
@@ -177,12 +176,6 @@
 
 #if HAS_BED_PROBE
   constexpr uint16_t DEF_Z_PROBE_FEEDRATE_SLOW = Z_PROBE_FEEDRATE_SLOW;
-#endif
-
-#if PROUI_GRID_PNTS
-  constexpr uint8_t DEF_GRID_MAX_POINTS = GRID_MAX_POINTS_X;
-  #define GRID_MIN 3
-  #define GRID_LIMIT 9
 #endif
 
 #if HAS_EXTRUDERS
@@ -255,9 +248,6 @@ typedef struct {
     float mesh_min_y = DEF_MESH_MIN_Y;
     float mesh_max_y = DEF_MESH_MAX_Y;
   #endif
-  #if PROUI_GRID_PNTS
-    uint8_t grid_max_points = DEF_GRID_MAX_POINTS;
-  #endif
   #if HAS_BED_PROBE
     IF_DISABLED(BD_SENSOR, uint8_t multiple_probing = MULTIPLE_PROBING);
     uint16_t zprobeFeed = DEF_Z_PROBE_FEEDRATE_SLOW;
@@ -281,15 +271,6 @@ extern hmi_data_t hmiData;
   #define MESH_MAX_X hmiData.mesh_max_x
   #define MESH_MIN_Y hmiData.mesh_min_y
   #define MESH_MAX_Y hmiData.mesh_max_y
-#endif
-
-#if PROUI_GRID_PNTS
-  #undef  GRID_MAX_POINTS_X
-  #undef  GRID_MAX_POINTS_Y
-  #undef  GRID_MAX_POINTS
-  #define GRID_MAX_POINTS_X hmiData.grid_max_points
-  #define GRID_MAX_POINTS_Y hmiData.grid_max_points
-  #define GRID_MAX_POINTS  (hmiData.grid_max_points * hmiData.grid_max_points)
 #endif
 
 #if HAS_BED_PROBE

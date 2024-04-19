@@ -38,15 +38,9 @@ enum MeshLevelingState : char {
 class mesh_bed_leveling {
 public:
   static float z_offset,
-    #if PROUI_GRID_PNTS
-               z_values[GRID_LIMIT][GRID_LIMIT],
-               index_to_xpos[GRID_LIMIT],
-               index_to_ypos[GRID_LIMIT];
-    #else
                z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
                index_to_xpos[GRID_MAX_POINTS_X],
                index_to_ypos[GRID_MAX_POINTS_Y];
-    #endif
 
   mesh_bed_leveling();
 

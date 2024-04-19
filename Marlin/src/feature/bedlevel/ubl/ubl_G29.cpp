@@ -1688,7 +1688,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     // being extrapolated so that nearby points will have greater influence on
     // the point being extrapolated.  Then extrapolate the mesh point from WLSF.
 
-    static_assert((TERN(PROUI_GRID_PNTS, GRID_LIMIT, GRID_MAX_POINTS_Y)) <= 16, "GRID_MAX_POINTS_Y too big");
+    static_assert(GRID_MAX_POINTS_Y <= 16, "GRID_MAX_POINTS_Y too big");
     uint16_t bitmap[GRID_MAX_POINTS_X] = { 0 };
     struct linear_fit_data lsf_results;
 
