@@ -322,8 +322,18 @@
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 
+  #if ENABLED(CR10_STOCKDISPLAY)
+    #define LCD_PINS_RS              EXP1_07_PIN
+
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
+    #define BTN_ENC                  EXP1_02_PIN
+
+    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_D4              EXP1_06_PIN
+
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+  #elif ENABLED(MKS_MINI_12864)
 
     #define ENABLE_SPI1
     #define FORCE_SOFT_SPI
