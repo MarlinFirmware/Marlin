@@ -39,8 +39,7 @@
 
 /**
  * Rambo pin assignments
- * Schematic (1.1b): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMBo/Rambo1-1-schematic.png
- * Origin (1.1b): https://www.reprap.org/wiki/File:Rambo1-1-schematic.png
+ * Schematic (1.1b): https://www.reprap.org/wiki/File:Rambo1-1-schematic.png
  */
 
 #include "env_validate.h"
