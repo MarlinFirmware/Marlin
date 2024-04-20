@@ -190,6 +190,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_G26_CANCELED                     = _UxGT("G26 скасовано");
   LSTR MSG_G26_LEAVING                      = _UxGT("Вийти з G26");
   LSTR MSG_UBL_CONTINUE_MESH                = _UxGT("Продовжити сітку");
+  LSTR MSG_UBL_MESH_LEVELING                = _UxGT("Вирівнювання сітки");
   LSTR MSG_UBL_3POINT_MESH_LEVELING         = _UxGT("3-точкове вирівн.");
   LSTR MSG_UBL_GRID_MESH_LEVELING           = _UxGT("Вирівнюв. растру");
   LSTR MSG_UBL_MESH_LEVEL                   = _UxGT("Вирівняти сітку");
@@ -523,7 +524,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_LEVELING                     = _UxGT("UBL");
   LSTR MSG_MESH_LEVELING                    = _UxGT("Вирівнювання сітки");
   LSTR MSG_MESH_DONE                        = _UxGT("Зондування виконано");
-  LSTR MSG_MESH_SETTINGS                    = _UxGT("Сітка Параметри");
 
   LSTR MSG_INFO_STATS_MENU                  = _UxGT("Статистика принтера");
   LSTR MSG_INFO_BOARD_MENU                  = _UxGT("Про плату");
