@@ -164,7 +164,6 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26已取消");
   LSTR MSG_G26_LEAVING                    = _UxGT("离开G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("继续热床网格"); // "Continue Bed Mesh"
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("网格调平"); // "Mesh Leveling"
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("三点调平"); // "3-Point Leveling"
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("格子网格调平"); // "Grid Mesh Leveling"
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("调平网格"); // "Level Mesh"
@@ -464,6 +463,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("双线性调平"); // "Bilinear Leveling"
   LSTR MSG_UBL_LEVELING                   = _UxGT("统一热床调平(UBL)"); // "Unified Bed Leveling"
   LSTR MSG_MESH_LEVELING                  = _UxGT("网格调平"); // "Mesh Leveling"
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("网格设置"); // "Mesh Settings"
   LSTR MSG_INFO_STATS_MENU                = _UxGT("打印机统计"); // "Printer Stats"
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("主板信息"); // "Board Info"
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("温度计"); // "Thermistors"

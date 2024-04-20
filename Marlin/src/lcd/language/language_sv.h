@@ -179,7 +179,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Avbruten");
   LSTR MSG_G26_LEAVING                    = _UxGT("Nivellera G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Fortsätt Bädd Nät");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Nät Nivellering");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-Punkts Nivellering");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Rutnät Nivellering");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Nivellera Nät");
@@ -489,6 +488,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinjär Nivellering");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Enhetlig Bädd Nivellering (UBL)");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nät Nivellering");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Nät Inställningar");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Skrivar Stats");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Kort Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistor");

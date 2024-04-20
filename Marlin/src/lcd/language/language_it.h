@@ -233,9 +233,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_G26_LEAVING                    = _UxGT("Uscita da G26");
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Valida mesh pers.");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Continua mesh");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Livell. mesh");
-  LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Livell. 3 Punti");
-  LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Livell. griglia mesh");
+  LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Livella 3 Punti");
+  LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Livel. griglia mesh");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Livella mesh");
   LSTR MSG_UBL_SIDE_POINTS                = _UxGT("Punti laterali");
   LSTR MSG_UBL_MAP_TYPE                   = _UxGT("Tipo di mappa");
@@ -620,11 +619,11 @@ namespace LanguageNarrow_it {
   LSTR MSG_CHAMBER_COOLING                = _UxGT("Raffr. camera...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Raffr. laser...");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Calibraz. Delta");
-  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Calibrazione delta in corso");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Calibra X");
   LSTR MSG_DELTA_CALIBRATE_Y              = _UxGT("Calibra Y");
   LSTR MSG_DELTA_CALIBRATE_Z              = _UxGT("Calibra Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Calibra centro");
+  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Calibrazione delta in corso");
   LSTR MSG_DELTA_SETTINGS                 = _UxGT("Impostaz. delta");
   LSTR MSG_DELTA_AUTO_CALIBRATE           = _UxGT("Auto calibrazione");
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Barra diagonale");
@@ -638,8 +637,9 @@ namespace LanguageNarrow_it {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Livel.piatto unific.");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Livel. mesh");
   LSTR MSG_MESH_DONE                      = _UxGT("Sond.mesh eseguito");
-  LSTR MSG_INFO_STATS_MENU                = _UxGT("Statistiche");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Impostazioni");
   LSTR MSG_RESET_STATS                    = _UxGT("Reset stat.stampa?");
+  LSTR MSG_INFO_STATS_MENU                = _UxGT("Statistiche");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. scheda");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistori");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusori");

@@ -164,7 +164,6 @@ namespace LanguageNarrow_fr {
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Vérifier grille");
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Impr. grille ...");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Continuer grille");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Niveau par mailles");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Niveau à 3 points");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Niveau par grille");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Effectuer mesures");
@@ -464,6 +463,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Niveau lit unifié");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Niveau par grille");
   LSTR MSG_MESH_DONE                      = _UxGT("Niveau terminé");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Réglages de maillage");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Stats. imprimante");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Infos carte");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistances");

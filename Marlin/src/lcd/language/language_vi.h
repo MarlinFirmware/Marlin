@@ -132,7 +132,6 @@ namespace LanguageNarrow_vi {
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Thẩm tra lưới");                        // Validate Mesh
   LSTR MSG_UBL_VALIDATE_CUSTOM_MESH       = _UxGT("Thẩm tra lưới tự chọn");                // Validate custom mesh
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Tiếp tục xây lưới bàn");                // Continue Bed Mesh
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Đang san lấp lưới");                    // Mesh Leveling
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Đang san lấp 3-điểm");                  // 3-Point Leveling
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Đang san lấp lưới phẳng");              // Grid (planar) Mesh Leveling
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Làm bằng lưới");                        // Level Mesh
@@ -357,6 +356,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("San Lấp Song Tuyến");                  // Bilinear Leveling
   LSTR MSG_UBL_LEVELING                   = _UxGT("San Lấp Bàn Thống Nhất");              // Unified Bed Leveling
   LSTR MSG_MESH_LEVELING                  = _UxGT("Lưới San Lấp");                        // Mesh Leveling
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Lưới Cài Đặt");                        // Mesh Settings
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Thống Kê Máy In");                     // Printer Stats
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Thông Tin Bo Mạch");                   // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Điện Trở Nhiệt");                      // Thermistors

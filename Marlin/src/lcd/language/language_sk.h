@@ -229,7 +229,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 zrušený");
   LSTR MSG_G26_LEAVING                    = _UxGT("Opúšťam G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Pokračovať v sieti");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Sieťové rovnanie");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-bodové rovnanie");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Mriežkové rovnanie");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Vyrovnať podložku");
@@ -617,8 +616,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_LEVELING                   = _UxGT("UBL rovnanie");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mriežkové rovnanie");
   LSTR MSG_MESH_DONE                      = _UxGT("Mriežka dokončená");
-  LSTR MSG_INFO_STATS_MENU                = _UxGT("Štatistika");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mriežka nastavenia");
   LSTR MSG_RESET_STATS                    = _UxGT("Vynulovať štatis.?");
+  LSTR MSG_INFO_STATS_MENU                = _UxGT("Štatistika");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. o doske");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudéry");

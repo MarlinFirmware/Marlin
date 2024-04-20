@@ -157,7 +157,6 @@ namespace LanguageNarrow_gl {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Cancelado");
   LSTR MSG_G26_LEAVING                    = _UxGT("Saíndo de G26");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Continuar Malla");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Nivelación Malla");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Nivelación 3Puntos");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Nivelación Grid");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Nivelar Malla");
@@ -448,6 +447,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelación Bilineal");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelación UBL");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelación en Malla");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Configuración Malla");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estatísticas");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Placa nai");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");

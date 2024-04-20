@@ -213,7 +213,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 abgebrochen");
   LSTR MSG_G26_LEAVING                    = _UxGT("G26 verlassen");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Netzerst. forts.");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Netz-Nivellierung");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("3-Punkt-Nivell.");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Gitternetz-Nivell.");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Netz nivellieren");
@@ -575,6 +574,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Einheit. Bettnivell.");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Netz-Nivellierung");
   LSTR MSG_MESH_DONE                      = _UxGT("Nivellierung fertig");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Netzeinstellungen");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Drucker-Statistik");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board-Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistoren");

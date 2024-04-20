@@ -143,7 +143,6 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_G26_CANCELED                   = _UxGT("G26 Cancelado");
   LSTR MSG_G26_LEAVING                    = _UxGT("G26 Saindo");
   LSTR MSG_UBL_CONTINUE_MESH              = _UxGT("Continuar Malha");
-  LSTR MSG_UBL_MESH_LEVELING              = _UxGT("Nivelação da Malha");
   LSTR MSG_UBL_3POINT_MESH_LEVELING       = _UxGT("Nivelação 3 pontos");
   LSTR MSG_UBL_GRID_MESH_LEVELING         = _UxGT("Nivelação Grid");
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Nivelar Malha");
@@ -376,6 +375,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Nivelamento Bilinear");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Nivelamento UBL");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Nivelamento da Malha");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Malha Configuração");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Estatísticas");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. da Placa");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");
