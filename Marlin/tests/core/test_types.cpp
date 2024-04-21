@@ -69,7 +69,6 @@ MARLIN_TEST(types, XYval_magnitude) {
   TEST_ASSERT_EQUAL(5, xy.magnitude());
 }
 
-// Test the small and large functions
 MARLIN_TEST(types, XYval_small_large) {
   XYval<int> xy;
   
@@ -81,7 +80,7 @@ MARLIN_TEST(types, XYval_small_large) {
   TEST_ASSERT_EQUAL(3, xy.small());
   TEST_ASSERT_EQUAL(4, xy.large());
 
-  // TODO: Is this behavior actually correct?
+  // BUG?: Is this behavior actually correct?
   // Does small mean "less than", or should it mean
   // "closer to zero"? If the latter, then the following
   // tests are incorrect.
@@ -89,7 +88,6 @@ MARLIN_TEST(types, XYval_small_large) {
   TEST_ASSERT_EQUAL(-4, xy.small());
   TEST_ASSERT_EQUAL(-3, xy.large());
 
-  // Test with mixed negative/positive numbers
   xy.set(-3, 2);
   TEST_ASSERT_EQUAL(-3, xy.small());
   TEST_ASSERT_EQUAL(2, xy.large());
@@ -99,9 +97,7 @@ MARLIN_TEST(types, XYval_small_large) {
   TEST_ASSERT_EQUAL(2, xy.large());
 }
 
-// Test the operator overloads
 MARLIN_TEST(types, XYval_operators) {
-  // Comment: This test checks if the operator overloads work correctly
   XYval<int> xy1 = {2, 3}, xy2 = {6, 12};
   XYval<int> xy3 = xy1 + xy2;
   TEST_ASSERT_EQUAL(8, xy3.x);
@@ -117,27 +113,21 @@ MARLIN_TEST(types, XYval_operators) {
   TEST_ASSERT_EQUAL(4, xy3.y);
 }
 
-// Test the ABS method
 MARLIN_TEST(types, XYval_ABS) {
-  // Comment: This test checks if the ABS method correctly returns the absolute values of x and y
   XYval<int> xy = {-3, -4};
   XYval<int> xy_abs = xy.ABS();
   TEST_ASSERT_EQUAL(3, xy_abs.x);
   TEST_ASSERT_EQUAL(4, xy_abs.y);
 }
 
-// Test the ROUNDL method
 MARLIN_TEST(types, XYval_ROUNDL) {
-  // Comment: This test checks if the ROUNDL method correctly rounds x and y to the nearest integer
   XYval<float> xy = {3.3f, 4.7f};
   auto xy_round = xy.ROUNDL();
   TEST_ASSERT_EQUAL(3, xy_round.x);
   TEST_ASSERT_EQUAL(5, xy_round.y);
 }
 
-// Test the reciprocal method
 MARLIN_TEST(types, XYval_reciprocal) {
-  // Comment: This test checks if the reciprocal method correctly calculates the reciprocals of x and y
   XYval<float> xy = {0.5f, 4.0f};
   XYval<float> xy_reciprocal = xy.reciprocal();
   TEST_ASSERT_EQUAL_FLOAT(2.0f, xy_reciprocal.x);
@@ -195,7 +185,6 @@ MARLIN_TEST(types, XYZval_magnitude) {
   TEST_ASSERT_FLOAT_WITHIN(0.001f, 7.071f, xyz.magnitude());
 }
 
-// Test the small and large functions
 MARLIN_TEST(types, XYZval_small_large) {
   XYZval<int> xyz;
   
@@ -234,9 +223,7 @@ MARLIN_TEST(types, XYZval_small_large) {
   TEST_ASSERT_EQUAL(4, xyz.large());
 }
 
-// Test the operator overloads
 MARLIN_TEST(types, XYZval_operators) {
-  // Comment: This test checks if the operator overloads work correctly
   XYZval<int> xyz1 = {2, 3, 4}, xyz2 = {6, 12, 24};
   XYZval<int> xyz3 = xyz1 + xyz2;
   TEST_ASSERT_EQUAL(8, xyz3.x);
@@ -256,9 +243,7 @@ MARLIN_TEST(types, XYZval_operators) {
   TEST_ASSERT_EQUAL(6, xyz3.z);
 }
 
-// Test the ABS method
 MARLIN_TEST(types, XYZval_ABS) {
-  // Comment: This test checks if the ABS method correctly returns the absolute values of x, y, and z
   XYZval<int> xyz = {-3, -4, -5};
   XYZval<int> xyz_abs = xyz.ABS();
   TEST_ASSERT_EQUAL(3, xyz_abs.x);
@@ -266,9 +251,7 @@ MARLIN_TEST(types, XYZval_ABS) {
   TEST_ASSERT_EQUAL(5, xyz_abs.z);
 }
 
-// Test the ROUNDL method
 MARLIN_TEST(types, XYZval_ROUNDL) {
-  // Comment: This test checks if the ROUNDL method correctly rounds x, y, and z to the nearest integer
   XYZval<float> xyz = {3.3f, 4.7f, 5.5f};
   XYZval<int> xyz_round = xyz.ROUNDL();
   TEST_ASSERT_EQUAL(3, xyz_round.x);
@@ -276,9 +259,7 @@ MARLIN_TEST(types, XYZval_ROUNDL) {
   TEST_ASSERT_EQUAL(6, xyz_round.z);
 }
 
-// Test the reciprocal method
 MARLIN_TEST(types, XYZval_reciprocal) {
-  // Comment: This test checks if the reciprocal method correctly calculates the reciprocals of x, y, and z
   XYZval<float> xyz = {0.5f, 2.0f, 0.33333f};
   XYZval<float> xyz_reciprocal = xyz.reciprocal();
   TEST_ASSERT_EQUAL_FLOAT(2.0f, xyz_reciprocal.x);
@@ -342,7 +323,6 @@ MARLIN_TEST(types, XYZEval_magnitude) {
   TEST_ASSERT_FLOAT_WITHIN(0.001f, 9.274f, xyze.magnitude());
 }
 
-// Test the small and large functions
 MARLIN_TEST(types, XYZEval_small_large) {
   XYZEval<int> xyze;
   
@@ -362,12 +342,10 @@ MARLIN_TEST(types, XYZEval_small_large) {
   TEST_ASSERT_EQUAL(3, xyze.small());
   TEST_ASSERT_EQUAL(6, xyze.large());
 
-  // Test with negative numbers
   xyze.set(-3, -4, -5, -6);
   TEST_ASSERT_EQUAL(-6, xyze.small());
   TEST_ASSERT_EQUAL(-3, xyze.large());
 
-  // Test with mixed negative/positive numbers
   xyze.set(-3, 4, 5, 6);
   TEST_ASSERT_EQUAL(-3, xyze.small());
   TEST_ASSERT_EQUAL(6, xyze.large());
@@ -385,9 +363,7 @@ MARLIN_TEST(types, XYZEval_small_large) {
   TEST_ASSERT_EQUAL(5, xyze.large());
 }
 
-// Test the operator overloads
 MARLIN_TEST(types, XYZEval_operators) {
-  // Comment: This test checks if the operator overloads work correctly
   XYZEval<int> xyze1 = {2, 3, 4, 5}, xyze2 = {6, 12, 24, 48};
   XYZEval<int> xyze3 = xyze1 + xyze2;
   TEST_ASSERT_EQUAL(8, xyze3.x);
@@ -411,9 +387,7 @@ MARLIN_TEST(types, XYZEval_operators) {
   TEST_ASSERT_EQUAL(9, xyze3.e);
 }
 
-// Test the ABS method
 MARLIN_TEST(types, XYZEval_ABS) {
-  // Comment: This test checks if the ABS method correctly returns the absolute values of x, y, z, and e
   XYZEval<int> xyze = {-3, -4, -5, -6};
   XYZEval<int> xyze_abs = xyze.ABS();
   TEST_ASSERT_EQUAL(3, xyze_abs.x);
@@ -422,9 +396,7 @@ MARLIN_TEST(types, XYZEval_ABS) {
   TEST_ASSERT_EQUAL(6, xyze_abs.e);
 }
 
-// Test the ROUNDL method
 MARLIN_TEST(types, XYZEval_ROUNDL) {
-  // Comment: This test checks if the ROUNDL method correctly rounds x, y, z, and e to the nearest integer
   XYZEval<float> xyze = {3.3f, 4.7f, 5.5f, 6.6f};
   XYZEval<int> xyze_round = xyze.ROUNDL();
   TEST_ASSERT_EQUAL(3, xyze_round.x);
@@ -433,9 +405,7 @@ MARLIN_TEST(types, XYZEval_ROUNDL) {
   TEST_ASSERT_EQUAL(7, xyze_round.e);
 }
 
-// Test the reciprocal method
 MARLIN_TEST(types, XYZEval_reciprocal) {
-  // Comment: This test checks if the reciprocal method correctly calculates the reciprocals of x, y, z, and e
   XYZEval<float> xyze = {0.5f, 2.0f, 0.33333f, 0.25f};
   XYZEval<float> xyze_reciprocal = xyze.reciprocal();
   TEST_ASSERT_EQUAL_FLOAT(2.0f, xyze_reciprocal.x);
@@ -460,86 +430,67 @@ MARLIN_TEST(types, Flags_non_const_as_bools) {
   TEST_ASSERT_TRUE(flags_true);
 }
 
-// Test the Flags struct with 1 bit
 MARLIN_TEST(types, Flags_1) {
   Flags<1> flags;
 
-  // Test the set method
   flags.set(0, true);
   TEST_ASSERT_EQUAL(1, flags.b);
 
-  // Test the reset method
   flags.reset();
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the clear method
   flags.set(0, true);
   flags.clear(0);
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the test method
   TEST_ASSERT_EQUAL(false, flags.test(0));
   flags.set(0, true);
   TEST_ASSERT_EQUAL(true, flags.test(0));
 
-  // Test the operator[]
   TEST_ASSERT_EQUAL(true, flags[0]);
   flags.clear(0);
   TEST_ASSERT_EQUAL(false, flags[0]);
 
-  // Test the size method, which is a bool in this specialization
   TEST_ASSERT_EQUAL(1, flags.size());
 }
 
-// Test the Flags struct with 8 bits
 MARLIN_TEST(types, Flags_8) {
   Flags<8> flags;
 
-  // Test the reset method
   flags.reset();
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the set method
   flags.set(3, true);
   TEST_ASSERT_EQUAL(8, flags.b);
 
-  // Test the clear method
   flags.clear(3);
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the test method
   flags.set(3, true);
   TEST_ASSERT_EQUAL(true, flags.test(3));
   TEST_ASSERT_EQUAL(false, flags.test(2));
 
-  // Test the operator[]
   TEST_ASSERT_EQUAL(true, flags[3]);
   TEST_ASSERT_EQUAL(false, flags[2]);
 
-  // Test the size method
   TEST_ASSERT_EQUAL(1, flags.size());
 }
 
-// Test the Flags struct with 16 bits
 MARLIN_TEST(types, Flags_16) {
   Flags<16> flags;
 
-  // Test the reset method
   flags.reset();
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the set method
   flags.set(0, true);
   flags.set(15, true);
   // BUG: The storage can only contain 8 bits!
   // TEST_ASSERT_EQUAL(32769, flags.b);
   TEST_ASSERT_EQUAL(1, flags.b);
 
-  // Test the clear method
   flags.clear(0);
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the test method
   flags.reset();
   flags.set(7, true);
   flags.set(15, true);
@@ -547,37 +498,30 @@ MARLIN_TEST(types, Flags_16) {
   // BUG: This can't store a value above bit 7 right now
   TEST_ASSERT_EQUAL(false, flags.test(15));
 
-  // Test the operator[]
   TEST_ASSERT_EQUAL(true, flags[7]);
   // BUG: This can't store a value above bit 7 right now
   TEST_ASSERT_EQUAL(false, flags[15]);
 
-  // Test the size method
   // BUG: This size should be 2, but is incorrectly 1
   TEST_ASSERT_EQUAL(1, flags.size());
 }
 
-// Test the Flags struct with 32 bits
 MARLIN_TEST(types, Flags_32) {
   Flags<32> flags;
 
-  // Test the reset method
   flags.reset();
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the set method
   flags.set(0, true);
   flags.set(31, true);
   // BUG: The storage can only contain 8 bits!
   //TEST_ASSERT_EQUAL(2147483649, flags.b);
   TEST_ASSERT_EQUAL(1, flags.b);
 
-  // Test the clear method
   flags.clear(0);
   flags.clear(31);
   TEST_ASSERT_EQUAL(0, flags.b);
 
-  // Test the test method
   flags.set(0, true);
   flags.set(31, true);
   TEST_ASSERT_EQUAL(true, flags.test(0));
@@ -587,7 +531,6 @@ MARLIN_TEST(types, Flags_32) {
   TEST_ASSERT_EQUAL(false, flags.test(1));
   TEST_ASSERT_EQUAL(false, flags.test(30));
 
-  // Test the operator[]
   TEST_ASSERT_EQUAL(true, flags[0]);
   // BUG: This can't store a value above bit 7 right now
   TEST_ASSERT_EQUAL(false, flags[31]);
@@ -595,7 +538,6 @@ MARLIN_TEST(types, Flags_32) {
   TEST_ASSERT_EQUAL(false, flags[1]);
   TEST_ASSERT_EQUAL(false, flags[30]);
 
-  // Test the size method
   // BUG: This size should be 4, but is incorrectly 1
   TEST_ASSERT_EQUAL(1, flags.size());
   // TEST_ASSERT_EQUAL(4, flags.size());
