@@ -71,7 +71,7 @@ MARLIN_TEST(types, XYval_magnitude) {
 
 MARLIN_TEST(types, XYval_small_large) {
   XYval<int> xy;
-  
+
   xy.set(3, 4);
   TEST_ASSERT_EQUAL(3, xy.small());
   TEST_ASSERT_EQUAL(4, xy.large());
@@ -187,7 +187,7 @@ MARLIN_TEST(types, XYZval_magnitude) {
 
 MARLIN_TEST(types, XYZval_small_large) {
   XYZval<int> xyz;
-  
+
   xyz.set(3, 4, 5);
   TEST_ASSERT_EQUAL(3, xyz.small());
   TEST_ASSERT_EQUAL(5, xyz.large());
@@ -325,7 +325,7 @@ MARLIN_TEST(types, XYZEval_magnitude) {
 
 MARLIN_TEST(types, XYZEval_small_large) {
   XYZEval<int> xyze;
-  
+
   xyze.set(3, 4, 5, 6);
   TEST_ASSERT_EQUAL(3, xyze.small());
   TEST_ASSERT_EQUAL(6, xyze.large());
