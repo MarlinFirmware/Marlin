@@ -71,7 +71,7 @@ MARLIN_TEST(types, XYval_magnitude) {
 
 MARLIN_TEST(types, XYval_small_large) {
   XYval<int> xy;
-  
+
   xy.set(3, 4);
   TEST_ASSERT_EQUAL(3, xy.small());
   TEST_ASSERT_EQUAL(4, xy.large());
@@ -187,7 +187,7 @@ MARLIN_TEST(types, XYZval_magnitude) {
 
 MARLIN_TEST(types, XYZval_small_large) {
   XYZval<int> xyz;
-  
+
   xyz.set(3, 4, 5);
   TEST_ASSERT_EQUAL(3, xyz.small());
   TEST_ASSERT_EQUAL(5, xyz.large());
@@ -325,7 +325,7 @@ MARLIN_TEST(types, XYZEval_magnitude) {
 
 MARLIN_TEST(types, XYZEval_small_large) {
   XYZEval<int> xyze;
-  
+
   xyze.set(3, 4, 5, 6);
   TEST_ASSERT_EQUAL(3, xyze.small());
   TEST_ASSERT_EQUAL(6, xyze.large());
@@ -484,26 +484,23 @@ MARLIN_TEST(types, Flags_16) {
 
   flags.set(0, true);
   flags.set(15, true);
-  // BUG: The storage can only contain 8 bits!
-  // TEST_ASSERT_EQUAL(32769, flags.b);
-  TEST_ASSERT_EQUAL(1, flags.b);
+  TEST_ASSERT_EQUAL(32769, flags.b);
 
   flags.clear(0);
-  TEST_ASSERT_EQUAL(0, flags.b);
+  TEST_ASSERT_EQUAL(32768, flags.b);
 
   flags.reset();
   flags.set(7, true);
   flags.set(15, true);
   TEST_ASSERT_EQUAL(true, flags.test(7));
-  // BUG: This can't store a value above bit 7 right now
-  TEST_ASSERT_EQUAL(false, flags.test(15));
+  TEST_ASSERT_EQUAL(false, flags.test(8));
+  TEST_ASSERT_EQUAL(true, flags.test(15));
 
   TEST_ASSERT_EQUAL(true, flags[7]);
-  // BUG: This can't store a value above bit 7 right now
-  TEST_ASSERT_EQUAL(false, flags[15]);
+  TEST_ASSERT_EQUAL(false, flags[8]);
+  TEST_ASSERT_EQUAL(true, flags[15]);
 
-  // BUG: This size should be 2, but is incorrectly 1
-  TEST_ASSERT_EQUAL(1, flags.size());
+  TEST_ASSERT_EQUAL(2, flags.size());
 }
 
 MARLIN_TEST(types, Flags_32) {
@@ -514,9 +511,7 @@ MARLIN_TEST(types, Flags_32) {
 
   flags.set(0, true);
   flags.set(31, true);
-  // BUG: The storage can only contain 8 bits!
-  //TEST_ASSERT_EQUAL(2147483649, flags.b);
-  TEST_ASSERT_EQUAL(1, flags.b);
+  TEST_ASSERT_EQUAL(2147483649, flags.b);
 
   flags.clear(0);
   flags.clear(31);
@@ -525,22 +520,16 @@ MARLIN_TEST(types, Flags_32) {
   flags.set(0, true);
   flags.set(31, true);
   TEST_ASSERT_EQUAL(true, flags.test(0));
-  // BUG: This can't store a value above bit 7 right now
-  TEST_ASSERT_EQUAL(false, flags.test(31));
-  // TEST_ASSERT_EQUAL(true, flags.test(31));
+  TEST_ASSERT_EQUAL(true, flags.test(31));
   TEST_ASSERT_EQUAL(false, flags.test(1));
   TEST_ASSERT_EQUAL(false, flags.test(30));
 
   TEST_ASSERT_EQUAL(true, flags[0]);
-  // BUG: This can't store a value above bit 7 right now
-  TEST_ASSERT_EQUAL(false, flags[31]);
-  // TEST_ASSERT_EQUAL(true, flags[31]);
+  TEST_ASSERT_EQUAL(true, flags[31]);
   TEST_ASSERT_EQUAL(false, flags[1]);
   TEST_ASSERT_EQUAL(false, flags[30]);
 
-  // BUG: This size should be 4, but is incorrectly 1
-  TEST_ASSERT_EQUAL(1, flags.size());
-  // TEST_ASSERT_EQUAL(4, flags.size());
+  TEST_ASSERT_EQUAL(4, flags.size());
 }
 
 MARLIN_TEST(types, AxisFlags_const_as_bools) {
