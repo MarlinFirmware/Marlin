@@ -564,4 +564,5 @@
   #define ESP_WIFI_MODULE_ENABLE_PIN        PG8
   #define ESP_WIFI_MODULE_GPIO0_PIN         PD7
   #define ESP_WIFI_MODULE_GPIO4_PIN         PD10
+  #define ESP_WIFI_MODULE_GPIO15_PIN        PB12
 #endif

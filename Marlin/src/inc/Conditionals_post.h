@@ -1944,6 +1944,7 @@
     #undef ESP_WIFI_MODULE_GPIO0_PIN
     #undef ESP_WIFI_MODULE_GPIO2_PIN
     #undef ESP_WIFI_MODULE_GPIO4_PIN
+    #undef ESP_WIFI_MODULE_GPIO15_PIN
   #endif
 #endif
 
