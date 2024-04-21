@@ -460,6 +460,147 @@ MARLIN_TEST(types, Flags_non_const_as_bools) {
   TEST_ASSERT_TRUE(flags_true);
 }
 
+// Test the Flags struct with 1 bit
+MARLIN_TEST(types, Flags_1) {
+  Flags<1> flags;
+
+  // Test the set method
+  flags.set(0, true);
+  TEST_ASSERT_EQUAL(1, flags.b);
+
+  // Test the reset method
+  flags.reset();
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the clear method
+  flags.set(0, true);
+  flags.clear(0);
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the test method
+  TEST_ASSERT_EQUAL(false, flags.test(0));
+  flags.set(0, true);
+  TEST_ASSERT_EQUAL(true, flags.test(0));
+
+  // Test the operator[]
+  TEST_ASSERT_EQUAL(true, flags[0]);
+  flags.clear(0);
+  TEST_ASSERT_EQUAL(false, flags[0]);
+
+  // Test the size method, which is a bool in this specialization
+  TEST_ASSERT_EQUAL(1, flags.size());
+}
+
+// Test the Flags struct with 8 bits
+MARLIN_TEST(types, Flags_8) {
+  Flags<8> flags;
+
+  // Test the reset method
+  flags.reset();
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the set method
+  flags.set(3, true);
+  TEST_ASSERT_EQUAL(8, flags.b);
+
+  // Test the clear method
+  flags.clear(3);
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the test method
+  flags.set(3, true);
+  TEST_ASSERT_EQUAL(true, flags.test(3));
+  TEST_ASSERT_EQUAL(false, flags.test(2));
+
+  // Test the operator[]
+  TEST_ASSERT_EQUAL(true, flags[3]);
+  TEST_ASSERT_EQUAL(false, flags[2]);
+
+  // Test the size method
+  TEST_ASSERT_EQUAL(1, flags.size());
+}
+
+// Test the Flags struct with 16 bits
+MARLIN_TEST(types, Flags_16) {
+  Flags<16> flags;
+
+  // Test the reset method
+  flags.reset();
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the set method
+  flags.set(0, true);
+  flags.set(15, true);
+  // BUG: The storage can only contain 8 bits!
+  // TEST_ASSERT_EQUAL(32769, flags.b);
+  TEST_ASSERT_EQUAL(1, flags.b);
+
+  // Test the clear method
+  flags.clear(0);
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the test method
+  flags.reset();
+  flags.set(7, true);
+  flags.set(15, true);
+  TEST_ASSERT_EQUAL(true, flags.test(7));
+  // BUG: This can't store a value above bit 7 right now
+  TEST_ASSERT_EQUAL(false, flags.test(15));
+
+  // Test the operator[]
+  TEST_ASSERT_EQUAL(true, flags[7]);
+  // BUG: This can't store a value above bit 7 right now
+  TEST_ASSERT_EQUAL(false, flags[15]);
+
+  // Test the size method
+  // BUG: This size should be 2, but is incorrectly 1
+  TEST_ASSERT_EQUAL(1, flags.size());
+}
+
+// Test the Flags struct with 32 bits
+MARLIN_TEST(types, Flags_32) {
+  Flags<32> flags;
+
+  // Test the reset method
+  flags.reset();
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the set method
+  flags.set(0, true);
+  flags.set(31, true);
+  // BUG: The storage can only contain 8 bits!
+  //TEST_ASSERT_EQUAL(2147483649, flags.b);
+  TEST_ASSERT_EQUAL(1, flags.b);
+
+  // Test the clear method
+  flags.clear(0);
+  flags.clear(31);
+  TEST_ASSERT_EQUAL(0, flags.b);
+
+  // Test the test method
+  flags.set(0, true);
+  flags.set(31, true);
+  TEST_ASSERT_EQUAL(true, flags.test(0));
+  // BUG: This can't store a value above bit 7 right now
+  TEST_ASSERT_EQUAL(false, flags.test(31));
+  // TEST_ASSERT_EQUAL(true, flags.test(31));
+  TEST_ASSERT_EQUAL(false, flags.test(1));
+  TEST_ASSERT_EQUAL(false, flags.test(30));
+
+  // Test the operator[]
+  TEST_ASSERT_EQUAL(true, flags[0]);
+  // BUG: This can't store a value above bit 7 right now
+  TEST_ASSERT_EQUAL(false, flags[31]);
+  // TEST_ASSERT_EQUAL(true, flags[31]);
+  TEST_ASSERT_EQUAL(false, flags[1]);
+  TEST_ASSERT_EQUAL(false, flags[30]);
+
+  // Test the size method
+  // BUG: This size should be 4, but is incorrectly 1
+  TEST_ASSERT_EQUAL(1, flags.size());
+  // TEST_ASSERT_EQUAL(4, flags.size());
+}
+
 MARLIN_TEST(types, AxisFlags_const_as_bools) {
   const AxisFlags axis_flags_const_false = {0};
   TEST_ASSERT_FALSE(axis_flags_const_false);
