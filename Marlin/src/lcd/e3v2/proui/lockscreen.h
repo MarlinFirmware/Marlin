@@ -23,7 +23,8 @@
 
 /**
  * Lock screen implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 2.3.2
  * Date: 2022/11/20
  */
