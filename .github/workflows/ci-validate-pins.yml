@@ -11,25 +11,15 @@ on:
     - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
-    paths-ignore:
-    - config/**
-    - data/**
-    - docs/**
-    - test/**
-    - Marlin/tests/**
-    - '**/*.md'
+    paths:
+    - 'Marlin/src/pins/*/**'
   push:
     branches:
     - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
-    paths-ignore:
-    - config/**
-    - data/**
-    - docs/**
-    - test/**
-    - Marlin/tests/**
-    - '**/*.md'
+    paths:
+    - 'Marlin/src/pins/*/**'
 
 jobs:
   validate_pins_files:
