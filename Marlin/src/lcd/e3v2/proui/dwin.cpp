@@ -3139,7 +3139,11 @@ void drawPrepareMenu() {
       MENU_ITEM(ICON_Tram, MSG_BED_TRAMMING, onDrawSubMenu, drawTrammingMenu);
     #endif
     #if HAS_PREHEAT
-      MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
+      #if PREHEAT_COUNT > 1
+        MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
+      #else
+        MENU_ITEM(ICON_Preheat1, MSG_PREHEAT_1, onDrawPreheat1, DoPreheat1);
+      #endif
     #endif
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
