@@ -41,7 +41,7 @@
 //
 #define X_STEP_PIN                            14
 #define X_DIR_PIN                             15
-#define X_ENABLE_PIN                           24
+#define X_ENABLE_PIN                          24
 
 #define Y_STEP_PIN                            35
 #define Y_DIR_PIN                             36
