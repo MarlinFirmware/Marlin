@@ -60,6 +60,6 @@ jobs:
         python-version: '3.9'
         architecture: 'x64'
 
-    - name: Run All Unit Tests
+    - name: Validate all pins files
       run: |
         make validate-pins -j
