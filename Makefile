@@ -92,4 +92,4 @@ format-pins: $(PINS)
 
 validate-pins: format-pins
 	@echo "Validating pins files"
-	@git diff --exit-code || (echo "Files were changed" && exit 1)
+	@git diff --exit-code || (echo "\nError: Pins files are not formatted correctly. Run \"make format-pins\" to fix.\n" && exit 1)
