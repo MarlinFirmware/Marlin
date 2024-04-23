@@ -21,7 +21,7 @@
  */
 
 /**
- * gcode/temp/M86-M87.cpp
+ * gcode/temp/M86_M87.cpp
  *
  * Hotend Idle Timeout
  */
