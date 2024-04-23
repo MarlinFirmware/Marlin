@@ -124,6 +124,94 @@
 
 #endif // QUICK_HOME
 
+#if ENABLED(QUICK_HOME_SECONDARY_AXES)
+
+  static void quick_home_xyijkuvw() {
+
+    // Pretend the current position is 0,0
+    current_position.set(0.0, 0.0);
+    SECONDARY_AXIS_CODE(
+      current_position.i = 0.0,
+      current_position.j = 0.0,
+      current_position.k = 0.0,
+      current_position.u = 0.0,
+      current_position.v = 0.0,
+      current_position.w = 0.0
+    );
+
+    sync_plan_position();
+
+    const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
+
+    // Use a higher diagonal feedrate so axes move at homing speed
+    const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
+                fr_mm_s = HYPOT(minfr, minfr);
+
+    feedRate_t old_max_speeds[NUM_AXES];
+    LOOP_NUM_AXES(i) {
+      old_max_speeds[i] = planner.settings.max_feedrate_mm_s[i];
+      planner.set_max_feedrate((AxisEnum)i, homing_feedrate((AxisEnum)i));
+    }
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_t stealth_states {
+          NUM_AXIS_LIST(
+            TERN0(X_SENSORLESS, tmc_enable_stallguard(stepperX), 
+            TERN0(Y_SENSORLESS, tmc_enable_stallguard(stepperY), 
+            false,
+            tmc_enable_stallguard(stepperI),
+            tmc_enable_stallguard(stepperJ),
+            tmc_enable_stallguard(stepperK),
+            tmc_enable_stallguard(stepperU),
+            tmc_enable_stallguard(stepperV),
+            tmc_enable_stallguard(stepperW)
+          )
+          , false
+          , TERN0(X2_SENSORLESS, tmc_enable_stallguard(stepperX2)),
+          , TERN0(Y2_SENSORLESS, tmc_enable_stallguard(stepperX2))
+      };
+    #endif
+
+    do_blocking_move_to(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, current_position.z, 
+        SECONDARY_AXIS_LIST(1.5 * max_length(I_AXIS) * I_HOME_DIR, 1.5 * max_length(J_AXIS) * J_HOME_DIR , 1.5 * max_length(K_AXIS) * K_HOME_DIR, 1.5 * max_length(U_AXIS) * U_HOME_DIR, 1.5 * max_length(V_AXIS) * V_HOME_DIR, 1.5 * max_length(W_AXIS) * W_HOME_DIR), 
+        fr_mm_s
+    );
+
+    endstops.validate_homing_move();
+
+    current_position.set(0.0, 0.0);
+
+    SECONDARY_AXIS_CODE(
+      current_position.i = 0.0,
+      current_position.j = 0.0,
+      current_position.k = 0.0,
+      current_position.u = 0.0,
+      current_position.v = 0.0,
+      current_position.w = 0.0
+    );
+
+    LOOP_NUM_AXES(i) { 
+      planner.set_max_feedrate((AxisEnum)i, old_max_speeds[i]);
+    }
+
+    #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+      TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
+      TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperY, stealth_states.y));
+      TERN_(Y_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
+      TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
+      #endif
+      SECONDARY_AXIS_CODE(
+        tmc_disable_stallguard(stepperI, stealth_states.i),
+        tmc_disable_stallguard(stepperJ, stealth_states.j),
+        tmc_disable_stallguard(stepperK, stealth_states.k),
+        tmc_disable_stallguard(stepperU, stealth_states.u),
+        tmc_disable_stallguard(stepperV, stealth_states.v),
+        tmc_disable_stallguard(stepperW, stealth_states.w)
+      );
+    #endif
+  }
+
+#endif // QUICK_HOME_SECONDARY_AXES
+
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
@@ -389,7 +477,21 @@ void GcodeSuite::G28() {
       #endif // HAS_Z_AXIS
 
       // Diagonal move first if both are homing
-      TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
+
+    #if ENABLED(QUICK_HOME)
+      if (doX && doY) {
+        #if ENABLED(QUICK_HOME_ALL_NON_Z_AXES)
+          // move all axes except Z towards 0 first if all are homing
+          if (SECONDARY_AXIS_GANG(doI, && doJ, && doK, && doU, && doV, && doW))
+            quick_home_xyijkuvw();
+          else
+            quick_home_xy();
+        #else
+          // Diagonal move first if both x and y but not not all secondary axes are homing
+          quick_home_xy();
+        #endif
+      }
+    #endif
 
       #if HAS_Y_AXIS
         // Home Y (before X)
