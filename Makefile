@@ -7,7 +7,8 @@ UNIT_TEST_CONFIG ?= default
 help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build marlin for the configured board"
-	@echo "make format-pins               : Reformat all pins files"
+	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
+	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -81,7 +82,14 @@ setup-local-docker:
 
 PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
 
+.PHONY: $(PINS) format-pins validate-pins
+
 $(PINS): %:
-	@echo "Formatting $@" && node $(SCRIPTS_DIR)/pinsformat.js $@
+	@echo "Formatting $@"
+	@python $(SCRIPTS_DIR)/pinsformat.py $< $@
 
 format-pins: $(PINS)
+
+validate-pins: format-pins
+	@echo "Validating pins files"
+	@git diff --exit-code || (git status && echo "\nError: Pins files are not formatted correctly. Run \"make format-pins\" to fix.\n" && exit 1)
