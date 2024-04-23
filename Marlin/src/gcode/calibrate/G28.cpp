@@ -198,7 +198,6 @@
       TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperY, stealth_states.y));
       TERN_(Y_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
       TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
-      #endif
       SECONDARY_AXIS_CODE(
         tmc_disable_stallguard(stepperI, stealth_states.i),
         tmc_disable_stallguard(stepperJ, stealth_states.j),
