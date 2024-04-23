@@ -404,6 +404,9 @@
 #define BOARD_VOXELAB_AQUILA          5071  // Voxelab Aquila V1.0.0/V1.0.1 (GD32F103RC / N32G455RE / STM32F103RE)
 #define BOARD_SPRINGER_CONTROLLER     5072  // ORCA 3D SPRINGER Modular Controller (STM32F103VC)
 
+// Preliminary support for Creality Ender-3 V3 SE
+#define BOARD_CREALITY_CR4NS          5099  // Creality CR4NS200320C13 (GD32F303RET6) as found in the Ender-3 V3 SE
+
 //
 // ARM Cortex-M4F
 //
