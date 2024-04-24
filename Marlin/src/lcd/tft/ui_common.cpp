@@ -96,7 +96,6 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
           else
             TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
           drawMessage_P(NUL_STR); // Clear the error
-          drawAxisValue(axis);
         }
         else
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
@@ -116,14 +115,12 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
         else
           drawMessage_P(NUL_STR); // Clear the error
 
-        drawAxisValue(axis);
-
       #endif // !BABYSTEP_ZPROBE_OFFSET
     }
 
   #endif // HAS_BED_PROBE
 
-  if (!ui.manual_move.processing) {
+  if (diff && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;
     soft_endstop.get_manual_axis_limits(axis, min, max);
