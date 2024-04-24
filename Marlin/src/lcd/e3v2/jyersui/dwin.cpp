@@ -259,7 +259,7 @@ private:
 
     inline void manualValueUpdate(const bool undefined=false) {
       gcode.process_subcommands_now(
-        TS('M421I', mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
+        TS("M421 I", mesh_x, "J", mesh_y, "Z", p_float_t(current_position.z, 3), undefined ? "N" : "")
       );
       planner.synchronize();
     }
