@@ -406,9 +406,10 @@ void iconStop() {
   iconButton(select_print.now == PRINT_STOP, ICON_Stop_0, ico, txt, GET_TEXT_F(MSG_BUTTON_STOP));
 }
 
-//
-// PopUps
-//
+//-----------------------------------------------------------------------------
+// Popups
+//-----------------------------------------------------------------------------
+
 void popupPauseOrStop() {
   if (hmiIsChinese()) {
     DWINUI::clearMainArea();
@@ -468,9 +469,11 @@ void popupPauseOrStop() {
   }
 #endif
 
-//
+//-----------------------------------------------------------------------------
+// Main Menu & Print Screen
+//-----------------------------------------------------------------------------
+
 // Draw status line
-//
 void dwinDrawStatusLine(PGM_P text) {
   dwinDrawRectangle(1, hmiData.colorStatusBg, 0, STATUS_Y, DWIN_WIDTH, STATUS_Y + 20);
   if (text) DWINUI::drawCenteredString(hmiData.colorStatusTxt, STATUS_Y + 2, text);
@@ -524,9 +527,9 @@ void dwinDrawStatusMessage() {
 
       // If the string doesn't completely fill the line...
       if (rlen < LCD_WIDTH) {
-        DWINUI::drawChar(hmiData.colorStatusTxt, '.');     // Always at 1+ spaces left, draw a dot
-        uint8_t chars = LCD_WIDTH - rlen;                  // Amount of space left in characters
-        if (--chars) {                                     // Draw a second dot if there's space
+        DWINUI::drawChar(hmiData.colorStatusTxt, '.'); // Always at 1+ spaces left, draw a dot
+        uint8_t chars = LCD_WIDTH - rlen;              // Amount of space left in characters
+        if (--chars) {                                 // Draw a second dot if there's space
           DWINUI::drawChar(hmiData.colorStatusTxt, '.');
           if (--chars)
             DWINUI::drawString(hmiData.colorStatusTxt, ui.status_message, chars); // Print a second copy of the message
@@ -548,8 +551,8 @@ void dwinDrawStatusMessage() {
 
 void drawPrintLabels() {
   if (hmiIsChinese()) {
-    dwinFrameAreaCopy(1,  0, 72,  63, 86,  41, 173);  // Printing Time
-    dwinFrameAreaCopy(1, 65, 72, 128, 86, 176, 173);  // Remain
+    dwinFrameAreaCopy(1,  0, 72,  63, 86,  41, 173); // Printing Time
+    dwinFrameAreaCopy(1, 65, 72, 128, 86, 176, 173); // Remain
   }
   else {
     DWINUI::drawString( 46, 173, GET_TEXT_F(MSG_INFO_PRINT_TIME));
@@ -866,9 +869,9 @@ void updateVariable() {
   _drawZOffsetIcon();
 }
 
-/**
- * Memory card and file management
- */
+//-----------------------------------------------------------------------------
+// Memory card and file management
+//-----------------------------------------------------------------------------
 
 bool DWIN_lcd_sd_status = false;
 
@@ -1025,9 +1028,7 @@ void drawPrintFileMenu() {
   TERN_(SCROLL_LONG_FILENAMES, fileMenuIdle(true));
 }
 
-//
 // Watch for media mount / unmount
-//
 void hmiSDCardUpdate() {
   if (hmiFlag.home_flag) return;
   if (DWIN_lcd_sd_status != card.isMounted()) {
@@ -1041,10 +1042,7 @@ void hmiSDCardUpdate() {
   }
 }
 
-/**
- * Dash board and indicators
- */
-
+// Dash board and indicators
 void dwinDrawDashboard() {
   dwinDrawRectangle(1, hmiData.colorBackground, 0, STATUS_Y + 21, DWIN_WIDTH, DWIN_HEIGHT - 1);
   dwinDrawRectangle(1, hmiData.colorSplitLine, 0, 449, DWIN_WIDTH, 451);
@@ -1090,15 +1088,15 @@ void dwinDrawDashboard() {
 void drawInfoMenu() {
   DWINUI::clearMainArea();
   if (hmiIsChinese())
-    title.frameCopy(30, 17, 28, 13);                      // "Info"
+    title.frameCopy(30, 17, 28, 13);                    // "Info"
   else
     title.showCaption(GET_TEXT_F(MSG_INFO_SCREEN));
   drawMenuLine(0, ICON_Back, GET_TEXT_F(MSG_BACK), false, true);
 
   if (hmiIsChinese()) {
-    dwinFrameAreaCopy(1, 197, 149, 252, 161, 108, 102);   // "Size"
-    dwinFrameAreaCopy(1,   1, 164,  56, 176, 108, 175);   // "Firmware Version"
-    dwinFrameAreaCopy(1,  58, 164, 113, 176, 105, 248);   // "Contact Details"
+    dwinFrameAreaCopy(1, 197, 149, 252, 161, 108, 102); // "Size"
+    dwinFrameAreaCopy(1,   1, 164,  56, 176, 108, 175); // "Firmware Version"
+    dwinFrameAreaCopy(1,  58, 164, 113, 176, 105, 248); // "Contact Details"
     DWINUI::drawCenteredString(268, F(CORP_WEBSITE));
   }
   else {
@@ -1463,7 +1461,7 @@ void dwinHandleScreen() {
   }
 }
 
-bool idIsPopUp() {    // If ID is popup...
+bool idIsPopUp() { // If ID is popup...
   switch (checkkey) {
     TERN_(HAS_BED_PROBE, case ID_Leveling:)
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
