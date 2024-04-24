@@ -404,9 +404,6 @@
 #define BOARD_VOXELAB_AQUILA          5071  // Voxelab Aquila V1.0.0/V1.0.1 (GD32F103RC / N32G455RE / STM32F103RE)
 #define BOARD_SPRINGER_CONTROLLER     5072  // ORCA 3D SPRINGER Modular Controller (STM32F103VC)
 
-// Preliminary support for Creality Ender-3 V3 SE
-#define BOARD_CREALITY_CR4NS          5099  // Creality CR4NS200320C13 (GD32F303RET6) as found in the Ender-3 V3 SE
-
 //
 // ARM Cortex-M4F
 //
@@ -470,6 +467,11 @@
 #define BOARD_MELLOW_FLY_E3_V2        5249  // Mellow Fly E3 V2 (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V30      5250  // FYSETC Cheetah V3.0 (STM32F446RC)
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
+
+//
+// Other ARM Cortex-M4
+//
+#define BOARD_CREALITY_CR4NS          5300  // Creality CR4NS200320C13 (GD32F303RET6) as found in the Ender-3 V3 SE
 
 //
 // ARM Cortex-M7
