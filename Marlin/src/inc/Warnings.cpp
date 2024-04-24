@@ -99,8 +99,8 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
+  #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
