@@ -71,12 +71,16 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     }
   #endif
 
-  const float diff = motionAxisState.currentStepSize * direction;
+  float diff = motionAxisState.currentStepSize * direction;
 
   #if HAS_BED_PROBE
 
     if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+
+        diff = 0;
+
         const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
         const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
         const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
@@ -97,7 +101,8 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
         else
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
 
-      #else
+      #else // !BABYSTEP_ZPROBE_OFFSET
+
         // Only change probe.offset.z
         probe.offset.z += diff;
         if (direction < 0 && current_position.z < PROBE_OFFSET_ZMIN) {
@@ -112,7 +117,8 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
           drawMessage_P(NUL_STR); // Clear the error
 
         drawAxisValue(axis);
-      #endif
+
+      #endif // !BABYSTEP_ZPROBE_OFFSET
     }
 
   #endif // HAS_BED_PROBE
