@@ -259,11 +259,7 @@ private:
 
     inline void manualValueUpdate(const bool undefined=false) {
       gcode.process_subcommands_now(
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          TS(F("M421I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
-        #else
-          TS(F("G29I"), mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3))
-        #endif
+        TS('M421I', mesh_x, 'J', mesh_y, 'Z', p_float_t(current_position.z, 3), undefined ? "N" : "")
       );
       planner.synchronize();
     }
