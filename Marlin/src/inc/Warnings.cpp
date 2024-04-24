@@ -690,8 +690,8 @@
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
-#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-  #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && NONE(Z_SAFE_HOMING, NO_Z_SAFE_HOMING_WARNING)
+  #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
 #endif
 
 #if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
