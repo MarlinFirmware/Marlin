@@ -123,7 +123,7 @@ void BedLevelTools::manualValueUpdate(const uint8_t mesh_x, const uint8_t mesh_y
   if (reset) { zval = 0; }
   else { zval = current_position.z; }
   gcode.process_subcommands_now(
-    TS(F(TERN(AUTO_BED_LEVELING_UBL, "M421 I", "G29 I")), mesh_x, 'J', mesh_y, 'Z', p_float_t(zval, 3))
+    TS('M421 I', mesh_x, 'J', mesh_y, 'Z', p_float_t(zval, 3))
   );
   planner.synchronize();
 }
