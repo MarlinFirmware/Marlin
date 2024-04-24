@@ -859,8 +859,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Store new block parameters
-  block->accelerate_until = accelerate_steps;
-  block->decelerate_after = block->step_event_count - decelerate_steps;
+  block->accelerate_before = accelerate_steps;
+  block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
   #if ENABLED(S_CURVE_ACCELERATION)
     block->acceleration_time = acceleration_time;
@@ -3196,8 +3196,8 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
     block->step_event_count = num_steps;
     block->initial_rate = block->final_rate = block->nominal_rate = last_page_step_rate; // steps/s
 
-    block->accelerate_until = 0;
-    block->decelerate_after = block->step_event_count;
+    block->accelerate_before = 0;
+    block->decelerate_start = block->step_event_count;
 
     // Will be set to last direction later if directional format.
     block->direction_bits.reset();

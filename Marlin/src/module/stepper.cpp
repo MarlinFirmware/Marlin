@@ -58,10 +58,16 @@
  *
  *                           time ----->
  *
- *  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates
- *  first block->accelerate_until step_events_completed, then keeps going at constant speed until
- *  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
- *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
+ *  the shape the speed curve over time forms a TRAPEZOID. The slope of acceleration is calculated by
+ *    v = u + t
+ *  where 't' is the accumulated timer values of the steps so far.
+ *
+ *  The Stepper ISR dynamically executes acceleration, deceleration, and cruising according to the block parameters.
+ *    - Start at block->initial_rate.
+ *    - Accelerate while step_events_completed < block->accelerate_before.
+ *    - Cruise while step_events_completed < block->decelerate_start.
+ *    - Decelerate after that, until all steps are completed.
+ *    - Reset the trapezoid generator.
  */
 
 /**
@@ -225,8 +231,8 @@ xyze_long_t Stepper::delta_error{0};
 xyze_long_t Stepper::advance_dividend{0};
 uint32_t Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
-         Stepper::accelerate_until,          // The count at which to stop accelerating
-         Stepper::decelerate_after,          // The count at which to start decelerating
+         Stepper::accelerate_before,         // The count at which to start cruising
+         Stepper::decelerate_start,          // The count at which to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
 #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -2300,7 +2306,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Step events not completed yet...
 
       // Are we in acceleration phase ?
-      if (step_events_completed < accelerate_until) { // Calculate new timer value
+      if (step_events_completed < accelerate_before) { // Calculate new timer value
 
         #if ENABLED(S_CURVE_ACCELERATION)
           // Get the next speed to use (Jerk limited!)
@@ -2357,7 +2363,7 @@ hal_timer_t Stepper::block_phase_isr() {
         #endif
       }
       // Are we in Deceleration phase ?
-      else if (step_events_completed >= decelerate_after) {
+      else if (step_events_completed >= decelerate_start) {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
@@ -2462,7 +2468,7 @@ hal_timer_t Stepper::block_phase_isr() {
        */
       #if ENABLED(LASER_POWER_TRAP)
         if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-          if (step_events_completed + 1 == accelerate_until) {
+          if (step_events_completed + 1 == accelerate_before) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
               if (current_block->laser.trap_ramp_entry_incr > 0) {
                 current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
@@ -2692,8 +2698,8 @@ hal_timer_t Stepper::block_phase_isr() {
       step_events_completed = 0;
 
       // Compute the acceleration and deceleration points
-      accelerate_until = current_block->accelerate_until << oversampling_factor;
-      decelerate_after = current_block->decelerate_after << oversampling_factor;
+      accelerate_before = current_block->accelerate_before << oversampling_factor;
+      decelerate_start = current_block->decelerate_start << oversampling_factor;
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
