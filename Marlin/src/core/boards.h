@@ -131,6 +131,7 @@
 #define BOARD_PXMALION_CORE_I3        1164  // Pxmalion Core I3
 #define BOARD_PANOWIN_CUTLASS         1165  // Panowin Cutlass (as found in the Panowin F1)
 #define BOARD_KODAMA_BARDO            1166  // Kodama Bardo V1.x (as found in the Kodama Trinus)
+#define BOARD_DAGOMA_D6               1167  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
 
 //
 // RAMBo and derivatives

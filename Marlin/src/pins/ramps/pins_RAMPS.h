@@ -320,17 +320,29 @@
 #endif
 
 //
-// TMC software SPI
+// TMC SPI
 //
 #if HAS_TMC_SPI
-  #ifndef TMC_SPI_MOSI
-    #define TMC_SPI_MOSI                 AUX2_09
-  #endif
-  #ifndef TMC_SPI_MISO
-    #define TMC_SPI_MISO                 AUX2_07
-  #endif
-  #ifndef TMC_SPI_SCK
-    #define TMC_SPI_SCK                  AUX2_05
+  #if ENABLED(TMC_USE_SW_SPI)
+    #ifndef TMC_SPI_MOSI
+      #define TMC_SPI_MOSI               AUX2_09
+    #endif
+    #ifndef TMC_SPI_MISO
+      #define TMC_SPI_MISO               AUX2_07
+    #endif
+    #ifndef TMC_SPI_SCK
+      #define TMC_SPI_SCK                AUX2_05
+    #endif
+  #else
+    #ifndef TMC_SPI_MOSI
+      #define TMC_SPI_MOSI               AUX3_04
+    #endif
+    #ifndef TMC_SPI_MISO
+      #define TMC_SPI_MISO               AUX3_03
+    #endif
+    #ifndef TMC_SPI_SCK
+      #define TMC_SPI_SCK                AUX3_05
+    #endif
   #endif
 #endif
 
