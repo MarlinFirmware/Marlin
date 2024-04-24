@@ -26,9 +26,9 @@
 
 #include "Delay.h"
 
-void esp_wifi_init(void) {                          // init ESP01 WIFI module pins
+void esp_wifi_init(void) {                        // init ESP01 WIFI module pins
   #if PIN_EXISTS(ESP_WIFI_MODULE_GPIO15)
-    OUT_WRITE(ESP_WIFI_MODULE_GPIO15_PIN, LOW); // run mode
+    OUT_WRITE(ESP_WIFI_MODULE_GPIO15_PIN, LOW);   // run mode
   #endif
   #if PIN_EXISTS(ESP_WIFI_MODULE_GPIO0)
     OUT_WRITE(ESP_WIFI_MODULE_GPIO0_PIN, HIGH);
