@@ -557,7 +557,7 @@ MARLIN_TEST(macros_options, OPTITEM) {
 MARLIN_TEST(macros_options, OPTARG) {
   int enabledArgs[] = {0 OPTARG(OPTION_ENABLED, 1, 2)};
   int disabledArgs[] = {0 OPTARG(OPTION_DISABLED, 1, 2)};
-  
+
   int sumEnabledArgs = 0;
   for (const auto& arg : enabledArgs) {
     sumEnabledArgs += arg;
