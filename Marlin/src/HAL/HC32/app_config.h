@@ -1,6 +1,6 @@
 /**
  * app_config.h is included by the hc32f460 arduino build script for every source file.
- * it is used to configure the arduino core (and ddl) automatically according 
+ * it is used to configure the arduino core (and ddl) automatically according
  * to the settings in Configuration.h and Configuration_adv.h.
  */
 #pragma once
@@ -44,7 +44,7 @@
 #define DISABLE_SERIAL_GLOBALS 1
 
 // increase the size of the Usart buffers (both RX and TX)
-// NOTE: 
+// NOTE:
 // the heap usage will increase by (SERIAL_BUFFER_SIZE - 64) * "number of serial ports used"
 // if running out of heap, the system may become unstable
 //#define SERIAL_BUFFER_SIZE 256
