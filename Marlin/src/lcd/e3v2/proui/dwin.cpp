@@ -1312,7 +1312,7 @@ void eachMomentUpdate() {
           TERN_(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
           TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) { plot.update(thermalManager.wholeDegBed()); })
           TERN_(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) { plot.update(thermalManager.wholeDegChamber()); })
-          TERN_(MPCTEMP, if (hmiValue.tempControl == MPCTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
+          TERN_(MPCTEMP, if (hmiValue.tempControl == MPC_STARTED) { plot.update(thermalManager.wholeDegHotend(0)); })
           if (hmiFlag.abort_flag || hmiFlag.pause_flag || print_job_timer.isPaused()) {
             hmiReturnScreen();
           }
@@ -1567,7 +1567,7 @@ void dwinLevelingDone() {
     switch (hmiValue.tempControl) {
       default: return;
       #if ENABLED(MPC_AUTOTUNE)
-        case MPCTEMP_START:
+        case MPC_STARTED:
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 70, GET_TEXT_F(MSG_MPC_AUTOTUNE));
           DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:     Celsius"));
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, GET_TEXT_F(MSG_PID_FOR_NOZZLE));
@@ -1620,7 +1620,7 @@ void dwinLevelingDone() {
 
       switch (result) {
         #if ENABLED(MPCTEMP)
-          case MPCTEMP_START:
+          case MPC_STARTED:
         #elif ENABLED(PIDTEMP)
           case PIDTEMP_START:
         #endif
@@ -1656,7 +1656,7 @@ void dwinLevelingDone() {
 
     void drawHPlot() {
       TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
-      TERN_(MPCTEMP, dwinDrawPlot(MPCTEMP_START));
+      TERN_(MPCTEMP, dwinDrawPlot(MPC_STARTED));
     }
     void drawBPlot() {
       TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
@@ -1742,7 +1742,7 @@ void dwinLevelingDone() {
   void dwinMPCTuning(tempcontrol_t result) {
     hmiValue.tempControl = result;
     switch (result) {
-      case MPCTEMP_START:
+      case MPC_STARTED:
         hmiSaveProcessID(ID_MPCProcess);
         #if PROUI_TUNING_GRAPH
           dwinDrawPIDMPCPopup();
