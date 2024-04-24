@@ -54,7 +54,7 @@
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PC13   // BLTouch IN
+  #define Z_MIN_PROBE_PIN                   PC13  // BLTouch IN
 #endif
 
 //
@@ -68,7 +68,7 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PC15   // "Pulled-high"
+  #define FIL_RUNOUT_PIN                    PC15  // "Pulled-high"
 #endif
 
 //
@@ -91,13 +91,13 @@
 
   // Software serial
   #define X_SERIAL_TX_PIN                   PB12
-  #define X_SERIAL_RX_PIN                   X_SERIAL_TX_PIN
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PB13
-  #define Y_SERIAL_RX_PIN                   Y_SERIAL_TX_PIN
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PB14
-  #define Z_SERIAL_RX_PIN                   Z_SERIAL_TX_PIN
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
 #endif // HAS_TMC_UART
 
@@ -131,6 +131,5 @@
   #define BTN_EN2                    EXP1_07_PIN  // B
 
 #endif
-
 
 #include "pins_CREALITY_V4.h"
