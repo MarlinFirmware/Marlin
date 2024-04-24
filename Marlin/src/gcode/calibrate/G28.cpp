@@ -477,20 +477,20 @@ void GcodeSuite::G28() {
 
       // Diagonal move first if both are homing
 
-    #if ENABLED(QUICK_HOME)
-      if (doX && doY) {
-        #if ENABLED(QUICK_HOME_ALL_NON_Z_AXES)
-          // move all axes except Z towards 0 first if all are homing
-          if (SECONDARY_AXIS_GANG(doI, && doJ, && doK, && doU, && doV, && doW))
-            quick_home_xyijkuvw();
-          else
+      #if ENABLED(QUICK_HOME)
+        if (doX && doY) {
+          #if ENABLED(QUICK_HOME_SECONDARY_AXES)
+            // move all axes except Z towards 0 first if all are homing
+            if (SECONDARY_AXIS_GANG(doI, && doJ, && doK, && doU, && doV, && doW))
+              quick_home_xyijkuvw();
+            else
+              quick_home_xy();
+          #else
+            // Diagonal move first if both x and y but not not all secondary axes are homing
             quick_home_xy();
-        #else
-          // Diagonal move first if both x and y but not not all secondary axes are homing
-          quick_home_xy();
-        #endif
-      }
-    #endif
+          #endif
+        }
+      #endif
 
       #if HAS_Y_AXIS
         // Home Y (before X)
