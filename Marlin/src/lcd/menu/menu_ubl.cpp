@@ -144,7 +144,7 @@ void _lcd_ubl_custom_mesh() {
  * UBL Adjust Mesh Height Command
  */
 void _lcd_ubl_adjust_height_cmd() {
-  char ubl_lcd_gcode[13];
+  char ubl_lcd_gcode[14];
   const int ind = ubl_height_amount > 0 ? 6 : 7;
   strcpy_P(ubl_lcd_gcode, PSTR("G29P6C-"));
   sprintf_P(&ubl_lcd_gcode[ind], PSTR(".%i"), ABS(ubl_height_amount));
