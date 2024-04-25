@@ -83,21 +83,25 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
  */
 void GcodeSuite::M428() {
   if (homing_needed_error()) return;
-
   xyz_float_t diff;
   LOOP_NUM_AXES(i) {
-    diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
-    if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
-      diff[i] = -current_position[i];
-    if (!WITHIN(diff[i], -20, 20)) {
-      SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
-      LCD_ALERTMESSAGE(MSG_ERR_M428_TOO_FAR);
-      ERR_BUZZ();
-      return;
+    if (parser.seen_test(AXIS_CHAR(i))){
+      diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
+      if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
+        diff[i] = -current_position[i] ;
+      if (!WITHIN(diff[i], -20, 20)) {
+        SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
+        LCD_ALERTMESSAGE(MSG_ERR_M428_TOO_FAR);
+        ERR_BUZZ();
+        return;
+      }
     }
+    else {diff[i] = 0;}
+    
   }
 
-  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]);
+  if (parser.seen_test('P')) {LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]+ home_offset[i]);}
+  else {LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]);}
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
   OKAY_BUZZ();
