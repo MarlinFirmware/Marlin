@@ -58,7 +58,7 @@
  *
  *                           time ----->
  *
- *  the shape the speed curve over time forms a TRAPEZOID. The slope of acceleration is calculated by
+ *  The speed over time graph forms a TRAPEZOID. The slope of acceleration is calculated by
  *    v = u + t
  *  where 't' is the accumulated timer values of the steps so far.
  *
