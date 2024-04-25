@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -99,10 +99,8 @@
 //
 // Probe enable
 //
-#if ENABLED(PROBE_ENABLE_DISABLE)
-  #ifndef PROBE_ENABLE_PIN
-    #define PROBE_ENABLE_PIN          SERVO0_PIN
-  #endif
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -160,7 +158,41 @@
 //
 #define TEMP_BED_PIN                        PA3   // Analog Input "TB"
 #define TEMP_0_PIN                          PA4   // Analog Input "TH0"
+
+#if TEMP_SENSOR_0_IS_MAX31865
+  #define TEMP_0_CS_PIN                     PD15  // Max31865 CS
+  #define TEMP_0_SCK_PIN                    PD14
+  #define TEMP_0_MISO_PIN                   PD12
+  #define TEMP_0_MOSI_PIN                   PD13
+  #define SOFTWARE_SPI                            // Max31865 use's Software SPI
+  #define FORCE_SOFT_SPI
+#elif TEMP_SENSOR_0_IS_AD8495
+  #define TEMP_0_CS_PIN                     PC7   // Max31855 CS
+  #define TEMP_0_SCK_PIN                    PD14
+  #define TEMP_0_MISO_PIN                   PD12
+  #define TEMP_0_MOSI_PIN                   PD13
+  #define SOFTWARE_SPI                            // Max31855 use's Software SPI
+  #define FORCE_SOFT_SPI
+#endif
+
 #define TEMP_1_PIN                          PA1   // Analog Input "TH0"
+
+#if TEMP_SENSOR_1_IS_MAX31865
+  #define TEMP_1_CS_PIN                     PD15  // Max31865 CS
+  #define TEMP_1_SCK_PIN                    PD14
+  #define TEMP_1_MISO_PIN                   PD12
+  #define TEMP_1_MOSI_PIN                   PD13
+  #define SOFTWARE_SPI                            // Max31865 use's Software SPI
+  #define FORCE_SOFT_SPI
+#elif TEMP_SENSOR_1_IS_AD8495
+  #define TEMP_1_CS_PIN                     PC7   // Max31855 CS
+  #define TEMP_1_SCK_PIN                    PD14
+  #define TEMP_1_MISO_PIN                   PD12
+  #define TEMP_1_MOSI_PIN                   PD13
+  #define SOFTWARE_SPI                            // Max31855 use's Software SPI
+  #define FORCE_SOFT_SPI
+#endif
+
 #define TEMP_BOARD_PIN                      PC1   // Board Temp
 
 //
@@ -485,6 +517,13 @@
   #endif
 #endif
 
+//
+// NeoPixel LED
+//
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PB11
+#endif
+
 #if ENABLED(WIFISUPPORT)
   //
   // WIFI
@@ -495,58 +534,4 @@
   #define ESP_WIFI_MODULE_RESET_PIN         PE15
   #define ESP_WIFI_MODULE_GPIO0_PIN         PE13
   #define ESP_WIFI_MODULE_GPIO4_PIN         PE14
-#endif
-
-//
-// NeoPixel LED
-//
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB11
-#endif
-
-//
-// Temperature Sensors
-//
-#if TEMP_SENSOR_0 == -5
-  #define TEMP_0_CS_PIN                     PD15  // Max31865 CS
-  #define TEMP_0_SCK_PIN                    PD14
-  #define TEMP_0_MISO_PIN                   PD12
-  #define TEMP_0_MOSI_PIN                   PD13
-  #define SOFTWARE_SPI                            // Max31865 use's Software SPI
-  #define FORCE_SOFT_SPI
-#else
-  #define TEMP_0_PIN                        PA4   // TH0
-#endif
-
-#if TEMP_SENSOR_0 == -4
-  #define TEMP_0_CS_PIN                     PC7   // Max31855 CS
-  #define TEMP_0_SCK_PIN                    PD14
-  #define TEMP_0_MISO_PIN                   PD12
-  #define TEMP_0_MOSI_PIN                   PD13
-  #define SOFTWARE_SPI                            // Max31855 use's Software SPI
-  #define FORCE_SOFT_SPI
-#else
-  #define TEMP_0_PIN                        PA4   // TH0
-#endif
-
-#if TEMP_SENSOR_1 == -5
-  #define TEMP_1_CS_PIN                     PD15  // Max31865 CS
-  #define TEMP_1_SCK_PIN                    PD14
-  #define TEMP_1_MISO_PIN                   PD12
-  #define TEMP_1_MOSI_PIN                   PD13
-  #define SOFTWARE_SPI                            // Max31865 use's Software SPI
-  #define FORCE_SOFT_SPI
-#else
-  #define TEMP_1_PIN                        PA1   // TH0
-#endif
-
-#if TEMP_SENSOR_1 == -4
-  #define TEMP_1_CS_PIN                     PC7   // Max31855 CS
-  #define TEMP_1_SCK_PIN                    PD14
-  #define TEMP_1_MISO_PIN                   PD12
-  #define TEMP_1_MOSI_PIN                   PD13
-  #define SOFTWARE_SPI                            // Max31855 use's Software SPI
-  #define FORCE_SOFT_SPI
-#else
-  #define TEMP_1_PIN                        PA1   // TH0
 #endif
