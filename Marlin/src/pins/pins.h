@@ -224,6 +224,8 @@
   #include "ramps/pins_RAMPS_CREALITY.h"            // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_F5)
   #include "ramps/pins_DAGOMA_F5.h"                 // ATmega2560                           env:mega2560
+#elif MB(DAGOMA_D6)
+  #include "ramps/pins_DAGOMA_D6.h"                 // ATmega2560                           env:mega2560ext
 #elif MB(FYSETC_F6_13)
   #include "ramps/pins_FYSETC_F6_13.h"              // ATmega2560                           env:FYSETC_F6
 #elif MB(FYSETC_F6_14)
