@@ -798,7 +798,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
            final_rate = LROUND(block->nominal_rate * exit_factor); // (steps per second)
 
   // Legacy check against supposed timer overflow. However Stepper::calc_timer_interval() already
-  // should protect against it. But removing results in less smooth motion for switching direction
+  // should protect against it. But removing this code produces judder in direction-switching
   // moves. This is because the current discrete stepping math diverges from physical motion under
   // constant acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
   LIMIT(initial_rate, uint32_t(MINIMAL_STEP_RATE), block->nominal_rate);
