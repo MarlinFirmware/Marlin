@@ -23,10 +23,10 @@
 
 #include "env_validate.h"
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Fly E3 Pro V3"
-  #define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
-#endif
+#define BOARD_INFO_NAME "Fly E3 Pro V3"
+#define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
+
+#define USES_DIAG_JUMPERS
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
@@ -154,6 +154,38 @@
 #define E1_DIR_PIN                          PC0
 
 //
+// Integrated TMC2209 driver defaults
+//
+#if  (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(TMC2209)) \
+  || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(TMC2209)) \
+  || (NUM_Z_STEPPERS >= 1 && !AXIS_DRIVER_TYPE_Z(TMC2209)) \
+  || (NUM_Z_STEPPERS >= 2 && !AXIS_DRIVER_TYPE_Z2(TMC2209)) \
+  || (EXTRUDERS >= 1 && !AXIS_DRIVER_TYPE_E0(TMC2209)) \
+  || (EXTRUDERS >= 2 && !AXIS_DRIVER_TYPE_E1(TMC2209))
+  #error "All DRIVER TYPEs must be TMC2209 for BOARD_MELLOW_FLY_E3_PRO_V3."
+#endif
+
+// RSENSE defaults
+#if HAS_X_AXIS
+  static_assert(X_RSENSE == 0.11, "X_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+#if HAS_Y_AXIS
+  static_assert(Y_RSENSE == 0.11, "Y_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+#if NUM_Z_STEPPERS >= 1
+  static_assert(Z_RSENSE == 0.11, "Z_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+#if NUM_Z_STEPPERS >= 2
+  static_assert(Z2_RSENSE == 0.11, "Z2_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+#if EXTRUDERS >= 1
+  static_assert(E0_RSENSE == 0.11, "E0_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+#if EXTRUDERS >= 2
+  static_assert(E1_RSENSE == 0.11, "E1_RSENSE must be 0.11 for BOARD_MELLOW_FLY_E3_PRO_V3.");
+#endif
+
+//
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PA3   // Analog Input "TB"
@@ -265,8 +297,15 @@
 
 #endif // HAS_TMC_UART
 
+//
+// SD Support
+//
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
 #endif
 
 /**
