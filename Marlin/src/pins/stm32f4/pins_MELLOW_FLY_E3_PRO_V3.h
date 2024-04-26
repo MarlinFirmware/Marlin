@@ -21,6 +21,12 @@
  */
 #pragma once
 
+/**
+ * Mellow Fly E3 Pro V3 pin assignments
+ * Schematic: https://github.com/Mellow-3D/Fly-E3-Pro-v3/blob/main/Hardware/Schematic_E3-Pro-V3.pdf
+ * Pins: https://github.com/Mellow-3D/Fly-E3-Pro-v3/blob/main/Hardware/fly_e3_prov3_pins.svg
+ */
+
 #include "env_validate.h"
 
 #if EXTRUDERS > 2 || E_STEPPERS > 2
