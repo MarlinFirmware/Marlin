@@ -23,6 +23,12 @@
 
 #include "env_validate.h"
 
+#if EXTRUDERS > 2 || E_STEPPERS > 2
+  #error "Fly E3 Pro V3 only supports up to 2 E steppers."
+#elif HOTENDS > 2
+  #error "Fly E3 Pro V3 only supports up to 2 hotends."
+#endif
+
 #define BOARD_INFO_NAME "Fly E3 Pro V3"
 #define BOARD_WEBSITE_URL "github.com/Mellow-3D/Fly-E3-Pro-v3"
 
