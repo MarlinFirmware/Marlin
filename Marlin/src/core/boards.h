@@ -383,9 +383,9 @@
 #define BOARD_CREALITY_V452           5050  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V453           5051  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V521           5052  // Creality v5.2.1 (STM32F103VE) as found in the SV04
-#define BOARD_CREALITY_V24S1          5053  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
-#define BOARD_CREALITY_V24S1_301      5054  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
-#define BOARD_CREALITY_V25S1          5055  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
+#define BOARD_CREALITY_V24S1          5053  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) CR-FDM-v2.4.S1_v101 as found in the Ender-7
+#define BOARD_CREALITY_V24S1_301      5054  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) CR-FDM-v24S1_301 as found in the Ender-3 S1
+#define BOARD_CREALITY_V25S1          5055  // Creality v2.5.S1 (STM32F103RE) CR-FDM-v2.5.S1_100 as found in the CR-10 Smart Pro
 #define BOARD_TRIGORILLA_PRO          5056  // Trigorilla Pro (STM32F103ZE)
 #define BOARD_FLY_MINI                5057  // FLYmaker FLY MINI (STM32F103RC)
 #define BOARD_FLSUN_HISPEED           5058  // FLSUN HiSpeedV1 (STM32F103VE)
