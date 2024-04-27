@@ -801,8 +801,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   // should protect against it. But removing this code produces judder in direction-switching
   // moves. This is because the current discrete stepping math diverges from physical motion under
   // constant acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
-  LIMIT(initial_rate, uint32_t(MINIMAL_STEP_RATE), block->nominal_rate);
-  LIMIT(final_rate, uint32_t(MINIMAL_STEP_RATE), block->nominal_rate);
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));  // Enforce the minimum speed
+  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOMORE(initial_rate, block->nominal_rate);          // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
+  NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
