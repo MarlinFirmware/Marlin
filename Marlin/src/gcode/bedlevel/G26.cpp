@@ -21,78 +21,78 @@
  */
 
 /**
- *   G26 Mesh Validation Tool
+ * @brief G26: Mesh Validation Tool
  *
- *   G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
- *   In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
- *   be defined. G29 is designed to allow the user to quickly validate the correctness of her Mesh. It will
- *   first heat the bed and nozzle. It will then print lines and circles along the Mesh Cell boundaries and
- *   the intersections of those lines (respectively).
+ * @details G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
+ *          In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
+ *          be defined. G29 is designed to allow the user to quickly validate the correctness of her Mesh. It will
+ *          first heat the bed and nozzle. It will then print lines and circles along the Mesh Cell boundaries and
+ *          the intersections of those lines (respectively).
  *
- *   This action allows the user to immediately see where the Mesh is properly defined and where it needs to
- *   be edited. The command will generate the Mesh lines closest to the nozzle's starting position. Alternatively
- *   the user can specify the X and Y position of interest with command parameters. This allows the user to
- *   focus on a particular area of the Mesh where attention is needed.
+ *          This action allows the user to immediately see where the Mesh is properly defined and where it needs to
+ *          be edited. The command will generate the Mesh lines closest to the nozzle's starting position. Alternatively
+ *          the user can specify the X and Y position of interest with command parameters. This allows the user to
+ *          focus on a particular area of the Mesh where attention is needed.
  *
- *   B #  Bed         Set the Bed Temperature. If not specified, a default of 60 C. will be assumed.
+ * @param  B #  Bed       Set the Bed Temperature. If not specified, a default of 60 C. will be assumed.
  *
- *   C    Current     When searching for Mesh Intersection points to draw, use the current nozzle location
- *                    as the base for any distance comparison.
+ * @param  C    Current   When searching for Mesh Intersection points to draw, use the current nozzle location
+ *                        as the base for any distance comparison.
  *
- *   D    Disable     Disable the Unified Bed Leveling System. In the normal case the user is invoking this
- *                    command to see how well a Mesh as been adjusted to match a print surface. In order to do
- *                    this the Unified Bed Leveling System is turned on by the G26 command. The D parameter
- *                    alters the command's normal behavior and disables the Unified Bed Leveling System even if
- *                    it is on.
+ * @param  D    Disable   Disable the Unified Bed Leveling System. In the normal case the user is invoking this
+ *                        command to see how well a Mesh as been adjusted to match a print surface. In order to do
+ *                        this the Unified Bed Leveling System is turned on by the G26 command. The D parameter
+ *                        alters the command's normal behavior and disables the Unified Bed Leveling System even if
+ *                        it is on.
  *
- *   H #  Hotend      Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
+ * @param  H #  Hotend    Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
  *
- *   I #  Preset      Heat the Nozzle and Bed based on a Material Preset (if material presets are defined).
+ * @param  I #  Preset    Heat the Nozzle and Bed based on a Material Preset (if material presets are defined).
  *
- *   F #  Filament    Used to specify the diameter of the filament being used. If not specified
- *                    1.75mm filament is assumed. If you are not getting acceptable results by using the
- *                    'correct' numbers, you can scale this number up or down a little bit to change the amount
- *                    of filament that is being extruded during the printing of the various lines on the bed.
+ * @param  F #  Filament  Used to specify the diameter of the filament being used. If not specified
+ *                        1.75mm filament is assumed. If you are not getting acceptable results by using the
+ *                        'correct' numbers, you can scale this number up or down a little bit to change the amount
+ *                        of filament that is being extruded during the printing of the various lines on the bed.
  *
- *   K    Keep-On     Keep the heaters turned on at the end of the command.
+ * @param  K    Keep-On   Keep the heaters turned on at the end of the command.
  *
- *   L #  Layer       Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
+ * @param  L #  Layer     Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
  *
- *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print. This
- *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
- *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
- *                    Mesh calibrated. If not specified, a filament length of .3mm is assumed.
+ * @param  O #  Ooooze    How much your nozzle will Ooooze filament while getting in position to print. This
+ *                        is over kill, but using this parameter will let you get the very first 'circle' perfect
+ *                        so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
+ *                        Mesh calibrated. If not specified, a filament length of .3mm is assumed.
  *
- *   P #  Prime       Prime the nozzle with specified length of filament. If this parameter is not
- *                    given, no prime action will take place. If the parameter specifies an amount, that much
- *                    will be purged before continuing. If no amount is specified the command will start
- *                    purging filament until the user provides an LCD Click and then it will continue with
- *                    printing the Mesh. You can carefully remove the spent filament with a needle nose
- *                    pliers while holding the LCD Click wheel in a depressed state. If you do not have
- *                    an LCD, you must specify a value if you use P.
+ * @param  P #  Prime     Prime the nozzle with specified length of filament. If this parameter is not
+ *                        given, no prime action will take place. If the parameter specifies an amount, that much
+ *                        will be purged before continuing. If no amount is specified the command will start
+ *                        purging filament until the user provides an LCD Click and then it will continue with
+ *                        printing the Mesh. You can carefully remove the spent filament with a needle nose
+ *                        pliers while holding the LCD Click wheel in a depressed state. If you do not have
+ *                        an LCD, you must specify a value if you use P.
  *
- *   Q #  Multiplier  Retraction Multiplier. (Normally not needed.) During G26 retraction will use the length
- *                    specified by this parameter (1mm by default). Recover will be 1.2x the retract distance.
+ * @param  Q #  Multiplier  Retraction Multiplier. (Normally not needed.) During G26 retraction will use the length
+ *                          specified by this parameter (1mm by default). Recover will be 1.2x the retract distance.
  *
- *   R #  Repeat      Prints the number of patterns given as a parameter, starting at the current location.
- *                    If a parameter isn't given, every point will be printed unless G26 is interrupted.
- *                    This works the same way that the UBL G29 P4 R parameter works.
+ * @param  R #  Repeat    Prints the number of patterns given as a parameter, starting at the current location.
+ *                        If a parameter isn't given, every point will be printed unless G26 is interrupted.
+ *                        This works the same way that the UBL G29 P4 R parameter works.
  *
- *                    NOTE:  If you do not have an LCD, you -must- specify R. This is to ensure that you are
- *                    aware that there's some risk associated with printing without the ability to abort in
- *                    cases where mesh point Z value may be inaccurate. As above, if you do not include a
- *                    parameter, every point will be printed.
+ *                        NOTE: If you do not have an LCD, you -must- specify R. This is to ensure that you are
+ *                        aware that there's some risk associated with printing without the ability to abort in
+ *                        cases where mesh point Z value may be inaccurate. As above, if you do not include a
+ *                        parameter, every point will be printed.
  *
- *   S #  Nozzle      Used to control the size of nozzle diameter. If not specified, a .4mm nozzle is assumed.
+ * @param  S #  Nozzle    Used to control the size of nozzle diameter. If not specified, a .4mm nozzle is assumed.
  *
- *   U #  Random      Randomize the order that the circles are drawn on the bed. The search for the closest
- *                    un-drawn circle is still done. But the distance to the location for each circle has a
- *                    random number of the specified size added to it. Specifying S50 will give an interesting
- *                    deviation from the normal behavior on a 10 x 10 Mesh.
+ * @param  U #  Random    Randomize the order that the circles are drawn on the bed. The search for the closest
+ *                        un-drawn circle is still done. But the distance to the location for each circle has a
+ *                        random number of the specified size added to it. Specifying S50 will give an interesting
+ *                        deviation from the normal behavior on a 10 x 10 Mesh.
  *
- *   X #  X Coord.    Specify the starting location of the drawing activity.
+ * @param  X #  X Coord.  Specify the starting location of the drawing activity.
  *
- *   Y #  Y Coord.    Specify the starting location of the drawing activity.
+ * @param  Y #  Y Coord.  Specify the starting location of the drawing activity.
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -175,7 +175,7 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
 
   const xy_pos_t dest = { rx, ry };
 
-  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement.
+  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement
              has_e_component = e_delta != 0.0;
 
   if (z != last_z) {
@@ -185,9 +185,9 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
     prepare_internal_move_to_destination(fr_mm_s);
   }
 
-  // If X or Y in combination with E is involved do a 'normal' move.
+  // If X or Y in combination with E is involved do a 'normal' move
   // If X or Y with no E is involved do a 'fast' move
-  // Otherwise retract/recover/hop.
+  // Otherwise retract/recover/hop
   destination = dest;
   destination.e += e_delta;
   const feedRate_t fr_mm_s = has_xy_component
@@ -209,17 +209,17 @@ typedef struct {
 
   float nozzle                = MESH_TEST_NOZZLE_SIZE,
         filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA,
-        ooze_amount;            // 'O' ... OOZE_AMOUNT
+        ooze_amount;          // 'O' ... OOZE_AMOUNT
 
-  bool continue_with_closest,   // 'C'
-       keep_heaters_on;         // 'K'
+  bool continue_with_closest, // 'C'
+       keep_heaters_on;       // 'K'
 
   xy_pos_t xy_pos; // = { 0, 0 }
 
   int8_t prime_flag = 0;
 
-  bool g26_retracted = false;  // Track the retracted state during G26 so mismatched
-                               // retracts/recovers don't result in a bad state.
+  bool g26_retracted = false; // Track the retracted state during G26 so mismatched
+                              // retracts/recovers don't result in a bad state
 
   void retract_filament(const xyz_pos_t &where) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
@@ -231,12 +231,12 @@ typedef struct {
   // TODO: Parameterize the Z lift with a define
   void retract_lift_move(const xyz_pos_t &s) {
     retract_filament(destination);
-    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
-    move_to(s.x, s.y, s.z + 0.5f, 0.0f);  // Get to the starting point with no extrusion while lifted
+    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f); // Z lift to minimize scraping
+    move_to(s.x, s.y, s.z + 0.5f, 0.0f); // Get to the starting point with no extrusion while lifted
   }
 
   void recover_filament(const xyz_pos_t &where) {
-    if (g26_retracted) { // Only un-retract if we are retracted.
+    if (g26_retracted) { // Only un-retract if we are retracted
       move_to(where, 1.2f * retraction_multiplier);
       g26_retracted = false;
     }
@@ -247,15 +247,15 @@ typedef struct {
    * to the other. But there are really three sets of coordinates involved. The first coordinate
    * is the present location of the nozzle. We don't necessarily want to print from this location.
    * We first need to move the nozzle to the start of line segment where we want to print. Once
-   * there, we can use the two coordinates supplied to draw the line.
+   * there, we can use the two coordinates supplied to draw the line
    *
-   * Note:  Although we assume the first set of coordinates is the start of the line and the second
+   * NOTE: Although we assume the first set of coordinates is the start of the line and the second
    * set of coordinates is the end of the line, it does not always work out that way. This function
    * optimizes the movement to minimize the travel distance before it can start printing. This saves
    * a lot of time and eliminates a lot of nonsensical movement of the nozzle. However, it does
    * cause a lot of very little short retracement of th nozzle when it draws the very first line
    * segment of a 'circle'. The time this requires is very short and is easily saved by the other
-   * cases where the optimization comes into play.
+   * cases where the optimization comes into play
    */
   void print_line_from_here_to_there(const xyz_pos_t &s, const xyz_pos_t &e) {
 
@@ -267,7 +267,7 @@ typedef struct {
                 line_length = HYPOT(e.x - s.x, e.y - s.y);
 
     // If the end point of the line is closer to the nozzle, flip the direction,
-    // moving from the end to the start. On very small lines the optimization isn't worth it.
+    // moving from the end to the start. On very small lines the optimization isn't worth it
     if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
       return print_line_from_here_to_there(e, s);
 
@@ -279,7 +279,7 @@ typedef struct {
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
     recover_filament(destination);
-    move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
+    move_to(e, e_pos_delta); // Get to the ending point with an appropriate amount of extrusion
   }
 
   void connect_neighbor_with_line(const xy_int8_t &p1, int8_t dx, int8_t dy) {
@@ -312,7 +312,7 @@ typedef struct {
 
   /**
    * Turn on the bed and nozzle heat and
-   * wait for them to get up to temperature.
+   * wait for them to get up to temperature
    */
   bool turn_on_heaters() {
 
@@ -353,7 +353,7 @@ typedef struct {
   }
 
   /**
-   * Prime the nozzle if needed. Return true on error.
+   * Prime the nozzle if needed. Return true on error
    */
   bool prime_nozzle() {
 
@@ -363,14 +363,14 @@ typedef struct {
         float Total_Prime = 0.0;
       #endif
 
-      if (prime_flag == -1) {  // The user wants to control how much filament gets purged
+      if (prime_flag == -1) { // The user wants to control how much filament gets purged
         ui.capture();
         LCD_MESSAGE_MAX(MSG_G26_MANUAL_PRIME);
         ui.chirp();
 
         destination = current_position;
 
-        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted()
 
         while (!ui.button_pressed()) {
           ui.chirp();
@@ -384,10 +384,10 @@ typedef struct {
           #endif
           prepare_internal_move_to_destination(fr_slow_e);
           destination = current_position;
-          planner.synchronize();    // Without this synchronize, the purge is more consistent,
-                                    // but because the planner has a buffer, we won't be able
-                                    // to stop as quickly. So we put up with the less smooth
-                                    // action to give the user a more responsive 'Stop'.
+          planner.synchronize(); // Without this synchronize, the purge is more consistent,
+                                 // but because the planner has a buffer, we won't be able
+                                 // to stop as quickly. So we put up with the less smooth
+                                 // action to give the user a more responsive 'Stop'
         }
 
         ui.wait_for_release();
@@ -424,7 +424,7 @@ typedef struct {
       auto test_func = [](uint8_t i, uint8_t j, void *data) -> bool {
         if (!circle_flags.marked(i, j)) {
           mesh_index_pair *out_point = (mesh_index_pair*)data;
-          out_point->pos.set(i, j);  // Save its data
+          out_point->pos.set(i, j); // Save its data
           return true;
         }
         return false;
@@ -445,17 +445,17 @@ typedef struct {
           float f = (pos - m).magnitude();
 
           // It is possible that we are being called with the values
-          // to let us find the closest circle to the start position.
-          // But if this is not the case, add a small weighting to the
-          // distance calculation to help it choose a better place to continue.
+          // to let us find the closest circle to the start position,
+          // but if this is not the case, add a small weighting to the
+          // distance calculation to help it choose a better place to continue
           f += (xy_pos - m).magnitude() / 15.0f;
 
           // Add the specified amount of Random Noise to our search
           if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
 
           if (f < closest) {
-            closest = f;          // Found a closer un-printed location
-            out_point.pos.set(i, j);  // Save its data
+            closest = f;             // Found a closer un-printed location
+            out_point.pos.set(i, j); // Save its data
             out_point.distance = closest;
           }
         }
@@ -470,29 +470,29 @@ typedef struct {
 } g26_helper_t;
 
 /**
- * G26: Mesh Validation Pattern generation.
+ * @brief G26: Mesh Validation Pattern generation
  *
- * Used to interactively edit the mesh by placing the
- * nozzle in a problem area and doing a G29 P4 R command.
+ * @details Used to interactively edit the mesh by placing the
+ * nozzle in a problem area and doing a G29 P4 R command
  *
  * Parameters:
  *
- *  B  Bed Temperature
- *  C  Continue from the Closest mesh point
- *  D  Disable leveling before starting
- *  F  Filament diameter
- *  H  Hotend Temperature
- *  K  Keep heaters on when completed
- *  L  Layer Height
- *  O  Ooze extrusion length
- *  P  Prime length
- *  Q  Retraction multiplier
- *  R  Repetitions (number of grid points)
- *  S  Nozzle Size (diameter) in mm
- *  T  Tool index to change to, if included
- *  U  Random deviation (50 if no value given)
- *  X  X position
- *  Y  Y position
+ *  @param  B  Bed Temperature
+ *  @param  C  Continue from the Closest mesh point
+ *  @param  D  Disable leveling before starting
+ *  @param  F  Filament diameter
+ *  @param  H  Hotend Temperature
+ *  @param  K  Keep heaters on when completed
+ *  @param  L  Layer Height
+ *  @param  O  Ooze extrusion length
+ *  @param  P  Prime length
+ *  @param  Q  Retraction multiplier
+ *  @param  R  Repetitions (number of grid points)
+ *  @param  S  Nozzle Size (diameter) in mm
+ *  @param  T  Tool index to change to, if included
+ *  @param  U  Random deviation (50 if no value given)
+ *  @param  X  X position
+ *  @param  Y  Y position
  */
 void GcodeSuite::G26() {
   SERIAL_ECHOLNPGM("G26 starting...");
@@ -697,7 +697,7 @@ void GcodeSuite::G26() {
   #if DISABLED(ARC_SUPPORT)
 
     /**
-     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
+     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load
      */
     #define A_INT 30
     #define _ANGS (360 / A_INT)
@@ -724,11 +724,11 @@ void GcodeSuite::G26() {
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = { bedlevel.get_mesh_x(location.pos.a), bedlevel.get_mesh_y(location.pos.b) };
 
-      // If this mesh location is outside the printable radius, skip it.
+      // If this mesh location is outside the printable radius, skip it
       if (!position_is_reachable(circle)) continue;
 
       // Determine where to start and end the circle,
-      // which is always drawn counter-clockwise.
+      // which is always drawn counter-clockwise
       const xy_int8_t st = location;
       const bool f = st.y == 0,
                  r = st.x >= (GRID_MAX_POINTS_X) - 1,
@@ -744,12 +744,12 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         float arc_length = ARC_LENGTH(4);
-        if (st.x == 0) {                             // left edge
+        if (st.x == 0) { // left edge
           if (!f) { s.x = circle.x; s.y -= INTERSECTION_CIRCLE_RADIUS; }
           if (!b) { e.x = circle.x; e.y += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
-        else if (r) {                               // right edge
+        else if (r) {   // right edge
           if (b) s.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
           else   s.set(circle.x, circle.y + INTERSECTION_CIRCLE_RADIUS);
           if (f) e.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
@@ -766,7 +766,7 @@ void GcodeSuite::G26() {
         }
 
         const ab_float_t arc_offset = circle - s;
-        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
+        const xy_float_t dist = current_position - s; // Distance from the start of the actual circle
         const float dist_start = HYPOT2(dist.x, dist.y);
         const xyze_pos_t endpoint = {
           e.x, e.y, g26.layer_height,
@@ -779,12 +779,12 @@ void GcodeSuite::G26() {
         }
 
         s.z = g26.layer_height;
-        move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
+        move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
 
         g26.recover_filament(destination);
 
         { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE() * 0.1f);
-          plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
+          plan_arc(endpoint, arc_offset, false, 0); // Draw a counter-clockwise arc
           destination = current_position;
         }
 
@@ -793,19 +793,19 @@ void GcodeSuite::G26() {
       #else // !ARC_SUPPORT
 
         int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
-        if (st.x == 0) {                    // Left edge? Just right half.
+        if (st.x == 0) {                    // Left edge? Just right half
           start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
           end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
         }
-        else if (r) {                       // Right edge? Just left half.
+        else if (r) {                       // Right edge? Just left half
           start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
           end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
         }
-        else if (f) {                       // Front edge? Just back half.
+        else if (f) {                       // Front edge? Just back half
           start_ind = 0;                    //  03:00
           end_ind = 5;                      //  09:00
         }
-        else if (b) {                       // Back edge? Just front half.
+        else if (b) {                       // Back edge? Just front half
           start_ind = 6;                    //  09:00
           end_ind = 11;                     //  03:00
         }
@@ -818,7 +818,7 @@ void GcodeSuite::G26() {
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26.layer_height };
 
           #if IS_KINEMATIC
-            // Check to make sure this segment is entirely on the bed, skip if not.
+            // Check to make sure this segment is entirely on the bed, skip if not
             if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
           #elif HAS_ENDSTOPS
             LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
@@ -828,7 +828,7 @@ void GcodeSuite::G26() {
           #endif
 
           g26.print_line_from_here_to_there(p, q);
-          SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
+          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
         }
 
       #endif // !ARC_SUPPORT
@@ -842,7 +842,7 @@ void GcodeSuite::G26() {
       if (TERN0(HAS_MARLINUI_MENU, user_canceled())) goto LEAVE;
     }
 
-    SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+    SERIAL_FLUSH(); // Prevent host M105 buffer overrun
 
   } while (--g26_repeats && location.valid());
 
@@ -852,7 +852,7 @@ void GcodeSuite::G26() {
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
-  move_to(destination, 0);                                   // Raise the nozzle
+  move_to(destination, 0); // Raise the nozzle
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;

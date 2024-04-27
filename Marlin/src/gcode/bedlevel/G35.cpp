@@ -37,23 +37,24 @@
 #include "../../core/debug_out.h"
 
 //
-// Define tramming point names.
+// Define tramming point names
 //
 
 #include "../../feature/tramming.h"
 
 /**
- * G35: Read bed corners to help adjust bed screws
+ * @brief G35: Read bed corners to help adjust bed screws
  *
- *   S<screw_thread>
+ * @param  S<screw_thread>
  *
- * Screw thread: 30 - Clockwise M3
- *               31 - Counter-Clockwise M3
- *               40 - Clockwise M4
- *               41 - Counter-Clockwise M4
- *               50 - Clockwise M5
- *               51 - Counter-Clockwise M5
- **/
+ * @details Screw thread:
+ *          30 - Clockwise M3
+ *          31 - Counter-Clockwise M3
+ *          40 - Clockwise M4
+ *          41 - Counter-Clockwise M4
+ *          50 - Clockwise M5
+ *          51 - Counter-Clockwise M5
+ */
 void GcodeSuite::G35() {
 
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
@@ -147,7 +148,7 @@ void GcodeSuite::G35() {
   #endif
 
   // Stow the probe, as the last call to probe.probe_at_point(...) left
-  // the probe deployed if it was successful.
+  // the probe deployed if it was successful
   probe.stow();
 
   move_to_tramming_wait_pos();

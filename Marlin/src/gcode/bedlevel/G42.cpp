@@ -25,13 +25,18 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for IsRunning()
+#include "../../MarlinCore.h" // For IsRunning()
 #include "../../module/motion.h"
-#include "../../module/probe.h" // for probe.offset
+#include "../../module/probe.h" // For probe.offset
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
- * G42: Move X & Y axes to mesh coordinates (I & J)
+ * @brief G42: Move X & Y axes to mesh coordinates (I & J)
+ *
+ * @param  I  X axis point
+ * @param  J  Y axis point
+ * @param  P  Probe offset
+ * @param  F  Feedrate
  */
 void GcodeSuite::G42() {
   if (MOTION_CONDITIONS) {

@@ -36,14 +36,20 @@
 #endif
 
 /**
- * M421: Set a single Mesh Bed Leveling Z coordinate
+ * @brief M421: Set a single Mesh Bed Leveling Z coordinate
+ *
+ * @param  C  Set or add to the closest Mesh Point
+ * @param  Z<linear>
+ * @param  I<xindex>
+ * @param  J<yindex>
+ * @param  Q<offset>
  *
  * Usage:
- *   M421 I<xindex> J<yindex> Z<linear>  : Set the Mesh Point IJ to the Z value
- *   M421 I<xindex> J<yindex> Q<offset>  : Add the Q value to the Mesh Point IJ
- *   M421 I<xindex> J<yindex> N          : Set the Mesh Point IJ to NAN (not set)
- *   M421 C Z<linear>                    : Set the closest Mesh Point to the Z value
- *   M421 C Q<offset>                    : Add the Q value to the closest Mesh Point
+ *   M421 I<xindex> J<yindex> Z<linear> : Set the Mesh Point IJ to the Z value
+ *   M421 I<xindex> J<yindex> Q<offset> : Add the Q value to the Mesh Point IJ
+ *   M421 I<xindex> J<yindex> N         : Set the Mesh Point IJ to NAN (not set)
+ *   M421 C Z<linear>                   : Set the closest Mesh Point to the Z value
+ *   M421 C Q<offset>                   : Add the Q value to the closest Mesh Point
  */
 void GcodeSuite::M421() {
   xy_int8_t ij = { int8_t(parser.intval('I', -1)), int8_t(parser.intval('J', -1)) };
@@ -64,9 +70,9 @@ void GcodeSuite::M421() {
   else if (!WITHIN(ij.x, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ij.y, 0, GRID_MAX_POINTS_Y - 1))
     SERIAL_ERROR_MSG(STR_ERR_MESH_XY);
   else {
-    float &zval = bedlevel.z_values[ij.x][ij.y];                          // Altering this Mesh Point
-    zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);  // N=NAN, Z=NEWVAL, or Q=ADDVAL
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));          // Ping ExtUI in case it's showing the mesh
+    float &zval = bedlevel.z_values[ij.x][ij.y];                         // Altering this Mesh Point
+    zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0); // N=NAN, Z=NEWVAL, or Q=ADDVAL
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));         // Ping ExtUI in case it's showing the mesh
   }
 }
 

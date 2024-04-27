@@ -88,11 +88,11 @@ static void pre_g29_return(const bool retry, const bool did) {
 // For manual probing values persist over multiple G29
 class G29_State {
 public:
-  int       verbose_level;
-  xy_pos_t  probePos;
-  float     measured_z;
-  bool      dryrun,
-            reenable;
+  int      verbose_level;
+  xy_pos_t probePos;
+  float    measured_z;
+  bool     dryrun,
+           reenable;
 
   #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     int abl_probe_index;
@@ -116,21 +116,21 @@ public:
     xy_float_t gridSpacing; // = { 0.0f, 0.0f }
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      bool                topography_map;
-      xy_uint8_t          grid_points;
+      bool       topography_map;
+      xy_uint8_t grid_points;
     #else // Bilinear
       static constexpr xy_uint8_t grid_points = { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      float Z_offset;
+      float      Z_offset;
       bed_mesh_t z_values;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-      float eqnAMatrix[GRID_MAX_POINTS * 3],  // "A" matrix of the linear system of equations
-            eqnBVector[GRID_MAX_POINTS],      // "B" vector of Z points
+      float eqnAMatrix[GRID_MAX_POINTS * 3], // "A" matrix of the linear system of equations
+            eqnBVector[GRID_MAX_POINTS],     // "B" vector of Z points
             mean;
     #endif
   #endif
@@ -142,81 +142,83 @@ public:
 #endif
 
 /**
- * G29: Detailed Z probe, probes the bed at 3 or more points.
- *      Will fail if the printer has not been homed with G28.
+ * @brief G29: Detailed Z probe, probes the bed at 3 or more points
+ *        Will fail if the printer has not been homed with G28
  *
- * Enhanced G29 Auto Bed Leveling Probe Routine
+ * @details Enhanced G29 Auto Bed Leveling Probe Routine
  *
- *  O  Auto-level only if needed
+ * @param  O  Auto-level only if needed
  *
- *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
- *     or alter the bed level data. Useful to check the topology
- *     after a first run of G29.
+ * @param  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
+ *            or alter the bed level data. Useful to check the topology
+ *            after a first run of G29
  *
- *  J  Jettison current bed leveling data
+ * @param  J  Jettison current bed leveling data
  *
- *  V  Set the verbose level (0-4). Example: "G29 V3"
+ * @param  V  Set the verbose level (0-4)
+ *            EXAMPLE: "G29 V3"
  *
  * Parameters With LINEAR leveling only:
  *
- *  P  Set the size of the grid that will be probed (P x P points).
- *     Example: "G29 P4"
+ * @param  P  Set the size of the grid that will be probed (P x P points)
+ *            EXAMPLE: "G29 P4"
  *
- *  X  Set the X size of the grid that will be probed (X x Y points).
- *     Example: "G29 X7 Y5"
+ * @param  X  Set the X size of the grid that will be probed (X x Y points)
+ *            EXAMPLE: "G29 X7 Y5"
  *
- *  Y  Set the Y size of the grid that will be probed (X x Y points).
+ * @param  Y  Set the Y size of the grid that will be probed (X x Y points)
  *
- *  T  Generate a Bed Topology Report. Example: "G29 P5 T" for a detailed report.
- *     This is useful for manual bed leveling and finding flaws in the bed (to
- *     assist with part placement).
- *     Not supported by non-linear delta printer bed leveling.
+ * @param  T  Generate a Bed Topology Report
+ *            EXAMPLE: "G29 P5 T" for a detailed report
+ *            This is useful for manual bed leveling and finding flaws in the bed
+ *            (to assist with part placement)
+ *            Not supported by non-linear delta printer bed leveling
  *
  * Parameters With LINEAR and BILINEAR leveling only:
  *
- *  S  Set the XY travel speed between probe points (in units/min)
+ * @param  S  Set the XY travel speed between probe points (in units/min)
  *
- *  H  Set bounds to a centered square H x H units in size
+ * @param  H  Set bounds to a centered square H x H units in size
  *
  *     -or-
  *
- *  F  Set the Front limit of the probing grid
- *  B  Set the Back limit of the probing grid
- *  L  Set the Left limit of the probing grid
- *  R  Set the Right limit of the probing grid
+ * @param  F  Set the Front limit of the probing grid
+ * @param  B  Set the Back limit of the probing grid
+ * @param  L  Set the Left limit of the probing grid
+ * @param  R  Set the Right limit of the probing grid
  *
  * Parameters with DEBUG_LEVELING_FEATURE only:
  *
- *  C  Make a totally fake grid with no actual probing.
- *     For use in testing when no probing is possible.
+ * @param  C  Make a totally fake grid with no actual probing
+ *            For use in testing when no probing is possible
  *
  * Parameters with BILINEAR leveling only:
  *
- *  Z  Supply an additional Z probe offset
+ * @param  Z  Supply an additional Z probe offset
  *
  * Extra parameters with PROBE_MANUALLY:
  *
- *  To do manual probing simply repeat G29 until the procedure is complete.
- *  The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort.
+ * @details To do manual probing simply repeat G29 until the procedure is complete
+ *          The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort
  *
- *  Q  Query leveling and G29 state
+ * @param  Q  Query leveling and G29 state
  *
- *  A  Abort current leveling procedure
+ * @param  A  Abort current leveling procedure
  *
  * Extra parameters with BILINEAR only:
  *
- *  W  Write a mesh point. (If G29 is idle.)
- *  I  X index for mesh point
- *  J  Y index for mesh point
- *  X  X for mesh point, overrides I
- *  Y  Y for mesh point, overrides J
- *  Z  Z for mesh point. Otherwise, raw current Z.
+ * @param  W  Write a mesh point. (If G29 is idle)
+ * @param  I  X index for mesh point
+ * @param  J  Y index for mesh point
+ * @param  X  X for mesh point, overrides I
+ * @param  Y  Y for mesh point, overrides J
+ * @param  Z  Z for mesh point. Otherwise, raw current Z
  *
  * Without PROBE_MANUALLY:
  *
- *  E  By default G29 will engage the Z probe, test the bed, then disengage.
- *     Include "E" to engage/disengage the Z probe for each sample.
- *     There's no extra effect if you have a fixed Z probe.
+ * @param  E  By default G29 will engage the Z probe, test the bed, then disengage
+ *            Include "E" to engage/disengage the Z probe for each sample
+ *            There's no extra effect if you have a fixed Z probe
  */
 G29_TYPE GcodeSuite::G29() {
 
@@ -271,7 +273,7 @@ G29_TYPE GcodeSuite::G29() {
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
 
   /**
-   * On the initial G29 fetch command parameters.
+   * On the initial G29 fetch command parameters
    */
   if (!g29_in_progress) {
 
@@ -437,7 +439,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
     }
 
-    // Position bed horizontally and Z probe vertically.
+    // Position bed horizontally and Z probe vertically
     #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X
@@ -471,15 +473,15 @@ G29_TYPE GcodeSuite::G29() {
       do_blocking_move_to(safe_position);
     #endif // HAS_SAFE_BED_LEVELING
 
-    // Disable auto bed leveling during G29.
-    // Be formal so G29 can be done successively without G28.
+    // Disable auto bed leveling during G29
+    // Be formal so G29 can be done successively without G28
     if (!no_action) set_bed_leveling_enabled(false);
 
     // Deploy certain probes before starting probing
     #if ENABLED(BLTOUCH) || ALL(HAS_Z_SERVO_PROBE, Z_SERVO_INTERMEDIATE_STOW)
       do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
     #elif HAS_BED_PROBE
-      if (probe.deploy()) { // (returns true on deploy failure)
+      if (probe.deploy()) { // (Returns true on deploy failure)
         set_bed_leveling_enabled(abl.reenable);
         G29_RETURN(false, true);
       }
@@ -487,8 +489,8 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
-        reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
-        abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
+        reset_bed_level();    // Reset grid to 0.0 or "not probed". (Also disables ABL)
+        abl.reenable = false; // Can't re-enable (on error) until the new grid is written
       }
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
@@ -498,8 +500,8 @@ G29_TYPE GcodeSuite::G29() {
 
   #if ENABLED(PROBE_MANUALLY)
 
-    // For manual probing, get the next index to probe now.
-    // On the first probe this will be incremented to 0.
+    // For manual probing, get the next index to probe now
+    // On the first probe this will be incremented to 0
     if (!no_action) {
       ++abl.abl_probe_index;
       g29_in_progress = true;
@@ -538,7 +540,7 @@ G29_TYPE GcodeSuite::G29() {
         const uint16_t index = abl.abl_probe_index - 1;
       #endif
 
-      // For G29 after adjusting Z.
+      // For G29 after adjusting Z
       // Save the previous Z before going to the next point
       abl.measured_z = current_position.z;
 
@@ -567,9 +569,9 @@ G29_TYPE GcodeSuite::G29() {
       #endif
     }
 
-    //
-    // If there's another point to sample, move there with optional lift.
-    //
+    /**
+     * If there's another point to sample, move there with optional lift
+     */
 
     #if ABL_USES_GRID
 
@@ -647,7 +649,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_USES_GRID
 
-      bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      bool zig = PR_OUTER_SIZE & 1; // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
@@ -655,18 +657,18 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) {                      // Zig away from origin
-          inStart = 0;                  // Left or front
-          inStop = PR_INNER_SIZE;       // Right or back
-          inInc = 1;                    // Zig right
+        if (zig) {                     // Zig away from origin
+          inStart = 0;                 // Left or front
+          inStop = PR_INNER_SIZE;      // Right or back
+          inInc = 1;                   // Zig right
         }
-        else {                          // Zag towards origin
-          inStart = PR_INNER_SIZE - 1;  // Right or back
-          inStop = -1;                  // Left or front
-          inInc = -1;                   // Zag left
+        else {                         // Zag towards origin
+          inStart = PR_INNER_SIZE - 1; // Right or back
+          inStop = -1;                 // Left or front
+          inInc = -1;                  // Zag left
         }
 
-        zig ^= true; // zag
+        zig ^= true; // Zag
 
         // An index to print current state
         grid_count_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
@@ -705,9 +707,9 @@ G29_TYPE GcodeSuite::G29() {
               // Put a G1 move into the buffer
               // TODO: Instead of G1, we can just add the move directly to the planner...
               //  {
-              //  destination = current_position; destination = abl.probePos;
-              //  REMEMBER(fr, feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
-              //  prepare_line_to_destination();
+              //   destination = current_position; destination = abl.probePos;
+              //   REMEMBER(fr, feedrate_mm_s, XY_PROBE_FEEDRATE_MM_S);
+              //   prepare_line_to_destination();
               //  }
               sprintf_P(tmp_1, PSTR("G1X%d.%d Y%d.%d F%d"),
                 int(abl.probePos.x), int(abl.probePos.x * 10) % 10,
@@ -807,7 +809,7 @@ G29_TYPE GcodeSuite::G29() {
 
     TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
 
-    // Stow the probe. No raise for FIX_MOUNTED_PROBE.
+    // Stow the probe. No raise for FIX_MOUNTED_PROBE
     if (probe.stow()) {
       set_bed_leveling_enabled(abl.reenable);
       abl.measured_z = NAN;
@@ -815,16 +817,15 @@ G29_TYPE GcodeSuite::G29() {
   }
   #endif // !PROBE_MANUALLY
 
-  //
-  // G29 Finishing Code
-  //
-  // Unless this is a dry run, auto bed leveling will
-  // definitely be enabled after this point.
-  //
-  // If code above wants to continue leveling, it should
-  // return or loop before this point.
-  //
-
+  /**
+   * G29 Finishing Code
+   *
+   * Unless this is a dry run, auto bed leveling will
+   * definitely be enabled after this point.
+   *
+   * If code above wants to continue leveling, it should
+   * return or loop before this point
+   */
   if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
 
   #if ENABLED(PROBE_MANUALLY)
@@ -852,18 +853,18 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR leveling calculate matrix, print reports, correct the position
 
       /**
-       * solve the plane equation ax + by + d = z
+       * Solve the plane equation ax + by + d = z
        * A is the matrix with rows [x y 1] for all the probed points
        * B is the vector of the Z positions
-       * the normal vector to the plane is formed by the coefficients of the
+       * The normal vector to the plane is formed by the coefficients of the
        * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-       * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+       * So Vx = -a Vy = -b Vz = 1 (We want the vector facing towards positive Z)
        */
       struct { float a, b, d; } plane_equation_coefficients;
 
       finish_incremental_LSF(&lsf_results);
-      plane_equation_coefficients.a = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
-      plane_equation_coefficients.b = -lsf_results.B;  // but that is not yet tested.
+      plane_equation_coefficients.a = -lsf_results.A; // We should be able to eliminate the '-' on these three lines and down below
+      plane_equation_coefficients.b = -lsf_results.B; // but that is not yet tested
       plane_equation_coefficients.d = -lsf_results.D;
 
       abl.mean /= abl.abl_points;
@@ -880,7 +881,7 @@ G29_TYPE GcodeSuite::G29() {
       // Create the matrix but don't correct the position yet
       if (!abl.dryrun)
         planner.bed_level_matrix = matrix_3x3::create_look_at(
-          vector_3(-plane_equation_coefficients.a, -plane_equation_coefficients.b, 1)    // We can eliminate the '-' here and up above
+          vector_3(-plane_equation_coefficients.a, -plane_equation_coefficients.b, 1) // We can eliminate the '-' here and up above
         );
 
       // Show the Topography map if enabled
@@ -899,7 +900,7 @@ G29_TYPE GcodeSuite::G29() {
               if (get_min) NOMORE(min_diff, abl.eqnBVector[ind] - tmp.z);
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;
-              SERIAL_CHAR(' '); if (diff >= 0.0) SERIAL_CHAR('+');   // Include + for column alignment
+              SERIAL_CHAR(' '); if (diff >= 0.0) SERIAL_CHAR('+'); // Include + for column alignment
               SERIAL_ECHO(p_float_t(diff, 5));
             } // xx
             SERIAL_EOL();
@@ -933,14 +934,12 @@ G29_TYPE GcodeSuite::G29() {
         planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
 
       if (!abl.dryrun) {
-        //
-        // Correct the current XYZ position based on the tilted plane.
-        //
+        // Correct the current XYZ position based on the tilted plane
 
         if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
 
         xyze_pos_t converted = current_position;
-        planner.force_unapply_leveling(converted); // use conversion machinery
+        planner.force_unapply_leveling(converted); // Use conversion machinery
 
         // Use the last measured distance to the bed, if possible
         if ( NEAR(current_position.x, abl.probePos.x - probe.offset_xy.x)
@@ -959,7 +958,7 @@ G29_TYPE GcodeSuite::G29() {
         abl.reenable = true;
       }
 
-      // Auto Bed Leveling is complete! Enable if possible.
+      // Auto Bed Leveling is complete! Enable if possible
       if (abl.reenable) {
         planner.leveling_active = true;
         sync_plan_position();
@@ -967,7 +966,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      // Auto Bed Leveling is complete! Enable if possible.
+      // Auto Bed Leveling is complete! Enable if possible
       if (!abl.dryrun || abl.reenable) set_bed_leveling_enabled(true);
 
     #endif

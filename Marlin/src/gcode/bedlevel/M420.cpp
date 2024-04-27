@@ -40,23 +40,21 @@
 //#define M420_C_USE_MEAN
 
 /**
- * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
+ * @brief M420: Enable/Disable Bed Leveling and/or set the Z fade height
  *
- *   S[bool]   Turns leveling on or off
- *   Z[height] Sets the Z fade height (0 or none to disable)
- *   V[bool]   Verbose - Print the leveling grid
+ * @param  S[bool]   Turns leveling on or off
+ * @param  Z[height] Sets the Z fade height (0 or none to disable)
+ * @param  V[bool]   Verbose - Print the leveling grid
  *
  * With AUTO_BED_LEVELING_UBL only:
- *
- *   L[index]  Load UBL mesh from index (0 is default)
- *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ * @param  L[index]  Load UBL mesh from index (0 is default)
+ * @param  T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
  *
  * With mesh-based leveling only:
- *
- *   C         Center mesh on the mean of the lowest and highest
+ * @param  C         Center mesh on the mean of the lowest and highest
  *
  * With MARLIN_DEV_MODE:
- *   S2        Create a simple random mesh and enable
+ * @param  S2        Create a simple random mesh and enable
  */
 void GcodeSuite::M420() {
   const bool seen_S = parser.seen('S'),
@@ -158,7 +156,7 @@ void GcodeSuite::M420() {
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
 
-          #else // midrange
+          #else // Midrange
 
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
@@ -167,7 +165,7 @@ void GcodeSuite::M420() {
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
             }
-            // Get the midrange plus C value. (The median may be better.)
+            // Get the midrange plus C value. (The median may be better)
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
 
           #endif

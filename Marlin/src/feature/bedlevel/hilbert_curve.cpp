@@ -59,15 +59,16 @@ bool hilbert_curve::hilbert(int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi,
 }
 
 /**
- * Calls func(x, y, data) for all points in the Hilbert curve.
- * If that function returns true, the search is terminated.
+ * Calls func(x, y, data) for all points in the Hilbert curve
+ * If that function returns true, the search is terminated
  */
 bool hilbert_curve::search(hilbert_curve::callback_ptr func, void *data) {
   return hilbert(to_fix(0), to_fix(0),to_fix(dim), to_fix(0), to_fix(0), to_fix(dim), ord, func, data);
 }
 
-/* Helper function for starting the search at a particular point */
-
+/**
+ * Helper function for starting the search at a particular point
+ */
 typedef struct {
   uint8_t x, y;
   bool found_1st;
@@ -83,7 +84,7 @@ static bool search_from_helper(uint8_t x, uint8_t y, void *data) {
 }
 
 /**
- * Same as search, except start at a specific grid intersection point.
+ * Same as search, except start at a specific grid intersection point
  */
 bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_ptr func, void *data) {
   search_from_t d;
@@ -92,13 +93,13 @@ bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_pt
   d.found_1st = false;
   d.func = func;
   d.data = data;
-  // Call twice to allow search to wrap back to the beginning and picked up points prior to the start.
+  // Call twice to allow search to wrap back to the beginning and picked up points prior to the start
   return search(search_from_helper, &d) || search(search_from_helper, &d);
 }
 
 /**
  * Like search_from, but takes a bed position and starts from the nearest
- * point on the Hilbert curve.
+ * point on the Hilbert curve
  */
 bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::callback_ptr func, void *data) {
   // Find closest grid intersection

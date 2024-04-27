@@ -59,7 +59,7 @@
 #endif
 #define PROBE_TRIGGERED() (PROBE_READ() == PROBE_HIT_STATE)
 
-// In BLTOUCH HS mode, the probe travels in a deployed state.
+// In BLTOUCH HS mode, the probe travels in a deployed state
 #define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
 
 #if ENABLED(PREHEAT_BEFORE_LEVELING)
@@ -98,8 +98,8 @@ public:
     #if IS_KINEMATIC
 
       #if HAS_PROBE_XY_OFFSET
-        // Return true if the both nozzle and the probe can reach the given point.
-        // Note: This won't work on SCARA since the probe offset rotates with the arm.
+        // Return true if the both nozzle and the probe can reach the given point
+        // NOTE: This won't work on SCARA since the probe offset rotates with the arm
         static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
@@ -147,10 +147,10 @@ public:
 
       /**
        * Return whether the given position is within the bed, and whether the nozzle
-       * can reach the position required to put the probe at the given position.
+       * can reach the position required to put the probe at the given position
        *
        * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-       *          nozzle must be be able to reach +10,-10.
+       *          nozzle must be be able to reach +10,-10
        */
       static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
         if (probe_relative) {
@@ -216,11 +216,11 @@ public:
   }
 
   // Use offset_xy for read only access
-  // More optimal the XY offset is known to always be zero.
+  // More optimal the XY offset is known to always be zero
   #if HAS_PROBE_XY_OFFSET
     static const xy_pos_t &offset_xy;
   #else
-    static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
+    static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 }); // See #16767
   #endif
 
   static bool deploy(const bool no_return=false) { return set_deployed(true, no_return); }
@@ -234,13 +234,13 @@ public:
     #endif
 
     /**
-     * The nozzle is only able to move within the physical bounds of the machine.
+     * The nozzle is only able to move within the physical bounds of the machine
      * If the PROBE has an OFFSET Marlin may need to apply additional limits so
-     * the probe can be prevented from going to unreachable points.
+     * the probe can be prevented from going to unreachable points
      *
      * e.g., If the PROBE is to the LEFT of the NOZZLE, it will be limited in how
      * close it can get the RIGHT edge of the bed (unless the nozzle is able move
-     * far enough past the right edge).
+     * far enough past the right edge)
      */
     static constexpr float _min_x(const xy_pos_t &probe_offset_xy=offset_xy) {
       return TERN(IS_KINEMATIC,
@@ -272,7 +272,7 @@ public:
     static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
     static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
 
-    // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
+    // constexpr helpers used in build-time static_asserts, relying on default probe offsets
     class build_time {
       static constexpr xyz_pos_t default_probe_xyz_offset = xyz_pos_t(
         #if HAS_BED_PROBE
@@ -297,7 +297,7 @@ public:
     };
 
     #if NEEDS_THREE_PROBE_POINTS
-      // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
+      // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used
       template <typename T>
       static void get_three_points(T points[3]) {
         #if HAS_FIXED_3POINT

@@ -36,7 +36,12 @@
 #endif
 
 /**
- * M421: Set one or more Mesh Bed Leveling Z coordinates
+ * @brief M421: Set one or more Mesh Bed Leveling Z coordinates
+ *
+ * @param  I<xindex>
+ * @param  J<yindex>
+ * @param  Z<linear>
+ * @param  Q<offset>
  *
  * Usage:
  *   M421 I<xindex> J<yindex> Z<linear>

@@ -184,7 +184,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
 
   // Add XY probe offset from extruder because probe.probe_at_point() subtracts them when
   // moving to the XY position to be measured. This ensures better agreement between
-  // the current Z position after G28 and the mesh values.
+  // the current Z position after G28 and the mesh values
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
@@ -212,8 +212,8 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
       else if (isnan(f))
         SERIAL_ECHO(human ? F("  .   ") : F("NAN"));
       else if (human || csv) {
-        if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
-        SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
+        if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' '); // Display sign also for positive numbers (' ' for 0)
+        SERIAL_ECHO(p_float_t(f, 3));                        // Positive: 5 digits, Negative: 6 digits
       }
       if (csv && i < (GRID_MAX_POINTS_X) - 1) SERIAL_CHAR('\t');
 
@@ -271,17 +271,17 @@ bool unified_bed_leveling::sanity_check() {
     #endif
 
     #if HAS_HEATED_BED
-      if (parser.seenval('B')) {                        // Handle B# parameter to set Bed temp
-        const celsius_t bed_temp = parser.value_int();  // Marlin never sends itself F or K, always C
+      if (parser.seenval('B')) {                       // Handle B# parameter to set Bed temp
+        const celsius_t bed_temp = parser.value_int(); // Marlin never sends itself F or K, always C
         thermalManager.setTargetBed(bed_temp);
         thermalManager.wait_for_bed(false);
       }
     #endif
 
-    process_subcommands_now(FPSTR(G28_STR));      // Home
-    process_subcommands_now(F(ALIGN_GCODE         // Align multi z axis if available
-                              PROBE_GCODE "\n"    // Build mesh with available hardware
-                              "G29P3\nG29P3"));   // Ensure mesh is complete by running smart fill twice
+    process_subcommands_now(FPSTR(G28_STR));    // Home
+    process_subcommands_now(F(ALIGN_GCODE       // Align multi z axis if available
+                              PROBE_GCODE "\n"  // Build mesh with available hardware
+                              "G29P3\nG29P3")); // Ensure mesh is complete by running smart fill twice
 
     if (parser.seenval('S')) {
       char umw_gcode[32];
@@ -289,9 +289,9 @@ bool unified_bed_leveling::sanity_check() {
       queue.inject(umw_gcode);
     }
 
-    process_subcommands_now(F("G29A\nG29F10\n"    // Set UBL Active & Fade 10
-                              "M140S0\nM104S0\n"  // Turn off heaters
-                              "M500"));           // Store settings
+    process_subcommands_now(F("G29A\nG29F10\n"   // Set UBL Active & Fade 10
+                              "M140S0\nM104S0\n" // Turn off heaters
+                              "M500"));          // Store settings
   }
 
 #endif // UBL_MESH_WIZARD

@@ -217,14 +217,15 @@ public:
     const float xratio = (rx0 - get_mesh_x(x1_i)) * RECIPROCAL(MESH_X_DIST),
                 z1 = z_values[x1_i][yi];
 
-    return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the
-                                                                                        // z_values[][] array and no correction is applied.
+    return z1 + xratio * (z_values[_MIN(x1_i, (GRID_MAX_POINTS_X) - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
+                                                                                       // If it is, it is clamped to the last element of the
+                                                                                       // z_values[][] array and no correction is applied
   }
 
-  //
-  // See comments above for z_correction_for_x_on_horizontal_mesh_line
-  //
+  /**
+   * z_correction_for_y_on_vertical_mesh_line is an optimization for
+   * the case where the printer is making a horizontal line that only crosses vertical mesh lines.
+   */
   static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
     if (!WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(y1_i, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
@@ -233,30 +234,30 @@ public:
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 
-      // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+      // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN
       return _UBL_OUTER_Z_RAISE;
     }
 
     const float yratio = (ry0 - get_mesh_y(y1_i)) * RECIPROCAL(MESH_Y_DIST),
                 z1 = z_values[xi][y1_i];
 
-    return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
-                                                                                        // If it is, it is clamped to the last element of the
-                                                                                        // z_values[][] array and no correction is applied.
+    return z1 + yratio * (z_values[xi][_MIN(y1_i, (GRID_MAX_POINTS_Y) - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
+                                                                                       // If it is, it is clamped to the last element of the
+                                                                                       // z_values[][] array and no correction is applied
   }
 
   /**
    * This is the generic Z-Correction. It works anywhere within a Mesh Cell. It first
    * does a linear interpolation along both of the bounding X-Mesh-Lines to find the
    * Z-Height at both ends. Then it does a linear interpolation of these heights based
-   * on the Y position within the cell.
+   * on the Y position within the cell
    */
   static float get_z_correction(const_float_t rx0, const_float_t ry0) {
     const int8_t cx = cell_index_x(rx0), cy = cell_index_y(ry0); // return values are clamped
 
     /**
-     * Check if the requested location is off the mesh.  If so, and
-     * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
+     * Check if the requested location is off the mesh. If so, and
+     * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned
      */
     #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
       if (!WITHIN(rx0, MESH_MIN_X, MESH_MAX_X) || !WITHIN(ry0, MESH_MIN_Y, MESH_MAX_Y))
@@ -270,10 +271,10 @@ public:
     float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 
     if (isnan(z0)) { // If part of the Mesh is undefined, it will show up as NAN
-      z0 = 0.0;      // in z_values[][] and propagate through the calculations.
+      z0 = 0.0;      // in z_values[][] and propagate through the calculations
                      // If our correction is NAN, we throw it out because part of
                      // the Mesh is undefined and we don't have the information
-                     // needed to complete the height correction.
+                     // needed to complete the height correction
 
       if (DEBUGGING(MESH_ADJUST)) DEBUG_ECHOLNPGM("??? Yikes! NAN in ");
     }

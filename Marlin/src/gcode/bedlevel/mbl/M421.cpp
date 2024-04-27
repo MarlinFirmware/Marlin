@@ -33,7 +33,14 @@
 #include "../../../feature/bedlevel/mbl/mesh_bed_leveling.h"
 
 /**
- * M421: Set a single Mesh Bed Leveling Z coordinate
+ * @brief M421: Set a single Mesh Bed Leveling Z coordinate
+ *
+ * @param  X<linear>
+ * @param  Y<linear>
+ * @param  Z<linear>
+ * @param  I<xindex>
+ * @param  J<yindex>
+ * @param  Q<offset>
  *
  * Usage:
  *   M421 X<linear> Y<linear> Z<linear>

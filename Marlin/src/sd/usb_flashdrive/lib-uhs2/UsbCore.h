@@ -256,7 +256,7 @@ public:
   uint8_t getStrDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t *dataptr);
   uint8_t setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr);
   uint8_t setConf(uint8_t addr, uint8_t ep, uint8_t conf_value);
-  /**/
+
   uint8_t ctrlData(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t *dataptr, bool direction);
   uint8_t ctrlStatus(uint8_t ep, bool direction, uint16_t nak_limit);
   uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval = 0);
