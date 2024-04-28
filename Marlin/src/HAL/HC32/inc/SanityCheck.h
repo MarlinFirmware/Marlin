@@ -30,7 +30,7 @@
 #endif
 
 #if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 1, 0)
-  // because we use app_config.h introduced in arduino core version 1.1.0, the 
+  // because we use app_config.h introduced in arduino core version 1.1.0, the
   // HAL is not compatible with older versions
   #error "The HC32 HAL is not compatible with Arduino Core versions < 1.1.0. Consider updating the Arduino Core."
 #endif
