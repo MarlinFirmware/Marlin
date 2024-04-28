@@ -456,6 +456,7 @@
 #endif
 #ifdef Y2_DRIVER_TYPE
   #define HAS_Y2_STEPPER 1
+  #define HAS_DUAL_Y_STEPPERS 1
 #endif
 
 /**
