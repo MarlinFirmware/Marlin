@@ -29,10 +29,36 @@
 #include "../../module/probe.h"
 
 /**
- * M851: Set the nozzle-to-probe offsets in current units
+ * @brief M851: Set the nozzle-to-probe offsets in current units
+
+ * Usage:
+ *   M851 [X<linear>] [Y<linear>] [Z<linear>]
+ *
+ * Parameters:
+ *  @param  X  : Probe X offset
+ *  @param  Y  : Probe Y offset
+ *  @param  Z  : Probe Z offset
+ *
+ * @details
+ * NOZZLE_TO_PROBE_OFFSET:
+ *   { 10, 10, -1 }  // Example "1"
+ *   {-10,  5, -1 }  // Example "2"
+ *   {  5, -5, -1 }  // Example "3"
+ *   {-15,-10, -1 }  // Example "4"
+ *
+ *       +-- BACK ---+
+ *       |    [+]    |
+ *     L |        1  | R <-- Example "1" (right+,  back+)
+ *     E |  2        | I <-- Example "2" ( left-,  back+)
+ *     F |[-]  N  [+]| G <-- Nozzle  "N" (center)
+ *     T |       3   | H <-- Example "3" (right+, front-)
+ *       | 4         | T <-- Example "4" ( left-, front-)
+ *       |    [-]    |
+ *       O-- FRONT --+
+ *     (0,0)
  */
 void GcodeSuite::M851() {
-  // No parameters? Show current state.
+  // No parameters? Show current state
   if (!parser.seen("XYZ")) return M851_report();
 
   // Start with current offsets and modify

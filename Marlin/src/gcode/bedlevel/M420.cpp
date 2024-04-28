@@ -42,19 +42,23 @@
 /**
  * @brief M420: Enable/Disable Bed Leveling and/or set the Z fade height
  *
- * @param  S[bool]   Turns leveling on or off
- * @param  Z[height] Sets the Z fade height (0 or none to disable)
- * @param  V[bool]   Verbose - Print the leveling grid
+ * Usage:
+ *   M420 [C<bool>] [L<int>] [S<bool>] [T<0|1|2|4>] [V<bool>] [Z<linear>]
+ *
+ * Parameters:
+ * @param  S  : Turns leveling on or off
+ * @param  Z  : Sets the Z fade height (0 or none to disable)
+ * @param  V  : Verbose - Print the leveling grid
  *
  * With AUTO_BED_LEVELING_UBL only:
- * @param  L[index]  Load UBL mesh from index (0 is default)
- * @param  T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ * @param  L  : Load UBL mesh from index (0 is default)
+ * @param  T  : 0:Human-readable 1:CSV 2:LCD 4:Compact
  *
  * With mesh-based leveling only:
- * @param  C         Center mesh on the mean of the lowest and highest
+ * @param  C  : Center mesh on the mean of the lowest and highest
  *
  * With MARLIN_DEV_MODE:
- * @param  S2        Create a simple random mesh and enable
+ * @param  S2  : Create a simple random mesh and enable
  */
 void GcodeSuite::M420() {
   const bool seen_S = parser.seen('S'),

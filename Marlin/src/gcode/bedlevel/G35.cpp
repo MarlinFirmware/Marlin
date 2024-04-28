@@ -45,15 +45,20 @@
 /**
  * @brief G35: Read bed corners to help adjust bed screws
  *
+ * Usage:
+ *   G35 [S<30|31|40|41|50|51>]
+ *
+ * Parameters:
  * @param  S<screw_thread>
  *
- * @details Screw thread:
- *          30 - Clockwise M3
- *          31 - Counter-Clockwise M3
- *          40 - Clockwise M4
- *          41 - Counter-Clockwise M4
- *          50 - Clockwise M5
- *          51 - Counter-Clockwise M5
+ * @details
+ * Screw thread type:
+ *  - 30  : M3 Clockwise
+ *  - 31  : M3 Counter-Clockwise
+ *  - 40  : M4 Clockwise
+ *  - 41  : M4 Counter-Clockwise
+ *  - 50  : M5 Clockwise
+ *  - 51  : M5 Counter-Clockwise
  */
 void GcodeSuite::G35() {
 

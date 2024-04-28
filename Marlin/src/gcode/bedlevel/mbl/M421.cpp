@@ -35,18 +35,19 @@
 /**
  * @brief M421: Set a single Mesh Bed Leveling Z coordinate
  *
- * @param  X<linear>
- * @param  Y<linear>
- * @param  Z<linear>
- * @param  I<xindex>
- * @param  J<yindex>
- * @param  Q<offset>
- *
  * Usage:
  *   M421 X<linear> Y<linear> Z<linear>
  *   M421 X<linear> Y<linear> Q<offset>
  *   M421 I<xindex> J<yindex> Z<linear>
  *   M421 I<xindex> J<yindex> Q<offset>
+ *
+ * Parameters:
+ * @param  X  : X position
+ * @param  Y  : Y position
+ * @param  Z  : The new Z value to set
+ * @param  I  : X index into the mesh array
+ * @param  J  : Y index into the mesh array
+ * @param  Q  : A value to add to the existing Z value
  */
 void GcodeSuite::M421() {
   const bool hasX = parser.seen('X'), hasI = parser.seen('I');

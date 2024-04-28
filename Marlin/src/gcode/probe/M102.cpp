@@ -33,16 +33,21 @@
 #include "../../MarlinCore.h" // for printingIsActive
 
 /**
- * M102: Configure the Bed Distance Sensor
+ * @brief M102: Configure the Bed Distance Sensor
  *
- *   M102 S<10ths> : Set adjustable Z height in 10ths of a mm (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm.)
- *   M102 S0       : Disable adjustable Z height.
+ * Usage:
+ *   M102 S<-6|-5|-2|-1|0|>0>
+ *
+ * Parameters:
+ * @param  S<#>  : Set adjustable Z height in 0.1mm units (10ths of a mm)
+ *                 (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm)
+ * @param  S0    : Disable adjustable Z height
  *
  * Negative S values are commands:
- *   M102 S-1       : Read BDsensor version
- *   M102 S-2       : Read BDsensor distance value
- *   M102 S-5       : Read raw Calibration data
- *   M102 S-6       : Start Calibration
+ * @param  S-1  : Read BDsensor version
+ * @param  S-2  : Read BDsensor distance value
+ * @param  S-5  : Read raw Calibration data
+ * @param  S-6  : Start Calibration
  */
 void GcodeSuite::M102() {
   if (bdl.config_state < BDS_IDLE) {

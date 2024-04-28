@@ -23,76 +23,80 @@
 /**
  * @brief G26: Mesh Validation Tool
  *
- * @details G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
+ * @details G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System
  *          In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
  *          be defined. G29 is designed to allow the user to quickly validate the correctness of her Mesh. It will
  *          first heat the bed and nozzle. It will then print lines and circles along the Mesh Cell boundaries and
- *          the intersections of those lines (respectively).
+ *          the intersections of those lines (respectively)
  *
  *          This action allows the user to immediately see where the Mesh is properly defined and where it needs to
  *          be edited. The command will generate the Mesh lines closest to the nozzle's starting position. Alternatively
  *          the user can specify the X and Y position of interest with command parameters. This allows the user to
- *          focus on a particular area of the Mesh where attention is needed.
+ *          focus on a particular area of the Mesh where attention is needed
  *
- * @param  B #  Bed       Set the Bed Temperature. If not specified, a default of 60 C. will be assumed.
+ * Usage:
+ *   G26 [B<temp>] [C<bool>] [D] [F<linear>] [H<linear>] [I<index>] [K<bool>] [L<linear>] [O<linear>] [P<linear>] [Q<float>] [R<int>] [S<float>] [U<linear>] [X<linear>] [Y<linear>]
  *
- * @param  C    Current   When searching for Mesh Intersection points to draw, use the current nozzle location
- *                        as the base for any distance comparison.
+ * Parameters:
+ * @param  B  : Bed       Set the Bed Temperature. If not specified, a default of 60 C. will be assumed
  *
- * @param  D    Disable   Disable the Unified Bed Leveling System. In the normal case the user is invoking this
+ * @param  C  : Current   When searching for Mesh Intersection points to draw, use the current nozzle location
+ *                        as the base for any distance comparison
+ *
+ * @param  D  : Disable   Disable the Unified Bed Leveling System. In the normal case the user is invoking this
  *                        command to see how well a Mesh as been adjusted to match a print surface. In order to do
  *                        this the Unified Bed Leveling System is turned on by the G26 command. The D parameter
  *                        alters the command's normal behavior and disables the Unified Bed Leveling System even if
- *                        it is on.
+ *                        it is on
  *
- * @param  H #  Hotend    Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
+ * @param  H  : Hotend    Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed
  *
- * @param  I #  Preset    Heat the Nozzle and Bed based on a Material Preset (if material presets are defined).
+ * @param  I  : Preset    Heat the Nozzle and Bed based on a Material Preset (if material presets are defined)
  *
- * @param  F #  Filament  Used to specify the diameter of the filament being used. If not specified
+ * @param  F  : Filament  Used to specify the diameter of the filament being used. If not specified
  *                        1.75mm filament is assumed. If you are not getting acceptable results by using the
  *                        'correct' numbers, you can scale this number up or down a little bit to change the amount
- *                        of filament that is being extruded during the printing of the various lines on the bed.
+ *                        of filament that is being extruded during the printing of the various lines on the bed
  *
- * @param  K    Keep-On   Keep the heaters turned on at the end of the command.
+ * @param  K  : Keep-On   Keep the heaters turned on at the end of the command
  *
- * @param  L #  Layer     Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
+ * @param  L  : Layer     Layer height. (Height of nozzle above bed)  If not specified .20mm will be used
  *
- * @param  O #  Ooooze    How much your nozzle will Ooooze filament while getting in position to print. This
+ * @param  O  : Ooooze    How much your nozzle will Ooooze filament while getting in position to print. This
  *                        is over kill, but using this parameter will let you get the very first 'circle' perfect
  *                        so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
- *                        Mesh calibrated. If not specified, a filament length of .3mm is assumed.
+ *                        Mesh calibrated. If not specified, a filament length of .3mm is assumed
  *
- * @param  P #  Prime     Prime the nozzle with specified length of filament. If this parameter is not
+ * @param  P  : Prime     Prime the nozzle with specified length of filament. If this parameter is not
  *                        given, no prime action will take place. If the parameter specifies an amount, that much
  *                        will be purged before continuing. If no amount is specified the command will start
  *                        purging filament until the user provides an LCD Click and then it will continue with
  *                        printing the Mesh. You can carefully remove the spent filament with a needle nose
  *                        pliers while holding the LCD Click wheel in a depressed state. If you do not have
- *                        an LCD, you must specify a value if you use P.
+ *                        an LCD, you must specify a value if you use P
  *
- * @param  Q #  Multiplier  Retraction Multiplier. (Normally not needed.) During G26 retraction will use the length
- *                          specified by this parameter (1mm by default). Recover will be 1.2x the retract distance.
+ * @param  Q  : Multiplier  Retraction Multiplier. (Normally not needed.) During G26 retraction will use the length
+ *                          specified by this parameter (1mm by default). Recover will be 1.2x the retract distance
  *
- * @param  R #  Repeat    Prints the number of patterns given as a parameter, starting at the current location.
- *                        If a parameter isn't given, every point will be printed unless G26 is interrupted.
- *                        This works the same way that the UBL G29 P4 R parameter works.
+ * @param  R  : Repeat    Prints the number of patterns given as a parameter, starting at the current location
+ *                        If a parameter isn't given, every point will be printed unless G26 is interrupted
+ *                        This works the same way that the UBL G29 P4 R parameter works
  *
  *                        NOTE: If you do not have an LCD, you -must- specify R. This is to ensure that you are
  *                        aware that there's some risk associated with printing without the ability to abort in
  *                        cases where mesh point Z value may be inaccurate. As above, if you do not include a
- *                        parameter, every point will be printed.
+ *                        parameter, every point will be printed
  *
- * @param  S #  Nozzle    Used to control the size of nozzle diameter. If not specified, a .4mm nozzle is assumed.
+ * @param  S  : Nozzle    Used to control the size of nozzle diameter. If not specified, a 0.4mm nozzle is assumed
  *
- * @param  U #  Random    Randomize the order that the circles are drawn on the bed. The search for the closest
+ * @param  U  : Random    Randomize the order that the circles are drawn on the bed. The search for the closest
  *                        un-drawn circle is still done. But the distance to the location for each circle has a
  *                        random number of the specified size added to it. Specifying S50 will give an interesting
- *                        deviation from the normal behavior on a 10 x 10 Mesh.
+ *                        deviation from the normal behavior on a 10 x 10 Mesh
  *
- * @param  X #  X Coord.  Specify the starting location of the drawing activity.
+ * @param  X  : X Coord.  Specify the starting location of the drawing activity
  *
- * @param  Y #  Y Coord.  Specify the starting location of the drawing activity.
+ * @param  Y  : Y Coord.  Specify the starting location of the drawing activity
  */
 
 #include "../../inc/MarlinConfig.h"

@@ -33,15 +33,18 @@
 #include "../../module/probe.h"
 
 /**
- * M423: Set a Z offset for X-Twist (added to the mesh on future G29).
- *  M423 [R] [A<startx>] [I<interval>] [X<index> Z<offset>]
+ * @brief M423: Set a Z offset for X-Twist (added to the mesh on future G29)
  *
- *    R         - Reset the twist compensation data
- *    A<linear> - Set the X twist starting X position
- *    E<linear> - Set the X twist ending X position
- *    I<linear> - Set the X twist X-spacing directly
- *    X<index>  - Index of a Z value in the list
- *    Z<linear> - A Z value to set
+ * Usage:
+ *   M423 [R] [A<startx>] [A<endx>] [I<interval>] [X<index>] [Z<offset>]
+ *
+ * Parameters:
+ * @param  R  : Reset the twist compensation data
+ * @param  A  : Set the X twist starting X position
+ * @param  E  : Set the X twist ending X position
+ * @param  I  : Set the X twist X-spacing directly
+ * @param  X  : Index of a Z value in the list
+ * @param  Z  : A Z value to set
  */
 void GcodeSuite::M423() {
 

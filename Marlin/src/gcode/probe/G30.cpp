@@ -39,14 +39,16 @@
 #endif
 
 /**
- * G30: Do a single Z probe at the given XY (default: current)
+ * @brief G30: Do a single Z probe at the given XY (default: current)
+ *
+ * Usage:
+ *   G30 [X<pos>] [Y<pos>] [E<bool>] [C<bool>]
  *
  * Parameters:
- *
- *   X   Probe X position (default current X)
- *   Y   Probe Y position (default current Y)
- *   E   Engage the probe for each probe (default 1)
- *   C   Enable probe temperature compensation (0 or 1, default 1)
+ * @param  X  : Probe X position (default current X)
+ * @param  Y  : Probe Y position (default current Y)
+ * @param  E  : Engage the probe for each probe (default 1)
+ * @param  C  : Enable probe temperature compensation (0 or 1, default 1)
  */
 void GcodeSuite::G30() {
 
@@ -81,8 +83,8 @@ void GcodeSuite::G30() {
       const xy_pos_t lpos = probepos.asLogical();
       SString<30> msg(
         F("Bed X:"), p_float_t(lpos.x, 2),
-        F(  " Y:"), p_float_t(lpos.y, 2),
-        F(  " Z:"), p_float_t(measured_z, 3)
+        F(   " Y:"), p_float_t(lpos.y, 2),
+        F(   " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
       TERN_(VERBOSE_SINGLE_PROBE, ui.set_status(msg));

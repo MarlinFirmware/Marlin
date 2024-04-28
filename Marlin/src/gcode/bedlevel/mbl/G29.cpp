@@ -51,15 +51,28 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
 /**
  * @brief G29: Mesh-based Z probe, probes a grid and produces a
  *             mesh to compensate for variable bed height
+ * Usage:
+ *   G29 S<0|1|2|5>
+ *   G29 S3 [I<index>] [J<index>] [X<count>] [Y<count>] [Z<linear>]
+ *   G29 S4 [Z<linear>]
  *
- * Parameters With MESH_BED_LEVELING:
+ * Parameters:
+ * @param  S0  : Report the current mesh values
+ * @param  S1  : Start probing mesh points
+ * @param  S2  : Probe the next mesh point
+ * @param  S3  : Manually modify a single point
+ * @param  S4  : Set Z offset. Positive away from bed, negative closer to bed
+ * @param  S5  : Reset and disable mesh
  *
- * @param  S0              Report the current mesh values
- * @param  S1              Start probing mesh points
- * @param  S2              Probe the next mesh point
- * @param  S3 In Jn Zn.nn  Manually modify a single point
- * @param  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed
- * @param  S5              Reset and disable mesh
+ * With S3 only:
+ * @param  I  : (0…n-1) X index of the mesh value to modify
+ * @param  J  : (0…n-1) Y index of the mesh value to modify
+ * @param  X  : (1…n) X count of the mesh value to modify.
+ * @param  Y  : (1…n) Y count of the mesh value to modify.
+ * @param  Z  : Set new mesh Z value.
+ *
+ * With S4 only:
+ * @param  Z  : Set new mesh Z value.
  */
 void GcodeSuite::G29() {
 

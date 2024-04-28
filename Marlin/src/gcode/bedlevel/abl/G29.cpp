@@ -147,78 +147,81 @@ public:
  *
  * @details Enhanced G29 Auto Bed Leveling Probe Routine
  *
- * @param  O  Auto-level only if needed
+ * Usage:
+ *   G29 [A<bool>] [B<linear>] [C<bool>] [D<bool>] [E<bool>] [F<linear>] [H<linear>] [J<bool>] [L<linear>] [O] [Q<bool>] [R<linear>] [S<rate>] [V<0-4>] [W<bool>] [X<float>] [Y<float>] [Z<float>]
  *
- * @param  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
- *            or alter the bed level data. Useful to check the topology
- *            after a first run of G29
+ * Parameters:
+ * @param  O  : Auto-level only if needed
  *
- * @param  J  Jettison current bed leveling data
+ * @param  D  : Dry-Run mode. Just evaluate the bed Topology - Don't apply
+ *              or alter the bed level data. Useful to check the topology
+ *              after a first run of G29
  *
- * @param  V  Set the verbose level (0-4)
- *            EXAMPLE: "G29 V3"
+ * @param  J  : Jettison current bed leveling data
  *
- * Parameters With LINEAR leveling only:
+ * @param  V  : Set the verbose level (0-4)
+ *              EXAMPLE: "G29 V3"
  *
- * @param  P  Set the size of the grid that will be probed (P x P points)
- *            EXAMPLE: "G29 P4"
+ * With LINEAR leveling only:
  *
- * @param  X  Set the X size of the grid that will be probed (X x Y points)
- *            EXAMPLE: "G29 X7 Y5"
+ * @param  P  : Set the size of the grid that will be probed (P x P points)
+ *              EXAMPLE: "G29 P4"
  *
- * @param  Y  Set the Y size of the grid that will be probed (X x Y points)
+ * @param  X  : Set the X size of the grid that will be probed (X x Y points)
+ *              EXAMPLE: "G29 X7 Y5"
  *
- * @param  T  Generate a Bed Topology Report
- *            EXAMPLE: "G29 P5 T" for a detailed report
- *            This is useful for manual bed leveling and finding flaws in the bed
- *            (to assist with part placement)
- *            Not supported by non-linear delta printer bed leveling
+ * @param  Y  : Set the Y size of the grid that will be probed (X x Y points)
  *
- * Parameters With LINEAR and BILINEAR leveling only:
+ * @param  T  : Generate a Bed Topology Report
+ *              EXAMPLE: "G29 P5 T" for a detailed report
+ *              This is useful for manual bed leveling and finding flaws in the bed
+ *              (to assist with part placement)
+ *              Not supported by non-linear delta printer bed leveling
  *
- * @param  S  Set the XY travel speed between probe points (in units/min)
+ * With LINEAR and BILINEAR leveling only:
  *
- * @param  H  Set bounds to a centered square H x H units in size
+ * @param  S  : Set the XY travel speed between probe points (in units/min)
+ *
+ * @param  H  : Set bounds to a centered square H x H units in size
  *
  *     -or-
  *
- * @param  F  Set the Front limit of the probing grid
- * @param  B  Set the Back limit of the probing grid
- * @param  L  Set the Left limit of the probing grid
- * @param  R  Set the Right limit of the probing grid
+ * @param  F  : Set the Front limit of the probing grid
+ * @param  B  : Set the Back limit of the probing grid
+ * @param  L  : Set the Left limit of the probing grid
+ * @param  R  : Set the Right limit of the probing grid
  *
- * Parameters with DEBUG_LEVELING_FEATURE only:
+ * With DEBUG_LEVELING_FEATURE only:
  *
- * @param  C  Make a totally fake grid with no actual probing
- *            For use in testing when no probing is possible
+ * @param  C  : Make a totally fake grid with no actual probing
+ *              For use in testing when no probing is possible
  *
- * Parameters with BILINEAR leveling only:
+ * With BILINEAR leveling only:
  *
- * @param  Z  Supply an additional Z probe offset
+ * @param  Z  : Supply an additional Z probe offset
+ *
+ * Extra parameters with BILINEAR only:
+ *
+ * @param  W  : Write a mesh point. (If G29 is idle)
+ * @param  I  : X index for mesh point
+ * @param  J  : Y index for mesh point
+ * @param  X  : X for mesh point, overrides I
+ * @param  Y  : Y for mesh point, overrides J
+ * @param  Z  : Z for mesh point. Otherwise, raw current Z
  *
  * Extra parameters with PROBE_MANUALLY:
  *
  * @details To do manual probing simply repeat G29 until the procedure is complete
  *          The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort
  *
- * @param  Q  Query leveling and G29 state
- *
- * @param  A  Abort current leveling procedure
- *
- * Extra parameters with BILINEAR only:
- *
- * @param  W  Write a mesh point. (If G29 is idle)
- * @param  I  X index for mesh point
- * @param  J  Y index for mesh point
- * @param  X  X for mesh point, overrides I
- * @param  Y  Y for mesh point, overrides J
- * @param  Z  Z for mesh point. Otherwise, raw current Z
+ * @param  A  : Abort current leveling procedure
+ * @param  Q  : Query leveling and G29 state
  *
  * Without PROBE_MANUALLY:
  *
- * @param  E  By default G29 will engage the Z probe, test the bed, then disengage
- *            Include "E" to engage/disengage the Z probe for each sample
- *            There's no extra effect if you have a fixed Z probe
+ * @param  E  : By default G29 will engage the Z probe, test the bed, then disengage
+ *              Include "E" to engage/disengage the Z probe for each sample
+ *              There's no extra effect if you have a fixed Z probe
  */
 G29_TYPE GcodeSuite::G29() {
 

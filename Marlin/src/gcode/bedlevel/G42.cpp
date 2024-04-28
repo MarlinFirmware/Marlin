@@ -32,11 +32,14 @@
 
 /**
  * @brief G42: Move X & Y axes to mesh coordinates (I & J)
+ * Usage:
+ *   G42 [F<rate>] [I<pos>] [J<pos>] [P<bool>]
  *
- * @param  I  X axis point
- * @param  J  Y axis point
- * @param  P  Probe offset
- * @param  F  Feedrate
+ * Parameters:
+ * @param  F  : Feedrate in mm/min
+ * @param  I  : X axis point
+ * @param  J  : Y axis point
+ * @param  P  : Add Probe offset
  */
 void GcodeSuite::G42() {
   if (MOTION_CONDITIONS) {

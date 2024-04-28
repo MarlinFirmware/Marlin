@@ -54,6 +54,22 @@ void mpe_settings_init() {
   mpe_settings_report();
 }
 
+/**
+ * @brief M951: Magnetic Parking Extruder
+ *
+ * Usage:
+ *   M951 [L<linear>] [R<linear>] [I<linear>] [J<linear>] [H<linear>] [D<linear>] [C<float>]
+ *   M951 (With no parameters, report the current settings)
+ *
+ * Parameters:
+ * @param  L  : Set X[0] position
+ * @param  R  : Set X[1] position
+ * @param  I  : Set grab distance
+ * @param  J  : Set slow feedrate
+ * @param  H  : Set fast feedrate
+ * @param  D  : Set travel feedrate
+ * @param  C  : Set compensation factor
+ */
 void GcodeSuite::M951() {
   if (parser.seenval('L')) mpe_settings.parking_xpos[0] = parser.value_linear_units();
   if (parser.seenval('R')) mpe_settings.parking_xpos[1] = parser.value_linear_units();

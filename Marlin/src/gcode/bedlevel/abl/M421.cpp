@@ -38,18 +38,17 @@
 /**
  * @brief M421: Set one or more Mesh Bed Leveling Z coordinates
  *
- * @param  I<xindex>
- * @param  J<yindex>
- * @param  Z<linear>
- * @param  Q<offset>
- *
  * Usage:
- *   M421 I<xindex> J<yindex> Z<linear>
- *   M421 I<xindex> J<yindex> Q<offset>
+ *   M421 I<index> J<index> Z<linear>
+ *   M421 I<index> J<index> Q<linear>
  *
- *  - If I is omitted, set the entire row
- *  - If J is omitted, set the entire column
- *  - If both I and J are omitted, set all
+ * Parameters:
+ * @param  I  : Index of X axis. If I is omitted, set the entire row
+ * @param  J  : Index of Y axis. If J is omitted, set the entire column
+ *              (If both I and J are omitted, set all)
+ * @param  Z  : The new Z value to set
+ * @param  Q  : A value to add to the existing Z value
+ *
  */
 void GcodeSuite::M421() {
   int8_t ix = parser.intval('I', -1), iy = parser.intval('J', -1);
