@@ -36,31 +36,63 @@
 #include "../HAL/shared/eeprom_if.h"
 #include "../HAL/shared/Delay.h"
 #include "../sd/cardreader.h"
-#include "../MarlinCore.h" // for kill
+#include "../MarlinCore.h" // For kill
 
 void dump_delay_accuracy_check();
 
 /**
- * Dn: G-code for development and testing
+ * @brief Dn: G-code for development and testing
  *
- * See https://reprap.org/wiki/G-code#D:_Debug_codes
+ * Usage:
+ *   D[<int>]
  *
- * Put whatever else you need here to test ongoing development.
+ * Parameters:
+ * @param  D-1   : Endless Loop
+ * @param  D0    : Reset
+ * @param  D10   : Kill Test. [P] to disable steppers
+ * @param  D1    : Clear EEPROM and RESET
+ * @param  D2    : Read/Write RAM
+ * @param  D3    : Read/Write EEPROM
+ * @param  D4    : Read/Write PIN
+ * @param  D5    : Read/Write FLASH
+ * @param  D6    : Check delay loop accuracy
+ * @param  D7    : Dump the current serial port type (hence configuration)
+ * @param  D100  : Disable heaters and attempt a hard hang (Watchdog Test)
+ * @param  D101  : Test SD Write
+ * @param  D102  : Test SD Read
+ * @param  D451  : Trigger all kind of faults to test exception catcher
+ * @param  D576  : Return buffer stats or set the auto-report interval
+ *
+ * @details See https://reprap.org/wiki/G-code#D:_Debug_codes
+ *
+ * NOTE: Put whatever else you need here to test ongoing development
  */
 void GcodeSuite::D(const int16_t dcode) {
   switch (dcode) {
 
+    /**
+     * @brief D-1: Endless Loop
+     */
     case -1:
       for (;;) { /* loop forever (watchdog reset) */ }
 
-    case 0:
+    /**
+     * @brief D0: Reset
+     */
+    case 0: // Reset
       hal.reboot();
       break;
 
+    /**
+     * @brief D10: Kill Test. [P] to disable steppers
+     */
     case 10:
       kill(F("D10"), F("KILL TEST"), parser.seen_test('P'));
       break;
 
+    /**
+     * @brief D1: Clear EEPROM and RESET
+     */
     case 1: {
       // Zero or pattern-fill the EEPROM data
       #if ENABLED(EEPROM_SETTINGS)
@@ -77,7 +109,19 @@ void GcodeSuite::D(const int16_t dcode) {
       hal.reboot();
     } break;
 
-    case 2: { // D2 Read / Write SRAM
+    /**
+     * @brief D2: Read/Write RAM
+     *            Without any additional parameters will read the entire RAM
+     *
+     * Usage:
+     *   D2 [A<address>] [C<Count>] [X<Data>]
+     *
+     * Parameters:
+     * @param  Annnn  : Address (x0000-x1fff)
+     * @param  Cnnnn  : Count (1-8192)
+     * @param  Xnnnn  : Data (hex)
+     */
+    case 2: {
       #define SRAM_SIZE 8192
       uint8_t *pointer = parser.hex_adr_val('A');
       uint16_t len = parser.ushortval('C', 1);
@@ -99,7 +143,19 @@ void GcodeSuite::D(const int16_t dcode) {
     } break;
 
     #if ENABLED(EEPROM_SETTINGS)
-      case 3: { // D3 Read / Write EEPROM
+      /**
+       * @brief D3: Read/Write EEPROM
+       *            Without any additional parameters will read the entire EEPROM
+       *
+       * Usage:
+       *   D3 [A<address>] [C<Count>] [X<Data>]
+       *
+       * Parameters:
+       * @param  Annnn  : Address (x0000-x0fff)
+       * @param  Cnnnn  : Count (1-4096)
+       * @param  Xnnnn  : Data (hex)
+       */
+      case 3: {
         uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
         uintptr_t addr = (uintptr_t)pointer;
@@ -137,7 +193,10 @@ void GcodeSuite::D(const int16_t dcode) {
       } break;
     #endif
 
-    case 4: { // D4 Read / Write PIN
+    /**
+     * @brief D4: D4 Read / Write PIN
+     */
+    case 4: {
       //const bool is_out = parser.boolval('F');
       //const uint8_t pin = parser.byteval('P'),
       //              val = parser.byteval('V', LOW);
@@ -155,8 +214,21 @@ void GcodeSuite::D(const int16_t dcode) {
       }
     } break;
 
-    case 5: { // D5 Read / Write onboard Flash
-              // This will overwrite program and data, so don't use it.
+    /**
+     * @brief D5: Read/Write FLASH
+     *            Without any additional parameters will read the 1kb FLASH
+     *
+     * Usage:
+     *   D5 [A<address>] [C<Count>] [X<Data>]
+     *
+     * Parameters:
+     * @param  Annnn  : Address (x00000-x3ffff)
+     * @param  Cnnnn  : Count (1-8192)
+     * @param  Xnnnn  : Data (hex)
+     *
+     * WARNING: This will overwrite program and data, so don't use it!
+     */
+    case 5: {
       #define ONBOARD_FLASH_SIZE 1024 // 0x400
       uint8_t *pointer = parser.hex_adr_val('A');
       uint16_t len = parser.ushortval('C', 1);
@@ -176,16 +248,25 @@ void GcodeSuite::D(const int16_t dcode) {
       }
     } break;
 
-    case 6: // D6 Check delay loop accuracy
+    /**
+     * @brief D6: Check delay loop accuracy
+     */
+    case 6:
       dump_delay_accuracy_check();
       break;
 
-    case 7: // D7 dump the current serial port type (hence configuration)
+    /**
+     * @brief D7: Dump the current serial port type (hence configuration)
+     */
+    case 7:
       SERIAL_ECHOLNPGM("Current serial configuration RX_BS:", RX_BUFFER_SIZE, ", TX_BS:", TX_BUFFER_SIZE);
       SERIAL_ECHOLN(gtn(&SERIAL_IMPL));
       break;
 
-    case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
+    /**
+     * @brief D100: Disable heaters and attempt a hard hang (Watchdog Test)
+     */
+    case 100: {
       SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
       SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
       thermalManager.disable_all_heaters();
@@ -193,7 +274,7 @@ void GcodeSuite::D(const int16_t dcode) {
       hal.isr_off();
       // Use a low-level delay that does not rely on interrupts to function
       // Do not spin forever, to avoid thermal risks if heaters are enabled and
-      // watchdog does not work.
+      // watchdog does not work
       for (int i = 10000; i--;) DELAY_US(1000UL);
       hal.isr_on();
       SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
@@ -201,7 +282,10 @@ void GcodeSuite::D(const int16_t dcode) {
 
     #if HAS_MEDIA
 
-      case 101: { // D101 Test SD Write
+      /**
+       * @brief D101: Test SD Write
+       */
+      case 101: {
         card.openFileWrite("test.gco");
         if (!card.isFileOpen()) {
           SERIAL_ECHOLNPGM("Failed to open test.gco to write.");
@@ -222,7 +306,10 @@ void GcodeSuite::D(const int16_t dcode) {
         card.closefile();
       } break;
 
-      case 102: { // D102 Test SD Read
+      /**
+       * @brief D102: Test SD Read
+       */
+      case 102: {
         char testfile[] = "test.gco";
         card.openFileRead(testfile);
         if (!card.isFileOpen()) {
@@ -254,7 +341,19 @@ void GcodeSuite::D(const int16_t dcode) {
 
     #if ENABLED(POSTMORTEM_DEBUGGING)
 
-      case 451: { // Trigger all kind of faults to test exception catcher
+      /**
+       * @brief D451: Trigger all kind of faults to test exception catcher
+       *
+       * Usage:
+       *   D451 [T<int>]
+       *
+       * Parameters:
+       * @param  T1  : Write at bad address
+       * @param  T2  : Divide by zero (some CPUs accept this, like ARM)
+       * @param  T3  : Unaligned access (some CPUs accept this)
+       * @param  T4  : Invalid instruction
+       */
+      case 451: {
         SERIAL_ECHOLNPGM("Disabling heaters");
         thermalManager.disable_all_heaters();
         delay(1000); // Allow time to print
@@ -262,10 +361,10 @@ void GcodeSuite::D(const int16_t dcode) {
 
         // The code below is obviously wrong and it's full of quirks to fool the compiler from optimizing away the code
         switch (type[0]) {
-          case 1: default: *(int*)0 = 451; break; // Write at bad address
-          case 2: { volatile int a = 0; volatile int b = 452 / a; *(int*)&a = b; } break; // Divide by zero (some CPUs accept this, like ARM)
-          case 3: { *(uint32_t*)&type[1] = 453; volatile int a = *(int*)&type[1]; type[0] = a / 255; } break; // Unaligned access (some CPUs accept this)
-          case 4: { volatile void (*func)() = (volatile void (*)()) 0xE0000000; func(); } break; // Invalid instruction
+          case 1: default: *(int*)0 = 451; break;
+          case 2: { volatile int a = 0; volatile int b = 452 / a; *(int*)&a = b; } break;
+          case 3: { *(uint32_t*)&type[1] = 453; volatile int a = *(int*)&type[1]; type[0] = a / 255; } break;
+          case 4: { volatile void (*func)() = (volatile void (*)()) 0xE0000000; func(); } break;
         }
         break;
       }
@@ -275,18 +374,23 @@ void GcodeSuite::D(const int16_t dcode) {
     #if ENABLED(BUFFER_MONITORING)
 
       /**
-       * D576: Return buffer stats or set the auto-report interval.
-       * Usage: D576 [S<seconds>]
+       * @brief D576: Return buffer stats or set the auto-report interval
+       *
+       * Usage:
+       *   D576 [S<seconds>]
+       *
+       * Parameters:
+       * @param  S  : Set auto report interval in seconds
        *
        * With no parameters emits the following output:
        * "D576 P<nn> B<nn> PU<nn> PD<nn> BU<nn> BD<nn>"
        * Where:
-       *   P : Planner buffers free
-       *   B : Command buffers free
-       *   PU: Planner buffer underruns (since the last report)
-       *   PD: Longest duration (ms) the planner buffer was empty (since the last report)
-       *   BU: Command buffer underruns (since the last report)
-       *   BD: Longest duration (ms) command buffer was empty (since the last report)
+       *   P   : Planner buffers free
+       *   B   : Command buffers free
+       *   PU  : Planner buffer underruns (since the last report)
+       *   PD  : Longest duration (ms) the planner buffer was empty (since the last report)
+       *   BU  : Command buffer underruns (since the last report)
+       *   BD  : Longest duration (ms) command buffer was empty (since the last report)
        */
       case 576: {
         if (parser.seenval('S'))
