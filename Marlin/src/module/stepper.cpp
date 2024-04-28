@@ -2337,10 +2337,7 @@ hal_timer_t Stepper::block_phase_isr() {
          * Laser power variables are calulated and stored in this block by the planner code.
          *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
          *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
-         *
-         * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
-
         #if ENABLED(LASER_POWER_TRAP)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
@@ -2418,10 +2415,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif // LIN_ADVANCE
 
-        /**
-         * Adjust Laser Power - Decelerating
-         * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
-         */
+        // Adjust Laser Power - Decelerating
         #if ENABLED(LASER_POWER_TRAP)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
@@ -2451,30 +2445,25 @@ hal_timer_t Stepper::block_phase_isr() {
             if (la_active)
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
+
+          // Adjust Laser Power - Cruise
+          #if ENABLED(LASER_POWER_TRAP)
+            if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+              if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
+                if (current_block->laser.trap_ramp_entry_incr > 0) {
+                  current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
+                  cutter.apply_power(current_block->laser.power);
+                }
+              }
+              // Not a powered move.
+              else cutter.apply_power(0);
+            }
+          #endif
         }
 
         // The timer interval is just the nominal value for the nominal speed
         interval = ticks_nominal;
       }
-
-      /**
-       * Adjust Laser Power - Cruise
-       * power - direct or floor adjusted active laser power.
-       */
-      #if ENABLED(LASER_POWER_TRAP)
-        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-          if (step_events_completed + 1 == accelerate_until) {
-            if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
-              if (current_block->laser.trap_ramp_entry_incr > 0) {
-                current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
-                cutter.apply_power(current_block->laser.power);
-              }
-            }
-            // Not a powered move.
-            else cutter.apply_power(0);
-          }
-        }
-      #endif
     }
 
     #if ENABLED(LASER_FEATURE)
