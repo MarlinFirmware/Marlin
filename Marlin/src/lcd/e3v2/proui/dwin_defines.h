@@ -37,7 +37,7 @@
 //#define TITLE_CENTERED      // Center Menu Title Text
 
 #if HAS_MESH
-  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset + points
+  #define PROUI_MESH_EDIT     // Add a menu to edit mesh inset
   #if ENABLED(PROUI_MESH_EDIT)
     #define Z_OFFSET_MIN -3.0 // (mm)
     #define Z_OFFSET_MAX  3.0 // (mm)

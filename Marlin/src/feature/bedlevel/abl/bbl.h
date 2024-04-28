@@ -23,6 +23,11 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
+#if ENABLED(PROUI_MESH_EDIT)
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#endif
+
 class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
