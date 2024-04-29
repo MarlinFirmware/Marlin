@@ -39,6 +39,7 @@
 // Heaters / Fans
 //
 
+// The following are included for documentation purposes only. They are actually defined in pins_RAMPS.h.
 //#define HEATER_BED_PIN                       8  // H-BED / "MOSFET_C_PIN"
 //#define HEATER_0_PIN                        10  // HE0   / "MOSFET_A_PIN"
 #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL)
