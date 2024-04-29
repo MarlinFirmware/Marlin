@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-//#if ENABLED(AUTO_BED_LEVELING_UBL)
+#if ENABLED(AUTO_BED_LEVELING_UBL)
 
 #include "../bedlevel.h"
 
