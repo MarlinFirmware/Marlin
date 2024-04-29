@@ -179,7 +179,7 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
 
   const xy_pos_t dest = { rx, ry };
 
-  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement
+  const bool has_xy_component = dest != current_position, // Check if X or Y is involved in the movement.
              has_e_component = e_delta != 0.0;
 
   if (z != last_z) {
@@ -189,9 +189,9 @@ void move_to(const_float_t rx, const_float_t ry, const_float_t z, const_float_t 
     prepare_internal_move_to_destination(fr_mm_s);
   }
 
-  // If X or Y in combination with E is involved do a 'normal' move
+  // If X or Y in combination with E is involved do a 'normal' move.
   // If X or Y with no E is involved do a 'fast' move
-  // Otherwise retract/recover/hop
+  // Otherwise retract/recover/hop.
   destination = dest;
   destination.e += e_delta;
   const feedRate_t fr_mm_s = has_xy_component
@@ -213,17 +213,17 @@ typedef struct {
 
   float nozzle                = MESH_TEST_NOZZLE_SIZE,
         filament_diameter     = DEFAULT_NOMINAL_FILAMENT_DIA,
-        ooze_amount;          // 'O' ... OOZE_AMOUNT
+        ooze_amount;            // 'O' ... OOZE_AMOUNT
 
-  bool continue_with_closest, // 'C'
-       keep_heaters_on;       // 'K'
+  bool continue_with_closest,   // 'C'
+       keep_heaters_on;         // 'K'
 
   xy_pos_t xy_pos; // = { 0, 0 }
 
   int8_t prime_flag = 0;
 
-  bool g26_retracted = false; // Track the retracted state during G26 so mismatched
-                              // retracts/recovers don't result in a bad state
+  bool g26_retracted = false;  // Track the retracted state during G26 so mismatched
+                               // retracts/recovers don't result in a bad state.
 
   void retract_filament(const xyz_pos_t &where) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
@@ -235,12 +235,12 @@ typedef struct {
   // TODO: Parameterize the Z lift with a define
   void retract_lift_move(const xyz_pos_t &s) {
     retract_filament(destination);
-    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f); // Z lift to minimize scraping
-    move_to(s.x, s.y, s.z + 0.5f, 0.0f); // Get to the starting point with no extrusion while lifted
+    move_to(current_position.x, current_position.y, current_position.z + 0.5f, 0.0f);  // Z lift to minimize scraping
+    move_to(s.x, s.y, s.z + 0.5f, 0.0f);  // Get to the starting point with no extrusion while lifted
   }
 
   void recover_filament(const xyz_pos_t &where) {
-    if (g26_retracted) { // Only un-retract if we are retracted
+    if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(where, 1.2f * retraction_multiplier);
       g26_retracted = false;
     }
@@ -271,7 +271,7 @@ typedef struct {
                 line_length = HYPOT(e.x - s.x, e.y - s.y);
 
     // If the end point of the line is closer to the nozzle, flip the direction,
-    // moving from the end to the start. On very small lines the optimization isn't worth it
+    // moving from the end to the start. On very small lines the optimization isn't worth it.
     if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
       return print_line_from_here_to_there(e, s);
 
@@ -283,7 +283,7 @@ typedef struct {
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
     recover_filament(destination);
-    move_to(e, e_pos_delta); // Get to the ending point with an appropriate amount of extrusion
+    move_to(e, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
   }
 
   void connect_neighbor_with_line(const xy_int8_t &p1, int8_t dx, int8_t dy) {
@@ -316,7 +316,7 @@ typedef struct {
 
   /**
    * Turn on the bed and nozzle heat and
-   * wait for them to get up to temperature
+   * wait for them to get up to temperature.
    */
   bool turn_on_heaters() {
 
@@ -357,7 +357,7 @@ typedef struct {
   }
 
   /**
-   * Prime the nozzle if needed. Return true on error
+   * Prime the nozzle if needed. Return true on error.
    */
   bool prime_nozzle() {
 
@@ -367,14 +367,14 @@ typedef struct {
         float Total_Prime = 0.0;
       #endif
 
-      if (prime_flag == -1) { // The user wants to control how much filament gets purged
+      if (prime_flag == -1) {  // The user wants to control how much filament gets purged
         ui.capture();
         LCD_MESSAGE_MAX(MSG_G26_MANUAL_PRIME);
         ui.chirp();
 
         destination = current_position;
 
-        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted()
+        recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
         while (!ui.button_pressed()) {
           ui.chirp();
@@ -388,10 +388,10 @@ typedef struct {
           #endif
           prepare_internal_move_to_destination(fr_slow_e);
           destination = current_position;
-          planner.synchronize(); // Without this synchronize, the purge is more consistent,
-                                 // but because the planner has a buffer, we won't be able
-                                 // to stop as quickly. So we put up with the less smooth
-                                 // action to give the user a more responsive 'Stop'
+          planner.synchronize();    // Without this synchronize, the purge is more consistent,
+                                    // but because the planner has a buffer, we won't be able
+                                    // to stop as quickly. So we put up with the less smooth
+                                    // action to give the user a more responsive 'Stop'.
         }
 
         ui.wait_for_release();
@@ -428,7 +428,7 @@ typedef struct {
       auto test_func = [](uint8_t i, uint8_t j, void *data) -> bool {
         if (!circle_flags.marked(i, j)) {
           mesh_index_pair *out_point = (mesh_index_pair*)data;
-          out_point->pos.set(i, j); // Save its data
+          out_point->pos.set(i, j);  // Save its data
           return true;
         }
         return false;
@@ -449,17 +449,17 @@ typedef struct {
           float f = (pos - m).magnitude();
 
           // It is possible that we are being called with the values
-          // to let us find the closest circle to the start position,
-          // but if this is not the case, add a small weighting to the
-          // distance calculation to help it choose a better place to continue
+          // to let us find the closest circle to the start position.
+          // But if this is not the case, add a small weighting to the
+          // distance calculation to help it choose a better place to continue.
           f += (xy_pos - m).magnitude() / 15.0f;
 
           // Add the specified amount of Random Noise to our search
           if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
 
           if (f < closest) {
-            closest = f;             // Found a closer un-printed location
-            out_point.pos.set(i, j); // Save its data
+            closest = f;          // Found a closer un-printed location
+            out_point.pos.set(i, j);  // Save its data
             out_point.distance = closest;
           }
         }
@@ -701,7 +701,7 @@ void GcodeSuite::G26() {
   #if DISABLED(ARC_SUPPORT)
 
     /**
-     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load
+     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
      */
     #define A_INT 30
     #define _ANGS (360 / A_INT)
@@ -728,11 +728,11 @@ void GcodeSuite::G26() {
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = { bedlevel.get_mesh_x(location.pos.a), bedlevel.get_mesh_y(location.pos.b) };
 
-      // If this mesh location is outside the printable radius, skip it
+      // If this mesh location is outside the printable radius, skip it.
       if (!position_is_reachable(circle)) continue;
 
       // Determine where to start and end the circle,
-      // which is always drawn counter-clockwise
+      // which is always drawn counter-clockwise.
       const xy_int8_t st = location;
       const bool f = st.y == 0,
                  r = st.x >= (GRID_MAX_POINTS_X) - 1,
@@ -748,12 +748,12 @@ void GcodeSuite::G26() {
 
         // Figure out where to start and end the arc - we always print counterclockwise
         float arc_length = ARC_LENGTH(4);
-        if (st.x == 0) { // left edge
+        if (st.x == 0) {                             // left edge
           if (!f) { s.x = circle.x; s.y -= INTERSECTION_CIRCLE_RADIUS; }
           if (!b) { e.x = circle.x; e.y += INTERSECTION_CIRCLE_RADIUS; }
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
-        else if (r) {   // right edge
+        else if (r) {                               // right edge
           if (b) s.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
           else   s.set(circle.x, circle.y + INTERSECTION_CIRCLE_RADIUS);
           if (f) e.set(circle.x - (INTERSECTION_CIRCLE_RADIUS), circle.y);
@@ -770,7 +770,7 @@ void GcodeSuite::G26() {
         }
 
         const ab_float_t arc_offset = circle - s;
-        const xy_float_t dist = current_position - s; // Distance from the start of the actual circle
+        const xy_float_t dist = current_position - s;   // Distance from the start of the actual circle
         const float dist_start = HYPOT2(dist.x, dist.y);
         const xyze_pos_t endpoint = {
           e.x, e.y, g26.layer_height,
@@ -783,12 +783,12 @@ void GcodeSuite::G26() {
         }
 
         s.z = g26.layer_height;
-        move_to(s, 0.0); // Get to the starting point with no extrusion / un-Z lift
+        move_to(s, 0.0);  // Get to the starting point with no extrusion / un-Z lift
 
         g26.recover_filament(destination);
 
         { REMEMBER(fr, feedrate_mm_s, PLANNER_XY_FEEDRATE() * 0.1f);
-          plan_arc(endpoint, arc_offset, false, 0); // Draw a counter-clockwise arc
+          plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
           destination = current_position;
         }
 
@@ -797,19 +797,19 @@ void GcodeSuite::G26() {
       #else // !ARC_SUPPORT
 
         int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
-        if (st.x == 0) {                    // Left edge? Just right half
+        if (st.x == 0) {                    // Left edge? Just right half.
           start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
           end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
         }
-        else if (r) {                       // Right edge? Just left half
+        else if (r) {                       // Right edge? Just left half.
           start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
           end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
         }
-        else if (f) {                       // Front edge? Just back half
+        else if (f) {                       // Front edge? Just back half.
           start_ind = 0;                    //  03:00
           end_ind = 5;                      //  09:00
         }
-        else if (b) {                       // Back edge? Just front half
+        else if (b) {                       // Back edge? Just front half.
           start_ind = 6;                    //  09:00
           end_ind = 11;                     //  03:00
         }
@@ -822,7 +822,7 @@ void GcodeSuite::G26() {
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26.layer_height };
 
           #if IS_KINEMATIC
-            // Check to make sure this segment is entirely on the bed, skip if not
+            // Check to make sure this segment is entirely on the bed, skip if not.
             if (!position_is_reachable(p) || !position_is_reachable(q)) continue;
           #elif HAS_ENDSTOPS
             LIMIT(p.x, X_MIN_POS + 1, X_MAX_POS - 1); // Prevent hitting the endstops
@@ -832,7 +832,7 @@ void GcodeSuite::G26() {
           #endif
 
           g26.print_line_from_here_to_there(p, q);
-          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+          SERIAL_FLUSH();   // Prevent host M105 buffer overrun.
         }
 
       #endif // !ARC_SUPPORT
@@ -846,7 +846,7 @@ void GcodeSuite::G26() {
       if (TERN0(HAS_MARLINUI_MENU, user_canceled())) goto LEAVE;
     }
 
-    SERIAL_FLUSH(); // Prevent host M105 buffer overrun
+    SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
   } while (--g26_repeats && location.valid());
 
@@ -856,7 +856,7 @@ void GcodeSuite::G26() {
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
-  move_to(destination, 0); // Raise the nozzle
+  move_to(destination, 0);                                   // Raise the nozzle
 
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = volumetric_was_enabled;

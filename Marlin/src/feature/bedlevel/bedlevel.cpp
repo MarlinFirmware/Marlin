@@ -51,7 +51,7 @@ bool leveling_is_valid() {
 }
 
 /**
- * Turn bed leveling on or off, correcting the current position
+ * Turn bed leveling on or off, correcting the current position.
  *
  * Disable: Current position = physical position
  *  Enable: Current position = "unleveled" physical position
@@ -76,9 +76,9 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.synchronize();
 
     // Get the corrected leveled / unleveled position
-    planner.apply_modifiers(current_position, true);   // Physical position with all modifiers
-    planner.leveling_active ^= true;                   // Toggle leveling between apply and unapply
-    planner.unapply_modifiers(current_position, true); // Logical position with modifiers removed
+    planner.apply_modifiers(current_position, true);    // Physical position with all modifiers
+    planner.leveling_active ^= true;                    // Toggle leveling between apply and unapply
+    planner.unapply_modifiers(current_position, true);  // Logical position with modifiers removed
 
     sync_plan_position();
     _report_leveling();
@@ -111,7 +111,7 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 #endif // ENABLE_LEVELING_FADE_HEIGHT
 
 /**
- * Reset calibration results to zero
+ * Reset calibration results to zero.
  */
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
@@ -126,14 +126,14 @@ void reset_bed_level() {
    * Enable to produce output in JSON format suitable
    * for SCAD or JavaScript mesh visualizers.
    *
-   * Visualize meshes in OpenSCAD using the included script
+   * Visualize meshes in OpenSCAD using the included script.
    *
    *   buildroot/shared/scripts/MarlinMesh.scad
    */
   //#define SCAD_MESH_OUTPUT
 
   /**
-   * Print calibration results for plotting or manual frame adjustment
+   * Print calibration results for plotting or manual frame adjustment.
    */
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values) {
     #ifndef SCAD_MESH_OUTPUT
@@ -144,11 +144,11 @@ void reset_bed_level() {
       SERIAL_EOL();
     #endif
     #ifdef SCAD_MESH_OUTPUT
-      SERIAL_ECHOLNPGM("measured_z = ["); // Open 2D array
+      SERIAL_ECHOLNPGM("measured_z = ["); // open 2D array
     #endif
     for (uint8_t y = 0; y < sy; ++y) {
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_ECHOPGM(" [");             // Open sub-array
+        SERIAL_ECHOPGM(" [");             // open sub-array
       #else
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(y);
@@ -175,13 +175,13 @@ void reset_bed_level() {
         #endif
       }
       #ifdef SCAD_MESH_OUTPUT
-        SERIAL_ECHOPGM(" ]"); // Close sub-array
+        SERIAL_ECHOPGM(" ]");            // close sub-array
         if (y < sy - 1) SERIAL_CHAR(',');
       #endif
       SERIAL_EOL();
     }
     #ifdef SCAD_MESH_OUTPUT
-      SERIAL_ECHOPGM("];");    // Close 2D array
+      SERIAL_ECHOPGM("];");               // close 2D array
     #endif
     SERIAL_EOL();
   }
@@ -198,16 +198,16 @@ void reset_bed_level() {
     #else
       #warning "It's recommended to set some MANUAL_PROBE_START_Z value for manual leveling."
     #endif
-    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0    // A probe/obstacle clearance exists so there is a raise:
+    #if Z_CLEARANCE_BETWEEN_MANUAL_PROBES > 0     // A probe/obstacle clearance exists so there is a raise:
       #ifndef MANUAL_PROBE_START_Z
-        const float finalz = current_position.z; // - Use the current Z for starting-Z if no MANUAL_PROBE_START_Z was provided
+        const float finalz = current_position.z;  // - Use the current Z for starting-Z if no MANUAL_PROBE_START_Z was provided
       #endif
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_MANUAL_PROBES); // - Raise Z, then move to the new XY
-      do_blocking_move_to_z(finalz);         // - Lower down to the starting Z height, ready for adjustment!
-    #elif defined(MANUAL_PROBE_START_Z)      // A starting-Z was provided, but there's no raise:
-      do_blocking_move_to_xy_z(pos, finalz); // - Move in XY then down to the starting Z height, ready for adjustment!
-    #else                                    // Zero raise and no starting Z height either:
-      do_blocking_move_to_xy(pos);           // - Move over with no raise, ready for adjustment!
+      do_blocking_move_to_z(finalz);              // - Lower down to the starting Z height, ready for adjustment!
+    #elif defined(MANUAL_PROBE_START_Z)           // A starting-Z was provided, but there's no raise:
+      do_blocking_move_to_xy_z(pos, finalz);      // - Move in XY then down to the starting Z height, ready for adjustment!
+    #else                                         // Zero raise and no starting Z height either:
+      do_blocking_move_to_xy(pos);                // - Move over with no raise, ready for adjustment!
     #endif
 
     TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);

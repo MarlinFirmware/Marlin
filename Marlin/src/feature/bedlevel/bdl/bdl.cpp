@@ -80,7 +80,7 @@ void BDS_Leveling::init(uint8_t _sda, uint8_t _scl, uint16_t delay_s) {
 bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, const bool hicheck/*=false*/) {
   if (BD_I2C_SENSOR.BD_Check_OddEven(data) == 0) {
     SERIAL_ECHOLNPGM("Read Error.");
-    return true; // Error
+    return true; // error
   }
   if (raw_data == true) {
     if (hicheck && (data & 0x3FF) > 400)
@@ -96,7 +96,7 @@ bool BDS_Leveling::check(const uint16_t data, const bool raw_data/*=false*/, con
     else
       return false;
   }
-  return true; // Error
+  return true; // error
 }
 
 float BDS_Leveling::interpret(const uint16_t data) {
@@ -196,7 +196,7 @@ void BDS_Leveling::process() {
       safe_delay(50);
       config_state = BDS_IDLE;
     }
-    else if (config_state <= BDS_CALIBRATE_START) { // Start Calibrate
+    else if (config_state <= BDS_CALIBRATE_START) {   // Start Calibrate
       safe_delay(10);
       if (config_state == BDS_CALIBRATE_START) {
         config_state = BDS_CALIBRATING;
@@ -204,7 +204,7 @@ void BDS_Leveling::process() {
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
         // Move the z axis instead of enabling the Z axis with M17
-        // TODO: Use do_blocking_move_to_z for synchronized move
+        // TODO: Use do_blocking_move_to_z for synchronized move.
         current_position.z = 0;
         sync_plan_position();
         gcode.process_subcommands_now(F("G1Z0.05"));

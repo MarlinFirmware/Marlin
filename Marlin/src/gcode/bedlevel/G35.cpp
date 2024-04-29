@@ -37,7 +37,7 @@
 #include "../../core/debug_out.h"
 
 //
-// Define tramming point names
+// Define tramming point names.
 //
 
 #include "../../feature/tramming.h"
@@ -153,7 +153,7 @@ void GcodeSuite::G35() {
   #endif
 
   // Stow the probe, as the last call to probe.probe_at_point(...) left
-  // the probe deployed if it was successful
+  // the probe deployed if it was successful.
   probe.stow();
 
   move_to_tramming_wait_pos();

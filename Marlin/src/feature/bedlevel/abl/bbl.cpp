@@ -106,9 +106,6 @@ void LevelingBilinear::reset() {
   }
 }
 
-/**
- * Set grid spacing and start position
- */
 void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _grid_start) {
   grid_spacing = _grid_spacing;
   grid_start = _grid_start;
@@ -117,22 +114,22 @@ void LevelingBilinear::set_grid(const xy_pos_t& _grid_spacing, const xy_pos_t& _
 
 /**
  * Fill in the unprobed points (corners of circular print surface)
- * using linear extrapolation, away from the center
+ * using linear extrapolation, away from the center.
  */
 void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
     constexpr uint8_t ctrx2 = 0, xend = GRID_MAX_POINTS_X - 1;
   #else
-    constexpr uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2,  // left-of-center
-                      ctrx2 = (GRID_MAX_POINTS_X) / 2, // right-of-center
+    constexpr uint8_t ctrx1 = (GRID_MAX_CELLS_X) / 2, // left-of-center
+                      ctrx2 = (GRID_MAX_POINTS_X) / 2,  // right-of-center
                       xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
     constexpr uint8_t ctry2 = 0, yend = GRID_MAX_POINTS_Y - 1;
   #else
-    constexpr uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2,  // top-of-center
-                      ctry2 = (GRID_MAX_POINTS_Y) / 2, // bottom-of-center
+    constexpr uint8_t ctry1 = (GRID_MAX_CELLS_Y) / 2, // top-of-center
+                      ctry2 = (GRID_MAX_POINTS_Y) / 2,  // bottom-of-center
                       yend = ctry1;
   #endif
 
@@ -145,21 +142,19 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
       #ifndef HALF_IN_Y
         const uint8_t y1 = ctry1 - yo;
         #ifndef HALF_IN_X
-          extrapolate_one_point(x1, y1, +1, +1); //  left-below + +
+          extrapolate_one_point(x1, y1, +1, +1);   //  left-below + +
         #endif
-        extrapolate_one_point(x2, y1, -1, +1);   // right-below - +
+        extrapolate_one_point(x2, y1, -1, +1);     // right-below - +
       #endif
       #ifndef HALF_IN_X
-        extrapolate_one_point(x1, y2, +1, -1);   //  left-above + -
+        extrapolate_one_point(x1, y2, +1, -1);     //  left-above + -
       #endif
-      extrapolate_one_point(x2, y2, -1, -1);     // right-above - -
+      extrapolate_one_point(x2, y2, -1, -1);       // right-above - -
     }
 }
 
-/**
- * Print internal grid(s) or just the one passed as a parameter
- */
 void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr*/) {
+  // print internal grid(s) or just the one passed as a parameter
   SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
   print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 3, _z_values ? *_z_values[0] : z_values[0]);
 
@@ -183,13 +178,11 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   float LevelingBilinear::virt_coord(const uint8_t x, const uint8_t y) {
     uint8_t ep = 0, ip = 1;
     if (x > (GRID_MAX_POINTS_X) + 1 || y > (GRID_MAX_POINTS_Y) + 1) {
-      /**
-       * The requested point requires extrapolating two points beyond the mesh
-       * These values are only requested for the edges of the mesh, which are always an actual mesh point,
-       * and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
-       * cancelled out in virt_cmr and does not impact the result. Return 0.0 rather than
-       * making this function more complex by extrapolating two points
-       */
+      // The requested point requires extrapolating two points beyond the mesh.
+      // These values are only requested for the edges of the mesh, which are always an actual mesh point,
+      // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
+      // cancelled out in virt_cmr and does not impact the result. Return 0.0 rather than
+      // making this function more complex by extrapolating two points.
       return 0.0;
     }
     if (!x || x == ABL_TEMP_POINTS_X - 1) {
@@ -263,9 +256,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
 
 #endif // ABL_BILINEAR_SUBDIVISION
 
-/**
- * Refresh after other values have been updated
- */
+// Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {
   TERN_(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
   cached_rel.x = cached_rel.y = -999.999;
@@ -286,32 +277,30 @@ void LevelingBilinear::refresh_bed_level() {
   #define ABL_BG_GRID(X,Y)  z_values[X][Y]
 #endif
 
-/**
- * Get the Z adjustment for non-linear bed leveling
- */
+// Get the Z adjustment for non-linear bed leveling
 float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
 
   static float z1, d2, z3, d4, L, D;
 
   static xy_pos_t ratio;
 
-  // Whole units for the grid line indices. Constrained within bounds
+  // Whole units for the grid line indices. Constrained within bounds.
   static xy_int8_t thisg, nextg;
 
   // XY relative to the probed area
   xy_pos_t rel = raw - grid_start.asFloat();
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
-    #define FAR_EDGE_OR_BOX 2 // Keep using the last grid box
+    #define FAR_EDGE_OR_BOX 2   // Keep using the last grid box
   #else
-    #define FAR_EDGE_OR_BOX 1 // Just use the grid far edge
+    #define FAR_EDGE_OR_BOX 1   // Just use the grid far edge
   #endif
 
   if (cached_rel.x != rel.x) {
     cached_rel.x = rel.x;
     ratio.x = rel.x * ABL_BG_FACTOR(x);
     const float gx = constrain(FLOOR(ratio.x), 0, ABL_BG_POINTS_X - (FAR_EDGE_OR_BOX));
-    ratio.x -= gx; // Subtract whole to get the ratio within the grid box
+    ratio.x -= gx;      // Subtract whole to get the ratio within the grid box
 
     #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
       // Beyond the grid maintain height at grid edges
@@ -342,20 +331,20 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     if (cached_g != thisg) {
       cached_g = thisg;
       // Z at the box corners
-      z1 = ABL_BG_GRID(thisg.x, thisg.y);      // left-front
-      d2 = ABL_BG_GRID(thisg.x, nextg.y) - z1; // left-back (delta)
-      z3 = ABL_BG_GRID(nextg.x, thisg.y);      // right-front
-      d4 = ABL_BG_GRID(nextg.x, nextg.y) - z3; // right-back (delta)
+      z1 = ABL_BG_GRID(thisg.x, thisg.y);       // left-front
+      d2 = ABL_BG_GRID(thisg.x, nextg.y) - z1;  // left-back (delta)
+      z3 = ABL_BG_GRID(nextg.x, thisg.y);       // right-front
+      d4 = ABL_BG_GRID(nextg.x, nextg.y) - z3;  // right-back (delta)
     }
 
-    // Bilinear interpolate. Needed since rel.y or thisg.x has changed
-                L = z1 + d2 * ratio.y; // Linear interp. LF -> LB
-    const float R = z3 + d4 * ratio.y; // Linear interp. RF -> RB
+    // Bilinear interpolate. Needed since rel.y or thisg.x has changed.
+                L = z1 + d2 * ratio.y;   // Linear interp. LF -> LB
+    const float R = z3 + d4 * ratio.y;   // Linear interp. RF -> RB
 
     D = R - L;
   }
 
-  const float offset = L + ratio.x * D; // The offset almost always changes
+  const float offset = L + ratio.x * D;   // the offset almost always changes
 
   /*
   static float last_offset = 0;
@@ -377,8 +366,8 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
   #define CELL_INDEX(A,V) ((V - grid_start.A) * ABL_BG_FACTOR(A))
 
   /**
-   * Prepare a bilinear-leveled linear move on Cartesian
-   * splitting the move where it crosses grid borders
+   * Prepare a bilinear-leveled linear move on Cartesian,
+   * splitting the move where it crosses grid borders.
    */
   void LevelingBilinear::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
@@ -389,7 +378,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     LIMIT(c2.x, 0, ABL_BG_POINTS_X - 2);
     LIMIT(c2.y, 0, ABL_BG_POINTS_Y - 2);
 
-    // Start and end in the same cell? No split needed
+    // Start and end in the same cell? No split needed.
     if (c1 == c2) {
       current_position = destination;
       line_to_current_position(scaled_fr_mm_s);
@@ -403,7 +392,7 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
     const xy_int8_t gc { _MAX(c1.x, c2.x), _MAX(c1.y, c2.y) };
 
     // Crosses on the X and not already split on this X?
-    // The x_splits flags are insurance against rounding errors
+    // The x_splits flags are insurance against rounding errors.
     if (c2.x != c1.x && TEST(x_splits, gc.x)) {
       // Split on the X grid line
       CBI(x_splits, gc.x);

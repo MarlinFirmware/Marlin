@@ -160,7 +160,7 @@ void GcodeSuite::M420() {
             GRID_LOOP(x, y) mesh_sum += bedlevel.z_values[x][y];
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
 
-          #else // Midrange
+          #else // midrange
 
             // Find the low and high mesh values.
             float lo_val = 100, hi_val = -100;
@@ -169,7 +169,7 @@ void GcodeSuite::M420() {
               NOMORE(lo_val, z);
               NOLESS(hi_val, z);
             }
-            // Get the midrange plus C value. (The median may be better)
+            // Get the midrange plus C value. (The median may be better.)
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
 
           #endif

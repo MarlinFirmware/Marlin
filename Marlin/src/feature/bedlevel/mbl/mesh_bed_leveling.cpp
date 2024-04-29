@@ -59,7 +59,7 @@
 
     /**
      * Prepare a mesh-leveled linear move in a Cartesian setup,
-     * splitting the move where it crosses mesh borders
+     * splitting the move where it crosses mesh borders.
      */
     void mesh_bed_leveling::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
@@ -69,7 +69,7 @@
       NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
       NOMORE(ecel.y, GRID_MAX_CELLS_Y - 1);
 
-      // Start and end in the same cell? No split needed
+      // Start and end in the same cell? No split needed.
       if (scel == ecel) {
         current_position = destination;
         line_to_current_position(scaled_fr_mm_s);
@@ -83,7 +83,7 @@
       const uint8_t gcx = _MAX(scel.x, ecel.x), gcy = _MAX(scel.y, ecel.y);
 
       // Crosses on the X and not already split on this X?
-      // The x_splits flags are insurance against rounding errors
+      // The x_splits flags are insurance against rounding errors.
       if (ecel.x != scel.x && TEST(x_splits, gcx)) {
         // Split on the X grid line
         CBI(x_splits, gcx);
@@ -103,7 +103,7 @@
       }
       else {
         // Must already have been split on these border(s)
-        // This should be a rare case
+        // This should be a rare case.
         current_position = destination;
         line_to_current_position(scaled_fr_mm_s);
         return;

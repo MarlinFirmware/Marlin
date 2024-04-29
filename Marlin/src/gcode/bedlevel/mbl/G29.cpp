@@ -118,7 +118,7 @@ void GcodeSuite::G29() {
         if (parser.seen_test('N'))
           queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
-        // Position bed horizontally and Z probe vertically
+        // Position bed horizontally and Z probe vertically.
         #if HAS_SAFE_BED_LEVELING
           xyze_pos_t safe_position = current_position;
           #ifdef SAFE_BED_LEVELING_START_X
@@ -182,7 +182,7 @@ void GcodeSuite::G29() {
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
-      // If there's another point to sample, move there with optional lift
+      // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
