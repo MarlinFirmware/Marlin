@@ -24,6 +24,7 @@
 /**
  * MKS GEN L – Arduino Mega2560 with RAMPS v1.4 pin assignments
  * Schematic: https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V1.0_008/MKS%20Gen_L%20V1.0_008%20SCH.pdf
+ * Pin Diagram: https://github.com/makerbase-mks/MKS-GEN_L/blob/master/hardware/MKS%20Gen_L%20V1.0_008/MKS%20Gen_L%20V1.0_008%20PIN.pdf
  * Note: Schematic contains pin & connector errors
  * ATmega2560
  */
