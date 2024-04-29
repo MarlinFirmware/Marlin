@@ -47,6 +47,7 @@
   #define FAN1_PIN                             7  // HE1
 #endif
 
+// The following is included for documentation purposes only. Is is actually defined in pins_RAMPS.h.
 //#define FAN0_PIN                             9  // FAN / "MOSFET_B_PIN"
 
 //
