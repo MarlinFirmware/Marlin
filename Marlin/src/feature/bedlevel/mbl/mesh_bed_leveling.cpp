@@ -42,8 +42,8 @@
   mesh_bed_leveling::mesh_bed_leveling() {
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; ++j)
-      index_to_ypos[j] = MESH_MIN_Y + j * (MESH_Y_DIST);
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
+      index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
 
