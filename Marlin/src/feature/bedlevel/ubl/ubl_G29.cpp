@@ -106,14 +106,14 @@
  *                         specified height, no correction is applied and natural printer kenimatics take over. If no
  *                         number is specified for the command, 10mm is assumed to be reasonable
  *
- * @param  H  :  Height    - 'P2 H' specifies the Height to raise the nozzle after each manual probe of the bed
+ * @param  H  : Height     - 'P2 H' specifies the Height to raise the nozzle after each manual probe of the bed
  *                         If omitted, the nozzle will raise by Z_CLEARANCE_BETWEEN_PROBES
  *
- * @param  H  :  Offset    - 'P4 H' specifies the Offset above the mesh height to place the nozzle
+ * @param  H  : Offset     - 'P4 H' specifies the Offset above the mesh height to place the nozzle
  *                         If omitted, Z_TWEEN_SAFE_CLEARANCE will be used
  *
  *
- * @param  I  :  Invalidate Invalidate the specified number of Mesh Points near the given 'X' 'Y'. If X or Y are omitted,
+ * @param  I  : Invalidate Invalidate the specified number of Mesh Points near the given 'X' 'Y'. If X or Y are omitted,
  *                         the nozzle location is used. If no 'I' value is given, only the point nearest to the location
  *                         is invalidated. Use 'T' to produce a map afterward. This command is useful to invalidate a
  *                         portion of the Mesh so it can be adjusted using other UBL tools. When attempting to invalidate
@@ -121,12 +121,13 @@
  *                         can move the nozzle around and use this feature to select the center of the area (or cell) to
  *                         invalidate
  *
- * @param  J  :  Grid      Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side
+ * @param  J  : Grid       Perform a Grid Based (or 3-Point) Leveling to calculate a plane and adjust the existing mesh
+ *                         to the bed tilt using a grid with (n^2) points. Value must be within (2-9)
  *                         Not specifying a grid size will invoke the 3-Point leveling function
  *
- * @param  L  :  Load      - Load Mesh from the previously activated location in the EEPROM
+ * @param  L  : Load       - Load Mesh from the previously activated location in the EEPROM
  *
- * @param  L# :  Load      - Load Mesh from the specified location in the EEPROM. Set this location as activated
+ * @param  L# : Load       - Load Mesh from the specified location in the EEPROM. Set this location as activated
  *                         for subsequent Load and Store operations
  *
  *
@@ -197,7 +198,7 @@
  *                           and (usually) safe way to populate unprobed mesh regions before continuing to (G26) Mesh Validation
  *                           Pattern
  *
- *                           NOTE: This populates the mesh with unverified values. Pay attention and use caution
+ *                         NOTE: This populates the mesh with unverified values. Pay attention and use caution
  *
  * @param  P4 : Phase 4    Fine tune the Mesh. The Delta Mesh Compensation System assumes the existence of
  *                         an LCD Panel. It is possible to fine tune the mesh without an LCD Panel using
@@ -247,14 +248,14 @@
  * @param  S  : Store      - Store the current Mesh in the Activated area of the EEPROM. It will also store the
  *                         current state of the Unified Bed Leveling system in the EEPROM
  *
- * @param  S  : Store      - Store the current Mesh at the specified location in EEPROM. Activate this location
+ * @param  S# : Store      - Store the current Mesh at the specified location in EEPROM. Activate this location
  *                         for subsequent Load and Store operations. Valid storage slot numbers begin at 0 and
  *                         extend to a limit related to the available EEPROM storage
  *
  * @param  S-1: Store      - Print the current Mesh as G-code that can be used to restore the mesh anytime
  *
  *
- * @param  T  : Topology   Display the Mesh Map Topology.
+ * @param  T  : Topology   Display the Mesh Map Topology
  *                         'T' can be used alone (e.g., 'G29 T') or in combination with most of the other commands
  *                         This option works with all Phase commands (e.g., 'G29 P4 R 5 T X 50 Y100 C -.1 O')
  *                         This parameter can also specify a Map Type. 'T0' (the default) is user-readable
@@ -266,9 +267,9 @@
  *
  * @param  V  : Verbosity  Set the verbosity level (0-4) for extra details. (Default 0)
  *
- * @param  X  : X Location for this command
+ * @param  X  : X Location
  *
- * @param  Y  : Y Location for this command
+ * @param  Y  : Y Location
  *
  * With UBL_DEVEL_DEBUGGING:
  * @param  K  : Kompare    Kompare current Mesh with stored Mesh #, replacing current Mesh with the result.
