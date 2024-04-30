@@ -1312,7 +1312,7 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
       if (fan_speed[f] > FAN_OFF_PWM) {
         if (fan_kick_end[f] == 0) {
-          fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
+          fan_kick_end[f] = ms + FAN_KICKSTART_TIME TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] / 255.0));
           fan_speed[f] = FAN_KICKSTART_POWER;
         }
         else if (PENDING(ms, fan_kick_end[f]))
