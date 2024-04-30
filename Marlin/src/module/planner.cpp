@@ -1310,16 +1310,23 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
 
     void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
+      static uint8_t  set_fan_speed[FAN_COUNT] = { 0 };
       if (fan_speed[f] > FAN_OFF_PWM) {
-        if (fan_kick_end[f] == 0) {
-          fan_kick_end[f] = ms + FAN_KICKSTART_TIME TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] / 255.0));
-          fan_speed[f] = FAN_KICKSTART_POWER;
+        if (fan_kick_end[f] == 0 && fan_speed[f] > set_fan_speed[f]) {
+          fan_kick_end[f] = ms + FAN_KICKSTART_TIME TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] - set_fan_speed[f]) / 255);
+          fan_speed[f] = TERN(FAN_KICKSTART_LINEAR, 255, FAN_KICKSTART_POWER);
         }
         else if (PENDING(ms, fan_kick_end[f]))
-          fan_speed[f] = FAN_KICKSTART_POWER;
+          fan_speed[f] = TERN(FAN_KICKSTART_LINEAR, 255, FAN_KICKSTART_POWER);
+             else {
+          fan_kick_end[f] = 0;
+          set_fan_speed[f] = fan_speed[f];
+             }
       }
-      else
+      else {
         fan_kick_end[f] = 0;
+        set_fan_speed[f] = fan_speed[f];
+      }
     }
 
   #endif
