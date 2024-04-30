@@ -219,7 +219,7 @@ void GcodeSuite::get_destination_from_command() {
     if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS || cutter.cutter_mode == CUTTER_MODE_DYNAMIC) {
       // Set the cutter power in the planner to configure this move
       cutter.last_feedrate_mm_m = 0;
-      if (WITHIN(parser.codenum, 1, TERN(ARC_SUPPORT, 3, 1)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
+      if (WITHIN(parser.codenum, 1, TERN1(ARC_SUPPORT, 3)) || TERN0(BEZIER_CURVE_SUPPORT, parser.codenum == 5)) {
         planner.laser_inline.status.isPowered = true;
         if (parser.seen('I')) cutter.set_enabled(true);       // This is set for backward LightBurn compatibility.
         if (parser.seenval('S')) {

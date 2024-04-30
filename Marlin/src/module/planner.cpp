@@ -1458,7 +1458,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::autotemp_update() {
     _autotemp_update_from_hotend();
-    autotemp.factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
     autotemp.enabled = autotemp.factor != 0;
   }
 
@@ -1474,7 +1474,7 @@ void Planner::check_axes_activity() {
 
     // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
     // Normally, leaving off F also disables autotemp.
-    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
     autotemp.enabled = autotemp.factor != 0;
   }
 
@@ -2390,13 +2390,13 @@ bool Planner::_populate_block(
 
     const feedRate_t cs = ABS(current_speed.e),
                  max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                          * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+                          * TERN1(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS);
 
     if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
       const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
-                                 * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+                                 * TERN1(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS);
 
       // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
 

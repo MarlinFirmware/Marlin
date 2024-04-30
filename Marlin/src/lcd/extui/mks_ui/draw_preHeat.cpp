@@ -125,7 +125,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           }
         }
         else if (uiCfg.extruderIndex == 0) {
-          uiCfg.curTempType = TERN(HAS_HEATED_BED, 1, 0);
+          uiCfg.curTempType = TERN0(HAS_HEATED_BED, 1);
         }
       }
       else if (uiCfg.curTempType == 1) {

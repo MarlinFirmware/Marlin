@@ -270,7 +270,7 @@ void DWINUI::drawFillCircle(uint16_t bcolor, uint16_t x, uint16_t y, uint8_t r) 
     uint16_t a = SQRT(sq(r) - sq(b));
     dwinDrawLine(bcolor, x - a, y + b, x + a, y + b);
     dwinDrawLine(bcolor, x - a, y - b, x + a, y - b);
-    b += TERN(TJC_DISPLAY, 2, 1);
+    b += TERN1(TJC_DISPLAY, 2);
   }
 }
 
