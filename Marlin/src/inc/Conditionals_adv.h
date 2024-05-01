@@ -954,6 +954,12 @@
   #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  #ifndef INVERT_X2_DIR
+    #define INVERT_X2_DIR INVERT_X_DIR
+  #endif
+#endif
+
 // X2 but not IDEX => Dual Synchronized X Steppers
 #if defined(X2_DRIVER_TYPE) && DISABLED(DUAL_X_CARRIAGE)
   #define HAS_SYNCED_X_STEPPERS 1

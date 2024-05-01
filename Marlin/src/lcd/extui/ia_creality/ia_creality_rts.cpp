@@ -793,7 +793,7 @@ void RTS::handleData() {
           tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
         else
           tmp_zprobe_offset = float(recdat.data[0]) / 100;
-        if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+        if (WITHIN(tmp_zprobe_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
           int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
           if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
           smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
