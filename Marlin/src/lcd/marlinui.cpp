@@ -1563,12 +1563,12 @@ void MarlinUI::host_notify(const char * const cstr) {
    *
    * @param pfmt    A constant format P-string
    */
-  void MarlinUI::status_printf_P(int8_t level, PGM_P const fmt, ...) {
+  void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
     if (set_alert_level(level)) return;
 
     va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
+    va_start(args, pfmt);
+    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, pfmt, args);
     va_end(args);
 
     host_notify(status_message);
@@ -1642,12 +1642,12 @@ void MarlinUI::host_notify(const char * const cstr) {
   void MarlinUI::_set_status_and_level(const char * const ustr, const int8_t=0, const bool pgm) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
-  void MarlinUI::status_printf_P(int8_t level, PGM_P const fmt, ...) {
+  void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
     MString<30> msg;
 
     va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(&msg, 30, fmt, args);
+    va_start(args, pfmt);
+    vsnprintf_P(&msg, 30, pfmt, args);
     va_end(args);
 
     host_notify(msg);
