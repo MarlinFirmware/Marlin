@@ -228,7 +228,7 @@ static void _lcd_goto_next_corner() {
   }
 
   bool _lcd_bed_tramming_probe(const bool verify=false) {
-    if (verify) line_to_z(current_position.z + BED_TRAMMING_Z_HOP); // do clearance if needed (add clearance (BED_TRAMMING_Z_HOP) to current z height (current_position.z) to prevent probe trigger loop)
+    if (verify) line_to_z(current_position.z + (BED_TRAMMING_Z_HOP)); // do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
@@ -246,7 +246,7 @@ static void _lcd_goto_next_corner() {
 
       // Raise the probe after the last point to give clearance for stow
       if (TERN0(NEEDS_PROBE_DEPLOY, good_points == nr_edge_points - 1))
-        line_to_z(BED_TRAMMING_Z_HOP);
+        do_z_clearance(BED_TRAMMING_Z_HOP);
 
       return true; // probe triggered
     }
