@@ -474,20 +474,20 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
       y = DGUS_LEVEL_CENTER_Y;
       break;
     case 2:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 3:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 4:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MAX_BED - lfrb[3];
       break;
     case 5:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MAX_BED - lfrb[3];
       break;
   }
 
