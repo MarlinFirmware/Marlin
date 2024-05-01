@@ -36,13 +36,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#ifndef BED_TRAMMING_Z_HOP
-  #define BED_TRAMMING_Z_HOP 4.0
-#endif
-#ifndef BED_TRAMMING_HEIGHT
-  #define BED_TRAMMING_HEIGHT 0.0
-#endif
-
 #if ALL(HAS_STOWABLE_PROBE, BED_TRAMMING_USE_PROBE) && DISABLED(BLTOUCH)
   #define NEEDS_PROBE_DEPLOY 1
 #endif
@@ -151,7 +144,7 @@ static void _lcd_goto_next_corner() {
     }
   }
 
-  float z = BED_TRAMMING_Z_HOP;
+  float z = current_position.z + (BED_TRAMMING_Z_HOP);
   #if ALL(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif
