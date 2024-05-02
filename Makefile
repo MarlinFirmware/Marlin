@@ -59,6 +59,10 @@ tests-all-local:
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
 	  && for TEST_TARGET in $$(python $(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	    if [ "$$TEST_TARGET" = "linux_native" ] && [ "$$(uname)" = "Darwin" ]; then \
+	      echo "Skipping tests for $$TEST_TARGET on macOS" ; \
+	      continue ; \
+	    fi ; \
 	    echo "Running tests for $$TEST_TARGET" ; \
 	    run_tests . $$TEST_TARGET || exit 1 ; \
 	    sleep 5; \
