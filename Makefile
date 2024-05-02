@@ -56,12 +56,12 @@ tests-single-local-docker:
 
 tests-all-local:
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
-		&& export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-		&& for TEST_TARGET in $$($(SCRIPTS_DIR)/get_test_targets.py) ; do \
-					echo "Running tests for $$TEST_TARGET" ; \
-					run_tests . $$TEST_TARGET || exit 1 ; \
-					sleep 5; \
-				done
+	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
+	  && for TEST_TARGET in $$($(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	    echo "Running tests for $$TEST_TARGET" ; \
+	    run_tests . $$TEST_TARGET || exit 1 ; \
+	    sleep 5; \
+	  done
 
 tests-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
