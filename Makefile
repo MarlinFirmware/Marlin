@@ -60,6 +60,7 @@ tests-all-local:
 			&& for TEST_TARGET in $$($(SCRIPTS_DIR)/get_test_targets.py) ; do \
 					 echo "Running tests for $$TEST_TARGET" ; \
 					 run_tests . $$TEST_TARGET || exit 1 ; \
+					 sleep 5; \
 				 done
 
 tests-all-local-docker:
