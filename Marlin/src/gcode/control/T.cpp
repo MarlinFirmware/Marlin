@@ -73,6 +73,12 @@ void GcodeSuite::T(const int8_t tool_index) {
     }
   #endif
 
+  #if HAS_RPGFABI_MFU
+    if(parser.string_arg){
+      mfu.tool_change(parser.string_arg);
+    }
+  #endif
+
   tool_change(tool_index
     #if HAS_MULTI_EXTRUDER
       , parser.boolval('S')

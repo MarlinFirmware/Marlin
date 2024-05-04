@@ -136,6 +136,10 @@ typedef Servo hal_servo_t;
   #define MMU2_SERIAL mmuSerial
 #endif
 
+#ifdef MFU_SERIAL_PORT
+  #define MFU_SERIAL mfuSerial
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if !WITHIN(LCD_SERIAL_PORT, 0, 3)
     #error "LCD_SERIAL_PORT must be from 0 to 3."

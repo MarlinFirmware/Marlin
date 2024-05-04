@@ -4361,6 +4361,26 @@
 // @section multi-material
 
 /**
+ * RPGFabis Multi Filament Unit (MFU)
+ * Enable in Configuration.h
+ * 
+ * This device allows an single Extruder Stepper to be automatically served by multiple different Filaments.
+*/
+#if HAS_RPGFABI_MFU
+  #define MFU_SERIAL_PORT 2
+  #define MFU_TOOLCOUNT 13
+
+  // Distance the Extruder needs to retract to unload the Filament out of the Extrudergears
+  #define MFU_UNLOAD_GEARS_MM 15  
+  #define MFU_UNLOAD_FEEDRATE 120
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    // Your Filament Sensor can be used to detect if Filament is currently loaded. Activate for better StartupBehaviour  
+    #define MFU_USE_FILAMENTSENSOR 
+  #endif
+#endif
+
+/**
  * Průša Multi-Material Unit (MMU)
  * Enable in Configuration.h
  *

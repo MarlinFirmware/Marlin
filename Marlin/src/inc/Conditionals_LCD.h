@@ -91,6 +91,7 @@
   #define _PRUSA_MMU2S            3
   #define _EXTENDABLE_EMU_MMU2   12
   #define _EXTENDABLE_EMU_MMU2S  13
+  #define _RPGFABI_MFU           21
   #define _MMU CAT(_,MMU_MODEL)
 
   #if _MMU == _PRUSA_MMU1
@@ -104,6 +105,9 @@
   #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
   #endif
+  #if _MMU == _RPGFABI_MFU
+    #define HAS_MFU 1
+  #endif
 
   #undef _MMU
   #undef _PRUSA_MMU1
@@ -111,6 +115,7 @@
   #undef _PRUSA_MMU2S
   #undef _EXTENDABLE_EMU_MMU2
   #undef _EXTENDABLE_EMU_MMU2S
+  #undef _RPGFABI_MFU
 #endif
 
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0

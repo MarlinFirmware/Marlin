@@ -121,7 +121,7 @@
 #ifdef MMU2_SERIAL_PORT
   #if MMU2_SERIAL_PORT == -1
     #define MMU2_SERIAL UsbSerial
-  #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
+  #elif WITHIN(MMU2_SREIAL_PORT, 1, NUM_UARTS)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #else
     #define MMU2_SERIAL MSERIAL(1) // dummy port

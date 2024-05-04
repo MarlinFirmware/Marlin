@@ -616,6 +616,21 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
 
 #endif // MMU2_SERIAL_PORT
 
+#ifdef MFU_SERIAL_PORT
+
+  ISR(SERIAL_REGNAME(USART, MFU_SERIAL_PORT, _RX_vect)) {
+    MarlinSerial<MFUSerialCfg<MFU_SERIAL_PORT>>::store_rxd_char();
+  }
+
+  ISR(SERIAL_REGNAME(USART, MFU_SERIAL_PORT, _UDRE_vect)) {
+    MarlinSerial<MFUSerialCfg<MFU_SERIAL_PORT>>::_tx_udr_empty_irq();
+  }
+
+  template class MarlinSerial< MFUSerialCfg<MFU_SERIAL_PORT> >;
+  MSerialFU mmuSerial(MSerialFU::HasEmergencyParser);
+
+#endif // MFU_SERIAL_PORT
+
 #ifdef LCD_SERIAL_PORT
 
   ISR(SERIAL_REGNAME(USART, LCD_SERIAL_PORT, _RX_vect)) {

@@ -103,6 +103,8 @@ void GcodeSuite::M701() {
   // Load filament
   #if HAS_PRUSA_MMU2
     mmu2.load_to_nozzle(target_extruder);
+  #elif HAS_RPGFABI_MFU
+    mfu.tool_change(target_extruder);
   #else
     constexpr float     purge_length = ADVANCED_PAUSE_PURGE_LENGTH,
                     slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
@@ -198,6 +200,8 @@ void GcodeSuite::M702() {
   // Unload filament
   #if HAS_PRUSA_MMU2
     mmu2.unload();
+  #elif HAS_RPGFABI_MFU
+    mfu.unload();
   #else
     #if ALL(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {

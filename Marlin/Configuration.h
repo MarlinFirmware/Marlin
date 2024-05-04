@@ -377,10 +377,11 @@
  *   PRUSA_MMU2S          : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
  *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   RPGFABI_MFU          : Multifilament Unity by RPGFabi for DIY
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * See additional options in Configuration_adv.h.
- * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+ * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S", "RPGFABI_MFU"]
  */
 //#define MMU_MODEL PRUSA_MMU2
 
