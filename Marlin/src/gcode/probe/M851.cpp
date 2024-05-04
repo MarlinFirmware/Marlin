@@ -30,7 +30,7 @@
 
 /**
  * @brief M851: Set the nozzle-to-probe offsets in current units
-
+ *
  * Usage:
  *   M851 [X<linear>] [Y<linear>] [Z<linear>]
  *

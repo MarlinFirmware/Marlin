@@ -70,6 +70,8 @@
 #define SIZE_OF_LITTLE_RAISE 1
 #define BIG_RAISE_NOT_NEEDED 0
 
+G29_parameters_t unified_bed_leveling::param;
+
 /**
  * @brief  G29: Unified Bed Leveling by Roxy
  *
@@ -302,9 +304,6 @@
  *   3-Point and Grid Based leveling. Combining their contributions we now have the functionality and
  *   features of all three systems combined
  */
-
-G29_parameters_t unified_bed_leveling::param;
-
 void unified_bed_leveling::G29() {
 
   bool probe_deployed = false;

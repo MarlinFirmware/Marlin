@@ -479,6 +479,10 @@ typedef struct {
  * @details Used to interactively edit the mesh by placing the
  * nozzle in a problem area and doing a G29 P4 R command
  *
+ * Usage:
+ *   G26 [B<temp>] [C<bool>] [D] [F<linear>] [H<linear>] [I<index>] [K<bool>] [L<linear>]
+ *   [O<linear>] [P<linear>] [Q<float>] [R<int>] [S<float>] [U<linear>] [X<linear>] [Y<linear>]
+ *
  * Parameters:
  *
  *  @param  B  Bed Temperature
