@@ -64,8 +64,6 @@
   #define FLASH_EEPROM_LEVELING
 #endif
 
-#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
-
 //
 // Servos
 //
