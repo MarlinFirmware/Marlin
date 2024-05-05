@@ -1,0 +1,77 @@
+PS D:\Programming\3D-Printer Firmware\Marlin\Marlin> platformio run --silent -e STM32F446ZE_btt_usb_flash_drive
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HAL_SPI.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HAL_SPI.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HardwareSerial.cpp:32:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HAL.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HardwareSerial.cpp:32:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\HAL.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\MarlinSerial.cpp:27:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\MarlinSerial.cpp:27:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\Servo.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\Servo.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\eeprom_bl24cxx.cpp:32:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+  674 |   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\eeprom_bl24cxx.cpp:32:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\HAL_SPI.cpp.o] Error 1
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\HAL.cpp.o] Error 1
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\HardwareSerial.cpp.o] Error 1
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\MarlinSerial.cpp.o] Error 1
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\Servo.cpp.o] Error 1
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\eeprom_bl24cxx.cpp.o] Error 1
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\eeprom_flash.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:674:4: error: #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+      |    ^~~~~
+In file included from Marlin\src\HAL\STM32\../../inc/MarlinConfig.h:55,
+                 from Marlin\src\HAL\STM32\eeprom_flash.cpp:26:
+Marlin\src\HAL\STM32\../../inc/SanityCheck.h:2292:4: error: #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+ 2292 |   #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
+      |    ^~~~~
+*** [.pio\build\STM32F446ZE_btt_usb_flash_drive\src\src\HAL\STM32\eeprom_flash.cpp.o] Error 1
