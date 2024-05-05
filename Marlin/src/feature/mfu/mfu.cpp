@@ -11,7 +11,7 @@ MFU mfu;
 #define MFU_BAUDRATE 115200
 
 
-#define DEBUG_OUT ENABLED(MMU2_DEBUG)
+#define DEBUG_OUT ENABLED(MFU_DEBUG)
 #include "../../core/debug_out.h"
 
 inline void mfu_e_move(const float &dist, const feedRate_t fr_mm_s, const bool sync =true){
@@ -25,7 +25,7 @@ MFU::MFU(){
 };
 
 MFU::init(){
-  MFU_SERIAL.begin(MMU_BAUD);
+  MFU_SERIAL.begin(MFU_BAUDRATE);
   extruder = MFU_NO_TOOL;
 
   rx_buffer[0] = '\0';
@@ -47,7 +47,7 @@ MFU:: tool_change(const uint8_t index){
 
     // Handle Change
     stepper.disable_extruder();
-    setCommand(MMU_CMD_FIRSTTOOL + index);
+    setCommand(MFU_CMD_FIRSTTOOL + index);
     // Wait for response
     manage_response(true, true);
 
@@ -78,10 +78,10 @@ void MFU::tool_change(const char *special) {
 }
 
 /**
- * Wait for response from MMU
+ * Wait for response from MFU
  */
 bool MFU::get_response() {
-  while (cmd != MMU_CMD_NONE) idle();
+  while (cmd != MFU_CMD_NOCMD) idle();
 
   while (!ready) {
     idle();
@@ -108,9 +108,9 @@ void MFU::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
   while (!response) {
 
-    response = get_response(); // wait for "ok" from mmu
+    response = get_response(); // wait for "ok" from mfu
 
-    if (!response) {          // No "ok" was received in reserved time frame, user will fix the issue on mmu unit
+    if (!response) {          // No "ok" was received in reserved time frame, user will fix the issue on mfu unit
       if (!mfu_print_saved) { // First occurrence. Save current position, park print head, disable nozzle heater.
 
         planner.synchronize();
@@ -139,8 +139,8 @@ void MFU::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(1000);
       }
 
-      LCD_MESSAGE(MSG_MMU2_RESUMING);
-      mmu2_attn_buzz(true);
+      //LCD_MESSAGE(MSG_MMU2_RESUMING);
+      //mmu2_attn_buzz(true);
 
       #pragma GCC diagnostic push
       #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -247,7 +247,7 @@ bool MFU::unload(){
 }
 
 void MFU::clear_rx_buffer() {
-  while (MMU2_SERIAL.available()) MMU2_SERIAL.read();
+  while (MFU_SERIAL.available()) MFU_SERIAL.read();
   rx_buffer[0] = '\0';
 }
 
@@ -288,27 +288,27 @@ static void MFU::setCommand(const uint newCommand){
 }
 
 /**
- * Transfer data to MMU, no argument
+ * Transfer data to MFU, no argument
  */
 void MFU::tx_str(FSTR_P fstr) {
   clear_rx_buffer();
   PGM_P pstr = FTOP(fstr);
-  while (const char c = pgm_read_byte(pstr)) { MMU2_SERIAL.write(c); pstr++; }
+  while (const char c = pgm_read_byte(pstr)) { MFU_SERIAL.write(c); pstr++; }
   prev_request = millis();
 }
 
 /**
- * Transfer data to MMU, one argument
+ * Transfer data to MFU, one argument
  */
 void MFU::tx_printf(FSTR_P format, int argument = -1) {
   clear_rx_buffer();
   const uint8_t len = sprintf_P(tx_buffer, FTOP(format), argument);
-  for (uint8_t i = 0; i < len; ++i) MMU2_SERIAL.write(tx_buffer[i]);
+  for (uint8_t i = 0; i < len; ++i) MFU_SERIAL.write(tx_buffer[i]);
   prev_request = millis();
 }
 
 /**
- * Transfer data to MMU, two arguments
+ * Transfer data to MFU, two arguments
  */
 void MFU::tx_printf(FSTR_P format, int argument1, int argument2) {
   clear_rx_buffer();
