@@ -79,6 +79,13 @@
     #endif
   #endif
 
+ #ifdef MFU_SERIAL_PORT
+    #if MFU_SERIAL_PORT == -1
+      #define MFU_SERIAL MSerial0
+    #else
+      #define MFU_SERIAL MSERIAL(MFU_SERIAL_PORT)
+  #endif
+
   #ifdef LCD_SERIAL_PORT
     #if LCD_SERIAL_PORT == -1
       #define LCD_SERIAL MSerial0

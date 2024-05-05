@@ -102,6 +102,18 @@
   #endif
 #endif
 
+#ifdef MFU_SERIAL_PORT
+  #if WITHIN(MFU_SERIAL_PORT, 1, 9)
+    #define MFU_SERIAL MSERIAL(MFU_SERIAL_PORT)
+  #elif !defined(USBCON)
+    #error "MFU_SERIAL_PORT must be from 1 to 9."
+  #elif MFU_SERIAL_PORT == -1
+    #define MFU_SERIAL MSerialUSB
+  #else
+    #error "MFU_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if WITHIN(LCD_SERIAL_PORT, 1, 9)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)

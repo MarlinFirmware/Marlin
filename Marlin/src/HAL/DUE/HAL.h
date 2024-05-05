@@ -89,6 +89,10 @@ extern DefaultSerial4 MSerial3;
   #endif
 #endif
 
+#ifdef MFU_SERIAL_PORT
+    #define MFU_SERIAL MSERIAL(MFU_SERIAL_PORT)
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)

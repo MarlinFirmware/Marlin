@@ -129,6 +129,17 @@
   #endif
 #endif
 
+#ifdef MFU_SERIAL_PORT
+  #if MFU_SERIAL_PORT == -1
+    #define MFU_SERIAL UsbSerial
+  #elif WITHIN(MFU_SERIAL_PORT, 1, NUM_UARTS)
+    #define MFU_SERIAL MSERIAL(MFU_SERIAL_PORT)
+  #else
+    #define MFU_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "MFU_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL UsbSerial

@@ -92,6 +92,14 @@ extern DefaultSerial1 USBSerial;
   #endif
 #endif
 
+#ifdef MFU_SERIAL_PORT
+  #if MFU_SERIAL_PORT == -1
+    #define MFU_SERIAL USBSerial
+  #else
+    #define MFU_SERIAL MSERIAL(MFU_SERIAL_PORT)
+  #endif
+#endif
+
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL USBSerial
