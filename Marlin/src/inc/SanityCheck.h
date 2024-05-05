@@ -578,6 +578,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
   static_assert(TERN1(HAS_Z_AXIS, WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS)), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
+  #ifdef NOZZLE_PARK_Z_RAISE_MIN
+    static_assert(NOZZLE_PARK_Z_RAISE_MIN >= 5, "NOZZLE_PARK_Z_RAISE_MIN must be greater than or equal to 5.");
+  #endif
 #endif
 
 /**
@@ -1728,6 +1731,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if HAS_Z_AXIS
   static_assert(Z_CLEARANCE_FOR_HOMING <= Z_MAX_POS, "Z_CLEARANCE_FOR_HOMING must be smaller than or equal to Z_MAX_POS.");
+#endif
+
+/**
+ * Make sure Z_AFTER_HOMING or Z_POST_CLEARANCE is greater than or equal to 5
+ */
+#ifdef Z_AFTER_HOMING
+  static_assert(Z_AFTER_HOMING >= 5, "Z_AFTER_HOMING must be greater than or equal to 5.");
+#endif
+#ifdef Z_CLEARANCE_FOR_HOMING
+  static_assert(Z_CLEARANCE_FOR_HOMING >= 5, "Z_CLEARANCE_FOR_HOMING must be greater than or equal to 5.");
 #endif
 
 // Check Safe Bed Leveling settings
