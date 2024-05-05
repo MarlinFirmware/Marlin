@@ -23,10 +23,8 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "3D Printer"
-
 #define BOARD_INFO_NAME   "FYSETC Cheetah V2.0"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#define BOARD_WEBSITE_URL "github.com/FYSETC/FYSETC-Cheetah-v2"
 
 // USB Flash Drive support
 //#define HAS_OTG_USB_HOST_SUPPORT
@@ -94,17 +92,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  2
+    #define Y_SLAVE_ADDRESS                    2
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  1
+    #define Z_SLAVE_ADDRESS                    1
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_CHEETAH_V20.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_CHEETAH_V20.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_CHEETAH_V20.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_CHEETAH_V20.");
 #endif
 
 //

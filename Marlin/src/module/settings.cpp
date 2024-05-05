@@ -1940,7 +1940,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-          runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -2121,7 +2121,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_HOTEND)
           EEPROM_READ(ptc.z_offsets_hotend);
         #endif
-        ptc.reset_index();
+        if (!validating) ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -2681,11 +2681,13 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(backlash_smoothing_mm);
 
         #if ENABLED(BACKLASH_GCODE)
+        if (!validating) {
           LOOP_NUM_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, backlash_distance_mm[axis]);
           backlash.set_correction_uint8(backlash_correction);
           #ifdef BACKLASH_SMOOTHING_MM
             backlash.set_smoothing_mm(backlash_smoothing_mm);
           #endif
+        }
         #endif
       }
       #endif // NUM_AXES
@@ -2787,7 +2789,7 @@ void MarlinSettings::postprocess() {
         uint8_t ui_language;
         EEPROM_READ(ui_language);
         if (ui_language >= NUM_LANGUAGES) ui_language = 0;
-        ui.set_language(ui_language);
+        if (!validating) ui.set_language(ui_language);
       }
       #endif
 
@@ -2813,8 +2815,10 @@ void MarlinSettings::postprocess() {
       {
         float _data[2];
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(X_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(X_AXIS, _data[0]);
+          stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+        }
       }
       #endif
 
@@ -2822,8 +2826,10 @@ void MarlinSettings::postprocess() {
       {
         float _data[2];
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(Y_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(Y_AXIS, _data[0]);
+          stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+        }
       }
       #endif
 

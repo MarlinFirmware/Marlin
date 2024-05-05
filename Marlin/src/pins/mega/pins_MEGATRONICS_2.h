@@ -23,8 +23,7 @@
 
 /**
  * MegaTronics v2.0 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Megatronics%20v2.0/megatronics%20-%20Project.pdf
- * Origin: https://reprap.org/wiki/File:Megatronicsv2PDF.zip
+ * Schematic: https://reprap.org/wiki/File:Megatronicsv2PDF.zip
  * ATmega2560
  */
 
