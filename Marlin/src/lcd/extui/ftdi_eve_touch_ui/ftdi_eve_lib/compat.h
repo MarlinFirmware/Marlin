@@ -109,13 +109,13 @@
     template<uint8_t p>
     struct arduino_digital_pin {
       static constexpr uint8_t pin = p;
-      static void set_high()          {digitalWrite(p, HIGH);}
-      static void set_low()           {digitalWrite(p, LOW);}
-      static void set_input()         {pinMode(p, INPUT);}
-      static void set_input_pullup()  {pinMode(p, INPUT_PULLUP);}
-      static void set_output()        {pinMode(p, OUTPUT);}
-      static uint8_t read()           {return digitalRead(p);}
-      static void write(bool v)       {digitalWrite(p, v ? HIGH : LOW);}
+      static void set_high()         {digitalWrite(p, HIGH);}
+      static void set_low()          {digitalWrite(p, LOW);}
+      static void set_input()        {pinMode(p, INPUT);}
+      static void set_input_pullup() {pinMode(p, INPUT_PULLUP);}
+      static void set_output()       {pinMode(p, OUTPUT);}
+      static uint8_t read()          {return digitalRead(p);}
+      static void write(bool v)      {digitalWrite(p, v ? HIGH : LOW);}
     };
 
     #define MAKE_ARDUINO_PINS(ID) typedef arduino_digital_pin<ID> ARDUINO_DIGITAL_##ID;
@@ -176,12 +176,12 @@
     #undef MAKE_ARDUINO_PINS
   } // namespace fast_io
 
-  #define SET_INPUT(pin)              fast_io::pin::set_input()
-  #define SET_INPUT_PULLUP(pin)       do{ fast_io::pin::set_input(); fast_io::pin::set_high(); }while(0)
-  #define SET_INPUT_PULLDOWN          SET_INPUT
-  #define SET_OUTPUT(pin)             fast_io::pin::set_output()
-  #define READ(pin)                   fast_io::pin::read()
-  #define WRITE(pin, value)           fast_io::pin::write(value)
+  #define SET_INPUT(pin)        fast_io::pin::set_input()
+  #define SET_INPUT_PULLUP(pin) do{ fast_io::pin::set_input(); fast_io::pin::set_high(); }while(0)
+  #define SET_INPUT_PULLDOWN    SET_INPUT
+  #define SET_OUTPUT(pin)       fast_io::pin::set_output()
+  #define READ(pin)             fast_io::pin::read()
+  #define WRITE(pin, value)     fast_io::pin::write(value)
 
   #ifndef pgm_read_word_far
   #define pgm_read_word_far pgm_read_word
@@ -197,41 +197,38 @@
 
   // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
   #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-  #define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+  #define  NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
 
   // SERIAL_ECHOPGM / SERIAL_ECHOPGM_P is used to output a key value pair. The key must be a string and the value can be anything
   // Print up to 12 pairs of values. Odd elements auto-wrapped in PSTR().
-  #define __SEP_N(N,V...)   _SEP_##N(V)
-  #define _SEP_N(N,V...)    __SEP_N(N,V)
-  #define _SEP_1(PRE)       SERIAL_ECHOPGM(PRE)
-  #define _SEP_2(PRE,V)     do{ Serial.print(F(PRE)); Serial.print(V); }while(0)
-  #define _SEP_3(a,b,c)     do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
-  #define _SEP_4(a,b,V...)  do{ _SEP_2(a,b); _SEP_2(V); }while(0)
+  #define __SEP_N(N,V...)     _SEP_##N(V)
+  #define  _SEP_N(N,V...)      __SEP_N(N,V)
+  #define SERIAL_ECHOPGM(str) Serial.print(F(str))
+  #define  _SEP_1(PRE)        SERIAL_ECHOPGM(PRE)
+  #define  _SEP_2(PRE,V)      do{ Serial.print(F(PRE)); Serial.print(V); }while(0)
+  #define  _SEP_3(a,b,c)      do{ _SEP_2(a,b); SERIAL_ECHOPGM(c); }while(0)
+  #define  _SEP_4(a,b,V...)   do{ _SEP_2(a,b); _SEP_2(V); }while(0)
 
   // Print up to 1 pairs of values followed by newline
-  #define __SELP_N(N,V...)            _SELP_##N(V)
-  #define _SELP_N(N,V...)             __SELP_N(N,V)
-  #define _SELP_1(PRE)                SERIAL_ECHOLNPGM(PRE)
-  #define _SELP_2(PRE,V)              do{ Serial.print(F(PRE)); Serial.println(V); }while(0)
-  #define _SELP_3(a,b,c)              do{ _SEP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
-  #define _SELP_4(a,b,V...)           do{ _SEP_2(a,b); _SELP_2(V); }while(0)
+  #define __SELP_N(N,V...)      _SELP_##N(V)
+  #define  _SELP_N(N,V...)       __SELP_N(N,V)
+  #define SERIAL_ECHOLNPGM(str) Serial.println(F(str))
+  #define  _SELP_1(PRE)         SERIAL_ECHOLNPGM(PRE)
+  #define  _SELP_2(PRE,V)       do{ Serial.print(F(PRE)); Serial.println(V); }while(0)
+  #define  _SELP_3(a,b,c)       do{ _SELP_2(a,b); SERIAL_ECHOLNPGM(c); }while(0)
+  #define  _SELP_4(a,b,V...)    do{ _SELP_2(a,b); _SELP_2(V); }while(0)
+
   #define SERIAL_ECHO_START()
-  #define SERIAL_ECHOLNPGM(str)       Serial.println(F(str))
-  #define SERIAL_ECHOPGM(str)         Serial.print(F(str))
-  #define SERIAL_ECHO_MSG(V...)       SERIAL_ECHOLNPGM(V)
-  #define SERIAL_ECHOLNPGM(V...)     _SELP_N(NUM_ARGS(V),V)
-  #define SERIAL_ECHOPGM(str, val)   do{ Serial.print(F(str)); Serial.print(val); }while(0)
+  #define SERIAL_ECHOLNPGM(V...) _SELP_N(NUM_ARGS(V),V)
+  #define SERIAL_ECHO_MSG(V...)  SERIAL_ECHOLNPGM(V)
+  #define SERIAL_ECHOPGM(V...)   _SEP_N(NUM_ARGS(V),V)
 
   #define safe_delay delay
 
   // Define macros for compatibility
 
-  // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
-  #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-  #define NUM_ARGS(V...) _NUM_ARGS(0,V,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
-
   #define _CAT(a,V...) a##V
-  #define CAT(a,V...) _CAT(a,V)
+  #define  CAT(a,V...) _CAT(a,V)
 
   #define FIRST(a,...)     a
   #define SECOND(a,b,...)  b
@@ -243,16 +240,16 @@
   #define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
   #define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
 
-  #define _DO_1(W,C,A)       (_##W##_1(A))
-  #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
-  #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
-  #define _DO_4(W,C,A,V...)  (_##W##_1(A) C _DO_3(W,C,V))
-  #define _DO_5(W,C,A,V...)  (_##W##_1(A) C _DO_4(W,C,V))
-  #define _DO_6(W,C,A,V...)  (_##W##_1(A) C _DO_5(W,C,V))
-  #define _DO_7(W,C,A,V...)  (_##W##_1(A) C _DO_6(W,C,V))
-  #define _DO_8(W,C,A,V...)  (_##W##_1(A) C _DO_7(W,C,V))
-  #define _DO_9(W,C,A,V...)  (_##W##_1(A) C _DO_8(W,C,V))
-  #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
+  #define _DO_1( W,C,A)      (_##W##_1(A))
+  #define _DO_2( W,C,A,B)    (_##W##_1(A) C _##W##_1(B))
+  #define _DO_3( W,C,A,V...) (_##W##_1(A) C _DO_2( W,C,V))
+  #define _DO_4( W,C,A,V...) (_##W##_1(A) C _DO_3( W,C,V))
+  #define _DO_5( W,C,A,V...) (_##W##_1(A) C _DO_4( W,C,V))
+  #define _DO_6( W,C,A,V...) (_##W##_1(A) C _DO_5( W,C,V))
+  #define _DO_7( W,C,A,V...) (_##W##_1(A) C _DO_6( W,C,V))
+  #define _DO_8( W,C,A,V...) (_##W##_1(A) C _DO_7( W,C,V))
+  #define _DO_9( W,C,A,V...) (_##W##_1(A) C _DO_8( W,C,V))
+  #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9( W,C,V))
   #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
   #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
   #define _DO_13(W,C,A,V...) (_##W##_1(A) C _DO_12(W,C,V))
@@ -284,32 +281,30 @@
   #define _DO_39(W,C,A,V...) (_##W##_1(A) C _DO_38(W,C,V))
   #define _DO_40(W,C,A,V...) (_##W##_1(A) C _DO_39(W,C,V))
   #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
-  #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
-  #define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
+  #define _DO_N( W,C,N,V...)  __DO_N(W,C,N,V)
+  #define DO(W,C,V...)        (_DO_N(W,C,NUM_ARGS(V),V))
 
   #define _ISENA_     ~,1
   #define _ISENA_1    ~,1
   #define _ISENA_0x1  ~,1
   #define _ISENA_true ~,1
-  #define _ISENA(V...)        IS_PROBE(V)
-  #define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
-  #define _DIS_1(O)           NOT(_ENA_1(O))
-  #define ENABLED(V...)       DO(ENA,&&,V)
-  #define DISABLED(V...)      DO(DIS,&&,V)
+  #define _ISENA(V...)     IS_PROBE(V)
+  #define _ENA_1(O)        _ISENA(CAT(_IS,CAT(ENA_, O)))
+  #define _DIS_1(O)        NOT(_ENA_1(O))
+  #define ENABLED(V...)    DO(ENA,&&,V)
+  #define DISABLED(V...)   DO(DIS,&&,V)
+  #define ANY(V...)       !DISABLED(V)
+  #define ALL              ENABLED
+  #define NONE             DISABLED
 
-  #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
-  #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
-  #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
-  #define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
-  #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
-  #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
-  #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
-
-  #define IF_DISABLED(O,A)    _TERN(_ENA_1(O),,A)
-
-  #define ANY(V...)          !DISABLED(V)
-  #define NONE                DISABLED
-  #define ALL                 ENABLED
+  #define ___TERN(P,V...)  THIRD(P,V)             // If first argument has a comma, A. Else B.
+  #define __TERN(T,V...)   ___TERN(_CAT(_NO,T),V) // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+  #define _TERN(E,V...)    __TERN(_CAT(T_,E),V)   // Prepend 'T_' to get 'T_0' or 'T_1'
+  #define TERN(O,A,B)      _TERN(_ENA_1(O),B,A)   // OPTION converted to '0' or '1'
+  #define TERN0(O,A)       _TERN(_ENA_1(O),0,A)   // OPTION converted to A or '0'
+  #define TERN1(O,A)       _TERN(_ENA_1(O),1,A)   // OPTION converted to A or '1'
+  #define TERN_(O,A)       _TERN(_ENA_1(O),,A)    // OPTION converted to A or '<nul>'
+  #define IF_DISABLED(O,A) TERN(O,,A)
 
   // Remove compiler warning on an unused variable
   #ifndef UNUSED
