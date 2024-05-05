@@ -24,7 +24,7 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah V3.0"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#define BOARD_WEBSITE_URL "github.com/FYSETC/Cheetah_V3.0"
 
 // USB Flash Drive support
 //#define HAS_OTG_USB_HOST_SUPPORT
@@ -41,12 +41,12 @@
 //
 // Z Probe
 //
-//#if ENABLED(BLTOUCH)
-//  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
-//  #define SERVO0_PIN                      PA0
-//#elif !defined(Z_MIN_PROBE_PIN)
-//  #define Z_MIN_PROBE_PIN                 PA0
-//#endif
+#if ENABLED(BLTOUCH)
+  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
+  #define SERVO0_PIN                        PA0   // PROBE
+#elif !defined(Z_MIN_PROBE_PIN)
+  #define Z_MIN_PROBE_PIN                   PA0
+#endif
 
 //
 // Limit Switches
@@ -55,17 +55,10 @@
 #define Y_STOP_PIN                          PA3
 #define Z_STOP_PIN                          PC4
 
-#if 1
-#define TEST_IO1                            PA0   // PROBE
-#define TEST_IO2                            PA1   // FIL-D
-//#define TEST_IO3                          PA9
-//#define TEST_IO4                          PA10
-#endif
-
 //
 // Filament runout
 //
-//#define FIL_RUNOUT_PIN                    PA1
+#define FIL_RUNOUT_PIN                      PA1   // FIL-D
 
 //
 // Steppers
@@ -87,66 +80,61 @@
 #define E0_ENABLE_PIN                       PD2
 
 #if HAS_TMC_UART
- #if 1
-    #ifndef X_SERIAL_TX_PIN
-      #define X_SERIAL_TX_PIN               PB3
-    #endif
-    #ifndef X_SERIAL_RX_PIN
-      #define X_SERIAL_RX_PIN    X_SERIAL_TX_PIN
-    #endif
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+  //#define X_HARDWARE_SERIAL  Serial2
+  //#define Y_HARDWARE_SERIAL  Serial2
+  //#define Z_HARDWARE_SERIAL  Serial2
+  //#define E0_HARDWARE_SERIAL Serial2
 
-    #ifndef Y_SERIAL_TX_PIN
-      #define Y_SERIAL_TX_PIN               PB3
-    #endif
-    #ifndef Y_SERIAL_RX_PIN
-      #define Y_SERIAL_RX_PIN    Y_SERIAL_TX_PIN
-    #endif
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN                 PB3
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+  #endif
 
-    #ifndef Z_SERIAL_TX_PIN
-      #define Z_SERIAL_TX_PIN               PB3
-    #endif
-    #ifndef Z_SERIAL_RX_PIN
-      #define Z_SERIAL_RX_PIN    Z_SERIAL_TX_PIN
-    #endif
-    #ifndef E0_SERIAL_TX_PIN
-      #define E0_SERIAL_TX_PIN              PB3
-    #endif
-    #ifndef E0_SERIAL_RX_PIN
-      #define E0_SERIAL_RX_PIN  E0_SERIAL_TX_PIN
-    #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PB3
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+  #endif
 
-    #ifndef X_SLAVE_ADDRESS
-      #define X_SLAVE_ADDRESS  0
-    #endif
-    #ifndef Y_SLAVE_ADDRESS
-      #define Y_SLAVE_ADDRESS  2
-    #endif
-    #ifndef Z_SLAVE_ADDRESS
-      #define Z_SLAVE_ADDRESS  1
-    #endif
-    #ifndef E0_SLAVE_ADDRESS
-      #define E0_SLAVE_ADDRESS 3
-    #endif
- #else
-  #define X_HARDWARE_SERIAL  Serial2
-  #define Y_HARDWARE_SERIAL  Serial2
-  #define Z_HARDWARE_SERIAL  Serial2
-  #define E0_HARDWARE_SERIAL Serial2
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PB3
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PB3
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
+  #endif
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  2
+    #define Y_SLAVE_ADDRESS                    2
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  1
+    #define Z_SLAVE_ADDRESS                    1
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
- #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_CHEETAH_V30.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_CHEETAH_V30.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_CHEETAH_V30.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_CHEETAH_V30.");
 #endif
 
 //

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,25 +20,17 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../test/unit_tests.h"
 
-#if ENABLED(AIR_EVACUATION)
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-#include "../gcode.h"
-#include "../../feature/spindle_laser.h"
+#include <src/feature/runout.h>
 
-/**
- * M10: Vacuum or Blower On
- */
-void GcodeSuite::M10() {
-  cutter.air_evac_enable();   // Turn on Vacuum or Blower motor
+MARLIN_TEST(runout, poll_runout_states) {
+  FilamentSensorBase sensor;
+  // Expected default value is one bit set for each extruder
+  uint8_t expected = static_cast<uint8_t>(~(~0u << NUM_RUNOUT_SENSORS));
+  TEST_ASSERT_EQUAL(expected, sensor.poll_runout_states());
 }
 
-/**
- * M11: Vacuum or Blower OFF
- */
-void GcodeSuite::M11() {
-  cutter.air_evac_disable();  // Turn off Vacuum or Blower motor
-}
-
-#endif // AIR_EVACUATION
+#endif
