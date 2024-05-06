@@ -747,7 +747,7 @@ class Temperature {
     #endif
 
     #if MILLISECONDS_PREHEAT_TIME > 0
-      static millis_t preheat_end_time[HOTENDS];
+      static millis_t preheat_end_ms_hotend[HOTENDS];
     #endif
 
     #if HAS_FAN_LOGIC
@@ -909,13 +909,13 @@ class Temperature {
      */
     #if MILLISECONDS_PREHEAT_TIME > 0
       static bool is_preheating(const uint8_t E_NAME) {
-        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
+        return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
       }
       static void start_preheat_time(const uint8_t E_NAME) {
-        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+        preheat_end_ms_hotend[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
       }
       static void reset_preheat_time(const uint8_t E_NAME) {
-        preheat_end_time[HOTEND_INDEX] = 0;
+        preheat_end_ms_hotend[HOTEND_INDEX] = 0;
       }
     #else
       #define is_preheating(n) (false)
