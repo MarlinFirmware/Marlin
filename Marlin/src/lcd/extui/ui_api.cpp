@@ -1144,6 +1144,31 @@ namespace ExtUI {
         case PAUSE_MESSAGE_HEAT:     onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
         case PAUSE_MESSAGE_HEATING:  onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
         case PAUSE_MESSAGE_OPTION:   onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
+
+        #if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+          case PAUSE_MESSAGE_TOOL_CHANGE:     onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE)); break;
+          case PAUSE_MESSAGE_TOOL_CHANGE_0:   onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_0)); break;
+          case PAUSE_MESSAGE_TOOL_CHANGE_1:   onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_1)); break;
+          #if HAS_TOOL_2
+            case PAUSE_MESSAGE_TOOL_CHANGE_2: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_2)); break;
+          #endif
+          #if HAS_TOOL_3
+            case PAUSE_MESSAGE_TOOL_CHANGE_3: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_3)); break;
+          #endif
+          #if HAS_TOOL_4
+            case PAUSE_MESSAGE_TOOL_CHANGE_4: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_4)); break;
+          #endif
+          #if HAS_TOOL_5
+            case PAUSE_MESSAGE_TOOL_CHANGE_5: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_5)); break;
+          #endif
+          #if HAS_TOOL_6
+            case PAUSE_MESSAGE_TOOL_CHANGE_6: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_6)); break;
+          #endif
+          #if HAS_TOOL_7
+            case PAUSE_MESSAGE_TOOL_CHANGE_7: onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_TOOL_CHANGE_7)); break;
+          #endif
+        #endif
+
         case PAUSE_MESSAGE_STATUS:   break;
         default: break;
       }
