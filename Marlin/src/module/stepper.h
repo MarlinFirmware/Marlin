@@ -178,18 +178,14 @@ constexpr ena_mask_t enable_overlap[] = {
       static shaping_echo_axis_t  echo_axes[shaping_echoes];
       static uint16_t             tail;
 
-      #if ENABLED(INPUT_SHAPING_X)
-        static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t _peek_x;
-        static uint16_t head_x;
-        static uint16_t _free_count_x;
-      #endif
-      #if ENABLED(INPUT_SHAPING_Y)
-        static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t _peek_y;
-        static uint16_t head_y;
-        static uint16_t _free_count_y;
-      #endif
+      #define SHAPING_QUEUE_AXIS_VARS(AXIS)                                                     \
+        static shaping_time_t delay_##AXIS;    /* = shaping_time_t(-1) to disable queueing*/    \
+        static shaping_time_t _peek_##AXIS;                                                     \
+        static uint16_t head_##AXIS;                                                            \
+        static uint16_t _free_count_##AXIS;
+
+      TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_AXIS_VARS(x))
+      TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_AXIS_VARS(y))
 
     public:
       static void decrement_delays(const shaping_time_t interval) {
@@ -201,63 +197,47 @@ constexpr ena_mask_t enable_overlap[] = {
         TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
         TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
       }
+
       static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
-        #if ENABLED(INPUT_SHAPING_X)
-          if (x_step) {
-            if (head_x == tail) _peek_x = delay_x;
-            echo_axes[tail].x = x_forward ? ECHO_FWD : ECHO_BWD;
-            _free_count_x--;
+        #define SHAPING_QUEUE_ENQUEUE(AXIS)                                                     \
+          if (AXIS##_step) {                                                                    \
+            if (head_##AXIS == tail) _peek_##AXIS = delay_##AXIS;                               \
+            echo_axes[tail].AXIS = AXIS##_forward ? ECHO_FWD : ECHO_BWD;                        \
+            _free_count_##AXIS--;                                                               \
+          }                                                                                     \
+          else {                                                                                \
+            echo_axes[tail].AXIS = ECHO_NONE;                                                   \
+            if (head_##AXIS != tail)                                                            \
+              _free_count_##AXIS--;                                                             \
+            else if (++head_##AXIS == shaping_echoes)                                           \
+              head_##AXIS = 0;                                                                  \
           }
-          else {
-            echo_axes[tail].x = ECHO_NONE;
-            if (head_x != tail)
-              _free_count_x--;
-            else if (++head_x == shaping_echoes)
-              head_x = 0;
-          }
-        #endif
-        #if ENABLED(INPUT_SHAPING_Y)
-          if (y_step) {
-            if (head_y == tail) _peek_y = delay_y;
-            echo_axes[tail].y = y_forward ? ECHO_FWD : ECHO_BWD;
-            _free_count_y--;
-          }
-          else {
-            echo_axes[tail].y = ECHO_NONE;
-            if (head_y != tail)
-              _free_count_y--;
-            else if (++head_y == shaping_echoes)
-              head_y = 0;
-          }
-        #endif
+
+        TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
+        TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_ENQUEUE(y))
+
         times[tail] = now;
         if (++tail == shaping_echoes) tail = 0;
       }
+
+      #define SHAPING_QUEUE_DEQUEUE(AXIS)                                                                               \
+        bool forward = echo_axes[head_##AXIS].AXIS == ECHO_FWD;                                                         \
+        do {                                                                                                            \
+          _free_count_##AXIS++;                                                                                         \
+          if (++head_##AXIS == shaping_echoes) head_##AXIS = 0;                                                         \
+        } while (head_##AXIS != tail && echo_axes[head_##AXIS].AXIS == ECHO_NONE);                                      \
+        _peek_##AXIS = head_##AXIS == tail ? shaping_time_t(-1) : times[head_##AXIS] + delay_##AXIS - now;              \
+        return forward;
+
       #if ENABLED(INPUT_SHAPING_X)
         static shaping_time_t peek_x() { return _peek_x; }
-        static bool dequeue_x() {
-          bool forward = echo_axes[head_x].x == ECHO_FWD;
-          do {
-            _free_count_x++;
-            if (++head_x == shaping_echoes) head_x = 0;
-          } while (head_x != tail && echo_axes[head_x].x == ECHO_NONE);
-          _peek_x = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
-          return forward;
-        }
+        static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return _peek_y; }
-        static bool dequeue_y() {
-          bool forward = echo_axes[head_y].y == ECHO_FWD;
-          do {
-            _free_count_y++;
-            if (++head_y == shaping_echoes) head_y = 0;
-          } while (head_y != tail && echo_axes[head_y].y == ECHO_NONE);
-          _peek_y = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
-          return forward;
-        }
+        static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
       #endif

@@ -274,20 +274,15 @@ uint32_t Stepper::advance_divisor = 0,
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
-  #if ENABLED(INPUT_SHAPING_X)
-    shaping_time_t  ShapingQueue::delay_x;
-    shaping_time_t  ShapingQueue::_peek_x = shaping_time_t(-1);
-    uint16_t        ShapingQueue::head_x = 0;
-    uint16_t        ShapingQueue::_free_count_x = shaping_echoes - 1;
-    ShapeParams     Stepper::shaping_x;
-  #endif
-  #if ENABLED(INPUT_SHAPING_Y)
-    shaping_time_t  ShapingQueue::delay_y;
-    shaping_time_t  ShapingQueue::_peek_y = shaping_time_t(-1);
-    uint16_t        ShapingQueue::head_y = 0;
-    uint16_t        ShapingQueue::_free_count_y = shaping_echoes - 1;
-    ShapeParams     Stepper::shaping_y;
-  #endif
+  #define SHAPING_VAR_DEFS(AXIS)                                                \
+    shaping_time_t  ShapingQueue::delay_##AXIS;                                 \
+    shaping_time_t  ShapingQueue::_peek_##AXIS = shaping_time_t(-1);            \
+    uint16_t        ShapingQueue::head_##AXIS = 0;                              \
+    uint16_t        ShapingQueue::_free_count_##AXIS = shaping_echoes - 1;      \
+    ShapeParams     Stepper::shaping_##AXIS;
+
+  TERN_(INPUT_SHAPING_X, SHAPING_VAR_DEFS(x))
+  TERN_(INPUT_SHAPING_Y, SHAPING_VAR_DEFS(y))
 #endif
 
 #if ENABLED(BABYSTEPPING)
@@ -3210,24 +3205,17 @@ void Stepper::init() {
     hal.isr_off();
 
     const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
-    #if ENABLED(INPUT_SHAPING_X)
-      if (axis == X_AXIS) {
-        ShapingQueue::set_delay(X_AXIS, delay);
-        shaping_x.frequency = freq;
-        shaping_x.enabled = !!freq;
-        shaping_x.delta_error = 0;
-        shaping_x.last_block_end_pos = count_position.x;
+    #define SHAPING_SET_FREQ_FOR_AXIS(AXISN, AXISL)                                 \
+      if (axis == AXISN) {                                                          \
+        ShapingQueue::set_delay(AXISN, delay);                                      \
+        shaping_##AXISL.frequency = freq;                                           \
+        shaping_##AXISL.enabled = !!freq;                                           \
+        shaping_##AXISL.delta_error = 0;                                            \
+        shaping_##AXISL.last_block_end_pos = count_position.AXISL;                  \
       }
-    #endif
-    #if ENABLED(INPUT_SHAPING_Y)
-      if (axis == Y_AXIS) {
-        ShapingQueue::set_delay(Y_AXIS, delay);
-        shaping_y.frequency = freq;
-        shaping_y.enabled = !!freq;
-        shaping_y.delta_error = 0;
-        shaping_y.last_block_end_pos = count_position.y;
-      }
-    #endif
+
+    TERN_(INPUT_SHAPING_X, SHAPING_SET_FREQ_FOR_AXIS(X_AXIS, x))
+    TERN_(INPUT_SHAPING_Y, SHAPING_SET_FREQ_FOR_AXIS(Y_AXIS, y))
 
     if (was_on) hal.isr_on();
   }
