@@ -39,6 +39,7 @@
 #include "../../../core/serial.h"
 #include "../../../module/stepper.h"
 #include "../../../module/probe.h"
+#include "../../../module/temperature.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"

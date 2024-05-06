@@ -23,8 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS v1.4 adjusted pin assignments
- * Schematic (1.4): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/MKS%20GEN%20v1.4/MKS%20GEN%20V1.4_004%20SCH.pdf
- * Origin (1.4): https://github.com/makerbase-mks/MKS-GEN/blob/master/hardware/MKS%20GEN%20V1.4_004/MKS%20GEN%20V1.4_004%20SCH.pdf
+ * Schematic (1.4): https://github.com/makerbase-mks/MKS-GEN/blob/master/hardware/MKS%20GEN%20V1.4_004/MKS%20GEN%20V1.4_004%20SCH.pdf
  * ATmega2560, ATmega1280
  *
  *  MKS GEN v1.3  (Extruder, Fan, Bed)
@@ -63,6 +62,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(VIKI2, miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...

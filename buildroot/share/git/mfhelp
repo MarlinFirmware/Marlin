@@ -41,6 +41,6 @@ Modify Configuration.h / Configuration_adv.h:
 Modify pins files:
 
   pins_set ............. Set the value of a pin in a pins file
-  pinsformat.js ........ Node.js script to format pins files
+  pinsformat.py ........ Python script to format pins files
 
 THIS

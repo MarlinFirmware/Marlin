@@ -119,17 +119,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  2
+    #define Y_SLAVE_ADDRESS                    2
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  1
+    #define Z_SLAVE_ADDRESS                    1
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BTT_SKR_MINI_E3_V3_0.");
 #endif
 
 //
@@ -168,6 +172,20 @@
 #define EXP1_08_PIN                         PD6
 #define EXP1_09_PIN                         -1
 #define EXP1_10_PIN                         -1
+
+/**      SPI Port
+ *        ------
+ *  5V   | 1  2 | GND
+ *  CS   | 3  4 | CLK
+ *  MOSI | 5  6 | MISO
+ *  3V3  | 7  8 | GND
+ *        ------
+ *         SPI1
+ */
+#define SPI1_03_PIN                         PD9
+#define SPI1_04_PIN                         PA5
+#define SPI1_05_PIN                         PA7
+#define SPI1_06_PIN                         PA6
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
@@ -231,7 +249,7 @@
       #define LCD_BACKLIGHT_PIN             -1
       #define NEOPIXEL_PIN           EXP1_02_PIN
     #else
-      #error "Only CR10_FYSETC_MINI_12864_2_1 and compatibles are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER"
+      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER."
     #endif
 
   #else
@@ -442,8 +460,19 @@
 #define SD_MOSI_PIN                         PA7
 
 //
-// Default NEOPIXEL_PIN
+// NeoPixel
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default usage LCD connector
+#define UART1_RX_PIN                        PA10  // default usage LCD connector
+#define UART2_TX_PIN                        PA2   // default usage TFT connector
+#define UART2_RX_PIN                        PA3   // default usage TFT connector
+#define UART4_TX_PIN                        PC10  // default usage TMC UART
+#define UART4_RX_PIN                        PC11  // default usage TMC UART

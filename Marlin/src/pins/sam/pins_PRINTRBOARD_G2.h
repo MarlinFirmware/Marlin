@@ -62,7 +62,7 @@
 // LED defines
 //
 //#define NEOPIXEL_TYPE                 NEO_GRBW  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-//#define NEOPIXEL_PIN                        20  // LED driving pin on motherboard
+//#define BOARD_NEOPIXEL_PIN                  20  // LED driving pin on motherboard
 //#define NEOPIXEL_PIXELS                      3  // Number of LEDs in the strip
 //#define SDA0                                20  // PB12 NeoPixel pin I2C data
 //#define SCL0                                21  // PB13              I2C clock

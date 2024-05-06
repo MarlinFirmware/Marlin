@@ -42,7 +42,7 @@
 // Public functions
 // ------------------------
 
-#if ANY(DUE_SOFTWARE_SPI, FORCE_SOFT_SPI)
+#if ANY(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
   // Software SPI

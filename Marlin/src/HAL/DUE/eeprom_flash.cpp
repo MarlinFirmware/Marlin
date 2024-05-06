@@ -958,14 +958,14 @@ static void ee_Init() {
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
-size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 bool PersistentStore::access_start()  { ee_Init();  return true; }
 bool PersistentStore::access_finish() { ee_Flush(); return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   uint16_t written = 0;
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
+    uint8_t * const p = (uint8_t * const)REAL_EEPROM_ADDR(pos);
     uint8_t v = *value;
     if (v != ee_Read(uint32_t(p))) { // EEPROM has only ~100,000 write cycles, so only write bytes that have changed!
       ee_Write(uint32_t(p), v);
@@ -984,7 +984,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    uint8_t c = ee_Read(uint32_t(pos));
+    uint8_t c = ee_Read(uint32_t(REAL_EEPROM_ADDR(pos)));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

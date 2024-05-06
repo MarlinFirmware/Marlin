@@ -52,10 +52,12 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_RESUME,
   PAUSE_MESSAGE_HEAT,
   PAUSE_MESSAGE_HEATING,
-  PAUSE_MESSAGE_STATUS
+  PAUSE_MESSAGE_STATUS,
+  PAUSE_MESSAGE_COUNT
 };
 
 #if M600_PURGE_MORE_RESUMABLE
+  // Input methods can Purge More, Resume, or request input
   enum PauseMenuResponse : char {
     PAUSE_RESPONSE_WAIT_FOR,
     PAUSE_RESPONSE_EXTRUDE_MORE,
@@ -105,7 +107,7 @@ void wait_for_confirmation(
 void resume_print(
   const_float_t   slow_load_length=0,                         // (mm) Slow Load Length for finishing move
   const_float_t   fast_load_length=0,                         // (mm) Fast Load Length for initial move
-  const_float_t   extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, // (mm) Purge length
+  const_float_t   purge_length=ADVANCED_PAUSE_PURGE_LENGTH,   // (mm) Purge length
   const int8_t    max_beep_count=0,                           // Beep alert for attention
   const celsius_t targetTemp=0                                // (°C) A target temperature for the hotend
   DXC_PARAMS                                                  // Dual-X-Carriage extruder index
@@ -114,7 +116,7 @@ void resume_print(
 bool load_filament(
   const_float_t   slow_load_length=0,                         // (mm) Slow Load Length for finishing move
   const_float_t   fast_load_length=0,                         // (mm) Fast Load Length for initial move
-  const_float_t   extrude_length=0,                           // (mm) Purge length
+  const_float_t   purge_length=0,                             // (mm) Purge length
   const int8_t    max_beep_count=0,                           // Beep alert for attention
   const bool      show_lcd=false,                             // Set LCD status messages?
   const bool      pause_for_user=false,                       // Pause for user before returning?
