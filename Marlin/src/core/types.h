@@ -963,6 +963,30 @@ public:
         bool HX:1, HY:1, HZ:1;
       #endif
     };
+    // "e" alias for "e0"
+    struct {
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
+      #if EXTRUDERS > 1
+        #define _EN_ITEM(N) bool _e##N:1;
+        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
+        #undef _EN_ITEM
+      #endif
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool haa:1, hbb:1, hcc:1;
+      #endif
+    };
+    // "E" alias for "E0"
+    struct {
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
+      #if EXTRUDERS > 1
+        #define _EN_ITEM(N) bool _E##N:1;
+        REPEAT_S(1,EXTRUDERS,_EN_ITEM)
+        #undef _EN_ITEM
+      #endif
+      #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+        bool HAA:1, HBB:1, HCC:1;
+      #endif
+    };
   };
 
   AxisBits() { reset(); }
