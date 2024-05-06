@@ -25,8 +25,9 @@
  * BigTreeTech SKR CR-6 (STM32F103RET6) board pin assignments
  */
 
-#define DEFAULT_MACHINE_NAME "Creality3D"
+#define DEFAULT_MACHINE_NAME "Creality CR-6 SE"
 #define BOARD_INFO_NAME "BTT SKR CR-6"
+#define BOARD_WEBSITE_URL "github.com/bigtreetech/BIGTREETECH-SKR-CR6"
 
 #include "env_validate.h"
 
@@ -120,6 +121,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(CR10_STOCKDISPLAY)
   #define BTN_ENC                           PA15
   #define BTN_EN1                           PA9
@@ -144,17 +146,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BTT_SKR_CR6.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_BTT_SKR_CR6.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_BTT_SKR_CR6.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BTT_SKR_CR6.");
 #endif
 
 //
@@ -176,8 +182,8 @@
 //
 #define CASE_LIGHT_PIN                      PA13
 
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8
 #endif
 
 #define SUICIDE_PIN                         PC13

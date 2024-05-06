@@ -96,8 +96,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin_popup.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -376,8 +374,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
-    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR)));
+    #if ENABLED(DWIN_LCD_PROUI)
+      ExtUI::onUserConfirmRequired(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR));
+    #elif ENABLED(EXTENSIBLE_UI)
+      ExtUI::onUserConfirmRequired(ds_fstr);
+    #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_status();
@@ -1010,6 +1011,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
+      // TODO: Disable steppers (unless G29_RETRY_AND_RECOVER or G29_HALT_ON_FAILURE are set).
+      // Something definitely went wrong at this point, so it might be a good idea to release the steppers.
+      // The user may want to quickly move the carriage or bed by hand to avoid bed damage from the (hot) nozzle.
+      // This would also benefit from the contemplated "Audio Alerts" feature.
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)

@@ -131,6 +131,7 @@
 #define BOARD_PXMALION_CORE_I3        1164  // Pxmalion Core I3
 #define BOARD_PANOWIN_CUTLASS         1165  // Panowin Cutlass (as found in the Panowin F1)
 #define BOARD_KODAMA_BARDO            1166  // Kodama Bardo V1.x (as found in the Kodama Trinus)
+#define BOARD_DAGOMA_D6               1167  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
 
 //
 // RAMBo and derivatives
@@ -382,9 +383,9 @@
 #define BOARD_CREALITY_V452           5050  // Creality v4.5.2 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V453           5051  // Creality v4.5.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V521           5052  // Creality v5.2.1 (STM32F103VE) as found in the SV04
-#define BOARD_CREALITY_V24S1          5053  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) v101 as found in the Ender-7
-#define BOARD_CREALITY_V24S1_301      5054  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) v301 as found in the Ender-3 S1
-#define BOARD_CREALITY_V25S1          5055  // Creality v2.5.S1 (STM32F103RE) as found in the CR-10 Smart Pro
+#define BOARD_CREALITY_V24S1          5053  // Creality v2.4.S1 (STM32F103RC / STM32F103RE) CR-FDM-v2.4.S1_v101 as found in the Ender-7
+#define BOARD_CREALITY_V24S1_301      5054  // Creality v2.4.S1_301 (STM32F103RC / STM32F103RE) CR-FDM-v24S1_301 as found in the Ender-3 S1
+#define BOARD_CREALITY_V25S1          5055  // Creality v2.5.S1 (STM32F103RE) CR-FDM-v2.5.S1_100 as found in the CR-10 Smart Pro
 #define BOARD_TRIGORILLA_PRO          5056  // Trigorilla Pro (STM32F103ZE)
 #define BOARD_FLY_MINI                5057  // FLYmaker FLY MINI (STM32F103RC)
 #define BOARD_FLSUN_HISPEED           5058  // FLSUN HiSpeedV1 (STM32F103VE)
@@ -459,7 +460,7 @@
 #define BOARD_OPULO_LUMEN_REV4        5242  // Opulo Lumen PnP Controller REV4 (STM32F407VE / STM32F407VG)
 #define BOARD_FYSETC_SPIDER_KING407   5243  // FYSETC Spider King407 (STM32F407ZG)
 #define BOARD_MKS_SKIPR_V1            5244  // MKS SKIPR v1.0 all-in-one board (STM32F407VE)
-#define BOARD_TRONXY_V10              5245  // TRONXY V10 (STM32F446ZE)
+#define BOARD_TRONXY_CXY_446_V10      5245  // TRONXY CXY-446-V10-220413/CXY-V6-191121 (STM32F446ZE)
 #define BOARD_CREALITY_F401RE         5246  // Creality CR4NS200141C13 (STM32F401RE) as found in the Ender-5 S1
 #define BOARD_BLACKPILL_CUSTOM        5247  // Custom board based on STM32F401CDU6.
 #define BOARD_I3DBEEZ9_V1             5248  // I3DBEEZ9 V1 (STM32F407ZG)
@@ -519,7 +520,9 @@
 //
 // HC32 ARM Cortex-M4
 //
+
 #define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 as found in the Voxelab Aquila X2 and C2
+#define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
 // Custom board

@@ -23,8 +23,7 @@
 
 /**
  * RUMBA pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
- * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
+ * Schematic: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
  * ATmega2560
  */
 
@@ -190,6 +189,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
   #define LCD_PINS_DC                         38  // Set as output on init
   #define LCD_PINS_RS                         41  // Pull low for 1s to init

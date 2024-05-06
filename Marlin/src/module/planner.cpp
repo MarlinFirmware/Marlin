@@ -2079,11 +2079,11 @@ bool Planner::_populate_block(
 
   /**
    * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
-   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
-   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
-   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
-   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
+   * For cartesian bots, the distance along the X axis equals the X_AXIS joint displacement and same holds true for Y_AXIS.
+   * But for geometries like CORE_XY that is not true. For these machines we need to create 2 additional variables, named X_HEAD and Y_HEAD, to store the displacent of the head along the X and Y axes in a cartesian coordinate system.
+   * The displacement of the head along the axes of the cartesian coordinate system has to be calculated from "X_AXIS" and "Y_AXIS" (should be renamed to A_JOINT and B_JOINT)
+   * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
+   * Next we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
     #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
@@ -2308,6 +2308,10 @@ bool Planner::_populate_block(
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
   float inverse_secs = inverse_millimeters * (
     #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+      /**
+       * Workaround for premature feedrate conversion
+       * from in/s to mm/s by get_distance_from_command.
+       */
       cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
     #else
       fr_mm_s
@@ -2458,11 +2462,7 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
-  if (true NUM_AXIS_GANG(
-      && !block->steps.a, && !block->steps.b, && !block->steps.c,
-      && !block->steps.i, && !block->steps.j, && !block->steps.k,
-      && !block->steps.u, && !block->steps.v, && !block->steps.w)
-  ) {                                                             // Is this a retract / recover move?
+  if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
   }
   else {

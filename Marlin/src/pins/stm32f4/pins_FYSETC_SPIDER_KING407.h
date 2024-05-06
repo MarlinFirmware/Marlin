@@ -278,6 +278,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(FYSETC_242_OLED_12864)
 
   #define BEEPER_PIN                 EXP2_08_PIN

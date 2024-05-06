@@ -29,8 +29,8 @@
 
 #include "env_validate.h"
 
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "I3DBEE BP_01"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "I3DBEE BP_01"
 #endif
 
 #define TEMP_TIMER 5
@@ -97,7 +97,7 @@
 #define HEATER_0_PIN                        PA2   // HOTEND MOSFET
 #define HEATER_BED_PIN                      PA0   // BED MOSFET
 
-#define FAN1_PIN                            PA1   // FAN1 header on board - PRINT FAN
+#define FAN0_PIN                            PA1   // FAN1 header on board - PRINT FAN
 
 //
 // SD Card
@@ -140,6 +140,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
 

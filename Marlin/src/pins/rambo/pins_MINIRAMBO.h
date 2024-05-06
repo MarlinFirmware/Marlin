@@ -23,18 +23,18 @@
 
 /**
  * Mini-RAMBo pin assignments
- * Schematic (1.3a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo/Mini-Rambo.PDF
- * Origin (1.3a): https://github.com/ultimachine/Mini-Rambo/blob/1.3a/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
- * Schematic (1.0a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo%201.0a/Mini-Rambo.PDF
- * Origin (1.0a): https://github.com/ultimachine/Mini-Rambo/blob/v1.1b/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
+ * Schematic (1.3a): https://github.com/ultimachine/Mini-Rambo/blob/1.3a/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
+ * Schematic (1.0a): https://github.com/ultimachine/Mini-Rambo/blob/v1.1b/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
  */
 
 #include "env_validate.h"
 
-#if MB(MINIRAMBO_10A)
-  #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
-#else
-  #define BOARD_INFO_NAME "Mini RAMBo"
+#ifndef BOARD_INFO_NAME
+  #if MB(MINIRAMBO_10A)
+    #define BOARD_INFO_NAME "Mini RAMBo 1.0a"
+  #else
+    #define BOARD_INFO_NAME "Mini RAMBo"
+  #endif
 #endif
 
 //
@@ -46,6 +46,10 @@
 #define Y_MAX_PIN                             24
 #define Z_MIN_PIN                             10
 #define Z_MAX_PIN                             23
+
+#if HAS_I_AXIS
+  #define I_STOP_PIN                          30  // X_MAX (for now)
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -128,9 +132,15 @@
 //
 #if HAS_CUTTER
   // Use P1 connector for spindle pins
-  #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               18  // Pullup!
-  #define SPINDLE_DIR_PIN                     19
+  #ifndef SPINDLE_LASER_PWM_PIN
+    #define SPINDLE_LASER_PWM_PIN              9  // Hardware PWM
+  #endif
+  #ifndef SPINDLE_LASER_ENA_PIN
+    #define SPINDLE_LASER_ENA_PIN             18  // Pullup!
+  #endif
+  #ifndef SPINDLE_DIR_PIN
+    #define SPINDLE_DIR_PIN                   19
+  #endif
 #endif
 
 //
@@ -147,6 +157,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #if !MB(MINIRAMBO_10A)

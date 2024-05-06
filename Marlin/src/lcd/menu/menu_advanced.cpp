@@ -562,24 +562,24 @@ void menu_backlash();
       #if ENABLED(INPUT_SHAPING_X)
         editable.decimal = stepper.get_shaping_frequency(X_AXIS);
         if (editable.decimal) {
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(X_AXIS, 0.0f); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
+          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(X_AXIS, 0.0f); ui.refresh(); });
           EDIT_ITEM_FAST_N(float41, X_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(X_AXIS, editable.decimal); });
           editable.decimal = stepper.get_shaping_damping_ratio(X_AXIS);
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
         }
         else
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
+          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         editable.decimal = stepper.get_shaping_frequency(Y_AXIS);
         if (editable.decimal) {
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(Y_AXIS, 0.0f); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
+          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(Y_AXIS, 0.0f); ui.refresh(); });
           EDIT_ITEM_FAST_N(float41, Y_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(Y_AXIS, editable.decimal); });
           editable.decimal = stepper.get_shaping_damping_ratio(Y_AXIS);
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
         }
         else
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, (SHAPING_FREQ_Y) ?: (SHAPING_MIN_FREQ)); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
+          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, (SHAPING_FREQ_Y) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
       #endif
 
       END_MENU();

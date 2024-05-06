@@ -235,9 +235,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-// Serial DMA is only available for some STM32 MCUs
+// Serial DMA is only available for some STM32 MCUs and HC32
 #if ENABLED(SERIAL_DMA)
-  #if !HAL_STM32 || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+  #if defined(ARDUINO_ARCH_HC32)
+    // checks for HC32 are located in HAL/HC32/inc/SanityCheck.h
+  #elif !HAL_STM32 || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
     #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."
   #elif !defined(HAL_UART_MODULE_ENABLED) || defined(HAL_UART_MODULE_ONLY)
     #error "SERIAL_DMA requires STM32 platform HAL UART (without HAL_UART_MODULE_ONLY)."
@@ -345,8 +347,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if LCD_INFO_SCREEN_STYLE > 0
   #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
-  #elif LCD_INFO_SCREEN_STYLE > 1
-    #error "LCD_INFO_SCREEN_STYLE only has options 0 and 1 at this time."
+  #elif LCD_INFO_SCREEN_STYLE > 2
+    #error "LCD_INFO_SCREEN_STYLE only has options 0 (Classic), 1 (Průša), and 2 (CNC)."
   #endif
 #endif
 
@@ -1509,8 +1511,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     PROBE_OFFSET_ASSERT("PROBE_OFFSET_YMIN", PROBE_OFFSET_YMIN, -(Y_BED_SIZE), Y_BED_SIZE);
     PROBE_OFFSET_ASSERT("PROBE_OFFSET_YMAX", PROBE_OFFSET_YMAX, -(Y_BED_SIZE), Y_BED_SIZE);
   #endif
-  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -20, 20);
-  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -20, 20);
+  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -(Z_MAX_POS), Z_MAX_POS);
+  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -(Z_MAX_POS), Z_MAX_POS);
 
   /**
    * Check for improper NOZZLE_AS_PROBE or NOZZLE_TO_PROBE_OFFSET
@@ -1554,9 +1556,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #endif
 
-  #if Z_PROBE_LOW_POINT > 0
-    #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
-  #endif
+  static_assert(Z_PROBE_LOW_POINT <= 0, "Z_PROBE_LOW_POINT must be less than or equal to 0.");
 
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     #ifndef PROBE_ACTIVATION_SWITCH_STATE
@@ -1771,6 +1771,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
 #endif
 
+/**
+ * Make sure Z_CLEARANCE_FOR_HOMING is below Z_MAX_POS
+ */
+#if HAS_Z_AXIS
+  static_assert(Z_CLEARANCE_FOR_HOMING <= Z_MAX_POS, "Z_CLEARANCE_FOR_HOMING must be smaller than or equal to Z_MAX_POS.");
+#endif
+
 // Check Safe Bed Leveling settings
 #if HAS_SAFE_BED_LEVELING
   #if defined(SAFE_BED_LEVELING_START_Y) && !defined(SAFE_BED_LEVELING_START_X)
@@ -1878,6 +1885,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1."
+  #elif (X2_HOME_POS <= X1_MAX_POS) || (X2_MAX_POS < X1_MAX_POS)
+    #error "DUAL_X_CARRIAGE will crash if X1 can meet or exceed X2 travel."
   #endif
 #endif
 
@@ -2443,8 +2452,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
   #elif Y_HOME_TO_MAX && !HAS_Y_MAX_STATE
     #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
-  #elif Z_HOME_TO_MIN && !HAS_Z_MIN_STATE
-    #error "Z_MIN_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
+  #elif Z_HOME_TO_MIN && NONE(HAS_Z_MIN_STATE, USE_PROBE_FOR_Z_HOMING)
+    #error "Z_MIN_PIN, Z_STOP_PIN, Z_SPI_SENSORLESS, or USE_PROBE_FOR_Z_HOMING is required for Z axis homing."
   #elif Z_HOME_TO_MAX && !HAS_Z_MAX_STATE
     #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
   #elif I_HOME_TO_MIN && !HAS_I_MIN_STATE
@@ -2844,6 +2853,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if HAS_BACKLIGHT_TIMEOUT
   #if !HAS_ENCODER_ACTION && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
+  #elif HAS_DISPLAY_SLEEP
+    #error "LCD_BACKLIGHT_TIMEOUT_MINS and DISPLAY_SLEEP_MINUTES are not currently supported at the same time."
   #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
       #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
@@ -2852,6 +2863,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #elif !PIN_EXISTS(LCD_BACKLIGHT) && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires LCD_BACKLIGHT_PIN, NEOPIXEL_BKGD_INDEX_FIRST, or an Ender-3 V2 DWIN LCD."
+  #endif
+#elif HAS_DISPLAY_SLEEP
+  #if NONE(TOUCH_SCREEN, HAS_MARLINUI_U8GLIB) || ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI_12864, CR10_STOCKDISPLAY, MINIPANEL)
+    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
+    #undef HAS_DISPLAY_SLEEP
+  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
+    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
+  #elif DISABLED(EDITABLE_DISPLAY_TIMEOUT) && DISPLAY_SLEEP_MINUTES == 0
+    #error "DISPLAY_SLEEP_MINUTES must be greater than 0 with EDITABLE_DISPLAY_TIMEOUT disabled."
   #endif
 #endif
 
@@ -2862,17 +2882,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif !(ALL(HAS_BEEPER, SPEAKER) || USE_MARLINUI_BUZZER)
     #error "STARTUP_TUNE requires a BEEPER_PIN with SPEAKER or USE_MARLINUI_BUZZER."
     #undef STARTUP_TUNE
-  #endif
-#endif
-
-/**
- * Display Sleep is not supported by these common displays
- */
-#if HAS_DISPLAY_SLEEP
-  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI_12864, CR10_STOCKDISPLAY, MINIPANEL)
-    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
-  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
-    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
   #endif
 #endif
 
@@ -3407,10 +3416,59 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "MARKFORGED requires both X and Y to use sensorless homing if either one does."
 #endif
 
+// TMC Hybrid Threshold
+#if ENABLED(HYBRID_THRESHOLD)
+  #if !STEALTHCHOP_ENABLED
+    #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
+  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
+    #error "X_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
+    #error "X2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
+    #error "Y_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
+    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
+    #error "Z_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
+    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
+    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
+    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
+    #error "I_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
+    #error "J_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
+    #error "K_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
+    #error "U_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
+    #error "V_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
+    #error "W_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
+    #error "E0_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
+    #error "E1_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
+    #error "E2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
+    #error "E3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
+    #error "E4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
+    #error "E5_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
+    #error "E6_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
+    #error "E7_HYBRID_THRESHOLD must be greater than 0."
+  #endif
+#endif // HYBRID_THRESHOLD
+
 // Other TMC feature requirements
-#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
-  #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-#elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
   #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
@@ -3627,6 +3685,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
   #endif
+  static_assert(WITHIN(Z_STEPPER_ALIGN_ACC, 0.001, 1.0), "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0");
 #endif
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
@@ -3750,6 +3809,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "POWER_OFF_DELAY must be a positive value."
   #elif ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN) && !(defined(AUTO_POWER_E_TEMP) || defined(AUTO_POWER_CHAMBER_TEMP) || defined(AUTO_POWER_COOLER_TEMP))
     #error "POWER_OFF_WAIT_FOR_COOLDOWN requires AUTO_POWER_E_TEMP, AUTO_POWER_CHAMBER_TEMP, and/or AUTO_POWER_COOLER_TEMP."
+  #elif ENABLED(PSU_OFF_REDUNDANT) && !PIN_EXISTS(PS_ON1)
+    #error "PSU_OFF_REDUNDANT requires PS_ON1_PIN."
   #endif
 #endif
 
@@ -3926,6 +3987,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
+// GT911 Capacitive touch screen such as BIQU_BX_TFT70
+#if ALL(TFT_TOUCH_DEVICE_GT911, TOUCH_SCREEN_CALIBRATION)
+  #error "TOUCH_SCREEN_CALIBRATION is not supported by the selected LCD controller."
+#endif
+
 /**
  * Sanity check WiFi options
  */
@@ -3937,11 +4003,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
     #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND)
+#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT)
+#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif defined(WIFI_SSID) || defined(WIFI_PWD)
+#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
@@ -3967,7 +4033,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Sanity Check for Slim LCD Menus and Probe Offset Wizard
  */
 #if ALL(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
-  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
+  #error "SLIM_LCD_MENUS disables 'Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.'"
 #endif
 
 /**
