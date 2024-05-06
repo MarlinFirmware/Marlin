@@ -183,6 +183,19 @@
 #define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB7
 
+/*   -----
+ *   | 1 | RST
+ *   | 2 | PA3 RX2
+ *   | 3 | PA2 TX2
+ *   | 4 | GND
+ *   | 5 | 5V
+ *   -----
+ *    TFT
+ */
+
+#define TFT_02                              PA3
+#define TFT_03                              PA2
+
 #if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
@@ -347,9 +360,8 @@
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
 //
-// SD Support
+// SD Card
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

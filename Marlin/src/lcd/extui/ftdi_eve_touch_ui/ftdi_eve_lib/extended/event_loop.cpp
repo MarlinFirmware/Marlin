@@ -71,7 +71,6 @@ void UIData::set_persistent_data(uint8_t value) {
   flags.value = value & get_persistent_data_mask();
 }
 
-
 void UIData::enable_touch_sounds(bool enabled) {
   UIData::flags.bits.touch_start_sound  = enabled;
   UIData::flags.bits.touch_end_sound    = enabled;

@@ -167,6 +167,7 @@
 //
 // LCD / Controller
 //
+
 #if IS_ULTIPANEL
   #define LCD_PINS_RS                          8  // E0
   #define LCD_PINS_EN                          9  // E1

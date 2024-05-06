@@ -53,6 +53,10 @@
   #include "e3v2/proui/dwin.h"
 #endif
 
+#if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
+  #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
+#endif
+
 typedef bool (*statusResetFunc_t)();
 
 #if HAS_WIRED_LCD
@@ -292,16 +296,10 @@ public:
     static constexpr uint8_t sleep_timeout_max = 99;
     static millis_t screen_timeout_ms;
     static void refresh_screen_timeout();
-    static void sleep_display(const bool sleep=true);
   #endif
 
-  #if HAS_DWIN_E3V2_BASIC
-    static void refresh();
-  #else
-    FORCE_INLINE static void refresh() {
-      TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
-    }
-  #endif
+  static void sleep_display(const bool=true) IF_DISABLED(HAS_DISPLAY_SLEEP, {});
+  static void wake_display() { sleep_display(false); }
 
   #if HAS_PRINT_PROGRESS_PERMYRIAD
     typedef uint16_t progress_t;
@@ -391,6 +389,7 @@ public:
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;
+      static void reset_status_scroll() { status_scroll_offset = 0; }
       static void advance_status_scroll();
       static char* status_and_len(uint8_t &len);
     #endif
@@ -508,6 +507,11 @@ public:
   // Periodic or as-needed display update
   static void update() IF_DISABLED(HAS_UI_UPDATE, {});
 
+  // Tell the screen to redraw on the next call
+  FORCE_INLINE static void refresh() {
+    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+  }
+
   #if HAS_DISPLAY
 
     static void abort_print();
@@ -582,16 +586,7 @@ public:
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
-      #if HAS_TOUCH_SLEEP
-        static void wakeup_screen();
-      #endif
-
       static void quick_feedback(const bool clear_buttons=true);
-      #if HAS_SOUND
-        static void completion_feedback(const bool good=true);
-      #else
-        static void completion_feedback(const bool=true) { TERN_(HAS_TOUCH_SLEEP, wakeup_screen()); }
-      #endif
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
@@ -604,7 +599,7 @@ public:
 
       static void status_screen();
 
-    #endif
+    #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
       static bool drawing_screen, first_page;
@@ -635,8 +630,9 @@ public:
 
   #if !HAS_WIRED_LCD
     static void quick_feedback(const bool=true) {}
-    static void completion_feedback(const bool=true) {}
   #endif
+
+  static void completion_feedback(const bool good=true);
 
   #if HAS_MEDIA
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
@@ -664,6 +660,13 @@ public:
     TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
   }
 
+  #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+    static bool encoder_multiplier_enabled;
+    static void enable_encoder_multiplier(const bool onoff) { encoder_multiplier_enabled = onoff; }
+  #else
+    static void enable_encoder_multiplier(const bool) {}
+  #endif
+
   #if HAS_MARLINUI_MENU
 
     #if HAS_TOUCH_BUTTONS
@@ -671,15 +674,6 @@ public:
       static uint16_t repeat_delay;
     #else
       static constexpr uint8_t touch_buttons = 0;
-    #endif
-
-    #if ENABLED(ENCODER_RATE_MULTIPLIER)
-      static bool encoderRateMultiplierEnabled;
-      static millis_t lastEncoderMovementMillis;
-      static void enable_encoder_multiplier(const bool onoff);
-      #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)
-    #else
-      #define ENCODER_RATE_MULTIPLY(F) NOOP
     #endif
 
     // Manual Movement
@@ -763,7 +757,7 @@ public:
     static bool use_click() { return false; }
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+  #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static void _pause_show_message() {}

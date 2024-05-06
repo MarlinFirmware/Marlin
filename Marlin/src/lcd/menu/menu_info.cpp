@@ -116,6 +116,7 @@ void menu_info_thermistors() {
   #if TEMP_SENSOR_1 != 0
     #define THERMISTOR_ID TEMP_SENSOR_1
     #include "../thermistornames.h"
+    #undef THERMISTOR_ID
     THERM_ITEMS(STR_E1, HEATER_1, WATCH_HOTENDS);
   #endif
 
@@ -162,9 +163,9 @@ void menu_info_thermistors() {
   #endif
 
   #if HAS_HEATED_BED
-    #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
+    #undef THERMISTOR_ID
     THERM_ITEMS("BED", BED, WATCH_BED);
   #endif
 
