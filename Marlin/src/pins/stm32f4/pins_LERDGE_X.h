@@ -113,7 +113,6 @@
 //
 //#define CASE_LIGHT_PIN_CI                 -1
 //#define CASE_LIGHT_PIN_DO                 -1
-//#define NEOPIXEL_PIN                      -1
 
 //
 // SD support (On board)

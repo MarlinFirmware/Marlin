@@ -47,7 +47,6 @@ typedef ForwardSerial1Class< decltype(Serial2) > DefaultSerial3;
 extern DefaultSerial2 MSerial0;
 extern DefaultSerial3 MSerial1;
 
-
 #define __MSERIAL(X) MSerial##X
 #define _MSERIAL(X) __MSERIAL(X)
 #define MSERIAL(X) _MSERIAL(INCREMENT(X))

@@ -25,17 +25,42 @@
 #include <drivers/usart/Usart.h>
 
 // Optionally set uart IRQ priority to reduce overflow errors
-// #define UART_IRQ_PRIO 1
+//#define UART_RX_IRQ_PRIO 1
+//#define UART_TX_IRQ_PRIO 1
+//#define UART_RX_DMA_IRQ_PRIO 1
 
 struct MarlinSerial : public Usart {
-  MarlinSerial(struct usart_config_t *usart_device, gpio_pin_t tx_pin, gpio_pin_t rx_pin) : Usart(usart_device, tx_pin, rx_pin) {}
+  MarlinSerial(
+    struct usart_config_t *usart_device,
+    gpio_pin_t tx_pin,
+    gpio_pin_t rx_pin
+    #if ENABLED(SERIAL_DMA)
+    , M4_DMA_TypeDef *dma_unit = nullptr,
+    en_dma_channel_t rx_dma_channel = DmaCh0
+    #endif
+  ) : Usart(usart_device, tx_pin, rx_pin) {
+    #if ENABLED(SERIAL_DMA)
+      if (dma_unit != nullptr) {
+        enableRxDma(dma_unit, rx_dma_channel);
+      }
+    #endif
+  }
 
-  #ifdef UART_IRQ_PRIO
+  #if defined(UART_RX_IRQ_PRIO) || defined(UART_TX_IRQ_PRIO) || defined(UART_RX_DMA_IRQ_PRIO)
     void setPriority() {
-      NVIC_SetPriority(c_dev()->interrupts.rx_data_available.interrupt_number, UART_IRQ_PRIO);
-      NVIC_SetPriority(c_dev()->interrupts.rx_error.interrupt_number, UART_IRQ_PRIO);
-      NVIC_SetPriority(c_dev()->interrupts.tx_buffer_empty.interrupt_number, UART_IRQ_PRIO);
-      NVIC_SetPriority(c_dev()->interrupts.tx_complete.interrupt_number, UART_IRQ_PRIO);
+      #if defined(UART_RX_IRQ_PRIO)
+        NVIC_SetPriority(c_dev()->interrupts.rx_data_available.interrupt_number, UART_RX_IRQ_PRIO);
+        NVIC_SetPriority(c_dev()->interrupts.rx_error.interrupt_number, UART_RX_IRQ_PRIO);
+      #endif
+
+      #if defined(UART_TX_IRQ_PRIO)
+        NVIC_SetPriority(c_dev()->interrupts.tx_buffer_empty.interrupt_number, UART_TX_IRQ_PRIO);
+        NVIC_SetPriority(c_dev()->interrupts.tx_complete.interrupt_number, UART_TX_IRQ_PRIO);
+      #endif
+
+      #if defined(UART_RX_DMA_IRQ_PRIO) && ENABLED(SERIAL_DMA)
+        NVIC_SetPriority(c_dev()->dma.rx.rx_data_available_dma_btc.interrupt_number, UART_RX_DMA_IRQ_PRIO);
+      #endif
     }
 
     void begin(uint32_t baud) {
@@ -47,7 +72,12 @@ struct MarlinSerial : public Usart {
       Usart::begin(baud, config);
       setPriority();
     }
-  #endif
+
+    void begin(uint32_t baud, const stc_usart_uart_init_t *config, const bool rxNoiseFilter = true) {
+      Usart::begin(baud, config, rxNoiseFilter);
+      setPriority();
+    }
+  #endif // UART_RX_IRQ_PRIO || UART_TX_IRQ_PRIO || UART_RX_DMA_IRQ_PRIO
 };
 
 typedef Serial1Class<MarlinSerial> MSerialT;

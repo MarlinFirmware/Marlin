@@ -150,6 +150,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define SPI_DEVICE                           2  // Maple

@@ -62,7 +62,7 @@ void (*DGUSScreenHandler::confirm_action_cb)() = nullptr;
   filament_data_t filament_data;
 #endif
 
-void DGUSScreenHandler::sendInfoScreen(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool l4inflash) {
+void DGUSScreenHandler::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4, bool l1inflash, bool l2inflash, bool l3inflash, bool l4inflash) {
   DGUS_VP_Variable ramcopy;
   if (populate_VPVar(VP_MSGSTR1, &ramcopy)) {
     ramcopy.memadr = (void*) line1;
@@ -89,7 +89,7 @@ void DGUSScreenHandler::handleUserConfirmationPopUp(uint16_t VP, PGM_P const lin
     popToOldScreen();
 
   confirmVP = VP;
-  sendInfoScreen(line1, line2, line3, line4, l1, l2, l3, l4);
+  sendInfoScreen_P(line1, line2, line3, line4, l1, l2, l3, l4);
   gotoScreen(DGUS_SCREEN_CONFIRM);
 }
 

@@ -23,6 +23,12 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+//
+// e3v2/common/dwin_api.h
+//
+// Included by: e3v2/*/dwin_lcd.h
+//
+
 #if ENABLED(DWIN_MARLINUI_LANDSCAPE)
   #define DWIN_WIDTH  480
   #define DWIN_HEIGHT 272
@@ -107,13 +113,6 @@ void dwinUpdateLCD();
 //  color: Clear screen color
 void dwinFrameClear(const uint16_t color);
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
-
 // Draw a line
 //  color: Line segment color
 //  xStart/yStart: Start point
@@ -152,6 +151,19 @@ inline void dwinDrawBox(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t 
   dwinDrawRectangle(mode, color, xStart, yStart, xStart + xSize - 1, yStart + ySize - 1);
 }
 
+// Draw a point
+//  color: point color
+//  width: point width   0x01-0x0F
+//  height: point height 0x01-0x0F
+//  x,y: upper left point
+#if ENABLED(TJC_DISPLAY)
+  inline void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    dwinDrawBox(1, color, x, y, 1, 1);
+  }
+#else
+  void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+#endif
+
 // Move a screen area
 //  mode: 0, circle shift; 1, translation
 //  dir: 0=left, 1=right, 2=up, 3=down
@@ -161,7 +173,6 @@ inline void dwinDrawBox(uint8_t mode, uint16_t color, uint16_t xStart, uint16_t 
 //  xEnd/yEnd: bottom right point
 void dwinFrameAreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
                          uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd);
-
 
 /*---------------------------------------- Text related functions ----------------------------------------*/
 

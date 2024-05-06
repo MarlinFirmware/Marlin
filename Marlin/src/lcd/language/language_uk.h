@@ -638,7 +638,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_REMINDER_SAVE_SETTINGS           = _UxGT("Не забудь зберегти!");
   LSTR MSG_PASSWORD_REMOVED                 = _UxGT("Пароль видалений");
 
-
   //
   // Filament Change screens show up to 2 lines on a 3-line display
   //
