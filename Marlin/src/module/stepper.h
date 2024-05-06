@@ -180,13 +180,13 @@ constexpr ena_mask_t enable_overlap[] = {
 
       #if ENABLED(INPUT_SHAPING_X)
         static shaping_time_t delay_x;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t peek_x_val;
+        static shaping_time_t _peek_x;
         static uint16_t head_x;
         static uint16_t _free_count_x;
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t delay_y;    // = shaping_time_t(-1) to disable queueing
-        static shaping_time_t peek_y_val;
+        static shaping_time_t _peek_y;
         static uint16_t head_y;
         static uint16_t _free_count_y;
       #endif
@@ -194,8 +194,8 @@ constexpr ena_mask_t enable_overlap[] = {
     public:
       static void decrement_delays(const shaping_time_t interval) {
         now += interval;
-        TERN_(INPUT_SHAPING_X, if (peek_x_val != shaping_time_t(-1)) peek_x_val -= interval);
-        TERN_(INPUT_SHAPING_Y, if (peek_y_val != shaping_time_t(-1)) peek_y_val -= interval);
+        TERN_(INPUT_SHAPING_X, if (_peek_x != shaping_time_t(-1)) _peek_x -= interval);
+        TERN_(INPUT_SHAPING_Y, if (_peek_y != shaping_time_t(-1)) _peek_y -= interval);
       }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
         TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
@@ -204,7 +204,7 @@ constexpr ena_mask_t enable_overlap[] = {
       static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
         #if ENABLED(INPUT_SHAPING_X)
           if (x_step) {
-            if (head_x == tail) peek_x_val = delay_x;
+            if (head_x == tail) _peek_x = delay_x;
             echo_axes[tail].x = x_forward ? ECHO_FWD : ECHO_BWD;
             _free_count_x--;
           }
@@ -218,7 +218,7 @@ constexpr ena_mask_t enable_overlap[] = {
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
           if (y_step) {
-            if (head_y == tail) peek_y_val = delay_y;
+            if (head_y == tail) _peek_y = delay_y;
             echo_axes[tail].y = y_forward ? ECHO_FWD : ECHO_BWD;
             _free_count_y--;
           }
@@ -234,28 +234,28 @@ constexpr ena_mask_t enable_overlap[] = {
         if (++tail == shaping_echoes) tail = 0;
       }
       #if ENABLED(INPUT_SHAPING_X)
-        static shaping_time_t peek_x() { return peek_x_val; }
+        static shaping_time_t peek_x() { return _peek_x; }
         static bool dequeue_x() {
           bool forward = echo_axes[head_x].x == ECHO_FWD;
           do {
             _free_count_x++;
             if (++head_x == shaping_echoes) head_x = 0;
           } while (head_x != tail && echo_axes[head_x].x == ECHO_NONE);
-          peek_x_val = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
+          _peek_x = head_x == tail ? shaping_time_t(-1) : times[head_x] + delay_x - now;
           return forward;
         }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
-        static shaping_time_t peek_y() { return peek_y_val; }
+        static shaping_time_t peek_y() { return _peek_y; }
         static bool dequeue_y() {
           bool forward = echo_axes[head_y].y == ECHO_FWD;
           do {
             _free_count_y++;
             if (++head_y == shaping_echoes) head_y = 0;
           } while (head_y != tail && echo_axes[head_y].y == ECHO_NONE);
-          peek_y_val = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
+          _peek_y = head_y == tail ? shaping_time_t(-1) : times[head_y] + delay_y - now;
           return forward;
         }
         static bool empty_y() { return head_y == tail; }
@@ -264,10 +264,10 @@ constexpr ena_mask_t enable_overlap[] = {
       static void purge() {
         const auto st = shaping_time_t(-1);
         #if ENABLED(INPUT_SHAPING_X)
-          head_x = tail; _free_count_x = shaping_echoes - 1; peek_x_val = st;
+          head_x = tail; _free_count_x = shaping_echoes - 1; _peek_x = st;
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
-          head_y = tail; _free_count_y = shaping_echoes - 1; peek_y_val = st;
+          head_y = tail; _free_count_y = shaping_echoes - 1; _peek_y = st;
         #endif
       }
   };
