@@ -19,7 +19,7 @@ jobs:
     steps:
 
     - name: Check out bugfix-2.0.x
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: bugfix-2.0.x
 
@@ -39,7 +39,7 @@ jobs:
         exit 0
 
     - name: Check out bugfix-2.1.x
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: bugfix-2.1.x
 

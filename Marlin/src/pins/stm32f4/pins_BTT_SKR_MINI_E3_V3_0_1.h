@@ -140,6 +140,10 @@
   #ifndef E0_SLAVE_ADDRESS
     #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BTT_SKR_MINI_E3_V3_0_1.");
 #endif
 
 //

@@ -691,6 +691,8 @@
   #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
 #elif defined(Z_PROBE_END_SCRIPT)
   #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
+#elif defined(WIFI_SERIAL)
+  #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
 #endif
 
 // Changes to Probe Temp Compensation (#17392)

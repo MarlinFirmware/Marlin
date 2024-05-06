@@ -51,7 +51,7 @@
 //
 // MKS WIFI MODULE
 //
-//#define WIFI_SERIAL 1// USART1
+//#define WIFI_SERIAL_PORT                     1  // USART1
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_IO0_PIN                      PB14  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PB15  // MKS ESP WIFI IO1 PIN

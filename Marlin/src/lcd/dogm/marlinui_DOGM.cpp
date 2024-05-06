@@ -140,7 +140,7 @@ bool MarlinUI::detected() { return true; }
         uint8_t *dst = (uint8_t*)bmp;
 
         auto rle_nybble = [&](const uint16_t i) -> uint8_t {
-          const uint8_t b = bmp_rle[i / 2];
+          const uint8_t b = pgm_read_byte(&bmp_rle[i / 2]);
           return (i & 1 ? b & 0xF : b >> 4);
         };
 
@@ -377,7 +377,13 @@ void MarlinUI::draw_kill_screen() {
 void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep/*=true*/) { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    static bool asleep = false;
+    if (asleep != sleep){
+      sleep ? u8g.sleepOn() : u8g.sleepOff();
+      asleep = sleep;
+    }
+  }
 #endif
 
 #if HAS_LCD_BRIGHTNESS

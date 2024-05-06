@@ -7,5 +7,6 @@ if [[ $1 == '-d' || $1 == '--default' ]]; then
 else
   git checkout Marlin/Configuration.h 2>/dev/null
   git checkout Marlin/Configuration_adv.h 2>/dev/null
-  git checkout Marlin/src/pins/ramps/pins_RAMPS.h 2>/dev/null
+  git checkout Marlin/config.ini 2>/dev/null
+  git checkout Marlin/src/pins/*/pins_*.h 2>/dev/null
 fi
