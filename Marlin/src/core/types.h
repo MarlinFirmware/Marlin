@@ -963,7 +963,7 @@ public:
         bool HX:1, HY:1, HZ:1;
       #endif
     };
-    // "e" alias for "e0"
+    // a, b, c, e ... ha, hb, hc
     struct {
       bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
@@ -972,10 +972,10 @@ public:
         #undef _EN_ITEM
       #endif
       #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool haa:1, hbb:1, hcc:1;
+        bool ha:1, hb:1, hc:1;
       #endif
     };
-    // "E" alias for "E0"
+    // A, B, C, E ... HA, HB, HC
     struct {
       bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
@@ -984,7 +984,7 @@ public:
         #undef _EN_ITEM
       #endif
       #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
-        bool HAA:1, HBB:1, HCC:1;
+        bool HA:1, HB:1, HC:1;
       #endif
     };
   };
