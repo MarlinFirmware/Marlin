@@ -201,6 +201,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     DEBUG_ECHOPGM("(2) Couple extruder ", new_tool);
     DEBUG_POS(" to new extruder GrabPos", current_position);
+
     planner.buffer_line(current_position, mpe_settings.slow_feedrate, new_tool);
     planner.synchronize();
 

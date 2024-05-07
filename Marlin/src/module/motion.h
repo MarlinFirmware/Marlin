@@ -392,6 +392,7 @@ void do_blocking_move_to(
   const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f
   OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
 );
+
 #if HAS_X_AXIS
   void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s=0.0f);
 #endif
@@ -412,7 +413,8 @@ void do_blocking_move_to(
   );
 #endif
 #if HAS_J_AXIS
-  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s=0.0f
+  void do_blocking_move_to_j(
+    const_float_t rj, const_feedRate_t fr_mm_s=0.0f
     OPTARG(HAS_ROTATIONAL_AXES, const_feedRate_t fr_deg_s=0.0f)
   );
   void do_blocking_move_to_xyzi_j(
