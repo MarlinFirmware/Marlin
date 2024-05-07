@@ -66,7 +66,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Domů osa Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Domů osa Z");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto srovnání Z");
-  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Měření podložky");
+  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Hledám domov");
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Kliknutím spusťte");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Další bod");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Měření hotovo!");
@@ -105,6 +105,15 @@ namespace LanguageNarrow_cz {
   LSTR MSG_BED_LEVELING                   = _UxGT("Vyrovnat podložku");
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnat podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnat rohy");
+  LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Průvodce");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Zvol referenční bod");
+  LSTR MSG_TW_SELECT_TRAM_POINT           = _UxGT("Zvol bod k měření");
+  LSTR MSG_TW_MEASURING_REF               = _UxGT("Měřím referenční\nvýšku Z na\n");
+  LSTR MSG_TW_SET_AS_REF                  = _UxGT("Nastav jako ref. Z");
+  LSTR MSG_TW_MENU_MODE_MEASURE           = _UxGT("Menu mód: Měření");
+  LSTR MSG_TW_MENU_MODE_DETAIL            = _UxGT("Menu mód: Detail bodu");
+  LSTR MSG_TW_UNITS_MM                    = _UxGT("Jednotky: mm");
+  LSTR MSG_TW_UNITS_SCREW                 = _UxGT("Jednotky: M{ šroub");
   LSTR MSG_NEXT_CORNER                    = _UxGT("Další roh");
   LSTR MSG_MESH_EDITOR                    = _UxGT("Editor sítě");
   LSTR MSG_EDIT_MESH                      = _UxGT("Upravit síť bodů");

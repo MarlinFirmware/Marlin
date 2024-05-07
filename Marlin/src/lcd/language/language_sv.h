@@ -74,8 +74,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Sätt Hem Offset");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offset Tillämpad");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Justerings Wizard");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Välj Origo");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Senaste värde ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Välj Origo");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Förvärmning ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Förvärmning ") PREHEAT_1_LABEL " ~";

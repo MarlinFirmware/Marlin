@@ -686,6 +686,7 @@ public:
     static bool update_selection();
 
     static void synchronize(FSTR_P const msg=nullptr);
+    static void goto_message_screen(FSTR_P const fstr1, const char * const string = nullptr, FSTR_P const fstr2=nullptr, bool synchronize=false);
 
     static screenFunc_t currentScreen;
     static bool screen_changed;
@@ -731,7 +732,7 @@ public:
       static float ubl_mesh_value();
     #endif
 
-    static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
+    static void draw_message_on_screen(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
   #else
 

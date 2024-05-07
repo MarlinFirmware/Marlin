@@ -246,6 +246,39 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
+/*
+
+  For testing purposes
+
+  ACTION_ITEM_N_S_F(1, "Sbs", F("1 Testing $ {"), ui.pause_print, SS_FULL, "Val", 5);
+  ACTION_ITEM_N_S(1, "Sbs", MSG_PREHEAT_M_END_E, ui.pause_print, SS_FULL, "Very Very Very Very Long Value", 5);
+  ACTION_ITEM_S_F("Sbs", F("3 Testing Another $"), ui.pause_print, SS_FULL, "Moderately Value", 5);
+  ACTION_ITEM_S("Self 4", MSG_PREHEAT_M, ui.pause_print, SS_FULL, "Val", 5);
+  ACTION_ITEM_N_F(5, F("Next {"), ui.pause_print, SS_FULL, "Val", 5);
+  ACTION_ITEM_N(6, MSG_LED_CHANNEL_N, ui.pause_print, SS_FULL, "Val", 5);
+  ACTION_ITEM_F(F("Next pause 7 NOT"), ui.pause_print, SS_FULL, "Val", 5);
+  ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print, SS_FULL, "Val", 5);
+
+  GCODES_ITEM_N_S_F(1, "Sbs", F("GC 1 Testing $ {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_N_S(1, "GC Sbs", MSG_PREHEAT_M_END_E, FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_S_F("Sbs", F("3 GC Testing Another $"), FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_S("GC Self 4", MSG_PREHEAT_M, FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_N_F(5, F("GC Next {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_N(6, MSG_LED_CHANNEL_N, FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM_F(F("GC Next pause 7 NOT"), FPSTR(G28_STR), SS_FULL, "Val", 5);
+  GCODES_ITEM(MSG_PAUSE_PRINT, FPSTR(G28_STR), SS_FULL, "Val", 5);
+
+  SUBMENU_N_S_F(1, "Sbs", F("SM 1 Testing $ {"), menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_N_S(1, "SM Sbs", MSG_PREHEAT_M_END_E, menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_S_F("Sbs", F("3 SM Testing Another $"), menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_S("SM Self 4", MSG_PREHEAT_M, menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_N_F(5, F("SM Next {"), menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_N(6, MSG_LED_CHANNEL_N, menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU_F(F("SM Next pause 7 NOT"), menu_temperature, SS_FULL, "Val", 5);
+  SUBMENU(MSG_PAUSE_PRINT, menu_temperature, SS_FULL, "Val", 5);
+
+*/
+
   #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
     #define MEDIA_MENU_AT_TOP
   #endif

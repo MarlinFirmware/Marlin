@@ -81,8 +81,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Kezdö eltol.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Eltolás beállítva.");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Utolsó érték ");
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Eredeti választása");
 
   LSTR MSG_PREHEAT_1                      = _UxGT("Fütés ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                    = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";

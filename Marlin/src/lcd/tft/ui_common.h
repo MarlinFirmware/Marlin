@@ -116,6 +116,11 @@ void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
 void menu_item(const uint8_t row, bool sel = false);
 
+template<typename T>
+void _wrap_string(uint8_t &col, uint8_t &row, T string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
+
 typedef void (*screenFunc_t)();
 void add_control(
   uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled=true,

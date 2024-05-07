@@ -1244,12 +1244,30 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
+    const uint8_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
+    const int8_t post_char_len = post_char == ' ' ? 0 : 1;
+    uint8_t n = _MAX(LCD_WIDTH - 1 - post_char_len - rlen, 0);
+    const bool full = bool(style & SS_FULL), center = bool(style & SS_CENTER);
+
     lcd_put_lchar(0, row, sel ? pre_char : ' ');
-    uint8_t n = LCD_WIDTH - 2;
-    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-    for (; n; --n) lcd_put_u8str(F(" "));
-    lcd_put_lchar(post_char);
+
+    if (!full || !vstr) {
+      const uint8_t totalLen = rlen + utf8_strlen(ftpl);
+      uint8_t padLeft = center ? _MAX(0, (LCD_WIDTH - post_char_len - totalLen) / 2) : 0;
+      n = LCD_WIDTH - 1 - post_char_len - padLeft;
+      for (; padLeft; --padLeft) lcd_put_u8str(F(" "));
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      if (vstr) n -= lcd_put_u8str_max(vstr, n);
+      for (; n; --n) lcd_put_u8str(F(" "));
+    }
+    else {
+      n = LCD_WIDTH - 2;
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      for (; n; --n) lcd_put_u8str(F(" "));
+    }
+
+    if (post_char_len) lcd_put_lchar(post_char);
   }
 
   // Draw a menu item with a (potentially) editable value
@@ -1281,7 +1299,7 @@ void MarlinUI::draw_status_screen() {
 
   // The Select Screen presents a prompt and two "buttons"
   void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
-    ui.draw_select_screen_prompt(fpre, string, fsuf);
+    ui.draw_message_on_screen(fpre, string, fsuf);
     if (no) {
       SETCURSOR(0, LCD_HEIGHT - 1);
       lcd_put_lchar(yesno ? ' ' : '['); lcd_put_u8str(no); lcd_put_lchar(yesno ? ' ' : ']');

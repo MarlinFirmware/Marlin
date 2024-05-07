@@ -77,8 +77,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Зміщ. дому Y");
   LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Зміщ. дому Z");
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Зміщення прийняті");
-  LSTR MSG_SELECT_ORIGIN                    = _UxGT("Оберіть нуль");
-  LSTR MSG_LAST_VALUE_SP                    = _UxGT("Останнє знач. ");
+  LSTR MSG_TW_SELECT_TRAM_REF               = _UxGT("Оберіть нуль");
 
   LSTR MSG_PREHEAT_1                        = _UxGT("Нагрів ") PREHEAT_1_LABEL;
   LSTR MSG_PREHEAT_1_H                      = _UxGT("Нагрів ") PREHEAT_1_LABEL " ~";
@@ -706,7 +705,6 @@ namespace LanguageWide_uk {
     LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X");
     LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y");
     LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z");
-    LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє значення ");
     LSTR MSG_LASER_POWER                    = _UxGT("Потужність лазера");
     LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Перемкн. шпіндель");
     LSTR MSG_SPINDLE_EVAC_TOGGLE            = _UxGT("Перемкнути вакуум");

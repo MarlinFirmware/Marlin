@@ -499,13 +499,34 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a generic menu item
-  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char) {
+  void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char, const char post_char, const uint8_t style, const char *vstr, const uint8_t minFstr/*=0*/) {
     if (!mark_as_selected(row, sel)) return;
 
-    uint8_t n = LCD_WIDTH - 1;
-    n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
-    for (; n; --n) lcd_put_u8str(F(" "));
-    lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
+    const pixel_len_t rlen = vstr ? utf8_strlen(vstr) + 1 : 0;
+    const uint8_t post_char_len = post_char != ' ' ? 1 : 0;
+    pixel_len_t n = _MAX(LCD_WIDTH - rlen - post_char_len, 0);
+
+    const bool full = bool(style & SS_FULL), center = bool(style & SS_CENTER);
+
+    if (!full || !vstr) {
+      const uint8_t totalLen = rlen + utf8_strlen(ftpl);
+      uint8_t padLeft = center ? _MAX(0, (LCD_WIDTH - post_char_len - totalLen) / 2) : 0;
+      n = LCD_WIDTH - post_char_len - padLeft;
+      while (padLeft > 0) padLeft -= lcd_put_u8str(F(" ")) / (MENU_FONT_WIDTH);
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      n *= MENU_FONT_WIDTH;
+      if (vstr) lcd_put_u8str_max(vstr, n);
+      while (n > 0) n -= lcd_put_u8str(F(" "));
+
+    }
+    else {
+      n -= lcd_put_u8str(ftpl, itemIndex, itemStringC, itemStringF, n);
+      n *= MENU_FONT_WIDTH;
+      while (n > 0) n -= lcd_put_u8str(F(" "));
+      if (rlen) { lcd_put_u8str(F(" ")); lcd_put_u8str_max(vstr, (LCD_WIDTH - 1 - post_char_len) * (MENU_FONT_WIDTH)); }
+    }
+
+    if (post_char_len) lcd_put_lchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
     lcd_put_u8str(F(" "));
   }
 
@@ -593,7 +614,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
-    ui.draw_select_screen_prompt(fpre, string, fsuf);
+    ui.draw_message_on_screen(fpre, string, fsuf);
     if (no)  draw_boxed_string(1, LCD_HEIGHT - 1, no, !yesno);
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }

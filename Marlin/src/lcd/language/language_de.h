@@ -90,25 +90,31 @@ namespace LanguageNarrow_de {
   LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Homeversatz Z");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
-  LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wählen Sie Ursprung");
-  LSTR MSG_LAST_VALUE_SP                  = _UxGT("Letzter Wert ");
-
-  LSTR MSG_PREHEAT_1                      = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
-  LSTR MSG_PREHEAT_1_H                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
-  LSTR MSG_PREHEAT_1_END                  = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
-  LSTR MSG_PREHEAT_1_END_E                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
-  LSTR MSG_PREHEAT_1_ALL                  = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
-  LSTR MSG_PREHEAT_1_BEDONLY              = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
-  LSTR MSG_PREHEAT_1_SETTINGS             = PREHEAT_1_LABEL _UxGT(" Einstellungen");
-
-  LSTR MSG_PREHEAT_M                      = _UxGT("$ Vorwärmen");
-  LSTR MSG_PREHEAT_M_H                    = _UxGT("$ Vorwärmen") " ~";
-  LSTR MSG_PREHEAT_M_END                  = _UxGT("$ Extr. Vorwärmen");
-  LSTR MSG_PREHEAT_M_END_E                = _UxGT("$ Extr. Vorwärm. ~");
-  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("$ Alles Vorwärmen");
-  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("$ Bett Vorwärmen");
-  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("$ Einstellungen");
-
+  LSTR MSG_TW_SELECT_TRAM_REF             = _UxGT("Wählen Sie Ursprung");
+  #if HAS_PREHEAT
+    LSTR MSG_PREHEAT_1                    = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
+    LSTR MSG_PREHEAT_1_H                  = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
+    LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
+    LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
+    LSTR MSG_PREHEAT_1_ALL                = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
+    LSTR MSG_PREHEAT_1_BEDONLY            = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
+    LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" Einstellungen");
+    #ifdef PREHEAT_2_LABEL
+      LSTR MSG_PREHEAT_2                  = PREHEAT_2_LABEL _UxGT(" Vorwärmen");
+      LSTR MSG_PREHEAT_2_SETTINGS         = PREHEAT_2_LABEL _UxGT(" Vorwärmen Konf");
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      LSTR MSG_PREHEAT_3                  = PREHEAT_3_LABEL _UxGT(" Vorwärmen");
+      LSTR MSG_PREHEAT_3_SETTINGS         = PREHEAT_3_LABEL _UxGT(" Vorwärmen Konf");
+    #endif
+    LSTR MSG_PREHEAT_M                    = _UxGT("$ Vorwärmen");
+    LSTR MSG_PREHEAT_M_H                  = _UxGT("$ Vorwärmen") " ~";
+    LSTR MSG_PREHEAT_M_END                = _UxGT("$ Extr. Vorwärmen");
+    LSTR MSG_PREHEAT_M_END_E              = _UxGT("$ Extr. Vorwärm. ~");
+    LSTR MSG_PREHEAT_M_ALL                = _UxGT("$ Alles Vorwärmen");
+    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("$ Bett Vorwärmen");
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("$ Einstellungen");
+  #endif
   LSTR MSG_PREHEAT_CUSTOM                 = _UxGT("benutzerdef. Heizen");
   LSTR MSG_COOLDOWN                       = _UxGT("Abkühlen");
 

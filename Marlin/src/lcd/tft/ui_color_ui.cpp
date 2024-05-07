@@ -457,28 +457,7 @@ void TFT::draw_edit_screen_buttons() {
 
 // The Select Screen presents a prompt and two "buttons"
 void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const fsuf/*=nullptr*/) {
-  uint16_t line = 1;
-
-  if (!string) line++;
-
-  menu_line(line++);
-  tft_string.set(fpre);
-  tft_string.trim();
-  tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-
-  if (string) {
-    menu_line(line++);
-    tft_string.set(string);
-    tft_string.trim();
-    tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-  }
-
-  if (fsuf) {
-    menu_line(line);
-    tft_string.set(fsuf);
-    tft_string.trim();
-    tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
-  }
+  ui.draw_message_on_screen(fpre, string, fsuf);
   #if ENABLED(TOUCH_SCREEN)
     if (no)  add_control(BUTTON_CANCEL_X, BUTTON_CANCEL_Y, CANCEL,  imgCancel,  true, yesno ? HALF(COLOR_CONTROL_CANCEL) : COLOR_CONTROL_CANCEL);
     if (yes) add_control(BUTTON_CONFIRM_X, BUTTON_CONFIRM_Y, CONFIRM, imgConfirm, true, yesno ? COLOR_CONTROL_CONFIRM : HALF(COLOR_CONTROL_CONFIRM));
