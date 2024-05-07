@@ -159,10 +159,10 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 
   #ifndef SHAPING_MIN_FREQ
-    #define SHAPING_MIN_FREQ _MIN(0x7FFFFFFFL OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
+    #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
   #endif
-  constexpr uint16_t shaping_min_freq = SHAPING_MIN_FREQ,
-                     shaping_echoes = max_step_rate / shaping_min_freq / 2 + 3;
+  constexpr float shaping_min_freq = SHAPING_MIN_FREQ;
+  constexpr uint16_t shaping_echoes = FLOOR(max_step_rate / shaping_min_freq / 2) + 3;
 
   typedef hal_timer_t shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
@@ -336,6 +336,12 @@ class Stepper {
       static ne_coeff_t ne;
     #endif
 
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+      static bool adaptive_step_smoothing_enabled;
+    #else
+      static constexpr bool adaptive_step_smoothing_enabled = true;
+    #endif
+
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -377,7 +383,7 @@ class Stepper {
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
       static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
     #else
-      static constexpr uint8_t oversampling_factor = 0;
+      static constexpr uint8_t oversampling_factor = 0; // Without smoothing apply no shift
     #endif
 
     // Delta error variables for the Bresenham line tracer

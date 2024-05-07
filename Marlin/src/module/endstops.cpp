@@ -351,7 +351,7 @@ void Endstops::event_handler() {
     TERN_(HAS_STATUS_MESSAGE,
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
-        GET_TEXT(MSG_LCD_ENDSTOPS),
+        GET_TEXT_F(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
@@ -788,7 +788,7 @@ void Endstops::update() {
       G38_did_trigger = true;
       #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
       #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
-      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      const Flags<NUM_AXES> moving = { uvalue_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
       MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif

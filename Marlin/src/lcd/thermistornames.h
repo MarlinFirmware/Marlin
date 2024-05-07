@@ -104,6 +104,10 @@
   #define THERMISTOR_NAME "100k Dagoma NTC"
 #elif THERMISTOR_ID == 18
   #define THERMISTOR_NAME "ATC Semitec 204GT-2"
+#elif THERMISTOR_ID == 22
+  #define THERMISTOR_NAME "GTM32 Pro vB (hotend)"
+#elif THERMISTOR_ID == 23
+  #define THERMISTOR_NAME "GTM32 Pro vB (bed)"
 #elif THERMISTOR_ID == 60
   #define THERMISTOR_NAME "Makers Tool"
 #elif THERMISTOR_ID == 70
@@ -156,6 +160,8 @@
   #define THERMISTOR_NAME "Dyze / TL 4.7M"
 #elif THERMISTOR_ID == 67
   #define THERMISTOR_NAME "SliceEng 450°C"
+#elif THERMISTOR_ID == 68
+  #define THERMISTOR_NAME "PT-100 + Dyze amp"
 
 // Dummies for dev testing
 #elif THERMISTOR_ID == 998

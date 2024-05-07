@@ -42,6 +42,8 @@ void GcodeSuite::M304() {
 }
 
 void GcodeSuite::M304_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_BED_PID));
   SERIAL_ECHOLNPGM("  M304"
       " P", thermalManager.temp_bed.pid.p()

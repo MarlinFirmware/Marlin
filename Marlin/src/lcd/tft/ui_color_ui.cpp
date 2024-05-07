@@ -47,7 +47,7 @@
 
 void MarlinUI::tft_idle() {
   #if ENABLED(TOUCH_SCREEN)
-    if (TERN0(HAS_TOUCH_SLEEP, lcd_sleep_task())) return;
+    if (TERN0(HAS_DISPLAY_SLEEP, lcd_sleep_task())) return;
     if (draw_menu_navigation) {
       add_control(NAVIGATION_PAGE_UP_X, NAVIGATION_PAGE_UP_Y, PAGE_UP, imgPageUp, encoderTopLine > 0);
       add_control(NAVIGATION_PAGE_DOWN_X, NAVIGATION_PAGE_DOWN_Y, PAGE_DOWN, imgPageDown, encoderTopLine + LCD_HEIGHT < screen_items);
@@ -278,7 +278,6 @@ void MarlinUI::draw_status_screen() {
     }
     tft.add_text(Z_VALUE_X - offset, Z_VALUE_Y, nhz ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
-
 
   #if ENABLED(LCD_SHOW_E_TOTAL) && defined(E_MARK_X) && defined(E_MARK_Y) && defined(E_VALUE_X) && defined(E_VALUE_Y)
     tft.add_text(E_MARK_X, E_MARK_Y, COLOR_AXIS_HOMED, "E");

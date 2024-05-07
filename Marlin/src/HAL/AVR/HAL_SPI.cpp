@@ -119,7 +119,6 @@ void spiBegin() {
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
 
-
   /** begin spi transaction */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // Based on Arduino SPI library
@@ -174,7 +173,6 @@ void spiBegin() {
       (dataMode << CPHA) | ((clockDiv >> 1) << SPR0);
     SPSR = clockDiv | 0x01;
   }
-
 
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
 

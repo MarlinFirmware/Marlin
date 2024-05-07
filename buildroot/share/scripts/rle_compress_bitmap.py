@@ -10,6 +10,8 @@ import sys,struct
 import re
 
 def addCompressedData(input_file, output_file):
+    input_lines = input_file.readlines()
+    input_file.close()
     ofile = open(output_file, 'wt')
 
     datatype = "uint8_t"
@@ -18,8 +20,7 @@ def addCompressedData(input_file, output_file):
     arrname = ''
 
     c_data_section = False ; c_skip_data = False ; c_footer = False
-    while True:
-        line = input_file.readline()
+    for line in input_lines:
         if not line: break
 
         if not c_footer:
@@ -55,8 +56,6 @@ def addCompressedData(input_file, output_file):
                 c_data_section = True
                 arrname = line.split('[')[0].split(' ')[-1]
                 print("Found data array", arrname)
-
-    input_file.close()
 
     #print("\nRaw Bitmap Data", raw_data)
 
@@ -190,11 +189,11 @@ if len(sys.argv) <= 2:
     print('Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE')
     exit(1)
 
-output_cpp = sys.argv[2]
+output_h = sys.argv[2]
 inname = sys.argv[1].replace('//', '/')
 try:
-    input_cpp = open(inname)
+    input_h = open(inname)
     print("Processing", inname, "...")
-    addCompressedData(input_cpp, output_cpp)
+    addCompressedData(input_h, output_h)
 except OSError:
     print("Can't find input file", inname)

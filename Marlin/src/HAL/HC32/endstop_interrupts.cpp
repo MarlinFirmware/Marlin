@@ -40,8 +40,14 @@ void endstopIRQHandler() {
   CHECK(X_MAX);
   CHECK(X_MIN);
 
+  CHECK(X2_MAX);
+  CHECK(X2_MIN);
+
   CHECK(Y_MAX);
   CHECK(Y_MIN);
+
+  CHECK(Y2_MAX);
+  CHECK(Y2_MIN);
 
   CHECK(Z_MAX);
   CHECK(Z_MIN);
@@ -51,6 +57,9 @@ void endstopIRQHandler() {
 
   CHECK(Z3_MAX);
   CHECK(Z3_MIN);
+
+  CHECK(Z4_MAX);
+  CHECK(Z4_MIN);
 
   CHECK(Z_MIN_PROBE);
 
@@ -69,8 +78,14 @@ void setup_endstop_interrupts() {
   SETUP(X_MAX);
   SETUP(X_MIN);
 
+  SETUP(X2_MAX);
+  SETUP(X2_MIN);
+
   SETUP(Y_MAX);
   SETUP(Y_MIN);
+
+  SETUP(Y2_MAX);
+  SETUP(Y2_MIN);
 
   SETUP(Z_MAX);
   SETUP(Z_MIN);
@@ -81,6 +96,9 @@ void setup_endstop_interrupts() {
   SETUP(Z3_MAX);
   SETUP(Z3_MIN);
 
+  SETUP(Z4_MAX);
+  SETUP(Z4_MIN);
+
   SETUP(Z_MIN_PROBE);
 
   #undef SETUP
@@ -88,7 +106,7 @@ void setup_endstop_interrupts() {
 
 // Ensure 1 - 10 IRQs are registered
 // Disable some endstops if you encounter this error
-#define ENDSTOPS_INTERRUPTS_COUNT COUNT_ENABLED(USE_X_MAX, USE_X_MIN, USE_Y_MAX, USE_Y_MIN, USE_Z_MAX, USE_Z_MIN, USE_Z2_MAX, USE_Z2_MIN, USE_Z3_MAX, USE_Z3_MIN, USE_Z_MIN_PROBE)
+#define ENDSTOPS_INTERRUPTS_COUNT COUNT_ENABLED(USE_X_MAX, USE_X_MIN, USE_X2_MAX, USE_X2_MIN, USE_Y_MAX, USE_Y_MIN, USE_Y2_MAX, USE_Y2_MIN, USE_Z_MAX, USE_Z_MIN, USE_Z2_MAX, USE_Z2_MIN, USE_Z3_MAX, USE_Z3_MIN, USE_Z4_MAX, USE_Z4_MIN, USE_Z_MIN_PROBE)
 #if ENDSTOPS_INTERRUPTS_COUNT > 10
   #error "Too many endstop interrupts! HC32F460 only supports 10 endstop interrupts."
 #elif ENDSTOPS_INTERRUPTS_COUNT == 0
