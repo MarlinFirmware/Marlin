@@ -739,7 +739,7 @@ void MarlinUI::init() {
 
   void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component) {
     init();
-    status_printf(1, F(S_FMT ": " S_FMT), FTOP(lcd_error), FTOP(lcd_component));
+    status_printf(1, F(S_FMT ": " S_FMT), lcd_error, lcd_component);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.
