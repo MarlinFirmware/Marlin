@@ -28,11 +28,14 @@
 #include "../../gcode.h"
 
 void write_packet_data() {
-  for (size_t i = 0; i < rs485Packetizer.packetLength(); i++) {
+
+  Packet packet = rs485Packetizer.getPacket();
+  for(size_t i = packet.startIndex; i <= packet.endIndex; i++) {
     const uint8_t data = rs485Bus[i];
     if (data < 0x10) SERIAL_ECHOPGM_P(PSTR("0"));
     SERIAL_PRINT(data, PrintBase::Hex);
   }
+
   SERIAL_EOL();
 }
 
@@ -43,7 +46,6 @@ static void rs485_write_failed(const PacketWriteResult writeResult) {
     case PacketWriteResult::FAILED_INTERRUPTED: SERIAL_ECHOPGM("interrupted"); break;
     case PacketWriteResult::FAILED_BUFFER_FULL: SERIAL_ECHOPGM("buffer full"); break;
     case PacketWriteResult::FAILED_TIMEOUT: SERIAL_ECHOPGM("timeout"); break;
-    default: break;
   }
   SERIAL_EOL();
 }
@@ -75,9 +77,11 @@ void GcodeSuite::M485() {
     rs485Buffer[i >> 1] = (nybble1 & 0x0F) << 4 | (nybble2 & 0x0F);
   }
 
-  rs485Packetizer.setMaxReadTimeout(10);  // This can be super small since ideally any packets will already be in our buffer
+  rs485Packetizer.setMaxReadTimeout(50000);  // This can be super small since ideally any packets will already be in our buffer
+  rs485Packetizer.setFalsePacketVerificationTimeout(5000);
 
   // Read and ignore any packets that may have come in, before we write.
+
   while (rs485Packetizer.hasPacket()) {
     SERIAL_ECHOPGM("rs485-unexpected-packet: ");
     write_packet_data();
@@ -87,10 +91,8 @@ void GcodeSuite::M485() {
   const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
   switch (writeResult) {
     default: rs485_write_failed(writeResult);
-    case PacketWriteResult::OK: break; // Nothing to do
+    case PacketWriteResult::OK:;  // Nothing to do
   }
-
-  rs485Packetizer.setMaxReadTimeout(50000); // 50 ms
 
   //millis_t startTime = millis();
   bool hasPacket = rs485Packetizer.hasPacket();
