@@ -433,7 +433,7 @@ namespace ExtUI {
    * Media access routines
    * Use these to operate on files
    */
-  bool isMediaInserted();
+  bool isMediaMounted();
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();

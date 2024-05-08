@@ -564,8 +564,8 @@ void ChironTFT::panelInfo(uint8_t req) {
     } break;
 
     case 8:   // A8 Get SD Card list A8 S0
-      if (!isMediaInserted()) safe_delay(500);
-      if (!isMediaInserted())   // Make sure the card is removed
+      if (!isMediaMounted()) safe_delay(500);
+      if (!isMediaMounted())   // Make sure the card is removed
         tftSendLn(AC_msg_no_sd_card);
       else if (panel_command[3] == 'S')
         sendFileList( atoi( &panel_command[4] ) );

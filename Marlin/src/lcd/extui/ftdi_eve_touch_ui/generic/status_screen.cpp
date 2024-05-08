@@ -299,7 +299,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     #define MENU_BTN_POS   BTN_POS(3,13), BTN_SIZE(2,4)
   #endif
 
-    const bool has_media = isMediaInserted() && !isPrintingFromMedia();
+    const bool has_media = isMediaMounted() && !isPrintingFromMedia();
 
     CommandProcessor cmd;
     cmd.colors(normal_btn)
