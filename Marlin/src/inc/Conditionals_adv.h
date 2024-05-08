@@ -26,6 +26,12 @@
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
 
+#if ENABLED(MARLIN_SMALL_BUILD)
+  #undef EEPROM_CHITCHAT
+  #undef CAPABILITIES_REPORT
+  #define DISABLE_M503
+#endif
+
 #ifndef AXIS_RELATIVE_MODES
   #define AXIS_RELATIVE_MODES {}
 #endif
@@ -315,6 +321,13 @@
 // Linear advance uses Jerk since E is an isolated axis
 #if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
+#endif
+
+// Some displays can toggle Adaptive Step Smoothing.
+// The state is saved to EEPROM.
+// In future this may be added to a G-code such as M205 A.
+#if ALL(ADAPTIVE_STEP_SMOOTHING, DWIN_LCD_PROUI)
+  #define ADAPTIVE_STEP_SMOOTHING_TOGGLE
 #endif
 
 /**
@@ -863,6 +876,24 @@
   #define HAS_ENCODER_ACTION 1
 #endif
 
+#if ENABLED(ENCODER_RATE_MULTIPLIER)
+  #ifndef ENCODER_5X_STEPS_PER_SEC
+    #define ENCODER_5X_STEPS_PER_SEC 0
+  #endif
+  #ifndef ENCODER_10X_STEPS_PER_SEC
+    #define ENCODER_10X_STEPS_PER_SEC 0
+  #endif
+  #ifndef ENCODER_100X_STEPS_PER_SEC
+    #define ENCODER_100X_STEPS_PER_SEC 0
+  #endif
+  #if !((HAS_MARLINUI_MENU || HAS_DWIN_E3V2) && (ENCODER_5X_STEPS_PER_SEC || ENCODER_10X_STEPS_PER_SEC || ENCODER_100X_STEPS_PER_SEC))
+    #undef ENCODER_RATE_MULTIPLIER
+    #undef ENCODER_5X_STEPS_PER_SEC
+    #undef ENCODER_10X_STEPS_PER_SEC
+    #undef ENCODER_100X_STEPS_PER_SEC
+  #endif
+#endif
+
 #if STATUS_MESSAGE_TIMEOUT_SEC > 0
   #define HAS_STATUS_MESSAGE_TIMEOUT 1
 #endif
@@ -912,7 +943,7 @@
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
-#if defined(DISPLAY_SLEEP_MINUTES) || defined(TOUCH_IDLE_SLEEP_MINS)
+#ifdef DISPLAY_SLEEP_MINUTES
   #define HAS_DISPLAY_SLEEP 1
 #endif
 #ifdef LCD_BACKLIGHT_TIMEOUT_MINS
@@ -921,6 +952,12 @@
 
 #if ANY(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
   #define HAS_MOTOR_CURRENT_I2C 1
+#endif
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  #ifndef INVERT_X2_DIR
+    #define INVERT_X2_DIR INVERT_X_DIR
+  #endif
 #endif
 
 // X2 but not IDEX => Dual Synchronized X Steppers
@@ -1274,7 +1311,7 @@
  * currently HAL.h must be included ahead of pins.h.
  */
 #if LCD_IS_SERIAL_HOST && !defined(LCD_SERIAL_PORT)
-  #if MB(BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_MINI_E3_V3_0_1, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1, AQUILA_V101)
+  #if MB(MKS_MONSTER8_V1, BTT_SKR_MINI_E3_V1_0, BTT_SKR_MINI_E3_V1_2, BTT_SKR_MINI_E3_V2_0, BTT_SKR_MINI_E3_V3_0, BTT_SKR_MINI_E3_V3_0_1, BTT_SKR_E3_TURBO, BTT_OCTOPUS_V1_1, AQUILA_V101)
     #define LCD_SERIAL_PORT 1
   #elif MB(CREALITY_V24S1_301, CREALITY_V24S1_301F4, CREALITY_F401RE, CREALITY_V423, CREALITY_CR4NTXXC10, MKS_ROBIN, PANOWIN_CUTLASS, KODAMA_BARDO)
     #define LCD_SERIAL_PORT 2
@@ -1357,6 +1394,11 @@
 #endif
 
 // Power-Loss Recovery
-#if ENABLED(POWER_LOSS_RECOVERY) && defined(PLR_BED_THRESHOLD)
-  #define HAS_PLR_BED_THRESHOLD 1
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #ifdef PLR_BED_THRESHOLD
+    #define HAS_PLR_BED_THRESHOLD 1
+  #endif
+  #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+    #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
+  #endif
 #endif

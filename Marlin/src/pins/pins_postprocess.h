@@ -477,6 +477,10 @@
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
+#if DISABLED(PSU_OFF_REDUNDANT) || !defined(PS_ON1_PIN)
+  #undef PS_ON1_PIN
+  #define PS_ON1_PIN -1
+#endif
 #ifndef KILL_PIN
   #define KILL_PIN -1
 #endif
@@ -1243,7 +1247,7 @@
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
     #define J_DIR_PIN    _EPIN(J_E_INDEX, DIR)
     #define J_ENABLE_PIN _EPIN(J_E_INDEX, ENABLE)
-    #if I_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
+    #if J_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
       #error "No E stepper plug left for J!"
     #else
       #define AUTO_ASSIGNED_J_STEPPER 1
@@ -1413,7 +1417,7 @@
     #define U_STEP_PIN   _EPIN(U_E_INDEX, STEP)
     #define U_DIR_PIN    _EPIN(U_E_INDEX, DIR)
     #define U_ENABLE_PIN _EPIN(U_E_INDEX, ENABLE)
-    #if M_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(U_STEP)
+    #if U_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(U_STEP)
       #error "No E stepper plug left for U!"
     #else
       #define AUTO_ASSIGNED_U_STEPPER 1

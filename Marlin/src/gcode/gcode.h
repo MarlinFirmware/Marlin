@@ -341,6 +341,12 @@
   #define HAS_FAST_MOVES 1
 #endif
 
+#if ENABLED(MARLIN_SMALL_BUILD)
+  #define GCODE_ERR_MSG(V...) "?"
+#else
+  #define GCODE_ERR_MSG(V...) "?" V
+#endif
+
 enum AxisRelative : uint8_t {
   LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K, REL_U, REL_V, REL_W)
   #if HAS_EXTRUDERS

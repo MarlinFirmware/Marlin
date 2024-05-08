@@ -283,7 +283,7 @@ void AnycubicTFT::handleSpecialMenu() {
             break;
 
           case '9': // "<09HtBedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
+            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed PID"));
             injectCommands(F("M303 E-1 S65 C6 U1"));
             break;
         }
@@ -328,7 +328,7 @@ void AnycubicTFT::handleSpecialMenu() {
             break;
 
           case '4': // "<04HtbedPID>"
-            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed Pid"));
+            SERIAL_ECHOLNPGM("Special Menu: ", F("Auto Tune Hotbed PID"));
             injectCommands(F("M303 E-1 S65 C6 U1"));
             break;
 
@@ -822,8 +822,8 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 25: // A25 cool down
           if (!isPrinting()) {
-            setTargetTemp_celsius(0, (heater_t) BED);
-            setTargetTemp_celsius(0, (extruder_t) E0);
+            setTargetTemp_celsius(0, (heater_t)BED);
+            setTargetTemp_celsius(0, (extruder_t)E0);
 
             SENDLINE_DBG_PGM("J12", "TFT Serial Debug: Cooling down... J12"); // J12 cool down
           }
