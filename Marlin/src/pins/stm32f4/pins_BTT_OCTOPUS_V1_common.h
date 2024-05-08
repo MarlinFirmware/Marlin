@@ -21,7 +21,13 @@
  */
 #pragma once
 
-#include "env_validate.h"
+// The Octopus Pro V1 has shipped with both STM32F4 and STM32H7 MCUs.
+// Ensure the correct env_validate.h file is included based on the build environment used.
+#if NOT_TARGET(STM32H7)
+  #include "env_validate.h"
+#else
+  #include "../stm32h7/env_validate.h"
+#endif
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
