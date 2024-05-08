@@ -252,7 +252,7 @@ void RTS::onIdle() {
   }
   else if (startprogress < 250) {
     if (isMediaMounted()) // Re init media as it happens too early on STM32 boards often
-      onMediaInserted();
+      onMediaMounted();
     else
       injectCommands(F("M22\nM21"));
     startprogress = 254;

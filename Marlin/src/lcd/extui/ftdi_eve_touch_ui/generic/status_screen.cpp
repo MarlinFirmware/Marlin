@@ -453,7 +453,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-void StatusScreen::onMediaInserted() {
+void StatusScreen::onMediaMounted() {
   if (AT_SCREEN(StatusScreen))
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
