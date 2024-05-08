@@ -143,7 +143,8 @@ constexpr ena_mask_t enable_overlap[] = {
     constexpr float     _ISDASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
     constexpr feedRate_t _ISDMF[] = DEFAULT_MAX_FEEDRATE;
     constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _ISDMF[X_AXIS] * _ISDASU[X_AXIS]) +
-                                      TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]);
+                                      TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]) +
+                                      TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
       template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
@@ -159,7 +160,7 @@ constexpr ena_mask_t enable_overlap[] = {
   #endif
 
   #ifndef SHAPING_MIN_FREQ
-    #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y))
+    #define SHAPING_MIN_FREQ _MIN(__FLT_MAX__ OPTARG(INPUT_SHAPING_X, SHAPING_FREQ_X) OPTARG(INPUT_SHAPING_Y, SHAPING_FREQ_Y) OPTARG(INPUT_SHAPING_Z, SHAPING_FREQ_Z))
   #endif
   constexpr float shaping_min_freq = SHAPING_MIN_FREQ;
   constexpr uint16_t shaping_echoes = FLOOR(max_step_rate / shaping_min_freq / 2) + 3;
@@ -169,6 +170,7 @@ constexpr ena_mask_t enable_overlap[] = {
   struct shaping_echo_axis_t {
     TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);
     TERN_(INPUT_SHAPING_Y, shaping_echo_t y:2);
+    TERN_(INPUT_SHAPING_Z, shaping_echo_t z:2);
   };
 
   class ShapingQueue {
@@ -186,19 +188,22 @@ constexpr ena_mask_t enable_overlap[] = {
 
       TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_AXIS_VARS(x))
       TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_AXIS_VARS(y))
+      TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_AXIS_VARS(z))
 
     public:
       static void decrement_delays(const shaping_time_t interval) {
         now += interval;
         TERN_(INPUT_SHAPING_X, if (_peek_x != shaping_time_t(-1)) _peek_x -= interval);
         TERN_(INPUT_SHAPING_Y, if (_peek_y != shaping_time_t(-1)) _peek_y -= interval);
+        TERN_(INPUT_SHAPING_Z, if (_peek_z != shaping_time_t(-1)) _peek_z -= interval);
       }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
         TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
         TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
+        TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) delay_z = delay);
       }
 
-      static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward) {
+      static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward, const bool z_step, const bool z_forward) {
         #define SHAPING_QUEUE_ENQUEUE(AXIS)                                                     \
           if (AXIS##_step) {                                                                    \
             if (head_##AXIS == tail) _peek_##AXIS = delay_##AXIS;                               \
@@ -215,6 +220,7 @@ constexpr ena_mask_t enable_overlap[] = {
 
         TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
         TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_ENQUEUE(y))
+        TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_ENQUEUE(z))
 
         times[tail] = now;
         if (++tail == shaping_echoes) tail = 0;
@@ -241,6 +247,12 @@ constexpr ena_mask_t enable_overlap[] = {
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
       #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        static shaping_time_t peek_z() { return _peek_z; }
+        static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
+        static bool empty_z() { return head_z == tail; }
+        static uint16_t free_count_z() { return _free_count_z; }
+      #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
         #if ENABLED(INPUT_SHAPING_X)
@@ -248,6 +260,9 @@ constexpr ena_mask_t enable_overlap[] = {
         #endif
         #if ENABLED(INPUT_SHAPING_Y)
           head_y = tail; _free_count_y = shaping_echoes - 1; _peek_y = st;
+        #endif
+        #if ENABLED(INPUT_SHAPING_Z)
+          head_z = tail; _free_count_z = shaping_echoes - 1; _peek_z = st;
         #endif
       }
   };
@@ -400,6 +415,9 @@ class Stepper {
       #if ENABLED(INPUT_SHAPING_Y)
         static ShapeParams shaping_y;
       #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        static ShapeParams shaping_z;
+      #endif
     #endif
 
     #if ENABLED(LIN_ADVANCE)
@@ -497,7 +515,7 @@ class Stepper {
         const bool was_on = hal.isr_state();
         hal.isr_off();
 
-        const bool result = TERN0(INPUT_SHAPING_X, !ShapingQueue::empty_x()) || TERN0(INPUT_SHAPING_Y, !ShapingQueue::empty_y());
+        const bool result = TERN0(INPUT_SHAPING_X, !ShapingQueue::empty_x()) || TERN0(INPUT_SHAPING_Y, !ShapingQueue::empty_y()) || TERN0(INPUT_SHAPING_Z, !ShapingQueue::empty_z());
 
         if (was_on) hal.isr_on();
 

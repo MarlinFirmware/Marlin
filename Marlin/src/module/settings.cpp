@@ -634,6 +634,10 @@ typedef struct SettingsDataStruct {
     float shaping_y_frequency,                          // M593 Y F
           shaping_y_zeta;                               // M593 Y D
   #endif
+  #if ENABLED(INPUT_SHAPING_Z)
+    float shaping_z_frequency,                          // M593 Z F
+          shaping_z_zeta;                               // M593 Z D
+  #endif
 
   //
   // HOTEND_IDLE_TIMEOUT
@@ -1730,6 +1734,10 @@ void MarlinSettings::postprocess() {
       #if ENABLED(INPUT_SHAPING_Y)
         EEPROM_WRITE(stepper.get_shaping_frequency(Y_AXIS));
         EEPROM_WRITE(stepper.get_shaping_damping_ratio(Y_AXIS));
+      #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        EEPROM_WRITE(stepper.get_shaping_frequency(Z_AXIS));
+        EEPROM_WRITE(stepper.get_shaping_damping_ratio(Z_AXIS));
       #endif
     #endif
 
@@ -2833,6 +2841,17 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+      #if ENABLED(INPUT_SHAPING_Z)
+      {
+        float _data[2];
+        EEPROM_READ(_data);
+        if (!validating) {
+          stepper.set_shaping_frequency(Z_AXIS, _data[0]);
+          stepper.set_shaping_damping_ratio(Z_AXIS, _data[1]);
+        }
+      }
+      #endif
+
       //
       // HOTEND_IDLE_TIMEOUT
       //
@@ -3664,6 +3683,10 @@ void MarlinSettings::reset() {
     #if ENABLED(INPUT_SHAPING_Y)
       stepper.set_shaping_frequency(Y_AXIS, SHAPING_FREQ_Y);
       stepper.set_shaping_damping_ratio(Y_AXIS, SHAPING_ZETA_Y);
+    #endif
+    #if ENABLED(INPUT_SHAPING_Z)
+      stepper.set_shaping_frequency(Z_AXIS, SHAPING_FREQ_Z);
+      stepper.set_shaping_damping_ratio(Z_AXIS, SHAPING_ZETA_Z);
     #endif
   #endif
 
