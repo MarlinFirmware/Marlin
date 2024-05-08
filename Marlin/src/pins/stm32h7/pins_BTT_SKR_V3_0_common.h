@@ -463,7 +463,6 @@
   #define BTN_EN2                    EXP1_07_PIN
   #define BTN_ENC                    EXP1_05_PIN
 
-
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
