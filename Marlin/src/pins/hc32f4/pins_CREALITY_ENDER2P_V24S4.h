@@ -199,7 +199,7 @@
 #define EXP1_04_PIN                         PA3
 #define EXP1_05_PIN                         PB13
 #define EXP1_06_PIN                         PB14
-#define EXP1_07_PIN                         -1
+#define EXP1_07_PIN                         PB15
 #define EXP1_08_PIN                         PB12
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
