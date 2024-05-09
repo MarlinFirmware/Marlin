@@ -112,8 +112,8 @@
   #undef DISABLE_IDLE_X
   #undef INPUT_SHAPING_X
   #undef SAFE_BED_LEVELING_START_X
-  #undef SHAPING_BUFFER_X
   #undef SHAPING_FREQ_X
+  #undef SHAPING_ZETA_X
   #undef STEALTHCHOP_X
 #endif
 
@@ -128,8 +128,8 @@
   #undef INPUT_SHAPING_Y
   #undef QUICK_HOME
   #undef SAFE_BED_LEVELING_START_Y
-  #undef SHAPING_BUFFER_Y
   #undef SHAPING_FREQ_Y
+  #undef SHAPING_ZETA_Y
   #undef STEALTHCHOP_Y
   #undef STEP_STATE_Y
 #endif
@@ -145,8 +145,8 @@
   #undef INPUT_SHAPING_Z
   #undef NUM_Z_STEPPERS
   #undef SAFE_BED_LEVELING_START_Z
-  #undef SHAPING_BUFFER_Z
   #undef SHAPING_FREQ_Z
+  #undef SHAPING_ZETA_Z
   #undef STEALTHCHOP_Z
   #undef STEP_STATE_Z
   #undef Z_IDLE_HEIGHT
