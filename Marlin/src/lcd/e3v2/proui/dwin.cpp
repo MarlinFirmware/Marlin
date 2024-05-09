@@ -37,6 +37,7 @@
 
 #include "../../utf8.h"
 #include "../../marlinui.h"
+#include "../../extui/ui_api.h"
 #include "../../../MarlinCore.h"
 #include "../../../core/serial.h"
 #include "../../../core/macros.h"
@@ -1311,7 +1312,7 @@ void eachMomentUpdate() {
           TERN_(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
           TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) { plot.update(thermalManager.wholeDegBed()); })
           TERN_(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) { plot.update(thermalManager.wholeDegChamber()); })
-          TERN_(MPCTEMP, if (hmiValue.tempControl == MPCTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
+          TERN_(MPCTEMP, if (hmiValue.tempControl == MPC_STARTED) { plot.update(thermalManager.wholeDegHotend(0)); })
           if (hmiFlag.abort_flag || hmiFlag.pause_flag || print_job_timer.isPaused()) {
             hmiReturnScreen();
           }
@@ -1566,7 +1567,7 @@ void dwinLevelingDone() {
     switch (hmiValue.tempControl) {
       default: return;
       #if ENABLED(MPC_AUTOTUNE)
-        case MPCTEMP_START:
+        case MPC_STARTED:
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 70, GET_TEXT_F(MSG_MPC_AUTOTUNE));
           DWINUI::drawString(hmiData.colorPopupTxt, gfrm.x, gfrm.y - DWINUI::fontHeight() - 4, F("MPC target:     Celsius"));
           DWINUI::drawCenteredString(hmiData.colorPopupTxt, 92, GET_TEXT_F(MSG_PID_FOR_NOZZLE));
@@ -1619,7 +1620,7 @@ void dwinLevelingDone() {
 
       switch (result) {
         #if ENABLED(MPCTEMP)
-          case MPCTEMP_START:
+          case MPC_STARTED:
         #elif ENABLED(PIDTEMP)
           case PIDTEMP_START:
         #endif
@@ -1655,7 +1656,7 @@ void dwinLevelingDone() {
 
     void drawHPlot() {
       TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
-      TERN_(MPCTEMP, dwinDrawPlot(MPCTEMP_START));
+      TERN_(MPCTEMP, dwinDrawPlot(MPC_STARTED));
     }
     void drawBPlot() {
       TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
@@ -1741,7 +1742,7 @@ void dwinLevelingDone() {
   void dwinMPCTuning(tempcontrol_t result) {
     hmiValue.tempControl = result;
     switch (result) {
-      case MPCTEMP_START:
+      case MPC_STARTED:
         hmiSaveProcessID(ID_MPCProcess);
         #if PROUI_TUNING_GRAPH
           dwinDrawPIDMPCPopup();
@@ -1909,7 +1910,6 @@ void MarlinUI::init_lcd() {
   const bool hs = dwinHandshake(); UNUSED(hs);
   dwinFrameSetDir(1);
   dwinJPGCacheTo1(Language_English);
-  encoderConfiguration();
 }
 
 void dwinInitScreen() {
@@ -3145,7 +3145,7 @@ void drawControlMenu() {
         enableLiveCaseLightBrightness = true;  // Allow live update of brightness in control menu
         MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawSubMenu, drawCaseLightMenu);
       #else
-        MENU_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
+        EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
       #endif
     #endif
     #if ENABLED(LED_CONTROL_MENU)
@@ -4014,7 +4014,7 @@ void drawMaxAccelMenu() {
       BACK_ITEM(drawPrepareMenu);
       MENU_ITEM(ICON_Homing, MSG_AUTO_HOME, onDrawMenuItem, autoHome);
       MENU_ITEM(ICON_AxisD, MSG_MOVE_NOZZLE_TO_BED, onDrawMenuItem, setMoveZto0);
-      EDIT_ITEM(ICON_Zoffset, MSG_XATC_UPDATE_Z_OFFSET, onDrawPFloat2Menu, setZOffset, &BABY_Z_VAR);
+      EDIT_ITEM(ICON_Zoffset, MSG_ZPROBE_ZOFFSET, onDrawPFloat2Menu, setZOffset, &BABY_Z_VAR);
     }
     updateMenu(zOffsetWizMenu);
     if (!axis_is_trusted(Z_AXIS)) LCD_MESSAGE_F("WARNING: Z position unknown, move Z to home");
