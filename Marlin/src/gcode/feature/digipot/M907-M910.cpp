@@ -133,7 +133,7 @@ void GcodeSuite::M907() {
       SERIAL_ECHOLNPGM_P(                                     // PWM-based has 3 values:
           PSTR("  M907 X"), stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
         , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+        #if HAS_EXTRUDERS && PIN_EXISTS(MOTOR_CURRENT_PWM_E)
           , SP_E_STR,       stepper.motor_current_setting[2]  // E
         #endif
       );
