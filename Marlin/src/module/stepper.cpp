@@ -2343,7 +2343,7 @@ hal_timer_t Stepper::block_phase_isr() {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
               if (current_block->laser.trap_ramp_entry_incr > 0) {
                 cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
-                current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr;
+                current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr * steps_per_isr;
               }
             }
             // Not a powered move.
@@ -2420,7 +2420,7 @@ hal_timer_t Stepper::block_phase_isr() {
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
               if (current_block->laser.trap_ramp_exit_decr > 0) {
-                current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr;
+                current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr * steps_per_isr;
                 cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
               }
               // Not a powered move.
