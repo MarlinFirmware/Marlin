@@ -78,6 +78,14 @@
   #include "../feature/closedloop.h"
 #endif
 
+constexpr uint32_t MINIMAL_STEP_RATE = (
+  #ifdef CPU_32_BIT
+    _MAX((STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX, 1U) // 32-bit shouldn't go below 1
+  #else
+    (F_CPU) / 500000U   // AVR shouldn't go below 32 (16MHz) or 40 (20MHz)
+  #endif
+);
+
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE,
@@ -267,8 +275,6 @@ typedef struct PlannerBlock {
     uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
              final_adv_steps;               // Advance steps for exit speed pressure
   #endif
-
-  #define MINIMAL_STEP_RATE _MAX((STEPPER_TIMER_RATE / HAL_TIMER_TYPE_MAX), 1UL)   // min. steps/s. To prevent timer overflow, slowest is 1 step/s
 
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block

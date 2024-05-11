@@ -2166,15 +2166,15 @@ void Stepper::pulse_phase_isr() {
 // Calculate timer interval, with all limits applied.
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
+  constexpr uint32_t min_step_rate = MINIMAL_STEP_RATE;
+
   #ifdef CPU_32_BIT
 
     // A fast processor can just do integer division
-    constexpr uint32_t min_step_rate = uint32_t(STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX;
     return step_rate > min_step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
-    constexpr uint32_t min_step_rate = (F_CPU) / 500000U; // i.e., 32 or 40
     if (step_rate >= 0x0800) {  // higher step rate
       // AVR is able to keep up at around 65kHz Stepping ISR rate at most.
       // So values for step_rate > 65535 might as well be truncated.

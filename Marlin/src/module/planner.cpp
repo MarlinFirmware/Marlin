@@ -783,6 +783,9 @@ block_t* Planner::get_current_block() {
 /**
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
  * by the provided factors.
+ * The factors come from the current and next entry speeds divided by the nominal speed,
+ * which is the top speed achievable during the move. Since entry and exit are presumed to
+ * be smaller, these factors should always be <= 1.0.
  **
  * ############ VERY IMPORTANT ############
  * NOTE that the PRECONDITION to call this function is that the block is
@@ -796,9 +799,12 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
-  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
-  NOLESS(block->nominal_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOLESS(initial_rate, MINIMAL_STEP_RATE);
+  NOLESS(final_rate, MINIMAL_STEP_RATE);
+  NOLESS(block->nominal_rate, MINIMAL_STEP_RATE);
+
+  //NOMORE(initial_rate, block->nominal_rate);
+  //NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
