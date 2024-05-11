@@ -93,7 +93,7 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const cstr) {
     // TODO: A version of this method that takes an icon and button title,
     // or implement some kind of ExtUI enum.
-    dwinPopupContinue(ICON_Continue_1, FSTR_P(cstr), GET_TEXT_F(MSG_USERWAIT));
+    dwinPopupContinue(ICON_Continue_1, cstr, GET_TEXT_F(MSG_USERWAIT));
   }
 
   // For fancy LCDs include an icon ID, message, and translated button title
