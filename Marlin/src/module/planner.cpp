@@ -2392,14 +2392,12 @@ bool Planner::_populate_block(
     #endif
 
     const feedRate_t cs = ABS(current_speed.e),
-                 max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                          * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+                 max_fr = MUL_TERN(HAS_MIXER_SYNC_CHANNEL, settings.max_feedrate_mm_s[E_AXIS_N(extruder)], MIXING_STEPPERS);
 
-    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); // Respect max feedrate on any move (travel and print)
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
-                                 * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+      const feedRate_t max_vfr = MUL_TERN(HAS_MIXER_SYNC_CHANNEL, volumetric_extruder_feedrate_limit[extruder], MIXING_STEPPERS);
 
       // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
 
