@@ -1001,9 +1001,8 @@ void MarlinUI::init() {
 
     #endif // HAS_MARLINUI_MENU
 
-    bool lcd_update_ms_elapsed = false;
-    if (ELAPSED(ms, next_lcd_update_ms)) {
-      lcd_update_ms_elapsed = true;
+    const bool lcd_update_ms_elapsed = ELAPSED(ms, next_lcd_update_ms);
+    if (lcd_update_ms_elapsed) {
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
       #if HAS_TOUCH_BUTTONS
