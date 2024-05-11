@@ -795,6 +795,11 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
 
+  // Limit minimal step rate (Otherwise the timer will overflow.)
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOLESS(block->nominal_rate, (uint32_t)MINIMAL_STEP_RATE);
+
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
     uint32_t cruise_rate = block->nominal_rate;
