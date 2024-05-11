@@ -684,6 +684,9 @@ class Stepper {
     // Calculate timing interval and steps-per-ISR for the given step rate
     static hal_timer_t calc_multistep_timer_interval(uint32_t step_rate);
 
+    // Evaluate axis motions and set bits in axis_did_move
+    static void set_axis_moved_for_current_block();
+
     #if ENABLED(NONLINEAR_EXTRUSION)
       static void calc_nonlinear_e(uint32_t step_rate);
     #endif
