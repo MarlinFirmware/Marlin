@@ -269,6 +269,7 @@ typedef struct PlannerBlock {
   #endif
 
   #define MINIMAL_STEP_RATE _MAX((STEPPER_TIMER_RATE / HAL_TIMER_TYPE_MAX), 1UL)   // min. steps/s. To prevent timer overflow, slowest is 1 step/s
+
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
