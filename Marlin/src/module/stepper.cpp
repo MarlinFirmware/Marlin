@@ -3973,7 +3973,7 @@ void Stepper::report_positions() {
             #endif
             break;
           case 2:
-            #if HAS_MOTOR_CURRENT_PWM_E
+            #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
               _WRITE_CURRENT_PWM(E);
             #endif
             #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
@@ -4036,7 +4036,7 @@ void Stepper::report_positions() {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           INIT_CURRENT_PWM(Z);
         #endif
-        #if HAS_MOTOR_CURRENT_PWM_E
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
           INIT_CURRENT_PWM(E);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
