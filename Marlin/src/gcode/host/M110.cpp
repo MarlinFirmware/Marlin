@@ -24,11 +24,12 @@
 #include "../queue.h" // for last_N
 
 /**
- * M110: Set Current Line Number
+ * M110: Get or set Current Line Number
  */
 void GcodeSuite::M110() {
 
   if (parser.seenval('N'))
     queue.set_current_line_number(parser.value_long());
-
+  else
+    SERIAL_ECHO_MSG("M110 N", queue.get_current_line_number());
 }
