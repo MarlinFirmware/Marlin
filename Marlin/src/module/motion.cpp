@@ -328,7 +328,7 @@ void report_current_position_projected() {
       can_reach = (
         R2 <= sq(L1 + L2) - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
         #endif
       );
 
@@ -338,7 +338,7 @@ void report_current_position_projected() {
       can_reach = (
         R2 <= sq(L1 + L2) - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
         #endif
       );
 

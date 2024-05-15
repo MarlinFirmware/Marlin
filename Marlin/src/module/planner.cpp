@@ -818,10 +818,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   if (accel != 0) {
     inverse_accel = 1.0f / accel;
     const float half_inverse_accel = 0.5f * inverse_accel,
-                nominal_rate_sq = sq(float(block->nominal_rate)),
+                nominal_rate_sq = FLOAT_SQ(block->nominal_rate),
                 // Steps required for acceleration, deceleration to/from nominal rate
-                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(final_rate)));
-          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(initial_rate)));
+                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate));
+          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate));
     accelerate_steps = CEIL(accelerate_steps_float);
     decelerate_steps = FLOOR(decelerate_steps_float);
 
