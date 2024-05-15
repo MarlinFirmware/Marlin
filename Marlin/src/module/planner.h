@@ -111,11 +111,6 @@ enum BlockFlagBit {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 
-  // Nominal speed always reached.
-  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
-  // from a safe speed (in consideration of jerking from zero speed).
-  BLOCK_BIT_NOMINAL_LENGTH,
-
   // The block is segment 2+ of a longer move
   BLOCK_BIT_CONTINUED,
 
@@ -142,8 +137,6 @@ typedef struct {
     struct {
       bool recalculate:1;
 
-      bool nominal_length:1;
-
       bool continued:1;
 
       bool sync_position:1;
@@ -166,7 +159,6 @@ typedef struct {
   void apply(const uint8_t f) volatile { bits |= f; }
   void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
   void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
-  void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
 
 } block_flags_t;
 
@@ -224,6 +216,7 @@ typedef struct PlannerBlock {
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)
         entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
+        min_entry_speed_sqr,                // Minimum allowable junction entry speed in (mm/sec)^2
         max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
@@ -255,7 +248,7 @@ typedef struct PlannerBlock {
              acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
-    uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
+    uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
