@@ -262,9 +262,7 @@
    *  (EXP1-8) PA1 <-----------> A    (DWIN-8)
    * (EXP1-10)  5V <-----------> VCC  (DWIN-10)
    */
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable with TX = PA0, RX = PC2. See 'pins_BTT_MANTA_E3_EZ_V1_0.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_MANTA_E3_EZ_V1_0", "Ender-3 V2 display", " Requires a custom cable with TX = PA0, RX = PC2.")
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -287,9 +285,7 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_MANTA_E3_EZ_V1_0.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_MANTA_E3_EZ_V1_0", "ZONESTAR_LCD")
 
     #define LCD_PINS_RS              EXP1_06_PIN
     #define LCD_PINS_EN              EXP1_02_PIN
