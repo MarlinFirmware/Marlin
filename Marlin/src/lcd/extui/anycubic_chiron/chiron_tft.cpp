@@ -780,11 +780,11 @@ void ChironTFT::panelProcess(uint8_t req) {
               DEBUG_ECHOLNPGM("Moving to mesh point at x: ", pos.x, " y: ", pos.y, " z: ", pos_z);
             #endif
             // Go up before moving
-            setAxisPosition_mm(3.0,Z);
+            setAxisPosition_mm(3.0f, Z);
 
-            setAxisPosition_mm(17 + (93 * pos.x), X);
-            setAxisPosition_mm(20 + (93 * pos.y), Y);
-            setAxisPosition_mm(0.0, Z);
+            setAxisPosition_mm(17.0f + (93.0f * pos.x), X);
+            setAxisPosition_mm(20.0f + (93.0f * pos.y), Y);
+            setAxisPosition_mm(0.0f, Z);
             #if ACDEBUG(AC_INFO)
               DEBUG_ECHOLNPGM("Current Z: ", getAxisPosition_mm(Z));
             #endif

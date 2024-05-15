@@ -91,7 +91,7 @@ void menu_backlash();
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+    #if HAS_MOTOR_CURRENT_PWM_E
       EDIT_CURRENT_PWM(STR_E, 2);
     #endif
     END_MENU();
