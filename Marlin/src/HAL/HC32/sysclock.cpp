@@ -104,7 +104,7 @@ void core_hook_sysclock_init() {
       .enPclk0Div = ClkSysclkDiv1, // PCLK0 = 200 MHz (Timer6 (not used))
       .enPclk1Div = ClkSysclkDiv4, // PCLK1 = 50 MHz (USART, SPI, I2S, Timer0 (step+temp), TimerA (Servo))
       .enPclk2Div = ClkSysclkDiv4, // PCLK2 = 50 MHz (ADC)
-      .enPclk3Div = ClkSysclkDiv4, // PCLK3 = 50 MHz (I2C, WDT)
+      .enPclk3Div = ClkSysclkDiv8, // PCLK3 = 25 MHz (I2C, WDT)
       .enPclk4Div = ClkSysclkDiv2, // PCLK4 = 100 MHz (ADC ctl)
   };
   sysclock_set_clock_dividers(&sysClkConf);
