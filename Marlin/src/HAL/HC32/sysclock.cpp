@@ -96,8 +96,8 @@ void core_hook_sysclock_init() {
     #endif
   #endif
 
-  // sysclk is now configured to 200 MHz PLL output
-  constexpr uint32_t sysclock = 200000000;
+  // sysclk is now configured according to F_CPU (i.e., 200MHz PLL output)
+  constexpr uint32_t sysclock = F_CPU;
 
   // Setup clock divisors for sysclk = 200 MHz
   // Note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
