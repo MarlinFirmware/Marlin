@@ -59,7 +59,7 @@ cutter_power_t SpindleLaser::menuPower = 0,                           // Power v
 
 cutter_frequency_t SpindleLaser::frequency;                           // PWM frequency setting; range: 2K - 50K
 
-#define SPINDLE_LASER_PWM_OFF TERN0(SPINDLE_LASER_PWM_INVERT, 255)
+#define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)
 
 /**
  * Init the cutter to a safe OFF state

@@ -54,7 +54,7 @@ public:
 
   // cpower = configured values (e.g., SPEED_POWER_MAX)
   // Convert configured power range to a percentage
-  static constexpr cutter_cpower_t power_floor = TERN0(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN);
+  static constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0);
   static constexpr uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
     return cpwr ? round(100.0f * (cpwr - power_floor) / (SPEED_POWER_MAX - power_floor)) : 0;
   }

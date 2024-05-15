@@ -179,7 +179,7 @@ void process_lcd_eb_command(const char *command) {
         #else
           0, 0,
         #endif
-        TERN0(HAS_MEDIA, done_pct),
+        TERN(HAS_MEDIA, done_pct, 0),
         elapsed_buffer
       );
       write_to_lcd(message_buffer);

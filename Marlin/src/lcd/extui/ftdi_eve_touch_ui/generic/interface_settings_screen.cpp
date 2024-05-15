@@ -84,7 +84,7 @@ void InterfaceSettingsScreen::onRedraw(draw_mode_t what) {
 
   if (what & FOREGROUND) {
     #if ENABLED(FTDI_LOCK_SCREEN) || DISABLED(TOUCH_UI_NO_BOOTSCREEN)
-      constexpr uint8_t w = TERN1(TOUCH_UI_PORTRAIT, 2);
+      constexpr uint8_t w = TERN(TOUCH_UI_PORTRAIT, 2, 1);
     #endif
 
     cmd.font(font_medium)

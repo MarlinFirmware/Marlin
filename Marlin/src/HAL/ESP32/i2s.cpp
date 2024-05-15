@@ -287,7 +287,7 @@ int i2s_init() {
 
   I2S0.fifo_conf.dscr_en = 0;
 
-  I2S0.conf_chan.tx_chan_mod = TERN0(I2S_STEPPER_SPLIT_STREAM, 4);
+  I2S0.conf_chan.tx_chan_mod = TERN(I2S_STEPPER_SPLIT_STREAM, 4, 0);
   I2S0.fifo_conf.tx_fifo_mod = 0;
   I2S0.conf.tx_mono = 0;
 
