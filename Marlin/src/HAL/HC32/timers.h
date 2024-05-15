@@ -41,7 +41,7 @@ extern Timer0 step_timer;
 // TODO: some calculations (step irq min_step_rate) require the timer rate to be known at compile time
 //       this is not possible with the HC32F460, as the timer rate depends on PCLK1
 //       as a workaround, PCLK1 = 50MHz is assumed (check with clock dump in MarlinHAL::init())
-#define HAL_TIMER_RATE 50000000 // 50MHz
+#define HAL_TIMER_RATE 50000000UL // 50MHz
 // #define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
 
 // TODO: CYCLES_PER_MICROSECOND seems to be used by Marlin to calculate the number of cycles per microsecond in the timer ISRs
@@ -52,14 +52,14 @@ extern Timer0 step_timer;
 // Temperature timer
 #define TEMP_TIMER_NUM (&temp_timer)
 #define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
-#define TEMP_TIMER_PRESCALE 16ul
+#define TEMP_TIMER_PRESCALE 16UL
 #define TEMP_TIMER_RATE 1000                 // 1kHz
 #define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // Alias for Marlin
 
 // Stepper timer
 #define STEP_TIMER_NUM (&step_timer)
 #define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_01
-#define STEPPER_TIMER_PRESCALE 16ul
+#define STEPPER_TIMER_PRESCALE 16UL
 
 // TODO: STEPPER_TIMER_RATE seems to work fine like this, but requires further testing...
 #define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
