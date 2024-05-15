@@ -38,45 +38,48 @@ extern Timer0 step_timer;
 // Timer Configurations
 //
 
-// HAL_TIMER_RATE must be known at compile time since it is used to calculate
-// STEPPER_TIMER_RATE, which is used in constexpr calculations.
-// This is not really possible with the HC32F460, as the timer rate depends on
-// PCLK1, which is derived from the system clock configured at runtime.
-// To work around this, we assume PCLK1 to be 50MHz, as that's what is 
-// configured in 'core_hook_sysclock_init' in 'sysclock.cpp'.
-// If you face issues with this assumption, please double-check with the values
-// printed by 'MarlinHAL::HAL_clock_frequencies_dump'.
-// TODO: If this requirement is ever lifted, use TIMER0_BASE_FREQUENCY instead
-#define HAL_TIMER_RATE 50000000 // 50MHz
-// #define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
-
+/**
+ * HAL_TIMER_RATE must be known at compile time since it's used to calculate
+ * STEPPER_TIMER_RATE, which is used in 'constexpr' calculations.
+ * On the HC32F460 the timer rate depends on PCLK1, which is derived from the
+ * system clock configured at runtime. As a workaround, we use the existing
+ * assumption of a 200MHz clock, defining F_CPU as 200000000, then configure PCLK1
+ * as F_CPU with a divider of 4 in 'sysclock.cpp::core_hook_sysclock_init'.
+ *
+ * If you face issues with this assumption, please double-check with the values
+ * printed by 'MarlinHAL::HAL_clock_frequencies_dump'.
+ *
+ * TODO: If the 'constexpr' requirement is ever lifted, use TIMER0_BASE_FREQUENCY instead
+ */
+#define HAL_TIMER_RATE (F_CPU / 4) // i.e., 50MHz
+//#define HAL_TIMER_RATE TIMER0_BASE_FREQUENCY
 
 // Temperature timer
-#define TEMP_TIMER_NUM (&temp_timer)
-#define TEMP_TIMER_PRIORITY DDL_IRQ_PRIORITY_02
-#define TEMP_TIMER_PRESCALE 16ul
-#define TEMP_TIMER_RATE 1000                 // 1kHz
-#define TEMP_TIMER_FREQUENCY TEMP_TIMER_RATE // Alias for Marlin
+#define TEMP_TIMER_NUM        (&temp_timer)
+#define TEMP_TIMER_PRIORITY   DDL_IRQ_PRIORITY_02
+#define TEMP_TIMER_PRESCALE     16UL          // 12.5MHz
+#define TEMP_TIMER_RATE       1000            // 1kHz
+#define TEMP_TIMER_FREQUENCY  TEMP_TIMER_RATE // 1kHz also
 
 // Stepper timer
-#define STEP_TIMER_NUM (&step_timer)
-#define STEP_TIMER_PRIORITY DDL_IRQ_PRIORITY_00 // highest priority available, nothing else uses it
-#define STEPPER_TIMER_PRESCALE 16ul
+#define STEP_TIMER_NUM         (&step_timer)
+#define STEP_TIMER_PRIORITY    DDL_IRQ_PRIORITY_00  // Top priority, nothing else uses it
+#define STEPPER_TIMER_PRESCALE  16UL                // 12.5MHz
 
-#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE) // 50MHz / 16 = 3.125MHz
-#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000)
+#define STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)  // 50MHz / 16 = 3.125MHz
+#define STEPPER_TIMER_TICKS_PER_US (STEPPER_TIMER_RATE / 1000000UL)   // Integer 3
 
 // Pulse timer (== stepper timer)
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
+#define PULSE_TIMER_NUM           STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE      STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US  STEPPER_TIMER_TICKS_PER_US
 
 //
 // Channel aliases
 //
-#define MF_TIMER_TEMP TEMP_TIMER_NUM
-#define MF_TIMER_STEP STEP_TIMER_NUM
-#define MF_TIMER_PULSE PULSE_TIMER_NUM
+#define MF_TIMER_TEMP   TEMP_TIMER_NUM
+#define MF_TIMER_STEP   STEP_TIMER_NUM
+#define MF_TIMER_PULSE  PULSE_TIMER_NUM
 
 //
 // HAL functions
