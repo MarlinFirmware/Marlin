@@ -274,7 +274,7 @@ static void _lcd_goto_next_corner() {
   }
 
   void _lcd_test_corners() {
-    bed_corner = TERN(BED_TRAMMING_INCLUDE_CENTER, center_index, 0);
+    bed_corner = TERN0(BED_TRAMMING_INCLUDE_CENTER, center_index);
     last_z = BED_TRAMMING_HEIGHT;
     endstops.enable_z_probe(true);
     good_points = 0;
