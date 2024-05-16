@@ -89,7 +89,7 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
-#define FLOAT_SQ(I) float(sq(I))
+#define FLOAT_SQ(I) sq(float(I))
 #define CIRCLE_AREA(R) (float(M_PI) * FLOAT_SQ(R))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
