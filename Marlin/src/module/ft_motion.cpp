@@ -31,14 +31,14 @@
 FTMotion ftMotion;
 
 #if NONE(HAS_X_AXIS, HAS_Y_AXIS)
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZV, "ftMotionCmpnstr_t_ZV requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVDD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_ZVDDD, "ftMotionCmpnstr_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_EI, "ftMotionCmpnstr_t_EI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_2HEI, "ftMotionCmpnstr_t_2HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_3HEI, "ftMotionCmpnstr_t_3HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionCmpnstr_t_MZV, "ftMotionCmpnstr_t_MZV requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZV, "ftMotionShaper_t_ZV requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVDD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVDDD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_EI, "ftMotionShaper_t_EI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_2HEI, "ftMotionShaper_t_2HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_3HEI, "ftMotionShaper_t_3HEI requires at least one linear axis.");
+  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_MZV, "ftMotionShaper_t_MZV requires at least one linear axis.");
 #endif
 #if !HAS_DYNAMIC_FREQ_MM
   static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
@@ -240,20 +240,20 @@ void FTMotion::loop() {
 
     switch (shaper) {
 
-      case ftMotionCmpnstr_ZV:
+      case ftMotionShaper_ZV:
         max_i = 1U;
         Ai[0] = 1.0f / (1.0f + K);
         Ai[1] = Ai[0] * K;
         break;
 
-      case ftMotionCmpnstr_ZVD:
+      case ftMotionShaper_ZVD:
         max_i = 2U;
         Ai[0] = 1.0f / (1.0f + 2.0f * K + K2);
         Ai[1] = Ai[0] * 2.0f * K;
         Ai[2] = Ai[0] * K2;
         break;
 
-      case ftMotionCmpnstr_ZVDD:
+      case ftMotionShaper_ZVDD:
         max_i = 3U;
         Ai[0] = 1.0f / (1.0f + 3.0f * K + 3.0f * K2 + K3);
         Ai[1] = Ai[0] * 3.0f * K;
@@ -261,7 +261,7 @@ void FTMotion::loop() {
         Ai[3] = Ai[0] * K3;
         break;
 
-      case ftMotionCmpnstr_ZVDDD:
+      case ftMotionShaper_ZVDDD:
         max_i = 4U;
         Ai[0] = 1.0f / (1.0f + 4.0f * K + 6.0f * K2 + 4.0f * K3 + K4);
         Ai[1] = Ai[0] * 4.0f * K;
@@ -270,7 +270,7 @@ void FTMotion::loop() {
         Ai[4] = Ai[0] * K4;
         break;
 
-      case ftMotionCmpnstr_EI: {
+      case ftMotionShaper_EI: {
         max_i = 2U;
         Ai[0] = 0.25f * (1.0f + vtol);
         Ai[1] = 0.50f * (1.0f - vtol) * K;
@@ -283,7 +283,7 @@ void FTMotion::loop() {
       }
       break;
 
-      case ftMotionCmpnstr_2HEI: {
+      case ftMotionShaper_2HEI: {
         max_i = 3U;
         const float vtolx2 = sq(vtol);
         const float X = pow(vtolx2 * (sqrt(1.0f - vtolx2) + 1.0f), 1.0f / 3.0f);
@@ -299,7 +299,7 @@ void FTMotion::loop() {
       }
       break;
 
-      case ftMotionCmpnstr_3HEI: {
+      case ftMotionShaper_3HEI: {
         max_i = 4U;
         Ai[0] = 0.0625f * ( 1.0f + 3.0f * vtol + 2.0f * sqrt( 2.0f * ( vtol + 1.0f ) * vtol ) );
         Ai[1] = 0.25f * ( 1.0f - vtol ) * K;
@@ -314,7 +314,7 @@ void FTMotion::loop() {
       }
       break;
 
-      case ftMotionCmpnstr_MZV: {
+      case ftMotionShaper_MZV: {
         max_i = 2U;
         const float Bx = 1.4142135623730950488016887242097f * K;
         Ai[0] = 1.0f / (1.0f + Bx + K2);
@@ -335,28 +335,28 @@ void FTMotion::loop() {
     // Note that protections are omitted for DBZ and for index exceeding array length.
     const float df = sqrt ( 1.f - sq(zeta) );
     switch (shaper) {
-      case ftMotionCmpnstr_ZV:
+      case ftMotionShaper_ZV:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         break;
-      case ftMotionCmpnstr_ZVD:
-      case ftMotionCmpnstr_EI:
+      case ftMotionShaper_ZVD:
+      case ftMotionShaper_EI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
-      case ftMotionCmpnstr_ZVDD:
-      case ftMotionCmpnstr_2HEI:
+      case ftMotionShaper_ZVDD:
+      case ftMotionShaper_2HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         break;
-      case ftMotionCmpnstr_ZVDDD:
-      case ftMotionCmpnstr_3HEI:
+      case ftMotionShaper_ZVDDD:
+      case ftMotionShaper_3HEI:
         Ni[1] = round((0.5f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         Ni[3] = Ni[2] + Ni[1];
         Ni[4] = Ni[3] + Ni[1];
         break;
-      case ftMotionCmpnstr_MZV:
+      case ftMotionShaper_MZV:
         Ni[1] = round((0.375f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
@@ -368,15 +368,15 @@ void FTMotion::loop() {
     #if HAS_X_AXIS
       shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
       if(shaping.x.ena) {
-        shaping.x.set_axis_shaping_A(cfg.cmpnstr[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-        shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+        shaping.x.set_axis_shaping_A(cfg.shaper[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
+        shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
       }
     #endif
     #if HAS_Y_AXIS
       shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
       if(shaping.y.ena) {
-        shaping.y.set_axis_shaping_A(cfg.cmpnstr[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
-        shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+        shaping.y.set_axis_shaping_A(cfg.shaper[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
+        shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
       }
     #endif
   }
@@ -652,11 +652,11 @@ void FTMotion::makeVector() {
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
           #if HAS_X_AXIS
             const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+            shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
           #endif
           #if HAS_Y_AXIS
             const float yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
+            shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
           #endif
         }
         break;
@@ -667,10 +667,10 @@ void FTMotion::makeVector() {
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
         #if HAS_X_AXIS
-          shaping.x.set_axis_shaping_N(cfg.cmpnstr[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+          shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
         #endif
         #if HAS_Y_AXIS
-          shaping.y.set_axis_shaping_N(cfg.cmpnstr[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
+          shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
         #endif
         break;
     #endif

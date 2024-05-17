@@ -32,14 +32,14 @@ void say_shaper_type(const ftMotionShaper_t t) {
   SERIAL_ECHOPGM(" axis ");
   switch (t) {
     default: break;
-    case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
-    case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-    case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-    case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-    case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
-    case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-    case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-    case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
+    case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break;
+    case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+    case ftMotionShaper_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+    case ftMotionShaper_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+    case ftMotionShaper_EI:    SERIAL_ECHOPGM("EI");        break;
+    case ftMotionShaper_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+    case ftMotionShaper_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+    case ftMotionShaper_MZV:   SERIAL_ECHOPGM("MZV");       break;
   }
   SERIAL_ECHOPGM(" shaping");
 }
@@ -52,13 +52,13 @@ void say_shaping() {
   #if HAS_X_AXIS
     if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
       SERIAL_ECHOPGM(" with X/A");
-      say_shaper_type(ftMotion.cfg.cmpnstr[X_AXIS]);
+      say_shaper_type(ftMotion.cfg.shaper[X_AXIS]);
     }
   #endif
   #if HAS_Y_AXIS
     if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
       SERIAL_ECHOPGM(" and with Y/B");
-      say_shaper_type(ftMotion.cfg.cmpnstr[Y_AXIS]);
+      say_shaper_type(ftMotion.cfg.shaper[Y_AXIS]);
     }
   #endif
 
@@ -150,14 +150,15 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *
  *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y axis.
  *              Users / slicers must remember to set the mode for both axes!
- *      1: ZV    : Zero Vibration
- *      2: ZVD   : Zero Vibration and Derivative
- *      3: ZVDD  : Zero Vibration, Derivative, and Double Derivative
- *      4: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
- *      5: EI    : Extra-Intensive
- *      6: 2HEI  : 2-Hump Extra-Intensive
- *      7: 3HEI  : 3-Hump Extra-Intensive
- *      8: MZV   : Mass-based Zero Vibration
+ *       0: NONE  : No input shaper
+ *       1: ZV    : Zero Vibration
+ *       2: ZVD   : Zero Vibration and Derivative
+ *       3: ZVDD  : Zero Vibration, Derivative, and Double Derivative
+ *       4: ZVDDD : Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+ *       5: EI    : Extra-Intensive
+ *       6: 2HEI  : 2-Hump Extra-Intensive
+ *       7: 3HEI  : 3-Hump Extra-Intensive
+ *       8: MZV   : Mass-based Zero Vibration
  *
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *
@@ -201,56 +202,35 @@ void GcodeSuite::M493() {
   }
 
   #if HAS_X_AXIS
-    // Parse 'X' mode parameter.
-    if (parser.seenval('X')) {
+    auto set_shaper = [&](const AxisEnum axis, const char c) {
       const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
-
-      if (newsh != ftMotion.cfg.cmpnstr[X_AXIS]) {
+      if (newsh != ftMotion.cfg.shaper[axis]) {
         switch (newsh) {
-          default: SERIAL_ECHOLNPGM("?Invalid [X] shaper."); return;
-          case ftMotionCmpnstr_NONE:
-          case ftMotionCmpnstr_ZV:
-          case ftMotionCmpnstr_ZVD:
-          case ftMotionCmpnstr_ZVDD:
-          case ftMotionCmpnstr_ZVDDD:
-          case ftMotionCmpnstr_EI:
-          case ftMotionCmpnstr_2HEI:
-          case ftMotionCmpnstr_3HEI:
-          case ftMotionCmpnstr_MZV:
-            flag.update = true;
-            ftMotion.cfg.cmpnstr[X_AXIS] = newsh;
-            flag.report_h = true;
+          default: SERIAL_ECHOLNPGM("?Invalid [", C(c), "] shaper."); return true;
+          case ftMotionShaper_NONE:
+          case ftMotionShaper_ZV:
+          case ftMotionShaper_ZVD:
+          case ftMotionShaper_ZVDD:
+          case ftMotionShaper_ZVDDD:
+          case ftMotionShaper_EI:
+          case ftMotionShaper_2HEI:
+          case ftMotionShaper_3HEI:
+          case ftMotionShaper_MZV:
+            ftMotion.cfg.shaper[axis] = newsh;
+            flag.update = flag.report_h = true;
             break;
         }
       }
-    }
+      return false;
+    };
+
+    if (parser.seenval('X') && set_shaper(X_AXIS, 'X')) return;    // Parse 'X' mode parameter
+
+    #if HAS_Y_AXIS
+      if (parser.seenval('Y') && set_shaper(Y_AXIS, 'Y')) return;  // Parse 'Y' mode parameter
+    #endif
+
   #endif // HAS_X_AXIS
-
-  #if HAS_Y_AXIS
-    // Parse 'Y' mode parameter.
-    if (parser.seenval('Y')) {
-      const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
-
-      if (newsh != ftMotion.cfg.cmpnstr[Y_AXIS]) {
-        switch (newsh) {
-          default: SERIAL_ECHOLNPGM("?Invalid [Y] shaper."); return;
-          case ftMotionCmpnstr_NONE:
-          case ftMotionCmpnstr_ZV:
-          case ftMotionCmpnstr_ZVD:
-          case ftMotionCmpnstr_ZVDD:
-          case ftMotionCmpnstr_ZVDDD:
-          case ftMotionCmpnstr_EI:
-          case ftMotionCmpnstr_2HEI:
-          case ftMotionCmpnstr_3HEI:
-          case ftMotionCmpnstr_MZV:
-            flag.update = true;
-            ftMotion.cfg.cmpnstr[Y_AXIS] = newsh;
-            flag.report_h = true;
-            break;
-        }
-      }
-    }
-  #endif // HAS_Y_AXIS
 
   #if HAS_EXTRUDERS
 
