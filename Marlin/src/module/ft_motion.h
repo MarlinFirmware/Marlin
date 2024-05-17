@@ -40,14 +40,14 @@ typedef struct FTConfig {
   ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
 
   #if HAS_X_AXIS
-    ftMotionCmpnstr_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =               // Compensation mode.
+    ftMotionCmpnstr_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
       { FTM_DEFAULT_X_COMPENSATOR OPTARG(HAS_Y_AXIS, FTM_DEFAULT_Y_COMPENSATOR) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
     float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
-        { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
+      { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
     float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
-        { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
+      { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
 #if HAS_DYNAMIC_FREQ
