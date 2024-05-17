@@ -65,11 +65,11 @@
 #define REDIRECT_PRINTF_TO_SERIAL 1
 
 // F_CPU must be known at compile time, but on HC32F460 it's not.
-// Thus we assume HCLK to be 200MHz, as that's what is configured in 
+// Thus we assume HCLK to be 200MHz, as that's what is configured in
 // 'core_hook_sysclock_init' in 'sysclock.cpp'.
 // If you face issues with this assumption, please double-check with the values
 // printed by 'MarlinHAL::HAL_clock_frequencies_dump'.
-// see also: HAL_TIMER_RATE in timers.h
+// see also: HAL_TIMER_RATE in timers.h and https://github.com/MarlinFirmware/Marlin/pull/27099.
 #define F_CPU 200000000 // 200MHz HCLK
 
 #endif // _HC32_APP_CONFIG_H_

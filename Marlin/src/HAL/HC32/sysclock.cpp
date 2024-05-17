@@ -32,6 +32,14 @@
 #include <core_hooks.h>
 #include <drivers/sysclock/sysclock_util.h>
 
+/**
+ * @brief Configure HC32 system clocks.
+ *
+ * This function is called by the Arduino core early in the startup process, before setup() is called.
+ * It is used to configure the system clocks to the desired state.
+ *
+ * See https://github.com/MarlinFirmware/Marlin/pull/27099 for more information.
+ */
 void core_hook_sysclock_init() {
   // Set wait cycles, as we are about to switch to 200 MHz HCLK
   sysclock_configure_flash_wait_cycles();
@@ -96,8 +104,8 @@ void core_hook_sysclock_init() {
     #endif
   #endif
 
-  // sysclk is now configured according to F_CPU (i.e., 200MHz PLL output)
-  constexpr uint32_t sysclock = F_CPU;
+  // MPLL output should now be configured to 200 MHz
+  constexpr uint32_t mpll_clock = 200000000;
 
   // Setup clock divisors for sysclk = 200 MHz
   // Note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
@@ -113,7 +121,7 @@ void core_hook_sysclock_init() {
 
   #if ARDUINO_CORE_VERSION_INT >= GET_VERSION_INT(1, 2, 0)
     assert_system_clocks_valid<
-      sysclock,
+      mpll_clock,
       sysClkConf.enHclkDiv,
       sysClkConf.enPclk0Div,
       sysClkConf.enPclk1Div,
@@ -127,13 +135,13 @@ void core_hook_sysclock_init() {
   sysclock_set_clock_dividers(&sysClkConf);
 
   // Set power mode
-  power_mode_update_pre(sysclock);
+  power_mode_update_pre(mpll_clock);
 
-  // Switch to MPLL as sysclk source
+  // Switch to MPLL as system clock source
   CLK_SetSysClkSource(CLKSysSrcMPLL);
 
   // Set power mode
-  power_mode_update_post(sysclock);
+  power_mode_update_post(mpll_clock);
 }
 
 #endif // ARDUINO_ARCH_HC32
