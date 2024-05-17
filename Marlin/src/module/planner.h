@@ -219,6 +219,7 @@ typedef struct PlannerBlock {
         min_entry_speed_sqr,                // Minimum allowable junction entry speed in (mm/sec)^2
         max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
+        steps_per_mm,                       // steps/mm
         acceleration;                       // acceleration mm/sec^2
 
   union {
@@ -1080,7 +1081,7 @@ class Planner {
       }
     #endif
 
-    static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor);
+    static void calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed);
 
     static bool reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr);
     static void forward_pass_kernel(const block_t * const previous, block_t * const current);

@@ -790,11 +790,11 @@ block_t* Planner::get_current_block() {
  * NOT BUSY and it is marked as RECALCULATE. That WARRANTIES the Stepper ISR
  * is not and will not use the block while we modify it.
  */
-void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed) {
 
   uint32_t initial_rate =
-      entry_factor == 0.0f ? block->initial_rate : LROUND(block->nominal_rate * entry_factor);
-  uint32_t final_rate = LROUND(block->nominal_rate * exit_factor);
+      entry_speed == 0.0f ? block->initial_rate : LROUND(entry_speed * block->steps_per_mm);
+  uint32_t final_rate = LROUND(exit_speed * block->steps_per_mm);
 
   // Legacy check against supposed timer overflow. However Stepper::calc_timer_interval() already
   // should protect against it. But removing this code produces judder in direction-switching
@@ -1142,8 +1142,7 @@ void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
             const float current_entry_speed = next_entry_speed;
             next_entry_speed = SQRT(next->entry_speed_sqr);
 
-            const float nomr = 1.0f / block->nominal_speed;
-            calculate_trapezoid_for_block(block, current_entry_speed * nomr, next_entry_speed * nomr);
+            calculate_trapezoid_for_block(block, current_entry_speed, next_entry_speed);
           }
 
           // Reset current only to ensure next trapezoid is computed - The
@@ -1163,8 +1162,7 @@ void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
     const float current_entry_speed = next_entry_speed;
     next_entry_speed = SQRT(safe_exit_speed_sqr);
 
-    const float nomr = 1.0f / block->nominal_speed;
-    calculate_trapezoid_for_block(block, current_entry_speed * nomr, next_entry_speed * nomr);
+    calculate_trapezoid_for_block(block, current_entry_speed, next_entry_speed);
 
     // Reset block to ensure its trapezoid is computed - The stepper is free to use
     // the block from now on.
@@ -2353,6 +2351,7 @@ bool Planner::_populate_block(
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
+  block->steps_per_mm = steps_per_mm;
   uint32_t accel;
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
