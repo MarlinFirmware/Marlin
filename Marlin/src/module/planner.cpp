@@ -794,16 +794,16 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
-  uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
-           final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
+  uint32_t initial_rate = LROUND(block->nominal_rate * entry_factor),
+           final_rate = LROUND(block->nominal_rate * exit_factor); // (steps per second)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  NOLESS(initial_rate, MINIMAL_STEP_RATE);
-  NOLESS(final_rate, MINIMAL_STEP_RATE);
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));  // Enforce the minimum speed
+  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(block->nominal_rate, MINIMAL_STEP_RATE);
 
   // Assume these are handled elsewhere. Retained for debugging.
-  //NOMORE(initial_rate, block->nominal_rate);
+  //NOMORE(initial_rate, block->nominal_rate);        // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
   //NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
@@ -812,9 +812,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Steps for acceleration, plateau and deceleration
-  int32_t plateau_steps = block->step_event_count;
-  uint32_t accelerate_steps = 0,
-           decelerate_steps = 0;
+  int32_t plateau_steps = block->step_event_count,
+          accelerate_steps = 0,
+          decelerate_steps = 0;
 
   const int32_t accel = block->acceleration_steps_per_s2;
   float inverse_accel = 0.0f;
@@ -823,10 +823,11 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     const float half_inverse_accel = 0.5f * inverse_accel,
                 nominal_rate_sq = FLOAT_SQ(block->nominal_rate),
                 // Steps required for acceleration, deceleration to/from nominal rate
-                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate));
-          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate));
+                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate)),
+                accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate));
+    // Aims to fully reach nominal and final rates
     accelerate_steps = CEIL(accelerate_steps_float);
-    decelerate_steps = FLOOR(decelerate_steps_float);
+    decelerate_steps = CEIL(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
     plateau_steps -= accelerate_steps + decelerate_steps;
@@ -836,13 +837,13 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     // Calculate accel / braking time in order to reach the final_rate exactly
     // at the end of this block.
     if (plateau_steps < 0) {
-      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
-      accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
+      accelerate_steps = LROUND((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
+      LIMIT(accelerate_steps, 0, int32_t(block->step_event_count));
       decelerate_steps = block->step_event_count - accelerate_steps;
 
       #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
-        cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
+        NOMORE(cruise_rate, final_speed(initial_rate, accel, accelerate_steps));
       #endif
     }
   }
@@ -858,8 +859,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Store new block parameters
-  block->accelerate_until = accelerate_steps;
-  block->decelerate_after = block->step_event_count - decelerate_steps;
+  block->accelerate_before = accelerate_steps;
+  block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
   #if ENABLED(S_CURVE_ACCELERATION)
     block->acceleration_time = acceleration_time;
@@ -3161,8 +3162,8 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
     block->step_event_count = num_steps;
     block->initial_rate = block->final_rate = block->nominal_rate = last_page_step_rate; // steps/s
 
-    block->accelerate_until = 0;
-    block->decelerate_after = block->step_event_count;
+    block->accelerate_before = 0;
+    block->decelerate_start = block->step_event_count;
 
     // Will be set to last direction later if directional format.
     block->direction_bits.reset();

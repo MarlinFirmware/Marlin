@@ -58,10 +58,16 @@
  *
  *                           time ----->
  *
- *  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates
- *  first block->accelerate_until step_events_completed, then keeps going at constant speed until
- *  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
- *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
+ *  The speed over time graph forms a TRAPEZOID. The slope of acceleration is calculated by
+ *    v = u + t
+ *  where 't' is the accumulated timer values of the steps so far.
+ *
+ *  The Stepper ISR dynamically executes acceleration, deceleration, and cruising according to the block parameters.
+ *    - Start at block->initial_rate.
+ *    - Accelerate while step_events_completed < block->accelerate_before.
+ *    - Cruise while step_events_completed < block->decelerate_start.
+ *    - Decelerate after that, until all steps are completed.
+ *    - Reset the trapezoid generator.
  */
 
 /**
@@ -193,6 +199,7 @@ bool Stepper::abort_current_block;
   ;
 #endif
 
+// In timer_ticks
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
 #if MULTISTEPPING_LIMIT > 1
@@ -224,8 +231,8 @@ xyze_long_t Stepper::delta_error{0};
 xyze_long_t Stepper::advance_dividend{0};
 uint32_t Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
-         Stepper::accelerate_until,          // The count at which to stop accelerating
-         Stepper::decelerate_after,          // The count at which to start decelerating
+         Stepper::accelerate_before,         // The count at which to start cruising
+         Stepper::decelerate_start,          // The count at which to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
 #if ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
@@ -2403,7 +2410,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Step events not completed yet...
 
       // Are we in acceleration phase ?
-      if (step_events_completed <= accelerate_until) { // Calculate new timer value
+      if (step_events_completed < accelerate_before) { // Calculate new timer value
 
         #if ENABLED(S_CURVE_ACCELERATION)
           // Get the next speed to use (Jerk limited!)
@@ -2420,6 +2427,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // step_rate to timer interval and steps per stepper isr
         interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
         acceleration_time += interval;
+        deceleration_time = 0; // Reset since we're doing acceleration first.
 
         #if ENABLED(NONLINEAR_EXTRUSION)
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2441,16 +2449,13 @@ hal_timer_t Stepper::block_phase_isr() {
          * Laser power variables are calulated and stored in this block by the planner code.
          *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
          *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
-         *
-         * Apply the starting active power and then increase power per step by the trap_ramp_entry_incr value if positive.
          */
-
         #if ENABLED(LASER_POWER_TRAP)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
               if (current_block->laser.trap_ramp_entry_incr > 0) {
                 cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
-                current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr;
+                current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr * steps_per_isr;
               }
             }
             // Not a powered move.
@@ -2459,30 +2464,24 @@ hal_timer_t Stepper::block_phase_isr() {
         #endif
       }
       // Are we in Deceleration phase ?
-      else if (step_events_completed > decelerate_after) {
+      else if (step_events_completed >= decelerate_start) {
         uint32_t step_rate;
 
         #if ENABLED(S_CURVE_ACCELERATION)
-
           // If this is the 1st time we process the 2nd half of the trapezoid...
           if (!bezier_2nd_half) {
             // Initialize the Bézier speed curve
             _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time_inverse);
             bezier_2nd_half = true;
-            // The first point starts at cruise rate. Just save evaluation of the Bézier curve
-            step_rate = current_block->cruise_rate;
           }
-          else {
-            // Calculate the next speed to use
-            step_rate = deceleration_time < current_block->deceleration_time
-              ? _eval_bezier_curve(deceleration_time)
-              : current_block->final_rate;
-          }
-
+          // Calculate the next speed to use
+          step_rate = deceleration_time < current_block->deceleration_time
+            ? _eval_bezier_curve(deceleration_time)
+            : current_block->final_rate;
         #else
           // Using the old trapezoidal control
           step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
-          if (step_rate < acc_step_rate) { // Still decelerating?
+          if (step_rate < acc_step_rate) {
             step_rate = acc_step_rate - step_rate;
             NOLESS(step_rate, current_block->final_rate);
           }
@@ -2524,15 +2523,12 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         #endif // LIN_ADVANCE
 
-        /**
-         * Adjust Laser Power - Decelerating
-         * trap_ramp_entry_decr - holds the precalculated value to decrease the current power per decel step.
-         */
+        // Adjust Laser Power - Decelerating
         #if ENABLED(LASER_POWER_TRAP)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
             if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
               if (current_block->laser.trap_ramp_exit_decr > 0) {
-                current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr;
+                current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr * steps_per_isr;
                 cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
               }
               // Not a powered move.
@@ -2548,6 +2544,9 @@ hal_timer_t Stepper::block_phase_isr() {
         if (ticks_nominal == 0) {
           // step_rate to timer interval and loops for the nominal speed
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+          // Prepare for deceleration
+          IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
+          deceleration_time = ticks_nominal / 2;
 
           #if ENABLED(NONLINEAR_EXTRUSION)
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
@@ -2557,30 +2556,25 @@ hal_timer_t Stepper::block_phase_isr() {
             if (la_active)
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
+
+          // Adjust Laser Power - Cruise
+          #if ENABLED(LASER_POWER_TRAP)
+            if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
+              if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
+                if (current_block->laser.trap_ramp_entry_incr > 0) {
+                  current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
+                  cutter.apply_power(current_block->laser.power);
+                }
+              }
+              // Not a powered move.
+              else cutter.apply_power(0);
+            }
+          #endif
         }
 
         // The timer interval is just the nominal value for the nominal speed
         interval = ticks_nominal;
       }
-
-      /**
-       * Adjust Laser Power - Cruise
-       * power - direct or floor adjusted active laser power.
-       */
-      #if ENABLED(LASER_POWER_TRAP)
-        if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
-          if (step_events_completed + 1 == accelerate_until) {
-            if (planner.laser_inline.status.isPowered && planner.laser_inline.status.isEnabled) {
-              if (current_block->laser.trap_ramp_entry_incr > 0) {
-                current_block->laser.trap_ramp_active_pwr = current_block->laser.power;
-                cutter.apply_power(current_block->laser.power);
-              }
-            }
-            // Not a powered move.
-            else cutter.apply_power(0);
-          }
-        }
-      #endif
     }
 
     #if ENABLED(LASER_FEATURE)
@@ -2675,9 +2669,6 @@ hal_timer_t Stepper::block_phase_isr() {
       // Set flags for all moving axes, accounting for kinematics
       set_axis_moved_for_current_block();
 
-      // No acceleration / deceleration time elapsed so far
-      acceleration_time = deceleration_time = 0;
-
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
         // Otherwise assume no axis smoothing (via oversampling)
@@ -2731,8 +2722,8 @@ hal_timer_t Stepper::block_phase_isr() {
       step_events_completed = 0;
 
       // Compute the acceleration and deceleration points
-      accelerate_until = current_block->accelerate_until << oversampling_factor;
-      decelerate_after = current_block->decelerate_after << oversampling_factor;
+      accelerate_before = current_block->accelerate_before << oversampling_factor;
+      decelerate_start = current_block->decelerate_start << oversampling_factor;
 
       TERN_(MIXING_EXTRUDER, mixer.stepper_setup(current_block->b_color));
 
@@ -2818,7 +2809,8 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Calculate the initial timer interval
       interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
-      acceleration_time += interval;
+      // Initialize ac/deceleration time as if half the time passed.
+      acceleration_time = deceleration_time = interval / 2;
 
       #if ENABLED(NONLINEAR_EXTRUSION)
         calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
