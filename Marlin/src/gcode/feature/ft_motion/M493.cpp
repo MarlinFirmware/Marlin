@@ -28,7 +28,7 @@
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
 
-void say_shaper_type(const ftMotionCmpnstr_t t) {
+void say_shaper_type(const ftMotionShaper_t t) {
   SERIAL_ECHOPGM(" axis ");
   switch (t) {
     default: break;
@@ -203,11 +203,11 @@ void GcodeSuite::M493() {
   #if HAS_X_AXIS
     // Parse 'X' mode parameter.
     if (parser.seenval('X')) {
-      const ftMotionCmpnstr_t newmm = (ftMotionCmpnstr_t)parser.value_byte();
+      const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
 
-      if (newmm != ftMotion.cfg.cmpnstr[X_AXIS]) {
-        switch (newmm) {
-          default: SERIAL_ECHOLNPGM("?Invalid compensator / shaper [X] value."); return;
+      if (newsh != ftMotion.cfg.cmpnstr[X_AXIS]) {
+        switch (newsh) {
+          default: SERIAL_ECHOLNPGM("?Invalid [X] shaper."); return;
           case ftMotionCmpnstr_NONE:
           case ftMotionCmpnstr_ZV:
           case ftMotionCmpnstr_ZVD:
@@ -218,7 +218,7 @@ void GcodeSuite::M493() {
           case ftMotionCmpnstr_3HEI:
           case ftMotionCmpnstr_MZV:
             flag.update = true;
-            ftMotion.cfg.cmpnstr[X_AXIS] = newmm;
+            ftMotion.cfg.cmpnstr[X_AXIS] = newsh;
             flag.report_h = true;
             break;
         }
@@ -229,11 +229,11 @@ void GcodeSuite::M493() {
   #if HAS_Y_AXIS
     // Parse 'Y' mode parameter.
     if (parser.seenval('Y')) {
-      const ftMotionCmpnstr_t newmm = (ftMotionCmpnstr_t)parser.value_byte();
+      const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
 
-      if (newmm != ftMotion.cfg.cmpnstr[Y_AXIS]) {
-        switch (newmm) {
-          default: SERIAL_ECHOLNPGM("?Invalid compensator / shaper [Y] value."); return;
+      if (newsh != ftMotion.cfg.cmpnstr[Y_AXIS]) {
+        switch (newsh) {
+          default: SERIAL_ECHOLNPGM("?Invalid [Y] shaper."); return;
           case ftMotionCmpnstr_NONE:
           case ftMotionCmpnstr_ZV:
           case ftMotionCmpnstr_ZVD:
@@ -244,7 +244,7 @@ void GcodeSuite::M493() {
           case ftMotionCmpnstr_3HEI:
           case ftMotionCmpnstr_MZV:
             flag.update = true;
-            ftMotion.cfg.cmpnstr[Y_AXIS] = newmm;
+            ftMotion.cfg.cmpnstr[Y_AXIS] = newsh;
             flag.report_h = true;
             break;
         }

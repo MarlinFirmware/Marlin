@@ -325,7 +325,7 @@ void menu_move() {
   #include "../../module/ft_motion.h"
   #include "../../gcode/gcode.h"
 
-  void ftm_menu_set_cmpn(const AxisEnum axis, const ftMotionCmpnstr_t s) {
+  void ftm_menu_set_cmpn(const AxisEnum axis, const ftMotionShaper_t s) {
     ftMotion.cfg.cmpnstr[axis] = s;
     ftMotion.update_shaping_params();
     ui.go_back();
@@ -338,37 +338,37 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_x() {
-    const ftMotionCmpnstr_t shaping = ftMotion.cfg.cmpnstr[X_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.cmpnstr[X_AXIS];
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (shaping != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
-    if (shaping != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
-    if (shaping != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
-    if (shaping != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (shaping != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (shaping != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_EI); });
-    if (shaping != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_2HEI); });
-    if (shaping != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_3HEI); });
-    if (shaping != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_MZV); });
+    if (shaper != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
+    if (shaper != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
+    if (shaper != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
+    if (shaper != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDD); });
+    if (shaper != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDDD); });
+    if (shaper != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_EI); });
+    if (shaper != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_2HEI); });
+    if (shaper != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_3HEI); });
+    if (shaper != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_MZV); });
 
     END_MENU();
   }
 
   inline void menu_ftm_cmpn_y() {
-    const ftMotionCmpnstr_t shaping = ftMotion.cfg.cmpnstr[Y_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.cmpnstr[Y_AXIS];
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (shaping != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
-    if (shaping != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
-    if (shaping != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
-    if (shaping != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (shaping != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (shaping != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_EI); });
-    if (shaping != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_2HEI); });
-    if (shaping != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_3HEI); });
-    if (shaping != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
+    if (shaper != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
+    if (shaper != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
+    if (shaper != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
+    if (shaper != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDD); });
+    if (shaper != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDDD); });
+    if (shaper != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_EI); });
+    if (shaper != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_2HEI); });
+    if (shaper != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_3HEI); });
+    if (shaper != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
 
     END_MENU();
   }

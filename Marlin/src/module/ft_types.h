@@ -29,16 +29,16 @@ typedef enum FXDTICtrlMode : uint8_t {
 } ftMotionMode_t;
 
 typedef enum FXDTICtrlCmpnstr : uint8_t {
-  ftMotionCmpnstr_NONE       = 0, // No compensator
-  ftMotionCmpnstr_ZV         = 1, // Zero Vibration
-  ftMotionCmpnstr_ZVD        = 2, // Zero Vibration and Derivative
-  ftMotionCmpnstr_ZVDD       = 3, // Zero Vibration, Derivative, and Double Derivative
-  ftMotionCmpnstr_ZVDDD      = 4, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
-  ftMotionCmpnstr_EI         = 5, // Extra-Intensive
-  ftMotionCmpnstr_2HEI       = 6, // 2-Hump Extra-Intensive
-  ftMotionCmpnstr_3HEI       = 7, // 3-Hump Extra-Intensive
-  ftMotionCmpnstr_MZV        = 8  // Modified Zero Vibration
-} ftMotionCmpnstr_t;
+  ftMotionCmpnstr_NONE  = 0, // No compensator
+  ftMotionCmpnstr_ZV    = 1, // Zero Vibration
+  ftMotionCmpnstr_ZVD   = 2, // Zero Vibration and Derivative
+  ftMotionCmpnstr_ZVDD  = 3, // Zero Vibration, Derivative, and Double Derivative
+  ftMotionCmpnstr_ZVDDD = 4, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+  ftMotionCmpnstr_EI    = 5, // Extra-Intensive
+  ftMotionCmpnstr_2HEI  = 6, // 2-Hump Extra-Intensive
+  ftMotionCmpnstr_3HEI  = 7, // 3-Hump Extra-Intensive
+  ftMotionCmpnstr_MZV   = 8  // Modified Zero Vibration
+} ftMotionShaper_t;
 
 enum dynFreqMode_t : uint8_t {
   dynFreqMode_DISABLED   = 0,

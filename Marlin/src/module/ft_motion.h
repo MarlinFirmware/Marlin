@@ -40,7 +40,7 @@ typedef struct FTConfig {
   ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
 
   #if HAS_X_AXIS
-    ftMotionCmpnstr_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
+    ftMotionShaper_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
       { FTM_DEFAULT_X_COMPENSATOR OPTARG(HAS_Y_AXIS, FTM_DEFAULT_Y_COMPENSATOR) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
@@ -168,8 +168,8 @@ class FTMotion {
         uint32_t Ni[5];                   // Shaping time index vector.
         uint32_t max_i;                   // Vector length for the selected shaper.
 
-        void set_axis_shaping_N(const ftMotionCmpnstr_t shaper, const_float_t f, const_float_t zeta);    // Sets the gains used by shaping functions.
-        void set_axis_shaping_A(const ftMotionCmpnstr_t shaper, const_float_t zeta, const_float_t vtol); // Sets the indices used by shaping functions.
+        void set_axis_shaping_N(const ftMotionShaper_t shaper, const_float_t f, const_float_t zeta);    // Sets the gains used by shaping functions.
+        void set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol); // Sets the indices used by shaping functions.
 
       } axis_shaping_t;
 
