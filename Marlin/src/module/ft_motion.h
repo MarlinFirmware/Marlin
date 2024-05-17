@@ -39,7 +39,7 @@
 typedef struct FTConfig {
   ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
 
-  #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
+  #if HAS_X_AXIS
     ftMotionCmpnstr_t cmpnstr[1 + ENABLED(HAS_Y_AXIS)] =               // Compensation mode.
       { FTM_DEFAULT_X_COMPENSATOR OPTARG(HAS_Y_AXIS, FTM_DEFAULT_Y_COMPENSATOR) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
@@ -74,17 +74,19 @@ class FTMotion {
     static void set_defaults() {
       cfg.mode = FTM_DEFAULT_MODE;
 
-      TERN_(HAS_X_AXIS, cfg.cmpnstr[X_AXIS] = FTM_DEFAULT_X_COMPENSATOR);
-      TERN_(HAS_Y_AXIS, cfg.cmpnstr[Y_AXIS] = FTM_DEFAULT_Y_COMPENSATOR);
+      #if HAS_X_AXIS
+        cfg.cmpnstr[X_AXIS] = FTM_DEFAULT_X_COMPENSATOR;
+        cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ;
+        cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X;
+        cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X;
+      #endif
 
-      TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
-      TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
-
-      TERN_(HAS_X_AXIS, cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X);
-      TERN_(HAS_Y_AXIS, cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y);
-
-      TERN_(HAS_X_AXIS, cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X);
-      TERN_(HAS_Y_AXIS, cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y);
+      #if HAS_Y_AXIS
+        cfg.cmpnstr[Y_AXIS] = FTM_DEFAULT_Y_COMPENSATOR;
+        cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ;
+        cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y;
+        cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y;
+      #endif
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -96,9 +98,7 @@ class FTMotion {
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
 
-      #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
-        update_shaping_params();
-      #endif
+      TERN_(HAS_X_AXIS, update_shaping_params());
 
       reset();
     }
@@ -116,8 +116,8 @@ class FTMotion {
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
 
-    #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
-      // Refreshes the gains and indices used by shaping functions.
+    #if HAS_X_AXIS
+      // Refresh gains and indices used by shaping functions.
       static void update_shaping_params(void);
     #endif
 

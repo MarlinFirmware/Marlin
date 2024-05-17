@@ -107,7 +107,7 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
 // Shaping variables.
-#if ANY(HAS_X_AXIS, HAS_Y_AXIS)
+#if HAS_X_AXIS
   FTMotion::shaping_t FTMotion::shaping = {
     0,
     x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
@@ -228,7 +228,7 @@ void FTMotion::loop() {
 
 }
 
-#if ANY(HAS_X_AXIS, HAS_Y_AXIS)
+#if HAS_X_AXIS
 
   // Refresh the gains used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionCmpnstr_t shaper, const_float_t zeta, const_float_t vtol) {
@@ -381,7 +381,7 @@ void FTMotion::loop() {
     #endif
   }
 
-#endif // HAS_X_AXIS or HAS_Y_AXIS
+#endif // HAS_X_AXIS
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
@@ -402,8 +402,8 @@ void FTMotion::reset() {
 
   stepper.axis_did_move.reset();
 
-  #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
-    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
+  #if HAS_X_AXIS
+    ZERO(shaping.x.d_zi);
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif

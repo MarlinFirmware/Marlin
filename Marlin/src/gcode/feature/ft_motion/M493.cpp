@@ -28,6 +28,22 @@
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
 
+void say_shaper_type(const ftMotionCmpnstr_t t) {
+  SERIAL_ECHOPGM(" axis ");
+  switch (t) {
+    default: break;
+    case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
+    case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
+    case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
+    case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
+    case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
+    case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
+    case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
+    case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
+  }
+  SERIAL_ECHOPGM(" shaping");
+}
+
 void say_shaping() {
   // FT Enabled
   SERIAL_ECHO_TERNARY(ftMotion.cfg.mode, "Fixed-Time Motion ", "en", "dis", "abled");
@@ -35,39 +51,17 @@ void say_shaping() {
   // FT Shaping
   #if HAS_X_AXIS
     if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
-      SERIAL_ECHOPGM(" with X/A axis ");
-      switch (ftMotion.cfg.cmpnstr[X_AXIS]) {
-        default: break;
-        case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
-        case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-        case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-        case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-        case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
-        case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-        case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-        case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
-      }
-      SERIAL_ECHOPGM(" shaping");
+      SERIAL_ECHOPGM(" with X/A");
+      say_shaper_type(ftMotion.cfg.cmpnstr[X_AXIS]);
     }
   #endif
   #if HAS_Y_AXIS
     if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
-      SERIAL_ECHOPGM(" and with Y/B axis ");
-      switch (ftMotion.cfg.cmpnstr[Y_AXIS]) {
-        default: break;
-        case ftMotionCmpnstr_ZV:    SERIAL_ECHOPGM("ZV");        break;
-        case ftMotionCmpnstr_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
-        case ftMotionCmpnstr_ZVDD:  SERIAL_ECHOPGM("ZVDD");      break;
-        case ftMotionCmpnstr_ZVDDD: SERIAL_ECHOPGM("ZVDDD");     break;
-        case ftMotionCmpnstr_EI:    SERIAL_ECHOPGM("EI");        break;
-        case ftMotionCmpnstr_2HEI:  SERIAL_ECHOPGM("2 Hump EI"); break;
-        case ftMotionCmpnstr_3HEI:  SERIAL_ECHOPGM("3 Hump EI"); break;
-        case ftMotionCmpnstr_MZV:   SERIAL_ECHOPGM("MZV");       break;
-      }
-      SERIAL_ECHOPGM(" shaping");
+      SERIAL_ECHOPGM(" and with Y/B");
+      say_shaper_type(ftMotion.cfg.cmpnstr[Y_AXIS]);
     }
   #endif
-  
+
   SERIAL_ECHOLNPGM(".");
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED),
@@ -149,13 +143,13 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 /**
  * M493: Set Fixed-time Motion Control parameters
  *
- *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
+ *    S<mode> Set Fixed-Time motion mode on or off.
  *
- *       0: Standard Motion
- *       1: Fixed-Time Motion
- * 
- *    X/Y<compensator mode> Set the vibration compensator [input shaper] mode of the X and
- *                          Y axes respectively. Requires an X axis, at the minimum.
+ *       0: Fixed-Time Motion OFF (Standard Motion)
+ *       1: Fixed-Time Motion ON
+ *
+ *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y axis.
+ *              Users / slicers must remember to set the mode for both axes!
  *      1: ZV    : Zero Vibration
  *      2: ZVD   : Zero Vibration and Derivative
  *      3: ZVDD  : Zero Vibration, Derivative, and Double Derivative
@@ -230,7 +224,7 @@ void GcodeSuite::M493() {
         }
       }
     }
-  #endif
+  #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
     // Parse 'Y' mode parameter.
@@ -252,11 +246,11 @@ void GcodeSuite::M493() {
             flag.update = true;
             ftMotion.cfg.cmpnstr[Y_AXIS] = newmm;
             flag.report_h = true;
-             break;
+            break;
         }
       }
     }
-  #endif
+  #endif // HAS_Y_AXIS
 
   #if HAS_EXTRUDERS
 

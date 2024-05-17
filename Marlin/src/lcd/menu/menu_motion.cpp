@@ -338,10 +338,10 @@ void menu_move() {
   }
 
   inline void menu_ftm_xcmpn() {
-    
+
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
-    
+
     if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
     if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
     if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
@@ -356,10 +356,10 @@ void menu_move() {
   }
 
   inline void menu_ftm_ycmpn() {
-    
+
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
-    
+
     if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
     if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
     if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
@@ -371,13 +371,13 @@ void menu_move() {
     if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
 
     END_MENU();
-  }  
+  }
 
   inline void menu_ftm_mode() {
-        
+
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
-    
+
     if (ftMotion.cfg.mode != ftMotionMode_DISABLED)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_ftm(ftMotionMode_DISABLED); });
     if (ftMotion.cfg.mode != ftMotionMode_ENABLED)    ACTION_ITEM(MSG_LCD_ON,   []{ ftm_menu_set_ftm(ftMotionMode_ENABLED); });
 
@@ -460,7 +460,7 @@ void menu_move() {
     SUBMENU(MSG_FIXED_TIME_MOTION, menu_ftm_mode);
     MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
 
-    if (c.mode) {    
+    if (c.mode) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_xcmpn);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[X_AXIS]); MENU_ITEM_ADDON_END();
@@ -475,7 +475,7 @@ void menu_move() {
       #if HAS_Y_AXIS
         SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_ycmpn);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[Y_AXIS]); MENU_ITEM_ADDON_END();
-        
+
         if CMPNSTR_HAS_SHAPER(Y_AXIS) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
