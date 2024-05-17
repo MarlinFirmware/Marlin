@@ -338,35 +338,37 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_x() {
+    const ftMotionCmpnstr_t shaping = ftMotion.cfg.cmpnstr[X_AXIS];
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_EI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_2HEI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_3HEI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_MZV); });
+    if (shaping != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
+    if (shaping != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
+    if (shaping != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
+    if (shaping != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDD); });
+    if (shaping != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDDD); });
+    if (shaping != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_EI); });
+    if (shaping != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_2HEI); });
+    if (shaping != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_3HEI); });
+    if (shaping != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_MZV); });
 
     END_MENU();
   }
 
   inline void menu_ftm_cmpn_y() {
+    const ftMotionCmpnstr_t shaping = ftMotion.cfg.cmpnstr[Y_AXIS];
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_EI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_2HEI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_3HEI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
+    if (shaping != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
+    if (shaping != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
+    if (shaping != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
+    if (shaping != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDD); });
+    if (shaping != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDDD); });
+    if (shaping != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_EI); });
+    if (shaping != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_2HEI); });
+    if (shaping != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_3HEI); });
+    if (shaping != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
 
     END_MENU();
   }
@@ -375,8 +377,8 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (ftMotion.cfg.mode != ftMotionMode_DISABLED)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_ftm(ftMotionMode_DISABLED); });
-    if (ftMotion.cfg.mode != ftMotionMode_ENABLED)    ACTION_ITEM(MSG_LCD_ON,   []{ ftm_menu_set_ftm(ftMotionMode_ENABLED); });
+    if (ftMotion.cfg.mode != ftMotionMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftm_menu_set_ftm(ftMotionMode_DISABLED); });
+    if (ftMotion.cfg.mode != ftMotionMode_ENABLED)  ACTION_ITEM(MSG_LCD_ON,  []{ ftm_menu_set_ftm(ftMotionMode_ENABLED); });
 
     END_MENU();
   }
