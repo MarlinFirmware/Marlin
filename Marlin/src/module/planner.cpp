@@ -794,8 +794,8 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
-  const uint32_t initial_rate = _MAX(MINIMAL_STEP_RATE, LROUND(block->nominal_rate * entry_factor)), // (steps per second)
-                   final_rate = _MAX(MINIMAL_STEP_RATE, LROUND(block->nominal_rate * exit_factor));
+  const uint32_t initial_rate = _MAX((long int)MINIMAL_STEP_RATE, LROUND(block->nominal_rate * entry_factor)), // (steps per second)
+                   final_rate = _MAX((long int)MINIMAL_STEP_RATE, LROUND(block->nominal_rate * exit_factor));
 
   // Now ensure the nominal rate is above minimum
   NOLESS(block->nominal_rate, MINIMAL_STEP_RATE);
