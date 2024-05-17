@@ -104,13 +104,13 @@ void core_hook_sysclock_init() {
     #endif
   #endif
 
-  // MPLL output should now be configured to 200 MHz
-  constexpr uint32_t mpll_clock = 200000000;
+  // MPLL output configured according to F_HCLK (200MHz)
+  constexpr uint32_t mpll_clock = F_HCLK;
 
   // Setup clock divisors for sysclk = 200 MHz
   // Note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
   constexpr stc_clk_sysclk_cfg_t sysClkConf = {
-      .enHclkDiv = ClkSysclkDiv1,  // HCLK  = 200 MHz (CPU)
+      .enHclkDiv  = ClkSysclkDiv1, // HCLK  = 200 MHz (CPU)
       .enExclkDiv = ClkSysclkDiv2, // EXCLK = 100 MHz (SDIO)
       .enPclk0Div = ClkSysclkDiv2, // PCLK0 = 100 MHz (Timer6 (not used))
       .enPclk1Div = ClkSysclkDiv4, // PCLK1 = 50 MHz (USART, SPI, I2S, Timer0 (step+temp), TimerA (Servo))

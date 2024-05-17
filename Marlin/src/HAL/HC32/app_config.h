@@ -70,6 +70,7 @@
 // If you face issues with this assumption, please double-check with the values
 // printed by 'MarlinHAL::HAL_clock_frequencies_dump'.
 // see also: HAL_TIMER_RATE in timers.h and https://github.com/MarlinFirmware/Marlin/pull/27099.
-#define F_CPU 200000000 // 200MHz HCLK
+#define F_HCLK 200000000 // 200MHz HCLK
+#define F_CPU F_HCLK
 
 #endif // _HC32_APP_CONFIG_H_
