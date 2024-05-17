@@ -187,7 +187,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
-  struct { bool update_shpr_params:1, reset_ft:1, report_h:1; } flag = { false };
+  struct { bool update:1, reset_ft:1, report_h:1; } flag = { false };
 
   if (!parser.seen_any())
     flag.report_h = true;
@@ -225,7 +225,7 @@ void GcodeSuite::M493() {
           case ftMotionCmpnstr_2HEI:
           case ftMotionCmpnstr_3HEI:
           case ftMotionCmpnstr_MZV:
-            flag.update_shpr_params = true;
+            flag.update = true;
             ftMotion.cfg.cmpnstr[X_AXIS] = newmm;
             flag.report_h = true;
             break;
@@ -251,7 +251,7 @@ void GcodeSuite::M493() {
           case ftMotionCmpnstr_2HEI:
           case ftMotionCmpnstr_3HEI:
           case ftMotionCmpnstr_MZV:
-            flag.update_shpr_params = true;
+            flag.update = true;
             ftMotion.cfg.cmpnstr[Y_AXIS] = newmm;
             flag.report_h = true;
              break;
@@ -326,7 +326,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq[X_AXIS] = val;
-          flag.update_shpr_params = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
@@ -353,7 +353,7 @@ void GcodeSuite::M493() {
       if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
           ftMotion.cfg.zeta[0] = val;
-          flag.update_shpr_params = true;
+          flag.update = true;
         }
         else
           SERIAL_ECHOLNPGM("Invalid X zeta [", C('I'), "] value."); // Zeta out of range.
@@ -368,7 +368,7 @@ void GcodeSuite::M493() {
       if (CMPNSTR_IS_EISHAPER(X_AXIS)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
           ftMotion.cfg.vtol[0] = val;
-          flag.update_shpr_params = true;
+          flag.update = true;
         }
         else
           SERIAL_ECHOLNPGM("Invalid X vtol [", C('Q'), "] value."); // VTol out of range.
@@ -387,7 +387,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq[Y_AXIS] = val;
-          flag.update_shpr_params = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
@@ -414,7 +414,7 @@ void GcodeSuite::M493() {
       if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
           ftMotion.cfg.zeta[1] = val;
-          flag.update_shpr_params = true;
+          flag.update = true;
         }
         else
           SERIAL_ECHOLNPGM("Invalid Y zeta [", C('J'), "] value."); // Zeta Out of range
@@ -429,7 +429,7 @@ void GcodeSuite::M493() {
       if (CMPNSTR_IS_EISHAPER(Y_AXIS)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
           ftMotion.cfg.vtol[1] = val;
-          flag.update_shpr_params = true;
+          flag.update = true;
         }
         else
           SERIAL_ECHOLNPGM("Invalid Y vtol [", C('R'), "] value."); // VTol out of range.
@@ -442,7 +442,7 @@ void GcodeSuite::M493() {
 
   planner.synchronize();
 
-  if (flag.update_shpr_params) ftMotion.update_shaping_params();
+  if (flag.update) ftMotion.update_shaping_params();
 
   if (flag.reset_ft) {
     stepper.ftMotion_syncPosition();
