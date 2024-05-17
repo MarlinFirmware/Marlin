@@ -326,7 +326,7 @@ void menu_move() {
   #include "../../gcode/gcode.h"
 
   void ftm_menu_set_cmpn(const AxisEnum axis, const ftMotionCmpnstr_t s) {
-    ftMotion.cfg.cmpnstr[axis]=s;
+    ftMotion.cfg.cmpnstr[axis] = s;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
@@ -337,44 +337,24 @@ void menu_move() {
     ui.go_back();
   }
 
-  inline void menu_ftm_xcmpn() {
-
+  static void menu_ftm_cmpn(const AxisEnum axis) {
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_NONE); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZV); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_EI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_2HEI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_3HEI); });
-    if (ftMotion.cfg.cmpnstr[X_AXIS] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(X_AXIS, ftMotionCmpnstr_MZV); });
-
-    END_MENU();
-  }
-
-  inline void menu_ftm_ycmpn() {
-
-    START_MENU();
-    BACK_ITEM(MSG_FIXED_TIME_MOTION);
-
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_NONE); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZV); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_ZVDDD); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_EI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_2HEI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_3HEI); });
-    if (ftMotion.cfg.cmpnstr[Y_AXIS] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(Y_AXIS, ftMotionCmpnstr_MZV); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_NONE); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_ZV); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_ZVD); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_ZVDD); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_ZVDDD); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_EI); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_2HEI); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_3HEI); });
+    if (ftMotion.cfg.cmpnstr[axis] != ftMotionCmpnstr_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_cmpn(axis, ftMotionCmpnstr_MZV); });
 
     END_MENU();
   }
 
   inline void menu_ftm_mode() {
-
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -408,8 +388,7 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    FSTR_P ftmode {};
-    FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)] { TERN_(HAS_Y_AXIS,)};
+    FSTR_P ftmode {}, ftshaper[1 + ENABLED(HAS_Y_AXIS)] {};
 
     switch (c.mode) {
       case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
@@ -417,30 +396,18 @@ void menu_move() {
     }
 
     #if HAS_X_AXIS
-      switch (c.cmpnstr[X_AXIS]) {
-        case ftMotionCmpnstr_NONE:     ftshaper[X_AXIS] = GET_TEXT_F(MSG_LCD_OFF);  break;
-        case ftMotionCmpnstr_ZV:       ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_ZV);   break;
-        case ftMotionCmpnstr_ZVD:      ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_ZVD);  break;
-        case ftMotionCmpnstr_ZVDD:     ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_ZVDD); break;
-        case ftMotionCmpnstr_ZVDDD:    ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_ZVDDD);break;
-        case ftMotionCmpnstr_EI:       ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_EI);   break;
-        case ftMotionCmpnstr_2HEI:     ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_2HEI); break;
-        case ftMotionCmpnstr_3HEI:     ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_3HEI); break;
-        case ftMotionCmpnstr_MZV:      ftshaper[X_AXIS] = GET_TEXT_F(MSG_FTM_MZV);  break;
-      }
-    #endif
-
-    #if HAS_Y_AXIS
-      switch (c.cmpnstr[Y_AXIS]) {
-        case ftMotionCmpnstr_NONE:     ftshaper[Y_AXIS] = GET_TEXT_F(MSG_LCD_OFF);  break;
-        case ftMotionCmpnstr_ZV:       ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_ZV);   break;
-        case ftMotionCmpnstr_ZVD:      ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_ZVD);  break;
-        case ftMotionCmpnstr_ZVDD:     ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_ZVDD); break;
-        case ftMotionCmpnstr_ZVDDD:    ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_ZVDDD);break;
-        case ftMotionCmpnstr_EI:       ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_EI);   break;
-        case ftMotionCmpnstr_2HEI:     ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_2HEI); break;
-        case ftMotionCmpnstr_3HEI:     ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_3HEI); break;
-        case ftMotionCmpnstr_MZV:      ftshaper[Y_AXIS] = GET_TEXT_F(MSG_FTM_MZV);  break;
+      for (AxisEnum a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a) {
+        switch (c.cmpnstr[a]) {
+          case ftMotionCmpnstr_NONE:  ftshaper[a] = GET_TEXT_F(MSG_LCD_OFF);  break;
+          case ftMotionCmpnstr_ZV:    ftshaper[a] = GET_TEXT_F(MSG_FTM_ZV);   break;
+          case ftMotionCmpnstr_ZVD:   ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVD);  break;
+          case ftMotionCmpnstr_ZVDD:  ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVDD); break;
+          case ftMotionCmpnstr_ZVDDD: ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVDDD);break;
+          case ftMotionCmpnstr_EI:    ftshaper[a] = GET_TEXT_F(MSG_FTM_EI);   break;
+          case ftMotionCmpnstr_2HEI:  ftshaper[a] = GET_TEXT_F(MSG_FTM_2HEI); break;
+          case ftMotionCmpnstr_3HEI:  ftshaper[a] = GET_TEXT_F(MSG_FTM_3HEI); break;
+          case ftMotionCmpnstr_MZV:   ftshaper[a] = GET_TEXT_F(MSG_FTM_MZV);  break;
+        }
       }
     #endif
 
@@ -462,24 +429,24 @@ void menu_move() {
 
     if (c.mode) {
       #if HAS_X_AXIS
-        SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_xcmpn);
+        SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, []{ menu_ftm_cmpn(X_AXIS); });
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[X_AXIS]); MENU_ITEM_ADDON_END();
 
-        if CMPNSTR_HAS_SHAPER(X_AXIS) {
+        if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if CMPNSTR_IS_EISHAPER(X_AXIS)
+          if (CMPNSTR_IS_EISHAPER(X_AXIS))
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
       #if HAS_Y_AXIS
-        SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_ycmpn);
+        SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, []{ menu_ftm_cmpn(Y_AXIS); });
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[Y_AXIS]); MENU_ITEM_ADDON_END();
 
-        if CMPNSTR_HAS_SHAPER(Y_AXIS) {
+        if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if CMPNSTR_IS_EISHAPER(Y_AXIS)
+          if (CMPNSTR_IS_EISHAPER(Y_AXIS))
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
