@@ -29,7 +29,7 @@
 #include "../../../module/stepper.h"
 
 void say_shaping() {
-    // FT Enabled
+  // FT Enabled
   SERIAL_ECHO_TERNARY(ftMotion.cfg.mode, "Fixed-Time Motion ", "en", "dis", "abled");
 
   // FT Shaping
