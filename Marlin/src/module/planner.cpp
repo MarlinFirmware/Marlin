@@ -792,17 +792,14 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed) {
 
-  uint32_t initial_rate =
-      entry_speed == 0.0f ? block->initial_rate : LROUND(entry_speed * block->steps_per_mm);
-  uint32_t final_rate = LROUND(exit_speed * block->steps_per_mm);
+  const float spmm = block->steps_per_mm;
+  uint32_t initial_rate = entry_speed ? _MAX(long(MINIMAL_STEP_RATE), LROUND(entry_speed * spmm)) : block->initial_rate,
+           final_rate = _MAX(long(MINIMAL_STEP_RATE), LROUND(exit_speed * spmm));
 
-  // Legacy check against supposed timer overflow. However Stepper::calc_timer_interval() already
-  // should protect against it. But removing this code produces judder in direction-switching
-  // moves. This is because the current discrete stepping math diverges from physical motion under
-  // constant acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
-  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));  // Enforce the minimum speed
-  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
-  NOMORE(initial_rate, block->nominal_rate);          // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
+  // Removing code to constrain values here or above produces judder in direction-switching moves
+  // because the current discrete stepping math diverges from physical motion under constant
+  // acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
+  NOMORE(initial_rate, block->nominal_rate);  // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
   NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
