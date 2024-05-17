@@ -797,6 +797,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
 
+  // Keep existing kludge against acceleration spikes until #27035
+  NOLESS(initial_rate, MIN(120, block->nominal_rate));
+  NOLESS(final_rate, MIN(120, block->nominal_rate));
+
   // Limit minimal step rate (Otherwise the timer will overflow.)
   NOLESS(initial_rate, MINIMAL_STEP_RATE);
   NOLESS(final_rate, MINIMAL_STEP_RATE);
