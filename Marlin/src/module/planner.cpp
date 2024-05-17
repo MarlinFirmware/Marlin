@@ -802,6 +802,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   NOLESS(final_rate, MINIMAL_STEP_RATE);
   NOLESS(block->nominal_rate, MINIMAL_STEP_RATE);
 
+  // Assume these are handled elsewhere. Retained for debugging.
   //NOMORE(initial_rate, block->nominal_rate);
   //NOMORE(final_rate, block->nominal_rate);
 
