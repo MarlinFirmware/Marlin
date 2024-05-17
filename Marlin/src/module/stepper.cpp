@@ -2683,7 +2683,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
         // Otherwise assume no axis smoothing (via oversampling)
-        oversampling_factor = TERN(NONLINEAR_EXTRUSION, 1, 0);
+        oversampling_factor = TERN0(NONLINEAR_EXTRUSION, 1);
 
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
@@ -3909,7 +3909,7 @@ void Stepper::report_positions() {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           case 1:
         #endif
-        #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_E0, MOTOR_CURRENT_PWM_E1)
+        #if HAS_MOTOR_CURRENT_PWM_E
           case 2:
         #endif
             set_digipot_current(i, motor_current_setting[i]);

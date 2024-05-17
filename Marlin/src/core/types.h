@@ -610,9 +610,9 @@ struct XYZval {
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 NUM_AXIS_GANG(|| x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
-  FI constexpr T small()        const { return TERN(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T small()        const { return TERN0(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
   // Largest element
-  FI constexpr T large()        const { return TERN(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T large()        const { return TERN0(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
 
   // Explicit copy and copies with conversion
   FI constexpr XYZval<T>           copy() const { XYZval<T> o = *this; return o; }
