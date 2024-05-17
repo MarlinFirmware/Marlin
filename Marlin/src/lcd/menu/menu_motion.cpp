@@ -63,7 +63,7 @@ void lcd_move_axis(const AxisEnum axis) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS) {
-        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif

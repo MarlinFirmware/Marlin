@@ -61,7 +61,7 @@ namespace ExtUI {
     UNUSED(icon); UNUSED(fBtn);
   }
   void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
-    onUserConfirmRequired(cstr);
+    onUserConfirmRequired(fstr);
     UNUSED(icon); UNUSED(fBtn);
   }
 

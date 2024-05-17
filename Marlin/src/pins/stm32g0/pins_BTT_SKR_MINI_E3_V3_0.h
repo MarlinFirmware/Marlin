@@ -201,9 +201,7 @@
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "DWIN_CREALITY_LCD", " Requires a custom cable.")
 
   #define BEEPER_PIN                 EXP1_02_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -268,9 +266,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "ZONESTAR_LCD")
 
       #define LCD_PINS_RS            EXP1_06_PIN
       #define LCD_PINS_EN            EXP1_02_PIN
@@ -298,9 +294,7 @@
 
       #if ENABLED(TFTGLCD_PANEL_SPI)
 
-        #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-          #error "CAUTION! TFTGLCD_PANEL_SPI requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-        #endif
+        CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "TFTGLCD_PANEL_SPI")
 
         /**
          * TFTGLCD_PANEL_SPI display pinout
@@ -337,9 +331,7 @@
 
     #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_V3_0.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning."
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "FYSETC_MINI_12864_2_1 and clones")
 
       /**
        *
@@ -391,9 +383,7 @@
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "LCD_FYSETC_TFT81050")
 
   /**
    * FYSETC TFT TFT81050 display pinout

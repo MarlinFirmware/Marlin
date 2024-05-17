@@ -253,7 +253,7 @@ void GcodeSuite::G29() {
 
   if (state == MeshNext) {
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();

@@ -26,6 +26,7 @@
 
 #include "ft_motion.h"
 #include "stepper.h" // Access stepper block queue function and abort status.
+#include "endstops.h"
 
 FTMotion ftMotion;
 
@@ -59,6 +60,9 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
+millis_t FTMotion::axis_pos_move_end_ti[NUM_AXIS_ENUMS] = {0},
+         FTMotion::axis_neg_move_end_ti[NUM_AXIS_ENUMS] = {0};
+
 
 // Private variables.
 
@@ -169,7 +173,7 @@ void FTMotion::loop() {
   }
 
   if (blockProcRdy) {
-    
+
     if (!batchRdy) makeVector(); // Caution: Do not consolidate checks on blockProcRdy/batchRdy, as they are written by makeVector().
     // When makeVector is finished: either blockProcRdy has been set false (because the block is
     // done being processed) or batchRdy is set true, or both.
@@ -325,7 +329,7 @@ void FTMotion::loop() {
     }
 
   }
-  
+
   // Refresh the indices used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionCmpnstr_t shaper, const_float_t f, const_float_t zeta) {
     // Note that protections are omitted for DBZ and for index exceeding array length.
@@ -405,6 +409,9 @@ void FTMotion::reset() {
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+
+  ZERO(axis_pos_move_end_ti);
+  ZERO(axis_neg_move_end_ti);
 }
 
 // Private functions.
@@ -412,7 +419,7 @@ void FTMotion::reset() {
 void FTMotion::discard_planner_block_protected() {
   if (stepper.current_block) {  // Safeguard in case current_block must not be null (it will
                                 // be null when the "block" is a runout or generated) in order
-                                // to use planner.release_current_block(). 
+                                // to use planner.release_current_block().
     stepper.current_block = nullptr;
     planner.release_current_block();  // FTM uses release_current_block() instead of discard_current_block(),
                                       // as in block_phase_isr(). This change is to avoid invoking axis_did_move.reset().
@@ -433,7 +440,7 @@ void FTMotion::runoutBlock() {
   ratio.reset();
 
   int32_t n_to_fill_batch = FTM_WINDOW_SIZE - makeVector_batchIdx;
-  
+
   // This line is to be modified for FBS use; do not optimize out.
   int32_t n_to_settle_cmpnstr = (TERN_(HAS_X_AXIS, shaping.x.ena) || TERN_(HAS_Y_AXIS, shaping.y.ena )) ? FTM_ZMAX : 0;
 
@@ -561,6 +568,43 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   max_intervals = N1 + N2 + N3;
 
   endPosn_prevBlock += moveDist;
+
+  millis_t move_end_ti = millis() + SEC_TO_MS(FTM_TS*(float)(max_intervals + num_samples_cmpnstr_settle() + (PROP_BATCHES+1)*FTM_BATCH_SIZE) + ((float)FTM_STEPPERCMD_BUFF_SIZE/(float)FTM_STEPPER_FS));
+
+  #if CORE_IS_XY
+    if (moveDist.x > 0.f)              axis_pos_move_end_ti[A_AXIS] = move_end_ti;
+    if (moveDist.y > 0.f)              axis_pos_move_end_ti[B_AXIS] = move_end_ti;
+    if (moveDist.x + moveDist.y > 0.f) axis_pos_move_end_ti[X_HEAD] = move_end_ti;
+    if (moveDist.x - moveDist.y > 0.f) axis_pos_move_end_ti[Y_HEAD] = move_end_ti;
+    if (moveDist.x < 0.f)              axis_neg_move_end_ti[A_AXIS] = move_end_ti;
+    if (moveDist.y < 0.f)              axis_neg_move_end_ti[B_AXIS] = move_end_ti;
+    if (moveDist.x + moveDist.y < 0.f) axis_neg_move_end_ti[X_HEAD] = move_end_ti;
+    if (moveDist.x - moveDist.y < 0.f) axis_neg_move_end_ti[Y_HEAD] = move_end_ti;
+  #else
+    if (moveDist.x > 0.f)              axis_pos_move_end_ti[X_AXIS] = move_end_ti;
+    if (moveDist.y > 0.f)              axis_pos_move_end_ti[Y_AXIS] = move_end_ti;
+    if (moveDist.x < 0.f)              axis_neg_move_end_ti[X_AXIS] = move_end_ti;
+    if (moveDist.y < 0.f)              axis_neg_move_end_ti[Y_AXIS] = move_end_ti;
+  #endif
+  if (moveDist.z > 0.f) axis_pos_move_end_ti[Z_AXIS] = move_end_ti;
+  if (moveDist.z < 0.f) axis_neg_move_end_ti[Z_AXIS] = move_end_ti;
+  // if (moveDist.i > 0.f) axis_pos_move_end_ti[I_AXIS] = move_end_ti;
+  // if (moveDist.i < 0.f) axis_neg_move_end_ti[I_AXIS] = move_end_ti;
+  // if (moveDist.j > 0.f) axis_pos_move_end_ti[J_AXIS] = move_end_ti;
+  // if (moveDist.j < 0.f) axis_neg_move_end_ti[J_AXIS] = move_end_ti;
+  // if (moveDist.k > 0.f) axis_pos_move_end_ti[K_AXIS] = move_end_ti;
+  // if (moveDist.k < 0.f) axis_neg_move_end_ti[K_AXIS] = move_end_ti;
+  // if (moveDist.u > 0.f) axis_pos_move_end_ti[U_AXIS] = move_end_ti;
+  // if (moveDist.u < 0.f) axis_neg_move_end_ti[U_AXIS] = move_end_ti;
+  // .
+  // .
+  // .
+
+  // If the endstop is already pressed, endstop interrupts won't invoke
+  // endstop_triggered and the move will grind. So check here for a
+  // triggered endstop, which shortly marks the block for discard.
+  endstops.update();
+
 }
 
 // Generate data points of the trajectory.

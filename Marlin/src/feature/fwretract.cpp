@@ -137,7 +137,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
     prepare_internal_move_to_destination(                 // set current from destination
-      settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
+      MUL_TERN(RETRACT_SYNC_MIXING, settings.retract_feedrate_mm_s, MIXING_STEPPERS)
     );
 
     // Is a Z hop set, and has the hop not yet been done?
@@ -165,8 +165,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
 
     // Recover E, set_current_to_destination
     prepare_internal_move_to_destination(
-      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
-      * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
+      MUL_TERN(RETRACT_SYNC_MIXING, swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s, MIXING_STEPPERS)
     );
   }
 

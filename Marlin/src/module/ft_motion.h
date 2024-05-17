@@ -48,7 +48,7 @@ typedef struct FTConfig {
         { FTM_SHAPING_DEFAULT_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_ZETA_Y) };
     float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
         { FTM_SHAPING_DEFAULT_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_V_TOL_Y) };
-  #endif  
+  #endif
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -109,6 +109,9 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
+    static millis_t axis_pos_move_end_ti[NUM_AXIS_ENUMS],
+                    axis_neg_move_end_ti[NUM_AXIS_ENUMS];
+
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
@@ -119,6 +122,9 @@ class FTMotion {
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
+
+    static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
+    static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
 
   private:
 
@@ -168,7 +174,7 @@ class FTMotion {
       } axis_shaping_t;
 
       typedef struct Shaping {
-        uint32_t zi_idx;           // Index of storage in the data point delay vectors.   
+        uint32_t zi_idx;           // Index of storage in the data point delay vectors.
         axis_shaping_t x;
         #if HAS_Y_AXIS
           axis_shaping_t y;
@@ -192,6 +198,9 @@ class FTMotion {
     static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
+
+    FORCE_INLINE static int32_t num_samples_cmpnstr_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
+
 
 }; // class FTMotion
 
