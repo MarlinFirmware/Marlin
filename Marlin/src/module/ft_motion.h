@@ -50,7 +50,7 @@ typedef struct FTConfig {
       { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
-#if HAS_DYNAMIC_FREQ
+  #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
     float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
   #else

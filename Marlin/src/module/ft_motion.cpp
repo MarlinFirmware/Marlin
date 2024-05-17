@@ -30,23 +30,6 @@
 
 FTMotion ftMotion;
 
-#if NONE(HAS_X_AXIS, HAS_Y_AXIS)
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZV, "ftMotionShaper_t_ZV requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVDD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_ZVDDD, "ftMotionShaper_t_ZVD requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_EI, "ftMotionShaper_t_EI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_2HEI, "ftMotionShaper_t_2HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_3HEI, "ftMotionShaper_t_3HEI requires at least one linear axis.");
-  static_assert(FTM_DEFAULT_X_COMPENSATOR == ftMotionShaper_t_MZV, "ftMotionShaper_t_MZV requires at least one linear axis.");
-#endif
-#if !HAS_DYNAMIC_FREQ_MM
-  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
-#endif
-#if !HAS_DYNAMIC_FREQ_G
-  static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
-#endif
-
 //-----------------------------------------------------------------
 // Variables.
 //-----------------------------------------------------------------
