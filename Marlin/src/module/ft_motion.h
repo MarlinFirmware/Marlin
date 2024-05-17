@@ -45,12 +45,12 @@ typedef struct FTConfig {
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
     float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
-        { FTM_SHAPING_DEFAULT_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_ZETA_Y) };
+        { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
     float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
-        { FTM_SHAPING_DEFAULT_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_V_TOL_Y) };
+        { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
-  #if HAS_DYNAMIC_FREQ
+#if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
     float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
   #else
@@ -80,11 +80,11 @@ class FTMotion {
       TERN_(HAS_X_AXIS, cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ);
       TERN_(HAS_Y_AXIS, cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ);
 
-      TERN_(HAS_X_AXIS, cfg.zeta[X_AXIS] = FTM_SHAPING_DEFAULT_ZETA_X);
-      TERN_(HAS_Y_AXIS, cfg.zeta[Y_AXIS] = FTM_SHAPING_DEFAULT_ZETA_Y);
+      TERN_(HAS_X_AXIS, cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X);
+      TERN_(HAS_Y_AXIS, cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y);
 
-      TERN_(HAS_X_AXIS, cfg.vtol[X_AXIS] = FTM_SHAPING_DEFAULT_V_TOL_X);
-      TERN_(HAS_Y_AXIS, cfg.vtol[Y_AXIS] = FTM_SHAPING_DEFAULT_V_TOL_Y);
+      TERN_(HAS_X_AXIS, cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X);
+      TERN_(HAS_Y_AXIS, cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y);
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
@@ -159,7 +159,7 @@ class FTMotion {
     static xyze_long_t steps;
 
     // Shaping variables.
-    #if ANY(HAS_X_AXIS, HAS_Y_AXIS)
+    #if HAS_X_AXIS
 
       typedef struct AxisShaping {
         bool ena = false;                 // Enabled indication.
@@ -184,7 +184,7 @@ class FTMotion {
 
       static shaping_t shaping; // Shaping data
 
-    #endif // HAS_X_AXIS or HAS_Y_AXIS
+    #endif // HAS_X_AXIS
 
     // Linear advance variables.
     #if HAS_EXTRUDERS

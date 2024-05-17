@@ -127,21 +127,19 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   SERIAL_ECHOPGM("  M493 S", c.mode);
   #if HAS_X_AXIS
     SERIAL_ECHOPGM(" A", c.baseFreq[X_AXIS]);
+    #if HAS_Y_AXIS
+      SERIAL_ECHOPGM(" B", c.baseFreq[Y_AXIS]);
+    #endif
   #endif
-  #if HAS_Y_AXIS
-    SERIAL_ECHOPGM(" B", c.baseFreq[Y_AXIS]);
-  #endif
-
   #if HAS_DYNAMIC_FREQ
     SERIAL_ECHOPGM(" D", c.dynFreqMode);
     #if HAS_X_AXIS
       SERIAL_ECHOPGM(" F", c.dynFreqK[X_AXIS]);
-    #endif
-    #if HAS_Y_AXIS
-      SERIAL_ECHOPGM(" H", c.dynFreqK[Y_AXIS]);
+      #if HAS_Y_AXIS
+        SERIAL_ECHOPGM(" H", c.dynFreqK[Y_AXIS]);
+      #endif
     #endif
   #endif
-  
   #if HAS_EXTRUDERS
     SERIAL_ECHOPGM(" P", c.linearAdvEna, " K", c.linearAdvK);
   #endif
@@ -152,7 +150,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  * M493: Set Fixed-time Motion Control parameters
  *
  *    S<mode> Set the motion / shaping mode. Shaping requires an X axis, at the minimum.
- * 
+ *
  *       0: Standard Motion
  *       1: Fixed-Time Motion
  * 
