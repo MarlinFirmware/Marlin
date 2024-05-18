@@ -95,7 +95,7 @@ void ControllerFan::update() {
       static millis_t fan_kick_end = 0;
       if (speed > FAN_OFF_PWM) {
         if (!fan_kick_end) {
-          fan_kick_end = ms + (FAN_KICKSTART_TIME) TERN_(FAN_KICKSTART_LINEAR, * speed / 255); // May be longer based on slow update interval for controller fn check. Sets minimum
+          fan_kick_end = ms + FAN_KICKSTART_TIME; // May be longer based on slow update interval for controller fn check. Sets minimum
           speed = FAN_KICKSTART_POWER;
         }
         else if (PENDING(ms, fan_kick_end))
