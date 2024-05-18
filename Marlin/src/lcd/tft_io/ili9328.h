@@ -65,7 +65,6 @@
 
 #define ILI9328_ETMOD_DATA       (ILI9328_ETMOD_ORIENTATION) | (ILI9328_ETMOD_COLOR)
 
-
 #define ILI9328_RDDID             0x00 // ID code - 0x9328
 #define ILI9328_DRVCTL            0x01 // Driver Output Control
 #define ILI9328_LCDCTL            0x02 // LCD Driving Wave Control
@@ -127,7 +126,6 @@
 #define ILI9328_OTPWR             0xA1 // OTP VCM Programming Control
 #define ILI9328_RDOTP             0xA2 // OTP VCM Status and Enable
 #define ILI9328_OTPPKEY           0xA5 // OTP Programming ID Key
-
 
 static const uint16_t ili9328_init[] = {
   DATASIZE_16BIT,

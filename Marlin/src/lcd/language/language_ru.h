@@ -294,6 +294,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MAX                              = " " LCD_STR_THERMOMETER ", " LCD_STR_DEGREE _UxGT("С макс");
   LSTR MSG_FACTOR                           = " " LCD_STR_THERMOMETER _UxGT(" Фактор");
   LSTR MSG_AUTOTEMP                         = _UxGT("Автотемпература");
+  LSTR MSG_TIMEOUT                          = _UxGT("Таймаут.");
   LSTR MSG_LCD_ON                           = _UxGT("Вкл");
   LSTR MSG_LCD_OFF                          = _UxGT("Выкл");
 
@@ -707,7 +708,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_PID_AUTOTUNE_FAILED              = _UxGT("Автонастройка PID не удалась!");
   LSTR MSG_BAD_HEATER_ID                    = _UxGT("Неверный экструдер.");
   LSTR MSG_TEMP_TOO_HIGH                    = _UxGT("Слишком высокая температура.");
-  LSTR MSG_TIMEOUT                          = _UxGT("Таймаут.");
   LSTR MSG_MPC_MEASURING_AMBIENT            = _UxGT("Тест потери тепла");
   LSTR MSG_MPC_HEATING_PAST_200             = _UxGT("Нагрев выше >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT           = _UxGT("Охлаждение до окружающей");

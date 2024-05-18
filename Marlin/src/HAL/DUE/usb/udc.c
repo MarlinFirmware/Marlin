@@ -83,7 +83,6 @@ static usb_iface_desc_t UDC_DESC_STORAGE *udc_ptr_iface;
 
 //! @}
 
-
 //! \name Internal structure to store the USB device main strings
 //! @{
 

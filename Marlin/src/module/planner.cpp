@@ -784,7 +784,9 @@ block_t* Planner::get_current_block() {
 
 /**
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
- * by the provided factors.
+ * by the provided factors. Requires that initial_rate and final_rate are
+ * no less than sqrt(block->acceleration_steps_per_s2 / 2), which is ensured
+ * through minimum_planner_speed_sqr in _populate_block().
  **
  * ############ VERY IMPORTANT ############
  * NOTE that the PRECONDITION to call this function is that the block is
@@ -794,12 +796,17 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_factor, const_float_t exit_factor) {
 
-  uint32_t initial_rate = CEIL(block->nominal_rate * entry_factor),
-           final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
+  uint32_t initial_rate = LROUND(block->nominal_rate * entry_factor),
+           final_rate = LROUND(block->nominal_rate * exit_factor); // (steps per second)
 
-  // Limit minimal step rate (Otherwise the timer will overflow.)
-  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
+  // Legacy check against supposed timer overflow. However Stepper::calc_timer_interval() already
+  // should protect against it. But removing this code produces judder in direction-switching
+  // moves. This is because the current discrete stepping math diverges from physical motion under
+  // constant acceleration when acceleration_steps_per_s2 is large compared to initial/final_rate.
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));  // Enforce the minimum speed
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOMORE(initial_rate, block->nominal_rate);          // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
+  NOMORE(final_rate, block->nominal_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
@@ -807,21 +814,22 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Steps for acceleration, plateau and deceleration
-  int32_t plateau_steps = block->step_event_count;
-  uint32_t accelerate_steps = 0,
-           decelerate_steps = 0;
+  int32_t plateau_steps = block->step_event_count,
+          accelerate_steps = 0,
+          decelerate_steps = 0;
 
   const int32_t accel = block->acceleration_steps_per_s2;
   float inverse_accel = 0.0f;
   if (accel != 0) {
     inverse_accel = 1.0f / accel;
     const float half_inverse_accel = 0.5f * inverse_accel,
-                nominal_rate_sq = sq(float(block->nominal_rate)),
+                nominal_rate_sq = FLOAT_SQ(block->nominal_rate),
                 // Steps required for acceleration, deceleration to/from nominal rate
-                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(final_rate)));
-          float accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - sq(float(initial_rate)));
+                decelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(final_rate)),
+                accelerate_steps_float = half_inverse_accel * (nominal_rate_sq - FLOAT_SQ(initial_rate));
+    // Aims to fully reach nominal and final rates
     accelerate_steps = CEIL(accelerate_steps_float);
-    decelerate_steps = FLOOR(decelerate_steps_float);
+    decelerate_steps = CEIL(decelerate_steps_float);
 
     // Steps between acceleration and deceleration, if any
     plateau_steps -= accelerate_steps + decelerate_steps;
@@ -831,13 +839,13 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     // Calculate accel / braking time in order to reach the final_rate exactly
     // at the end of this block.
     if (plateau_steps < 0) {
-      accelerate_steps_float = CEIL((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
-      accelerate_steps = _MIN(uint32_t(_MAX(accelerate_steps_float, 0)), block->step_event_count);
+      accelerate_steps = LROUND((block->step_event_count + accelerate_steps_float - decelerate_steps_float) * 0.5f);
+      LIMIT(accelerate_steps, 0, int32_t(block->step_event_count));
       decelerate_steps = block->step_event_count - accelerate_steps;
 
       #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
         // We won't reach the cruising rate. Let's calculate the speed we will reach
-        cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
+        NOMORE(cruise_rate, final_speed(initial_rate, accel, accelerate_steps));
       #endif
     }
   }
@@ -853,8 +861,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
 
   // Store new block parameters
-  block->accelerate_until = accelerate_steps;
-  block->decelerate_after = block->step_event_count - decelerate_steps;
+  block->accelerate_before = accelerate_steps;
+  block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
   #if ENABLED(S_CURVE_ACCELERATION)
     block->acceleration_time = acceleration_time;
@@ -940,7 +948,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
  *         neighboring blocks.
  *      b. A block entry speed cannot exceed one reverse-computed from its exit speed (next->entry_speed)
  *         with a maximum allowable deceleration over the block travel distance.
- *      c. The last (or newest appended) block is planned from a complete stop (an exit speed of zero).
+ *      c. The last (or newest appended) block is planned from safe_exit_speed_sqr.
  *    2. Go over every block in chronological (forward) order and dial down junction speed values if
  *      a. The exit speed exceeds the one forward-computed from its entry speed with the maximum allowable
  *         acceleration over the block travel distance.
@@ -996,29 +1004,13 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
 void Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr) {
-  if (current) {
-    // If entry speed is already at the maximum entry speed, and there was no change of speed
-    // in the next block, there is no need to recheck. Block is cruising and there is no need to
-    // compute anything for this block,
-    // If not, block entry speed needs to be recalculated to ensure maximum possible planned speed.
-    const float max_entry_speed_sqr = current->max_entry_speed_sqr;
-
-    // Compute maximum entry speed decelerating over the current block from its exit speed.
-    // If not at the maximum entry speed, or the previous block entry speed changed
-    if (current->entry_speed_sqr != max_entry_speed_sqr || (next && next->flag.recalculate)) {
-
-      // If nominal length true, max junction speed is guaranteed to be reached.
-      // If a block can de/ac-celerate from nominal speed to zero within the length of the block, then
-      // the current block and next block junction speeds are guaranteed to always be at their maximum
-      // junction speeds in deceleration and acceleration, respectively. This is due to how the current
-      // block nominal speed limits both the current and next maximum junction speeds. Hence, in both
-      // the reverse and forward planners, the corresponding block junction speed will always be at the
-      // the maximum junction speed and may always be ignored for any speed reduction checks.
-
-      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : safe_exit_speed_sqr,
-                  new_entry_speed_sqr = current->flag.nominal_length
-                    ? max_entry_speed_sqr
-                    : _MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next_entry_speed_sqr, current->millimeters));
+  // We need to recalculate only for the last block added or if next->entry_speed_sqr changed.
+  if (!next || next->flag.recalculate) {
+    // And only if we're not already at max entry speed.
+    if (current->entry_speed_sqr != current->max_entry_speed_sqr) {
+      const float next_entry_speed_sqr = next ? next->entry_speed_sqr : safe_exit_speed_sqr;
+      float new_entry_speed_sqr = max_allowable_speed_sqr(-current->acceleration, next_entry_speed_sqr, current->millimeters);
+      NOMORE(new_entry_speed_sqr, current->max_entry_speed_sqr);
       if (current->entry_speed_sqr != new_entry_speed_sqr) {
 
         // Need to recalculate the block speed - Mark it now, so the stepper
@@ -1094,41 +1086,26 @@ void Planner::reverse_pass(const_float_t safe_exit_speed_sqr) {
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
 void Planner::forward_pass_kernel(const block_t * const previous, block_t * const current, const uint8_t block_index) {
-  if (previous) {
-    // If the previous block is an acceleration block, too short to complete the full speed
-    // change, adjust the entry speed accordingly. Entry speeds have already been reset,
-    // maximized, and reverse-planned. If nominal length is set, max junction speed is
-    // guaranteed to be reached. No need to recheck.
-    if (!previous->flag.nominal_length && previous->entry_speed_sqr < current->entry_speed_sqr) {
+  // Check against previous speed only on current->entry_speed_sqr changes (or if first time).
+  if (current->flag.recalculate) {
+    // If the previous block is accelerating check if it's too short to complete the full speed
+    // change then adjust the entry speed accordingly. Entry speeds have already been maximized.
+    if (previous->entry_speed_sqr < current->entry_speed_sqr) {
+      float new_entry_speed_sqr = max_allowable_speed_sqr(-previous->acceleration, previous->entry_speed_sqr, previous->millimeters);
 
-      // Compute the maximum allowable speed
-      const float new_entry_speed_sqr = max_allowable_speed_sqr(-previous->acceleration, previous->entry_speed_sqr, previous->millimeters);
-
-      // If true, current block is full-acceleration and we can move the planned pointer forward.
+      // If true, previous block is full-acceleration and we can move the planned pointer forward.
       if (new_entry_speed_sqr < current->entry_speed_sqr) {
+        // Current entry speed limited by full acceleration from previous entry speed.
+        // Make sure entry speed not lower than minimum_planner_speed_sqr.
+        NOLESS(new_entry_speed_sqr, current->min_entry_speed_sqr);
+        current->entry_speed_sqr = new_entry_speed_sqr;
 
-        // Mark we need to recompute the trapezoidal shape, and do it now,
-        // so the stepper ISR does not consume the block before being recalculated
-        current->flag.recalculate = true;
-
-        // But there is an inherent race condition here, as the block maybe
-        // became BUSY, just before it was marked as RECALCULATE, so check
-        // if that is the case!
-        if (stepper.is_block_busy(current)) {
-          // Block became busy. Clear the RECALCULATE flag (no point in
-          //  recalculating BUSY blocks and don't set its speed, as it can't
-          //  be updated at this time.
-          current->flag.recalculate = false;
-        }
-        else {
-          // Block is not BUSY, we won the race against the Stepper ISR:
-
-          // Always <= max_entry_speed_sqr. Backward pass sets this.
-          current->entry_speed_sqr = new_entry_speed_sqr; // Always <= max_entry_speed_sqr. Backward pass sets this.
-
-          // Set optimal plan pointer.
-          block_buffer_planned = block_index;
-        }
+        // Set optimal plan pointer.
+        block_buffer_planned = block_index;
+      }
+      else {
+        // Previous entry speed has been maximized.
+        block_buffer_planned = prev_block_index(block_index);
       }
     }
 
@@ -1170,7 +1147,7 @@ void Planner::forward_pass() {
       // the previous block became BUSY, so assume the current block's
       // entry speed can't be altered (since that would also require
       // updating the exit speed of the previous block).
-      if (!previous || !stepper.is_block_busy(previous))
+      if (previous && !stepper.is_block_busy(previous))
         forward_pass_kernel(previous, block, block_index);
       previous = block;
     }
@@ -1458,7 +1435,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::autotemp_update() {
     _autotemp_update_from_hotend();
-    autotemp.factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.factor = TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
     autotemp.enabled = autotemp.factor != 0;
   }
 
@@ -1474,7 +1451,7 @@ void Planner::check_axes_activity() {
 
     // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
     // Normally, leaving off F also disables autotemp.
-    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp.factor = parser.seen('F') ? parser.value_float() : TERN0(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P);
     autotemp.enabled = autotemp.factor != 0;
   }
 
@@ -1973,32 +1950,35 @@ bool Planner::_populate_block(
 
   // Compute direction bit-mask for this block
   AxisBits dm;
-  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-    dm.hx = (dist.a > 0);                       // Save the toolhead's true direction in X
-    dm.hy = (dist.b > 0);                       // ...and Y
-    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));
+  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+    dm.hx = (dist.a > 0);                       // True direction in X
+  #endif
+  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+    dm.hy = (dist.b > 0);                       // True direction in Y
+  #endif
+  #if ANY(CORE_IS_XZ, CORE_IS_YZ)
+    dm.hz = (dist.c > 0);                       // True direction in Z
   #endif
   #if CORE_IS_XY
-    dm.a = (dist.a + dist.b > 0);               // Motor A direction
-    dm.b = (CORESIGN(dist.a - dist.b) > 0);     // Motor B direction
+    dm.a  = (dist.a + dist.b > 0);              // Motor A direction
+    dm.b  = (CORESIGN(dist.a - dist.b) > 0);    // Motor B direction
+    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #elif CORE_IS_XZ
-    dm.hx = (dist.a > 0);                       // Save the toolhead's true direction in X
-    dm.y  = (dist.b > 0);
-    dm.hz = (dist.c > 0);                       // ...and Z
     dm.a  = (dist.a + dist.c > 0);              // Motor A direction
+    dm.y  = (dist.b > 0);                       // Axis  Y direction
     dm.c  = (CORESIGN(dist.a - dist.c) > 0);    // Motor C direction
   #elif CORE_IS_YZ
-    dm.x  = (dist.a > 0);
-    dm.hy = (dist.b > 0);                       // Save the toolhead's true direction in Y
-    dm.hz = (dist.c > 0);                       // ...and Z
+    dm.x  = (dist.a > 0);                       // Axis  X direction
     dm.b  = (dist.b + dist.c > 0);              // Motor B direction
     dm.c  = (CORESIGN(dist.b - dist.c) > 0);    // Motor C direction
   #elif ENABLED(MARKFORGED_XY)
     dm.a = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
     dm.b = (dist.b > 0);                        // Motor B direction
+    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #elif ENABLED(MARKFORGED_YX)
     dm.a = (dist.a > 0);                        // Motor A direction
     dm.b = (dist.b TERN(MARKFORGED_INVERSE, -, +) dist.a > 0); // Motor B direction
+    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #else
     XYZ_CODE(
       dm.x = (dist.a > 0),
@@ -2079,11 +2059,11 @@ bool Planner::_populate_block(
 
   /**
    * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
-   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
-   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
-   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
-   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
+   * For cartesian bots, the distance along the X axis equals the X_AXIS joint displacement and same holds true for Y_AXIS.
+   * But for geometries like CORE_XY that is not true. For these machines we need to create 2 additional variables, named X_HEAD and Y_HEAD, to store the displacent of the head along the X and Y axes in a cartesian coordinate system.
+   * The displacement of the head along the axes of the cartesian coordinate system has to be calculated from "X_AXIS" and "Y_AXIS" (should be renamed to A_JOINT and B_JOINT)
+   * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).
+   * Next we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
     #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
@@ -2308,6 +2288,10 @@ bool Planner::_populate_block(
   // Example 2: At 120°/s a 60° move involving only rotational axes takes 0.5s. So this will give 2.0.
   float inverse_secs = inverse_millimeters * (
     #if ALL(HAS_ROTATIONAL_AXES, INCH_MODE_SUPPORT)
+      /**
+       * Workaround for premature feedrate conversion
+       * from in/s to mm/s by get_distance_from_command.
+       */
       cartesian_move ? fr_mm_s : LINEAR_UNIT(fr_mm_s)
     #else
       fr_mm_s
@@ -2385,14 +2369,12 @@ bool Planner::_populate_block(
     #endif
 
     const feedRate_t cs = ABS(current_speed.e),
-                 max_fr = settings.max_feedrate_mm_s[E_AXIS_N(extruder)]
-                          * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+                 max_fr = MUL_TERN(HAS_MIXER_SYNC_CHANNEL, settings.max_feedrate_mm_s[E_AXIS_N(extruder)], MIXING_STEPPERS);
 
-    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
+    if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); // Respect max feedrate on any move (travel and print)
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
-                                 * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
+      const feedRate_t max_vfr = MUL_TERN(HAS_MIXER_SYNC_CHANNEL, volumetric_extruder_feedrate_limit[extruder], MIXING_STEPPERS);
 
       // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
 
@@ -2458,11 +2440,7 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
-  if (true NUM_AXIS_GANG(
-      && !block->steps.a, && !block->steps.b, && !block->steps.c,
-      && !block->steps.i, && !block->steps.j, && !block->steps.k,
-      && !block->steps.u, && !block->steps.v, && !block->steps.w)
-  ) {                                                             // Is this a retract / recover move?
+  if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
   }
   else {
@@ -2565,9 +2543,13 @@ bool Planner::_populate_block(
     }
   #endif
 
-  // The minimum possible speed is the average speed for
-  // the first / last step at current acceleration limit
+  // Formula for the average speed over a 1 step worth of distance if starting from zero and
+  // accelerating at the current limit. Since we can only change the speed every step this is a
+  // good lower limit for the entry and exit speeds. Note that for calculate_trapezoid_for_block()
+  // to work correctly, this must be accurately set and propagated.
   minimum_planner_speed_sqr = 0.5f * block->acceleration / steps_per_mm;
+  // Go straight to/from nominal speed if block->acceleration is too high for it.
+  NOMORE(minimum_planner_speed_sqr, sq(block->nominal_speed));
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
@@ -2763,8 +2745,7 @@ bool Planner::_populate_block(
       // Get the lowest speed
       vmax_junction_sqr = _MIN(vmax_junction_sqr, sq(block->nominal_speed), sq(previous_nominal_speed));
     }
-    else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
-      vmax_junction_sqr = 0;
+    else vmax_junction_sqr = minimum_planner_speed_sqr;
 
     prev_unit_vec = unit_vec;
 
@@ -2806,8 +2787,7 @@ bool Planner::_populate_block(
 
     xyze_float_t speed_diff = current_speed;
     float vmax_junction;
-    const bool start_from_zero = !moves_queued || UNEAR_ZERO(previous_nominal_speed);
-    if (start_from_zero) {
+    if (!moves_queued || UNEAR_ZERO(previous_nominal_speed)) {
       // Limited by a jerk to/from full halt.
       vmax_junction = block->nominal_speed;
     }
@@ -2837,28 +2817,20 @@ bool Planner::_populate_block(
     }
     vmax_junction_sqr = sq(vmax_junction * v_factor);
 
-    if (start_from_zero) minimum_planner_speed_sqr = vmax_junction_sqr;
-
   #endif // CLASSIC_JERK
+
+  // High acceleration limits override low jerk/junction deviation limits (as fixing trapezoids
+  // or reducing acceleration introduces too much complexity and/or too much compute)
+  NOLESS(vmax_junction_sqr, minimum_planner_speed_sqr);
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
-
-  // Initialize block entry speed. Compute based on deceleration to sqrt(minimum_planner_speed_sqr).
-  const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, minimum_planner_speed_sqr, block->millimeters);
-
-  // Start with the minimum allowed speed
+  // Set entry speed. The reverse and forward passes will optimize it later.
   block->entry_speed_sqr = minimum_planner_speed_sqr;
+  // Set min entry speed. Rarely it could be higher than the previous nominal speed but that's ok.
+  block->min_entry_speed_sqr = minimum_planner_speed_sqr;
 
-  // Initialize planner efficiency flags
-  // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
-  // If a block can de/ac-celerate from nominal speed to zero within the length of the block, then
-  // the current block and next block junction speeds are guaranteed to always be at their maximum
-  // junction speeds in deceleration and acceleration, respectively. This is due to how the current
-  // block nominal speed limits both the current and next maximum junction speeds. Hence, in both
-  // the reverse and forward planners, the corresponding block junction speed will always be at the
-  // the maximum junction speed and may always be ignored for any speed reduction checks.
-  block->flag.set_nominal(sq(block->nominal_speed) <= v_allowable_sqr);
+  block->flag.recalculate = true;
 
   // Update previous path unit_vector and nominal speed
   previous_speed = current_speed;
@@ -2895,10 +2867,12 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
   block->flag.apply(sync_flag);
 
   block->position = position;
+
   #if ENABLED(BACKLASH_COMPENSATION)
     LOOP_NUM_AXES(axis) block->position[axis] += backlash.get_applied_steps((AxisEnum)axis);
   #endif
-  #if ALL(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
+
+  #if ENABLED(LASER_SYNCHRONOUS_M106_M107)
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
@@ -3190,8 +3164,8 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
     block->step_event_count = num_steps;
     block->initial_rate = block->final_rate = block->nominal_rate = last_page_step_rate; // steps/s
 
-    block->accelerate_until = 0;
-    block->decelerate_after = block->step_event_count;
+    block->accelerate_before = 0;
+    block->decelerate_start = block->step_event_count;
 
     // Will be set to last direction later if directional format.
     block->direction_bits.reset();
@@ -3227,6 +3201,10 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
  * The provided ABCE position is in machine units.
  */
 void Planner::set_machine_position_mm(const abce_pos_t &abce) {
+
+  // When FT Motion is enabled, call synchronize() here instead of generating a sync block
+  if (TERN0(FT_MOTION, ftMotion.cfg.mode)) synchronize();
+
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float = abce);
   position.set(

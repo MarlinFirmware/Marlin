@@ -477,6 +477,10 @@
   #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
+#if DISABLED(PSU_OFF_REDUNDANT) || !defined(PS_ON1_PIN)
+  #undef PS_ON1_PIN
+  #define PS_ON1_PIN -1
+#endif
 #ifndef KILL_PIN
   #define KILL_PIN -1
 #endif
@@ -515,12 +519,12 @@
   #ifdef X_STOP_PIN
     #if X_HOME_TO_MIN
       #define X_MIN_PIN X_STOP_PIN
-    #else
+    #elif X_HOME_TO_MAX
       #define X_MAX_PIN X_STOP_PIN
     #endif
   #elif X_HOME_TO_MIN
     #define X_STOP_PIN X_MIN_PIN
-  #else
+  #elif X_HOME_TO_MAX
     #define X_STOP_PIN X_MAX_PIN
   #endif
   #if !defined(X2_STOP_PIN) && ENABLED(X_DUAL_ENDSTOPS) && PIN_EXISTS(X_STOP)
@@ -532,12 +536,12 @@
   #ifdef Y_STOP_PIN
     #if Y_HOME_TO_MIN
       #define Y_MIN_PIN Y_STOP_PIN
-    #else
+    #elif Y_HOME_TO_MAX
       #define Y_MAX_PIN Y_STOP_PIN
     #endif
   #elif Y_HOME_TO_MIN
     #define Y_STOP_PIN Y_MIN_PIN
-  #else
+  #elif X_HOME_TO_MAX
     #define Y_STOP_PIN Y_MAX_PIN
   #endif
   #if !defined(Y2_STOP_PIN) && ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y_STOP)
@@ -549,12 +553,12 @@
   #ifdef Z_STOP_PIN
     #if Z_HOME_TO_MIN
       #define Z_MIN_PIN Z_STOP_PIN
-    #else
+    #elif Z_HOME_TO_MAX
       #define Z_MAX_PIN Z_STOP_PIN
     #endif
   #elif Z_HOME_TO_MIN
     #define Z_STOP_PIN Z_MIN_PIN
-  #else
+  #elif Z_HOME_TO_MAX
     #define Z_STOP_PIN Z_MAX_PIN
   #endif
   #if ENABLED(Z_MULTI_ENDSTOPS) && PIN_EXISTS(Z_STOP)
@@ -574,12 +578,12 @@
   #ifdef I_STOP_PIN
     #if I_HOME_TO_MIN
       #define I_MIN_PIN I_STOP_PIN
-    #else
+    #elif I_HOME_TO_MAX
       #define I_MAX_PIN I_STOP_PIN
     #endif
   #elif I_HOME_TO_MIN
     #define I_STOP_PIN I_MIN_PIN
-  #else
+  #elif I_HOME_TO_MAX
     #define I_STOP_PIN I_MAX_PIN
   #endif
 #endif
@@ -588,12 +592,12 @@
   #ifdef J_STOP_PIN
     #if J_HOME_TO_MIN
       #define J_MIN_PIN J_STOP_PIN
-    #else
+    #elif J_HOME_TO_MAX
       #define J_MAX_PIN J_STOP_PIN
     #endif
   #elif J_HOME_TO_MIN
     #define J_STOP_PIN J_MIN_PIN
-  #else
+  #elif J_HOME_TO_MAX
     #define J_STOP_PIN J_MAX_PIN
   #endif
 #endif
@@ -602,12 +606,12 @@
   #ifdef K_STOP_PIN
     #if K_HOME_TO_MIN
       #define K_MIN_PIN K_STOP_PIN
-    #else
+    #elif K_HOME_TO_MAX
       #define K_MAX_PIN K_STOP_PIN
     #endif
   #elif K_HOME_TO_MIN
     #define K_STOP_PIN K_MIN_PIN
-  #else
+  #elif K_HOME_TO_MAX
     #define K_STOP_PIN K_MAX_PIN
   #endif
 #endif
@@ -616,12 +620,12 @@
   #ifdef U_STOP_PIN
     #if U_HOME_TO_MIN
       #define U_MIN_PIN U_STOP_PIN
-    #else
+    #elif U_HOME_TO_MAX
       #define U_MAX_PIN U_STOP_PIN
     #endif
   #elif U_HOME_TO_MIN
     #define U_STOP_PIN U_MIN_PIN
-  #else
+  #elif U_HOME_TO_MAX
     #define U_STOP_PIN U_MAX_PIN
   #endif
 #endif
@@ -630,12 +634,12 @@
   #ifdef V_STOP_PIN
     #if V_HOME_TO_MIN
       #define V_MIN_PIN V_STOP_PIN
-    #else
+    #elif V_HOME_TO_MAX
       #define V_MAX_PIN V_STOP_PIN
     #endif
   #elif V_HOME_TO_MIN
     #define V_STOP_PIN V_MIN_PIN
-  #else
+  #elif V_HOME_TO_MAX
     #define V_STOP_PIN V_MAX_PIN
   #endif
 #endif
@@ -644,12 +648,12 @@
   #ifdef W_STOP_PIN
     #if W_HOME_TO_MIN
       #define W_MIN_PIN W_STOP_PIN
-    #else
+    #elif W_HOME_TO_MAX
       #define W_MAX_PIN W_STOP_PIN
     #endif
   #elif W_HOME_TO_MIN
     #define W_STOP_PIN W_MIN_PIN
-  #else
+  #elif W_HOME_TO_MAX
     #define W_STOP_PIN W_MAX_PIN
   #endif
 #endif
@@ -1243,7 +1247,7 @@
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
     #define J_DIR_PIN    _EPIN(J_E_INDEX, DIR)
     #define J_ENABLE_PIN _EPIN(J_E_INDEX, ENABLE)
-    #if I_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
+    #if J_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(J_STEP)
       #error "No E stepper plug left for J!"
     #else
       #define AUTO_ASSIGNED_J_STEPPER 1
@@ -1413,7 +1417,7 @@
     #define U_STEP_PIN   _EPIN(U_E_INDEX, STEP)
     #define U_DIR_PIN    _EPIN(U_E_INDEX, DIR)
     #define U_ENABLE_PIN _EPIN(U_E_INDEX, ENABLE)
-    #if M_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(U_STEP)
+    #if U_E_INDEX >= MAX_E_STEPPERS || !PIN_EXISTS(U_STEP)
       #error "No E stepper plug left for U!"
     #else
       #define AUTO_ASSIGNED_U_STEPPER 1
@@ -1723,3 +1727,52 @@
 #undef DIAG_REMAPPED
 #undef _E_DIAG_EXISTS
 #undef E_DIAG_EXISTS
+
+// Get a NeoPixel pin from the LCD or board, if provided
+#ifndef NEOPIXEL_PIN
+  #ifdef LCD_NEOPIXEL_PIN
+    #define NEOPIXEL_PIN LCD_NEOPIXEL_PIN
+  #elif defined(BOARD_NEOPIXEL_PIN)
+    #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
+  #endif
+#endif
+
+// Undefine motor PWM pins for nonexistent axes since the existence of a MOTOR_CURRENT_PWM_*_PIN implies its standard use.
+// TODO: Allow remapping (e.g., E => Z2). Spec G-codes to use logical axis with index (e.g., to set Z2: Mxxx Z P1 Snnn).
+#if !HAS_X_AXIS
+  #undef MOTOR_CURRENT_PWM_X_PIN
+#endif
+#if !HAS_Y_AXIS
+  #undef MOTOR_CURRENT_PWM_Y_PIN
+#endif
+#if !HAS_X_AXIS && !HAS_Y_AXIS
+  #undef MOTOR_CURRENT_PWM_XY_PIN
+#endif
+#if !HAS_Z_AXIS
+  #undef MOTOR_CURRENT_PWM_Z_PIN
+#endif
+#if !HAS_I_AXIS
+  #undef MOTOR_CURRENT_PWM_I_PIN
+#endif
+#if !HAS_J_AXIS
+  #undef MOTOR_CURRENT_PWM_J_PIN
+#endif
+#if !HAS_K_AXIS
+  #undef MOTOR_CURRENT_PWM_K_PIN
+#endif
+#if !HAS_U_AXIS
+  #undef MOTOR_CURRENT_PWM_U_PIN
+#endif
+#if !HAS_V_AXIS
+  #undef MOTOR_CURRENT_PWM_V_PIN
+#endif
+#if !HAS_W_AXIS
+  #undef MOTOR_CURRENT_PWM_W_PIN
+#endif
+#if !HAS_EXTRUDERS
+  #undef MOTOR_CURRENT_PWM_E_PIN
+  #undef MOTOR_CURRENT_PWM_E0_PIN   // Archim 1.0
+  #undef MOTOR_CURRENT_PWM_E1_PIN   // Kept in sync with E0
+#elif !HAS_MULTI_EXTRUDER
+  #undef MOTOR_CURRENT_PWM_E1_PIN
+#endif

@@ -142,6 +142,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN

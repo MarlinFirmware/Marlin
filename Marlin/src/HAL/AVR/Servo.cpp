@@ -63,7 +63,6 @@
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-
 /************ static functions common to all instances ***********************/
 
 static inline void handle_interrupts(const timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {

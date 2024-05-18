@@ -81,7 +81,6 @@
 #define REPORT_NAME_DIGITAL(COUNTER, NAME) _ADD_PIN(NAME, COUNTER, true)
 #define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
 
-
 typedef struct {
   PGM_P const name;
   pin_t pin;

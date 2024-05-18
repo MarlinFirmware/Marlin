@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.21.1
  * Date: 2023/03/21
  */
@@ -36,14 +37,28 @@
 #include "dwin_lcd.h"
 
 // Extra Icons
+#define ICON_Printer_0         93
+#define ICON_Box              200
+#define ICON_Checkbox         201
+#define ICON_Fade             202
+#define ICON_Mesh             203
+#define ICON_Tilt             204
+#define ICON_Brightness       205
+#define ICON_Probe            206
+#define ICON_AxisD            249
+#define ICON_AxisBR           250
+#define ICON_AxisTR           251
+#define ICON_AxisBL           252
+#define ICON_AxisTL           253
+#define ICON_AxisC            254
+
 #define ICON_BedSizeX         ICON_PrintSize
 #define ICON_BedSizeY         ICON_PrintSize
 #define ICON_BedTramming      ICON_SetHome
 #define ICON_Binary           ICON_Contact
-#define ICON_BltouchReset     ICON_StockConfiguration
-#define ICON_Brightness       ICON_Motion
+#define ICON_BLTouchReset     ICON_ResetEEPROM
 #define ICON_Cancel           ICON_StockConfiguration
-#define ICON_CustomPreheat    ICON_SetEndTemp
+#define ICON_CustomPreheat    ICON_BedTemp
 #define ICON_Error            ICON_TempTooHigh
 #define ICON_esDiag           ICON_Info
 #define ICON_ExtrudeMinT      ICON_HotendTemp
@@ -55,28 +70,27 @@
 #define ICON_HomeX            ICON_MoveX
 #define ICON_HomeY            ICON_MoveY
 #define ICON_HomeZ            ICON_MoveZ
-#define ICON_HSMode           ICON_StockConfiguration
+#define ICON_HSMode           ICON_MaxAccZ
 #define ICON_InputShaping     ICON_MaxAccelerated
 #define ICON_JDmm             ICON_MaxJerk
-#define ICON_Tram             ICON_SetEndTemp
-#define ICON_Level            ICON_HotendTemp
-#define ICON_Lock             ICON_Cool
-#define ICON_ManualMesh       ICON_HotendTemp
+#define ICON_Level            ICON_Mesh
+#define ICON_Lock             ICON_Checkbox
+#define ICON_ManualMesh       ICON_Mesh
 #define ICON_MaxPosX          ICON_MoveX
 #define ICON_MaxPosY          ICON_MoveY
 #define ICON_MaxPosZ          ICON_MoveZ
-#define ICON_MeshEdit         ICON_Homing
+#define ICON_MeshEdit         ICON_Fade
 #define ICON_MeshEditX        ICON_MoveX
 #define ICON_MeshEditY        ICON_MoveY
-#define ICON_MeshEditZ        ICON_MoveZ
-#define ICON_MeshNext         ICON_Axis
-#define ICON_MeshPoints       ICON_SetEndTemp
-#define ICON_MeshReset        ICON_StockConfiguration
+#define ICON_MeshEditZ        ICON_Zoffset
+#define ICON_MeshNext         ICON_AxisD
+#define ICON_MeshPoints       ICON_HotendTemp
+#define ICON_MeshReset        ICON_ResetEEPROM
 #define ICON_MeshSave         ICON_WriteEEPROM
-#define ICON_MeshViewer       ICON_HotendTemp
-#define ICON_MoveZ0           ICON_HotendTemp
-#define ICON_Park             ICON_Motion
-#define ICON_ParkPos          ICON_AdvSet
+#define ICON_MeshViewer       ICON_Mesh
+#define ICON_MoveZ0           ICON_CloseMotor
+#define ICON_Park             ICON_SetHome
+#define ICON_ParkPos          ICON_AxisC
 #define ICON_ParkPosX         ICON_StepX
 #define ICON_ParkPosY         ICON_StepY
 #define ICON_ParkPosZ         ICON_StepZ
@@ -95,18 +109,18 @@
 #define ICON_Preheat8         ICON_CustomPreheat
 #define ICON_Preheat9         ICON_CustomPreheat
 #define ICON_Preheat10        ICON_CustomPreheat
-#define ICON_ProbeDeploy      ICON_SetEndTemp
+#define ICON_ProbeDeploy      ICON_Probe
 #define ICON_ProbeMargin      ICON_PrintSize
 #define ICON_ProbeSet         ICON_SetEndTemp
-#define ICON_ProbeStow        ICON_SetEndTemp
-#define ICON_ProbeTest        ICON_SetEndTemp
+#define ICON_ProbeStow        ICON_Tilt
+#define ICON_ProbeTest        ICON_Zoffset
 #define ICON_ProbeZSpeed      ICON_MaxSpeedZ
 #define ICON_Pwrlossr         ICON_Motion
 #define ICON_Reboot           ICON_ResetEEPROM
 #define ICON_Runout           ICON_MaxAccE
 #define ICON_Scolor           ICON_MaxSpeed
 #define ICON_SetBaudRate      ICON_Setspeed
-#define ICON_SetCustomPreheat ICON_SetEndTemp
+#define ICON_SetCustomPreheat ICON_BedTemp
 #define ICON_SetPreheat1      ICON_SetPLAPreheat
 #define ICON_SetPreheat2      ICON_SetABSPreheat
 #define ICON_SetPreheat3      ICON_SetCustomPreheat
@@ -125,22 +139,24 @@
 #define ICON_TMCYSet          ICON_MoveY
 #define ICON_TMCZSet          ICON_MoveZ
 #define ICON_TMCESet          ICON_Extruder
-#define ICON_UBLActive        ICON_HotendTemp
+#define ICON_Tram             ICON_Step
+#define ICON_UBLActive        ICON_Fade
 #define ICON_UBLSlot          ICON_ResetEEPROM
 #define ICON_UBLMeshSave      ICON_WriteEEPROM
 #define ICON_UBLMeshLoad      ICON_ReadEEPROM
-#define ICON_UBLTiltGrid      ICON_PrintSize
 #define ICON_UBLSmartFill     ICON_StockConfiguration
-#define ICON_ZAfterHome       ICON_SetEndTemp
+#define ICON_UBLTiltGrid      ICON_Tilt
+#define ICON_ZAfterHome       ICON_Tilt
 
+// LED Lights
 #define ICON_CaseLight        ICON_Motion
 #define ICON_LedControl       ICON_Motion
 
 // MPC
-#define ICON_MPCNozzle        ICON_SetEndTemp
+#define ICON_MPCNozzle        ICON_HotendTemp
 #define ICON_MPCValue         ICON_Contact
 #define ICON_MPCHeater        ICON_Temperature
-#define ICON_MPCHeatCap       ICON_SetBedTemp
+#define ICON_MPCHeatCap       ICON_BedTemp
 #define ICON_MPCFan           ICON_FanSpeed
 
 // Buttons
@@ -300,20 +316,20 @@ namespace DWINUI {
   //  libID: Icon library ID
   //  picID: Icon ID
   //  x/y: Upper-left point
-  void ICON_Show(bool BG, uint8_t icon, uint16_t x, uint16_t y);
+  void iconShow(bool BG, uint8_t icon, uint16_t x, uint16_t y);
 
   // Draw an Icon with transparent background from the library ICON
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIcon(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(false, icon, x, y);
+    iconShow(false, icon, x, y);
   }
 
   // Draw an Icon from the library ICON with its background
   //  icon: Icon ID
   //  x/y: Upper-left point
   inline void drawIconWB(uint8_t icon, uint16_t x, uint16_t y) {
-    ICON_Show(true, icon, x, y);
+    iconShow(true, icon, x, y);
   }
 
   // Draw a numeric integer value
@@ -486,6 +502,9 @@ namespace DWINUI {
   //  y: Upper coordinate of the string
   //  *string: The string
   void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x1, uint16_t x2, uint16_t y, const char * const string);
+  inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string) {
+    drawCenteredString(bShow, fid, color, bColor, 2 * x, 0, y, string);
+  }
   inline void drawCenteredString(bool bShow, fontid_t fid, uint16_t color, uint16_t bColor, uint16_t y, const char * const string) {
     drawCenteredString(bShow, fid, color, bColor, 0, DWIN_WIDTH, y, string);
   }

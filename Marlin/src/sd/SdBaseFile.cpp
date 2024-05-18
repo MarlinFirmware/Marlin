@@ -1295,7 +1295,6 @@ static void print2u(const uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 
-
 /**
  * %Print a directory date field.
  *
@@ -1311,7 +1310,6 @@ void SdBaseFile::printFatDate(const uint16_t fatDate) {
   SERIAL_CHAR('-');
   print2u(FAT_DAY(fatDate));
 }
-
 
 /**
  * %Print a directory time field.

@@ -328,7 +328,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("ungültiger Extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");

@@ -86,7 +86,6 @@ UDC_DESC_STORAGE udi_api_t udi_api_msc = {
 };
 //@}
 
-
 /**
  * \ingroup udi_msc_group
  * \defgroup udi_msc_group_internal Implementation of UDI MSC
@@ -136,7 +135,6 @@ volatile bool udi_msc_b_reset_trans = true;
 //@}
 
 //@}
-
 
 /**
  * \name Internal routines
@@ -190,7 +188,6 @@ static void udi_msc_cbw_received(udd_ep_status_t status,
 static bool udi_msc_cbw_validate(uint32_t alloc_len, uint8_t dir_flag);
 //@}
 
-
 /**
  * \name Routines to process small data packet
  */
@@ -216,7 +213,6 @@ static void udi_msc_data_send(uint8_t * buffer, uint8_t buf_size);
 static void udi_msc_data_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
 //@}
-
 
 /**
  * \name Routines to process CSW packet
@@ -249,7 +245,6 @@ void udi_msc_csw_send(void);
 static void udi_msc_csw_sent(udd_ep_status_t status, iram_size_t nb_sent,
     udd_ep_id_t ep);
 //@}
-
 
 /**
  * \name Routines manage sense data
@@ -306,7 +301,6 @@ static void udi_msc_sense_fail_cdb_invalid(void);
  */
 static void udi_msc_sense_command_invalid(void);
 //@}
-
 
 /**
  * \name Routines manage SCSI Commands
