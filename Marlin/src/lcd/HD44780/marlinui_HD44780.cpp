@@ -709,9 +709,6 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       lcd_put_u8str(F("K"));
     #else
       lcd_put_u8str(cutter_power2str(cutter.unitPower));
-      #if CUTTER_UNIT_IS(PERCENT)
-        lcd_put_u8str(F("%"));
-      #endif
     #endif
 
     lcd_put_u8str(F(" "));
