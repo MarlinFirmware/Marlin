@@ -105,7 +105,8 @@ typedef bool (*statusResetFunc_t)();
   enum HD44780CharSet : uint8_t {
     CHARSET_MENU,
     CHARSET_INFO,
-    CHARSET_BOOT
+    CHARSET_BOOT,
+    CHARSET_BOOT_CUSTOM
   };
 #endif
 
