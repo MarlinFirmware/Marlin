@@ -105,7 +105,8 @@ typedef bool (*statusResetFunc_t)();
   enum HD44780CharSet : uint8_t {
     CHARSET_MENU,
     CHARSET_INFO,
-    CHARSET_BOOT
+    CHARSET_BOOT,
+    CHARSET_BOOT_CUSTOM
   };
 #endif
 
@@ -181,7 +182,7 @@ typedef bool (*statusResetFunc_t)();
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
+    static void soon(const AxisEnum move_axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
   };
 
   void lcd_move_axis(const AxisEnum);
@@ -252,6 +253,11 @@ public:
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
     }
+  #endif
+
+  #if (HAS_WIRED_LCD && HAS_ENCODER_ACTION && HAS_MARLINUI_ENCODER) || HAS_DWIN_E3V2 || HAS_TFT_LVGL_UI
+    #define MARLINUI_ENCODER_DELTA 1
+    static int8_t get_encoder_delta(const millis_t &now=millis());
   #endif
 
   #if HAS_MEDIA
@@ -364,7 +370,7 @@ public:
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
 
-  static void host_notify_P(PGM_P const fstr);
+  static void host_notify_P(PGM_P const pstr);
   static void host_notify(FSTR_P const fstr) { host_notify_P(FTOP(fstr)); }
   static void host_notify(const char * const cstr);
 

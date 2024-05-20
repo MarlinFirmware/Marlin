@@ -156,6 +156,9 @@
 #define TFT_03                              PA2
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "Ender-3 V2 display")
+
   /**
    *        ------                ------                ------
    * (ENT) | 1  2 | (BEEP)       |10  9 |              |10  9 |
@@ -168,10 +171,6 @@
    *
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
-
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
 
   #define BEEPER_PIN                 EXP1_02_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -194,9 +193,7 @@
 
   #elif ENABLED(LCD_FOR_MELZI)
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! LCD for Melzi v4 display requires a custom cable. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "LCD for Melzi v4", " Requires a custom cable.")
 
     /**
      * LCD for Melzi v4 needs a custom cable with reversed GND/5V pins; plugging in a standard cable may damage the board or LCD!
@@ -225,9 +222,7 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "ZONESTAR_LCD")
 
     #define LCD_PINS_RS              EXP1_06_PIN
     #define LCD_PINS_EN              EXP1_02_PIN
@@ -255,9 +250,7 @@
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! TFTGLCD_PANEL_SPI requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "TFTGLCD_PANEL_SPI")
 
       /**
        * TFTGLCD_PANEL_SPI display pinout
@@ -294,9 +287,7 @@
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "FYSETC_MINI_12864_2_1 and clones")
 
     /**
      * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 display pinout
@@ -364,9 +355,7 @@
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_common", "LCD_FYSETC_TFT81050")
 
   /**
    * FYSETC TFT TFT81050 display pinout

@@ -1736,3 +1736,43 @@
     #define NEOPIXEL_PIN BOARD_NEOPIXEL_PIN
   #endif
 #endif
+
+// Undefine motor PWM pins for nonexistent axes since the existence of a MOTOR_CURRENT_PWM_*_PIN implies its standard use.
+// TODO: Allow remapping (e.g., E => Z2). Spec G-codes to use logical axis with index (e.g., to set Z2: Mxxx Z P1 Snnn).
+#if !HAS_X_AXIS
+  #undef MOTOR_CURRENT_PWM_X_PIN
+#endif
+#if !HAS_Y_AXIS
+  #undef MOTOR_CURRENT_PWM_Y_PIN
+#endif
+#if !HAS_X_AXIS && !HAS_Y_AXIS
+  #undef MOTOR_CURRENT_PWM_XY_PIN
+#endif
+#if !HAS_Z_AXIS
+  #undef MOTOR_CURRENT_PWM_Z_PIN
+#endif
+#if !HAS_I_AXIS
+  #undef MOTOR_CURRENT_PWM_I_PIN
+#endif
+#if !HAS_J_AXIS
+  #undef MOTOR_CURRENT_PWM_J_PIN
+#endif
+#if !HAS_K_AXIS
+  #undef MOTOR_CURRENT_PWM_K_PIN
+#endif
+#if !HAS_U_AXIS
+  #undef MOTOR_CURRENT_PWM_U_PIN
+#endif
+#if !HAS_V_AXIS
+  #undef MOTOR_CURRENT_PWM_V_PIN
+#endif
+#if !HAS_W_AXIS
+  #undef MOTOR_CURRENT_PWM_W_PIN
+#endif
+#if !HAS_EXTRUDERS
+  #undef MOTOR_CURRENT_PWM_E_PIN
+  #undef MOTOR_CURRENT_PWM_E0_PIN   // Archim 1.0
+  #undef MOTOR_CURRENT_PWM_E1_PIN   // Kept in sync with E0
+#elif !HAS_MULTI_EXTRUDER
+  #undef MOTOR_CURRENT_PWM_E1_PIN
+#endif

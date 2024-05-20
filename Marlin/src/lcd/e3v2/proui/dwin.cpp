@@ -22,7 +22,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.25.3
  * Date: 2023/05/18
  */
@@ -1910,7 +1911,6 @@ void MarlinUI::init_lcd() {
   const bool hs = dwinHandshake(); UNUSED(hs);
   dwinFrameSetDir(1);
   dwinJPGCacheTo1(Language_English);
-  encoderConfiguration();
 }
 
 void dwinInitScreen() {
