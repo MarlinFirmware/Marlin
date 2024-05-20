@@ -204,18 +204,18 @@ constexpr ena_mask_t enable_overlap[] = {
       }
 
       static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward, const bool z_step, const bool z_forward) {
-        #define SHAPING_QUEUE_ENQUEUE(AXIS)                                                     \
-          if (AXIS##_step) {                                                                    \
-            if (head_##AXIS == tail) _peek_##AXIS = delay_##AXIS;                               \
-            echo_axes[tail].AXIS = AXIS##_forward ? ECHO_FWD : ECHO_BWD;                        \
-            _free_count_##AXIS--;                                                               \
-          }                                                                                     \
-          else {                                                                                \
-            echo_axes[tail].AXIS = ECHO_NONE;                                                   \
-            if (head_##AXIS != tail)                                                            \
-              _free_count_##AXIS--;                                                             \
-            else if (++head_##AXIS == shaping_echoes)                                           \
-              head_##AXIS = 0;                                                                  \
+        #define SHAPING_QUEUE_ENQUEUE(AXIS)                              \
+          if (AXIS##_step) {                                             \
+            if (head_##AXIS == tail) _peek_##AXIS = delay_##AXIS;        \
+            echo_axes[tail].AXIS = AXIS##_forward ? ECHO_FWD : ECHO_BWD; \
+            _free_count_##AXIS--;                                        \
+          }                                                              \
+          else {                                                         \
+            echo_axes[tail].AXIS = ECHO_NONE;                            \
+            if (head_##AXIS != tail)                                     \
+              _free_count_##AXIS--;                                      \
+            else if (++head_##AXIS == shaping_echoes)                    \
+              head_##AXIS = 0;                                           \
           }
 
         TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
@@ -226,13 +226,13 @@ constexpr ena_mask_t enable_overlap[] = {
         if (++tail == shaping_echoes) tail = 0;
       }
 
-      #define SHAPING_QUEUE_DEQUEUE(AXIS)                                                                               \
-        bool forward = echo_axes[head_##AXIS].AXIS == ECHO_FWD;                                                         \
-        do {                                                                                                            \
-          _free_count_##AXIS++;                                                                                         \
-          if (++head_##AXIS == shaping_echoes) head_##AXIS = 0;                                                         \
-        } while (head_##AXIS != tail && echo_axes[head_##AXIS].AXIS == ECHO_NONE);                                      \
-        _peek_##AXIS = head_##AXIS == tail ? shaping_time_t(-1) : times[head_##AXIS] + delay_##AXIS - now;              \
+      #define SHAPING_QUEUE_DEQUEUE(AXIS)                                                                  \
+        bool forward = echo_axes[head_##AXIS].AXIS == ECHO_FWD;                                            \
+        do {                                                                                               \
+          _free_count_##AXIS++;                                                                            \
+          if (++head_##AXIS == shaping_echoes) head_##AXIS = 0;                                            \
+        } while (head_##AXIS != tail && echo_axes[head_##AXIS].AXIS == ECHO_NONE);                         \
+        _peek_##AXIS = head_##AXIS == tail ? shaping_time_t(-1) : times[head_##AXIS] + delay_##AXIS - now; \
         return forward;
 
       #if ENABLED(INPUT_SHAPING_X)
