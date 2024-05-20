@@ -2821,33 +2821,33 @@ void MarlinSettings::postprocess() {
       //
       #if ENABLED(INPUT_SHAPING_X)
       {
-        float _data[2];
+        struct { float freq, damp; } _data;
         EEPROM_READ(_data);
         if (!validating) {
-          stepper.set_shaping_frequency(X_AXIS, _data[0]);
-          stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+          stepper.set_shaping_frequency(X_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(X_AXIS, _data.damp);
         }
       }
       #endif
 
       #if ENABLED(INPUT_SHAPING_Y)
       {
-        float _data[2];
+        struct { float freq, damp; } _data;
         EEPROM_READ(_data);
         if (!validating) {
-          stepper.set_shaping_frequency(Y_AXIS, _data[0]);
-          stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+          stepper.set_shaping_frequency(Y_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(Y_AXIS, _data.damp);
         }
       }
       #endif
 
       #if ENABLED(INPUT_SHAPING_Z)
       {
-        float _data[2];
+        struct { float freq, damp; } _data;
         EEPROM_READ(_data);
         if (!validating) {
-          stepper.set_shaping_frequency(Z_AXIS, _data[0]);
-          stepper.set_shaping_damping_ratio(Z_AXIS, _data[1]);
+          stepper.set_shaping_frequency(Z_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(Z_AXIS, _data.damp);
         }
       }
       #endif
