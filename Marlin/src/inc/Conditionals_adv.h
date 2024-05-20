@@ -112,8 +112,8 @@
   #undef DISABLE_IDLE_X
   #undef INPUT_SHAPING_X
   #undef SAFE_BED_LEVELING_START_X
-  #undef SHAPING_BUFFER_X
   #undef SHAPING_FREQ_X
+  #undef SHAPING_ZETA_X
   #undef STEALTHCHOP_X
 #endif
 
@@ -128,8 +128,8 @@
   #undef INPUT_SHAPING_Y
   #undef QUICK_HOME
   #undef SAFE_BED_LEVELING_START_Y
-  #undef SHAPING_BUFFER_Y
   #undef SHAPING_FREQ_Y
+  #undef SHAPING_ZETA_Y
   #undef STEALTHCHOP_Y
   #undef STEP_STATE_Y
 #endif
@@ -142,8 +142,11 @@
   #undef ENABLE_LEVELING_FADE_HEIGHT
   #undef HOME_Z_FIRST
   #undef HOMING_Z_WITH_PROBE
+  #undef INPUT_SHAPING_Z
   #undef NUM_Z_STEPPERS
   #undef SAFE_BED_LEVELING_START_Z
+  #undef SHAPING_FREQ_Z
+  #undef SHAPING_ZETA_Z
   #undef STEALTHCHOP_Z
   #undef STEP_STATE_Z
   #undef Z_IDLE_HEIGHT
@@ -1338,7 +1341,7 @@
 #endif
 
 // Input shaping
-#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+#if ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
   #define HAS_ZV_SHAPING 1
 #endif
 
