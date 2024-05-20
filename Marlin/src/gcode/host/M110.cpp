@@ -30,7 +30,7 @@
  *
  * Without parameters:
  *   Report the last-processed (not last-received or last-enqueued) command
- *   (A host could then potentially send an EP command to purge the queue then resume starting from LINE + 1.)
+ *   (To purge the queue and resume from this line, the host should use 'M999' instead.)
  */
 void GcodeSuite::M110() {
 
