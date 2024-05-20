@@ -39,15 +39,15 @@
  *   M102 S<-6|-5|-2|-1|0|>0>
  *
  * Parameters:
- * @param  S<#>  : Set adjustable Z height in 0.1mm units (10ths of a mm)
- *                 (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm)
- * @param  S0    : Disable adjustable Z height
+ *   S<#> : Set adjustable Z height in 0.1mm units (10ths of a mm)
+ *          (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm)
+ *   S0   : Disable adjustable Z height
  *
  * Negative S values are commands:
- * @param  S-1  : Read BDsensor version
- * @param  S-2  : Read BDsensor distance value
- * @param  S-5  : Read raw Calibration data
- * @param  S-6  : Start Calibration
+ *   S-1  : Read BDsensor version
+ *   S-2  : Read BDsensor distance value
+ *   S-5  : Read raw Calibration data
+ *   S-6  : Start Calibration
  */
 void GcodeSuite::M102() {
   if (bdl.config_state < BDS_IDLE) {

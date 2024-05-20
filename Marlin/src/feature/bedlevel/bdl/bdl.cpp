@@ -47,13 +47,14 @@ BDS_Leveling bdl;
 #include "../../../core/debug_out.h"
 
 /**
- * M102 S0  Disable
- * M102 S-1 Read sensor information
- * M102 S-2 Read BDsensor distance value
- * M102 S-5 Read raw Calibration data
- * M102 S-6 Start Calibration
- * M102 S4  Set the adjustable Z height value
- * (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm)
+ * M102 S<#> : Set adjustable Z height in 0.1mm units (10ths of a mm)
+ *             (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm)
+ * M102 S0   : Disable adjustable Z height
+ *
+ * M102 S-1  : Read BDsensor version
+ * M102 S-2  : Read BDsensor distance value
+ * M102 S-5  : Read raw Calibration data
+ * M102 S-6  : Start Calibration
  */
 
 #define MAX_BD_HEIGHT                 4.0f
