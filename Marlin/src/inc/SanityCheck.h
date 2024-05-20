@@ -1545,6 +1545,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "BED_TRAMMING_USE_PROBE is incompatible with SENSORLESS_PROBING."
     #endif
   #endif
+  static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0.");
+#elif ANY(DGUS_LCD_UI_RELOADED, DGUS_LCD_UI_E3S1PRO)
+  #error "LCD_BED_TRAMMING is required for the selected display."
 #endif
 
 /**
@@ -2699,6 +2702,28 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #undef IS_U8GLIB_SSD1306
 #undef IS_EXTUI
+
+/**
+ * Make sure LCD language settings are distinct
+ */
+#if NUM_LANGUAGES > 1
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_2 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+#endif
+#if NUM_LANGUAGES > 2
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_3), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_3 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_3), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_3 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+#endif
+#if NUM_LANGUAGES > 3
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE_3)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_3.");
+#endif
+#if NUM_LANGUAGES > 4
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_3)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_3.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
+#endif
 
 #if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
         TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
