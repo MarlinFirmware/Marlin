@@ -26,6 +26,7 @@
 /**
  * M110: Get or set Current Line Number
  *
+ * Parameters:
  *   N<int>  Number to set as last-processed command
  *
  * Without parameters:
