@@ -176,6 +176,9 @@ static void _lcd_goto_next_corner() {
 
     uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
+    // Enable font background for DWIN
+    TERN_(IS_DWIN_MARLINUI, dwin_font.solid = true);
+
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
