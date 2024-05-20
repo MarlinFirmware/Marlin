@@ -1304,7 +1304,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       case H_COOLER: return temp_cooler.soft_pwm_amount;
     #endif
     default:
-      return TERN0(HAS_HOTEND, temp_hotend[TERN0(HAS_MULTI_HOTEND, heater_id)].soft_pwm_amount);
+      return TERN0(HAS_HOTEND, temp_hotend[_MIN(heater_id, HOTENDS - 1)].soft_pwm_amount);
   }
 }
 
