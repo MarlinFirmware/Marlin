@@ -281,11 +281,11 @@ uint32_t Stepper::advance_divisor = 0,
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
-  #define SHAPING_VAR_DEFS(AXIS)                                                \
-    shaping_time_t  ShapingQueue::delay_##AXIS;                                 \
-    shaping_time_t  ShapingQueue::_peek_##AXIS = shaping_time_t(-1);            \
-    uint16_t        ShapingQueue::head_##AXIS = 0;                              \
-    uint16_t        ShapingQueue::_free_count_##AXIS = shaping_echoes - 1;      \
+  #define SHAPING_VAR_DEFS(AXIS)                                           \
+    shaping_time_t  ShapingQueue::delay_##AXIS;                            \
+    shaping_time_t  ShapingQueue::_peek_##AXIS = shaping_time_t(-1);       \
+    uint16_t        ShapingQueue::head_##AXIS = 0;                         \
+    uint16_t        ShapingQueue::_free_count_##AXIS = shaping_echoes - 1; \
     ShapeParams     Stepper::shaping_##AXIS;
 
   TERN_(INPUT_SHAPING_X, SHAPING_VAR_DEFS(x))
