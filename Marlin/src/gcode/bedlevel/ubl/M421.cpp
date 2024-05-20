@@ -36,22 +36,14 @@
 #endif
 
 /**
- * @brief M421: Set a single Mesh Bed Leveling Z coordinate
+ * M421: Set a single Mesh Bed Leveling Z coordinate
  *
  * Usage:
- *   M421 [I<int>] [J<int>] [Z<linear>]  : Set the Mesh Point IJ to the Z value
- *   M421 [I<int>] [J<int>] [Q<linear>]  : Add the Q value to the Mesh Point IJ Z value
- *   M421 [I<int>] [J<int>] [N<bool>]    : Set the Mesh Point IJ to NAN (not set)
- *   M421 [C<bool>] [Z<linear>]          : Set the closest Mesh Point to the Z value
- *   M421 [C<bool>] [Q<linear>]          : Add the Q value to the closest Mesh Point
- *
- * Parameters:
- * @param  C  : Set the mesh point closest to the current nozzle position
- * @param  Z  : The new Z value to set
- * @param  I  : X index into the mesh array
- * @param  J  : Y index into the mesh array
- * @param  Q  : A value to add to the existing Z value
- *
+ *   M421 I<xindex> J<yindex> Z<linear>  : Set the Mesh Point IJ to the Z value
+ *   M421 I<xindex> J<yindex> Q<offset>  : Add the Q value to the Mesh Point IJ
+ *   M421 I<xindex> J<yindex> N          : Set the Mesh Point IJ to NAN (not set)
+ *   M421 C Z<linear>                    : Set the closest Mesh Point to the Z value
+ *   M421 C Q<offset>                    : Add the Q value to the closest Mesh Point
  */
 void GcodeSuite::M421() {
   xy_int8_t ij = { int8_t(parser.intval('I', -1)), int8_t(parser.intval('J', -1)) };

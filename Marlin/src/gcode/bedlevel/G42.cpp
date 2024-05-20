@@ -25,21 +25,19 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../MarlinCore.h" // For IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
-#include "../../module/probe.h" // For probe.offset
+#include "../../module/probe.h" // for probe.offset
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
- * @brief G42: Move X & Y axes to mesh coordinates (I & J)
- * Usage:
- *   G42 [F<rate>] [I<pos>] [J<pos>] [P<bool>]
+ * G42: Move X & Y axes to mesh coordinates (I & J)
  *
  * Parameters:
- * @param  F  : Feedrate in mm/min
- * @param  I  : X axis point
- * @param  J  : Y axis point
- * @param  P  : Add Probe offset
+ *   F<feedrate> : Feedrate in mm/min
+ *   I<index>    : X axis point index
+ *   J<index>    : Y axis point index
+ *   P<bool>     : Flag to put the prove at the given point
  */
 void GcodeSuite::G42() {
   if (MOTION_CONDITIONS) {

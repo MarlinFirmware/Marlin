@@ -94,24 +94,15 @@ inline bool G38_run_probe() {
 }
 
 /**
- * @brief G38: Probe Target
+ * G38 Probe Target
  *
- * @details The Probe Target commands are used to probe towards
- *          (or away from) a workpiece to determine its precise position
- * Usage:
- *   G38.2 [F<rate>] [X<pos>] [Y<pos>] [Z<pos>]
- *   G38.3 [F<rate>] [X<pos>] [Y<pos>] [Z<pos>]
- *   G38.4 [F<rate>] [X<pos>] [Y<pos>] [Z<pos>]
- *   G38.5 [F<rate>] [X<pos>] [Y<pos>] [Z<pos>]
- *
- * Parameters:
- * @param  G38.2  : Probe toward workpiece, stop on contact, signal error if failure
- * @param  G38.3  : Probe toward workpiece, stop on contact
+ *  G38.2 - Probe toward workpiece, stop on contact, signal error if failure
+ *  G38.3 - Probe toward workpiece, stop on contact
  *
  * With G38_PROBE_AWAY:
  *
- * @param  G38.4  : Probe away from workpiece, stop on contact break, signal error if failure
- * @param  G38.5  : Probe away from workpiece, stop on contact break
+ *  G38.4 - Probe away from workpiece, stop on contact break, signal error if failure
+ *  G38.5 - Probe away from workpiece, stop on contact break
  */
 void GcodeSuite::G38(const int8_t subcode) {
 

@@ -40,25 +40,23 @@
 //#define M420_C_USE_MEAN
 
 /**
- * @brief M420: Enable/Disable Bed Leveling and/or set the Z fade height
+ * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
  *
- * Usage:
- *   M420 [C<bool>] [L<int>] [S<bool>] [T<0|1|2|4>] [V<bool>] [Z<linear>]
- *
- * Parameters:
- * @param  S  : Turns leveling on or off
- * @param  Z  : Sets the Z fade height (0 or none to disable)
- * @param  V  : Verbose - Print the leveling grid
+ *   S[bool]   Turns leveling on or off
+ *   Z[height] Sets the Z fade height (0 or none to disable)
+ *   V[bool]   Verbose - Print the leveling grid
  *
  * With AUTO_BED_LEVELING_UBL only:
- * @param  L  : Load UBL mesh from index (0 is default)
- * @param  T  : 0:Human-readable 1:CSV 2:LCD 4:Compact
+ *
+ *   L[index]  Load UBL mesh from index (0 is default)
+ *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
  *
  * With mesh-based leveling only:
- * @param  C  : Center mesh on the mean of the lowest and highest
+ *
+ *   C         Center mesh on the mean of the lowest and highest
  *
  * With MARLIN_DEV_MODE:
- * @param  S2  : Create a simple random mesh and enable
+ *   S2        Create a simple random mesh and enable
  */
 void GcodeSuite::M420() {
   const bool seen_S = parser.seen('S'),

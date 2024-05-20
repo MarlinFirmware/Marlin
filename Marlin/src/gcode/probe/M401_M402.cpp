@@ -33,18 +33,13 @@
 #endif
 
 /**
- * @brief M401: Deploy and activate the Z probe
- *
- * Usage:
- *   M401 [H] [S<bool>] [R<bool>]
- *
- * Parameters:
- * @param  R  : Remain in place after deploying (and before activating) the probe
+ * M401: Deploy and activate the Z probe
  *
  * With BLTOUCH_HS_MODE:
- * @param  H  : Report the current BLTouch HS mode state and exit
- * @param  S  : Set High Speed (HS) Mode and exit without deploy
+ *  H       Report the current BLTouch HS mode state and exit
+ *  S<bool> Set High Speed (HS) Mode and exit without deploy
  *
+ *  R<bool> Remain in place after deploying (and before activating) the probe
  */
 void GcodeSuite::M401() {
   #if HAS_BLTOUCH_HS_MODE
@@ -65,13 +60,8 @@ void GcodeSuite::M401() {
 }
 
 /**
- * @brief M402: Deactivate and stow the Z probe
- *
- * Usage:
- *   M402 [R<bool>]
- *
- * Parameters:
- * @param  R  : Remain in place after stowing (and before deactivating) the probe
+ * M402: Deactivate and stow the Z probe
+ *  R<bool> Remain in place after stowing (and before deactivating) the probe
  */
 void GcodeSuite::M402() {
   probe.stow(parser.boolval('R'));
