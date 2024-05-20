@@ -25,6 +25,12 @@
 
 /**
  * M110: Get or set Current Line Number
+ *
+ *   N<int>  Number to set as last-processed command
+ *
+ * Without parameters:
+ *   Report the last-processed (not last-received or last-enqueued) command
+ *   (A host could then potentially send an EP command to purge the queue then resume starting from LINE + 1.)
  */
 void GcodeSuite::M110() {
 
