@@ -31,5 +31,5 @@ void GcodeSuite::M110() {
   if (parser.seenval('N'))
     queue.set_current_line_number(parser.value_long());
   else
-    SERIAL_ECHO_MSG("M110 N", queue.get_current_line_number());
+    SERIAL_ECHOLNPGM(STR_LINE_NO, queue.get_current_line_number());
 }
