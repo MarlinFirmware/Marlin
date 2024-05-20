@@ -762,7 +762,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #if ENABLED(STEPS_ROUNDING)
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] + (trajMod.A[idx] < 0.0f ? -0.5f : 0.5f))
     const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(current_block->extruder)), // May be eliminated if guaranteed positive.
+      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)), // May be eliminated if guaranteed positive.
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
@@ -771,7 +771,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #else
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B]) - steps.A
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(current_block->extruder)),
+      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)),
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
