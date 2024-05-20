@@ -88,8 +88,7 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M428() {
   if (homing_needed_error()) return;
 
-  const bool adding = parser.seen_test('P'),
-             no_axes = !parser.seen(STR_AXES_LOGICAL);
+  const bool no_axes = !parser.seen(STR_AXES_LOGICAL);
   xyz_float_t diff;
   LOOP_NUM_AXES(i) {
     if (no_axes || parser.seen_test(AXIS_CHAR(i))) {
@@ -108,6 +107,7 @@ void GcodeSuite::M428() {
       diff[i] = 0;
   }
 
+  const bool adding = parser.seen_test('P');
   LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i] + (adding ? home_offset[i] : 0));
 
   report_current_position();
