@@ -83,12 +83,16 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
  */
 void GcodeSuite::M428() {
   if (homing_needed_error()) return;
+
+  const bool adding = parser.seen_test('P'),
+             no_axes = !parser.seen(STR_AXES_LOGICAL);
   xyz_float_t diff;
   LOOP_NUM_AXES(i) {
-    if (parser.seen_test(AXIS_CHAR(i))){
+    if (no_axes || parser.seen_test(AXIS_CHAR(i))) {
       diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
-      if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
-        diff[i] = -current_position[i] ;
+      // If the current position is too far, for min homing just set to the negative current position
+      if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0) diff[i] = -current_position[i];
+      // If still too far report an error
       if (!WITHIN(diff[i], -20, 20)) {
         SERIAL_ERROR_MSG(STR_ERR_M428_TOO_FAR);
         LCD_ALERTMESSAGE(MSG_ERR_M428_TOO_FAR);
@@ -96,12 +100,12 @@ void GcodeSuite::M428() {
         return;
       }
     }
-    else {diff[i] = 0;}
-    
+    else
+      diff[i] = 0;
   }
 
-  if (parser.seen_test('P')) {LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]+ home_offset[i]);}
-  else {LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i]);}
+  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i] + adding ? home_offset[i] : 0);
+
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
   OKAY_BUZZ();
