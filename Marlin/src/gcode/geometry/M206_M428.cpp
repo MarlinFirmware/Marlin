@@ -80,6 +80,10 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
  *       M428 can't be used more than 2cm away from 0 or an endstop.
  *
  *       Use M206 to set these values directly.
+ *
+ * Parameters:
+ *   X, Y, Z, ...  - Flags to set the home offset for only the specified axes
+ *               P - Flag to add the distance to the existing home offset
  */
 void GcodeSuite::M428() {
   if (homing_needed_error()) return;
@@ -104,7 +108,7 @@ void GcodeSuite::M428() {
       diff[i] = 0;
   }
 
-  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i] + adding ? home_offset[i] : 0);
+  LOOP_NUM_AXES(i) set_home_offset((AxisEnum)i, diff[i] + (adding ? home_offset[i] : 0));
 
   report_current_position();
   LCD_MESSAGE(MSG_HOME_OFFSETS_APPLIED);
