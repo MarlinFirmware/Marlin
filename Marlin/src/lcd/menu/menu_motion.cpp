@@ -326,7 +326,7 @@ void menu_move() {
   #include "../../gcode/gcode.h"
 
   void ftm_menu_set_cmpn(const AxisEnum axis, const ftMotionShaper_t s) {
-    ftMotion.cfg.shaper[axis] = s;
+    ftMotion.cfg.set_shaper(axis, s);
     ftMotion.update_shaping_params();
     ui.go_back();
   }
@@ -338,7 +338,7 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_x() {
-    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[X_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper(X_AXIS);
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -356,7 +356,7 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_y() {
-    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[Y_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper(Y_AXIS);
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -416,7 +416,7 @@ void menu_move() {
 
     #if HAS_X_AXIS
       for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a) {
-        switch (c.shaper[a]) {
+        switch (c._shaper(a)) {
           case ftMotionShaper_NONE:  ftshaper[a] = GET_TEXT_F(MSG_LCD_OFF);  break;
           case ftMotionShaper_ZV:    ftshaper[a] = GET_TEXT_F(MSG_FTM_ZV);   break;
           case ftMotionShaper_ZVD:   ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVD);  break;
