@@ -26,31 +26,33 @@
 
 #if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
+#ifndef SOFTWARE_SPI
+  #define SOFTWARE_SPI //Don't mix hardware and software SPI modes
+#endif
+
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
 
 #define nop asm volatile ("\tnop\n")
 
-static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const pin_t miso_pin=-1) {
+static inline uint8_t swSpiTransfer_mode_0(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
-    WRITE(DOGLCD_MOSI, !!(b & 0x80));
+    const uint8_t state = (b & 0x80) ? HIGH : LOW;
     WRITE(DOGLCD_SCK, HIGH);
+    WRITE(DOGLCD_MOSI, state);
     b <<= 1;
-    if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
     WRITE(DOGLCD_SCK, LOW);
   }
   return b;
 }
 
-static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const pin_t miso_pin=-1) {
+static inline uint8_t swSpiTransfer_mode_3(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     WRITE(DOGLCD_SCK, LOW);
     WRITE(DOGLCD_MOSI, state);
-    nop;
-    WRITE(DOGLCD_SCK, HIGH);
     b <<= 1;
-    if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
+    WRITE(DOGLCD_SCK, HIGH);
   }
   return b;
 }
