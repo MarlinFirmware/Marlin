@@ -65,8 +65,8 @@ namespace ExtUI {
   void onIdle() {}
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
 
-  void onMediaInserted() {}
-  void onMediaError() {}
+  void onMediaMounted() {}
+  void onMediaError()   {}
   void onMediaRemoved() {}
 
   void onHeatingError(const heater_id_t heater_id) {

@@ -1835,7 +1835,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     if (status) {
       if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMediaInserted();
+          ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();
