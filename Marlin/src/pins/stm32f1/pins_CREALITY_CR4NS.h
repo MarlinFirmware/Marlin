@@ -33,10 +33,10 @@
   #error "CR4NS200320C13 only supports one hotend / E-stepper."
 #endif
 
-// Is E0_DRIVER_TYPE TMC2208_STANDALONE?
-// #if !AXIS_DRIVER_TYPE_X(TMC2208) || !AXIS_DRIVER_TYPE_Y(TMC2208) || !AXIS_DRIVER_TYPE_Z(TMC2208) || !AXIS_DRIVER_TYPE_E0(?)
-//   #error "This board has onboard TMC2208 drivers for X, Y, Z, and E0."
-// #endif
+// Validate stepper driver selections.
+//#if !AXIS_DRIVER_TYPE_X(TMC2208) || !AXIS_DRIVER_TYPE_Y(TMC2208) || !AXIS_DRIVER_TYPE_Z(TMC2208) || !AXIS_DRIVER_TYPE_E0(TMC2208)
+//  #error "This board has onboard TMC2208 drivers for X, Y, Z, and E0."
+//#endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME      "CR4NS200320C13"
@@ -60,9 +60,9 @@
 //
 // Limit Switches
 //
-// #ifndef Z_STOP_PIN
-//   #define Z_STOP_PIN                        PA15
-// #endif
+//#ifndef Z_STOP_PIN
+//  #define Z_STOP_PIN                      PA15  // else PA7
+//#endif
 
 //
 // Filament Runout Sensor
@@ -76,14 +76,14 @@
 //
 #define HEATER_BED_PIN                      PB2   // HOT BED
 #define FAN1_PIN                            PC1   // extruder fan
-// #define FAN2_PIN                            PB1   // Controller fan FET
+//#define FAN2_PIN                          PB1   // Controller fan FET
 
 //
 // Auto fans
 //
-// #ifndef CONTROLLER_FAN_PIN
-//   #define CONTROLLER_FAN_PIN                FAN2_PIN
-// #endif
+//#ifndef CONTROLLER_FAN_PIN
+//  #define CONTROLLER_FAN_PIN          FAN2_PIN
+//#endif
 
 #if HAS_TMC_UART
   // Reduce baud rate to improve software serial reliability
