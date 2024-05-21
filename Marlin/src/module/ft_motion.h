@@ -41,7 +41,7 @@ typedef struct FTConfig {
 
   #if HAS_X_AXIS
     ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
-      { FTM_DEFAULT_X_COMPENSATOR OPTARG(HAS_Y_AXIS, FTM_DEFAULT_Y_COMPENSATOR) };
+      { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
     float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
@@ -75,14 +75,14 @@ class FTMotion {
       cfg.mode = FTM_DEFAULT_MODE;
 
       #if HAS_X_AXIS
-        cfg.shaper[X_AXIS] = FTM_DEFAULT_X_COMPENSATOR;
+        cfg.shaper[X_AXIS] = FTM_DEFAULT_SHAPER_X;
         cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ;
         cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X;
         cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X;
       #endif
 
       #if HAS_Y_AXIS
-        cfg.shaper[Y_AXIS] = FTM_DEFAULT_Y_COMPENSATOR;
+        cfg.shaper[Y_AXIS] = FTM_DEFAULT_SHAPER_Y;
         cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ;
         cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y;
         cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y;
