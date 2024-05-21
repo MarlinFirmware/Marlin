@@ -26,10 +26,6 @@
 
 #if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
-#ifndef SOFTWARE_SPI
-  #define SOFTWARE_SPI //Don't mix hardware and software SPI modes
-#endif
-
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
 
