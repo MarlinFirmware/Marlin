@@ -1185,7 +1185,7 @@
  * Zero Vibration (ZV) Input Shaping for X and/or Y movements.
  *
  * This option uses a lot of SRAM for the step buffer. The buffer size is
- * calculated automatically from SHAPING_FREQ_[XY], DEFAULT_AXIS_STEPS_PER_UNIT,
+ * calculated automatically from SHAPING_FREQ_[XYZ], DEFAULT_AXIS_STEPS_PER_UNIT,
  * DEFAULT_MAX_FEEDRATE and ADAPTIVE_STEP_SMOOTHING. The default calculation can
  * be overridden by setting SHAPING_MIN_FREQ and/or SHAPING_MAX_FEEDRATE.
  * The higher the frequency and the lower the feedrate, the smaller the buffer.
@@ -1199,6 +1199,7 @@
  *  T[map]       Input Shaping type, 0:ZV, 1:EI, 2:2H EI (not implemented yet)
  *  X<1>         Set the given parameters only for the X axis.
  *  Y<1>         Set the given parameters only for the Y axis.
+ *  Z<1>         Set the given parameters only for the Z axis.
  */
 //#define INPUT_SHAPING_X
 //#define INPUT_SHAPING_Y
