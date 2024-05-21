@@ -4089,7 +4089,6 @@ void hmiInit() {
 }
 
 void dwinInitScreen() {
-  encoderConfiguration();
   hmiInit();
   hmiSetLanguageCache();
   hmiStartFrame(true);

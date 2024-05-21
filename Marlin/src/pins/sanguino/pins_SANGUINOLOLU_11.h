@@ -108,7 +108,7 @@
   #endif
   #define E0_ENABLE_PIN                        4
 #else
-  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL)  // Use IO Header
+  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // Use IO Header
     #define CASE_LIGHT_PIN                     4  // Hardware PWM  - see if IO Header is available
   #endif
 #endif

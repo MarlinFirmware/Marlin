@@ -101,7 +101,7 @@
 #endif
 #if PIN_EXISTS(BEEPER) && (SERVO0_PIN == BEEPER_PIN || FIL_RUNOUT_PIN == BEEPER_PIN)
   #undef BEEPER_PIN
-  #define BEEPER_PIN -1
+  #define BEEPER_PIN                          -1
 #endif
 
 /**

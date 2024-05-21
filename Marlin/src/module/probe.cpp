@@ -999,7 +999,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         default: break;
         case PROBE_PT_RAISE:
           if (raise_after_is_relative)
-            do_z_clearance(current_position.z + z_clearance, false);
+            do_z_clearance_by(z_clearance);
           else
             do_z_clearance(z_clearance);
           break;
