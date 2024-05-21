@@ -142,7 +142,7 @@
 // ADC
 //
 #define HAL_ADC_VREF_MV 3300
-#define HAL_ADC_RESOLUTION 10
+#define HAL_ADC_RESOLUTION 12
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin

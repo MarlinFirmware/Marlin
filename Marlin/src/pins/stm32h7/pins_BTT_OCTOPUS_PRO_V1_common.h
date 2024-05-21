@@ -447,9 +447,7 @@
    * orientation as the existing plug/DWIN to EXP1. TX/RX need to be connected to the TFT port, with TX->RX, RX->TX.
    */
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_OCTOPUS_V1_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_OCTOPUS_PRO_V1_common", "Ender-3 V2 display")
 
   #define BEEPER_PIN                 EXP1_06_PIN
   #define BTN_EN1                    EXP1_08_PIN
