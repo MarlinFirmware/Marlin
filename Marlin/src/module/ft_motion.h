@@ -40,20 +40,14 @@ typedef struct FTConfig {
   ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
 
   #if HAS_X_AXIS
-    #if ENABLED(FTM_INDIVIDUAL_AXIS_SHAPERS)
-      ftMotionShaper_t _shaper[1 + ENABLED(HAS_Y_AXIS)]    // Compensation mode
-        = { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
-    #else
-      ftMotionShaper_t _shaper[1] = { FTM_DEFAULT_SHAPER_X };
-    #endif
-    ftMotionShaper_t& shaper(const AxisEnum a) { UNUSED(a); return _shaper[TERN0(FTM_INDIVIDUAL_AXIS_SHAPERS, a)]; }
-    void set_shaper(const AxisEnum a, const ftMotionShaper_t s) { shaper(a) = s; }
-    float baseFreq[1 + ENABLED(HAS_Y_AXIS)]               // Base frequency. [Hz]
-      = { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    float zeta[1 + ENABLED(HAS_Y_AXIS)]                   // Damping factor
-      = { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
-    float vtol[1 + ENABLED(HAS_Y_AXIS)]                   // Vibration Level
-      = { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
+    ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
+      { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
+    float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
+      { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
+    float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
+      { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
+    float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
+      { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
   #if HAS_DYNAMIC_FREQ
@@ -81,16 +75,14 @@ class FTMotion {
       cfg.mode = FTM_DEFAULT_MODE;
 
       #if HAS_X_AXIS
-        cfg.set_shaper(X_AXIS, FTM_DEFAULT_SHAPER_X);
+        cfg.shaper[X_AXIS] = FTM_DEFAULT_SHAPER_X;
         cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ;
         cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X;
         cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X;
       #endif
 
       #if HAS_Y_AXIS
-        #if DISABLED(FTM_INDIVIDUAL_AXIS_SHAPERS)
-          cfg.set_shaper(Y_AXIS, FTM_DEFAULT_SHAPER_Y);
-        #endif
+        cfg.shaper[Y_AXIS] = FTM_DEFAULT_SHAPER_Y;
         cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ;
         cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y;
         cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y;

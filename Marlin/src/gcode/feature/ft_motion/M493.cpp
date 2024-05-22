@@ -63,13 +63,13 @@ void say_shaping() {
   #if HAS_X_AXIS
     if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
       SERIAL_ECHOPGM(" with " AXIS_0_NAME);
-      say_shaper_type(ftMotion.cfg.shaper(X_AXIS));
+      say_shaper_type(ftMotion.cfg.shaper[X_AXIS]);
     }
   #endif
   #if HAS_Y_AXIS
     if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
       SERIAL_ECHOPGM(" and with " AXIS_1_NAME);
-      say_shaper_type(ftMotion.cfg.shaper(Y_AXIS));
+      say_shaper_type(ftMotion.cfg.shaper[Y_AXIS]);
     }
   #endif
 
@@ -215,7 +215,7 @@ void GcodeSuite::M493() {
   #if HAS_X_AXIS
     auto set_shaper = [&](const AxisEnum axis, const char c) {
       const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
-      if (newsh != ftMotion.cfg.shaper(axis)) {
+      if (newsh != ftMotion.cfg.shaper[axis]) {
         switch (newsh) {
           default: SERIAL_ECHOLNPGM("?Invalid [", C(c), "] shaper."); return true;
           case ftMotionShaper_NONE:
@@ -227,7 +227,7 @@ void GcodeSuite::M493() {
           case ftMotionShaper_2HEI:
           case ftMotionShaper_3HEI:
           case ftMotionShaper_MZV:
-            ftMotion.cfg.set_shaper(axis, newsh);
+            ftMotion.cfg.shaper[axis] = newsh;
             flag.update = flag.report_h = true;
             break;
         }

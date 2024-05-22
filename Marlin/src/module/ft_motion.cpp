@@ -351,15 +351,15 @@ void FTMotion::loop() {
     #if HAS_X_AXIS
       shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
       if (shaping.x.ena) {
-        shaping.x.set_axis_shaping_A(cfg.shaper(X_AXIS), cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-        shaping.x.set_axis_shaping_N(cfg.shaper(X_AXIS), cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+        shaping.x.set_axis_shaping_A(cfg.shaper[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
+        shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
       }
     #endif
     #if HAS_Y_AXIS
       shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
       if (shaping.y.ena) {
-        shaping.y.set_axis_shaping_A(cfg.shaper(Y_AXIS), cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
-        shaping.y.set_axis_shaping_N(cfg.shaper(Y_AXIS), cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+        shaping.y.set_axis_shaping_A(cfg.shaper[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
+        shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
       }
     #endif
   }
@@ -635,11 +635,11 @@ void FTMotion::makeVector() {
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
           #if HAS_X_AXIS
             const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.x.set_axis_shaping_N(cfg.shaper(X_AXIS), _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+            shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
           #endif
           #if HAS_Y_AXIS
             const float yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.y.set_axis_shaping_N(cfg.shaper(Y_AXIS), _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
+            shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
           #endif
         }
         break;
@@ -650,10 +650,10 @@ void FTMotion::makeVector() {
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
         #if HAS_X_AXIS
-          shaping.x.set_axis_shaping_N(cfg.shaper(X_AXIS),  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+          shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
         #endif
         #if HAS_Y_AXIS
-          shaping.y.set_axis_shaping_N(cfg.shaper(Y_AXIS), cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
+          shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
         #endif
         break;
     #endif
