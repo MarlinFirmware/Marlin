@@ -73,9 +73,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_LEVEL_BED_DONE                   = _UxGT("Завершено!");
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Висота спаду");
   LSTR MSG_SET_HOME_OFFSETS                 = _UxGT("Встан. зміщ. дому");
-  LSTR MSG_HOME_OFFSET_X                    = _UxGT("Зміщ. дому X"); // DWIN
-  LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Зміщ. дому Y"); // DWIN
-  LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Зміщ. дому Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Зміщення прийняті");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Оберіть нуль");
   LSTR MSG_LAST_VALUE_SP                    = _UxGT("Останнє знач. ");
