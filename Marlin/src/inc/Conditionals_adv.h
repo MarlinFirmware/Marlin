@@ -1346,7 +1346,7 @@
 #endif
 
 // FT Motion unified window and batch size
-#if BOTH(FT_MOTION, FTM_UNIFIED_BWS)
+#if ALL(FT_MOTION, FTM_UNIFIED_BWS)
   #define FTM_WINDOW_SIZE FTM_BW_SIZE
   #define FTM_BATCH_SIZE  FTM_BW_SIZE
 #endif
