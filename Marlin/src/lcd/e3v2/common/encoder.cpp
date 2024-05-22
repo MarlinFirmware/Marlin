@@ -75,8 +75,7 @@ EncoderState encoderReceiveAnalyze() {
     else return ENCODER_DIFF_NO;
   }
 
-  const int8_t delta = ui.get_encoder_delta();
-  temp_diff += TERN0(REVERSIBLE_ENCODER, ui.reverse_encoder) ? -delta : delta;
+  temp_diff += ui.get_encoder_delta();
 
   const int8_t abs_diff = ABS(temp_diff);
   if (abs_diff >= ENCODER_PULSES_PER_STEP) {
