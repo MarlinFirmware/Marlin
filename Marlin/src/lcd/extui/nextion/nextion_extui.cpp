@@ -39,7 +39,7 @@ namespace ExtUI {
   void onIdle() { nextion.idleLoop(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.printerKilled(error, component); }
 
-  void onMediaInserted() {}
+  void onMediaMounted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
 

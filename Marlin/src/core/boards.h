@@ -469,6 +469,11 @@
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
 
 //
+// Other ARM Cortex-M4
+//
+#define BOARD_CREALITY_CR4NS          5300  // Creality CR4NS200320C13 (GD32F303RET6) as found in the Ender-3 V3 SE
+
+//
 // ARM Cortex-M7
 //
 

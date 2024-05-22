@@ -53,6 +53,7 @@
     inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
     void _rx_complete_irq(serial_t *obj);
+    FORCE_INLINE static uint8_t buffer_overruns() { return 0; } // Not implemented. Void to avoid platform-dependent code.
 
     protected:
       usart_rx_callback_t _rx_callback;

@@ -22,31 +22,11 @@
 #pragma once
 
 /**
- * Arduino Mega with RAMPS v1.4 (or v1.3) pin assignments
- *
- * Applies to the following boards:
- *
- *  RAMPS_14_EFB (Hotend, Fan, Bed)
- *  RAMPS_14_EEB (Hotend0, Hotend1, Bed)
- *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
- *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
- *  RAMPS_14_SF  (Spindle, Controller Fan)
- *
- *  RAMPS_13_EFB (Hotend, Fan, Bed)
- *  RAMPS_13_EEB (Hotend0, Hotend1, Bed)
- *  RAMPS_13_EFF (Hotend, Fan0, Fan1)
- *  RAMPS_13_EEF (Hotend0, Hotend1, Fan)
- *  RAMPS_13_SF  (Spindle, Controller Fan)
- *
- *  Other pins_MYBOARD.h files may override these defaults
- *
- *  Differences between
- *  RAMPS_13 | RAMPS_14
- *         7 | 11
+ * Native with a RAMPS like board with additional pins
  */
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "RAMPS 1.4"
+  #define BOARD_INFO_NAME "RAMPS Native"
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME
@@ -60,28 +40,24 @@
 //
 // Servos
 //
-#ifdef IS_RAMPS_13
-  #define SERVO0_PIN                           7  // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
-#else
-  #define SERVO0_PIN                          11
-#endif
-#define SERVO1_PIN                             6
-#define SERVO2_PIN                             5
+#define SERVO0_PIN                           151
+#define SERVO1_PIN                           152
+#define SERVO2_PIN                           153
 #ifndef SERVO3_PIN
-  #define SERVO3_PIN                           4
+  #define SERVO3_PIN                         154
 #endif
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN                              3
+#define X_MIN_PIN                            155
 #ifndef X_MAX_PIN
-  #define X_MAX_PIN                            2
+  #define X_MAX_PIN                          156
 #endif
-#define Y_MIN_PIN                             14
-#define Y_MAX_PIN                             15
-#define Z_MIN_PIN                             18
-#define Z_MAX_PIN                             19
+#define Y_MIN_PIN                            157
+#define Y_MAX_PIN                            158
+#define Z_MIN_PIN                            159
+#define Z_MAX_PIN                            160
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -128,12 +104,60 @@
   #define E1_CS_PIN                           44
 #endif
 
+#define E2_STEP_PIN                          100
+#define E2_DIR_PIN                           101
+#define E2_ENABLE_PIN                        102
+#ifndef E2_CS_PIN
+  #define E2_CS_PIN                          103
+#endif
+
+#define E3_STEP_PIN                          104
+#define E3_DIR_PIN                           105
+#define E3_ENABLE_PIN                        106
+#ifndef E3_CS_PIN
+  #define E3_CS_PIN                          107
+#endif
+
+#define E4_STEP_PIN                          108
+#define E4_DIR_PIN                           109
+#define E4_ENABLE_PIN                        110
+#ifndef E4_CS_PIN
+  #define E4_CS_PIN                          111
+#endif
+
+#define E5_STEP_PIN                          112
+#define E5_DIR_PIN                           113
+#define E5_ENABLE_PIN                        114
+#ifndef E5_CS_PIN
+  #define E5_CS_PIN                          115
+#endif
+
+#define E6_STEP_PIN                          116
+#define E6_DIR_PIN                           117
+#define E6_ENABLE_PIN                        118
+#ifndef E6_CS_PIN
+  #define E6_CS_PIN                          119
+#endif
+
+#define E7_STEP_PIN                          120
+#define E7_DIR_PIN                           121
+#define E7_ENABLE_PIN                        122
+#ifndef E7_CS_PIN
+  #define E7_CS_PIN                          123
+#endif
+
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
-#define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_2_PIN                             2  // Analog Input
+#define TEMP_3_PIN                             3  // Analog Input
+#define TEMP_4_PIN                             4  // Analog Input
+#define TEMP_5_PIN                             5  // Analog Input
+#define TEMP_6_PIN                             6  // Analog Input
+#define TEMP_7_PIN                             7  // Analog Input
+#define TEMP_BED_PIN                           8  // Analog Input
 
 // SPI for MAX Thermocouple
 #if !HAS_MEDIA
@@ -145,48 +169,26 @@
 //
 // Heaters / Fans
 //
-#ifndef MOSFET_A_PIN
-  #define MOSFET_A_PIN                        10
-#endif
-#ifndef MOSFET_B_PIN
-  #define MOSFET_B_PIN                         9
-#endif
-#ifndef MOSFET_C_PIN
-  #define MOSFET_C_PIN                         8
-#endif
-#ifndef MOSFET_D_PIN
-  #define MOSFET_D_PIN                        -1
-#endif
-
-#define HEATER_0_PIN                MOSFET_A_PIN
-
-#if FET_ORDER_EFB                                 // Hotend, Fan, Bed
-  #define FAN0_PIN                  MOSFET_B_PIN
-  #define HEATER_BED_PIN            MOSFET_C_PIN
-#elif FET_ORDER_EEF                               // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              MOSFET_B_PIN
-  #define FAN0_PIN                  MOSFET_C_PIN
-#elif FET_ORDER_EEB                               // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              MOSFET_B_PIN
-  #define HEATER_BED_PIN            MOSFET_C_PIN
-#elif FET_ORDER_EFF                               // Hotend, Fan, Fan
-  #define FAN0_PIN                  MOSFET_B_PIN
-  #define FAN1_PIN                  MOSFET_C_PIN
-#elif FET_ORDER_SF                                // Spindle, Fan
-  #define FAN0_PIN                  MOSFET_C_PIN
-#else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-  #define FAN0_PIN                  MOSFET_B_PIN
-  #define HEATER_BED_PIN            MOSFET_C_PIN
-  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
-    #define FAN1_PIN                MOSFET_D_PIN
-  #else
-    #define HEATER_1_PIN            MOSFET_D_PIN
-  #endif
-#endif
+#define HEATER_0_PIN                          10
+#define HEATER_1_PIN                           9
+#define HEATER_2_PIN                           8
+#define HEATER_3_PIN                         125
+#define HEATER_4_PIN                         126
+#define HEATER_5_PIN                         127
+#define HEATER_6_PIN                         128
+#define HEATER_7_PIN                         129
+#define HEATER_BED_PIN                       108
 
 #ifndef FAN0_PIN
-  #define FAN0_PIN                             4  // IO pin. Buffer needed
+  #define FAN0_PIN                           161  // IO pin. Buffer needed
 #endif
+#define FAN1_PIN                             162  // IO pin. Buffer needed
+#define FAN2_PIN                             163  // IO pin. Buffer needed
+#define FAN3_PIN                             164  // IO pin. Buffer needed
+#define FAN4_PIN                             165  // IO pin. Buffer needed
+#define FAN5_PIN                             166  // IO pin. Buffer needed
+#define FAN6_PIN                             167  // IO pin. Buffer needed
+#define FAN7_PIN                             168  // IO pin. Buffer needed
 
 //
 // Misc. Functions
@@ -725,3 +727,7 @@
   #endif // IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD
+
+#ifndef KILL_PIN
+  #define KILL_PIN                   EXP2_08_PIN
+#endif

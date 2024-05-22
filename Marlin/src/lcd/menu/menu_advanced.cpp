@@ -559,28 +559,20 @@ void menu_backlash();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
       // M593 F Frequency and D Damping ratio
-      #if ENABLED(INPUT_SHAPING_X)
-        editable.decimal = stepper.get_shaping_frequency(X_AXIS);
-        if (editable.decimal) {
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(X_AXIS, 0.0f); ui.refresh(); });
-          EDIT_ITEM_FAST_N(float41, X_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(X_AXIS, editable.decimal); });
-          editable.decimal = stepper.get_shaping_damping_ratio(X_AXIS);
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
-        }
-        else
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
-      #endif
-      #if ENABLED(INPUT_SHAPING_Y)
-        editable.decimal = stepper.get_shaping_frequency(Y_AXIS);
-        if (editable.decimal) {
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(Y_AXIS, 0.0f); ui.refresh(); });
-          EDIT_ITEM_FAST_N(float41, Y_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(Y_AXIS, editable.decimal); });
-          editable.decimal = stepper.get_shaping_damping_ratio(Y_AXIS);
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
-        }
-        else
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, (SHAPING_FREQ_Y) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
-      #endif
+      #define SHAPING_MENU_FOR_AXIS(AXIS)                                                                                                                             \
+        editable.decimal = stepper.get_shaping_frequency(AXIS);                                                                                                       \
+        if (editable.decimal) {                                                                                                                                       \
+          ACTION_ITEM_N(AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(AXIS, 0.0f); ui.refresh(); });                                                   \
+          EDIT_ITEM_FAST_N(float41, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });  \
+          editable.decimal = stepper.get_shaping_damping_ratio(AXIS);                                                                                                 \
+          EDIT_ITEM_FAST_N(float42_52, AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(AXIS, editable.decimal); });      \
+        }                                                                                                                                                             \
+        else                                                                                                                                                          \
+          ACTION_ITEM_N(AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
+
+      TERN_(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X_AXIS))
+      TERN_(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y_AXIS))
+      TERN_(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z_AXIS))
 
       END_MENU();
     }
