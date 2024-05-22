@@ -140,21 +140,20 @@ void FTMotion::loop() {
       if (stepper.current_block->is_sync_pos()) // Position sync? Set the position.
         stepper._set_position(stepper.current_block->position);
       discard_planner_block_protected();
+      continue;
     }
-    else {
-      loadBlockData(stepper.current_block);
-      blockProcRdy = true;
-      // Some kinematics track axis motion in HX, HY, HZ
-      #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
-        stepper.last_direction_bits.hx = stepper.current_block->direction_bits.hx;
-      #endif
-      #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
-        stepper.last_direction_bits.hy = stepper.current_block->direction_bits.hy;
-      #endif
-      #if ANY(CORE_IS_XZ, CORE_IS_YZ)
-        stepper.last_direction_bits.hz = stepper.current_block->direction_bits.hz;
-      #endif
-    }
+    loadBlockData(stepper.current_block);
+    blockProcRdy = true;
+    // Some kinematics track axis motion in HX, HY, HZ
+    #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
+      stepper.last_direction_bits.hx = stepper.current_block->direction_bits.hx;
+    #endif
+    #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY, MARKFORGED_YX)
+      stepper.last_direction_bits.hy = stepper.current_block->direction_bits.hy;
+    #endif
+    #if ANY(CORE_IS_XZ, CORE_IS_YZ)
+      stepper.last_direction_bits.hz = stepper.current_block->direction_bits.hz;
+    #endif
   }
 
   if (blockProcRdy) {
