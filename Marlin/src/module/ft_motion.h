@@ -46,8 +46,8 @@ typedef struct FTConfig {
     #else
       ftMotionShaper_t _shaper[1] = { FTM_DEFAULT_SHAPER_X };
     #endif
-    ftMotionShaper_t& shaper(const AxisEnum a) { UNUSED(a) return _shaper[TERN0(FTM_INDIVIDUAL_AXIS_SHAPERS, a)]; }
-    void set_shaper(const AxisEnum a, const ftMotionShaper_t s) { _shaper(a) = s; }
+    ftMotionShaper_t& shaper(const AxisEnum a) { UNUSED(a); return _shaper[TERN0(FTM_INDIVIDUAL_AXIS_SHAPERS, a)]; }
+    void set_shaper(const AxisEnum a, const ftMotionShaper_t s) { shaper(a) = s; }
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)]               // Base frequency. [Hz]
       = { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
     float zeta[1 + ENABLED(HAS_Y_AXIS)]                   // Damping factor
