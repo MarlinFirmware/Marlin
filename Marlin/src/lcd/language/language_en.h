@@ -433,7 +433,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_SHAPING_C_ZETA                 = STR_B _UxGT(" damping");
   LSTR MSG_SHAPING_X_ENABLE               = _UxGT("Enable X shaping");
   LSTR MSG_SHAPING_Y_ENABLE               = _UxGT("Enable Y shaping");
-  LSTR MSG_SHAPING_Z_ENABLE               = _UxGT("Enable Y shaping");
+  LSTR MSG_SHAPING_Z_ENABLE               = _UxGT("Enable Z shaping");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("XY Freq Limit");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min FR Factor");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Steps/mm");
