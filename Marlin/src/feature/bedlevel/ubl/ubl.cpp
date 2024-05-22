@@ -210,6 +210,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
       const float f = z_values[i][j];
       if (lcd) {
         // TODO: Display on Graphical LCD
+        TERN_(DWIN_LCD_PROUI, dwinMeshViewer());
       }
       else if (isnan(f))
         SERIAL_ECHO(human ? F("  .   ") : F("NAN"));
