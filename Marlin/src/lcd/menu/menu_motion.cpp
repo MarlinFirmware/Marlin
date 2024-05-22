@@ -331,8 +331,8 @@ void menu_move() {
     ui.go_back();
   }
 
-  void ftm_menu_set_ftm(const ftMotionMode_t m) {
-    ftMotion.cfg.mode = m;
+  void ftm_menu_set_ftm(const bool m) {
+    ftMotion.cfg.active = m;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
@@ -377,8 +377,10 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
-    if (ftMotion.cfg.mode != ftMotionMode_DISABLED) ACTION_ITEM(MSG_LCD_OFF, []{ ftm_menu_set_ftm(ftMotionMode_DISABLED); });
-    if (ftMotion.cfg.mode != ftMotionMode_ENABLED)  ACTION_ITEM(MSG_LCD_ON,  []{ ftm_menu_set_ftm(ftMotionMode_ENABLED); });
+    if (ftMotion.cfg.active)
+      ACTION_ITEM(MSG_LCD_OFF, []{ ftm_menu_set_ftm(false); });
+    else
+      ACTION_ITEM(MSG_LCD_ON, []{ ftm_menu_set_ftm(true); });
 
     END_MENU();
   }
@@ -407,12 +409,8 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    FSTR_P ftmode {}, ftshaper[1 + ENABLED(HAS_Y_AXIS)] {};
-
-    switch (c.mode) {
-      case ftMotionMode_DISABLED: ftmode = GET_TEXT_F(MSG_LCD_OFF);  break;
-      case ftMotionMode_ENABLED:  ftmode = GET_TEXT_F(MSG_LCD_ON);   break;
-    }
+    FSTR_P ftonoff = c.active ? GET_TEXT_F(MSG_LCD_ON) : GET_TEXT_F(MSG_LCD_OFF);
+    FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)] {};
 
     #if HAS_X_AXIS
       for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a) {
@@ -444,9 +442,9 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     SUBMENU(MSG_FIXED_TIME_MOTION, menu_ftm_mode);
-    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftonoff); MENU_ITEM_ADDON_END();
 
-    if (c.mode) {
+    if (c.active) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_x);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[X_AXIS]); MENU_ITEM_ADDON_END();

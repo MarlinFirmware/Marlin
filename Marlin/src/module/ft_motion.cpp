@@ -119,7 +119,7 @@ static bool markBlockStart = false;
 // Controller main, to be invoked from non-isr task.
 void FTMotion::loop() {
 
-  if (!cfg.mode) return;
+  if (!cfg.active) return;
 
   /**
    * Handle block abort with the following sequence:
@@ -661,7 +661,7 @@ void FTMotion::makeVector() {
     default: break;
   }
 
-  // Apply shaping if in mode.
+  // Apply shaping if active on each axis
   #if HAS_X_AXIS
       if (shaping.x.ena) {
         shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];

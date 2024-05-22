@@ -57,7 +57,7 @@ void say_shaper_type(const ftMotionShaper_t t) {
 
 void say_shaping() {
   // FT Enabled
-  SERIAL_ECHO_TERNARY(ftMotion.cfg.mode, "Fixed-Time Motion ", "en", "dis", "abled");
+  SERIAL_ECHO_TERNARY(ftMotion.cfg.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
   // FT Shaping
   #if HAS_X_AXIS
@@ -129,7 +129,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 
   report_heading_etc(forReplay, F(STR_FT_MOTION));
   const ft_config_t &c = ftMotion.cfg;
-  SERIAL_ECHOPGM("  M493 S", c.mode);
+  SERIAL_ECHOPGM("  M493 S", c.active);
   #if HAS_X_AXIS
     SERIAL_ECHOPGM(" A", c.baseFreq[X_AXIS]);
     #if HAS_Y_AXIS
@@ -154,8 +154,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
 /**
  * M493: Set Fixed-time Motion Control parameters
  *
- *    S<mode> Set Fixed-Time motion mode on or off.
- *
+ *    S<bool> Set Fixed-Time motion mode on or off.
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
@@ -197,16 +196,14 @@ void GcodeSuite::M493() {
     flag.report_h = true;
 
   // Parse 'S' mode parameter.
-  if (parser.seenval('S')) {
-    const ftMotionMode_t newmm = (ftMotionMode_t)parser.value_byte();
+  if (parser.seen('S')) {
+    const bool active = parser.value_bool();
 
-    if (newmm != ftMotion.cfg.mode) {
-      switch (newmm) {
-        default: SERIAL_ECHOLNPGM("?Invalid control mode [S] value."); return;
-        case ftMotionMode_DISABLED: flag.reset_ft = true;
-        case ftMotionMode_ENABLED:
-          ftMotion.cfg.mode = newmm;
-          flag.report_h = true;
+    if (active != ftMotion.cfg.active) {
+      switch (active) {
+        case false: flag.reset_ft = true;
+        case true: flag.report_h = true;
+          ftMotion.cfg.active = active;
           break;
       }
     }

@@ -23,11 +23,6 @@
 
 #include "../core/types.h"
 
-typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0, // Standard Motion
-  ftMotionMode_ENABLED    =  1  // Time-Based Motion
-} ftMotionMode_t;
-
 typedef enum FXDTICtrlShaper : uint8_t {
   ftMotionShaper_NONE  = 0, // No compensator
   ftMotionShaper_ZV    = 1, // Zero Vibration

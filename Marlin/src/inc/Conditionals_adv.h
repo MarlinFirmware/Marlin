@@ -1345,13 +1345,10 @@
   #define HAS_ZV_SHAPING 1
 #endif
 
-// FT Motion
-#if ENABLED(FT_MOTION)
-  #define FTM_DEFAULT_MODE TERN(FTM_IS_DEFAULT_MOTION, ftMotionMode_ENABLED, ftMotionMode_DISABLED)
-  #if ENABLED(FTM_UNIFIED_BWS)
-    #define FTM_WINDOW_SIZE FTM_BW_SIZE // Unified window and batch size
-    #define FTM_BATCH_SIZE  FTM_BW_SIZE
-  #endif
+// FT Motion unified window and batch size
+#if BOTH(FT_MOTION, FTM_UNIFIED_BWS)
+  #define FTM_WINDOW_SIZE FTM_BW_SIZE
+  #define FTM_BATCH_SIZE  FTM_BW_SIZE
 #endif
 
 // Toolchange Event G-code

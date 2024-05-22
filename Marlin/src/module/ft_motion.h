@@ -37,10 +37,10 @@
 #endif
 
 typedef struct FTConfig {
-  ftMotionMode_t mode = FTM_DEFAULT_MODE;                 // Mode / active compensation mode configuration.
+  bool active = ENABLED(FTM_IS_DEFAULT_MOTION);             // Active (else standard motion)
 
   #if HAS_X_AXIS
-    ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =  // Compensation mode
+    ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =    // Shaper type
       { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
     float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
@@ -72,7 +72,7 @@ class FTMotion {
     static bool busy;
 
     static void set_defaults() {
-      cfg.mode = FTM_DEFAULT_MODE;
+      cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
 
       #if HAS_X_AXIS
         cfg.shaper[X_AXIS] = FTM_DEFAULT_SHAPER_X;

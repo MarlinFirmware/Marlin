@@ -1532,7 +1532,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    const bool using_ftMotion = ftMotion.cfg.mode;
+    const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
   #endif
