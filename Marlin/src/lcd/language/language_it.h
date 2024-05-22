@@ -670,18 +670,18 @@ namespace LanguageNarrow_it {
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Stamp. bloccata,");           // ProUI
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll x sbloccare.");        // ProUI
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Attendere fino al riavvio."); // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No supporto");                // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prerisc. ugello.");           // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No supporto");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prerisc. ugello.");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Stampe");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Durata");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Più lungo");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Estruso");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completate");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temp min");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temp max");
   LSTR MSG_INFO_PSU                       = _UxGT("Alimentatore");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Potenza drive");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("Driver @ %");
   LSTR MSG_ERROR_TMC                      = _UxGT("ERR.CONNESSIONE TMC");
@@ -698,8 +698,8 @@ namespace LanguageNarrow_it {
 
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin."); // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");
+  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");   // ProUI
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent."); // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Sondaggio fallito");
@@ -879,9 +879,9 @@ namespace LanguageWide_it {
     LSTR MSG_MEDIA_MENU                   = _UxGT("Selez.da supporto");
     LSTR MSG_TURN_OFF                     = _UxGT("Spegni la stampante");
     LSTR MSG_END_LOOPS                    = _UxGT("Termina i cicli di ripetizione");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Si prega di preriscaldare l'ugello.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Azzera i contatori di stampa");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nessun supporto inserito.");           // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Si prega di preriscaldare l'ugello."); // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Azzera i contatori di stampa");        // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Contatori di stampa");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tempo totale");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Lavoro più lungo");

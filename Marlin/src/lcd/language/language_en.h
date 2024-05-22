@@ -693,18 +693,18 @@ namespace LanguageNarrow_en {
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll to unlock.");       // ProUI
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Please wait for reboot."); // ProUI
   LSTR MSG_REVERSE_ENCODER                = _UxGT("Reverse Encoder");         // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Media");                // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");          // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Media");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Prints");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Longest");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extruded");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completed");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Drive Strength");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CONNECTION ERROR");
@@ -720,8 +720,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Enable Runout");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
+  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Enable Runout");       // ProUI
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
@@ -922,7 +922,7 @@ namespace LanguageWide_en {
     LSTR MSG_END_LOOPS                    = _UxGT("End Repeat Loops");
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");             // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");

@@ -775,6 +775,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS    = _UxGT("Делаю дельта-калибровку");
   LSTR MSG_RESET_STATS                      = _UxGT("Сбросить статистику печати?");
   LSTR MSG_FAN_SPEED_FAULT                  = _UxGT("Сбой скорости кулера");
+
   LSTR MSG_COLORS_GET                       = _UxGT("Получить цвет");               // ProUI
   LSTR MSG_COLORS_SELECT                    = _UxGT("Выбрать цвета");               // ProUI
   LSTR MSG_COLORS_APPLIED                   = _UxGT("Цвета применены");             // ProUI
@@ -794,6 +795,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE   = _UxGT("Прочистить или продолжить?");  // ProUI
   LSTR MSG_RUNOUT_ENABLE                    = _UxGT("Включить датч.филамента");     // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP                = _UxGT("Миню темп. экструдера.");      // ProUI
+
   LSTR MSG_FANCHECK                         = _UxGT("Пров.тахометра кулера");
   LSTR MSG_MMU2_REMOVE_AND_CLICK            = _UxGT("Уберите и кликните...");
   LSTR MSG_REHEATDONE                       = _UxGT("Нагрето");
