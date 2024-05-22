@@ -96,29 +96,44 @@ void core_hook_sysclock_init() {
     #endif
   #endif
 
-  // Setup clock divisors for sysclk = 200 MHz:
+  // sysclk is now configured according to F_CPU (i.e., 200MHz PLL output)
+  constexpr uint32_t sysclock = F_CPU;
+
+  // Setup clock divisors for sysclk = 200 MHz
   // Note: PCLK1 is used for step+temp timers, and need to be kept at 50 MHz (until there is a better solution)
-  stc_clk_sysclk_cfg_t sysClkConf = {
+  constexpr stc_clk_sysclk_cfg_t sysClkConf = {
       .enHclkDiv = ClkSysclkDiv1,  // HCLK  = 200 MHz (CPU)
       .enExclkDiv = ClkSysclkDiv2, // EXCLK = 100 MHz (SDIO)
-      .enPclk0Div = ClkSysclkDiv1, // PCLK0 = 200 MHz (Timer6 (not used))
+      .enPclk0Div = ClkSysclkDiv2, // PCLK0 = 100 MHz (Timer6 (not used))
       .enPclk1Div = ClkSysclkDiv4, // PCLK1 = 50 MHz (USART, SPI, I2S, Timer0 (step+temp), TimerA (Servo))
-      .enPclk2Div = ClkSysclkDiv4, // PCLK2 = 50 MHz (ADC)
-      .enPclk3Div = ClkSysclkDiv4, // PCLK3 = 50 MHz (I2C, WDT)
+      .enPclk2Div = ClkSysclkDiv8, // PCLK2 = 25 MHz (ADC)
+      .enPclk3Div = ClkSysclkDiv8, // PCLK3 = 25 MHz (I2C, WDT)
       .enPclk4Div = ClkSysclkDiv2, // PCLK4 = 100 MHz (ADC ctl)
   };
+
+  #if ARDUINO_CORE_VERSION_INT >= GET_VERSION_INT(1, 2, 0)
+    assert_system_clocks_valid<
+      sysclock,
+      sysClkConf.enHclkDiv,
+      sysClkConf.enPclk0Div,
+      sysClkConf.enPclk1Div,
+      sysClkConf.enPclk2Div,
+      sysClkConf.enPclk3Div,
+      sysClkConf.enPclk4Div,
+      sysClkConf.enExclkDiv
+    >();
+  #endif
+
   sysclock_set_clock_dividers(&sysClkConf);
 
   // Set power mode
-  #define POWER_MODE_SYSTEM_CLOCK 200000000 // 200 MHz
-  power_mode_update_pre(POWER_MODE_SYSTEM_CLOCK);
+  power_mode_update_pre(sysclock);
 
   // Switch to MPLL as sysclk source
   CLK_SetSysClkSource(CLKSysSrcMPLL);
 
   // Set power mode
-  power_mode_update_post(POWER_MODE_SYSTEM_CLOCK);
-  #undef POWER_MODE_SYSTEM_CLOCK
+  power_mode_update_post(sysclock);
 }
 
 #endif // ARDUINO_ARCH_HC32

@@ -227,34 +227,32 @@ void MarlinUI::init() {
 
   init_lcd();
 
-  #if HAS_DIGITAL_BUTTONS
-    #if BUTTON_EXISTS(EN1)
-      SET_INPUT_PULLUP(BTN_EN1);
-    #endif
-    #if BUTTON_EXISTS(EN2)
-      SET_INPUT_PULLUP(BTN_EN2);
-    #endif
-    #if BUTTON_EXISTS(ENC)
-      SET_INPUT_PULLUP(BTN_ENC);
-    #endif
-    #if BUTTON_EXISTS(ENC_EN)
-      SET_INPUT_PULLUP(BTN_ENC_EN);
-    #endif
-    #if BUTTON_EXISTS(BACK)
-      SET_INPUT_PULLUP(BTN_BACK);
-    #endif
-    #if BUTTON_EXISTS(UP)
-      SET_INPUT(BTN_UP);
-    #endif
-    #if BUTTON_EXISTS(DOWN)
-      SET_INPUT(BTN_DOWN);
-    #endif
-    #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LEFT);
-    #endif
-    #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RIGHT);
-    #endif
+  #if BUTTON_EXISTS(EN1)
+    SET_INPUT_PULLUP(BTN_EN1);
+  #endif
+  #if BUTTON_EXISTS(EN2)
+    SET_INPUT_PULLUP(BTN_EN2);
+  #endif
+  #if BUTTON_EXISTS(ENC)
+    SET_INPUT_PULLUP(BTN_ENC);
+  #endif
+  #if BUTTON_EXISTS(ENC_EN)
+    SET_INPUT_PULLUP(BTN_ENC_EN);
+  #endif
+  #if BUTTON_EXISTS(BACK)
+    SET_INPUT_PULLUP(BTN_BACK);
+  #endif
+  #if BUTTON_EXISTS(UP)
+    SET_INPUT(BTN_UP);
+  #endif
+  #if BUTTON_EXISTS(DOWN)
+    SET_INPUT(BTN_DOWN);
+  #endif
+  #if BUTTON_EXISTS(LFT)
+    SET_INPUT(BTN_LEFT);
+  #endif
+  #if BUTTON_EXISTS(RT)
+    SET_INPUT(BTN_RIGHT);
   #endif
 
   #if HAS_SHIFT_ENCODER
@@ -739,7 +737,7 @@ void MarlinUI::init() {
 
   void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component) {
     init();
-    status_printf(1, F(S_FMT ": " S_FMT), FTOP(lcd_error), FTOP(lcd_component));
+    status_printf(1, F(S_FMT ": " S_FMT), lcd_error, lcd_component);
     TERN_(HAS_MARLINUI_MENU, return_to_status());
 
     // RED ALERT. RED ALERT.
@@ -1026,72 +1024,56 @@ void MarlinUI::init() {
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
           reset_status_timeout(ms);
 
-        uint8_t abs_diff = ABS(encoderDiff);
+        static int8_t lastEncoderDiff;
+        if (lastEncoderDiff != encoderDiff) wake_display();
+        lastEncoderDiff = encoderDiff;
 
-        #if ENCODER_PULSES_PER_STEP > 1
-          // When reversing the encoder direction, a movement step can be missed because
-          // encoderDiff has a non-zero residual value, making the controller unresponsive.
-          // The fix clears the residual value when the encoder is idle.
-          // Also check if past half the threshold to compensate for missed single steps.
-          static int8_t lastEncoderDiff;
-
-          // Timeout? No decoder change since last check. 10 or 20 times per second.
-          if (encoderDiff == lastEncoderDiff && abs_diff <= epps / 2)   // Same direction & size but not over a half-step?
-            encoderDiff = 0;                                            // Clear residual pulses.
-          else if (WITHIN(abs_diff, epps / 2 + 1, epps - 1)) {          // Past half of threshold?
-            abs_diff = epps;                                            // Treat as a full step size
-            encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
-          }
-          if (lastEncoderDiff != encoderDiff) wake_display();
-          lastEncoderDiff = encoderDiff;
-        #endif
-
+        const uint8_t abs_diff = ABS(encoderDiff);
         const bool encoderPastThreshold = (abs_diff >= epps);
-        if (encoderPastThreshold || lcd_clicked) {
-          if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
+        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
-            #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
+          int32_t encoder_multiplier = 1;
 
-              int32_t encoder_multiplier = 1;
+          #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
 
-              if (encoder_multiplier_enabled) {
-                // Note that the rate is always calculated between two passes through the
-                // loop and that the abs of the encoderDiff value is tracked.
-                static millis_t encoder_mult_prev_ms = 0;
-                const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
-                encoder_mult_prev_ms = ms;
+            if (encoder_multiplier_enabled) {
+              // Note that the rate is always calculated between two passes through the
+              // loop and that the abs of the encoderDiff value is tracked.
+              static millis_t encoder_mult_prev_ms = 0;
+              const float encoderStepRate = ((float(abs_diff) / float(epps)) * 1000.0f) / float(ms - encoder_mult_prev_ms);
+              encoder_mult_prev_ms = ms;
 
-                if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
-                  encoder_multiplier = 100;
-                else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
-                  encoder_multiplier = 10;
-                else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
-                  encoder_multiplier = 5;
+              if (ENCODER_100X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)
+                encoder_multiplier = 100;
+              else if (ENCODER_10X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)
+                encoder_multiplier = 10;
+              else if (ENCODER_5X_STEPS_PER_SEC > 0 && encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)
+                encoder_multiplier = 5;
 
-                // Enable to output the encoder steps per second value
-                //#define ENCODER_RATE_MULTIPLIER_DEBUG
-                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                  SERIAL_ECHO_MSG(
-                    "Enc Step Rate: ", encoderStepRate,
-                    "  Mult: ", encoder_multiplier,
-                    "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
-                    "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
-                    "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
-                  );
-                #endif
-              }
+              // Enable to output the encoder steps per second value
+              //#define ENCODER_RATE_MULTIPLIER_DEBUG
+              #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+                SERIAL_ECHO_MSG(
+                  "Enc Step Rate: ", encoderStepRate,
+                  "  Mult: ", encoder_multiplier,
+                  "  5X Steps: ", ENCODER_5X_STEPS_PER_SEC,
+                  "  10X Steps: ", ENCODER_10X_STEPS_PER_SEC,
+                  "  100X Steps: ", ENCODER_100X_STEPS_PER_SEC
+                );
+              #endif
+            }
 
-            #else
+          #endif // ENCODER_RATE_MULTIPLIER
 
-              constexpr int32_t encoder_multiplier = 1;
-
-            #endif // ENCODER_RATE_MULTIPLIER
-
-            if (can_encode()) encoderPosition += (encoderDiff * encoder_multiplier) / epps;
-
-            encoderDiff = 0;
+          const int8_t fullSteps = encoderDiff / epps;
+          if (fullSteps != 0) {
+            encoderDiff -= fullSteps * epps;
+            if (can_encode() && !lcd_clicked)
+              encoderPosition += (fullSteps * encoder_multiplier);
           }
+        }
 
+        if (encoderPastThreshold || lcd_clicked) {
           reset_status_timeout(ms);
 
           #if HAS_BACKLIGHT_TIMEOUT
@@ -1312,123 +1294,155 @@ void MarlinUI::init() {
      */
     void MarlinUI::update_buttons() {
       const millis_t now = millis();
-      if (ELAPSED(now, next_button_update_ms)) {
 
-        #if HAS_DIGITAL_BUTTONS
+      #if HAS_MARLINUI_ENCODER
 
-          #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-            uint8_t newbutton = 0;
-            if (BUTTON_PRESSED(EN1))                 newbutton |= EN_A;
-            if (BUTTON_PRESSED(EN2))                 newbutton |= EN_B;
-            if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-            if (BUTTON_PRESSED(BACK))                newbutton |= EN_D;
-
-          #else
-
-            constexpr uint8_t newbutton = 0;
-
-          #endif
-
-          //
-          // Directional buttons
-          //
-          #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
-
-            const int8_t pulses = epps * encoderDirection;
-
-            if (BUTTON_PRESSED(UP)) {
-              encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(DOWN)) {
-              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(LEFT)) {
-              encoderDiff = -pulses;
-              next_button_update_ms = now + 300;
-            }
-            else if (BUTTON_PRESSED(RIGHT)) {
-              encoderDiff = pulses;
-              next_button_update_ms = now + 300;
-            }
-
-          #endif // UP || DOWN || LEFT || RIGHT
-
-          buttons = (newbutton | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
-            #if ALL(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
-              | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
-            #endif
-          );
-
-        #elif HAS_ADC_BUTTONS
-
-          buttons = 0;
-
-        #endif
-
-        #if HAS_ADC_BUTTONS
-          if (keypad_buttons == 0) {
-            const uint8_t b = get_ADC_keyValue();
-            if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
-          }
-        #endif
-
-        #if HAS_SHIFT_ENCODER
-          /**
-           * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
-           * These values are independent of which pins are used for EN_A / EN_B indications.
-           * The rotary encoder part is also independent of the LCD chipset.
-           */
-          uint8_t val = 0;
-          WRITE(SHIFT_LD_PIN, LOW);
-          WRITE(SHIFT_LD_PIN, HIGH);
-          for (uint8_t i = 0; i < 8; ++i) {
-            val >>= 1;
-            if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
-            WRITE(SHIFT_CLK_PIN, HIGH);
-            WRITE(SHIFT_CLK_PIN, LOW);
-          }
-          TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
-        #endif
-
-        #if IS_TFTGLCD_PANEL
-          next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
-          buttons = slow_buttons;
-          TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
-        #endif
-
-      } // next_button_update_ms
-
-      #if HAS_ENCODER_WHEEL
-        static uint8_t lastEncoderBits;
-
-        // Manage encoder rotation
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
-
-        uint8_t enc = 0;
-        if (buttons & EN_A) enc |= B01;
-        if (buttons & EN_B) enc |= B10;
-        if (enc != lastEncoderBits) {
-          switch (enc) {
-            case 0: ENCODER_SPIN(1, 2); break;
-            case 2: ENCODER_SPIN(0, 3); break;
-            case 3: ENCODER_SPIN(2, 1); break;
-            case 1: ENCODER_SPIN(3, 0); break;
-          }
+        const int8_t delta = get_encoder_delta(now);
+        if (delta) {
+          encoderDiff += delta * encoderDirection;
           #if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
             external_encoder();
           #endif
-          lastEncoderBits = enc;
         }
 
-      #endif // HAS_ENCODER_WHEEL
-    }
+      #endif
+
+      if (PENDING(now, next_button_update_ms)) return;
+
+      #if HAS_DIGITAL_BUTTONS
+
+        uint8_t newbuttons = 0;
+        #if ANY_BUTTON(ENC, BACK)
+          if (can_encode() && BUTTON_PRESSED(ENC)) newbuttons |= EN_C;
+          if (BUTTON_PRESSED(BACK))                newbuttons |= EN_D;
+        #endif
+
+        //
+        // Directional buttons
+        //
+        #if ANY_BUTTON(UP, DOWN, LEFT, RIGHT)
+
+          const int8_t pulses = epps * encoderDirection;
+
+          if (BUTTON_PRESSED(UP)) {
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(DOWN)) {
+            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(LEFT)) {
+            encoderDiff = -pulses;
+            next_button_update_ms = now + 300;
+          }
+          else if (BUTTON_PRESSED(RIGHT)) {
+            encoderDiff = pulses;
+            next_button_update_ms = now + 300;
+          }
+
+        #endif // UP || DOWN || LEFT || RIGHT
+
+        buttons = (newbuttons | TERN0(HAS_SLOW_BUTTONS, slow_buttons)
+          #if ALL(HAS_TOUCH_BUTTONS, HAS_ENCODER_ACTION)
+            | (touch_buttons & TERN(HAS_MARLINUI_ENCODER, ~(EN_A | EN_B), 0xFF))
+          #endif
+        );
+
+      #elif HAS_ADC_BUTTONS
+
+        buttons = 0;
+
+      #endif
+
+      #if HAS_ADC_BUTTONS
+        if (keypad_buttons == 0) {
+          const uint8_t b = get_ADC_keyValue();
+          if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
+        }
+      #endif
+
+      #if HAS_SHIFT_ENCODER
+        /**
+         * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
+         * These values are independent of which pins are used for EN_A / EN_B indications.
+         * The rotary encoder part is also independent of the LCD chipset.
+         */
+        uint8_t val = 0;
+        WRITE(SHIFT_LD_PIN, LOW);
+        WRITE(SHIFT_LD_PIN, HIGH);
+        for (uint8_t i = 0; i < 8; ++i) {
+          val >>= 1;
+          if (READ(SHIFT_OUT_PIN)) SBI(val, 7);
+          WRITE(SHIFT_CLK_PIN, HIGH);
+          WRITE(SHIFT_CLK_PIN, LOW);
+        }
+        TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
+      #endif
+
+      #if IS_TFTGLCD_PANEL
+        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
+        buttons = slow_buttons;
+        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
+      #endif
+
+    } // update_buttons
 
   #endif // HAS_ENCODER_ACTION
 
 #endif // HAS_WIRED_LCD
+
+#if MARLINUI_ENCODER_DELTA
+
+  #define ENCODER_DEBOUNCE_MS 2
+
+  /**
+   * Get the encoder delta (-2 -1 0 +1 +2) since the last call, reading the live encoder state.
+   * Pins may be debounced to filter noise.
+   */
+  int8_t MarlinUI::get_encoder_delta(const millis_t &now/*=millis()*/) {
+
+    typedef struct { bool a:1, b:1; } enc_t;
+
+    const enc_t live_enc = { BUTTON_PRESSED(EN1), BUTTON_PRESSED(EN2) };
+
+    #if ENCODER_DEBOUNCE_MS
+
+      static enc_t enc;
+      static enc_t old_live;
+
+      static millis_t en_A_bounce_ms;
+      if (old_live.a != live_enc.a) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+      else if (ELAPSED(now, en_A_bounce_ms)) enc.a = live_enc.a;
+
+      static millis_t en_B_bounce_ms;
+      if (old_live.b != live_enc.b) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
+      else if (ELAPSED(now, en_B_bounce_ms)) enc.b = live_enc.b;
+
+      old_live = live_enc;
+
+    #else
+
+      const enc_t &enc = live_enc;
+
+    #endif
+
+    static uint8_t old_pos;
+    const uint8_t pos = (enc.a ^ enc.b) | (enc.a << 1); // 0:00  1:10  2:11  3:01
+    int8_t delta = 0;
+    if (pos != old_pos) {
+      delta = (pos - old_pos + 4 + 1) % 4 - 1;
+      old_pos = pos;
+
+      static int8_t last_dir;
+      if (delta == 2) delta = last_dir * 2;
+      else last_dir = delta;
+    }
+    return delta;
+
+  } // get_encoder_delta
+
+#endif // MARLINUI_ENCODER_DELTA
 
 void MarlinUI::completion_feedback(const bool good/*=true*/) {
   wake_display(); // Wake the screen for all audio feedback
@@ -1563,12 +1577,12 @@ void MarlinUI::host_notify(const char * const cstr) {
    *
    * @param pfmt    A constant format P-string
    */
-  void MarlinUI::status_printf_P(int8_t level, PGM_P const fmt, ...) {
+  void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
     if (set_alert_level(level)) return;
 
     va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
+    va_start(args, pfmt);
+    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, pfmt, args);
     va_end(args);
 
     host_notify(status_message);
@@ -1633,21 +1647,21 @@ void MarlinUI::host_notify(const char * const cstr) {
   //
   // Send the status line as a host notification
   //
-  void MarlinUI::_set_status(const char * const cstr, const bool, const bool pgm) {
-    host_notify(cstr);
+  void MarlinUI::_set_status(const char * const ustr, const bool, const bool pgm) {
+    host_notify(ustr);
   }
-  void MarlinUI::_set_alert(const char * const cstr, const int8_t, const bool pgm) {
-    host_notify(cstr);
+  void MarlinUI::_set_alert(const char * const ustr, const int8_t, const bool pgm) {
+    host_notify(ustr);
   }
   void MarlinUI::_set_status_and_level(const char * const ustr, const int8_t=0, const bool pgm) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
-  void MarlinUI::status_printf_P(int8_t level, PGM_P const fmt, ...) {
+  void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
     MString<30> msg;
 
     va_list args;
-    va_start(args, fmt);
-    vsnprintf_P(&msg, 30, fmt, args);
+    va_start(args, pfmt);
+    vsnprintf_P(&msg, 30, pfmt, args);
     va_end(args);
 
     host_notify(msg);
@@ -1821,7 +1835,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     if (status) {
       if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMediaInserted();
+          ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();

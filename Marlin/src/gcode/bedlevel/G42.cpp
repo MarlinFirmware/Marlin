@@ -32,6 +32,12 @@
 
 /**
  * G42: Move X & Y axes to mesh coordinates (I & J)
+ *
+ * Parameters:
+ *   F<feedrate> : Feedrate in mm/min
+ *   I<index>    : X axis point index
+ *   J<index>    : Y axis point index
+ *   P<bool>     : Flag to put the prove at the given point
  */
 void GcodeSuite::G42() {
   if (MOTION_CONDITIONS) {
