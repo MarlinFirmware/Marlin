@@ -581,7 +581,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
   static_assert(TERN1(HAS_Z_AXIS, WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS)), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
   #ifdef NOZZLE_PARK_Z_RAISE_MIN
-    static_assert(NOZZLE_PARK_Z_RAISE_MIN >= 5, "NOZZLE_PARK_Z_RAISE_MIN must be greater than or equal to 5.");
+    static_assert(NOZZLE_PARK_Z_RAISE_MIN >= 2, "NOZZLE_PARK_Z_RAISE_MIN must be greater than or equal to 2.");
   #endif
 #endif
 
