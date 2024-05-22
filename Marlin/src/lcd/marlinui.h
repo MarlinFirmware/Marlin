@@ -203,8 +203,8 @@ public:
     TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
-  #if ENABLED(PROUI_ITEM_ENC)
-    static bool rev_rate;
+  #if ENABLED(REVERSIBLE_ENCODER)
+    static bool reverse_encoder;
   #endif
 
   static void init();

@@ -589,10 +589,10 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Encoder Rate
+  // Encoder Direction
   //
-  #if ENABLED(PROUI_ITEM_ENC)
-    bool rev_rate;
+  #if ENABLED(REVERSIBLE_ENCODER)
+    bool reverse_encoder;                               // ProUI
   #endif
 
   //
@@ -1694,8 +1694,8 @@ void MarlinSettings::postprocess() {
     //
     // Encoder Rate
     //
-    #if ENABLED(PROUI_ITEM_ENC)
-      EEPROM_WRITE(ui.rev_rate);
+    #if ENABLED(REVERSIBLE_ENCODER)
+      EEPROM_WRITE(ui.reverse_encoder);
     #endif
 
     //
@@ -2787,9 +2787,9 @@ void MarlinSettings::postprocess() {
       //
       // Encoder Rate
       //
-      #if ENABLED(PROUI_ITEM_ENC)
-        _FIELD_TEST(rev_rate);
-        EEPROM_READ(ui.rev_rate);
+      #if ENABLED(REVERSIBLE_ENCODER)
+        _FIELD_TEST(reverse_encoder);
+        EEPROM_READ(ui.reverse_encoder);
       #endif
 
       //
@@ -3278,8 +3278,8 @@ void MarlinSettings::reset() {
   //
   // Encoder Rate
   //
-  #if ENABLED(PROUI_ITEM_ENC)
-    ui.rev_rate = false;
+  #if ENABLED(REVERSIBLE_ENCODER)
+    ui.reverse_encoder = false;
   #endif
 
   //

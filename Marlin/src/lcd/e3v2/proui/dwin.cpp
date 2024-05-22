@@ -1881,7 +1881,7 @@ void dwinSetDataDefaults() {
     applyLEDColor();
   #endif
   TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
-  TERN_(PROUI_ITEM_ENC, ui.rev_rate = false);
+  TERN_(REVERSIBLE_ENCODER, ui.reverse_encoder = false);
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -2667,8 +2667,8 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
   void setAddRecover()    { setPFloatOnClick(-5, 5, UNITFDIGITS); }
 #endif
 
-#if ENABLED(PROUI_ITEM_ENC)
-  void setRevRate() { toggleCheckboxLine(ui.rev_rate); }
+#if ENABLED(REVERSIBLE_ENCODER)
+  void setRevRate() { toggleCheckboxLine(ui.reverse_encoder); }
 #endif
 
 // Special Menuitem Drawing functions =================================================
@@ -3235,8 +3235,8 @@ void drawAdvancedSettingsMenu() {
     #if HAS_CUSTOM_COLORS
       MENU_ITEM(ICON_Scolor, MSG_COLORS_SELECT, onDrawSubMenu, drawSelectColorsMenu);
     #endif
-    #if ENABLED(PROUI_ITEM_ENC)
-      EDIT_ITEM_F(ICON_Motion, "Reverse Encoder", onDrawChkbMenu, setRevRate, &ui.rev_rate);
+    #if ENABLED(REVERSIBLE_ENCODER)
+      EDIT_ITEM_F(ICON_Motion, MSG_REVERSE_ENCODER, onDrawChkbMenu, setRevRate, &ui.reverse_encoder);
     #endif
   }
   ui.reset_status(true);

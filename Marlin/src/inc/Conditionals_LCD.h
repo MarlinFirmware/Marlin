@@ -1065,6 +1065,7 @@
   #define DO_LIST_BIN_FILES 1
   #define LCD_BRIGHTNESS_DEFAULT 127
   #define STATUS_DO_CLEAR_EMPTY
+  #define REVERSIBLE_ENCODER      // Menu > Control > Advanced Settings
 #endif
 
 // Serial Controllers require LCD_SERIAL_PORT

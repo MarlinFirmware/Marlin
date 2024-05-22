@@ -44,7 +44,7 @@
 
 EncoderRate encoderRate;
 
-#if ENABLED(PROUI_ITEM_ENC)
+#if ENABLED(REVERSIBLE_ENCODER)
   EncoderState direction1;
   EncoderState direction2;
 #endif
@@ -81,7 +81,7 @@ EncoderState encoderReceiveAnalyze() {
   }
 
   const int8_t delta = ui.get_encoder_delta();
-  temp_diff += TERN0(PROUI_ITEM_ENC, ui.rev_rate) ? -delta : delta;
+  temp_diff += TERN0(REVERSIBLE_ENCODER, ui.reverse_encoder) ? -delta : delta;
 
   const int8_t abs_diff = ABS(temp_diff);
   if (abs_diff >= ENCODER_PULSES_PER_STEP) {

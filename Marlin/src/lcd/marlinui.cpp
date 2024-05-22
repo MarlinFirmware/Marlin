@@ -66,8 +66,8 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if ENABLED(PROUI_ITEM_ENC)
-  bool MarlinUI::rev_rate = false;
+#if ENABLED(REVERSIBLE_ENCODER)
+  bool MarlinUI::reverse_encoder = false;
 #endif
 
 #if HAS_STATUS_MESSAGE
