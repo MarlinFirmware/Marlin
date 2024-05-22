@@ -673,7 +673,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Tryska: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Senzor filamentu");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Vzd. mm fil. senz.");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Zapnúť senzor");           // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");      // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Kontrola rýchl.");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Parkovanie zlyhalo");

@@ -793,7 +793,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрейте сопло.");             // ProUI
   LSTR MSG_INFO_PRINT_COUNT_RESET           = _UxGT("Сбросить счетчик");            // ProUI
   LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE   = _UxGT("Прочистить или продолжить?");  // ProUI
-  LSTR MSG_RUNOUT_ENABLE                    = _UxGT("Включить датч.филамента");     // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP                = _UxGT("Миню темп. экструдера.");      // ProUI
 
   LSTR MSG_FANCHECK                         = _UxGT("Пров.тахометра кулера");

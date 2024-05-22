@@ -697,7 +697,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozul: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Fil. Sensörü");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Aşınma Farkı mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Fil. Sens. Aç");       // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");   // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Takosu Kontrolü");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Sıfırlama Başarısız");

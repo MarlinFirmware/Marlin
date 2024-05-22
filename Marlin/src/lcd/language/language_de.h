@@ -629,7 +629,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Düse: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout-Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout-Weg mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Runout aktivieren");     // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");    // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Lüftergeschw. prüfen");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing gescheitert");

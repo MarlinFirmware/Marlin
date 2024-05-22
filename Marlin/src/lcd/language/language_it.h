@@ -698,7 +698,6 @@ namespace LanguageNarrow_it {
 
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Sens.filo termin."); // Max 17 characters
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Dist mm filo term.");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Abil.filo termin.");   // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Temp.min estrusore");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Verif.tacho vent."); // Max 17 characters
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Home fallito");
