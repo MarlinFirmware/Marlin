@@ -59,7 +59,7 @@ void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
   delay_ms(10);
 }
 
-void onMediaInserted() {
+void onMediaMounted() {
   filenavigator.reset();
   filenavigator.getFiles(0);
   fileIndex = 0;

@@ -73,9 +73,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Лимит выранивания");
 
   LSTR MSG_SET_HOME_OFFSETS                 = _UxGT("Установ.смещ.дома");
-  LSTR MSG_HOME_OFFSET_X                    = _UxGT("Смещ. дома X");
-  LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Смещ. дома Y");
-  LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Смещ. дома Z");
 
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
@@ -832,9 +829,9 @@ namespace LanguageWide_ru {
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расширенные настройки");
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполнение вызова");
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Установ. смещения дома");
-    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X");
-    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y");
-    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z");
+    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X"); // DWIN
+    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y"); // DWIN
+    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z"); // DWIN
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Последнее значение ");
     LSTR MSG_SPINDLE_MENU                   = _UxGT("Управлен.шпинделем");
     LSTR MSG_LASER_TOGGLE                   = _UxGT("Переключить лазер");

@@ -143,13 +143,13 @@ public:
 
   // Set with format string and arguments, like printf
   template<typename... Args>
-  MString& setf_P(PGM_P const fmt, Args... more) { SNPRINTF_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  MString& setf_P(PGM_P const pfmt, Args... more) { SNPRINTF_P(str, SIZE, pfmt, more...); debug(F("setf_P")); return *this; }
 
   template<typename... Args>
-  MString& setf(const char *fmt, Args... more)   { SNPRINTF(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  MString& setf(const char *fmt, Args... more) { SNPRINTF(str, SIZE, fmt, more...); debug(F("setf")); return *this; }
 
   template<typename... Args>
-  MString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  MString& setf(FSTR_P const ffmt, Args... more) { return setf_P(FTOP(ffmt), more...); }
 
   // Chainable String appenders
   MString& append()                           { debug(F("nil")); return *this; } // for macros that might emit no output
@@ -206,9 +206,9 @@ public:
   MString& append(const spaces_t &s) { return append(repchr_t(' ', s.count)); }
 
   template<typename... Args>
-  MString& appendf_P(PGM_P const fmt, Args... more) {
+  MString& appendf_P(PGM_P const pfmt, Args... more) {
     int sz = length();
-    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, fmt, more...);
+    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, pfmt, more...);
     debug(F("appendf_P"));
     return *this;
   }

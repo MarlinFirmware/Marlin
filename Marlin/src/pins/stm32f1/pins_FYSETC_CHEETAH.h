@@ -23,10 +23,8 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "3D Printer"
-
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#define BOARD_WEBSITE_URL "github.com/FYSETC/FYSETC-Cheetah"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
@@ -86,17 +84,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_CHEETAH.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_CHEETAH.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_CHEETAH.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_CHEETAH.");
 #endif
 
 //
