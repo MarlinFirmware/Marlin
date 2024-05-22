@@ -44,11 +44,6 @@
 
 EncoderRate encoderRate;
 
-#if ENABLED(REVERSIBLE_ENCODER)
-  EncoderState direction1;
-  EncoderState direction2;
-#endif
-
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
   TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));

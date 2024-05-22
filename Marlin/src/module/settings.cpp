@@ -1692,7 +1692,7 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Encoder Rate
+    // Encoder Reverse
     //
     #if ENABLED(REVERSIBLE_ENCODER)
       EEPROM_WRITE(ui.reverse_encoder);
@@ -2785,7 +2785,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // Encoder Rate
+      // Encoder Reverse
       //
       #if ENABLED(REVERSIBLE_ENCODER)
         _FIELD_TEST(reverse_encoder);
@@ -3276,7 +3276,7 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // Encoder Rate
+  // Encoder Reverse
   //
   #if ENABLED(REVERSIBLE_ENCODER)
     ui.reverse_encoder = false;
