@@ -28,9 +28,9 @@
 #include "../../../module/ft_motion.h"
 #include "../../../module/stepper.h"
 
-void say_shaper_type(const ftMotionShaper_t t) {
+void say_shaper_type(const AxisEnum a) {
   SERIAL_ECHOPGM(" axis ");
-  switch (t) {
+  switch (ftMotion.cfg.shaper[a]) {
     default: break;
     case ftMotionShaper_ZV:    SERIAL_ECHOPGM("ZV");        break;
     case ftMotionShaper_ZVD:   SERIAL_ECHOPGM("ZVD");       break;
@@ -63,13 +63,13 @@ void say_shaping() {
   #if HAS_X_AXIS
     if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
       SERIAL_ECHOPGM(" with " AXIS_0_NAME);
-      say_shaper_type(ftMotion.cfg.shaper[X_AXIS]);
+      say_shaper_type(X_AXIS);
     }
   #endif
   #if HAS_Y_AXIS
     if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
       SERIAL_ECHOPGM(" and with " AXIS_1_NAME);
-      say_shaper_type(ftMotion.cfg.shaper[Y_AXIS]);
+      say_shaper_type(Y_AXIS);
     }
   #endif
 
