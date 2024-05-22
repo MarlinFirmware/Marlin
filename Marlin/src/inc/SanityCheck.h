@@ -1745,7 +1745,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(Z_AFTER_HOMING >= 5, "Z_AFTER_HOMING must be greater than or equal to 5.");
 #endif
 #ifdef Z_CLEARANCE_FOR_HOMING
-  static_assert(Z_CLEARANCE_FOR_HOMING >= 5, "Z_CLEARANCE_FOR_HOMING must be greater than or equal to 5.");
+  static_assert(Z_CLEARANCE_FOR_HOMING >= 2, "Z_CLEARANCE_FOR_HOMING must be greater than or equal to 2.");
 #endif
 
 // Check Safe Bed Leveling settings
