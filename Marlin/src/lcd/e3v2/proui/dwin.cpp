@@ -3236,7 +3236,7 @@ void drawAdvancedSettingsMenu() {
       MENU_ITEM(ICON_Scolor, MSG_COLORS_SELECT, onDrawSubMenu, drawSelectColorsMenu);
     #endif
     #if ENABLED(REVERSIBLE_ENCODER)
-      EDIT_ITEM_F(ICON_Motion, MSG_REVERSE_ENCODER, onDrawChkbMenu, toggleReverseEncoder, &ui.reverse_encoder);
+      EDIT_ITEM(ICON_Motion, MSG_REVERSE_ENCODER, onDrawChkbMenu, toggleReverseEncoder, &ui.reverse_encoder);
     #endif
   }
   ui.reset_status(true);
