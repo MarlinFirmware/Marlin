@@ -657,31 +657,31 @@ namespace LanguageNarrow_tr {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Işık Parlaklğı");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("HATALI YAZICI");
 
-  LSTR MSG_COLORS_GET                     = _UxGT("Renk Al");
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Renkleri Seç");
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Uygulanan renkler");
-  LSTR MSG_COLORS_RED                     = _UxGT("Kırmızı");
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Yeşil");
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Mavi");
-  LSTR MSG_COLORS_WHITE                   = _UxGT("Beyaz");
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Dili");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Sesi etkinleştir");
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Kilit Ekranı");
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Yazıcı Kilitlendi,");
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");
+  LSTR MSG_COLORS_GET                     = _UxGT("Renk Al");               // ProUI
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Renkleri Seç");          // ProUI
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Uygulanan renkler");     // ProUI
+  LSTR MSG_COLORS_RED                     = _UxGT("Kırmızı");               // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Yeşil");                 // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Mavi");                  // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Beyaz");                 // ProUI
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Dili");               // ProUI
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Sesi etkinleştir");      // ProUI
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Kilit Ekranı");          // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Yazıcı Kilitlendi,");    // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");  // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");  // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Medya Yok");             // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");      // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Medya Yok");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Baskı");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Süre");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("En Uzun");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Filaman");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Tamamlanan");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Sıc.");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Sıc.");
   LSTR MSG_INFO_PSU                       = _UxGT("Güç Kaynağı");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Sürücü Gücü");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Sürücü %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC BAĞLANTI HATASI");
@@ -693,14 +693,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("Seçenekler:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Daha Fazla Temizle");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Baskıyı sürdür");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?"); // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozul: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Fil. Sensörü");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Aşınma Farkı mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Fil. Sens. Aç");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Fil. Sens. Aktif");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Ekstruder Ters Çevir");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");   // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Takosu Kontrolü");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Sıfırlama Başarısız");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Başarısız");
@@ -899,9 +896,9 @@ namespace LanguageWide_tr {
     LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
     LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
     LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");        // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");  // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");        // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");

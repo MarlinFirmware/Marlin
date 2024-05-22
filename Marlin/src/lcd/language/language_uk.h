@@ -536,28 +536,31 @@ namespace LanguageNarrow_uk {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS            = _UxGT("Яскравість світла");
   LSTR MSG_KILL_EXPECTED_PRINTER            = _UxGT("НЕ ТОЙ ПРИНТЕР");
 
-  LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
-  LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
-  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрійте хотенд");
-  LSTR MSG_COLORS_GET                       = _UxGT("Отримати колір");
-  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Немає носія");
-  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Перезавантаж...");
+  LSTR MSG_COLORS_GET                       = _UxGT("Отримати колір");  // ProUI
+  LSTR MSG_COLORS_SELECT                    = _UxGT("Кольори");         // ProUI
+  LSTR MSG_COLORS_APPLIED                   = _UxGT("Кольори застос."); // ProUI
+  LSTR MSG_COLORS_RED                       = _UxGT("Червоний");        // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелений");         // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                      = _UxGT("Синій");           // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                     = _UxGT("Білий");           // ProUI
+  LSTR MSG_UI_LANGUAGE                      = _UxGT("Мова");            // ProUI
+  LSTR MSG_SOUND_ENABLE                     = _UxGT("Дозволити звук");  // ProUI
+  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокувати екран"); // ProUI
+  //MSG_LOCKSCREEN_LOCKED
+  //MSG_LOCKSCREEN_UNLOCK
+  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Перезавантаж..."); // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Немає носія");     // ProUI
+  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрійте хотенд"); // ProUI
+
   LSTR MSG_INFO_PRINT_COUNT                 = _UxGT("Друків");
   LSTR MSG_INFO_PRINT_TIME                  = _UxGT("Загалом");
   LSTR MSG_INFO_PRINT_LONGEST               = _UxGT("Найдовше");
-  LSTR MSG_COLORS_SELECT                    = _UxGT("Кольори");
-  LSTR MSG_COLORS_APPLIED                   = _UxGT("Кольори застос.");
-  LSTR MSG_COLORS_RED                       = _UxGT("Червоний");
-  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелений");
-  LSTR MSG_COLORS_BLUE                      = _UxGT("Синій");
-  LSTR MSG_COLORS_WHITE                     = _UxGT("Білий");
-  LSTR MSG_UI_LANGUAGE                      = _UxGT("Мова");
-  LSTR MSG_SOUND_ENABLE                     = _UxGT("Дозволити звук");
-  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокувати екран");
-
+  LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
+  LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
   LSTR MSG_INFO_MIN_TEMP                    = _UxGT("Мін.  ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("Блок жив-ня");
+
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила мотору");
   LSTR MSG_DAC_PERCENT_N                    = _UxGT("Драйвер @, %");
   LSTR MSG_ERROR_TMC                        = _UxGT("ЗБІЙ ЗВ'ЯЗКУ З TMC");

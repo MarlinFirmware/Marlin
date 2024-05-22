@@ -679,31 +679,31 @@ namespace LanguageNarrow_en {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
 
-  LSTR MSG_COLORS_GET                     = _UxGT("Get Color");
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Select Colors");
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Colors applied");
-  LSTR MSG_COLORS_RED                     = _UxGT("Red");
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Green");
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Blue");
-  LSTR MSG_COLORS_WHITE                   = _UxGT("White");
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Language");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Enable sound");
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Lock Screen");
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Printer is Locked,");
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll to unlock.");
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Please wait until reboot.");
+  LSTR MSG_COLORS_GET                     = _UxGT("Get Color");               // ProUI
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Select Colors");           // ProUI
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Colors applied");          // ProUI
+  LSTR MSG_COLORS_RED                     = _UxGT("Red");                     // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Green");                   // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Blue");                    // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                   = _UxGT("White");                   // ProUI
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Language");             // ProUI
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Enable sound");            // ProUI
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Lock Screen");             // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Printer is Locked,");      // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll to unlock.");       // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Please wait for reboot."); // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Media");                // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");          // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Media");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Prints");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Longest");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extruded");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completed");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("PSU");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Drive Strength");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC CONNECTION ERROR");
@@ -715,14 +715,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("RESUME OPTIONS:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Purge more");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Continue");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Purge or Continue?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Purge or Continue?");  // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Enable Runout");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Runout Active");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert Extruder");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");  // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Tacho Check");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
@@ -921,9 +918,9 @@ namespace LanguageWide_en {
     LSTR MSG_MEDIA_MENU                   = _UxGT("Select from ") MEDIA_TYPE_EN;
     LSTR MSG_TURN_OFF                     = _UxGT("Turn off the printer");
     LSTR MSG_END_LOOPS                    = _UxGT("End Repeat Loops");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");          // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end."); // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");           // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Print Count");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
