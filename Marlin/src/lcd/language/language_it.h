@@ -405,8 +405,10 @@ namespace LanguageNarrow_it {
   LSTR MSG_SHAPING_ZETA                   = _UxGT("Smorzamento @");
   LSTR MSG_SHAPING_A_FREQ                 = _UxGT("Frequenza ") STR_A;    // ProUI
   LSTR MSG_SHAPING_B_FREQ                 = _UxGT("Frequenza ") STR_B;    // ProUI
-  LSTR MSG_SHAPING_A_ZETA                 = _UxGT("Smorzamento ") STR_A _UxGT(" ");  // ProUI
-  LSTR MSG_SHAPING_B_ZETA                 = _UxGT("Smorzamento ") STR_B _UxGT(" ");  // ProUI
+  LSTR MSG_SHAPING_C_FREQ                 = _UxGT("Frequenza ") STR_C;    // ProUI
+  LSTR MSG_SHAPING_A_ZETA                 = _UxGT("Smorzamento ") STR_A;  // ProUI
+  LSTR MSG_SHAPING_B_ZETA                 = _UxGT("Smorzamento ") STR_B;  // ProUI
+  LSTR MSG_SHAPING_C_ZETA                 = _UxGT("Smorzamento ") STR_C;  // ProUI
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Frequenza max");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Feed min");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Passi/mm");

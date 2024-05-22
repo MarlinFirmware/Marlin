@@ -405,8 +405,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SHAPING_ZETA                   = _UxGT("@ sönümleme");
   LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frekansı");   // ProUI
+  LSTR MSG_SHAPING_C_FREQ                 = STR_C _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_A_ZETA                 = STR_A _UxGT(" sönümleme");  // ProUI
   LSTR MSG_SHAPING_B_ZETA                 = STR_B _UxGT(" sönümleme");  // ProUI
+  LSTR MSG_SHAPING_C_ZETA                 = STR_C _UxGT(" sönümleme");  // ProUI
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("XY Frek. Sınırı");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min FR Factörü");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Adım/mm");
