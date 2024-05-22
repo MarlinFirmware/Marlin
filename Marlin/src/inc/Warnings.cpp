@@ -99,8 +99,8 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
+  #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
@@ -690,8 +690,12 @@
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
-#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-  #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && NONE(Z_SAFE_HOMING, NO_Z_SAFE_HOMING_WARNING)
+  #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
+#endif
+
+#if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
+  #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
 //
@@ -714,8 +718,8 @@
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
 
-#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
-  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
+#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX && DISABLED(NO_LCD_CONTRAST_WARNING)
+  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX. (Define NO_LCD_CONTRAST_WARNING to suppress this warning.)"
 #endif
 
 #if PROGRESS_MSG_EXPIRE > 0 && HAS_STATUS_MESSAGE_TIMEOUT
@@ -784,8 +788,13 @@
 /**
  * Input Shaping
  */
-#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#if HAS_ZV_SHAPING
+  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+  #endif
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "Input Shaping has not been tested with I2S_STEPPER_STREAM."
+  #endif
 #endif
 
 /**
@@ -859,4 +868,11 @@
  */
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+#endif
+
+/**
+ * HC32 clock speed is hard-coded in Marlin
+ */
+#if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
+  #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
 #endif

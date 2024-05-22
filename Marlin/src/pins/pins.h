@@ -123,6 +123,12 @@
   #define NOT_TARGET NONE
 #endif
 
+#ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+  #define CONTROLLER_WARNING(PF,CN,V...) static_assert(false, "\n\nWARNING! " CN " requires wiring modification! See pins_" PF ".h for details." V "\n (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)\n\n");
+#else
+  #define CONTROLLER_WARNING(...)
+#endif
+
 //
 // RAMPS 1.3 / 1.4 / 1.6+ - ATmega1280, ATmega2560
 //
@@ -706,6 +712,8 @@
   #include "gd32f1/pins_VOXELAB_AQUILA.h"           // GD32F1, N32G4, STM32F1               env:GD32F103RC_voxelab_maple env:N32G455RE_voxelab_maple env:STM32F103RE_creality_maple env:STM32F103RE_creality
 #elif MB(SPRINGER_CONTROLLER)
   #include "stm32f1/pins_ORCA_3D_SPRINGER.h"        // STM32F1                              env:STM32F103VC_orca3d
+#elif MB(CREALITY_CR4NS)
+  #include "stm32f1/pins_CREALITY_CR4NS.h"          // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_maple
 
 //
 // ARM Cortex-M4F
@@ -920,7 +928,7 @@
 //
 
 #elif MB(SIMULATED)
-  #include "linux/pins_RAMPS_LINUX.h"               // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
+  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
 
 #else
 
@@ -1071,3 +1079,6 @@
 // Post-process pins according to configured settings
 //
 #include "pins_postprocess.h"
+
+// Cleanup
+#undef CONTROLLER_WARNING

@@ -210,8 +210,8 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 1: // Get SD Card list
     if (!isPrinting()) {
-      if (!isMediaInserted()) safe_delay(500);
-      if (!isMediaInserted()) { // Make sure the card is removed
+      if (!isMediaMounted()) safe_delay(500);
+      if (!isMediaMounted()) { // Make sure the card is removed
         //SEND_TXT("tmppage.M117", msg_no_sd_card);
       }
       else if (nextion_command[3] == 'S')
