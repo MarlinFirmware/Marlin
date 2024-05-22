@@ -416,7 +416,7 @@ void menu_move() {
 
     #if HAS_X_AXIS
       for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a) {
-        switch (c._shaper(a)) {
+        switch (c.shaper(a)) {
           case ftMotionShaper_NONE:  ftshaper[a] = GET_TEXT_F(MSG_LCD_OFF);  break;
           case ftMotionShaper_ZV:    ftshaper[a] = GET_TEXT_F(MSG_FTM_ZV);   break;
           case ftMotionShaper_ZVD:   ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVD);  break;
