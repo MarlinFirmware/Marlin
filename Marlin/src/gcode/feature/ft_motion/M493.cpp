@@ -44,6 +44,17 @@ void say_shaper_type(const ftMotionShaper_t t) {
   SERIAL_ECHOPGM(" shaping");
 }
 
+#if CORE_IS_XY || CORE_IS_XZ
+  #define AXIS_0_NAME "A"
+#else
+  #define AXIS_0_NAME "X"
+#endif
+#if CORE_IS_XY || CORE_IS_YZ
+  #define AXIS_1_NAME "B"
+#else
+  #define AXIS_1_NAME "Y"
+#endif
+
 void say_shaping() {
   // FT Enabled
   SERIAL_ECHO_TERNARY(ftMotion.cfg.mode, "Fixed-Time Motion ", "en", "dis", "abled");
@@ -51,13 +62,13 @@ void say_shaping() {
   // FT Shaping
   #if HAS_X_AXIS
     if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
-      SERIAL_ECHOPGM(" with X/A");
+      SERIAL_ECHOPGM(" with " AXIS_0_NAME);
       say_shaper_type(ftMotion.cfg.shaper(X_AXIS));
     }
   #endif
   #if HAS_Y_AXIS
     if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
-      SERIAL_ECHOPGM(" and with Y/B");
+      SERIAL_ECHOPGM(" and with " AXIS_1_NAME);
       say_shaper_type(ftMotion.cfg.shaper(Y_AXIS));
     }
   #endif
@@ -86,7 +97,7 @@ void say_shaping() {
     #endif
 
     #if HAS_X_AXIS
-      SERIAL_ECHO_TERNARY(dynamic, "X/A ", "base dynamic", "static", " compensator frequency: ");
+      SERIAL_ECHO_TERNARY(dynamic, AXIS_0_NAME " ", "base dynamic", "static", " shaper frequency: ");
       SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq[X_AXIS], 2), F("Hz"));
       #if HAS_DYNAMIC_FREQ
         if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK[X_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
@@ -95,7 +106,7 @@ void say_shaping() {
     #endif
 
     #if HAS_Y_AXIS
-      SERIAL_ECHO_TERNARY(dynamic, "Y/B ", "base dynamic", "static", " compensator frequency: ");
+      SERIAL_ECHO_TERNARY(dynamic, AXIS_1_NAME " ", "base dynamic", "static", " shaper frequency: ");
       SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq[Y_AXIS], 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
         if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK[Y_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
