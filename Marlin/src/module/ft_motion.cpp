@@ -135,11 +135,13 @@ void FTMotion::loop() {
     stepper.abort_current_block = false;  // Abort finished.
   }
 
-  while(!blockProcRdy && (stepper.current_block = planner.get_current_block())){
+  while (!blockProcRdy && (stepper.current_block = planner.get_current_block())) {
     if (stepper.current_block->is_sync()) { // Sync block? Sync the stepper counts and return.
-      TERN_(LASER_FEATURE, if (!(stepper.current_block->is_fan_sync() || stepper.current_block->is_pwr_sync()))) stepper._set_position(stepper.current_block->position);
+      if (TERN1(LASER_FEATURE, !(stepper.current_block->is_fan_sync() || stepper.current_block->is_pwr_sync())))
+        stepper._set_position(stepper.current_block->position);
       discard_planner_block_protected();
-    } else {
+    }
+    else {
       loadBlockData(stepper.current_block);
       blockProcRdy = true;
       // Some kinematics track axis motion in HX, HY, HZ
