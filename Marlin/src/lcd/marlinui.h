@@ -204,7 +204,7 @@ public:
   }
 
   #if ENABLED(REVERSIBLE_ENCODER)
-    static bool reverse_encoder;
+    static bool reverse_encoder;  // Flag to reverse the encoder direction
   #endif
 
   static void init();
