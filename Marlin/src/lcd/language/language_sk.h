@@ -99,9 +99,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Vyrovnanie hotové!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Výška rovnania");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastav. dom. ofsety");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastavené");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Chyba: Príliš ďaleko!");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");

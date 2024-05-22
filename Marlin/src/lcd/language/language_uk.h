@@ -73,9 +73,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_LEVEL_BED_DONE                   = _UxGT("Завершено!");
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Висота спаду");
   LSTR MSG_SET_HOME_OFFSETS                 = _UxGT("Встан. зміщ. дому");
-  LSTR MSG_HOME_OFFSET_X                    = _UxGT("Зміщ. дому X");
-  LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Зміщ. дому Y");
-  LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Зміщ. дому Z");
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Зміщення прийняті");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Оберіть нуль");
   LSTR MSG_LAST_VALUE_SP                    = _UxGT("Останнє знач. ");
@@ -703,9 +700,9 @@ namespace LanguageWide_uk {
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переповнення виклику");
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Програмні кінцевики");
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Встанов. зміщення дому");
-    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X");
-    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y");
-    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z");
+    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X"); // DWIN
+    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y"); // DWIN
+    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z"); // DWIN
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє значення ");
     LSTR MSG_LASER_POWER                    = _UxGT("Потужність лазера");
     LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Перемкн. шпіндель");
