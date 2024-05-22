@@ -25,13 +25,8 @@
  * STM32 LCD-specific defines
  */
 
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
-    uint8_t u8g_com_HAL_STM32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
-    #define U8G_COM_HAL_SW_SPI_FN     u8g_com_HAL_STM32_sw_spi_fn
-#else
-    uint8_t u8g_com_std_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);         // See U8glib-HAL
-    #define U8G_COM_HAL_SW_SPI_FN u8g_com_std_sw_spi_fn
-#endif
+uint8_t u8g_com_HAL_STM32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+#define U8G_COM_HAL_SW_SPI_FN     u8g_com_HAL_STM32_sw_spi_fn
 
 uint8_t u8g_com_stm32duino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);  // See U8glib-HAL
 #define U8G_COM_HAL_HW_SPI_FN u8g_com_stm32duino_hw_spi_fn
