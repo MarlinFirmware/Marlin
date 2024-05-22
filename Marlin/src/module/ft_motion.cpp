@@ -136,8 +136,8 @@ void FTMotion::loop() {
   }
 
   while (!blockProcRdy && (stepper.current_block = planner.get_current_block())) {
-    if (stepper.current_block->is_sync()) { // Sync block? Sync the stepper counts and return.
-      if (TERN1(LASER_FEATURE, stepper.current_block->is_sync_pos()))
+    if (stepper.current_block->is_sync()) { // Sync block?
+      if (stepper.current_block->is_sync_pos()) // Position sync? Set the position.
         stepper._set_position(stepper.current_block->position);
       discard_planner_block_protected();
     }

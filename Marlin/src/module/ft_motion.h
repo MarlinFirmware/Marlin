@@ -37,7 +37,7 @@
 #endif
 
 typedef struct FTConfig {
-  bool active = ENABLED(FTM_IS_DEFAULT_MOTION);             // Active (else standard motion)
+  bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
 
   #if HAS_X_AXIS
     ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =    // Shaper type
