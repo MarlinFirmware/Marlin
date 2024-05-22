@@ -669,13 +669,11 @@ namespace LanguageNarrow_sk {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("MOŽNOSTI POKRAČ.:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Vytlačiť viacej");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Obnoviť tlač");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");  // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Tryska: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Senzor filamentu");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Vzd. mm fil. senz.");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Zapnúť senzor");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Senz. fil. zapn.");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert. extrudér");
+  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Zapnúť senzor");           // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");
   LSTR MSG_FANCHECK                       = _UxGT("Kontrola rýchl.");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Parkovanie zlyhalo");

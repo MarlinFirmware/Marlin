@@ -693,13 +693,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("Seçenekler:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Daha Fazla Temizle");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Baskıyı sürdür");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?"); // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozul: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Fil. Sensörü");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Aşınma Farkı mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Fil. Sens. Aç");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Fil. Sens. Aktif");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Ekstruder Ters Çevir");
+  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Fil. Sens. Aç");       // ProUI
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");
   LSTR MSG_FANCHECK                       = _UxGT("Fan Takosu Kontrolü");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Sıfırlama Başarısız");

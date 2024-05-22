@@ -603,7 +603,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,");
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper.");
 
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Auf Neustart warten");
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Auf Neustart warten"); // ProUI
   LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Drucke");
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Komplette");
@@ -625,13 +625,11 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("FORTS. OPTIONEN:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Mehr entladen");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Druck weiter");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");      // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Düse: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout-Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout-Weg mm");
   LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Runout aktivieren");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Runout aktiv");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert Extruder");
   LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
   LSTR MSG_FANCHECK                       = _UxGT("Lüftergeschw. prüfen");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing gescheitert");
@@ -765,7 +763,7 @@ namespace LanguageWide_de {
   using namespace LanguageNarrow_de;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten."); // ProUI
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen.");
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
