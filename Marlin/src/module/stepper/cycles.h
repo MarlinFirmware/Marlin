@@ -124,7 +124,7 @@ constexpr hal_timer_t isr_shaping_loop_cycles(const int R) {
   return (
     #if HAS_ZV_SHAPING
         isr_loop_base_cycles
-      + isr_stepper_cycles * (ENABLED(INPUT_SHAPING_X) + ENABLED(INPUT_SHAPING_Y) + ENABLED(INPUT_SHAPING_Z))
+      + isr_stepper_cycles * COUNT_ENABLED(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
     #else
       0
     #endif
