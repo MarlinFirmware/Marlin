@@ -873,6 +873,7 @@ public:
       #elif ENABLED(REVERSE_MENU_DIRECTION)
         encoderDirection = dir;
       #endif
+      UNUSED(dir);
     }
 
     FORCE_INLINE static void encoder_direction_select() {
