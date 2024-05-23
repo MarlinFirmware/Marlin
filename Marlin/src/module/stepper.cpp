@@ -529,10 +529,10 @@ xyze_int8_t Stepper::count_direction{0};
 // Round up when converting from ns to timer ticks
 #define NS_TO_PULSE_TIMER_TICKS(NS) (((NS) + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK))
 
-#define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
+#define TIMER_SETUP_NS CYCLES_TO_NS(timer_read_add_and_store_cycles)
 
-#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
-#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
+#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, TIMER_SETUP_NS)))
+#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, TIMER_SETUP_NS)))
 
 #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
 #define START_TIMED_PULSE() (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
@@ -2231,25 +2231,25 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
       // The stepping frequency limits for each multistepping rate
       static const uint32_t limit[] PROGMEM = {
-            (  MAX_STEP_ISR_FREQUENCY_1X     )
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(1)) >> 1)
+            max_step_isr_frequency_sh(0)
+          , max_step_isr_frequency_sh(1)
         #if MULTISTEPPING_LIMIT >= 4
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(2)) >> 2)
+          , max_step_isr_frequency_sh(2)
         #endif
         #if MULTISTEPPING_LIMIT >= 8
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(3)) >> 3)
+          , max_step_isr_frequency_sh(3)
         #endif
         #if MULTISTEPPING_LIMIT >= 16
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(4)) >> 4)
+          , max_step_isr_frequency_sh(4)
         #endif
         #if MULTISTEPPING_LIMIT >= 32
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(5)) >> 5)
+          , max_step_isr_frequency_sh(5)
         #endif
         #if MULTISTEPPING_LIMIT >= 64
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(6)) >> 6)
+          , max_step_isr_frequency_sh(6)
         #endif
         #if MULTISTEPPING_LIMIT >= 128
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(7)) >> 7)
+          , max_step_isr_frequency_sh(7)
         #endif
       };
 
@@ -2677,9 +2677,9 @@ hal_timer_t Stepper::block_phase_isr() {
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
-          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+          while (max_rate < min_step_isr_frequency) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
-            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+            if (max_rate < min_step_isr_frequency)          // Don't exceed the estimated ISR limit
               ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
           }
         }
