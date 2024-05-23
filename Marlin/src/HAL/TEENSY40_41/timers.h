@@ -36,7 +36,7 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFE
 
-#define GPT_TIMER_RATE 150000000 // F_BUS_ACTUAL   // 150MHz - extern volatile uint32_t
+#define GPT_TIMER_RATE (F_CPU / 4) // 150MHz (Can't use F_BUS_ACTUAL because it's extern volatile)
 
 #define GPT1_TIMER_PRESCALE 2
 #define GPT2_TIMER_PRESCALE 10
