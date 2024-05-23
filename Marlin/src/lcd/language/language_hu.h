@@ -76,9 +76,9 @@ namespace LanguageNarrow_hu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Szintezés kész!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Szint csökkentés");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Kezdöpont eltolás");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Kezdö eltol.");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Kezdö eltol.");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Kezdö eltol.");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Kezdö eltol."); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Kezdö eltol."); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Kezdö eltol."); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Eltolás beállítva.");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");

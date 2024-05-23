@@ -133,7 +133,7 @@ constexpr uint32_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MI
 constexpr uint32_t isr_loop_cycles(const int R) { return ((isr_loop_base_cycles + min_isr_loop_cycles + min_stepper_pulse_cycles) * ((1UL << R) - 1) + _MAX(min_isr_loop_cycles, min_stepper_pulse_cycles)); }
 
 // Model input shaping as an extra loop call
-constexpr uint32_t isr_shaping_loop_cycles(const int R) { return (TERN0(HAS_ZV_SHAPING, (isr_loop_base_cycles + TERN0(INPUT_SHAPING_X, isr_x_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_y_stepper_cycles)) << R)); }
+constexpr uint32_t isr_shaping_loop_cycles(const int R) { return (TERN0(HAS_ZV_SHAPING, (isr_loop_base_cycles + TERN0(INPUT_SHAPING_X, isr_x_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_y_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_z_stepper_cycles)) << R)); }
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)

@@ -251,8 +251,8 @@ void RTS::onIdle() {
     delay_ms(3000);     // Delay to show bootscreen
   }
   else if (startprogress < 250) {
-    if (isMediaInserted()) // Re init media as it happens too early on STM32 boards often
-      onMediaInserted();
+    if (isMediaMounted()) // Re init media as it happens too early on STM32 boards often
+      onMediaMounted();
     else
       injectCommands(F("M22\nM21"));
     startprogress = 254;
@@ -375,7 +375,7 @@ void RTS::onIdle() {
     if (++autoHomeIconNum > 9) autoHomeIconNum = 0;
   }
 
-  if (isMediaInserted()) {
+  if (isMediaMounted()) {
     const uint16_t currPage = fileIndex == 0 ? 1 : CEIL(float(fileIndex) / float(DISPLAY_FILES)) + 1,
                    maxPageAdd = filenavigator.folderdepth ? 1 : 0,
                    maxPages = CEIL(float(filenavigator.maxFiles() + maxPageAdd) / float(DISPLAY_FILES) );
@@ -1488,7 +1488,7 @@ void RTS::handleData() {
     } break;
 
     case Filename: {
-      if (isMediaInserted() && recdat.addr == FilenameChs) {
+      if (isMediaMounted() && recdat.addr == FilenameChs) {
 
         recordcount = recdat.data[0] - 1;
         if (filenavigator.currentindex == 0 && filenavigator.folderdepth > 0 && (fileIndex + recordcount) == 0) {
@@ -1521,7 +1521,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.addr == FilenamePlay) {
-        if (recdat.data[0] == 1 && isMediaInserted()) { // for sure
+        if (recdat.data[0] == 1 && isMediaMounted()) { // for sure
           printFile(filenavigator.getIndexName(fileIndex + recordcount));
 
           for (int16_t j = 0; j < 10; j++) // clean screen.
