@@ -88,39 +88,26 @@
 // If linear advance is disabled, the loop also handles them
 constexpr hal_timer_t isr_mixing_stepper_cycles = (0UL
   #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
-    + (MIXING_STEPPERS) * (isr_stepper_cycles)
+    + (MIXING_STEPPERS) * isr_stepper_cycles
   #endif
 );
 
-// Add time for each stepper
-constexpr hal_timer_t isr_x_stepper_cycles = TERN0(HAS_X_STEP, isr_stepper_cycles),
-                      isr_y_stepper_cycles = TERN0(HAS_Y_STEP, isr_stepper_cycles),
-                      isr_z_stepper_cycles = TERN0(HAS_Z_STEP, isr_stepper_cycles),
-                      isr_i_stepper_cycles = TERN0(HAS_I_STEP, isr_stepper_cycles),
-                      isr_j_stepper_cycles = TERN0(HAS_J_STEP, isr_stepper_cycles),
-                      isr_k_stepper_cycles = TERN0(HAS_K_STEP, isr_stepper_cycles),
-                      isr_u_stepper_cycles = TERN0(HAS_U_STEP, isr_stepper_cycles),
-                      isr_v_stepper_cycles = TERN0(HAS_V_STEP, isr_stepper_cycles),
-                      isr_w_stepper_cycles = TERN0(HAS_W_STEP, isr_stepper_cycles),
-                      isr_e_stepper_cycles = TERN0(HAS_EXTRUDERS, isr_stepper_cycles); // E is always interpolated, even for mixing extruders
-
-// And the total minimum loop time, not including the base
-#define _PLUS_AXIS_CYCLES(a) + (isr_##a##_stepper_cycles)
-constexpr hal_timer_t min_isr_loop_cycles = (isr_mixing_stepper_cycles LOGICAL_AXIS_MAP_LC(_PLUS_AXIS_CYCLES));
+// And the total minimum loop time, for all steppers, not including the base
+constexpr hal_timer_t min_isr_loop_cycles = isr_mixing_stepper_cycles + LOGICAL_AXES * isr_stepper_cycles;
 
 // Calculate the minimum pulse times (high and low)
 #if defined(MINIMUM_STEPPER_PULSE_NS) && defined(MAXIMUM_STEPPER_RATE)
-  constexpr uint32_t _min_step_period_ns = 1000000000UL / (MAXIMUM_STEPPER_RATE);
-  constexpr uint32_t _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS;
-  constexpr uint32_t _min_pulse_low_ns = _MAX(_min_step_period_ns - _MIN(_min_step_period_ns, _min_pulse_high_ns), _min_pulse_high_ns);
+  constexpr uint32_t _min_step_period_ns = 1000000000UL / (MAXIMUM_STEPPER_RATE),
+                     _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS,
+                     _min_pulse_low_ns = _MAX(_min_step_period_ns - _MIN(_min_step_period_ns, _min_pulse_high_ns), _min_pulse_high_ns);
 #elif defined(MINIMUM_STEPPER_PULSE_NS)
   // Assume equal high and low pulse durations
-  constexpr uint32_t _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS;
-  constexpr uint32_t _min_pulse_low_ns = _min_pulse_high_ns;
+  constexpr uint32_t _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS,
+                     _min_pulse_low_ns = _min_pulse_high_ns;
 #elif defined(MAXIMUM_STEPPER_RATE)
   // Assume equal high and low pulse durations
-  constexpr uint32_t _min_pulse_high_ns = 500000000UL / MAXIMUM_STEPPER_RATE;
-  constexpr uint32_t _min_pulse_low_ns = _min_pulse_high_ns;
+  constexpr uint32_t _min_pulse_high_ns = 500000000UL / MAXIMUM_STEPPER_RATE,
+                     _min_pulse_low_ns = _min_pulse_high_ns;
 #else
   #error "At least one of MINIMUM_STEPPER_PULSE_NS or MAXIMUM_STEPPER_RATE must be defined"
 #endif
