@@ -40,73 +40,73 @@
    * take longer, pulses will be longer. For example the SKR Pro
    * (stm32f407zgt6) requires ~60 cyles.
    */
-  constexpr uint32_t timer_read_add_and_store_cycles = 34UL;
+  constexpr hal_timer_t timer_read_add_and_store_cycles = 34UL;
 
   // The base ISR
-  constexpr uint32_t isr_base_cycles = 770UL;
+  constexpr hal_timer_t isr_base_cycles = 770UL;
 
   // Linear advance base time is 64 cycles
-  constexpr uint32_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 64UL);
+  constexpr hal_timer_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 64UL);
 
   // S curve interpolation adds 40 cycles
-  constexpr uint32_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, TERN(STM32G0B1xx, 500UL, 40UL));
+  constexpr hal_timer_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, TERN(STM32G0B1xx, 500UL, 40UL));
 
   // Input shaping base time
-  constexpr uint32_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 180UL);
+  constexpr hal_timer_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 180UL);
 
   // Stepper Loop base cycles
-  constexpr uint32_t isr_loop_base_cycles = 4UL;
+  constexpr hal_timer_t isr_loop_base_cycles = 4UL;
 
   // And each stepper (start + stop pulse) takes in worst case
-  constexpr uint32_t isr_stepper_cycles = 100UL;
+  constexpr hal_timer_t isr_stepper_cycles = 100UL;
 
 #else
 
   // Cycles to perform actions in START_TIMED_PULSE
-  constexpr uint32_t timer_read_add_and_store_cycles = 13UL;
+  constexpr hal_timer_t timer_read_add_and_store_cycles = 13UL;
 
   // The base ISR
-  constexpr uint32_t isr_base_cycles = 882UL;
+  constexpr hal_timer_t isr_base_cycles = 882UL;
 
   // Linear advance base time is 32 cycles
-  constexpr uint32_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 30UL);
+  constexpr hal_timer_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 30UL);
 
   // S curve interpolation adds 160 cycles
-  constexpr uint32_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, 160UL);
+  constexpr hal_timer_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, 160UL);
 
   // Input shaping base time
-  constexpr uint32_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 290UL);
+  constexpr hal_timer_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 290UL);
 
   // Stepper Loop base cycles
-  constexpr uint32_t isr_loop_base_cycles = 32UL;
+  constexpr hal_timer_t isr_loop_base_cycles = 32UL;
 
   // And each stepper (start + stop pulse) takes in worst case
-  constexpr uint32_t isr_stepper_cycles = 60UL;
+  constexpr hal_timer_t isr_stepper_cycles = 60UL;
 
 #endif
 
 // If linear advance is disabled, the loop also handles them
-constexpr uint32_t isr_mixing_stepper_cycles = (0UL
+constexpr hal_timer_t isr_mixing_stepper_cycles = (0UL
   #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
     + (MIXING_STEPPERS) * (isr_stepper_cycles)
   #endif
 );
 
 // Add time for each stepper
-constexpr uint32_t isr_x_stepper_cycles = TERN0(HAS_X_STEP, isr_stepper_cycles),
-                   isr_y_stepper_cycles = TERN0(HAS_Y_STEP, isr_stepper_cycles),
-                   isr_z_stepper_cycles = TERN0(HAS_Z_STEP, isr_stepper_cycles),
-                   isr_i_stepper_cycles = TERN0(HAS_I_STEP, isr_stepper_cycles),
-                   isr_j_stepper_cycles = TERN0(HAS_J_STEP, isr_stepper_cycles),
-                   isr_k_stepper_cycles = TERN0(HAS_K_STEP, isr_stepper_cycles),
-                   isr_u_stepper_cycles = TERN0(HAS_U_STEP, isr_stepper_cycles),
-                   isr_v_stepper_cycles = TERN0(HAS_V_STEP, isr_stepper_cycles),
-                   isr_w_stepper_cycles = TERN0(HAS_W_STEP, isr_stepper_cycles),
-                   isr_e_stepper_cycles = TERN0(HAS_EXTRUDERS, isr_stepper_cycles); // E is always interpolated, even for mixing extruders
+constexpr hal_timer_t isr_x_stepper_cycles = TERN0(HAS_X_STEP, isr_stepper_cycles),
+                      isr_y_stepper_cycles = TERN0(HAS_Y_STEP, isr_stepper_cycles),
+                      isr_z_stepper_cycles = TERN0(HAS_Z_STEP, isr_stepper_cycles),
+                      isr_i_stepper_cycles = TERN0(HAS_I_STEP, isr_stepper_cycles),
+                      isr_j_stepper_cycles = TERN0(HAS_J_STEP, isr_stepper_cycles),
+                      isr_k_stepper_cycles = TERN0(HAS_K_STEP, isr_stepper_cycles),
+                      isr_u_stepper_cycles = TERN0(HAS_U_STEP, isr_stepper_cycles),
+                      isr_v_stepper_cycles = TERN0(HAS_V_STEP, isr_stepper_cycles),
+                      isr_w_stepper_cycles = TERN0(HAS_W_STEP, isr_stepper_cycles),
+                      isr_e_stepper_cycles = TERN0(HAS_EXTRUDERS, isr_stepper_cycles); // E is always interpolated, even for mixing extruders
 
 // And the total minimum loop time, not including the base
 #define _PLUS_AXIS_CYCLES(a) + (isr_##a##_stepper_cycles)
-constexpr uint32_t min_isr_loop_cycles = (isr_mixing_stepper_cycles LOGICAL_AXIS_MAP_LC(_PLUS_AXIS_CYCLES));
+constexpr hal_timer_t min_isr_loop_cycles = (isr_mixing_stepper_cycles LOGICAL_AXIS_MAP_LC(_PLUS_AXIS_CYCLES));
 
 // Calculate the minimum pulse times (high and low)
 #if defined(MINIMUM_STEPPER_PULSE_NS) && defined(MAXIMUM_STEPPER_RATE)
@@ -126,20 +126,20 @@ constexpr uint32_t min_isr_loop_cycles = (isr_mixing_stepper_cycles LOGICAL_AXIS
 #endif
 
 // Calculate the minimum MPU cycles needed per pulse to enforce
-constexpr uint32_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
+constexpr hal_timer_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
 
 // The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
 // between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:
-constexpr uint32_t isr_loop_cycles(const int R) { return ((isr_loop_base_cycles + min_isr_loop_cycles + min_stepper_pulse_cycles) * ((1UL << R) - 1) + _MAX(min_isr_loop_cycles, min_stepper_pulse_cycles)); }
+constexpr hal_timer_t isr_loop_cycles(const int R) { return ((isr_loop_base_cycles + min_isr_loop_cycles + min_stepper_pulse_cycles) * ((1UL << R) - 1) + _MAX(min_isr_loop_cycles, min_stepper_pulse_cycles)); }
 
 // Model input shaping as an extra loop call
-constexpr uint32_t isr_shaping_loop_cycles(const int R) { return (TERN0(HAS_ZV_SHAPING, (isr_loop_base_cycles + TERN0(INPUT_SHAPING_X, isr_x_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_y_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_z_stepper_cycles)) << R)); }
+constexpr hal_timer_t isr_shaping_loop_cycles(const int R) { return (TERN0(HAS_ZV_SHAPING, (isr_loop_base_cycles + TERN0(INPUT_SHAPING_X, isr_x_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_y_stepper_cycles) + TERN0(INPUT_SHAPING_Y, isr_z_stepper_cycles)) << R)); }
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
 
   // Estimate the minimum LA loop time
-  constexpr uint32_t min_isr_la_loop_cycles = (isr_stepper_cycles
+  constexpr hal_timer_t min_isr_la_loop_cycles = (isr_stepper_cycles
     // ToDo: ???
     // HELP ME: What is what?
     // Directions are set up for MIXING_STEPPERS - like before.
@@ -152,15 +152,15 @@ constexpr uint32_t isr_shaping_loop_cycles(const int R) { return (TERN0(HAS_ZV_S
 #endif
 
 // The real LA loop time will be the larger minimum (pulse or loop)
-constexpr uint32_t isr_la_loop_cycles = TERN0(LIN_ADVANCE, _MAX(min_stepper_pulse_cycles, min_isr_la_loop_cycles));
+constexpr hal_timer_t isr_la_loop_cycles = TERN0(LIN_ADVANCE, _MAX(min_stepper_pulse_cycles, min_isr_la_loop_cycles));
 
 // Estimate the total ISR execution time in cycles given a step-per-ISR shift multiplier
-constexpr uint32_t isr_execution_cycles(const int R) { return (isr_base_cycles + isr_s_curve_cycles + isr_shaping_base_cycles + isr_loop_cycles(R) + isr_shaping_loop_cycles(R) + isr_la_base_cycles + isr_la_loop_cycles) >> R; }
+constexpr hal_timer_t isr_execution_cycles(const int R) { return (isr_base_cycles + isr_s_curve_cycles + isr_shaping_base_cycles + isr_loop_cycles(R) + isr_shaping_loop_cycles(R) + isr_la_base_cycles + isr_la_loop_cycles) >> R; }
 
 // The maximum allowable stepping frequency when doing 1x stepping (in Hz)
-constexpr uint32_t max_step_isr_frequency_1x = (F_CPU) / isr_execution_cycles(0);
-constexpr uint32_t max_step_isr_frequency_sh(const int S) { return ((F_CPU) / isr_execution_cycles(S)) >> S; }
+constexpr hal_timer_t max_step_isr_frequency_1x = (F_CPU) / isr_execution_cycles(0);
+constexpr hal_timer_t max_step_isr_frequency_sh(const int S) { return ((F_CPU) / isr_execution_cycles(S)) >> S; }
 
 // The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
 // This does not account for the possibility of multi-stepping.
-constexpr uint32_t min_step_isr_frequency = max_step_isr_frequency_1x >> 1;
+constexpr hal_timer_t min_step_isr_frequency = max_step_isr_frequency_1x >> 1;

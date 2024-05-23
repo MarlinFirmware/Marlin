@@ -519,16 +519,16 @@ xyze_int8_t Stepper::count_direction{0};
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
 #endif
 
-#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
-#define NS_PER_PULSE_TIMER_TICK (1000000000UL / (STEPPER_TIMER_RATE))
+constexpr uint32_t cycles_to_ns(const hal_timer_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
+constexpr hal_timer_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
 
 // Round up when converting from ns to timer ticks
-#define NS_TO_PULSE_TIMER_TICKS(NS) (((NS) + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK))
+constexpr hal_timer_t ns_to_pulse_timer_ticks(const uint32_t ns) { return (ns + ns_per_pulse_timer_tick / 2) / ns_per_pulse_timer_tick; }
 
-#define TIMER_SETUP_NS CYCLES_TO_NS(timer_read_add_and_store_cycles)
+constexpr uint32_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles);
 
-#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, TIMER_SETUP_NS)))
-#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, TIMER_SETUP_NS)))
+constexpr hal_timer_t PULSE_HIGH_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, timer_setup_ns));
+constexpr hal_timer_t PULSE_LOW_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, timer_setup_ns));
 
 #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
 #define START_TIMED_PULSE() (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
