@@ -490,7 +490,7 @@
 #define BOARD_BTT_OCTOPUS_PRO_V1_1    6010  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 #define BOARD_BTT_MANTA_M8P_V2_0      6011  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
 #define BOARD_BTT_KRAKEN_V1_0         6012  // BigTreeTech Kraken v1.0 (STM32H723ZG)
-
+#define BOARD_FYSETC_SPIDER_KING723   6013  // FYSETC Spider King v1.1 (STM32F723ZGT6)
 //
 // Espressif ESP32 WiFi
 //
