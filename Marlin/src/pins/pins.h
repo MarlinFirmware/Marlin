@@ -856,7 +856,7 @@
 #elif MB(BTT_KRAKEN_V1_0)
   #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"         // STM32H7                              env:STM32H723ZG_btt
 #elif MB(FYSETC_SPIDER_KING723)
-  #include "stm32h7/pins_FYSETC_SPIDER_KING723.h"   // STM32H7                              env:KING723
+  #include "stm32h7/pins_FYSETC_SPIDER_KING723.h"   // STM32H7                              env:FYSETC_SPIDER_KING723
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
 #elif MB(T41U5XBB)
