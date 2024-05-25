@@ -52,16 +52,16 @@
 //
 #if ENABLED(BLTOUCH)||ENABLED(FIX_MOUNTED_PROBE)
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #define Z_MIN_PIN                       PA0   //PD0
+    #define Z_MIN_PIN                       PA0   // PD0
   #elif !defined(Z_MIN_PROBE_PIN)
-    #define Z_MIN_PROBE_PIN                 PA0   //PD0
+    #define Z_MIN_PROBE_PIN                 PA0   // PD0
   #endif
 #endif
 
 //
 // Servos
 //
-#define SERVO0_PIN                          PA1   //PD1
+#define SERVO0_PIN                          PA1   // PD1
 
 //
 // Software SPI pins for TMC stepper drivers
@@ -82,8 +82,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PC5   //PA0
-#define Y_MIN_PIN                           PC4   //PA1
+#define X_MIN_PIN                           PC5   // PA0
+#define Y_MIN_PIN                           PC4   // PA1
 #define Z_MIN_PIN                           PB6
 #define X_MAX_PIN                           PB5
 #define Y_MAX_PIN                           PF13
@@ -98,64 +98,64 @@
 //
 
 // MOT1
-#define X_STEP_PIN                          PG7   //D1_STEP
-#define X_DIR_PIN                           PG6   //D1_DIR
-#define X_ENABLE_PIN                        PE11  //D1_EN
-#define X_CS_PIN                            PD2   //D1_CS
+#define X_STEP_PIN                          PG7   // D1_STEP
+#define X_DIR_PIN                           PG6   // D1_DIR
+#define X_ENABLE_PIN                        PE11  // D1_EN
+#define X_CS_PIN                            PD2   // D1_CS
 
 // MOT2
-#define X2_STEP_PIN                         PD11  //D2_STEP
-#define X2_DIR_PIN                          PD10  //D2_DIR
-#define X2_ENABLE_PIN                       PG10  //D2_EN
-#define X2_CS_PIN                           PE15  //D2_CS
+#define X2_STEP_PIN                         PD11  // D2_STEP
+#define X2_DIR_PIN                          PD10  // D2_DIR
+#define X2_ENABLE_PIN                       PG10  // D2_EN
+#define X2_CS_PIN                           PE15  // D2_CS
 
 // MOT3
-#define Y_STEP_PIN                          PG14  //PD14
-#define Y_DIR_PIN                           PG12  //PD13
-#define Y_ENABLE_PIN                        PG15  //PD15
-#define Y_CS_PIN                            PD8   //D3_CS
+#define Y_STEP_PIN                          PG14  // PD14
+#define Y_DIR_PIN                           PG12  // PD13
+#define Y_ENABLE_PIN                        PG15  // PD15
+#define Y_CS_PIN                            PD8   // D3_CS
 
 // MOT4
-#define Z_STEP_PIN                          PD4   //D4_STEP
-#define Z_DIR_PIN                           PD6   //D4_DIR
-#define Z_ENABLE_PIN                        PD5   //D4_EN
-#define Z_CS_PIN                            PD7   //D4_CS
+#define Z_STEP_PIN                          PD4   // D4_STEP
+#define Z_DIR_PIN                           PD6   // D4_DIR
+#define Z_ENABLE_PIN                        PD5   // D4_EN
+#define Z_CS_PIN                            PD7   // D4_CS
 
 // MOT5
-#define Z2_STEP_PIN                         PE5   //D5_STEP
-#define Z2_DIR_PIN                          PC13  //D5_DIR
-#define Z2_ENABLE_PIN                       PE6   //D5_EN
-#define Z2_CS_PIN                           PC14  //D5_CS
+#define Z2_STEP_PIN                         PE5   // D5_STEP
+#define Z2_DIR_PIN                          PC13  // D5_DIR
+#define Z2_ENABLE_PIN                       PE6   // D5_EN
+#define Z2_CS_PIN                           PC14  // D5_CS
 
 // MOT6
-#define E0_STEP_PIN                         PE3   //D6_STEP
-#define E0_DIR_PIN                          PE4   //D6_DIR
-#define E0_ENABLE_PIN                       PE2   //D6_EN
-#define E0_CS_PIN                           PC15  //D6_CS
+#define E0_STEP_PIN                         PE3   // D6_STEP
+#define E0_DIR_PIN                          PE4   // D6_DIR
+#define E0_ENABLE_PIN                       PE2   // D6_EN
+#define E0_CS_PIN                           PC15  // D6_CS
 
 // MOT7
-#define E1_STEP_PIN                         PG13  //D7_STEP
-#define E1_DIR_PIN                          PG8   //D7_DIR
-#define E1_ENABLE_PIN                       PG9   //D7_EN
-#define E1_CS_PIN                           PG3   //D7_CS
+#define E1_STEP_PIN                         PG13  // D7_STEP
+#define E1_DIR_PIN                          PG8   // D7_DIR
+#define E1_ENABLE_PIN                       PG9   // D7_EN
+#define E1_CS_PIN                           PG3   // D7_CS
 
 // MOT8
-#define E2_STEP_PIN                         PE1   //D8_STEP
-#define E2_DIR_PIN                          PE0   //D8_DIR
-#define E2_ENABLE_PIN                       PB2   //D8_EN
-#define E2_CS_PIN                           PD9   //D8_CS
+#define E2_STEP_PIN                         PE1   // D8_STEP
+#define E2_DIR_PIN                          PE0   // D8_DIR
+#define E2_ENABLE_PIN                       PB2   // D8_EN
+#define E2_CS_PIN                           PD9   // D8_CS
 
 // MOT9
-#define E3_STEP_PIN                         PF4   //D9_STEP
-#define E3_DIR_PIN                          PF3   //D9_DIR
-#define E3_ENABLE_PIN                       PF2   //D9_EN
-#define E3_CS_PIN                           PF5   //D9_CS
+#define E3_STEP_PIN                         PF4   // D9_STEP
+#define E3_DIR_PIN                          PF3   // D9_DIR
+#define E3_ENABLE_PIN                       PF2   // D9_EN
+#define E3_CS_PIN                           PF5   // D9_CS
 
 // MOT10
-#define E4_STEP_PIN                         PF15  //D10_STEP
-#define E4_DIR_PIN                          PG0   //D10_DIR
-#define E4_ENABLE_PIN                       PG5   //D10_EN
-#define E4_CS_PIN                           PG11  //D10_CS
+#define E4_STEP_PIN                         PF15  // D10_STEP
+#define E4_DIR_PIN                          PG0   // D10_DIR
+#define E4_ENABLE_PIN                       PG5   // D10_EN
+#define E4_CS_PIN                           PG11  // D10_CS
 
 #if HAS_TMC_UART
   //
@@ -212,38 +212,38 @@
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                      PB4   //PC5
+  #define HEATER_0_PIN                      PB4   // PC5
 #endif
 #ifndef HEATER_1_PIN
-  #define HEATER_1_PIN                      PB0   //PC4
+  #define HEATER_1_PIN                      PB0   // PC4
 #endif
 #ifndef HEATER_2_PIN
-  #define HEATER_2_PIN                      PD13  //N_OUT2
+  #define HEATER_2_PIN                      PD13  // N_OUT2
 #endif
 #ifndef HEATER_3_PIN
-  #define HEATER_3_PIN                      PC8   //N_OUT3
+  #define HEATER_3_PIN                      PC8   // N_OUT3
 #endif
 #ifndef HEATER_4_PIN
-  #define HEATER_4_PIN                      PA15  //N_OUT4
+  #define HEATER_4_PIN                      PA15  // N_OUT4
 #endif
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                    PE10  //BED_OUT
+  #define HEATER_BED_PIN                    PE10  // BED_OUT
 #endif
 
 #ifndef FAN0_PIN
-  #define FAN0_PIN                          PE8   //FAN0
+  #define FAN0_PIN                          PE8   // FAN0
 #endif
 #ifndef FAN1_PIN
-  #define FAN1_PIN                          PE9   //FAN0
+  #define FAN1_PIN                          PE9   // FAN0
 #endif
 #ifndef FAN2_PIN
-  #define FAN2_PIN                          PD15  //FAN2
+  #define FAN2_PIN                          PD15  // FAN2
 #endif
 #ifndef FAN3_PIN
-  #define FAN3_PIN                          PD12  //FAN3
+  #define FAN3_PIN                          PD12  // FAN3
 #endif
 #ifndef FAN4_PIN
-  #define FAN4_PIN                          PD14  //FAN4
+  #define FAN4_PIN                          PD14  // FAN4
 #endif
 
 //
@@ -263,32 +263,32 @@
  *          ------                ------                 ------
  *           EXP3                  EXP2                   EXP1
  */
-#define EXP1_03_PIN                         PE7   //LCD_D7
-#define EXP1_04_PIN                         PG4   //PE8//LCD_D6
-#define EXP1_05_PIN                         PC11  //LCD_D5
-#define EXP1_06_PIN                         PC10  //LCD_D4
-#define EXP1_07_PIN                         PD0   //PA15//LCD_RS
-#define EXP1_08_PIN                         PC12  //LCD_EN
-#define EXP1_09_PIN                         PA8   //BTN_ENC
-#define EXP1_10_PIN                         PC9   //BEEP
+#define EXP1_03_PIN                         PE7   // LCD_D7
+#define EXP1_04_PIN                         PG4   // PE8 / LCD_D6
+#define EXP1_05_PIN                         PC11  // LCD_D5
+#define EXP1_06_PIN                         PC10  // LCD_D4
+#define EXP1_07_PIN                         PD0   // PA15 / LCD_RS
+#define EXP1_08_PIN                         PC12  // LCD_EN
+#define EXP1_09_PIN                         PA8   // BTN_ENC
+#define EXP1_10_PIN                         PC9   // BEEP
 
-#define EXP2_03_PIN                         -1    //RESET
-#define EXP2_04_PIN                         PB10  //CD
-#define EXP2_05_PIN                         PA7   //MOSI
-#define EXP2_06_PIN                         PC7   //BTN_EN2
-#define EXP2_07_PIN                         PA4   //SS
-#define EXP2_08_PIN                         PC6   //BTN_EN1
-#define EXP2_09_PIN                         PA5   //SCK
-#define EXP2_10_PIN                         PA6   //MISO
+#define EXP2_03_PIN                         -1    // RESET
+#define EXP2_04_PIN                         PB10  // CD
+#define EXP2_05_PIN                         PA7   // MOSI
+#define EXP2_06_PIN                         PC7   // BTN_EN2
+#define EXP2_07_PIN                         PA4   // SS
+#define EXP2_08_PIN                         PC6   // BTN_EN1
+#define EXP2_09_PIN                         PA5   // SCK
+#define EXP2_10_PIN                         PA6   // MISO
 
-#define EXP3_03_PIN                  EXP2_07_PIN  //SS
-#define EXP3_04_PIN                  EXP2_09_PIN  //SCK
-#define EXP3_05_PIN                  EXP2_05_PIN  //MOSI
-#define EXP3_06_PIN                  EXP2_10_PIN  //MISO
-#define EXP3_07_PIN                  EXP2_04_PIN  //CD
-#define EXP3_08_PIN                         -1    //3V3
-#define EXP3_09_PIN                         PA3   //LCD_RX/RX
-#define EXP3_10_PIN                         PA2   //LCD_TX/TX
+#define EXP3_03_PIN                  EXP2_07_PIN  // SS
+#define EXP3_04_PIN                  EXP2_09_PIN  // SCK
+#define EXP3_05_PIN                  EXP2_05_PIN  // MOSI
+#define EXP3_06_PIN                  EXP2_10_PIN  // MISO
+#define EXP3_07_PIN                  EXP2_04_PIN  // CD
+#define EXP3_08_PIN                         -1    // 3V3
+#define EXP3_09_PIN                         PA3   // LCD_RX/RX
+#define EXP3_10_PIN                         PA2   // LCD_TX/TX
 
 //
 // SPI / SD Card
@@ -394,14 +394,14 @@
 #define ESP_WIFI_MODULE_COM                    1  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PB3
-#define ESP_WIFI_MODULE_ENABLE_PIN          PD1   //PC8
-#define ESP_WIFI_MODULE_GPIO0_PIN           PG2   //PB4
-#define ESP_WIFI_MODULE_GPIO4_PIN           PG1   //PB7
+#define ESP_WIFI_MODULE_ENABLE_PIN          PD1   // PC8
+#define ESP_WIFI_MODULE_GPIO0_PIN           PG2   // PB4
+#define ESP_WIFI_MODULE_GPIO4_PIN           PG1   // PB7
 
 //
 // NeoPixel LED
 //
 //#define NEOPIXEL_PIN                      PD3
 #ifndef NEOPIXEL2_PIN
-  #define NEOPIXEL2_PIN                     PD3   //Neo-pixel
+  #define NEOPIXEL2_PIN                     PD3   // Neo-pixel
 #endif
