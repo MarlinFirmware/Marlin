@@ -113,7 +113,7 @@ constexpr hal_timer_t min_isr_loop_cycles = isr_mixing_stepper_cycles + LOGICAL_
 #endif
 
 // Calculate the minimum MPU cycles needed per pulse to enforce
-constexpr hal_timer_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
+constexpr uint32_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
 
 // The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
 // between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:
