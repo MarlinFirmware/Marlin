@@ -50,7 +50,7 @@
 //
 // BLTouch and Z Probe
 //
-#if ENABLED(BLTOUCH)||ENABLED(FIX_MOUNTED_PROBE)
+#if ANY(BLTOUCH, FIX_MOUNTED_PROBE)
   #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define Z_MIN_PIN                       PA0   // PD0
   #elif !defined(Z_MIN_PROBE_PIN)
