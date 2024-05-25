@@ -64,6 +64,13 @@
 #define SERVO0_PIN                          PA1   // PD1
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Software SPI pins for TMC stepper drivers
 //
 #if HAS_TMC_SPI
