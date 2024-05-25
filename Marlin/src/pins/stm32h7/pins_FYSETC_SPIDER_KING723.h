@@ -407,8 +407,11 @@
 
 //
 // NeoPixel LED
+// FYSETC_242_OLED_12864 & FYSETC_MINI_12864_2_1 uses one of the EXP pins for NeoPixels
 //
-//#define NEOPIXEL_PIN                      PD3
-#ifndef NEOPIXEL2_PIN
+#if NONE(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
+  #define NEOPIXEL_PIN                      PD3   // Neo-pixel
+#elif ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL2_PIN)
+  // Allow dedicated RGB (NeoPixel) pin to be used for a NeoPixel strip
   #define NEOPIXEL2_PIN                     PD3   // Neo-pixel
 #endif
