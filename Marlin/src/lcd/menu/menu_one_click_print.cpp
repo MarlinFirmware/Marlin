@@ -26,6 +26,12 @@
 
 #include "menu.h"
 
+static void one_click_print_done() {
+  card.cdroot();        // Make sure SD card browsing doesn't break!
+  ui.return_to_status();
+  ui.reset_status();
+}
+
 void one_click_print() {
   ui.goto_screen([]{
     char * const filename = card.longest_filename();
@@ -33,9 +39,11 @@ void one_click_print() {
       GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
       []{
         card.openAndPrintFile(card.filename);
-        ui.return_to_status();
-        ui.reset_status();
-      }, nullptr,
+        one_click_print_done();
+      },
+      []{
+        one_click_print_done();
+      },
       GET_TEXT_F(MSG_START_PRINT), filename, F("?")
     );
   });
