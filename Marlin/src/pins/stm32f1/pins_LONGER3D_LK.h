@@ -160,7 +160,8 @@
   #define LCD_BRIGHTNESS_DEFAULT TFT_BACKLIGHT_PWM
 #endif
 
-#if ENABLED(ONBOARD_SDIO)
+#if SD_CONNECTION_IS(ONBOARD)
+  #define ONBOARD_SDIO
   #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
 #endif
 
