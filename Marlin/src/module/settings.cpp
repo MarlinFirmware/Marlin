@@ -589,7 +589,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Encoder Direction
+  // Encoder Reverse
   //
   #if ENABLED(REVERSIBLE_ENCODER)
     bool reverse_encoder;                               // ProUI
