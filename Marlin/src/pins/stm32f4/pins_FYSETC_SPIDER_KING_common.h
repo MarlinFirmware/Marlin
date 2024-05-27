@@ -38,6 +38,37 @@
 #endif
 
 //
+// EEPROM
+//
+#if NOT_TARGET(STM32H7)
+  // Emulated EEPROM for STM32H7
+  #if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+    #undef NO_EEPROM_SELECTED
+    #ifndef FLASH_EEPROM_EMULATION
+      #define FLASH_EEPROM_EMULATION
+    #endif
+    #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
+    #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+    #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #endif
+#else
+  // I2C EEPROM for STM32F4. Does not work on Spider King with STM32H7 MCU.
+  #if NO_EEPROM_SELECTED
+    #undef NO_EEPROM_SELECTED
+    //#define FLASH_EEPROM_EMULATION
+    //#define SRAM_EEPROM_EMULATION
+    #define I2C_EEPROM
+  #endif
+
+  #if ENABLED(I2C_EEPROM)
+    #define I2C_EEPROM
+    #define I2C_SCL_PIN                     PF1
+    #define I2C_SDA_PIN                     PF0
+    #define MARLIN_EEPROM_SIZE             0x1000  // 4KB
+  #endif
+#endif
+
+//
 // Servos
 //
 #define SERVO0_PIN                          PA1
