@@ -498,22 +498,22 @@
 // ARM Cortex-M7
 //
 
-#define BOARD_REMRAM_V1               6000  // RemRam v1
-#define BOARD_NUCLEO_F767ZI           6001  // ST NUCLEO-F767ZI Dev Board
-#define BOARD_BTT_SKR_SE_BX_V2        6002  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
-#define BOARD_BTT_SKR_SE_BX_V3        6003  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
-#define BOARD_BTT_SKR_V3_0            6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
-#define BOARD_BTT_SKR_V3_0_EZ         6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
-#define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_1    6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
-#define BOARD_BTT_MANTA_M8P_V2_0      6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
-#define BOARD_BTT_KRAKEN_V1_0         6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
-#define BOARD_TEENSY41                6011  // Teensy 4.1
-#define BOARD_T41U5XBB                6012  // T41U5XBB Teensy 4.1 breakout board
-#define BOARD_FLY_D8_PRO              6013  // FLY_D8_PRO (STM32H723VG)
-#define BOARD_FLY_SUPER8_PRO          6014  // FLY SUPER8 PRO (STM32H723ZG)
-#define BOARD_FYSETC_SPIDER_KING723   6015  // FYSETC Spider King v1.1 (STM32H723ZG)
+#define BOARD_REMRAM_V1                    6000  // RemRam v1
+#define BOARD_NUCLEO_F767ZI                6001  // ST NUCLEO-F767ZI Dev Board
+#define BOARD_BTT_SKR_SE_BX_V2             6002  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
+#define BOARD_BTT_SKR_SE_BX_V3             6003  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
+#define BOARD_BTT_SKR_V3_0                 6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_SKR_V3_0_EZ              6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0      6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1       6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_1         6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
+#define BOARD_BTT_MANTA_M8P_V2_0           6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
+#define BOARD_BTT_KRAKEN_V1_0              6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
+#define BOARD_TEENSY41                     6011  // Teensy 4.1
+#define BOARD_T41U5XBB                     6012  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_FLY_D8_PRO                   6013  // FLY_D8_PRO (STM32H723VG)
+#define BOARD_FLY_SUPER8_PRO               6014  // FLY SUPER8 PRO (STM32H723ZG)
+#define BOARD_FYSETC_SPIDER_KING_V1_1_H723 6015  // FYSETC Spider King v1.1 (STM32H723ZG)
 
 //
 // Espressif ESP32 WiFi
