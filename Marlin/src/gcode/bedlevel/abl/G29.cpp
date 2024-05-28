@@ -259,7 +259,6 @@ G29_TYPE GcodeSuite::G29() {
   #if ENABLED(DWIN_LCD_PROUI)
     else {
       process_subcommands_now(F("G28Z"));
-      process_subcommands_now(F("G28XY"));
     }
   #endif
 
