@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,32 +20,17 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(ONE_CLICK_PRINT)
 
-#include "menu.h"
-#include "../../gcode/queue.h"
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
 
-static void one_click_print_done() {
-  ui.return_to_status();
-  ui.reset_status();
-  queue.enqueue_one_now(F("M1003"));  // Make sure SD card browsing doesn't break!
-}
-
-void one_click_print() {
-  ui.goto_screen([]{
-    char * const filename = card.longest_filename();
-    MenuItem_confirm::select_screen(
-      GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
-      []{
-        card.openAndPrintFile(card.filename);
-        one_click_print_done();
-      },
-      one_click_print_done,
-      GET_TEXT_F(MSG_START_PRINT), filename, F("?")
-    );
-  });
-}
+/**
+ * M1003: Set the current dir to /. Should come after 'M24'.
+ *        Prevents the SD menu getting stuck in the newest file's workDir.
+ */
+void GcodeSuite::M1003() { card.cdroot(); }
 
 #endif // ONE_CLICK_PRINT

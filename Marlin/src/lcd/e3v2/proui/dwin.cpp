@@ -3418,7 +3418,7 @@ void drawTuneMenu() {
       MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
     #endif
     #if HAS_FILAMENT_SENSOR
-      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_ENABLE, onDrawChkbMenu, setRunoutEnable, &runout.enabled);
+      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.enabled);
     #endif
     #if ENABLED(PROUI_ITEM_PLR)
       EDIT_ITEM(ICON_Pwrlossr, MSG_OUTAGE_RECOVERY, onDrawChkbMenu, setPwrLossr, &recovery.enabled);
@@ -3498,7 +3498,7 @@ void drawTuneMenu() {
 
   void drawInputShaping_menu() {
     checkkey = ID_Menu;
-    if (SET_MENU(inputShapingMenu, MSG_INPUT_SHAPING, 5)) {
+    if (SET_MENU(inputShapingMenu, MSG_INPUT_SHAPING, 1 PLUS_TERN0(INPUT_SHAPING_X, 2) PLUS_TERN0(INPUT_SHAPING_Y, 2) PLUS_TERN0(INPUT_SHAPING_Z, 2))) {
       BACK_ITEM(drawMotionMenu);
       #if ENABLED(INPUT_SHAPING_X)
         MENU_ITEM(ICON_ShapingX, MSG_SHAPING_A_FREQ, onDrawShapingXFreq, setShapingXFreq);
@@ -3600,7 +3600,7 @@ void drawFilSetMenu() {
   if (SET_MENU(filSetMenu, MSG_FILAMENT_SET, 7)) {
     BACK_ITEM(drawFilamentManMenu);
     #if HAS_FILAMENT_SENSOR
-      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_ENABLE, onDrawChkbMenu, setRunoutEnable, &runout.enabled);
+      EDIT_ITEM(ICON_Runout, MSG_RUNOUT_SENSOR, onDrawChkbMenu, setRunoutEnable, &runout.enabled);
     #endif
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       EDIT_ITEM(ICON_Runout, MSG_RUNOUT_DISTANCE_MM, onDrawPFloatMenu, setRunoutDistance, &runout.runout_distance());
