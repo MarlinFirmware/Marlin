@@ -2021,8 +2021,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     }
   #endif
 #if ENABLED(EXPORT_SETTINGS)
-  void MarlinUI::export_settings() {
-    if (sr_file_open("M503.gc")) {
+  void MarlinUI::export_settings(const char* filename) {
+    if (sr_file_open(filename)) {
       settings.report(true);
       completion_feedback(sr_file_close() && sr_write_res != -1);
     } else
