@@ -1880,8 +1880,8 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 #if ENABLED(EXPORT_SETTINGS)
-  void MarlinUI::export_settings() {
-    if (sr_file_open("M503.gc")) {
+  void MarlinUI::export_settings(const char* filename) {
+    if (sr_file_open(filename)) {
       settings.report(true);
       completion_feedback(sr_file_close() && sr_write_res != -1);
     } else

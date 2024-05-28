@@ -792,6 +792,10 @@ public:
     static void export_settings();
   #endif
 
+  #if ENABLED(EXPORT_SETTINGS)
+    static void export_settings(const char* filename);
+  #endif
+
   //
   // Special handling if a move is underway
   //
