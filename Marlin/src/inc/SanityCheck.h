@@ -580,9 +580,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   static_assert(WITHIN(npp_xyz.x, X_MIN_POS, X_MAX_POS), "NOZZLE_PARK_POINT.X is out of bounds (X_MIN_POS, X_MAX_POS).");
   static_assert(TERN1(HAS_Y_AXIS, WITHIN(npp_xyz.y, Y_MIN_POS, Y_MAX_POS)), "NOZZLE_PARK_POINT.Y is out of bounds (Y_MIN_POS, Y_MAX_POS).");
   static_assert(TERN1(HAS_Z_AXIS, WITHIN(npp_xyz.z, Z_MIN_POS, Z_MAX_POS)), "NOZZLE_PARK_POINT.Z is out of bounds (Z_MIN_POS, Z_MAX_POS).");
-  #ifdef NOZZLE_PARK_Z_RAISE_MIN
-    static_assert(NOZZLE_PARK_Z_RAISE_MIN >= 2, "NOZZLE_PARK_Z_RAISE_MIN must be >= 2.");
-  #endif
 #endif
 
 /**
@@ -1501,12 +1498,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
   #ifdef Z_AFTER_PROBING
     static_assert(Z_AFTER_PROBING >= 0, "Probes require Z_AFTER_PROBING >= 0.");
-  #endif
-  #ifdef Z_AFTER_HOMING
-    static_assert(Z_AFTER_HOMING >= 5, "Z_AFTER_HOMING must be >= 5.");
-  #endif
-  #ifdef Z_CLEARANCE_FOR_HOMING
-    static_assert(Z_CLEARANCE_FOR_HOMING >= 2, "Z_CLEARANCE_FOR_HOMING must be >= 2.");
   #endif
 
   #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
