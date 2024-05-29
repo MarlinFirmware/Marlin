@@ -1276,6 +1276,10 @@ private:
     static void M1002();
   #endif
 
+  #if ENABLED(ONE_CLICK_PRINT)
+    static void M1003();
+  #endif
+
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
   #endif

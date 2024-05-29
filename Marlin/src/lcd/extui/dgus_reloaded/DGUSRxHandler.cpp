@@ -49,7 +49,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
     #if HAS_MEDIA
       IF_DISABLED(HAS_SD_DETECT, card.mount());
 
-      if (!ExtUI::isMediaInserted()) {
+      if (!ExtUI::isMediaMounted()) {
         screen.setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
         return;
       }
