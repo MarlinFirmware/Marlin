@@ -75,11 +75,10 @@ enum processID : uint8_t {
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
-    AUTOTUNE_DONE,
     #if HAS_PID_HEATING
-      OPTITEM(PIDTEMP, PIDTEMP_START)
-      OPTITEM(PIDTEMPBED, PIDTEMPBED_START)
-      OPTITEM(PIDTEMPCHAMBER, PIDTEMPCHAMBER_START)
+      PIDTEMP_START = 1,
+      PIDTEMPBED_START,
+      PIDTEMPCHAMBER_START,
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
@@ -89,6 +88,7 @@ enum processID : uint8_t {
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
+    AUTOTUNE_DONE = 0
   };
 
 #endif

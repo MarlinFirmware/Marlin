@@ -195,15 +195,9 @@ namespace ExtUI {
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
-        #if ENABLED(PIDTEMP)
-          case PID_STARTED:       dwinPIDTuning(PIDTEMP_START);                     break;
-        #endif
-        #if ENABLED(PIDTEMPBED)
-          case PID_BED_STARTED:   dwinPIDTuning(PIDTEMPBED_START);                  break;
-        #endif
-        #if ENABLED(PIDTEMPCHAMBER)
-          case PID_CHAMBER_STARTED: dwinPIDTuning(PIDTEMPCHAMBER_START);            break;
-        #endif
+        case PID_STARTED:         dwinPIDTuning(PIDTEMP_START);                     break;
+        case PID_BED_STARTED:     dwinPIDTuning(PIDTEMPBED_START);                  break;
+        case PID_CHAMBER_STARTED: dwinPIDTuning(PIDTEMPCHAMBER_START);              break;
         case PID_BAD_HEATER_ID:   dwinPIDTuning(tempcontrol_t(PID_BAD_HEATER_ID));  break;
         case PID_TEMP_TOO_HIGH:   dwinPIDTuning(tempcontrol_t(PID_TEMP_TOO_HIGH));  break;
         case PID_TUNING_TIMEOUT:  dwinPIDTuning(tempcontrol_t(PID_TUNING_TIMEOUT)); break;

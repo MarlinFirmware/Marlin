@@ -25,8 +25,9 @@ exec_test $1 $2 "Ender-3 V2 - MarlinUI (UBL+BLTOUCH, MPCTEMP, LCD_ENDSTOP_TEST)"
 
 use_example_configs "Creality/Ender-3 V2/CrealityV422/CrealityUI"
 opt_disable DWIN_CREALITY_LCD
-opt_enable DWIN_LCD_PROUI
+opt_enable DWIN_LCD_PROUI PID_EDIT_MENU PID_AUTOTUNE_MENU
 opt_add NO_AUTO_ASSIGN_WARNING
+opt_set BOOTSCREEN_TIMEOUT 1100
 exec_test $1 $2 "Ender-3 V2 - ProUI (Default)" "$3"
 
 use_example_configs "Creality/Ender-3 S1/STM32F1"

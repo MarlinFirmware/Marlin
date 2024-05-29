@@ -179,15 +179,9 @@ namespace ExtUI {
       // Called for temperature PID tuning result
       //SERIAL_ECHOLNPGM("OnPIDTuning:", rst);
       switch (rst) {
-        #if ENABLED(PIDTEMP)
-          case PID_STARTED:
-        #endif
-        #if ENABLED(PIDTEMPBED)
-          case PID_BED_STARTED:
-        #endif
-        #if ENABLED(PIDTEMPCHAMBER)
-          case PID_CHAMBER_STARTED:
-        #endif
+        case PID_STARTED:
+        case PID_BED_STARTED:
+        case PID_CHAMBER_STARTED:
           StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
         case PID_BAD_HEATER_ID:
