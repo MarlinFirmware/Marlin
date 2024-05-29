@@ -670,8 +670,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Stamp. bloccata,");           // ProUI
   LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll x sbloccare.");        // ProUI
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Attendere fino al riavvio."); // ProUI
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No supporto");                // ProUI
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prerisc. ugello.");           // ProUI
 
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Stampe");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Durata");
