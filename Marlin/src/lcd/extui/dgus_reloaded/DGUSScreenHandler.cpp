@@ -315,9 +315,10 @@ void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
       #endif
       #if ENABLED(PIDTEMPCHAMBER)
         case ExtUI::PID_CHAMBER_STARTED:
-          setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
-          break;
       #endif
+        setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
+        break;
+      
       case ExtUI::PID_BAD_HEATER_ID:
         setStatusMessage(GET_TEXT_F(MSG_PID_BAD_HEATER_ID));
         break;
