@@ -273,7 +273,6 @@ void gotoConfirmToPrint();
 void dwinDrawDashboard(); // Status Area
 void drawMainArea();      // Redraw main area
 void dwinDrawStatusLine(const char *text = ""); // Draw simple status text
-inline void dwinDrawStatusLine(FSTR_P fstr) { dwinDrawStatusLine(FTOP(fstr)); }
 void dwinRedrawDash();     // Redraw Dash and Status line
 void dwinRedrawScreen();   // Redraw all screen elements
 void hmiMainMenu();        // Main process screen
