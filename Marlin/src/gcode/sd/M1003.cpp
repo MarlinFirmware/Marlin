@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,29 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define DGUS_BED_SIZE_STR STRINGIFY(X_BED_SIZE) "x" STRINGIFY(Y_BED_SIZE) "mm"
+#include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
-  #ifndef DGUS_AUTOSCROLL_START_CYCLES
-    // Additional refresh cycles where strings beginnings are shown
-    #define DGUS_AUTOSCROLL_START_CYCLES 1
-  #endif
-  #ifndef DGUS_AUTOSCROLL_END_CYCLES
-    // Additional refresh cycles where strings endings are shown
-    #define DGUS_AUTOSCROLL_END_CYCLES 1
-  #endif
-#endif
+#if ENABLED(ONE_CLICK_PRINT)
 
-#ifndef DGUS_DEFAULT_VOLUME
-  #define DGUS_DEFAULT_VOLUME 50
-#endif
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
 
-#ifndef DGUS_DEFAULT_BRIGHTNESS
-  #define DGUS_DEFAULT_BRIGHTNESS 100
-#endif
+/**
+ * M1003: Set the current dir to /. Should come after 'M24'.
+ *        Prevents the SD menu getting stuck in the newest file's workDir.
+ */
+void GcodeSuite::M1003() { card.cdroot(); }
 
-#ifndef DGUS_STATUS_EXPIRATION_MS
-  #define DGUS_STATUS_EXPIRATION_MS 30000
-#endif
+#endif // ONE_CLICK_PRINT

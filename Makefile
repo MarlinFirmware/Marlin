@@ -55,9 +55,18 @@ tests-single-local-docker:
 	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS) $(CONTAINER_IMAGE) make tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
 
 tests-all-local:
+	@python -c "import yaml" 2>/dev/null || (echo 'pyyaml module is not installed. Install it with "python -m pip install pyyaml"' && exit 1)
 	export PATH="./buildroot/bin/:./buildroot/tests/:${PATH}" \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-	  && for TEST_TARGET in $$($(SCRIPTS_DIR)/get_test_targets.py) ; do echo "Running tests for $$TEST_TARGET" ; run_tests . $$TEST_TARGET ; done
+	  && for TEST_TARGET in $$(python $(SCRIPTS_DIR)/get_test_targets.py) ; do \
+	    if [ "$$TEST_TARGET" = "linux_native" ] && [ "$$(uname)" = "Darwin" ]; then \
+	      echo "Skipping tests for $$TEST_TARGET on macOS" ; \
+	      continue ; \
+	    fi ; \
+	    echo "Running tests for $$TEST_TARGET" ; \
+	    run_tests . $$TEST_TARGET || exit 1 ; \
+	    sleep 5; \
+	  done
 
 tests-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi

@@ -44,10 +44,10 @@ namespace ExtUI {
     KillScreen::show(str);
   }
 
-  void onMediaInserted() {
+  void onMediaMounted() {
     #if HAS_MEDIA
       sound.play(media_inserted, PLAY_ASYNCHRONOUS);
-      StatusScreen::onMediaInserted();
+      StatusScreen::onMediaMounted();
     #endif
   }
 

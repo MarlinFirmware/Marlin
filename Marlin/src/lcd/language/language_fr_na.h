@@ -69,9 +69,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Mise a niveau OK!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Hauteur lissee");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Regl. decal origine");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Decalages appliques");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin

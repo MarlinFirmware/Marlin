@@ -89,7 +89,8 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
-#define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
+#define FLOAT_SQ(I) sq(float(I))
+#define CIRCLE_AREA(R) (float(M_PI) * FLOAT_SQ(R))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
@@ -196,8 +197,8 @@
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define ANY(V...)          !DISABLED(V)
-#define ALL                 ENABLED
-#define NONE                DISABLED
+#define ALL(V...)           ENABLED(V)
+#define NONE(V...)          DISABLED(V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
@@ -629,7 +630,7 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL           EVAL16
+#define EVAL(V...)     EVAL16(V)
 #define EVAL4096(V...) EVAL2048(EVAL2048(V))
 #define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))

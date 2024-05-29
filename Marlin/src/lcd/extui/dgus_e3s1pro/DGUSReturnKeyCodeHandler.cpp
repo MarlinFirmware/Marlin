@@ -72,7 +72,7 @@ void DGUSReturnKeyCodeHandler::Command_MenuSelect(DGUS_VP &vp, void *data) {
       break;
 
     case DGUS_Data::MenuSelectCommand::Print:
-      if (ExtUI::isMediaInserted()) {
+      if (ExtUI::isMediaMounted()) {
         dgus_sdcard_handler.Reset();
         screen.triggerScreenChange(DGUS_ScreenID::FILE1);
       }
@@ -241,7 +241,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckOK(DGUS_VP &vp, void *data) {
     #endif // HAS_FILAMENT_SENSOR
 
     case DGUS_Data::CheckOKCommand::SDCardCheck_Yes:
-      if (ExtUI::isMediaInserted()) {
+      if (ExtUI::isMediaMounted()) {
         dgus_sdcard_handler.Reset();
         screen.triggerScreenChange(DGUS_ScreenID::FILE1);
       }
@@ -401,15 +401,14 @@ static void _gotoTrammingPoint(unsigned char point) {
   switch (point) {
     default: return;
     case 1: x = X_CENTER; y = Y_CENTER; break;
-    case 2: x = X_MIN_POS + lfrb[0]; y = Y_MIN_POS + lfrb[1]; break;
-    case 3: x = X_MAX_POS - lfrb[2]; y = Y_MIN_POS + lfrb[1]; break;
-    case 4: x = X_MAX_POS - lfrb[2]; y = Y_MAX_POS - lfrb[3]; break;
-    case 5: x = X_MIN_POS + lfrb[0]; y = Y_MAX_POS - lfrb[3]; break;
+    case 2: x = X_MIN_BED + lfrb[0]; y = Y_MIN_BED + lfrb[1]; break;
+    case 3: x = X_MAX_BED - lfrb[2]; y = Y_MIN_BED + lfrb[1]; break;
+    case 4: x = X_MAX_BED - lfrb[2]; y = Y_MAX_BED - lfrb[3]; break;
+    case 5: x = X_MIN_BED + lfrb[0]; y = Y_MAX_BED - lfrb[3]; break;
   }
 
-  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < (Z_MIN_POS) + (BED_TRAMMING_Z_HOP))
-    ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
-
+  if (BED_TRAMMING_Z_HOP)
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
   ExtUI::setAxisPosition_mm(x, ExtUI::X);
   ExtUI::setAxisPosition_mm(y, ExtUI::Y);
   ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
