@@ -264,7 +264,7 @@ void DGUSScreenHandler::sendHeaterStatusToDisplay(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::screenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr) {
     // default action executed when there is a SD card, but not printing
-    if (ExtUI::isMediaInserted() && !ExtUI::isPrintingFromMedia()) {
+    if (ExtUI::isMediaMounted() && !ExtUI::isPrintingFromMedia()) {
       screenChangeHook(var, val_ptr);
       dgus.requestScreen(current_screenID);
       return;
@@ -279,7 +279,7 @@ void DGUSScreenHandler::sendHeaterStatusToDisplay(DGUS_VP_Variable &var) {
     }
 
     // Don't let the user in the dark why there is no reaction.
-    if (!ExtUI::isMediaInserted()) {
+    if (!ExtUI::isMediaMounted()) {
       setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
       return;
     }

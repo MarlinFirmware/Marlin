@@ -23,7 +23,7 @@
 
 /**
  * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
- * Schematic Origin: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
+ * Schematic: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
  * ATmega2560
  */
 

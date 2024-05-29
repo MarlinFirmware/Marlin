@@ -55,7 +55,7 @@ inline bool G38_run_probe() {
     }
   #endif
 
-  planner.synchronize();  // wait until the machine is idle
+  planner.synchronize(); // Wait until the machine is idle
 
   // Move flag value
   #if ENABLED(G38_PROBE_AWAY)

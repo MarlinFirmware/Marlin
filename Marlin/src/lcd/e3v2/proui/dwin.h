@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.25.3
  * Date: 2023/05/18
  */
@@ -71,7 +72,7 @@ enum processID : uint8_t {
   ID_NothingToDo
 };
 
-#if ANY(HAS_PID_HEATING, MPCTEMP)
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
     AUTOTUNE_DONE,
@@ -83,8 +84,8 @@ enum processID : uint8_t {
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
     #endif
-    #if ENABLED(MPCTEMP)
-      MPCTEMP_START,
+    #if ENABLED(MPC_AUTOTUNE)
+      MPC_STARTED,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif

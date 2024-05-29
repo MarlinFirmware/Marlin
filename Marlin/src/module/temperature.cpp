@@ -806,7 +806,7 @@ volatile bool Temperature::raw_temps_ready = false;
             }
           }
           SHV((bias + d) >> 1);
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PID_CYCLE), cycles, ncycles));
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PID_CYCLE), cycles, ncycles));
           cycles++;
           minT = target;
         }
@@ -1195,7 +1195,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Determine ambient temperature.
     SERIAL_ECHOLNPGM(STR_MPC_COOLING_TO_AMBIENT);
-    TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPCTEMP_START));
+    TERN_(EXTENSIBLE_UI, ExtUI::onMPCTuning(ExtUI::mpcresult_t::MPC_STARTED));
     TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_COOLING_TO_AMBIENT), LCD_MESSAGE(MSG_COOLING));
 
     if (tuner.measure_ambient_temp() != MPC_autotuner::MeasurementState::SUCCESS) return;
@@ -1303,8 +1303,10 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
     #if HAS_COOLER
       case H_COOLER: return temp_cooler.soft_pwm_amount;
     #endif
-    default:
-      return TERN0(HAS_HOTEND, temp_hotend[heater_id].soft_pwm_amount);
+    #if HAS_HOTEND
+      case 0 ... HOTENDS - 1: return temp_hotend[heater_id].soft_pwm_amount;
+    #endif
+    default: return 0;
   }
 }
 
@@ -2019,7 +2021,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       if (watch_cooler.elapsed(ms)) {             // Time to check the cooler?
         const auto deg = degCooler();
         if (deg > watch_cooler.target)            // Failed to decrease enough?
-          _TEMP_ERROR(H_COOLER, GET_EN_TEXT_F(MSG_ERR_COOLING_FAILED), MSG_ERR_COOLING_FAILED, deg);
+          _TEMP_ERROR(H_COOLER, GET_TEXT_F(MSG_ERR_COOLING_FAILED), MSG_ERR_COOLING_FAILED, deg);
         else
           start_watching_cooler();                // Start again if the target is still far off
       }
@@ -4419,6 +4421,7 @@ void Temperature::isr() {
   #if ENABLED(AUTO_REPORT_TEMPERATURES)
     AutoReporter<Temperature::AutoReportTemp> Temperature::auto_reporter;
     void Temperature::AutoReportTemp::report() {
+      if (wait_for_heatup) return;
       print_heater_states(active_extruder OPTARG(HAS_TEMP_REDUNDANT, ENABLED(AUTO_REPORT_REDUNDANT)));
       SERIAL_EOL();
     }
@@ -4433,7 +4436,7 @@ void Temperature::isr() {
         #else
           F("E1 " S_FMT)
         #endif
-        , heating ? GET_TEXT(MSG_HEATING) : GET_TEXT(MSG_COOLING)
+        , heating ? GET_TEXT_F(MSG_HEATING) : GET_TEXT_F(MSG_COOLING)
       );
 
       if (isM104) {

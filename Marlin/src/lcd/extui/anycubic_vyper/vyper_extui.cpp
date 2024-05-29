@@ -45,9 +45,9 @@ namespace ExtUI {
     dgus.printerKilled(error, component);
   }
 
-  void onMediaInserted() { dgus.mediaEvent(AC_media_inserted); }
-  void onMediaError()    { dgus.mediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { dgus.mediaEvent(AC_media_removed);  }
+  void onMediaMounted() { dgus.mediaEvent(AC_media_inserted); }
+  void onMediaError()   { dgus.mediaEvent(AC_media_error);    }
+  void onMediaRemoved() { dgus.mediaEvent(AC_media_removed);  }
 
   void onHeatingError(const heater_id_t header_id) {}
   void onMinTempError(const heater_id_t header_id) {}
@@ -152,6 +152,10 @@ namespace ExtUI {
       // Called to indicate a special condition
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
     }
+  #endif
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    void onSetMinExtrusionTemp(const celsius_t) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

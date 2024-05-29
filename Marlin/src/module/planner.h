@@ -111,11 +111,6 @@ enum BlockFlagBit {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 
-  // Nominal speed always reached.
-  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
-  // from a safe speed (in consideration of jerking from zero speed).
-  BLOCK_BIT_NOMINAL_LENGTH,
-
   // The block is segment 2+ of a longer move
   BLOCK_BIT_CONTINUED,
 
@@ -142,8 +137,6 @@ typedef struct {
     struct {
       bool recalculate:1;
 
-      bool nominal_length:1;
-
       bool continued:1;
 
       bool sync_position:1;
@@ -166,7 +159,6 @@ typedef struct {
   void apply(const uint8_t f) volatile { bits |= f; }
   void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
   void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
-  void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
 
 } block_flags_t;
 
@@ -214,15 +206,17 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
-  bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
-  bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
+  bool is_sync_pos() { return flag.sync_position; }
+  bool is_sync_fan() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  bool is_sync_pwr() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  bool is_sync() { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
   bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
   bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)
         entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
+        min_entry_speed_sqr,                // Minimum allowable junction entry speed in (mm/sec)^2
         max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
@@ -244,8 +238,8 @@ typedef struct PlannerBlock {
   #endif
 
   // Settings for the trapezoid generator
-  uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
-           decelerate_after;                // The index of the step event on which to start decelerating
+  uint32_t accelerate_before,               // The index of the step event where cruising starts
+           decelerate_start;                // The index of the step event on which to start decelerating
 
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
@@ -254,7 +248,7 @@ typedef struct PlannerBlock {
              acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
-    uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
+    uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
@@ -633,7 +627,7 @@ class Planner {
 
     #if HAS_EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
+        e_factor[e] = flow_percentage[e] * 0.01f IF_DISABLED(NO_VOLUMETRICS, * volumetric_multiplier[e]);
       }
 
       static void set_flow(const uint8_t e, const int16_t flow) {
@@ -1122,5 +1116,11 @@ class Planner {
 };
 
 #define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+
+#define ANY_AXIS_MOVES(BLOCK)  \
+  (false NUM_AXIS_GANG(        \
+  || BLOCK->steps.a, || BLOCK->steps.b, || BLOCK->steps.c, \
+  || BLOCK->steps.i, || BLOCK->steps.j, || BLOCK->steps.k, \
+  || BLOCK->steps.u, || BLOCK->steps.v, || BLOCK->steps.w))
 
 extern Planner planner;

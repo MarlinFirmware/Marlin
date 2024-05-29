@@ -147,7 +147,7 @@ namespace ExtUI {
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
 
-  void onMediaInserted() {}
+  void onMediaMounted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
 

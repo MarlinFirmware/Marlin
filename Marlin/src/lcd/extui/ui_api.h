@@ -100,7 +100,7 @@ namespace ExtUI {
 
   /**
    * The Extensible UI API is a utility class that can be used to implement:
-   * - An LCD view that responds to standard events, e.g., onMediaInserted(...)
+   * - An LCD view that responds to standard events, e.g., onMediaMounted(...)
    * - An LCD that polls firmware states and settings in a standard manner.
    *   (e.g., With tool indexes and extruder indexes).
    * - Standard hooks to send data to a serial-based controller.
@@ -451,7 +451,7 @@ namespace ExtUI {
    * Media access routines
    * Use these to operate on files
    */
-  bool isMediaInserted();
+  bool isMediaMounted();
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
@@ -486,7 +486,7 @@ namespace ExtUI {
   void onStartup();
   void onIdle();
 
-  void onMediaInserted();
+  void onMediaMounted();
   void onMediaError();
   void onMediaRemoved();
 
