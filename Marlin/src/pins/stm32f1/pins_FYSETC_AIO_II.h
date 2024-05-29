@@ -24,13 +24,13 @@
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "FYSETC AIO II"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#define BOARD_WEBSITE_URL "github.com/FYSETC/FYSETC-AIO_II"
 
 #define BOARD_NO_NATIVE_USB
 #define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
-#define pins_v2_20190128                          // new pins define
+#define PINS_V2_20190128                          // new pins define
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
@@ -55,7 +55,7 @@
 //
 // Filament runout
 //
-#ifdef pins_v2_20190128
+#ifdef PINS_V2_20190128
   #define FIL_RUNOUT_PIN                    PB15
 #else
   #define FIL_RUNOUT_PIN                    PB5
@@ -69,7 +69,7 @@
 #define X_ENABLE_PIN                        PA8
 
 #define Y_STEP_PIN                          PB2
-#ifdef pins_v2_20190128
+#ifdef PINS_V2_20190128
   #define Y_DIR_PIN                         PB3
 #else
   #define Y_DIR_PIN                         PB0
@@ -97,20 +97,22 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_AIO_II.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_AIO_II.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_AIO_II.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_AIO_II.");
 
-  // The 4xTMC2209 module doesn't have a serial multiplexer and
-  // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
   #if HAS_DRIVER(TMC2208)
     #define TMC_SERIAL_MULTIPLEXER
     #define SERIAL_MUL_PIN1                 PB13
@@ -162,7 +164,7 @@
   #if HAS_MARLINUI_U8GLIB
 
     #define DOGLCD_A0                       PA15
-    #ifdef pins_v2_20190128
+    #ifdef PINS_V2_20190128
       #define DOGLCD_CS                     PB5
     #else
       #define DOGLCD_CS                     PB7
@@ -183,7 +185,7 @@
     #define BTN_ENC                         PC12
   #endif
 
-  #ifdef pins_v2_20190128
+  #ifdef PINS_V2_20190128
     #define LCD_RESET_PIN                   PB4
     #ifndef RGB_LED_R_PIN
       #define RGB_LED_R_PIN                 PB0

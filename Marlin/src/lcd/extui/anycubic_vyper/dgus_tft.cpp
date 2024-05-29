@@ -1268,7 +1268,7 @@ namespace Anycubic {
         break;
 
       case 4:   // page refresh
-        if (!isMediaInserted()) safe_delay(500);
+        if (!isMediaMounted()) safe_delay(500);
 
         filenavigator.reset();
 
