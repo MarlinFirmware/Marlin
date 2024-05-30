@@ -169,6 +169,7 @@ void rebootPrinter();
 void disableMotors();
 void autoHome();
 #if HAS_PREHEAT
+  void drawPreheatHotendMenu();
   #define _DOPREHEAT(N) void DoPreheat##N();
   REPEAT_1(PREHEAT_COUNT, _DOPREHEAT)
 #endif
