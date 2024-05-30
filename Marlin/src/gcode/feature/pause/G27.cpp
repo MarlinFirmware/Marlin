@@ -39,7 +39,11 @@
  *             4 = No Z raise. Just XY parking.
  */
 void GcodeSuite::G27() {
-  // Don't allow nozzle parking without homing first, unless just Z raise (G27 P3) or just XY parking (G27 P4)
+  /**
+   * Just Z raise (G27 P3) without homing first requires G27_BYPASS_TRUST
+   * Just XY parking (G27 P4) only if XY are trusted
+   * Otherwise, does not allow nozzle parking without homing first
+   */
   const uint8_t pv = parser.ushortval('P');
   switch (pv) {
     OPTCODE(G27_BYPASS_TRUST, case 3: break)
