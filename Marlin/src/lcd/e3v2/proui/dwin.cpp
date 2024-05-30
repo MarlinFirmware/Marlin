@@ -1931,13 +1931,6 @@ void dwinCopySettingsFrom(const char * const buff) {
 }
 
 // Initialize or re-initialize the LCD
-void MarlinUI::init_lcd() {
-  delay(750);   // Wait to wakeup screen
-  const bool hs = dwinHandshake(); UNUSED(hs);
-  dwinFrameSetDir(1);
-  dwinJPGCacheTo1(Language_English);
-}
-
 void dwinInitScreen() {
   dwinSetColorDefaults();
   hmiInit();   // Draws boot screen
@@ -1950,26 +1943,6 @@ void dwinInitScreen() {
   dwinDrawStatusLine();
   dwinDrawDashboard();
   gotoMainMenu();
-}
-
-void MarlinUI::update() {
-  hmiSDCardUpdate();  // SD card update
-  eachMomentUpdate(); // Status update
-  dwinHandleScreen(); // Rotary encoder update
-}
-
-#if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
-#endif
-
-void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
-  #if ANY(TJC_DISPLAY, DACAI_DISPLAY)
-    dwinDrawPopup(ICON_BLTouch, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
-  #else
-    dwinDrawPopup(ICON_Printer_0, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
-  #endif
-  DWINUI::drawCenteredString(hmiData.colorPopupTxt, 270, GET_TEXT_F(MSG_TURN_OFF));
-  dwinUpdateLCD();
 }
 
 void dwinRebootScreen() {
