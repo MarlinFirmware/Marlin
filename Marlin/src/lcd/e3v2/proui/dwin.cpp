@@ -201,7 +201,7 @@ typedef struct {
 } select_t;
 select_t select_page{0}, select_print{0};
 
-#if ENABLED(LCD_BED_TRAMMING)
+#if ENABLED(LCD_BED_TRAMMING) && DISABLED(BED_TRAMMING_USE_PROBE)
   constexpr float bed_tramming_inset_lfbr[] = BED_TRAMMING_INSET_LFRB;
 #endif
 
@@ -2389,6 +2389,11 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 #if ENABLED(LCD_BED_TRAMMING)
 
   void tramXY(const uint8_t point, float &x, float &y) {
+    #if ENABLED(BED_TRAMMING_USE_PROBE)
+      float bed_tramming_inset_lfbr[] = {X_MIN_BED + probe.min_x() + 0.01f, Y_MIN_BED + probe.min_y() + 0.01f,
+             X_MAX_BED - probe.max_x() - 0.01f, Y_MAX_BED - probe.max_y() - 0.01f };
+    #endif
+
     switch (point) {
       case 0:
         LCD_MESSAGE(MSG_TRAM_FL);
