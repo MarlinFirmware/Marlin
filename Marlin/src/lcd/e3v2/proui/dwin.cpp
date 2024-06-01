@@ -3546,7 +3546,7 @@ void drawMotionMenu() {
   updateMenu(motionMenu);
 }
 
-#if ALL(ADVANCED_PAUSE_FEATURE, HAS_PREHEAT)
+#if HAS_PREHEAT
     void drawPreheatHotendMenu() {
       checkkey = ID_Menu;
       if (SET_MENU(preheatHotendMenu, MSG_PREHEAT_HOTEND, 1 + PREHEAT_COUNT)) {
@@ -3565,10 +3565,10 @@ void drawFilamentManMenu() {
     #if ENABLED(NOZZLE_PARK_FEATURE)
       MENU_ITEM(ICON_Park, MSG_FILAMENT_PARK_ENABLED, onDrawMenuItem, parkHead);
     #endif
+    #if HAS_PREHEAT
+      MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
+    #endif
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      #if HAS_PREHEAT
-        MENU_ITEM(ICON_SetEndTemp, MSG_PREHEAT_HOTEND, onDrawSubMenu, drawPreheatHotendMenu);
-      #endif
       MENU_ITEM(ICON_FilMan, MSG_FILAMENTCHANGE, onDrawMenuItem, changeFilament);
     #endif
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
