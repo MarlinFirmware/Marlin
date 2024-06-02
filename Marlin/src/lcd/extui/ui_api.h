@@ -74,6 +74,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
   #endif
+  struct probe_limits_t { float xmin, ymin, xmax, ymax; };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -327,6 +328,13 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const_float_t, const extruder_t);
   #endif
 
+  #if HAS_SHAPING
+    float getShapingZeta(const axis_t);
+    void setShapingZeta(const float, const axis_t);
+    float getShapingFrequency(const axis_t);
+    void setShapingFrequency(const float, const axis_t);
+  #endif
+
   // JD or Jerk Control
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
@@ -367,6 +375,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
+    probe_limits_t getBedProbeLimits();
   #endif
 
   // Backlash Control
