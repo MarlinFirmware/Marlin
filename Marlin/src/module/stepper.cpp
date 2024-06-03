@@ -519,14 +519,13 @@ xyze_int8_t Stepper::count_direction{0};
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
 #endif
 
-constexpr uint32_t cycles_to_ns(const hal_timer_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
-constexpr hal_timer_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
+constexpr uint32_t cycles_to_ns(const uint32_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
+constexpr uint32_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
 
 // Round up when converting from ns to timer ticks
 constexpr hal_timer_t ns_to_pulse_timer_ticks(const uint32_t ns) { return (ns + ns_per_pulse_timer_tick / 2) / ns_per_pulse_timer_tick; }
 
 constexpr uint32_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles);
-
 constexpr hal_timer_t PULSE_HIGH_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, timer_setup_ns));
 constexpr hal_timer_t PULSE_LOW_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, timer_setup_ns));
 
