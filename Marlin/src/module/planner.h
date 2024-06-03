@@ -261,10 +261,10 @@ typedef struct PlannerBlock {
              final_adv_steps;               // Advance steps for exit speed pressure
   #endif
 
-  uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
-           initial_rate,                    // The jerk-adjusted step rate at start of block
-           final_rate,                      // The minimal rate at exit
-           acceleration_steps_per_s2;       // acceleration steps/sec^2
+  hertz_t nominal_rate,                     // (Hz) The nominal step rate for this block in step_events/sec
+          initial_rate,                     // (Hz) The jerk-adjusted step rate at start of block
+          final_rate;                       // (Hz) The minimal rate at exit
+  uint32_t acceleration_steps_per_s2;       // acceleration steps/sec^2 (+- Hz per second)
 
   #if ENABLED(DIRECT_STEPPING)
     page_idx_t page_idx;                    // Page index used for direct stepping
@@ -283,7 +283,7 @@ typedef struct PlannerBlock {
   #endif
 
   #if HAS_WIRED_LCD
-    uint32_t segment_time_us;
+    micros_t segment_time_us;
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

@@ -519,13 +519,13 @@ xyze_int8_t Stepper::count_direction{0};
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
 #endif
 
-constexpr uint32_t cycles_to_ns(const uint32_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
-constexpr uint32_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
+constexpr nanos_t cycles_to_ns(const cycles_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
+constexpr nanos_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
 
 // Round up when converting from ns to timer ticks
-constexpr hal_timer_t ns_to_pulse_timer_ticks(const uint32_t ns) { return (ns + ns_per_pulse_timer_tick / 2) / ns_per_pulse_timer_tick; }
+constexpr hal_timer_t ns_to_pulse_timer_ticks(const nanos_t ns) { return (ns + ns_per_pulse_timer_tick / 2) / ns_per_pulse_timer_tick; }
 
-constexpr uint32_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles);
+constexpr nanos_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles);
 constexpr hal_timer_t PULSE_HIGH_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, timer_setup_ns));
 constexpr hal_timer_t PULSE_LOW_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, timer_setup_ns));
 
@@ -2195,7 +2195,7 @@ void Stepper::pulse_phase_isr() {
 #endif // HAS_ZV_SHAPING
 
 // Calculate timer interval, with all limits applied.
-hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
+hal_timer_t Stepper::calc_timer_interval(hertz_t step_rate) {
 
   #ifdef CPU_32_BIT
 
@@ -2232,7 +2232,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 }
 
 #if ENABLED(NONLINEAR_EXTRUSION)
-  void Stepper::calc_nonlinear_e(uint32_t step_rate) {
+  void Stepper::calc_nonlinear_e(hertz_t step_rate) {
     const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
     int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
     NOLESS(vd, 0);
@@ -2242,7 +2242,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 #endif
 
 // Get the timer interval and the number of loops to perform per tick
-hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
+hal_timer_t Stepper::calc_multistep_timer_interval(hertz_t step_rate) {
 
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
 
