@@ -32,92 +32,62 @@
 #include <core_hooks.h>
 #include <drivers/sysclock/sysclock_util.h>
 
-/**
- * @brief Constexpr for loop helper.
- * @tparam Start The start value.
- * @tparam End The end value.
- * @tparam Inc The increment value.
- * @tparam F The function to call.
- * 
- * @note Taken from https://artificial-mind.net/blog/2020/10/31/constexpr-for 
- */
-template <auto Start, auto End, auto Inc, class F>
-constexpr void constexpr_for(F&& f)
-{
-    if constexpr (Start < End)
-    {
-        f(std::integral_constant<decltype(Start), Start>());
-        constexpr_for<Start + Inc, End, Inc>(f);
-    }
-}
-
 /***
  * @brief Automatically calculate M, N, P values for the MPLL to reach a target frequency.
  * @param input_frequency The input frequency.
  * @param target_frequency The target frequency.
  * @return The MPLL configuration structure. Q and R are not set.
- * 
+ *
  * @note
  * Simplified MPLL block diagram, with intermediary clocks (1) = VCO_in, (2) = VCO_out:
- * 
+ *
  *  INPUT -> [/ M] -(1)-> [* N] -(2)-|-> [/ P] -> MPLL-P
  */
-constexpr stc_clk_mpll_cfg_t get_mpll_config(const uint32_t input_frequency, const uint32_t target_frequency)
-{
-  uint32_t best_M = 0, 
-      best_N = 0, 
-      best_P = 0;
-
-  // FIXME don't consider M in auto-config, as otherwise we get 
-  //       "expression not folded to a constant due to excessive constexpr function call complexity"
-  const int M = 1;
-
-  // input clock divider: M in [1, 24]
-  //constexpr_for<1, 24, 1>([&input_frequency, &target_frequency, &best_M, &best_N, &best_P] (int M) {
-    // VCO multiplier: N in [20, 480]
-    constexpr_for<20, 480, 1>([&input_frequency, &target_frequency, &best_M, &best_N, &best_P, &M] (int N) {
-      // output "P" divider: P in [2, 16]
-      constexpr_for<2, 16, 1>([&input_frequency, &target_frequency, &best_M, &best_N, &best_P, &M, &N] (int P) {
-        // calculate actual frequencies given M, N, P
-        const double vco_in_frequency = static_cast<double>(input_frequency) / static_cast<double>(M);
-        const double vco_out_frequency = vco_in_frequency * static_cast<double>(N);
-        const double pll_out_frequency = vco_out_frequency / static_cast<double>(P);
+constexpr stc_clk_mpll_cfg_t get_mpll_config(double input_frequency, double target_frequency) {
+    // PLL input clock divider: M in [1, 24]
+    for (uint32_t M = 1; M <= 24; M++) {
+        double f_vco_in = input_frequency / M;
 
         // 1 <= VCO_in <= 25 MHz
-        if (vco_in_frequency < 1e6 || vco_in_frequency > 25e6) {
-          return;
+        if (f_vco_in < 1e6 || f_vco_in > 25e6) {
+            continue;
         }
 
-        // 240 <= VCO_out <= 480 MHz
-        if (vco_out_frequency < 240e6 || vco_out_frequency > 480e6) {
-          return;
-        }
+        // VCO multiplier: N in [20, 480]
+        for (uint32_t N = 20; N <= 480; N++) {
+            double f_vco_out = f_vco_in * N;
 
-        // check if the calculate frequency matches the target
-        // only if no previous match has been found
-        if (pll_out_frequency == target_frequency && best_M == 0) {
-          best_M = M;
-          best_N = N;
-          best_P = P;
-        }
-      });
-    });
-  //});
+            // 240 <= VCO_out <= 480 MHz
+            if (f_vco_out < 240e6 || f_vco_out > 480e6) {
+                continue;
+            }
 
-  return {
-    .PllpDiv = best_P,
-    .PllqDiv = best_P, // don't care for Q and R
-    .PllrDiv = best_P, // "
-    .plln = best_N,
-    .pllmDiv = best_M,
-  };
+            // Output "P" divider: P in [2, 16]
+            for (uint32_t P = 2; P <= 16; P++) {
+                double f_calculated_out = f_vco_out / P;
+                if (f_calculated_out == target_frequency) {
+                    // Found a match, return it
+                    return {
+                      .PllpDiv = P,
+                      .PllqDiv = P, // Don't care for Q and R
+                      .PllrDiv = P, // "
+                      .plln =    N,
+                      .pllmDiv = M,
+                    };
+                }
+            }
+        }
+    }
+
+    // If no valid M, N, P found, return invalid config
+    return { 0, 0, 0, 0, 0 };
 }
 
 /**
  * @brief Get the division factor required to get the target frequency from the input frequency.
  * @tparam input_freq The input frequency.
  * @tparam target_freq The target frequency.
- * @return The division factor. 
+ * @return The division factor.
  */
 template <uint32_t input_freq, uint32_t target_freq>
 constexpr en_clk_sysclk_div_factor_t get_division_factor()
@@ -147,7 +117,7 @@ constexpr en_clk_sysclk_div_factor_t get_division_factor()
 }
 
 /**
- * @brief Validate the runtime clocks match the expected values. 
+ * @brief Validate the runtime clocks match the expected values.
  */
 void validate_system_clocks()
 {
@@ -191,7 +161,7 @@ void core_hook_sysclock_init() {
     constexpr uint32_t mpll_input_clock = BOARD_XTAL_FREQUENCY;
 
     sysclock_configure_xtal();
-    
+
     #if BOARD_XTAL_FREQUENCY == 16000000
       #warning "HC32F460 with 16 MHz XTAL has not been tested."
     #endif
@@ -246,13 +216,13 @@ void core_hook_sysclock_init() {
   #if ARDUINO_CORE_VERSION_INT >= GET_VERSION_INT(1, 2, 0)
     assert_mpll_config_valid<
       mpll_input_clock,
-      pllConf.pllmDiv,  
+      pllConf.pllmDiv,
       pllConf.plln,
       pllConf.PllpDiv,
       pllConf.PllqDiv,
       pllConf.PllrDiv
     >();
-    
+
     assert_system_clocks_valid<
       F_SYSTEM_CLOCK,
       sysClkConf.enHclkDiv,
