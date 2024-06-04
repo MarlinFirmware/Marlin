@@ -274,13 +274,6 @@ enum AxisEnum : uint8_t {
 #define LOOP_DISTINCT_AXES(VAR) for (uint8_t VAR = 0; VAR < DISTINCT_AXES; ++VAR)
 #define LOOP_DISTINCT_E(VAR) for (uint8_t VAR = 0; VAR < DISTINCT_E; ++VAR)
 
-// Time, ticks, cycles
-typedef uint32_t cycles_t;  // Cycle counting may be larger than timer size
-typedef uint32_t ticks_t;   // Tick counting, according to each timer's rate
-typedef uint32_t micros_t;  // Microseconds
-typedef uint32_t nanos_t;   // Nanoseconds
-typedef uint32_t hertz_t;   // Hertz
-
 //
 // feedRate_t is just a humble float
 //

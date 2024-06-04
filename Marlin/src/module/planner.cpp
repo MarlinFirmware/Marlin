@@ -2304,7 +2304,7 @@ bool Planner::_populate_block(
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ANY(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time in microseconds
-    micros_t segment_time_us = LROUND(1000000.0f / inverse_secs);
+    int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -2315,10 +2315,10 @@ bool Planner::_populate_block(
       #ifdef MAX7219_DEBUG_SLOWDOWN
         slowdown_count = (slowdown_count + 1) & 0x0F;
       #endif
-      const micros_t time_diff = settings.min_segment_time_us - segment_time_us;
+      const int32_t time_diff = settings.min_segment_time_us - segment_time_us;
       if (time_diff > 0) {
         // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
-        const micros_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
+        const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
         #if defined(XY_FREQUENCY_LIMIT) || HAS_WIRED_LCD
           segment_time_us = nst;
