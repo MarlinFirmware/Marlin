@@ -52,25 +52,6 @@
 
 namespace Anycubic {
 
-  const char MESSAGE_charu[]          = {0xB4, 0xE6, 0xB4, 0xA2, 0xBF, 0xA8, 0xD2, 0xD1, 0xB2, 0xE5, 0xC8, 0xEB, 0x00}; // '忙'垄驴篓脪脩虏氓脠毛
-  const char MESSAGE_bachu[]          = {0xB4, 0xE6, 0xB4, 0xA2, 0xBF, 0xA8, 0xD2, 0xD1, 0xB0, 0xCE, 0xB3, 0xF6, 0x00};
-  const char MESSAGE_wuka[]           = {0xCE, 0xDE, 0xB4, 0xE6, 0xB4, 0xA2, 0xBF, 0xA8, 0x00};
-  const char MESSAGE_lianji[]         = {0xC1, 0xAA, 0xBB, 0xFA, 0xD6, 0xD0, 0x00};
-  const char MESSAGE_tuoji[]          = {0xCD, 0xD1, 0xBB, 0xFA, 0xB4, 0xF2, 0xD3, 0xA1, 0xD6, 0xD0, 0x00};
-  const char MESSAGE_zanting[]        = {0xB4, 0xF2, 0xD3, 0xA1, 0xD4, 0xDD, 0xCD, 0xA3, 0xD6, 0xD0, 0x00};
-  const char MESSAGE_tingzhi[]        = {0xCD, 0xA3, 0xD6, 0xB9, 0xB4, 0xF2, 0xD3, 0xA1, 0x00};
-  const char MESSAGE_wancheng[]       = {0xCD, 0xEA, 0xB3, 0xC9, 0xB4, 0xF2, 0xD3, 0xA1, 0x00};
-  const char MESSAGE_hotend_heating[] = {0xB4, 0xF2, 0xD3, 0xA1, 0xCD, 0xB7, 0xD5, 0xFD, 0xD4, 0xDA, 0xBC, 0xD3, 0xC8, 0xC8, 0x00};
-  const char MESSAGE_hotend_over[]    = {0xB4, 0xF2, 0xD3, 0xA1, 0xCD, 0xB7, 0xBC, 0xD3, 0xC8, 0xC8, 0xCD, 0xEA, 0xB3, 0xC9, 0x00};
-  const char MESSAGE_bed_heating[]    = {0xC8, 0xC8, 0xB4, 0xB2, 0xD5, 0xFD, 0xD4, 0xDA, 0xBC, 0xD3, 0xC8, 0xC8, 0x00};
-  const char MESSAGE_bed_over[]       = {0xC8, 0xC8, 0xB4, 0xB2, 0xBC, 0xD3, 0xC8, 0xC8, 0xCD, 0xEA, 0xB3, 0xC9, 0x00};
-  const char MESSAGE_ready[]          = {0xD7, 0xBC, 0xB1, 0xB8, 0xBE, 0xCD, 0xD0, 0xF7, 0x00};
-  const char MESSAGE_cold[]           = {0xB4, 0xF2, 0xD3, 0xA1, 0xCD, 0xB7, 0xCE, 0xC2, 0xB6, 0xC8, 0xB9, 0xFD, 0xB5, 0xCD, 0x00};
-
-  const char *p_mesage[] = { MESSAGE_charu, MESSAGE_bachu, MESSAGE_wuka, MESSAGE_lianji, MESSAGE_tuoji, MESSAGE_zanting,
-                             MESSAGE_tingzhi, MESSAGE_wancheng, MESSAGE_hotend_heating, MESSAGE_hotend_over, MESSAGE_bed_heating,
-                             MESSAGE_bed_over, MESSAGE_ready, MESSAGE_cold };
-
   DgusTFT::p_fun fun_array[] = {
     DgusTFT::page1,  DgusTFT::page2,  DgusTFT::page3,  DgusTFT::page4,  DgusTFT::page5,  DgusTFT::page6,
     DgusTFT::page7,  DgusTFT::page8,  DgusTFT::page9,  DgusTFT::page10, DgusTFT::page11, DgusTFT::page12,
@@ -100,7 +81,6 @@ namespace Anycubic {
   uint8_t DgusTFT::data_buf[DATA_BUF_SIZE];
   uint8_t DgusTFT::data_index;
   uint16_t DgusTFT::page_index_now, DgusTFT::page_index_last, DgusTFT::page_index_last_2;
-  uint8_t DgusTFT::message_index;
   uint8_t DgusTFT::pop_up_index;
   uint32_t DgusTFT::key_value;
   uint8_t DgusTFT::lcd_txtbox_index;
@@ -121,7 +101,6 @@ namespace Anycubic {
 
   DgusTFT::DgusTFT() {
     data_buf[0] = '\0';
-    message_index = 100;
     pop_up_index = 100;
     page_index_now = page_index_last = page_index_last_2 = 1;
     lcd_txtbox_index = 0;
@@ -1109,24 +1088,6 @@ namespace Anycubic {
     }
   }
 
-  #if 0
-    {
-      // Break these up into logical blocks // as its easier to navigate than one huge switch case!
-      int8_t req = atoi(&panel_command[1]);
-
-      // Information requests A0 - A8 and A33
-      if (req <= 8 || req == 33) panelInfo(req);
-
-      // Simple Actions A9 - A28
-      else if (req <= 28) panelAction(req);
-
-      // Process Initiation
-      else if (req <= 34) panelProcess(req);
-
-      else tftSendLn();
-    }
-  #endif
-
   void DgusTFT::set_language(language_t language) {
     lcd_info.language = ui_language = lcd_info_back.language = language;
   }
@@ -1208,13 +1169,6 @@ namespace Anycubic {
         goto_system_page();
         break;
     }
-
-    #if 0
-      if (message_index < 30) {
-        sendTxtToTFT(p_mesage[message_index], TXT_MAIN_MESSAGE);
-        message_index = 30;
-      }
-    #endif
 
     #if HAS_HOTEND || HAS_HEATED_BED
       static millis_t flash_time = 0;
@@ -2474,7 +2428,6 @@ namespace Anycubic {
         if (isPrintingFromMedia()) {
           printer_state = AC_printer_stopping;
           stopPrint();
-          message_index = 6;
           changePageOfTFT(PAGE_MAIN);
         }
         else {

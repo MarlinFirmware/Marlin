@@ -341,7 +341,6 @@ namespace Anycubic {
     static uint8_t      data_buf[DATA_BUF_SIZE];
     static uint8_t      data_index;
     static uint16_t     page_index_last, page_index_last_2;
-    static uint8_t      message_index;
     static uint8_t      pop_up_index;
     static uint32_t     key_value;
     static uint8_t      lcd_txtbox_index;
@@ -457,9 +456,6 @@ namespace Anycubic {
       static void sendFileList(int8_t);
       static void selectFile();
       static void processPanelRequest();
-      static void panelInfo(uint8_t);
-      static void panelAction(uint8_t);
-      static void panelProcess(uint8_t);
 
       static void sendValueToTFT(const uint16_t value, const uint16_t address);
       static void requestValueFromTFT(const uint16_t address);
