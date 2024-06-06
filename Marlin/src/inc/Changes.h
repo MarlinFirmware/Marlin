@@ -641,6 +641,8 @@
   #error "PROBE_PT_[123]_[XY] is now defined using PROBE_PT_[123] with an array { x, y }."
 #elif defined(SQUARE_WAVE_STEPPING)
   #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
+#elif defined(MINIMUM_STEPPER_PULSE)
+  #error "MINIMUM_STEPPER_PULSE (in µs) is now MINIMUM_STEPPER_PULSE_NS. Multiply old MINIMUM_STEPPER_PULSE x 1000!"
 #elif defined(FAN_PIN)
   #error "FAN_PIN is now FAN0_PIN."
 #elif defined(X_MIN_ENDSTOP_INVERTING) || defined(Y_MIN_ENDSTOP_INVERTING) || defined(Z_MIN_ENDSTOP_INVERTING) \
