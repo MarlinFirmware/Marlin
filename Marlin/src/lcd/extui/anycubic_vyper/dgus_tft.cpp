@@ -781,6 +781,14 @@ namespace Anycubic {
     changePageOfTFT(page_index, true);
   }
 
+  void DgusTFT::changePageOfTFTToAbout() {
+    char str_ver[32];
+    //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
+    sprintf(str_ver, MAIN_BOARD_FIRMWARE_VER);
+    sendTxtToTFT(str_ver, TXT_VERSION);
+    changePageOfTFT(PAGE_ABOUT);
+  }
+
   void DgusTFT::lcdAudioSet(const bool audio_on) {
     // On:  5A A5 07 82 00 80 5A 00 00 1A
     // Off: 5A A5 07 82 00 80 5A 00 00 12
@@ -1924,13 +1932,9 @@ namespace Anycubic {
         toggle_audio();
         break;
 
-      case 5: {      // about
-        char str_ver[32];
-        //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
-        sprintf(str_ver, MAIN_BOARD_FIRMWARE_VER);
-        sendTxtToTFT(str_ver, TXT_VERSION);
-        changePageOfTFT(PAGE_ABOUT);
-      } break;
+      case 5:       // about
+        changePageOfTFTToAbout();
+        break;
 
       case 6:
         changePageOfTFT(PAGE_RECORD);
@@ -2696,11 +2700,7 @@ namespace Anycubic {
         break;
 
       case 5:       // about
-        char str_ver[32];
-        //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
-        sprintf(str_ver, MAIN_BOARD_FIRMWARE_VER);
-        sendTxtToTFT(str_ver, TXT_VERSION);
-        changePageOfTFT(PAGE_ABOUT);
+        changePageOfTFTToAbout();
         break;
 
       case 6:
@@ -2761,11 +2761,7 @@ namespace Anycubic {
         break;
 
       case 5:       // about
-        char str_ver[32];
-        //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
-        sprintf(str_ver, MAIN_BOARD_FIRMWARE_VER);
-        sendTxtToTFT(str_ver, TXT_VERSION);
-        changePageOfTFT(PAGE_ABOUT);
+        changePageOfTFTToAbout();
         break;
 
       case 6:

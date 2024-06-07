@@ -465,6 +465,7 @@ namespace Anycubic {
       static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
       static void fakeChangePageOfTFT(const uint16_t page_index);
       static void lcdAudioSet(const bool audio_on);
+      static void changePageOfTFTToAbout();
 
     private:
 
