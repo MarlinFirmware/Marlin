@@ -29,8 +29,6 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include "../ui_api.h"
 
-#define MAIN_BOARD_FIRMWARE_VER "V2.4.5"
-
 #define DATA_BUF_SIZE 64
 
 /****************** PAGE INDEX***********************/

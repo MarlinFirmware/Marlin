@@ -784,7 +784,7 @@ namespace Anycubic {
   void DgusTFT::changePageOfTFTToAbout() {
     char str_ver[32];
     //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
-    sprintf(str_ver, MAIN_BOARD_FIRMWARE_VER);
+    strlcpy_P(str_ver, getFirmwareName_str(), sizeof(str_ver));
     sendTxtToTFT(str_ver, TXT_VERSION);
     changePageOfTFT(PAGE_ABOUT);
   }
