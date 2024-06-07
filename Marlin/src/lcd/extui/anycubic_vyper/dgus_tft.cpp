@@ -535,6 +535,11 @@ namespace Anycubic {
       static grid_count_t probe_cnt = 0;
     #endif
 
+    // Visible in main page
+    char str_buf[30];
+    strlcpy_P(str_buf, msg, sizeof(str_buf));
+    sendTxtToTFT(str_buf, TXT_MAIN_MESSAGE);
+
     // The only way to get printer status is to parse messages
     // Use the state to minimise the work we do here.
     switch (printer_state) {
