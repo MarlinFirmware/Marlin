@@ -722,7 +722,8 @@ namespace Anycubic {
   }
 
   void DgusTFT::sendColorToTFT(const uint16_t color, const uint16_t address) {
-    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, uint8_t(address >> 8), uint8_t(address & 0xFF), uint8_t(color >> 8), uint8_t(color & 0xFF) };
+    uint16_t color_address = address + 3;
+    uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, uint8_t(color_address >> 8), uint8_t(color_address & 0xFF), uint8_t(color >> 8), uint8_t(color & 0xFF) };
     for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
   }
 
