@@ -331,15 +331,24 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // HAS_MEDIA
 
-  #if ENABLED(SHOW_BOOTSCREEN)
-    // Set boot screen corner characters
-    if (screen_charset == CHARSET_BOOT) {
-      for (uint8_t i = 4; i--;)
-        createChar_P(i, corner[i]);
-    }
-    else
-  #endif
-    { // Info Screen uses 5 special characters
+  switch (screen_charset) {
+
+    #if ENABLED(SHOW_BOOTSCREEN)
+      case CHARSET_BOOT: {
+        // Set boot screen corner characters
+        for (uint8_t i = 4; i--;) createChar_P(i, corner[i]);
+      } break;
+    #endif
+
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      case CHARSET_BOOT_CUSTOM: {
+        for (uint8_t i = COUNT(customBootChars); i--;)
+          createChar_P(i, customBootChars[i]);
+      } break;
+    #endif
+
+    default: {
+      // Info Screen uses 5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
@@ -361,7 +370,9 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
             createChar_P(LCD_STR_FOLDER[0], folder);
           #endif
         }
-    }
+    } break;
+
+  }
 
 }
 
@@ -399,6 +410,42 @@ void MarlinUI::init_lcd() {
 bool MarlinUI::detected() {
   return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
+
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X -1
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - COUNT(custom_boot_lines)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
+
+  void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
+    set_custom_characters(CHARSET_BOOT_CUSTOM);
+    lcd.clear();
+    const int8_t sx = CUSTOM_BOOTSCREEN_X;
+    const uint8_t sy = CUSTOM_BOOTSCREEN_Y;
+    for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
+      PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
+      const uint8_t clen = utf8_strlen_P(pstr);
+      const lcd_uint_t x = sx >= 0 ? sx : (LCD_WIDTH - clen) / 2;
+      for (lcd_uint_t j = 0; j < clen; ++j) {
+        const lchar_t c = pgm_read_byte(&pstr[j]);
+        lcd_put_lchar(x + j, sy + i, c == '\x08' ? '\x00' : c);
+      }
+    }
+  }
+
+  // Shows the custom bootscreen and delays
+  void MarlinUI::show_custom_bootscreen() {
+    draw_custom_bootscreen();
+    safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+  }
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
 
 #if HAS_SLOW_BUTTONS
   uint8_t MarlinUI::read_slow_buttons() {
@@ -466,6 +513,8 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
   }
 
   void MarlinUI::show_bootscreen() {
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+
     set_custom_characters(CHARSET_BOOT);
     lcd.clear();
 
@@ -660,9 +709,6 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       lcd_put_u8str(F("K"));
     #else
       lcd_put_u8str(cutter_power2str(cutter.unitPower));
-      #if CUTTER_UNIT_IS(PERCENT)
-        lcd_put_u8str(F("%"));
-      #endif
     #endif
 
     lcd_put_u8str(F(" "));

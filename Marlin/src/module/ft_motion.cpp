@@ -26,6 +26,7 @@
 
 #include "ft_motion.h"
 #include "stepper.h" // Access stepper block queue function and abort status.
+#include "endstops.h"
 
 FTMotion ftMotion;
 
@@ -59,6 +60,9 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
+millis_t FTMotion::axis_pos_move_end_ti[NUM_AXIS_ENUMS] = {0},
+         FTMotion::axis_neg_move_end_ti[NUM_AXIS_ENUMS] = {0};
+
 
 // Private variables.
 
@@ -110,9 +114,9 @@ uint32_t FTMotion::interpIdx = 0,               // Index of current data point b
 #if HAS_X_AXIS
   FTMotion::shaping_t FTMotion::shaping = {
     0, 0,
-    x:{ { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
+    x:{ false, { 0.0f }, { 0.0f }, { 0 } },            // d_zi, Ai, Ni
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
+      y:{ false, { 0.0f }, { 0.0f }, { 0 } }           // d_zi, Ai, Ni
     #endif
   };
 #endif
@@ -131,7 +135,10 @@ constexpr uint32_t last_batchIdx = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE);
 
 // Public functions.
 
+static bool markBlockStart = false;
+
 // Sets controller states to begin processing a block.
+// Called by Stepper::ftMotion_blockQueueUpdate, invoked from the main loop.
 void FTMotion::startBlockProc() {
   blockProcRdy = true;
   blockProcDn = false;
@@ -166,11 +173,13 @@ void FTMotion::loop() {
 
   if (!cfg.mode) return;
 
-  // Handle block abort with the following sequence:
-  // 1. Zero out commands in stepper ISR.
-  // 2. Drain the motion buffer, stop processing until they are emptied.
-  // 3. Reset all the states / memory.
-  // 4. Signal ready for new block.
+  /**
+   * Handle block abort with the following sequence:
+   * 1. Zero out commands in stepper ISR.
+   * 2. Drain the motion buffer, stop processing until they are emptied.
+   * 3. Reset all the states / memory.
+   * 4. Signal ready for new block.
+   */
   if (stepper.abort_current_block) {
     if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
     reset();
@@ -183,7 +192,10 @@ void FTMotion::loop() {
 
   if (blockProcRdy) {
     if (!blockProcRdy_z1) { // One-shot.
-      if (!blockDataIsRunout) loadBlockData(stepper.current_block);
+      if (!blockDataIsRunout) {
+        loadBlockData(stepper.current_block);
+        markBlockStart = true;
+      }
       else blockDataIsRunout = false;
     }
     while (!blockProcDn && !batchRdy && (makeVector_idx - makeVector_idx_z1 < (FTM_POINTS_PER_LOOP)))
@@ -199,22 +211,12 @@ void FTMotion::loop() {
       trajMod = traj; // Move the window to traj
     #else
       // Copy the uncompensated vectors.
-      #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A))
-      LOGICAL_AXIS_CODE(
-        TCOPY(e),
-        TCOPY(x), TCOPY(y), TCOPY(z),
-        TCOPY(i), TCOPY(j), TCOPY(k),
-        TCOPY(u), TCOPY(v), TCOPY(w)
-      );
+      #define TCOPY(A) memcpy(trajMod.A, traj.A, sizeof(trajMod.A));
+      LOGICAL_AXIS_MAP_LC(TCOPY);
 
       // Shift the time series back in the window
-      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]))
-      LOGICAL_AXIS_CODE(
-        TSHIFT(e),
-        TSHIFT(x), TSHIFT(y), TSHIFT(z),
-        TSHIFT(i), TSHIFT(j), TSHIFT(k),
-        TSHIFT(u), TSHIFT(v), TSHIFT(w)
-      );
+      #define TSHIFT(A) memcpy(traj.A, &traj.A[FTM_BATCH_SIZE], last_batchIdx * sizeof(traj.A[0]));
+      LOGICAL_AXIS_MAP_LC(TSHIFT);
     #endif
 
     // ... data is ready in trajMod.
@@ -471,6 +473,9 @@ void FTMotion::reset() {
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+
+  ZERO(axis_pos_move_end_ti);
+  ZERO(axis_neg_move_end_ti);
 }
 
 // Private functions.
@@ -490,14 +495,14 @@ void FTMotion::init() {
   reset(); // Precautionary.
 }
 
-// Loads / converts block data from planner to fixed-time control variables.
+// Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
   startPosn = endPosn_prevBlock;
-  xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
+  const xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
     current_block->steps.e * planner.mm_per_step[E_AXIS_N(current_block->extruder)] * (current_block->direction_bits.e ? 1 : -1),
     current_block->steps.x * planner.mm_per_step[X_AXIS] * (current_block->direction_bits.x ? 1 : -1),
     current_block->steps.y * planner.mm_per_step[Y_AXIS] * (current_block->direction_bits.y ? 1 : -1),
@@ -574,7 +579,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
    *  f_s * T1_P : (mm) Distance traveled during the accel phase
    *  f_e * T3_P : (mm) Distance traveled during the decel phase
    */
-  F_P = (2.0f * totalLength - f_s * T1_P - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
+  const float adist = f_s * T1_P;
+  F_P = (2.0f * totalLength - adist - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
 
   // Calculate the acceleration and deceleration rates
   accel_P = N1 ? ((F_P - f_s) / T1_P) : 0.0f;
@@ -582,7 +588,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   decel_P = (f_e - F_P) / T3_P;
 
   // Calculate the distance traveled during the accel phase
-  s_1e = f_s * T1_P + 0.5f * accel_P * sq(T1_P);
+  s_1e = adist + 0.5f * accel_P * sq(T1_P);
 
   // Calculate the distance traveled during the decel phase
   s_2e = s_1e + F_P * T2_P;
@@ -591,6 +597,43 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   max_intervals = N1 + N2 + N3;
 
   endPosn_prevBlock += moveDist;
+
+  millis_t move_end_ti = millis() + SEC_TO_MS(FTM_TS*(float)(max_intervals + num_samples_cmpnstr_settle() + (PROP_BATCHES+1)*FTM_BATCH_SIZE) + ((float)FTM_STEPPERCMD_BUFF_SIZE/(float)FTM_STEPPER_FS));
+
+  #if CORE_IS_XY
+    if (moveDist.x > 0.f)              axis_pos_move_end_ti[A_AXIS] = move_end_ti;
+    if (moveDist.y > 0.f)              axis_pos_move_end_ti[B_AXIS] = move_end_ti;
+    if (moveDist.x + moveDist.y > 0.f) axis_pos_move_end_ti[X_HEAD] = move_end_ti;
+    if (moveDist.x - moveDist.y > 0.f) axis_pos_move_end_ti[Y_HEAD] = move_end_ti;
+    if (moveDist.x < 0.f)              axis_neg_move_end_ti[A_AXIS] = move_end_ti;
+    if (moveDist.y < 0.f)              axis_neg_move_end_ti[B_AXIS] = move_end_ti;
+    if (moveDist.x + moveDist.y < 0.f) axis_neg_move_end_ti[X_HEAD] = move_end_ti;
+    if (moveDist.x - moveDist.y < 0.f) axis_neg_move_end_ti[Y_HEAD] = move_end_ti;
+  #else
+    if (moveDist.x > 0.f)              axis_pos_move_end_ti[X_AXIS] = move_end_ti;
+    if (moveDist.y > 0.f)              axis_pos_move_end_ti[Y_AXIS] = move_end_ti;
+    if (moveDist.x < 0.f)              axis_neg_move_end_ti[X_AXIS] = move_end_ti;
+    if (moveDist.y < 0.f)              axis_neg_move_end_ti[Y_AXIS] = move_end_ti;
+  #endif
+  if (moveDist.z > 0.f) axis_pos_move_end_ti[Z_AXIS] = move_end_ti;
+  if (moveDist.z < 0.f) axis_neg_move_end_ti[Z_AXIS] = move_end_ti;
+  // if (moveDist.i > 0.f) axis_pos_move_end_ti[I_AXIS] = move_end_ti;
+  // if (moveDist.i < 0.f) axis_neg_move_end_ti[I_AXIS] = move_end_ti;
+  // if (moveDist.j > 0.f) axis_pos_move_end_ti[J_AXIS] = move_end_ti;
+  // if (moveDist.j < 0.f) axis_neg_move_end_ti[J_AXIS] = move_end_ti;
+  // if (moveDist.k > 0.f) axis_pos_move_end_ti[K_AXIS] = move_end_ti;
+  // if (moveDist.k < 0.f) axis_neg_move_end_ti[K_AXIS] = move_end_ti;
+  // if (moveDist.u > 0.f) axis_pos_move_end_ti[U_AXIS] = move_end_ti;
+  // if (moveDist.u < 0.f) axis_neg_move_end_ti[U_AXIS] = move_end_ti;
+  // .
+  // .
+  // .
+
+  // If the endstop is already pressed, endstop interrupts won't invoke
+  // endstop_triggered and the move will grind. So check here for a
+  // triggered endstop, which shortly marks the block for discard.
+  endstops.update();
+
 }
 
 // Generate data points of the trajectory.
@@ -607,7 +650,6 @@ void FTMotion::makeVector() {
   else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
     dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
-    //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
@@ -616,18 +658,8 @@ void FTMotion::makeVector() {
     accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
   }
 
-  LOGICAL_AXIS_CODE(
-    traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
-    traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
-    traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
-    traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
-    traj.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
-    traj.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
-    traj.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
-    traj.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
-    traj.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
-    traj.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
-  );
+  #define _FTM_TRAJ(A) traj.A[makeVector_batchIdx] = startPosn.A + ratio.A * dist;
+  LOGICAL_AXIS_MAP_LC(_FTM_TRAJ);
 
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
@@ -706,7 +738,7 @@ void FTMotion::makeVector() {
  * - Tests for delta are moved outside the loop.
  * - Two functions are used for command computation with an array of function pointers.
  */
-static void (*command_set[NUM_AXES TERN0(HAS_EXTRUDERS, +1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
+static void (*command_set[SUM_TERN(HAS_EXTRUDERS, NUM_AXES, 1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
 
 static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
   if (e < FTM_CTS_COMPARE_VAL) return;
@@ -730,7 +762,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #if ENABLED(STEPS_ROUNDING)
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] + (trajMod.A[idx] < 0.0f ? -0.5f : 0.5f))
     const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(current_block->extruder)), // May be eliminated if guaranteed positive.
+      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)), // May be eliminated if guaranteed positive.
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
@@ -739,47 +771,37 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #else
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B]) - steps.A
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(current_block->extruder)),
+      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)),
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
     );
   #endif
 
-  LOGICAL_AXIS_CODE(
-    command_set[E_AXIS_N(current_block->extruder)] = delta.e >= 0 ?  command_set_pos : command_set_neg,
-    command_set[X_AXIS] = delta.x >= 0 ?  command_set_pos : command_set_neg,
-    command_set[Y_AXIS] = delta.y >= 0 ?  command_set_pos : command_set_neg,
-    command_set[Z_AXIS] = delta.z >= 0 ?  command_set_pos : command_set_neg,
-    command_set[I_AXIS] = delta.i >= 0 ?  command_set_pos : command_set_neg,
-    command_set[J_AXIS] = delta.j >= 0 ?  command_set_pos : command_set_neg,
-    command_set[K_AXIS] = delta.k >= 0 ?  command_set_pos : command_set_neg,
-    command_set[U_AXIS] = delta.u >= 0 ?  command_set_pos : command_set_neg,
-    command_set[V_AXIS] = delta.v >= 0 ?  command_set_pos : command_set_neg,
-    command_set[W_AXIS] = delta.w >= 0 ?  command_set_pos : command_set_neg
-  );
+  #define _COMMAND_SET(AXIS) command_set[_AXIS(AXIS)] = delta[_AXIS(AXIS)] >= 0 ? command_set_pos : command_set_neg;
+  LOGICAL_AXIS_MAP(_COMMAND_SET);
 
   for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
 
-    // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
-    stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
+    ft_command_t &cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
 
+    // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
+    cmd = 0;
+
+    // Mark the start of a new block
+    if (markBlockStart) {
+      cmd = _BV(FT_BIT_START);
+      markBlockStart = false;
+    }
+
+    // Accumulate the errors for all axes
     err_P += delta;
 
     // Set up step/dir bits for all axes
-    LOGICAL_AXIS_CODE(
-      command_set[E_AXIS_N(current_block->extruder)](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      command_set[X_AXIS](err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      command_set[Y_AXIS](err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      command_set[Z_AXIS](err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      command_set[I_AXIS](err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      command_set[J_AXIS](err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      command_set[K_AXIS](err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      command_set[U_AXIS](err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      command_set[V_AXIS](err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      command_set[W_AXIS](err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
-    );
+    #define _COMMAND_RUN(AXIS) command_set[_AXIS(AXIS)](err_P[_AXIS(AXIS)], steps[_AXIS(AXIS)], cmd, _BV(FT_BIT_DIR_##AXIS), _BV(FT_BIT_STEP_##AXIS));
+    LOGICAL_AXIS_MAP(_COMMAND_RUN);
 
+    // Next circular buffer index
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       stepperCmdBuff_produceIdx = 0;
 

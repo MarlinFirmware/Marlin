@@ -45,9 +45,9 @@ namespace ExtUI {
     chiron.printerKilled(error, component);
   }
 
-  void onMediaInserted() { chiron.mediaEvent(AC_media_inserted); }
-  void onMediaError()    { chiron.mediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { chiron.mediaEvent(AC_media_removed);  }
+  void onMediaMounted() { chiron.mediaEvent(AC_media_inserted); }
+  void onMediaError()   { chiron.mediaEvent(AC_media_error);    }
+  void onMediaRemoved() { chiron.mediaEvent(AC_media_removed);  }
 
   void onHeatingError(const heater_id_t header_id) {}
   void onMinTempError(const heater_id_t header_id) {}

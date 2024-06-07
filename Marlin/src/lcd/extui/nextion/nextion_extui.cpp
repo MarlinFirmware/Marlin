@@ -39,7 +39,7 @@ namespace ExtUI {
   void onIdle() { nextion.idleLoop(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { nextion.printerKilled(error, component); }
 
-  void onMediaInserted() {}
+  void onMediaMounted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
 
@@ -61,7 +61,7 @@ namespace ExtUI {
     UNUSED(icon); UNUSED(fBtn);
   }
   void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
-    onUserConfirmRequired(cstr);
+    onUserConfirmRequired(fstr);
     UNUSED(icon); UNUSED(fBtn);
   }
 

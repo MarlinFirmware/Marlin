@@ -212,6 +212,11 @@ public:
    */
   static void set_current_line_number(long n) { serial_state[ring_buffer.command_port().index].last_N = n; }
 
+  /**
+   * Get the current line number for the last received command
+   */
+  static long get_current_line_number() { return serial_state[ring_buffer.command_port().index].last_N; }
+
   #if ENABLED(BUFFER_MONITORING)
 
     private:

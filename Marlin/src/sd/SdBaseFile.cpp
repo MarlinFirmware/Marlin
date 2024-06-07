@@ -253,7 +253,7 @@ bool SdBaseFile::exists(const char *name) {
  *
  * \return For success fgets() returns the length of the string in \a str.
  * If no data is read, fgets() returns zero for EOF or -1 if an error occurred.
- **/
+ */
 int16_t SdBaseFile::fgets(char *str, int16_t num, char *delim) {
   char ch;
   int16_t n = 0;
