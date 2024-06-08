@@ -70,7 +70,9 @@
 #define EXP3_PIN                              11  // SERVO0_PIN
 #define EXP4_PIN                              12  // PS_ON_PIN
 
-#define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
-#ifndef SUICIDE_PIN_STATE
-  #define SUICIDE_PIN_STATE                 HIGH
+#ifndef SUICIDE_PIN
+  #define SUICIDE_PIN                         12  // Used by CR2020 Industrial series
+  #ifndef SUICIDE_PIN_STATE
+    #define SUICIDE_PIN_STATE               HIGH
+  #endif
 #endif
