@@ -1232,7 +1232,7 @@ void drawMainArea() {
           #if ENABLED(PIDTEMP)
             case PIDTEMP_START: drawHPlot(); break;
           #elif ENABLED(MPCTEMP)
-            case MPCTEMP_START: drawHPlot(); break;
+            case MPC_STARTED: drawHPlot(); break;
           #endif
           #if ENABLED(PIDTEMPBED)
             case PIDTEMPBED_START: drawBPlot(); break;
