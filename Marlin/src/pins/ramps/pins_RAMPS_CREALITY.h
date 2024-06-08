@@ -73,6 +73,6 @@
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN                         12  // Used by CR2020 Industrial series
   #ifndef SUICIDE_PIN_STATE
-    #define SUICIDE_PIN_STATE                 HIGH
+    #define SUICIDE_PIN_STATE               HIGH
   #endif
 #endif
