@@ -55,9 +55,6 @@
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
-// Nanoseconds per cycle
-#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -197,8 +194,8 @@
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define ANY(V...)          !DISABLED(V)
-#define ALL                 ENABLED
-#define NONE                DISABLED
+#define ALL(V...)           ENABLED(V)
+#define NONE(V...)          DISABLED(V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
@@ -630,7 +627,7 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL           EVAL16
+#define EVAL(V...)     EVAL16(V)
 #define EVAL4096(V...) EVAL2048(EVAL2048(V))
 #define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))

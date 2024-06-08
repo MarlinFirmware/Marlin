@@ -40,184 +40,123 @@
    * take longer, pulses will be longer. For example the SKR Pro
    * (stm32f407zgt6) requires ~60 cyles.
    */
-  #define TIMER_READ_ADD_AND_STORE_CYCLES 34UL
+  constexpr uint32_t timer_read_add_and_store_cycles = 34UL;
 
   // The base ISR
-  #define ISR_BASE_CYCLES 770UL
+  constexpr uint32_t isr_base_cycles = 770UL;
 
   // Linear advance base time is 64 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 64UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 64UL);
 
   // S curve interpolation adds 40 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #ifdef STM32G0B1xx
-      #define ISR_S_CURVE_CYCLES 500UL
-    #else
-      #define ISR_S_CURVE_CYCLES 40UL
-    #endif
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, TERN(STM32G0B1xx, 500UL, 40UL));
 
   // Input shaping base time
-  #if HAS_ZV_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 180UL
-  #else
-    #define ISR_SHAPING_BASE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 180UL);
 
   // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 4UL
+  constexpr uint32_t isr_loop_base_cycles = 4UL;
 
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 100UL
+  constexpr uint32_t isr_stepper_cycles = 100UL;
 
 #else
 
   // Cycles to perform actions in START_TIMED_PULSE
-  #define TIMER_READ_ADD_AND_STORE_CYCLES 13UL
+  constexpr uint32_t timer_read_add_and_store_cycles = 13UL;
 
   // The base ISR
-  #define ISR_BASE_CYCLES  882UL
+  constexpr uint32_t isr_base_cycles = 882UL;
 
   // Linear advance base time is 32 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 30UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_la_base_cycles = TERN0(LIN_ADVANCE, 30UL);
 
   // S curve interpolation adds 160 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 160UL
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_s_curve_cycles = TERN0(S_CURVE_ACCELERATION, 160UL);
 
   // Input shaping base time
-  #if HAS_ZV_SHAPING
-    #define ISR_SHAPING_BASE_CYCLES 290UL
-  #else
-    #define ISR_SHAPING_BASE_CYCLES 0UL
-  #endif
+  constexpr uint32_t isr_shaping_base_cycles = TERN0(HAS_ZV_SHAPING, 290UL);
 
   // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 32UL
+  constexpr uint32_t isr_loop_base_cycles = 32UL;
 
   // And each stepper (start + stop pulse) takes in worst case
-  #define ISR_STEPPER_CYCLES 60UL
+  constexpr uint32_t isr_stepper_cycles = 60UL;
 
 #endif
 
 // If linear advance is disabled, the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
-  #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
-#else
-  #define ISR_MIXING_STEPPER_CYCLES  0UL
-#endif
+constexpr uint32_t isr_mixing_stepper_cycles = (0UL
+  #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+    + (MIXING_STEPPERS) * isr_stepper_cycles
+  #endif
+);
 
-// Add time for each stepper
-#if HAS_X_STEP
-  #define ISR_X_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_Y_STEP
-  #define ISR_Y_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_Z_STEP
-  #define ISR_Z_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_I_STEP
-  #define ISR_I_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_J_STEP
-  #define ISR_J_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_K_STEP
-  #define ISR_K_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_U_STEP
-  #define ISR_U_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_V_STEP
-  #define ISR_V_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_W_STEP
-  #define ISR_W_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#endif
-#if HAS_EXTRUDERS
-  #define ISR_E_STEPPER_CYCLES ISR_STEPPER_CYCLES // E is always interpolated, even for mixing extruders
-#endif
-
-// And the total minimum loop time, not including the base
-#define _PLUS_AXIS_CYCLES(A) + (ISR_##A##_STEPPER_CYCLES)
-#define MIN_ISR_LOOP_CYCLES (ISR_MIXING_STEPPER_CYCLES LOGICAL_AXIS_MAP(_PLUS_AXIS_CYCLES))
-
-// Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) _MAX(uint32_t((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
-#if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(uint32_t(MINIMUM_STEPPER_PULSE))
-#elif HAS_DRIVER(LV8729)
-  #define MIN_STEPPER_PULSE_CYCLES uint32_t((((F_CPU) - 1) / 2000000) + 1) // 0.5µs, aka 500ns
-#else
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
-#endif
+// And the total minimum loop time, for all steppers, not including the base
+constexpr uint32_t min_isr_loop_cycles = isr_mixing_stepper_cycles + LOGICAL_AXES * isr_stepper_cycles;
 
 // Calculate the minimum pulse times (high and low)
-#if MINIMUM_STEPPER_PULSE && MAXIMUM_STEPPER_RATE
-  constexpr uint32_t _MIN_STEP_PERIOD_NS = 1000000000UL / MAXIMUM_STEPPER_RATE;
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
-  constexpr uint32_t _MIN_PULSE_LOW_NS = _MAX((_MIN_STEP_PERIOD_NS - _MIN(_MIN_STEP_PERIOD_NS, _MIN_PULSE_HIGH_NS)), _MIN_PULSE_HIGH_NS);
-#elif MINIMUM_STEPPER_PULSE
-  // Assume 50% duty cycle
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 1000UL * MINIMUM_STEPPER_PULSE;
-  constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
-#elif MAXIMUM_STEPPER_RATE
-  // Assume 50% duty cycle
-  constexpr uint32_t _MIN_PULSE_HIGH_NS = 500000000UL / MAXIMUM_STEPPER_RATE;
-  constexpr uint32_t _MIN_PULSE_LOW_NS = _MIN_PULSE_HIGH_NS;
+#if defined(MINIMUM_STEPPER_PULSE_NS) && defined(MAXIMUM_STEPPER_RATE)
+  constexpr uint32_t _min_step_period_ns = 1000000000UL / (MAXIMUM_STEPPER_RATE),
+                     _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS,
+                     _min_pulse_low_ns = _MAX(_min_step_period_ns - _MIN(_min_step_period_ns, _min_pulse_high_ns), _min_pulse_high_ns);
+#elif defined(MINIMUM_STEPPER_PULSE_NS)
+  // Assume equal high and low pulse durations
+  constexpr uint32_t _min_pulse_high_ns = MINIMUM_STEPPER_PULSE_NS,
+                     _min_pulse_low_ns = _min_pulse_high_ns;
+#elif defined(MAXIMUM_STEPPER_RATE)
+  // Assume equal high and low pulse durations
+  constexpr uint32_t _min_pulse_high_ns = 500000000UL / MAXIMUM_STEPPER_RATE,
+                     _min_pulse_low_ns = _min_pulse_high_ns;
 #else
-  #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
+  #error "At least one of MINIMUM_STEPPER_PULSE_NS or MAXIMUM_STEPPER_RATE must be defined"
 #endif
+
+// Calculate the minimum MPU cycles needed per pulse to enforce
+constexpr uint32_t min_stepper_pulse_cycles = _min_pulse_high_ns * CYCLES_PER_MICROSECOND / 1000;
 
 // The loop takes the base time plus the time for all the bresenham logic for 1 << R pulses plus the time
 // between pulses for ((1 << R) - 1) pulses. But the user could be enforcing a minimum time so the loop time is:
-#define ISR_LOOP_CYCLES(R) ((ISR_LOOP_BASE_CYCLES + MIN_ISR_LOOP_CYCLES + MIN_STEPPER_PULSE_CYCLES) * ((1UL << R) - 1) + _MAX(MIN_ISR_LOOP_CYCLES, MIN_STEPPER_PULSE_CYCLES))
+constexpr uint32_t isr_loop_cycles(const int R) { return ((isr_loop_base_cycles + min_isr_loop_cycles + min_stepper_pulse_cycles) * ((1UL << R) - 1) + _MAX(min_isr_loop_cycles, min_stepper_pulse_cycles)); }
 
 // Model input shaping as an extra loop call
-#define ISR_SHAPING_LOOP_CYCLES(R) (TERN0(HAS_ZV_SHAPING, (ISR_LOOP_BASE_CYCLES + TERN0(INPUT_SHAPING_X, ISR_X_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Y, ISR_Y_STEPPER_CYCLES) + TERN0(INPUT_SHAPING_Z, ISR_Z_STEPPER_CYCLES)) << R))
+constexpr uint32_t isr_shaping_loop_cycles(const int R) {
+  return (
+    #if HAS_ZV_SHAPING
+        isr_loop_base_cycles
+      + isr_stepper_cycles * COUNT_ENABLED(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+    #else
+      0
+    #endif
+  ) << R;
+}
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
 
   // Estimate the minimum LA loop time
-  #if ENABLED(MIXING_EXTRUDER) // ToDo: ???
+  constexpr uint32_t min_isr_la_loop_cycles = (isr_stepper_cycles
+    // ToDo: ???
     // HELP ME: What is what?
     // Directions are set up for MIXING_STEPPERS - like before.
     // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
     //   These loops are a bit faster than advancing a bresenham counter.
     // Always only one E stepper is stepped.
-    #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
-  #else
-    #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
-  #endif
+    * TERN1(MIXING_EXTRUDER, (MIXING_STEPPERS))
+  );
 
-  // And the real loop time
-  #define ISR_LA_LOOP_CYCLES _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
-
-#else
-  #define ISR_LA_LOOP_CYCLES 0UL
 #endif
 
+// The real LA loop time will be the larger minimum (pulse or loop)
+constexpr uint32_t isr_la_loop_cycles = TERN0(LIN_ADVANCE, _MAX(min_stepper_pulse_cycles, min_isr_la_loop_cycles));
+
 // Estimate the total ISR execution time in cycles given a step-per-ISR shift multiplier
-#define ISR_EXECUTION_CYCLES(R) ((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + ISR_SHAPING_BASE_CYCLES + ISR_LOOP_CYCLES(R) + ISR_SHAPING_LOOP_CYCLES(R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES) >> R)
+constexpr uint32_t isr_execution_cycles(const int R) { return (isr_base_cycles + isr_s_curve_cycles + isr_shaping_base_cycles + isr_loop_cycles(R) + isr_shaping_loop_cycles(R) + isr_la_base_cycles + isr_la_loop_cycles) >> R; }
 
 // The maximum allowable stepping frequency when doing 1x stepping (in Hz)
-#define MAX_STEP_ISR_FREQUENCY_1X ((F_CPU) / ISR_EXECUTION_CYCLES(0))
+constexpr uint32_t max_step_isr_frequency_1x = (F_CPU) / isr_execution_cycles(0);
+constexpr uint32_t max_step_isr_frequency_sh(const int S) { return ((F_CPU) / isr_execution_cycles(S)) >> S; }
 
 // The minimum step ISR rate used by ADAPTIVE_STEP_SMOOTHING to target 50% CPU usage
 // This does not account for the possibility of multi-stepping.
-#define MIN_STEP_ISR_FREQUENCY (MAX_STEP_ISR_FREQUENCY_1X >> 1)
+constexpr uint32_t min_step_isr_frequency = max_step_isr_frequency_1x >> 1;

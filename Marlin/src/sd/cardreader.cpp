@@ -902,11 +902,11 @@ void CardReader::write_command(char * const buf) {
    * Select the newest file and ask the user if they want to print it.
    */
   bool CardReader::one_click_check() {
-    const bool found = selectNewestFile();
+    const bool found = selectNewestFile();    // Changes the current workDir if found
     if (found) {
       //SERIAL_ECHO_MSG(" OCP File: ", longest_filename(), "\n");
       //ui.init();
-      one_click_print();
+      one_click_print();                      // Restores workkDir to root (eventually)
     }
     return found;
   }
