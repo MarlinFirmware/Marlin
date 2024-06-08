@@ -88,8 +88,8 @@
  */
 #define MEGA_SOFT_SPI 0
 
-// Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
-#define USE_SOFTWARE_SPI 0
+// Set SDFAT_USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
+#define SDFAT_USE_SOFTWARE_SPI 0
 
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
