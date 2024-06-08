@@ -30,7 +30,7 @@
 void write_packet_data() {
 
   Packet packet = rs485Packetizer.getPacket();
-  for(size_t i = packet.startIndex; i <= packet.endIndex; i++) {
+  for (size_t i = packet.startIndex; i <= packet.endIndex; i++) {
     const uint8_t data = rs485Bus[i];
     if (data < 0x10) SERIAL_ECHOPGM_P(PSTR("0"));
     SERIAL_PRINT(data, PrintBase::Hex);
@@ -91,7 +91,7 @@ void GcodeSuite::M485() {
   const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
   switch (writeResult) {
     default: rs485_write_failed(writeResult);
-    case PacketWriteResult::OK:;  // Nothing to do
+    case PacketWriteResult::OK: break;  // Nothing to do
   }
 
   //millis_t startTime = millis();
