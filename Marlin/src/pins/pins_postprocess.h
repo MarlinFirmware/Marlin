@@ -559,34 +559,16 @@
   #endif
   #if ENABLED(Z_MULTI_ENDSTOPS)
     #if ((Z_HOME_TO_MIN && !defined(Z2_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z2_MAX_PIN))) && !defined(Z2_STOP_PIN)
-      #if Z_HOME_TO_MIN && defined(Z_MAX_PIN)
-        #define Z2_STOP_PIN Z_MAX_PIN
-      #elif Z_HOME_TO_MAX && defined(Z_MIN_PIN)
-        #define Z2_STOP_PIN Z_MIN_PIN
-      #else
-        #error "Cannot auto allocate Z2_STOP_PIN. Define Z2_STOP_PIN in Configuration_adv.h"
-      #endif
+      #error "Z2_STOP_PIN is required for Z_MULTI_ENDSTOPS. Define Z2_STOP_PIN in Configuration_adv.h."
     #endif
     #if NUM_Z_STEPPERS >= 3
       #if ((Z_HOME_TO_MIN && !defined(Z3_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z3_MAX_PIN))) && !defined(Z3_STOP_PIN)
-        #if Z_HOME_TO_MIN && defined(Z_MAX_PIN)
-          #define Z3_STOP_PIN Z_MAX_PIN
-        #elif Z_HOME_TO_MAX && defined(Z_MIN_PIN)
-          #define Z3_STOP_PIN Z_MIN_PIN
-        #else
-          #error "Cannot auto allocate Z3_STOP_PIN. Define Z3_STOP_PIN in Configuration_adv.h"
-        #endif
+        #error "Z3_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS >= 3. Define Z3_STOP_PIN in Configuration_adv.h."
       #endif
     #endif
     #if NUM_Z_STEPPERS >= 4
       #if ((Z_HOME_TO_MIN && !defined(Z4_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z4_MAX_PIN))) && !defined(Z4_STOP_PIN)
-        #if Z_HOME_TO_MIN && defined(Z_MAX_PIN)
-          #define Z4_STOP_PIN Z_MAX_PIN
-        #elif Z_HOME_TO_MAX && defined(Z_MIN_PIN)
-          #define Z4_STOP_PIN Z_MIN_PIN
-        #else
-          #error "Cannot auto allocate Z4_STOP_PIN. Define Z4_STOP_PIN in Configuration_adv.h"
-        #endif
+        #error "Z4_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS == 4. Define Z4_STOP_PIN in Configuration_adv.h."
       #endif
     #endif
   #endif
