@@ -69,7 +69,6 @@ static void swSpiInit() {
   OUT_WRITE(DOGLCD_SCK, LOW);
   OUT_WRITE(DOGLCD_MOSI, LOW);
   OUT_WRITE(DOGLCD_CS, HIGH);
-  return;
 }
 
 uint8_t u8g_com_HAL_STM32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
