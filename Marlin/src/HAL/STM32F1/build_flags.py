@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
 # extra script for linker options
 else:
-  import pioutil
+  from .....buildroot.share.PlatformIO.scripts import pioutil
   if pioutil.is_pio_build():
     from SCons.Script import DefaultEnvironment
     env = DefaultEnvironment()
