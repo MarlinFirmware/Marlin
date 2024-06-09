@@ -1,0 +1,8 @@
+#
+# Platform settings for the local project, overriding platform.txt.
+# See https://arduino.github.io/arduino-cli/latest/platform-specification/#platformlocaltxt
+#
+compiler.cpp.extra_flags=-DCUSTOM_VERSION_FILE=Version.h
+recipe.hooks.sketch.prebuild.1.pattern={build.source.path}/../buildroot/bin/generate_version "{build.source.path}"
+# Please help -- We need an implementation on Windows
+recipe.hooks.prebuild.1.pattern.windows=
