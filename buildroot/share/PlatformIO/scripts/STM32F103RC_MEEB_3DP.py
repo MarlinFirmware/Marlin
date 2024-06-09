@@ -3,7 +3,9 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
+    projenv = DefaultEnvironment()
     Import("env", "projenv")
 
     flash_size = 0

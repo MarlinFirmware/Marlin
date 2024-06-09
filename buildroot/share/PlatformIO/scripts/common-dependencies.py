@@ -5,9 +5,11 @@
 import pioutil
 if pioutil.is_pio_build():
 
-    import subprocess,os,re,fnmatch,glob
+    import os, re, fnmatch, glob
     srcfilepattern = re.compile(r".*[.](cpp|c)$")
     marlinbasedir = os.path.join(os.getcwd(), "Marlin/")
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
     Import("env")
 
     from platformio.package.meta import PackageSpec

@@ -8,7 +8,7 @@
 import pioutil, re
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
-    import shutil,marlin
+    import shutil, marlin
     from pathlib import Path
 
     #

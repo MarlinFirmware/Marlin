@@ -6,6 +6,8 @@
 import pioutil
 if pioutil.is_pio_build():
     # Get the environment thus far for the build
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
     Import("env")
 
     #print(env.Dump())

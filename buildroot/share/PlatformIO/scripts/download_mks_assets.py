@@ -4,8 +4,10 @@
 #
 import pioutil
 if pioutil.is_pio_build():
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
     Import("env")
-    import requests,zipfile,tempfile,shutil
+    import requests, zipfile, tempfile, shutil
     from pathlib import Path
 
     url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"

@@ -5,8 +5,10 @@
 import pioutil
 if pioutil.is_pio_build():
 
-    import re,sys
+    import re, sys
     from pathlib import Path
+    from SCons.Script import DefaultEnvironment
+    env = DefaultEnvironment()
     Import("env")
 
     def get_envs_for_board(board):

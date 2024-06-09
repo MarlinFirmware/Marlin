@@ -4,7 +4,7 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    import struct,uuid,marlin
+    import struct, uuid, marlin
 
     board = marlin.env.BoardConfig()
 
