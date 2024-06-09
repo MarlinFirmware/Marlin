@@ -1139,7 +1139,7 @@
 #define U_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define V_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define W_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-##define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
+#define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -2118,7 +2118,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // (mm) X point for Z homing
@@ -2602,7 +2602,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER //Hictop
 
 //
 // GT2560 (YHCB2004) LCD Display
