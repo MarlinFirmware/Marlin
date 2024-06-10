@@ -1134,14 +1134,14 @@ namespace Anycubic {
   }
 
   #if HAS_HOTEND
-    void DgusTFT::send_temperature_hotend(const uint32_t addr) {
-      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(E0)), '/', uint16_t(getTargetTemp_celsius(E0))), addr);
+    void DgusTFT::send_temperature_hotend(const uint16_t address) {
+      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(E0)), '/', uint16_t(getTargetTemp_celsius(E0))), address);
     }
   #endif
 
   #if HAS_HEATED_BED
-    void DgusTFT::send_temperature_bed(const uint32_t addr) {
-      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(BED)), '/', uint16_t(getTargetTemp_celsius(BED))), addr);
+    void DgusTFT::send_temperature_bed(const uint16_t address) {
+      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(BED)), '/', uint16_t(getTargetTemp_celsius(BED))), address);
     }
   #endif
 

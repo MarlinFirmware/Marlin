@@ -373,10 +373,10 @@ namespace Anycubic {
       static void store_changes();
 
       #if HAS_HOTEND
-        static void send_temperature_hotend(const uint32_t addr);
+        static void send_temperature_hotend(const uint16_t address);
       #endif
       #if HAS_HEATED_BED
-        static void send_temperature_bed(const uint32_t addr);
+        static void send_temperature_bed(const uint16_t address);
       #endif
 
       typedef void (*p_fun)();
