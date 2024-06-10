@@ -364,7 +364,6 @@ namespace Anycubic {
       static void filamentRunout();
       static void confirmationRequest(const char * const);
       static void statusChange(const char * const);
-      static void powerLoss();
       static void powerLossRecovery();
       static void homingStart();
       static void homingComplete();
