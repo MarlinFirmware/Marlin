@@ -3147,11 +3147,8 @@ namespace Anycubic {
         break;
 
       case 24: { //
-        uint32_t time = getProgress_seconds_elapsed() / 60;
-        char str_buf[20];
-        sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
-        sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
-        sendTxtToTFT(str_buf, TXT_FINISH_TIME);
+        const uint32_t time = getProgress_seconds_elapsed() / 60;
+        sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_FINISH_TIME);
         changePageOfTFT(PAGE_PRINT_FINISH);
         //tftSendLn(AC_msg_print_complete);   // no idea why this causes a compile error
         pop_up_index = 100;
