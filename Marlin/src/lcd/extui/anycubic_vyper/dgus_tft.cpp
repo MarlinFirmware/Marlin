@@ -1035,8 +1035,7 @@ namespace Anycubic {
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
           //feedrate_percentage=constrain(control_value,40,999);
-          sprintf_P(str_buf, PSTR("%u"), feedrate);
-          sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<4>(feedrate), TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
           setFeedrate_percent(feedrate);
@@ -1298,15 +1297,12 @@ namespace Anycubic {
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
             printFile(filenavigator.filelist.shortFilename());
 
-            char str_buf[20];
+            char str_buf[18];
             strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
-            sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
-            sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
-
-            sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
-            sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
+            sendTxtToTFT(ftostr72rj(getFeedrate_percent()), TXT_PRINT_SPEED);
+            sendTxtToTFT(MString<4>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
 
             sendTimeToTFT(0, TXT_PRINT_TIME);
 
@@ -1352,7 +1348,6 @@ namespace Anycubic {
     static millis_t flash_time = 0;
     const millis_t ms = millis();
     char str_buf[20];
-    static uint8_t progress_last = 0;
 
     switch (key_value) {
       case 0: break;
@@ -1400,24 +1395,23 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    if (feedrate_back != getFeedrate_percent()) {
-      if (getFeedrate_percent() != 0)
-        sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
+    const int16_t ifeedrate = int16_t(getFeedrate_percent());
+    if (feedrate_back != ifeedrate) {
+      if (ifeedrate != 0)
+        sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
       else
-        sprintf_P(str_buf, PSTR("%d"), feedrate_back);
+        sendTxtToTFT(MString<4>(feedrate_back), TXT_PRINT_SPEED);
 
       #if ACDEBUG(AC_MARLIN)
-        DEBUG_ECHOLNPGM("print speed: ", str_buf);
-        DEBUG_ECHOLNPGM("feedrate_back: ", feedrate_back);
+        DEBUG_ECHOLNPGM("print speed: ", ifeedrate, " feedrate_back: ", feedrate_back);
       #endif
-      sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
-      feedrate_back = getFeedrate_percent();
+      feedrate_back = ifeedrate;
     }
 
+    static uint8_t progress_last = 0;
     if (progress_last != getProgress_percent()) {
-      sprintf_P(str_buf, PSTR("%u"), getProgress_percent());
-      sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
       progress_last = getProgress_percent();
+      sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
     }
 
     // Report Printing Time in minutes
@@ -1437,7 +1431,6 @@ namespace Anycubic {
     #endif
 
     char str_buf[20];
-    static uint8_t progress_last = 0;
 
     switch (key_value) {
       case 0: break;
@@ -1481,20 +1474,19 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    if (feedrate_back != getFeedrate_percent()) {
-      if (getFeedrate_percent() != 0)
-        sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
+    const int16_t ifeedrate = int16_t(getFeedrate_percent());
+    if (feedrate_back != ifeedrate) {
+      if (ifeedrate != 0)
+        sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
       else
-        sprintf_P(str_buf, PSTR("%d"), feedrate_back);
-
-      sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
-      feedrate_back = getFeedrate_percent();
+        sendTxtToTFT(MString<4>(feedrate_back), TXT_PRINT_SPEED);
+      feedrate_back = ifeedrate;
     }
 
+    static uint8_t progress_last = 0;
     if (progress_last != getProgress_percent()) {
-      sprintf_P(str_buf, PSTR("%u"), getProgress_percent());
-      sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
       progress_last = getProgress_percent();
+      sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
     }
 
     // Report Printing Time in minutes
@@ -1684,15 +1676,16 @@ namespace Anycubic {
         #endif
         break;
 
-      case 4:
+      case 4: {
         changePageOfTFT(PAGE_SPEED);
         #if HAS_FAN
           sendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_NOW);
           sendValueToTFT(uint16_t(getTargetFan_percent(FAN0)), TXT_FAN_SPEED_TARGET);
         #endif
-        sendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
-        sendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_TARGET);
-        break;
+        const uint16_t ifeedrate = uint16_t(getFeedrate_percent());
+        sendValueToTFT(ifeedrate, TXT_PRINT_SPEED_NOW);
+        sendValueToTFT(ifeedrate, TXT_PRINT_SPEED_TARGET);
+      } break;
 
       case 5:       // turn off the xyz motor
         if (!isMoving())
@@ -2778,12 +2771,8 @@ namespace Anycubic {
             sendTxtToTFT(recovery.info.sd_filename, TXT_OUTAGE_RECOVERY_FILE);
           #endif
 
-          char str_buf[20] = { '\0' };
-          sprintf_P(str_buf, PSTR("%u"), uint16_t(getFeedrate_percent()));
-          sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
-
-          sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
-          sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
+          sendTxtToTFT(MString<6>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
 
           changePageOfTFT(PAGE_STATUS2);              // show pause
           injectCommands(F("M355 S1\nM1000"));        // case light on, home and start recovery
@@ -2821,9 +2810,7 @@ namespace Anycubic {
             sendTxtToTFT(recovery.info.sd_filename, TXT_OUTAGE_RECOVERY_FILE);
           #endif
 
-          char str_buf[20] = { '\0' };
-          sprintf_P(str_buf, PSTR("%u"), uint16_t(getFeedrate_percent()));
-          sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<6>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
 
           sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
           sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
