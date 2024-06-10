@@ -1259,9 +1259,7 @@ namespace Anycubic {
 
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
-            char str_buf[18];
-            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), sizeof(str_buf));
-            sendTxtToTFT(str_buf, TXT_PRINT_NAME);
+            sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
 
             #if ENABLED(POWER_LOSS_RECOVERY)
               if (printer_state == AC_printer_resuming_from_power_outage) {
@@ -1297,13 +1295,9 @@ namespace Anycubic {
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
             printFile(filenavigator.filelist.shortFilename());
 
-            char str_buf[18];
-            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
-            sendTxtToTFT(str_buf, TXT_PRINT_NAME);
-
+            sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
             sendTxtToTFT(ftostr72rj(getFeedrate_percent()), TXT_PRINT_SPEED);
             sendTxtToTFT(MString<4>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
-
             sendTimeToTFT(0, TXT_PRINT_TIME);
 
             changePageOfTFT(PAGE_STATUS2);
