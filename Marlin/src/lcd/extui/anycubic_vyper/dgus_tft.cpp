@@ -97,6 +97,8 @@ namespace Anycubic {
   void DEBUG_PRINT_TIMER_EVENT(const timer_event_t event, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_MEDIA_EVENT(const media_event_t event, FSTR_P const msg=nullptr);
 
+  void set_brightness();
+
   DgusTFT dgus;
 
   DgusTFT::DgusTFT() {
@@ -180,6 +182,14 @@ namespace Anycubic {
         DEBUG_ECHOLNPGM("key: ", key_value);
       }
     #endif
+
+    // Periodically update main page
+    if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
+      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      set_brightness();
+      delay(1);  // wait for millis() to advance so this clause isn't repeated
+    }
 
     switch (page_index_now) {
       case 115: page115(); break;
@@ -651,13 +661,6 @@ namespace Anycubic {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
 
-    void DgusTFT::powerLoss() {
-      // On:  5A A5 05 82 00 82 00 00
-      // Off: 5A A5 05 82 00 82 00 64
-      uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, uint8_t(recovery.enabled ? 0x00 : 0x64) };
-      for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
-    }
-
     void DgusTFT::powerLossRecovery() {
       printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
     }
@@ -892,9 +895,10 @@ namespace Anycubic {
   }
 
   void DgusTFT::checkHeaters() {
-    static uint32_t time_last = 0;
-    if (PENDING(millis(), time_last)) return;
-    time_last = millis() + 500;
+    static uint32_t time_next = 0;
+    const millis_t ms = millis();
+    if (PENDING(ms, time_next)) return;
+    time_next = ms + 500;
 
     float temp = 0;
 
@@ -1092,6 +1096,11 @@ namespace Anycubic {
         // send_cmd_to_pc(cmd ,start );
       }
     }
+  }
+
+  void set_brightness() {
+    uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x82, 0x64, 0x32, 0x03, 0xE8 };
+    for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
   }
 
   void DgusTFT::set_language(language_t language) {
