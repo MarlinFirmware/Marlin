@@ -111,15 +111,16 @@
 //
 // LCD / Controller
 //
+
 #if !defined(BEEPER_PIN) && HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
-  #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
+  #define BEEPER_PIN                       P1_30  // (EXP1-1) Not 5V-tolerant
 #endif
 
 //
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD

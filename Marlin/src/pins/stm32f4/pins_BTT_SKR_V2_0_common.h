@@ -437,8 +437,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -523,10 +524,10 @@
   #define BTN_EN2                    EXP2_05_PIN
 
   #ifndef TFT_WIDTH
-    #define TFT_WIDTH                      480
+    #define TFT_WIDTH                        480
   #endif
   #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                     320
+    #define TFT_HEIGHT                       320
   #endif
 
   #if ENABLED(BTT_TFT35_SPI_V1_0)
@@ -592,7 +593,7 @@
     #define TFT_BACKLIGHT_PIN  LCD_BACKLIGHT_PIN
 
     #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE 1
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
     #define TOUCH_CS_PIN             EXP1_05_PIN  // SPI1_NSS
     #define TOUCH_SCK_PIN            EXP2_02_PIN  // SPI1_SCK
@@ -640,8 +641,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE6
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE6
 #endif
 
 #if ENABLED(WIFISUPPORT)

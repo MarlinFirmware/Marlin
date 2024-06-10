@@ -37,11 +37,12 @@
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
 #define NO_INLINE      __attribute__((noinline))
 #define _UNUSED      __attribute__((unused))
-#define __O0         __attribute__((optimize("O0")))
-#define __Os         __attribute__((optimize("Os")))
-#define __O1         __attribute__((optimize("O1")))
-#define __O2         __attribute__((optimize("O2")))
-#define __O3         __attribute__((optimize("O3")))
+#define __O0         __attribute__((optimize("O0")))  // No optimization and less debug info
+#define __Og         __attribute__((optimize("Og")))  // Optimize the debugging experience
+#define __Os         __attribute__((optimize("Os")))  // Optimize for size
+#define __O1         __attribute__((optimize("O1")))  // Try to reduce size and cycles; nothing that takes a lot of time to compile
+#define __O2         __attribute__((optimize("O2")))  // Optimize even more
+#define __O3         __attribute__((optimize("O3")))  // Optimize yet more
 
 #define IS_CONSTEXPR(...) __builtin_constant_p(__VA_ARGS__) // Only valid solution with C++14. Should use std::is_constant_evaluated() in C++20 instead
 
@@ -53,9 +54,6 @@
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
-
-// Nanoseconds per cycle
-#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -88,7 +86,8 @@
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
-#define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
+#define FLOAT_SQ(I) sq(float(I))
+#define CIRCLE_AREA(R) (float(M_PI) * FLOAT_SQ(R))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
@@ -195,8 +194,8 @@
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define ANY(V...)          !DISABLED(V)
-#define ALL                 ENABLED
-#define NONE                DISABLED
+#define ALL(V...)           ENABLED(V)
+#define NONE(V...)          DISABLED(V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
@@ -218,12 +217,16 @@
 #define _OPTCODE(A)         A;
 #define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
 
-// Macros to avoid 'f + 0.0' which is not always optimized away. Minus included for symmetry.
+// Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
 #define PLUS_TERN0(O,A)     _TERN(_ENA_1(O),,+ (A)) // OPTION ? '+ (A)' : '<nul>'
 #define MINUS_TERN0(O,A)    _TERN(_ENA_1(O),,- (A)) // OPTION ? '- (A)' : '<nul>'
+#define MUL_TERN1(O,A)      _TERN(_ENA_1(O),,* (A)) // OPTION ? '* (A)' : '<nul>'
+#define DIV_TERN1(O,A)      _TERN(_ENA_1(O),,/ (A)) // OPTION ? '/ (A)' : '<nul>'
 #define SUM_TERN(O,B,A)     ((B) PLUS_TERN0(O,A))   // ((B) (OPTION ? '+ (A)' : '<nul>'))
 #define DIFF_TERN(O,B,A)    ((B) MINUS_TERN0(O,A))  // ((B) (OPTION ? '- (A)' : '<nul>'))
+#define MUL_TERN(O,B,A)     ((B) MUL_TERN1(O,A))    // ((B) (OPTION ? '* (A)' : '<nul>'))
+#define DIV_TERN(O,B,A)     ((B) DIV_TERN1(O,A))    // ((B) (OPTION ? '/ (A)' : '<nul>'))
 
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
@@ -624,7 +627,7 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL           EVAL16
+#define EVAL(V...)     EVAL16(V)
 #define EVAL4096(V...) EVAL2048(EVAL2048(V))
 #define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))

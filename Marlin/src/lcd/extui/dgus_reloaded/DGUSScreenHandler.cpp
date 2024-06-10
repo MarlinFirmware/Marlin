@@ -51,7 +51,7 @@ uint16_t DGUSScreenHandler::filament_length = DGUS_DEFAULT_FILAMENT_LEN;
 char DGUSScreenHandler::gcode[] = "";
 
 DGUS_Data::Heater DGUSScreenHandler::pid_heater = DGUS_Data::Heater::H0;
-uint16_t DGUSScreenHandler::pid_temp = DGUS_PLA_TEMP_HOTEND;
+celsius_t DGUSScreenHandler::pid_temp = DGUS_PLA_TEMP_HOTEND;
 uint8_t DGUSScreenHandler::pid_cycles = 5;
 
 bool DGUSScreenHandler::settings_ready = false;
@@ -149,7 +149,7 @@ void DGUSScreenHandler::loop() {
 void DGUSScreenHandler::printerKilled(FSTR_P const error, FSTR_P const component) {
   setMessageLine(error, 1);
   setMessageLine(component, 2);
-  setMessageLinePGM(NUL_STR, 3);
+  setMessageLine_P(NUL_STR, 3);
   setMessageLine(GET_TEXT_F(MSG_PLEASE_RESET), 4);
 
   dgus.playSound(3, 1, 200);
@@ -158,10 +158,10 @@ void DGUSScreenHandler::printerKilled(FSTR_P const error, FSTR_P const component
 }
 
 void DGUSScreenHandler::userConfirmRequired(const char * const msg) {
-  setMessageLinePGM(NUL_STR, 1);
+  setMessageLine_P(NUL_STR, 1);
   setMessageLine(msg, 2);
-  setMessageLinePGM(NUL_STR, 3);
-  setMessageLinePGM(NUL_STR, 4);
+  setMessageLine_P(NUL_STR, 3);
+  setMessageLine_P(NUL_STR, 4);
 
   dgus.playSound(3);
 
@@ -224,7 +224,7 @@ void DGUSScreenHandler::configurationStoreRead(bool success) {
   }
 }
 
-void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration) {
+void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
   if (WITHIN(frequency, 1, 255)) {
     if (WITHIN(duration, 1, 255))
       dgus.playSound((uint8_t)frequency, (uint8_t)duration);
@@ -305,9 +305,11 @@ void DGUSScreenHandler::filamentRunout(const ExtUI::extruder_t extruder) {
 
 #if HAS_PID_HEATING
 
-  void DGUSScreenHandler::pidTuning(const ExtUI::result_t rst) {
+  void DGUSScreenHandler::pidTuning(const ExtUI::pidresult_t rst) {
     switch (rst) {
       case ExtUI::PID_STARTED:
+      case ExtUI::PID_BED_STARTED:
+      case ExtUI::PID_CHAMBER_STARTED:
         setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE));
         break;
       case ExtUI::PID_BAD_HEATER_ID:
@@ -349,7 +351,7 @@ void DGUSScreenHandler::setMessageLine(const char * const msg, const uint8_t lin
   }
 }
 
-void DGUSScreenHandler::setMessageLinePGM(PGM_P const msg, const uint8_t line) {
+void DGUSScreenHandler::setMessageLine_P(PGM_P const msg, const uint8_t line) {
   switch (line) {
     default: return;
     case 1:
@@ -387,10 +389,10 @@ void DGUSScreenHandler::showWaitScreen(const DGUS_ScreenID return_screenID, cons
 }
 
 void DGUSScreenHandler::showWaitScreen(FSTR_P const msg, const DGUS_ScreenID return_screenID, const bool has_continue/*=false*/) {
-  setMessageLinePGM(NUL_STR, 1);
+  setMessageLine_P(NUL_STR, 1);
   setMessageLine(msg, 2);
-  setMessageLinePGM(NUL_STR, 3);
-  setMessageLinePGM(NUL_STR, 4);
+  setMessageLine_P(NUL_STR, 3);
+  setMessageLine_P(NUL_STR, 4);
   showWaitScreen(return_screenID, has_continue);
 }
 

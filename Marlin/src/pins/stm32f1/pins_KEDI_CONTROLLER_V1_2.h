@@ -82,14 +82,14 @@
 // TMC2130 on SPI
 //  SPI Pins (Shared for all drivers)
 #if ENABLED(TMC_USE_SW_SPI)                       // Shared with EXP2
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB3
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PB3
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB4
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PB4
   #endif
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB5
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PB5
   #endif
 #endif
 
@@ -180,6 +180,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_10_PIN
   #define BTN_ENC                    EXP1_09_PIN
@@ -242,7 +243,7 @@
       //  #define NEOPIXEL_PIN       EXP1_05_PIN
       //#endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_06_PIN
       #if IS_ULTIPANEL

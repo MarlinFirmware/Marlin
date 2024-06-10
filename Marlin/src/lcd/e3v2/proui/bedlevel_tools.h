@@ -22,9 +22,6 @@
 
 /**
  * Bed Level Tools for Pro UI
- * Extended by: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.2.0
- * Date: 2023/05/03
  *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
@@ -46,9 +43,6 @@
 #pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
-
-#define UBL_Z_OFFSET_MIN -3.0
-#define UBL_Z_OFFSET_MAX  3.0
 
 class BedLevelTools {
 public:

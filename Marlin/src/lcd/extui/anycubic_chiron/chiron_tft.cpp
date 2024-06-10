@@ -433,17 +433,12 @@ void ChironTFT::sendFileList(int8_t startindex) {
 }
 
 void ChironTFT::selectFile() {
-  if (panel_type <= AC_panel_new) {
-    strncpy(selectedfile, panel_command + 4, command_len - 3);
-    selectedfile[command_len - 4] = '\0';
-  }
-  else {
-    strncpy(selectedfile, panel_command + 4, command_len - 4);
-    selectedfile[command_len - 5] = '\0';
-  }
+  const size_t fnlen = command_len - 4 + (panel_type <= AC_panel_new);
+  strlcpy(selectedfile, panel_command + 4, fnlen + 1);
   #if ACDEBUG(AC_FILE)
     DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
   #endif
+
   switch (selectedfile[0]) {
     case '/':   // Valid file selected
       tftSendLn(AC_msg_sd_file_open_success);
@@ -454,10 +449,9 @@ void ChironTFT::selectFile() {
       tftSendLn(AC_msg_sd_file_open_failed);
       sendFileList( 0 );
       break;
-    default:   // enter sub folder
-      // for new panel remove the '.GCO' tag that was added to the end of the path
-      if (panel_type <= AC_panel_new)
-        selectedfile[strlen(selectedfile) - 4] = '\0';
+    default:    // enter subfolder
+      // For new panel remove the '.GCO' tag that was added to the end of the path
+      if (panel_type <= AC_panel_new) selectedfile[fnlen - 4] = '\0';
       filenavigator.changeDIR(selectedfile);
       tftSendLn(AC_msg_sd_file_open_failed);
       sendFileList( 0 );
@@ -570,8 +564,8 @@ void ChironTFT::panelInfo(uint8_t req) {
     } break;
 
     case 8:   // A8 Get SD Card list A8 S0
-      if (!isMediaInserted()) safe_delay(500);
-      if (!isMediaInserted())   // Make sure the card is removed
+      if (!isMediaMounted()) safe_delay(500);
+      if (!isMediaMounted())   // Make sure the card is removed
         tftSendLn(AC_msg_no_sd_card);
       else if (panel_command[3] == 'S')
         sendFileList( atoi( &panel_command[4] ) );
@@ -786,11 +780,11 @@ void ChironTFT::panelProcess(uint8_t req) {
               DEBUG_ECHOLNPGM("Moving to mesh point at x: ", pos.x, " y: ", pos.y, " z: ", pos_z);
             #endif
             // Go up before moving
-            setAxisPosition_mm(3.0,Z);
+            setAxisPosition_mm(3.0f, Z);
 
-            setAxisPosition_mm(17 + (93 * pos.x), X);
-            setAxisPosition_mm(20 + (93 * pos.y), Y);
-            setAxisPosition_mm(0.0, Z);
+            setAxisPosition_mm(17.0f + (93.0f * pos.x), X);
+            setAxisPosition_mm(20.0f + (93.0f * pos.y), Y);
+            setAxisPosition_mm(0.0f, Z);
             #if ACDEBUG(AC_INFO)
               DEBUG_ECHOLNPGM("Current Z: ", getAxisPosition_mm(Z));
             #endif

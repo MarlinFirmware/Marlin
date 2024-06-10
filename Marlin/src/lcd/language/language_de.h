@@ -85,9 +85,9 @@ namespace LanguageNarrow_de {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Nivellieren fertig!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Ausblendhöhe");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Setze Homeversatz");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Homeversatz X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Homeversatz Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Homeversatz Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Homeversatz X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Homeversatz Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Homeversatz Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Homeversatz aktiv");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Tramming Assistent");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Wählen Sie Ursprung");
@@ -176,7 +176,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Tilt Mesh");
   LSTR MSG_UBL_TILTING_GRID               = _UxGT("Tilting Grid Size");
@@ -288,16 +287,9 @@ namespace LanguageNarrow_de {
   LSTR MSG_MOVE_E                         = _UxGT("Bewege Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Bewege Extruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend zu kalt");
-  LSTR MSG_MOVE_N_MM                      = _UxGT(" $ mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("  0,1  mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("  1,0  mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT(" 10,0  mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT(" 50,0  mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("100,0  mm");
-  LSTR MSG_MOVE_0001IN                    = _UxGT("0.001 in");
-  LSTR MSG_MOVE_001IN                     = _UxGT("0.010 in");
-  LSTR MSG_MOVE_01IN                      = _UxGT("0.100 in");
-  LSTR MSG_MOVE_1IN                       = _UxGT("1.000 in");
+  LSTR MSG_MOVE_N_MM                      = _UxGT("Bewege $mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Bewege $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Bewege $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Geschw.");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Bett Z");
   LSTR MSG_NOZZLE                         = _UxGT("Düse");
@@ -336,7 +328,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("PID Autotune fehlge.!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("ungültiger Extruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperatur zu hoch.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Timeout");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune fehlge.! Ungültiger Extruder");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune fehlge.! Temperatur zu hoch.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune fehlge.! Timeout.");
@@ -599,30 +590,30 @@ namespace LanguageNarrow_de {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Helligkeit");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Falscher Drucker");
 
-  LSTR MSG_COLORS_GET                     = _UxGT("Farbe");
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Farben auswählen");
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farben verwenden");
-  LSTR MSG_COLORS_RED                     = _UxGT("Rot");
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Grün");
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Blau");
-  LSTR MSG_COLORS_WHITE                   = _UxGT("Weiß");
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Sprache");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Ton aktivieren");
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Bildschirm sperren");
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,");
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper.");
+  LSTR MSG_COLORS_GET                     = _UxGT("Farbe");                 // ProUI
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Farben auswählen");      // ProUI
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farben verwenden");      // ProUI
+  LSTR MSG_COLORS_RED                     = _UxGT("Rot");                   // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Grün");                  // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Blau");                  // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Weiß");                  // ProUI
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Sprache");            // ProUI
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Ton aktivieren");        // ProUI
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Bildschirm sperren");    // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Drucker ist gesperrt,"); // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scrollen zum Entsper."); // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Auf Neustart warten");   // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");       // ProUI
 
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Auf Neustart warten");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Bitte vorheizen");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Drucke");
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Komplette");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Gesamte");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Längste");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extrud.");
-
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
   LSTR MSG_INFO_PSU                       = _UxGT("Netzteil");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Motorleistung");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Treiber %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC Verbindungsfehler");
@@ -634,14 +625,11 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("FORTS. OPTIONEN:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Mehr entladen");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Druck weiter");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Löschen o. fortfah.?");  // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Düse: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout-Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout-Weg mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Runout aktivieren");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Runout aktiv");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert Extruder");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Extruder Min Temp.");    // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Lüftergeschw. prüfen");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing gescheitert");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing gescheitert");
@@ -773,10 +761,10 @@ namespace LanguageNarrow_de {
 namespace LanguageWide_de {
   using namespace LanguageNarrow_de;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");
-    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Kein Medium eingelegt.");      // ProUI
+    LSTR MSG_PLEASE_WAIT_REBOOT           = _UxGT("Bitte auf Neustart warten.");  // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Bitte das Hotend vorheizen."); // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Druckzähler zurücksetzen");    // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Gesamte Drucke");
     LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Komplette Drucke");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Gesamte Druckzeit");

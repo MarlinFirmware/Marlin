@@ -142,6 +142,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
@@ -235,7 +236,7 @@
       //  #define NEOPIXEL_PIN       EXP1_06_PIN
       //#endif
 
-    #else                                         // !FYSETC_MINI_12864
+    #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_05_PIN
       #if IS_ULTIPANEL

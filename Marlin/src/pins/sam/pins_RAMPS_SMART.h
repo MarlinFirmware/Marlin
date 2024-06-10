@@ -95,6 +95,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(AZSMZ_12864)
 
   // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel

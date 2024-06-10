@@ -85,7 +85,9 @@
 //
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
@@ -217,10 +219,11 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   //#define LCD_PINS_RS                       13
-  //#define LCD_PINS_ENABLE                   17
+  //#define LCD_PINS_EN                       17
   //#define LCD_PINS_D4                       16
 
   #if ENABLED(CR10_STOCKDISPLAY)

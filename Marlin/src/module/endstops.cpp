@@ -50,6 +50,10 @@
   #include "../feature/joystick.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -351,7 +355,7 @@ void Endstops::event_handler() {
     TERN_(HAS_STATUS_MESSAGE,
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
-        GET_TEXT(MSG_LCD_ENDSTOPS),
+        GET_TEXT_F(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
@@ -782,13 +786,14 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
+
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
       G38_did_trigger = true;
       #define _G38_SET(Q) | (stepper.axis_is_moving(_AXIS(Q)) << _AXIS(Q))
       #define _G38_RESP(Q) if (moving[_AXIS(Q)]) { _ENDSTOP_HIT(Q, ENDSTOP); planner.endstop_triggered(_AXIS(Q)); }
-      const Flags<NUM_AXES> moving = { value_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
+      const Flags<NUM_AXES> moving = { uvalue_t(NUM_AXES)(0 MAIN_AXIS_MAP(_G38_SET)) };
       MAIN_AXIS_MAP(_G38_RESP);
     }
   #endif
@@ -796,8 +801,17 @@ void Endstops::update() {
   // Signal, after validation, if an endstop limit is pressed or not
 
   #if HAS_X_AXIS
-    if (stepper.axis_is_moving(X_AXIS)) {
-      if (!stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+    #if ENABLED(FT_MOTION)
+      const bool x_moving_pos = ftMotion.axis_moving_pos(X_AXIS_HEAD),
+                 x_moving_neg = ftMotion.axis_moving_neg(X_AXIS_HEAD);
+      #define X_MOVE_TEST x_moving_pos || x_moving_neg
+      #define X_NEG_DIR_TEST x_moving_neg
+    #else
+      #define X_MOVE_TEST stepper.axis_is_moving(X_AXIS)
+      #define X_NEG_DIR_TEST !stepper.motor_direction(X_AXIS_HEAD)
+    #endif
+    if (X_MOVE_TEST) {
+      if (X_NEG_DIR_TEST) { // -direction
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -829,8 +843,17 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    if (stepper.axis_is_moving(Y_AXIS)) {
-      if (!stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
+    #if ENABLED(FT_MOTION)
+      const bool y_moving_pos = ftMotion.axis_moving_pos(Y_AXIS_HEAD),
+                 y_moving_neg = ftMotion.axis_moving_neg(Y_AXIS_HEAD);
+      #define Y_MOVE_TEST y_moving_pos || y_moving_neg
+      #define Y_NEG_DIR_TEST y_moving_neg
+    #else
+      #define Y_MOVE_TEST stepper.axis_is_moving(Y_AXIS)
+      #define Y_NEG_DIR_TEST !stepper.motor_direction(Y_AXIS_HEAD)
+    #endif
+    if (Y_MOVE_TEST) {
+      if (Y_NEG_DIR_TEST) { // -direction
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -862,8 +885,17 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    if (stepper.axis_is_moving(Z_AXIS)) {
-      if (!stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
+    #if ENABLED(FT_MOTION)
+      const bool z_moving_pos = ftMotion.axis_moving_pos(Z_AXIS_HEAD),
+                 z_moving_neg = ftMotion.axis_moving_neg(Z_AXIS_HEAD);
+      #define Z_MOVE_TEST z_moving_pos || z_moving_neg
+      #define Z_NEG_DIR_TEST z_moving_neg
+    #else
+      #define Z_MOVE_TEST stepper.axis_is_moving(Z_AXIS)
+      #define Z_NEG_DIR_TEST !stepper.motor_direction(Z_AXIS_HEAD)
+    #endif
+    if (Z_MOVE_TEST) {
+      if (Z_NEG_DIR_TEST) { // Z -direction. Gantry down, bed up.
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
           // separate Z_MIN endstop. But a Z endstop could be wired
@@ -907,6 +939,7 @@ void Endstops::update() {
   #endif // HAS_Z_AXIS
 
   #if HAS_I_AXIS
+  // TODO: FT_Motion logic.
     if (stepper.axis_is_moving(I_AXIS)) {
       if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
         #if HAS_I_MIN_STATE
@@ -1360,7 +1393,7 @@ void Endstops::update() {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b); }
+          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
         };
       #else
         #define debug_current(...)

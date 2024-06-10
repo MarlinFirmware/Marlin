@@ -253,7 +253,7 @@ bool SdBaseFile::exists(const char *name) {
  *
  * \return For success fgets() returns the length of the string in \a str.
  * If no data is read, fgets() returns zero for EOF or -1 if an error occurred.
- **/
+ */
 int16_t SdBaseFile::fgets(char *str, int16_t num, char *delim) {
   char ch;
   int16_t n = 0;
@@ -1295,7 +1295,6 @@ static void print2u(const uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 
-
 /**
  * %Print a directory date field.
  *
@@ -1311,7 +1310,6 @@ void SdBaseFile::printFatDate(const uint16_t fatDate) {
   SERIAL_CHAR('-');
   print2u(FAT_DAY(fatDate));
 }
-
 
 /**
  * %Print a directory time field.

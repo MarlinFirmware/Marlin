@@ -31,8 +31,41 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+// static_warning works like a static_assert but only emits a (messy) warning.
+#ifdef __GNUC__
+  namespace mfwarn {
+    struct true_type {};
+    struct false_type {};
+    template <int test> struct converter : public true_type {};
+    template <> struct converter<0> : public false_type {};
+  }
+  #define static_warning(cond, msg) \
+    struct CAT(static_warning, __LINE__) { \
+      void _(::mfwarn::false_type const&) __attribute__((deprecated(msg))) {}; \
+      void _(::mfwarn::true_type const&) {}; \
+      CAT(static_warning, __LINE__)() {_(::mfwarn::converter<(cond)>());} \
+    }
+#else
+  #define static_warning(...)
+#endif
+
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+  #ifdef __LONG_MAX__
+    #if __LONG_MAX__ > __INT_MAX__
+      #warning "The 'long' type is larger than the 'int' type on this platform."
+    #else
+      #warning "The 'long' type is the same as the 'int' type on this platform."
+    #endif
+  #endif
+#endif
+
+#if DISABLED(DEBUG_FLAGS_GCODE)
+  #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
+#endif
+
+#if DISABLED(CAPABILITIES_REPORT)
+  #warning "CAPABILITIES_REPORT is recommended if you have space. Some hosts rely on it."
 #endif
 
 #if ENABLED(LA_DEBUG)
@@ -59,12 +92,15 @@
 #if HAS_COOLER && DISABLED(THERMAL_PROTECTION_COOLER)
   #warning "Safety Alert! Enable THERMAL_PROTECTION_COOLER for the final build!"
 #endif
+#if ENABLED(IGNORE_THERMOCOUPLE_ERRORS)
+  #warning "Safety Alert! Disable IGNORE_THERMOCOUPLE_ERRORS for the final build!"
+#endif
 #if ANY_THERMISTOR_IS(998) || ANY_THERMISTOR_IS(999)
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
+  #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
@@ -646,24 +682,30 @@
 #endif
 
 #if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
-#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-  #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && NONE(Z_SAFE_HOMING, NO_Z_SAFE_HOMING_WARNING)
+  #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
+#endif
+
+#if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
+  #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
-#if !USE_SENSORLESS
+#if !USE_SENSORLESS && HAS_DIAG_PINS
   #if ENABLED(USES_DIAG_JUMPERS) && DISABLED(DIAG_JUMPERS_REMOVED)
     #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled. (Define DIAG_JUMPERS_REMOVED to suppress this warning.)"
-  #elif ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
+  #endif
+  #if ENABLED(USES_DIAG_PINS) && DISABLED(DIAG_PINS_REMOVED)
     #warning "Driver DIAG pins must be physically removed unless SENSORLESS_HOMING is enabled. (See https://bit.ly/2ZPRlt0) (Define DIAG_PINS_REMOVED to suppress this warning.)"
   #endif
 #endif
@@ -676,8 +718,8 @@
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
 
-#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
-  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
+#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX && DISABLED(NO_LCD_CONTRAST_WARNING)
+  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX. (Define NO_LCD_CONTRAST_WARNING to suppress this warning.)"
 #endif
 
 #if PROGRESS_MSG_EXPIRE > 0 && HAS_STATUS_MESSAGE_TIMEOUT
@@ -685,16 +727,16 @@
 #endif
 
 /**
- * FYSETC/MKS/BTT Mini Panel backlighting
+ * FYSETC/MKS/BTT/BEEZ Mini Panel backlighting
  */
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !ALL(NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, LED_COLOR_PRESETS)
-  #warning "Your FYSETC/MKS/BTT Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
+  #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with NEOPIXEL_LED, LED_CONTROL_MENU, LED_USER_PRESET_STARTUP, and LED_COLOR_PRESETS."
 #endif
 
 #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0) && DISABLED(RGB_LED)
   #warning "Your FYSETC Mini Panel works best with RGB_LED."
 #elif ANY(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1) && DISABLED(LED_USER_PRESET_STARTUP)
-  #warning "Your FYSETC Mini Panel works best with LED_USER_PRESET_STARTUP."
+  #warning "Your FYSETC/MKS/BTT/BEEZ Mini Panel works best with LED_USER_PRESET_STARTUP."
 #endif
 
 #if ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864) && ALL(PSU_CONTROL, HAS_COLOR_LEDS) && !LED_POWEROFF_TIMEOUT
@@ -704,7 +746,7 @@
 /**
  * Maple environment
  */
-#ifdef __STM32F1__
+#if defined(__STM32F1__) && DISABLED(NO_MAPLE_WARNING)
   #warning "Maple build environments are deprecated. Please use a non-Maple build environment. Report issues to the Marlin Firmware project."
 #endif
 
@@ -746,8 +788,13 @@
 /**
  * Input Shaping
  */
-#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#if HAS_ZV_SHAPING
+  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+  #endif
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "Input Shaping has not been tested with I2S_STEPPER_STREAM."
+  #endif
 #endif
 
 /**
@@ -775,10 +822,24 @@
 #endif
 
 /**
- * ProUI Boot Screen Duration
+ * Voxelab N32 bootloader
  */
-#if ENABLED(DWIN_LCD_PROUI) && BOOTSCREEN_TIMEOUT > 2000
-  #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+#ifdef SDCARD_FLASH_LIMIT_256K
+  #warning "This board has 512K but the bootloader can only flash firmware.bin <= 256K. ICSP required for full 512K capacity."
+#endif
+
+/**
+ * ProUI Extras
+ */
+#if ENABLED(DWIN_LCD_PROUI)
+  #if BOOTSCREEN_TIMEOUT > 2000
+    #warning "For ProUI the original BOOTSCREEN_TIMEOUT of 1100 is recommended."
+  #endif
+  #if HAS_PID_HEATING && NONE(PID_AUTOTUNE_MENU, PID_EDIT_MENU)
+    #warning "For ProUI PID_AUTOTUNE_MENU and PID_EDIT_MENU is recommended for PID tuning."
+  #elif ENABLED(MPCTEMP) && NONE(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+    #warning "For ProUI MPC_EDIT_MENU and MPC_AUTOTUNE_MENU is recommended for MPC tuning."
+  #endif
 #endif
 
 /**
@@ -786,4 +847,32 @@
  */
 #if HAL_ADC_VREF_MV < 5000 && ANY_THERMISTOR_IS(-1) && DISABLED(ALLOW_AD595_3V3_VREF)
   #warning "The (-1) AD595 Thermocouple Amplifier requires 5V input supply! Use AD8495 for 3.3V ADC."
+#endif
+
+/**
+ * No PWM on the Piezo Beeper?
+ */
+#if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
+  #warning "The BEEPER cannot produce tones so you can disable SPEAKER."
+#endif
+
+/**
+ * Fixed-Time Motion
+ */
+#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
+  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#endif
+
+/**
+ * User doesn't have or disabled G92?
+ */
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+#endif
+
+/**
+ * HC32 clock speed is hard-coded in Marlin
+ */
+#if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
+  #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
 #endif

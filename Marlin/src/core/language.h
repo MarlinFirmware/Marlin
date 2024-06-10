@@ -89,10 +89,6 @@
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
 
-#ifndef MACHINE_UUID
-  #define MACHINE_UUID DEFAULT_MACHINE_UUID
-#endif
-
 #define MARLIN_WEBSITE_URL "marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
@@ -139,6 +135,7 @@
 #define STR_BUSY_PAUSED_FOR_USER            "busy: paused for user"
 #define STR_BUSY_PAUSED_FOR_INPUT           "busy: paused for input"
 #define STR_Z_MOVE_COMP                     "Z_move_comp"
+#define STR_LINE_NO                         "Line: "
 #define STR_RESEND                          "Resend: "
 #define STR_UNKNOWN_COMMAND                 "Unknown command: \""
 #define STR_ACTIVE_EXTRUDER                 "Active Extruder: "

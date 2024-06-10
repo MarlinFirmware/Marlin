@@ -48,9 +48,10 @@
 
   #include "../core/types.h"  // Ahead of sanity-checks
 
+  #include "Conditionals_type.h"
+  #include HAL_PATH(.., inc/Conditionals_type.h)
+
   #include "Changes.h"
-  #include "SanityCheck.h"
-  #include HAL_PATH(.., inc/SanityCheck.h)
 
   // Include all core headers
   #include "../core/language.h"
@@ -62,3 +63,8 @@
 #endif
 
 #include "../core/multi_language.h"
+
+#ifndef __MARLIN_DEPS__
+  #include "SanityCheck.h"
+  #include HAL_PATH(.., inc/SanityCheck.h)
+#endif

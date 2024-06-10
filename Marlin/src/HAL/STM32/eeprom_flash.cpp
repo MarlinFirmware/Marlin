@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +101,7 @@ static bool eeprom_data_written = false;
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
 #endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
 
@@ -246,14 +245,15 @@ bool PersistentStore::access_finish() {
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t v = *value;
+    const int p = REAL_EEPROM_ADDR(pos);
     #if ENABLED(FLASH_EEPROM_LEVELING)
-      if (v != ram_eeprom[pos]) {
-        ram_eeprom[pos] = v;
+      if (v != ram_eeprom[p]) {
+        ram_eeprom[p] = v;
         eeprom_data_written = true;
       }
     #else
-      if (v != eeprom_buffered_read_byte(pos)) {
-        eeprom_buffered_write_byte(pos, v);
+      if (v != eeprom_buffered_read_byte(p)) {
+        eeprom_buffered_write_byte(p, v);
         eeprom_data_written = true;
       }
     #endif
@@ -266,7 +266,8 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[pos], eeprom_buffered_read_byte(pos));
+    const int p = REAL_EEPROM_ADDR(pos);
+    const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[p], eeprom_buffered_read_byte(p));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

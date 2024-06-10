@@ -163,7 +163,6 @@ bool pwm_status(uint8_t pin) {
   SERIAL_ECHO_SP(2);
 } // pwm_status
 
-
 const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     { &TCCR0A, &TCCR0B, &TIMSK0 },
     { &TCCR1A, &TCCR1B, &TIMSK1 },
@@ -180,7 +179,6 @@ const volatile uint8_t* const PWM_other[][3] PROGMEM = {
     { &TCCR5A, &TCCR5B, &TIMSK5 },
   #endif
 };
-
 
 const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
 
@@ -216,7 +214,6 @@ const volatile uint8_t* const PWM_OCR[][3] PROGMEM = {
     { (const uint8_t*)&OCR5A, (const uint8_t*)&OCR5B, (const uint8_t*)&OCR5C },
   #endif
 };
-
 
 #define TCCR_A(T)   pgm_read_word(&PWM_other[T][0])
 #define TCCR_B(T)   pgm_read_word(&PWM_other[T][1])

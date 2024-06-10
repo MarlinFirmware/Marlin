@@ -68,8 +68,6 @@ bool FilamentMonitorBase::enabled = true,
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
@@ -88,7 +86,6 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getTool(extruder)));
-  TERN_(DWIN_LCD_PROUI, dwinFilamentRunout(extruder));
 
   #if ANY(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS, MULTI_FILAMENT_SENSOR)
     const char tool = '0' + TERN0(MULTI_FILAMENT_SENSOR, extruder);
@@ -135,7 +132,7 @@ void event_filament_runout(const uint8_t extruder) {
     if (run_runout_script) {
       #if MULTI_FILAMENT_SENSOR
         MString<strlen(FILAMENT_RUNOUT_SCRIPT)> script;
-        script.setf(F(FILAMENT_RUNOUT_SCRIPT), AS_CHAR(tool));
+        script.setf(F(FILAMENT_RUNOUT_SCRIPT), C(tool));
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           SERIAL_ECHOLNPGM("Runout Command: ", &script);
         #endif

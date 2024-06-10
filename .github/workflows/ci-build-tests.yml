@@ -1,0 +1,186 @@
+#
+# ci-build-tests.yml
+# Do test builds to catch compile errors
+#
+
+name: CI - Build Tests
+
+on:
+  pull_request:
+    branches:
+    - bugfix-2.1.x
+    - 2.1.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - test/**
+    - Marlin/tests/**
+    - '**/*.md'
+  push:
+    branches:
+    - bugfix-2.1.x
+    - 2.1.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - test/**
+    - Marlin/tests/**
+    - '**/*.md'
+
+jobs:
+  test_builds:
+    name: Build Test
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test-platform:
+
+        # Native
+        - linux_native
+
+        # AVR
+        - mega2560
+        - mega1280
+        - at90usb1286_dfu
+
+        # AVR Extended
+        - FYSETC_F6
+        - melzi_optiboot
+        - rambo
+        - sanguino1284p
+        - sanguino644p
+
+        # SAM3X8E
+        - DUE
+        - DUE_archim
+
+        # SAMD21
+        - SAMD51_grandcentral_m4
+        - SAMD21_minitronics20
+
+        # ESP32
+        - esp32
+        - mks_tinybee
+
+        # Teensy 2
+        #- at90usb1286_cdc
+
+        # Teensy MK20DX256
+        - teensy31
+
+        # Teensy MK64FX512, MK66FX1M0
+        - teensy35
+
+        # Teensy IMXRT1062DVx6A
+        - teensy41
+
+        # STM32F0
+        - malyan_M300
+        - STM32F070CB_malyan
+        - STM32F070RB_malyan
+
+        # STM32F1
+        - chitu_f103
+        - mks_robin
+        - mks_robin_nano_v1v2
+        - PANDA_PI_V29
+        - STM32F103RC_btt
+        - STM32F103RC_fysetc
+        - STM32F103RE_btt
+        - STM32F103RE_btt_USB
+        - STM32F103RE_creality
+        - STM32F103VE_longer
+        #- mks_robin_mini
+        #- mks_robin_nano_v1_3_f4_usbmod
+        #- mks_robin_nano_v1v2_usbmod
+        #- STM32F103CB_malyan
+        #- STM32F103RC_btt_USB
+        #- STM32F103RE
+
+        # STM32F4
+        - ARMED
+        - BIGTREE_BTT002
+        - BIGTREE_GTR_V1_0
+        - BIGTREE_SKR_PRO
+        - FLYF407ZG
+        - FYSETC_S6
+        - LERDGEK
+        - LERDGEX
+        - mks_robin_pro2
+        - Opulo_Lumen_REV3
+        - rumba32
+        - STM32F401RC_creality
+        - STM32F407VE_black
+        - I3DBEEZ9_V1
+
+        # STM32F7
+        - NUCLEO_F767ZI
+        - REMRAM_V1
+
+        # STM32H7
+        - BTT_SKR_SE_BX
+        - STM32H743VI_btt
+
+        # STM32F1 (Maple)
+        - jgaurora_a5s_a1_maple
+        - mks_robin_lite_maple
+        - mks_robin_pro_maple
+        - STM32F103RC_btt_USB_maple
+        - STM32F103RC_fysetc_maple
+        - STM32F103RC_meeb_maple
+        - STM32F103VE_longer_maple
+        - STM32F103VE_ZM3E4V2_USB_maple
+        #- mks_robin_maple
+        #- mks_robin_nano_v1v2_maple
+        #- STM32F103RC_btt_maple
+        #- STM32F103RE_creality_maple
+
+        # STM32G0
+        - STM32G0B1RE_btt
+
+        # HC32
+        - HC32F460C_aquila_101
+
+        # LPC176x - Lengthy tests
+        - LPC1768
+        - LPC1769
+
+    steps:
+
+    - name: Check out the PR
+      uses: actions/checkout@v4
+
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache PlatformIO
+      uses: actions/cache@v4
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+    - name: Select Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        architecture: 'x64'
+
+    - name: Install PlatformIO
+      run: |
+        pip install -U platformio
+        pio upgrade --dev
+        pio pkg update --global
+
+    - name: Run ${{ matrix.test-platform }} Tests
+      run: |
+        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}

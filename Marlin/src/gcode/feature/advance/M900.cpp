@@ -131,7 +131,7 @@ void GcodeSuite::M900() {
         SERIAL_ECHOLNPGM("Advance K=", planner.extruder_advance_K[0]);
       #else
         SERIAL_ECHOPGM("Advance K");
-        EXTRUDER_LOOP() SERIAL_ECHO(AS_CHAR(' '), AS_CHAR('0' + e), AS_CHAR(':'), planner.extruder_advance_K[e]);
+        EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), planner.extruder_advance_K[e]);
         SERIAL_EOL();
       #endif
 
@@ -141,6 +141,8 @@ void GcodeSuite::M900() {
 }
 
 void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_LINEAR_ADVANCE));
   #if DISTINCT_E < 2
     report_echo_start(forReplay);

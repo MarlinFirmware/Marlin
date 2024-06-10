@@ -99,7 +99,9 @@
   #define ESTATE(S) (READ(S##_PIN) == S##_ENDSTOP_HIT_STATE)
 
   void test_gpio_readlevel_L() {
-    WRITE(WIFI_IO0_PIN, HIGH);
+    #if PIN_EXISTS(WIFI_IO0)
+      WRITE(WIFI_IO0_PIN, HIGH);
+    #endif
     delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == LOW);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == LOW);
@@ -132,7 +134,9 @@
   }
 
   void test_gpio_readlevel_H() {
-    WRITE(WIFI_IO0_PIN, LOW);
+    #if PIN_EXISTS(WIFI_IO0)
+      WRITE(WIFI_IO0_PIN, LOW);
+    #endif
     delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == HIGH);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == HIGH);
@@ -169,7 +173,9 @@
   void init_test_gpio() {
     endstops.init();
 
-    SET_OUTPUT(WIFI_IO0_PIN);
+    #if PIN_EXISTS(WIFI_IO0)
+      SET_OUTPUT(WIFI_IO0_PIN);
+    #endif
 
     #if PIN_EXISTS(MT_DET_1)
       SET_INPUT_PULLUP(MT_DET_1_PIN);
@@ -727,8 +733,7 @@ void disp_assets_update_progress(FSTR_P const fmsg) {
     static constexpr int buflen = 30;
     char buf[buflen];
     memset(buf, ' ', buflen);
-    strncpy_P(buf, FTOP(fmsg), buflen - 1);
-    buf[buflen - 1] = '\0';
+    strlcpy_P(buf, FTOP(fmsg), buflen);
     disp_string(100, 165, buf, 0xFFFF, 0x0000);
   #else
     disp_string(100, 165, FTOP(fmsg), 0xFFFF, 0x0000);

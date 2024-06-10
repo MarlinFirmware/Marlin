@@ -179,7 +179,7 @@ struct RuntimeSerial : public SerialBase< RuntimeSerial<SerialT> >, public Seria
   // Append Hookable for this class
   SerialFeature features(serial_index_t index) const  { return SerialFeature::Hookable | CALL_IF_EXISTS(SerialFeature, static_cast<const SerialT*>(this), features, index);  }
 
-  void setHook(WriteHook writeHook = 0, EndOfMessageHook eofHook = 0, void * userPointer = 0) {
+  void setHook(WriteHook writeHook=0, EndOfMessageHook eofHook=0, void * userPointer=0) {
     // Order is important here as serial code can be called inside interrupts
     // When setting a hook, the user pointer must be set first so if writeHook is called as soon as it's set, it'll be valid
     if (userPointer) this->userPointer = userPointer;
@@ -292,7 +292,7 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME)
   #define _S_REFS(N) Serial##N##T & serial##N,
   #define _S_INIT(N) ,serial##N (serial##N)
 
-  MultiSerial(REPEAT(NUM_SERIAL, _S_REFS) const SerialMask mask = ALL, const bool e = false)
+  MultiSerial(REPEAT(NUM_SERIAL, _S_REFS) const SerialMask mask=ALL, const bool e=false)
     : BaseClassT(e), portMask(mask) REPEAT(NUM_SERIAL, _S_INIT) {}
 
 };

@@ -23,6 +23,7 @@ jobs:
           - "S: Please Merge"
           - "S: Please Test"
           - "help wanted"
+          - "Bug: Potential ?"
           - "Needs: Discussion"
           - "Needs: Documentation"
           - "Needs: More Data"
@@ -31,7 +32,7 @@ jobs:
           - "Needs: Work"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Remove Labels
         uses: actions-ecosystem/action-remove-labels@v1
         with:

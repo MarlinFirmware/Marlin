@@ -55,7 +55,7 @@ inline bool G38_run_probe() {
     }
   #endif
 
-  planner.synchronize();  // wait until the machine is idle
+  planner.synchronize(); // Wait until the machine is idle
 
   // Move flag value
   #if ENABLED(G38_PROBE_AWAY)
@@ -105,6 +105,7 @@ inline bool G38_run_probe() {
  *  G38.5 - Probe away from workpiece, stop on contact break
  */
 void GcodeSuite::G38(const int8_t subcode) {
+
   // Get X Y Z E F
   get_destination_from_command();
 

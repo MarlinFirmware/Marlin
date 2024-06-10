@@ -123,6 +123,12 @@
   #define NOT_TARGET NONE
 #endif
 
+#ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+  #define CONTROLLER_WARNING(PF,CN,V...) static_assert(false, "\n\nWARNING! " CN " requires wiring modification! See pins_" PF ".h for details." V "\n (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)\n\n");
+#else
+  #define CONTROLLER_WARNING(...)
+#endif
+
 //
 // RAMPS 1.3 / 1.4 / 1.6+ - ATmega1280, ATmega2560
 //
@@ -224,6 +230,8 @@
   #include "ramps/pins_RAMPS_CREALITY.h"            // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_F5)
   #include "ramps/pins_DAGOMA_F5.h"                 // ATmega2560                           env:mega2560
+#elif MB(DAGOMA_D6)
+  #include "ramps/pins_DAGOMA_D6.h"                 // ATmega2560                           env:mega2560ext
 #elif MB(FYSETC_F6_13)
   #include "ramps/pins_FYSETC_F6_13.h"              // ATmega2560                           env:FYSETC_F6
 #elif MB(FYSETC_F6_14)
@@ -318,7 +326,7 @@
   #include "mega/pins_GT2560_REV_B.h"               // ATmega2560                           env:mega2560
 #elif MB(GT2560_V4)
   #include "mega/pins_GT2560_V4.h"                  // ATmega2560                           env:mega2560
-  #elif MB(GT2560_V4_A20)
+#elif MB(GT2560_V4_A20)
   #include "mega/pins_GT2560_V4_A20.h"              // ATmega2560                           env:mega2560
 #elif MB(GT2560_V3_MC2)
   #include "mega/pins_GT2560_V3_MC2.h"              // ATmega2560                           env:mega2560
@@ -349,7 +357,7 @@
 #elif MB(WEEDO_62A)
   #include "mega/pins_WEEDO_62A.h"                  // ATmega2560                           env:mega2560
 #elif MB(GT2560_V41B)
-  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560
+  #include "mega/pins_GT2560_V41b.h"                // ATmega2560                           env:mega2560ext
 
 //
 // ATmega1281, ATmega2561
@@ -698,6 +706,14 @@
   #include "gd32f1/pins_TRIGORILLA_V006.h"          // GD32F1                               env:trigorilla_v006
 #elif MB(KEDI_CONTROLLER_V1_2)
   #include "stm32f1/pins_KEDI_CONTROLLER_V1_2.h"    // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_USB env:STM32F103RC_btt_maple env:STM32F103RC_btt_USB_maple
+#elif MB(MD_D301)
+  #include "stm32f1/pins_MD_D301.h"                 // STM32F1                              env:mingda_d301 env:mingda_d301_maple
+#elif MB(VOXELAB_AQUILA)
+  #include "gd32f1/pins_VOXELAB_AQUILA.h"           // GD32F1, N32G4, STM32F1               env:GD32F103RC_voxelab_maple env:N32G455RE_voxelab_maple env:STM32F103RE_creality_maple env:STM32F103RE_creality
+#elif MB(SPRINGER_CONTROLLER)
+  #include "stm32f1/pins_ORCA_3D_SPRINGER.h"        // STM32F1                              env:STM32F103VC_orca3d
+#elif MB(CREALITY_CR4NS)
+  #include "stm32f1/pins_CREALITY_CR4NS.h"          // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_maple
 
 //
 // ARM Cortex-M4F
@@ -791,15 +807,17 @@
 #elif MB(ARTILLERY_RUBY)
   #include "stm32f4/pins_ARTILLERY_RUBY.h"          // STM32F4                              env:Artillery_Ruby
 #elif MB(CREALITY_V24S1_301F4)
-  #include "stm32f4/pins_CREALITY_V24S1_301F4.h"    // STM32F4                              env:STM32F401RC_creality env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
+  #include "stm32f4/pins_CREALITY_V24S1_301F4.h"    // STM32F4                              env:STM32F401RC_creality env:STM32F401RC_creality_nobootloader env:STM32F401RC_creality_jlink env:STM32F401RC_creality_stlink
+#elif MB(CREALITY_CR4NTXXC10)
+  #include "stm32f4/pins_CREALITY_CR4NTXXC10.h"     // STM32F4                              env:STM32F401RE_freeruns env:STM32F401RE_freeruns_jlink env:STM32F401RE_freeruns_stlink
 #elif MB(OPULO_LUMEN_REV4)
   #include "stm32f4/pins_OPULO_LUMEN_REV4.h"        // STM32F4                              env:Opulo_Lumen_REV4
 #elif MB(FYSETC_SPIDER_KING407)
   #include "stm32f4/pins_FYSETC_SPIDER_KING407.h"   // STM32F4                              env:FYSETC_SPIDER_KING407
 #elif MB(MKS_SKIPR_V1)
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"          // STM32F4                              env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
-#elif MB(TRONXY_V10)
-  #include "stm32f4/pins_TRONXY_V10.h"              // STM32F4                              env:STM32F446_tronxy
+#elif MB(TRONXY_CXY_446_V10)
+  #include "stm32f4/pins_TRONXY_CXY_446_V10.h"      // STM32F4                              env:TRONXY_CXY_446_V10 env:TRONXY_CXY_446_V10_usb_flash_drive
 #elif MB(CREALITY_F401RE)
   #include "stm32f4/pins_CREALITY_F401.h"           // STM32F4                              env:STM32F401RE_creality
 #elif MB(BLACKPILL_CUSTOM)
@@ -808,6 +826,8 @@
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+#elif MB(BLACKBEEZMINI_V1)
+  #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 
 //
 // ARM Cortex-M7
@@ -827,8 +847,14 @@
   #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"         // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"      // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_OCTOPUS_PRO_V1_0_1)
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"  // STM32H7                              env:STM32H723ZE_btt
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"    // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_MANTA_M8P_V2_0)
+  #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"      // STM32H7                              env:STM32H723ZE_btt
+#elif MB(BTT_KRAKEN_V1_0)
+  #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"         // STM32H7                              env:STM32H723ZG_btt
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
 #elif MB(T41U5XBB)
@@ -882,6 +908,15 @@
   #include "samd/pins_MINITRONICS20.h"              // SAMD21                               env:SAMD21_minitronics20
 
 //
+// HC32 ARM Cortex-M4
+//
+
+#elif MB(AQUILA_V101)
+  #include "hc32f4/pins_AQUILA_101.h"               // HC32F460                             env:HC32F460C_aquila_101
+#elif MB(CREALITY_ENDER2P_V24S4)
+  #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
+
+//
 // Custom board (with custom PIO env)
 //
 
@@ -893,7 +928,7 @@
 //
 
 #elif MB(SIMULATED)
-  #include "linux/pins_RAMPS_LINUX.h"               // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
+  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
 
 #else
 
@@ -930,43 +965,45 @@
   #define BOARD_MKS_MONSTER8            99925
   #define BOARD_LINUX_RAMPS             99926
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
+  #define BOARD_VAKE403D                99928
+  #define BOARD_TRONXY_V10              99929
 
   #if MB(MKS_13)
-    #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
+    #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
   #elif MB(TRIGORILLA)
-    #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
+    #error "BOARD_TRIGORILLA is now BOARD_TRIGORILLA_13. Please update your configuration."
   #elif MB(RURAMPS4D)
-    #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
+    #error "BOARD_RURAMPS4D is now BOARD_RURAMPS4D_11. Please update your configuration."
   #elif MB(FORMBOT_TREX2)
-    #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
+    #error "FORMBOT_TREX2 is now BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
   #elif MB(BIQU_SKR_V1_1)
-    #error "BOARD_BIQU_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIQU_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_1)
-    #error "BOARD_BIGTREE_SKR_V1_1 has been renamed BOARD_BTT_SKR_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_2)
-    #error "BOARD_BIGTREE_SKR_V1_2 has been renamed BOARD_BTT_SKR_V1_2. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_2 is now BOARD_BTT_SKR_V1_2. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_3)
-    #error "BOARD_BIGTREE_SKR_V1_3 has been renamed BOARD_BTT_SKR_V1_3. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_3 is now BOARD_BTT_SKR_V1_3. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_4)
-    #error "BOARD_BIGTREE_SKR_V1_4 has been renamed BOARD_BTT_SKR_V1_4. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_4 is now BOARD_BTT_SKR_V1_4. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_4_TURBO)
-    #error "BOARD_BIGTREE_SKR_V1_4_TURBO has been renamed BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_V1_4_TURBO is now BOARD_BTT_SKR_V1_4_TURBO. Please update your configuration."
   #elif MB(BIGTREE_BTT002_V1_0)
-    #error "BOARD_BIGTREE_BTT002_V1_0 has been renamed BOARD_BTT_BTT002_V1_0. Please update your configuration."
+    #error "BOARD_BIGTREE_BTT002_V1_0 is now BOARD_BTT_BTT002_V1_0. Please update your configuration."
   #elif MB(BIGTREE_SKR_PRO_V1_1)
-    #error "BOARD_BIGTREE_SKR_PRO_V1_1 has been renamed BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_PRO_V1_1 is now BOARD_BTT_SKR_PRO_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_MINI_V1_1)
-    #error "BOARD_BIGTREE_SKR_MINI_V1_1 has been renamed BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_MINI_V1_1 is now BOARD_BTT_SKR_MINI_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_MINI_E3)
-    #error "BOARD_BIGTREE_SKR_MINI_E3 has been renamed BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_MINI_E3 is now BOARD_BTT_SKR_MINI_E3_V1_0. Please update your configuration."
   #elif MB(BIGTREE_SKR_E3_DIP)
-    #error "BOARD_BIGTREE_SKR_E3_DIP has been renamed BOARD_BTT_SKR_E3_DIP. Please update your configuration."
+    #error "BOARD_BIGTREE_SKR_E3_DIP is now BOARD_BTT_SKR_E3_DIP. Please update your configuration."
   #elif MB(STM32F1R)
-    #error "BOARD_STM32F1R has been renamed BOARD_STM32F103RE. Please update your configuration."
+    #error "BOARD_STM32F1R is now BOARD_STM32F103RE. Please update your configuration."
   #elif MB(STM32F103R)
-    #error "BOARD_STM32F103R has been renamed BOARD_STM32F103RE. Please update your configuration."
+    #error "BOARD_STM32F103R is now BOARD_STM32F103RE. Please update your configuration."
   #elif MOTHERBOARD == BOARD_ESP32
-    #error "BOARD_ESP32 has been renamed BOARD_ESPRESSIF_ESP32. Please update your configuration."
+    #error "BOARD_ESP32 is now BOARD_ESPRESSIF_ESP32. Please update your configuration."
   #elif MB(STEVAL)
     #error "BOARD_STEVAL_3DP001V1 (BOARD_STEVAL) is no longer supported in Marlin."
   #elif MB(RUMBA32)
@@ -989,6 +1026,10 @@
     #error "BOARD_LINUX_RAMPS is now BOARD_SIMULATED. Please update your configuration."
   #elif MB(BTT_MANTA_M4P_V1_0)
     #error "BOARD_BTT_MANTA_M4P_V1_0 is now BOARD_BTT_MANTA_M4P_V2_1. Please update your configuration."
+  #elif MB(TRONXY_V10)
+    #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
+  #elif MB(VAKE403D)
+    #error "BOARD_VAKE403D is no longer supported in Marlin."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1024,10 +1065,20 @@
   #undef BOARD_MKS_MONSTER8
   #undef BOARD_LINUX_RAMPS
   #undef BOARD_BTT_MANTA_M4P_V1_0
+  #undef BOARD_VAKE403D
+  #undef BOARD_TRONXY_V10
 
 #endif
+
+//
+// LCD / Controller Pins based on board expansion headers with adapters
+//
+#include "pins_lcd.h"
 
 //
 // Post-process pins according to configured settings
 //
 #include "pins_postprocess.h"
+
+// Cleanup
+#undef CONTROLLER_WARNING

@@ -73,9 +73,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Лимит выранивания");
 
   LSTR MSG_SET_HOME_OFFSETS                 = _UxGT("Установ.смещ.дома");
-  LSTR MSG_HOME_OFFSET_X                    = _UxGT("Смещ. дома X");
-  LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Смещ. дома Y");
-  LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Смещ. дома Z");
 
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Смещения применены");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Выберите ноль");
@@ -157,7 +154,6 @@ namespace LanguageNarrow_ru {
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");
-  LSTR MSG_UBL_LEVEL_BED                    = _UxGT("Настройка UBL");
   LSTR MSG_LCD_TILTING_MESH                 = _UxGT("Точка разворота");
   LSTR MSG_UBL_MANUAL_MESH                  = _UxGT("Ручной ввод сетки");
   LSTR MSG_UBL_BC_INSERT                    = _UxGT("Разм.шайбу, измерить");
@@ -264,15 +260,8 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MOVE_EN                          = _UxGT("Экструдер *");
   LSTR MSG_HOTEND_TOO_COLD                  = _UxGT("Сопло не нагрето");
   LSTR MSG_MOVE_N_MM                        = _UxGT("Движение $мм");
-  LSTR MSG_MOVE_01MM                        = _UxGT("Движение 0.1мм");
-  LSTR MSG_MOVE_1MM                         = _UxGT("Движение 1мм");
-  LSTR MSG_MOVE_10MM                        = _UxGT("Движение 10мм");
-  LSTR MSG_MOVE_100MM                       = _UxGT("Движение 100mm");
-  LSTR MSG_MOVE_0001IN                      = _UxGT("Движение 0.001in");
-  LSTR MSG_MOVE_001IN                       = _UxGT("Движение 0.01in");
-  LSTR MSG_MOVE_01IN                        = _UxGT("Движение 0.1in");
-  LSTR MSG_MOVE_05IN                        = _UxGT("Движение 0.5in");
-  LSTR MSG_MOVE_1IN                         = _UxGT("Движение 1.0in");
+  LSTR MSG_MOVE_N_IN                        = _UxGT("Движение $in");
+  LSTR MSG_MOVE_N_DEG                       = _UxGT("Движение $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                            = _UxGT("Скорость");
   LSTR MSG_MESH_Z_OFFSET                    = _UxGT("Z стола");
   LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
@@ -302,6 +291,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MAX                              = " " LCD_STR_THERMOMETER ", " LCD_STR_DEGREE _UxGT("С макс");
   LSTR MSG_FACTOR                           = " " LCD_STR_THERMOMETER _UxGT(" Фактор");
   LSTR MSG_AUTOTEMP                         = _UxGT("Автотемпература");
+  LSTR MSG_TIMEOUT                          = _UxGT("Таймаут.");
   LSTR MSG_LCD_ON                           = _UxGT("Вкл");
   LSTR MSG_LCD_OFF                          = _UxGT("Выкл");
 
@@ -709,14 +699,12 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_MESH_INVALID                 = _UxGT("Негодная сетка");
   LSTR MSG_UBL_INVALID_SLOT                 = _UxGT("Сперва выберите слот сетки");
   LSTR MSG_MESH_ACTIVE                      = _UxGT("Сетка %i активна");
-  LSTR MSG_MOVE_50MM                        = _UxGT("Двигать 50mm");
   LSTR MSG_LIVE_MOVE                        = _UxGT("Живое перемещение");
   LSTR MSG_CUTTER                           = _UxGT("Резак");
   LSTR MSG_PID_CYCLE                        = _UxGT("Циклы PID");
   LSTR MSG_PID_AUTOTUNE_FAILED              = _UxGT("Автонастройка PID не удалась!");
   LSTR MSG_BAD_HEATER_ID                    = _UxGT("Неверный экструдер.");
   LSTR MSG_TEMP_TOO_HIGH                    = _UxGT("Слишком высокая температура.");
-  LSTR MSG_TIMEOUT                          = _UxGT("Таймаут.");
   LSTR MSG_MPC_MEASURING_AMBIENT            = _UxGT("Тест потери тепла");
   LSTR MSG_MPC_HEATING_PAST_200             = _UxGT("Нагрев выше >200C");
   LSTR MSG_MPC_COOLING_TO_AMBIENT           = _UxGT("Охлаждение до окружающей");
@@ -787,30 +775,30 @@ namespace LanguageNarrow_ru {
   LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS    = _UxGT("Делаю дельта-калибровку");
   LSTR MSG_RESET_STATS                      = _UxGT("Сбросить статистику печати?");
   LSTR MSG_FAN_SPEED_FAULT                  = _UxGT("Сбой скорости кулера");
-  LSTR MSG_COLORS_GET                       = _UxGT("Получить цвет");
-  LSTR MSG_COLORS_SELECT                    = _UxGT("Выбрать цвета");
-  LSTR MSG_COLORS_APPLIED                   = _UxGT("Цвета применены");
-  LSTR MSG_COLORS_RED                       = _UxGT("Красный");
-  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелёный");
-  LSTR MSG_COLORS_BLUE                      = _UxGT("Синий");
-  LSTR MSG_COLORS_WHITE                     = _UxGT("Белый");
-  LSTR MSG_UI_LANGUAGE                      = _UxGT("UI Language");
-  LSTR MSG_SOUND_ENABLE                     = _UxGT("Включить звук");
-  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокировать экран");
-  LSTR MSG_LOCKSCREEN_LOCKED                = _UxGT("Принтер заблокирован,");
-  LSTR MSG_LOCKSCREEN_UNLOCK                = _UxGT("Крутить для разблокировки.");
-  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Ждите перезагрузки.");
-  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Нет носителя.");
-  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрейте сопло.");
-  LSTR MSG_INFO_PRINT_COUNT_RESET           = _UxGT("Сбросить счетчик");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE   = _UxGT("Прочистить или продолжить?");
-  LSTR MSG_RUNOUT_ENABLE                    = _UxGT("Включить датч.филамента");
-  LSTR MSG_RUNOUT_ACTIVE                    = _UxGT("Датч.филам. активен");
-  LSTR MSG_INVERT_EXTRUDER                  = _UxGT("Инвертировать экструдер");
-  LSTR MSG_EXTRUDER_MIN_TEMP                = _UxGT("Миню темп. экструдера.");
+
+  LSTR MSG_COLORS_GET                       = _UxGT("Получить цвет");               // ProUI
+  LSTR MSG_COLORS_SELECT                    = _UxGT("Выбрать цвета");               // ProUI
+  LSTR MSG_COLORS_APPLIED                   = _UxGT("Цвета применены");             // ProUI
+  LSTR MSG_COLORS_RED                       = _UxGT("Красный");                     // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелёный");                     // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                      = _UxGT("Синий");                       // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                     = _UxGT("Белый");                       // ProUI
+  LSTR MSG_UI_LANGUAGE                      = _UxGT("UI Language");                 // ProUI
+  LSTR MSG_SOUND_ENABLE                     = _UxGT("Включить звук");               // ProUI
+  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокировать экран");           // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED                = _UxGT("Принтер заблокирован,");       // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK                = _UxGT("Крутить для разблокировки.");  // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Ждите перезагрузки.");         // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Нет носителя.");               // ProUI
+  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрейте сопло.");             // ProUI
+  LSTR MSG_INFO_PRINT_COUNT_RESET           = _UxGT("Сбросить счетчик");            // ProUI
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE   = _UxGT("Прочистить или продолжить?");  // ProUI
+  LSTR MSG_EXTRUDER_MIN_TEMP                = _UxGT("Миню темп. экструдера.");      // ProUI
+
   LSTR MSG_FANCHECK                         = _UxGT("Пров.тахометра кулера");
   LSTR MSG_MMU2_REMOVE_AND_CLICK            = _UxGT("Уберите и кликните...");
   LSTR MSG_REHEATDONE                       = _UxGT("Нагрето");
+
   LSTR MSG_XATC                             = _UxGT("Помощник перекоса X");
   LSTR MSG_XATC_DONE                        = _UxGT("Перекос Х настроен!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET             = _UxGT("Новое смещение Z-зонда ");
@@ -841,9 +829,9 @@ namespace LanguageWide_ru {
     LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Расширенные настройки");
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переполнение вызова");
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Установ. смещения дома");
-    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X");
-    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y");
-    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z");
+    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Смещение дома X"); // DWIN
+    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Смещение дома Y"); // DWIN
+    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Смещение дома Z"); // DWIN
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Последнее значение ");
     LSTR MSG_SPINDLE_MENU                   = _UxGT("Управлен.шпинделем");
     LSTR MSG_LASER_TOGGLE                   = _UxGT("Переключить лазер");

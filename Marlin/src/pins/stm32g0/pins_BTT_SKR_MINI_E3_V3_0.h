@@ -64,6 +64,13 @@
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
@@ -112,17 +119,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  2
+    #define Y_SLAVE_ADDRESS                    2
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  1
+    #define Z_SLAVE_ADDRESS                    1
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(Y_SLAVE_ADDRESS == 2, "Y_SLAVE_ADDRESS must be 2 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(Z_SLAVE_ADDRESS == 1, "Z_SLAVE_ADDRESS must be 1 for BOARD_BTT_SKR_MINI_E3_V3_0.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BTT_SKR_MINI_E3_V3_0.");
 #endif
 
 //
@@ -162,6 +173,20 @@
 #define EXP1_09_PIN                         -1
 #define EXP1_10_PIN                         -1
 
+/**      SPI Port
+ *        ------
+ *  5V   | 1  2 | GND
+ *  CS   | 3  4 | CLK
+ *  MOSI | 5  6 | MISO
+ *  3V3  | 7  8 | GND
+ *        ------
+ *         SPI1
+ */
+#define SPI1_03_PIN                         PD9
+#define SPI1_04_PIN                         PA5
+#define SPI1_05_PIN                         PA7
+#define SPI1_06_PIN                         PA6
+
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
    *        ------                ------                ------
@@ -176,9 +201,7 @@
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "DWIN_CREALITY_LCD", " Requires a custom cable.")
 
   #define BEEPER_PIN                 EXP1_02_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -224,7 +247,7 @@
       #define LCD_BACKLIGHT_PIN             -1
       #define NEOPIXEL_PIN           EXP1_02_PIN
     #else
-      #error "Only CR10_FYSETC_MINI_12864_2_1 and compatibles are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER"
+      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3 with SKR_MINI_SCREEN_ADAPTER."
     #endif
 
   #else
@@ -243,9 +266,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "ZONESTAR_LCD")
 
       #define LCD_PINS_RS            EXP1_06_PIN
       #define LCD_PINS_EN            EXP1_02_PIN
@@ -273,9 +294,7 @@
 
       #if ENABLED(TFTGLCD_PANEL_SPI)
 
-        #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-          #error "CAUTION! TFTGLCD_PANEL_SPI requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-        #endif
+        CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "TFTGLCD_PANEL_SPI")
 
         /**
          * TFTGLCD_PANEL_SPI display pinout
@@ -312,9 +331,7 @@
 
     #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_V3_0.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning."
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "FYSETC_MINI_12864_2_1 and clones")
 
       /**
        *
@@ -366,9 +383,7 @@
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "LCD_FYSETC_TFT81050")
 
   /**
    * FYSETC TFT TFT81050 display pinout
@@ -435,8 +450,19 @@
 #define SD_MOSI_PIN                         PA7
 
 //
-// Default NEOPIXEL_PIN
+// NeoPixel
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA8   // LED driving pin
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA8   // LED driving pin
 #endif
+
+// Pins for documentation and sanity checks only.
+// Changing these will not change the pin they are on.
+
+// Hardware UART pins
+#define UART1_TX_PIN                        PA9   // default usage LCD connector
+#define UART1_RX_PIN                        PA10  // default usage LCD connector
+#define UART2_TX_PIN                        PA2   // default usage TFT connector
+#define UART2_RX_PIN                        PA3   // default usage TFT connector
+#define UART4_TX_PIN                        PC10  // default usage TMC UART
+#define UART4_RX_PIN                        PC11  // default usage TMC UART

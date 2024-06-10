@@ -23,8 +23,7 @@
 
 /**
  * BigTreeTech SKR 1.1 pin assignments
- * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20V1.1/SKR-V1.1SchDoc.pdf
- * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.1/blob/master/hardware/SKR-V1.1SchDoc.pdf
+ * Schematic: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.1/blob/master/hardware/SKR-V1.1SchDoc.pdf
  */
 
 #define BOARD_INFO_NAME "BTT SKR V1.1"
@@ -202,7 +201,7 @@
       #undef E1_ENABLE_PIN
     #endif
 
-  #else                                           // !SOFTWARE_DRIVER_ENABLE
+  #else // !SOFTWARE_DRIVER_ENABLE
 
     // A chip-select pin is needed for each driver.
 

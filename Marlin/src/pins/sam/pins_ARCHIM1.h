@@ -26,10 +26,10 @@
  *
  * The Archim 1.0 board requires Arduino Archim addons installed.
  *
- * - Add the following URL to Arduino IDE's Additional Board Manager URLs:
+ * - Add the following URL to Arduino IDE's Additional Boards Manager URLs:
  *   https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
  *
- * - In the Arduino IDE Board Manager search for Archim and install the package.
+ * - In the Arduino IDE Boards Manager search for Archim and install the package.
  *
  * - Change your target board to "Archim".
  *
@@ -180,6 +180,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1

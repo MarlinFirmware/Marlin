@@ -26,8 +26,7 @@
  *
  *  Converted to Arduino pin numbering
  *
- *  Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/SAV%20MkI/SAV_MK-I.pdf
- *  Origin: https://reprap.org/mediawiki/images/3/3c/SAV_MK-I.pdf
+ *  Schematic: https://reprap.org/mediawiki/images/3/3c/SAV_MK-I.pdf
  */
 
 /**
@@ -172,7 +171,7 @@
   #define KILL_PIN                 EXT_AUX_A2_IO
   #define HOME_PIN                 EXT_AUX_A4_IO
 
-#else                                             // Use the expansion header for spindle control
+#else // Use the expansion header for spindle control
 
   //
   // M3/M4/M5 - Spindle/Laser Control

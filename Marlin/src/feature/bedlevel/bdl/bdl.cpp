@@ -46,10 +46,16 @@ BDS_Leveling bdl;
 #define DEBUG_OUT ENABLED(DEBUG_OUT_BD)
 #include "../../../core/debug_out.h"
 
-// M102 S-5   Read raw Calibrate data
-// M102 S-6   Start Calibrate
-// M102 S4    Set the adjustable Z height value (e.g., 'M102 S4' means it will do adjusting while the Z height <= 0.4mm , disable with 'M102 S0'.)
-// M102 S-1   Read sensor information
+/**
+ * M102 S<#> : Set adjustable Z height in 0.1mm units (10ths of a mm)
+ *             (e.g., 'M102 S4' enables adjusting for Z <= 0.4mm)
+ * M102 S0   : Disable adjustable Z height
+ *
+ * M102 S-1  : Read BDsensor version
+ * M102 S-2  : Read BDsensor distance value
+ * M102 S-5  : Read raw Calibration data
+ * M102 S-6  : Start Calibration
+ */
 
 #define MAX_BD_HEIGHT                 4.0f
 #define CMD_READ_VERSION              1016
@@ -195,7 +201,7 @@ void BDS_Leveling::process() {
       safe_delay(10);
       if (config_state == BDS_CALIBRATE_START) {
         config_state = BDS_CALIBRATING;
-        REMEMBER(gsit, gcode.stepper_inactive_time, SEC_TO_MS(60 * 5));
+        REMEMBER(gsit, gcode.stepper_inactive_time, MIN_TO_MS(5));
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
         // Move the z axis instead of enabling the Z axis with M17

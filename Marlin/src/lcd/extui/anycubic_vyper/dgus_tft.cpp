@@ -39,6 +39,7 @@
 #include "../../../core/serial.h"
 #include "../../../module/stepper.h"
 #include "../../../module/probe.h"
+#include "../../../module/temperature.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
@@ -975,8 +976,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::selectFile() {
-    strncpy(selectedfile, panel_command + 4, command_len - 4);
-    selectedfile[command_len - 5] = '\0';
+    strlcpy(selectedfile, panel_command + 4, command_len - 3);
     #if ACDEBUG(AC_FILE)
       DEBUG_ECHOLNPGM(" Selected File: ", selectedfile);
     #endif
@@ -1016,7 +1016,7 @@ namespace Anycubic {
         #if HAS_HOTEND
           else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) { // hotend target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, HEATER_0_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, thermalManager.hotend_max_target(0));
             setTargetTemp_celsius(temp, E0);
             //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
@@ -1026,7 +1026,7 @@ namespace Anycubic {
         #if HAS_HEATED_BED
           else if (control_index == TXT_BED_TARGET || control_index == TXT_ADJUST_BED) {// bed target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, BED_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, BED_MAX_TARGET);
             setTargetTemp_celsius(temp, BED);
             //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_BED);
@@ -1277,7 +1277,7 @@ namespace Anycubic {
         break;
 
       case 4:   // page refresh
-        if (!isMediaInserted()) safe_delay(500);
+        if (!isMediaMounted()) safe_delay(500);
 
         filenavigator.reset();
 
@@ -1302,8 +1302,7 @@ namespace Anycubic {
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1341,8 +1340,7 @@ namespace Anycubic {
             printFile(filenavigator.filelist.shortFilename());
 
             char str_buf[20];
-            strncpy_P(str_buf, filenavigator.filelist.longFilename(), 17);
-            str_buf[17] = '\0';
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             sprintf(str_buf, "%5.2f", getFeedrate_percent());

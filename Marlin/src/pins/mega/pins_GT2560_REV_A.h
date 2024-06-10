@@ -25,8 +25,7 @@
  * Geeetech GT2560 Revision A board pin assignments, based on the work of
  * George Robles (https://georges3dprinters.com) and
  * Richard Smith <galorin@gmail.com>
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20Revision%20A/GT2560_sch.pdf
- * Origin: https://www.geeetech.com/wiki/images/9/90/GT2560_sch.pdf
+ * Schematic: https://www.geeetech.com/wiki/images/9/90/GT2560_sch.pdf
  * ATmega2560
  */
 
@@ -104,7 +103,7 @@
 // Power monitoring pins - set to 0 for main VIN, 1 for dedicated bed supply rail.
 // Don't forget to enable POWER_MONITOR_VOLTAGE in Configuration_adv.h
 // and set POWER_MONITOR_VOLTS_PER_VOLT to 0.090909.
-#define POWER_MONITOR_VOLTAGE_PIN             0
+#define POWER_MONITOR_VOLTAGE_PIN              0
 
 /**              LCD                             SDCARD
  *              ------                           ------
@@ -181,7 +180,7 @@
     #define BTN_ENC                  EXP1_02_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
 
-  #else                                           // !IS_NEWPANEL
+  #else // !IS_NEWPANEL
 
     #define SHIFT_CLK_PIN            EXP2_07_PIN
     #define SHIFT_LD_PIN             EXP2_03_PIN

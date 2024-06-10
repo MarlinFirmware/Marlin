@@ -95,7 +95,7 @@ bool ZOffsetScreen::wizardRunning() {
 }
 
 bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const int16_t steps =   TERN(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z), 0);
+  const int16_t steps =   TERN0(BABYSTEPPING, mmToWholeSteps(getIncrement(), Z));
   const float increment = TERN(BABYSTEPPING, mmFromWholeSteps(steps, Z), getIncrement());
   switch (tag) {
     case 2: runWizard(); break;

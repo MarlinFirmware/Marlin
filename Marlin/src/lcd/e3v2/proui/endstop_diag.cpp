@@ -22,18 +22,21 @@
 
 /**
  * DWIN Endstops diagnostic page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 1.4.3
  * Date: 2023/05/10
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(DWIN_LCD_PROUI, HAS_ESDIAG)
+#if ENABLED(DWIN_LCD_PROUI)
+
+#include "dwin_defines.h"
+
+#if HAS_ESDIAG
 
 #include "endstop_diag.h"
-
-#include "../../../core/types.h"
 #include "../../marlinui.h"
 #include "dwin.h"
 #include "dwin_popup.h"
@@ -87,4 +90,5 @@ void ESDiag::update() {
   dwinUpdateLCD();
 }
 
-#endif // DWIN_LCD_PROUI && HAS_ESDIAG
+#endif // HAS_ESDIAG
+#endif // DWIN_LCD_PROUI

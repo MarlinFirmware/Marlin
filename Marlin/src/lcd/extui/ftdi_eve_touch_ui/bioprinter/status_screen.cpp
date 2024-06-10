@@ -244,7 +244,7 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
 void StatusScreen::draw_buttons(draw_mode_t what) {
   int16_t x, y, h, v;
 
-  const bool has_media = isMediaInserted() && !isPrintingFromMedia();
+  const bool has_media = isMediaMounted() && !isPrintingFromMedia();
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);

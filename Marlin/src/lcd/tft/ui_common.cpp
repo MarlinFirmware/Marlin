@@ -71,12 +71,16 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     }
   #endif
 
-  const float diff = motionAxisState.currentStepSize * direction;
+  float diff = motionAxisState.currentStepSize * direction;
 
   #if HAS_BED_PROBE
 
     if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+
+        diff = 0;
+
         const int16_t babystep_increment = direction * BABYSTEP_SIZE_Z;
         const bool do_probe = DISABLED(BABYSTEP_HOTEND_Z_OFFSET) || active_extruder == 0;
         const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
@@ -85,39 +89,38 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
                       , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
                       , new_probe_offset
                     );
-        if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
           babystep.add_steps(Z_AXIS, babystep_increment);
           if (do_probe)
             probe.offset.z = new_offs;
           else
             TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
           drawMessage_P(NUL_STR); // Clear the error
-          drawAxisValue(axis);
         }
         else
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
 
-      #else
+      #else // !BABYSTEP_ZPROBE_OFFSET
+
         // Only change probe.offset.z
         probe.offset.z += diff;
-        if (direction < 0 && current_position.z < Z_PROBE_OFFSET_RANGE_MIN) {
-          current_position.z = Z_PROBE_OFFSET_RANGE_MIN;
+        if (direction < 0 && current_position.z < PROBE_OFFSET_ZMIN) {
+          current_position.z = PROBE_OFFSET_ZMIN;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
-        else if (direction > 0 && current_position.z > Z_PROBE_OFFSET_RANGE_MAX) {
-          current_position.z = Z_PROBE_OFFSET_RANGE_MAX;
+        else if (direction > 0 && current_position.z > PROBE_OFFSET_ZMAX) {
+          current_position.z = PROBE_OFFSET_ZMAX;
           drawMessage(GET_TEXT_F(MSG_LCD_SOFT_ENDSTOPS));
         }
         else
           drawMessage_P(NUL_STR); // Clear the error
 
-        drawAxisValue(axis);
-      #endif
+      #endif // !BABYSTEP_ZPROBE_OFFSET
     }
 
   #endif // HAS_BED_PROBE
 
-  if (!ui.manual_move.processing) {
+  if (diff && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;
     soft_endstop.get_manual_axis_limits(axis, min, max);
@@ -126,7 +129,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     // This assumes the center is 0,0
     #if ENABLED(DELTA)
       if (axis != Z_AXIS && TERN1(HAS_EXTRUDERS, axis != E_AXIS)) {
-        max = SQRT(sq(float(PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        max = SQRT(FLOAT_SQ(PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
         min = -max;
       }
     #endif
@@ -188,7 +191,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
 
 #endif
 
-#if HAS_TOUCH_SLEEP
+#if ALL(TOUCH_SCREEN, HAS_DISPLAY_SLEEP)
 
   bool lcd_sleep_task() {
     static bool sleepCleared;
@@ -207,7 +210,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     return false;
   }
 
-#endif // HAS_TOUCH_SLEEP
+#endif
 
 void text_line(const uint16_t y, uint16_t color) {
   tft.canvas(0, y, TFT_WIDTH, MENU_ITEM_HEIGHT);
@@ -264,7 +267,6 @@ void drawBtn(const int x, const int y, const char *label, intptr_t data, const M
 
   TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
-
 
 //
 // lcdprint.h functions

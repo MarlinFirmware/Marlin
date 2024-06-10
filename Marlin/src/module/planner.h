@@ -111,11 +111,6 @@ enum BlockFlagBit {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 
-  // Nominal speed always reached.
-  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
-  // from a safe speed (in consideration of jerking from zero speed).
-  BLOCK_BIT_NOMINAL_LENGTH,
-
   // The block is segment 2+ of a longer move
   BLOCK_BIT_CONTINUED,
 
@@ -124,7 +119,6 @@ enum BlockFlagBit {
 
   // Direct stepping page
   OPTARG(DIRECT_STEPPING, BLOCK_BIT_PAGE)
-
 
   // Sync the fan speeds from the block
   OPTARG(LASER_SYNCHRONOUS_M106_M107, BLOCK_BIT_SYNC_FANS)
@@ -142,8 +136,6 @@ typedef struct {
 
     struct {
       bool recalculate:1;
-
-      bool nominal_length:1;
 
       bool continued:1;
 
@@ -167,7 +159,6 @@ typedef struct {
   void apply(const uint8_t f) volatile { bits |= f; }
   void apply(const BlockFlagBit b) volatile { SBI(bits, b); }
   void reset(const BlockFlagBit b) volatile { bits = _BV(b); }
-  void set_nominal(const bool n) volatile { recalculate = true; if (n) nominal_length = true; }
 
 } block_flags_t;
 
@@ -215,15 +206,17 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
-  bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
-  bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
+  bool is_sync_pos() { return flag.sync_position; }
+  bool is_sync_fan() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  bool is_sync_pwr() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  bool is_sync() { return is_sync_pos() || is_sync_fan() || is_sync_pwr(); }
   bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
   bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                      // The nominal speed for this block in (mm/sec)
         entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
+        min_entry_speed_sqr,                // Minimum allowable junction entry speed in (mm/sec)^2
         max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
@@ -245,8 +238,8 @@ typedef struct PlannerBlock {
   #endif
 
   // Settings for the trapezoid generator
-  uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
-           decelerate_after;                // The index of the step event on which to start decelerating
+  uint32_t accelerate_before,               // The index of the step event where cruising starts
+           decelerate_start;                // The index of the step event on which to start decelerating
 
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
@@ -255,7 +248,7 @@ typedef struct PlannerBlock {
              acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
-    uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
+    uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
@@ -340,10 +333,30 @@ constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
   } laser_state_t;
 #endif
 
-typedef struct {
+#if DISABLED(EDITABLE_STEPS_PER_UNIT)
+  static constexpr float _dasu[] = DEFAULT_AXIS_STEPS_PER_UNIT;
+#endif
+
+typedef struct PlannerSettings {
    uint32_t max_acceleration_mm_per_s2[DISTINCT_AXES], // (mm/s^2) M201 XYZE
             min_segment_time_us;                // (µs) M205 B
-      float axis_steps_per_mm[DISTINCT_AXES];   // (steps) M92 XYZE - Steps per millimeter
+
+  // (steps) M92 XYZE - Steps per millimeter
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    float axis_steps_per_mm[DISTINCT_AXES];
+  #else
+    #define _DLIM(I) _MIN(I, (signed)COUNT(_dasu) - 1)
+    #define _DASU(N) _dasu[_DLIM(N)],
+    #define _EASU(N) _dasu[_DLIM(E_AXIS + N)],
+    static constexpr float axis_steps_per_mm[DISTINCT_AXES] = {
+      REPEAT(NUM_AXES, _DASU)
+      TERN_(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
+    };
+    #undef _EASU
+    #undef _DASU
+    #undef _DLIM
+  #endif
+
  feedRate_t max_feedrate_mm_s[DISTINCT_AXES];   // (mm/s) M203 XYZE - Max speeds
       float acceleration,                       // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
             retract_acceleration,               // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
@@ -355,7 +368,7 @@ typedef struct {
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
   struct motion_state_t {
     TERN(DELTA, xyz_ulong_t, xy_ulong_t) acceleration;
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       TERN(DELTA, xyz_float_t, xy_float_t) jerk_state;
     #endif
   };
@@ -434,7 +447,6 @@ class Planner {
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
     static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
 
-
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
     #endif
@@ -450,15 +462,15 @@ class Planner {
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
-      static float filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-                   volumetric_area_nominal,           // Nominal cross-sectional area
-                   volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
+      static float filament_size[EXTRUDERS],          // (mm) Diameter of filament, typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
+                   volumetric_area_nominal,           // (mm^3) Nominal cross-sectional area
+                   volumetric_multiplier[EXTRUDERS];  // (1/mm^2) Reciprocal of cross-sectional area of filament. Pre-calculated to reduce computation in the planner
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      static float volumetric_extruder_limit[EXTRUDERS],          // Maximum mm^3/sec the extruder can handle
-                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // Feedrate limit (mm/s) calculated from volume limit
+      static float volumetric_extruder_limit[EXTRUDERS],          // (mm^3/sec) Maximum volume the extruder can handle
+                   volumetric_extruder_feedrate_limit[EXTRUDERS]; // (mm/s) Feedrate limit calculated from volume limit
     #endif
 
     static planner_settings_t settings;
@@ -468,16 +480,21 @@ class Planner {
     #endif
 
     static uint32_t max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) Derived from mm_per_s2
-    static float mm_per_step[DISTINCT_AXES];          // Millimeters per step
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      static float mm_per_step[DISTINCT_AXES];        // Millimeters per step
+    #else
+      #define _RSTEP(N) RECIPROCAL(settings.axis_steps_per_mm[N]),
+      static constexpr float mm_per_step[DISTINCT_AXES] = { REPEAT(DISTINCT_AXES, _RSTEP) };
+      #undef _RSTEP
+    #endif
 
     #if HAS_JUNCTION_DEVIATION
       static float junction_deviation_mm;             // (mm) M205 J
       #if HAS_LINEAR_E_JERK
         static float max_e_jerk[DISTINCT_E];          // Calculated from junction_deviation_mm
       #endif
-    #endif
-
-    #if HAS_CLASSIC_JERK
+    #else // CLASSIC_JERK
       // (mm/s^2) M205 XYZ(E) - The largest speed change requiring no acceleration.
       static TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) max_jerk;
     #endif
@@ -602,7 +619,7 @@ class Planner {
     static void set_max_feedrate(const AxisEnum axis, float inMaxFeedrateMMS);
 
     // For an axis set the Maximum Jerk (instant change) in mm/s
-    #if HAS_CLASSIC_JERK
+    #if ENABLED(CLASSIC_JERK)
       static void set_max_jerk(const AxisEnum axis, float inMaxJerkMMS);
     #else
       static void set_max_jerk(const AxisEnum, const_float_t) {}
@@ -610,7 +627,7 @@ class Planner {
 
     #if HAS_EXTRUDERS
       FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-        e_factor[e] = flow_percentage[e] * 0.01f * TERN(NO_VOLUMETRICS, 1.0f, volumetric_multiplier[e]);
+        e_factor[e] = flow_percentage[e] * 0.01f IF_DISABLED(NO_VOLUMETRICS, * volumetric_multiplier[e]);
       }
 
       static void set_flow(const uint8_t e, const int16_t flow) {
@@ -1099,5 +1116,11 @@ class Planner {
 };
 
 #define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+
+#define ANY_AXIS_MOVES(BLOCK)  \
+  (false NUM_AXIS_GANG(        \
+  || BLOCK->steps.a, || BLOCK->steps.b, || BLOCK->steps.c, \
+  || BLOCK->steps.i, || BLOCK->steps.j, || BLOCK->steps.k, \
+  || BLOCK->steps.u, || BLOCK->steps.v, || BLOCK->steps.w))
 
 extern Planner planner;

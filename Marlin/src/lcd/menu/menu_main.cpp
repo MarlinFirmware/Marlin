@@ -237,17 +237,16 @@ void menu_configuration();
 #endif
 
 void menu_main() {
-  const bool busy = printingIsActive()
-    #if HAS_MEDIA
-      , card_detected = card.isMounted()
-      , card_open = card_detected && card.isFileOpen()
-    #endif
-  ;
+  const bool busy = printingIsActive();
+  #if HAS_MEDIA
+    const bool card_detected = card.isMounted(),
+               card_open = card_detected && card.isFileOpen();
+  #endif
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_MARLINUI_ENCODER
     #define MEDIA_MENU_AT_TOP
   #endif
 
@@ -279,12 +278,12 @@ void menu_main() {
   else {
     #if ALL(HAS_MEDIA, MEDIA_MENU_AT_TOP)
       // BEGIN MEDIA MENU
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-      #endif
-
       if (card_detected) {
         if (!card_open) {
+          #if ENABLED(MENU_ADDAUTOSTART)
+            ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+          #endif
+
           #if HAS_SD_DETECT
             GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
             #if ENABLED(MULTI_VOLUME)
@@ -296,7 +295,7 @@ void menu_main() {
               #if ENABLED(TFT_COLOR_UI)
                 // Menu display issue on item removal with multi language selection menu
                 if (encoderTopLine > 0) encoderTopLine--;
-                ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+                ui.refresh();
               #endif
             });
           #endif
@@ -332,12 +331,12 @@ void menu_main() {
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
-  #if ALL(ADVANCED_PAUSE_FEATURE, DISABLE_ENCODER)
-    FILAMENT_CHANGE_ITEM();
-  #endif
-
   #if HAS_CUTTER
     SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
+  #endif
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    FILAMENT_CHANGE_ITEM();
   #endif
 
   #if HAS_TEMPERATURE
@@ -396,12 +395,12 @@ void menu_main() {
 
   #if HAS_MEDIA && DISABLED(MEDIA_MENU_AT_TOP)
     // BEGIN MEDIA MENU
-    #if ENABLED(MENU_ADDAUTOSTART)
-      ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-    #endif
-
     if (card_detected) {
       if (!card_open) {
+        #if ENABLED(MENU_ADDAUTOSTART)
+          ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+        #endif
+
         #if HAS_SD_DETECT
           GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
           #if ENABLED(MULTI_VOLUME)
@@ -413,7 +412,7 @@ void menu_main() {
             #if ENABLED(TFT_COLOR_UI)
               // Menu display issue on item removal with multi language selection menu
               if (encoderTopLine > 0) encoderTopLine--;
-              ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+              ui.refresh();
             #endif
           });
         #endif
@@ -501,10 +500,6 @@ void menu_main() {
         GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
       );
     });
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && DISABLED(DISABLE_ENCODER)
-    FILAMENT_CHANGE_ITEM();
   #endif
 
   END_MENU();

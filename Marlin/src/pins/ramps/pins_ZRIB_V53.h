@@ -329,16 +329,16 @@
   #define EXP2_08_PIN                         41
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
 #if ENABLED(ZONESTAR_12864LCD)
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_SDSS                            16
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS  (PIN4 of LCD module)
-  #define LCD_PINS_EN                         23  // ST7920_DAT_PIN LCD_PIN_R/W (PIN5 of LCD module)
-  #define LCD_PINS_D4                         17  // ST7920_CLK_PIN LCD_PIN_ENA (PIN6 of LCD module)
+  #define LCD_PINS_RS                         16  // ST7920 CS          (LCD-4)
+  #define LCD_PINS_EN                         23  // ST7920 DAT LCD-R/W (LCD-5)
+  #define LCD_PINS_D4                         17  // ST7920 CLK LCD-ENA (LCD-6)
   #define BTN_EN2                             25
   #define BTN_EN1                             27
   #define BTN_ENC                             29
@@ -347,9 +347,9 @@
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
   #define LCDSCREEN_NAME "Reprap LCD12864"
   // Use EXP1 & EXP2 connector
-  #define LCD_PINS_RS                         16  // ST7920_CS_PIN  LCD_PIN_RS
-  #define LCD_PINS_EN                         17  // ST7920_DAT_PIN LCD_PIN_ENA
-  #define LCD_PINS_D4                         23  // ST7920_CLK_PIN LCD_PIN_R/W
+  #define LCD_PINS_RS                         16  // ST7920 CS
+  #define LCD_PINS_EN                         17  // ST7920 DAT
+  #define LCD_PINS_D4                         23  // ST7920 CLK LCD-R/W
   #define BTN_EN1                             31
   #define BTN_EN2                             33
   #define BTN_ENC                             35
@@ -374,7 +374,7 @@
   #define KILL_PIN                            -1
   #if ANY(OLED_HW_IIC, OLED_HW_SPI)
     #error "Oops! You must choose SW SPI for ZRIB V53 board and connect the OLED screen to EXP1 connector."
-  #else                                           // SW_SPI
+  #else // SW_SPI
     #define DOGLCD_A0                LCD_PINS_DC
     #define DOGLCD_MOSI                       35  // SDA
     #define DOGLCD_SCK                        37  // SCK

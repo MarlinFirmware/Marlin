@@ -46,6 +46,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_ELEM(O)      NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define NUM_AXIS_DECL(T,V)    NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
+#define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(E,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(E)
@@ -58,17 +59,21 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ELEM(O)       LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define LOGICAL_AXIS_DECL(T,V)     LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define LOGICAL_AXIS_NAMES         LOGICAL_AXIS_LIST(E, X, Y, Z, I, J, K, U, V, W)
+#define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
+#define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #if NUM_AXES
   #define NUM_AXES_SEP ,
   #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
+  #define MAIN_AXIS_MAP_LC(F) MAP(F, MAIN_AXIS_NAMES_LC)
   #define OPTARGS_NUM(T)      , NUM_AXIS_ARGS(T)
   #define OPTARGS_LOGICAL(T)  , LOGICAL_AXIS_ARGS(T)
 #else
   #define NUM_AXES_SEP
   #define MAIN_AXIS_MAP(F)
+  #define MAIN_AXIS_MAP_LC(F)
   #define OPTARGS_NUM(T)
   #define OPTARGS_LOGICAL(T)
 #endif
@@ -79,6 +84,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_ARGS_(T)       NUM_AXIS_ARGS(T) NUM_AXES_SEP
 #define NUM_AXIS_ELEM_(T)       NUM_AXIS_ELEM(T) NUM_AXES_SEP
 #define MAIN_AXIS_NAMES_        MAIN_AXIS_NAMES NUM_AXES_SEP
+#define MAIN_AXIS_NAMES_LC_     MAIN_AXIS_NAMES_LC NUM_AXES_SEP
 
 #if LOGICAL_AXES
   #define LOGICAL_AXES_SEP ,
@@ -92,6 +98,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ARGS_(T)       LOGICAL_AXIS_ARGS(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_ELEM_(T)       LOGICAL_AXIS_ELEM(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_NAMES_         LOGICAL_AXIS_NAMES LOGICAL_AXES_SEP
+#define LOGICAL_AXIS_NAMES_LC_      LOGICAL_AXIS_NAMES_LC LOGICAL_AXES_SEP
 
 #define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
@@ -159,7 +166,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 // General Flags for some number of states
 template<size_t N>
 struct Flags {
-  typedef value_t(N) flagbits_t;
+  typedef bits_t(N) flagbits_t;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
   typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
   typedef struct { bool b0:1,  b1:1,  b2:1,  b3:1,  b4:1,  b5:1,  b6:1,  b7:1,  b8:1,  b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1,
@@ -198,7 +205,7 @@ typedef Flags<8> flags_8_t;
 typedef Flags<16> flags_16_t;
 
 // Flags for some axis states, with per-axis aliases xyzijkuvwe
-typedef struct AxisFlags {
+typedef struct {
   union {
     struct Flags<LOGICAL_AXES> flags;
     struct { bool LOGICAL_AXIS_LIST(e:1, x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1); };
@@ -212,14 +219,14 @@ typedef struct AxisFlags {
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
   FI operator bool() const                   { return flags; }
-} axis_flags_t;
+} AxisFlags;
 
 //
 // Enumerated axis indices
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
 //  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
+//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for axes on Core kinematics
 //
 enum AxisEnum : uint8_t {
 
@@ -298,9 +305,9 @@ typedef IF<TERN0(ABL_USES_GRID, (GRID_MAX_POINTS > 255)), uint16_t, uint8_t>::ty
 #define MMM_TO_MMS(MM_M) feedRate_t(static_cast<float>(MM_M) / 60.0f)
 #define MMS_TO_MMM(MM_S) (static_cast<float>(MM_S) * 60.0f)
 
-// Packaged character for AS_CHAR macro and other usage
+// Packaged character for C macro and other usage
 typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
-#define AS_CHAR(C) serial_char_t(C)
+#define C(c) serial_char_t(c)
 
 // Packaged types: float with precision and/or width; a repeated space/character
 typedef struct WFloat { float value; char width; char prec;
@@ -309,10 +316,10 @@ typedef struct WFloat { float value; char width; char prec;
 typedef struct PFloat { float value; char prec;
                         PFloat(float v, char p) : value(v), prec(p) {}
                       } p_float_t;
-typedef struct RepChr { char asc; uint8_t count;
+typedef struct RepChr { char asc; int8_t count;
                         RepChr(char a, uint8_t c) : asc(a), count(c) {}
                       } repchr_t;
-typedef struct Spaces { uint8_t count;
+typedef struct Spaces { int8_t count;
                         Spaces(uint8_t c) : count(c) {}
                       } spaces_t;
 
@@ -449,7 +456,7 @@ struct XYval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return x || y; }
   // Smallest element
@@ -599,13 +606,13 @@ struct XYZval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 NUM_AXIS_GANG(|| x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
-  FI constexpr T small()        const { return TERN(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T small()        const { return TERN0(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
   // Largest element
-  FI constexpr T large()        const { return TERN(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T large()        const { return TERN0(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
 
   // Explicit copy and copies with conversion
   FI constexpr XYZval<T>           copy() const { XYZval<T> o = *this; return o; }
@@ -747,7 +754,7 @@ struct XYZEval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 LOGICAL_AXIS_GANG(|| e, || x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
@@ -937,7 +944,7 @@ public:
   typedef bits_t(NUM_AXIS_ENUMS) el;
   union {
     el bits;
-    // x, y, z ... e0, e1, e2 ... hx, hy, hz
+    // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(x:1, y:1, z:1, i:1, j:1, k:1, u:1, v:1, w:1);
@@ -949,7 +956,7 @@ public:
         bool hx:1, hy:1, hz:1;
       #endif
     };
-    // X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
+    // Axes X, Y, Z ... E0, E1, E2 ... HX, HY, HZ
     struct {
       #if NUM_AXES
         bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1);
@@ -963,7 +970,7 @@ public:
     };
     // a, b, c, e ... ha, hb, hc
     struct {
-      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, _i:1, _j:1, _k:1, _u:1, _v:1, _w:1);
+      bool LOGICAL_AXIS_LIST(e:1, a:1, b:1, c:1, ii:1, jj:1, kk:1, uu:1, vv:1, ww:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _e##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -975,7 +982,7 @@ public:
     };
     // A, B, C, E ... HA, HB, HC
     struct {
-      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, _I:1, _J:1, _K:1, _U:1, _V:1, _W:1);
+      bool LOGICAL_AXIS_LIST(E:1, A:1, B:1, C:1, II:1, JJ:1, KK:1, UU:1, VV:1, WW:1);
       #if EXTRUDERS > 1
         #define _EN_ITEM(N) bool _E##N:1;
         REPEAT_S(1,EXTRUDERS,_EN_ITEM)
@@ -1084,6 +1091,7 @@ public:
   FI bool toggle(const AxisEnum n) { TBI(bits, n); return TEST(bits, n); }
   FI void bset(const AxisEnum n) { SBI(bits, n); }
   FI void bclr(const AxisEnum n) { CBI(bits, n); }
+  FI void bset(const AxisEnum n, const bool b) { if (b) bset(n); else bclr(n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
   FI bool operator[](const int n) const { return TEST(bits, n); }

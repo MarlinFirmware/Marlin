@@ -49,7 +49,7 @@ void DGUSRxHandler::screenChange(DGUS_VP &vp, void *data_ptr) {
     #if HAS_MEDIA
       IF_DISABLED(HAS_SD_DETECT, card.mount());
 
-      if (!ExtUI::isMediaInserted()) {
+      if (!ExtUI::isMediaMounted()) {
         screen.setStatusMessage(GET_TEXT_F(MSG_NO_MEDIA));
         return;
       }
@@ -474,29 +474,28 @@ void DGUSRxHandler::moveToPoint(DGUS_VP &vp, void *data_ptr) {
       y = DGUS_LEVEL_CENTER_Y;
       break;
     case 2:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 3:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MIN_POS + lfrb[1];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MIN_BED + lfrb[1];
       break;
     case 4:
-      x = X_MAX_POS - lfrb[2];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MAX_BED - lfrb[2];
+      y = Y_MAX_BED - lfrb[3];
       break;
     case 5:
-      x = X_MIN_POS + lfrb[0];
-      y = Y_MAX_POS - lfrb[3];
+      x = X_MIN_BED + lfrb[0];
+      y = Y_MAX_BED - lfrb[3];
       break;
   }
 
-  if (ExtUI::getAxisPosition_mm(ExtUI::Z) < Z_MIN_POS + BED_TRAMMING_Z_HOP) {
-    ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_Z_HOP, ExtUI::Z);
-  }
+  if (BED_TRAMMING_Z_HOP)
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(ExtUI::Z) + (BED_TRAMMING_Z_HOP), ExtUI::Z);
   ExtUI::setAxisPosition_mm(x, ExtUI::X);
   ExtUI::setAxisPosition_mm(y, ExtUI::Y);
-  ExtUI::setAxisPosition_mm(Z_MIN_POS + BED_TRAMMING_HEIGHT, ExtUI::Z);
+  ExtUI::setAxisPosition_mm((Z_MIN_POS) + (BED_TRAMMING_HEIGHT), ExtUI::Z);
 }
 
 void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
@@ -598,7 +597,7 @@ void DGUSRxHandler::filamentMove(DGUS_VP &vp, void *data_ptr) {
   }
 
   if (ExtUI::getActualTemp_celsius(extruder) < (float)EXTRUDE_MINTEMP) {
-    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_TEMP_TOO_LOW));
+    screen.setStatusMessage(GET_TEXT_F(MSG_TEMP_TOO_LOW));
     return;
   }
 
@@ -809,15 +808,19 @@ void DGUSRxHandler::pidSetTemp(DGUS_VP &vp, void *data_ptr) {
 
   switch (screen.pid_heater) {
     default: return;
-    case DGUS_Data::Heater::BED:
-      temp = constrain(temp, BED_MINTEMP, BED_MAX_TARGET);
-      break;
-    case DGUS_Data::Heater::H0:
-      temp = constrain(temp, HEATER_0_MINTEMP, (HEATER_0_MAXTEMP - HOTEND_OVERSHOOT));
-      break;
+    #if HAS_HEATED_BED
+      case DGUS_Data::Heater::BED:
+        LIMIT(temp, BED_MINTEMP, BED_MAX_TARGET);
+        break;
+    #endif
+    #if HAS_HOTEND
+      case DGUS_Data::Heater::H0:
+        LIMIT(temp, celsius_t(HEATER_0_MINTEMP), thermalManager.hotend_max_target(0));
+        break;
+    #endif
     #if HAS_MULTI_HOTEND
       case DGUS_Data::Heater::H1:
-        temp = constrain(temp, HEATER_1_MINTEMP, (HEATER_1_MAXTEMP - HOTEND_OVERSHOOT));
+        LIMIT(temp, celsius_t(HEATER_1_MINTEMP), thermalManager.hotend_max_target(0));
         break;
     #endif
   }

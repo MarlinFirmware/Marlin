@@ -22,7 +22,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.11.1
  * Date: 2022/02/28
  */
@@ -41,10 +42,10 @@ popupDrawFunc_t popupDraw = nullptr;
 popupClickFunc_t popupClick = nullptr;
 popupChangeFunc_t popupChange = nullptr;
 
-uint16_t HighlightYPos = 280;
+uint16_t highlightY = 280;
 
 void drawSelectHighlight(const bool sel, const uint16_t ypos) {
-  HighlightYPos = ypos;
+  highlightY = ypos;
   hmiFlag.select_flag = sel;
   const uint16_t c1 = sel ? hmiData.colorHighlight : hmiData.colorPopupBg,
                  c2 = sel ? hmiData.colorPopupBg : hmiData.colorHighlight;
@@ -86,7 +87,7 @@ void hmiPopup() {
     EncoderState encoder_diffState = get_encoder_state();
     if (encoder_diffState == ENCODER_DIFF_CW || encoder_diffState == ENCODER_DIFF_CCW) {
       const bool change = encoder_diffState != ENCODER_DIFF_CW;
-      if (popupChange) popupChange(change); else drawSelectHighlight(change, HighlightYPos);
+      if (popupChange) popupChange(change); else drawSelectHighlight(change, highlightY);
       dwinUpdateLCD();
     }
   }
