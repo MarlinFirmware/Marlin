@@ -989,7 +989,6 @@ namespace Anycubic {
     uint16_t control_index = 0;
     uint32_t control_value;
     uint16_t temp;
-    char str_buf[20];
 
     if (data_received) {
       data_received = false;
@@ -1035,7 +1034,7 @@ namespace Anycubic {
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
           //feedrate_percentage=constrain(control_value,40,999);
-          sendTxtToTFT(MString<4>(feedrate), TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<3>(feedrate), TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
           setFeedrate_percent(feedrate);
@@ -1297,7 +1296,7 @@ namespace Anycubic {
 
             sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
             sendTxtToTFT(ftostr72rj(getFeedrate_percent()), TXT_PRINT_SPEED);
-            sendTxtToTFT(MString<4>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
+            sendTxtToTFT(MString<3>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
             sendTimeToTFT(0, TXT_PRINT_TIME);
 
             changePageOfTFT(PAGE_STATUS2);
@@ -1341,7 +1340,6 @@ namespace Anycubic {
 
     static millis_t flash_time = 0;
     const millis_t ms = millis();
-    char str_buf[20];
 
     switch (key_value) {
       case 0: break;
@@ -1394,7 +1392,7 @@ namespace Anycubic {
       if (ifeedrate != 0)
         sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
       else
-        sendTxtToTFT(MString<4>(feedrate_back), TXT_PRINT_SPEED);
+        sendTxtToTFT(MString<3>(feedrate_back), TXT_PRINT_SPEED);
 
       #if ACDEBUG(AC_MARLIN)
         DEBUG_ECHOLNPGM("print speed: ", ifeedrate, " feedrate_back: ", feedrate_back);
@@ -1405,7 +1403,7 @@ namespace Anycubic {
     static uint8_t progress_last = 0;
     if (progress_last != getProgress_percent()) {
       progress_last = getProgress_percent();
-      sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
+      sendTxtToTFT(MString<3>(progress_last), TXT_PRINT_PROGRESS);
     }
 
     // Report Printing Time in minutes
@@ -1424,7 +1422,6 @@ namespace Anycubic {
       }
     #endif
 
-    char str_buf[20];
 
     switch (key_value) {
       case 0: break;
@@ -1473,14 +1470,14 @@ namespace Anycubic {
       if (ifeedrate != 0)
         sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
       else
-        sendTxtToTFT(MString<4>(feedrate_back), TXT_PRINT_SPEED);
+        sendTxtToTFT(MString<3>(feedrate_back), TXT_PRINT_SPEED);
       feedrate_back = ifeedrate;
     }
 
     static uint8_t progress_last = 0;
     if (progress_last != getProgress_percent()) {
       progress_last = getProgress_percent();
-      sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
+      sendTxtToTFT(MString<3>(progress_last), TXT_PRINT_PROGRESS);
     }
 
     // Report Printing Time in minutes
@@ -2765,8 +2762,8 @@ namespace Anycubic {
             sendTxtToTFT(recovery.info.sd_filename, TXT_OUTAGE_RECOVERY_FILE);
           #endif
 
-          sendTxtToTFT(MString<6>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
-          sendTxtToTFT(MString<4>(progress_last), TXT_PRINT_PROGRESS);
+          sendTxtToTFT(MString<5>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<3>(progress_last), TXT_PRINT_PROGRESS);
 
           changePageOfTFT(PAGE_STATUS2);              // show pause
           injectCommands(F("M355 S1\nM1000"));        // case light on, home and start recovery
@@ -2804,10 +2801,8 @@ namespace Anycubic {
             sendTxtToTFT(recovery.info.sd_filename, TXT_OUTAGE_RECOVERY_FILE);
           #endif
 
-          sendTxtToTFT(MString<6>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
-
-          sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
-          sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
+          sendTxtToTFT(MString<5>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
+          sendTxtToTFT(MString<3>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
 
           changePageOfTFT(PAGE_STATUS2);          // show pause
           injectCommands(F("M355 S1\nM1000"));    // case light on, home and start recovery
