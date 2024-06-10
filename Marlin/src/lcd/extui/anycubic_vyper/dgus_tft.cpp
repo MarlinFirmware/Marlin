@@ -424,9 +424,8 @@ namespace Anycubic {
           else {
             printer_state = AC_printer_stopping;
 
-            // Get Printing Time in minutes
-            const uint32_t time = getProgress_seconds_elapsed() / 60;
-            sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_FINISH_TIME);
+            // Report Printing Time in minutes
+            sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_FINISH_TIME);
             changePageOfTFT(PAGE_PRINT_FINISH);
             tftSendLn(AC_msg_print_complete);
             pop_up_index = 100;
@@ -728,6 +727,10 @@ namespace Anycubic {
     uint16_t color_address = address + 3;
     uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, uint8_t(color_address >> 8), uint8_t(color_address & 0xFF), uint8_t(color >> 8), uint8_t(color & 0xFF) };
     for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
+  }
+
+  void DgusTFT::sendTimeToTFT(const uint16_t minutes, const uint16_t address) {
+    sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
   }
 
   void DgusTFT::sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address) {
@@ -1132,18 +1135,14 @@ namespace Anycubic {
   }
 
   #if HAS_HOTEND
-    void DgusTFT::send_temperature_hotend(uint32_t addr) {
-      char str_buf[16];
-      sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(getActualTemp_celsius(E0)), uint16_t(getTargetTemp_celsius(E0)));
-      sendTxtToTFT(str_buf, addr);
+    void DgusTFT::send_temperature_hotend(const uint32_t addr) {
+      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(E0)), '/', uint16_t(getTargetTemp_celsius(E0))), addr);
     }
   #endif
 
   #if HAS_HEATED_BED
-    void DgusTFT::send_temperature_bed(uint32_t addr) {
-      char str_buf[16];
-      sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(getActualTemp_celsius(BED)), uint16_t(getTargetTemp_celsius(BED)));
-      sendTxtToTFT(str_buf, addr);
+    void DgusTFT::send_temperature_bed(const uint32_t addr) {
+      sendTxtToTFT(MString<16>(uint16_t(getActualTemp_celsius(BED)), '/', uint16_t(getTargetTemp_celsius(BED))), addr);
     }
   #endif
 
@@ -1309,8 +1308,7 @@ namespace Anycubic {
             sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
             sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
-            const uint32_t time = 0;
-            sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
+            sendTimeToTFT(0, TXT_PRINT_TIME);
 
             changePageOfTFT(PAGE_STATUS2);
           }
@@ -1422,9 +1420,8 @@ namespace Anycubic {
       progress_last = getProgress_percent();
     }
 
-    // Get Printing Time in minutes
-    const uint32_t time = getProgress_seconds_elapsed() / 60;
-    sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
+    // Report Printing Time in minutes
+    sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
     TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
@@ -1500,9 +1497,8 @@ namespace Anycubic {
       progress_last = getProgress_percent();
     }
 
-    // Get Printing Time in minutes
-    const uint32_t time = getProgress_seconds_elapsed() / 60;
-    sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
+    // Report Printing Time in minutes
+    sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
     TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
@@ -3133,9 +3129,8 @@ namespace Anycubic {
         break;
 
       case 24: {
-        // Get Printing Time in minutes
-        const uint32_t time = getProgress_seconds_elapsed() / 60;
-        sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_FINISH_TIME);
+        // Report Printing Time in minutes
+        sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_FINISH_TIME);
         changePageOfTFT(PAGE_PRINT_FINISH);
         //tftSendLn(AC_msg_print_complete);   // no idea why this causes a compile error
         pop_up_index = 100;

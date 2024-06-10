@@ -373,10 +373,10 @@ namespace Anycubic {
       static void store_changes();
 
       #if HAS_HOTEND
-        static void send_temperature_hotend(uint32_t addr);
+        static void send_temperature_hotend(const uint32_t addr);
       #endif
       #if HAS_HEATED_BED
-        static void send_temperature_bed(uint32_t addr);
+        static void send_temperature_bed(const uint32_t addr);
       #endif
 
       typedef void (*p_fun)();
@@ -468,6 +468,7 @@ namespace Anycubic {
       }
 
       static void sendColorToTFT(const uint16_t color, const uint16_t address);
+      static void sendTimeToTFT(const uint32_t minutes, const uint16_t address);
       static void sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
       static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
       static void fakeChangePageOfTFT(const uint16_t page_index);
