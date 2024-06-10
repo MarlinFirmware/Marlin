@@ -1005,8 +1005,6 @@ namespace Anycubic {
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
             temp = constrain(uint16_t(control_value), 0, thermalManager.hotend_max_target(0));
             setTargetTemp_celsius(temp, E0);
-            //sprintf_P(str_buf, PSTR("%u/%u"), (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
-            //sendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
           }
         #endif
 
@@ -1015,8 +1013,6 @@ namespace Anycubic {
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
             temp = constrain(uint16_t(control_value), 0, BED_MAX_TARGET);
             setTargetTemp_celsius(temp, BED);
-            //sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(thermalManager.degBed()), uint16_t(control_value));
-            //sendTxtToTFT(str_buf, TXT_PRINT_BED);
           }
         #endif
 
@@ -1455,7 +1451,6 @@ namespace Anycubic {
         sendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
         TERN_(HAS_FAN, sendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_TARGET));
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 3, TXT_LEVEL_OFFSET);
-        //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
         requestValueFromTFT(TXT_ADJUST_SPEED);  // attempt to make feedrate visible on visit to this page
         break;
     }
@@ -1518,7 +1513,6 @@ namespace Anycubic {
           setZOffset_mm(z_off);
 
           sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-          //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
           //if (isAxisPositionKnown(Z)) {  // Move Z axis
           //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
@@ -1556,7 +1550,6 @@ namespace Anycubic {
           setZOffset_mm(z_off);
 
           sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-          //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
           //int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
 
@@ -2027,7 +2020,6 @@ namespace Anycubic {
 
       case 3: {
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-        //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
         changePageOfTFT(PAGE_LEVEL_ADVANCE);
       } break;
 
@@ -2060,7 +2052,6 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-        //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {
           const float currZpos = getAxisPosition_mm(Z);
@@ -2077,7 +2068,6 @@ namespace Anycubic {
         setZOffset_mm(z_off);
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
-        //sendTxtToTFT(ftostr52sprj(getZOffset_mm()), TXT_LEVEL_OFFSET);
 
         if (isAxisPositionKnown(Z)) {          // Move Z axis
           const float currZpos = getAxisPosition_mm(Z);
