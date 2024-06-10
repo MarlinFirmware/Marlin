@@ -457,7 +457,17 @@ namespace Anycubic {
 
       static void sendValueToTFT(const uint16_t value, const uint16_t address);
       static void requestValueFromTFT(const uint16_t address);
+
       static void sendTxtToTFT(const char *pdata, const uint16_t address);
+      static void sendTxtToTFT_P(PGM_P const pstr, const uint16_t address) {
+        char cstr[32];
+        strlcpy_P(cstr, pstr, sizeof(cstr));
+        sendTxtToTFT(cstr, address);
+      }
+      static void sendTxtToTFT(FSTR_P const fstr, const uint16_t address) {
+        sendTxtToTFT_P(FTOP(fstr), address);
+      }
+
       static void sendColorToTFT(const uint16_t color, const uint16_t address);
       static void sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
       static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);

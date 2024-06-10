@@ -417,8 +417,8 @@ namespace Anycubic {
             // Get Printing Time
             uint32_t time = getProgress_seconds_elapsed() / 60;
             char str_buf[20];
-            sprintf(str_buf, "%s H ", utostr3(time / 60));
-            sprintf(str_buf + strlen(str_buf), "%s M", utostr3(time % 60));
+            sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
+            sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
             sendTxtToTFT(str_buf, TXT_FINISH_TIME);
             changePageOfTFT(PAGE_PRINT_FINISH);
             tftSendLn(AC_msg_print_complete);
@@ -536,9 +536,7 @@ namespace Anycubic {
     #endif
 
     // Visible in main page
-    char str_buf[30];
-    strlcpy_P(str_buf, msg, sizeof(str_buf));
-    sendTxtToTFT(str_buf, TXT_MAIN_MESSAGE);
+    sendTxtToTFT_P(msg, TXT_MAIN_MESSAGE);
 
     // The only way to get printer status is to parse messages
     // Use the state to minimise the work we do here.
@@ -787,10 +785,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::changePageOfTFTToAbout() {
-    char str_ver[32];
-    //sprintf(str_ver, "%04d-%02d-%02d %02d:%02d:%02d\n", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN, BUILD_SEC);
-    strlcpy_P(str_ver, getFirmwareName_str(), sizeof(str_ver));
-    sendTxtToTFT(str_ver, TXT_VERSION);
+    sendTxtToTFT_P(getFirmwareName_str(), TXT_VERSION);
     changePageOfTFT(PAGE_ABOUT);
   }
 
@@ -1007,7 +1002,7 @@ namespace Anycubic {
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
             temp = constrain(uint16_t(control_value), 0, thermalManager.hotend_max_target(0));
             setTargetTemp_celsius(temp, E0);
-            //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
+            //sprintf_P(str_buf, PSTR("%u/%u"), (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
           }
         #endif
@@ -1017,7 +1012,7 @@ namespace Anycubic {
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
             temp = constrain(uint16_t(control_value), 0, BED_MAX_TARGET);
             setTargetTemp_celsius(temp, BED);
-            //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
+            //sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_BED);
           }
         #endif
@@ -1036,7 +1031,7 @@ namespace Anycubic {
           control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
           const uint16_t feedrate = constrain(uint16_t(control_value), 40, 999);
           //feedrate_percentage=constrain(control_value,40,999);
-          sprintf(str_buf, "%u", feedrate);
+          sprintf_P(str_buf, PSTR("%u"), feedrate);
           sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_NOW);
           sendValueToTFT(feedrate, TXT_PRINT_SPEED_TARGET);
@@ -1133,7 +1128,7 @@ namespace Anycubic {
   #if HAS_HOTEND
     void DgusTFT::send_temperature_hotend(uint32_t addr) {
       char str_buf[16];
-      sprintf(str_buf, "%u/%u", uint16_t(getActualTemp_celsius(E0)), uint16_t(getTargetTemp_celsius(E0)));
+      sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(getActualTemp_celsius(E0)), uint16_t(getTargetTemp_celsius(E0)));
       sendTxtToTFT(str_buf, addr);
     }
   #endif
@@ -1141,7 +1136,7 @@ namespace Anycubic {
   #if HAS_HEATED_BED
     void DgusTFT::send_temperature_bed(uint32_t addr) {
       char str_buf[16];
-      sprintf(str_buf, "%u/%u", uint16_t(getActualTemp_celsius(BED)), uint16_t(getTargetTemp_celsius(BED)));
+      sprintf_P(str_buf, PSTR("%u/%u"), uint16_t(getActualTemp_celsius(BED)), uint16_t(getTargetTemp_celsius(BED)));
       sendTxtToTFT(str_buf, addr);
     }
   #endif
@@ -1260,8 +1255,8 @@ namespace Anycubic {
 
             TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
-            char str_buf[20];
-            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
+            char str_buf[18];
+            strlcpy_P(str_buf, filenavigator.filelist.longFilename(), sizeof(str_buf));
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
             #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1302,15 +1297,15 @@ namespace Anycubic {
             strlcpy_P(str_buf, filenavigator.filelist.longFilename(), 18);
             sendTxtToTFT(str_buf, TXT_PRINT_NAME);
 
-            sprintf(str_buf, "%5.2f", getFeedrate_percent());
+            sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
             sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-            sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
+            sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
             sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
             uint32_t time = 0;
-            sprintf(str_buf, "%s H ", utostr3(time / 60));
-            sprintf(str_buf + strlen(str_buf), "%s M", utostr3(time % 60));
+            sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
+            sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
             sendTxtToTFT(str_buf, TXT_PRINT_TIME);
 
             changePageOfTFT(PAGE_STATUS2);
@@ -1405,9 +1400,9 @@ namespace Anycubic {
 
     if (feedrate_back != getFeedrate_percent()) {
       if (getFeedrate_percent() != 0)
-        sprintf(str_buf, "%5.2f", getFeedrate_percent());
+        sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
       else
-        sprintf(str_buf, "%d", feedrate_back);
+        sprintf_P(str_buf, PSTR("%d"), feedrate_back);
 
       #if ACDEBUG(AC_MARLIN)
         DEBUG_ECHOLNPGM("print speed: ", str_buf);
@@ -1418,15 +1413,15 @@ namespace Anycubic {
     }
 
     if (progress_last != getProgress_percent()) {
-      sprintf(str_buf, "%u", getProgress_percent());
+      sprintf_P(str_buf, PSTR("%u"), getProgress_percent());
       sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
       progress_last = getProgress_percent();
     }
 
     // Get Printing Time
     uint32_t time = getProgress_seconds_elapsed() / 60;
-    sprintf(str_buf, "%s H ", utostr3(time / 60));
-    sprintf(str_buf + strlen(str_buf), "%s M", utostr3(time % 60));
+    sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
+    sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
     sendTxtToTFT(str_buf, TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
@@ -1491,23 +1486,23 @@ namespace Anycubic {
 
     if (feedrate_back != getFeedrate_percent()) {
       if (getFeedrate_percent() != 0)
-        sprintf(str_buf, "%5.2f", getFeedrate_percent());
+        sprintf_P(str_buf, PSTR("%5.2f"), getFeedrate_percent());
       else
-        sprintf(str_buf, "%d", feedrate_back);
+        sprintf_P(str_buf, PSTR("%d"), feedrate_back);
 
       sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
       feedrate_back = getFeedrate_percent();
     }
 
     if (progress_last != getProgress_percent()) {
-      sprintf(str_buf, "%u", getProgress_percent());
+      sprintf_P(str_buf, PSTR("%u"), getProgress_percent());
       sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
       progress_last = getProgress_percent();
     }
 
-    uint32_t time = getProgress_seconds_elapsed() / 60;
-    sprintf(str_buf, "%s H ", utostr3(time / 60));
-    sprintf(str_buf + strlen(str_buf), "%s M", utostr3(time % 60));
+    const uint32_t time = getProgress_seconds_elapsed() / 60;
+    sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
+    sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
     sendTxtToTFT(str_buf, TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
@@ -2802,10 +2797,10 @@ namespace Anycubic {
           #endif
 
           char str_buf[20] = { '\0' };
-          sprintf(str_buf, "%u", uint16_t(getFeedrate_percent()));
+          sprintf_P(str_buf, PSTR("%u"), uint16_t(getFeedrate_percent()));
           sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-          sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
+          sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
           sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           changePageOfTFT(PAGE_STATUS2);              // show pause
@@ -2845,10 +2840,10 @@ namespace Anycubic {
           #endif
 
           char str_buf[20] = { '\0' };
-          sprintf(str_buf, "%u", uint16_t(getFeedrate_percent()));
+          sprintf_P(str_buf, PSTR("%u"), uint16_t(getFeedrate_percent()));
           sendTxtToTFT(str_buf, TXT_PRINT_SPEED);
 
-          sprintf(str_buf, "%u", uint16_t(getProgress_percent()));
+          sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
           sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
           changePageOfTFT(PAGE_STATUS2);          // show pause
@@ -3154,8 +3149,8 @@ namespace Anycubic {
       case 24: { //
         uint32_t time = getProgress_seconds_elapsed() / 60;
         char str_buf[20];
-        sprintf(str_buf, "%s H ", utostr3(time / 60));
-        sprintf(str_buf + strlen(str_buf), "%s M", utostr3(time % 60));
+        sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
+        sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
         sendTxtToTFT(str_buf, TXT_FINISH_TIME);
         changePageOfTFT(PAGE_PRINT_FINISH);
         //tftSendLn(AC_msg_print_complete);   // no idea why this causes a compile error
