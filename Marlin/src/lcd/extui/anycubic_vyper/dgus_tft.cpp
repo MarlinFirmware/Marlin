@@ -414,12 +414,9 @@ namespace Anycubic {
           else {
             printer_state = AC_printer_stopping;
 
-            // Get Printing Time
-            uint32_t time = getProgress_seconds_elapsed() / 60;
-            char str_buf[20];
-            sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
-            sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
-            sendTxtToTFT(str_buf, TXT_FINISH_TIME);
+            // Get Printing Time in minutes
+            const uint32_t time = getProgress_seconds_elapsed() / 60;
+            sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_FINISH_TIME);
             changePageOfTFT(PAGE_PRINT_FINISH);
             tftSendLn(AC_msg_print_complete);
             pop_up_index = 100;
@@ -1303,10 +1300,8 @@ namespace Anycubic {
             sprintf_P(str_buf, PSTR("%u"), uint16_t(getProgress_percent()));
             sendTxtToTFT(str_buf, TXT_PRINT_PROGRESS);
 
-            uint32_t time = 0;
-            sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
-            sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
-            sendTxtToTFT(str_buf, TXT_PRINT_TIME);
+            const uint32_t time = 0;
+            sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
 
             changePageOfTFT(PAGE_STATUS2);
           }
@@ -1418,11 +1413,9 @@ namespace Anycubic {
       progress_last = getProgress_percent();
     }
 
-    // Get Printing Time
-    uint32_t time = getProgress_seconds_elapsed() / 60;
-    sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
-    sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
-    sendTxtToTFT(str_buf, TXT_PRINT_TIME);
+    // Get Printing Time in minutes
+    const uint32_t time = getProgress_seconds_elapsed() / 60;
+    sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
     TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
@@ -1500,10 +1493,9 @@ namespace Anycubic {
       progress_last = getProgress_percent();
     }
 
+    // Get Printing Time in minutes
     const uint32_t time = getProgress_seconds_elapsed() / 60;
-    sprintf_P(str_buf, PSTR("%s H "), utostr3(time / 60));
-    sprintf_P(str_buf + strlen(str_buf), PSTR("%s M"), utostr3(time % 60));
-    sendTxtToTFT(str_buf, TXT_PRINT_TIME);
+    sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_PRINT_TIME);
 
     TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
     TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
@@ -3146,7 +3138,8 @@ namespace Anycubic {
         pop_up_index = 100;
         break;
 
-      case 24: { //
+      case 24: {
+        // Get Printing Time in minutes
         const uint32_t time = getProgress_seconds_elapsed() / 60;
         sendTxtToTFT(MString<20>.setf(PSTR("%3s H %3s M"), time / 60, time % 60), TXT_FINISH_TIME);
         changePageOfTFT(PAGE_PRINT_FINISH);
