@@ -379,6 +379,9 @@ namespace Anycubic {
         static void send_temperature_bed(const uint16_t address);
       #endif
 
+      static void debugPage(int page=0);
+      static void fakeChangePageOfTFT(const uint16_t page_index);
+
       typedef void (*p_fun)();
       static void page1();
       static void page2();
@@ -471,7 +474,6 @@ namespace Anycubic {
       static void sendTimeToTFT(const uint32_t minutes, const uint16_t address);
       static void sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
       static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
-      static void fakeChangePageOfTFT(const uint16_t page_index);
       static void lcdAudioSet(const bool audio_on);
       static void showAboutPage();
 
