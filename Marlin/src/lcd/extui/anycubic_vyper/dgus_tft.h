@@ -122,29 +122,29 @@
 /****************** TXT **************************/
 
 // MAIN PAGE TXT
-#define TXT_MAIN_BED        0x2000
-#define TXT_MAIN_HOTEND     0x2030
-#define TXT_MAIN_MESSAGE    0x2060
+#define TXT_MAIN_BED            (0x2000+0*0x30)
+#define TXT_MAIN_HOTEND         (0x2000+1*0x30)
+#define TXT_MAIN_MESSAGE        (0x2000+2*0x30)
 
 // FILE TXT
-#define TXT_FILE_0          (0x2000+3*0x30)
-#define TXT_DESCRIPT_0      0x5000         // DESCRIBE ADDRESS
-#define TXT_FILE_1          (0x2000+4*0x30)
-#define TXT_DESCRIPT_1      0x5030
-#define TXT_FILE_2          (0x2000+5*0x30)
-#define TXT_DESCRIPT_2      0x5060
-#define TXT_FILE_3          (0x2000+6*0x30)
-#define TXT_DESCRIPT_3      0x5090
-#define TXT_FILE_4          (0x2000+7*0x30)
-#define TXT_DESCRIPT_4      0x50C0
+#define TXT_FILE_0              (0x2000+3*0x30)
+#define TXT_DESCRIPT_0          0x5000         // DESCRIBE ADDRESS
+#define TXT_FILE_1              (0x2000+4*0x30)
+#define TXT_DESCRIPT_1          0x5030
+#define TXT_FILE_2              (0x2000+5*0x30)
+#define TXT_DESCRIPT_2          0x5060
+#define TXT_FILE_3              (0x2000+6*0x30)
+#define TXT_DESCRIPT_3          0x5090
+#define TXT_FILE_4              (0x2000+7*0x30)
+#define TXT_DESCRIPT_4          0x50C0
 
 // PRINT TXT
-#define TXT_PRINT_NAME      0x2000+8*0x30
-#define TXT_PRINT_SPEED     0x2000+9*0x30
-#define TXT_PRINT_TIME      0x2000+10*0x30
-#define TXT_PRINT_PROGRESS  0x2000+11*0x30
-#define TXT_PRINT_HOTEND    0x2000+12*0x30
-#define TXT_PRINT_BED       0x2000+13*0x30
+#define TXT_PRINT_NAME          (0x2000+8*0x30)
+#define TXT_PRINT_SPEED         (0x2000+9*0x30)
+#define TXT_PRINT_TIME          (0x2000+10*0x30)
+#define TXT_PRINT_PROGRESS      (0x2000+11*0x30)
+#define TXT_PRINT_HOTEND        (0x2000+12*0x30)
+#define TXT_PRINT_BED           (0x2000+13*0x30)
 
 // PRINT ADJUST TXT
 
@@ -156,8 +156,8 @@
 
 #define TXT_BED_NOW             (0x2000+17*0x30)
 #define TXT_BED_TARGET          (0x2000+18*0x30)
-#define TXT_HOTEND_NOW           (0x2000+19*0x30)
-#define TXT_HOTEND_TARGET        (0x2000+20*0x30)
+#define TXT_HOTEND_NOW          (0x2000+19*0x30)
+#define TXT_HOTEND_TARGET       (0x2000+20*0x30)
 
 // SPEED SET TXT
 #define TXT_FAN_SPEED_NOW       (0x2000+21*0x30)
@@ -169,23 +169,23 @@
 #define TXT_ABOUT               (0x2000+25*0x30)
 
 // RECORT TXT
-#define TXT_RECORT_0             (0x2000+26*0x30)
-#define TXT_RECORT_1             (0x2000+27*0x30)
-#define TXT_RECORT_2             (0x2000+28*0x30)
-#define TXT_RECORT_3             (0x2000+29*0x30)
-#define TXT_RECORT_4             (0x2000+30*0x30)
-#define TXT_RECORT_5             (0x2000+31*0x30)
+#define TXT_RECORT_0            (0x2000+26*0x30)
+#define TXT_RECORT_1            (0x2000+27*0x30)
+#define TXT_RECORT_2            (0x2000+28*0x30)
+#define TXT_RECORT_3            (0x2000+29*0x30)
+#define TXT_RECORT_4            (0x2000+30*0x30)
+#define TXT_RECORT_5            (0x2000+31*0x30)
 
 // ADVANCE LEVEL TXT
-#define TXT_LEVEL_OFFSET             (0x2000+32*0x30)
+#define TXT_LEVEL_OFFSET        (0x2000+32*0x30)
 
 // FILAMENT TXT
-#define TXT_FILAMENT_TEMP        (0x2000+33*0x30)
+#define TXT_FILAMENT_TEMP       (0x2000+33*0x30)
 
-#define TXT_FINISH_TIME          (0x2000+34*0x30)
-#define TXT_VERSION              (0x2000+35*0x30)
-#define TXT_PREHEAT_HOTEND       (0x2000+36*0x30)
-#define TXT_PREHEAT_BED          (0x2000+37*0x30)
+#define TXT_FINISH_TIME         (0x2000+34*0x30)
+#define TXT_VERSION             (0x2000+35*0x30)
+#define TXT_PREHEAT_HOTEND      (0x2000+36*0x30)
+#define TXT_PREHEAT_BED         (0x2000+37*0x30)
 
 #define TXT_OUTAGE_RECOVERY_FILE 0x2180
 
@@ -473,7 +473,7 @@ namespace Anycubic {
       static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
       static void fakeChangePageOfTFT(const uint16_t page_index);
       static void lcdAudioSet(const bool audio_on);
-      static void changePageOfTFTToAbout();
+      static void showAboutPage();
 
     private:
 

@@ -787,7 +787,7 @@ namespace Anycubic {
     changePageOfTFT(page_index, true);
   }
 
-  void DgusTFT::changePageOfTFTToAbout() {
+  void DgusTFT::showAboutPage() {
     sendTxtToTFT_P(getFirmwareName_str(), TXT_VERSION);
     changePageOfTFT(PAGE_ABOUT);
   }
@@ -1906,7 +1906,7 @@ namespace Anycubic {
         break;
 
       case 5:       // about
-        changePageOfTFTToAbout();
+        showAboutPage();
         break;
 
       case 6:
@@ -2666,7 +2666,7 @@ namespace Anycubic {
         break;
 
       case 5:       // about
-        changePageOfTFTToAbout();
+        showAboutPage();
         break;
 
       case 6:
@@ -2727,7 +2727,7 @@ namespace Anycubic {
         break;
 
       case 5:       // about
-        changePageOfTFTToAbout();
+        showAboutPage();
         break;
 
       case 6:
