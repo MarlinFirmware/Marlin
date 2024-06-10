@@ -781,6 +781,14 @@ namespace Anycubic {
     #endif
   }
 
+  void DgusTFT::fakeChangePageOfTFT(const uint16_t page_index) {
+    #if ACDEBUG(AC_MARLIN)
+      if (page_index_saved != page_index_now)
+        DEBUG_ECHOLNPGM("fakeChangePageOfTFT: ", page_index);
+    #endif
+    changePageOfTFT(page_index, true);
+  }
+
   void DgusTFT::debugPage(int page/*=0*/) {
     #if ACDEBUG(AC_ALL)
       if (page == 0) page = page_index_now;
@@ -791,14 +799,6 @@ namespace Anycubic {
       }
     #endif
     UNUSED(page);
-  }
-
-  void DgusTFT::fakeChangePageOfTFT(const uint16_t page_index) {
-    #if ACDEBUG(AC_MARLIN)
-      if (page_index_saved != page_index_now)
-        DEBUG_ECHOLNPGM("fakeChangePageOfTFT: ", page_index);
-    #endif
-    changePageOfTFT(page_index, true);
   }
 
   void DgusTFT::showAboutPage() {
