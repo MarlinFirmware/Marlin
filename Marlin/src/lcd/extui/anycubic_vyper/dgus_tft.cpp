@@ -732,7 +732,7 @@ namespace Anycubic {
   }
 
   void DgusTFT::sendTimeToTFT(const uint32_t minutes, const uint16_t address) {
-    sendTxtToTFT(MString<20>().setf(PSTR("%3s H %3s M"), minutes / 60, minutes % 60), TXT_PRINT_TIME);
+    sendTxtToTFT(MString<20>().setf(PSTR("%3d H %3d M"), minutes / 60, minutes % 60), TXT_PRINT_TIME);
   }
 
   void DgusTFT::sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address) {
