@@ -1382,7 +1382,7 @@ namespace Anycubic {
     const int16_t ifeedrate = int16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
       if (ifeedrate != 0)
-        sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
+        sendTxtToTFT(MString<6>(ifeedrate), TXT_PRINT_SPEED);
       else
         sendTxtToTFT(MString<6>(feedrate_back), TXT_PRINT_SPEED);
 
@@ -1453,7 +1453,7 @@ namespace Anycubic {
     const int16_t ifeedrate = int16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
       if (ifeedrate != 0)
-        sendTxtToTFT(ftostr72rj(ifeedrate), TXT_PRINT_SPEED);
+        sendTxtToTFT(MString<6>(ifeedrate), TXT_PRINT_SPEED);
       else
         sendTxtToTFT(MString<6>(feedrate_back), TXT_PRINT_SPEED);
       feedrate_back = ifeedrate;
