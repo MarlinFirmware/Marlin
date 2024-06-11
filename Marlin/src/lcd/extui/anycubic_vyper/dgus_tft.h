@@ -343,7 +343,7 @@ namespace Anycubic {
     static uint32_t     key_value;
     static uint8_t      lcd_txtbox_index;
     static uint8_t      lcd_txtbox_page;
-    static int16_t      feedrate_back;
+    static uint16_t     feedrate_back;
     static language_t   ui_language;
 
     public:
