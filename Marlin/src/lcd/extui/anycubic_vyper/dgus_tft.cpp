@@ -1379,7 +1379,7 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    const int16_t ifeedrate = int16_t(getFeedrate_percent());
+    const uint16_t ifeedrate = uint16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
       if (ifeedrate != 0)
         sendTxtToTFT(MString<6>(ifeedrate), TXT_PRINT_SPEED);
@@ -1450,7 +1450,7 @@ namespace Anycubic {
     if (PENDING(ms, flash_time)) return;
     flash_time = ms + 1500;
 
-    const int16_t ifeedrate = int16_t(getFeedrate_percent());
+    const uint16_t ifeedrate = uint16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
       if (ifeedrate != 0)
         sendTxtToTFT(MString<6>(ifeedrate), TXT_PRINT_SPEED);
