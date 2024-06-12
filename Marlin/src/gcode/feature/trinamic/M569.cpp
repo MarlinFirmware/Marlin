@@ -155,12 +155,14 @@ void GcodeSuite::M569() {
 }
 
 void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_DRIVER_STEPPING_MODE));
 
   auto say_M569 = [](const bool forReplay, FSTR_P const etc=nullptr, const bool eol=false) {
     if (!forReplay) SERIAL_ECHO_START();
     SERIAL_ECHOPGM("  M569 S1");
-    if (etc) SERIAL_ECHO(AS_CHAR(' '), etc);
+    if (etc) SERIAL_ECHO(C(' '), etc);
     if (eol) SERIAL_EOL();
   };
 

@@ -23,8 +23,7 @@
 
 /**
  * GMARSH X6 Rev.1 pin assignments
- * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/GMARSH%20X6%20Rev.1/armprinter_2208_1heater.pdf
- * Origin: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
+ * Schematic: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
  */
 
 #include "env_validate.h"
@@ -160,7 +159,11 @@
 //
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION                  LCD
+  #if ENABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION            ONBOARD
+  #else
+    #define SDCARD_CONNECTION                LCD
+  #endif
 #endif
 
 #if SD_CONNECTION_IS(LCD)

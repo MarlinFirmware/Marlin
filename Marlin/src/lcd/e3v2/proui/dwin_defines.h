@@ -23,12 +23,17 @@
 
 /**
  * DWIN general defines and data structs for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.12.2
  * Date: 2022/08/08
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+
+//#define TJC_DISPLAY           // Enable for TJC display
+//#define DACAI_DISPLAY         // Enable for DACAI display
+//#define TITLE_CENTERED        // Center Menu Title Text
 
 #if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
@@ -54,15 +59,15 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#define defColorBackground  RGB( 1, 12,  8)
+#define defColorBackground  RGB(1, 12, 8)
 #define defColorCursor      RGB(20, 49, 31)
-#define defColorTitleBg     RGB( 0, 23, 16)
+#define defColorTitleBg     RGB(0, 23, 16)
 #define defColorTitleTxt    COLOR_WHITE
 #define defColorText        COLOR_WHITE
 #define defColorSelected    COLOR_SELECT
-#define defColorSplitLine   RGB( 0, 23, 16)
+#define defColorSplitLine   RGB(0, 23, 16)
 #define defColorHighlight   COLOR_WHITE
-#define defColorStatusBg    RGB( 0, 23, 16)
+#define defColorStatusBg    RGB(0, 23, 16)
 #define defColorStatusTxt   COLOR_YELLOW
 #define defColorPopupBg     COLOR_BG_WINDOW
 #define defColorPopupTxt    COLOR_POPUP_TEXT
@@ -72,20 +77,35 @@
 #define defColorBarfill     COLOR_BARFILL
 #define defColorIndicator   COLOR_WHITE
 #define defColorCoordinate  COLOR_WHITE
-#define defColorButton      RGB( 0, 23, 16)
+#define defColorButton      RGB(0, 23, 16)
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define defColorLeds      LEDColorWhite()
 #endif
 #if CASELIGHT_USES_BRIGHTNESS
   #define defCaseLightBrightness 255
 #endif
+
 #ifdef Z_AFTER_HOMING
   #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
 #else
   #define DEF_Z_AFTER_HOMING 0
 #endif
-#define DEF_HOTENDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 195)
-#define DEF_BEDPIDT TERN(PREHEAT_1_TEMP_BED, PREHEAT_1_TEMP_HOTEND, 60)
+
+#ifdef PREHEAT_1_TEMP_HOTEND
+  #define DEF_HOTENDPIDT PREHEAT_1_TEMP_HOTEND
+#else
+  #define DEF_HOTENDPIDT 195
+#endif
+#ifdef PREHEAT_1_TEMP_BED
+  #define DEF_BEDPIDT PREHEAT_1_TEMP_BED
+#else
+  #define DEF_BEDPIDT 60
+#endif
+#ifdef PREHEAT_1_TEMP_CHAMBER
+  #define DEF_CHAMBERPIDT PREHEAT_1_TEMP_CHAMBER
+#else
+  #define DEF_CHAMBERPIDT 0
+#endif
 #define DEF_PIDCYCLES 5
 
 /**
@@ -103,8 +123,11 @@
 #if ENABLED(LIN_ADVANCE)
   #define PROUI_ITEM_ADVK     // Tune > Linear Advance
 #endif
-#if ANY(PROUI_PID_TUNE, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
+#endif
+#if PROUI_TUNING_GRAPH
+  #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
 #define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors

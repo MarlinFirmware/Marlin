@@ -91,7 +91,7 @@ void menu_backlash();
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+    #if HAS_MOTOR_CURRENT_PWM_E
       EDIT_CURRENT_PWM(STR_E, 2);
     #endif
     END_MENU();
@@ -136,7 +136,7 @@ void menu_backlash();
       }
     #endif
 
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
       EDIT_ITEM_FAST(float4, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
@@ -559,28 +559,20 @@ void menu_backlash();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
       // M593 F Frequency and D Damping ratio
-      #if ENABLED(INPUT_SHAPING_X)
-        editable.decimal = stepper.get_shaping_frequency(X_AXIS);
-        if (editable.decimal) {
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(X_AXIS, 0.0f); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
-          EDIT_ITEM_FAST_N(float41, X_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(X_AXIS, editable.decimal); });
-          editable.decimal = stepper.get_shaping_damping_ratio(X_AXIS);
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(X_AXIS, editable.decimal); });
-        }
-        else
-          ACTION_ITEM_N(X_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(X_AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
-      #endif
-      #if ENABLED(INPUT_SHAPING_Y)
-        editable.decimal = stepper.get_shaping_frequency(Y_AXIS);
-        if (editable.decimal) {
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(Y_AXIS, 0.0f); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
-          EDIT_ITEM_FAST_N(float41, Y_AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(Y_AXIS, editable.decimal); });
-          editable.decimal = stepper.get_shaping_damping_ratio(Y_AXIS);
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(Y_AXIS, editable.decimal); });
-        }
-        else
-          ACTION_ITEM_N(Y_AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(Y_AXIS, (SHAPING_FREQ_Y) ?: (SHAPING_MIN_FREQ)); ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW); });
-      #endif
+      #define SHAPING_MENU_FOR_AXIS(AXIS)                                                                                                                             \
+        editable.decimal = stepper.get_shaping_frequency(AXIS);                                                                                                       \
+        if (editable.decimal) {                                                                                                                                       \
+          ACTION_ITEM_N(AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(AXIS, 0.0f); ui.refresh(); });                                                   \
+          EDIT_ITEM_FAST_N(float41, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });  \
+          editable.decimal = stepper.get_shaping_damping_ratio(AXIS);                                                                                                 \
+          EDIT_ITEM_FAST_N(float42_52, AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(AXIS, editable.decimal); });      \
+        }                                                                                                                                                             \
+        else                                                                                                                                                          \
+          ACTION_ITEM_N(AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
+
+      TERN_(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X_AXIS))
+      TERN_(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y_AXIS))
+      TERN_(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z_AXIS))
 
       END_MENU();
     }
@@ -641,32 +633,38 @@ void menu_backlash();
 
 #endif // !SLIM_LCD_MENUS
 
-// M92 Steps-per-mm
-void menu_advanced_steps_per_mm() {
-  START_MENU();
-  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-  LOOP_NUM_AXES(a)
-    EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
+  // M92 Steps-per-mm
+  void menu_advanced_steps_per_mm() {
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-  #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t n = 0; n < E_STEPPERS; ++n)
-      EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
-        const uint8_t e = MenuItemBase::itemIndex;
-        if (e == active_extruder)
-          planner.refresh_positioning();
-        else
-          planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
-      });
-  #elif E_STEPPERS
-    EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
-  #endif
+    LOOP_NUM_AXES(a)
+      EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
-  END_MENU();
-}
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t n = 0; n < E_STEPPERS; ++n)
+        EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
+          const uint8_t e = MenuItemBase::itemIndex;
+          if (e == active_extruder)
+            planner.refresh_positioning();
+          else
+            planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
+        });
+    #elif E_STEPPERS
+      EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
+    #endif
+
+    END_MENU();
+  }
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 void menu_advanced_settings() {
-  const bool is_busy = printer_busy();
+  #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
+    const bool is_busy = printer_busy();
+  #endif
 
   #if ENABLED(SD_FIRMWARE_UPDATE)
     bool sd_update_state = settings.sd_update_status();
@@ -722,8 +720,9 @@ void menu_advanced_settings() {
   #endif // !SLIM_LCD_MENUS
 
   // M92 - Steps Per mm
-  if (!is_busy)
-    SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    if (!is_busy) SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #endif
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);

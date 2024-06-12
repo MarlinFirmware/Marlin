@@ -33,19 +33,14 @@
 //
 enum MarlinDebugFlags : uint8_t {
   MARLIN_DEBUG_NONE          = 0,
-  MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
-  MARLIN_DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
-  MARLIN_DEBUG_ERRORS        = _BV(2), ///< Not implemented
-  MARLIN_DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
-  MARLIN_DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    MARLIN_DEBUG_LEVELING    = _BV(5), ///< Print detailed output for homing and leveling
-    MARLIN_DEBUG_MESH_ADJUST = _BV(6), ///< UBL bed leveling
-  #else
-    MARLIN_DEBUG_LEVELING    = 0,
-    MARLIN_DEBUG_MESH_ADJUST = 0,
-  #endif
-  MARLIN_DEBUG_ALL           = 0xFF
+  MARLIN_DEBUG_ECHO          = TERN0(DEBUG_FLAGS_GCODE,      _BV(0)), //!< Echo commands in order as they are processed
+  MARLIN_DEBUG_INFO          = TERN0(DEBUG_FLAGS_GCODE,      _BV(1)), //!< Print messages for code that has debug output
+  MARLIN_DEBUG_ERRORS        = TERN0(DEBUG_FLAGS_GCODE,      _BV(2)), //!< Not implemented
+  MARLIN_DEBUG_DRYRUN        =                               _BV(3),  //!< Ignore temperature setting and E movement commands
+  MARLIN_DEBUG_COMMUNICATION = TERN0(DEBUG_FLAGS_GCODE,      _BV(4)), //!< Not implemented
+  MARLIN_DEBUG_LEVELING      = TERN0(DEBUG_LEVELING_FEATURE, _BV(5)), //!< Print detailed output for homing and leveling
+  MARLIN_DEBUG_MESH_ADJUST   = TERN0(DEBUG_LEVELING_FEATURE, _BV(6)), //!< UBL bed leveling
+  MARLIN_DEBUG_ALL           = MARLIN_DEBUG_ECHO|MARLIN_DEBUG_INFO|MARLIN_DEBUG_ERRORS|MARLIN_DEBUG_COMMUNICATION|MARLIN_DEBUG_LEVELING|MARLIN_DEBUG_MESH_ADJUST
 };
 
 extern uint8_t marlin_debug_flags;
@@ -148,7 +143,7 @@ template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
 void SERIAL_ECHO(serial_char_t x);
-#define AS_DIGIT(C) AS_CHAR('0' + (C))
+#define AS_DIGIT(n) C('0' + (n))
 
 // Print an integer with a numeric base such as PrintBase::Hex
 template <typename T> void SERIAL_PRINT(T x, PrintBase y)   { SERIAL_IMPL.print(x, y); }
@@ -276,13 +271,13 @@ public:
   SString& set() { super::set(); return *this; }
 
   template<typename... Args>
-  SString& setf_P(PGM_P const fmt, Args... more) { super::setf_P(fmt, more...); return *this; }
+  SString& setf_P(PGM_P const pfmt, Args... more) { super::setf_P(pfmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(const char *fmt, Args... more)   { super::setf(fmt, more...); return *this; }
+  SString& setf(const char *fmt, Args... more)    { super::setf(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(FSTR_P const fmt, Args... more)  { super::setf(fmt, more...); return *this; }
+  SString& setf(FSTR_P const ffmt, Args... more)  { super::setf(ffmt, more...); return *this; }
 
   template <typename T>
   SString& set(const T &v) { super::set(v); return *this; }

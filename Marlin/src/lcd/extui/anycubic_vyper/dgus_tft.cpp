@@ -39,6 +39,7 @@
 #include "../../../core/serial.h"
 #include "../../../module/stepper.h"
 #include "../../../module/probe.h"
+#include "../../../module/temperature.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
@@ -115,6 +116,8 @@ namespace Anycubic {
   void DEBUG_PRINT_PRINTER_STATE(const printer_state_t state, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_TIMER_EVENT(const timer_event_t event, FSTR_P const msg=nullptr);
   void DEBUG_PRINT_MEDIA_EVENT(const media_event_t event, FSTR_P const msg=nullptr);
+
+  void set_brightness();
 
   DgusTFT dgus;
 
@@ -200,6 +203,14 @@ namespace Anycubic {
         DEBUG_ECHOLNPGM("key: ", key_value);
       }
     #endif
+
+    // Periodically update main page
+    if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
+      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      set_brightness();
+      delay(1);  // wait for millis() to advance so this clause isn't repeated
+    }
 
     switch (page_index_now) {
       case 115: page115(); break;
@@ -671,13 +682,6 @@ namespace Anycubic {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
 
-    void DgusTFT::powerLoss() {
-      // On:  5A A5 05 82 00 82 00 00
-      // Off: 5A A5 05 82 00 82 00 64
-      uint8_t data[] = { 0x5A, 0xA5, 0x05, 0x82, 0x00, 0x82, 0x00, uint8_t(recovery.enabled ? 0x00 : 0x64) };
-      for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
-    }
-
     void DgusTFT::powerLossRecovery() {
       printer_state = AC_printer_resuming_from_power_outage; // Play tune to notify user we can recover.
     }
@@ -906,9 +910,10 @@ namespace Anycubic {
   }
 
   void DgusTFT::checkHeaters() {
-    static uint32_t time_last = 0;
-    if (PENDING(millis(), time_last)) return;
-    time_last = millis() + 500;
+    static uint32_t time_next = 0;
+    const millis_t ms = millis();
+    if (PENDING(ms, time_next)) return;
+    time_next = ms + 500;
 
     float temp = 0;
 
@@ -1011,7 +1016,7 @@ namespace Anycubic {
         #if HAS_HOTEND
           else if (control_index == TXT_HOTEND_TARGET || control_index == TXT_ADJUST_HOTEND) { // hotend target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, HEATER_0_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, thermalManager.hotend_max_target(0));
             setTargetTemp_celsius(temp, E0);
             //sprintf(str_buf,"%u/%u", (uint16_t)thermalManager.degHotend(0), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_HOTEND);
@@ -1021,7 +1026,7 @@ namespace Anycubic {
         #if HAS_HEATED_BED
           else if (control_index == TXT_BED_TARGET || control_index == TXT_ADJUST_BED) {// bed target temp
             control_value = (uint16_t(data_buf[4]) << 8) | uint16_t(data_buf[5]);
-            temp = constrain(uint16_t(control_value), 0, BED_MAXTEMP);
+            temp = constrain(uint16_t(control_value), 0, BED_MAX_TARGET);
             setTargetTemp_celsius(temp, BED);
             //sprintf(str_buf,"%u/%u", uint16_t(thermalManager.degBed()), uint16_t(control_value));
             //sendTxtToTFT(str_buf, TXT_PRINT_BED);
@@ -1125,6 +1130,11 @@ namespace Anycubic {
       else tftSendLn();
     }
   #endif
+
+  void set_brightness() {
+    uint8_t data[] = { 0x5A, 0xA5, 0x07, 0x82, 0x00, 0x82, 0x64, 0x32, 0x03, 0xE8 };
+    for (uint8_t i = 0; i < COUNT(data); ++i) TFTSer.write(data[i]);
+  }
 
   void DgusTFT::set_language(language_t language) {
     lcd_info.language = ui_language = lcd_info_back.language = language;
@@ -1267,7 +1277,7 @@ namespace Anycubic {
         break;
 
       case 4:   // page refresh
-        if (!isMediaInserted()) safe_delay(500);
+        if (!isMediaMounted()) safe_delay(500);
 
         filenavigator.reset();
 

@@ -98,7 +98,7 @@ public:
 
   void debug(FSTR_P const f) {
     #if ENABLED(MSTRING_DEBUG)
-      SERIAL_ECHOLN(f, ':', uintptr_t(str), ' ', length(), ' ', str);
+      SERIAL_ECHOLN(f, C(':'), uintptr_t(str), C(' '), length(), C(' '), str);
     #endif
   }
 
@@ -136,20 +136,20 @@ public:
   MString& setn(FSTR_P const f, int len)  { return setn_P(FTOP(f), len); }
 
   // set(repchr_t('-', 10))
-  MString& set(const repchr_t &s)         { int c = _MIN(s.count, SIZE); memset(str, s.asc, c); str[c] = '\0'; debug(F("")); return *this; }
+  MString& set(const repchr_t &s)         { int c = _MIN(s.count, SIZE); if (c >= 0) { if (c > 0) memset(str, s.asc, c); str[c] = '\0'; } debug(F("repchr_t")); return *this; }
 
   // set(spaces_t(10))
   MString& set(const spaces_t &s)         { repchr_t r(' ', s.count); return set(r); }
 
   // Set with format string and arguments, like printf
   template<typename... Args>
-  MString& setf_P(PGM_P const fmt, Args... more) { SNPRINTF_P(str, SIZE, fmt, more...); debug(F("setf_P")); return *this; }
+  MString& setf_P(PGM_P const pfmt, Args... more) { SNPRINTF_P(str, SIZE, pfmt, more...); debug(F("setf_P")); return *this; }
 
   template<typename... Args>
-  MString& setf(const char *fmt, Args... more)   { SNPRINTF(str, SIZE, fmt, more...);   debug(F("setf"));   return *this; }
+  MString& setf(const char *fmt, Args... more) { SNPRINTF(str, SIZE, fmt, more...); debug(F("setf")); return *this; }
 
   template<typename... Args>
-  MString& setf(FSTR_P const fmt, Args... more)  { return setf_P(FTOP(fmt), more...); }
+  MString& setf(FSTR_P const ffmt, Args... more) { return setf_P(FTOP(ffmt), more...); }
 
   // Chainable String appenders
   MString& append()                           { debug(F("nil")); return *this; } // for macros that might emit no output
@@ -206,9 +206,9 @@ public:
   MString& append(const spaces_t &s) { return append(repchr_t(' ', s.count)); }
 
   template<typename... Args>
-  MString& appendf_P(PGM_P const fmt, Args... more) {
+  MString& appendf_P(PGM_P const pfmt, Args... more) {
     int sz = length();
-    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, fmt, more...);
+    if (sz < SIZE) SNPRINTF_P(str + sz, SIZE - sz, pfmt, more...);
     debug(F("appendf_P"));
     return *this;
   }

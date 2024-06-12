@@ -52,8 +52,6 @@
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -223,7 +221,7 @@ void GcodeSuite::G28() {
     set_and_report_grblstate(M_HOMING);
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
+  TERN_(DWIN_CREALITY_LCD, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -639,8 +637,8 @@ void GcodeSuite::G28() {
     #endif
 
     #ifdef XY_AFTER_HOMING
-      constexpr xy_pos_t xy_after XY_AFTER_HOMING;
-      do_blocking_move_to(xy_after);
+      if (!axes_should_home(_BV(X_AXIS) | _BV(Y_AXIS)))
+        do_blocking_move_to(xy_pos_t(XY_AFTER_HOMING));
     #endif
 
     restore_feedrate_and_scaling();
@@ -652,7 +650,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
+  TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();

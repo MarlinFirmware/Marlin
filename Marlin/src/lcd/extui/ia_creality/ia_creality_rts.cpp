@@ -163,21 +163,10 @@ void RTS::onIdle() {
   TERN_(HAS_MULTI_HOTEND, rts.sendData(uint8_t(getActiveTool() + 1), ActiveToolVP));
 
   if (awaitingUserConfirm() && (lastPauseMsgState != ExtUI::pauseModeStatus || userConfValidation > 99)) {
-    switch (ExtUI::pauseModeStatus) {
-      case PAUSE_MESSAGE_PARKING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break;
-      case PAUSE_MESSAGE_CHANGING: ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break;
-      case PAUSE_MESSAGE_UNLOAD:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break;
-      case PAUSE_MESSAGE_WAITING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING)); break;
-      case PAUSE_MESSAGE_INSERT:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT)); break;
-      case PAUSE_MESSAGE_LOAD:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
-      case PAUSE_MESSAGE_PURGE:    ExtUI::onUserConfirmRequired(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))); break;
-      case PAUSE_MESSAGE_RESUME:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT)); break;
-      case PAUSE_MESSAGE_HEATING:  ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_OPTION:   ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_HEADER)); break;
-      case PAUSE_MESSAGE_STATUS: break;
-      default: onUserConfirmRequired(PSTR("Confirm Continue")); break;
-    }
+    if (ExtUI::pauseModeStatus < PAUSE_MESSAGE_COUNT)
+      ui.pause_show_message(ExtUI::pauseModeStatus);
+    else
+      ExtUI::onUserConfirmRequired(F("Confirm Continue"));
     userConfValidation = 0;
   }
   else if (pause_resume_selected && !awaitingUserConfirm()) {
@@ -262,8 +251,8 @@ void RTS::onIdle() {
     delay_ms(3000);     // Delay to show bootscreen
   }
   else if (startprogress < 250) {
-    if (isMediaInserted()) // Re init media as it happens too early on STM32 boards often
-      onMediaInserted();
+    if (isMediaMounted()) // Re init media as it happens too early on STM32 boards often
+      onMediaMounted();
     else
       injectCommands(F("M22\nM21"));
     startprogress = 254;
@@ -386,7 +375,7 @@ void RTS::onIdle() {
     if (++autoHomeIconNum > 9) autoHomeIconNum = 0;
   }
 
-  if (isMediaInserted()) {
+  if (isMediaMounted()) {
     const uint16_t currPage = fileIndex == 0 ? 1 : CEIL(float(fileIndex) / float(DISPLAY_FILES)) + 1,
                    maxPageAdd = filenavigator.folderdepth ? 1 : 0,
                    maxPages = CEIL(float(filenavigator.maxFiles() + maxPageAdd) / float(DISPLAY_FILES) );
@@ -459,12 +448,13 @@ int16_t RTS::receiveData() {
         }
 
         /* AutoUpload, (and answer to) Command 0x83 :
-        |      tmp[0  1  2  3  4 ... ]
-        | Example 5A A5 06 83 20 01 01 78 01 ……
-        |          / /  |  |   \ /   |  \     \
-        |        Header |  |    |    |   \_____\_ DATA (Words!)
-        |     DatagramLen  /  VPAdr  |
-        |           Command          DataLen (in Words) */
+         *      tmp[0  1  2  3  4 ... ]
+         * Example 5A A5 06 83 20 01 01 78 01 ……
+         *          / /  |  |   \ /   |  \     \
+         *        Header |  |    |    |   \_____\_ DATA (Words!)
+         *     DatagramLen  /  VPAdr  |
+         *           Command          DataLen (in Words)
+         */
         if (command == VarAddr_R) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
 
@@ -478,7 +468,6 @@ int16_t RTS::receiveData() {
 
           rx_datagram_state = DGUS_IDLE;
           return 2;
-          break;
         }
 
         // discard anything else
@@ -637,7 +626,7 @@ void RTS::handleData() {
     recdat.head[1] = FHTWO;
     return;
   }
-  for (int16_t i = 0; Addrbuf[i] != 0; i++)
+  for (int16_t i = 0; Addrbuf[i] != 0; i++) {
     if (recdat.addr == Addrbuf[i]) {
       if (Addrbuf[i] == NzBdSet || Addrbuf[i] == NozzlePreheat || Addrbuf[i] == BedPreheat || Addrbuf[i] == Flowrate)
         Checkkey = ManualSetTemp;
@@ -651,15 +640,23 @@ void RTS::handleData() {
         Checkkey = i;
       break;
     }
+  }
 
   switch (recdat.addr) {
     case Flowrate:
-    case StepMM_X ... StepMM_E:
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case StepMM_X ... StepMM_E:
+    #endif
     case ProbeOffset_X ... ProbeOffset_Y:
     case HotendPID_AutoTmp ... BedPID_AutoTmp:
     case HotendPID_P ... HotendPID_D:
     case BedPID_P ... BedPID_D:
-    case T2Offset_X ... T2StepMM_E:
+    #if ENABLED(DUAL_X_CARRIAGE)
+      case T2Offset_X ... T2Offset_Z:
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case T2StepMM_E:
+      #endif
+    #endif
     case Accel_X ... Accel_E:
     case Feed_X ... Feed_E:
     case Jerk_X ... Jerk_E:
@@ -693,7 +690,8 @@ void RTS::handleData() {
   #endif
 
   switch (Checkkey) {
-    case Printfile:
+
+    case Printfile: {
       if (recdat.data[0] == 1) { // card
         show_status = false;
         filenavigator.getFiles(0);
@@ -727,9 +725,9 @@ void RTS::handleData() {
       else if (recdat.data[0] == 4) { // Settings
         show_status = false;
       }
-      break;
+    } break;
 
-    case Adjust:
+    case Adjust: {
       if (recdat.data[0] == 1) {
         show_status = false;
       }
@@ -745,13 +743,13 @@ void RTS::handleData() {
       else if (recdat.data[0] == 3)
         setTargetFan_percent(getTargetFan_percent((fan_t)getActiveTool()) != 0 ? 100 : 0, FAN0);
 
-      break;
+    } break;
 
-    case Feedrate:
+    case Feedrate: {
       setFeedrate_percent(recdat.data[0]);
-      break;
+    } break;
 
-    case PrintChoice:
+    case PrintChoice: {
       if (recdat.addr == Stopprint) {
         if (recdat.data[0] == 240) { // no
           sendData(ExchangePageBase + 53, ExchangepageAddr);
@@ -785,17 +783,17 @@ void RTS::handleData() {
         show_status = true;
         sendData(ExchangePageBase + 82, ExchangepageAddr);
       }
-      break;
+    } break;
 
     #if HAS_BED_PROBE
 
-      case Zoffset:
+      case Zoffset: {
         float tmp_zprobe_offset;
         if (recdat.data[0] >= 32768)
           tmp_zprobe_offset = (float(recdat.data[0]) - 65536) / 100;
         else
           tmp_zprobe_offset = float(recdat.data[0]) / 100;
-        if (WITHIN((tmp_zprobe_offset), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
+        if (WITHIN(tmp_zprobe_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
           int16_t tmpSteps = mmToWholeSteps(getZOffset_mm() - tmp_zprobe_offset, axis_t(Z));
           if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
           smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
@@ -808,11 +806,11 @@ void RTS::handleData() {
         }
 
         sendData(getZOffset_mm() * 100, ProbeOffset_Z);
-        break;
+      } break;
 
     #endif // HAS_BED_PROBE
 
-    case TempControl:
+    case TempControl: {
       if (recdat.data[0] == 0) {
         show_status = true;
         tpShowStatus = false;
@@ -861,9 +859,9 @@ void RTS::handleData() {
         sendData(ExchangePageBase + 57, ExchangepageAddr);
         printerStatusKey[1] = 2;
       }
-      break;
+    } break;
 
-    case ManualSetTemp:
+    case ManualSetTemp: {
       if (recdat.addr == NzBdSet) {
         if (recdat.data[0] == 0) {
           if (getTargetFan_percent((fan_t)getActiveTool()) == 0)
@@ -935,30 +933,36 @@ void RTS::handleData() {
         setTargetFan_percent(uint16_t(recdat.data[0]), (fan_t)getActiveTool());
       }
       else {
-        float tmp_float_handling;
-        if (recdat.data[0] >= 32768)
-          tmp_float_handling = (float(recdat.data[0]) - 65536) / 100;
-        else
-          tmp_float_handling = float(recdat.data[0]) / 100;
-        if (recdat.addr == StepMM_X) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, X);
-        }
-        else if (recdat.addr == StepMM_Y) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, Y);
-        }
-        else if (recdat.addr == StepMM_Z) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, Z);
-        }
-        else if (recdat.addr == StepMM_E) {
-          setAxisSteps_per_mm(tmp_float_handling * 10, E0);
-          #if DISABLED(DUAL_X_CARRIAGE)
-            setAxisSteps_per_mm(tmp_float_handling * 10, E1);
-          #endif
-        }
-        #if ENABLED(DUAL_X_CARRIAGE)
-          else if (recdat.addr == T2StepMM_E) {
-            setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+        float tmp_float_handling = float(recdat.data[0]);
+        if (tmp_float_handling >= 32768) tmp_float_handling -= 65536;
+        tmp_float_handling /= 100;
+
+        if (false) {}
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          else if (recdat.addr == StepMM_X) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, X);
           }
+          else if (recdat.addr == StepMM_Y) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, Y);
+          }
+          else if (recdat.addr == StepMM_Z) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, Z);
+          }
+          else if (recdat.addr == StepMM_E) {
+            setAxisSteps_per_mm(tmp_float_handling * 10, E0);
+            #if DISABLED(DUAL_X_CARRIAGE)
+              setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+            #endif
+          }
+        #endif // EDITABLE_STEPS_PER_UNIT
+
+        #if ENABLED(DUAL_X_CARRIAGE)
+          #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+            else if (recdat.addr == T2StepMM_E) {
+              setAxisSteps_per_mm(tmp_float_handling * 10, E1);
+            }
+          #endif
           else if (recdat.addr == T2Offset_X) {
             setNozzleOffset_mm(tmp_float_handling * 10, X, E1);
           }
@@ -1038,9 +1042,9 @@ void RTS::handleData() {
           #endif
         #endif // HAS_PID_HEATING
       }
-      break;
+    } break;
 
-    case Setting:
+    case Setting: {
       if (recdat.data[0] == 0) { // return to main page
         show_status = true;
         tpShowStatus = false;
@@ -1093,29 +1097,27 @@ void RTS::handleData() {
         injectCommands(F("M84"));
         sendData(11, FilenameIcon);
       }
-      break;
+    } break;
 
-    case ReturnBack:
+    case ReturnBack: {
       if (recdat.data[0] == 1) { // return to the tool page
         show_status = false;
         sendData(ExchangePageBase + 63, ExchangepageAddr);
       }
-      if (recdat.data[0] == 2) // return to the Level mode page
+      else if (recdat.data[0] == 2) // return to the Level mode page
         sendData(ExchangePageBase + 64, ExchangepageAddr);
-      break;
+    } break;
 
-    case Bedlevel:
+    case Bedlevel: {
       switch (recdat.data[0]) {
-        case 1: { // Z-axis to home
+        case 1:   // Z-axis to home
           // Disallow Z homing if X or Y are unknown
           injectCommands(isAxisPositionKnown(axis_t(X)) && isAxisPositionKnown(axis_t(Y)) ? F("G28Z\nG1F1500Z0.0") : F("G28\nG1F1500Z0.0"));
           sendData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
-        }
 
         #if HAS_BED_PROBE
-
-          case 2: { // Z-axis to Up
+          case 2:   // Z-axis to Up
             if (WITHIN((getZOffset_mm() + 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
               smartAdjustAxis_steps(getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
               //setZOffset_mm(getZOffset_mm() + 0.1);
@@ -1123,8 +1125,8 @@ void RTS::handleData() {
               onStatusChanged(MString<20>(GET_TEXT_F(MSG_UBL_Z_OFFSET), p_float_t(getZOffset_mm(), 3)));
             }
             break;
-          }
-          case 3: { // Z-axis to Down
+
+          case 3:   // Z-axis to Down
             if (WITHIN((getZOffset_mm() - 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
               smartAdjustAxis_steps(-getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
               //babystepAxis_steps(int16_t(-getAxisSteps_per_mm(Z)) / 10, axis_t(Z));
@@ -1133,17 +1135,15 @@ void RTS::handleData() {
               onStatusChanged(MString<20>(GET_TEXT_F(MSG_UBL_Z_OFFSET), p_float_t(getZOffset_mm(), 3)));
             }
             break;
-          }
-
         #endif // HAS_BED_PROBE
 
-        case 4: { // Assistant Level
+        case 4:   // Assistant Level
           TERN_(HAS_MESH, setLevelingActive(false));
           injectCommands(isPositionKnown() ? F("G1 F1000 Z0.0") : F("G28\nG1 F1000 Z0.0"));
           waitway = 2;
           sendData(ExchangePageBase + 84, ExchangepageAddr);
           break;
-        }
+
         case 5: { // AutoLevel "Measuring" Button
           #if ENABLED(MESH_BED_LEVELING)
             sendData(ExchangePageBase + 93, ExchangepageAddr);
@@ -1158,45 +1158,44 @@ void RTS::handleData() {
             sendData(ExchangePageBase + 64, ExchangepageAddr);
             injectCommands(F(MEASURING_GCODE));
           #endif
-          break;
-        }
+        } break;
 
         #if ENABLED(LCD_BED_TRAMMING)
-          case 6: { // Bed Tramming,  Centre 1
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+          case 6:   // Bed Tramming,  Centre 1
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_CENTER, axis_t(X));
             setAxisPosition_mm(Y_CENTER, axis_t(Y));
             waitway = 6;
             break;
-          }
-          case 7: { // Bed Tramming, Front Left 2
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+
+          case 7:   // Bed Tramming, Front Left 2
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
-          }
-          case 8: { // Bed Tramming, Front Right 3
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+
+          case 8:   // Bed Tramming, Front Right 3
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
-          }
-          case 9: { // Bed Tramming, Back Right 4
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+
+          case 9:   // Bed Tramming, Back Right 4
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
             break;
-          }
-          case 10: { // Bed Tramming, Back Left 5
-            setAxisPosition_mm(BED_TRAMMING_Z_HOP, axis_t(Z));
+
+          case 10:   // Bed Tramming, Back Left 5
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
             break;
-          }
+
         #endif // LCD_BED_TRAMMING
 
         case 11: { // Autolevel switch
@@ -1208,113 +1207,92 @@ void RTS::handleData() {
           #if HAS_BED_PROBE
             sendData(getZOffset_mm() * 100, ProbeOffset_Z);
           #endif
-          break;
-        }
+        } break;
+
         #if ENABLED(G26_MESH_VALIDATION)
-          case 12: {
+          case 12:
             injectCommands(F("G26R255"));
             onStatusChanged(F("Beginning G26.. Heating"));
             break;
-          }
         #endif
         #if ENABLED(MESH_BED_LEVELING)
-          case 13: {
+          case 13:
             injectCommands(F("G29S1"));
             onStatusChanged(F("Begin Manual Mesh"));
             break;
-          }
-          case 14: {
+          case 14:
             injectCommands(F("G29S2"));
             onStatusChanged(F("Moving to Next Mesh Point"));
             break;
-          }
         #endif
-        case 15: {
+        case 15:
           injectCommands(F("M211S0\nG91\nG1Z-0.025\nG90\nM211S1"));
           onStatusChanged(F("Moved down 0.025"));
           break;
-        }
-        case 16: {
+        case 16:
           injectCommands(F("M211S0\nG91\nG1Z0.025\nG90\nM211S1"));
           onStatusChanged(F("Moved up 0.025"));
           break;
-        }
-        case 17: {
+        case 17:
           dwin_settings.display_volume = 0;
           dwin_settings.display_sound = false;
           setTouchScreenConfiguration();
           break;
-        }
-        case 18: {
+        case 18:
           dwin_settings.display_volume = 255;
           dwin_settings.display_sound = true;
           setTouchScreenConfiguration();
           break;
-        }
-        case 19: {
+        case 19:
           dwin_settings.screen_brightness = 10;
           setTouchScreenConfiguration();
           break;
-        }
-        case 20: {
+        case 20:
           dwin_settings.screen_brightness = 100;
           setTouchScreenConfiguration();
           break;
-        }
-        case 21: {
+        case 21:
           dwin_settings.display_standby ^= true;
           setTouchScreenConfiguration();
           break;
-        }
-        case 22: {
-          dwin_settings.screen_rotation = dwin_settings.screen_rotation == 10 ? 0 : 10;
+        case 22:
+          dwin_settings.screen_rotation = 10 - dwin_settings.screen_rotation == 10 ? 0 : 10;
           setTouchScreenConfiguration();
           break;
-        }
-        case 23: { // Set IDEX Autopark
+        case 23:  // Set IDEX Autopark
           injectCommands(F("M605S1\nG28X\nG1X0"));
           break;
-        }
-        case 24: { // Set IDEX Duplication
+        case 24:  // Set IDEX Duplication
           injectCommands(F("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0"));
           break;
-        }
-        case 25: { // Set IDEX Mirrored Duplication
+        case 25:  // Set IDEX Mirrored Duplication
           injectCommands(F("M605S1\nT0\nG28\nM605S2\nG28X\nG1X0\nM605S3"));
           break;
-        }
-        case 26: { // Set IDEX Full Control
+        case 26:  // Set IDEX Full Control
           injectCommands(F("M605S0\nG28X"));
           break;
-        }
-        case 27: { // Change Tool
+        case 27:  // Change Tool
           setActiveTool(getActiveTool() == E0 ? E1 : E0, !isAxisPositionKnown(X));
           break;
-        }
+
         default: break;
       }
 
       sendData(10, FilenameIcon);
-      break;
+    } break;
 
     case XYZEaxis: {
       axis_t axis = X;
       float min = 0.0f, max = 0.0f;
       waitway = 4;
       if (recdat.addr == DisplayXaxis) {
-        axis = X;
-        min = X_MIN_POS;
-        max = X_MAX_POS;
+        axis = X; min = X_MIN_POS; max = X_MAX_POS;
       }
       else if (recdat.addr == DisplayYaxis) {
-        axis = Y;
-        min = Y_MIN_POS;
-        max = Y_MAX_POS;
+        axis = Y; min = Y_MIN_POS; max = Y_MAX_POS;
       }
       else if (recdat.addr == DisplayZaxis) {
-        axis = Z;
-        min = Z_MIN_POS;
-        max = Z_MAX_POS;
+        axis = Z; min = Z_MIN_POS; max = Z_MAX_POS;
       }
       else if (recdat.addr == AutoZero) {
         if (recdat.data[0] == 3) { // autohome
@@ -1328,19 +1306,16 @@ void RTS::handleData() {
           axisPageNum = recdat.data[0];
           waitway = 0;
         }
-        break;
-      }
+      } break;
 
       float targetPos = float(recdat.data[0]) / 10;
       LIMIT(targetPos, min, max);
       setAxisPosition_mm(targetPos, axis);
       waitway = 0;
       sendData(10, FilenameIcon);
-      break;
-    }
+    } break;
 
-    case Filament:
-
+    case Filament: {
       uint16_t IconTemp;
       if (recdat.addr == Exchfilament) {
         if (getActualTemp_celsius(getActiveTool()) < EXTRUDE_MINTEMP && recdat.data[0] < 5) {
@@ -1351,23 +1326,23 @@ void RTS::handleData() {
         }
 
         switch (recdat.data[0]) {
-          case 1: { // Unload filament1
+          case 1:   // Unload filament1
             setAxisPosition_mm(getAxisPosition_mm(E0) - changeMaterialBuf[0], E0);
             break;
-          }
-          case 2: { // Load filament1
+
+          case 2:   // Load filament1
             setAxisPosition_mm(getAxisPosition_mm(E0) + changeMaterialBuf[0], E0);
             break;
-          }
-          case 3: { // Unload filament2
+
+          case 3:   // Unload filament2
             setAxisPosition_mm(getAxisPosition_mm(E1) - changeMaterialBuf[1], E1);
             break;
-          }
-          case 4: { // Load filament2
+
+          case 4:   // Load filament2
             setAxisPosition_mm(getAxisPosition_mm(E1) + changeMaterialBuf[1], E1);
             break;
-          }
-          case 5: { // sure to heat
+
+          case 5:   // sure to heat
             nozzleTempStatus[0] = 1;
 
             setTargetTemp_celsius((PREHEAT_1_TEMP_HOTEND + 10), getActiveTool());
@@ -1382,17 +1357,17 @@ void RTS::handleData() {
             delay_ms(5);
             sendData(ExchangePageBase + 68, ExchangepageAddr);
             break;
-          }
-          case 6: { // cancel to heat
+
+          case 6:   // cancel to heat
             sendData(ExchangePageBase + 65, ExchangepageAddr);
             break;
-          }
-          case 0xF1: { // Sure to cancel heating
+
+          case 0xF1:   // Sure to cancel heating
             nozzleTempStatus[0] = 0;
             delay_ms(1);
             sendData(ExchangePageBase + 65, ExchangepageAddr);
             break;
-          }
+
           case 0xF0: // not to cancel heating
             break;
         }
@@ -1405,57 +1380,53 @@ void RTS::handleData() {
       else if (recdat.addr == FilamentUnit2) {
         changeMaterialBuf[1] = float(recdat.data[0]) / 10;
       }
-      break;
+    } break;
 
-    case LanguageChoice:
+    case LanguageChoice: {
 
       //if (recdat.data[0] == 1) settings.save(); else injectCommands(F("M300"));
 
       // may at some point use language change screens to save eeprom explicitly
       switch (recdat.data[0]) {
-        case 0: {
+        case 0:
           injectCommands(F("M500"));
           break;
-        }
-        case 1: {
+
+        case 1:
           sendData(ExchangePageBase + 94, ExchangepageAddr);
           break;
-        }
 
         #if ENABLED(PIDTEMP)
-          case 2: {
+          case 2:
             onStatusChanged(F("Hotend PID Started"));
             startPIDTune(static_cast<celsius_t>(pid_hotendAutoTemp), getActiveTool());
             break;
-          }
         #endif
 
-        case 3: {
+        case 3:
           injectCommands(F("M502\nM500"));
           break;
-        }
-        case 4: {
+
+        case 4:
           injectCommands(F("M999\nM280P0S160"));
           break;
-        }
 
         #if ENABLED(PIDTEMPBED)
-          case 5: {
+          case 5:
             onStatusChanged(F("Bed PID Started"));
             startBedPIDTune(static_cast<celsius_t>(pid_bedAutoTemp));
             break;
-          }
         #endif
 
-        case 6: {
+        case 6:
           injectCommands(F("M500"));
           break;
-        }
+
         default: break;
       }
-      break;
+    } break;
 
-    case No_Filament:
+    case No_Filament: {
       if (recdat.data[0] == 1) { // Filament is out, resume / resume selected on screen
         if (ExtUI::pauseModeStatus != PAUSE_MESSAGE_PURGE && ExtUI::pauseModeStatus != PAUSE_MESSAGE_OPTION) {
           // setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
@@ -1492,7 +1463,7 @@ void RTS::handleData() {
           setUserConfirmed();
         }
       }
-      break;
+    } break;
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       case PwrOffNoF:
@@ -1503,14 +1474,8 @@ void RTS::handleData() {
         break;
     #endif
 
-    case Volume:
-      if (recdat.data[0] < 0)
-        dwin_settings.display_volume = 0;
-      else if (recdat.data[0] > 255)
-        dwin_settings.display_volume = 0xFF;
-      else
-        dwin_settings.display_volume = recdat.data[0];
-
+    case Volume: {
+      dwin_settings.display_volume = constrain(recdat.data[0], 0, 255);
       if (dwin_settings.display_volume == 0) {
         sendData(0, VolumeIcon);
         sendData(9, SoundIcon);
@@ -1520,10 +1485,10 @@ void RTS::handleData() {
         sendData(8, SoundIcon);
       }
       sendData(dwin_settings.display_volume << 8, SoundAddr + 1);
-      break;
+    } break;
 
-    case Filename:
-      if (isMediaInserted() && recdat.addr == FilenameChs) {
+    case Filename: {
+      if (isMediaMounted() && recdat.addr == FilenameChs) {
 
         recordcount = recdat.data[0] - 1;
         if (filenavigator.currentindex == 0 && filenavigator.folderdepth > 0 && (fileIndex + recordcount) == 0) {
@@ -1556,7 +1521,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.addr == FilenamePlay) {
-        if (recdat.data[0] == 1 && isMediaInserted()) { // for sure
+        if (recdat.data[0] == 1 && isMediaMounted()) { // for sure
           printFile(filenavigator.getIndexName(fileIndex + recordcount));
 
           for (int16_t j = 0; j < 10; j++) // clean screen.
@@ -1601,7 +1566,7 @@ void RTS::handleData() {
           tpShowStatus = false;
         }
       }
-      break;
+    } break;
 
     case VolumeDisplay: {
       if (recdat.data[0] == 0) {
@@ -1617,8 +1582,7 @@ void RTS::handleData() {
         dwin_settings.display_sound = true;
       }
       setTouchScreenConfiguration();
-      break;
-    }
+    } break;
 
     case DisplayBrightness: {
       if (recdat.data[0] < 10)
@@ -1628,8 +1592,7 @@ void RTS::handleData() {
       else
         dwin_settings.screen_brightness = (uint8_t)recdat.data[0];
       setTouchScreenConfiguration();
-      break;
-    }
+    } break;
 
     case DisplayStandbyBrightness: {
       if (recdat.data[0] < 10)
@@ -1639,8 +1602,7 @@ void RTS::handleData() {
       else
         dwin_settings.standby_brightness = (uint8_t)recdat.data[0];
       setTouchScreenConfiguration();
-      break;
-    }
+    } break;
 
     case DisplayStandbySeconds: {
       if (recdat.data[0] < 5)
@@ -1650,14 +1612,13 @@ void RTS::handleData() {
       else
         dwin_settings.standby_time_seconds = (uint8_t)recdat.data[0];
       setTouchScreenConfiguration();
-      break;
-    }
+    } break;
 
     case AutolevelVal: {
       uint8_t meshPoint = (recdat.addr - AutolevelVal) / 2,
-              yPnt = floor(meshPoint / GRID_MAX_POINTS_X),
-              xPnt = meshPoint - (yPnt * GRID_MAX_POINTS_X);
-      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X - 1) - xPnt; // zag row
+              yPnt = meshPoint / (GRID_MAX_POINTS_X),
+              xPnt = meshPoint - yPnt * (GRID_MAX_POINTS_X);
+      if (yPnt % 2 != 0) xPnt = (GRID_MAX_POINTS_X) - 1 - xPnt; // zag row
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
@@ -1665,8 +1626,7 @@ void RTS::handleData() {
       xy_uint8_t point = { xPnt, yPnt };
       setMeshPoint(point, meshVal);
       sendData(meshVal * 1000, recdat.addr);
-      break;
-    }
+    } break;
 
     default: break;
   }

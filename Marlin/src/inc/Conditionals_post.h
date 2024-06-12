@@ -30,6 +30,16 @@
   // Extras for CI testing
 #endif
 
+// Arduino IDE with Teensy Additions
+#ifdef TEENSYDUINO
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
+  #define NOT_A_PIN 0 // For PINS_DEBUGGING
+#endif
+
 // ADC
 #ifdef BOARD_ADC_VREF_MV
   #define ADC_VREF_MV BOARD_ADC_VREF_MV
@@ -64,16 +74,6 @@
   #undef OTA_FIRMWARE_UPDATE
 #endif
 
-#ifdef TEENSYDUINO
-  #undef max
-  #define max(a,b) ((a)>(b)?(a):(b))
-  #undef min
-  #define min(a,b) ((a)<(b)?(a):(b))
-
-  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
-  #define NOT_A_PIN 0 // For PINS_DEBUGGING
-#endif
-
 /**
  * Axis lengths and center
  */
@@ -94,12 +94,6 @@
 #endif
 #if HAS_W_AXIS && !defined(AXIS9_NAME)
   #define AXIS9_NAME 'W'
-#endif
-
-#if ANY(AXIS4_ROTATES, AXIS5_ROTATES, AXIS6_ROTATES, AXIS7_ROTATES, AXIS8_ROTATES, AXIS9_ROTATES)
-  #define HAS_ROTATIONAL_AXES 1
-#else
-  #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
 
 #if HAS_X_AXIS
@@ -1963,8 +1957,9 @@
  *   Currently this must be distinct, but we can add a mechanism to use the same pin for sensorless
  *   or switches wired to the same pin, or for the single SPI stall state on the axis.
  */
-#define _USE_STOP(A,N,M,C) ((ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
-#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP) && A##_SPI_SENSORLESS))
+#define _ANY_STOP(A,N,M) ANY(A##_HOME_TO_##M, A##N##_SAFETY_STOP)
+#define _USE_STOP(A,N,M,C) ((_ANY_STOP(A,N,M) || (C+0)) && PIN_EXISTS(A##N##_##M) && !A##_SPI_SENSORLESS)
+#define _HAS_STATE(A,N,M) (USE_##A##N##_##M || (_ANY_STOP(A,N,M) && A##_SPI_SENSORLESS))
 
 #if _USE_STOP(X,,MIN,)
   #define USE_X_MIN 1
@@ -1998,7 +1993,7 @@
   #define HAS_Y_STATE 1
 #endif
 
-#if _USE_STOP(Z,,MIN,ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
+#if _USE_STOP(Z,,MIN,ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) && (DISABLED(USE_PROBE_FOR_Z_HOMING) || ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
   #define USE_Z_MIN 1
 #endif
 #if _USE_STOP(Z,,MAX,)
@@ -2205,7 +2200,9 @@
   #define HAS_Z_PROBE_STATE 1
 #endif
 
+#undef _ANY_STOP
 #undef _USE_STOP
+#undef _HAS_STATE
 
 /**
  * Set ENDSTOPPULLUPS for active endstop switches
@@ -2458,7 +2455,7 @@
   #ifndef BED_OVERSHOOT
     #define BED_OVERSHOOT 10
   #endif
-  #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
+  #define BED_MAX_TARGET ((BED_MAXTEMP) - (BED_OVERSHOOT))
 #else
   #undef PIDTEMPBED
   #undef PREHEAT_BEFORE_LEVELING
@@ -2469,15 +2466,11 @@
   #ifndef COOLER_OVERSHOOT
     #define COOLER_OVERSHOOT 2
   #endif
-  #define COOLER_MIN_TARGET (COOLER_MINTEMP + (COOLER_OVERSHOOT))
-  #define COOLER_MAX_TARGET (COOLER_MAXTEMP - (COOLER_OVERSHOOT))
+  #define COOLER_MIN_TARGET ((COOLER_MINTEMP) + (COOLER_OVERSHOOT))
+  #define COOLER_MAX_TARGET ((COOLER_MAXTEMP) - (COOLER_OVERSHOOT))
 #endif
 
-#if HAS_HEATED_BED || HAS_TEMP_CHAMBER
-  #define BED_OR_CHAMBER 1
-#endif
-
-#if HAS_TEMP_HOTEND || BED_OR_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
+#if HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER || HAS_TEMP_PROBE || HAS_TEMP_COOLER || HAS_TEMP_BOARD || HAS_TEMP_SOC
   #define HAS_TEMP_SENSOR 1
 #endif
 
@@ -2486,7 +2479,7 @@
   #ifndef CHAMBER_OVERSHOOT
     #define CHAMBER_OVERSHOOT 10
   #endif
-  #define CHAMBER_MAX_TARGET (CHAMBER_MAXTEMP - (CHAMBER_OVERSHOOT))
+  #define CHAMBER_MAX_TARGET ((CHAMBER_MAXTEMP) - (CHAMBER_OVERSHOOT))
 #else
   #undef PIDTEMPCHAMBER
 #endif
@@ -2494,9 +2487,6 @@
 // PID heating
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #define HAS_PID_HEATING 1
-  #if ENABLED(DWIN_LCD_PROUI) && ANY(PIDTEMP, PIDTEMPBED)
-    #define PROUI_PID_TUNE 1
-  #endif
 #endif
 
 // Thermal protection
@@ -2644,11 +2634,13 @@
   #endif
 #endif
 
-// Print Cooling fans (limit)
+/**
+ * Up to 12 PWM fans
+ */
 #ifdef NUM_M106_FANS
   #define MAX_FANS NUM_M106_FANS
 #else
-  #define MAX_FANS 8  // Max supported fans
+  #define MAX_FANS 12  // Max supported fans
 #endif
 
 #define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
@@ -2683,21 +2675,30 @@
 #if _HAS_FAN(7)
   #define HAS_FAN7 1
 #endif
-#undef _NOT_E_AUTO
+#if _HAS_FAN(8)
+  #define HAS_FAN8 1
+#endif
+#if _HAS_FAN(9)
+  #define HAS_FAN9 1
+#endif
+#if _HAS_FAN(10)
+  #define HAS_FAN10 1
+#endif
+#if _HAS_FAN(11)
+  #define HAS_FAN11 1
+#endif
 #undef _HAS_FAN
+#undef _IS_E_AUTO
 
-#if BED_OR_CHAMBER || HAS_FAN0
-  #define BED_OR_CHAMBER_OR_FAN 1
-#endif
-
-/**
- * Up to 8 PWM fans
- */
-#ifndef FAN_INVERTING
-  #define FAN_INVERTING false
-#endif
-
-#if HAS_FAN7
+#if HAS_FAN11
+  #define FAN_COUNT 12
+#elif HAS_FAN10
+  #define FAN_COUNT 11
+#elif HAS_FAN9
+  #define FAN_COUNT 10
+#elif HAS_FAN8
+  #define FAN_COUNT 9
+#elif HAS_FAN7
   #define FAN_COUNT 8
 #elif HAS_FAN6
   #define FAN_COUNT 7
@@ -2755,20 +2756,26 @@
 #endif
 
 // Servos
-#if PIN_EXISTS(SERVO0) && NUM_SERVOS > 0
-  #define HAS_SERVO_0 1
-#endif
-#if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
-  #define HAS_SERVO_1 1
-#endif
-#if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
-  #define HAS_SERVO_2 1
-#endif
-#if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
-  #define HAS_SERVO_3 1
-#endif
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
+  #if PIN_EXISTS(SERVO0)
+    #define HAS_SERVO_0 1
+  #endif
+  #if PIN_EXISTS(SERVO1) && NUM_SERVOS > 1
+    #define HAS_SERVO_1 1
+  #endif
+  #if PIN_EXISTS(SERVO2) && NUM_SERVOS > 2
+    #define HAS_SERVO_2 1
+  #endif
+  #if PIN_EXISTS(SERVO3) && NUM_SERVOS > 3
+    #define HAS_SERVO_3 1
+  #endif
+  #if PIN_EXISTS(SERVO4) && NUM_SERVOS > 4
+    #define HAS_SERVO_4 1
+  #endif
+  #if PIN_EXISTS(SERVO5) && NUM_SERVOS > 5
+    #define HAS_SERVO_5 1
+  #endif
   #if defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
     #define HAS_PAUSE_SERVO_OUTPUT 1
   #endif
@@ -2807,7 +2814,7 @@
 #if PIN_EXISTS(DIGIPOTSS)
   #define HAS_MOTOR_CURRENT_SPI 1
 #endif
-#if HAS_EXTRUDERS && PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+#if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_E0, MOTOR_CURRENT_PWM_E1)
   #define HAS_MOTOR_CURRENT_PWM_E 1
 #endif
 #if HAS_MOTOR_CURRENT_PWM_E || ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
@@ -2951,16 +2958,16 @@
 #endif
 #if HAS_BED_PROBE
   #ifndef PROBE_OFFSET_XMIN
-    #define PROBE_OFFSET_XMIN -50
+    #define PROBE_OFFSET_XMIN -(X_BED_SIZE)
   #endif
   #ifndef PROBE_OFFSET_XMAX
-    #define PROBE_OFFSET_XMAX  50
+    #define PROBE_OFFSET_XMAX  X_BED_SIZE
   #endif
   #ifndef PROBE_OFFSET_YMIN
-    #define PROBE_OFFSET_YMIN -50
+    #define PROBE_OFFSET_YMIN -(Y_BED_SIZE)
   #endif
   #ifndef PROBE_OFFSET_YMAX
-    #define PROBE_OFFSET_YMAX  50
+    #define PROBE_OFFSET_YMAX Y_BED_SIZE
   #endif
   #if ALL(ENDSTOPPULLUPS, USE_Z_MIN_PROBE)
     #define ENDSTOPPULLUP_ZMIN_PROBE
@@ -3037,8 +3044,8 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
-    #define M600_PURGE_MORE_RESUMABLE 1
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+    #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
     #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
@@ -3203,18 +3210,6 @@
 #endif
 
 /**
- * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
- */
-#if HAS_MARLINUI_U8GLIB
-  #ifndef DOGLCD_SCK
-    #define DOGLCD_SCK  SD_SCK_PIN
-  #endif
-  #ifndef DOGLCD_MOSI
-    #define DOGLCD_MOSI SD_MOSI_PIN
-  #endif
-#endif
-
-/**
  * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
  */
 #ifndef Z_CLEARANCE_FOR_HOMING
@@ -3281,7 +3276,7 @@
 #endif
 
 // Add commands that need sub-codes to this list
-#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY)
+#if ANY(G38_PROBE_TARGET, CNC_COORDINATE_SYSTEMS, POWER_LOSS_RECOVERY, HAS_ROTATIONAL_AXES)
   #define USE_GCODE_SUBCODES 1
 #endif
 
@@ -3403,4 +3398,16 @@
     FIL_RUNOUT1_PULLDOWN, FIL_RUNOUT2_PULLDOWN, FIL_RUNOUT3_PULLDOWN, FIL_RUNOUT4_PULLDOWN, \
     FIL_RUNOUT5_PULLDOWN, FIL_RUNOUT6_PULLDOWN, FIL_RUNOUT7_PULLDOWN, FIL_RUNOUT8_PULLDOWN)
   #define USING_PULLDOWNS 1
+#endif
+
+// Machine UUID can come from STM32 CPU Serial Number
+#ifdef MACHINE_UUID
+  #undef HAS_STM32_UID
+#elif !HAS_STM32_UID && defined(DEFAULT_MACHINE_UUID)
+  #define MACHINE_UUID DEFAULT_MACHINE_UUID
+#endif
+
+// Flag whether hex_print.cpp is needed
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID)
+  #define NEED_HEX_PRINT 1
 #endif

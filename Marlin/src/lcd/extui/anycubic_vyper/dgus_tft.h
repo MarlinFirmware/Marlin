@@ -281,7 +281,6 @@
 #define KEY_LEVEL_DEC           2
 #define KEY_LEVEL_ENSURE        4
 
-
 #define KEY_PREPARE_TO_PREHEAT  3
 #define KEY_PREHEAT_TO_PREPARE  1
 #define KEY_PREHEAT_PLA         2
@@ -365,7 +364,6 @@ namespace Anycubic {
       static void filamentRunout();
       static void confirmationRequest(const char * const);
       static void statusChange(const char * const);
-      static void powerLoss();
       static void powerLossRecovery();
       static void homingStart();
       static void homingComplete();

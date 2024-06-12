@@ -905,7 +905,7 @@ void drawControlMenu() {
   #if ENABLED(EEPROM_SETTINGS)
     _TEMP_ICON(CONTROL_CASE_SAVE, ICON_WriteEEPROM, false);
     _TEMP_ICON(CONTROL_CASE_LOAD, ICON_ReadEEPROM, false);
-    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResumeEEPROM, false);
+    _TEMP_ICON(CONTROL_CASE_RESET, ICON_ResetEEPROM, false);
   #endif
 }
 
@@ -1619,23 +1619,27 @@ void hmiMaxAccelerationXYZE() {
 
 #endif // CLASSIC_JERK
 
-void hmiStepXYZE() {
-  EncoderState encoder_diffState = encoderReceiveAnalyze();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (applyEncoder(encoder_diffState, hmiValues.maxStepScaled)) {
-    checkkey = ID_Step;
-    encoderRate.enabled = false;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+
+  void hmiStepXYZE() {
+    EncoderState encoder_diffState = encoderReceiveAnalyze();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (applyEncoder(encoder_diffState, hmiValues.maxStepScaled)) {
+      checkkey = ID_Step;
+      encoderRate.enabled = false;
+      if (WITHIN(hmiFlag.step_axis, X_AXIS, LAST_AXIS))
+        planner.settings.axis_steps_per_mm[hmiFlag.step_axis] = hmiValues.maxStepScaled / MINUNITMULT;
+      drawEditFloat3(select_step.now, hmiValues.maxStepScaled);
+      return;
+    }
+    // Step limit
     if (WITHIN(hmiFlag.step_axis, X_AXIS, LAST_AXIS))
-      planner.settings.axis_steps_per_mm[hmiFlag.step_axis] = hmiValues.maxStepScaled / MINUNITMULT;
-    drawEditFloat3(select_step.now, hmiValues.maxStepScaled);
-    return;
+      LIMIT(hmiValues.maxStepScaled, min_steps_edit_values[hmiFlag.step_axis] * MINUNITMULT, max_steps_edit_values[hmiFlag.step_axis] * MINUNITMULT);
+    // Step value
+    drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
   }
-  // Step limit
-  if (WITHIN(hmiFlag.step_axis, X_AXIS, LAST_AXIS))
-    LIMIT(hmiValues.maxStepScaled, min_steps_edit_values[hmiFlag.step_axis] * MINUNITMULT, max_steps_edit_values[hmiFlag.step_axis] * MINUNITMULT);
-  // Step value
-  drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
-}
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 // Draw X, Y, Z and blink if in an un-homed or un-trusted state
 void _update_axis_value(const AxisEnum axis, const uint16_t x, const uint16_t y, const bool blink, const bool force) {
@@ -1812,7 +1816,11 @@ void hmiSDCardInit() { card.cdroot(); }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
+void MarlinUI::update() {
+  eachMomentUpdate(); // Status update
+  hmiSDCardUpdate();  // SD card update
+  dwinHandleScreen(); // Rotary encoder update
+}
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
@@ -2468,7 +2476,7 @@ void itemAdvBedPID(const uint8_t row) {
       itemAreaCopy(145, 104, 167, 114, row, 27); // "PID"
     #endif
   }
-  drawMenuLine(row, ICON_PIDbed);
+  drawMenuLine(row, ICON_PIDBed);
 }
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -4070,16 +4078,9 @@ void hmiInit() {
 }
 
 void dwinInitScreen() {
-  encoderConfiguration();
   hmiInit();
   hmiSetLanguageCache();
   hmiStartFrame(true);
-}
-
-void dwinUpdate() {
-  eachMomentUpdate();   // Status update
-  hmiSDCardUpdate();   // SD card update
-  dwinHandleScreen();  // Rotary encoder update
 }
 
 void eachMomentUpdate() {
@@ -4167,8 +4168,8 @@ void eachMomentUpdate() {
     gotoMainMenu();
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
-    else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      recovery.dwin_flag = false;
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
 
       auto update_selection = [&](const bool sel) {
         hmiFlag.select_flag = sel;
@@ -4195,7 +4196,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            queue.inject(F("M1000C"));
             hmiStartFrame(true);
             return;
           }
@@ -4277,7 +4278,9 @@ void dwinHandleScreen() {
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif
-    case ID_StepValue:      hmiStepXYZE(); break;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_StepValue:    hmiStepXYZE(); break;
+    #endif
     default: break;
   }
 }

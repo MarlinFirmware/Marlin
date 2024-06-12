@@ -186,7 +186,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   auto status_changed = []{
     static MString<>::hash_t old_hash = 0x0000;
-    const MString<>::hash_t hash = ui.status_message.hash();
+    const MString<>::hash_t hash = status_message.hash();
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
     return hash_changed || !did_first_redraw;
@@ -219,7 +219,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       const char *stat = status_and_len(rlen);
       lcd_put_u8str_max(stat, max_status_chars);
 
-      // If the string doesn't completely fill the line...
+      // If the remaining string doesn't completely fill the line...
       if (rlen < max_status_chars) {
         lcd_put_u8str(F("."));                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters

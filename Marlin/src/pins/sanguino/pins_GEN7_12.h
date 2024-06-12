@@ -23,14 +23,10 @@
 
 /**
  * Gen7 v1.1, v1.2, v1.3 pin assignments
- * Schematic (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.1/Gen7Board%20Schematic.pdf
- * Origin (1.1): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.1/release%20documents/Gen7Board%20Schematic.pdf
- * Schematic (1.2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.2/Gen7Board%20Schematic.pdf
- * Origin (1.2): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.2/release%20documents/Gen7Board%20Schematic.pdf
- * Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.3/Gen7Board%20Schematic.pdf
- * Origin (1.3): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.3/release%20documents/Gen7Board%20Schematic.pdf
- * Schematic (1.3.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Gen7%20v1.3.1/Gen7Board%20Schematic.pdf
- * Origin (1.3.1): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.3.1/release%20documents/Gen7Board%20Schematic.pdf
+ * Schematic (1.1): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.1/release%20documents/Gen7Board%20Schematic.pdf
+ * Schematic (1.2): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.2/release%20documents/Gen7Board%20Schematic.pdf
+ * Schematic (1.3): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.3/release%20documents/Gen7Board%20Schematic.pdf
+ * Schematic (1.3.1): https://github.com/Traumflug/Generation_7_Electronics/blob/release-1.3.1/release%20documents/Gen7Board%20Schematic.pdf
  */
 
  /**
@@ -42,7 +38,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0

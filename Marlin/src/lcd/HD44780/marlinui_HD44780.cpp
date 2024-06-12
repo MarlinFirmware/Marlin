@@ -331,15 +331,24 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // HAS_MEDIA
 
-  #if ENABLED(SHOW_BOOTSCREEN)
-    // Set boot screen corner characters
-    if (screen_charset == CHARSET_BOOT) {
-      for (uint8_t i = 4; i--;)
-        createChar_P(i, corner[i]);
-    }
-    else
-  #endif
-    { // Info Screen uses 5 special characters
+  switch (screen_charset) {
+
+    #if ENABLED(SHOW_BOOTSCREEN)
+      case CHARSET_BOOT: {
+        // Set boot screen corner characters
+        for (uint8_t i = 4; i--;) createChar_P(i, corner[i]);
+      } break;
+    #endif
+
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      case CHARSET_BOOT_CUSTOM: {
+        for (uint8_t i = COUNT(customBootChars); i--;)
+          createChar_P(i, customBootChars[i]);
+      } break;
+    #endif
+
+    default: {
+      // Info Screen uses 5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
@@ -361,7 +370,9 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
             createChar_P(LCD_STR_FOLDER[0], folder);
           #endif
         }
-    }
+    } break;
+
+  }
 
 }
 
@@ -399,6 +410,42 @@ void MarlinUI::init_lcd() {
 bool MarlinUI::detected() {
   return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
+
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X -1
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - COUNT(custom_boot_lines)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
+
+  void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
+    set_custom_characters(CHARSET_BOOT_CUSTOM);
+    lcd.clear();
+    const int8_t sx = CUSTOM_BOOTSCREEN_X;
+    const uint8_t sy = CUSTOM_BOOTSCREEN_Y;
+    for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
+      PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
+      const uint8_t clen = utf8_strlen_P(pstr);
+      const lcd_uint_t x = sx >= 0 ? sx : (LCD_WIDTH - clen) / 2;
+      for (lcd_uint_t j = 0; j < clen; ++j) {
+        const lchar_t c = pgm_read_byte(&pstr[j]);
+        lcd_put_lchar(x + j, sy + i, c == '\x08' ? '\x00' : c);
+      }
+    }
+  }
+
+  // Shows the custom bootscreen and delays
+  void MarlinUI::show_custom_bootscreen() {
+    draw_custom_bootscreen();
+    safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+  }
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
 
 #if HAS_SLOW_BUTTONS
   uint8_t MarlinUI::read_slow_buttons() {
@@ -466,6 +513,8 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
   }
 
   void MarlinUI::show_bootscreen() {
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+
     set_custom_characters(CHARSET_BOOT);
     lcd.clear();
 
@@ -660,9 +709,6 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       lcd_put_u8str(F("K"));
     #else
       lcd_put_u8str(cutter_power2str(cutter.unitPower));
-      #if CUTTER_UNIT_IS(PERCENT)
-        lcd_put_u8str(F("%"));
-      #endif
     #endif
 
     lcd_put_u8str(F(" "));
@@ -793,11 +839,11 @@ void MarlinUI::draw_status_message(const bool blink) {
     static lcd_uint_t pc = 0, pr = 2;
     inline void setPercentPos(const lcd_uint_t c, const lcd_uint_t r) { pc = c; pr = r; }
     void MarlinUI::drawPercent() {
-      const uint8_t progress = ui.get_progress_percent();
+      const uint8_t progress = get_progress_percent();
       if (progress) {
         lcd_moveto(pc, pr);
         lcd_put_u8str(F(TERN(IS_SD_PRINTING, "SD", "P:")));
-        lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(ui.get_progress_permyriad()), ui8tostr3rj(progress)));
+        lcd_put_u8str(TERN(PRINT_PROGRESS_SHOW_DECIMALS, permyriadtostr4(get_progress_permyriad()), ui8tostr3rj(progress)));
         lcd_put_u8str(F("%"));
       }
     }
@@ -806,9 +852,9 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing()) {
-        const duration_t remaint = ui.get_remaining_time();
+        const duration_t remaint = get_remaining_time();
         timepos = TPOFFSET - remaint.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
         lcd_put_u8str(buffer);
       }
@@ -817,10 +863,10 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   #if ENABLED(SHOW_INTERACTION_TIME)
     void MarlinUI::drawInter() {
-      const duration_t interactt = ui.interaction_time;
+      const duration_t interactt = interaction_time;
       if (printingIsActive() && interactt.value) {
         timepos = TPOFFSET - interactt.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'C');
         lcd_put_u8str(buffer);
       }
@@ -832,7 +878,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       if (printJobOngoing()) {
         const duration_t elapsedt = print_job_timer.duration();
         timepos = TPOFFSET - elapsedt.toDigital(buffer);
-        TERN_(NOT(LCD_INFO_SCREEN_STYLE), lcd_put_lchar(timepos - 1, 2, 0x20);)
+        IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
         lcd_put_u8str(buffer);
       }
@@ -1139,7 +1185,39 @@ void MarlinUI::draw_status_screen() {
       TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(LCD_WIDTH - 9, 2));
       rotate_progress();
     #endif
-  #endif // LCD_INFO_SCREEN_STYLE 1
+
+  #elif LCD_INFO_SCREEN_STYLE == 2
+
+    // ========== Line 1 ==========
+
+    //
+    // X Coordinate
+    //
+    lcd_moveto(0, 0);
+    _draw_axis_value(X_AXIS, ftostr52sp(LOGICAL_X_POSITION(current_position.x)), blink);
+
+    //
+    // Y Coordinate
+    //
+    lcd_moveto(LCD_WIDTH - 9, 0);
+    _draw_axis_value(Y_AXIS, ftostr52sp(LOGICAL_Y_POSITION(current_position.y)), blink);
+
+    // ========== Line 2 ==========
+    lcd_moveto(0, 1);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position.z)), blink);
+
+    lcd_moveto(LCD_WIDTH - 9, 1);
+    _draw_axis_value(I_AXIS, ftostr52sp(LOGICAL_I_POSITION(current_position.i)), blink);
+
+    // ========== Line 3 ==========
+    lcd_moveto(0, 2);
+    lcd_put_lchar('F');
+
+    lcd_moveto(LCD_WIDTH - 9, 2);
+    lcd_put_lchar('S');
+
+
+  #endif // LCD_INFO_SCREEN_STYLE
 
   // ========= Last Line ========
 

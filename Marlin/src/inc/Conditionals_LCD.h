@@ -82,33 +82,36 @@
 /**
  *  Multi-Material-Unit supported models
  */
-#define PRUSA_MMU1             1
-#define PRUSA_MMU2             2
-#define PRUSA_MMU2S            3
-#define EXTENDABLE_EMU_MMU2   12
-#define EXTENDABLE_EMU_MMU2S  13
-
 #ifdef MMU_MODEL
   #define HAS_MMU 1
   #define SINGLENOZZLE
-  #if MMU_MODEL == PRUSA_MMU1
+
+  #define _PRUSA_MMU1             1
+  #define _PRUSA_MMU2             2
+  #define _PRUSA_MMU2S            3
+  #define _EXTENDABLE_EMU_MMU2   12
+  #define _EXTENDABLE_EMU_MMU2S  13
+  #define _MMU CAT(_,MMU_MODEL)
+
+  #if _MMU == _PRUSA_MMU1
     #define HAS_PRUSA_MMU1 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2
+  #elif _MMU % 10 == _PRUSA_MMU2
     #define HAS_PRUSA_MMU2 1
-  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+  #elif _MMU % 10 == _PRUSA_MMU2S
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL >= EXTENDABLE_EMU_MMU2
+  #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
   #endif
-#endif
 
-#undef PRUSA_MMU1
-#undef PRUSA_MMU2
-#undef PRUSA_MMU2S
-#undef EXTENDABLE_EMU_MMU2
-#undef EXTENDABLE_EMU_MMU2S
+  #undef _MMU
+  #undef _PRUSA_MMU1
+  #undef _PRUSA_MMU2
+  #undef _PRUSA_MMU2S
+  #undef _EXTENDABLE_EMU_MMU2
+  #undef _EXTENDABLE_EMU_MMU2S
+#endif
 
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
 
@@ -131,6 +134,9 @@
   #define E_MANUAL        1
   #if MIXING_STEPPERS == 2
     #define HAS_DUAL_MIXING 1
+  #endif
+  #ifndef MIXING_VIRTUAL_TOOLS
+    #define MIXING_VIRTUAL_TOOLS 1
   #endif
 
 #elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
@@ -257,10 +263,13 @@
 #endif
 #if NUM_AXES >= 1
   #define HAS_X_AXIS 1
+  #define HAS_A_AXIS 1
   #if NUM_AXES >= XY
     #define HAS_Y_AXIS 1
+    #define HAS_B_AXIS 1
     #if NUM_AXES >= XYZ
       #define HAS_Z_AXIS 1
+      #define HAS_C_AXIS 1
       #if NUM_AXES >= 4
         #define HAS_I_AXIS 1
         #if NUM_AXES >= 5
@@ -498,6 +507,10 @@
   #define ROTATIONAL_AXES 0
 #endif
 
+#if ROTATIONAL_AXES
+  #define HAS_ROTATIONAL_AXES 1
+#endif
+
 /**
  * Number of Secondary Linear Axes (e.g., UVW)
  * All secondary axes for which AXIS*_ROTATES is not defined.
@@ -566,8 +579,8 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 and BTT_MINI_12864 have identical pinouts to FYSETC_MINI_12864_2_1
-#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864)
+// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
+#if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
 
@@ -775,11 +788,12 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC 1
+  #define NO_LCD_SDCARD
   #define LCD_ST7920_DELAY_1           125
   #define LCD_ST7920_DELAY_2           125
   #define LCD_ST7920_DELAY_3           125
 
-#elif ANY(ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+#elif ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
 
   #define IS_RRD_FG_SC 1
   #define LCD_ST7920_DELAY_1           150
@@ -799,6 +813,10 @@
   #define IS_RRD_SC 1
   #define U8GLIB_SSD1309
 
+#endif
+
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
+  #define U8G_SPI_USE_MODE_3 1
 #endif
 
 // ST7920-based graphical displays
@@ -879,10 +897,11 @@
   #endif
 #endif
 
-// FSMC/SPI TFT Panels (LVGL)
+// FSMC/SPI TFT Panels (LVGL) with encoder click wheel
 #if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
   #define SERIAL_RUNTIME_HOOK 1
+  #define STD_ENCODER_PULSES_PER_STEP 4
 #endif
 
 // FSMC/SPI TFT Panels
@@ -962,6 +981,18 @@
   #define DETECT_I2C_LCD_DEVICE 1
 #endif
 
+/**
+ * Ender-3 V2 DWIN with Encoder
+ */
+#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+  #define HAS_DWIN_E3V2_BASIC 1
+#endif
+#if ANY(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
+  #define HAS_DWIN_E3V2 1
+  #define STD_ENCODER_PULSES_PER_STEP 4
+#endif
+
+// Encoder behavior
 #ifndef STD_ENCODER_PULSES_PER_STEP
   #if ENABLED(TOUCH_SCREEN)
     #define STD_ENCODER_PULSES_PER_STEP 2
@@ -982,10 +1013,12 @@
   #define ENCODER_FEEDRATE_DEADZONE 6
 #endif
 
-// Shift register panels
-// ---------------------
-// 2 wire Non-latching LCD SR from:
-// https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+/**
+ * Shift register panels
+ * ---------------------
+ * 2 wire Non-latching LCD SR from:
+ * https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+ */
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
   #define IS_ULTIPANEL 1
@@ -1020,17 +1053,9 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, NEXTION_TFT, TOUCH_UI_FTDI_EVE, DWIN_LCD_PROUI)
   #define IS_EXTUI 1 // Just for sanity check.
   #define EXTENSIBLE_UI
-#endif
-
-// Aliases for LCD features
-#if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-  #define HAS_DWIN_E3V2_BASIC 1
-#endif
-#if ANY(HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
-  #define HAS_DWIN_E3V2 1
 #endif
 
 // E3V2 extras
@@ -1043,6 +1068,7 @@
 #if ENABLED(DWIN_LCD_PROUI)
   #define DO_LIST_BIN_FILES 1
   #define LCD_BRIGHTNESS_DEFAULT 127
+  #define STATUS_DO_CLEAR_EMPTY
 #endif
 
 // Serial Controllers require LCD_SERIAL_PORT
@@ -1077,8 +1103,13 @@
    *  - draw_kill_screen
    *  - kill_screen
    *  - draw_status_message
+   *    (calling advance_status_scroll, status_and_len for a scrolling status message)
    */
   #define HAS_DISPLAY 1
+#endif
+
+#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD)
+  #define HAS_UI_UPDATE 1
 #endif
 
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
@@ -1154,7 +1185,7 @@
 /**
  * Set flags for any form of bed probe
  */
-#if ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, HAS_Z_SERVO_PROBE, SOLENOID_PROBE, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE)
+#if ANY(TOUCH_MI_PROBE, Z_PROBE_ALLEN_KEY, HAS_Z_SERVO_PROBE, SOLENOID_PROBE, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
   #define HAS_STOWABLE_PROBE 1
 #endif
 #if ANY(HAS_STOWABLE_PROBE, FIX_MOUNTED_PROBE, BD_SENSOR, NOZZLE_AS_PROBE)
@@ -1576,8 +1607,6 @@
 #endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1
-#endif
-#if IS_CORE
   #if CORE_IS_XY
     #define CORE_AXIS_1 A_AXIS
     #define CORE_AXIS_2 B_AXIS
@@ -1671,6 +1700,7 @@
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
   #define TFT_INTERFACE_SPI
+  #define NO_LCD_SDCARD
 #elif ANY(LERDGE_TFT35, ANET_ET5_TFT35)                                       // ST7796
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_RES_480x320
@@ -1830,15 +1860,8 @@
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN)
-  #if TOUCH_IDLE_SLEEP_MINS
-    #define HAS_TOUCH_SLEEP 1
-  #endif
   #if NONE(TFT_TOUCH_DEVICE_GT911, TFT_TOUCH_DEVICE_XPT2046)
     #define TFT_TOUCH_DEVICE_XPT2046          // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
-  #endif
-  #if ENABLED(TFT_TOUCH_DEVICE_GT911)         // GT911 Capacitive touch screen such as BIQU_BX_TFT70
-    #undef TOUCH_SCREEN_CALIBRATION
-    #undef TOUCH_CALIBRATION_AUTO_SAVE
   #endif
   #if !HAS_GRAPHICAL_TFT
     #undef TOUCH_SCREEN

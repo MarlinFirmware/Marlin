@@ -65,6 +65,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PC0
@@ -213,7 +220,7 @@
     #define SOFTWARE_SPI
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else
+  #else // !FYSETC_MINI_12864_2_1
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
@@ -227,7 +234,7 @@
 
     #endif
 
-  #endif // !MKS_MINI_12864
+  #endif // !FYSETC_MINI_12864_2_1
 
 #endif // HAS_WIRED_LCD
 
@@ -245,19 +252,18 @@
 #endif
 
 // LED driving pin
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PA2
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PA2
 #endif
 
 //
 // SD Card
 //
 #define SDCARD_CONNECTION                ONBOARD
-#define SPI_DEVICE                             2  // Maple
-#define ONBOARD_SPI_DEVICE                     2
+#define ONBOARD_SPI_DEVICE                     2  // Maple
 #define SDSS                           SD_SS_PIN
 #define ONBOARD_SD_CS_PIN              SD_SS_PIN
-#define SD_DETECT_PIN                       PC10  // EXP2_07_PIN
+#define SD_DETECT_PIN                EXP2_07_PIN
 #define NO_SD_HOST_DRIVE
 
 // TODO: This is the only way to set SPI for SD on STM32 (for now)

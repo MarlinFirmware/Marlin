@@ -23,8 +23,7 @@
 
 /**
  * Geeetech GT2560 V4.1b Pins
- * Schematic (4.1B): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Geeetech%20GT2560%20V4.x%20+%20A20/GT2560V4.1BSCHA20T.pdf
- * Origin: https://www.geeetech.com/download.html?spm=a2g0s.imconversation.0.0.22d23e5fXlQBWv&download_id=45
+ * Schematic: https://www.geeetech.com/download.html?spm=a2g0s.imconversation.0.0.22d23e5fXlQBWv&download_id=45
  * ATmega2560
 */
 

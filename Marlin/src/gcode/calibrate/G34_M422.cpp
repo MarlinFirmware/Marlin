@@ -37,10 +37,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
   #include "../../libs/least_squares_fit.h"
 #endif
@@ -79,6 +75,7 @@
  *   R                 Flag to recalculate points based on current probe offsets
  */
 void GcodeSuite::G34() {
+
   DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
@@ -113,19 +110,19 @@ void GcodeSuite::G34() {
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
       if (!WITHIN(z_auto_align_iterations, 1, 30)) {
-        SERIAL_ECHOLNPGM("?(I)teration out of bounds (1-30).");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(I)teration out of bounds (1-30)."));
         break;
       }
 
       const float z_auto_align_accuracy = parser.floatval('T', Z_STEPPER_ALIGN_ACC);
-      if (!WITHIN(z_auto_align_accuracy, 0.01f, 1.0f)) {
-        SERIAL_ECHOLNPGM("?(T)arget accuracy out of bounds (0.01-1.0).");
+      if (!WITHIN(z_auto_align_accuracy, 0.001f, 1.0f)) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(T)arget accuracy out of bounds (0.001-1.0)."));
         break;
       }
 
       const float z_auto_align_amplification = TERN(HAS_Z_STEPPER_ALIGN_STEPPER_XY, Z_STEPPER_ALIGN_AMP, parser.floatval('A', Z_STEPPER_ALIGN_AMP));
       if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
-        SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(A)mplification out of bounds (0.5-2.0)."));
         break;
       }
 
@@ -453,7 +450,7 @@ void GcodeSuite::M422() {
   const bool is_probe_point = parser.seen_test('S');
 
   if (TERN0(HAS_Z_STEPPER_ALIGN_STEPPER_XY, is_probe_point && parser.seen_test('W'))) {
-    SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S) and (W) may not be combined."));
     return;
   }
 
@@ -463,7 +460,7 @@ void GcodeSuite::M422() {
   );
 
   if (!is_probe_point && TERN1(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !parser.seen_test('W'))) {
-    SERIAL_ECHOLNPGM("?(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required."));
     return;
   }
 
@@ -493,11 +490,11 @@ void GcodeSuite::M422() {
 
   if (is_probe_point) {
     if (!probe.can_reach(pos.x, Y_CENTER)) {
-      SERIAL_ECHOLNPGM("?(X) out of bounds.");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(X) out of bounds."));
       return;
     }
     if (!probe.can_reach(pos)) {
-      SERIAL_ECHOLNPGM("?(Y) out of bounds.");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(Y) out of bounds."));
       return;
     }
   }
@@ -506,6 +503,8 @@ void GcodeSuite::M422() {
 }
 
 void GcodeSuite::M422_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_Z_AUTO_ALIGN));
   for (uint8_t i = 0; i < NUM_Z_STEPPERS; ++i) {
     report_echo_start(forReplay);

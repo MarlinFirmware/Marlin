@@ -59,7 +59,7 @@ void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
   delay_ms(10);
 }
 
-void onMediaInserted() {
+void onMediaMounted() {
   filenavigator.reset();
   filenavigator.getFiles(0);
   fileIndex = 0;
@@ -98,7 +98,11 @@ void onMediaRemoved() {
   }
 }
 
-void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+void onHeatingError(const heater_id_t header_id) {}
+void onMinTempError(const heater_id_t header_id) {}
+void onMaxTempError(const heater_id_t header_id) {}
+
+void onPlayTone(const uint16_t, const uint16_t/*=0*/) {
   rts.sendData(StartSoundSet, SoundAddr);
 }
 
@@ -228,6 +232,26 @@ void onUserConfirmRequired(const char *const msg) {
   lastPauseMsgState = ExtUI::pauseModeStatus;
 }
 
+// For fancy LCDs include an icon ID, message, and translated button title
+void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  onUserConfirmRequired(cstr);
+  UNUSED(icon); UNUSED(fBtn);
+}
+void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  onUserConfirmRequired(fstr);
+  UNUSED(icon); UNUSED(fBtn);
+}
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  void onPauseMode(
+    const PauseMessage message,
+    const PauseMode mode/*=PAUSE_MODE_SAME*/,
+    const uint8_t extruder/*=active_extruder*/
+  ) {
+    stdOnPauseMode(message, mode, extruder);
+  }
+#endif
+
 void onStatusChanged(const char *const statMsg) {
   for (int16_t j = 0; j < 20; j++) // Clear old message
     rts.sendData(' ', StatusMessageString + j);
@@ -249,41 +273,14 @@ void onFactoryReset() {
   show_status = true;
 }
 
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
-
-void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
-  if (waitway == 3)
-    if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
-      rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
-  #if HAS_MESH
-    uint8_t abl_probe_index = 0;
-    for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-      for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-        const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-        const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-        if (point.x == xpos && outer == ypos)
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
-        ++abl_probe_index;
-      }
-  #endif
-}
+static_assert(eeprom_data_size >= sizeof(creality_dwin_settings_t), "Insufficient space in EEPROM for UI parameters");
 
 void onStoreSettings(char *buff) {
-  static_assert(
-    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
-    "Insufficient space in EEPROM for UI parameters"
-  );
-
   // Write to buffer
   memcpy(buff, &dwin_settings, sizeof(creality_dwin_settings_t));
 }
 
 void onLoadSettings(const char *buff) {
-  static_assert(
-    ExtUI::eeprom_data_size >= sizeof(creality_dwin_settings_t),
-    "Insufficient space in EEPROM for UI parameters"
-    );
-
   creality_dwin_settings_t eepromSettings;
   memcpy(&eepromSettings, buff, sizeof(creality_dwin_settings_t));
 
@@ -305,7 +302,7 @@ void onLoadSettings(const char *buff) {
 }
 
 void onSettingsStored(const bool success) {
-  // This is called after the entire EEPROM has been written,
+  // Called after the entire EEPROM has been written,
   // whether successful or not.
 }
 
@@ -334,6 +331,59 @@ void onSettingsLoaded(const bool success) {
   rts.setTouchScreenConfiguration();
 }
 
+void onPostprocessSettings() {}
+
+#if HAS_LEVELING
+  void onLevelingStart() {}
+
+  void onLevelingDone() {
+    #if HAS_MESH
+      if (ExtUI::getLevelingIsValid()) {
+        uint8_t abl_probe_index = 0;
+        for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+          for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+            const bool zig = outer & 1;
+            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
+            ++abl_probe_index;
+          }
+
+        rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
+        setLevelingActive(true);
+      }
+      else {
+        rts.sendData(2, AutoLevelIcon); /*Off*/
+        setLevelingActive(false);
+      }
+    #endif
+  }
+#endif
+
+#if HAS_MESH
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state) {}
+
+  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
+    if (waitway == 3)
+      if (isPositionKnown() && (getActualTemp_celsius(BED) >= (getTargetTemp_celsius(BED) - 1)))
+        rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
+    #if HAS_MESH
+      uint8_t abl_probe_index = 0;
+      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
+        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+          const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
+          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+          if (point.x == xpos && outer == ypos)
+            rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
+          ++abl_probe_index;
+        }
+    #endif
+  }
+#endif
+
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+  void onSetMinExtrusionTemp(const celsius_t) {}
+#endif
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   void onSetPowerLoss(const bool onoff) {
     // Called when power-loss is enabled/disabled
@@ -342,16 +392,16 @@ void onSettingsLoaded(const bool success) {
     // Called when power-loss state is detected
   }
   void onPowerLossResume() {
-    startprogress   = 254;
-    show_status     = true;
-    tpShowStatus    = false;
-    no_reentry  = false;
+    startprogress = 254;
+    show_status   = true;
+    tpShowStatus  = false;
+    no_reentry    = false;
     rts.sendData(ExchangePageBase + 76, ExchangepageAddr);
   }
 #endif
 
 #if HAS_PID_HEATING
-  void onPidTuning(const result_t rst) {
+  void onPIDTuning(const pidresult_t rst) {
     // Called for temperature PID tuning result
     rts.sendData(pid_hotendAutoTemp, HotendPID_AutoTmp);
     rts.sendData(pid_bedAutoTemp, BedPID_AutoTmp);
@@ -365,39 +415,31 @@ void onSettingsLoaded(const bool success) {
     #endif
     onStatusChanged(F("PID Tune Finished"));
   }
+  void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+    // Called by M303 to update the UI
+  }
 #endif
 
-void onLevelingStart() {}
+#if ENABLED(MPC_AUTOTUNE)
+  void onMPCTuning(const mpcresult_t rst) {
+    // Called for temperature PID tuning result
+  }
+#endif
 
-void onLevelingDone() {
-  #if HAS_MESH
-    if (ExtUI::getLevelingIsValid()) {
-      uint8_t abl_probe_index = 0;
-      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
-          const bool zig = outer & 1;
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
-          rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
-          ++abl_probe_index;
-        }
+#if ENABLED(PLATFORM_M997_SUPPORT)
+  void onFirmwareFlash() {}
+#endif
 
-      rts.sendData(3, AutoLevelIcon); // 2=On, 3=Off
-      setLevelingActive(true);
-    }
-    else {
-      rts.sendData(2, AutoLevelIcon); /*Off*/
-      setLevelingActive(false);
-    }
-  #endif
-}
-
-void onSteppersEnabled() {}
-void onPrintDone() {}
 void onHomingStart() {}
 void onHomingDone() {}
-void onSteppersDisabled() {}
-void onPostprocessSettings() {}
 
-} // namespace ExtUI
+void onPrintDone() {}
+
+void onSteppersDisabled() {}
+void onSteppersEnabled() {}
+void onAxisDisabled(const axis_t) {}
+void onAxisEnabled(const axis_t) {}
+
+} // ExtUI
 
 #endif // DGUS_LCD_UI_IA_CREALITY
