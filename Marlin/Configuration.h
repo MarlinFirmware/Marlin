@@ -1139,7 +1139,7 @@
 #define U_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define V_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define W_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
-##define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
+#define X_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define Y_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop. //Hictop
 #define I_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -1340,7 +1340,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#define FIX_MOUNTED_PROBE //Hictop
+//#define FIX_MOUNTED_PROBE //Hictop
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1511,7 +1511,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 50, -1} //Hictop
+#ifdef PROBE_TARE // No offset with Nozzle probing
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0} 
+#else
+  #define NOZZLE_TO_PROBE_OFFSET { 10, 50, -1} //Hictop
+#endif
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1542,12 +1546,15 @@
  * Useful for a strain gauge or piezo sensor that needs to factor out
  * elements such as cables pulling on the carriage.
  */
-//#define PROBE_TARE
+#define PROBE_TARE
 #if ENABLED(PROBE_TARE)
+  #define PROBE_TARE_ONLY_WHILE_INACTIVE
+
   #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
   #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
   #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-  //#define PROBE_TARE_PIN PA5    // Override default pin
+  #define PROBE_TARE_PIN 19    // Override default pin
+  #define DIOPROBE_TARE_PIN_RPORT 18
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE  // Fail to tare/probe if PROBE_ACTIVATION_SWITCH is active
   #endif
@@ -1571,8 +1578,8 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-//#define MULTIPLE_PROBING 2
-//#define EXTRA_PROBING    1
+#define MULTIPLE_PROBING 2
+#define EXTRA_PROBING    1
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1942,7 +1949,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of flash!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
   // Set a height for the start of manual adjustment
@@ -2118,7 +2125,7 @@
  * - Allows Z homing only when XY positions are known and trusted.
  * - If stepper drivers sleep, XY homing may be required again before Z homing.
  */
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // (mm) X point for Z homing
@@ -2602,7 +2609,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER //Hictop
 
 //
 // GT2560 (YHCB2004) LCD Display

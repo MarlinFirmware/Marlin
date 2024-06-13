@@ -91,10 +91,10 @@
     #define SPINDLE_LASER_PWM_PIN              8  // Hardware PWM
   #endif
   #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                         -1
+    #define Z_MIN_PIN                         18
   #endif
   #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                         -1
+    #define Z_MAX_PIN                         19
   #endif
   #ifndef I_STOP_PIN
     #define I_STOP_PIN                        18  // Z-
