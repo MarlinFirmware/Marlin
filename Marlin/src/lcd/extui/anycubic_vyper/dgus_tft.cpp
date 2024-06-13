@@ -1293,7 +1293,7 @@ namespace Anycubic {
             printFile(filenavigator.filelist.shortFilename());
 
             sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
-            sendTxtToTFT(ftostr72rj(getFeedrate_percent()), TXT_PRINT_SPEED);
+            sendTxtToTFT(MString<6>(uint16_t(getFeedrate_percent())), TXT_PRINT_SPEED);
             sendTxtToTFT(MString<6>(uint16_t(getProgress_percent())), TXT_PRINT_PROGRESS);
             sendTimeToTFT(0, TXT_PRINT_TIME);
 
