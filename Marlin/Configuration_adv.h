@@ -1527,7 +1527,7 @@
    *
    * :['SPI_HALF_SPEED', 'SPI_QUARTER_SPEED', 'SPI_EIGHTH_SPEED']
    */
-  #define SPI_SPEED SPI_EIGHTH_SPEED //Hictop
+  //#define SPI_SPEED SPI_EIGHTH_SPEED 
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
@@ -2647,7 +2647,7 @@
  *
  * Enable PARK_HEAD_ON_PAUSE to add the G-code M125 Pause and Park.
  */
-#define ADVANCED_PAUSE_FEATURE //Hictop
+//#define ADVANCED_PAUSE_FEATURE 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -4148,7 +4148,7 @@
   #define MMU2_RAMMING_SEQUENCE \
     {   1.0, 1000 }, \
     {   1.0, 1500 }, \
-    {   2.0, 2000 }, \
+    {   2.0, 2000 }, \      
     {   1.5, 3000 }, \
     {   2.5, 4000 }, \
     { -15.0, 5000 }, \
@@ -4228,18 +4228,18 @@
 //
 // M42 - Set pin states
 //
-#define DIRECT_PIN_CONTROL
+//#define DIRECT_PIN_CONTROL
 
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-#define PINS_DEBUGGING
+//#define PINS_DEBUGGING
 
 // Enable Tests that will run at startup and produce a report
-#define MARLIN_TEST_BUILD
+//#define MARLIN_TEST_BUILD
 
 // Enable Marlin dev mode which adds some special commands
-#define MARLIN_DEV_MODE
+//#define MARLIN_DEV_MODE
 
 #if ENABLED(MARLIN_DEV_MODE)
   /**
