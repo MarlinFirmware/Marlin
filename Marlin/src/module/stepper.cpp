@@ -2694,9 +2694,7 @@ hal_timer_t Stepper::block_phase_isr() {
       set_axis_moved_for_current_block();
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
-        // Otherwise assume no axis smoothing (via oversampling)
-        oversampling_factor = TERN0(NONLINEAR_EXTRUSION, 1);
+        oversampling_factor = 0;
 
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
