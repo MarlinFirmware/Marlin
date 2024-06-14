@@ -6,7 +6,7 @@
 import pioutil
 if pioutil.is_pio_build():
     # Get the environment thus far for the build
-    Import("env")
+    env = pioutil.env
 
     #print(env.Dump())
 

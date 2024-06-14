@@ -17,7 +17,7 @@ TODO: Use the defines and comments above the namespace from existing language fi
 """
 
 import sys, re, requests, csv, datetime
-from languageUtil import namebyid
+#from languageUtil import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
 OUTDIR = 'out-language'
@@ -76,10 +76,10 @@ for row in reader:
     # Add the named string for all the included languages
     name = row[0]
     for i in range(1, numcols):
-        str = row[i]
-        if str:
+        str_key = row[i]
+        if str_key:
             col = columns[i]
-            strings_per_lang[col['lang']][col['style']][name] = str
+            strings_per_lang[col['lang']][col['style']][name] = str_key
 
 # Create a folder for the imported language outfiles
 from pathlib import Path
@@ -199,11 +199,11 @@ for i in range(1, numcols):
         comm = ''
         if lang != 'en' and 'en' in strings_per_lang:
             en = strings_per_lang['en']
-            if name in en[style]: str = en[style][name]
-            elif name in en['Narrow']: str = en['Narrow'][name]
-            if str:
+            if name in en[style]: str_key = en[style][name]
+            elif name in en['Narrow']: str_key = en['Narrow'][name]
+            if str_key:
                 cfmt = '%%%ss// %%s' % (50 - len(val) if len(val) < 50 else 1)
-                comm = cfmt % (' ', str)
+                comm = cfmt % (' ', str_key)
 
         # Write out the string definition
         f.write(lstr_fmt % (name, val, comm))
