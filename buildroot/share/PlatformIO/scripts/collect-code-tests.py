@@ -7,10 +7,7 @@ import pioutil
 if pioutil.is_pio_build():
 
     import os, re
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    projenv = DefaultEnvironment()
-    Import("env", "projenv")
+    env = pioutil.env
 
     os.environ['PATH'] = f"./buildroot/bin/:./buildroot/tests/:{os.environ['PATH']}"
 

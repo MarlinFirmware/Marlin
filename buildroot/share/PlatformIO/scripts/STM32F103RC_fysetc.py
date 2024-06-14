@@ -4,9 +4,7 @@
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, expandvars
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    Import("env")
+    env = pioutil.env
 
     # Custom HEX from ELF
     env.AddPostAction(

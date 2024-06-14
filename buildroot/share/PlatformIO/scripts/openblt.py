@@ -4,9 +4,7 @@
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    Import("env")
+    env = pioutil.env
 
     board = env.BoardConfig()
     board_keys = board.get("build").keys()

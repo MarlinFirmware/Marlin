@@ -6,7 +6,7 @@ import pioutil
 if pioutil.is_pio_build():
     import struct, uuid, marlin
 
-    board = marlin.env.BoardConfig()
+    board = pioutil.env.BoardConfig()
 
     def calculate_crc(contents, seed):
         accumulating_xor_value = seed

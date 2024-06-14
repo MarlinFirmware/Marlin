@@ -3,10 +3,7 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    projenv = DefaultEnvironment()
-    Import("env", "projenv")
+    env = pioutil.env
 
     flash_size = 0
     vect_tab_addr = 0

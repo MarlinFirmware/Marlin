@@ -7,9 +7,7 @@ if pioutil.is_pio_build():
 
     import re, sys
     from pathlib import Path
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    Import("env")
+    env = pioutil.env
 
     def get_envs_for_board(board):
         ppath = Path("Marlin/src/pins/pins.h")

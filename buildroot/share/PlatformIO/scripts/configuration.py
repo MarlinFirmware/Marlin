@@ -279,12 +279,8 @@ else:
     #
     import pioutil
     if pioutil.is_pio_build():
-        from SCons.Script import DefaultEnvironment
-        env = DefaultEnvironment()
-        Import("env")
-
         try:
-            verbose = int(env.GetProjectOption('custom_verbose'))
+            verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
         except:
             pass
 

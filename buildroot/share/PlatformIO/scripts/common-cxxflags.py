@@ -5,9 +5,7 @@
 
 import pioutil
 if pioutil.is_pio_build():
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    Import("env")
+    env = pioutil.env
 
     cxxflags = [
         # "-Wno-incompatible-pointer-types",

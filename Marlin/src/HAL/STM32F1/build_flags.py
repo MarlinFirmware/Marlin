@@ -32,9 +32,7 @@ if __name__ == "__main__":
 else:
   from .....buildroot.share.PlatformIO.scripts import pioutil
   if pioutil.is_pio_build():
-    from SCons.Script import DefaultEnvironment
-    env = DefaultEnvironment()
-    env.Append(
+    pioutil.env.Append(
       ARFLAGS=["rcs"],
 
       ASFLAGS=["-x", "assembler-with-cpp"],
