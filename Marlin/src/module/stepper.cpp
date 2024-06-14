@@ -274,7 +274,7 @@ xyze_int8_t Stepper::count_direction{0};
 #define MINDIR(A) (count_direction[_AXIS(A)] < 0)
 #define MAXDIR(A) (count_direction[_AXIS(A)] > 0)
 
-#define STEPTEST(A,M,I) TERN0(HAS_ ##A## ##I## _ ##M, !(TEST(endstops.state(), A## ##I## _ ##M) && M## DIR(A)) && !locked_ ##A## ##I## _motor)
+#define STEPTEST(A,M,I) TERN0(USE_##A##I##_##M, !(TEST(endstops.state(), A##I##_##M) && M## DIR(A)) && !locked_ ##A##I##_motor)
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)             \
   if (separate_multi_axis) {                     \
