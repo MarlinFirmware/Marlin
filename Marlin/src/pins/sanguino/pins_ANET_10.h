@@ -34,7 +34,7 @@
  */
 
 /**
- * The standard Arduino IDE extension (board manager) for this board
+ * The standard Arduino IDE extension (Boards Manager) for this board
  * is located at https://github.com/SkyNet3D/anet-board.
  *
  * Installation instructions are on that page.
@@ -51,7 +51,7 @@
  */
 
 /**
- * Another usable Arduino IDE extension (board manager) can be found at
+ * Another usable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0

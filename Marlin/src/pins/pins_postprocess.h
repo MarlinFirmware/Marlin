@@ -556,20 +556,20 @@
     #elif Z_HOME_TO_MAX
       #define Z_MAX_PIN Z_STOP_PIN
     #endif
-  #elif Z_HOME_TO_MIN
-    #define Z_STOP_PIN Z_MIN_PIN
-  #elif Z_HOME_TO_MAX
-    #define Z_STOP_PIN Z_MAX_PIN
   #endif
-  #if ENABLED(Z_MULTI_ENDSTOPS) && PIN_EXISTS(Z_STOP)
-    #ifndef Z2_STOP_PIN
-      #define Z2_STOP_PIN Z_STOP_PIN
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #if ((Z_HOME_TO_MIN && !defined(Z2_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z2_MAX_PIN))) && !defined(Z2_STOP_PIN)
+      #error "Z2_STOP_PIN is required for Z_MULTI_ENDSTOPS. Define Z2_STOP_PIN in Configuration_adv.h."
     #endif
-    #if NUM_Z_STEPPERS >= 3 && !defined(Z3_STOP_PIN)
-      #define Z3_STOP_PIN Z_STOP_PIN
+    #if NUM_Z_STEPPERS >= 3
+      #if ((Z_HOME_TO_MIN && !defined(Z3_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z3_MAX_PIN))) && !defined(Z3_STOP_PIN)
+        #error "Z3_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS >= 3. Define Z3_STOP_PIN in Configuration_adv.h."
+      #endif
     #endif
-    #if NUM_Z_STEPPERS >= 4 && !defined(Z4_STOP_PIN)
-      #define Z4_STOP_PIN Z_STOP_PIN
+    #if NUM_Z_STEPPERS >= 4
+      #if ((Z_HOME_TO_MIN && !defined(Z4_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z4_MAX_PIN))) && !defined(Z4_STOP_PIN)
+        #error "Z4_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS == 4. Define Z4_STOP_PIN in Configuration_adv.h."
+      #endif
     #endif
   #endif
 #endif

@@ -121,7 +121,6 @@ namespace ExtUI {
   void onPostprocessSettings() {
     // Called after loading or resetting stored settings
     dgus.paramInit();
-    dgus.powerLoss();
   }
 
   void onSettingsStored(const bool success) {
@@ -160,7 +159,7 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Called when power-loss is enabled/disabled
-    void onSetPowerLoss(const bool) { dgus.powerLoss(); }
+    void onSetPowerLoss(const bool) { /* nothing to do */ }
     // Called when power-loss state is detected
     void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss
