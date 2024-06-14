@@ -97,7 +97,7 @@ void GcodeSuite::M485() {
   //millis_t startTime = millis();
   bool hasPacket = rs485Packetizer.hasPacket();
   //millis_t endTime = millis();
-  //SERIAL_ECHO_START(); SERIAL_ECHOLNPGM("rs485-time: ", endTime - startTime);
+  //SERIAL_ECHO_MSG("rs485-time: ", endTime - startTime);
 
   SERIAL_ECHO_START();
 
