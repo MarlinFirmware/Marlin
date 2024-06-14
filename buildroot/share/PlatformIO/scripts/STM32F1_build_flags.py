@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
 
-#dynamic build flags for generic compile options
+# Dynamic build flags for generic compile options
 if __name__ == "__main__":
   args = " ".join([ "-std=gnu++14",
                     "-Os",
@@ -28,9 +28,11 @@ if __name__ == "__main__":
 
   print(args)
 
-# extra script for linker options
 else:
-  from .....buildroot.share.PlatformIO.scripts import pioutil
+
+  # Extra script for stm32f1-maple.ini build_flags
+
+  import pioutil
   if pioutil.is_pio_build():
     pioutil.env.Append(
       ARFLAGS=["rcs"],
