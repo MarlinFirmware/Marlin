@@ -786,7 +786,6 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move && TEST_ENDSTOP(Z_MIN_PROBE) == TERN1(G38_PROBE_AWAY, (G38_move < 4))) {
@@ -800,18 +799,19 @@ void Endstops::update() {
 
   // Signal, after validation, if an endstop limit is pressed or not
 
-  #if HAS_X_AXIS
+  bool moving_neg;
+  auto axis_moving_info = [](const AxisEnum axis, const AxisEnum head, bool &neg) -> bool {
     #if ENABLED(FT_MOTION)
-      const bool x_moving_pos = ftMotion.axis_moving_pos(X_AXIS_HEAD),
-                 x_moving_neg = ftMotion.axis_moving_neg(X_AXIS_HEAD);
-      #define X_MOVE_TEST x_moving_pos || x_moving_neg
-      #define X_NEG_DIR_TEST x_moving_neg
-    #else
-      #define X_MOVE_TEST stepper.axis_is_moving(X_AXIS)
-      #define X_NEG_DIR_TEST !stepper.motor_direction(X_AXIS_HEAD)
+      if (ftMotion.cfg.mode != ftMotionMode_DISABLED)
+        return (neg = ftMotion.axis_moving_neg(head)) || ftMotion.axis_moving_pos(head);
     #endif
-    if (X_MOVE_TEST) {
-      if (X_NEG_DIR_TEST) { // -direction
+    neg = !stepper.motor_direction(head);
+    return stepper.axis_is_moving(axis);
+  };
+
+  #if HAS_X_AXIS
+    if (axis_moving_info(X_AXIS, X_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -843,17 +843,8 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    #if ENABLED(FT_MOTION)
-      const bool y_moving_pos = ftMotion.axis_moving_pos(Y_AXIS_HEAD),
-                 y_moving_neg = ftMotion.axis_moving_neg(Y_AXIS_HEAD);
-      #define Y_MOVE_TEST y_moving_pos || y_moving_neg
-      #define Y_NEG_DIR_TEST y_moving_neg
-    #else
-      #define Y_MOVE_TEST stepper.axis_is_moving(Y_AXIS)
-      #define Y_NEG_DIR_TEST !stepper.motor_direction(Y_AXIS_HEAD)
-    #endif
-    if (Y_MOVE_TEST) {
-      if (Y_NEG_DIR_TEST) { // -direction
+    if (axis_moving_info(Y_AXIS, Y_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -885,17 +876,8 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    #if ENABLED(FT_MOTION)
-      const bool z_moving_pos = ftMotion.axis_moving_pos(Z_AXIS_HEAD),
-                 z_moving_neg = ftMotion.axis_moving_neg(Z_AXIS_HEAD);
-      #define Z_MOVE_TEST z_moving_pos || z_moving_neg
-      #define Z_NEG_DIR_TEST z_moving_neg
-    #else
-      #define Z_MOVE_TEST stepper.axis_is_moving(Z_AXIS)
-      #define Z_NEG_DIR_TEST !stepper.motor_direction(Z_AXIS_HEAD)
-    #endif
-    if (Z_MOVE_TEST) {
-      if (Z_NEG_DIR_TEST) { // Z -direction. Gantry down, bed up.
+    if (axis_moving_info(Z_AXIS, Z_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // Z -direction. Gantry down, bed up.
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
           // separate Z_MIN endstop. But a Z endstop could be wired
@@ -939,9 +921,8 @@ void Endstops::update() {
   #endif // HAS_Z_AXIS
 
   #if HAS_I_AXIS
-  // TODO: FT_Motion logic.
-    if (stepper.axis_is_moving(I_AXIS)) {
-      if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(I_AXIS, I_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
@@ -955,8 +936,8 @@ void Endstops::update() {
   #endif // HAS_I_AXIS
 
   #if HAS_J_AXIS
-    if (stepper.axis_is_moving(J_AXIS)) {
-      if (!stepper.motor_direction(J_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(J_AXIS, J_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
@@ -970,8 +951,8 @@ void Endstops::update() {
   #endif // HAS_J_AXIS
 
   #if HAS_K_AXIS
-    if (stepper.axis_is_moving(K_AXIS)) {
-      if (!stepper.motor_direction(K_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(K_AXIS, K_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
@@ -985,8 +966,8 @@ void Endstops::update() {
   #endif // HAS_K_AXIS
 
   #if HAS_U_AXIS
-    if (stepper.axis_is_moving(U_AXIS)) {
-      if (!stepper.motor_direction(U_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(U_AXIS, U_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
@@ -1000,8 +981,8 @@ void Endstops::update() {
   #endif // HAS_U_AXIS
 
   #if HAS_V_AXIS
-    if (stepper.axis_is_moving(V_AXIS)) {
-      if (!stepper.motor_direction(V_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(V_AXIS, V_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
@@ -1015,8 +996,8 @@ void Endstops::update() {
   #endif // HAS_V_AXIS
 
   #if HAS_W_AXIS
-    if (stepper.axis_is_moving(W_AXIS)) {
-      if (!stepper.motor_direction(W_AXIS_HEAD)) { // -direction
+    if (axis_moving_info(W_AXIS, W_AXIS_HEAD, moving_neg)) {
+      if (moving_neg) { // -direction
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif
