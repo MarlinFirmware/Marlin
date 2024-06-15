@@ -1772,8 +1772,11 @@ void Stepper::pulse_phase_isr() {
   step_events_completed += events_to_do;
 
   TERN_(ISR_PULSE_CONTROL, USING_TIMED_PULSE());
-  // Take multiple steps per interrupt (For high speed moves)
-  TERN_(ISR_MULTI_STEPS, bool firstStep = true);
+
+  // Take multiple steps per interrupt. For high speed moves.
+  #if ENABLED(ISR_MULTI_STEPS)
+    bool firstStep = true;
+  #endif
 
   // Direct Stepping page?
   const bool is_page = current_block->is_page();
