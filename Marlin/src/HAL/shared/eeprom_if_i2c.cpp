@@ -36,7 +36,7 @@
   SlowSoftWire eWire = SlowSoftWire(I2C_SDA_PIN, I2C_SCL_PIN, true);
 #else
   #include <Wire.h>
-  #define eWire Wire
+  SoftI2C eWire(I2C_SDA_PIN, I2C_SCL_PIN);
 #endif
 
 void eeprom_init() {

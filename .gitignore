@@ -106,7 +106,7 @@ applet/
 .piolibdeps
 .clang_complete
 .gcc-flags.json
-/lib/
+
 
 # Secure Credentials
 Configuration_Secure.h
