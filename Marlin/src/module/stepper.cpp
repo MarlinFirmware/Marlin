@@ -2234,7 +2234,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 #if ENABLED(NONLINEAR_EXTRUSION)
   void Stepper::calc_nonlinear_e(uint32_t step_rate) {
     const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
+    int32_t vd =  (((((int64_t)ne_fix.A * velocity) >> 24) * velocity) >> 24) + (((int64_t)ne_fix.B * velocity) >> 24);
     NOLESS(vd, 0);
 
     advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
@@ -2694,9 +2694,7 @@ hal_timer_t Stepper::block_phase_isr() {
       set_axis_moved_for_current_block();
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
-        // Otherwise assume no axis smoothing (via oversampling)
-        oversampling_factor = TERN0(NONLINEAR_EXTRUSION, 1);
+        oversampling_factor = 0;
 
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
