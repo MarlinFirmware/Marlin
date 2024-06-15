@@ -4369,7 +4369,6 @@
 */
 #if HAS_RPGFABI_MFU
   #define MFU_SERIAL_PORT 2
-  #define MFU_BAUDRATE 115200
   #define MFU_TOOLCOUNT 13
 
   // Distance the Extruder needs to retract to unload the Filament out of the Extrudergears
