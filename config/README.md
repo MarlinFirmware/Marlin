@@ -1,3 +1,3 @@
 # Where have all the configurations gone?
 
-## https://github.com/MarlinFirmware/Configurations/archive/release-2.1.2.3.zip
+## https://github.com/MarlinFirmware/Configurations/archive/release-2.1.2.4.zip

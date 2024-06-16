@@ -94,52 +94,19 @@ The Issue Queue is reserved for Bug Reports and Feature Requests. To get help wi
 
 Marlin is constantly improving thanks to a huge number of contributors from all over the world bringing their specialties and talents. Huge thanks are due to [all the contributors](https://github.com/MarlinFirmware/Marlin/graphs/contributors) who regularly patch up bugs, help direct traffic, and basically keep Marlin from falling apart. Marlin's continued existence would not be possible without them.
 
-## Administration
+## Project Leadership
 
-Regular users can open and close their own issues, but only the administrators can do project-related things like add labels, merge changes, set milestones, and kick trolls. The current Marlin admin team consists of:
-
-<table align="center">
-<tr><td>Project Maintainer</td></tr>
-<tr><td>
-
- 🇺🇸  **Scott Lahteine**
-       [@thinkyhead](https://github.com/thinkyhead)
-       [<kbd>  Donate 💸  </kbd>](https://www.thinkyhead.com/donate-to-marlin)
-
-</td><td>
-
- 🇺🇸  **Roxanne Neufeld**
-       [@Roxy-3D](https://github.com/Roxy-3D)
-
- 🇺🇸  **Keith Bennett**
-       [@thisiskeithb](https://github.com/thisiskeithb)
-       [<kbd>  Donate 💸  </kbd>](https://github.com/sponsors/thisiskeithb)
-
- 🇺🇸  **Jason Smith**
-       [@sjasonsmith](https://github.com/sjasonsmith)
-
-</td><td>
-
- 🇧🇷  **Victor Oliveira**
-       [@rhapsodyv](https://github.com/rhapsodyv)
-
- 🇬🇧  **Chris Pepper**
-       [@p3p](https://github.com/p3p)
-
-🇳🇿  **Peter Ellens**
-       [@ellensp](https://github.com/ellensp)
-       [<kbd>  Donate 💸  </kbd>](https://ko-fi.com/ellensp)
-
-</td><td>
-
- 🇺🇸  **Bob Kuhn**
-       [@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)
-
- 🇳🇱  **Erik van der Zalm**
-       [@ErikZalm](https://github.com/ErikZalm)
-
-</td></tr>
-</table>
+Name|Role|Link|Donate
+----|----|----|----
+🇺🇸 Scott Lahteine|Project Lead|[[@thinkyhead](https://github.com/thinkyhead)]|[💸 Donate](https://marlinfw.org/docs/development/contributing.html#donate)
+🇺🇸 Roxanne Neufeld|Admin|[[@Roxy-3D](https://github.com/Roxy-3D)]|
+🇺🇸 Keith Bennett|Admin|[[@thisiskeithb](https://github.com/thisiskeithb)]|[💸 Donate](https://github.com/sponsors/thisiskeithb)
+🇺🇸 Jason Smith|Admin|[[@sjasonsmith](https://github.com/sjasonsmith)]|
+🇧🇷 Victor Oliveira|Admin|[[@rhapsodyv](https://github.com/rhapsodyv)]|
+🇬🇧 Chris Pepper|Admin|[[@p3p](https://github.com/p3p)]|
+🇳🇿 Peter Ellens|Admin|[[@ellensp](https://github.com/ellensp)]|[💸 Donate](https://ko-fi.com/ellensp)
+🇺🇸 Bob Kuhn|Admin|[[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]|
+🇳🇱 Erik van der Zalm|Founder|[[@ErikZalm](https://github.com/ErikZalm)]|
 
 ## License
 
