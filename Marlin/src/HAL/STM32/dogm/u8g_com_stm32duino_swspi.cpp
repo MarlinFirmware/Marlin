@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm / Ryan Power
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef __STM32F1__
+#ifdef HAL_STM32
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -29,74 +29,39 @@
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
 
-#ifndef LCD_SPI_SPEED
-  #define LCD_SPI_SPEED SPI_FULL_SPEED    // Fastest
-  //#define LCD_SPI_SPEED SPI_QUARTER_SPEED // Slower
-#endif
+#define nop asm volatile ("\tnop\n")
 
-static uint8_t SPI_speed = LCD_SPI_SPEED;
-
-static inline uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1) {
+static inline uint8_t swSpiTransfer_mode_0(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
-    if (spi_speed == 0) {
-      WRITE(DOGLCD_MOSI, !!(b & 0x80));
-      WRITE(DOGLCD_SCK, HIGH);
-      b <<= 1;
-      if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
-      WRITE(DOGLCD_SCK, LOW);
-    }
-    else {
-      const uint8_t state = (b & 0x80) ? HIGH : LOW;
-      for (uint8_t j = 0; j < spi_speed; ++j)
-        WRITE(DOGLCD_MOSI, state);
-
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
-        WRITE(DOGLCD_SCK, HIGH);
-
-      b <<= 1;
-      if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
-
-      for (uint8_t j = 0; j < spi_speed; ++j)
-        WRITE(DOGLCD_SCK, LOW);
-    }
+    const uint8_t state = (b & 0x80) ? HIGH : LOW;
+    WRITE(DOGLCD_SCK, HIGH);
+    WRITE(DOGLCD_MOSI, state);
+    b <<= 1;
+    WRITE(DOGLCD_SCK, LOW);
   }
   return b;
 }
 
-static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t miso_pin=-1) {
+static inline uint8_t swSpiTransfer_mode_3(uint8_t b) {
   for (uint8_t i = 0; i < 8; ++i) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
-    if (spi_speed == 0) {
-      WRITE(DOGLCD_SCK, LOW);
-      WRITE(DOGLCD_MOSI, state);
-      WRITE(DOGLCD_MOSI, state);  // need some setup time
-      WRITE(DOGLCD_SCK, HIGH);
-    }
-    else {
-      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
-        WRITE(DOGLCD_SCK, LOW);
-
-      for (uint8_t j = 0; j < spi_speed; ++j)
-        WRITE(DOGLCD_MOSI, state);
-
-      for (uint8_t j = 0; j < spi_speed; ++j)
-        WRITE(DOGLCD_SCK, HIGH);
-    }
+    WRITE(DOGLCD_SCK, LOW);
+    WRITE(DOGLCD_MOSI, state);
     b <<= 1;
-    if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
+    WRITE(DOGLCD_SCK, HIGH);
   }
   return b;
 }
 
 static void u8g_sw_spi_shift_out(uint8_t val) {
   #if U8G_SPI_USE_MODE_3
-    swSpiTransfer_mode_3(val, SPI_speed);
+    swSpiTransfer_mode_3(val);
   #else
-    swSpiTransfer_mode_0(val, SPI_speed);
+    swSpiTransfer_mode_0(val);
   #endif
 }
 
-static uint8_t swSpiInit(const uint8_t spi_speed) {
+static void swSpiInit() {
   #if PIN_EXISTS(LCD_RESET)
     SET_OUTPUT(LCD_RESET_PIN);
   #endif
@@ -104,13 +69,12 @@ static uint8_t swSpiInit(const uint8_t spi_speed) {
   OUT_WRITE(DOGLCD_SCK, LOW);
   OUT_WRITE(DOGLCD_MOSI, LOW);
   OUT_WRITE(DOGLCD_CS, HIGH);
-  return spi_speed;
 }
 
-uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+uint8_t u8g_com_HAL_STM32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   switch (msg) {
     case U8G_COM_MSG_INIT:
-      SPI_speed = swSpiInit(LCD_SPI_SPEED);
+      swSpiInit();
       break;
 
     case U8G_COM_MSG_STOP:
@@ -128,7 +92,9 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
                                     //  the next chip select goes active
           WRITE(DOGLCD_SCK, HIGH);  // Set SCK to mode 3 idle state before CS goes active
           WRITE(DOGLCD_CS, LOW);
-        }
+          nop; // hold SCK high for a few ns
+          nop;
+         }
         else {
           WRITE(DOGLCD_CS, HIGH);
           WRITE(DOGLCD_SCK, LOW);   // Set SCK to mode 0 idle state after CS goes inactive
@@ -167,4 +133,4 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
 }
 
 #endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
-#endif // STM32F1
+#endif // HAL_STM32
