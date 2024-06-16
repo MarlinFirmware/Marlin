@@ -3416,7 +3416,7 @@
   #define BUTTON_DELAY_MENU     250 // (ms) Button repeat delay for menus
 
   #if ANY(TFT_CLASSIC_UI, TFT_COLOR_UI)
-    //#define REMOVE_BACK_MENU_ITEM // Remove "back" menu item
+    //#define NO_BACK_MENU_ITEM     // Don't display a top menu item to go back to the parent menu
   #endif
 
   #define TOUCH_SCREEN_CALIBRATION
