@@ -1329,7 +1329,7 @@ void setup() {
     #endif
   #endif
 
-  #if ALL(HAS_MEDIA, SDCARD_EEPROM_EMULATION)
+  #if HAS_MEDIA && ANY(SDCARD_EEPROM_EMULATION, POWER_LOSS_RECOVERY)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
