@@ -373,21 +373,9 @@ void menu_move() {
     END_MENU();
   }
 
-  inline void menu_ftm_mode() {
-    START_MENU();
-    BACK_ITEM(MSG_FIXED_TIME_MOTION);
-
-    if (ftMotion.cfg.active)
-      ACTION_ITEM(MSG_LCD_OFF, []{ ftm_menu_set_ftm(false); });
-    else
-      ACTION_ITEM(MSG_LCD_ON, []{ ftm_menu_set_ftm(true); });
-
-    END_MENU();
-  }
-
   #if HAS_DYNAMIC_FREQ
 
-    inline void menu_ftm_dyn_mode() {
+    void menu_ftm_dyn_mode() {
       const dynFreqMode_t dmode = ftMotion.cfg.dynFreqMode;
 
       START_MENU();
@@ -441,8 +429,8 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_MOTION);
 
-    SUBMENU(MSG_FIXED_TIME_MOTION, menu_ftm_mode);
-    MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftonoff); MENU_ITEM_ADDON_END();
+    bool show_state = ftMotion.cfg.active;
+    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ ftm_menu_set_ftm(!ftMotion.cfg.active); });
 
     if (c.active) {
       #if HAS_X_AXIS

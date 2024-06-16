@@ -802,7 +802,7 @@ void Endstops::update() {
   bool moving_neg;
   auto axis_moving_info = [](const AxisEnum axis, const AxisEnum head, bool &neg) -> bool {
     #if ENABLED(FT_MOTION)
-      if (ftMotion.cfg.mode != ftMotionMode_DISABLED)
+      if (ftMotion.cfg.active)
         return (neg = ftMotion.axis_moving_neg(head)) || ftMotion.axis_moving_pos(head);
     #endif
     neg = !stepper.motor_direction(head);
