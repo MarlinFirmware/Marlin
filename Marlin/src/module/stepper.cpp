@@ -2695,6 +2695,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         oversampling_factor = 0;
+
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
