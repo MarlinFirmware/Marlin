@@ -43,8 +43,6 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
-millis_t FTMotion::axis_pos_move_end_ti[NUM_AXIS_ENUMS] = {0},
-         FTMotion::axis_neg_move_end_ti[NUM_AXIS_ENUMS] = {0};
 
 
 // Private variables.
@@ -393,9 +391,6 @@ void FTMotion::reset() {
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
-
-  ZERO(axis_pos_move_end_ti);
-  ZERO(axis_neg_move_end_ti);
 }
 
 // Private functions.
@@ -552,37 +547,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   max_intervals = N1 + N2 + N3;
 
   endPosn_prevBlock += moveDist;
-
-  millis_t move_end_ti = millis() + SEC_TO_MS(FTM_TS*(float)(max_intervals + num_samples_cmpnstr_settle() + (PROP_BATCHES+1)*FTM_BATCH_SIZE) + ((float)FTM_STEPPERCMD_BUFF_SIZE/(float)FTM_STEPPER_FS));
-
-  #if CORE_IS_XY
-    if (moveDist.x > 0.f)              axis_pos_move_end_ti[A_AXIS] = move_end_ti;
-    if (moveDist.y > 0.f)              axis_pos_move_end_ti[B_AXIS] = move_end_ti;
-    if (moveDist.x + moveDist.y > 0.f) axis_pos_move_end_ti[X_HEAD] = move_end_ti;
-    if (moveDist.x - moveDist.y > 0.f) axis_pos_move_end_ti[Y_HEAD] = move_end_ti;
-    if (moveDist.x < 0.f)              axis_neg_move_end_ti[A_AXIS] = move_end_ti;
-    if (moveDist.y < 0.f)              axis_neg_move_end_ti[B_AXIS] = move_end_ti;
-    if (moveDist.x + moveDist.y < 0.f) axis_neg_move_end_ti[X_HEAD] = move_end_ti;
-    if (moveDist.x - moveDist.y < 0.f) axis_neg_move_end_ti[Y_HEAD] = move_end_ti;
-  #else
-    if (moveDist.x > 0.f)              axis_pos_move_end_ti[X_AXIS] = move_end_ti;
-    if (moveDist.y > 0.f)              axis_pos_move_end_ti[Y_AXIS] = move_end_ti;
-    if (moveDist.x < 0.f)              axis_neg_move_end_ti[X_AXIS] = move_end_ti;
-    if (moveDist.y < 0.f)              axis_neg_move_end_ti[Y_AXIS] = move_end_ti;
-  #endif
-  if (moveDist.z > 0.f) axis_pos_move_end_ti[Z_AXIS] = move_end_ti;
-  if (moveDist.z < 0.f) axis_neg_move_end_ti[Z_AXIS] = move_end_ti;
-  // if (moveDist.i > 0.f) axis_pos_move_end_ti[I_AXIS] = move_end_ti;
-  // if (moveDist.i < 0.f) axis_neg_move_end_ti[I_AXIS] = move_end_ti;
-  // if (moveDist.j > 0.f) axis_pos_move_end_ti[J_AXIS] = move_end_ti;
-  // if (moveDist.j < 0.f) axis_neg_move_end_ti[J_AXIS] = move_end_ti;
-  // if (moveDist.k > 0.f) axis_pos_move_end_ti[K_AXIS] = move_end_ti;
-  // if (moveDist.k < 0.f) axis_neg_move_end_ti[K_AXIS] = move_end_ti;
-  // if (moveDist.u > 0.f) axis_pos_move_end_ti[U_AXIS] = move_end_ti;
-  // if (moveDist.u < 0.f) axis_neg_move_end_ti[U_AXIS] = move_end_ti;
-  // .
-  // .
-  // .
 
   // If the endstop is already pressed, endstop interrupts won't invoke
   // endstop_triggered and the move will grind. So check here for a
