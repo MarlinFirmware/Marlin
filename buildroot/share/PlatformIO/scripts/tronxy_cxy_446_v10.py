@@ -7,9 +7,7 @@ if pioutil.is_pio_build():
 
     import marlin, os
 
-    from SCons.Script import DefaultEnvironment
-
-    env = DefaultEnvironment()
+    env = pioutil.env
 
     # Check whether the "update" folder exists
     outpath = "update"
