@@ -497,6 +497,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018)."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN."
+#elif defined(DISABLE_ENCODER)
+  #error "DISABLE_ENCODER is now NO_BACK_MENU_ITEM."
 #elif defined(LCD_FULL_PIXEL_HEIGHT) || defined(LCD_FULL_PIXEL_WIDTH)
   #error "LCD_FULL_PIXEL_(WIDTH|HEIGHT) is deprecated and should be removed."
 #elif defined(FSMC_UPSCALE)
