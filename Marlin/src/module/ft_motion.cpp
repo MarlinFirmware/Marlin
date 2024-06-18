@@ -141,6 +141,7 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
+    markBlockStart = true;
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
