@@ -737,7 +737,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   }
   /**
    * Move Z to Z_POST_CLEARANCE,
-   * The axis is allowed to move down.
+   * The axis is not allowed to move down.
    */
   void do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
