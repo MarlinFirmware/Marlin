@@ -40,6 +40,7 @@
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
+#define DIAG_JUMPERS_REMOVED
 
 /**
  * Here are some useful links to help get your machine configured and calibrated:
