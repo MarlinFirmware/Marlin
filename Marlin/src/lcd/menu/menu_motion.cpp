@@ -331,12 +331,6 @@ void menu_move() {
     ui.go_back();
   }
 
-  void ftm_menu_set_ftm(const bool m) {
-    ftMotion.cfg.active = m;
-    ftMotion.update_shaping_params();
-    ui.go_back();
-  }
-
   inline void menu_ftm_cmpn_x() {
     const ftMotionShaper_t shaper = ftMotion.cfg.shaper[X_AXIS];
     START_MENU();
@@ -397,7 +391,6 @@ void menu_move() {
   void menu_ft_motion() {
     ft_config_t &c = ftMotion.cfg;
 
-    FSTR_P ftonoff = c.active ? GET_TEXT_F(MSG_LCD_ON) : GET_TEXT_F(MSG_LCD_OFF);
     FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)] {};
 
     #if HAS_X_AXIS
@@ -430,7 +423,10 @@ void menu_move() {
     BACK_ITEM(MSG_MOTION);
 
     bool show_state = ftMotion.cfg.active;
-    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{ ftm_menu_set_ftm(!ftMotion.cfg.active); });
+    EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{
+      ftMotion.cfg.active ^= true;
+      ftMotion.update_shaping_params();
+    });
 
     if (c.active) {
       #if HAS_X_AXIS
