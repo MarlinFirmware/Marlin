@@ -108,6 +108,14 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     }
     uint16_t get_microstep_counter() { return TMC::MSCNT(); }
 
+    #if ENABLED(SPINDLE_LASER_USE_STEPPER)
+      uint32_t VACTUAL() { return TMC::VACTUAL(); }
+      void VACTUAL(const uint32_t Hz) {
+        this->val_Hz = Hz;
+        TMC::VACTUAL(Hz);
+      }
+    #endif
+
     #if HAS_STEALTHCHOP
       bool get_stealthChop()                { return this->en_pwm_mode(); }
       bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }

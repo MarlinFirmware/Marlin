@@ -30,6 +30,10 @@
 
 #include "spindle_laser.h"
 
+#if ENABLED(SPINDLE_STEPPER)
+  #include "../module/stepper.h"
+#endif
+
 #if ENABLED(SPINDLE_SERVO)
   #include "../module/servo.h"
 #endif
@@ -69,6 +73,8 @@ void SpindleLaser::init() {
     servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #elif PIN_EXISTS(SPINDLE_LASER_ENA)
     OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
+  #elif ENABLED(SPINDLE_STEPPER)
+    stepper.DISABLE_EXTRUDER(0);    // Init stepper to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR);                   // Init rotation to clockwise (M3)
@@ -90,33 +96,58 @@ void SpindleLaser::init() {
   TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
 }
 
-#if ENABLED(SPINDLE_LASER_USE_PWM)
+#if PWM_ABLE_SPINDLE
+
   /**
-   * Set the cutter PWM directly to the given ocr value
-   *
+   * @brief Set the cutter / stepper PWM directly to the given ocr value
    * @param ocr Power value
    */
   void SpindleLaser::_set_ocr(const uint8_t ocr) {
-    #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
-      hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
+    #if ENABLED(SPINDLE_LASER_USE_PWM)
+      #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
+        hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
+      #endif
+      hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #else
+      //SERIAL_ECHOLNPGM("set_ocr2: ", ocr);
+      stepperE0.VACTUAL((((E0_MICROSTEPS) * 400) / (0.715 * 255)) * ocr);
     #endif
-    hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
   }
 
   void SpindleLaser::set_ocr(const uint8_t ocr) {
-    #if PIN_EXISTS(SPINDLE_LASER_ENA)
-      WRITE(SPINDLE_LASER_ENA_PIN,  SPINDLE_LASER_ACTIVE_STATE); // Cutter ON
+    #if ENABLED(SPINDLE_LASER_USE_PWM)
+      #if PIN_EXISTS(SPINDLE_LASER_ENA)
+        WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_STATE); // Cutter ON
+      #endif
+      _set_ocr(ocr);
+    #else
+      //#if PIN_EXISTS(E0_ENABLE)
+      //  E0_ENABLE_WRITE(E_ENABLE_ON);
+      //#endif
+      //SERIAL_ECHOLNPGM("set_ocr1: ", ocr);
+      stepper.ENABLE_EXTRUDER(0);
+      _set_ocr(ocr); // Seems to set the RPM to full speed, can we pull the current value from memory?
     #endif
-    _set_ocr(ocr);
   }
 
   void SpindleLaser::ocr_off() {
-    #if PIN_EXISTS(SPINDLE_LASER_ENA)
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE); // Cutter OFF
+    #if ENABLED(SPINDLE_LASER_USE_PWM)
+      #if PIN_EXISTS(SPINDLE_LASER_ENA)
+        WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE); // Cutter OFF
+      #endif
+      _set_ocr(0);
+    #else
+      //#if PIN_EXISTS(E0_ENABLE)
+      //  E0_ENABLE_WRITE(!E_ENABLE_ON);
+      //#endif
+      SERIAL_ECHOLNPGM("Stepper Off");
+      stepper.DISABLE_EXTRUDER(0);
+      //stepper.disable_e_steppers();
+      //_set_ocr(0); // No need to set the speed to 0. Disabling the EN pin resets this to 0.
     #endif
-    _set_ocr(0);
   }
-#endif // SPINDLE_LASER_USE_PWM
+
+#endif // PWM_ABLE_SPINDLE
 
 /**
  * Apply power for Laser or Spindle
@@ -131,7 +162,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
     if (opwr == last_power_applied) return;
     last_power_applied = opwr;
     // Handle PWM driven or just simple on/off
-    #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #if PWM_ABLE_SPINDLE
       if (CUTTER_UNIT_IS(RPM) && unitPower == 0)
         ocr_off();
       else if (ENABLED(CUTTER_POWER_RELATIVE) || enabled() || opwr == 0) {
@@ -152,7 +183,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);
     #endif
     isReadyForUI = false; // Only used for UI display updates.
-    TERN_(SPINDLE_LASER_USE_PWM, ocr_off());
+    TERN_(PWM_ABLE_SPINDLE, ocr_off());
   }
 }
 

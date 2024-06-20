@@ -41,7 +41,7 @@
     START_MENU();
     BACK_ITEM(MSG_MAIN_MENU);
 
-    #if ENABLED(SPINDLE_LASER_USE_PWM)
+    #if PWM_ABLE_SPINDLE
       // Change the cutter's "current power" value without turning the cutter on or off
       // Power is displayed and set in units and range according to CUTTER_POWER_UNIT
       EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.menuPower,
