@@ -284,6 +284,15 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
  * public:
  */
 
+  void Temperature::set_fan_multiplier(float m){
+    fan_multiplier = m;
+    planner.sync_fan_speeds(fan_speed);
+  }
+
+  float Temperature::get_fan_multiplier(){
+    return fan_multiplier;
+  }
+
 #if ENABLED(TEMP_TUNING_MAINTAIN_FAN)
   bool Temperature::adaptive_fan_slowing = true;
 #endif

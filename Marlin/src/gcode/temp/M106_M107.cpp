@@ -50,6 +50,8 @@
  *  I<index> Material Preset index (if material presets are defined)
  *  S<int>   Speed between 0-255
  *  P<index> Fan index, if more than one fan
+ *  L        Lock fan
+ *  U        Unlock fan
  *
  * With EXTRA_FAN_SPEED enabled:
  *
@@ -59,6 +61,19 @@
  *           3-255 = Set the speed for use with T2
  */
 void GcodeSuite::M106() {
+  if (parser.seen('L')) {
+      thermalManager.lock_fan = true;
+    if (!parser.seenval('S')) return;
+  } if (parser.seen('U')) {
+     thermalManager.lock_fan = false;
+    return;
+  } else if (thermalManager.lock_fan) return;
+  
+  if (parser.seenval('M')) {
+    thermalManager.set_fan_multiplier(parser.value_float());
+    if (!parser.seenval('S')) return;
+  }
+
   const uint8_t pfan = parser.byteval('P', _ALT_P);
   if (pfan >= _CNT_P) return;
   if (FAN_IS_REDUNDANT(pfan)) return;
@@ -98,6 +113,7 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
+  if (thermalManager.lock_fan) return;
   const uint8_t pfan = parser.byteval('P', _ALT_P);
   if (pfan >= _CNT_P) return;
   if (FAN_IS_REDUNDANT(pfan)) return;
