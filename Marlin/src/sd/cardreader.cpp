@@ -540,6 +540,7 @@ void CardReader::manage_media() {
   }
   else {
     TERN_(HAS_SD_DETECT, release()); // Card is released
+    ui.return_to_status();
   }
 
   ui.media_changed(old_stat, stat); // Update the UI or flag an error
