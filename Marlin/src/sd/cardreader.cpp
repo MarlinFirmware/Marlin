@@ -538,10 +538,15 @@ void CardReader::manage_media() {
   prev_stat = stat;                 // Change now to prevent re-entry in safe_delay
 
   if (stat) {                       // Media Inserted
-    safe_delay(500);                // Some boards need a delay to get settled
 
     // Try to mount the media (only later with SD_IGNORE_AT_STARTUP)
-    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) mount();
+    if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2)) {
+      for (uint8_t i = 0; i < 5 && !isMounted(); i++) {
+        safe_delay(250);                // Some boards need a delay to get settled
+        mount();
+      }
+      
+    };
     if (!isMounted()) stat = 0;     // Not mounted?
 
     TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
