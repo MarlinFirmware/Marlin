@@ -116,12 +116,8 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-<<<<<<< Updated upstream
 //#define CUSTOM_MACHINE_NAME "3D Printer"
-=======
-#define CUSTOM_MACHINE_NAME "Hictop Tare Z"    //Hictop
-#define PROBE_TARE
->>>>>>> Stashed changes
+
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -1389,11 +1385,9 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-<<<<<<< Updated upstream
-//#define FIX_MOUNTED_PROBE
-=======
-//#define FIX_MOUNTED_PROBE // Loadcell instead
->>>>>>> Stashed changes
+
+//#define FIX_MOUNTED_PROBE 
+
 
 /**
  * Use the nozzle as the probe, as with a conductive
@@ -1627,14 +1621,8 @@
  * Useful for a strain gauge or piezo sensor that needs to factor out
  * elements such as cables pulling on the carriage.
  */
-<<<<<<< Updated upstream
+
 //#define PROBE_TARE
-#if ENABLED(PROBE_TARE)
-  #define PROBE_TARE_TIME  200    // (ms) Time to hold tare pin
-  #define PROBE_TARE_DELAY 200    // (ms) Delay after tare before
-  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-  //#define PROBE_TARE_PIN PA5    // Override default pin
-=======
 
 #if ENABLED(PROBE_TARE)
   #define PROBE_TARE_ONLY_WHILE_INACTIVE
@@ -1673,11 +1661,7 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-<<<<<<< Updated upstream
 //#define MULTIPLE_PROBING 2
-=======
-#define MULTIPLE_PROBING 2
->>>>>>> Stashed changes
 //#define EXTRA_PROBING    1
 
 /**
