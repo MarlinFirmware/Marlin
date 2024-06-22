@@ -211,7 +211,11 @@ public:
     static void init_lcd() {}
   #endif
 
-  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+  static void reinit_lcd() {
+    #if REINIT_NOISY_SPI_LCD && (U8G_PARAM != (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST))
+      init_lcd();
+    #endif
+  }
 
   #if HAS_WIRED_LCD
     static bool detected();
