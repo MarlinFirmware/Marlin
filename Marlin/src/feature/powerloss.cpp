@@ -250,6 +250,11 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // Relative axis modes
     info.axis_relative = gcode.axis_relative;
 
+    // Feedrate and flowrate percentages
+    info.cur_feedrate_percentage = feedrate_percentage;
+    EXTRUDER_LOOP()
+      info.cur_flow_percentage[e] = planner.flow_percentage[e];
+
     // Misc. Marlin flags
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
@@ -568,6 +573,11 @@ void PrintJobRecovery::resume() {
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
 
+  // Feedrate and flowrate tune values
+  feedrate_percentage = info.cur_feedrate_percentage;
+  EXTRUDER_LOOP()
+    planner.flow_percentage[e]  = info.cur_flow_percentage[e];
+
   // Continue to apply PLR when a file is resumed!
   enable(true);
 
@@ -590,6 +600,10 @@ void PrintJobRecovery::resume() {
         DEBUG_EOL();
 
         DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
+        
+        DEBUG_ECHOLNPGM("feedrate percentage: ", info.cur_feedrate_percentage);
+        EXTRUDER_LOOP()
+          DEBUG_ECHOLN(F("extruder "), e + 1, F(" flow percentage: "), info.cur_flow_percentage[e]);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 

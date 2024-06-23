@@ -121,6 +121,10 @@ typedef struct {
   // Relative axis modes
   relative_t axis_relative;
 
+  // Feedrate and flowrate tune values
+  int16_t cur_feedrate_percentage;
+  uint16_t cur_flow_percentage[EXTRUDERS];
+
   // Misc. Marlin flags
   struct {
     bool raised:1;                // Raised before saved
