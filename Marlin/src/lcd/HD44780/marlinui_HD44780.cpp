@@ -467,6 +467,7 @@ bool MarlinUI::detected() {
 #endif
 
 void MarlinUI::clear_lcd() { lcd.clear(); }
+void MarlinUI::erase_lcd() { clear_lcd(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 

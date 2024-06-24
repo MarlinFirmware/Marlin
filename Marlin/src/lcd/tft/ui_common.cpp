@@ -421,6 +421,8 @@ void MarlinUI::clear_lcd() {
   cursor.set(0, 0);
 }
 
+void MarlinUI::erase_lcd() { clear_lcd(); }
+
 #if HAS_LCD_BRIGHTNESS
 
   void MarlinUI::_set_brightness() {

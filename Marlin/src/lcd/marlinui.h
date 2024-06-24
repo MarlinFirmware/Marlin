@@ -246,8 +246,11 @@ public:
     static void update_indicators();
   #endif
 
-  // LCD implementations
+  // Clear the LCD. Some LCDs do nothing because they redraw frequently.
   static void clear_lcd();
+
+  // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+  static void erase_lcd();
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {

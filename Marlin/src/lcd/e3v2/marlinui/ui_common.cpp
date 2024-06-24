@@ -90,6 +90,8 @@ void MarlinUI::clear_lcd() {
   did_first_redraw = false;
 }
 
+void MarlinUI::erase_lcd() { clear_lcd(); }
+
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
