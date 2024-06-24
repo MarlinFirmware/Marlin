@@ -322,7 +322,7 @@ void MarlinUI::init_lcd() {
     u8g.begin();
   #endif
 
-  erase_lcd();
+  clear_lcd();
 
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
@@ -377,12 +377,12 @@ void MarlinUI::draw_kill_screen() {
 }
 
 // Clear the LCD. Some LCDs do nothing because they redraw frequently.
-void MarlinUI::clear_lcd() {
+void MarlinUI::clear_for_drawing() {
   // Automatically cleared by Picture Loop
 }
 
 // Erase the LCD contents by drawing an empty box.
-void MarlinUI::erase_lcd() {
+void MarlinUI::clear_lcd() {
   u8g.setColorIndex(0);
   u8g.firstPage();
   do {

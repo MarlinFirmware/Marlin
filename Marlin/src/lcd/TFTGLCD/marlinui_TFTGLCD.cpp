@@ -370,13 +370,13 @@ bool MarlinUI::detected() {
   return PanelDetected;
 }
 
-void MarlinUI::erase_lcd() {
+void MarlinUI::clear_lcd() {
   if (!PanelDetected) return;
   lcd.clr_screen();
   lcd.clear_buffer();
 }
 
-void MarlinUI::clear_lcd() { erase_lcd(); }
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if HAS_LCD_CONTRAST
   void MarlinUI::_set_contrast() { lcd.setContrast(contrast); }

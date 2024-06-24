@@ -1204,7 +1204,7 @@ void MarlinUI::init() {
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
         case LCDVIEW_CLEAR_CALL_REDRAW:
-          clear_lcd(); break;
+          clear_for_drawing(); break;
         case LCDVIEW_REDRAW_NOW:
           refresh(LCDVIEW_NONE);
         case LCDVIEW_NONE:
