@@ -272,7 +272,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
         #if POWER_LOSS_RETRACT_LEN
           // Retract filament now
-          gcode.process_subcommands_now(F("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+          const uint16_t old_flow = planner.flow_percentage[active_extruder];
+          planner.set_flow(active_extruder, 100);
+          gcode.process_subcommands_now(F("G1F3000E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+          planner.set_flow(active_extruder, old_flow);
         #endif
 
         #if POWER_LOSS_ZRAISE
@@ -596,7 +599,7 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPGM("feedrate: ", info.feedrate, " x ", info.feedrate_percentage, '%');
+        DEBUG_ECHOLN(F("feedrate: "), info.feedrate, F(" x "), info.feedrate_percentage, '%');
         EXTRUDER_LOOP() DEBUG_ECHOLN('E', e + 1, F(" flow %: "), info.flow_percentage[e]);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
