@@ -549,7 +549,6 @@ void Endstops::update() {
     if (G38_move) UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
   #endif
 
-
   #if ENABLED(CALIBRATION_GCODE)
     if (calibration_probe_enabled) {
       #if HAS_CALIBRATION_STATE

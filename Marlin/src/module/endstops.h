@@ -168,7 +168,7 @@ class Endstops {
     static void init();
 
     /**
-     * Are endstops or the z min probe or the calibration probe set to abort the move?
+     * Are endstops or the Z min probe or the CALIBRATION probe set to abort the move?
      */
     FORCE_INLINE static bool abort_enabled() {
       return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled) || TERN0(CALIBRATION_GCODE, calibration_probe_enabled);
