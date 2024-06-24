@@ -206,7 +206,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
     info.feedrate_percentage = feedrate_percentage;
-    EXTRUDER_LOOP() info.flow_percentage[e] = planner.flow_percentage[e];
+    COPY(info.flow_percentage, planner.flow_percentage);
 
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
@@ -219,7 +219,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
-        EXTRUDER_LOOP() info.filament_size[e] = planner.filament_size[e];
+        COPY(info.filament_size, planner.filament_size);
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
