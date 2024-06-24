@@ -560,7 +560,10 @@ void PrintJobRecovery::resume() {
 
   // Restore the feedrate and percentage
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
-  feedrate_percentage = info.cur_feedrate_percentage;
+  feedrate_percentage = info.feedrate_percentage;
+
+  // Flowrate percentage
+  EXTRUDER_LOOP() planner.set_flow(e, info.flow_percentage[e]);
 
   // Restore E position with G92.9
   PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
@@ -571,9 +574,6 @@ void PrintJobRecovery::resume() {
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
-
-  // Flowrate percentage
-  EXTRUDER_LOOP() planner.flow_percentage[e] = info.flow_percentage[e];
 
   // Continue to apply PLR when a file is resumed!
   enable(true);
