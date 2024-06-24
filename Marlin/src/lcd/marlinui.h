@@ -249,7 +249,7 @@ public:
   // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
   static void clear_lcd();
 
-  // Clear the LCD. Some LCDs do nothing because they redraw frequently.
+  // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
   static void clear_for_drawing();
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)

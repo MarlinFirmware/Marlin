@@ -376,7 +376,7 @@ void MarlinUI::draw_kill_screen() {
   } while (u8g.nextPage());
 }
 
-// Clear the LCD. Some LCDs do nothing because they redraw frequently.
+// U8G displays are drawn over multiple loops so must do their own clearing.
 void MarlinUI::clear_for_drawing() {
   // Automatically cleared by Picture Loop
 }
