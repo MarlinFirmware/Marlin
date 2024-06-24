@@ -207,9 +207,14 @@ public:
 
   #if HAS_DISPLAY || HAS_DWIN_E3V2
     static void init_lcd();
+    static void clear_lcd();  // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
   #else
     static void init_lcd() {}
+    static void clear_lcd() {}
   #endif
+
+  // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
+  static void clear_for_drawing();
 
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
@@ -245,12 +250,6 @@ public:
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
   #endif
-
-  // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-  static void clear_lcd();
-
-  // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
-  static void clear_for_drawing();
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
