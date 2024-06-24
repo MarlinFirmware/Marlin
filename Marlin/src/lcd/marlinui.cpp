@@ -226,6 +226,7 @@ void MarlinUI::init() {
   #endif
 
   init_lcd();
+  clear_lcd();
 
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);

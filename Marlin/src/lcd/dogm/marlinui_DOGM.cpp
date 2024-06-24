@@ -322,7 +322,7 @@ void MarlinUI::init_lcd() {
     u8g.begin();
   #endif
 
-  clear_lcd();
+  //clear_lcd();
 
   #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
