@@ -1334,13 +1334,13 @@ void setup() {
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
-  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
-                                      // This also updates variables in the planner, elsewhere
-
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
     const millis_t bootscreen_ms = millis();
   #endif
+
+  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
+                                      // This also updates variables in the planner, elsewhere
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
