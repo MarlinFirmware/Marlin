@@ -550,13 +550,15 @@ void Endstops::update() {
   #endif
 
 
-  if (TERN0(CALIBRATION_GCODE, calibration_probe_enabled)) {
-    #if HAS_CALIBRATION_STATE
-      SET_BIT_TO(live_state, CALIBRATION, READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING);
-    #else
-      UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
-    #endif
-  }
+  #if ENABLED(CALIBRATION_GCODE)
+    if (calibration_probe_enabled) {
+      #if HAS_CALIBRATION_STATE
+        SET_BIT_TO(live_state, CALIBRATION, READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING);
+      #else
+        UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+      #endif
+    }
+  #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
   #define X_MIN_TEST() TERN1(DUAL_X_CARRIAGE, stepper.last_moved_extruder == 0) // Check min for the left carriage
