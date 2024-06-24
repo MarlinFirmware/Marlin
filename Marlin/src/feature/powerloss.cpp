@@ -205,6 +205,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // info.sdpos and info.current_position are pre-filled from the Stepper ISR
 
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
+    info.feedrate_percentage = feedrate_percentage;
+    EXTRUDER_LOOP() info.flow_percentage[e] = planner.flow_percentage[e];
+
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
 
@@ -249,11 +252,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Relative axis modes
     info.axis_relative = gcode.axis_relative;
-
-    // Feedrate and flowrate percentages
-    info.cur_feedrate_percentage = feedrate_percentage;
-    EXTRUDER_LOOP()
-      info.cur_flow_percentage[e] = planner.flow_percentage[e];
 
     // Misc. Marlin flags
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
@@ -560,8 +558,9 @@ void PrintJobRecovery::resume() {
   // Move back down to the saved Z for printing
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(z_print, 3)));
 
-  // Restore the feedrate
+  // Restore the feedrate and percentage
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
+  feedrate_percentage = info.cur_feedrate_percentage;
 
   // Restore E position with G92.9
   PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
@@ -573,10 +572,8 @@ void PrintJobRecovery::resume() {
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;
 
-  // Feedrate and flowrate tune values
-  feedrate_percentage = info.cur_feedrate_percentage;
-  EXTRUDER_LOOP()
-    planner.flow_percentage[e]  = info.cur_flow_percentage[e];
+  // Flowrate percentage
+  EXTRUDER_LOOP() planner.flow_percentage[e] = info.flow_percentage[e];
 
   // Continue to apply PLR when a file is resumed!
   enable(true);
@@ -599,11 +596,8 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
-        
-        DEBUG_ECHOLNPGM("feedrate percentage: ", info.cur_feedrate_percentage);
-        EXTRUDER_LOOP()
-          DEBUG_ECHOLN(F("extruder "), e + 1, F(" flow percentage: "), info.cur_flow_percentage[e]);
+        DEBUG_ECHOLNPGM("feedrate: ", info.feedrate, " x ", info.feedrate_percentage, '%');
+        EXTRUDER_LOOP() DEBUG_ECHOLN('E', e + 1, F(" flow %: "), info.flow_percentage[e]);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
