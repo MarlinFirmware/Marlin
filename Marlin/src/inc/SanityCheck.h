@@ -837,9 +837,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Nonlinear Extrusion requirements
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
-  #if DISABLED(ADAPTIVE_STEP_SMOOTHING)
-    #error "ADAPTIVE_STEP_SMOOTHING is required for NONLINEAR_EXTRUSION."
-  #elif HAS_MULTI_EXTRUDER
+  #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
   #elif DISABLED(CPU_32_BIT)
     #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
@@ -2465,6 +2463,51 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Some kind of Z4 Endstop must be defined for Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #elif Z_SPI_SENSORLESS && !(AXIS_HAS_SPI(Z2) && (NUM_Z_STEPPERS < 3 || AXIS_HAS_SPI(Z3)) && (NUM_Z_STEPPERS < 4 || AXIS_HAS_SPI(Z4)))
     #error "All Z Stepper Drivers must be SPI-capable to use SPI Endstops on Z."
+  #endif
+  #if PIN_EXISTS(Z2_STOP)
+    #if X_HOME_TO_MIN && Z2_STOP_PIN == X_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z2_STOP_PIN == X_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z2_STOP_PIN == Y_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z2_STOP_PIN == Y_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z2_STOP_PIN == Z_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z2_STOP_PIN == Z_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z3_STOP)
+    #if X_HOME_TO_MIN && Z3_STOP_PIN == X_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z3_STOP_PIN == X_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z3_STOP_PIN == Y_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z3_STOP_PIN == Y_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z3_STOP_PIN == Z_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z3_STOP_PIN == Z_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z4_STOP)
+    #if X_HOME_TO_MIN && Z4_STOP_PIN == X_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z4_STOP_PIN == X_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z4_STOP_PIN == Y_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z4_STOP_PIN == Y_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z4_STOP_PIN == Z_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z4_STOP_PIN == Z_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
   #endif
 #endif
 
