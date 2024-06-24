@@ -410,7 +410,7 @@ void MarlinUI::init_lcd() {
   clear_lcd();
 }
 
-void MarlinUI::clear_lcd() {
+void MarlinUI::erase_lcd() {
   #if ENABLED(TOUCH_SCREEN)
     touch.reset();
     draw_menu_navigation = false;
@@ -421,7 +421,7 @@ void MarlinUI::clear_lcd() {
   cursor.set(0, 0);
 }
 
-void MarlinUI::erase_lcd() { clear_lcd(); }
+void MarlinUI::clear_lcd() { erase_lcd(); }
 
 #if HAS_LCD_BRIGHTNESS
 

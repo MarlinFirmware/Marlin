@@ -81,7 +81,7 @@ bool MarlinUI::detected() { return true; }
 void MarlinUI::init_lcd() { dwinStartup(); }
 
 // This LCD should clear where it will draw anew
-void MarlinUI::clear_lcd() {
+void MarlinUI::erase_lcd() {
   dwinIconAnimationControl(0x0000); // disable all icon animations
   dwinJPGShowAndCache(3);
   dwinFrameClear(COLOR_BG_BLACK);
@@ -90,7 +90,7 @@ void MarlinUI::clear_lcd() {
   did_first_redraw = false;
 }
 
-void MarlinUI::erase_lcd() { clear_lcd(); }
+void MarlinUI::clear_lcd() { erase_lcd(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
