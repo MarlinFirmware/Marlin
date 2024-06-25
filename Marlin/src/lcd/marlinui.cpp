@@ -1828,7 +1828,9 @@ void MarlinUI::host_notify(const char * const cstr) {
   #endif
 
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
-    refresh_screen_timeout();
+    #if HAS_WIRED_LCD
+      refresh_screen_timeout();
+    #endif
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
