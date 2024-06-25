@@ -598,8 +598,10 @@ class Temperature {
 
   public:
     bool lock_fan;
-    void set_fan_multiplier(float m);
-    float get_fan_multiplier();
+    #if HAS_FAN
+      void set_fan_multiplier(float m);
+      float get_fan_multiplier();
+    #endif
 
     #if HAS_HOTEND
       static hotend_info_t temp_hotend[HOTENDS];

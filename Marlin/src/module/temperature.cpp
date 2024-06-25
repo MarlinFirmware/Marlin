@@ -284,10 +284,12 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
  * public:
  */
 
+#if HAS_FAN
   void Temperature::set_fan_multiplier(float m){
     fan_multiplier = m;
     planner.sync_fan_speeds(fan_speed);
   }
+#endif
 
   float Temperature::get_fan_multiplier(){
     return fan_multiplier;
