@@ -66,7 +66,7 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
-      static uint8_t check_version(); // Return 1 for version error, 2 for
+      static uint8_t check_version(); // 0 = success, 1 = read fail, 2 = version error
 
       static void first_load() {
         static bool loaded = false;
@@ -82,7 +82,6 @@ class MarlinSettings {
         #if HAS_LCD_BRIGHTNESS
           static void load_brightness();
         #endif
-        static void load_lcd_state();
       #endif
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
@@ -106,6 +105,10 @@ class MarlinSettings {
       static void first_load() { (void)load(); }
 
     #endif // !EEPROM_SETTINGS
+
+    #if HAS_EARLY_LCD_SETTINGS
+      static void load_lcd_state();
+    #endif
 
     #if DISABLED(DISABLE_M503)
       static void report(const bool forReplay=false);

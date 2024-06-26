@@ -2996,19 +2996,6 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    void MarlinSettings::load_lcd_state() {
-      if (!check_version()) {
-        TERN_(HAS_LCD_CONTRAST, load_contrast());
-        TERN_(HAS_LCD_BRIGHTNESS, load_brightness());
-      }
-      else {
-        TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
-        TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
-      }
-      TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
-      TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-    }
-
   #endif // HAS_EARLY_LCD_SETTINGS
 
   bool MarlinSettings::load() {
@@ -3160,6 +3147,26 @@ void MarlinSettings::postprocess() {
   }
 
 #endif // !EEPROM_SETTINGS
+
+#if HAS_EARLY_LCD_SETTINGS
+
+  void MarlinSettings::load_lcd_state() {
+    if (TERN0(EEPROM_SETTINGS, !check_version())) {
+      #if ENABLED(EEPROM_SETTINGS)
+        TERN_(HAS_LCD_CONTRAST, load_contrast());
+        TERN_(HAS_LCD_BRIGHTNESS, load_brightness());
+      #endif
+    }
+    else {
+      TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
+      TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+    }
+    TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+    TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+  }
+
+#endif // HAS_EARLY_LCD_SETTINGS
+
 
 /**
  * M502 - Reset Configuration
