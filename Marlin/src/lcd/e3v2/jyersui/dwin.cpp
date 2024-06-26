@@ -828,7 +828,7 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
     }
     if (planner.flow_percentage[0] != flow) {
       flow = planner.flow_percentage[0];
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, flow);
     }
   #endif
 
