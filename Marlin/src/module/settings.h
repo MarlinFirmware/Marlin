@@ -66,10 +66,24 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
+      static uint8_t check_version(); // Return 1 for version error, 2 for
+
       static void first_load() {
         static bool loaded = false;
         if (!loaded && load()) loaded = true;
       }
+
+      #if HAS_EARLY_LCD_SETTINGS
+        // Special cases for LCD contrast and brightness, so
+        // some LCDs can display bootscreens earlier in setup().
+        #if HAS_LCD_CONTRAST
+          static void load_contrast();
+        #endif
+        #if HAS_LCD_BRIGHTNESS
+          static void load_brightness();
+        #endif
+        static void load_lcd_state();
+      #endif
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
