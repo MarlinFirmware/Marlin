@@ -1406,8 +1406,3 @@
     #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
   #endif
 #endif
-
-// Prepare the LCD to show the bootscreen early in setup
-#if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)
-  #define HAS_EARLY_LCD_SETTINGS 1
-#endif
