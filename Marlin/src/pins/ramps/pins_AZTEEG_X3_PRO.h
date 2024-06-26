@@ -137,6 +137,9 @@
 #ifndef E3_AUTO_FAN_PIN
   #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
 #endif
+#ifndef E4_AUTO_FAN_PIN
+  #define E4_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // LCD / Controller
