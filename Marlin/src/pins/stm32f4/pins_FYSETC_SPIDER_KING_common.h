@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,34 +21,51 @@
  */
 #pragma once
 
-#include "env_validate.h"
+// The FYSETC Spider King has shipped with both STM32F4 and STM32H7 MCUs.
+// Ensure the correct env_validate.h file is included based on the build environment used.
+#if NOT_TARGET(STM32H7)
+  #include "env_validate.h"
+#else
+  #include "../stm32h7/env_validate.h"
+#endif
 
 #if HOTENDS > 5 || E_STEPPERS > 5
   #error "FYSETC SPIDER KING supports up to 5 hotends / E-steppers."
 #endif
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "FYSETC SPIDER KING"
-#endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
 //
-// EEPROM Emulation
+// EEPROM
 //
-#if NO_EEPROM_SELECTED
-  #undef NO_EEPROM_SELECTED
-  //#define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
-  #define I2C_EEPROM
-#endif
+#if NOT_TARGET(STM32H7)
+  // I2C EEPROM for STM32F4. Does not work on Spider King with STM32H7 MCU.
+  #if NO_EEPROM_SELECTED
+    #undef NO_EEPROM_SELECTED
+    //#define FLASH_EEPROM_EMULATION
+    //#define SRAM_EEPROM_EMULATION
+    #define I2C_EEPROM
+  #endif
 
-#if ENABLED(I2C_EEPROM)
-  #define I2C_EEPROM
-  #define I2C_SCL_PIN                       PF1
-  #define I2C_SDA_PIN                       PF0
-  #define MARLIN_EEPROM_SIZE             0x1000  // 4KB
+  #if ENABLED(I2C_EEPROM)
+    #define I2C_EEPROM
+    #define I2C_SCL_PIN                     PF1
+    #define I2C_SDA_PIN                     PF0
+    #define MARLIN_EEPROM_SIZE             0x1000  // 4KB
+  #endif
+#else
+  // Emulated EEPROM for STM32H7
+  #if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+    #undef NO_EEPROM_SELECTED
+    #ifndef FLASH_EEPROM_EMULATION
+      #define FLASH_EEPROM_EMULATION
+    #endif
+    #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
+    #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+    #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #endif
 #endif
 
 //
@@ -57,7 +74,14 @@
 #define SERVO0_PIN                          PA1
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
+// Software SPI pins for TMC stepper drivers
 //
 #define TMC_USE_SW_SPI
 #if ENABLED(TMC_USE_SW_SPI)
@@ -354,9 +378,19 @@
   #define BOARD_ST7920_DELAY_3              640
 #endif
 
-//
-// Wifi module
-//
+/**
+ *                      -------
+ *            GND | 9  |       | 8 | 3.3V
+ *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
+ *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
+ * (ESP-IO0)  PD7 | 12 |       | 5 | PB13 (ESP-CLK)
+ * (ESP-IO4) PD10 | 13 |       | 4 | --
+ *             -- | 14 |       | 3 | PE15 (ESP-EN)
+ *  (ESP-RX)  PD8 | 15 |       | 2 | --
+ *  (ESP-TX)  PD9 | 16 |       | 1 | PE14 (ESP-RST)
+ *                      -------
+ *                       WIFI
+ */
 #define ESP_WIFI_MODULE_COM                 1     // Set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Use the same BAUDRATE as SERIAL_PORT or SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PB3
@@ -366,7 +400,11 @@
 
 //
 // NeoPixel LED
+// FYSETC_242_OLED_12864 & FYSETC_MINI_12864_2_1 uses one of the EXP pins for NeoPixels
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PD3
+#if NONE(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
+  #define NEOPIXEL_PIN                      PD3   // Neo-pixel
+#elif ANY(FYSETC_242_OLED_12864, FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL2_PIN)
+  // Allow dedicated RGB (NeoPixel) pin to be used for a NeoPixel strip
+  #define NEOPIXEL2_PIN                     PD3   // Neo-pixel
 #endif

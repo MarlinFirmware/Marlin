@@ -812,8 +812,10 @@
   #include "stm32f4/pins_CREALITY_CR4NTXXC10.h"     // STM32F4                              env:STM32F401RE_freeruns env:STM32F401RE_freeruns_jlink env:STM32F401RE_freeruns_stlink
 #elif MB(OPULO_LUMEN_REV4)
   #include "stm32f4/pins_OPULO_LUMEN_REV4.h"        // STM32F4                              env:Opulo_Lumen_REV4
-#elif MB(FYSETC_SPIDER_KING407)
-  #include "stm32f4/pins_FYSETC_SPIDER_KING407.h"   // STM32F4                              env:FYSETC_SPIDER_KING407
+#elif MB(FYSETC_SPIDER_KING_V1_F407)
+  #include "stm32f4/pins_FYSETC_SPIDER_KING_V1.h"   // STM32F4                              env:STM32F407ZG_fysetc
+#elif MB(FYSETC_SPIDER_KING_V1_1_F407)
+  #include "stm32f4/pins_FYSETC_SPIDER_KING_V1_1.h" // STM32F4                              env:STM32F407ZG_fysetc
 #elif MB(MKS_SKIPR_V1)
   #include "stm32f4/pins_MKS_SKIPR_V1_0.h"          // STM32F4                              env:mks_skipr_v1 env:mks_skipr_v1_nobootloader
 #elif MB(TRONXY_CXY_446_V10)
@@ -834,31 +836,35 @@
 //
 
 #elif MB(REMRAM_V1)
-  #include "stm32f7/pins_REMRAM_V1.h"               // STM32F7                              env:REMRAM_V1
+  #include "stm32f7/pins_REMRAM_V1.h"                    // STM32F7                         env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)
-  #include "stm32f7/pins_NUCLEO_F767ZI.h"           // STM32F7                              env:NUCLEO_F767ZI
+  #include "stm32f7/pins_NUCLEO_F767ZI.h"                // STM32F7                         env:NUCLEO_F767ZI
 #elif MB(BTT_SKR_SE_BX_V2)
-  #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"        // STM32H7                              env:BTT_SKR_SE_BX
+  #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"             // STM32H7                         env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_SE_BX_V3)
-  #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"        // STM32H7                              env:BTT_SKR_SE_BX
+  #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"             // STM32H7                         env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_V3_0)
-  #include "stm32h7/pins_BTT_SKR_V3_0.h"            // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0.h"                 // STM32H7                         env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_SKR_V3_0_EZ)
-  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"         // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
+  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"              // STM32H7                         env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
-  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"      // STM32H7                              env:STM32H723ZE_btt
+  #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"           // STM32H7                         env:STM32H723ZE_btt
 #elif MB(BTT_OCTOPUS_PRO_V1_0_1)
-  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"  // STM32H7                              env:STM32H723ZE_btt
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32H723ZE_btt
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
-  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"    // STM32H7                              env:STM32H723ZE_btt
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"         // STM32H7                         env:STM32H723ZE_btt
 #elif MB(BTT_MANTA_M8P_V2_0)
-  #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"      // STM32H7                              env:STM32H723ZE_btt
+  #include "stm32h7/pins_BTT_MANTA_M8P_V2_0.h"           // STM32H7                         env:STM32H723ZE_btt
 #elif MB(BTT_KRAKEN_V1_0)
-  #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"         // STM32H7                              env:STM32H723ZG_btt
+  #include "stm32h7/pins_BTT_KRAKEN_V1_0.h"              // STM32H7                         env:STM32H723ZG_btt
+#elif MB(FYSETC_SPIDER_KING_V1_H723)
+  #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_H723.h"   // STM32H7                         env:STM32H723ZG_fysetc
+#elif MB(FYSETC_SPIDER_KING_V1_1_H723)
+  #include "stm32h7/pins_FYSETC_SPIDER_KING_V1_1_H723.h" // STM32H7                         env:STM32H723ZG_fysetc
 #elif MB(TEENSY41)
-  #include "teensy4/pins_TEENSY41.h"                // Teensy-4.x                           env:teensy41
+  #include "teensy4/pins_TEENSY41.h"                     // Teensy-4.x                      env:teensy41
 #elif MB(T41U5XBB)
-  #include "teensy4/pins_T41U5XBB.h"                // Teensy-4.x                           env:teensy41
+  #include "teensy4/pins_T41U5XBB.h"                     // Teensy-4.x                      env:teensy41
 
 //
 // Espressif ESP32
@@ -967,6 +973,7 @@
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
   #define BOARD_TRONXY_V10              99929
+  #define BOARD_FYSETC_SPIDER_KING407   99930
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1030,6 +1037,8 @@
     #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
+  #elif MB(FYSETC_SPIDER_KING407)
+    #error "BOARD_FYSETC_SPIDER_KING407 is now BOARD_FYSETC_SPIDER_KING_V1_F407 or BOARD_FYSETC_SPIDER_KING_V1_1_F407. Please update your configuration."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1067,6 +1076,7 @@
   #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
   #undef BOARD_TRONXY_V10
+  #undef BOARD_FYSETC_SPIDER_KING407
 
 #endif
 
