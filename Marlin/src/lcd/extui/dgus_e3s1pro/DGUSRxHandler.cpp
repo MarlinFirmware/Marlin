@@ -101,7 +101,7 @@ void DGUSRxHandler::retractLength(DGUS_VP &vp, void *data) {
 
 void DGUSRxHandler::setLanguage(DGUS_VP &vp, void *data) {
   DGUS_Data::Language language = (DGUS_Data::Language)Endianness::fromBE_P<uint16_t>(data);
-  ui_language = screen.config.language = language;
+  screen.config.language = language;
   screen.triggerEEPROMSave();
   screen.triggerFullUpdate();
 }
