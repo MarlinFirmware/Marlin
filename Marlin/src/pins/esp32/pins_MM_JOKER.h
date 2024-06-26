@@ -173,11 +173,7 @@
 #define FAN0_PIN                             143
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                    142  // Enabled in Configuration_adv.h
-#endif
-
-#ifndef CONTROLLER_FAN_PIN
-  //#define CONTROLLER_FAN_PIN                -1
+  #define E0_AUTO_FAN_PIN                    142
 #endif
 
 #if ENABLED(JOKER_PLUS_2)

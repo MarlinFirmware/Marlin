@@ -116,7 +116,9 @@
 //
 // Fans
 //
-#define CONTROLLER_FAN_PIN                  PD6   // FAN
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                PD6   // FAN
+#endif
 #define FAN0_PIN                            PG13  // FAN
 #define FAN1_PIN                            PG14  // FAN
 

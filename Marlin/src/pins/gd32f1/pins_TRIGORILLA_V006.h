@@ -91,7 +91,10 @@
 #define FAN0_PIN                            PA0   // FAN
 #define FAN1_PIN                            PA14  // Connected to +24V
 #define FAN2_PIN                            -1    // PB1, auto fan for E0
-#define CONTROLLER_FAN_PIN              FAN1_PIN
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN            FAN1_PIN
+#endif
 
 //
 // Misc

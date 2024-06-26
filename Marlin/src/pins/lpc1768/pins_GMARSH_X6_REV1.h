@@ -125,7 +125,10 @@
 #define HEATER_BED_PIN                     P1_19  // Not a PWM pin, software PWM required
 #define HEATER_0_PIN                       P3_26  // PWM1[3]
 #define FAN0_PIN                           P3_25  // Part cooling fan - connected to PWM1[2]
-#define E0_AUTO_FAN_PIN                    P0_27  // Extruder cooling fan
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                  P0_27  // Extruder cooling fan
+#endif
 
 //
 // Misc. Functions

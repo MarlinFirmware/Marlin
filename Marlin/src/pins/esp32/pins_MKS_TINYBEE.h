@@ -112,8 +112,13 @@
 #define FAN1_PIN                             148  // FAN2
 #define HEATER_BED_PIN                       144  // H-BED
 
-//#define CONTROLLER_FAN_PIN                 148  // FAN2
-//#define E0_AUTO_FAN_PIN                    148  // FAN2
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN               FAN1_PIN  // FAN2
+#endif
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN            FAN1_PIN  // FAN2
+#endif
 
 //
 // ADC Reference Voltage

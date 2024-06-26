@@ -67,7 +67,9 @@
   #define E0_AUTO_FAN_PIN                      3
 #endif
 
-#define CONTROLLER_FAN_PIN                     2
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                   2
+#endif
 
 #define TEMP_0_PIN                             7  // Analog Input
 

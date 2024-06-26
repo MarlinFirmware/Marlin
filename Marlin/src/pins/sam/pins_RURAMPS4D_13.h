@@ -116,7 +116,6 @@
 
 #define FAN0_PIN                               9
 #define FAN1_PIN                               8
-#define CONTROLLER_FAN_PIN                    -1
 
 //
 // Temperature Sensors

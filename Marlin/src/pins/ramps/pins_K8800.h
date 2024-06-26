@@ -74,7 +74,10 @@
 //
 #define HEATER_0_PIN                          10
 #define FAN0_PIN                               8
-#define CONTROLLER_FAN_PIN                     9
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                   9
+#endif
 
 //
 // Misc. Functions

@@ -199,7 +199,9 @@
   #define E1_AUTO_FAN_PIN                   PB0
 #endif
 
-#define CONTROLLER_FAN_PIN                  PF8
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                PF8
+#endif
 
 //
 // LED / Lighting
