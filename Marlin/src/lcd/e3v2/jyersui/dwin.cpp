@@ -5155,6 +5155,8 @@ void MarlinUI::init_lcd() {
   jyersDWIN.redrawScreen();
 }
 
+void MarlinUI::clear_lcd() {}
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
     if (mode != PAUSE_MODE_SAME) pause_mode = mode;
