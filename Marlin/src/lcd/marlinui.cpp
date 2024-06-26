@@ -226,7 +226,6 @@ void MarlinUI::init() {
   #endif
 
   init_lcd();
-  clear_lcd();
 
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
@@ -1205,7 +1204,7 @@ void MarlinUI::init() {
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
         case LCDVIEW_CLEAR_CALL_REDRAW:
-          clear_for_drawing(); break;
+          clear_lcd(); break;
         case LCDVIEW_REDRAW_NOW:
           refresh(LCDVIEW_NONE);
         case LCDVIEW_NONE:

@@ -1279,9 +1279,6 @@ namespace ExtUI {
 #if DISABLED(HAS_DWIN_E3V2)
   void MarlinUI::init_lcd() { ExtUI::onStartup(); }
 
-  void MarlinUI::clear_lcd() {}
-  void MarlinUI::clear_for_drawing() {}
-
   void MarlinUI::update() { ExtUI::onIdle(); }
 
   void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const component) {

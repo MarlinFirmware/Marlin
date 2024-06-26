@@ -199,7 +199,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
       tft.queue.reset();
       if (!sleepCleared) {
         sleepCleared = true;
-        ui.clear_for_drawing();
+        ui.clear_lcd();
         tft.queue.async();
       }
       touch.idle();
@@ -407,7 +407,7 @@ void MarlinUI::init_lcd() {
     tft.add_glyphs(EXTRA_FONT_NAME);
   #endif
   TERN_(TOUCH_SCREEN, touch.init());
-  clear_for_drawing();
+  clear_lcd();
 }
 
 void MarlinUI::clear_lcd() {
@@ -420,8 +420,6 @@ void MarlinUI::clear_lcd() {
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
   cursor.set(0, 0);
 }
-
-void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if HAS_LCD_BRIGHTNESS
 
@@ -443,7 +441,7 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
     if (stage == CALIBRATION_NONE) {
       defer_status_screen(true);
-      clear_for_drawing();
+      clear_lcd();
       stage = touch_calibration.calibration_start();
     }
     else {

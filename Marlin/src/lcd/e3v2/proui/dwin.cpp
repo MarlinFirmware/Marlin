@@ -1913,8 +1913,6 @@ void MarlinUI::init_lcd() {
   dwinJPGCacheTo1(Language_English);
 }
 
-void MarlinUI::clear_lcd() {}
-
 void dwinInitScreen() {
   dwinSetColorDefaults();
   hmiInit();   // Draws boot screen
