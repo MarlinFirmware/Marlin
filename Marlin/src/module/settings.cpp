@@ -1799,8 +1799,8 @@ void MarlinSettings::postprocess() {
     return success;
   }
 
-  uint8_t MarlinSettings::check_version() {
-    if (!EEPROM_START(EEPROM_OFFSET)) return 1;
+  EEPROM_Error MarlinSettings::check_version() {
+    if (!EEPROM_START(EEPROM_OFFSET)) return ERR_EEPROM_NOPROM;
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
 
@@ -1811,9 +1811,9 @@ void MarlinSettings::postprocess() {
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      return 2;
+      return ERR_EEPROM_VERSION;
     }
-    return 0;
+    return ERR_EEPROM_NOERR;
   }
 
   /**
@@ -1822,16 +1822,16 @@ void MarlinSettings::postprocess() {
   EEPROM_Error MarlinSettings::_load() {
     EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
 
-    const uint8_t check = check_version();
-    if (check == 1) return eeprom_error;
+    const EEPROM_Error check = check_version();
+    if (check == ERR_EEPROM_VERSION) return eeprom_error;
 
     uint16_t stored_crc;
 
     do { // A block to break out of on error
 
       // Version has to match or defaults are used
-      if (check == 2) {
-        eeprom_error = ERR_EEPROM_VERSION;
+      if (check == ERR_EEPROM_VERSION) {
+        eeprom_error = check;
         break;
       }
 
@@ -3151,7 +3151,7 @@ void MarlinSettings::postprocess() {
 #if HAS_EARLY_LCD_SETTINGS
 
   void MarlinSettings::load_lcd_state() {
-    if (TERN0(EEPROM_SETTINGS, !check_version())) {
+    if (TERN0(EEPROM_SETTINGS, check_version() == ERR_EEPROM_NOERR)) {
       #if ENABLED(EEPROM_SETTINGS)
         TERN_(HAS_LCD_CONTRAST, load_contrast());
         TERN_(HAS_LCD_BRIGHTNESS, load_brightness());
@@ -3166,7 +3166,6 @@ void MarlinSettings::postprocess() {
   }
 
 #endif // HAS_EARLY_LCD_SETTINGS
-
 
 /**
  * M502 - Reset Configuration

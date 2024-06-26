@@ -34,7 +34,8 @@
     ERR_EEPROM_VERSION,
     ERR_EEPROM_SIZE,
     ERR_EEPROM_CRC,
-    ERR_EEPROM_CORRUPT
+    ERR_EEPROM_CORRUPT,
+    ERR_EEPROM_NOPROM
   };
 #endif
 
@@ -66,7 +67,7 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
-      static uint8_t check_version(); // 0 = success, 1 = read fail, 2 = version error
+      static EEPROM_Error check_version();
 
       static void first_load() {
         static bool loaded = false;
