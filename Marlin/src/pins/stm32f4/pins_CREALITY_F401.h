@@ -111,11 +111,11 @@
 #define HEATER_BED_PIN                      PA7   // BED_HEAT_1 FET
 
 #define FAN0_PIN                            PA0   // Part cooling fan FET
-//#define FAN1_PIN                          PE11  // Extruder fan FET
+#define FAN1_PIN                            PC0   // Extruder fan FET
 //#define FAN2_PIN                          PE1   // Controller fan FET
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PA1   // FAN1_PIN
+  #define E0_AUTO_FAN_PIN               FAN1_PIN
 #endif
 
 //
