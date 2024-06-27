@@ -426,7 +426,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#if DISABLED(DISABLE_ENCODER)
+#if DISABLED(NO_BACK_MENU_ITEM)
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
 #else

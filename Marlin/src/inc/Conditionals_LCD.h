@@ -815,6 +815,10 @@
 
 #endif
 
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
+  #define U8G_SPI_USE_MODE_3 1
+#endif
+
 // ST7920-based graphical displays
 #if ANY(IS_RRD_FG_SC, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
@@ -1096,6 +1100,9 @@
    *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
    *
    *  ...and implements these MarlinUI methods:
+   *  - init_lcd
+   *  - clear_lcd
+   *  - clear_for_drawing
    *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
    *  - draw_kill_screen
    *  - kill_screen
