@@ -96,7 +96,7 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
+  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }

@@ -1798,6 +1798,8 @@ void hmiSDCardInit() { card.cdroot(); }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
+void MarlinUI::clear_lcd() {}
+
 void MarlinUI::update() {
   eachMomentUpdate(); // Status update
   hmiSDCardUpdate();  // SD card update

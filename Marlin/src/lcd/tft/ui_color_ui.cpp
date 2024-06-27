@@ -79,7 +79,7 @@ void MarlinUI::tft_idle() {
 
   void MarlinUI::bootscreen_completion(const millis_t sofar) {
     if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
-    clear_lcd();
+    clear_for_drawing();
   }
 #endif
 

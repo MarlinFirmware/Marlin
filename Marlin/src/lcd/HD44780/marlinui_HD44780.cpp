@@ -467,6 +467,7 @@ bool MarlinUI::detected() {
 #endif
 
 void MarlinUI::clear_lcd() { lcd.clear(); }
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -1515,7 +1516,7 @@ void MarlinUI::draw_status_screen() {
         lower_right.column = 0;
         lower_right.row    = 0;
 
-        clear_lcd();
+        clear_for_drawing();
 
         x_map_pixels = (HD44780_CHAR_WIDTH) * (MESH_MAP_COLS) - 2;          // Minus 2 because we are drawing a box around the map
         y_map_pixels = (HD44780_CHAR_HEIGHT) * (MESH_MAP_ROWS) - 2;
