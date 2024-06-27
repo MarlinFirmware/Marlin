@@ -789,7 +789,7 @@
  * Input Shaping
  */
 #if HAS_ZV_SHAPING
-  #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
     #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
   #endif
   #if ENABLED(I2S_STEPPER_STREAM)
