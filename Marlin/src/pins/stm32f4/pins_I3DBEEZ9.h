@@ -351,7 +351,7 @@
 #define FAN1_PIN                            PE5   // Fan1
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PE5   // FAN1_PIN
 #endif
 
 #if !defined(CONTROLLER_FAN_PIN) && ENABLED(USE_CONTROLLER_FAN) && HOTENDS < 2

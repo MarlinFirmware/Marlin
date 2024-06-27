@@ -117,7 +117,7 @@
 #endif
 
 #ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN               FAN1_PIN
+  #define E1_AUTO_FAN_PIN                    149  // FAN1_PIN
 #endif
 
 //

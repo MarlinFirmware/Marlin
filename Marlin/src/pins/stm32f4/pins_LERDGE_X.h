@@ -105,7 +105,7 @@
 #define FAN2_PIN                            PA0
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PC15  // FAN1_PIN
 #endif
 
 //

@@ -199,17 +199,17 @@
 //
 #if HOTENDS == 2
   #ifndef E0_AUTO_FAN_PIN
-    #define E0_AUTO_FAN_PIN             FAN1_PIN
+    #define E0_AUTO_FAN_PIN                 PB15  // FAN1_PIN
   #endif
   #ifndef E1_AUTO_FAN_PIN
-    #define E1_AUTO_FAN_PIN             FAN2_PIN
+    #define E1_AUTO_FAN_PIN                 PB14  // FAN2_PIN
   #endif
 #else
   #ifndef E0_AUTO_FAN_PIN
-    #define E0_AUTO_FAN_PIN             FAN1_PIN
+    #define E0_AUTO_FAN_PIN                 PB15  // FAN1_PIN
   #endif
   #ifndef CONTROLLER_FAN_PIN
-    #define CONTROLLER_FAN_PIN          FAN2_PIN
+    #define CONTROLLER_FAN_PIN              PB14  // FAN2_PIN
   #endif
 #endif
 

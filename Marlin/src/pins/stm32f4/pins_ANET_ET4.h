@@ -127,7 +127,7 @@
 #define FAN1_PIN                            PE1   // Hotend fan
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PE1   // FAN1_PIN
 #endif
 
 //
