@@ -245,7 +245,7 @@
 #endif
 
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN            FAN7_PIN  // MOTOR (3 wire)
+  #define CONTROLLER_FAN_PIN                PE9   // FAN7_PIN - MOTOR (3 wire)
 #endif
 
 //
