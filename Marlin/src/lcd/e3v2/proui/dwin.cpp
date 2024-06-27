@@ -1974,6 +1974,8 @@ void MarlinUI::init_lcd() {
   dwinJPGCacheTo1(Language_English);
 }
 
+void MarlinUI::clear_lcd() {}
+
 void MarlinUI::update() {
   hmiSDCardUpdate();  // SD card update
   eachMomentUpdate(); // Status update
