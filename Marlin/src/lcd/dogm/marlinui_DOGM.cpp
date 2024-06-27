@@ -381,6 +381,7 @@ void MarlinUI::clear_lcd() {
   do {
     u8g.drawBox(0, 0, u8g.getWidth(), u8g.getHeight());
   } while (u8g.nextPage());
+  u8g.setColorIndex(1);
 }
 
 // U8G displays are drawn over multiple loops so must do their own clearing.
