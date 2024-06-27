@@ -3384,6 +3384,10 @@
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
+  // Prepare the LCD to show the bootscreen early in setup
+  #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)
+    #define HAS_EARLY_LCD_SETTINGS 1
+  #endif
 #endif
 
 #if BUTTONS_EXIST(EN1, EN2, ENC)
