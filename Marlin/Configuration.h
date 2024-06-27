@@ -118,6 +118,7 @@
  */
 //#define RS485_SERIAL_PORT 1
 #ifdef RS485_SERIAL_PORT
+  //#define M485_PROTOCOL 1   // Check your host for protocol compatibility
   //#define RS485_BUS_BUFFER_SIZE 128
 #endif
 

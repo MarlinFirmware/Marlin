@@ -83,7 +83,10 @@ void GcodeSuite::M485() {
   // Read and ignore any packets that may have come in, before we write.
 
   while (rs485Packetizer.hasPacket()) {
-    SERIAL_ECHO_START(); SERIAL_ECHOPGM("rs485-unexpected-packet: ");
+    #if M485_PROTOCOL >= 2
+      SERIAL_ECHO_START();
+    #endif
+    SERIAL_ECHO(F("rs485-"), F("unexpected-packet: "));
     write_packet_data();
     rs485Packetizer.clearPacket();
   }
@@ -97,13 +100,26 @@ void GcodeSuite::M485() {
   //millis_t startTime = millis();
   bool hasPacket = rs485Packetizer.hasPacket();
   //millis_t endTime = millis();
-  //SERIAL_ECHO_MSG("rs485-time: ", endTime - startTime);
+  //#if M485_PROTOCOL >= 2
+  //  SERIAL_ECHO_START();
+  //#endif
+  //SERIAL_ECHOLN(F("rs485-"), F("time: "), endTime - startTime);
 
-  SERIAL_ECHO_START();
+  #if M485_PROTOCOL >= 2
+    SERIAL_ECHO_START();
+  #endif
 
-  if (!hasPacket) { SERIAL_ECHOLNPGM("rs485-timeout"); return; }
+  SERIAL_ECHO(F("rs485-"));
+  if (!hasPacket) {
+    #if M485_PROTOCOL >= 2
+      SERIAL_ECHOLN(F("timeout"));
+    #else
+      SERIAL_ECHOLN(F("reply: TIMEOUT"));
+    #endif
+    return;
+  }
 
-  SERIAL_ECHOPGM("rs485-reply: ");
+  SERIAL_ECHO(F("reply: "));
   write_packet_data();
   rs485Packetizer.clearPacket();
 }
