@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,14 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+
+#include "../../inc/MarlinConfig.h"
+
+#if ENABLED(ONE_CLICK_PRINT)
+
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
 
 /**
- * STM32 LCD-specific defines
+ * M1003: Set the current dir to /. Should come after 'M24'.
+ *        Prevents the SD menu getting stuck in the newest file's workDir.
  */
+void GcodeSuite::M1003() { card.cdroot(); }
 
-uint8_t u8g_com_HAL_STM32_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);   // u8g_com_stm32duino_swspi.cpp
-#define U8G_COM_HAL_SW_SPI_FN u8g_com_HAL_STM32_sw_spi_fn
-
-uint8_t u8g_com_stm32duino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);  // See U8glib-HAL
-#define U8G_COM_HAL_HW_SPI_FN u8g_com_stm32duino_hw_spi_fn
+#endif // ONE_CLICK_PRINT
