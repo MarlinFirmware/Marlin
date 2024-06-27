@@ -2648,38 +2648,10 @@
   #define MAX_FANS 12  // Max supported fans
 #endif
 
-// *_AUTO_FAN_PIN hack
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN -1
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN -1
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN -1
-#endif
-#ifndef E3_AUTO_FAN_PIN
-  #define E3_AUTO_FAN_PIN -1
-#endif
-#ifndef E4_AUTO_FAN_PIN
-  #define E4_AUTO_FAN_PIN -1
-#endif
-#ifndef E5_AUTO_FAN_PIN
-  #define E5_AUTO_FAN_PIN -1
-#endif
-#ifndef E6_AUTO_FAN_PIN
-  #define E6_AUTO_FAN_PIN -1
-#endif
-#ifndef E7_AUTO_FAN_PIN
-  #define E7_AUTO_FAN_PIN -1
-#endif
-#ifndef CHAMBER_AUTO_FAN_PIN
-  #define CHAMBER_AUTO_FAN_PIN -1
-#endif
-#ifndef COOLER_AUTO_FAN_PIN
-  #define COOLER_AUTO_FAN_PIN -1
-#endif
-
+/**
+ * Flags for indexable M106-controllable fans
+ * i.e., Those that aren't CONTROLLER or E-AUTO fans.
+ */
 #define _IS_E_AUTO(N,F) (PIN_EXISTS(E##N##_AUTO_FAN) && E##N##_AUTO_FAN_PIN == FAN##F##_PIN)
 #define _HAS_FAN(F) (F < MAX_FANS && PIN_EXISTS(FAN##F) \
                      && !(HAS_CONTROLLER_FAN && CONTROLLER_FAN_PIN == FAN##F##_PIN) \
