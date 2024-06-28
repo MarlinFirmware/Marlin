@@ -155,7 +155,7 @@
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_SH1306_128X64_2X                   // 4 stripes
   #else
-    #ifdef U8GLIB_SH1106_SPI
+    #ifdef U8GLIB_SSD1306_SPI
       #define U8G_CLASS U8GLIB_SSD1306_128X64_SW_SPI_HAL
     #else
       #define U8G_CLASS U8GLIB_SH1306_128X64                    // 8 stripes
