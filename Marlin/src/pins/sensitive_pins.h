@@ -710,7 +710,7 @@
     #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, DIO_PIN(TEMP_1_PIN),
     #if HOTENDS > 2
       #ifndef E2_AUTO_FAN_PIN
-        #define E3_AUTO_FAN_PIN -1
+        #define E2_AUTO_FAN_PIN -1
       #endif
       #undef _H2_PINS
       #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, DIO_PIN(TEMP_2_PIN),
