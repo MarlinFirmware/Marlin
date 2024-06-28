@@ -128,7 +128,7 @@
   #endif
 
   #ifndef CONTROLLER_FAN_PIN
-    #define CONTROLLER_FAN_PIN          FAN1_PIN
+    #define CONTROLLER_FAN_PIN                 7  // FAN1_PIN
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
