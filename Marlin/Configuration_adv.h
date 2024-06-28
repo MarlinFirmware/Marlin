@@ -675,12 +675,19 @@
  * Extruder auto fans automatically turn on when their extruders'
  * temperatures go above EXTRUDER_AUTO_FAN_TEMPERATURE.
  *
- * Your board's pins file may specify recommended pins. Override those here
- * or set to -1 to disable completely.
- *
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
+//#define USE_E0_AUTO_FAN
+//#define USE_E1_AUTO_FAN
+//#define USE_E2_AUTO_FAN
+//#define USE_E3_AUTO_FAN
+//#define USE_E4_AUTO_FAN
+//#define USE_E5_AUTO_FAN
+//#define USE_E6_AUTO_FAN
+//#define USE_E7_AUTO_FAN
+
+// Provide overrides if needed. Leave undefined to use board defaults.
 //#define E0_AUTO_FAN_PIN -1
 //#define E1_AUTO_FAN_PIN -1
 //#define E2_AUTO_FAN_PIN -1
