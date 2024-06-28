@@ -173,9 +173,9 @@
     #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
   #else
     #ifdef U8GLIB_SH1106_SPI
-	    #define U8G_CLASS U8GLIB_SH1106_128X64_SW_SPI_HAL
-	  #else
-      #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
+      #define U8G_CLASS U8GLIB_SH1106_128X64_SW_SPI_HAL
+    #else
+      #define U8G_CLASS U8GLIB_SH1106_128X64                    // 8 stripes
     #endif
   #endif
 

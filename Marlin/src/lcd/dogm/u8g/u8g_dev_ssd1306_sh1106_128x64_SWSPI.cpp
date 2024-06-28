@@ -35,7 +35,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && ANY(U8GLIB_SH1106_SPI,U8GLIB_SSD1306_SPI) && defined(FORCE_SOFT_SPI)
+#if HAS_MARLINUI_U8GLIB && ANY(U8GLIB_SH1106_SPI, U8GLIB_SSD1306_SPI) && defined(FORCE_SOFT_SPI)
 #include "HAL_LCD_com_defines.h"
 
 #define WIDTH 128
