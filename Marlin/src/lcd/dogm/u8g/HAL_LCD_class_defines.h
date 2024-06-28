@@ -90,6 +90,30 @@ public:
   void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options); }
 };
 
+#ifdef U8GLIB_SH1106_SPI
+  extern u8g_dev_t u8g_dev_sh1106_128x64_HAL_sw_spi;
+  class U8GLIB_SH1106_128X64_SW_SPI_HAL : public U8GLIB {
+  public:
+    U8GLIB_SH1106_128X64_SW_SPI_HAL() : U8GLIB() { }
+    U8GLIB_SH1106_128X64_SW_SPI_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) {init(sck, mosi, cs, reset); }
+    void init(pin_t sck, pin_t mosi, pin_t cs, pin_t reset=U8G_PIN_NONE) {
+    U8GLIB::init(&u8g_dev_sh1106_128x64_HAL_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset);
+    }
+  };
+#endif
+
+#ifdef U8GLIB_SSD1306_SPI
+  extern u8g_dev_t u8g_dev_ssd1306_128x64_HAL_sw_spi;
+  class U8GLIB_SSD1306_128X64_SW_SPI_HAL : public U8GLIB {
+  public:
+    U8GLIB_SSD1306_128X64_SW_SPI_HAL() : U8GLIB() { }
+    U8GLIB_SSD1306_128X64_SW_SPI_HAL(pin_t sck, pin_t mosi, pin_t cs, pin_t reset = U8G_PIN_NONE) {init(sck, mosi, cs, reset); }
+    void init(pin_t sck, pin_t mosi, pin_t cs, pin_t reset=U8G_PIN_NONE) {
+      U8GLIB::init(&u8g_dev_ssd1306_128x64_HAL_sw_spi, (uint8_t)sck, (uint8_t)mosi, (uint8_t)cs, U8G_PIN_NONE, (uint8_t)reset);
+    }
+  };
+#endif
+
 //
 // Very basic support for 320x240 TFT screen
 // Tested on MKS Robin TFT_V2.0 with ST7789V controller
