@@ -308,20 +308,8 @@ bool wait_for_heatup = false;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
-#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  template <pin_t ...D>
-  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
-#endif
-
 bool pin_is_protected(const pin_t pin) {
-  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-    const size_t pincount = COUNT(sensitive_pins);
-  #else
-    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
-    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
-  #endif
-  for (uint8_t i = 0; i < pincount; ++i) {
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); ++i) {
     const pin_t * const pptr = &sensitive_pins[i];
     if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
   }
