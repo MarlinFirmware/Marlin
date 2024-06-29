@@ -51,7 +51,7 @@
 #define SSD1309_COM_CONFIG(N)     (0xDA), ((N) ? 0x12 : 0x02)
 #define SSD1309_VCOM_DESEL(N)     (0xDB), (N)
 #define SSD1309_NOOP()            (0xE3)
-#define SSD1309_COMMAND_LOCK()    (0xFD), ((N) ? 0x16 : 0x12)
+#define SSD1309_COMMAND_LOCK(N)   (0xFD), ((N) ? 0x16 : 0x12)
 
 // SSD1309 init sequence
 static const uint8_t u8g_dev_ssd1309_128x64_init_seq[] PROGMEM = {
