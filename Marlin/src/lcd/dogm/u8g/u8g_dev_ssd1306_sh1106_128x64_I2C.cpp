@@ -138,16 +138,16 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
     case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
       u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-      u8g_SetAddress(u8g, dev, 0);           // instruction mode
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2)); // select current page
-      u8g_SetAddress(u8g, dev, 1);           // data mode
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2));   // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
       u8g_SetChipSelect(u8g, dev, 0);
-      u8g_SetAddress(u8g, dev, 0);           // instruction mode
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // select current page
-      u8g_SetAddress(u8g, dev, 1);           // data mode
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
       u8g_SetChipSelect(u8g, dev, 0);
     } break;
@@ -201,16 +201,16 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
     case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
       u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-      u8g_SetAddress(u8g, dev, 0);           // instruction mode
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2)); // select current page
-      u8g_SetAddress(u8g, dev, 1);           // data mode
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2));   // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
       u8g_SetChipSelect(u8g, dev, 0);
-      u8g_SetAddress(u8g, dev, 0);           // instruction mode
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // select current page
-      u8g_SetAddress(u8g, dev, 1);           // data mode
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
       u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
       u8g_SetChipSelect(u8g, dev, 0);
     } break;
