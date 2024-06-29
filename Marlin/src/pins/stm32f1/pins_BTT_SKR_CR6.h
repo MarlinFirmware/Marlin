@@ -116,7 +116,9 @@
 #define FAN0_PIN                            PC6   // FAN
 #define FAN_SOFT_PWM_REQUIRED
 
-#define CONTROLLER_FAN_PIN                  PC7
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                PC7
+#endif
 
 //
 // LCD / Controller

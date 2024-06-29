@@ -160,7 +160,7 @@
 #define FAN1_PIN                            PB11  // PWM Capable, TIM2_CH4
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PB11  // FAN1_PIN
 #endif
 
 //

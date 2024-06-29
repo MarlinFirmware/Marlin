@@ -127,7 +127,7 @@
 #define FAN2_PIN                            PF5   // heater 0 fan 2 and heater 1 fan 1 (two sockets, switched together)
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PF5
+  #define E0_AUTO_FAN_PIN                   PF5   // FAN2_PIN
 #endif
 
 //

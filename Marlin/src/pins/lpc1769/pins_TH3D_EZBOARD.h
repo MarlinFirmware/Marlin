@@ -130,9 +130,8 @@
 //
 // Auto fans
 //
-#define AUTO_FAN_PIN                       P1_22  // FET 3
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                  P1_22  // FET 3
 #endif
 
 //

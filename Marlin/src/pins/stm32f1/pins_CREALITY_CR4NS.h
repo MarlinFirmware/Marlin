@@ -82,7 +82,7 @@
 // Auto fans
 //
 //#ifndef CONTROLLER_FAN_PIN
-//  #define CONTROLLER_FAN_PIN          FAN2_PIN
+//  #define CONTROLLER_FAN_PIN              PB1   // FAN2_PIN
 //#endif
 
 #if HAS_TMC_UART

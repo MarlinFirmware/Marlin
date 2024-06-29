@@ -34,7 +34,10 @@
 //
 #define MOSFET_C_PIN                          11
 #define FAN0_PIN                               5  // Using the pin for the controller fan since controller fan is always on.
-#define CONTROLLER_FAN_PIN                     8
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                   8
+#endif
 
 //
 // Auto fans

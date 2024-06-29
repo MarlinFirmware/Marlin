@@ -183,7 +183,7 @@
 // Auto fans
 //
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PA3   // FAN1_PIN
 #endif
 
 /**

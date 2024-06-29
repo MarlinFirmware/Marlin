@@ -50,7 +50,7 @@
 #define FAN1_PIN                               7  // FAN1
 #define FAN2_PIN                              44  // FAN2
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN               FAN2_PIN
+  #define E0_AUTO_FAN_PIN                     44  // FAN2_PIN
 #endif
 
 /**
@@ -127,7 +127,9 @@
     #define Z_MIN_PROBE_PIN                    2  // X+
   #endif
 
-  #define CONTROLLER_FAN_PIN            FAN1_PIN
+  #ifndef CONTROLLER_FAN_PIN
+    #define CONTROLLER_FAN_PIN                 7  // FAN1_PIN
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     #define OUTAGETEST_PIN                    79

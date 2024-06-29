@@ -105,12 +105,20 @@
 //
 #define HEATER_0_PIN                         145  // 2
 #define FAN0_PIN                             146  // 15
+#define FAN1_PIN                             149
 #define HEATER_BED_PIN                       144  // 4
 
-#define CONTROLLER_FAN_PIN                   147
-//#define E0_AUTO_FAN_PIN                    148  // need to update Configuration_adv.h @section extruder
-//#define E1_AUTO_FAN_PIN                    149  // need to update Configuration_adv.h @section extruder
-#define FAN1_PIN                             149
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                 147
+#endif
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                    148
+#endif
+
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                    149  // FAN1_PIN
+#endif
 
 //
 // MicroSD card

@@ -685,31 +685,6 @@
 // Heaters, Fans, Temp Sensors
 //
 
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN -1
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN -1
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN -1
-#endif
-#ifndef E3_AUTO_FAN_PIN
-  #define E3_AUTO_FAN_PIN -1
-#endif
-#ifndef E4_AUTO_FAN_PIN
-  #define E4_AUTO_FAN_PIN -1
-#endif
-#ifndef E5_AUTO_FAN_PIN
-  #define E5_AUTO_FAN_PIN -1
-#endif
-#ifndef E6_AUTO_FAN_PIN
-  #define E6_AUTO_FAN_PIN -1
-#endif
-#ifndef E7_AUTO_FAN_PIN
-  #define E7_AUTO_FAN_PIN -1
-#endif
-
 #define _H0_PINS
 #define _H1_PINS
 #define _H2_PINS
@@ -722,27 +697,51 @@
 #define DIO_PIN(P) TERN(TARGET_LPC1768, P, analogInputToDigitalPin(P))
 
 #if HAS_HOTEND
+  #ifndef E0_AUTO_FAN_PIN
+    #define E0_AUTO_FAN_PIN -1
+  #endif
   #undef _H0_PINS
   #define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, DIO_PIN(TEMP_0_PIN),
   #if HAS_MULTI_HOTEND
+    #ifndef E1_AUTO_FAN_PIN
+      #define E1_AUTO_FAN_PIN -1
+    #endif
     #undef _H1_PINS
     #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, DIO_PIN(TEMP_1_PIN),
     #if HOTENDS > 2
+      #ifndef E2_AUTO_FAN_PIN
+        #define E2_AUTO_FAN_PIN -1
+      #endif
       #undef _H2_PINS
       #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, DIO_PIN(TEMP_2_PIN),
       #if HOTENDS > 3
+        #ifndef E3_AUTO_FAN_PIN
+          #define E3_AUTO_FAN_PIN -1
+        #endif
         #undef _H3_PINS
         #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, DIO_PIN(TEMP_3_PIN),
         #if HOTENDS > 4
+          #ifndef E4_AUTO_FAN_PIN
+            #define E4_AUTO_FAN_PIN -1
+          #endif
           #undef _H4_PINS
           #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, DIO_PIN(TEMP_4_PIN),
           #if HOTENDS > 5
+            #ifndef E5_AUTO_FAN_PIN
+              #define E5_AUTO_FAN_PIN -1
+            #endif
             #undef _H5_PINS
             #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, DIO_PIN(TEMP_5_PIN),
             #if HOTENDS > 6
+              #ifndef E6_AUTO_FAN_PIN
+                #define E6_AUTO_FAN_PIN -1
+              #endif
               #undef _H6_PINS
               #define _H6_PINS HEATER_6_PIN, E6_AUTO_FAN_PIN, DIO_PIN(TEMP_6_PIN),
               #if HOTENDS > 7
+                #ifndef E7_AUTO_FAN_PIN
+                  #define E7_AUTO_FAN_PIN -1
+                #endif
                 #undef _H7_PINS
                 #define _H7_PINS HEATER_7_PIN, E7_AUTO_FAN_PIN, DIO_PIN(TEMP_7_PIN),
               #endif // HOTENDS > 7

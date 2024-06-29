@@ -155,7 +155,10 @@
 #define FAN1_PIN                            PB6   // Part Cooling Fan #2
 #define FAN2_PIN                            PG9   // Extruder/Hotend #1 Heatsink Fan
 #define FAN3_PIN                            PF10  // Extruder/Hotend #2 Heatsink Fan
-#define CONTROLLER_FAN_PIN                  PD7
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN                PD7
+#endif
 
 //
 // Laser / Servos

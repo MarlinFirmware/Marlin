@@ -1776,3 +1776,35 @@
 #elif !HAS_MULTI_EXTRUDER
   #undef MOTOR_CURRENT_PWM_E1_PIN
 #endif
+
+// Don't use board defined auto fans unless explicitly enabled
+#if DISABLED(USE_E0_AUTO_FAN)
+  #undef E0_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E1_AUTO_FAN)
+  #undef E1_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E2_AUTO_FAN)
+  #undef E2_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E3_AUTO_FAN)
+  #undef E3_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E4_AUTO_FAN)
+  #undef E4_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E5_AUTO_FAN)
+  #undef E5_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E6_AUTO_FAN)
+  #undef E6_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_E7_AUTO_FAN)
+  #undef E7_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_CHAMBER_AUTO_FAN)
+  #undef CHAMBER_AUTO_FAN_PIN
+#endif
+#if DISABLED(USE_COOLER_AUTO_FAN)
+  #undef COOLER_AUTO_FAN_PIN
+#endif

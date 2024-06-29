@@ -177,9 +177,8 @@
 //
 // Auto fans
 //
-#define AUTO_FAN_PIN                        PC7
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PC7
 #endif
 
 //

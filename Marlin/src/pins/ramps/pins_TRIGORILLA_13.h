@@ -38,7 +38,7 @@
 #define FAN2_PIN                               9
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                      9
+  #define E0_AUTO_FAN_PIN                      9  // FAN2_PIN
 #endif
 
 #include "pins_RAMPS_13.h" // ... RAMPS

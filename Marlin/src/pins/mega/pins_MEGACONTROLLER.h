@@ -120,7 +120,7 @@
 #define FAN2_PIN                              36
 
 #ifndef CONTROLLER_FAN_PIN
-  #define CONTROLLER_FAN_PIN            FAN2_PIN
+  #define CONTROLLER_FAN_PIN                  36  // FAN2_PIN
 #endif
 
 #define FAN_SOFT_PWM_REQUIRED
