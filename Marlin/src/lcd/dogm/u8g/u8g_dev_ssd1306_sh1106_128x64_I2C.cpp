@@ -179,7 +179,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
   SH1106_COM_CONFIG(1),         // COM pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
   SH1106_CONTRAST(0xCF),        // Set contrast control
   SH1106_PAGE_ADR(0x02),        // page addressing mode
-  SH1106_COLUMN_RANGE(0, 127)   // Set column range 0 .. 127
+  SH1106_COLUMN_RANGE(0, 127),  // Set column range 0 .. 127
   SH1106_PAGE_RANGE(0, 7),      // Set page range from 0 .. 7
   SH1106_CHARGE_PER(0x1, 0xF),  // Pre-charge period
   SH1106_VCOM_DESEL(0x40),      // Vcomh deselect level
