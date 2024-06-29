@@ -1343,13 +1343,13 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         RREPEAT_S(1, HOTENDS, _NEXT_FAN)
       #endif
       #define _NFAN HOTENDS
-      #if HAS_AUTO_CHAMBER_FAN
+      #if ENABLED(USE_CHAMBER_AUTO_FAN)
         #define _CHFAN(I) _FANOVERLAP(I,CHAMBER) ? I :
         , (REPEAT(HOTENDS,_CHFAN) (_NFAN))
         #undef _NFAN
         #define _NFAN INCREMENT(HOTENDS)
       #endif
-      #if HAS_AUTO_COOLER_FAN
+      #if ENABLED(USE_COOLER_AUTO_FAN)
         #define _COFAN(I) _FANOVERLAP(I,COOLER) ? I :
         , (REPEAT(HOTENDS,_COFAN) (_NFAN))
       #endif
@@ -1361,12 +1361,12 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         SBI(fanState, pgm_read_byte(&fanBit[e]));
     }
 
-    #if HAS_AUTO_CHAMBER_FAN
+    #if ENABLED(USE_CHAMBER_AUTO_FAN)
       if (temp_chamber.celsius >= CHAMBER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[CHAMBER_FAN_INDEX]));
     #endif
 
-    #if HAS_AUTO_COOLER_FAN
+    #if ENABLED(USE_COOLER_AUTO_FAN)
       if (temp_cooler.celsius >= COOLER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[COOLER_FAN_INDEX]));
     #endif
@@ -1408,14 +1408,14 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
       #endif
       #define _AUTOFAN_CASE(N) case N: _UPDATE_AUTO_FAN(E##N, fan_on, _AUTOFAN_SPEED()); break;
       #define _AUTOFAN_NOT(N)
-      #define AUTOFAN_CASE(N) TERN(HAS_AUTO_FAN_##N, _AUTOFAN_CASE, _AUTOFAN_NOT)(N)
+      #define AUTOFAN_CASE(N) TERN(USE_AUTO_FAN_##N, _AUTOFAN_CASE, _AUTOFAN_NOT)(N)
 
       switch (f) {
         REPEAT(HOTENDS, AUTOFAN_CASE)
-        #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+        #if ENABLED(USE_CHAMBER_AUTO_FAN) && !AUTO_CHAMBER_IS_E
           case CHAMBER_FAN_INDEX: _UPDATE_AUTO_FAN(CHAMBER, fan_on, CHAMBER_AUTO_FAN_SPEED); break;
         #endif
-        #if HAS_AUTO_COOLER_FAN && !AUTO_COOLER_IS_E
+        #if ENABLED(USE_COOLER_AUTO_FAN) && !AUTO_COOLER_IS_E
           case COOLER_FAN_INDEX: _UPDATE_AUTO_FAN(COOLER, fan_on, COOLER_AUTO_FAN_SPEED); break;
         #endif
       }
@@ -2947,34 +2947,34 @@ void Temperature::init() {
 
   #if HAS_AUTO_FAN
     #define _OREFAN(I,N) || _EFANOVERLAP(I,N)
-    #if HAS_AUTO_FAN_0
+    #if ENABLED(USE_AUTO_FAN_0)
       INIT_E_AUTO_FAN_PIN(E0_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_1 && !_EFANOVERLAP(0,1)
+    #if ENABLED(USE_AUTO_FAN_1) && !_EFANOVERLAP(0,1)
       INIT_E_AUTO_FAN_PIN(E1_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_2 && !(0 REPEAT2(2, _OREFAN, 2))
+    #if ENABLED(USE_AUTO_FAN_2) && !(0 REPEAT2(2, _OREFAN, 2))
       INIT_E_AUTO_FAN_PIN(E2_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_3 && !(0 REPEAT2(3, _OREFAN, 3))
+    #if ENABLED(USE_AUTO_FAN_3) && !(0 REPEAT2(3, _OREFAN, 3))
       INIT_E_AUTO_FAN_PIN(E3_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_4 && !(0 REPEAT2(4, _OREFAN, 4))
+    #if ENABLED(USE_AUTO_FAN_4) && !(0 REPEAT2(4, _OREFAN, 4))
       INIT_E_AUTO_FAN_PIN(E4_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_5 && !(0 REPEAT2(5, _OREFAN, 5))
+    #if ENABLED(USE_AUTO_FAN_5) && !(0 REPEAT2(5, _OREFAN, 5))
       INIT_E_AUTO_FAN_PIN(E5_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_6 && !(0 REPEAT2(6, _OREFAN, 6))
+    #if ENABLED(USE_AUTO_FAN_6) && !(0 REPEAT2(6, _OREFAN, 6))
       INIT_E_AUTO_FAN_PIN(E6_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_FAN_7 && !(0 REPEAT2(7, _OREFAN, 7))
+    #if ENABLED(USE_AUTO_FAN_7) && !(0 REPEAT2(7, _OREFAN, 7))
       INIT_E_AUTO_FAN_PIN(E7_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_E
+    #if ENABLED(USE_CHAMBER_AUTO_FAN) && !AUTO_CHAMBER_IS_E
       INIT_CHAMBER_AUTO_FAN_PIN(CHAMBER_AUTO_FAN_PIN);
     #endif
-    #if HAS_AUTO_COOLER_FAN && !AUTO_COOLER_IS_E
+    #if ENABLED(USE_COOLER_AUTO_FAN) && !AUTO_COOLER_IS_E
       INIT_COOLER_AUTO_FAN_PIN(COOLER_AUTO_FAN_PIN);
     #endif
   #endif // HAS_AUTO_FAN

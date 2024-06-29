@@ -116,6 +116,78 @@
   #undef Z_MAX_PIN
 #endif
 
+// Alert users about updated auto fan settings in Changes.h
+#if DISABLED(USE_E0_AUTO_FAN)
+  #if E0_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E0 1 // "Just disable USE_E0_AUTO_FAN and leave E0_AUTO_FAN_PIN undefined."
+  #elif PIN_EXISTS(E0_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E0 2 // "Either enable USE_E0_AUTO_FAN or comment out E0_AUTO_FAN_PIN."
+  #endif
+#endif
+#if DISABLED(USE_E1_AUTO_FAN)
+  #if E1_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E1 1
+  #elif PIN_EXISTS(E1_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E1 2
+  #endif
+#endif
+#if DISABLED(USE_E2_AUTO_FAN)
+  #if E2_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E2 1
+  #elif PIN_EXISTS(E2_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E2 2
+  #endif
+#endif
+#if DISABLED(USE_E3_AUTO_FAN)
+  #if E3_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E3 1
+  #elif PIN_EXISTS(E3_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E3 2
+  #endif
+#endif
+#if DISABLED(USE_E4_AUTO_FAN)
+  #if E4_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E4 1
+  #elif PIN_EXISTS(E4_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E4 2
+  #endif
+#endif
+#if DISABLED(USE_E5_AUTO_FAN)
+  #if E5_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E5 1
+  #elif PIN_EXISTS(E5_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E5 2
+  #endif
+#endif
+#if DISABLED(USE_E6_AUTO_FAN)
+  #if E6_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E6 1
+  #elif PIN_EXISTS(E6_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E6 2
+  #endif
+#endif
+#if DISABLED(USE_E7_AUTO_FAN)
+  #if E7_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_E7 1
+  #elif PIN_EXISTS(E7_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_E7 2
+  #endif
+#endif
+#if DISABLED(USE_CHAMBER_AUTO_FAN)
+  #if CHAMBER_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_CHAMBER 1
+  #elif PIN_EXISTS(CHAMBER_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_CHAMBER 2
+  #endif
+#endif
+#if DISABLED(USE_COOLER_AUTO_FAN)
+  #if COOLER_AUTO_FAN_PIN == -1
+    #define CHANGES_ALERT_AUTO_FAN_COOLER 1
+  #elif PIN_EXISTS(COOLER_AUTO_FAN)
+    #define CHANGES_ALERT_AUTO_FAN_COOLER 2
+  #endif
+#endif
+
 // Test the target within the included pins file
 #ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0

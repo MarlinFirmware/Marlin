@@ -671,12 +671,8 @@
 
 /**
  * Extruder cooling fans
- *
- * Extruder auto fans automatically turn on when their extruders'
- * temperatures go above EXTRUDER_AUTO_FAN_TEMPERATURE.
- *
- * Multiple extruders can be assigned to the same pin in which case
- * the fan will turn on when any selected extruder is above the threshold.
+ * These fans turn on automatically whenever their corresponding
+ * extruder's temperature goes above EXTRUDER_AUTO_FAN_TEMPERATURE.
  */
 //#define USE_E0_AUTO_FAN
 //#define USE_E1_AUTO_FAN
@@ -687,7 +683,15 @@
 //#define USE_E6_AUTO_FAN
 //#define USE_E7_AUTO_FAN
 
-// Provide overrides if needed. Leave undefined to use board defaults.
+#define EXTRUDER_AUTO_FAN_TEMPERATURE   50  // (°C) Provide cooling above this temperature
+#define EXTRUDER_AUTO_FAN_SPEED        255  // (PWM) Full speed is 255
+
+/**
+ * Extruder auto fan pins
+ * Define pin overrides here if needed. Leave undefined to use board defaults.
+ * Multiple extruders can share the same auto fan pin in which case the fan
+ * turns on whenever any of its extruders goes above the threshold.
+ */
 //#define E0_AUTO_FAN_PIN -1
 //#define E1_AUTO_FAN_PIN -1
 //#define E2_AUTO_FAN_PIN -1
@@ -696,15 +700,30 @@
 //#define E5_AUTO_FAN_PIN -1
 //#define E6_AUTO_FAN_PIN -1
 //#define E7_AUTO_FAN_PIN -1
-//#define CHAMBER_AUTO_FAN_PIN -1
-//#define COOLER_AUTO_FAN_PIN -1
 
-#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
-#define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
-#define CHAMBER_AUTO_FAN_TEMPERATURE 30
-#define CHAMBER_AUTO_FAN_SPEED 255
-#define COOLER_AUTO_FAN_TEMPERATURE 18
-#define COOLER_AUTO_FAN_SPEED 255
+/**
+ * Chamber auto fan
+ * Turns on automatically when the chamber temperature
+ * goes above the CHAMBER_AUTO_FAN_TEMPERATURE.
+ */
+//#define USE_CHAMBER_AUTO_FAN
+#if ENABLED(USE_CHAMBER_AUTO_FAN)
+  //#define CHAMBER_AUTO_FAN_PIN        -1  // Provide a pin. Disable to use the board default.
+  #define CHAMBER_AUTO_FAN_TEMPERATURE  30  // (°C) Provide cooling above this temperature
+  #define CHAMBER_AUTO_FAN_SPEED       255  // (PWM) Full speed is 255
+#endif
+
+/**
+ * Cooler auto fan
+ * Turns on automatically when the cooler temperature
+ * goes above the COOLER_AUTO_FAN_TEMPERATURE.
+ */
+//#define USE_COOLER_AUTO_FAN
+#if ENABLED(USE_COOLER_AUTO_FAN)
+  //#define COOLER_AUTO_FAN_PIN         -1  // Provide a pin. Disable to use the board default.
+  #define COOLER_AUTO_FAN_TEMPERATURE   18  // (°C) Provide cooling above this temperature
+  #define COOLER_AUTO_FAN_SPEED        255  // (PWM) Full speed is 255
+#endif
 
 /**
  * Hotend Cooling Fans tachometers

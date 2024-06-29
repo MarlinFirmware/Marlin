@@ -1779,66 +1779,26 @@
 
 // Don't use board defined auto fans unless explicitly enabled
 #if DISABLED(USE_E0_AUTO_FAN)
-  #if E0_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E0 1 // "Just disable USE_E0_AUTO_FAN and leave E0_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E0_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E0 2 // "Either enable USE_E0_AUTO_FAN or comment out E0_AUTO_FAN_PIN."
-  #endif
   #undef E0_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E1_AUTO_FAN)
-  #if E1_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E1 1 // "Just disable USE_E1_AUTO_FAN and leave E1_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E1_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E1 2 // "Either enable USE_E1_AUTO_FAN or comment out E1_AUTO_FAN_PIN."
-  #endif
   #undef E1_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E2_AUTO_FAN)
-  #if E2_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E2 1 // "Just disable USE_E2_AUTO_FAN and leave E2_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E2_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E2 2 // "Either enable USE_E2_AUTO_FAN or comment out E2_AUTO_FAN_PIN."
-  #endif
   #undef E2_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E3_AUTO_FAN)
-  #if E3_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E3 1 // "Just disable USE_E3_AUTO_FAN and leave E3_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E3_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E3 2 // "Either enable USE_E3_AUTO_FAN or comment out E3_AUTO_FAN_PIN."
-  #endif
   #undef E3_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E4_AUTO_FAN)
-  #if E4_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E4 1 // "Just disable USE_E4_AUTO_FAN and leave E4_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E4_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E4 2 // "Either enable USE_E4_AUTO_FAN or comment out E4_AUTO_FAN_PIN."
-  #endif
   #undef E4_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E5_AUTO_FAN)
-  #if E5_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E5 1 // "Just disable USE_E5_AUTO_FAN and leave E5_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E5_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E5 2 // "Either enable USE_E5_AUTO_FAN or comment out E5_AUTO_FAN_PIN."
-  #endif
   #undef E5_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E6_AUTO_FAN)
-  #if E6_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E6 1 // "Just disable USE_E6_AUTO_FAN and leave E6_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E6_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E6 2 // "Either enable USE_E6_AUTO_FAN or comment out E6_AUTO_FAN_PIN."
-  #endif
   #undef E6_AUTO_FAN_PIN
 #endif
 #if DISABLED(USE_E7_AUTO_FAN)
-  #if E7_AUTO_FAN_PIN == -1
-    #define CHANGES_ALERT_AUTO_FAN_E7 1 // "Just disable USE_E7_AUTO_FAN and leave E7_AUTO_FAN_PIN undefined."
-  #elif PIN_EXISTS(E7_AUTO_FAN)
-    #define CHANGES_ALERT_AUTO_FAN_E7 2 // "Either enable USE_E7_AUTO_FAN or comment out E7_AUTO_FAN_PIN."
-  #endif
   #undef E7_AUTO_FAN_PIN
 #endif

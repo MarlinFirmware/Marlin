@@ -2606,7 +2606,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
-  #define AF_ASSERT(N) OPTCODE(HAS_AUTO_FAN_##N, static_assert(_TEST_PWM(E##N##_AUTO_FAN_PIN), "E" STRINGIFY(N) "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."))
+  #define AF_ASSERT(N) OPTCODE(USE_AUTO_FAN_##N, static_assert(_TEST_PWM(E##N##_AUTO_FAN_PIN), "E" STRINGIFY(N) "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."))
   REPEAT(8, AF_ASSERT)
   #undef AF_ASSERT
 #endif

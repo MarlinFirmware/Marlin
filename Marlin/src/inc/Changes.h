@@ -710,7 +710,7 @@
   #endif
 #endif
 
-// Don't use board defined auto fans unless explicitly enabled
+// Alert users about updated auto fan settings based on flags set in pins.h
 #if CHANGES_ALERT_AUTO_FAN_E0 == 1
   #error "Just disable USE_E0_AUTO_FAN and leave E0_AUTO_FAN_PIN undefined."
 #elif CHANGES_ALERT_AUTO_FAN_E0 == 2
@@ -750,6 +750,16 @@
   #error "Just disable USE_E7_AUTO_FAN and leave E7_AUTO_FAN_PIN undefined."
 #elif CHANGES_ALERT_AUTO_FAN_E7 == 2
   #error "Either enable USE_E7_AUTO_FAN or comment out E7_AUTO_FAN_PIN."
+#endif
+#if CHANGES_ALERT_AUTO_FAN_CHAMBER == 1
+  #error "Just disable USE_CHAMBER_AUTO_FAN and leave CHAMBER_AUTO_FAN_PIN undefined."
+#elif CHANGES_ALERT_AUTO_FAN_CHAMBER == 2
+  #error "Either enable USE_CHAMBER_AUTO_FAN or comment out CHAMBER_AUTO_FAN_PIN."
+#endif
+#if CHANGES_ALERT_AUTO_FAN_COOLER == 1
+  #error "Just disable USE_COOLER_AUTO_FAN and leave COOLER_AUTO_FAN_PIN undefined."
+#elif CHANGES_ALERT_AUTO_FAN_COOLER == 2
+  #error "Either enable USE_COOLER_AUTO_FAN or comment out COOLER_AUTO_FAN_PIN."
 #endif
 
 // Consolidate TMC26X, validate migration (#24373)
