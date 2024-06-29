@@ -23,7 +23,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-// use this file to create the public interface for device drivers that are NOT in the U8G library
+// Use this file to create the public interface for device drivers that are NOT in the U8G library
 
 extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_sw_spi;
 extern u8g_dev_t u8g_dev_st7565_64128n_HAL_2x_hw_spi;
@@ -90,7 +90,7 @@ public:
   void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options); }
 };
 
-#ifdef U8GLIB_SH1106_SPI
+#if ENABLED(U8GLIB_SH1106_SPI)
   extern u8g_dev_t u8g_dev_sh1106_128x64_HAL_sw_spi;
   class U8GLIB_SH1106_128X64_SW_SPI_HAL : public U8GLIB {
   public:
@@ -102,7 +102,7 @@ public:
   };
 #endif
 
-#ifdef U8GLIB_SSD1306_SPI
+#if ENABLED(U8GLIB_SSD1306_SPI)
   extern u8g_dev_t u8g_dev_ssd1306_128x64_HAL_sw_spi;
   class U8GLIB_SSD1306_128X64_SW_SPI_HAL : public U8GLIB {
   public:

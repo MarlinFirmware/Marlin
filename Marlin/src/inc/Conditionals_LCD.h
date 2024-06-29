@@ -716,7 +716,7 @@
 
 #elif ENABLED(SAV_3DGLCD)
 
-  #ifdef U8GLIB_SSD1306
+  #if ENABLED(U8GLIB_SSD1306)
     #define IS_U8GLIB_SSD1306 // Allow for U8GLIB_SSD1306 + SAV_3DGLCD
   #endif
   #define IS_NEWPANEL 1
