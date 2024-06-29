@@ -123,7 +123,7 @@ static const uint8_t u8g_dev_sh1106_128x64_init_seq_2_wire[] PROGMEM = {
   SH1106_ALL_PIX(0),            // Output RAM to display
   SH1106_INVERTED(0),           // Normal display mode
   SH1106_OSC_FREQ(0, 8),        // Clock divide ratio (0:1) and oscillator frequency (8)
-  SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
   SH1106_SCROLL(0),             // Deactivate scroll
   SH1106_ON(1),                 // Display on
   U8G_ESC_END                   // End of sequence
@@ -186,7 +186,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
   SH1106_ALL_PIX(0),            // Send RAM to display
   SH1106_INVERTED(0),           // Normal display mode
   SH1106_OSC_FREQ(0, 8),        // Clock divide ratio (0:1) and oscillator frequency (8)
-  SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
   SH1106_SCROLL(0),             // Deactivate scroll
   SH1106_ON(1),                 // Display on
   U8G_ESC_END                   // End of sequence

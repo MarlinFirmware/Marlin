@@ -114,7 +114,7 @@ static const uint8_t u8g_dev_sh1106_128x64_HAL_init_seq[] PROGMEM = {
   SH1106_MUX_RATIO(0x3F),       // Mux ratio
   SH1106_DISP_OFFS(0),          // Display offset
   SH1106_START_LINE(0),         // Start line
-  SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
   SH1106_PAGE_ADR(0x02),        // page addressing mode
   SH1106_ADC_REVERSE(1),        // Segment remap A0/A1
   SH1106_OUT_MODE(1),           // 0: scan dir normal, 1: reverse
@@ -185,7 +185,7 @@ static const uint8_t u8g_dev_ssd1306_128x64_HAL_init_seq[] PROGMEM = {
   SH1106_MUX_RATIO(0x3F),       // Mux ratio
   SH1106_DISP_OFFS(0),          // Display offset
   SH1106_START_LINE(0),         // Start line
-  SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
   SH1106_PAGE_ADR(0x02),        // page addressing mode
   SH1106_ADC_REVERSE(1),        // Segment remap A0/A1
   SH1106_OUT_MODE(1),           // 0: scan dir normal, 1: reverse
