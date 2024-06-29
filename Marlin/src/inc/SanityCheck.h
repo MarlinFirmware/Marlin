@@ -2603,6 +2603,31 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Auto Fan pins are required
+ */
+#if ENABLED(USE_AUTO_FAN_E0) && !PIN_EXISTS(E0_AUTO_FAN_PIN)
+  #error "E0_AUTO_FAN_PIN is required for USE_AUTO_FAN_E0."
+#elif ENABLED(USE_AUTO_FAN_E1) && !PIN_EXISTS(E1_AUTO_FAN_PIN)
+  #error "E1_AUTO_FAN_PIN is required for USE_AUTO_FAN_E1."
+#elif ENABLED(USE_AUTO_FAN_E2) && !PIN_EXISTS(E2_AUTO_FAN_PIN)
+  #error "E2_AUTO_FAN_PIN is required for USE_AUTO_FAN_E2."
+#elif ENABLED(USE_AUTO_FAN_E3) && !PIN_EXISTS(E3_AUTO_FAN_PIN)
+  #error "E3_AUTO_FAN_PIN is required for USE_AUTO_FAN_E3."
+#elif ENABLED(USE_AUTO_FAN_E4) && !PIN_EXISTS(E4_AUTO_FAN_PIN)
+  #error "E4_AUTO_FAN_PIN is required for USE_AUTO_FAN_E4."
+#elif ENABLED(USE_AUTO_FAN_E5) && !PIN_EXISTS(E5_AUTO_FAN_PIN)
+  #error "E5_AUTO_FAN_PIN is required for USE_AUTO_FAN_E5."
+#elif ENABLED(USE_AUTO_FAN_E6) && !PIN_EXISTS(E6_AUTO_FAN_PIN)
+  #error "E6_AUTO_FAN_PIN is required for USE_AUTO_FAN_E6."
+#elif ENABLED(USE_AUTO_FAN_E7) && !PIN_EXISTS(E7_AUTO_FAN_PIN)
+  #error "E7_AUTO_FAN_PIN is required for USE_AUTO_FAN_E7."
+#elif ENABLED(USE_CHAMBER_AUTO_FAN) && !PIN_EXISTS(CHAMBER_AUTO_FAN_PIN)
+  #error "CHAMBER_AUTO_FAN_PIN is required for USE_CHAMBER_AUTO_FAN."
+#elif ENABLED(USE_COOLER_AUTO_FAN) && !PIN_EXISTS(COOLER_AUTO_FAN_PIN)
+  #error "COOLER_AUTO_FAN_PIN is required for USE_COOLER_AUTO_FAN."
+#endif
+
+/**
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
