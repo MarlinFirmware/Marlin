@@ -256,6 +256,9 @@
 #if ENABLED(EASYTHREED_UI)
   #include "feature/easythreed_ui.h"
 #endif
+#if ENABLED(I2C_AMMETER)
+  #include "feature/ammeter.h"
+#endif
 
 #if ENABLED(MARLIN_TEST_BUILD)
   #include "tests/marlin_tests.h"
@@ -1273,6 +1276,10 @@ void setup() {
 
   #if ENABLED(WIFISUPPORT)
     SETUP_RUN(esp_wifi_init());
+  #endif
+
+  #if ENABLED(I2C_AMMETER)
+    SETUP_RUN(ammeter.init());
   #endif
 
   // Report Reset Reason

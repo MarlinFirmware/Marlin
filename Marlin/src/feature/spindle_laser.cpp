@@ -87,7 +87,7 @@ void SpindleLaser::init() {
   #if ENABLED(AIR_ASSIST)
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
-  TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
+                            
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
