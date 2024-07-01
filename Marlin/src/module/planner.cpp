@@ -796,10 +796,12 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
   constexpr long int minimal_step_rate = MINIMAL_STEP_RATE;
 
-  const uint32_t initial_rate = _MAX(minimal_step_rate, LROUND(block->nominal_rate * entry_factor)), // (steps per second)
-                   final_rate = _MAX(minimal_step_rate, LROUND(block->nominal_rate * exit_factor));
+  uint32_t initial_rate = LROUND(block->nominal_rate * entry_factor), // (steps per second)
+             final_rate = LROUND(block->nominal_rate * exit_factor);
 
   // Now ensure the nominal rate is above minimum
+  NOLESS(initial_rate,        minimal_step_rate);
+  NOLESS(final_rate,          minimal_step_rate);
   NOLESS(block->nominal_rate, minimal_step_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
