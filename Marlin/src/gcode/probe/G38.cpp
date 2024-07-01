@@ -106,6 +106,8 @@ inline bool G38_run_probe() {
  */
 void GcodeSuite::G38(const int8_t subcode) {
 
+  if (!MOTION_CONDITIONS) return;
+
   // Get X Y Z E F
   get_destination_from_command();
 

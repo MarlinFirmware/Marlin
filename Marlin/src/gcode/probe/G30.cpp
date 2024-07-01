@@ -50,6 +50,8 @@
  */
 void GcodeSuite::G30() {
 
+  if (!MOTION_CONDITIONS) return;
+  
   xy_pos_t old_pos = current_position,
            probepos = current_position;
 
