@@ -334,7 +334,7 @@
 
     #define LCD_BACKLIGHT_PIN               -1
     #define NEOPIXEL_PIN             EXP1_07_PIN
-    #define LCD_CONTRAST                     255
+    #define LCD_CONTRAST_INIT                255
 
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_01_PIN

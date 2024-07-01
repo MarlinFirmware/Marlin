@@ -281,20 +281,16 @@ uint32_t Stepper::advance_divisor = 0,
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
-  #if ENABLED(INPUT_SHAPING_X)
-    shaping_time_t  ShapingQueue::delay_x;
-    shaping_time_t  ShapingQueue::peek_x_val = shaping_time_t(-1);
-    uint16_t        ShapingQueue::head_x = 0;
-    uint16_t        ShapingQueue::_free_count_x = shaping_echoes - 1;
-    ShapeParams     Stepper::shaping_x;
-  #endif
-  #if ENABLED(INPUT_SHAPING_Y)
-    shaping_time_t  ShapingQueue::delay_y;
-    shaping_time_t  ShapingQueue::peek_y_val = shaping_time_t(-1);
-    uint16_t        ShapingQueue::head_y = 0;
-    uint16_t        ShapingQueue::_free_count_y = shaping_echoes - 1;
-    ShapeParams     Stepper::shaping_y;
-  #endif
+  #define SHAPING_VAR_DEFS(AXIS)                                           \
+    shaping_time_t  ShapingQueue::delay_##AXIS;                            \
+    shaping_time_t  ShapingQueue::_peek_##AXIS = shaping_time_t(-1);       \
+    uint16_t        ShapingQueue::head_##AXIS = 0;                         \
+    uint16_t        ShapingQueue::_free_count_##AXIS = shaping_echoes - 1; \
+    ShapeParams     Stepper::shaping_##AXIS;
+
+  TERN_(INPUT_SHAPING_X, SHAPING_VAR_DEFS(x))
+  TERN_(INPUT_SHAPING_Y, SHAPING_VAR_DEFS(y))
+  TERN_(INPUT_SHAPING_Z, SHAPING_VAR_DEFS(z))
 #endif
 
 #if ENABLED(BABYSTEPPING)
@@ -523,16 +519,15 @@ xyze_int8_t Stepper::count_direction{0};
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
 #endif
 
-#define CYCLES_TO_NS(CYC) (1000UL * (CYC) / ((F_CPU) / 1000000))
-#define NS_PER_PULSE_TIMER_TICK (1000000000UL / (STEPPER_TIMER_RATE))
+constexpr uint32_t cycles_to_ns(const uint32_t CYC) { return 1000UL * (CYC) / ((F_CPU) / 1000000); }
+constexpr uint32_t ns_per_pulse_timer_tick = 1000000000UL / (STEPPER_TIMER_RATE);
 
 // Round up when converting from ns to timer ticks
-#define NS_TO_PULSE_TIMER_TICKS(NS) (((NS) + (NS_PER_PULSE_TIMER_TICK) / 2) / (NS_PER_PULSE_TIMER_TICK))
+constexpr hal_timer_t ns_to_pulse_timer_ticks(const uint32_t ns) { return (ns + ns_per_pulse_timer_tick / 2) / ns_per_pulse_timer_tick; }
 
-#define TIMER_SETUP_NS (CYCLES_TO_NS(TIMER_READ_ADD_AND_STORE_CYCLES))
-
-#define PULSE_HIGH_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_HIGH_NS - _MIN(_MIN_PULSE_HIGH_NS, TIMER_SETUP_NS)))
-#define PULSE_LOW_TICK_COUNT hal_timer_t(NS_TO_PULSE_TIMER_TICKS(_MIN_PULSE_LOW_NS - _MIN(_MIN_PULSE_LOW_NS, TIMER_SETUP_NS)))
+constexpr uint32_t timer_setup_ns = cycles_to_ns(timer_read_add_and_store_cycles);
+constexpr hal_timer_t PULSE_HIGH_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_high_ns - _MIN(_min_pulse_high_ns, timer_setup_ns));
+constexpr hal_timer_t PULSE_LOW_TICK_COUNT = ns_to_pulse_timer_ticks(_min_pulse_low_ns - _MIN(_min_pulse_low_ns, timer_setup_ns));
 
 #define USING_TIMED_PULSE() hal_timer_t start_pulse_count = 0
 #define START_TIMED_PULSE() (start_pulse_count = HAL_timer_get_count(MF_TIMER_PULSE))
@@ -1610,6 +1605,7 @@ void Stepper::isr() {
       interval = _MIN(nextMainISR, uint32_t(HAL_TIMER_TYPE_MAX));         // Time until the next Pulse / Block phase
       TERN_(INPUT_SHAPING_X, NOMORE(interval, ShapingQueue::peek_x()));   // Time until next input shaping echo for X
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
+      TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
       TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
@@ -1723,10 +1719,10 @@ void Stepper::isr() {
   #endif
 }
 
-#if MINIMUM_STEPPER_PULSE || MAXIMUM_STEPPER_RATE
+#if MINIMUM_STEPPER_PULSE_NS || MAXIMUM_STEPPER_RATE
   #define ISR_PULSE_CONTROL 1
 #endif
-#if ISR_PULSE_CONTROL && DISABLED(I2S_STEPPER_STREAM)
+#if ISR_PULSE_CONTROL && MULTISTEPPING_LIMIT > 1 && DISABLED(I2S_STEPPER_STREAM)
   #define ISR_MULTI_STEPS 1
 #endif
 
@@ -1754,6 +1750,10 @@ void Stepper::pulse_phase_isr() {
           shaping_y.delta_error = 0;
           shaping_y.last_block_end_pos = count_position.y;
         #endif
+        #if ENABLED(INPUT_SHAPING_Z)
+          shaping_z.delta_error = 0;
+          shaping_z.last_block_end_pos = count_position.z;
+        #endif
       #endif
     }
   }
@@ -1771,10 +1771,11 @@ void Stepper::pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
-  // Take multiple steps per interrupt (For high speed moves)
-  #if ISR_MULTI_STEPS
+  TERN_(ISR_PULSE_CONTROL, USING_TIMED_PULSE());
+
+  // Take multiple steps per interrupt. For high speed moves.
+  #if ENABLED(ISR_MULTI_STEPS)
     bool firstStep = true;
-    USING_TIMED_PULSE();
   #endif
 
   // Direct Stepping page?
@@ -1812,6 +1813,12 @@ void Stepper::pulse_phase_isr() {
       #define HYSTERESIS_Y 64
     #else
       #define HYSTERESIS_Y 0
+    #endif
+    #if AXIS_DRIVER_TYPE_Z(TMC2208) || AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE) || \
+        AXIS_DRIVER_TYPE_Z(TMC5160) || AXIS_DRIVER_TYPE_Z(TMC5160_STANDALONE)
+      #define HYSTERESIS_Z 64
+    #else
+      #define HYSTERESIS_Z 0
     #endif
     #define _HYSTERESIS(AXIS) HYSTERESIS_##AXIS
     #define HYSTERESIS(AXIS) _HYSTERESIS(AXIS)
@@ -2005,9 +2012,10 @@ void Stepper::pulse_phase_isr() {
       #if HAS_ZV_SHAPING
         // record an echo if a step is needed in the primary bresenham
         const bool x_step = TERN0(INPUT_SHAPING_X, step_needed.x && shaping_x.enabled),
-                   y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled);
-        if (x_step || y_step)
-          ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward));
+                   y_step = TERN0(INPUT_SHAPING_Y, step_needed.y && shaping_y.enabled),
+                   z_step = TERN0(INPUT_SHAPING_Z, step_needed.z && shaping_z.enabled);
+        if (x_step || y_step || z_step)
+          ShapingQueue::enqueue(x_step, TERN0(INPUT_SHAPING_X, shaping_x.forward), y_step, TERN0(INPUT_SHAPING_Y, shaping_y.forward), z_step, TERN0(INPUT_SHAPING_Z, shaping_z.forward));
 
         // do the first part of the secondary bresenham
         #if ENABLED(INPUT_SHAPING_X)
@@ -2017,6 +2025,10 @@ void Stepper::pulse_phase_isr() {
         #if ENABLED(INPUT_SHAPING_Y)
           if (y_step)
             PULSE_PREP_SHAPING(Y, shaping_y.delta_error, shaping_y.forward ? shaping_y.factor1 : -shaping_y.factor1);
+        #endif
+        #if ENABLED(INPUT_SHAPING_Z)
+          if (z_step)
+            PULSE_PREP_SHAPING(Z, shaping_z.delta_error, shaping_z.forward ? shaping_z.factor1 : -shaping_z.factor1);
         #endif
       #endif
     }
@@ -2068,8 +2080,8 @@ void Stepper::pulse_phase_isr() {
 
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
-    // TODO: need to deal with MINIMUM_STEPPER_PULSE over i2s
-    #if ISR_MULTI_STEPS
+    // TODO: need to deal with MINIMUM_STEPPER_PULSE_NS over i2s
+    #if ISR_PULSE_CONTROL
       START_TIMED_PULSE();
       AWAIT_HIGH_PULSE();
     #endif
@@ -2124,6 +2136,7 @@ void Stepper::pulse_phase_isr() {
     // Clear the echoes that are ready to process. If the buffers are too full and risk overflow, also apply echoes early.
     TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
     TERN_(INPUT_SHAPING_Y, step_needed.y = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
+    TERN_(INPUT_SHAPING_Z, step_needed.z = !ShapingQueue::peek_z() || ShapingQueue::free_count_z() < steps_per_isr);
 
     if (bool(step_needed)) while (true) {
       #if ENABLED(INPUT_SHAPING_X)
@@ -2142,6 +2155,14 @@ void Stepper::pulse_phase_isr() {
         }
       #endif
 
+      #if ENABLED(INPUT_SHAPING_Z)
+        if (step_needed.z) {
+          const bool forward = ShapingQueue::dequeue_z();
+          PULSE_PREP_SHAPING(Z, shaping_z.delta_error, (forward ? shaping_z.factor2 : -shaping_z.factor2));
+          PULSE_START(Z);
+        }
+      #endif
+
       TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
       USING_TIMED_PULSE();
@@ -2156,10 +2177,14 @@ void Stepper::pulse_phase_isr() {
         #if ENABLED(INPUT_SHAPING_Y)
           PULSE_STOP(Y);
         #endif
+        #if ENABLED(INPUT_SHAPING_Z)
+          PULSE_STOP(Z);
+        #endif
       }
 
       TERN_(INPUT_SHAPING_X, step_needed.x = !ShapingQueue::peek_x() || ShapingQueue::free_count_x() < steps_per_isr);
       TERN_(INPUT_SHAPING_Y, step_needed.y = !ShapingQueue::peek_y() || ShapingQueue::free_count_y() < steps_per_isr);
+      TERN_(INPUT_SHAPING_Z, step_needed.z = !ShapingQueue::peek_z() || ShapingQueue::free_count_z() < steps_per_isr);
 
       if (!bool(step_needed)) break;
 
@@ -2210,7 +2235,7 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 #if ENABLED(NONLINEAR_EXTRUSION)
   void Stepper::calc_nonlinear_e(uint32_t step_rate) {
     const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd = (((int64_t)ne_fix.A * velocity) >> 24) + (((((int64_t)ne_fix.B * velocity) >> 24) * velocity) >> 24);
+    int32_t vd =  (((((int64_t)ne_fix.A * velocity) >> 24) * velocity) >> 24) + (((int64_t)ne_fix.B * velocity) >> 24);
     NOLESS(vd, 0);
 
     advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
@@ -2231,25 +2256,25 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
       // The stepping frequency limits for each multistepping rate
       static const uint32_t limit[] PROGMEM = {
-            (  MAX_STEP_ISR_FREQUENCY_1X     )
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(1)) >> 1)
+            max_step_isr_frequency_sh(0)
+          , max_step_isr_frequency_sh(1)
         #if MULTISTEPPING_LIMIT >= 4
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(2)) >> 2)
+          , max_step_isr_frequency_sh(2)
         #endif
         #if MULTISTEPPING_LIMIT >= 8
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(3)) >> 3)
+          , max_step_isr_frequency_sh(3)
         #endif
         #if MULTISTEPPING_LIMIT >= 16
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(4)) >> 4)
+          , max_step_isr_frequency_sh(4)
         #endif
         #if MULTISTEPPING_LIMIT >= 32
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(5)) >> 5)
+          , max_step_isr_frequency_sh(5)
         #endif
         #if MULTISTEPPING_LIMIT >= 64
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(6)) >> 6)
+          , max_step_isr_frequency_sh(6)
         #endif
         #if MULTISTEPPING_LIMIT >= 128
-          , (((F_CPU) / ISR_EXECUTION_CYCLES(7)) >> 7)
+          , max_step_isr_frequency_sh(7)
         #endif
       };
 
@@ -2670,16 +2695,14 @@ hal_timer_t Stepper::block_phase_isr() {
       set_axis_moved_for_current_block();
 
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
-        // Nonlinear Extrusion needs at least 2x oversampling to permit increase of E step rate
-        // Otherwise assume no axis smoothing (via oversampling)
-        oversampling_factor = TERN0(NONLINEAR_EXTRUSION, 1);
+        oversampling_factor = 0;
 
         // Decide if axis smoothing is possible
         if (stepper.adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
-          while (max_rate < MIN_STEP_ISR_FREQUENCY) {       // As long as more ISRs are possible...
+          while (max_rate < min_step_isr_frequency) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
-            if (max_rate < MIN_STEP_ISR_FREQUENCY)          // Don't exceed the estimated ISR limit
+            if (max_rate < min_step_isr_frequency)          // Don't exceed the estimated ISR limit
               ++oversampling_factor;                        // Increase the oversampling (used for left-shift)
           }
         }
@@ -2708,13 +2731,22 @@ hal_timer_t Stepper::block_phase_isr() {
         }
       #endif
 
-      // Y follows the same logic as X (but the comments aren't repeated)
+      // Y and Z follow the same logic as X (but the comments aren't repeated)
       #if ENABLED(INPUT_SHAPING_Y)
         if (shaping_y.enabled) {
           const int64_t steps = current_block->direction_bits.y ? int64_t(current_block->steps.y) : -int64_t(current_block->steps.y);
           shaping_y.last_block_end_pos += steps;
           shaping_y.forward = current_block->direction_bits.y;
           if (!ShapingQueue::empty_y()) current_block->direction_bits.y = last_direction_bits.y;
+        }
+      #endif
+
+      #if ENABLED(INPUT_SHAPING_Z)
+        if (shaping_z.enabled) {
+          const int64_t steps = current_block->direction_bits.z ? int64_t(current_block->steps.z) : -int64_t(current_block->steps.z);
+          shaping_z.last_block_end_pos += steps;
+          shaping_z.forward = current_block->direction_bits.z;
+          if (!ShapingQueue::empty_z()) current_block->direction_bits.z = last_direction_bits.z;
         }
       #endif
 
@@ -3220,12 +3252,14 @@ void Stepper::init() {
     hal.isr_off();
     TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) { shaping_x.factor2 = factor2; shaping_x.factor1 = 128 - factor2; shaping_x.zeta = zeta; })
     TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) { shaping_y.factor2 = factor2; shaping_y.factor1 = 128 - factor2; shaping_y.zeta = zeta; })
+    TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) { shaping_z.factor2 = factor2; shaping_z.factor1 = 128 - factor2; shaping_z.zeta = zeta; })
     if (was_on) hal.isr_on();
   }
 
   float Stepper::get_shaping_damping_ratio(const AxisEnum axis) {
     TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) return shaping_x.zeta);
     TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.zeta);
+    TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) return shaping_z.zeta);
     return -1;
   }
 
@@ -3237,24 +3271,18 @@ void Stepper::init() {
     hal.isr_off();
 
     const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
-    #if ENABLED(INPUT_SHAPING_X)
-      if (axis == X_AXIS) {
-        ShapingQueue::set_delay(X_AXIS, delay);
-        shaping_x.frequency = freq;
-        shaping_x.enabled = !!freq;
-        shaping_x.delta_error = 0;
-        shaping_x.last_block_end_pos = count_position.x;
+    #define SHAPING_SET_FREQ_FOR_AXIS(AXISN, AXISL)                                 \
+      if (axis == AXISN) {                                                          \
+        ShapingQueue::set_delay(AXISN, delay);                                      \
+        shaping_##AXISL.frequency = freq;                                           \
+        shaping_##AXISL.enabled = !!freq;                                           \
+        shaping_##AXISL.delta_error = 0;                                            \
+        shaping_##AXISL.last_block_end_pos = count_position.AXISL;                  \
       }
-    #endif
-    #if ENABLED(INPUT_SHAPING_Y)
-      if (axis == Y_AXIS) {
-        ShapingQueue::set_delay(Y_AXIS, delay);
-        shaping_y.frequency = freq;
-        shaping_y.enabled = !!freq;
-        shaping_y.delta_error = 0;
-        shaping_y.last_block_end_pos = count_position.y;
-      }
-    #endif
+
+    TERN_(INPUT_SHAPING_X, SHAPING_SET_FREQ_FOR_AXIS(X_AXIS, x))
+    TERN_(INPUT_SHAPING_Y, SHAPING_SET_FREQ_FOR_AXIS(Y_AXIS, y))
+    TERN_(INPUT_SHAPING_Z, SHAPING_SET_FREQ_FOR_AXIS(Z_AXIS, z))
 
     if (was_on) hal.isr_on();
   }
@@ -3262,6 +3290,7 @@ void Stepper::init() {
   float Stepper::get_shaping_frequency(const AxisEnum axis) {
     TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) return shaping_x.frequency);
     TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) return shaping_y.frequency);
+    TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) return shaping_z.frequency);
     return -1;
   }
 
@@ -3282,6 +3311,9 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
     const int32_t y_shaping_delta = count_position.y - shaping_y.last_block_end_pos;
+  #endif
+  #if ENABLED(INPUT_SHAPING_Z)
+    const int32_t z_shaping_delta = count_position.z - shaping_z.last_block_end_pos;
   #endif
 
   #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
@@ -3321,6 +3353,12 @@ void Stepper::_set_position(const abce_long_t &spos) {
     if (shaping_y.enabled) {
       count_position.y += y_shaping_delta;
       shaping_y.last_block_end_pos = spos.y;
+    }
+  #endif
+  #if ENABLED(INPUT_SHAPING_Z)
+    if (shaping_z.enabled) {
+      count_position.z += z_shaping_delta;
+      shaping_z.last_block_end_pos = spos.z;
     }
   #endif
 }
@@ -3364,6 +3402,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   count_position[a] = v;
   TERN_(INPUT_SHAPING_X, if (a == X_AXIS) shaping_x.last_block_end_pos = v);
   TERN_(INPUT_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
+  TERN_(INPUT_SHAPING_Z, if (a == Z_AXIS) shaping_z.last_block_end_pos = v);
 
   #ifdef __AVR__
     // Reenable Stepper ISR
@@ -3696,8 +3735,8 @@ void Stepper::report_positions() {
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ()
   #define _APPLY_DIR(AXIS, FWD) AXIS ##_APPLY_DIR(FWD, true)
 
-  #if MINIMUM_STEPPER_PULSE
-    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #if MINIMUM_STEPPER_PULSE_NS
+    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE_NS) * CYCLES_PER_MICROSECOND / 1000)
   #else
     #define STEP_PULSE_CYCLES 0
   #endif
@@ -3720,7 +3759,7 @@ void Stepper::report_positions() {
   #else
     #define _SAVE_START() NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
-      #define _PULSE_WAIT() DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
+      #define _PULSE_WAIT() DELAY_CYCLES(EXTRA_CYCLES_BABYSTEP)
     #elif ENABLED(DELTA)
       #define _PULSE_WAIT() DELAY_US(2);
     #elif STEP_PULSE_CYCLES > 0

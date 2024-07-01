@@ -1637,8 +1637,7 @@ void prepare_line_to_destination() {
     SERIAL_ECHO_START();
     msg.echoln();
 
-    msg.setf(GET_TEXT_F(MSG_HOME_FIRST), need);
-    ui.set_status(msg);
+    ui.status_printf(0, GET_TEXT_F(MSG_HOME_FIRST), need);
     return true;
   }
 
