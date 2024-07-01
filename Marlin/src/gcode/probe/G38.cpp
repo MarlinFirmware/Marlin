@@ -28,7 +28,7 @@
 
 #include "../../module/endstops.h"
 #include "../../module/motion.h"
-#include "../../MalinCore.h"
+#include "../../MarlinCore.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
 
