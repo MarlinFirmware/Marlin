@@ -2198,12 +2198,10 @@ void Stepper::pulse_phase_isr() {
 // Calculate timer interval, with all limits applied.
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
-  constexpr uint32_t min_step_rate = MINIMAL_STEP_RATE;
-
   #ifdef CPU_32_BIT
 
     // A fast processor can just do integer division
-    return step_rate > min_step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
+    return step_rate > minimal_step_rate ? uint32_t(STEPPER_TIMER_RATE) / step_rate : HAL_TIMER_TYPE_MAX;
 
   #else
 
@@ -2220,8 +2218,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
       const uint8_t gain = uint8_t(pgm_read_byte(table_address + 2));
       return base - MultiU8X8toH8(uint8_t(step_rate & 0x00FF), gain);
     }
-    else if (step_rate > min_step_rate) { // lower step rates
-      step_rate -= min_step_rate; // Correct for minimal speed
+    else if (step_rate > minimal_step_rate) { // lower step rates
+      step_rate -= minimal_step_rate; // Correct for minimal speed
       const uintptr_t table_address = uintptr_t(&speed_lookuptable_slow[uint8_t(step_rate >> 3)]);
       return uint16_t(pgm_read_word(table_address))
              - ((uint16_t(pgm_read_word(table_address + 2)) * uint8_t(step_rate & 0x0007)) >> 3);

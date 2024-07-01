@@ -790,15 +790,13 @@ block_t* Planner::get_current_block() {
  */
 void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed) {
 
-  constexpr long minimal_step_rate = MINIMAL_STEP_RATE;
-
-  uint32_t initial_rate = LROUND(block->nominal_rate * entry_factor), // (steps per second)
-             final_rate = LROUND(block->nominal_rate * exit_factor);
+  uint32_t initial_rate = LROUND(block->nominal_rate * entry_speed), // (steps per second)
+             final_rate = LROUND(block->nominal_rate * exit_speed);
 
   // Now ensure the nominal rate is above minimum
-  NOLESS(initial_rate,        minimal_step_rate);
-  NOLESS(final_rate,          minimal_step_rate);
-  NOLESS(block->nominal_rate, minimal_step_rate);
+  NOLESS(initial_rate,        stepper.minimal_step_rate);
+  NOLESS(final_rate,          stepper.minimal_step_rate);
+  NOLESS(block->nominal_rate, stepper.minimal_step_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate

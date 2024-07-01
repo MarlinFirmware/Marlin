@@ -78,14 +78,6 @@
   #include "../feature/closedloop.h"
 #endif
 
-constexpr uint32_t MINIMAL_STEP_RATE = (
-  #ifdef CPU_32_BIT
-    _MAX((STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX, 1U) // 32-bit shouldn't go below 1
-  #else
-    (F_CPU) / 500000U   // AVR shouldn't go below 32 (16MHz) or 40 (20MHz)
-  #endif
-);
-
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
   constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE,
