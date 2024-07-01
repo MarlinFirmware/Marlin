@@ -11,7 +11,7 @@ def blab(str,level=1):
     if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
-    return Path("Marlin", cpath, encoding='utf-8')
+    return Path("Marlin", cpath)
 
 # Apply a single name = on/off ; name = value ; etc.
 # TODO: Limit to the given (optional) configuration
@@ -223,7 +223,7 @@ def apply_config_ini(cp):
             sect = 'base'
             if '@' in ckey: sect, ckey = map(str.strip, ckey.split('@'))
             cp2 = configparser.ConfigParser()
-            cp2.read(config_path(ckey))
+            cp2.read(config_path(ckey), encoding='utf-8')
             apply_sections(cp2, sect)
             ckey = 'base'
 
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
     if ini_file:
         user_ini = configparser.ConfigParser()
-        user_ini.read(ini_file)
+        user_ini.read(ini_file, encoding='utf-8')
         apply_config_ini(user_ini)
 
 else:
@@ -279,11 +279,8 @@ else:
     #
     import pioutil
     if pioutil.is_pio_build():
-
-        Import("env")
-
         try:
-            verbose = int(env.GetProjectOption('custom_verbose'))
+            verbose = int(pioutil.env.GetProjectOption('custom_verbose'))
         except:
             pass
 

@@ -226,6 +226,7 @@ void MarlinUI::init() {
   #endif
 
   init_lcd();
+  clear_lcd();
 
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
@@ -1204,7 +1205,7 @@ void MarlinUI::init() {
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
         case LCDVIEW_CLEAR_CALL_REDRAW:
-          clear_lcd(); break;
+          clear_for_drawing(); break;
         case LCDVIEW_REDRAW_NOW:
           refresh(LCDVIEW_NONE);
         case LCDVIEW_NONE:
@@ -1647,11 +1648,11 @@ void MarlinUI::host_notify(const char * const cstr) {
   //
   // Send the status line as a host notification
   //
-  void MarlinUI::_set_status(const char * const cstr, const bool, const bool pgm) {
-    host_notify(cstr);
+  void MarlinUI::_set_status(const char * const ustr, const bool, const bool pgm) {
+    host_notify(ustr);
   }
-  void MarlinUI::_set_alert(const char * const cstr, const int8_t, const bool pgm) {
-    host_notify(cstr);
+  void MarlinUI::_set_alert(const char * const ustr, const int8_t, const bool pgm) {
+    host_notify(ustr);
   }
   void MarlinUI::_set_status_and_level(const char * const ustr, const int8_t=0, const bool pgm) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
@@ -1835,7 +1836,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     if (status) {
       if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMediaInserted();
+          ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
           clear_menu_history();
           quick_feedback();

@@ -34,7 +34,7 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
-#if ANY(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
   #define VERBOSE_SINGLE_PROBE
 #endif
 
