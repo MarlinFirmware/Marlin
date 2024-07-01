@@ -26,6 +26,7 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+#include "../../MalinCore.h"
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../lcd/marlinui.h"
