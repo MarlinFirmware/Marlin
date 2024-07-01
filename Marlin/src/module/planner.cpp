@@ -793,7 +793,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   uint32_t initial_rate = LROUND(block->nominal_rate * entry_speed), // (steps per second)
              final_rate = LROUND(block->nominal_rate * exit_speed);
 
-  // Now ensure the nominal rate is above minimum
+  // Removing code to constrain values produces judder in direction-switching moves because the
+  // current discrete stepping math diverges from physical motion under constant acceleration
+  // when acceleration_steps_per_s2 is large compared to initial/final_rate.
   NOLESS(initial_rate,        stepper.minimal_step_rate);
   NOLESS(final_rate,          stepper.minimal_step_rate);
   NOLESS(block->nominal_rate, stepper.minimal_step_rate);
