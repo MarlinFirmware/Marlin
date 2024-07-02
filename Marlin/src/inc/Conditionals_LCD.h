@@ -1099,6 +1099,9 @@
    *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
    *
    *  ...and implements these MarlinUI methods:
+   *  - init_lcd
+   *  - clear_lcd
+   *  - clear_for_drawing
    *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
    *  - draw_kill_screen
    *  - kill_screen
