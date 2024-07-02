@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * scara.h - SCARA-specific functions
+ * module/scara.h - SCARA-specific functions
  */
 
 #include "../core/macros.h"
