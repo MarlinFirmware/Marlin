@@ -825,7 +825,9 @@
 #elif MB(I3DBEEZ9_V1)
   #include "stm32f4/pins_I3DBEEZ9.h"                // STM32F4                              env:I3DBEEZ9_V1
 #elif MB(MELLOW_FLY_E3_V2)
-  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
+  #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:STM32F407VG_mellow_fly_e3
+#elif MB(MELLOW_FLY_E3_PRO_V3)
+  #include "stm32f4/pins_MELLOW_FLY_E3_PRO_V3.h"    // STM32F4                              env:STM32F407VG_mellow_fly_e3
 #elif MB(BLACKBEEZMINI_V1)
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 

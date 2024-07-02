@@ -467,6 +467,7 @@
 #define BOARD_MELLOW_FLY_E3_V2        5249  // Mellow Fly E3 V2 (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V30      5250  // FYSETC Cheetah V3.0 (STM32F446RC)
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
+#define BOARD_MELLOW_FLY_E3_PRO_V3    5252  // Mellow Fly E3 Pro V3 (STM32F407VG)
 
 //
 // Other ARM Cortex-M4
