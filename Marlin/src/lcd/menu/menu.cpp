@@ -209,7 +209,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
     }
 
-    clear_lcd();
+    clear_for_drawing();
 
     // Re-initialize custom characters that may be re-used
     #if HAS_MARLINUI_HD44780

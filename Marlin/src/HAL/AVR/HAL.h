@@ -159,7 +159,7 @@ typedef Servo hal_servo_t;
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define HAL_SENSITIVE_PINS 0, 1,
+#define HAL_SENSITIVE_PINS 0, 1
 
 #ifdef __AVR_AT90USB1286__
   #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)
