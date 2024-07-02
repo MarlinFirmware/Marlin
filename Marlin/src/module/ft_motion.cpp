@@ -549,11 +549,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPosn_prevBlock += moveDist;
 
-  // If the endstop is already pressed, endstop interrupts won't invoke
-  // endstop_triggered and the move will grind. So check here for a
-  // triggered endstop, which shortly marks the block for discard.
-  endstops.update();
-
 }
 
 // Generate data points of the trajectory.

@@ -3536,8 +3536,6 @@ void Stepper::report_positions() {
    */
   void Stepper::ftMotion_stepper() {
 
-    static AxisBits direction_bits{0};
-
     // Check if the buffer is empty.
     ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
     if (!ftMotion.sts_stepperBusy) return;
