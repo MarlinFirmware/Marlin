@@ -5,6 +5,7 @@
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -43,21 +44,21 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
         #define GRID_ROWS 8
       #endif
       #define GRID_COLS 2
-      #define RESTORE_DEFAULTS_POS    BTN_POS(1,1), BTN_SIZE(2,1)
-      #define DISPLAY_POS             BTN_POS(1,2), BTN_SIZE(1,1)
-      #define INTERFACE_POS           BTN_POS(2,2), BTN_SIZE(1,1)
-      #define ZPROBE_ZOFFSET_POS      BTN_POS(1,3), BTN_SIZE(1,1)
-      #define STEPS_PER_MM_POS        BTN_POS(2,3), BTN_SIZE(1,1)
-      #define FILAMENT_POS            BTN_POS(1,4), BTN_SIZE(1,1)
-      #define VELOCITY_POS            BTN_POS(2,4), BTN_SIZE(1,1)
-      #define TMC_CURRENT_POS         BTN_POS(1,5), BTN_SIZE(1,1)
-      #define ACCELERATION_POS        BTN_POS(2,5), BTN_SIZE(1,1)
-      #define ENDSTOPS_POS            BTN_POS(1,6), BTN_SIZE(1,1)
-      #define JERK_POS                BTN_POS(2,6), BTN_SIZE(1,1)
-      #define CASE_LIGHT_POS          BTN_POS(1,7), BTN_SIZE(1,1)
-      #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
-      #define OFFSETS_POS             BTN_POS(1,8), BTN_SIZE(1,1)
-      #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
+      #define RESTORE_DEFAULTS_POS    BTN_POS(1,8), BTN_SIZE(2,1)
+      #define DISPLAY_POS             BTN_POS(2,7), BTN_SIZE(1,1)
+      #define INTERFACE_POS           BTN_POS(1,7), BTN_SIZE(1,1)
+      #define ZPROBE_ZOFFSET_POS      BTN_POS(1,1), BTN_SIZE(1,1)
+      #define STEPS_PER_MM_POS        BTN_POS(1,2), BTN_SIZE(1,1)
+      #define FILAMENT_POS            BTN_POS(1,3), BTN_SIZE(1,1)
+      #define VELOCITY_POS            BTN_POS(2,1), BTN_SIZE(1,1)
+      #define TMC_CURRENT_POS         BTN_POS(2,5), BTN_SIZE(1,1)
+      #define ACCELERATION_POS        BTN_POS(2,2), BTN_SIZE(1,1)
+      #define ENDSTOPS_POS            BTN_POS(1,5), BTN_SIZE(1,1)
+      #define JERK_POS                BTN_POS(2,3), BTN_SIZE(1,1)
+      #define FLOW_POS                BTN_POS(1,6), BTN_SIZE(1,1)
+      #define BACKLASH_POS            BTN_POS(2,4), BTN_SIZE(1,1)
+      #define OFFSETS_POS             BTN_POS(1,4), BTN_SIZE(1,1)
+      #define TMC_HOMING_THRS_POS     BTN_POS(2,6), BTN_SIZE(1,1)
       #if ANY(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
@@ -67,7 +68,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define GRID_COLS 3
       #define GRID_ROWS 6
       #define ZPROBE_ZOFFSET_POS      BTN_POS(1,1), BTN_SIZE(1,1)
-      #define CASE_LIGHT_POS          BTN_POS(1,4), BTN_SIZE(1,1)
+      #define FLOW_POS                BTN_POS(1,4), BTN_SIZE(1,1)
       #define STEPS_PER_MM_POS        BTN_POS(2,1), BTN_SIZE(1,1)
       #define TMC_CURRENT_POS         BTN_POS(3,1), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(3,2), BTN_SIZE(1,1)
@@ -89,14 +90,16 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
       .enabled(ENABLED(HAS_BED_PROBE))
-      .tag(2) .button(ZPROBE_ZOFFSET_POS,     GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-      .enabled(ENABLED(CASE_LIGHT_ENABLE))
-      .tag(16).button(CASE_LIGHT_POS,         GET_TEXT_F(MSG_CASE_LIGHT))
+      .tag(2) .button(ZPROBE_ZOFFSET_POS,     GET_TEXT_F(MSG_ZOFFSET))
+      .tag(16).button(FLOW_POS,               GET_TEXT_F(MSG_FLOW))
       .tag(3) .button(STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
       .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
       .tag(13).button(TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
-      .enabled(ENABLED(SENSORLESS_HOMING))
-      .tag(14).button(TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
+      #if ENABLED(SENSORLESS_HOMING)
+        .tag(14).button(TMC_HOMING_THRS_POS,  GET_TEXT_F(MSG_TMC_HOMING_THRS))
+      #else
+        .tag(17).button(TMC_HOMING_THRS_POS,  GET_TEXT_F(MSG_CLEAN_NOZZLE))
+      #endif
       .enabled(ENABLED(HAS_MULTI_HOTEND))
       .tag(4) .button(OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
       .enabled(ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
@@ -105,7 +108,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(15).button(DISPLAY_POS,            GET_TEXT_F(MSG_DISPLAY_MENU))
       .tag(9) .button(INTERFACE_POS,          GET_TEXT_F(MSG_INTERFACE))
       .tag(10).button(RESTORE_DEFAULTS_POS,   GET_TEXT_F(MSG_RESTORE_DEFAULTS))
-      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_MAX_SPEED))
+      .tag(5) .button(VELOCITY_POS,           GET_TEXT_F(MSG_MAX_VELOCITY))
       .tag(6) .button(ACCELERATION_POS,       GET_TEXT_F(MSG_ACCELERATION))
       .tag(7) .button(JERK_POS,               GET_TEXT_F(TERN(HAS_JUNCTION_DEVIATION, MSG_JUNCTION_DEVIATION, MSG_JERK)))
       .enabled(ENABLED(BACKLASH_GCODE))
@@ -144,9 +147,15 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 14: GOTO_SCREEN(StepperBumpSensitivityScreen); break;
     #endif
     case 15: GOTO_SCREEN(DisplayTuningScreen); break;
-    #if ENABLED(CASE_LIGHT_ENABLE)
-    case 16: GOTO_SCREEN(CaseLightScreen); break;
-    #endif
+    case 16: GOTO_SCREEN(FlowPercentScreen);   break;
+    case 17:
+      GOTO_SCREEN(StatusScreen);
+      #if ENABLED(MANUAL_NOZZLE_CLEAN)
+        injectCommands(F("G12"));
+      #else
+         injectCommands(F(CLEAN_SCRIPT));
+      #endif
+      break;
     default: return false;
   }
   return true;

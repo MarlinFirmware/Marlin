@@ -1,10 +1,11 @@
 /**************************************
- * confirm_user_request_alert_box.cpp *
+ * filament_prompt_box.cpp *
  **************************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -24,53 +25,44 @@
 #include "../screens.h"
 #include "../screen_data.h"
 
-#ifdef FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
+#ifdef FTDI_FILAMENT_PROMPT_BOX
 
 using namespace FTDI;
 
-void ConfirmUserRequestAlertBox::onRedraw(draw_mode_t mode) {
+// Need to be renamed to Filament Purge prompt?
+void FilamentPromptBox::onRedraw(draw_mode_t mode) {
   AlertDialogBox::onRedraw(mode); // Required for the GOTO_SCREEN function to work
+  //GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE),GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_PURGE), GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_RESUME))
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  drawFilamentButtons();
 }
 
-bool ConfirmUserRequestAlertBox::onTouchEnd(uint8_t tag) {
+bool FilamentPromptBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      if (ExtUI::pauseModeStatus == PAUSE_MESSAGE_PURGE || ExtUI::pauseModeStatus == PAUSE_MESSAGE_OPTION)
-        ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
-      ExtUI::setUserConfirmed();
-      #ifdef FTDI_TUNE_MENU
-        if (ExtUI::awaitingUserConfirm()) {
-          // The TuneMenu will call ExtUI::setUserConfirmed()
-          if (ExtUI::isOngoingPrintJob()){
-            GOTO_SCREEN(TuneMenu);
-          }
-          else{
-            GOTO_SCREEN(StatusScreen);
-          }
-          current_screen.forget();
-        }
-        else
-      #endif
-      {
-        GOTO_PREVIOUS();
-      }
+      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
       return true;
-    case 2: GOTO_PREVIOUS(); return true;
-    default:                 return false;
+    case 2: 
+      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+      GOTO_SCREEN(StatusScreen);
+      return true;
+    default:                
+      return false;
   }
 }
 
-void ConfirmUserRequestAlertBox::show(const char *msg) {
-  drawMessage(msg);
+void FilamentPromptBox::show() {
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  drawFilamentButtons();
   storeBackground();
   screen_data.AlertDialogBox.isError = false;
-  if (!AT_SCREEN(ConfirmUserRequestAlertBox))
-    GOTO_SCREEN(ConfirmUserRequestAlertBox);
+  if (!AT_SCREEN(FilamentPromptBox))
+    GOTO_SCREEN(FilamentPromptBox);
 }
 
-void ConfirmUserRequestAlertBox::hide() {
-  if (AT_SCREEN(ConfirmUserRequestAlertBox))
+void FilamentPromptBox::hide() {
+  if (AT_SCREEN(FilamentPromptBox))
     GOTO_PREVIOUS();
 }
 
-#endif // FTDI_CONFIRM_USER_REQUEST_ALERT_BOX
+#endif // FTDI_FILAMENT_PROMPT_BOX
