@@ -22,7 +22,8 @@
 
 /**
  * DWIN Endstops diagnostic page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 1.4.3
  * Date: 2023/05/10
  */
