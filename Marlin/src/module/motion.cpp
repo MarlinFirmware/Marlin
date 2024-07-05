@@ -736,13 +736,13 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
     do_z_clearance(current_position.z + zclear, false);
   }
   /**
-   * Move Z to Z_POST_CLEARANCE,
-   * The axis is not allowed to move down.
+   * Move Z to Z_POST_CLEARANCE.
+   * The axis is allowed to move down when homing Z to MAX.
    */
   void do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
     #ifdef Z_POST_CLEARANCE
-      do_z_clearance(Z_POST_CLEARANCE, true, false);
+      do_z_clearance(Z_POST_CLEARANCE, true, ENABLED(Z_HOME_TO_MAX));
     #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
       probe.move_z_after_probing();
     #endif
