@@ -208,7 +208,7 @@ void BDS_Leveling::prepare_homing() {
   if(sw_mode == 1){
     BD_I2C_SENSOR.BD_i2c_write(CMD_SWITCH_MODE);
    // BD_I2C_SENSOR.BD_i2c_write(BD_SENSOR_HOME_Z_POSITION*100);
-    #ifdef BD_SENSOR_CONTACT_PRBOE
+    #ifdef BD_SENSOR_CONTACT_PROBE
       BD_I2C_SENSOR.BD_i2c_write(1);
     #else
       BD_I2C_SENSOR.BD_i2c_write((int)(BD_SENSOR_HOME_Z_POSITION*100));
@@ -222,7 +222,7 @@ void BDS_Leveling::end_homing() {
   BD_I2C_SENSOR.BD_i2c_write(CMD_END_READ_CALIBRATE_DATA);
   safe_delay(100);         
   if(sw_mode == 1){
-    #ifdef BD_SENSOR_CONTACT_PRBOE
+    #ifdef BD_SENSOR_CONTACT_PROBE
       current_position.z = Z_CLEARANCE_BETWEEN_PROBES ;
     #else
       current_position.z = bd_read();
@@ -275,7 +275,7 @@ void BDS_Leveling::process() {
     return;
   if(config_state == BDS_HOME_END){
     config_state = BDS_IDLE;
-#ifdef BD_SENSOR_CONTACT_PRBOE
+#ifdef BD_SENSOR_CONTACT_PROBE
     if(sw_mode == 1){
       adjust_probe_up(0);
     }
