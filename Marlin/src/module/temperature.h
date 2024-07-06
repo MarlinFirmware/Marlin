@@ -597,8 +597,8 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 class Temperature {
 
   public:
-    bool lock_fan;
-    #if HAS_FAN
+    #if ALL(HAS_FAN, FAN_MULTIPLIER)
+      bool lock_fan;
       void set_fan_multiplier(float m);
       float get_fan_multiplier();
     #endif
@@ -1339,7 +1339,9 @@ class Temperature {
     #endif
 
   private:
-    float fan_multiplier = 1;
+    #if ENABLED(FAN_MULTIPLIER)
+      float fan_multiplier = 1;
+    #endif
     // Reading raw temperatures and converting to Celsius when ready
     static volatile bool raw_temps_ready;
     static void update_raw_temperatures();

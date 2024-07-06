@@ -3895,6 +3895,14 @@
 //#define REPORT_FAN_CHANGE   // Report the new fan speed when changed by M106 (and others)
 
 /**
+ * Add UI and gcode options to multiply fan speed and lock fan
+ * at the current speed to override what is sent via M106. 
+ * These are useful to fine tune fan speeds after while printing.
+ * Not persisted in EEPROM. 
+*/
+// #define FAN_MULTIPLIER      
+
+/**
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
