@@ -540,7 +540,6 @@ void CardReader::manage_media() {
   }
   else {
     TERN_(HAS_SD_DETECT, release()); // Card is released
-    TERN_(HAS_WIRED_LCD, ui.return_to_status());  // Force SPI/I2C LCD models to return to status screen
   }
 
   ui.media_changed(old_stat, stat); // Update the UI or flag an error

@@ -1851,11 +1851,13 @@ void MarlinUI::host_notify(const char * const cstr) {
       if (old_status < 2) {
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
-        #elif HAS_SD_DETECT
+        #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
           LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_MARLINUI_MENU
-            if (!defer_return_to_status) return_to_status();
+            if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status) return_to_status();
           #endif
+        #elif HAS_WIRED_LCD
+          return_to_status();
         #endif
       }
     }
