@@ -1307,7 +1307,7 @@ void Endstops::update() {
         ES_REPORT_CHANGE(Z_MIN_PROBE);
       #endif
       #if USE_CALIBRATION
-        ES_REPORT_STATE(CALIBRATION);
+        ES_REPORT_CHANGE(CALIBRATION);
       #endif
       #if USE_X2_MIN
         ES_REPORT_CHANGE(X2_MIN);
