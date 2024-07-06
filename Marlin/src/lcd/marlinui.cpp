@@ -1824,13 +1824,14 @@ void MarlinUI::host_notify(const char * const cstr) {
   #endif
 
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+    TERN_(HAS_DISPLAY_SLEEP, refresh_screen_timeout());
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
     }
 
-    if (status) {
-      if (old_status < 2) {
+    if (old_status < 2) {   // Skip this section on first boot check
+      if (status) {         // Media Mounted
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
@@ -1841,16 +1842,16 @@ void MarlinUI::host_notify(const char * const cstr) {
           LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
-    }
-    else {
-      if (old_status < 2) {
+      else {                // Media Removed
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
-        #elif HAS_SD_DETECT
+        #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
           LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_MARLINUI_MENU
-            if (!defer_return_to_status) return_to_status();
+            if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status) return_to_status();
           #endif
+        #elif HAS_WIRED_LCD
+          return_to_status();
         #endif
       }
     }
