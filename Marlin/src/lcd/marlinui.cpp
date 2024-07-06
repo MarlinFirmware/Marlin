@@ -1834,8 +1834,8 @@ void MarlinUI::host_notify(const char * const cstr) {
       return;
     }
 
-    if (status) {
-      if (old_status < 2) {
+    if (old_status < 2) {   // Skip this section on first boot check
+      if (status) {         // Media Mounted
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
@@ -1846,9 +1846,7 @@ void MarlinUI::host_notify(const char * const cstr) {
           LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
-    }
-    else {
-      if (old_status < 2) {
+      else {                // Media Removed
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
         #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
