@@ -153,6 +153,7 @@ void BDS_Leveling::adjust_probe_up(float up_steps){
     SERIAL_ECHOLNPGM("warning: triggered in air", intr0);
   if(adjust_probe_down(0.1)<=0.1){
     SERIAL_ECHOLNPGM("adjust failed0, homing again");
+    gcode.process_subcommands_now("G1Z4");
     gcode.process_subcommands_now("G28Z0");
     return;
   }
@@ -202,7 +203,7 @@ void BDS_Leveling::adjust_probe_up(float up_steps){
 void BDS_Leveling::prepare_homing() {
   config_state = BDS_HOMING_Z;
   if(sw_mode ==-1){
-    read_version();
+    read_version(6);
   }
   if(sw_mode == 1){
     BD_I2C_SENSOR.BD_i2c_write(CMD_SWITCH_MODE);
@@ -213,6 +214,7 @@ void BDS_Leveling::prepare_homing() {
       BD_I2C_SENSOR.BD_i2c_write((int)(BD_SENSOR_HOME_Z_POSITION*100));
     #endif
     pinMode(I2C_BD_SDA_PIN, INPUT);
+    safe_delay(50);
   }
 }
 
@@ -240,11 +242,11 @@ bool BDS_Leveling::read_endstop() {
   return bd_triggered;
 }
 
-void BDS_Leveling::read_version() {
+void BDS_Leveling::read_version(int len_s) {
   char tmp_1[21];
   BD_I2C_SENSOR.BD_i2c_write(CMD_READ_VERSION);
-  safe_delay(100);
-  for (int i = 0; i < 19; i++) {
+  safe_delay(50);
+  for (int i = 0; i < len_s; i++) {
     tmp_1[i] = BD_I2C_SENSOR.BD_i2c_read() & 0xFF;
     safe_delay(50);
   }
@@ -341,7 +343,7 @@ void BDS_Leveling::process() {
     // Read version. Usually used as a connection check
     if (config_state == BDS_VERSION) {
       config_state = BDS_IDLE;
-      read_version();
+      read_version(19);
     }
     // read raw calibrate data
     else if (config_state == BDS_READ_RAW) {
