@@ -1820,6 +1820,7 @@
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
+    #define SDSORT_NO_SORT     true  // Keep cache but dont actually sort
     #define SDSORT_REVERSE     true  // Default to sorting file names in reverse order.
     #define SDSORT_LIMIT       256     // Maximum number of sorted items (10-256). Costs 27 bytes each.
     #define SDSORT_FOLDERS     -1     // -1=above  0=none  1=below
