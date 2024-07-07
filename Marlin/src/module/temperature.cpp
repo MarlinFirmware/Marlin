@@ -290,6 +290,10 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
     planner.sync_fan_speeds(fan_speed);
   }
 
+  uint8_t Temperature::compute_multiplied_fan(uint8_t speed){
+    return constrain(speed * fan_multiplier, 1, 255);
+  }
+
   float Temperature::get_fan_multiplier(){
     return fan_multiplier;
   }

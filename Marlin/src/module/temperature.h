@@ -600,6 +600,7 @@ class Temperature {
     #if ALL(HAS_FAN, FAN_MULTIPLIER)
       bool lock_fan;
       void set_fan_multiplier(float m);
+      uint8_t compute_multiplied_fan(uint8_t speed);
       float get_fan_multiplier();
     #endif
 
