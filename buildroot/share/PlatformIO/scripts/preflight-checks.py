@@ -78,12 +78,15 @@ if pioutil.is_pio_build():
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
 
+        # Useful values
+        project_dir = Path(env['PROJECT_DIR'])
+        config_files = ("Configuration.h", "Configuration_adv.h")
+
         #
         # Check for Config files in two common incorrect places
         #
-        epath = Path(env['PROJECT_DIR'])
-        for p in [ epath, epath / "config" ]:
-            for f in ("Configuration.h", "Configuration_adv.h"):
+        for p in [ project_dir, project_dir / "config" ]:
+            for f in config_files:
                 if (p / f).is_file():
                     err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
                     raise SystemExit(err)
@@ -114,11 +117,11 @@ if pioutil.is_pio_build():
         # Check for old files indicating an entangled Marlin (mixing old and new code)
         #
         mixedin = []
-        p = Path(env['PROJECT_DIR'], "Marlin/src/lcd/dogm")
+        p = project_dir / "Marlin/src/lcd/dogm"
         for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
-        p = Path(env['PROJECT_DIR'], "Marlin/src/feature/bedlevel/abl")
+        p = project_dir / "Marlin/src/feature/bedlevel/abl"
         for f in [ "abl.cpp", "abl.h" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
@@ -138,14 +141,21 @@ if pioutil.is_pio_build():
                         raise SystemExit(err)
 
         #
-        # Check for old macros BOTH and EITHER in configuration file
+        # Update old macros BOTH and EITHER in configuration files
         #
-        p = Path(env['PROJECT_DIR'], "Marlin")
-        for f in ("Configuration.h", "Configuration_adv.h"):
-            if (p / f).is_file():
-                with open(p / f, 'r') as file:
-                    if 'BOTH(' in open(p / f, 'r').read() or 'EITHER(' in open(p / f, 'r').read():
-                        err = "ERROR: Old macro \"BOTH()\" or \"EITHER()\" found in your configuration files. Replace with \"ALL()\" and \"ANY()\" respectively and try again."
-                        raise SystemExit(err)
+        conf_modified = False
+        for f in config_files:
+            conf_path = project_dir / "Marlin" / f
+            if conf_path.is_file():
+                with open(conf_path, 'r') as file:
+                    text = file.read()
+                    modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
+                    if text != modified_text:
+                        conf_modified = True
+                        with open(conf_path, 'w') as file:
+                            file.write(modified_text)
+
+        if conf_modified:
+            raise SystemExit('WARNING: Configuration files were updated. Build again to use the updated files.')
 
     sanity_check_target()
