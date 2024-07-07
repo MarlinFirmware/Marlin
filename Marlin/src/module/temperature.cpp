@@ -291,7 +291,9 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   }
 
   uint8_t Temperature::compute_multiplied_fan(uint8_t speed){
-    return constrain(speed * fan_multiplier, 1, 255);
+    if (!speed) return 0;
+    float new_speed = speed * fan_multiplier;
+    return constrain(new_speed, 1, 255);
   }
 
   float Temperature::get_fan_multiplier(){

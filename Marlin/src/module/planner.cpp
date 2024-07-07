@@ -1184,7 +1184,7 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
   void Planner::sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]) {
 
     #if defined(FAN_MULTIPLIER)
-      #define _CALC_FAN_SPEED(f) CALC_FAN_SPEED(thermalManager.compute_multiplied_fan(f)) 
+      #define _CALC_FAN_SPEED(f) CALC_FAN_SPEED(thermalManager.compute_multiplied_fan(f))
     #else
       #define _CALC_FAN_SPEED(f) CALC_FAN_SPEED(f)
     #endif
