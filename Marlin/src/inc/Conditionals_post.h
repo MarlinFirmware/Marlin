@@ -2748,10 +2748,8 @@
   #ifndef FAN_MAX_PWM
     #define FAN_MAX_PWM 255
   #endif
-  #if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255 && !defined(FAN_MULTIPLIER)
+  #if FAN_MIN_PWM == 0 && FAN_MAX_PWM == 255
     #define CALC_FAN_SPEED(f) (f ?: FAN_OFF_PWM)
-  #elif defined(FAN_MULTIPLIER)
-    #define CALC_FAN_SPEED(f) (f ? map(thermalManager.compute_multiplied_fan(f), 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM) 
   #else
     #define CALC_FAN_SPEED(f) (f ? map(f, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM)
   #endif
