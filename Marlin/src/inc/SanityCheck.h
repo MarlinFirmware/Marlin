@@ -1009,8 +1009,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // Fan Kickstart power
-#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
-  #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+#if FAN_KICKSTART_TIME
+  #if ENABLED(FAN_KICKSTART_LINEAR) && FAN_KICKSTART_POWER != 255
+    #error "FAN_KICKSTART_LINEAR requires a FAN_KICKSTART_POWER of 255."
+  #elif !WITHIN(FAN_KICKSTART_POWER, 64, 255)
+    #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+  #endif
 #endif
 
 /**

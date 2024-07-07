@@ -77,34 +77,33 @@
 
 uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_seq);
 
-// The sh1106 is compatible to the ssd1306, but is 132x64. 128x64 display area is centered within
-// the 132x64.
+// SH1106 (132x64) is compatible with SSD1306 (128x64) by adding a small margin to the larger display
+
+#define SH1106_PAGE_ADR(N)        (0x20), (N)
+#define SH1106_COL_ADR(N)         (0x10 | ((N) >> 4)), ((N) & 0xFF)
+#define SH1106_COLUMN_RANGE(N,O)  (0x21), (N), (O)
+#define SH1106_PAGE_RANGE(N,O)    (0x22), (N), (O)
+#define SH1106_SCROLL(N)          ((N) ? 0x2F : 0x2E)
+#define SH1106_START_LINE(N)      (0x40 | (N))
+#define SH1106_CONTRAST(N)        (0x81), (N)
+#define SH1106_CHARGE_PUMP(N)     (0x8D), ((N) ? 0x14 : 0x10)
+#define SH1106_ADC_REVERSE(N)     ((N) ? 0xA1 : 0xA0)
+#define SH1106_ALL_PIX(N)         ((N) ? 0xA5 : 0xA4)
+#define SH1106_INVERTED(N)        ((N) ? 0xA7 : 0xA6)
+#define SH1106_MUX_RATIO(N)       (0xA8), (N)
+#define SH1106_ON(N)              ((N) ? 0xAF : 0xAE)
+#define SH1106_OUT_MODE(N)        ((N) ? 0xC8 : 0xC0)
+#define SH1106_DISP_OFFS(N)       (0xD3), (N)
+#define SH1106_OSC_FREQ(R,F)      (0xD5), ((F) << 4 | (R))
+#define SH1106_CHARGE_PER(P,D)    (0xD9), ((D) << 4 | (P))
+#define SH1106_COM_CONFIG(N)      (0xDA), ((N) ? 0x12 : 0x02)
+#define SH1106_VCOM_DESEL(N)      (0xDB), (N)
+#define SH1106_NOOP()             (0xE3)
 
 static const uint8_t u8g_dev_sh1106_128x64_data_start_2_wire[] PROGMEM = {
-  0x010,          // set upper 4 bit of the col adr to 0
-  0x002,          // set lower 4 bit of the col adr to 2 (centered display with ssd1306)
-  U8G_ESC_END     // end of sequence
+  SH1106_COL_ADR(2),            // Column 2 to center 128 pixels in 132 pixels
+  U8G_ESC_END                   // End of sequence
 };
-
-#define SH1106_PAGE_ADR(N)       (0x20), (N)
-#define SH1106_COLUMN_RANGE(N)   (0x21), (((N) >> 8) & 0xFF), ((N) & 0xFF)
-#define SH1106_PAGE_RANGE(N,O)   (0x22), (N), (O)
-#define SH1106_SCROLL(N)         ((N) ? 0x2F : 0x2E)
-#define SH1106_START_LINE(N)     (0x40 | (N))
-#define SH1106_CONTRAST(N)       (0x81), (N)
-#define SH1106_CHARGE_PUMP(N)    (0x8D), ((N) ? 0x14 : 0x10)
-#define SH1106_ADC_REVERSE(N)    ((N) ? 0xA1 : 0xA0)
-#define SH1106_ALL_PIX(N)        ((N) ? 0xA5 : 0xA4)
-#define SH1106_INVERTED(N)       ((N) ? 0xA7 : 0xA6)
-#define SH1106_MUX_RATIO(N)      (0xA8), (N)
-#define SH1106_ON(N)             ((N) ? 0xAF : 0xAE)
-#define SH1106_OUT_MODE(N)       ((N) ? 0xC8 : 0xC0)
-#define SH1106_DISP_OFFS(N)      (0xD3), (N)
-#define SH1106_OSC_FREQ(R,F)     (0xD5), ((F) << 4 | (R))
-#define SH1106_CHARGE_PER(P,D)   (0xD9), ((D) << 4 | (P))
-#define SH1106_COM_CONFIG(N)     (0xDA), ((N) ? 0x12 : 0x02)
-#define SH1106_VCOM_DESEL(N)     (0xDB), (N)
-#define SH1106_NOOP()            (0xE3)
 
 static const uint8_t u8g_dev_sh1106_128x64_init_seq_2_wire[] PROGMEM = {
   U8G_ESC_ADR(0),               // Initiate command mode
@@ -113,19 +112,19 @@ static const uint8_t u8g_dev_sh1106_128x64_init_seq_2_wire[] PROGMEM = {
   SH1106_DISP_OFFS(0),          // Display offset
   SH1106_START_LINE(0),         // Start line
   SH1106_ADC_REVERSE(1),        // Segment remap A0/A1
-  SH1106_OUT_MODE(1),           // C0: scan dir normal, C8: reverse
-  SH1106_COM_CONFIG(1),         // Com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
-  SH1106_CONTRAST(0xCF),        // [2] set contrast control
-  SH1106_PAGE_ADR(0x02),        // 2012-05-27: page addressing mode
-  SH1106_COLUMN_RANGE(0x281),   // Set column range from 0 through 131
-  SH1106_PAGE_RANGE(0, 7),      // Set page range from 0 through 7
-  SH1106_CHARGE_PER(0x1, 0xF),  // [2] pre-charge period 0x22/F1
+  SH1106_OUT_MODE(1),           // 0: scan dir normal, 1: reverse
+  SH1106_COM_CONFIG(1),         // COM pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
+  SH1106_CONTRAST(0xCF),        // Set contrast control
+  SH1106_PAGE_ADR(0x02),        // page addressing mode
+  SH1106_COLUMN_RANGE(2, 129),  // Set column range 2 .. 129
+  SH1106_PAGE_RANGE(0, 7),      // Set page range 0 .. 7
+  SH1106_CHARGE_PER(0x1, 0xF),  // Pre-charge period
   SH1106_VCOM_DESEL(0x40),      // Vcomh deselect level
-  SH1106_ALL_PIX(0),            // Output ram to display
+  SH1106_ALL_PIX(0),            // Output RAM to display
   SH1106_INVERTED(0),           // Normal display mode
   SH1106_OSC_FREQ(0, 8),        // Clock divide ratio (0:1) and oscillator frequency (8)
-  SH1106_CHARGE_PUMP(1),        // [2] charge pump setting (P62): 0x14 enable, 0x10 disable
-  SH1106_SCROLL(0),             // 2012-05-27: Deactivate scroll
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
+  SH1106_SCROLL(0),             // Deactivate scroll
   SH1106_ON(1),                 // Display on
   U8G_ESC_END                   // End of sequence
 };
@@ -136,28 +135,24 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_init_seq_2_wire);
       break;
-    case U8G_DEV_MSG_STOP:
-      break;
+    case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
-        u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-        u8g_SetAddress(u8g, dev, 0);           // instruction mode
-        u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2)); // select current page
-        u8g_SetAddress(u8g, dev, 1);           // data mode
-        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
-        u8g_SetChipSelect(u8g, dev, 0);
-        u8g_SetAddress(u8g, dev, 0);           // instruction mode
-        u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2+1)); // select current page
-        u8g_SetAddress(u8g, dev, 1);           // data mode
-        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
-        u8g_SetChipSelect(u8g, dev, 0);
-      }
-      break;
-    case U8G_DEV_MSG_SLEEP_ON:
-      return 1;
-    case U8G_DEV_MSG_SLEEP_OFF:
-      return 1;
+      u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
+      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2));   // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
+      u8g_SetChipSelect(u8g, dev, 0);
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
+      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
+      u8g_SetChipSelect(u8g, dev, 0);
+    } break;
+    case U8G_DEV_MSG_SLEEP_ON: return 1;
+    case U8G_DEV_MSG_SLEEP_OFF: return 1;
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
 }
@@ -169,33 +164,32 @@ u8g_dev_t u8g_dev_sh1106_128x64_2x_i2c_2_wire = { u8g_dev_sh1106_128x64_2x_2_wir
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static const uint8_t u8g_dev_ssd1306_128x64_data_start_2_wire[] PROGMEM = {
-  0x010,          // set upper 4 bit of the col adr to 0
-  0x000,          // set lower 4 bit of the col adr to 0
-  U8G_ESC_END     // end of sequence
+  SH1106_COL_ADR(0),            // Column 0
+  U8G_ESC_END                   // End of sequence
 };
 
 static const uint8_t u8g_dev_ssd1306_128x64_init_seq_2_wire[] PROGMEM = {
-  U8G_ESC_ADR(0), // initiate command mode
-  0x0AE,          // display off, sleep mode
-  0x0A8, 0x03F,   // mux ratio
-  0x0D3, 0x00,    // display offset
-  0x040,          // start line
-  0x0A1,          // segment remap a0/a1
-  0x0C8,          // c0: scan dir normal, c8: reverse
-  0x0DA, 0x012,   // com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
-  0x081, 0x0CF,   // [2] set contrast control
-  0x020, 0x002,   // 2012-05-27: page addressing mode
-  0x21, 0, 0x7F,  // set column range from 0 through 127
-  0x22, 0, 7,     // set page range from 0 through 7
-  0x0D9, 0x0F1,   // [2] pre-charge period 0x022/f1
-  0x0DB, 0x040,   // vcomh deselect level
-  0x0A4,          // output ram to display
-  0x0A6,          // none inverted normal display mode
-  0x0D5, 0x080,   // clock divide ratio (0x00=1) and oscillator frequency (0x8)
-  0x08D, 0x014,   // [2] charge pump setting (p62): 0x014 enable, 0x010 disable
-  0x02E,          // 2012-05-27: Deactivate scroll
-  0x0AF,          // display on
-  U8G_ESC_END     // end of sequence
+  U8G_ESC_CS(0),                // Disable chip
+  SH1106_ON(0),                 // Display off, sleep mode
+  SH1106_MUX_RATIO(0x3F),       // Mux ratio
+  SH1106_DISP_OFFS(0),          // Display offset
+  SH1106_START_LINE(0),         // Start line
+  SH1106_ADC_REVERSE(1),        // Segment remap A0/A1
+  SH1106_OUT_MODE(1),           // 0: scan dir normal, 1: reverse
+  SH1106_COM_CONFIG(1),         // COM pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5)
+  SH1106_CONTRAST(0xCF),        // Set contrast control
+  SH1106_PAGE_ADR(0x02),        // page addressing mode
+  SH1106_COLUMN_RANGE(0, 127),  // Set column range 0 .. 127
+  SH1106_PAGE_RANGE(0, 7),      // Set page range from 0 .. 7
+  SH1106_CHARGE_PER(0x1, 0xF),  // Pre-charge period
+  SH1106_VCOM_DESEL(0x40),      // Vcomh deselect level
+  SH1106_ALL_PIX(0),            // Send RAM to display
+  SH1106_INVERTED(0),           // Normal display mode
+  SH1106_OSC_FREQ(0, 8),        // Clock divide ratio (0:1) and oscillator frequency (8)
+  SH1106_CHARGE_PUMP(1),        // Charge pump setting
+  SH1106_SCROLL(0),             // Deactivate scroll
+  SH1106_ON(1),                 // Display on
+  U8G_ESC_END                   // End of sequence
 };
 
 uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
@@ -204,28 +198,24 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_init_seq_2_wire);
       break;
-    case U8G_DEV_MSG_STOP:
-      break;
+    case U8G_DEV_MSG_STOP: break;
     case U8G_DEV_MSG_PAGE_NEXT: {
-        u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-        u8g_SetAddress(u8g, dev, 0);           // instruction mode
-        u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2)); // select current page
-        u8g_SetAddress(u8g, dev, 1);           // data mode
-        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
-        u8g_SetChipSelect(u8g, dev, 0);
-        u8g_SetAddress(u8g, dev, 0);           // instruction mode
-        u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2+1)); // select current page
-        u8g_SetAddress(u8g, dev, 1);           // data mode
-        u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
-        u8g_SetChipSelect(u8g, dev, 0);
-      }
-      break;
-    case U8G_DEV_MSG_SLEEP_ON:
-      return 1;
-    case U8G_DEV_MSG_SLEEP_OFF:
-      return 1;
+      u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
+      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2));   // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
+      u8g_SetChipSelect(u8g, dev, 0);
+      u8g_SetAddress(u8g, dev, 0);                      // Instruction mode
+      u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
+      u8g_WriteByte(u8g, dev, 0xB0 | (pb->p.page*2+1)); // Select current page
+      u8g_SetAddress(u8g, dev, 1);                      // Data mode
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
+      u8g_SetChipSelect(u8g, dev, 0);
+    } break;
+    case U8G_DEV_MSG_SLEEP_ON: return 1;
+    case U8G_DEV_MSG_SLEEP_OFF: return 1;
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
 }
@@ -236,10 +226,10 @@ u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire = { u8g_dev_ssd1306_128x64_2x_2_w
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-// This routine adds the instruction byte in between the command bytes.  This makes the init
-// sequences a lot easier to read.
+// This routine adds the instruction byte in between the command bytes.
+// This makes the init sequences a lot easier to read.
 
-#define I2C_CMD_MODE    0x080
+#define I2C_CMD_MODE    0x80
 
 uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_seq) {
   uint8_t is_escape = 0;
@@ -247,10 +237,8 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
     uint8_t value = u8g_pgm_read(esc_seq);
     if (is_escape == 0) {
       if (value != 255) {
-        if (u8g_WriteByte(u8g, dev, value) == 0 )
-          return 0;
-        if (u8g_WriteByte(u8g, dev, I2C_CMD_MODE) == 0 )
-          return 0;
+        if (u8g_WriteByte(u8g, dev, value) == 0) return 0;
+        if (u8g_WriteByte(u8g, dev, I2C_CMD_MODE) == 0) return 0;
       }
       else {
         is_escape = 1;
@@ -258,16 +246,14 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
     }
     else {
       if (value == 255) {
-        if (u8g_WriteByte(u8g, dev, value) == 0 )
-          return 0;
-        if (u8g_WriteByte(u8g, dev, I2C_CMD_MODE) == 0 )
-          return 0;
+        if (u8g_WriteByte(u8g, dev, value) == 0) return 0;
+        if (u8g_WriteByte(u8g, dev, I2C_CMD_MODE) == 0) return 0;
       }
       else if (value == 254) {
         break;
       }
-      else if (value >= 0x0F0) {
-        /* not yet used, do nothing */
+      else if (value >= 0xF0) {
+        // not yet used, do nothing
       }
       else if (value >= 0xE0 ) {
         u8g_SetAddress(u8g, dev, value & 0x0F);
@@ -279,13 +265,14 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
         u8g_SetResetLow(u8g, dev);
         value &= 0x0F;
         value <<= 4;
-        value+=2;
+        value += 2;
         u8g_Delay(value);
         u8g_SetResetHigh(u8g, dev);
         u8g_Delay(value);
       }
-      else if (value >= 0xBE) {                       /* not yet implemented */
-        /* u8g_SetVCC(u8g, dev, value & 0x01); */
+      else if (value >= 0xBE) {
+        // not yet implemented
+        //u8g_SetVCC(u8g, dev, value & 0x01);
       }
       else if (value <= 127) {
         u8g_Delay(value);

@@ -2757,7 +2757,7 @@
 
 // Fan Kickstart
 #if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
-  #define FAN_KICKSTART_POWER 180
+  #define FAN_KICKSTART_POWER TERN(FAN_KICKSTART_LINEAR, 255, 180)
 #endif
 
 // Servos
