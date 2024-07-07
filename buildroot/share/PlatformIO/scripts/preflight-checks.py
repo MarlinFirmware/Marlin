@@ -137,4 +137,17 @@ if pioutil.is_pio_build():
                         err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
 
+        #
+        # Check for old macros BOTH and EITHER in configuration file
+        #
+        epath = Path(env['PROJECT_DIR'])
+        p = Path(env['PROJECT_DIR'], "Marlin")
+        for f in ("Configuration.h", "Configuration_adv.h"):
+            if (p / f).is_file():
+                with open(p / f, 'r') as file:
+
+                    if 'BOTH(' in open(p / f, 'r').read() or 'EITHER(' in open(p / f, 'r').read():
+                        err = "ERROR: Old macro \"BOTH()\" or \"EITHER()\" found in your configuration files. Replace with \"ALL()\" and \"ANY()\" respectively and try again."
+                        raise SystemExit(err)
+
     sanity_check_target()
