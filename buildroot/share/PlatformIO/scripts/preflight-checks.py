@@ -140,7 +140,6 @@ if pioutil.is_pio_build():
         #
         # Check for old macros BOTH and EITHER in configuration file
         #
-        epath = Path(env['PROJECT_DIR'])
         p = Path(env['PROJECT_DIR'], "Marlin")
         for f in ("Configuration.h", "Configuration_adv.h"):
             if (p / f).is_file():
