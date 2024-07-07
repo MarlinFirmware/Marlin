@@ -145,7 +145,6 @@ if pioutil.is_pio_build():
         for f in ("Configuration.h", "Configuration_adv.h"):
             if (p / f).is_file():
                 with open(p / f, 'r') as file:
-
                     if 'BOTH(' in open(p / f, 'r').read() or 'EITHER(' in open(p / f, 'r').read():
                         err = "ERROR: Old macro \"BOTH()\" or \"EITHER()\" found in your configuration files. Replace with \"ALL()\" and \"ANY()\" respectively and try again."
                         raise SystemExit(err)
