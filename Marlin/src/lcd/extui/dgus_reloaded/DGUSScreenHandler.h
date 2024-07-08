@@ -66,12 +66,12 @@ public:
   #endif
 
   #if HAS_PID_HEATING
-    static void pidTuning(const ExtUI::result_t rst);
+    static void pidTuning(const ExtUI::pidresult_t rst);
   #endif
 
   static void setMessageLine(const char * const msg, const uint8_t line);
-  static void setMessageLinePGM(PGM_P const msg, const uint8_t line);
-  static void setMessageLine(FSTR_P const msg, const uint8_t line) { setMessageLinePGM(FTOP(msg), line); }
+  static void setMessageLine_P(PGM_P const msg, const uint8_t line);
+  static void setMessageLine(FSTR_P const msg, const uint8_t line) { setMessageLine_P(FTOP(msg), line); }
 
   static void setStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void setStatusMessage(FSTR_P const msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);

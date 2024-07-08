@@ -96,7 +96,7 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
+  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }
@@ -144,7 +144,7 @@ void _lcd_ubl_custom_mesh() {
  * UBL Adjust Mesh Height Command
  */
 void _lcd_ubl_adjust_height_cmd() {
-  char ubl_lcd_gcode[13];
+  char ubl_lcd_gcode[14];
   const int ind = ubl_height_amount > 0 ? 6 : 7;
   strcpy_P(ubl_lcd_gcode, PSTR("G29P6C-"));
   sprintf_P(&ubl_lcd_gcode[ind], PSTR(".%i"), ABS(ubl_height_amount));
@@ -446,7 +446,7 @@ void ubl_map_screen() {
     do {
       // Now, keep the encoder position within range
       if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS, 0);
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % (GRID_MAX_POINTS_X);

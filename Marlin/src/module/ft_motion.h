@@ -107,6 +107,9 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
+    static millis_t axis_pos_move_end_ti[NUM_AXIS_ENUMS],
+                    axis_neg_move_end_ti[NUM_AXIS_ENUMS];
+
     // Public methods
     static void init();
     static void startBlockProc();                         // Set controller states to begin processing a block.
@@ -128,6 +131,9 @@ class FTMotion {
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
+
+    static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
+    static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
 
   private:
 
@@ -152,6 +158,8 @@ class FTMotion {
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
 
+    static constexpr uint32_t PROP_BATCHES = CEIL(FTM_WINDOW_SIZE/FTM_BATCH_SIZE) - 1; // Number of batches needed to propagate the current trajectory to the stepper.
+
     #define _DIVCEIL(A,B) (((A) + (B) - 1) / (B))
     static constexpr uint32_t _ftm_ratio = TERN(FTM_UNIFIED_BWS, 2, _DIVCEIL(FTM_WINDOW_SIZE, FTM_BATCH_SIZE)),
                               shaper_intervals = (FTM_BATCH_SIZE) * _DIVCEIL(FTM_ZMAX, FTM_BATCH_SIZE),
@@ -172,6 +180,7 @@ class FTMotion {
     #if HAS_X_AXIS
 
       typedef struct AxisShaping {
+        bool ena = false;                 // Enabled indication.
         float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
         float Ai[5];                      // Shaping gain vector.
         uint32_t Ni[5];                   // Shaping time index vector.
@@ -206,6 +215,9 @@ class FTMotion {
     static void loadBlockData(block_t *const current_block);
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
+
+    FORCE_INLINE static int32_t num_samples_cmpnstr_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
+
 
 }; // class FTMotion
 

@@ -66,6 +66,9 @@ enum EndstopEnum : char {
   // Extra Endstops for XYZ
   ES_MINMAX(X2) ES_MINMAX(Y2) ES_MINMAX(Z2) ES_MINMAX(Z3) ES_MINMAX(Z4)
 
+  // Calibration pin state
+  ES_ITEM(HAS_CALIBRATION_STATE, CALIBRATION)
+
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
   ES_ITEM(HAS_Z_PROBE_STATE, Z_MIN_PROBE IF_DISABLED(USE_Z_MIN_PROBE, = Z_MIN))
 
@@ -165,10 +168,10 @@ class Endstops {
     static void init();
 
     /**
-     * Are endstops or the probe set to abort the move?
+     * Are endstops or the Z min probe or the CALIBRATION probe set to abort the move?
      */
     FORCE_INLINE static bool abort_enabled() {
-      return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled);
+      return enabled || TERN0(HAS_BED_PROBE, z_probe_enabled) || TERN0(CALIBRATION_GCODE, calibration_probe_enabled);
     }
 
     static bool global_enabled() { return enabled_globally; }
@@ -249,6 +252,13 @@ class Endstops {
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
       static void enable_z_probe(const bool onoff=true);
+    #endif
+
+    // Enable / disable calibration probe checking
+    #if ENABLED(CALIBRATION_GCODE)
+      static volatile bool calibration_probe_enabled;
+      static volatile bool calibration_stop_state;
+      static void enable_calibration_probe(const bool onoff, const bool stop_state=true);
     #endif
 
     static void resync();

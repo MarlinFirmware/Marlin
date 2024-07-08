@@ -23,8 +23,7 @@
 
 /**
  * Anet V1.0 board pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Anet%20V1.0/ANET3D_Board_Schematic.pdf
- * Origin: https://github.com/ralf-e/ANET-3D-Board-V1.0/blob/master/ANET3D_Board_Schematic.pdf
+ * Schematic: https://github.com/ralf-e/ANET-3D-Board-V1.0/blob/master/ANET3D_Board_Schematic.pdf
  */
 
 /**
@@ -35,7 +34,7 @@
  */
 
 /**
- * The standard Arduino IDE extension (board manager) for this board
+ * The standard Arduino IDE extension (Boards Manager) for this board
  * is located at https://github.com/SkyNet3D/anet-board.
  *
  * Installation instructions are on that page.
@@ -52,7 +51,7 @@
  */
 
 /**
- * Another usable Arduino IDE extension (board manager) can be found at
+ * Another usable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0

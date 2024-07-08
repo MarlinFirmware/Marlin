@@ -246,7 +246,7 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_MARLINUI_ENCODER
     #define MEDIA_MENU_AT_TOP
   #endif
 
@@ -295,7 +295,7 @@ void menu_main() {
               #if ENABLED(TFT_COLOR_UI)
                 // Menu display issue on item removal with multi language selection menu
                 if (encoderTopLine > 0) encoderTopLine--;
-                ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW);
+                ui.refresh();
               #endif
             });
           #endif
@@ -412,7 +412,7 @@ void menu_main() {
             #if ENABLED(TFT_COLOR_UI)
               // Menu display issue on item removal with multi language selection menu
               if (encoderTopLine > 0) encoderTopLine--;
-              ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW);
+              ui.refresh();
             #endif
           });
         #endif
