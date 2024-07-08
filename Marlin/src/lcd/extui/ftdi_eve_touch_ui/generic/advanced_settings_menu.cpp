@@ -150,7 +150,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 16: GOTO_SCREEN(FlowPercentScreen);   break;
     case 17:
       GOTO_SCREEN(StatusScreen);
-      #if ENABLED(MANUAL_NOZZLE_CLEAN)
+      #ifndef CLEAN_SCRIPT
         injectCommands(F("G12"));
       #else
          injectCommands(F(CLEAN_SCRIPT));

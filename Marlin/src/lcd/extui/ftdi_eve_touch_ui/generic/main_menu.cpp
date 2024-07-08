@@ -94,7 +94,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 4:  GOTO_SCREEN(BacklashCompensationScreen);                    break;
     case 5:
       GOTO_SCREEN(StatusScreen);
-      #if ENABLED(MANUAL_NOZZLE_CLEAN)
+      #ifndef CLEAN_SCRIPT
         injectCommands(F("G12"));
       #else
          injectCommands(F(CLEAN_SCRIPT));
