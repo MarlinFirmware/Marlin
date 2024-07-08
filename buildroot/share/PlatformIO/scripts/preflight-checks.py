@@ -85,7 +85,7 @@ if pioutil.is_pio_build():
         #
         # Check for Config files in two common incorrect places
         #
-        for p in [ project_dir, project_dir / "config" ]:
+        for p in (project_dir, project_dir / "config"):
             for f in config_files:
                 if (p / f).is_file():
                     err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
