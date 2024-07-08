@@ -156,6 +156,6 @@ if pioutil.is_pio_build():
                             file.write(modified_text)
 
         if conf_modified:
-            raise SystemExit('WARNING: Configuration files were updated. Build again to use the updated files.')
+            raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
 
     sanity_check_target()
