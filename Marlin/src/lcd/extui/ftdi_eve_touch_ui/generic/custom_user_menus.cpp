@@ -55,6 +55,7 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
   #else
     #define GRID_ROWS 9
     #define GRID_COLS 1
+    #define TOOLHEAD_LABL_POS BTN_POS(1, 1), BTN_SIZE(GRID_COLS,1)
     #define USER_ITEM_POS(N)  BTN_POS(1, N), BTN_SIZE(GRID_COLS,1)
     #define TOOLHEAD_SWAP_POS BTN_POS(1,GRID_ROWS-1), BTN_SIZE(GRID_COLS,1)
     #define BACK_POS          BTN_POS(1,GRID_ROWS), BTN_SIZE(GRID_COLS,1)
