@@ -45,27 +45,30 @@ void AboutScreen::onRedraw(draw_mode_t) {
      .cmd(CLEAR(true,true,true))
      .cmd(COLOR_RGB(bg_text_enabled))
      .tag(0);
+ #ifdef LULZBOT_LCD_MACHINE_NAME
+    draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,6), F(
+        #if ENABLED(LULZBOT_LONG_BED)
+          "" LULZBOT_LCD_MACHINE_NAME " \nWith Long Bed"
+        #elif ENABLED(LULZBOT_LONG_BED_V2)
+          "" LULZBOT_LCD_MACHINE_NAME " \nWith Long Bed V2"
+        #elif ENABLED(LULZBOT_BLTouch) && NONE(LULZBOT_LONG_BED_V2, TAZProV2)
+          "" LULZBOT_LCD_MACHINE_NAME " \nWith BLTouch"
+        #else
+          "" LULZBOT_LCD_MACHINE_NAME "\n"
+        #endif
+    ), OPT_CENTER, font_xxlarge);
+  #endif
 
-  draw_text_box(cmd, BTN_POS(1,1), BTN_SIZE(4,6), F(
-      #if ENABLED(LULZBOT_LONG_BED)
-        "" LULZBOT_LCD_MACHINE_NAME " \nWith Long Bed"
-      #elif ENABLED(LULZBOT_LONG_BED_V2)
-        "" LULZBOT_LCD_MACHINE_NAME " \nWith Long Bed V2"
-      #elif ENABLED(LULZBOT_BLTouch) && NONE(LULZBOT_LONG_BED_V2, TAZProV2)
-        "" LULZBOT_LCD_MACHINE_NAME " \nWith BLTouch"
-      #else
-        "" LULZBOT_LCD_MACHINE_NAME "\n"
-      #endif
-  ), OPT_CENTER, font_xxlarge);
+  #ifdef LULZBOT_LCD_MACHINE_NAME
+    cmd.tag(3);
+    draw_text_box(cmd, BTN_POS(1,7), BTN_SIZE(4,3), F(
+          "Firmware:"
+    ), OPT_CENTER, font_xlarge);
 
-  cmd.tag(3);
-  draw_text_box(cmd, BTN_POS(1,7), BTN_SIZE(4,3), F(
-        "Firmware:"
-  ), OPT_CENTER, font_xlarge);
-
-  draw_text_box(cmd, BTN_POS(1,10), BTN_SIZE(4,2), F(
-         "" LULZBOT_M115_EXTRUDER_TYPE ""
-  ), OPT_CENTER, font_xlarge);
+    draw_text_box(cmd, BTN_POS(1,10), BTN_SIZE(4,2), F(
+          "" LULZBOT_M115_EXTRUDER_TYPE ""
+    ), OPT_CENTER, font_xlarge);
+  #endif
 
   #if ENABLED(SHOW_TOOL_HEAD_ID)
     draw_text_box(cmd, BTN_POS(1,13), BTN_SIZE(4,3), F(
