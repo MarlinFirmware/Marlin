@@ -58,12 +58,15 @@ using namespace Theme;
   #define LEVEL_AXIS_POS     BTN_POS(1,2), BTN_SIZE(3,1)
   #define BED_MESH_TITLE_POS BTN_POS(1,3), BTN_SIZE(2,1)
   #define PROBE_BED_POS      BTN_POS(1,4), BTN_SIZE(1,1)
+  #define ZOFFSET_POS        BTN_POS(2,4), BTN_SIZE(1,1)
   #define TEST_MESH_POS      BTN_POS(2,4), BTN_SIZE(1,1)
   #define SHOW_MESH_POS      BTN_POS(1,5), BTN_SIZE(1,1)
   #define EDIT_MESH_POS      BTN_POS(2,5), BTN_SIZE(1,1)
   #define BLTOUCH_TITLE_POS  BTN_POS(3,3), BTN_SIZE(1,1)
   #define BLTOUCH_RESET_POS  BTN_POS(3,4), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(3,5), BTN_SIZE(1,1)
+  #define BLTOUCH_DEPLOY_POS BTN_POS(1,7), BTN_SIZE(1,1)
+  #define BLTOUCH_STOW_POS   BTN_POS(2,7), BTN_SIZE(1,1)
   #define BACK_POS           BTN_POS(1,6), BTN_SIZE(3,1)
 #endif
 
