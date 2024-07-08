@@ -38,14 +38,16 @@ constexpr static ChangeFilamentScreenData &mydata = screen_data.ChangeFilamentSc
   #define GRID_ROWS 10
   #define E0_TEMP_POS          BTN_POS(1,2),  BTN_SIZE(2,1)
   #define E1_TEMP_POS          BTN_POS(3,2),  BTN_SIZE(2,1)
-  #define UNLOAD_POS           BTN_POS(3,7),  BTN_SIZE(2,2)
-  #define LOAD_POS             BTN_POS(1,7),  BTN_SIZE(2,2)
+  #define UNLD_LABL_POS           BTN_POS(3,7),  BTN_SIZE(2,2)
+  #define LOAD_LABL_POS             BTN_POS(1,7),  BTN_SIZE(2,2)
   #define FILAMENT_SWAP_POS    BTN_POS(1,9),  BTN_SIZE(4,1)
   #define BACK_POS             BTN_POS(1,10), BTN_SIZE(4,1)
 #else
   #define GRID_COLS 4
   #define GRID_ROWS 6
-  #define E_TEMP_POS           BTN_POS(3,2),  BTN_SIZE(2,1)
+  #define E0_TEMP_POS          BTN_POS(2,2),  BTN_SIZE(1,1)
+  #define E1_TEMP_POS          BTN_POS(3,2),  BTN_SIZE(1,1)
+  #define FILAMENT_SWAP_POS    BTN_POS(1,9),  BTN_SIZE(4,1)
   #define UNLD_LABL_POS        BTN_POS(3,3),  BTN_SIZE(1,1)
   #define LOAD_LABL_POS        BTN_POS(4,3),  BTN_SIZE(1,1)
   #define UNLD_MOMN_POS        BTN_POS(3,4),  BTN_SIZE(1,1)
@@ -270,8 +272,8 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     cmd.cmd(COLOR_RGB(t_ok ? bg_text_enabled : bg_text_disabled))
        .colors(normal_btn)
        .font(font_xlarge)
-       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (UNLOAD_POS, GET_TEXT_F(MSG_UNLOAD))
-       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (LOAD_POS, GET_TEXT_F(MSG_LOAD))
+       .tag(7).TOG_STYLE(tog7).enabled(t_ok).button (UNLD_LABL_POS, GET_TEXT_F(MSG_UNLOAD))
+       .tag(8).TOG_STYLE(tog8).enabled(t_ok).button (LOAD_LABL_POS, GET_TEXT_F(MSG_LOAD))
        .font(font_medium)
        .tag(1).colors(action_btn).button (BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
 
@@ -281,10 +283,11 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
            .tag(16).colors(normal_btn).button(FILAMENT_SWAP_POS, GET_TEXT_F(MSG_RESUME_PRINT));
        }
        else{
+        #ifdef PARKING_COMMAND_GCODE
         cmd.colors(normal_btn)
            .font(font_medium)
-           .enabled(USE_CUSTOM_PARK_COMMANDS)
            .tag(17).colors(normal_btn).button(FILAMENT_SWAP_POS, GET_TEXT_F(MSG_FILAMENT_SWAP));
+        #endif
        }
   }
 }
@@ -365,9 +368,9 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
             if (ExtUI::isPrintingPaused()) {
               injectCommands(F("M117 Print Resumed")); resumePrint(); GOTO_SCREEN(StatusScreen); break;
             }
-            else{
-              injectCommands(F(PARKING_COMMAND_GCODE)); break;
-            }
+    #ifdef PARKING_COMMAND_GCODE
+      case 17: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #endif
   }
   return true;
 }

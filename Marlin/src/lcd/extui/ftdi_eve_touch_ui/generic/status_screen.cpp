@@ -48,12 +48,13 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
     #define Z_VAL_POS             BTN_POS(8,7), BTN_SIZE(2,2)
     #define ALL_VAL_POS           BTN_POS(1,7), BTN_SIZE(9,2)
   #else
-    #define X_LBL_POS  BTN_POS(1, 9), BTN_SIZE(1,2)
-    #define Y_LBL_POS  BTN_POS(2, 9), BTN_SIZE(1,2)
-    #define Z_LBL_POS  BTN_POS(3, 9), BTN_SIZE(1,2)
-    #define X_VAL_POS  BTN_POS(1,11), BTN_SIZE(1,2)
-    #define Y_VAL_POS  BTN_POS(2,11), BTN_SIZE(1,2)
-    #define Z_VAL_POS  BTN_POS(3,11), BTN_SIZE(1,2)
+    #define X_LBL_POS   BTN_POS(1, 9), BTN_SIZE(1, 2)
+    #define Y_LBL_POS   BTN_POS(2, 9), BTN_SIZE(1, 2)
+    #define Z_LBL_POS   BTN_POS(3, 9), BTN_SIZE(1, 2)
+    #define X_VAL_POS   BTN_POS(1,11), BTN_SIZE(1, 2)
+    #define Y_VAL_POS   BTN_POS(2,11), BTN_SIZE(1, 2)
+    #define Z_VAL_POS   BTN_POS(3,11), BTN_SIZE(1, 2)
+    #define ALL_VAL_POS BTN_POS(1, 9), BTN_SIZE(3,11)
   #endif
 
   #define _UNION_POS(x1,y1,w1,h1,x2,y2,w2,h2) x1,y1,max(x1+w1,x2+w2)-x1,max(y1+h1,y2+h2)-y1
@@ -267,6 +268,9 @@ void StatusScreen::draw_progress(draw_mode_t what) {
   #else
     #define GRID_COLS 6
     #define PROGRESSZONE_POS BTN_POS(5,1), BTN_SIZE(2,4)
+    #define PROGRESSZONE_POS_1 BTN_POS(1,9), BTN_SIZE(1,2)
+    #define PROGRESSZONE_POS_2 BTN_POS(2,9), BTN_SIZE(1,2)
+    #define CLEAR_PROGRESS_POS BTN_POS(0,6.75), BTN_SIZE(4,5)
     #if ENABLED(SHOW_REMAINING_TIME)
       #define TIME_POS       BTN_POS(5,1), BTN_SIZE(1,2)
       #define REMAINING_POS  BTN_POS(6,1), BTN_SIZE(1,2)
@@ -352,8 +356,12 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     #define MEDIA_BTN_POS         BTN_POS(1,15), BTN_SIZE(1,2)
     #define MENU_BTN_POS          BTN_POS(2,15), BTN_SIZE(1,2)
   #else
-    #define MEDIA_BTN_POS  BTN_POS(1,13), BTN_SIZE(1,4)
-    #define MENU_BTN_POS   BTN_POS(2,13), BTN_SIZE(1,4)
+    #define TOOL_HEAD_POS         BTN_POS(1,11), BTN_SIZE(1,2)
+    #define CHANGE_FILAMENT_POS   BTN_POS(2,11), BTN_SIZE(1,2)
+    #define PREHEAT_POS           BTN_POS(1,13), BTN_SIZE(1,2)
+    #define COOLDOWN_OFFSET_POS   BTN_POS(2,13), BTN_SIZE(1,2)
+    #define MEDIA_BTN_POS         BTN_POS(1,13), BTN_SIZE(1,4)
+    #define MENU_BTN_POS          BTN_POS(2,13), BTN_SIZE(1,4)
   #endif
 
     const bool has_media = isMediaMounted() && !isPrintingFromMedia();
@@ -364,9 +372,11 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
           .font(font_medium)
           .tag(!ExtUI::isPrintingPaused() ? 17 : 18)
           .button(TOOL_HEAD_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_BUTTON_PAUSE) : GET_TEXT_F(MSG_BUTTON_RESUME))
-          .tag(8).button(PREHEAT_POS, GET_TEXT_F(MSG_SENSOR))
           .tag(!ExtUI::isPrintingPaused() ? 7 : 14)
           .button(CHANGE_FILAMENT_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_SPEED) : F(""));
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          cmd.tag(8).button(PREHEAT_POS, GET_TEXT_F(MSG_SENSOR));
+        #endif
       if (ExtUI::isPrintingPaused())
         draw_text_box(cmd, CHANGE_FILAMENT_POS, F("Change\nFilament"), OPT_CENTER, font_medium);
     }
@@ -526,7 +536,9 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       }
       break;
     case 7:  GOTO_SCREEN(FeedratePercentScreen); break;
-    case 8:  GOTO_SCREEN(FilamentRunoutScreen); break;
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      case 8:  GOTO_SCREEN(FilamentRunoutScreen); break;
+    #endif
     case 9:  injectCommands(F("G28")); break;
     #if ENABLED(CUSTOM_MENU_MAIN)
       case 10:  GOTO_SCREEN(CustomUserMenus); break;
@@ -537,6 +549,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 13: injectCommands(F("G28Z")); break;
     }
     case 14: GOTO_SCREEN(ChangeFilamentScreen);  break;
+    #if ALL(HAS_LEVELING, HAS_BED_PROBE)
     case 15:
       if (ExtUI::isOngoingPrintJob()|| ExtUI::isPrintingPaused()) {
         #if EXTRUDERS > 1
@@ -551,15 +564,20 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
         GOTO_SCREEN(StatusScreen);
         break;
       }
+    #endif
+    #ifdef PRESENT_BED_GCODE
     case 16: injectCommands(F(PRESENT_BED_GCODE)); break;
-    case 17: injectCommands(F("M117 Print 123 Paused")); pausePrint();  break;
+    #endif
+    case 17: injectCommands(F("M117 Print Paused")); pausePrint();  break;
     case 18: injectCommands(F("M117 Print Resumed")); resumePrint(); break;
     case 19:
       GOTO_SCREEN(ConfirmAbortPrintDialogBox);
       current_screen.forget();
       PUSH_SCREEN(StatusScreen);
       break;
+    #ifdef PREHEAT_1_COMMAND
     case 20: injectCommands_P(PSTR(PREHEAT_1_COMMAND)); break;
+    #endif
     default:
       return true;
   }

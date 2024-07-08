@@ -40,13 +40,17 @@ void FilamentPromptBox::onRedraw(draw_mode_t mode) {
 bool FilamentPromptBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+      #endif
       return true;
-    case 2: 
-      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+    case 2:
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+      #endif
       GOTO_SCREEN(StatusScreen);
       return true;
-    default:                
+    default:
       return false;
   }
 }

@@ -56,7 +56,10 @@ void MainMenu::onRedraw(draw_mode_t what) {
     #define GRID_ROWS 5
     #define ADVANCED_SETTINGS_POS BTN_POS(1,1), BTN_SIZE(3,1)
     #define ABOUT_PRINTER_POS     BTN_POS(4,1), BTN_SIZE(3,1)
+    #define BACKLASH_POS          BTN_POS(1,2), BTN_SIZE(1,1)
+    #define CLEAN_NOZZLE_POS      BTN_POS(2,2), BTN_SIZE(1,1)
     #define MOVE_AXIS_POS         BTN_POS(1,3), BTN_SIZE(3,1)
+    #define Z_OFFSET_POS          BTN_POS(2,3), BTN_SIZE(1,1)
     #define DISABLE_STEPPERS_POS  BTN_POS(4,3), BTN_SIZE(3,1)
     #define TEMPERATURE_POS     BTN_POS(1,4), BTN_SIZE(2,1)
     #define LEVELING_POS          BTN_POS(1,5), BTN_SIZE(3,1)
@@ -91,7 +94,9 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 1:  SaveSettingsDialogBox::promptToSaveSettings();              break;
     case 2:  GOTO_SCREEN(MoveAxisScreen);                                break;
     case 3:  injectCommands(F("M84"));                                   break;
-    case 4:  GOTO_SCREEN(BacklashCompensationScreen);                    break;
+    #if ENABLED(BACKLASH_COMPENSATION)
+      case 4:  GOTO_SCREEN(BacklashCompensationScreen);                    break;
+    #endif
     case 5:
       GOTO_SCREEN(StatusScreen);
       #ifndef CLEAN_SCRIPT
@@ -105,6 +110,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     #if HAS_LEVELING
       case 8:  GOTO_SCREEN(LevelingMenu);                                break;
     #endif
+    #if ALL(HAS_LEVELING, HAS_BED_PROBE)
     case 9:
       #if EXTRUDERS > 1
         GOTO_SCREEN(NudgeNozzleScreen);
@@ -112,6 +118,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
         GOTO_SCREEN(ZOffsetScreen);
       #endif
       break;
+    #endif
     case 10: GOTO_SCREEN(AboutScreen);                                   break;
     default:
       return false;

@@ -85,14 +85,21 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
     #define GRID_ROWS (8+EXTRUDERS)
     if (!ExtUI::isOngoingPrintJob()) {
       cmd.font(Theme::font_medium)
-          .colors(normal_btn)
-          .tag(31).button(PREHEAT_1_POS, GET_TEXT_F(MSG_PREHEAT_1))
-          .tag(32).button(PREHEAT_2_POS, GET_TEXT_F(MSG_PREHEAT_2))
-          .tag(33).button(PREHEAT_3_POS, GET_TEXT_F(MSG_PREHEAT_3))
-          .colors(cold_pull_btn)
-          .tag(30).button(COOLDOWN_POS, GET_TEXT_F(MSG_COOLDOWN))
-          .colors(normal_btn)
-          .tag(35).enabled(ENABLED(USE_CUSTOM_PARK_COMMANDS)).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
+          .colors(normal_btn);
+          #ifdef PREHEAT_1_COMMAND
+            cmd.tag(31).button(PREHEAT_1_POS, GET_TEXT_F(MSG_PREHEAT_1));
+          #endif
+          #ifdef PREHEAT_2_COMMAND
+            cmd.tag(32).button(PREHEAT_2_POS, GET_TEXT_F(MSG_PREHEAT_2));
+          #endif
+          #ifdef PREHEAT_3_COMMAND
+            cmd.tag(33).button(PREHEAT_3_POS, GET_TEXT_F(MSG_PREHEAT_3));
+          #endif
+          cmd.colors(cold_pull_btn)
+            .tag(30).button(COOLDOWN_POS, GET_TEXT_F(MSG_COOLDOWN));
+          #ifdef PARKING_COMMAND_GCODE
+            cmd.colors(normal_btn).tag(35).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
+          #endif
     }
   }
 }
@@ -129,10 +136,18 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
       GOTO_SCREEN(StatusScreen);
       break;
-    case 31: injectCommands_P(PSTR(PREHEAT_1_COMMAND)); GOTO_SCREEN(StatusScreen); break;
-    case 32: injectCommands_P(PSTR(PREHEAT_2_COMMAND)); GOTO_SCREEN(StatusScreen); break;
-    case 33: injectCommands_P(PSTR(PREHEAT_3_COMMAND)); GOTO_SCREEN(StatusScreen); break;
-    case 35: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #ifdef PREHEAT_1_COMMAND
+      case 31: injectCommands_P(PSTR(PREHEAT_1_COMMAND)); GOTO_SCREEN(StatusScreen); break;
+    #endif
+    #ifdef PREHEAT_2_COMMAND
+      case 32: injectCommands_P(PSTR(PREHEAT_2_COMMAND)); GOTO_SCREEN(StatusScreen); break;
+    #endif
+    #ifdef PREHEAT_3COMMAND
+      case 33: injectCommands_P(PSTR(PREHEAT_3_COMMAND)); GOTO_SCREEN(StatusScreen); break;
+    #endif
+    #ifdef PARKING_COMMAND_GCODE
+      case 35: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #endif
     default:
       return false;
   }

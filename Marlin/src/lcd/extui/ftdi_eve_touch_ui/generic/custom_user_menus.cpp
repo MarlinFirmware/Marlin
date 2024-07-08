@@ -115,7 +115,9 @@ btn_colors thcolor[8] = {normal_btn};
         #undef GRID_ROWS
         #define GRID_ROWS 8
        #endif
-      .tag(20).enabled(ENABLED(USE_CUSTOM_PARK_COMMANDS)).colors(normal_btn).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP))
+      #ifdef PARKING_COMMAND_GCODE
+        .tag(20).colors(normal_btn).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP))
+      #endif
       .tag(1).colors(action_btn).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }
@@ -156,7 +158,9 @@ bool CustomUserMenus::onTouchEnd(uint8_t tag) {
     #endif
 
     case 1: GOTO_PREVIOUS(); break;
-    case 20: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #ifdef PARKING_COMMAND_GCODE
+      case 20: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #endif
     default: return false;
   }
   return true;

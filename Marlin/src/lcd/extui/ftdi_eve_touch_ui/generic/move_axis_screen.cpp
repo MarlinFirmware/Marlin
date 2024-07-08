@@ -74,11 +74,13 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
     w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
   #endif
   w.increments();
-  if (!ExtUI::isPrinting()) { // making sure the Tool Head Swap Position is not avalible while printing
-    cmd.font(font_medium)
-       .colors(normal_btn)
-       .tag(25).enabled(ENABLED(USE_CUSTOM_PARK_COMMANDS)).button(BTN_POS(1,(7+EXTRUDERS)), BTN_SIZE(13,1), GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
-}
+  #ifdef PARKING_COMMAND_GCODE
+    if (!ExtUI::isPrinting()) { // making sure the Tool Head Swap Position is not avalible while printing
+      cmd.font(font_medium)
+        .colors(normal_btn)
+        .tag(25).button(BTN_POS(1,(7+EXTRUDERS)), BTN_SIZE(13,1), GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
+    }
+  #endif
 }
 
 bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
@@ -120,7 +122,9 @@ bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
       #endif
     #endif
     case 23: SpinnerDialogBox::enqueueAndWait(F("G28")); break;
-    case 25: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #ifdef PARKING_COMMAND_GCODE
+      case 25: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #endif
     default:
       return false;
   }

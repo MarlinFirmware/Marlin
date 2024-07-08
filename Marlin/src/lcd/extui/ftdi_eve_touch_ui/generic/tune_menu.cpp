@@ -55,6 +55,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     #define STOP_POS        BTN_POS(2,3), BTN_SIZE(1,1)
     #define FLOW_POS        BTN_POS(2,4), BTN_SIZE(1,1)
     #define ADVANCED_SETTINGS_POS BTN_POS(1,5), BTN_SIZE(1,1)
+    #define ABOUT_PRINTER_POS     BTN_POS(1,5), BTN_SIZE(2,1)
     #define BACK_POS        BTN_POS(2,5), BTN_SIZE(1,1)
   #endif
 
@@ -135,7 +136,9 @@ void TuneMenu::resumePrint() {
   if (ExtUI::awaitingUserConfirm() && ExtUI::isPrintingPaused())
   {
      SERIAL_ECHOLNPGM("Resume: Awaiting User Confirm");
+     #if ENABLED(ADVANCED_PAUSE_FEATURE)
      ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+     #endif
      ExtUI::setUserConfirmed();
   }
   if (ExtUI::isPrintingFromMedia())
