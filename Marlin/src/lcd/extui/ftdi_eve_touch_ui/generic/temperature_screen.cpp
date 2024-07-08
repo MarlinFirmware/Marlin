@@ -92,7 +92,7 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
           .colors(cold_pull_btn)
           .tag(30).button(COOLDOWN_POS, GET_TEXT_F(MSG_COOLDOWN))
           .colors(normal_btn)
-          .tag(35).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
+          .tag(35).enabled(ENABLED(USE_CUSTOM_PARK_COMMANDS)).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
     }
   }
 }

@@ -283,6 +283,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
        else{
         cmd.colors(normal_btn)
            .font(font_medium)
+           .enabled(USE_CUSTOM_PARK_COMMANDS)
            .tag(17).colors(normal_btn).button(FILAMENT_SWAP_POS, GET_TEXT_F(MSG_FILAMENT_SWAP));
        }
   }

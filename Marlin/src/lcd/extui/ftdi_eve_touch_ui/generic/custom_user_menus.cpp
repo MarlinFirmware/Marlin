@@ -62,13 +62,6 @@ void CustomUserMenus::onRedraw(draw_mode_t what) {
 
 btn_colors thcolor[8] = {normal_btn};
 
-for (int i = 0; i < 8; ++i) {
-    if (i == getToolHeadIdNumber() || i == (getToolHeadIdNumber()-7) || i == (getToolHeadIdNumber()-10)) {
-        thcolor[i] = action_btn;
-    } else {
-        thcolor[i] = normal_btn;
-    }
-}
 
 //.color(TH_color[1])
   if (what & FOREGROUND) {
@@ -122,7 +115,7 @@ for (int i = 0; i < 8; ++i) {
         #undef GRID_ROWS
         #define GRID_ROWS 8
        #endif
-      .tag(20).colors(normal_btn).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP))
+      .tag(20).enabled(ENABLED(USE_CUSTOM_PARK_COMMANDS)).colors(normal_btn).button(TOOLHEAD_SWAP_POS, GET_TEXT_F(MSG_TOOL_HEAD_SWAP))
       .tag(1).colors(action_btn).button(BACK_POS, GET_TEXT_F(MSG_BUTTON_DONE));
   }
 }

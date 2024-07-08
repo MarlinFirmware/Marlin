@@ -363,7 +363,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       cmd.colors(normal_btn)
           .font(font_medium)
           .tag(!ExtUI::isPrintingPaused() ? 17 : 18)
-          .button(TOOL_HEAD_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_PAUSE) : GET_TEXT_F(MSG_RESUME))
+          .button(TOOL_HEAD_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_BUTTON_PAUSE) : GET_TEXT_F(MSG_BUTTON_RESUME))
           .tag(8).button(PREHEAT_POS, GET_TEXT_F(MSG_SENSOR))
           .tag(!ExtUI::isPrintingPaused() ? 7 : 14)
           .button(CHANGE_FILAMENT_POS, !ExtUI::isPrintingPaused() ? GET_TEXT_F(MSG_SPEED) : F(""));
@@ -378,58 +378,8 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       cmd.colors(normal_btn)
           .font(font_medium)
           .tag(20).button(PREHEAT_POS, GET_TEXT_F(MSG_PREHEAT));
-      if(getToolHeadIdNumber() == 0){
-          cmd.colors(cancel_btn);
-      }
-      else{
-        cmd.colors(normal_btn);
-      }
       cmd.enabled(ENABLED(CUSTOM_MENU_MAIN)).tag(10).button(TOOL_HEAD_POS, F(""));
       draw_text_box(cmd, TOOL_HEAD_POS, F("" CUSTOM_MENU_MAIN_TITLE "\n "), OPT_CENTER, font_medium);
-      switch(getToolHeadIdNumber()){
-        case 0:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nNone Selected"), OPT_CENTER, font_small);
-          break;
-        case 1:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nM175"), OPT_CENTER, font_small);
-          break;
-        case 2:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nSL"), OPT_CENTER, font_small);
-          break;
-        case 3:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nSE"), OPT_CENTER, font_small);
-          break;
-        case 4:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nHE"), OPT_CENTER, font_small);
-          break;
-        case 5:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nHS"), OPT_CENTER, font_small);
-          break;
-        case 6:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nHS+"), OPT_CENTER, font_small);
-          break;
-        case 7:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nH175"), OPT_CENTER, font_small);
-          break;
-        case 8:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nMET175"), OPT_CENTER, font_small);
-          break;
-        case 9:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nMET285"), OPT_CENTER, font_small);
-          break;
-        case 10:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nAST285"), OPT_CENTER, font_small);
-          break;
-        case 11:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nTwin Nebula 175"), OPT_CENTER, font_small);
-          break;
-        case 12:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nTwin Nebula 285"), OPT_CENTER, font_small);
-          break;
-        case 13:
-          draw_text_box(cmd, TOOL_HEAD_POS, F(" \nTAZ Dual Extruder"), OPT_CENTER, font_small);
-          break;
-      }
     }
 
     cmd.colors(normal_btn)
@@ -621,12 +571,12 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 
 void StatusScreen::onMediaMounted() {
   if (AT_SCREEN(StatusScreen))
-    setStatusMessage(GET_TEXT_F(MSG_USB_INSERTED));
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
 
 void StatusScreen::onMediaRemoved() {
   if (AT_SCREEN(StatusScreen) || ExtUI::isPrintingFromMedia())
-    setStatusMessage(GET_TEXT_F(MSG_USB_REMOVED));
+    setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 }
 
 #endif // FTDI_STATUS_SCREEN
