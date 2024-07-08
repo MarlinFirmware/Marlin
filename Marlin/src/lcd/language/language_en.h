@@ -48,6 +48,22 @@
   #define PREHEAT_1_LABEL ""
 #endif
 
+#ifndef PREHEAT_2_LABEL
+  #define PREHEAT_2_LABEL ""
+#endif
+
+#ifndef PREHEAT_3_LABEL
+  #define PREHEAT_3_LABEL ""
+#endif
+
+#ifndef PREHEAT_4_LABEL
+  #define PREHEAT_4_LABEL ""
+#endif
+
+#ifndef CUSTOM_MENU_MAIN_TITLE
+  #define CUSTOM_MENU_MAIN_TITLE ""
+#endif
+
 namespace LanguageNarrow_en {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("English");
