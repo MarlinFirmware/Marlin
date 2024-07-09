@@ -1669,6 +1669,9 @@
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
 #endif
+#ifdef RS485_SERIAL_PORT
+  #define HAS_RS485_SERIAL 1
+#endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
 #endif
