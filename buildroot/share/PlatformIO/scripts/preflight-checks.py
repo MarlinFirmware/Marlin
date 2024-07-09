@@ -147,7 +147,7 @@ if pioutil.is_pio_build():
         for f in config_files:
             conf_path = project_dir / "Marlin" / f
             if conf_path.is_file():
-                with open(conf_path, 'r') as file:
+                with open(conf_path, 'r', encoding="utf8") as file:
                     text = file.read()
                     modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
                     if text != modified_text:
