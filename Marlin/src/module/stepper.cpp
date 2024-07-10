@@ -2542,7 +2542,7 @@ hal_timer_t Stepper::block_phase_isr() {
             const uint32_t step_events_left_to_next = step_event_count - step_events_completed;
             const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
             
-            // TODO: respect max e accel by also considering the acceleration from the increased xy velocity
+            // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
             const bool is_ramping_up = step_events_left_to_next * max_e_accel >= current_block->la_step_rate  + max_e_accel;
             
             if (is_ramping_up){
