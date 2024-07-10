@@ -2608,7 +2608,8 @@ hal_timer_t Stepper::block_phase_isr() {
             if (la_active) {
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
               if (current_block->la_step_rate) {
-                SERIAL_ECHOLNPGM("non zero la_step_rate during crusing.", current_block->la_step_rate);
+                if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("warniing: non zero la_step_rate during cruising.", current_block->la_step_rate);
+                // TODO: fix this. Maybe ramp down needs a bit longer?
                 current_block->la_step_rate = 0; // should be zero already
               }
             }
