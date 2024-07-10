@@ -2467,12 +2467,12 @@ hal_timer_t Stepper::block_phase_isr() {
             const uint32_t step_events_left_to_next = accelerate_before - step_events_completed;
             const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
             
-            const bool is_ramping_up = step_events_left_to_next * (max_e_accel + acc_step_rate) >= current_block->la_step_rate + (max_e_accel+acc_step_rate);
+            const bool is_ramping_up = step_events_left_to_next * max_e_accel >= current_block->la_step_rate + max_e_accel;
             
             if (is_ramping_up){
-              current_block->la_step_rate += min(max_e_accel-acc_step_rate, current_block->la_advance_rate - current_block->la_step_rate);
+              current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
             } else {
-              current_block->la_step_rate -= min(max_e_accel+acc_step_rate, current_block->la_step_rate);
+              current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
             }
             uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
             la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
@@ -2542,12 +2542,13 @@ hal_timer_t Stepper::block_phase_isr() {
             const uint32_t step_events_left_to_next = step_event_count - step_events_completed;
             const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
             
-            const bool is_ramping_up = step_events_left_to_next * (max_e_accel + step_rate) >= current_block->la_step_rate  + (max_e_accel + step_rate);
+            // TODO: respect max e accel by also considering the acceleration from the increased xy velocity
+            const bool is_ramping_up = step_events_left_to_next * max_e_accel >= current_block->la_step_rate  + max_e_accel;
             
             if (is_ramping_up){
-              current_block->la_step_rate += min(max_e_accel-step_rate, current_block->la_advance_rate - current_block->la_step_rate);
+              current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
             } else {
-              current_block->la_step_rate -= min(max_e_accel+step_rate, current_block->la_step_rate);
+              current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
             }
 
             if (current_block->la_step_rate == step_rate) {
@@ -2885,7 +2886,7 @@ hal_timer_t Stepper::block_phase_isr() {
           // la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
 
           const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc);           
-          current_block->la_step_rate = min(max_e_accel - acc_step_rate, current_block->la_advance_rate);
+          current_block->la_step_rate = min(max_e_accel, current_block->la_advance_rate);
           uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
           la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
         }
