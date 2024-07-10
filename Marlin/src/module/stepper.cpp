@@ -2460,8 +2460,22 @@ hal_timer_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
-            const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-            la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
+
+            // const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
+            // la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
+
+            const uint32_t step_events_left_to_next = accelerate_before - step_events_completed;
+            const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
+            
+            const bool is_ramping_up = step_events_left_to_next * (max_e_accel + acc_step_rate) >= current_block->la_step_rate + (max_e_accel+acc_step_rate);
+            
+            if (is_ramping_up){
+              current_block->la_step_rate += min(max_e_accel-acc_step_rate, current_block->la_advance_rate - current_block->la_step_rate);
+            } else {
+              current_block->la_step_rate -= min(max_e_accel+acc_step_rate, current_block->la_step_rate);
+            }
+            uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
+            la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
           }
         #endif
 
@@ -2525,10 +2539,24 @@ hal_timer_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
-            const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
-            if (la_step_rate != step_rate) {
-              const bool forward_e = la_step_rate < step_rate;
-              la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
+            const uint32_t step_events_left_to_next = step_event_count - step_events_completed;
+            const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
+            
+            const bool is_ramping_up = step_events_left_to_next * (max_e_accel + step_rate) >= current_block->la_step_rate  + (max_e_accel + step_rate);
+            
+            if (is_ramping_up){
+              current_block->la_step_rate += min(max_e_accel-step_rate, current_block->la_advance_rate - current_block->la_step_rate);
+            } else {
+              current_block->la_step_rate -= min(max_e_accel+step_rate, current_block->la_step_rate);
+            }
+
+            if (current_block->la_step_rate == step_rate) {
+              // they cancel to zero  
+              la_interval = LA_ADV_NEVER;
+            } else {              
+              const bool forward_e = current_block->la_step_rate < step_rate;
+              uint32_t sum_rate = forward_e ? step_rate - current_block->la_step_rate : current_block->la_step_rate - step_rate;
+              la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
 
               if (forward_e != motor_direction(E_AXIS)) {
                 last_direction_bits.toggle(E_AXIS);
@@ -2543,8 +2571,6 @@ hal_timer_t Stepper::block_phase_isr() {
                 DIR_WAIT_AFTER();
               }
             }
-            else
-              la_interval = LA_ADV_NEVER;
           }
         #endif // LIN_ADVANCE
 
@@ -2578,8 +2604,13 @@ hal_timer_t Stepper::block_phase_isr() {
           #endif
 
           #if ENABLED(LIN_ADVANCE)
-            if (la_active)
+            if (la_active) {
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+              if (current_block->la_step_rate) {
+                SERIAL_ECHOLNPGM("non zero la_step_rate during crusing.", current_block->la_step_rate);
+                current_block->la_step_rate = 0; // should be zero already
+              }
+            }
           #endif
 
           // Adjust Laser Power - Cruise
@@ -2850,8 +2881,13 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
-          const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-          la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+          // const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
+          // la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+
+          const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc);           
+          current_block->la_step_rate = min(max_e_accel - acc_step_rate, current_block->la_advance_rate);
+          uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
+          la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
         }
       #endif
     }

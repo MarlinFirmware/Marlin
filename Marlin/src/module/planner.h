@@ -260,6 +260,8 @@ typedef struct PlannerBlock {
     uint8_t  la_scaling;                    // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
     uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
              final_adv_steps;               // Advance steps for exit speed pressure
+    uint32_t la_step_rate;
+    uint32_t max_e_acc;      // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
