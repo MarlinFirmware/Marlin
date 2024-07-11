@@ -2322,7 +2322,7 @@
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
-  //#define LA_ZERO_SLOWDOWN        // Removes motion acceleration limitation by allowing to gradual ramp up of nozzle pressure
+  //#define LA_ZERO_SLOWDOWN      // EXPERIMENTAL -- Removes motion acceleration limitation by allowing to gradual ramp up of nozzle pressure
 #endif
 
 /**
