@@ -2464,10 +2464,10 @@ hal_timer_t Stepper::block_phase_isr() {
             // const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
             // la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
 
-            const uint32_t step_events_left_to_next = accelerate_before - step_events_completed;
+            const uint32_t step_events_left_until_ramp_down = accelerate_before - step_events_completed;
             const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
             
-            const bool is_ramping_up = step_events_left_to_next * max_e_accel >= current_block->la_step_rate + max_e_accel;
+            const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
             
             if (is_ramping_up){
               current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
@@ -2539,11 +2539,11 @@ hal_timer_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
-            const uint32_t step_events_left_to_next = step_event_count - step_events_completed;
+            const uint32_t step_events_left_until_ramp_down = step_event_count - step_events_completed;
             const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
             
             // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
-            const bool is_ramping_up = step_events_left_to_next * max_e_accel >= current_block->la_step_rate  + max_e_accel;
+            const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
             
             if (is_ramping_up){
               current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
