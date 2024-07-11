@@ -54,10 +54,10 @@
 //#define HEATER_BED_PIN                       8
 
 // Filament sensor
-#if Y_MIN_PIN != 14 && !PIN_EXISTS(FIL_RUNOUT_PIN)
+#if Y_MIN_PIN != 14 && !PIN_EXISTS(FIL_RUNOUT)
   #define FIL_RUNOUT_PIN                      14  // Use Y_MIN limit switch interface
 #endif
-#if Z_MAX_PIN != 19 && !PIN_EXISTS(FIL_RUNOUT2_PIN)
+#if Z_MAX_PIN != 19 && !PIN_EXISTS(FIL_RUNOUT2)
   #define FIL_RUNOUT2_PIN                     19  // Use Z_MAX limit switch interface
 #endif
 
