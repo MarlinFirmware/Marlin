@@ -132,6 +132,8 @@
 #define BOARD_PANOWIN_CUTLASS         1165  // Panowin Cutlass (as found in the Panowin F1)
 #define BOARD_KODAMA_BARDO            1166  // Kodama Bardo V1.x (as found in the Kodama Trinus)
 #define BOARD_DAGOMA_D6               1167  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
+#define BOARD_XTLW_MFF_V1             1168  // XTLW MFF V1.0
+#define BOARD_XTLW_MFF_V2             1169  // XTLW MFF V2.0
 
 //
 // RAMBo and derivatives
@@ -273,6 +275,7 @@
 #define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2
 #define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo
 #define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY
+#define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW_CLIMBER_8TH_LPC
 
 //
 // SAM3X8E ARM Cortex-M3
@@ -467,6 +470,7 @@
 #define BOARD_MELLOW_FLY_E3_V2        5249  // Mellow Fly E3 V2 (STM32F407VG)
 #define BOARD_FYSETC_CHEETAH_V30      5250  // FYSETC Cheetah V3.0 (STM32F446RC)
 #define BOARD_BLACKBEEZMINI_V1        5251  // BlackBeezMini V1 (STM32F401CCU6)
+#define BOARD_XTLW_CLIMBER_8TH        5252  // XTLW Climber-8th (STM32F407VGT6)
 
 //
 // Other ARM Cortex-M4
