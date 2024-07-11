@@ -2460,22 +2460,21 @@ hal_timer_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
-
-            // const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-            // la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
-
-            const uint32_t step_events_left_until_ramp_down = accelerate_before - step_events_completed;
-            const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
-            
-            const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
-            
-            if (is_ramping_up){
-              current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
-            } else {
-              current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
-            }
-            uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
-            la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
+            #if ENABLED(LA_ZERO_SLOWDOWN)
+              const uint32_t step_events_left_until_ramp_down = accelerate_before - step_events_completed;
+              const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
+              // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
+              const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
+              if (is_ramping_up){
+                current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
+              } else {
+                current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
+              }
+              const uint32_t la_step_rate = current_block->la_step_rate;
+            #else
+              const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
+            #endif
+            la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
           }
         #endif
 
@@ -2539,25 +2538,23 @@ hal_timer_t Stepper::block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (la_active) {
-            const uint32_t step_events_left_until_ramp_down = step_event_count - step_events_completed;
-            const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
-            
-            // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
-            const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
-            
-            if (is_ramping_up){
-              current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
-            } else {
-              current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
-            }
-
-            if (current_block->la_step_rate == step_rate) {
-              // they cancel to zero  
-              la_interval = LA_ADV_NEVER;
-            } else {              
-              const bool forward_e = current_block->la_step_rate < step_rate;
-              uint32_t sum_rate = forward_e ? step_rate - current_block->la_step_rate : current_block->la_step_rate - step_rate;
-              la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
+            #if ENABLED(LA_ZERO_SLOWDOWN)
+              const uint32_t step_events_left_until_ramp_down = step_event_count - step_events_completed;
+              const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
+              // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
+              const bool is_ramping_up = step_events_left_until_ramp_down * max_e_accel >= current_block->la_step_rate;
+              if (is_ramping_up){
+                current_block->la_step_rate += min(max_e_accel, current_block->la_advance_rate - current_block->la_step_rate);
+              } else {
+                current_block->la_step_rate -= min(max_e_accel, current_block->la_step_rate);
+              }
+              const uint32_t la_step_rate = current_block->la_step_rate;
+            #else
+              const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
+            #endif
+            if (la_step_rate != step_rate) {
+              const bool forward_e = la_step_rate < step_rate;
+              la_interval = calc_timer_interval((forward_e ? step_rate - la_step_rate : la_step_rate - step_rate) >> current_block->la_scaling);
 
               if (forward_e != motor_direction(E_AXIS)) {
                 last_direction_bits.toggle(E_AXIS);
@@ -2607,11 +2604,9 @@ hal_timer_t Stepper::block_phase_isr() {
           #if ENABLED(LIN_ADVANCE)
             if (la_active) {
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
-              if (current_block->la_step_rate) {
-                if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("warniing: non zero la_step_rate during cruising.", current_block->la_step_rate);
-                // TODO: fix this. Maybe ramp down needs a bit longer?
-                current_block->la_step_rate = 0; // should be zero already
-              }
+              #if ENABLED(LA_ZERO_SLOWDOWN)
+                current_block->la_step_rate = 0;
+              #endif
             }
           #endif
 
@@ -2883,13 +2878,14 @@ hal_timer_t Stepper::block_phase_isr() {
 
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
-          // const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-          // la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
-
-          const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc);           
-          current_block->la_step_rate = min(max_e_accel, current_block->la_advance_rate);
-          uint32_t sum_rate = acc_step_rate + current_block->la_step_rate;
-          la_interval = calc_timer_interval(sum_rate >> current_block->la_scaling);
+          #if ENABLED(LA_ZERO_SLOWDOWN)
+            const uint32_t max_e_accel =  STEP_MULTIPLY(interval, current_block->max_e_acc);           
+            current_block->la_step_rate = min(max_e_accel, current_block->la_advance_rate);            
+            const uint32_t la_step_rate = current_block->la_step_rate;
+          #else
+            const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
+          #endif
+          la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
         }
       #endif
     }

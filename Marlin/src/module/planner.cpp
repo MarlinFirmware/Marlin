@@ -874,8 +874,10 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
       block->final_adv_steps = final_rate * comp;
-      block->la_step_rate = 0;
-      block->max_e_acc = (uint32_t)(float(planner.max_acceleration_steps_per_s2[E_AXIS + E_INDEX_N(extruder)]) * float(block->step_event_count) / float(block->steps[E_AXIS]) * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
+      #if ENABLED(LA_ZERO_SLOWDOWN)
+        block->la_step_rate = 0;
+        block->max_e_acc = (uint32_t)(float(planner.max_acceleration_steps_per_s2[E_AXIS + E_INDEX_N(extruder)]) * float(block->step_event_count) / float(block->steps[E_AXIS]) * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
+      #endif ENABLED(LIN_ADVANCE_ZERO_SLOWDOWN)
     }
   #endif
 
@@ -2410,14 +2412,14 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          // Scale E acceleration so that it will be possible to jump to the advance speed.
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2) {
-            // Here, disabled acc limitation due to the jerk jump required to instantly get to la_advance_rate
-            // this new method doesn't even use e-jerk and allows taking multiple steps to build up nozzle pressure
-            // accel = max_accel_steps_per_s2;
-            if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
-          }
+          #if DISABLED(LA_ZERO_SLOWDOWN)
+            // Scale E acceleration so that it will be possible to jump to the advance speed.
+            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+            if (accel > max_accel_steps_per_s2) {
+              accel = max_accel_steps_per_s2;
+              if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+            }
+          #endif
         }
       }
     #endif
