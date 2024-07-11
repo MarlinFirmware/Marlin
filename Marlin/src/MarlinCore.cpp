@@ -1277,7 +1277,7 @@ void setup() {
 
   // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
+  #ifdef STRING_DISTRIBUTION_DATE
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR

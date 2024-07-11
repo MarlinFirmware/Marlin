@@ -26,6 +26,10 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+#ifndef STRING_CONFIG_H_AUTHOR
+  #define STRING_CONFIG_H_AUTHOR "(anonymous)"
+#endif
+
 /**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
