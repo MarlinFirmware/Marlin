@@ -42,6 +42,7 @@
   #include <stm32f4xx_hal_gpio.h>
   #include <stm32f4xx_hal_sd.h>
 #elif defined(STM32F7xx)
+  #define SDIO_FOR_STM32F7
   #include <stm32f7xx_hal_rcc.h>
   #include <stm32f7xx_hal_dma.h>
   #include <stm32f7xx_hal_gpio.h>
@@ -64,9 +65,12 @@
   #define SDIO_CLOCK 18000000 // 18 MHz
 #endif
 
-SD_HandleTypeDef hsd;  // SDIO structure
+SD_HandleTypeDef hsd = {0};  // SDIO structure
 
 static uint32_t clock_to_divider(uint32_t clk) {
+  #ifdef SDIO__MAX_CLOCK
+    return SDIO__MAX_CLOCK;
+  #endif
   #ifdef SDIO_FOR_STM32H7
     // SDMMC_CK frequency = sdmmc_ker_ck / [2 * CLKDIV].
     uint32_t sdmmc_clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_SDMMC);
@@ -87,7 +91,7 @@ static uint32_t clock_to_divider(uint32_t clk) {
 // Start the SDIO clock
 void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   UNUSED(hsd);
-  #ifdef SDIO_FOR_STM32H7
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
     pinmap_pinout(PC_12, PinMap_SD);
     pinmap_pinout(PD_2,  PinMap_SD);
     pinmap_pinout(PC_8,  PinMap_SD);
@@ -103,9 +107,16 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   #endif
 }
 
-#ifdef SDIO_FOR_STM32H7
+#if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
 
   #define SD_TIMEOUT              1000 // ms
+
+  // F7 & H7 supports one DMA for RX and another for TX, but Marlin will never
+  // do read and write at same time, so we use the same DMA for both.
+  DMA_HandleTypeDef hdma_sdio;
+
+  #define DMA_IRQ_HANDLER DMA2_Stream3_IRQHandler
+  extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
   extern "C" void SDMMC1_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
 
@@ -131,6 +142,45 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     hsd.Init.ClockDiv = clock_to_divider(SDIO_CLOCK);
     sd_state = HAL_SD_Init(&hsd);
 
+
+    /* SDMMC1 DMA Init */
+    /* SDMMC1 Init */
+    hdma_sdio.Instance = DMA2_Stream3;
+    hdma_sdio.Init.Channel = DMA_CHANNEL_4;
+    hdma_sdio.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_sdio.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+    hdma_sdio.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+    hdma_sdio.Init.Mode = DMA_PFCTRL;
+    hdma_sdio.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_sdio.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+    hdma_sdio.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+    hdma_sdio.Init.MemBurst = DMA_MBURST_INC4;
+    hdma_sdio.Init.PeriphBurst = DMA_PBURST_INC4;
+    //sd_state |= (HAL_DMA_Init(&hdma_sdio) ? HAL_ERROR : HAL_OK);
+    HAL_DMA_Init(&hdma_sdio);
+
+    /* Several peripheral DMA handle pointers point to the same DMA handle.
+     Be aware that there is only one stream to perform all the requested DMAs. */
+    /* Be sure to change transfer direction before calling
+     HAL_SD_ReadBlocks_DMA or HAL_SD_WriteBlocks_DMA. */
+    //__HAL_LINKDMA(hsd,hdmarx,hdma_sdio);
+    //__HAL_LINKDMA(hsd,hdmatx,hdma_sdio);
+    __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
+    __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
+
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_FORCE_RESET();   delay(2);
+    __HAL_RCC_DMA2_RELEASE_RESET(); delay(2);
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Stream3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+
     #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3)
       if (sd_state == HAL_OK)
         sd_state = HAL_SD_ConfigWideBusOperation(&hsd, SDMMC_BUS_WIDE_4B);
@@ -139,7 +189,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     return (sd_state == HAL_OK);
   }
 
-#else // !SDIO_FOR_STM32H7
+#else // !SDIO_FOR_STM32H7 or F7
 
   #define SD_TIMEOUT               500 // ms
 
@@ -163,18 +213,18 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
   extern "C" void SDIO_IRQHandler(void) { HAL_SD_IRQHandler(&hsd); }
   extern "C" void DMA_IRQ_HANDLER(void) { HAL_DMA_IRQHandler(&hdma_sdio); }
 
-  /*
-    SDIO_INIT_CLK_DIV is 118
-    SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
-    SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
-
-    Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
-    Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
-    This might be too fast for stable SDIO operations
-
-    MKS Robin SDIO seems stable with BusWide 1bit and ClockDiv 8 (i.e., 4.8MHz SDIO clock frequency)
-    More testing is required as there are clearly some 4bit init problems.
-  */
+  /**
+   * SDIO_INIT_CLK_DIV is 118
+   * SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
+   * SDIO init clock frequency should not exceed 400kHz = 48MHz / (118 + 2)
+   *
+   * Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
+   * Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
+   * This might be too fast for stable SDIO operations
+   *
+   * MKS Robin SDIO seems stable with BusWide 1bit and ClockDiv 8 (i.e., 4.8MHz SDIO clock frequency)
+   * More testing is required as there are clearly some 4bit init problems.
+   */
 
   void go_to_transfer_speed() {
     /* Default SDIO peripheral configuration for SD card initialization */
@@ -368,7 +418,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     return true;
   }
 
-#endif // !SDIO_FOR_STM32H7
+#endif // !SDIO_FOR_STM32H7 or F7
 
 /**
  * @brief Read a block
@@ -380,14 +430,16 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
  * @return true on success
  */
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
-  #ifdef SDIO_FOR_STM32H7
 
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
     uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
     while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
       if (HAL_GetTick() >= timeout) return false;
 
     waitingRxCplt = 1;
+    hdma_sdio.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    HAL_DMA_Init(&hdma_sdio);
     if (HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t*)dst, block, 1) != HAL_OK)
       return false;
 
@@ -415,8 +467,14 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
  *
  * @return true on success
  */
+
+#ifdef SDIO_FOR_STM32F7
+  HAL_StatusTypeDef HAL_SD_WriteBlocks_DMA(SD_HandleTypeDef *hsd, uint8_t *pData, uint32_t BlockAdd, uint32_t NumberOfBlocks);
+#endif
+
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
-  #ifdef SDIO_FOR_STM32H7
+
+  #if defined(SDIO_FOR_STM32H7) || defined(SDIO_FOR_STM32F7)
 
     uint32_t timeout = HAL_GetTick() + SD_TIMEOUT;
 
@@ -424,6 +482,8 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
       if (HAL_GetTick() >= timeout) return false;
 
     waitingTxCplt = 1;
+    hdma_sdio.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    HAL_DMA_Init(&hdma_sdio);
     if (HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t*)src, block, 1) != HAL_OK)
       return false;
 

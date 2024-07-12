@@ -837,6 +837,8 @@
   #include "stm32f7/pins_REMRAM_V1.h"               // STM32F7                              env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)
   #include "stm32f7/pins_NUCLEO_F767ZI.h"           // STM32F7                              env:NUCLEO_F767ZI
+#elif MB(NUCLEO_F746ZG)
+  #include "stm32f7/pins_NUCLEO_F746ZG.h"           // STM32F7                              env:NUCLEO_F746ZG  env:NUCLEO_F746ZG_with_bootloader
 #elif MB(BTT_SKR_SE_BX_V2)
   #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"        // STM32H7                              env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_SE_BX_V3)
