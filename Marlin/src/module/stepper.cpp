@@ -2464,14 +2464,14 @@ hal_timer_t Stepper::block_phase_isr() {
               const uint32_t step_events_left_in_phase = accelerate_before - step_events_completed;
               const uint32_t max_delta_v =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
               // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
-              const bool is_ramping_up = step_events_left_in_phase * max_delta_v >= current_block->la_step_rate;
+              const bool is_ramping_up = step_events_left_in_phase * max_delta_v >= current_block->current_la_step_rate;
               
               if (is_ramping_up){
-                current_block->la_step_rate += _MIN(max_delta_v, current_block->la_advance_rate - current_block->la_step_rate);
+                current_block->current_la_step_rate += _MIN(max_delta_v, current_block->la_advance_rate - current_block->current_la_step_rate);
               } else {
-                current_block->la_step_rate -= _MIN(max_delta_v, current_block->la_step_rate);
+                current_block->current_la_step_rate -= _MIN(max_delta_v, current_block->current_la_step_rate);
               }
-              const uint32_t la_step_rate = current_block->la_step_rate;
+              const uint32_t la_step_rate = current_block->current_la_step_rate;
             #else
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
             #endif
@@ -2543,13 +2543,13 @@ hal_timer_t Stepper::block_phase_isr() {
               const uint32_t step_events_left_in_phase = step_event_count - step_events_completed;
               const uint32_t max_delta_v =  STEP_MULTIPLY(interval, current_block->max_e_acc); 
               // TODO: respect max e accel by also considering the acceleration from the step_rate delta between two timer steps
-              const bool is_ramping_up = step_events_left_in_phase * max_delta_v >= current_block->la_step_rate;
+              const bool is_ramping_up = step_events_left_in_phase * max_delta_v >= current_block->current_la_step_rate;
               if (is_ramping_up){
-                current_block->la_step_rate += _MIN(max_delta_v, current_block->la_advance_rate - current_block->la_step_rate);
+                current_block->current_la_step_rate += _MIN(max_delta_v, current_block->la_advance_rate - current_block->current_la_step_rate);
               } else {
-                current_block->la_step_rate -= _MIN(max_delta_v, current_block->la_step_rate);
+                current_block->current_la_step_rate -= _MIN(max_delta_v, current_block->current_la_step_rate);
               }
-              const uint32_t la_step_rate = current_block->la_step_rate;
+              const uint32_t la_step_rate = current_block->current_la_step_rate;
             #else
               const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             #endif
@@ -2606,7 +2606,7 @@ hal_timer_t Stepper::block_phase_isr() {
             if (la_active) {
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
               #if ENABLED(LA_ZERO_SLOWDOWN)
-                current_block->la_step_rate = 0;
+                current_block->current_la_step_rate = 0;
               #endif
             }
           #endif
@@ -2880,9 +2880,9 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(LIN_ADVANCE)
         if (la_active) {
           #if ENABLED(LA_ZERO_SLOWDOWN)
-            // TODO: the block could have no deacceleration phase so it's not correct to blindly increase current_block->la_step_rate. 
+            // TODO: the block could start at cruise or deceleration phase so it's not correct to blindly increase current_block->current_la_step_rate. 
             // for now I'll leave the first step event without LA
-            current_block->la_step_rate = 0;
+            current_block->current_la_step_rate = 0;
             const uint32_t la_step_rate = 0;
           #else
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;

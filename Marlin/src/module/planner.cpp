@@ -875,7 +875,6 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
       block->max_adv_steps = cruise_rate * comp;
       block->final_adv_steps = final_rate * comp;
       #if ENABLED(LA_ZERO_SLOWDOWN)
-        block->la_step_rate = 0;
         block->max_e_acc = (uint32_t)(float(planner.max_acceleration_steps_per_s2[E_AXIS + E_INDEX_N(extruder)]) * float(block->step_event_count) / float(block->steps[E_AXIS]) * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
       #endif ENABLED(LIN_ADVANCE_ZERO_SLOWDOWN)
     }

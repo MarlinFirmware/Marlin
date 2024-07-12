@@ -261,7 +261,7 @@ typedef struct PlannerBlock {
     uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
              final_adv_steps;               // Advance steps for exit speed pressure
     #if ENABLED(LA_ZERO_SLOWDOWN)
-      uint32_t la_step_rate;                // Current linear advance rate
+      uint32_t current_la_step_rate;        // Current (gradually changing) linear advance rate
       uint32_t max_e_acc;                   // Max E Acceleration rate in (2^24 steps)/timer_ticks*s
     #endif
   #endif
