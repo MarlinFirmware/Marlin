@@ -311,6 +311,7 @@ bool wait_for_heatup = false;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 bool pin_is_protected(const pin_t pin) {
   #define pgm_read_pin(P) (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(P) : (pin_t)pgm_read_byte(P))
