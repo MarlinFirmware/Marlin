@@ -71,7 +71,7 @@
 #define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
 #define VALID_PIN(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
-#define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
+#define IS_ANALOG(P) WITHIN(P, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
 #define pwm_status(pin) (((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM) && \
                         ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM))
 #define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
