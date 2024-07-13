@@ -799,8 +799,8 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   // Removing code to constrain values produces judder in direction-switching moves because the
   // current discrete stepping math diverges from physical motion under constant acceleration
   // when acceleration_steps_per_s2 is large compared to initial/final_rate.
-  NOLESS(initial_rate, long(MINIMAL_STEP_RATE));
-  NOLESS(final_rate,   long(MINIMAL_STEP_RATE));
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOLESS(final_rate,   uint32_t(MINIMAL_STEP_RATE));
   NOMORE(initial_rate, block->nominal_rate);  // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
   NOMORE(final_rate,   block->nominal_rate);
 
@@ -1201,16 +1201,20 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
 
     void Planner::kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f) {
       static millis_t fan_kick_end[FAN_COUNT] = { 0 };
+      #if ENABLED(FAN_KICKSTART_LINEAR)
+        static uint8_t set_fan_speed[FAN_COUNT] = { 0 };
+      #endif
       if (fan_speed[f] > FAN_OFF_PWM) {
-        if (fan_kick_end[f] == 0) {
-          fan_kick_end[f] = ms + FAN_KICKSTART_TIME;
+        const bool first_kick = fan_kick_end[f] == 0 && TERN1(FAN_KICKSTART_LINEAR, fan_speed[f] > set_fan_speed[f]);
+        if (first_kick)
+          fan_kick_end[f] = ms + (FAN_KICKSTART_TIME) TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] - set_fan_speed[f]) / 255);
+        if (first_kick || PENDING(ms, fan_kick_end[f])) {
           fan_speed[f] = FAN_KICKSTART_POWER;
+          return;
         }
-        else if (PENDING(ms, fan_kick_end[f]))
-          fan_speed[f] = FAN_KICKSTART_POWER;
       }
-      else
-        fan_kick_end[f] = 0;
+      fan_kick_end[f] = 0;
+      TERN_(FAN_KICKSTART_LINEAR, set_fan_speed[f] = fan_speed[f]);
     }
 
   #endif

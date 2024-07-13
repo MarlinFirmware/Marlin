@@ -392,7 +392,7 @@ void MarlinUI::clear_for_drawing() {
 #if HAS_DISPLAY_SLEEP
   void MarlinUI::sleep_display(const bool sleep/*=true*/) {
     static bool asleep = false;
-    if (asleep != sleep){
+    if (asleep != sleep) {
       sleep ? u8g.sleepOn() : u8g.sleepOff();
       asleep = sleep;
     }

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,27 +19,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../inc/MarlinConfig.h"
 
-#include "../gcode.h"
+#if HAS_RS485_SERIAL
 
-#include "../../lcd/marlinui.h" // for ui.reset_alert_level
-#include "../../MarlinCore.h"   // for marlin_state
-#include "../queue.h"           // for flush_and_request_resend
+#include "rs485.h"
 
-/**
- * M999: Restart after being stopped
- *
- * Default behavior is to flush the serial buffer and request
- * a resend to the host starting on the last N line received.
- *
- * Sending "M999 S1" will resume printing without flushing the
- * existing command buffer.
- */
-void GcodeSuite::M999() {
-  marlin_state = MarlinState::MF_RUNNING;
-  ui.reset_alert_level();
+HardwareSerialBusIO rs485BusIO(&RS485_SERIAL);
+RS485Bus<RS485_BUS_BUFFER_SIZE> rs485Bus(rs485BusIO, RS485_RX_ENABLE_PIN, RS485_TX_ENABLE_PIN);
 
-  if (parser.boolval('S')) return;
+PhotonProtocol rs485Protocol;
 
-  queue.flush_and_request_resend(queue.ring_buffer.command_port());
-}
+Packetizer rs485Packetizer(rs485Bus, rs485Protocol);
+
+uint8_t rs485Buffer[RS485_SEND_BUFFER_SIZE];
+
+void rs485_init() { RS485_SERIAL.begin(57600); }
+
+#endif // HAS_RS485_SERIAL

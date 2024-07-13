@@ -1823,7 +1823,7 @@ void MarlinSettings::postprocess() {
     EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
 
     const EEPROM_Error check = check_version();
-    if (check == ERR_EEPROM_VERSION) return eeprom_error;
+    if (check == ERR_EEPROM_NOPROM) return eeprom_error;
 
     uint16_t stored_crc;
 

@@ -258,7 +258,7 @@ class Endstops {
     #if ENABLED(CALIBRATION_GCODE)
       static volatile bool calibration_probe_enabled;
       static volatile bool calibration_stop_state;
-      static void enable_calibration_probe(const bool onoff,const bool stop_state = true);
+      static void enable_calibration_probe(const bool onoff, const bool stop_state=true);
     #endif
 
     static void resync();
