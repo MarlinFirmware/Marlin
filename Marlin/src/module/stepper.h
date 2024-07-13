@@ -295,6 +295,16 @@ class Stepper {
 
   public:
 
+    // The minimal step rate ensures calculations stay within limits
+    // and avoid the most unreasonably slow step rates.
+    static constexpr uint32_t minimal_step_rate = (
+      #ifdef CPU_32_BIT
+        _MAX((STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX, 1U) // 32-bit shouldn't go below 1
+      #else
+        (F_CPU) / 500000U   // AVR shouldn't go below 32 (16MHz) or 40 (20MHz)
+      #endif
+    );
+
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
     #endif
