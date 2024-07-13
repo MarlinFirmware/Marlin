@@ -205,14 +205,18 @@ public:
 
   static void init();
 
-  #if HAS_DISPLAY || HAS_DWIN_E3V2
-    static void init_lcd();
-    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-    static void clear_lcd();
-  #else
-    static void init_lcd() {}
-    static void clear_lcd() {}
-  #endif
+  static void init_lcd() IF_DISABLED(HAS_DISPLAY, {});
+
+  // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+  static void clear_lcd() IF_DISABLED(HAS_DISPLAY, {});
+
+  // Periodic or as-needed display update
+  static void update() IF_DISABLED(HAS_DISPLAY, {});
+
+  // Tell the screen to redraw on the next call
+  FORCE_INLINE static void refresh() {
+    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+  }
 
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
@@ -510,16 +514,6 @@ public:
 
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
-
-  static void init_lcd() IF_DISABLED(HAS_DISPLAY, {});
-
-  // Periodic or as-needed display update
-  static void update() IF_DISABLED(HAS_DISPLAY, {});
-
-  // Tell the screen to redraw on the next call
-  FORCE_INLINE static void refresh() {
-    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
-  }
 
   #if HAS_DISPLAY
 
