@@ -129,7 +129,7 @@
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 //
