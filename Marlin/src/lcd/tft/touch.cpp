@@ -184,7 +184,7 @@ void Touch::touch(touch_control_t *control) {
     case HEATER:
       int8_t heater;
       heater = control->data;
-      ui.clear_lcd();
+      ui.clear_for_drawing();
       #if HAS_HOTEND
         if (heater >= 0) { // HotEnd
           #if HOTENDS == 1
@@ -213,20 +213,20 @@ void Touch::touch(touch_control_t *control) {
 
       break;
     case FAN:
-      ui.clear_lcd();
+      ui.clear_for_drawing();
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
       MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
       break;
     case FEEDRATE:
-      ui.clear_lcd();
+      ui.clear_for_drawing();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     #if HAS_EXTRUDERS
       case FLOWRATE:
-        ui.clear_lcd();
+        ui.clear_for_drawing();
         MenuItemBase::itemIndex = control->data;
         #if EXTRUDERS == 1
           MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });

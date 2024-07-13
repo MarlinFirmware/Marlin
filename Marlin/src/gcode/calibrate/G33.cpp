@@ -634,7 +634,7 @@ void GcodeSuite::G33() {
           }
         SERIAL_EOL();
 
-        MString<20> msg(F("Calibration sd:"));
+        MString<21> msg(F("Calibration sd:"));
         if (zero_std_dev_min < 1)
           msg.appendf(F("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0f));
         else

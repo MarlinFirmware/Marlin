@@ -112,8 +112,16 @@
   #else
     #error "LCD_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
   #endif
-  #if HAS_DGUS_LCD
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
     #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
+
+#ifdef RS485_SERIAL_PORT
+  #if WITHIN(RS485_SERIAL_PORT, 1, 9)
+    #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
+  #else
+    #error "RS485_SERIAL_PORT must be from 1 to 9."
   #endif
 #endif
 

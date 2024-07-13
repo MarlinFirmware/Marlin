@@ -206,12 +206,12 @@ class Entry():
     '''
     __slots__ = ('width', 'height', 'offset', 'length', 'filename')
 
-    def __init__(self, w=0, h=0, length=0, offset=0):
+    def __init__(self, w=0, h=0, length=0, offset=0, filename=None):
         self.width = w
         self.height = h
         self.offset = offset
         self.length = length
-        self.filename = None
+        self.filename = filename
 
     def parseRawData(self, rawEntryBytes):
         if len(rawEntryBytes) != 16:

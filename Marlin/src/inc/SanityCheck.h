@@ -837,9 +837,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Nonlinear Extrusion requirements
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
-  #if DISABLED(ADAPTIVE_STEP_SMOOTHING)
-    #error "ADAPTIVE_STEP_SMOOTHING is required for NONLINEAR_EXTRUSION."
-  #elif HAS_MULTI_EXTRUDER
+  #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
   #elif DISABLED(CPU_32_BIT)
     #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
@@ -1011,8 +1009,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // Fan Kickstart power
-#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
-  #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+#if FAN_KICKSTART_TIME
+  #if ENABLED(FAN_KICKSTART_LINEAR) && FAN_KICKSTART_POWER != 255
+    #error "FAN_KICKSTART_LINEAR requires a FAN_KICKSTART_POWER of 255."
+  #elif !WITHIN(FAN_KICKSTART_POWER, 64, 255)
+    #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+  #endif
 #endif
 
 /**
@@ -2466,6 +2468,51 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif Z_SPI_SENSORLESS && !(AXIS_HAS_SPI(Z2) && (NUM_Z_STEPPERS < 3 || AXIS_HAS_SPI(Z3)) && (NUM_Z_STEPPERS < 4 || AXIS_HAS_SPI(Z4)))
     #error "All Z Stepper Drivers must be SPI-capable to use SPI Endstops on Z."
   #endif
+  #if PIN_EXISTS(Z2_STOP)
+    #if X_HOME_TO_MIN && Z2_STOP_PIN == X_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z2_STOP_PIN == X_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z2_STOP_PIN == Y_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z2_STOP_PIN == Y_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z2_STOP_PIN == Z_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z2_STOP_PIN == Z_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z3_STOP)
+    #if X_HOME_TO_MIN && Z3_STOP_PIN == X_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z3_STOP_PIN == X_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z3_STOP_PIN == Y_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z3_STOP_PIN == Y_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z3_STOP_PIN == Z_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z3_STOP_PIN == Z_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z4_STOP)
+    #if X_HOME_TO_MIN && Z4_STOP_PIN == X_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z4_STOP_PIN == X_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z4_STOP_PIN == Y_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z4_STOP_PIN == Y_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z4_STOP_PIN == Z_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z4_STOP_PIN == Z_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
 #endif
 
 #if defined(ENDSTOP_NOISE_THRESHOLD) && !WITHIN(ENDSTOP_NOISE_THRESHOLD, 2, 7)
@@ -2872,6 +2919,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MMU2_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #elif defined(LCD_SERIAL_PORT) && MMU2_SERIAL_PORT == LCD_SERIAL_PORT
     #error "MMU2_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
+  #elif defined(RS485_SERIAL_PORT) && MMU2_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "MMU2_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #endif
 
@@ -2883,6 +2932,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(RS485_SERIAL_PORT) && LCD_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "LCD_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #else
   #if HAS_DGUS_LCD
@@ -2893,6 +2944,17 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(NEXTION_LCD)
     #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
+  #endif
+#endif
+
+/**
+ * RS485 bus requires a dedicated serial port
+ */
+#ifdef RS485_SERIAL_PORT
+  #if RS485_SERIAL_PORT == SERIAL_PORT
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && RS485_SERIAL_PORT == SERIAL_PORT_2
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #endif
 #endif
 

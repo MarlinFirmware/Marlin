@@ -374,12 +374,25 @@ void MarlinUI::draw_kill_screen() {
   } while (u8g.nextPage());
 }
 
-void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+// Erase the LCD contents by drawing an empty box.
+void MarlinUI::clear_lcd() {
+  u8g.setColorIndex(0);
+  u8g.firstPage();
+  do {
+    u8g.drawBox(0, 0, u8g.getWidth(), u8g.getHeight());
+  } while (u8g.nextPage());
+  u8g.setColorIndex(1);
+}
+
+// U8G displays are drawn over multiple loops so must do their own clearing.
+void MarlinUI::clear_for_drawing() {
+  // Automatically cleared by Picture Loop
+}
 
 #if HAS_DISPLAY_SLEEP
   void MarlinUI::sleep_display(const bool sleep/*=true*/) {
     static bool asleep = false;
-    if (asleep != sleep){
+    if (asleep != sleep) {
       sleep ? u8g.sleepOn() : u8g.sleepOff();
       asleep = sleep;
     }

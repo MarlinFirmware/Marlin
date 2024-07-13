@@ -1430,7 +1430,7 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 //
 
 inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
-  marlin_state = MF_KILLED;
+  marlin_state = MarlinState::MF_KILLED;
   thermalManager.disable_all_heaters();
   #if HAS_BEEPER
     for (uint8_t i = 20; i--;) {
@@ -2077,7 +2077,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
  *  - Update the heated bed PID output value
  */
 void Temperature::task() {
-  if (marlin_state == MF_INITIALIZING) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
+  if (marlin_state == MarlinState::MF_INITIALIZING) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
 
   static bool no_reentry = false;  // Prevent recursion
   if (no_reentry) return;
