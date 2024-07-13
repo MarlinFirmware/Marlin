@@ -318,7 +318,7 @@ bool pin_is_protected(const pin_t pin) {
   for (uint8_t i = 0; i < COUNT(sensitive_dio); ++i)
     if (pin == pgm_read_pin(&sensitive_dio[i])) return true;
   for (uint8_t i = 0; i < COUNT(sensitive_aio); ++i)
-    if (pin == analogInputToDigitalPin(pgm_read_pin(&sensitive_dio[i]))) return true;
+    if (pin == analogInputToDigitalPin(pgm_read_pin(&sensitive_aio[i]))) return true;
   return false;
 }
 
