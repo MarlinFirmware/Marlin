@@ -1827,11 +1827,12 @@
 //
 
 // Flag the indexed hardware serial ports in use
-#define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)      && N == SERIAL_PORT) \
-                          || (defined(SERIAL_PORT_2)    && N == SERIAL_PORT_2) \
-                          || (defined(SERIAL_PORT_3)    && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT) && N == MMU2_SERIAL_PORT) \
-                          || (defined(LCD_SERIAL_PORT)  && N == LCD_SERIAL_PORT) )
+#define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
+                          || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
+                          || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
+                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
+                          || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
@@ -2757,7 +2758,7 @@
 
 // Fan Kickstart
 #if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
-  #define FAN_KICKSTART_POWER 180
+  #define FAN_KICKSTART_POWER TERN(FAN_KICKSTART_LINEAR, 255, 180)
 #endif
 
 // Servos

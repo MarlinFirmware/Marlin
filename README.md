@@ -70,6 +70,7 @@ Every new HAL opens up a world of hardware. At this time we need HALs for RP2040
   [Teensy 4.0](https://www.pjrc.com/store/teensy40.html)|ARM® Cortex-M7|
   [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)|ARM® Cortex-M7|
   Linux Native|x86/ARM/etc.|Raspberry Pi
+  [All supported boards](https://marlinfw.org/docs/hardware/boards.html#boards-list)|All platforms|All boards
 
 ## Marlin Support
 
