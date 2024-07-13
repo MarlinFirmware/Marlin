@@ -25,7 +25,7 @@
 #include "../MarlinCore.h" // for printingIsPaused
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
-#if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
+#if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
 #endif
 
@@ -319,7 +319,7 @@ void MarlinUI::init() {
     #include "../feature/power_monitor.h"
   #endif
 
-  #if LED_POWEROFF_TIMEOUT > 0
+  #if HAS_LED_POWEROFF_TIMEOUT
     #include "../feature/power.h"
   #endif
 
@@ -943,9 +943,7 @@ void MarlinUI::init() {
     static uint16_t max_display_update_time = 0;
     const millis_t ms = millis();
 
-    #if LED_POWEROFF_TIMEOUT > 0
-      leds.update_timeout(powerManager.psu_on);
-    #endif
+    TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.update_timeout(powerManager.psu_on));
 
     #if HAS_MARLINUI_MENU
 
@@ -1085,10 +1083,8 @@ void MarlinUI::init() {
 
           refresh(LCDVIEW_REDRAW_NOW);
 
-          #if LED_POWEROFF_TIMEOUT > 0
-            if (!powerManager.psu_on) leds.reset_timeout(ms);
-          #endif
-        } // encoder activity
+          TERN_(HAS_LED_POWEROFF_TIMEOUT, if (!powerManager.psu_on) leds.reset_timeout(ms));
+        } // encoder or click
 
       #endif // HAS_ENCODER_ACTION
 
@@ -1828,13 +1824,14 @@ void MarlinUI::host_notify(const char * const cstr) {
   #endif
 
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+    TERN_(HAS_DISPLAY_SLEEP, refresh_screen_timeout());
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
     }
 
-    if (status) {
-      if (old_status < 2) {
+    if (old_status < 2) {   // Skip this section on first boot check
+      if (status) {         // Media Mounted
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
@@ -1845,16 +1842,16 @@ void MarlinUI::host_notify(const char * const cstr) {
           LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
-    }
-    else {
-      if (old_status < 2) {
+      else {                // Media Removed
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
-        #elif HAS_SD_DETECT
+        #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
           LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_MARLINUI_MENU
-            if (!defer_return_to_status) return_to_status();
+            if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status) return_to_status();
           #endif
+        #elif HAS_WIRED_LCD
+          return_to_status();
         #endif
       }
     }
@@ -1863,14 +1860,10 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     refresh();
 
-    #if HAS_WIRED_LCD || LED_POWEROFF_TIMEOUT > 0
+    #if HAS_WIRED_LCD || HAS_LED_POWEROFF_TIMEOUT
       const millis_t ms = millis();
-    #endif
-
-    TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
-
-    #if LED_POWEROFF_TIMEOUT > 0
-      leds.reset_timeout(ms);
+      TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
+      TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.reset_timeout(ms));
     #endif
   }
 
