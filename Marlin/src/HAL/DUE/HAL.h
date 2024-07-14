@@ -127,7 +127,7 @@ typedef Servo hal_servo_t;
 #define HAL_ADC_RESOLUTION  10
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
+  #define analogInputToDigitalPin(p) pin_t((p < 12U) ? (p) + 54U : -1)
 #endif
 
 //
