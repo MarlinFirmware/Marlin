@@ -368,7 +368,7 @@
 //
 
 #elif MB(MINITRONICS)
-  #include "mega/pins_MINITRONICS.h"                // ATmega1281                           env:mega1280
+  #include "mega/pins_MINITRONICS.h"                // ATmega1281                           env:mega1281
 #elif MB(SILVER_GATE)
   #include "mega/pins_SILVER_GATE.h"                // ATmega2561                           env:mega2560
 
