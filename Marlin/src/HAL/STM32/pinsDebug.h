@@ -115,16 +115,16 @@ const XrefInfo pin_xref[] PROGMEM = {
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
 #define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
-#define VALID_PIN(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
+#define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
-#define PRINT_PIN(Q)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define DIGITAL_PIN_TO_ANALOG_PIN(ANUM) -1  // will report analog pin number in the print port routine
+#define printPinNumber(Q)
+#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
+#define digitalPinToAnalogIndex(ANUM) -1  // will report analog pin number in the print port routine
 
 // x is a variable used to search pin_array
-#define GET_ARRAY_IS_DIGITAL(x) ((bool) pin_array[x].is_digital)
-#define GET_ARRAY_PIN(x) ((pin_t) pin_array[x].pin)
-#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define getPinIsDigitalByIndex(x) ((bool) pin_array[x].is_digital)
+#define getPinByIndex(x) ((pin_t) pin_array[x].pin)
+#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 #define MULTI_NAME_PAD 33 // space needed to be pretty if not first name assigned to a pin
 
 //
@@ -164,7 +164,7 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
   }
 }
 
-bool GET_PINMODE(const pin_t Ard_num) {
+bool getValidPinMode(const pin_t Ard_num) {
   const uint8_t pin_mode = get_pin_mode(Ard_num);
   return pin_mode == MODE_PIN_OUTPUT || pin_mode == MODE_PIN_ALT;  // assume all alt definitions are PWM
 }
@@ -173,11 +173,11 @@ int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
   if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
     return Ard_num - NUM_ANALOG_FIRST;
 
-  const uint32_t ind = digitalPinToAnalogInput(Ard_num);
+  const uint32_t ind = digitalPinToAnalogIndex(Ard_num);
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
-bool IS_ANALOG(const pin_t Ard_num) {
+bool isAnalogPin(const pin_t Ard_num) {
   return get_pin_mode(Ard_num) == MODE_PIN_ANALOG;
 }
 
@@ -186,7 +186,7 @@ bool is_digital(const pin_t Ard_num) {
   return pin_mode == MODE_PIN_INPUT || pin_mode == MODE_PIN_OUTPUT;
 }
 
-void print_port(const pin_t Ard_num) {
+void printPinPort(const pin_t Ard_num) {
   char buffer[16];
   pin_t Index;
   for (Index = 0; Index < NUMBER_PINS_TOTAL; Index++)
@@ -226,7 +226,7 @@ bool pwm_status(const pin_t Ard_num) {
   return get_pin_mode(Ard_num) == MODE_PIN_ALT;
 }
 
-void pwm_details(const pin_t Ard_num) {
+void printPinPWM(const pin_t Ard_num) {
   #ifndef STM32F1xx
     if (pwm_status(Ard_num)) {
       uint32_t alt_all = 0;
@@ -285,4 +285,4 @@ void pwm_details(const pin_t Ard_num) {
   #else
     // TODO: F1 doesn't support changing pins function, so we need to check the function of the PIN and if it's enabled
   #endif
-} // pwm_details
+} // printPinPWM

@@ -729,8 +729,6 @@ void Planner::init() {
   #endif
 #endif
 
-#define MINIMAL_STEP_RATE 120
-
 /**
  * Get the current block for processing
  * and mark the block as busy.
@@ -796,13 +794,9 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   uint32_t initial_rate = entry_speed ? LROUND(entry_speed * spmm) : block->initial_rate,
            final_rate = LROUND(exit_speed * spmm);
 
-  // Removing code to constrain values produces judder in direction-switching moves because the
-  // current discrete stepping math diverges from physical motion under constant acceleration
-  // when acceleration_steps_per_s2 is large compared to initial/final_rate.
-  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
-  NOLESS(final_rate,   uint32_t(MINIMAL_STEP_RATE));
-  NOMORE(initial_rate, block->nominal_rate);  // NOTE: The nominal rate may be less than MINIMAL_STEP_RATE!
-  NOMORE(final_rate,   block->nominal_rate);
+  NOLESS(initial_rate,        stepper.minimal_step_rate);
+  NOLESS(final_rate,          stepper.minimal_step_rate);
+  NOLESS(block->nominal_rate, stepper.minimal_step_rate);
 
   #if ANY(S_CURVE_ACCELERATION, LIN_ADVANCE)
     // If we have some plateau time, the cruise rate will be the nominal rate
