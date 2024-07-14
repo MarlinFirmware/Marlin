@@ -1,6 +1,6 @@
 /**
  * app_config.h is included by the hc32f460 arduino build script for every source file.
- * it is used to configure the arduino core (and ddl) automatically according 
+ * it is used to configure the arduino core (and ddl) automatically according
  * to the settings in Configuration.h and Configuration_adv.h.
  */
 #pragma once
@@ -44,7 +44,7 @@
 #define DISABLE_SERIAL_GLOBALS 1
 
 // increase the size of the Usart buffers (both RX and TX)
-// NOTE: 
+// NOTE:
 // the heap usage will increase by (SERIAL_BUFFER_SIZE - 64) * "number of serial ports used"
 // if running out of heap, the system may become unstable
 //#define SERIAL_BUFFER_SIZE 256
@@ -64,7 +64,12 @@
 // redirect printf to host serial
 #define REDIRECT_PRINTF_TO_SERIAL 1
 
-// FIXME override F_CPU to PCLK1, as marlin freaks out otherwise
-#define F_CPU (SYSTEM_CLOCK_FREQUENCIES.pclk1)
+// F_CPU must be known at compile time, but on HC32F460 it's not.
+// Thus we assume HCLK to be 200MHz, as that's what is configured in
+// 'core_hook_sysclock_init' in 'sysclock.cpp'.
+// If you face issues with this assumption, please double-check with the values
+// printed by 'MarlinHAL::HAL_clock_frequencies_dump'.
+// see also: HAL_TIMER_RATE in timers.h
+#define F_CPU 200000000 // 200MHz HCLK
 
 #endif // _HC32_APP_CONFIG_H_

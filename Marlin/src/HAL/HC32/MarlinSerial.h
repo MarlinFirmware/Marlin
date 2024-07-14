@@ -31,8 +31,8 @@
 
 struct MarlinSerial : public Usart {
   MarlinSerial(
-    struct usart_config_t *usart_device, 
-    gpio_pin_t tx_pin, 
+    struct usart_config_t *usart_device,
+    gpio_pin_t tx_pin,
     gpio_pin_t rx_pin
     #if ENABLED(SERIAL_DMA)
     , M4_DMA_TypeDef *dma_unit = nullptr,

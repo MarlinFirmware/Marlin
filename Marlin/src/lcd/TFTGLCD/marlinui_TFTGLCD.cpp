@@ -376,6 +376,8 @@ void MarlinUI::clear_lcd() {
   lcd.clear_buffer();
 }
 
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
+
 #if HAS_LCD_CONTRAST
   void MarlinUI::_set_contrast() { lcd.setContrast(contrast); }
 #endif

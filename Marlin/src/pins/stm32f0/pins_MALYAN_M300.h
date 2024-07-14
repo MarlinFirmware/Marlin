@@ -90,4 +90,6 @@
 #define HEATER_0_PIN                        PA1   // HOTEND0 MOSFET
 #define HEATER_BED_PIN                      PA5   // BED MOSFET
 
-#define AUTO_FAN_PIN                        PA8
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PA8
+#endif

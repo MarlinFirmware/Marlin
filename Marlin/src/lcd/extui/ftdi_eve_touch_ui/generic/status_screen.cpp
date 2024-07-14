@@ -299,7 +299,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     #define MENU_BTN_POS   BTN_POS(3,13), BTN_SIZE(2,4)
   #endif
 
-    const bool has_media = isMediaInserted() && !isPrintingFromMedia();
+    const bool has_media = isMediaMounted() && !isPrintingFromMedia();
 
     CommandProcessor cmd;
     cmd.colors(normal_btn)
@@ -453,7 +453,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   return true;
 }
 
-void StatusScreen::onMediaInserted() {
+void StatusScreen::onMediaMounted() {
   if (AT_SCREEN(StatusScreen))
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
 }

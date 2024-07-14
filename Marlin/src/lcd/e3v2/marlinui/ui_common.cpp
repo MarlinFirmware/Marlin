@@ -90,6 +90,8 @@ void MarlinUI::clear_lcd() {
   did_first_redraw = false;
 }
 
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
+
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
@@ -111,7 +113,7 @@ void MarlinUI::clear_lcd() {
 
     dwinDrawString(false, font10x20, COLOR_YELLOW, COLOR_BG_BLACK, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
-    clear_lcd();
+    clear_for_drawing();
 
     dwinIconShow(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
@@ -132,7 +134,7 @@ void MarlinUI::clear_lcd() {
 
   void MarlinUI::bootscreen_completion(const millis_t sofar) {
     if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
-    clear_lcd();
+    clear_for_drawing();
   }
 
 #endif

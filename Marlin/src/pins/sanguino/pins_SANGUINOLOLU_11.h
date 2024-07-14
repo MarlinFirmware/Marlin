@@ -39,7 +39,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0
@@ -108,7 +108,7 @@
   #endif
   #define E0_ENABLE_PIN                        4
 #else
-  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL)  // Use IO Header
+  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // Use IO Header
     #define CASE_LIGHT_PIN                     4  // Hardware PWM  - see if IO Header is available
   #endif
 #endif
