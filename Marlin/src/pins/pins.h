@@ -509,7 +509,7 @@
 #elif MB(FLY_CDY)
   #include "lpc1769/pins_FLY_CDY.h"                 // LPC1769                              env:LPC1769
 #elif MB(XTLW_CLIMBER_8TH_LPC)
-  #include "lpc1769/pins_XTLW_CLIMBER_8TH_LPC.h"   // LPC1769                               env:LPC1769
+  #include "lpc1769/pins_XTLW_CLIMBER_8TH_LPC.h"    // LPC1769                              env:LPC1769
 
 //
 // Due (ATSAM) boards
