@@ -173,7 +173,7 @@ int8_t digital_pin_to_analog_pin(const pin_t Ard_num) {
   if (WITHIN(Ard_num, NUM_ANALOG_FIRST, NUM_ANALOG_LAST))
     return Ard_num - NUM_ANALOG_FIRST;
 
-  const uint32_t ind = digitalPinToAnalogIndex(Ard_num);
+  const int8_t ind = digitalPinToAnalogIndex(Ard_num);
   return (ind < NUM_ANALOG_INPUTS) ? ind : -1;
 }
 
