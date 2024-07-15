@@ -114,7 +114,7 @@
 // Misc. Functions
 //
 #ifndef analogInputToDigitalPin
-#define analogInputToDigitalPin(p) (p)
+#define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 #define CRITICAL_SECTION_START        \

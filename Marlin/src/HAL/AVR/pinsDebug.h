@@ -42,7 +42,7 @@
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
-  #define GET_PINMODE(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
+  #define getValidPinMode(pin) (*portModeRegister(pin) & digitalPinToBitMask_DEBUG(pin))
 
 #elif AVR_ATmega2560_FAMILY_PLUS_70   // So we can access/display all the pins on boards using more than 70
 
@@ -50,32 +50,32 @@
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer_plus_70(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask_plus_70(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort_plus_70(p)
-  bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
+  bool getValidPinMode(pin_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
 
 #else
 
   #define digitalPinToTimer_DEBUG(p) digitalPinToTimer(p)
   #define digitalPinToBitMask_DEBUG(p) digitalPinToBitMask(p)
   #define digitalPinToPort_DEBUG(p) digitalPinToPort(p)
-  bool GET_PINMODE(int8_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
-  #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
+  bool getValidPinMode(pin_t pin) {return *portModeRegister(digitalPinToPort_DEBUG(pin)) & digitalPinToBitMask_DEBUG(pin); }
+  #define getPinByIndex(p) pgm_read_byte(&pin_array[p].pin)
 
 #endif
 
-#define VALID_PIN(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
+#define isValidPin(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
 #if AVR_ATmega1284_FAMILY
-  #define IS_ANALOG(P) WITHIN(P, analogInputToDigitalPin(7), analogInputToDigitalPin(0))
-  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int(IS_ANALOG(P) ? (P) - analogInputToDigitalPin(7) : -1)
+  #define isAnalogPin(P) WITHIN(P, analogInputToDigitalPin(7), analogInputToDigitalPin(0))
+  #define digitalPinToAnalogIndex(P) int(isAnalogPin(P) ? (P) - analogInputToDigitalPin(7) : -1)
 #else
   #define _ANALOG1(P) WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(7))
   #define _ANALOG2(P) WITHIN(P, analogInputToDigitalPin(8), analogInputToDigitalPin(15))
-  #define IS_ANALOG(P) (_ANALOG1(P) || _ANALOG2(P))
-  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int(_ANALOG1(P) ? (P) - analogInputToDigitalPin(0) : _ANALOG2(P) ? (P) - analogInputToDigitalPin(8) + 8 : -1)
+  #define isAnalogPin(P) (_ANALOG1(P) || _ANALOG2(P))
+  #define digitalPinToAnalogIndex(P) int(_ANALOG1(P) ? (P) - analogInputToDigitalPin(0) : _ANALOG2(P) ? (P) - analogInputToDigitalPin(8) + 8 : -1)
 #endif
-#define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
+#define getPinByIndex(p) pgm_read_byte(&pin_array[p].pin)
 #define MULTI_NAME_PAD 26 // space needed to be pretty if not first name assigned to a pin
 
-void PRINT_ARRAY_NAME(uint8_t x) {
+void printPinNameByIndex(uint8_t x) {
   PGM_P const name_mem_pointer = (PGM_P)pgm_read_ptr(&pin_array[x].name);
   for (uint8_t y = 0; y < MAX_NAME_LENGTH; ++y) {
     char temp_char = pgm_read_byte(name_mem_pointer + y);
@@ -88,7 +88,7 @@ void PRINT_ARRAY_NAME(uint8_t x) {
   }
 }
 
-#define GET_ARRAY_IS_DIGITAL(x)   pgm_read_byte(&pin_array[x].is_digital)
+#define getPinIsDigitalByIndex(x)   pgm_read_byte(&pin_array[x].is_digital)
 
 #if defined(__AVR_ATmega1284P__)  // 1284 IDE extensions set this to the number of
   #undef NUM_DIGITAL_PINS         // digital only pins while all other CPUs have it
@@ -276,7 +276,7 @@ void timer_prefix(uint8_t T, char L, uint8_t N) {  // T - timer    L - pwm  N - 
   if (TEST(*TMSK, TOIE)) err_prob_interrupt();
 }
 
-void pwm_details(uint8_t pin) {
+void printPinPWM(uint8_t pin) {
   switch (digitalPinToTimer_DEBUG(pin)) {
 
     #if ABTEST(0)
@@ -347,7 +347,7 @@ void pwm_details(uint8_t pin) {
   #else
     UNUSED(print_is_also_tied);
   #endif
-} // pwm_details
+} // printPinPWM
 
 #ifndef digitalRead_mod                   // Use Teensyduino's version of digitalRead - it doesn't disable the PWMs
   int digitalRead_mod(const pin_t pin) {  // same as digitalRead except the PWM stop section has been removed
@@ -356,7 +356,7 @@ void pwm_details(uint8_t pin) {
   }
 #endif
 
-void print_port(const pin_t pin) {   // print port number
+void printPinPort(const pin_t pin) {   // print port number
   #ifdef digitalPinToPort_DEBUG
     uint8_t x;
     SERIAL_ECHOPGM("  Port: ");
@@ -386,7 +386,7 @@ void print_port(const pin_t pin) {   // print port number
   #endif
 }
 
-#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber(p) do{ sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
 
 #undef ABTEST
