@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,30 +19,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifdef __PLAT_NATIVE_SIM__
+/**
+ * XTLW MFF V2.0 pin assignments
+ */
 
-#include "../../inc/MarlinConfig.h"
-#include "pinsDebug.h"
+#include "env_validate.h"
 
-int8_t ADC_pin_mode(pin_t pin) { return -1; }
-
-int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? 0 : -1; }
-
-bool getValidPinMode(const pin_t pin) {
-  const int8_t pin_mode = get_pin_mode(pin);
-  if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // Invalid pin or active analog pin
-    return false;
-
-  return (Gpio::getMode(pin) != 0); // Input/output state
-}
-
-bool getPinIsDigitalByIndex(const pin_t pin) {
-  return !isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
-}
-
-void printPinPort(const pin_t) {}
-void printPinPWM(const pin_t) {}
-bool pwm_status(const pin_t) { return false; }
-
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "XTLW MFF V2.0"
 #endif
+
+//
+// Steppers
+//
+#define E2_STEP_PIN                           40
+#define E2_DIR_PIN                            42
+#define E2_ENABLE_PIN                         63
+
+//
+// Heaters / Fans
+//
+#define FAN1_PIN                              65
+#define FAN2_PIN                              66
+
+#include "pins_XTLW_MFF_V1.h"
