@@ -311,13 +311,14 @@ bool wait_for_heatup = false;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 bool pin_is_protected(const pin_t pin) {
   #define pgm_read_pin(P) (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(P) : (pin_t)pgm_read_byte(P))
   for (uint8_t i = 0; i < COUNT(sensitive_dio); ++i)
     if (pin == pgm_read_pin(&sensitive_dio[i])) return true;
   for (uint8_t i = 0; i < COUNT(sensitive_aio); ++i)
-    if (pin == analogInputToDigitalPin(pgm_read_pin(&sensitive_dio[i]))) return true;
+    if (pin == analogInputToDigitalPin(pgm_read_pin(&sensitive_aio[i]))) return true;
   return false;
 }
 
