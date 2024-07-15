@@ -481,15 +481,18 @@ void menu_move() {
 
     ftm_menu_get_msg_strings();
 
+    ft_config_t &c = ftMotion.cfg;
+
     START_MENU();
-      SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
-      MENU_ITEM_ADDON_START_RJ(ftmode.length()); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
+    SUBMENU(MSG_FTM_MODE, menu_ftm_mode);
+    MENU_ITEM_ADDON_START_RJ(ftmode.length()); lcd_put_u8str(ftmode); MENU_ITEM_ADDON_END();
     #if HAS_DYNAMIC_FREQ
       SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
       MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
     #endif
     #if HAS_EXTRUDERS
-      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+      if (c.linearAdvEna) EDIT_ITEM(float62, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 1000.0f);
     #endif
 
     END_MENU();
