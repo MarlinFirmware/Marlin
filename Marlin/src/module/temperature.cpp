@@ -1024,16 +1024,15 @@ volatile bool Temperature::raw_temps_ready = false;
 
           // Measure the rate of change of temperature, https://en.wikipedia.org/wiki/Symmetric_derivative
           const float h = MS_TO_SEC_PRECISE(test_interval_ms),
-              curr_rate = (temp_samples[2] - temp_samples[0]) / 2 * h;
+              curr_rate = (temp_samples[2] - temp_samples[0]) / 2 / h;
           if (curr_rate > rate_fastest) {
             // Update fastest values
             rate_fastest = curr_rate;
             temp_fastest = temp_samples[1];
-            time_fastest = get_elapsed_heating_time();
+            time_fastest = MS_TO_SEC_PRECISE(curr_time_ms - heat_start_time_ms - h);
           }
 
           next_test_time_ms += test_interval_ms;
-
         }
         else if (current_temp < 200.0f) {
           // Second regime (after 100deg) measure 3 points to determine asymptotic temperature
@@ -1050,7 +1049,6 @@ volatile bool Temperature::raw_temps_ready = false;
           temp_samples[sample_count++] = current_temp;
 
           next_test_time_ms += test_interval_ms * sample_distance;
-
         }
         else {
           // Third regime (after 200deg) finished gathering data so finish
@@ -1237,9 +1235,14 @@ volatile bool Temperature::raw_temps_ready = false;
         tuning_type = FORCE_DIFFERENTIAL;
 
     if (tuning_type == FORCE_DIFFERENTIAL) {
+      #if ENABLED(MPC_AUTOTUNE_DEBUG)
+        SERIAL_ECHOLNPGM("rate_fastest ", tuner.get_rate_fastest());
+        SERIAL_ECHOLNPGM("time_fastest ", tuner.get_time_fastest());
+        SERIAL_ECHOLNPGM("temp_fastest ", tuner.get_temp_fastest());
+      #endif
       // Differential tuning
       mpc.block_heat_capacity = mpc.heater_power / tuner.get_rate_fastest();
-      mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
+      mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_temp_fastest());
     }
 
     hotend.modeled_block_temp = asymp_temp + (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_elapsed_heating_time());
@@ -1277,9 +1280,14 @@ volatile bool Temperature::raw_temps_ready = false;
 
       // Check again: If analytic tuning fails, fall back to differential tuning
       if (tuning_type == AUTO && (mpc.sensor_responsiveness <= 0 || mpc.block_heat_capacity <= 0)) {
+        #if ENABLED(MPC_AUTOTUNE_DEBUG)
+          SERIAL_ECHOLNPGM("rate_fastest ", tuner.get_rate_fastest());
+          SERIAL_ECHOLNPGM("time_fastest ", tuner.get_time_fastest());
+          SERIAL_ECHOLNPGM("temp_fastest ", tuner.get_temp_fastest());
+        #endif
         tuning_type = FORCE_DIFFERENTIAL;
         mpc.block_heat_capacity = mpc.heater_power / tuner.get_rate_fastest();
-        mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_time_fastest());
+        mpc.sensor_responsiveness = tuner.get_rate_fastest() / (tuner.get_rate_fastest() * tuner.get_time_fastest() + tuner.get_ambient_temp() - tuner.get_temp_fastest());
       }
     }
 
