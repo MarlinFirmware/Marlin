@@ -91,24 +91,23 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 1:  SaveSettingsDialogBox::promptToSaveSettings();              break;
-    case 2:  GOTO_SCREEN(MoveAxisScreen);                                break;
-    case 3:  injectCommands(F("M84"));                                   break;
+    case 1: SaveSettingsDialogBox::promptToSaveSettings(); break;
+    case 2: GOTO_SCREEN(MoveAxisScreen);                   break;
+    case 3: injectCommands(F("M84"));                      break;
     #if ENABLED(BACKLASH_COMPENSATION)
-      case 4:  GOTO_SCREEN(BacklashCompensationScreen);                    break;
+      case 4: GOTO_SCREEN(BacklashCompensationScreen);     break;
     #endif
     case 5:
       GOTO_SCREEN(StatusScreen);
       #ifndef CLEAN_SCRIPT
-        injectCommands(F("G12"));
-      #else
-         injectCommands(F(CLEAN_SCRIPT));
+        #define CLEAN_SCRIPT "G12"
       #endif
+      injectCommands(F(CLEAN_SCRIPT));
       break;
-    case 6:  GOTO_SCREEN(TemperatureScreen);                             break;
-    case 7:  GOTO_SCREEN(AdvancedSettingsMenu);                          break;
+    case 6: GOTO_SCREEN(TemperatureScreen);                break;
+    case 7: GOTO_SCREEN(AdvancedSettingsMenu);             break;
     #if HAS_LEVELING
-      case 8:  GOTO_SCREEN(LevelingMenu);                                break;
+      case 8: GOTO_SCREEN(LevelingMenu);                   break;
     #endif
     #if ALL(HAS_LEVELING, HAS_BED_PROBE)
     case 9:
@@ -119,7 +118,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
       #endif
       break;
     #endif
-    case 10: GOTO_SCREEN(AboutScreen);                                   break;
+    case 10: GOTO_SCREEN(AboutScreen);                     break;
     default:
       return false;
   }

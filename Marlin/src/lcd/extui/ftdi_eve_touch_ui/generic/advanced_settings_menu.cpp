@@ -122,14 +122,14 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case  1: SaveSettingsDialogBox::promptToSaveSettings(); break;
     #if HAS_BED_PROBE
-    case  2: GOTO_SCREEN(ZOffsetScreen);              break;
+    case  2: GOTO_SCREEN(ZOffsetScreen); break;
     #endif
-    case  3: GOTO_SCREEN(StepsScreen);                break;
+    case  3: GOTO_SCREEN(StepsScreen); break;
     #if HAS_MULTI_HOTEND
-    case  4: GOTO_SCREEN(NozzleOffsetScreen);         break;
+    case  4: GOTO_SCREEN(NozzleOffsetScreen); break;
     #endif
-    case  5: GOTO_SCREEN(MaxVelocityScreen);          break;
-    case  6: GOTO_SCREEN(DefaultAccelerationScreen);  break;
+    case  5: GOTO_SCREEN(MaxVelocityScreen); break;
+    case  6: GOTO_SCREEN(DefaultAccelerationScreen); break;
     case  7: GOTO_SCREEN(TERN(HAS_JUNCTION_DEVIATION, JunctionDeviationScreen, JerkScreen)); break;
     #if ENABLED(BACKLASH_GCODE)
     case  8: GOTO_SCREEN(BacklashCompensationScreen); break;
@@ -147,14 +147,13 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 14: GOTO_SCREEN(StepperBumpSensitivityScreen); break;
     #endif
     case 15: GOTO_SCREEN(DisplayTuningScreen); break;
-    case 16: GOTO_SCREEN(FlowPercentScreen);   break;
+    case 16: GOTO_SCREEN(FlowPercentScreen); break;
     case 17:
       GOTO_SCREEN(StatusScreen);
       #ifndef CLEAN_SCRIPT
-        injectCommands(F("G12"));
-      #else
-         injectCommands(F(CLEAN_SCRIPT));
+        #define CLEAN_SCRIPT "G12"
       #endif
+      injectCommands(F(CLEAN_SCRIPT));
       break;
     default: return false;
   }
