@@ -143,7 +143,7 @@ void BDS_Leveling::process() {
       old_buf_z = current_position.z;
       endstops.bdp_state_update(z_sensor <= BD_SENSOR_HOME_Z_POSITION);
 
-      #if HAS_STATUS_MESSAGE
+      #if HAS_DISPLAY
         static float old_z_sensor = 0;
         if (old_z_sensor != z_sensor) {
           old_z_sensor = z_sensor;

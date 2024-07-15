@@ -53,7 +53,7 @@
   #include "e3v2/proui/dwin.h"
 #endif
 
-#if ALL(HAS_STATUS_MESSAGE, IS_DWIN_MARLINUI)
+#if ENABLED(IS_DWIN_MARLINUI)
   #include "e3v2/marlinui/marlinui_dwin.h" // for LCD_WIDTH
 #endif
 
@@ -203,23 +203,12 @@ public:
     TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
-  static void init();
-
-  #if HAS_DISPLAY || HAS_DWIN_E3V2
-    static void init_lcd();
-    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-    static void clear_lcd();
-  #else
-    static void init_lcd() {}
-    static void clear_lcd() {}
-  #endif
-
-  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
-
   #if HAS_WIRED_LCD
     static bool detected();
+    FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); } // Tell the screen to redraw on the next call
   #else
     static bool detected() { return true; }
+    FORCE_INLINE static void refresh() {}
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -375,61 +364,6 @@ public:
   static void host_notify(FSTR_P const fstr) { host_notify_P(FTOP(fstr)); }
   static void host_notify(const char * const cstr);
 
-  #if HAS_STATUS_MESSAGE
-
-    #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
-      #else
-        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
-      #endif
-    #else
-      #define MAX_MESSAGE_LENGTH 63
-    #endif
-
-    static MString<MAX_MESSAGE_LENGTH> status_message;
-    static uint8_t alert_level; // Higher levels block lower levels
-
-    #if HAS_STATUS_MESSAGE_TIMEOUT
-      static millis_t status_message_expire_ms; // Reset some status messages after a timeout
-    #endif
-
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      static uint8_t status_scroll_offset;
-      static void reset_status_scroll() { status_scroll_offset = 0; }
-      static void advance_status_scroll();
-      static char* status_and_len(uint8_t &len);
-    #endif
-
-    static bool has_status() { return !status_message.empty(); }
-
-    /**
-     * Try to set the alert level.
-     * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
-     * @return      TRUE if the level could NOT be set.
-     */
-    static bool set_alert_level(int8_t &level);
-
-    static void reset_status(const bool no_welcome=false);
-    static void reset_alert_level() { alert_level = 0; }
-
-    static statusResetFunc_t status_reset_callback;
-    static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { status_reset_callback = fn; }
-
-  #else
-
-    #define MAX_MESSAGE_LENGTH 1
-    static constexpr bool has_status() { return false; }
-
-    static bool set_alert_level(int8_t) { return false; }
-
-    static void reset_status(const bool=false) {}
-    static void reset_alert_level() {}
-
-    static void set_status_reset_fn(const statusResetFunc_t=nullptr) {}
-
-  #endif
-
   /**
    * @brief Set Status with a C- or P-string and alert level.
    *
@@ -495,7 +429,7 @@ public:
   /**
    * @brief Set a persistent status with a C-string.
    *
-   * @param cstr    A C-string to set as the status.
+   * @param cstr A C-string to set as the status.
    */
   static void set_status_no_expire_P(PGM_P const pstr)      { set_status_P(pstr, true); }
   static void set_status_no_expire(const char * const cstr) { set_status(cstr, true); }
@@ -504,29 +438,67 @@ public:
   /**
    * @brief Set a status with a format string and parameters.
    *
-   * @param pfmt    A constant format P-string
+   * @param pfmt A constant format P-string
    */
   static void status_printf_P(int8_t level, PGM_P const pfmt, ...);
 
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
-  // Periodic or as-needed display update
-  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
-
-  // Tell the screen to redraw on the next call
-  FORCE_INLINE static void refresh() {
-    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
-  }
-
   #if HAS_DISPLAY
 
-    // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
-    static void clear_for_drawing();
+    static void init_lcd();
+    static void clear_lcd(); // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+    static void clear_for_drawing(); // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
+    static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+    static void update(); // Periodic or as-needed display update
 
     static void abort_print();
     static void pause_print();
     static void resume_print();
+
+    #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+      #if ENABLED(STATUS_MESSAGE_SCROLLING)
+        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
+      #else
+        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
+      #endif
+    #else
+      #define MAX_MESSAGE_LENGTH 63
+    #endif
+
+    static MString<MAX_MESSAGE_LENGTH> status_message;
+    static bool has_status() { return !status_message.empty(); }
+
+    #if HAS_STATUS_MESSAGE_TIMEOUT
+      static millis_t status_message_expire_ms; // Reset some status messages after a timeout
+    #endif
+
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      static uint8_t status_scroll_offset;
+      static void reset_status_scroll() { status_scroll_offset = 0; }
+      static void advance_status_scroll();
+      static char* status_and_len(uint8_t &len);
+    #endif
+
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
+
+    /**
+     * Try to set the alert level.
+     * @param level Alert level. Negative to ignore and reset the level. Non-zero never expires.
+     * @return      TRUE if the level could NOT be set.
+     */
+    static bool set_alert_level(int8_t &level);
+
+    static uint8_t alert_level; // Higher levels block lower levels
+    static void reset_alert_level() { alert_level = 0; }
+    static void reset_status(const bool no_welcome=false);
+
+    static statusResetFunc_t status_reset_callback;
+    static void set_status_reset_fn(const statusResetFunc_t fn=nullptr) { status_reset_callback = fn; }
 
     #if ENABLED(FLOWMETER_SAFETY)
       static void flow_fault();
@@ -574,15 +546,13 @@ public:
       #endif
 
       #if ENABLED(LCD_PROGRESS_BAR) && !HAS_MARLINUI_U8GLIB
-        static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+        static millis_t progress_bar_ms; // Start time for the current progress bar cycle
         static void draw_progress_bar(const uint8_t percent);
         #if PROGRESS_MSG_EXPIRE > 0
           static millis_t expire_status_ms; // = 0
           FORCE_INLINE static void reset_progress_bar_timeout() { expire_status_ms = 0; }
         #endif
       #endif
-
-      static uint8_t lcd_status_update_delay;
 
       #if HAS_LCD_CONTRAST
         static uint8_t contrast;
@@ -596,7 +566,9 @@ public:
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
+      static uint8_t lcd_status_update_delay;
       static void quick_feedback(const bool clear_buttons=true);
+      static void status_screen();
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
@@ -606,8 +578,6 @@ public:
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
-
-      static void status_screen();
 
     #endif // HAS_WIRED_LCD
 
@@ -626,22 +596,33 @@ public:
       static void zoffset_overlay(const_float_t zvalue);
     #endif
 
-    static void draw_kill_screen();
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
-
   #else // No LCD
 
+    static void init_lcd() {}
+    static void clear_lcd() {}
     static void clear_for_drawing() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
+    static void update() {}
 
-  #endif
+    #define MAX_MESSAGE_LENGTH 1
+    static constexpr bool has_status() { return false; }
 
-  #if !HAS_WIRED_LCD
-    static void quick_feedback(const bool=true) {}
-  #endif
+    static bool set_alert_level(int8_t) { return false; }
+
+    static void reset_status(const bool=false) {}
+    static void reset_alert_level() {}
+
+    static void set_status_reset_fn(const statusResetFunc_t=nullptr) {}
+
+  #endif // HAS_DISPLAY
+
+  /// TODO: Maybe this is not necessary?
+  // #if !HAS_WIRED_LCD
+  //   static void quick_feedback(const bool=true) {}
+  // #endif
+
+  static void init();
+  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
   static void completion_feedback(const bool good=true);
 
@@ -901,7 +882,7 @@ private:
     static constexpr bool defer_return_to_status = false;
   #endif
 
-  #if HAS_STATUS_MESSAGE
+  #if HAS_DISPLAY
     static void finish_status(const bool persist);
   #endif
 
