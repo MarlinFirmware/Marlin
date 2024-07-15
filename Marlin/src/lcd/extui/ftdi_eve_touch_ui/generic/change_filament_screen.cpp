@@ -365,9 +365,10 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
       break;
     case 15: GOTO_SCREEN(TemperatureScreen); break;
     case 16:
-            if (ExtUI::isPrintingPaused()) {
-              injectCommands(F("M117 Print Resumed")); resumePrint(); GOTO_SCREEN(StatusScreen); break;
-            }
+      if (ExtUI::isPrintingPaused()) {
+        injectCommands(F("M117 Print Resumed")); resumePrint(); GOTO_SCREEN(StatusScreen);
+      }
+      break;
     #ifdef PARKING_COMMAND_GCODE
       case 17: injectCommands(F(PARKING_COMMAND_GCODE)); break;
     #endif
