@@ -1323,7 +1323,7 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_HOTEND && HAS_DISPLAY
+    #if ALL(HAS_HOTEND, HAS_DISPLAY)
       static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}
