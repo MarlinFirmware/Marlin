@@ -926,8 +926,6 @@ volatile bool Temperature::raw_temps_ready = false;
     #define SINGLEFAN 1
   #endif
 
-  #define DEBUG_MPC_AUTOTUNE 1
-
   millis_t Temperature::MPC_autotuner::curr_time_ms, Temperature::MPC_autotuner::next_report_ms;
 
   celsius_float_t Temperature::MPC_autotuner::temp_samples[16];
@@ -983,7 +981,7 @@ volatile bool Temperature::raw_temps_ready = false;
     }
     wait_for_heatup = false;
 
-    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+    #if ENABLED(MPC_AUTOTUNE_DEBUG)
       SERIAL_ECHOLNPGM("MPC_autotuner::measure_ambient_temp() Completed");
       SERIAL_ECHOLNPGM("=====");
       SERIAL_ECHOLNPGM("ambient_temp ", get_ambient_temp());
@@ -1070,7 +1068,7 @@ volatile bool Temperature::raw_temps_ready = false;
     if (sample_count == 0) return FAILED;
     if (sample_count % 2 == 0) sample_count--;
 
-    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+    #if ENABLED(MPC_AUTOTUNE_DEBUG)
       SERIAL_ECHOLNPGM("MPC_autotuner::measure_heatup() Completed");
       SERIAL_ECHOLNPGM("=====");
       SERIAL_ECHOLNPGM("t1_time ", t1_time);
@@ -1140,7 +1138,7 @@ volatile bool Temperature::raw_temps_ready = false;
     power_fan0 = total_energy_fan0 / MS_TO_SEC_PRECISE(test_duration);
     TERN_(HAS_FAN, power_fan255 = (total_energy_fan255 * 1000) / test_duration);
 
-    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+    #if ENABLED(MPC_AUTOTUNE_DEBUG)
       SERIAL_ECHOLNPGM("MPC_autotuner::measure_transfer() Completed");
       SERIAL_ECHOLNPGM("=====");
       SERIAL_ECHOLNPGM("power_fan0 ", power_fan0);
@@ -1219,7 +1217,7 @@ volatile bool Temperature::raw_temps_ready = false;
     float asymp_temp = (t2 * t2 - t1 * t3) / (2 * t2 - t1 - t3),
           block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
-    #if ENABLED(DEBUG_MPC_AUTOTUNE)
+    #if ENABLED(MPC_AUTOTUNE_DEBUG)
       SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
       SERIAL_ECHOLNPGM("block_responsiveness ", p_float_t(block_responsiveness, 4));
     #endif
@@ -1269,7 +1267,7 @@ volatile bool Temperature::raw_temps_ready = false;
       asymp_temp = tuner.get_ambient_temp() + mpc.heater_power * (MPC_MAX) / 255 / mpc.ambient_xfer_coeff_fan0;
       block_responsiveness = -log((t2 - asymp_temp) / (t1 - asymp_temp)) / tuner.get_sample_interval();
 
-      #if ENABLED(DEBUG_MPC_AUTOTUNE)
+      #if ENABLED(MPC_AUTOTUNE_DEBUG)
         SERIAL_ECHOLNPGM("Refining estimates for:");
         SERIAL_ECHOLNPGM("asymp_temp ", asymp_temp);
         SERIAL_ECHOLNPGM("block_responsiveness ", p_float_t(block_responsiveness, 4));
@@ -1278,7 +1276,6 @@ volatile bool Temperature::raw_temps_ready = false;
       // Update analytic tuning values based on the above
       mpc.block_heat_capacity = mpc.ambient_xfer_coeff_fan0 / block_responsiveness;
       mpc.sensor_responsiveness = block_responsiveness / (1.0f - (tuner.get_ambient_temp() - asymp_temp) * exp(-block_responsiveness * tuner.get_sample_1_time()) / (t1 - asymp_temp));
-
     }
 
     SERIAL_ECHOLNPGM(STR_MPC_AUTOTUNE_FINISHED);
