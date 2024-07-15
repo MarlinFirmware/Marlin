@@ -158,9 +158,9 @@
 #define FAN_SOFT_PWM_REQUIRED
 
 //
-// Neopixel
+// NeoPixel
 //
-#define NEOPIXEL_PIN                        PC7
+#define BOARD_NEOPIXEL_PIN                  PC7
 #define NEOPIXEL2_PIN                       PC8
 
 //
@@ -206,3 +206,6 @@
 #define LUMEN_AUX3_PWM2                     PB9
 #define LUMEN_AUX3_A1                       PA0
 #define LUMEN_AUX3_A2                       PA1
+
+#define RS485_TX_ENABLE_PIN                 PD11
+#define RS485_RX_ENABLE_PIN                 PD12

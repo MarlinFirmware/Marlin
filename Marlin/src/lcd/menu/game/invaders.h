@@ -53,8 +53,8 @@ typedef struct {
   uint8_t bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
   int8_t ufox, ufov;
   bool game_blink;
-  int8_t laser_col() { return ((laser.x - pos.x) / (INVADER_COL_W)); };
-  int8_t laser_row() { return ((laser.y - pos.y + 2) / (INVADER_ROW_H)); };
+  int8_t laser_col() { return ((laser.x - pos.x) / (INVADER_COL_W)); }
+  int8_t laser_row() { return ((laser.y - pos.y + 2) / (INVADER_ROW_H)); }
 } invaders_data_t;
 
 class InvadersGame : MarlinGame { public: static void enter_game(), game_screen(); };

@@ -69,9 +69,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Mise a niveau OK!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Hauteur lissee");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Regl. decal origine");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Decalages appliques");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
@@ -255,12 +255,16 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_AUTOTEMP                       = _UxGT("Temp. Auto.");
   LSTR MSG_LCD_ON                         = _UxGT("Marche");
   LSTR MSG_LCD_OFF                        = _UxGT("Arret");
+
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Tuning PID termine");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Oper. expiree");
+
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
+
   LSTR MSG_SELECT_E                       = _UxGT("Selectionner *");
   LSTR MSG_ACC                            = _UxGT("Acceleration");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -599,7 +603,6 @@ namespace LanguageNarrow_fr_na {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");

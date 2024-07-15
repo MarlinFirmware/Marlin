@@ -27,20 +27,18 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#define ACDEBUGLEVEL 0  //  0: off, 255: all levels enabled
+// Bit-masks for selective debug
+#define AC_INFO    1
+#define AC_ACTION  2
+#define AC_FILE    4
+#define AC_PANEL   8
+#define AC_MARLIN 16
+#define AC_SOME   32
+#define AC_ALL    64
+//#define ACDEBUGLEVEL AC_MARLIN  //  0: off, 255: all levels enabled
 
 #if ACDEBUGLEVEL
-  // Bit-masks for selective debug:
-  enum ACDebugMask : uint8_t {
-    AC_INFO   =  1,
-    AC_ACTION =  2,
-    AC_FILE   =  4,
-    AC_PANEL  =  8,
-    AC_MARLIN = 16,
-    AC_SOME   = 32,
-    AC_ALL    = 64
-  };
-  #define ACDEBUG(mask) ( ((mask) & ACDEBUGLEVEL) == mask )  // Debug flag macro
+  #define ACDEBUG(mask) ((mask) & ACDEBUGLEVEL)
 #else
   #define ACDEBUG(mask) false
 #endif

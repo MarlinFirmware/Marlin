@@ -99,9 +99,9 @@ namespace LanguageNarrow_sk {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Vyrovnanie hotové!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Výška rovnania");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Nastav. dom. ofsety");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofsety nastavené");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("Chyba: Príliš ďaleko!");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Spriev. vyrovn.");
@@ -338,6 +338,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fakt");
   LSTR MSG_AUTOTEMP                       = _UxGT("Auto-teplota");
+  LSTR MSG_TIMEOUT                        = _UxGT("Čas vypršal");
   LSTR MSG_LCD_ON                         = _UxGT("Zap");
   LSTR MSG_LCD_OFF                        = _UxGT("Vyp");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("Kalibrácia PID");
@@ -347,7 +348,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kal. PID zlyhala!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Zlý extrudér");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Príliš vysoká tepl.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Čas vypršal");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Auto-kal. zlyhala! Zlý extrúder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Auto-kal. zlyhala! Príliš vysoká tepl.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Auto-kal. zlyhala! Čas vypršal.");
@@ -633,31 +633,31 @@ namespace LanguageNarrow_sk {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Jas svetla");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Nesprávna tlačiareň");
 
-  LSTR MSG_COLORS_GET                     = _UxGT("Zvoliť farbu");
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Zvoliť farby");
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farby aplikované");
-  LSTR MSG_COLORS_RED                     = _UxGT("Červená");
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Zelená");
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Modrá");
-  LSTR MSG_COLORS_WHITE                   = _UxGT("Biela");
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("Jazyk rozhrania");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Povoliť zvuky");
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Uzamknúť obrazovku");
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Tlačiareň je uzamknutá,");
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("potiahnite pre odomknutie.");
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Prosím čakajte do reštartu.");
+  LSTR MSG_COLORS_GET                     = _UxGT("Zvoliť farbu");                // ProUI
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Zvoliť farby");                // ProUI
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Farby aplikované");            // ProUI
+  LSTR MSG_COLORS_RED                     = _UxGT("Červená");                     // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Zelená");                      // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Modrá");                       // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Biela");                       // ProUI
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("Jazyk rozhrania");             // ProUI
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Povoliť zvuky");               // ProUI
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Uzamknúť obrazovku");          // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Tlačiareň je uzamknutá,");     // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("potiahnite pre odomknutie.");  // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Prosím čakajte do reštartu."); // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Žiadna karta");                // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prosím zahrejte");             // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Žiadna karta");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Prosím zahrejte");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Tlače");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Čas");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Najdlhšia");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Vytlačené");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Dokončené");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Teplota min");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Teplota max");
   LSTR MSG_INFO_PSU                       = _UxGT("Nap. zdroj");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Budenie motorov");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Motor %");
   LSTR MSG_ERROR_TMC                      = _UxGT("CHYBA KOMUNIKÁ. TMC");
@@ -669,14 +669,11 @@ namespace LanguageNarrow_sk {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("MOŽNOSTI POKRAČ.:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Vytlačiť viacej");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Obnoviť tlač");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Vytlač. alebo pokrač.?");  // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Tryska: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Senzor filamentu");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Vzd. mm fil. senz.");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Zapnúť senzor");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Senz. fil. zapn.");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Invert. extrudér");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Min. tepl. extrud.");      // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Kontrola rýchl.");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Parkovanie zlyhalo");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Kalibrácia zlyhala");
@@ -812,9 +809,9 @@ namespace LanguageWide_sk {
     LSTR MSG_MEDIA_MENU                   = _UxGT("Vytlačiť z karty");
     LSTR MSG_TURN_OFF                     = _UxGT("Vypnite tlačiareň");
     LSTR MSG_END_LOOPS                    = _UxGT("Ukončiť opak. sluč.");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Nie je vložená karta.");   // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Prosím zahrejte hotend."); // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Vynulovať počítadlo");     // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Počet tlačí");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Celkový čas");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Najdlhšia tlač");

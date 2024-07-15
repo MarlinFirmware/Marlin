@@ -96,8 +96,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -356,28 +354,31 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     // Start preheating before waiting for user confirmation that the probe is ready.
     TERN_(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(0, PROBING_BED_TEMP, true));
 
-    FSTR_P const ds_str = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
+    FSTR_P const ds_fstr = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
-    ui.set_max_status(ds_str);
+    ui.set_max_status(ds_fstr);
     SERIAL_ECHOLN(deploy ? GET_EN_TEXT_F(MSG_MANUAL_DEPLOY) : GET_EN_TEXT_F(MSG_MANUAL_STOW));
 
     OKAY_BUZZ();
 
     #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
+    {
       // Wait for the probe to be attached or detached before asking for explicit user confirmation
       // Allow the user to interrupt
-      {
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
-        while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
-        OKAY_BUZZ();
-      }
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
+      while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
+      TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+      OKAY_BUZZ();
+    }
     #endif
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_str));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_str));
-    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_str, FPSTR(CONTINUE_STR)));
+    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
+    #if ENABLED(DWIN_LCD_PROUI)
+      ExtUI::onUserConfirmRequired(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR));
+    #elif ENABLED(EXTENSIBLE_UI)
+      ExtUI::onUserConfirmRequired(ds_fstr);
+    #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_status();
@@ -998,7 +999,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         default: break;
         case PROBE_PT_RAISE:
           if (raise_after_is_relative)
-            do_z_clearance(current_position.z + z_clearance, false);
+            do_z_clearance_by(z_clearance);
           else
             do_z_clearance(z_clearance);
           break;
@@ -1010,6 +1011,10 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
     // If any error occurred stow the probe and set an alert
     if (isnan(measured_z)) {
+      // TODO: Disable steppers (unless G29_RETRY_AND_RECOVER or G29_HALT_ON_FAILURE are set).
+      // Something definitely went wrong at this point, so it might be a good idea to release the steppers.
+      // The user may want to quickly move the carriage or bed by hand to avoid bed damage from the (hot) nozzle.
+      // This would also benefit from the contemplated "Audio Alerts" feature.
       stow();
       LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
       #if DISABLED(G29_RETRY_AND_RECOVER)

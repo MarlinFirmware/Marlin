@@ -161,7 +161,6 @@
     }
   #endif // MARLIN_DEV_MODE
 
-
 #else
 
   void calibrate_delay_loop() {}

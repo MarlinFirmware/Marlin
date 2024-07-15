@@ -22,9 +22,6 @@
 
 /**
  * Bed Level Tools for Pro UI
- * Extended by: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 3.2.0
- * Date: 2023/05/03
  *
  * Based on the original work of: Henri-J-Norden
  * https://github.com/Jyers/Marlin/pull/126
@@ -156,7 +153,7 @@ void BedLevelTools::manualMove(const uint8_t mesh_x, const uint8_t mesh_y, bool 
   }
 }
 
-// Move / Probe methods. As examples, not yet used.
+// Move / Probe methods.
 void BedLevelTools::moveToXYZ() {
   goto_mesh_value = true;
   manualMove(mesh_x, mesh_y, false);

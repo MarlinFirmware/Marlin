@@ -32,7 +32,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0
@@ -47,7 +47,6 @@
  *
  * Once installed select the SANGUINO board and then select the CPU.
  */
-
 
 #define BOARD_INFO_NAME "Gen6 Deluxe"
 

@@ -20,69 +20,53 @@
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 #if NEED_HEX_PRINT
 
 #include "hex_print.h"
 #include "../core/serial.h"
 
-#ifdef CPU_32_BIT
-  constexpr int byte_start = 4;
-  static char _hex[] = "0x00000000";
-#else
-  constexpr int byte_start = 0;
-  static char _hex[] = "0x0000";
-#endif
+static char _hex[] = "0x00000000"; // 0:adr32 2:long 4:adr16 6:word 8:byte
 
-char* hex_byte(const uint8_t b) {
-  _hex[byte_start + 4] = hex_nybble(b >> 4);
-  _hex[byte_start + 5] = hex_nybble(b);
-  return &_hex[byte_start + 4];
+inline void __hex_byte(const uint8_t b, const uint8_t o=8) {
+  _hex[o + 0] = hex_nybble(b >> 4);
+  _hex[o + 1] = hex_nybble(b);
+}
+inline void __hex_word(const uint16_t w, const uint8_t o=6) {
+  __hex_byte(w >> 8, o + 0);
+  __hex_byte(w     , o + 2);
+}
+inline void __hex_long(const uint32_t w) {
+  __hex_word(w >> 16, 2);
+  __hex_word(w      , 6);
 }
 
-inline void _hex_word(const uint16_t w) {
-  _hex[byte_start + 2] = hex_nybble(w >> 12);
-  _hex[byte_start + 3] = hex_nybble(w >> 8);
-  _hex[byte_start + 4] = hex_nybble(w >> 4);
-  _hex[byte_start + 5] = hex_nybble(w);
-}
+char*  hex_byte(const uint8_t b)  { __hex_byte(b); return &_hex[8]; }
+char* _hex_word(const uint16_t w) { __hex_word(w); return &_hex[6]; }
+char* _hex_long(const uint32_t l) { __hex_long(l); return &_hex[2]; }
 
-char* hex_word(const uint16_t w) {
-  _hex_word(w);
-  return &_hex[byte_start + 2];
-}
-
-#ifdef CPU_32_BIT
-  char* hex_long(const uintptr_t l) {
-    _hex[2] = hex_nybble(l >> 28);
-    _hex[3] = hex_nybble(l >> 24);
-    _hex[4] = hex_nybble(l >> 20);
-    _hex[5] = hex_nybble(l >> 16);
-    _hex_word((uint16_t)(l & 0xFFFF));
-    return &_hex[2];
-  }
-#endif
-
-char* hex_address(const void * const w) {
+char* hex_address(const void * const a) {
   #ifdef CPU_32_BIT
-    (void)hex_long((uintptr_t)w);
+    (void)_hex_long((uintptr_t)a);
+    return _hex;
   #else
-    (void)hex_word((uintptr_t)w);
+    _hex[4] = '0'; _hex[5] = 'x';
+    (void)_hex_word((uintptr_t)a);
+    return &_hex[4];
   #endif
-  return _hex;
 }
 
 void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
 void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
-void print_hex_word(const uint16_t w)        { SERIAL_ECHO(hex_word(w));    }
+void print_hex_word(const uint16_t w)        { SERIAL_ECHO(_hex_word(w));    }
 void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
 
-void print_hex_long(const uint32_t w, const char delimiter) {
-  SERIAL_ECHOPGM("0x");
+void print_hex_long(const uint32_t w, const char delimiter/*='\0'*/, const bool prefix/*=false*/) {
+  if (prefix) SERIAL_ECHOPGM("0x");
   for (int B = 24; B >= 8; B -= 8) {
     print_hex_byte(w >> B);
-    SERIAL_CHAR(delimiter);
+    if (delimiter) SERIAL_CHAR(delimiter);
   }
   print_hex_byte(w);
 }

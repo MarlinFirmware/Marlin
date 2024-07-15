@@ -45,10 +45,13 @@
 #endif
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// Release JTAG pins but keep SWD enabled
+// - PA15 (JTDI / USART2 RX)
+// - PB3 (JTDO / E0_DIR)
+// - PB4 (NJTRST / E0_STEP)
 //
 //#define DISABLE_DEBUG
-//#define DISABLE_JTAG
+#define DISABLE_JTAG
 
 //
 // EEPROM

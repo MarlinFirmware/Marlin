@@ -99,7 +99,7 @@ public:
   static void configurationStoreWritten(bool success);
   static void configurationStoreRead(bool success);
 
-  static void playTone(const uint16_t frequency, const uint16_t duration);
+  static void playTone(const uint16_t frequency, const uint16_t duration=0);
   static void angryBeeps(const uint8_t beepCount);
 
   static void levelingStart();
@@ -132,7 +132,7 @@ public:
   #endif
 
   #if HAS_PID_HEATING
-    static void pidTuning(const ExtUI::result_t rst);
+    static void pidTuning(const ExtUI::pidresult_t rst);
   #endif
 
   static void steppersStatusChanged(bool steppersEnabled);

@@ -1816,7 +1816,13 @@ void hmiSDCardInit() { card.cdroot(); }
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() { dwinStartup(); }
 
-void MarlinUI::refresh() { /* Nothing to see here */ }
+void MarlinUI::clear_lcd() {}
+
+void MarlinUI::update() {
+  eachMomentUpdate(); // Status update
+  hmiSDCardUpdate();  // SD card update
+  dwinHandleScreen(); // Rotary encoder update
+}
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
@@ -4074,19 +4080,10 @@ void hmiInit() {
 }
 
 void dwinInitScreen() {
-  encoderConfiguration();
   hmiInit();
   hmiSetLanguageCache();
   hmiStartFrame(true);
 }
-
-void dwinUpdate() {
-  eachMomentUpdate(); // Status update
-  hmiSDCardUpdate();  // SD card update
-  dwinHandleScreen(); // Rotary encoder update
-}
-
-void MarlinUI::update() { dwinUpdate(); }
 
 void eachMomentUpdate() {
   static millis_t next_var_update_ms = 0, next_rts_update_ms = 0;
@@ -4173,8 +4170,8 @@ void eachMomentUpdate() {
     gotoMainMenu();
   }
   #if ENABLED(POWER_LOSS_RECOVERY)
-    else if (DWIN_lcd_sd_status && recovery.dwin_flag) { // resume print before power off
-      recovery.dwin_flag = false;
+    else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
+      recovery.ui_flag_resume = false;
 
       auto update_selection = [&](const bool sel) {
         hmiFlag.select_flag = sel;
@@ -4201,7 +4198,7 @@ void eachMomentUpdate() {
           if (encoder_diffState == ENCODER_DIFF_ENTER) {
             recovery_flag = false;
             if (hmiFlag.select_flag) break;
-            TERN_(POWER_LOSS_RECOVERY, queue.inject(F("M1000C")));
+            queue.inject(F("M1000C"));
             hmiStartFrame(true);
             return;
           }

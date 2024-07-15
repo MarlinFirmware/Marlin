@@ -1011,14 +1011,8 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                 if (card.isFileOpen()) {
                   //saved_feedrate_percentage = feedrate_percentage;
                   feedrate_percentage = 100;
-                  #if HAS_EXTRUDERS
-                    planner.flow_percentage[0] = 100;
-                    planner.e_factor[0] = planner.flow_percentage[0] * 0.01f;
-                  #endif
-                  #if HAS_MULTI_EXTRUDER
-                    planner.flow_percentage[1] = 100;
-                    planner.e_factor[1] = planner.flow_percentage[1] * 0.01f;
-                  #endif
+                  TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
+                  TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
                   TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                   once_flag = false;
@@ -1920,7 +1914,9 @@ void mks_esp_wifi_init() {
   SET_OUTPUT(WIFI_RESET_PIN);
   WIFI_SET();
   SET_OUTPUT(WIFI_IO1_PIN);
-  SET_INPUT_PULLUP(WIFI_IO0_PIN);
+  #if PIN_EXISTS(WIFI_IO0)
+    SET_INPUT_PULLUP(WIFI_IO0_PIN);
+  #endif
   WIFI_IO1_SET();
 
   esp_state = TRANSFER_IDLE;

@@ -206,7 +206,6 @@
 //
 #define LED_PIN                             PA15  // Status LED
 //#define CASE_LIGHT_PIN                    PB6   // LED Ribbon Connector (PWM TIM4_CH1)
-//#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
