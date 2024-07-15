@@ -232,7 +232,7 @@ void menu_tune() {
   #endif
 
   //
-  //FT_MOTION
+  // FT_MOTION
   //
   #if ENABLED(FT_MOTION_MENU)
     extern void menu_tune_ft_motion();
@@ -241,7 +241,5 @@ void menu_tune() {
 
   END_MENU();
 }
-
-
 
 #endif // HAS_MARLINUI_MENU
