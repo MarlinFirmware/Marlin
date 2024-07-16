@@ -325,6 +325,32 @@ void menu_move() {
   #include "../../module/ft_motion.h"
   #include "../../gcode/gcode.h"
 
+  FSTR_P get_shaper_name(const AxisEnum axis=X_AXIS) {
+    switch (ftMotion.cfg.shaper[axis]) {
+      default: return nullptr;
+      case ftMotionShaper_NONE:  return GET_TEXT_F(MSG_LCD_OFF);
+      case ftMotionShaper_ZV:    return GET_TEXT_F(MSG_FTM_ZV);
+      case ftMotionShaper_ZVD:   return GET_TEXT_F(MSG_FTM_ZVD);
+      case ftMotionShaper_ZVDD:  return GET_TEXT_F(MSG_FTM_ZVDD);
+      case ftMotionShaper_ZVDDD: return GET_TEXT_F(MSG_FTM_ZVDDD);
+      case ftMotionShaper_EI:    return GET_TEXT_F(MSG_FTM_EI);
+      case ftMotionShaper_2HEI:  return GET_TEXT_F(MSG_FTM_2HEI);
+      case ftMotionShaper_3HEI:  return GET_TEXT_F(MSG_FTM_3HEI);
+      case ftMotionShaper_MZV:   return GET_TEXT_F(MSG_FTM_MZV);
+    }
+  }
+
+  #if HAS_DYNAMIC_FREQ
+    FSTR_P get_dyn_freq_mode_name() {
+      switch (ftMotion.cfg.dynFreqMode) {
+        default:
+        case dynFreqMode_DISABLED:   return GET_TEXT_F(MSG_LCD_OFF);
+        case dynFreqMode_Z_BASED:    return GET_TEXT_F(MSG_FTM_Z_BASED);
+        case dynFreqMode_MASS_BASED: return GET_TEXT_F(MSG_FTM_MASS_BASED);
+      }
+    }
+  #endif
+
   void ftm_menu_set_cmpn(const AxisEnum axis, const ftMotionShaper_t s) {
     ftMotion.cfg.shaper[axis] = s;
     ftMotion.update_shaping_params();
@@ -389,35 +415,17 @@ void menu_move() {
   #endif // HAS_DYNAMIC_FREQ
 
   void menu_ft_motion() {
-    ft_config_t &c = ftMotion.cfg;
-
-    FSTR_P ftshaper[1 + ENABLED(HAS_Y_AXIS)] {};
-
+    // Define stuff ahead of the menu loop
+    MString<20> shaper_name[1 + ENABLED(HAS_Y_AXIS)] {};
     #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a) {
-        switch (c.shaper[a]) {
-          case ftMotionShaper_NONE:  ftshaper[a] = GET_TEXT_F(MSG_LCD_OFF);  break;
-          case ftMotionShaper_ZV:    ftshaper[a] = GET_TEXT_F(MSG_FTM_ZV);   break;
-          case ftMotionShaper_ZVD:   ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVD);  break;
-          case ftMotionShaper_ZVDD:  ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVDD); break;
-          case ftMotionShaper_ZVDDD: ftshaper[a] = GET_TEXT_F(MSG_FTM_ZVDDD);break;
-          case ftMotionShaper_EI:    ftshaper[a] = GET_TEXT_F(MSG_FTM_EI);   break;
-          case ftMotionShaper_2HEI:  ftshaper[a] = GET_TEXT_F(MSG_FTM_2HEI); break;
-          case ftMotionShaper_3HEI:  ftshaper[a] = GET_TEXT_F(MSG_FTM_3HEI); break;
-          case ftMotionShaper_MZV:   ftshaper[a] = GET_TEXT_F(MSG_FTM_MZV);  break;
-        }
-      }
+      for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a)
+        shaper_name[a] = get_shaper_name(AxisEnum(a));
+    #endif
+    #if HAS_DYNAMIC_FREQ
+      MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
-    #if HAS_DYNAMIC_FREQ
-      FSTR_P dmode;
-      switch (c.dynFreqMode) {
-        default:
-        case dynFreqMode_DISABLED:   dmode = GET_TEXT_F(MSG_LCD_OFF);        break;
-        case dynFreqMode_Z_BASED:    dmode = GET_TEXT_F(MSG_FTM_Z_BASED);    break;
-        case dynFreqMode_MASS_BASED: dmode = GET_TEXT_F(MSG_FTM_MASS_BASED); break;
-      }
-    #endif
+    ft_config_t &c = ftMotion.cfg;
 
     START_MENU();
     BACK_ITEM(MSG_MOTION);
@@ -431,7 +439,7 @@ void menu_move() {
     if (c.active) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_x);
-        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[X_AXIS]); MENU_ITEM_ADDON_END();
+        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
 
         if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -442,7 +450,7 @@ void menu_move() {
       #endif
       #if HAS_Y_AXIS
         SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_y);
-        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(ftshaper[Y_AXIS]); MENU_ITEM_ADDON_END();
+        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
 
         if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -473,13 +481,45 @@ void menu_move() {
     END_MENU();
   }
 
+  void menu_tune_ft_motion() {
+    // Define stuff ahead of the menu loop
+    MString<20> shaper_name[1 + ENABLED(HAS_Y_AXIS)] {};
+    #if HAS_X_AXIS
+      for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a)
+        shaper_name[a] = get_shaper_name(AxisEnum(a));
+    #endif
+    #if HAS_DYNAMIC_FREQ
+      MString<20> dmode = get_dyn_freq_mode_name();
+    #endif
+
+    ft_config_t &c = ftMotion.cfg;
+
+    START_MENU();
+
+    #if HAS_X_AXIS
+      SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_x);
+      MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
+    #endif
+    #if HAS_Y_AXIS
+      SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_y);
+      MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
+    #endif
+
+    #if HAS_DYNAMIC_FREQ
+      SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+      MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+    #endif
+    #if HAS_EXTRUDERS
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
+    #endif
+
+    END_MENU();
+
+  }
+
 #endif // FT_MOTION_MENU
 
 void menu_motion() {
-
-  #if ENABLED(FT_MOTION_MENU)
-    const bool is_busy = printer_busy();
-  #endif
 
   START_MENU();
 
@@ -510,7 +550,7 @@ void menu_motion() {
   // M493 - Fixed-Time Motion
   //
   #if ENABLED(FT_MOTION_MENU)
-    if (!is_busy) SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_ft_motion);
   #endif
 
   //
