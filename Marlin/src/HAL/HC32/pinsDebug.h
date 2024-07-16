@@ -71,7 +71,7 @@
   #define M43_NEVER_TOUCH(Q) (IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
 #endif
 
-static pin_t digitalPinToAnalogIndex(pin_t pin) {
+static int8_t digitalPinToAnalogIndex(pin_t pin) {
   if (!isValidPin(pin)) return -1;
   const int8_t adc_channel = int8_t(PIN_MAP[pin].adc_info.channel);
   return pin_t(adc_channel);

@@ -54,7 +54,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 
 int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? _GET_MODE(pin) : -1; }
 
-pin_t digitalPinToAnalogIndex(const pin_t pin) {
+int8_t digitalPinToAnalogIndex(const pin_t pin) {
   if (!isValidPin(pin)) return -1;
   pin_t adc_channel = pin_t(PIN_MAP[pin].adc_channel);
   #ifdef NUM_ANALOG_INPUTS
