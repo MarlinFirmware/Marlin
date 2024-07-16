@@ -38,8 +38,8 @@ constexpr static ChangeFilamentScreenData &mydata = screen_data.ChangeFilamentSc
   #define GRID_ROWS 10
   #define E0_TEMP_POS          BTN_POS(1,2),  BTN_SIZE(2,1)
   #define E1_TEMP_POS          BTN_POS(3,2),  BTN_SIZE(2,1)
-  #define UNLD_LABL_POS           BTN_POS(3,7),  BTN_SIZE(2,2)
-  #define LOAD_LABL_POS             BTN_POS(1,7),  BTN_SIZE(2,2)
+  #define UNLD_LABL_POS        BTN_POS(3,7),  BTN_SIZE(2,2)
+  #define LOAD_LABL_POS        BTN_POS(1,7),  BTN_SIZE(2,2)
   #define FILAMENT_SWAP_POS    BTN_POS(1,9),  BTN_SIZE(4,1)
   #define BACK_POS             BTN_POS(1,10), BTN_SIZE(4,1)
 #else
@@ -180,7 +180,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     if (getTargetTemp_celsius(H0) > 0) {
       cmd.cmd(COLOR_RGB(temp_button));
     }
-    else{
+    else {
       cmd.cmd(COLOR_RGB(gray_color_1));
     }
     cmd.tag(15)
@@ -190,13 +190,13 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
        .text(TEXT_POS(E0_TEMP_POS), e0_str)
        .colors(normal_btn);
 
-    if DISABLED(HAS_MULTI_HOTEND){
+    if DISABLED(HAS_MULTI_HOTEND) {
       cmd.font(font_small).cmd(COLOR_RGB(gray_color_1));
     }
     else if (getTargetTemp_celsius(H1) > 0) {
       cmd.font(font_medium).cmd(COLOR_RGB(temp_button));
     }
-    else{
+    else {
       cmd.font(font_medium).cmd(COLOR_RGB(gray_color_1));
     }
     cmd.tag(15)
@@ -282,7 +282,7 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
            .font(font_medium)
            .tag(16).colors(normal_btn).button(FILAMENT_SWAP_POS, GET_TEXT_F(MSG_RESUME_PRINT));
        }
-       else{
+       else {
         #ifdef PARKING_COMMAND_GCODE
         cmd.colors(normal_btn)
            .font(font_medium)
@@ -355,8 +355,8 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
     case 10:
     case 11:
       // Change extruder
-      mydata.e_tag      = tag;
-      mydata.t_tag      = 0;
+      mydata.e_tag = tag;
+      mydata.t_tag = 0;
       mydata.repeat_tag = 0;
       #if FILAMENT_UNLOAD_PURGE_LENGTH > 0
         mydata.need_purge = true;
@@ -365,9 +365,10 @@ bool ChangeFilamentScreen::onTouchEnd(uint8_t tag) {
       break;
     case 15: GOTO_SCREEN(TemperatureScreen); break;
     case 16:
-            if (ExtUI::isPrintingPaused()) {
-              injectCommands(F("M117 Print Resumed")); resumePrint(); GOTO_SCREEN(StatusScreen); break;
-            }
+      if (ExtUI::isPrintingPaused()) {
+        injectCommands(F("M117 Print Resumed")); resumePrint(); GOTO_SCREEN(StatusScreen);
+      }
+      break;
     #ifdef PARKING_COMMAND_GCODE
       case 17: injectCommands(F(PARKING_COMMAND_GCODE)); break;
     #endif

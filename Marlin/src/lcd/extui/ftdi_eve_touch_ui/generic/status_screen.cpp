@@ -109,7 +109,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
          .text(Y_LBL_POS, GET_TEXT_F(MSG_AXIS_Y))
          .text(Z_LBL_POS, GET_TEXT_F(MSG_AXIS_Z));
     }
-    else{
+    else {
       cmd.tag(0)
          .colors(temp_btn)
          .font(Theme::font_medium)
@@ -199,7 +199,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     if (getTargetTemp_celsius(H0) > 0) {
       cmd.fgcolor(temp_button);
     }
-    else{
+    else {
       cmd.colors(normal_btn);
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(NOZ_1_POS), e0_str);
@@ -207,7 +207,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     if (getTargetTemp_celsius(BED) > 0) {
       cmd.fgcolor(temp_button);
     }
-    else{
+    else {
       cmd.colors(normal_btn);
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(BED_POS), bed_str);
@@ -215,18 +215,18 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     if (getActualFan_percent(FAN0) > 0) {
       cmd.fgcolor(temp_button);
     }
-    else{
+    else {
       cmd.colors(normal_btn);
     }
     cmd.tag(5).font(font_medium).button(TEXT_POS(FAN_POS), fan_str);
 
-    if DISABLED(HAS_MULTI_HOTEND){
+    if DISABLED(HAS_MULTI_HOTEND) {
       cmd.font(font_xsmall).fgcolor(gray_color_1);
     }
     else if (getTargetTemp_celsius(H1) > 0) {
       cmd.font(font_medium).fgcolor(temp_button);
     }
-    else{
+    else {
       cmd.font(font_medium).colors(normal_btn);
     }
     cmd.tag(5).button(TEXT_POS(NOZ_2_POS), e1_str);
@@ -334,7 +334,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
       #endif
     }
   }
-  else{
+  else {
     cmd.colors(normal_btn)
        .font(font_medium)
        .tag(9).button(PROGRESSZONE_POS_1, GET_TEXT_F(MSG_HOME_ALL))
@@ -380,7 +380,7 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
       if (ExtUI::isPrintingPaused())
         draw_text_box(cmd, CHANGE_FILAMENT_POS, F("Change\nFilament"), OPT_CENTER, font_medium);
     }
-    else{
+    else {
       cmd.colors(normal_btn)
           .font(font_medium)
           .tag(14).button(CHANGE_FILAMENT_POS, F(""));
@@ -558,7 +558,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
           GOTO_SCREEN(ZOffsetScreen); break;
         #endif
       }
-      else{
+      else {
         coolDown();
         TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
         GOTO_SCREEN(StatusScreen);
