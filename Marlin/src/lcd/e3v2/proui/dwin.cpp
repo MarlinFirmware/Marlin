@@ -74,7 +74,7 @@
   #define HAS_ONESTEP_LEVELING 1
 #endif
 
-#if HAS_MESH || (HAS_LEVELING && HAS_ZOFFSET_ITEM)
+#if HAS_MESH || ALL(HAS_LEVELING, HAS_ZOFFSET_ITEM)
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "bedlevel_tools.h"
 #endif
@@ -3118,7 +3118,7 @@ void drawPrepareMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(trammingMenu, MSG_BED_TRAMMING, 8)) {
       BACK_ITEM(drawPrepareMenu);
-      #if HAS_BED_PROBE && HAS_MESH
+      #if ALL(HAS_BED_PROBE, HAS_MESH)
         MENU_ITEM(ICON_Tram, MSG_TRAMMING_WIZARD, onDrawMenuItem, trammingwizard);
         EDIT_ITEM(ICON_Version, MSG_BED_TRAMMING_MANUAL, onDrawChkbMenu, setManualTramming, &hmiData.fullManualTramming);
       #elif !HAS_BED_PROBE && HAS_ZOFFSET_ITEM
