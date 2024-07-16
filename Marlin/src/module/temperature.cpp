@@ -1251,7 +1251,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Allow the system to stabilize under MPC, then get a better measure of ambient loss with and without fan
     SERIAL_ECHOLNPGM(STR_MPC_MEASURING_AMBIENT, hotend.modeled_block_temp);
-    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE(MSG_MPC_MEASURING_AMBIENT), LCD_MESSAGE(MSG_MPC_MEASURING_AMBIENT));
+    TERN(DWIN_LCD_PROUI, LCD_ALERTMESSAGE, LCD_MESSAGE)(MSG_MPC_MEASURING_AMBIENT);
 
     // Use the estimated overshoot of the temperature as the target to achieve.
     hotend.target = hotend.modeled_block_temp;
@@ -4427,7 +4427,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if HAS_HOTEND && HAS_STATUS_MESSAGE
+  #if ALL(HAS_HOTEND, HAS_STATUS_MESSAGE)
     void Temperature::set_heating_message(const uint8_t e, const bool isM104/*=false*/) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf(0,
