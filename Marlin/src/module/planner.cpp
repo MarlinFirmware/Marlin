@@ -1584,7 +1584,7 @@ void Planner::quick_stop() {
   // Restart the block delay for the first movement - As the queue was
   // forced to empty, there's no risk the ISR will touch this.
 
-  delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
+  delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.active ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
 
   TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
 
@@ -1745,7 +1745,7 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.active ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   // Move buffer head
@@ -2804,7 +2804,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
     // As there are no queued movements, the Stepper ISR will not touch this
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
-    delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
+    delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.active ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   block_buffer_head = next_buffer_head;
@@ -3097,7 +3097,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       // As there are no queued movements, the Stepper ISR will not touch this
       // variable, so there is no risk setting this here (but it MUST be done
       // before the following line!!)
-      delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.mode ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
+      delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.active ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
     }
 
     // Move buffer head
@@ -3118,7 +3118,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 void Planner::set_machine_position_mm(const abce_pos_t &abce) {
 
   // When FT Motion is enabled, call synchronize() here instead of generating a sync block
-  if (TERN0(FT_MOTION, ftMotion.cfg.mode)) synchronize();
+  if (TERN0(FT_MOTION, ftMotion.cfg.active)) synchronize();
 
   TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
   TERN_(HAS_POSITION_FLOAT, position_float = abce);
