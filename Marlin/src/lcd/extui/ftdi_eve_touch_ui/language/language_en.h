@@ -68,7 +68,7 @@ namespace Language_en {
   LSTR MSG_PRINT_FINISHED           = u8"Print finished";
   LSTR MSG_PRINT_COMPLETE           = u8"Print Complete!";
   LSTR MSG_PRINT_ERROR              = u8"Print error";
-  LSTR MSG_PRINT_AREA_CLEAR         = u8"Please ensure print area is \n clear and ready to print.";
+  LSTR MSG_PRINT_AREA_CLEAR         = u8"Please ensure print area is\nclear and ready to print.";
   LSTR MSG_ABOUT_TOUCH_PANEL_1      = u8"Color Touch Panel";
   LSTR MSG_ABOUT_TOUCH_PANEL_2      = WEBSITE_URL;
   LSTR MSG_LICENSE                  = u8"This program is free software: you can redistribute it and/or modify it under the terms of "
