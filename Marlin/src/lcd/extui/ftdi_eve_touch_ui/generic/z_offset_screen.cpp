@@ -84,10 +84,10 @@ void ZOffsetScreen::runWizard() {
   // Move above probe point
   char cmd[64], str[10];
   strcpy_P(cmd, PSTR("G28O\nG0 F1000 X"));
-  dtostrf(TERN(Z_SAFE_HOMING,Z_SAFE_HOMING_X_POINT,X_CENTER), 3, 1, str);
+  dtostrf(TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_CENTER), 3, 1, str);
   strcat(cmd, str);
   strcat_P(cmd, PSTR("Y"));
-  dtostrf(TERN(Z_SAFE_HOMING,Z_SAFE_HOMING_Y_POINT,Y_CENTER), 3, 1, str);
+  dtostrf(TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_CENTER), 3, 1, str);
   strcat(cmd, str);
   strcat_P(cmd, PSTR("Z"));
   dtostrf(SHEET_THICKNESS, 3, 1, str);
