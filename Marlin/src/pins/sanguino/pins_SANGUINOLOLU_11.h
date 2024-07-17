@@ -263,7 +263,7 @@
     #else
       #define BTN_ENC                    AUX1_07
     #endif
-    #undef LCD_PINS_EN                            // not used, casuses inaccurate pin conflict
+    #undef LCD_PINS_EN                            // not used, causes inaccurate pin conflict
 
   #else // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
