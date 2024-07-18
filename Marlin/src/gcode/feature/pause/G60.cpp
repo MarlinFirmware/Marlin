@@ -40,12 +40,12 @@ void GcodeSuite::G60() {
   const bool seenQ = parser.seenval('Q');
   const uint8_t slot = seenQ ? parser.value_byte() : parser.byteval('S');
 
+  if (seenQ) return G61(slot);
+
   if (slot >= SAVED_POSITIONS) {
     SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
     return;
   }
-
-  if (seenQ) return G61(slot);
 
   stored_position[slot] = current_position;
   SBI(saved_slots[slot >> 3], slot & 0x07);

@@ -76,6 +76,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
   // No XYZ...E parameters, move to stored position
+
   float epos = stored_position[slot].e;
   if (!parser.seen_axis()) {
     DEBUG_ECHOLNPGM(STR_RESTORING_POS " (all axes)");
@@ -86,9 +87,11 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
     return;
   }
 
-  // Any axes specified,
+  // With XYZ...E return specified axes + optional offset
+
+  DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
+
   if (parser.seen(STR_AXES_MAIN)) {
-    DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
     destination = current_position;
     LOOP_NUM_AXES(i) {
       if (parser.seen(AXIS_CHAR(i))) {
@@ -96,18 +99,18 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
         DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
       }
     }
-    DEBUG_EOL();
-    // Move to the saved position
     prepare_line_to_destination();
   }
 
   #if HAS_EXTRUDERS
     if (parser.seen('E')) {
       epos += parser.value_axis_units(E_AXIS);
-      DEBUG_ECHOLNPGM(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", epos);
+      DEBUG_ECHOPGM(" E", epos);
       SYNC_E(epos);
     }
   #endif
+
+  DEBUG_EOL();
 }
 
 #endif // SAVED_POSITIONS
