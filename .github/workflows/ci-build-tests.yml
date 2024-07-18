@@ -43,6 +43,7 @@ jobs:
 
         # Native
         - linux_native
+        - simulator_linux_release
 
         # AVR
         - mega2560
@@ -181,6 +182,13 @@ jobs:
         pip install -U platformio
         pio upgrade --dev
         pio pkg update --global
+
+    - name: Install Simulator dependencies
+      run: |
+        sudo apt-get install build-essential
+        sudo apt-get install libsdl2-dev
+        sudo apt-get install libsdl2-net-dev
+        sudo apt-get install libglm-dev
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
