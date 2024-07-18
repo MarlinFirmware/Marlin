@@ -34,14 +34,18 @@
  * G60: Save current position
  *
  *   S<slot> - Memory slot # (0-based) to save into (default 0)
+ *   Q<slot> - Memory slot # (0-based) to restore. (default none)
  */
 void GcodeSuite::G60() {
-  const uint8_t slot = parser.byteval('S');
+  const bool seenQ = parser.seenval('Q');
+  const uint8_t slot = seenQ ? parser.value_byte() : parser.byteval('S');
 
   if (slot >= SAVED_POSITIONS) {
     SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
     return;
   }
+
+  if (seenQ) return G61(slot);
 
   stored_position[slot] = current_position;
   SBI(saved_slots[slot >> 3], slot & 0x07);

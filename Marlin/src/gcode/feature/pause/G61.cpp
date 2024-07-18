@@ -54,9 +54,9 @@
  *
  *   If no axes are specified then all axes are restored.
  */
-void GcodeSuite::G61() {
+void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
-  const uint8_t slot = parser.byteval('S');
+  if (slot < 0) slot = parser.byteval('S');
 
   #define SYNC_E(POINT) TERN_(HAS_EXTRUDERS, planner.set_e_position_mm((destination.e = current_position.e = (POINT))))
 
@@ -83,20 +83,22 @@ void GcodeSuite::G61() {
   else {
     if (parser.seen(STR_AXES_MAIN)) {
       DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
+      destination = current_position;
       LOOP_NUM_AXES(i) {
-        destination[i] = parser.seen(AXIS_CHAR(i))
-          ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
-          : stored_position[slot][i];
-        DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
+        if (parser.seen(AXIS_CHAR(i))) {
+          destination[i] = stored_position[slot][i] + parser.value_axis_units((AxisEnum)i);
+          DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
+        }
       }
       DEBUG_EOL();
       // Move to the saved position
       prepare_line_to_destination();
     }
     #if HAS_EXTRUDERS
-      if (parser.seen_test('E')) {
-        DEBUG_ECHOLNPGM(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", stored_position[slot].e);
-        SYNC_E(stored_position[slot].e);
+      if (parser.seen('E')) {
+        const float epos = stored_position[slot].e + parser.value_axis_units((AxisEnum)i);
+        DEBUG_ECHOLNPGM(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", epos);
+        SYNC_E(epos);
       }
     #endif
   }
