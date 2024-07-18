@@ -58,7 +58,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   if (slot < 0) slot = parser.byteval('S');
 
-  #define SYNC_E(POINT) TERN_(HAS_EXTRUDERS, planner.set_e_position_mm((destination.e = current_position.e = (POINT))))
+  #define SYNC_E(E) planner.set_e_position_mm(current_position.e = (E))
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
@@ -75,33 +75,39 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   const float fr = parser.linearval('F');
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
+  // No XYZ...E parameters, move to stored position
+  float epos = stored_position[slot].e;
   if (!parser.seen_axis()) {
-    DEBUG_ECHOLNPGM("Default position restore");
+    DEBUG_ECHOLNPGM(STR_RESTORING_POS " (all axes)");
+    // Move to the saved position, all axes except E
     do_blocking_move_to(stored_position[slot], feedrate_mm_s);
-    SYNC_E(stored_position[slot].e);
+    // Just set E to the saved position without moving it
+    TERN_(HAS_EXTRUDERS, SYNC_E(stored_position[slot].e));
+    return;
   }
-  else {
-    if (parser.seen(STR_AXES_MAIN)) {
-      DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
-      destination = current_position;
-      LOOP_NUM_AXES(i) {
-        if (parser.seen(AXIS_CHAR(i))) {
-          destination[i] = stored_position[slot][i] + parser.value_axis_units((AxisEnum)i);
-          DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
-        }
+
+  // Any axes specified,
+  if (parser.seen(STR_AXES_MAIN)) {
+    DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
+    destination = current_position;
+    LOOP_NUM_AXES(i) {
+      if (parser.seen(AXIS_CHAR(i))) {
+        destination[i] = stored_position[slot][i] + parser.value_axis_units((AxisEnum)i);
+        DEBUG_ECHO(C(' '), C(AXIS_CHAR(i)), p_float_t(destination[i], 2));
       }
-      DEBUG_EOL();
-      // Move to the saved position
-      prepare_line_to_destination();
     }
-    #if HAS_EXTRUDERS
-      if (parser.seen('E')) {
-        const float epos = stored_position[slot].e + parser.value_axis_units((AxisEnum)i);
-        DEBUG_ECHOLNPGM(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", epos);
-        SYNC_E(epos);
-      }
-    #endif
+    DEBUG_EOL();
+    // Move to the saved position
+    prepare_line_to_destination();
   }
+
+  #if HAS_EXTRUDERS
+    if (parser.seen('E')) {
+      epos += parser.value_axis_units(E_AXIS);
+      DEBUG_ECHOLNPGM(STR_RESTORING_POS " S", slot, " E", current_position.e, "=>", epos);
+      SYNC_E(epos);
+    }
+  #endif
 }
 
 #endif // SAVED_POSITIONS
