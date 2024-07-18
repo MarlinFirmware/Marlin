@@ -111,6 +111,8 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
   #endif
 
   DEBUG_EOL();
+
+  report_current_position();
 }
 
 #endif // SAVED_POSITIONS
