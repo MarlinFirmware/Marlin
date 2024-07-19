@@ -31,29 +31,74 @@
 #include "../../../core/debug_out.h"
 
 /**
- * G60: Save current position
+ * G60: Saved Positions
  *
- *   S<slot> - Memory slot # (0-based) to save into (default 0)
- *   Q<slot> - Memory slot # (0-based) to restore. (default none)
+ *   S<slot> - Save to a memory slot. (default 0)
+ *   Q<slot> - Restore from a memory slot. (default 0)
+ *   D<slot> - Delete a memory slot. With no number, delete all.
  */
 void GcodeSuite::G60() {
-  const bool seenQ = parser.seenval('Q');
-  const uint8_t slot = seenQ ? parser.value_byte() : parser.byteval('S');
+  // With no parameters report any saved positions
+  if (!parser.seen_any()) {
+    for (uint8_t s = 0; s < SAVED_POSITIONS; ++s) {
+      if (!did_save_position[s]) continue;
+      const xyze_pos_t &pos = stored_position[s];
+      SERIAL_ECHOPGM("Saved position #", s, ": ");
+      #if NUM_AXES
+        SERIAL_ECHOPGM_P(
+          LIST_N(DOUBLE(NUM_AXES),
+            SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
+            SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+            SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+          )
+        );
+      #endif
+      #if HAS_EXTRUDERS
+        SERIAL_ECHOPGM_P(SP_E_LBL, pos.e);
+      #endif
+      SERIAL_EOL();
+    }
+    return;
+  }
 
+  // Only one of these parameters is permitted
+  const uint8_t seenD = parser.seen_test('D'),
+                seenQ = parser.seen_test('Q'),
+                seenS = parser.seen_test('S');
+  if (seenD + seenQ + seenS > 1) return;
+
+  // G60 D : Delete all saved positions
+  if (seenD && !parser.seenval('D')) {
+    did_save_position.reset();
+    return;
+  }
+
+  // G60 Dn / Q / S : Get the slot value
+  const uint8_t slot = parser.byteval(seenD ? 'D' : seenQ ? 'Q' : 'S');
+
+  // G60 Q : Redirect to G61(slot)
   if (seenQ) return G61(slot);
 
-  if (slot >= SAVED_POSITIONS) {
+  // Valid slot number?
+  if (SAVED_POSITIONS < 256 && slot >= SAVED_POSITIONS) {
     SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
     return;
   }
 
+  // G60 Dn
+  if (seenD) {
+    did_save_position.clear(slot);
+    return;
+  }
+
+  // G60 S
   stored_position[slot] = current_position;
-  SBI(saved_slots[slot >> 3], slot & 0x07);
+  did_save_position.set(slot);
 
   #if ENABLED(SAVED_POSITIONS_DEBUG)
   {
     const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHOPGM(STR_SAVED_POS " S", slot, " :");
+    DEBUG_ECHOPGM(STR_SAVED_POS, slot, ": ");
     #if NUM_AXES
       DEBUG_ECHOPGM_P(
         LIST_N(DOUBLE(NUM_AXES),

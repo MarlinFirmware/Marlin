@@ -162,7 +162,7 @@
 #define STR_SOFT_MIN                        "  Min: "
 #define STR_SOFT_MAX                        "  Max: "
 
-#define STR_SAVED_POS                       "Position saved"
+#define STR_SAVED_POS                       "Saved position #"
 #define STR_RESTORING_POS                   "Restoring position"
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
 #define STR_DONE                            "Done."

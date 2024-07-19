@@ -60,15 +60,13 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   #define SYNC_E(E) planner.set_e_position_mm(current_position.e = (E))
 
-  #if SAVED_POSITIONS < 256
-    if (slot >= SAVED_POSITIONS) {
-      SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
-      return;
-    }
-  #endif
+  if (SAVED_POSITIONS < 256 && slot >= SAVED_POSITIONS) {
+    SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+    return;
+  }
 
   // No saved position? No axes being restored?
-  if (!TEST(saved_slots[slot >> 3], slot & 0x07)) return;
+  if (!did_save_position[slot]) return;
 
   // Apply any given feedrate over 0.0
   REMEMBER(saved, feedrate_mm_s);
