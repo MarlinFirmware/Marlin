@@ -166,24 +166,38 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 // General Flags for some number of states
 template<size_t N>
 struct Flags {
-  typedef bits_t(N) flagbits_t;
-  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
-  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
-  typedef struct { bool b0:1,  b1:1,  b2:1,  b3:1,  b4:1,  b5:1,  b6:1,  b7:1,  b8:1,  b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1,
-                       b16:1, b17:1, b18:1, b19:1, b20:1, b21:1, b22:1, b23:1, b24:1, b25:1, b26:1, b27:1, b28:1, b29:1, b30:1, b31:1; } N32;
-  union {
-    flagbits_t b;
-    typename IF<(N>16), N32, typename IF<(N>8), N16, N8>::type>::type flag;
+  uint8_t bitmask[(N+7)>>3];
+  // Proxy class for handling bit assignment
+  class BitProxy {
+  public:
+    BitProxy(uint8_t data[], int n) : data_(data[n>>3]), bit_(n&7) {}
+
+    // Assignment operator
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |= _BV(bit_);
+      else
+        data_ &= ~_BV(bit_);
+      return *this;
+    }
+
+    // Conversion operator to bool
+    operator bool() const { return TEST(data_, bit_); }
+
+  private:
+    uint8_t& data_;
+    uint8_t bit_;
   };
-  FI void reset()                            { b = 0; }
+
+  FI void reset()                            { for (uint8_t b = 0; b < sizeof(bitmask); ++b) bitmask[b] = 0; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  FI void set(const int n)                   { b |=  (flagbits_t)_BV(n); }
-  FI void clear(const int n)                 { b &= ~(flagbits_t)_BV(n); }
-  FI bool test(const int n) const            { return TEST(b, n); }
-  FI bool operator[](const int n)            { return test(n); }
+  FI void set(const int n)                   { bitmask[n>>3] |=  _BV(n&7); }
+  FI void clear(const int n)                 { bitmask[n>>3] &= ~_BV(n&7); }
+  FI bool test(const int n) const            { return TEST(bitmask[n>>3], n&7); }
+  FI BitProxy operator[](const int n)        { return BitProxy(bitmask, n); }
   FI bool operator[](const int n) const      { return test(n); }
-  FI int size() const                        { return sizeof(b); }
-  FI operator bool() const                   { return b; }
+  FI int size() const                        { return sizeof(bitmask); }
+  FI operator bool() const                   { for (uint8_t b : bitmask) if (b) return true; return false; }
 };
 
 // Specialization for a single bool flag
@@ -218,7 +232,7 @@ typedef struct {
   FI bool operator[](const int n)            { return flags[n]; }
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
-  FI operator bool() const                   { return flags; }
+  FI operator bool() const                   { return (bool)flags; }
 } AxisFlags;
 
 //
