@@ -3183,7 +3183,7 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
     if (has_blocks_queued())
       buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
     else
-      stepper.set_axis_position(E_AXIS, position.e);
+      stepper.set_e_axis_position(position.e);
   }
 
 #endif

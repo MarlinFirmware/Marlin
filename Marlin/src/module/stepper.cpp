@@ -3388,7 +3388,7 @@ void Stepper::set_position(const xyze_long_t &spos) {
   if (was_enabled) wake_up();
 }
 
-void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
+void Stepper::set_e_axis_position(const int32_t &v) {
   planner.synchronize();
 
   #ifdef __AVR__
@@ -3397,10 +3397,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
     const bool was_enabled = suspend();
   #endif
 
-  count_position[a] = v;
-  TERN_(INPUT_SHAPING_X, if (a == X_AXIS) shaping_x.last_block_end_pos = v);
-  TERN_(INPUT_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
-  TERN_(INPUT_SHAPING_Z, if (a == Z_AXIS) shaping_z.last_block_end_pos = v);
+  count_position[E_AXIS] = v;
 
   #ifdef __AVR__
     // Reenable Stepper ISR
