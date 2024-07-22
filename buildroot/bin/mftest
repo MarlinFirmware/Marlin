@@ -192,8 +192,8 @@ if ((AUTO_BUILD)); then
       [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection out of range." ; exit 1 ; }
     fi
     TARGET="${ENVS[$CHOICE-1]}"
-    if [[ $MB == 'SIMULATED' && $TARGET == 'LINUX_NATIVE' ]]; then
-      TARGET="simulator_linux_release" # Skip the LINUX_NATIVE environment
+    if [[ $MB == 'SIMULATED' && $TARGET == 'linux_native' ]]; then
+      TARGET="simulator_linux_release" # Skip the linux_native environment
     fi
     echo "Selected $TARGET"
   fi
