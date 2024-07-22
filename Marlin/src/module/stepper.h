@@ -538,7 +538,12 @@ class Stepper {
 
     // Set the current position in steps
     static void set_position(const xyze_long_t &spos);
-    static void set_e_axis_position(const int32_t &v);
+    static void set_axis_position(const AxisEnum a, const int32_t &v);
+
+    #if HAS_EXTRUDERS
+      // Save a little when E is the only one used
+      static void set_e_position(const int32_t &v);
+    #endif
 
     // Report the positions of the steppers, in steps
     static void report_a_position(const xyz_long_t &pos);
