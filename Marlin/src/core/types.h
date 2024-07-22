@@ -159,13 +159,53 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define FI FORCE_INLINE
 
 // Define types based on largest bit width stored value required
-#define bits_t(W)   typename IF<((W)>   16), uint32_t, typename IF<((W)>  8), uint16_t, uint8_t>::type>::type
+#define bits_t(W)   typename IF<((W)>   32), uint64_t, typename IF<((W)> 16), uint32_t, typename IF<((W)>8), uint16_t, uint8_t>::type>::type>::type
 #define uvalue_t(V) typename IF<((V)>65535), uint32_t, typename IF<((V)>255), uint16_t, uint8_t>::type>::type
 #define value_t(V)  typename IF<((V)>32767),  int32_t, typename IF<((V)>127),  int16_t,  int8_t>::type>::type
 
-// General Flags for some number of states
+// Define a template for a bit field of N bits, using the smallest type that can hold N bits
+template<size_t N, bool UseArray = (N > 64)>
+struct Flags;
+
+// Flag bits for <= 64 states
 template<size_t N>
-struct Flags {
+struct Flags<N, false> {
+  typedef bits_t(N) flagbits_t;
+  flagbits_t b;
+
+  class BitProxy {
+  public:
+    BitProxy(flagbits_t& data, int bit) : data_(data), bit_(bit) {}
+
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |=  (flagbits_t)_BV(bit_);
+      else
+        data_ &= ~(flagbits_t)_BV(bit_);
+      return *this;
+    }
+
+    operator bool() const { return TEST(data_, bit_); }
+
+  private:
+    flagbits_t& data_;
+    uint8_t bit_;
+  };
+
+  FI void reset()                            { b = 0; }
+  FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  FI void set(const int n)                   { b |=  (flagbits_t)_BV(n); }
+  FI void clear(const int n)                 { b &= ~(flagbits_t)_BV(n); }
+  FI bool test(const int n) const            { return TEST(b, n); }
+  FI BitProxy operator[](const int n)        { return BitProxy(b, n); }
+  FI bool operator[](const int n) const      { return test(n); }
+  FI int size() const                        { return sizeof(b); }
+  FI operator bool() const                   { return b != 0; }
+};
+
+// Flag bits for more than 64 states
+template<size_t N>
+struct Flags<N, true> {
   uint8_t bitmask[(N+7)>>3];
   // Proxy class for handling bit assignment
   class BitProxy {
@@ -202,7 +242,7 @@ struct Flags {
 
 // Specialization for a single bool flag
 template<>
-struct Flags<1> {
+struct Flags<1, false> {
   bool b;
   FI void reset()                            { b = false; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
