@@ -3364,8 +3364,8 @@ void Stepper::_set_position(const abce_long_t &spos) {
 // AVR requires guards to ensure any atomic memory operation greater than 8 bits
 #define ATOMIC_SECTION_START() const bool was_enabled = suspend()
 #define ATOMIC_SECTION_END() if (was_enabled) wake_up()
-#define ATOMIC_SECTION_START_AVR TERN_(__AVR__, ATOMIC_SECTION_START)
-#define ATOMIC_SECTION_END_AVR TERN_(__AVR__, ATOMIC_SECTION_END)
+#define ATOMIC_SECTION_START_AVR() TERN_(__AVR__, ATOMIC_SECTION_START())
+#define ATOMIC_SECTION_END_AVR() TERN_(__AVR__, ATOMIC_SECTION_END())
 
 /**
  * Get a stepper's position in steps.
