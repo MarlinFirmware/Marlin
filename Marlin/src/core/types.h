@@ -185,7 +185,7 @@ struct Flags<N, false> {
       return *this;
     }
 
-    operator bool() const { return TEST(data_, bit_); }
+    operator bool() const { return bool(data_ & (flagbits_t(1) << bit_)); }
 
   private:
     flagbits_t& data_;
@@ -196,7 +196,7 @@ struct Flags<N, false> {
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
   FI void set(const int n)                   { b |=  flagbits_t(1) << n; }
   FI void clear(const int n)                 { b &= ~flagbits_t(1) << n; }
-  FI bool test(const int n) const            { return TEST(b, n); }
+  FI bool test(const int n) const            { return bool(b & (flagbits_t(1) << bit_)); }
   FI BitProxy operator[](const int n)        { return BitProxy(b, n); }
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(b); }
@@ -210,7 +210,7 @@ struct Flags<N, true> {
   // Proxy class for handling bit assignment
   class BitProxy {
   public:
-    BitProxy(uint8_t data[], int n) : data_(data[n>>3]), bit_(n&7) {}
+    BitProxy(uint8_t data[], int n) : data_(data[n >> 3]), bit_(n & 7) {}
 
     // Assignment operator
     BitProxy& operator=(const bool value) {
@@ -231,9 +231,9 @@ struct Flags<N, true> {
 
   FI void reset()                            { for (uint8_t b = 0; b < sizeof(bitmask); ++b) bitmask[b] = 0; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  FI void set(const int n)                   { bitmask[n>>3] |=  _BV(n&7); }
-  FI void clear(const int n)                 { bitmask[n>>3] &= ~_BV(n&7); }
-  FI bool test(const int n) const            { return TEST(bitmask[n>>3], n&7); }
+  FI void set(const int n)                   { bitmask[n >> 3] |=  _BV(n & 7); }
+  FI void clear(const int n)                 { bitmask[n >> 3] &= ~_BV(n & 7); }
+  FI bool test(const int n) const            { return TEST(bitmask[n >> 3], n & 7); }
   FI BitProxy operator[](const int n)        { return BitProxy(bitmask, n); }
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(bitmask); }
