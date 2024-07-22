@@ -825,7 +825,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("1st Probe Z:", z1);
 
     // Raise to give the probe clearance
-    do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE), false);
+    do_z_clearance(z1 + (Z_CLEARANCE_MULTI_PROBE));
 
   #elif Z_PROBE_FEEDRATE_FAST != Z_PROBE_FEEDRATE_SLOW
 
@@ -886,7 +886,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
           #if EXTRA_PROBING > 0
             < TOTAL_PROBING - 1
           #endif
-        ) do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE), false);
+        ) do_z_clearance(z + (Z_CLEARANCE_MULTI_PROBE));
       #endif
     }
 

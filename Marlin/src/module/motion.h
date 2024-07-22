@@ -422,12 +422,12 @@ void restore_feedrate_and_scaling();
       #define Z_POST_CLEARANCE Z_CLEARANCE_FOR_HOMING
     #endif
   #endif
-  void do_z_clearance(const float zclear, const bool with_probe=true, const bool lower_allowed=false);
+  void do_z_clearance(const float zclear, const bool lower_allowed=false);
   void do_z_clearance_by(const float zclear);
   void do_move_after_z_homing();
   inline void do_z_post_clearance() { do_z_clearance(Z_POST_CLEARANCE); }
 #else
-  inline void do_z_clearance(float, bool=true, bool=false) {}
+  inline void do_z_clearance(float, bool=false) {}
   inline void do_z_clearance_by(float) {}
 #endif
 

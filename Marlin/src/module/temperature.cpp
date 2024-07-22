@@ -1068,7 +1068,7 @@ void Temperature::factory_reset() {
       planner.sync_fan_speeds(fan_speed);
     #endif
 
-    do_z_clearance(MPC_TUNING_END_Z, false);
+    do_z_clearance(MPC_TUNING_END_Z);
 
     #ifdef EVENT_GCODE_AFTER_MPC_TUNE
       gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_MPC_TUNE));
