@@ -3364,16 +3364,16 @@ void Stepper::_set_position(const abce_long_t &spos) {
 // AVR requires guards to ensure any atomic memory operation greater than 8 bits
 #define ATOMIC_SECTION_START() const bool was_enabled = suspend()
 #define ATOMIC_SECTION_END() if (was_enabled) wake_up()
-#define ATOMIC_SECTION_START_AVR() TERN_(__AVR__, ATOMIC_SECTION_START())
-#define ATOMIC_SECTION_END_AVR() TERN_(__AVR__, ATOMIC_SECTION_END())
+#define AVR_ATOMIC_SECTION_START() TERN_(__AVR__, ATOMIC_SECTION_START())
+#define AVR_ATOMIC_SECTION_END() TERN_(__AVR__, ATOMIC_SECTION_END())
 
 /**
  * Get a stepper's position in steps.
  */
 int32_t Stepper::position(const AxisEnum axis) {
-  ATOMIC_SECTION_START_AVR();
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = count_position[axis];
-  ATOMIC_SECTION_END_AVR();
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
@@ -3412,9 +3412,9 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   void Stepper::set_e_position(const int32_t &v) {
     planner.synchronize();
 
-    ATOMIC_SECTION_START_AVR();
+    AVR_ATOMIC_SECTION_START();
     count_position.e = v;
-    ATOMIC_SECTION_END_AVR();
+    AVR_ATOMIC_SECTION_END();
   }
 
 #endif // HAS_EXTRUDERS
@@ -3425,9 +3425,9 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
     //planner.synchronize(); planner already synchronized in M493
 
     // Update stepper positions from the planner
-    ATOMIC_SECTION_START_AVR();
+    AVR_ATOMIC_SECTION_START();
     count_position = planner.position;
-    ATOMIC_SECTION_END_AVR();
+    AVR_ATOMIC_SECTION_END();
   }
 
 #endif // FT_MOTION
@@ -3470,9 +3470,9 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
 // Return the "triggered" position for an axis (that hit an endstop)
 int32_t Stepper::triggered_position(const AxisEnum axis) {
-  ATOMIC_SECTION_START_AVR();
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = endstops_trigsteps[axis];
-  ATOMIC_SECTION_END_AVR();
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
@@ -3501,9 +3501,9 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
 }
 
 void Stepper::report_positions() {
-  ATOMIC_SECTION_START_AVR();
+  AVR_ATOMIC_SECTION_START();
   const xyz_long_t pos = count_position;
-  ATOMIC_SECTION_END_AVR();
+  AVR_ATOMIC_SECTION_END();
   report_a_position(pos);
 }
 
