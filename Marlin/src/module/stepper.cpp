@@ -3407,6 +3407,18 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   #endif
 }
 
+#if HAS_EXTRUDERS
+
+  void Stepper::set_e_position(const int32_t &v) {
+    planner.synchronize();
+
+    AVR_ATOMIC_SECTION_START();
+    count_position.e = v;
+    AVR_ATOMIC_SECTION_END();
+  }
+
+#endif // HAS_EXTRUDERS
+
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
