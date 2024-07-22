@@ -1202,7 +1202,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//#define ENDSTOP_INTERRUPTS_FEATURE
+// #define ENDSTOP_INTERRUPTS_FEATURE
 
 /**
  * Endstop Noise Threshold
@@ -1465,6 +1465,7 @@
  * For information about this sensor https://github.com/bigtreetech/MicroProbe
  *
  * Also requires: PROBE_ENABLE_DISABLE
+ * If you use FT_MOTION, ENDSTOP_INTERRUPTS_FEATURE is required
  */
 //#define BIQU_MICROPROBE_V1  // Triggers HIGH
 //#define BIQU_MICROPROBE_V2  // Triggers LOW
