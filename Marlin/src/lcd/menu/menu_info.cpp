@@ -208,6 +208,13 @@
       THERM_ITEMS("SOC");
     #endif
 
+    #if TEMP_SENSOR_REDUNDANT != 0
+      #define THERMISTOR_ID TEMP_SENSOR_REDUNDANT
+      #include "../thermistornames.h"
+      #undef THERMISTOR_ID
+      THERM_ITEMS("REDUNDANT");
+    #endif
+
     END_SCREEN();
   }
 #endif // HAS_TEMP_SENSOR
