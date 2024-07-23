@@ -176,3 +176,5 @@
   #define THERMISTOR_NAME "SOC"
 
 #endif // THERMISTOR_ID
+
+#undef THERMISTOR_ID

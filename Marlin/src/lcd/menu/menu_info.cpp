@@ -113,105 +113,90 @@
     #if TEMP_SENSOR_0 != 0
       #define THERMISTOR_ID TEMP_SENSOR_0
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E0, HEATER_0, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_1 != 0
       #define THERMISTOR_ID TEMP_SENSOR_1
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E1, HEATER_1, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_2 != 0
       #define THERMISTOR_ID TEMP_SENSOR_2
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E2, HEATER_2, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_3 != 0
       #define THERMISTOR_ID TEMP_SENSOR_3
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E3, HEATER_3, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_4 != 0
       #define THERMISTOR_ID TEMP_SENSOR_4
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E4, HEATER_4, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_5 != 0
       #define THERMISTOR_ID TEMP_SENSOR_5
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E5, HEATER_5, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_6 != 0
       #define THERMISTOR_ID TEMP_SENSOR_6
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E6, HEATER_6, WATCH_HOTENDS);
     #endif
 
     #if TEMP_SENSOR_7 != 0
       #define THERMISTOR_ID TEMP_SENSOR_7
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS(STR_E7, HEATER_7, WATCH_HOTENDS);
     #endif
 
     #if HAS_HEATED_BED
       #define THERMISTOR_ID TEMP_SENSOR_BED
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS("BED", BED, WATCH_BED);
     #endif
 
     #if HAS_HEATED_CHAMBER
       #define THERMISTOR_ID TEMP_SENSOR_CHAMBER
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS("CHAM", CHAMBER, WATCH_CHAMBER);
     #endif
 
     #if HAS_COOLER
       #define THERMISTOR_ID TEMP_SENSOR_COOLER
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEMS("COOL", COOLER, WATCH_COOLER);
     #endif
 
     #if TEMP_SENSOR_PROBE != 0
       #define THERMISTOR_ID TEMP_SENSOR_PROBE
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEM_NAME("PROBE");
     #endif
 
     #if TEMP_SENSOR_BOARD != 0
       #define THERMISTOR_ID TEMP_SENSOR_BOARD
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEM_NAME("BOARD");
     #endif
 
     #if TEMP_SENSOR_SOC != 0
       #define THERMISTOR_ID TEMP_SENSOR_SOC
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEM_NAME("SOC");
     #endif
 
     #if TEMP_SENSOR_REDUNDANT != 0
       #define THERMISTOR_ID TEMP_SENSOR_REDUNDANT
       #include "../thermistornames.h"
-      #undef THERMISTOR_ID
       THERM_ITEM_NAME("REDUNDANT");
     #endif
 
