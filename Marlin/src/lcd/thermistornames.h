@@ -171,4 +171,8 @@
 #elif THERMISTOR_ID == 1000
   #define THERMISTOR_NAME "Custom"
 
+// SOC thermistor`
+#elif THERMISTOR_ID == 100
+  #define THERMISTOR_NAME "SOC"
+
 #endif // THERMISTOR_ID
