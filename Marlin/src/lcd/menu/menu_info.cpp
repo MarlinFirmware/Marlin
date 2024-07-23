@@ -95,7 +95,7 @@
 //
 // About Printer > Thermistors
 //
-#if HAS_THERMISTOR
+#if HAS_TEMP_SENSOR
   void menu_info_thermistors() {
     if (ui.use_click()) return ui.go_back();
 
@@ -208,16 +208,9 @@
       THERM_ITEMS("SOC");
     #endif
 
-    #if TEMP_SENSOR_REDUNDANT != 0
-      #define THERMISTOR_ID TEMP_SENSOR_REDUNDANT
-      #include "../thermistornames.h"
-      #undef THERMISTOR_ID
-      THERM_ITEMS("REDUNDANT");
-    #endif
-
     END_SCREEN();
   }
-#endif // HAS_THERMISTOR
+#endif // HAS_TEMP_SENSOR
 
 //
 // About Printer > Board Info
@@ -289,7 +282,7 @@ void menu_info() {
   #else
     SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
     SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
-    #if HAS_THERMISTOR
+    #if HAS_TEMP_SENSOR
       SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
   #endif
