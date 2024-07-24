@@ -82,6 +82,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
     do_blocking_move_to(stored_position[slot], feedrate_mm_s);
     // Just set E to the saved position without moving it
     TERN_(HAS_EXTRUDERS, SYNC_E(stored_position[slot].e));
+    report_current_position();
     return;
   }
 

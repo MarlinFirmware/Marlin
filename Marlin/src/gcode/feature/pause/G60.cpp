@@ -40,10 +40,12 @@
 void GcodeSuite::G60() {
   // With no parameters report any saved positions
   if (!parser.seen_any()) {
+    uint8_t count = 0;
     for (uint8_t s = 0; s < SAVED_POSITIONS; ++s) {
       if (!did_save_position[s]) continue;
+      ++count;
       const xyze_pos_t &pos = stored_position[s];
-      SERIAL_ECHOPGM("Saved position #", s, ": ");
+      SERIAL_ECHO(STR_SAVED_POS, s, C(':'));
       #if NUM_AXES
         SERIAL_ECHOPGM_P(
           LIST_N(DOUBLE(NUM_AXES),
@@ -58,6 +60,7 @@ void GcodeSuite::G60() {
       #endif
       SERIAL_EOL();
     }
+    if (!count) SERIAL_ECHOLNPGM("No Saved Positions");
     return;
   }
 
