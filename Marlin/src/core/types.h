@@ -196,7 +196,7 @@ struct Flags<N, false> {
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
   FI void set(const int n)                   { b |=  flagbits_t(1) << n; }
   FI void clear(const int n)                 { b &= ~flagbits_t(1) << n; }
-  FI bool test(const int n) const            { return bool(b & (flagbits_t(1) << bit_)); }
+  FI bool test(const int n) const            { return bool(b & (flagbits_t(1) << n)); }
   FI BitProxy operator[](const int n)        { return BitProxy(b, n); }
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(b); }
