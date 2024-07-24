@@ -20,6 +20,20 @@
  *
  */
 #pragma once
+#include <core_util.h>
+
+#if !defined(ARDUINO_CORE_VERSION_INT) || !defined(GET_VERSION_INT)
+  // version macros were introduced in arduino core version 1.1.0
+  // below that version, we polyfill them
+  #define GET_VERSION_INT(major, minor, patch) ((major * 100000) + (minor * 1000) + patch)
+  #define ARDUINO_CORE_VERSION_INT GET_VERSION_INT(1, 0, 0)
+#endif
+
+#if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 1, 0)
+  // because we use app_config.h introduced in arduino core version 1.1.0, the
+  // HAL is not compatible with older versions
+  #error "The HC32 HAL is not compatible with Arduino Core versions < 1.1.0. Consider updating the Arduino Core."
+#endif
 
 #ifndef BOARD_XTAL_FREQUENCY
   #error "BOARD_XTAL_FREQUENCY is required for HC32F460."
@@ -58,11 +72,9 @@
 #endif
 
 #if TEMP_SENSOR_SOC
-  #if !defined(TEMP_SOC_PIN)
+  #ifndef TEMP_SOC_PIN
     #error "TEMP_SOC_PIN must be defined to use TEMP_SENSOR_SOC."
-  #endif
-
-  #if defined(TEMP_SOC_PIN) && IS_GPIO_PIN(TEMP_SOC_PIN)
+  #elif IS_GPIO_PIN(TEMP_SOC_PIN)
     #error "TEMP_SOC_PIN must not be a valid GPIO pin to avoid conflicts."
   #endif
 #endif
@@ -74,5 +86,20 @@
 #if defined(PANIC_ENABLE)
   #if defined(PANIC_USART1_TX_PIN) || defined(PANIC_USART2_TX_PIN) || defined(PANIC_USART3_TX_PIN) || defined(PANIC_USART3_TX_PIN)
     #error "HC32 HAL uses a custom panic handler. Do not define PANIC_USARTx_TX_PIN."
+  #endif
+#endif
+
+#if ENABLED(SERIAL_DMA)
+  #if !defined(USART_RX_DMA_SUPPORT)
+    #error "SERIAL_DMA requires USART_RX_DMA_SUPPORT to be enabled in the arduino core."
+  #endif
+
+  // USART_RX_DMA_SUPPORT does not implement core_hook_usart_rx_irq, which is required for the emergency parser
+  #if ENABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is not supported with SERIAL_DMA. Please disable either SERIAL_DMA or EMERGENCY_PARSER."
+  #endif
+
+  #if ARDUINO_CORE_VERSION_INT < GET_VERSION_INT(1, 1, 0)
+    #error "SERIAL_DMA is not supported with arduino core version < 1.1.0."
   #endif
 #endif

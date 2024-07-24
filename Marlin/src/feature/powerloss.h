@@ -42,8 +42,11 @@
   #define POWER_LOSS_STATE HIGH
 #endif
 
+#if DISABLED(BACKUP_POWER_SUPPLY)
+  #undef POWER_LOSS_ZRAISE    // No Z raise at outage without backup power
+#endif
 #ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2
+  #define POWER_LOSS_ZRAISE 2 // Default Z-raise on outage or resume
 #endif
 
 //#define DEBUG_POWER_LOSS_RECOVERY
@@ -56,6 +59,8 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+  int16_t feedrate_percentage;
+  uint16_t flow_percentage[EXTRUDERS];
 
   float zraise;
 
@@ -83,6 +88,9 @@ typedef struct {
   #endif
   #if HAS_HEATED_BED
     celsius_t target_temperature_bed;
+  #endif
+  #if HAS_HEATED_CHAMBER
+    celsius_t target_temperature_chamber;
   #endif
   #if HAS_FAN
     uint8_t fan_speed[FAN_COUNT];
@@ -145,8 +153,8 @@ class PrintJobRecovery {
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
-    #if HAS_DWIN_E3V2_BASIC
-      static bool dwin_flag;
+    #if HAS_PLR_UI_FLAG
+      static bool ui_flag_resume;     //!< Flag the UI to show a dialog to Resume (M1000) or Cancel (M1000C)
     #endif
 
     static void init();

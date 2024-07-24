@@ -91,7 +91,6 @@ void endstop_ISR() { endstops.update(); }
 
 #endif
 
-
 // Install Pin change interrupt for a pin. Can be called multiple times.
 void pciSetup(const int8_t pin) {
   if (digitalPinHasPCICR(pin)) {
@@ -344,6 +343,14 @@ void setup_endstop_interrupts() {
     #else
       static_assert(digitalPinHasPCICR(Z_MIN_PROBE_PIN), "Z_MIN_PROBE_PIN is not interrupt-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue.");
       pciSetup(Z_MIN_PROBE_PIN);
+    #endif
+  #endif
+  #if USE_CALIBRATION
+    #if (digitalPinToInterrupt(CALIBRATION_PIN) != NOT_AN_INTERRUPT)
+      _ATTACH(CALIBRATION_PIN);
+    #else
+      static_assert(digitalPinHasPCICR(CALIBRATION_PIN), "CALIBRATION_PIN is not interrupt-capable. Disable ENDSTOP_INTERRUPTS_FEATURE to continue.");
+      pciSetup(CALIBRATION_PIN);
     #endif
   #endif
 

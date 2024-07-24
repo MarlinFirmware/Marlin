@@ -287,8 +287,8 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
   FSTR_P const flabel = FLABEL;                                \
   if (CLICKED()) {                                             \
-    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     MenuItem_##TYPE::action(flabel, ##V);                      \
+    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     if (ui.screen_changed) return;                             \
   }                                                            \
   if (ui.should_draw())                                        \
@@ -426,7 +426,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#if DISABLED(DISABLE_ENCODER)
+#if DISABLED(NO_BACK_MENU_ITEM)
   #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
   #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
 #else

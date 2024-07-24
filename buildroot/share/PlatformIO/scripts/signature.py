@@ -18,20 +18,19 @@ def enabled_defines(filepath):
     Each entry is a dictionary with a 'name' and a 'section' key. We end up with:
         { MOTHERBOARD: { name: "MOTHERBOARD", section: "hardware" }, ... }
 
-    The 'name' key might get dropped as redundant, but it's useful for debugging.
+    TODO: Drop the 'name' key as redundant. For now it's useful for debugging.
+
+    This list is only used to filter config-defined options from those defined elsewhere.
 
     Because the option names are the keys, only the last occurrence is retained.
-    Use the Schema class for a more complete list of options, soon with full parsing.
-
-    This list is used to filter what is actually a config-defined option versus
-    defines from elsewhere.
+    This means the actual used value might not be reflected by this function.
+    The Schema class does more complete parsing for a more accurate list of options.
 
     While the Schema class parses the configurations on its own, this script will
     get the preprocessor output and get the intersection of the enabled options from
     our crude scraping method and the actual compiler output.
     We end up with the actual configured state,
     better than what the config files say. You can then use the
-    a decent reflection of all enabled options that (probably) came from
     resulting config.ini to produce more exact configuration files.
     '''
     outdict = {}
@@ -44,13 +43,10 @@ def enabled_defines(filepath):
     # This will avoid false positives from #defines in comments
     f = re.sub(r'/\*.*?\*/', '', '\n'.join(f), flags=re.DOTALL).split("\n")
 
-    a = []
     for line in f:
         sline = line.strip()
         m = re.match(spatt, sline) # @section ...
-        if m:
-            section = m.group(1).strip()
-            continue
+        if m: section = m.group(1).strip() ; continue
         if sline[:7] == "#define":
             # Extract the key here (we don't care about the value)
             kv = sline[8:].strip().split()
@@ -79,6 +75,7 @@ def compute_build_signature(env):
     Compute the build signature by extracting all configuration settings and
     building a unique reversible signature that can be included in the binary.
     The signature can be reversed to get a 1:1 equivalent configuration file.
+    Used by common-dependencies.py after filtering build files by feature.
     '''
     if 'BUILD_SIGNATURE' in env: return
     env.Append(BUILD_SIGNATURE=1)
@@ -190,7 +187,7 @@ def compute_build_signature(env):
 
         ini_fmt = '{0:40} = {1}'
         ext_fmt = '{0:40}   {1}'
-        ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXPORT')
+        ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
 
         if extended_dump:
             # Extended export will dump config options by section

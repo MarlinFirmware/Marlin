@@ -27,9 +27,9 @@
 
 int8_t ADC_pin_mode(pin_t pin) { return -1; }
 
-int8_t get_pin_mode(const pin_t pin) { return VALID_PIN(pin) ? 0 : -1; }
+int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? 0 : -1; }
 
-bool GET_PINMODE(const pin_t pin) {
+bool getValidPinMode(const pin_t pin) {
   const int8_t pin_mode = get_pin_mode(pin);
   if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // Invalid pin or active analog pin
     return false;
@@ -37,12 +37,12 @@ bool GET_PINMODE(const pin_t pin) {
   return (Gpio::getMode(pin) != 0); // Input/output state
 }
 
-bool GET_ARRAY_IS_DIGITAL(const pin_t pin) {
-  return !IS_ANALOG(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
+bool getPinIsDigitalByIndex(const pin_t pin) {
+  return !isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
 }
 
-void print_port(const pin_t) {}
-void pwm_details(const pin_t) {}
+void printPinPort(const pin_t) {}
+void printPinPWM(const pin_t) {}
 bool pwm_status(const pin_t) { return false; }
 
 #endif
