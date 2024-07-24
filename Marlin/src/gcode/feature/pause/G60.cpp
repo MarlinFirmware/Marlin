@@ -30,6 +30,26 @@
 #define DEBUG_OUT ENABLED(SAVED_POSITIONS_DEBUG)
 #include "../../../core/debug_out.h"
 
+bool report_stored_position(const uint8_t slot) {
+  if (!did_save_position[slot]) return false;
+  const xyze_pos_t &pos = stored_position[slot];
+  SERIAL_ECHO(STR_SAVED_POSITION, slot, C(':'));
+  #if NUM_AXES
+    SERIAL_ECHOPGM_P(
+      LIST_N(DOUBLE(NUM_AXES),
+        SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
+        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+      )
+    );
+  #endif
+  #if HAS_EXTRUDERS
+    SERIAL_ECHOPGM_P(SP_E_LBL, pos.e);
+  #endif
+  SERIAL_EOL();
+  return true;
+}
+
 /**
  * G60: Saved Positions
  *
@@ -41,25 +61,8 @@ void GcodeSuite::G60() {
   // With no parameters report any saved positions
   if (!parser.seen_any()) {
     uint8_t count = 0;
-    for (uint8_t s = 0; s < SAVED_POSITIONS; ++s) {
-      if (!did_save_position[s]) continue;
-      ++count;
-      const xyze_pos_t &pos = stored_position[s];
-      SERIAL_ECHO(STR_SAVED_POS, s, C(':'));
-      #if NUM_AXES
-        SERIAL_ECHOPGM_P(
-          LIST_N(DOUBLE(NUM_AXES),
-            SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
-            SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-            SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-          )
-        );
-      #endif
-      #if HAS_EXTRUDERS
-        SERIAL_ECHOPGM_P(SP_E_LBL, pos.e);
-      #endif
-      SERIAL_EOL();
-    }
+    for (uint8_t s = 0; s < SAVED_POSITIONS; ++s)
+      if (report_stored_position(s)) ++count;
     if (!count) SERIAL_ECHOLNPGM("No Saved Positions");
     return;
   }
@@ -90,6 +93,7 @@ void GcodeSuite::G60() {
 
   // G60 Dn
   if (seenD) {
+    SERIAL_ECHOLNPGM(STR_SAVED_POSITION, slot, ": DELETED");
     did_save_position.clear(slot);
     return;
   }
@@ -97,26 +101,7 @@ void GcodeSuite::G60() {
   // G60 S
   stored_position[slot] = current_position;
   did_save_position.set(slot);
-
-  #if ENABLED(SAVED_POSITIONS_DEBUG)
-  {
-    const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHO(STR_SAVED_POS, slot, C(':'));
-    #if NUM_AXES
-      DEBUG_ECHOPGM_P(
-        LIST_N(DOUBLE(NUM_AXES),
-          SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
-          SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-          SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-        )
-      );
-    #endif
-    #if HAS_EXTRUDERS
-      DEBUG_ECHOPGM_P(SP_E_LBL, pos.e);
-    #endif
-    DEBUG_EOL();
-  }
-  #endif
+  report_stored_position(slot);
 }
 
 #endif // SAVED_POSITIONS

@@ -77,7 +77,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   float epos = stored_position[slot].e;
   if (!parser.seen_axis()) {
-    DEBUG_ECHOLNPGM(STR_RESTORING_POS " (all axes)");
+    DEBUG_ECHOLNPGM(STR_RESTORING_POSITION, slot, " (all axes)");
     // Move to the saved position, all axes except E
     do_blocking_move_to(stored_position[slot], feedrate_mm_s);
     // Just set E to the saved position without moving it
@@ -88,7 +88,7 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   // With XYZ...E return specified axes + optional offset
 
-  DEBUG_ECHOPGM(STR_RESTORING_POS " S", slot);
+  DEBUG_ECHOPGM(STR_RESTORING_POSITION " S", slot);
 
   if (parser.seen(STR_AXES_MAIN)) {
     destination = current_position;
