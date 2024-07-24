@@ -70,14 +70,21 @@
   #endif
 #endif
 
+/**
+ * @brief Do some things before returning from G29.
+ * @param retry : true if the G29 can and should be retried. false if the failure is too serious.
+ * @param   did : true if the leveling procedure completed successfully.
+ */
 static void pre_g29_return(const bool retry, const bool did) {
   if (!retry) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
   }
-  if (did) {
-    TERN_(DWIN_CREALITY_LCD, dwinLevelingDone());
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-  }
+  #if DISABLED(G29_RETRY_AND_RECOVER)
+    if (!retry || did) {
+      TERN_(DWIN_CREALITY_LCD, dwinLevelingDone());
+      TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+    }
+  #endif
 }
 
 #define G29_RETURN(retry, did) do{ \

@@ -556,20 +556,20 @@
     #elif Z_HOME_TO_MAX
       #define Z_MAX_PIN Z_STOP_PIN
     #endif
-  #elif Z_HOME_TO_MIN
-    #define Z_STOP_PIN Z_MIN_PIN
-  #elif Z_HOME_TO_MAX
-    #define Z_STOP_PIN Z_MAX_PIN
   #endif
-  #if ENABLED(Z_MULTI_ENDSTOPS) && PIN_EXISTS(Z_STOP)
-    #ifndef Z2_STOP_PIN
-      #define Z2_STOP_PIN Z_STOP_PIN
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #if ((Z_HOME_TO_MIN && !defined(Z2_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z2_MAX_PIN))) && !defined(Z2_STOP_PIN)
+      #error "Z2_STOP_PIN is required for Z_MULTI_ENDSTOPS. Define Z2_STOP_PIN in Configuration_adv.h."
     #endif
-    #if NUM_Z_STEPPERS >= 3 && !defined(Z3_STOP_PIN)
-      #define Z3_STOP_PIN Z_STOP_PIN
+    #if NUM_Z_STEPPERS >= 3
+      #if ((Z_HOME_TO_MIN && !defined(Z3_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z3_MAX_PIN))) && !defined(Z3_STOP_PIN)
+        #error "Z3_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS >= 3. Define Z3_STOP_PIN in Configuration_adv.h."
+      #endif
     #endif
-    #if NUM_Z_STEPPERS >= 4 && !defined(Z4_STOP_PIN)
-      #define Z4_STOP_PIN Z_STOP_PIN
+    #if NUM_Z_STEPPERS >= 4
+      #if ((Z_HOME_TO_MIN && !defined(Z4_MIN_PIN)) || (Z_HOME_TO_MAX && !defined(Z4_MAX_PIN))) && !defined(Z4_STOP_PIN)
+        #error "Z4_STOP_PIN is required for Z_MULTI_ENDSTOPS with NUM_Z_STEPPERS == 4. Define Z4_STOP_PIN in Configuration_adv.h."
+      #endif
     #endif
   #endif
 #endif
@@ -722,7 +722,7 @@
 #endif
 
 // X2 auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_X2_STEPPER && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS_PIN)
+#if HAS_X2_STEPPER && !defined(X2_STEP_PIN) && !PIN_EXISTS(X2_CS)
   #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
 #else
   #define Y2_E_INDEX X2_E_INDEX
@@ -810,7 +810,7 @@
 #endif
 
 // Y2 auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_Y2_STEPPER && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS_PIN)
+#if HAS_Y2_STEPPER && !defined(Y2_STEP_PIN) && !PIN_EXISTS(Y2_CS)
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
@@ -895,7 +895,7 @@
 #endif
 
 // Z2 auto-assignment will use up an E stepper, but not if it's chained
-#if NUM_Z_STEPPERS >= 2 && !defined(Z2_STEP_PIN) && !PIN_EXISTS(Z2_CS_PIN)
+#if NUM_Z_STEPPERS >= 2 && !defined(Z2_STEP_PIN) && !PIN_EXISTS(Z2_CS)
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
 #else
   #define Z3_E_INDEX Z2_E_INDEX
@@ -980,7 +980,7 @@
 #endif
 
 // Z3 auto-assignment will use up an E stepper, but not if it's chained
-#if NUM_Z_STEPPERS >= 3 && !defined(Z3_STEP_PIN) && !PIN_EXISTS(Z3_CS_PIN)
+#if NUM_Z_STEPPERS >= 3 && !defined(Z3_STEP_PIN) && !PIN_EXISTS(Z3_CS)
   #define Z4_E_INDEX INCREMENT(Z3_E_INDEX)
 #else
   #define Z4_E_INDEX Z3_E_INDEX
@@ -1065,7 +1065,7 @@
 #endif
 
 // Z4 auto-assignment will use up an E stepper, but not if it's chained
-#if NUM_Z_STEPPERS >= 4 && !defined(Z4_STEP_PIN) && !PIN_EXISTS(Z4_CS_PIN)
+#if NUM_Z_STEPPERS >= 4 && !defined(Z4_STEP_PIN) && !PIN_EXISTS(Z4_CS)
   #define I_E_INDEX INCREMENT(Z4_E_INDEX)
 #else
   #define I_E_INDEX Z4_E_INDEX
@@ -1150,7 +1150,7 @@
 #endif
 
 // I auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_I_AXIS && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS_PIN)
+#if HAS_I_AXIS && !defined(I_STEP_PIN) && !PIN_EXISTS(I_CS)
   #define J_E_INDEX INCREMENT(I_E_INDEX)
 #else
   #define J_E_INDEX I_E_INDEX
@@ -1235,7 +1235,7 @@
 #endif
 
 // J auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_J_AXIS && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS_PIN)
+#if HAS_J_AXIS && !defined(J_STEP_PIN) && !PIN_EXISTS(J_CS)
   #define K_E_INDEX INCREMENT(J_E_INDEX)
 #else
   #define K_E_INDEX J_E_INDEX
@@ -1320,7 +1320,7 @@
 #endif
 
 // K auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_K_AXIS && !defined(K_STEP_PIN) && !PIN_EXISTS(K_CS_PIN)
+#if HAS_K_AXIS && !defined(K_STEP_PIN) && !PIN_EXISTS(K_CS)
   #define U_E_INDEX INCREMENT(K_E_INDEX)
 #else
   #define U_E_INDEX K_E_INDEX
@@ -1405,7 +1405,7 @@
 #endif
 
 // U auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_U_AXIS && !defined(U_STEP_PIN) && !PIN_EXISTS(U_CS_PIN)
+#if HAS_U_AXIS && !defined(U_STEP_PIN) && !PIN_EXISTS(U_CS)
   #define V_E_INDEX INCREMENT(U_E_INDEX)
 #else
   #define V_E_INDEX U_E_INDEX
@@ -1490,7 +1490,7 @@
 #endif
 
 // V auto-assignment will use up an E stepper, but not if it's chained
-#if HAS_V_AXIS && !defined(V_STEP_PIN) && !PIN_EXISTS(V_CS_PIN)
+#if HAS_V_AXIS && !defined(V_STEP_PIN) && !PIN_EXISTS(V_CS)
   #define W_E_INDEX INCREMENT(V_E_INDEX)
 #else
   #define W_E_INDEX V_E_INDEX

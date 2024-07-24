@@ -37,11 +37,13 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: true
       matrix:
         test-platform:
 
         # Native
         - linux_native
+        - simulator_linux_release
 
         # AVR
         - mega2560
@@ -123,7 +125,7 @@ jobs:
         - REMRAM_V1
 
         # STM32H7
-        - BTT_SKR_SE_BX
+        - BIGTREE_SKR_SE_BX
         - STM32H743VI_btt
 
         # STM32F1 (Maple)
@@ -180,6 +182,13 @@ jobs:
         pip install -U platformio
         pio upgrade --dev
         pio pkg update --global
+
+    - name: Install Simulator dependencies
+      run: |
+        sudo apt-get install build-essential
+        sudo apt-get install libsdl2-dev
+        sudo apt-get install libsdl2-net-dev
+        sudo apt-get install libglm-dev
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |

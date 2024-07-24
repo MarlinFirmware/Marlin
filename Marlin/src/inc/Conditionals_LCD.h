@@ -26,6 +26,10 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+#ifndef STRING_CONFIG_H_AUTHOR
+  #define STRING_CONFIG_H_AUTHOR "(anonymous)"
+#endif
+
 /**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
@@ -654,11 +658,11 @@
 
 #elif ENABLED(ZONESTAR_12864OLED)
   #define IS_RRD_SC 1
-  #define U8GLIB_SH1106
+  #define U8GLIB_SH1106_SPI
 
 #elif ENABLED(ZONESTAR_12864OLED_SSD1306)
   #define IS_RRD_SC 1
-  #define IS_U8GLIB_SSD1306
+  #define U8GLIB_SSD1306_SPI
 
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL 1
@@ -716,7 +720,7 @@
 
 #elif ENABLED(SAV_3DGLCD)
 
-  #ifdef U8GLIB_SSD1306
+  #if ENABLED(U8GLIB_SSD1306)
     #define IS_U8GLIB_SSD1306 // Allow for U8GLIB_SSD1306 + SAV_3DGLCD
   #endif
   #define IS_NEWPANEL 1
@@ -815,6 +819,10 @@
 
 #endif
 
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
+  #define U8G_SPI_USE_MODE_3 1
+#endif
+
 // ST7920-based graphical displays
 #if ANY(IS_RRD_FG_SC, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
@@ -853,9 +861,12 @@
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
-// 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
+// 128x64 I2C OLED LCDs (SSD1306 / SSD1309 / SH1106)
+// ...and 128x64 SPI OLED LCDs (SSD1306 / SH1106)
 #if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
   #define HAS_U8GLIB_I2C_OLED 1
+#endif
+#if ANY(HAS_U8GLIB_I2C_OLED, U8GLIB_SSD1306_SPI, U8GLIB_SH1106_SPI)
   #define HAS_WIRED_LCD 1
   #define DOGLCD
 #endif
@@ -1095,6 +1106,9 @@
    *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
    *
    *  ...and implements these MarlinUI methods:
+   *  - init_lcd
+   *  - clear_lcd
+   *  - clear_for_drawing
    *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
    *  - draw_kill_screen
    *  - kill_screen
@@ -1659,6 +1673,9 @@
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
 #endif
+#ifdef RS485_SERIAL_PORT
+  #define HAS_RS485_SERIAL 1
+#endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
 #endif
@@ -1886,6 +1903,10 @@
  */
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
+#endif
+
+#if LED_POWEROFF_TIMEOUT > 0
+  #define HAS_LED_POWEROFF_TIMEOUT 1
 #endif
 
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)

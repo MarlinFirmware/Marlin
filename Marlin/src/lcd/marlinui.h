@@ -207,8 +207,11 @@ public:
 
   #if HAS_DISPLAY || HAS_DWIN_E3V2
     static void init_lcd();
+    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+    static void clear_lcd();
   #else
     static void init_lcd() {}
+    static void clear_lcd() {}
   #endif
 
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
@@ -245,9 +248,6 @@ public:
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     static void update_indicators();
   #endif
-
-  // LCD implementations
-  static void clear_lcd();
 
   #if ALL(HAS_MARLINUI_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
@@ -304,6 +304,7 @@ public:
     static void refresh_screen_timeout();
   #endif
 
+  // Sleep or wake the display (e.g., by turning the backlight off/on).
   static void sleep_display(const bool=true) IF_DISABLED(HAS_DISPLAY_SLEEP, {});
   static void wake_display() { sleep_display(false); }
 
@@ -520,6 +521,9 @@ public:
 
   #if HAS_DISPLAY
 
+    // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
+    static void clear_for_drawing();
+
     static void abort_print();
     static void pause_print();
     static void resume_print();
@@ -630,6 +634,7 @@ public:
 
   #else // No LCD
 
+    static void clear_for_drawing() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
   #endif
@@ -644,10 +649,7 @@ public:
     #if ALL(SCROLL_LONG_FILENAMES, HAS_MARLINUI_MENU)
       #define MARLINUI_SCROLL_NAME 1
     #endif
-    #if MARLINUI_SCROLL_NAME
-      static uint8_t filename_scroll_pos, filename_scroll_max;
-    #endif
-    static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+    static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, const bool doScroll);
   #endif
 
   #if HAS_PREHEAT
@@ -739,7 +741,7 @@ public:
 
     static void draw_select_screen_prompt(FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr);
 
-  #else
+  #else // !HAS_MARLINUI_MENU
 
     static void return_to_status() {}
 
@@ -749,7 +751,7 @@ public:
       FORCE_INLINE static void run_current_screen() { status_screen(); }
     #endif
 
-  #endif
+  #endif // !HAS_MARLINUI_MENU
 
   #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
     static bool lcd_clicked;

@@ -25,7 +25,7 @@
 #include "../MarlinCore.h" // for printingIsPaused
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
-#if LED_POWEROFF_TIMEOUT > 0 || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
+#if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
   #include "../feature/leds/leds.h"
 #endif
 
@@ -226,6 +226,7 @@ void MarlinUI::init() {
   #endif
 
   init_lcd();
+  clear_lcd();
 
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
@@ -318,7 +319,7 @@ void MarlinUI::init() {
     #include "../feature/power_monitor.h"
   #endif
 
-  #if LED_POWEROFF_TIMEOUT > 0
+  #if HAS_LED_POWEROFF_TIMEOUT
     #include "../feature/power.h"
   #endif
 
@@ -357,25 +358,21 @@ void MarlinUI::init() {
   #if HAS_MEDIA
 
     #if MARLINUI_SCROLL_NAME
-      uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
+      static uint8_t filename_scroll_pos, filename_scroll_max;
     #endif
 
-    const char * MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
+    const char * MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, const bool doScroll) {
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if MARLINUI_SCROLL_NAME
           if (doScroll) {
-            for (uint8_t l = FILENAME_LENGTH; l--;)
-              hash = ((hash << 1) | (hash >> 7)) ^ theCard.filename[l];      // rotate, xor
-            static uint8_t filename_scroll_hash;
-            if (filename_scroll_hash != hash) {                              // If the hash changed...
-              filename_scroll_hash = hash;                                   // Save the new hash
-              filename_scroll_max = _MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
-              filename_scroll_pos = 0;                                       // Reset scroll to the start
-              lcd_status_update_delay = 8;                                   // Don't scroll right away
+            filename_scroll_max = _MAX(0, utf8_strlen(theCard.longFilename) - maxlen);
+            if (filename_scroll_max) {
+              // Ensure filename_scroll_pos isn't out of bounds even though it should never happen.
+              if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
+              // Advance byte position corresponding to filename_scroll_pos char position
+              outstr += TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(outstr, filename_scroll_pos), filename_scroll_pos);
             }
-            // Advance byte position corresponding to filename_scroll_pos char position
-            outstr += TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(outstr, filename_scroll_pos), filename_scroll_pos);
           }
         #else
           theCard.longFilename[
@@ -942,9 +939,7 @@ void MarlinUI::init() {
     static uint16_t max_display_update_time = 0;
     const millis_t ms = millis();
 
-    #if LED_POWEROFF_TIMEOUT > 0
-      leds.update_timeout(powerManager.psu_on);
-    #endif
+    TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.update_timeout(powerManager.psu_on));
 
     #if HAS_MARLINUI_MENU
 
@@ -1003,22 +998,19 @@ void MarlinUI::init() {
 
     #endif // HAS_MARLINUI_MENU
 
-    if (ELAPSED(ms, next_lcd_update_ms) || TERN0(HAS_MARLINUI_U8GLIB, drawing_screen)) {
-
+    const bool lcd_update_ms_elapsed = ELAPSED(ms, next_lcd_update_ms);
+    if (lcd_update_ms_elapsed) {
       next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
       #if HAS_TOUCH_BUTTONS
-
         if (on_status_screen()) next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
 
         TERN_(HAS_ENCODER_ACTION, touch_buttons = touchBt.read_buttons());
-
       #endif
 
       TERN_(LCD_HAS_STATUS_INDICATORS, update_indicators());
 
       #if HAS_ENCODER_ACTION
-
         TERN_(HAS_SLOW_BUTTONS, slow_buttons = read_slow_buttons()); // Buttons that take too long to read in interrupt context
 
         if (TERN0(IS_RRW_KEYPAD, handle_keypad()))
@@ -1083,10 +1075,15 @@ void MarlinUI::init() {
           #endif
 
           refresh(LCDVIEW_REDRAW_NOW);
-
-          #if LED_POWEROFF_TIMEOUT > 0
-            if (!powerManager.psu_on) leds.reset_timeout(ms);
+          TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
+          #if MARLINUI_SCROLL_NAME
+            filename_scroll_max = 0;
+            filename_scroll_pos = 0;
+            lcd_status_update_delay = 9;
           #endif
+
+          TERN_(HAS_LED_POWEROFF_TIMEOUT, if (!powerManager.psu_on) leds.reset_timeout(ms));
+
         } // encoder activity
 
       #endif // HAS_ENCODER_ACTION
@@ -1097,19 +1094,23 @@ void MarlinUI::init() {
         lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
         if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
         refresh(LCDVIEW_REDRAW_NOW);
+        TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
       }
 
-      #if ALL(HAS_MARLINUI_MENU, SCROLL_LONG_FILENAMES)
+      #if MARLINUI_SCROLL_NAME
         // If scrolling of long file names is enabled and we are in the sd card menu,
         // cause a refresh to occur until all the text has scrolled into view.
-        if (currentScreen == menu_media && !lcd_status_update_delay--) {
+        if (currentScreen == menu_media && filename_scroll_max && !lcd_status_update_delay--) {
           lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
           if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
           refresh(LCDVIEW_REDRAW_NOW);
+          TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
           reset_status_timeout(ms);
         }
       #endif
+    }
 
+    if (lcd_update_ms_elapsed || drawing_screen) {
       // Then we want to use only 50% of the time
       const uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
@@ -1131,7 +1132,6 @@ void MarlinUI::init() {
         TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
 
         #if HAS_MARLINUI_U8GLIB
-
           #if ENABLED(LIGHTWEIGHT_UI)
             const bool in_status = on_status_screen(),
                        do_u8g_loop = !in_status;
@@ -1160,14 +1160,11 @@ void MarlinUI::init() {
               return;
             }
           }
-
         #else
-
           run_current_screen();
 
           // Apply all DWIN drawing after processing
           TERN_(IS_DWIN_MARLINUI, dwinUpdateLCD());
-
         #endif
 
         TERN_(HAS_MARLINUI_MENU, lcd_clicked = false);
@@ -1204,7 +1201,7 @@ void MarlinUI::init() {
       // Change state of drawing flag between screen updates
       if (!drawing_screen) switch (lcdDrawUpdate) {
         case LCDVIEW_CLEAR_CALL_REDRAW:
-          clear_lcd(); break;
+          clear_for_drawing(); break;
         case LCDVIEW_REDRAW_NOW:
           refresh(LCDVIEW_NONE);
         case LCDVIEW_NONE:
@@ -1212,8 +1209,7 @@ void MarlinUI::init() {
         case LCDVIEW_CALL_NO_REDRAW:
         default: break;
       } // switch
-
-    } // ELAPSED(ms, next_lcd_update_ms)
+    }
 
     TERN_(HAS_GRAPHICAL_TFT, tft_idle());
   }
@@ -1827,13 +1823,14 @@ void MarlinUI::host_notify(const char * const cstr) {
   #endif
 
   void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+    TERN_(HAS_DISPLAY_SLEEP, refresh_screen_timeout());
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
     }
 
-    if (status) {
-      if (old_status < 2) {
+    if (old_status < 2) {   // Skip this section on first boot check
+      if (status) {         // Media Mounted
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaMounted();
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
@@ -1844,16 +1841,16 @@ void MarlinUI::host_notify(const char * const cstr) {
           LCD_MESSAGE(MSG_MEDIA_INSERTED);
         #endif
       }
-    }
-    else {
-      if (old_status < 2) {
+      else {                // Media Removed
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMediaRemoved();
-        #elif HAS_SD_DETECT
+        #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
           LCD_MESSAGE(MSG_MEDIA_REMOVED);
           #if HAS_MARLINUI_MENU
-            if (!defer_return_to_status) return_to_status();
+            if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status) return_to_status();
           #endif
+        #elif HAS_WIRED_LCD
+          return_to_status();
         #endif
       }
     }
@@ -1862,14 +1859,10 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     refresh();
 
-    #if HAS_WIRED_LCD || LED_POWEROFF_TIMEOUT > 0
+    #if HAS_WIRED_LCD || HAS_LED_POWEROFF_TIMEOUT
       const millis_t ms = millis();
-    #endif
-
-    TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
-
-    #if LED_POWEROFF_TIMEOUT > 0
-      leds.reset_timeout(ms);
+      TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
+      TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.reset_timeout(ms));
     #endif
   }
 

@@ -146,12 +146,12 @@ constexpr ena_mask_t enable_overlap[] = {
                                       TERN0(INPUT_SHAPING_Y, _ISDMF[Y_AXIS] * _ISDASU[Y_AXIS]) +
                                       TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
-      // MIN_STEP_ISR_FREQUENCY is known at compile time on AVRs and any reduction in SRAM is welcome
+      // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
       template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
         return _MAX(_ISDMF[ISALIM(INDEX - 1, _ISDMF)] * _ISDASU[ISALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
-        return TERN0(ADAPTIVE_STEP_SMOOTHING, MIN_STEP_ISR_FREQUENCY);
+        return TERN0(ADAPTIVE_STEP_SMOOTHING, min_step_isr_frequency);
       }
       constexpr float max_step_rate = _MIN(max_isr_rate(), max_shaped_rate);
     #else
@@ -294,6 +294,16 @@ class Stepper {
   friend void stepperTask(void *);
 
   public:
+
+    // The minimal step rate ensures calculations stay within limits
+    // and avoid the most unreasonably slow step rates.
+    static constexpr uint32_t minimal_step_rate = (
+      #ifdef CPU_32_BIT
+        _MAX((uint32_t(STEPPER_TIMER_RATE) / HAL_TIMER_TYPE_MAX), 1U) // 32-bit shouldn't go below 1
+      #else
+        (F_CPU) / 500000U   // AVR shouldn't go below 32 (16MHz) or 40 (20MHz)
+      #endif
+    );
 
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
@@ -530,6 +540,11 @@ class Stepper {
     static void set_position(const xyze_long_t &spos);
     static void set_axis_position(const AxisEnum a, const int32_t &v);
 
+    #if HAS_EXTRUDERS
+      // Save a little when E is the only one used
+      static void set_e_position(const int32_t &v);
+    #endif
+
     // Report the positions of the steppers, in steps
     static void report_a_position(const xyz_long_t &pos);
     static void report_positions();
@@ -658,8 +673,6 @@ class Stepper {
     }
 
     #if ENABLED(FT_MOTION)
-      // Manage the planner
-      static void ftMotion_blockQueueUpdate();
       // Set current position in steps when reset flag is set in M493 and planner already synchronized
       static void ftMotion_syncPosition();
     #endif

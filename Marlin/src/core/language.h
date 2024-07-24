@@ -355,6 +355,8 @@
 #define STR_PROBE_EN                        "probe_en"
 #define STR_FILAMENT                        "filament"
 
+#define STR_CALIBRATION                     "calibration"
+
 // General axis names
 #define STR_X "X"
 #define STR_Y "Y"

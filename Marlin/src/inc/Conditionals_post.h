@@ -557,7 +557,7 @@
     #endif
   #endif
 
-  #if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2)
+  #if HAS_SD_DETECT && NONE(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT, IS_DWIN_MARLINUI, EXTENSIBLE_UI, HAS_DWIN_E3V2, HAS_U8GLIB_I2C_OLED)
     #define REINIT_NOISY_LCD 1  // Have the LCD re-init on SD insertion
   #endif
 
@@ -1827,11 +1827,12 @@
 //
 
 // Flag the indexed hardware serial ports in use
-#define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)      && N == SERIAL_PORT) \
-                          || (defined(SERIAL_PORT_2)    && N == SERIAL_PORT_2) \
-                          || (defined(SERIAL_PORT_3)    && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT) && N == MMU2_SERIAL_PORT) \
-                          || (defined(LCD_SERIAL_PORT)  && N == LCD_SERIAL_PORT) )
+#define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
+                          || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
+                          || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
+                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
+                          || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
@@ -2198,6 +2199,11 @@
 #endif
 #if HAS_REAL_BED_PROBE
   #define HAS_Z_PROBE_STATE 1
+#endif
+
+#if PIN_EXISTS(CALIBRATION)
+  #define USE_CALIBRATION 1
+  #define HAS_CALIBRATION_STATE 1
 #endif
 
 #undef _ANY_STOP
@@ -2752,7 +2758,7 @@
 
 // Fan Kickstart
 #if FAN_KICKSTART_TIME && !defined(FAN_KICKSTART_POWER)
-  #define FAN_KICKSTART_POWER 180
+  #define FAN_KICKSTART_POWER TERN(FAN_KICKSTART_LINEAR, 255, 180)
 #endif
 
 // Servos
@@ -3378,6 +3384,10 @@
     #else
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
+  #endif
+  // Prepare the LCD to show the bootscreen early in setup
+  #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)
+    #define HAS_EARLY_LCD_SETTINGS 1
   #endif
 #endif
 
