@@ -179,9 +179,9 @@ struct Flags<N, false> {
 
     BitProxy& operator=(const bool value) {
       if (value)
-        data_ |=  flagbits_t(1) << bit_;
+        data_ |=  (flagbits_t(1) << bit_);
       else
-        data_ &= ~flagbits_t(1) << bit_;
+        data_ &= ~(flagbits_t(1) << bit_);
       return *this;
     }
 
@@ -194,8 +194,8 @@ struct Flags<N, false> {
 
   FI void reset()                            { b = 0; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  FI void set(const int n)                   { b |=  flagbits_t(1) << n; }
-  FI void clear(const int n)                 { b &= ~flagbits_t(1) << n; }
+  FI void set(const int n)                   { b |=  (flagbits_t(1) << n); }
+  FI void clear(const int n)                 { b &= ~(flagbits_t(1) << n); }
   FI bool test(const int n) const            { return bool(b & (flagbits_t(1) << n)); }
   FI BitProxy operator[](const int n)        { return BitProxy(b, n); }
   FI bool operator[](const int n) const      { return test(n); }

@@ -101,7 +101,7 @@ void GcodeSuite::G60() {
   #if ENABLED(SAVED_POSITIONS_DEBUG)
   {
     const xyze_pos_t &pos = stored_position[slot];
-    DEBUG_ECHOPGM(STR_SAVED_POS, slot, ": ");
+    DEBUG_ECHO(STR_SAVED_POS, slot, C(':'));
     #if NUM_AXES
       DEBUG_ECHOPGM_P(
         LIST_N(DOUBLE(NUM_AXES),
