@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for BIGTREE_SKR_SE_BX
+# Build tests for BTT_SKR_SE_BX
 #
 
 # exit on first failure
