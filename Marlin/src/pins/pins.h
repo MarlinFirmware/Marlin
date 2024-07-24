@@ -1024,7 +1024,7 @@
     #error "BOARD_BTT_SKR_V2_0 is now BOARD_BTT_SKR_V2_0_REV_A or BOARD_BTT_SKR_V2_0_REV_B. See https://bit.ly/3t5d9JQ for more information. Please update your configuration."
   #elif MB(TH3D_EZBOARD_LITE_V2)
     #error "BOARD_TH3D_EZBOARD_LITE_V2 is now BOARD_TH3D_EZBOARD_V2. Please update your configuration."
-  #elif MB(BIGTREE_SKR_SE_BX)
+  #elif MB(BTT_SKR_SE_BX)
     #error "BOARD_BTT_SKR_SE_BX is now BOARD_BTT_SKR_SE_BX_V2 or BOARD_BTT_SKR_SE_BX_V3. Please update your configuration."
   #elif MB(MKS_MONSTER8)
     #error "BOARD_MKS_MONSTER8 is now BOARD_MKS_MONSTER8_V1 or BOARD_MKS_MONSTER8_V2. Please update your configuration."
