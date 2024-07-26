@@ -294,7 +294,7 @@
 #endif // HAS_WIRED_LCD
 
 /**
- * Example for trinamic drivers using the J8 connector on MKs Sbase.
+ * Example for Trinamic drivers using the J8 connector on MKS Sbase.
  * 2130s need 1 pin for each driver. 2208/2209s need 2 pins for serial control.
  * This board does not have enough pins to use hardware serial.
  */
