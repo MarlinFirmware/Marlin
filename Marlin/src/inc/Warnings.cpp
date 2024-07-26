@@ -880,3 +880,17 @@
 #if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
   #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
 #endif
+
+/**
+ * Board and LCD have differently-keyed plugs
+ */
+#if ALL(HAS_LCD_SELECTED, EXP_REVERSE_KEYED)
+  #warning "CAUTION! The MOTHERBOARD and LCD have oppositely-keyed EXP plugs."
+#endif
+
+/**
+ * LCD Controller using old pin definition method
+ */
+#ifdef LCD_MIGRATION_WARNING
+  #warning "The selected LCD is not yet migrated to the new system."
+#endif
