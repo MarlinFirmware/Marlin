@@ -757,9 +757,9 @@
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"  // STM32F4                              env:STM32F401RC_btt env:STM32F401RC_btt_xfer
 #elif MB(BTT_SKR_V2_0_REV_A)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug
 #elif MB(BTT_SKR_V2_0_REV_B)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug env:BIGTREE_SKR_2_F429 env:BIGTREE_SKR_2_F429_USB env:BIGTREE_SKR_2_F429_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug env:STM32F429VG_btt env:STM32F429VG_btt_USB env:STM32F429VG_btt_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive
 #elif MB(BTT_OCTOPUS_V1_1)
@@ -846,9 +846,9 @@
 #elif MB(NUCLEO_F767ZI)
   #include "stm32f7/pins_NUCLEO_F767ZI.h"           // STM32F7                              env:NUCLEO_F767ZI
 #elif MB(BTT_SKR_SE_BX_V2)
-  #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"        // STM32H7                              env:BTT_SKR_SE_BX
+  #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"        // STM32H7                              env:BIGTREE_SKR_SE_BX
 #elif MB(BTT_SKR_SE_BX_V3)
-  #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"        // STM32H7                              env:BTT_SKR_SE_BX
+  #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"        // STM32H7                              env:BIGTREE_SKR_SE_BX
 #elif MB(BTT_SKR_V3_0)
   #include "stm32h7/pins_BTT_SKR_V3_0.h"            // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_SKR_V3_0_EZ)
