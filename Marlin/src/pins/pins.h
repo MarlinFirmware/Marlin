@@ -745,21 +745,21 @@
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"       // STM32F4                              env:STM32F407VE_black
 #elif MB(BTT_SKR_PRO_V1_1)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"        // STM32F4                              env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"        // STM32F4                              env:BTT_SKR_PRO env:BTT_SKR_PRO_usb_flash_drive
 #elif MB(BTT_SKR_PRO_V1_2)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"        // STM32F4                              env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"        // STM32F4                              env:BTT_SKR_PRO env:BTT_SKR_PRO_usb_flash_drive
 #elif MB(BTT_GTR_V1_0)
-  #include "stm32f4/pins_BTT_GTR_V1_0.h"            // STM32F4                              env:BIGTREE_GTR_V1_0 env:BIGTREE_GTR_V1_0_usb_flash_drive
+  #include "stm32f4/pins_BTT_GTR_V1_0.h"            // STM32F4                              env:BTT_GTR_V1_0 env:BTT_GTR_V1_0_usb_flash_drive
 #elif MB(BTT_BTT002_V1_0)
-  #include "stm32f4/pins_BTT_BTT002_V1_0.h"         // STM32F4                              env:BIGTREE_BTT002 env:BIGTREE_BTT002_VET6
+  #include "stm32f4/pins_BTT_BTT002_V1_0.h"         // STM32F4                              env:BTT_BTT002 env:BTT_BTT002_VET6
 #elif MB(BTT_E3_RRF)
-  #include "stm32f4/pins_BTT_E3_RRF.h"              // STM32F4                              env:BIGTREE_E3_RRF
+  #include "stm32f4/pins_BTT_E3_RRF.h"              // STM32F4                              env:BTT_E3_RRF
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"  // STM32F4                              env:STM32F401RC_btt env:STM32F401RC_btt_xfer
 #elif MB(BTT_SKR_V2_0_REV_A)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug
 #elif MB(BTT_SKR_V2_0_REV_B)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug env:BIGTREE_SKR_2_F429 env:BIGTREE_SKR_2_F429_USB env:BIGTREE_SKR_2_F429_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug env:STM32F429VG_btt env:STM32F429VG_btt_USB env:STM32F429VG_btt_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive
 #elif MB(BTT_OCTOPUS_V1_1)
