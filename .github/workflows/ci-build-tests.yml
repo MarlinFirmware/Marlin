@@ -125,7 +125,7 @@ jobs:
         - REMRAM_V1
 
         # STM32H7
-        - BIGTREE_SKR_SE_BX
+        - BTT_SKR_SE_BX
         - STM32H743VI_btt
 
         # STM32F1 (Maple)
