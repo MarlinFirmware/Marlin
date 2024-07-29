@@ -62,6 +62,28 @@ if pioutil.is_pio_build():
         if 'MARLIN_FEATURES' not in env:
             raise SystemExit("Error: this script should be used after common Marlin scripts.")
 
+        # Useful values
+        project_dir = Path(env['PROJECT_DIR'])
+        config_files = ("Configuration.h", "Configuration_adv.h")
+
+        #
+        # Update old macros BOTH and EITHER in configuration files
+        #
+        conf_modified = False
+        for f in config_files:
+            conf_path = project_dir / "Marlin" / f
+            if conf_path.is_file():
+                with open(conf_path, 'r', encoding="utf8") as file:
+                    text = file.read()
+                    modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
+                    if text != modified_text:
+                        conf_modified = True
+                        with open(conf_path, 'w') as file:
+                            file.write(modified_text)
+
+        if conf_modified:
+            raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
+
         if len(env['MARLIN_FEATURES']) == 0:
             raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
@@ -77,10 +99,6 @@ if pioutil.is_pio_build():
             err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
-
-        # Useful values
-        project_dir = Path(env['PROJECT_DIR'])
-        config_files = ("Configuration.h", "Configuration_adv.h")
 
         #
         # Check for Config files in two common incorrect places
@@ -140,22 +158,5 @@ if pioutil.is_pio_build():
                         err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
 
-        #
-        # Update old macros BOTH and EITHER in configuration files
-        #
-        conf_modified = False
-        for f in config_files:
-            conf_path = project_dir / "Marlin" / f
-            if conf_path.is_file():
-                with open(conf_path, 'r', encoding="utf8") as file:
-                    text = file.read()
-                    modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
-                    if text != modified_text:
-                        conf_modified = True
-                        with open(conf_path, 'w') as file:
-                            file.write(modified_text)
-
-        if conf_modified:
-            raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
 
     sanity_check_target()
