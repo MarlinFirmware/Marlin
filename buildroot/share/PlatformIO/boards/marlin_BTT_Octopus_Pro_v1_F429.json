@@ -5,7 +5,7 @@
     "f_cpu": "168000000L",
     "mcu": "stm32f429zgt6",
     "product_line": "STM32F429xx",
-    "variant": "MARLIN_BIGTREE_OCTOPUS_PRO_V1_F429"
+    "variant": "MARLIN_BTT_OCTOPUS_PRO_V1_F429"
   },
   "connectivity": [
     "can"
