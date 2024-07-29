@@ -58,13 +58,11 @@ import os
 import struct
 from PIL import Image
 
-
 def getJpegResolution(jpegFile):
     """Returns a 2-tuple containing the jpegFile's (width, height).
     """
     img = Image.open(jpegFile)
     return img.size
-
 
 class DWIN_ICO_File():
     def __init__(self):
