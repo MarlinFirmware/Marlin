@@ -58,7 +58,7 @@
  *
  *   L #  Layer       Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
  *
- *   O #  Ooze        How much your nozzle will Ooze filament while getting in position to print. If not
+ *   O #  Ooze        How much your nozzle will ooze filament while getting in position to print. If not
  *                    specified, a filament length of .3mm is assumed. This might be overkill, but this
  *                    parameter ensures the very first 'circle' is perfect (providing an ideal trophy to hang
  *                    up to show off your perfectly calibrated Mesh).
