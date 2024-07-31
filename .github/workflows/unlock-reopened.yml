@@ -12,7 +12,7 @@ on:
 jobs:
   unlock:
     name: Unlock Reopened
-    if: github.repository == 'classicrocker883/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 

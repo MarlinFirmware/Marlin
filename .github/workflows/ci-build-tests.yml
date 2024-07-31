@@ -32,7 +32,7 @@ on:
 jobs:
   test_builds:
     name: Build Test
-    if: github.repository == 'classicrocker883/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 

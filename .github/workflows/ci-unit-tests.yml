@@ -34,7 +34,7 @@ jobs:
     name: Unit Test
     # These tests will only be able to run on the bugfix-2.1.x branch, until the next release
     # pulls them into additional branches.
-    if: github.repository == 'classicrocker883/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 

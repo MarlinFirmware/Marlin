@@ -16,7 +16,7 @@ on:
 jobs:
   bad_target:
     name: PR Bad Target
-    if: github.repository == 'classicrocker883/Marlin'
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
