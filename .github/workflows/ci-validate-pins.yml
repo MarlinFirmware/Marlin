@@ -24,7 +24,7 @@ on:
 jobs:
   validate_pins_files:
     name: Validate Pins Files
-    if: github.repository == 'MarlinFirmware/Marlin'
+    if: github.repository == 'classicrocker883/Marlin'
 
     runs-on: ubuntu-latest
 

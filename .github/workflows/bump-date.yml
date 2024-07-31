@@ -12,7 +12,7 @@ on:
 jobs:
   bump_date:
     name: Bump Distribution Date
-    if: github.repository == 'MarlinFirmware/Marlin'
+    if: github.repository == 'classicrocker883/Marlin'
 
     runs-on: ubuntu-latest
 
