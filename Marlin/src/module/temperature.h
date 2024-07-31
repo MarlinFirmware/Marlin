@@ -1323,10 +1323,8 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_HOTEND && HAS_STATUS_MESSAGE
+    #if HAS_HOTEND
       static void set_heating_message(const uint8_t e, const bool isM104=false);
-    #else
-      static void set_heating_message(const uint8_t, const bool=false) {}
     #endif
 
     #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT

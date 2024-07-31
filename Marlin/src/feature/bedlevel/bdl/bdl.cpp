@@ -143,16 +143,14 @@ void BDS_Leveling::process() {
       old_buf_z = current_position.z;
       endstops.bdp_state_update(z_sensor <= BD_SENSOR_HOME_Z_POSITION);
 
-      #if HAS_STATUS_MESSAGE
-        static float old_z_sensor = 0;
-        if (old_z_sensor != z_sensor) {
-          old_z_sensor = z_sensor;
-          char tmp_1[32];
-          sprintf_P(tmp_1, PSTR("BD:%d.%02dmm"), int(z_sensor), int(z_sensor * 100) % 100);
-          //SERIAL_ECHOLNPGM("Bed Dis:", z_sensor, "mm");
-          ui.set_status(tmp_1, true);
-        }
-      #endif
+      static float old_z_sensor = 0;
+      if (old_z_sensor != z_sensor) {
+        old_z_sensor = z_sensor;
+        char tmp_1[32];
+        sprintf_P(tmp_1, PSTR("BD:%d.%02dmm"), int(z_sensor), int(z_sensor * 100) % 100);
+        //SERIAL_ECHOLNPGM("Bed Dis:", z_sensor, "mm");
+        ui.set_status(tmp_1, true);
+      }
     }
     else if (config_state == BDS_HOMING_Z) {
       SERIAL_ECHOLNPGM("Read:", tmp);

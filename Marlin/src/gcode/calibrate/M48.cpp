@@ -147,10 +147,8 @@ void GcodeSuite::M48() {
     float sample_sum = 0.0;
 
     for (uint8_t n = 0; n < n_samples; ++n) {
-      #if HAS_STATUS_MESSAGE
-        // Display M48 progress in the status bar
-        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
-      #endif
+      // Display M48 progress in the status bar
+      ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
 
       // When there are "legs" of movement move around the point before probing
       if (n_legs) {
@@ -259,10 +257,8 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM("Finished!");
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
 
-    #if HAS_STATUS_MESSAGE
-      // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
-    #endif
+    // Display M48 results in the status bar
+    ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
   }
 
   restore_feedrate_and_scaling();

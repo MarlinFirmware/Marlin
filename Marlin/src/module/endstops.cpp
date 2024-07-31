@@ -319,13 +319,9 @@ void Endstops::event_handler() {
   if (hit_state == prev_hit_state) return;
   prev_hit_state = hit_state;
   if (hit_state) {
-    #if HAS_STATUS_MESSAGE
-      char NUM_AXIS_LIST_(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' ')
-           chrP = ' ';
-      #define _SET_STOP_CHAR(A,C) (chr## A = C)
-    #else
-      #define _SET_STOP_CHAR(A,C) NOOP
-    #endif
+    char NUM_AXIS_LIST_(chrX = ' ', chrY = ' ', chrZ = ' ', chrI = ' ', chrJ = ' ', chrK = ' ', chrU = ' ', chrV = ' ', chrW = ' ')
+         chrP = ' ';
+    #define _SET_STOP_CHAR(A,C) (chr## A = C)
 
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
       SERIAL_ECHOPGM(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); _SET_STOP_CHAR(A,C); }while(0)
@@ -364,12 +360,10 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    TERN_(HAS_STATUS_MESSAGE,
-      ui.status_printf(0,
-        F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
-        GET_TEXT_F(MSG_LCD_ENDSTOPS),
-        NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
-      )
+    ui.status_printf(0,
+      F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
+      GET_TEXT_F(MSG_LCD_ENDSTOPS),
+      NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
     );
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
