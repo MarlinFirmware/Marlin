@@ -65,13 +65,13 @@ class ProbeTempComp {
 
     static int16_t *sensor_z_offsets[TSI_COUNT];
     #if ENABLED(PTC_PROBE)
-      static int16_t z_offsets_probe[PTC_PROBE_COUNT]; // (µm)
+      static int16_t z_offsets_probe[PTC_PROBE_COUNT];   // (0.1mm)
     #endif
     #if ENABLED(PTC_BED)
-      static int16_t z_offsets_bed[PTC_BED_COUNT];   // (µm)
+      static int16_t z_offsets_bed[PTC_BED_COUNT];       // (0.1mm)
     #endif
     #if ENABLED(PTC_HOTEND)
-      static int16_t z_offsets_hotend[PTC_HOTEND_COUNT];   // (µm)
+      static int16_t z_offsets_hotend[PTC_HOTEND_COUNT]; // (0.1mm)
     #endif
 
     static void reset_index() { calib_idx = 0; };

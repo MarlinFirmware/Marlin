@@ -191,7 +191,7 @@ void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius
     return p1.y + (p2.y - p1.y) / (p2.x - p1.x) * (x - p1.x);
   };
 
-  // offset in µm
+  // offset in 0.1mm
   float offset = 0.0f;
 
   #if PTC_LINEAR_EXTRAPOLATION

@@ -306,7 +306,7 @@
  *
  * With B, P, or E:
  *    I[index] - Index in the array
- *    V[value] - Adjustment in µm
+ *    V[value] - Adjustment in 0.1mm
  */
 void GcodeSuite::M871() {
 

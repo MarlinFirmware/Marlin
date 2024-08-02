@@ -2444,7 +2444,7 @@
     #define PTC_PROBE_START   30    // (°C)
     #define PTC_PROBE_RES      5    // (°C)
     #define PTC_PROBE_COUNT   10
-    #define PTC_PROBE_ZOFFS   { 0 } // (µm) Z adjustments per sample
+    #define PTC_PROBE_ZOFFS   { 0 } // (0.1mm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_BED)
@@ -2452,7 +2452,7 @@
     #define PTC_BED_START     60    // (°C)
     #define PTC_BED_RES        5    // (°C)
     #define PTC_BED_COUNT     10
-    #define PTC_BED_ZOFFS     { 0 } // (µm) Z adjustments per sample
+    #define PTC_BED_ZOFFS     { 0 } // (0.1mm) Z adjustments per sample
   #endif
 
   #if ENABLED(PTC_HOTEND)
@@ -2460,7 +2460,7 @@
     #define PTC_HOTEND_START 180    // (°C)
     #define PTC_HOTEND_RES     5    // (°C)
     #define PTC_HOTEND_COUNT  20
-    #define PTC_HOTEND_ZOFFS  { 0 } // (µm) Z adjustments per sample
+    #define PTC_HOTEND_ZOFFS  { 0 } // (0.1mm) Z adjustments per sample
   #endif
 
   // G76 options
