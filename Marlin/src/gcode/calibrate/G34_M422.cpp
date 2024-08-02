@@ -276,7 +276,7 @@ void GcodeSuite::G34() {
 
         SERIAL_EOL();
 
-        SString<15 + TERN0(TRIPLE_Z, 30) + TERN0(QUAD_Z, 45)> msg(F("1:2="), p_float_t(ABS(z_measured[1] - z_measured[0]), 3));
+        SString<15 PLUS_TERN0(TRIPLE_Z, 30) PLUS_TERN0(QUAD_Z, 45)> msg(F("1:2="), p_float_t(ABS(z_measured[1] - z_measured[0]), 3));
         #if TRIPLE_Z
           msg.append(F(" 3-2="), p_float_t(ABS(z_measured[2] - z_measured[1]), 3))
              .append(F(" 3-1="), p_float_t(ABS(z_measured[2] - z_measured[0]), 3));

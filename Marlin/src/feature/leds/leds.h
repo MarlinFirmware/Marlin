@@ -90,7 +90,7 @@ typedef struct LEDColor {
   bool operator!=(const LEDColor &right) { return !operator==(right); }
 
   bool is_off() const {
-    return 3 > r + g + b + TERN0(HAS_WHITE_LED, w);
+    return 3 > r + g + b PLUS_TERN0(HAS_WHITE_LED, w);
   }
 } LEDColor;
 

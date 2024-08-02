@@ -114,7 +114,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 #ifndef NUM_ANALOG_LAST
   #define NUM_ANALOG_LAST ((NUM_ANALOG_FIRST) + (NUM_ANALOG_INPUTS) - 1)
 #endif
-#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) + TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
+#define NUMBER_PINS_TOTAL ((NUM_DIGITAL_PINS) PLUS_TERN0(HAS_HIGH_ANALOG_PINS, NUM_ANALOG_INPUTS))
 #define isValidPin(P) (WITHIN(P, 0, (NUM_DIGITAL_PINS) - 1) || TERN0(HAS_HIGH_ANALOG_PINS, WITHIN(P, NUM_ANALOG_FIRST, NUM_ANALOG_LAST)))
 #define digitalRead_mod(Ard_num) extDigitalRead(Ard_num)  // must use Arduino pin numbers when doing reads
 #define printPinNumber(Q)

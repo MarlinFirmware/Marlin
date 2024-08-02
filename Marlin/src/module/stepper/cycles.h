@@ -135,15 +135,13 @@ constexpr uint32_t isr_shaping_loop_cycles(const int R) {
 #if ENABLED(LIN_ADVANCE)
 
   // Estimate the minimum LA loop time
-  constexpr uint32_t min_isr_la_loop_cycles = (isr_stepper_cycles
-    // ToDo: ???
-    // HELP ME: What is what?
-    // Directions are set up for MIXING_STEPPERS - like before.
-    // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
-    //   These loops are a bit faster than advancing a bresenham counter.
-    // Always only one E stepper is stepped.
-    * TERN1(MIXING_EXTRUDER, (MIXING_STEPPERS))
-  );
+  constexpr uint32_t min_isr_la_loop_cycles = MUL_TERN(MIXING_EXTRUDER, isr_stepper_cycles, MIXING_STEPPERS);
+  // ToDo: ???
+  // HELP ME: What is what?
+  // Directions are set up for MIXING_STEPPERS - like before.
+  // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
+  //   These loops are a bit faster than advancing a bresenham counter.
+  // Always only one E stepper is stepped.
 
 #endif
 
