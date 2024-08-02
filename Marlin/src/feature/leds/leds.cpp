@@ -239,7 +239,7 @@ void LEDLights::set_color(const LEDColor &incol
   void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
 #endif
 
-#if LED_POWEROFF_TIMEOUT > 0
+#if HAS_LED_POWEROFF_TIMEOUT
 
   millis_t LEDLights::led_off_time; // = 0
 

@@ -50,7 +50,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3]; // TODO: Add support for HAS_I_AXIS
+  extern Flags<SAVED_POSITIONS> did_save_position;
   extern xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
@@ -272,7 +272,7 @@ void report_current_position_projected();
   extern AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
   #define HAS_GRBL_STATE 1
   /**
    * Machine states for GRBL or TinyG
@@ -305,11 +305,9 @@ void report_current_position_projected();
     }
   #endif
 
-  #if ENABLED(REALTIME_REPORTING_COMMANDS)
-    void quickpause_stepper();
-    void quickresume_stepper();
-  #endif
-#endif
+  void quickpause_stepper();
+  void quickresume_stepper();
+#endif // REALTIME_REPORTING_COMMANDS
 
 float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool &is_cartesian_move));
 

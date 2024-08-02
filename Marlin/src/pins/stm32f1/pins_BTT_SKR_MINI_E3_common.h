@@ -334,7 +334,7 @@
 
     #define LCD_BACKLIGHT_PIN               -1
     #define NEOPIXEL_PIN             EXP1_07_PIN
-    #define LCD_CONTRAST                     255
+    #define LCD_CONTRAST_INIT                255
 
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_01_PIN
@@ -348,7 +348,7 @@
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, LCD_FOR_MELZI, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, TFTGLCD_PANEL_(SPI|I2C), FYSETC_MINI_12864_2_1, MKS_MINI_12864_V3, and BTT_MINI_12864 are currently supported on the SKR Mini E3."
   #endif
 
 #endif // HAS_WIRED_LCD

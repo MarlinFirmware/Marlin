@@ -31,7 +31,6 @@ def enabled_defines(filepath):
     our crude scraping method and the actual compiler output.
     We end up with the actual configured state,
     better than what the config files say. You can then use the
-    a decent reflection of all enabled options that (probably) came from
     resulting config.ini to produce more exact configuration files.
     '''
     outdict = {}
@@ -188,7 +187,7 @@ def compute_build_signature(env):
 
         ini_fmt = '{0:40} = {1}'
         ext_fmt = '{0:40}   {1}'
-        ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXPORT')
+        ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
 
         if extended_dump:
             # Extended export will dump config options by section
