@@ -143,11 +143,22 @@
   #endif
 #endif
 
+#ifdef RS485_SERIAL_PORT
+  #if RS485_SERIAL_PORT == -1
+    #define RS485_SERIAL UsbSerial
+  #elif WITHIN(RS485_SERIAL_PORT, 1, NUM_UARTS)
+    #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
+  #else
+    #define RS485_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "RS485_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
+  #endif
+#endif
+
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 #ifndef digitalPinHasPWM

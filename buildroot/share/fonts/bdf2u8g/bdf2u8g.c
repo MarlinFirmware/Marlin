@@ -1,69 +1,69 @@
 /*
   general font collections
-    http://www.smashingmagazine.com/2007/11/08/40-excellent-freefonts-for-professional-design/
-    http://techmagazine.ws/most-popular-free-quality-fonts/
-    http://openfontlibrary.org/
+    https://www.smashingmagazine.com/2007/11/08/40-excellent-freefonts-for-professional-design/
+    https://techmagazine.ws/most-popular-free-quality-fonts/
+    https://openfontlibrary.org/
   bitmap font collections
-    http://www.orgdot.com/aliasfonts/ (includes links)
-    http://www.04.jp.org/
-    http://www.miniml.com
-    http://www.fontspace.com/010bus
+    https://www.orgdot.com/aliasfonts/ (includes links)
+    https://www.04.jp.org/
+    https://www.miniml.com
+    https://www.fontspace.com/010bus
 
-  http://en.wikipedia.org/wiki/Unicode_typeface
+  https://en.wikipedia.org/wiki/Unicode_typeface
       da könnten auch ein paar fonts dabei sein, die die m2tklib sonderzeichen beinhalten:
-      Caslon Roman              http://en.wikipedia.org/wiki/Caslon_Roman
-      Charis Sil                http://en.wikipedia.org/wiki/Charis_SIL
-      DejaVu Sans       http://en.wikipedia.org/wiki/DejaVu_fonts
-      Doulos            http://en.wikipedia.org/wiki/Doulos_SIL
-      Free Serif        http://en.wikipedia.org/wiki/FreeSerif          http://ftp.gnu.org/gnu/freefont/
+      Caslon Roman              https://en.wikipedia.org/wiki/Caslon_Roman
+      Charis Sil                https://en.wikipedia.org/wiki/Charis_SIL
+      DejaVu Sans       https://en.wikipedia.org/wiki/DejaVu_fonts
+      Doulos            https://en.wikipedia.org/wiki/Doulos_SIL
+      Free Serif        https://en.wikipedia.org/wiki/FreeSerif          https://ftp.gnu.org/gnu/freefont/
             --> keine box, aber es gibt pfeile/invertierte pfeile und kreise für m2tklib
-      Gentium Plus ????    http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=Gentium_download#02b091ae
+      Gentium Plus ????    https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=Gentium_download#02b091ae
             --> keine graphic
-      GNU Unifont       http://en.wikipedia.org/wiki/GNU_Unifont, http://unifoundry.com/unifont.html
+      GNU Unifont       https://en.wikipedia.org/wiki/GNU_Unifont, https://unifoundry.com/unifont.html
 
-      Titus cyberbit Basic      http://en.wikipedia.org/wiki/TITUS_Cyberbit_Basic
+      Titus cyberbit Basic      https://en.wikipedia.org/wiki/TITUS_Cyberbit_Basic
 
   fonts
     Gentium
-      http://openfontlibrary.org/font/gentium
+      https://openfontlibrary.org/font/gentium
       license: OFL
     Old-Standard
-      http://openfontlibrary.org/font/old-standard
+      https://openfontlibrary.org/font/old-standard
       license: OFL
     Hanuman
-      http://openfontlibrary.org/font/hanumanb
+      https://openfontlibrary.org/font/hanumanb
       license: OFL
     FreeUniversal
-      http://openfontlibrary.org/font/freeuniversal
+      https://openfontlibrary.org/font/freeuniversal
       license: OFL
     FriendShip-Code  <--- nicht so sicher...
-      http://openfontlibrary.org/font/friendship-code
+      https://openfontlibrary.org/font/friendship-code
       license: CC-BY-SA
     LinuxLibertine
-      http://de.wikipedia.org/wiki/Linux_Libertine
-      http://sourceforge.net/projects/linuxlibertine/files/linuxlibertine/5.1.3-2/
+      https://de.wikipedia.org/wiki/Linux_Libertine
+      https://sourceforge.net/projects/linuxlibertine/files/linuxlibertine/5.1.3-2/
       license: OFL
     DidactGothic
-      source: http://openfontlibrary.org/
+      source: https://openfontlibrary.org/
     judson
-      source: http://openfontlibrary.org/
+      source: https://openfontlibrary.org/
     unicons
-      source: http://openfontlibrary.org/
+      source: https://openfontlibrary.org/
       license: OFL
       suggested pt: 26, 30
     org_V01, fixed_V0
-      source: http://www.orgdot.com/aliasfonts/
+      source: https://www.orgdot.com/aliasfonts/
       license: open source, individual, cite required
       suggested pt: 8
     04b_03b.zip  04b_03.zip  04b_09.zip  04b_11.zip  04b_19.zip  04b_21.zip  04b_25.zip  04b_30.zip
-      source: http://www.04.jp.org/
+      source: https://www.04.jp.org/
       license: "Freeware: You may use them as you like"
     7px4bus
-      source: http://www.fontspace.com/010bus
+      source: https://www.fontspace.com/010bus
       license: Licensed as: Freeware, Commercial use allowed!
       suggested 7pt
     8pxbus
-      source: http://www.fontspace.com/010bus
+      source: https://www.fontspace.com/010bus
       license: Licensed as: Freeware, Commercial use allowed!
       suggested 8pt
 
