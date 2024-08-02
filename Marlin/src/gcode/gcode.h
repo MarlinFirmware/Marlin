@@ -606,7 +606,7 @@ private:
 
   #if SAVED_POSITIONS
     static void G60();
-    static void G61();
+    static void G61(int8_t slot=-1);
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)

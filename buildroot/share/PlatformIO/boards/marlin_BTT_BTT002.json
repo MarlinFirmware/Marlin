@@ -15,7 +15,7 @@
       ]
     ],
     "mcu": "stm32f407vgt6",
-    "variant": "MARLIN_BIGTREE_BTT002"
+    "variant": "MARLIN_BTT_BTT002"
   },
   "debug": {
     "jlink_device": "STM32F407VG",

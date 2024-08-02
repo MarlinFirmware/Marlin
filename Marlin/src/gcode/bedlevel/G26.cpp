@@ -58,10 +58,10 @@
  *
  *   L #  Layer       Layer height. (Height of nozzle above bed)  If not specified .20mm will be used.
  *
- *   O #  Ooooze      How much your nozzle will Ooooze filament while getting in position to print. This
- *                    is over kill, but using this parameter will let you get the very first 'circle' perfect
- *                    so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
- *                    Mesh calibrated. If not specified, a filament length of .3mm is assumed.
+ *   O #  Ooze        How much your nozzle will Ooooze filament while getting in position to print. If not
+ *                    specified, a filament length of .3mm is assumed. This might be overkill, but this
+ *                    parameter ensures the very first 'circle' is perfect (providing an ideal trophy to hang
+ *                    up to show off your perfectly calibrated Mesh).
  *
  *   P #  Prime       Prime the nozzle with specified length of filament. If this parameter is not
  *                    given, no prime action will take place. If the parameter specifies an amount, that much

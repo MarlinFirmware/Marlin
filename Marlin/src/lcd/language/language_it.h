@@ -794,15 +794,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Appianamento");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Movimento a Tempo-Fisso");
-  LSTR MSG_FTM_MODE                       = _UxGT("Modo Movimento:");
-  //LSTR MSG_FTM_ZV                         = _UxGT("ZV");
-  //LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
-  //LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
-  //LSTR MSG_FTM_ZVDDD                      = _UxGT("ZVDDD");
-  //LSTR MSG_FTM_EI                         = _UxGT("EI");
-  //LSTR MSG_FTM_2HEI                       = _UxGT("2HEI");
-  //LSTR MSG_FTM_3HEI                       = _UxGT("3HEI");
-  //LSTR MSG_FTM_MZV                        = _UxGT("MZV");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Modo Comp:");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("Modo DF:");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Base-Z");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Base-Massa");

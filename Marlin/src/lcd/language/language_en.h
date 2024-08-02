@@ -814,7 +814,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Smoothing");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Fixed-Time Motion");
-  LSTR MSG_FTM_MODE                       = _UxGT("Motion Mode:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Comp. Mode:");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
