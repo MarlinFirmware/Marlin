@@ -23,18 +23,17 @@
 
 #include "../core/types.h"
 
-typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0, // Standard Motion
-  ftMotionMode_ENABLED    =  1, // Time-Based Motion
-  ftMotionMode_ZV         = 10, // Zero Vibration
-  ftMotionMode_ZVD        = 11, // Zero Vibration and Derivative
-  ftMotionMode_ZVDD       = 12, // Zero Vibration, Derivative, and Double Derivative
-  ftMotionMode_ZVDDD      = 13, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
-  ftMotionMode_EI         = 14, // Extra-Intensive
-  ftMotionMode_2HEI       = 15, // 2-Hump Extra-Intensive
-  ftMotionMode_3HEI       = 16, // 3-Hump Extra-Intensive
-  ftMotionMode_MZV        = 17  // Mass-based Zero Vibration
-} ftMotionMode_t;
+typedef enum FXDTICtrlShaper : uint8_t {
+  ftMotionShaper_NONE  = 0, // No compensator
+  ftMotionShaper_ZV    = 1, // Zero Vibration
+  ftMotionShaper_ZVD   = 2, // Zero Vibration and Derivative
+  ftMotionShaper_ZVDD  = 3, // Zero Vibration, Derivative, and Double Derivative
+  ftMotionShaper_ZVDDD = 4, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+  ftMotionShaper_EI    = 5, // Extra-Intensive
+  ftMotionShaper_2HEI  = 6, // 2-Hump Extra-Intensive
+  ftMotionShaper_3HEI  = 7, // 3-Hump Extra-Intensive
+  ftMotionShaper_MZV   = 8  // Modified Zero Vibration
+} ftMotionShaper_t;
 
 enum dynFreqMode_t : uint8_t {
   dynFreqMode_DISABLED   = 0,
@@ -42,7 +41,8 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define IS_EI_MODE(N) WITHIN(N, ftMotionMode_EI, ftMotionMode_3HEI)
+#define CMPNSTR_HAS_SHAPER(A) (ftMotion.cfg.shaper[A] != ftMotionShaper_NONE)
+#define CMPNSTR_IS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[A], ftMotionShaper_EI, ftMotionShaper_3HEI)
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;

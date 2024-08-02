@@ -117,11 +117,19 @@
   #endif
 #endif
 
+#ifdef RS485_SERIAL_PORT
+  #if WITHIN(RS485_SERIAL_PORT, 1, 9)
+    #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
+  #else
+    #error "RS485_SERIAL_PORT must be from 1 to 9."
+  #endif
+#endif
+
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 //

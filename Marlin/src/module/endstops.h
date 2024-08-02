@@ -31,7 +31,7 @@
 #define _ES_ENUM(A,M) A##_##M
 #define ES_ENUM(A,M) _ES_ENUM(A,M)
 
-#define _ES_ITEM(N) N,
+#define _ES_ITEM(N) , N
 #define ES_ITEM(K,N) TERN(K,_ES_ITEM,_IF_1_ELSE)(N)
 
 #define _ESN_ITEM(K,A,M) ES_ITEM(K,ES_ENUM(A,M))
@@ -57,7 +57,9 @@
  * - Z_MIN_PROBE is an alias to Z_MIN when the Z_MIN_PIN is being used as the probe pin.
  * - When homing with the probe Z_ENDSTOP is a Z_MIN_PROBE alias, otherwise a Z_MIN/MAX alias.
  */
-enum EndstopEnum : char {
+enum EndstopEnum : int8_t {
+  _ES_START_ = -1
+
   // Common XYZ (ABC) endstops.
   ES_MINMAX(X) ES_MINMAX(Y) ES_MINMAX(Z)
   ES_MINMAX(I) ES_MINMAX(J) ES_MINMAX(K)
@@ -70,12 +72,18 @@ enum EndstopEnum : char {
   ES_ITEM(HAS_CALIBRATION_STATE, CALIBRATION)
 
   // Bed Probe state is distinct or shared with Z_MIN (i.e., when the probe is the only Z endstop)
-  ES_ITEM(HAS_Z_PROBE_STATE, Z_MIN_PROBE IF_DISABLED(USE_Z_MIN_PROBE, = Z_MIN))
+  #if HAS_Z_PROBE_STATE && USE_Z_MIN_PROBE
+    , Z_MIN_PROBE
+  #endif
 
-  // The total number of states
-  NUM_ENDSTOP_STATES
+  // The total number of distinct states
+  , NUM_ENDSTOP_STATES
 
   // Endstop aliases
+  #if HAS_Z_PROBE_STATE && !USE_Z_MIN_PROBE
+    , Z_MIN_PROBE = Z_MIN
+  #endif
+
   #if HAS_X_STATE
     , X_ENDSTOP = TERN(X_HOME_TO_MAX, X_MAX, X_MIN)
   #endif
@@ -88,7 +96,6 @@ enum EndstopEnum : char {
   #if HAS_Y2_STATE
     , Y2_ENDSTOP = TERN(Y_HOME_TO_MAX, Y2_MAX, Y2_MIN)
   #endif
-
   #if HOMING_Z_WITH_PROBE
     , Z_ENDSTOP = Z_MIN_PROBE // "Z" endstop alias when homing with the probe
   #elif HAS_Z_STATE
@@ -258,7 +265,7 @@ class Endstops {
     #if ENABLED(CALIBRATION_GCODE)
       static volatile bool calibration_probe_enabled;
       static volatile bool calibration_stop_state;
-      static void enable_calibration_probe(const bool onoff,const bool stop_state = true);
+      static void enable_calibration_probe(const bool onoff, const bool stop_state=true);
     #endif
 
     static void resync();
