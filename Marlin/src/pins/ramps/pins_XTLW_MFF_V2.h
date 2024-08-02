@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,30 +22,26 @@
 #pragma once
 
 /**
- * BAM&DICE Due (Arduino Mega) pin assignments
- * Schematic: http://www.2printbeta.de/de/download/2PRINTBETA-BAM&DICE-DUE-V1.1-sch.pdf
- * ATmega2560, ATmega1280
+ * XTLW MFF V2.0 pin assignments
  */
 
-#if HOTENDS > 2 || E_STEPPERS > 2
-  #error "2PrintBeta Due supports up to 2 hotends / E steppers."
-#endif
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "2PrintBeta Due"
-
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#if HAS_CUTTER
-  #define SPINDLE_LASER_PWM_PIN               44  // Hardware PWM
-  #define SPINDLE_LASER_ENA_PIN               66  // Pullup or pulldown!
-  #define SPINDLE_DIR_PIN                     67
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "XTLW MFF V2.0"
 #endif
 
 //
-// Temperature Sensors
+// Steppers
 //
-#define TEMP_0_PIN                             9  // Analog Input
-#define TEMP_1_PIN                            11  // Analog Input
+#define E2_STEP_PIN                           40
+#define E2_DIR_PIN                            42
+#define E2_ENABLE_PIN                         63
 
-#include "pins_RAMPS.h"
+//
+// Heaters / Fans
+//
+#define FAN1_PIN                              65
+#define FAN2_PIN                              66
+
+#include "pins_XTLW_MFF_V1.h"

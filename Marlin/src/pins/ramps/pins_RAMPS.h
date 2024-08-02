@@ -742,6 +742,7 @@
       #define BTN_ENC                    AUX4_03
       #define LCD_SDSS                      SDSS
       #define KILL_PIN               EXP2_08_PIN
+      #undef LCD_PINS_EN                          // not used, causes false pin conflict report
 
     #elif ENABLED(LCD_I2C_VIKI)
 
