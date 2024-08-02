@@ -3361,40 +3361,40 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #endif
 }
 
+// AVR requires guards to ensure any atomic memory operation greater than 8 bits
+#define ATOMIC_SECTION_START() const bool was_enabled = suspend()
+#define ATOMIC_SECTION_END() if (was_enabled) wake_up()
+#define AVR_ATOMIC_SECTION_START() TERN_(__AVR__, ATOMIC_SECTION_START())
+#define AVR_ATOMIC_SECTION_END() TERN_(__AVR__, ATOMIC_SECTION_END())
+
 /**
  * Get a stepper's position in steps.
  */
 int32_t Stepper::position(const AxisEnum axis) {
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = count_position[axis];
-
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
-  #endif
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
-// Set the current position in steps
+/**
+ * Set all axis stepper positions in steps
+ */
 void Stepper::set_position(const xyze_long_t &spos) {
   planner.synchronize();
-  const bool was_enabled = suspend();
+  ATOMIC_SECTION_START();
   _set_position(spos);
-  if (was_enabled) wake_up();
+  ATOMIC_SECTION_END();
 }
 
+/**
+ * Set a single axis stepper position in steps
+ */
 void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   planner.synchronize();
 
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
+  #if ANY(__AVR__, INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+    ATOMIC_SECTION_START();
   #endif
 
   count_position[a] = v;
@@ -3402,43 +3402,47 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   TERN_(INPUT_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
   TERN_(INPUT_SHAPING_Z, if (a == Z_AXIS) shaping_z.last_block_end_pos = v);
 
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
+  #if ANY(__AVR__, INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+    ATOMIC_SECTION_END();
   #endif
 }
+
+#if HAS_EXTRUDERS
+
+  void Stepper::set_e_position(const int32_t &v) {
+    planner.synchronize();
+
+    AVR_ATOMIC_SECTION_START();
+    count_position.e = v;
+    AVR_ATOMIC_SECTION_END();
+  }
+
+#endif // HAS_EXTRUDERS
 
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
     //planner.synchronize(); planner already synchronized in M493
 
-    #ifdef __AVR__
-      // Protect the access to the position. Only required for AVR, as
-      //  any 32bit CPU offers atomic access to 32bit variables
-      const bool was_enabled = suspend();
-    #endif
-
     // Update stepper positions from the planner
+    AVR_ATOMIC_SECTION_START();
     count_position = planner.position;
-
-    #ifdef __AVR__
-      // Reenable Stepper ISR
-      if (was_enabled) wake_up();
-    #endif
+    AVR_ATOMIC_SECTION_END();
   }
 
 #endif // FT_MOTION
 
-// Signal endstops were triggered - This function can be called from
-// an ISR context  (Temperature, Stepper or limits ISR), so we must
-// be very careful here. If the interrupt being preempted was the
-// Stepper ISR (this CAN happen with the endstop limits ISR) then
-// when the stepper ISR resumes, we must be very sure that the movement
-// is properly canceled
+/**
+ * Record stepper positions and discard the rest of the current block
+ *
+ * WARNING! This function may be called from ISR context!
+ * If the Stepper ISR is preempted (e.g., by the endstop ISR) we
+ * must ensure the move is properly canceled before the ISR resumes.
+ */
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
-  const bool was_enabled = suspend();
+  ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
+
   endstops_trigsteps[axis] = (
     #if IS_CORE
       (axis == CORE_AXIS_2
@@ -3461,23 +3465,14 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
   // Discard the rest of the move if there is a current block
   quick_stop();
 
-  if (was_enabled) wake_up();
+  ATOMIC_SECTION_END();     // Suspend the Stepper ISR on all platforms
 }
 
+// Return the "triggered" position for an axis (that hit an endstop)
 int32_t Stepper::triggered_position(const AxisEnum axis) {
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = endstops_trigsteps[axis];
-
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
-  #endif
-
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
@@ -3506,18 +3501,9 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
 }
 
 void Stepper::report_positions() {
-
-  #ifdef __AVR__
-    // Protect the access to the position.
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const xyz_long_t pos = count_position;
-
-  #ifdef __AVR__
-    if (was_enabled) wake_up();
-  #endif
-
+  AVR_ATOMIC_SECTION_END();
   report_a_position(pos);
 }
 
