@@ -50,7 +50,7 @@ extern xyze_pos_t current_position,  // High-level current tool position
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3]; // TODO: Add support for HAS_I_AXIS
+  extern Flags<SAVED_POSITIONS> did_save_position;
   extern xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
