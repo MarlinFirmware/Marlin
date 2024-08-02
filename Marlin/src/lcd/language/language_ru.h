@@ -805,8 +805,8 @@ namespace LanguageNarrow_ru {
   LSTR MSG_HOST_SHUTDOWN                    = _UxGT("Выключить хост");
 
   // did not translate as there is no local terms/slang yet
-  LSTR MSG_FIXED_TIME_MOTION                = _UxGT("Fixed-Time Motion");
-  LSTR MSG_FTM_MODE                         = _UxGT("Motion Mode:");
+  LSTR MSG_FIXED_TIME_MOTION                = _UxGT("FT Motion");
+  LSTR MSG_FTM_CMPN_MODE                    = _UxGT("@ Режим комп.:");
   LSTR MSG_FTM_ZV                           = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                          = _UxGT("ZVD");
   LSTR MSG_FTM_EI                           = _UxGT("EI");
