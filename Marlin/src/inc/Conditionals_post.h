@@ -2871,6 +2871,12 @@
 /**
  * Heated bed requires settings
  */
+/**
+ * If Heated bed is performed by a Peltier device then a direction (heat/cool) is needed
+ * Heat/Cool can be implemented by a relay (single pin) or H bridge (2 or 4 pin)
+ * H Bridge can also perform PWM although PWM is not recommended for Peltier devices
+ * 
+ */
 #if HAS_HEATED_BED
   #ifndef MIN_BED_POWER
     #define MIN_BED_POWER 0
@@ -2878,7 +2884,11 @@
   #ifndef MAX_BED_POWER
     #define MAX_BED_POWER 255
   #endif
+  
   #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ ENABLED(HEATER_BED_INVERTING))
+  #if ENABLED(HAS_PELTIER)
+     #define WRITE_PELTIER_DIR(v) WRITE(PELTIER_PIN, (v) ^ PELTIER_PIN_INVERT)
+  #endif
 #endif
 
 /**
