@@ -106,9 +106,9 @@ jobs:
 
         # STM32F4
         - ARMED
-        - BIGTREE_BTT002
-        - BIGTREE_GTR_V1_0
-        - BIGTREE_SKR_PRO
+        - BTT_BTT002
+        - BTT_GTR_V1_0
+        - BTT_SKR_PRO
         - FLYF407ZG
         - FYSETC_S6
         - LERDGEK
@@ -125,7 +125,7 @@ jobs:
         - REMRAM_V1
 
         # STM32H7
-        - BIGTREE_SKR_SE_BX
+        - BTT_SKR_SE_BX
         - STM32H743VI_btt
 
         # STM32F1 (Maple)
