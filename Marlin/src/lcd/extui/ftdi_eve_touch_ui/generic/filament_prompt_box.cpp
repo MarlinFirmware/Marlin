@@ -1,10 +1,11 @@
-/********************************
- * save_settings_dialog_box.cpp *
- ********************************/
+/**************************************
+ * filament_prompt_box.cpp *
+ **************************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,50 +23,50 @@
 
 #include "../config.h"
 #include "../screens.h"
+#include "../screen_data.h"
 
-#ifdef FTDI_SAVE_SETTINGS_DIALOG_BOX
+#ifdef FTDI_FILAMENT_PROMPT_BOX
 
-using namespace ExtUI;
+using namespace FTDI;
 
-using namespace Theme;
-
-bool SaveSettingsDialogBox::needs_save = false;
-
-void SaveSettingsDialogBox::onRedraw(draw_mode_t) {
-  drawMessage(GET_TEXT_F(MSG_EEPROM_SAVE_PROMPT));
-  drawYesNoButtons();
+// Need to be renamed to Filament Purge prompt?
+void FilamentPromptBox::onRedraw(draw_mode_t mode) {
+  AlertDialogBox::onRedraw(mode); // Required for the GOTO_SCREEN function to work
+  //GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE),GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_PURGE), GET_TEXT_F(MSG_FILAMENT_CHANGE_OPTION_RESUME))
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  drawFilamentButtons();
 }
 
-bool SaveSettingsDialogBox::onTouchEnd(uint8_t tag) {
-  needs_save = false;
+bool FilamentPromptBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
-      injectCommands(F("M500"));
-      sound.play(twinkle, PLAY_ASYNCHRONOUS);
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+      #endif
+      return true;
+    case 2:
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+      #endif
       GOTO_SCREEN(StatusScreen);
-      //AlertDialogBox::show(GET_TEXT_F(MSG_EEPROM_SAVED));
-      // Remove SaveSettingsDialogBox from the stack
-      // so the alert box doesn't return to me.
-      current_screen.forget();
       return true;
     default:
-      return DialogBoxBaseClass::onTouchEnd(tag);
+      return false;
   }
 }
 
-void SaveSettingsDialogBox::promptToSaveSettings() {
-   if (needs_save) {
-     // Remove current screen from the stack
-     // so SaveSettingsDialogBox doesn't return here.
-     GOTO_SCREEN(SaveSettingsDialogBox);
-     current_screen.forget();
-   }
-   else
-     GOTO_PREVIOUS(); // No save needed.
+void FilamentPromptBox::show() {
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  drawFilamentButtons();
+  storeBackground();
+  screen_data.AlertDialogBox.isError = false;
+  if (!AT_SCREEN(FilamentPromptBox))
+    GOTO_SCREEN(FilamentPromptBox);
 }
 
-void SaveSettingsDialogBox::promptToSaveAndStay() {
-   if (needs_save) GOTO_SCREEN(SaveSettingsDialogBox);
+void FilamentPromptBox::hide() {
+  if (AT_SCREEN(FilamentPromptBox))
+    GOTO_PREVIOUS();
 }
 
-#endif // FTDI_SAVE_SETTINGS_DIALOG_BOX
+#endif // FTDI_FILAMENT_PROMPT_BOX
