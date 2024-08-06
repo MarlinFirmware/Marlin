@@ -3153,6 +3153,14 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   }
 }
 
+/**
+ * Set the machine positions in millimeters (soon) given the native position.
+ * Synchonized with the planner queue.
+ *
+ *   - Modifiers are applied for skew, leveling, retract, etc.
+ *   - Kinematics are applied to remap cartesian positions to stepper positions.
+ *   - The resulting stepper positions are synchronized at the end of the planner queue.
+ */
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
   TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
@@ -3169,12 +3177,13 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
 #if HAS_EXTRUDERS
 
   /**
-   * Setters for planner position (also setting stepper position).
+   * Special setter for planner E position (also setting E stepper position).
    */
   void Planner::set_e_position_mm(const_float_t e) {
     const uint8_t axis_index = E_AXIS_N(active_extruder);
     TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
+    // Unapply the current retraction before (immediately) setting the planner position
     const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
     position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
     TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
@@ -3183,12 +3192,14 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
     if (has_blocks_queued())
       buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
     else
-      stepper.set_axis_position(E_AXIS, position.e);
+      stepper.set_e_position(position.e);
   }
 
-#endif
+#endif // HAS_EXTRUDERS
 
-// Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
+/**
+ * Recalculate steps/s^2 acceleration rates based on mm/s^2 acceleration rates
+ */
 void Planner::refresh_acceleration_rates() {
   uint32_t highest_rate = 1;
   LOOP_DISTINCT_AXES(i) {
