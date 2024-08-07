@@ -197,16 +197,20 @@ void GcodeSuite::M493() {
 
   // Parse 'S' mode parameter.
   if (parser.seen('S')) {
-    const bool active = parser.value_bool();
+    if(!printer_busy()) {
+      const bool active = parser.value_bool();
 
-    if (active != ftMotion.cfg.active) {
-      switch (active) {
-        case false: flag.reset_ft = true;
-        case true: flag.report_h = true;
-          ftMotion.cfg.active = active;
+      if (active != ftMotion.cfg.active) {
+        switch (active) {
+          case false: flag.reset_ft = true;
+          case true: flag.report_h = true;
+              ftMotion.cfg.active = active;
           break;
+        }
       }
     }
+    else
+      SERIAL_ECHOPGM("Printer busy : enabling or disabling Fixed Time Motion is forbidden");  
   }
 
   #if HAS_X_AXIS
