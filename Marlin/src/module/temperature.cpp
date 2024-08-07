@@ -4451,7 +4451,7 @@ void Temperature::isr() {
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
     #endif
-    #if HAS_PELTIER
+    #if ENABLED(HAS_PELTIER)
       s.append(" P@:");
       if (temp_bed.peltier_dir)
         s.append ("H");

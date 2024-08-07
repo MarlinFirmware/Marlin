@@ -61,7 +61,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "BeerMKR Control by PBM" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 // @section machine
@@ -571,7 +571,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 1000
+#define TEMP_SENSOR_BED 1
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
@@ -599,14 +599,14 @@
 
 #if HAS_E_TEMP_SENSOR
   #define TEMP_RESIDENCY_TIME         10  // (seconds) Time to wait for hotend to "settle" in M109
-  #define TEMP_WINDOW                  0  // (°C) Temperature proximity for the "temperature reached" timer
-  #define TEMP_HYSTERESIS              1  // (°C) Temperature proximity considered "close enough" to the target
+  #define TEMP_WINDOW                  1  // (°C) Temperature proximity for the "temperature reached" timer
+  #define TEMP_HYSTERESIS              3  // (°C) Temperature proximity considered "close enough" to the target
 #endif
 
 #if TEMP_SENSOR_BED
   #define TEMP_BED_RESIDENCY_TIME     10  // (seconds) Time to wait for bed to "settle" in M190
-  #define TEMP_BED_WINDOW              0  // (°C) Temperature proximity for the "temperature reached" timer
-  #define TEMP_BED_HYSTERESIS          1  // (°C) Temperature proximity considered "close enough" to the target
+  #define TEMP_BED_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
+  #define TEMP_BED_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
 #endif
 
 #if TEMP_SENSOR_CHAMBER
@@ -641,7 +641,7 @@
 #define HEATER_5_MINTEMP   5
 #define HEATER_6_MINTEMP   5
 #define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        1
+#define BED_MINTEMP        5
 #define CHAMBER_MINTEMP    5
 
 // Above this temperature the heater will be switched off.
@@ -655,7 +655,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      80
+#define BED_MAXTEMP      150
 #define CHAMBER_MAXTEMP  60
 
 /**
@@ -681,7 +681,7 @@
  * PIDTEMP : PID temperature control (~4.1K)
  * MPCTEMP : Predictive Model temperature control. (~1.8K without auto-tune)
  */
-//#define PIDTEMP           // See the PID Tuning Guide at https://reprap.org/wiki/PID_Tuning
+#define PIDTEMP           // See the PID Tuning Guide at https://reprap.org/wiki/PID_Tuning
 //#define MPCTEMP         // See https://marlinfw.org/docs/features/model_predictive_control.html
 
 #define PID_MAX  255      // Limit hotend current while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
@@ -774,52 +774,6 @@
 
 
 /**
- * Peltier Logic
- * A Peltier chip is a device that can transfer heat from one side to the other
- * proportional to the amount of current flowing through the device.  It is reversable.
- * The same device can both heat or cool a side depending on the direction of current flow.
- * Because of existing eqipment made to handle relatively high current for the
- * heated bed in 3D printing the "Heated Bed" is used for the power control point for the Peltier.
- * 
- * When "cooling" in addition to rejecting the heat transferred from hot side to 
- * cool side the power dissapted by the Peltier unit (voltage x current) must also be rejected.
- * Peltier Fan control needs to work in tandem with unit energization.  Peltier_FAN_PIN (PWM) is required
- * 
- * Peltier units are typically run in bang-bang mode.  They don't do well with PWM
- * unless special filter circuitry is installed.  PWM not supported at this time.
- * 
- * Peltier logic uses Heated bed gcode at this time (Peltier in place of heated bed)
- * Another pin or pins must be used to control the direction of current to the peltier.
- * Two configurations are possible: Relay and H-Bridge
- * only relay is supported on this pass. (H bridge requires 4 MOS switches configured in H-Bridge)
- * //todo: H bridge pin configurations
- */
-#define HAS_PELTIER 1
-/**
- * HAS_PELTIER is master switch for function
- * HAS_PELTIER uses heated bed control pins for the Peltier Power
- * 
- * 
- * PELTIER_RELAY_PIN is the control pin for relay switching
- * In the initial application heat is less common than cool
- * Heating: Relay Energized
- * Cooling: Relay in "Normal" state
- * (Power is determined by Heated Bed setting - 0 or 255 )
- * 
- * PELTIER_PIN_INVERT will invert the logic on write to the relay.
- * PELTIER_PIN and PELTIER_PIN_Invert are set in ???
- */
-#ifdef HAS_PELTIER
-  #define PELTIER_PIN 47
-  #define PELTIER_PIN_INVERT true
-  #define Peltier_FAN_PIN 4
-//todo:  Define Peltier Control Pin
-//todo: Define Peltier Pin Invert
-//todo: Write Peltier control direction
-//Turn off power on zero setting and manage lower than ambient numbers
-//todo:  oops.  move this out of pidtemp section
-#endif
-/**
  * PID Bed Heating
  *
  * The PID frequency will be the same as the extruder PWM.
@@ -845,7 +799,47 @@
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
-  #define BED_LIMIT_SWITCHING   // Keep the bed temperature within BED_HYSTERESIS of the target
+  //#define BED_LIMIT_SWITCHING   // Keep the bed temperature within BED_HYSTERESIS of the target
+#endif
+
+/**
+ * Peltier Logic
+ * A Peltier chip is a device that can transfer heat from one side to the other
+ * proportional to the amount of current flowing through the device.  It is reversable.
+ * The same device can both heat or cool a side depending on the direction of current flow.
+ * Because of existing eqipment made to handle relatively high current for the
+ * heated bed in 3D printing the "Heated Bed" is used for the power control point for the Peltier.
+ * 
+ * When "cooling" in addition to rejecting the heat transferred from hot side to 
+ * cool side the power dissapted by the Peltier unit (voltage x current) must also be rejected.
+ * Peltier Fan control needs to work in tandem with unit energization.  Some form of fan is required with
+ * a Peltier heat exchanger that is no implemented here.
+ * 
+ * Peltier units are typically run in bang-bang mode.  They don't do well with PWM
+ * unless special filter circuitry is installed.  PWM not supported at this time.
+ * 
+ * Peltier logic uses Heated bed gcode at this time (Peltier in place of heated bed)
+ * Another pin or pins must be used to control the direction of current to the peltier.
+ * Two configurations are possible: Relay and H-Bridge
+ * only relay is supported on this pass. (H bridge requires 4 MOS switches configured in H-Bridge)
+ * //todo: H bridge pin configurations
+ */
+//#define HAS_PELTIER 1
+/**
+ * HAS_PELTIER is master switch for function
+ * HAS_PELTIER uses heated bed control pins for the Peltier Power
+ * 
+ * PELTIER_PIN is the control pin for relay switching
+ * In the initial application heat is less common than cool
+ * Heating: Relay Energized
+ * Cooling: Relay in "Normal" state
+ * (Power is determined by Heated Bed setting - 0 or 255 )
+ * 
+ * PELTIER_PIN_INVERT will invert the logic on write to the relay.
+  */
+#if ENABLED(HAS_PELTIER)
+  #define PELTIER_PIN 47
+  #define PELTIER_PIN_INVERT true
 #endif
 
 // Add 'M190 R T' for more gradual M190 R bed cooling.
@@ -943,7 +937,7 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-//define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 #define THERMAL_PROTECTION_CHAMBER // Enable thermal protection for the heated chamber
 #define THERMAL_PROTECTION_COOLER  // Enable thermal protection for the laser cooling
 
@@ -2453,7 +2447,7 @@
 //
 // M149 Set temperature units support
 //
-#define TEMPERATURE_UNITS_SUPPORT
+//#define TEMPERATURE_UNITS_SUPPORT
 
 // @section temperature
 
