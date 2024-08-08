@@ -190,28 +190,20 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
-  struct { bool update:1, reset_ft:1, report_h:1; } flag = { false };
+  struct { bool update:1, report_h:1; } flag = { false };
 
   if (!parser.seen_any())
     flag.report_h = true;
 
   // Parse 'S' mode parameter.
   if (parser.seen('S')) {
-    if(!printer_busy()) {
       const bool active = parser.value_bool();
-
       if (active != ftMotion.cfg.active) {
-        switch (active) {
-          case false: flag.reset_ft = true;
-          case true: flag.report_h = true;
-              ftMotion.cfg.active = active;
-          break;
-        }
+          flag.report_h = true;
+          stepper.ftMotion_syncPosition();
+          ftMotion.cfg.active = active;
       }
-    }
-    else
-      SERIAL_ECHOPGM("Printer busy : enabling or disabling Fixed Time Motion is forbidden");  
-  }
+  } 
 
   #if HAS_X_AXIS
     auto set_shaper = [&](const AxisEnum axis, const char c) {
@@ -310,7 +302,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq[X_AXIS] = val;
-          flag.update = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
@@ -371,7 +363,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq[Y_AXIS] = val;
-          flag.update = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.report_h = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
@@ -424,14 +416,7 @@ void GcodeSuite::M493() {
 
   #endif // HAS_Y_AXIS
 
-  planner.synchronize();
-
   if (flag.update) ftMotion.update_shaping_params();
-
-  if (flag.reset_ft) {
-    stepper.ftMotion_syncPosition();
-    ftMotion.reset();
-  }
 
   if (flag.report_h) say_shaping();
 }
