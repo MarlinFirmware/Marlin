@@ -497,6 +497,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018)."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN."
+#elif defined(DISABLE_ENCODER)
+  #error "DISABLE_ENCODER is now NO_BACK_MENU_ITEM."
 #elif defined(LCD_FULL_PIXEL_HEIGHT) || defined(LCD_FULL_PIXEL_WIDTH)
   #error "LCD_FULL_PIXEL_(WIDTH|HEIGHT) is deprecated and should be removed."
 #elif defined(FSMC_UPSCALE)
@@ -641,6 +643,8 @@
   #error "PROBE_PT_[123]_[XY] is now defined using PROBE_PT_[123] with an array { x, y }."
 #elif defined(SQUARE_WAVE_STEPPING)
   #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
+#elif defined(MINIMUM_STEPPER_PULSE)
+  #error "MINIMUM_STEPPER_PULSE (in µs) is now MINIMUM_STEPPER_PULSE_NS. Multiply old MINIMUM_STEPPER_PULSE x 1000!"
 #elif defined(FAN_PIN)
   #error "FAN_PIN is now FAN0_PIN."
 #elif defined(X_MIN_ENDSTOP_INVERTING) || defined(Y_MIN_ENDSTOP_INVERTING) || defined(Z_MIN_ENDSTOP_INVERTING) \
@@ -693,6 +697,8 @@
   #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
 #elif defined(WIFI_SERIAL)
   #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
+#elif defined(CALIBRATION_MEASUREMENT_RESOLUTION)
+  #error "CALIBRATION_MEASUREMENT_RESOLUTION is no longer needed and should be removed."
 #endif
 
 // Changes to Probe Temp Compensation (#17392)

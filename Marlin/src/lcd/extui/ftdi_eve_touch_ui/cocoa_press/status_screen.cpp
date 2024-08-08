@@ -227,8 +227,8 @@ void StatusScreen::draw_buttons(draw_mode_t what) {
   if (what & FOREGROUND) {
     int16_t x, y, w, h;
 
-    const bool can_print        = !isPrinting() && isMediaInserted() && isFileSelected();
-    const bool can_select       = !isPrinting() && isMediaInserted();
+    const bool can_print        = !isPrinting() && isMediaMounted() && isFileSelected();
+    const bool can_select       = !isPrinting() && isMediaMounted();
     const bool sdOrHostPrinting = ExtUI::isPrinting();
     const bool sdOrHostPaused   = ExtUI::isPrintingPaused();
 
@@ -284,7 +284,7 @@ void StatusScreen::draw_file(draw_mode_t what) {
        .cmd (BITMAP_SIZE  (File_Icon_Info))
        .icon(ICON_POS(x, y, w, h), File_Icon_Info, icon_scale);
 
-    if (!isMediaInserted())
+    if (!isMediaMounted())
       draw_text_with_ellipsis(cmd, TEXT_POS(x, y, w, h), F("No media present"), OPT_CENTERY, font_small);
     else if (isFileSelected()) {
       FileList list;
@@ -311,7 +311,7 @@ void StatusScreen::draw_message(draw_mode_t what, const char *message) {
 }
 
 bool StatusScreen::isFileSelected() {
-  if (!isMediaInserted()) return false;
+  if (!isMediaMounted()) return false;
   FileList list;
   if (list.isDir()) return false;
   const char *filename = list.filename();
@@ -431,7 +431,7 @@ void StatusScreen::onIdle() {
   }
 }
 
-void StatusScreen::onMediaInserted() {
+void StatusScreen::onMediaMounted() {
   if (AT_SCREEN(StatusScreen))
     setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
 }

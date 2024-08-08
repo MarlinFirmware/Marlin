@@ -83,6 +83,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   volatile bool Endstops::z_probe_enabled = false;
 #endif
 
+#if ENABLED(CALIBRATION_GCODE)
+  volatile bool Endstops::calibration_probe_enabled = false;
+  volatile bool Endstops::calibration_stop_state;
+#endif
+
 // Initialized by settings.load()
 #if ENABLED(X_DUAL_ENDSTOPS)
   float Endstops::x2_endstop_adj;
@@ -199,7 +204,7 @@ void Endstops::init() {
     _INIT_ENDSTOP(MAX,W,);
   #endif
 
-  #if PIN_EXISTS(CALIBRATION)
+  #if USE_CALIBRATION
     #if ENABLED(CALIBRATION_PIN_PULLUP)
       SET_INPUT_PULLUP(CALIBRATION_PIN);
     #elif ENABLED(CALIBRATION_PIN_PULLDOWN)
@@ -279,6 +284,17 @@ void Endstops::not_homing() {
   }
 #endif
 
+// Enable / disable calibration probe checking
+#if ENABLED(CALIBRATION_GCODE)
+  void Endstops::enable_calibration_probe(const bool onoff, const bool stop_state) {
+    // Avoid race condition by setting stop state first
+    if (onoff) calibration_stop_state = stop_state;
+    calibration_probe_enabled = onoff;
+
+    resync();
+  }
+#endif
+
 // Get the stable endstop states when enabled
 void Endstops::resync() {
   if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
@@ -351,7 +367,7 @@ void Endstops::event_handler() {
     TERN_(HAS_STATUS_MESSAGE,
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
-        GET_TEXT(MSG_LCD_ENDSTOPS),
+        GET_TEXT_F(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
       )
     );
@@ -481,6 +497,9 @@ void __O2 Endstops::report_states() {
   #if USE_Z_MIN_PROBE
     print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
   #endif
+  #if USE_CALIBRATION
+    print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
+  #endif
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
     for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
@@ -524,6 +543,16 @@ void Endstops::update() {
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move) UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+  #endif
+
+  #if ENABLED(CALIBRATION_GCODE)
+    if (calibration_probe_enabled) {
+      #if HAS_CALIBRATION_STATE
+        SET_BIT_TO(live_state, CALIBRATION, READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING);
+      #else
+        UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+      #endif
+    }
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -793,6 +822,15 @@ void Endstops::update() {
     }
   #endif
 
+  #if ENABLED(CALIBRATION_GCODE)
+    if (calibration_probe_enabled) {
+      #if HAS_CALIBRATION_STATE
+        if (TEST(live_state, CALIBRATION) == calibration_stop_state) stepper.quick_stop();
+      #else
+        if (TEST(live_state, Z_MIN_PROBE) == calibration_stop_state) stepper.quick_stop();
+      #endif
+    }
+  #endif
   // Signal, after validation, if an endstop limit is pressed or not
 
   #if HAS_X_AXIS
@@ -1159,6 +1197,9 @@ void Endstops::update() {
     #if USE_Z_MIN_PROBE
       ES_GET_STATE(Z_MIN_PROBE);
     #endif
+    #if USE_CALIBRATION
+      ES_GET_STATE(CALIBRATION);
+    #endif
     #if USE_X2_MIN
       ES_GET_STATE(X2_MIN);
     #endif
@@ -1250,6 +1291,9 @@ void Endstops::update() {
       #endif
       #if USE_Z_MIN_PROBE
         ES_REPORT_CHANGE(Z_MIN_PROBE);
+      #endif
+      #if USE_CALIBRATION
+        ES_REPORT_CHANGE(CALIBRATION);
       #endif
       #if USE_X2_MIN
         ES_REPORT_CHANGE(X2_MIN);

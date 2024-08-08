@@ -96,8 +96,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin_popup.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -376,8 +374,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
-    TERN_(DWIN_LCD_PROUI, dwinPopupConfirm(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR)));
+    #if ENABLED(DWIN_LCD_PROUI)
+      ExtUI::onUserConfirmRequired(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR));
+    #elif ENABLED(EXTENSIBLE_UI)
+      ExtUI::onUserConfirmRequired(ds_fstr);
+    #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_status();
@@ -998,7 +999,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
         default: break;
         case PROBE_PT_RAISE:
           if (raise_after_is_relative)
-            do_z_clearance(current_position.z + z_clearance, false);
+            do_z_clearance_by(z_clearance);
           else
             do_z_clearance(z_clearance);
           break;

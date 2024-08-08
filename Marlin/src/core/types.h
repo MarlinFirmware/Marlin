@@ -46,6 +46,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_ELEM(O)      NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define NUM_AXIS_DECL(T,V)    NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
+#define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define LOGICAL_AXIS_GANG(E,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(E)
@@ -58,17 +59,21 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ELEM(O)       LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
 #define LOGICAL_AXIS_DECL(T,V)     LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define LOGICAL_AXIS_NAMES         LOGICAL_AXIS_LIST(E, X, Y, Z, I, J, K, U, V, W)
+#define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
+#define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #if NUM_AXES
   #define NUM_AXES_SEP ,
   #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
+  #define MAIN_AXIS_MAP_LC(F) MAP(F, MAIN_AXIS_NAMES_LC)
   #define OPTARGS_NUM(T)      , NUM_AXIS_ARGS(T)
   #define OPTARGS_LOGICAL(T)  , LOGICAL_AXIS_ARGS(T)
 #else
   #define NUM_AXES_SEP
   #define MAIN_AXIS_MAP(F)
+  #define MAIN_AXIS_MAP_LC(F)
   #define OPTARGS_NUM(T)
   #define OPTARGS_LOGICAL(T)
 #endif
@@ -79,6 +84,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_ARGS_(T)       NUM_AXIS_ARGS(T) NUM_AXES_SEP
 #define NUM_AXIS_ELEM_(T)       NUM_AXIS_ELEM(T) NUM_AXES_SEP
 #define MAIN_AXIS_NAMES_        MAIN_AXIS_NAMES NUM_AXES_SEP
+#define MAIN_AXIS_NAMES_LC_     MAIN_AXIS_NAMES_LC NUM_AXES_SEP
 
 #if LOGICAL_AXES
   #define LOGICAL_AXES_SEP ,
@@ -92,6 +98,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_ARGS_(T)       LOGICAL_AXIS_ARGS(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_ELEM_(T)       LOGICAL_AXIS_ELEM(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_NAMES_         LOGICAL_AXIS_NAMES LOGICAL_AXES_SEP
+#define LOGICAL_AXIS_NAMES_LC_      LOGICAL_AXIS_NAMES_LC LOGICAL_AXES_SEP
 
 #define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
@@ -152,36 +159,90 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define FI FORCE_INLINE
 
 // Define types based on largest bit width stored value required
-#define bits_t(W)   typename IF<((W)>   16), uint32_t, typename IF<((W)>  8), uint16_t, uint8_t>::type>::type
+#define bits_t(W)   typename IF<((W)>   32), uint64_t, typename IF<((W)> 16), uint32_t, typename IF<((W)>8), uint16_t, uint8_t>::type>::type>::type
 #define uvalue_t(V) typename IF<((V)>65535), uint32_t, typename IF<((V)>255), uint16_t, uint8_t>::type>::type
 #define value_t(V)  typename IF<((V)>32767),  int32_t, typename IF<((V)>127),  int16_t,  int8_t>::type>::type
 
-// General Flags for some number of states
+// Define a template for a bit field of N bits, using the smallest type that can hold N bits
+template<size_t N, bool UseArray = (N > 64)>
+struct Flags;
+
+// Flag bits for <= 64 states
 template<size_t N>
-struct Flags {
-  typedef uvalue_t(N) flagbits_t;
-  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1; } N8;
-  typedef struct { bool b0:1, b1:1, b2:1, b3:1, b4:1, b5:1, b6:1, b7:1, b8:1, b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1; } N16;
-  typedef struct { bool b0:1,  b1:1,  b2:1,  b3:1,  b4:1,  b5:1,  b6:1,  b7:1,  b8:1,  b9:1, b10:1, b11:1, b12:1, b13:1, b14:1, b15:1,
-                       b16:1, b17:1, b18:1, b19:1, b20:1, b21:1, b22:1, b23:1, b24:1, b25:1, b26:1, b27:1, b28:1, b29:1, b30:1, b31:1; } N32;
-  union {
-    flagbits_t b;
-    typename IF<(N>16), N32, typename IF<(N>8), N16, N8>::type>::type flag;
+struct Flags<N, false> {
+  typedef bits_t(N) flagbits_t;
+  flagbits_t b;
+
+  class BitProxy {
+  public:
+    BitProxy(flagbits_t& data, int bit) : data_(data), bit_(bit) {}
+
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |=  (flagbits_t(1) << bit_);
+      else
+        data_ &= ~(flagbits_t(1) << bit_);
+      return *this;
+    }
+
+    operator bool() const { return bool(data_ & (flagbits_t(1) << bit_)); }
+
+  private:
+    flagbits_t& data_;
+    uint8_t bit_;
   };
+
   FI void reset()                            { b = 0; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
-  FI void set(const int n)                   { b |=  (flagbits_t)_BV(n); }
-  FI void clear(const int n)                 { b &= ~(flagbits_t)_BV(n); }
-  FI bool test(const int n) const            { return TEST(b, n); }
-  FI bool operator[](const int n)            { return test(n); }
+  FI void set(const int n)                   { b |=  (flagbits_t(1) << n); }
+  FI void clear(const int n)                 { b &= ~(flagbits_t(1) << n); }
+  FI bool test(const int n) const            { return bool(b & (flagbits_t(1) << n)); }
+  FI BitProxy operator[](const int n)        { return BitProxy(b, n); }
   FI bool operator[](const int n) const      { return test(n); }
   FI int size() const                        { return sizeof(b); }
-  FI operator bool() const                   { return b; }
+  FI operator bool() const                   { return b != 0; }
+};
+
+// Flag bits for more than 64 states
+template<size_t N>
+struct Flags<N, true> {
+  uint8_t bitmask[(N+7)>>3];
+  // Proxy class for handling bit assignment
+  class BitProxy {
+  public:
+    BitProxy(uint8_t data[], int n) : data_(data[n >> 3]), bit_(n & 7) {}
+
+    // Assignment operator
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |=  _BV(bit_);
+      else
+        data_ &= ~_BV(bit_);
+      return *this;
+    }
+
+    // Conversion operator to bool
+    operator bool() const { return TEST(data_, bit_); }
+
+  private:
+    uint8_t& data_;
+    uint8_t bit_;
+  };
+
+  FI void reset()                            { for (uint8_t b = 0; b < sizeof(bitmask); ++b) bitmask[b] = 0; }
+  FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
+  FI void set(const int n)                   { bitmask[n >> 3] |=  _BV(n & 7); }
+  FI void clear(const int n)                 { bitmask[n >> 3] &= ~_BV(n & 7); }
+  FI bool test(const int n) const            { return TEST(bitmask[n >> 3], n & 7); }
+  FI BitProxy operator[](const int n)        { return BitProxy(bitmask, n); }
+  FI bool operator[](const int n) const      { return test(n); }
+  FI int size() const                        { return sizeof(bitmask); }
+  FI operator bool() const                   { for (uint8_t b : bitmask) if (b) return true; return false; }
 };
 
 // Specialization for a single bool flag
 template<>
-struct Flags<1> {
+struct Flags<1, false> {
   bool b;
   FI void reset()                            { b = false; }
   FI void set(const int n, const bool onoff) { onoff ? set(n) : clear(n); }
@@ -211,7 +272,7 @@ typedef struct {
   FI bool operator[](const int n)            { return flags[n]; }
   FI bool operator[](const int n) const      { return flags[n]; }
   FI int size() const                        { return sizeof(flags); }
-  FI operator bool() const                   { return flags; }
+  FI operator bool() const                   { return (bool)flags; }
 } AxisFlags;
 
 //
@@ -219,7 +280,7 @@ typedef struct {
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
 //  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
-//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
+//  - X_HEAD, Y_HEAD, and Z_HEAD should be used for axes on Core kinematics
 //
 enum AxisEnum : uint8_t {
 
@@ -449,7 +510,7 @@ struct XYval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(x*x + y*y); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return x || y; }
   // Smallest element
@@ -599,13 +660,13 @@ struct XYZval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)TERN(HAS_X_AXIS, sqrtf(NUM_AXIS_GANG(x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)), 0); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 NUM_AXIS_GANG(|| x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
-  FI constexpr T small()        const { return TERN(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T small()        const { return TERN0(HAS_X_AXIS, _MIN(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
   // Largest element
-  FI constexpr T large()        const { return TERN(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)), 0); }
+  FI constexpr T large()        const { return TERN0(HAS_X_AXIS, _MAX(NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w))); }
 
   // Explicit copy and copies with conversion
   FI constexpr XYZval<T>           copy() const { XYZval<T> o = *this; return o; }
@@ -747,7 +808,7 @@ struct XYZEval {
   // Length reduced to one dimension
   FI constexpr T magnitude()    const { return (T)sqrtf(LOGICAL_AXIS_GANG(+ e*e, + x*x, + y*y, + z*z, + i*i, + j*j, + k*k, + u*u, + v*v, + w*w)); }
   // Pointer to the data as a simple array
-  FI operator T* ()                   { return pos; }
+  explicit FI operator T* ()          { return pos; }
   // If any element is true then it's true
   FI constexpr operator bool()  const { return 0 LOGICAL_AXIS_GANG(|| e, || x, || y, || z, || i, || j, || k, || u, || v, || w); }
   // Smallest element
@@ -1084,6 +1145,7 @@ public:
   FI bool toggle(const AxisEnum n) { TBI(bits, n); return TEST(bits, n); }
   FI void bset(const AxisEnum n) { SBI(bits, n); }
   FI void bclr(const AxisEnum n) { CBI(bits, n); }
+  FI void bset(const AxisEnum n, const bool b) { if (b) bset(n); else bclr(n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
   FI bool operator[](const int n) const { return TEST(bits, n); }

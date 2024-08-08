@@ -61,7 +61,7 @@
 #else
   #define G2_PWM_Z 0
 #endif
-#if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+#if HAS_MOTOR_CURRENT_PWM_E
   #define G2_PWM_E 1
 #else
   #define G2_PWM_E 0

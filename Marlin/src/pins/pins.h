@@ -123,6 +123,12 @@
   #define NOT_TARGET NONE
 #endif
 
+#ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
+  #define CONTROLLER_WARNING(PF,CN,V...) static_assert(false, "\n\nWARNING! " CN " requires wiring modification! See pins_" PF ".h for details." V "\n (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)\n\n");
+#else
+  #define CONTROLLER_WARNING(...)
+#endif
+
 //
 // RAMPS 1.3 / 1.4 / 1.6+ - ATmega1280, ATmega2560
 //
@@ -224,6 +230,8 @@
   #include "ramps/pins_RAMPS_CREALITY.h"            // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_F5)
   #include "ramps/pins_DAGOMA_F5.h"                 // ATmega2560                           env:mega2560
+#elif MB(DAGOMA_D6)
+  #include "ramps/pins_DAGOMA_D6.h"                 // ATmega2560                           env:mega2560ext
 #elif MB(FYSETC_F6_13)
   #include "ramps/pins_FYSETC_F6_13.h"              // ATmega2560                           env:FYSETC_F6
 #elif MB(FYSETC_F6_14)
@@ -262,6 +270,10 @@
   #include "ramps/pins_PANOWIN_CUTLASS.h"           // ATmega2560                           env:mega2560ext
 #elif MB(KODAMA_BARDO)
   #include "ramps/pins_KODAMA_BARDO.h"              // ATmega2560                           env:mega2560ext
+#elif MB(XTLW_MFF_V1)
+  #include "ramps/pins_XTLW_MFF_V1.h"               // ATmega2560                           env:mega2560
+#elif MB(XTLW_MFF_V2)
+  #include "ramps/pins_XTLW_MFF_V2.h"               // ATmega2560                           env:mega2560
 
 //
 // RAMBo and derivatives
@@ -496,6 +508,8 @@
   #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"        // LPC1769                              env:LPC1769
 #elif MB(FLY_CDY)
   #include "lpc1769/pins_FLY_CDY.h"                 // LPC1769                              env:LPC1769
+#elif MB(XTLW_CLIMBER_8TH_LPC)
+  #include "lpc1769/pins_XTLW_CLIMBER_8TH_LPC.h"    // LPC1769                              env:LPC1769
 
 //
 // Due (ATSAM) boards
@@ -556,15 +570,15 @@
 #elif MB(BTT_SKR_MINI_E3_V3_0)
   #include "stm32g0/pins_BTT_SKR_MINI_E3_V3_0.h"    // STM32G0                              env:STM32G0B1RE_btt env:STM32G0B1RE_btt_xfer
 #elif MB(BTT_MANTA_M4P_V2_1)
-  #include "stm32g0/pins_BTT_MANTA_M4P_V2_1.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+  #include "stm32g0/pins_BTT_MANTA_M4P_V2_1.h"      // STM32G0                              env:STM32G0B1RE_manta_btt
 #elif MB(BTT_MANTA_M5P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+  #include "stm32g0/pins_BTT_MANTA_M5P_V1_0.h"      // STM32G0                              env:STM32G0B1RE_manta_btt
 #elif MB(BTT_MANTA_E3_EZ_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_E3_EZ_V1_0.h"    // STM32G0                              env:STM32G0B1RE_manta_btt env:STM32G0B1RE_manta_btt_xfer
+  #include "stm32g0/pins_BTT_MANTA_E3_EZ_V1_0.h"    // STM32G0                              env:STM32G0B1RE_manta_btt
 #elif MB(BTT_MANTA_M8P_V1_0)
-  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"      // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
+  #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"      // STM32G0                              env:STM32G0B1VE_btt
 #elif MB(BTT_MANTA_M8P_V1_1)
-  #include "stm32g0/pins_BTT_MANTA_M8P_V1_1.h"      // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
+  #include "stm32g0/pins_BTT_MANTA_M8P_V1_1.h"      // STM32G0                              env:STM32G0B1VE_btt
 
 //
 // STM32 ARM Cortex-M3
@@ -704,6 +718,8 @@
   #include "gd32f1/pins_VOXELAB_AQUILA.h"           // GD32F1, N32G4, STM32F1               env:GD32F103RC_voxelab_maple env:N32G455RE_voxelab_maple env:STM32F103RE_creality_maple env:STM32F103RE_creality
 #elif MB(SPRINGER_CONTROLLER)
   #include "stm32f1/pins_ORCA_3D_SPRINGER.h"        // STM32F1                              env:STM32F103VC_orca3d
+#elif MB(CREALITY_CR4NS)
+  #include "stm32f1/pins_CREALITY_CR4NS.h"          // STM32F1                              env:STM32F103RE_creality env:STM32F103RE_creality_maple
 
 //
 // ARM Cortex-M4F
@@ -729,21 +745,21 @@
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"       // STM32F4                              env:STM32F407VE_black
 #elif MB(BTT_SKR_PRO_V1_1)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"        // STM32F4                              env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"        // STM32F4                              env:BTT_SKR_PRO env:BTT_SKR_PRO_usb_flash_drive
 #elif MB(BTT_SKR_PRO_V1_2)
-  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"        // STM32F4                              env:BIGTREE_SKR_PRO env:BIGTREE_SKR_PRO_usb_flash_drive
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"        // STM32F4                              env:BTT_SKR_PRO env:BTT_SKR_PRO_usb_flash_drive
 #elif MB(BTT_GTR_V1_0)
-  #include "stm32f4/pins_BTT_GTR_V1_0.h"            // STM32F4                              env:BIGTREE_GTR_V1_0 env:BIGTREE_GTR_V1_0_usb_flash_drive
+  #include "stm32f4/pins_BTT_GTR_V1_0.h"            // STM32F4                              env:BTT_GTR_V1_0 env:BTT_GTR_V1_0_usb_flash_drive
 #elif MB(BTT_BTT002_V1_0)
-  #include "stm32f4/pins_BTT_BTT002_V1_0.h"         // STM32F4                              env:BIGTREE_BTT002 env:BIGTREE_BTT002_VET6
+  #include "stm32f4/pins_BTT_BTT002_V1_0.h"         // STM32F4                              env:BTT_BTT002 env:BTT_BTT002_VET6
 #elif MB(BTT_E3_RRF)
-  #include "stm32f4/pins_BTT_E3_RRF.h"              // STM32F4                              env:BIGTREE_E3_RRF
+  #include "stm32f4/pins_BTT_E3_RRF.h"              // STM32F4                              env:BTT_E3_RRF
 #elif MB(BTT_SKR_MINI_E3_V3_0_1)
   #include "stm32f4/pins_BTT_SKR_MINI_E3_V3_0_1.h"  // STM32F4                              env:STM32F401RC_btt env:STM32F401RC_btt_xfer
 #elif MB(BTT_SKR_V2_0_REV_A)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_A.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug
 #elif MB(BTT_SKR_V2_0_REV_B)
-  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:BIGTREE_SKR_2 env:BIGTREE_SKR_2_USB env:BIGTREE_SKR_2_USB_debug env:BIGTREE_SKR_2_F429 env:BIGTREE_SKR_2_F429_USB env:BIGTREE_SKR_2_F429_USB_debug
+  #include "stm32f4/pins_BTT_SKR_V2_0_REV_B.h"      // STM32F4                              env:STM32F407VG_btt env:STM32F407VG_btt_USB env:STM32F407VG_btt_USB_debug env:STM32F429VG_btt env:STM32F429VG_btt_USB env:STM32F429VG_btt_USB_debug
 #elif MB(BTT_OCTOPUS_V1_0)
   #include "stm32f4/pins_BTT_OCTOPUS_V1_0.h"        // STM32F4                              env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive
 #elif MB(BTT_OCTOPUS_V1_1)
@@ -818,6 +834,8 @@
   #include "stm32f4/pins_MELLOW_FLY_E3_V2.h"        // STM32F4                              env:FLY_E3_V2
 #elif MB(BLACKBEEZMINI_V1)
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
+#elif MB(XTLW_CLIMBER_8TH)
+  #include "stm32f4/pins_XTLW_CLIMBER_8TH.h"        // STM32F4                              env:XTLW_CLIMBER_8TH
 
 //
 // ARM Cortex-M7
@@ -918,7 +936,7 @@
 //
 
 #elif MB(SIMULATED)
-  #include "linux/pins_RAMPS_LINUX.h"               // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
+  #include "native/pins_RAMPS_NATIVE.h"             // Native or Simulation                 lin:linux_native mac:simulator_macos_debug mac:simulator_macos_release win:simulator_windows lin:simulator_linux_debug lin:simulator_linux_release
 
 #else
 
@@ -970,8 +988,6 @@
     #error "BOARD_BIQU_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_1)
     #error "BOARD_BIGTREE_SKR_V1_1 is now BOARD_BTT_SKR_V1_1. Please update your configuration."
-  #elif MB(BIGTREE_SKR_V1_2)
-    #error "BOARD_BIGTREE_SKR_V1_2 is now BOARD_BTT_SKR_V1_2. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_3)
     #error "BOARD_BIGTREE_SKR_V1_3 is now BOARD_BTT_SKR_V1_3. Please update your configuration."
   #elif MB(BIGTREE_SKR_V1_4)
@@ -1069,3 +1085,6 @@
 // Post-process pins according to configured settings
 //
 #include "pins_postprocess.h"
+
+// Cleanup
+#undef CONTROLLER_WARNING
