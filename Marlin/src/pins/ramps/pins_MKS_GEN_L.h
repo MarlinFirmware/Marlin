@@ -39,17 +39,30 @@
 // Heaters / Fans
 //
 
-// The following are included for documentation purposes only. They are actually defined in pins_RAMPS.h.
-//#define HEATER_BED_PIN                       8  // H-BED / "MOSFET_C_PIN"
-//#define HEATER_0_PIN                        10  // HE0   / "MOSFET_A_PIN"
-#if ANY(FET_ORDER_EEB, FET_ORDER_EEF)
-  #define HEATER_1_PIN                         7  // HE1
-#else
-  #define FAN1_PIN                             7  // HE1
+#ifndef MOSFET_A_PIN
+  #define MOSFET_A_PIN                        10  // HE0
+#endif
+#ifndef MOSFET_B_PIN
+  #define MOSFET_B_PIN                         7  // HE1 or FAN Hotend Cooling
+#endif
+#ifndef MOSFET_C_PIN
+  #define MOSFET_C_PIN                         8  // H-BED
+#endif
+#ifndef MOSFET_D_PIN
+  #define MOSFET_D_PIN                         9  // FAN Part Cooling
 #endif
 
-// The following is included for documentation purposes only. Is is actually defined in pins_RAMPS.h.
-//#define FAN0_PIN                             9  // FAN / "MOSFET_B_PIN"
+// Always assign these to their labeled counterparts
+#define HEATER_0_PIN                MOSFET_A_PIN
+#if ANY(FET_ORDER_EEF, FET_ORDER_EEB)
+  #define HEATER_1_PIN              MOSFET_B_PIN
+#endif
+#define HEATER_BED_PIN              MOSFET_C_PIN
+
+#define FAN0_PIN                    MOSFET_D_PIN
+#if ENABLED(FET_ORDER_EFF)
+  #define FAN1_PIN                  MOSFET_B_PIN
+#endif
 
 //
 // CS Pins wired to avoid conflict with the LCD
@@ -59,7 +72,6 @@
 #ifndef X_CS_PIN
   #define X_CS_PIN                            59
 #endif
-
 #ifndef Y_CS_PIN
   #define Y_CS_PIN                            63
 #endif
