@@ -1,10 +1,11 @@
-/***************************
- * dialog_box_base_class.h *
- ***************************/
+/**********************
+ * filament_prompt_dialog_box.h *
+ **********************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,24 +23,18 @@
 
 #pragma once
 
-#define FTDI_DIALOG_BOX_BASE_CLASS
-#define FTDI_DIALOG_BOX_BASE_CLASS_CLASS DialogBoxBaseClass
+#define FTDI_FILAMENT_PROMPT_DIALOG_BOX
+#define FTDI_FILAMENT_PROMPT_DIALOG_BOX_CLASS FilamentPromptDialogBox
 
-class DialogBoxBaseClass : public BaseScreen {
-  protected:
-    template<typename T> static void drawMessage(T, const int16_t font=0);
-    static void drawMessage(FSTR_P const fstr, const int16_t font=0) { drawMessage(FTOP(fstr), font); }
+struct FilamentPromptDialogBoxData {
+  bool isError;
+};
 
-    template<typename T> static void drawButton(T);
-    static void drawYesNoButtons(uint8_t default_btn = 0);
-    static void drawStartPrintButtons(uint8_t default_btn = 0);
-    static void drawOkayButton();
-    static void drawDoneButton();
-    static void drawFilamentButtons();
-
-    static void onRedraw(draw_mode_t) {}
-
+class FilamentPromptDialogBox : public DialogBoxBaseClass, public CachedScreen<FILAMENT_PROMPT_BOX_CACHE,FILAMENT_PROMPT_BOX_DL_SIZE> {
   public:
-    static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
+    static void onEntry();
+    static void onRedraw(draw_mode_t);
+    static void show();
+    static void showError();
+    static void hide();
 };
