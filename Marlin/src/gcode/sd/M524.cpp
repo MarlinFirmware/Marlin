@@ -29,6 +29,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "../../lcd/marlinui.h"
 #endif
 
 /**
@@ -36,7 +38,11 @@
  */
 void GcodeSuite::M524() {
 
-  #if ENABLED(EXTENSIBLE_UI)
+  #if ENABLED(DWIN_LCD_PROUI)
+
+    ui.abort_print();
+
+  #elif ENABLED(EXTENSIBLE_UI)
 
     ExtUI::stopPrint(); // Calls ui.abort_print() which does the same as below
 

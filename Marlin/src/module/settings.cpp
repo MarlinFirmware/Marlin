@@ -75,15 +75,13 @@
   #include "../feature/z_stepper_align.h"
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin.h"
-  #include "../lcd/e3v2/proui/bedlevel_tools.h"
-#endif
-
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../lcd/e3v2/jyersui/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "../lcd/e3v2/proui/dwin.h"
+  #include "../lcd/e3v2/proui/bedlevel_tools.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -548,6 +546,8 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     uint8_t dwin_settings[jyersDWIN.eeprom_data_size];
+  #elif ENABLED(DWIN_LCD_PROUI)
+    uint8_t dwin_data[EXTUI_EEPROM_DATA_SIZE];
   #endif
 
   //
@@ -1635,6 +1635,18 @@ void MarlinSettings::postprocess() {
       char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
       jyersDWIN.saveSettings(dwin_settings);
       EEPROM_WRITE(dwin_settings);
+    }
+    #endif
+
+    //
+    // DWIN UI User Data
+    //
+    #if ENABLED(DWIN_LCD_PROUI)
+    {
+      _FIELD_TEST(dwin_data);
+      char dwin_data[EXTUI_EEPROM_DATA_SIZE] = { 0 };
+      dwinCopySettingsTo(dwin_data);
+      EEPROM_WRITE(dwin_data);
     }
     #endif
 
@@ -2737,6 +2749,18 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // DWIN ProUI User Data
+      //
+      #if ENABLED(DWIN_LCD_PROUI)
+        {
+          const char dwin_data[EXTUI_EEPROM_DATA_SIZE] = { 0 };
+          _FIELD_TEST(dwin_data);
+          EEPROM_READ(dwin_data);
+          if (!validating) dwinCopySettingsFrom(dwin_data);
+        }
+      #endif
+
+      //
       // Case Light Brightness
       //
       #if CASELIGHT_USES_BRIGHTNESS
@@ -3676,6 +3700,11 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
+
+  //
+  // Ender-3 V2 with ProUI
+  //
+  TERN_(DWIN_LCD_PROUI, dwinSetDataDefaults());
 
   //
   // Model predictive control

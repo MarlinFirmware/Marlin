@@ -51,6 +51,9 @@
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(DWIN_LCD_PROUI)
+  #include "../../../lcd/e3v2/proui/dwin.h"
+  #include "../../../lcd/e3v2/proui/meshviewer.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -81,7 +84,7 @@ static void pre_g29_return(const bool retry, const bool did) {
   }
   #if DISABLED(G29_RETRY_AND_RECOVER)
     if (!retry || did) {
-      TERN_(DWIN_CREALITY_LCD, dwinLevelingDone());
+      TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
       TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
     }
   #endif
@@ -326,6 +329,7 @@ G29_TYPE GcodeSuite::G29() {
           set_bed_leveling_enabled(false);
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
+          TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(i, j, rz));
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           if (abl.reenable) {
             set_bed_leveling_enabled(true);
@@ -430,6 +434,8 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
@@ -439,7 +445,13 @@ G29_TYPE GcodeSuite::G29() {
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
+          #if ALL(DWIN_LCD_PROUI, HAS_HEATED_BED)
+            hmiData.bedLevT
+          #elif ENABLED(EXTENSIBLE_UI)
+            ExtUI::getLevelingBedTemp()
+          #else
+            LEVELING_BED_TEMP
+          #endif
         );
       #endif
     }
@@ -567,6 +579,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float newz = abl.measured_z + abl.Z_offset;
         abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
+        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(abl.meshCount.x, abl.meshCount.y, newz));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
@@ -773,6 +786,7 @@ G29_TYPE GcodeSuite::G29() {
 
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
+            TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(abl.meshCount.x, abl.meshCount.y, z));
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
           #endif
@@ -848,7 +862,8 @@ G29_TYPE GcodeSuite::G29() {
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(bedlevel.z_values, abl.z_values);
-        TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        if (parser.boolval('K')) bedlevel.extrapolate_unprobed_bed_level();
+        else if (ENABLED(DWIN_LCD_PROUI) || ENABLED(IS_KINEMATIC)) bedlevel.extrapolate_unprobed_bed_level();
         bedlevel.refresh_bed_level();
 
         bedlevel.print_leveling_grid();
@@ -984,7 +999,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
+  TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);

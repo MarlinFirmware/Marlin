@@ -279,7 +279,8 @@ void dwinCheckStatusMessage();
 void dwinHomingStart();
 void dwinHomingDone();
 #if HAS_MESH
-  void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
+  void dwinMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
+  void dwinPointUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
 void dwinLevelingStart();
 void dwinLevelingDone();
