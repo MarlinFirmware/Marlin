@@ -2419,7 +2419,7 @@
 #endif
 
 #define PCAT(P) P##_PIN
-#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P##_PIN) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
+#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
 #if !NEED_HIT_STATE(X_MIN)
   #undef X_MIN_ENDSTOP_HIT_STATE
 #endif
