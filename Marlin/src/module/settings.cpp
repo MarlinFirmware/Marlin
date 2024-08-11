@@ -931,7 +931,10 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
+      #ifndef DEFAULT_LEVELING_FADE_HEIGHT
+        #define DEFAULT_LEVELING_FADE_HEIGHT 0
+      #endif
+      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, DEFAULT_LEVELING_FADE_HEIGHT);
       EEPROM_WRITE(zfh);
     }
 
@@ -1320,7 +1323,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
           EEPROM_WRITE(planner.volumetric_extruder_limit);
         #else
-          dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+          dummyf = 0.0;
           for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
         #endif
 
@@ -1330,7 +1333,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(volumetric_enabled);
         dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
-        dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+        dummyf = 0.0;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
 
       #endif
@@ -3311,7 +3314,7 @@ void MarlinSettings::reset() {
   //
   // Global Leveling
   //
-  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
+  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
   TERN_(HAS_LEVELING, reset_bed_level());
 
   //
