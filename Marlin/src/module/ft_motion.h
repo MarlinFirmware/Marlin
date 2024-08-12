@@ -36,23 +36,25 @@
   #endif
 #endif
 
+#define NUM_AXES_SHAPED TERN(HAS_Y_AXIS, 2, 1)
+
 typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
 
   #if HAS_X_AXIS
-    ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =    // Shaper type
+    ftMotionShaper_t shaper[NUM_AXES_SHAPED] =            // Shaper type
       { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
-    float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
+    float baseFreq[NUM_AXES_SHAPED] =                     // Base frequency. [Hz]
       { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
+    float zeta[NUM_AXES_SHAPED] =                         // Damping factor
       { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
-    float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
+    float vtol[NUM_AXES_SHAPED] =                         // Vibration Level
       { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
   #endif
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
-    float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+    float dynFreqK[NUM_AXES_SHAPED] = { 0.0f };           // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
   #else
     static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
   #endif

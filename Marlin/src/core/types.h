@@ -297,7 +297,7 @@ enum AxisEnum : uint8_t {
   #endif
 
   // Distinct axes, including all E and Core
-  NUM_AXIS_ENUMS,
+  NUM_AXIS_HEADS,
 
   // Most of the time we refer only to the single E_AXIS
   #if HAS_EXTRUDERS
@@ -995,7 +995,7 @@ class AxisBits;
 
 class AxisBits {
 public:
-  typedef bits_t(NUM_AXIS_ENUMS) el;
+  typedef bits_t(NUM_AXIS_HEADS) el;
   union {
     el bits;
     // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
@@ -1056,7 +1056,7 @@ public:
   FI AxisBits& operator=(const el p) { set(p); return *this; }
 
   FI void reset() { set(0); }
-  FI void fill() { set(_BV(NUM_AXIS_ENUMS) - 1); }
+  FI void fill() { set(_BV(NUM_AXIS_HEADS) - 1); }
 
   #define MSET(pE,pX,pY,pZ,pI,pJ,pK,pU,pV,pW) LOGICAL_AXIS_CODE(e=pE, x=pX, y=pY, z=pZ, i=pI, j=pJ, k=pK, u=pU, v=pV, w=pW)
 
