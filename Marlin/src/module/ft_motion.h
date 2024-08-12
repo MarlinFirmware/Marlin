@@ -111,6 +111,9 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
+    static millis_t axis_pos_move_end_ti[NUM_AXIS_HEADS],
+                    axis_neg_move_end_ti[NUM_AXIS_HEADS];
+
     // Public methods
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
@@ -121,6 +124,9 @@ class FTMotion {
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
+
+    static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
+    static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
 
   private:
 
