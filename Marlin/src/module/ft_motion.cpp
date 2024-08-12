@@ -114,8 +114,6 @@ constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); 
 
 // Public functions.
 
-static bool markBlockStart = false;
-
 // Controller main, to be invoked from non-isr task.
 void FTMotion::loop() {
 
@@ -144,7 +142,6 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
-    markBlockStart = true;
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -756,12 +753,6 @@ void FTMotion::convertToSteps(const uint32_t idx) {
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     cmd = 0;
-
-    // Mark the start of a new block
-    if (markBlockStart) {
-      cmd = _BV(FT_BIT_START);
-      markBlockStart = false;
-    }
 
     // Accumulate the errors for all axes
     err_P += delta;
