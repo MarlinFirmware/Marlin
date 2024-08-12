@@ -162,8 +162,8 @@
 #define STR_SOFT_MIN                        "  Min: "
 #define STR_SOFT_MAX                        "  Max: "
 
-#define STR_SAVED_POS                       "Position saved"
-#define STR_RESTORING_POS                   "Restoring position"
+#define STR_SAVED_POSITION                  "Saved position #"
+#define STR_RESTORING_POSITION              "Restoring position #"
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
 #define STR_DONE                            "Done."
 
@@ -354,6 +354,8 @@
 #define STR_Z_PROBE                         "z_probe"
 #define STR_PROBE_EN                        "probe_en"
 #define STR_FILAMENT                        "filament"
+
+#define STR_CALIBRATION                     "calibration"
 
 // General axis names
 #define STR_X "X"

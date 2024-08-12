@@ -467,6 +467,7 @@ bool MarlinUI::detected() {
 #endif
 
 void MarlinUI::clear_lcd() { lcd.clear(); }
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -1343,7 +1344,7 @@ void MarlinUI::draw_status_screen() {
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       lcd_put_lchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
       uint8_t n = LCD_WIDTH - 2;
-      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, sel), n);
       for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(isDir ? LCD_STR_FOLDER[0] : ' ');
     }
@@ -1515,7 +1516,7 @@ void MarlinUI::draw_status_screen() {
         lower_right.column = 0;
         lower_right.row    = 0;
 
-        clear_lcd();
+        clear_for_drawing();
 
         x_map_pixels = (HD44780_CHAR_WIDTH) * (MESH_MAP_COLS) - 2;          // Minus 2 because we are drawing a box around the map
         y_map_pixels = (HD44780_CHAR_HEIGHT) * (MESH_MAP_ROWS) - 2;

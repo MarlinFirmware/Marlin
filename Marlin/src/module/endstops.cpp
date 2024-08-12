@@ -50,10 +50,6 @@
   #include "../feature/joystick.h"
 #endif
 
-#if ENABLED(FT_MOTION)
-  #include "ft_motion.h"
-#endif
-
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -85,6 +81,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 
 #if HAS_BED_PROBE
   volatile bool Endstops::z_probe_enabled = false;
+#endif
+
+#if ENABLED(CALIBRATION_GCODE)
+  volatile bool Endstops::calibration_probe_enabled = false;
+  volatile bool Endstops::calibration_stop_state;
 #endif
 
 // Initialized by settings.load()
@@ -203,7 +204,7 @@ void Endstops::init() {
     _INIT_ENDSTOP(MAX,W,);
   #endif
 
-  #if PIN_EXISTS(CALIBRATION)
+  #if USE_CALIBRATION
     #if ENABLED(CALIBRATION_PIN_PULLUP)
       SET_INPUT_PULLUP(CALIBRATION_PIN);
     #elif ENABLED(CALIBRATION_PIN_PULLDOWN)
@@ -279,6 +280,17 @@ void Endstops::not_homing() {
     #if PIN_EXISTS(PROBE_ENABLE)
       WRITE(PROBE_ENABLE_PIN, onoff);
     #endif
+    resync();
+  }
+#endif
+
+// Enable / disable calibration probe checking
+#if ENABLED(CALIBRATION_GCODE)
+  void Endstops::enable_calibration_probe(const bool onoff, const bool stop_state) {
+    // Avoid race condition by setting stop state first
+    if (onoff) calibration_stop_state = stop_state;
+    calibration_probe_enabled = onoff;
+
     resync();
   }
 #endif
@@ -485,6 +497,9 @@ void __O2 Endstops::report_states() {
   #if USE_Z_MIN_PROBE
     print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
   #endif
+  #if USE_CALIBRATION
+    print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
+  #endif
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
     for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
@@ -528,6 +543,16 @@ void Endstops::update() {
   #if ENABLED(G38_PROBE_TARGET)
     // For G38 moves check the probe's pin for ALL movement
     if (G38_move) UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+  #endif
+
+  #if ENABLED(CALIBRATION_GCODE)
+    if (calibration_probe_enabled) {
+      #if HAS_CALIBRATION_STATE
+        SET_BIT_TO(live_state, CALIBRATION, READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING);
+      #else
+        UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+      #endif
+    }
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -797,21 +822,20 @@ void Endstops::update() {
     }
   #endif
 
+  #if ENABLED(CALIBRATION_GCODE)
+    if (calibration_probe_enabled) {
+      #if HAS_CALIBRATION_STATE
+        if (TEST(live_state, CALIBRATION) == calibration_stop_state) stepper.quick_stop();
+      #else
+        if (TEST(live_state, Z_MIN_PROBE) == calibration_stop_state) stepper.quick_stop();
+      #endif
+    }
+  #endif
   // Signal, after validation, if an endstop limit is pressed or not
 
-  bool moving_neg;
-  auto axis_moving_info = [](const AxisEnum axis, const AxisEnum head, bool &neg) -> bool {
-    #if ENABLED(FT_MOTION)
-      if (ftMotion.cfg.mode != ftMotionMode_DISABLED)
-        return (neg = ftMotion.axis_moving_neg(head)) || ftMotion.axis_moving_pos(head);
-    #endif
-    neg = !stepper.motor_direction(head);
-    return stepper.axis_is_moving(axis);
-  };
-
   #if HAS_X_AXIS
-    if (axis_moving_info(X_AXIS, X_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(X_AXIS)) {
+      if (!stepper.motor_direction(X_AXIS_HEAD)) { // -direction
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -843,8 +867,8 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    if (axis_moving_info(Y_AXIS, Y_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(Y_AXIS)) {
+      if (!stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -876,8 +900,8 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    if (axis_moving_info(Z_AXIS, Z_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // Z -direction. Gantry down, bed up.
+    if (stepper.axis_is_moving(Z_AXIS)) {
+      if (!stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
           // separate Z_MIN endstop. But a Z endstop could be wired
@@ -921,8 +945,8 @@ void Endstops::update() {
   #endif // HAS_Z_AXIS
 
   #if HAS_I_AXIS
-    if (axis_moving_info(I_AXIS, I_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(I_AXIS)) {
+      if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
@@ -936,8 +960,8 @@ void Endstops::update() {
   #endif // HAS_I_AXIS
 
   #if HAS_J_AXIS
-    if (axis_moving_info(J_AXIS, J_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(J_AXIS)) {
+      if (!stepper.motor_direction(J_AXIS_HEAD)) { // -direction
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
@@ -951,8 +975,8 @@ void Endstops::update() {
   #endif // HAS_J_AXIS
 
   #if HAS_K_AXIS
-    if (axis_moving_info(K_AXIS, K_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(K_AXIS)) {
+      if (!stepper.motor_direction(K_AXIS_HEAD)) { // -direction
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
@@ -966,8 +990,8 @@ void Endstops::update() {
   #endif // HAS_K_AXIS
 
   #if HAS_U_AXIS
-    if (axis_moving_info(U_AXIS, U_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(U_AXIS)) {
+      if (!stepper.motor_direction(U_AXIS_HEAD)) { // -direction
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
@@ -981,8 +1005,8 @@ void Endstops::update() {
   #endif // HAS_U_AXIS
 
   #if HAS_V_AXIS
-    if (axis_moving_info(V_AXIS, V_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(V_AXIS)) {
+      if (!stepper.motor_direction(V_AXIS_HEAD)) { // -direction
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
@@ -996,8 +1020,8 @@ void Endstops::update() {
   #endif // HAS_V_AXIS
 
   #if HAS_W_AXIS
-    if (axis_moving_info(W_AXIS, W_AXIS_HEAD, moving_neg)) {
-      if (moving_neg) { // -direction
+    if (stepper.axis_is_moving(W_AXIS)) {
+      if (!stepper.motor_direction(W_AXIS_HEAD)) { // -direction
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif
@@ -1173,6 +1197,9 @@ void Endstops::update() {
     #if USE_Z_MIN_PROBE
       ES_GET_STATE(Z_MIN_PROBE);
     #endif
+    #if USE_CALIBRATION
+      ES_GET_STATE(CALIBRATION);
+    #endif
     #if USE_X2_MIN
       ES_GET_STATE(X2_MIN);
     #endif
@@ -1264,6 +1291,9 @@ void Endstops::update() {
       #endif
       #if USE_Z_MIN_PROBE
         ES_REPORT_CHANGE(Z_MIN_PROBE);
+      #endif
+      #if USE_CALIBRATION
+        ES_REPORT_CHANGE(CALIBRATION);
       #endif
       #if USE_X2_MIN
         ES_REPORT_CHANGE(X2_MIN);
