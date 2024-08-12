@@ -390,8 +390,8 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
   void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s=0.0f);
 #endif
 #if HAS_W_AXIS
-  void do_blocking_move_to_w(const float rw, const feedRate_t &fr_mm_s=0.0f);
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const float w, const feedRate_t &fr_mm_s=0.0f);
+  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s=0.0f);
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s=0.0f);
 #endif
 
 #if HAS_Y_AXIS

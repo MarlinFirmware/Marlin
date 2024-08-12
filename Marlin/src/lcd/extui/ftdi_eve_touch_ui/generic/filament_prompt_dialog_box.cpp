@@ -1,10 +1,11 @@
-/***************************
- * dialog_box_base_class.h *
- ***************************/
+/************************
+ * filament_prompt_dialog_box.cpp *
+ ************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -20,26 +21,47 @@
  *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
-#pragma once
+#include "../config.h"
+#include "../screens.h"
+#include "../screen_data.h"
 
-#define FTDI_DIALOG_BOX_BASE_CLASS
-#define FTDI_DIALOG_BOX_BASE_CLASS_CLASS DialogBoxBaseClass
+#ifdef FTDI_FILAMENT_PROMPT_DIALOG_BOX
 
-class DialogBoxBaseClass : public BaseScreen {
-  protected:
-    template<typename T> static void drawMessage(T, const int16_t font=0);
-    static void drawMessage(FSTR_P const fstr, const int16_t font=0) { drawMessage(FTOP(fstr), font); }
+constexpr static FilamentPromptDialogBoxData &mydata = screen_data.FilamentPromptDialogBox;
 
-    template<typename T> static void drawButton(T);
-    static void drawYesNoButtons(uint8_t default_btn = 0);
-    static void drawStartPrintButtons(uint8_t default_btn = 0);
-    static void drawOkayButton();
-    static void drawDoneButton();
-    static void drawFilamentButtons();
+using namespace FTDI;
+using namespace Theme;
 
-    static void onRedraw(draw_mode_t) {}
+void FilamentPromptDialogBox::onEntry() {
+  BaseScreen::onEntry();
+  sound.play(mydata.isError ? sad_trombone : twinkle, PLAY_ASYNCHRONOUS);
+}
 
-  public:
-    static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
-};
+void FilamentPromptDialogBox::onRedraw(draw_mode_t what) {
+  if (what & FOREGROUND) {
+    drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+    drawFilamentButtons();
+  }
+}
+
+void FilamentPromptDialogBox::show() {
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  drawFilamentButtons();
+  storeBackground();
+  mydata.isError = false;
+  GOTO_SCREEN(FilamentPromptDialogBox);
+}
+
+void FilamentPromptDialogBox::showError() {
+  drawMessage(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE_CONTINUE));
+  storeBackground();
+  mydata.isError = true;
+  GOTO_SCREEN(FilamentPromptDialogBox);
+}
+
+void FilamentPromptDialogBox::hide() {
+  if (AT_SCREEN(FilamentPromptDialogBox))
+    GOTO_PREVIOUS();
+}
+
+#endif // FTDI_ALERT_DIALOG_BOX

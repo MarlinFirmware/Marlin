@@ -1,10 +1,11 @@
-/***************************
- * dialog_box_base_class.h *
- ***************************/
+/************************************
+ * filament_prompt_box.h *
+ ************************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Brian Kahl      2023 - FAME3D.                              *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -22,24 +23,13 @@
 
 #pragma once
 
-#define FTDI_DIALOG_BOX_BASE_CLASS
-#define FTDI_DIALOG_BOX_BASE_CLASS_CLASS DialogBoxBaseClass
+#define FTDI_FILAMENT_PROMPT_BOX
+#define FTDI_FILAMENT_PROMPT_BOX_CLASS FilamentPromptBox
 
-class DialogBoxBaseClass : public BaseScreen {
-  protected:
-    template<typename T> static void drawMessage(T, const int16_t font=0);
-    static void drawMessage(FSTR_P const fstr, const int16_t font=0) { drawMessage(FTOP(fstr), font); }
-
-    template<typename T> static void drawButton(T);
-    static void drawYesNoButtons(uint8_t default_btn = 0);
-    static void drawStartPrintButtons(uint8_t default_btn = 0);
-    static void drawOkayButton();
-    static void drawDoneButton();
-    static void drawFilamentButtons();
-
-    static void onRedraw(draw_mode_t) {}
-
+class FilamentPromptBox : public AlertDialogBox {
   public:
-    static bool onTouchEnd(uint8_t tag);
-    static void onIdle();
+    static void onRedraw(draw_mode_t);
+    static bool onTouchEnd(uint8_t);
+    static void hide();
+    static void show();
 };
