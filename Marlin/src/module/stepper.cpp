@@ -1554,7 +1554,7 @@ void Stepper::isr() {
           // Define 2.5 msec task for auxilliary functions.
           if (!ftMotion_nextAuxISR) {
             TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-            ftMotion_nextAuxISR = 0.0025f * (STEPPER_TIMER_RATE);
+            ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
           }
         }
         interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
@@ -3561,27 +3561,19 @@ void Stepper::report_positions() {
 
     DIR_WAIT_AFTER();
 
-    // Start a step pulse
-    LOGICAL_AXIS_CODE(
-      E_APPLY_STEP(axis_step.e, false),
-      X_APPLY_STEP(axis_step.x, false), Y_APPLY_STEP(axis_step.y, false), Z_APPLY_STEP(axis_step.z, false),
-      I_APPLY_STEP(axis_step.i, false), J_APPLY_STEP(axis_step.j, false), K_APPLY_STEP(axis_step.k, false),
-      U_APPLY_STEP(axis_step.u, false), V_APPLY_STEP(axis_step.v, false), W_APPLY_STEP(axis_step.w, false)
-    );
+    // Start step pulses. Edge stepping will toggle the STEP pin.
+    #define _FTM_STEP_START(A) A##_APPLY_STEP(axis_step[_AXIS(A)], false);
+    LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
+    // Apply steps via I2S
     TERN_(I2S_STEPPER_STREAM, i2s_push_sample());
 
     // Begin waiting for the minimum pulse duration
     START_TIMED_PULSE();
 
     // Update step counts
-    LOGICAL_AXIS_CODE(
-      if (axis_step.e) count_position.e += direction_bits.e ? 1 : -1, if (axis_step.x) count_position.x += direction_bits.x ? 1 : -1,
-      if (axis_step.y) count_position.y += direction_bits.y ? 1 : -1, if (axis_step.z) count_position.z += direction_bits.z ? 1 : -1,
-      if (axis_step.i) count_position.i += direction_bits.i ? 1 : -1, if (axis_step.j) count_position.j += direction_bits.j ? 1 : -1,
-      if (axis_step.k) count_position.k += direction_bits.k ? 1 : -1, if (axis_step.u) count_position.u += direction_bits.u ? 1 : -1,
-      if (axis_step.v) count_position.v += direction_bits.v ? 1 : -1, if (axis_step.w) count_position.w += direction_bits.w ? 1 : -1
-    );
+    #define _FTM_STEP_COUNT(q) if (axis_step.q) count_position.q += direction_bits.q ? 1 : -1;
+    LOGICAL_AXIS_MAP_LC(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)
     #if HAS_EXTRUDERS

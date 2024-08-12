@@ -205,7 +205,7 @@ class FTMotion {
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
 
-    FORCE_INLINE static int32_t num_samples_cmpnstr_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
+    FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
 
 
 }; // class FTMotion

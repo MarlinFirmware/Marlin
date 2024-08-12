@@ -138,7 +138,7 @@ void FTMotion::loop() {
   }
 
   while (!blockProcRdy && (stepper.current_block = planner.get_current_block())) {
-    if (stepper.current_block->is_sync()) { // Sync block?
+    if (stepper.current_block->is_sync()) {     // Sync block?
       if (stepper.current_block->is_sync_pos()) // Position sync? Set the position.
         stepper._set_position(stepper.current_block->position);
       discard_planner_block_protected();
@@ -170,7 +170,7 @@ void FTMotion::loop() {
       discard_planner_block_protected();
 
       // Check if the block needs to be runout:
-      if (!batchRdy && !planner.movesplanned()){
+      if (!batchRdy && !planner.movesplanned()) {
         runoutBlock();
         makeVector(); // Do an additional makeVector call to guarantee batchRdy set this loop.
       }
@@ -432,7 +432,7 @@ void FTMotion::reset() {
 void FTMotion::setup_traj_gen(uint32_t intervals) {
   // Extend the intervals by propagation time and some margin to
   // ensure motion is complete when completion message is sent.
-  max_intervals = FTM_BATCH_SIZE*(PROP_BATCHES+ceil(((float)(intervals)+FTM_FS*(0.5f+(float)(FTM_STEPPERCMD_BUFF_SIZE)/float(FTM_STEPPER_FS)))/FTM_BATCH_SIZE));
+  max_intervals = (FTM_BATCH_SIZE) * ((PROP_BATCHES) + ceil((float(intervals) + (FTM_FS) * (0.5f + float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS))) / (FTM_BATCH_SIZE)));
   reset();
   busy = true;
 }
@@ -452,29 +452,31 @@ void FTMotion::discard_planner_block_protected() {
   }
 }
 
-// Sets up a pseudo block to allow motion to settle buffers to empty. This is
-// called when the planner has only one block left. The buffers will be filled
-// with the last commanded position by setting the startPosn block variable to
-// the last position of the previous block and all ratios to zero such that no
-// axes' positions are incremented.
+/**
+ * Set up a pseudo block to allow motion to settle and buffers to empty.
+ * Called when the planner has one block left. The buffers will be filled
+ * with the last commanded position by setting the startPosn block variable to
+ * the last position of the previous block and all ratios to zero such that no
+ * axes' positions are incremented.
+ */
 void FTMotion::runoutBlock() {
 
   startPosn = endPosn_prevBlock;
   ratio.reset();
 
-  int32_t n_to_fill_batch = FTM_WINDOW_SIZE - makeVector_batchIdx;
+  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - makeVector_batchIdx;
 
   // This line or function is to be modified for FBS use; do not optimize out.
-  int32_t n_to_settle_cmpnstr = num_samples_cmpnstr_settle();
+  const int32_t n_to_settle_shaper = num_samples_shaper_settle();
 
-  int32_t n_to_fill_batch_after_settling = (n_to_settle_cmpnstr > n_to_fill_batch) ?
-    FTM_BATCH_SIZE - ((n_to_settle_cmpnstr - n_to_fill_batch) % FTM_BATCH_SIZE) : n_to_fill_batch - n_to_settle_cmpnstr;
+  const int32_t n_diff = n_to_settle_shaper - n_to_fill_batch,
+                n_to_fill_batch_after_settling = n_diff > 0 ? (FTM_BATCH_SIZE) - (n_diff % (FTM_BATCH_SIZE)) : -n_diff;
 
-  int32_t n_to_settle_and_fill_batch = n_to_settle_cmpnstr + n_to_fill_batch_after_settling;
+  const int32_t n_to_settle_and_fill_batch = n_to_settle_shaper + n_to_fill_batch_after_settling;
 
-  int32_t N_needed_to_propagate_to_stepper = PROP_BATCHES;
+  const int32_t N_needed_to_propagate_to_stepper = PROP_BATCHES;
 
-  int32_t n_to_use = N_needed_to_propagate_to_stepper*FTM_BATCH_SIZE + n_to_settle_and_fill_batch;
+  const int32_t n_to_use = N_needed_to_propagate_to_stepper * (FTM_BATCH_SIZE) + n_to_settle_and_fill_batch;
 
   max_intervals = n_to_use;
 
@@ -596,7 +598,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPosn_prevBlock += moveDist;
 
-  millis_t move_end_ti = millis() + SEC_TO_MS(FTM_TS*(float)(max_intervals + num_samples_cmpnstr_settle() + (PROP_BATCHES+1)*FTM_BATCH_SIZE) + ((float)FTM_STEPPERCMD_BUFF_SIZE/(float)FTM_STEPPER_FS));
+  // Watch endstops until the move ends
+  const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
   #if CORE_IS_XY
     if (moveDist.x > 0.f)              axis_pos_move_end_ti[A_AXIS] = move_end_ti;
@@ -673,9 +676,10 @@ void FTMotion::makeVector() {
       if (traj_gen_cfg.mode == trajGenMode_SWEEPC_X ) traj.x[makeVector_batchIdx] = s_;
       else traj.y[makeVector_batchIdx] = s_;
 
-    } else { // Planner mode.
+    }
+    else { // Planner mode.
       float accel_k = 0.0f;                                 // (mm/s^2) Acceleration K factor
-      float tau = (makeVector_idx + 1) * (FTM_TS);    // (s) Time since start of block
+      float tau = (makeVector_idx + 1) * (FTM_TS);          // (s) Time since start of block
       float dist = 0.0f;                                    // (mm) Distance traveled
 
       if (makeVector_idx < N1) {
@@ -695,18 +699,8 @@ void FTMotion::makeVector() {
         accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
       }
 
-      LOGICAL_AXIS_CODE(
-        traj.e[makeVector_batchIdx] = startPosn.e + ratio.e * dist,
-        traj.x[makeVector_batchIdx] = startPosn.x + ratio.x * dist,
-        traj.y[makeVector_batchIdx] = startPosn.y + ratio.y * dist,
-        traj.z[makeVector_batchIdx] = startPosn.z + ratio.z * dist,
-        traj.i[makeVector_batchIdx] = startPosn.i + ratio.i * dist,
-        traj.j[makeVector_batchIdx] = startPosn.j + ratio.j * dist,
-        traj.k[makeVector_batchIdx] = startPosn.k + ratio.k * dist,
-        traj.u[makeVector_batchIdx] = startPosn.u + ratio.u * dist,
-        traj.v[makeVector_batchIdx] = startPosn.v + ratio.v * dist,
-        traj.w[makeVector_batchIdx] = startPosn.w + ratio.w * dist
-      );
+      #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPosn.q + ratio.q * dist;
+      LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
       #if HAS_EXTRUDERS
         if (cfg.linearAdvEna) {
@@ -744,15 +738,16 @@ void FTMotion::makeVector() {
     if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
   #endif // HAS_X_AXIS
 
-  // Filled up the queue with regular and shaped steps
-  if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
-    makeVector_batchIdx = BATCH_SIDX_IN_WINDOW;
-    batchRdy = true;
-  }
+    // Filled up the queue with regular and shaped steps
+    if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
+      makeVector_batchIdx = BATCH_SIDX_IN_WINDOW;
+      batchRdy = true;
+    }
 
     if (++makeVector_idx == max_intervals) {
       if (traj_gen_cfg.mode) SERIAL_ECHOLN("M494 echo: profile ran to completion.");
-      blockProcRdy = false; traj_gen_cfg.mode = trajGenMode_NONE;
+      blockProcRdy = false;
+      traj_gen_cfg.mode = trajGenMode_NONE;
       makeVector_idx = 0;
     }
   } while ((blockProcRdy || traj_gen_cfg.mode) && !batchRdy);
@@ -812,7 +807,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     ft_command_t &cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
-    stepperCmdBuff[stepperCmdBuff_produceIdx] = 0;
+    cmd = 0;
 
     // Mark the start of a new block
     if (markBlockStart) {
@@ -825,16 +820,16 @@ void FTMotion::convertToSteps(const uint32_t idx) {
 
     // Set up step/dir bits for all axes
     LOGICAL_AXIS_CODE(
-      command_set[E_AXIS_N(current_block->extruder)](err_P.e, steps.e, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      command_set[X_AXIS](err_P.x, steps.x, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      command_set[Y_AXIS](err_P.y, steps.y, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      command_set[Z_AXIS](err_P.z, steps.z, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      command_set[I_AXIS](err_P.i, steps.i, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      command_set[J_AXIS](err_P.j, steps.j, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      command_set[K_AXIS](err_P.k, steps.k, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      command_set[U_AXIS](err_P.u, steps.u, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      command_set[V_AXIS](err_P.v, steps.v, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      command_set[W_AXIS](err_P.w, steps.w, stepperCmdBuff[stepperCmdBuff_produceIdx], _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
+      command_set[E_AXIS](err_P.e, steps.e, cmd, _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
+      command_set[X_AXIS](err_P.x, steps.x, cmd, _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
+      command_set[Y_AXIS](err_P.y, steps.y, cmd, _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
+      command_set[Z_AXIS](err_P.z, steps.z, cmd, _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
+      command_set[I_AXIS](err_P.i, steps.i, cmd, _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
+      command_set[J_AXIS](err_P.j, steps.j, cmd, _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
+      command_set[K_AXIS](err_P.k, steps.k, cmd, _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
+      command_set[U_AXIS](err_P.u, steps.u, cmd, _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
+      command_set[V_AXIS](err_P.v, steps.v, cmd, _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
+      command_set[W_AXIS](err_P.w, steps.w, cmd, _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
     );
 
     // Next circular buffer index

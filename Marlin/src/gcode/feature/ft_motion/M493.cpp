@@ -55,9 +55,6 @@ void say_shaper_type(const AxisEnum a) {
   #define AXIS_1_NAME "Y"
 #endif
 
-#define CMPNSTR_IS_SHAPER(A) WITHIN(ftMotion.cfg.cmpnstr[A], ftMotionCmpnstr_ZV, ftMotionCmpnstr_MZV)
-#define CMPNSTR_IS_EISHAPER(A) WITHIN(ftMotion.cfg.cmpnstr[A], ftMotionCmpnstr_EI, ftMotionCmpnstr_3HEI)
-
 void say_shaping() {
   // FT Enabled
   SERIAL_ECHO_TERNARY(ftMotion.cfg.active, "Fixed-Time Motion ", "en", "dis", "abled");

@@ -74,9 +74,15 @@ void say_ftm_cfg() {
  */
 void GcodeSuite::M494() {
   
-  if (!parser.seen_any()) { say_ftm_cfg(); return; }
+  if (!parser.seen_any()) {
+    say_ftm_cfg();
+    return;
+  }
 
-  if (!ftMotion.cfg.mode) { SERIAL_ECHOLN("M494 echo: rejected! FTM is not enabled."); return; }
+  if (!ftMotion.cfg.active) {
+    SERIAL_ECHOLN("M494 echo: rejected! FTM is not enabled.");
+    return;
+  }
 
   ftMotionTrajGenMode_t mode_val_seen = trajGenMode_NONE;
   bool good_cfg_received = true;

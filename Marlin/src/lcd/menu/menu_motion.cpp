@@ -492,8 +492,6 @@ void menu_move() {
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
-    ft_config_t &c = ftMotion.cfg;
-
     START_MENU();
 
     #if HAS_X_AXIS
@@ -514,7 +512,6 @@ void menu_move() {
     #endif
 
     END_MENU();
-
   }
 
 #endif // FT_MOTION_MENU
