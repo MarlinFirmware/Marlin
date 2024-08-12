@@ -71,6 +71,7 @@ class FTMotion {
 
     // Public variables
     static ft_config_t cfg;
+    static ftMotionTrajGenConfig_t traj_gen_cfg;
     static bool busy;
 
     static void set_defaults() {
@@ -125,6 +126,8 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
+    static void setup_traj_gen(uint32_t intervals);
+
     static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
     static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
 
@@ -149,7 +152,8 @@ class FTMotion {
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
 
-    static constexpr uint32_t PROP_BATCHES = CEIL(FTM_WINDOW_SIZE/FTM_BATCH_SIZE) - 1; // Number of batches needed to propagate the current trajectory to the stepper.
+    // Number of batches needed to propagate the current trajectory to the stepper.
+    static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
     // Make vector variables.
     static uint32_t makeVector_idx,

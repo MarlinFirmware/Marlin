@@ -912,6 +912,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(FT_MOTION)
         case 493: M493(); break;                                  // M493: Fixed-Time Motion control
+        case 494: M494(); break;                                  // M494: Fixed-Time Motion control trajectory generation
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM
