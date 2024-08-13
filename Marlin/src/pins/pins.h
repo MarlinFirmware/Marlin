@@ -39,25 +39,25 @@
 
 #if NONE(FET_ORDER_EEF, FET_ORDER_EEB, FET_ORDER_EFF, FET_ORDER_EFB, FET_ORDER_SF)
   #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB, RAMPS_BTT_16_PLUS_EFB)
-    #define FET_ORDER_EFB 1
+    #define FET_ORDER_EFB
   #elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB, RAMPS_BTT_16_PLUS_EEB)
-    #define FET_ORDER_EEB 1
+    #define FET_ORDER_EEB
   #elif MB(RAMPS_13_EFF, RAMPS_14_EFF, RAMPS_PLUS_EFF, RAMPS_14_RE_ARM_EFF, RAMPS_SMART_EFF, RAMPS_DUO_EFF, RAMPS4DUE_EFF, RAMPS_BTT_16_PLUS_EFF)
-    #define FET_ORDER_EFF 1
+    #define FET_ORDER_EFF
   #elif MB(RAMPS_13_EEF, RAMPS_14_EEF, RAMPS_PLUS_EEF, RAMPS_14_RE_ARM_EEF, RAMPS_SMART_EEF, RAMPS_DUO_EEF, RAMPS4DUE_EEF, RAMPS_BTT_16_PLUS_EEF)
-    #define FET_ORDER_EEF 1
+    #define FET_ORDER_EEF
   #elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF,  RAMPS_BTT_16_PLUS_SF)
-    #define FET_ORDER_SF 1
-  #elif HAS_MULTI_HOTEND || (HAS_EXTRUDERS && HAS_CUTTER)
+    #define FET_ORDER_SF
+  #elif ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL) || ALL(HAS_EXTRUDERS, HAS_CUTTER)
     #if TEMP_SENSOR_BED
-      #define FET_ORDER_EEB 1
+      #define FET_ORDER_EEB
     #else
-      #define FET_ORDER_EEF 1
+      #define FET_ORDER_EEF
     #endif
   #elif TEMP_SENSOR_BED
-    #define FET_ORDER_EFB 1
+    #define FET_ORDER_EFB
   #else
-    #define FET_ORDER_EFF 1
+    #define FET_ORDER_EFF
   #endif
 #endif
 
@@ -175,7 +175,7 @@
 #elif MB(MKS_GEN_13)
   #include "ramps/pins_MKS_GEN_13.h"                // ATmega2560, ATmega1280               env:mega2560 env:mega1280
 #elif MB(MKS_GEN_L)
-  #include "ramps/pins_MKS_GEN_L.h"                 // ATmega2560, ATmega1280               env:mega2560 env:mega1280
+  #include "ramps/pins_MKS_GEN_L.h"                 // ATmega2560                           env:mega2560
 #elif MB(KFB_2)
   #include "ramps/pins_BIQU_KFB_2.h"                // ATmega2560                           env:mega2560
 #elif MB(ZRIB_V20)

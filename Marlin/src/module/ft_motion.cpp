@@ -349,15 +349,13 @@ void FTMotion::loop() {
 
   void FTMotion::update_shaping_params() {
     #if HAS_X_AXIS
-      shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
-      if (shaping.x.ena) {
+      if ((shaping.x.ena = AXIS_HAS_SHAPER(X))) {
         shaping.x.set_axis_shaping_A(cfg.shaper[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
         shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
       }
     #endif
     #if HAS_Y_AXIS
-      shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
-      if (shaping.y.ena) {
+      if ((shaping.y.ena = AXIS_HAS_SHAPER(Y))) {
         shaping.y.set_axis_shaping_A(cfg.shaper[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
         shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
       }
@@ -664,7 +662,7 @@ void FTMotion::makeVector() {
  * - Tests for delta are moved outside the loop.
  * - Two functions are used for command computation with an array of function pointers.
  */
-static void (*command_set[SUM_TERN(HAS_EXTRUDERS, NUM_AXES, 1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
+static void (*command_set[LOGICAL_AXES])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
 
 static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
   if (e < FTM_CTS_COMPARE_VAL) return;
