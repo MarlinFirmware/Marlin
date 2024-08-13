@@ -70,6 +70,52 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+#ifndef TEMP_SENSOR_0
+  #define TEMP_SENSOR_0 0
+#endif
+#ifndef TEMP_SENSOR_1
+  #define TEMP_SENSOR_1 0
+#endif
+#ifndef TEMP_SENSOR_2
+  #define TEMP_SENSOR_2 0
+#endif
+#ifndef TEMP_SENSOR_3
+  #define TEMP_SENSOR_3 0
+#endif
+#ifndef TEMP_SENSOR_4
+  #define TEMP_SENSOR_4 0
+#endif
+#ifndef TEMP_SENSOR_5
+  #define TEMP_SENSOR_5 0
+#endif
+#ifndef TEMP_SENSOR_6
+  #define TEMP_SENSOR_6 0
+#endif
+#ifndef TEMP_SENSOR_7
+  #define TEMP_SENSOR_7 0
+#endif
+#ifndef TEMP_SENSOR_BED
+  #define TEMP_SENSOR_BED 0
+#endif
+#ifndef TEMP_SENSOR_BOARD
+  #define TEMP_SENSOR_BOARD 0
+#endif
+#ifndef TEMP_SENSOR_CHAMBER
+  #define TEMP_SENSOR_CHAMBER 0
+#endif
+#ifndef TEMP_SENSOR_COOLER
+  #define TEMP_SENSOR_COOLER 0
+#endif
+#ifndef TEMP_SENSOR_PROBE
+  #define TEMP_SENSOR_PROBE 0
+#endif
+#ifndef TEMP_SENSOR_REDUNDANT
+  #define TEMP_SENSOR_REDUNDANT 0
+#endif
+#ifndef TEMP_SENSOR_SOC
+  #define TEMP_SENSOR_SOC 0
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 

@@ -1114,7 +1114,13 @@ class Planner {
     #endif // HAS_JUNCTION_DEVIATION
 };
 
-#define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+#if HAS_Y_AXIS
+  #define PLANNER_XY_FEEDRATE_MM_S _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+#elif HAS_X_AXIS
+  #define PLANNER_XY_FEEDRATE_MM_S planner.settings.max_feedrate_mm_s[X_AXIS]
+#else
+  #define PLANNER_XY_FEEDRATE_MM_S 60.0f
+#endif
 
 #define ANY_AXIS_MOVES(BLOCK)  \
   (false NUM_AXIS_GANG(        \

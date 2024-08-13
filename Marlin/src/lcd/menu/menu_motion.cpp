@@ -416,9 +416,9 @@ void menu_move() {
 
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[1 + ENABLED(HAS_Y_AXIS)] {};
+    MString<20> shaper_name[NUM_AXES_SHAPED] {};
     #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a)
+      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
         shaper_name[a] = get_shaper_name(AxisEnum(a));
     #endif
     #if HAS_DYNAMIC_FREQ
@@ -441,10 +441,10 @@ void menu_move() {
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_x);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
 
-        if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
+        if (AXIS_HAS_SHAPER(X)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if (CMPNSTR_IS_EISHAPER(X_AXIS))
+          if (AXIS_HAS_EISHAPER(X))
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
@@ -452,10 +452,10 @@ void menu_move() {
         SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_cmpn_y);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
 
-        if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+        if (AXIS_HAS_SHAPER(Y)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if (CMPNSTR_IS_EISHAPER(Y_AXIS))
+          if (AXIS_HAS_EISHAPER(Y))
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
@@ -483,9 +483,9 @@ void menu_move() {
 
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[1 + ENABLED(HAS_Y_AXIS)] {};
+    MString<20> shaper_name[NUM_AXES_SHAPED] {};
     #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a <= TERN(HAS_Y_AXIS, Y_AXIS, X_AXIS); ++a)
+      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
         shaper_name[a] = get_shaper_name(AxisEnum(a));
     #endif
     #if HAS_DYNAMIC_FREQ

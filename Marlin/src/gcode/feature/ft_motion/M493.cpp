@@ -61,13 +61,13 @@ void say_shaping() {
 
   // FT Shaping
   #if HAS_X_AXIS
-    if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
+    if (AXIS_HAS_SHAPER(X)) {
       SERIAL_ECHOPGM(" with " AXIS_0_NAME);
       say_shaper_type(X_AXIS);
     }
   #endif
   #if HAS_Y_AXIS
-    if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+    if (AXIS_HAS_SHAPER(Y)) {
       SERIAL_ECHOPGM(" and with " AXIS_1_NAME);
       say_shaper_type(Y_AXIS);
     }
@@ -80,7 +80,7 @@ void say_shaping() {
              dynamic = z_based || g_based;
 
   // FT Dynamic Frequency Mode
-  if (CMPNSTR_HAS_SHAPER(X_AXIS) || CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+  if (AXIS_HAS_SHAPER(X) || AXIS_HAS_SHAPER(Y)) {
     #if HAS_DYNAMIC_FREQ
       SERIAL_ECHOPGM("Dynamic Frequency Mode ");
       switch (ftMotion.cfg.dynFreqMode) {
@@ -263,7 +263,7 @@ void GcodeSuite::M493() {
 
     // Dynamic frequency mode parameter.
     if (parser.seenval('D')) {
-      if (CMPNSTR_HAS_SHAPER(X_AXIS) || CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+      if (AXIS_HAS_SHAPER(X) || AXIS_HAS_SHAPER(Y)) {
         const dynFreqMode_t val = dynFreqMode_t(parser.value_byte());
         switch (val) {
           #if HAS_DYNAMIC_FREQ_MM
@@ -297,7 +297,7 @@ void GcodeSuite::M493() {
 
     // Parse frequency parameter (X axis).
     if (parser.seenval('A')) {
-      if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
+      if (AXIS_HAS_SHAPER(X)) {
         const float val = parser.value_float();
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
@@ -326,7 +326,7 @@ void GcodeSuite::M493() {
     // Parse zeta parameter (X axis).
     if (parser.seenval('I')) {
       const float val = parser.value_float();
-      if (CMPNSTR_HAS_SHAPER(X_AXIS)) {
+      if (AXIS_HAS_SHAPER(X)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
           ftMotion.cfg.zeta[0] = val;
           flag.update = true;
@@ -341,7 +341,7 @@ void GcodeSuite::M493() {
     // Parse vtol parameter (X axis).
     if (parser.seenval('Q')) {
       const float val = parser.value_float();
-      if (CMPNSTR_IS_EISHAPER(X_AXIS)) {
+      if (AXIS_HAS_EISHAPER(X)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
           ftMotion.cfg.vtol[0] = val;
           flag.update = true;
@@ -359,7 +359,7 @@ void GcodeSuite::M493() {
 
     // Parse frequency parameter (Y axis).
     if (parser.seenval('B')) {
-      if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+      if (AXIS_HAS_SHAPER(Y)) {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq[Y_AXIS] = val;
@@ -387,7 +387,7 @@ void GcodeSuite::M493() {
     // Parse zeta parameter (Y axis).
     if (parser.seenval('J')) {
       const float val = parser.value_float();
-      if (CMPNSTR_HAS_SHAPER(Y_AXIS)) {
+      if (AXIS_HAS_SHAPER(Y)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
           ftMotion.cfg.zeta[1] = val;
           flag.update = true;
@@ -402,7 +402,7 @@ void GcodeSuite::M493() {
     // Parse vtol parameter (Y axis).
     if (parser.seenval('R')) {
       const float val = parser.value_float();
-      if (CMPNSTR_IS_EISHAPER(Y_AXIS)) {
+      if (AXIS_HAS_EISHAPER(Y)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
           ftMotion.cfg.vtol[1] = val;
           flag.update = true;

@@ -50,7 +50,6 @@
 #include "../../gcode/gcode.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/probe.h"
 #include "../../module/temperature.h"
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
@@ -80,6 +79,10 @@
 
 #if ENABLED(BACKLASH_GCODE)
   #include "../../feature/backlash.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
 #endif
 
 #if HAS_LEVELING

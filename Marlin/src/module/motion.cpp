@@ -571,7 +571,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
     if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
   #endif
 
-  const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
+  const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(PLANNER_XY_FEEDRATE_MM_S);
 
   #if HAS_Z_AXIS
     const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
@@ -1492,7 +1492,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
           if (planner.buffer_line(raised, fr_zfast)) {
             //  2. Move to the current native XY and raised Z. Presumably this is a null move.
             xyze_pos_t curpos = current_position; curpos.z = raised_parked_position.z;
-            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE())) {
+            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE_MM_S)) {
               //  3. Lower Z back down
               line_to_current_position(fr_zfast);
             }
