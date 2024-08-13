@@ -103,7 +103,16 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_LIST(V...) LIST_N(SECONDARY_AXES, V)
-#define SECONDARY_AXIS_ARGS(T)    SECONDARY_AXIS_LIST(T i, T j, T k, T u, T v, T w)
+#if SECONDARY_AXES
+  #define SECONDARY_AXIS_NAMES      SECONDARY_AXIS_LIST(I, J, K, U, V, W)
+  #define SECONDARY_AXIS_NAMES_LC   SECONDARY_AXIS_LIST(i, j, k, u, v, w)
+  #define SECONDARY_AXIS_ARGS(T)    SECONDARY_AXIS_LIST(T i, T j, T k, T u, T v, T w)
+  #define SECONDARY_AXIS_MAP(F)     MAP(F, SECONDARY_AXIS_NAMES)
+  #define SECONDARY_AXIS_MAP_LC(F)  MAP(F, SECONDARY_AXIS_NAMES_LC)
+#else
+  #define SECONDARY_AXIS_MAP(F)
+  #define SECONDARY_AXIS_MAP_LC(F)
+#endif
 
 // Just the XY or XYZ elements
 #if HAS_Z_AXIS
@@ -1048,6 +1057,25 @@ public:
     };
   };
 
+  class BitProxy {
+  public:
+    BitProxy(el& data, int bit) : data_(data), bit_(bit) {}
+
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |=  (el(1) << bit_);
+      else
+        data_ &= ~(el(1) << bit_);
+      return *this;
+    }
+
+    operator bool() const { return bool(data_ & (el(1) << bit_)); }
+
+  private:
+    el& data_;
+    uint8_t bit_;
+  };
+
   AxisBits() { reset(); }
 
   // Constructor, setter, and operator= for bit mask
@@ -1148,7 +1176,9 @@ public:
   FI void bset(const AxisEnum n, const bool b) { if (b) bset(n); else bclr(n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
-  FI bool operator[](const int n) const { return TEST(bits, n); }
+  FI BitProxy operator[](const int n)        { return BitProxy(bits, n); }
+  FI BitProxy operator[](const AxisEnum n)   { return BitProxy(bits, n); }
+  FI bool operator[](const int n)      const { return TEST(bits, n); }
   FI bool operator[](const AxisEnum n) const { return TEST(bits, n); }
 
   FI AxisBits& operator|=(const el &p) { bits |= el(p); return *this; }

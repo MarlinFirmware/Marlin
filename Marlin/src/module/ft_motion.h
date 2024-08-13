@@ -23,6 +23,7 @@
 
 #include "../inc/MarlinConfigPre.h" // Access the top level configurations.
 #include "../module/planner.h"      // Access block type from planner.
+#include "../module/stepper.h"      // For stepper motion and direction
 
 #include "ft_types.h"
 
@@ -111,8 +112,8 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
-    static millis_t axis_pos_move_end_ti[NUM_AXIS_HEADS],
-                    axis_neg_move_end_ti[NUM_AXIS_HEADS];
+    static millis_t axis_move_end_ti[NUM_AXES];
+    static AxisBits axis_move_dir;
 
     // Public methods
     static void init();
@@ -125,8 +126,12 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
-    static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
-    static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
+    FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
+      return cfg.active ? PENDING(millis(), axis_move_end_ti[axis]) : stepper.axis_is_moving(axis);
+    }
+    FORCE_INLINE static bool motor_direction(const AxisEnum axis) {
+      return cfg.active ? axis_move_dir[axis] : stepper.last_direction_bits[axis];
+    }
 
   private:
 

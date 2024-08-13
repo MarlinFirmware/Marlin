@@ -31,8 +31,9 @@
 #include "temperature.h"
 #include "../lcd/marlinui.h"
 
-#define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
-#include "../core/debug_out.h"
+#if ENABLED(FT_MOTION)
+  #include "ft_motion.h"
+#endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include HAL_PATH(.., endstop_interrupts.h)
@@ -53,6 +54,9 @@
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
+
+#define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
+#include "../core/debug_out.h"
 
 Endstops endstops;
 
@@ -823,19 +827,20 @@ void Endstops::update() {
   #endif
 
   #if ENABLED(CALIBRATION_GCODE)
-    if (calibration_probe_enabled) {
-      #if HAS_CALIBRATION_STATE
-        if (TEST(live_state, CALIBRATION) == calibration_stop_state) stepper.quick_stop();
-      #else
-        if (TEST(live_state, Z_MIN_PROBE) == calibration_stop_state) stepper.quick_stop();
-      #endif
-    }
+    if (calibration_probe_enabled
+        && calibration_stop_state == TEST(live_state, TERN(HAS_CALIBRATION_STATE, CALIBRATION, Z_MIN_PROBE)))
+      stepper.quick_stop();
   #endif
+
   // Signal, after validation, if an endstop limit is pressed or not
 
+  #define AXIS_IS_MOVING(A) TERN(FT_MOTION, ftMotion, stepper).axis_is_moving(_AXIS(A))
+  #define AXIS_DIR_REV(A)  !TERN(FT_MOTION, ftMotion, stepper).motor_direction(A)
+
   #if HAS_X_AXIS
-    if (stepper.axis_is_moving(X_AXIS)) {
-      if (!stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+    if (AXIS_IS_MOVING(X)) {
+      const AxisEnum x_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? X_AXIS : X_AXIS_HEAD;
+      if (AXIS_DIR_REV(x_head)) {
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -849,7 +854,7 @@ void Endstops::update() {
           #endif
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_X_MAX_STATE
           PROCESS_ENDSTOP_X(MAX);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -867,8 +872,9 @@ void Endstops::update() {
   #endif // HAS_X_AXIS
 
   #if HAS_Y_AXIS
-    if (stepper.axis_is_moving(Y_AXIS)) {
-      if (!stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
+    if (AXIS_IS_MOVING(Y)) {
+      const AxisEnum y_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? Y_AXIS : Y_AXIS_HEAD;
+      if (AXIS_DIR_REV(y_head)) {
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -882,7 +888,7 @@ void Endstops::update() {
           #endif
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_Y_MAX_STATE
           PROCESS_ENDSTOP_Y(MAX);
           #if   CORE_DIAG(XY, X, MIN)
@@ -900,8 +906,10 @@ void Endstops::update() {
   #endif // HAS_Y_AXIS
 
   #if HAS_Z_AXIS
-    if (stepper.axis_is_moving(Z_AXIS)) {
-      if (!stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
+    if (AXIS_IS_MOVING(Z)) {
+      const AxisEnum z_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? Z_AXIS : Z_AXIS_HEAD;
+      if (AXIS_DIR_REV(z_head)) {
+        // Z- : Gantry down, bed up
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
           // separate Z_MIN endstop. But a Z endstop could be wired
@@ -927,7 +935,8 @@ void Endstops::update() {
           if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
         #endif
       }
-      else { // Z +direction. Gantry up, bed down.
+      else {
+        // Z+ : Gantry up, bed down
         #if HAS_Z_MAX_STATE
           PROCESS_ENDSTOP_Z(MAX);
           #if   CORE_DIAG(XZ, X, MIN)
@@ -944,14 +953,15 @@ void Endstops::update() {
     }
   #endif // HAS_Z_AXIS
 
-  #if HAS_I_AXIS
-    if (stepper.axis_is_moving(I_AXIS)) {
-      if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
+  #if HAS_I_AXIS && HAS_I_STATE
+    if (AXIS_IS_MOVING(I)) {
+      const AxisEnum i_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? I_AXIS : I_AXIS_HEAD;
+      if (AXIS_DIR_REV(i_head)) {
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_I_MAX_STATE
           PROCESS_ENDSTOP(I, MAX);
         #endif
@@ -959,14 +969,15 @@ void Endstops::update() {
     }
   #endif // HAS_I_AXIS
 
-  #if HAS_J_AXIS
-    if (stepper.axis_is_moving(J_AXIS)) {
-      if (!stepper.motor_direction(J_AXIS_HEAD)) { // -direction
+  #if HAS_J_AXIS && HAS_J_STATE
+    if (AXIS_IS_MOVING(J)) {
+      const AxisEnum j_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? J_AXIS : J_AXIS_HEAD;
+      if (AXIS_DIR_REV(j_head)) {
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_J_MAX_STATE
           PROCESS_ENDSTOP(J, MAX);
         #endif
@@ -974,14 +985,15 @@ void Endstops::update() {
     }
   #endif // HAS_J_AXIS
 
-  #if HAS_K_AXIS
-    if (stepper.axis_is_moving(K_AXIS)) {
-      if (!stepper.motor_direction(K_AXIS_HEAD)) { // -direction
+  #if HAS_K_AXIS && HAS_K_STATE
+    if (AXIS_IS_MOVING(K)) {
+      const AxisEnum k_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? K_AXIS : K_AXIS_HEAD;
+      if (AXIS_DIR_REV(k_head)) {
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_K_MAX_STATE
           PROCESS_ENDSTOP(K, MAX);
         #endif
@@ -989,14 +1001,15 @@ void Endstops::update() {
     }
   #endif // HAS_K_AXIS
 
-  #if HAS_U_AXIS
-    if (stepper.axis_is_moving(U_AXIS)) {
-      if (!stepper.motor_direction(U_AXIS_HEAD)) { // -direction
+  #if HAS_U_AXIS && HAS_U_STATE
+    if (AXIS_IS_MOVING(U)) {
+      const AxisEnum u_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? U_AXIS : U_AXIS_HEAD;
+      if (AXIS_DIR_REV(u_head)) {
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_U_MAX_STATE
           PROCESS_ENDSTOP(U, MAX);
         #endif
@@ -1004,14 +1017,15 @@ void Endstops::update() {
     }
   #endif // HAS_U_AXIS
 
-  #if HAS_V_AXIS
-    if (stepper.axis_is_moving(V_AXIS)) {
-      if (!stepper.motor_direction(V_AXIS_HEAD)) { // -direction
+  #if HAS_V_AXIS && HAS_V_STATE
+    if (AXIS_IS_MOVING(V)) {
+      const AxisEnum v_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? V_AXIS : V_AXIS_HEAD;
+      if (AXIS_DIR_REV(v_head)) {
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_V_MAX_STATE
           PROCESS_ENDSTOP(V, MAX);
         #endif
@@ -1019,14 +1033,15 @@ void Endstops::update() {
     }
   #endif // HAS_V_AXIS
 
-  #if HAS_W_AXIS
-    if (stepper.axis_is_moving(W_AXIS)) {
-      if (!stepper.motor_direction(W_AXIS_HEAD)) { // -direction
+  #if HAS_W_AXIS && HAS_W_STATE
+    if (AXIS_IS_MOVING(W)) {
+      const AxisEnum w_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? W_AXIS : W_AXIS_HEAD;
+      if (AXIS_DIR_REV(w_head)) {
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_W_MAX_STATE
           PROCESS_ENDSTOP(W, MAX);
         #endif
