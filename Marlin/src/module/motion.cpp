@@ -2136,7 +2136,9 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) {
         if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
         if (TERN0(PROBE_TARE, probe.tare())) return;
-        TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
+	   #if ENABLED(BD_SENSOR)	
+        bdl.prepare_homing();
+		#endif
       }
     #endif
 
@@ -2397,10 +2399,6 @@ void prepare_line_to_destination() {
 
     #endif
 
-    #if ALL(BD_SENSOR, HOMING_Z_WITH_PROBE)
-      if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
-    #endif
-
     // Put away the Z probe
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
@@ -2478,8 +2476,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
     if (axis == Z_AXIS) {
       #if HOMING_Z_WITH_PROBE
         #if ENABLED(BD_SENSOR)
-          safe_delay(100);
-          current_position.z = bdl.read();
+          bdl.end_homing();  
         #else
           current_position.z -= probe.offset.z;
         #endif
