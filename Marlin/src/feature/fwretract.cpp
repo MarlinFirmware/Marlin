@@ -136,27 +136,27 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination(                            // Set current from destination
+    prepare_internal_move_to_destination(                  // Set current from destination
       MUL_TERN(RETRACT_SYNC_MIXING, settings.retract_feedrate_mm_s, MIXING_STEPPERS)
     );
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (!current_hop && settings.retract_zraise > NEAR_ZERO 0.01f) { // Apply hop only once
-      current_hop += settings.retract_zraise;                        // Add to the hop total (again, only once)
-      prepare_internal_move_to_destination(fr_max_z);                // Raise up, set_current_to_destination. Maximum Z feedrate
+    if (!current_hop && settings.retract_zraise > 0.01f) { // Apply hop only once
+      current_hop += settings.retract_zraise;              // Add to the hop total (again, only once)
+      prepare_internal_move_to_destination(fr_max_z);      // Raise up, set_current_to_destination. Maximum Z feedrate
     }
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
       current_hop = 0;
-      prepare_internal_move_to_destination(fr_max_z);                // Lower Z, set_current_to_destination. Maximum Z feedrate
+      prepare_internal_move_to_destination(fr_max_z);      // Lower Z, set_current_to_destination. Maximum Z feedrate
     }
 
     const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     if (extra_recover) {
-      current_position.e -= extra_recover;                           // Adjust the current E position by the extra amount to recover
-      sync_plan_position_e();                                        // Sync the planner position so the extra amount is recovered
+      current_position.e -= extra_recover;                 // Adjust the current E position by the extra amount to recover
+      sync_plan_position_e();                              // Sync the planner position so the extra amount is recovered
     }
 
     current_retract[active_extruder] = 0;
