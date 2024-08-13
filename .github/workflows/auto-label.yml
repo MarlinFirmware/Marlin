@@ -8,7 +8,7 @@ name: Label Old Bugs
 
 on:
   schedule:
-  - cron: "30 8 * * *"
+  - cron: '30 8 * * *'
 
 jobs:
   autolabel:
