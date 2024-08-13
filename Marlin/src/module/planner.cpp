@@ -863,7 +863,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
   block->final_rate = final_rate;
 
-  #if ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE) && DISABLED(LA_ZERO_SLOWDOWN)
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
@@ -2402,12 +2402,14 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          // Scale E acceleration so that it will be possible to jump to the advance speed.
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2) {
-            accel = max_accel_steps_per_s2;
-            if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
-          }
+          #if DISABLED(LA_ZERO_SLOWDOWN)
+            // Scale E acceleration so that it will be possible to jump to the advance speed.
+            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+            if (accel > max_accel_steps_per_s2) {
+              accel = max_accel_steps_per_s2;
+              if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+            }
+          #endif
         }
       }
     #endif
@@ -2437,12 +2439,12 @@ bool Planner::_populate_block(
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    block->la_advance_rate = 0;
+    IF_DISABLED(LA_ZERO_SLOWDOWN, block->la_advance_rate = 0;)
     block->la_scaling = 0;
 
     if (use_advance_lead) {
       // the Bresenham algorithm will convert this step rate into extruder steps
-      block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
+      IF_DISABLED(LA_ZERO_SLOWDOWN, block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;)
 
       // reduce LA ISR frequency by calling it only often enough to ensure that there will
       // never be more than four extruder steps per call
@@ -2694,7 +2696,7 @@ bool Planner::_populate_block(
         max_j.e += previous_advance_rate * previous_e_mm_per_step;
       }
       // Prepare for next segment.
-      previous_advance_rate = block->la_advance_rate;
+      IF_DISABLED(LA_ZERO_SLOWDOWN, previous_advance_rate = block->la_advance_rate;)
       previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
     #endif
 
