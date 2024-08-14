@@ -2397,22 +2397,24 @@ void Stepper::set_axis_moved_for_current_block() {
   axis_did_move = didmove;
 }
 
-void Stepper::set_la_interval(int32_t rate){
-  if (rate == 0) {
-    la_interval = LA_ADV_NEVER;
-  } else {
-    const bool forward_e = rate > 0;
-    la_interval = calc_timer_interval(uint32_t(ABS(rate)) >> current_block->la_scaling);
-    if (forward_e != motor_direction(E_AXIS)) {
-      last_direction_bits.toggle(E_AXIS);
-      count_direction.e = -count_direction.e;
-      DIR_WAIT_BEFORE();
-      E_APPLY_DIR(forward_e, false);
-      TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
-      DIR_WAIT_AFTER();
+#if ENABLED(LA_ZERO_SLOWDOWN)
+  void Stepper::set_la_interval(int32_t rate){
+    if (rate == 0) {
+      la_interval = LA_ADV_NEVER;
+    } else {
+      const bool forward_e = rate > 0;
+      la_interval = calc_timer_interval(uint32_t(ABS(rate)) >> current_block->la_scaling);
+      if (forward_e != motor_direction(E_AXIS)) {
+        last_direction_bits.toggle(E_AXIS);
+        count_direction.e = -count_direction.e;
+        DIR_WAIT_BEFORE();
+        E_APPLY_DIR(forward_e, false);
+        TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+        DIR_WAIT_AFTER();
+      }
     }
   }
-}
+#endif
 
 /**
  * This last phase of the stepper interrupt processes and properly

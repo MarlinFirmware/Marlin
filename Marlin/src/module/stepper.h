@@ -444,8 +444,8 @@ class Stepper {
         static uint32_t curr_step_rate; // needed for new la algo
         static float a_max;
         static float xy_to_e_steps;
+        static void set_la_interval(int32_t rate);
       #endif
-      static void set_la_interval(int32_t rate);
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
