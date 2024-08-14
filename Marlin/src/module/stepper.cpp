@@ -2795,8 +2795,8 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
+        la_active = (current_block->la_advance_rate != 0);
         #if DISABLED(LA_ZERO_SLOWDOWN)
-          la_active = (current_block->la_advance_rate != 0);
           #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
             // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
             if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;

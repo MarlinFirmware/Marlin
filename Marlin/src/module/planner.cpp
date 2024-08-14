@@ -2439,12 +2439,12 @@ bool Planner::_populate_block(
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    IF_DISABLED(LA_ZERO_SLOWDOWN, block->la_advance_rate = 0;)
+    block->la_advance_rate = 0;
     block->la_scaling = 0;
 
     if (use_advance_lead) {
       // the Bresenham algorithm will convert this step rate into extruder steps
-      IF_DISABLED(LA_ZERO_SLOWDOWN, block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;)
+      block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
 
       // reduce LA ISR frequency by calling it only often enough to ensure that there will
       // never be more than four extruder steps per call
@@ -2696,7 +2696,7 @@ bool Planner::_populate_block(
         max_j.e += previous_advance_rate * previous_e_mm_per_step;
       }
       // Prepare for next segment.
-      IF_DISABLED(LA_ZERO_SLOWDOWN, previous_advance_rate = block->la_advance_rate;)
+      previous_advance_rate = block->la_advance_rate;
       previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
     #endif
 
