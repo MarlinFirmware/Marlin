@@ -237,9 +237,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 
 // Serial DMA is only available for some STM32 MCUs and HC32
 #if ENABLED(SERIAL_DMA)
-  #if defined(ARDUINO_ARCH_HC32)
+  #ifdef ARDUINO_ARCH_HC32
     // checks for HC32 are located in HAL/HC32/inc/SanityCheck.h
-  #elif !HAL_STM32 || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+  #elif DISABLED(HAL_STM32) || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
     #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."
   #elif !defined(HAL_UART_MODULE_ENABLED) || defined(HAL_UART_MODULE_ONLY)
     #error "SERIAL_DMA requires STM32 platform HAL UART (without HAL_UART_MODULE_ONLY)."
@@ -1741,27 +1741,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 #undef _BAD_HOME_CURRENT
 
-#if defined(SENSORLESS_HOMING)
-  #if !HAS_CURRENT_HOME(X) || defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
-    #define NO_X_HOMING_CURRENT_WARN 1
-  #elif !HAS_CURRENT_HOME(Y) || defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
-    #define NO_Y_HOMING_CURRENT_WARN 1
-  #endif
-#endif
-
-#if defined(SENSORLESS_PROBING) // Had to separate for some reason
-  #if defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
-    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
-    #define NO_Z_HOMING_CURRENT_WARN 1
-  #endif
-#endif
-
 #if ENABLED(PROBING_USE_CURRENT_HOME)
-  #if !HAS_BED_PROBE
-    #error "PROBING_USE_CURRENT_HOME requires a bed probe."
-  #elif defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z) || defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2) \
-    || defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3) || defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
-    #error "PROBING_USE_CURRENT_HOME requires Z_CURRENT_HOME, and it must differ from Z_CURRENT."
+  #if  (defined(Z_CURRENT_HOME)  && !HAS_CURRENT_HOME(Z))  || (defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)) \
+    || (defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)) || (defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4))
+    #error "PROBING_USE_CURRENT_HOME requires a Z_CURRENT_HOME value that differs from Z_CURRENT."
   #endif
 #endif
 
