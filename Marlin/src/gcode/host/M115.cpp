@@ -63,11 +63,25 @@
  */
 void GcodeSuite::M115() {
 
+  // Hosts should match one of these
+  #define MACHINE_KINEMATICS "" \
+    TERN_(COREXY, "COREXY") TERN_(COREYX, "COREYX") \
+    TERN_(COREXZ, "COREXZ") TERN_(COREZX, "COREZX") \
+    TERN_(COREYZ, "COREYZ") TERN_(COREZY, "COREZY") \
+    TERN_(MARKFORGED_XY, "MARKFORGED_XY") TERN_(MARKFORGED_YX, "MARKFORGED_YX") \
+    TERN_(POLARGRAPH, "POLARGRAPH") \
+    TERN_(POLAR, "POLAR") \
+    TERN_(DELTA, "DELTA") \
+    TERN_(IS_SCARA, "SCARA") \
+    TERN_(IS_CARTESIAN, "Cartesian") \
+    TERN_(BELTPRINTER, " BELTPRINTER")
+
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL
     " PROTOCOL_VERSION:" PROTOCOL_VERSION
     " MACHINE_TYPE:" MACHINE_NAME
+    " KINEMATICS:" MACHINE_KINEMATICS
     " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
     #if NUM_AXES != XYZ
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
@@ -88,14 +102,15 @@ void GcodeSuite::M115() {
      * This code should work on all STM32-based boards.
      */
     #if ENABLED(STM32_UID_SHORT_FORM)
-      uint32_t * const UID = (uint32_t*)UID_BASE;
-      SERIAL_ECHO(hex_long(UID[0]), hex_long(UID[1]), hex_long(UID[2]));
+      const uint32_t * const UID = (uint32_t*)UID_BASE;
+      for (uint8_t i = 0; i < 3; i++) print_hex_long(UID[i]);
     #else
-      uint16_t * const UID = (uint16_t*)UID_BASE;
-      SERIAL_ECHO(
-        F("CEDE2A2F-"), hex_word(UID[0]), C('-'), hex_word(UID[1]), C('-'), hex_word(UID[2]), C('-'),
-        hex_word(UID[3]), hex_word(UID[4]), hex_word(UID[5])
-      );
+      const uint16_t * const UID = (uint16_t*)UID_BASE; // Little-endian!
+      SERIAL_ECHO(F("CEDE2A2F-"));
+      for (uint8_t i = 1; i <= 6; i++) {
+        print_hex_word(UID[(i % 2) ? i : i - 2]);       // 1111-0000-3333-222255554444
+        if (i <= 3) SERIAL_ECHO(C('-'));
+      }
     #endif
   #endif
 

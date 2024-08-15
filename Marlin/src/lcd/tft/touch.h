@@ -71,7 +71,6 @@ typedef struct __attribute__((__packed__)) {
 #define UBL_REPEAT_DELAY    125
 #define FREE_MOVE_RANGE     32
 
-#define TSLP_PREINIT  0
 #define TSLP_SLEEPING 1
 
 class Touch {
@@ -105,7 +104,7 @@ class Touch {
     }
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
-    #if HAS_TOUCH_SLEEP
+    #if HAS_DISPLAY_SLEEP
       static millis_t next_sleep_ms;
       static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
       static void sleepTimeout();

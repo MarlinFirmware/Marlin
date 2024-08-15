@@ -191,6 +191,14 @@ void menu_tune() {
   #endif // HAS_FAN
 
   //
+  // FT_MOTION
+  //
+  #if ENABLED(FT_MOTION_MENU)
+    void menu_tune_ft_motion();
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
+  #endif
+
+  //
   // Flow:
   //
   #if HAS_EXTRUDERS

@@ -46,10 +46,13 @@
 #endif
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// Release JTAG pins but keep SWD enabled
+// - PA15 (JTDI / E0_DIR_PIN)
+// - PB3 (JTDO / E0_STEP_PIN)
+// - PB4 (NJTRST / E0_ENABLE_PIN)
 //
 //#define DISABLE_DEBUG
-//#define DISABLE_JTAG
+#define DISABLE_JTAG
 
 //
 // EEPROM
@@ -183,17 +186,17 @@
 
 /**        ------
  *   PC6  | 1  2 | PC7
- *   PA2  | 3  4 | PC1
+ *   PA2  | 3  4 | PA3
  *   PB13   5  6 | PB14
  *   PB15 | 7  8 | PB12
- *    GND | 9 10 | 5V
+ *   GND  | 9 10 | 5V
  *         ------
  *          EXP1
  */
 #define EXP1_01_PIN                         PC6
 #define EXP1_02_PIN                         PC7
 #define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         PC1
+#define EXP1_04_PIN                         PA3
 #define EXP1_05_PIN                         PB13
 #define EXP1_06_PIN                         PB14
 #define EXP1_07_PIN                         PB15

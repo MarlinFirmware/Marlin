@@ -289,22 +289,27 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
-    while (G29()) { // G29 should return true for failed probes ONLY
-      if (retries) {
-        event_probe_recover();
-        --retries;
-      }
-      else {
-        event_probe_failure();
-        return;
-      }
+    bool fail = false;
+    for (;;) {
+      fail = G29(); // G29 should return true for failed probes ONLY
+      if (!fail || !retries) break;
+      event_probe_recover();
+      --retries;
     }
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+    if (fail) {
+      event_probe_failure();
+      TERN_(G29_HALT_ON_FAILURE, return);
+    }
+    else {
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+      #ifdef G29_SUCCESS_COMMANDS
+        process_subcommands_now(F(G29_SUCCESS_COMMANDS));
+      #endif
+    }
 
-    #ifdef G29_SUCCESS_COMMANDS
-      process_subcommands_now(F(G29_SUCCESS_COMMANDS));
-    #endif
+    TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
+    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 
 #endif // G29_RETRY_AND_RECOVER
@@ -897,6 +902,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 430: M430(); break;                                  // M430: Read the system current (A), voltage (V), and power (W)
       #endif
 
+      #if HAS_RS485_SERIAL
+        case 485: M485(); break;                                  // M485: Send RS485 packets
+      #endif
+
       #if ENABLED(CANCEL_OBJECTS)
         case 486: M486(); break;                                  // M486: Identify and cancel objects
       #endif
@@ -1103,6 +1112,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if DGUS_LCD_UI_MKS
         case 1002: M1002(); break;                                // M1002: [INTERNAL] Tool-change and Relative E Move
+      #endif
+
+      #if ENABLED(ONE_CLICK_PRINT)
+        case 1003: M1003(); break;                                // M1003: [INTERNAL] Set the current dir to /
       #endif
 
       #if ENABLED(UBL_MESH_WIZARD)
