@@ -24,6 +24,9 @@
 
 #if HAS_GCODE_M876
 
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../feature/e_parser.h"
+#endif
 #include "../../feature/host_actions.h"
 #include "../gcode.h"
 #include "../../MarlinCore.h"
@@ -32,8 +35,8 @@
  * M876: Handle Prompt Response
  */
 void GcodeSuite::M876() {
-
-  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
+  if(TERN1(EMERGENCY_PARSER, emergency_parser.isEnabled()))
+    if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
 
 }
 
