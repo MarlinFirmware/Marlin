@@ -745,18 +745,8 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     err_P += delta;
 
     // Set up step/dir bits for all axes
-    LOGICAL_AXIS_CODE(
-      command_set[E_AXIS](err_P.e, steps.e, cmd, _BV(FT_BIT_DIR_E), _BV(FT_BIT_STEP_E)),
-      command_set[X_AXIS](err_P.x, steps.x, cmd, _BV(FT_BIT_DIR_X), _BV(FT_BIT_STEP_X)),
-      command_set[Y_AXIS](err_P.y, steps.y, cmd, _BV(FT_BIT_DIR_Y), _BV(FT_BIT_STEP_Y)),
-      command_set[Z_AXIS](err_P.z, steps.z, cmd, _BV(FT_BIT_DIR_Z), _BV(FT_BIT_STEP_Z)),
-      command_set[I_AXIS](err_P.i, steps.i, cmd, _BV(FT_BIT_DIR_I), _BV(FT_BIT_STEP_I)),
-      command_set[J_AXIS](err_P.j, steps.j, cmd, _BV(FT_BIT_DIR_J), _BV(FT_BIT_STEP_J)),
-      command_set[K_AXIS](err_P.k, steps.k, cmd, _BV(FT_BIT_DIR_K), _BV(FT_BIT_STEP_K)),
-      command_set[U_AXIS](err_P.u, steps.u, cmd, _BV(FT_BIT_DIR_U), _BV(FT_BIT_STEP_U)),
-      command_set[V_AXIS](err_P.v, steps.v, cmd, _BV(FT_BIT_DIR_V), _BV(FT_BIT_STEP_V)),
-      command_set[W_AXIS](err_P.w, steps.w, cmd, _BV(FT_BIT_DIR_W), _BV(FT_BIT_STEP_W)),
-    );
+    #define _COMMAND_RUN(A) command_set[_AXIS(A)](err_P.A, steps.A, cmd, _BV(FT_BIT_DIR_##A), _BV(FT_BIT_STEP_##A));
+    LOGICAL_AXIS_MAP(_COMMAND_RUN);
 
     // Next circular buffer index
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
