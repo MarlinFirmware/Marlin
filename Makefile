@@ -9,6 +9,7 @@ help:
 	@echo "make marlin                    : Build marlin for the configured board"
 	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
+	@echo "make base-configs              : Regenerate the base configs in Marlin/src/inc"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
 	@echo "make tests-single-local        : Run a single test locally"
 	@echo "make tests-single-local-docker : Run a single test locally, using docker"
@@ -102,3 +103,9 @@ format-pins: $(PINS)
 validate-pins: format-pins
 	@echo "Validating pins files"
 	@git diff --exit-code || (git status && echo "\nError: Pins files are not formatted correctly. Run \"make format-pins\" to fix.\n" && exit 1)
+
+base-configs:
+	@echo "Generating base configs"
+	@python $(SCRIPTS_DIR)/makeBaseConfigs.py 2>/dev/null \
+	  && git add Marlin/src/inc/BaseConfiguration.h Marlin/src/inc/BaseConfiguration_adv.h \
+	  && git commit -m "[cron] Update Base Configurations"

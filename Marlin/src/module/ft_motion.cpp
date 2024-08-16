@@ -622,27 +622,27 @@ void FTMotion::makeVector() {
 
   // Apply shaping if active on each axis
   #if HAS_X_AXIS
-      if (shaping.x.ena) {
-        shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
-        traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
-        for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
-          const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-          traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+    if (shaping.x.ena) {
+      shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
+      traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+      for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
+        const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
+        traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+      }
+    }
+
+    #if HAS_Y_AXIS
+      if (shaping.y.ena) {
+        shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
+        traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
+        for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
+          const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
+          traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
         }
       }
-
-      #if HAS_Y_AXIS
-        if (shaping.y.ena) {
-          shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
-          traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
-          for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
-            const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-            traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
-          }
-        }
-      #endif
-      if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
     #endif
+    if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+  #endif // HAS_X_AXIS
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {

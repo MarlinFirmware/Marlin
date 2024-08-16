@@ -2419,7 +2419,7 @@
 #endif
 
 #define PCAT(P) P##_PIN
-#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P##_PIN) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
+#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
 #if !NEED_HIT_STATE(X_MIN)
   #undef X_MIN_ENDSTOP_HIT_STATE
 #endif
@@ -3381,34 +3381,6 @@
 #else
   #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
   #undef SOUND_ON_DEFAULT
-#endif
-
-/**
- * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
- */
-#ifndef Z_CLEARANCE_FOR_HOMING
-  #ifdef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_FOR_HOMING Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_FOR_HOMING 0
-  #endif
-#endif
-
-#ifndef Z_CLEARANCE_BETWEEN_PROBES
-  #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
-#endif
-#if PROBE_SELECTED
-  #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_FOR_HOMING
-  #endif
-  #ifndef Z_CLEARANCE_MULTI_PROBE
-    #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
-  #endif
-  #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
-    #define BLTOUCH_DELAY 500
-  #endif
 #endif
 
 // Define a starting height for measuring manual probe points
