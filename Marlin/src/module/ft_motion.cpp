@@ -619,18 +619,21 @@ void FTMotion::makeVector() {
   switch (cfg.dynFreqMode) {
 
     #if HAS_DYNAMIC_FREQ_MM
-      case dynFreqMode_Z_BASED:
-        if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
+      case dynFreqMode_Z_BASED: {
+        static float oldz = 0.0f;
+        const float z = traj.z[makeVector_batchIdx];
+        if (z != oldz) { // Only update if Z changed.
+          oldz = z;
           #if HAS_X_AXIS
-            const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * traj.z[makeVector_batchIdx];
+            const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * z;
             shaping.x.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * traj.z[makeVector_batchIdx];
+            const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
             shaping.y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
           #endif
         }
-        break;
+      } break;
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
