@@ -350,14 +350,14 @@ void FTMotion::loop() {
   void FTMotion::update_shaping_params() {
     #if HAS_X_AXIS
       if ((shaping.x.ena = AXIS_HAS_SHAPER(X))) {
-        shaping.x.set_axis_shaping_A(cfg.shaper[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-        shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+        shaping.x.set_axis_shaping_A(cfg.shaper.x, cfg.zeta.x, cfg.vtol.x);
+        shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x, cfg.zeta.x);
       }
     #endif
     #if HAS_Y_AXIS
       if ((shaping.y.ena = AXIS_HAS_SHAPER(Y))) {
-        shaping.y.set_axis_shaping_A(cfg.shaper[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
-        shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+        shaping.y.set_axis_shaping_A(cfg.shaper.y, cfg.zeta.y, cfg.vtol.y);
+        shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y, cfg.zeta.y);
       }
     #endif
   }
@@ -622,12 +622,12 @@ void FTMotion::makeVector() {
       case dynFreqMode_Z_BASED:
         if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
           #if HAS_X_AXIS
-            const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+            const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * traj.z[makeVector_batchIdx];
+            shaping.x.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            const float yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
+            const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * traj.z[makeVector_batchIdx];
+            shaping.y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
           #endif
         }
         break;
@@ -638,10 +638,10 @@ void FTMotion::makeVector() {
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
         #if HAS_X_AXIS
-          shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+          shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[makeVector_batchIdx], cfg.zeta.x);
         #endif
         #if HAS_Y_AXIS
-          shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
+          shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[makeVector_batchIdx], cfg.zeta.y);
         #endif
         break;
     #endif

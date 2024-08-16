@@ -98,18 +98,18 @@ void say_shaping() {
 
     #if HAS_X_AXIS
       SERIAL_ECHO_TERNARY(dynamic, AXIS_0_NAME " ", "base dynamic", "static", " shaper frequency: ");
-      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq[X_AXIS], 2), F("Hz"));
+      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq.x, 2), F("Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK[X_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK.x, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
 
     #if HAS_Y_AXIS
       SERIAL_ECHO_TERNARY(dynamic, AXIS_1_NAME " ", "base dynamic", "static", " shaper frequency: ");
-      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq[Y_AXIS], 2), F(" Hz"));
+      SERIAL_ECHO(p_float_t(ftMotion.cfg.baseFreq.y, 2), F(" Hz"));
       #if HAS_DYNAMIC_FREQ
-        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK[Y_AXIS], 2), F("Hz/"), z_based ? F("mm") : F("g"));
+        if (dynamic) SERIAL_ECHO(F(" scaling: "), p_float_t(ftMotion.cfg.dynFreqK.y, 2), F("Hz/"), z_based ? F("mm") : F("g"));
       #endif
       SERIAL_EOL();
     #endif
@@ -131,17 +131,17 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   const ft_config_t &c = ftMotion.cfg;
   SERIAL_ECHOPGM("  M493 S", c.active);
   #if HAS_X_AXIS
-    SERIAL_ECHOPGM(" A", c.baseFreq[X_AXIS]);
+    SERIAL_ECHOPGM(" A", c.baseFreq.x);
     #if HAS_Y_AXIS
-      SERIAL_ECHOPGM(" B", c.baseFreq[Y_AXIS]);
+      SERIAL_ECHOPGM(" B", c.baseFreq.y);
     #endif
   #endif
   #if HAS_DYNAMIC_FREQ
     SERIAL_ECHOPGM(" D", c.dynFreqMode);
     #if HAS_X_AXIS
-      SERIAL_ECHOPGM(" F", c.dynFreqK[X_AXIS]);
+      SERIAL_ECHOPGM(" F", c.dynFreqK.x);
       #if HAS_Y_AXIS
-        SERIAL_ECHOPGM(" H", c.dynFreqK[Y_AXIS]);
+        SERIAL_ECHOPGM(" H", c.dynFreqK.y);
       #endif
     #endif
   #endif
@@ -308,7 +308,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
-          ftMotion.cfg.baseFreq[X_AXIS] = val;
+          ftMotion.cfg.baseFreq.x = val;
           flag.update = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
@@ -322,7 +322,7 @@ void GcodeSuite::M493() {
       // Parse frequency scaling parameter (X axis).
       if (parser.seenval('F')) {
         if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK[X_AXIS] = parser.value_float();
+          ftMotion.cfg.dynFreqK.x = parser.value_float();
           flag.report_h = true;
         }
         else
@@ -369,7 +369,7 @@ void GcodeSuite::M493() {
       if (AXIS_HAS_SHAPER(Y)) {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
-          ftMotion.cfg.baseFreq[Y_AXIS] = val;
+          ftMotion.cfg.baseFreq.y = val;
           flag.update = flag.reset_ft = flag.report_h = true;
         }
         else // Frequency out of range.
@@ -383,7 +383,7 @@ void GcodeSuite::M493() {
       // Parse frequency scaling parameter (Y axis).
       if (parser.seenval('H')) {
         if (modeUsesDynFreq) {
-          ftMotion.cfg.dynFreqK[Y_AXIS] = parser.value_float();
+          ftMotion.cfg.dynFreqK.y = parser.value_float();
           flag.report_h = true;
         }
         else
