@@ -247,7 +247,7 @@ inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P 
 
 void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
-  print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
+  print_xyze(LOGICAL_AXIS_ELEM_LC_(xyze) prefix, suffix);
 }
 
 #define SERIAL_POS(SUFFIX,VAR) do { print_xyz(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
