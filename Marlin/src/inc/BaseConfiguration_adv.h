@@ -696,7 +696,7 @@
       #define BLTOUCH_HS_EXTRA_CLEARANCE 7
     #endif
   #endif
-#endif 
+#endif
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   #ifndef Z_STEPPER_ALIGN_STEPPER_XY
     #ifndef Z_STEPPER_ALIGN_AMP
@@ -1072,7 +1072,7 @@
   #ifndef MANUAL_MOVE_DISTANCE_DEG
     #define MANUAL_MOVE_DISTANCE_DEG 90, 45, 22.5, 5, 1
   #endif
-#endif 
+#endif
 #if HAS_DISPLAY
   #ifndef SHOW_BOOTSCREEN
     #define SHOW_BOOTSCREEN
@@ -1129,7 +1129,7 @@
       #endif
     #endif
   #endif
-#endif 
+#endif
 #if HAS_FEEDRATE_EDIT
   #ifndef SPEED_EDIT_MIN
     #define SPEED_EDIT_MIN 10
@@ -1284,7 +1284,7 @@
       #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
     #endif
   #endif
-#endif 
+#endif
 #if HAS_MARLINUI_U8GLIB
   #ifndef XYZ_HOLLOW_FRAME
     #define XYZ_HOLLOW_FRAME
@@ -1308,7 +1308,7 @@
   #ifndef STATUS_CHAMBER_ANIM
     #define STATUS_CHAMBER_ANIM
   #endif
-#endif 
+#endif
 #if HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
   #ifndef MENU_HOLLOW_FRAME
     #define MENU_HOLLOW_FRAME
@@ -1378,7 +1378,7 @@
       #define DGUS_USERCONFIRM
     #endif
   #endif
-#endif 
+#endif
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
   #ifndef AC_SD_FOLDER_VIEW
     #define AC_SD_FOLDER_VIEW
@@ -1529,7 +1529,7 @@
       #define PTC_PROBE_HEATING_OFFSET 0.5
     #endif
   #endif
-#endif 
+#endif
 #ifndef ARC_SUPPORT
   #define ARC_SUPPORT
 #endif
@@ -1667,7 +1667,7 @@
       #define TOOLCHANGE_PARK_XY_FEEDRATE 6000
     #endif
   #endif
-#endif 
+#endif
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #ifndef PAUSE_PARK_RETRACT_FEEDRATE
     #define PAUSE_PARK_RETRACT_FEEDRATE 60
@@ -2219,7 +2219,7 @@
   #ifndef TMC_ADV
     #define TMC_ADV () {  }
   #endif
-#endif 
+#endif
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #ifndef I2C_SLAVE_ADDRESS
     #define I2C_SLAVE_ADDRESS 0
@@ -2353,7 +2353,7 @@
       #endif
     #endif
   #endif
-#endif 
+#endif
 #if ENABLED(COOLANT_CONTROL)
   #ifndef COOLANT_MIST
     #define COOLANT_MIST
@@ -2616,7 +2616,7 @@
   #ifndef I2CPE_ERR_ROLLING_AVERAGE
     #define I2CPE_ERR_ROLLING_AVERAGE
   #endif
-#endif 
+#endif
 #if ENABLED(JOYSTICK)
   #ifndef JOY_X_PIN
     #define JOY_X_PIN 5
@@ -2745,7 +2745,7 @@
       #endif
     #endif
   #endif
-#endif 
+#endif
 #if ENABLED(PRINTCOUNTER)
   #ifndef SERVICE_WARNING_BUZZES
     #define SERVICE_WARNING_BUZZES 3

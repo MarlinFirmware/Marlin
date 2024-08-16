@@ -17,7 +17,7 @@ def make_base_configs():
     # Create a regex to match options and capture line parts
     define_patt = re.compile(r'^(\s*)((//\s*)?#define\s+)([A-Z0-9_]+\b)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
     ifndef_patt = re.compile(r'^(\s*#ifndef\s*.*?)(\s*//.*)?$', re.IGNORECASE)
-    ifstat_patt = re.compile(r'^(\s*#(if|ifn?def|else|elif|endif)\s*.*?)(\s*//.*)?$', re.IGNORECASE)
+    ifstat_patt = re.compile(r'^(\s*#(((if|ifn?def|elif)\s*.*?)|else|endif))(\s*//.*)?$', re.IGNORECASE)
     coment_patt = re.compile(r'/\*.*?\*/', re.DOTALL)
     contin_patt = re.compile(r'\\\n\s*')
 
@@ -60,12 +60,12 @@ def make_base_configs():
         ifelse_patt = re.compile(r'(\s*#(el)?if\s+)(.+)\n\s*#else')
         ifelif_patt = re.compile(r'(\s*#if\s+)(.+)\n\s*#elif\s*(.+)')
         out_text = '\n'.join(lines_out)
-        old_text = ''
-        while out_text != old_text:
+        while True:
             old_text = out_text
             out_text = ifelse_patt.sub(r'\1!(\3)', out_text)
             out_text = ifelif_patt.sub(r'\1!(\2) && (\3)\n', out_text)
             out_text = empty_patt.sub('', out_text)
+            if out_text == old_text: break
 
         # Store the final result to Marlin/src/inc/BaseConfiguration.h BaseConfiguration_adv.h
         outname = f'Base{file}'

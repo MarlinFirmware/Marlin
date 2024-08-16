@@ -96,7 +96,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     }
     else if (parser.seenval('O')) { // pwr in PWM units
       const float v = parser.value_float();
-      cutter.menuPower = cutter.unitPower = CUTTER_PWM_TO_SPWR(constrain(v, 0, 255)); 
+      cutter.menuPower = cutter.unitPower = CUTTER_PWM_TO_SPWR(constrain(v, 0, 255));
     }
     else if (cutter.cutter_mode == CUTTER_MODE_STANDARD)
       cutter.menuPower = cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);

@@ -540,7 +540,7 @@
   #ifndef DEFAULT_chamberKd
     #define DEFAULT_chamberKd 655.17
   #endif
-#endif 
+#endif
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   #ifndef PID_FUNCTIONAL_RANGE
     #define PID_FUNCTIONAL_RANGE 10
@@ -920,7 +920,7 @@
   #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
     #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE XY_PROBE_FEEDRATE
   #endif
-#endif 
+#endif
 #ifndef NOZZLE_TO_PROBE_OFFSET
   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 #endif
@@ -1264,7 +1264,7 @@
   #ifndef GRID_MAX_POINTS_Y
     #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
   #endif
-#endif 
+#endif
 #if ENABLED(LCD_BED_LEVELING)
   #ifndef MESH_EDIT_Z_STEP
     #define MESH_EDIT_Z_STEP 0.025

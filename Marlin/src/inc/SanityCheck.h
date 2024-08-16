@@ -1447,14 +1447,18 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
    * Check for improper PROBING_MARGIN
    */
   #if NONE(NOZZLE_AS_PROBE, IS_KINEMATIC)
-    static_assert(PROBING_MARGIN       >= 0, "PROBING_MARGIN must be >= 0.");
+    #ifdef PROBING_MARGIN
+      static_assert(PROBING_MARGIN     >= 0, "PROBING_MARGIN must be >= 0.");
+    #endif
     static_assert(PROBING_MARGIN_BACK  >= 0, "PROBING_MARGIN_BACK must be >= 0.");
     static_assert(PROBING_MARGIN_FRONT >= 0, "PROBING_MARGIN_FRONT must be >= 0.");
     static_assert(PROBING_MARGIN_LEFT  >= 0, "PROBING_MARGIN_LEFT must be >= 0.");
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
   #define _MARGIN(A) TERN(IS_KINEMATIC, PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))
-  static_assert(PROBING_MARGIN       < _MARGIN(X), "PROBING_MARGIN is too large.");
+  #ifdef PROBING_MARGIN
+    static_assert(PROBING_MARGIN     < _MARGIN(X), "PROBING_MARGIN is too large.");
+  #endif
   static_assert(PROBING_MARGIN_BACK  < _MARGIN(Y), "PROBING_MARGIN_BACK is too large.");
   static_assert(PROBING_MARGIN_FRONT < _MARGIN(Y), "PROBING_MARGIN_FRONT is too large.");
   static_assert(PROBING_MARGIN_LEFT  < _MARGIN(X), "PROBING_MARGIN_LEFT is too large.");
