@@ -358,7 +358,7 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_x() {
-    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[X_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper.x;
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -376,7 +376,7 @@ void menu_move() {
   }
 
   inline void menu_ftm_cmpn_y() {
-    const ftMotionShaper_t shaper = ftMotion.cfg.shaper[Y_AXIS];
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper.y;
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
 
@@ -442,10 +442,10 @@ void menu_move() {
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
 
         if (AXIS_HAS_SHAPER(X)) {
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[X_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.x, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta.x, 0.0f, 1.0f, ftMotion.update_shaping_params);
           if (AXIS_HAS_EISHAPER(X))
-            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol[0], 0.0f, 1.0f, ftMotion.update_shaping_params);
+            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol.x, 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
       #if HAS_Y_AXIS
@@ -453,10 +453,10 @@ void menu_move() {
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
 
         if (AXIS_HAS_SHAPER(Y)) {
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq[Y_AXIS], FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
-          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.y, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
           if (AXIS_HAS_EISHAPER(Y))
-            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol[1], 0.0f, 1.0f, ftMotion.update_shaping_params);
+            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
 
@@ -465,10 +465,10 @@ void menu_move() {
         MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           #if HAS_X_AXIS
-            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[X_AXIS], 0.0f, 20.0f);
+            EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.x, 0.0f, 20.0f);
           #endif
           #if HAS_Y_AXIS
-            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK[Y_AXIS], 0.0f, 20.0f);
+            EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.y, 0.0f, 20.0f);
           #endif
         }
       #endif
@@ -492,8 +492,6 @@ void menu_move() {
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
-    ft_config_t &c = ftMotion.cfg;
-
     START_MENU();
 
     #if HAS_X_AXIS
@@ -514,7 +512,6 @@ void menu_move() {
     #endif
 
     END_MENU();
-
   }
 
 #endif // FT_MOTION_MENU

@@ -4381,7 +4381,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
   #endif
   #if !HAS_X_AXIS
-    static_assert(FTM_DEFAULT_X_COMPENSATOR != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_X_COMPENSATOR must be ftMotionShaper_NONE.");
+    static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
   #if HAS_DYNAMIC_FREQ_MM
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
