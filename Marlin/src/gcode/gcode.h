@@ -1075,7 +1075,6 @@ private:
   #if ENABLED(FT_MOTION)
     static void M493();
     static void M493_report(const bool forReplay=true);
-    static void M494();
   #endif
 
   static void M500();

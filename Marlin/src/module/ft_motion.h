@@ -71,7 +71,6 @@ class FTMotion {
 
     // Public variables
     static ft_config_t cfg;
-    static ftMotionTrajGenConfig_t traj_gen_cfg;
     static bool busy;
 
     static void set_defaults() {
@@ -125,8 +124,6 @@ class FTMotion {
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
-
-    static void setup_traj_gen(uint32_t intervals);
 
     static bool axis_moving_pos(const AxisEnum axis) { return !ELAPSED(millis(), axis_pos_move_end_ti[axis]); }
     static bool axis_moving_neg(const AxisEnum axis) { return !ELAPSED(millis(), axis_neg_move_end_ti[axis]); }
