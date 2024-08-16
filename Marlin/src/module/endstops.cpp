@@ -955,8 +955,7 @@ void Endstops::update() {
 
   #if HAS_I_AXIS && HAS_I_STATE
     if (AXIS_IS_MOVING(I)) {
-      const AxisEnum i_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? I_AXIS : I_AXIS_HEAD;
-      if (AXIS_DIR_REV(i_head)) {
+      if (AXIS_DIR_REV(I_AXIS_HEAD)) {
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
@@ -971,8 +970,7 @@ void Endstops::update() {
 
   #if HAS_J_AXIS && HAS_J_STATE
     if (AXIS_IS_MOVING(J)) {
-      const AxisEnum j_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? J_AXIS : J_AXIS_HEAD;
-      if (AXIS_DIR_REV(j_head)) {
+      if (AXIS_DIR_REV(J_AXIS_HEAD)) {
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
@@ -987,8 +985,7 @@ void Endstops::update() {
 
   #if HAS_K_AXIS && HAS_K_STATE
     if (AXIS_IS_MOVING(K)) {
-      const AxisEnum k_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? K_AXIS : K_AXIS_HEAD;
-      if (AXIS_DIR_REV(k_head)) {
+      if (AXIS_DIR_REV(K_AXIS_HEAD)) {
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
@@ -1003,8 +1000,7 @@ void Endstops::update() {
 
   #if HAS_U_AXIS && HAS_U_STATE
     if (AXIS_IS_MOVING(U)) {
-      const AxisEnum u_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? U_AXIS : U_AXIS_HEAD;
-      if (AXIS_DIR_REV(u_head)) {
+      if (AXIS_DIR_REV(U_AXIS_HEAD)) {
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
@@ -1019,8 +1015,7 @@ void Endstops::update() {
 
   #if HAS_V_AXIS && HAS_V_STATE
     if (AXIS_IS_MOVING(V)) {
-      const AxisEnum v_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? V_AXIS : V_AXIS_HEAD;
-      if (AXIS_DIR_REV(v_head)) {
+      if (AXIS_DIR_REV(V_AXIS_HEAD)) {
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
@@ -1035,8 +1030,7 @@ void Endstops::update() {
 
   #if HAS_W_AXIS && HAS_W_STATE
     if (AXIS_IS_MOVING(W)) {
-      const AxisEnum w_head = TERN0(FT_MOTION, ftMotion.cfg.active) ? W_AXIS : W_AXIS_HEAD;
-      if (AXIS_DIR_REV(w_head)) {
+      if (AXIS_DIR_REV(W_AXIS_HEAD)) {
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif
