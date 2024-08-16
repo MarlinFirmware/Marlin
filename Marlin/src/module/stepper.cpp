@@ -3538,6 +3538,9 @@ void Stepper::report_positions() {
      * when the block was fetched and are not overwritten here.
      */
 
+    #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
+    LOGICAL_AXIS_MAP(_FTM_SET_DIR);
+
     if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
       // Apply directions (generally applying to the entire linear move)
       #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
@@ -3546,6 +3549,7 @@ void Stepper::report_positions() {
 
       TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
 
+      // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
     }
 
@@ -3560,7 +3564,7 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += _FTM_DIR(A) ? 1 : -1;
+    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += last_direction_bits.A ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)
