@@ -7,6 +7,7 @@ import schema
 import subprocess,re,json,hashlib
 from datetime import datetime
 from pathlib import Path
+from functools import reduce
 
 def enabled_defines(filepath):
     '''
@@ -208,7 +209,29 @@ def compute_build_signature(env):
             conf_schema = None
 
     #
-    # Produce an INI file if CONFIG_EXPORT == 2
+    # CONFIG_EXPORT 2 = config.ini, 5 = Config.h
+    # Get sections using the schema class
+    #
+    if extended_dump and config_dump in (2, 5):
+        if not conf_schema: exit(1)
+
+        # Start with a preferred @section ordering
+        preorder = ('info','machine','extruder','stepper drivers','geometry','homing','endstops','probes','lcd','interface','host','reporting')
+        sections = { key:{} for key in preorder }
+
+        # Group options by schema @section
+        for header in real_config:
+            for name in real_config[header]:
+                #print(f"  name: {name}")
+                if name in ignore: continue
+                ddict = real_config[header][name]
+                #print(f"   real_config[{header}][{name}]:", ddict)
+                sect = ddict['section']
+                if sect not in sections: sections[sect] = {}
+                sections[sect][name] = ddict
+
+    #
+    # CONFIG_EXPORT 2 = config.ini
     #
     if config_dump == 2:
         print(yellow + "Generating config.ini ...")
@@ -332,6 +355,54 @@ f'''#
                         val = real_config[header][name]['value']
                         if val == '': val = 'on'
                         outfile.write(ini_fmt.format(name.lower(), val) + '\n')
+
+    #
+    # CONFIG_EXPORT 5 = Config.h
+    #
+    if config_dump == 5:
+        print(yellow + "Generating Config-export.h ...")
+
+        config_h = Path('Marlin', 'Config-export.h')
+        with config_h.open('w') as outfile:
+            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+            vers = build_defines["CONFIGURATION_H_VERSION"]
+            dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
+
+            out_text = f'''/**
+ * Config.h - Marlin Firmware distilled configuration
+ * Usage: Place this file in the 'Marlin' folder with the name 'Config.h'.
+ *
+ * Exported by Marlin build on {dt_string}.
+ */
+'''
+
+            subs = (('Bltouch','BLTouch'),('hchop','hChop'),('Eeprom','EEPROM'),('Gcode','G-code'),('lguard','lGuard'),('Idex','IDEX'),('Lcd','LCD'),('Mpc','MPC'),('Pid','PID'),('Psu','PSU'),('Scara','SCARA'),('Spi','SPI'),('Tmc','TMC'),('Tpara','TPARA'))
+            define_fmt = '#define {0:40} {1}'
+            if extended_dump:
+                # Loop through the sections
+                for skey in sections:
+                    #print(f"  skey: {skey}")
+                    opts = sections[skey]
+                    headed = False
+                    for name in sorted(opts):
+                        if name in ignore: continue
+                        val = opts[name]['value']
+                        if not headed:
+                            head = reduce(lambda s, r: s.replace(*r), subs, skey.title())
+                            out_text += f"\n//\n// {head}\n//\n"
+                            headed = True
+                        out_text += define_fmt.format(name, val).strip() + '\n'
+
+            else:
+                # Dump config options in just two sections, by file
+                for header in real_config:
+                    out_text += f'\n/**\n * Overrides for {header}\n */\n'
+                    for name in sorted(real_config[header]):
+                        if name in ignore: continue
+                        val = real_config[header][name]['value']
+                        out_text += define_fmt.format(name, val).strip() + '\n'
+
+            outfile.write(out_text)
 
     #
     # CONFIG_EXPORT 3 = schema.json, 4 = schema.yml

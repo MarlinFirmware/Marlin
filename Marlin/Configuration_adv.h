@@ -47,8 +47,9 @@
  *  2 = config.ini - File format for PlatformIO preprocessing.
  *  3 = schema.json - The entire configuration schema. (13 = pattern groups)
  *  4 = schema.yml - The entire configuration schema.
+ *  5 = Config.h - Minimal configuration by popular demand.
  */
-//#define CONFIG_EXPORT 2 // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml']
+//#define CONFIG_EXPORT 105 // :[1:'JSON', 2:'config.ini', 3:'schema.json', 4:'schema.yml', 5:'Config.h']
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -303,7 +304,7 @@
  * If you get false positives for "Thermal Runaway", increase
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
-#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+#if ALL(HAS_HOTEND, THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // (seconds)
   #define THERMAL_PROTECTION_HYSTERESIS 4     // (°C)
 
@@ -334,7 +335,7 @@
 /**
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
-#if ENABLED(THERMAL_PROTECTION_BED)
+#if TEMP_SENSOR_BED && ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD        20 // (seconds)
   #define THERMAL_PROTECTION_BED_HYSTERESIS     2 // (°C)
 
@@ -348,7 +349,7 @@
 /**
  * Thermal Protection parameters for the heated chamber.
  */
-#if ENABLED(THERMAL_PROTECTION_CHAMBER)
+#if TEMP_SENSOR_CHAMBER && ENABLED(THERMAL_PROTECTION_CHAMBER)
   #define THERMAL_PROTECTION_CHAMBER_PERIOD    20 // (seconds)
   #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // (°C)
 
@@ -362,7 +363,7 @@
 /**
  * Thermal Protection parameters for the laser cooler.
  */
-#if ENABLED(THERMAL_PROTECTION_COOLER)
+#if TEMP_SENSOR_COOLER && ENABLED(THERMAL_PROTECTION_COOLER)
   #define THERMAL_PROTECTION_COOLER_PERIOD     10 // (seconds)
   #define THERMAL_PROTECTION_COOLER_HYSTERESIS  3 // (°C)
 
