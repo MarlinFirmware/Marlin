@@ -3417,7 +3417,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
-    //planner.synchronize(); planner already synchronized in M493
+    planner.synchronize();
 
     // Update stepper positions from the planner
     AVR_ATOMIC_SECTION_START();
