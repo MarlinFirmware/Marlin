@@ -111,7 +111,7 @@ class FTMotion {
 
     static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
 
-    static millis_t axis_move_end_ti[NUM_AXES];
+    static XYZEval<millis_t> axis_move_end_ti;
     static AxisBits axis_move_dir;
 
     // Public methods

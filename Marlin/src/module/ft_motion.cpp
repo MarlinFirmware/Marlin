@@ -44,7 +44,7 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
-millis_t FTMotion::axis_move_end_ti[NUM_AXES] = {0};
+XYZEval<millis_t> FTMotion::axis_move_end_ti = { 0 };
 AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
@@ -391,7 +391,7 @@ void FTMotion::reset() {
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
 
-  ZERO(axis_move_end_ti);
+  axis_move_end_ti.reset();
 }
 
 // Private functions.
@@ -558,7 +558,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
-  #define __SET_MOVE_END(A,V) do{ if (V) { axis_move_end_ti[_AXIS(A)] = move_end_ti; axis_move_dir[_AXIS(A)] = (V > 0); } }while(0);
+  #define __SET_MOVE_END(A,V) do{ if (V) { axis_move_end_ti.A = move_end_ti; axis_move_dir.A = (V > 0); } }while(0);
   #define _SET_MOVE_END(A) __SET_MOVE_END(A, moveDist[_AXIS(A)])
   #if CORE_IS_XY
     __SET_MOVE_END(X, moveDist.x + moveDist.y);
