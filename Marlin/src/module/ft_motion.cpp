@@ -130,7 +130,6 @@ void FTMotion::loop() {
     if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
     discard_planner_block_protected();
     reset();
-    blockProcRdy = false;                 // Set queueing to look for next block.
     stepper.abort_current_block = false;  // Abort finished.
   }
 
