@@ -23,7 +23,7 @@
 
 #include "../core/types.h"
 
-typedef enum FXDTICtrlShaper : uint8_t {
+enum ftMotionShaper_t : uint8_t {
   ftMotionShaper_NONE  = 0, // No compensator
   ftMotionShaper_ZV    = 1, // Zero Vibration
   ftMotionShaper_ZVD   = 2, // Zero Vibration and Derivative
@@ -33,7 +33,7 @@ typedef enum FXDTICtrlShaper : uint8_t {
   ftMotionShaper_2HEI  = 6, // 2-Hump Extra-Intensive
   ftMotionShaper_3HEI  = 7, // 3-Hump Extra-Intensive
   ftMotionShaper_MZV   = 8  // Modified Zero Vibration
-} ftMotionShaper_t;
+};
 
 enum dynFreqMode_t : uint8_t {
   dynFreqMode_DISABLED   = 0,
@@ -41,8 +41,8 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define CMPNSTR_HAS_SHAPER(A) (ftMotion.cfg.shaper[A] != ftMotionShaper_NONE)
-#define CMPNSTR_IS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[A], ftMotionShaper_EI, ftMotionShaper_3HEI)
+#define AXIS_HAS_SHAPER(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
+#define AXIS_HAS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
@@ -58,5 +58,22 @@ enum {
   ),
   FT_BIT_COUNT
 };
+
+#define NUM_AXES_SHAPED TERN(HAS_Y_AXIS, 2, 1)
+#define SHAPED_ELEM(A, B) A OPTARG(HAS_Y_AXIS, B)
+
+template<typename T>
+struct FTShapedAxes {
+  union {
+    struct { T SHAPED_ELEM(X, Y); };
+    struct { T SHAPED_ELEM(x, y); };
+    T val[NUM_AXES_SHAPED];
+  };
+  T& operator[](int i) { return val[i]; }
+};
+
+typedef FTShapedAxes<float>            ft_shaped_float_t;
+typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
+typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
 typedef bits_t(FT_BIT_COUNT) ft_command_t;

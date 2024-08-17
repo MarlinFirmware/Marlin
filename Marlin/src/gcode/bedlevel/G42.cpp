@@ -27,8 +27,11 @@
 #include "../gcode.h"
 #include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
-#include "../../module/probe.h" // for probe.offset
 #include "../../feature/bedlevel/bedlevel.h"
+
+#if HAS_PROBE_XY_OFFSET
+  #include "../../module/probe.h" // for probe.offset
+#endif
 
 /**
  * G42: Move X & Y axes to mesh coordinates (I & J)

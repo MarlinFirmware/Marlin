@@ -40,19 +40,19 @@ typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
 
   #if HAS_X_AXIS
-    ftMotionShaper_t shaper[1 + ENABLED(HAS_Y_AXIS)] =    // Shaper type
-      { FTM_DEFAULT_SHAPER_X OPTARG(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y) };
-    float baseFreq[1 + ENABLED(HAS_Y_AXIS)] =             // Base frequency. [Hz]
-      { FTM_SHAPING_DEFAULT_X_FREQ OPTARG(HAS_Y_AXIS, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    float zeta[1 + ENABLED(HAS_Y_AXIS)] =                 // Damping factor
-      { FTM_SHAPING_ZETA_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_ZETA_Y) };
-    float vtol[1 + ENABLED(HAS_Y_AXIS)] =                 // Vibration Level
-      { FTM_SHAPING_V_TOL_X OPTARG(HAS_Y_AXIS, FTM_SHAPING_V_TOL_Y) };
+    ft_shaped_shaper_t shaper =                           // Shaper type
+      { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y) };
+    ft_shaped_float_t baseFreq =                          // Base frequency. [Hz]
+      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_X_FREQ, FTM_SHAPING_DEFAULT_Y_FREQ) };
+    ft_shaped_float_t zeta =                              // Damping factor
+      { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y) };
+    ft_shaped_float_t vtol =                              // Vibration Level
+      { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y) };
   #endif
 
   #if HAS_DYNAMIC_FREQ
     dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
-    float dynFreqK[1 + ENABLED(HAS_Y_AXIS)] = { 0.0f };   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+    ft_shaped_float_t dynFreqK = { 0.0f };                // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
   #else
     static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
   #endif
@@ -75,22 +75,23 @@ class FTMotion {
       cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
 
       #if HAS_X_AXIS
-        cfg.shaper[X_AXIS] = FTM_DEFAULT_SHAPER_X;
-        cfg.baseFreq[X_AXIS] = FTM_SHAPING_DEFAULT_X_FREQ;
-        cfg.zeta[X_AXIS] = FTM_SHAPING_ZETA_X;
-        cfg.vtol[X_AXIS] = FTM_SHAPING_V_TOL_X;
+        cfg.shaper.x = FTM_DEFAULT_SHAPER_X;
+        cfg.baseFreq.x = FTM_SHAPING_DEFAULT_X_FREQ;
+        cfg.zeta.x = FTM_SHAPING_ZETA_X;
+        cfg.vtol.x = FTM_SHAPING_V_TOL_X;
       #endif
 
       #if HAS_Y_AXIS
-        cfg.shaper[Y_AXIS] = FTM_DEFAULT_SHAPER_Y;
-        cfg.baseFreq[Y_AXIS] = FTM_SHAPING_DEFAULT_Y_FREQ;
-        cfg.zeta[Y_AXIS] = FTM_SHAPING_ZETA_Y;
-        cfg.vtol[Y_AXIS] = FTM_SHAPING_V_TOL_Y;
+        cfg.shaper.y = FTM_DEFAULT_SHAPER_Y;
+        cfg.baseFreq.y = FTM_SHAPING_DEFAULT_Y_FREQ;
+        cfg.zeta.y = FTM_SHAPING_ZETA_Y;
+        cfg.vtol.y = FTM_SHAPING_V_TOL_Y;
       #endif
 
       #if HAS_DYNAMIC_FREQ
         cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
-        cfg.dynFreqK[X_AXIS] = TERN_(HAS_Y_AXIS, cfg.dynFreqK[Y_AXIS]) = 0.0f;
+        TERN_(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
+        TERN_(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
       #endif
 
       #if HAS_EXTRUDERS
@@ -141,7 +142,8 @@ class FTMotion {
     static uint32_t N1, N2, N3;
     static uint32_t max_intervals;
 
-    static constexpr uint32_t PROP_BATCHES = CEIL(FTM_WINDOW_SIZE/FTM_BATCH_SIZE) - 1; // Number of batches needed to propagate the current trajectory to the stepper.
+    // Number of batches needed to propagate the current trajectory to the stepper.
+    static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
     // Make vector variables.
     static uint32_t makeVector_idx,
@@ -193,7 +195,7 @@ class FTMotion {
     static void makeVector();
     static void convertToSteps(const uint32_t idx);
 
-    FORCE_INLINE static int32_t num_samples_cmpnstr_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
+    FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
 
 
 }; // class FTMotion

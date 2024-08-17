@@ -7,6 +7,7 @@ import schema
 import subprocess,re,json,hashlib
 from datetime import datetime
 from pathlib import Path
+from functools import reduce
 
 def enabled_defines(filepath):
     '''
@@ -35,18 +36,27 @@ def enabled_defines(filepath):
     '''
     outdict = {}
     section = "user"
-    spatt = re.compile(r".*@section +([-a-zA-Z0-9_\s]+)$") # must match @section ...
+    spatt = re.compile(r".*@section +([-a-zA-Z0-9_\s]+)$") # @section ...
 
     f = open(filepath, encoding="utf8").read().split("\n")
 
-    # Get the full contents of the file and remove all block comments.
-    # This will avoid false positives from #defines in comments
-    f = re.sub(r'/\*.*?\*/', '', '\n'.join(f), flags=re.DOTALL).split("\n")
-
+    incomment = False
     for line in f:
         sline = line.strip()
+
         m = re.match(spatt, sline) # @section ...
         if m: section = m.group(1).strip() ; continue
+
+        if incomment:
+            if '*/' in sline:
+                incomment = False
+            continue
+        else:
+            mpos, spos = sline.find('/*'), sline.find('//')
+            if mpos >= 0 and (spos < 0 or spos > mpos):
+                incomment = True
+                continue
+
         if sline[:7] == "#define":
             # Extract the key here (we don't care about the value)
             kv = sline[8:].strip().split()
@@ -70,6 +80,11 @@ def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_BZIP2, compresslevel=9) as zipf:
         zipf.write(filepath, arcname=storedname, compress_type=zipfile.ZIP_BZIP2, compresslevel=9)
 
+ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
+
+#
+# Compute a build signature and/or export the configuration
+#
 def compute_build_signature(env):
     '''
     Compute the build signature by extracting all configuration settings and
@@ -81,11 +96,17 @@ def compute_build_signature(env):
     env.Append(BUILD_SIGNATURE=1)
 
     build_path = Path(env['PROJECT_BUILD_DIR'], env['PIOENV'])
-    marlin_json = build_path / 'marlin_config.json'
+    json_name = 'marlin_config.json'
+    marlin_json = build_path / json_name
     marlin_zip = build_path / 'mc.zip'
 
+    # ANSI colors
+    green = "\u001b[32m"
+    yellow = "\u001b[33m"
+    red = "\u001b[31m"
+
     # Definitions from these files will be kept
-    header_paths = [ 'Marlin/Configuration.h', 'Marlin/Configuration_adv.h' ]
+    header_paths = ('Marlin/Configuration.h', 'Marlin/Configuration_adv.h')
 
     # Check if we can skip processing
     hashes = ''
@@ -100,7 +121,7 @@ def compute_build_signature(env):
             conf = json.load(infile)
             same_hash = conf['__INITIAL_HASH'] == hashes
             if same_hash:
-                compress_file(marlin_json, 'marlin_config.json', marlin_zip)
+                compress_file(marlin_json, json_name, marlin_zip)
     except:
         pass
 
@@ -179,25 +200,50 @@ def compute_build_signature(env):
     extended_dump = config_dump > 100
     if extended_dump: config_dump -= 100
 
+    # Get the schema class for exports that require it
+    if config_dump in (3, 4) or (extended_dump and config_dump in (2, 5)):
+        try:
+            conf_schema = schema.extract()
+        except Exception as exc:
+            print(red + "Error: " + str(exc))
+            conf_schema = None
+
     #
-    # Produce an INI file if CONFIG_EXPORT == 2
+    # CONFIG_EXPORT 2 = config.ini, 5 = Config.h
+    # Get sections using the schema class
+    #
+    if extended_dump and config_dump in (2, 5):
+        if not conf_schema: exit(1)
+
+        # Start with a preferred @section ordering
+        preorder = ('info','machine','extruder','stepper drivers','geometry','homing','endstops','probes','lcd','interface','host','reporting')
+        sections = { key:{} for key in preorder }
+
+        # Group options by schema @section
+        for header in real_config:
+            for name in real_config[header]:
+                #print(f"  name: {name}")
+                if name in ignore: continue
+                ddict = real_config[header][name]
+                #print(f"   real_config[{header}][{name}]:", ddict)
+                sect = ddict['section']
+                if sect not in sections: sections[sect] = {}
+                sections[sect][name] = ddict
+
+    #
+    # CONFIG_EXPORT 2 = config.ini
     #
     if config_dump == 2:
-        print("Generating config.ini ...")
+        print(yellow + "Generating config.ini ...")
 
         ini_fmt = '{0:40} = {1}'
         ext_fmt = '{0:40}   {1}'
-        ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
 
         if extended_dump:
             # Extended export will dump config options by section
 
             # We'll use Schema class to get the sections
-            try:
-                conf_schema = schema.extract()
-            except Exception as exc:
-                print("Error: " + str(exc))
-                exit(1)
+            if not conf_schema: exit(1)
 
             # Then group options by schema @section
             sections = {}
@@ -305,27 +351,70 @@ f'''#
                 for header in real_config:
                     outfile.write(f'\n[{filegrp[header]}]\n')
                     for name in sorted(real_config[header]):
-                        if name not in ignore:
-                            val = real_config[header][name]['value']
-                            if val == '': val = 'on'
-                            outfile.write(ini_fmt.format(name.lower(), val) + '\n')
+                        if name in ignore: continue
+                        val = real_config[header][name]['value']
+                        if val == '': val = 'on'
+                        outfile.write(ini_fmt.format(name.lower(), val) + '\n')
+
+    #
+    # CONFIG_EXPORT 5 = Config.h
+    #
+    if config_dump == 5:
+        print(yellow + "Generating Config-export.h ...")
+
+        config_h = Path('Marlin', 'Config-export.h')
+        with config_h.open('w') as outfile:
+            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+            vers = build_defines["CONFIGURATION_H_VERSION"]
+            dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
+
+            out_text = f'''/**
+ * Config.h - Marlin Firmware distilled configuration
+ * Usage: Place this file in the 'Marlin' folder with the name 'Config.h'.
+ *
+ * Exported by Marlin build on {dt_string}.
+ */
+'''
+
+            subs = (('Bltouch','BLTouch'),('hchop','hChop'),('Eeprom','EEPROM'),('Gcode','G-code'),('lguard','lGuard'),('Idex','IDEX'),('Lcd','LCD'),('Mpc','MPC'),('Pid','PID'),('Psu','PSU'),('Scara','SCARA'),('Spi','SPI'),('Tmc','TMC'),('Tpara','TPARA'))
+            define_fmt = '#define {0:40} {1}'
+            if extended_dump:
+                # Loop through the sections
+                for skey in sections:
+                    #print(f"  skey: {skey}")
+                    opts = sections[skey]
+                    headed = False
+                    for name in sorted(opts):
+                        if name in ignore: continue
+                        val = opts[name]['value']
+                        if not headed:
+                            head = reduce(lambda s, r: s.replace(*r), subs, skey.title())
+                            out_text += f"\n//\n// {head}\n//\n"
+                            headed = True
+                        out_text += define_fmt.format(name, val).strip() + '\n'
+
+            else:
+                # Dump config options in just two sections, by file
+                for header in real_config:
+                    out_text += f'\n/**\n * Overrides for {header}\n */\n'
+                    for name in sorted(real_config[header]):
+                        if name in ignore: continue
+                        val = real_config[header][name]['value']
+                        out_text += define_fmt.format(name, val).strip() + '\n'
+
+            outfile.write(out_text)
 
     #
     # CONFIG_EXPORT 3 = schema.json, 4 = schema.yml
     #
-    if config_dump >= 3:
-        try:
-            conf_schema = schema.extract()
-        except Exception as exc:
-            print("Error: " + str(exc))
-            conf_schema = None
+    if config_dump in (3, 4):
 
         if conf_schema:
             #
             # 3 = schema.json
             #
             if config_dump in (3, 13):
-                print("Generating schema.json ...")
+                print(yellow + "Generating schema.json ...")
                 schema.dump_json(conf_schema, build_path / 'schema.json')
                 if config_dump == 13:
                     schema.group_options(conf_schema)
@@ -335,7 +424,7 @@ f'''#
             # 4 = schema.yml
             #
             elif config_dump == 4:
-                print("Generating schema.yml ...")
+                print(yellow + "Generating schema.yml ...")
                 try:
                     import yaml
                 except ImportError:
@@ -355,7 +444,7 @@ f'''#
 
             json_data = {}
             if extended_dump:
-                print("Extended dump ...")
+                print(yellow + "Extended dump ...")
                 for header in real_config:
                     confs = real_config[header]
                     json_data[header] = {}
@@ -395,7 +484,7 @@ f'''#
 
     # Compress the JSON file as much as we can
     if not same_hash:
-        compress_file(marlin_json, 'marlin_config.json', marlin_zip)
+        compress_file(marlin_json, json_name, marlin_zip)
 
     # Generate a C source file containing the entire ZIP file as an array
     with open('Marlin/src/mczip.h','wb') as result_file:

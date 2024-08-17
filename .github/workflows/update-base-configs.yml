@@ -1,0 +1,27 @@
+#
+# update-base-configs.yml
+# Generate new base config files if needed
+#
+
+name: Update Base Configs
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  bump_date:
+    name: Update Base Configs
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout bugfix-2.1.x
+      uses: actions/checkout@v4
+      with:
+        ref: bugfix-2.1.x
+
+    - name: Update Base Configs
+      run: make base-configs
