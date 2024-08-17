@@ -2014,13 +2014,22 @@ void Stepper::pulse_phase_isr() {
       #if ANY(HAS_E0_STEP, MIXING_EXTRUDER)
         PULSE_PREP(E);
 
-        #if ENABLED(LIN_ADVANCE)
-          if (la_active && step_needed.e) {
-            // don't actually step here, but do subtract movements steps
-            // from the linear advance step count
-            step_needed.e = false;
-            la_advance_steps--;
-          }
+        #if ENABLED(LIN_ADVANCE) 
+          #if ENABLED(LA_ZERO_SLOWDOWN)
+            if (step_needed.e) {
+              // don't actually step here, but do subtract movements steps
+              // from the linear advance step count
+              step_needed.e = false;
+              la_advance_steps--;
+            }
+          #else
+            if (la_active && step_needed.e) {
+              // don't actually step here, but do subtract movements steps
+              // from the linear advance step count
+              step_needed.e = false;
+              la_advance_steps--;
+            }
+          #endif
         #endif
       #endif
 
@@ -2396,25 +2405,6 @@ void Stepper::set_axis_moved_for_current_block() {
   );
   axis_did_move = didmove;
 }
-
-#if ENABLED(LA_ZERO_SLOWDOWN)
-  void Stepper::set_la_interval(int32_t rate){
-    if (rate == 0) {
-      la_interval = LA_ADV_NEVER;
-    } else {
-      const bool forward_e = rate > 0;
-      la_interval = calc_timer_interval(uint32_t(ABS(rate)) >> current_block->la_scaling);
-      if (forward_e != motor_direction(E_AXIS)) {
-        last_direction_bits.toggle(E_AXIS);
-        count_direction.e = -count_direction.e;
-        DIR_WAIT_BEFORE();
-        E_APPLY_DIR(forward_e, false);
-        TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
-        DIR_WAIT_AFTER();
-      }
-    }
-  }
-#endif
 
 /**
  * This last phase of the stepper interrupt processes and properly
@@ -2798,13 +2788,11 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
         la_active = (current_block->la_advance_rate != 0);
-        #if DISABLED(LA_ZERO_SLOWDOWN)
-          #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
-            // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
-            if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
-          #endif
+        #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
+          // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
+          if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
-        if (la_active) {
+        if (la_active || TERN(LA_ZERO_SLOWDOWN, true, false)) {
           // Apply LA scaling and discount the effect of frequency scaling
           la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
         }
@@ -2885,13 +2873,13 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
       #if ENABLED(LIN_ADVANCE)
         #if ENABLED(LA_ZERO_SLOWDOWN)
-          if (la_active) {
-            /*
-              1. [x] compensate for jerk and line width changes
-              2. [x] keep computations in movement step scale
-              3. [ ] precompute a_max in movement step scale and inter block correction factors in the planner
-              4. [ ] use int arithmetic
-            */
+          /*
+            1. [x] compensate for jerk and line width changes
+            2. [x] keep computations in movement step scale
+            3. [ ] precompute a_max in movement step scale and inter block correction factors in the planner
+            4. [ ] use int arithmetic
+          */
+          if (current_block->steps.e != 0) {
             curr_step_rate = current_block->initial_rate;
             float old_xy_to_e_steps = xy_to_e_steps;
             xy_to_e_steps = float(current_block->steps.e) / float(current_block->step_event_count);
@@ -2903,6 +2891,14 @@ hal_timer_t Stepper::block_phase_isr() {
             current_la_step_count = current_la_step_count * old_xy_to_e_steps / xy_to_e_steps;
             current_la_step_rate = current_la_step_rate * old_xy_to_e_steps / xy_to_e_steps;
             a_max = float(planner.max_acceleration_steps_per_s2[E_AXIS + E_INDEX_N(extruder)]) / xy_to_e_steps;
+          } else {
+            // a pure travel move can't move the extruder since it won't have any la_divident
+            // This means the extruder will be stopped in one stepper event, which may be > e_jerk.
+            // TODO: set advance_dividend and la_dividend even when there are no e steps, and compute xy_to_e_steps differently.
+            // If current_la_step_count != 0, the retraction should keep those extra mm of pressure between the extruder and nozzle.
+            current_la_step_rate = 0;
+            a_max = 0;
+
           }
         #else
           if (la_active) {
@@ -2919,8 +2915,23 @@ hal_timer_t Stepper::block_phase_isr() {
 }
 
 #if ENABLED(LIN_ADVANCE)
-  
   #if ENABLED(LA_ZERO_SLOWDOWN)
+    void Stepper::set_la_interval(int32_t rate){
+      if (rate == 0) {
+        la_interval = LA_ADV_NEVER;
+      } else {
+        const bool forward_e = rate > 0;
+        la_interval = calc_timer_interval(uint32_t(ABS(rate)) >> current_block->la_scaling);
+        if (forward_e != motor_direction(E_AXIS)) {
+          last_direction_bits.toggle(E_AXIS);
+          count_direction.e = -count_direction.e;
+          DIR_WAIT_BEFORE();
+          E_APPLY_DIR(forward_e, false);
+          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+          DIR_WAIT_AFTER();
+        }
+      }
+    }
     hal_timer_t Stepper::zero_slowdown_isr() {
       /*
       1. [x] move to separate isr
@@ -2934,9 +2945,14 @@ hal_timer_t Stepper::block_phase_isr() {
       constexpr uint32_t interval = STEPPER_TIMER_RATE / UPDATE_FREQ;
       constexpr float dt = float(interval) / float(STEPPER_TIMER_RATE);
       constexpr float dt_inv = UPDATE_FREQ; 
-      if (la_active && current_block) {
-        const float k = Planner::extruder_advance_K[E_INDEX_N(current_block->extruder)];
-        const float target_la_step_count =  curr_step_rate * k;
+      if (current_block){
+        float target_la_step_count;
+        if (la_active) {
+          const float k = Planner::extruder_advance_K[E_INDEX_N(current_block->extruder)];
+          target_la_step_count = curr_step_rate * k;
+        } else {
+         target_la_step_count = 0; // (de)retration may start with non-zero current_la_step_rate and/or count. This needs to be gradually compensated for
+        }
         const float distance_to_target = target_la_step_count - current_la_step_count;
         const float one_shot_v = distance_to_target * dt_inv;
         float a = ABS(one_shot_v - current_la_step_rate) * dt_inv;
@@ -2955,12 +2971,12 @@ hal_timer_t Stepper::block_phase_isr() {
 
         current_la_step_rate += (fwd ? a : -a) * dt;
         current_la_step_count += current_la_step_rate * dt;
-
-        set_la_interval((int32_t)curr_step_rate + current_la_step_rate);
-      } else {
-        // travel move. Slowing it down gradually using set_la_interval doesn't actually work.
-        // I think this is why the extruder sometimes squeaks a bit.
-        current_la_step_rate = 0;
+        if (la_active) {
+          set_la_interval((int32_t)curr_step_rate + current_la_step_rate);
+        } else {
+          // this is the (de)retraction case, for which we still need to gradually undo the current_la_step_count
+          set_la_interval((int32_t)curr_step_rate * (current_block->direction_bits.e ? 1 : -1) + current_la_step_rate);
+        }
       }
       return interval;
     }
