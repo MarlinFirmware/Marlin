@@ -48,7 +48,7 @@
 // Heaters / Fans
 //
 
-#define FET_ORDER_EFB                          1
+#define FET_ORDER_EFB
 //#define HEATER_0_PIN                        10
 #define MOSFET_D_PIN                           7
 //#define HEATER_BED_PIN                       8

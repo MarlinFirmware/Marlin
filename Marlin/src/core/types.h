@@ -42,22 +42,28 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_LIST_1(V)    LIST_N_1(NUM_AXES, V)
 #define NUM_AXIS_ARRAY(V...)  { NUM_AXIS_LIST(V) }
 #define NUM_AXIS_ARRAY_1(V)   { NUM_AXIS_LIST_1(V) }
-#define NUM_AXIS_ARGS(T)      NUM_AXIS_LIST(T x, T y, T z, T i, T j, T k, T u, T v, T w)
-#define NUM_AXIS_ELEM(O)      NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
-#define NUM_AXIS_DECL(T,V)    NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
+#define NUM_AXIS_ARGS(T)      NUM_AXIS_LIST(T X, T Y, T Z, T I, T J, T K, T U, T V, T W)
+#define NUM_AXIS_ARGS_LC(T)   NUM_AXIS_LIST(T x, T y, T z, T i, T j, T k, T u, T v, T w)
+#define NUM_AXIS_ELEM(O)      NUM_AXIS_LIST(O.X, O.Y, O.Z, O.I, O.J, O.K, O.U, O.V, O.W)
+#define NUM_AXIS_ELEM_LC(O)   NUM_AXIS_LIST(O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
+#define NUM_AXIS_DECL(T,V)    NUM_AXIS_LIST(T X=V, T Y=V, T Z=V, T I=V, T J=V, T K=V, T U=V, T V=V, T W=V)
+#define NUM_AXIS_DECL_LC(T,V) NUM_AXIS_LIST(T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
-#define LOGICAL_AXIS_GANG(E,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(E)
-#define LOGICAL_AXIS_CODE(E,V...)  NUM_AXIS_CODE(V) CODE_ITEM_E(E)
-#define LOGICAL_AXIS_LIST(E,V...)  NUM_AXIS_LIST(V) LIST_ITEM_E(E)
+#define LOGICAL_AXIS_GANG(N,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(N)
+#define LOGICAL_AXIS_CODE(N,V...)  NUM_AXIS_CODE(V) CODE_ITEM_E(N)
+#define LOGICAL_AXIS_LIST(N,V...)  NUM_AXIS_LIST(V) LIST_ITEM_E(N)
 #define LOGICAL_AXIS_LIST_1(V)     NUM_AXIS_LIST_1(V) LIST_ITEM_E(V)
-#define LOGICAL_AXIS_ARRAY(E,V...) { LOGICAL_AXIS_LIST(E,V) }
+#define LOGICAL_AXIS_ARRAY(N,V...) { LOGICAL_AXIS_LIST(N,V) }
 #define LOGICAL_AXIS_ARRAY_1(V)    { LOGICAL_AXIS_LIST_1(V) }
-#define LOGICAL_AXIS_ARGS(T)       LOGICAL_AXIS_LIST(T e, T x, T y, T z, T i, T j, T k, T u, T v, T w)
-#define LOGICAL_AXIS_ELEM(O)       LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
-#define LOGICAL_AXIS_DECL(T,V)     LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
+#define LOGICAL_AXIS_ARGS(T)       LOGICAL_AXIS_LIST(T E, T X, T Y, T Z, T I, T J, T K, T U, T V, T W)
+#define LOGICAL_AXIS_ARGS_LC(T)    LOGICAL_AXIS_LIST(T e, T x, T y, T z, T i, T j, T k, T u, T v, T w)
+#define LOGICAL_AXIS_ELEM(O)       LOGICAL_AXIS_LIST(O.E, O.X, O.Y, O.Z, O.I, O.J, O.K, O.U, O.V, O.W)
+#define LOGICAL_AXIS_ELEM_LC(O)    LOGICAL_AXIS_LIST(O.e, O.x, O.y, O.z, O.i, O.j, O.k, O.u, O.v, O.w)
+#define LOGICAL_AXIS_DECL(T,V)     LOGICAL_AXIS_LIST(T E=V, T X=V, T Y=V, T Z=V, T I=V, T J=V, T K=V, T U=V, T V=V, T W=V)
+#define LOGICAL_AXIS_DECL_LC(T,V)  LOGICAL_AXIS_LIST(T e=V, T x=V, T y=V, T z=V, T i=V, T j=V, T k=V, T u=V, T v=V, T w=V)
 #define LOGICAL_AXIS_NAMES         LOGICAL_AXIS_LIST(E, X, Y, Z, I, J, K, U, V, W)
 #define LOGICAL_AXIS_NAMES_LC      LOGICAL_AXIS_LIST(e, x, y, z, i, j, k, u, v, w)
 #define LOGICAL_AXIS_MAP(F)        MAP(F, LOGICAL_AXIS_NAMES)
@@ -68,8 +74,8 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
   #define NUM_AXES_SEP ,
   #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
   #define MAIN_AXIS_MAP_LC(F) MAP(F, MAIN_AXIS_NAMES_LC)
-  #define OPTARGS_NUM(T)      , NUM_AXIS_ARGS(T)
-  #define OPTARGS_LOGICAL(T)  , LOGICAL_AXIS_ARGS(T)
+  #define OPTARGS_NUM(T)      , NUM_AXIS_ARGS_LC(T)
+  #define OPTARGS_LOGICAL(T)  , LOGICAL_AXIS_ARGS_LC(T)
 #else
   #define NUM_AXES_SEP
   #define MAIN_AXIS_MAP(F)
@@ -81,8 +87,8 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define NUM_AXIS_GANG_(V...)    NUM_AXIS_GANG(V) NUM_AXES_SEP
 #define NUM_AXIS_LIST_(V...)    NUM_AXIS_LIST(V) NUM_AXES_SEP
 #define NUM_AXIS_LIST_1_(V...)  NUM_AXIS_LIST_1(V) NUM_AXES_SEP
-#define NUM_AXIS_ARGS_(T)       NUM_AXIS_ARGS(T) NUM_AXES_SEP
-#define NUM_AXIS_ELEM_(T)       NUM_AXIS_ELEM(T) NUM_AXES_SEP
+#define NUM_AXIS_ARGS_(T)       NUM_AXIS_ARGS_LC(T) NUM_AXES_SEP
+#define NUM_AXIS_ELEM_(T)       NUM_AXIS_ELEM_LC(T) NUM_AXES_SEP
 #define MAIN_AXIS_NAMES_        MAIN_AXIS_NAMES NUM_AXES_SEP
 #define MAIN_AXIS_NAMES_LC_     MAIN_AXIS_NAMES_LC NUM_AXES_SEP
 
@@ -95,15 +101,26 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_GANG_(V...)    LOGICAL_AXIS_GANG(V) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_LIST_(V...)    LOGICAL_AXIS_LIST(V) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_LIST_1_(V...)  LOGICAL_AXIS_LIST_1(V) LOGICAL_AXES_SEP
-#define LOGICAL_AXIS_ARGS_(T)       LOGICAL_AXIS_ARGS(T) LOGICAL_AXES_SEP
+#define LOGICAL_AXIS_ARGS_(T)       LOGICAL_AXIS_ARGS_LC(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_ELEM_(T)       LOGICAL_AXIS_ELEM(T) LOGICAL_AXES_SEP
+#define LOGICAL_AXIS_ELEM_LC_(T)    LOGICAL_AXIS_ELEM_LC(T) LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_NAMES_         LOGICAL_AXIS_NAMES LOGICAL_AXES_SEP
 #define LOGICAL_AXIS_NAMES_LC_      LOGICAL_AXIS_NAMES_LC LOGICAL_AXES_SEP
 
 #define SECONDARY_AXIS_GANG(V...) GANG_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_CODE(V...) CODE_N(SECONDARY_AXES, V)
 #define SECONDARY_AXIS_LIST(V...) LIST_N(SECONDARY_AXES, V)
-#define SECONDARY_AXIS_ARGS(T)    SECONDARY_AXIS_LIST(T i, T j, T k, T u, T v, T w)
+#if SECONDARY_AXES
+  #define SECONDARY_AXIS_NAMES      SECONDARY_AXIS_LIST(I, J, K, U, V, W)
+  #define SECONDARY_AXIS_NAMES_LC   SECONDARY_AXIS_LIST(i, j, k, u, v, w)
+  #define SECONDARY_AXIS_ARGS(T)    SECONDARY_AXIS_LIST(T I, T J, T K, T U, T V, T W)
+  #define SECONDARY_AXIS_ARGS_LC(T) SECONDARY_AXIS_LIST(T i, T j, T k, T u, T v, T w)
+  #define SECONDARY_AXIS_MAP(F)     MAP(F, SECONDARY_AXIS_NAMES)
+  #define SECONDARY_AXIS_MAP_LC(F)  MAP(F, SECONDARY_AXIS_NAMES_LC)
+#else
+  #define SECONDARY_AXIS_MAP(F)
+  #define SECONDARY_AXIS_MAP_LC(F)
+#endif
 
 // Just the XY or XYZ elements
 #if HAS_Z_AXIS
@@ -297,7 +314,7 @@ enum AxisEnum : uint8_t {
   #endif
 
   // Distinct axes, including all E and Core
-  NUM_AXIS_ENUMS,
+  NUM_AXIS_HEADS,
 
   // Most of the time we refer only to the single E_AXIS
   #if HAS_EXTRUDERS
@@ -482,7 +499,9 @@ template<typename T>
 struct XYval {
   union {
     struct { T x, y; };
+    struct { T X, Y; };
     struct { T a, b; };
+    struct { T A, B; };
     T pos[2];
   };
 
@@ -608,7 +627,9 @@ struct XYZval {
   union {
     #if NUM_AXES
       struct { NUM_AXIS_CODE(T x, T y, T z, T i, T j, T k, T u, T v, T w); };
+      struct { NUM_AXIS_CODE(T X, T Y, T Z, T I, T J, T K, T U, T V, T W); };
       struct { NUM_AXIS_CODE(T a, T b, T c, T _i, T _j, T _k, T _u, T _v, T _w); };
+      struct { NUM_AXIS_CODE(T A, T B, T C, T II, T JJ, T KK, T UU, T VV, T WW); };
     #endif
     T pos[NUM_AXES];
   };
@@ -622,14 +643,14 @@ struct XYZval {
   FI void set(const T (&arr)[NUM_AXES])          { NUM_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
   #if LOGICAL_AXES > NUM_AXES
     FI void set(const T (&arr)[LOGICAL_AXES])    { NUM_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
-    FI void set(LOGICAL_AXIS_ARGS(const T))      { NUM_AXIS_CODE(a = x,  b = y,  c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
+    FI void set(LOGICAL_AXIS_ARGS_LC(const T))   { NUM_AXIS_CODE(a = x,  b = y,  c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
     #if DISTINCT_AXES > LOGICAL_AXES
       FI void set(const T (&arr)[DISTINCT_AXES]) { NUM_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
   #endif
 
   // Setter for all individual args
-  FI void set(NUM_AXIS_ARGS(const T)) { NUM_AXIS_CODE(a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
+  FI void set(NUM_AXIS_ARGS_LC(const T)) { NUM_AXIS_CODE(a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
 
   // Setters with fewer elements leave the rest untouched
   #if HAS_Y_AXIS
@@ -695,7 +716,7 @@ struct XYZval {
   // Assignment operator overrides do the expected thing
   FI XYZval<T>& operator= (const T v)            { set(ARRAY_N_1(NUM_AXES, v)); return *this; }
   FI XYZval<T>& operator= (const XYval<T>   &rs) { set(rs.x, rs.y); return *this; }
-  FI XYZval<T>& operator= (const XYZEval<T> &rs) { set(NUM_AXIS_ELEM(rs)); return *this; }
+  FI XYZval<T>& operator= (const XYZEval<T> &rs) { set(NUM_AXIS_ELEM_LC(rs)); return *this; }
 
   // Override other operators to get intuitive behaviors
   FI constexpr XYZval<T> operator+ (const XYval<T>   &rs) const { return NUM_AXIS_ARRAY(x + rs.x, y + rs.y, z, i, j, k, u, v, w ); }
@@ -754,8 +775,10 @@ struct XYZval {
 template<typename T>
 struct XYZEval {
   union {
+    struct { T LOGICAL_AXIS_ARGS_LC(); };
     struct { T LOGICAL_AXIS_ARGS(); };
     struct { T LOGICAL_AXIS_LIST(_e, a, b, c, _i, _j, _k, _u, _v, _w); };
+    struct { T LOGICAL_AXIS_LIST(EE, A, B, C, II, JJ, KK, UU, VV, WW); };
     T pos[LOGICAL_AXES];
   };
   // Reset all to 0
@@ -764,20 +787,20 @@ struct XYZEval {
   // Setters taking struct types and arrays
   FI void set(const XYval<T> pxy)                           { XY_CODE(x = pxy.x, y = pxy.y); }
   FI void set(const XYval<T> pxy, const T pz)               { XYZ_CODE(x = pxy.x, y = pxy.y, z = pz); }
-  FI void set(const XYZval<T> pxyz)                         { set(NUM_AXIS_ELEM(pxyz)); }
+  FI void set(const XYZval<T> pxyz)                         { set(NUM_AXIS_ELEM_LC(pxyz)); }
   FI void set(const T (&arr)[NUM_AXES])                     { NUM_AXIS_CODE(x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
   #if LOGICAL_AXES > NUM_AXES
     FI void set(const T (&arr)[LOGICAL_AXES])               { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     FI void set(const XYval<T> pxy, const T pz, const T pe) { set(pxy, pz); e = pe; }
     FI void set(const XYZval<T> pxyz, const T pe)           { set(pxyz); e = pe; }
-    FI void set(LOGICAL_AXIS_ARGS(const T))                 { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
+    FI void set(LOGICAL_AXIS_ARGS_LC(const T))              { LOGICAL_AXIS_CODE(_e = e, a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
     #if DISTINCT_AXES > LOGICAL_AXES
       FI void set(const T (&arr)[DISTINCT_AXES])            { LOGICAL_AXIS_CODE(e = arr[LOGICAL_AXES-1], x = arr[0], y = arr[1], z = arr[2], i = arr[3], j = arr[4], k = arr[5], u = arr[6], v = arr[7], w = arr[8]); }
     #endif
   #endif
 
   // Setter for all individual args
-  FI void set(NUM_AXIS_ARGS(const T)) { NUM_AXIS_CODE(a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
+  FI void set(NUM_AXIS_ARGS_LC(const T)) { NUM_AXIS_CODE(a = x, b = y, c = z, _i = i, _j = j, _k = k, _u = u, _v = v, _w = w); }
 
   // Setters with fewer elements leave the rest untouched
   #if HAS_Y_AXIS
@@ -842,7 +865,7 @@ struct XYZEval {
   // Assignment operator overrides do the expected thing
   FI XYZEval<T>& operator= (const T v)           { set(LOGICAL_AXIS_LIST_1(v)); return *this; }
   FI XYZEval<T>& operator= (const XYval<T>  &rs) { set(rs.x, rs.y); return *this; }
-  FI XYZEval<T>& operator= (const XYZval<T> &rs) { set(NUM_AXIS_ELEM(rs)); return *this; }
+  FI XYZEval<T>& operator= (const XYZval<T> &rs) { set(NUM_AXIS_ELEM_LC(rs)); return *this; }
 
   // Override other operators to get intuitive behaviors
   FI constexpr XYZEval<T> operator+ (const XYval<T>  &rs)  const { return LOGICAL_AXIS_ARRAY(e, x + rs.x, y + rs.y, z, i, j, k, u, v, w); }
@@ -902,7 +925,9 @@ struct XYZarray {
   union {
     el data[LOGICAL_AXES];
     struct { NUM_AXIS_CODE(T x, T y, T z, T i, T j, T k, T u, T v, T w); };
+    struct { NUM_AXIS_CODE(T X, T Y, T Z, T I, T J, T K, T U, T V, T W); };
     struct { NUM_AXIS_CODE(T a, T b, T c, T _i, T _j, T _k, T _u, T _v, T _w); };
+    struct { NUM_AXIS_CODE(T A, T B, T C, T II, T JJ, T KK, T UU, T VV, T WW); };
   };
   FI void reset() { ZERO(data); }
 
@@ -948,6 +973,8 @@ struct XYZEarray {
   union {
     el data[LOGICAL_AXES];
     struct { el LOGICAL_AXIS_ARGS(); };
+    struct { el LOGICAL_AXIS_ARGS_LC(); };
+    struct { el LOGICAL_AXIS_LIST(EE, A, B, C, II, JJ, KK, UU, VV, WW); };
     struct { el LOGICAL_AXIS_LIST(_e, a, b, c, _i, _j, _k, _u, _v, _w); };
   };
   FI void reset() { ZERO(data); }
@@ -959,7 +986,7 @@ struct XYZEarray {
   // Setter for all individual args
   FI void set(const int n OPTARGS_NUM(const T)) { NUM_AXIS_CODE(a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
   #if LOGICAL_AXES > NUM_AXES
-    FI void set(const int n, LOGICAL_AXIS_ARGS(const T)) { LOGICAL_AXIS_CODE(_e[n] = e, a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
+    FI void set(const int n, LOGICAL_AXIS_ARGS_LC(const T)) { LOGICAL_AXIS_CODE(_e[n] = e, a[n] = x, b[n] = y, c[n] = z, _i[n] = i, _j[n] = j, _k[n] = k, _u[n] = u, _v[n] = v, _w[n] = w); }
   #endif
 
   // Setters with fewer elements leave the rest untouched
@@ -995,7 +1022,7 @@ class AxisBits;
 
 class AxisBits {
 public:
-  typedef bits_t(NUM_AXIS_ENUMS) el;
+  typedef bits_t(NUM_AXIS_HEADS) el;
   union {
     el bits;
     // Axes x, y, z ... e0, e1, e2 ... hx, hy, hz
@@ -1048,6 +1075,25 @@ public:
     };
   };
 
+  class BitProxy {
+  public:
+    BitProxy(el& data, int bit) : data_(data), bit_(bit) {}
+
+    BitProxy& operator=(const bool value) {
+      if (value)
+        data_ |=  (el(1) << bit_);
+      else
+        data_ &= ~(el(1) << bit_);
+      return *this;
+    }
+
+    operator bool() const { return bool(data_ & (el(1) << bit_)); }
+
+  private:
+    el& data_;
+    uint8_t bit_;
+  };
+
   AxisBits() { reset(); }
 
   // Constructor, setter, and operator= for bit mask
@@ -1056,7 +1102,7 @@ public:
   FI AxisBits& operator=(const el p) { set(p); return *this; }
 
   FI void reset() { set(0); }
-  FI void fill() { set(_BV(NUM_AXIS_ENUMS) - 1); }
+  FI void fill() { set(_BV(NUM_AXIS_HEADS) - 1); }
 
   #define MSET(pE,pX,pY,pZ,pI,pJ,pK,pU,pV,pW) LOGICAL_AXIS_CODE(e=pE, x=pX, y=pY, z=pZ, i=pI, j=pJ, k=pK, u=pU, v=pV, w=pW)
 
@@ -1148,7 +1194,9 @@ public:
   FI void bset(const AxisEnum n, const bool b) { if (b) bset(n); else bclr(n); }
 
   // Accessor via an AxisEnum (or any integer) [index]
-  FI bool operator[](const int n) const { return TEST(bits, n); }
+  FI BitProxy operator[](const int n)        { return BitProxy(bits, n); }
+  FI BitProxy operator[](const AxisEnum n)   { return BitProxy(bits, n); }
+  FI bool operator[](const int n)      const { return TEST(bits, n); }
   FI bool operator[](const AxisEnum n) const { return TEST(bits, n); }
 
   FI AxisBits& operator|=(const el &p) { bits |= el(p); return *this; }
