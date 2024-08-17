@@ -197,13 +197,13 @@ void GcodeSuite::M493() {
 
   // Parse 'S' mode parameter.
   if (parser.seen('S')) {
-      const bool active = parser.value_bool();
-      if (active != ftMotion.cfg.active) {
-          flag.report_h = true;
-          stepper.ftMotion_syncPosition();
-          ftMotion.cfg.active = active;
-      }
-  } 
+    const bool active = parser.value_bool();
+    if (active != ftMotion.cfg.active) {
+      stepper.ftMotion_syncPosition();
+      ftMotion.cfg.active = active;
+      flag.report_h = true;
+    }
+  }
 
   #if HAS_X_AXIS
     auto set_shaper = [&](const AxisEnum axis, const char c) {
