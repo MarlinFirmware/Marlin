@@ -2461,6 +2461,10 @@ bool Planner::_populate_block(
         // Retraction/deretraction are still managed by the zero_slowdown_isr, because the current_la_rate may not be zero when they start
         for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
           block->la_scaling++;
+      } else if (block->step_event_count){
+        // Travel move
+        // dividend = block->step_event_count
+        // block->la_scaling = 0
       }
     #endif
   #endif

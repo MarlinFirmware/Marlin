@@ -2792,10 +2792,21 @@ hal_timer_t Stepper::block_phase_isr() {
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
-        if (la_active || TERN(LA_ZERO_SLOWDOWN, true, false)) {
+        #if ENABLED(LA_ZERO_SLOWDOWN)
           // Apply LA scaling and discount the effect of frequency scaling
-          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
-        }
+          if (current_block->steps.e) {
+            la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
+          } else {
+            // travel move
+            la_dividend = (current_block->step_event_count  << current_block->la_scaling) << oversampling_factor;
+          }
+        #else
+          if (la_active) {
+            // Apply LA scaling and discount the effect of frequency scaling
+            la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
+          }
+        #endif
+
       #endif
 
       if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
@@ -2879,10 +2890,15 @@ hal_timer_t Stepper::block_phase_isr() {
             3. [ ] precompute a_max in movement step scale and inter block correction factors in the planner
             4. [ ] use int arithmetic
           */
-          if (current_block->steps.e != 0) {
+          if (current_block->step_event_count != 0) {
             curr_step_rate = current_block->initial_rate;
             float old_xy_to_e_steps = xy_to_e_steps;
-            xy_to_e_steps = float(current_block->steps.e) / float(current_block->step_event_count);
+            if (current_block->steps.e){
+              xy_to_e_steps = float(current_block->steps.e) / float(current_block->step_event_count);
+            } else {
+              // travel move.
+              xy_to_e_steps = 1;
+            }
             /*
               Due to jerk, the exit speed of one block doesn't exactly match the entry speed of the next one.
               Also, changes of line width between blocks result in different motion to e rations.
@@ -2892,13 +2908,8 @@ hal_timer_t Stepper::block_phase_isr() {
             current_la_step_rate = current_la_step_rate * old_xy_to_e_steps / xy_to_e_steps;
             a_max = float(planner.max_acceleration_steps_per_s2[E_AXIS + E_INDEX_N(extruder)]) / xy_to_e_steps;
           } else {
-            // a pure travel move can't move the extruder since it won't have any la_divident
-            // This means the extruder will be stopped in one stepper event, which may be > e_jerk.
-            // TODO: set advance_dividend and la_dividend even when there are no e steps, and compute xy_to_e_steps differently.
-            // If current_la_step_count != 0, the retraction should keep those extra mm of pressure between the extruder and nozzle.
-            current_la_step_rate = 0;
+            // not sure if this case exists, probably not
             a_max = 0;
-
           }
         #else
           if (la_active) {
@@ -2951,7 +2962,7 @@ hal_timer_t Stepper::block_phase_isr() {
           const float k = Planner::extruder_advance_K[E_INDEX_N(current_block->extruder)];
           target_la_step_count = curr_step_rate * k;
         } else {
-         target_la_step_count = 0; // (de)retration may start with non-zero current_la_step_rate and/or count. This needs to be gradually compensated for
+          target_la_step_count = 0; // (de)retration may start with non-zero current_la_step_rate and/or count. This needs to be gradually compensated for
         }
         const float distance_to_target = target_la_step_count - current_la_step_count;
         const float one_shot_v = distance_to_target * dt_inv;
@@ -2973,9 +2984,12 @@ hal_timer_t Stepper::block_phase_isr() {
         current_la_step_count += current_la_step_rate * dt;
         if (la_active) {
           set_la_interval((int32_t)curr_step_rate + current_la_step_rate);
-        } else {
+        } else if (current_block->steps.e){
           // this is the (de)retraction case, for which we still need to gradually undo the current_la_step_count
           set_la_interval((int32_t)curr_step_rate * (current_block->direction_bits.e ? 1 : -1) + current_la_step_rate);
+        } else {
+          // this is the travel case, wehere we need to slow down the extruder
+          set_la_interval(current_la_step_rate);
         }
       }
       return interval;
