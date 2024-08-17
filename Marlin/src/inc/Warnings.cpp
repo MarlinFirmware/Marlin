@@ -60,6 +60,21 @@
   #endif
 #endif
 
+#if USE_BASE_CONFIGS
+  #if __has_include("../../Configuration.h")
+    #define HAS_IGNORED_CONFIGS
+  #elif __has_include("../../Configuration_adv.h")
+    #define HAS_IGNORED_CONFIGS
+  #endif
+  #ifdef HAS_IGNORED_CONFIGS
+    #warning "Configuration.h and Configuration_adv.h are being ignored, overridden by Config.h."
+  #endif
+#endif
+
+#if CONFIG_EXPORT % 100 == 5
+  #warning "Rename 'Config-export.h' to 'Config.h' to override Configuration.h and Configuration_adv.h."
+#endif
+
 #if DISABLED(DEBUG_FLAGS_GCODE)
   #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
 #endif
@@ -715,7 +730,33 @@
 #endif
 
 #if ENABLED(QUICK_HOME) && (X_SPI_SENSORLESS || Y_SPI_SENSORLESS)
-  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
+  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust SENSORLESS_BACKOFF_MM for better results."
+#endif
+
+#if HIGHER_CURRENT_HOME_WARNING
+  #warning "High homing currents can lead to damage if a sensor fails or is set up incorrectly."
+#endif
+
+#if USE_SENSORLESS
+  #if defined(X_CURRENT_HOME) && !HAS_CURRENT_HOME(X)
+    #warning "It's recommended to set X_CURRENT_HOME lower than X_CURRENT with SENSORLESS_HOMING."
+  #elif defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
+    #warning "It's recommended to set X2_CURRENT_HOME lower than X2_CURRENT with SENSORLESS_HOMING."
+  #endif
+  #if defined(Y_CURRENT_HOME) && !HAS_CURRENT_HOME(Y)
+    #warning "It's recommended to set Y_CURRENT_HOME lower than Y_CURRENT with SENSORLESS_HOMING."
+  #elif defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
+    #warning "It's recommended to set Y2_CURRENT_HOME lower than Y2_CURRENT with SENSORLESS_HOMING."
+  #endif
+  #if defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z)
+    #warning "It's recommended to set Z_CURRENT_HOME lower than Z_CURRENT with SENSORLESS_HOMING."
+  #elif defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)
+    #warning "It's recommended to set Z2_CURRENT_HOME lower than Z2_CURRENT with SENSORLESS_HOMING."
+  #elif defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)
+    #warning "It's recommended to set Z3_CURRENT_HOME lower than Z3_CURRENT with SENSORLESS_HOMING."
+  #elif defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #warning "It's recommended to set Z4_CURRENT_HOME lower than Z4_CURRENT with SENSORLESS_HOMING."
+  #endif
 #endif
 
 #if CANNOT_EMBED_CONFIGURATION

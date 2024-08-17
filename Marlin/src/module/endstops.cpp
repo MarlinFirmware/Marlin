@@ -823,19 +823,16 @@ void Endstops::update() {
   #endif
 
   #if ENABLED(CALIBRATION_GCODE)
-    if (calibration_probe_enabled) {
-      #if HAS_CALIBRATION_STATE
-        if (TEST(live_state, CALIBRATION) == calibration_stop_state) stepper.quick_stop();
-      #else
-        if (TEST(live_state, Z_MIN_PROBE) == calibration_stop_state) stepper.quick_stop();
-      #endif
-    }
+    if (calibration_probe_enabled
+        && calibration_stop_state == TEST(live_state, TERN(HAS_CALIBRATION_STATE, CALIBRATION, Z_MIN_PROBE)))
+      stepper.quick_stop();
   #endif
+
   // Signal, after validation, if an endstop limit is pressed or not
 
   #if HAS_X_AXIS
     if (stepper.axis_is_moving(X_AXIS)) {
-      if (!stepper.motor_direction(X_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(X_AXIS_HEAD)) {
         #if HAS_X_MIN_STATE
           PROCESS_ENDSTOP_X(MIN);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -849,7 +846,7 @@ void Endstops::update() {
           #endif
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_X_MAX_STATE
           PROCESS_ENDSTOP_X(MAX);
           #if   CORE_DIAG(XY, Y, MIN)
@@ -868,7 +865,7 @@ void Endstops::update() {
 
   #if HAS_Y_AXIS
     if (stepper.axis_is_moving(Y_AXIS)) {
-      if (!stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(Y_AXIS_HEAD)) {
         #if HAS_Y_MIN_STATE
           PROCESS_ENDSTOP_Y(MIN);
           #if   CORE_DIAG(XY, X, MIN)
@@ -882,7 +879,7 @@ void Endstops::update() {
           #endif
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_Y_MAX_STATE
           PROCESS_ENDSTOP_Y(MAX);
           #if   CORE_DIAG(XY, X, MIN)
@@ -901,7 +898,8 @@ void Endstops::update() {
 
   #if HAS_Z_AXIS
     if (stepper.axis_is_moving(Z_AXIS)) {
-      if (!stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
+      if (!stepper.motor_direction(Z_AXIS_HEAD)) {
+        // Z- : Gantry down, bed up
         #if HAS_Z_MIN_STATE
           // If the Z_MIN_PIN is being used for the probe there's no
           // separate Z_MIN endstop. But a Z endstop could be wired
@@ -927,7 +925,8 @@ void Endstops::update() {
           if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
         #endif
       }
-      else { // Z +direction. Gantry up, bed down.
+      else {
+        // Z+ : Gantry up, bed down
         #if HAS_Z_MAX_STATE
           PROCESS_ENDSTOP_Z(MAX);
           #if   CORE_DIAG(XZ, X, MIN)
@@ -944,14 +943,14 @@ void Endstops::update() {
     }
   #endif // HAS_Z_AXIS
 
-  #if HAS_I_AXIS
+  #if HAS_I_AXIS && HAS_I_STATE
     if (stepper.axis_is_moving(I_AXIS)) {
-      if (!stepper.motor_direction(I_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(I_AXIS_HEAD)) {
         #if HAS_I_MIN_STATE
           PROCESS_ENDSTOP(I, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_I_MAX_STATE
           PROCESS_ENDSTOP(I, MAX);
         #endif
@@ -959,14 +958,14 @@ void Endstops::update() {
     }
   #endif // HAS_I_AXIS
 
-  #if HAS_J_AXIS
+  #if HAS_J_AXIS && HAS_J_STATE
     if (stepper.axis_is_moving(J_AXIS)) {
-      if (!stepper.motor_direction(J_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(J_AXIS_HEAD)) {
         #if HAS_J_MIN_STATE
           PROCESS_ENDSTOP(J, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_J_MAX_STATE
           PROCESS_ENDSTOP(J, MAX);
         #endif
@@ -974,14 +973,14 @@ void Endstops::update() {
     }
   #endif // HAS_J_AXIS
 
-  #if HAS_K_AXIS
+  #if HAS_K_AXIS && HAS_K_STATE
     if (stepper.axis_is_moving(K_AXIS)) {
-      if (!stepper.motor_direction(K_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(K_AXIS_HEAD)) {
         #if HAS_K_MIN_STATE
           PROCESS_ENDSTOP(K, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_K_MAX_STATE
           PROCESS_ENDSTOP(K, MAX);
         #endif
@@ -989,14 +988,14 @@ void Endstops::update() {
     }
   #endif // HAS_K_AXIS
 
-  #if HAS_U_AXIS
+  #if HAS_U_AXIS && HAS_U_STATE
     if (stepper.axis_is_moving(U_AXIS)) {
-      if (!stepper.motor_direction(U_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(U_AXIS_HEAD)) {
         #if HAS_U_MIN_STATE
           PROCESS_ENDSTOP(U, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_U_MAX_STATE
           PROCESS_ENDSTOP(U, MAX);
         #endif
@@ -1004,14 +1003,14 @@ void Endstops::update() {
     }
   #endif // HAS_U_AXIS
 
-  #if HAS_V_AXIS
+  #if HAS_V_AXIS && HAS_V_STATE
     if (stepper.axis_is_moving(V_AXIS)) {
-      if (!stepper.motor_direction(V_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(V_AXIS_HEAD)) {
         #if HAS_V_MIN_STATE
           PROCESS_ENDSTOP(V, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_V_MAX_STATE
           PROCESS_ENDSTOP(V, MAX);
         #endif
@@ -1019,14 +1018,14 @@ void Endstops::update() {
     }
   #endif // HAS_V_AXIS
 
-  #if HAS_W_AXIS
+  #if HAS_W_AXIS && HAS_W_STATE
     if (stepper.axis_is_moving(W_AXIS)) {
-      if (!stepper.motor_direction(W_AXIS_HEAD)) { // -direction
+      if (!stepper.motor_direction(W_AXIS_HEAD)) {
         #if HAS_W_MIN_STATE
           PROCESS_ENDSTOP(W, MIN);
         #endif
       }
-      else { // +direction
+      else {
         #if HAS_W_MAX_STATE
           PROCESS_ENDSTOP(W, MAX);
         #endif
@@ -1370,94 +1369,3 @@ void Endstops::update() {
   }
 
 #endif // PINS_DEBUGGING
-
-#if USE_SENSORLESS
-  /**
-   * Change TMC driver currents to N##_CURRENT_HOME, saving the current configuration of each.
-   */
-  void Endstops::set_z_sensorless_current(const bool onoff) {
-    #if ENABLED(DELTA) && HAS_CURRENT_HOME(X)
-      #define HAS_DELTA_X_CURRENT 1
-    #endif
-    #if ENABLED(DELTA) && HAS_CURRENT_HOME(Y)
-      #define HAS_DELTA_Y_CURRENT 1
-    #endif
-    #if HAS_DELTA_X_CURRENT || HAS_DELTA_Y_CURRENT || HAS_CURRENT_HOME(Z) || HAS_CURRENT_HOME(Z2) || HAS_CURRENT_HOME(Z3) || HAS_CURRENT_HOME(Z4)
-      #if HAS_DELTA_X_CURRENT
-        static int16_t saved_current_X;
-      #endif
-      #if HAS_DELTA_Y_CURRENT
-        static int16_t saved_current_Y;
-      #endif
-      #if HAS_CURRENT_HOME(Z)
-        static int16_t saved_current_Z;
-      #endif
-      #if HAS_CURRENT_HOME(Z2)
-        static int16_t saved_current_Z2;
-      #endif
-      #if HAS_CURRENT_HOME(Z3)
-        static int16_t saved_current_Z3;
-      #endif
-      #if HAS_CURRENT_HOME(Z4)
-        static int16_t saved_current_Z4;
-      #endif
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-          if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
-        };
-      #else
-        #define debug_current(...)
-      #endif
-
-      #define _SAVE_SET_CURRENT(A) \
-        saved_current_##A = stepper##A.getMilliamps(); \
-        stepper##A.rms_current(A##_CURRENT_HOME); \
-        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
-
-      #define _RESTORE_CURRENT(A) \
-        stepper##A.rms_current(saved_current_##A); \
-        debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
-
-      if (onoff) {
-        TERN_(HAS_DELTA_X_CURRENT, _SAVE_SET_CURRENT(X));
-        TERN_(HAS_DELTA_Y_CURRENT, _SAVE_SET_CURRENT(Y));
-        #if HAS_CURRENT_HOME(Z)
-          _SAVE_SET_CURRENT(Z);
-        #endif
-        #if HAS_CURRENT_HOME(Z2)
-          _SAVE_SET_CURRENT(Z2);
-        #endif
-        #if HAS_CURRENT_HOME(Z3)
-          _SAVE_SET_CURRENT(Z3);
-        #endif
-        #if HAS_CURRENT_HOME(Z4)
-          _SAVE_SET_CURRENT(Z4);
-        #endif
-      }
-      else {
-        TERN_(HAS_DELTA_X_CURRENT, _RESTORE_CURRENT(X));
-        TERN_(HAS_DELTA_Y_CURRENT, _RESTORE_CURRENT(Y));
-        #if HAS_CURRENT_HOME(Z)
-          _RESTORE_CURRENT(Z);
-        #endif
-        #if HAS_CURRENT_HOME(Z2)
-          _RESTORE_CURRENT(Z2);
-        #endif
-        #if HAS_CURRENT_HOME(Z3)
-          _RESTORE_CURRENT(Z3);
-        #endif
-        #if HAS_CURRENT_HOME(Z4)
-          _RESTORE_CURRENT(Z4);
-        #endif
-      }
-
-      TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(onoff));
-
-      #if SENSORLESS_STALLGUARD_DELAY
-        safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
-      #endif
-
-    #endif
-  }
-#endif // USE_SENSORLESS

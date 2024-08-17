@@ -632,3 +632,8 @@ void home_if_needed(const bool keeplev=false);
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
   void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif
+
+#if HAS_HOMING_CURRENT
+  void set_homing_current(const AxisEnum axis);
+  void restore_homing_current(const AxisEnum axis);
+#endif
