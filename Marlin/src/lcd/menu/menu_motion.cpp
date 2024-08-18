@@ -323,7 +323,6 @@ void menu_move() {
 #if ENABLED(FT_MOTION_MENU)
 
   #include "../../module/ft_motion.h"
-  #include "../../gcode/gcode.h"
 
   FSTR_P get_shaper_name(const AxisEnum axis=X_AXIS) {
     switch (ftMotion.cfg.shaper[axis]) {
@@ -417,10 +416,9 @@ void menu_move() {
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
     MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
-        shaper_name[a] = get_shaper_name(AxisEnum(a));
-    #endif
+    TERN0(HAS_X_AXIS,shaper_name[X_AXIS] = get_shaper_name(X_AXIS);)
+    TERN0(HAS_Y_AXIS,shaper_name[Y_AXIS] = get_shaper_name(Y_AXIS);)
+    
     #if HAS_DYNAMIC_FREQ
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
@@ -484,10 +482,9 @@ void menu_move() {
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
     MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
-        shaper_name[a] = get_shaper_name(AxisEnum(a));
-    #endif
+    TERN0(HAS_X_AXIS, shaper_name[X_AXIS] = get_shaper_name(X_AXIS);)
+    TERN0(HAS_Y_AXIS, shaper_name[Y_AXIS] = get_shaper_name(Y_AXIS);)
+
     #if HAS_DYNAMIC_FREQ
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
@@ -509,6 +506,7 @@ void menu_move() {
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
+      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();

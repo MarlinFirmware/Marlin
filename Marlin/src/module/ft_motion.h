@@ -39,27 +39,27 @@
 typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
 
-  #if HAS_X_AXIS
-    ft_shaped_shaper_t shaper =                           // Shaper type
-      { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y) };
-    ft_shaped_float_t baseFreq =                          // Base frequency. [Hz]
-      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_X_FREQ, FTM_SHAPING_DEFAULT_Y_FREQ) };
-    ft_shaped_float_t zeta =                              // Damping factor
-      { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y) };
-    ft_shaped_float_t vtol =                              // Vibration Level
-      { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y) };
-  #endif
+  #if ENABLED(FTM_SHAPING)
+      ft_shaped_shaper_t shaper =                         // Shaper type
+        { TERN(HAS_X_AXIS, FTM_DEFAULT_SHAPER_X, ftMotionShaper_NONE), TERN(HAS_Y_AXIS, FTM_DEFAULT_SHAPER_Y, ftMotionShaper_NONE) };
+      ft_shaped_float_t baseFreq =                        // Base frequency. [Hz]
+        { FTM_SHAPING_DEFAULT_X_FREQ, FTM_SHAPING_DEFAULT_Y_FREQ };
+      ft_shaped_float_t zeta =                            // Damping factor
+        { FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y };
+      ft_shaped_float_t vtol =                            // Vibration Level
+        { FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y };
 
-  #if HAS_DYNAMIC_FREQ
-    dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
-    ft_shaped_float_t dynFreqK = { 0.0f };                // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
-  #else
-    static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
-  #endif
+    #if HAS_DYNAMIC_FREQ
+      dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
+      ft_shaped_float_t dynFreqK = { 0.0f };                // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+    #else
+      static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
+    #endif
 
-  #if HAS_EXTRUDERS
-    bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
-    float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
+    #if HAS_EXTRUDERS
+      bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
+      float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
+    #endif
   #endif
 } ft_config_t;
 
@@ -74,32 +74,33 @@ class FTMotion {
     static void set_defaults() {
       cfg.active = ENABLED(FTM_IS_DEFAULT_MOTION);
 
-      #if HAS_X_AXIS
-        cfg.shaper.x = FTM_DEFAULT_SHAPER_X;
-        cfg.baseFreq.x = FTM_SHAPING_DEFAULT_X_FREQ;
-        cfg.zeta.x = FTM_SHAPING_ZETA_X;
-        cfg.vtol.x = FTM_SHAPING_V_TOL_X;
-      #endif
+      #if ENABLED(FTM_SHAPING)
+        #if HAS_X_AXIS
+          cfg.shaper.x = FTM_DEFAULT_SHAPER_X;
+          cfg.baseFreq.x = FTM_SHAPING_DEFAULT_X_FREQ;
+          cfg.zeta.x = FTM_SHAPING_ZETA_X;
+          cfg.vtol.x = FTM_SHAPING_V_TOL_X;
+        #endif
 
-      #if HAS_Y_AXIS
-        cfg.shaper.y = FTM_DEFAULT_SHAPER_Y;
-        cfg.baseFreq.y = FTM_SHAPING_DEFAULT_Y_FREQ;
-        cfg.zeta.y = FTM_SHAPING_ZETA_Y;
-        cfg.vtol.y = FTM_SHAPING_V_TOL_Y;
-      #endif
+        #if HAS_Y_AXIS
+          cfg.shaper.y = FTM_DEFAULT_SHAPER_Y;
+          cfg.baseFreq.y = FTM_SHAPING_DEFAULT_Y_FREQ;
+          cfg.zeta.y = FTM_SHAPING_ZETA_Y;
+          cfg.vtol.y = FTM_SHAPING_V_TOL_Y;
+        #endif
 
-      #if HAS_DYNAMIC_FREQ
-        cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
-        TERN_(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
-        TERN_(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
+        #if HAS_DYNAMIC_FREQ
+          cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
+          cfg.dynFreqK[X_AXIS] = TERN_(HAS_Y_AXIS, cfg.dynFreqK[Y_AXIS]) = 0.0f;
+        #endif
+
+        update_shaping_params();
       #endif
 
       #if HAS_EXTRUDERS
         cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
-
-      TERN_(HAS_X_AXIS, update_shaping_params());
 
       reset();
     }
@@ -114,7 +115,7 @@ class FTMotion {
     static void init();
     static void loop();                                   // Controller main, to be invoked from non-isr task.
 
-    #if HAS_X_AXIS
+    #if ENABLED(FTM_SHAPING)
       // Refresh gains and indices used by shaping functions.
       static void update_shaping_params(void);
     #endif
@@ -155,7 +156,7 @@ class FTMotion {
     static xyze_long_t steps;
 
     // Shaping variables.
-    #if HAS_X_AXIS
+    #if ENABLED(FTM_SHAPING)
 
       typedef struct AxisShaping {
         bool ena = false;                 // Enabled indication.
@@ -171,16 +172,15 @@ class FTMotion {
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
-        axis_shaping_t x;
-        #if HAS_Y_AXIS
-          axis_shaping_t y;
-        #endif
+
+        TERN0(HAS_X_AXIS, axis_shaping_t x;)
+        TERN0(HAS_Y_AXIS, axis_shaping_t y;)
 
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
 
-    #endif // HAS_X_AXIS
+    #endif // FTM_SHAPING
 
     // Linear advance variables.
     #if HAS_EXTRUDERS

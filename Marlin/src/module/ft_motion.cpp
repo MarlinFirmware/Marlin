@@ -88,10 +88,12 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
 // Shaping variables.
-#if HAS_X_AXIS
+#if ENABLED(FTM_SHAPING)
   FTMotion::shaping_t FTMotion::shaping = {
     0,
-    x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
+    #if HAS_X_AXIS
+      x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },           // ena, d_zi, Ai, Ni, max_i
+    #endif
     #if HAS_Y_AXIS
       y:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } }           // ena, d_zi, Ai, Ni, max_i
     #endif
@@ -211,7 +213,7 @@ void FTMotion::loop() {
 
 }
 
-#if HAS_X_AXIS
+#if ENABLED(FTM_SHAPING)
 
   // Refresh the gains used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol) {
@@ -362,7 +364,7 @@ void FTMotion::loop() {
     #endif
   }
 
-#endif // HAS_X_AXIS
+#endif // FTM_SHAPING
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
@@ -383,8 +385,8 @@ void FTMotion::reset() {
 
   stepper.axis_did_move.reset();
 
-  #if HAS_X_AXIS
-    ZERO(shaping.x.d_zi);
+  #if ENABLED(FTM_SHAPING)
+    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
@@ -626,15 +628,17 @@ void FTMotion::makeVector() {
   }
 
   // Apply shaping if active on each axis
-  #if HAS_X_AXIS
-    if (shaping.x.ena) {
-      shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
-      traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
-      for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
-        const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-        traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+  #if ENABLED(FTM_SHAPING)
+    #if HAS_X_AXIS
+      if (shaping.x.ena) {
+        shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
+        traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+        for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
+          const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
+          traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+        }
       }
-    }
+    #endif
 
     #if HAS_Y_AXIS
       if (shaping.y.ena) {
@@ -647,7 +651,7 @@ void FTMotion::makeVector() {
       }
     #endif
     if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
-  #endif // HAS_X_AXIS
+  #endif // FTM_SHAPING
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
