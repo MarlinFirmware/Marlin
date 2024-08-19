@@ -199,7 +199,7 @@ void menu_tune() {
   //
   #if ENABLED(FT_MOTION_MENU)
     void menu_tune_ft_motion();
-    if(ftMotion.cf.active)
+    if(ftMotion.cfg.active)
       SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
   #endif
 
