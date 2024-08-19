@@ -506,7 +506,7 @@ void menu_move() {
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
-      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+      if (ftMotion.cfg.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, ftMotion.cfg.linearAdvK, 0, 10);
     #endif
 
     END_MENU();
