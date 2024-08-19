@@ -489,6 +489,8 @@ void menu_move() {
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
+    ft_config_t &c = ftMotion.cfg;
+
     START_MENU();
 
     #if HAS_X_AXIS
@@ -505,8 +507,8 @@ void menu_move() {
       MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
     #endif
     #if HAS_EXTRUDERS
-      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &ftMotion.cfg.linearAdvEna);
-      if (ftMotion.cfg.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, ftMotion.cfg.linearAdvK, 0, 10);
+      EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
+      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();
