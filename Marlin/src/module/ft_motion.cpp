@@ -166,7 +166,7 @@ void FTMotion::loop() {
       discard_planner_block_protected();
 
       // Check if the block needs to be runout:
-      if (!batchRdy && !planner.movesplanned()) {
+      if (!batchRdy && !planner.has_blocks_queued()) {
         runoutBlock();
         makeVector(); // Do an additional makeVector call to guarantee batchRdy set this loop.
       }
