@@ -617,11 +617,21 @@ void resume_print(
   const_float_t   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
   const int8_t    max_beep_count/*=0*/,
   const celsius_t targetTemp/*=0*/,
-  const bool      show_lcd /*=true*/,
+  const bool      show_lcd/*=true*/,
   const bool      pause_for_user/*=false*/
-  DXC_ARGS) {
+  DXC_ARGS
+) {
   DEBUG_SECTION(rp, "resume_print", true);
-  DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp, " show_lcd:", show_lcd, " pause_for_user:", pause_for_user DXC_SAY);
+  DEBUG_ECHOLNPGM(
+      "... slowlen:", slow_load_length
+    , " fastlen:", fast_load_length
+    , " purgelen:", purge_length
+    , " maxbeep:", max_beep_count
+    , " targetTemp:", targetTemp
+    , " show_lcd:", show_lcd
+    , " pause_for_user:", pause_for_user
+    DXC_SAY
+  );
 
   /*
   SERIAL_ECHOLNPGM(
