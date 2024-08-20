@@ -3422,7 +3422,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
-    //planner.synchronize(); planner already synchronized in M493
+    planner.synchronize();
 
     // Update stepper positions from the planner
     AVR_ATOMIC_SECTION_START();
@@ -3557,8 +3557,8 @@ void Stepper::report_positions() {
 
     if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(AXIS) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits[_AXIS(A)] != last_set_direction[_AXIS(AXIS)])) \
-                                     SET_STEP_DIR(AXIS);
+      #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
+                                  SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
@@ -3568,7 +3568,7 @@ void Stepper::report_positions() {
     }
 
     // Start step pulses. Edge stepping will toggle the STEP pin.
-    #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
+    #define _FTM_STEP_START(A) A##_APPLY_STEP(_FTM_STEP(A), false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
     // Apply steps via I2S
@@ -3578,7 +3578,7 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
+    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += last_direction_bits.A ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)

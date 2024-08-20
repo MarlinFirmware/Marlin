@@ -1336,7 +1336,7 @@ void eachMomentUpdate() {
     #endif
   }
 
-  if (!PENDING(ms, next_rts_update_ms)) {
+  if (ELAPSED(ms, next_rts_update_ms)) {
     next_rts_update_ms = ms + DWIN_UPDATE_INTERVAL;
 
     if ((isPrinting() != hmiFlag.printing_flag) && !hmiFlag.home_flag) {
