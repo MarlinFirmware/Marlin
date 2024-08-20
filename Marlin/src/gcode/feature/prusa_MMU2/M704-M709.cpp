@@ -27,6 +27,8 @@
 #include "../../gcode.h"
 #include "../../../module/settings.h"
 #include "../../../feature/mmu3/mmu2.h"
+#include "../../../feature/mmu3/mmu2_reporting.h"
+#include "../../../feature/mmu3/SpoolJoin.h"
 
 // Shared by the G-codes below to save flash memory.
 static void gcodes_M704_M705_M706(uint16_t gcode) {
@@ -180,7 +182,8 @@ void GcodeSuite::M709() {
  * Report for M503.
  * TODO: Report MMU3 G-code settings here, status via a different G-code.
  */
-void GcodeSuite::MMU3_report() {
+void GcodeSuite::MMU3_report(const bool forReplay/*=true*/) {
+  using namespace MMU3;
   report_heading(forReplay, F("MMU3 Operational Stats"));
   SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
   SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
@@ -189,12 +192,12 @@ void GcodeSuite::MMU3_report() {
     serialprintln_onoff(mmu3.cutter_mode != 0);
   #endif
   SERIAL_ECHOPGM("  SpoolJoin          "); serialprintln_onoff(spooljoin.enabled);
-  SERIAL_ECHOLNPGM("  Tool Changes       ", MMU3::operation_statistics.tool_change_counter);
-  SERIAL_ECHOLNPGM("  Total Tool Changes ", MMU3::operation_statistics.tool_change_total_counter);
-  SERIAL_ECHOLNPGM("  Fails              ", MMU3::operation_statistics.fail_num);
-  SERIAL_ECHOLNPGM("  Total Fails        ", MMU3::operation_statistics.fail_total_num);
-  SERIAL_ECHOLNPGM("  Load Fails         ", MMU3::operation_statistics.load_fail_num);
-  SERIAL_ECHOLNPGM("  Total Load Fails   ", MMU3::operation_statistics.load_fail_total_num);
+  SERIAL_ECHOLNPGM("  Tool Changes       ", operation_statistics.tool_change_counter);
+  SERIAL_ECHOLNPGM("  Total Tool Changes ", operation_statistics.tool_change_total_counter);
+  SERIAL_ECHOLNPGM("  Fails              ", operation_statistics.fail_num);
+  SERIAL_ECHOLNPGM("  Total Fails        ", operation_statistics.fail_total_num);
+  SERIAL_ECHOLNPGM("  Load Fails         ", operation_statistics.load_fail_num);
+  SERIAL_ECHOLNPGM("  Total Load Fails   ", operation_statistics.load_fail_total_num);
   SERIAL_ECHOLNPGM("  Power Fails        ", mmu3.tmcFailures());
 }
 

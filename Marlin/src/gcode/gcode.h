@@ -1177,7 +1177,7 @@ private:
     static void M707();
     static void M708();
     static void M709();
-    static void MMU3_report();
+    static void MMU3_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(GCODE_REPEAT_MARKERS)
