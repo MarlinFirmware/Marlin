@@ -3822,11 +3822,11 @@ void MarlinSettings::reset() {
   // MMU Settings
   //
   #if HAS_PRUSA_MMU3
-      spooljoin.enabled = false;
-      MMU3::operation_statistics.reset_stats();
-      mmu3.cutter_mode = 0;
-      mmu3.stealth_mode = 0;
-      mmu3.mmu_hw_enabled = true;
+    spooljoin.enabled = false;
+    MMU3::operation_statistics.reset_stats();
+    mmu3.cutter_mode = 0;
+    mmu3.stealth_mode = 0;
+    mmu3.mmu_hw_enabled = true;
   #endif
 
   //
@@ -4150,60 +4150,9 @@ void MarlinSettings::reset() {
     TERN_(MPCTEMP, gcode.M306_report(forReplay));
 
     //
-    // MMU
+    // MMU3
     //
-    #if HAS_PRUSA_MMU3
-      CONFIG_ECHO_HEADING("MMU3 Operational Stats");
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("MMU                ");
-      serialprintln_onoff(mmu3.mmu_hw_enabled);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Stealth Mode       ");
-      serialprintln_onoff(mmu3.stealth_mode);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Cutter             ");
-      #if ENABLED(MMU_HAS_CUTTER)
-        serialprintln_onoff(mmu3.cutter_mode != 0);
-      #else
-        SERIAL_ECHOLNPGM("Disabled");
-      #endif
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("SpoolJoin          ");
-      serialprintln_onoff(spooljoin.enabled);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Tool Changes       ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.tool_change_counter);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Total Tool Changes ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.tool_change_total_counter);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Fails              ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.fail_num);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Total Fails        ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.fail_total_num);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Load Fails         ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.load_fail_num);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Total Load Fails   ");
-      SERIAL_ECHOLN(MMU3::operation_statistics.load_fail_total_num);
-
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2);
-      SERIAL_ECHOPGM("Power Fails        ");
-      SERIAL_ECHOLN(mmu3.tmcFailures());
-
-    #endif
+    TERN_(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
   }
 
 #endif // !DISABLE_M503

@@ -4398,13 +4398,13 @@
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23
 
-  // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
-  // (MMU2/MMU2S only)
-  //#define MMU2_MODE_12V
+  #if HAS_PRUSA_MMU2
+    // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
+    //#define MMU2_MODE_12V
 
-  // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
-  //(MMU2/MMU2S only)
-  #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+    // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
+    #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+  #endif
 
   // Add an LCD menu for MMU2/MMU2S/MMU3
   //#define MMU_MENUS

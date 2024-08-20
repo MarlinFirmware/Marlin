@@ -141,7 +141,7 @@ void GcodeSuite::D(const int16_t dcode) {
       }
       else {
         //while (len--) {
-        //  // TODO: Read bytes from EEPROM
+        //// TODO: Read bytes from EEPROM
         //  print_hex_byte(eeprom_read_byte(adr++));
         //}
         SERIAL_EOL();
@@ -162,7 +162,7 @@ void GcodeSuite::D(const int16_t dcode) {
       }
       else {
         //while (len--) {
-        //  // TODO: Read bytes from FLASH
+        //// TODO: Read bytes from FLASH
         //  print_hex_byte(flash_read_byte(adr++));
         //}
         SERIAL_EOL();

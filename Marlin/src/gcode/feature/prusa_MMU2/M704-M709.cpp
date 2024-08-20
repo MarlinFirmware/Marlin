@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -47,7 +47,7 @@ static void gcodes_M704_M705_M706(uint16_t gcode) {
 }
 
 /**
- * ### M704 - Preload to MMU <a href="https://reprap.org/wiki/G-code#M704:_Preload_to_MMU">M704: Preload to MMU</a>
+ * ### M704 - Preload to MMU
  * #### Usage
  *
  *   M704 [ P ]
@@ -60,7 +60,7 @@ void GcodeSuite::M704() {
 }
 
 /**
- * ### M705 - Eject filament <a href="https://reprap.org/wiki/G-code#M705:_Eject_filament">M705: Eject filament</a>
+ * ### M705 - Eject filament
  * #### Usage
  *
  *   M705 [ P ]
@@ -73,7 +73,7 @@ void GcodeSuite::M705() {
 }
 
 /*!
- * ### M706 - Cut filament <a href="https://reprap.org/wiki/G-code#M706:_Cut_filament">M706: Cut filament</a>
+ * ### M706 - Cut filament
  * #### Usage
  *
  *   M706 [ P ]
@@ -86,7 +86,7 @@ void GcodeSuite::M706() {
 }
 
 /**
- * ### M707 - Read from MMU register <a href="https://reprap.org/wiki/G-code#M707:_Read_from_MMU_register">M707: Read from MMU register</a>
+ * ### M707 - Read from MMU register
  * #### Usage
  *
  *   M707 [ A ]
@@ -102,16 +102,14 @@ void GcodeSuite::M706() {
  *
  */
 void GcodeSuite::M707() {
-  if (mmu3.enabled() ) {
-    if (parser.seenval('A') ) {
-      char *address = parser.stringval('A');
-      mmu3.readRegister(uint8_t(strtol(address, NULL, 16)));
-    }
+  if (mmu3.enabled() && parser.seenval('A')) {
+    char *address = parser.value_string();
+    mmu3.readRegister(uint8_t(strtol(address, NULL, 16)));
   }
 }
 
 /**
- * ### M708 - Write to MMU register <a href="https://reprap.org/wiki/G-code#M708:_Write_to_MMU_register">M707: Write to MMU register</a>
+ * ### M708 - Write to MMU register
  * #### Usage
  *
  *   M708 [ A | X ]
@@ -126,24 +124,18 @@ void GcodeSuite::M707() {
  * Does nothing if A parameter is missing or if MMU is not enabled.
  */
 void GcodeSuite::M708() {
-  if (mmu3.enabled() ) {
-    uint8_t addr = 0;
-    if (parser.seenval('A') ) {
-      char *address = parser.stringval('A');
-      addr = uint8_t(strtol(address, NULL, 16));
-    }
-    uint16_t data = 0;
-    if (parser.seenval('X') ) {
-      data = parser.ushortval('X', 0);
-    }
+  if (mmu3.enabled() && parser.seenval('A')) {
+    char *address = parser.value_string();
+    const uint8_t addr = uint8_t(strtol(address, NULL, 16));
     if (addr) {
+      const uint16_t data = parser.ushortval('X', 0);
       mmu3.writeRegister(addr, data);
     }
   }
 }
 
 /**
- * ### M709 - MMU power & reset <a href="https://reprap.org/wiki/G-code#M709:_MMU_power_&_reset">M709: MMU power & reset</a>
+ * ### M709 - MMU power & reset
  * The MK3S cannot not power off the MMU, but we can en- and disable the MMU.
  *
  * The new state of the MMU is stored in printer's EEPROM.
@@ -167,14 +159,14 @@ void GcodeSuite::M708() {
  */
 void GcodeSuite::M709() {
   if (parser.seenval('S')) {
-    switch (parser.byteval('S', -1)) {
-      case 0: mmu3.stop(); break;
-      case 1: mmu3.start(); break;
-      default: break;
-    }
+    if (parser.value_bool())
+      mmu3.start();
+    else
+      mmu3.stop();
   }
+
   if (mmu3.enabled() && parser.seenval('X')) {
-    switch (parser.byteval('X', -1)) {
+    switch (parser.value_byte()) {
       case  0: mmu3.reset(MMU3::MMU3::Software); break;
       case  1: mmu3.reset(MMU3::MMU3::ResetPin); break;
       case 42: mmu3.reset(MMU3::MMU3::EraseEEPROM); break;
@@ -182,6 +174,28 @@ void GcodeSuite::M709() {
     }
   }
   mmu3.status();
+}
+
+/**
+ * Report for M503.
+ * TODO: Report MMU3 G-code settings here, status via a different G-code.
+ */
+void GcodeSuite::MMU3_report() {
+  report_heading(forReplay, F("MMU3 Operational Stats"));
+  SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
+  SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
+  #if ENABLED(MMU_HAS_CUTTER)
+    SERIAL_ECHOPGM("  Cutter             ");
+    serialprintln_onoff(mmu3.cutter_mode != 0);
+  #endif
+  SERIAL_ECHOPGM("  SpoolJoin          "); serialprintln_onoff(spooljoin.enabled);
+  SERIAL_ECHOLNPGM("  Tool Changes       ", MMU3::operation_statistics.tool_change_counter);
+  SERIAL_ECHOLNPGM("  Total Tool Changes ", MMU3::operation_statistics.tool_change_total_counter);
+  SERIAL_ECHOLNPGM("  Fails              ", MMU3::operation_statistics.fail_num);
+  SERIAL_ECHOLNPGM("  Total Fails        ", MMU3::operation_statistics.fail_total_num);
+  SERIAL_ECHOLNPGM("  Load Fails         ", MMU3::operation_statistics.load_fail_num);
+  SERIAL_ECHOLNPGM("  Total Load Fails   ", MMU3::operation_statistics.load_fail_total_num);
+  SERIAL_ECHOLNPGM("  Power Fails        ", mmu3.tmcFailures());
 }
 
 #endif // HAS_PRUSA_MMU3
