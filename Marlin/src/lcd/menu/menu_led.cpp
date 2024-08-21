@@ -135,7 +135,7 @@
     }
 
     #if ENABLED(LED_COLOR_PRESETS)
-      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
+      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, [] { leds.set_default(); ui.refresh(); } );
     #endif
 
     #if ENABLED(NEOPIXEL2_SEPARATE)
