@@ -34,10 +34,6 @@
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(FT_MOTION)
-  #include "../../module/ft_motion.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -199,8 +195,7 @@ void menu_tune() {
   //
   #if ENABLED(FT_MOTION_MENU)
     void menu_tune_ft_motion();
-    if(ftMotion.cfg.active)
-      SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
   #endif
 
   //

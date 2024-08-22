@@ -416,9 +416,10 @@ void menu_move() {
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
     MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    TERN0(HAS_X_AXIS,shaper_name[X_AXIS] = get_shaper_name(X_AXIS);)
-    TERN0(HAS_Y_AXIS,shaper_name[Y_AXIS] = get_shaper_name(Y_AXIS);)
-    
+    #if HAS_X_AXIS
+      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
+        shaper_name[a] = get_shaper_name(AxisEnum(a));
+    #endif
     #if HAS_DYNAMIC_FREQ
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
@@ -482,14 +483,17 @@ void menu_move() {
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
     MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    TERN0(HAS_X_AXIS, shaper_name[X_AXIS] = get_shaper_name(X_AXIS);)
-    TERN0(HAS_Y_AXIS, shaper_name[Y_AXIS] = get_shaper_name(Y_AXIS);)
-
+    #if HAS_X_AXIS
+      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
+        shaper_name[a] = get_shaper_name(AxisEnum(a));
+    #endif
     #if HAS_DYNAMIC_FREQ
       MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
-    ft_config_t &c = ftMotion.cfg;
+    #if HAS_EXTRUDERS
+      ft_config_t &c = ftMotion.cfg;
+    #endif
 
     START_MENU();
 
@@ -501,14 +505,13 @@ void menu_move() {
       SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
       MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
     #endif
-
     #if HAS_DYNAMIC_FREQ
       SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
       MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();

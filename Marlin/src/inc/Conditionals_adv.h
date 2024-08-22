@@ -1396,9 +1396,14 @@
 #endif
 
 // FT Motion unified window and batch size
-#if ALL(FT_MOTION, FTM_UNIFIED_BWS)
-  #define FTM_WINDOW_SIZE FTM_BW_SIZE
-  #define FTM_BATCH_SIZE  FTM_BW_SIZE
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+  #endif
+  #if ENABLED(FTM_UNIFIED_BWS)
+    #define FTM_WINDOW_SIZE FTM_BW_SIZE
+    #define FTM_BATCH_SIZE  FTM_BW_SIZE
+  #endif
 #endif
 
 // Toolchange Event G-code
