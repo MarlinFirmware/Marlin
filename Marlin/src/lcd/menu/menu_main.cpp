@@ -88,8 +88,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if ENABLED(LED_CONTROL_MENU)
   void menu_led();
+#elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+  void menu_case_light();
+#elif ENABLED(CASE_LIGHT_MENU)
+  #include "../../feature/caselight.h"
 #endif
 
 #if HAS_CUTTER
@@ -371,8 +375,12 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+  #if ENABLED(LED_CONTROL_MENU)
     SUBMENU(MSG_LEDS, menu_led);
+  #elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+    SUBMENU(MSG_CASE_LIGHT, menu_case_light);
+  #elif ENABLED(CASE_LIGHT_MENU)
+    EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
   #endif
 
   //

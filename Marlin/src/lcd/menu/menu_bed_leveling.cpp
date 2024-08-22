@@ -296,6 +296,11 @@ void menu_bed_leveling() {
     SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
   #endif
 
+  // Tare the probe on-demand
+  #if ENABLED(PROBE_TARE_MENU)
+    ACTION_ITEM(MSG_TARE_PROBE, probe.tare);
+  #endif
+
   #if ENABLED(LCD_BED_TRAMMING)
     SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif

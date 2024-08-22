@@ -611,9 +611,27 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
-void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_length/*=0*/, const_float_t purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/, const celsius_t targetTemp/*=0*/ DXC_ARGS) {
+void resume_print(
+  const_float_t   slow_load_length/*=0*/,
+  const_float_t   fast_load_length/*=0*/,
+  const_float_t   purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/,
+  const int8_t    max_beep_count/*=0*/,
+  const celsius_t targetTemp/*=0*/,
+  const bool      show_lcd/*=true*/,
+  const bool      pause_for_user/*=false*/
+  DXC_ARGS
+) {
   DEBUG_SECTION(rp, "resume_print", true);
-  DEBUG_ECHOLNPGM("... slowlen:", slow_load_length, " fastlen:", fast_load_length, " purgelen:", purge_length, " maxbeep:", max_beep_count, " targetTemp:", targetTemp DXC_SAY);
+  DEBUG_ECHOLNPGM(
+      "... slowlen:", slow_load_length
+    , " fastlen:", fast_load_length
+    , " purgelen:", purge_length
+    , " maxbeep:", max_beep_count
+    , " targetTemp:", targetTemp
+    , " show_lcd:", show_lcd
+    , " pause_for_user:", pause_for_user
+    DXC_SAY
+  );
 
   /*
   SERIAL_ECHOLNPGM(
@@ -627,7 +645,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
   if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
-  bool nozzle_timed_out = false;
+  bool nozzle_timed_out = pause_for_user;
   HOTEND_LOOP() {
     nozzle_timed_out |= thermalManager.heater_idle[e].timed_out;
     thermalManager.reset_hotend_idle_timer(e);
@@ -637,7 +655,7 @@ void resume_print(const_float_t slow_load_length/*=0*/, const_float_t fast_load_
     thermalManager.setTargetHotend(targetTemp, active_extruder);
 
   // Load the new filament
-  load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
+  load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, show_lcd, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
 
   if (targetTemp > 0) {
     thermalManager.setTargetHotend(targetTemp, active_extruder);

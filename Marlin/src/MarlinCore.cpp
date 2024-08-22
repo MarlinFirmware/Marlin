@@ -325,7 +325,7 @@ bool pin_is_protected(const pin_t pin) {
 #pragma GCC diagnostic pop
 
 bool printer_busy() {
-  return planner.movesplanned() || printingIsActive();
+  return planner.has_blocks_queued() || printingIsActive();
 }
 
 /**
