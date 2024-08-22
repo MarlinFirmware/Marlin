@@ -43,7 +43,7 @@ typedef struct FTConfig {
     ft_shaped_shaper_t shaper =                           // Shaper type
       { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y) };
     ft_shaped_float_t baseFreq =                          // Base frequency. [Hz]
-      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_X_FREQ, FTM_SHAPING_DEFAULT_Y_FREQ) };
+      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y) };
     ft_shaped_float_t zeta =                              // Damping factor
       { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y) };
     ft_shaped_float_t vtol =                              // Vibration Level
@@ -78,14 +78,14 @@ class FTMotion {
 
         #if HAS_X_AXIS
           cfg.shaper.x = FTM_DEFAULT_SHAPER_X;
-          cfg.baseFreq.x = FTM_SHAPING_DEFAULT_X_FREQ;
+          cfg.baseFreq.x = FTM_SHAPING_DEFAULT_FREQ_X;
           cfg.zeta.x = FTM_SHAPING_ZETA_X;
           cfg.vtol.x = FTM_SHAPING_V_TOL_X;
         #endif
 
         #if HAS_Y_AXIS
           cfg.shaper.y = FTM_DEFAULT_SHAPER_Y;
-          cfg.baseFreq.y = FTM_SHAPING_DEFAULT_Y_FREQ;
+          cfg.baseFreq.y = FTM_SHAPING_DEFAULT_FREQ_Y;
           cfg.zeta.y = FTM_SHAPING_ZETA_Y;
           cfg.vtol.y = FTM_SHAPING_V_TOL_Y;
         #endif
