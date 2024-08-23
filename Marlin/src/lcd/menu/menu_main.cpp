@@ -50,7 +50,7 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(MMU2_MENUS)
+#if ENABLED(MMU_MENUS)
   #include "menu_mmu2.h"
 #endif
 
@@ -355,8 +355,10 @@ void menu_main() {
     SUBMENU(MSG_MIXER, menu_mixer);
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
+  #if ENABLED(MMU_MENUS)
+    // MMU3 can show print stats which can be useful during
+    // the print, so MMU menus are required for MMU3.
+    if (TERN1(HAS_PRUSA_MMU2, !busy)) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
   #endif
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);

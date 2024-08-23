@@ -4389,44 +4389,89 @@
   //#define E_MUX0_PIN 40  // Always Required
   //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
-#elif HAS_PRUSA_MMU2
-  // Serial port used for communication with MMU2.
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+  // Common settings for MMU2/MMU2S/MMU3
+  // Serial port used for communication with MMU2/MMU2S/MMU3.
   #define MMU2_SERIAL_PORT 2
+  #define MMU_BAUD 115200
 
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23
 
-  // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
-  //#define MMU2_MODE_12V
+  #if HAS_PRUSA_MMU2
+    // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
+    //#define MMU2_MODE_12V
 
-  // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
-  #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+    // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
+    #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+  #endif
 
-  // Add an LCD menu for MMU2
-  //#define MMU2_MENUS
+  // Add an LCD menu for MMU2/MMU2S/MMU3
+  //#define MMU_MENUS
 
   // Settings for filament load / unload from the LCD menu.
   // This is for Průša MK3-style extruders. Customize for your hardware.
   #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+
+  /**
+   * ------------
+   * MMU2 / MMU2S
+   * ------------
+   * MMU2 sequences use mm/min. Not compatible with MMU3 (see below).
+   * #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+   *   {  4.4,  871 }, \
+   *   { 10.0, 1393 }, \
+   *   {  4.4,  871 }, \
+   *   { 10.0,  198 }
+   */
+
+  /* #define MMU2_RAMMING_SEQUENCE \
+   *   {   1.0, 1000 }, \
+   *   {   1.0, 1500 }, \
+   *   {   2.0, 2000 }, \
+   *   {   1.5, 3000 }, \
+   *   {   2.5, 4000 }, \
+   *   { -15.0, 5000 }, \
+   *   { -14.0, 1200 }, \
+   *   {  -6.0,  600 }, \
+   *   {  10.0,  700 }, \
+   *   { -10.0,  400 }, \
+   *   { -50.0, 2000 }
+   */
+
+  /**
+   * ----
+   * MMU3
+   * ----
+   * These values are compatible with MMU3 as they are defined in mm/s
+   */
+
+  #define MMU2_EXTRUDER_PTFE_LENGTH       42.3 // (mm)
+  #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7 // (mm)
+
   #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-    {  7.2, 1145 }, \
-    { 14.4,  871 }, \
-    { 36.0, 1393 }, \
-    { 14.4,  871 }, \
-    { 50.0,  198 }
+    { MMU2_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) }, /* (13.5 mm/s) Fast load ahead of heatbreak */ \
+    { MMU2_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }  // ( 3.3 mm/s) Slow load after heatbreak
 
   #define MMU2_RAMMING_SEQUENCE \
-    {   1.0, 1000 }, \
-    {   1.0, 1500 }, \
-    {   2.0, 2000 }, \
-    {   1.5, 3000 }, \
-    {   2.5, 4000 }, \
-    { -15.0, 5000 }, \
-    { -14.0, 1200 }, \
-    {  -6.0,  600 }, \
-    {  10.0,  700 }, \
-    { -10.0,  400 }, \
-    { -50.0, 2000 }
+    { 0.2816,  MMM_TO_MMS(1339.0) }, \
+    { 0.3051,  MMM_TO_MMS(1451.0) }, \
+    { 0.3453,  MMM_TO_MMS(1642.0) }, \
+    { 0.3990,  MMM_TO_MMS(1897.0) }, \
+    { 0.4761,  MMM_TO_MMS(2264.0) }, \
+    { 0.5767,  MMM_TO_MMS(2742.0) }, \
+    { 0.5691,  MMM_TO_MMS(3220.0) }, \
+    { 0.1081,  MMM_TO_MMS(3220.0) }, \
+    { 0.7644,  MMM_TO_MMS(3635.0) }, \
+    { 0.8248,  MMM_TO_MMS(3921.0) }, \
+    { 0.8483,  MMM_TO_MMS(4033.0) }, \
+    { -15.0,   MMM_TO_MMS(6000.0) }, \
+    { -24.5,   MMM_TO_MMS(1200.0) }, \
+    {  -7.0,   MMM_TO_MMS( 600.0) }, \
+    {  -3.5,   MMM_TO_MMS( 360.0) }, \
+    {  20.0,   MMM_TO_MMS( 454.0) }, \
+    { -20.0,   MMM_TO_MMS( 303.0) }, \
+    { -35.0,   MMM_TO_MMS(2000.0) }
 
   /**
    * Using a sensor like the MMU2S
@@ -4436,11 +4481,26 @@
   #if HAS_PRUSA_MMU2S
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)
 
+    /**
+     * This is called after the filament runout sensor is triggered to check if
+     * the filament has been loaded properly by moving the filament back and
+     * forth to see if the filament runout sensor is going to get triggered
+     * again, which should not occur if the filament is properly loaded.
+     *
+     * Thus, the MMU2_CAN_LOAD_SEQUENCE should contain some forward and
+     * backward moves. The forward moves should be greater than the backward
+     * moves.
+     *
+     * This is useless if your filament runout sensor is way behind the gears.
+     * In that case use {0, MMU2_CAN_LOAD_FEEDRATE}
+     *
+     * Adjust MMU2_CAN_LOAD_SEQUENCE according to your setup.
+     */
     #define MMU2_CAN_LOAD_FEEDRATE 800    // (mm/min)
     #define MMU2_CAN_LOAD_SEQUENCE \
-      {  0.1, MMU2_CAN_LOAD_FEEDRATE }, \
-      {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
-      { -52.0, MMU2_CAN_LOAD_FEEDRATE }
+      {   5.0, MMU2_CAN_LOAD_FEEDRATE }, \
+      {  15.0, MMU2_CAN_LOAD_FEEDRATE }, \
+      { -10.0, MMU2_CAN_LOAD_FEEDRATE }
 
     #define MMU2_CAN_LOAD_RETRACT   6.0   // (mm) Keep under the distance between Load Sequence values
     #define MMU2_CAN_LOAD_DEVIATION 0.8   // (mm) Acceptable deviation
@@ -4451,6 +4511,68 @@
 
     // Continue unloading if sensor detects filament after the initial unload move
     //#define MMU_IR_UNLOAD_MOVE
+
+  #elif HAS_PRUSA_MMU3
+
+    // MMU3 settings
+
+    #define MMU2_MAX_RETRIES 3  // Number of retries (total time = timeout*retries)
+
+    // Nominal distance from the extruder gear to the nozzle tip is 87mm
+    // However, some slipping may occur and we need separate distances for
+    // LoadToNozzle and ToolChange.
+    // - +5mm seemed good for LoadToNozzle,
+    // - but too much (made blobs) for a ToolChange
+    #define MMU2_LOAD_TO_NOZZLE_LENGTH 87.0 + 5.0
+
+    // As discussed with our PrusaSlicer profile specialist
+    // - ToolChange shall not try to push filament into the very tip of the nozzle
+    // to have some space for additional G-code to tune the extruded filament length
+    // in the profile
+    // Beware - this value is used to initialize the MMU logic layer - it will be sent to the MMU upon line up (written into its 8bit register 0x0b)
+    // However - in the G-code we can get a request to set the extra load distance at runtime to something else (M708 A0xb Xsomething).
+    // The printer intercepts such a call and sets its extra load distance to match the new value as well.
+    #define MMU2_FILAMENT_SENSOR_POSITION    0   // (mm)
+    #define MMU2_LOAD_DISTANCE_PAST_GEARS    5   // (mm)
+    #define MMU2_TOOL_CHANGE_LOAD_LENGTH MMU2_FILAMENT_SENSOR_POSITION + MMU2_LOAD_DISTANCE_PAST_GEARS // (mm)
+
+    #define MMU2_LOAD_TO_NOZZLE_FEED_RATE        20.0 // (mm/s)
+    #define MMU2_UNLOAD_TO_FINDA_FEED_RATE      120.0 // (mm/s)
+
+    #define MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0 // (mm/s)
+    #define MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK     -5.0 // (mm) Amount to adjust the length for verifying load-to-nozzle
+
+    // The first thing the MMU does is initialize its axis.
+    // Meanwhile the E-motor will unload 20mm of filament in about 1 second.
+    #define MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH    80.0 // (mm)
+    #define MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0 // (mm/s)
+
+    // After loading a new filament, the printer will extrude this length of filament
+    // then retract to the original position. This is used to check if the filament sensor
+    // reading flickers or filament is jammed.
+    #define MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU2_EXTRUDER_PTFE_LENGTH + MMU2_EXTRUDER_HEATBREAK_LENGTH + MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK + MMU2_FILAMENT_SENSOR_POSITION) // (mm)
+
+    #define MMU_HAS_CUTTER            // Enable cutter related functionalities
+    //#define MMU_FORCE_STEALTH_MODE  // Force stealth mode and disable menu item
+
+    /**
+     * SpoolJoin Consumes All Filament -- EXPERIMENTAL
+     *
+     * SpoolJoin normally triggers when FINDA sensor untriggers while printing.
+     * This is the default behaviour and it doesn't consume all the filament
+     * before triggering a filament change. This leaves some filament in the
+     * current slot and before switching to the next slot it is unloaded.
+     *
+     * Enabling this option will trigger the filament change when both FINDA
+     * and Filament Runout Sensor triggers during the print and it allows the
+     * filament in the current slot to be completely consumed before doing the
+     * filament change. But this can cause problems as a little bit of filament
+     * will be left between the extruder gears (thinking that the filament
+     * sensor is triggered through the gears) and the end of the PTFE tube and
+     * can cause filament load issues.
+     */
+    //#define MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT
+
   #else
 
     /**
@@ -4473,7 +4595,7 @@
 
   //#define MMU2_DEBUG  // Write debug info to serial output
 
-#endif // HAS_PRUSA_MMU2
+#endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
 
 /**
  * Advanced Print Counter settings
