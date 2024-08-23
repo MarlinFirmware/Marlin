@@ -272,6 +272,14 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ *
+ * M704 - Preload to MMU (Requires PRUSA_MMU3)
+ * M705 - Eject filament (Requires PRUSA_MMU3)
+ * M706 - Cut filament (Requires PRUSA_MMU3)
+ * M707 - Read from MMU register (Requires PRUSA_MMU3)
+ * M708 - Write to MMU register (Requires PRUSA_MMU3)
+ * M709 - MMU power & reset (Requires PRUSA_MMU3)
+ *
  * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
@@ -1024,7 +1032,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
     static void M403();
   #endif
 
@@ -1160,6 +1168,16 @@ private:
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     static void M701();
     static void M702();
+  #endif
+
+  #if HAS_PRUSA_MMU3
+    static void M704();
+    static void M705();
+    static void M706();
+    static void M707();
+    static void M708();
+    static void M709();
+    static void MMU3_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(GCODE_REPEAT_MARKERS)
