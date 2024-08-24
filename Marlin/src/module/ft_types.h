@@ -58,8 +58,13 @@ enum {
   FT_BIT_COUNT
 };
 
-#define NUM_AXES_SHAPED TERN(HAS_Y_AXIS, 2, 1)
-#define SHAPED_ELEM(A, B) A OPTARG(HAS_Y_AXIS, B)
+#if HAS_FTM_SHAPING
+  #define NUM_AXES_SHAPED TERN(HAS_Y_AXIS, 2, 1)
+  #define SHAPED_ELEM(A, B) A OPTARG(HAS_Y_AXIS, B)
+#else
+  #define NUM_AXES_SHAPED 0
+  #define SHAPED_ELEM(A, B)
+#endif
 
 template<typename T>
 struct FTShapedAxes {
