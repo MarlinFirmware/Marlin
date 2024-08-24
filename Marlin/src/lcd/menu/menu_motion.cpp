@@ -44,6 +44,9 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
+// Always show configurable options regardless of FT Motion active
+//#define FT_MOTION_NO_MENU_TOGGLE
+
 constexpr bool has_large_area() {
   return TERN0(HAS_X_AXIS, (X_BED_SIZE) >= 1000) || TERN0(HAS_Y_AXIS, (Y_BED_SIZE) >= 1000) || TERN0(HAS_Z_AXIS, (Z_MAX_POS) >= 1000);
 }
@@ -435,7 +438,8 @@ void menu_move() {
       ftMotion.update_shaping_params();
     });
 
-    if (c.active) {
+    // Show only when FT Motion is active (or optionally always show)
+    if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       #if HAS_X_AXIS
         SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
         MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
@@ -474,7 +478,8 @@ void menu_move() {
 
       #if HAS_EXTRUDERS
         EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-        if (c.linearAdvEna) EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+        if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
+          EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
       #endif
     }
     END_MENU();
@@ -511,7 +516,8 @@ void menu_move() {
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+      if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
     #endif
 
     END_MENU();
