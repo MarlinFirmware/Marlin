@@ -15,7 +15,7 @@ def make_base_configs():
     no_disabled = True
 
     # Create a regex to match options and capture line parts
-    define_patt = re.compile(r'^(\s*)((//\s*)?#define\s+)([A-Z0-9_]+\b)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+    define_patt = re.compile(r'^(\s*)((//\s*)?#define\s+)([A-Z0-9_]+\b(\(\))?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
     ifndef_patt = re.compile(r'^(\s*#ifndef\s*.*?)(\s*//.*)?$', re.IGNORECASE)
     ifstat_patt = re.compile(r'^(\s*#(((if|ifn?def|elif)\s*.*?)|else|endif))(\s*//.*)?$', re.IGNORECASE)
     coment_patt = re.compile(r'/\*.*?\*/', re.DOTALL)
@@ -50,7 +50,7 @@ def make_base_configs():
                 if not was_ifndef: lines_out += [f'{m[1]}#ifndef {name}']
 
                 entab = '' if was_ifndef else '  '
-                indented = f'{entab}{m[1]}{m[2]}{m[4]} {m[6]}'.rstrip()
+                indented = f'{entab}{m[1]}{m[2]}{m[4]} {m[7]}'.rstrip()
                 lines_out += [indented]
 
                 if not was_ifndef: lines_out += [f'{m[1]}#endif']
@@ -59,11 +59,14 @@ def make_base_configs():
         empty_patt = re.compile(r'(\s*#if.+)(\n\s*#el.+)*(\n\s*#endif.*)')
         ifelse_patt = re.compile(r'(\s*#(el)?if\s+)(.+)\n\s*#else')
         ifelif_patt = re.compile(r'(\s*#if\s+)(.+)\n\s*#elif\s*(.+)')
+        noforc_patt = re.compile(r'\s*#ifndef\s+([A-Z0-9_]+)\n\s*#define \1\n\s*#endif')
+
         out_text = '\n'.join(lines_out)
         while True:
             old_text = out_text
             out_text = ifelse_patt.sub(r'\1!(\3)', out_text)
             out_text = ifelif_patt.sub(r'\1!(\2) && (\3)\n', out_text)
+            out_text = noforc_patt.sub('', out_text)
             out_text = empty_patt.sub('', out_text)
             if out_text == old_text: break
 

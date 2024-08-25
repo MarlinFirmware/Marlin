@@ -324,9 +324,6 @@
   #ifndef TEMP_COOLER_PIN
     #define TEMP_COOLER_PIN 15
   #endif
-  #ifndef COOLER_FAN
-    #define COOLER_FAN
-  #endif
   #ifndef COOLER_FAN_INDEX
     #define COOLER_FAN_INDEX 0
   #endif
@@ -340,9 +337,6 @@
   #endif
 #endif
 #if TEMP_SENSOR_BOARD
-  #ifndef THERMAL_PROTECTION_BOARD
-    #define THERMAL_PROTECTION_BOARD
-  #endif
   #ifndef BOARD_MINTEMP
     #define BOARD_MINTEMP 8
   #endif
@@ -351,9 +345,6 @@
   #endif
 #endif
 #if TEMP_SENSOR_SOC
-  #ifndef THERMAL_PROTECTION_SOC
-    #define THERMAL_PROTECTION_SOC
-  #endif
   #ifndef SOC_MAXTEMP
     #define SOC_MAXTEMP 85
   #endif
@@ -453,9 +444,6 @@
     #endif
   #endif
 #endif
-#ifndef AUTOTEMP
-  #define AUTOTEMP
-#endif
 #if ENABLED(AUTOTEMP)
   #ifndef AUTOTEMP_OLDWEIGHT
     #define AUTOTEMP_OLDWEIGHT 0.98
@@ -533,11 +521,6 @@
   #endif
   #ifndef CONTROLLERFAN_IDLE_TIME
     #define CONTROLLERFAN_IDLE_TIME 60
-  #endif
-  #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    #ifndef CONTROLLER_FAN_MENU
-      #define CONTROLLER_FAN_MENU
-    #endif
   #endif
 #endif
 #if ENABLED(FAST_PWM_FAN)
@@ -712,12 +695,6 @@
   #ifndef Z_STEPPER_ALIGN_ACC
     #define Z_STEPPER_ALIGN_ACC 0.02
   #endif
-  #ifndef RESTORE_LEVELING_AFTER_G34
-    #define RESTORE_LEVELING_AFTER_G34
-  #endif
-  #ifndef HOME_AFTER_G34
-    #define HOME_AFTER_G34
-  #endif
 #endif
 #if ENABLED(ASSISTED_TRAMMING)
   #ifndef TRAMMING_POINT_XY
@@ -734,9 +711,6 @@
   #endif
   #ifndef TRAMMING_POINT_NAME_4
     #define TRAMMING_POINT_NAME_4 "Back-Left"
-  #endif
-  #ifndef RESTORE_LEVELING_AFTER_G35
-    #define RESTORE_LEVELING_AFTER_G35
   #endif
   #ifndef TRAMMING_SCREW_THREAD
     #define TRAMMING_SCREW_THREAD 30
@@ -775,9 +749,6 @@
   #endif
   #ifndef FTM_SHAPING_V_TOL_Y
     #define FTM_SHAPING_V_TOL_Y 0.05f
-  #endif
-  #ifndef FTM_UNIFIED_BWS
-    #define FTM_UNIFIED_BWS
   #endif
   #if ENABLED(FTM_UNIFIED_BWS)
     #ifndef FTM_BW_SIZE
@@ -893,18 +864,6 @@
 #ifndef DEFAULT_STEPPER_TIMEOUT_SEC
   #define DEFAULT_STEPPER_TIMEOUT_SEC 120
 #endif
-#ifndef DISABLE_IDLE_X
-  #define DISABLE_IDLE_X
-#endif
-#ifndef DISABLE_IDLE_Y
-  #define DISABLE_IDLE_Y
-#endif
-#ifndef DISABLE_IDLE_Z
-  #define DISABLE_IDLE_Z
-#endif
-#ifndef DISABLE_IDLE_E
-  #define DISABLE_IDLE_E
-#endif
 #ifndef DEFAULT_MINIMUMFEEDRATE
   #define DEFAULT_MINIMUMFEEDRATE 0.0
 #endif
@@ -913,9 +872,6 @@
 #endif
 #ifndef DEFAULT_MINSEGMENTTIME
   #define DEFAULT_MINSEGMENTTIME 20000
-#endif
-#ifndef SLOWDOWN
-  #define SLOWDOWN
 #endif
 #if ENABLED(SLOWDOWN)
   #ifndef SLOWDOWN_DIVISOR
@@ -935,9 +891,6 @@
     #define BACKLASH_CORRECTION 0.0
   #endif
   #if ENABLED(BACKLASH_GCODE)
-    #ifndef MEASURE_BACKLASH_WHEN_PROBING
-      #define MEASURE_BACKLASH_WHEN_PROBING
-    #endif
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       #ifndef BACKLASH_MEASUREMENT_LIMIT
         #define BACKLASH_MEASUREMENT_LIMIT 0.5
@@ -973,24 +926,9 @@
   #ifndef CALIBRATION_OBJECT_DIMENSIONS
     #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 }
   #endif
-  #ifndef CALIBRATION_MEASURE_RIGHT
-    #define CALIBRATION_MEASURE_RIGHT
-  #endif
-  #ifndef CALIBRATION_MEASURE_FRONT
-    #define CALIBRATION_MEASURE_FRONT
-  #endif
-  #ifndef CALIBRATION_MEASURE_LEFT
-    #define CALIBRATION_MEASURE_LEFT
-  #endif
-  #ifndef CALIBRATION_MEASURE_BACK
-    #define CALIBRATION_MEASURE_BACK
-  #endif
   #ifndef CALIBRATION_PIN
     #ifndef CALIBRATION_PIN_INVERTING
       #define CALIBRATION_PIN_INVERTING false
-    #endif
-    #ifndef CALIBRATION_PIN_PULLUP
-      #define CALIBRATION_PIN_PULLUP
     #endif
   #endif
 #endif
@@ -1015,17 +953,6 @@
   #ifndef FINE_MANUAL_MOVE
     #define FINE_MANUAL_MOVE 0.025
   #endif
-  #if IS_ULTIPANEL
-    #ifndef MANUAL_E_MOVES_RELATIVE
-      #define MANUAL_E_MOVES_RELATIVE
-    #endif
-    #ifndef ULTIPANEL_FEEDMULTIPLY
-      #define ULTIPANEL_FEEDMULTIPLY
-    #endif
-  #endif
-#endif
-#ifndef ENCODER_RATE_MULTIPLIER
-  #define ENCODER_RATE_MULTIPLIER
 #endif
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
   #ifndef ENCODER_10X_STEPS_PER_SEC
@@ -1059,9 +986,6 @@
         #define XATC_Z_OFFSETS { 0, 0, 0 }
       #endif
     #endif
-    #ifndef PROBE_DEPLOY_STOW_MENU
-      #define PROBE_DEPLOY_STOW_MENU
-    #endif
   #endif
   #ifndef MANUAL_MOVE_DISTANCE_MM
     #define MANUAL_MOVE_DISTANCE_MM 10, 1.0, 0.1
@@ -1074,26 +998,12 @@
   #endif
 #endif
 #if HAS_DISPLAY
-  #ifndef SHOW_BOOTSCREEN
-    #define SHOW_BOOTSCREEN
-  #endif
   #if ENABLED(SHOW_BOOTSCREEN)
     #ifndef BOOTSCREEN_TIMEOUT
       #define BOOTSCREEN_TIMEOUT 3000
     #endif
-    #if ANY(HAS_MARLINUI_U8GLIB, TFT_COLOR_UI)
-      #ifndef BOOT_MARLIN_LOGO_SMALL
-        #define BOOT_MARLIN_LOGO_SMALL
-      #endif
-    #endif
-  #endif
-  #ifndef SOUND_ON_DEFAULT
-    #define SOUND_ON_DEFAULT
   #endif
   #if ENABLED(LED_CONTROL_MENU)
-    #ifndef LED_COLOR_PRESETS
-      #define LED_COLOR_PRESETS
-    #endif
     #if ENABLED(LED_COLOR_PRESETS)
       #ifndef LED_USER_PRESET_RED
         #define LED_USER_PRESET_RED 255
@@ -1146,31 +1056,7 @@
     #define FLOW_EDIT_MAX 999
   #endif
 #endif
-#if ENABLED(SET_PROGRESS_MANUALLY)
-  #ifndef SET_PROGRESS_PERCENT
-    #define SET_PROGRESS_PERCENT
-  #endif
-  #ifndef SET_REMAINING_TIME
-    #define SET_REMAINING_TIME
-  #endif
-  #if ALL(M73_REPORT, HAS_MEDIA)
-    #ifndef M73_REPORT_SD_ONLY
-      #define M73_REPORT_SD_ONLY
-    #endif
-  #endif
-#endif
 #if HAS_DISPLAY && ANY(HAS_MEDIA, SET_PROGRESS_MANUALLY)
-  #ifndef SHOW_PROGRESS_PERCENT
-    #define SHOW_PROGRESS_PERCENT
-  #endif
-  #ifndef SHOW_ELAPSED_TIME
-    #define SHOW_ELAPSED_TIME
-  #endif
-  #if ENABLED(SET_INTERACTION_TIME)
-    #ifndef SHOW_INTERACTION_TIME
-      #define SHOW_INTERACTION_TIME
-    #endif
-  #endif
   #if ANY(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
     #if ENABLED(LCD_PROGRESS_BAR)
       #ifndef PROGRESS_BAR_BAR_TIME
@@ -1194,12 +1080,6 @@
   #endif
   #ifndef SD_FINISHED_RELEASECOMMAND
     #define SD_FINISHED_RELEASECOMMAND "M84"
-  #endif
-  #ifndef SDCARD_RATHERRECENTFIRST
-    #define SDCARD_RATHERRECENTFIRST
-  #endif
-  #ifndef SD_MENU_CONFIRM_START
-    #define SD_MENU_CONFIRM_START
   #endif
   #ifndef EVENT_GCODE_SD_ABORT
     #define EVENT_GCODE_SD_ABORT "G28XY"
@@ -1247,9 +1127,6 @@
     #endif
   #endif
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-    #ifndef DISABLE_DUE_SD_MMC
-      #define DISABLE_DUE_SD_MMC
-    #endif
     #if DISABLED(USE_OTG_USB_HOST)
       #ifndef USB_CS_PIN
         #define USB_CS_PIN SDSS
@@ -1271,12 +1148,6 @@
     #endif
   #endif
   #if ENABLED(MULTI_VOLUME)
-    #ifndef VOLUME_SD_ONBOARD
-      #define VOLUME_SD_ONBOARD
-    #endif
-    #ifndef VOLUME_USB_FLASH_DRIVE
-      #define VOLUME_USB_FLASH_DRIVE
-    #endif
     #ifndef DEFAULT_VOLUME
       #define DEFAULT_VOLUME SV_SD_ONBOARD
     #endif
@@ -1286,32 +1157,12 @@
   #endif
 #endif
 #if HAS_MARLINUI_U8GLIB
-  #ifndef XYZ_HOLLOW_FRAME
-    #define XYZ_HOLLOW_FRAME
-  #endif
   #if IS_U8GLIB_ST7920
     #if ENABLED(LIGHTWEIGHT_UI)
       #ifndef STATUS_EXPIRE_SECONDS
         #define STATUS_EXPIRE_SECONDS 20
       #endif
     #endif
-  #endif
-  #ifndef STATUS_HOTEND_INVERTED
-    #define STATUS_HOTEND_INVERTED
-  #endif
-  #ifndef STATUS_HOTEND_ANIM
-    #define STATUS_HOTEND_ANIM
-  #endif
-  #ifndef STATUS_BED_ANIM
-    #define STATUS_BED_ANIM
-  #endif
-  #ifndef STATUS_CHAMBER_ANIM
-    #define STATUS_CHAMBER_ANIM
-  #endif
-#endif
-#if HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
-  #ifndef MENU_HOLLOW_FRAME
-    #define MENU_HOLLOW_FRAME
   #endif
 #endif
 #if HAS_DGUS_LCD
@@ -1328,20 +1179,6 @@
     #define DGUS_UPDATE_INTERVAL_MS 500
   #endif
   #if DGUS_UI_IS(FYSETC, MKS, HIPRECY)
-    #ifndef DGUS_PRINT_FILENAME
-      #define DGUS_PRINT_FILENAME
-    #endif
-    #ifndef DGUS_PREHEAT_UI
-      #define DGUS_PREHEAT_UI
-    #endif
-    #if !(DGUS_UI_IS(FYSETC, MKS))
-      #ifndef DGUS_UI_MOVE_DIS_OPTION
-        #define DGUS_UI_MOVE_DIS_OPTION
-      #endif
-    #endif
-    #ifndef DGUS_FILAMENT_LOADUNLOAD
-      #define DGUS_FILAMENT_LOADUNLOAD
-    #endif
     #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
       #ifndef DGUS_FILAMENT_PURGE_LENGTH
         #define DGUS_FILAMENT_PURGE_LENGTH 10
@@ -1349,9 +1186,6 @@
       #ifndef DGUS_FILAMENT_LOAD_LENGTH_PER_TIME
         #define DGUS_FILAMENT_LOAD_LENGTH_PER_TIME 0.5
       #endif
-    #endif
-    #ifndef DGUS_UI_WAITING
-      #define DGUS_UI_WAITING
     #endif
     #if ENABLED(DGUS_UI_WAITING)
       #ifndef DGUS_UI_WAITING_STATUS
@@ -1362,26 +1196,12 @@
       #endif
     #endif
   #elif DGUS_UI_IS(E3S1PRO)
-    #ifndef DGUS_SOFTWARE_AUTOSCROLL
-      #define DGUS_SOFTWARE_AUTOSCROLL
-    #endif
     #ifndef DGUS_AUTOSCROLL_START_CYCLES
       #define DGUS_AUTOSCROLL_START_CYCLES 1
     #endif
     #ifndef DGUS_AUTOSCROLL_END_CYCLES
       #define DGUS_AUTOSCROLL_END_CYCLES 1
     #endif
-    #ifndef DGUS_ADVANCED_SDCARD
-      #define DGUS_ADVANCED_SDCARD
-    #endif
-    #ifndef DGUS_USERCONFIRM
-      #define DGUS_USERCONFIRM
-    #endif
-  #endif
-#endif
-#if ENABLED(ANYCUBIC_LCD_CHIRON)
-  #ifndef AC_SD_FOLDER_VIEW
-    #define AC_SD_FOLDER_VIEW
   #endif
 #endif
 #if ENABLED(TOUCH_UI_FTDI_EVE)
@@ -1404,27 +1224,11 @@
       #endif
     #endif
   #endif
-  #if ENABLED(TOUCH_UI_USE_UTF8)
-    #ifndef TOUCH_UI_UTF8_WESTERN_CHARSET
-      #define TOUCH_UI_UTF8_WESTERN_CHARSET
-    #endif
-  #endif
-  #ifndef TOUCH_UI_FIT_TEXT
-    #define TOUCH_UI_FIT_TEXT
-  #endif
-#endif
-#if defined(DISPLAY_SLEEP_MINUTES) || defined(LCD_BACKLIGHT_TIMEOUT_MINS)
-  #ifndef EDITABLE_DISPLAY_TIMEOUT
-    #define EDITABLE_DISPLAY_TIMEOUT
-  #endif
 #endif
 #if HAS_ADC_BUTTONS
   #ifndef ADC_BUTTON_DEBOUNCE_DELAY
     #define ADC_BUTTON_DEBOUNCE_DELAY 16
   #endif
-#endif
-#ifndef USE_WATCHDOG
-  #define USE_WATCHDOG
 #endif
 #if ENABLED(BABYSTEPPING)
   #ifndef BABYSTEP_MULTIPLICATOR_Z
@@ -1458,9 +1262,6 @@
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 3
-  #endif
-  #ifndef G29_HALT_ON_FAILURE
-    #define G29_HALT_ON_FAILURE
   #endif
   #ifndef G29_SUCCESS_COMMANDS
     #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
@@ -1530,9 +1331,6 @@
     #endif
   #endif
 #endif
-#ifndef ARC_SUPPORT
-  #define ARC_SUPPORT
-#endif
 #if ENABLED(ARC_SUPPORT)
   #ifndef MIN_ARC_SEGMENT_MM
     #define MIN_ARC_SEGMENT_MM 0.1
@@ -1577,16 +1375,10 @@
 #ifndef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 0
 #endif
-#ifndef SERIAL_OVERRUN_PROTECTION
-  #define SERIAL_OVERRUN_PROTECTION
-#endif
 #ifndef PROPORTIONAL_FONT_RATIO
   #define PROPORTIONAL_FONT_RATIO 1.0
 #endif
 #if ENABLED(FWRETRACT)
-  #ifndef FWRETRACT_AUTORETRACT
-    #define FWRETRACT_AUTORETRACT
-  #endif
   #if ENABLED(FWRETRACT_AUTORETRACT)
     #ifndef MIN_AUTORETRACT
       #define MIN_AUTORETRACT 0.1
@@ -1655,9 +1447,6 @@
     #ifndef TOOLCHANGE_FS_FAN_TIME
       #define TOOLCHANGE_FS_FAN_TIME 10
     #endif
-    #ifndef TOOLCHANGE_MIGRATION_FEATURE
-      #define TOOLCHANGE_MIGRATION_FEATURE
-    #endif
   #endif
   #if ENABLED(TOOLCHANGE_PARK)
     #ifndef TOOLCHANGE_PARK_XY
@@ -1725,12 +1514,6 @@
   #endif
   #ifndef FILAMENT_CHANGE_ALERT_BEEPS
     #define FILAMENT_CHANGE_ALERT_BEEPS 10
-  #endif
-  #ifndef PAUSE_PARK_NO_STEPPER_TIMEOUT
-    #define PAUSE_PARK_NO_STEPPER_TIMEOUT
-  #endif
-  #ifndef CONFIGURE_FILAMENT_CHANGE
-    #define CONFIGURE_FILAMENT_CHANGE
   #endif
 #endif
 #if HAS_TRINAMIC_CONFIG
@@ -2090,47 +1873,12 @@
       #define E7_CHAIN_POS -1
     #endif
   #endif
-  #if HAS_STEALTHCHOP
-    #ifndef STEALTHCHOP_XY
-      #define STEALTHCHOP_XY
-    #endif
-    #ifndef STEALTHCHOP_Z
-      #define STEALTHCHOP_Z
-    #endif
-    #ifndef STEALTHCHOP_I
-      #define STEALTHCHOP_I
-    #endif
-    #ifndef STEALTHCHOP_J
-      #define STEALTHCHOP_J
-    #endif
-    #ifndef STEALTHCHOP_K
-      #define STEALTHCHOP_K
-    #endif
-    #ifndef STEALTHCHOP_U
-      #define STEALTHCHOP_U
-    #endif
-    #ifndef STEALTHCHOP_V
-      #define STEALTHCHOP_V
-    #endif
-    #ifndef STEALTHCHOP_W
-      #define STEALTHCHOP_W
-    #endif
-    #ifndef STEALTHCHOP_E
-      #define STEALTHCHOP_E
-    #endif
-  #endif
   #ifndef CHOPPER_TIMING
     #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
   #endif
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #ifndef CURRENT_STEP_DOWN
       #define CURRENT_STEP_DOWN 50
-    #endif
-    #ifndef REPORT_CURRENT_CHANGE
-      #define REPORT_CURRENT_CHANGE
-    #endif
-    #ifndef STOP_ON_ERROR
-      #define STOP_ON_ERROR
     #endif
   #endif
   #ifndef X_HYBRID_THRESHOLD
@@ -2213,11 +1961,8 @@
       #define Y2_STALL_SENSITIVITY Y_STALL_SENSITIVITY
     #endif
   #endif
-  #ifndef EDGE_STEPPING
-    #define EDGE_STEPPING
-  #endif
-  #ifndef TMC_ADV
-    #define TMC_ADV () {  }
+  #ifndef TMC_ADV()
+    #define TMC_ADV() {  }
   #endif
 #endif
 #if ENABLED(EXPERIMENTAL_I2CBUS)
@@ -2235,9 +1980,6 @@
 #if ANY(SPINDLE_FEATURE, LASER_FEATURE)
   #ifndef SPINDLE_LASER_ACTIVE_STATE
     #define SPINDLE_LASER_ACTIVE_STATE LOW
-  #endif
-  #ifndef SPINDLE_LASER_USE_PWM
-    #define SPINDLE_LASER_USE_PWM
   #endif
   #if ENABLED(SPINDLE_LASER_USE_PWM)
     #ifndef SPINDLE_LASER_PWM_INVERT
@@ -2269,9 +2011,6 @@
     #define CUTTER_POWER_UNIT PWM255
   #endif
   #if ENABLED(SPINDLE_FEATURE)
-    #ifndef SPINDLE_CHANGE_DIR_STOP
-      #define SPINDLE_CHANGE_DIR_STOP
-    #endif
     #ifndef SPINDLE_INVERT_DIR
       #define SPINDLE_INVERT_DIR false
     #endif
@@ -2343,9 +2082,6 @@
       #ifndef FLOWMETER_INTERVAL
         #define FLOWMETER_INTERVAL 1000
       #endif
-      #ifndef FLOWMETER_SAFETY
-        #define FLOWMETER_SAFETY
-      #endif
       #if ENABLED(FLOWMETER_SAFETY)
         #ifndef FLOWMETER_MIN_LITERS_PER_MINUTE
           #define FLOWMETER_MIN_LITERS_PER_MINUTE 1.5
@@ -2355,12 +2091,6 @@
   #endif
 #endif
 #if ENABLED(COOLANT_CONTROL)
-  #ifndef COOLANT_MIST
-    #define COOLANT_MIST
-  #endif
-  #ifndef COOLANT_FLOOD
-    #define COOLANT_FLOOD
-  #endif
   #ifndef COOLANT_MIST_INVERT
     #define COOLANT_MIST_INVERT false
   #endif
@@ -2414,23 +2144,6 @@
     #endif
   #endif
 #endif
-#ifndef AUTO_REPORT_TEMPERATURES
-  #define AUTO_REPORT_TEMPERATURES
-#endif
-#ifndef CAPABILITIES_REPORT
-  #define CAPABILITIES_REPORT
-#endif
-#if ENABLED(CAPABILITIES_REPORT)
-  #ifndef EXTENDED_CAPABILITIES_REPORT
-    #define EXTENDED_CAPABILITIES_REPORT
-  #endif
-#endif
-#ifndef FASTER_GCODE_PARSER
-  #define FASTER_GCODE_PARSER
-#endif
-#ifndef DEBUG_FLAGS_GCODE
-  #define DEBUG_FLAGS_GCODE
-#endif
 #if ENABLED(GCODE_MACROS)
   #ifndef GCODE_MACROS_SLOTS
     #define GCODE_MACROS_SLOTS 5
@@ -2442,12 +2155,6 @@
 #if ENABLED(CUSTOM_MENU_MAIN)
   #ifndef CUSTOM_MENU_MAIN_SCRIPT_DONE
     #define CUSTOM_MENU_MAIN_SCRIPT_DONE "M117 User Script Done"
-  #endif
-  #ifndef CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
-    #define CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK
-  #endif
-  #ifndef CUSTOM_MENU_MAIN_ONLY_IDLE
-    #define CUSTOM_MENU_MAIN_ONLY_IDLE
   #endif
   #ifndef MAIN_MENU_ITEM_1_DESC
     #define MAIN_MENU_ITEM_1_DESC "Home & UBL Info"
@@ -2465,12 +2172,6 @@
 #if ENABLED(CUSTOM_MENU_CONFIG)
   #ifndef CUSTOM_MENU_CONFIG_SCRIPT_DONE
     #define CUSTOM_MENU_CONFIG_SCRIPT_DONE "M117 Wireless Script Done"
-  #endif
-  #ifndef CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK
-    #define CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK
-  #endif
-  #ifndef CUSTOM_MENU_CONFIG_ONLY_IDLE
-    #define CUSTOM_MENU_CONFIG_ONLY_IDLE
   #endif
   #ifndef CONFIG_MENU_ITEM_1_DESC
     #define CONFIG_MENU_ITEM_1_DESC "Wifi ON"
@@ -2527,11 +2228,6 @@
     #ifndef BUTTON3_DESC
       #define BUTTON3_DESC "Preheat for " PREHEAT_2_LABEL
     #endif
-  #endif
-#endif
-#if ENABLED(CANCEL_OBJECTS)
-  #ifndef CANCEL_OBJECTS_REPORTING
-    #define CANCEL_OBJECTS_REPORTING
   #endif
 #endif
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -2613,9 +2309,6 @@
   #ifndef I2CPE_MIN_UPD_TIME_MS
     #define I2CPE_MIN_UPD_TIME_MS 4
   #endif
-  #ifndef I2CPE_ERR_ROLLING_AVERAGE
-    #define I2CPE_ERR_ROLLING_AVERAGE
-  #endif
 #endif
 #if ENABLED(JOYSTICK)
   #ifndef JOY_X_PIN
@@ -2678,9 +2371,6 @@
   #ifndef MAX7219_ROTATE
     #define MAX7219_ROTATE 0
   #endif
-  #ifndef MAX7219_DEBUG_PRINTER_ALIVE
-    #define MAX7219_DEBUG_PRINTER_ALIVE
-  #endif
   #ifndef MAX7219_DEBUG_PLANNER_HEAD
     #define MAX7219_DEBUG_PLANNER_HEAD 2
   #endif
@@ -2699,22 +2389,33 @@
     #define MAC_ADDRESS { 0xDE, 0xAD, 0xBE, 0xEF, 0xF0, 0x0D }
   #endif
 #endif
-#if !(HAS_PRUSA_MMU1) && (HAS_PRUSA_MMU2)
+#if !(HAS_PRUSA_MMU1) && (HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3)
 
   #ifndef MMU2_SERIAL_PORT
     #define MMU2_SERIAL_PORT 2
   #endif
-  #ifndef MMU2_FILAMENT_RUNOUT_SCRIPT
-    #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+  #ifndef MMU_BAUD
+    #define MMU_BAUD 115200
+  #endif
+  #if HAS_PRUSA_MMU2
+    #ifndef MMU2_FILAMENT_RUNOUT_SCRIPT
+      #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
+    #endif
   #endif
   #ifndef MMU2_FILAMENTCHANGE_EJECT_FEED
     #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
   #endif
+  #ifndef MMU2_EXTRUDER_PTFE_LENGTH
+    #define MMU2_EXTRUDER_PTFE_LENGTH 42.3
+  #endif
+  #ifndef MMU2_EXTRUDER_HEATBREAK_LENGTH
+    #define MMU2_EXTRUDER_HEATBREAK_LENGTH 17.7
+  #endif
   #ifndef MMU2_LOAD_TO_NOZZLE_SEQUENCE
-    #define MMU2_LOAD_TO_NOZZLE_SEQUENCE {  7.2, 1145 },  { 14.4,  871 },  { 36.0, 1393 },  { 14.4,  871 },  { 50.0,  198 }
+    #define MMU2_LOAD_TO_NOZZLE_SEQUENCE { MMU2_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) },   { MMU2_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }
   #endif
   #ifndef MMU2_RAMMING_SEQUENCE
-    #define MMU2_RAMMING_SEQUENCE {   1.0, 1000 },  {   1.0, 1500 },  {   2.0, 2000 },  {   1.5, 3000 },  {   2.5, 4000 },  { -15.0, 5000 },  { -14.0, 1200 },  {  -6.0,  600 },  {  10.0,  700 },  { -10.0,  400 },  { -50.0, 2000 }
+    #define MMU2_RAMMING_SEQUENCE { 0.2816,  MMM_TO_MMS(1339.0) },  { 0.3051,  MMM_TO_MMS(1451.0) },  { 0.3453,  MMM_TO_MMS(1642.0) },  { 0.3990,  MMM_TO_MMS(1897.0) },  { 0.4761,  MMM_TO_MMS(2264.0) },  { 0.5767,  MMM_TO_MMS(2742.0) },  { 0.5691,  MMM_TO_MMS(3220.0) },  { 0.1081,  MMM_TO_MMS(3220.0) },  { 0.7644,  MMM_TO_MMS(3635.0) },  { 0.8248,  MMM_TO_MMS(3921.0) },  { 0.8483,  MMM_TO_MMS(4033.0) },  { -15.0,   MMM_TO_MMS(6000.0) },  { -24.5,   MMM_TO_MMS(1200.0) },  {  -7.0,   MMM_TO_MMS( 600.0) },  {  -3.5,   MMM_TO_MMS( 360.0) },  {  20.0,   MMM_TO_MMS( 454.0) },  { -20.0,   MMM_TO_MMS( 303.0) },  { -35.0,   MMM_TO_MMS(2000.0) }
   #endif
   #if HAS_PRUSA_MMU2S
     #ifndef MMU2_C0_RETRY
@@ -2724,7 +2425,7 @@
       #define MMU2_CAN_LOAD_FEEDRATE 800
     #endif
     #ifndef MMU2_CAN_LOAD_SEQUENCE
-      #define MMU2_CAN_LOAD_SEQUENCE {  0.1, MMU2_CAN_LOAD_FEEDRATE },  {  60.0, MMU2_CAN_LOAD_FEEDRATE },  { -52.0, MMU2_CAN_LOAD_FEEDRATE }
+      #define MMU2_CAN_LOAD_SEQUENCE {   5.0, MMU2_CAN_LOAD_FEEDRATE },  {  15.0, MMU2_CAN_LOAD_FEEDRATE },  { -10.0, MMU2_CAN_LOAD_FEEDRATE }
     #endif
     #ifndef MMU2_CAN_LOAD_RETRACT
       #define MMU2_CAN_LOAD_RETRACT 6.0
@@ -2737,6 +2438,43 @@
     #endif
     #ifndef MMU2_CAN_LOAD_INCREMENT_SEQUENCE
       #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
+    #endif
+  #elif HAS_PRUSA_MMU3
+    #ifndef MMU2_MAX_RETRIES
+      #define MMU2_MAX_RETRIES 3
+    #endif
+    #ifndef MMU2_LOAD_TO_NOZZLE_LENGTH
+      #define MMU2_LOAD_TO_NOZZLE_LENGTH 87.0 + 5.0
+    #endif
+    #ifndef MMU2_FILAMENT_SENSOR_POSITION
+      #define MMU2_FILAMENT_SENSOR_POSITION 0
+    #endif
+    #ifndef MMU2_LOAD_DISTANCE_PAST_GEARS
+      #define MMU2_LOAD_DISTANCE_PAST_GEARS 5
+    #endif
+    #ifndef MMU2_TOOL_CHANGE_LOAD_LENGTH
+      #define MMU2_TOOL_CHANGE_LOAD_LENGTH MMU2_FILAMENT_SENSOR_POSITION + MMU2_LOAD_DISTANCE_PAST_GEARS
+    #endif
+    #ifndef MMU2_LOAD_TO_NOZZLE_FEED_RATE
+      #define MMU2_LOAD_TO_NOZZLE_FEED_RATE 20.0
+    #endif
+    #ifndef MMU2_UNLOAD_TO_FINDA_FEED_RATE
+      #define MMU2_UNLOAD_TO_FINDA_FEED_RATE 120.0
+    #endif
+    #ifndef MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE
+      #define MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0
+    #endif
+    #ifndef MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK
+      #define MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK -5.0
+    #endif
+    #ifndef MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH
+      #define MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH 80.0
+    #endif
+    #ifndef MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE
+      #define MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0
+    #endif
+    #ifndef MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH
+      #define MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU2_EXTRUDER_PTFE_LENGTH + MMU2_EXTRUDER_HEATBREAK_LENGTH + MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK + MMU2_FILAMENT_SENSOR_POSITION)
     #endif
   #else
     #if ENABLED(MMU_EXTRUDER_SENSOR)
