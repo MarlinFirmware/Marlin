@@ -2,29 +2,34 @@
 #
 # Usage:
 #
-#  build_example  -b|--base=<folder>  - Configurations root folder (e.g., ./.pio/build-BRANCH)
-#                 -c|--config=<path>  - Path of the configs to build (within config/examples)
+#  build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/build-BRANCH)
+#                 -c|--config=<rel>   - Sub-path of the configs to build (within config/examples)
 #                [-e|--export=N]      - Set CONFIG_EXPORT before build and export into the config folder
 #                [-n|--nofail]        - Don't stop on a failed build
 #                [-r|--reveal]        - Reveal the config folder after the build
 #                [-h|--help]          - Print usage and exit
+#                [-a|--archive]       - Archive the build (to the export location)
 #                [--allow]            - Allow this script to run standalone
 #
 
 HERE=`dirname $0`
 
-. "$HERE/mfutil"
+source "$HERE/mfutil"
+
+annc() { echo -e "\033[0;32m$1\033[0m" ; }
 
 # Get arguments
 CLEANER=1
 ALLOW=""
+ARCHIVE=""
 BASE=""
 CONFIG=""
 REVEAL=""
 EXPNUM=""
 NOFAIL=""
-while getopts 'b:c:e:hinr-:' OFLAG; do
+while getopts 'ab:c:e:hinr-:' OFLAG; do
   case "${OFLAG}" in
+    a) ARCHIVE=1 ;;
     b) BASE="$OPTARG" ;;
     c) CONFIG="$OPTARG" ;;
     e) EXPNUM="$OPTARG" ;;
@@ -33,6 +38,7 @@ while getopts 'b:c:e:hinr-:' OFLAG; do
     r) REVEAL=1 ;;
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
+        archive) ARCHIVE=1 ;;
           allow) ALLOW=1 ;;
            base) BASE="$OVAL" ;;
          config) CONFIG="$OVAL" ;;
@@ -53,7 +59,7 @@ SUB1="$BASE/config/examples"
 [[ -d "$SUB1" ]] || { echo "--base $BASE doesn't contain config/examples" ; exit 1 ; }
 
 # Make sure the specific config folder exists
-SUB=$SUB1/$CONFIG
+SUB="$SUB1/$CONFIG"
 [[ -d "$SUB" ]] || { echo "--config $CONFIG doesn't exist" ; exit 1 ; }
 
 compgen -G "${SUB}Con*.h" > /dev/null || { echo "No configuration files found in $SUB" ; exit 1 ; }
@@ -90,12 +96,15 @@ if ((CLEANER)); then
   opt_add NO_LCD_CONTRAST_WARNING
   opt_add NO_MICROPROBE_WARNING
   opt_add NO_CONFIGURATION_EMBEDDING_WARNING
+  opt_add NO_HOMING_CURRENT_WARNING
 fi
 
 FNAME=("-name" "marlin_config.json" \
   "-o" "-name" "config.ini" \
   "-o" "-name" "schema.json" \
   "-o" "-name" "schema.yml")
+
+BNAME=("-name" "*.bin" "-o" "-name" "*.hex")
 
 # If EXPNUM is set then apply to the config before build
 if [[ $EXPNUM ]]; then
@@ -104,9 +113,11 @@ if [[ $EXPNUM ]]; then
   find ./.pio/build \( "${FNAME[@]}" \) -exec rm "{}" \;
 fi
 
+((ARCHIVE)) && find ./.pio/build \( "${BNAME[@]}" \) -exec rm "{}" \;
+
 set +e
 
-echo "Building the firmware now..."
+echo "Building example $CONFIG ..."
 "$HERE/mftest" -s -a -n1 ; ERR=$?
 
 [[ $ERR -eq 0 ]] && echo "Success" || echo "Failed"
@@ -114,16 +125,18 @@ echo "Building the firmware now..."
 set -e
 
 # Copy exports back to the configs
-if [[ $EXPNUM ]]; then
-  echo "Exporting $EXPNUM"
+if [[ -n $EXPNUM ]]; then
+  annc "Exporting $EXPNUM"
   [[ -f Marlin/Config-export.h ]] && { cp Marlin/Config-export.h "$SUB"/Config.h ; }
   find ./.pio/build/ "${FNAME[@]}" -exec cp "{}" "$SUB" \;
 fi
+
+((ARCHIVE)) && { annc "Archiving" ; find ./.pio/build \( "${BNAME[@]}" \) -exec cp "{}" "$SUB" \; ; }
 
 # Exit with error unless --nofail is set
 [[ $ERR -gt 0 && -z $NOFAIL ]] && exit $ERR
 
 # Reveal the configs after the build, if requested
-((REVEAL)) && { echo "Revealing $SUB" ; open "$SUB" ; }
+((REVEAL)) && { annc "Revealing $SUB" ; open "$SUB" ; }
 
 exit 0
