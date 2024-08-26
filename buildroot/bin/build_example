@@ -19,19 +19,20 @@ source "$HERE/mfutil"
 annc() { echo -e "\033[0;32m$1\033[0m" ; }
 
 # Get arguments
-CLEANER=1
-ALLOW=""
-ARCHIVE=""
-BASE=""
-CONFIG=""
-REVEAL=""
-EXPNUM=""
-NOFAIL=""
+BUILD=./.pio/build
+CLEANER=
+ALLOW=
+ARCHIVE=
+BASE=
+CONFIG=
+REVEAL=
+EXPNUM=
+NOFAIL=
 while getopts 'ab:c:e:hinr-:' OFLAG; do
   case "${OFLAG}" in
     a) ARCHIVE=1 ;;
-    b) BASE="$OPTARG" ;;
-    c) CONFIG="$OPTARG" ;;
+    b) BASE="${OPTARG%/}" ;;
+    c) CONFIG="${OPTARG%/}" ;;
     e) EXPNUM="$OPTARG" ;;
     h) EXIT_USAGE=1 ; break ;;
     n) NOFAIL=1 ;;
@@ -40,8 +41,8 @@ while getopts 'ab:c:e:hinr-:' OFLAG; do
        case "$ONAM" in
         archive) ARCHIVE=1 ;;
           allow) ALLOW=1 ;;
-           base) BASE="$OVAL" ;;
-         config) CONFIG="$OVAL" ;;
+           base) BASE="${OVAL%/}" ;;
+         config) CONFIG="${OVAL%/}" ;;
          export) EXPNUM="$OVAL" ;;
            help) EXIT_USAGE=1 ; break ;;
          nofail) NOFAIL=1 ;;
@@ -52,28 +53,32 @@ while getopts 'ab:c:e:hinr-:' OFLAG; do
   esac
 done
 
+# Must be called from another script (or with --allow)
 [[ $ALLOW || $SHLVL -gt 2 ]] || { echo "Don't call this script directly, use build_all_examples instead." ; exit 1 ; }
+
+# -b|--base and -c|--config are required
+[[ -z $BASE ]] && { echo "-b|--base is required" ; exit 1 ; }
+[[ -z $CONFIG ]] && { echo "-c|--config is required" ; exit 1 ; }
 
 # Make sure the examples exist
 SUB1="$BASE/config/examples"
-[[ -d "$SUB1" ]] || { echo "--base $BASE doesn't contain config/examples" ; exit 1 ; }
+[[ -d "$SUB1" ]] || { echo "-b|--base $BASE doesn't contain config/examples" ; exit 1 ; }
 
 # Make sure the specific config folder exists
 SUB="$SUB1/$CONFIG"
-[[ -d "$SUB" ]] || { echo "--config $CONFIG doesn't exist" ; exit 1 ; }
+[[ -d "$SUB" ]] || { echo "-c|--config $CONFIG doesn't exist" ; exit 1 ; }
 
-compgen -G "${SUB}Con*.h" > /dev/null || { echo "No configuration files found in $SUB" ; exit 1 ; }
+# ...and contains Configuration.h or Configuration_adv.h
+[[ -n $(compgen -G "$SUB/Configuration*.h") ]] || { echo "No configuration files found in $SUB" ; exit 1 ; }
 
-# Delete any previous exported configs
-rm -f Marlin/Config.h Marlin/Config-export.h
+# Delete any config files from previous builds
+rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h
 
+# Copy configurations into the Marlin folder
 echo "Getting configuration files from $SUB"
-cp "$BASE/config/default"/*.h    Marlin/
-cp "$SUB"/Config.h            Marlin/ 2>/dev/null
-cp "$SUB"/Configuration.h     Marlin/ 2>/dev/null
-cp "$SUB"/Configuration_adv.h Marlin/ 2>/dev/null
-cp "$SUB"/_Bootscreen.h       Marlin/ 2>/dev/null
-cp "$SUB"/_Statusscreen.h     Marlin/ 2>/dev/null
+cp "$BASE/config/default"/*.h "$SUB"/*.h Marlin/ 2>/dev/null
+
+rm -f Marlin/Config.h Marlin/Config-export.h
 
 set -e
 
@@ -99,28 +104,35 @@ if ((CLEANER)); then
   opt_add NO_HOMING_CURRENT_WARNING
 fi
 
-FNAME=("-name" "marlin_config.json" \
+ENAME=("-name" "marlin_config.json" \
   "-o" "-name" "config.ini" \
   "-o" "-name" "schema.json" \
   "-o" "-name" "schema.yml")
 
-BNAME=("-name" "*.bin" "-o" "-name" "*.hex")
+BNAME=("-type" "f" \
+       "-name" 'firmware*.hex' \
+  "-o" "-name" "firmware*.bin" \
+  "-o" "-name" "project*.bin" \
+  "-o" "-name" "Robin*.bin" \
+  "-o" "-name" "main_*.bin")
+
+mkdir -p "$BUILD"
 
 # If EXPNUM is set then apply to the config before build
 if [[ $EXPNUM ]]; then
   opt_set CONFIG_EXPORT $EXPNUM
   # Clean up old exports
-  find ./.pio/build \( "${FNAME[@]}" \) -exec rm "{}" \;
+  find "$BUILD" \( "${ENAME[@]}" \) -exec rm "{}" \;
 fi
 
-((ARCHIVE)) && find ./.pio/build \( "${BNAME[@]}" \) -exec rm "{}" \;
+((ARCHIVE)) && find "$BUILD" \( "${BNAME[@]}" \) -exec rm "{}" \;
 
 set +e
 
 echo "Building example $CONFIG ..."
 "$HERE/mftest" -s -a -n1 ; ERR=$?
 
-[[ $ERR -eq 0 ]] && echo "Success" || echo "Failed"
+((ERR)) && echo "Failed" || echo "Success"
 
 set -e
 
@@ -128,10 +140,23 @@ set -e
 if [[ -n $EXPNUM ]]; then
   annc "Exporting $EXPNUM"
   [[ -f Marlin/Config-export.h ]] && { cp Marlin/Config-export.h "$SUB"/Config.h ; }
-  find ./.pio/build/ "${FNAME[@]}" -exec cp "{}" "$SUB" \;
+  find "$BUILD" "${ENAME[@]}" -exec cp "{}" "$SUB" \;
 fi
 
-((ARCHIVE)) && { annc "Archiving" ; find ./.pio/build \( "${BNAME[@]}" \) -exec cp "{}" "$SUB" \; ; }
+if ((ARCHIVE)); then
+  annc "Archiving"
+  find "$BUILD" \( "${BNAME[@]}" \) -exec sh -c '
+    SUB="$1"
+    shift 1
+    for file in "$@"; do
+      cd "$(dirname "$file")"
+      base=$(basename "$file")
+      tar -czf "$SUB/$base.tar.gz" "$base"
+      rm "$base"
+      cd - >/dev/null
+    done
+  ' sh "$SUB" {} +
+fi
 
 # Exit with error unless --nofail is set
 [[ $ERR -gt 0 && -z $NOFAIL ]] && exit $ERR
