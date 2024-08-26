@@ -326,7 +326,14 @@
  */
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
+
+// Safe toolchange start Z position.
+//#define SAFE_TOOLCHANGE_START_Z           200
+
 #if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  //#define SWITCHING_TOOLHEAD_Z_POS        100         // (mm) Z position of the toolhead dock.
+                                                        // Leave this option disabled if the bed can move in Z direction
+  //#define SWITCHING_TOOLHEAD_Z_CLEAR       60         // (mm) Minimum distance from dock along Z for unobstructed X axis if the tools are placed onto the dock in Z direction
   #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
   #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
