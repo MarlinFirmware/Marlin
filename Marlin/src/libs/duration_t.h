@@ -67,7 +67,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as years
+   * @brief Format the duration as years
    * @return The number of years
    */
   inline uint8_t year() const {
@@ -75,7 +75,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as days
+   * @brief Format the duration as days
    * @return The number of days
    */
   inline uint16_t day() const {
@@ -83,7 +83,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as hours
+   * @brief Format the duration as hours
    * @return The number of hours
    */
   inline uint32_t hour() const {
@@ -91,7 +91,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as minutes
+   * @brief Format the duration as minutes
    * @return The number of minutes
    */
   inline uint32_t minute() const {
@@ -99,7 +99,7 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as seconds
+   * @brief Format the duration as seconds
    * @return The number of seconds
    */
   inline uint32_t second() const {
@@ -112,11 +112,12 @@ struct duration_t {
   #endif
 
   /**
-   * @brief Formats the duration as a string
+   * @brief Format the duration as a string
    * @details String will be formatted using a "full" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 22 bytes
    *               (21 for the string, 1 more for the terminating nul)
+   * @param dense Whether to skip spaces in the resulting string
    *
    * Output examples:
    *  123456789012345678901 (strlen)
@@ -142,10 +143,42 @@ struct duration_t {
   }
 
   /**
-   * @brief Formats the duration as a string
+   * @brief Format the duration as a compact string
+   * @details String will be formatted using a "full" representation of duration
+   *
+   * @param buffer The array pointed to must be able to accommodate 18 bytes
+   *               (17 for the string, 1 more for the terminating nul)
+   * @param dense Whether to skip spaces in the resulting string
+   *
+   * Output examples:
+   *  12345678901234567 (strlen)
+   *  135y364d23h59m59s
+   *  364d23h59m59s
+   *  23h59m59s
+   *  59m59s
+   *  59s
+   */
+  char* toCompactString(char * const buffer) const {
+    const uint16_t y = this->year(),
+                   d = this->day() % 365,
+                   h = this->hour() % 24,
+                   m = this->minute() % 60,
+                   s = this->second() % 60;
+
+         if (y) sprintf_P(buffer, PSTR("%iy%id%ih%im%is"), y, d, h, m, s);
+    else if (d) sprintf_P(buffer, PSTR("%id%ih%im%is"), d, h, m, s);
+    else if (h) sprintf_P(buffer, PSTR("%ih%im%is"), h, m, s);
+    else if (m) sprintf_P(buffer, PSTR("%im%is"), m, s);
+    else sprintf_P(buffer, PSTR("%is"), s);
+    return buffer;
+  }
+
+  /**
+   * @brief Format the duration as a string
    * @details String will be formatted using a "digital" representation of duration
    *
    * @param buffer The array pointed to must be able to accommodate 10 bytes
+   * @return length of the formatted string (without terminating nul)
    *
    * Output examples:
    *  123456789 (strlen)

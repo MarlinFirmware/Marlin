@@ -21,7 +21,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
+#if ALL(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
 #include "../ui_api.h"
 
@@ -50,7 +50,7 @@ namespace ExtUI {
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
@@ -88,20 +88,22 @@ namespace ExtUI {
     // Called after loading or resetting stored settings
   }
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
     }
@@ -112,6 +114,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
     }

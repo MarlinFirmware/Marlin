@@ -60,7 +60,7 @@
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
-#if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+#if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
   void menu_delta_calibrate();
 #endif
 
@@ -181,10 +181,10 @@ void menu_advanced_settings();
     #if ENABLED(DUAL_X_CARRIAGE)
       EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0, 99.0, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_A, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
@@ -360,7 +360,7 @@ void menu_advanced_settings();
 
   void custom_menus_configuration() {
     START_MENU();
-    BACK_ITEM(MSG_MAIN);
+    BACK_ITEM(MSG_MAIN_MENU);
 
     #define HAS_CUSTOM_ITEM_CONF(N) (defined(CONFIG_MENU_ITEM_##N##_DESC) && defined(CONFIG_MENU_ITEM_##N##_GCODE))
 
@@ -472,7 +472,7 @@ void menu_configuration() {
   const bool busy = printer_busy();
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Debug Menu when certain options are enabled
@@ -507,7 +507,7 @@ void menu_configuration() {
   #endif
 
   if (!busy) {
-    #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
     #endif
 
@@ -572,7 +572,7 @@ void menu_configuration() {
 
   // Preheat configurations
   #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
+    for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
       SUBMENU_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 

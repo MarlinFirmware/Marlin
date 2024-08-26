@@ -37,7 +37,7 @@
   #undef NO_EEPROM_SELECTED
 #endif
 
-#define FAN_PIN                             PC6
+#define FAN0_PIN                            PC6
 
 //
 // USB connect control
@@ -55,7 +55,13 @@
  *                 ------
  *                  EXP1
  */
+#define EXP1_01_PIN                         PB5
 #define EXP1_02_PIN                         PA15
+#define EXP1_03_PIN                         PA9
+#define EXP1_04_PIN                         -1    // RESET
+#define EXP1_05_PIN                         PA10
+#define EXP1_06_PIN                         PB9
+#define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB15
 
 #include "pins_BTT_SKR_MINI_E3_common.h"

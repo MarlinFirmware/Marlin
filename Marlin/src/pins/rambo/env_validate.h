@@ -19,8 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef ENV_VALIDATE_H
+#define ENV_VALIDATE_H
 
 #if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
+#endif
+
 #endif

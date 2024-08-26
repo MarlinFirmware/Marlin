@@ -154,8 +154,8 @@
 #define HEATER_0_PIN                        PA15  // PWM Capable, TIM2_CH1
 #define HEATER_BED_PIN                      PB3   // PWM Capable, TIM2_CH2
 
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB10  // PWM Capable, TIM2_CH3
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB10  // PWM Capable, TIM2_CH3
 #endif
 #define FAN1_PIN                            PB11  // PWM Capable, TIM2_CH4
 
@@ -181,12 +181,13 @@
 //
 // LCD / Controller
 //
+
 #if IS_RRD_FG_SC
   #define BEEPER_PIN                        PC7   // LCD_BEEPER
   #define BTN_ENC                           PE11  // BTN_ENC
   #define SD_DETECT_PIN                     PD14
   #define LCD_PINS_RS                       PF12  // LCD_RS
-  #define LCD_PINS_ENABLE                   PD15  // LCD_EN
+  #define LCD_PINS_EN                       PD15  // LCD_EN
   #define LCD_PINS_D4                       PB13  // LCD_D4
   #define BTN_EN1                           PF13  // BTN_EN1
   #define BTN_EN2                           PE9   // BTN_EN2

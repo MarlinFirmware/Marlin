@@ -23,6 +23,9 @@
 
 /**
  * CartesioV12 pin assignments
+ * Comes with an Arduino Mega, see
+ * https://web.archive.org/web/20171024190029/http://mauk.cc/mediawiki/index.php/Electronical_assembly
+ * ATmega2560, ATmega1280
  */
 
 #define ALLOW_MEGA1280
@@ -90,8 +93,8 @@
 #define HEATER_3_PIN                           3
 #define HEATER_BED_PIN                        24
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              5  // 5 is PWMtool3 -> 7 is common PWM pin for all tools
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             5  // 5 is PWMtool3 -> 7 is common PWM pin for all tools
 #endif
 
 //
@@ -140,6 +143,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          16
 

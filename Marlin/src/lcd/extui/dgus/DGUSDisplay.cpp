@@ -227,7 +227,7 @@ void DGUSDisplay::ProcessRx() {
   }
 }
 
-size_t DGUSDisplay::GetFreeTxBuffer() { return SERIAL_GET_TX_BUFFER_FREE(); }
+size_t DGUSDisplay::GetFreeTxBuffer() { return LCD_SERIAL_TX_BUFFER_FREE(); }
 
 void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
   LCD_SERIAL.write(DGUS_HEADER1);

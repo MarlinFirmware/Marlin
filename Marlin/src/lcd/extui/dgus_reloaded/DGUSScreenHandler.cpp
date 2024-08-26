@@ -34,7 +34,7 @@
 
 uint8_t DGUSScreenHandler::debug_count = 0;
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   ExtUI::FileList DGUSScreenHandler::filelist;
   uint16_t DGUSScreenHandler::filelist_offset = 0;
   int16_t DGUSScreenHandler::filelist_selected = -1;
@@ -138,7 +138,7 @@ void DGUSScreenHandler::Loop() {
   if (current_screen == DGUS_Screen::LEVELING_PROBING && IsPrinterIdle()) {
     dgus_display.PlaySound(3);
 
-    SetStatusMessage(ExtUI::getMeshValid() ? F("Probing successful") : F("Probing failed"));
+    SetStatusMessage(ExtUI::getLevelingIsValid() ? F("Probing successful") : F("Probing failed"));
 
     MoveToScreen(DGUS_Screen::LEVELING_AUTOMATIC);
     return;
@@ -200,7 +200,7 @@ void DGUSScreenHandler::StoreSettings(char *buff) {
   data.initialized = true;
   data.volume = dgus_display.GetVolume();
   data.brightness = dgus_display.GetBrightness();
-  data.abl_okay = (ExtUI::getLevelingActive() && ExtUI::getMeshValid());
+  data.abl_okay = (ExtUI::getLevelingActive() && ExtUI::getLevelingIsValid());
 
   memcpy(buff, &data, sizeof(data));
 }
@@ -216,7 +216,7 @@ void DGUSScreenHandler::LoadSettings(const char *buff) {
   dgus_display.SetBrightness(data.initialized ? data.brightness : DGUS_DEFAULT_BRIGHTNESS);
 
   if (data.initialized) {
-    leveling_active = (data.abl_okay && ExtUI::getMeshValid());
+    leveling_active = (data.abl_okay && ExtUI::getLevelingIsValid());
     ExtUI::setLevelingActive(leveling_active);
   }
 }
@@ -257,7 +257,7 @@ void DGUSScreenHandler::MeshUpdate(const int8_t xpos, const int8_t ypos) {
   uint8_t point = ypos * GRID_MAX_POINTS_X + xpos;
   probing_icons[point < 16 ? 0 : 1] |= (1U << (point % 16));
 
-  if (xpos >= GRID_MAX_POINTS_X - 1 && ypos >= GRID_MAX_POINTS_Y - 1 && !ExtUI::getMeshValid())
+  if (xpos >= GRID_MAX_POINTS_X - 1 && ypos >= GRID_MAX_POINTS_Y - 1 && !ExtUI::getLevelingIsValid())
     probing_icons[0] = probing_icons[1] = 0;
 
   TriggerFullUpdate();
@@ -290,7 +290,7 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
   dgus_display.PlaySound(3);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void DGUSScreenHandler::SDCardInserted() {
     if (current_screen == DGUS_Screen::HOME)
@@ -308,7 +308,7 @@ void DGUSScreenHandler::FilamentRunout(const ExtUI::extruder_t extruder) {
       TriggerScreenChange(DGUS_Screen::HOME);
   }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 

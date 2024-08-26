@@ -563,7 +563,7 @@ char *creat_title_text() {
   uintptr_t gPicturePreviewStart = 0;
 
   void preview_gcode_prehandle(char *path) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
       char *cur_name;
@@ -593,7 +593,7 @@ char *creat_title_text() {
   }
 
   void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       volatile uint32_t i, j;
       volatile uint16_t *p_index;
       char *cur_name;
@@ -647,8 +647,8 @@ char *creat_title_text() {
 
         char *cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-        SdFile file;
-        SdFile *curDir;
+        MediaFile file;
+        MediaFile *curDir;
         const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
         if (file.open(curDir, fname, O_READ)) {
@@ -672,7 +672,7 @@ char *creat_title_text() {
         }
         return;
       }
-    #endif // SDSUPPORT
+    #endif // HAS_MEDIA
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
@@ -1345,7 +1345,7 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void sd_detection() {
     static bool last_sd_status;
@@ -1377,7 +1377,7 @@ void LV_TASK_HANDLER() {
   if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
     lv_task_handler();
 
-  #if BOTH(MKS_TEST, SDSUPPORT)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

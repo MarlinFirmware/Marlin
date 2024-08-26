@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Creality V24S1_301F4 (STM32F401RC) board pin assignments as found on Ender 3 S1.
+ * Creality V24S1_301F4 (STM32F401RC) board pin assignments as found on Ender-3 S1.
  */
 
 #ifndef BOARD_INFO_NAME

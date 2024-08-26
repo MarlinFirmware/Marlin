@@ -33,7 +33,7 @@
 #define DATASIZE_8BIT  DMA_SIZE_8BITS
 #define DATASIZE_16BIT DMA_SIZE_16BITS
 #define TFT_IO_DRIVER  TFT_FSMC
-#define DMA_MAX_SIZE   0xFFFF
+#define DMA_MAX_WORDS  0xFFFF
 
 #define DMA_PINC_ENABLE   DMA_PINC_MODE
 #define DMA_PINC_DISABLE  0
@@ -70,8 +70,8 @@ class TFT_FSMC {
     static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint32_t Count) {
       while (Count > 0) {
-        Transmit(DMA_PINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
-        Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
+        Transmit(DMA_PINC_DISABLE, &Color, Count > DMA_MAX_WORDS ? DMA_MAX_WORDS : Count);
+        Count = Count > DMA_MAX_WORDS ? Count - DMA_MAX_WORDS : 0;
       }
     }
 };

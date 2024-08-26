@@ -21,19 +21,26 @@
  */
 #pragma once
 
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if (ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125) || (ENABLED(FAST_PWM_FAN_FREQUENCY) && FAST_PWM_FAN_FREQUENCY > 78125)
-  #error "SPINDLE_LASER_FREQUENCY and FAST_PWM_FREQUENCY maximum value is 78125Hz for ESP32."
+#if ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125
+  #error "SPINDLE_LASER_FREQUENCY maximum value is 78125Hz for ESP32."
+#endif
+#if ENABLED(FAST_PWM_FAN) && FAST_PWM_FAN_FREQUENCY > 78125
+  #error "FAST_PWM_FREQUENCY maximum value is 78125Hz for ESP32."
 #endif
 
 #if HAS_TMC_SW_SERIAL
   #error "TMC220x Software Serial is not supported on ESP32."
 #endif
 
-#if BOTH(WIFISUPPORT, ESP3D_WIFISUPPORT)
+#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
 
@@ -45,7 +52,7 @@
   #error "FAST_PWM_FAN is not available on TinyBee."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
+#if ALL(I2S_STEPPER_STREAM, BABYSTEPPING) && DISABLED(INTEGRATED_BABYSTEPPING)
   #error "BABYSTEPPING on I2S stream requires INTEGRATED_BABYSTEPPING."
 #endif
 
@@ -53,6 +60,10 @@
   #error "PULLDOWN pin mode is not available on ESP32 boards."
 #endif
 
-#if BOTH(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
+#if ALL(I2S_STEPPER_STREAM, LIN_ADVANCE) && DISABLED(EXPERIMENTAL_I2S_LA)
   #error "I2S stream is currently incompatible with LIN_ADVANCE."
+#endif
+
+#if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
+  #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif

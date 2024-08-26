@@ -32,7 +32,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x2000  // 8K
 #endif
@@ -180,7 +180,7 @@
 #define TEMP_BED_PIN                           4  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49
@@ -196,8 +196,8 @@
   #define HEATER_BED_PIN                       7  // BED
 #endif
 
-#ifndef FAN_PIN
-  #define FAN_PIN                              9
+#ifndef FAN0_PIN
+  #define FAN0_PIN                             9
 #endif
 #define FAN1_PIN                               8
 
@@ -224,12 +224,13 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
     #define LCD_PINS_D5                       45
     #define LCD_PINS_D6                       46
@@ -252,7 +253,7 @@
     // an adapter such as https://www.thingiverse.com/thing:1740725
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
 
     #define BEEPER_PIN                        41
@@ -276,7 +277,7 @@
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
     #define LCD_PINS_D4                       29
-    #define LCD_PINS_ENABLE                   27
+    #define LCD_PINS_EN                       27
     #define LCD_PINS_RS                       25
 
     #define BTN_EN1                           35

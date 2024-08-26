@@ -27,7 +27,7 @@
   #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-#include HAL_PATH(.,HAL.h)
+#include HAL_PATH(..,HAL.h)
 extern MarlinHAL hal;
 
 #define HAL_ADC_RANGE _BV(HAL_ADC_RESOLUTION)

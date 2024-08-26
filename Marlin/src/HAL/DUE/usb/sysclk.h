@@ -71,7 +71,7 @@
  * \subsection sysclk_quickstart_use_case_1_setup_steps Initialization code
  * Add to the application initialization code:
  * \code
-	sysclk_init();
+  sysclk_init();
 \endcode
  *
  * \subsection sysclk_quickstart_use_case_1_setup_steps_workflow Workflow
@@ -82,15 +82,15 @@
  *   Add or uncomment the following in your conf_clock.h header file, commenting out all other
  *   definitions of the same symbol(s):
  *   \code
-	   #define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLLACK
+     #define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLLACK
 
-	   // Fpll0 = (Fclk * PLL_mul) / PLL_div
-	   #define CONFIG_PLL0_SOURCE          PLL_SRC_MAINCK_XTAL
-	   #define CONFIG_PLL0_MUL             (84000000UL / BOARD_FREQ_MAINCK_XTAL)
-	   #define CONFIG_PLL0_DIV             1
+     // Fpll0 = (Fclk * PLL_mul) / PLL_div
+     #define CONFIG_PLL0_SOURCE          PLL_SRC_MAINCK_XTAL
+     #define CONFIG_PLL0_MUL             (84000000UL / BOARD_FREQ_MAINCK_XTAL)
+     #define CONFIG_PLL0_DIV             1
 
-	   // Fbus = Fsys / BUS_div
-	   #define CONFIG_SYSCLK_PRES          SYSCLK_PRES_1
+     // Fbus = Fsys / BUS_div
+     #define CONFIG_SYSCLK_PRES          SYSCLK_PRES_1
 \endcode
  *
  * \subsection sysclk_quickstart_use_case_1_example_workflow Workflow
@@ -100,14 +100,14 @@
  *   \code #define CONFIG_PLL0_SOURCE            PLL_SRC_MAINCK_XTAL \endcode
  *  -# Configure the PLL module to multiply the external fast crystal oscillator frequency up to 84MHz:
  *   \code
-	#define CONFIG_PLL0_MUL             (84000000UL / BOARD_FREQ_MAINCK_XTAL)
-	#define CONFIG_PLL0_DIV             1
+  #define CONFIG_PLL0_MUL             (84000000UL / BOARD_FREQ_MAINCK_XTAL)
+  #define CONFIG_PLL0_DIV             1
 \endcode
  *   \note For user boards, \c BOARD_FREQ_MAINCK_XTAL should be defined in the board \c conf_board.h configuration
  *         file as the frequency of the fast crystal attached to the microcontroller.
  *  -# Configure the main clock to run at the full 84MHz, disable scaling of the main system clock speed:
  *    \code
-	#define CONFIG_SYSCLK_PRES         SYSCLK_PRES_1
+  #define CONFIG_SYSCLK_PRES         SYSCLK_PRES_1
 \endcode
  *    \note Some dividers are powers of two, while others are integer division factors. Refer to the
  *          formulas in the conf_clock.h template commented above each division define.
@@ -136,7 +136,7 @@ extern "C" {
  * initialization.
  */
 #ifndef CONFIG_SYSCLK_SOURCE
-# define CONFIG_SYSCLK_SOURCE   SYSCLK_SRC_MAINCK_4M_RC
+  #define CONFIG_SYSCLK_SOURCE   SYSCLK_SRC_MAINCK_4M_RC
 #endif
 /**
  * \def CONFIG_SYSCLK_PRES
@@ -149,7 +149,7 @@ extern "C" {
  * after initialization.
  */
 #ifndef CONFIG_SYSCLK_PRES
-# define CONFIG_SYSCLK_PRES  0
+  #define CONFIG_SYSCLK_PRES  0
 #endif
 
 //@}
@@ -197,7 +197,7 @@ extern "C" {
  * USB is not required.
  */
 #ifdef __DOXYGEN__
-# define CONFIG_USBCLK_SOURCE
+  #define CONFIG_USBCLK_SOURCE
 #endif
 
 /**
@@ -209,9 +209,8 @@ extern "C" {
  * defined.
  */
 #ifdef __DOXYGEN__
-# define CONFIG_USBCLK_DIV
+  #define CONFIG_USBCLK_DIV
 #endif
-
 
 extern void sysclk_enable_usb(void);
 extern void sysclk_disable_usb(void);

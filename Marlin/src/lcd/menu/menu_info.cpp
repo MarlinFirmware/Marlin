@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, LCD_INFO_MENU)
+#if ALL(HAS_MARLINUI_MENU, LCD_INFO_MENU)
 
 #include "menu_item.h"
 
@@ -276,7 +276,7 @@ void menu_info_board() {
 //
 void menu_info() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
   #if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
     SUBMENU(MSG_INFO_PRINTER_MENU, TERN(SHOW_CUSTOM_BOOTSCREEN, menu_show_custom_bootscreen, menu_show_marlin_bootscreen));
   #else

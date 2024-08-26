@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_ESDIAG)
+#if ALL(DWIN_LCD_PROUI, HAS_ESDIAG)
 
 #include "endstop_diag.h"
 
@@ -72,13 +72,13 @@ void ESDiagClass::Draw() {
   DWINUI::Draw_Button(BTN_Continue, 86, 250);
   DWINUI::cursor.y = 80;
   #define ES_LABEL(S) draw_es_label(F(STR_##S))
-  #if HAS_X_MIN
+  #if USE_X_MIN
     ES_LABEL(X_MIN);
   #endif
-  #if HAS_Y_MIN
+  #if USE_Y_MIN
     ES_LABEL(Y_MIN);
   #endif
-  #if HAS_Z_MIN
+  #if USE_Z_MIN
     ES_LABEL(Z_MIN);
   #endif
   #if HAS_FILAMENT_SENSOR
@@ -90,13 +90,13 @@ void ESDiagClass::Draw() {
 void ESDiagClass::Update() {
   DWINUI::cursor.y = 80;
   #define ES_REPORT(S) draw_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING)
-  #if HAS_X_MIN
+  #if USE_X_MIN
     ES_REPORT(X_MIN);
   #endif
-  #if HAS_Y_MIN
+  #if USE_Y_MIN
     ES_REPORT(Y_MIN);
   #endif
-  #if HAS_Z_MIN
+  #if USE_Z_MIN
     ES_REPORT(Z_MIN);
   #endif
   #if HAS_FILAMENT_SENSOR

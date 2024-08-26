@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-#include "../fontutils.h"
+#include "../utf8.h"
 
 extern const uint8_t ISO10646_1_5x7[];
 extern const uint8_t font10x20[];

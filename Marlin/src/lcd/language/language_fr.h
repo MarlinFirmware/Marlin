@@ -49,7 +49,7 @@ namespace Language_fr {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
-  LSTR MSG_MAIN                           = _UxGT("Menu principal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
@@ -272,7 +272,6 @@ namespace Language_fr {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Opér. expirée");
-  LSTR MSG_SELECT                         = _UxGT("Sélectionner");
   LSTR MSG_SELECT_E                       = _UxGT("Sélectionner *");
   LSTR MSG_ACC                            = _UxGT("Accélération");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -354,7 +353,7 @@ namespace Language_fr {
   LSTR MSG_STOP_PRINT                     = _UxGT("Arrêter impr.");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Impression objet");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Annuler objet");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Annuler objet {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Récup. coup.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Impression SD");
   LSTR MSG_NO_MEDIA                       = _UxGT("Pas de média");
@@ -368,7 +367,7 @@ namespace Language_fr {
   LSTR MSG_STOPPED                        = _UxGT("STOPPÉ");
   LSTR MSG_CONTROL_RETRACT                = _UxGT("Rétractation mm");
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ech. rétr. mm");
-  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract°");
+  LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. rétract") LCD_STR_DEGREE;
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saut Z mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Rét.reprise mm");
   LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ech.reprise mm");
@@ -379,7 +378,7 @@ namespace Language_fr {
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");
   LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Vitesse primaire");
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT      = _UxGT("Purge Retract");
-  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract°");
+  LSTR MSG_SINGLENOZZLE_RETRACT_SPEED     = _UxGT("Vitesse rétract") LCD_STR_DEGREE;
   LSTR MSG_FILAMENT_PARK_ENABLED          = _UxGT("Garer Extrudeur");
   LSTR MSG_SINGLENOZZLE_UNRETRACT_SPEED   = _UxGT("Vitesse reprise");
   LSTR MSG_SINGLENOZZLE_FAN_SPEED         = _UxGT("Vit.  ventil.");
@@ -444,9 +443,6 @@ namespace Language_fr {
 
   LSTR MSG_HALTED                         = _UxGT("IMPR. STOPPÉE");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Redémarrer SVP");
-  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 
   LSTR MSG_HEATING                        = _UxGT("en chauffe...");
   LSTR MSG_COOLING                        = _UxGT("Refroidissement");
@@ -544,7 +540,7 @@ namespace Language_fr {
   LSTR MSG_MMU2_RESETTING                 = _UxGT("Réinit. MMU...");
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Retrait, click");
 
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Composante {");
   LSTR MSG_MIXER                          = _UxGT("Mixeur");
   LSTR MSG_GRADIENT                       = _UxGT("Dégradé");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Dégradé complet");
@@ -632,4 +628,8 @@ namespace Language_fr {
 
   LSTR MSG_SD_CARD                        = _UxGT("Carte SD");
   LSTR MSG_USB_DISK                       = _UxGT("Clé USB");
+
+  LSTR MSG_SHORT_DAY                      = _UxGT("j"); // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("h"); // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("m"); // One character only
 }

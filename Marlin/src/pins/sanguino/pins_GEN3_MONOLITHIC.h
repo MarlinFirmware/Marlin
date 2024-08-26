@@ -23,6 +23,7 @@
 
 /**
  * Gen3 Monolithic Electronics pin assignments
+ * https://reprap.org/wiki/Generation_3_Electronics
  */
 
 /**
@@ -32,7 +33,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0

@@ -22,10 +22,8 @@
 #pragma once
 
 /**
- * MRR ESPE pin assignments
- * MRR ESPE is a 3D printer control board based on the ESP32 microcontroller.
- * Supports 5 stepper drivers (using I2S stepper stream), heated bed,
- * single hotend, and LCD controller.
+ * MKS TinyBee pin assignments
+ * https://github.com/makerbase-mks/MKS-TinyBee
  */
 
 #include "env_validate.h"
@@ -58,7 +56,9 @@
 //
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
@@ -104,7 +104,7 @@
 //
 #define HEATER_0_PIN                         145
 #define HEATER_1_PIN                         146
-#define FAN_PIN                              147
+#define FAN0_PIN                             147
 #define FAN1_PIN                             148
 #define HEATER_BED_PIN                       144
 
@@ -121,7 +121,7 @@
  *                ------                                 ------
  *  (BEEPER) 149 | 1  2 | 13 (BTN_ENC)    (SPI MISO) 19 | 1  2 | 18 (SPI SCK)
  *  (LCD_EN)  21 | 3  4 |  4 (LCD_RS)      (BTN_EN1) 14 | 3  4 |  5 (SPI CS)
- *  (LCD_D4)   0   5  6 | 16 (LCD_D5)      (BTN_EN2) 12   5  6 | 23 (SPI MOSI)
+ *  (LCD_D4)   0 | 5  6   16 (LCD_D5)      (BTN_EN2) 12 | 5  6   23 (SPI MOSI)
  *  (LCD_D6)  15 | 7  8 | 17 (LCD_D7)      (SPI_DET) 34 | 7  8 | RESET
  *           GND | 9 10 | 5V                        GND | 9 10 | 3.3V
  *                ------                                 ------
@@ -158,7 +158,7 @@
 
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
@@ -171,7 +171,7 @@
     #define DOGLCD_A0                EXP1_07_PIN
     #define LCD_RESET_PIN                     -1
   #elif ENABLED(FYSETC_MINI_12864_2_1)
-    // MKS_MINI_12864_V3, BTT_MINI_12864_V1, FYSETC_MINI_12864_2_1
+    // MKS_MINI_12864_V3, BTT_MINI_12864, FYSETC_MINI_12864_2_1
     #define DOGLCD_CS                EXP1_03_PIN
     #define DOGLCD_A0                EXP1_04_PIN
     #define LCD_RESET_PIN            EXP1_05_PIN
@@ -179,7 +179,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-    #if BOTH(MKS_MINI_12864_V3, SDSUPPORT)
+    #if ALL(MKS_MINI_12864_V3, HAS_MEDIA)
       #define PAUSE_LCD_FOR_BUSY_SD
     #endif
   #else

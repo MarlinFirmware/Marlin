@@ -37,7 +37,7 @@
  * Print a string with optional substitutions:
  *
  *   $ displays the clipped string given by fstr or cstr
- *   = displays  '0'....'10' for indexes 0 - 10
+ *   { displays  '0'....'10' for indexes 0 - 10
  *   ~ displays  '1'....'11' for indexes 0 - 10
  *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  *   @ displays an axis name such as XYZUVW, or E for an extruder
@@ -50,11 +50,11 @@ lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/
     lchar_t wc;
     p = get_utf8_value_cb(p, read_byte_rom, wc);
     if (!wc) break;
-    if (wc == '=' || wc == '~' || wc == '*') {
+    if (wc == '{' || wc == '~' || wc == '*') {
       if (ind >= 0) {
         if (wc == '*') { lcd_put_u8str(F("E")); n--; }
         if (n) {
-          int8_t inum = ind + ((wc == '=') ? 0 : LCD_FIRST_TOOL);
+          int8_t inum = ind + ((wc == '{') ? 0 : LCD_FIRST_TOOL);
           if (inum >= 10) {
             lcd_put_lchar('0' + (inum / 10)); n--;
             inum %= 10;

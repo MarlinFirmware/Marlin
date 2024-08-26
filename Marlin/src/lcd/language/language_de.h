@@ -52,7 +52,7 @@ namespace Language_de {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall überschritten");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopp"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
-  LSTR MSG_MAIN                           = _UxGT("Hauptmenü");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
   LSTR MSG_TOOLBAR_SETUP                  = _UxGT("Toolbar Einstellung");
   LSTR MSG_OPTION_DISABLED                = _UxGT("Option Deaktiviert");
@@ -277,7 +277,7 @@ namespace Language_de {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Violett");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Weiß");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Lichter #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Licht #2 Voreinst.");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Helligkeit");
@@ -357,7 +357,6 @@ namespace Language_de {
   LSTR MSG_SENSOR_RESPONSIVENESS_E        = _UxGT("Sensor res *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_E       = _UxGT("Ambient h *");
   LSTR MSG_MPC_AMBIENT_XFER_COEFF_FAN_E   = _UxGT("Amb. h fan *");
-  LSTR MSG_SELECT                         = _UxGT("Auswählen");
   LSTR MSG_SELECT_E                       = _UxGT("Auswählen *");
   LSTR MSG_ACC                            = _UxGT("Beschleunigung");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -415,7 +414,7 @@ namespace Language_de {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Standardwerte laden");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Werkseinstellungen");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Fehler");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Fehler");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM Größe Fehler");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Fehler");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Einstell. gespei.");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("FW Update vom Medium");
@@ -462,7 +461,7 @@ namespace Language_de {
   LSTR MSG_END_LOOPS                      = _UxGT("Wiederholung beenden");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Objekt drucken");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Objekt abbrechen");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objekt abbrechen =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Objekt abbrechen {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Wiederh. n. Stroma.");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Druckauftrag fortset.");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Druck vom Medium");
@@ -693,7 +692,7 @@ namespace Language_de {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Entfernen, klicken");
 
   LSTR MSG_MIX                            = _UxGT("Mix");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponente =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponente {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient"); // equal Farbverlauf
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Volle Gradient");

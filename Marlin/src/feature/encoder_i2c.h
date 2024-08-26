@@ -90,7 +90,7 @@
 #define I2CPE_PARSE_ERR               1
 #define I2CPE_PARSE_OK                0
 
-#define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
+#define LOOP_PE(VAR) for (uint8_t VAR = 0; VAR < I2CPE_ENCODER_CNT; ++VAR)
 #define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
 
 typedef union {
@@ -261,32 +261,32 @@ class I2CPositionEncodersMgr {
 
     static void report_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
-      SERIAL_ECHOLNPGM("Error count on ", AS_CHAR(AXIS_CHAR(axis)), " axis is ", encoders[idx].get_error_count());
+      SERIAL_ECHOLNPGM("Error count on ", C(AXIS_CHAR(axis)), " axis is ", encoders[idx].get_error_count());
     }
 
     static void reset_error_count(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_error_count(0);
-      SERIAL_ECHOLNPGM("Error count on ", AS_CHAR(AXIS_CHAR(axis)), " axis has been reset.");
+      SERIAL_ECHOLNPGM("Error count on ", C(AXIS_CHAR(axis)), " axis has been reset.");
     }
 
     static void enable_ec(const int8_t idx, const bool enabled, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_enabled(enabled);
-      SERIAL_ECHOPGM("Error correction on ", AS_CHAR(AXIS_CHAR(axis)));
+      SERIAL_ECHOPGM("Error correction on ", C(AXIS_CHAR(axis)));
       SERIAL_ECHO_TERNARY(encoders[idx].get_ec_enabled(), " axis is ", "en", "dis", "abled.\n");
     }
 
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
-      SERIAL_ECHOLNPGM("Error correct threshold for ", AS_CHAR(AXIS_CHAR(axis)), " axis set to ", newThreshold, "mm.");
+      SERIAL_ECHOLNPGM("Error correct threshold for ", C(AXIS_CHAR(axis)), " axis set to ", newThreshold, "mm.");
     }
 
     static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
-      SERIAL_ECHOLNPGM("Error correct threshold for ", AS_CHAR(AXIS_CHAR(axis)), " axis is ", threshold, "mm.");
+      SERIAL_ECHOLNPGM("Error correct threshold for ", C(AXIS_CHAR(axis)), " axis is ", threshold, "mm.");
     }
 
     static int8_t idx_from_axis(const AxisEnum axis) {

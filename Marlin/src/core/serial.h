@@ -125,8 +125,6 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_IMPL         SERIAL_LEAF_1
 #endif
 
-#define SERIAL_OUT(WHAT, V...)  (void)SERIAL_IMPL.WHAT(V)
-
 #define PORT_REDIRECT(p)   _PORT_REDIRECT(1,p)
 #define PORT_RESTORE()     _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P) SerialMask::from(P)
@@ -149,10 +147,8 @@ template <typename T>
 void SERIAL_ECHO(T x) { SERIAL_IMPL.print(x); }
 
 // Wrapper for ECHO commands to interpret a char
-typedef struct SerialChar { char c; SerialChar(char n) : c(n) { } } serial_char_t;
 inline void SERIAL_ECHO(serial_char_t x) { SERIAL_IMPL.write(x.c); }
-#define AS_CHAR(C) serial_char_t(C)
-#define AS_DIGIT(C) AS_CHAR('0' + (C))
+#define AS_DIGIT(n) C('0' + (n))
 
 template <typename T>
 void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
@@ -327,7 +323,12 @@ inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP
 
 void serial_echo_start();
 void serial_error_start();
-void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr);
+inline void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post=nullptr) {
+  if (pre) serial_print(pre);
+  if (onoff && on) serial_print(on);
+  if (!onoff && off) serial_print(off);
+  if (post) serial_print(post);
+}
 void serialprint_onoff(const bool onoff);
 void serialprintln_onoff(const bool onoff);
 void serialprint_truefalse(const bool tf);
@@ -337,8 +338,8 @@ void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space 
 void print_bin(const uint16_t val);
 void print_pos(NUM_AXIS_ARGS(const_float_t), FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 
-inline void print_pos(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
-  print_pos(NUM_AXIS_ELEM(xyz), prefix, suffix);
+inline void print_pos(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
+  print_pos(NUM_AXIS_ELEM(xyze), prefix, suffix);
 }
 
 #define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)

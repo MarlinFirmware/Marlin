@@ -44,7 +44,7 @@ namespace Language_vi {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB khởi thất bại");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Công tắc");                             // Endstops - công tắc hành trình
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Công tắc mềm");                         // soft Endstops
-  LSTR MSG_MAIN                           = _UxGT("Chính");                                // Main
+  LSTR MSG_MAIN_MENU                      = _UxGT("Chính");                                // Main
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Thiết lập cấp cao");                    // Advanced Settings
   LSTR MSG_CONFIGURATION                  = _UxGT("Cấu hình");                             // Configuration
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Khởi chạy tự động");                    // Autostart
@@ -224,7 +224,6 @@ namespace Language_vi {
   LSTR MSG_AUTOTEMP                       = _UxGT("Nhiệt độ tự động");                     // Autotemp
   LSTR MSG_LCD_ON                         = _UxGT("Bật");                                  // on
   LSTR MSG_LCD_OFF                        = _UxGT("Tắt");                                  // off
-  LSTR MSG_SELECT                         = _UxGT("Lựa");                                  // Select
   LSTR MSG_SELECT_E                       = _UxGT("Lựa *");
   LSTR MSG_ACC                            = _UxGT("Tăng Tốc");
   LSTR MSG_JERK                           = _UxGT("Giật");
@@ -342,9 +341,6 @@ namespace Language_vi {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Điều sai: nhiệt độ tối thiểu");         // Err: MINTEMP
   LSTR MSG_HALTED                         = _UxGT("MÁY IN ĐÃ DỪNG LẠI");                   // PRINTER HALTED
   LSTR MSG_PLEASE_RESET                   = _UxGT("Xin bặt lại");                          // Please reset
-  LSTR MSG_SHORT_DAY                      = _UxGT("n");                                    // d - ngày - One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("g");                                    // h - giờ  - One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("p");                                    // m - phút - One character only
   LSTR MSG_HEATING                        = _UxGT("Đang sưởi nóng...");                    // heating
   LSTR MSG_COOLING                        = _UxGT("Đang làm nguội...");                    // cooling
   LSTR MSG_BED_HEATING                    = _UxGT("Đang sưởi nong bàn...");                // bed heating
@@ -438,4 +434,8 @@ namespace Language_vi {
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Vô cảm biến");                          // Sensorless homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Chế độ từng bước");                     // Stepping mode
   LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("CắtTàngHình được kích hoạt");           // StealthChop enabled
+
+  LSTR MSG_SHORT_DAY                      = _UxGT("n");                                    // d - ngày - One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("g");                                    // h - giờ  - One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("p");                                    // m - phút - One character only
 }

@@ -91,7 +91,6 @@ namespace Language_en {
   LSTR MSG_IDLE                     = u8"idle";
   LSTR MSG_SET_MAXIMUM              = u8"Set Maximum";
   LSTR MSG_PRINT_SPEED              = u8"Print Speed";
-  LSTR MSG_LINEAR_ADVANCE           = u8"Linear Advance";
   LSTR MSG_LINEAR_ADVANCE_K         = u8"K";
   LSTR MSG_LINEAR_ADVANCE_K1        = u8"K E1";
   LSTR MSG_LINEAR_ADVANCE_K2        = u8"K E2";
@@ -146,6 +145,9 @@ namespace Language_en {
   LSTR MSG_PROBE_BED                = u8"Probe Mesh";
   LSTR MSG_PRINT_TEST               = u8"Print Test (PLA)";
   LSTR MSG_MOVE_Z_TO_TOP            = u8"Raise Z to Top";
+  LSTR MSG_MAX_SPEED_NO_UNITS       = u8"Max Speed";
+
+  //LSTR MSG_FTDI_HEATER_TIMEOUT    = u8"Idle timeout, temperature decreased. Press Okay to reheat and again to resume.";
 
   #if ENABLED(TOUCH_UI_LULZBOT_BIO)
     LSTR MSG_MOVE_TO_HOME           = u8"Move to Home";
@@ -163,13 +165,12 @@ namespace Language_en {
     LSTR MSG_CHOCOLATE              = u8"Chocolate";
     LSTR MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
     LSTR MSG_LOAD_UNLOAD            = u8"Load/Unload";
-    LSTR MSG_FULL_LOAD              = u8"Full Load";
-    LSTR MSG_FULL_UNLOAD            = u8"Full Unload";
+    LSTR MSG_START_STOP             = u8"Start/Stop";
+    LSTR MSG_LOAD                   = u8"Load";
+    LSTR MSG_UNLOAD                 = u8"Unload";
     LSTR MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     LSTR MSG_PREHEAT_FINISHED       = u8"Preheat finished";
     LSTR MSG_PREHEAT                = u8"Preheat";
-    LSTR MSG_BUTTON_PAUSE           = u8"Pause";
-    LSTR MSG_BUTTON_RESUME          = u8"Resume";
     LSTR MSG_ELAPSED_PRINT          = u8"Elapsed Print";
     LSTR MSG_XYZ_MOVE               = u8"XYZ Move";
     LSTR MSG_E_MOVE                 = u8"Extrusion Move";

@@ -25,7 +25,6 @@
   extern "C" {
 #endif
 
-
 void lv_draw_wifi_tips();
 void lv_clear_wifi_tips();
 
@@ -38,7 +37,7 @@ extern TIPS_TYPE wifi_tips_type;
 
 typedef struct {
   unsigned char timer;
-  unsigned int timer_count;
+  uint16_t timer_count;
 } TIPS_DISP;
 extern TIPS_DISP tips_disp;
 

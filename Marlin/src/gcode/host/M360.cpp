@@ -37,7 +37,7 @@ static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8
   SERIAL_ECHOPGM("Config:");
   if (pref) SERIAL_ECHOPGM_P(pref);
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
-  SERIAL_ECHOPGM_P(name, AS_CHAR(':'));
+  SERIAL_ECHOPGM_P(name, C(':'));
 }
 static void config_line(PGM_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
@@ -70,7 +70,7 @@ void GcodeSuite::M360() {
   config_line(F("InputBuffer"),                 MAX_CMD_SIZE);
   config_line(F("PrintlineCache"),              BUFSIZE);
   config_line(F("MixingExtruder"),              ENABLED(MIXING_EXTRUDER));
-  config_line(F("SDCard"),                      ENABLED(SDSUPPORT));
+  config_line(F("SDCard"),                      ENABLED(HAS_MEDIA));
   config_line(F("Fan"),                         ENABLED(HAS_FAN));
   config_line(F("LCD"),                         ENABLED(HAS_DISPLAY));
   config_line(F("SoftwarePowerSwitch"),         1);

@@ -42,9 +42,14 @@ bool BLTouch::od_5v_mode;         // Initialized by settings.load, 0 = Open Drai
 #include "../core/debug_out.h"
 
 bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
-  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch Command :", cmd);
-  servo[Z_PROBE_SERVO_NR].move(cmd);
-  safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
+  const BLTCommand current = servo[Z_PROBE_SERVO_NR].read();
+  if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BLTouch from ", current, " to ", cmd);
+  // If the new command is the same, skip it (and the delay).
+  // The previous write should've already delayed to detect the alarm.
+  if (cmd != current) {
+    servo[Z_PROBE_SERVO_NR].move(cmd);
+    safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
+  }
   return triggered();
 }
 

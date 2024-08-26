@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 //
@@ -34,7 +33,7 @@
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE              0x1000  // 4K
   #define I2C_SCL_PIN                       PB6
@@ -109,8 +108,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -134,7 +136,7 @@
 #define HEATER_1_PIN                        PB0   // HEATER2
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
-#define FAN_PIN                             PC14  // FAN
+#define FAN0_PIN                            PC14  // FAN
 #define FAN1_PIN                            PB1   // FAN1
 
 //
@@ -211,8 +213,8 @@
 
 //
 // Onboard SD card
+// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
-// detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
@@ -225,13 +227,12 @@
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
-  #define SPI_FLASH
-  #define SPI_DEVICE                           2
-  #define SPI_FLASH_SIZE               0x1000000
+  #define SPI_DEVICE                           2  // Maple
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PC3
-  #define SPI_FLASH_MISO_PIN                PC2
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PC2
+  #define SPI_FLASH_MOSI_PIN                PC3
 #endif
 
 /**
@@ -277,6 +278,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_CS_PIN                 EXP1_07_PIN
   #define TFT_SCK_PIN                EXP2_02_PIN
@@ -308,7 +310,7 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 
   #ifndef TOUCH_CALIBRATION_X
     #define TOUCH_CALIBRATION_X           -17253
@@ -328,7 +330,7 @@
 
 #elif HAS_WIRED_LCD
 
-  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
   #define LCD_BACKLIGHT_PIN                 -1
 
@@ -343,7 +345,6 @@
 
     // Required for MKS_MINI_12864 with this board
     //#define MKS_LCD12864B
-    //#undef SHOW_BOOTSCREEN
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
     #define LCD_PINS_DC              EXP1_04_PIN
@@ -359,10 +360,10 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else                                           // !MKS_MINI_12864
+  #else // !MKS_MINI_12864
 
     #define LCD_PINS_D4              EXP1_05_PIN
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5            EXP1_06_PIN
       #define LCD_PINS_D6            EXP1_07_PIN
       #define LCD_PINS_D7            EXP1_08_PIN

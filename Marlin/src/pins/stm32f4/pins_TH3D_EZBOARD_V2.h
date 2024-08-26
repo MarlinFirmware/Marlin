@@ -24,7 +24,7 @@
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "TH3D EZBoard only supports 1 hotend / E stepper."
 #endif
 
@@ -45,7 +45,7 @@
 #endif
 
 //
-// Neopixels
+// NeoPixel
 //
 #define NEOPIXEL_PIN                        PA8
 
@@ -61,7 +61,7 @@
 //
 // Limit Switches
 //
-#if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
+#if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
   // Sensorless homing pins
   #if ENABLED(X_AXIS_SENSORLESS_HOMING)
     #define X_STOP_PIN                      PB4
@@ -132,9 +132,6 @@
   #define E0_SERIAL_TX_PIN                  PC10
   #define E0_SERIAL_RX_PIN                  PC11
 
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
     #define X_SLAVE_ADDRESS  0
@@ -148,7 +145,13 @@
   #ifndef E0_SLAVE_ADDRESS
     #define E0_SLAVE_ADDRESS 3
   #endif
-#endif
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temp Sensors
@@ -162,8 +165,8 @@
 //
 #define HEATER_BED_PIN                      PC9
 #define HEATER_0_PIN                        PC8
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC6
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC6
 #endif
 #define FAN1_PIN                            PC7
 
@@ -233,7 +236,7 @@
     #define BEEPER_PIN               EXP1_01_PIN  // Not connected in dev board
   #endif
   #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
+  #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN
   //#define KILL_PIN                        -1
 
@@ -266,7 +269,7 @@
 
 #endif
 
-#if EITHER(CR10_STOCKDISPLAY, MKS_MINI_12864)
+#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_05_PIN
   #define BTN_ENC                    EXP1_02_PIN

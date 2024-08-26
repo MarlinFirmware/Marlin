@@ -116,7 +116,7 @@
 //
 // Fan
 //
-#define FAN_PIN                             PA7   // FAN
+#define FAN0_PIN                            PA7   // FAN
 
 //
 // Thermocouples
@@ -184,7 +184,7 @@
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 #if NEED_TOUCH_PINS
@@ -197,12 +197,12 @@
 
 // SPI2 is shared by LCD touch driver and flash
 // SPI1(PA7) & SPI3(PB5) not available
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
   #define SD_SCK_PIN                        PB13  // SPI2
   #define SD_MISO_PIN                       PB14  // SPI2
   #define SD_MOSI_PIN                       PB15  // SPI2
@@ -276,7 +276,7 @@
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE                0x800000  // 8MB
   #define SPI_FLASH_CS_PIN                  PG9
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

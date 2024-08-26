@@ -64,25 +64,25 @@ class MenuItemBase {
     // Implementation-specific:
     // Draw an item either selected (pre_char) or not (space) with post_char
     // Menus may set up itemIndex, itemStringC/F and pass them to string-building or string-emitting functions
-    static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char pre_char, const char post_char);
+    static void _draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char pre_char, const char post_char);
 
     // Draw an item either selected ('>') or not (space) with post_char
-    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const fstr, const char post_char) {
-      _draw(sel, row, fstr, '>', post_char);
+    FORCE_INLINE static void _draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char post_char) {
+      _draw(sel, row, ftpl, '>', post_char);
     }
 };
 
 // STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, FSTR_P const fstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
+    static void draw(const uint8_t row, FSTR_P const ftpl, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
 // BACK_ITEM(LABEL)
 class MenuItem_back : public MenuItemBase {
   public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const fstr) {
-      _draw(sel, row, fstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, FSTR_P const ftpl) {
+      _draw(sel, row, ftpl, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
     }
     // Back Item action goes back one step in history
     FORCE_INLINE static void action(FSTR_P const=nullptr) { ui.go_back(); }
@@ -101,31 +101,31 @@ class MenuItem_confirm : public MenuItemBase {
       FSTR_P const yes,           // Right option label
       FSTR_P const no,            // Left option label
       const bool yesno,           // Is "yes" selected?
-      FSTR_P const pref,          // Prompt prefix
+      FSTR_P const fpre,          // Prompt prefix
       const char * const string,  // Prompt runtime string
-      FSTR_P const suff           // Prompt suffix
+      FSTR_P const fsuf           // Prompt suffix
     );
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr
+      FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr
     );
     static void select_screen(
       FSTR_P const yes, FSTR_P const no,
       selectFunc_t yesFunc, selectFunc_t noFunc,
-      FSTR_P const pref, FSTR_P const fstr, FSTR_P const suff=nullptr
+      FSTR_P const fpre, FSTR_P const fstr, FSTR_P const fsuf=nullptr
     ) {
       #ifdef __AVR__
         char str[strlen_P(FTOP(fstr)) + 1];
         strcpy_P(str, FTOP(fstr));
-        select_screen(yes, no, yesFunc, noFunc, pref, str, suff);
+        select_screen(yes, no, yesFunc, noFunc, fpre, str, fsuf);
       #else
-        select_screen(yes, no, yesFunc, noFunc, pref, FTOP(fstr), suff);
+        select_screen(yes, no, yesFunc, noFunc, fpre, FTOP(fstr), fsuf);
       #endif
     }
     // Shortcut for prompt with "NO"/ "YES" labels
-    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const pref, const char * const string=nullptr, FSTR_P const suff=nullptr) {
-      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, pref, string, suff);
+    FORCE_INLINE static void confirm_screen(selectFunc_t yesFunc, selectFunc_t noFunc, FSTR_P const fpre, const char * const string=nullptr, FSTR_P const fsuf=nullptr) {
+      select_screen(GET_TEXT_F(MSG_YES), GET_TEXT_F(MSG_NO), yesFunc, noFunc, fpre, string, fsuf);
     }
 };
 
@@ -145,6 +145,7 @@ typedef union {
   uint32_t  uint32;
   celsius_t celsius;
 } chimera_t;
+
 extern chimera_t editable;
 
 // Base class for Menu Edit Items
@@ -167,7 +168,7 @@ class MenuEditItemBase : public MenuItemBase {
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
-      const uint16_t ep,      // Initial encoder value
+      const uint32_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
       const screenFunc_t cb,  // Callback after edit
       const bool le           // Flag to call cb() during editing
@@ -190,7 +191,7 @@ class MenuEditItemBase : public MenuItemBase {
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
 };
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   class CardReader;
   class MenuItem_sdbase {
     public:
@@ -206,7 +207,7 @@ class MenuEditItemBase : public MenuItemBase {
 void menu_main();
 void menu_move();
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   void menu_media();
 #endif
 
@@ -264,7 +265,7 @@ inline void clear_menu_history() { screen_history_depth = 0; }
 #define STICKY_SCREEN(S) []{ ui.defer_status_screen(); ui.goto_screen(S); }
 
 #if HAS_LEVELING && ANY(LCD_BED_TRAMMING, PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
-  extern bool leveling_was_active;
+  extern bool menu_leveling_was_active;
 #endif
 
 #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING, X_AXIS_TWIST_COMPENSATION)

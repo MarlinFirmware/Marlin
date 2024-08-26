@@ -76,7 +76,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
     #endif
     , OPT_CENTER, font_xlarge
   );
-  #if BOTH(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
+  #if ALL(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
     cmd.tag(3);
   #endif
   draw_text_box(cmd, FW_VERS_POS,
@@ -91,7 +91,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
   draw_text_box(cmd, LICENSE_POS, GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 
   cmd.font(font_medium);
-  #if BOTH(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
+  #if ALL(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
     cmd.colors(normal_btn)
        .tag(2).button(STATS_POS, GET_TEXT_F(MSG_INFO_STATS_MENU));
   #endif
@@ -102,10 +102,10 @@ void AboutScreen::onRedraw(draw_mode_t) {
 bool AboutScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS(); break;
-    #if BOTH(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
+    #if ALL(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
       case 2: GOTO_SCREEN(StatisticsScreen); break;
     #endif
-    #if BOTH(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
+    #if ALL(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
       case 3: GOTO_SCREEN(DeveloperMenu); break;
     #endif
     default: return false;

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_SHAPING
+#if HAS_ZV_SHAPING
 
 #include "../../gcode.h"
 #include "../../../module/stepper.h"

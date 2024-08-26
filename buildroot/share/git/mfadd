@@ -29,7 +29,7 @@ REPO=${INFO[2]}
 
 set -e
 
-echo "Adding and fetching $USER..."
+echo "Adding and fetching $USER/$REPO..."
 git remote add "$USER" "git@github.com:$USER/$REPO.git" >/dev/null 2>&1 || echo "Remote exists."
 git fetch "$USER"
 

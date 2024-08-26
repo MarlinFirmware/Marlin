@@ -50,11 +50,11 @@ namespace ExtUI {
     dgus_screen_handler.PrinterKilled(error, component);
   }
 
-  void onMediaInserted() { TERN_(SDSUPPORT, dgus_screen_handler.SDCardInserted()); }
-  void onMediaError()    { TERN_(SDSUPPORT, dgus_screen_handler.SDCardError()); }
-  void onMediaRemoved()  { TERN_(SDSUPPORT, dgus_screen_handler.SDCardRemoved()); }
+  void onMediaInserted() { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardInserted()); }
+  void onMediaError()    { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardError()); }
+  void onMediaRemoved()  { TERN_(HAS_MEDIA, dgus_screen_handler.SDCardRemoved()); }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     dgus_screen_handler.PlayTone(frequency, duration);
   }
 
@@ -100,18 +100,20 @@ namespace ExtUI {
 
   void onPostprocessSettings() {}
 
-  void onSettingsStored(bool success) {
+  void onSettingsStored(const bool success) {
     dgus_screen_handler.ConfigurationStoreWritten(success);
   }
 
-  void onSettingsLoaded(bool success) {
+  void onSettingsLoaded(const bool success) {
     dgus_screen_handler.ConfigurationStoreRead(success);
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       dgus_screen_handler.MeshUpdate(xpos, ypos);
     }
@@ -123,6 +125,12 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
     void onPowerLossResume() {
       // Called on resume from power-loss
       dgus_screen_handler.PowerLossResume();

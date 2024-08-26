@@ -39,7 +39,7 @@ namespace Language_da {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" er klar");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kort isat");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kort fjernet");
-  LSTR MSG_MAIN                           = _UxGT("Menu");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Slå alle steppere fra");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home"); // G28
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Klik når du er klar");
@@ -98,7 +98,6 @@ namespace Language_da {
   LSTR MSG_AUTOTEMP                       = _UxGT("Autotemp");
   LSTR MSG_LCD_ON                         = _UxGT("Til");
   LSTR MSG_LCD_OFF                        = _UxGT("Fra");
-  LSTR MSG_SELECT                         = _UxGT("Vælg");
   LSTR MSG_SELECT_E                       = _UxGT("Vælg *");
   LSTR MSG_A_RETRACT                      = _UxGT("A-retract");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-rejse");

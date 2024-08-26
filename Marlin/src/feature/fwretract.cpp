@@ -195,8 +195,6 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
   //*/
 }
 
-//extern const char SP_Z_STR[];
-
 /**
  * M207: Set firmware retraction values
  *
@@ -264,6 +262,5 @@ void FWRetract::M208_report() {
   }
 
 #endif // FWRETRACT_AUTORETRACT
-
 
 #endif // FWRETRACT

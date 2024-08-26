@@ -58,7 +58,7 @@
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
 
-#if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
+#if ANY(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
   #define CONJOINED_NEOPIXEL 1
 #endif
 
@@ -66,7 +66,7 @@
 // Types
 // ------------------------
 
-typedef IF<(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS > 127)), int16_t, int8_t>::type pixel_index_t;
+typedef value_t(TERN0(NEOPIXEL_LED, NEOPIXEL_PIXELS)) pixel_index_t;
 
 // ------------------------
 // Classes

@@ -113,7 +113,7 @@ public:
     static void HandleFilamentLoadUnload(DGUS_VP_Variable &var);
   #endif
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     // Callback for VP "Display wants to change screen when there is a SD card"
     static void ScreenChangeHookIfSD(DGUS_VP_Variable &var, void *val_ptr);
     // Scroll buttons on the file listing screen.
@@ -183,7 +183,7 @@ public:
     if (!var.memadr) return;
     union { unsigned char tmp[sizeof(T)]; T t; } x;
     unsigned char *ptr = (unsigned char*)val_ptr;
-    LOOP_L_N(i, sizeof(T)) x.tmp[i] = ptr[sizeof(T) - i - 1];
+    for (uint8_t i = 0; i < sizeof(T); ++i) x.tmp[i] = ptr[sizeof(T) - i - 1];
     *(T*)var.memadr = x.t;
   }
 
@@ -232,7 +232,7 @@ protected:
 
   static uint16_t ConfirmVP;      //< context for confirm screen (VP that will be emulated-sent on "OK").
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     static int16_t top_file;      //< file on top of file chooser
     static int16_t file_to_print; //< touched file to be confirmed
   #endif

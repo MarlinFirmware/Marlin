@@ -27,7 +27,8 @@
   #include "../feature/ethernet.h"
 #endif
 
-uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
+// Echo commands to the terminal by default in dev mode
+uint8_t marlin_debug_flags = TERN(MARLIN_DEV_MODE, MARLIN_DEBUG_ECHO, MARLIN_DEBUG_NONE);
 
 // Commonly-used strings in serial output
 PGMSTR(SP_A_STR, " A"); PGMSTR(SP_B_STR, " B"); PGMSTR(SP_C_STR, " C");
@@ -85,11 +86,6 @@ void serial_offset(const_float_t v, const uint8_t sp/*=0*/) {
   SERIAL_DECIMAL(v);
 }
 
-void serial_ternary(const bool onoff, FSTR_P const pre, FSTR_P const on, FSTR_P const off, FSTR_P const post/*=nullptr*/) {
-  if (pre) serial_print(pre);
-  serial_print(onoff ? on : off);
-  if (post) serial_print(post);
-}
 void serialprint_onoff(const bool onoff) { serial_print(onoff ? F(STR_ON) : F(STR_OFF)); }
 void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 void serialprint_truefalse(const bool tf) { serial_print(tf ? F("true") : F("false")); }

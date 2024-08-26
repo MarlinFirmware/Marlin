@@ -40,7 +40,7 @@ const char* ui8tostr3rj(const uint8_t i);
 const char* i8tostr3rj(const int8_t x);
 
 #if HAS_PRINT_PROGRESS_PERMYRIAD
-  // Convert 16-bit unsigned permyriad value to percent: 100 / 23 / 23.4 / 3.45
+  // Convert 16-bit unsigned permyriad value to percent: _100 / __23 / 23.4 / 3.45
   const char* permyriadtostr4(const uint16_t xx);
 #endif
 
@@ -56,7 +56,7 @@ const char* ui16tostr3rj(const uint16_t x);
 // Convert int16_t to string with 123 format
 const char* i16tostr3rj(const int16_t x);
 
-// Convert unsigned int to lj string with 123 format
+// Convert signed int to lj string with 123 format
 const char* i16tostr3left(const int16_t xx);
 
 // Convert signed int to rj string with _123, -123, _-12, or __-1 format
@@ -86,10 +86,10 @@ const char* ftostr53_63(const_float_t x);
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
 const char* ftostr63(const_float_t x);
 
-// Convert float to fixed-length string with +12.3 / -12.3 format
+// Convert signed float to fixed-length string with +12.3 / -12.3 format
 const char* ftostr31sign(const_float_t x);
 
-// Convert float to fixed-length string with +123.4 / -123.4 format
+// Convert signed float to fixed-length string with +123.4 / -123.4 format
 const char* ftostr41sign(const_float_t x);
 
 // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
@@ -101,7 +101,7 @@ const char* ftostr54sign(const_float_t x, char plus=' ');
 // Convert unsigned float to rj string with 12345 format
 const char* ftostr5rj(const_float_t x);
 
-// Convert signed float to string with +1234.5 format
+// Convert signed float to fixed-length string with +1234.5 format
 const char* ftostr51sign(const_float_t x);
 
 // Convert signed float to space-padded string with -_23.4_ format
@@ -116,16 +116,16 @@ const char* ftostr53sign(const_float_t f);
 // Convert unsigned float to string with 12345.6 format omitting trailing zeros
 const char* ftostr61rj(const_float_t x);
 
-// Convert unsigned float to string with 12345.67 format omitting trailing zeros
+// Convert unsigned float to string with ____5.67, ___45.67, __345.67, _2345.67, 12345.67 format
 const char* ftostr72rj(const_float_t x);
 
-// Convert float to rj string with 123 or -12 format
-FORCE_INLINE const char* ftostr3(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
+// Convert signed float to rj string with 123 or -12 format
+FORCE_INLINE const char* ftostr3rj(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 
 #if ENABLED(LCD_DECIMAL_SMALL_XY)
-  // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
+  // Convert signed float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
   const char* ftostr4sign(const_float_t fx);
 #else
-  // Convert float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
+  // Convert signed float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
   FORCE_INLINE const char* ftostr4sign(const_float_t x) { return i16tostr4signrj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 #endif

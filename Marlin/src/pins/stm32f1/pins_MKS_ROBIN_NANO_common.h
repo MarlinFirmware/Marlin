@@ -42,14 +42,14 @@
 #if ENABLED(SRAM_EEPROM_EMULATION)
   #undef NO_EEPROM_SELECTED
 #endif
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
-#define SPI_DEVICE                             2
+#define SPI_DEVICE                             2  // Maple
 
 //
 // Servos
@@ -105,8 +105,8 @@
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN                      PC3
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PB1   // FAN
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PB1   // FAN
 #endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA0
@@ -163,7 +163,7 @@
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
 #define ONBOARD_SD_CS_PIN                   PC11
@@ -205,14 +205,14 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_WORDS                 14400
 #endif
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
   #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PB12
-  #define SPI_FLASH_MOSI_PIN                PB15
-  #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_SCK_PIN                 PB13
+  #define SPI_FLASH_MISO_PIN                PB14
+  #define SPI_FLASH_MOSI_PIN                PB15
 #endif

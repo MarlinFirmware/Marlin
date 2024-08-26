@@ -23,7 +23,7 @@
 
 // TODO: Make AVR-compatible with separate ROM / RAM string methods
 
-#include "../../fontutils.h"
+#include "../../utf8.h"
 #include "../../marlinui.h"
 
 #include <stdint.h>
@@ -525,7 +525,6 @@ const dwin_charmap_t g_dwin_charmap_device[] PROGMEM = {
     {IV('⭢'), 0xC7, 0},
     {IV('⭣'), 0xC6, 0},
 
-
     {IV('⯆'), 0xF5, 0},
     {IV('⯇'), 0xF7, 0}, // ⯅
     {IV('⯈'), 0xF6, 0},
@@ -575,7 +574,6 @@ const dwin_charmap_t g_dwin_charmap_device[] PROGMEM = {
     //{IV(''), 0x9D, 0},
     //{IV(''), 0x9E, 0},
     //{IV(''), 0x9F, 0},
-
 
     {IV('¼'), 0xF0, 0}, // 00BC
     {IV('⅓'), 0xF1, 0},

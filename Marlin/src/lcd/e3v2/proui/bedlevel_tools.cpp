@@ -46,7 +46,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_LEVELING)
+#if ALL(DWIN_LCD_PROUI, HAS_LEVELING)
 
 #include "../../marlinui.h"
 #include "../../../core/types.h"
@@ -89,9 +89,10 @@ char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16], str_3[16];
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
     GRID_LOOP(x, y) {
-      if (!isnan(bedlevel.z_values[x][y])) {
+      const float z = bedlevel.z_values[x][y];
+      if (!isnan(z)) {
         xy_pos_t rpos = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
-        incremental_LSF(&lsf_results, rpos, bedlevel.z_values[x][y]);
+        incremental_LSF(&lsf_results, rpos, z);
       }
     }
 
@@ -183,7 +184,7 @@ void BedLevelToolsClass::MoveToZ() {
 }
 void BedLevelToolsClass::ProbeXY() {
   const uint16_t Clear = Z_CLEARANCE_DEPLOY_PROBE;
-  sprintf_P(cmd, PSTR("G0Z%i\nG30X%sY%s"),
+  sprintf_P(cmd, PSTR("G28O\nG0Z%i\nG30X%sY%s"),
     Clear,
     dtostrf(bedlevel.get_mesh_x(bedLevelTools.mesh_x), 1, 2, str_1),
     dtostrf(bedlevel.get_mesh_y(bedLevelTools.mesh_y), 1, 2, str_2)

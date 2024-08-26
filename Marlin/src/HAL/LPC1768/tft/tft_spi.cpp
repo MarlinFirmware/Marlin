@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef TARGET_LPC1768
+
 #include "../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_TFT
@@ -72,7 +74,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     WRITE(TFT_CS_PIN, LOW);
     WriteReg(Reg);
 
-    LOOP_L_N(i, 4) {
+    for (uint8_t i = 0; i < 4; ++i) {
       SPIx.read((uint8_t*)&d, 1);
       data = (data << 8) | d;
     }
@@ -139,7 +141,8 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
   DataTransferBegin(DATASIZE_16BIT);
   SPIx.dmaSendAsync(Data, Count, MemoryIncrease);
 
-  TERN_(TFT_SHARED_SPI, while (isBusy()));
+  TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
 #endif // HAS_SPI_TFT
+#endif // TARGET_LPC1768

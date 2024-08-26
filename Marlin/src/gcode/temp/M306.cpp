@@ -52,15 +52,15 @@ void GcodeSuite::M306() {
 
   if (parser.seen("ACFPRH")) {
     const heater_id_t hid = (heater_id_t)parser.intval('E', 0);
-    MPC_t &constants = thermalManager.temp_hotend[hid].constants;
-    if (parser.seenval('P')) constants.heater_power = parser.value_float();
-    if (parser.seenval('C')) constants.block_heat_capacity = parser.value_float();
-    if (parser.seenval('R')) constants.sensor_responsiveness = parser.value_float();
-    if (parser.seenval('A')) constants.ambient_xfer_coeff_fan0 = parser.value_float();
+    MPC_t &mpc = thermalManager.temp_hotend[hid].mpc;
+    if (parser.seenval('P')) mpc.heater_power = parser.value_float();
+    if (parser.seenval('C')) mpc.block_heat_capacity = parser.value_float();
+    if (parser.seenval('R')) mpc.sensor_responsiveness = parser.value_float();
+    if (parser.seenval('A')) mpc.ambient_xfer_coeff_fan0 = parser.value_float();
     #if ENABLED(MPC_INCLUDE_FAN)
-      if (parser.seenval('F')) constants.fan255_adjustment = parser.value_float() - constants.ambient_xfer_coeff_fan0;
+      if (parser.seenval('F')) mpc.fan255_adjustment = parser.value_float() - mpc.ambient_xfer_coeff_fan0;
     #endif
-    if (parser.seenval('H')) constants.filament_heat_capacity_permm = parser.value_float();
+    if (parser.seenval('H')) mpc.filament_heat_capacity_permm = parser.value_float();
     return;
   }
 
@@ -71,16 +71,16 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F("Model predictive control"));
   HOTEND_LOOP() {
     report_echo_start(forReplay);
-    MPC_t& constants = thermalManager.temp_hotend[e].constants;
+    MPC_t& mpc = thermalManager.temp_hotend[e].mpc;
     SERIAL_ECHOPGM("  M306 E", e);
-    SERIAL_ECHOPAIR_F(" P", constants.heater_power, 2);
-    SERIAL_ECHOPAIR_F(" C", constants.block_heat_capacity, 2);
-    SERIAL_ECHOPAIR_F(" R", constants.sensor_responsiveness, 4);
-    SERIAL_ECHOPAIR_F(" A", constants.ambient_xfer_coeff_fan0, 4);
+    SERIAL_ECHOPAIR_F(" P", mpc.heater_power, 2);
+    SERIAL_ECHOPAIR_F(" C", mpc.block_heat_capacity, 2);
+    SERIAL_ECHOPAIR_F(" R", mpc.sensor_responsiveness, 4);
+    SERIAL_ECHOPAIR_F(" A", mpc.ambient_xfer_coeff_fan0, 4);
     #if ENABLED(MPC_INCLUDE_FAN)
-      SERIAL_ECHOPAIR_F(" F", constants.ambient_xfer_coeff_fan0 + constants.fan255_adjustment, 4);
+      SERIAL_ECHOPAIR_F(" F", mpc.ambient_xfer_coeff_fan0 + mpc.fan255_adjustment, 4);
     #endif
-    SERIAL_ECHOPAIR_F(" H", constants.filament_heat_capacity_permm, 4);
+    SERIAL_ECHOPAIR_F(" H", mpc.filament_heat_capacity_permm, 4);
     SERIAL_EOL();
   }
 }

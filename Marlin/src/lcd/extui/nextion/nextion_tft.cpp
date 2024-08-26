@@ -139,10 +139,10 @@ bool NextionTFT::ReadTFTCommand() {
     #if NEXDEBUG(N_SOME)
       uint8_t req = atoi(&nextion_command[1]);
       if (req > 7 && req != 20)
-        DEBUG_ECHOLNPGM(  "> ", AS_CHAR(nextion_command[0]),
-                         "\n> ", AS_CHAR(nextion_command[1]),
-                         "\n> ", AS_CHAR(nextion_command[2]),
-                         "\n> ", AS_CHAR(nextion_command[3]),
+        DEBUG_ECHOLNPGM(  "> ", C(nextion_command[0]),
+                         "\n> ", C(nextion_command[1]),
+                         "\n> ", C(nextion_command[2]),
+                         "\n> ", C(nextion_command[3]),
                          "\nprinter_state:", printer_state);
     #endif
   }
@@ -294,7 +294,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
     break;
 
   case 26: // TMC Hybrid Threshold Speed
-    #if 0 && BOTH(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
+    #if 0 && ALL(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
       #define SEND_TRINAMIC_THRS(A, B) SEND_VALasTXT(A, getAxisPWMthrs(B))
     #else
       #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
@@ -445,9 +445,9 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #elif Z_HOME_TO_MAX
       SEND_VALasTXT("z2", READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
     #endif
-    #if HAS_Z2_MIN
+    #if USE_Z2_MIN
       SEND_VALasTXT("z2", READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING ? "triggered" : "open");
-    #elif HAS_Z2_MAX
+    #elif USE_Z2_MAX
       SEND_VALasTXT("z2", READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING ? "triggered" : "open");
     #endif
     #if HAS_BED_PROBE
@@ -463,7 +463,7 @@ void NextionTFT::PanelInfo(uint8_t req) {
     #else
       #define SEND_PID_INFO_0(A, B) SEND_NA(A)
     #endif
-    #if BOTH(PIDTEMP, HAS_MULTI_EXTRUDER)
+    #if ALL(PIDTEMP, HAS_MULTI_EXTRUDER)
       #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
       #define SEND_PID_INFO_1(A, B) SEND_NA(A)

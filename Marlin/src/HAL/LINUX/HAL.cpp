@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #ifdef __PLAT_LINUX__
 
 #include "../../inc/MarlinConfig.h"
@@ -52,8 +53,7 @@ uint8_t MarlinHAL::active_ch = 0;
 uint16_t MarlinHAL::adc_value() {
   const pin_t pin = analogInputToDigitalPin(active_ch);
   if (!VALID_PIN(pin)) return 0;
-  const uint16_t data = ((Gpio::get(pin) >> 2) & 0x3FF);
-  return data;    // return 10bit value as Marlin expects
+  return uint16_t((Gpio::get(pin) >> 2) & 0x3FF); // return 10bit value as Marlin expects
 }
 
 void MarlinHAL::reboot() { /* Reset the application state and GPIO */ }

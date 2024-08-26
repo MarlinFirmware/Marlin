@@ -31,10 +31,11 @@
 #endif
 
 #define DATASIZE_8BIT    8
-#define DATASIZE_16BIT   16
-#define TFT_IO_DRIVER TFT_SPI
+#define DATASIZE_16BIT  16
+#define TFT_IO_DRIVER   TFT_SPI
+#define DMA_MAX_WORDS   0xFFFF
 
-#define DMA_MINC_ENABLE 1
+#define DMA_MINC_ENABLE  1
 #define DMA_MINC_DISABLE 0
 
 class TFT_SPI {

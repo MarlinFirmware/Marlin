@@ -41,7 +41,7 @@ namespace Language_eu {
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
-  LSTR MSG_MAIN                           = _UxGT("Menu nagusia");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu nagusia");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto hasiera");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Itzali motoreak");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Arazketa Menua");
@@ -161,7 +161,6 @@ namespace Language_eu {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Fakt");
   LSTR MSG_AUTOTEMP                       = _UxGT("Auto tenperatura");
-  LSTR MSG_SELECT                         = _UxGT("Aukeratu");
   LSTR MSG_SELECT_E                       = _UxGT("Aukeratu *");
   LSTR MSG_ACC                            = _UxGT("Azelerazioa");
   LSTR MSG_JERK                           = _UxGT("Astindua");

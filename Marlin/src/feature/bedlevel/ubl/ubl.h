@@ -38,8 +38,8 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
-#define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
-#define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+#define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
 
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -48,8 +48,8 @@ struct mesh_index_pair;
 typedef struct {
   bool      C_seen;
   int8_t    KLS_storage_slot;
-  uint8_t   R_repetition,
-            V_verbosity,
+  grid_count_t R_repetition;
+  uint8_t   V_verbosity,
             P_phase,
             T_map_type;
   float     B_shim_thickness,
@@ -77,7 +77,6 @@ private:
   static bool G29_parse_parameters() __O0;
   static void shift_mesh_height();
   static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) __O0;
-  static void tilt_mesh_based_on_3pts(const_float_t z1, const_float_t z2, const_float_t z3);
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
   static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
   static bool smart_fill_one(const xy_uint8_t &pos, const xy_uint8_t &dir) {
@@ -141,26 +140,26 @@ public:
     return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
   }
 
-  static int8_t cell_index_x_valid(const_float_t x) {
+  static bool cell_index_x_valid(const_float_t x) {
     return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static int8_t cell_index_y_valid(const_float_t y) {
+  static bool cell_index_y_valid(const_float_t y) {
     return WITHIN(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static int8_t cell_index_x(const_float_t x) {
+  static uint8_t cell_index_x(const_float_t x) {
     return constrain(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static int8_t cell_index_y(const_float_t y) {
+  static uint8_t cell_index_y(const_float_t y) {
     return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static xy_int8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
-  static xy_int8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
+  static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
   static int8_t closest_x_index(const_float_t x) {
     const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
@@ -264,9 +263,9 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1,
-                  x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1);
-    const float z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
+    const uint8_t mx = _MIN(cx, (GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, (GRID_MAX_POINTS_Y) - 2) + 1;
+    const float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
+                z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
                 z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
     float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 

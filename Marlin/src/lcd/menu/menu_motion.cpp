@@ -118,7 +118,7 @@ void lcd_move_axis(const AxisEnum axis) {
 
 #endif // E_MANUAL
 
-#if EITHER(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
+#if ANY(PROBE_OFFSET_WIZARD, X_AXIS_TWIST_COMPENSATION)
 
   void _goto_manual_move_z(const_float_t scale) {
     ui.manual_move.menu_scale = scale;
@@ -206,7 +206,7 @@ void menu_move() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
-  #if BOTH(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
+  #if ALL(HAS_SOFTWARE_ENDSTOPS, SOFT_ENDSTOPS_MENU_ITEM)
     EDIT_ITEM(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstop._enabled);
   #endif
 
@@ -245,25 +245,15 @@ void menu_move() {
         #endif
       }
     #elif EXTRUDERS == 3
-      if (active_extruder < 2) {
-        if (active_extruder)
-          GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-        else
-          GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
-      }
+      if (active_extruder < 2)
+        GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #else
-      if (active_extruder)
-        GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-      else
-        GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+      GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
     #endif
 
   #elif ENABLED(DUAL_X_CARRIAGE)
 
-    if (active_extruder)
-      GCODES_ITEM_N(0, MSG_SELECT_E, F("T0"));
-    else
-      GCODES_ITEM_N(1, MSG_SELECT_E, F("T1"));
+    GCODES_ITEM_N(1 - active_extruder, MSG_SELECT_E, active_extruder ? F("T0") : F("T1"));
 
   #endif
 
@@ -274,7 +264,7 @@ void menu_move() {
 
     #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(N); }, N); });
 
-    #if EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+    #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
 
       // ...and the non-switching
       #if E_MANUAL == 7 || E_MANUAL == 5 || E_MANUAL == 3
@@ -326,7 +316,7 @@ void menu_motion() {
   //
   // ^ Main
   //
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   //
   // Move Axis
@@ -356,7 +346,7 @@ void menu_motion() {
   //
   // Auto Z-Align
   //
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+  #if ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
   #endif
 
@@ -413,7 +403,7 @@ void menu_motion() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING) && DISABLED(LCD_BED_LEVELING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

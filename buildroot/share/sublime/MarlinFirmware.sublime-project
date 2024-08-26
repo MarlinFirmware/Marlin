@@ -11,7 +11,7 @@
 				".vscode"
 			],
 			"binary_file_patterns":
-			[ "*.psd", "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg", "*.bin", "*.woff" ],
+			[ "*.psd", "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg", "*.bin", "*.woff", "*.otf" ],
 			"file_exclude_patterns":
 			[
 				"Marlin/platformio.ini",
@@ -30,6 +30,7 @@
 		"ensure_newline_at_eof_on_save": true,
 		"tab_size": 2,
 		"translate_tabs_to_spaces": true,
-		"trim_trailing_white_space_on_save": true
+		"trim_trailing_white_space_on_save": true,
+		"uncrustify_config" : "${project_dir}/../extras/uncrustify.cfg"
 	}
 }

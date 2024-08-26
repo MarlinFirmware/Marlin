@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2017 Victor Perez
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,64 +55,64 @@
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
-#if WITHIN(SERIAL_PORT, 1, 6)
+#if WITHIN(SERIAL_PORT, 1, 9)
   #define MYSERIAL1 MSERIAL(SERIAL_PORT)
 #elif !defined(USBCON)
-  #error "SERIAL_PORT must be from 1 to 6."
+  #error "SERIAL_PORT must be from 1 to 9."
 #elif SERIAL_PORT == -1
   #define MYSERIAL1 MSerialUSB
 #else
-  #error "SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
+  #error "SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if WITHIN(SERIAL_PORT_2, 1, 6)
+  #if WITHIN(SERIAL_PORT_2, 1, 9)
     #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_2 must be from 1 to 9."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL2 MSerialUSB
   #else
-    #error "SERIAL_PORT_2 must be from 1 to 6, or -1 for Native USB."
+    #error "SERIAL_PORT_2 must be from 1 to 9, or -1 for Native USB."
   #endif
 #endif
 
 #ifdef SERIAL_PORT_3
-  #if WITHIN(SERIAL_PORT_3, 1, 6)
+  #if WITHIN(SERIAL_PORT_3, 1, 9)
     #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "SERIAL_PORT_3 must be from 1 to 9."
   #elif SERIAL_PORT_3 == -1
     #define MYSERIAL3 MSerialUSB
   #else
-    #error "SERIAL_PORT_3 must be from 1 to 6, or -1 for Native USB."
+    #error "SERIAL_PORT_3 must be from 1 to 9, or -1 for Native USB."
   #endif
 #endif
 
 #ifdef MMU2_SERIAL_PORT
-  #if WITHIN(MMU2_SERIAL_PORT, 1, 6)
+  #if WITHIN(MMU2_SERIAL_PORT, 1, 9)
     #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "MMU2_SERIAL_PORT must be from 1 to 9."
   #elif MMU2_SERIAL_PORT == -1
     #define MMU2_SERIAL MSerialUSB
   #else
-    #error "MMU2_SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
+    #error "MMU2_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
   #endif
 #endif
 
 #ifdef LCD_SERIAL_PORT
-  #if WITHIN(LCD_SERIAL_PORT, 1, 6)
+  #if WITHIN(LCD_SERIAL_PORT, 1, 9)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "SERIAL_PORT must be from 1 to 6."
+    #error "LCD_SERIAL_PORT must be from 1 to 9."
   #elif LCD_SERIAL_PORT == -1
     #define LCD_SERIAL MSerialUSB
   #else
-    #error "LCD_SERIAL_PORT must be from 1 to 6, or -1 for Native USB."
+    #error "LCD_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
   #endif
   #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif
 
@@ -138,11 +137,7 @@
 
 typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 
-#ifdef STM32G0B1xx
-  typedef int32_t pin_t;
-#else
-  typedef int16_t pin_t;
-#endif
+typedef int32_t pin_t;        // Parity with platform/ststm32
 
 class libServo;
 typedef libServo hal_servo_t;
@@ -159,7 +154,7 @@ typedef libServo hal_servo_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 //
 // Pin Mapping for M42, M43, M226
@@ -174,7 +169,9 @@ typedef libServo hal_servo_t;
   #define JTAGSWD_RESET() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_RESET); // Reset: FULL SWD+JTAG
 #endif
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 // Maple Compatibility

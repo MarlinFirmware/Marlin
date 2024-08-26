@@ -57,7 +57,7 @@ void MediaPlayerScreen::onRedraw(draw_mode_t) {
 }
 
 bool MediaPlayerScreen::playCardMedia() {
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     char fname[15];
     strcpy_P(fname, PSTR("STARTUP.AVI"));
 

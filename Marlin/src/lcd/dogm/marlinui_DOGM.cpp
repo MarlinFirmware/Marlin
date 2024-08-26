@@ -47,7 +47,7 @@
 #endif
 
 #include "../lcdprint.h"
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../../libs/numtostr.h"
 #include "../marlinui.h"
 
@@ -56,7 +56,7 @@
 #include "../../module/printcounter.h"
 #include "../../MarlinCore.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../libs/duration_t.h"
 #endif
 
@@ -156,7 +156,7 @@ bool MarlinUI::detected() { return true; }
         #if DISABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
           constexpr millis_t frame_time = CUSTOM_BOOTSCREEN_FRAME_TIME;
         #endif
-        LOOP_L_N(f, COUNT(custom_bootscreen_animation))
+        for (uint8_t f = 0; f < COUNT(custom_bootscreen_animation); ++f)
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
@@ -229,7 +229,7 @@ bool MarlinUI::detected() { return true; }
       draw_bootscreen_bmp(start_bmp);
     #else
       constexpr millis_t frame_time = MARLIN_BOOTSCREEN_FRAME_TIME;
-      LOOP_L_N(f, COUNT(marlin_bootscreen_animation)) {
+      for (uint8_t f = 0; f < COUNT(marlin_bootscreen_animation); ++f) {
         draw_bootscreen_bmp((uint8_t*)pgm_read_ptr(&marlin_bootscreen_animation[f]));
         if (frame_time) safe_delay(frame_time);
       }
@@ -527,7 +527,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (yes) draw_boxed_string(LCD_WIDTH - (utf8_strlen(yes) * (USE_WIDE_GLYPH ? 2 : 1) + 1), LCD_HEIGHT - 1, yes, yesno);
   }
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
@@ -539,7 +539,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       }
     }
 
-  #endif // SDSUPPORT
+  #endif // HAS_MEDIA
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -628,7 +628,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
   #endif // AUTO_BED_LEVELING_UBL
 
-  #if EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+  #if ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
 
     //
     // Draw knob rotation => Z motion key for:

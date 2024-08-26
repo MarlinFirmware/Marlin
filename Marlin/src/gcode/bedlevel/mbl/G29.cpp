@@ -64,6 +64,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+
   DEBUG_SECTION(log_G29, "G29", true);
 
   // G29 Q is also available if debugging
@@ -103,14 +104,11 @@ void GcodeSuite::G29() {
       bedlevel.reset();
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
-        queue.inject(parser.seen_test('N') ? F("G28" TERN(CAN_SET_LEVELING_AFTER_G28, "L0", "") "\nG29S2") : F("G29S2"));
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
-        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
+        if (parser.seen_test('N'))
+          queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
         // Position bed horizontally and Z probe vertically.
-        #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
-            || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
-            || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+        #if HAS_SAFE_BED_LEVELING
           xyze_pos_t safe_position = current_position;
           #ifdef SAFE_BED_LEVELING_START_X
             safe_position.x = SAFE_BED_LEVELING_START_X;
@@ -141,7 +139,12 @@ void GcodeSuite::G29() {
           #endif
 
           do_blocking_move_to(safe_position);
-        #endif
+        #endif // HAS_SAFE_BED_LEVELING
+
+        queue.inject(F("G29S2"));
+
+        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        TERN_(DWIN_LCD_PROUI, DWIN_LevelingStart());
 
         return;
       }
@@ -171,7 +174,7 @@ void GcodeSuite::G29() {
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
-      if (mbl_probe_index < (GRID_MAX_POINTS)) {
+      if (mbl_probe_index < GRID_MAX_POINTS) {
         // Disable software endstops to allow manual adjustment
         // If G29 is left hanging without completion they won't be re-enabled!
         SET_SOFT_ENDSTOP_LOOSE(true);

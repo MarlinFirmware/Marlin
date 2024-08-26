@@ -24,44 +24,51 @@
 //
 // Prepare a list of protected pins for M42/M43
 //
+#if HAS_X_AXIS
 
-#if PIN_EXISTS(X_MIN)
-  #define _X_MIN X_MIN_PIN,
-#else
-  #define _X_MIN
-#endif
-#if PIN_EXISTS(X_MAX)
-  #define _X_MAX X_MAX_PIN,
-#else
-  #define _X_MAX
-#endif
-#if PIN_EXISTS(X_CS) && AXIS_HAS_SPI(X)
-  #define _X_CS X_CS_PIN,
-#else
-  #define _X_CS
-#endif
-#if PIN_EXISTS(X_MS1)
-  #define _X_MS1 X_MS1_PIN,
-#else
-  #define _X_MS1
-#endif
-#if PIN_EXISTS(X_MS2)
-  #define _X_MS2 X_MS2_PIN,
-#else
-  #define _X_MS2
-#endif
-#if PIN_EXISTS(X_MS3)
-  #define _X_MS3 X_MS3_PIN,
-#else
-  #define _X_MS3
-#endif
-#if PIN_EXISTS(X_ENABLE)
-  #define _X_ENABLE_PIN X_ENABLE_PIN,
-#else
-  #define _X_ENABLE_PIN
-#endif
+  #if PIN_EXISTS(X_MIN)
+    #define _X_MIN X_MIN_PIN,
+  #else
+    #define _X_MIN
+  #endif
+  #if PIN_EXISTS(X_MAX)
+    #define _X_MAX X_MAX_PIN,
+  #else
+    #define _X_MAX
+  #endif
+  #if PIN_EXISTS(X_CS) && AXIS_HAS_SPI(X)
+    #define _X_CS X_CS_PIN,
+  #else
+    #define _X_CS
+  #endif
+  #if PIN_EXISTS(X_MS1)
+    #define _X_MS1 X_MS1_PIN,
+  #else
+    #define _X_MS1
+  #endif
+  #if PIN_EXISTS(X_MS2)
+    #define _X_MS2 X_MS2_PIN,
+  #else
+    #define _X_MS2
+  #endif
+  #if PIN_EXISTS(X_MS3)
+    #define _X_MS3 X_MS3_PIN,
+  #else
+    #define _X_MS3
+  #endif
+  #if PIN_EXISTS(X_ENABLE)
+    #define _X_ENABLE_PIN X_ENABLE_PIN,
+  #else
+    #define _X_ENABLE_PIN
+  #endif
 
-#define _X_PINS X_STEP_PIN, X_DIR_PIN, _X_ENABLE_PIN _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
+  #define _X_PINS X_STEP_PIN, X_DIR_PIN, _X_ENABLE_PIN _X_MIN _X_MAX _X_MS1 _X_MS2 _X_MS3 _X_CS
+
+#else
+
+  #define _X_PINS
+
+#endif
 
 #if HAS_Y_AXIS
 
@@ -643,7 +650,7 @@
     #endif
   #endif
 
-#elif EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
+#elif ANY(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
 
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, _E1_CS _E1_MS1 _E1_MS2 _E1_MS3
@@ -899,8 +906,8 @@
   #define _Z_PROBE
 #endif
 
-#if PIN_EXISTS(FAN)
-  #define _FAN0 FAN_PIN,
+#if PIN_EXISTS(FAN0)
+  #define _FAN0 FAN0_PIN,
 #else
   #define _FAN0
 #endif

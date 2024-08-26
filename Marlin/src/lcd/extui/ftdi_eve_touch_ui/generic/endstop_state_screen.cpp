@@ -41,7 +41,7 @@ void EndstopStatesScreen::onExit() {
 #define GRID_ROWS 7
 
 #define PIN_BTN(X,Y,PIN,LABEL)          button(BTN_POS(X,Y), BTN_SIZE(2,1), LABEL)
-#define PIN_ENABLED(X,Y,LABEL,PIN,INV)  cmd.enabled(1).colors(READ(PIN##_PIN) != INV ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
+#define PIN_ENABLED(X,Y,LABEL,PIN,ST)   cmd.enabled(1).colors(READ(PIN##_PIN) == ST ? action_btn : normal_btn).PIN_BTN(X,Y,PIN,LABEL);
 #define PIN_DISABLED(X,Y,LABEL,PIN)     cmd.enabled(0).PIN_BTN(X,Y,PIN,LABEL);
 
 void EndstopStatesScreen::onRedraw(draw_mode_t) {
@@ -54,32 +54,32 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   cmd.font(TERN(TOUCH_UI_PORTRAIT, font_large, font_medium))
   .text(BTN_POS(1,1), BTN_SIZE(6,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
   .font(font_tiny);
-  #if HAS_X_MAX
+  #if USE_X_MAX
     PIN_ENABLED (1, 2, PSTR(STR_X_MAX), X_MAX, X_MAX_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(1, 2, PSTR(STR_X_MAX), X_MAX)
   #endif
-  #if HAS_Y_MAX
+  #if USE_Y_MAX
     PIN_ENABLED (3, 2, PSTR(STR_Y_MAX), Y_MAX, Y_MAX_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(3, 2, PSTR(STR_Y_MAX), Y_MAX)
   #endif
-  #if HAS_Z_MAX
+  #if USE_Z_MAX
     PIN_ENABLED (5, 2, PSTR(STR_Z_MAX), Z_MAX, Z_MAX_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(5, 2, PSTR(STR_Z_MAX), Z_MAX)
   #endif
-  #if HAS_X_MIN
+  #if USE_X_MIN
     PIN_ENABLED (1, 3, PSTR(STR_X_MIN), X_MIN, X_MIN_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(1, 3, PSTR(STR_X_MIN), X_MIN)
   #endif
-  #if HAS_Y_MIN
+  #if USE_Y_MIN
     PIN_ENABLED (3, 3, PSTR(STR_Y_MIN), Y_MIN, Y_MIN_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(3, 3, PSTR(STR_Y_MIN), Y_MIN)
   #endif
-  #if HAS_Z_MIN
+  #if USE_Z_MIN
     PIN_ENABLED (5, 3, PSTR(STR_Z_MIN), Z_MIN, Z_MIN_ENDSTOP_INVERTING)
   #else
     PIN_DISABLED(5, 3, PSTR(STR_Z_MIN), Z_MIN)
@@ -89,7 +89,7 @@ void EndstopStatesScreen::onRedraw(draw_mode_t) {
   #else
     PIN_DISABLED(1, 4, GET_TEXT_F(MSG_RUNOUT_1), FIL_RUNOUT)
   #endif
-  #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT2)
+  #if ALL(HAS_MULTI_EXTRUDER, FILAMENT_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT2)
     PIN_ENABLED (3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2, FIL_RUNOUT2_STATE)
   #else
     PIN_DISABLED(3, 4, GET_TEXT_F(MSG_RUNOUT_2), FIL_RUNOUT2)

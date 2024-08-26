@@ -25,14 +25,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if EITHER(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
+#if ANY(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
 
 #include <U8glib-HAL.h>
 #include "../shared/HAL_SPI.h"
 #include "HAL.h"
 #include "SPI.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #include "../../sd/cardreader.h"
   #if ENABLED(ESP3D_WIFISUPPORT)
     #include "sd_ESP32.h"
@@ -40,7 +40,6 @@
 #endif
 
 static SPISettings spiConfig;
-
 
 #ifndef LCD_SPI_SPEED
   #ifdef SD_SPI_SPEED
@@ -101,6 +100,6 @@ uint8_t u8g_eps_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_pt
   return 1;
 }
 
-#endif // EITHER(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
+#endif // MKS_MINI_12864 || FYSETC_MINI_12864_2_1
 
 #endif // ARDUINO_ARCH_ESP32

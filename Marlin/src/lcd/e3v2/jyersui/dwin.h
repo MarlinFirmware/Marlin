@@ -172,17 +172,17 @@ public:
   static constexpr const char * const color_names[11] = { "Default", "White", "Green", "Cyan", "Blue", "Magenta", "Red", "Orange", "Yellow", "Brown", "Black" };
   static constexpr const char * const preheat_modes[3] = { "Both", "Hotend", "Bed" };
 
-  static void Clear_Screen(uint8_t e=3);
-  static void Draw_Float(float value, uint8_t row, bool selected=false, uint8_t minunit=10);
-  static void Draw_Option(uint8_t value, const char * const * options, uint8_t row, bool selected=false, bool color=false);
-  static uint16_t GetColor(uint8_t color, uint16_t original, bool light=false);
-  static void Draw_Checkbox(uint8_t row, bool value);
-  static void Draw_Title(const char * title);
+  static void Clear_Screen(const uint8_t e=3);
+  static void Draw_Float(const_float_t value, const uint8_t row, const bool selected=false, const uint8_t minunit=10);
+  static void Draw_Option(const uint8_t value, const char * const * options, const uint8_t row, const bool selected=false, const bool color=false);
+  static uint16_t GetColor(const uint8_t color, const uint16_t original, const bool light=false);
+  static void Draw_Checkbox(const uint8_t row, const bool value);
+  static void Draw_Title(const char * const title);
   static void Draw_Title(FSTR_P const title);
-  static void Draw_Menu_Item(uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, bool more=false, bool centered=false);
-  static void Draw_Menu_Item(uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, bool more=false, bool centered=false);
-  static void Draw_Menu(uint8_t menu, uint8_t select=0, uint8_t scroll=0);
-  static void Redraw_Menu(bool lastprocess=true, bool lastselection=false, bool lastmenu=false);
+  static void Draw_Menu_Item(const uint8_t row, uint8_t icon=0, const char * const label1=nullptr, const char * const label2=nullptr, const bool more=false, const bool centered=false);
+  static void Draw_Menu_Item(const uint8_t row, uint8_t icon=0, FSTR_P const flabel1=nullptr, FSTR_P const flabel2=nullptr, const bool more=false, const bool centered=false);
+  static void Draw_Menu(const uint8_t menu, const uint8_t select=0, const uint8_t scroll=0);
+  static void Redraw_Menu(const bool lastproc=true, const bool lastsel=false, const bool lastmenu=false);
   static void Redraw_Screen();
 
   static void Main_Menu_Icons();
@@ -196,24 +196,23 @@ public:
   #endif
   static void Draw_Print_ProgressElapsed();
   static void Draw_Print_confirm();
-  static void Draw_SD_Item(uint8_t item, uint8_t row);
-  static void Draw_SD_List(bool removed=false);
-  static void Draw_Status_Area(bool icons=false);
+  static void Draw_SD_Item(const uint8_t item, const uint8_t row);
+  static void Draw_SD_List(const bool removed=false);
+  static void Draw_Status_Area(const bool icons=false);
   static void Draw_Popup(FSTR_P const line1, FSTR_P const line2, FSTR_P const line3, uint8_t mode, uint8_t icon=0);
   static void Popup_Select();
-  static void Update_Status_Bar(bool refresh=false);
+  static void Update_Status_Bar(const bool refresh=false);
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    static void Draw_Bed_Mesh(int16_t selected = -1, uint8_t gridline_width = 1, uint16_t padding_x = 8, uint16_t padding_y_top = 40 + 53 - 7);
+  #if HAS_MESH
     static void Set_Mesh_Viewer_Status();
   #endif
 
-  static FSTR_P Get_Menu_Title(uint8_t menu);
-  static uint8_t Get_Menu_Size(uint8_t menu);
-  static void Menu_Item_Handler(uint8_t menu, uint8_t item, bool draw=true);
+  static FSTR_P Get_Menu_Title(const uint8_t menu);
+  static uint8_t Get_Menu_Size(const uint8_t menu);
+  static void Menu_Item_Handler(const uint8_t menu, const uint8_t item, bool draw=true);
 
-  static void Popup_Handler(PopupID popupid, bool option = false);
-  static void Confirm_Handler(PopupID popupid);
+  static void Popup_Handler(const PopupID popupid, bool option=false);
+  static void Confirm_Handler(const PopupID popupid);
 
   static void Main_Menu_Control();
   static void Menu_Control();
@@ -224,24 +223,24 @@ public:
   static void Popup_Control();
   static void Confirm_Control();
 
-  static void Setup_Value(float value, float min, float max, float unit, uint8_t type);
-  static void Modify_Value(float &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Value(uint8_t &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Value(uint16_t &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Value(int16_t &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Value(uint32_t &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Value(int8_t &value, float min, float max, float unit, void (*f)()=nullptr);
-  static void Modify_Option(uint8_t value, const char * const * options, uint8_t max);
+  static void Setup_Value(const_float_t value, const_float_t min, const_float_t max, const_float_t unit, const uint8_t type);
+  static void Modify_Value(float &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Value(uint8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Value(uint16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Value(int16_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Value(uint32_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Value(int8_t &value, const_float_t min, const_float_t max, const_float_t unit, void (*f)()=nullptr);
+  static void Modify_Option(const uint8_t value, const char * const * options, const uint8_t max);
 
   static void Update_Status(const char * const text);
-  static void Start_Print(bool sd);
+  static void Start_Print(const bool sd);
   static void Stop_Print();
   static void Update();
   static void State_Update();
   static void Screen_Update();
   static void AudioFeedback(const bool success=true);
-  static void Save_Settings(char *buff);
-  static void Load_Settings(const char *buff);
+  static void Save_Settings(char * const buff);
+  static void Load_Settings(const char * const buff);
   static void Reset_Settings();
 };
 

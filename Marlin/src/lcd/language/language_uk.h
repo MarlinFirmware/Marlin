@@ -60,7 +60,7 @@ namespace Language_uk {
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Прогр.кінцевики");
   #endif
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Кінцевик"); // Max length 8 characters
-  LSTR MSG_MAIN                             = _UxGT("Основне меню");
+  LSTR MSG_MAIN_MENU                        = _UxGT("Основне меню");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Інші налаштування");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфігурація");
   LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
@@ -213,10 +213,10 @@ namespace Language_uk {
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Рух до наступної");
   LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активувати UBL");
   LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивувати UBL");
-  LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE "C";
-  LSTR MSG_UBL_HOTEND_TEMP_CUSTOM           = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE "C";
+  LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_UBL_HOTEND_TEMP_CUSTOM           = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" сопла,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Редагувати свою сітку");
     LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Точне редагування сітки");
@@ -313,7 +313,7 @@ namespace Language_uk {
   LSTR MSG_SET_LEDS_VIOLET                  = _UxGT("Фіолетовий");
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Білий");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("За умовчанням");
-  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал =");
+  LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
   LSTR MSG_LEDS2                            = _UxGT("Світло #2");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_NEO2_PRESETS                   = _UxGT("Передустановка світла #2");
@@ -344,12 +344,12 @@ namespace Language_uk {
   LSTR MSG_MOVE_100MM                       = _UxGT("Рух 100mm");
   LSTR MSG_SPEED                            = _UxGT("Швидкість");
   LSTR MSG_BED_Z                            = _UxGT("Z Столу");
-  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
+  LSTR MSG_NOZZLE                           = _UxGT("Сопло, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_NOZZLE_N                         = _UxGT("Сопло ~");
   LSTR MSG_NOZZLE_PARKED                    = _UxGT("Сопло запарковане");
   LSTR MSG_NOZZLE_STANDBY                   = _UxGT("Сопло очікує");
-  LSTR MSG_BED                              = _UxGT("Стіл,  ") LCD_STR_DEGREE "C";
-  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE "C";
+  LSTR MSG_BED                              = _UxGT("Стіл,  ") LCD_STR_DEGREE _UxGT("C");
+  LSTR MSG_CHAMBER                          = _UxGT("Камера,") LCD_STR_DEGREE _UxGT("C");
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_COOLER                         = _UxGT("Охолодження лазеру");
     LSTR MSG_COOLER_TOGGLE                  = _UxGT("Перемк. охолодж.");
@@ -391,7 +391,6 @@ namespace Language_uk {
   LSTR MSG_PID_TEMP_TOO_HIGH                = _UxGT("Збій автопідбору! Температура завищена.");
   LSTR MSG_PID_TIMEOUT                      = _UxGT("Збій автопідбору! Вичерпан час.");
 
-  LSTR MSG_SELECT                           = _UxGT("Вибрати");
   LSTR MSG_SELECT_E                         = _UxGT("Вибрати *");
   LSTR MSG_ACC                              = _UxGT("Прискорорення");
   LSTR MSG_JERK                             = _UxGT("Ривок");
@@ -466,7 +465,7 @@ namespace Language_uk {
     LSTR MSG_INIT_EEPROM                    = _UxGT("Ініціаліз. EEPROM");
   #endif
   LSTR MSG_ERR_EEPROM_CRC                   = _UxGT("Збій EEPROM: CRC");
-  LSTR MSG_ERR_EEPROM_INDEX                 = _UxGT("Збій EEPROM: індекс");
+  LSTR MSG_ERR_EEPROM_SIZE                  = _UxGT("Збій EEPROM: розмір");
   LSTR MSG_ERR_EEPROM_VERSION               = _UxGT("Збій EEPROM: версія");
   LSTR MSG_SETTINGS_STORED                  = _UxGT("Параметри збережені");
   LSTR MSG_MEDIA_UPDATE                     = _UxGT("Оновити SD-картку");
@@ -508,7 +507,7 @@ namespace Language_uk {
   LSTR MSG_END_LOOPS                        = _UxGT("End Repeat Loops"); // needs translation
   LSTR MSG_PRINTING_OBJECT                  = _UxGT("Друк об'єкта");
   LSTR MSG_CANCEL_OBJECT                    = _UxGT("Завершити об'єкт");
-  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершити об'єкт =");
+  LSTR MSG_CANCEL_OBJECT_N                  = _UxGT("Завершити об'єкт {");
   LSTR MSG_OUTAGE_RECOVERY                  = _UxGT("Віднов. після збою");
   LSTR MSG_MEDIA_MENU                       = _UxGT("Друкувати з SD");
   LSTR MSG_NO_MEDIA                         = _UxGT("SD-картки немає");
@@ -626,9 +625,6 @@ namespace Language_uk {
   LSTR MSG_ERR_MINTEMP                      = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE;
   LSTR MSG_HALTED                           = _UxGT("ПРИНТЕР ЗУПИНЕНО");
   LSTR MSG_PLEASE_RESET                     = _UxGT("Перезавантажте");
-  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
-  LSTR MSG_SHORT_HOUR                       = _UxGT("г"); // One character only
-  LSTR MSG_SHORT_MINUTE                     = _UxGT("х"); // One character only
   LSTR MSG_HEATING                          = _UxGT("Нагрівання...");
   LSTR MSG_COOLING                          = _UxGT("Охолодження...");
   LSTR MSG_BED_HEATING                      = _UxGT("Нагрів столу...");
@@ -784,7 +780,7 @@ namespace Language_uk {
   #else
     LSTR MSG_MIX                            = _UxGT("Змішув.");
   #endif
-  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент =");
+  LSTR MSG_MIX_COMPONENT_N                  = _UxGT("Компонент {");
   LSTR MSG_MIXER                            = _UxGT("Змішувач");
   LSTR MSG_GRADIENT                         = _UxGT("Градієнт");
   LSTR MSG_FULL_GRADIENT                    = _UxGT("Повний градієнт");
@@ -836,7 +832,6 @@ namespace Language_uk {
   LSTR MSG_START_OVER                       = _UxGT("Старт через");
   LSTR MSG_REMINDER_SAVE_SETTINGS           = _UxGT("Не забудь зберегти!");
   LSTR MSG_PASSWORD_REMOVED                 = _UxGT("Пароль видалений");
-
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
@@ -914,12 +909,8 @@ namespace Language_uk {
 
   LSTR MSG_SD_CARD                          = _UxGT("SD Картка");
   LSTR MSG_USB_DISK                         = _UxGT("USB Диск");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                        = _UxGT("д"); // One character only
+  LSTR MSG_SHORT_HOUR                       = _UxGT("г"); // One character only
+  LSTR MSG_SHORT_MINUTE                     = _UxGT("х"); // One character only
+}

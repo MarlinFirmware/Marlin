@@ -27,13 +27,14 @@
 
 // intRes = longIn1 * longIn2 >> 24
 // uses:
-// A[tmp] to store 0
-// B[tmp] to store bits 16-23 of the 48bit result. The top bit is used to round the two byte result.
-// note that the lower two bytes and the upper byte of the 48bit result are not calculated.
-// this can cause the result to be out by one as the lower bytes may cause carries into the upper ones.
-// B A are bits 24-39 and are the returned value
-// C B A is longIn1
-// D C B A is longIn2
+// r1, r0 for the result of mul.
+// [tmp1] to store 0.
+// [tmp2] to store bits 16-23 of the 56 bit result. The top bit of [tmp2] is used for rounding.
+// Note that the lower two bytes and the upper two bytes of the 56 bit result are not calculated.
+// This can cause the result to be out by one as the lower bytes may cause carries into the upper ones.
+// [intRes] (A B) is bits 24-39 and is the returned value.
+// [longIn1] (C B A) is a 24 bit parameter.
+// [longIn2] (D C B A) is a 32 bit parameter.
 //
 FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2) {
   uint8_t tmp1;
@@ -66,11 +67,9 @@ FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
     A("add %[tmp2], r1")
     A("adc %A[intRes], %[tmp1]")
     A("adc %B[intRes], %[tmp1]")
-    A("lsr %[tmp2]")
-    A("adc %A[intRes], %[tmp1]")
-    A("adc %B[intRes], %[tmp1]")
     A("mul %D[longIn2], %A[longIn1]")
-    A("add %A[intRes], r0")
+    A("lsl %[tmp2]")
+    A("adc %A[intRes], r0")
     A("adc %B[intRes], r1")
     A("mul %D[longIn2], %B[longIn1]")
     A("add %B[intRes], r0")
@@ -85,11 +84,16 @@ FORCE_INLINE static uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
   return intRes;
 }
 
-// intRes = intIn1 * intIn2 >> 16
+// intRes = intIn1 * intIn2 >> 8
 // uses:
-// r26 to store 0
-// r27 to store the byte 1 of the 24 bit result
-FORCE_INLINE static uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
+// r1, r0 for the result of mul. After the second mul, r0 holds bits 0-7 of the 24 bit result and
+// the top bit of r0 is used for rounding.
+// [tmp] to store 0.
+// [intRes] (A B) is bits 8-15 and is the returned value.
+// [charIn1] is an 8 bit parameter.
+// [intIn2] (B A) is a 16 bit parameter.
+//
+FORCE_INLINE static uint16_t MultiU8X16toH16(uint8_t charIn1, uint16_t intIn2) {
   uint8_t tmp;
   uint16_t intRes;
   __asm__ __volatile__ (
@@ -97,10 +101,8 @@ FORCE_INLINE static uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
     A("mul %[charIn1], %B[intIn2]")
     A("movw %A[intRes], r0")
     A("mul %[charIn1], %A[intIn2]")
-    A("add %A[intRes], r1")
-    A("adc %B[intRes], %[tmp]")
-    A("lsr r0")
-    A("adc %A[intRes], %[tmp]")
+    A("lsl r0")
+    A("adc %A[intRes], r1")
     A("adc %B[intRes], %[tmp]")
     A("clr r1")
       : [intRes] "=&r" (intRes),

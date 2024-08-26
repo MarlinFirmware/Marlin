@@ -31,7 +31,7 @@
   #define BABYSTEP_TICKS ((TEMP_TIMER_RATE) / (BABYSTEPS_PER_SEC))
 #endif
 
-#if IS_CORE || EITHER(BABYSTEP_XY, I2C_POSITION_ENCODERS)
+#if ANY(IS_CORE, BABYSTEP_XY, I2C_POSITION_ENCODERS)
   #define BS_AXIS_IND(A) A
   #define BS_AXIS(I) AxisEnum(I)
 #else
@@ -76,7 +76,7 @@ public:
   // apply accumulated babysteps to the axes.
   //
   static void task() {
-    LOOP_LE_N(i, BS_AXIS_IND(Z_AXIS)) step_axis(BS_AXIS(i));
+    for (uint8_t i = 0; i <= BS_AXIS_IND(Z_AXIS); ++i) step_axis(BS_AXIS(i));
   }
 
 private:

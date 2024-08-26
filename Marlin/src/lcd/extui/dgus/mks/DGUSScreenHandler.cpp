@@ -47,7 +47,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   extern ExtUI::FileList filelist;
 #endif
 
@@ -146,7 +146,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
   #endif
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)BE16_P(val_ptr) + top_file;
@@ -268,7 +268,7 @@ void DGUSScreenHandlerMKS::DGUSLCD_SendTMCStepValue(DGUS_VP_Variable &var) {
     const uint16_t value = BE16_P(val_ptr);
     if (value == 0x0F) GotoScreen(DGUSLCD_SCREEN_MAIN);
   }
-#endif // SDSUPPORT
+#endif // HAS_MEDIA
 
 void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   uint8_t *tmp = (uint8_t*)val_ptr;
@@ -429,7 +429,7 @@ void DGUSScreenHandlerMKS::LanguageChange(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 #if ENABLED(MESH_BED_LEVELING)
-  uint8_t mesh_point_count = GRID_MAX_POINTS;
+  grid_count_t mesh_point_count = GRID_MAX_POINTS;
 #endif
 
 void DGUSScreenHandlerMKS::Level_Ctrl(DGUS_VP_Variable &var, void *val_ptr) {
@@ -651,7 +651,7 @@ void DGUSScreenHandlerMKS::ManualAssistLeveling(DGUS_VP_Variable &var, void *val
 #define mks_min(a, b) ((a) < (b)) ? (a) : (b)
 #define mks_max(a, b) ((a) > (b)) ? (a) : (b)
 void DGUSScreenHandlerMKS::TMC_ChangeConfig(DGUS_VP_Variable &var, void *val_ptr) {
-  #if EITHER(HAS_TRINAMIC_CONFIG, HAS_STEALTHCHOP)
+  #if ANY(HAS_TRINAMIC_CONFIG, HAS_STEALTHCHOP)
     const uint16_t tmc_value = BE16_P(val_ptr);
   #endif
 
@@ -825,7 +825,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
   if (!movevalue) {
     // homing
-    DEBUG_ECHOPGM(" homing ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" homing ", C(axiscode));
     // char buf[6] = "G28 X";
     // buf[4] = axiscode;
 
@@ -847,7 +847,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   }
   else {
     // movement
-    DEBUG_ECHOPGM(" move ", AS_CHAR(axiscode));
+    DEBUG_ECHOPGM(" move ", C(axiscode));
     bool old_relative_mode = relative_mode;
 
     if (!relative_mode) {
@@ -885,7 +885,7 @@ void DGUSScreenHandler::HandleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
   return;
 
   cannotmove:
-    DEBUG_ECHOLNPGM(" cannot move ", AS_CHAR(axiscode));
+    DEBUG_ECHOLNPGM(" cannot move ", C(axiscode));
     return;
 }
 
@@ -1181,7 +1181,7 @@ void DGUSScreenHandlerMKS::GetManualFilamentSpeed(DGUS_VP_Variable &var, void *v
 }
 
 void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir) {
-  #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+  #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
     uint8_t swap_tool = 0;
   #else
     constexpr uint8_t swap_tool = 1; // T0 (or none at all)
@@ -1202,7 +1202,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
         if (thermalManager.tooColdToExtrude(0))
           hotend_too_cold = 1;
         else {
-          #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+          #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
             swap_tool = 1;
           #endif
         }
@@ -1217,7 +1217,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
       break;
   }
 
-  #if BOTH(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
+  #if ALL(HAS_HOTEND, PREVENT_COLD_EXTRUSION)
     if (hotend_too_cold) {
       if (thermalManager.targetTooColdToExtrude(hotend_too_cold - 1)) thermalManager.setTargetHotend(thermalManager.extrude_min_temp, hotend_too_cold - 1);
       sendinfoscreen(F("NOTICE"), nullptr, F("Please wait."), F("Nozzle heating!"), true, true, true, true);
@@ -1229,7 +1229,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
   if (swap_tool) {
     char buf[30];
     snprintf_P(buf, 30
-      #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+      #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
         , PSTR("M1002T%cE%dF%d"), char('0' + swap_tool - 1)
       #else
         , PSTR("M1002E%dF%d")
@@ -1245,7 +1245,7 @@ void DGUSScreenHandlerMKS::FilamentLoadUnload(DGUS_VP_Variable &var, void *val_p
  *        within the G-code execution window for best concurrency.
  */
 void GcodeSuite::M1002() {
-  #if EITHER(HAS_MULTI_HOTEND, SINGLENOZZLE)
+  #if ANY(HAS_MULTI_HOTEND, SINGLENOZZLE)
   {
     char buf[3];
     sprintf_P(buf, PSTR("T%c"), char('0' + parser.intval('T')));

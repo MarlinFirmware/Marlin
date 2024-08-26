@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * DWIN Enhanced implementation for PRO UI
@@ -26,8 +27,6 @@
  * Version: 3.18.1
  * Date: 2022/07/05
  */
-
-#pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
 
@@ -138,13 +137,11 @@
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLActive            ICON_HotendTemp
 #define ICON_UBLSlot              ICON_ResumeEEPROM
-#define ICON_UBLSaveMesh          ICON_WriteEEPROM
-#define ICON_UBLLoadMesh          ICON_ReadEEPROM
+#define ICON_UBLMeshSave          ICON_WriteEEPROM
+#define ICON_UBLMeshLoad          ICON_ReadEEPROM
 #define ICON_UBLTiltGrid          ICON_PrintSize
 #define ICON_UBLSmartFill         ICON_StockConfiguration
 #define ICON_ZAfterHome           ICON_SetEndTemp
-
-
 
 #define ICON_CaseLight            ICON_Motion
 #define ICON_LedControl           ICON_Motion

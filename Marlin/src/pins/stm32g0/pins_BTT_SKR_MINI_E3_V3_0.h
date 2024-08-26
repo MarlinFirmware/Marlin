@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include "env_validate.h"
+
 //#define BOARD_CUSTOM_BUILD_FLAGS -DTONE_CHANNEL=4 -DTONE_TIMER=4 -DTIMER_TONE=4
 
 #ifndef BOARD_INFO_NAME
@@ -35,7 +37,7 @@
 #define LED_PIN                             PD8
 
 // Onboard I2C EEPROM
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
@@ -134,7 +136,7 @@
 //
 #define HEATER_0_PIN                        PC8   // "HE"
 #define HEATER_BED_PIN                      PC9   // "HB"
-#define FAN_PIN                             PC6   // "FAN0"
+#define FAN0_PIN                            PC6   // "FAN0"
 #define FAN1_PIN                            PC7   // "FAN1"
 #define FAN2_PIN                            PB15  // "FAN2"
 
@@ -194,7 +196,7 @@
      *            CS  | 3  4 | SCK               (EN1) PA10 | 3  4 | --
      *          MOSI  | 5  6 | MISO              (EN2)  PA9   5  6 | MOSI
      *           3V3  | 7  8 | GND                       -- | 7  8 | --
-     *                 ------                           GND | 9  10| RESET (Kill)
+     *                 ------                           GND | 9 10 | RESET (Kill)
      *                  SPI                                  ------
      *                                                        EXP2
      *
@@ -203,7 +205,7 @@
      *            PA9 | 3  4 | RESET           (LCD CS) PB8 | 3  4 | PD6  (LCD_A0)
      *           PA10   5  6 | PB9              (RESET) PB9   5  6 | PA15 (DIN)
      *            PB8 | 7  8 | PD6                       -- | 7  8 | --
-     *            GND | 9  10| 5V                       GND | 9  10| 5V
+     *            GND | 9 10 | 5V                       GND | 9 10 | 5V
      *                 ------                                ------
      *                  EXP1                                  EXP1
      */
@@ -236,7 +238,7 @@
       #define BTN_EN2                EXP1_05_PIN
 
       #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_ENABLE        EXP1_08_PIN
+      #define LCD_PINS_EN            EXP1_08_PIN
       #define LCD_PINS_D4            EXP1_06_PIN
 
     #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
@@ -246,14 +248,14 @@
       #endif
 
       #define LCD_PINS_RS            EXP1_06_PIN
-      #define LCD_PINS_ENABLE        EXP1_02_PIN
+      #define LCD_PINS_EN            EXP1_02_PIN
       #define LCD_PINS_D4            EXP1_07_PIN
       #define LCD_PINS_D5            EXP1_05_PIN
       #define LCD_PINS_D6            EXP1_03_PIN
       #define LCD_PINS_D7            EXP1_01_PIN
       #define ADC_KEYPAD_PIN                PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+    #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
       #define BTN_ENC                EXP1_02_PIN
       #define BTN_EN1                EXP1_03_PIN
@@ -320,7 +322,7 @@
        *                 ------                               ------
        *    (EN2)  PB5  | 1  2 | PA15(BTN_ENC)            5V |10  9 | GND
        *  (LCD_CS) PA9  | 3  4 | RST (RESET)              -- | 8  7 | --
-       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET)
+       *  (LCD_A0) PA10   5  6 | PB9 (EN1)            (DIN)  | 6  5   (RESET) LCD_RESET
        *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
        *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
        *                 ------                               ------
@@ -328,7 +330,7 @@
        *
        *                                                      ------
        *                                                  -- |10  9 | --
-       *                   ---                       (RESET) | 8  7 | --
+       *                   ---          RESET_BUTTON (RESET) | 8  7 | --
        *                  | 3 |                      (MOSI)  | 6  5   (EN2)
        *                  | 2 | (DIN)                     -- | 4  3 | (EN1)
        *                  | 1 |                     (LCD_SCK)| 2  1 | --
@@ -336,6 +338,7 @@
        *                Neopixel                               EXP2
        *
        * Needs custom cable. Connect EN2-EN2, LCD_CS-LCD_CS and so on.
+       * Note: The RESET line is connected to 3 pins.
        *
        * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
@@ -361,7 +364,7 @@
 
 #endif // HAS_WIRED_LCD
 
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
+#if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
   #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
     #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
@@ -414,7 +417,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC3
-#elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
+#elif SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN              EXP1_01_PIN
   #define SD_SS_PIN                  EXP1_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
@@ -432,7 +435,7 @@
 #define SD_MOSI_PIN                         PA7
 
 //
-// Default NEOPIXEL_PIN
+// NeoPixel
 //
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                      PA8   // LED driving pin

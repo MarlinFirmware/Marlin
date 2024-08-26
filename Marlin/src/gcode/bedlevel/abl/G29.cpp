@@ -101,16 +101,16 @@ public:
     uint8_t tool_index;
   #endif
 
-  #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
+  #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     int abl_probe_index;
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    int abl_points;
+    grid_count_t abl_points;
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-    static constexpr int abl_points = 3;
+    static constexpr grid_count_t abl_points = 3;
   #elif ABL_USES_GRID
-    static constexpr int abl_points = GRID_MAX_POINTS;
+    static constexpr grid_count_t abl_points = GRID_MAX_POINTS;
   #endif
 
   #if ABL_USES_GRID
@@ -136,16 +136,16 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       int indexIntoAB[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-      float eqnAMatrix[(GRID_MAX_POINTS) * 3], // "A" matrix of the linear system of equations
-            eqnBVector[GRID_MAX_POINTS],       // "B" vector of Z points
+      float eqnAMatrix[GRID_MAX_POINTS * 3],  // "A" matrix of the linear system of equations
+            eqnBVector[GRID_MAX_POINTS],      // "B" vector of Z points
             mean;
     #endif
   #endif
 };
 
-#if ABL_USES_GRID && EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
+#if ABL_USES_GRID && ANY(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR)
   constexpr xy_uint8_t G29_State::grid_points;
-  constexpr int G29_State::abl_points;
+  constexpr grid_count_t G29_State::abl_points;
 #endif
 
 /**
@@ -226,6 +226,7 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
+
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
   // Leveling state is persistent when done manually with multiple G29 commands
@@ -235,7 +236,7 @@ G29_TYPE GcodeSuite::G29() {
   reset_stepper_timeout();
 
   // Q = Query leveling and G29 state
-  const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
+  const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -286,7 +287,7 @@ G29_TYPE GcodeSuite::G29() {
       if (active_extruder != 0) tool_change(0, true);
     #endif
 
-    #if EITHER(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
+    #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
       abl.abl_probe_index = -1;
     #endif
 
@@ -409,7 +410,7 @@ G29_TYPE GcodeSuite::G29() {
       if (!probe.good_bounds(abl.probe_position_lf, abl.probe_position_rb)) {
         if (DEBUGGING(LEVELING)) {
           DEBUG_ECHOLNPGM("G29 L", abl.probe_position_lf.x, " R", abl.probe_position_rb.x,
-                              " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
+                             " F", abl.probe_position_lf.y, " B", abl.probe_position_rb.y);
         }
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false, false);
@@ -417,7 +418,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Probe at the points of a lattice grid
       abl.gridSpacing.set((abl.probe_position_rb.x - abl.probe_position_lf.x) / (abl.grid_points.x - 1),
-                            (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
+                          (abl.probe_position_rb.y - abl.probe_position_lf.y) / (abl.grid_points.y - 1));
 
     #endif // ABL_USES_GRID
 
@@ -443,7 +444,7 @@ G29_TYPE GcodeSuite::G29() {
 
       #if ENABLED(PREHEAT_BEFORE_LEVELING)
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          #if BOTH(DWIN_LCD_PROUI, HAS_HEATED_BED)
+          #if ALL(DWIN_LCD_PROUI, HAS_HEATED_BED)
             HMI_data.BedLevT
           #else
             LEVELING_BED_TEMP
@@ -453,9 +454,7 @@ G29_TYPE GcodeSuite::G29() {
     }
 
     // Position bed horizontally and Z probe vertically.
-    #if    defined(SAFE_BED_LEVELING_START_X) || defined(SAFE_BED_LEVELING_START_Y) || defined(SAFE_BED_LEVELING_START_Z) \
-        || defined(SAFE_BED_LEVELING_START_I) || defined(SAFE_BED_LEVELING_START_J) || defined(SAFE_BED_LEVELING_START_K) \
-        || defined(SAFE_BED_LEVELING_START_U) || defined(SAFE_BED_LEVELING_START_V) || defined(SAFE_BED_LEVELING_START_W)
+    #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X
         safe_position.x = SAFE_BED_LEVELING_START_X;
@@ -486,7 +485,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
 
       do_blocking_move_to(safe_position);
-    #endif
+    #endif // HAS_SAFE_BED_LEVELING
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
@@ -503,20 +502,13 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      if (!abl.dryrun
-        && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)
-      ) {
-        // Reset grid to 0.0 or "not probed". (Also disables ABL)
-        reset_bed_level();
-
-        // Can't re-enable (on error) until the new grid is written
-        abl.reenable = false;
+      if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
+        reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
+        abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
-
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
-
-    #endif // AUTO_BED_LEVELING_BILINEAR
+    #endif
 
   } // !g29_in_progress
 
@@ -558,7 +550,7 @@ G29_TYPE GcodeSuite::G29() {
     }
     else {
 
-      #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
+      #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
         const uint16_t index = abl.abl_probe_index - 1;
       #endif
 
@@ -693,7 +685,7 @@ G29_TYPE GcodeSuite::G29() {
         zig ^= true; // zag
 
         // An index to print current state
-        uint8_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
+        grid_count_t pt_index = (PR_OUTER_VAR) * (PR_INNER_SIZE) + 1;
 
         // Inner loop is Y with PROBE_Y_FIRST enabled
         // Inner loop is X with PROBE_Y_FIRST disabled
@@ -744,7 +736,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Probe at 3 arbitrary points
 
-      LOOP_L_N(i, 3) {
+      for (uint8_t i = 0; i < 3; ++i) {
         if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing point ", i + 1, "/3.");
         TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_POINT), int(i + 1)));
 
@@ -855,7 +847,7 @@ G29_TYPE GcodeSuite::G29() {
         auto print_topo_map = [&](FSTR_P const title, const bool get_min) {
           SERIAL_ECHOF(title);
           for (int8_t yy = abl.grid_points.y - 1; yy >= 0; yy--) {
-            LOOP_L_N(xx, abl.grid_points.x) {
+            for (uint8_t xx = 0; xx < abl.grid_points.x; ++xx) {
               const int ind = abl.indexIntoAB[xx][yy];
               xyz_float_t tmp = { abl.eqnAMatrix[ind + 0 * abl.abl_points],
                                   abl.eqnAMatrix[ind + 1 * abl.abl_points], 0 };

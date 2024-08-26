@@ -85,12 +85,12 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_printing();
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (!gcode_preview_over) {
         char *cur_name;
         cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-        SdFile file, *curDir;
+        MediaFile file, *curDir;
         card.abortFilePrintNow();
         const char * const fname = card.diveToFile(false, curDir, cur_name);
         if (!fname) return;
@@ -121,7 +121,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_clear_dialog();
     lv_draw_ready_print();
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       uiCfg.print_state = IDLE;
       card.abortFilePrintSoon();
     #endif
@@ -380,6 +380,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, DIALOG_UPDATE_NO_DEVICE_EN);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
+
   #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 1) {
@@ -422,6 +423,7 @@ void lv_draw_dialog(uint8_t type) {
       lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
     }
   #endif // MKS_WIFI_MODULE
+
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);

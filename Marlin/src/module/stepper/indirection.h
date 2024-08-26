@@ -22,14 +22,51 @@
 #pragma once
 
 /**
- * stepper/indirection.h
+ * stepper/indirection.h - Stepper Indirection Macros
  *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
+ * Each axis in a machine may have between 1 and 4 stepper motors.
+ * Currently X and Y allow for 1 or 2 steppers. Z can have up to 4.
+ * Extruders usually have one E stepper per nozzle.
  *
- * Copyright (c) 2015 Dominik Wenger
+ * XYZ Special Cases
+ *  - Delta:  3 steppers contribute to X, Y, and Z.
+ *  - SCARA:  A and B steppers contribute to X and Y by angular transformation.
+ *  - CoreXY: A and B steppers contribute to X and Y in combination.
+ *  - CoreXZ: A and B steppers contribute to X and Z in combination.
+ *  - CoreYZ: A and B steppers contribute to Y and Z in combination.
+ *
+ * E Special Cases
+ *  - SINGLENOZZLE: All Extruders have a single nozzle so there is one heater and no XYZ offset.
+ *  - Switching Extruder: One stepper is used for each pair of nozzles with a switching mechanism.
+ *  - Duplication Mode: Two or more steppers move in sync when `extruder_duplication_enabled` is set.
+ *                      With MULTI_NOZZLE_DUPLICATION a `duplication_e_mask` is also used.
+ *  - Průša MMU1: One stepper is used with a switching mechanism. Odd numbered E indexes are reversed.
+ *  - Průša MMU2: One stepper is used with a switching mechanism.
+ *  - E_DUAL_STEPPER_DRIVERS: Two steppers always move in sync, possibly with opposite DIR states.
+ *
+ * Direct Stepper Control
+ *  Where "Q" represents X Y Z I J K U V W / X2 Y2 Z2 Z3 Z4 / E0 E1 E2 E3 E4 E5 E6 E7
+ *  Here each E index corresponds to a single E stepper driver.
+ *
+ *    Q_ENABLE_INIT()   Q_ENABLE_WRITE(S)   Q_ENABLE_READ()
+ *    Q_DIR_INIT()      Q_DIR_WRITE(S)      Q_DIR_READ()
+ *    Q_STEP_INIT()     Q_STEP_WRITE(S)     Q_STEP_READ()
+ *
+ *  Steppers may not have an enable state or may be enabled by other methods
+ *  beyond a single pin (SOFTWARE_DRIVER_ENABLE) so these can be overriden:
+ *    ENABLE_STEPPER_Q() DISABLE_STEPPER_Q()
+ *
+ * Axis Stepper Control (X Y Z I J K U V W)
+ *  SOFTWARE_DRIVER_ENABLE gives all axes a status flag, so these macros will
+ *  skip sending commands to steppers that are already in the desired state:
+ *   ENABLE_AXIS_Q()  DISABLE_AXIS_Q()
+ *
+ * E-Axis Stepper Control (0..n)
+ *  For these macros the E index indicates a logical extruder (e.g., active_extruder).
+ *
+ *    E_STEP_WRITE(E,V)  FWD_E_DIR(E)  REV_E_DIR(E)
+ *
  */
-
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_TMC26X
@@ -44,21 +81,23 @@ void restore_stepper_drivers();  // Called by powerManager.power_on()
 void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 // X Stepper
-#ifndef X_ENABLE_INIT
-  #define X_ENABLE_INIT() SET_OUTPUT(X_ENABLE_PIN)
-  #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
-  #define X_ENABLE_READ() bool(READ(X_ENABLE_PIN))
+#if HAS_X_AXIS
+  #ifndef X_ENABLE_INIT
+    #define X_ENABLE_INIT() SET_OUTPUT(X_ENABLE_PIN)
+    #define X_ENABLE_WRITE(STATE) WRITE(X_ENABLE_PIN,STATE)
+    #define X_ENABLE_READ() bool(READ(X_ENABLE_PIN))
+  #endif
+  #ifndef X_DIR_INIT
+    #define X_DIR_INIT() SET_OUTPUT(X_DIR_PIN)
+    #define X_DIR_WRITE(STATE) WRITE(X_DIR_PIN,STATE)
+    #define X_DIR_READ() bool(READ(X_DIR_PIN))
+  #endif
+  #define X_STEP_INIT() SET_OUTPUT(X_STEP_PIN)
+  #ifndef X_STEP_WRITE
+    #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
+  #endif
+  #define X_STEP_READ() bool(READ(X_STEP_PIN))
 #endif
-#ifndef X_DIR_INIT
-  #define X_DIR_INIT() SET_OUTPUT(X_DIR_PIN)
-  #define X_DIR_WRITE(STATE) WRITE(X_DIR_PIN,STATE)
-  #define X_DIR_READ() bool(READ(X_DIR_PIN))
-#endif
-#define X_STEP_INIT() SET_OUTPUT(X_STEP_PIN)
-#ifndef X_STEP_WRITE
-  #define X_STEP_WRITE(STATE) WRITE(X_STEP_PIN,STATE)
-#endif
-#define X_STEP_READ() bool(READ(X_STEP_PIN))
 
 // Y Stepper
 #if HAS_Y_AXIS
@@ -968,8 +1007,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define AFTER_CHANGE(N,TF) NOOP
 #endif
 
-#define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
-#define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+#if HAS_X_AXIS
+  #define  ENABLE_AXIS_X() if (SHOULD_ENABLE(x))  {  ENABLE_STEPPER_X();  ENABLE_STEPPER_X2(); AFTER_CHANGE(x, true); }
+  #define DISABLE_AXIS_X() if (SHOULD_DISABLE(x)) { DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); AFTER_CHANGE(x, false); set_axis_untrusted(X_AXIS); }
+#else
+  #define  ENABLE_AXIS_X() NOOP
+  #define DISABLE_AXIS_X() NOOP
+#endif
 
 #if HAS_Y_AXIS
   #define  ENABLE_AXIS_Y() if (SHOULD_ENABLE(y))  {  ENABLE_STEPPER_Y();  ENABLE_STEPPER_Y2(); AFTER_CHANGE(y, true); }

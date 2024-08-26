@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
+#if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"

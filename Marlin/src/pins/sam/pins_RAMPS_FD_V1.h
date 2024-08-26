@@ -110,7 +110,7 @@
 #define TEMP_BED_PIN                           0  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       53
 #else
   #define TEMP_0_CS_PIN                       49
@@ -124,8 +124,8 @@
 #define HEATER_2_PIN                          11
 #define HEATER_BED_PIN                         8
 
-#ifndef FAN_PIN
-  #define FAN_PIN                             12
+#ifndef FAN0_PIN
+  #define FAN0_PIN                            12
 #endif
 
 //
@@ -134,7 +134,9 @@
 #define SDSS                                   4
 #define LED_PIN                               13
 
-/**        ------                     ------
+/**
+ *                RAMPS-FD LCD adapter
+ *         ------                     ------
  *     37 | 1  2 | 35      (MISO) 50 | 1  2 | 76 (SCK)
  *     29 | 3  4 | 27       (EN2) 31 | 3  4 |  4 (SD_SS)
  *     25   5  6 | 23       (EN1) 33   5  6 | 75 (MOSI)
@@ -164,23 +166,25 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
-  // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_EN1                    EXP2_05_PIN
-  #define BTN_EN2                    EXP2_03_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+
   #define SD_DETECT_PIN              EXP2_07_PIN
 
   #if IS_NEWPANEL
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
   #endif
 
   #if ENABLED(FYSETC_MINI_12864)
-    #define DOGLCD_CS            LCD_PINS_ENABLE
-    #define DOGLCD_A0                LCD_PINS_RS
+    #define DOGLCD_CS                EXP1_08_PIN
+    #define DOGLCD_A0                EXP1_07_PIN
     #define DOGLCD_SCK               EXP2_02_PIN
     #define DOGLCD_MOSI              EXP2_06_PIN
 
@@ -189,7 +193,7 @@
 
     #define LCD_RESET_PIN            EXP1_06_PIN  // Must be high or open for LCD to operate normally.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN        EXP1_05_PIN
       #endif
@@ -217,7 +221,7 @@
 
   #endif
 
-  #if EITHER(VIKI2, miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define DOGLCD_A0                EXP1_07_PIN
     #define KILL_PIN                          51
     #define STAT_LED_BLUE_PIN        EXP1_03_PIN
@@ -258,7 +262,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HOTENDS < 3 && HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
-  #define SPINDLE_LASER_ENA_PIN               45  // Use E2 ENA
   #define SPINDLE_LASER_PWM_PIN               12  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               45  // Use E2 ENA
   #define SPINDLE_DIR_PIN                     47  // Use E2 DIR
 #endif

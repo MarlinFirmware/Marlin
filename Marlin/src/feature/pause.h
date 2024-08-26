@@ -48,15 +48,15 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_PARKING,
   PAUSE_MESSAGE_CHANGING,
   PAUSE_MESSAGE_WAITING,
-  PAUSE_MESSAGE_UNLOAD,
   PAUSE_MESSAGE_INSERT,
   PAUSE_MESSAGE_LOAD,
+  PAUSE_MESSAGE_UNLOAD,
   PAUSE_MESSAGE_PURGE,
   PAUSE_MESSAGE_OPTION,
   PAUSE_MESSAGE_RESUME,
-  PAUSE_MESSAGE_STATUS,
   PAUSE_MESSAGE_HEAT,
-  PAUSE_MESSAGE_HEATING
+  PAUSE_MESSAGE_HEATING,
+  PAUSE_MESSAGE_STATUS
 };
 
 #if M600_PURGE_MORE_RESUMABLE
@@ -117,7 +117,7 @@ bool unload_filament(
   const_float_t   unload_length,                              // (mm) Filament Unload Length - 0 to skip
   const bool      show_lcd=false,                             // Set LCD status messages?
   const PauseMode mode=PAUSE_MODE_PAUSE_PRINT                 // Pause Mode to apply
-  #if BOTH(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
+  #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
     , const_float_t mix_multiplier=1.0f                       // Extrusion multiplier (for a Mixing Extruder)
   #endif
 );

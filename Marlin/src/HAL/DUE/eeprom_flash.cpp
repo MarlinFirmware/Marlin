@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -292,7 +291,7 @@ static bool ee_PageWrite(uint16_t page, const void *data) {
       uint32_t *p1 = (uint32_t*)addrflash;
       uint32_t *p2 = (uint32_t*)data;
       int count = 0;
-      for (i =0; i<PageSize >> 2; i++) {
+      for (i = 0; i < PageSize >> 2; i++) {
         if (p1[i] != p2[i]) {
           uint32_t delta = p1[i] ^ p2[i];
           while (delta) {

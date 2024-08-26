@@ -31,7 +31,7 @@
 
 #include "../../../gcode/queue.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   bool DGUSSetupHandler::Print() {
     dgus_screen_handler.filelist.refresh();
 
@@ -148,7 +148,7 @@ bool DGUSSetupHandler::LevelingOffset() {
 }
 
 bool DGUSSetupHandler::LevelingAutomatic() {
-  if (ExtUI::getMeshValid()) {
+  if (ExtUI::getLevelingIsValid()) {
     dgus_screen_handler.leveling_active = true;
 
     ExtUI::setLevelingActive(true);

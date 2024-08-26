@@ -43,7 +43,7 @@ void stepper_driver_backward_check() {
       SET_INPUT(AXIS##_ENABLE_PIN); \
       OUT_WRITE(AXIS##_STEP_PIN, false); \
       delay(20); \
-      if (READ(AXIS##_ENABLE_PIN) == false) { \
+      if (READ(AXIS##_ENABLE_PIN) == LOW) { \
         SBI(axis_plug_backward, BIT); \
         stepper_driver_backward_error(F(STRINGIFY(AXIS))); \
       } \

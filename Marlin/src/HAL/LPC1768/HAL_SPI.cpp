@@ -60,7 +60,7 @@
 // ------------------------
 // Public functions
 // ------------------------
-#if ENABLED(LPC_SOFTWARE_SPI)
+#if ENABLED(SOFTWARE_SPI)
 
   // Software SPI
 
@@ -161,7 +161,7 @@
     // TODO: Implement this method
   }
 
-#endif // LPC_SOFTWARE_SPI
+#endif // SOFTWARE_SPI
 
 /**
  * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
@@ -318,7 +318,7 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Enable DMA
   GPDMA_ChannelCmd(0, ENABLE);
 
-  /*
+  /**
    * Observed behaviour on normal data transfer completion (SKR 1.3 board / LPC1768 MCU)
    *   GPDMA_STAT_INTTC flag is SET
    *   GPDMA_STAT_INTERR flag is NOT SET

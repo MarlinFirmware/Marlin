@@ -88,8 +88,8 @@
  */
 #define MEGA_SOFT_SPI 0
 
-// Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
-#define USE_SOFTWARE_SPI 0
+// Set SDFAT_USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
+#define SDFAT_USE_SOFTWARE_SPI 0
 
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
@@ -109,4 +109,4 @@
 #define LONG_FILENAME_CHARSIZE TERN(UTF_FILENAME_SUPPORT, 2, 1)
 
 // Total bytes needed to store a single long filename
-#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * LONG_FILENAME_CHARSIZE * MAX_VFAT_ENTRIES + 1)
+#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * LONG_FILENAME_CHARSIZE * VFAT_ENTRIES_LIMIT + 1)

@@ -43,7 +43,7 @@
   #endif
 #endif
 
-#if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -53,7 +53,7 @@
   //
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
+  constexpr grid_count_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -169,7 +169,7 @@
     if (ui.should_draw()) {
       MenuItem_static::draw(1, GET_TEXT_F(MSG_LEVEL_BED_WAITING));
       // Color UI needs a control to detect a touch
-      #if BOTH(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+      #if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
         touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
       #endif
     }
@@ -249,7 +249,7 @@ void menu_bed_leveling() {
   #endif
 
   // Level Bed
-  #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+  #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
     // Manual leveling uses a guided procedure
     SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
   #else
@@ -293,7 +293,7 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LCD_BED_TRAMMING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_level_bed_corners);
+    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

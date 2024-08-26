@@ -70,7 +70,7 @@
 #elif ENABLED(SR_LCD_2W_NL)
 
   // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+  // https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
@@ -103,5 +103,5 @@
 
 #endif
 
-#include "../fontutils.h"
+#include "../utf8.h"
 #include "../lcdprint.h"

@@ -112,9 +112,9 @@
 
 namespace ExtUI {
   static struct {
-    uint8_t printer_killed : 1;
+    bool printer_killed : 1;
     #if ENABLED(JOYSTICK)
-      uint8_t jogging : 1;
+      bool jogging : 1;
     #endif
   } flags;
 
@@ -172,35 +172,6 @@ namespace ExtUI {
     if (!flags.printer_killed) thermalManager.task();
   }
 
-  void enableHeater(const extruder_t extruder) {
-    #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      thermalManager.reset_hotend_idle_timer(extruder - E0);
-    #else
-      UNUSED(extruder);
-    #endif
-  }
-
-  void enableHeater(const heater_t heater) {
-    #if HEATER_IDLE_HANDLER
-      switch (heater) {
-        #if HAS_HEATED_BED
-          case BED: thermalManager.reset_bed_idle_timer(); return;
-        #endif
-        #if HAS_HEATED_CHAMBER
-          case CHAMBER: return; // Chamber has no idle timer
-        #endif
-        #if HAS_COOLER
-          case COOLER: return;  // Cooler has no idle timer
-        #endif
-        default:
-          TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
-          break;
-      }
-    #else
-      UNUSED(heater);
-    #endif
-  }
-
   #if ENABLED(JOYSTICK)
     /**
      * Jogs in the direction given by the vector (dx, dy, dz).
@@ -236,6 +207,39 @@ namespace ExtUI {
       }
     }
   #endif
+
+  //
+  // Heaters locked / idle
+  //
+
+  void enableHeater(const extruder_t extruder) {
+    #if HAS_HOTEND && HEATER_IDLE_HANDLER
+      thermalManager.reset_hotend_idle_timer(extruder - E0);
+    #else
+      UNUSED(extruder);
+    #endif
+  }
+
+  void enableHeater(const heater_t heater) {
+    #if HEATER_IDLE_HANDLER
+      switch (heater) {
+        #if HAS_HEATED_BED
+          case BED: thermalManager.reset_bed_idle_timer(); return;
+        #endif
+        #if HAS_HEATED_CHAMBER
+          case CHAMBER: return; // Chamber has no idle timer
+        #endif
+        #if HAS_COOLER
+          case COOLER: return;  // Cooler has no idle timer
+        #endif
+        default:
+          TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
+          break;
+      }
+    #else
+      UNUSED(heater);
+    #endif
+  }
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
@@ -302,6 +306,9 @@ namespace ExtUI {
     return GET_TEMP_ADJUSTMENT(thermalManager.degTargetHotend(extruder - E0));
   }
 
+  //
+  // Fan target/actual speed
+  //
   float getTargetFan_percent(const fan_t fan) {
     UNUSED(fan);
     return TERN0(HAS_FAN, thermalManager.fanSpeedPercent(fan - FAN0));
@@ -312,6 +319,9 @@ namespace ExtUI {
     return TERN0(HAS_FAN, thermalManager.scaledFanSpeedPercent(fan - FAN0));
   }
 
+  //
+  // High level axis and extruder positions
+  //
   float getAxisPosition_mm(const axis_t axis) {
     return current_position[axis];
   }
@@ -349,6 +359,9 @@ namespace ExtUI {
     line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
+  //
+  // Tool changing
+  //
   void setActiveTool(const extruder_t extruder, bool no_move) {
     #if HAS_MULTI_EXTRUDER
       const uint8_t e = extruder - E0;
@@ -370,12 +383,18 @@ namespace ExtUI {
 
   extruder_t getActiveTool() { return getTool(active_extruder); }
 
+  //
+  // Moving axes and extruders
+  //
   bool isMoving() { return planner.has_blocks_queued(); }
 
+  //
+  // Motion might be blocked by NO_MOTION_BEFORE_HOMING
+  //
   bool canMove(const axis_t axis) {
     switch (axis) {
-      #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return !axis_should_home(X_AXIS);
+      #if ANY(IS_KINEMATIC, NO_MOTION_BEFORE_HOMING)
+        OPTCODE(HAS_X_AXIS, case X: return !axis_should_home(X_AXIS))
         OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
         OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
       #else
@@ -385,19 +404,33 @@ namespace ExtUI {
     }
   }
 
+  //
+  // E Motion might be prevented by cold material
+  //
   bool canMove(const extruder_t extruder) {
     return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
+  //
+  // Host Keepalive, used by awaitingUserConfirm
+  //
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     GcodeSuite::MarlinBusyState getHostKeepaliveState() { return gcode.busy_state; }
     bool getHostKeepaliveIsPaused() { return gcode.host_keepalive_is_paused(); }
   #endif
 
+  //
+  // Soft Endstops Enabled/Disabled State
+  //
+
   #if HAS_SOFTWARE_ENDSTOPS
     bool getSoftEndstopState() { return soft_endstop._enabled; }
     void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
   #endif
+
+  //
+  // Trinamic Current / Bump Sensitivity
+  //
 
   #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t axis) {
@@ -626,6 +659,10 @@ namespace ExtUI {
     }
   #endif
 
+  //
+  // Planner Accessors / Setters
+  //
+
   float getAxisSteps_per_mm(const axis_t axis) {
     return planner.settings.axis_steps_per_mm[axis];
   }
@@ -773,7 +810,9 @@ namespace ExtUI {
     bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
       switch (axis) {
         #if ENABLED(BABYSTEP_XY)
-          case X: babystep.add_steps(X_AXIS, steps); break;
+          #if HAS_X_AXIS
+            case X: babystep.add_steps(X_AXIS, steps); break;
+          #endif
           #if HAS_Y_AXIS
             case Y: babystep.add_steps(Y_AXIS, steps); break;
           #endif
@@ -818,7 +857,7 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[e][axis] += mm;
 
-          normalizeNozzleOffset(X);
+          TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
           TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
           TERN_(HAS_Z_AXIS, normalizeNozzleOffset(Z));
         }
@@ -843,11 +882,13 @@ namespace ExtUI {
   #endif // BABYSTEPPING
 
   float getZOffset_mm() {
-    return (0.0f
+    return (
       #if HAS_BED_PROBE
-        + probe.offset.z
+        probe.offset.z
       #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        + planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        planner.mm_per_step[Z_AXIS] * babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+      #else
+        0.0f
       #endif
     );
   }
@@ -915,7 +956,7 @@ namespace ExtUI {
 
     bool getLevelingActive() { return planner.leveling_active; }
     void setLevelingActive(const bool state) { set_bed_leveling_enabled(state); }
-    bool getMeshValid() { return leveling_is_valid(); }
+    bool getLevelingIsValid() { return leveling_is_valid(); }
 
     #if HAS_MESH
 
@@ -924,28 +965,27 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
         if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
-          TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+          TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
         }
       }
 
       void moveToMeshPoint(const xy_uint8_t &pos, const_float_t z) {
-        #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
-          const feedRate_t old_feedrate = feedrate_mm_s;
+        #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+          REMEMBER(fr, feedrate_mm_s);
           const float x_target = MESH_MIN_X + pos.x * (MESH_X_DIST),
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+            feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
             destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
             prepare_line_to_destination();
-            feedrate_mm_s = XY_PROBE_FEEDRATE;
+            feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
             destination.set(x_target, y_target);
             prepare_line_to_destination();
           }
-          feedrate_mm_s = Z_PROBE_FEEDRATE_FAST;
+          feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
           destination.z = z;
           prepare_line_to_destination();
-          feedrate_mm_s = old_feedrate;
         #else
           UNUSED(pos);
           UNUSED(z);
@@ -1081,14 +1121,14 @@ namespace ExtUI {
   #endif
 
   void printFile(const char *filename) {
-    TERN(SDSUPPORT, card.openAndPrintFile(filename), UNUSED(filename));
+    TERN(HAS_MEDIA, card.openAndPrintFile(filename), UNUSED(filename));
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(SDSUPPORT, IS_SD_PAUSED());
+    return TERN0(HAS_MEDIA, IS_SD_PAUSED());
   }
 
-  bool isPrintingFromMedia() { return TERN0(SDSUPPORT, IS_SD_PRINTING() || IS_SD_PAUSED()); }
+  bool isPrintingFromMedia() { return TERN0(HAS_MEDIA, IS_SD_PRINTING() || IS_SD_PAUSED()); }
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();
@@ -1098,8 +1138,9 @@ namespace ExtUI {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
-  bool isMediaInserted() { return TERN0(SDSUPPORT, IS_SD_INSERTED()); }
+  bool isMediaInserted() { return TERN0(HAS_MEDIA, IS_SD_INSERTED()); }
 
+  // Pause/Resume/Stop are implemented in MarlinUI
   void pausePrint()  { ui.pause_print(); }
   void resumePrint() { ui.resume_print(); }
   void stopPrint()   { ui.abort_print(); }
@@ -1127,12 +1168,12 @@ namespace ExtUI {
 
   FileList::FileList() { refresh(); }
 
-  void FileList::refresh() { num_files = 0xFFFF; }
+  void FileList::refresh() { }
 
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(SD_ORDER(pos, count()));
+      card.selectFileByIndexSorted(pos);
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);
@@ -1142,43 +1183,35 @@ namespace ExtUI {
   }
 
   const char* FileList::filename() {
-    return TERN(SDSUPPORT, card.longest_filename(), "");
+    return TERN(HAS_MEDIA, card.longest_filename(), "");
   }
 
   const char* FileList::shortFilename() {
-    return TERN(SDSUPPORT, card.filename, "");
+    return TERN(HAS_MEDIA, card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    return TERN(SDSUPPORT, card.longFilename, "");
+    return TERN(HAS_MEDIA, card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    return TERN0(SDSUPPORT, card.flag.filenameIsDir);
+    return TERN0(HAS_MEDIA, card.flag.filenameIsDir);
   }
 
   uint16_t FileList::count() {
-    return TERN0(SDSUPPORT, (num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)));
+    return TERN0(HAS_MEDIA, card.get_num_items());
   }
 
   bool FileList::isAtRootDir() {
-    return TERN1(SDSUPPORT, card.flag.workDirIsRoot);
+    return TERN1(HAS_MEDIA, card.flag.workDirIsRoot);
   }
 
   void FileList::upDir() {
-    #if ENABLED(SDSUPPORT)
-      card.cdup();
-      num_files = 0xFFFF;
-    #endif
+    TERN_(HAS_MEDIA, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {
-    #if ENABLED(SDSUPPORT)
-      card.cd(dirname);
-      num_files = 0xFFFF;
-    #else
-      UNUSED(dirname);
-    #endif
+    TERN(HAS_MEDIA, card.cd(dirname), UNUSED(dirname));
   }
 
 } // namespace ExtUI

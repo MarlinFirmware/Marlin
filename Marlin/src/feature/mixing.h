@@ -108,7 +108,7 @@ class Mixer {
   }
 
   // Used when dealing with blocks
-  FORCE_INLINE static void populate_block(mixer_comp_t b_color[MIXING_STEPPERS]) {
+  FORCE_INLINE static void populate_block(mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
     #if ENABLED(GRADIENT_MIX)
       if (gradient.enabled) {
         MIXER_STEPPER_LOOP(i) b_color[i] = gradient.color[i];
@@ -118,11 +118,11 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) b_color[i] = color[selected_vtool][i];
   }
 
-  FORCE_INLINE static void stepper_setup(mixer_comp_t b_color[MIXING_STEPPERS]) {
+  FORCE_INLINE static void stepper_setup(mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
@@ -148,8 +148,7 @@ class Mixer {
     static void update_mix_from_vtool(const uint8_t j=selected_vtool) {
       float ctot = 0;
       MIXER_STEPPER_LOOP(i) ctot += color[j][i];
-      //MIXER_STEPPER_LOOP(i) mix[i] = 100.0f * color[j][i] / ctot;
-      MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot);
+      MIXER_STEPPER_LOOP(i) mix[i] = mixer_perc_t(100.0f * color[j][i] / ctot + 0.5f);
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOPGM("V-tool ", j, " [ ");
@@ -234,13 +233,7 @@ class Mixer {
     for (;;) {
       if (--runner < 0) runner = MIXING_STEPPERS - 1;
       accu[runner] += s_color[runner];
-      if (
-        #ifdef MIXER_ACCU_SIGNED
-          accu[runner] < 0
-        #else
-          accu[runner] & COLOR_A_MASK
-        #endif
-      ) {
+      if (TERN(MIXER_ACCU_SIGNED, accu[runner] < 0, accu[runner] & COLOR_A_MASK)) {
         accu[runner] &= COLOR_MASK;
         return runner;
       }

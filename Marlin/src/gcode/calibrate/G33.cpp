@@ -97,12 +97,12 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
   SERIAL_ECHOPGM("  ");
-  SERIAL_ECHOF(prefix, AS_CHAR(':'));
+  SERIAL_ECHOF(prefix, C(':'));
   serial_offset(f);
 }
 
 /**
- *  - Print the delta settings
+ * - Print the delta settings
  */
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
   SERIAL_ECHOPGM(".Height:", delta_height);
@@ -128,7 +128,7 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
 }
 
 /**
- *  - Print the probe results
+ * - Print the probe results
  */
 static void print_calibration_results(const float z_pt[NPP + 1], const bool tower_points, const bool opposite_points) {
   SERIAL_ECHOPGM(".    ");
@@ -152,7 +152,7 @@ static void print_calibration_results(const float z_pt[NPP + 1], const bool towe
 }
 
 /**
- *  - Calculate the standard deviation from the zero plane
+ * - Calculate the standard deviation from the zero plane
  */
 static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool _1p_cal, const bool _4p_cal, const bool _4p_opp) {
   if (!_0p_cal) {
@@ -170,7 +170,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
 }
 
 /**
- *  - Probe a point
+ * - Probe a point
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool probe_at_offset) {
   #if HAS_BED_PROBE
@@ -182,7 +182,7 @@ static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool p
 }
 
 /**
- *  - Probe a grid
+ * - Probe a grid
  */
 static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const float dcr, const bool towers_set, const bool stow_after_each, const bool probe_at_offset) {
   const bool _0p_calibration      = probe_points == 0,
@@ -464,8 +464,8 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
-  PGM_P const checkingac = PSTR("Checking... AC");
-  SERIAL_ECHOPGM_P(checkingac);
+  FSTR_P const checkingac = F("Checking... AC");
+  SERIAL_ECHOF(checkingac);
   SERIAL_ECHOPGM(" at radius:", dcr);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();

@@ -39,6 +39,23 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
+/**
+ * G34 - Align the ends of the X gantry. See https://youtu.be/3jAFQdTk8iw
+ *
+ * - The carriage moves to GANTRY_CALIBRATION_SAFE_POSITION, also called the “pounce” position.
+ * - If possible, the Z stepper current is reduced to the value specified by 'S'
+ *   (or GANTRY_CALIBRATION_CURRENT) to prevent damage to steppers and other parts.
+ *   The reduced current should be just high enough to move the Z axis when not blocked.
+ * - The Z axis is jogged past the Z limit, only as far as the specified Z distance
+ *   (or GANTRY_CALIBRATION_EXTRA_HEIGHT) at the GANTRY_CALIBRATION_FEEDRATE.
+ * - The Z axis is moved back to the working area (also at GANTRY_CALIBRATION_FEEDRATE).
+ * - Stepper current is restored back to normal.
+ * - The machine is re-homed, according to GANTRY_CALIBRATION_COMMANDS_POST.
+ *
+ * Parameters:
+ *  [S<mA>]     - Current value to use for the raise move. (Default: GANTRY_CALIBRATION_CURRENT)
+ *  [Z<linear>] - Extra distance past Z_MAX_POS to move the Z axis. (Default: GANTRY_CALIBRATION_EXTRA_HEIGHT)
+ */
 void GcodeSuite::G34() {
 
   // Home before the alignment procedure
@@ -58,7 +75,7 @@ void GcodeSuite::G34() {
     // Move XY to safe position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Parking XY");
     const xy_pos_t safe_pos = GANTRY_CALIBRATION_SAFE_POSITION;
-    do_blocking_move_to(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
+    do_blocking_move_to_xy(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
   #endif
 
   const float move_distance = parser.intval('Z', GANTRY_CALIBRATION_EXTRA_HEIGHT),

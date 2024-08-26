@@ -23,14 +23,14 @@
 
 #include "env_validate.h"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS
 
 // If you have the BigTreeTech driver expansion module, enable BTT_MOTOR_EXPANSION
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
-  #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
+#if ALL(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY 1
   #else
     #error "You can't use both an LCD and a Motor Expansion Module on EXP1/EXP2 at the same time."
@@ -172,18 +172,16 @@
 #endif
 
 //
-// Software SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130 stepper drivers
 //
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PC12
-  #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PC11
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PC10
-  #endif
+#ifndef TMC_SPI_MOSI
+  #define TMC_SPI_MOSI                      PC12
+#endif
+#ifndef TMC_SPI_MISO
+  #define TMC_SPI_MISO                      PC11
+#endif
+#ifndef TMC_SPI_SCK
+  #define TMC_SPI_SCK                       PC10
 #endif
 
 #if HAS_TMC_UART
@@ -224,8 +222,11 @@
   #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -291,7 +292,7 @@
 //
 // Fans
 //
-#define FAN_PIN                             PC8   // Fan0
+#define FAN0_PIN                            PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
 
 #ifndef E0_AUTO_FAN_PIN
@@ -424,8 +425,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -444,7 +446,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -487,7 +489,7 @@
     #define DOGLCD_A0                EXP1_06_PIN
     #define DOGLCD_SCK               EXP1_04_PIN
     #define DOGLCD_MOSI              EXP1_02_PIN
-    #define LCD_BACKLIGHT_PIN            -1
+    #define LCD_BACKLIGHT_PIN               -1
 
   #else
 
@@ -496,7 +498,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -504,7 +506,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif
@@ -547,22 +549,24 @@
   #endif
 #endif
 
-//
-// WIFI
-//
+#if ENABLED(WIFISUPPORT)
+  //
+  // WIFI
+  //
 
-/**
- *          ------
- *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
- *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
- *          ------
- *            W1
- */
-#define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-#define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-#define ESP_WIFI_MODULE_RESET_PIN           PG0
-#define ESP_WIFI_MODULE_ENABLE_PIN          PG1
-#define ESP_WIFI_MODULE_GPIO0_PIN           PF14
-#define ESP_WIFI_MODULE_GPIO2_PIN           PF15
+  /**
+   *          ------
+   *      RX | 8  7 | 3.3V      GPIO0  PF14 ... Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+   *   GPIO0 | 6  5 | Reset     GPIO2  PF15 ... must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+   *   GPIO2 | 4  3 | Enable    Reset  PG0  ... active low, probably OK to leave floating
+   *     GND | 2  1 | TX        Enable PG1  ... Must be high for module to run
+   *          ------
+   *            W1
+   */
+  #define ESP_WIFI_MODULE_COM                  6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PG0
+  #define ESP_WIFI_MODULE_ENABLE_PIN        PG1
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PF14
+  #define ESP_WIFI_MODULE_GPIO2_PIN         PF15
+#endif

@@ -72,7 +72,7 @@ if pioutil.is_pio_build():
         result = check_envs("env:"+build_env, board_envs, config)
 
         if not result:
-            err = "Error: Build environment '%s' is incompatible with %s. Use one of these: %s" % \
+            err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
 
@@ -90,7 +90,7 @@ if pioutil.is_pio_build():
         # Find the name.cpp.o or name.o and remove it
         #
         def rm_ofile(subdir, name):
-            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env);
+            build_dir = Path(env['PROJECT_BUILD_DIR'], build_env)
             for outdir in (build_dir, build_dir / "debug"):
                 for ext in (".cpp.o", ".o"):
                     fpath = outdir / "src/src" / subdir / (name + ext)
@@ -129,8 +129,10 @@ if pioutil.is_pio_build():
         #
         if 'FILAMENT_RUNOUT_SENSOR' in env['MARLIN_FEATURES'] and 'NUM_RUNOUT_SENSORS' in env['MARLIN_FEATURES']:
             if env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS'].isdigit() and int(env['MARLIN_FEATURES']['NUM_RUNOUT_SENSORS']) > 1:
-                if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES'] and "%c" not in env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']:
-                    err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter when NUM_RUNOUT_SENSORS is > 1"
-                    raise SystemExit(err)
+                if 'FILAMENT_RUNOUT_SCRIPT' in env['MARLIN_FEATURES']:
+                    frs = env['MARLIN_FEATURES']['FILAMENT_RUNOUT_SCRIPT']
+                    if "M600" in frs and "%c" not in frs:
+                        err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
+                        raise SystemExit(err)
 
     sanity_check_target()

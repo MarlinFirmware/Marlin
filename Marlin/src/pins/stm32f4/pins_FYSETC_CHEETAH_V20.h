@@ -34,7 +34,7 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
 
@@ -43,22 +43,24 @@
   #define FLASH_ADDRESS_START   0x8004000
 #endif
 
-//
-// Z Probe
-//
-#if ENABLED(BLTOUCH)
-  #error "You need to set jumper to 5v for Bltouch, then comment out this line to proceed."
-  #define SERVO0_PIN                        PA0
-#elif !defined(Z_MIN_PROBE_PIN)
-  #define Z_MIN_PROBE_PIN                   PA0
-#endif
+#define SERVO0_PIN                          PB1   // BL-TOUCH/PWM
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                          PB4
-#define Y_STOP_PIN                          PC8
-#define Z_STOP_PIN                          PB1
+#define X_STOP_PIN                          PB4   // X-MIN
+#define Y_STOP_PIN                          PC8   // Y-MIN
+#define Z_STOP_PIN                          PA0   // Z-MIN
+
+//
+// Z Probe
+//
+#if ENABLED(BLTOUCH)
+  #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."
+#endif
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                   PB1   // BL-TOUCH/PWM repurposed
+#endif
 
 //
 // Filament runout
@@ -110,8 +112,8 @@
 //
 #define HEATER_0_PIN                        PC6
 #define HEATER_BED_PIN                      PC7
-#ifndef FAN_PIN
-  #define FAN_PIN                           PA14
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PA14
 #endif
 #define FAN1_PIN                            PA13
 #define FAN2_PIN                            PA1
@@ -147,17 +149,15 @@
  *              GND | 9 10 | 5V                         GND | 9 10 |   5V
  *                   ------                                  ------
  *                    EXP2                                    EXP1
- */
-
-/**
- *                     ------
- *                 5V | 1  2 | GND
- * (LCD_EN/MOSI) PB15 | 3  4 | PB12  (LCD_RS)
- * (LCD_D4/SCK)  PB13   5  6 | PC11 (BTN_EN2)
- * (LCD_D5/MISO) PB14 | 7  8 | PC10 (BTN_EN1)
- * (BTN_ENC)     PC12 | 9 10 | PC9   (BEEPER)
- *                     ------
- *                      EXP3
+ *
+ *                   ------
+ *    (BEEPER) PC9  | 1  2 | PC12 (BTN_ENC)
+ *   (BTN_EN1) PC10 | 3  4 | PB14 (LCD_D5/MISO)
+ *   (BTN_EN2) PC11   5  6 | PB13 (LCD_D4/SCK)
+ *    (LCD_RS) PB12 | 7  8 | PB15 (LCD_EN/MOSI)
+ *             GND  | 9 10 |   5V
+ *                   ------
+ *                    EXP3
  */
 
 #define EXP1_01_PIN                         PC9
@@ -178,22 +178,31 @@
 #define EXP2_07_PIN                         PC3
 #define EXP2_08_PIN                         -1
 
-#if HAS_WIRED_LCD
+#define EXP3_01_PIN                         PC9
+#define EXP3_02_PIN                         PC12
+#define EXP3_03_PIN                         PC10
+#define EXP3_04_PIN                         PB14
+#define EXP3_05_PIN                         PC11
+#define EXP3_06_PIN                         PB13
+#define EXP3_07_PIN                         PB12
+#define EXP3_08_PIN                         PB15
+
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  #define BEEPER_PIN                 EXP3_01_PIN
+  #define BTN_ENC                    EXP3_02_PIN
+  #define BTN_EN1                    EXP3_03_PIN
+  #define BTN_EN2                    EXP3_05_PIN
+  #define LCD_PINS_D4                EXP3_06_PIN
+  #define LCD_PINS_RS                EXP3_07_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
+
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-
-  #elif ENABLED(MKS_MINI_12864)
+  #if ENABLED(MKS_MINI_12864)
 
     #define DOGLCD_A0                EXP1_07_PIN
     #define DOGLCD_CS                EXP1_06_PIN
@@ -207,7 +216,7 @@
     #define BTN_EN1                  EXP2_05_PIN
     #define BTN_EN2                  EXP2_03_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -215,7 +224,7 @@
       #define DOGLCD_A0              EXP1_04_PIN
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

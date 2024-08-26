@@ -25,13 +25,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#define ILI9488_MADCTL_MY         0x80 // Row Address Order
-#define ILI9488_MADCTL_MX         0x40 // Column Address Order
-#define ILI9488_MADCTL_MV         0x20 // Row/Column Exchange
-#define ILI9488_MADCTL_ML         0x10 // Vertical Refresh Order
-#define ILI9488_MADCTL_BGR        0x08 // RGB-BGR ORDER
-#define ILI9488_MADCTL_RGB        0x00
-#define ILI9488_MADCTL_MH         0x04 // Horizontal Refresh Order
+#define ILI9488_MADCTL_MY   0x80 // Row Address Order
+#define ILI9488_MADCTL_MX   0x40 // Column Address Order
+#define ILI9488_MADCTL_MV   0x20 // Row/Column Exchange
+#define ILI9488_MADCTL_ML   0x10 // Vertical Refresh Order
+#define ILI9488_MADCTL_BGR  0x08 // RGB-BGR ORDER
+#define ILI9488_MADCTL_RGB  0x00
+#define ILI9488_MADCTL_MH   0x04 // Horizontal Refresh Order
 
 #define ILI9488_ORIENTATION_UP    ILI9488_MADCTL_MY                                         // 320x480 ; Cable on the upper side
 #define ILI9488_ORIENTATION_RIGHT ILI9488_MADCTL_MV                                         // 480x320 ; Cable on the right side

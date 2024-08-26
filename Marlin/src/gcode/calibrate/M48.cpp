@@ -66,9 +66,6 @@ void GcodeSuite::M48() {
     return;
   }
 
-  if (verbose_level > 0)
-    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
-
   const int8_t n_samples = parser.byteval('P', 10);
   if (!WITHIN(n_samples, 4, 50)) {
     SERIAL_ECHOLNPGM("?Sample size not plausible (4-50).");
@@ -84,7 +81,7 @@ void GcodeSuite::M48() {
   };
 
   if (!probe.can_reach(test_position)) {
-    ui.set_status(GET_TEXT_F(MSG_M48_OUT_OF_BOUNDS), 99);
+    LCD_MESSAGE_MAX(MSG_M48_OUT_OF_BOUNDS);
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
@@ -101,6 +98,9 @@ void GcodeSuite::M48() {
   // Schizoid motion as an optional stress-test
   const bool schizoid_flag = parser.boolval('S');
   if (schizoid_flag && !seen_L) n_legs = 7;
+
+  if (verbose_level > 0)
+    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
 
   if (verbose_level > 2)
     SERIAL_ECHOLNPGM("Positioning the probe...");
@@ -148,7 +148,7 @@ void GcodeSuite::M48() {
 
     float sample_sum = 0.0;
 
-    LOOP_L_N(n, n_samples) {
+    for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
         ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
@@ -175,7 +175,7 @@ void GcodeSuite::M48() {
         }
 
         // Move from leg to leg in rapid succession
-        LOOP_L_N(l, n_legs - 1) {
+        for (uint8_t l = 0; l < n_legs - 1; ++l) {
 
           // Move some distance around the perimeter
           float delta_angle;
@@ -223,7 +223,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      const float pz = probe.probe_at_point(test_position, raise_after, 0);
+      const float pz = probe.probe_at_point(test_position, raise_after);
 
       // Break the loop if the probe fails
       probing_good = !isnan(pz);
@@ -243,7 +243,7 @@ void GcodeSuite::M48() {
       // Calculate the standard deviation so far.
       // The value after the last sample will be the final output.
       float dev_sum = 0.0;
-      LOOP_LE_N(j, n) dev_sum += sq(sample_set[j] - mean);
+      for (uint8_t j = 0; j <= n; ++j) dev_sum += sq(sample_set[j] - mean);
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {

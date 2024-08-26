@@ -23,7 +23,7 @@
 
 #include "env_validate.h"
 
-#if HOTENDS > 1 || E_STEPPERS > 1
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "Artillery Ruby only supports 1 hotend / E stepper."
 #endif
 
@@ -100,8 +100,8 @@
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN                    PA8   // Hotbed
 #endif
-#ifndef FAN_PIN
-  #define FAN_PIN                           PC8   // Fan0
+#ifndef FAN0_PIN
+  #define FAN0_PIN                          PC8   // Fan0
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                          PC7   // Fan1
@@ -125,8 +125,9 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
-  #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
     #define LCD_PINS_DC                     PB8   // Set as output on init
     #define LCD_PINS_RS                     PB9   // Pull low for 1s to init
     // DOGM SPI LCD Support
@@ -143,7 +144,7 @@
 
     #define LCD_RESET_PIN                   PB5   // Must be high or open for LCD to operate normally.
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
       #ifndef RGB_LED_R_PIN
         #define RGB_LED_R_PIN               PB9
       #endif
@@ -160,7 +161,7 @@
     #define LCD_CONTRAST_INIT                255
   #else
     #define LCD_PINS_RS                     PC15
-    #define LCD_PINS_ENABLE                 PB6
+    #define LCD_PINS_EN                     PB6
     #define LCD_PINS_D4                     PB5
     #define LCD_PINS_D5                     PB9
     #define LCD_PINS_D6                     PB8
@@ -173,7 +174,7 @@
   //
   #define BEEPER_PIN                        PC13
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     #define SDSS                            PA15
     #define SD_DETECT_PIN                   PD2
   #endif

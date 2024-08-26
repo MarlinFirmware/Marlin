@@ -23,12 +23,12 @@
 
 // R25 = 100 KOhm, beta25 = 4550 K, 4.7 kOhm pull-up, TDK NTCG104LH104KT1 https://product.tdk.com/en/search/sensor/ntc/chip-ntc-thermistor/info?part_no=NTCG104LH104KT1
 constexpr temp_entry_t temptable_2000[] PROGMEM = {
-{ OV(313),   125 },
-{ OV(347),   120 },
-{ OV(383),   115 },
-{ OV(422),   110 },
-{ OV(463),   105 },
-{ OV(506),   100 },
+{ OV(313),  125 },
+{ OV(347),  120 },
+{ OV(383),  115 },
+{ OV(422),  110 },
+{ OV(463),  105 },
+{ OV(506),  100 },
 { OV(549),   95 },
 { OV(594),   90 },
 { OV(638),   85 },

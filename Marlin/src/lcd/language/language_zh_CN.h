@@ -48,7 +48,7 @@ namespace Language_zh_CN {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
-  LSTR MSG_MAIN                           = _UxGT("主菜单");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主菜单");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始");     // "Autostart"
@@ -264,7 +264,6 @@ namespace Language_zh_CN {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("自动调失败! 坏的挤出机");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("自动调失败! 温度太高");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("自动调失败! 超时");
-  LSTR MSG_SELECT                         = _UxGT("选择");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("选择 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration
   LSTR MSG_JERK                           = _UxGT("抖动速率");     // "Jerk"
@@ -318,9 +317,9 @@ namespace Language_zh_CN {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("装载设置");     // "Load memory"
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("恢复安全值");     // "Restore Defaults"
   LSTR MSG_INIT_EEPROM                    = _UxGT("初始化设置");     // "Initialize EEPROM"
-  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC 错误");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index 错误");
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version 错误");
+  LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM 校验和 错误");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM 尺寸 错误");
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM 版本 错误");
   LSTR MSG_SETTINGS_STORED                = _UxGT("设置已保存");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("存储器更新");
   LSTR MSG_RESET_PRINTER                  = _UxGT("复位打印机");
@@ -349,7 +348,7 @@ namespace Language_zh_CN {
   LSTR MSG_STOP_PRINT                     = _UxGT("停止打印");     // "Stop print"
   LSTR MSG_PRINTING_OBJECT                = _UxGT("打印物体");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("取消物体");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("取消物体 {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("中断恢复");
   LSTR MSG_MEDIA_MENU                     = _UxGT("从存储卡上打印");     // "Print from SD"
   LSTR MSG_NO_MEDIA                       = _UxGT("无存储卡");     // "No SD card"
@@ -439,9 +438,6 @@ namespace Language_zh_CN {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("错误：最低温度");     // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("打印停机");     // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("请重置");     // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
   LSTR MSG_HEATING                        = _UxGT("加热中 ...");     // "Heating..."
   LSTR MSG_COOLING                        = _UxGT("冷却中 ...");
   LSTR MSG_BED_HEATING                    = _UxGT("加热热床中 ...");     // "Bed Heating..."
@@ -536,7 +532,7 @@ namespace Language_zh_CN {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("移出, 按下");
 
   LSTR MSG_MIX                            = _UxGT("混合");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("器件  {");
   LSTR MSG_MIXER                          = _UxGT("混合器");
   LSTR MSG_GRADIENT                       = _UxGT("梯度");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("全梯度");
@@ -609,12 +605,8 @@ namespace Language_zh_CN {
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("加热器超时");
   LSTR MSG_REHEAT                         = _UxGT("重新加热");
   LSTR MSG_REHEATING                      = _UxGT("重新加热中...");
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("时");     // "h" // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
+}

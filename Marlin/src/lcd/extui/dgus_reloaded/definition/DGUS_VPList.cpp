@@ -80,7 +80,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_RX(DGUS_Addr::SCREENCHANGE_Idle,     &DGUSRxHandler::ScreenChange),
   VP_HELPER_RX(DGUS_Addr::SCREENCHANGE_Printing, &DGUSRxHandler::ScreenChange),
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     VP_HELPER_RX(DGUS_Addr::SD_SelectFile,   &DGUSRxHandler::SelectFile),
     VP_HELPER_RX(DGUS_Addr::SD_Scroll,       &DGUSRxHandler::Scroll),
     VP_HELPER_RX_NODATA(DGUS_Addr::SD_Print, &DGUSRxHandler::PrintFile),
@@ -151,7 +151,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
 
   // WRITE-ONLY VARIABLES
 
-  #if ENABLED(SDSUPPORT)
+  #if HAS_MEDIA
     VP_HELPER_TX(DGUS_Addr::SD_Type, &DGUSTxHandler::FileType),
     VP_HELPER_TX_SIZE(DGUS_Addr::SD_FileName0,
                       DGUS_FILENAME_LEN,
@@ -178,7 +178,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                     nullptr,
                     &DGUSTxHandler::PositionZ),
   VP_HELPER(DGUS_Addr::STATUS_Ellapsed,
-            DGUS_ELLAPSED_LEN,
+            DGUS_ELAPSED_LEN,
             VPFLAG_AUTOUPLOAD,
             nullptr,
             nullptr,

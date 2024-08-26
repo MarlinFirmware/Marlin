@@ -268,7 +268,7 @@ void menu_backlash();
   }
 #endif
 
-#if BOTH(AUTOTEMP, HAS_TEMP_HOTEND) || ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU, MPC_AUTOTUNE_MENU, MPC_EDIT_MENU)
+#if ALL(AUTOTEMP, HAS_TEMP_HOTEND) || ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU, MPC_AUTOTUNE_MENU, MPC_EDIT_MENU)
   #define SHOW_MENU_ADVANCED_TEMPERATURE 1
 #endif
 
@@ -279,7 +279,7 @@ void menu_backlash();
 
   #if ENABLED(MPC_EDIT_MENU)
     #define MPC_EDIT_DEFS(N) \
-      MPC_t &c = thermalManager.temp_hotend[N].constants; \
+      MPC_t &c = thermalManager.temp_hotend[N].mpc; \
       TERN_(MPC_INCLUDE_FAN, editable.decimal = c.ambient_xfer_coeff_fan0 + c.fan255_adjustment)
   #endif
 
@@ -294,7 +294,7 @@ void menu_backlash();
     //
     // Autotemp, Min, Max, Fact
     //
-    #if BOTH(AUTOTEMP, HAS_TEMP_HOTEND)
+    #if ALL(AUTOTEMP, HAS_TEMP_HOTEND)
       EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       EDIT_ITEM(int3, MSG_MIN, &planner.autotemp_min, 0, thermalManager.hotend_max_target(0));
       EDIT_ITEM(int3, MSG_MAX, &planner.autotemp_max, 0, thermalManager.hotend_max_target(0));
@@ -310,7 +310,7 @@ void menu_backlash();
     // PID-P E5, PID-I E5, PID-D E5, PID-C E5, PID Autotune E5
     //
 
-    #if BOTH(PIDTEMP, PID_EDIT_MENU)
+    #if ALL(PIDTEMP, PID_EDIT_MENU)
       #define __PID_HOTEND_MENU_ITEMS(N) \
         raw_Kp = thermalManager.temp_hotend[N].pid.p(); \
         raw_Ki = thermalManager.temp_hotend[N].pid.i(); \
@@ -343,7 +343,7 @@ void menu_backlash();
 
     #endif
 
-    #if ENABLED(PID_EDIT_MENU) && EITHER(PIDTEMPBED, PIDTEMPCHAMBER)
+    #if ENABLED(PID_EDIT_MENU) && ANY(PIDTEMPBED, PIDTEMPCHAMBER)
       #define _PID_EDIT_ITEMS_TMPL(N,T) \
         raw_Kp = T.pid.p(); \
         raw_Ki = T.pid.i(); \
@@ -380,7 +380,7 @@ void menu_backlash();
         #define MPC_EDIT_ITEMS(N) \
           _MPC_EDIT_ITEMS(N); \
           EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_FAN_E, &editable.decimal, 0, 1, []{ \
-            MPC_t &c = thermalManager.temp_hotend[MenuItemBase::itemIndex].constants; \
+            MPC_t &c = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
             c.fan255_adjustment = editable.decimal - c.ambient_xfer_coeff_fan0; \
           })
       #else
@@ -461,7 +461,7 @@ void menu_backlash();
       EDIT_ITEM_FAST_N(float5, E_AXIS, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
     #endif
     #if ENABLED(DISTINCT_E_FACTORS)
-      LOOP_L_N(n, E_STEPPERS)
+      for (uint8_t n = 0; n < E_STEPPERS; ++n)
         EDIT_ITEM_FAST_N(float5, n, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(n)], 1, max_fr_edit_scaled.e);
     #endif
 
@@ -476,9 +476,23 @@ void menu_backlash();
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
-    float max_accel = planner.settings.max_acceleration_mm_per_s2[A_AXIS];
-    TERN_(HAS_Y_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[B_AXIS]));
-    TERN_(HAS_Z_AXIS, NOLESS(max_accel, planner.settings.max_acceleration_mm_per_s2[C_AXIS]));
+    float max_accel = (
+      #if NUM_AXES
+        _MAX(NUM_AXIS_LIST(
+          planner.settings.max_acceleration_mm_per_s2[A_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[B_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[C_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[I_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[J_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[K_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[U_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[V_AXIS],
+          planner.settings.max_acceleration_mm_per_s2[W_AXIS]
+        ))
+      #else
+        0
+      #endif
+    );
 
     // M201 settings
     constexpr xyze_ulong_t max_accel_edit =
@@ -519,7 +533,7 @@ void menu_backlash();
 
     #if ENABLED(DISTINCT_E_FACTORS)
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, []{ planner.refresh_acceleration_rates(); });
-      LOOP_L_N(n, E_STEPPERS)
+      for (uint8_t n = 0; n < E_STEPPERS; ++n)
         EDIT_ITEM_FAST_N(long5_25, n, MSG_AMAX_EN, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(n)], 100, max_accel_edit_scaled.e, []{
           if (MenuItemBase::itemIndex == active_extruder)
             planner.refresh_acceleration_rates();
@@ -580,12 +594,6 @@ void menu_backlash();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
-      #if HAS_JUNCTION_DEVIATION
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, TERN(LIN_ADVANCE, 0.3f, 0.5f)
-          OPTARG(LIN_ADVANCE, planner.recalculate_max_e_jerk)
-        );
-      #endif
-
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
@@ -598,7 +606,7 @@ void menu_backlash();
       ;
 
       LOOP_LOGICAL_AXES(a) {
-        if (a == C_AXIS || TERN0(HAS_EXTRUDERS, a == E_AXIS))
+        if (TERN0(HAS_C_AXIS, a == C_AXIS) || TERN0(HAS_EXTRUDERS, a == E_AXIS))
           EDIT_ITEM_FAST_N(float52sign, a, MSG_VN_JERK, &planner.max_jerk[a], 0.1f, max_jerk_edit[a]);
         else
           EDIT_ITEM_FAST_N(float3, a, MSG_VN_JERK, &planner.max_jerk[a], 1.0f, max_jerk_edit[a]);
@@ -643,7 +651,7 @@ void menu_advanced_steps_per_mm() {
     EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    LOOP_L_N(n, E_STEPPERS)
+    for (uint8_t n = 0; n < E_STEPPERS; ++n)
       EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
         const uint8_t e = MenuItemBase::itemIndex;
         if (e == active_extruder)

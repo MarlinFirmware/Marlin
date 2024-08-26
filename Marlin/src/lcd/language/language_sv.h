@@ -51,7 +51,7 @@ namespace Language_sv {
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Underanrop överskriden");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Slutstop"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Mjuk slutstopp");
-  LSTR MSG_MAIN                           = _UxGT("Huvud");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Huvud");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advancerade inställningar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostarta Filer");
@@ -233,7 +233,7 @@ namespace Language_sv {
   LSTR MSG_SET_LEDS_VIOLET                = _UxGT("Violet");
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Vitt");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
-  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal =");
+  LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
   LSTR MSG_LEDS2                          = _UxGT("Ljus #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Ljus #2 Förinställd");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Ljusstyrka");
@@ -294,7 +294,6 @@ namespace Language_sv {
   LSTR MSG_PID_BAD_EXTRUDER_NUM           = _UxGT("Autojustera misslyckad! Dålig extruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autojustera misslyckad! Temperatur för hög.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Autojustera misslyckad! Tidsgräns.");
-  LSTR MSG_SELECT                         = _UxGT("Välj");
   LSTR MSG_SELECT_E                       = _UxGT("Välj *");
   LSTR MSG_ACC                            = _UxGT("Accel");
   LSTR MSG_JERK                           = _UxGT("Ryck");
@@ -349,7 +348,7 @@ namespace Language_sv {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Återställ Standard");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initiera EEPROM");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("EEPROM CRC Fel");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("EEPROM Index Fel");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("EEPROM Storlek Fel");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("EEPROM Version Fel");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Inställningar Lagrad");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Media Uppdatera");
@@ -382,7 +381,7 @@ namespace Language_sv {
   LSTR MSG_END_LOOPS                      = _UxGT("Slut Upprepningsloop");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Skriver Objekt");
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Avbryt Objekt");
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Avbryt Objekt =");
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Avbryt Objekt {");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Ström Avbrott");
   LSTR MSG_MEDIA_MENU                     = _UxGT("Skriv fråm Media");
   LSTR MSG_NO_MEDIA                       = _UxGT("Inget Media");
@@ -570,7 +569,7 @@ namespace Language_sv {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Ta bort, Klicka");
 
   LSTR MSG_MIX                            = _UxGT("Mixa");
-  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent =");
+  LSTR MSG_MIX_COMPONENT_N                = _UxGT("Komponent {");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");

@@ -44,7 +44,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if BOTH(DWIN_LCD_PROUI, HAS_PIDPLOT)
+#if ALL(DWIN_LCD_PROUI, HAS_PIDPLOT)
 
 #include "plot.h"
 #include "../../../core/types.h"

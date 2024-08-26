@@ -46,7 +46,7 @@ namespace Language_zh_TW {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB啟動失敗");  // "USB start failed"
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("擋塊");     // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("軟體擋塊");    // "Soft Endstops"
-  LSTR MSG_MAIN                           = _UxGT("主選單");     // "Main"
+  LSTR MSG_MAIN_MENU                      = _UxGT("主選單");     // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("進階設置");   // "Advanced Settings"
   LSTR MSG_CONFIGURATION                  = _UxGT("設置");    //Configuration
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自動開始");     // "Autostart"
@@ -235,10 +235,10 @@ namespace Language_zh_TW {
   LSTR MSG_BED                            = " " LCD_STR_THERMOMETER _UxGT(" 熱床");     // "Bed"
   LSTR MSG_CHAMBER                        = _UxGT("Enclosure");
   LSTR MSG_FAN_SPEED                      = _UxGT("風扇速率");     // "Fan speed"
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("風扇速率 =");
-  LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan =");
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("風扇速率 {");
+  LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan {");
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("額外風扇速率");     // "Extra fan speed"
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("額外風扇速率 =");
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("額外風扇速率 {");
   LSTR MSG_FLOW                           = _UxGT("擠出速率");
   LSTR MSG_FLOW_N                         = _UxGT("擠出速率 ~");     // "Flow"
   LSTR MSG_CONTROL                        = _UxGT("控制");     // "Control"
@@ -249,7 +249,6 @@ namespace Language_zh_TW {
   LSTR MSG_LCD_ON                         = _UxGT("開 ");     // "On"
   LSTR MSG_LCD_OFF                        = _UxGT("關 ");     // "Off"
 
-  LSTR MSG_SELECT                         = _UxGT("選擇");     // "Select"
   LSTR MSG_SELECT_E                       = _UxGT("選擇 *");
   LSTR MSG_ACC                            = _UxGT("加速度");     // "Accel" acceleration
   LSTR MSG_JERK                           = _UxGT("抖動速率");     // "Jerk"
@@ -300,8 +299,8 @@ namespace Language_zh_TW {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("恢復安全值");     // "Restore failsafe"
   LSTR MSG_INIT_EEPROM                    = _UxGT("初始化設置");     // "Initialize EEPROM"
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("錯誤: EEPROM CRC");    // "Err: EEPROM CRC"
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("錯誤: EEPROM Index");    // "Err: EEPROM Index"
-  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("錯誤: EEPROM Version");    // "EEPROM Version"
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("錯誤: EEPROM 尺寸");    // "Err: EEPROM Index"
+  LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("錯誤: EEPROM 版本");    // "EEPROM Version"
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("媒體更新");    // "Media Update"
   LSTR MSG_RESET_PRINTER                  = _UxGT("重置打印機");    // "Reset Printer
   LSTR MSG_REFRESH                        = _UxGT("刷新");     // "Refresh"
@@ -323,7 +322,7 @@ namespace Language_zh_TW {
   LSTR MSG_STOP_PRINT                     = _UxGT("停止列印");     // "Stop print"
   LSTR MSG_PRINTING_OBJECT                = _UxGT("列印物件");   // "Printing Object"
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("中止物件");   // "Cancel Object"
-  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("中止物件 =");   // "Cancel Object ="
+  LSTR MSG_CANCEL_OBJECT_N                = _UxGT("中止物件 {");   // "Cancel Object ="
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("中斷恢復");   // "Outage Recovery"
   LSTR MSG_MEDIA_MENU                     = _UxGT("從記憶卡上列印");     // "Print from SD"
   LSTR MSG_NO_MEDIA                       = _UxGT("無記憶卡");     // "No SD card"
@@ -389,9 +388,6 @@ namespace Language_zh_TW {
   LSTR MSG_ERR_MINTEMP                    = _UxGT("錯誤：最低溫度");     // "Err: MINTEMP"
   LSTR MSG_HALTED                         = _UxGT("印表機停機");     // "PRINTER HALTED"
   LSTR MSG_PLEASE_RESET                   = _UxGT("請重置");     // "Please reset"
-  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
-  LSTR MSG_SHORT_HOUR                     = _UxGT("時");     // "h" // One character only
-  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
   LSTR MSG_HEATING                        = _UxGT("加熱中 ...");     // "Heating..."
   LSTR MSG_COOLING                        = _UxGT("冷卻中 ...");   // "Cooling..."
   LSTR MSG_BED_HEATING                    = _UxGT("加熱熱床中 ...");     // "Bed Heating..."
@@ -491,12 +487,8 @@ namespace Language_zh_TW {
     LSTR MSG_FILAMENT_CHANGE_CONT_PURGE   = _UxGT(MSG_1_LINE("按下完成.."));     // "Click to finish"
     LSTR MSG_FILAMENT_CHANGE_RESUME       = _UxGT(MSG_1_LINE("恢復中 ..."));     // "Resuming..."
   #endif // LCD_HEIGHT < 4
-}
 
-#if FAN_COUNT == 1
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
-#else
-  #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
-#endif
+  LSTR MSG_SHORT_DAY                      = _UxGT("天");     // "d" // One character only
+  LSTR MSG_SHORT_HOUR                     = _UxGT("時");     // "h" // One character only
+  LSTR MSG_SHORT_MINUTE                   = _UxGT("分");     // "m" // One character only
+}

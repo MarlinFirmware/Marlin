@@ -78,7 +78,7 @@ namespace ExtUI {
     while (LCD_SERIAL.available())
       parse_lcd_byte((byte)LCD_SERIAL.read());
 
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       // The way last printing status works is simple:
       // The UI needs to see at least one TQ which is not 100%
       // and then when the print is complete, one which is.
@@ -137,7 +137,7 @@ namespace ExtUI {
   void onMediaInserted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
-  void onPlayTone(const uint16_t, const uint16_t) {}
+  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
   void onHomingStart() {}
@@ -147,18 +147,29 @@ namespace ExtUI {
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
-  void onSettingsStored(bool) {}
-  void onSettingsLoaded(bool) {}
+  void onSettingsStored(const bool) {}
+  void onSettingsLoaded(const bool) {}
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
+  #endif
+
+  #if HAS_MESH
+    void onMeshUpdate(const int8_t, const int8_t, const_float_t) {}
+    void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {}
+    void onSetPowerLoss(const bool onoff) {
+      // Called when power-loss is enabled/disabled
+    }
+    void onPowerLoss() {
+      // Called when power-loss state is detected
+    }
+    void onPowerLossResume() {
+      // Called on resume from power-loss
+    }
   #endif
 
   void onSteppersDisabled() {}
