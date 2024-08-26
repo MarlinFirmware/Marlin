@@ -56,24 +56,15 @@
   #ifndef AXIS4_NAME
     #define AXIS4_NAME 'A'
   #endif
-  #ifndef AXIS4_ROTATES
-    #define AXIS4_ROTATES
-  #endif
 #endif
 #ifdef J_DRIVER_TYPE
   #ifndef AXIS5_NAME
     #define AXIS5_NAME 'B'
   #endif
-  #ifndef AXIS5_ROTATES
-    #define AXIS5_ROTATES
-  #endif
 #endif
 #ifdef K_DRIVER_TYPE
   #ifndef AXIS6_NAME
     #define AXIS6_NAME 'C'
-  #endif
-  #ifndef AXIS6_ROTATES
-    #define AXIS6_ROTATES
   #endif
 #endif
 #ifdef U_DRIVER_TYPE
@@ -129,9 +120,6 @@
     #define PARKING_EXTRUDER_GRAB_DISTANCE 1
   #endif
   #if ENABLED(PARKING_EXTRUDER)
-    #ifndef PARKING_EXTRUDER_SOLENOIDS_INVERT
-      #define PARKING_EXTRUDER_SOLENOIDS_INVERT
-    #endif
     #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
       #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW
     #endif
@@ -216,24 +204,6 @@
     #define PS_EDM_RESPONSE 250
   #endif
   #if ENABLED(AUTO_POWER_CONTROL)
-    #ifndef AUTO_POWER_FANS
-      #define AUTO_POWER_FANS
-    #endif
-    #ifndef AUTO_POWER_E_FANS
-      #define AUTO_POWER_E_FANS
-    #endif
-    #ifndef AUTO_POWER_CONTROLLERFAN
-      #define AUTO_POWER_CONTROLLERFAN
-    #endif
-    #ifndef AUTO_POWER_CHAMBER_FAN
-      #define AUTO_POWER_CHAMBER_FAN
-    #endif
-    #ifndef AUTO_POWER_COOLER_FAN
-      #define AUTO_POWER_COOLER_FAN
-    #endif
-    #ifndef AUTO_POWER_SPINDLE_LASER
-      #define AUTO_POWER_SPINDLE_LASER
-    #endif
     #ifndef POWER_TIMEOUT
       #define POWER_TIMEOUT 30
     #endif
@@ -427,9 +397,6 @@
 #ifndef COOLER_OVERSHOOT
   #define COOLER_OVERSHOOT 2
 #endif
-#ifndef PIDTEMP
-  #define PIDTEMP
-#endif
 #ifndef PID_MAX
   #define PID_MAX 255
 #endif
@@ -464,17 +431,11 @@
   #endif
 #endif
 #if ENABLED(MPCTEMP)
-  #ifndef MPC_AUTOTUNE
-    #define MPC_AUTOTUNE
-  #endif
   #ifndef MPC_MAX
     #define MPC_MAX 255
   #endif
   #ifndef MPC_HEATER_POWER
     #define MPC_HEATER_POWER { 40.0f }
-  #endif
-  #ifndef MPC_INCLUDE_FAN
-    #define MPC_INCLUDE_FAN
   #endif
   #ifndef MPC_BLOCK_HEAT_CAPACITY
     #define MPC_BLOCK_HEAT_CAPACITY { 16.7f }
@@ -546,29 +507,11 @@
     #define PID_FUNCTIONAL_RANGE 10
   #endif
 #endif
-#ifndef PREVENT_COLD_EXTRUSION
-  #define PREVENT_COLD_EXTRUSION
-#endif
 #ifndef EXTRUDE_MINTEMP
   #define EXTRUDE_MINTEMP 170
 #endif
-#ifndef PREVENT_LENGTHY_EXTRUDE
-  #define PREVENT_LENGTHY_EXTRUDE
-#endif
 #ifndef EXTRUDE_MAXLENGTH
   #define EXTRUDE_MAXLENGTH 200
-#endif
-#ifndef THERMAL_PROTECTION_HOTENDS
-  #define THERMAL_PROTECTION_HOTENDS
-#endif
-#ifndef THERMAL_PROTECTION_BED
-  #define THERMAL_PROTECTION_BED
-#endif
-#ifndef THERMAL_PROTECTION_CHAMBER
-  #define THERMAL_PROTECTION_CHAMBER
-#endif
-#ifndef THERMAL_PROTECTION_COOLER
-  #define THERMAL_PROTECTION_COOLER
 #endif
 #if ENABLED(POLARGRAPH)
   #ifndef POLARGRAPH_MAX_BELT_LEN
@@ -576,9 +519,6 @@
   #endif
   #ifndef DEFAULT_SEGMENTS_PER_SECOND
     #define DEFAULT_SEGMENTS_PER_SECOND 5
-  #endif
-  #ifndef PEN_UP_DOWN_MENU
-    #define PEN_UP_DOWN_MENU
   #endif
 #endif
 #if ENABLED(DELTA)
@@ -634,9 +574,6 @@
     #define SCARA_OFFSET_Y -56
   #endif
   #if ENABLED(MORGAN_SCARA)
-    #ifndef FEEDRATE_SCALING
-      #define FEEDRATE_SCALING
-    #endif
     #ifndef MIDDLE_DEAD_ZONE_R
       #define MIDDLE_DEAD_ZONE_R 0
     #endif
@@ -650,9 +587,6 @@
   #endif
 #endif
 #if ENABLED(AXEL_TPARA)
-  #ifndef DEBUG_TPARA_KINEMATICS
-    #define DEBUG_TPARA_KINEMATICS
-  #endif
   #ifndef DEFAULT_SEGMENTS_PER_SECOND
     #define DEFAULT_SEGMENTS_PER_SECOND 200
   #endif
@@ -671,9 +605,6 @@
   #ifndef TPARA_OFFSET_Z
     #define TPARA_OFFSET_Z 0
   #endif
-  #ifndef FEEDRATE_SCALING
-    #define FEEDRATE_SCALING
-  #endif
   #ifndef MIDDLE_DEAD_ZONE_R
     #define MIDDLE_DEAD_ZONE_R 0
   #endif
@@ -691,12 +622,6 @@
   #ifndef POLAR_CENTER_OFFSET
     #define POLAR_CENTER_OFFSET 0.0f
   #endif
-  #ifndef FEEDRATE_SCALING
-    #define FEEDRATE_SCALING
-  #endif
-#endif
-#ifndef ENDSTOPPULLUPS
-  #define ENDSTOPPULLUPS
 #endif
 #ifndef X_MIN_ENDSTOP_HIT_STATE
   #define X_MIN_ENDSTOP_HIT_STATE HIGH
@@ -758,9 +683,6 @@
 #ifndef DEFAULT_AXIS_STEPS_PER_UNIT
   #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 400, 500 }
 #endif
-#ifndef EDITABLE_STEPS_PER_UNIT
-  #define EDITABLE_STEPS_PER_UNIT
-#endif
 #ifndef DEFAULT_MAX_FEEDRATE
   #define DEFAULT_MAX_FEEDRATE { 300, 300, 5, 25 }
 #endif
@@ -809,12 +731,6 @@
   #ifndef JUNCTION_DEVIATION_MM
     #define JUNCTION_DEVIATION_MM 0.013
   #endif
-  #ifndef JD_HANDLE_SMALL_SEGMENTS
-    #define JD_HANDLE_SMALL_SEGMENTS
-  #endif
-#endif
-#ifndef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 #if ENABLED(MAGLEV4)
   #ifndef MAGLEV_TRIGGER_DELAY
@@ -990,9 +906,6 @@
 #ifndef E_ENABLE_ON
   #define E_ENABLE_ON 0
 #endif
-#ifndef DISABLE_OTHER_EXTRUDERS
-  #define DISABLE_OTHER_EXTRUDERS
-#endif
 #ifndef INVERT_X_DIR
   #define INVERT_X_DIR false
 #endif
@@ -1059,70 +972,6 @@
 #ifndef Z_MAX_POS
   #define Z_MAX_POS 200
 #endif
-#ifndef MIN_SOFTWARE_ENDSTOPS
-  #define MIN_SOFTWARE_ENDSTOPS
-#endif
-#if ENABLED(MIN_SOFTWARE_ENDSTOPS)
-  #ifndef MIN_SOFTWARE_ENDSTOP_X
-    #define MIN_SOFTWARE_ENDSTOP_X
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_Y
-    #define MIN_SOFTWARE_ENDSTOP_Y
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_Z
-    #define MIN_SOFTWARE_ENDSTOP_Z
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_I
-    #define MIN_SOFTWARE_ENDSTOP_I
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_J
-    #define MIN_SOFTWARE_ENDSTOP_J
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_K
-    #define MIN_SOFTWARE_ENDSTOP_K
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_U
-    #define MIN_SOFTWARE_ENDSTOP_U
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_V
-    #define MIN_SOFTWARE_ENDSTOP_V
-  #endif
-  #ifndef MIN_SOFTWARE_ENDSTOP_W
-    #define MIN_SOFTWARE_ENDSTOP_W
-  #endif
-#endif
-#ifndef MAX_SOFTWARE_ENDSTOPS
-  #define MAX_SOFTWARE_ENDSTOPS
-#endif
-#if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-  #ifndef MAX_SOFTWARE_ENDSTOP_X
-    #define MAX_SOFTWARE_ENDSTOP_X
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_Y
-    #define MAX_SOFTWARE_ENDSTOP_Y
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_Z
-    #define MAX_SOFTWARE_ENDSTOP_Z
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_I
-    #define MAX_SOFTWARE_ENDSTOP_I
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_J
-    #define MAX_SOFTWARE_ENDSTOP_J
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_K
-    #define MAX_SOFTWARE_ENDSTOP_K
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_U
-    #define MAX_SOFTWARE_ENDSTOP_U
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_V
-    #define MAX_SOFTWARE_ENDSTOP_V
-  #endif
-  #ifndef MAX_SOFTWARE_ENDSTOP_W
-    #define MAX_SOFTWARE_ENDSTOP_W
-  #endif
-#endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef FIL_RUNOUT_ENABLED_DEFAULT
     #define FIL_RUNOUT_ENABLED_DEFAULT true
@@ -1132,9 +981,6 @@
   #endif
   #ifndef FIL_RUNOUT_STATE
     #define FIL_RUNOUT_STATE LOW
-  #endif
-  #ifndef FIL_RUNOUT_PULLUP
-    #define FIL_RUNOUT_PULLUP
   #endif
   #ifndef FILAMENT_RUNOUT_SCRIPT
     #define FILAMENT_RUNOUT_SCRIPT "M600"
@@ -1163,16 +1009,10 @@
   #endif
 #endif
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
-  #ifndef ENABLE_LEVELING_FADE_HEIGHT
-    #define ENABLE_LEVELING_FADE_HEIGHT
-  #endif
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     #ifndef DEFAULT_LEVELING_FADE_HEIGHT
       #define DEFAULT_LEVELING_FADE_HEIGHT 10.0
     #endif
-  #endif
-  #ifndef SEGMENT_LEVELED_MOVES
-    #define SEGMENT_LEVELED_MOVES
   #endif
   #ifndef LEVELED_SEGMENT_LENGTH
     #define LEVELED_SEGMENT_LENGTH 5.0
@@ -1224,12 +1064,6 @@
   #endif
   #ifndef GRID_MAX_POINTS_Y
     #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-  #endif
-  #ifndef UBL_MESH_EDIT_MOVES_Z
-    #define UBL_MESH_EDIT_MOVES_Z
-  #endif
-  #ifndef UBL_SAVE_ACTIVE_ON_M500
-    #define UBL_SAVE_ACTIVE_ON_M500
   #endif
   #if ENABLED(AVOID_OBSTACLES)
     #ifndef CLIP_W
@@ -1287,9 +1121,6 @@
     #ifndef BED_TRAMMING_PROBE_TOLERANCE
       #define BED_TRAMMING_PROBE_TOLERANCE 0.1
     #endif
-    #ifndef BED_TRAMMING_VERIFY_RAISED
-      #define BED_TRAMMING_VERIFY_RAISED
-    #endif
   #endif
   #ifndef BED_TRAMMING_LEVELING_ORDER
     #define BED_TRAMMING_LEVELING_ORDER { LF, RF, RB, LB }
@@ -1305,9 +1136,6 @@
 #endif
 #ifndef HOMING_FEEDRATE_MM_M
   #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }
-#endif
-#ifndef VALIDATE_HOMING_ENDSTOPS
-  #define VALIDATE_HOMING_ENDSTOPS
 #endif
 #if ENABLED(SKEW_CORRECTION)
   #ifndef XY_DIAG_AC
@@ -1337,20 +1165,8 @@
     #endif
   #endif
 #endif
-#ifndef EEPROM_CHITCHAT
-  #define EEPROM_CHITCHAT
-#endif
-#ifndef EEPROM_BOOT_SILENT
-  #define EEPROM_BOOT_SILENT
-#endif
-#ifndef HOST_KEEPALIVE_FEATURE
-  #define HOST_KEEPALIVE_FEATURE
-#endif
 #ifndef DEFAULT_KEEPALIVE_INTERVAL
   #define DEFAULT_KEEPALIVE_INTERVAL 2
-#endif
-#ifndef BUSY_WHILE_HEATING
-  #define BUSY_WHILE_HEATING
 #endif
 #ifndef PREHEAT_1_LABEL
   #define PREHEAT_1_LABEL "PLA"
@@ -1400,15 +1216,6 @@
   #endif
 #endif
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
-  #ifndef NOZZLE_CLEAN_PATTERN_LINE
-    #define NOZZLE_CLEAN_PATTERN_LINE
-  #endif
-  #ifndef NOZZLE_CLEAN_PATTERN_ZIGZAG
-    #define NOZZLE_CLEAN_PATTERN_ZIGZAG
-  #endif
-  #ifndef NOZZLE_CLEAN_PATTERN_CIRCLE
-    #define NOZZLE_CLEAN_PATTERN_CIRCLE
-  #endif
   #ifndef NOZZLE_CLEAN_DEFAULT_PATTERN
     #define NOZZLE_CLEAN_DEFAULT_PATTERN 0
   #endif
@@ -1437,15 +1244,9 @@
       #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
     #endif
   #endif
-  #ifndef NOZZLE_CLEAN_GOBACK
-    #define NOZZLE_CLEAN_GOBACK
-  #endif
   #ifndef NOZZLE_CLEAN_MIN_TEMP
     #define NOZZLE_CLEAN_MIN_TEMP 170
   #endif
-#endif
-#ifndef PRINTJOB_TIMER_AUTOSTART
-  #define PRINTJOB_TIMER_AUTOSTART
 #endif
 #if ENABLED(PRINTCOUNTER)
   #ifndef PRINTCOUNTER_SAVE_INTERVAL
@@ -1455,15 +1256,6 @@
 #if ENABLED(PASSWORD_FEATURE)
   #ifndef PASSWORD_LENGTH
     #define PASSWORD_LENGTH 4
-  #endif
-  #ifndef PASSWORD_ON_STARTUP
-    #define PASSWORD_ON_STARTUP
-  #endif
-  #ifndef PASSWORD_UNLOCK_GCODE
-    #define PASSWORD_UNLOCK_GCODE
-  #endif
-  #ifndef PASSWORD_CHANGE_GCODE
-    #define PASSWORD_CHANGE_GCODE
   #endif
 #endif
 #ifndef LCD_LANGUAGE
@@ -1480,17 +1272,6 @@
     #define ENCODER_SAMPLES 10
   #endif
 #endif
-#if ENABLED(SAV_3DGLCD)
-  #ifndef U8GLIB_SSD1306
-    #define U8GLIB_SSD1306
-  #endif
-#endif
-#if DGUS_UI_IS(MKS)
-  #ifndef USE_MKS_GREEN_UI
-    #define USE_MKS_GREEN_UI
-  #endif
-#elif DGUS_UI_IS(IA_CREALITY)
-#endif
 #if ENABLED(TFT_GENERIC)
   #ifndef TFT_DRIVER
     #define TFT_DRIVER AUTO
@@ -1503,9 +1284,6 @@
   #ifndef TFT_THEME
     #define TFT_THEME BLACK_MARLIN
   #endif
-  #ifndef COMPACT_MARLIN_BOOT_LOGO
-    #define COMPACT_MARLIN_BOOT_LOGO
-  #endif
 #endif
 #if ENABLED(TOUCH_SCREEN)
   #ifndef BUTTON_DELAY_EDIT
@@ -1513,14 +1291,6 @@
   #endif
   #ifndef BUTTON_DELAY_MENU
     #define BUTTON_DELAY_MENU 250
-  #endif
-  #ifndef TOUCH_SCREEN_CALIBRATION
-    #define TOUCH_SCREEN_CALIBRATION
-  #endif
-  #if ALL(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
-    #ifndef TOUCH_CALIBRATION_AUTO_SAVE
-      #define TOUCH_CALIBRATION_AUTO_SAVE
-    #endif
   #endif
 #endif
 #ifndef SOFT_PWM_SCALE
@@ -1540,9 +1310,6 @@
   #ifndef NEOPIXEL_PIXELS
     #define NEOPIXEL_PIXELS 30
   #endif
-  #ifndef NEOPIXEL_IS_SEQUENTIAL
-    #define NEOPIXEL_IS_SEQUENTIAL
-  #endif
   #ifndef NEOPIXEL_BRIGHTNESS
     #define NEOPIXEL_BRIGHTNESS 127
   #endif
@@ -1553,18 +1320,10 @@
     #ifndef NEOPIXEL2_BRIGHTNESS
       #define NEOPIXEL2_BRIGHTNESS 127
     #endif
-    #ifndef NEOPIXEL2_STARTUP_TEST
-      #define NEOPIXEL2_STARTUP_TEST
-    #endif
     #ifndef NEOPIXEL_M150_DEFAULT
       #define NEOPIXEL_M150_DEFAULT -1
     #endif
   #else
-  #endif
-#endif
-#if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
-  #ifndef PRINTER_EVENT_LEDS
-    #define PRINTER_EVENT_LEDS
   #endif
 #endif
 #ifndef SERVO_DELAY

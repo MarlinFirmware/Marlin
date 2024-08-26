@@ -68,7 +68,6 @@ enum {
 
 static void disp_key_value() {
   char *temp;
-  TERN_(HAS_TRINAMIC_CONFIG, float milliamps);
 
   switch (value) {
     default: break;
