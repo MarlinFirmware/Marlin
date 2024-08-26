@@ -92,12 +92,12 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
 // Shaping variables.
 #if HAS_FTM_SHAPING
   FTMotion::shaping_t FTMotion::shaping = {
-    0,
+    0
     #if HAS_X_AXIS
-      x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
     #if HAS_Y_AXIS
-      y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
   };
 #endif
