@@ -62,7 +62,7 @@ void usb_task_idle(void) {
     // Attend SD card access from the USB MSD -- Prioritize access to improve speed
     int delay = 2;
     while (main_b_msc_enable && --delay > 0) {
-      if (udi_msc_process_trans()) delay = 10000;
+      if (udi_msc_process_trans()) delay = 20;
 
       // Reset the watchdog, just to be sure
       REG_WDT_CR = WDT_CR_WDRSTT | WDT_CR_KEY(0xA5);

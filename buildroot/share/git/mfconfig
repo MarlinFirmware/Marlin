@@ -140,8 +140,17 @@ if [[ $ACTION == "init" ]]; then
   cp -R "$TEMP/config" .
   find config -type f \! -name "Configuration*" -exec rm "{}" \;
 
+  addpathlabels() {
+    find config -name "Conf*.h" -print0 | while read -d $'\0' fn ; do
+      fldr=$(dirname "$fn")
+      blank_line=$(awk '/^\s*$/ {print NR; exit}' "$fn")
+      $SED -i~ "${blank_line}i\\\n#define CONFIG_EXAMPLES_DIR \"$fldr\"\\ " "$fn"
+      rm -f "$fn~"
+    done
+  }
+
   echo "- Adding path labels to all configs..."
-  config-labels.py >/dev/null 2>&1
+  addpathlabels
 
   git add . >/dev/null && git commit -m "Examples Customizations" >/dev/null
 
@@ -149,7 +158,7 @@ if [[ $ACTION == "init" ]]; then
   cp -R "$TEMP/config" .
 
   # Apply labels again!
-  config-labels.py >/dev/null 2>&1
+  addpathlabels
 
   git add . >/dev/null && git commit -m "Examples Extras" >/dev/null
 

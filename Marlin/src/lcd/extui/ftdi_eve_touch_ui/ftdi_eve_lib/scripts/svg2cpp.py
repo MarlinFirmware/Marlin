@@ -112,10 +112,10 @@ class ComputeBoundingBox:
     if s:
       m = re.search('viewBox="([0-9-.]+) ([0-9-.]+) ([0-9-.]+) ([0-9-.]+)"', svg)
       if m:
-        self.x_min    = float(m.group(1))
-        self.y_min    = float(m.group(2))
-        self.x_max    = float(m.group(3))
-        self.y_max    = float(m.group(4))
+        self.x_min = float(m[1])
+        self.y_min = float(m[2])
+        self.x_max = float(m[3])
+        self.y_max = float(m[4])
         return True
     return False
 
@@ -205,18 +205,18 @@ class Parser:
         pass # Just eat the spaces
 
       elif self.eat_token('([LMHVZlmhvz])'):
-        cmd = self.m.group(1)
+        cmd = self.m[1]
         # The following commands take no arguments
         if cmd == "Z" or cmd == "z":
           self.process_svg_path_data_cmd(id, cmd, 0, 0)
 
       elif self.eat_token('([CScsQqTtAa])'):
-        print("Unsupported path data command:", self.m.group(1), "in path", id, "\n", file=sys.stderr)
+        print("Unsupported path data command:", self.m[1], "in path", id, "\n", file=sys.stderr)
         quit()
 
       elif self.eat_token('([ ,]*[-0-9e.]+)+'):
         # Process list of coordinates following command
-        coords = re.split('[ ,]+', self.m.group(0))
+        coords = re.split('[ ,]+', self.m[0])
         # The following commands take two arguments
         if cmd == "L" or cmd == "l":
           while coords:
@@ -245,7 +245,7 @@ class Parser:
       id = "<none>"
       m = re.search(' id="(.*)"', path)
       if m:
-        id = m.group(1)
+        id = m[1]
 
       m = re.search(' transform="(.*)"', path)
       if m:
@@ -254,7 +254,7 @@ class Parser:
 
       m = re.search(' d="(.*)"', path)
       if m:
-        self.process_svg_path_data(id, m.group(1))
+        self.process_svg_path_data(id, m[1])
         self.op.path_finished(id)
         self.reset()
 

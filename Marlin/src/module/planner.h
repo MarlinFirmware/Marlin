@@ -192,14 +192,14 @@ typedef struct PlannerBlock {
 
   volatile block_flags_t flag;              // Block flags
 
-  volatile bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
-  volatile bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
-  volatile bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
-  volatile bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
-  volatile bool is_move() { return !(is_sync() || is_page()); }
+  bool is_fan_sync() { return TERN0(LASER_SYNCHRONOUS_M106_M107, flag.sync_fans); }
+  bool is_pwr_sync() { return TERN0(LASER_POWER_SYNC, flag.sync_laser_pwr); }
+  bool is_sync() { return flag.sync_position || is_fan_sync() || is_pwr_sync(); }
+  bool is_page() { return TERN0(DIRECT_STEPPING, flag.page); }
+  bool is_move() { return !(is_sync() || is_page()); }
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
+  float nominal_speed,                      // The nominal speed for this block in (mm/sec)
         entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
         max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
         millimeters,                        // The total travel of this block in mm
@@ -239,11 +239,10 @@ typedef struct PlannerBlock {
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
-    bool use_advance_lead;
-    uint16_t advance_speed,                 // STEP timer value for extruder speed offset ISR
-             max_adv_steps,                 // max. advance steps to get cruising speed pressure (not always nominal_speed!)
-             final_adv_steps;               // advance steps due to exit speed
-    float e_D_ratio;
+    uint32_t la_advance_rate;               // The rate at which steps are added whilst accelerating
+    uint8_t  la_scaling;                    // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
+    uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
+             final_adv_steps;               // Advance steps for exit speed pressure
   #endif
 
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
@@ -460,7 +459,7 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_K[EXTRUDERS];
+      static float extruder_advance_K[DISTINCT_E];
     #endif
 
     /**
@@ -510,7 +509,7 @@ class Planner {
     /**
      * Nominal speed of previous path line segment (mm/s)^2
      */
-    static float previous_nominal_speed_sqr;
+    static float previous_nominal_speed;
 
     /**
      * Limit where 64bit math is necessary for acceleration calculation
@@ -931,11 +930,7 @@ class Planner {
     static float triggered_position_mm(const AxisEnum axis);
 
     // Blocks are queued, or we're running out moves, or the closed loop controller is waiting
-    static bool busy() {
-      return (has_blocks_queued() || cleaning_buffer_counter
-          || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
-      );
-    }
+    static bool busy();
 
     // Block until all buffered steps are executed / cleaned
     static void synchronize();
@@ -989,7 +984,7 @@ class Planner {
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
         EXTRUDER_LOOP()
-          max_e_jerk[E_INDEX_N(e)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_INDEX_N(e)]);
+          max_e_jerk[E_INDEX_N(e)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       }
     #endif
 
@@ -1010,28 +1005,6 @@ class Planner {
     static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
-     * Calculate the distance (not time) it takes to accelerate
-     * from initial_rate to target_rate using the given acceleration:
-     */
-    static float estimate_acceleration_distance(const_float_t initial_rate, const_float_t target_rate, const_float_t accel) {
-      if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
-      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
-    }
-
-    /**
-     * Return the point at which you must start braking (at the rate of -'accel') if
-     * you start at 'initial_rate', accelerate (until reaching the point), and want to end at
-     * 'final_rate' after traveling 'distance'.
-     *
-     * This is used to compute the intersection point between acceleration and deceleration
-     * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
-     */
-    static float intersection_distance(const_float_t initial_rate, const_float_t final_rate, const_float_t accel, const_float_t distance) {
-      if (accel == 0) return 0; // accel was 0, set intersection distance to 0
-      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
-    }
-
-    /**
      * Calculate the maximum allowable speed squared at this point, in order
      * to reach 'target_velocity_sqr' using 'acceleration' within a given
      * 'distance'.
@@ -1040,7 +1013,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if ENABLED(S_CURVE_ACCELERATION)
+    #if EITHER(S_CURVE_ACCELERATION, LIN_ADVANCE)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */

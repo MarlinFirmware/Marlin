@@ -31,11 +31,13 @@
  * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
  *       and Brightness       - Use P (for NEOPIXEL only)
  *
- * Always sets all 3 or 4 components. If a component is left out, set to 0.
- *                                    If brightness is left out, no value changed
+ * Always sets all 3 or 4 components unless the K flag is specified.
+ *                              If a component is left out, set to 0.
+ *                              If brightness is left out, no value changed.
  *
  * With NEOPIXEL_LED:
  *  I<index>  Set the NeoPixel index to affect. Default: All
+ *  K         Keep all unspecified values unchanged instead of setting to 0.
  *
  * With NEOPIXEL2_SEPARATE:
  *  S<index>  The NeoPixel strip to set. Default: All.
@@ -51,16 +53,24 @@
  *   M150 P          ; Set LED full brightness
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  *   M150 S1 I1 R    ; Set SEPARATE index 1 to red
+ *   M150 K R127     ; Set LED red to 50% without changing blue or green
  */
 void GcodeSuite::M150() {
+  int32_t old_color = 0;
+
   #if ENABLED(NEOPIXEL_LED)
     const pixel_index_t index = parser.intval('I', -1);
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      int8_t brightness = neo.brightness(), unit = parser.intval('S', -1);
+      #ifndef NEOPIXEL_M150_DEFAULT
+        #define NEOPIXEL_M150_DEFAULT -1
+      #elif NEOPIXEL_M150_DEFAULT > 1
+        #error "NEOPIXEL_M150_DEFAULT must be -1, 0, or 1."
+      #endif
+      int8_t brightness = neo.brightness(), unit = parser.intval('S', NEOPIXEL_M150_DEFAULT);
       switch (unit) {
         case -1: neo2.neoindex = index; // fall-thru
-        case  0:  neo.neoindex = index; break;
-        case  1: neo2.neoindex = index; brightness = neo2.brightness(); break;
+        case  0:  neo.neoindex = index; old_color = parser.seen('K') ? neo.pixel_color(index >= 0 ? index : 0) : 0; break;
+        case  1: neo2.neoindex = index; brightness = neo2.brightness(); old_color = parser.seen('K') ? neo2.pixel_color(index >= 0 ? index : 0) : 0; break;
       }
     #else
       const uint8_t brightness = neo.brightness();
@@ -69,10 +79,10 @@ void GcodeSuite::M150() {
   #endif
 
   const LEDColor color = LEDColor(
-    parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0
-    OPTARG(HAS_WHITE_LED, parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0)
+    parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF,
+    parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF,
+    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : old_color & 0xFF
+    OPTARG(HAS_WHITE_LED, parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF)
     OPTARG(NEOPIXEL_LED, parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness)
   );
 

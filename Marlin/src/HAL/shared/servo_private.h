@@ -49,8 +49,10 @@
   #include "../DUE/ServoTimers.h"
 #elif defined(__SAMD51__)
   #include "../SAMD51/ServoTimers.h"
+#elif defined(__SAMD21__)
+  #include "../SAMD21/ServoTimers.h"
 #else
-  #error "This library only supports boards with an AVR, SAM3X or SAMD51 processor."
+  #error "This library only supports boards with an AVR, SAM3X, SAMD21 or SAMD51 processor."
 #endif
 
 // Macros

@@ -184,7 +184,7 @@ void SystemClockStartupInit() {
 
   PWR->CR3 &= ~(1 << 2);  // SCUEN=0
   PWR->D3CR |= 3 << 14;   // VOS=3,Scale1,1.15~1.26V core voltage
-  while((PWR->D3CR & (1 << 13)) == 0);	// Wait for the voltage to stabilize
+  while((PWR->D3CR & (1 << 13)) == 0);  // Wait for the voltage to stabilize
   RCC->CR |= 1<<16;       // Enable HSE
 
   uint16_t timeout = 0;
@@ -198,9 +198,9 @@ void SystemClockStartupInit() {
     RCC->PLLCKSELR |= 2 << 0;         // PLLSRC[1:0] = 2, HSE for PLL clock source
     RCC->PLLCKSELR |= 5 << 4;         // DIVM1[5:0] = pllm,     Prescaler for PLL1
     RCC->PLL1DIVR |= (160 - 1) << 0;  // DIVN1[8:0] = plln - 1, Multiplication factor for PLL1 VCO
-    RCC->PLL1DIVR |= (2 - 1) << 9;	  // DIVP1[6:0] = pllp - 1, PLL1 DIVP division factor
+    RCC->PLL1DIVR |= (2 - 1) << 9;    // DIVP1[6:0] = pllp - 1, PLL1 DIVP division factor
     RCC->PLL1DIVR |= (4 - 1) << 16;   // DIVQ1[6:0] = pllq - 1, PLL1 DIVQ division factor
-    RCC->PLL1DIVR |= 1 << 24;		      // DIVR1[6:0] = pllr - 1, PLL1 DIVR division factor
+    RCC->PLL1DIVR |= 1 << 24;         // DIVR1[6:0] = pllr - 1, PLL1 DIVR division factor
     RCC->PLLCFGR |= 2 << 2;           // PLL1 input (ref1_ck) clock range frequency is between 4 and 8 MHz
     RCC->PLLCFGR |= 0 << 1;           // PLL1 VCO selection, 0: 192 to 836 MHz, 1 : 150 to 420 MHz
     RCC->PLLCFGR |= 3 << 16;          // pll1_q_ck and pll1_p_ck output is enabled
@@ -209,7 +209,7 @@ void SystemClockStartupInit() {
 
     // PLL2 DIVR clock frequency = 220MHz, so that SDRAM clock can be set to 110MHz
     RCC->PLLCKSELR |= 25 << 12;       // DIVM2[5:0] = 25, Prescaler for PLL2
-    RCC->PLL2DIVR |= (440 - 1) << 0;	// DIVN2[8:0] = 440 - 1, Multiplication factor for PLL2 VCO
+    RCC->PLL2DIVR |= (440 - 1) << 0;  // DIVN2[8:0] = 440 - 1, Multiplication factor for PLL2 VCO
     RCC->PLL2DIVR |= (2 - 1) << 9;    // DIVP2[6:0] = 2-1, PLL2 DIVP division factor
     RCC->PLL2DIVR |= (2 - 1) << 24;   // DIVR2[6:0] = 2-1, PLL2 DIVR division factor
     RCC->PLLCFGR |= 0 << 6;           // PLL2RGE[1:0]=0, PLL2 input (ref2_ck) clock range frequency is between 1 and 2 MHz
@@ -271,8 +271,8 @@ uint8_t MPU_Set_Protection(uint32_t baseaddr, uint32_t size, uint32_t rnum, uint
   uint8_t rnr = 0;
   if ((size % 32) || size == 0) return 1;
   rnr = MPU_Convert_Bytes_To_POT(size) - 1;
-  SCB->SHCSR &= ~(1 << 16);	        //disable MemManage
-  MPU->CTRL &= ~(1 << 0);		        //disable MPU
+  SCB->SHCSR &= ~(1 << 16);         //disable MemManage
+  MPU->CTRL &= ~(1 << 0);           //disable MPU
   MPU->RNR = rnum;
   MPU->RBAR = baseaddr;
   tempreg |= 0 << 28;
@@ -286,21 +286,21 @@ uint8_t MPU_Set_Protection(uint32_t baseaddr, uint32_t size, uint32_t rnum, uint
   tempreg |= 1 << 0;
   MPU->RASR = tempreg;
   MPU->CTRL = (1 << 2) | (1 << 0);  //enable PRIVDEFENA
-  SCB->SHCSR |= 1 << 16;		        //enable MemManage
+  SCB->SHCSR |= 1 << 16;            //enable MemManage
   return 0;
 }
 
 void MPU_Memory_Protection(void)
 {
-	MPU_Set_Protection(0x20000000, 128 * 1024, 1, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect DTCM 128k,  Sharing is prohibited, cache is allowed, and buffering is allowed
+  MPU_Set_Protection(0x20000000, 128 * 1024, 1, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect DTCM 128k,  Sharing is prohibited, cache is allowed, and buffering is allowed
 
-	MPU_Set_Protection(0x24000000, 512 * 1024, 2, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect AXI SRAM,  Sharing is prohibited, cache is allowed, and buffering is allowed
-	MPU_Set_Protection(0x30000000, 512 * 1024, 3, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect SRAM1~SRAM3, Sharing is prohibited, cache is allowed, and buffering is allowed
-	MPU_Set_Protection(0x38000000, 64 * 1024, 4, MPU_REGION_FULL_ACCESS, 0, 1, 1);        // protect SRAM4, Sharing is prohibited, cache is allowed, and buffering is allowed
+  MPU_Set_Protection(0x24000000, 512 * 1024, 2, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect AXI SRAM,  Sharing is prohibited, cache is allowed, and buffering is allowed
+  MPU_Set_Protection(0x30000000, 512 * 1024, 3, MPU_REGION_FULL_ACCESS, 0, 1, 1);       // protect SRAM1~SRAM3, Sharing is prohibited, cache is allowed, and buffering is allowed
+  MPU_Set_Protection(0x38000000, 64 * 1024, 4, MPU_REGION_FULL_ACCESS, 0, 1, 1);        // protect SRAM4, Sharing is prohibited, cache is allowed, and buffering is allowed
 
-	MPU_Set_Protection(0x60000000, 64 * 1024 * 1024, 5, MPU_REGION_FULL_ACCESS, 0, 0, 0);   // protect LCD FMC  64M, No sharing, no cache, no buffering
-	MPU_Set_Protection(0XC0000000, 32 * 1024 * 1024, 6, MPU_REGION_FULL_ACCESS, 0, 1, 1);   // protect SDRAM  32M, Sharing is prohibited, cache is allowed, and buffering is allowed
-	MPU_Set_Protection(0X80000000, 256 * 1024 * 1024, 7, MPU_REGION_FULL_ACCESS, 0, 0, 0);  // protect NAND FLASH 256M, No sharing, no cache, no buffering
+  MPU_Set_Protection(0x60000000, 64 * 1024 * 1024, 5, MPU_REGION_FULL_ACCESS, 0, 0, 0);   // protect LCD FMC  64M, No sharing, no cache, no buffering
+  MPU_Set_Protection(0XC0000000, 32 * 1024 * 1024, 6, MPU_REGION_FULL_ACCESS, 0, 1, 1);   // protect SDRAM  32M, Sharing is prohibited, cache is allowed, and buffering is allowed
+  MPU_Set_Protection(0X80000000, 256 * 1024 * 1024, 7, MPU_REGION_FULL_ACCESS, 0, 0, 0);  // protect NAND FLASH 256M, No sharing, no cache, no buffering
 }
 
 /**

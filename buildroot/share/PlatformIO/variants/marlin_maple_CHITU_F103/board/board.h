@@ -63,7 +63,6 @@
  * SPI3 is unusable due to pin 43 (PB4) and NRST tie-together :(, but
  * leave the definitions so as not to clutter things up.  This is only
  * OK since RET6 Ed. is specifically advertised as a beta board. */
-#define BOARD_NR_SPI            3
 #define BOARD_SPI1_NSS_PIN      PA4
 #define BOARD_SPI1_SCK_PIN      PA5
 #define BOARD_SPI1_MISO_PIN     PA6
@@ -78,7 +77,6 @@
 #define BOARD_SPI3_SCK_PIN      PB3
 #define BOARD_SPI3_MISO_PIN     PB4
 #define BOARD_SPI3_MOSI_PIN     PB5
-
 
 /* GPIO A to E = 5 * 16  - BOOT1 not used = 79*/
 #define BOARD_NR_GPIO_PINS      112

@@ -369,7 +369,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
 /**
  * @brief Read a block
- * @details Read a block to media with SDIO
+ * @details Read a block from media with SDIO
  *
  * @param block The block index
  * @param src The block buffer

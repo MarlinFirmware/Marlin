@@ -300,6 +300,72 @@ void report_current_position_projected() {
 
 #endif
 
+#if IS_KINEMATIC
+
+  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset/*=0*/) {
+
+    bool can_reach;
+
+    #if ENABLED(DELTA)
+
+      can_reach = HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
+
+    #elif ENABLED(AXEL_TPARA)
+
+      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
+      can_reach = (
+        R2 <= sq(L1 + L2) - inset
+        #if MIDDLE_DEAD_ZONE_R > 0
+          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+        #endif
+      );
+
+    #elif IS_SCARA
+
+      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+      can_reach = (
+        R2 <= sq(L1 + L2) - inset
+        #if MIDDLE_DEAD_ZONE_R > 0
+          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+        #endif
+      );
+
+    #elif ENABLED(POLARGRAPH)
+
+      const float d1 = rx - (draw_area_min.x),
+                  d2 = (draw_area_max.x) - rx,
+                   y = ry - (draw_area_max.y),
+                   a = HYPOT(d1, y),
+                   b = HYPOT(d2, y);
+
+      can_reach = (
+           a < polargraph_max_belt_len + 1
+        && b < polargraph_max_belt_len + 1
+      );
+
+    #endif
+
+    return can_reach;
+  }
+
+#else // CARTESIAN
+
+  // Return true if the given position is within the machine bounds.
+  bool position_is_reachable(const_float_t rx, const_float_t ry) {
+    if (!COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (active_extruder)
+        return COORDINATE_OKAY(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
+      else
+        return COORDINATE_OKAY(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
+    #else
+      return COORDINATE_OKAY(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
+    #endif
+  }
+
+#endif // CARTESIAN
+
+
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
 }
@@ -495,7 +561,8 @@ void do_blocking_move_to(NUM_AXIS_ARGS(const float), const_feedRate_t fr_mm_s/*=
     const feedRate_t w_feedrate = fr_mm_s ?: homing_feedrate(W_AXIS)
   );
 
-  #if IS_KINEMATIC
+  #if IS_KINEMATIC && DISABLED(POLARGRAPH)
+    // kinematic machines are expected to home to a point 1.5x their range? never reachable.
     if (!position_is_reachable(x, y)) return;
     destination = current_position;          // sync destination at the start
   #endif
@@ -852,11 +919,16 @@ void restore_feedrate_and_scaling() {
         constexpr xy_pos_t offs{0};
       #endif
 
-      if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
-        const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
-        if (dist_2 > delta_max_radius_2)
-          target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
-      }
+      #if ENABLED(POLARGRAPH)
+        LIMIT(target.x, draw_area_min.x, draw_area_max.x);
+        LIMIT(target.y, draw_area_min.y, draw_area_max.y);
+      #else
+        if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
+          const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+          if (dist_2 > delta_max_radius_2)
+            target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
+        }
+      #endif
 
     #else
 
@@ -1017,7 +1089,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     if (!position_is_reachable(destination)) return true;
 
     // Get the linear distance in XYZ
-    float cartesian_mm = diff.magnitude();
+    float cartesian_mm = xyz_float_t(diff).magnitude();
 
     // If the move is very short, check the E move distance
     TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
@@ -1399,13 +1471,18 @@ void prepare_line_to_destination() {
   }
 
   bool homing_needed_error(main_axes_bits_t axis_bits/*=main_axes_mask*/) {
-    if ((axis_bits = axes_should_home(axis_bits))) {
-      PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
+    if ((axis_bits &= axes_should_home(axis_bits))) {
+      char all_axes[] = STR_AXES_MAIN, need[NUM_AXES + 1];
+      uint8_t n = 0;
+      LOOP_NUM_AXES(i) if (TEST(axis_bits, i)) need[n++] = all_axes[i];
+      need[n] = '\0';
+
       char msg[30];
-      #define _AXIS_CHAR(N) TEST(axis_bits, _AXIS(N)) ? STR_##N : ""
-      sprintf_P(msg, home_first, MAPLIST(_AXIS_CHAR, MAIN_AXIS_NAMES));
+      sprintf_P(msg, GET_EN_TEXT(MSG_HOME_FIRST), need);
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(msg);
+
+      sprintf_P(msg, GET_TEXT(MSG_HOME_FIRST), need);
       ui.set_status(msg);
       return true;
     }
@@ -1924,6 +2001,17 @@ void prepare_line_to_destination() {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
         do_homing_move(axis, backoff_length, homing_feedrate(axis));
+      }
+    #endif
+
+    //
+    // Back away to prevent opposite endstop damage
+    //
+    #if !defined(SENSORLESS_BACKOFF_MM) && XY_COUNTERPART_BACKOFF_MM
+      if (!(axis_was_homed(X_AXIS) || axis_was_homed(Y_AXIS)) && (axis == X_AXIS || axis == Y_AXIS)) {
+        const AxisEnum opposite_axis = axis == X_AXIS ? Y_AXIS : X_AXIS;
+        const float backoff_length = -ABS(XY_COUNTERPART_BACKOFF_MM) * home_dir(opposite_axis);
+        do_homing_move(opposite_axis, backoff_length, homing_feedrate(opposite_axis));
       }
     #endif
 

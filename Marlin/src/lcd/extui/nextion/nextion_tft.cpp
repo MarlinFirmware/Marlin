@@ -459,17 +459,17 @@ void NextionTFT::PanelInfo(uint8_t req) {
 
   case 37: // PID
     #if ENABLED(PIDTEMP)
-      #define SEND_PID_INFO_0(A, B) SEND_VALasTXT(A, getPIDValues_K##B(E0))
+      #define SEND_PID_INFO_0(A, B) SEND_VALasTXT(A, getPID_K##B(E0))
     #else
       #define SEND_PID_INFO_0(A, B) SEND_NA(A)
     #endif
     #if BOTH(PIDTEMP, HAS_MULTI_EXTRUDER)
-      #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPIDValues_K##B(E1))
+      #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
       #define SEND_PID_INFO_1(A, B) SEND_NA(A)
     #endif
     #if ENABLED(PIDTEMPBED)
-      #define SEND_PID_INFO_BED(A, B) SEND_VALasTXT(A, getBedPIDValues_K##B())
+      #define SEND_PID_INFO_BED(A, B) SEND_VALasTXT(A, getBedPID_K##B())
     #else
       #define SEND_PID_INFO_BED(A, B) SEND_NA(A)
     #endif

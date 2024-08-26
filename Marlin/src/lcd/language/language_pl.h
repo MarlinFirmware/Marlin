@@ -235,6 +235,7 @@ namespace Language_pl {
   LSTR MSG_MOVE_X                         = _UxGT("Przesuń w X");
   LSTR MSG_MOVE_Y                         = _UxGT("Przesuń w Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Przesuń w Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Przesuń w @");
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruzja (os E)");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruzja (os E) *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Dysza za zimna");
@@ -372,7 +373,7 @@ namespace Language_pl {
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Self-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s%s%s");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");

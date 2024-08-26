@@ -61,7 +61,7 @@ TouchButtons touchBt;
 
 void TouchButtons::init() {
   touchIO.Init();
-  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP));
+  TERN_(HAS_TOUCH_SLEEP, next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60));
 }
 
 uint8_t TouchButtons::read_buttons() {
@@ -135,7 +135,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = millis() + SEC_TO_MS(TOUCH_IDLE_SLEEP);
+    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
   }
 
 #endif // HAS_TOUCH_SLEEP

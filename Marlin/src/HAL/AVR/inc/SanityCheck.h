@@ -35,16 +35,26 @@
   || X_STEP_PIN == N || Y_STEP_PIN == N || Z_STEP_PIN == N \
   || X_DIR_PIN  == N || Y_DIR_PIN  == N || Z_DIR_PIN  == N \
   || X_ENA_PIN  == N || Y_ENA_PIN  == N || Z_ENA_PIN  == N \
+  || BTN_EN1    == N || BTN_EN2    == N \
 )
-#if CONF_SERIAL_IS(0) // D0-D1. No known conflicts.
+#if SERIAL_IN_USE(0)
+  // D0-D1. No known conflicts.
 #endif
-#if CONF_SERIAL_IS(1) && (CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19))
-  #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
+#if SERIAL_IN_USE(1)
+  #if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
+    #if CHECK_SERIAL_PIN(18) || CHECK_SERIAL_PIN(19)
+      #error "Serial Port 1 pin D18 and/or D19 conflicts with another pin on the board."
+    #endif
+  #else
+    #if CHECK_SERIAL_PIN(10) || CHECK_SERIAL_PIN(11)
+      #error "Serial Port 1 pin D10 and/or D11 conflicts with another pin on the board."
+    #endif
+  #endif
 #endif
-#if CONF_SERIAL_IS(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
+#if SERIAL_IN_USE(2) && (CHECK_SERIAL_PIN(16) || CHECK_SERIAL_PIN(17))
   #error "Serial Port 2 pin D16 and/or D17 conflicts with another pin on the board."
 #endif
-#if CONF_SERIAL_IS(3) && (CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15))
+#if SERIAL_IN_USE(3) && (CHECK_SERIAL_PIN(14) || CHECK_SERIAL_PIN(15))
   #error "Serial Port 3 pin D14 and/or D15 conflicts with another pin on the board."
 #endif
 #undef CHECK_SERIAL_PIN

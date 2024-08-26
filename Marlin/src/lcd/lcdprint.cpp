@@ -52,7 +52,7 @@ lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char *cstr/
     if (!wc) break;
     if (wc == '=' || wc == '~' || wc == '*') {
       if (ind >= 0) {
-        if (wc == '*') { lcd_put_lchar('E'); n--; }
+        if (wc == '*') { lcd_put_u8str(F("E")); n--; }
         if (n) {
           int8_t inum = ind + ((wc == '=') ? 0 : LCD_FIRST_TOOL);
           if (inum >= 10) {

@@ -224,13 +224,15 @@ void GcodeSuite::G34() {
           // Safe clearance even on an incline
           if ((iteration == 0 || i > 0) && z_probe > current_position.z) do_blocking_move_to_z(z_probe);
 
+          xy_pos_t &ppos = z_stepper_align.xy[iprobe];
+
           if (DEBUGGING(LEVELING))
-            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), z_stepper_align.xy[iprobe].x, SP_Y_STR, z_stepper_align.xy[iprobe].y);
+            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
 
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
-          const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
+          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false);
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM("Probing failed");
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);

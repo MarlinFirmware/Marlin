@@ -32,6 +32,7 @@
   #include <HardwareSerial.h>
 #else
   #include "MarlinSerial.h"
+  #define BOARD_NO_NATIVE_USB
 #endif
 
 #include <stdint.h>
@@ -106,36 +107,36 @@ typedef Servo hal_servo_t;
 
   #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial0)
 #else
-  #if !WITHIN(SERIAL_PORT, -1, 3)
-    #error "SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
+  #if !WITHIN(SERIAL_PORT, 0, 3)
+    #error "SERIAL_PORT must be from 0 to 3."
   #endif
   #define MYSERIAL1 customizedSerial1
 
   #ifdef SERIAL_PORT_2
-    #if !WITHIN(SERIAL_PORT_2, -1, 3)
-      #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
+    #if !WITHIN(SERIAL_PORT_2, 0, 3)
+      #error "SERIAL_PORT_2 must be from 0 to 3."
     #endif
     #define MYSERIAL2 customizedSerial2
   #endif
 
   #ifdef SERIAL_PORT_3
-    #if !WITHIN(SERIAL_PORT_3, -1, 3)
-      #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+    #if !WITHIN(SERIAL_PORT_3, 0, 3)
+      #error "SERIAL_PORT_3 must be from 0 to 3."
     #endif
     #define MYSERIAL3 customizedSerial3
   #endif
 #endif
 
 #ifdef MMU2_SERIAL_PORT
-  #if !WITHIN(MMU2_SERIAL_PORT, -1, 3)
-    #error "MMU2_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
+  #if !WITHIN(MMU2_SERIAL_PORT, 0, 3)
+    #error "MMU2_SERIAL_PORT must be from 0 to 3"
   #endif
   #define MMU2_SERIAL mmuSerial
 #endif
 
 #ifdef LCD_SERIAL_PORT
-  #if !WITHIN(LCD_SERIAL_PORT, -1, 3)
-    #error "LCD_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
+  #if !WITHIN(LCD_SERIAL_PORT, 0, 3)
+    #error "LCD_SERIAL_PORT must be from 0 to 3."
   #endif
   #define LCD_SERIAL lcdSerial
   #if HAS_DGUS_LCD

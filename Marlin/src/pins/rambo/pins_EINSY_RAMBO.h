@@ -136,27 +136,56 @@
 
 #ifndef FAN1_PIN
   #ifdef MK3_FAN_PINS
-    #define FAN1_PIN                           -1
+    #define FAN1_PIN                          -1
   #else
-    #define FAN1_PIN                            6
+    #define FAN1_PIN                           6
   #endif
 #endif
+
+/**
+ *             ------                           ------                           ------
+ *     84 PH2 | 1  2 | PH6  9          50 MISO | 1  2 | SCK  52          62 PK0 | 1  2 | PJ5 76
+ *     61 PF7 | 3  4 | PD5 82          72  PJ2 | 3  4 | SDSS 77          20 SDA | 3  4 | GND
+ *     59 PF5 | 5  6   PG4 70          14  TX3 | 5  6   MOSI 51          21 SCL | 5  6   RX2 16
+ *     85 PH7 | 7  8 | PG3 71          15  RX3 | 7  8 | RESET               GND | 7  8 | TX2 17
+ *        GND | 9 10 | 5V                  GND | 9 10 | PE3   5              5V | 9 10 | 5V
+ *             ------                           ------                           ------
+ *               P1                               P2                               P3
+ */
+
+#define EXP1_01_PIN                           84
+#define EXP1_02_PIN                            9
+#define EXP1_03_PIN                           61
+#define EXP1_04_PIN                           82
+#define EXP1_05_PIN                           59
+#define EXP1_06_PIN                           70
+#define EXP1_07_PIN                           85
+#define EXP1_08_PIN                           71
+
+#define EXP2_01_PIN                           50
+#define EXP2_02_PIN                           52
+#define EXP2_03_PIN                           72
+#define EXP2_04_PIN                           77
+#define EXP2_05_PIN                           14
+#define EXP2_06_PIN                           51
+#define EXP2_07_PIN                           15
+#define EXP2_08_PIN                           -1
 
 //
 // Misc. Functions
 //
-#define SDSS                                  77
+#define SDSS                         EXP2_04_PIN
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       9
+  #define CASE_LIGHT_PIN             EXP1_02_PIN
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 // use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN                  9  // Hardware PWM
+#define SPINDLE_LASER_PWM_PIN        EXP1_02_PIN  // Hardware PWM
 #define SPINDLE_LASER_ENA_PIN                 18  // Pullup!
 #define SPINDLE_DIR_PIN                       19
 
@@ -179,20 +208,20 @@
   #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if ENABLED(CR10_STOCKDISPLAY)
-      #define LCD_PINS_RS                     85
-      #define LCD_PINS_ENABLE                 71
-      #define LCD_PINS_D4                     70
-      #define BTN_EN1                         61
-      #define BTN_EN2                         59
+      #define LCD_PINS_RS            EXP1_07_PIN
+      #define LCD_PINS_ENABLE        EXP1_08_PIN
+      #define LCD_PINS_D4            EXP1_06_PIN
+      #define BTN_EN1                EXP1_03_PIN
+      #define BTN_EN2                EXP1_05_PIN
     #else
-      #define LCD_PINS_RS                     82
-      #define LCD_PINS_ENABLE                 61
-      #define LCD_PINS_D4                     59
-      #define LCD_PINS_D5                     70
-      #define LCD_PINS_D6                     85
-      #define LCD_PINS_D7                     71
-      #define BTN_EN1                         14
-      #define BTN_EN2                         72
+      #define LCD_PINS_RS            EXP1_04_PIN
+      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_D4            EXP1_05_PIN
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
+      #define LCD_PINS_D7            EXP1_08_PIN
+      #define BTN_EN1                EXP2_05_PIN
+      #define BTN_EN2                EXP2_03_PIN
 
       #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
         #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
@@ -200,9 +229,9 @@
 
     #endif
 
-    #define BTN_ENC                            9  // AUX-2
-    #define BEEPER_PIN                        84  // AUX-4
-    #define SD_DETECT_PIN                     15
+    #define BTN_ENC                  EXP1_02_PIN  // P1
+    #define BEEPER_PIN               EXP1_01_PIN  // P1
+    #define SD_DETECT_PIN            EXP2_07_PIN
 
   #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 #endif // HAS_WIRED_LCD

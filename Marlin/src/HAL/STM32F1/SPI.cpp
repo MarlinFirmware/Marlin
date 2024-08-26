@@ -526,23 +526,22 @@ void SPIClass::onReceive(void(*callback)()) {
   _currentSetting->receiveCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
-    #if BOARD_NR_SPI >= 1
-    case RCC_SPI1:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi1EventCallback);
-      break;
-    #endif
-    #if BOARD_NR_SPI >= 2
-    case RCC_SPI2:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi2EventCallback);
-      break;
-    #endif
-    #if BOARD_NR_SPI >= 3
-    case RCC_SPI3:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi3EventCallback);
-      break;
-    #endif
-    default:
-      ASSERT(0);
+      #if BOARD_NR_SPI >= 1
+        case RCC_SPI1:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi1EventCallback);
+          break;
+      #endif
+      #if BOARD_NR_SPI >= 2
+        case RCC_SPI2:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi2EventCallback);
+          break;
+      #endif
+      #if BOARD_NR_SPI >= 3
+        case RCC_SPI3:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiRxDmaChannel, &SPIClass::_spi3EventCallback);
+          break;
+      #endif
+      default: ASSERT(0);
     }
   }
   else {
@@ -554,23 +553,22 @@ void SPIClass::onTransmit(void(*callback)()) {
   _currentSetting->transmitCallback = callback;
   if (callback) {
     switch (_currentSetting->spi_d->clk_id) {
-    #if BOARD_NR_SPI >= 1
-    case RCC_SPI1:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi1EventCallback);
-      break;
-    #endif
-    #if BOARD_NR_SPI >= 2
-     case RCC_SPI2:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi2EventCallback);
-      break;
-    #endif
-    #if BOARD_NR_SPI >= 3
-    case RCC_SPI3:
-      dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi3EventCallback);
-      break;
-    #endif
-    default:
-      ASSERT(0);
+      #if BOARD_NR_SPI >= 1
+        case RCC_SPI1:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi1EventCallback);
+          break;
+      #endif
+      #if BOARD_NR_SPI >= 2
+         case RCC_SPI2:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi2EventCallback);
+          break;
+      #endif
+      #if BOARD_NR_SPI >= 3
+        case RCC_SPI3:
+          dma_attach_interrupt(_currentSetting->spiDmaDev, _currentSetting->spiTxDmaChannel, &SPIClass::_spi3EventCallback);
+          break;
+      #endif
+      default: ASSERT(0);
     }
   }
   else {

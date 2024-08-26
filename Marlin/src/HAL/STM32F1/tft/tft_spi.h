@@ -25,6 +25,27 @@
 
 #include <SPI.h>
 
+#define IS_SPI(N) (BOARD_NR_SPI >= N && (TFT_SCK_PIN == BOARD_SPI##N##_SCK_PIN) && (TFT_MOSI_PIN == BOARD_SPI##N##_MOSI_PIN) && (TFT_MISO_PIN == BOARD_SPI##N##_MISO_PIN))
+#if IS_SPI(1)
+  #define TFT_SPI_DEVICE  1
+  #define SPIdev          SPI1
+  #define DMAx            DMA1
+  #define DMA_CHx         DMA_CH3
+#elif IS_SPI(2)
+  #define TFT_SPI_DEVICE  2
+  #define SPIdev          SPI2
+  #define DMAx            DMA1
+  #define DMA_CHx         DMA_CH5
+#elif IS_SPI(3)
+  #define TFT_SPI_DEVICE  3
+  #define SPIdev          SPI3
+  #define DMAx            DMA2
+  #define DMA_CHx         DMA_CH2
+#else
+  #error "Invalid TFT SPI configuration."
+#endif
+#undef IS_SPI
+
 #ifndef LCD_READ_ID
   #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
 #endif
@@ -32,17 +53,19 @@
   #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
 #endif
 
-#define DATASIZE_8BIT    DATA_SIZE_8BIT
-#define DATASIZE_16BIT   DATA_SIZE_16BIT
-#define TFT_IO_DRIVER TFT_SPI
+#define DATASIZE_8BIT  DATA_SIZE_8BIT
+#define DATASIZE_16BIT DATA_SIZE_16BIT
+#define TFT_IO_DRIVER  TFT_SPI
+#define DMA_MAX_SIZE   0xFFFF
 
-#define DMA_MINC_ENABLE 1
-#define DMA_MINC_DISABLE 0
+#define DMA_MINC_ENABLE   DMA_MINC_MODE
+#define DMA_MINC_DISABLE  0
 
 class TFT_SPI {
 private:
   static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
+  static void Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
   static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 
 public:
@@ -58,15 +81,16 @@ public:
   static void DataTransferAbort();
 
   static void WriteData(uint16_t Data) { Transmit(Data); }
-  static void WriteReg(uint16_t Reg) { WRITE(TFT_A0_PIN, LOW); Transmit(Reg); WRITE(TFT_A0_PIN, HIGH); }
+  static void WriteReg(uint16_t Reg) { WRITE(TFT_DC_PIN, LOW); Transmit(Reg); WRITE(TFT_DC_PIN, HIGH); }
 
-  static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
-  static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  static void WriteSequence_DMA(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
+  static void WriteMultiple_DMA(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+
+  static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_MINC_ENABLE, Data, Count); }
   static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    static uint16_t Data; Data = Color;
     while (Count > 0) {
-      TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 0xFFFF ? 0xFFFF : Count);
-      Count = Count > 0xFFFF ? Count - 0xFFFF : 0;
+      Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
+      Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
     }
   }
 };

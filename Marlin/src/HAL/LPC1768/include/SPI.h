@@ -155,6 +155,7 @@ public:
   void read(uint8_t *buf, uint32_t len);
 
   void dmaSend(void *buf, uint16_t length, bool minc);
+  void dmaSendAsync(void *buf, uint16_t length, bool minc);
 
   /**
    * @brief Sets the number of the SPI peripheral to be used by

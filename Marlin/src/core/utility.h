@@ -59,6 +59,11 @@ void safe_delay(millis_t ms);           // Delay ensuring that temperatures are 
   #define log_machine_info() NOOP
 #endif
 
+/**
+ * A restorer instance remembers a variable's value before setting a
+ * new value, then restores the old value when it goes out of scope.
+ * Put operator= on your type to get extended behavior on value change.
+ */
 template<typename T>
 class restorer {
   T& ref_;

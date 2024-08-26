@@ -34,8 +34,11 @@ This project and everyone participating in it is governed by the [Marlin Code of
 
 We have a Message Board and a Facebook group where our knowledgable user community can provide helpful advice if you have questions.
 
-* [Marlin RepRap forum](https://reprap.org/forum/list.php?415)
-* [MarlinFirmware on Facebook](https://www.facebook.com/groups/1049718498464482/)
+- [Marlin Documentation](https://marlinfw.org) - Official Marlin documentation
+- Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
+- RepRap.org [Marlin Forum](https://forums.reprap.org/list.php?415)
+- Facebook Group ["Marlin Firmware for 3D Printers"](https://www.facebook.com/groups/3Dtechtalk/)
+- [Marlin Configuration](https://www.youtube.com/results?search_query=marlin+configuration) on YouTube
 
 If chat is more your speed, you can join the MarlinFirmware Discord server:
 

@@ -33,6 +33,9 @@
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false
      EmergencyParser::quickstop_by_M410,
+     #if ENABLED(SDSUPPORT)
+       EmergencyParser::sd_abort_by_M524,
+     #endif
      EmergencyParser::enabled;
 
 #if ENABLED(HOST_PROMPT_SUPPORT)

@@ -209,6 +209,7 @@ namespace Language_pt_br {
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mover @");
   LSTR MSG_MOVE_E                         = _UxGT("Mover Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Mover Extrusor *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Extrus. mto fria");
@@ -340,7 +341,7 @@ namespace Language_pt_br {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("Estender BLTouch");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estender Sonda-Z");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Recolher Sonda-Z");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s Primeiro");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Primeiro");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Compensar Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Compensar Sonda em X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Compensar Sonda em Y");

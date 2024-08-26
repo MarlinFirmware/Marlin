@@ -160,16 +160,13 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
 
     for (i = 0; i < 4; i++) {
       #if TFT_MISO_PIN != TFT_MOSI_PIN
-        //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
-          while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
-          SPIx.Instance->DR = 0;
-        //}
+        while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
+        SPIx.Instance->DR = 0;
       #endif
       while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_RXNE)) {}
       Data = (Data << 8) | SPIx.Instance->DR;
     }
 
-    __HAL_SPI_DISABLE(&SPIx);
     DataTransferEnd();
 
     SPIx.Init.BaudRatePrescaler   = BaudRatePrescaler;
@@ -179,36 +176,44 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
 }
 
 bool TFT_SPI::isBusy() {
-  #if defined(STM32F1xx)
-    volatile bool dmaEnabled = (DMAtx.Instance->CCR & DMA_CCR_EN) != RESET;
+  #ifdef STM32F1xx
+    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)
+    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->CPAR != 0)
   #elif defined(STM32F4xx)
-    volatile bool dmaEnabled = DMAtx.Instance->CR & DMA_SxCR_EN;
+    #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CR & DMA_SxCR_EN)
+    #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->Instance->PAR != 0)
   #endif
-  if (dmaEnabled) {
-    if (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) != 0 || __HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) != 0)
-      Abort();
+
+  if (!__IS_DMA_CONFIGURED(&DMAtx)) return false;
+
+  if (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx))) {
+    // You should not be here - DMA transfer error flag is set
+    // Abort DMA transfer and release SPI
   }
-  else
-    Abort();
-  return dmaEnabled;
+  else {
+    // Check if DMA transfer completed flag is set
+    if (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) == 0) return true;
+    // Check if SPI transmit butter is empty and SPI is idle
+    if ((!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) || (__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY))) return true;
+  }
+
+  Abort();
+  return false;
 }
 
 void TFT_SPI::Abort() {
-  // Wait for any running spi
-  while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
-  while ( __HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
-  // First, abort any running dma
-  HAL_DMA_Abort(&DMAtx);
-  // DeInit objects
+  HAL_DMA_Abort(&DMAtx);  // Abort DMA transfer if any
   HAL_DMA_DeInit(&DMAtx);
-  HAL_SPI_DeInit(&SPIx);
-  // Deselect CS
-  DataTransferEnd();
+
+  CLEAR_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);
+
+  DataTransferEnd();      // Stop SPI and deselect CS
 }
 
 void TFT_SPI::Transmit(uint16_t Data) {
-  if (TFT_MISO_PIN == TFT_MOSI_PIN)
+  #if TFT_MISO_PIN == TFT_MOSI_PIN
     SPI_1LINE_TX(&SPIx);
+  #endif
 
   __HAL_SPI_ENABLE(&SPIx);
 
@@ -217,14 +222,31 @@ void TFT_SPI::Transmit(uint16_t Data) {
   while (!__HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_TXE)) {}
   while ( __HAL_SPI_GET_FLAG(&SPIx, SPI_FLAG_BSY)) {}
 
-  if (TFT_MISO_PIN != TFT_MOSI_PIN)
-    __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received is not read
+  #if TFT_MISO_PIN != TFT_MOSI_PIN
+    __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   // Clear overrun flag in 2 Lines communication mode because received data is not read
+  #endif
 }
 
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
-  // Wait last dma finish, to start another
-  while (isBusy()) { /* nada */ }
+  DMAtx.Init.MemInc = MemoryIncrease;
+  HAL_DMA_Init(&DMAtx);
 
+  #if TFT_MISO_PIN == TFT_MOSI_PIN
+    SPI_1LINE_TX(&SPIx);
+  #endif
+
+  DataTransferBegin();
+
+  HAL_DMA_Start(&DMAtx, (uint32_t)Data, (uint32_t)&(SPIx.Instance->DR), Count);
+  __HAL_SPI_ENABLE(&SPIx);
+
+  SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
+
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
+}
+
+
+void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DMAtx.Init.MemInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
 
@@ -243,7 +265,6 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
 }
 
 #if ENABLED(USE_SPI_DMA_TC)
-
   void TFT_SPI::TransmitDMA_IT(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
 
     DMAtx.Init.MemInc = MemoryIncrease;
@@ -262,8 +283,7 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
     SET_BIT(SPIx.Instance->CR2, SPI_CR2_TXDMAEN);   // Enable Tx DMA Request
   }
 
-  extern "C" void DMA2_Stream3_IRQHandler(void) { HAL_DMA_IRQHandler(&TFT_SPI::DMAtx); }
-
+  extern "C" void DMA2_Stream3_IRQHandler(void) { TFT_SPI::DMA_IRQHandler(); }
 #endif
 
 #endif // HAS_SPI_TFT

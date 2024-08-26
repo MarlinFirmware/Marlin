@@ -3,7 +3,7 @@
 #  mftest                             Select a test to apply and build
 #  mftest -b [#]                      Build the auto-detected environment
 #  mftest -u [#]                      Upload the auto-detected environment
-#  mftest [name] [index] [-y]         Set config options and optionally build a test
+#  mftest -tname -n# [-y]             Set config options and optionally build a test
 #
 
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
@@ -30,6 +30,7 @@ OPTIONS
   -u --autoupload  PIO Upload using the MOTHERBOARD environment.
   -v --verbose     Extra output for debugging.
   -s --silent      Silence build output from PlatformIO.
+  -d --default     Restore to defaults before applying configs.
 
 env shortcuts: tree due esp lin lp8|lpc8 lp9|lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
 "
@@ -44,6 +45,7 @@ shopt -s extglob nocasematch
 
 # Matching patterns
 ISNUM='^[0-9]+$'
+ISRST='^(restore)_'
 ISCMD='^(restore|opt|exec|use|pins|env)_'
 ISEXEC='^exec_'
 ISCONT='\\ *$'
@@ -53,9 +55,10 @@ TESTENV='-'
 CHOICE=0
 DEBUG=0
 
-while getopts 'abhmrsuvyn:t:-:' OFLAG; do
+while getopts 'abdhmrsuvyn:t:-:' OFLAG; do
   case "${OFLAG}" in
     a) AUTO_BUILD=1 ; bugout "Auto-Build target..." ;;
+    d) DL_DEFAULTS=1 ; bugout "Restore to defaults..." ;;
     h) EXIT_USAGE=1 ;;
     m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
     n) case "$OPTARG" in
@@ -88,6 +91,7 @@ while getopts 'abhmrsuvyn:t:-:' OFLAG; do
        silent) SILENT_FLAG="-s" ;;
          make) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
 debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
+      default) DL_DEFAULTS=1 ; bugout "Restore to defaults..." ;;
         build) case "$OVAL" in
                  ''|y|yes) BUILD_YES='Y' ;;
                      n|no) BUILD_YES='N' ;;
@@ -198,7 +202,7 @@ if ((AUTO_BUILD)); then
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
     pio run $SILENT_FLAG -e $TARGET
   fi
-  exit 0
+  exit $?
 fi
 
 #
@@ -283,6 +287,11 @@ if [[ $CHOICE == 0 ]]; then
 fi
 
 #
+# Restore to defaults if requested
+#
+((DL_DEFAULTS)) && use_example_configs
+
+#
 # Run the specified test lines
 #
 echo -ne "\033[0;33m"
@@ -303,6 +312,7 @@ echo "$OUT" | {
         }
         ((IND == CHOICE)) && {
           GOTX=1
+          [[ -n $DL_DEFAULTS && $LINE =~ $ISRST ]] && LINE="use_example_configs"
           [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' | $SED -E 's/ +/ /g' )
           [[ $LINE =~ $ISCONT ]] || { echo "$CMD" ; eval "$CMD" ; CMD="" ; }
         }

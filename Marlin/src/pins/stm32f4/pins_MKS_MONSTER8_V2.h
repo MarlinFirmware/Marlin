@@ -24,6 +24,12 @@
 #define BOARD_INFO_NAME "MKS Monster8 V2"
 
 //
+// Limit Switches
+//
+#define X_STOP_PIN                          PA14
+#define Y_STOP_PIN                          PA15
+
+//
 // Steppers
 //
 #define E4_ENABLE_PIN                       PB6   // Driver7
@@ -47,11 +53,11 @@
 //
 //#define WIFI_SERIAL 1// USART1
 #if ENABLED(MKS_WIFI_MODULE)
-  #define WIFI_IO0_PIN PB14	// MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN PB15	// MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN PD14 // MKS ESP WIFI RESET PIN
+  #define WIFI_IO0_PIN                      PB14  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PB15  // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PD14  // MKS ESP WIFI RESET PIN
 #endif
 
-#define NEOPIXEL_PIN                         PC5
+#define NEOPIXEL_PIN                        PC5
 
 #include "pins_MKS_MONSTER8_common.h"

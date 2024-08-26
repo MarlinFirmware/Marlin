@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 #include "../../module/endstops.h"
 #include "../../lcd/marlinui.h"
 

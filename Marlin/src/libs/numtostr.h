@@ -116,6 +116,9 @@ const char* ftostr53sign(const_float_t f);
 // Convert unsigned float to string with 12345.6 format omitting trailing zeros
 const char* ftostr61rj(const_float_t x);
 
+// Convert unsigned float to string with 12345.67 format omitting trailing zeros
+const char* ftostr72rj(const_float_t x);
+
 // Convert float to rj string with 123 or -12 format
 FORCE_INLINE const char* ftostr3(const_float_t x) { return i16tostr3rj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 

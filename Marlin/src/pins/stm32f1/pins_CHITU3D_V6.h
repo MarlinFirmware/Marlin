@@ -27,6 +27,8 @@
 #define Z2_STEP_PIN                         PF5
 #define Z2_DIR_PIN                          PF1
 
+#define Z_STOP_PIN                          PA14
+
 #ifndef FIL_RUNOUT2_PIN
   #define FIL_RUNOUT2_PIN                   PF13
 #endif

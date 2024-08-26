@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 #include "../../lcd/marlinui.h"
 
 /**

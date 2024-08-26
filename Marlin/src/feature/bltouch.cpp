@@ -38,8 +38,6 @@ bool BLTouch::od_5v_mode;         // Initialized by settings.load, 0 = Open Drai
 #include "../module/servo.h"
 #include "../module/probe.h"
 
-void stop();
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 

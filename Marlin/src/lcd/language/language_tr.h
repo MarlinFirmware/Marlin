@@ -225,6 +225,7 @@ namespace Language_tr {
   LSTR MSG_MOVE_X                         = _UxGT("X Hareketi");
   LSTR MSG_MOVE_Y                         = _UxGT("Y Hareketi");
   LSTR MSG_MOVE_Z                         = _UxGT("Z Hareketi");
+  LSTR MSG_MOVE_N                         = _UxGT("@ Hareketi");
   LSTR MSG_MOVE_E                         = _UxGT("Ekstruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Ekstruder *");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Nozul Çok Soğuk");
@@ -390,7 +391,7 @@ namespace Language_tr {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("TouchMI Aç");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Z-Probe Aç");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Z-Probe Kapat");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Önce %s%s%s Sıfırla");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Önce %s Sıfırla");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Prob Ofsetleri");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofset");

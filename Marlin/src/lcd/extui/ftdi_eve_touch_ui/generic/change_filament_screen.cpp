@@ -171,9 +171,9 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
 
     const bool t_ok = getActualTemp_celsius(e) > getSoftenTemp() - 10;
 
-    if (mydata.t_tag && !t_ok) {
+    if (mydata.t_tag && !t_ok)
       cmd.text(HEATING_LBL_POS, GET_TEXT_F(MSG_HEATING));
-    } else if (getActualTemp_celsius(e) > 100) {
+    else if (getActualTemp_celsius(e) > 100) {
       cmd.cmd(COLOR_RGB(0xFF0000))
          .text(CAUTION_LBL_POS, GET_TEXT_F(MSG_CAUTION))
          .colors(normal_btn)

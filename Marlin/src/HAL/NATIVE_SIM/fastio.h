@@ -44,7 +44,7 @@
  *
  * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
  *
- * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ * Why double up on these macros? see https://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
 /// Read a pin

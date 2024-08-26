@@ -19,10 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-//  https://github.com/ktand/Armed
-
 #pragma once
+
+// https://github.com/ktand/Armed
 
 #include "env_validate.h"
 

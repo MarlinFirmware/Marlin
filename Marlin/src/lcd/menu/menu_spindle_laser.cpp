@@ -48,12 +48,12 @@
         cutter.mpower_min(), cutter.mpower_max(), cutter.update_from_mpower);
     #endif
 
-    editable.state = is_enabled;
+    editable.state = is_enabled; // State before toggle
     EDIT_ITEM(bool, MSG_CUTTER(TOGGLE), &is_enabled, []{
       #if ENABLED(SPINDLE_FEATURE)
         if (editable.state) cutter.disable(); else cutter.enable_same_dir();
       #else
-        cutter.laser_menu_toggle(!editable.state);
+        cutter.menu_set_enabled(!editable.state);
       #endif
     });
 
@@ -79,7 +79,7 @@
       EDIT_ITEM_FAST(CUTTER_MENU_PULSE_TYPE, MSG_LASER_PULSE_MS, &cutter.testPulse, LASER_TEST_PULSE_MIN, LASER_TEST_PULSE_MAX);
       ACTION_ITEM(MSG_LASER_FIRE_PULSE, cutter.test_fire_pulse);
       #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
-        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 80000, cutter.refresh_frequency);
+        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 65535, cutter.refresh_frequency);
       #endif
     #endif
     END_MENU();

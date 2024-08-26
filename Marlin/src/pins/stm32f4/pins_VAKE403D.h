@@ -161,37 +161,37 @@
 #define POWER_LOSS_PIN                      PA4   // ?? Power loss / nAC_FAULT
 
 #if ENABLED(SDSUPPORT)
-  #define SD_DETECT_PIN              EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
   #define SD_SS_PIN                         PB15  // USD_CS -> CS for onboard SD
 #endif
 
 /**
  *        ------                  ------
- *   PC9 |10  9 | PB12         ? |10  9 | ?
- *   PD7 | 8  7 | PC12       PD6 | 8  7 | ?
- *   PD1 | 6  5   PD2        PD0 | 6  5   ?
- *   PD3 | 4  3 | PD4        PB7 | 4  3 | RESET
- *   GND | 2  1 | 5V         GND | 2  1 | 3.3V
+ *   PC9 | 1  2 | PB12         ? | 1  2 | ?
+ *   PD7 | 3  4 | PC12       PD6 | 3  4 | ?
+ *   PD1 | 5  6   PD2        PD0 | 5  6   ?
+ *   PD3 | 7  8 | PD4        PB7 | 7  8 | RESET
+ *   GND | 9 10 | 5V         GND | 9 10 | 3.3V
  *        ------                  ------
  *         EXP1                    EXP2
  */
-#define EXP1_03_PIN                         PD4
-#define EXP1_04_PIN                         PD3
-#define EXP1_05_PIN                         PD2
-#define EXP1_06_PIN                         PD1
-#define EXP1_07_PIN                         PC12
-#define EXP1_08_PIN                         PD7
-#define EXP1_09_PIN                         PB12
-#define EXP1_10_PIN                         PC9
+#define EXP1_01_PIN                         PC9
+#define EXP1_02_PIN                         PB12
+#define EXP1_03_PIN                         PD7
+#define EXP1_04_PIN                         PC12
+#define EXP1_05_PIN                         PD1
+#define EXP1_06_PIN                         PD2
+#define EXP1_07_PIN                         PD3
+#define EXP1_08_PIN                         PD4
 
-#define EXP2_03_PIN                         -1
-#define EXP2_04_PIN                         PB7
-//#define EXP2_05_PIN                       ?
-#define EXP2_06_PIN                         PD0
-//#define EXP2_07_PIN                       ?
-#define EXP2_08_PIN                         PD6
-//#define EXP2_09_PIN                       ?
-//#define EXP2_10_PIN                       ?
+//#define EXP2_01_PIN                       ?
+//#define EXP2_02_PIN                       ?
+#define EXP2_03_PIN                         PD6
+//#define EXP2_04_PIN                       ?
+#define EXP2_05_PIN                         PD0
+//#define EXP2_06_PIN                       ?
+#define EXP2_07_PIN                         PB7
+#define EXP2_08_PIN                         -1
 
 //
 // LCD / Controller
@@ -202,19 +202,19 @@
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
 
-  #define BEEPER_PIN                 EXP1_10_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
 
-  #define BTN_EN1                    EXP2_08_PIN
-  #define BTN_EN2                    EXP2_06_PIN
-  #define BTN_ENC                    EXP1_09_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 
-  #define LCD_PINS_ENABLE            EXP1_08_PIN
-  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
 
-  #define LCD_PINS_D4                EXP1_06_PIN
-  #define LCD_PINS_D5                EXP1_05_PIN
-  #define LCD_PINS_D6                EXP1_04_PIN
-  #define LCD_PINS_D7                EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
 
 #endif
 

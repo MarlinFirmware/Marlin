@@ -74,10 +74,14 @@ namespace Language_da {
   LSTR MSG_MOVE_X                         = _UxGT("Flyt X");
   LSTR MSG_MOVE_Y                         = _UxGT("Flyt Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Flyt Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Flyt @");
+  LSTR MSG_MOVE_E                         = _UxGT("Flyt E");
+  LSTR MSG_MOVE_EN                        = _UxGT("Flyt *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Flyt $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Flyt 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Flyt 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Flyt 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Flyt 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Flyt 100mm");
   LSTR MSG_SPEED                          = _UxGT("Hastighed");
   LSTR MSG_BED_Z                          = _UxGT("Plade Z");
@@ -135,7 +139,7 @@ namespace Language_da {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Skift SD kort");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Probe udenfor plade");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Selv-Test");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s først");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s først");
   LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Opvarmning fejlet");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Fejl: reserve temp");
   LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Temp løber løbsk");

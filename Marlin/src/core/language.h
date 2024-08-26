@@ -174,6 +174,7 @@
 #define STR_SD_VOL_INIT_FAIL                "volume.init failed"
 #define STR_SD_OPENROOT_FAIL                "openRoot failed"
 #define STR_SD_CARD_OK                      "SD card ok"
+#define STR_SD_CARD_RELEASED                "SD card released"
 #define STR_SD_WORKDIR_FAIL                 "workDir open failed"
 #define STR_SD_OPEN_FILE_FAIL               "open failed, File: "
 #define STR_SD_FILE_OPENED                  "File opened: "

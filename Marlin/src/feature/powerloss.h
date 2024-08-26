@@ -153,6 +153,9 @@ class PrintJobRecovery {
     static void prepare();
 
     static void setup() {
+      #if PIN_EXISTS(OUTAGECON)
+        OUT_WRITE(OUTAGECON_PIN, HIGH);
+      #endif
       #if PIN_EXISTS(POWER_LOSS)
         #if ENABLED(POWER_LOSS_PULLUP)
           SET_INPUT_PULLUP(POWER_LOSS_PIN);

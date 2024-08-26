@@ -56,9 +56,9 @@ typedef struct _hd44780_charmap_t {
 } hd44780_charmap_t;
 
 #ifdef __AVR__
-  #define IV(a) U##a
+  #define IV(a) lchar_t(U##a)
 #else
-  #define IV(a) L##a
+  #define IV(a) lchar_t(L##a)
 #endif
 
 static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {

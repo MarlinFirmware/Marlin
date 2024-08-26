@@ -489,9 +489,9 @@ float MAX31865::temperature(float rtd_res) {
     temp = RTD_C[0];
     temp += rpoly * RTD_C[1];
     rpoly *= rtd_res; temp += rpoly * RTD_C[2];
-    if (MAX31865_APPROX >= 3) rpoly *= rtd_res; temp += rpoly * RTD_C[3];
-    if (MAX31865_APPROX >= 4) rpoly *= rtd_res; temp += rpoly * RTD_C[4];
-    if (MAX31865_APPROX >= 5) rpoly *= rtd_res; temp += rpoly * RTD_C[5];
+    if (MAX31865_APPROX >= 3) { rpoly *= rtd_res; temp += rpoly * RTD_C[3]; }
+    if (MAX31865_APPROX >= 4) { rpoly *= rtd_res; temp += rpoly * RTD_C[4]; }
+    if (MAX31865_APPROX >= 5) { rpoly *= rtd_res; temp += rpoly * RTD_C[5]; }
   }
 
   return temp;

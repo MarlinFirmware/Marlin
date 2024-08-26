@@ -222,6 +222,7 @@ namespace Language_zh_CN {
   LSTR MSG_MOVE_X                         = _UxGT("移动X");     // "Move X"
   LSTR MSG_MOVE_Y                         = _UxGT("移动Y");     // "Move Y"
   LSTR MSG_MOVE_Z                         = _UxGT("移动Z");     // "Move Z"
+  LSTR MSG_MOVE_N                         = _UxGT("移动@");     // "Move @"
   LSTR MSG_MOVE_E                         = _UxGT("挤出机");     // "Extruder"
   LSTR MSG_MOVE_EN                        = _UxGT("挤出机 *");     // "Extruder"
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("热端太冷");
@@ -419,7 +420,7 @@ namespace Language_zh_CN {
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("部署TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("部署Z探针");
   LSTR MSG_MANUAL_STOW                    = _UxGT("收好Z探针");
-  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s%s%s 先");     // "Home ... first"
+  LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s 先");     // "Home ... first"
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探针偏移量");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");

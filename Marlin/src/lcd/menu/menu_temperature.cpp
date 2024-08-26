@@ -47,29 +47,29 @@
 // "Temperature" submenu items
 //
 
-void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb) {
-  UNUSED(e); UNUSED(indh); UNUSED(indb);
-  #if HAS_HOTEND
-    if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
-      setTargetHotend(_MIN(thermalManager.hotend_max_target(e), ui.material_preset[indh].hotend_temp), e);
-  #endif
-  #if HAS_HEATED_BED
-    if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
-  #endif
-  #if HAS_FAN
-    if (indh >= 0) {
-      const uint8_t fan_index = active_extruder < (FAN_COUNT) ? active_extruder : 0;
-      if (true
-        #if REDUNDANT_PART_COOLING_FAN
-          && fan_index != REDUNDANT_PART_COOLING_FAN
-        #endif
-      ) set_fan_speed(fan_index, ui.material_preset[indh].fan_speed);
-    }
-  #endif
-  ui.return_to_status();
-}
-
 #if HAS_PREHEAT
+
+  void Temperature::lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb) {
+    UNUSED(e); UNUSED(indh); UNUSED(indb);
+    #if HAS_HOTEND
+      if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
+        setTargetHotend(_MIN(thermalManager.hotend_max_target(e), ui.material_preset[indh].hotend_temp), e);
+    #endif
+    #if HAS_HEATED_BED
+      if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
+    #endif
+    #if HAS_FAN
+      if (indh >= 0) {
+        const uint8_t fan_index = active_extruder < (FAN_COUNT) ? active_extruder : 0;
+        if (true
+          #if REDUNDANT_PART_COOLING_FAN
+            && fan_index != REDUNDANT_PART_COOLING_FAN
+          #endif
+        ) set_fan_speed(fan_index, ui.material_preset[indh].fan_speed);
+      }
+    #endif
+    ui.return_to_status();
+  }
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }

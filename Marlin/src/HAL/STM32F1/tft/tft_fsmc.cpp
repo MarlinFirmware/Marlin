@@ -215,22 +215,47 @@ uint32_t TFT_FSMC::GetID() {
  }
 
 bool TFT_FSMC::isBusy() {
+  #define __IS_DMA_CONFIGURED(__DMAx__, __CHx__)   (dma_channel_regs(__DMAx__, __CHx__)->CPAR != 0)
+
+  if (!__IS_DMA_CONFIGURED(FSMC_DMA_DEV, FSMC_DMA_CHANNEL)) return false;
+
+  // Check if DMA transfer error or transfer complete flags are set
+  if ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & (DMA_ISR_TCIF | DMA_ISR_TEIF)) == 0) return true;
+
+  __DSB();
+  Abort();
   return false;
 }
 
 void TFT_FSMC::Abort() {
+  dma_channel_reg_map *channel_regs = dma_channel_regs(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
+  dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL); // Abort DMA transfer if any
+
+  // Deconfigure DMA
+  channel_regs->CCR   = 0U;
+  channel_regs->CNDTR = 0U;
+  channel_regs->CMAR  = 0U;
+  channel_regs->CPAR  = 0U;
 }
 
 void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  // TODO: HAL STM32 uses DMA2_Channel1 for FSMC on STM32F1
+  dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
+  dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
+  dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+  dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+}
+
+void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   #if defined(FSMC_DMA_DEV) && defined(FSMC_DMA_CHANNEL)
     dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
     dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
     dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
     dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
-    while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & 0x0A) == 0) {};
-    dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+    while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & (DMA_CCR_TEIE | DMA_CCR_TCIE)) == 0) {}
+    Abort();
   #endif
 }
 

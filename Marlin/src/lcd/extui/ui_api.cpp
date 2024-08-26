@@ -375,9 +375,9 @@ namespace ExtUI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return axis_should_home(X_AXIS);
-        OPTCODE(HAS_Y_AXIS, case Y: return axis_should_home(Y_AXIS))
-        OPTCODE(HAS_Z_AXIS, case Z: return axis_should_home(Z_AXIS))
+        case X: return !axis_should_home(X_AXIS);
+        OPTCODE(HAS_Y_AXIS, case Y: return !axis_should_home(Y_AXIS))
+        OPTCODE(HAS_Z_AXIS, case Z: return !axis_should_home(Z_AXIS))
       #else
         case X: case Y: case Z: return true;
       #endif
@@ -712,17 +712,17 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     bool getPowerLossRecoveryEnabled()                 { return recovery.enabled; }
-    void setPowerLossRecoveryEnabled(const bool value) {  recovery.enable(value); }
+    void setPowerLossRecoveryEnabled(const bool value) { recovery.enable(value); }
   #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
-      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
+      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[E_INDEX_N(extruder - E0)] : 0;
     }
 
     void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 10);
+        planner.extruder_advance_K[E_INDEX_N(extruder - E0)] = constrain(value, 0, 10);
     }
   #endif
 
@@ -976,32 +976,26 @@ namespace ExtUI {
   float getFeedrate_percent() { return feedrate_percentage; }
 
   #if ENABLED(PIDTEMP)
-    float getPIDValues_Kp(const extruder_t tool) { return PID_PARAM(Kp, tool); }
-    float getPIDValues_Ki(const extruder_t tool) { return unscalePID_i(PID_PARAM(Ki, tool)); }
-    float getPIDValues_Kd(const extruder_t tool) { return unscalePID_d(PID_PARAM(Kd, tool)); }
+    float getPID_Kp(const extruder_t tool) { return thermalManager.temp_hotend[tool].pid.p(); }
+    float getPID_Ki(const extruder_t tool) { return thermalManager.temp_hotend[tool].pid.i(); }
+    float getPID_Kd(const extruder_t tool) { return thermalManager.temp_hotend[tool].pid.d(); }
 
-    void setPIDValues(const_float_t p, const_float_t i, const_float_t d, extruder_t tool) {
-      thermalManager.temp_hotend[tool].pid.Kp = p;
-      thermalManager.temp_hotend[tool].pid.Ki = scalePID_i(i);
-      thermalManager.temp_hotend[tool].pid.Kd = scalePID_d(d);
-      thermalManager.updatePID();
+    void setPID(const_float_t p, const_float_t i, const_float_t d, extruder_t tool) {
+      thermalManager.setPID(uint8_t(tool), p, i, d);
     }
 
     void startPIDTune(const celsius_t temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
+      thermalManager.PID_autotune(temp, heater_id_t(tool), 8, true);
     }
   #endif
 
   #if ENABLED(PIDTEMPBED)
-    float getBedPIDValues_Kp() { return thermalManager.temp_bed.pid.Kp; }
-    float getBedPIDValues_Ki() { return unscalePID_i(thermalManager.temp_bed.pid.Ki); }
-    float getBedPIDValues_Kd() { return unscalePID_d(thermalManager.temp_bed.pid.Kd); }
+    float getBedPID_Kp() { return thermalManager.temp_bed.pid.p(); }
+    float getBedPID_Ki() { return thermalManager.temp_bed.pid.i(); }
+    float getBedPID_Kd() { return thermalManager.temp_bed.pid.d(); }
 
-    void setBedPIDValues(const_float_t p, const_float_t i, const_float_t d) {
-      thermalManager.temp_bed.pid.Kp = p;
-      thermalManager.temp_bed.pid.Ki = scalePID_i(i);
-      thermalManager.temp_bed.pid.Kd = scalePID_d(d);
-      thermalManager.updatePID();
+    void setBedPID(const_float_t p, const_float_t i, const_float_t d) {
+      thermalManager.temp_bed.pid.set(p, i, d);
     }
 
     void startBedPIDTune(const celsius_t temp) {
@@ -1076,7 +1070,7 @@ namespace ExtUI {
   void coolDown() { thermalManager.cooldown(); }
 
   bool awaitingUserConfirm() {
-    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || getHostKeepaliveIsPaused();
+    return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
   }
   void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
 

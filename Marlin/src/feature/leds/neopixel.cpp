@@ -108,7 +108,7 @@ void Marlin_NeoPixel::init() {
   set_color(adaneo1.Color
     TERN(LED_USER_PRESET_STARTUP,
       (LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE, LED_USER_PRESET_WHITE),
-      (255, 255, 255, 255))
+      (0, 0, 0, 0))
   );
 }
 

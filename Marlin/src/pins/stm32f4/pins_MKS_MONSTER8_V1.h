@@ -26,7 +26,9 @@
 //
 // Limit Switches
 //
+#define X_MIN_PIN                           PA14
 #define X_MAX_PIN                           PA13
+#define Y_MIN_PIN                           PA15
 #define Y_MAX_PIN                           PC5
 
 //

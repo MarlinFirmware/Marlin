@@ -72,14 +72,14 @@
 //   2 +5V
 //   1 GND
 
-#define EXP1_03_PIN                         PB11
-#define EXP1_04_PIN                         PB10
-#define EXP1_05_PIN                         PB2
-#define EXP1_06_PIN                         PC5
-#define EXP1_07_PIN                         PA10
-#define EXP1_08_PIN                         PA9
-#define EXP1_09_PIN                         PB0
-#define EXP1_10_PIN                         PB1
+#define EXP1_01_PIN                         PB1
+#define EXP1_02_PIN                         PB0
+#define EXP1_03_PIN                         PA9
+#define EXP1_04_PIN                         PA10
+#define EXP1_05_PIN                         PC5
+#define EXP1_06_PIN                         PB2
+#define EXP1_07_PIN                         PB10
+#define EXP1_08_PIN                         PB11
 
 // AUX1 connector
 //  1 +5V
@@ -193,14 +193,14 @@
   //   1 GND
 
   #define LCDSCREEN_NAME "ZONESTAR LCD12864"
-  #define LCD_PINS_RS                EXP1_08_PIN
-  #define LCD_PINS_ENABLE            EXP1_05_PIN
-  #define LCD_PINS_D4                EXP1_07_PIN
-  //#define KILL_PIN                 EXP1_10_PIN
-  #define BEEPER_PIN                 EXP1_09_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_04_PIN
+  #define LCD_PINS_RS                EXP1_03_PIN
+  #define LCD_PINS_ENABLE            EXP1_06_PIN
+  #define LCD_PINS_D4                EXP1_04_PIN
+  //#define KILL_PIN                 EXP1_01_PIN
+  #define BEEPER_PIN                 EXP1_02_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_07_PIN
   #define BOARD_ST7920_DELAY_1               125
   #define BOARD_ST7920_DELAY_2               200
   #define BOARD_ST7920_DELAY_3               125
@@ -221,15 +221,15 @@
 
   #define FORCE_SOFT_SPI
   #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
-  #define LCD_PINS_RS                EXP1_05_PIN  // = LCD_RESET_PIN
-  #define LCD_PINS_DC                EXP1_07_PIN  // DC
-  #define DOGLCD_CS                  EXP1_08_PIN  // CS
+  #define LCD_PINS_RS                EXP1_06_PIN  // = LCD_RESET_PIN
+  #define LCD_PINS_DC                EXP1_04_PIN  // DC
+  #define DOGLCD_CS                  EXP1_03_PIN  // CS
   #define DOGLCD_A0                  LCD_PINS_DC
-  #define DOGLCD_MOSI                EXP1_10_PIN  // SDA
-  #define DOGLCD_SCK                 EXP1_09_PIN  // SCK
+  #define DOGLCD_MOSI                EXP1_01_PIN  // SDA
+  #define DOGLCD_SCK                 EXP1_02_PIN  // SCK
   // Encoder
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_06_PIN
-  #define BTN_ENC                    EXP1_04_PIN
+  #define BTN_EN1                    EXP1_08_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define BTN_ENC                    EXP1_07_PIN
 
 #endif

@@ -26,7 +26,7 @@
 
 #include "tft_spi.h"
 
-SPIClass TFT_SPI::SPIx(1);
+SPIClass TFT_SPI::SPIx(TFT_SPI_DEVICE);
 
 void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
@@ -38,40 +38,10 @@ void TFT_SPI::Init() {
     OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
   #endif
 
-  SET_OUTPUT(TFT_DC_PIN);
-  SET_OUTPUT(TFT_CS_PIN);
-  WRITE(TFT_DC_PIN, HIGH);
-  WRITE(TFT_CS_PIN, HIGH);
+  OUT_WRITE(TFT_DC_PIN, HIGH);
+  OUT_WRITE(TFT_CS_PIN, HIGH);
 
-  /**
-   * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
-   * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
-   * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
-   */
-  #if 0
-    #if SPI_DEVICE == 1
-     #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
-    #else
-     #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
-    #endif
-    uint8_t  clock;
-    uint8_t spiRate = SPI_FULL_SPEED;
-    switch (spiRate) {
-     case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX ;  break;
-     case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
-     case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
-     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
-     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
-     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-     default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
-    }
-  #endif
-
-  #if TFT_MISO_PIN == BOARD_SPI1_MISO_PIN
-    SPIx.setModule(1);
-  #elif TFT_MISO_PIN == BOARD_SPI2_MISO_PIN
-    SPIx.setModule(2);
-  #endif
+  SPIx.setModule(TFT_SPI_DEVICE);
   SPIx.setClock(SPI_CLOCK_MAX_TFT);
   SPIx.setBitOrder(MSBFIRST);
   SPIx.setDataMode(SPI_MODE0);
@@ -114,17 +84,62 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   return data >> 7;
 }
 
-bool TFT_SPI::isBusy() { return false; }
+bool TFT_SPI::isBusy() {
+  #define __IS_DMA_CONFIGURED(__HANDLE__)   ((__HANDLE__)->DMACCSrcAddr != 0)
 
-void TFT_SPI::Abort() { DataTransferEnd(); }
+  // DMA Channel 0 is hardcoded in dmaSendAsync() and dmaSend()
+  if (!__IS_DMA_CONFIGURED(LPC_GPDMACH0)) return false;
+
+  if (GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) {
+    // You should not be here - DMA transfer error flag is set
+    // Abort DMA transfer and release SPI
+  }
+  else {
+    // Check if DMA transfer completed flag is set
+    if (!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0)) return true;
+    // Check if SPI TX butter is empty and SPI is idle
+    if ((SSP_GetStatus(LPC_SSPx, SSP_STAT_TXFIFO_EMPTY) == RESET) || (SSP_GetStatus(LPC_SSPx, SSP_STAT_BUSY) == SET)) return true;
+  }
+
+  Abort();
+  return false;
+}
+
+void TFT_SPI::Abort() {
+  // DMA Channel 0 is hardcoded in dmaSendAsync() and dmaSend()
+
+  // Disable DMA
+  GPDMA_ChannelCmd(0, DISABLE);
+
+  // Clear ERR and TC
+  GPDMA_ClearIntPending(GPDMA_STATCLR_INTTC, 0);
+  GPDMA_ClearIntPending(GPDMA_STATCLR_INTERR, 0);
+
+  // Disable DMA on SPI
+  SSP_DMACmd(LPC_SSPx, SSP_DMA_TX, DISABLE);
+
+  // Deconfigure DMA Channel 0
+  LPC_GPDMACH0->DMACCControl  = 0U;
+  LPC_GPDMACH0->DMACCConfig   = 0U;
+  LPC_GPDMACH0->DMACCSrcAddr  = 0U;
+  LPC_GPDMACH0->DMACCDestAddr = 0U;
+
+  DataTransferEnd();
+}
 
 void TFT_SPI::Transmit(uint16_t Data) { SPIx.transfer(Data); }
 
+void TFT_SPI::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+  DataTransferBegin(DATASIZE_16BIT);
+  SPIx.dmaSend(Data, Count, MemoryIncrease);
+  Abort();
+}
+
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DataTransferBegin(DATASIZE_16BIT);
-  WRITE(TFT_DC_PIN, HIGH);
-  SPIx.dmaSend(Data, Count, MemoryIncrease);
-  DataTransferEnd();
+  SPIx.dmaSendAsync(Data, Count, MemoryIncrease);
+
+  TERN_(TFT_SHARED_SPI, while (isBusy()));
 }
 
 #endif // HAS_SPI_TFT

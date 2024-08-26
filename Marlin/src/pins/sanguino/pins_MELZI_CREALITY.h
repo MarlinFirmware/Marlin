@@ -42,24 +42,24 @@
   #define BOARD_ST7920_DELAY_3               125
 #endif
 
-#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
-
 //
 // For the stock CR-10 enable CR10_STOCKDISPLAY in Configuration.h
 //
-#undef LCD_SDSS
-#undef LED_PIN
-#undef LCD_PINS_RS
-#undef LCD_PINS_ENABLE
-#undef LCD_PINS_D4
-#undef LCD_PINS_D5
-#undef LCD_PINS_D6
-#undef LCD_PINS_D7
+#if ENABLED(CR10_STOCKDISPLAY)
+  #define LCD_SDSS                            31  // Smart Controller SD card reader (rather than the Melzi)
+  #define LCD_PINS_RS                         28  // ST9720 CS
+  #define LCD_PINS_ENABLE                     17  // ST9720 DAT
+  #define LCD_PINS_D4                         30  // ST9720 CLK
 
-#define LCD_SDSS                              31  // Smart Controller SD card reader (rather than the Melzi)
-#define LCD_PINS_RS                           28  // ST9720 CS
-#define LCD_PINS_ENABLE                       17  // ST9720 DAT
-#define LCD_PINS_D4                           30  // ST9720 CLK
+  #define BTN_ENC                             16
+  #define BTN_EN1                             11
+  #define BTN_EN2                             10
+  #define BEEPER_PIN                          27
+
+  #define LCD_PINS_DEFINED
+#endif
+
+#include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 
 #if ENABLED(BLTOUCH)
   #ifndef SERVO0_PIN
@@ -132,10 +132,10 @@
 /**
  *    EXP1 Connector                      EXP1 as CR10 STOCKDISPLAY
  *        ------                                      ------
- *   PA4 |10  9 | PC0                     BEEPER_PIN |10  9 | BTN_ENC
- *   PD3 | 8  7 | RESET                      BTN_EN1 | 8  7 | RESET
- *   PD2   6  5 | PA1                        BTN_EN2   6  5 | LCD_PINS_D4     (ST9720 CLK)
- *   PA3 | 4  3 | PC1        (ST9720 CS) LCD_PINS_RS | 4  3 | LCD_PINS_ENABLE (ST9720 DAT)
- *   GND | 2  1 | 5V                             GND | 2  1 | 5V
+ *   PA4 | 1  2 | PC0                     BEEPER_PIN | 1  2 | BTN_ENC
+ *   PD3 | 3  4 | RESET                      BTN_EN1 | 3  4 | RESET
+ *   PD2   5  6 | PA1                        BTN_EN2   5  6 | LCD_PINS_D4     (ST9720 CLK)
+ *   PA3 | 7  8 | PC1        (ST9720 CS) LCD_PINS_RS | 7  8 | LCD_PINS_ENABLE (ST9720 DAT)
+ *   GND | 9 10 | 5V                             GND | 9 10 | 5V
  *        ------                                      ------
  */

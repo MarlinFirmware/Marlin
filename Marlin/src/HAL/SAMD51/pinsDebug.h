@@ -1,8 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * SAMD51 HAL developed by Giuliano Zaro (AKA GMagician)
+ */
+
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
 #define digitalRead_mod(p) extDigitalRead(p)
@@ -29,7 +34,7 @@
 #define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
 #define GET_ARRAY_PIN(p) pin_array[p].pin
 #define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
-#define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL)
+#define VALID_PIN(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) digitalPinToAnalogInput(p)
 #define IS_ANALOG(P) (DIGITAL_PIN_TO_ANALOG_PIN(P)!=-1)
 #define pwm_status(pin) digitalPinHasPWM(pin)

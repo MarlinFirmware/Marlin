@@ -30,7 +30,11 @@
 #elif HAS_LTDC_TFT
   #include HAL_PATH(../../HAL, tft/tft_ltdc.h)
 #else
-  #error "TFT IO only supports SPI, FSMC or LTDC interface"
+  #error "TFT IO only supports SPI, FSMC or LTDC interface."
+#endif
+
+#ifndef DMA_MAX_SIZE
+  #error "MAX_DMA_SIZE is not configured for this platform."
 #endif
 
 #define TFT_EXCHANGE_XY _BV32(1)
@@ -108,26 +112,32 @@ public:
   static void write_esc_sequence(const uint16_t *Sequence);
 
   // Deletaged methods
-  inline static void Init() { io.Init(); io.Abort(); };
-  inline static bool isBusy() { return io.isBusy(); };
-  inline static void Abort() { io.Abort(); };
-  inline static uint32_t GetID() { return io.GetID(); };
+  inline static void Init() { io.Init(); }
+  inline static bool isBusy() { return io.isBusy(); }
+  inline static void Abort() { io.Abort(); }
+  inline static uint32_t GetID() { return io.GetID(); }
 
   inline static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
-  inline static void DataTransferEnd() { io.DataTransferEnd(); };
-  // inline static void DataTransferAbort() { io.DataTransferAbort(); };
+  inline static void DataTransferEnd() { io.DataTransferEnd(); }
 
-  inline static void WriteData(uint16_t Data) { io.WriteData(Data); };
-  inline static void WriteReg(uint16_t Reg) { io.WriteReg(Reg); };
+  inline static void WriteData(uint16_t Data) { io.WriteData(Data); }
+  inline static void WriteReg(uint16_t Reg) { io.WriteReg(Reg); }
 
-  inline static void WriteSequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); };
+  // Blocking IO used by TFT_CLASSIC_UI and TFT_LVGL_UI
+  // These functions start data transfer and WAIT for data transfer completion
+  inline static void WriteSequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); }
+  inline static void WriteMultiple(uint16_t Color, uint32_t Count) { io.WriteMultiple(Color, Count); }
 
+  // Non-blocking DMA-based IO used by TFT_COLOR_UI only
+  // These functions start data transfer using DMA and do NOT wait for data transfer completion
+  inline static void WriteSequenceDMA(uint16_t *Data, uint16_t Count) { io.WriteSequence_DMA(Data, Count); }
+  inline static void WriteMultipleDMA(uint16_t Color, uint16_t Count) { io.WriteMultiple_DMA(Color, Count); }
+
+  // Non-blocking DMA-based IO with IRQ callback used by TFT_LVGL_UI only
+  // This function starts data transfer using DMA and does NOT wait for data transfer completion
   #if ENABLED(USE_SPI_DMA_TC)
-    inline static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { io.WriteSequenceIT(Data, Count); };
+    inline static void WriteSequenceIT(uint16_t *Data, uint16_t Count) { io.WriteSequenceIT(Data, Count); }
   #endif
-
-  // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
-  inline static void WriteMultiple(uint16_t Color, uint32_t Count) { io.WriteMultiple(Color, Count); };
 
 protected:
   static uint32_t lcd_id;

@@ -83,12 +83,14 @@ namespace Language_ca {
   LSTR MSG_MOVE_X                         = _UxGT("Mou X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mou Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mou Z");
+  LSTR MSG_MOVE_N                         = _UxGT("Mou @");
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mou $mm");
   LSTR MSG_MOVE_01MM                      = _UxGT("Mou 0.1mm");
   LSTR MSG_MOVE_1MM                       = _UxGT("Mou 1mm");
   LSTR MSG_MOVE_10MM                      = _UxGT("Mou 10mm");
+  LSTR MSG_MOVE_50MM                      = _UxGT("Mou 50mm");
   LSTR MSG_MOVE_100MM                     = _UxGT("Mou 100mm");
   LSTR MSG_SPEED                          = _UxGT("Velocitat");
   LSTR MSG_BED_Z                          = _UxGT("Llit Z");
@@ -149,7 +151,7 @@ namespace Language_ca {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Canvia SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");
-  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s%s%s primer");
+  LSTR MSG_HOME_FIRST                     = _UxGT("Home %s primer");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalatge Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");
