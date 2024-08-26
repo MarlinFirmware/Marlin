@@ -60,7 +60,7 @@
   #endif
 #endif
 
-#if USE_BASE_CONFIGS
+#if !USE_STD_CONFIGS
   #if __has_include("../../Configuration.h")
     #define HAS_IGNORED_CONFIGS
   #elif __has_include("../../Configuration_adv.h")

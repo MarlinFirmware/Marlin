@@ -26,8 +26,9 @@
 #endif
 
 #if __has_include("../../Config.h")
-  #define USE_BASE_CONFIGS 1
   #include "../../Config.h"
+#else
+  #define USE_STD_CONFIGS 1
 #endif
 
 //
@@ -42,9 +43,7 @@
 #include "../core/macros.h"
 #include "../core/boards.h"
 
-#if USE_BASE_CONFIGS
-  #include "BaseConfiguration.h"
-#else
+#if USE_STD_CONFIGS
   #include "../../Configuration.h"
 #endif
 
@@ -64,9 +63,7 @@
 
 #include "../core/drivers.h"
 
-#if USE_BASE_CONFIGS
-  #include "BaseConfiguration_adv.h"
-#else
+#if USE_STD_CONFIGS
   #include "../../Configuration_adv.h"
 #endif
 
