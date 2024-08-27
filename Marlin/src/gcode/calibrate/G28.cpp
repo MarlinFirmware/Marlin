@@ -101,7 +101,7 @@
       };
     #endif
 
-    do_blocking_move_to_xy(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
+    do_blocking_move_to_xy(1.5f * max_length(X_AXIS) * x_axis_home_dir, 1.5f * max_length(Y_AXIS) * Y_HOME_DIR, fr_mm_s);
 
     endstops.validate_homing_move();
 
@@ -171,10 +171,17 @@
       };
     #endif
 
-    do_blocking_move_to(1.5 * max_length(X_AXIS) * x_axis_home_dir, 1.5 * max_length(Y_AXIS) * Y_HOME_DIR, current_position.z, 
-        SECONDARY_AXIS_LIST(1.5 * max_length(I_AXIS) * I_HOME_DIR, 1.5 * max_length(J_AXIS) * J_HOME_DIR , 1.5 * max_length(K_AXIS) * K_HOME_DIR, 1.5 * max_length(U_AXIS) * U_HOME_DIR, 1.5 * max_length(V_AXIS) * V_HOME_DIR, 1.5 * max_length(W_AXIS) * W_HOME_DIR), 
-        fr_mm_s
-    );
+    #if IS_KINEMATIC
+      do_blocking_move_to(1.5f * max_length(X_AXIS) * x_axis_home_dir, 1.5f * max_length(Y_AXIS) * Y_HOME_DIR, current_position.z, 
+          SECONDARY_AXIS_LIST(1.5f * max_length(I_AXIS) * I_HOME_DIR, 1.5f * max_length(J_AXIS) * J_HOME_DIR , 1.5f * max_length(K_AXIS) * K_HOME_DIR, 1.5f * max_length(U_AXIS) * U_HOME_DIR, 1.5f * max_length(V_AXIS) * V_HOME_DIR, 1.5f * max_length(W_AXIS) * W_HOME_DIR), 
+          fr_mm_s
+      );
+    #else
+      do_coordinated_blocking_move_to(1.5f * max_length(X_AXIS) * x_axis_home_dir, 1.5f * max_length(Y_AXIS) * Y_HOME_DIR, current_position.z, 
+          SECONDARY_AXIS_LIST(1.5f * max_length(I_AXIS) * I_HOME_DIR, 1.5f * max_length(J_AXIS) * J_HOME_DIR , 1.5f * max_length(K_AXIS) * K_HOME_DIR, 1.5f * max_length(U_AXIS) * U_HOME_DIR, 1.5f * max_length(V_AXIS) * V_HOME_DIR, 1.5f * max_length(W_AXIS) * W_HOME_DIR), 
+          fr_mm_s
+      );
+    #endif
 
     endstops.validate_homing_move();
 

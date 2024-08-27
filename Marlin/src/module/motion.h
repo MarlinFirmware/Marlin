@@ -407,6 +407,10 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s=0.0f);
   FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s=0.0f) { do_blocking_move_to_xy_z(xy_pos_t(raw), z, fr_mm_s); }
 #endif
 
+#if ENABLED(QUICK_HOME_SECONDARY_AXES) && !IS_KINEMATIC
+  void do_coordinated_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s=0.0f);
+#endif
+
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 

@@ -1268,6 +1268,55 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
       fr_mm_s
     );
   }
+
+#if ENABLED(QUICK_HOME_SECONDARY_AXES) && !IS_KINEMATIC
+  /**
+   * Plan a move to (X, Y, Z, [I, [J, [K...]]]) and set the current_position
+   * Plan a move to (X, Y, Z, [I, [J, [K...]]]) with separation of Z from other components.
+   *
+   * - If Z is moving up, the Z move is done before XY, etc.
+   * - If Z is moving down, the Z move is done after XY, etc.
+   * - Delta may lower Z first to get into the free motion zone.
+   * - XY, etc. move simultaneously in a coordinated manner.
+   * - Before returning, wait for the planner buffer to empty.
+   */
+  void do_coordinated_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/*=0.0f*/) {
+    DEBUG_SECTION(log_move, "do_coordinated_blocking_move_to", DEBUGGING(LEVELING));
+    #if NUM_AXES
+      if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS_LC());
+    #endif
+
+    const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(PLANNER_XY_FEEDRATE_MM_S);
+
+    #if HAS_Z_AXIS
+      const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS);
+    #endif
+
+    #if HAS_Z_AXIS  // If Z needs to raise, do it before moving XY
+      if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
+    #endif
+
+    current_position.set(TERN_(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y)); 
+    SECONDARY_AXIS_CODE(
+      current_position.i = i,
+      current_position.j = j,
+      current_position.k = k,
+      current_position.u = u,
+      current_position.v = v,
+      current_position.w = w
+    );
+    
+    line_to_current_position(xy_feedrate);
+
+    #if HAS_Z_AXIS
+      // If Z needs to lower, do it after moving XY
+      if (current_position.z > z) { current_position.z = z; line_to_current_position(z_feedrate); }
+    #endif
+
+    planner.synchronize();
+  }
+#endif
+
   /**
    * Move Z to a particular height so the nozzle or deployed probe clears the bed.
    * (Use do_z_clearance_by for clearance over the current position.)
