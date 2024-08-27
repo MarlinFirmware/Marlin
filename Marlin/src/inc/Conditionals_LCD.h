@@ -26,6 +26,10 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
+#ifndef STRING_CONFIG_H_AUTHOR
+  #define STRING_CONFIG_H_AUTHOR "(anonymous)"
+#endif
+
 /**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
@@ -66,6 +70,8 @@
   #undef FILAMENT_RUNOUT_SENSOR
   #undef FILAMENT_RUNOUT_DISTANCE_MM
   #undef DISABLE_OTHER_EXTRUDERS
+  #undef THERMAL_PROTECTION_HYSTERESIS
+  #undef THERMAL_PROTECTION_PERIOD
 #endif
 
 #define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
@@ -89,8 +95,10 @@
   #define _PRUSA_MMU1             1
   #define _PRUSA_MMU2             2
   #define _PRUSA_MMU2S            3
+  #define _PRUSA_MMU3             4
   #define _EXTENDABLE_EMU_MMU2   12
   #define _EXTENDABLE_EMU_MMU2S  13
+  #define _EXTENDABLE_EMU_MMU3   14
   #define _MMU CAT(_,MMU_MODEL)
 
   #if _MMU == _PRUSA_MMU1
@@ -100,6 +108,8 @@
   #elif _MMU % 10 == _PRUSA_MMU2S
     #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
+  #elif _MMU % 10 == _PRUSA_MMU3
+    #define HAS_PRUSA_MMU3 1
   #endif
   #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
     #define HAS_EXTENDABLE_MMU 1
@@ -109,8 +119,10 @@
   #undef _PRUSA_MMU1
   #undef _PRUSA_MMU2
   #undef _PRUSA_MMU2S
+  #undef _PRUSA_MMU3
   #undef _EXTENDABLE_EMU_MMU2
   #undef _EXTENDABLE_EMU_MMU2S
+  #undef _EXTENDABLE_EMU_MMU3
 #endif
 
 #if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
@@ -144,7 +156,7 @@
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 
-#elif HAS_PRUSA_MMU2                // Průša Multi-Material Unit v2
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3 // Průša Multi-Material Unit v2/v3
 
   #define E_STEPPERS      1
   #define E_MANUAL        1
@@ -197,6 +209,10 @@
   #undef HOTEND_OFFSET_Z
 #endif
 
+//
+// Remove irrelevant Configuration.h settings
+//
+
 // Clean up E-stepper-based settings...
 #if E_STEPPERS <= 7
   #undef INVERT_E7_DIR
@@ -229,6 +245,72 @@
       #endif
     #endif
   #endif
+#endif
+
+// Clean up unused temperature sensors and sub-options
+
+#if !TEMP_SENSOR_0
+  #undef TEMP_SENSOR_0
+#endif
+#if !TEMP_SENSOR_1
+  #undef TEMP_SENSOR_1
+#endif
+#if !TEMP_SENSOR_2
+  #undef TEMP_SENSOR_2
+#endif
+#if !TEMP_SENSOR_3
+  #undef TEMP_SENSOR_3
+#endif
+#if !TEMP_SENSOR_4
+  #undef TEMP_SENSOR_4
+#endif
+#if !TEMP_SENSOR_5
+  #undef TEMP_SENSOR_5
+#endif
+#if !TEMP_SENSOR_6
+  #undef TEMP_SENSOR_6
+#endif
+#if !TEMP_SENSOR_7
+  #undef TEMP_SENSOR_7
+#endif
+
+#if TEMP_SENSOR_BED
+  #define HAS_HEATED_BED 1
+#else
+  #undef TEMP_SENSOR_BED
+  #undef THERMAL_PROTECTION_BED_HYSTERESIS
+  #undef THERMAL_PROTECTION_BED_PERIOD
+  #undef MAX_BED_POWER
+#endif
+#if !TEMP_SENSOR_CHAMBER
+  #undef TEMP_SENSOR_CHAMBER
+  #undef THERMAL_PROTECTION_CHAMBER_HYSTERESIS
+  #undef THERMAL_PROTECTION_CHAMBER_PERIOD
+  #undef CHAMBER_AUTO_FAN_PIN
+  #undef CHAMBER_AUTO_FAN_SPEED
+  #undef CHAMBER_AUTO_FAN_TEMPERATURE
+  #undef MAX_CHAMBER_POWER
+#endif
+#if !TEMP_SENSOR_COOLER
+  #undef TEMP_SENSOR_COOLER
+  #undef COOLER_AUTO_FAN_PIN
+  #undef COOLER_AUTO_FAN_SPEED
+  #undef COOLER_AUTO_FAN_TEMPERATURE
+#endif
+#if !TEMP_SENSOR_PROBE
+  #undef TEMP_SENSOR_PROBE
+#endif
+#if !TEMP_SENSOR_REDUNDANT
+  #undef TEMP_SENSOR_REDUNDANT
+#endif
+#if !TEMP_SENSOR_BOARD
+  #undef TEMP_SENSOR_BOARD
+#endif
+#if !TEMP_SENSOR_SOC
+  #undef TEMP_SENSOR_SOC
+#endif
+#if !SOFT_PWM_SCALE
+  #undef SOFT_PWM_SCALE
 #endif
 
 /**
@@ -292,12 +374,20 @@
   #endif
 #endif
 
+#if HAS_Z_AXIS
+  #ifdef Z4_DRIVER_TYPE
+    #define NUM_Z_STEPPERS 4
+  #elif defined(Z3_DRIVER_TYPE)
+    #define NUM_Z_STEPPERS 3
+  #elif defined(Z2_DRIVER_TYPE)
+    #define NUM_Z_STEPPERS 2
+  #else
+    #define NUM_Z_STEPPERS 1
+  #endif
+#endif
+
 #if !HAS_X_AXIS
   #undef AVOID_OBSTACLES
-  #undef ENDSTOPPULLUP_XMIN
-  #undef ENDSTOPPULLUP_XMAX
-  #undef X_MIN_ENDSTOP_HIT_STATE
-  #undef X_MAX_ENDSTOP_HIT_STATE
   #undef X2_DRIVER_TYPE
   #undef X_ENABLE_ON
   #undef DISABLE_X
@@ -308,14 +398,12 @@
   #undef MANUAL_X_HOME_POS
   #undef MIN_SOFTWARE_ENDSTOPS
   #undef MAX_SOFTWARE_ENDSTOPS
+  #undef MIN_SOFTWARE_ENDSTOP_X
+  #undef MAX_SOFTWARE_ENDSTOP_X
 #endif
 
 #if !HAS_Y_AXIS
   #undef AVOID_OBSTACLES
-  #undef ENDSTOPPULLUP_YMIN
-  #undef ENDSTOPPULLUP_YMAX
-  #undef Y_MIN_ENDSTOP_HIT_STATE
-  #undef Y_MAX_ENDSTOP_HIT_STATE
   #undef Y2_DRIVER_TYPE
   #undef Y_ENABLE_ON
   #undef DISABLE_Y
@@ -328,21 +416,7 @@
   #undef MAX_SOFTWARE_ENDSTOP_Y
 #endif
 
-#if HAS_Z_AXIS
-  #ifdef Z4_DRIVER_TYPE
-    #define NUM_Z_STEPPERS 4
-  #elif defined(Z3_DRIVER_TYPE)
-    #define NUM_Z_STEPPERS 3
-  #elif defined(Z2_DRIVER_TYPE)
-    #define NUM_Z_STEPPERS 2
-  #else
-    #define NUM_Z_STEPPERS 1
-  #endif
-#else
-  #undef ENDSTOPPULLUP_ZMIN
-  #undef ENDSTOPPULLUP_ZMAX
-  #undef Z_MIN_ENDSTOP_HIT_STATE
-  #undef Z_MAX_ENDSTOP_HIT_STATE
+#if !HAS_Z_AXIS
   #undef Z2_DRIVER_TYPE
   #undef Z3_DRIVER_TYPE
   #undef Z4_DRIVER_TYPE
@@ -359,10 +433,6 @@
 #endif
 
 #if !HAS_I_AXIS
-  #undef ENDSTOPPULLUP_IMIN
-  #undef ENDSTOPPULLUP_IMAX
-  #undef I_MIN_ENDSTOP_HIT_STATE
-  #undef I_MAX_ENDSTOP_HIT_STATE
   #undef I_ENABLE_ON
   #undef DISABLE_I
   #undef INVERT_I_DIR
@@ -375,10 +445,6 @@
 #endif
 
 #if !HAS_J_AXIS
-  #undef ENDSTOPPULLUP_JMIN
-  #undef ENDSTOPPULLUP_JMAX
-  #undef J_MIN_ENDSTOP_HIT_STATE
-  #undef J_MAX_ENDSTOP_HIT_STATE
   #undef J_ENABLE_ON
   #undef DISABLE_J
   #undef INVERT_J_DIR
@@ -391,10 +457,6 @@
 #endif
 
 #if !HAS_K_AXIS
-  #undef ENDSTOPPULLUP_KMIN
-  #undef ENDSTOPPULLUP_KMAX
-  #undef K_MIN_ENDSTOP_HIT_STATE
-  #undef K_MAX_ENDSTOP_HIT_STATE
   #undef K_ENABLE_ON
   #undef DISABLE_K
   #undef INVERT_K_DIR
@@ -407,10 +469,6 @@
 #endif
 
 #if !HAS_U_AXIS
-  #undef ENDSTOPPULLUP_UMIN
-  #undef ENDSTOPPULLUP_UMAX
-  #undef U_MIN_ENDSTOP_HIT_STATE
-  #undef U_MAX_ENDSTOP_HIT_STATE
   #undef U_ENABLE_ON
   #undef DISABLE_U
   #undef INVERT_U_DIR
@@ -423,10 +481,6 @@
 #endif
 
 #if !HAS_V_AXIS
-  #undef ENDSTOPPULLUP_VMIN
-  #undef ENDSTOPPULLUP_VMAX
-  #undef V_MIN_ENDSTOP_HIT_STATE
-  #undef V_MAX_ENDSTOP_HIT_STATE
   #undef V_ENABLE_ON
   #undef DISABLE_V
   #undef INVERT_V_DIR
@@ -439,10 +493,6 @@
 #endif
 
 #if !HAS_W_AXIS
-  #undef ENDSTOPPULLUP_WMIN
-  #undef ENDSTOPPULLUP_WMAX
-  #undef W_MIN_ENDSTOP_HIT_STATE
-  #undef W_MAX_ENDSTOP_HIT_STATE
   #undef W_ENABLE_ON
   #undef DISABLE_W
   #undef INVERT_W_DIR
@@ -654,11 +704,11 @@
 
 #elif ENABLED(ZONESTAR_12864OLED)
   #define IS_RRD_SC 1
-  #define U8GLIB_SH1106
+  #define U8GLIB_SH1106_SPI
 
 #elif ENABLED(ZONESTAR_12864OLED_SSD1306)
   #define IS_RRD_SC 1
-  #define IS_U8GLIB_SSD1306
+  #define U8GLIB_SSD1306_SPI
 
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL 1
@@ -716,7 +766,7 @@
 
 #elif ENABLED(SAV_3DGLCD)
 
-  #ifdef U8GLIB_SSD1306
+  #if ENABLED(U8GLIB_SSD1306)
     #define IS_U8GLIB_SSD1306 // Allow for U8GLIB_SSD1306 + SAV_3DGLCD
   #endif
   #define IS_NEWPANEL 1
@@ -815,6 +865,10 @@
 
 #endif
 
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
+  #define U8G_SPI_USE_MODE_3 1
+#endif
+
 // ST7920-based graphical displays
 #if ANY(IS_RRD_FG_SC, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
@@ -853,9 +907,12 @@
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
-// 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
+// 128x64 I2C OLED LCDs (SSD1306 / SSD1309 / SH1106)
+// ...and 128x64 SPI OLED LCDs (SSD1306 / SH1106)
 #if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
   #define HAS_U8GLIB_I2C_OLED 1
+#endif
+#if ANY(HAS_U8GLIB_I2C_OLED, U8GLIB_SSD1306_SPI, U8GLIB_SH1106_SPI)
   #define HAS_WIRED_LCD 1
   #define DOGLCD
 #endif
@@ -1095,6 +1152,9 @@
    *  - poweroff        (for PSU_CONTROL and HAS_MARLINUI_MENU)
    *
    *  ...and implements these MarlinUI methods:
+   *  - init_lcd
+   *  - clear_lcd
+   *  - clear_for_drawing
    *  - zoffset_overlay (if BABYSTEP_GFX_OVERLAY or MESH_EDIT_GFX_OVERLAY are supported)
    *  - draw_kill_screen
    *  - kill_screen
@@ -1135,6 +1195,19 @@
   #ifndef LCD_PIXEL_HEIGHT
     #define LCD_PIXEL_HEIGHT 64
   #endif
+#endif
+
+/**
+ * Unused LCD options
+ */
+#if NONE(HAS_MARLINUI_HD44780, IS_DWIN_MARLINUI, IS_TFTGLCD_PANEL) && !MB(SIMULATED)
+  #undef DISPLAY_CHARSET_HD44780
+#endif
+#if !HAS_MARLINUI_HD44780
+  #undef LCD_INFO_SCREEN_STYLE
+#endif
+#if NONE(HAS_MARLINUI_U8GLIB, HAS_TFT_LVGL_UI, DGUS_LCD_UI_E3S1PRO)
+  #undef LCD_LANGUAGE
 #endif
 
 /**
@@ -1467,12 +1540,6 @@
   #if ANY(Z_PROBE_ALLEN_KEY, MAG_MOUNTED_PROBE)
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
-  #ifndef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_BETWEEN_PROBES 5
-  #endif
-  #ifndef Z_CLEARANCE_MULTI_PROBE
-    #define Z_CLEARANCE_MULTI_PROBE 5
-  #endif
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
   #endif
@@ -1491,6 +1558,8 @@
   #undef HOMING_Z_WITH_PROBE
   #undef Z_CLEARANCE_MULTI_PROBE
   #undef Z_PROBE_ERROR_TOLERANCE
+  #undef Z_AFTER_PROBING
+  #undef Z_PROBE_LOW_POINT
   #undef MULTIPLE_PROBING
   #undef EXTRA_PROBING
   #undef PROBE_OFFSET_ZMIN
@@ -1500,19 +1569,14 @@
   #undef PROBING_HEATERS_OFF
   #undef WAIT_FOR_BED_HEATER
   #undef WAIT_FOR_HOTEND
+  #undef PROBING_FANS_OFF
+  #undef PROBING_ESTEPPERS_OFF
   #undef PROBING_STEPPERS_OFF
   #undef DELAY_BEFORE_PROBING
   #undef PREHEAT_BEFORE_PROBING
   #undef PROBING_NOZZLE_TEMP
   #undef PROBING_BED_TEMP
   #undef NOZZLE_TO_PROBE_OFFSET
-#endif
-
-#ifndef Z_CLEARANCE_DEPLOY_PROBE
-  #define Z_CLEARANCE_DEPLOY_PROBE 10
-#endif
-#ifndef Z_PROBE_LOW_POINT
-  #define Z_PROBE_LOW_POINT -5
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -1569,6 +1633,79 @@
 #endif
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
+#endif
+
+#if !HAS_MESH
+  #undef MESH_INSET
+#endif
+
+#if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)
+  #undef Z_CLEARANCE_BETWEEN_PROBES
+#endif
+
+#if NONE(PROBE_SELECTED, DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
+  #undef PROBING_MARGIN
+  #undef PROBING_MARGIN_LEFT
+  #undef PROBING_MARGIN_RIGHT
+  #undef PROBING_MARGIN_FRONT
+  #undef PROBING_MARGIN_BACK
+  #undef XY_PROBE_FEEDRATE
+#endif
+
+#if !(ANY(HAS_BED_PROBE, HAS_LEVELING) || ALL(AUTO_BED_LEVELING_UBL, HAS_MARLINUI_MENU))
+  #undef Z_CLEARANCE_DEPLOY_PROBE
+#endif
+
+#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
+  #undef Z_PROBE_FEEDRATE_FAST
+  #undef Z_PROBE_FEEDRATE_SLOW
+#endif
+
+/**
+ * Z_CLEARANCE_FOR_HOMING
+ */
+#ifndef Z_CLEARANCE_FOR_HOMING
+  #ifdef Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_FOR_HOMING Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define Z_CLEARANCE_FOR_HOMING 5
+  #endif
+#endif
+
+/**
+ * Z_CLEARANCE_BETWEEN_PROBES
+ */
+#if PROBE_SELECTED || (HAS_MARLINUI_MENU && ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION))
+  #ifndef Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
+  #endif
+#endif
+
+/**
+ * Z_CLEARANCE_BETWEEN_MANUAL_PROBES / Z_CLEARANCE_MULTI_PROBE
+ */
+#if PROBE_SELECTED
+  #if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
+    #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
+      #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
+    #else
+      #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_FOR_HOMING
+    #endif
+  #endif
+  #ifndef Z_CLEARANCE_MULTI_PROBE
+    #ifdef Z_CLEARANCE_BETWEEN_PROBES
+      #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
+    #else
+      #define Z_CLEARANCE_MULTI_PROBE 5
+    #endif
+  #endif
+#endif
+#if TOTAL_PROBING < 2
+  #undef Z_CLEARANCE_MULTI_PROBE
+#endif
+
+#if DISABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  #undef DEFAULT_LEVELING_FADE_HEIGHT
 #endif
 
 #ifdef GRID_MAX_POINTS_X
@@ -1658,6 +1795,9 @@
 #endif
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1
   #define HAS_USB_SERIAL 1
+#endif
+#ifdef RS485_SERIAL_PORT
+  #define HAS_RS485_SERIAL 1
 #endif
 #if SERIAL_PORT_2 == -2
   #define HAS_ETHERNET 1
@@ -1886,6 +2026,10 @@
  */
 #if defined(NEOPIXEL_BKGD_INDEX_FIRST) && !defined(NEOPIXEL_BKGD_INDEX_LAST)
   #define NEOPIXEL_BKGD_INDEX_LAST NEOPIXEL_BKGD_INDEX_FIRST
+#endif
+
+#if LED_POWEROFF_TIMEOUT > 0
+  #define HAS_LED_POWEROFF_TIMEOUT 1
 #endif
 
 #if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)

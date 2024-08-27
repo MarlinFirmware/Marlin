@@ -138,8 +138,8 @@ void AnycubicTFT::onKillTFT() {
   SENDLINE_DBG_PGM("J11", "TFT Serial Debug: Kill command... J11");
 }
 
-void AnycubicTFT::onSDCardStateChange(bool isInserted) {
-  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardStateChange event triggered...", isInserted);
+void AnycubicTFT::onSDCardStateChange(bool isMounted) {
+  DEBUG_ECHOLNPGM("TFT Serial Debug: onSDCardStateChange event triggered...", isMounted);
   doSDCardStateCheck();
 }
 
@@ -363,7 +363,7 @@ void AnycubicTFT::renderCurrentFileList() {
 
     SENDLINE_PGM("FN "); // Filelist start
 
-    if (!isMediaInserted() && !specialMenu) {
+    if (!isMediaMounted() && !specialMenu) {
       SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
       SENDLINE_PGM("<SPECI~1.GCO");
@@ -579,7 +579,7 @@ void AnycubicTFT::getCommandFromTFT() {
           #if HAS_MEDIA
             if (isPrintingFromMedia()) {
               SEND_PGM("A6V ");
-              if (isMediaInserted())
+              if (isMediaMounted())
                 SENDLINE(ui8tostr3rj(getProgress_percent()));
               else
                 SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
@@ -632,7 +632,7 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 13: // A13 SELECTION FILE
           #if HAS_MEDIA
-            if (isMediaInserted()) {
+            if (isMediaMounted()) {
               starpos = (strchr(tftStrchrPtr + 4, '*'));
               if (tftStrchrPtr[4] == '/') {
                 strcpy(selectedDirectory, tftStrchrPtr + 5);
@@ -831,7 +831,7 @@ void AnycubicTFT::getCommandFromTFT() {
 
         case 26: // A26 refresh SD
           #if HAS_MEDIA
-            if (isMediaInserted()) {
+            if (isMediaMounted()) {
               if (strlen(selectedDirectory) > 0) {
                 FileList currentFileList;
                 if ((selectedDirectory[0] == '.') && (selectedDirectory[1] == '.')) {
@@ -883,12 +883,12 @@ void AnycubicTFT::getCommandFromTFT() {
 }
 
 void AnycubicTFT::doSDCardStateCheck() {
-  #if ALL(HAS_MEDIA, HAS_SD_DETECT)
-    bool isInserted = isMediaInserted();
-    if (isInserted)
-      SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isInserted");
+  #if HAS_MEDIA
+    const bool isMounted = isMediaMounted();
+    if (isMounted)
+      SENDLINE_DBG_PGM("J00", "TFT Serial Debug: SD card state changed... isMounted");
     else
-      SENDLINE_DBG_PGM("J01", "TFT Serial Debug: SD card state changed... !isInserted");
+      SENDLINE_DBG_PGM("J01", "TFT Serial Debug: SD card state changed... !isMounted");
 
   #endif
 }

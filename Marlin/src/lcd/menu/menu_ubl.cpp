@@ -96,7 +96,7 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
+  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }
@@ -507,7 +507,7 @@ void _ubl_map_screen_homing() {
  * UBL Homing before LCD map
  */
 void _ubl_goto_map_screen() {
-  if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
+  if (planner.has_blocks_queued()) return; // The ACTION_ITEM will do nothing
   if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);

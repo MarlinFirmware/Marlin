@@ -5,7 +5,7 @@
 
 import pioutil
 if pioutil.is_pio_build():
-    Import("env")
+    env = pioutil.env
 
     cxxflags = [
         # "-Wno-incompatible-pointer-types",

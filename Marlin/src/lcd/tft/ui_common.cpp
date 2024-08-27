@@ -199,7 +199,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
       tft.queue.reset();
       if (!sleepCleared) {
         sleepCleared = true;
-        ui.clear_lcd();
+        ui.clear_for_drawing();
         tft.queue.async();
       }
       touch.idle();
@@ -386,7 +386,7 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
     menu_item(row, sel);
     if (isDir) tft.add_image(MENU_ITEM_ICON_X, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
     uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y) + 1;
-    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, row, sel));
+    tft.add_text(MENU_ITEM_ICON_SPACE, MENU_TEXT_Y, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, sel));
   }
 
 #endif
@@ -407,7 +407,7 @@ void MarlinUI::init_lcd() {
     tft.add_glyphs(EXTRA_FONT_NAME);
   #endif
   TERN_(TOUCH_SCREEN, touch.init());
-  clear_lcd();
+  clear_for_drawing();
 }
 
 void MarlinUI::clear_lcd() {
@@ -420,6 +420,8 @@ void MarlinUI::clear_lcd() {
   tft.fill(0, 0, TFT_WIDTH, TFT_HEIGHT, COLOR_BACKGROUND);
   cursor.set(0, 0);
 }
+
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if HAS_LCD_BRIGHTNESS
 
@@ -441,7 +443,7 @@ void MarlinUI::clear_lcd() {
 
     if (stage == CALIBRATION_NONE) {
       defer_status_screen(true);
-      clear_lcd();
+      clear_for_drawing();
       stage = touch_calibration.calibration_start();
     }
     else {
