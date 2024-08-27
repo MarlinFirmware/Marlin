@@ -1771,6 +1771,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if HAS_Z_AXIS
   static_assert(Z_CLEARANCE_FOR_HOMING <= Z_MAX_POS, "Z_CLEARANCE_FOR_HOMING must be smaller than or equal to Z_MAX_POS.");
+  #if ENABLED(Z_HOME_TO_MAX) && defined(HOME_Z_FIRST)
+    static_assert(Z_CLEARANCE_FOR_HOMING <= 0, "Z_CLEARANCE_FOR_HOMING must be smaller than or equal to 0.");
+  #endif
 #endif
 
 // Check Safe Bed Leveling settings
