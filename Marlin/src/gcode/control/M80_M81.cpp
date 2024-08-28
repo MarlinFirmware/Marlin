@@ -34,6 +34,10 @@
   #include "../../feature/power.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
+#endif
+
 #if HAS_SUICIDE
   #include "../../MarlinCore.h"
 #endif
