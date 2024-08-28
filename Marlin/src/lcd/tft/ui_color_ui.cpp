@@ -247,21 +247,21 @@ void MarlinUI::draw_status_screen() {
   tft.set_background(COLOR_BACKGROUND);
   tft.add_rectangle(0, 0, COORDINATES_W, COORDINATES_H, COLOR_AXIS_HOMED);
 
-  #if ENABLED(HAS_X_AXIS) && defined(X_MARK_X) && defined(X_MARK_Y) && defined(X_VALUE_X) && defined(X_VALUE_Y)
+  #if HAS_X_AXIS && defined(X_MARK_X) && defined(X_MARK_Y) && defined(X_VALUE_X) && defined(X_VALUE_Y)
     tft.add_text(X_MARK_X, X_MARK_Y, COLOR_AXIS_HOMED , "X");
     const bool nhx = axis_should_home(X_AXIS);
     tft_string.set(blink && nhx ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
     tft.add_text(X_VALUE_X, X_VALUE_Y, nhx ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-  #if ENABLED(HAS_Y_AXIS) && defined(Y_MARK_X) && defined(Y_MARK_Y) && defined(Y_VALUE_X) && defined(Y_VALUE_Y)
+  #if HAS_Y_AXIS && defined(Y_MARK_X) && defined(Y_MARK_Y) && defined(Y_VALUE_X) && defined(Y_VALUE_Y)
     tft.add_text(Y_MARK_X, Y_MARK_Y, COLOR_AXIS_HOMED , "Y");
     const bool nhy = axis_should_home(Y_AXIS);
     tft_string.set(blink && nhy ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
     tft.add_text(Y_VALUE_X, Y_VALUE_Y, nhy ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
   #endif
 
-  #if ENABLED(HAS_Z_AXIS) && defined(Z_MARK_X) && defined(Z_MARK_Y) && defined(Z_VALUE_X) && defined(Z_VALUE_Y) && defined(Z_VALUE_OFFSET)
+  #if HAS_Z_AXIS && defined(Z_MARK_X) && defined(Z_MARK_Y) && defined(Z_VALUE_X) && defined(Z_VALUE_Y) && defined(Z_VALUE_OFFSET)
     tft.add_text(Z_MARK_X, Z_MARK_Y, COLOR_AXIS_HOMED , "Z");
     uint16_t offset = Z_VALUE_OFFSET;
     const bool nhz = axis_should_home(Z_AXIS);

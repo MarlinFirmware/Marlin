@@ -86,8 +86,8 @@
   #if HAS_TEMPERATURE
     #define HAS_MENU_TEMPERATURE
   #endif
-  #if ENABLED(MMU2_MENUS)
-    #define HAS_MENU_MMU2
+  #if ENABLED(MMU_MENUS)
+    #define HAS_MENU_MMU
   #endif
   #if ENABLED(PASSWORD_FEATURE)
     #define HAS_MENU_PASSWORD

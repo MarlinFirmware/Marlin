@@ -387,8 +387,10 @@
   #undef Z_SAFE_HOMING
 #endif
 
-#ifndef MESH_INSET
-  #define MESH_INSET 0
+#ifdef MESH_INSET
+  #define _MESH_INSET (MESH_INSET)
+#else
+  #define _MESH_INSET 0
 #endif
 
 /**
@@ -397,7 +399,7 @@
 #if ENABLED(Z_SAFE_HOMING)
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     // Home close to center so grid points have z heights very close to 0
-    #define _SAFE_POINT(A) (((GRID_MAX_POINTS_##A) / 2) * (A##_BED_SIZE - 2 * (MESH_INSET)) / (GRID_MAX_POINTS_##A - 1) + MESH_INSET)
+    #define _SAFE_POINT(A) (((GRID_MAX_POINTS_##A) / 2) * (A##_BED_SIZE - 2 * _MESH_INSET) / (GRID_MAX_POINTS_##A - 1) + _MESH_INSET)
   #else
     #define _SAFE_POINT(A) A##_CENTER
   #endif
@@ -426,13 +428,6 @@
  */
 #if ENABLED(FWRETRACT) && !defined(MAX_AUTORETRACT)
   #define MAX_AUTORETRACT 99
-#endif
-
-/**
- * Provide a DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT in case NO_VOLUMETRICS is enabled
- */
-#ifndef DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT
-  #define DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT 0.00
 #endif
 
 /**
@@ -750,18 +745,20 @@
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if X_HOME_TO_MAX
     #ifndef X2_MAX_ENDSTOP_HIT_STATE
-      #if X2_STOP_PIN == X_MIN_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == X_MAX_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Y_MIN_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Y_MAX_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Z_MIN_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Z_MAX_PIN
-        #define X2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(X2_STOP)
+        #if X2_STOP_PIN == X_MIN_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == X_MAX_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Y_MIN_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Y_MAX_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Z_MIN_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Z_MAX_PIN
+          #define X2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(X2_MAX)
@@ -772,18 +769,20 @@
     #endif
   #else
     #ifndef X2_MIN_ENDSTOP_HIT_STATE
-      #if X2_STOP_PIN == X_MIN_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == X_MAX_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Y_MIN_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Y_MAX_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Z_MIN_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif X2_STOP_PIN == Z_MAX_PIN
-        #define X2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(X2_STOP)
+        #if X2_STOP_PIN == X_MIN_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == X_MAX_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Y_MIN_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Y_MAX_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Z_MIN_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif X2_STOP_PIN == Z_MAX_PIN
+          #define X2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(X2_MIN)
@@ -807,18 +806,20 @@
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if Y_HOME_TO_MAX
     #ifndef Y2_MAX_ENDSTOP_HIT_STATE
-      #if Y2_STOP_PIN == X_MIN_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == X_MAX_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Y_MIN_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Y_MAX_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Z_MIN_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Z_MAX_PIN
-        #define Y2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(Y2_STOP)
+        #if Y2_STOP_PIN == X_MIN_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == X_MAX_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Y_MIN_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Y_MAX_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Z_MIN_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Z_MAX_PIN
+          #define Y2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(Y2_MAX)
@@ -829,18 +830,20 @@
     #endif
   #else
     #ifndef Y2_MIN_ENDSTOP_HIT_STATE
-      #if Y2_STOP_PIN == X_MIN_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == X_MAX_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Y_MIN_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Y_MAX_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Z_MIN_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif Y2_STOP_PIN == Z_MAX_PIN
-        #define Y2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(Y2_STOP)
+        #if Y2_STOP_PIN == X_MIN_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == X_MAX_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Y_MIN_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Y_MAX_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Z_MIN_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif Y2_STOP_PIN == Z_MAX_PIN
+          #define Y2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(Y2_MIN)
@@ -865,18 +868,20 @@
 
   #if Z_HOME_TO_MAX
     #ifndef Z2_MAX_ENDSTOP_HIT_STATE
-      #if Z2_STOP_PIN == X_MIN_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == X_MAX_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Y_MIN_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Y_MAX_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Z_MIN_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Z_MAX_PIN
-        #define Z2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(Z2_STOP)
+        #if Z2_STOP_PIN == X_MIN_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == X_MAX_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Y_MIN_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Y_MAX_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Z_MIN_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Z_MAX_PIN
+          #define Z2_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(Z2_MAX)
@@ -887,18 +892,20 @@
     #endif
   #else
     #ifndef Z2_MIN_ENDSTOP_HIT_STATE
-      #if Z2_STOP_PIN == X_MIN_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == X_MAX_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Y_MIN_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Y_MAX_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Z_MIN_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-      #elif Z2_STOP_PIN == Z_MAX_PIN
-        #define Z2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+      #if PIN_EXISTS(Z2_STOP)
+        #if Z2_STOP_PIN == X_MIN_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == X_MAX_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Y_MIN_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Y_MAX_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Z_MIN_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+        #elif Z2_STOP_PIN == Z_MAX_PIN
+          #define Z2_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #endif
       #endif
     #endif
     #if !PIN_EXISTS(Z2_MIN)
@@ -918,18 +925,20 @@
   #if NUM_Z_STEPPERS >= 3
     #if Z_HOME_TO_MAX
       #ifndef Z3_MAX_ENDSTOP_HIT_STATE
-        #if Z3_STOP_PIN == X_MIN_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == X_MAX_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Y_MIN_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Y_MAX_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Z_MIN_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Z_MAX_PIN
-          #define Z3_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #if PIN_EXISTS(Z3_STOP)
+          #if Z3_STOP_PIN == X_MIN_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == X_MAX_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Y_MIN_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Y_MAX_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Z_MIN_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Z_MAX_PIN
+            #define Z3_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+          #endif
         #endif
       #endif
       #if !PIN_EXISTS(Z3_MAX)
@@ -940,18 +949,20 @@
       #endif
     #else
       #ifndef Z3_MIN_ENDSTOP_HIT_STATE
-        #if Z3_STOP_PIN == X_MIN_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == X_MAX_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Y_MIN_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Y_MAX_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Z_MIN_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-        #elif Z3_STOP_PIN == Z_MAX_PIN
-          #define Z3_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #if PIN_EXISTS(Z3_STOP)
+          #if Z3_STOP_PIN == X_MIN_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == X_MAX_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Y_MIN_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Y_MAX_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Z_MIN_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+          #elif Z3_STOP_PIN == Z_MAX_PIN
+            #define Z3_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+          #endif
         #endif
       #endif
       #if !PIN_EXISTS(Z3_MIN)
@@ -972,18 +983,20 @@
   #if NUM_Z_STEPPERS >= 4
     #if Z_HOME_TO_MAX
       #ifndef Z4_MAX_ENDSTOP_HIT_STATE
-        #if Z4_STOP_PIN == X_MIN_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == X_MAX_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Y_MIN_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Y_MAX_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Z_MIN_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Z_MAX_PIN
-          #define Z4_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #if PIN_EXISTS(Z4_STOP)
+          #if Z4_STOP_PIN == X_MIN_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == X_MAX_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Y_MIN_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Y_MAX_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Z_MIN_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Z_MAX_PIN
+            #define Z4_MAX_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+          #endif
         #endif
       #endif
       #if !PIN_EXISTS(Z4_MAX)
@@ -994,18 +1007,20 @@
       #endif
     #else
       #ifndef Z4_MIN_ENDSTOP_HIT_STATE
-        #if Z4_STOP_PIN == X_MIN_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == X_MAX_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Y_MIN_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Y_MAX_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Z_MIN_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
-        #elif Z4_STOP_PIN == Z_MAX_PIN
-          #define Z4_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+        #if PIN_EXISTS(Z4_STOP)
+          #if Z4_STOP_PIN == X_MIN_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE X_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == X_MAX_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE X_MAX_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Y_MIN_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE Y_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Y_MAX_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE Y_MAX_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Z_MIN_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE Z_MIN_ENDSTOP_HIT_STATE
+          #elif Z4_STOP_PIN == Z_MAX_PIN
+            #define Z4_MIN_ENDSTOP_HIT_STATE Z_MAX_ENDSTOP_HIT_STATE
+          #endif
         #endif
       #endif
       #if !PIN_EXISTS(Z4_MIN)
@@ -2330,6 +2345,138 @@
   #endif
 #endif
 
+#if !USE_X_MIN
+  #undef ENDSTOPPULLUP_XMIN
+  #undef ENDSTOPPULLDOWN_XMIN
+#endif
+#if !USE_X_MAX
+  #undef ENDSTOPPULLUP_XMAX
+  #undef ENDSTOPPULLDOWN_XMAX
+#endif
+#if !USE_Y_MIN
+  #undef ENDSTOPPULLUP_YMIN
+  #undef ENDSTOPPULLDOWN_YMIN
+#endif
+#if !USE_Y_MAX
+  #undef ENDSTOPPULLUP_YMAX
+  #undef ENDSTOPPULLDOWN_YMAX
+#endif
+#if !USE_Z_MIN
+  #undef ENDSTOPPULLUP_ZMIN
+  #undef ENDSTOPPULLDOWN_ZMIN
+#endif
+#if !USE_Z_MAX
+  #undef ENDSTOPPULLUP_ZMAX
+  #undef ENDSTOPPULLDOWN_ZMAX
+#endif
+#if !USE_I_MIN
+  #undef ENDSTOPPULLUP_IMIN
+  #undef ENDSTOPPULLDOWN_IMIN
+#endif
+#if !USE_I_MAX
+  #undef ENDSTOPPULLUP_IMAX
+  #undef ENDSTOPPULLDOWN_IMAX
+#endif
+#if !USE_J_MIN
+  #undef ENDSTOPPULLUP_JMIN
+  #undef ENDSTOPPULLDOWN_JMIN
+#endif
+#if !USE_J_MAX
+  #undef ENDSTOPPULLUP_JMAX
+  #undef ENDSTOPPULLDOWN_JMAX
+#endif
+#if !USE_K_MIN
+  #undef ENDSTOPPULLUP_KMIN
+  #undef ENDSTOPPULLDOWN_KMIN
+#endif
+#if !USE_K_MAX
+  #undef ENDSTOPPULLUP_KMAX
+  #undef ENDSTOPPULLDOWN_KMAX
+#endif
+#if !USE_U_MIN
+  #undef ENDSTOPPULLUP_UMIN
+  #undef ENDSTOPPULLDOWN_UMIN
+#endif
+#if !USE_U_MAX
+  #undef ENDSTOPPULLUP_UMAX
+  #undef ENDSTOPPULLDOWN_UMAX
+#endif
+#if !USE_V_MIN
+  #undef ENDSTOPPULLUP_VMIN
+  #undef ENDSTOPPULLDOWN_VMIN
+#endif
+#if !USE_V_MAX
+  #undef ENDSTOPPULLUP_VMAX
+  #undef ENDSTOPPULLDOWN_VMAX
+#endif
+#if !USE_W_MIN
+  #undef ENDSTOPPULLUP_WMIN
+  #undef ENDSTOPPULLDOWN_WMIN
+#endif
+#if !USE_W_MAX
+  #undef ENDSTOPPULLUP_WMAX
+  #undef ENDSTOPPULLDOWN_WMAX
+#endif
+
+#define PCAT(P) P##_PIN
+#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
+#if !NEED_HIT_STATE(X_MIN)
+  #undef X_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(X_MAX)
+  #undef X_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(Y_MIN)
+  #undef Y_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(Y_MAX)
+  #undef Y_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(Z_MIN)
+  #undef Z_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(Z_MAX)
+  #undef Z_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(I_MIN)
+  #undef I_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(I_MAX)
+  #undef I_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(J_MIN)
+  #undef J_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(J_MAX)
+  #undef J_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(K_MIN)
+  #undef K_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(K_MAX)
+  #undef K_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(U_MIN)
+  #undef U_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(U_MAX)
+  #undef U_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(V_MIN)
+  #undef V_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(V_MAX)
+  #undef V_MAX_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(W_MIN)
+  #undef W_MIN_ENDSTOP_HIT_STATE
+#endif
+#if !NEED_HIT_STATE(W_MAX)
+  #undef W_MAX_ENDSTOP_HIT_STATE
+#endif
+#undef NEED_HIT_STATE
+#undef PCAT
+
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
@@ -2553,8 +2700,10 @@
 #if HAS_TEMP_COOLER && PIN_EXISTS(COOLER_AUTO_FAN)
   #define HAS_AUTO_COOLER_FAN 1
 #endif
-
-#if ANY(HAS_AUTO_FAN_0, HAS_AUTO_FAN_1, HAS_AUTO_FAN_2, HAS_AUTO_FAN_3, HAS_AUTO_FAN_4, HAS_AUTO_FAN_5, HAS_AUTO_FAN_6, HAS_AUTO_FAN_7, HAS_AUTO_CHAMBER_FAN, HAS_AUTO_COOLER_FAN)
+#if ANY(HAS_AUTO_FAN_0, HAS_AUTO_FAN_1, HAS_AUTO_FAN_2, HAS_AUTO_FAN_3, HAS_AUTO_FAN_4, HAS_AUTO_FAN_5, HAS_AUTO_FAN_6, HAS_AUTO_FAN_7)
+  #define HAS_E_AUTO_FAN 1
+#endif
+#if ANY(HAS_E_AUTO_FAN, HAS_AUTO_CHAMBER_FAN, HAS_AUTO_COOLER_FAN)
   #define HAS_AUTO_FAN 1
   #define _FANOVERLAP(I,T) (T##_AUTO_FAN_PIN == E##I##_AUTO_FAN_PIN)
   #if HAS_AUTO_CHAMBER_FAN
@@ -2610,6 +2759,19 @@
 #endif
 #if ANY(AUTO_REPORT_TEMPERATURES, AUTO_REPORT_SD_STATUS, AUTO_REPORT_POSITION, AUTO_REPORT_FANS)
   #define HAS_AUTO_REPORTING 1
+#endif
+
+#if !HAS_AUTO_CHAMBER_FAN
+  #undef CHAMBER_AUTO_FAN_SPEED
+  #undef CHAMBER_AUTO_FAN_TEMPERATURE
+#endif
+#if !HAS_AUTO_COOLER_FAN
+  #undef COOLER_AUTO_FAN_SPEED
+  #undef COOLER_AUTO_FAN_TEMPERATURE
+#endif
+#if !HAS_E_AUTO_FAN
+  #undef EXTRUDER_AUTO_FAN_SPEED
+  #undef EXTRUDER_AUTO_FAN_TEMPERATURE
 #endif
 
 #if !HAS_AUTO_CHAMBER_FAN || AUTO_CHAMBER_IS_E
@@ -2730,6 +2892,10 @@
 
 #if PIN_EXISTS(FANMUX0)
   #define HAS_FANMUX 1  // Part Cooling fan multipliexer
+#else
+  #undef FANMUX0_PIN
+  #undef FANMUX1_PIN
+  #undef FANMUX2_PIN
 #endif
 
 /**
@@ -2835,6 +3001,8 @@
 #endif
 #if ANY(HAS_X_MS_PINS, HAS_X2_MS_PINS, HAS_Y_MS_PINS, HAS_Y2_MS_PINS, HAS_SOME_Z_MS_PINS, HAS_I_MS_PINS, HAS_J_MS_PINS, HAS_K_MS_PINS, HAS_U_MS_PINS, HAS_V_MS_PINS, HAS_W_MS_PINS, HAS_SOME_E_MS_PINS)
   #define HAS_MICROSTEPS 1
+#else
+  #undef MICROSTEP_MODES
 #endif
 
 /**
@@ -3079,20 +3247,12 @@
  * Bed Probing bounds
  */
 
-#ifndef PROBING_MARGIN
-  #define PROBING_MARGIN 0
-#endif
-
 #if IS_KINEMATIC
   #undef PROBING_MARGIN_LEFT
   #undef PROBING_MARGIN_RIGHT
   #undef PROBING_MARGIN_FRONT
   #undef PROBING_MARGIN_BACK
-  #define PROBING_MARGIN_LEFT 0
-  #define PROBING_MARGIN_RIGHT 0
-  #define PROBING_MARGIN_FRONT 0
-  #define PROBING_MARGIN_BACK 0
-#else
+#elif PROBING_MARGIN
   #ifndef PROBING_MARGIN_LEFT
     #define PROBING_MARGIN_LEFT PROBING_MARGIN
   #endif
@@ -3105,6 +3265,18 @@
   #ifndef PROBING_MARGIN_BACK
     #define PROBING_MARGIN_BACK PROBING_MARGIN
   #endif
+#endif
+#ifndef PROBING_MARGIN_LEFT
+  #define PROBING_MARGIN_LEFT 0
+#endif
+#ifndef PROBING_MARGIN_RIGHT
+  #define PROBING_MARGIN_RIGHT 0
+#endif
+#ifndef PROBING_MARGIN_FRONT
+  #define PROBING_MARGIN_FRONT 0
+#endif
+#ifndef PROBING_MARGIN_BACK
+  #define PROBING_MARGIN_BACK 0
 #endif
 
 #if ENABLED(DELTA)
@@ -3125,10 +3297,6 @@
   #endif
 #endif
 
-#ifndef DEFAULT_LEVELING_FADE_HEIGHT
-  #define DEFAULT_LEVELING_FADE_HEIGHT 0.0
-#endif
-
 #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
   #define LEVELED_SEGMENT_LENGTH 5
 #endif
@@ -3141,16 +3309,16 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define _MESH_MIN_X (X_MIN_BED + (MESH_INSET))
-    #define _MESH_MIN_Y (Y_MIN_BED + (MESH_INSET))
-    #define _MESH_MAX_X (X_MAX_BED - (MESH_INSET))
-    #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
+    #define _MESH_MIN_X (X_MIN_BED + _MESH_INSET)
+    #define _MESH_MIN_Y (Y_MIN_BED + _MESH_INSET)
+    #define _MESH_MAX_X (X_MAX_BED - _MESH_INSET)
+    #define _MESH_MAX_Y (Y_MAX_BED - _MESH_INSET)
   #else
     // Boundaries for Cartesian probing based on set limits
-    #define _MESH_MIN_X (_MAX(X_MIN_BED + (MESH_INSET), X_MIN_POS)) // UBL is careful not to probe off the bed. It doesn't
-    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + (MESH_INSET), Y_MIN_POS)) // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions.
-    #define _MESH_MAX_X (_MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
-    #define _MESH_MAX_Y (_MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
+    #define _MESH_MIN_X (_MAX(X_MIN_BED + _MESH_INSET, X_MIN_POS)) // UBL is careful not to probe off the bed. It doesn't
+    #define _MESH_MIN_Y (_MAX(Y_MIN_BED + _MESH_INSET, Y_MIN_POS)) // need NOZZLE_TO_PROBE_OFFSET in the mesh dimensions.
+    #define _MESH_MAX_X (_MIN(X_MAX_BED - _MESH_INSET, X_MAX_POS))
+    #define _MESH_MAX_Y (_MIN(Y_MAX_BED - _MESH_INSET, Y_MAX_POS))
   #endif
 
   // These may be overridden in Configuration.h if a smaller area is desired
@@ -3213,34 +3381,6 @@
 #else
   #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
   #undef SOUND_ON_DEFAULT
-#endif
-
-/**
- * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
- */
-#ifndef Z_CLEARANCE_FOR_HOMING
-  #ifdef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_FOR_HOMING Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_FOR_HOMING 0
-  #endif
-#endif
-
-#ifndef Z_CLEARANCE_BETWEEN_PROBES
-  #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
-#endif
-#if PROBE_SELECTED
-  #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_FOR_HOMING
-  #endif
-  #ifndef Z_CLEARANCE_MULTI_PROBE
-    #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
-  #endif
-  #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
-    #define BLTOUCH_DELAY 500
-  #endif
 #endif
 
 // Define a starting height for measuring manual probe points

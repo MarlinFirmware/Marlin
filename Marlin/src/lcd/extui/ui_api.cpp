@@ -50,7 +50,6 @@
 #include "../../gcode/gcode.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/probe.h"
 #include "../../module/temperature.h"
 #include "../../module/printcounter.h"
 #include "../../libs/duration_t.h"
@@ -80,6 +79,10 @@
 
 #if ENABLED(BACKLASH_GCODE)
   #include "../../feature/backlash.h"
+#endif
+
+#if HAS_BED_PROBE
+  #include "../../module/probe.h"
 #endif
 
 #if HAS_LEVELING
@@ -1067,7 +1070,7 @@ namespace ExtUI {
   void injectCommands_P(PGM_P const gcode) { queue.inject_P(gcode); }
   void injectCommands(char * const gcode)  { queue.inject(gcode); }
 
-  bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
+  bool commandsInQueue() { return (planner.has_blocks_queued() || queue.has_commands_queued()); }
 
   bool isAxisPositionKnown(const axis_t axis) { return axis_is_trusted((AxisEnum)axis); }
   bool isAxisPositionKnown(const extruder_t) { return axis_is_trusted(E_AXIS); }
@@ -1186,6 +1189,10 @@ namespace ExtUI {
 
   bool isPrintingPaused() {
     return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
+  }
+
+  bool isOngoingPrintJob() {
+    return isPrintingFromMedia() || printJobOngoing();
   }
 
   bool isMediaMounted() { return TERN0(HAS_MEDIA, card.isMounted()); }

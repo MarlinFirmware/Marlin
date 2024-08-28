@@ -25,6 +25,12 @@
 #define __MARLIN_FIRMWARE__
 #endif
 
+#if __has_include("../../Config.h")
+  #include "../../Config.h"
+#else
+  #define USE_STD_CONFIGS 1
+#endif
+
 //
 // Prefix header to acquire configurations
 //
@@ -36,7 +42,10 @@
 
 #include "../core/macros.h"
 #include "../core/boards.h"
-#include "../../Configuration.h"
+
+#if USE_STD_CONFIGS
+  #include "../../Configuration.h"
+#endif
 
 #ifdef CUSTOM_VERSION_FILE
   #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
@@ -53,7 +62,10 @@
 #endif
 
 #include "../core/drivers.h"
-#include "../../Configuration_adv.h"
+
+#if USE_STD_CONFIGS
+  #include "../../Configuration_adv.h"
+#endif
 
 #include "Conditionals_adv.h"
 

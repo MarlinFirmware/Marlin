@@ -76,10 +76,12 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if HAS_PRUSA_MMU1
-  #include "../feature/mmu/mmu.h"
+#if HAS_PRUSA_MMU3
+  #include "../feature/mmu3/mmu2.h"
 #elif HAS_PRUSA_MMU2
   #include "../feature/mmu/mmu2.h"
+#elif HAS_PRUSA_MMU1
+  #include "../feature/mmu/mmu.h"
 #endif
 
 #if HAS_MARLINUI_MENU
@@ -1121,6 +1123,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
       mixer.T(new_tool);
     #endif
+
+  #elif HAS_PRUSA_MMU3
+
+    UNUSED(no_move);
+
+    mmu3.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 

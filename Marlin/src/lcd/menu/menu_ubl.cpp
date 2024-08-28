@@ -507,7 +507,7 @@ void _ubl_map_screen_homing() {
  * UBL Homing before LCD map
  */
 void _ubl_goto_map_screen() {
-  if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
+  if (planner.has_blocks_queued()) return; // The ACTION_ITEM will do nothing
   if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);

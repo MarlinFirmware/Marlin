@@ -229,12 +229,14 @@
   #include "feature/controllerfan.h"
 #endif
 
-#if HAS_PRUSA_MMU1
-  #include "feature/mmu/mmu.h"
-#endif
-
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "feature/mmu3/mmu2.h"
+  #include "feature/mmu3/mmu2_reporting.h"
+  #include "feature/mmu3/SpoolJoin.h"
+#elif HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
+#elif HAS_PRUSA_MMU1
+  #include "feature/mmu/mmu.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -325,7 +327,7 @@ bool pin_is_protected(const pin_t pin) {
 #pragma GCC diagnostic pop
 
 bool printer_busy() {
-  return planner.movesplanned() || printingIsActive();
+  return planner.has_blocks_queued() || printingIsActive();
 }
 
 /**
@@ -351,6 +353,7 @@ void startOrResumeJob() {
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
     TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
+    TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
   }
   print_job_timer.start();
 }
@@ -785,7 +788,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
-    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()))
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu3.enabled()))
       runout.run();
   #endif
 
@@ -850,7 +853,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Update the Průša MMU2
-  TERN_(HAS_PRUSA_MMU2, mmu2.mmu_loop());
+  #if HAS_PRUSA_MMU3
+    mmu3.mmu_loop();
+  #elif HAS_PRUSA_MMU2
+    mmu2.mmu_loop();
+  #endif
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
@@ -1586,7 +1593,11 @@ void setup() {
     SETUP_RUN(stepper_driver_backward_report());
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU3
+    if (mmu3.mmu_hw_enabled) SETUP_RUN(mmu3.start());
+    SETUP_RUN(mmu3.status());
+    SETUP_RUN(spooljoin.initStatus());
+  #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
 
