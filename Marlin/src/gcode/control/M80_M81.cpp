@@ -84,6 +84,8 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
+  TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
+
   safe_delay(1000); // Wait 1 second before switching off
 
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
