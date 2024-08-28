@@ -55,7 +55,9 @@
 
 #include "Version.h"
 
+#include "Conditionals_axes.h"
 #include "Conditionals_LCD.h"
+#include "Conditionals_etc.h"
 
 #ifndef __MARLIN_DEPS__
   #include HAL_PATH(.., inc/Conditionals_LCD.h)

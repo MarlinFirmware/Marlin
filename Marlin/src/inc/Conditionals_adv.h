@@ -1403,31 +1403,6 @@
   #endif
 #endif
 
-// Toolchange Event G-code
-#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
-  #undef TC_GCODE_USE_GLOBAL_X
-  #undef TC_GCODE_USE_GLOBAL_Y
-  #undef TC_GCODE_USE_GLOBAL_Z
-#endif
-
-// TOOLCHANGE_MIGRATION_FEATURE - Clean up after sloppy auto config
-#if DISABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  #undef MIGRATION_ZRAISE
-  #undef MIGRATION_FS_EXTRA_PRIME
-  #undef MIGRATION_FS_WIPE_RETRACT
-  #undef MIGRATION_FS_FAN_SPEED
-  #undef MIGRATION_FS_FAN_TIME
-  #undef TOOLCHANGE_MIGRATION_DO_PARK
-#endif
-// TOOLCHANGE_PARK - Clean up after sloppy auto config
-#if DISABLED(TOOLCHANGE_PARK)
-  #undef TOOLCHANGE_PARK_XY
-  #undef TOOLCHANGE_PARK_XY_FEEDRATE
-  #undef TOOLCHANGE_PARK_X_ONLY
-  #undef TOOLCHANGE_PARK_Y_ONLY
-  #undef TOOLCHANGE_MIGRATION_DO_PARK
-#endif
-
 // Multi-Stepping Limit
 #ifndef MULTISTEPPING_LIMIT
   #define MULTISTEPPING_LIMIT 128
@@ -1439,16 +1414,6 @@
   #define NUM_REDUNDANT_FANS 1
 #endif
 
-// Clean up if only mm units are used
-#if DISABLED(INCH_MODE_SUPPORT)
-  #undef MANUAL_MOVE_DISTANCE_IN
-#endif
-
-// Clean up if no rotational axes exist
-#if !HAS_ROTATIONAL_AXES
-  #undef MANUAL_MOVE_DISTANCE_DEG
-#endif
-
 // Power-Loss Recovery
 #if ENABLED(POWER_LOSS_RECOVERY)
   #ifdef PLR_BED_THRESHOLD
@@ -1457,4 +1422,40 @@
   #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
     #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
   #endif
+#endif
+
+// Toolchange Event G-code
+#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
+  #undef TC_GCODE_USE_GLOBAL_X
+  #undef TC_GCODE_USE_GLOBAL_Y
+  #undef TC_GCODE_USE_GLOBAL_Z
+#endif
+
+// Clean up for TOOLCHANGE_MIGRATION_FEATURE
+#if DISABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #undef MIGRATION_ZRAISE
+  #undef MIGRATION_FS_EXTRA_PRIME
+  #undef MIGRATION_FS_WIPE_RETRACT
+  #undef MIGRATION_FS_FAN_SPEED
+  #undef MIGRATION_FS_FAN_TIME
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#endif
+
+// Clean up for TOOLCHANGE_PARK
+#if DISABLED(TOOLCHANGE_PARK)
+  #undef TOOLCHANGE_PARK_XY
+  #undef TOOLCHANGE_PARK_XY_FEEDRATE
+  #undef TOOLCHANGE_PARK_X_ONLY
+  #undef TOOLCHANGE_PARK_Y_ONLY
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#endif
+
+// Clean up if only mm units are used
+#if DISABLED(INCH_MODE_SUPPORT)
+  #undef MANUAL_MOVE_DISTANCE_IN
+#endif
+
+// Clean up if no rotational axes exist
+#if !HAS_ROTATIONAL_AXES
+  #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
