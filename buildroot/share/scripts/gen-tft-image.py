@@ -26,30 +26,31 @@ import sys, struct
 from PIL import Image
 
 def image2bin(image, output_file):
+    print(f"Converting image with dimensions {image.size[0]}x{image.size[1]}...")
     if output_file.endswith(('.c', '.cpp')):
-        f = open(output_file, 'wt')
         is_cpp = True
+        f = open(output_file, 'wt')
         f.write("const uint16_t image[%d] = {\n" % (image.size[1] * image.size[0]))
     else:
-        f = open(output_file, 'wb')
         is_cpp = False
+        f = open(output_file, 'wb')
     pixs = image.load()
     for y in range(image.size[1]):
+        f.write(" ")
         for x in range(image.size[0]):
             R = pixs[x, y][0] >> 3
             G = pixs[x, y][1] >> 2
             B = pixs[x, y][2] >> 3
             rgb = (R << 11) | (G << 5) | B
+            if rgb == 0: rgb = 1
             if is_cpp:
-                strHex = '0x{0:04X}, '.format(rgb)
+                strHex = " 0x{0:04X},".format(rgb)
                 f.write(strHex)
             else:
                 f.write(struct.pack("B", (rgb & 0xFF)))
                 f.write(struct.pack("B", (rgb >> 8) & 0xFF))
-        if is_cpp:
-            f.write("\n")
-    if is_cpp:
-        f.write("};\n")
+        if is_cpp: f.write("\n")
+    if is_cpp: f.write("};\n")
     f.close()
 
 if len(sys.argv) <= 2:
