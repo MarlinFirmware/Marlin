@@ -46,6 +46,26 @@
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
+  #undef TEMP_SENSOR_0
+  #undef TEMP_SENSOR_1
+  #undef TEMP_SENSOR_2
+  #undef TEMP_SENSOR_3
+  #undef TEMP_SENSOR_4
+  #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
+  #undef SINGLENOZZLE
+  #undef SWITCHING_EXTRUDER
+  #undef MECHANICAL_SWITCHING_EXTRUDER
+  #undef SWITCHING_NOZZLE
+  #undef MECHANICAL_SWITCHING_NOZZLE
+  #undef MIXING_EXTRUDER
+  #undef HOTEND_IDLE_TIMEOUT
+  #undef DISABLE_E
+  #undef PREVENT_LENGTHY_EXTRUDE
+  #undef FILAMENT_RUNOUT_SENSOR
+  #undef FILAMENT_RUNOUT_DISTANCE_MM
+  #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
 #define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
@@ -162,6 +182,11 @@
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
   #endif
+#else
+  #undef MPCTEMP
+  #undef PIDTEMP
+  #undef PREVENT_COLD_EXTRUSION
+  #undef THERMAL_PROTECTION_HOTENDS
 #endif
 
 // More than one hotend...
@@ -177,6 +202,10 @@
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
+#else
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+  #undef HOTEND_OFFSET_Z
 #endif
 
 /**
@@ -514,185 +543,3 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-/**
- * Extruders have some combination of stepper motors and hotends
- * so we separate these concepts into the defines:
- *
- *  EXTRUDERS    - Number of Selectable Tools
- *  HOTENDS      - Number of hotends, whether connected or separate
- *  E_STEPPERS   - Number of actual E stepper motors
- *  E_MANUAL     - Number of E steppers for LCD move options
- *
- * These defines must be simple constants for use in REPEAT, etc.
- */
-#if EXTRUDERS
-  #define HAS_EXTRUDERS 1
-  #if EXTRUDERS > 1
-    #define HAS_MULTI_EXTRUDER 1
-  #endif
-  #define E_AXIS_N(E) AxisEnum(E_AXIS + E_INDEX_N(E))
-#else
-  #undef EXTRUDERS
-  #define EXTRUDERS 0
-  #undef TEMP_SENSOR_0
-  #undef TEMP_SENSOR_1
-  #undef TEMP_SENSOR_2
-  #undef TEMP_SENSOR_3
-  #undef TEMP_SENSOR_4
-  #undef TEMP_SENSOR_5
-  #undef TEMP_SENSOR_6
-  #undef TEMP_SENSOR_7
-  #undef SINGLENOZZLE
-  #undef SWITCHING_EXTRUDER
-  #undef MECHANICAL_SWITCHING_EXTRUDER
-  #undef SWITCHING_NOZZLE
-  #undef MECHANICAL_SWITCHING_NOZZLE
-  #undef MIXING_EXTRUDER
-  #undef HOTEND_IDLE_TIMEOUT
-  #undef DISABLE_E
-  #undef PREVENT_LENGTHY_EXTRUDE
-  #undef FILAMENT_RUNOUT_SENSOR
-  #undef FILAMENT_RUNOUT_DISTANCE_MM
-  #undef DISABLE_OTHER_EXTRUDERS
-#endif
-
-#define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
-#define E_TERN_(N)  TERN_(HAS_MULTI_EXTRUDER, N)
-#define E_TERN0(N)  TERN0(HAS_MULTI_EXTRUDER, N)
-
-#if ANY(SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_EXTRUDER)
-  #define HAS_SWITCHING_EXTRUDER 1
-#endif
-#if ANY(SWITCHING_NOZZLE, MECHANICAL_SWITCHING_NOZZLE)
-  #define HAS_SWITCHING_NOZZLE 1
-#endif
-
-/**
- *  Multi-Material-Unit supported models
- */
-#ifdef MMU_MODEL
-  #define HAS_MMU 1
-  #define SINGLENOZZLE
-
-  #define _PRUSA_MMU1             1
-  #define _PRUSA_MMU2             2
-  #define _PRUSA_MMU2S            3
-  #define _PRUSA_MMU3             4
-  #define _EXTENDABLE_EMU_MMU2   12
-  #define _EXTENDABLE_EMU_MMU2S  13
-  #define _EXTENDABLE_EMU_MMU3   14
-  #define _MMU CAT(_,MMU_MODEL)
-
-  #if _MMU == _PRUSA_MMU1
-    #define HAS_PRUSA_MMU1 1
-  #elif _MMU % 10 == _PRUSA_MMU2
-    #define HAS_PRUSA_MMU2 1
-  #elif _MMU % 10 == _PRUSA_MMU2S
-    #define HAS_PRUSA_MMU2 1
-    #define HAS_PRUSA_MMU2S 1
-  #elif _MMU % 10 == _PRUSA_MMU3
-    #define HAS_PRUSA_MMU3 1
-  #endif
-  #if _MMU == _EXTENDABLE_EMU_MMU2 || _MMU == _EXTENDABLE_EMU_MMU2S
-    #define HAS_EXTENDABLE_MMU 1
-  #endif
-
-  #undef _MMU
-  #undef _PRUSA_MMU1
-  #undef _PRUSA_MMU2
-  #undef _PRUSA_MMU2S
-  #undef _PRUSA_MMU3
-  #undef _EXTENDABLE_EMU_MMU2
-  #undef _EXTENDABLE_EMU_MMU2S
-  #undef _EXTENDABLE_EMU_MMU3
-#endif
-
-#if ENABLED(E_DUAL_STEPPER_DRIVERS) // E0/E1 steppers act in tandem as E0
-
-  #define E_STEPPERS      2
-  #define E_MANUAL        1
-
-#elif HAS_SWITCHING_EXTRUDER        // One stepper for every two EXTRUDERS
-
-  #if EXTRUDERS > 4
-    #define E_STEPPERS    3
-  #elif EXTRUDERS > 2
-    #define E_STEPPERS    2
-  #else
-    #define E_STEPPERS    1
-  #endif
-
-#elif ENABLED(MIXING_EXTRUDER)      // Multiple feeds are mixed proportionally
-
-  #define E_STEPPERS      MIXING_STEPPERS
-  #define E_MANUAL        1
-  #if MIXING_STEPPERS == 2
-    #define HAS_DUAL_MIXING 1
-  #endif
-  #ifndef MIXING_VIRTUAL_TOOLS
-    #define MIXING_VIRTUAL_TOOLS 1
-  #endif
-
-#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
-
-  #define E_STEPPERS      EXTRUDERS
-  #define E_MANUAL        EXTRUDERS
-
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3 // Průša Multi-Material Unit v2/v3
-
-  #define E_STEPPERS      1
-  #define E_MANUAL        1
-
-#endif
-
-// Default E steppers / manual motion is one per extruder
-#ifndef E_STEPPERS
-  #define E_STEPPERS EXTRUDERS
-#endif
-#ifndef E_MANUAL
-  #define E_MANUAL EXTRUDERS
-#endif
-
-// Number of hotends...
-#if ANY(SINGLENOZZLE, MIXING_EXTRUDER)                // Only one for singlenozzle or mixing extruder
-  #define HOTENDS 1
-#elif HAS_SWITCHING_EXTRUDER && !HAS_SWITCHING_NOZZLE // One for each pair of abstract "extruders"
-  #define HOTENDS E_STEPPERS
-#elif TEMP_SENSOR_0
-  #define HOTENDS EXTRUDERS                           // One per extruder if at least one heater exists
-#else
-  #define HOTENDS 0                                   // A machine with no hotends at all can still extrude
-#endif
-
-// At least one hotend...
-#if HOTENDS
-  #define HAS_HOTEND 1
-  #ifndef HOTEND_OVERSHOOT
-    #define HOTEND_OVERSHOOT 15
-  #endif
-#else
-  #undef MPCTEMP
-  #undef PIDTEMP
-  #undef PREVENT_COLD_EXTRUSION
-  #undef THERMAL_PROTECTION_HOTENDS
-#endif
-
-// More than one hotend...
-#if HOTENDS > 1
-  #define HAS_MULTI_HOTEND 1
-  #define HAS_HOTEND_OFFSET 1
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Z
-    #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
-  #endif
-#else
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-  #undef HOTEND_OFFSET_Z
-#endif
