@@ -24,12 +24,20 @@
 
 // -------------------------------- Core Parameters --------------------------------
 
-#define MENU_TEXT_X                 16
+#define MENU_TEXT_X                 (5 + 32 + 5 + 6)
 #define MENU_TEXT_Y                 tft_string.vcenter(MENU_ITEM_HEIGHT)
 
 #define MENU_ITEM_ICON_X            5
 #define MENU_ITEM_ICON_Y            5
-#define MENU_ITEM_ICON_SPACE        42
+#define MENU_ITEM_ICON_SPACE        (5 + 32 + 5)
+
+#ifndef MENU_ITEM_SUBMENU_ICON_X
+  #define MENU_ITEM_SUBMENU_ICON_X  (TFT_WIDTH - 32 - 32)
+#endif
+
+#ifndef MENU_ITEM_BACK_LINE_SHIFT
+  #define MENU_ITEM_BACK_LINE_SHIFT -32
+#endif
 
 #define MENU_ITEM_HEIGHT            43
 #define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
