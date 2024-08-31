@@ -1471,7 +1471,7 @@
  * For information about this sensor https://github.com/bigtreetech/MicroProbe
  *
  * Also requires PROBE_ENABLE_DISABLE
- * With FT_MOTION requires ENDSTOP_INTERRUPTS_FEATURE or Z_CURRENT_HOME lower than Z_CURRENT (300mA is a good start)
+ * 
  */
 //#define BIQU_MICROPROBE_V1  // Triggers HIGH
 //#define BIQU_MICROPROBE_V2  // Triggers LOW

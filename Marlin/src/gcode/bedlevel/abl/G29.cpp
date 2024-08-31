@@ -56,6 +56,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#if ENABLED(FT_MOTION)
+  #include "../../../module/ft_motion.h"
+#endif
+
 #if ABL_USES_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR  abl.meshCount.x
@@ -226,6 +230,21 @@ public:
  *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
+
+  #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+      // Disable Fixed-Time Motion for probing
+    struct OnExit {
+      bool isactive;
+      OnExit() {
+        isactive = ftMotion.cfg.active;
+        ftMotion.cfg.active = false;
+      }
+      ~OnExit() {
+        ftMotion.cfg.active = isactive;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
 
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 

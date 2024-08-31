@@ -45,6 +45,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -62,6 +66,21 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+
+  #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+      // Disable Fixed-Time Motion for probing
+    struct OnExit {
+      bool isactive;
+      OnExit() {
+        isactive = ftMotion.cfg.active;
+        ftMotion.cfg.active = false;
+      }
+      ~OnExit() {
+        ftMotion.cfg.active = isactive;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
 
   DEBUG_SECTION(log_G29, "G29", true);
 
