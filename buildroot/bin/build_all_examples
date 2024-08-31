@@ -51,13 +51,13 @@ LIMIT=1000
 while getopts 'aB:b:ce:fdhl:npr:sv-:' OFLAG; do
   case "${OFLAG}" in
     a) ARCHIVE=1              ; bugout "Archiving" ;;
-    B) OPATH="$OPTARG"        ; bugout "Base: $OPATH" ;;
+    B) OPATH=$OPTARG          ; bugout "Base: $OPATH" ;;
     b) BRANCH=$OPTARG         ; bugout "Branch: $BRANCH" ;;
     f) NOFAIL=1               ; bugout "Continue on Fail" ;;
-    r) ISRES=1 ; FIRST_CONF="$OPTARG" ; bugout "Resume: $FIRST_CONF" ;;
+    r) ISRES=1 ; FIRST_CONF=$OPTARG ; bugout "Resume: $FIRST_CONF" ;;
     c) CONTINUE=1             ; bugout "Continue" ;;
     s) CONTSKIP=1             ; bugout "Continue, skipping" ;;
-    e) CEXPORT="$OPTARG"      ; bugout "Export $CEXPORT" ;;
+    e) CEXPORT=$OPTARG        ; bugout "Export $CEXPORT" ;;
     h) EXIT_USAGE=1 ; break ;;
     l) LIMIT=$OPTARG          ; bugout "Limit to $LIMIT build(s)" ;;
   d|v) DEBUG=1                ; bugout "Debug ON" ;;
@@ -66,13 +66,13 @@ while getopts 'aB:b:ce:fdhl:npr:sv-:' OFLAG; do
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
       archive) ARCHIVE=1      ; bugout "Archiving" ;;
-         base) OPATH="$OVAL"  ; bugout "Base: $OPATH" ;;
+         base) OPATH=$OVAL    ; bugout "Base: $OPATH" ;;
        branch) BRANCH=$OVAL   ; bugout "Branch: $BRANCH" ;;
        nofail) NOFAIL=1       ; bugout "Continue on Fail" ;;
-       resume) ISRES=1 ; FIRST_CONF="$OVAL" ; bugout "Resume: $FIRST_CONF" ;;
+       resume) ISRES=1 ; FIRST_CONF=$OVAL ; bugout "Resume: $FIRST_CONF" ;;
      continue) CONTINUE=1     ; bugout "Continue" ;;
          skip) CONTSKIP=1     ; bugout "Continue, skipping" ;;
-       export) CEXPORT="$OVAL"; bugout "Export $EXPORT" ;;
+       export) CEXPORT=$OVAL  ; bugout "Export $EXPORT" ;;
         limit) LIMIT=$OVAL    ; bugout "Limit to $LIMIT build(s)" ;;
          help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
         debug) DEBUG=1        ; bugout "Debug ON" ;;
@@ -98,7 +98,7 @@ echo "Restore your configs with 'git checkout -f' or 'git reset --hard HEAD'."
 echo
 
 [[ -n $PURGE ]] && rm -f "$STAT_FILE"
-[[ -z $FIRST_CONF && -f $STAT_FILE ]] && IFS='*' read BRANCH FIRST_CONF <"$STAT_FILE"
+[[ -z $FIRST_CONF && -f "$STAT_FILE" ]] && IFS='*' read BRANCH FIRST_CONF <"$STAT_FILE"
 
 # If -c is given start from the last attempted build
 if ((CONTINUE)); then
@@ -126,29 +126,29 @@ fi
 
 # Create a temporary folder inside .pio
 if [[ -n $OPATH ]]; then
-  TMP=$OPATH
-  [[ -d "$TMP" ]] || { echo "Given base -B $TMP not found." ; exit ; }
+  [[ -d "$OPATH" ]] || { echo "Given base -B $OPATH not found." ; exit ; }
 else
   # Make a Configurations temporary folder if needed
-  TMP=./.pio/build-$BRANCH
-  [[ -d "$TMP" ]] || mkdir -p $TMP
+  OPATH=./.pio/build-$BRANCH
+  [[ -d "$OPATH" ]] || mkdir -p "$OPATH"
   # Download the specified Configurations branch if needed
-  if [[ ! -e "$TMP/README.md" ]]; then
-    echo "Fetching Configurations from GitHub to $TMP"
-    git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$TMP" || { echo "Failed to clone the configuration repository"; exit ; }
+  if [[ ! -e "$OPATH/README.md" ]]; then
+    echo "Fetching Configurations from GitHub to $OPATH"
+    git clone --depth=1 --single-branch --branch "$BRANCH" $GITREPO "$OPATH" || { echo "Failed to clone the configuration repository"; exit ; }
   fi
 fi
 
 # Build
 echo -e "=====================\nProceed with builds...\n====================="
 shopt -s nullglob
+shopt -s globstar
 IFS='
 '
-CONF_TREE=$( ls -d "$TMP"/config/examples/*/ "$TMP"/config/examples/*/*/ "$TMP"/config/examples/*/*/*/ "$TMP"/config/examples/*/*/*/*/ | grep -vE ".+\.(\w+)$" )
+CONF_TREE=$( ls -d "$OPATH"/config/examples/**/ | grep -vE ".+\.(\w+)$" )
 for CONF in $CONF_TREE ; do
 
   # Get a config's directory name
-  DIR=$( echo $CONF | "$SED" "s|$TMP/config/examples/||" )
+  DIR=$( echo "$CONF" | "$SED" "s|$OPATH/config/examples/||" )
 
   # If looking for a config, skip others
   [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
@@ -159,10 +159,10 @@ for CONF in $CONF_TREE ; do
   [[ $SKIP_CONF ]] && { unset SKIP_CONF ; continue ; }
 
   # At least one config file is required here
-  compgen -G "${CONF}Con*.h" > /dev/null || continue
+  compgen -G "${CONF}Configuration*.h" > /dev/null || continue
 
   # Command arguments for 'build_example'
-  CARGS=("-b" "$TMP" "-c" "$DIR")
+  CARGS=("-b" "$OPATH" "-c" "$DIR")
 
   # Exporting? Add -e argument
   ((CEXPORT)) && CARGS+=("-e" "$CEXPORT")
@@ -174,7 +174,7 @@ for CONF in $CONF_TREE ; do
   ((ARCHIVE)) && CARGS+=("-a")
 
   # Build or print build command for --nobuild
-  if [[ $DRYRUN ]]; then
+  if ((DRYRUN)); then
     echo -e "\033[0;32m[DRYRUN] build_example ${CARGS[@]}\033[0m"
   else
     # Remember where we are in case of failure

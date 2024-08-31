@@ -106,6 +106,12 @@
 #ifndef COLOR_MENU_TEXT
   #define COLOR_MENU_TEXT         COLOR_YELLOW
 #endif
+#ifndef COLOR_MENU_TEXT
+  #define COLOR_MENU_STATIC_TEXT  COLOR_SILVER
+#endif
+#ifndef COLOR_MENU_BACK_TEXT
+  #define COLOR_MENU_BACK_TEXT    COLOR_CYAN
+#endif
 #ifndef COLOR_MENU_VALUE
   #define COLOR_MENU_VALUE        COLOR_WHITE
 #endif

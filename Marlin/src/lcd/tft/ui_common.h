@@ -114,7 +114,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink);
 
 void text_line(const uint16_t y, uint16_t color=COLOR_BACKGROUND);
 void menu_line(const uint8_t row, uint16_t color=COLOR_BACKGROUND);
-void menu_item(const uint8_t row, bool sel = false);
+uint16_t menu_item(const uint8_t row, bool sel = false);
 
 typedef void (*screenFunc_t)();
 void add_control(

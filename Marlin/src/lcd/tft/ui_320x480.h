@@ -29,7 +29,7 @@
 
 #define MENU_ITEM_ICON_X            5
 #define MENU_ITEM_ICON_Y            5
-#define MENU_ITEM_ICON_SPACE        42
+#define MENU_ITEM_ICON_SPACE        (5 + 32 + 5)
 
 #define MENU_ITEM_HEIGHT            43
 #define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
