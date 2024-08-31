@@ -22,9 +22,15 @@
 #pragma once
 
 /**
- * Conditionals_LCD.h
+ * Conditionals-2-LCD.h
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
+
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "Conditionals-1-axes.h"
+//========================================================
 
 // Support for SD Card and other file storage
 #if ENABLED(SDSUPPORT)
