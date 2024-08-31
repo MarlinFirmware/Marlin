@@ -1465,3 +1465,13 @@
 #if !HAS_ROTATIONAL_AXES
   #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
+
+// Only report "Not SD printing" when the state changes
+// To get legacy behavior define AUTO_REPORT_SD_STATUS 2
+#ifdef AUTO_REPORT_SD_STATUS
+  #if ENABLED(AUTO_REPORT_SD_STATUS) // Not blank, 1, or true
+    #define QUIETER_AUTO_REPORT_SD_STATUS
+  #endif
+  #undef AUTO_REPORT_SD_STATUS
+  #define AUTO_REPORT_SD_STATUS
+#endif
