@@ -76,7 +76,8 @@ rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h
 
 # Copy configurations into the Marlin folder
 echo "Getting configuration files from $SUB"
-cp "$BASE/config/default"/*.h "$SUB"/*.h Marlin/ 2>/dev/null
+cp "$SUB"/*.h "$BASE/config/default"/*.h Marlin/ 2>/dev/null
+
 
 rm -f Marlin/Config.h Marlin/Config-export.h
 
