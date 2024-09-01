@@ -19,7 +19,9 @@ void sd_mmc_spi_mem_init() {
 }
 
 inline bool media_ready() {
-  return IS_SD_INSERTED() && !IS_SD_PRINTING() && !IS_SD_FILE_OPEN() && card.isMounted();
+  return DISABLED(DISABLE_DUE_SD_MMC)
+          && IS_SD_MOUNTED() && IS_SD_INSERTED()
+          && !IS_SD_FILE_OPEN() && !IS_SD_PRINTING();
 }
 
 bool sd_mmc_spi_unload(bool) { return true; }
@@ -29,17 +31,14 @@ bool sd_mmc_spi_wr_protect() { return false; }
 bool sd_mmc_spi_removal() { return !media_ready(); }
 
 Ctrl_status sd_mmc_spi_test_unit_ready() {
-  #ifdef DISABLE_DUE_SD_MMC
-    return CTRL_NO_PRESENT;
-  #endif
-  if (!media_ready()) return CTRL_NO_PRESENT;
+  if (sd_mmc_spi_removal()) return CTRL_NO_PRESENT;
   return CTRL_GOOD;
 }
 
 // NOTE: This function is defined as returning the address of the last block
 // in the card, which is cardSize() - 1
 Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
-  if (!media_ready()) return CTRL_NO_PRESENT;
+  if (sd_mmc_spi_removal()) return CTRL_NO_PRESENT;
   *nb_sector = card.diskIODriver()->cardSize() - 1;
   return CTRL_GOOD;
 }
@@ -58,10 +57,7 @@ uint8_t sector_buf[SD_MMC_BLOCK_SIZE];
 // #define DEBUG_MMC
 
 Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
-  #ifdef DISABLE_DUE_SD_MMC
-    return CTRL_NO_PRESENT;
-  #endif
-  if (!media_ready()) return CTRL_NO_PRESENT;
+  if (sd_mmc_spi_removal()) return CTRL_NO_PRESENT;
 
   #ifdef DEBUG_MMC
   {
@@ -97,10 +93,7 @@ Ctrl_status sd_mmc_spi_usb_read_10(uint32_t addr, uint16_t nb_sector) {
 }
 
 Ctrl_status sd_mmc_spi_usb_write_10(uint32_t addr, uint16_t nb_sector) {
-  #ifdef DISABLE_DUE_SD_MMC
-    return CTRL_NO_PRESENT;
-  #endif
-  if (!media_ready()) return CTRL_NO_PRESENT;
+  if (sd_mmc_spi_removal()) return CTRL_NO_PRESENT;
 
   #ifdef DEBUG_MMC
   {
