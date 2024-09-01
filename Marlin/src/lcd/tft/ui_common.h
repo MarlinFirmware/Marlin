@@ -43,10 +43,24 @@
 #define UI_INCL_(W, H) STRINGIFY_(ui_##W##x##H.h)
 #define UI_INCL(W, H) UI_INCL_(W, H)
 
-#include "ui_theme.h"
 #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+#include "ui_theme.h"
 #include "tft_font.h"
 #include "tft_color.h"
+
+#ifndef BOOTSCREEN_LOGO_X
+  #define BOOTSCREEN_LOGO_X (TFT_WIDTH - BOOTSCREEN_LOGO_W) / 2
+#endif
+#ifndef BOOTSCREEN_LOGO_Y
+  #define BOOTSCREEN_LOGO_Y (TFT_HEIGHT - BOOTSCREEN_LOGO_H) / 2
+#endif
+
+#ifndef MENU_EDIT_ITEM_RIGHT_X
+  #define MENU_EDIT_ITEM_RIGHT_X ((TFT_WIDTH) - (MENU_TEXT_X))
+#endif
+#ifndef MENU_ITEM_SUBMENU_ICON_X
+  #define MENU_ITEM_SUBMENU_ICON_X (TFT_WIDTH - 32)
+#endif
 
 // Common Implementation
 #define Z_SELECTION_Z 1
