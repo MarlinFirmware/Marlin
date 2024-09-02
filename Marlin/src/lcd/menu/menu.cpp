@@ -237,11 +237,14 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 // all moves are finished. Go back to calling screen when done.
 //
 void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
-  static FSTR_P sync_message = fmsg ?: GET_TEXT_F(MSG_MOVING);
   push_current_screen();
+
+  // Hijack 'editable' for the string pointer
+  editable.fstr = fmsg ?: GET_TEXT_F(MSG_MOVING);
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, editable.fstr);
   });
+
   defer_status_screen();
   planner.synchronize(); // idle() is called until moves complete
   goto_previous_screen_no_defer();

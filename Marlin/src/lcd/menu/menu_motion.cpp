@@ -501,6 +501,7 @@ void menu_move() {
     #endif
 
     START_MENU();
+    BACK_ITEM(MSG_TUNE);
 
     #if HAS_X_AXIS
       SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);

@@ -1,5 +1,0 @@
-/**
- * $(function) : Description pending
- *
- * $(javaparam)
- */
