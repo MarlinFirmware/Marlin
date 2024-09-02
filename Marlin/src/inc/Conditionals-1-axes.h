@@ -52,6 +52,26 @@
 #else
   #undef EXTRUDERS
   #define EXTRUDERS 0
+  #undef TEMP_SENSOR_0
+  #undef TEMP_SENSOR_1
+  #undef TEMP_SENSOR_2
+  #undef TEMP_SENSOR_3
+  #undef TEMP_SENSOR_4
+  #undef TEMP_SENSOR_5
+  #undef TEMP_SENSOR_6
+  #undef TEMP_SENSOR_7
+  #undef SINGLENOZZLE
+  #undef SWITCHING_EXTRUDER
+  #undef MECHANICAL_SWITCHING_EXTRUDER
+  #undef SWITCHING_NOZZLE
+  #undef MECHANICAL_SWITCHING_NOZZLE
+  #undef MIXING_EXTRUDER
+  #undef HOTEND_IDLE_TIMEOUT
+  #undef DISABLE_E
+  #undef PREVENT_LENGTHY_EXTRUDE
+  #undef FILAMENT_RUNOUT_SENSOR
+  #undef FILAMENT_RUNOUT_DISTANCE_MM
+  #undef DISABLE_OTHER_EXTRUDERS
 #endif
 
 #define E_OPTARG(N) OPTARG(HAS_MULTI_EXTRUDER, N)
@@ -168,6 +188,11 @@
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
   #endif
+#else
+  #undef MPCTEMP
+  #undef PIDTEMP
+  #undef PREVENT_COLD_EXTRUSION
+  #undef THERMAL_PROTECTION_HOTENDS
 #endif
 
 // More than one hotend...
@@ -183,6 +208,10 @@
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
+#else
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+  #undef HOTEND_OFFSET_Z
 #endif
 
 /**
@@ -520,43 +549,3 @@
 #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
 #define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
-
-#if !EXTRUDERS
-  #undef EXTRUDERS
-  #define EXTRUDERS 0
-  #undef TEMP_SENSOR_0
-  #undef TEMP_SENSOR_1
-  #undef TEMP_SENSOR_2
-  #undef TEMP_SENSOR_3
-  #undef TEMP_SENSOR_4
-  #undef TEMP_SENSOR_5
-  #undef TEMP_SENSOR_6
-  #undef TEMP_SENSOR_7
-  #undef SINGLENOZZLE
-  #undef SWITCHING_EXTRUDER
-  #undef MECHANICAL_SWITCHING_EXTRUDER
-  #undef SWITCHING_NOZZLE
-  #undef MECHANICAL_SWITCHING_NOZZLE
-  #undef MIXING_EXTRUDER
-  #undef HOTEND_IDLE_TIMEOUT
-  #undef DISABLE_E
-  #undef PREVENT_LENGTHY_EXTRUDE
-  #undef FILAMENT_RUNOUT_SENSOR
-  #undef FILAMENT_RUNOUT_DISTANCE_MM
-  #undef DISABLE_OTHER_EXTRUDERS
-#endif
-
-// At least one hotend...
-#if !HOTENDS
-  #undef MPCTEMP
-  #undef PIDTEMP
-  #undef PREVENT_COLD_EXTRUSION
-  #undef THERMAL_PROTECTION_HOTENDS
-#endif
-
-// More than one hotend...
-#if HOTENDS <= 1
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-  #undef HOTEND_OFFSET_Z
-#endif
