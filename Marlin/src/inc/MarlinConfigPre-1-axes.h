@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,33 @@
  */
 #pragma once
 
-//
-// Prefix header to acquire configurations
-//
-#include "Conditionals-1-axes.h"
-#include "Conditionals-2-LCD.h"
-#include "Conditionals-3-etc.h"
-#include "Conditionals-4-adv.h"
+#ifndef __MARLIN_FIRMWARE__
+#define __MARLIN_FIRMWARE__
+#endif
+
+#if __has_include("../../Config.h")
+  #include "../../Config.h"
+#else
+  #define USE_STD_CONFIGS 1
+#endif
+
+#include <stdint.h>
 
 #ifndef __MARLIN_DEPS__
-  #include HAL_PATH(.., inc/Conditionals_adv.h)
+  #include "../HAL/platforms.h"
 #endif
+
+#include "../core/macros.h"
+#include "../core/boards.h"
+
+#if USE_STD_CONFIGS
+  #include "../../Configuration.h"
+#endif
+
+#ifdef CUSTOM_VERSION_FILE
+  #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
+    #include STRINGIFY(../../CUSTOM_VERSION_FILE)
+  #endif
+#endif
+
+#include "Version.h"

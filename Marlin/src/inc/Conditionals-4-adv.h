@@ -22,9 +22,15 @@
 #pragma once
 
 /**
- * Conditionals_adv.h
+ * Conditionals-4-adv.h
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
+
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "MarlinConfigPre-4-adv.h"
+//========================================================
 
 #if ENABLED(MARLIN_SMALL_BUILD)
   #undef EEPROM_CHITCHAT

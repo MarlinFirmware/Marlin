@@ -22,9 +22,15 @@
 #pragma once
 
 /**
- * Conditionals_axes.h
+ * Conditionals-1-axes.h
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
+
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "MarlinConfigPre-1-axes.h"
+//========================================================
 
 /**
  * Extruders have some combination of stepper motors and hotends
