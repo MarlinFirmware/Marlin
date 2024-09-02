@@ -78,7 +78,7 @@
 #endif
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode; // = false;
+bool relative_mode; // = false
 
 /**
  * Cartesian Current Position
