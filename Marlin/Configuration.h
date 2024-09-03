@@ -1200,7 +1200,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 46, 2, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 55, -8, -1 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1365,7 +1365,7 @@
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 // Updated INVERT_E0_DIR for CR-10 V3 Direct Drive
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
