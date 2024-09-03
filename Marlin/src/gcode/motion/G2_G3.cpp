@@ -27,6 +27,7 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
+#include "../../module/temperature.h"
 
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
