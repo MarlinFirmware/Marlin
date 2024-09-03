@@ -80,6 +80,11 @@
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false
 
+#if HAS_Z_AXIS
+  // If Z has been powered on trust that the real Z is >= current_position.z
+  bool z_min_trusted; // = false
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
