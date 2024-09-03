@@ -193,7 +193,7 @@ public:
       const_float_t      z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
       const bool         raise_after_is_rel = false
     ) {
-      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance, raise_after_is_relative);
+      return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance, raise_after_is_rel);
     }
 
   #else // !HAS_BED_PROBE
