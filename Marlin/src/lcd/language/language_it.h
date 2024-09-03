@@ -585,6 +585,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Offset X sonda");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Offset Y sonda");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z sonda");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonda Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Margine sonda");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Velocità Z");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Abilita modo HS");

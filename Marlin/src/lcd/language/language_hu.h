@@ -460,6 +460,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z szonda eltolás");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z lépés állítás");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Fej az ágyhoz");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikrolépés X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikrolépés Y");

@@ -152,6 +152,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset"); // accepted English term in Dutch
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");

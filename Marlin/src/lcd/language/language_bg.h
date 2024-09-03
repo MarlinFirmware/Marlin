@@ -142,6 +142,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Смяна SD-Карта");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-сондата е извадена");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Отстояние");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Промяна на Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Министъпка X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Министъпка Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Министъпка Z");

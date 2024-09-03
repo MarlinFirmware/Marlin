@@ -175,6 +175,7 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πριν από Ζ");
   LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥΖ πρώτα");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Μετατόπιση Ζ");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Βήμα Z ρύθμιση");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Μικρό βήμα Χ");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Μικρό βήμα Υ");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Μικρό βήμα Ζ");

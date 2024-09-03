@@ -337,6 +337,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Compensar Sonda em X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Compensar Sonda em Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Compensar Sonda em Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Passinho X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Passinho Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Passinho Z");

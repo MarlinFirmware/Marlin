@@ -585,6 +585,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofseti");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofseti");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofseti");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z ayarı adımsal");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Prob Payı");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z İlerleme Hızı");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS modunu aç");

@@ -145,6 +145,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar cartão SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: T Máxima");

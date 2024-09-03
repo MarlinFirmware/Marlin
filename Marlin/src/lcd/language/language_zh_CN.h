@@ -426,6 +426,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探针Z偏移"); // "Z Offset"
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步调整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量调整X轴"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量调整Y轴"); // "Babystep Y"
   LSTR MSG_BABYSTEP_Z                     = _UxGT("微量调整Z轴"); // "Babystep Z"

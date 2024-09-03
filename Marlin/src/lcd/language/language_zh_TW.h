@@ -361,10 +361,11 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("部署BLTouch"); // "Deploy BLTouch"
 
   LSTR MSG_HOME_FIRST                     = _UxGT("歸位 %s 先"); // "Home ... first"
-  LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探針偏移"); //Probe Offsets
-  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探針X偏移量"); //Probe X Offset
-  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探針Y偏移量"); //Probe Y Offset
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探針Z偏移量"); //Probe Z Offset
+  LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探針偏移"); // "Probe Offsets"
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探針X偏移量"); // "Probe X Offset"
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探針Y偏移量"); // "Probe Y Offset"
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探針Z偏移量"); // "Probe Z Offset"
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步調整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量調整X軸"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量調整Y軸"); // "Babystep Y"
   LSTR MSG_BABYSTEP_Z                     = _UxGT("微量調整Z軸"); // "Babystep Z"

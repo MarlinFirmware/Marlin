@@ -446,6 +446,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sond X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sond Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sond Z Offset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Steg Z justering");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Flytta Munstycke till Bädd");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Småsteg X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Småsteg Y");

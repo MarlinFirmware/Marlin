@@ -315,7 +315,7 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
+      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZ && axis_should_home(_AXIS(A)))
 
       const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
