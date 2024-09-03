@@ -129,13 +129,10 @@ namespace LanguageNarrow_ro {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Measure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Remove & Measure Bed");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Moving to next");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activate UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Deactivate UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Bed Temp");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Bed Temp");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Hotend Temp");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hotend Temp");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Mesh Edit");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Edit Custom Mesh");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Fine Tuning Mesh");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Done Editing Mesh");

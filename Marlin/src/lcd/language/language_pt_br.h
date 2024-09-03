@@ -119,13 +119,10 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Medir");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Remover e calibrar");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Movendo para Próximo");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Ativar UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desativar UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temp. Mesa");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temp. Mesa");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temp. Extrusora");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temp. Extrusora");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Editar Malha");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Editar Malha Custom");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Ajuste Fino da Malha");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Fim da Edição");

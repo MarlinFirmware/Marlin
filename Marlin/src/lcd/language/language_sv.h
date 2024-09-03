@@ -152,13 +152,10 @@ namespace LanguageNarrow_sv {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mät");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Ta bort & Mät bädd");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Flyttar till nästa");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktivera UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Avaktivera UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Bädd Temp");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Bädd Temp");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Hetände Temp");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hetände Temp");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Nät Redigera");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Redigera Anpassat Nät");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Finjustera Nät");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Färdig Redigera Nät");

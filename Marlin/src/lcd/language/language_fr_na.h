@@ -144,13 +144,10 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("oter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activer l'UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desactiver l'UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperature lit");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperature lit");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperature buse");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperature buse");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifier grille");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif. grille perso");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Reglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");

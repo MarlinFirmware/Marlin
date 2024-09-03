@@ -137,13 +137,10 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("测量"); // "Measure"
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("移除并测量热床"); // "Remove & measure bed"
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("移动到下一个"); // "Moving to next"
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("激活UBL"); // "Activate UBL"
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("关闭UBL"); // "Deactivate UBL"
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("热床温度"); // "Bed Temp"
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("热床温度");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("热端温度"); // "Hotend Temp"
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("热端温度");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("网格编辑"); // "Mesh Edit"
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("编辑客户网格"); // "Edit Custom Mesh"
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("细调网格"); // "Fine Tuning Mesh"
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格"); // "Done Editing Mesh"

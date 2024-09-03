@@ -143,13 +143,10 @@ namespace LanguageNarrow_pl {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Zmierz");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Usuń & Zmierz Stół");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Przesuwanie do następnego");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktywacja UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Dezaktywacja UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperatura stołu");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperatura stołu");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperatura dyszy");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperatura dyszy");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Edycja siatki");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Edycja własnej siatki");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Dostrajanie siatki");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Koniec edycji siati");

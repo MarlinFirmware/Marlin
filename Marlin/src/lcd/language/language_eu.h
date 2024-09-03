@@ -89,13 +89,10 @@ namespace LanguageNarrow_eu {
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tresnak");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Sarea eskuz sortu");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Neurtu");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktibatu");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL desaktibatu");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Ohearen tenperatura");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Bed Temp");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Mutur beroaren tenp.");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hotend Temp");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Sarea editatu");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Sarea editatzea eginda");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Sarea sortu");
   LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("$ sarea sortu");

@@ -161,9 +161,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_MESH_WIZARD                  = _UxGT("Мастер сеток UBL");
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Измерение");
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Двигаемся дальше");
-  LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активировать UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивировать UBL");
-  LSTR MSG_UBL_MESH_EDIT                    = _UxGT("Редактор сеток");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH             = _UxGT("Править свою сетку");
   LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE _UxGT("C");

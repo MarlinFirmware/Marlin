@@ -206,13 +206,10 @@ namespace LanguageNarrow_it {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Misura");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Rimuovi e mis.piatto");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Spostamento succes.");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Attiva UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Disattiva UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temp. piatto");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temp. piatto");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temp. ugello");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temp. ugello");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifica mesh");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif.mesh personal.");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Ritocca mesh");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Modif.mesh fatta");

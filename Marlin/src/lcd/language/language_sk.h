@@ -202,13 +202,10 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Zmerajte");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Odstráňte a zmerajte");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Presun na ďalší");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktivovať UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Deaktivovať UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Teplota podložky");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Teplota podložky");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Teplota hotendu");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Teplota hotendu");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Úprava siete bodov");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Upraviť vlastnú sieť");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Doladiť sieť bodov");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Koniec úprav siete");

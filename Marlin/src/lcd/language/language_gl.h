@@ -130,13 +130,10 @@ namespace LanguageNarrow_gl {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Medir");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Quitar e Medir Cama");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Mover ao Seguinte");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activar UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desactivar UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temp Cama");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temp Cama");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temp Bico");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temp Bico");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Editar Malla");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Edit. Malla Person.");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Axuste Fino da Malla");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Fin Edición da Malla");
