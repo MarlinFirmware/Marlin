@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * cardreader.h - SD card / USB flash drive file handling interface
+ */
+
 #include "../inc/MarlinConfig.h"
 
 #if HAS_MEDIA
@@ -162,7 +166,7 @@ public:
   static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
-  static void report_status();
+  static void report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto=false));
   static void getAbsFilenameInCWD(char *dst);
   static void printSelectedFilename();
   static void openAndPrintFile(const char *name);   // (working directory or full path)
@@ -249,7 +253,7 @@ public:
     //
     // SD Auto Reporting
     //
-    struct AutoReportSD { static void report() { report_status(); } };
+    struct AutoReportSD { static void report() { report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, true)); } };
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 

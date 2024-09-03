@@ -22,6 +22,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+/**
+ * cardreader.cpp - SD card / USB flash drive file handling interface
+ */
+
 #if HAS_MEDIA
 
 //#define DEBUG_CARDREADER
@@ -827,8 +831,17 @@ void CardReader::removeFile(const char * const name) {
   #endif
 }
 
-void CardReader::report_status() {
-  if (isPrinting() || isPaused()) {
+void CardReader::report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto/*=false*/)) {
+  const bool has_job = isStillPrinting() || isPaused();
+
+  #if ENABLED(QUIETER_AUTO_REPORT_SD_STATUS)
+    static uint32_t old_sdpos = 0;
+    if (!has_job) old_sdpos = 0;
+    if (isauto && sdpos == old_sdpos) return;
+    if (has_job) old_sdpos = sdpos;
+  #endif
+
+  if (has_job) {
     SERIAL_ECHOPGM(STR_SD_PRINTING_BYTE, sdpos);
     SERIAL_CHAR('/');
     SERIAL_ECHOLN(filesize);
