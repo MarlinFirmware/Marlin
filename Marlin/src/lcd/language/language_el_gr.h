@@ -76,6 +76,7 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_EXTRUDE                        = _UxGT("Εξώθηση");
   LSTR MSG_RETRACT                        = _UxGT("Ανάσυρση");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Μετακίνηση άξονα");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Ανιχνευτής/ισοπέδωση");
   LSTR MSG_BED_LEVELING                   = _UxGT("Επιπεδοποίηση κλίνης");
   LSTR MSG_LEVEL_BED                      = _UxGT("Επιπεδοποίηση κλίνης");
   LSTR MSG_MOVE_X                         = _UxGT("Μετακίνηση X");

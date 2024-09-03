@@ -98,6 +98,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudeaza");
   LSTR MSG_RETRACT                        = _UxGT("Retracteaza");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Muta Axa");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Probare si Nivelare");
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelarea Patului");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveleaza Patul");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveleaza Colturile");

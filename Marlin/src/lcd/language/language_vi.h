@@ -87,6 +87,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_EXTRUDE                        = _UxGT("Ép đùn");                               // Extrude
   LSTR MSG_RETRACT                        = _UxGT("Rút lại");                              // Retract
   LSTR MSG_MOVE_AXIS                      = _UxGT("Di chuyển trục");                       // Move axis
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Chạm và san lấp");                      // Probe and Level
   LSTR MSG_BED_LEVELING                   = _UxGT("San Lấp Bàn");                          // Bed Leveling
   LSTR MSG_LEVEL_BED                      = _UxGT("Làm bằng mặt bàn");                     // Level bed
   LSTR MSG_BED_TRAMMING                   = _UxGT("Làm bằng góc bàn");                     // Level corners

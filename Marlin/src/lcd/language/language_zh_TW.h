@@ -94,6 +94,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_EXTRUDE                        = _UxGT("擠出"); // "Extrude"
   LSTR MSG_RETRACT                        = _UxGT("回縮"); // "Retract"
   LSTR MSG_MOVE_AXIS                      = _UxGT("移動軸"); // "Move axis"
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("探測和調平"); // "Probe and Level"
   LSTR MSG_BED_LEVELING                   = _UxGT("調平熱床"); // "Bed leveling"
   LSTR MSG_LEVEL_BED                      = _UxGT("調平熱床"); // "Level bed"
   LSTR MSG_BED_TRAMMING                   = _UxGT("調平邊角"); // "Bed Tramming"

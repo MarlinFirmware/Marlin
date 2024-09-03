@@ -151,6 +151,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_EXTRUDE                        = _UxGT("Estrudi");
   LSTR MSG_RETRACT                        = _UxGT("Ritrai");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Muovi asse");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda e livella");
   LSTR MSG_BED_LEVELING                   = _UxGT("Livellamento piatto");
   LSTR MSG_LEVEL_BED                      = _UxGT("Livella piatto");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tarat.fine piatto");

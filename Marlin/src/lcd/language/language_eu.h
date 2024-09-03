@@ -79,6 +79,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_EXTRUDE                        = _UxGT("Estruitu");
   LSTR MSG_RETRACT                        = _UxGT("Atzera eragin");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Ardatzak mugitu");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Proba eta Berdindu");
   LSTR MSG_BED_LEVELING                   = _UxGT("Ohe berdinketa");
   LSTR MSG_LEVEL_BED                      = _UxGT("Ohea berdindu");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Ertzak berdindu");

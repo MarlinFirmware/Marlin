@@ -150,6 +150,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_EXTRUDE                        = _UxGT("Ekstrüzyon");
   LSTR MSG_RETRACT                        = _UxGT("Geri Çek");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Eksen Hareketleri");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Prob ve Seviyeleme");
   LSTR MSG_BED_LEVELING                   = _UxGT("Tabla Seviyeleme");
   LSTR MSG_LEVEL_BED                      = _UxGT("Tablayı Seviyele");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tabla Hizalama");

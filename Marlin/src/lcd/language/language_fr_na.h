@@ -103,6 +103,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusion");
   LSTR MSG_RETRACT                        = _UxGT("Retractation");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Deplacer un axe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrage auto");
   LSTR MSG_BED_LEVELING                   = _UxGT("Regler Niv. lit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");

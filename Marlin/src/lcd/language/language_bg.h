@@ -67,6 +67,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_EXTRUDE                        = _UxGT("Екструзия");
   LSTR MSG_RETRACT                        = _UxGT("Откат");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Движение по ос");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Нивелиране");
   LSTR MSG_BED_LEVELING                   = _UxGT("Нивелиране");
   LSTR MSG_LEVEL_BED                      = _UxGT("Нивелиране");
   LSTR MSG_MOVE_X                         = _UxGT("Движение по X");

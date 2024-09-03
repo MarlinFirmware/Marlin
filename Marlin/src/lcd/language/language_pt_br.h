@@ -91,6 +91,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusar");
   LSTR MSG_RETRACT                        = _UxGT("Retrair");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover eixo");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sondar e Nivelar");
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelação Mesa");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivelar Mesa");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Nivelar Cantos");

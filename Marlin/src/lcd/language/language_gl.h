@@ -99,6 +99,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_EXTRUDE                        = _UxGT("Extruír");
   LSTR MSG_RETRACT                        = _UxGT("Retraer");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover eixe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Probar e Nivelar");
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelando Cama");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivelar Cama");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Nivelar Cantos");

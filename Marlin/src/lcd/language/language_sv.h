@@ -115,6 +115,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudera");
   LSTR MSG_RETRACT                        = _UxGT("Dra tillbaka");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Flytta Axel");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sond och Nivellera");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bädd Nivellering");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivellera Bädd");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bädd Justering");

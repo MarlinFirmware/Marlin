@@ -112,6 +112,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_EXTRUDE                        = _UxGT("Ekstruzja");
   LSTR MSG_RETRACT                        = _UxGT("Wycofanie");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Ruch osi");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda/poziomowanie");
   LSTR MSG_BED_LEVELING                   = _UxGT("Poziomowanie stołu");
   LSTR MSG_LEVEL_BED                      = _UxGT("Wypoziomuj stół");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Narożniki poziomowania");

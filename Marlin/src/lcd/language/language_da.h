@@ -69,6 +69,7 @@ namespace LanguageNarrow_da {
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Slå strøm fra");
   LSTR MSG_EXTRUDE                        = _UxGT("Extruder");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Flyt akser");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Probe og nivellér");
   LSTR MSG_BED_LEVELING                   = _UxGT("Juster bed");
   LSTR MSG_LEVEL_BED                      = _UxGT("Juster bed");
   LSTR MSG_MOVE_X                         = _UxGT("Flyt X");

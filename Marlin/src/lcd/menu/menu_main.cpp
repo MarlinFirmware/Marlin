@@ -72,6 +72,10 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
+#if HAS_LEVELING || HAS_BED_PROBE
+  void menu_probe_level();
+#endif
+
 #if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
@@ -333,6 +337,10 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
+
+    #if HAS_LEVELING || HAS_BED_PROBE
+      SUBMENU(MSG_PROBE_AND_LEVEL, menu_probe_level);
+    #endif
   }
 
   #if HAS_CUTTER

@@ -123,6 +123,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_EXTRUDE                        = _UxGT("Adagol");
   LSTR MSG_RETRACT                        = _UxGT("Visszahúz");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Tengelyek mozgatása");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Érintés/szintezés");
   LSTR MSG_BED_LEVELING                   = _UxGT("Ágy szintezés");
   LSTR MSG_LEVEL_BED                      = _UxGT("Ágy szintezése");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Sarok szint");

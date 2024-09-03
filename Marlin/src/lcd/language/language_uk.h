@@ -117,6 +117,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_EXTRUDE                          = _UxGT("Екструзія");
   LSTR MSG_RETRACT                          = _UxGT("Втягування");
   LSTR MSG_MOVE_AXIS                        = _UxGT("Рух по осям");
+  LSTR MSG_PROBE_AND_LEVEL                  = _UxGT("Проба/вирівнювання");
   LSTR MSG_BED_LEVELING                     = _UxGT("Вирівнювання столу");
   LSTR MSG_LEVEL_BED                        = _UxGT("Вирівняти стіл");
   LSTR MSG_BED_TRAMMING                     = _UxGT("Вирівняти кути");

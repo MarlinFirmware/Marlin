@@ -84,6 +84,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_EXTRUDE                        = _UxGT("オシダシ"); // "Extrude"
   LSTR MSG_RETRACT                        = _UxGT("ヒキコミセッテイ"); // "Retract"
   LSTR MSG_MOVE_AXIS                      = _UxGT("ジクイドウ"); // "Move axis"
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("プローブ アンド レベリング"); // "Probe and Level"
   LSTR MSG_BED_LEVELING                   = _UxGT("ベッドレベリング"); // "Bed leveling"
   LSTR MSG_LEVEL_BED                      = _UxGT("ベッドレベリング"); // "Level bed"
 

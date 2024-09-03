@@ -132,6 +132,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudieren");
   LSTR MSG_RETRACT                        = _UxGT("Einzug");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Achsen bewegen");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonden nivellieren");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bett-Nivellierung");
   LSTR MSG_LEVEL_BED                      = _UxGT("Bett nivellieren");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bett ausrichten");

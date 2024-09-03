@@ -76,6 +76,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("As verplaatsen");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Z probe & Level");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bed Leveling");
   LSTR MSG_LEVEL_BED                      = _UxGT("Level bed");
 

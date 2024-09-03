@@ -148,6 +148,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_EXTRUDE                        = _UxGT("Vytlačiť (extr.)");
   LSTR MSG_RETRACT                        = _UxGT("Vytiahnuť (retr.)");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Posunúť osy");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda a vyrovnanie");
   LSTR MSG_BED_LEVELING                   = _UxGT("Vyrovnanie podložky");
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnať podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnať rohy");
