@@ -1178,10 +1178,10 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMediaPaused() {
-    return TERN0(HAS_MEDIA, IS_SD_PAUSED());
+    return IS_SD_PAUSED();
   }
 
-  bool isPrintingFromMedia() { return TERN0(HAS_MEDIA, IS_SD_PRINTING() || IS_SD_PAUSED()); }
+  bool isPrintingFromMedia() { return IS_SD_PRINTING() || IS_SD_PAUSED(); }
 
   bool isPrinting() {
     return commandsInQueue() || isPrintingFromMedia() || printJobOngoing() || printingIsPaused();

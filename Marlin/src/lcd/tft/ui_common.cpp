@@ -364,9 +364,6 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, c
   tft_string.set(string, itemIndex, itemStringC, itemStringF);
   tft.add_text(text_x + line_shift, MENU_TEXT_Y, color, tft_string);
 
-  #ifndef MENU_ITEM_SUBMENU_ICON_X
-    #define MENU_ITEM_SUBMENU_ICON_X (TFT_WIDTH - 32)
-  #endif
   if (post_char == LCD_STR_ARROW_RIGHT[0])
     tft.add_image(MENU_ITEM_SUBMENU_ICON_X, MENU_ITEM_ICON_Y, imgRight, color, lineColor);
 }
@@ -375,11 +372,12 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, FSTR_P const ftpl, c
 void MenuEditItemBase::draw(const bool sel, const uint8_t row, FSTR_P const ftpl, const char * const inStr, const bool pgm) {
   (void)menu_item(row, sel);
 
+  constexpr uint8_t text_x = (TFT_WIDTH >= 480) ? MENU_ITEM_ICON_SPACE : MENU_TEXT_X;
   tft_string.set(ftpl, itemIndex, itemStringC, itemStringF);
-  tft.add_text(MENU_TEXT_X, MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
+  tft.add_text(text_x, MENU_TEXT_Y, COLOR_MENU_EDIT_TEXT, tft_string);
   if (inStr) {
     tft_string.set(inStr);
-    tft.add_text(TFT_WIDTH - MENU_TEXT_X - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
+    tft.add_text(MENU_EDIT_ITEM_RIGHT_X - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_VALUE, tft_string);
   }
 }
 
@@ -417,8 +415,9 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
     const uint16_t lineColor = menu_item(row, sel);
     constexpr uint8_t line_shift = (TFT_WIDTH >= 480) ? MENU_ITEM_ICON_SPACE : 0;
     if (isDir) tft.add_image(MENU_ITEM_ICON_X + line_shift, MENU_ITEM_ICON_Y, imgDirectory, COLOR_MENU_TEXT, lineColor);
-    uint8_t maxlen = (MENU_ITEM_HEIGHT) - (MENU_TEXT_Y) + 1;
-    tft.add_text(MENU_ITEM_ICON_SPACE + line_shift, MENU_TEXT_Y, COLOR_MENU_TEXT, ui.scrolled_filename(theCard, maxlen, sel));
+    const char * const filename = ui.scrolled_filename(theCard, LCD_WIDTH - 1, sel);
+    //SERIAL_ECHOLNPGM("Drawing filename: ", filename);
+    tft.add_text(MENU_ITEM_ICON_SPACE + line_shift, MENU_TEXT_Y, COLOR_MENU_TEXT, filename);
   }
 
 #endif

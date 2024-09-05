@@ -8,12 +8,14 @@
 #                     [-p|--purge]           - Purge the status file and start over
 #                     [-s|--skip]            - Continue the paused build, skipping one
 #                     [-r|--resume=<path>]   - Start at some config in the filesystem order
-#                     [-e|--export=N]        - Set CONFIG_EXPORT and export into each config folder
-#                     [-d|--debug]           - Print extra debug output (after)
 #                     [-l|--limit=#]         - Limit the number of builds in this run
-#                     [-a|--archive]         - Copy the binary to the export location
+#                     [-d|--debug]           - Print extra debug output (after)
 #                     [-n|--nobuild]         - Don't actually build anything
 #                     [-f|--nofail]          - Don't stop on a failed build
+#                     [-e|--export=N]        - Set CONFIG_EXPORT and export into each config folder
+#                     [-a|--archive]         - Copy the binary to the export location
+#                     [-o|--output]          - Redirect export / archiving to another location
+#                                              (By default export to origin config folders)
 #                     [-h|--help]            - Print usage and exit
 #
 
@@ -32,10 +34,12 @@ build_all_examples [-b|--branch=<branch>] - Branch to fetch from Configurations 
                    [-p|--purge]           - Purge the status file and start over
                    [-s|--skip]            - Continue the paused build, skipping one
                    [-r|--resume=<path>]   - Start at some config in the filesystem order
-                   [-e|--export=N]        - Set CONFIG_EXPORT and export into each config folder
+                   [-e|--export=N]        - Set CONFIG_EXPORT and export to the export location
+                   [-a|--archive]         - Copy the binary to the export location
+                   [-o|--output]          - Redirect export / archiving to another location
+                                            (By default export to origin config folders)
                    [-d|--debug]           - Print extra debug output (after)
                    [-l|--limit=#]         - Limit the number of builds in this run
-                   [-a|--archive]         - Copy the binary to the export location
                    [-n|--nobuild]         - Don't actually build anything
                    [-f|--nofail]          - Don't stop on a failed build
                    [-h|--help]            - Print usage and exit
@@ -48,36 +52,38 @@ unset FIRST_CONF
 EXIT_USAGE=
 LIMIT=1000
 
-while getopts 'aB:b:ce:fdhl:npr:sv-:' OFLAG; do
+while getopts 'aB:b:ce:fdhl:no:pr:sv-:' OFLAG; do
   case "${OFLAG}" in
-    a) ARCHIVE=1              ; bugout "Archiving" ;;
-    B) OPATH=$OPTARG          ; bugout "Base: $OPATH" ;;
-    b) BRANCH=$OPTARG         ; bugout "Branch: $BRANCH" ;;
-    f) NOFAIL=1               ; bugout "Continue on Fail" ;;
+    a) ARCHIVE=1                ; bugout "Archiving" ;;
+    B) OPATH=${OPTARG%/}        ; bugout "Base: $OPATH" ;;
+    b) BRANCH=$OPTARG           ; bugout "Branch: $BRANCH" ;;
+    f) NOFAIL=1                 ; bugout "Continue on Fail" ;;
     r) ISRES=1 ; FIRST_CONF=$OPTARG ; bugout "Resume: $FIRST_CONF" ;;
-    c) CONTINUE=1             ; bugout "Continue" ;;
-    s) CONTSKIP=1             ; bugout "Continue, skipping" ;;
-    e) CEXPORT=$OPTARG        ; bugout "Export $CEXPORT" ;;
+    c) CONTINUE=1               ; bugout "Continue" ;;
+    s) CONTSKIP=1               ; bugout "Continue, skipping" ;;
+    e) CEXPORT=$OPTARG          ; bugout "Export $CEXPORT" ;;
+    o) OUTBASE="${OPTARG%/}"    ; bugout "Archive to $OUTBASE" ;;
     h) EXIT_USAGE=1 ; break ;;
-    l) LIMIT=$OPTARG          ; bugout "Limit to $LIMIT build(s)" ;;
-  d|v) DEBUG=1                ; bugout "Debug ON" ;;
-    n) DRYRUN=1               ; bugout "Dry Run" ;;
-    p) PURGE=1                ; bugout "Purge stat file" ;;
+    l) LIMIT=$OPTARG            ; bugout "Limit to $LIMIT build(s)" ;;
+  d|v) DEBUG=1                  ; bugout "Debug ON" ;;
+    n) DRYRUN=1                 ; bugout "Dry Run" ;;
+    p) PURGE=1                  ; bugout "Purge stat file" ;;
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
-      archive) ARCHIVE=1      ; bugout "Archiving" ;;
-         base) OPATH=$OVAL    ; bugout "Base: $OPATH" ;;
-       branch) BRANCH=$OVAL   ; bugout "Branch: $BRANCH" ;;
-       nofail) NOFAIL=1       ; bugout "Continue on Fail" ;;
+      archive) ARCHIVE=1        ; bugout "Archiving" ;;
+         base) OPATH=${OVAL%/}  ; bugout "Base: $OPATH" ;;
+       branch) BRANCH=$OVAL     ; bugout "Branch: $BRANCH" ;;
+       nofail) NOFAIL=1         ; bugout "Continue on Fail" ;;
        resume) ISRES=1 ; FIRST_CONF=$OVAL ; bugout "Resume: $FIRST_CONF" ;;
-     continue) CONTINUE=1     ; bugout "Continue" ;;
-         skip) CONTSKIP=1     ; bugout "Continue, skipping" ;;
-       export) CEXPORT=$OVAL  ; bugout "Export $EXPORT" ;;
-        limit) LIMIT=$OVAL    ; bugout "Limit to $LIMIT build(s)" ;;
+     continue) CONTINUE=1       ; bugout "Continue" ;;
+         skip) CONTSKIP=1       ; bugout "Continue, skipping" ;;
+       export) CEXPORT=$OVAL    ; bugout "Export $EXPORT" ;;
+       output) OUTBASE="${OVAL%/}" ; bugout "Archive to $OUTBASE" ;;
+        limit) LIMIT=$OVAL      ; bugout "Limit to $LIMIT build(s)" ;;
          help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
-        debug) DEBUG=1        ; bugout "Debug ON" ;;
-      nobuild) DRYRUN=1       ; bugout "Dry Run" ;;
-        purge) PURGE=1        ; bugout "Purge stat file" ;;
+        debug) DEBUG=1          ; bugout "Debug ON" ;;
+      nobuild) DRYRUN=1         ; bugout "Dry Run" ;;
+        purge) PURGE=1          ; bugout "Purge stat file" ;;
             *) EXIT_USAGE=2 ; echo "$SELF: unrecognized option \`--$ONAM'" ; break ;;
        esac
        ;;
@@ -167,11 +173,14 @@ for CONF in $CONF_TREE ; do
   # Exporting? Add -e argument
   ((CEXPORT)) && CARGS+=("-e" "$CEXPORT")
 
-  # Continue on fail? Add -n argument
-  ((NOFAIL)) && CARGS+=("-n")
+  # Continue on fail? Add -f argument
+  ((NOFAIL)) && CARGS+=("-f")
 
   # Archive the build? Add -a argument
   ((ARCHIVE)) && CARGS+=("-a")
+
+  # Redirecting the export/archive output? Add -o argument
+  [[ -n $OUTBASE ]] && CARGS+=("-o" "$OUTBASE")
 
   # Build or print build command for --nobuild
   if ((DRYRUN)); then

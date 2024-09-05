@@ -938,10 +938,15 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
  * with the previously active tool.
  *
  */
-float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/,
-  const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/,
-  const_float_t z_min_point/*=Z_PROBE_LOW_POINT*/, const_float_t z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/,
-  const bool raise_after_is_relative/*=false*/
+float Probe::probe_at_point(
+  const_float_t rx, const_float_t ry,
+  const ProbePtRaise raise_after,     // = PROBE_PT_NONE
+  const uint8_t verbose_level,        // = 0
+  const bool probe_relative,          // = true
+  const bool sanity_check,            // = true
+  const_float_t z_min_point,          // = Z_PROBE_LOW_POINT
+  const_float_t z_clearance,          // = Z_TWEEN_SAFE_CLEARANCE
+  const bool raise_after_is_rel       // = false
 ) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
@@ -1005,7 +1010,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       switch (raise_after) {
         default: break;
         case PROBE_PT_RAISE:
-          if (raise_after_is_relative)
+          if (raise_after_is_rel)
             do_z_clearance_by(z_clearance);
           else
             do_z_clearance(z_clearance);
