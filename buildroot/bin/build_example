@@ -58,7 +58,7 @@ while getopts 'ab:c:e:fhio:r-:' OFLAG; do
     h) EXIT_USAGE=1 ; break ;;
     f) NOFAIL=1 ;;
     r) REVEAL=1 ;;
-    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+    -) ONAM="${OPTARG%%=*}" ; OVAL="${OPTARG#*=}"
        case "$ONAM" in
         archive) ARCHIVE=1 ;;
           allow) ALLOW=1 ;;
@@ -75,6 +75,7 @@ while getopts 'ab:c:e:fhio:r-:' OFLAG; do
     *) EXIT_USAGE=2 ; break ;;
   esac
 done
+shift $((OPTIND - 1))
 
 # Must be called from another script (or with --allow)
 [[ $ALLOW || $SHLVL -gt 2 ]] || { echo "Don't call this script directly, use build_all_examples instead." ; exit 1 ; }
@@ -121,11 +122,9 @@ rm -f Marlin/Config.h Marlin/Config-export.h
 
 set -e
 
-# Strip #error lines from Configuration.h
-IFS=$'\n'; set -f
-$SED -i~ -e "20,30{/#error/d}" Marlin/Configuration.h
-rm Marlin/Configuration.h~
-unset IFS; set +f
+# Strip #error lines from Configuration.h using
+awk 'NR < 20 || NR > 30 || !/#error/' Marlin/Configuration.h > Marlin/Configuration.h~
+mv Marlin/Configuration.h~ Marlin/Configuration.h
 
 # Hide several warnings when not exporting
 [[ -z $EXPNUM ]] && CLEANER=1
