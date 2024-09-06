@@ -68,7 +68,7 @@ while getopts 'aB:b:ce:fdhl:no:pr:sv-:' OFLAG; do
   d|v) DEBUG=1                  ; bugout "Debug ON" ;;
     n) DRYRUN=1                 ; bugout "Dry Run" ;;
     p) PURGE=1                  ; bugout "Purge stat file" ;;
-    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+    -) ONAM="${OPTARG%%=*}" ; OVAL="${OPTARG#*=}"
        case "$ONAM" in
       archive) ARCHIVE=1        ; bugout "Archiving" ;;
          base) OPATH=${OVAL%/}  ; bugout "Base: $OPATH" ;;
@@ -90,6 +90,7 @@ while getopts 'aB:b:ce:fdhl:no:pr:sv-:' OFLAG; do
     *) EXIT_USAGE=2 ; break ;;
   esac
 done
+shift $((OPTIND - 1))
 
 # Check for mixed continue, skip, resume arguments. Only one should be used.
 ((CONTINUE + CONTSKIP + ISRES + PURGE > 1)) && { echo "Don't mix -c, -p, -s, and -r options" ; echo ; EXIT_USAGE=2 ; }
@@ -154,7 +155,7 @@ CONF_TREE=$( ls -d "$OPATH"/config/examples/**/ | grep -vE ".+\.(\w+)$" )
 for CONF in $CONF_TREE ; do
 
   # Get a config's directory name
-  DIR=$( echo "$CONF" | "$SED" "s|$OPATH/config/examples/||" )
+  DIR=${CONF#$OPATH/config/examples/}
 
   # If looking for a config, skip others
   [[ $FIRST_CONF ]] && [[ $FIRST_CONF != $DIR && "$FIRST_CONF/" != $DIR ]] && continue
