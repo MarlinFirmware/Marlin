@@ -1490,6 +1490,8 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
       msg = F("");
+    else
+      return;
 
     set_min_status(msg);
   }
