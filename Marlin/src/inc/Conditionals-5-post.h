@@ -3148,12 +3148,12 @@
   #if ALL(ENDSTOPPULLUPS, USE_Z_MIN_PROBE)
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #endif
-  #ifndef XY_PROBE_FEEDRATE
-    #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
-  #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
   #endif
+#endif
+#ifndef XY_PROBE_FEEDRATE
+  #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
 #endif
 
 /**
