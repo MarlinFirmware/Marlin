@@ -381,7 +381,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
-    ui.reset_status();
+    ui.reset_alert_level();
+    //ui.reset_status();
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
