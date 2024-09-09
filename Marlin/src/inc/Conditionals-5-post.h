@@ -3153,7 +3153,11 @@
   #endif
 #endif
 #ifndef XY_PROBE_FEEDRATE
-  #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+  #if ALL(HAS_X_AXIS, HAS_Y_AXIS)
+    #define XY_PROBE_FEEDRATE ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+  #else
+    #define XY_PROBE_FEEDRATE 60.0f
+  #endif
 #endif
 
 /**
