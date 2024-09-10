@@ -334,8 +334,17 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, FRONT,    probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, BACK,     probe_top_at_edge));
-  TERN_(HAS_Y_CENTER, m.obj_center.y = (m.obj_side[FRONT]    + m.obj_side[BACK])     / 2);
-  TERN_(HAS_Y_CENTER, m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y);
+
+  #if HAS_Y_CENTER
+    /**
+     * Allow Y axis to probe and compute values before X axis (or remaining arbitrary axes)
+     * to assist with centering in calibration object. Lulzbot saw issues with higher uncertainty
+     * values where the nozzle was catching on the edges of the cube, and this was intended to help
+     * ensure the probe object remained centered.
+     */
+    m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
+    m.nozzle_outer_dimension.y = m.obj_side[BACK] - m.obj_side[FRONT] - dimensions.y;
+  #endif
 
   TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,     probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT,    probe_top_at_edge));
