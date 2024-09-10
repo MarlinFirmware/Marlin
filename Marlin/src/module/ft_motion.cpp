@@ -44,6 +44,8 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
+XYZEval<millis_t> FTMotion::axis_move_end_ti = { 0 };
+AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
 
@@ -88,12 +90,14 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
 // Shaping variables.
-#if HAS_X_AXIS
+#if HAS_FTM_SHAPING
   FTMotion::shaping_t FTMotion::shaping = {
-    0,
-    x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
+    0
+    #if HAS_X_AXIS
+      , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+    #endif
     #if HAS_Y_AXIS
-      y:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } }           // ena, d_zi, Ai, Ni, max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
   };
 #endif
@@ -111,8 +115,6 @@ constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); 
 //-----------------------------------------------------------------
 
 // Public functions.
-
-static bool markBlockStart = false;
 
 // Controller main, to be invoked from non-isr task.
 void FTMotion::loop() {
@@ -134,14 +136,13 @@ void FTMotion::loop() {
   }
 
   while (!blockProcRdy && (stepper.current_block = planner.get_current_block())) {
-    if (stepper.current_block->is_sync()) { // Sync block?
+    if (stepper.current_block->is_sync()) {     // Sync block?
       if (stepper.current_block->is_sync_pos()) // Position sync? Set the position.
         stepper._set_position(stepper.current_block->position);
       discard_planner_block_protected();
       continue;
     }
     loadBlockData(stepper.current_block);
-    markBlockStart = true;
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -166,7 +167,7 @@ void FTMotion::loop() {
       discard_planner_block_protected();
 
       // Check if the block needs to be runout:
-      if (!batchRdy && !planner.movesplanned()){
+      if (!batchRdy && !planner.has_blocks_queued()) {
         runoutBlock();
         makeVector(); // Do an additional makeVector call to guarantee batchRdy set this loop.
       }
@@ -196,7 +197,7 @@ void FTMotion::loop() {
     batchRdy = false; // Clear so makeVector() can resume generating points.
   }
 
-  // Interpolation.
+  // Interpolation (generation of step commands from fixed time trajectory).
   while (batchRdyForInterp
     && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))) {
     convertToSteps(interpIdx);
@@ -211,7 +212,7 @@ void FTMotion::loop() {
 
 }
 
-#if HAS_X_AXIS
+#if HAS_FTM_SHAPING
 
   // Refresh the gains used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol) {
@@ -349,22 +350,20 @@ void FTMotion::loop() {
 
   void FTMotion::update_shaping_params() {
     #if HAS_X_AXIS
-      shaping.x.ena = CMPNSTR_HAS_SHAPER(X_AXIS);
-      if (shaping.x.ena) {
-        shaping.x.set_axis_shaping_A(cfg.shaper[X_AXIS], cfg.zeta[X_AXIS], cfg.vtol[X_AXIS]);
-        shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], cfg.baseFreq[X_AXIS], cfg.zeta[X_AXIS]);
+      if ((shaping.x.ena = AXIS_HAS_SHAPER(X))) {
+        shaping.x.set_axis_shaping_A(cfg.shaper.x, cfg.zeta.x, cfg.vtol.x);
+        shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x, cfg.zeta.x);
       }
     #endif
     #if HAS_Y_AXIS
-      shaping.y.ena =  CMPNSTR_HAS_SHAPER(Y_AXIS);
-      if (shaping.y.ena) {
-        shaping.y.set_axis_shaping_A(cfg.shaper[Y_AXIS], cfg.zeta[Y_AXIS], cfg.vtol[Y_AXIS]);
-        shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS], cfg.zeta[Y_AXIS]);
+      if ((shaping.y.ena = AXIS_HAS_SHAPER(Y))) {
+        shaping.y.set_axis_shaping_A(cfg.shaper.y, cfg.zeta.y, cfg.vtol.y);
+        shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y, cfg.zeta.y);
       }
     #endif
   }
 
-#endif // HAS_X_AXIS
+#endif // HAS_FTM_SHAPING
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
@@ -385,13 +384,15 @@ void FTMotion::reset() {
 
   stepper.axis_did_move.reset();
 
-  #if HAS_X_AXIS
-    ZERO(shaping.x.d_zi);
+  #if HAS_FTM_SHAPING
+    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+
+  axis_move_end_ti.reset();
 }
 
 // Private functions.
@@ -409,27 +410,33 @@ void FTMotion::discard_planner_block_protected() {
   }
 }
 
-// Sets up a pseudo block to allow motion to settle buffers to empty. This is
-// called when the planner has only one block left. The buffers will be filled
-// with the last commanded position by setting the startPosn block variable to
-// the last position of the previous block and all ratios to zero such that no
-// axes' positions are incremented.
+/**
+ * Set up a pseudo block to allow motion to settle and buffers to empty.
+ * Called when the planner has one block left. The buffers will be filled
+ * with the last commanded position by setting the startPosn block variable to
+ * the last position of the previous block and all ratios to zero such that no
+ * axes' positions are incremented.
+ */
 void FTMotion::runoutBlock() {
 
   startPosn = endPosn_prevBlock;
   ratio.reset();
 
-  int32_t n_to_fill_batch = FTM_WINDOW_SIZE - makeVector_batchIdx;
+  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - makeVector_batchIdx;
 
-  // This line is to be modified for FBS use; do not optimize out.
-  int32_t n_to_settle_cmpnstr = (TERN_(HAS_X_AXIS, shaping.x.ena) || TERN_(HAS_Y_AXIS, shaping.y.ena )) ? FTM_ZMAX : 0;
+  // This line or function is to be modified for FBS use; do not optimize out.
+  const int32_t n_to_settle_shaper = num_samples_shaper_settle();
 
-  int32_t n_to_fill_batch_after_settling = (n_to_settle_cmpnstr > n_to_fill_batch) ?
-    FTM_BATCH_SIZE - ((n_to_settle_cmpnstr - n_to_fill_batch) % FTM_BATCH_SIZE) : n_to_fill_batch - n_to_settle_cmpnstr;
+  const int32_t n_diff = n_to_settle_shaper - n_to_fill_batch,
+                n_to_fill_batch_after_settling = n_diff > 0 ? (FTM_BATCH_SIZE) - (n_diff % (FTM_BATCH_SIZE)) : -n_diff;
 
-  int32_t n_to_settle_and_fill_batch = n_to_settle_cmpnstr + n_to_fill_batch_after_settling;
+  const int32_t n_to_settle_and_fill_batch = n_to_settle_shaper + n_to_fill_batch_after_settling;
 
-  max_intervals = PROP_BATCHES * FTM_BATCH_SIZE + n_to_settle_and_fill_batch;
+  const int32_t N_needed_to_propagate_to_stepper = PROP_BATCHES;
+
+  const int32_t n_to_use = N_needed_to_propagate_to_stepper * (FTM_BATCH_SIZE) + n_to_settle_and_fill_batch;
+
+  max_intervals = n_to_use;
 
   blockProcRdy = true;
 }
@@ -549,6 +556,26 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPosn_prevBlock += moveDist;
 
+  // Watch endstops until the move ends
+  const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
+
+  #define __SET_MOVE_END(A,V) do{ if (V) { axis_move_end_ti.A = move_end_ti; axis_move_dir.A = (V > 0); } }while(0);
+  #define _SET_MOVE_END(A) __SET_MOVE_END(A, moveDist[_AXIS(A)])
+  #if CORE_IS_XY
+    __SET_MOVE_END(X, moveDist.x + moveDist.y);
+    __SET_MOVE_END(Y, moveDist.x - moveDist.y);
+  #else
+    _SET_MOVE_END(X);
+    _SET_MOVE_END(Y);
+  #endif
+  TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
+  SECONDARY_AXIS_MAP(_SET_MOVE_END);
+
+  // If the endstop is already pressed, endstop interrupts won't invoke
+  // endstop_triggered and the move will grind. So check here for a
+  // triggered endstop, which shortly marks the block for discard.
+  endstops.update();
+
 }
 
 // Generate data points of the trajectory.
@@ -565,6 +592,7 @@ void FTMotion::makeVector() {
   else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
     dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
+    //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
@@ -573,13 +601,13 @@ void FTMotion::makeVector() {
     accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
   }
 
-  #define _FTM_TRAJ(A) traj.A[makeVector_batchIdx] = startPosn.A + ratio.A * dist;
-  LOGICAL_AXIS_MAP_LC(_FTM_TRAJ);
+  #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPosn.q + ratio.q * dist;
+  LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
       float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
-      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
+      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK;
 
       e_raw_z1 = traj.e[makeVector_batchIdx];
       e_advanced_z1 += dedt_adj * (FTM_TS);
@@ -592,18 +620,21 @@ void FTMotion::makeVector() {
   switch (cfg.dynFreqMode) {
 
     #if HAS_DYNAMIC_FREQ_MM
-      case dynFreqMode_Z_BASED:
-        if (traj.z[makeVector_batchIdx] != 0.0f) { // Only update if Z changed.
+      case dynFreqMode_Z_BASED: {
+        static float oldz = 0.0f;
+        const float z = traj.z[makeVector_batchIdx];
+        if (z != oldz) { // Only update if Z changed.
+          oldz = z;
           #if HAS_X_AXIS
-            const float xf = cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS], _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta[X_AXIS]);
+            const float xf = cfg.baseFreq.x + cfg.dynFreqK.x * z;
+            shaping.x.set_axis_shaping_N(cfg.shaper.x, _MAX(xf, FTM_MIN_SHAPE_FREQ), cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            const float yf = cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.z[makeVector_batchIdx];
-            shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta[Y_AXIS]);
+            const float yf = cfg.baseFreq.y + cfg.dynFreqK.y * z;
+            shaping.y.set_axis_shaping_N(cfg.shaper.y, _MAX(yf, FTM_MIN_SHAPE_FREQ), cfg.zeta.y);
           #endif
         }
-        break;
+      } break;
     #endif
 
     #if HAS_DYNAMIC_FREQ_G
@@ -611,10 +642,10 @@ void FTMotion::makeVector() {
         // Update constantly. The optimization done for Z value makes
         // less sense for E, as E is expected to constantly change.
         #if HAS_X_AXIS
-          shaping.x.set_axis_shaping_N(cfg.shaper[X_AXIS],  cfg.baseFreq[X_AXIS] + cfg.dynFreqK[X_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[X_AXIS]);
+          shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[makeVector_batchIdx], cfg.zeta.x);
         #endif
         #if HAS_Y_AXIS
-          shaping.y.set_axis_shaping_N(cfg.shaper[Y_AXIS], cfg.baseFreq[Y_AXIS] + cfg.dynFreqK[Y_AXIS] * traj.e[makeVector_batchIdx], cfg.zeta[Y_AXIS]);
+          shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[makeVector_batchIdx], cfg.zeta.y);
         #endif
         break;
     #endif
@@ -623,7 +654,8 @@ void FTMotion::makeVector() {
   }
 
   // Apply shaping if active on each axis
-  #if HAS_X_AXIS
+  #if HAS_FTM_SHAPING
+    #if HAS_X_AXIS
       if (shaping.x.ena) {
         shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
         traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
@@ -632,19 +664,20 @@ void FTMotion::makeVector() {
           traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
         }
       }
-
-      #if HAS_Y_AXIS
-        if (shaping.y.ena) {
-          shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
-          traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
-          for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
-            const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-            traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
-          }
-        }
-      #endif
-      if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
     #endif
+
+    #if HAS_Y_AXIS
+      if (shaping.y.ena) {
+        shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
+        traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
+        for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
+          const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
+          traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+        }
+      }
+    #endif
+    if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+  #endif // HAS_FTM_SHAPING
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
@@ -664,7 +697,7 @@ void FTMotion::makeVector() {
  * - Tests for delta are moved outside the loop.
  * - Two functions are used for command computation with an array of function pointers.
  */
-static void (*command_set[SUM_TERN(HAS_EXTRUDERS, NUM_AXES, 1)])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
+static void (*command_set[LOGICAL_AXES])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
 
 static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
   if (e < FTM_CTS_COMPARE_VAL) return;
@@ -714,17 +747,11 @@ void FTMotion::convertToSteps(const uint32_t idx) {
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     cmd = 0;
 
-    // Mark the start of a new block
-    if (markBlockStart) {
-      cmd = _BV(FT_BIT_START);
-      markBlockStart = false;
-    }
-
     // Accumulate the errors for all axes
     err_P += delta;
 
     // Set up step/dir bits for all axes
-    #define _COMMAND_RUN(AXIS) command_set[_AXIS(AXIS)](err_P[_AXIS(AXIS)], steps[_AXIS(AXIS)], cmd, _BV(FT_BIT_DIR_##AXIS), _BV(FT_BIT_STEP_##AXIS));
+    #define _COMMAND_RUN(A) command_set[_AXIS(A)](err_P.A, steps.A, cmd, _BV(FT_BIT_DIR_##A), _BV(FT_BIT_STEP_##A));
     LOGICAL_AXIS_MAP(_COMMAND_RUN);
 
     // Next circular buffer index

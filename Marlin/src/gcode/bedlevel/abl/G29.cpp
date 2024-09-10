@@ -812,7 +812,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
+    ui.reset_status();
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {

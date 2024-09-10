@@ -580,6 +580,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
+  // toggle the ENA state that they all share.
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
     #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
@@ -1531,6 +1532,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
+    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1550,21 +1552,15 @@ void Stepper::isr() {
         if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
           nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
           ftMotion_stepper();             // Run FTM Stepping
-        }
-
-        #if ENABLED(BABYSTEPPING)
-          if (nextBabystepISR == 0) {                   // Avoid ANY stepping too soon after baby-stepping
-            nextBabystepISR = babystepping_isr();
-            NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);  // FULL STOP for 125µs after a baby-step
+          // Define 2.5 msec task for auxilliary functions.
+          if (!ftMotion_nextAuxISR) {
+            TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+            ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
           }
-          if (nextBabystepISR != BABYSTEP_NEVER)        // Avoid baby-stepping too close to axis Stepping
-            NOLESS(nextBabystepISR, nextMainISR / 2);   // TODO: Only look at axes enabled for baby-stepping
-        #endif
-
-        interval = nextMainISR;                         // Interval is either some old nextMainISR or FTM_MIN_TICKS
-        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR)); // Come back early for Babystepping?
-
-        nextMainISR = 0;                                // For FT Motion fire again ASAP
+        }
+        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
+        nextMainISR -= interval;
+        ftMotion_nextAuxISR -= interval;
       }
 
     #endif
@@ -3361,40 +3357,40 @@ void Stepper::_set_position(const abce_long_t &spos) {
   #endif
 }
 
+// AVR requires guards to ensure any atomic memory operation greater than 8 bits
+#define ATOMIC_SECTION_START() const bool was_enabled = suspend()
+#define ATOMIC_SECTION_END() if (was_enabled) wake_up()
+#define AVR_ATOMIC_SECTION_START() TERN_(__AVR__, ATOMIC_SECTION_START())
+#define AVR_ATOMIC_SECTION_END() TERN_(__AVR__, ATOMIC_SECTION_END())
+
 /**
  * Get a stepper's position in steps.
  */
 int32_t Stepper::position(const AxisEnum axis) {
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = count_position[axis];
-
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
-  #endif
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
-// Set the current position in steps
+/**
+ * Set all axis stepper positions in steps
+ */
 void Stepper::set_position(const xyze_long_t &spos) {
   planner.synchronize();
-  const bool was_enabled = suspend();
+  ATOMIC_SECTION_START();
   _set_position(spos);
-  if (was_enabled) wake_up();
+  ATOMIC_SECTION_END();
 }
 
+/**
+ * Set a single axis stepper position in steps
+ */
 void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   planner.synchronize();
 
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
+  #if ANY(__AVR__, INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+    ATOMIC_SECTION_START();
   #endif
 
   count_position[a] = v;
@@ -3402,43 +3398,47 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
   TERN_(INPUT_SHAPING_Y, if (a == Y_AXIS) shaping_y.last_block_end_pos = v);
   TERN_(INPUT_SHAPING_Z, if (a == Z_AXIS) shaping_z.last_block_end_pos = v);
 
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
+  #if ANY(__AVR__, INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+    ATOMIC_SECTION_END();
   #endif
 }
+
+#if HAS_EXTRUDERS
+
+  void Stepper::set_e_position(const int32_t &v) {
+    planner.synchronize();
+
+    AVR_ATOMIC_SECTION_START();
+    count_position.e = v;
+    AVR_ATOMIC_SECTION_END();
+  }
+
+#endif // HAS_EXTRUDERS
 
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
-    //planner.synchronize(); planner already synchronized in M493
-
-    #ifdef __AVR__
-      // Protect the access to the position. Only required for AVR, as
-      //  any 32bit CPU offers atomic access to 32bit variables
-      const bool was_enabled = suspend();
-    #endif
+    planner.synchronize();
 
     // Update stepper positions from the planner
+    AVR_ATOMIC_SECTION_START();
     count_position = planner.position;
-
-    #ifdef __AVR__
-      // Reenable Stepper ISR
-      if (was_enabled) wake_up();
-    #endif
+    AVR_ATOMIC_SECTION_END();
   }
 
 #endif // FT_MOTION
 
-// Signal endstops were triggered - This function can be called from
-// an ISR context  (Temperature, Stepper or limits ISR), so we must
-// be very careful here. If the interrupt being preempted was the
-// Stepper ISR (this CAN happen with the endstop limits ISR) then
-// when the stepper ISR resumes, we must be very sure that the movement
-// is properly canceled
+/**
+ * Record stepper positions and discard the rest of the current block
+ *
+ * WARNING! This function may be called from ISR context!
+ * If the Stepper ISR is preempted (e.g., by the endstop ISR) we
+ * must ensure the move is properly canceled before the ISR resumes.
+ */
 void Stepper::endstop_triggered(const AxisEnum axis) {
 
-  const bool was_enabled = suspend();
+  ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
+
   endstops_trigsteps[axis] = (
     #if IS_CORE
       (axis == CORE_AXIS_2
@@ -3461,23 +3461,14 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
   // Discard the rest of the move if there is a current block
   quick_stop();
 
-  if (was_enabled) wake_up();
+  ATOMIC_SECTION_END();     // Suspend the Stepper ISR on all platforms
 }
 
+// Return the "triggered" position for an axis (that hit an endstop)
 int32_t Stepper::triggered_position(const AxisEnum axis) {
-  #ifdef __AVR__
-    // Protect the access to the position. Only required for AVR, as
-    //  any 32bit CPU offers atomic access to 32bit variables
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const int32_t v = endstops_trigsteps[axis];
-
-  #ifdef __AVR__
-    // Reenable Stepper ISR
-    if (was_enabled) wake_up();
-  #endif
-
+  AVR_ATOMIC_SECTION_END();
   return v;
 }
 
@@ -3506,18 +3497,9 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
 }
 
 void Stepper::report_positions() {
-
-  #ifdef __AVR__
-    // Protect the access to the position.
-    const bool was_enabled = suspend();
-  #endif
-
+  AVR_ATOMIC_SECTION_START();
   const xyz_long_t pos = count_position;
-
-  #ifdef __AVR__
-    if (was_enabled) wake_up();
-  #endif
-
+  AVR_ATOMIC_SECTION_END();
   report_a_position(pos);
 }
 
@@ -3552,15 +3534,6 @@ void Stepper::report_positions() {
     #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
 
     /**
-     * Set bits in axis_did_move for any axes moving in this block,
-     * clearing the bits at the start of each new segment.
-     */
-    if (TEST(command, FT_BIT_START)) axis_did_move.reset();
-
-    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
-
-    /**
      * Update direction bits for steppers that were stepped by this command.
      * HX, HY, HZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
@@ -3571,8 +3544,8 @@ void Stepper::report_positions() {
 
     if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(AXIS) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits[_AXIS(A)] != last_set_direction[_AXIS(AXIS)])) \
-                                     SET_STEP_DIR(AXIS);
+      #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
+                                  SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
@@ -3582,7 +3555,7 @@ void Stepper::report_positions() {
     }
 
     // Start step pulses. Edge stepping will toggle the STEP pin.
-    #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
+    #define _FTM_STEP_START(A) A##_APPLY_STEP(_FTM_STEP(A), false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
     // Apply steps via I2S
@@ -3592,7 +3565,7 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
+    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += last_direction_bits.A ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)
@@ -3620,11 +3593,6 @@ void Stepper::report_positions() {
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
-
-    // Check endstops on every step using axis_did_move as set by every step
-    // TODO: Update endstop states less frequently to save processing.
-    // NOTE: endstops.poll is still called at 1KHz by Temperature ISR.
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, if ((bool)axis_did_move) endstops.update());
 
   } // Stepper::ftMotion_stepper
 
