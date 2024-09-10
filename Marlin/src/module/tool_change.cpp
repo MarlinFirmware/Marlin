@@ -1288,7 +1288,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         magnetic_switching_toolhead_tool_change(new_tool, no_move);
       #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)                 // Magnetic Switching ToolChanger
         em_switching_toolhead_tool_change(new_tool, no_move);
-      #elif ENABLED(SWITCHING_NOZZLE)   // Switching Nozzle
+      #elif ENABLED(SWITCHING_NOZZLE)                                   // Switching Nozzle
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         TERN_(SWITCHING_NOZZLE_TWO_SERVOS, raise_nozzle(old_tool));
@@ -1300,8 +1300,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
           fast_line_to_current(Z_AXIS);
         }
-        #if SWITCHING_NOZZLE_TWO_SERVOS
-         lower_nozzle(new_tool);
+        #if SWITCHING_NOZZLE_TWO_SERVOS                                 // Switching Nozzle with two servos
+          lower_nozzle(new_tool);
         #else
           move_nozzle_servo(new_tool);
         #endif
@@ -1406,14 +1406,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
 
         TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
-      }
+      } // should_move
 
       #if HAS_SWITCHING_NOZZLE
         // Move back down. (Including when the new tool is higher.)
         if (!should_move)
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
       #endif
-
 
     } // (new_tool != old_tool)
 
@@ -1510,7 +1509,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         if (TERN1(DUAL_X_CARRIAGE, dual_x_carriage_mode == DXC_AUTO_PARK_MODE))
           gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_TOOLCHANGE));
       #endif
-    }
+
+    } // !no_move
 
     SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, active_extruder);
 
