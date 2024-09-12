@@ -30,33 +30,30 @@
 
 #include "../../core/language.h"
 #include "mmu2_progress_converter.h"
-#ifdef __AVR__
-  #include <avr/pgmspace.h>
-#endif
 #include "mmu_hw/progress_codes.h"
 #include "mmu_hw/errors_list.h"
 
 namespace MMU3 {
 
   FSTR_P const progressTexts[] PROGMEM = {
-    GET_TEXT_F(MSG_PROGRESS_OK),
-    GET_TEXT_F(MSG_PROGRESS_ENGAGE_IDLER),
-    GET_TEXT_F(MSG_PROGRESS_DISENGAGE_IDLER),
+    GET_TEXT_F(MSG_PROGRESS_OK),              // TODO: Generic messages for Marlin
+    GET_TEXT_F(MSG_PROGRESS_ENGAGE_IDLER),    // reused below
+    GET_TEXT_F(MSG_PROGRESS_DISENGAGE_IDLER), // reused below
     GET_TEXT_F(MSG_PROGRESS_UNLOAD_FINDA),
     GET_TEXT_F(MSG_PROGRESS_UNLOAD_PULLEY),
     GET_TEXT_F(MSG_PROGRESS_FEED_FINDA),
     GET_TEXT_F(MSG_PROGRESS_FEED_EXTRUDER),
     GET_TEXT_F(MSG_PROGRESS_FEED_NOZZLE),
     GET_TEXT_F(MSG_PROGRESS_AVOID_GRIND),
-    GET_TEXT_F(MSG_FINISHING_MOVEMENTS),      // reuse from messages.cpp
+    GET_TEXT_F(MSG_FINISHING_MOVEMENTS),
     GET_TEXT_F(MSG_PROGRESS_DISENGAGE_IDLER), // err disengaging idler is the same text
     GET_TEXT_F(MSG_PROGRESS_ENGAGE_IDLER),    // engage dtto.
     GET_TEXT_F(MSG_PROGRESS_WAIT_USER),
     GET_TEXT_F(MSG_PROGRESS_ERR_INTERNAL),
     GET_TEXT_F(MSG_PROGRESS_ERR_HELP_FIL),
     GET_TEXT_F(MSG_PROGRESS_ERR_TMC),
-    GET_TEXT_F(MSG_UNLOADING_FILAMENT),       // reuse from messages.cpp
-    GET_TEXT_F(MSG_LOADING_FILAMENT),         // reuse from messages.cpp
+    GET_TEXT_F(MSG_UNLOADING_FILAMENT),
+    GET_TEXT_F(MSG_LOADING_FILAMENT),
     GET_TEXT_F(MSG_PROGRESS_SELECT_SLOT),
     GET_TEXT_F(MSG_PROGRESS_PREPARE_BLADE),
     GET_TEXT_F(MSG_PROGRESS_PUSH_FILAMENT),
