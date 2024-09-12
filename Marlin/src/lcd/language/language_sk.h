@@ -148,6 +148,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_EXTRUDE                        = _UxGT("Vytlačiť (extr.)");
   LSTR MSG_RETRACT                        = _UxGT("Vytiahnuť (retr.)");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Posunúť osy");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda a vyrovnanie");
   LSTR MSG_BED_LEVELING                   = _UxGT("Vyrovnanie podložky");
   LSTR MSG_LEVEL_BED                      = _UxGT("Vyrovnať podložku");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Vyrovnať rohy");
@@ -202,13 +203,10 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Zmerajte");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Odstráňte a zmerajte");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Presun na ďalší");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktivovať UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Deaktivovať UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Teplota podložky");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Teplota podložky");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Teplota hotendu");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Teplota hotendu");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Úprava siete bodov");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Upraviť vlastnú sieť");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Doladiť sieť bodov");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Koniec úprav siete");
@@ -569,6 +567,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z posuň");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Hranica sondy");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Rýchl. posunu Z");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Povoliť rež. HS");

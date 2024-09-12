@@ -350,7 +350,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
         G0_G1(TERN_(HAS_FAST_MOVES, parser.codenum == 0)); break;
 
-      #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
+      #if ENABLED(ARC_SUPPORT)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
       #endif
 
@@ -859,7 +859,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if HAS_PRUSA_MMU2
+      #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
         case 403: M403(); break;
       #endif
 
@@ -986,6 +986,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         case 701: M701(); break;                                  // M701: Load Filament
         case 702: M702(); break;                                  // M702: Unload Filament
+      #endif
+
+      #if HAS_PRUSA_MMU3
+        case 704: M704(); break;                                  // M704: Preload to MMU
+        case 705: M705(); break;                                  // M705: Eject filament
+        case 706: M706(); break;                                  // M706: Cut filament
+        case 707: M707(); break;                                  // M707: Read from MMU register
+        case 708: M708(); break;                                  // M708: Write to MMU register
+        case 709: M709(); break;                                  // M709: MMU power & reset
       #endif
 
       #if ENABLED(CONTROLLER_FAN_EDITABLE)

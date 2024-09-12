@@ -150,6 +150,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_EXTRUDE                        = _UxGT("Ekstrüzyon");
   LSTR MSG_RETRACT                        = _UxGT("Geri Çek");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Eksen Hareketleri");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Prob ve Seviyeleme");
   LSTR MSG_BED_LEVELING                   = _UxGT("Tabla Seviyeleme");
   LSTR MSG_LEVEL_BED                      = _UxGT("Tablayı Seviyele");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tabla Hizalama");
@@ -205,13 +206,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Ölçüm");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Tablayı Kaldır & Ölç");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Sonrakine Git");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL'i Aktifleştir");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL'i Pasifleştir");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Nozul Sıcaklığı");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Nozul Sıcaklığı");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Mesh Düzenleme");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Özel Mesh Düzenleme");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("İnce Ayar Mesh");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Mesh Düzenleme Tamam");
@@ -588,6 +586,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofseti");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofseti");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofseti");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z ayarı adımsal");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Prob Payı");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z İlerleme Hızı");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS modunu aç");

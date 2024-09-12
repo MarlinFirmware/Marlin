@@ -38,8 +38,10 @@
 #include "../../../sd/cardreader.h"
 #include "../../../module/planner.h"
 #include "../../../module/servo.h"
-#include "../../../module/probe.h"
 
+#if HAS_Z_SERVO_PROBE
+  #include "../../../module/probe.h"
+#endif
 #if DISABLED(EMERGENCY_PARSER)
   #include "../../../module/motion.h"
 #endif

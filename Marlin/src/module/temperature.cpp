@@ -70,6 +70,52 @@
   #include "../feature/spindle_laser.h"
 #endif
 
+#ifndef TEMP_SENSOR_0
+  #define TEMP_SENSOR_0 0
+#endif
+#ifndef TEMP_SENSOR_1
+  #define TEMP_SENSOR_1 0
+#endif
+#ifndef TEMP_SENSOR_2
+  #define TEMP_SENSOR_2 0
+#endif
+#ifndef TEMP_SENSOR_3
+  #define TEMP_SENSOR_3 0
+#endif
+#ifndef TEMP_SENSOR_4
+  #define TEMP_SENSOR_4 0
+#endif
+#ifndef TEMP_SENSOR_5
+  #define TEMP_SENSOR_5 0
+#endif
+#ifndef TEMP_SENSOR_6
+  #define TEMP_SENSOR_6 0
+#endif
+#ifndef TEMP_SENSOR_7
+  #define TEMP_SENSOR_7 0
+#endif
+#ifndef TEMP_SENSOR_BED
+  #define TEMP_SENSOR_BED 0
+#endif
+#ifndef TEMP_SENSOR_BOARD
+  #define TEMP_SENSOR_BOARD 0
+#endif
+#ifndef TEMP_SENSOR_CHAMBER
+  #define TEMP_SENSOR_CHAMBER 0
+#endif
+#ifndef TEMP_SENSOR_COOLER
+  #define TEMP_SENSOR_COOLER 0
+#endif
+#ifndef TEMP_SENSOR_PROBE
+  #define TEMP_SENSOR_PROBE 0
+#endif
+#ifndef TEMP_SENSOR_REDUNDANT
+  #define TEMP_SENSOR_REDUNDANT 0
+#endif
+#ifndef TEMP_SENSOR_SOC
+  #define TEMP_SENSOR_SOC 0
+#endif
+
 // MAX TC related macros
 #define TEMP_SENSOR_IS_MAX(n, M) (ENABLED(TEMP_SENSOR_##n##_IS_MAX##M) || (ENABLED(TEMP_SENSOR_REDUNDANT_IS_MAX##M) && REDUNDANT_TEMP_MATCH(SOURCE, E##n)))
 
@@ -413,7 +459,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
   #endif
 
   #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-    bool Temperature::fans_paused; // = false;
+    bool Temperature::fans_paused; // = false
     uint8_t Temperature::saved_fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, FAN_OFF_PWM);
   #endif
 
@@ -1104,7 +1150,7 @@ volatile bool Temperature::raw_temps_ready = false;
       if (ELAPSED(curr_time_ms, next_test_ms)) {
         hotend.soft_pwm_amount = (int)get_pid_output_hotend(e) >> 1;
 
-        if (ELAPSED(curr_time_ms, settle_end_ms) && !ELAPSED(curr_time_ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
+        if (ELAPSED(curr_time_ms, settle_end_ms) && PENDING(curr_time_ms, test_end_ms) && TERN1(HAS_FAN, !fan0_done))
           total_energy_fan0 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #if HAS_FAN
           else if (ELAPSED(curr_time_ms, test_end_ms) && !fan0_done) {
@@ -1114,7 +1160,7 @@ volatile bool Temperature::raw_temps_ready = false;
             test_end_ms = settle_end_ms + test_duration;
             fan0_done = true;
           }
-          else if (ELAPSED(curr_time_ms, settle_end_ms) && !ELAPSED(curr_time_ms, test_end_ms))
+          else if (ELAPSED(curr_time_ms, settle_end_ms) && PENDING(curr_time_ms, test_end_ms))
             total_energy_fan255 += mpc.heater_power * hotend.soft_pwm_amount / 127 * MPC_dT + (last_temp - current_temp) * mpc.block_heat_capacity;
         #endif
         else if (ELAPSED(curr_time_ms, test_end_ms)) break;
@@ -1926,7 +1972,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     #endif
 
     #if ANY(CHAMBER_FAN, CHAMBER_VENT) || DISABLED(PIDTEMPCHAMBER)
-      static bool flag_chamber_excess_heat; // = false;
+      static bool flag_chamber_excess_heat; // = false
     #endif
 
     #if ANY(CHAMBER_FAN, CHAMBER_VENT)

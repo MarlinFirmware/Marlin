@@ -132,6 +132,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudieren");
   LSTR MSG_RETRACT                        = _UxGT("Einzug");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Achsen bewegen");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonden nivellieren");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bett-Nivellierung");
   LSTR MSG_LEVEL_BED                      = _UxGT("Bett nivellieren");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bett ausrichten");
@@ -186,13 +187,10 @@ namespace LanguageNarrow_de {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Messen");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Entfernen & messen");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Nächster Punkt...");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktivieren");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL deaktivieren");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Betttemperatur");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Betttemperatur");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Hotend-Temp.");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hotend-Temp.");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Netz bearbeiten");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Eigenes Netz bearb.");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Feineinstellung...");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Bearbeitung beendet");
@@ -527,6 +525,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sondenversatz Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sondenversatz Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z Offset mit Pas");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Sondenrand");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z-Vorschub");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS-Modus aktivieren");

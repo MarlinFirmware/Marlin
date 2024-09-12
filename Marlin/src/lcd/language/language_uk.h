@@ -117,6 +117,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_EXTRUDE                          = _UxGT("Екструзія");
   LSTR MSG_RETRACT                          = _UxGT("Втягування");
   LSTR MSG_MOVE_AXIS                        = _UxGT("Рух по осям");
+  LSTR MSG_PROBE_AND_LEVEL                  = _UxGT("Проба/вирівнювання");
   LSTR MSG_BED_LEVELING                     = _UxGT("Вирівнювання столу");
   LSTR MSG_LEVEL_BED                        = _UxGT("Вирівняти стіл");
   LSTR MSG_BED_TRAMMING                     = _UxGT("Вирівняти кути");
@@ -159,8 +160,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Вимірювання");
   LSTR MSG_UBL_BC_REMOVE                    = _UxGT("Видали і вимір. стіл");
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Рух до наступної");
-  LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активувати UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивувати UBL");
   LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
@@ -168,7 +167,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_EDIT_CUSTOM_MESH             = _UxGT("Редагувати свою");
   LSTR MSG_UBL_FINE_TUNE_MESH               = _UxGT("Точне редаг. сітки");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH            = _UxGT("Будувати свою");
-  LSTR MSG_UBL_MESH_EDIT                    = _UxGT("Редагування сітки");
   LSTR MSG_UBL_DONE_EDITING_MESH            = _UxGT("Сітка побудована");
   LSTR MSG_UBL_BUILD_MESH_MENU              = _UxGT("Будувати сітку");
   LSTR MSG_UBL_BUILD_MESH_M                 = _UxGT("Будувати сітку ($)");
@@ -477,6 +475,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Зміщення по X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Зміщення по Y");
   LSTR MSG_ZPROBE_ZOFFSET                   = _UxGT("Зміщення по Z");
+  LSTR MSG_BABYSTEP_PROBE_Z                 = _UxGT("Крок Z зміщення");
   LSTR MSG_MOVE_NOZZLE_TO_BED               = _UxGT("Рухати сопло до столу");
   LSTR MSG_BABYSTEP_X                       = _UxGT("Мікрокрок X");
   LSTR MSG_BABYSTEP_Y                       = _UxGT("Мікрокрок Y");

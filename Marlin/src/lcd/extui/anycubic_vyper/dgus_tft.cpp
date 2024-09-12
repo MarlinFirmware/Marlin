@@ -1670,7 +1670,8 @@ namespace Anycubic {
       if (getAxisPosition_mm(Z) < 0) setAxisPosition_mm(0, Z, 8);
     }
 
-    //  if (!planner.movesplanned())return;
+    //if (!planner.has_blocks_queued()) return;
+
     switch (key_value) {
       case 0:
         break;
