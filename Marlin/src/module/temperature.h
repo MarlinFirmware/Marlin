@@ -437,9 +437,8 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
-  #if ENABLED(HAS_PELTIER)
-    //the abstract peltier_dir is defined as heat=true, cool=false.  See PELTIER_PIN_INVERT for implementation status
-    bool peltier_dir = false;
+  #if ENABLED(PELTIER_BED)
+    bool peltier_dir_heating; // = false
   #endif
 } heater_info_t;
 
@@ -612,9 +611,6 @@ class Temperature {
 
     #if HAS_HEATED_BED
       static bed_info_t temp_bed;
-    #endif
-    #if ENABLED(HAS_PELTIER)
-      static bool peltier_dir;
     #endif
     #if HAS_TEMP_PROBE
       static probe_info_t temp_probe;
