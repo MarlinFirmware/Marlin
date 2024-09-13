@@ -822,13 +822,13 @@
  *
  * A second GPIO pin is required to control current direction.
  * Two configurations are possible: Relay and H-Bridge
- * only relay is supported on this pass. (H bridge requires 4 MOS switches configured in H-Bridge)
- * //todo: H bridge pin configurations
  *
+ * (At this time only relay is supported. H-bridge requires 4 MOS switches configured in H-Bridge.)
+ *
+ * Power is handled by the bang-bang control loop: 0 or 255.
  * Cooling applications are more common than heating, so the pin states are commonly:
- * LOW  = Heating = Relay Energized
- * HIGH = Cooling = Relay in "Normal" state
- * (Power is handled by the bang-bang control loop: 0 or 255)
+ *   LOW  = Heating = Relay Energized
+ *   HIGH = Cooling = Relay in "Normal" state
  */
 //#define PELTIER_BED
 #if ENABLED(PELTIER_BED)
