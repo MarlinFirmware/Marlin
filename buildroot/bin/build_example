@@ -32,8 +32,9 @@ build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/bu
 }
 
 HERE=`dirname $0`
+PATH="$HERE:$PATH"
 
-source "$HERE/mfutil"
+. mfutil
 
 annc() { echo -e "\033[0;32m$1\033[0m" ; }
 
@@ -100,7 +101,7 @@ SUB="$SUB1/$CONFIG"
 [[ -d "$SUB" ]] || { echo "-c|--config $CONFIG doesn't exist" ; exit 1 ; }
 
 # ...and contains Configuration.h or Configuration_adv.h
-[[ -n $(compgen -G "$SUB/Configuration*.h") ]] || { echo "No configuration files found in $SUB" ; exit 1 ; }
+[[ -f "$SUB"/Configuration.h  || -f "$SUB"/Configuration_adv.h ]] || { echo "No configuration files found in $SUB" ; exit 1 ; }
 
 # Get the location for exports and archives
 if [[ -n $OUTBASE ]]; then
@@ -173,7 +174,7 @@ fi
 set +e
 
 echo "Building example $CONFIG ..."
-"$HERE/mftest" -s -a -n1 ; ERR=$?
+mftest -s -a -n1 ; ERR=$?
 
 ((ERR)) && echo "Failed" || echo "Success"
 
@@ -191,6 +192,7 @@ fi
 #       Currently only BOARD_CREALITY_F401RE env:STM32F401RE_creality
 if ((ARCHIVE)); then
   annc "Archiving"
+  rm -f "$ARCSUB"/*.bin.tar.gz "$ARCSUB"/*.hex.tar.gz
   find "$BUILD" \( "${BNAME[@]}" \) -exec sh -c '
     ARCSUB="$1"
     shift 1
