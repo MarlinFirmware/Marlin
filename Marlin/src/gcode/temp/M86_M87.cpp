@@ -37,7 +37,7 @@ void GcodeSuite::M86_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   hotend_idle_settings_t &c = hotend_idle.cfg;
-  report_heading(forReplay, F("Hotend Idle Timeout"));
+  report_heading(forReplay, F(STR_HOTEND_TIMEOUT));
   SERIAL_ECHOLNPGM("  M86"
     #if HAS_HEATED_BED
       " B", c.bed_target,

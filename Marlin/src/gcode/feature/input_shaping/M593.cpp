@@ -30,7 +30,7 @@
 void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  report_heading_etc(forReplay, F("Input Shaping"));
+  report_heading_etc(forReplay, F(STR_INPUT_SHAPING));
   #if ENABLED(INPUT_SHAPING_X)
     SERIAL_ECHOLNPGM("  M593 X"
       " F", stepper.get_shaping_frequency(X_AXIS),

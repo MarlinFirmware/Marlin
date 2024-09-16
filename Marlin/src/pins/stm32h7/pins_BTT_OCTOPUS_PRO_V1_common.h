@@ -147,7 +147,7 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PC0   // PWRDET

@@ -87,7 +87,7 @@
 // Power-loss Detection
 //
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PC13  // Power Loss Detection: PWR-DET
+  #define POWER_LOSS_PIN                    PC13  // Power-Loss Detection: PWR-DET
 #endif
 
 #ifndef BOARD_NEOPIXEL_PIN

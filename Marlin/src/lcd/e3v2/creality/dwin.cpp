@@ -2485,13 +2485,13 @@ void itemAdvBedPID(const uint8_t row) {
 
   void itemAdv_PLR(const uint8_t row) {
     if (false && hmiIsChinese()) {
-      // TODO: Chinese "Power-loss Recovery"
+      // TODO: Chinese "Power-Loss Recovery"
     }
     else {
       #ifdef USE_STRING_TITLES
         dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
       #else
-        itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
+        itemAreaCopy(1, 208, 137, 221, row);  // "Power-Loss Recovery"
       #endif
     }
     drawMenuLine(row, ICON_Motion);
@@ -2530,7 +2530,7 @@ void drawAdvancedSettingsMenu() {
   if (AVISI(ADVSET_CASE_HEPID)) itemAdvHotendPID(ASCROL(ADVSET_CASE_HEPID));            // Nozzle PID
   if (AVISI(ADVSET_CASE_BEDPID)) itemAdvBedPID(ASCROL(ADVSET_CASE_BEDPID));             // Bed PID
   #if ENABLED(POWER_LOSS_RECOVERY)
-    if (AVISI(ADVSET_CASE_PWRLOSSR)) itemAdv_PLR(ASCROL(ADVSET_CASE_PWRLOSSR));          // Power-loss recovery
+    if (AVISI(ADVSET_CASE_PWRLOSSR)) itemAdv_PLR(ASCROL(ADVSET_CASE_PWRLOSSR));          // Power-Loss Recovery
   #endif
   if (select_advset.now != CASE_BACK) drawMenuCursor(ASCROL(select_advset.now));
 }

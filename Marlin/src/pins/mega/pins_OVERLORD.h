@@ -111,7 +111,7 @@
 
 #if ENABLED(BATTERY_STATUS_AVAILABLE)
   #undef BATTERY_STATUS_PIN
-  #define BATTERY_STATUS_PIN                  26  // Status of power loss battery, whether it is charged (low) or charging (high)
+  #define BATTERY_STATUS_PIN                  26  // Status of power-loss battery, whether it is charged (low) or charging (high)
 #endif
 #if ENABLED(INPUT_VOLTAGE_AVAILABLE)
   #undef VOLTAGE_DETECTION_PIN

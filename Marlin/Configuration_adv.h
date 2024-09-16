@@ -4173,7 +4173,7 @@
  * Alternative Supplier: https://reliabuild3d.com/
  *
  * Reliabuild encoders have been modified to improve reliability.
- * @section i2c encoders
+ * @section I2C encoders
  */
 
 //#define I2C_POSITION_ENCODERS

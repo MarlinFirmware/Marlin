@@ -94,9 +94,9 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
-#define POWER_LOSS_PIN                        69  // Pin to detect power loss
+#define POWER_LOSS_PIN                        69  // Pin to detect power-loss
 #define POWER_LOSS_STATE                     LOW
 
 //

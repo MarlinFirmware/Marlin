@@ -75,7 +75,7 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PC4   // T0
-#define TEMP_1_PIN                          -1    // T1 PA6 used for power loss
+#define TEMP_1_PIN                          -1    // T1 PA6 used for power-loss
 #define TEMP_BED_PIN                        PB0   // TB
 
 //

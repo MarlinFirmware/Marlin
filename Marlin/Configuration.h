@@ -3147,7 +3147,7 @@
 //#define U8GLIB_SH1106_EINSTART
 
 //
-// Overlord OLED display/controller with i2c buzzer and LEDs
+// Overlord OLED display/controller with I2C buzzer and LEDs
 //
 //#define OVERLORD_OLED
 
