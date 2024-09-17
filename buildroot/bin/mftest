@@ -163,7 +163,7 @@ if ((AUTO_BUILD)); then
   #
   # Get the MOTHERBOARD define value from the .h file and strip off the "BOARD_" prefix
   #
-  ACODE='/[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
+  ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
   MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
   [[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
