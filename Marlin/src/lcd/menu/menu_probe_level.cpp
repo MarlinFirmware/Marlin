@@ -243,7 +243,7 @@
 void menu_probe_level() {
   const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
 
-  #if HAS_LEVELING
+  #if HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
     const bool is_homed = all_axes_homed(),
                is_valid = leveling_is_valid();
   #endif
