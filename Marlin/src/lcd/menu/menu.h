@@ -145,6 +145,8 @@ typedef union {
   uint16_t  uint16;
   uint32_t  uint32;
   celsius_t celsius;
+  void      *ptr;
+  FSTR_P    fstr;
 } chimera_t;
 
 extern chimera_t editable;

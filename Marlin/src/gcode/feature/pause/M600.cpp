@@ -34,9 +34,14 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "../../../feature/mmu3/mmu2.h"
+  #if ENABLED(MMU_MENUS)
+    #include "../../../lcd/menu/menu_mmu2.h"
+  #endif
+#elif HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
-  #if ENABLED(MMU2_MENUS)
+  #if ENABLED(MMU_MENUS)
     #include "../../../lcd/menu/menu_mmu2.h"
   #endif
 #endif
@@ -67,6 +72,9 @@
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
  *  T[toolhead] - Select extruder for filament change
  *  R[temp]     - Resume temperature (in current units)
+ *
+ * With MMU_MENUS:
+ *  A           - Automatic
  *
  *  Default values are used for omitted arguments.
  */
@@ -101,7 +109,7 @@ void GcodeSuite::M600() {
     }
   #endif
 
-  const bool standardM600 = TERN1(MMU2_MENUS, !mmu2.enabled());
+  const bool standardM600 = TERN1(MMU_MENUS, TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu3.mmu_hw_enabled));
 
   // Show initial "wait for start" message
   if (standardM600)
@@ -157,14 +165,17 @@ void GcodeSuite::M600() {
         ABS(parser.axisunitsval('L', E_AXIS, fc_settings[active_extruder].load_length)),
         ADVANCED_PAUSE_PURGE_LENGTH,
         beep_count,
-        parser.celsiusval('R')
+        parser.celsiusval('R'),
+        true,
+        false
         DXC_PASS
       );
     }
     else {
-      #if ENABLED(MMU2_MENUS)
-        mmu2_M600();
-        resume_print(0, 0, 0, beep_count, 0 DXC_PASS);
+      #if ENABLED(MMU_MENUS)
+        const bool automatic = parser.seen_test('A');
+        mmu2_M600(automatic);
+        resume_print(0, 0, 0, beep_count, 0, !automatic, false DXC_PASS);
       #endif
     }
   }

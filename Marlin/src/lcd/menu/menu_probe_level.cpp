@@ -21,19 +21,27 @@
  */
 
 //
-// Bed Leveling Menus
+// Probe and Level (Calibrate?) Menu
 //
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(LCD_BED_LEVELING)
+#if HAS_MARLINUI_MENU && (HAS_LEVELING || HAS_BED_PROBE)
 
 #include "menu_item.h"
-#include "../../module/planner.h"
+
 #include "../../feature/bedlevel/bedlevel.h"
 
-#if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+#if HAS_LEVELING
+  #include "../../module/planner.h" // for leveling_active, z_fade_height
+#endif
+
+#if HAS_BED_PROBE
   #include "../../module/probe.h"
+#endif
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../feature/babystep.h"
 #endif
 
 #if HAS_GRAPHICAL_TFT
@@ -43,7 +51,7 @@
   #endif
 #endif
 
-#if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
@@ -201,7 +209,7 @@
     queue.inject_P(G28_STR);
   }
 
-#endif // PROBE_MANUALLY || MESH_BED_LEVELING
+#endif // LCD_BED_LEVELING && (PROBE_MANUALLY || MESH_BED_LEVELING)
 
 #if ENABLED(MESH_EDIT_MENU)
 
@@ -222,89 +230,184 @@
 
 #endif // MESH_EDIT_MENU
 
-/**
- * Step 1: Bed Level entry-point
- *
- * << Motion
- *    Auto Home           (if homing needed)
- *    Leveling On/Off     (if data exists, and homed)
- *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
- *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
- *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
- *    Level Bed >
- *    Bed Tramming >      (if homed)
- *    Load Settings       (Req: EEPROM_SETTINGS)
- *    Save Settings       (Req: EEPROM_SETTINGS)
- */
-void menu_bed_leveling() {
-  const bool is_homed = all_axes_trusted(),
-             is_valid = leveling_is_valid();
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  void _lcd_ubl_level_bed();
+#endif
+
+#if ENABLED(ASSISTED_TRAMMING_WIZARD)
+  void goto_tramming_wizard();
+#endif
+
+// Include a sub-menu when there's manual probing
+
+void menu_probe_level() {
+  const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
+
+  #if HAS_LEVELING
+    const bool is_homed = all_axes_homed(),
+               is_valid = leveling_is_valid();
+  #endif
+
+  #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
+    const bool is_trusted = all_axes_trusted();
+  #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MOTION);
 
-  // Auto Home if not using manual probing
-  #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
-    if (!is_homed) GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
-  #endif
+  //
+  // ^ Main
+  //
+  BACK_ITEM(MSG_MAIN_MENU);
 
-  // Level Bed
-  #if ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
-    // Manual leveling uses a guided procedure
-    SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
-  #else
-    // Automatic leveling can just run the G-code
-    GCODES_ITEM(MSG_LEVEL_BED, is_homed ? F("G29") : F("G29N"));
-  #endif
+  if (!g29_in_progress) {
 
-  #if ENABLED(MESH_EDIT_MENU)
-    if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
-  #endif
+    // Auto Home if not using manual probing
+    #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
+      if (!is_trusted) GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
+    #endif
 
-  // Homed and leveling is valid? Then leveling can be toggled.
-  if (is_homed && is_valid) {
-    bool show_state = planner.leveling_active;
-    EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
-  }
+    #if HAS_LEVELING
+
+      // Homed and leveling is valid? Then leveling can be toggled.
+      if (is_homed && is_valid) {
+        bool show_state = planner.leveling_active;
+        EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
+      }
+
+      //
+      // Level Bed
+      //
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        // UBL uses a guided procedure
+        SUBMENU(MSG_UBL_LEVELING, _lcd_ubl_level_bed);
+      #elif ANY(PROBE_MANUALLY, MESH_BED_LEVELING)
+        #if ENABLED(LCD_BED_LEVELING)
+          // Manual leveling uses a guided procedure
+          SUBMENU(MSG_LEVEL_BED, _lcd_level_bed_continue);
+        #endif
+      #else
+        // Automatic leveling can just run the G-code
+        GCODES_ITEM(MSG_LEVEL_BED, is_homed ? F("G29") : F("G29N"));
+      #endif
+
+      //
+      // Edit Mesh (non-UBL)
+      //
+      #if ENABLED(MESH_EDIT_MENU)
+        if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
+      #endif
+
+      //
+      // Mesh Bed Leveling Z-Offset
+      //
+      #if ENABLED(MESH_BED_LEVELING)
+        #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
+          #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
+        #else
+          #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+        #endif
+        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+      #endif
+
+    #endif
+
+  } // no G29 in progress
 
   // Z Fade Height
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(SLIM_LCD_MENUS)
     // Shadow for editing the fade height
     editable.decimal = planner.z_fade_height;
     EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
 
-  //
-  // Mesh Bed Leveling Z-Offset
-  //
-  #if ENABLED(MESH_BED_LEVELING)
-    #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
-      #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
-    #else
-      #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
+  if (!g29_in_progress) {
+    //
+    // Probe Deploy/Stow
+    //
+    #if ENABLED(PROBE_DEPLOY_STOW_MENU)
+      GCODES_ITEM(MSG_MANUAL_DEPLOY, F("M401"));
+      GCODES_ITEM(MSG_MANUAL_STOW, F("M402"));
     #endif
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
-  #endif
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-  #elif HAS_BED_PROBE
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
-  #endif
+    // Tare the probe on-demand
+    #if ENABLED(PROBE_TARE_MENU)
+      ACTION_ITEM(MSG_TARE_PROBE, probe.tare);
+    #endif
 
-  #if ENABLED(PROBE_OFFSET_WIZARD)
-    SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
-  #endif
+    //
+    // Probe XY Offsets
+    //
+    #if HAS_PROBE_XY_OFFSET
+      EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
+      EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
+    #endif
 
-  #if ENABLED(LCD_BED_TRAMMING)
-    SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
-  #endif
+    //
+    // Probe Z Offset - Babystep or Edit
+    //
+    if (can_babystep_z) {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        SUBMENU(MSG_BABYSTEP_PROBE_Z, lcd_babystep_zoffset);
+      #endif
+    }
+    else {
+      #if HAS_BED_PROBE
+        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+      #endif
+    }
 
-  #if ENABLED(EEPROM_SETTINGS)
-    ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
-    ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
-  #endif
+    //
+    // Probe Z Offset Wizard
+    //
+    #if ENABLED(PROBE_OFFSET_WIZARD)
+      SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+    #endif
+
+    //
+    // Probe Repeatability Test
+    //
+    #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+      GCODES_ITEM(MSG_M48_TEST, F("G28O\nM48 P10"));
+    #endif
+
+    //
+    // Assisted Bed Tramming
+    //
+    #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+      SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
+    #endif
+
+    //
+    // Bed Tramming Submenu
+    //
+    #if ENABLED(LCD_BED_TRAMMING)
+      SUBMENU(MSG_BED_TRAMMING, _lcd_bed_tramming);
+    #endif
+
+    //
+    // Auto Z-Align
+    //
+    #if ANY(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+      GCODES_ITEM(MSG_AUTO_Z_ALIGN, F("G34"));
+    #endif
+
+    //
+    // Twist Compensation
+    //
+    #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+      SUBMENU(MSG_XATC, xatc_wizard_continue);
+    #endif
+
+    //
+    // Store to EEPROM
+    //
+    #if ENABLED(EEPROM_SETTINGS)
+      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+    #endif
+
+  }
+
   END_MENU();
 }
 
-#endif // LCD_BED_LEVELING
+#endif // HAS_MARLINUI_MENU && (HAS_LEVELING || HAS_BED_PROBE)

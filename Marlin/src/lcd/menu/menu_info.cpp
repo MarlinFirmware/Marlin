@@ -213,7 +213,7 @@ void menu_info_board() {
   START_SCREEN();
   STATIC_ITEM_F(F(BOARD_INFO_NAME), SS_DEFAULT|SS_INVERT);      // MyPrinterController
   #ifdef BOARD_WEBSITE_URL
-    STATIC_ITEM_F(F(BOARD_WEBSITE_URL), SS_LEFT);               // www.my3dprinter.com
+    STATIC_ITEM_F(F(BOARD_WEBSITE_URL), SS_CENTER);             // www.my3dprinter.com
   #endif
   PSTRING_ITEM(MSG_INFO_BAUDRATE, STRINGIFY(BAUDRATE), SS_CENTER); // Baud: 250000
   PSTRING_ITEM(MSG_INFO_PROTOCOL, PROTOCOL_VERSION, SS_CENTER);    // Protocol: 1.0

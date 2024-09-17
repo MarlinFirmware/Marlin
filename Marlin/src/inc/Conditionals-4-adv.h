@@ -22,9 +22,15 @@
 #pragma once
 
 /**
- * Conditionals_adv.h
+ * Conditionals-4-adv.h
  * Conditionals set before pins.h and which depend on Configuration_adv.h.
  */
+
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "MarlinConfigPre-4-adv.h"
+//========================================================
 
 #if ENABLED(MARLIN_SMALL_BUILD)
   #undef EEPROM_CHITCHAT
@@ -83,6 +89,9 @@
 
 // Convenience override for a BLTouch alone
 #if ENABLED(BLTOUCH)
+  #ifndef BLTOUCH_DELAY
+    #define BLTOUCH_DELAY 500
+  #endif
   #ifdef BLTOUCH_HS_MODE
     #define HAS_BLTOUCH_HS_MODE 1
   #endif
@@ -94,6 +103,7 @@
 
 #if !HAS_BED_PROBE
   #undef BABYSTEP_ZPROBE_OFFSET
+  #undef PROBING_USE_CURRENT_HOME
 #endif
 #if !HAS_STOWABLE_PROBE
   #undef PROBE_DEPLOY_STOW_MENU
@@ -104,7 +114,6 @@
   //#define LCD_SHOW_E_TOTAL
   #define NO_WORKSPACE_OFFSETS
   #define NO_HOME_OFFSETS
-  #undef AUTOTEMP
   #undef CALIBRATION_MEASURE_LEFT
   #undef CALIBRATION_MEASURE_RIGHT
   #undef CALIBRATION_MEASURE_XMAX
@@ -291,17 +300,9 @@
               #undef HEATER_1_MAXTEMP
               #undef HEATER_1_MINTEMP
               #if HOTENDS < 1
-                #undef AUTOTEMP
                 #undef E0_AUTO_FAN_PIN
                 #undef HEATER_0_MAXTEMP
                 #undef HEATER_0_MINTEMP
-                #undef PID_PARAMS_PER_HOTEND
-                #undef PIDTEMP
-                #undef MPCTEMP
-                #undef PREVENT_COLD_EXTRUSION
-                #undef THERMAL_PROTECTION_HOTENDS
-                #undef THERMAL_PROTECTION_PERIOD
-                #undef WATCH_TEMP_PERIOD
               #endif
             #endif
           #endif
@@ -622,6 +623,10 @@
   #define HAS_MAX31865 1
 #endif
 
+#if !HAS_MAX_TC
+  #undef THERMOCOUPLE_MAX_ERRORS
+#endif
+
 #if TEMP_SENSOR_3 == -4
   #define TEMP_SENSOR_3_IS_AD8495 1
 #elif TEMP_SENSOR_3 == -3
@@ -738,9 +743,6 @@
   #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
     #define TEMP_SENSOR_BED_IS_DUMMY 1
   #endif
-#else
-  #undef BED_MINTEMP
-  #undef BED_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_CHAMBER == -4
@@ -758,10 +760,6 @@
   #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
     #define TEMP_SENSOR_CHAMBER_IS_DUMMY 1
   #endif
-#else
-  #undef THERMAL_PROTECTION_CHAMBER
-  #undef CHAMBER_MINTEMP
-  #undef CHAMBER_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_COOLER == -4
@@ -779,10 +777,6 @@
   #if TEMP_SENSOR_COOLER == 1000
     #define TEMP_SENSOR_COOLER_IS_CUSTOM 1
   #endif
-#else
-  #undef THERMAL_PROTECTION_COOLER
-  #undef COOLER_MINTEMP
-  #undef COOLER_MAXTEMP
 #endif
 
 #if TEMP_SENSOR_PROBE == -4
@@ -819,7 +813,62 @@
   #endif
 #endif
 
-#if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND || HAS_PRUSA_MMU2 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
+#if !ANY_THERMISTOR_IS(-1)
+  #undef TEMP_SENSOR_AD595_GAIN
+  #undef TEMP_SENSOR_AD595_OFFSET
+#endif
+#if !ANY_THERMISTOR_IS(-4)
+  #undef TEMP_SENSOR_AD8495_GAIN
+  #undef TEMP_SENSOR_AD8495_OFFSET
+#endif
+
+#if !ALL(HAS_X_AXIS, HAS_HOTEND)
+  #undef AUTOTEMP
+#endif
+#if DISABLED(THERMAL_PROTECTION_HOTENDS)
+  #undef THERMAL_PROTECTION_PERIOD
+  #undef THERMAL_PROTECTION_HYSTERESIS
+  #undef WATCH_TEMP_PERIOD
+  #undef WATCH_TEMP_INCREASE
+#endif
+#if !ALL(HAS_HOTEND, PIDTEMP)
+  #undef PID_PARAMS_PER_HOTEND
+#endif
+
+#if !TEMP_SENSOR_BED
+  #undef BED_MINTEMP
+  #undef BED_MAXTEMP
+#endif
+#if DISABLED(THERMAL_PROTECTION_BED)
+  #undef THERMAL_PROTECTION_BED_PERIOD
+  #undef THERMAL_PROTECTION_BED_HYSTERESIS
+  #undef WATCH_BED_TEMP_PERIOD
+  #undef WATCH_BED_TEMP_INCREASE
+#endif
+
+#if !TEMP_SENSOR_CHAMBER
+  #undef CHAMBER_MINTEMP
+  #undef CHAMBER_MAXTEMP
+#endif
+#if DISABLED(THERMAL_PROTECTION_CHAMBER)
+  #undef THERMAL_PROTECTION_CHAMBER_PERIOD
+  #undef THERMAL_PROTECTION_CHAMBER_HYSTERESIS
+  #undef WATCH_CHAMBER_TEMP_PERIOD
+  #undef WATCH_CHAMBER_TEMP_INCREASE
+#endif
+
+#if !TEMP_SENSOR_COOLER
+  #undef COOLER_MINTEMP
+  #undef COOLER_MAXTEMP
+#endif
+#if DISABLED(THERMAL_PROTECTION_COOLER)
+  #undef THERMAL_PROTECTION_COOLER_PERIOD
+  #undef THERMAL_PROTECTION_COOLER_HYSTERESIS
+  #undef WATCH_COOLER_TEMP_PERIOD
+  #undef WATCH_COOLER_TEMP_INCREASE
+#endif
+
+#if HAS_MULTI_EXTRUDER || HAS_MULTI_HOTEND || HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
   #define HAS_TOOLCHANGE 1
 #endif
 
@@ -867,6 +916,10 @@
 
 #if ANY(HAS_MEDIA, SET_PROGRESS_MANUALLY)
   #define HAS_PRINT_PROGRESS 1
+#endif
+
+#if !ALL(HAS_MARLINUI_MENU, HAS_MEDIA)
+  #undef SD_MENU_CONFIRM_START
 #endif
 
 #if DISABLED(SET_PROGRESS_MANUALLY)
@@ -1346,34 +1399,14 @@
 #endif
 
 // FT Motion unified window and batch size
-#if ALL(FT_MOTION, FTM_UNIFIED_BWS)
-  #define FTM_WINDOW_SIZE FTM_BW_SIZE
-  #define FTM_BATCH_SIZE  FTM_BW_SIZE
-#endif
-
-// Toolchange Event G-code
-#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
-  #undef TC_GCODE_USE_GLOBAL_X
-  #undef TC_GCODE_USE_GLOBAL_Y
-  #undef TC_GCODE_USE_GLOBAL_Z
-#endif
-
-// TOOLCHANGE_MIGRATION_FEATURE - Clean up after sloppy auto config
-#if DISABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  #undef MIGRATION_ZRAISE
-  #undef MIGRATION_FS_EXTRA_PRIME
-  #undef MIGRATION_FS_WIPE_RETRACT
-  #undef MIGRATION_FS_FAN_SPEED
-  #undef MIGRATION_FS_FAN_TIME
-  #undef TOOLCHANGE_MIGRATION_DO_PARK
-#endif
-// TOOLCHANGE_PARK - Clean up after sloppy auto config
-#if DISABLED(TOOLCHANGE_PARK)
-  #undef TOOLCHANGE_PARK_XY
-  #undef TOOLCHANGE_PARK_XY_FEEDRATE
-  #undef TOOLCHANGE_PARK_X_ONLY
-  #undef TOOLCHANGE_PARK_Y_ONLY
-  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#if ENABLED(FT_MOTION)
+  #if HAS_X_AXIS
+    #define HAS_FTM_SHAPING 1
+  #endif
+  #if ENABLED(FTM_UNIFIED_BWS)
+    #define FTM_WINDOW_SIZE FTM_BW_SIZE
+    #define FTM_BATCH_SIZE  FTM_BW_SIZE
+  #endif
 #endif
 
 // Multi-Stepping Limit
@@ -1387,6 +1420,42 @@
   #define NUM_REDUNDANT_FANS 1
 #endif
 
+// Power-Loss Recovery
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #ifdef PLR_BED_THRESHOLD
+    #define HAS_PLR_BED_THRESHOLD 1
+  #endif
+  #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
+    #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
+  #endif
+#endif
+
+// Toolchange Event G-code
+#if !HAS_MULTI_EXTRUDER || !(defined(EVENT_GCODE_TOOLCHANGE_T0) || defined(EVENT_GCODE_TOOLCHANGE_T1) || defined(EVENT_GCODE_TOOLCHANGE_T2) || defined(EVENT_GCODE_TOOLCHANGE_T3) || defined(EVENT_GCODE_TOOLCHANGE_T4) || defined(EVENT_GCODE_TOOLCHANGE_T5) || defined(EVENT_GCODE_TOOLCHANGE_T6) || defined(EVENT_GCODE_TOOLCHANGE_T7))
+  #undef TC_GCODE_USE_GLOBAL_X
+  #undef TC_GCODE_USE_GLOBAL_Y
+  #undef TC_GCODE_USE_GLOBAL_Z
+#endif
+
+// Clean up for TOOLCHANGE_MIGRATION_FEATURE
+#if DISABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  #undef MIGRATION_ZRAISE
+  #undef MIGRATION_FS_EXTRA_PRIME
+  #undef MIGRATION_FS_WIPE_RETRACT
+  #undef MIGRATION_FS_FAN_SPEED
+  #undef MIGRATION_FS_FAN_TIME
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#endif
+
+// Clean up for TOOLCHANGE_PARK
+#if DISABLED(TOOLCHANGE_PARK)
+  #undef TOOLCHANGE_PARK_XY
+  #undef TOOLCHANGE_PARK_XY_FEEDRATE
+  #undef TOOLCHANGE_PARK_X_ONLY
+  #undef TOOLCHANGE_PARK_Y_ONLY
+  #undef TOOLCHANGE_MIGRATION_DO_PARK
+#endif
+
 // Clean up if only mm units are used
 #if DISABLED(INCH_MODE_SUPPORT)
   #undef MANUAL_MOVE_DISTANCE_IN
@@ -1397,12 +1466,12 @@
   #undef MANUAL_MOVE_DISTANCE_DEG
 #endif
 
-// Power-Loss Recovery
-#if ENABLED(POWER_LOSS_RECOVERY)
-  #ifdef PLR_BED_THRESHOLD
-    #define HAS_PLR_BED_THRESHOLD 1
+// Only report "Not SD printing" when the state changes
+// To get legacy behavior define AUTO_REPORT_SD_STATUS 2
+#ifdef AUTO_REPORT_SD_STATUS
+  #if ENABLED(AUTO_REPORT_SD_STATUS) // Not blank, 1, or true
+    #define QUIETER_AUTO_REPORT_SD_STATUS
   #endif
-  #if ANY(DWIN_CREALITY_LCD, DWIN_LCD_PROUI)
-    #define HAS_PLR_UI_FLAG 1   // recovery.ui_flag_resume
-  #endif
+  #undef AUTO_REPORT_SD_STATUS
+  #define AUTO_REPORT_SD_STATUS
 #endif

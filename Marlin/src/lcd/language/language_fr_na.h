@@ -103,6 +103,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusion");
   LSTR MSG_RETRACT                        = _UxGT("Retractation");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Deplacer un axe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrage auto");
   LSTR MSG_BED_LEVELING                   = _UxGT("Regler Niv. lit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");
@@ -144,13 +145,10 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("oter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activer l'UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desactiver l'UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperature lit");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperature lit");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperature buse");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperature buse");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifier grille");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif. grille perso");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Reglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");
@@ -422,6 +420,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Decalage Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalage Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonde Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");

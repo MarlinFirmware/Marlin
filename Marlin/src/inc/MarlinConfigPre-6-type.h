@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,8 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * $(filename)
- */
+#include "MarlinConfigPre-5-post.h"
+#include "Conditionals-5-post.h"
 
+#ifndef __MARLIN_DEPS__
+  #include HAL_PATH(.., inc/Conditionals_post.h)
+  #include "../core/types.h"  // Ahead of sanity-checks
+#endif
