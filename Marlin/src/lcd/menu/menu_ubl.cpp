@@ -646,8 +646,10 @@ void _lcd_ubl_level_bed() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
 
-  bool show_state = planner.leveling_active;
-  EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
+  #if DISABLED(SLIM_LCD_MENUS)
+    bool show_state = planner.leveling_active;
+    EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
+  #endif
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;

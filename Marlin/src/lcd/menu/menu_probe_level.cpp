@@ -266,7 +266,7 @@ void menu_probe_level() {
       if (!is_trusted) GCODES_ITEM(MSG_AUTO_HOME, FPSTR(G28_STR));
     #endif
 
-    #if HAS_LEVELING
+    #if HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
       // Homed and leveling is valid? Then leveling can be toggled.
       if (is_homed && is_valid) {
