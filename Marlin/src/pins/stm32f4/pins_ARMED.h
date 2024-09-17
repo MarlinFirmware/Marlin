@@ -139,7 +139,7 @@
 #define LED_PIN                             PB7   // Heart beat
 #define PS_ON_PIN                           PA10
 #define KILL_PIN                            PA8
-#define PWR_LOSS                            PA4   // Power loss / nAC_FAULT
+#define PWR_LOSS                            PA4   // Power-Loss / nAC_FAULT
 
 //
 // LCD / Controller
