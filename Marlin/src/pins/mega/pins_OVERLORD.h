@@ -45,7 +45,7 @@
 #define Z_MAX_PIN                             32
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     46  // JP4, Tfeed1

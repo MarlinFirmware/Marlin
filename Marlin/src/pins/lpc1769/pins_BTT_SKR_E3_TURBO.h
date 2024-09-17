@@ -59,7 +59,7 @@
 #define Z_STOP_PIN                    Z_DIAG_PIN
 
 //
-// Z Probe
+// Z-Probe
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                  P1_22

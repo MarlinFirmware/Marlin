@@ -2677,7 +2677,7 @@ void prepare_line_to_destination() {
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
 
     //
-    // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
+    // Homing Z with a probe? Raise Z (maybe) and deploy the Z-Probe.
     //
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy()))
       return;
@@ -2970,7 +2970,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
-    // Put away the Z probe
+    // Put away the Z-Probe
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
@@ -3046,7 +3046,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #endif
 
   /**
-   * Z Probe Z Homing? Account for the probe's Z offset.
+   * Z-Probe Z Homing? Account for the probe's Z offset.
    */
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {

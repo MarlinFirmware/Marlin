@@ -73,7 +73,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
   LSTR MSG_ENDSTOP_TEST                   = _UxGT("Endstop Test");
-  LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
+  LSTR MSG_Z_PROBE                        = _UxGT("Z-Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
   LSTR MSG_AUTO_HOME_A                    = _UxGT("@ Sıfırla");

@@ -92,7 +92,7 @@ void ZOffsetWizard::onRedraw(draw_mode_t what) {
 
   ui.bounds(POLY(z_wizard_heading), x, y, w, h);
   cmd.font(font_large)
-     .text(x, y, w, h, F("Z Probe Wizard"));
+     .text(x, y, w, h, F("Z-Probe Wizard"));
 }
 
 float ZOffsetWizard::getIncrement() {

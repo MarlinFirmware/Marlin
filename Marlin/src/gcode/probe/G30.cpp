@@ -39,7 +39,7 @@
 #endif
 
 /**
- * G30: Do a single Z probe at the given XY (default: current)
+ * G30: Do a single Z-Probe at the given XY (default: current)
  *
  * Parameters:
  *

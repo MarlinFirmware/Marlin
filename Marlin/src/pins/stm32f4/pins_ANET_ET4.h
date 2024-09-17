@@ -61,7 +61,7 @@
 #define Z_STOP_PIN                          PE11
 
 //
-// Z Probe
+// Z-Probe
 //
 #if ENABLED(BLTOUCH)
   #error "You will need to use 24V to 5V converter and remove one resistor and capacitor from the motherboard. See https://bit.ly/3xg9cXO for more information. Comment out this line to proceed at your own risk."

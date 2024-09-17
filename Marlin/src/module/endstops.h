@@ -41,7 +41,7 @@
  * Basic Endstop Flag Bits:
  * - Each axis with an endstop gets a flag for its homing direction.
  *   (The use of "MIN" or "MAX" makes it easier to pair with similarly-named endstop pins.)
- * - Bed probes with a single pin get a Z_MIN_PROBE flag. This includes Sensorless Z Probe.
+ * - Bed probes with a single pin get a Z_MIN_PROBE flag. This includes Sensorless Z-Probe.
  *
  * Extended Flag Bits:
  * - Multi-stepper axes may have multi-endstops such as X2_MIN, Y2_MAX, etc.

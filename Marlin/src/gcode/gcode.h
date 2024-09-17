@@ -56,7 +56,7 @@
  * G27  - Park Nozzle (Requires NOZZLE_PARK_FEATURE)
  * G28  - Home one or more axes
  * G29  - Start or continue the bed leveling probe procedure (Requires bed leveling)
- * G30  - Single Z probe, probes bed at X Y location (defaults to current XY location)
+ * G30  - Single Z-Probe, probes bed at X Y location (defaults to current XY location)
  * G31  - Dock sled (Z_PROBE_SLED only)
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
@@ -112,7 +112,7 @@
  *
  * M42  - Change pin status via G-code: M42 P<pin> S<value>. LED pin assumed if P is omitted. (Requires DIRECT_PIN_CONTROL)
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
- * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
+ * M48  - Measure Z-Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
  * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
@@ -226,8 +226,8 @@
  * M380 - Activate solenoid on active tool (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
  * M381 - Disable solenoids on all tools (Requires EXT_SOLENOID) or the tool specified by 'S' (Requires MANUAL_SOLENOID_CONTROL).
  * M400 - Finish all moves.
- * M401 - Deploy and activate Z probe. (Requires a probe)
- * M402 - Deactivate and stow Z probe. (Requires a probe)
+ * M401 - Deploy and activate Z-Probe. (Requires a probe)
+ * M402 - Deactivate and stow Z-Probe. (Requires a probe)
  * M403 - Set filament type for PRUSA MMU2
  * M404 - Display or set the Nominal Filament Width: "W<diameter>". (Requires FILAMENT_WIDTH_SENSOR)
  * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
@@ -282,7 +282,7 @@
  *
  * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
- * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
+ * M851 - Set Z-Probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, plus SKEW_CORRECTION_FOR_Z for IJ)
  *
  *** I2C_POSITION_ENCODERS ***

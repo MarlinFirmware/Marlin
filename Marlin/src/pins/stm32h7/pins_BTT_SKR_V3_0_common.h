@@ -126,7 +126,7 @@
 #define ONBOARD_ENDSTOPPULLUPS                    // Board has built-in pullups
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PC13

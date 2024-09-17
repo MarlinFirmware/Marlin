@@ -65,7 +65,7 @@
 #define Z_STOP_PIN                          PB7   // Z-STOP
 
 //
-// Z Probe must be this pin
+// Z-Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PA1   // PROBE
 

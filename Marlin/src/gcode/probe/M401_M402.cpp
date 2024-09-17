@@ -33,7 +33,7 @@
 #endif
 
 /**
- * M401: Deploy and activate the Z probe
+ * M401: Deploy and activate the Z-Probe
  *
  * With BLTOUCH_HS_MODE:
  *  H       Report the current BLTouch HS mode state and exit
@@ -60,7 +60,7 @@ void GcodeSuite::M401() {
 }
 
 /**
- * M402: Deactivate and stow the Z probe
+ * M402: Deactivate and stow the Z-Probe
  *  R<bool> Remain in place after stowing (and before deactivating) the probe
  */
 void GcodeSuite::M402() {

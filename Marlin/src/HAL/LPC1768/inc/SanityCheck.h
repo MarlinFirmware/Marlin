@@ -242,7 +242,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #if PIN_IS_SDA2(Y_STOP)
       #error "I2C SDA2 overlaps with Y endstop pin!"
     #elif USE_Z_MIN_PROBE && PIN_IS_SDA2(Z_MIN_PROBE)
-      #error "I2C SDA2 overlaps with Z probe pin!"
+      #error "I2C SDA2 overlaps with Z-Probe pin!"
     #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
       #error "I2C SDA2 overlaps with X/Y ENABLE pin!"
     #elif AXIS_HAS_SPI(X) && PIN_IS_SDA2(X_CS)

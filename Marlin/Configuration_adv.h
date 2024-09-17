@@ -2355,7 +2355,7 @@
 
 /**
  * Use Safe Bed Leveling coordinates to move axes to a useful position before bed probing.
- * For example, after homing a rotational axis the Z probe might not be perpendicular to the bed.
+ * For example, after homing a rotational axis the Z-Probe might not be perpendicular to the bed.
  * Choose values the orient the bed horizontally and the Z-probe vertically.
  */
 //#define SAFE_BED_LEVELING_START_X 0.0

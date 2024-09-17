@@ -403,7 +403,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_BED_PROBE
-        case 30: G30(); break;                                    // G30: Single Z probe
+        case 30: G30(); break;                                    // G30: Single Z-Probe
         #if ENABLED(Z_PROBE_SLED)
           case 31: G31(); break;                                  // G31: dock the sled
           case 32: G32(); break;                                  // G32: undock the sled
@@ -552,7 +552,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-        case 48: M48(); break;                                    // M48: Z probe repeatability test
+        case 48: M48(); break;                                    // M48: Z-Probe repeatability test
       #endif
 
       #if ENABLED(SET_PROGRESS_MANUALLY)

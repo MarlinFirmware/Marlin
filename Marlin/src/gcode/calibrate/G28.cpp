@@ -135,7 +135,7 @@
     sync_plan_position();
 
     /**
-     * Move the Z probe (or just the nozzle) to the safe homing point
+     * Move the Z-Probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };

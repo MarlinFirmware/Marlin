@@ -555,7 +555,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Collega penna USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambia ") MEDIA_TYPE_IT;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe fuori piatto");
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Probe fuori piatto");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Fattore distorsione");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Autotest BLTouch");

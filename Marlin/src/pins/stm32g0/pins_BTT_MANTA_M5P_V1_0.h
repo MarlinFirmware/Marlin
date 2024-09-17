@@ -74,7 +74,7 @@
 #define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
 
 //
-// Z Probe (when not Z_STOP_PIN)
+// Z-Probe (when not Z_STOP_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PC13  // PROBE
