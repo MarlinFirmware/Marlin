@@ -78,7 +78,7 @@
     TERN_(MARLIN_SMALL_BUILD, return);
 
     if (!forReplay) {
-      report_heading(forReplay, F(STR_FILAMENT_SETTINGS), false);
+      report_heading(forReplay, F(STR_VOLUMETRIC_EXTRUSION), false);
       if (!parser.volumetric_enabled) SERIAL_ECHOPGM(" (Disabled):");
       SERIAL_EOL();
       report_echo_start(forReplay);
