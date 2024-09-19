@@ -311,7 +311,7 @@
 void GcodeSuite::M871() {
 
   if (parser.seen('R')) {
-    // Reset z-probe offsets to factory defaults
+    // Reset Z-Probe Offsets to factory defaults
     ptc.clear_all_offsets();
     SERIAL_ECHOLNPGM("Offsets reset to default.");
   }

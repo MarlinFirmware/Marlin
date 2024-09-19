@@ -62,7 +62,7 @@ inline float rounded_mesh_value() {
 /**
  * This screen displays the temporary mesh value and updates it based on encoder
  * movement. While this screen is active bedlevel.fine_tune_mesh sits in a loop getting
- * the current value via ubl_mesh_value, moves the Z axis, and updates the mesh
+ * the current value via ubl_mesh_value, moves the Z-Axis, and updates the mesh
  * value until the encoder button is pressed.
  *
  * - Update the 'mesh_edit_accumulator' from encoder rotation

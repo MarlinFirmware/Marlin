@@ -822,8 +822,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Z Referansını Tarama");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Prob Konumuna Geçme");
 
-  LSTR MSG_XATC                           = _UxGT("X-Twist Sihirbazı");
-  LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Sihirbazı Bitti!");
+  LSTR MSG_XATC                           = _UxGT("X-Axis Twist Sihirbazı");
+  LSTR MSG_XATC_DONE                      = _UxGT("X-Axis Twist Sihirbazı Bitti!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Prob Z-Offset güncelle ");
 
   LSTR MSG_SOUND                          = _UxGT("Ses");

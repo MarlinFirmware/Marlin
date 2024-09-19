@@ -1082,7 +1082,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // X Axis Twist Compensation
+    // X-Axis Twist Compensation
     //
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
       _FIELD_TEST(xatc_spacing);
@@ -2153,7 +2153,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // X Axis Twist Compensation
+      // X-Axis Twist Compensation
       //
       #if ENABLED(X_AXIS_TWIST_COMPENSATION)
         _FIELD_TEST(xatc_spacing);
@@ -3449,7 +3449,7 @@ void MarlinSettings::reset() {
   #endif
 
   //
-  // X Axis Twist Compensation
+  // X-Axis Twist Compensation
   //
   TERN_(X_AXIS_TWIST_COMPENSATION, xatc.reset());
 

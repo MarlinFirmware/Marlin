@@ -741,7 +741,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  *          Leaves current_position.z at the height where the probe triggered.
  *
  * @param sanity_check Flag to compare the probe result with the expected result
- *                     based on the probe Z offset. If the result is too far away
+ *                     based on the Probe Z-Offset. If the result is too far away
  *                     (more than Z_PROBE_ERROR_TOLERANCE too early) then throw an error.
  * @param z_min_point Override the minimum probing height (-2mm), to allow deeper probing.
  * @param z_clearance Z clearance to apply on probe failure.
@@ -1058,7 +1058,7 @@ float Probe::probe_at_point(
      * The servo might be deployed and positioned too low to stow
      * when starting up the machine or rebooting the board.
      * There's no way to know where the nozzle is positioned until
-     * homing has been done - no homing with z-probe without init!
+     * homing has been done - no homing with Z-Probe without init!
      */
     STOW_Z_SERVO();
 

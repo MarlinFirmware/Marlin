@@ -193,7 +193,7 @@ void process_lcd_eb_command(const char *command) {
  * Process an LCD 'J' command.
  * These are currently all movement commands.
  * The command portion begins after the :
- * Move X Axis
+ * Move X-Axis
  *
  * {J:E}{J:X-200}{J:E}
  * {J:E}{J:X+200}{J:E}

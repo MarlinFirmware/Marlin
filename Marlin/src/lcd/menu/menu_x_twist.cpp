@@ -41,7 +41,7 @@ void _goto_manual_move_z(const_float_t);
 float measured_z, z_offset;
 
 //
-// Step 9: X Axis Twist Compensation Wizard is finished.
+// Step 9: X-Axis Twist Compensation Wizard is finished.
 //
 void xatc_wizard_done() {
   if (!ui.wait_for_move) {

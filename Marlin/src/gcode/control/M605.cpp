@@ -52,13 +52,13 @@
    *             make a copy 100mm to the right with E1 2° hotter than E0.
    *
    *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
-   *             the movement of the first except the second extruder is reversed in the X axis.
+   *             the movement of the first except the second extruder is reversed in the X-Axis.
    *             The temperature differential and initial X offset must be set with "M605 S2 X[offs] R[deg]",
    *             then followed by "M605 S3" to initiate mirrored movement.
    *
    *    M605 W  : IDEX What? command.
    *
-   *    Note: the X axis should be homed after changing Dual X-carriage mode.
+   *    Note: the X-Axis should be homed after changing Dual X-carriage mode.
    */
   void GcodeSuite::M605() {
     planner.synchronize();
@@ -92,7 +92,7 @@
           }
           idex_set_mirrored_mode(true);
 
-          // Do a small 'jog' motion in the X axis
+          // Do a small 'jog' motion in the X-Axis
           xyze_pos_t dest = current_position; dest.x -= 0.1f;
           for (uint8_t i = 2; --i;) {
             planner.buffer_line(dest, feedrate_mm_s, 0);

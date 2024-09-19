@@ -99,7 +99,7 @@ void refresh_delta_clip_start_height();
  *
  * Establish a new coordinate system in the plane of the
  * three carriage points. This system has its origin at
- * tower1, with tower2 on the X axis. Tower3 is in the X-Y
+ * tower1, with tower2 on the X-Axis. Tower3 is in the X-Y
  * plane with a Z component of zero.
  * We will define unit vectors in this coordinate system
  * in our original coordinate system. Then when we calculate

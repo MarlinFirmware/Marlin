@@ -81,7 +81,7 @@
     const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
-    // Set homing current to X and Y axis if defined
+    // Set homing current to X and Y-Axis if defined
     #if HAS_CURRENT_HOME(X)
       set_homing_current(X_AXIS);
     #endif
@@ -445,7 +445,7 @@ void GcodeSuite::G28() {
 
       #if ENABLED(FOAMCUTTER_XYUV)
 
-        // Skip homing of unused Z axis for foamcutters
+        // Skip homing of unused Z-Axis for foamcutters
         if (doZ) set_axis_is_at_home(Z_AXIS);
 
       #elif HAS_Z_AXIS

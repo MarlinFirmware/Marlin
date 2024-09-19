@@ -814,8 +814,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Altezza di riferimento sonda");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Spostati in posizione di rilevazione");
 
-  LSTR MSG_XATC                           = _UxGT("Proc.guid.X-Twist");
-  LSTR MSG_XATC_DONE                      = _UxGT("Proc.guid.X-Twist eseg.!");
+  LSTR MSG_XATC                           = _UxGT("Proc.guid.X-Axis Twist");
+  LSTR MSG_XATC_DONE                      = _UxGT("Proc.guid.X-Axis Twist eseg.!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Agg.Offset-Z sonda a ");
 
   LSTR MSG_SOUND                          = _UxGT("Suoni");

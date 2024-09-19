@@ -1498,7 +1498,7 @@ namespace Anycubic {
 
           sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
-          //if (isAxisPositionKnown(Z)) {  // Move Z axis
+          //if (isAxisPositionKnown(Z)) {  // Move Z-Axis
           //  SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
           //  const float currZpos = getAxisPosition_mm(Z);
           //  setAxisPosition_mm(currZpos-0.05, Z);
@@ -1538,7 +1538,7 @@ namespace Anycubic {
           //int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
 
           /*
-          if (isAxisPositionKnown(Z)) {  // Move Z axis
+          if (isAxisPositionKnown(Z)) {  // Move Z-Axis
             SERIAL_ECHOLNPGM("Z now:", getAxisPosition_mm(Z));
             const float currZpos = getAxisPosition_mm(Z);
             setAxisPosition_mm(currZpos-0.05, Z);
@@ -1986,7 +1986,7 @@ namespace Anycubic {
 
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 2, TXT_LEVEL_OFFSET);
 
-        if (isAxisPositionKnown(Z)) {          // Move Z axis
+        if (isAxisPositionKnown(Z)) {          // Move Z-Axis
           const float currZpos = getAxisPosition_mm(Z);
           setAxisPosition_mm(currZpos + 0.01f, Z);
         }

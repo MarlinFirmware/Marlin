@@ -181,7 +181,7 @@
  * M190 - Set bed target temperature and wait. R<temp> Set target temperature and wait. S<temp> Set, but only wait when heating. (Requires TEMP_SENSOR_BED)
  * M192 - Wait for probe to reach target temperature. (Requires TEMP_SENSOR_PROBE)
  * M193 - R<temp> Wait for cooler to reach target temp. ** Wait for cooling. **
- * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
+ * M200 - Set filament diameter, D<diameter>, setting E-Axis units to cubic. (Use S0 to revert to linear units.)
  * M201 - Set max acceleration in units/s^2 for print moves: "M201 X<accel> Y<accel> Z<accel> E<accel>"
  * M202 - Set max acceleration in units/s^2 for travel moves: "M202 X<accel> Y<accel> Z<accel> E<accel>" ** UNUSED IN MARLIN! **
  * M203 - Set maximum feedrate: "M203 X<fr> Y<fr> Z<fr> E<fr>" in units/sec.

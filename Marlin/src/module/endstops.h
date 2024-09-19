@@ -46,8 +46,8 @@
  * Extended Flag Bits:
  * - Multi-stepper axes may have multi-endstops such as X2_MIN, Y2_MAX, etc.
  * - DELTA gets X_MAX, Y_MAX, and Z_MAX corresponding to its "A", "B", "C" towers.
- * - For DUAL_X_CARRIAGE the X axis has both X_MIN and X_MAX flags.
- * - The Z axis may have both MIN and MAX when homing to MAX and the probe is Z_MIN.
+ * - For DUAL_X_CARRIAGE the X-Axis has both X_MIN and X_MAX flags.
+ * - The Z-Axis may have both MIN and MAX when homing to MAX and the probe is Z_MIN.
  * - DELTA Sensorless Probe uses X/Y/Z_MAX but sets the Z_MIN flag.
  *
  * Endstop Flag Bit Aliases:
@@ -253,7 +253,7 @@ class Endstops {
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
     FORCE_INLINE static void hit_on_purpose() { hit_state = 0; }
 
-    // Enable / disable endstop z-probe checking
+    // Enable / disable endstop Z-Probe checking
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
       static void enable_z_probe(const bool onoff=true);

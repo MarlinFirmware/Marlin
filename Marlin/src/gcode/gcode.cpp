@@ -194,7 +194,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
-    // Only update power-loss recovery on moves with E
+    // Only update Power-Loss Recovery on moves with E
     if (recovery.enabled && IS_SD_PRINTING() && seen.e && (seen.x || seen.y))
       recovery.save();
   #endif
@@ -662,8 +662,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
 
       #if HAS_EXTRUDERS
-        case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
-        case 83: M83(); break;                                    // M83: Set E axis relative mode
+        case 82: M82(); break;                                    // M82: Set E-Axis normal mode (same as other axes)
+        case 83: M83(); break;                                    // M83: Set E-Axis relative mode
       #endif
 
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
@@ -887,7 +887,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Twist Compensation data
+        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Axis Twist Compensation data
       #endif
 
       #if ENABLED(BACKLASH_GCODE)

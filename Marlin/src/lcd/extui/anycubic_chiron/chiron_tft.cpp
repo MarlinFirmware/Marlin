@@ -888,7 +888,7 @@ void ChironTFT::panelProcess(uint8_t req) {
             TFTSer.println(getZOffset_mm());
 
             if (isAxisPositionKnown(Z)) {
-              // Move Z axis
+              // Move Z-Axis
               const float currZpos = getAxisPosition_mm(Z);
               #if ACDEBUG(AC_INFO)
                 DEBUG_ECHOLNPGM("Move Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));

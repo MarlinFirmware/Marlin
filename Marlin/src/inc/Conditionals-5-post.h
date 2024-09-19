@@ -1433,7 +1433,7 @@
     #define USE_SENSORLESS 1
   #endif
 
-  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  // Disable Z-Axis sensorless homing if a probe is used to home the Z-Axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_STALL_SENSITIVITY
     #undef Z2_STALL_SENSITIVITY

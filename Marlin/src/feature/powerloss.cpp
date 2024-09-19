@@ -279,7 +279,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
         #endif
 
         #if POWER_LOSS_ZRAISE
-          // Raise the Z axis now
+          // Raise the Z-Axis now
           if (zraise)
             gcode.process_subcommands_now(TS(F("G0Z"), p_float_t(zraise, 3)));
         #else

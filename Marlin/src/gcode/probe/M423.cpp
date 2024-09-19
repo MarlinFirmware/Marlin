@@ -33,7 +33,7 @@
 #include "../../module/probe.h"
 
 /**
- * M423: Set a Z offset for X-Twist (added to the mesh on future G29).
+ * M423: Set a Z offset for X-Axis Twist (added to the mesh on future G29).
  *  M423 [R] [A<startx>] [I<interval>] [X<index> Z<offset>]
  *
  *    R         - Reset the twist compensation data

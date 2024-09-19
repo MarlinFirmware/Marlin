@@ -103,7 +103,7 @@
 //#define FIL_RUNOUT2_PIN                     21
 
 //
-// PSU and Powerloss Recovery
+// PSU and Power-Loss Recovery
 //
 #if ENABLED(PSU_CONTROL)
   #define PS_ON_PIN                           40  // The M80/M81 PSU pin for boards v2.1-2.3

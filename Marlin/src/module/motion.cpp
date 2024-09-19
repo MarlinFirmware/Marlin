@@ -1476,7 +1476,7 @@ void restore_feedrate_and_scaling() {
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
-      if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
+      if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z-Axis is "special" and shouldn't be modified
         const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[active_extruder][axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
@@ -2025,7 +2025,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
   }
 
   /**
-   * Prepare a linear move in a dual X axis setup
+   * Prepare a linear move in a dual X-Axis setup
    *
    * Return true if current_position[] was set to destination[]
    */
@@ -2990,7 +2990,7 @@ void prepare_line_to_destination() {
       }
     #endif
 
-    // Clear retracted status if homing the Z axis
+    // Clear retracted status if homing the Z-Axis
     #if ENABLED(FWRETRACT)
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
