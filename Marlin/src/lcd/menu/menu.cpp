@@ -209,7 +209,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
     }
 
-    clear_lcd();
+    clear_for_drawing();
 
     // Re-initialize custom characters that may be re-used
     #if HAS_MARLINUI_HD44780
@@ -237,11 +237,14 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 // all moves are finished. Go back to calling screen when done.
 //
 void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
-  static FSTR_P sync_message = fmsg ?: GET_TEXT_F(MSG_MOVING);
   push_current_screen();
+
+  // Hijack 'editable' for the string pointer
+  editable.fstr = fmsg ?: GET_TEXT_F(MSG_MOVING);
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, sync_message);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, editable.fstr);
   });
+
   defer_status_screen();
   planner.synchronize(); // idle() is called until moves complete
   goto_previous_screen_no_defer();
@@ -315,7 +318,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     }
     if (ui.should_draw()) {
       if (do_probe) {
-        MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(probe.offset.z));
+        MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_BABYSTEP_PROBE_Z), BABYSTEP_TO_STR(probe.offset.z));
         TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
       }
       else {

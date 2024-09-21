@@ -229,12 +229,14 @@
   #include "feature/controllerfan.h"
 #endif
 
-#if HAS_PRUSA_MMU1
-  #include "feature/mmu/mmu.h"
-#endif
-
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "feature/mmu3/mmu2.h"
+  #include "feature/mmu3/mmu2_reporting.h"
+  #include "feature/mmu3/SpoolJoin.h"
+#elif HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
+#elif HAS_PRUSA_MMU1
+  #include "feature/mmu/mmu.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -261,16 +263,20 @@
   #include "tests/marlin_tests.h"
 #endif
 
+#if HAS_RS485_SERIAL
+  #include "feature/rs485.h"
+#endif
+
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
-MarlinState marlin_state = MF_INITIALIZING;
+MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = false;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  bool wait_for_user; // = false;
+  bool wait_for_user; // = false
 
   void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
     UNUSED(no_sleep);
@@ -307,31 +313,21 @@ bool wait_for_heatup = false;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
-
-#ifndef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-  template <pin_t ...D>
-  constexpr pin_t OnlyPins<_SP_END, D...>::table[sizeof...(D)];
-#endif
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 bool pin_is_protected(const pin_t pin) {
-  #ifdef RUNTIME_ONLY_ANALOG_TO_DIGITAL
-    static const pin_t sensitive_pins[] PROGMEM = { SENSITIVE_PINS };
-    const size_t pincount = COUNT(sensitive_pins);
-  #else
-    static constexpr size_t pincount = OnlyPins<SENSITIVE_PINS>::size;
-    static const pin_t (&sensitive_pins)[pincount] PROGMEM = OnlyPins<SENSITIVE_PINS>::table;
-  #endif
-  for (uint8_t i = 0; i < pincount; ++i) {
-    const pin_t * const pptr = &sensitive_pins[i];
-    if (pin == (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(pptr) : (pin_t)pgm_read_byte(pptr))) return true;
-  }
+  #define pgm_read_pin(P) (sizeof(pin_t) == 2 ? (pin_t)pgm_read_word(P) : (pin_t)pgm_read_byte(P))
+  for (uint8_t i = 0; i < COUNT(sensitive_dio); ++i)
+    if (pin == pgm_read_pin(&sensitive_dio[i])) return true;
+  for (uint8_t i = 0; i < COUNT(sensitive_aio); ++i)
+    if (pin == analogInputToDigitalPin(pgm_read_pin(&sensitive_aio[i]))) return true;
   return false;
 }
 
 #pragma GCC diagnostic pop
 
 bool printer_busy() {
-  return planner.movesplanned() || printingIsActive();
+  return planner.has_blocks_queued() || printingIsActive();
 }
 
 /**
@@ -357,6 +353,7 @@ void startOrResumeJob() {
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
     TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
+    TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
   }
   print_job_timer.start();
 }
@@ -388,8 +385,8 @@ void startOrResumeJob() {
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one(F("M1001"))) {  // Keep trying until it gets queued
-      marlin_state = MF_RUNNING;          // Signal to stop trying
+    if (queue.enqueue_one(F("M1001"))) {      // Keep trying until it gets queued
+      marlin_state = MarlinState::MF_RUNNING; // Signal to stop trying
       TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
       TERN_(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
     }
@@ -784,14 +781,14 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
 
   // Return if setup() isn't completed
-  if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
+  if (marlin_state == MarlinState::MF_INITIALIZING) goto IDLE_DONE;
 
   // TODO: Still causing errors
   TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
-    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()))
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu3.enabled()))
       runout.run();
   #endif
 
@@ -856,7 +853,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Update the Průša MMU2
-  TERN_(HAS_PRUSA_MMU2, mmu2.mmu_loop());
+  #if HAS_PRUSA_MMU3
+    mmu3.mmu_loop();
+  #elif HAS_PRUSA_MMU2
+    mmu2.mmu_loop();
+  #endif
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
@@ -970,7 +971,7 @@ void stop() {
     SERIAL_ERROR_MSG(STR_ERR_STOPPED);
     LCD_MESSAGE(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
-    marlin_state = MF_STOPPED;
+    marlin_state = MarlinState::MF_STOPPED;
   }
 }
 
@@ -1284,7 +1285,7 @@ void setup() {
 
   // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
+  #ifdef STRING_DISTRIBUTION_DATE
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
@@ -1330,17 +1331,22 @@ void setup() {
     #endif
   #endif
 
-  #if ALL(HAS_MEDIA, SDCARD_EEPROM_EMULATION)
+  #if HAS_MEDIA && ANY(SDCARD_EEPROM_EMULATION, POWER_LOSS_RECOVERY)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
-  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
-                                      // This also updates variables in the planner, elsewhere
+  // Prepare some LCDs to display early
+  #if HAS_EARLY_LCD_SETTINGS
+    SETUP_RUN(settings.load_lcd_state());
+  #endif
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
     const millis_t bootscreen_ms = millis();
   #endif
+
+  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
+                                      // This also updates variables in the planner, elsewhere
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
@@ -1587,7 +1593,11 @@ void setup() {
     SETUP_RUN(stepper_driver_backward_report());
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU3
+    if (mmu3.mmu_hw_enabled) SETUP_RUN(mmu3.start());
+    SETUP_RUN(mmu3.status());
+    SETUP_RUN(spooljoin.initStatus());
+  #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
 
@@ -1648,11 +1658,15 @@ void setup() {
     SETUP_RUN(bdl.init(I2C_BD_SDA_PIN, I2C_BD_SCL_PIN, I2C_BD_DELAY));
   #endif
 
+  #if HAS_RS485_SERIAL
+    SETUP_RUN(rs485_init());
+  #endif
+
   #if ENABLED(FT_MOTION)
     SETUP_RUN(ftMotion.init());
   #endif
 
-  marlin_state = MF_RUNNING;
+  marlin_state = MarlinState::MF_RUNNING;
 
   #ifdef STARTUP_TUNE
     // Play a short startup tune before continuing.
@@ -1684,7 +1698,7 @@ void loop() {
 
     #if HAS_MEDIA
       if (card.flag.abort_sd_printing) abortSDPrinting();
-      if (marlin_state == MF_SD_COMPLETE) finishSDPrinting();
+      if (marlin_state == MarlinState::MF_SD_COMPLETE) finishSDPrinting();
     #endif
 
     queue.advance();

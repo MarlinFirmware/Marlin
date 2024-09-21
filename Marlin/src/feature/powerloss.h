@@ -59,6 +59,8 @@ typedef struct {
   // Machine state
   xyze_pos_t current_position;
   uint16_t feedrate;
+  int16_t feedrate_percentage;
+  uint16_t flow_percentage[EXTRUDERS];
 
   float zraise;
 

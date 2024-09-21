@@ -89,7 +89,7 @@ static inline uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, c
 }
 
 static void u8g_sw_spi_shift_out(uint8_t val) {
-  #if ENABLED(FYSETC_MINI_12864)
+  #if U8G_SPI_USE_MODE_3
     swSpiTransfer_mode_3(val, SPI_speed);
   #else
     swSpiTransfer_mode_0(val, SPI_speed);
@@ -123,15 +123,15 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      #if ENABLED(FYSETC_MINI_12864) // This LCD SPI is running mode 3 while SD card is running mode 0
-        if (arg_val) {               // SCK idle state needs to be set to the proper idle state before
-                                     // the next chip select goes active
-          WRITE(DOGLCD_SCK, HIGH);   // Set SCK to mode 3 idle state before CS goes active
+      #if U8G_SPI_USE_MODE_3        // This LCD SPI is running mode 3 while SD card is running mode 0
+        if (arg_val) {              // SCK idle state needs to be set to the proper idle state before
+                                    //  the next chip select goes active
+          WRITE(DOGLCD_SCK, HIGH);  // Set SCK to mode 3 idle state before CS goes active
           WRITE(DOGLCD_CS, LOW);
         }
         else {
           WRITE(DOGLCD_CS, HIGH);
-          WRITE(DOGLCD_SCK, LOW);  // Set SCK to mode 0 idle state after CS goes inactive
+          WRITE(DOGLCD_SCK, LOW);   // Set SCK to mode 0 idle state after CS goes inactive
         }
       #else
         WRITE(DOGLCD_CS, !arg_val);
