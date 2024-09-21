@@ -810,12 +810,12 @@
  *
  *   2 : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
  *       the first X-carriage and extruder, to print 2 copies of the same object at the same time.
- *       Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+ *       Set the constant X-Offset and temperature differential with M605 S2 X[offs] R[deg] and
  *       follow with M605 S2 to initiate duplicated movement.
  *
  *   3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
  *       the movement of the first except the second extruder is reversed in the X-Axis.
- *       Set the initial X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+ *       Set the initial X-Offset and temperature differential with M605 S2 X[offs] R[deg] and
  *       follow with M605 S3 to initiate mirrored movement.
  */
 //#define DUAL_X_CARRIAGE
@@ -827,7 +827,7 @@
   #define X2_HOME_POS X2_MAX_POS  // Default X2 home position. Set to X2_MAX_POS.
                                   // NOTE: For Dual X Carriage use M218 T1 Xn to override the X2_HOME_POS.
                                   // This allows recalibration of endstops distance without a rebuild.
-                                  // Remember to set the second extruder's X-offset to 0 in your slicer.
+                                  // Remember to set the second extruder's X-Offset to 0 in your slicer.
 
   // This is the default power-up mode which can be changed later using M605 S<mode>.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
@@ -1009,7 +1009,7 @@
   //#define BLTOUCH_HS_MODE true
 
   #ifdef BLTOUCH_HS_MODE
-    // The Probe Z-Offset (M851 Z) is the height at which the probe triggers.
+    // The probe Z-Offset (M851 Z) is the height at which the probe triggers.
     // This must be large enough to keep the probe pin off the bed and prevent
     // it from snagging on the bed clips.
     #define BLTOUCH_HS_EXTRA_CLEARANCE    7 // Extra Z Clearance
@@ -1497,18 +1497,18 @@
 
 /**
  * Probe Offset Wizard
- * Add a Probe Z-Offset calibration option to the LCD menu.
+ * Add a probe Z-Offset calibration option to the LCD menu.
  * Use this helper to get a perfect 'M851 Z' probe offset.
  * When launched this powerful wizard:
  *  - Measures the bed height at the configured position with the probe.
  *  - Moves the nozzle to the same position for a "paper" measurement.
- *  - The difference is used to set the Probe Z-Offset.
+ *  - The difference is used to set the probe Z-Offset.
  */
 #if HAS_BED_PROBE && ANY(HAS_MARLINUI_MENU, HAS_TFT_LVGL_UI)
   //#define PROBE_OFFSET_WIZARD
   #if ENABLED(PROBE_OFFSET_WIZARD)
     /**
-     * Enable to init the Probe Z-Offset when starting the Wizard.
+     * Enable to init the probe Z-Offset when starting the Wizard.
      * Use a height slightly above the estimated nozzle-to-probe Z-Offset.
      * For example, with an offset of -5, consider a starting height of -4.
      */
@@ -1530,7 +1530,7 @@
     //#define X_AXIS_TWIST_COMPENSATION
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
       /**
-       * Enable to init the Probe Z-Offset when starting the Wizard.
+       * Enable to init the probe Z-Offset when starting the Wizard.
        * Use a height slightly above the estimated nozzle-to-probe Z-Offset.
        * For example, with an offset of -5, consider a starting height of -4.
        */
@@ -2497,7 +2497,7 @@
     #define PTC_PROBE_TEMP    30  // (°C)
 
     // Height above Z=0.0 to raise the nozzle. Lowering this can help the probe to heat faster.
-    // Note: The Z=0.0 offset is determined by the Probe Z-Offset (e.g., as set with M851 Z).
+    // Note: The Z=0.0 offset is determined by the probe Z-Offset (e.g., as set with M851 Z).
     #define PTC_PROBE_HEATING_OFFSET 0.5  // (mm)
   #endif
 #endif // PTC_PROBE || PTC_BED || PTC_HOTEND

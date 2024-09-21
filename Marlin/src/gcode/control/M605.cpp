@@ -47,13 +47,13 @@
    *
    *   M605 S2 X R : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
    *             the first X-carriage and extruder, to print 2 copies of the same object at the same time.
-   *             Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+   *             Set the constant X-Offset and temperature differential with M605 S2 X[offs] R[deg] and
    *             follow with "M605 S2" to initiate duplicated movement. For example, use "M605 S2 X100 R2" to
    *             make a copy 100mm to the right with E1 2° hotter than E0.
    *
    *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
    *             the movement of the first except the second extruder is reversed in the X-Axis.
-   *             The temperature differential and initial X-offset must be set with "M605 S2 X[offs] R[deg]",
+   *             The temperature differential and initial X-Offset must be set with "M605 S2 X[offs] R[deg]",
    *             then followed by "M605 S3" to initiate mirrored movement.
    *
    *    M605 W  : IDEX What? command.
@@ -76,7 +76,7 @@
           break;
 
         case DXC_DUPLICATION_MODE:
-          // Set the X-offset, but no less than the safety gap
+          // Set the X-Offset, but no less than the safety gap
           if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
           if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0
