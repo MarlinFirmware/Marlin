@@ -21,7 +21,13 @@
  */
 #pragma once
 
-#include "env_validate.h"
+// The Octopus Pro V1 has shipped with both STM32F4 and STM32H7 MCUs.
+// Ensure the correct env_validate.h file is included based on the build environment used.
+#if NOT_TARGET(STM32H7)
+  #include "env_validate.h"
+#else
+  #include "../stm32h7/env_validate.h"
+#endif
 
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define USES_DIAG_JUMPERS
@@ -412,8 +418,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -435,9 +442,7 @@
    * orientation as the existing plug/DWIN to EXP1. TX/RX need to be connected to the TFT port, with TX->RX, RX->TX.
    */
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable. See 'pins_BTT_OCTOPUS_V1_common.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_OCTOPUS_V1_common", "Ender-3 V2 display")
 
   #define BEEPER_PIN                 EXP1_06_PIN
   #define BTN_EN1                    EXP1_08_PIN
@@ -501,6 +506,7 @@
     #endif
 
   #endif
+
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
@@ -531,8 +537,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PB0
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PB0
 #endif
 
 #if ENABLED(WIFISUPPORT)

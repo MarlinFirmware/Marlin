@@ -63,9 +63,9 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(SENSORLESS_HOMING, endstops.set_z_sensorless_current(true));
+  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
   home_delta();
-  TERN_(SENSORLESS_HOMING, endstops.set_z_sensorless_current(false));
+  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   endstops.not_homing();
 }
 
@@ -390,7 +390,7 @@ void GcodeSuite::G33() {
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
-    SERIAL_ECHOLNPGM("?(P)oints implausible (0-10).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(P)oints implausible (0-10)."));
     return;
   }
 
@@ -409,19 +409,19 @@ void GcodeSuite::G33() {
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
-    SERIAL_ECHOLNPGM("?(C)alibration precision implausible (>=0).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(C)alibration precision implausible (>=0)."));
     return;
   }
 
   const int8_t force_iterations = parser.intval('F', 0);
   if (!WITHIN(force_iterations, 0, 30)) {
-    SERIAL_ECHOLNPGM("?(F)orce iteration implausible (0-30).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(F)orce iteration implausible (0-30)."));
     return;
   }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 3)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-3).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(V)erbose level implausible (0-3)."));
     return;
   }
 
@@ -634,7 +634,7 @@ void GcodeSuite::G33() {
           }
         SERIAL_EOL();
 
-        MString<20> msg(F("Calibration sd:"));
+        MString<21> msg(F("Calibration sd:"));
         if (zero_std_dev_min < 1)
           msg.appendf(F("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0f));
         else

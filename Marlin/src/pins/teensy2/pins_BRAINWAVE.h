@@ -28,8 +28,7 @@
  * Requires hardware bundle for Arduino:
  * https://github.com/unrepentantgeek/brainwave-arduino
  *
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Brainwave/schematic.pdf
- * Origin: https://github.com/unrepentantgeek/Brainwave/blob/master/brainwave/brainwave.sch
+ * Schematic: https://github.com/unrepentantgeek/Brainwave/blob/master/brainwave/brainwave.sch
  */
 
 /**

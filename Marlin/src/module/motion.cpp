@@ -78,7 +78,12 @@
 #endif
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode; // = false;
+bool relative_mode; // = false
+
+#if HAS_Z_AXIS
+  // If Z has been powered on trust that the real Z is >= current_position.z
+  bool z_min_trusted; // = false
+#endif
 
 /**
  * Cartesian Current Position
@@ -104,7 +109,7 @@ xyze_pos_t destination; // {0}
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
-  uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  Flags<SAVED_POSITIONS> did_save_position;
   xyze_pos_t stored_position[SAVED_POSITIONS];
 #endif
 
@@ -253,11 +258,565 @@ void report_current_position_projected() {
   stepper.report_a_position(planner.position);
 }
 
+#if HAS_HOMING_CURRENT
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
+      if (DEBUGGING(LEVELING)) { DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b); }
+    };
+  #else
+    #define debug_current(...)
+  #endif
+
+  #if HAS_CURRENT_HOME(X)
+    int16_t saved_current_X;
+  #endif
+  #if HAS_CURRENT_HOME(Y)
+    int16_t saved_current_Y;
+  #endif
+  #if HAS_CURRENT_HOME(Z)
+    int16_t saved_current_Z;
+  #endif
+  #if HAS_CURRENT_HOME(X2)
+    int16_t saved_current_X2;
+  #endif
+  #if HAS_CURRENT_HOME(Y2)
+    int16_t saved_current_Y2;
+  #endif
+  #if HAS_CURRENT_HOME(Z2)
+    int16_t saved_current_Z2;
+  #endif
+  #if HAS_CURRENT_HOME(Z3)
+    int16_t saved_current_Z3;
+  #endif
+  #if HAS_CURRENT_HOME(Z4)
+    int16_t saved_current_Z4;
+  #endif
+  #if HAS_CURRENT_HOME(I)
+    int16_t saved_current_I;
+  #endif
+  #if HAS_CURRENT_HOME(J)
+    int16_t saved_current_J;
+  #endif
+  #if HAS_CURRENT_HOME(K)
+    int16_t saved_current_K;
+  #endif
+  #if HAS_CURRENT_HOME(U)
+    int16_t saved_current_U;
+  #endif
+  #if HAS_CURRENT_HOME(V)
+    int16_t saved_current_V;
+  #endif
+  #if HAS_CURRENT_HOME(W)
+    int16_t saved_current_W;
+  #endif
+
+  /**
+   * Set motors to their homing / probing currents.
+   * Currents are saved first so they can be restored afterward.
+   */
+  void set_homing_current(const AxisEnum axis) {
+
+    // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
+    #define _SAVE_SET_CURRENT(A) \
+      saved_current_##A = stepper##A.getMilliamps(); \
+      stepper##A.rms_current(A##_CURRENT_HOME); \
+      debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current");
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(X2)
+            _SAVE_SET_CURRENT(X2);
+          #endif
+          #if HAS_CURRENT_HOME(Y)
+            _SAVE_SET_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Y2)
+            _SAVE_SET_CURRENT(Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _SAVE_SET_CURRENT(Z);
+          #endif
+          #if HAS_CURRENT_HOME(Z2)
+            _SAVE_SET_CURRENT(Z2);
+          #endif
+          #if HAS_CURRENT_HOME(Z3)
+            _SAVE_SET_CURRENT(Z3);
+          #endif
+          #if HAS_CURRENT_HOME(Z4)
+            _SAVE_SET_CURRENT(Z4);
+          #endif
+          break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(Z)
+            _SAVE_SET_CURRENT(Z);
+          #endif
+          break;
+        case Y_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _SAVE_SET_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Y2)
+            _SAVE_SET_CURRENT(Y2);
+          #endif
+          break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(X2)
+            _SAVE_SET_CURRENT(X2);
+          #endif
+          break;
+        case Y_AXIS: case Z_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _SAVE_SET_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Z)
+            _SAVE_SET_CURRENT(Z);
+          #endif
+          break;
+      }
+
+    #elif IS_SCARA
+
+      // SCARA kinematics
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics.
+      // Z_AXIS is a special mode to apply homing current to all axes.
+      #if HAS_CURRENT_HOME(X)
+        if (axis == A_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(X);
+      #endif
+      #if HAS_CURRENT_HOME(Y)
+        if (axis == B_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(Y);
+      #endif
+      #if HAS_CURRENT_HOME(Z)
+        if (axis == C_AXIS) _SAVE_SET_CURRENT(Z);
+      #endif
+
+    #elif ANY(POLARGRAPH, POLAR)
+
+      // POLAR kinematics
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif defined(ARTICULATED_ROBOT_ARM)
+
+      // Articulated Robot Arm
+      // Useful?
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _SAVE_SET_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _SAVE_SET_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _SAVE_SET_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif defined(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(I)
+            _SAVE_SET_CURRENT(I);
+          #endif
+          break;
+        case Y_AXIS: case J_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _SAVE_SET_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(J)
+            _SAVE_SET_CURRENT(J);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _SAVE_SET_CURRENT(Z);
+          #endif
+          break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _SAVE_SET_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(X2)
+            _SAVE_SET_CURRENT(X2);
+          #endif
+          break;
+        case Y_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _SAVE_SET_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Y2)
+            _SAVE_SET_CURRENT(Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _SAVE_SET_CURRENT(Z);
+          #endif
+          #if HAS_CURRENT_HOME(Z2)
+            _SAVE_SET_CURRENT(Z2);
+          #endif
+          #if HAS_CURRENT_HOME(Z3)
+            _SAVE_SET_CURRENT(Z3);
+          #endif
+          #if HAS_CURRENT_HOME(Z4)
+            _SAVE_SET_CURRENT(Z4);
+          #endif
+          break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if HAS_CURRENT_HOME(I) && DISABLED(FOAMCUTTER_XYUV)
+        case I_AXIS: _SAVE_SET_CURRENT(I); break;
+      #endif
+      #if HAS_CURRENT_HOME(J) && DISABLED(FOAMCUTTER_XYUV)
+        case J_AXIS: _SAVE_SET_CURRENT(J); break;
+      #endif
+      #if HAS_CURRENT_HOME(K)
+        case K_AXIS: _SAVE_SET_CURRENT(K); break;
+      #endif
+      #if HAS_CURRENT_HOME(U)
+        case U_AXIS: _SAVE_SET_CURRENT(U); break;
+      #endif
+      #if HAS_CURRENT_HOME(V)
+        case V_AXIS: _SAVE_SET_CURRENT(V); break;
+      #endif
+      #if HAS_CURRENT_HOME(W)
+        case W_AXIS: _SAVE_SET_CURRENT(W); break;
+      #endif
+    }
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+
+  } // set_homing_current()
+
+  /**
+   * Restore motors to their previously-stored currents.
+   * Always call set_homing_current() first!
+   */
+  void restore_homing_current(const AxisEnum axis) {
+
+    // Restore the saved current
+    #define _RESTORE_CURRENT(A) \
+      stepper##A.rms_current(saved_current_##A); \
+      debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current");
+
+    #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+
+      // CORE and Markforged kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Y_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _RESTORE_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(Y)
+            _RESTORE_CURRENT(Y);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _RESTORE_CURRENT(Z);
+          #endif
+          #if HAS_CURRENT_HOME(Z2)
+            _RESTORE_CURRENT(Z2);
+          #endif
+          #if HAS_CURRENT_HOME(Z3)
+            _RESTORE_CURRENT(Z3);
+          #endif
+          #if HAS_CURRENT_HOME(Z4)
+            _RESTORE_CURRENT(Z4);
+          #endif
+          break;
+      }
+
+    #elif CORE_IS_XZ
+
+      // CORE XZ / ZX
+      switch (axis) {
+        default: break;
+        case X_AXIS: case Z_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _RESTORE_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(Z)
+            _RESTORE_CURRENT(Z);
+          #endif
+          break;
+        case Y_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _RESTORE_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Y2)
+            _RESTORE_CURRENT(Y2);
+          #endif
+          break;
+      }
+
+    #elif CORE_IS_YZ
+
+      // CORE YZ / ZY
+      switch (axis) {
+        default: break;
+        case X_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _RESTORE_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(X2)
+            _RESTORE_CURRENT(X2);
+          #endif
+          break;
+        case Y_AXIS: case Z_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _RESTORE_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Z)
+            _RESTORE_CURRENT(Z);
+          #endif
+          break;
+      }
+
+    #elif IS_SCARA // Unsupported for now?
+
+      // SCARA kinematics
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ANY(AXEL_TPARA, DELTA)
+
+      // TPARA or DELTA kinematics
+      // Z_AXIS is a special mode to set homing current to all axes
+      #if HAS_CURRENT_HOME(X)
+        if (axis == A_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(X);
+      #endif
+      #if HAS_CURRENT_HOME(Y)
+        if (axis == B_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(Y);
+      #endif
+      #if HAS_CURRENT_HOME(Z)
+        if (axis == C_AXIS) _RESTORE_CURRENT(Z);
+      #endif
+
+    #elif ANY(POLARGRAPH, POLAR)
+
+      // POLAR kinematics
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ENABLED(ARTICULATED_ROBOT_ARM)
+
+      // Articulated Robot Arm
+      // Useful?
+      switch (axis) {
+        default: break;
+        #if HAS_CURRENT_HOME(X)
+          case A_AXIS: _RESTORE_CURRENT(X); break;
+        #endif
+        #if HAS_CURRENT_HOME(Y)
+          case B_AXIS: _RESTORE_CURRENT(Y); break;
+        #endif
+        #if HAS_CURRENT_HOME(Z)
+          case C_AXIS: _RESTORE_CURRENT(Z); break;
+        #endif
+      }
+
+    #elif ENABLED(FOAMCUTTER_XYUV)
+
+      // Foam cutter
+      switch (axis) {
+        default: break;
+        case X_AXIS: case I_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _RESTORE_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(I)
+            _RESTORE_CURRENT(I);
+          #endif
+          break;
+        case Y_AXIS: case J_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _RESTORE_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(J)
+            _RESTORE_CURRENT(J);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _RESTORE_CURRENT(Z);
+          #endif
+          break;
+      }
+
+    #else
+
+      // Cartesian kinematics
+      switch (axis) {
+        default: break;
+        case X_AXIS:
+          #if HAS_CURRENT_HOME(X)
+            _RESTORE_CURRENT(X);
+          #endif
+          #if HAS_CURRENT_HOME(X2)
+            _RESTORE_CURRENT(X2);
+          #endif
+          break;
+        case Y_AXIS:
+          #if HAS_CURRENT_HOME(Y)
+            _RESTORE_CURRENT(Y);
+          #endif
+          #if HAS_CURRENT_HOME(Y2)
+            _RESTORE_CURRENT(Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if HAS_CURRENT_HOME(Z)
+            _RESTORE_CURRENT(Z);
+          #endif
+          #if HAS_CURRENT_HOME(Z2)
+            _RESTORE_CURRENT(Z2);
+          #endif
+          #if HAS_CURRENT_HOME(Z3)
+            _RESTORE_CURRENT(Z3);
+          #endif
+          #if HAS_CURRENT_HOME(Z4)
+            _RESTORE_CURRENT(Z4);
+          #endif
+          break;
+      }
+
+    #endif // kinematics
+
+    switch (axis) {
+      default: break;
+      #if HAS_CURRENT_HOME(I) && DISABLED(FOAMCUTTER_XYUV)
+        case I_AXIS: _RESTORE_CURRENT(I); break;
+      #endif
+      #if HAS_CURRENT_HOME(J) && DISABLED(FOAMCUTTER_XYUV)
+        case J_AXIS: _RESTORE_CURRENT(J); break;
+      #endif
+      #if HAS_CURRENT_HOME(K)
+        case K_AXIS: _RESTORE_CURRENT(K); break;
+      #endif
+      #if HAS_CURRENT_HOME(U)
+        case U_AXIS: _RESTORE_CURRENT(U); break;
+      #endif
+      #if HAS_CURRENT_HOME(V)
+        case V_AXIS: _RESTORE_CURRENT(V); break;
+      #endif
+      #if HAS_CURRENT_HOME(W)
+        case W_AXIS: _RESTORE_CURRENT(W); break;
+      #endif
+    }
+
+    #if SENSORLESS_STALLGUARD_DELAY
+      safe_delay(SENSORLESS_STALLGUARD_DELAY); // Short delay needed to settle
+    #endif
+
+  } // restore_homing_current()
+
+#endif // HAS_HOMING_CURRENT
+
 #if ENABLED(AUTO_REPORT_POSITION)
   AutoReporter<PositionReport> position_auto_reporter;
 #endif
 
-#if ANY(FULL_REPORT_TO_HOST_FEATURE, REALTIME_REPORTING_COMMANDS)
+#if ENABLED(REALTIME_REPORTING_COMMANDS)
 
   M_StateEnum M_State_grbl = M_INIT;
 
@@ -299,18 +858,18 @@ void report_current_position_projected() {
    */
   M_StateEnum grbl_state_for_marlin_state() {
     switch (marlin_state) {
-      case MF_INITIALIZING: return M_INIT;
-      case MF_SD_COMPLETE:  return M_ALARM;
-      case MF_WAITING:      return M_IDLE;
-      case MF_STOPPED:      return M_END;
-      case MF_RUNNING:      return M_RUNNING;
-      case MF_PAUSED:       return M_HOLD;
-      case MF_KILLED:       return M_ERROR;
-      default:              return M_IDLE;
+      case MarlinState::MF_INITIALIZING: return M_INIT;
+      case MarlinState::MF_SD_COMPLETE:  return M_ALARM;
+      case MarlinState::MF_WAITING:      return M_IDLE;
+      case MarlinState::MF_STOPPED:      return M_END;
+      case MarlinState::MF_RUNNING:      return M_RUNNING;
+      case MarlinState::MF_PAUSED:       return M_HOLD;
+      case MarlinState::MF_KILLED:       return M_ERROR;
+      default:                           return M_IDLE;
     }
   }
 
-#endif
+#endif // REALTIME_REPORTING_COMMANDS
 
 #if IS_KINEMATIC
 
@@ -328,7 +887,7 @@ void report_current_position_projected() {
       can_reach = (
         R2 <= sq(L1 + L2) - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
         #endif
       );
 
@@ -338,7 +897,7 @@ void report_current_position_projected() {
       can_reach = (
         R2 <= sq(L1 + L2) - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
         #endif
       );
 
@@ -379,7 +938,6 @@ void report_current_position_projected() {
   }
 
 #endif // CARTESIAN
-
 
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
@@ -544,7 +1102,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 
 #if SECONDARY_AXES
 
-  void secondary_axis_moves(SECONDARY_AXIS_ARGS(const_float_t), const_feedRate_t fr_mm_s) {
+  void secondary_axis_moves(SECONDARY_AXIS_ARGS_LC(const_float_t), const_feedRate_t fr_mm_s) {
     auto move_one = [&](const AxisEnum a, const_float_t p) {
       const feedRate_t fr = fr_mm_s ?: homing_feedrate(a);
       current_position[a] = p; line_to_current_position(fr);
@@ -569,7 +1127,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/*=0.0f*/) {
   DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
   #if NUM_AXES
-    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS());
+    if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", NUM_AXIS_ARGS_LC());
   #endif
 
   const feedRate_t xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
@@ -660,7 +1218,8 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
 }
 
 void do_blocking_move_to(const xy_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
-  do_blocking_move_to(NUM_AXIS_LIST_(raw.x, raw.y, current_position.z, current_position.i, current_position.j, current_position.k,
+  do_blocking_move_to(NUM_AXIS_LIST_(raw.x, raw.y, current_position.z,
+                                    current_position.i, current_position.j, current_position.k,
                                     current_position.u, current_position.v, current_position.w) fr_mm_s);
 }
 void do_blocking_move_to(const xyz_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*/) {
@@ -674,7 +1233,8 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   void do_blocking_move_to_x(const_float_t rx, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_x(", rx, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(rx, current_position.y, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(rx, current_position.y, current_position.z,
+                     current_position.i, current_position.j, current_position.k,
                      current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
@@ -685,97 +1245,17 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   void do_blocking_move_to_y(const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_y(", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(current_position.x, ry, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(current_position.x, ry, current_position.z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
   }
-#endif
-
-#if HAS_Z_AXIS
-  void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s/*=0.0*/) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_z(", rz, ", ", fr_mm_s, ")");
-    do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
-  }
-#endif
-
-#if HAS_I_AXIS
-  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
-  }
-  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, i, raw.j, raw.k, raw.u, raw.v, raw.w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_J_AXIS
-  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s);
-  }
-  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, j, raw.k, raw.u, raw.v, raw.w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_K_AXIS
-  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s);
-  }
-  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, k, raw.u, raw.v, raw.w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_U_AXIS
-  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzijk_u(current_position, ru, fr_mm_s);
-  }
-  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, u, raw.v, raw.w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_V_AXIS
-  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzijku_v(current_position, rv, fr_mm_s);
-  }
-  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, v, raw.w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_W_AXIS
-  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s/*=0.0*/) {
-    do_blocking_move_to_xyzijkuv_w(current_position, rw, fr_mm_s);
-  }
-  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s/*=0.0f*/) {
-    do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, raw.v, w)
-      fr_mm_s
-    );
-  }
-#endif
-
-#if HAS_Y_AXIS
   void do_blocking_move_to_xy(const_float_t rx, const_float_t ry, const_feedRate_t fr_mm_s/*=0.0*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_xy(", rx, ", ", ry, ", ", fr_mm_s, ")");
     do_blocking_move_to(
-      NUM_AXIS_LIST_(rx, ry, current_position.z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(rx, ry, current_position.z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
@@ -786,13 +1266,26 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
 #endif
 
 #if HAS_Z_AXIS
+  void do_blocking_move_to_z(const_float_t rz, const_feedRate_t fr_mm_s/*=0.0*/) {
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_blocking_move_to_z(", rz, ", ", fr_mm_s, ")");
+    do_blocking_move_to_xy_z(current_position, rz, fr_mm_s);
+  }
   void do_blocking_move_to_xy_z(const xy_pos_t &raw, const_float_t z, const_feedRate_t fr_mm_s/*=0.0f*/) {
     do_blocking_move_to(
-      NUM_AXIS_LIST_(raw.x, raw.y, z, current_position.i, current_position.j, current_position.k,
+      NUM_AXIS_LIST_(raw.x, raw.y, z,
+                    current_position.i, current_position.j, current_position.k,
                     current_position.u, current_position.v, current_position.w)
       fr_mm_s
     );
   }
+  /**
+   * Move Z to a particular height so the nozzle or deployed probe clears the bed.
+   * (Use do_z_clearance_by for clearance over the current position.)
+   *  - For a probe, add clearance for the probe distance
+   *  - Constrain to the Z max physical position
+   *  - If lowering is not allowed then skip a downward move
+   *  - Execute the move at the probing (or homing) feedrate
+   */
   void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
     UNUSED(with_probe);
     float zdest = zclear;
@@ -806,13 +1299,89 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance_by(", zclear, ")");
     do_z_clearance(current_position.z + zclear, false);
   }
+  /**
+   * Move Z to Z_POST_CLEARANCE,
+   * The axis is allowed to move down.
+   */
   void do_move_after_z_homing() {
     DEBUG_SECTION(mzah, "do_move_after_z_homing", DEBUGGING(LEVELING));
-    #if defined(Z_AFTER_HOMING) || ALL(DWIN_LCD_PROUI, INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
+    #ifdef Z_POST_CLEARANCE
       do_z_clearance(Z_POST_CLEARANCE, true, true);
     #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
       probe.move_z_after_probing();
     #endif
+  }
+#endif
+
+#if HAS_I_AXIS
+  void do_blocking_move_to_xyz_i(const xyze_pos_t &raw, const_float_t i, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, i, raw.j, raw.k, raw.u, raw.v, raw.w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_i(const_float_t ri, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyz_i(current_position, ri, fr_mm_s);
+  }
+#endif
+
+#if HAS_J_AXIS
+  void do_blocking_move_to_xyzi_j(const xyze_pos_t &raw, const_float_t j, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, j, raw.k, raw.u, raw.v, raw.w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_j(const_float_t rj, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyzi_j(current_position, rj, fr_mm_s);
+  }
+#endif
+
+#if HAS_K_AXIS
+  void do_blocking_move_to_xyzij_k(const xyze_pos_t &raw, const_float_t k, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, k, raw.u, raw.v, raw.w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_k(const_float_t rk, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyzij_k(current_position, rk, fr_mm_s);
+  }
+#endif
+
+#if HAS_U_AXIS
+  void do_blocking_move_to_xyzijk_u(const xyze_pos_t &raw, const_float_t u, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, u, raw.v, raw.w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_u(const_float_t ru, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyzijk_u(current_position, ru, fr_mm_s);
+  }
+#endif
+
+#if HAS_V_AXIS
+  void do_blocking_move_to_xyzijku_v(const xyze_pos_t &raw, const_float_t v, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, v, raw.w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_v(const_float_t rv, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyzijku_v(current_position, rv, fr_mm_s);
+  }
+#endif
+
+#if HAS_W_AXIS
+  void do_blocking_move_to_xyzijkuv_w(const xyze_pos_t &raw, const_float_t w, const_feedRate_t fr_mm_s/*=0.0f*/) {
+    do_blocking_move_to(
+      NUM_AXIS_LIST_(raw.x, raw.y, raw.z, raw.i, raw.j, raw.k, raw.u, raw.v, w)
+      fr_mm_s
+    );
+  }
+  void do_blocking_move_to_w(const_float_t rw, const_feedRate_t fr_mm_s/*=0.0*/) {
+    do_blocking_move_to_xyzijkuv_w(current_position, rw, fr_mm_s);
   }
 #endif
 
@@ -887,7 +1456,7 @@ void restore_feedrate_and_scaling() {
     #elif ENABLED(DELTA)
 
       soft_endstop.min[axis] = base_min_pos(axis);
-      soft_endstop.max[axis] = (axis == Z_AXIS) ? DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height, probe.offset.z) : base_home_pos(axis);
+      soft_endstop.max[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_max_pos(axis);
 
       switch (axis) {
         case X_AXIS:
@@ -1154,9 +1723,12 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
       #if HAS_ROTATIONAL_AXES
         if (UNEAR_ZERO(distance_sqr)) {
-          // Move involves only rotational axes. Calculate angular distance in accordance with LinuxCNC
-          is_cartesian_move = false;
+          // Move involves no linear axes. Calculate angular distance in accordance with LinuxCNC
           distance_sqr = ROTATIONAL_AXIS_GANG(sq(diff.i), + sq(diff.j), + sq(diff.k), + sq(diff.u), + sq(diff.v), + sq(diff.w));
+        }
+        if (!UNEAR_ZERO(distance_sqr)) {
+          // Move involves rotational axes, not just the extruder
+          is_cartesian_move = false;
         }
       #endif
 
@@ -1318,8 +1890,9 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
       float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
       // If the move is very short, check the E move distance
-      // No E move either? Game over.
       TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+
+      // No E move either? Game over.
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
@@ -1483,7 +2056,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
           if (planner.buffer_line(raised, fr_zfast)) {
             //  2. Move to the current native XY and raised Z. Presumably this is a null move.
             xyze_pos_t curpos = current_position; curpos.z = raised_parked_position.z;
-            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE())) {
+            if (planner.buffer_line(curpos, PLANNER_XY_FEEDRATE_MM_S)) {
               //  3. Lower Z back down
               line_to_current_position(fr_zfast);
             }
@@ -1628,8 +2201,7 @@ void prepare_line_to_destination() {
     SERIAL_ECHO_START();
     msg.echoln();
 
-    msg.setf(GET_TEXT_F(MSG_HOME_FIRST), need);
-    ui.set_status(msg);
+    ui.status_printf(0, GET_TEXT_F(MSG_HOME_FIRST), need);
     return true;
   }
 
@@ -2133,6 +2705,11 @@ void prepare_line_to_destination() {
     #endif
 
     //
+    // Set a new current for the homed axis motor(s)
+    //
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
+
+    //
     // Back away to prevent an early sensorless trigger
     //
     #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
@@ -2177,9 +2754,10 @@ void prepare_line_to_destination() {
 
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0), 0), false);
+      do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
+
         // Check for a broken endstop
         EndstopEnum es;
         switch (axis) {
@@ -2187,11 +2765,20 @@ void prepare_line_to_destination() {
           MAIN_AXIS_MAP(_ESCASE)
           default: break;
         }
+
+        #if ENABLED(DUAL_X_CARRIAGE)
+          if (axis == X_AXIS && axis_home_dir > 0) {
+            es = X_MAX;
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
+          }
+        #endif
+
         if (TEST(endstops.state(), es)) {
           SERIAL_ECHO_MSG("Bad ", C(AXIS_CHAR(axis)), " Endstop?");
           kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
         }
-      #endif
+
+      #endif // DETECT_BROKEN_ENDSTOP
 
       #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
         if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
@@ -2410,6 +2997,11 @@ void prepare_line_to_destination() {
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< homeaxis(", C(AXIS_CHAR(axis)), ")");
 
+    //
+    // Restore axis motor(s) current after homing
+    //
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
+
   } // homeaxis()
 
 #endif // HAS_ENDSTOPS
@@ -2448,7 +3040,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if ANY(MORGAN_SCARA, AXEL_TPARA)
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
-    current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(USE_PROBE_FOR_Z_HOMING, delta_height, probe.offset.z) : base_home_pos(axis);
+    current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
   #else
     current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif

@@ -48,8 +48,8 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if HAS_DWIN_E3V2_BASIC
-  bool PrintJobRecovery::dwin_flag; // = false
+#if HAS_PLR_UI_FLAG
+  bool PrintJobRecovery::ui_flag_resume; // = false
 #endif
 
 #include "../sd/cardreader.h"
@@ -75,15 +75,14 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 
 PrintJobRecovery recovery;
 
-#ifndef POWER_LOSS_PURGE_LEN
-  #define POWER_LOSS_PURGE_LEN 0
-#endif
-
 #if DISABLED(BACKUP_POWER_SUPPLY)
   #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
 #endif
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
+#endif
+#ifndef POWER_LOSS_PURGE_LEN
+  #define POWER_LOSS_PURGE_LEN 0
 #endif
 
 // Allow power-loss recovery to be aborted
@@ -206,6 +205,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     // info.sdpos and info.current_position are pre-filled from the Stepper ISR
 
     info.feedrate = uint16_t(MMS_TO_MMM(feedrate_mm_s));
+    info.feedrate_percentage = feedrate_percentage;
+    COPY(info.flow_percentage, planner.flow_percentage);
+
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
 
@@ -217,7 +219,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #if DISABLED(NO_VOLUMETRICS)
       info.flag.volumetric_enabled = parser.volumetric_enabled;
       #if HAS_MULTI_EXTRUDER
-        EXTRUDER_LOOP() info.filament_size[e] = planner.filament_size[e];
+        COPY(info.filament_size, planner.filament_size);
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
       #endif
@@ -228,6 +230,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     #endif
 
     TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
+
+    TERN_(HAS_HEATED_CHAMBER, info.target_temperature_chamber = thermalManager.degTargetChamber());
 
     TERN_(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
 
@@ -268,7 +272,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
         #if POWER_LOSS_RETRACT_LEN
           // Retract filament now
-          gcode.process_subcommands_now(F("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+          const uint16_t old_flow = planner.flow_percentage[active_extruder];
+          planner.set_flow(active_extruder, 100);
+          gcode.process_subcommands_now(F("G1F3000E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+          planner.set_flow(active_extruder, old_flow);
         #endif
 
         #if POWER_LOSS_ZRAISE
@@ -382,6 +389,12 @@ void PrintJobRecovery::resume() {
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
     PROCESS_SUBCOMMANDS_NOW(F("M420S0"));
+  #endif
+
+  #if HAS_HEATED_CHAMBER
+    // Restore the chamber temperature
+    const celsius_t ct = info.target_temperature_chamber;
+    if (ct) PROCESS_SUBCOMMANDS_NOW(TS(F("M191S"), ct));
   #endif
 
   #if HAS_HEATED_BED
@@ -548,8 +561,12 @@ void PrintJobRecovery::resume() {
   // Move back down to the saved Z for printing
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F600Z"), p_float_t(z_print, 3)));
 
-  // Restore the feedrate
+  // Restore the feedrate and percentage
   PROCESS_SUBCOMMANDS_NOW(TS(F("G1F"), info.feedrate));
+  feedrate_percentage = info.feedrate_percentage;
+
+  // Flowrate percentage
+  EXTRUDER_LOOP() planner.set_flow(e, info.flow_percentage[e]);
 
   // Restore E position with G92.9
   PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9E"), p_float_t(resume_pos.e, 3)));
@@ -582,7 +599,8 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
-        DEBUG_ECHOLNPGM("feedrate: ", info.feedrate);
+        DEBUG_ECHOLN(F("feedrate: "), info.feedrate, F(" x "), info.feedrate_percentage, '%');
+        EXTRUDER_LOOP() DEBUG_ECHOLN('E', e + 1, F(" flow %: "), info.flow_percentage[e]);
 
         DEBUG_ECHOLNPGM("zraise: ", info.zraise, " ", info.flag.raised ? "(before)" : "");
 
@@ -632,6 +650,10 @@ void PrintJobRecovery::resume() {
 
         #if HAS_HEATED_BED
           DEBUG_ECHOLNPGM("target_temperature_bed: ", info.target_temperature_bed);
+        #endif
+
+        #if HAS_HEATED_CHAMBER
+          DEBUG_ECHOLNPGM("target_temperature_chamber: ", info.target_temperature_chamber);
         #endif
 
         #if HAS_FAN

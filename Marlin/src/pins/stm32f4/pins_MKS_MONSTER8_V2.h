@@ -51,7 +51,7 @@
 //
 // MKS WIFI MODULE
 //
-//#define WIFI_SERIAL 1// USART1
+//#define WIFI_SERIAL_PORT                     1  // USART1
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_IO0_PIN                      PB14  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PB15  // MKS ESP WIFI IO1 PIN
@@ -59,8 +59,6 @@
 #endif
 
 // The FYSETC_MINI_12864_2_1 uses one of the EXP pins
-#if DISABLED(FYSETC_MINI_12864_2_1) && !defined(NEOPIXEL_PIN)
-  #define NEOPIXEL_PIN                      PC5
-#endif
+#define BOARD_NEOPIXEL_PIN                  PC5
 
 #include "pins_MKS_MONSTER8_common.h"

@@ -238,6 +238,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(FYSETC_242_OLED_12864)
 
   #define BTN_EN1                    EXP1_01_PIN
@@ -255,7 +256,7 @@
   #define FORCE_SOFT_SPI
 
   #define KILL_PIN                          -1    // NC
-  #define NEOPIXEL_PIN               EXP1_07_PIN
+  #define BOARD_NEOPIXEL_PIN         EXP1_07_PIN
 
 #elif HAS_WIRED_LCD
 

@@ -54,7 +54,7 @@
     fn                                              \
   }
 
-stc_sd_handle_t *handle;
+stc_sd_handle_t *handle = nullptr;
 
 bool SDIO_Init() {
   // Configure SDIO pins
@@ -66,36 +66,45 @@ bool SDIO_Init() {
   GPIO_SetFunc(BOARD_SDIO_CMD, Func_Sdio);
   GPIO_SetFunc(BOARD_SDIO_DET, Func_Sdio);
 
+  // If a handle is already initialized, free it before creating a new one
+  // otherwise, we will leak memory, which will eventually crash the system
+  if (handle != nullptr) {
+    delete handle->pstcDmaInitCfg;
+    delete handle->pstcCardInitCfg;
+    delete handle;
+    handle = nullptr;
+  }
+
   // Create DMA configuration
   stc_sdcard_dma_init_t *dmaConf = new stc_sdcard_dma_init_t;
   dmaConf->DMAx = SDIO_DMA_PERIPHERAL;
   dmaConf->enDmaCh = SDIO_DMA_CHANNEL;
+
+  // Create card configuration
+  // This should be a fairly safe configuration for most cards
+  stc_sdcard_init_t *cardConf = new stc_sdcard_init_t;
+  cardConf->enBusWidth = SdiocBusWidth4Bit;
+  cardConf->enClkFreq = SdiocClk400K;
+  cardConf->enSpeedMode = SdiocNormalSpeedMode;
+  cardConf->pstcInitCfg = nullptr;
 
   // Create handle in DMA mode
   handle = new stc_sd_handle_t;
   handle->SDIOCx = SDIO_PERIPHERAL;
   handle->enDevMode = SdCardDmaMode;
   handle->pstcDmaInitCfg = dmaConf;
-
-  // Create card configuration
-  // This should be a fairly safe configuration for most cards
-  stc_sdcard_init_t cardConf = {
-    .enBusWidth = SdiocBusWidth4Bit,
-    .enClkFreq = SdiocClk400K,
-    .enSpeedMode = SdiocNormalSpeedMode,
-    //.pstcInitCfg = NULL,
-  };
+  //handle->pstcCardInitCfg = cardConf; // assigned in SDCARD_Init
 
   // Initialize sd card
-  en_result_t rc = SDCARD_Init(handle, &cardConf);
+  en_result_t rc = SDCARD_Init(handle, cardConf);
   if (rc != Ok) printf("SDIO_Init() error (rc=%u)\n", rc);
 
   return rc == Ok;
 }
 
 bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
-  CORE_ASSERT(handle != NULL, "SDIO not initialized");
-  CORE_ASSERT(dst != NULL, "SDIO_ReadBlock dst is NULL");
+  CORE_ASSERT(handle != nullptr, "SDIO not initialized", return false);
+  CORE_ASSERT(dst != nullptr, "SDIO_ReadBlock dst is NULL", return false);
 
   WITH_RETRY(SDIO_READ_RETRIES, {
     en_result_t rc = SDCARD_ReadBlocks(handle, block, 1, dst, SDIO_READ_TIMEOUT);
@@ -107,8 +116,8 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t *dst) {
 }
 
 bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
-  CORE_ASSERT(handle != NULL, "SDIO not initialized");
-  CORE_ASSERT(src != NULL, "SDIO_WriteBlock src is NULL");
+  CORE_ASSERT(handle != nullptr, "SDIO not initialized", return false);
+  CORE_ASSERT(src != nullptr, "SDIO_WriteBlock src is NULL", return false);
 
   WITH_RETRY(SDIO_WRITE_RETRIES, {
     en_result_t rc = SDCARD_WriteBlocks(handle, block, 1, (uint8_t *)src, SDIO_WRITE_TIMEOUT);
@@ -120,12 +129,12 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t *src) {
 }
 
 bool SDIO_IsReady() {
-  CORE_ASSERT(handle != NULL, "SDIO not initialized");
+  CORE_ASSERT(handle != nullptr, "SDIO not initialized", return false);
   return bool(handle->stcCardStatus.READY_FOR_DATA);
 }
 
 uint32_t SDIO_GetCardSize() {
-  CORE_ASSERT(handle != NULL, "SDIO not initialized");
+  CORE_ASSERT(handle != nullptr, "SDIO not initialized", return 0);
 
   // Multiply number of blocks with block size to get size in bytes
   const uint64_t cardSizeBytes = uint64_t(handle->stcSdCardInfo.u32LogBlockNbr) * uint64_t(handle->stcSdCardInfo.u32LogBlockSize);
