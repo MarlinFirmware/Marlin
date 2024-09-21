@@ -7,7 +7,7 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    import os,marlin
+    import os, marlin
 
     board = marlin.env.BoardConfig()
 

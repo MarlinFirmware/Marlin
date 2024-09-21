@@ -166,7 +166,7 @@
   //
   // GLCD features
   //
-  //#define LCD_CONTRAST                     190
+  //#define LCD_CONTRAST_INIT                190
 
   //
   // Dcreen orientation

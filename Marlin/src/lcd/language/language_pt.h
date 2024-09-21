@@ -75,6 +75,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudir");
   LSTR MSG_RETRACT                        = _UxGT("Retrair");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover eixo");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrar e nivelar");
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
   LSTR MSG_MOVE_Y                         = _UxGT("Mover Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Mover Z");
@@ -145,6 +146,7 @@ namespace LanguageNarrow_pt {
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar cartão SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: T Máxima");
