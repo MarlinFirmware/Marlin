@@ -69,9 +69,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Mise a niveau OK!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Hauteur lissee");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Regl. decal origine");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Decalages appliques");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
@@ -103,6 +103,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusion");
   LSTR MSG_RETRACT                        = _UxGT("Retractation");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Deplacer un axe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrage auto");
   LSTR MSG_BED_LEVELING                   = _UxGT("Regler Niv. lit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");
@@ -144,13 +145,10 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("oter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activer l'UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desactiver l'UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperature lit");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperature lit");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperature buse");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperature buse");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifier grille");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif. grille perso");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Reglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");
@@ -422,6 +420,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Decalage Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalage Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonde Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");

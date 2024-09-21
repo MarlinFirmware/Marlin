@@ -59,7 +59,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0
@@ -69,7 +69,7 @@
  *
  * When installing select 1.0.2
  *
- * Installation instructions can be found at http://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Installation instructions can be found at https://learn.sparkfun.com:443/pages/CustomBoardsArduino
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.

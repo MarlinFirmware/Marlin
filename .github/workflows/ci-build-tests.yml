@@ -43,6 +43,7 @@ jobs:
 
         # Native
         - linux_native
+        - simulator_linux_release
 
         # AVR
         - mega2560
@@ -105,9 +106,9 @@ jobs:
 
         # STM32F4
         - ARMED
-        - BIGTREE_BTT002
-        - BIGTREE_GTR_V1_0
-        - BIGTREE_SKR_PRO
+        - BTT_BTT002
+        - BTT_GTR_V1_0
+        - BTT_SKR_PRO
         - FLYF407ZG
         - FYSETC_S6
         - LERDGEK
@@ -181,6 +182,13 @@ jobs:
         pip install -U platformio
         pio upgrade --dev
         pio pkg update --global
+
+    - name: Install Simulator dependencies
+      run: |
+        sudo apt-get install build-essential
+        sudo apt-get install libsdl2-dev
+        sudo apt-get install libsdl2-net-dev
+        sudo apt-get install libglm-dev
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
