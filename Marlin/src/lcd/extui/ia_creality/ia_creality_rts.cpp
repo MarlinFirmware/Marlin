@@ -798,7 +798,7 @@ void RTS::handleData() {
           if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
           smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
           char zOffs[20], tmp1[11];
-          sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+          sprintf_P(zOffs, PSTR("Z-Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
           onStatusChanged(zOffs);
         }
         else {

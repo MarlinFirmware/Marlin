@@ -815,7 +815,7 @@
  *
  *   3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
  *       the movement of the first except the second extruder is reversed in the X-Axis.
- *       Set the initial X offset and temperature differential with M605 S2 X[offs] R[deg] and
+ *       Set the initial X-offset and temperature differential with M605 S2 X[offs] R[deg] and
  *       follow with M605 S3 to initiate mirrored movement.
  */
 //#define DUAL_X_CARRIAGE
@@ -1509,7 +1509,7 @@
   #if ENABLED(PROBE_OFFSET_WIZARD)
     /**
      * Enable to init the Probe Z-Offset when starting the Wizard.
-     * Use a height slightly above the estimated nozzle-to-probe Z offset.
+     * Use a height slightly above the estimated nozzle-to-probe Z-Offset.
      * For example, with an offset of -5, consider a starting height of -4.
      */
     //#define PROBE_OFFSET_WIZARD_START_Z -4.0
@@ -1531,7 +1531,7 @@
     #if ENABLED(X_AXIS_TWIST_COMPENSATION)
       /**
        * Enable to init the Probe Z-Offset when starting the Wizard.
-       * Use a height slightly above the estimated nozzle-to-probe Z offset.
+       * Use a height slightly above the estimated nozzle-to-probe Z-Offset.
        * For example, with an offset of -5, consider a starting height of -4.
        */
       #define XATC_START_Z 0.0
@@ -2309,7 +2309,7 @@
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-    //#define BABYSTEP_GFX_OVERLAY          // Enable graphical overlay on Z-offset editor
+    //#define BABYSTEP_GFX_OVERLAY          // Enable graphical overlay on Z-Offset editor
   #endif
 #endif
 
@@ -2356,7 +2356,7 @@
 /**
  * Use Safe Bed Leveling coordinates to move axes to a useful position before bed probing.
  * For example, after homing a rotational axis the Z-Probe might not be perpendicular to the bed.
- * Choose values the orient the bed horizontally and the Z-probe vertically.
+ * Choose values the orient the bed horizontally and the Z-Probe vertically.
  */
 //#define SAFE_BED_LEVELING_START_X 0.0
 //#define SAFE_BED_LEVELING_START_Y 0.0

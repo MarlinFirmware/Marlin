@@ -330,7 +330,7 @@ void GcodeSuite::M871() {
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
   }
-  else // Print current Z-probe adjustments. Note: Values in EEPROM might differ.
+  else // Print current Z-Probe adjustments. Note: Values in EEPROM might differ.
     ptc.print_offsets();
 }
 

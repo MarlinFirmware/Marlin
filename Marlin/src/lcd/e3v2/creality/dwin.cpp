@@ -964,7 +964,7 @@ void drawTuneMenu() {
         itemAreaCopy(0, 119, 64, 132, TUNE_CASE_FAN);          // "Fan speed"
       #endif
       #if HAS_ZOFFSET_ITEM
-        itemAreaCopy(93, 179, 141, 189, TUNE_CASE_ZOFF);       // "Z-offset"
+        itemAreaCopy(93, 179, 141, 189, TUNE_CASE_ZOFF);       // "Z-Offset"
       #endif
     #endif
   }
@@ -3811,7 +3811,7 @@ void hmiTune() {
           break;
       #endif
       #if HAS_ZOFFSET_ITEM
-        case TUNE_CASE_ZOFF: // Z-offset
+        case TUNE_CASE_ZOFF: // Z-Offset
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
             checkkey = ID_HomeOffset;
             hmiValues.offset_value = BABY_Z_VAR * 100;

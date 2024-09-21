@@ -103,7 +103,7 @@
 #define LEVELING_AUTO_COMMAND_EN        "AutoLeveling command settings"
 #define LEVELING_AUTO_ZOFFSET_EN        "Nozzle-to-probe offsets settings"
 
-#define LEVELING_ZOFFSET_TITLE_EN       "Machine Settings>Z Offset Wizard"
+#define LEVELING_ZOFFSET_TITLE_EN       "Machine Settings>Z-Offset Wizard"
 
 #define LEVELING_PARA_CONF_TITLE_EN     "leveling setting"
 #define AUTO_LEVELING_ENABLE_EN         "Enable auto leveling"
@@ -260,7 +260,7 @@
 #define OFFSET_TITLE_EN  "Machine Settings>Offset"
 #define OFFSET_X_EN      "X offset"
 #define OFFSET_Y_EN      "Y offset"
-#define OFFSET_Z_EN      "Z offset"
+#define OFFSET_Z_EN      "Z-Offset"
 
 #define HOMING_SENSITIVITY_CONF_TITLE_EN      "Machine Settings>Sensitivity"
 #define X_SENSITIVITY_EN                      "X-Axis sensitivity"

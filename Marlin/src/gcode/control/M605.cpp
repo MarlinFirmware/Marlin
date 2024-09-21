@@ -53,7 +53,7 @@
    *
    *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
    *             the movement of the first except the second extruder is reversed in the X-Axis.
-   *             The temperature differential and initial X offset must be set with "M605 S2 X[offs] R[deg]",
+   *             The temperature differential and initial X-offset must be set with "M605 S2 X[offs] R[deg]",
    *             then followed by "M605 S3" to initiate mirrored movement.
    *
    *    M605 W  : IDEX What? command.
@@ -76,7 +76,7 @@
           break;
 
         case DXC_DUPLICATION_MODE:
-          // Set the X offset, but no less than the safety gap
+          // Set the X-offset, but no less than the safety gap
           if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
           if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0

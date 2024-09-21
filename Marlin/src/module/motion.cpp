@@ -3046,7 +3046,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #endif
 
   /**
-   * Z-Probe Z Homing? Account for the probe's Z offset.
+   * Z-Probe Z Homing? Account for the probe's Z-Offset.
    */
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {

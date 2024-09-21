@@ -853,7 +853,7 @@ namespace ExtUI {
      *
      * When linked_nozzles is false, each nozzle in a multi-nozzle
      * printer can be babystepped independently of the others. This
-     * lets the user to fine tune the Z-offset and Nozzle Offsets
+     * lets the user to fine tune the Z-Offset and Nozzle Offsets
      * while observing the first layer of a print, regardless of
      * what nozzle is printing.
      */

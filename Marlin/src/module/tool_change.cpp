@@ -814,7 +814,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 9. Apply Z hotend offset to current position
 
-    DEBUG_POS("(9) Applying Z-offset", current_position);
+    DEBUG_POS("(9) Applying Z-Offset", current_position);
     current_position.z += hoffs.z - hotend_offset[new_tool].z;
 
     DEBUG_POS("EMST Tool-Change done.", current_position);
@@ -1483,7 +1483,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
       // If using MECHANICAL_SWITCHING extruder/nozzle, set HOTEND_OFFSET in Z-Axis after running EVENT_GCODE_TOOLCHANGE
-      // so that nozzle does not lower below print surface if new hotend Z offset is higher than old hotend Z offset.
+      // so that nozzle does not lower below print surface if new hotend Z-Offset is higher than old hotend Z-Offset.
       #if ANY(MECHANICAL_SWITCHING_EXTRUDER, MECHANICAL_SWITCHING_NOZZLE)
         #if HAS_HOTEND_OFFSET
           xyz_pos_t diff = hotend_offset[new_tool] - hotend_offset[old_tool];
@@ -1493,7 +1493,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
 
         if (!no_move) {
-          // Move to new hotend Z offset and reverse Z_RAISE
+          // Move to new hotend Z-Offset and reverse Z_RAISE
           do_blocking_move_to_z(
             _MIN(
               _MAX((destination.z - diff.z) - toolchange_settings.z_raise,

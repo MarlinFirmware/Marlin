@@ -295,7 +295,7 @@
 #define STR_MBL                             "Mesh Bed Leveling"
 #define STR_UBL                             "Unified Bed Leveling"
 #define STR_ABL                             "Auto Bed Leveling"
-#define STR_X_TWIST_CORRECTION              "X-Axis Twist Correction"
+#define STR_X_TWIST_COMPENSATION            "X-Axis Twist Compensation"
 #define STR_SERVO_ANGLES                    "Servo Angles"
 #define STR_HOTEND_PID                      "Hotend PID"
 #define STR_BED_PID                         "Bed PID"

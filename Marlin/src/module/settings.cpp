@@ -305,7 +305,7 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // X Axis Twist Compensation
+  // X-Axis Twist Compensation
   //
   #if ENABLED(X_AXIS_TWIST_COMPENSATION)
     float xatc_spacing;                                 // M423 X Z
@@ -2090,7 +2090,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // Probe Z Offset
+      // Probe Z-Offset
       //
       #if NUM_AXES
       {
@@ -4007,7 +4007,7 @@ void MarlinSettings::reset() {
     #endif // HAS_LEVELING
 
     //
-    // M423 X Axis Twist Compensation
+    // M423 X-Axis Twist Compensation
     //
     TERN_(X_AXIS_TWIST_COMPENSATION, gcode.M423_report(forReplay));
 

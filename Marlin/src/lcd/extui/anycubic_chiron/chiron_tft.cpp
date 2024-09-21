@@ -821,7 +821,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         }
       }
 
-      else if (findToken('D') >= 0) { // Save Z Offset tables and restore leveling state
+      else if (findToken('D') >= 0) { // Save Z-Offset tables and restore leveling state
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands(F("M500"));

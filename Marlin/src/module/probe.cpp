@@ -1070,7 +1070,7 @@ float Probe::probe_at_point(
 #if HAS_DELTA_SENSORLESS_PROBING
 
   /**
-   * Set the sensorless Z offset
+   * Set the sensorless Z-Offset
    */
   void Probe::set_offset_sensorless_adj(const_float_t sz) {
     DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);

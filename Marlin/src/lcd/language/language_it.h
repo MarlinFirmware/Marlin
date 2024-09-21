@@ -572,7 +572,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("PERICOLO: impostazioni errate possono cause danni! Procedo comunque?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Inizializ.TouchMI");
-  LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Test Z offset");
+  LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Test Z-Offset");
   LSTR MSG_TOUCHMI_SAVE                   = _UxGT("Memorizzare");
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estendi TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estendi sonda-Z");
@@ -810,7 +810,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_REHEATING                      = _UxGT("Riscaldando...");
   LSTR MSG_REHEATDONE                     = _UxGT("Riscaldato");
 
-  LSTR MSG_PROBE_WIZARD                   = _UxGT("Wizard Z offset");
+  LSTR MSG_PROBE_WIZARD                   = _UxGT("Wizard Z-Offset");
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Altezza di riferimento sonda");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Spostati in posizione di rilevazione");
 

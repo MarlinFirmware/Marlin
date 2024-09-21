@@ -78,7 +78,7 @@ void ZOffsetScreen::move(float mm, int16_t steps) {
 }
 
 void ZOffsetScreen::runWizard() {
-  // Restore the default Z offset
+  // Restore the default Z-Offset
   constexpr float offset[] = NOZZLE_TO_PROBE_OFFSET;
   setZOffset_mm(offset[Z_AXIS]);
   // Move above probe point
@@ -94,7 +94,7 @@ void ZOffsetScreen::runWizard() {
   strcat(cmd, str);
   injectCommands(cmd);
   // Show instructions for user.
-  AlertDialogBox::show(F("After the printer finishes homing, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
+  AlertDialogBox::show(F("After the printer finishes homing, adjust the Z-Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance."));
 }
 
 bool ZOffsetScreen::wizardRunning() {
