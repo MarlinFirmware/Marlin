@@ -74,7 +74,7 @@ public:
     write(addr, static_cast<const void*>(&data), sizeof(T));
   }
 
-  // Until now I did not need to actively read from the display. That's why there is no ReadVariable
+  // Until now I did not need to actively read from the display. That's why there is no readVariable
   // (I extensively use the auto upload of the display)
 
   // Read GUI and OS version from screen
@@ -178,5 +178,5 @@ template<> inline uint16_t DGUSDisplay::swapBytes(const uint16_t value) {
 
 extern DGUSDisplay dgus;
 
-/// Helper to populate a DGUS_VP for a given VP. Return false if not found.
+// Helper to populate a DGUS_VP for a given VP. Return false if not found.
 extern bool populateVP(const DGUS_Addr addr, DGUS_VP * const buffer);

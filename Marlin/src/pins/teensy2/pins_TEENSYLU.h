@@ -25,8 +25,7 @@
  *
  *  Converted to Arduino pin numbering
  *
- *  Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Teensylu%20v1.0/schematic.png
- *  Origin (1.0): https://raw.githubusercontent.com/StephS/Teensylu/master/working/Teensylu-1.0.sch
+ *  Schematic (1.0): https://raw.githubusercontent.com/StephS/Teensylu/master/working/Teensylu-1.0.sch
  *  (*) Other versions are discouraged by creator.
  */
 
@@ -149,6 +148,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define BEEPER_PIN                          -1

@@ -23,8 +23,7 @@
 
 //
 // FYSETC F6 v1.4 pin assignments
-// Schematic (1.4): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/FYSETC%20F6%20v1.4/F6%20V1.4%20Sch.pdf
-// Origin (1.4): https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.4/F6%20V1.4%20Sch.pdf
+// Schematic (1.4): https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.4/F6%20V1.4%20Sch.pdf
 // ATmega2560
 //
 

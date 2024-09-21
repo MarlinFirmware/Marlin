@@ -113,7 +113,6 @@
 //
 //#define CASE_LIGHT_PIN_CI                 -1
 //#define CASE_LIGHT_PIN_DO                 -1
-//#define NEOPIXEL_PIN                      -1
 
 //
 // SD support (On board)
@@ -149,14 +148,14 @@
   #endif
   #define ST7796S_INVERTED
 
+  // TODO: See if FSMC DMA can work
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TOUCH_CS_PIN                      PB6
   #define TOUCH_SCK_PIN                     PB3

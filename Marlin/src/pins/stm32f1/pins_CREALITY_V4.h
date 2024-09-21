@@ -169,6 +169,18 @@
 #define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
+/**    Debug port
+ *       -----
+ *       | 1 | VCC
+ *       | 2 | PA13
+ *       | 3 | PA14
+ *       | 4 | GND
+ *       -----
+ */
+
+#define DEBUG_02_PIN                        PA13
+#define DEBUG_03_PIN                        PA14
+
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   /**
@@ -241,9 +253,7 @@
 
 #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! FYSETC_MINI_12864_2_1 and clones require wiring modifications. See 'pins_CREALITY_V4.h' for details. Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning."
-  #endif
+  CONTROLLER_WARNING("CREALITY_V4", "FYSETC_MINI_12864_2_1 and clones")
 
   #if SD_CONNECTION_IS(LCD)
     #error "The LCD SD Card is not connected with this configuration."

@@ -47,11 +47,11 @@ void GcodeSuite::M851() {
       if (WITHIN(x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX))
         offs.x = x;
       else {
-        SERIAL_ECHOLNPGM("?X out of range (", PROBE_OFFSET_XMIN, " to ", PROBE_OFFSET_XMAX, ")");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("X out of range (", PROBE_OFFSET_XMIN, " to ", PROBE_OFFSET_XMAX, ")"));
         ok = false;
       }
     #else
-      if (x) SERIAL_ECHOLNPGM("?X must be 0 (NOZZLE_AS_PROBE)."); // ...but let 'ok' stay true
+      if (x) SERIAL_ECHOLNPGM(GCODE_ERR_MSG("X must be 0 (NOZZLE_AS_PROBE).")); // ...but let 'ok' stay true
     #endif
   }
 
@@ -61,11 +61,11 @@ void GcodeSuite::M851() {
       if (WITHIN(y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX))
         offs.y = y;
       else {
-        SERIAL_ECHOLNPGM("?Y out of range (", PROBE_OFFSET_YMIN, " to ", PROBE_OFFSET_YMAX, ")");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Y out of range (", PROBE_OFFSET_YMIN, " to ", PROBE_OFFSET_YMAX, ")"));
         ok = false;
       }
     #else
-      if (y) SERIAL_ECHOLNPGM("?Y must be 0 (NOZZLE_AS_PROBE)."); // ...but let 'ok' stay true
+      if (y) SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Y must be 0 (NOZZLE_AS_PROBE).")); // ...but let 'ok' stay true
     #endif
   }
 
@@ -74,7 +74,7 @@ void GcodeSuite::M851() {
     if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
       offs.z = z;
     else {
-      SERIAL_ECHOLNPGM("?Z out of range (", PROBE_OFFSET_ZMIN, " to ", PROBE_OFFSET_ZMAX, ")");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Z out of range (", PROBE_OFFSET_ZMIN, " to ", PROBE_OFFSET_ZMAX, ")"));
       ok = false;
     }
   }
@@ -84,6 +84,8 @@ void GcodeSuite::M851() {
 }
 
 void GcodeSuite::M851_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_Z_PROBE_OFFSET));
   SERIAL_ECHOPGM_P(
     #if HAS_PROBE_XY_OFFSET
