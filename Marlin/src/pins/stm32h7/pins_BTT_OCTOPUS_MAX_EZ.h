@@ -410,7 +410,7 @@
 #endif
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
 
 #if ENABLED(BTT_MINI_12864)                       // BTT Mini 12864 V2.0 connected via 18-pin FPC cable
@@ -442,14 +442,14 @@
   #define NEOPIXEL_PIN               EXP1_06_PIN
 
 #elif HAS_WIRED_LCD
-  #error "Only BTT_MINI_12864 (BTT Mini 12864 V2.0 with FPC cable) is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
+  #error "Only BTT_MINI_12864 (BTT Mini 12864 V2.0 with FPC cable) is currently supported on the Octopus Max EZ."
 #endif
 
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE10
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE10
 #endif
 #ifndef NEOPIXEL2_PIN
   #define NEOPIXEL2_PIN                     PE9

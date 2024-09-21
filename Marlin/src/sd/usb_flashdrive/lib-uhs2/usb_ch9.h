@@ -79,7 +79,6 @@
 
 #define HID_DESCRIPTOR_HID                      0x21
 
-
 /* OTG SET FEATURE Constants    */
 #define OTG_FEATURE_B_HNP_ENABLE                3       // SET FEATURE OTG - Enable B device to perform HNP
 #define OTG_FEATURE_A_HNP_SUPPORT               4       // SET FEATURE OTG - A device supports HNP
@@ -91,7 +90,6 @@
 #define USB_TRANSFER_TYPE_BULK                  0x02    // Endpoint is a bulk endpoint.
 #define USB_TRANSFER_TYPE_INTERRUPT             0x03    // Endpoint is an interrupt endpoint.
 #define bmUSB_TRANSFER_TYPE                     0x03    // bit mask to separate transfer type from ISO attributes
-
 
 /* Standard Feature Selectors for CLEAR_FEATURE Requests    */
 #define USB_FEATURE_ENDPOINT_STALL              0       // Endpoint recipient

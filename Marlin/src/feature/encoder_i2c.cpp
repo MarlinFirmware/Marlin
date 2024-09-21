@@ -27,7 +27,6 @@
 //todo:  try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
 //todo:    consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
 
-
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -461,7 +460,6 @@ void I2CPositionEncoder::reset() {
 
   TERN_(I2CPE_ERR_ROLLING_AVERAGE, ZERO(err));
 }
-
 
 bool I2CPositionEncodersMgr::I2CPE_anyaxis;
 uint8_t I2CPositionEncodersMgr::I2CPE_addr,
