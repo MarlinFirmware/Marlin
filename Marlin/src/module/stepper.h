@@ -44,6 +44,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "planner.h"
+#include "motion.h"
 #include "stepper/indirection.h"
 #include "stepper/cycles.h"
 #ifdef __AVR__
@@ -59,7 +60,7 @@
   #define E_STATES EXTRUDERS  // All steppers are set together for each mixer. (Currently limited to 1.)
 #elif HAS_SWITCHING_EXTRUDER
   #define E_STATES E_STEPPERS // One stepper for every two EXTRUDERS. The last extruder can be non-switching.
-#elif HAS_PRUSA_MMU2
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #define E_STATES E_STEPPERS // One E stepper shared with all EXTRUDERS, so setting any only sets one.
 #else
   #define E_STATES E_STEPPERS // One stepper for each extruder, so each can be disabled individually.
@@ -633,9 +634,18 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      #if HAS_Z_AXIS
+        if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
+          z_min_trusted = false;
+          current_position.z = 0;
+        }
+      #endif
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[INDEX_OF_AXIS(axis, eindex)]);

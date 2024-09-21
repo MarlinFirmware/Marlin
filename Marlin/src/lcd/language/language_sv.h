@@ -115,6 +115,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrudera");
   LSTR MSG_RETRACT                        = _UxGT("Dra tillbaka");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Flytta Axel");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sond och Nivellera");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bädd Nivellering");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivellera Bädd");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Bädd Justering");
@@ -152,13 +153,10 @@ namespace LanguageNarrow_sv {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mät");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Ta bort & Mät bädd");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Flyttar till nästa");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Aktivera UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Avaktivera UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Bädd Temp");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Bädd Temp");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Hetände Temp");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hetände Temp");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Nät Redigera");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Redigera Anpassat Nät");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Finjustera Nät");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Färdig Redigera Nät");
@@ -449,6 +447,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sond X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sond Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sond Z Offset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Steg Z justering");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Flytta Munstycke till Bädd");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Småsteg X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Småsteg Y");
