@@ -271,7 +271,7 @@ def process_text(txt):
         elif tryUndef(wDict):   pass  #undef ...
         elif tryCond(wDict):    pass  #if|ifdef|ifndef|elif ...
 
-        out += wDict['line'] + '\n'
+        out += wDict['line'].rstrip() + '\n'
 
     return re.sub('\n\n$', '\n', re.sub(r'\n\n+', '\n\n', out))
 

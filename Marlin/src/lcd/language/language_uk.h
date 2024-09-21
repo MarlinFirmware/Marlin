@@ -73,9 +73,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_LEVEL_BED_DONE                   = _UxGT("Завершено!");
   LSTR MSG_Z_FADE_HEIGHT                    = _UxGT("Висота спаду");
   LSTR MSG_SET_HOME_OFFSETS                 = _UxGT("Встан. зміщ. дому");
-  LSTR MSG_HOME_OFFSET_X                    = _UxGT("Зміщ. дому X");
-  LSTR MSG_HOME_OFFSET_Y                    = _UxGT("Зміщ. дому Y");
-  LSTR MSG_HOME_OFFSET_Z                    = _UxGT("Зміщ. дому Z");
   LSTR MSG_HOME_OFFSETS_APPLIED             = _UxGT("Зміщення прийняті");
   LSTR MSG_SELECT_ORIGIN                    = _UxGT("Оберіть нуль");
   LSTR MSG_LAST_VALUE_SP                    = _UxGT("Останнє знач. ");
@@ -120,6 +117,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_EXTRUDE                          = _UxGT("Екструзія");
   LSTR MSG_RETRACT                          = _UxGT("Втягування");
   LSTR MSG_MOVE_AXIS                        = _UxGT("Рух по осям");
+  LSTR MSG_PROBE_AND_LEVEL                  = _UxGT("Проба/вирівнювання");
   LSTR MSG_BED_LEVELING                     = _UxGT("Вирівнювання столу");
   LSTR MSG_LEVEL_BED                        = _UxGT("Вирівняти стіл");
   LSTR MSG_BED_TRAMMING                     = _UxGT("Вирівняти кути");
@@ -162,8 +160,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Вимірювання");
   LSTR MSG_UBL_BC_REMOVE                    = _UxGT("Видали і вимір. стіл");
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Рух до наступної");
-  LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активувати UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивувати UBL");
   LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" столу, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" столу,") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_SET_TEMP_HOTEND              = LCD_STR_THERMOMETER _UxGT(" сопла, ") LCD_STR_DEGREE _UxGT("C");
@@ -171,7 +167,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_EDIT_CUSTOM_MESH             = _UxGT("Редагувати свою");
   LSTR MSG_UBL_FINE_TUNE_MESH               = _UxGT("Точне редаг. сітки");
   LSTR MSG_UBL_BUILD_CUSTOM_MESH            = _UxGT("Будувати свою");
-  LSTR MSG_UBL_MESH_EDIT                    = _UxGT("Редагування сітки");
   LSTR MSG_UBL_DONE_EDITING_MESH            = _UxGT("Сітка побудована");
   LSTR MSG_UBL_BUILD_MESH_MENU              = _UxGT("Будувати сітку");
   LSTR MSG_UBL_BUILD_MESH_M                 = _UxGT("Будувати сітку ($)");
@@ -480,6 +475,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Зміщення по X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Зміщення по Y");
   LSTR MSG_ZPROBE_ZOFFSET                   = _UxGT("Зміщення по Z");
+  LSTR MSG_BABYSTEP_PROBE_Z                 = _UxGT("Крок Z зміщення");
   LSTR MSG_MOVE_NOZZLE_TO_BED               = _UxGT("Рухати сопло до столу");
   LSTR MSG_BABYSTEP_X                       = _UxGT("Мікрокрок X");
   LSTR MSG_BABYSTEP_Y                       = _UxGT("Мікрокрок Y");
@@ -539,28 +535,31 @@ namespace LanguageNarrow_uk {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS            = _UxGT("Яскравість світла");
   LSTR MSG_KILL_EXPECTED_PRINTER            = _UxGT("НЕ ТОЙ ПРИНТЕР");
 
-  LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
-  LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
-  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрійте хотенд");
-  LSTR MSG_COLORS_GET                       = _UxGT("Отримати колір");
-  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Немає носія");
-  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Перезавантаж...");
+  LSTR MSG_COLORS_GET                       = _UxGT("Отримати колір");  // ProUI
+  LSTR MSG_COLORS_SELECT                    = _UxGT("Кольори");         // ProUI
+  LSTR MSG_COLORS_APPLIED                   = _UxGT("Кольори застос."); // ProUI
+  LSTR MSG_COLORS_RED                       = _UxGT("Червоний");        // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелений");         // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                      = _UxGT("Синій");           // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                     = _UxGT("Білий");           // ProUI
+  LSTR MSG_UI_LANGUAGE                      = _UxGT("Мова");            // ProUI
+  LSTR MSG_SOUND_ENABLE                     = _UxGT("Дозволити звук");  // ProUI
+  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокувати екран"); // ProUI
+  //MSG_LOCKSCREEN_LOCKED
+  //MSG_LOCKSCREEN_UNLOCK
+  LSTR MSG_PLEASE_WAIT_REBOOT               = _UxGT("Перезавантаж..."); // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED               = _UxGT("Немає носія");     // ProUI
+  LSTR MSG_PLEASE_PREHEAT                   = _UxGT("Нагрійте хотенд"); // ProUI
+
   LSTR MSG_INFO_PRINT_COUNT                 = _UxGT("Друків");
   LSTR MSG_INFO_PRINT_TIME                  = _UxGT("Загалом");
   LSTR MSG_INFO_PRINT_LONGEST               = _UxGT("Найдовше");
-  LSTR MSG_COLORS_SELECT                    = _UxGT("Кольори");
-  LSTR MSG_COLORS_APPLIED                   = _UxGT("Кольори застос.");
-  LSTR MSG_COLORS_RED                       = _UxGT("Червоний");
-  LSTR MSG_COLORS_GREEN                     = _UxGT("Зелений");
-  LSTR MSG_COLORS_BLUE                      = _UxGT("Синій");
-  LSTR MSG_COLORS_WHITE                     = _UxGT("Білий");
-  LSTR MSG_UI_LANGUAGE                      = _UxGT("Мова");
-  LSTR MSG_SOUND_ENABLE                     = _UxGT("Дозволити звук");
-  LSTR MSG_LOCKSCREEN                       = _UxGT("Блокувати екран");
-
+  LSTR MSG_INFO_PRINT_FILAMENT              = _UxGT("Екструдовано");
+  LSTR MSG_INFO_COMPLETED_PRINTS            = _UxGT("Завершено");
   LSTR MSG_INFO_MIN_TEMP                    = _UxGT("Мін.  ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_MAX_TEMP                    = _UxGT("Макс. ") LCD_STR_THERMOMETER;
   LSTR MSG_INFO_PSU                         = _UxGT("Блок жив-ня");
+
   LSTR MSG_DRIVE_STRENGTH                   = _UxGT("Сила мотору");
   LSTR MSG_DAC_PERCENT_N                    = _UxGT("Драйвер @, %");
   LSTR MSG_ERROR_TMC                        = _UxGT("ЗБІЙ ЗВ'ЯЗКУ З TMC");
@@ -703,9 +702,9 @@ namespace LanguageWide_uk {
     LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Переповнення виклику");
     LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Програмні кінцевики");
     LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Встанов. зміщення дому");
-    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X");
-    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y");
-    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z");
+    LSTR MSG_HOME_OFFSET_X                  = _UxGT("Зміщення дому X"); // DWIN
+    LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Зміщення дому Y"); // DWIN
+    LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Зміщення дому Z"); // DWIN
     LSTR MSG_LAST_VALUE_SP                  = _UxGT("Останнє значення ");
     LSTR MSG_LASER_POWER                    = _UxGT("Потужність лазера");
     LSTR MSG_SPINDLE_TOGGLE                 = _UxGT("Перемкн. шпіндель");
