@@ -25,9 +25,6 @@
 
 class LevelingBilinear {
 public:
-  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    static float z_base_offset;
-  #endif
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;
 
@@ -64,7 +61,7 @@ public:
   static float get_mesh_y(const uint8_t j) { return grid_start.y + j * grid_spacing.y; }
   static float get_z_correction(const xy_pos_t &raw);
   #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-    static void center_z_base_offset();
+    static void center_z_mesh_offset();
   #endif
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)

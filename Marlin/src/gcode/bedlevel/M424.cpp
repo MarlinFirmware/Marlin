@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -32,25 +32,26 @@
  * M424: Set Global Mesh Z Offset
  */
 void GcodeSuite::M424() {
-
-  if (parser.seenval('Z')) {
-    const float zval = parser.value_linear_units();
-    if (WITHIN(zval, -2, 2)) {
-      if (zval != bedlevel.z_base_offset) {
-        planner.synchronize();
-        bedlevel.z_base_offset = zval; // TODO: Handle the change in position when leveling is on
-      }
-    }
-    else
-      SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
+  if (!parser.seenval('Z')) {
+    SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET ": ", mesh_z_offset);
+    return;
   }
-  else
-    SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET ": ", bedlevel.z_base_offset);
+
+  const float zval = parser.value_linear_units();
+  if (!WITHIN(zval, -2, 2)) {
+    SERIAL_ECHOLNPGM("?Z out of range (-2..2)");
+    return;
+  }
+
+  if (zval != mesh_z_offset) {
+    planner.synchronize();
+    mesh_z_offset = zval; // TODO: Handle the change in position when leveling is on
+  }
 }
 
 void GcodeSuite::M424_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_MESH_Z_OFFSET));
-  SERIAL_ECHOLNPGM("  M424 Z", p_float_t(LINEAR_UNIT(bedlevel.z_base_offset), 3));
+  SERIAL_ECHOLNPGM("  M424 Z", p_float_t(LINEAR_UNIT(mesh_z_offset), 3));
 }
 
 #endif // GLOBAL_MESH_Z_OFFSET

@@ -84,10 +84,6 @@ void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
   TERN_(BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
 }
 
-bool Babystep::can_babystep(const AxisEnum axis) {
-  return ENABLED(BABYSTEP_WITHOUT_HOMING) || axis_is_trusted(axis);
-}
-
 #if ENABLED(EP_BABYSTEPPING)
   // Step Z for M293 / M294
   void Babystep::z_up()   { if (BABYSTEP_ALLOWED()) add_steps(Z_AXIS, +BABYSTEP_SIZE_Z); }

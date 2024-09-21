@@ -107,7 +107,7 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-      SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET, bedlevel.z_base_offset);
+      SERIAL_ECHOLNPGM(STR_MESH_Z_OFFSET, mesh_z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)

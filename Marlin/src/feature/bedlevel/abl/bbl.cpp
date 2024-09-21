@@ -37,10 +37,6 @@
 
 LevelingBilinear bedlevel;
 
-// Initialized by settings.load()
-#if ENABLED(GLOBAL_MESH_Z_OFFSET)
-  float LevelingBilinear::z_base_offset;
-#endif
 xy_pos_t LevelingBilinear::grid_spacing,
          LevelingBilinear::grid_start;
 xy_float_t LevelingBilinear::grid_factor;
@@ -368,20 +364,16 @@ float LevelingBilinear::get_z_correction(const xy_pos_t &raw) {
 
 #if ENABLED(GLOBAL_MESH_Z_OFFSET)
 
-  void LevelingBilinear::center_z_base_offset() {
+  void LevelingBilinear::center_z_mesh_offset() {
     float z_low = 100.0f, z_high = -100.0f; // Impossible values to start
-    //float z_sum = 0.0f;
-    // Find the high/low values (and sum)
+    // Find the high/low values
     GRID_LOOP(x, y) {
       const float z = isnan(z_values[x][y]) ? 0.0f : z_values[x][y];
       NOLESS(z_high, z);
       NOMORE(z_low, z);
-      //z_sum += z;
     }
-    //const float z_mean = z_sum / GRID_MAX_POINTS;     // Mean average gives more weight to the most common values
-    z_base_offset = (z_low + z_high) * 0.5f;            // Average of high / low (may be disproportionately affected by outliers)
-    //z_base_offset = (z_base_offset + z_mean) * 0.5f;  // Center on the average of both
-    GRID_LOOP(x, y) if (!isnan(z_values[x][y])) z_values[x][y] -= z_base_offset;  // Subtract the global offset from the mesh
+    mesh_z_offset = (z_low + z_high) * 0.5f;  // Average of high / low (may be disproportionately affected by outliers)
+    GRID_LOOP(x, y) if (!isnan(z_values[x][y])) z_values[x][y] -= mesh_z_offset;  // Subtract the global offset from the mesh
   }
 
 #endif
