@@ -38,8 +38,8 @@
  *
  * Parameters:
  *   F<feedrate> : Feedrate in mm/min
- *   I<index>    : X axis point index
- *   J<index>    : Y axis point index
+ *   I<index>    : X-Axis point index
+ *   J<index>    : Y-Axis point index
  *   P           : Flag to put the probe at the given point
  */
 void GcodeSuite::G42() {

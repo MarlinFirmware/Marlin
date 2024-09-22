@@ -61,7 +61,7 @@
 #if ENABLED(BLTOUCH)
   #define Z_MAX_PIN                         PA15  // ROCK_20220730
   #define Z_MIN_PIN                         PC14
-  //#define Z_STOP_PIN_NADD                 PA15  // Added z-axis limit switch
+  //#define Z_STOP_PIN_NADD                 PA15  // Added Z-Axis limit switch
 #elif ENABLED(PROBE_ACTIVATION_SWITCH)
   #define Z_MIN_PIN                         PA15
   #define PROBE_TARE_PIN                    PC14

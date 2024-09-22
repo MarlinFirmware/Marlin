@@ -43,18 +43,18 @@
 
 //
 // Steppers
-// The Xeed utilizes three Z-axis motors, which use the X, Y, and Z stepper connectors
+// The Xeed utilizes three Z-Axis motors, which use the X, Y, and Z stepper connectors
 // on the board. The X and Y steppers use external drivers, attached to signal-level
-// Y-axis and X-axis connectors on the board, which map to distinct CPU pins from
+// Y-Axis and X-Axis connectors on the board, which map to distinct CPU pins from
 // the on-board X/Y stepper drivers.
 //
 
-// X-axis signal-level connector
+// X-Axis signal-level connector
 #define X_STEP_PIN                            65
 #define X_DIR_PIN                             64
 #define X_ENABLE_PIN                          66  // Not actually used on Xeed, could be repurposed
 
-// Y-axis signal-level connector
+// Y-Axis signal-level connector
 #define Y_STEP_PIN                            23
 #define Y_DIR_PIN                             22
 #define Y_ENABLE_PIN                          24  // Not actually used on Xeed, could be repurposed

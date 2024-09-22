@@ -59,7 +59,7 @@
 #define FIL_RUNOUT_PIN                      PE1
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 //#ifndef Z_MIN_PROBE_PIN
 //  #define Z_MIN_PROBE_PIN                 PB15
@@ -136,7 +136,7 @@
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            -1
 
-// Lerdge supports auto-power off and power loss sense through a single pin.
+// Lerdge supports auto-power off and power-loss sense through a single pin.
 #define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
 //

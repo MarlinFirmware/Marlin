@@ -28,12 +28,12 @@
 #include "../../module/probe.h"
 
 /**
- * G31: Deploy the Z probe
+ * G31: Deploy the Z-Probe
  */
 void GcodeSuite::G31() { probe.deploy(); }
 
 /**
- * G32: Stow the Z probe
+ * G32: Stow the Z-Probe
  */
 void GcodeSuite::G32() { probe.stow(); }
 

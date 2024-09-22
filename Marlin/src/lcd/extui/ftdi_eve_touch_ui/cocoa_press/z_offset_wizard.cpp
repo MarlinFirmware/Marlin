@@ -92,7 +92,7 @@ void ZOffsetWizard::onRedraw(draw_mode_t what) {
 
   ui.bounds(POLY(z_wizard_heading), x, y, w, h);
   cmd.font(font_large)
-     .text(x, y, w, h, F("Z Probe Wizard"));
+     .text(x, y, w, h, F("Z-Probe Wizard"));
 }
 
 float ZOffsetWizard::getIncrement() {
@@ -105,7 +105,7 @@ float ZOffsetWizard::getIncrement() {
 }
 
 void ZOffsetWizard::runWizard() {
-  // Restore the default Z offset
+  // Restore the default Z-Offset
   constexpr float offset[] = NOZZLE_TO_PROBE_OFFSET;
   setZOffset_mm(offset[Z_AXIS]);
   // Move above probe point
@@ -121,7 +121,7 @@ void ZOffsetWizard::runWizard() {
   strcat(cmd, str);
   injectCommands(cmd);
   // Show instructions for user.
-  AlertDialogBox::show(F("\nOn the next screen, adjust the Z Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance.\n\nOnce the printer stops moving, press Okay to begin.\n"));
+  AlertDialogBox::show(F("\nOn the next screen, adjust the Z-Offset so that a sheet of paper can pass between the nozzle and bed with slight resistance.\n\nOnce the printer stops moving, press Okay to begin.\n"));
   // Set the destination screen after the dialog box.
   current_screen.forget();
   PUSH_SCREEN(ZOffsetWizard);

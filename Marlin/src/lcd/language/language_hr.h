@@ -77,7 +77,7 @@ namespace LanguageNarrow_hr {
   LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Probe i Nivelacija");
   LSTR MSG_BED_LEVELING                   = _UxGT("Niveliraj bed");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveliraj bed");
-  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Korak Z offset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Korak Z-Offset");
   LSTR MSG_MOVE_X                         = _UxGT("Miči X");
   LSTR MSG_MOVE_Y                         = _UxGT("Miči Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Miči Z");

@@ -76,7 +76,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("As verplaatsen");
-  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Z probe & Level");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Z-Probe & Level");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bed Leveling");
   LSTR MSG_LEVEL_BED                      = _UxGT("Level bed");
 
@@ -148,7 +148,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Verv. Filament *");
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD kaart");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Verv. SD Kaart");
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe uit. bed");
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Probe uit. bed");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");

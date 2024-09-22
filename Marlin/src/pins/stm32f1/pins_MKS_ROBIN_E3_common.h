@@ -58,7 +58,7 @@
 #define Z_STOP_PIN                          PC6
 
 //
-// Z Probe
+// Z-Probe
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB1

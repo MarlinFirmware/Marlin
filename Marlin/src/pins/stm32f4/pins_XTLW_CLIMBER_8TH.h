@@ -53,7 +53,7 @@
 #define Z_STOP_PIN                          PD11
 
 //
-// Z Probe
+// Z-Probe
 //
 #define Z_MIN_PROBE_PIN                     PC3
 

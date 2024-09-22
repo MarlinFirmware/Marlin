@@ -728,7 +728,7 @@
   #define Y2_E_INDEX X2_E_INDEX
 #endif
 
-// The X2 axis, if any, should be the next open extruder port
+// The X2-Axis, if any, should be the next open extruder port
 #if HAS_X2_STEPPER
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
@@ -816,7 +816,7 @@
   #define Z2_E_INDEX Y2_E_INDEX
 #endif
 
-// The Y2 axis, if any, should be the next open extruder port
+// The Y2-Axis, if any, should be the next open extruder port
 #if HAS_Y2_STEPPER
   #ifndef Y2_STEP_PIN
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
@@ -901,7 +901,7 @@
   #define Z3_E_INDEX Z2_E_INDEX
 #endif
 
-// The Z2 axis, if any, should be the next open extruder port
+// The Z2-Axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPERS >= 2
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
@@ -986,7 +986,7 @@
   #define Z4_E_INDEX Z3_E_INDEX
 #endif
 
-// The Z3 axis, if any, should be the next open extruder port
+// The Z3-Axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPERS >= 3
   #ifndef Z3_STEP_PIN
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
@@ -1071,7 +1071,7 @@
   #define I_E_INDEX Z4_E_INDEX
 #endif
 
-// The Z4 axis, if any, should be the next open extruder port
+// The Z4-Axis, if any, should be the next open extruder port
 #if NUM_Z_STEPPERS >= 4
   #ifndef Z4_STEP_PIN
     #define Z4_STEP_PIN   _EPIN(Z4_E_INDEX, STEP)
@@ -1156,7 +1156,7 @@
   #define J_E_INDEX I_E_INDEX
 #endif
 
-// The I axis, if any, should be the next open extruder port
+// The I-Axis, if any, should be the next open extruder port
 #if HAS_I_AXIS
   #ifndef I_STEP_PIN
     #define I_STEP_PIN   _EPIN(I_E_INDEX, STEP)
@@ -1241,7 +1241,7 @@
   #define K_E_INDEX J_E_INDEX
 #endif
 
-// The J axis, if any, should be the next open extruder port
+// The J-Axis, if any, should be the next open extruder port
 #if HAS_J_AXIS
   #ifndef J_STEP_PIN
     #define J_STEP_PIN   _EPIN(J_E_INDEX, STEP)
@@ -1326,7 +1326,7 @@
   #define U_E_INDEX K_E_INDEX
 #endif
 
-// The K axis, if any, should be the next open extruder port
+// The K-Axis, if any, should be the next open extruder port
 #if HAS_K_AXIS
   #ifndef K_STEP_PIN
     #define K_STEP_PIN   _EPIN(K_E_INDEX, STEP)
@@ -1411,7 +1411,7 @@
   #define V_E_INDEX U_E_INDEX
 #endif
 
-// The U axis, if any, should be the next open extruder port
+// The U-Axis, if any, should be the next open extruder port
 #if HAS_U_AXIS
   #ifndef U_STEP_PIN
     #define U_STEP_PIN   _EPIN(U_E_INDEX, STEP)
@@ -1496,7 +1496,7 @@
   #define W_E_INDEX V_E_INDEX
 #endif
 
-// The V axis, if any, should be the next open extruder port
+// The V-Axis, if any, should be the next open extruder port
 #if HAS_V_AXIS
   #ifndef V_STEP_PIN
     #define V_STEP_PIN   _EPIN(V_E_INDEX, STEP)
@@ -1574,7 +1574,7 @@
   #define V_MS3_PIN -1
 #endif
 
-// The W axis, if any, should be the next open extruder port
+// The W-Axis, if any, should be the next open extruder port
 #if HAS_W_AXIS
   #ifndef W_STEP_PIN
     #define W_STEP_PIN   _EPIN(W_E_INDEX, STEP)

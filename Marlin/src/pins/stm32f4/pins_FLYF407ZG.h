@@ -73,7 +73,7 @@
 #define Z_MAX_PIN                           PC15
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #define Z_MIN_PROBE_PIN                     PC14  // Z3_PIN
 

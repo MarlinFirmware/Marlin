@@ -67,7 +67,7 @@
 #define Z_STOP_PIN                          PC2   // Z-STOP
 
 //
-// Z Probe must be this pin
+// Z-Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PC14  // PROBE
 

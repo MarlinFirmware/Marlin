@@ -37,12 +37,12 @@
  *
  *   F<rate>   - Feedrate (optional) for the move back.
  *   S<slot>   - Slot # (0-based) to restore from (default 0).
- *   X<offset> - Restore X axis, applying the given offset (default 0)
- *   Y<offset> - Restore Y axis, applying the given offset (default 0)
- *   Z<offset> - Restore Z axis, applying the given offset (default 0)
+ *   X<offset> - Restore X-Axis, applying the given offset (default 0)
+ *   Y<offset> - Restore Y-Axis, applying the given offset (default 0)
+ *   Z<offset> - Restore Z-Axis, applying the given offset (default 0)
  *
  * If there is an Extruder:
- *   E<offset> - Restore E axis, applying the given offset (default 0)
+ *   E<offset> - Restore E-Axis, applying the given offset (default 0)
  *
  * With extra axes using default names:
  *   A<offset> - Restore 4th axis, applying the given offset (default 0)

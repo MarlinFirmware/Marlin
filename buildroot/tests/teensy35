@@ -35,12 +35,12 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT SDCARD_SORT_A
 exec_test $1 $2 "Teensy3.5 with many features" "$3"
 
 #
-# Test a Sled Z Probe with Linear leveling
+# Test a Sled Z-Probe with Linear leveling
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 opt_enable EEPROM_SETTINGS Z_PROBE_SLED Z_SAFE_HOMING AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE GCODE_MACROS
-exec_test $1 $2 "Sled Z Probe with Linear leveling" "$3"
+exec_test $1 $2 "Sled Z-Probe with Linear leveling" "$3"
 
 #
 # Test a Servo Probe

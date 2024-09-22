@@ -74,7 +74,7 @@
 #endif
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     32
@@ -94,9 +94,9 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
-#define POWER_LOSS_PIN                        69  // Pin to detect power loss
+#define POWER_LOSS_PIN                        69  // Pin to detect power-loss
 #define POWER_LOSS_STATE                     LOW
 
 //

@@ -112,7 +112,7 @@
 #endif
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #if !defined(Z_MIN_PROBE_PIN) && !ALL(HAS_CUTTER, BOARD_REV_1_0)
   #define Z_MIN_PROBE_PIN              Z_MAX_PIN

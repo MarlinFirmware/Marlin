@@ -48,7 +48,7 @@
 #define Z_MAX_PIN                             30
 
 //
-// Z Probe (when not Z_MIN_IN)
+// Z-Probe (when not Z_MIN_IN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     30

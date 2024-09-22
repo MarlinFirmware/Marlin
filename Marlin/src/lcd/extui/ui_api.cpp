@@ -853,7 +853,7 @@ namespace ExtUI {
      *
      * When linked_nozzles is false, each nozzle in a multi-nozzle
      * printer can be babystepped independently of the others. This
-     * lets the user to fine tune the Z-offset and Nozzle Offsets
+     * lets the user to fine tune the Z-Offset and Nozzle Offsets
      * while observing the first layer of a print, regardless of
      * what nozzle is printing.
      */
@@ -864,7 +864,7 @@ namespace ExtUI {
       if (!babystepAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        // Make it so babystepping in Z adjusts the Z probe offset.
+        // Make it so babystepping in Z adjusts the Z-Probe Offset.
         if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
           probe.offset.z += mm;
       #endif

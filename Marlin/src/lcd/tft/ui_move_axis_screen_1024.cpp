@@ -139,7 +139,7 @@ void MarlinUI::move_axis_screen() {
 
   const bool busy = printingIsActive();
 
-  // Babysteps during printing? Select babystep for Z probe offset
+  // Babysteps during printing? Select babystep for Z-Probe Offset
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     if (busy) motionAxisState.z_selection = Z_SELECTION_Z_PROBE;
   #endif

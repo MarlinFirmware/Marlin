@@ -265,7 +265,7 @@ WEAK void SystemClock_Config(void)
   /* PLL2 pclk is needed for adc max 80 Mhz (p,q,r same) */
   /* PLL2 pclk also used for LP timers 2,3,4,5, SPI 1,2,3 */
   /* PLL2 qclk is needed for uart, can, spi4,5,6 80 Mhz */
-  /* PLL3 r clk is needed for i2c 80 Mhz (p,q,r same) */
+  /* PLL3 r clk is needed for I2C 80 Mhz (p,q,r same) */
   PeriphClkInitStruct.PLL2.PLL2M = 15; // M DIV 15 vco 25 / 15 ~ 1.667 Mhz
   PeriphClkInitStruct.PLL2.PLL2N = 96; // N MUL 96
   PeriphClkInitStruct.PLL2.PLL2P = 2;  // P div 2

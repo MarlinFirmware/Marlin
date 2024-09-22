@@ -94,7 +94,7 @@
    *
    *   P[theta-psi-offset]  - Theta-Psi offset, added to the shoulder (A/X) angle
    *   T[theta-offset]      - Theta     offset, added to the elbow    (B/Y) angle
-   *   Z[z-offset]          - Z offset, added to Z
+   *   Z[z-offset]          - Z-Offset, added to Z
    *
    *   A, P, and X are all aliases for the shoulder angle
    *   B, T, and Y are all aliases for the elbow angle

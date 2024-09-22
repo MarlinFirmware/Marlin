@@ -1622,7 +1622,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case ZOFFSET_OFFSET:
             if (draw) {
-              drawMenuItem(row, ICON_SetZOffset, F("Z Offset"));
+              drawMenuItem(row, ICON_SetZOffset, F("Z-Offset"));
               drawFloat(zoffsetvalue, row, false, 100);
             }
             else

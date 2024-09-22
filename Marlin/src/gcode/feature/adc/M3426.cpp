@@ -59,7 +59,7 @@ void GcodeSuite::M3426() {
       SERIAL_ECHOLNPGM("V:", result, " C:", channel, " G:", gain, " I:", inverted ? 1 : 0);
     }
     else
-      SERIAL_ERROR_MSG("MCP342X i2c error");
+      SERIAL_ERROR_MSG("MCP342X I2C error");
   }
   else
     SERIAL_ERROR_MSG("MCP342X Bad request");

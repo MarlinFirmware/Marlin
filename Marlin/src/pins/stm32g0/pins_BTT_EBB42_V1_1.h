@@ -74,7 +74,7 @@
 #endif
 
 //
-// Z Probe must be this pin
+// Z-Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PB8   // PROBE
 

@@ -70,7 +70,7 @@
 #define Z_MAX_PIN                             30  // PD9 MAX ES3
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     32

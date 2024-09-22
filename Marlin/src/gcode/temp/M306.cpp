@@ -90,7 +90,7 @@ void GcodeSuite::M306() {
 void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  report_heading(forReplay, F("Model predictive control"));
+  report_heading(forReplay, F(STR_MPC));
   HOTEND_LOOP() {
     report_echo_start(forReplay);
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;

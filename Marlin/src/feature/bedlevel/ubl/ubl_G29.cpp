@@ -316,7 +316,7 @@ void unified_bed_leveling::G29() {
     #endif
     probe.use_probing_tool();
 
-    // Position bed horizontally and Z probe vertically.
+    // Position bed horizontally and Z-Probe vertically.
     #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X
@@ -681,7 +681,7 @@ void unified_bed_leveling::G29() {
   #endif
 
   #ifdef EVENT_GCODE_AFTER_G29
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z-Probe End Script: ", EVENT_GCODE_AFTER_G29);
     if (probe_deployed) {
       planner.synchronize();
       gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_G29));

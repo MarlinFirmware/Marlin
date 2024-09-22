@@ -79,7 +79,7 @@ void GcodeSuite::M125() {
     if (parser.seenval(AXIS9_NAME)) park_point.w = RAW_W_POSITION(parser.linearval(AXIS9_NAME))
   );
 
-  // Lift Z axis
+  // Lift Z-Axis
   #if HAS_Z_AXIS
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
   #endif

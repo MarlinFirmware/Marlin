@@ -47,18 +47,18 @@
    *
    *   M605 S2 X R : (DUPLICATION) The firmware moves the second X-carriage and extruder in synchronization with
    *             the first X-carriage and extruder, to print 2 copies of the same object at the same time.
-   *             Set the constant X-offset and temperature differential with M605 S2 X[offs] R[deg] and
+   *             Set the constant X-Offset and temperature differential with M605 S2 X[offs] R[deg] and
    *             follow with "M605 S2" to initiate duplicated movement. For example, use "M605 S2 X100 R2" to
    *             make a copy 100mm to the right with E1 2° hotter than E0.
    *
    *   M605 S3 : (MIRRORED) Formbot/Vivedino-inspired mirrored mode in which the second extruder duplicates
-   *             the movement of the first except the second extruder is reversed in the X axis.
-   *             The temperature differential and initial X offset must be set with "M605 S2 X[offs] R[deg]",
+   *             the movement of the first except the second extruder is reversed in the X-Axis.
+   *             The temperature differential and initial X-Offset must be set with "M605 S2 X[offs] R[deg]",
    *             then followed by "M605 S3" to initiate mirrored movement.
    *
    *    M605 W  : IDEX What? command.
    *
-   *    Note: the X axis should be homed after changing Dual X-carriage mode.
+   *    Note: the X-Axis should be homed after changing Dual X-carriage mode.
    */
   void GcodeSuite::M605() {
     planner.synchronize();
@@ -76,7 +76,7 @@
           break;
 
         case DXC_DUPLICATION_MODE:
-          // Set the X offset, but no less than the safety gap
+          // Set the X-Offset, but no less than the safety gap
           if (parser.seenval('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
           if (parser.seenval('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           // Always switch back to tool 0
@@ -92,7 +92,7 @@
           }
           idex_set_mirrored_mode(true);
 
-          // Do a small 'jog' motion in the X axis
+          // Do a small 'jog' motion in the X-Axis
           xyze_pos_t dest = current_position; dest.x -= 0.1f;
           for (uint8_t i = 2; --i;) {
             planner.buffer_line(dest, feedrate_mm_s, 0);

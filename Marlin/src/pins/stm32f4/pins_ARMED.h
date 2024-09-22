@@ -50,7 +50,7 @@
 #define Z_STOP_PIN                          PE14
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 //#ifndef Z_MIN_PROBE_PIN
 //  #define Z_MIN_PROBE_PIN  PA4
@@ -139,7 +139,7 @@
 #define LED_PIN                             PB7   // Heart beat
 #define PS_ON_PIN                           PA10
 #define KILL_PIN                            PA8
-#define PWR_LOSS                            PA4   // Power loss / nAC_FAULT
+#define PWR_LOSS                            PA4   // Power-Loss / nAC_FAULT
 
 //
 // LCD / Controller

@@ -821,7 +821,7 @@ void ChironTFT::panelProcess(uint8_t req) {
         }
       }
 
-      else if (findToken('D') >= 0) { // Save Z Offset tables and restore leveling state
+      else if (findToken('D') >= 0) { // Save Z-Offset tables and restore leveling state
         if (!isPrinting()) {
           setAxisPosition_mm(1.0,Z); // Lift nozzle before any further movements are made
           injectCommands(F("M500"));
@@ -888,7 +888,7 @@ void ChironTFT::panelProcess(uint8_t req) {
             TFTSer.println(getZOffset_mm());
 
             if (isAxisPositionKnown(Z)) {
-              // Move Z axis
+              // Move Z-Axis
               const float currZpos = getAxisPosition_mm(Z);
               #if ACDEBUG(AC_INFO)
                 DEBUG_ECHOLNPGM("Move Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));

@@ -50,7 +50,7 @@
  *
  *  T<extruder> - Extruder number. Required for mixing extruder.
  *                For non-mixing, current extruder if omitted.
- *  Z<distance> - Move the Z axis by this distance
+ *  Z<distance> - Move the Z-Axis by this distance
  *  L<distance> - Extrude distance for insertion (positive value) (manual reload)
  *
  *  Default values are used for omitted arguments.
@@ -77,7 +77,7 @@ void GcodeSuite::M701() {
     if (target_extruder < 0) return;
   #endif
 
-  // Z axis lift
+  // Z-Axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   // Show initial "wait for load" message
@@ -98,7 +98,7 @@ void GcodeSuite::M701() {
     }
   };
 
-  // Raise the Z axis (with max limit)
+  // Raise the Z-Axis (with max limit)
   const float park_raise = _MIN(park_point.z, (Z_MAX_POS) - current_position.z);
   move_z_by(park_raise);
 
@@ -122,7 +122,7 @@ void GcodeSuite::M701() {
     );
   #endif
 
-  // Restore Z axis
+  // Restore Z-Axis
   move_z_by(-park_raise);
 
   #if HAS_MULTI_EXTRUDER && (HAS_PRUSA_MMU1 || !HAS_MMU)
@@ -143,7 +143,7 @@ void GcodeSuite::M701() {
  *  T<extruder> - Extruder number. Required for mixing extruder.
  *                For non-mixing, if omitted, current extruder
  *                (or ALL extruders with FILAMENT_UNLOAD_ALL_EXTRUDERS).
- *  Z<distance> - Move the Z axis by this distance
+ *  Z<distance> - Move the Z-Axis by this distance
  *  U<distance> - Retract distance for removal (manual reload)
  *
  *  Default values are used for omitted arguments.
@@ -182,7 +182,7 @@ void GcodeSuite::M702() {
     if (target_extruder < 0) return;
   #endif
 
-  // Z axis lift
+  // Z-Axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   // Show initial "wait for unload" message
@@ -195,7 +195,7 @@ void GcodeSuite::M702() {
       tool_change(target_extruder);
   #endif
 
-  // Lift Z axis
+  // Lift Z-Axis
   if (park_point.z > 0)
     do_blocking_move_to_z(_MIN(current_position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
@@ -227,7 +227,7 @@ void GcodeSuite::M702() {
     }
   #endif
 
-  // Restore Z axis
+  // Restore Z-Axis
   if (park_point.z > 0)
     do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 

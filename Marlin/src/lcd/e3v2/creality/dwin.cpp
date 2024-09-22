@@ -964,7 +964,7 @@ void drawTuneMenu() {
         itemAreaCopy(0, 119, 64, 132, TUNE_CASE_FAN);          // "Fan speed"
       #endif
       #if HAS_ZOFFSET_ITEM
-        itemAreaCopy(93, 179, 141, 189, TUNE_CASE_ZOFF);       // "Z-offset"
+        itemAreaCopy(93, 179, 141, 189, TUNE_CASE_ZOFF);       // "Z-Offset"
       #endif
     #endif
   }
@@ -2485,13 +2485,13 @@ void itemAdvBedPID(const uint8_t row) {
 
   void itemAdv_PLR(const uint8_t row) {
     if (false && hmiIsChinese()) {
-      // TODO: Chinese "Power-loss Recovery"
+      // TODO: Chinese "Power-Loss Recovery"
     }
     else {
       #ifdef USE_STRING_TITLES
         dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
       #else
-        itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
+        itemAreaCopy(1, 208, 137, 221, row);  // "Power-Loss Recovery"
       #endif
     }
     drawMenuLine(row, ICON_Motion);
@@ -2530,7 +2530,7 @@ void drawAdvancedSettingsMenu() {
   if (AVISI(ADVSET_CASE_HEPID)) itemAdvHotendPID(ASCROL(ADVSET_CASE_HEPID));            // Nozzle PID
   if (AVISI(ADVSET_CASE_BEDPID)) itemAdvBedPID(ASCROL(ADVSET_CASE_BEDPID));             // Bed PID
   #if ENABLED(POWER_LOSS_RECOVERY)
-    if (AVISI(ADVSET_CASE_PWRLOSSR)) itemAdv_PLR(ASCROL(ADVSET_CASE_PWRLOSSR));          // Power-loss recovery
+    if (AVISI(ADVSET_CASE_PWRLOSSR)) itemAdv_PLR(ASCROL(ADVSET_CASE_PWRLOSSR));          // Power-Loss Recovery
   #endif
   if (select_advset.now != CASE_BACK) drawMenuCursor(ASCROL(select_advset.now));
 }
@@ -3811,7 +3811,7 @@ void hmiTune() {
           break;
       #endif
       #if HAS_ZOFFSET_ITEM
-        case TUNE_CASE_ZOFF: // Z-offset
+        case TUNE_CASE_ZOFF: // Z-Offset
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
             checkkey = ID_HomeOffset;
             hmiValues.offset_value = BABY_Z_VAR * 100;

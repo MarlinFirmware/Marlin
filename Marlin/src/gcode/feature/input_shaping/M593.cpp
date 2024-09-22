@@ -30,7 +30,7 @@
 void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  report_heading_etc(forReplay, F("Input Shaping"));
+  report_heading_etc(forReplay, F(STR_INPUT_SHAPING));
   #if ENABLED(INPUT_SHAPING_X)
     SERIAL_ECHOLNPGM("  M593 X"
       " F", stepper.get_shaping_frequency(X_AXIS),
@@ -60,8 +60,8 @@ void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
  *  D<factor>    Set the zeta/damping factor. If axes (X, Y, etc.) are not specified, set for all axes.
  *  F<frequency> Set the frequency. If axes (X, Y, etc.) are not specified, set for all axes.
  *  T[map]       Input Shaping type, 0:ZV, 1:EI, 2:2H EI (not implemented yet)
- *  X            Set the given parameters only for the X axis.
- *  Y            Set the given parameters only for the Y axis.
+ *  X            Set the given parameters only for the X-Axis.
+ *  Y            Set the given parameters only for the Y-Axis.
  */
 void GcodeSuite::M593() {
   if (!parser.seen_any()) return M593_report();

@@ -367,7 +367,7 @@ namespace ExtUI {
     void normalizeNozzleOffset(const axis_t axis);
   #endif
 
-  // The Probe Z Offset
+  // The Probe Z-Offset
   float getZOffset_mm();
   void setZOffset_mm(const_float_t);
 

@@ -158,7 +158,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
- *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y axis.
+ *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y-Axis.
  *              Users / slicers must remember to set the mode for both axes!
  *       0: NONE  : No input shaper
  *       1: ZV    : Zero Vibration
@@ -176,18 +176,18 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *
  *    D<mode> Set Dynamic Frequency mode
  *       0: DISABLED
- *       1: Z-based (Requires a Z axis)
+ *       1: Z-based (Requires a Z-Axis)
  *       2: Mass-based (Requires X and E axes)
  *
- *    A<Hz>   Set static/base frequency for the X axis
- *    F<Hz>   Set frequency scaling for the X axis
- *    I 0.0   Set damping ratio for the X axis
- *    Q 0.00  Set the vibration tolerance for the X axis
+ *    A<Hz>   Set static/base frequency for the X-Axis
+ *    F<Hz>   Set frequency scaling for the X-Axis
+ *    I 0.0   Set damping ratio for the X-Axis
+ *    Q 0.00  Set the vibration tolerance for the X-Axis
  *
- *    B<Hz> Set static/base frequency for the Y axis
- *    H<Hz> Set frequency scaling for the Y axis
- *    J 0.0   Set damping ratio for the Y axis
- *    R 0.00  Set the vibration tolerance for the Y axis
+ *    B<Hz> Set static/base frequency for the Y-Axis
+ *    H<Hz> Set frequency scaling for the Y-Axis
+ *    J 0.0   Set damping ratio for the Y-Axis
+ *    R 0.00  Set the vibration tolerance for the Y-Axis
  */
 void GcodeSuite::M493() {
   struct { bool update:1, report:1; } flag = { false };
@@ -295,7 +295,7 @@ void GcodeSuite::M493() {
 
   #if HAS_X_AXIS
 
-    // Parse frequency parameter (X axis).
+    // Parse frequency parameter (X-Axis).
     if (parser.seenval('A')) {
       if (AXIS_HAS_SHAPER(X)) {
         const float val = parser.value_float();
@@ -312,7 +312,7 @@ void GcodeSuite::M493() {
     }
 
     #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (X axis).
+      // Parse frequency scaling parameter (X-Axis).
       if (parser.seenval('F')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.x = parser.value_float();
@@ -323,7 +323,7 @@ void GcodeSuite::M493() {
       }
     #endif
 
-    // Parse zeta parameter (X axis).
+    // Parse zeta parameter (X-Axis).
     if (parser.seenval('I')) {
       const float val = parser.value_float();
       if (AXIS_HAS_SHAPER(X)) {
@@ -338,7 +338,7 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
     }
 
-    // Parse vtol parameter (X axis).
+    // Parse vtol parameter (X-Axis).
     if (parser.seenval('Q')) {
       const float val = parser.value_float();
       if (AXIS_HAS_EISHAPER(X)) {
@@ -357,7 +357,7 @@ void GcodeSuite::M493() {
 
   #if HAS_Y_AXIS
 
-    // Parse frequency parameter (Y axis).
+    // Parse frequency parameter (Y-Axis).
     if (parser.seenval('B')) {
       if (AXIS_HAS_SHAPER(Y)) {
         const float val = parser.value_float();
@@ -373,7 +373,7 @@ void GcodeSuite::M493() {
     }
 
     #if HAS_DYNAMIC_FREQ
-      // Parse frequency scaling parameter (Y axis).
+      // Parse frequency scaling parameter (Y-Axis).
       if (parser.seenval('H')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.y = parser.value_float();
@@ -384,7 +384,7 @@ void GcodeSuite::M493() {
       }
     #endif
 
-    // Parse zeta parameter (Y axis).
+    // Parse zeta parameter (Y-Axis).
     if (parser.seenval('J')) {
       const float val = parser.value_float();
       if (AXIS_HAS_SHAPER(Y)) {
@@ -399,7 +399,7 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("Wrong mode for zeta parameter.");
     }
 
-    // Parse vtol parameter (Y axis).
+    // Parse vtol parameter (Y-Axis).
     if (parser.seenval('R')) {
       const float val = parser.value_float();
       if (AXIS_HAS_EISHAPER(Y)) {

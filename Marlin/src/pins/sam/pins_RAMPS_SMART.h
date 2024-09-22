@@ -67,7 +67,7 @@
 #define MARLIN_EEPROM_SIZE                0x1000  // 4K
 
 // See EEPROM device datasheet for the following values. These are for 24xx256
-#define EEPROM_DEVICE_ADDRESS               0x50  // 7 bit i2c address (without R/W bit)
+#define EEPROM_DEVICE_ADDRESS               0x50  // 7 bit I2C address (without R/W bit)
 #define EEPROM_WRITE_DELAY                     7  // page write time in milliseconds (docs say 5ms but that is too short)
 //#define EEPROM_PAGE_SIZE                      64  // page write buffer size
 //#define TWI_CLOCK_FREQ                    400000

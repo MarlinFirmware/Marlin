@@ -190,7 +190,7 @@ bool BedMeshEditScreen::onTouchEnd(uint8_t tag) {
 }
 
 void BedMeshEditScreen::show() {
-  // On entry, always home (to account for possible Z offset changes) and save current mesh
+  // On entry, always home (to account for possible Z-Offset changes) and save current mesh
   SpinnerDialogBox::enqueueAndWait(F("G28\n" TERN(AUTO_BED_LEVELING_UBL, "G29 S1", "M500")));
   // After the spinner, go to this screen.
   current_screen.forget();

@@ -45,7 +45,7 @@
 #define Z_MAX_PIN                             32
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     46  // JP4, Tfeed1
@@ -111,7 +111,7 @@
 
 #if ENABLED(BATTERY_STATUS_AVAILABLE)
   #undef BATTERY_STATUS_PIN
-  #define BATTERY_STATUS_PIN                  26  // Status of power loss battery, whether it is charged (low) or charging (high)
+  #define BATTERY_STATUS_PIN                  26  // Status of power-loss battery, whether it is charged (low) or charging (high)
 #endif
 #if ENABLED(INPUT_VOLTAGE_AVAILABLE)
   #undef VOLTAGE_DETECTION_PIN

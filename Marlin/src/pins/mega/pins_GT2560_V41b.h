@@ -107,9 +107,9 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
-#define POWER_LOSS_PIN                        69  // Pin to detect power loss
+#define POWER_LOSS_PIN                        69  // Pin to detect power-loss
 #define POWER_LOSS_STATE                     LOW
 
 //
@@ -156,7 +156,7 @@
 #define SERVO0_PIN                            11  // BLTouch / 3DTouch
 
 //
-// Z Probe PIN6 Header H3 (Print head connector)
+// Z-Probe PIN6 Header H3 (Print head connector)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN              Z_MIN_PIN

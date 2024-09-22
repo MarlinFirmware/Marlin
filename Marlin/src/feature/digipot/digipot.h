@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Header for MCP4018 and MCP4451 current control i2c devices
+// Header for MCP4018 and MCP4451 current control I2C devices
 //
 class DigipotI2C {
 public:

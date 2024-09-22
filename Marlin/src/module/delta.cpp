@@ -145,7 +145,7 @@ float delta_safe_distance_from_top() {
  *
  * Establish a new coordinate system in the plane of the
  * three carriage points. This system has its origin at
- * tower1, with tower2 on the X axis. Tower3 is in the X-Y
+ * tower1, with tower2 on the X-Axis. Tower3 is in the X-Y
  * plane with a Z component of zero.
  * We will define unit vectors in this coordinate system
  * in our original coordinate system. Then when we calculate
@@ -163,7 +163,7 @@ float delta_safe_distance_from_top() {
  * The result is stored in the cartes[] array.
  */
 void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3) {
-  // Create a vector in old coordinates along x axis of new coordinate
+  // Create a vector in old coordinates along X-Axis of new coordinate
   const float p12[3] = { delta_tower[B_AXIS].x - delta_tower[A_AXIS].x, delta_tower[B_AXIS].y - delta_tower[A_AXIS].y, z2 - z1 },
 
   // Get the reciprocal of Magnitude of vector.
@@ -175,10 +175,10 @@ void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3) {
   // Get the vector from the origin of the new system to the third point.
   p13[3] = { delta_tower[C_AXIS].x - delta_tower[A_AXIS].x, delta_tower[C_AXIS].y - delta_tower[A_AXIS].y, z3 - z1 },
 
-  // Use the dot product to find the component of this vector on the X axis.
+  // Use the dot product to find the component of this vector on the X-Axis.
   i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2],
 
-  // Create a vector along the x axis that represents the x component of p13.
+  // Create a vector along the X-Axis that represents the x component of p13.
   iex[3] = { ex[0] * i, ex[1] * i, ex[2] * i };
 
   // Subtract the X component from the original vector leaving only Y. We use the

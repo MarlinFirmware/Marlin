@@ -241,7 +241,7 @@
 #endif
 
 //
-// Power Loss
+// Power-Loss
 //
 #if ENABLED(PSU_CONTROL)
   #define PS_ON_PIN                         PG10

@@ -39,7 +39,7 @@
 #endif
 
 //
-// Z Probe
+// Z-Probe
 //
 #if ENABLED(BLTOUCH)
   #error "You need to set jumper to 5V for BLTouch, then comment out this line to proceed."

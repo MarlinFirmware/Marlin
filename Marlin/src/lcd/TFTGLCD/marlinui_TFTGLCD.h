@@ -36,7 +36,7 @@
 //
 // This is just to map common functions (across different panels) onto the same
 // macro name. The mapping is independent of whether the button is directly connected or
-// via a shift/i2c register.
+// via a shift/I2C register.
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information

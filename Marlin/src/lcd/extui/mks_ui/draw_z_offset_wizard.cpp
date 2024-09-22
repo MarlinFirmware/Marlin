@@ -180,9 +180,9 @@ void lv_draw_z_offset_wizard() {
   // We need to patch the title to leave some space on the right for displaying the status
   lv_obj_t * z_offset_ref_title = lv_obj_get_child_back(scr, nullptr);
   if (z_offset_ref_title != nullptr) lv_obj_set_width(z_offset_ref_title, (int)(TFT_WIDTH / 2) - 101);
-    labelP_z_offset_ref = lv_label_create(scr, (int)(TFT_WIDTH / 2) - 80, (int)(TFT_HEIGHT/2)-20, "Z Offset:0.0mm");
+    labelP_z_offset_ref = lv_label_create(scr, (int)(TFT_WIDTH / 2) - 80, (int)(TFT_HEIGHT/2)-20, "Z-Offset:0.0mm");
 
-  // We need to patch the Z Offset to leave some space in the middle for displaying the status
+  // We need to patch the Z-Offset to leave some space in the middle for displaying the status
   lv_obj_t * title= lv_obj_get_child_back(scr, nullptr);
   if (title != nullptr) lv_obj_set_width(title, TFT_WIDTH - 101);
   labelP = lv_label_create(scr, TFT_WIDTH - 100, TITLE_YPOS, "Z:0.0mm");

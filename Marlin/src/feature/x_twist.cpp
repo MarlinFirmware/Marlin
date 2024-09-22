@@ -42,7 +42,7 @@ void XATC::reset() {
 }
 
 void XATC::print_points() {
-  SERIAL_ECHOLNPGM(" X-Twist Correction:");
+  SERIAL_ECHOLNPGM(" X-Axis Twist Compensation:");
   for (uint8_t x = 0; x < XATC_MAX_POINTS; ++x) {
     SERIAL_CHAR(' ');
     if (!isnan(z_offset[x]))

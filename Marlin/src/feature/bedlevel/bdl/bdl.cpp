@@ -204,7 +204,7 @@ void BDS_Leveling::process() {
         REMEMBER(gsit, gcode.stepper_inactive_time, MIN_TO_MS(5));
         SERIAL_ECHOLNPGM("c_z0:", planner.get_axis_position_mm(Z_AXIS), "-", pos_zero_offset);
 
-        // Move the z axis instead of enabling the Z axis with M17
+        // Move the Z-Axis instead of enabling the Z-Axis with M17
         // TODO: Use do_blocking_move_to_z for synchronized move.
         current_position.z = 0;
         sync_plan_position();

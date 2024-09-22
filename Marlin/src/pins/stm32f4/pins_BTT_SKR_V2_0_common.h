@@ -128,7 +128,7 @@
 #endif
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PE4
@@ -155,7 +155,7 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PC15  // PWRDET
