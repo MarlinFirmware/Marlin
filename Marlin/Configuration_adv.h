@@ -3862,6 +3862,13 @@
  */
 //#define CNC_COORDINATE_SYSTEMS
 
+/**
+ * CNC Coordinate Rotation
+ *
+ * Enables 'G68 X Y R' to set rotation around a point, and G69 to reset it.
+ */
+//#define CNC_COORDINATE_ROTATION
+
 // @section security
 
 /**
