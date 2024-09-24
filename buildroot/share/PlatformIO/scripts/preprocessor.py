@@ -1,7 +1,7 @@
 #
 # preprocessor.py
 #
-import subprocess, os
+import subprocess
 
 nocache = 1
 verbose = 0
@@ -75,9 +75,7 @@ def search_compiler(env):
 
     path_separator = ':'
     gcc_exe = '*g++'
-
-    sysname = os.uname().sysname
-    if sysname == 'Windows':
+    if env['PLATFORM'] == 'win32':
         path_separator = ';'
         gcc_exe += ".exe"
 
@@ -97,7 +95,7 @@ def search_compiler(env):
         for ppath in envpath:
             for gpath in ppath.glob(gcc_exe):
                 # Skip macOS Clang
-                if gpath != 'usr/bin/g++' or sysname != 'Darwin':
+                if gpath != 'usr/bin/g++' or env['PLATFORM'] != 'darwin':
                     gccpath = str(gpath.resolve())
                     break
 
