@@ -243,9 +243,10 @@ constexpr pin_t sensitive_dio[] PROGMEM = {
   //
 
   // Mixing stepper, Switching stepper, or regular stepper
-  #define E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
-                   || (HAS_SWITCHING_EXTRUDER && E_STEPPERS > N) \
-                   || (NONE(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
+  #define _E_NEEDED(N) (ENABLED(MIXING_EXTRUDER) && MIXING_STEPPERS > N) \
+                    || (HAS_SWITCHING_EXTRUDER && E_STEPPERS > N) \
+                    || (NONE(SWITCHING_EXTRUDER, MIXING_EXTRUDER) && EXTRUDERS > N)
+  #define E_NEEDED(N) _E_NEEDED(N) && TERN1(MAN_ST_SINGLE_EXTRUDER, (N) == 0)
 
   #if E_NEEDED(0)
     E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN,

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HOTEND_OFFSET
+#if HAS_TOOL_OFFSETS
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -47,13 +47,13 @@ void GcodeSuite::M218() {
   if (target_extruder < 0) return;
 
   #if HAS_X_AXIS
-    if (parser.seenval('X')) hotend_offset[target_extruder].x = parser.value_linear_units();
+    if (parser.seenval('X')) tool_offset[target_extruder].x = parser.value_linear_units();
   #endif
   #if HAS_Y_AXIS
-    if (parser.seenval('Y')) hotend_offset[target_extruder].y = parser.value_linear_units();
+    if (parser.seenval('Y')) tool_offset[target_extruder].y = parser.value_linear_units();
   #endif
   #if HAS_Z_AXIS
-    if (parser.seenval('Z')) hotend_offset[target_extruder].z = parser.value_linear_units();
+    if (parser.seenval('Z')) tool_offset[target_extruder].z = parser.value_linear_units();
   #endif
 
   #if ENABLED(DELTA)
@@ -66,15 +66,15 @@ void GcodeSuite::M218_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_HOTEND_OFFSETS));
-  for (uint8_t e = 1; e < HOTENDS; ++e) {
+  for (uint8_t e = 1; e < NUM_TOOLS; ++e) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(
       PSTR("  M218 T"), e,
-      SP_X_STR, LINEAR_UNIT(hotend_offset[e].x),
-      SP_Y_STR, LINEAR_UNIT(hotend_offset[e].y),
-      SP_Z_STR, p_float_t(LINEAR_UNIT(hotend_offset[e].z), 3)
+      SP_X_STR, LINEAR_UNIT(tool_offset[e].x),
+      SP_Y_STR, LINEAR_UNIT(tool_offset[e].y),
+      SP_Z_STR, p_float_t(LINEAR_UNIT(tool_offset[e].z), 3)
     );
   }
 }
 
-#endif // HAS_HOTEND_OFFSET
+#endif // HAS_TOOL_OFFSETS

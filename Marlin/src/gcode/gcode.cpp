@@ -125,14 +125,13 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
   #if HAS_TOOLCHANGE
     if (parser.seenval('T')) {
       const int8_t e = parser.value_byte();
-      if (e < EXTRUDERS) return e;
+      if (e < TERN(MANUAL_SWITCHING_TOOLHEAD, MAN_ST_NUM_TOOLS, EXTRUDERS)) return e;
       SERIAL_ECHO_START();
-      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPGM(" " STR_INVALID_EXTRUDER " ", e);
+      SERIAL_ECHOLN(C('M'), parser.codenum, F(" " STR_INVALID_EXTRUDER " "), e);
       return -1;
     }
   #endif
-  return active_extruder;
+  return TERN(MANUAL_SWITCHING_TOOLHEAD, 0, active_extruder);
 }
 
 /**
@@ -750,7 +749,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
-      #if HAS_HOTEND_OFFSET
+      #if HAS_TOOL_OFFSETS
         case 218: M218(); break;                                  // M218: Set a tool offset
       #endif
 

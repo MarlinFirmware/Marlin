@@ -583,6 +583,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define    FWD_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? HIGH : LOW ); }while(0)
   #define    REV_E_DIR(E)   do{ E0_DIR_WRITE(TEST(E, 0) ? LOW  : HIGH); }while(0)
 
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+  #define E_STEP_WRITE(E,V) do{ if ((E) == 0) { E0_STEP_WRITE(V); } else { E1_STEP_WRITE(V); } }while(0)
+  #define    FWD_E_DIR(E)   do{ if ((E) == 0) { E0_DIR_WRITE(HIGH); } else { E1_DIR_WRITE(HIGH); } }while(0)
+  #define    REV_E_DIR(E)   do{ if ((E) == 0) { E0_DIR_WRITE(LOW ); } else { E1_DIR_WRITE(LOW ); } }while(0)
+
 #elif E_STEPPERS > 1
 
   #if E_STEPPERS > 7

@@ -970,7 +970,7 @@ void MarlinUI::draw_status_screen() {
         //
         // Hotend 1 or Bed Temperature
         //
-        #if HAS_MULTI_HOTEND
+        #if HAS_MULTI_HOTEND && DISABLED(STM_HAS_MULTI_HOTEND)
           lcd_moveto(10, 0);
           _draw_heater_status(H_E1, LCD_STR_THERMOMETER[0], blink);
         #elif HAS_HEATED_BED
@@ -1012,7 +1012,7 @@ void MarlinUI::draw_status_screen() {
         // If the first line has two extruder temps,
         // show more temperatures on the next line
 
-        #if HOTENDS > 2 || (HAS_MULTI_HOTEND && HAS_HEATED_BED)
+        #if DISABLED(STM_HAS_MULTI_HOTEND) && HAS_MULTI_HOTEND && (HOTENDS > 2 || HAS_HEATED_BED)
 
           #if HOTENDS > 2
             _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
@@ -1021,7 +1021,7 @@ void MarlinUI::draw_status_screen() {
 
           _draw_bed_status(blink);
 
-        #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+        #else // STM_HAS_MULTI_HOTEND || !HAS_MULTI_HOTEND || (HOTENDS < 3 && !HAS_HEATED_BED)
 
           #if HAS_DUAL_MIXING
 
@@ -1068,7 +1068,7 @@ void MarlinUI::draw_status_screen() {
 
           #endif // !HAS_DUAL_MIXING
 
-        #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+        #endif // STM_HAS_MULTI_HOTEND || !HAS_MULTI_HOTEND || (HOTENDS < 3 && !HAS_HEATED_BED)
 
       #endif // LCD_WIDTH >= 20
 
@@ -1170,7 +1170,7 @@ void MarlinUI::draw_status_screen() {
     // Progress percent, Hotend 2, or Bed
     //
     lcd_moveto(0, 2);
-    #if HOTENDS > 2
+    #if HOTENDS > 2 && DISABLED(STM_HAS_MULTI_HOTEND)
       _draw_heater_status(H_E2, LCD_STR_THERMOMETER[0], blink);
     #elif HAS_MULTI_HOTEND && HAS_HEATED_BED
       _draw_bed_status(blink);

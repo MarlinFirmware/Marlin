@@ -491,7 +491,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "BABYSTEP_GFX_OVERLAY requires a Graphical LCD."
   #elif ENABLED(BABYSTEP_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
-  #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_HOTEND_OFFSET
+  #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_TOOL_OFFSETS
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif ALL(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
@@ -632,20 +632,24 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 #endif
 
+#ifndef MAX_EXTRUDERS
+  #if HAS_EXTENDABLE_MMU
+    #define MAX_EXTRUDERS 15
+  #else
+    #define MAX_EXTRUDERS  8
+  #endif
+#endif
+
+#if ENABLED(MAN_ST_CUTTER)
+  static_assert(MAN_ST_NUM_TOOLS < MAX_EXTRUDERS, "MAN_ST_CUTTER requires MAN_ST_NUM_TOOLS < " STRINGIFY(MAX_EXTRUDERS) ".");
+#endif
+
 /**
  * Options only for EXTRUDERS > 1
  */
 #if HAS_MULTI_EXTRUDER
 
-  #ifndef MAX_EXTRUDERS
-    #if HAS_EXTENDABLE_MMU
-      #define MAX_EXTRUDERS 15
-    #else
-      #define MAX_EXTRUDERS  8
-    #endif
-  #endif
   static_assert(EXTRUDERS <= MAX_EXTRUDERS, "Marlin supports a maximum of " STRINGIFY(MAX_EXTRUDERS) " EXTRUDERS.");
-  #undef MAX_EXTRUDERS
 
   #if ENABLED(HEATERS_PARALLEL)
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
@@ -673,7 +677,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #endif
   #endif
 
-  #ifndef TOOLCHANGE_ZRAISE
+  #if !defined(TOOLCHANGE_ZRAISE) && DISABLED(MANUAL_SWITCHING_TOOLHEAD)
     #error "TOOLCHANGE_ZRAISE required for EXTRUDERS > 1."
   #endif
 
@@ -689,6 +693,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 
 #endif
+
+#undef MAX_EXTRUDERS
 
 /**
  * A Dual Nozzle carriage with switching servo
@@ -859,8 +865,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Special tool-changing options
  */
-#if MANY(SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #error "Please select only one of SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, or ELECTROMAGNETIC_SWITCHING_TOOLHEAD."
+#if MANY(SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #error "Please select only one of SINGLENOZZLE, DUAL_X_CARRIAGE, PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER, MANUAL_SWITCHING_TOOLHEAD, SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, or ELECTROMAGNETIC_SWITCHING_TOOLHEAD."
 #endif
 
 /**
@@ -889,33 +895,73 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * Manual Switching Toolhead requirements
+ */
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+  #if MAN_ST_NUM_TOOLS < 2
+    #error "MANUAL_SWITCHING_TOOLHEAD requires MAN_ST_NUM_TOOLS >= 2."
+  #elif MAN_ST_NUM_TOOLS > 8
+    #error "MAN_ST_NUM_TOOLS can not be more than 8."
+  #elif E_STEPPERS != 1 && E_STEPPERS != HOTENDS
+    #error "MANUAL_SWITCHING_TOOLHEAD requires either matching hotend/EXTRUDER count, or just one EXTRUDER."
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    #error "MANUAL_SWITCHING_TOOLHEAD requires ADVANCED_PAUSE_FEATURE."
+  #endif
+
+  #if MAN_ST_NUM_TOOLS < 8
+    #undef TOOL_NAME_7
+  #endif
+  #if MAN_ST_NUM_TOOLS < 7
+    #undef TOOL_NAME_6
+  #endif
+  #if MAN_ST_NUM_TOOLS < 6
+    #undef TOOL_NAME_5
+  #endif
+  #if MAN_ST_NUM_TOOLS < 5
+    #undef TOOL_NAME_4
+  #endif
+  #if MAN_ST_NUM_TOOLS < 4
+    #undef TOOL_NAME_3
+  #endif
+  #if MAN_ST_NUM_TOOLS < 3
+    #undef TOOL_NAME_2
+  #endif
+
+  #if ENABLED(MAN_ST_EEPROM_STORAGE) && DISABLED(EEPROM_SETTINGS)
+    #error "MAN_ST_EEPROM_STORAGE requires EEPROM_SETTINGS."
+  #elif ENABLED(MAN_ST_EEPROM_AUTOSAVE) && DISABLED(MAN_ST_EEPROM_STORAGE)
+    #error "MAN_ST_EEPROM_AUTOSAVE requires MAN_ST_EEPROM_STORAGE."
+  #endif
+#endif
+
+/**
  * Generic Switching Toolhead requirements
  */
-#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+#if ANY(SERVO_SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   constexpr float thpx[] = SWITCHING_TOOLHEAD_X_POS;
   static_assert(COUNT(thpx) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_POS must be an array EXTRUDERS long.");
 #endif
 
 /**
- * Switching Toolhead requirements
+ * Servo Switching Toolhead requirements
  */
-#if ENABLED(SWITCHING_TOOLHEAD)
-  #ifndef SWITCHING_TOOLHEAD_SERVO_NR
-    #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SERVO_NR."
+#if ENABLED(SERVO_SWITCHING_TOOLHEAD)
+  #ifndef SST_SERVO_NR
+    #error "SERVO_SWITCHING_TOOLHEAD requires SST_SERVO_NR."
   #elif EXTRUDERS < 2
-    #error "SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
-  #elif NUM_SERVOS < (SWITCHING_TOOLHEAD_SERVO_NR - 1)
-    #if SWITCHING_TOOLHEAD_SERVO_NR == 0
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 0 requires NUM_SERVOS >= 1."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 1
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 1 requires NUM_SERVOS >= 2."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 2
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 2 requires NUM_SERVOS >= 3."
-    #elif SWITCHING_TOOLHEAD_SERVO_NR == 3
-      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 3 requires NUM_SERVOS >= 4."
+    #error "SERVO_SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
+  #elif NUM_SERVOS < (SST_SERVO_NR - 1)
+    #if SST_SERVO_NR == 0
+      #error "A SST_SERVO_NR of 0 requires NUM_SERVOS >= 1."
+    #elif SST_SERVO_NR == 1
+      #error "A SST_SERVO_NR of 1 requires NUM_SERVOS >= 2."
+    #elif SST_SERVO_NR == 2
+      #error "A SST_SERVO_NR of 2 requires NUM_SERVOS >= 3."
+    #elif SST_SERVO_NR == 3
+      #error "A SST_SERVO_NR of 3 requires NUM_SERVOS >= 4."
     #endif
   #elif !defined(TOOLCHANGE_ZRAISE)
-    #error "SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
+    #error "SERVO_SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
   #elif TOOLCHANGE_ZRAISE < 0
     #error "TOOLCHANGE_ZRAISE must be 0 or higher."
   #endif
@@ -942,8 +988,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD and EXT_SOLENOID are incompatible. (Pins are used twice.)"
   #elif !PIN_EXISTS(SOL0)
     #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SOL0_PIN."
-  #elif !defined(SWITCHING_TOOLHEAD_Z_HOP)
-    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_Z_HOP."
+  #elif !defined(EM_ST_Z_HOP)
+    #error "ELECTROMAGNETIC_SWITCHING_TOOLHEAD requires EM_ST_Z_HOP."
   #endif
 #endif
 
@@ -978,7 +1024,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SST_SERVO_NR)
   #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead, switching extruder, or POLARGRAPH is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
@@ -2157,7 +2203,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif !ANY_PIN(TEMP_0, TEMP_0_CS) && !TEMP_SENSOR_0_IS_DUMMY
     #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
   #endif
-  #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+  #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && NONE(HAS_HEATER_1, MANUAL_SWITCHING_TOOLHEAD)
     #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
   #endif
   #if HAS_MULTI_HOTEND
@@ -2397,30 +2443,48 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
-#if E_STEPPERS > 0 && !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
-  #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 1 && !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
-  #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 2 && !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
-  #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 3 && !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
-  #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 4 && !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
-  #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 5 && !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
-  #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 6 && !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
-  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
-#endif
-#if E_STEPPERS > 7 && !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
-  #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
-#endif
+#if E_STEPPERS
+  #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
+    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+  #endif
+  #if DISABLED(STM_HAS_MULTI_EXTRUDER)
+    #if E_STEPPERS > 1
+      #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+        #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+      #endif
+      #if E_STEPPERS > 2
+        #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+          #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+        #endif
+        #if E_STEPPERS > 3
+          #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+            #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+          #endif
+          #if E_STEPPERS > 4
+            #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+              #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+            #endif
+            #if E_STEPPERS > 5
+              #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+                #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
+              #endif
+              #if E_STEPPERS > 6
+                #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+                  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
+                #endif
+                #if E_STEPPERS > 7
+                  #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+                    #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
+                  #endif
+                #endif // E_STEPPERS > 7
+              #endif // E_STEPPERS > 6
+            #endif // E_STEPPERS > 5
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
+    #endif // E_STEPPERS > 1
+  #endif // STM_HAS_MULTI_EXTRUDER
+#endif // E_STEPPERS
 
 /**
  * Endstop Tests
@@ -3850,7 +3914,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #if !ALL(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #if ENABLED(DUAL_X_CARRIAGE)
     #error "DUAL_X_CARRIAGE requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
-  #elif HAS_HOTEND_OFFSET
+  #elif HAS_TOOL_OFFSETS
     #error "Multi-hotends with offset requires both MIN_ and MAX_SOFTWARE_ENDSTOPS."
   #endif
 #endif

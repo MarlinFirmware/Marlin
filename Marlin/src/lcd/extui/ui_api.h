@@ -361,10 +361,10 @@ namespace ExtUI {
   #endif
 
   // Hotend Offsets
-  #if HAS_HOTEND_OFFSET
-    float getNozzleOffset_mm(const axis_t, const extruder_t);
-    void setNozzleOffset_mm(const_float_t, const axis_t, const extruder_t);
-    void normalizeNozzleOffset(const axis_t axis);
+  #if HAS_TOOL_OFFSETS
+    float getToolOffset_mm(const axis_t, const extruder_t);
+    void setToolOffset_mm(const_float_t, const axis_t, const extruder_t);
+    void normalizeToolOffset(const axis_t axis);
   #endif
 
   // The Probe Z Offset

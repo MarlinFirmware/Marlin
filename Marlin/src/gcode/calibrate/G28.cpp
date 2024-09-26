@@ -277,8 +277,8 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
-    // Always home with tool 0 active
-    #if HAS_MULTI_HOTEND
+    // Home with tool 0 active, if specified
+    #if ALL(HAS_MULTI_HOTEND, TOOLCHANGE_HOMING_USE_T0)
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         const uint8_t old_tool_index = active_extruder;
       #endif
@@ -537,7 +537,7 @@ void GcodeSuite::G28() {
     TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 
     // Restore the active tool after homing
-    #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+    #if ALL(HAS_MULTI_HOTEND, TOOLCHANGE_HOMING_USE_T0) && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
       tool_change(old_tool_index, TERN(PARKING_EXTRUDER, !pe_final_change_must_unpark, DISABLED(DUAL_X_CARRIAGE)));   // Do move if one of these
     #endif
 

@@ -143,8 +143,8 @@ void GcodeSuite::M600() {
     if (parser.seenval('O')) park_point.w = parser.linearval('O')     // W axis
   );
 
-  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
-    park_point += hotend_offset[active_extruder];
+  #if HAS_TOOL_OFFSETS && NONE(DUAL_X_CARRIAGE, DELTA)
+    park_point += tool_offset[active_extruder];
   #endif
 
   // Unload filament

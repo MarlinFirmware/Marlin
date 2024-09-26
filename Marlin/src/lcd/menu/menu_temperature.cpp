@@ -105,7 +105,7 @@
       START_MENU();
       BACK_ITEM(MSG_TEMPERATURE);
 
-      #if HOTENDS == 1
+      #if HOTENDS == 1 || ENABLED(STM_HAS_MULTI_EXTRUDER)
 
         #if HAS_HEATED_BED
           ACTION_ITEM_f(ui.get_preheat_label(m), MSG_PREHEAT_M, []{ _preheat_both(editable.int8, 0); });
@@ -164,7 +164,7 @@ void menu_temperature() {
   // Nozzle:
   // Nozzle [1-5]:
   //
-  #if HOTENDS == 1
+  #if HOTENDS == 1 || ENABLED(STM_HAS_MULTI_EXTRUDER)
     editable.celsius = thermalManager.temp_hotend[0].target;
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &editable.celsius, 0, thermalManager.hotend_max_target(0), []{ thermalManager.setTargetHotend(editable.celsius, 0); });
   #elif HAS_MULTI_HOTEND

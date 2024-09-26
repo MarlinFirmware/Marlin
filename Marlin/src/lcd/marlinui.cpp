@@ -1859,6 +1859,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 #endif // HAS_MEDIA
 
 #if HAS_MARLINUI_MENU
+
   void MarlinUI::reset_settings() {
     settings.reset();
     completion_feedback();
@@ -1880,7 +1881,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
-#endif
+#endif // HAS_MARLINUI_MENU
 
 #if ENABLED(EEPROM_SETTINGS)
 

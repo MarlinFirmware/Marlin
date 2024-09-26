@@ -154,13 +154,13 @@ inline float home_bump_mm(const AxisEnum axis) {
   return pgm_read_any(&home_bump_mm_P[axis]);
 }
 
-#if HAS_HOTEND_OFFSET
-  extern xyz_pos_t hotend_offset[HOTENDS];
-  void reset_hotend_offsets();
+#if HAS_TOOL_OFFSETS
+  extern xyz_pos_t tool_offset[NUM_TOOLS];
+  void reset_tool_offsets();
 #elif HOTENDS
-  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t tool_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
 #else
-  constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t tool_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
 #endif
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -237,7 +237,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
-    #if HAS_HOTEND_OFFSET
+    #if HAS_TOOL_OFFSETS
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );

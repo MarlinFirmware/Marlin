@@ -151,7 +151,78 @@
     #define MIXING_VIRTUAL_TOOLS 1
   #endif
 
-#elif ENABLED(SWITCHING_TOOLHEAD)   // Toolchanger
+#elif ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+  // Multiple hotends and/or other tools, using the same electrical connections.
+  // All hotends will use *_0_PIN for heaters/sensors.
+  #define HAS_TOOL_OFFSETS 1
+  #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
+  #define NUM_TOOLS MAN_ST_NUM_TOOLS
+  #define HAS_TOOL_0 1
+  #define HAS_TOOL_1 1
+  #if MAN_ST_NUM_TOOLS > 2
+    #define HAS_TOOL_2 1
+    #if MAN_ST_NUM_TOOLS > 3
+      #define HAS_TOOL_3 1
+      #if MAN_ST_NUM_TOOLS > 4
+        #define HAS_TOOL_4 1
+        #if MAN_ST_NUM_TOOLS > 5
+          #define HAS_TOOL_5 1
+          #if MAN_ST_NUM_TOOLS > 6
+            #define HAS_TOOL_6 1
+            #if MAN_ST_NUM_TOOLS > 7
+              #define HAS_TOOL_7 1
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
+
+  #define TOOLHEAD_LOOP() for (uint8_t e = 0; e < MAN_ST_NUM_TOOLS; e++)  // Stand-in for HOTEND_LOOP()
+
+  // Determine the number of hotend tools based on defined temp sensors
+  #define _HOTEND_TEST(P) TEMP_SENSOR_##P != 0 && MAN_ST_NUM_TOOLS > P
+  #if _HOTEND_TEST(1)
+    #define STM_HAS_MULTI_HOTEND 1
+  #endif
+  #if _HOTEND_TEST(7)
+    #define HOTENDS 8
+  #elif _HOTEND_TEST(6)
+    #define HOTENDS 7
+  #elif _HOTEND_TEST(5)
+    #define HOTENDS 6
+  #elif _HOTEND_TEST(4)
+    #define HOTENDS 5
+  #elif _HOTEND_TEST(3)
+    #define HOTENDS 4
+  #elif _HOTEND_TEST(2)
+    #define HOTENDS 3
+  #elif _HOTEND_TEST(1)
+    #define HOTENDS 2
+  #elif _HOTEND_TEST(0)
+    #define HOTENDS 1
+  #else
+    #define HOTENDS 0
+  #endif
+  #undef _HOTEND_TEST
+
+  // Force user to update EXTRUDERS, if needed
+  static_assert(HOTENDS == EXTRUDERS, "MANUAL_SWITCHING_TOOLHEAD requires EXTRUDERS to match the number of enabled TEMP_SENSORs (" STRINGIFY(HOTENDS) ").");
+
+  // Non-hotend tools are classified as "unpowered tools"
+  #define UNPOWERED_TOOLS (MAN_ST_NUM_TOOLS - HOTENDS)
+
+  #if ENABLED(MAN_ST_DIRECT_DRIVE)      // Multiple extruders - plates likely direct drive, or multiple bowden tools
+    #define STM_HAS_MULTI_EXTRUDER 1
+  #else                                 // Single extruder - plates don't have steppers on them
+    #define MAN_ST_SINGLE_EXTRUDER 1
+    #define E_STEPPERS  1
+  #endif
+
+  #define E_MANUAL   1                  // Always one E (max) for manual control
+
+#elif ENABLED(SERVO_SWITCHING_TOOLHEAD) // Toolchanger
 
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
@@ -172,14 +243,16 @@
 #endif
 
 // Number of hotends...
-#if ANY(SINGLENOZZLE, MIXING_EXTRUDER)                // Only one for singlenozzle or mixing extruder
-  #define HOTENDS 1
-#elif HAS_SWITCHING_EXTRUDER && !HAS_SWITCHING_NOZZLE // One for each pair of abstract "extruders"
-  #define HOTENDS E_STEPPERS
-#elif TEMP_SENSOR_0
-  #define HOTENDS EXTRUDERS                           // One per extruder if at least one heater exists
-#else
-  #define HOTENDS 0                                   // A machine with no hotends at all can still extrude
+#ifndef HOTENDS
+  #if ANY(SINGLENOZZLE, MIXING_EXTRUDER)                // Only one for singlenozzle or mixing extruder
+    #define HOTENDS 1
+  #elif HAS_SWITCHING_EXTRUDER && !HAS_SWITCHING_NOZZLE // One for each pair of abstract "extruders"
+    #define HOTENDS E_STEPPERS
+  #elif TEMP_SENSOR_0
+    #define HOTENDS EXTRUDERS                           // One per extruder if at least one heater exists
+  #else
+    #define HOTENDS 0                                   // A machine with no hotends at all can still extrude
+  #endif
 #endif
 
 // At least one hotend...
@@ -198,7 +271,7 @@
 // More than one hotend...
 #if HOTENDS > 1
   #define HAS_MULTI_HOTEND 1
-  #define HAS_HOTEND_OFFSET 1
+  #define HAS_TOOL_OFFSETS 1
   #ifndef HOTEND_OFFSET_X
     #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
   #endif
@@ -207,6 +280,9 @@
   #endif
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
+  #endif
+  #ifndef NUM_TOOLS
+    #define NUM_TOOLS HOTENDS
   #endif
 #else
   #undef HOTEND_OFFSET_X

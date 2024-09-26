@@ -587,6 +587,120 @@
 #endif
 
 /**
+ * Manual Toolhead Switching - toolheads using common electrical connections
+ */
+#if ENABLED(MANUAL_SWITCHING_TOOLHEAD)
+
+  // TEMP and HEATER overrides
+  #if HOTENDS > 1
+    #undef TEMP_1_PIN
+    #undef HEATER_1_PIN
+    #define TEMP_1_PIN TEMP_0_PIN
+    #define HEATER_1_PIN HEATER_0_PIN
+
+    #if HOTENDS > 2
+      #undef TEMP_2_PIN
+      #undef HEATER_2_PIN
+      #define TEMP_2_PIN TEMP_0_PIN
+      #define HEATER_2_PIN HEATER_0_PIN
+
+      #if HOTENDS > 3
+        #undef TEMP_3_PIN
+        #undef HEATER_3_PIN
+        #define TEMP_3_PIN TEMP_0_PIN
+        #define HEATER_3_PIN HEATER_0_PIN
+
+        #if HOTENDS > 4
+          #undef TEMP_4_PIN
+          #undef HEATER_4_PIN
+          #define TEMP_4_PIN TEMP_0_PIN
+          #define HEATER_4_PIN HEATER_0_PIN
+
+          #if HOTENDS > 5
+            #undef TEMP_5_PIN
+            #undef HEATER_5_PIN
+            #define TEMP_5_PIN TEMP_0_PIN
+            #define HEATER_5_PIN HEATER_0_PIN
+
+            #if HOTENDS > 6
+              #undef TEMP_6_PIN
+              #undef HEATER_6_PIN
+              #define TEMP_6_PIN TEMP_0_PIN
+              #define HEATER_6_PIN HEATER_0_PIN
+
+              #if HOTENDS > 7
+                #undef TEMP_7_PIN
+                #undef HEATER_7_PIN
+                #define TEMP_7_PIN TEMP_0_PIN
+                #define HEATER_7_PIN HEATER_0_PIN
+              #endif
+            #endif
+          #endif
+        #endif
+      #endif
+    #endif
+  #endif
+
+  // Default Tool Names
+  #ifndef TOOL_NAME_0
+    #if HOTENDS > 0
+      #define TOOL_NAME_0 "Hotend 1"
+    #else
+      #define TOOL_NAME_0 "Tool 1"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_1
+    #if HOTENDS > 1
+      #define TOOL_NAME_1 "Hotend 2"
+    #else
+      #define TOOL_NAME_1 "Tool 2"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_2
+    #if HOTENDS > 2
+      #define TOOL_NAME_2 "Hotend 3"
+    #else
+      #define TOOL_NAME_2 "Tool 3"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_3
+    #if HOTENDS > 3
+      #define TOOL_NAME_3 "Hotend 4"
+    #else
+      #define TOOL_NAME_3 "Tool 4"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_4
+    #if HOTENDS > 4
+      #define TOOL_NAME_4 "Hotend 5"
+    #else
+      #define TOOL_NAME_4 "Tool 5"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_5
+    #if HOTENDS > 5
+      #define TOOL_NAME_5 "Hotend 6"
+    #else
+      #define TOOL_NAME_5 "Tool 6"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_6
+    #if HOTENDS > 6
+      #define TOOL_NAME_6 "Hotend 7"
+    #else
+      #define TOOL_NAME_6 "Tool 7"
+    #endif
+  #endif
+  #ifndef TOOL_NAME_7
+    #if HOTENDS > 7
+      #define TOOL_NAME_7 "Hotend 8"
+    #else
+      #define TOOL_NAME_7 "Tool 8"
+    #endif
+  #endif
+#endif
+
+/**
  * Temp Sensor defines; set up pins as needed.
  */
 
