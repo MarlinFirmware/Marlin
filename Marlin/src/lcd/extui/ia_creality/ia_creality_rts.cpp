@@ -320,10 +320,10 @@ void RTS::onIdle() {
     rts.sendData(getAxisMaxJerk_mm_s(Z) * 100, Jerk_Z);
     rts.sendData(getAxisMaxJerk_mm_s(E0) * 100, Jerk_E);
 
-    #if HAS_HOTEND_OFFSET
-      rts.sendData(getNozzleOffset_mm(X, E1) * 10, T2Offset_X);
-      rts.sendData(getNozzleOffset_mm(Y, E1) * 10, T2Offset_Y);
-      rts.sendData(getNozzleOffset_mm(Z, E1) * 10, T2Offset_Z);
+    #if HAS_TOOL_OFFSETS
+      rts.sendData(getToolOffset_mm(X, E1) * 10, T2Offset_X);
+      rts.sendData(getToolOffset_mm(Y, E1) * 10, T2Offset_Y);
+      rts.sendData(getToolOffset_mm(Z, E1) * 10, T2Offset_Z);
       rts.sendData(getAxisSteps_per_mm(E1)   * 10, T2StepMM_E);
     #endif
 
@@ -964,13 +964,13 @@ void RTS::handleData() {
             }
           #endif
           else if (recdat.addr == T2Offset_X) {
-            setNozzleOffset_mm(tmp_float_handling * 10, X, E1);
+            setToolOffset_mm(tmp_float_handling * 10, X, E1);
           }
           else if (recdat.addr == T2Offset_Y) {
-            setNozzleOffset_mm(tmp_float_handling * 10, Y, E1);
+            setToolOffset_mm(tmp_float_handling * 10, Y, E1);
           }
           else if (recdat.addr == T2Offset_Z) {
-            setNozzleOffset_mm(tmp_float_handling * 10, Z, E1);
+            setToolOffset_mm(tmp_float_handling * 10, Z, E1);
           }
         #endif
         #if HAS_BED_PROBE

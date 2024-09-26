@@ -248,8 +248,8 @@ typedef struct SettingsDataStruct {
   //
   // Tool Offset
   //
-  #if HAS_HOTEND_OFFSET
-    xyz_pos_t hotend_offset[NUM_TOOL_OFFSET - 1];       // M218 XYZ
+  #if HAS_TOOL_OFFSETS
+    xyz_pos_t tool_offset[NUM_TOOLS - 1];       // M218 XYZ
   #endif
 
   //
@@ -923,10 +923,10 @@ void MarlinSettings::postprocess() {
     // Tool Offsets, if any
     //
     {
-      #if HAS_HOTEND_OFFSET
+      #if HAS_TOOL_OFFSETS
         // Skip tool 0 which must be {0, 0, 0}
         for (uint8_t e = 1; e < HOTENDS; ++e)
-          EEPROM_WRITE(hotend_offset[e]);
+          EEPROM_WRITE(tool_offset[e]);
       #endif
     }
 
@@ -1988,10 +1988,10 @@ void MarlinSettings::postprocess() {
       // Hotend Offsets, if any
       //
       {
-        #if HAS_HOTEND_OFFSET
+        #if HAS_TOOL_OFFSETS
           // Skip hotend 0 which must be 0
-          for (uint8_t e = 1; e < NUM_TOOL_OFFSET; ++e)
-            EEPROM_READ(hotend_offset[e]);
+          for (uint8_t e = 1; e < NUM_TOOLS; ++e)
+            EEPROM_READ(tool_offset[e]);
         #endif
       }
 
@@ -3306,7 +3306,7 @@ void MarlinSettings::reset() {
     home_offset.reset();
   #endif
 
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  TERN_(HAS_TOOL_OFFSETS, reset_tool_offsets());
 
   //
   // Filament Runout Sensor
@@ -3922,7 +3922,7 @@ void MarlinSettings::reset() {
     //
     // M218 Hotend offsets
     //
-    TERN_(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
+    TERN_(HAS_TOOL_OFFSETS, gcode.M218_report(forReplay));
 
     //
     // Bed Leveling

@@ -86,7 +86,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
         const float bsDiff = planner.mm_per_step[Z_AXIS] * babystep_increment,
                     new_probe_offset = probe.offset.z + bsDiff,
                     new_offs = TERN(BABYSTEP_HOTEND_Z_OFFSET
-                      , do_probe ? new_probe_offset : hotend_offset[active_extruder].z - bsDiff
+                      , do_probe ? new_probe_offset : tool_offset[active_extruder].z - bsDiff
                       , new_probe_offset
                     );
         if (WITHIN(new_offs, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
@@ -94,7 +94,7 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
           if (do_probe)
             probe.offset.z = new_offs;
           else
-            TERN(BABYSTEP_HOTEND_Z_OFFSET, hotend_offset[active_extruder].z = new_offs, NOOP);
+            TERN(BABYSTEP_HOTEND_Z_OFFSET, tool_offset[active_extruder].z = new_offs, NOOP);
           drawMessage_P(NUL_STR); // Clear the error
         }
         else

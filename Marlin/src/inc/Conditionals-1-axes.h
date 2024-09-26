@@ -155,9 +155,9 @@
 
   // Multiple hotends and/or other tools, using the same electrical connections.
   // All hotends will use *_0_PIN for heaters/sensors.
-  #define HAS_HOTEND_OFFSET 1
+  #define HAS_TOOL_OFFSETS 1
   #define HAS_MULTI_EXTRUDER 1 // ... what about 1 hotend?
-  #define NUM_TOOL_OFFSET MAN_ST_NUM_TOOLS
+  #define NUM_TOOLS MAN_ST_NUM_TOOLS
   #define HAS_TOOL_0 1
   #define HAS_TOOL_1 1
   #if MAN_ST_NUM_TOOLS > 2
@@ -271,7 +271,7 @@
 // More than one hotend...
 #if HOTENDS > 1
   #define HAS_MULTI_HOTEND 1
-  #define HAS_HOTEND_OFFSET 1
+  #define HAS_TOOL_OFFSETS 1
   #ifndef HOTEND_OFFSET_X
     #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
   #endif
@@ -281,8 +281,8 @@
   #ifndef HOTEND_OFFSET_Z
     #define HOTEND_OFFSET_Z { 0 } // Z offsets for each extruder
   #endif
-  #ifndef NUM_TOOL_OFFSET
-    #define NUM_TOOL_OFFSET HOTENDS
+  #ifndef NUM_TOOLS
+    #define NUM_TOOLS HOTENDS
   #endif
 #else
   #undef HOTEND_OFFSET_X
