@@ -40,7 +40,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BABYSTEP_GLOBAL_Z)
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
   #include "../../feature/babystep.h"
 #endif
 

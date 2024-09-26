@@ -558,10 +558,6 @@ void menu_advanced_settings();
 void menu_configuration() {
   const bool busy = printer_busy();
 
-  #if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
-    const bool can_babystep = babystep.can_babystep(Z_AXIS);
-  #endif
-
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
 
