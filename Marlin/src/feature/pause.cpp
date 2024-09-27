@@ -147,7 +147,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
-      thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+      thermalManager.setTargetHotend(200/*thermalManager.extrude_min_temp*/, active_extruder);
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode);

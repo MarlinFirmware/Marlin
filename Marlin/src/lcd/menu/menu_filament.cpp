@@ -135,14 +135,14 @@ void menu_change_filament() {
     // Change filament
     #if E_STEPPERS == 1
       FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE);
-      if (thermalManager.targetTooColdToExtrude(active_extruder))
+      if (false && thermalManager.targetTooColdToExtrude(active_extruder))
         SUBMENU_F(fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
       else
         GCODES_ITEM_F(fmsg, F("M600 B0"));
     #else
       FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
       for (uint8_t s = 0; s < E_STEPPERS; ++s) {
-        if (thermalManager.targetTooColdToExtrude(s))
+        if (false && thermalManager.targetTooColdToExtrude(s))
           SUBMENU_N_F(s, fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_F(s, fmsg, []{
@@ -160,14 +160,14 @@ void menu_change_filament() {
         // Load filament
         #if E_STEPPERS == 1
           FSTR_P const msg_load = GET_TEXT_F(MSG_FILAMENTLOAD);
-          if (thermalManager.targetTooColdToExtrude(active_extruder))
+          if (false && thermalManager.targetTooColdToExtrude(active_extruder))
             SUBMENU_F(msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, 0); });
           else
             GCODES_ITEM_F(msg_load, F("M701"));
         #else
           FSTR_P const msg_load = GET_TEXT_F(MSG_FILAMENTLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
-            if (thermalManager.targetTooColdToExtrude(s))
+            if (false && thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_F(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
               ACTION_ITEM_N_F(s, msg_load, []{
@@ -182,7 +182,7 @@ void menu_change_filament() {
         // Unload filament
         #if E_STEPPERS == 1
           FSTR_P const msg_unload = GET_TEXT_F(MSG_FILAMENTUNLOAD);
-          if (thermalManager.targetTooColdToExtrude(active_extruder))
+          if (false && thermalManager.targetTooColdToExtrude(active_extruder))
             SUBMENU_F(msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, 0); });
           else
             GCODES_ITEM_F(msg_unload, F("M702"));
@@ -195,7 +195,7 @@ void menu_change_filament() {
           #endif
           FSTR_P const msg_unload = GET_TEXT_F(MSG_FILAMENTUNLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
-            if (thermalManager.targetTooColdToExtrude(s))
+            if (false && thermalManager.targetTooColdToExtrude(s))
               SUBMENU_N_F(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
               ACTION_ITEM_N_F(s, msg_unload, []{
