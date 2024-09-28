@@ -140,7 +140,9 @@ extern "C" {
 
 // Extra HAL modules
 #ifdef STM32F103xE
-  //#define HAL_DAC_MODULE_ENABLED (unused or maybe for the eeprom write?)
+  #ifndef HAL_DAC_MODULE_ENABLED
+    //#define HAL_DAC_MODULE_ENABLED (unused or maybe for the eeprom write?)
+  #endif
   #ifndef HAL_SD_MODULE_ENABLED
     #define HAL_SD_MODULE_ENABLED
   #endif

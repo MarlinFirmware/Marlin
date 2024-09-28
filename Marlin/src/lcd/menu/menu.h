@@ -235,7 +235,7 @@ void _lcd_draw_homing();
   void menu_advanced_settings();
 #endif
 
-#if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
+#if HAS_LEVELING
   void _lcd_toggle_bed_leveling();
 #endif
 
