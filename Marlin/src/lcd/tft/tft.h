@@ -89,7 +89,7 @@ class TFT {
     static void add_image(int16_t x, int16_t y, MarlinImage image, uint16_t color_main = COLOR_WHITE, uint16_t color_background = COLOR_BACKGROUND, uint16_t color_shadow = COLOR_BLACK) { queue.add_image(x, y, image, color_main, color_background, color_shadow); }
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_bar(x, y, width, height, color); }
     static void add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_rectangle(x, y, width, height, color); }
-    static void draw_edit_screen_buttons(bool mode_keypad = false);
+    static void draw_edit_screen_buttons(const bool mode_keypad=false);
     #if ENABLED(TOUCH_SCREEN)
       static void drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType = BUTTON, intptr_t data = 0, int32_t index = 0);
     #endif  

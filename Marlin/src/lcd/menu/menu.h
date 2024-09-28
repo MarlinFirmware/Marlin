@@ -173,7 +173,7 @@ class MenuEditItemBase : public MenuItemBase {
       void * const ev,        // Edit value pointer
       const int32_t minv,     // Encoder minimum
       const int32_t maxv,     // Encoder maximum
-      const float scale,      // Smallest step
+      const float step,       // Smallest step
       intptr_t to_string,     // Value-to-string conversion function
       const uint32_t ep,      // Initial encoder value
       const screenFunc_t cs,  // MenuItem_type::draw_edit_screen => MenuEditItemBase::edit()
@@ -196,7 +196,8 @@ class MenuEditItemBase : public MenuItemBase {
 
     // This method is for the current menu item
     static void draw_edit_screen(const char * const value) { draw_edit_screen(editLabel, value); }
-    static void put_new_value(float val); //todo fix this should not be here or preprocessor controlled, this is TFT_COLOR_UI with touch specific
+
+    static void put_new_value(float val); // TODO: Only include for TFT_COLOR_UI with touch
 };
 
 #if HAS_MEDIA

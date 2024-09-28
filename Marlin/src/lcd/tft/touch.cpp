@@ -160,7 +160,7 @@ void Touch::touch(touch_control_t *control) {
         break;
     #endif
 
-    case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
+    case MENU_SCREEN: ui.goto_screen(screenFunc_t(control->data)); break;
     case BACK: ui.goto_previous_screen(); break;
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
@@ -180,7 +180,7 @@ void Touch::touch(touch_control_t *control) {
       break;
     case PAGE_DOWN:
       encoderTopLine = (encoderTopLine + 2 * LCD_HEIGHT < screen_items) ? encoderTopLine + LCD_HEIGHT : screen_items - LCD_HEIGHT;
-      ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < (uint32_t)screen_items ? ui.encoderPosition + LCD_HEIGHT : screen_items;
+      ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < uint32_t(screen_items) ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
     case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
@@ -259,16 +259,16 @@ void Touch::touch(touch_control_t *control) {
     #endif
 
     case MOVE_AXIS:
-      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
+      ui.goto_screen(screenFunc_t(ui.move_axis_screen));
       break;
 
     // TODO: TOUCH could receive data to pass to the callback
-    case BUTTON: ((screenFunc_t)control->data)(); break;
+    case BUTTON: (screenFunc_t(control->data))(); break;
     case CALLBACK:
-    DEBUG_ECHOLNPGM("Previous event value: ", touch_event.index);
+      DEBUG_ECHOLNPGM("Previous event value: ", touch_event.index);
       touch_event.index = control->index;
       DEBUG_ECHOLNPGM("Create touch event: ", touch_event.index);
-      ((touch_handler_t)control->data)(&touch_event);
+      (touch_handler_t(control->data))(&touch_event);
       break;
 
     default: break;

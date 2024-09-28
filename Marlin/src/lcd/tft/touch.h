@@ -58,17 +58,14 @@ enum TouchControlType : uint16_t {
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
-  uint16_t x;
-  uint16_t y;
-  uint16_t width;
-  uint16_t height;
+  uint16_t x, y;
+  uint16_t width, height;
   intptr_t data;
   int32_t index;
 } touch_control_t;
 
 typedef struct {
-  uint16_t x;
-  uint16_t y;
+  uint16_t x, y;
   int32_t index;
 } touch_event_t;
 
