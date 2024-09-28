@@ -115,7 +115,7 @@ xyze_pos_t destination; // {0}
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER
-  uint8_t active_extruder = 0; // = 0
+  uint_fast8_t active_extruder = 0; // = 0
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
