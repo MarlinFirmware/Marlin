@@ -100,7 +100,7 @@ extern DefaultSerial1 USBSerial;
   #else
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
-  #if HAS_DGUS_LCD
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
     #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
   #endif
 #endif
@@ -137,12 +137,12 @@ extern DefaultSerial1 USBSerial;
 //
 
 // Test whether the pin is valid
-constexpr bool VALID_PIN(const pin_t pin) {
+constexpr bool isValidPin(const pin_t pin) {
   return LPC176x::pin_is_valid(pin);
 }
 
 // Get the analog index for a digital pin
-constexpr int8_t DIGITAL_PIN_TO_ANALOG_PIN(const pin_t pin) {
+constexpr int8_t digitalPinToAnalogIndex(const pin_t pin) {
   return (LPC176x::pin_is_valid(pin) && LPC176x::pin_has_adc(pin)) ? pin : -1;
 }
 
@@ -159,7 +159,7 @@ constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 // ------------------------
 // Defines

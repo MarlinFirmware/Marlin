@@ -130,7 +130,7 @@ public:
   }
 
   // Accessors
-  static uint16_t pixels() { return adaneo1.numPixels() * TERN1(NEOPIXEL2_INSERIES, 2); }
+  static uint16_t pixels() { return MUL_TERN(NEOPIXEL2_INSERIES, adaneo1.numPixels(), 2); }
 
   static uint32_t pixel_color(const uint16_t n) {
     #if ENABLED(NEOPIXEL2_INSERIES)

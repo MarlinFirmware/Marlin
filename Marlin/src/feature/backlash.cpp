@@ -171,13 +171,14 @@ int32_t Backlash::get_applied_steps(const AxisEnum axis) {
 
   const int32_t residual_error_axis = residual_error[axis];
 
-  // At startup it is assumed the last move was forward.
-  // So the applied steps will always be negative.
+  // At startup, when no steps are applied, it is assumed the last move was backwards.
+  // So the applied steps will always be zero (when moving backwards) or a positive
+  // number (when moving forwards).
 
-  if (forward) return -residual_error_axis;
+  if (!forward) return -residual_error_axis;
 
   const float f_corr = float(correction) / all_on;
-  const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  const int32_t full_error_axis = f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
 

@@ -42,6 +42,15 @@
 #define DISABLE_DEBUG
 
 //
+// Onboard I2C EEPROM
+//
+#define IIC_BL24CXX_EEPROM                // Use I2C EEPROM onboard IC (AT24C04C, Size 4K, PageSize 16B)
+#define MARLIN_EEPROM_SIZE                0x1000  // 4K
+#define IIC_EEPROM_SDA                      PB7
+#define IIC_EEPROM_SCL                      PB6
+#define EEPROM_DEVICE_ADDRESS             0xA0
+
+//
 // SPI
 //
 #define SPI_DEVICE                             2  // Maple
@@ -313,21 +322,24 @@
 //
 #if HAS_FSMC_TFT
   /**
-   * Note: MKS Robin TFT screens use various TFT controllers.
-   * If the screen stays white, disable 'LCD_RESET_PIN'
-   * to let the bootloader init the screen.
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'TFT_RESET_PIN' to let the bootloader init the screen.
+   *
+   * Setting a 'TFT_RESET_PIN' may cause a flicker when switching menus
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define TFT_RESET_PIN            LCD_RESET_PIN
-  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
+  #define TFT_RESET_PIN              FSMC_23_PIN
+  #define TFT_BACKLIGHT_PIN          FSMC_24_PIN
 
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                FSMC_19_PIN  // NE4
   #define FSMC_RS_PIN                FSMC_20_PIN  // A0
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-
-  #define LCD_RESET_PIN              FSMC_23_PIN
-  #define LCD_BACKLIGHT_PIN          FSMC_24_PIN
 
   #define TFT_BUFFER_WORDS                 14400
 
@@ -402,4 +414,14 @@
   #define SPI_FLASH_SCK_PIN                 PB13
   #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_MOSI_PIN                PB15
+#endif
+
+//
+// MKS WIFI pins
+//
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_RESET_PIN                    PA5
+  #define WIFI_SERIAL_PORT                     1  // USART1
+  #define WIFI_IO1_PIN                      PC7
+  #define WIFI_IO0_PIN                      -1    // N.C.
 #endif

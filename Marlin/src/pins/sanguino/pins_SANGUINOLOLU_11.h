@@ -23,16 +23,11 @@
 
 /**
  * Sanguinololu board pin assignments
- * Schematic (0.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.1/schematic.png
- * Origin (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
- * Schematic (0.6): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.6/schematic.jpg
- * Origin (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
- * Schematic (0.7): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v0.7/schematic.jpg
- * Origin (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
- * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.0/Sanguinololu-schematic.jpg
- * Origin (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
- * Schematic (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Sanguinololu%20v1.1/schematic.png
- * Origin (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
+ * Schematic (0.1): https://github.com/mosfet/Sanguinololu/blob/master/rev0.1/sanguinololu.sch
+ * Schematic (0.6): https://github.com/mosfet/Sanguinololu/blob/master/rev0.6/images/schematic.jpg
+ * Schematic (0.7): https://github.com/mosfet/Sanguinololu/blob/master/rev0.7/images/schematic.jpg
+ * Schematic (1.0): https://reprap.org/wiki/File:Sanguinololu-schematic.jpg
+ * Schematic (1.1): https://github.com/mosfet/Sanguinololu/blob/master/rev1.1/sanguinololu.sch
  */
 
 /**
@@ -44,7 +39,7 @@
  */
 
 /**
- * A useable Arduino IDE extension (board manager) can be found at
+ * A useable Arduino IDE extension (Boards Manager) can be found at
  * https://github.com/Lauszus/Sanguino
  *
  * This extension has been tested on Arduino 1.6.12 & 1.8.0
@@ -113,7 +108,7 @@
   #endif
   #define E0_ENABLE_PIN                        4
 #else
-  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL)  // Use IO Header
+  #if !HAS_CUTTER && !ALL(HAS_WIRED_LCD, IS_NEWPANEL) // Use IO Header
     #define CASE_LIGHT_PIN                     4  // Hardware PWM  - see if IO Header is available
   #endif
 #endif
@@ -268,6 +263,7 @@
     #else
       #define BTN_ENC                    AUX1_07
     #endif
+    #undef LCD_PINS_EN                            // not used, causes false pin conflict report
 
   #else // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 

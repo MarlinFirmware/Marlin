@@ -101,6 +101,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_EXTRUDE                        = _UxGT("挤出"); // "Extrude"
   LSTR MSG_RETRACT                        = _UxGT("回抽"); // "Retract"
   LSTR MSG_MOVE_AXIS                      = _UxGT("移动轴"); // "Move axis"
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("探测并调平"); // "Probe and Level"
   LSTR MSG_BED_LEVELING                   = _UxGT("调平热床"); // "Bed leveling"
   LSTR MSG_LEVEL_BED                      = _UxGT("调平热床"); // "Level bed"
   LSTR MSG_BED_TRAMMING                   = _UxGT("调平边角"); // "Bed Tramming"
@@ -137,13 +138,10 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("测量"); // "Measure"
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("移除并测量热床"); // "Remove & measure bed"
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("移动到下一个"); // "Moving to next"
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("激活UBL"); // "Activate UBL"
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("关闭UBL"); // "Deactivate UBL"
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("热床温度"); // "Bed Temp"
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("热床温度");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("热端温度"); // "Hotend Temp"
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("热端温度");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("网格编辑"); // "Mesh Edit"
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("编辑客户网格"); // "Edit Custom Mesh"
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("细调网格"); // "Fine Tuning Mesh"
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("完成编辑网格"); // "Done Editing Mesh"
@@ -429,6 +427,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探针Z偏移"); // "Z Offset"
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步调整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量调整X轴"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量调整Y轴"); // "Babystep Y"
   LSTR MSG_BABYSTEP_Z                     = _UxGT("微量调整Z轴"); // "Babystep Z"

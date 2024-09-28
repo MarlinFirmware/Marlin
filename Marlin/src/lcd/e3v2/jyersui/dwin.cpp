@@ -828,7 +828,7 @@ void JyersDWIN::drawStatusArea(const bool icons/*=false*/) {
     }
     if (planner.flow_percentage[0] != flow) {
       flow = planner.flow_percentage[0];
-      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, planner.flow_percentage[0]);
+      dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, getColor(eeprom_settings.status_area_text, COLOR_WHITE), COLOR_BG_BLACK, 3, 116 + 2 * STAT_CHR_W, 417, flow);
     }
   #endif
 
@@ -1377,10 +1377,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       static bool use_probe = false;
 
       #if HAS_BED_PROBE
-        const float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + PROBING_MARGIN) - probe.offset.x,
-                    probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - PROBING_MARGIN) - probe.offset.x,
-                    probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + PROBING_MARGIN) - probe.offset.y,
-                    probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - PROBING_MARGIN) - probe.offset.y;
+        const float probe_x_min = _MAX(0 + corner_pos, X_MIN_POS + probe.offset.x, X_MIN_POS + (PROBING_MARGIN_LEFT)) - probe.offset.x,
+                    probe_x_max = _MIN((X_BED_SIZE + X_MIN_POS) - corner_pos, X_MAX_POS + probe.offset.x, X_MAX_POS - (PROBING_MARGIN_RIGHT)) - probe.offset.x,
+                    probe_y_min = _MAX(0 + corner_pos, Y_MIN_POS + probe.offset.y, Y_MIN_POS + (PROBING_MARGIN_FRONT)) - probe.offset.y,
+                    probe_y_max = _MIN((Y_BED_SIZE + Y_MIN_POS) - corner_pos, Y_MAX_POS + probe.offset.y, Y_MAX_POS - (PROBING_MARGIN_BACK)) - probe.offset.y;
       #endif
 
       switch (item) {
@@ -4140,7 +4140,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     case ID_Move:           return GET_TEXT_F(MSG_MOVE_AXIS);
     case ID_ManualLevel:    return GET_TEXT_F(MSG_BED_TRAMMING_MANUAL);
     #if HAS_ZOFFSET_ITEM
-      case ID_ZOffset:      return GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
+      case ID_ZOffset:      return liveadjust ? GET_TEXT_F(MSG_BABYSTEP_PROBE_Z) : GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
     #endif
     #if HAS_PREHEAT
       case ID_Preheat:      return F("Preheat");
@@ -5143,7 +5143,6 @@ void MarlinUI::init_lcd() {
   if (dwinHandshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
   dwinFrameSetDir(1); // Orientation 90°
   dwinUpdateLCD();     // Show bootscreen (first image)
-  encoderConfiguration();
   for (uint16_t t = 0; t <= 100; t += 2) {
     dwinIconShow(ICON, ICON_Bar, 15, 260);
     dwinDrawRectangle(1, COLOR_BG_BLACK, 15 + t * 242 / 100, 260, 257, 280);
@@ -5156,8 +5155,11 @@ void MarlinUI::init_lcd() {
   jyersDWIN.redrawScreen();
 }
 
+void MarlinUI::clear_lcd() {}
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
+    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
     switch (message) {
       case PAUSE_MESSAGE_INSERT:  jyersDWIN.confirmHandler(Popup_FilInsert);  break;
       case PAUSE_MESSAGE_PURGE:

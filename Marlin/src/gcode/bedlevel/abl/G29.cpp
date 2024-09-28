@@ -52,8 +52,6 @@
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -75,14 +73,21 @@
   #endif
 #endif
 
+/**
+ * @brief Do some things before returning from G29.
+ * @param retry : true if the G29 can and should be retried. false if the failure is too serious.
+ * @param   did : true if the leveling procedure completed successfully.
+ */
 static void pre_g29_return(const bool retry, const bool did) {
   if (!retry) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
   }
-  if (did) {
-    TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
-  }
+  #if DISABLED(G29_RETRY_AND_RECOVER)
+    if (!retry || did) {
+      TERN_(DWIN_CREALITY_LCD, dwinLevelingDone());
+      TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+    }
+  #endif
 }
 
 #define G29_RETURN(retry, did) do{ \
@@ -428,8 +433,6 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
@@ -445,11 +448,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          #if ALL(DWIN_LCD_PROUI, HAS_HEATED_BED)
-            hmiData.bedLevT
-          #else
-            LEVELING_BED_TEMP
-          #endif
+          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
         );
       #endif
     }
@@ -700,7 +699,7 @@ G29_TYPE GcodeSuite::G29() {
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
@@ -805,7 +804,7 @@ G29_TYPE GcodeSuite::G29() {
 
       for (uint8_t i = 0; i < 3; ++i) {
         if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing point ", i + 1, "/3.");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_PROBING_POINT), int(i + 1)));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT_F(MSG_PROBING_POINT), int(i + 1)));
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
@@ -828,7 +827,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    TERN_(HAS_STATUS_MESSAGE, ui.reset_status());
+    ui.reset_status();
 
     // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (probe.stow()) {
