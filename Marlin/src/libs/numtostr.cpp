@@ -395,26 +395,25 @@ inline const char* ftostrX1rj(const_float_t f, const int index=1) {
  *
  * IMPORTANT: Supports only floats that can be displayed by above mentioned format
  * IMPORTANT: Float is represented by scientific notation using two parameters, from which float can be acquired by intVal / decimal
- * @param intVal significant digits of float
+ * @param intVal Scaled integer value with float digits
  * @param decimal divisor to acquire the float, must be power of 10
  */
 const char* ftostr7xrj(int32_t intVal, uint32_t decimal) {
+  if (intVal < 0) intVal *= -1; // Just print the absolute value
 
-  if (intVal < 0) intVal *= -1;
+  uint32_t div = 1;  // Current digit value: 1, 10, 100, 1000...
+  int8_t intEnd = 7; // Index of the digit out
 
-  int8_t intEnd = 7;
-  uint8_t dig = 0;
-  uint32_t div = 1;
-  for (;intEnd >= 0 && (((float)intVal / div) >= 1 || ((float)decimal / div) >= 1);intEnd--) {
-    dig = (intVal / div) % 10;
-    if (decimal == div && intEnd > 0 && intEnd < 7) {
-      conv[intEnd--] = '.';
-    }
-    conv[intEnd] = DIGIT(dig);
+  // Loop while there are digits or a decimal point to print
+  // Collect digits from right to left
+  while (intEnd >= 0 && (intVal >= div || decimal >= div)) {
+    if (decimal == div && WITHIN(intEnd, 1, 6)) conv[intEnd--] = '.'; // Decimal at the given power of 10
+    conv[intEnd] = DIGIT((intVal / div) % 10);                        // The digit
     div *= 10;
+    intEnd--;
   }
 
-  return &conv[intEnd+1];
+  return &conv[intEnd + 1];
 }
 
 // Convert unsigned float to string with _2.3 / 12.3 format
