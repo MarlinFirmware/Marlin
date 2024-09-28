@@ -154,7 +154,6 @@
 #define FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_FR     "Chargement terminé,\n<confirmez> pour revenir!"
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_FR   "Déchargement terminé,\n<confirmez> pour revenir!"
 
-
 #define PRE_HEAT_EXT_TEXT_FR          "E"
 #define PRE_HEAT_BED_TEXT_FR          "Bed"
 

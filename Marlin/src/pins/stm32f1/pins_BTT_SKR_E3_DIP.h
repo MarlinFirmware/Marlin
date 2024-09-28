@@ -183,6 +183,19 @@
 #define EXP1_07_PIN                         PB8
 #define EXP1_08_PIN                         PB7
 
+/*   -----
+ *   | 1 | RST
+ *   | 2 | PA3 RX2
+ *   | 3 | PA2 TX2
+ *   | 4 | GND
+ *   | 5 | 5V
+ *   -----
+ *    TFT
+ */
+
+#define TFT_02                              PA3
+#define TFT_03                              PA2
+
 #if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
@@ -199,9 +212,7 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_DIP.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_E3_DIP", "ZONESTAR_LCD")
 
     #define LCD_PINS_RS              EXP1_06_PIN
     #define LCD_PINS_EN              EXP1_02_PIN
@@ -237,9 +248,8 @@
 
   #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! FYSETC_MINI_12864_2_1 and it's clones require wiring modifications. See 'pins_BTT_SKR_MINI_E3_DIP.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_E3_DIP", "FYSETC_MINI_12864_2_1 and clones")
+
     #if SD_CONNECTION_IS(LCD)
       #error "The LCD SD Card is not supported with this configuration."
     #endif
@@ -298,16 +308,14 @@
     #define FORCE_SOFT_SPI
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the BIGTREE_SKR_E3_DIP."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the SKR E3 DIP."
   #endif
 
 #endif // HAS_WIRED_LCD
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_BTT_SKR_E3_DIP.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+  CONTROLLER_WARNING("BTT_SKR_E3_DIP", "LCD_FYSETC_TFT81050")
 
   /** FYSETC TFT TFT81050 display pinout
    *
@@ -347,9 +355,8 @@
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
 //
-// SD Support
+// SD Card
 //
-
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif

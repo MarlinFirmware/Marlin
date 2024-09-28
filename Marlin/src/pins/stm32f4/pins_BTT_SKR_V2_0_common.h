@@ -437,8 +437,9 @@
 #endif // BTT_MOTOR_EXPANSION
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
@@ -640,8 +641,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE6
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE6
 #endif
 
 #if ENABLED(WIFISUPPORT)

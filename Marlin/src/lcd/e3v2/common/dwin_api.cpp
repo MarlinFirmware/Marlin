@@ -93,16 +93,18 @@ bool dwinHandshake() {
 // Get font character width
 uint8_t fontWidth(uint8_t cfont) {
   switch (cfont) {
-    case font6x12 : return 6;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 6;
+      case font20x40: return 20;
+      case font24x48: return 24;
+      case font28x56: return 28;
+      case font32x64: return 32;
+    #endif
     case font8x16 : return 8;
     case font10x20: return 10;
     case font12x24: return 12;
     case font14x28: return 14;
     case font16x32: return 16;
-    case font20x40: return 20;
-    case font24x48: return 24;
-    case font28x56: return 28;
-    case font32x64: return 32;
     default: return 0;
   }
 }
@@ -110,16 +112,18 @@ uint8_t fontWidth(uint8_t cfont) {
 // Get font character height
 uint8_t fontHeight(uint8_t cfont) {
   switch (cfont) {
-    case font6x12 : return 12;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 12;
+      case font20x40: return 40;
+      case font24x48: return 48;
+      case font28x56: return 56;
+      case font32x64: return 64;
+    #endif
     case font8x16 : return 16;
     case font10x20: return 20;
     case font12x24: return 24;
     case font14x28: return 28;
     case font16x32: return 32;
-    case font20x40: return 40;
-    case font24x48: return 48;
-    case font28x56: return 56;
-    case font32x64: return 64;
     default: return 0;
   }
 }
@@ -153,21 +157,23 @@ void dwinFrameClear(const uint16_t color) {
   dwinSend(i);
 }
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
-  size_t i = 0;
-  dwinByte(i, 0x02);
-  dwinWord(i, color);
-  dwinByte(i, width);
-  dwinByte(i, height);
-  dwinWord(i, x);
-  dwinWord(i, y);
-  dwinSend(i);
-}
+#if DISABLED(TJC_DISPLAY)
+  // Draw a point
+  //  color: point color
+  //  width: point width   0x01-0x0F
+  //  height: point height 0x01-0x0F
+  //  x,y: upper left point
+  void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    size_t i = 0;
+    dwinByte(i, 0x02);
+    dwinWord(i, color);
+    dwinByte(i, width);
+    dwinByte(i, height);
+    dwinWord(i, x);
+    dwinWord(i, y);
+    dwinSend(i);
+  }
+#endif
 
 // Draw a line
 //  color: Line segment color

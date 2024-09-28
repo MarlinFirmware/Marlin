@@ -265,7 +265,7 @@ class MenuItem_bool : public MenuEditItemBase {
  *   MenuItem_<type>::action(arg3...)
  *
  * Examples:
- *   BACK_ITEM(MSG_INFO_SCREEN)
+ *   BACK_ITEM(MSG_PREV_SCREEN)
  *     MenuItem_back::action(flabel, ...)
  *     MenuItem_back::draw(sel, row, flabel, ...)
  *
@@ -287,8 +287,8 @@ class MenuItem_bool : public MenuEditItemBase {
 #define _MENU_INNER_F(TYPE, USE_MULTIPLIER, FLABEL, V...) do { \
   FSTR_P const flabel = FLABEL;                                \
   if (CLICKED()) {                                             \
-    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     MenuItem_##TYPE::action(flabel, ##V);                      \
+    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);               \
     if (ui.screen_changed) return;                             \
   }                                                            \
   if (ui.should_draw())                                        \
@@ -426,12 +426,15 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#if DISABLED(DISABLE_ENCODER)
-  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
-  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
-#else
+#if ENABLED(NO_BACK_MENU_ITEM)
   #define BACK_ITEM_F(FLABEL) NOOP
   #define BACK_ITEM(LABEL)    NOOP
+#elif ENABLED(GENERIC_BACK_MENU_ITEM)
+  #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
+  #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+#else
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)

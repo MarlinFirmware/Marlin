@@ -34,6 +34,10 @@
   #include "../../feature/power.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
+#endif
+
 #if HAS_SUICIDE
   #include "../../MarlinCore.h"
 #endif
@@ -84,6 +88,8 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
+  TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
+
   safe_delay(1000); // Wait 1 second before switching off
 
   LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
@@ -112,9 +118,9 @@ void GcodeSuite::M81() {
     return;
   }
 
-  #if HAS_SUICIDE
-    suicide();
-  #elif ENABLED(PSU_CONTROL)
+  #if ENABLED(PSU_CONTROL)
     powerManager.power_off_soon();
+  #elif HAS_SUICIDE
+    suicide();
   #endif
 }

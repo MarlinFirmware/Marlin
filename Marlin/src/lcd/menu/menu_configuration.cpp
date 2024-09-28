@@ -31,6 +31,7 @@
 #include "menu_item.h"
 
 #include "../../MarlinCore.h"
+#include "../../module/temperature.h"
 
 #if ENABLED(LCD_ENDSTOP_TEST)
   #include "../../module/endstops.h"
@@ -264,7 +265,9 @@ void menu_advanced_settings();
     EDIT_ITEM(int3, MSG_TIMEOUT, &c.timeout, 0, 999);
     EDIT_ITEM(int3, MSG_TEMPERATURE, &c.trigger, 0, thermalManager.hotend_max_target(0));
     EDIT_ITEM(int3, MSG_HOTEND_IDLE_NOZZLE_TARGET, &c.nozzle_target, 0, thermalManager.hotend_max_target(0));
-    EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAX_TARGET);
+    #if HAS_HEATED_BED
+      EDIT_ITEM(int3, MSG_HOTEND_IDLE_BED_TARGET, &c.bed_target, 0, BED_MAX_TARGET);
+    #endif
 
     END_MENU();
   }
@@ -339,7 +342,7 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     GCODES_ITEM(MSG_TOUCHMI_INIT, F("M851 Z0\nG28\nG1 F200 Z0"));
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    SUBMENU(MSG_BABYSTEP_PROBE_Z, lcd_babystep_zoffset);
     GCODES_ITEM(MSG_TOUCHMI_SAVE, F("M500\nG1 F200 Z10"));
     GCODES_ITEM(MSG_TOUCHMI_ZTEST, F("G28\nG1 F200 Z0"));
     END_MENU();
@@ -558,12 +561,6 @@ void menu_configuration() {
   #endif
 
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
-
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-  #elif HAS_BED_PROBE
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
-  #endif
 
   //
   // Set Fan Controller speed

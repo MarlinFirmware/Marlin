@@ -32,6 +32,10 @@
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 #if ENABLED(TMC_DEBUG)
   #include "../libs/hex_print.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -207,6 +211,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
+      TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
       kill(F("Driver error"));
     }
   #endif
@@ -763,7 +768,7 @@
         SERIAL_CHAR('\t');
         st.printLabel();
         SERIAL_CHAR('\t');
-        print_hex_long(drv_status, ':');
+        print_hex_long(drv_status, ':', true);
         if (drv_status == 0xFFFFFFFF || drv_status == 0) SERIAL_ECHOPGM("\t Bad response!");
         SERIAL_EOL();
         break;
@@ -942,7 +947,7 @@
    * M122 report functions
    */
 
-  void tmc_report_all(LOGICAL_AXIS_ARGS(const bool)) {
+  void tmc_report_all(LOGICAL_AXIS_ARGS_LC(const bool)) {
     #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_debug_loop(ITEM OPTARGS_LOGICAL()); }while(0)
     #define DRV_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); drv_status_loop(ITEM OPTARGS_LOGICAL()); }while(0)
 
@@ -1152,7 +1157,7 @@
     SERIAL_EOL();
   }
 
-  void tmc_get_registers(LOGICAL_AXIS_ARGS(bool)) {
+  void tmc_get_registers(LOGICAL_AXIS_ARGS_LC(bool)) {
     #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM OPTARGS_LOGICAL()); }while(0)
     #define TMC_GET_REG(NAME, TABS) _TMC_GET_REG(STRINGIFY(NAME) TABS, TMC_GET_##NAME)
     _TMC_GET_REG("\t", TMC_AXIS_CODES);
@@ -1232,7 +1237,7 @@ static bool test_connection(TMC &st) {
   return test_result;
 }
 
-void test_tmc_connection(LOGICAL_AXIS_ARGS(const bool)) {
+void test_tmc_connection(LOGICAL_AXIS_ARGS_LC(const bool)) {
   uint8_t axis_connection = 0;
 
   if (TERN0(HAS_X_AXIS, x)) {
