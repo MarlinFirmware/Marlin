@@ -173,15 +173,15 @@ uint32_t myvar[] = {1,2,3,4,5,6,7,8};
 void myshow(int fre, int times) // YSZ-WORK
 {
   uint32_t index = 10;
-  RCC->AHB1ENR |= 1 << 6; // port G clock
-  GPIOG->MODER &= ~(3UL << 2 * index); // clear old mode
-  GPIOG->MODER |= 1 << 2 * index; // mode is output
-  GPIOG->OSPEEDR &= ~(3UL << 2 * index) // Clear old output speed
-                    GPIOG->OSPEEDR |= 2 << 2 * index; // Set output speed
-  GPIOG->OTYPER &= ~(1UL << index) // clear old output
-                   GPIOG->OTYPER |= 0 << index; // Set the output mode to push-pull
-  GPIOG->PUPDR &= ~(3 << 2 * index) // Clear the original settings first
-                  GPIOG->PUPDR |= 1 << 2 * index; // Set new up and down
+  RCC->AHB1ENR |= 1 << 6;                // port G clock
+  GPIOG->MODER &= ~(3UL << 2 * index);   // clear old mode
+  GPIOG->MODER |= 1 << 2 * index;        // mode is output
+  GPIOG->OSPEEDR &= ~(3UL << 2 * index); // Clear old output speed
+  GPIOG->OSPEEDR |= 2 << 2 * index;      // Set output speed
+  GPIOG->OTYPER &= ~(1UL << index);      // clear old output
+  GPIOG->OTYPER |= 0 << index;           // Set the output mode to push-pull
+  GPIOG->PUPDR &= ~(3 << 2 * index);     // Clear the original settings first
+  GPIOG->PUPDR |= 1 << 2 * index;        // Set new up and down
   while (times != 0) {
     GPIOG->BSRR = 1UL << index;
     for (int i = 0; i < fre; i++)

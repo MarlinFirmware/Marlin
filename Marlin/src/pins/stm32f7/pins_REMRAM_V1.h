@@ -120,7 +120,7 @@
 #define SD_DETECT_PIN                         56  // SD_CARD_DET
 #define BEEPER_PIN                            46  // LCD_BEEPER
 #define LCD_PINS_RS                           49  // LCD_RS
-#define LCD_PINS_ENABLE                       48  // LCD_EN
+#define LCD_PINS_EN                           48  // LCD_EN
 #define LCD_PINS_D4                           50  // LCD_D4
 #define LCD_PINS_D5                           51  // LCD_D5
 #define LCD_PINS_D6                           52  // LCD_D6

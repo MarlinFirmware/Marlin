@@ -24,7 +24,7 @@
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
- * Available chip select pins for HW SPI are 4 10 52 77
+ * Available chip select pins for HW SPI are 4 10 52 77 87
  */
 #if SDSS == 4 || SDSS == 10 || SDSS == 52 || SDSS == 77 || SDSS == 87
   #if SDSS == 4
@@ -48,7 +48,7 @@
   #define SD_MOSI_PIN       75
 #else
   // defaults
-  #define DUE_SOFTWARE_SPI
+  #define SOFTWARE_SPI
   #ifndef SD_SCK_PIN
     #define SD_SCK_PIN      52
   #endif

@@ -42,11 +42,14 @@
  *  R<kelvin/second/kelvin>   Sensor responsiveness (= transfer coefficient / heat capcity).
  *
  *  With MPC_AUTOTUNE:
- *  T                         Autotune the specified or active extruder.
+ *  T                         Autotune the extruder specified with 'E' or the active extruder.
+ *                            S0 : Autotuning method AUTO (default)
+ *                            S1 : Autotuning method DIFFERENTIAL
+ *                            S2 : Autotuning method ASYMPTOTIC
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = TERN(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder), 0);
+  const uint8_t e = TERN0(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;
@@ -54,8 +57,15 @@ void GcodeSuite::M306() {
 
   #if ENABLED(MPC_AUTOTUNE)
     if (parser.seen_test('T')) {
+      Temperature::MPCTuningType tuning_type;
+      const uint8_t type = parser.byteval('S', 0);
+      switch (type) {
+        case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
+        case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
+        default: tuning_type = Temperature::MPCTuningType::AUTO; break;
+      }
       LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-      thermalManager.MPC_autotune(e);
+      thermalManager.MPC_autotune(e, tuning_type);
       ui.reset_status();
       return;
     }
@@ -78,20 +88,22 @@ void GcodeSuite::M306() {
 }
 
 void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F("Model predictive control"));
   HOTEND_LOOP() {
     report_echo_start(forReplay);
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-    SERIAL_ECHOPGM("  M306 E", e);
-    SERIAL_ECHOPAIR_F(" P", mpc.heater_power, 2);
-    SERIAL_ECHOPAIR_F(" C", mpc.block_heat_capacity, 2);
-    SERIAL_ECHOPAIR_F(" R", mpc.sensor_responsiveness, 4);
-    SERIAL_ECHOPAIR_F(" A", mpc.ambient_xfer_coeff_fan0, 4);
+    SERIAL_ECHOPGM("  M306 E", e,
+                         " P", p_float_t(mpc.heater_power, 2),
+                         " C", p_float_t(mpc.block_heat_capacity, 2),
+                         " R", p_float_t(mpc.sensor_responsiveness, 4),
+                         " A", p_float_t(mpc.ambient_xfer_coeff_fan0, 4)
+    );
     #if ENABLED(MPC_INCLUDE_FAN)
-      SERIAL_ECHOPAIR_F(" F", mpc.fanCoefficient(), 4);
+      SERIAL_ECHOPGM(" F", p_float_t(mpc.fanCoefficient(), 4));
     #endif
-    SERIAL_ECHOPAIR_F(" H", mpc.filament_heat_capacity_permm, 4);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM(" H", p_float_t(mpc.filament_heat_capacity_permm, 4));
   }
 }
 

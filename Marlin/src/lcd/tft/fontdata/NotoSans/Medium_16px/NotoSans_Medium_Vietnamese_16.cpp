@@ -20,14 +20,11 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define NOTOSANS 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == NOTOSANS
 
-#include <stdint.h>
-
-// NotoSans Medium Vietnamese 22pt, capital 'A' heigth: 16px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
+// NotoSans Medium Vietnamese 22pt, capital 'A' height: 16px, width: 100%, range: 0x0102-0x1ef9, glyphs: 107
 extern const uint8_t NotoSans_Medium_Vietnamese_16[8448] = {
   162,16,2,1,249,30,21,250, // unifont_t
   // 0x0102  Ă

@@ -40,7 +40,7 @@ private:
 public:
   static void reset() { index = 0; }
   static bool is_active() {
-    LOOP_L_N(i, index) if (marker[i].counter) return true;
+    for (uint8_t i = 0; i < index; ++i) if (marker[i].counter) return true;
     return false;
   }
   static bool is_command_M808(char * const cmd) { return cmd[0] == 'M' && cmd[1] == '8' && cmd[2] == '0' && cmd[3] == '8' && !NUMERIC(cmd[4]); }
@@ -48,6 +48,9 @@ public:
   static void add_marker(const uint32_t sdpos, const uint16_t count);
   static void loop();
   static void cancel();
+  static uint8_t count() { return index; }
+  static int16_t get_marker_counter(const uint8_t i) { return marker[i].counter; }
+  static uint32_t get_marker_sdpos(const uint8_t i) { return marker[i].sdpos; }
 };
 
 extern Repeat repeat;

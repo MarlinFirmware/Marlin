@@ -129,7 +129,7 @@
  * Added as necessary or if I feel like it- not a comprehensive list!
  */
 
-/*
+/**
  * Some of these share the same source and so can't be used in the same time
  */
 #define PWM_PIN(P)        (WITHIN(P, 2, 13) || WITHIN(P, 22, 23) || WITHIN(P, 44, 45) || P == 48)
@@ -152,7 +152,7 @@
                                  : ((P) == 14) ? ADC_INPUTCTRL_MUXPOS_PIN14 \
                                  : ADC_INPUTCTRL_MUXPOS_PIN15)
 
-#define digitalPinToAnalogInput(P) (WITHIN(P, 67, 74) ? (P) - 67 : WITHIN(P, 54, 61) ? 8 + (P) - 54 : WITHIN(P, 12, 13) ? 16 + (P) - 12 : P == 9 ? 18 : -1)
+#define digitalPinToAnalogIndex(P) (WITHIN(P, 67, 74) ? (P) - 67 : WITHIN(P, 54, 61) ? 8 + (P) - 54 : WITHIN(P, 12, 13) ? 16 + (P) - 12 : P == 9 ? 18 : -1)
 
 /**
  * pins

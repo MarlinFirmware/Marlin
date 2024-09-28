@@ -23,10 +23,8 @@
 
 #include "env_validate.h"
 
-#define DEFAULT_MACHINE_NAME "3D Printer"
-
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
-#define BOARD_WEBSITE_URL "fysetc.com"
+#define BOARD_WEBSITE_URL "github.com/FYSETC/FYSETC-Cheetah"
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
@@ -35,7 +33,7 @@
 #define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
-#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
@@ -86,17 +84,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_FYSETC_CHEETAH.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_FYSETC_CHEETAH.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_FYSETC_CHEETAH.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_FYSETC_CHEETAH.");
 #endif
 
 //
@@ -164,7 +166,7 @@
     #define DOGLCD_SCK               EXP1_06_PIN
     #define DOGLCD_MOSI              EXP1_08_PIN
 
-    #if EITHER(FYSETC_MINI_12864, U8GLIB_ST7920)
+    #if ANY(FYSETC_MINI_12864, U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
@@ -172,7 +174,7 @@
 
   #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
   #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_ENABLE            EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT                190
 

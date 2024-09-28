@@ -126,7 +126,7 @@
 // LCD / Controller
 //
 #define LCD_PINS_RS                           70  // Ext2_5
-#define LCD_PINS_ENABLE                       71  // Ext2_7
+#define LCD_PINS_EN                           71  // Ext2_7
 #define LCD_PINS_D4                           72  // Ext2_9 ?
 #define LCD_PINS_D5                           73  // Ext2_11 ?
 #define LCD_PINS_D6                           74  // Ext2_13
@@ -143,7 +143,7 @@
 
 #define HOME_PIN                        BTN_HOME
 
-#if EITHER(VIKI2, miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #define BEEPER_PIN                          44
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0                           70

@@ -72,7 +72,7 @@
 from __future__ import print_function
 from __future__ import division
 
-import sys,os,re
+import sys, os, re
 
 pwd = os.getcwd()  # make sure we're executing from the correct directory level
 pwd = pwd.replace('\\', '/')
@@ -103,7 +103,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
-from datetime import datetime, date, time
+from datetime import datetime
 
 #########
 #  Python 2 error messages:
@@ -150,8 +150,6 @@ def get_answer(board_name, question_txt, options, default_value=1):
 
   root_get_answer.protocol("WM_DELETE_WINDOW", disable_event)
   root_get_answer.resizable(False, False)
-
-  root_get_answer.radio_state = default_value  # declare variables used by TK and enable
 
   global get_answer_val
   get_answer_val = default_value  # return get_answer_val, set default to match radio_state default
@@ -499,7 +497,7 @@ def get_starting_env(board_name_full, version):
   possible_envs = None
   for i, line in enumerate(pins_h):
     if 0 < line.find("Unknown MOTHERBOARD value set in Configuration.h"):
-      invalid_board();
+      invalid_board()
     if list_start_found == False and 0 < line.find('1280'):
       list_start_found = True
     elif list_start_found == False:  # skip lines until find start of CPU list
@@ -880,7 +878,6 @@ def run_PIO(dummy):
   print('build_type:  ', build_type)
 
   import subprocess
-  import sys
 
   print('starting platformio')
 
@@ -965,7 +962,6 @@ def run_PIO(dummy):
 
 ########################################################################
 
-import time
 import threading
 if python_ver == 2:
   import Tkinter as tk
@@ -978,7 +974,6 @@ else:
   import tkinter as tk
   import queue as queue
   from tkinter import ttk, Tk, Frame, Text, Menu
-import subprocess
 import sys
 que = queue.Queue()
 #IO_queue = queue.Queue()
@@ -1103,7 +1098,7 @@ class output_window(Text):
     else:
       try:
         temp_text = IO_queue.get(block=False)
-      except Queue.Empty:
+      except queue.Empty:
         continue_updates = False  # queue is exhausted so no need for further updates
       else:
         self.insert('end', temp_text[0], temp_text[1])
@@ -1267,6 +1262,7 @@ def main():
   global build_type
   global target_env
   global board_name
+  global Marlin_ver
 
   board_name, Marlin_ver = get_board_name()
 

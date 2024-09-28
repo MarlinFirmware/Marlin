@@ -27,46 +27,41 @@
  *   Hardware Pin  : 02 03 06 07 01 05 15 16 17 18 23 24 25 26 64 63 13 12 46 45 44 43 78 77 76 75 74 73 72 71 60 59 58 57 56 55 54 53 50 70 52 51 42 41 40 39 38 37 36 35 22 21 20 19 97 96 95 94 93 92 91 90 89 88 87 86 85 84 83 82 | 04 08 09 10 11 14 27 28 29 30 31 32 33 34 47 48 49 61 62 65 66 67 68 69 79 80 81 98 99 100
  *   Port          : E0 E1 E4 E5 G5 E3 H3 H4 H5 H6 B4 B5 B6 B7 J1 J0 H1 H0 D3 D2 D1 D0 A0 A1 A2 A3 A4 A5 A6 A7 C7 C6 C5 C4 C3 C2 C1 C0 D7 G2 G1 G0 L7 L6 L5 L4 L3 L2 L1 L0 B3 B2 B1 B0 F0 F1 F2 F3 F4 F5 F6 F7 K0 K1 K2 K3 K4 K5 K6 K7 | E2 E6 E7 xx xx H2 H7 G3 G4 xx xx xx xx xx D4 D5 D6 xx xx J2 J3 J4 J5 J6 J7 xx xx xx xx xx
  *   Logical Pin   : 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 | 78 79 80 xx xx 84 85 71 70 xx xx xx xx xx 81 82 83 xx xx 72 73 75 76 77 74 xx xx xx xx xx
- *
- * Arduino Pin Layout video: https://youtu.be/rIqeVCX09FA
- * AVR alternate pin function overview video: https://youtu.be/1yd8wuI5Plg
+ *   Analog Input  :                                                                                                                                                                    0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
  */
 
 #include "../fastio.h"
 
-// change for your board
-#define DEBUG_LED   DIO21
-
 // UART
-#define RXD         DIO0
-#define TXD         DIO1
+#define RXD         0
+#define TXD         1
 
 // SPI
-#define SCK         DIO52
-#define MISO        DIO50
-#define MOSI        DIO51
-#define SS          DIO53
+#define MISO        50
+#define MOSI        51
+#define SCK         52
+#define SS          53
 
 // TWI (I2C)
-#define SCL         DIO21
-#define SDA         DIO20
+#define SCL         21
+#define SDA         20
 
 // Timers and PWM
-#define OC0A        DIO13
-#define OC0B        DIO4
-#define OC1A        DIO11
-#define OC1B        DIO12
-#define OC2A        DIO10
-#define OC2B        DIO9
-#define OC3A        DIO5
-#define OC3B        DIO2
-#define OC3C        DIO3
-#define OC4A        DIO6
-#define OC4B        DIO7
-#define OC4C        DIO8
-#define OC5A        DIO46
-#define OC5B        DIO45
-#define OC5C        DIO44
+#define OC0A        13
+#define OC0B        4
+#define OC1A        11
+#define OC1B        12
+#define OC2A        10
+#define OC2B        9
+#define OC3A        5
+#define OC3B        2
+#define OC3C        3
+#define OC4A        6
+#define OC4B        7
+#define OC4C        8
+#define OC5A        46
+#define OC5B        45
+#define OC5C        44
 
 // Digital I/O
 

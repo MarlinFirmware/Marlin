@@ -146,16 +146,6 @@
 #define ILI9488_ADJCTL6     0xFC // Adjust Control 6
 #define ILI9488_ADJCTL7     0xFF // Adjust Control 7
 
-#if 0
-  // https://forum.mikroe.com/viewtopic.php?t=74586
-  #if ANY(MKS_ROBIN_TFT35, TFT_TRONXY_X5SA, ANYCUBIC_TFT35) // ILI9488
-    #define TFT_DRIVER ILI9488
-    #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-    #define TFT_RES_480x320
-    #define TFT_INTERFACE_FSMC
-  #endif
-#endif
-
 static const uint16_t ili9488_init[] = {
   DATASIZE_8BIT,
   ESC_REG(ILI9488_SWRESET), ESC_DELAY(120),

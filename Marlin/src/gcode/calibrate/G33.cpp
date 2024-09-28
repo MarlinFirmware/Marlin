@@ -35,10 +35,6 @@
   #include "../../module/probe.h"
 #endif
 
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
-
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
@@ -67,9 +63,9 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(SENSORLESS_HOMING, endstops.set_homing_current(true));
+  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
   home_delta();
-  TERN_(SENSORLESS_HOMING, endstops.set_homing_current(false));
+  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   endstops.not_homing();
 }
 
@@ -84,7 +80,7 @@ void ac_setup(const bool reset_bed) {
   #endif
 }
 
-void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
+void ac_cleanup() {
   TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
   TERN_(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
@@ -92,13 +88,12 @@ void ac_cleanup(TERN_(HAS_MULTI_HOTEND, const uint8_t old_tool_index)) {
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
-  SERIAL_ECHOPGM("  ");
-  SERIAL_ECHOF(prefix, AS_CHAR(':'));
+  SERIAL_ECHO(F("  "), prefix, C(':'));
   serial_offset(f);
 }
 
 /**
- *  - Print the delta settings
+ * - Print the delta settings
  */
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
   SERIAL_ECHOPGM(".Height:", delta_height);
@@ -124,7 +119,7 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
 }
 
 /**
- *  - Print the probe results
+ * - Print the probe results
  */
 static void print_calibration_results(const float z_pt[NPP + 1], const bool tower_points, const bool opposite_points) {
   SERIAL_ECHOPGM(".    ");
@@ -148,7 +143,7 @@ static void print_calibration_results(const float z_pt[NPP + 1], const bool towe
 }
 
 /**
- *  - Calculate the standard deviation from the zero plane
+ * - Calculate the standard deviation from the zero plane
  */
 static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool _1p_cal, const bool _4p_cal, const bool _4p_opp) {
   if (!_0p_cal) {
@@ -166,11 +161,11 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
 }
 
 /**
- *  - Probe a point
+ * - Probe a point
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool probe_at_offset) {
   #if HAS_BED_PROBE
-    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, probe_at_offset, false);
+    return probe.probe_at_point(xy, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, probe_at_offset, false, Z_PROBE_LOW_POINT, Z_TWEEN_SAFE_CLEARANCE, true);
   #else
     UNUSED(stow);
     return lcd_probe_pt(xy);
@@ -178,7 +173,7 @@ static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool p
 }
 
 /**
- *  - Probe a grid
+ * - Probe a grid
  */
 static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const float dcr, const bool towers_set, const bool stow_after_each, const bool probe_at_offset) {
   const bool _0p_calibration      = probe_points == 0,
@@ -395,7 +390,7 @@ void GcodeSuite::G33() {
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
-    SERIAL_ECHOLNPGM("?(P)oints implausible (0-10).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(P)oints implausible (0-10)."));
     return;
   }
 
@@ -414,19 +409,19 @@ void GcodeSuite::G33() {
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
-    SERIAL_ECHOLNPGM("?(C)alibration precision implausible (>=0).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(C)alibration precision implausible (>=0)."));
     return;
   }
 
   const int8_t force_iterations = parser.intval('F', 0);
   if (!WITHIN(force_iterations, 0, 30)) {
-    SERIAL_ECHOLNPGM("?(F)orce iteration implausible (0-30).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(F)orce iteration implausible (0-30)."));
     return;
   }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 3)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-3).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(V)erbose level implausible (0-3)."));
     return;
   }
 
@@ -460,9 +455,8 @@ void GcodeSuite::G33() {
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
-  PGM_P const checkingac = PSTR("Checking... AC");
-  SERIAL_ECHOPGM_P(checkingac);
-  SERIAL_ECHOPGM(" at radius:", dcr);
+  FSTR_P const checkingac = F("Checking... AC");
+  SERIAL_ECHO(checkingac, F(" at radius:"), dcr);
   if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
   SERIAL_EOL();
   ui.set_status(checkingac);
@@ -476,8 +470,7 @@ void GcodeSuite::G33() {
   #if HAS_DELTA_SENSORLESS_PROBING
     if (verbose_level > 0 && do_save_offset_adj) {
       offset_sensorless_adj.reset();
-
-      auto caltower = [&](Probe::sense_bool_t s){
+      auto caltower = [&](Probe::sense_bool_t s) {
         float z_at_pt[NPP + 1];
         LOOP_CAL_ALL(rad) z_at_pt[rad] = 0.0f;
         probe.test_sensitivity = s;
@@ -503,7 +496,7 @@ void GcodeSuite::G33() {
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, dcr, towers_set, stow_after_each, probe_at_offset)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
-      return ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
+      return ac_cleanup();
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
 
@@ -637,53 +630,50 @@ void GcodeSuite::G33() {
           else
         #endif
           {
-            SERIAL_ECHOPAIR_F("std dev:", zero_std_dev_min, 3);
+            SERIAL_ECHOPGM("std dev:", p_float_t(zero_std_dev_min, 3));
           }
         SERIAL_EOL();
-        char mess[21];
-        strcpy_P(mess, PSTR("Calibration sd:"));
+
+        MString<21> msg(F("Calibration sd:"));
         if (zero_std_dev_min < 1)
-          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0f));
+          msg.appendf(F("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0f));
         else
-          sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
-        ui.set_status(mess);
+          msg.appendf(F("%03i.x"), (int)LROUND(zero_std_dev_min));
+        ui.set_status(msg);
         print_calibration_settings(_endstop_results, _angle_results);
         SERIAL_ECHOLNPGM("Save with M500 and/or copy to Configuration.h");
       }
       else { // !end iterations
-        char mess[15];
+        SString<15> msg;
         if (iterations < 31)
-          sprintf_P(mess, PSTR("Iteration : %02i"), (unsigned int)iterations);
+          msg.setf(F("Iteration : %02i"), (unsigned int)iterations);
         else
-          strcpy_P(mess, PSTR("No convergence"));
-        SERIAL_ECHO(mess);
+          msg.set(F("No convergence"));
+        msg.echo();
         SERIAL_ECHO_SP(32);
-        SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
-        ui.set_status(mess);
+        SERIAL_ECHOLNPGM("std dev:", p_float_t(zero_std_dev, 3));
+        ui.set_status(msg);
         if (verbose_level > 1)
           print_calibration_settings(_endstop_results, _angle_results);
       }
     }
     else { // dry run
       FSTR_P const enddryrun = F("End DRY-RUN");
-      SERIAL_ECHOF(enddryrun);
+      SERIAL_ECHO(enddryrun);
       SERIAL_ECHO_SP(35);
-      SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
-
-      char mess[21];
-      strcpy_P(mess, FTOP(enddryrun));
-      strcpy_P(&mess[11], PSTR(" sd:"));
+      SERIAL_ECHOLNPGM("std dev:", p_float_t(zero_std_dev, 3));
+      MString<30> msg(enddryrun, F(" sd:"));
       if (zero_std_dev < 1)
-        sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0f));
+        msg.appendf(F("0.%03i"), (int)LROUND(zero_std_dev * 1000.0f));
       else
-        sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
-      ui.set_status(mess);
+        msg.appendf(F("%03i.x"), (int)LROUND(zero_std_dev));
+      ui.set_status(msg);
     }
     ac_home();
   }
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
-  ac_cleanup(TERN_(HAS_MULTI_HOTEND, old_tool_index));
+  ac_cleanup();
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   #if HAS_DELTA_SENSORLESS_PROBING

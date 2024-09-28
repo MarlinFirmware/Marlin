@@ -35,7 +35,9 @@
   #include "../../../module/tool_change.h"
 #endif
 
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "../../../feature/mmu3/mmu2.h"
+#elif HAS_PRUSA_MMU2
   #include "../../../feature/mmu/mmu2.h"
 #endif
 
@@ -101,8 +103,10 @@ void GcodeSuite::M701() {
   move_z_by(park_raise);
 
   // Load filament
-  #if HAS_PRUSA_MMU2
-    mmu2.load_filament_to_nozzle(target_extruder);
+  #if HAS_PRUSA_MMU3
+    mmu3.load_to_nozzle(target_extruder);
+  #elif HAS_PRUSA_MMU2
+    mmu2.load_to_nozzle(target_extruder);
   #else
     constexpr float     purge_length = ADVANCED_PAUSE_PURGE_LENGTH,
                     slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
@@ -196,10 +200,12 @@ void GcodeSuite::M702() {
     do_blocking_move_to_z(_MIN(current_position.z + park_point.z, Z_MAX_POS), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
   // Unload filament
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU3
+    mmu3.unload();
+  #elif HAS_PRUSA_MMU2
     mmu2.unload();
   #else
-    #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
+    #if ALL(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
           if (e != active_extruder) tool_change(e);

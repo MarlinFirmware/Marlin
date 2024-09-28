@@ -34,9 +34,9 @@ typedef struct {
   bool enabled = false;
   int encoderMoveValue = 0;
   millis_t lastEncoderTime = 0;
-} ENCODER_Rate;
+} EncoderRate;
 
-extern ENCODER_Rate EncoderRate;
+extern EncoderRate encoderRate;
 
 typedef enum {
   ENCODER_DIFF_NO    = 0,  // no state
@@ -45,29 +45,26 @@ typedef enum {
   ENCODER_DIFF_ENTER = 3   // click
 } EncoderState;
 
-#define ENCODER_WAIT_MS 20
-
-// Encoder initialization
-void Encoder_Configuration();
+#define ENCODER_WAIT_MS TERN(DWIN_LCD_PROUI, 10, 20)
 
 // Analyze encoder value and return state
-EncoderState Encoder_ReceiveAnalyze();
+EncoderState encoderReceiveAnalyze();
 
 inline EncoderState get_encoder_state() {
   static millis_t Encoder_ms = 0;
   const millis_t ms = millis();
   if (PENDING(ms, Encoder_ms)) return ENCODER_DIFF_NO;
-  const EncoderState state = Encoder_ReceiveAnalyze();
+  const EncoderState state = encoderReceiveAnalyze();
   if (state != ENCODER_DIFF_NO) Encoder_ms = ms + ENCODER_WAIT_MS;
   return state;
 }
 
 template<typename T>
-inline bool Apply_Encoder(const EncoderState &encoder_diffState, T &valref) {
+inline bool applyEncoder(const EncoderState &encoder_diffState, T &valref) {
   if (encoder_diffState == ENCODER_DIFF_CW)
-    valref += EncoderRate.encoderMoveValue;
+    valref += encoderRate.encoderMoveValue;
   else if (encoder_diffState == ENCODER_DIFF_CCW)
-    valref -= EncoderRate.encoderMoveValue;
+    valref -= encoderRate.encoderMoveValue;
   return encoder_diffState == ENCODER_DIFF_ENTER;
 }
 

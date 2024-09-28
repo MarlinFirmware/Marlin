@@ -20,21 +20,18 @@
  *
  */
 
-#include "../../../../../inc/MarlinConfigPre.h"
+#include "../../fontdata.h"
 
-#define UNIFONT 123
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
 
-#include <stdint.h>
-
-// Unifont Symbols 32pt, capital 'A' heigth: 20px, width: 100%
+// Unifont Symbols 32pt, capital 'A' height: 20px, width: 100%
 extern const uint8_t Unifont_Symbols_20[90] = {
   129,20,8,0,10,0,28,252, // unifont_t
   // 0x08 - LCD_STR_THERMOMETER a.k.a 0x1f321  🌡
   10,24,48,32,10,0,12,0,12,0,51,0,51,0,51,0,51,0,51,0,51,0,51,0,51,0,63,0,63,0,63,0,63,0,63,0,63,0,255,192,255,192,255,192,255,192,255,192,255,192,63,0,63,0,
   // 0x09 - LCD_STR_DEGREE a.k.a 0x00b0  °
   8,8,8,16,4,12,60,60,195,195,195,195,60,60,
-  // 0x0a - replacement for 0x2026 used in Greek languange files  …
+  // 0x0a - replacement for 0x2026 used in Greek language files  …
   14,4,8,16,2,0,195,12,195,12,195,12,195,12,
 };
 

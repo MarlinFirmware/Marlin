@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.11.1
  * Date: 2022/02/28
  */
@@ -36,38 +37,43 @@ typedef void (*popupClickFunc_t)();
 typedef void (*popupChangeFunc_t)(const bool state);
 extern popupDrawFunc_t popupDraw;
 
-void Draw_Select_Highlight(const bool sel, const uint16_t ypos);
-inline void Draw_Select_Highlight(const bool sel) { Draw_Select_Highlight(sel, 280); };
-void DWIN_Popup_Continue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2);
-void DWIN_Popup_ConfirmCancel(const uint8_t icon, FSTR_P const fmsg2);
-void Goto_Popup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nullptr, const popupChangeFunc_t fnChange=nullptr);
-void HMI_Popup();
+void drawSelectHighlight(const bool sel, const uint16_t ypos);
+inline void drawSelectHighlight(const bool sel) { drawSelectHighlight(sel, 280); };
+void dwinPopupContinue(const uint8_t icon, FSTR_P const fmsg1, FSTR_P const fmsg2);
+void dwinPopupConfirmCancel(const uint8_t icon, FSTR_P const fmsg2);
+void gotoPopup(const popupDrawFunc_t fnDraw, const popupClickFunc_t fnClick=nullptr, const popupChangeFunc_t fnChange=nullptr);
+void hmiPopup();
 
-inline void Draw_Popup_Bkgd() {
-  DWIN_Draw_Rectangle(1, HMI_data.PopupBg_Color, 14, 60, 258, 330);
-  DWIN_Draw_Rectangle(0, HMI_data.Highlight_Color, 14, 60, 258, 330);
+inline void drawPopupBkgd() {
+  dwinDrawRectangle(1, hmiData.colorPopupBg, 14, 60, 258, 330);
+  dwinDrawRectangle(0, hmiData.colorHighlight, 14, 60, 258, 330);
 }
 
 template<typename T, typename U>
-void DWIN_Draw_Popup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
-  DWINUI::ClearMainArea();
-  Draw_Popup_Bkgd();
-  if (icon) DWINUI::Draw_Icon(icon, 101, 105);
-  if (amsg1) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 210, amsg1);
-  if (amsg2) DWINUI::Draw_CenteredString(HMI_data.PopupTxt_Color, 240, amsg2);
-  if (button) DWINUI::Draw_Button(button, 86, 280);
+void dwinDrawPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
+  xy_uint8_t pos;
+  switch (icon) {
+    default: pos.set(81, 90); break;          // Icon  1 -  8, 90 - 91; (110 x 100)
+    case 17 ... 24: pos.set(96, 90); break;   // Icon 17 - 24;          ( 80 x 100)
+    case 78 ... 81: pos.set(100, 107); break; // Icon 78 - 81;          ( 73 x  66)
+  }
+  DWINUI::clearMainArea();
+  drawPopupBkgd();
+  if (icon) DWINUI::drawIcon(icon, pos.x, pos.y);
+  if (amsg1) DWINUI::drawCenteredString(hmiData.colorPopupTxt, 210, amsg1);
+  if (amsg2) DWINUI::drawCenteredString(hmiData.colorPopupTxt, 240, amsg2);
+  if (button) DWINUI::drawButton(button, 86, 280);
 }
 
 template<typename T, typename U>
-void DWIN_Show_Popup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
-  DWIN_Draw_Popup(icon, amsg1, amsg2, button);
-  DWIN_UpdateLCD();
+void dwinShowPopup(const uint8_t icon, T amsg1=nullptr, U amsg2=nullptr, uint8_t button=0) {
+  dwinDrawPopup(icon, amsg1, amsg2, button);
+  dwinUpdateLCD();
 }
 
 template<typename T, typename U>
-void DWIN_Popup_Confirm(const uint8_t icon, T amsg1, U amsg2) {
-  HMI_SaveProcessID(WaitResponse);
-  DWIN_Draw_Popup(icon, amsg1, amsg2, BTN_Confirm);  // Button Confirm
-  DWIN_UpdateLCD();
+void dwinPopupConfirm(const uint8_t icon, T amsg1, U amsg2) {
+  hmiSaveProcessID(ID_WaitResponse);
+  dwinDrawPopup(icon, amsg1, amsg2, BTN_Confirm);  // Button Confirm
+  dwinUpdateLCD();
 }
-

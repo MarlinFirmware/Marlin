@@ -44,9 +44,6 @@
 
 // I2C MCP3426 (16-Bit, 240SPS, dual-channel ADC)
 #define HAS_MCP3426_ADC
-#ifdef STM32F4
-  #define HAS_STM32_UID
-#endif
 
 //
 // Servos
@@ -144,9 +141,11 @@
   #define K_SERIAL_RX_PIN        K_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 
-#endif
+#endif // HAS_TMC_UART
 
 //
 // Heaters / Fans
@@ -159,9 +158,9 @@
 #define FAN_SOFT_PWM_REQUIRED
 
 //
-// Neopixel
+// NeoPixel
 //
-#define NEOPIXEL_PIN                        PC7
+#define BOARD_NEOPIXEL_PIN                  PC7
 #define NEOPIXEL2_PIN                       PC8
 
 //
@@ -207,3 +206,6 @@
 #define INDEX_AUX3_PWM2                     PB9
 #define INDEX_AUX3_A1                       PA0
 #define INDEX_AUX3_A2                       PA1
+
+#define RS485_TX_ENABLE_PIN                 PD11
+#define RS485_RX_ENABLE_PIN                 PD12

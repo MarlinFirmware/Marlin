@@ -23,8 +23,7 @@
 
 /**
  * Makerbase MKS SGEN-L pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS_GEN_L_V1_0/MKS%20Gen_L%20V1.0_008%20SCH.pdf
- * Origin: https://github.com/makerbase-mks/SGEN_L/blob/master/Hardware/MKS%20SGEN_L%20V1.0_001/MKS%20SGEN_L%20V1.0_001%20SCH.pdf
+ * Schematic: https://github.com/makerbase-mks/SGEN_L/blob/master/Hardware/MKS%20SGEN_L%20V1.0_001/MKS%20SGEN_L%20V1.0_001%20SCH.pdf
  */
 
 #include "env_validate.h"
@@ -93,6 +92,13 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                  P1_24
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -184,7 +190,10 @@
   #define Z2_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
 #endif // HAS_TMC_UART
 
 //
@@ -287,13 +296,13 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
     #define TFT_CS_PIN               EXP1_07_PIN
-    #define TFT_A0_PIN               EXP1_08_PIN
     #define TFT_DC_PIN               EXP1_08_PIN
+    #define TFT_A0_PIN                TFT_DC_PIN
     #define TFT_MISO_PIN             EXP2_01_PIN
     #define TFT_BACKLIGHT_PIN        EXP1_03_PIN
     #define TFT_RESET_PIN            EXP1_04_PIN
@@ -306,11 +315,11 @@
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        2
 
     // Disable any LCD related PINs config
-    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_EN                    -1
     #define LCD_PINS_RS                    -1
 
-    #ifndef TFT_BUFFER_SIZE
-      #define TFT_BUFFER_SIZE               1200
+    #ifndef TFT_BUFFER_WORDS
+      #define TFT_BUFFER_WORDS              1200
     #endif
     #ifndef TFT_QUEUE_SIZE
       #define TFT_QUEUE_SIZE                6144
@@ -347,11 +356,11 @@
       #define LCD_PINS_D7            EXP1_08_PIN
       #define KILL_PIN                     -1     // NC
 
-    #else                                         // !MKS_12864OLED_SSD1306
+    #else // !MKS_12864OLED_SSD1306
 
       #define LCD_PINS_RS            EXP1_04_PIN
 
-      #define LCD_PINS_ENABLE        EXP1_03_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN
       #define LCD_PINS_D4            EXP1_05_PIN
 
       #if ENABLED(FYSETC_MINI_12864)
@@ -368,7 +377,7 @@
 
         #define LCD_RESET_PIN        EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             #define RGB_LED_R_PIN    EXP1_06_PIN
           #endif
@@ -382,7 +391,7 @@
           #define NEOPIXEL_PIN       EXP1_06_PIN
         #endif
 
-      #else                                       // !FYSETC_MINI_12864
+      #else // !FYSETC_MINI_12864
 
         #if ENABLED(MKS_MINI_12864)
           #define DOGLCD_CS          EXP1_06_PIN

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT)
+#if ENABLED(ONBOARD_SDIO)
 
 #include "sdio.h"
 
@@ -238,7 +238,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
     hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
     hdma_sdio.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sdio.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_sdio.Init.Priority = DMA_PRIORITY_MEDIUM;
     __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
     __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
 
@@ -453,5 +453,5 @@ uint32_t SDIO_GetCardSize() {
   return (uint32_t)(hsd.SdCard.BlockNbr) * (hsd.SdCard.BlockSize);
 }
 
-#endif // SDIO_SUPPORT
+#endif // ONBOARD_SDIO
 #endif // HAL_STM32

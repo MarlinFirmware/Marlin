@@ -21,6 +21,6 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#if ANY(MKS_MINI_12864, FYSETC_MINI_12864_2_1)
+  #define U8G_HW_SPI_ESP32 1
 #endif

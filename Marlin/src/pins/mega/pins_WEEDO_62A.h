@@ -25,7 +25,6 @@
  * Copyright (c) 2019 WEEDO3D Perron
  * ATmega2560
  */
-
 #pragma once
 
 #include "env_validate.h"
@@ -85,7 +84,7 @@
 //
 // SD Support
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif
@@ -93,6 +92,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          37
 

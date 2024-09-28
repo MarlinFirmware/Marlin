@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
+#if ALL(HAS_MARLINUI_MENU, LCD_BED_TRAMMING)
 
 #include "menu_item.h"
 #include "../../module/motion.h"
@@ -36,14 +36,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#ifndef BED_TRAMMING_Z_HOP
-  #define BED_TRAMMING_Z_HOP 4.0
-#endif
-#ifndef BED_TRAMMING_HEIGHT
-  #define BED_TRAMMING_HEIGHT 0.0
-#endif
-
-#if BOTH(HAS_STOWABLE_PROBE, BED_TRAMMING_USE_PROBE) && DISABLED(BLTOUCH)
+#if ALL(HAS_STOWABLE_PROBE, BED_TRAMMING_USE_PROBE) && DISABLED(BLTOUCH)
   #define NEEDS_PROBE_DEPLOY 1
 #endif
 
@@ -151,8 +144,8 @@ static void _lcd_goto_next_corner() {
     }
   }
 
-  float z = BED_TRAMMING_Z_HOP;
-  #if BOTH(BED_TRAMMING_USE_PROBE, BLTOUCH)
+  float z = current_position.z + (BED_TRAMMING_Z_HOP);
+  #if ALL(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif
   line_to_z(z);
@@ -183,11 +176,14 @@ static void _lcd_goto_next_corner() {
 
     uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
+    // Enable font background for DWIN
+    TERN_(IS_DWIN_MARLINUI, dwin_font.solid = true);
+
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_GOOD_POINTS));
-      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
+      TERN_(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_u8str(F("/"));
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
@@ -200,7 +196,7 @@ static void _lcd_goto_next_corner() {
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_LAST_Z));
-      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
+      TERN_(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }
@@ -235,7 +231,7 @@ static void _lcd_goto_next_corner() {
   }
 
   bool _lcd_bed_tramming_probe(const bool verify=false) {
-    if (verify) line_to_z(BED_TRAMMING_Z_HOP); // do clearance if needed
+    if (verify) line_to_z(current_position.z + (BED_TRAMMING_Z_HOP)); // do clearance if needed
     TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
@@ -253,7 +249,7 @@ static void _lcd_goto_next_corner() {
 
       // Raise the probe after the last point to give clearance for stow
       if (TERN0(NEEDS_PROBE_DEPLOY, good_points == nr_edge_points - 1))
-        line_to_z(BED_TRAMMING_Z_HOP);
+        do_z_clearance(BED_TRAMMING_Z_HOP);
 
       return true; // probe triggered
     }
@@ -281,7 +277,7 @@ static void _lcd_goto_next_corner() {
   }
 
   void _lcd_test_corners() {
-    bed_corner = TERN(BED_TRAMMING_INCLUDE_CENTER, center_index, 0);
+    bed_corner = TERN0(BED_TRAMMING_INCLUDE_CENTER, center_index);
     last_z = BED_TRAMMING_HEIGHT;
     endstops.enable_z_probe(true);
     good_points = 0;

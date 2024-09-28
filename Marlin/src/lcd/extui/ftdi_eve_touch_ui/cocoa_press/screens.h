@@ -22,7 +22,6 @@
 
 #pragma once
 
-
 /********************************* DL CACHE SLOTS ******************************/
 
 // In order to reduce SPI traffic, we cache display lists (DL) in RAMG. This
@@ -84,7 +83,6 @@ enum {
 #include "../generic/base_numeric_adjustment_screen.h"
 #include "../generic/dialog_box_base_class.h"
 #include "../generic/boot_screen.h"
-#include "../generic/about_screen.h"
 #include "../generic/kill_screen.h"
 #include "../generic/alert_dialog_box.h"
 #include "../generic/spinner_dialog_box.h"
@@ -105,13 +103,10 @@ enum {
 #include "../generic/lock_screen.h"
 #include "../generic/endstop_state_screen.h"
 #include "../generic/display_tuning_screen.h"
-#include "../generic/statistics_screen.h"
 #include "../generic/stepper_current_screen.h"
-#include "../generic/z_offset_screen.h"
 #include "../generic/bed_mesh_base.h"
 #include "../generic/bed_mesh_view_screen.h"
 #include "../generic/bed_mesh_edit_screen.h"
-#include "../generic/case_light_screen.h"
 #include "../generic/linear_advance_screen.h"
 #include "../generic/move_axis_screen.h"
 #include "../generic/flow_percent_screen.h"
@@ -132,3 +127,7 @@ enum {
 #include "move_e_screen.h"
 #include "files_screen.h"
 #include "confirm_start_print_dialog_box.h"
+#include "z_offset_screen.h"
+#include "z_offset_wizard.h"
+#include "about_screen.h"
+#include "statistics_screen.h"

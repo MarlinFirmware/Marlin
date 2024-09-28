@@ -23,7 +23,7 @@
 
 /**
  * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
- * Schematic Origin: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
+ * Schematic: https://github.com/brupje/Megatronics_3/blob/master/Design%20Files/megatronics.sch
  * ATmega2560
  */
 
@@ -155,14 +155,14 @@
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define LCD_PINS_RS                         56  // CS chip select / SS chip slave select
-  #define LCD_PINS_ENABLE                     51  // SID (MOSI)
+  #define LCD_PINS_EN                         51  // SID (MOSI)
   #define LCD_PINS_D4                         52  // SCK (CLK) clock
   #define SD_DETECT_PIN                       35
 
 #else
 
   #define LCD_PINS_RS                         32
-  #define LCD_PINS_ENABLE                     31
+  #define LCD_PINS_EN                         31
   #define LCD_PINS_D4                         14
   #define LCD_PINS_D5                         30
   #define LCD_PINS_D6                         39

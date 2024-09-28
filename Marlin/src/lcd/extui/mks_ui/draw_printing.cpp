@@ -80,7 +80,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_PAUSE:
       if (uiCfg.print_state == WORKING) {
-        #if ENABLED(SDSUPPORT)
+        #if HAS_MEDIA
           card.pauseSDPrint();
           stop_print_time();
           uiCfg.print_state = PAUSING;
@@ -274,13 +274,13 @@ void setProBarRate() {
   volatile long long rate_tmp_r;
 
   if (!gCfgItems.from_flash_pic) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       rate_tmp_r = (long long)card.getIndex() * 100;
     #endif
     rate = rate_tmp_r / gCfgItems.curFilesize;
   }
   else {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       rate_tmp_r = (long long)card.getIndex();
     #endif
     rate = (rate_tmp_r - (PREVIEW_SIZE + To_pre_view)) * 100 / (gCfgItems.curFilesize - (PREVIEW_SIZE + To_pre_view));
@@ -294,7 +294,7 @@ void setProBarRate() {
     lv_label_set_text(bar1ValueText, public_buf_l);
     lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);
 
-    if (marlin_state == MF_SD_COMPLETE) {
+    if (marlin_state == MarlinState::MF_SD_COMPLETE) {
       if (once_flag == 0) {
         stop_print_time();
 
@@ -309,7 +309,7 @@ void setProBarRate() {
           if (gCfgItems.finish_power_off) {
             gcode.process_subcommands_now(F("M1001"));
             queue.inject(F("M81"));
-            marlin_state = MF_RUNNING;
+            marlin_state = MarlinState::MF_RUNNING;
           }
         #endif
       }

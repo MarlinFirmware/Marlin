@@ -31,8 +31,7 @@
 
 /**
  * ZMIB pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/ZONESTAR%20ZMIB%20V2/ZMIB_V2_Schmatic.pdf
- * Origin: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
+ * Schematic: https://github.com/ZONESTAR3D/Control-Board/blob/main/8bit/ZMIB/ZMIB%20V2/ZMIB_V2_Schmatic.pdf
  *
  * The ZMIB board needs a bootloader installed before Marlin can be uploaded.
  * If you don't have a chip programmer you can use a spare Arduino plus a few
@@ -92,7 +91,7 @@
 #define X_MIN_PIN                             21
 #define Y_MIN_PIN                             18
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_MIN_PIN                           25
 #else
   #define Z_MIN_PIN                           13
@@ -109,7 +108,7 @@
 #define Y_DIR_PIN                             19
 #define Y_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define Z_STEP_PIN                          27
   #define Z_DIR_PIN                           26
 #else
@@ -119,7 +118,7 @@
 
 #define Z_ENABLE_PIN                          24
 
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define E0_STEP_PIN                         15
   #define E0_DIR_PIN                          14
 #else
@@ -150,7 +149,7 @@
 //
 // Filament Runout Sensor
 //
-#if EITHER(Z6S_ZFAULT, Z6BS_ZFAULT)
+#if ANY(Z6S_ZFAULT, Z6BS_ZFAULT)
   #define FIL_RUNOUT_PIN                      13
 #else
   #define FIL_RUNOUT_PIN                      25  // Z-MIN
@@ -159,7 +158,7 @@
 //
 // SD card
 //
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                 4
 #endif
 #define SD_DETECT_PIN                         -1
@@ -170,7 +169,7 @@
  * (CS)   D11 | 3  4 | D10      (DC/D4)
  * (EN2)  D12   5  6 | D4 or D3 (EN/RS)
  * (ENC)  D29 | 7  8 | D2       (EN1)
- *      (GND) | 9 10 | (5V)
+ *        GND | 9 10 | 5V
  *             ------
  */
 #define EXP1_01_PIN                            5
@@ -193,15 +192,15 @@
   #define LCDSCREEN_NAME "ZONESTAR_12864LCD"
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS                 EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_03_PIN  // ST7920_CS_PIN  (LCD module pin 4)
-  #define LCD_PINS_ENABLE            EXP1_06_PIN  // ST7920_DAT_PIN (LCD module pin 5)
-  #define LCD_PINS_D4                EXP1_04_PIN  // ST7920_CLK_PIN (LCD module pin 6)
+  #define LCD_PINS_RS                EXP1_03_PIN  // ST7920 CS  (LCD-4)
+  #define LCD_PINS_EN                EXP1_06_PIN  // ST7920 DAT (LCD-5)
+  #define LCD_PINS_D4                EXP1_04_PIN  // ST7920 CLK (LCD-6)
 
   #define BOARD_ST7920_DELAY_1       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_2       DELAY_2_NOP
   #define BOARD_ST7920_DELAY_3       DELAY_2_NOP
 
-#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
+#elif ANY(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   //
   // OLED 128x64
   //

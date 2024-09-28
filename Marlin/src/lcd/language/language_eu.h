@@ -31,7 +31,7 @@
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
 
-namespace Language_eu {
+namespace LanguageNarrow_eu {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 1;
@@ -41,7 +41,7 @@ namespace Language_eu {
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
-  LSTR MSG_MAIN                           = _UxGT("Menu nagusia");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu nagusia");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto hasiera");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Itzali motoreak");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Arazketa Menua");
@@ -56,29 +56,30 @@ namespace Language_eu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Berdintzea eginda");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Etxe. offset eza.");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Offsetak ezarrita");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Berotu ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Berotu $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Berotu $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Berotu $ Amaia");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Berotu $ Amaia ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Berotu $ Guztia");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Berotu $ Ohea");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Berotu $ Ezarp.");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Berotu ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Berotu $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Berotu $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Berotu $ Amaia");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Berotu $ Amaia ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Berotu $ Guztia");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Berotu $ Ohea");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Berotu $ Ezarp.");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Hoztu");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Energia piztu");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Energia itzali");
   LSTR MSG_EXTRUDE                        = _UxGT("Estruitu");
   LSTR MSG_RETRACT                        = _UxGT("Atzera eragin");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Ardatzak mugitu");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Proba eta Berdindu");
   LSTR MSG_BED_LEVELING                   = _UxGT("Ohe berdinketa");
   LSTR MSG_LEVEL_BED                      = _UxGT("Ohea berdindu");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Ertzak berdindu");
@@ -87,22 +88,16 @@ namespace Language_eu {
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 exekutatzen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tresnak");
-  LSTR MSG_UBL_LEVEL_BED                  = _UxGT("Unified Bed Leveling");
   LSTR MSG_UBL_MANUAL_MESH                = _UxGT("Sarea eskuz sortu");
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Neurtu");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktibatu");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL desaktibatu");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Ohearen tenperatura");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Bed Temp");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Mutur beroaren tenp.");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Hotend Temp");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Sarea editatu");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Sarea editatzea eginda");
   LSTR MSG_UBL_BUILD_MESH_MENU            = _UxGT("Sarea sortu");
-  #if HAS_PREHEAT
-    LSTR MSG_UBL_BUILD_MESH_M             = _UxGT("$ sarea sortu");
-    LSTR MSG_UBL_VALIDATE_MESH_M          = _UxGT("$ sarea balioetsi");
-  #endif
+  LSTR MSG_UBL_BUILD_MESH_M               = _UxGT("$ sarea sortu");
+  LSTR MSG_UBL_VALIDATE_MESH_M            = _UxGT("$ sarea balioetsi");
   LSTR MSG_UBL_BUILD_COLD_MESH            = _UxGT("Sare hotza sortu");
   LSTR MSG_UBL_MESH_HEIGHT_ADJUST         = _UxGT("Sarearen altuera doitu");
   LSTR MSG_UBL_VALIDATE_MESH_MENU         = _UxGT("Sarea balioetsi");
@@ -140,11 +135,8 @@ namespace Language_eu {
   LSTR MSG_MOVE_E                         = _UxGT("Estrusorea");
   LSTR MSG_MOVE_EN                        = _UxGT("Estrusorea *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mugitu $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mugitu 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mugitu 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mugitu 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mugitu 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mugitu 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mugitu $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mugitu $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Abiadura");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Z Ohea");
   LSTR MSG_NOZZLE                         = _UxGT("Pita");
@@ -194,7 +186,7 @@ namespace Language_eu {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Kargatu memoria");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Larri. berriz.");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM-a hasieratu");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Berriz kargatu");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Pantaila info");
   LSTR MSG_PREPARE                        = _UxGT("Prestatu");
   LSTR MSG_TUNE                           = _UxGT("Doitu");
@@ -237,14 +229,15 @@ namespace Language_eu {
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("BLTouch igo/jaso");
   LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s lehenengo");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Konpentsatu");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z pausoz egokitu");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Mikro-urratsa Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Mikro-urratsa @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop deusezta.");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Err: Beroketa");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Err: Beroketa");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: Tenperatura");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("TENP. KONTROL EZA");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("TENP. KONTROL EZA");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Err: Tenp Maximoa");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Err: Tenp Minimoa");
   LSTR MSG_HALTED                         = _UxGT("INPRIMA. GELDIRIK");
@@ -276,19 +269,13 @@ namespace Language_eu {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoloa");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kabina Argia");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Argiaren Distira");
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Inprim. Zenbaketa");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Burututa");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Inprim. denbora");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Imprimatze luzeena");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estruituta guztira");
-  #else
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Inprimatze");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Burututa");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Guztira");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Luzeena");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estrusio");
-  #endif
+
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Inprimatze");
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Burututa");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Guztira");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Luzeena");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Estrusio");
+
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Tenp. Minimoa");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Tenp. Maximoa");
   LSTR MSG_INFO_PSU                       = _UxGT("Elikadura-iturria");
@@ -315,4 +302,26 @@ namespace Language_eu {
   LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("Sartu eta click egin"));
   LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_1_LINE("Berotzen..."));
   LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_1_LINE("Kargatzen..."));
+}
+
+namespace LanguageWide_eu {
+  using namespace LanguageNarrow_eu;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Inprim. Zenbaketa");
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Burututa");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Inprim. denbora");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Imprimatze luzeena");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Estruituta guztira");
+  #endif
+}
+
+namespace LanguageTall_eu {
+  using namespace LanguageWide_eu;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_eu {
+  using namespace LanguageTall_eu;
 }

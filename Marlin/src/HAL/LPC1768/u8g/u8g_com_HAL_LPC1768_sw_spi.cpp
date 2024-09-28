@@ -75,7 +75,7 @@
 
 uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
-  LOOP_L_N(i, 8) {
+  for (uint8_t i = 0; i < 8; ++i) {
     if (spi_speed == 0) {
       LPC176x::gpio_set(mosi_pin, !!(b & 0x80));
       LPC176x::gpio_set(sck_pin, HIGH);
@@ -85,16 +85,16 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
     }
     else {
       const uint8_t state = (b & 0x80) ? HIGH : LOW;
-      LOOP_L_N(j, spi_speed)
+      for (uint8_t j = 0; j < spi_speed; ++j)
         LPC176x::gpio_set(mosi_pin, state);
 
-      LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
         LPC176x::gpio_set(sck_pin, HIGH);
 
       b <<= 1;
       if (miso_pin >= 0 && LPC176x::gpio_get(miso_pin)) b |= 1;
 
-      LOOP_L_N(j, spi_speed)
+      for (uint8_t j = 0; j < spi_speed; ++j)
         LPC176x::gpio_set(sck_pin, LOW);
     }
   }
@@ -104,7 +104,7 @@ uint8_t swSpiTransfer_mode_0(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
 uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin ) {
 
-  LOOP_L_N(i, 8) {
+  for (uint8_t i = 0; i < 8; ++i) {
     const uint8_t state = (b & 0x80) ? HIGH : LOW;
     if (spi_speed == 0) {
       LPC176x::gpio_set(sck_pin, LOW);
@@ -113,13 +113,13 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
       LPC176x::gpio_set(sck_pin, HIGH);
     }
     else {
-      LOOP_L_N(j, spi_speed + (miso_pin >= 0 ? 0 : 1))
+      for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); ++j)
         LPC176x::gpio_set(sck_pin, LOW);
 
-      LOOP_L_N(j, spi_speed)
+      for (uint8_t j = 0; j < spi_speed; ++j)
         LPC176x::gpio_set(mosi_pin, state);
 
-      LOOP_L_N(j, spi_speed)
+      for (uint8_t j = 0; j < spi_speed; ++j)
         LPC176x::gpio_set(sck_pin, HIGH);
     }
     b <<= 1;
@@ -131,8 +131,8 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
 
 static uint8_t SPI_speed = 0;
 
-static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
-  #if EITHER(FYSETC_MINI_12864, MKS_MINI_12864)
+static void u8g_sw_spi_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {
+  #if U8G_SPI_USE_MODE_3
     swSpiTransfer_mode_3(val, SPI_speed, clockPin, -1, dataPin);
   #else
     swSpiTransfer_mode_0(val, SPI_speed, clockPin, -1, dataPin);
@@ -160,15 +160,15 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      #if EITHER(FYSETC_MINI_12864, MKS_MINI_12864)  // LCD SPI is running mode 3 while SD card is running mode 0
-        if (arg_val) {                               //   SCK idle state needs to be set to the proper idle state before
-                                                     //   the next chip select goes active
-          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);        // Set SCK to mode 3 idle state before CS goes active
+      #if U8G_SPI_USE_MODE_3                    // LCD SPI is running mode 3 while SD card is running mode 0
+        if (arg_val) {                          // SCK idle state needs to be set to the proper idle state before
+                                                //  the next chip select goes active
+          u8g_SetPILevel(u8g, U8G_PI_SCK, 1);   // Set SCK to mode 3 idle state before CS goes active
           u8g_SetPILevel(u8g, U8G_PI_CS, LOW);
         }
         else {
           u8g_SetPILevel(u8g, U8G_PI_CS, HIGH);
-          u8g_SetPILevel(u8g, U8G_PI_SCK, 0);  // Set SCK to mode 0 idle state after CS goes inactive
+          u8g_SetPILevel(u8g, U8G_PI_SCK, 0);   // Set SCK to mode 0 idle state after CS goes inactive
         }
       #else
         u8g_SetPILevel(u8g, U8G_PI_CS, !arg_val);
@@ -176,13 +176,13 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
-      u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], arg_val);
+      u8g_sw_spi_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], *ptr++);
+          u8g_sw_spi_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], *ptr++);
           arg_val--;
         }
       }
@@ -191,7 +191,7 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       case U8G_COM_MSG_WRITE_SEQ_P: {
         uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          u8g_sw_spi_HAL_LPC1768_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], u8g_pgm_read(ptr));
+          u8g_sw_spi_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK], u8g_pgm_read(ptr));
           ptr++;
           arg_val--;
         }

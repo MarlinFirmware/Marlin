@@ -178,6 +178,14 @@ void CLCD::mem_write_pgm(uint32_t reg_address, const void *data, uint16_t len, u
 }
 
 // Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM, reversing bytes (suitable for loading XBM images)
+void CLCD::mem_write_xbm(uint32_t reg_address, const void *data, uint16_t len, uint8_t padding) {
+  spi_ftdi_select();
+  spi_write_addr(reg_address);
+  spi_write_bulk<xbm_write>(data, len, padding);
+  spi_ftdi_deselect();
+}
+
+// Write 3-Byte Address, Multiple Bytes, plus padding bytes, from PROGMEM, reversing bytes (suitable for loading XBM images)
 void CLCD::mem_write_xbm(uint32_t reg_address, FSTR_P data, uint16_t len, uint8_t padding) {
   spi_ftdi_select();
   spi_write_addr(reg_address);
@@ -1208,7 +1216,7 @@ void CLCD::default_display_orientation() {
       + ENABLED(TOUCH_UI_INVERTED) * 1
     );
     cmd.execute();
-  #elif EITHER(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
+  #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)
     mem_write_32(REG::ROTATE, 1);

@@ -21,9 +21,13 @@
  */
 #pragma once
 
+/**
+ * cardreader.h - SD card / USB flash drive file handling interface
+ */
+
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 extern const char M23_STR[], M24_STR[];
 
@@ -31,7 +35,10 @@ extern const char M23_STR[], M24_STR[];
   #if ENABLED(SDSORT_DYNAMIC_RAM)
     #define SD_RESORT 1
   #endif
-  #if FOLDER_SORTING || ENABLED(SDSORT_GCODE)
+  #ifndef SDSORT_FOLDERS
+    #define SDSORT_FOLDERS 0
+  #endif
+  #if SDSORT_FOLDERS || ENABLED(SDSORT_GCODE)
     #define HAS_FOLDER_SORTING 1
   #endif
 #endif
@@ -66,24 +73,25 @@ extern const char M23_STR[], M24_STR[];
 #endif
 
 typedef struct {
-  bool saving:1,
-       logging:1,
-       sdprinting:1,
-       sdprintdone:1,
-       mounted:1,
-       filenameIsDir:1,
-       workDirIsRoot:1,
-       abort_sd_printing:1
+  bool saving:1,                // Receiving a G-code file or logging commands during a print
+       logging:1,               // Log enqueued commands to the open file. See GCodeQueue::advance()
+       sdprinting:1,            // Actively printing from the open file
+       sdprintdone:1,           // The active job has reached the end, 100%
+       mounted:1,               // The card or flash drive is mounted and ready to read/write
+       filenameIsDir:1,         // The working item is a directory
+       workDirIsRoot:1,         // The working directory is / so there's no parent
+       abort_sd_printing:1      // Abort by calling abortSDPrinting() at the main loop()
        #if DO_LIST_BIN_FILES
-         , filenameIsBin:1
+         , filenameIsBin:1      // The working item is a BIN file
        #endif
        #if ENABLED(BINARY_FILE_TRANSFER)
-         , binary_mode:1
+         , binary_mode:1        // Use the serial line buffer as BinaryStream input
        #endif
     ;
 } card_flags_t;
 
 enum ListingFlags : uint8_t { LS_LONG_FILENAME, LS_ONLY_BIN, LS_TIMESTAMP };
+enum SortFlag : int8_t { AS_REV = -1, AS_OFF, AS_FWD, AS_ALSO_REV };
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
   #include "../libs/autoreport.h"
@@ -128,6 +136,12 @@ public:
     static void autofile_cancel() { autofile_index = 0; }
   #endif
 
+  #if ENABLED(ONE_CLICK_PRINT)
+    static bool one_click_check();  // Check for the newest file and prompt to run it.
+    static void diveToNewestFile(MediaFile parent, uint32_t &compareDateTime, MediaFile &outdir, char * const outname);
+    static bool selectNewestFile();
+  #endif
+
   // Basic file ops
   static void openFileRead(const char * const path, const uint8_t subcall=0);
   static void openFileWrite(const char * const path);
@@ -152,7 +166,7 @@ public:
   static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
-  static void report_status();
+  static void report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto=false));
   static void getAbsFilenameInCWD(char *dst);
   static void printSelectedFilename();
   static void openAndPrintFile(const char *name);   // (working directory or full path)
@@ -163,6 +177,7 @@ public:
   static void abortFilePrintSoon() { flag.abort_sd_printing = isFileOpen(); }
   static void pauseSDPrint()       { flag.sdprinting = false; }
   static bool isPrinting()         { return flag.sdprinting; }
+  static bool isStillPrinting()    { return flag.sdprinting && !flag.abort_sd_printing; }
   static bool isPaused()           { return isFileOpen() && !isPrinting(); }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
     static uint16_t permyriadDone() {
@@ -193,8 +208,8 @@ public:
     static void presort();
     static void selectFileByIndexSorted(const int16_t nr);
     #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE static void setSortOn(bool b)        { sort_alpha   = b; presort(); }
-      FORCE_INLINE static void setSortFolders(int i)    { sort_folders = i; presort(); }
+      FORCE_INLINE static void setSortOn(const SortFlag f) { sort_alpha = (f == AS_ALSO_REV) ? AS_REV : f; presort(); }
+      FORCE_INLINE static void setSortFolders(const int8_t i) { sort_folders = i; presort(); }
       //FORCE_INLINE static void setSortReverse(bool b) { sort_reverse = b; }
     #endif
   #else
@@ -203,7 +218,7 @@ public:
     }
   #endif
 
-  static void ls(const uint8_t lsflags);
+  static void ls(const uint8_t lsflags=0);
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     static bool jobRecoverFileExists();
@@ -238,7 +253,7 @@ public:
     //
     // SD Auto Reporting
     //
-    struct AutoReportSD { static void report() { report_status(); } };
+    struct AutoReportSD { static void report() { report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, true)); } };
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 
@@ -266,19 +281,19 @@ private:
   #if ENABLED(SDCARD_SORT_ALPHA)
     static int16_t sort_count;    // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
-      static bool sort_alpha;     // Flag to enable / disable the feature
-      static int sort_folders;    // Folder sorting before/none/after
+      static SortFlag sort_alpha; // Sorting: REV, OFF, FWD
+      static int8_t sort_folders; // Folder sorting before/none/after
       //static bool sort_reverse; // Flag to enable / disable reverse sorting
     #endif
 
-    // By default the sort index is static
+    // By default the sort index is statically allocated
     #if ENABLED(SDSORT_DYNAMIC_RAM)
       static uint8_t *sort_order;
     #else
       static uint8_t sort_order[SDSORT_LIMIT];
     #endif
 
-    #if BOTH(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
+    #if ALL(SDSORT_USES_RAM, SDSORT_CACHE_NAMES) && DISABLED(SDSORT_DYNAMIC_RAM)
       #define SORTED_LONGNAME_MAXLEN (SDSORT_CACHE_VFATS) * (FILENAME_LENGTH)
       #define SORTED_LONGNAME_STORAGE (SORTED_LONGNAME_MAXLEN + 1)
     #else
@@ -357,15 +372,17 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
-#define IS_SD_PRINTING()  (card.flag.sdprinting && !card.flag.abort_sd_printing)
-#define IS_SD_FETCHING()  (!card.flag.sdprintdone && IS_SD_PRINTING())
+#define IS_SD_MOUNTED()   card.isMounted()
+#define IS_SD_PRINTING()  card.isStillPrinting()
+#define IS_SD_FETCHING()  (!card.flag.sdprintdone && card.isStillPrinting())
 #define IS_SD_PAUSED()    card.isPaused()
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
 extern CardReader card;
 
-#else // !SDSUPPORT
+#else // !HAS_MEDIA
 
+#define IS_SD_MOUNTED()   false
 #define IS_SD_PRINTING()  false
 #define IS_SD_FETCHING()  false
 #define IS_SD_PAUSED()    false
@@ -373,4 +390,4 @@ extern CardReader card;
 
 #define LONG_FILENAME_LENGTH 0
 
-#endif // !SDSUPPORT
+#endif // !HAS_MEDIA

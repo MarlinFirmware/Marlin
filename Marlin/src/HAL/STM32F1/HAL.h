@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2017 Victor Perez
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +81,7 @@
 #define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 
-#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   #define NUM_UARTS 5
 #else
   #define NUM_UARTS 3
@@ -139,8 +138,19 @@
     #define LCD_SERIAL MSERIAL(1) // dummy port
     static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
-  #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
+    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
+
+#ifdef RS485_SERIAL_PORT
+  #if RS485_SERIAL_PORT == -1
+    #define RS485_SERIAL UsbSerial
+  #elif WITHIN(RS485_SERIAL_PORT, 1, NUM_UARTS)
+    #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
+  #else
+    #define RS485_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "RS485_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
   #endif
 #endif
 
@@ -148,7 +158,7 @@
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 #ifndef digitalPinHasPWM
@@ -190,7 +200,7 @@ typedef int8_t pin_t;
   #define HAL_ADC_RESOLUTION 12
 #endif
 
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 
 uint16_t analogRead(const pin_t pin); // need hal.adc_enable() first
 void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
@@ -205,7 +215,9 @@ void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in mapl
 #define JTAG_DISABLE()    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
-#define PLATFORM_M997_SUPPORT
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
 void flashFirmware(const int16_t);
 
 #define HAL_CAN_SET_PWM_FREQ      // This HAL supports PWM Frequency adjustment
@@ -220,9 +232,9 @@ void flashFirmware(const int16_t);
 // Memory related
 #define __bss_end __bss_end__
 
-void _delay_ms(const int ms);
-
 extern "C" char* _sbrk(int incr);
+
+void NVIC_SetPriorityGrouping(uint32_t PriorityGroup);
 
 #pragma GCC diagnostic push
 #if GCC_VERSION <= 50000
@@ -307,3 +319,49 @@ public:
   static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
 
 };
+
+// ------------------------
+// Types
+// ------------------------
+
+#define __I
+#define __IO volatile
+ typedef struct {
+   __I  uint32_t CPUID;                   /*!< Offset: 0x000 (R/ )  CPUID Base Register                                   */
+   __IO uint32_t ICSR;                    /*!< Offset: 0x004 (R/W)  Interrupt Control and State Register                  */
+   __IO uint32_t VTOR;                    /*!< Offset: 0x008 (R/W)  Vector Table Offset Register                          */
+   __IO uint32_t AIRCR;                   /*!< Offset: 0x00C (R/W)  Application Interrupt and Reset Control Register      */
+   __IO uint32_t SCR;                     /*!< Offset: 0x010 (R/W)  System Control Register                               */
+   __IO uint32_t CCR;                     /*!< Offset: 0x014 (R/W)  Configuration Control Register                        */
+   __IO uint8_t  SHP[12];                 /*!< Offset: 0x018 (R/W)  System Handlers Priority Registers (4-7, 8-11, 12-15) */
+   __IO uint32_t SHCSR;                   /*!< Offset: 0x024 (R/W)  System Handler Control and State Register             */
+   __IO uint32_t CFSR;                    /*!< Offset: 0x028 (R/W)  Configurable Fault Status Register                    */
+   __IO uint32_t HFSR;                    /*!< Offset: 0x02C (R/W)  HardFault Status Register                             */
+   __IO uint32_t DFSR;                    /*!< Offset: 0x030 (R/W)  Debug Fault Status Register                           */
+   __IO uint32_t MMFAR;                   /*!< Offset: 0x034 (R/W)  MemManage Fault Address Register                      */
+   __IO uint32_t BFAR;                    /*!< Offset: 0x038 (R/W)  BusFault Address Register                             */
+   __IO uint32_t AFSR;                    /*!< Offset: 0x03C (R/W)  Auxiliary Fault Status Register                       */
+   __I  uint32_t PFR[2];                  /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
+   __I  uint32_t DFR;                     /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
+   __I  uint32_t ADR;                     /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
+   __I  uint32_t MMFR[4];                 /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
+   __I  uint32_t ISAR[5];                 /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
+        uint32_t RESERVED0[5];
+   __IO uint32_t CPACR;                   /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Register                   */
+ } SCB_Type;
+
+// ------------------------
+// System Control Space
+// ------------------------
+
+#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address  */
+#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address  */
+
+#define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct           */
+
+/* SCB Application Interrupt and Reset Control Register Definitions */
+#define SCB_AIRCR_VECTKEY_Pos              16                                             /*!< SCB AIRCR: VECTKEY Position */
+#define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)            /*!< SCB AIRCR: VECTKEY Mask */
+
+#define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
+#define SCB_AIRCR_PRIGROUP_Msk             (7UL << SCB_AIRCR_PRIGROUP_Pos)                /*!< SCB AIRCR: PRIGROUP Mask */

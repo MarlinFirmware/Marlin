@@ -41,6 +41,8 @@
 #define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
+Touch touch;
+
 bool Touch::enabled = true;
 int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
@@ -52,7 +54,7 @@ millis_t Touch::next_touch_ms = 0,
          Touch::repeat_delay,
          Touch::touch_time;
 TouchControlType Touch::touch_control_type = NONE;
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
 #endif
 #if HAS_RESUME_CONTINUE
@@ -62,8 +64,8 @@ TouchControlType Touch::touch_control_type = NONE;
 void Touch::init() {
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
-  io.Init();
-  TERN_(HAS_TOUCH_SLEEP, wakeUp());
+  io.init();
+  TERN_(HAS_DISPLAY_SLEEP, wakeUp());
   enable();
 }
 
@@ -81,7 +83,6 @@ void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t 
 }
 
 void Touch::idle() {
-  uint16_t i;
   int16_t _x, _y;
 
   if (!enabled) return;
@@ -126,7 +127,7 @@ void Touch::idle() {
           current_control = nullptr;
       }
       else {
-        for (i = 0; i < controls_count; i++) {
+        for (uint16_t i = 0; i < controls_count; i++) {
           if ((WITHIN(x, controls[i].x, controls[i].x + controls[i].width) && WITHIN(y, controls[i].y, controls[i].y + controls[i].height)) || (TERN(TOUCH_SCREEN_CALIBRATION, controls[i].type == CALIBRATE, false))) {
             touch_control_type = controls[i].type;
             touch(&controls[i]);
@@ -193,7 +194,7 @@ void Touch::touch(touch_control_t *control) {
     case HEATER:
       int8_t heater;
       heater = control->data;
-      ui.clear_lcd();
+      ui.clear_for_drawing();
       #if HAS_HOTEND
         if (heater >= 0) { // HotEnd
           #if HOTENDS == 1
@@ -222,25 +223,29 @@ void Touch::touch(touch_control_t *control) {
 
       break;
     case FAN:
-      ui.clear_lcd();
+      ui.clear_for_drawing();
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
-      MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); });
+      MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
       break;
     case FEEDRATE:
-      ui.clear_lcd();
-      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, 10, 999);
+      ui.clear_for_drawing();
+      MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
-    case FLOWRATE:
-      ui.clear_lcd();
-      MenuItemBase::itemIndex = control->data;
-      #if EXTRUDERS == 1
-        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-      #else
-        MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-      #endif
-      break;
+
+    #if HAS_EXTRUDERS
+      case FLOWRATE:
+        ui.clear_for_drawing();
+        MenuItemBase::itemIndex = control->data;
+        #if EXTRUDERS == 1
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+        #else
+          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
+        #endif
+        break;
+    #endif
+
     case STOP:
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(GET_TEXT_F(MSG_BUTTON_STOP),
@@ -257,6 +262,7 @@ void Touch::touch(touch_control_t *control) {
       ui.goto_screen((screenFunc_t)ui.move_axis_screen);
       break;
 
+    // TODO: TOUCH could receive data to pass to the callback
     case BUTTON: ((screenFunc_t)control->data)(); break;
     case CALLBACK:
     DEBUG_ECHOLNPGM("Previous event value: ", touch_event.index);
@@ -264,7 +270,7 @@ void Touch::touch(touch_control_t *control) {
       DEBUG_ECHOLNPGM("Create touch event: ", touch_event.index);
       ((touch_handler_t)control->data)(&touch_event);
       break;
-    
+
     default: break;
   }
 }
@@ -278,33 +284,33 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
   ui.refresh();
 }
 
-bool Touch::get_point(int16_t *x, int16_t *y) {
+bool Touch::get_point(int16_t * const x, int16_t * const y) {
+  #if ANY(TFT_TOUCH_DEVICE_XPT2046, TFT_TOUCH_DEVICE_GT911)
+    const bool is_touched = TOUCH_PORTRAIT == _TOUCH_ORIENTATION ? io.getRawPoint(y, x) : io.getRawPoint(x, y);
+  #endif
   #if ENABLED(TFT_TOUCH_DEVICE_XPT2046)
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
-
-      if (is_touched && touch_calibration.calibration.orientation != TOUCH_ORIENTATION_NONE) {
-        *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
-        *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+      if (is_touched && TOUCH_ORIENTATION_NONE != _TOUCH_ORIENTATION) {
+        *x = int16_t((int32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+        *y = int16_t((int32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
       }
     #else
-      bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
-      *x = uint16_t((uint32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
-      *y = uint16_t((uint32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
+      *x = uint16_t((uint32_t(*x) * _TOUCH_CALIBRATION_X) >> 16) + _TOUCH_OFFSET_X;
+      *y = uint16_t((uint32_t(*y) * _TOUCH_CALIBRATION_Y) >> 16) + _TOUCH_OFFSET_Y;
     #endif
-  #elif ENABLED(TFT_TOUCH_DEVICE_GT911)
-    bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getPoint(y, x) : io.getPoint(x, y));
   #endif
-  #if HAS_TOUCH_SLEEP
+
+  #if HAS_DISPLAY_SLEEP
     if (is_touched)
       wakeUp();
     else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
       sleepTimeout();
   #endif
+
   return is_touched;
 }
 
-#if HAS_TOUCH_SLEEP
+#if HAS_DISPLAY_SLEEP
 
   void Touch::sleepTimeout() {
     #if HAS_LCD_BRIGHTNESS
@@ -324,24 +330,17 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
       next_touch_ms = millis() + 100;
       safe_delay(20);
     }
-    next_sleep_ms = millis() + SEC_TO_MS(ui.sleep_timeout_minutes * 60);
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
-#endif // HAS_TOUCH_SLEEP
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (!sleep) touch.wakeUp();
+  }
 
-Touch touch;
+#endif // HAS_DISPLAY_SLEEP
 
 bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
-}
-
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
-  uint16_t width = Images[image].width;
-  uint16_t height = Images[image].height;
-  tft.canvas(x, y, width, height);
-  tft.add_image(0, 0, image, is_enabled ? color_enabled : color_disabled);
-  if (is_enabled)
-    touch.add_control(control_type, x, y, width, height, data);
 }
 
 #endif // TOUCH_SCREEN

@@ -56,7 +56,7 @@ void lcd_put_int(const int i) {
 }
 
 int lcd_put_dwin_string() {
-  DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
+  dwinDrawString(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
   lcd_advance_cursor(dwin_string.length);
   return dwin_string.length;
 }
@@ -67,7 +67,7 @@ int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
   dwin_string.set(c);
   dwin_string.truncate(max_length);
   // Draw the char(s) at the cursor and advance the cursor
-  DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
+  dwinDrawString(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
   lcd_advance_cursor(dwin_string.length);
   return dwin_string.length;
 }
@@ -92,7 +92,7 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_by
     if (!wc) break;
     dwin_string.add(wc);
   }
-  DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
+  dwinDrawString(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
   lcd_advance_cursor(dwin_string.length);
   return dwin_string.length;
 }
@@ -108,7 +108,7 @@ int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
 lcd_uint_t lcd_put_u8str_P(PGM_P const ptpl, const int8_t ind, const char * const cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   dwin_string.set(ptpl, ind, cstr, fstr);
   dwin_string.truncate(maxlen);
-  DWIN_Draw_String(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
+  dwinDrawString(dwin_font.solid, dwin_font.index, dwin_font.fg, dwin_font.bg, cursor.x, cursor.y, dwin_string.string());
   lcd_advance_cursor(dwin_string.length);
   return dwin_string.length;
 }

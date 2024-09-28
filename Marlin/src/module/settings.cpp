@@ -36,12 +36,13 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V87"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
+//#define DEBUG_EEPROM_OBSERVE
 
 #include "settings.h"
 
@@ -55,11 +56,13 @@
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
 
-#if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
+#if ANY(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
   #include "../HAL/shared/eeprom_api.h"
 #endif
 
-#include "probe.h"
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -72,11 +75,13 @@
   #include "../feature/z_stepper_align.h"
 #endif
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
+#if ENABLED(DWIN_LCD_PROUI)
   #include "../lcd/e3v2/proui/dwin.h"
   #include "../lcd/e3v2/proui/bedlevel_tools.h"
+#endif
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
@@ -87,12 +92,6 @@
 
 #if HAS_SERVOS
   #include "servo.h"
-#endif
-
-#if HAS_SERVOS && HAS_SERVO_ANGLES
-  #define EEPROM_NUM_SERVOS NUM_SERVOS
-#else
-  #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
 #endif
 
 #include "../feature/fwretract.h"
@@ -109,6 +108,10 @@
 
 #if ENABLED(BACKLASH_COMPENSATION)
   #include "../feature/backlash.h"
+#endif
+
+#if ENABLED(FT_MOTION)
+  #include "../module/ft_motion.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -171,6 +174,16 @@
   #include "../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#if ENABLED(HOTEND_IDLE_TIMEOUT)
+  #include "../feature/hotend_idle.h"
+#endif
+
+#if HAS_PRUSA_MMU3
+  #include "../feature/mmu3/mmu2.h"
+  #include "../feature/mmu3/SpoolJoin.h"
+  #include "../feature/mmu3/mmu2_reporting.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -181,10 +194,10 @@
 #define _EN_ITEM(N) , E##N
 #define _EN1_ITEM(N) , E##N:1
 
-typedef struct { uint16_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint16_t;
-typedef struct { uint32_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint32_t;
-typedef struct {  int16_t MAIN_AXIS_NAMES, X2, Y2, Z2, Z3, Z4;                              } mot_stepper_int16_t;
-typedef struct {     bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1), X2:1, Y2:1, Z2:1, Z3:1, Z4:1 REPEAT(E_STEPPERS, _EN1_ITEM); } per_stepper_bool_t;
+typedef struct { uint16_t MAIN_AXIS_NAMES_ X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint16_t;
+typedef struct { uint32_t MAIN_AXIS_NAMES_ X2, Y2, Z2, Z3, Z4 REPEAT(E_STEPPERS, _EN_ITEM); } per_stepper_uint32_t;
+typedef struct {  int16_t MAIN_AXIS_NAMES_ X2, Y2, Z2, Z3, Z4;                              } mot_stepper_int16_t;
+typedef struct {     bool NUM_AXIS_LIST_(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, W:1) X2:1, Y2:1, Z2:1, Z3:1, Z4:1 REPEAT(E_STEPPERS, _EN1_ITEM); } per_stepper_bool_t;
 
 #undef _EN_ITEM
 
@@ -193,8 +206,10 @@ typedef struct {     bool NUM_AXIS_LIST(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1, 
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
-static const float     _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  static const float   _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
+#endif
 
 /**
  * Current EEPROM Layout
@@ -207,7 +222,8 @@ typedef struct SettingsDataStruct {
   #if ENABLED(EEPROM_INIT_NOW)
     uint32_t build_hash;                                // Unique build hash
   #endif
-  uint16_t  crc;                                        // Data Checksum
+  uint16_t  crc;                                        // Data Checksum for validation
+  uint16_t  data_size;                                  // Data Size for validation
 
   //
   // DISTINCT_E_FACTORS
@@ -225,7 +241,9 @@ typedef struct SettingsDataStruct {
   //
   // Home Offset
   //
-  xyz_pos_t home_offset;                                // M206 XYZ / M665 TPZ
+  #if NUM_AXES
+    xyz_pos_t home_offset;                              // M206 XYZ / M665 TPZ
+  #endif
 
   //
   // Hotend Offset
@@ -258,14 +276,16 @@ typedef struct SettingsDataStruct {
   //
   float mbl_z_offset;                                   // bedlevel.z_offset
   uint8_t mesh_num_x, mesh_num_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
+  uint16_t mesh_check;                                  // Hash to check against X/Y
   float mbl_z_values[TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_X, 3)]   // bedlevel.z_values
                     [TERN(MESH_BED_LEVELING, GRID_MAX_POINTS_Y, 3)];
 
   //
   // HAS_BED_PROBE
   //
-
-  xyz_pos_t probe_offset;                               // M851 X Y Z
+  #if NUM_AXES
+    xyz_pos_t probe_offset;                             // M851 X Y Z
+  #endif
 
   //
   // ABL_PLANAR
@@ -276,6 +296,7 @@ typedef struct SettingsDataStruct {
   // AUTO_BED_LEVELING_BILINEAR
   //
   uint8_t grid_max_x, grid_max_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
+  uint16_t grid_check;                                  // Hash to check against X/Y
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
@@ -301,7 +322,9 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
+  #if HAS_SERVO_ANGLES
+    uint16_t servo_angles[NUM_SERVOS][2];               // M281 P L U
+  #endif
 
   //
   // Temperature first layer compensation values
@@ -322,7 +345,7 @@ typedef struct SettingsDataStruct {
   // BLTOUCH
   //
   bool bltouch_od_5v_mode;
-  #ifdef BLTOUCH_HS_MODE
+  #if HAS_BLTOUCH_HS_MODE
     bool bltouch_high_speed_mode;                       // M401 S
   #endif
 
@@ -414,10 +437,12 @@ typedef struct SettingsDataStruct {
   //
   // Display Sleep
   //
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
-    uint8_t backlight_timeout_minutes;                  // M255 S
-  #elif HAS_DISPLAY_SLEEP
-    uint8_t sleep_timeout_minutes;                      // M255 S
+  #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+    #if HAS_BACKLIGHT_TIMEOUT
+      uint8_t backlight_timeout_minutes;                // M255 S
+    #elif HAS_DISPLAY_SLEEP
+      uint8_t sleep_timeout_minutes;                    // M255 S
+    #endif
   #endif
 
   //
@@ -429,6 +454,7 @@ typedef struct SettingsDataStruct {
   // POWER_LOSS_RECOVERY
   //
   bool recovery_enabled;                                // M413 S
+  celsius_t bed_temp_threshold;                         // M413 B
 
   //
   // FWRETRACT
@@ -473,9 +499,18 @@ typedef struct SettingsDataStruct {
   uint32_t motor_current_setting[MOTOR_CURRENT_COUNT];  // M907 X Z E ...
 
   //
+  // Adaptive Step Smoothing state
+  //
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    bool adaptive_step_smoothing_enabled;               // G-code pending
+  #endif
+
+  //
   // CNC_COORDINATE_SYSTEMS
   //
-  xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS];  // G54-G59.3
+  #if NUM_AXES
+    xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS]; // G54-G59.3
+  #endif
 
   //
   // SKEW_CORRECTION
@@ -487,7 +522,7 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  #if HAS_EXTRUDERS
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
   #endif
 
@@ -501,9 +536,11 @@ typedef struct SettingsDataStruct {
   //
   // BACKLASH_COMPENSATION
   //
-  xyz_float_t backlash_distance_mm;                     // M425 X Y Z
-  uint8_t backlash_correction;                          // M425 F
-  float backlash_smoothing_mm;                          // M425 S
+  #if NUM_AXES
+    xyz_float_t backlash_distance_mm;                   // M425 X Y Z
+    uint8_t backlash_correction;                        // M425 F
+    float backlash_smoothing_mm;                        // M425 S
+  #endif
 
   //
   // EXTENSIBLE_UI
@@ -515,10 +552,8 @@ typedef struct SettingsDataStruct {
   //
   // Ender-3 V2 DWIN
   //
-  #if ENABLED(DWIN_LCD_PROUI)
-    uint8_t dwin_data[eeprom_data_size];
-  #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-    uint8_t dwin_settings[CrealityDWIN.eeprom_data_size];
+  #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+    uint8_t dwin_settings[jyersDWIN.eeprom_data_size];
   #endif
 
   //
@@ -588,15 +623,57 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // Fixed-Time Motion
+  //
+  #if ENABLED(FT_MOTION)
+    ft_config_t ftMotion_cfg;                          // M493
+  #endif
+
+  //
   // Input Shaping
   //
   #if ENABLED(INPUT_SHAPING_X)
-    float shaping_x_frequency, // M593 X F
-          shaping_x_zeta;      // M593 X D
+    float shaping_x_frequency,                          // M593 X F
+          shaping_x_zeta;                               // M593 X D
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    float shaping_y_frequency, // M593 Y F
-          shaping_y_zeta;      // M593 Y D
+    float shaping_y_frequency,                          // M593 Y F
+          shaping_y_zeta;                               // M593 Y D
+  #endif
+  #if ENABLED(INPUT_SHAPING_Z)
+    float shaping_z_frequency,                          // M593 Z F
+          shaping_z_zeta;                               // M593 Z D
+  #endif
+
+  //
+  // HOTEND_IDLE_TIMEOUT
+  //
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    hotend_idle_settings_t hotend_idle_config;          // M86 S T E B
+  #endif
+
+  //
+  // Nonlinear Extrusion
+  //
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    ne_coeff_t stepper_ne;                              // M592 A B C
+  #endif
+
+  //
+  // MMU3
+  //
+  #if HAS_PRUSA_MMU3
+    bool spool_join_enabled;      // EEPROM_SPOOL_JOIN
+    uint16_t fail_total_num;      // EEPROM_MMU_FAIL_TOT
+    uint8_t fail_num;             // EEPROM_MMU_FAIL
+    uint16_t load_fail_total_num; // EEPROM_MMU_LOAD_FAIL_TOT
+    uint8_t load_fail_num;        // EEPROM_MMU_LOAD_FAIL
+    uint16_t tool_change_counter;
+    uint32_t tool_change_total_counter; // EEPROM_MMU_MATERIAL_CHANGES
+    uint8_t cutter_mode;          // EEPROM_MMU_CUTTER_ENABLED
+    uint8_t stealth_mode;         // EEPROM_MMU_STEALTH
+    bool mmu_hw_enabled;          // EEPROM_MMU_ENABLED
+    // uint32_t material_changes
   #endif
 
 } SettingsData;
@@ -635,10 +712,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   // Software endstops depend on home_offset
-  LOOP_NUM_AXES(i) {
-    update_workspace_offset((AxisEnum)i);
-    update_software_endstops((AxisEnum)i);
-  }
+  LOOP_NUM_AXES(i) update_software_endstops((AxisEnum)i);
 
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
@@ -662,18 +736,14 @@ void MarlinSettings::postprocess() {
   if (oldpos != current_position)
     report_current_position();
 
-  // Moved as last update due to interference with Neopixel init
+  // Moved as last update due to interference with NeoPixel init
   TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
   TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
-    ui.refresh_backlight_timeout();
-  #elif HAS_DISPLAY_SLEEP
-    ui.refresh_screen_timeout();
-  #endif
+  TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+  TERN_(HAS_DISPLAY_SLEEP, ui.refresh_screen_timeout());
 }
 
-#if BOTH(PRINTCOUNTER, EEPROM_SETTINGS)
+#if ALL(PRINTCOUNTER, EEPROM_SETTINGS)
   #include "printcounter.h"
   static_assert(
     !WITHIN(STATS_EEPROM_ADDRESS, EEPROM_OFFSET, EEPROM_OFFSET + sizeof(SettingsData)) &&
@@ -693,7 +763,8 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::sd_update_status() {
     uint8_t val;
-    persistentStore.read_data(SD_FIRMWARE_UPDATE_EEPROM_ADDR, &val);
+    int pos = SD_FIRMWARE_UPDATE_EEPROM_ADDR;
+    persistentStore.read_data(pos, &val);
     return (val == SD_FIRMWARE_UPDATE_ACTIVE_VALUE);
   }
 
@@ -717,28 +788,41 @@ void MarlinSettings::postprocess() {
 // This file simply uses the DEBUG_ECHO macros to implement EEPROM_CHITCHAT.
 // For deeper debugging of EEPROM issues enable DEBUG_EEPROM_READWRITE.
 //
-#define DEBUG_OUT EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+#define DEBUG_OUT ANY(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-#if BOTH(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
+#if ALL(EEPROM_CHITCHAT, HOST_PROMPT_SUPPORT)
   #define HOST_EEPROM_CHITCHAT 1
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_ERROR_MSG(ERR); eeprom_error = true; } }while(0)
+  #define EEPROM_ASSERT(TST,ERR)  do{ if (!(TST)) { SERIAL_WARN_MSG(ERR); eeprom_error = ERR_EEPROM_SIZE; } }while(0)
+
+  #define TWO_BYTE_HASH(A,B) uint16_t((uint16_t(A ^ 0xC3) << 4) ^ (uint16_t(B ^ 0xC3) << 12))
+
+  #define EEPROM_OFFSETOF(FIELD) (EEPROM_OFFSET + offsetof(SettingsData, FIELD))
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
     #define _FIELD_TEST(FIELD) \
+      SERIAL_ECHOLNPGM("Field: " STRINGIFY(FIELD)); \
       EEPROM_ASSERT( \
-        eeprom_error || eeprom_index == offsetof(SettingsData, FIELD) + EEPROM_OFFSET, \
+        eeprom_error || eeprom_index == EEPROM_OFFSETOF(FIELD), \
         "Field " STRINGIFY(FIELD) " mismatch." \
       )
   #else
     #define _FIELD_TEST(FIELD) NOOP
   #endif
 
-  const char version[4] = EEPROM_VERSION;
+  #if ENABLED(DEBUG_EEPROM_OBSERVE)
+    #define EEPROM_READ(V...)        do{ SERIAL_ECHOLNPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_(V); }while(0)
+    #define EEPROM_READ_ALWAYS(V...) do{ SERIAL_ECHOLNPGM("READ: ", F(STRINGIFY(FIRST(V)))); EEPROM_READ_ALWAYS_(V); }while(0)
+  #else
+    #define EEPROM_READ(V...)        EEPROM_READ_(V)
+    #define EEPROM_READ_ALWAYS(V...) EEPROM_READ_ALWAYS_(V)
+  #endif
+
+  constexpr char version_str[4] = EEPROM_VERSION;
 
   #if ENABLED(EEPROM_INIT_NOW)
     constexpr uint32_t strhash32(const char *s, const uint32_t h=0) {
@@ -747,20 +831,20 @@ void MarlinSettings::postprocess() {
     constexpr uint32_t build_hash = strhash32(__DATE__ __TIME__);
   #endif
 
-  bool MarlinSettings::eeprom_error, MarlinSettings::validating;
+  bool MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
   uint16_t MarlinSettings::working_crc;
 
-  bool MarlinSettings::size_error(const uint16_t size) {
+  EEPROM_Error MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
-      DEBUG_ERROR_MSG("EEPROM datasize error."
+      DEBUG_WARN_MSG("EEPROM datasize error."
         #if ENABLED(MARLIN_DEV_MODE)
           " (Actual:", size, " Expected:", datasize(), ")"
         #endif
       );
-      return true;
+      return ERR_EEPROM_SIZE;
     }
-    return false;
+    return ERR_EEPROM_NOERR;
   }
 
   /**
@@ -768,22 +852,29 @@ void MarlinSettings::postprocess() {
    */
   bool MarlinSettings::save() {
     float dummyf = 0;
-    char ver[4] = "ERR";
 
     if (!EEPROM_START(EEPROM_OFFSET)) return false;
 
-    eeprom_error = false;
+    EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
 
     // Write or Skip version. (Flash doesn't allow rewrite without erase.)
-    TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(ver);
+    constexpr char dummy_version[] = "ERR";
+    TERN(FLASH_EEPROM_EMULATION, EEPROM_SKIP, EEPROM_WRITE)(dummy_version);
 
     #if ENABLED(EEPROM_INIT_NOW)
-      EEPROM_SKIP(build_hash);  // Skip the hash slot
+      EEPROM_SKIP(build_hash);  // Skip the hash slot which will be written later
     #endif
 
     EEPROM_SKIP(working_crc);   // Skip the checksum slot
 
-    working_crc = 0; // clear before first "real data"
+    //
+    // Clear after skipping CRC and before writing the CRC'ed data
+    //
+    working_crc = 0;
+
+    // Write the size of the data structure for use in validation
+    const uint16_t data_size = datasize();
+    EEPROM_WRITE(data_size);
 
     const uint8_t e_factors = DISTINCT_AXES - (NUM_AXES);
     _FIELD_TEST(e_factors);
@@ -795,14 +886,14 @@ void MarlinSettings::postprocess() {
     {
       EEPROM_WRITE(planner.settings);
 
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         EEPROM_WRITE(planner.max_jerk);
         #if HAS_LINEAR_E_JERK
           dummyf = float(DEFAULT_EJERK);
           EEPROM_WRITE(dummyf);
         #endif
       #else
-        const xyze_pos_t planner_max_jerk = LOGICAL_AXIS_ARRAY(float(DEFAULT_EJERK), 10, 10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4);
+        const xyze_pos_t planner_max_jerk = LOGICAL_AXIS_ARRAY(5, 10, 10, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4);
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
@@ -813,6 +904,7 @@ void MarlinSettings::postprocess() {
     //
     // Home Offset
     //
+    #if NUM_AXES
     {
       _FIELD_TEST(home_offset);
 
@@ -825,6 +917,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(home_offset);
       #endif
     }
+    #endif // NUM_AXES
 
     //
     // Hotend Offsets, if any
@@ -832,7 +925,7 @@ void MarlinSettings::postprocess() {
     {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
-        LOOP_S_L_N(e, 1, HOTENDS)
+        for (uint8_t e = 1; e < HOTENDS; ++e)
           EEPROM_WRITE(hotend_offset[e]);
       #endif
     }
@@ -861,7 +954,10 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, (DEFAULT_LEVELING_FADE_HEIGHT));
+      #ifndef DEFAULT_LEVELING_FADE_HEIGHT
+        #define DEFAULT_LEVELING_FADE_HEIGHT 0
+      #endif
+      const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, DEFAULT_LEVELING_FADE_HEIGHT);
       EEPROM_WRITE(zfh);
     }
 
@@ -881,7 +977,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(MESH_BED_LEVELING)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "MBL Z array is the wrong size."
         );
       #else
@@ -895,6 +991,10 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
 
+      // Check value for the X/Y values
+      const uint16_t mesh_check = TWO_BYTE_HASH(mesh_num_x, mesh_num_y);
+      EEPROM_WRITE(mesh_check);
+
       #if ENABLED(MESH_BED_LEVELING)
         EEPROM_WRITE(bedlevel.z_values);
       #else
@@ -905,6 +1005,7 @@ void MarlinSettings::postprocess() {
     //
     // Probe XYZ Offsets
     //
+    #if NUM_AXES
     {
       _FIELD_TEST(probe_offset);
       #if HAS_BED_PROBE
@@ -914,6 +1015,7 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(zpo);
     }
+    #endif
 
     //
     // Planar Bed Leveling matrix
@@ -933,7 +1035,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         static_assert(
-          sizeof(bedlevel.z_values) == (GRID_MAX_POINTS) * sizeof(bedlevel.z_values[0][0]),
+          sizeof(bedlevel.z_values) == GRID_MAX_POINTS * sizeof(bedlevel.z_values[0][0]),
           "Bilinear Z array is the wrong size."
         );
       #endif
@@ -942,6 +1044,11 @@ void MarlinSettings::postprocess() {
                     grid_max_y = TERN(AUTO_BED_LEVELING_BILINEAR, GRID_MAX_POINTS_Y, 3);
       EEPROM_WRITE(grid_max_x);
       EEPROM_WRITE(grid_max_y);
+
+      // Check value for the X/Y values
+      const uint16_t grid_check = TWO_BYTE_HASH(grid_max_x, grid_max_y);
+      EEPROM_WRITE(grid_check);
+
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         EEPROM_WRITE(bedlevel.grid_spacing);
         EEPROM_WRITE(bedlevel.grid_start);
@@ -983,13 +1090,12 @@ void MarlinSettings::postprocess() {
     //
     // Servo Angles
     //
+    #if HAS_SERVO_ANGLES
     {
       _FIELD_TEST(servo_angles);
-      #if !HAS_SERVO_ANGLES
-        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
-      #endif
       EEPROM_WRITE(servo_angles);
     }
+    #endif
 
     //
     // Thermal first layer compensation values
@@ -1016,7 +1122,7 @@ void MarlinSettings::postprocess() {
       const bool bltouch_od_5v_mode = TERN0(BLTOUCH, bltouch.od_5v_mode);
       EEPROM_WRITE(bltouch_od_5v_mode);
 
-      #ifdef BLTOUCH_HS_MODE
+      #if HAS_BLTOUCH_HS_MODE
         _FIELD_TEST(bltouch_high_speed_mode);
         const bool bltouch_high_speed_mode = TERN0(BLTOUCH, bltouch.high_speed_mode);
         EEPROM_WRITE(bltouch_high_speed_mode);
@@ -1179,10 +1285,12 @@ void MarlinSettings::postprocess() {
     //
     // LCD Backlight / Sleep Timeout
     //
-    #if LCD_BACKLIGHT_TIMEOUT_MINS
-      EEPROM_WRITE(ui.backlight_timeout_minutes);
-    #elif HAS_DISPLAY_SLEEP
-      EEPROM_WRITE(ui.sleep_timeout_minutes);
+    #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+      #if HAS_BACKLIGHT_TIMEOUT
+        EEPROM_WRITE(ui.backlight_timeout_minutes);
+      #elif HAS_DISPLAY_SLEEP
+        EEPROM_WRITE(ui.sleep_timeout_minutes);
+      #endif
     #endif
 
     //
@@ -1203,8 +1311,10 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(recovery_enabled);
-      const bool recovery_enabled = TERN(POWER_LOSS_RECOVERY, recovery.enabled, ENABLED(PLR_ENABLED_DEFAULT));
+      const bool recovery_enabled = TERN0(POWER_LOSS_RECOVERY, recovery.enabled);
+      const celsius_t bed_temp_threshold = TERN0(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold);
       EEPROM_WRITE(recovery_enabled);
+      EEPROM_WRITE(bed_temp_threshold);
     }
 
     //
@@ -1236,7 +1346,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
           EEPROM_WRITE(planner.volumetric_extruder_limit);
         #else
-          dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+          dummyf = 0.0;
           for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
         #endif
 
@@ -1246,7 +1356,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(volumetric_enabled);
         dummyf = DEFAULT_NOMINAL_FILAMENT_DIA;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
-        dummyf = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
+        dummyf = 0.0;
         for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummyf);
 
       #endif
@@ -1364,7 +1474,7 @@ void MarlinSettings::postprocess() {
       #else
         #define _EN_ITEM(N) , .E##N =  30
         const per_stepper_uint32_t tmc_hybrid_threshold = {
-          NUM_AXIS_LIST(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .U = 3, .V = 3, .W = 3),
+          NUM_AXIS_LIST_(.X = 100, .Y = 100, .Z = 3, .I = 3, .J = 3, .K = 3, .U = 3, .V = 3, .W = 3)
           .X2 = 100, .Y2 = 100, .Z2 = 3, .Z3 = 3, .Z4 = 3
           REPEAT(E_STEPPERS, _EN_ITEM)
         };
@@ -1460,15 +1570,23 @@ void MarlinSettings::postprocess() {
     }
 
     //
+    // Adaptive Step Smoothing state
+    //
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+      _FIELD_TEST(adaptive_step_smoothing_enabled);
+      EEPROM_WRITE(stepper.adaptive_step_smoothing_enabled);
+    #endif
+
+    //
     // CNC Coordinate Systems
     //
-
-    _FIELD_TEST(coordinate_system);
-
-    #if DISABLED(CNC_COORDINATE_SYSTEMS)
-      const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
+    #if NUM_AXES
+      _FIELD_TEST(coordinate_system);
+      #if DISABLED(CNC_COORDINATE_SYSTEMS)
+        const xyz_pos_t coordinate_system[MAX_COORDINATE_SYSTEMS] = { { 0 } };
+      #endif
+      EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
     #endif
-    EEPROM_WRITE(TERN(CNC_COORDINATE_SYSTEMS, gcode.coordinate_system, coordinate_system));
 
     //
     // Skew correction factors
@@ -1481,11 +1599,8 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    #if HAS_EXTRUDERS
+    #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     {
-      #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
-      #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
     }
@@ -1503,6 +1618,7 @@ void MarlinSettings::postprocess() {
     //
     // Backlash Compensation
     //
+    #if NUM_AXES
     {
       #if ENABLED(BACKLASH_GCODE)
         xyz_float_t backlash_distance_mm;
@@ -1522,6 +1638,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(backlash_correction);
       EEPROM_WRITE(backlash_smoothing_mm);
     }
+    #endif // NUM_AXES
 
     //
     // Extensible UI User Data
@@ -1536,22 +1653,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Creality DWIN User Data
+    // JyersUI DWIN User Data
     //
-    #if ENABLED(DWIN_LCD_PROUI)
-    {
-      _FIELD_TEST(dwin_data);
-      char dwin_data[eeprom_data_size] = { 0 };
-      DWIN_CopySettingsTo(dwin_data);
-      EEPROM_WRITE(dwin_data);
-    }
-    #endif
-
     #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     {
       _FIELD_TEST(dwin_settings);
-      char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
-      CrealityDWIN.Save_Settings(dwin_settings);
+      char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
+      jyersDWIN.saveSettings(dwin_settings);
       EEPROM_WRITE(dwin_settings);
     }
     #endif
@@ -1636,8 +1744,16 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Fixed-Time Motion
+    //
+    #if ENABLED(FT_MOTION)
+      _FIELD_TEST(ftMotion_cfg);
+      EEPROM_WRITE(ftMotion.cfg);
+    #endif
+
+    //
     // Input Shaping
-    ///
+    //
     #if HAS_ZV_SHAPING
       #if ENABLED(INPUT_SHAPING_X)
         EEPROM_WRITE(stepper.get_shaping_frequency(X_AXIS));
@@ -1647,19 +1763,54 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(stepper.get_shaping_frequency(Y_AXIS));
         EEPROM_WRITE(stepper.get_shaping_damping_ratio(Y_AXIS));
       #endif
+      #if ENABLED(INPUT_SHAPING_Z)
+        EEPROM_WRITE(stepper.get_shaping_frequency(Z_AXIS));
+        EEPROM_WRITE(stepper.get_shaping_damping_ratio(Z_AXIS));
+      #endif
+    #endif
+
+    //
+    // HOTEND_IDLE_TIMEOUT
+    //
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      EEPROM_WRITE(hotend_idle.cfg);
+    #endif
+
+    //
+    // Nonlinear Extrusion
+    //
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EEPROM_WRITE(stepper.ne);
+    #endif
+
+    //
+    // MMU3
+    //
+    #if HAS_PRUSA_MMU3
+      EEPROM_WRITE(spooljoin.enabled); // EEPROM_SPOOL_JOIN
+      // for testing purposes fill with default values
+      EEPROM_WRITE(MMU3::operation_statistics.fail_total_num); //EEPROM_MMU_FAIL_TOT
+      EEPROM_WRITE(MMU3::operation_statistics.fail_num); // EEPROM_MMU_FAIL
+      EEPROM_WRITE(MMU3::operation_statistics.load_fail_total_num); // EEPROM_MMU_LOAD_FAIL_TOT
+      EEPROM_WRITE(MMU3::operation_statistics.load_fail_num); // EEPROM_MMU_LOAD_FAIL
+      EEPROM_WRITE(MMU3::operation_statistics.tool_change_counter);
+      EEPROM_WRITE(MMU3::operation_statistics.tool_change_total_counter); // EEPROM_MMU_MATERIAL_CHANGES
+      EEPROM_WRITE(mmu3.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
+      EEPROM_WRITE(mmu3.stealth_mode); // EEPROM_MMU_STEALTH
+      EEPROM_WRITE(mmu3.mmu_hw_enabled); // EEPROM_MMU_ENABLED
     #endif
 
     //
     // Report final CRC and Data Size
     //
-    if (!eeprom_error) {
+    if (eeprom_error == ERR_EEPROM_NOERR) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
                      final_crc = working_crc;
 
       // Write the EEPROM header
       eeprom_index = EEPROM_OFFSET;
 
-      EEPROM_WRITE(version);
+      EEPROM_WRITE(version_str);
       #if ENABLED(EEPROM_INIT_NOW)
         EEPROM_WRITE(build_hash);
       #endif
@@ -1668,7 +1819,7 @@ void MarlinSettings::postprocess() {
       // Report storage size
       DEBUG_ECHO_MSG("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
 
-      eeprom_error |= size_error(eeprom_size);
+      eeprom_error = size_error(eeprom_size);
     }
     EEPROM_FINISH();
 
@@ -1680,56 +1831,92 @@ void MarlinSettings::postprocess() {
         store_mesh(bedlevel.storage_slot);
     #endif
 
-    if (!eeprom_error) {
+    const bool success = (eeprom_error == ERR_EEPROM_NOERR);
+    if (success) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
       TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
     }
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(!eeprom_error));
+    TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
 
-    return !eeprom_error;
+    return success;
   }
 
-  /**
-   * M501 - Retrieve Configuration
-   */
-  bool MarlinSettings::_load() {
-    if (!EEPROM_START(EEPROM_OFFSET)) return false;
-
+  EEPROM_Error MarlinSettings::check_version() {
+    if (!EEPROM_START(EEPROM_OFFSET)) return ERR_EEPROM_NOPROM;
     char stored_ver[4];
     EEPROM_READ_ALWAYS(stored_ver);
 
     // Version has to match or defaults are used
-    if (strncmp(version, stored_ver, 3) != 0) {
+    if (strncmp(stored_ver, version_str, 3) != 0) {
       if (stored_ver[3] != '\0') {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN_(DWIN_LCD_PROUI, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_VERSION)));
-
-      IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
-      eeprom_error = true;
+      return ERR_EEPROM_VERSION;
     }
-    else {
+    return ERR_EEPROM_NOERR;
+  }
 
-      // Optionally reset on the first boot after flashing
+  /**
+   * M501 - Retrieve Configuration
+   */
+  EEPROM_Error MarlinSettings::_load() {
+    EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
+
+    const EEPROM_Error check = check_version();
+    if (check == ERR_EEPROM_NOPROM) return eeprom_error;
+
+    uint16_t stored_crc;
+
+    do { // A block to break out of on error
+
+      // Version has to match or defaults are used
+      if (check == ERR_EEPROM_VERSION) {
+        eeprom_error = check;
+        break;
+      }
+
+      //
+      // Optionally reset on first boot after flashing
+      //
       #if ENABLED(EEPROM_INIT_NOW)
         uint32_t stored_hash;
         EEPROM_READ_ALWAYS(stored_hash);
-        if (stored_hash != build_hash) { EEPROM_FINISH(); return false; }
+        if (stored_hash != build_hash) {
+          eeprom_error = ERR_EEPROM_CORRUPT;
+          break;
+        }
       #endif
 
-      uint16_t stored_crc;
+      //
+      // Get the stored CRC to compare at the end
+      //
       EEPROM_READ_ALWAYS(stored_crc);
 
+      //
+      // A temporary float for safe storage
+      //
       float dummyf = 0;
-      working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
-      _FIELD_TEST(e_factors);
+      //
+      // Init to 0. Accumulated by EEPROM_READ
+      //
+      working_crc = 0;
 
+      //
+      // Validate the stored size against the current data structure size
+      //
+      uint16_t stored_size;
+      EEPROM_READ_ALWAYS(stored_size);
+      if ((eeprom_error = size_error(stored_size))) break;
+
+      //
+      // Extruder Parameter Count
       // Number of e_factors may change
+      //
+      _FIELD_TEST(e_factors);
       uint8_t e_factors;
       EEPROM_READ_ALWAYS(e_factors);
 
@@ -1740,17 +1927,24 @@ void MarlinSettings::postprocess() {
         // Get only the number of E stepper parameters previously stored
         // Any steppers added later are set to their defaults
         uint32_t tmp1[NUM_AXES + e_factors];
-        float tmp2[NUM_AXES + e_factors];
-        feedRate_t tmp3[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
+
         EEPROM_READ(planner.settings.min_segment_time_us);
-        EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          float tmp2[NUM_AXES + e_factors];
+          EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+        #endif
+
+        feedRate_t tmp3[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
 
         if (!validating) LOOP_DISTINCT_AXES(i) {
           const bool in = (i < e_factors + NUM_AXES);
           planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
-          planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+          #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+            planner.settings.axis_steps_per_mm[i]        = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+          #endif
           planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
         }
 
@@ -1760,7 +1954,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
-        #if HAS_CLASSIC_JERK
+        #if ENABLED(CLASSIC_JERK)
           EEPROM_READ(planner.max_jerk);
           #if HAS_LINEAR_E_JERK
             EEPROM_READ(dummyf);
@@ -1775,6 +1969,7 @@ void MarlinSettings::postprocess() {
       //
       // Home Offset (M206 / M665)
       //
+      #if NUM_AXES
       {
         _FIELD_TEST(home_offset);
 
@@ -1787,6 +1982,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(home_offset);
         #endif
       }
+      #endif // NUM_AXES
 
       //
       // Hotend Offsets, if any
@@ -1794,7 +1990,7 @@ void MarlinSettings::postprocess() {
       {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
-          LOOP_S_L_N(e, 1, HOTENDS)
+          for (uint8_t e = 1; e < HOTENDS; ++e)
             EEPROM_READ(hotend_offset[e]);
         #endif
       }
@@ -1807,7 +2003,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-          runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -1838,15 +2034,27 @@ void MarlinSettings::postprocess() {
       //
       {
         uint8_t mesh_num_x, mesh_num_y;
+        uint16_t mesh_check;
         EEPROM_READ(dummyf);
         EEPROM_READ_ALWAYS(mesh_num_x);
         EEPROM_READ_ALWAYS(mesh_num_y);
+
+        // Check value must correspond to the X/Y values
+        EEPROM_READ_ALWAYS(mesh_check);
+        if (mesh_check != TWO_BYTE_HASH(mesh_num_x, mesh_num_y)) {
+          eeprom_error = ERR_EEPROM_CORRUPT;
+          break;
+        }
 
         #if ENABLED(MESH_BED_LEVELING)
           if (!validating) bedlevel.z_offset = dummyf;
           if (mesh_num_x == (GRID_MAX_POINTS_X) && mesh_num_y == (GRID_MAX_POINTS_Y)) {
             // EEPROM data fits the current mesh
             EEPROM_READ(bedlevel.z_values);
+          }
+          else if (mesh_num_x > (GRID_MAX_POINTS_X) || mesh_num_y > (GRID_MAX_POINTS_Y)) {
+            eeprom_error = ERR_EEPROM_CORRUPT;
+            break;
           }
           else {
             // EEPROM data is stale
@@ -1862,6 +2070,7 @@ void MarlinSettings::postprocess() {
       //
       // Probe Z Offset
       //
+      #if NUM_AXES
       {
         _FIELD_TEST(probe_offset);
         #if HAS_BED_PROBE
@@ -1871,6 +2080,7 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(zpo);
       }
+      #endif
 
       //
       // Planar Bed Leveling matrix
@@ -1890,6 +2100,15 @@ void MarlinSettings::postprocess() {
         uint8_t grid_max_x, grid_max_y;
         EEPROM_READ_ALWAYS(grid_max_x);                // 1 byte
         EEPROM_READ_ALWAYS(grid_max_y);                // 1 byte
+
+        // Check value must correspond to the X/Y values
+        uint16_t grid_check;
+        EEPROM_READ_ALWAYS(grid_check);
+        if (grid_check != TWO_BYTE_HASH(grid_max_x, grid_max_y)) {
+          eeprom_error = ERR_EEPROM_CORRUPT;
+          break;
+        }
+
         xy_pos_t spacing, start;
         EEPROM_READ(spacing);                          // 2 ints
         EEPROM_READ(start);                            // 2 ints
@@ -1897,7 +2116,11 @@ void MarlinSettings::postprocess() {
           if (grid_max_x == (GRID_MAX_POINTS_X) && grid_max_y == (GRID_MAX_POINTS_Y)) {
             if (!validating) set_bed_leveling_enabled(false);
             bedlevel.set_grid(spacing, start);
-            EEPROM_READ(bedlevel.z_values);                 // 9 to 256 floats
+            EEPROM_READ(bedlevel.z_values);            // 9 to 256 floats
+          }
+          else if (grid_max_x > (GRID_MAX_POINTS_X) || grid_max_y > (GRID_MAX_POINTS_Y)) {
+            eeprom_error = ERR_EEPROM_CORRUPT;
+            break;
           }
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
@@ -1936,15 +2159,17 @@ void MarlinSettings::postprocess() {
       //
       // SERVO_ANGLES
       //
+      #if HAS_SERVO_ANGLES
       {
         _FIELD_TEST(servo_angles);
         #if ENABLED(EDITABLE_SERVO_ANGLES)
-          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+          uint16_t (&servo_angles_arr)[NUM_SERVOS][2] = servo_angles;
         #else
-          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
+          uint16_t servo_angles_arr[NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles_arr);
       }
+      #endif
 
       //
       // Thermal first layer compensation values
@@ -1959,7 +2184,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(PTC_HOTEND)
           EEPROM_READ(ptc.z_offsets_hotend);
         #endif
-        ptc.reset_index();
+        if (!validating) ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -1976,7 +2201,7 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_READ(bltouch_od_5v_mode);
 
-        #ifdef BLTOUCH_HS_MODE
+        #if HAS_BLTOUCH_HS_MODE
           _FIELD_TEST(bltouch_high_speed_mode);
           #if ENABLED(BLTOUCH)
             const bool &bltouch_high_speed_mode = bltouch.high_speed_mode;
@@ -2145,10 +2370,12 @@ void MarlinSettings::postprocess() {
       //
       // LCD Backlight / Sleep Timeout
       //
-      #if LCD_BACKLIGHT_TIMEOUT_MINS
-        EEPROM_READ(ui.backlight_timeout_minutes);
-      #elif HAS_DISPLAY_SLEEP
-        EEPROM_READ(ui.sleep_timeout_minutes);
+      #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+        #if HAS_BACKLIGHT_TIMEOUT
+          EEPROM_READ(ui.backlight_timeout_minutes);
+        #elif HAS_DISPLAY_SLEEP
+          EEPROM_READ(ui.sleep_timeout_minutes);
+        #endif
       #endif
 
       //
@@ -2165,10 +2392,15 @@ void MarlinSettings::postprocess() {
       // Power-Loss Recovery
       //
       {
-        bool recovery_enabled;
         _FIELD_TEST(recovery_enabled);
+        bool recovery_enabled;
+        celsius_t bed_temp_threshold;
         EEPROM_READ(recovery_enabled);
-        TERN_(POWER_LOSS_RECOVERY, if (!validating) recovery.enabled = recovery_enabled);
+        EEPROM_READ(bed_temp_threshold);
+        if (!validating) {
+          TERN_(POWER_LOSS_RECOVERY, recovery.enabled = recovery_enabled);
+          TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = bed_temp_threshold);
+        }
       }
 
       //
@@ -2437,8 +2669,16 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // Adaptive Step Smoothing state
+      //
+      #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+        EEPROM_READ(stepper.adaptive_step_smoothing_enabled);
+      #endif
+
+      //
       // CNC Coordinate System
       //
+      #if NUM_AXES
       {
         _FIELD_TEST(coordinate_system);
         #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -2449,6 +2689,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(coordinate_system);
         #endif
       }
+      #endif
 
       //
       // Skew correction factors
@@ -2473,11 +2714,8 @@ void MarlinSettings::postprocess() {
       //
       // Advanced Pause filament load & unload lengths
       //
-      #if HAS_EXTRUDERS
+      #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       {
-        #if DISABLED(ADVANCED_PAUSE_FEATURE)
-          fil_change_settings_t fc_settings[EXTRUDERS];
-        #endif
         _FIELD_TEST(fc_settings);
         EEPROM_READ(fc_settings);
       }
@@ -2494,6 +2732,7 @@ void MarlinSettings::postprocess() {
       //
       // Backlash Compensation
       //
+      #if NUM_AXES
       {
         xyz_float_t backlash_distance_mm;
         uint8_t backlash_correction;
@@ -2505,13 +2744,16 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(backlash_smoothing_mm);
 
         #if ENABLED(BACKLASH_GCODE)
+        if (!validating) {
           LOOP_NUM_AXES(axis) backlash.set_distance_mm((AxisEnum)axis, backlash_distance_mm[axis]);
           backlash.set_correction_uint8(backlash_correction);
           #ifdef BACKLASH_SMOOTHING_MM
             backlash.set_smoothing_mm(backlash_smoothing_mm);
           #endif
+        }
         #endif
       }
+      #endif // NUM_AXES
 
       //
       // Extensible UI User Data
@@ -2526,21 +2768,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // DWIN User Data
+      // JyersUI User Data
       //
-      #if ENABLED(DWIN_LCD_PROUI)
+      #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
       {
-        const char dwin_data[eeprom_data_size] = { 0 };
-        _FIELD_TEST(dwin_data);
-        EEPROM_READ(dwin_data);
-        if (!validating) DWIN_CopySettingsFrom(dwin_data);
-      }
-      #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
-      {
-        const char dwin_settings[CrealityDWIN.eeprom_data_size] = { 0 };
+        const char dwin_settings[jyersDWIN.eeprom_data_size] = { 0 };
         _FIELD_TEST(dwin_settings);
         EEPROM_READ(dwin_settings);
-        if (!validating) CrealityDWIN.Load_Settings(dwin_settings);
+        if (!validating) jyersDWIN.loadSettings(dwin_settings);
       }
       #endif
 
@@ -2617,7 +2852,7 @@ void MarlinSettings::postprocess() {
         uint8_t ui_language;
         EEPROM_READ(ui_language);
         if (ui_language >= NUM_LANGUAGES) ui_language = 0;
-        ui.set_language(ui_language);
+        if (!validating) ui.set_language(ui_language);
       }
       #endif
 
@@ -2625,9 +2860,15 @@ void MarlinSettings::postprocess() {
       // Model predictive control
       //
       #if ENABLED(MPCTEMP)
-      {
         HOTEND_LOOP() EEPROM_READ(thermalManager.temp_hotend[e].mpc);
-      }
+      #endif
+
+      //
+      // Fixed-Time Motion
+      //
+      #if ENABLED(FT_MOTION)
+        _FIELD_TEST(ftMotion_cfg);
+        EEPROM_READ(ftMotion.cfg);
       #endif
 
       //
@@ -2635,59 +2876,117 @@ void MarlinSettings::postprocess() {
       //
       #if ENABLED(INPUT_SHAPING_X)
       {
-        float _data[2];
+        struct { float freq, damp; } _data;
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(X_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(X_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(X_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(X_AXIS, _data.damp);
+        }
       }
       #endif
 
       #if ENABLED(INPUT_SHAPING_Y)
       {
-        float _data[2];
+        struct { float freq, damp; } _data;
         EEPROM_READ(_data);
-        stepper.set_shaping_frequency(Y_AXIS, _data[0]);
-        stepper.set_shaping_damping_ratio(Y_AXIS, _data[1]);
+        if (!validating) {
+          stepper.set_shaping_frequency(Y_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(Y_AXIS, _data.damp);
+        }
       }
+      #endif
+
+      #if ENABLED(INPUT_SHAPING_Z)
+      {
+        struct { float freq, damp; } _data;
+        EEPROM_READ(_data);
+        if (!validating) {
+          stepper.set_shaping_frequency(Z_AXIS, _data.freq);
+          stepper.set_shaping_damping_ratio(Z_AXIS, _data.damp);
+        }
+      }
+      #endif
+
+      //
+      // HOTEND_IDLE_TIMEOUT
+      //
+      #if ENABLED(HOTEND_IDLE_TIMEOUT)
+        EEPROM_READ(hotend_idle.cfg);
+      #endif
+
+      //
+      // Nonlinear Extrusion
+      //
+      #if ENABLED(NONLINEAR_EXTRUSION)
+        EEPROM_READ(stepper.ne);
+      #endif
+
+      //
+      // MMU3
+      //
+      #if HAS_PRUSA_MMU3
+        spooljoin.epprom_addr = eeprom_index;
+        EEPROM_READ(spooljoin.enabled);  // EEPROM_SPOOL_JOIN
+
+        MMU3::operation_statistics.fail_total_num_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.fail_total_num); //EEPROM_MMU_FAIL_TOT
+
+        MMU3::operation_statistics.fail_num_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.fail_num); // EEPROM_MMU_FAIL;
+
+        MMU3::operation_statistics.load_fail_total_num_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.load_fail_total_num); // EEPROM_MMU_LOAD_FAIL_TOT
+
+        MMU3::operation_statistics.load_fail_num_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.load_fail_num); // EEPROM_MMU_LOAD_FAIL
+
+        MMU3::operation_statistics.tool_change_counter_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.tool_change_counter);
+
+        MMU3::operation_statistics.tool_change_total_counter_addr = eeprom_index;
+        EEPROM_READ(MMU3::operation_statistics.tool_change_total_counter); // EEPROM_MMU_MATERIAL_CHANGES
+
+        mmu3.cutter_mode_addr = eeprom_index;
+        EEPROM_READ(mmu3.cutter_mode); // EEPROM_MMU_CUTTER_ENABLED
+
+        mmu3.stealth_mode_addr = eeprom_index;
+        EEPROM_READ(mmu3.stealth_mode); // EEPROM_MMU_STEALTH
+
+        mmu3.mmu_hw_enabled_addr = eeprom_index;
+        EEPROM_READ(mmu3.mmu_hw_enabled); // EEPROM_MMU_ENABLED
       #endif
 
       //
       // Validate Final Size and CRC
       //
-      eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
-      if (eeprom_error) {
-        DEBUG_ECHO_MSG("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
-        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
+      const uint16_t eeprom_total = eeprom_index - (EEPROM_OFFSET);
+      if ((eeprom_error = size_error(eeprom_total))) {
+        // Handle below and on return
+        break;
       }
       else if (working_crc != stored_crc) {
-        eeprom_error = true;
-        DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN_(DWIN_LCD_PROUI, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
-        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
-        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
+        eeprom_error = ERR_EEPROM_CRC;
+        break;
       }
       else if (!validating) {
         DEBUG_ECHO_START();
-        DEBUG_ECHO(version);
-        DEBUG_ECHOLNPGM(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, ')');
         TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
       }
-
-      if (!validating && !eeprom_error) postprocess();
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (!validating) {
           bedlevel.report_state();
 
           if (!bedlevel.sanity_check()) {
-            #if BOTH(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+            #if ALL(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
               bedlevel.echo_name();
               DEBUG_ECHOLNPGM(" initialized.\n");
             #endif
           }
           else {
-            eeprom_error = true;
-            #if BOTH(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+            eeprom_error = ERR_EEPROM_CORRUPT;
+            #if ALL(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
               DEBUG_ECHOPGM("?Can't enable ");
               bedlevel.echo_name();
               DEBUG_ECHOLNPGM(".");
@@ -2705,6 +3004,26 @@ void MarlinSettings::postprocess() {
           }
         }
       #endif
+
+    } while(0);
+
+    EEPROM_FINISH();
+
+    switch (eeprom_error) {
+      case ERR_EEPROM_NOERR:
+        if (!validating) postprocess();
+        break;
+      case ERR_EEPROM_SIZE:
+        DEBUG_ECHO_MSG("Index: ", eeprom_index - (EEPROM_OFFSET), " Size: ", datasize());
+        break;
+      case ERR_EEPROM_CORRUPT:
+        DEBUG_WARN_MSG(STR_ERR_EEPROM_CORRUPT);
+        break;
+      case ERR_EEPROM_CRC:
+        DEBUG_WARN_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
+        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
+        break;
+      default: break;
     }
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
@@ -2712,9 +3031,7 @@ void MarlinSettings::postprocess() {
       if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
     #endif
 
-    EEPROM_FINISH();
-
-    return !eeprom_error;
+    return eeprom_error;
   }
 
   #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
@@ -2724,26 +3041,50 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::validate() {
     validating = true;
     #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
-      bool success = _load();
-      if (!success && restoreEEPROM()) {
+      EEPROM_Error err = _load();
+      if (err != ERR_EEPROM_NOERR && restoreEEPROM()) {
         SERIAL_ECHOLNPGM("Recovered backup EEPROM settings from SPI Flash");
-        success = _load();
+        err = _load();
       }
     #else
-      const bool success = _load();
+      const EEPROM_Error err = _load();
     #endif
     validating = false;
-    return success;
+
+    if (err) ui.eeprom_alert(err);
+
+    return (err == ERR_EEPROM_NOERR);
   }
+
+  #if HAS_EARLY_LCD_SETTINGS
+
+    #if HAS_LCD_CONTRAST
+      void MarlinSettings::load_contrast() {
+        uint8_t lcd_contrast; EEPROM_START(EEPROM_OFFSETOF(lcd_contrast)); EEPROM_READ(lcd_contrast);
+        DEBUG_ECHOLNPGM("LCD Contrast: ", lcd_contrast);
+        ui.contrast = lcd_contrast;
+      }
+    #endif
+
+    #if HAS_LCD_BRIGHTNESS
+      void MarlinSettings::load_brightness() {
+        uint8_t lcd_brightness; EEPROM_START(EEPROM_OFFSETOF(lcd_brightness)); EEPROM_READ(lcd_brightness);
+        DEBUG_ECHOLNPGM("LCD Brightness: ", lcd_brightness);
+        ui.brightness = lcd_brightness;
+      }
+    #endif
+
+  #endif // HAS_EARLY_LCD_SETTINGS
 
   bool MarlinSettings::load() {
     if (validate()) {
-      const bool success = _load();
+      const EEPROM_Error err = _load();
+      const bool success = (err == ERR_EEPROM_NOERR);
       TERN_(EXTENSIBLE_UI, ExtUI::onSettingsLoaded(success));
       return success;
     }
     reset();
-    #if EITHER(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+    #if ANY(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
     #endif
@@ -2850,7 +3191,7 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(DWIN_LCD_PROUI)
-          status = !bedLevelTools.meshvalidate();
+          status = !bedLevelTools.meshValidate();
           if (status) {
             bedlevel.invalidate();
             LCD_MESSAGE(MSG_UBL_MESH_INVALID);
@@ -2879,11 +3220,30 @@ void MarlinSettings::postprocess() {
 #else // !EEPROM_SETTINGS
 
   bool MarlinSettings::save() {
-    DEBUG_ERROR_MSG("EEPROM disabled");
+    DEBUG_WARN_MSG("EEPROM disabled");
     return false;
   }
 
 #endif // !EEPROM_SETTINGS
+
+#if HAS_EARLY_LCD_SETTINGS
+
+  void MarlinSettings::load_lcd_state() {
+    if (TERN0(EEPROM_SETTINGS, check_version() == ERR_EEPROM_NOERR)) {
+      #if ENABLED(EEPROM_SETTINGS)
+        TERN_(HAS_LCD_CONTRAST, load_contrast());
+        TERN_(HAS_LCD_BRIGHTNESS, load_brightness());
+      #endif
+    }
+    else {
+      TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
+      TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+    }
+    TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
+    TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+  }
+
+#endif // HAS_EARLY_LCD_SETTINGS
 
 /**
  * M502 - Reset Configuration
@@ -2891,7 +3251,9 @@ void MarlinSettings::postprocess() {
 void MarlinSettings::reset() {
   LOOP_DISTINCT_AXES(i) {
     planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
-    planner.settings.axis_steps_per_mm[i] = pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      planner.settings.axis_steps_per_mm[i] = pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+    #endif
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
   }
 
@@ -2902,8 +3264,8 @@ void MarlinSettings::reset() {
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
-  #if HAS_CLASSIC_JERK
-    #ifndef DEFAULT_XJERK
+  #if ENABLED(CLASSIC_JERK)
+    #if HAS_X_AXIS && !defined(DEFAULT_XJERK)
       #define DEFAULT_XJERK 0
     #endif
     #if HAS_Y_AXIS && !defined(DEFAULT_YJERK)
@@ -3000,7 +3362,7 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, CrealityDWIN.Reset_Settings());
+  TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
 
   //
   // Case Light Brightness
@@ -3027,7 +3389,7 @@ void MarlinSettings::reset() {
   //
   // Global Leveling
   //
-  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = (DEFAULT_LEVELING_FADE_HEIGHT));
+  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
   TERN_(HAS_LEVELING, reset_bed_level());
 
   //
@@ -3075,9 +3437,7 @@ void MarlinSettings::reset() {
   //
   // BLTouch
   //
-  #ifdef BLTOUCH_HS_MODE
-    bltouch.high_speed_mode = ENABLED(BLTOUCH_HS_MODE);
-  #endif
+  TERN_(HAS_BLTOUCH_HS_MODE, bltouch.high_speed_mode = BLTOUCH_HS_MODE);
 
   //
   // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
@@ -3151,7 +3511,7 @@ void MarlinSettings::reset() {
     #if HAS_FAN
       constexpr uint8_t fpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, FAN_SPEED) };
     #endif
-    LOOP_L_N(i, PREHEAT_COUNT) {
+    for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
       TERN_(HAS_HOTEND,     ui.material_preset[i].hotend_temp = hpre[i]);
       TERN_(HAS_HEATED_BED, ui.material_preset[i].bed_temp = bpre[i]);
       TERN_(HAS_FAN,        ui.material_preset[i].fan_speed = fpre[i]);
@@ -3229,7 +3589,6 @@ void MarlinSettings::reset() {
   //
   // Heated Bed PID
   //
-
   #if ENABLED(PIDTEMPBED)
     thermalManager.temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
   #endif
@@ -3237,7 +3596,6 @@ void MarlinSettings::reset() {
   //
   // Heated Chamber PID
   //
-
   #if ENABLED(PIDTEMPCHAMBER)
     thermalManager.temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
   #endif
@@ -3265,10 +3623,12 @@ void MarlinSettings::reset() {
   //
   // LCD Backlight / Sleep Timeout
   //
-  #if LCD_BACKLIGHT_TIMEOUT_MINS
-    ui.backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
-  #elif HAS_DISPLAY_SLEEP
-    ui.sleep_timeout_minutes = TERN(TOUCH_SCREEN, TOUCH_IDLE_SLEEP_MINS, DISPLAY_SLEEP_MINUTES);
+  #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
+    #if HAS_BACKLIGHT_TIMEOUT
+      ui.backlight_timeout_minutes = LCD_BACKLIGHT_TIMEOUT_MINS;
+    #elif HAS_DISPLAY_SLEEP
+      ui.sleep_timeout_minutes = DISPLAY_SLEEP_MINUTES;
+    #endif
   #endif
 
   //
@@ -3279,7 +3639,10 @@ void MarlinSettings::reset() {
   //
   // Power-Loss Recovery
   //
-  TERN_(POWER_LOSS_RECOVERY, recovery.enable(ENABLED(PLR_ENABLED_DEFAULT)));
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.enable(ENABLED(PLR_ENABLED_DEFAULT));
+    TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
+  #endif
 
   //
   // Firmware Retraction
@@ -3289,13 +3652,12 @@ void MarlinSettings::reset() {
   //
   // Volumetric & Filament Size
   //
-
   #if DISABLED(NO_VOLUMETRICS)
     parser.volumetric_enabled = ENABLED(VOLUMETRIC_DEFAULT_ON);
-    LOOP_L_N(q, COUNT(planner.filament_size))
+    for (uint8_t q = 0; q < COUNT(planner.filament_size); ++q)
       planner.filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
     #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      LOOP_L_N(q, COUNT(planner.volumetric_extruder_limit))
+      for (uint8_t q = 0; q < COUNT(planner.volumetric_extruder_limit); ++q)
         planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
     #endif
   #endif
@@ -3326,7 +3688,7 @@ void MarlinSettings::reset() {
 
   #if HAS_MOTOR_CURRENT_PWM
     constexpr uint32_t tmp_motor_current_setting[MOTOR_CURRENT_COUNT] = PWM_MOTOR_CURRENT;
-    LOOP_L_N(q, MOTOR_CURRENT_COUNT)
+    for (uint8_t q = 0; q < MOTOR_CURRENT_COUNT; ++q)
       stepper.set_digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 
@@ -3336,9 +3698,16 @@ void MarlinSettings::reset() {
   #if HAS_MOTOR_CURRENT_SPI
     static constexpr uint32_t tmp_motor_current_setting[] = DIGIPOT_MOTOR_CURRENT;
     DEBUG_ECHOLNPGM("Writing Digipot");
-    LOOP_L_N(q, COUNT(tmp_motor_current_setting))
+    for (uint8_t q = 0; q < COUNT(tmp_motor_current_setting); ++q)
       stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
     DEBUG_ECHOLNPGM("Digipot Written");
+  #endif
+
+  //
+  // Adaptive Step Smoothing state
+  //
+  #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
+    stepper.adaptive_step_smoothing_enabled = true;
   #endif
 
   //
@@ -3360,7 +3729,7 @@ void MarlinSettings::reset() {
   //
   // Advanced Pause filament load & unload lengths
   //
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
     EXTRUDER_LOOP() {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
@@ -3385,11 +3754,6 @@ void MarlinSettings::reset() {
   // MKS UI controller
   //
   TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
-
-  //
-  // Ender-3 V2 with ProUI
-  //
-  TERN_(DWIN_LCD_PROUI, DWIN_SetDataDefaults());
 
   //
   // Model predictive control
@@ -3427,6 +3791,16 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Fixed-Time Motion
+  //
+  TERN_(FT_MOTION, ftMotion.set_defaults());
+
+  //
+  // Nonlinear Extrusion
+  //
+  TERN_(NONLINEAR_EXTRUSION, stepper.ne.reset());
+
+  //
   // Input Shaping
   //
   #if HAS_ZV_SHAPING
@@ -3438,14 +3812,34 @@ void MarlinSettings::reset() {
       stepper.set_shaping_frequency(Y_AXIS, SHAPING_FREQ_Y);
       stepper.set_shaping_damping_ratio(Y_AXIS, SHAPING_ZETA_Y);
     #endif
+    #if ENABLED(INPUT_SHAPING_Z)
+      stepper.set_shaping_frequency(Z_AXIS, SHAPING_FREQ_Z);
+      stepper.set_shaping_damping_ratio(Z_AXIS, SHAPING_ZETA_Z);
+    #endif
   #endif
+
+  //
+  // MMU Settings
+  //
+  #if HAS_PRUSA_MMU3
+    spooljoin.enabled = false;
+    MMU3::operation_statistics.reset_stats();
+    mmu3.cutter_mode = 0;
+    mmu3.stealth_mode = 0;
+    mmu3.mmu_hw_enabled = true;
+  #endif
+
+  //
+  // Hotend Idle Timeout
+  //
+  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
 
   postprocess();
 
-  #if EITHER(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
+  #if ANY(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
     FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
     TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
-    DEBUG_ECHO_START(); DEBUG_ECHOLNF(hdsl);
+    DEBUG_ECHO_START(); DEBUG_ECHOLN(hdsl);
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
@@ -3458,7 +3852,9 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
   #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
-  void M92_report(const bool echo=true, const int8_t e=-1);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    void M92_report(const bool echo=true, const int8_t e=-1);
+  #endif
 
   /**
    * M503 - Report current settings in RAM
@@ -3496,7 +3892,7 @@ void MarlinSettings::reset() {
     //
     // M92 Steps per Unit
     //
-    gcode.M92_report(forReplay);
+    TERN_(EDITABLE_STEPS_PER_UNIT, gcode.M92_report(forReplay));
 
     //
     // M203 Maximum feedrates (units/s)
@@ -3521,7 +3917,7 @@ void MarlinSettings::reset() {
     //
     // M206 Home Offset
     //
-    TERN_(HAS_M206_COMMAND, gcode.M206_report(forReplay));
+    TERN_(HAS_HOME_OFFSET, gcode.M206_report(forReplay));
 
     //
     // M218 Hotend offsets
@@ -3538,15 +3934,14 @@ void MarlinSettings::reset() {
       #if ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
-          LOOP_L_N(py, GRID_MAX_POINTS_Y) {
-            LOOP_L_N(px, GRID_MAX_POINTS_X) {
+          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
+            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPGM("  G29 S3 I", px, " J", py);
-              SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(bedlevel.z_values[px][py]), 5);
+              SERIAL_ECHOLN(F("  G29 S3 I"), px, F(" J"), py, FPSTR(SP_Z_STR), p_float_t(LINEAR_UNIT(bedlevel.z_values[px][py]), 5));
             }
           }
           CONFIG_ECHO_START();
-          SERIAL_ECHOLNPAIR_F("  G29 S4 Z", LINEAR_UNIT(bedlevel.z_offset), 5);
+          SERIAL_ECHOLNPGM("  G29 S4 Z", p_float_t(LINEAR_UNIT(bedlevel.z_offset), 5));
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3564,11 +3959,10 @@ void MarlinSettings::reset() {
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         if (leveling_is_valid()) {
-          LOOP_L_N(py, GRID_MAX_POINTS_Y) {
-            LOOP_L_N(px, GRID_MAX_POINTS_X) {
+          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; ++py) {
+            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; ++px) {
               CONFIG_ECHO_START();
-              SERIAL_ECHOPGM("  G29 W I", px, " J", py);
-              SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, LINEAR_UNIT(bedlevel.z_values[px][py]), 5);
+              SERIAL_ECHOLN(F("  G29 W I"), px, F(" J"), py, FPSTR(SP_Z_STR), p_float_t(LINEAR_UNIT(bedlevel.z_values[px][py]), 5));
             }
           }
         }
@@ -3595,7 +3989,7 @@ void MarlinSettings::reset() {
     //
     // M666 Endstops Adjustment
     //
-    #if EITHER(DELTA, HAS_EXTRA_ENDSTOPS)
+    #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)
       gcode.M666_report(forReplay);
     #endif
 
@@ -3617,7 +4011,7 @@ void MarlinSettings::reset() {
     TERN_(PIDTEMPCHAMBER, gcode.M309_report(forReplay));
 
     #if HAS_USER_THERMISTORS
-      LOOP_L_N(i, USER_THERMISTORS)
+      for (uint8_t i = 0; i < USER_THERMISTORS; ++i)
         thermalManager.M305_report(i, forReplay);
     #endif
 
@@ -3629,7 +4023,7 @@ void MarlinSettings::reset() {
     //
     // Display Sleep
     //
-    TERN_(HAS_GCODE_M255, gcode.M255_report(forReplay));
+    TERN_(EDITABLE_DISPLAY_TIMEOUT, gcode.M255_report(forReplay));
 
     //
     // LCD Brightness
@@ -3688,9 +4082,24 @@ void MarlinSettings::reset() {
     TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
 
     //
+    // Fixed-Time Motion
+    //
+    TERN_(FT_MOTION, gcode.M493_report(forReplay));
+
+    //
+    // Nonlinear Extrusion
+    //
+    TERN_(NONLINEAR_EXTRUSION, gcode.M592_report(forReplay));
+
+    //
     // Input Shaping
     //
     TERN_(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
+
+    //
+    // Hotend Idle Timeout
+    //
+    TERN_(HOTEND_IDLE_TIMEOUT, gcode.M86_report(forReplay));
 
     //
     // Linear Advance
@@ -3707,7 +4116,7 @@ void MarlinSettings::reset() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    TERN_(ADVANCED_PAUSE_FEATURE, gcode.M603_report(forReplay));
+    TERN_(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
 
     //
     // Tool-changing Parameters
@@ -3739,6 +4148,11 @@ void MarlinSettings::reset() {
     // Model predictive control
     //
     TERN_(MPCTEMP, gcode.M306_report(forReplay));
+
+    //
+    // MMU3
+    //
+    TERN_(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
   }
 
 #endif // !DISABLE_M503

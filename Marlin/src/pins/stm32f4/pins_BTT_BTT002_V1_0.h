@@ -152,17 +152,23 @@
   #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA2   // T0 <-> E0
 #define TEMP_1_PIN                          PA0   // T1 <-> E1
-#define TEMP_BOARD_PIN                      PC2   // Onboard thermistor, NTC100K
 #define TEMP_BED_PIN                        PA1   // T2 <-> Bed
 #define TEMP_PROBE_PIN                      PC3   // Shares J4 connector with PD1
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                    PC2   // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -195,16 +201,14 @@
 #endif
 
 /**
- * ---------------------------------BTT002 V1.0---------------------------------
- *                ------                                    ------              |
- * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)   |
- * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS) |
- * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)  |
- * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET       |
- *           GND | 9 10 | 5V                           GND | 9 10 | PA3         |
- *                ------                                    ------              |
- *                 EXP1                                      EXP2               |
- * ------------------------------------------------------------------------------
+ *                ------                                    ------
+ * (BEEPER) PE7  | 1  2 | PB1  (BTN_ENC)     (MISO)    PA6 | 1  2 | PA5 (SCK)
+ * (LCD_EN) PE9  | 3  4 | PE8  (LCD_RS)      (BTN_EN1) PC5 | 3  4 | PA4 (SD_SS)
+ * (LCD_D4) PE10   5  6 | PE11 (LCD_D5)      (BTN_EN2) PB0   5  6 | PA7 (MOSI)
+ * (LCD_D6) PE12 | 7  8 | PE13 (LCD_D7)      (SD_DET)  PC4 | 7  8 | RESET
+ *           GND | 9 10 | 5V                           GND | 9 10 | PA3
+ *                ------                                    ------
+ *                 EXP1                                      EXP2
  */
 #define EXP1_01_PIN                         PE7
 #define EXP1_02_PIN                         PB1
@@ -234,8 +238,9 @@
 #define SDSS                         EXP2_04_PIN
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
@@ -248,7 +253,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -265,7 +270,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -281,7 +286,7 @@
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

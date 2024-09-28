@@ -11,11 +11,14 @@ import sys
 import datetime
 import random
 try:
-    import heatshrink
+    import heatshrink2 as heatshrink
     heatshrink_exists = True
 except ImportError:
-    heatshrink_exists = False
-
+    try:
+        import heatshrink
+        heatshrink_exists = True
+    except ImportError:
+        heatshrink_exists = False
 
 def millis():
     return time.perf_counter() * 1000
@@ -72,7 +75,7 @@ class Protocol(object):
         self.device = device
         self.baud = baud
         self.block_size = int(bsize)
-        self.simulate_errors = max(min(simerr, 1.0), 0.0);
+        self.simulate_errors = max(min(simerr, 1.0), 0.0)
         self.connected = True
         self.response_timeout = timeout
 
@@ -178,7 +181,7 @@ class Protocol(object):
             except ReadTimeout:
                 self.errors += 1
                 #print("Packetloss detected..")
-            except serial.serialutil.SerialException:
+            except serial.SerialException:
                 return
         self.packet_transit = None
 
@@ -198,7 +201,7 @@ class Protocol(object):
 
     def transmit_packet(self, packet):
         packet = bytearray(packet)
-        if(self.simulate_errors > 0 and random.random() > (1.0 - self.simulate_errors)):
+        if (self.simulate_errors > 0 and random.random() > (1.0 - self.simulate_errors)):
             if random.random() > 0.9:
                 #random data drop
                 start = random.randint(0, len(packet))
@@ -234,8 +237,8 @@ class Protocol(object):
 
     # checksum 16 fletchers
     def checksum(self, cs, value):
-        cs_low = (((cs & 0xFF) + value) % 255);
-        return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low;
+        cs_low = (((cs & 0xFF) + value) % 255)
+        return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low
 
     def build_checksum(self, buffer):
         cs = 0
@@ -267,7 +270,7 @@ class Protocol(object):
 
     def response_ok(self, data):
         try:
-            packet_id = int(data);
+            packet_id = int(data)
         except ValueError:
             return
         if packet_id != self.sync:
@@ -276,7 +279,7 @@ class Protocol(object):
         self.packet_status = 1
 
     def response_resend(self, data):
-        packet_id = int(data);
+        packet_id = int(data)
         self.errors += 1
         if not self.syncronised:
             print("Retrying syncronisation")
@@ -327,7 +330,7 @@ class FileTransferProtocol(object):
         return self.responses.popleft()
 
     def connect(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.QUERY);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.QUERY)
 
         token, data = self.await_response()
         if token != 'PFT:version:':
@@ -349,7 +352,7 @@ class FileTransferProtocol(object):
 
         timeout = TimeOut(5000)
         token = None
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
         while token != 'PFT:success' and not timeout.timedout():
             try:
                 token, data = self.await_response(1000)
@@ -360,7 +363,7 @@ class FileTransferProtocol(object):
                     print("Broken transfer detected, purging")
                     self.abort()
                     time.sleep(0.1)
-                    self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload);
+                    self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.OPEN, payload)
                     timeout.reset()
                 elif token == 'PFT:fail':
                     raise Exception("Can not open file on client")
@@ -369,10 +372,10 @@ class FileTransferProtocol(object):
         raise ReadTimeout()
 
     def write(self, data):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.WRITE, data);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.WRITE, data)
 
     def close(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.CLOSE);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.CLOSE)
         token, data = self.await_response(1000)
         if token == 'PFT:success':
             print("File closed")
@@ -385,7 +388,7 @@ class FileTransferProtocol(object):
             return False
 
     def abort(self):
-        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT);
+        self.protocol.send(FileTransferProtocol.protocol_id, FileTransferProtocol.Packet.ABORT)
         token, data = self.await_response()
         if token == 'PFT:success':
             print("Transfer Aborted")
@@ -393,18 +396,19 @@ class FileTransferProtocol(object):
     def copy(self, filename, dest_filename, compression, dummy):
         self.connect()
 
-        compression_support = heatshrink_exists and self.compression['algorithm'] == 'heatshrink' and compression
-        if compression and (not heatshrink_exists or not self.compression['algorithm'] == 'heatshrink'):
-            print("Compression not supported by client")
-        #compression_support = False
+        has_heatshrink = heatshrink_exists and self.compression['algorithm'] == 'heatshrink'
+        if compression and not has_heatshrink:
+            hs = '2' if sys.version_info[0] > 2 else ''
+            print("Compression not supported by client. Use 'pip install heatshrink%s' to fix." % hs)
+            compression = False
 
         data = open(filename, "rb").read()
         filesize = len(data)
 
-        self.open(dest_filename, compression_support, dummy)
+        self.open(dest_filename, compression, dummy)
 
         block_size = self.protocol.block_size
-        if compression_support:
+        if compression:
             data = heatshrink.encode(data, window_sz2=self.compression['window'], lookahead_sz2=self.compression['lookahead'])
 
         cratio = filesize / len(data)
@@ -419,17 +423,17 @@ class FileTransferProtocol(object):
             self.write(data[start:end])
             kibs = (( (i+1) * block_size) / 1024) / (millis() + 1 - start_time) * 1000
             if (i / blocks) >= dump_pctg:
-                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors), end='')
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end='')
                 dump_pctg += 0.1
             if self.protocol.errors > 0:
                 # Dump last status (errors may not be visible)
-                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3} - Aborting...".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors), end='')
+                print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3} - Aborting...".format((i / blocks) * 100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors), end='')
                 print("")   # New line to break the transfer speed line
                 self.close()
                 print("Transfer aborted due to protocol errors")
                 #raise Exception("Transfer aborted due to protocol errors")
-                return False;
-        print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression_support else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
+                return False
+        print("\r{0:2.0f}% {1:4.2f}KiB/s {2} Errors: {3}".format(100, kibs, "[{0:4.2f}KiB/s]".format(kibs * cratio) if compression else "", self.protocol.errors)) # no one likes transfers finishing at 99.8%
 
         if not self.close():
             print("Transfer failed")

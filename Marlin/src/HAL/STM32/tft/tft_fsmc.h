@@ -28,11 +28,7 @@
 #elif defined(STM32F4xx)
   #include "stm32f4xx_hal.h"
 #else
-  #error "FSMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
-#endif
-
-#ifndef HAL_SRAM_MODULE_ENABLED
-  #error "SRAM module disabled for the STM32 framework (HAL_SRAM_MODULE_ENABLED)! Please consult the development team."
+  #error "FSMC/FMC TFT is currently only supported on STM32F1 and STM32F4 hardware."
 #endif
 
 #ifndef LCD_READ_ID
@@ -45,7 +41,7 @@
 #define DATASIZE_8BIT  SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_FSMC
-#define DMA_MAX_SIZE   0xFFFF
+#define DMA_MAX_WORDS  0xFFFF
 
 #define TFT_DATASIZE TERN(TFT_INTERFACE_FSMC_8BIT, DATASIZE_8BIT, DATASIZE_16BIT)
 typedef TERN(TFT_INTERFACE_FSMC_8BIT, uint8_t, uint16_t) tft_data_t;
@@ -55,6 +51,12 @@ typedef struct {
   __IO tft_data_t RAM;
 } LCD_CONTROLLER_TypeDef;
 
+#ifdef STM32F446xx
+  #define FMC_OR_FSMC(N) _CAT(FMC_, N)
+#else
+  #define FMC_OR_FSMC(N) _CAT(FSMC_, N)
+#endif
+
 class TFT_FSMC {
   private:
     static SRAM_HandleTypeDef SRAMx;
@@ -62,31 +64,31 @@ class TFT_FSMC {
 
     static LCD_CONTROLLER_TypeDef *LCD;
 
-    static uint32_t ReadID(tft_data_t Reg);
-    static void Transmit(tft_data_t Data) { LCD->RAM = Data; __DSB(); }
-    static void Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
-    static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+    static uint32_t readID(tft_data_t inReg);
+    static void transmit(tft_data_t data) { LCD->RAM = data; __DSB(); }
+    static void transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
+    static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
 
   public:
-    static void Init();
-    static uint32_t GetID();
+    static void init();
+    static uint32_t getID();
     static bool isBusy();
-    static void Abort();
+    static void abort();
 
-    static void DataTransferBegin(uint16_t DataWidth=TFT_DATASIZE) {}
-    static void DataTransferEnd() {}
+    static void dataTransferBegin(uint16_t dataWidth=TFT_DATASIZE) {}
+    static void dataTransferEnd() {}
 
-    static void WriteData(uint16_t Data) { Transmit(tft_data_t(Data)); }
-    static void WriteReg(uint16_t Reg) { LCD->REG = tft_data_t(Reg); __DSB(); }
+    static void writeData(uint16_t data) { transmit(tft_data_t(data)); }
+    static void writeReg(const uint16_t inReg) { LCD->REG = tft_data_t(inReg); __DSB(); }
 
-    static void WriteSequence_DMA(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
-    static void WriteMultiple_DMA(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
+    static void writeSequence_DMA(uint16_t *data, uint16_t count) { transmitDMA(DMA_PINC_ENABLE, data, count); }
+    static void writeMultiple_DMA(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_PINC_DISABLE, &data, count); }
 
-    static void WriteSequence(uint16_t *Data, uint16_t Count) { Transmit(DMA_PINC_ENABLE, Data, Count); }
-    static void WriteMultiple(uint16_t Color, uint32_t Count) {
-      while (Count > 0) {
-        Transmit(DMA_MINC_DISABLE, &Color, Count > DMA_MAX_SIZE ? DMA_MAX_SIZE : Count);
-        Count = Count > DMA_MAX_SIZE ? Count - DMA_MAX_SIZE : 0;
+    static void writeSequence(uint16_t *data, uint16_t count) { transmit(DMA_PINC_ENABLE, data, count); }
+    static void writeMultiple(uint16_t color, uint32_t count) {
+      while (count > 0) {
+        transmit(DMA_MINC_DISABLE, &color, count > DMA_MAX_WORDS ? DMA_MAX_WORDS : count);
+        count = count > DMA_MAX_WORDS ? count - DMA_MAX_WORDS : 0;
       }
     }
 };
@@ -94,7 +96,11 @@ class TFT_FSMC {
 #ifdef STM32F1xx
   #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, AFIO_NONE)
 #elif defined(STM32F4xx)
-  #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
+  #ifdef STM32F446xx
+    #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FMC)
+  #else
+    #define FSMC_PIN_DATA   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_FSMC)
+  #endif
   #define FSMC_BANK1_1    0x60000000U
   #define FSMC_BANK1_2    0x64000000U
   #define FSMC_BANK1_3    0x68000000U
@@ -103,36 +109,36 @@ class TFT_FSMC {
   #error No configuration for this MCU
 #endif
 
-const PinMap PinMap_FSMC[] = {
-  {PD_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D00
-  {PD_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D01
-  {PD_0,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D02
-  {PD_1,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D03
-  {PE_7,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D04
-  {PE_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D05
-  {PE_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D06
-  {PE_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D07
+const PinMap pinMap_FSMC[] = {
+  {PD_14,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D00
+  {PD_15,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D01
+  {PD_0,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D02
+  {PD_1,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D03
+  {PE_7,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D04
+  {PE_8,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D05
+  {PE_9,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D06
+  {PE_10,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D07
   #if DISABLED(TFT_INTERFACE_FSMC_8BIT)
-    {PE_11,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D08
-    {PE_12,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D09
-    {PE_13,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D10
-    {PE_14,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D11
-    {PE_15,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D12
-    {PD_8,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D13
-    {PD_9,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D14
-    {PD_10,  FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_D15
+    {PE_11,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D08
+    {PE_12,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D09
+    {PE_13,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D10
+    {PE_14,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D11
+    {PE_15,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D12
+    {PD_8,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D13
+    {PD_9,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D14
+    {PD_10,  FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_D15
   #endif
-  {PD_4,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NOE
-  {PD_5,   FSMC_NORSRAM_DEVICE, FSMC_PIN_DATA}, // FSMC_NWE
+  {PD_4,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_NOE
+  {PD_5,   FMC_OR_FSMC(NORSRAM_DEVICE), FSMC_PIN_DATA}, // FSMC_NWE
   {NC,    NP,    0}
 };
 
-const PinMap PinMap_FSMC_CS[] = {
-  {PD_7,  (void *)FSMC_NORSRAM_BANK1, FSMC_PIN_DATA}, // FSMC_NE1
+const PinMap pinMap_FSMC_CS[] = {
+  {PD_7,  (void *)FMC_OR_FSMC(NORSRAM_BANK1), FSMC_PIN_DATA}, // FSMC_NE1
   #ifdef PF0
-    {PG_9,  (void *)FSMC_NORSRAM_BANK2, FSMC_PIN_DATA}, // FSMC_NE2
-    {PG_10, (void *)FSMC_NORSRAM_BANK3, FSMC_PIN_DATA}, // FSMC_NE3
-    {PG_12, (void *)FSMC_NORSRAM_BANK4, FSMC_PIN_DATA}, // FSMC_NE4
+    {PG_9,  (void *)FMC_OR_FSMC(NORSRAM_BANK2), FSMC_PIN_DATA}, // FSMC_NE2
+    {PG_10, (void *)FMC_OR_FSMC(NORSRAM_BANK3), FSMC_PIN_DATA}, // FSMC_NE3
+    {PG_12, (void *)FMC_OR_FSMC(NORSRAM_BANK4), FSMC_PIN_DATA}, // FSMC_NE4
   #endif
   {NC,    NP,    0}
 };
@@ -143,7 +149,7 @@ const PinMap PinMap_FSMC_CS[] = {
   #define FSMC_RS(A)  (void *)((2 << A) - 2)
 #endif
 
-const PinMap PinMap_FSMC_RS[] = {
+const PinMap pinMap_FSMC_RS[] = {
   #ifdef PF0
     {PF_0,  FSMC_RS( 0), FSMC_PIN_DATA}, // FSMC_A0
     {PF_1,  FSMC_RS( 1), FSMC_PIN_DATA}, // FSMC_A1

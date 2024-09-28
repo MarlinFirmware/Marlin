@@ -56,7 +56,7 @@
   #include "hiprecy/DGUSScreenHandler.h"
 #endif
 
-extern DGUSScreenHandlerClass ScreenHandler;
+extern DGUSScreenHandlerClass screen;
 
 // Helper to define a DGUS_VP_Variable for common use-cases.
 #define VPHELPER(VPADR, VPADRVAR, RXFPTR, TXFPTR) { \

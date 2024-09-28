@@ -25,7 +25,7 @@
  * Cheaptronic v2.0 pin assignments
  * Built and sold by Michal Dyntar - RRO
  *          www.reprapobchod.cz (DOES NOT EXIST ANYMORE)
- *          https://web.archive.org/web/20190306201523/http://reprapobchod.cz/
+ *          https://web.archive.org/web/20190306201523/reprapobchod.cz
  * ATmega2560
  */
 
@@ -113,7 +113,7 @@
 // LCD / Controller
 //
 #define LCD_PINS_RS                           19
-#define LCD_PINS_ENABLE                       42
+#define LCD_PINS_EN                           42
 #define LCD_PINS_D4                           18
 #define LCD_PINS_D5                           38
 #define LCD_PINS_D6                           41
@@ -128,7 +128,7 @@
 //
 #define BEEPER_PIN                            44
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
   #define SDSS                                53
   #define SD_DETECT_PIN                       49
 #endif

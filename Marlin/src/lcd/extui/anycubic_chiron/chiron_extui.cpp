@@ -37,33 +37,59 @@ using namespace Anycubic;
 
 namespace ExtUI {
 
-  void onStartup() { Chiron.Startup(); }
+  void onStartup() { chiron.startup(); }
 
-  void onIdle() { Chiron.IdleLoop(); }
+  void onIdle() { chiron.idleLoop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
-    Chiron.PrinterKilled(error, component);
+    chiron.printerKilled(error, component);
   }
 
-  void onMediaInserted() { Chiron.MediaEvent(AC_media_inserted); }
-  void onMediaError()    { Chiron.MediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { Chiron.MediaEvent(AC_media_removed);  }
+  void onMediaMounted() { chiron.mediaEvent(AC_media_inserted); }
+  void onMediaError()   { chiron.mediaEvent(AC_media_error);    }
+  void onMediaRemoved() { chiron.mediaEvent(AC_media_removed);  }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+  void onHeatingError(const heater_id_t header_id) {}
+  void onMinTempError(const heater_id_t header_id) {}
+  void onMaxTempError(const heater_id_t header_id) {}
+
+  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
     #if ENABLED(SPEAKER)
       ::tone(BEEPER_PIN, frequency, duration);
     #endif
   }
 
-  void onPrintTimerStarted() { Chiron.TimerEvent(AC_timer_started); }
-  void onPrintTimerPaused()  { Chiron.TimerEvent(AC_timer_paused);  }
-  void onPrintTimerStopped() { Chiron.TimerEvent(AC_timer_stopped); }
+  void onPrintTimerStarted() { chiron.timerEvent(AC_timer_started); }
+  void onPrintTimerPaused()  { chiron.timerEvent(AC_timer_paused);  }
+  void onPrintTimerStopped() { chiron.timerEvent(AC_timer_stopped); }
+
   void onPrintDone() {}
 
-  void onFilamentRunout(const extruder_t)            { Chiron.FilamentRunout();             }
+  void onFilamentRunout(const extruder_t)            { chiron.filamentRunout(); }
 
-  void onUserConfirmRequired(const char * const msg) { Chiron.ConfirmationRequest(msg);     }
-  void onStatusChanged(const char * const msg)       { Chiron.StatusChange(msg);            }
+  void onUserConfirmRequired(const char * const msg) { chiron.confirmationRequest(msg); }
+
+  // For fancy LCDs include an icon ID, message, and translated button title
+  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+    onUserConfirmRequired(cstr);
+    UNUSED(icon); UNUSED(fBtn);
+  }
+  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+    onUserConfirmRequired(fstr);
+    UNUSED(icon); UNUSED(fBtn);
+  }
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    void onPauseMode(
+      const PauseMessage message,
+      const PauseMode mode/*=PAUSE_MODE_SAME*/,
+      const uint8_t extruder/*=active_extruder*/
+    ) {
+      stdOnPauseMode(message, mode, extruder);
+    }
+  #endif
+
+  void onStatusChanged(const char * const msg)       { chiron.statusChange(msg); }
 
   void onHomingStart() {}
   void onHomingDone() {}
@@ -104,10 +130,15 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  #if HAS_MESH
+  #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
+    #endif
+  #endif
 
+  #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
       // Called when any mesh points are updated
       //SERIAL_ECHOLNPGM("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
@@ -119,6 +150,10 @@ namespace ExtUI {
     }
   #endif
 
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    void onSetMinExtrusionTemp(const celsius_t) {}
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onSetPowerLoss(const bool onoff) {
       // Called when power-loss is enabled/disabled
@@ -127,17 +162,32 @@ namespace ExtUI {
       // Called when power-loss state is detected
     }
     // Called on resume from power-loss
-    void onPowerLossResume() { Chiron.PowerLossRecovery(); }
+    void onPowerLossResume() { chiron.powerLossRecovery(); }
   #endif
 
   #if HAS_PID_HEATING
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
+    }
+    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+      // Called by M303 to update the UI
     }
   #endif
 
+  #if ENABLED(MPC_AUTOTUNE)
+    void onMPCTuning(const mpcresult_t rst) {
+      // Called for temperature MPC tuning result
+    }
+  #endif
+
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    void onFirmwareFlash() {}
+  #endif
+
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
+  void onAxisDisabled(const axis_t) {}
+  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // ANYCUBIC_LCD_CHIRON

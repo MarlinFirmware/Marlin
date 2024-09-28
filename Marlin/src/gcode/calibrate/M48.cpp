@@ -62,16 +62,13 @@ void GcodeSuite::M48() {
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(V)erbose level implausible (0-4)."));
     return;
   }
 
-  if (verbose_level > 0)
-    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
-
   const int8_t n_samples = parser.byteval('P', 10);
   if (!WITHIN(n_samples, 4, 50)) {
-    SERIAL_ECHOLNPGM("?Sample size not plausible (4-50).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Sample size not plausible (4-50)."));
     return;
   }
 
@@ -84,8 +81,8 @@ void GcodeSuite::M48() {
   };
 
   if (!probe.can_reach(test_position)) {
-    ui.set_status(GET_TEXT_F(MSG_M48_OUT_OF_BOUNDS), 99);
-    SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
+    LCD_MESSAGE_MAX(MSG_M48_OUT_OF_BOUNDS);
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG(" (X,Y) out of bounds."));
     return;
   }
 
@@ -93,7 +90,7 @@ void GcodeSuite::M48() {
   bool seen_L = parser.seen('L');
   uint8_t n_legs = seen_L ? parser.value_byte() : 0;
   if (n_legs > 15) {
-    SERIAL_ECHOLNPGM("?Legs of movement implausible (0-15).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Legs of movement implausible (0-15)."));
     return;
   }
   if (n_legs == 1) n_legs = 2;
@@ -101,6 +98,9 @@ void GcodeSuite::M48() {
   // Schizoid motion as an optional stress-test
   const bool schizoid_flag = parser.boolval('S');
   if (schizoid_flag && !seen_L) n_legs = 7;
+
+  if (verbose_level > 0)
+    SERIAL_ECHOLNPGM("M48 Z-Probe Repeatability Test");
 
   if (verbose_level > 2)
     SERIAL_ECHOLNPGM("Positioning the probe...");
@@ -126,15 +126,13 @@ void GcodeSuite::M48() {
 
   auto dev_report = [](const bool verbose, const_float_t mean, const_float_t sigma, const_float_t min, const_float_t max, const bool final=false) {
     if (verbose) {
-      SERIAL_ECHOPAIR_F("Mean: ", mean, 6);
-      if (!final) SERIAL_ECHOPAIR_F(" Sigma: ", sigma, 6);
-      SERIAL_ECHOPAIR_F(" Min: ", min, 3);
-      SERIAL_ECHOPAIR_F(" Max: ", max, 3);
-      SERIAL_ECHOPAIR_F(" Range: ", max-min, 3);
+      SERIAL_ECHOPGM("Mean: ", p_float_t(mean, 6));
+      if (!final) SERIAL_ECHOPGM(" Sigma: ", p_float_t(sigma, 6));
+      SERIAL_ECHOPGM(" Min: ", p_float_t(min, 3), " Max: ", p_float_t(max, 3), " Range: ", p_float_t(max-min, 3));
       if (final) SERIAL_EOL();
     }
     if (final) {
-      SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
+      SERIAL_ECHOLNPGM("Standard Deviation: ", p_float_t(sigma, 6));
       SERIAL_EOL();
     }
   };
@@ -148,10 +146,10 @@ void GcodeSuite::M48() {
 
     float sample_sum = 0.0;
 
-    LOOP_L_N(n, n_samples) {
+    for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
-        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
+        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
 
       // When there are "legs" of movement move around the point before probing
@@ -175,7 +173,7 @@ void GcodeSuite::M48() {
         }
 
         // Move from leg to leg in rapid succession
-        LOOP_L_N(l, n_legs - 1) {
+        for (uint8_t l = 0; l < n_legs - 1; ++l) {
 
           // Move some distance around the perimeter
           float delta_angle;
@@ -207,7 +205,7 @@ void GcodeSuite::M48() {
             while (!probe.can_reach(next_pos)) {
               next_pos *= 0.8f;
               if (verbose_level > 3)
-                SERIAL_ECHOLNPGM_P(PSTR("Moving inward: X"), next_pos.x, SP_Y_STR, next_pos.y);
+                SERIAL_ECHOLN(F("Moving inward: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
             }
           #elif HAS_ENDSTOPS
             // For a rectangular bed just keep the probe in bounds
@@ -216,14 +214,14 @@ void GcodeSuite::M48() {
           #endif
 
           if (verbose_level > 3)
-            SERIAL_ECHOLNPGM_P(PSTR("Going to: X"), next_pos.x, SP_Y_STR, next_pos.y);
+            SERIAL_ECHOLN(F("Going to: X"), next_pos.x, FPSTR(SP_Y_STR), next_pos.y);
 
           do_blocking_move_to_xy(next_pos);
         } // n_legs loop
       } // n_legs
 
       // Probe a single point
-      const float pz = probe.probe_at_point(test_position, raise_after, 0);
+      const float pz = probe.probe_at_point(test_position, raise_after);
 
       // Break the loop if the probe fails
       probing_good = !isnan(pz);
@@ -243,14 +241,11 @@ void GcodeSuite::M48() {
       // Calculate the standard deviation so far.
       // The value after the last sample will be the final output.
       float dev_sum = 0.0;
-      LOOP_LE_N(j, n) dev_sum += sq(sample_set[j] - mean);
+      for (uint8_t j = 0; j <= n; ++j) dev_sum += sq(sample_set[j] - mean);
       sigma = SQRT(dev_sum / (n + 1));
 
       if (verbose_level > 1) {
-        SERIAL_ECHO(n + 1);
-        SERIAL_ECHOPGM(" of ", n_samples);
-        SERIAL_ECHOPAIR_F(": z: ", pz, 3);
-        SERIAL_CHAR(' ');
+        SERIAL_ECHO(n + 1, F(" of "), n_samples, F(": z: "), p_float_t(pz, 3), C(' '));
         dev_report(verbose_level > 2, mean, sigma, min, max);
         SERIAL_EOL();
       }
@@ -266,8 +261,7 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      char sigma_str[8];
-      ui.status_printf(0, F(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));
+      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
     #endif
   }
 

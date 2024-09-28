@@ -29,7 +29,7 @@
 #include "../module/motion.h"
 #include "../module/planner.h"
 
-axis_bits_t Backlash::last_direction_bits;
+AxisBits Backlash::last_direction_bits;
 xyz_long_t Backlash::residual_error{0};
 
 #ifdef BACKLASH_DISTANCE_MM
@@ -63,25 +63,25 @@ Backlash backlash;
  * spread over multiple segments, smoothing out artifacts even more.
  */
 
-void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const int32_t &dc, const axis_bits_t dm, block_t * const block) {
-  axis_bits_t changed_dir = last_direction_bits ^ dm;
+void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, block_t * const block) {
+  AxisBits changed_dir = last_direction_bits ^ dm;
   // Ignore direction change unless steps are taken in that direction
-  #if DISABLED(CORE_BACKLASH) || EITHER(MARKFORGED_XY, MARKFORGED_YX)
-    if (!da) CBI(changed_dir, X_AXIS);
-    if (!db) CBI(changed_dir, Y_AXIS);
-    if (!dc) CBI(changed_dir, Z_AXIS);
+  #if DISABLED(CORE_BACKLASH) || ANY(MARKFORGED_XY, MARKFORGED_YX)
+    if (!dist.a)            changed_dir.x = false;
+    if (!dist.b)            changed_dir.y = false;
+    if (!dist.c)            changed_dir.z = false;
   #elif CORE_IS_XY
-    if (!(da + db)) CBI(changed_dir, X_AXIS);
-    if (!(da - db)) CBI(changed_dir, Y_AXIS);
-    if (!dc)        CBI(changed_dir, Z_AXIS);
+    if (!(dist.a + dist.b)) changed_dir.x = false;
+    if (!(dist.a - dist.b)) changed_dir.y = false;
+    if (!dist.c)            changed_dir.z = false;
   #elif CORE_IS_XZ
-    if (!(da + dc)) CBI(changed_dir, X_AXIS);
-    if (!(da - dc)) CBI(changed_dir, Z_AXIS);
-    if (!db)        CBI(changed_dir, Y_AXIS);
+    if (!(dist.a + dist.c)) changed_dir.x = false;
+    if (!(dist.a - dist.c)) changed_dir.z = false;
+    if (!dist.b)            changed_dir.y = false;
   #elif CORE_IS_YZ
-    if (!(db + dc)) CBI(changed_dir, Y_AXIS);
-    if (!(db - dc)) CBI(changed_dir, Z_AXIS);
-    if (!da)        CBI(changed_dir, X_AXIS);
+    if (!(dist.b + dist.c)) changed_dir.y = false;
+    if (!(dist.b - dist.c)) changed_dir.z = false;
+    if (!dist.a)            changed_dir.x = false;
   #endif
   last_direction_bits ^= changed_dir;
 
@@ -97,18 +97,24 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
   const float f_corr = float(correction) / all_on;
 
+  bool changed = false;
+  float millimeters_delta = 0.0f;
+  #if IS_KINEMATIC
+    float sqr_stepper_space_mm = 0.0f;
+  #endif
+
   LOOP_NUM_AXES(axis) {
+    TERN_(IS_KINEMATIC, sqr_stepper_space_mm += sq(dist[axis] * planner.mm_per_step[axis]));
+
     if (distance_mm[axis]) {
-      const bool reverse = TEST(dm, axis);
+      const bool forward = dm[axis];
 
       // When an axis changes direction, add axis backlash to the residual error
-      if (TEST(changed_dir, axis))
-        residual_error[axis] += (reverse ? -f_corr : f_corr) * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+      if (changed_dir[axis])
+        residual_error[axis] += (forward ? f_corr : -f_corr) * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
       // Decide how much of the residual error to correct in this segment
       int32_t error_correction = residual_error[axis];
-      if (reverse != (error_correction < 0))
-        error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
 
       #ifdef BACKLASH_SMOOTHING_MM
         if (error_correction && smoothing_mm != 0) {
@@ -118,9 +124,18 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
         }
       #endif
 
+      // Don't correct backlash in the opposite direction to movement on this axis and for accuracy in
+      // updating block->millimeters, don't add too many steps to the movement on this axis
+      if (forward)
+        LIMIT(error_correction, 0, dist[axis]);
+      else
+        LIMIT(error_correction, dist[axis], 0);
+
       // This correction reduces the residual error and adds block steps
       if (error_correction) {
+        changed = true;
         block->steps[axis] += ABS(error_correction);
+        millimeters_delta += dist[axis] * error_correction * sq(planner.mm_per_step[axis]);
         #if ENABLED(CORE_BACKLASH)
           switch (axis) {
             case CORE_AXIS_1:
@@ -142,22 +157,28 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
       }
     }
   }
+
+  // If backlash correction steps were added modify block->millimeters with a linear approximation
+  // See https://github.com/MarlinFirmware/Marlin/pull/26392
+  if (changed)
+    block->millimeters += TERN(IS_KINEMATIC, millimeters_delta * block->millimeters / sqr_stepper_space_mm, millimeters_delta / block->millimeters);
 }
 
 int32_t Backlash::get_applied_steps(const AxisEnum axis) {
   if (axis >= NUM_AXES) return 0;
 
-  const bool reverse = TEST(last_direction_bits, axis);
+  const bool forward = last_direction_bits[axis];
 
   const int32_t residual_error_axis = residual_error[axis];
 
-  // At startup it is assumed the last move was forwards. So the applied
-  // steps will always be a non-positive number.
+  // At startup, when no steps are applied, it is assumed the last move was backwards.
+  // So the applied steps will always be zero (when moving backwards) or a positive
+  // number (when moving forwards).
 
-  if (!reverse) return -residual_error_axis;
+  if (!forward) return -residual_error_axis;
 
   const float f_corr = float(correction) / all_on;
-  const int32_t full_error_axis = -f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+  const int32_t full_error_axis = f_corr * distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
   return full_error_axis - residual_error_axis;
 }
 

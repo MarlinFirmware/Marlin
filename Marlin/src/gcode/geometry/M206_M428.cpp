@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_M206_COMMAND
+#if HAS_HOME_OFFSET
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -48,6 +48,8 @@ void GcodeSuite::M206() {
 }
 
 void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(
     #if IS_CARTESIAN
@@ -101,4 +103,4 @@ void GcodeSuite::M428() {
   OKAY_BUZZ();
 }
 
-#endif // HAS_M206_COMMAND
+#endif // HAS_HOME_OFFSET

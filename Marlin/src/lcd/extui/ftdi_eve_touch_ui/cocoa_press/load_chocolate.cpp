@@ -54,11 +54,10 @@ void LoadChocolateScreen::draw_buttons(draw_mode_t what) {
   cmd.tag(3).colors(mydata.repeat_tag == 6 ? action_btn : normal_btn).button(x, y, h, v, GET_TEXT_F(MSG_LOAD));
 
   ui.bounds(POLY(load_screen_start_stop_btn), x, y, h, v);
-  if(mydata.repeat_tag == 0) {
-      cmd.colors(normal_btn).enabled(false);
-  } else {
-      cmd.colors(mydata.repeating ? action_btn : normal_btn).enabled(true);
-  }
+  if (mydata.repeat_tag == 0)
+    cmd.colors(normal_btn).enabled(false);
+  else
+    cmd.colors(mydata.repeating ? action_btn : normal_btn).enabled(true);
   cmd.tag(4).button(x, y, h, v, GET_TEXT_F(MSG_START_STOP));
 
   ui.bounds(POLY(load_screen_back_btn), x, y, h, v);
@@ -115,24 +114,16 @@ void LoadChocolateScreen::onRedraw(draw_mode_t what) {
 }
 
 bool LoadChocolateScreen::onTouchStart(uint8_t tag) {
-  if(tag != 4) {
-    mydata.repeating = false;
-  }
+  if (tag != 4) mydata.repeating = false;
   return true;
 }
 
 bool LoadChocolateScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
   switch (tag) {
-    case 2:
-      mydata.repeat_tag = 5;
-      break;
-    case 3:
-      mydata.repeat_tag = 6;
-      break;
-    case 4:
-      mydata.repeating = !mydata.repeating;
-      break;
+    case 2: mydata.repeat_tag = 5; break;
+    case 3: mydata.repeat_tag = 6; break;
+    case 4: mydata.repeating = !mydata.repeating; break;
     case 1: GOTO_PREVIOUS(); break;
   }
   return true;
@@ -153,12 +144,8 @@ bool LoadChocolateScreen::onTouchHeld(uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   switch (tag) {
-    case 5:
-      UI_INCREMENT_AXIS(E0);
-      break;
-    case 6:
-      UI_DECREMENT_AXIS(E0);
-      break;
+    case 5: UI_INCREMENT_AXIS(E0); break;
+    case 6: UI_DECREMENT_AXIS(E0); break;
     default: return false;
   }
   #undef UI_DECREMENT_AXIS
@@ -170,10 +157,10 @@ void LoadChocolateScreen::onIdle() {
   reset_menu_timeout();
   if (mydata.repeating) onTouchHeld(mydata.repeat_tag);
   if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
-    if (!EventLoop::is_touch_held())
-      onRefresh();
+    if (!EventLoop::is_touch_held()) onRefresh();
     refresh_timer.start();
   }
   BaseScreen::onIdle();
 }
+
 #endif // COCOA_LOAD_CHOCOLATE_SCREEN

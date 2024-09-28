@@ -32,7 +32,7 @@
 //
 // EEPROM
 //
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
   #define MARLIN_EEPROM_SIZE             0x1F400  // 16K
 #endif
@@ -145,6 +145,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define BTN_EN1                             48
@@ -160,7 +161,7 @@
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       42
-    #define LCD_PINS_ENABLE                   43
+    #define LCD_PINS_EN                       43
     #define LCD_PINS_D4                       44
 
     #define BTN_BACK                          52

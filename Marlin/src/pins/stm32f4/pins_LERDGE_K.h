@@ -159,8 +159,11 @@
   //#define E2_SERIAL_RX_PIN    EX_SERIAL_RX_PIN
   //#define E2_SERIAL_TX_PIN    EX_SERIAL_TX_PIN
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -203,7 +206,6 @@
 //
 #define LED_PIN                             PA15  // Status LED
 //#define CASE_LIGHT_PIN                    PB6   // LED Ribbon Connector (PWM TIM4_CH1)
-//#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB8   // swap R and G pin for compatibility with real wires
 #endif
@@ -217,10 +219,10 @@
 //
 // SD support
 //
-#define SDIO_SUPPORT
+#define ONBOARD_SDIO
 #define SDIO_CLOCK                       4800000
 #define SD_DETECT_PIN                       PA8
-#if DISABLED(SDIO_SUPPORT)
+#if DISABLED(ONBOARD_SDIO)
   #define SOFTWARE_SPI
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8
@@ -248,9 +250,9 @@
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
+  // TODO: See if FSMC DMA can work
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 

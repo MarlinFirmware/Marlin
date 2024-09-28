@@ -211,8 +211,8 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
   #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
   #define SPINDLE_DIR_PIN                      5
 #endif
 
@@ -244,17 +244,14 @@
   #endif
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
-//
-// LCD Display output pins
-//
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          45
   #define LCD_PINS_RS                         19
-  #define LCD_PINS_ENABLE                     49
+  #define LCD_PINS_EN                         49
   #define LCD_PINS_D4                         18
   #define LCD_PINS_D5                         30
   #define LCD_PINS_D6                         41

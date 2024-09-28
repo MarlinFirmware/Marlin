@@ -23,37 +23,61 @@
 
 #include "../core/types.h"
 
-typedef enum FXDTICtrlMode : uint8_t {
-  ftMotionMode_DISABLED   =  0U,
-  ftMotionMode_ENABLED    =  1U,
-  ftMotionMode_ULENDO_FBS =  2U,
-  ftMotionMode_ZV         = 10U,
-  ftMotionMode_ZVD        = 11U,
-  ftMotionMode_EI         = 12U,
-  ftMotionMode_2HEI       = 13U,
-  ftMotionMode_3HEI       = 14U,
-  ftMotionMode_MZV        = 15U,
-  ftMotionMode_DISCTF     = 20U
-} ftMotionMode_t;
+enum ftMotionShaper_t : uint8_t {
+  ftMotionShaper_NONE  = 0, // No compensator
+  ftMotionShaper_ZV    = 1, // Zero Vibration
+  ftMotionShaper_ZVD   = 2, // Zero Vibration and Derivative
+  ftMotionShaper_ZVDD  = 3, // Zero Vibration, Derivative, and Double Derivative
+  ftMotionShaper_ZVDDD = 4, // Zero Vibration, Derivative, Double Derivative, and Triple Derivative
+  ftMotionShaper_EI    = 5, // Extra-Intensive
+  ftMotionShaper_2HEI  = 6, // 2-Hump Extra-Intensive
+  ftMotionShaper_3HEI  = 7, // 3-Hump Extra-Intensive
+  ftMotionShaper_MZV   = 8  // Modified Zero Vibration
+};
 
 enum dynFreqMode_t : uint8_t {
-  dynFreqMode_DISABLED   = 0U,
-  dynFreqMode_Z_BASED    = 1U,
-  dynFreqMode_MASS_BASED = 2U
+  dynFreqMode_DISABLED   = 0,
+  dynFreqMode_Z_BASED    = 1,
+  dynFreqMode_MASS_BASED = 2
 };
 
-enum stepDirState_t {
-  stepDirState_NOT_SET = 0U,
-  stepDirState_POS     = 1U,
-  stepDirState_NEG     = 2U
-};
+#define AXIS_HAS_SHAPER(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
+#define AXIS_HAS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
 
+typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
+typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
+
+// TODO: Convert ft_command_t to a struct with bitfields instead of using a primitive type
 enum {
-  FT_BIT_DIR_E, FT_BIT_STEP_E,
-  FT_BIT_DIR_Z, FT_BIT_STEP_Z,
-  FT_BIT_DIR_Y, FT_BIT_STEP_Y,
-  FT_BIT_DIR_X, FT_BIT_STEP_X,
+  LIST_N(DOUBLE(LOGICAL_AXES),
+    FT_BIT_DIR_E, FT_BIT_STEP_E,
+    FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
+    FT_BIT_DIR_I, FT_BIT_STEP_I, FT_BIT_DIR_J, FT_BIT_STEP_J, FT_BIT_DIR_K, FT_BIT_STEP_K,
+    FT_BIT_DIR_U, FT_BIT_STEP_U, FT_BIT_DIR_V, FT_BIT_STEP_V, FT_BIT_DIR_W, FT_BIT_STEP_W
+  ),
   FT_BIT_COUNT
 };
+
+#if HAS_FTM_SHAPING
+  #define NUM_AXES_SHAPED TERN(HAS_Y_AXIS, 2, 1)
+  #define SHAPED_ELEM(A, B) A OPTARG(HAS_Y_AXIS, B)
+#else
+  #define NUM_AXES_SHAPED 0
+  #define SHAPED_ELEM(A, B)
+#endif
+
+template<typename T>
+struct FTShapedAxes {
+  union {
+    struct { T SHAPED_ELEM(X, Y); };
+    struct { T SHAPED_ELEM(x, y); };
+    T val[NUM_AXES_SHAPED];
+  };
+  T& operator[](int i) { return val[i]; }
+};
+
+typedef FTShapedAxes<float>            ft_shaped_float_t;
+typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
+typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
 typedef bits_t(FT_BIT_COUNT) ft_command_t;

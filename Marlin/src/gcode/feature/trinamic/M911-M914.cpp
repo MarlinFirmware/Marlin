@@ -35,7 +35,7 @@
   #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
-  #if M91x_USE(X) || M91x_USE(X2)
+  #if HAS_X_AXIS && (M91x_USE(X) || M91x_USE(X2))
     #define M91x_SOME_X 1
   #endif
   #if HAS_Y_AXIS && (M91x_USE(Y) || M91x_USE(Y2))
@@ -378,6 +378,8 @@
   }
 
   void GcodeSuite::M913_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading(forReplay, F(STR_HYBRID_THRESHOLD));
 
     auto say_M913 = [](const bool forReplay) {
@@ -565,6 +567,8 @@
   }
 
   void GcodeSuite::M914_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading(forReplay, F(STR_STALLGUARD_THRESHOLD));
 
     auto say_M914 = [](const bool forReplay) {

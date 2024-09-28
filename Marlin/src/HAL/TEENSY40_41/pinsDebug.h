@@ -30,18 +30,17 @@
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
 #define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
-#define PRINT_PORT(p)
-#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define GET_ARRAY_PIN(p) pin_array[p].pin
-#define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
-#define VALID_PIN(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
-#define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(13)) || ((P) >= analogInputToDigitalPin(14) && (P) <= analogInputToDigitalPin(17))
-#define pwm_status(pin) HAL_pwm_status(pin)
-#define GET_PINMODE(PIN) (VALID_PIN(pin) && IS_OUTPUT(pin))
+#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
+#define getPinByIndex(p) pin_array[p].pin
+#define getPinIsDigitalByIndex(p) pin_array[p].is_digital
+#define isValidPin(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
+#define digitalPinToAnalogIndex(p) int(p - analogInputToDigitalPin(0))
+#define getValidPinMode(PIN) (isValidPin(pin) && IS_OUTPUT(pin))
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
+
+#define isAnalogPin(P) (pin_t(P) >= analogInputToDigitalPin(0) && pin_t(P) <= analogInputToDigitalPin(13)) || (pin_t(P) >= analogInputToDigitalPin(14) && pin_t(P) <= analogInputToDigitalPin(17))
 
 struct pwm_pin_info_struct {
   uint8_t type;    // 0=no pwm, 1=flexpwm, 2=quad
@@ -120,12 +119,12 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
   #endif
 };
 
-void HAL_print_analog_pin(char buffer[], int8_t pin) {
+void printAnalogPin(char buffer[], const pin_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
   else if (pin <= 41) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 24));
 }
 
-void HAL_analog_pin_state(char buffer[], int8_t pin) {
+void analog_pin_state(char buffer[], const pin_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 14));
   else if (pin <= 41) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 24));
 }
@@ -136,14 +135,14 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-bool HAL_pwm_status(int8_t pin) {
+bool pwm_status(const pin_t pin) {
   char buffer[20];   // for the sprintf statements
   const struct pwm_pin_info_struct *info;
 
-  if (pin >= CORE_NUM_DIGITAL) return 0;
-  info = pwm_pin_info + pin;
+  if (pin >= CORE_NUM_DIGITAL) return false;
 
-  if (info->type == 0) return 0;
+  info = pwm_pin_info + pin;
+  if (info->type == 0) return false;
 
   /* TODO decode pwm value from timers */
   // for now just indicate if output is set as pwm
@@ -151,4 +150,6 @@ bool HAL_pwm_status(int8_t pin) {
   return (*(portConfigRegister(pin)) == info->muxval);
 }
 
-static void pwm_details(uint8_t pin) { /* TODO */ }
+void printPinPWM(const pin_t) { /* TODO */ }
+
+void printPinPort(const pin_t) {}

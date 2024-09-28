@@ -4,17 +4,17 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    Import("env")
-    import requests,zipfile,tempfile,shutil
+    import requests, zipfile, tempfile, shutil
     from pathlib import Path
 
+    env = pioutil.env
     url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"
     deps_path = Path(env.Dictionary("PROJECT_LIBDEPS_DIR"))
     zip_path = deps_path / "mks-assets.zip"
     assets_path = Path(env.Dictionary("PROJECT_BUILD_DIR"), env.Dictionary("PIOENV"), "assets")
 
     def download_mks_assets():
-        print("Downloading MKS Assets")
+        print("Downloading MKS Assets for TFT_LVGL_UI")
         r = requests.get(url, stream=True)
         # the user may have a very clean workspace,
         # so create the PROJECT_LIBDEPS_DIR directory if not exits
@@ -25,7 +25,7 @@ if pioutil.is_pio_build():
                 fd.write(chunk)
 
     def copy_mks_assets():
-        print("Copying MKS Assets")
+        print("Copying MKS Assets for TFT_LVGL_UI")
         output_path = Path(tempfile.mkdtemp())
         zip_obj = zipfile.ZipFile(zip_path, 'r')
         zip_obj.extractall(output_path)

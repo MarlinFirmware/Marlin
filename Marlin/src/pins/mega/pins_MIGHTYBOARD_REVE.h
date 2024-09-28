@@ -23,8 +23,7 @@
 
 /**
  * Mightyboard Rev.E pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mightyboard%20Rev.E/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
- * Origin: https://github.com/sciguy14/HelioWatcher/blob/master/HelioWatcher%20Circuit/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
+ * Schematic: https://github.com/sciguy14/HelioWatcher/blob/master/HelioWatcher%20Circuit/MakerBot%20MightyBoard%20REVE%20Schematic.pdf
  * also works for Rev D boards. It's all rev E despite what the silk screen says
  */
 
@@ -187,12 +186,13 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
-    #define LCD_PINS_ENABLE                   72  // J2: LEFT
+    #define LCD_PINS_EN                       72  // J2: LEFT
     #define LCD_PINS_D4                       35  // C2: LCD-CLK
     #define LCD_PINS_D5                       32  // C5: RLED
     #define LCD_PINS_D6                       34  // C3: LCD-DATA

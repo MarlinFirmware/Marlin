@@ -8,6 +8,8 @@
 
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
 
+which pio >/dev/null || { echo "Make sure 'pio' is in your execution PATH." ; exit 1 ;  }
+
 perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
 errout() { echo -e "\033[0;31m$1\033[0m" ; }
 bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
@@ -39,7 +41,6 @@ env shortcuts: tree due esp lin lp8|lpc8 lp9|lpc9 m128 m256|mega stm|f1 f4 f7 s6
 TESTPATH=buildroot/tests
 
 STATE_FILE="./.pio/.mftestrc"
-SED=$(which gsed sed | head -n1)
 
 shopt -s extglob nocasematch
 
@@ -72,7 +73,7 @@ while getopts 'abdhmrsuvyn:t:-:' OFLAG; do
     u) AUTO_BUILD=2      ; bugout "Auto-Upload target..." ;;
     v) DEBUG=1           ; bugout "Debug ON" ;;
     y) BUILD_YES='Y'     ; bugout "Build will initiate..." ;;
-    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+    -) ONAM="${OPTARG%%=*}" ; OVAL="${OPTARG#*=}"
        case "$ONAM" in
          help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
     autobuild) AUTO_BUILD=1 ; bugout "Auto-Build target..."  ;;
@@ -105,6 +106,7 @@ debug|verbose) DEBUG=1    ; bugout "Debug ON" ;;
     *) EXIT_USAGE=2 ;;
   esac
 done
+shift $((OPTIND - 1))
 
 ((EXIT_USAGE)) && { usage ; let EXIT_USAGE-- ; exit $EXIT_USAGE ; }
 
@@ -156,13 +158,19 @@ if ((AUTO_BUILD)); then
          *) SYS='uni' ;;
   esac
   echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
-  MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//;s/\r//' )
+
+  #
+  # Get the MOTHERBOARD define value from the .h file and strip off the "BOARD_" prefix
+  #
+  ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
+  MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
+  [[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
-  BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
-  BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
+  BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
+  BDESC=$( sed -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
   [[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
-  ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | $SED -E "s/(env|$SYS)://" ) )
+  ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | sed -E "s/(env|$SYS)://" ) )
   [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
   ECOUNT=${#ENVS[*]}
 
@@ -190,6 +198,9 @@ if ((AUTO_BUILD)); then
       [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection out of range." ; exit 1 ; }
     fi
     TARGET="${ENVS[$CHOICE-1]}"
+    if [[ $MB == 'SIMULATED' && $TARGET == 'linux_native' ]]; then
+      TARGET="simulator_linux_release" # Skip the linux_native environment
+    fi
     echo "Selected $TARGET"
   fi
 
@@ -268,7 +279,7 @@ if [[ $CHOICE == 0 ]]; then
     while IFS= read -r LINE
     do
       if [[ $LINE =~ $ISEXEC ]]; then
-        DESC=$( "$SED" -E 's/^exec_test \$1 \$2 "([^"]+)".*$/\1/g' <<<"$LINE" )
+        DESC=$( sed -E 's/^exec_test \$1 \$2 "([^"]+)".*$/\1/g' <<<"$LINE" )
         (( ++IND < 10 )) && echo -n " "
         echo " $IND) $DESC"
       fi
@@ -313,7 +324,7 @@ echo "$OUT" | {
         ((IND == CHOICE)) && {
           GOTX=1
           [[ -n $DL_DEFAULTS && $LINE =~ $ISRST ]] && LINE="use_example_configs"
-          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' | $SED -E 's/ +/ /g' )
+          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | sed -e 's/\\//g' | sed -E 's/ +/ /g' )
           [[ $LINE =~ $ISCONT ]] || { echo "$CMD" ; eval "$CMD" ; CMD="" ; }
         }
       fi

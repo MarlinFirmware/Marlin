@@ -33,9 +33,12 @@
 #include "../../lcd/marlinui.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/tool_change.h"
 #include "../../module/endstops.h"
 #include "../../feature/bedlevel/bedlevel.h"
+
+#if HAS_MULTI_HOTEND
+  #include "../../module/tool_change.h"
+#endif
 
 #if !AXIS_CAN_CALIBRATE(X)
   #undef CALIBRATION_MEASURE_LEFT
@@ -70,7 +73,7 @@
   #define CALIBRATION_MEASUREMENT_CERTAIN   0.5 // mm
 #endif
 
-#if BOTH(CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
+#if ALL(HAS_X_AXIS, CALIBRATION_MEASURE_LEFT, CALIBRATION_MEASURE_RIGHT)
   #define HAS_X_CENTER 1
 #endif
 #if ALL(HAS_Y_AXIS, CALIBRATION_MEASURE_FRONT, CALIBRATION_MEASURE_BACK)
@@ -171,26 +174,12 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
 #if HAS_HOTEND_OFFSET
 
   inline void normalize_hotend_offsets() {
-    LOOP_S_L_N(e, 1, HOTENDS)
+    for (uint8_t e = 1; e < HOTENDS; ++e)
       hotend_offset[e] -= hotend_offset[0];
     hotend_offset[0].reset();
   }
 
 #endif
-
-#if !PIN_EXISTS(CALIBRATION)
-  #include "../../module/probe.h"
-#endif
-
-inline bool read_calibration_pin() {
-  return (
-    #if PIN_EXISTS(CALIBRATION)
-      READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING
-    #else
-      PROBE_TRIGGERED()
-    #endif
-  );
-}
 
 /**
  * Move along axis in the specified dir until the probe value becomes stop_state,
@@ -202,18 +191,18 @@ inline bool read_calibration_pin() {
  *   fast         in - Fast vs. precise measurement
  */
 float measuring_movement(const AxisEnum axis, const int dir, const bool stop_state, const bool fast) {
-  const float step     = fast ? 0.25 : CALIBRATION_MEASUREMENT_RESOLUTION;
   const feedRate_t mms = fast ? MMM_TO_MMS(CALIBRATION_FEEDRATE_FAST) : MMM_TO_MMS(CALIBRATION_FEEDRATE_SLOW);
   const float limit    = fast ? 50 : 5;
 
   destination = current_position;
-  for (float travel = 0; travel < limit; travel += step) {
-    destination[axis] += dir * step;
-    do_blocking_move_to((xyz_pos_t)destination, mms);
-    planner.synchronize();
-    if (read_calibration_pin() == stop_state) break;
-  }
-  return destination[axis];
+  destination[axis] += dir * limit;
+  endstops.enable_calibration_probe(true, stop_state);
+  do_blocking_move_to((xyz_pos_t)destination, mms);
+  endstops.enable_calibration_probe(false);
+  endstops.hit_on_purpose();
+  set_current_from_steppers_for_axis(axis);
+  sync_plan_position();
+  return current_position[axis];
 }
 
 /**
@@ -271,10 +260,10 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     #if AXIS_CAN_CALIBRATE(X)
       _ACASE(X, RIGHT, LEFT);
     #endif
-    #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
+    #if AXIS_CAN_CALIBRATE(Y)
       _ACASE(Y, BACK, FRONT);
     #endif
-    #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
+    #if AXIS_CAN_CALIBRATE(Z)
       case TOP: {
         const float measurement = measure(Z_AXIS, -1, true, &m.backlash[TOP], uncertainty);
         m.obj_center.z = measurement - dimensions.z / 2;
@@ -282,22 +271,22 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
         return;
       }
     #endif
-    #if HAS_I_AXIS && AXIS_CAN_CALIBRATE(I)
+    #if AXIS_CAN_CALIBRATE(I)
       _PCASE(I);
     #endif
-    #if HAS_J_AXIS && AXIS_CAN_CALIBRATE(J)
+    #if AXIS_CAN_CALIBRATE(J)
       _PCASE(J);
     #endif
-    #if HAS_K_AXIS && AXIS_CAN_CALIBRATE(K)
+    #if AXIS_CAN_CALIBRATE(K)
       _PCASE(K);
     #endif
-    #if HAS_U_AXIS && AXIS_CAN_CALIBRATE(U)
+    #if AXIS_CAN_CALIBRATE(U)
       _PCASE(U);
     #endif
-    #if HAS_V_AXIS && AXIS_CAN_CALIBRATE(V)
+    #if AXIS_CAN_CALIBRATE(V)
       _PCASE(V);
     #endif
-    #if HAS_W_AXIS && AXIS_CAN_CALIBRATE(W)
+    #if AXIS_CAN_CALIBRATE(W)
       _PCASE(W);
     #endif
     default: return;
@@ -343,10 +332,22 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     probe_side(m, uncertainty, TOP);
   #endif
 
-  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT,    probe_top_at_edge));
+  /**
+   * Allow Y axis to probe and compute values before X axis (or remaining arbitrary axes)
+   * to assist with centering in calibration object. Lulzbot saw issues with higher uncertainty
+   * values where the nozzle was catching on the edges of the cube, and this was intended to help
+   * ensure the probe object remained centered.
+   */
   TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, FRONT,    probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,     probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, BACK,     probe_top_at_edge));
+
+  #if HAS_Y_CENTER
+    m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
+    m.nozzle_outer_dimension.y = m.obj_side[BACK] - m.obj_side[FRONT] - dimensions.y;
+  #endif
+
+  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,     probe_top_at_edge));
+  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT,    probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_IMIN,  probe_side(m, uncertainty, IMINIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_IMAX,  probe_side(m, uncertainty, IMAXIMUM, probe_top_at_edge));
   TERN_(CALIBRATION_MEASURE_JMIN,  probe_side(m, uncertainty, JMINIMUM, probe_top_at_edge));
@@ -362,7 +363,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 
   // Compute the measured center of the calibration object.
   TERN_(HAS_X_CENTER, m.obj_center.x = (m.obj_side[LEFT]     + m.obj_side[RIGHT])    / 2);
-  TERN_(HAS_Y_CENTER, m.obj_center.y = (m.obj_side[FRONT]    + m.obj_side[BACK])     / 2);
   TERN_(HAS_I_CENTER, m.obj_center.i = (m.obj_side[IMINIMUM] + m.obj_side[IMAXIMUM]) / 2);
   TERN_(HAS_J_CENTER, m.obj_center.j = (m.obj_side[JMINIMUM] + m.obj_side[JMAXIMUM]) / 2);
   TERN_(HAS_K_CENTER, m.obj_center.k = (m.obj_side[KMINIMUM] + m.obj_side[KMAXIMUM]) / 2);
@@ -373,7 +373,6 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   // Compute the outside diameter of the nozzle at the height
   // at which it makes contact with the calibration object
   TERN_(HAS_X_CENTER, m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x);
-  TERN_(HAS_Y_CENTER, m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y);
 
   park_above_object(m, uncertainty);
 
@@ -395,14 +394,16 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
 #if ENABLED(CALIBRATION_REPORTING)
   inline void report_measured_faces(const measurements_t &m) {
     SERIAL_ECHOLNPGM("Sides:");
-    #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
+    #if AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.obj_side[TOP]);
     #endif
-    #if ENABLED(CALIBRATION_MEASURE_LEFT)
-      SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
-    #endif
-    #if ENABLED(CALIBRATION_MEASURE_RIGHT)
-      SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+    #if HAS_X_AXIS
+      #if ENABLED(CALIBRATION_MEASURE_LEFT)
+        SERIAL_ECHOLNPGM("  Left: ", m.obj_side[LEFT]);
+      #endif
+      #if ENABLED(CALIBRATION_MEASURE_RIGHT)
+        SERIAL_ECHOLNPGM("  Right: ", m.obj_side[RIGHT]);
+      #endif
     #endif
     #if HAS_Y_AXIS
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
@@ -503,7 +504,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  Right: ", m.backlash[RIGHT]);
       #endif
     #endif
-    #if HAS_Y_AXIS && AXIS_CAN_CALIBRATE(Y)
+    #if AXIS_CAN_CALIBRATE(Y)
       #if ENABLED(CALIBRATION_MEASURE_FRONT)
         SERIAL_ECHOLNPGM("  Front: ", m.backlash[FRONT]);
       #endif
@@ -511,10 +512,10 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  Back: ", m.backlash[BACK]);
       #endif
     #endif
-    #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
+    #if AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM("  Top: ", m.backlash[TOP]);
     #endif
-    #if HAS_I_AXIS && AXIS_CAN_CALIBRATE(I)
+    #if AXIS_CAN_CALIBRATE(I)
       #if ENABLED(CALIBRATION_MEASURE_IMIN)
         SERIAL_ECHOLNPGM("  " STR_I_MIN ": ", m.backlash[IMINIMUM]);
       #endif
@@ -522,7 +523,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_I_MAX ": ", m.backlash[IMAXIMUM]);
       #endif
     #endif
-    #if HAS_J_AXIS && AXIS_CAN_CALIBRATE(J)
+    #if AXIS_CAN_CALIBRATE(J)
       #if ENABLED(CALIBRATION_MEASURE_JMIN)
         SERIAL_ECHOLNPGM("  " STR_J_MIN ": ", m.backlash[JMINIMUM]);
       #endif
@@ -530,7 +531,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_J_MAX ": ", m.backlash[JMAXIMUM]);
       #endif
     #endif
-    #if HAS_K_AXIS && AXIS_CAN_CALIBRATE(K)
+    #if AXIS_CAN_CALIBRATE(K)
       #if ENABLED(CALIBRATION_MEASURE_KMIN)
         SERIAL_ECHOLNPGM("  " STR_K_MIN ": ", m.backlash[KMINIMUM]);
       #endif
@@ -538,7 +539,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_K_MAX ": ", m.backlash[KMAXIMUM]);
       #endif
     #endif
-    #if HAS_U_AXIS && AXIS_CAN_CALIBRATE(U)
+    #if AXIS_CAN_CALIBRATE(U)
       #if ENABLED(CALIBRATION_MEASURE_UMIN)
         SERIAL_ECHOLNPGM("  " STR_U_MIN ": ", m.backlash[UMINIMUM]);
       #endif
@@ -546,7 +547,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_U_MAX ": ", m.backlash[UMAXIMUM]);
       #endif
     #endif
-    #if HAS_V_AXIS && AXIS_CAN_CALIBRATE(V)
+    #if AXIS_CAN_CALIBRATE(V)
       #if ENABLED(CALIBRATION_MEASURE_VMIN)
         SERIAL_ECHOLNPGM("  " STR_V_MIN ": ", m.backlash[VMINIMUM]);
       #endif
@@ -554,7 +555,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
         SERIAL_ECHOLNPGM("  " STR_V_MAX ": ", m.backlash[VMAXIMUM]);
       #endif
     #endif
-    #if HAS_W_AXIS && AXIS_CAN_CALIBRATE(W)
+    #if AXIS_CAN_CALIBRATE(W)
       #if ENABLED(CALIBRATION_MEASURE_WMIN)
         SERIAL_ECHOLNPGM("  " STR_W_MIN ": ", m.backlash[WMINIMUM]);
       #endif
@@ -575,7 +576,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     #if HAS_Y_CENTER && AXIS_CAN_CALIBRATE(Y)
       SERIAL_ECHOLNPGM_P(SP_Y_STR, m.pos_error.y);
     #endif
-    #if HAS_Z_AXIS && AXIS_CAN_CALIBRATE(Z)
+    #if AXIS_CAN_CALIBRATE(Z)
       SERIAL_ECHOLNPGM_P(SP_Z_STR, m.pos_error.z);
     #endif
     #if HAS_I_CENTER && AXIS_CAN_CALIBRATE(I)
@@ -616,7 +617,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     // This function requires normalize_hotend_offsets() to be called
     //
     inline void report_hotend_offsets() {
-      LOOP_S_L_N(e, 1, HOTENDS)
+      for (uint8_t e = 1; e < HOTENDS; ++e)
         SERIAL_ECHOLNPGM_P(PSTR("T"), e, PSTR(" Hotend Offset X"), hotend_offset[e].x, SP_Y_STR, hotend_offset[e].y, SP_Z_STR, hotend_offset[e].z);
     }
   #endif

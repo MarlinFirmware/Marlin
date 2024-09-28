@@ -38,6 +38,10 @@ uint8_t ControllerFan::speed;
    const controllerFan_settings_t &ControllerFan::settings = controllerFan_defaults;
 #endif
 
+#if ENABLED(FAN_SOFT_PWM)
+  uint8_t ControllerFan::soft_pwm_speed;
+#endif
+
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
   #ifdef CONTROLLER_FAN2_PIN
@@ -51,27 +55,37 @@ void ControllerFan::set_fan_speed(const uint8_t s) {
 }
 
 void ControllerFan::update() {
-  static millis_t lastMotorOn = 0,    // Last time a motor was turned on
-                  nextMotorCheck = 0; // Last time the state was checked
+  static millis_t lastComponentOn = 0,  // Last time a stepper, heater, etc. was turned on
+                  nextFanCheck = 0;     // Last time the state was checked
   const millis_t ms = millis();
-  if (ELAPSED(ms, nextMotorCheck)) {
-    nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+  if (ELAPSED(ms, nextFanCheck)) {
+    nextFanCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
 
-    // If any triggers for the controller fan are true...
-    //   - At least one stepper driver is enabled
-    //   - The heated bed is enabled
-    //   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
+    /**
+     * If any triggers for the controller fan are true...
+     *   - At least one stepper driver is enabled
+     *   - The heated bed (MOSFET) is enabled
+     *   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
+     *   - TEMP_SENSOR_SOC is reporting >= CONTROLLER_FAN_MIN_SOC_TEMP
+     */
     const ena_mask_t axis_mask = TERN(CONTROLLER_FAN_USE_Z_ONLY, _BV(Z_AXIS), (ena_mask_t)~TERN0(CONTROLLER_FAN_IGNORE_Z, _BV(Z_AXIS)));
     if ( (stepper.axis_enabled.bits & axis_mask)
       || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
-      || TERN0(HAS_CONTROLLER_FAN_MIN_BOARD_TEMP, thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP)
-    ) lastMotorOn = ms; //... set time to NOW so the fan will turn on
+      #ifdef CONTROLLER_FAN_MIN_BOARD_TEMP
+        || thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP
+      #endif
+      #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
+        || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
+      #endif
+    ) lastComponentOn = ms; //... set time to NOW so the fan will turn on
 
-    // Fan Settings. Set fan > 0:
-    //  - If AutoMode is on and steppers have been enabled for CONTROLLERFAN_IDLE_TIME seconds.
-    //  - If System is on idle and idle fan speed settings is activated.
+    /**
+     * Fan Settings. Set fan > 0:
+     *  - If AutoMode is on and hot components have been powered for CONTROLLERFAN_IDLE_TIME seconds.
+     *  - If System is on idle and idle fan speed settings is activated.
+     */
     set_fan_speed(
-      settings.auto_mode && lastMotorOn && PENDING(ms, lastMotorOn + SEC_TO_MS(settings.duration))
+      settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn + SEC_TO_MS(settings.duration))
       ? settings.active_speed : settings.idle_speed
     );
 
@@ -92,7 +106,7 @@ void ControllerFan::update() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-      thermalManager.soft_pwm_controller_speed = speed;
+      soft_pwm_speed = speed;
     #else
       if (PWM_PIN(CONTROLLER_FAN_PIN))
         hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);

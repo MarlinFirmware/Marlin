@@ -31,7 +31,7 @@
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
 
-namespace Language_an {
+namespace LanguageNarrow_an {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 1;
@@ -41,7 +41,7 @@ namespace Language_an {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
-  LSTR MSG_MAIN                           = _UxGT("Menu prencipal");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Menu prencipal");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automatico");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Amortar motors");
   LSTR MSG_HOMING                         = _UxGT("Orichen");
@@ -55,29 +55,30 @@ namespace Language_an {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Nivelacion feita!");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Achustar desfases");
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Desfase aplicau");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Precalentar ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Precalentar $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Precalentar $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Precal. $ Boquilla");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Precal. $ Boquilla ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Precalentar $ Tot");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Precalentar $ Base");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Precalentar $ Conf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Precalentar ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Precalentar $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Precalentar $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Precal. $ Boquilla");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Precal. $ Boquilla ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Precalentar $ Tot");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Precalentar $ Base");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Precalentar $ Conf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Enfriar");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Enchegar Fuent");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Amortar Fuent");
   LSTR MSG_EXTRUDE                        = _UxGT("Extruir");
   LSTR MSG_RETRACT                        = _UxGT("Retraer");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Mover Eixes");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sondar y Nivelar");
   LSTR MSG_BED_LEVELING                   = _UxGT("Nivelar base");
   LSTR MSG_LEVEL_BED                      = _UxGT("Nivelar base");
   LSTR MSG_MOVE_X                         = _UxGT("Mover X");
@@ -87,11 +88,8 @@ namespace Language_an {
   LSTR MSG_MOVE_E                         = _UxGT("Extrusor");
   LSTR MSG_MOVE_EN                        = _UxGT("Extrusor *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Mover $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Mover 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Mover 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Mover 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Mover 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Mover 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Mover $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Mover $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Velocidat");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Base Z");
   LSTR MSG_NOZZLE                         = _UxGT("Boquilla");
@@ -162,16 +160,17 @@ namespace Language_an {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desfase Z");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Probe Z con pas");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropaso X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropaso Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Micropaso Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Micropaso @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Cancelado - Endstop");
-  LSTR MSG_HEATING_FAILED_LCD             = _UxGT("Error: en calentar");
-  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Error: temperatura");
-  LSTR MSG_THERMAL_RUNAWAY                = _UxGT("Error de temperatura");
-  LSTR MSG_ERR_MAXTEMP                    = _UxGT("Error: Temp Max");
-  LSTR MSG_ERR_MINTEMP                    = _UxGT("Error: Temp Min");
+  LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Error en calentar");
+  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Error temp adicional");
+  LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("Error de temperatura");
+  LSTR MSG_ERR_MAXTEMP                    = _UxGT("Error Temp Max");
+  LSTR MSG_ERR_MINTEMP                    = _UxGT("Error Temp Min");
   LSTR MSG_HALTED                         = _UxGT("IMPRESORA ATURADA");
   LSTR MSG_PLEASE_RESET                   = _UxGT("Per favor reinic.");
   LSTR MSG_HEATING                        = _UxGT("Calentando...");
@@ -192,19 +191,11 @@ namespace Language_an {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocolo");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz");
 
-  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Conteo de impresion");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total d'imp.");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Impresion mas larga");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Total d'extrusion");
-  #else
-    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Impresions");
-    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");
-    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Total");
-    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Mas larga");
-    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extrusion");
-  #endif
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Impresions");
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completadas");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Mas larga");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extrusion");
 
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Temperatura menima");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Temperatura maxima");
@@ -214,22 +205,35 @@ namespace Language_an {
   LSTR MSG_DAC_EEPROM_WRITE               = _UxGT("Escri. DAC EEPROM");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Resumir imp.");
 
-  //
-  // Filament Change screens show up to 3 lines on a 4-line display
-  //                        ...or up to 2 lines on a 3-line display
-  //
-
-  #if LCD_HEIGHT >= 4
-    // Up to 3 lines allowed
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Aguardand iniciar", "d'o filamento", "cambear"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Meta o filamento", "y prete lo boton", "pa continar..."));
-  #else // LCD_HEIGHT < 4
-    // Up to 2 lines allowed
-    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_2_LINE("Aguardand iniciar", "d'o fil. cambear"));
-    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_2_LINE("Meta o filamento", "y prete lo boton"));
-  #endif // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_2_LINE("Aguardand iniciar", "d'o fil. cambear"));
+  LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_2_LINE("Meta o filamento", "y prete lo boton"));
 
   LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_2_LINE("Aguardando a", "expulsar filament"));
   LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_2_LINE("Aguardando a", "cargar filamento"));
   LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_2_LINE("Aguardando impre.", "pa continar"));
+}
+
+namespace LanguageWide_an {
+  using namespace LanguageNarrow_an;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+    LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Conteo de impresion");
+    LSTR MSG_INFO_COMPLETED_PRINTS        = _UxGT("Completadas");
+    LSTR MSG_INFO_PRINT_TIME              = _UxGT("Tiempo total d'imp.");
+    LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Impresion mas larga");
+    LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Total d'extrusion");
+  #endif
+}
+
+namespace LanguageTall_an {
+  using namespace LanguageWide_an;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+    LSTR MSG_FILAMENT_CHANGE_INIT         = _UxGT(MSG_3_LINE("Aguardand iniciar", "d'o filamento", "cambear"));
+    LSTR MSG_FILAMENT_CHANGE_INSERT       = _UxGT(MSG_3_LINE("Meta o filamento", "y prete lo boton", "pa continar..."));
+  #endif
+}
+
+namespace Language_an {
+  using namespace LanguageTall_an;
 }

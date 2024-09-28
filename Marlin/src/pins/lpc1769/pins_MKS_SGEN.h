@@ -23,8 +23,7 @@
 
 /**
  * MKS SGen pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SGEN/MKS%20SGEN%20V1.0_001%20SCH.pdf
- * Origin: https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20SCH.pdf
+ * Schematic: https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20SCH.pdf
  *
  * Pins diagram:
  * https://github.com/makerbase-mks/MKS-SGen/blob/master/Hardware/MKS%20SGEN%20V1.0_001/MKS%20SGEN%20V1.0_001%20PIN.pdf
@@ -56,5 +55,8 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART

@@ -23,8 +23,7 @@
 
 /**
  * MegaTronics v2.0 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Megatronics%20v2.0/megatronics%20-%20Project.pdf
- * Origin: https://reprap.org/wiki/File:Megatronicsv2PDF.zip
+ * Schematic: https://reprap.org/wiki/File:Megatronicsv2PDF.zip
  * ATmega2560
  */
 
@@ -122,9 +121,11 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN                  3  // Hardware PWM
-#define SPINDLE_LASER_ENA_PIN                 16  // Pullup!
-#define SPINDLE_DIR_PIN                       11
+#if HAS_CUTTER
+  #define SPINDLE_LASER_PWM_PIN                3  // Hardware PWM
+  #define SPINDLE_LASER_ENA_PIN               16  // Pullup!
+  #define SPINDLE_DIR_PIN                     11
+#endif
 
 //
 // LCD / Controller
@@ -134,7 +135,7 @@
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         14
-  #define LCD_PINS_ENABLE                     15
+  #define LCD_PINS_EN                         15
   #define LCD_PINS_D4                         30
   #define LCD_PINS_D5                         31
   #define LCD_PINS_D6                         32

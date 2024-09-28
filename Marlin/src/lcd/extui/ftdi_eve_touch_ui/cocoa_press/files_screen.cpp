@@ -77,7 +77,7 @@ const char *FilesScreen::getSelectedFilename(bool shortName) {
 }
 
 void FilesScreen::drawSelectedFile() {
-  if(mydata.selected_tag == 0xFF) return;
+  if (mydata.selected_tag == 0xFF) return;
   FileList files;
   files.seek(getSelectedFileIndex(), true);
   mydata.flags.is_dir = files.isDir();
@@ -111,20 +111,17 @@ void FilesScreen::drawFileButton(int x, int y, int w, int h, const char *filenam
   cmd.cmd(COLOR_RGB(is_highlighted ? fg_action : bg_color));
   cmd.font(font_medium).rectangle(bx, by, bw, bh);
   cmd.cmd(COLOR_RGB(is_highlighted ? normal_btn.rgb : bg_text_enabled));
-  #if ENABLED(SCROLL_LONG_FILENAMES)
-    if (is_highlighted) {
-      cmd.cmd(SAVE_CONTEXT());
-      cmd.cmd(SCISSOR_XY(x,y));
-      cmd.cmd(SCISSOR_SIZE(w,h));
-      cmd.cmd(MACRO(0));
-      cmd.text(bx, by, bw, bh, filename, OPT_CENTERY | OPT_NOFIT);
-    } else
-  #endif
-  draw_text_with_ellipsis(cmd, bx,by, bw - (is_dir ? 20 : 0), bh, filename, OPT_CENTERY, font_medium);
-  if (is_dir && !is_highlighted) cmd.text(bx, by, bw, bh, F("> "),  OPT_CENTERY | OPT_RIGHTX);
-  #if ENABLED(SCROLL_LONG_FILENAMES)
-    if (is_highlighted) cmd.cmd(RESTORE_CONTEXT());
-  #endif
+  if (TERN0(SCROLL_LONG_FILENAMES, is_highlighted)) {
+    cmd.cmd(SAVE_CONTEXT());
+    cmd.cmd(SCISSOR_XY(x,y));
+    cmd.cmd(SCISSOR_SIZE(w,h));
+    cmd.cmd(MACRO(0));
+    cmd.text(bx, by, bw, bh, filename, OPT_CENTERY | OPT_NOFIT);
+  }
+  else
+    draw_text_with_ellipsis(cmd, bx, by, bw - (is_dir ? 20 : 0), bh, filename, OPT_CENTERY, font_medium);
+  if (is_dir && !is_highlighted) cmd.text(bx, by, bw, bh, F("> "), OPT_CENTERY | OPT_RIGHTX);
+  if (TERN0(SCROLL_LONG_FILENAMES, is_highlighted)) cmd.cmd(RESTORE_CONTEXT());
 }
 
 void FilesScreen::drawFileList() {
@@ -136,11 +133,9 @@ void FilesScreen::drawFileList() {
 
   uint16_t fileIndex = mydata.cur_page * FILES_PER_PAGE;
   for (uint8_t i = 0; i < FILES_PER_PAGE; i++, fileIndex++) {
-    if (files.seek(fileIndex)) {
-      drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
-      mydata.flags.is_empty = false;
-    } else
-      break;
+    if (!files.seek(fileIndex)) break;
+    drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
+    mydata.flags.is_empty = false;
   }
 }
 
@@ -171,13 +166,10 @@ void FilesScreen::drawFooter() {
   cmd.colors(normal_btn)
      .font(font_medium)
      .colors(normal_btn)
-     .enabled(!mydata.flags.is_root)
-     .tag(245).button(BTN2_POS, F("Up Dir"))
+     .tag(mydata.flags.is_root ? 240 : 245).button(BTN2_POS, F("Back"))
      .colors(action_btn);
 
-  if (mydata.flags.is_empty)
-    cmd.tag(240).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_DONE));
-  else if (has_selection && mydata.flags.is_dir)
+  if (has_selection && mydata.flags.is_dir)
     cmd.tag(244).button(BTN1_POS, GET_TEXT_F(MSG_BUTTON_OPEN));
   else
     cmd.tag(241).enabled(has_selection).button(BTN1_POS, F("Select"));
@@ -214,12 +206,9 @@ void FilesScreen::gotoPage(uint8_t page) {
 
 bool FilesScreen::onTouchEnd(uint8_t tag) {
   switch (tag) {
-    case 240: // Done button, always select first file
-      {
-          FileList files;
-          files.seek(0);
-          GOTO_PREVIOUS();
-      }
+    case 240: // Back button
+      card.filename[0] = card.longFilename[0] = '\0'; // Clear file selection
+      GOTO_PREVIOUS();
       return true;
     case 241: // Select highlighted file
       GOTO_PREVIOUS();

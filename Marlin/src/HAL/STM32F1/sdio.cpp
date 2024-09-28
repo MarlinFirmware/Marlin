@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +25,7 @@
 
 #include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
-#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+#if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
 #include "sdio.h"
 

@@ -28,6 +28,7 @@
 
 using namespace FTDI;
 using namespace ExtUI;
+using namespace Theme;
 
 constexpr static MoveAxisScreenData &mydata = screen_data.MoveAxisScreen;
 
@@ -37,14 +38,17 @@ void BaseMoveAxisScreen::onEntry() {
   // ourselves. The relative distances are reset to zero whenever this
   // screen is entered.
 
-  LOOP_L_N(i, ExtUI::extruderCount) {
+  for (uint8_t i = 0; i < ExtUI::extruderCount; ++i) {
     mydata.e_rel[i] = 0;
   }
   BaseNumericAdjustmentScreen::onEntry();
 }
+#define GRID_COLS 13
+#define GRID_ROWS (8+EXTRUDERS)
 
 void MoveAxisScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
+  CommandProcessor cmd;
   w.precision(1);
   w.units(GET_TEXT_F(MSG_UNITS_MM));
   w.heading(                           GET_TEXT_F(MSG_MOVE_AXIS));
@@ -70,15 +74,24 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
     w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !axis_should_home(Z_AXIS));
   #endif
   w.increments();
+  #ifdef PARKING_COMMAND_GCODE
+    if (!ExtUI::isPrinting()) { // making sure the Tool Head Swap Position is not avalible while printing
+      cmd.font(font_medium)
+        .colors(normal_btn)
+        .tag(25).button(BTN_POS(1,(7+EXTRUDERS)), BTN_SIZE(13,1), GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
+    }
+  #endif
 }
 
-bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
+bool BaseMoveAxisScreen::onTouchHeld(const uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) setManualFeedrate(axis, increment); UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT_AXIS(X); break;
-    case  3: UI_INCREMENT_AXIS(X); break;
+    #if HAS_X_AXIS
+      case  2: UI_DECREMENT_AXIS(X); break;
+      case  3: UI_INCREMENT_AXIS(X); break;
+    #endif
     #if HAS_EXTRUDERS
       // For extruders, also update relative distances.
       case  8: UI_DECREMENT_AXIS(E0); mydata.e_rel[0] -= increment; break;
@@ -109,6 +122,9 @@ bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
       #endif
     #endif
     case 23: SpinnerDialogBox::enqueueAndWait(F("G28")); break;
+    #ifdef PARKING_COMMAND_GCODE
+      case 25: injectCommands(F(PARKING_COMMAND_GCODE)); break;
+    #endif
     default:
       return false;
   }
@@ -120,20 +136,20 @@ void BaseMoveAxisScreen::raiseZtoTop() {
   setAxisPosition_mm(Z_MAX_POS - 5, Z, homing_feedrate.z);
 }
 
-float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
+float BaseMoveAxisScreen::getManualFeedrate(const uint8_t axis, const_float_t increment_mm) {
   // Compute feedrate so that the tool lags the adjuster when it is
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
   constexpr xyze_feedrate_t max_manual_feedrate = MANUAL_FEEDRATE;
-  return min(max_manual_feedrate[axis] / 60.0f, ABS(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
+  return min(MMM_TO_MMS(max_manual_feedrate[axis]), ABS(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
 }
 
-void BaseMoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {
+void BaseMoveAxisScreen::setManualFeedrate(const ExtUI::axis_t axis, const_float_t increment_mm) {
   ExtUI::setFeedrate_mm_s(getManualFeedrate(X_AXIS + (axis - ExtUI::X), increment_mm));
 }
 
 #if HAS_EXTRUDERS
-  void BaseMoveAxisScreen::setManualFeedrate(ExtUI::extruder_t, float increment_mm) {
+  void BaseMoveAxisScreen::setManualFeedrate(const ExtUI::extruder_t, const_float_t increment_mm) {
     ExtUI::setFeedrate_mm_s(getManualFeedrate(E_AXIS, increment_mm));
   }
 #endif

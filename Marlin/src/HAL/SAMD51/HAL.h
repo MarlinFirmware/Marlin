@@ -69,6 +69,16 @@
     #endif
   #endif
 
+  #ifdef SERIAL_PORT_3
+    #if SERIAL_PORT_3 == -1
+      #define MYSERIAL3 MSerial0
+    #elif WITHIN(SERIAL_PORT_3, 0, 3)
+      #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+    #else
+      #error "SERIAL_PORT_3 must be from 0 to 3. You can also use -1 if the board supports Native USB."
+    #endif
+  #endif
+
   #ifdef MMU2_SERIAL_PORT
     #if MMU2_SERIAL_PORT == -1
       #define MMU2_SERIAL MSerial0
@@ -112,7 +122,7 @@ typedef Servo hal_servo_t;
 //
 
 //#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
-#define HAL_ADC_VREF         3.3
+#define HAL_ADC_VREF_MV   3300
 #define HAL_ADC_RESOLUTION  10      // ... 12
 
 //

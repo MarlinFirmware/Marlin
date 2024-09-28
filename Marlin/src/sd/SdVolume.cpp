@@ -31,7 +31,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "SdVolume.h"
 
@@ -402,4 +402,4 @@ bool SdVolume::init(DiskIODriver * const dev, const uint8_t part) {
   return true;
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

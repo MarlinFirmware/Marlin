@@ -119,7 +119,6 @@ void spiBegin() {
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   }
 
-
   /** begin spi transaction */
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
     // Based on Arduino SPI library
@@ -175,7 +174,6 @@ void spiBegin() {
     SPSR = clockDiv | 0x01;
   }
 
-
 #else // SOFTWARE_SPI || FORCE_SOFT_SPI
 
   // ------------------------
@@ -198,7 +196,7 @@ void spiBegin() {
     // output pin high - like sending 0xFF
     WRITE(SD_MOSI_PIN, HIGH);
 
-    LOOP_L_N(i, 8) {
+    for (uint8_t i = 0; i < 8; ++i) {
       WRITE(SD_SCK_PIN, HIGH);
 
       nop; // adjust so SCK is nice
@@ -225,7 +223,7 @@ void spiBegin() {
   void spiSend(uint8_t data) {
     // no interrupts during byte send - about 8µs
     cli();
-    LOOP_L_N(i, 8) {
+    for (uint8_t i = 0; i < 8; ++i) {
       WRITE(SD_SCK_PIN, LOW);
       WRITE(SD_MOSI_PIN, data & 0x80);
       data <<= 1;

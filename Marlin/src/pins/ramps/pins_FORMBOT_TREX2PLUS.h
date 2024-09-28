@@ -113,7 +113,7 @@
 #define TEMP_BED_PIN                           3  // Analog Input
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
@@ -141,8 +141,8 @@
 //
 #define SDSS                                  53
 #ifndef LED_PIN
-  #define LED_PIN                             13  // The Formbot v 1 board has almost no unassigned pins on it.  The Board's LED
-#endif                          // is a good place to get a signal to control the Max7219 LED Matrix.
+  #define LED_PIN                             13  // The Formbot v 1 board has almost no unassigned pins.
+#endif                                            // The Board's LED is a good place to connect the Max7219 Matrix.
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN                           5  // Analog Input
@@ -175,7 +175,7 @@
   #endif
 
   #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
+  #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         23
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27

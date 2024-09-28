@@ -22,8 +22,8 @@
 #pragma once
 
 /**
- * parser.h - Parser for a GCode line, providing a parameter interface.
- *           Codes like M149 control the way the GCode parser behaves,
+ * parser.h - Parser for a G-Code line, providing a parameter interface.
+ *           Codes like M149 control the way the G-Code parser behaves,
  *           so settings for these codes are located in this class.
  */
 
@@ -43,7 +43,7 @@
 #endif
 
 /**
- * GCode parser
+ * G-Code parser
  *
  *  - Parse a single G-code line for its letter, code, subcode, and parameters
  *  - FASTER_GCODE_PARSER:
@@ -68,7 +68,7 @@ private:
 
 public:
 
-  // Global states for GCode-level units features
+  // Global states for G-Code-level units features
 
   static bool volumetric_enabled;
 
@@ -233,7 +233,7 @@ public:
     FORCE_INLINE static char* unescape_string(char* &src) { return src; }
   #endif
 
-  // Populate all fields by parsing a single line of GCode
+  // Populate all fields by parsing a single line of G-Code
   // This uses 54 bytes of SRAM to speed up seen/value
   static void parse(char * p);
 
@@ -288,6 +288,17 @@ public:
   // Bool is true with no value or non-zero
   static bool value_bool() { return !has_value() || !!value_byte(); }
 
+  static constexpr bool axis_is_rotational(const AxisEnum axis) {
+    return (false
+      || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+      || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+      || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+      || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+      || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+      || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+    );
+  }
+
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
@@ -307,14 +318,7 @@ public:
     }
 
     static float axis_unit_factor(const AxisEnum axis) {
-      if (false
-        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-      ) return 1.0f;
+      if (axis_is_rotational(axis)) return 1.0f;
       #if HAS_EXTRUDERS
         if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
       #endif
@@ -327,12 +331,12 @@ public:
 
   #else
 
-    static float mm_to_linear_unit(const_float_t mm)     { return mm; }
-    static float mm_to_volumetric_unit(const_float_t mm) { return mm; }
+    static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static float linear_value_to_mm(const_float_t v)             { return v; }
-    static float axis_value_to_mm(const AxisEnum, const float v) { return v; }
-    static float per_axis_value(const AxisEnum, const float v)   { return v; }
+    static constexpr float linear_value_to_mm(const_float_t v)             { return v; }
+    static constexpr float axis_value_to_mm(const AxisEnum, const float v) { return v; }
+    static constexpr float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
@@ -402,7 +406,7 @@ public:
 
   #else // !TEMPERATURE_UNITS_SUPPORT
 
-    static float to_temp_units(int16_t c) { return (float)c; }
+    static constexpr float to_temp_units(int16_t c) { return (float)c; }
 
     static celsius_t value_celsius()      { return value_int(); }
     static celsius_t value_celsius_diff() { return value_int(); }

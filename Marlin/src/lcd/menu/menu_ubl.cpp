@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
+#if ALL(HAS_MARLINUI_MENU, AUTO_BED_LEVELING_UBL)
 
 #include "menu_item.h"
 #include "../../gcode/gcode.h"
@@ -96,7 +96,7 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_lcd());
+  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }
@@ -144,7 +144,7 @@ void _lcd_ubl_custom_mesh() {
  * UBL Adjust Mesh Height Command
  */
 void _lcd_ubl_adjust_height_cmd() {
-  char ubl_lcd_gcode[13];
+  char ubl_lcd_gcode[14];
   const int ind = ubl_height_amount > 0 ? 6 : 7;
   strcpy_P(ubl_lcd_gcode, PSTR("G29P6C-"));
   sprintf_P(&ubl_lcd_gcode[ind], PSTR(".%i"), ABS(ubl_height_amount));
@@ -361,7 +361,7 @@ void _lcd_ubl_save_mesh_cmd() { _lcd_ubl_load_save_cmd('S', GET_TEXT_F(MSG_MESH_
 void _lcd_ubl_storage_mesh() {
   int16_t a = settings.calc_num_meshes();
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   if (!WITHIN(ubl_storage_slot, 0, a - 1))
     STATIC_ITEM(MSG_UBL_NO_STORAGE);
   else {
@@ -376,11 +376,19 @@ void _lcd_ubl_storage_mesh() {
  * UBL LCD "radar" map point editing
  */
 void _lcd_ubl_map_edit_cmd() {
-  char ubl_lcd_gcode[50], str[10], str2[10];
-  dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str);
-  dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2);
-  snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode), PSTR("G29P4X%sY%sR%i"), str, str2, int(n_edit_pts));
-  queue.inject(ubl_lcd_gcode);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Costs 198 bytes on AVR with PLR disabled, but saves 60 bytes with PLR enabled
+    queue.inject(TS(F("G29P4X"), x_plot, 'Y', y_plot, 'R', n_edit_pts));
+  #else
+    char ubl_lcd_gcode[50], str1[10], str2[10];
+    snprintf_P(ubl_lcd_gcode, sizeof(ubl_lcd_gcode),
+      PSTR("G29P4X%sY%sR%i"),
+      dtostrf(bedlevel.get_mesh_x(x_plot), 0, 2, str1),
+      dtostrf(bedlevel.get_mesh_y(y_plot), 0, 2, str2),
+      int(n_edit_pts)
+    );
+    queue.inject(ubl_lcd_gcode);
+  #endif
 }
 
 /**
@@ -438,7 +446,7 @@ void ubl_map_screen() {
     do {
       // Now, keep the encoder position within range
       if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS, 0);
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % (GRID_MAX_POINTS_X);
@@ -499,7 +507,7 @@ void _ubl_map_screen_homing() {
  * UBL Homing before LCD map
  */
 void _ubl_goto_map_screen() {
-  if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
+  if (planner.has_blocks_queued()) return; // The ACTION_ITEM will do nothing
   if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);
@@ -517,7 +525,7 @@ void _ubl_goto_map_screen() {
  */
 void _lcd_ubl_output_map() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_HOST, F("G29T0"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_CSV, F("G29T1"));
   GCODES_ITEM(MSG_UBL_OUTPUT_MAP_BACKUP, F("G29S-1"));
@@ -535,7 +543,7 @@ void _lcd_ubl_output_map() {
  */
 void _menu_ubl_tools() {
   START_MENU();
-  BACK_ITEM(MSG_UBL_LEVEL_BED);
+  BACK_ITEM(MSG_UBL_LEVELING);
   SUBMENU(MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   GCODES_ITEM(MSG_UBL_MANUAL_MESH, F("G29I999\nG29P2BT0"));
   #if ENABLED(G26_MESH_VALIDATION)
@@ -562,7 +570,7 @@ void _menu_ubl_tools() {
    */
   void _lcd_ubl_step_by_step() {
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
     GCODES_ITEM(MSG_UBL_1_BUILD_COLD_MESH, F("G29NP1"));
     GCODES_ITEM(MSG_UBL_2_SMART_FILLIN, F("G29P3T0"));
     SUBMENU(MSG_UBL_3_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
@@ -596,7 +604,7 @@ void _menu_ubl_tools() {
   void _menu_ubl_mesh_wizard() {
     const int16_t total_slots = settings.calc_num_meshes();
     START_MENU();
-    BACK_ITEM(MSG_UBL_LEVEL_BED);
+    BACK_ITEM(MSG_UBL_LEVELING);
 
     #if HAS_HOTEND
       EDIT_ITEM(int3, MSG_UBL_HOTEND_TEMP_CUSTOM, &custom_hotend_temp, HEATER_0_MINTEMP + 20, thermalManager.hotend_max_target(0));
@@ -624,10 +632,11 @@ void _menu_ubl_tools() {
  * UBL System submenu
  *
  * << Motion
- *  - Manually Build Mesh >>
- *  - Activate UBL >>
- *  - Deactivate UBL >>
+ *  - Activate / Deactivate UBL
+ *  - Edit Fade Height
  *  - Step-By-Step UBL >>
+ *  - Mesh Wizard >>
+ *  - Mesh Edit >>
  *  - Mesh Storage >>
  *  - Output Map >>
  *  - UBL Tools >>
@@ -636,21 +645,24 @@ void _menu_ubl_tools() {
 void _lcd_ubl_level_bed() {
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-  if (planner.leveling_active)
-    GCODES_ITEM(MSG_UBL_DEACTIVATE_MESH, F("G29D"));
-  else
-    GCODES_ITEM(MSG_UBL_ACTIVATE_MESH, F("G29A"));
+
+  bool show_state = planner.leveling_active;
+  EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
+
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     editable.decimal = planner.z_fade_height;
     EDIT_ITEM_FAST(float3, MSG_Z_FADE_HEIGHT, &editable.decimal, 0, 100, []{ set_z_fade_height(editable.decimal); });
   #endif
+
   #if ENABLED(G26_MESH_VALIDATION)
     SUBMENU(MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
   #endif
+
   #if ENABLED(UBL_MESH_WIZARD)
     SUBMENU(MSG_UBL_MESH_WIZARD, _menu_ubl_mesh_wizard);
   #endif
-  ACTION_ITEM(MSG_UBL_MESH_EDIT, _ubl_goto_map_screen);
+
+  ACTION_ITEM(MSG_MESH_EDITOR, _ubl_goto_map_screen);
   SUBMENU(MSG_UBL_STORAGE_MESH_MENU, _lcd_ubl_storage_mesh);
   SUBMENU(MSG_UBL_OUTPUT_MAP, _lcd_ubl_output_map);
   SUBMENU(MSG_UBL_TOOLS, _menu_ubl_tools);

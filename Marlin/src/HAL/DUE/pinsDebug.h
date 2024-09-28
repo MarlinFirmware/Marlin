@@ -64,20 +64,19 @@
 #define NUMBER_PINS_TOTAL PINS_COUNT
 
 #define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
-#define PRINT_PORT(p)
-#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
-#define PRINT_PIN_ANALOG(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), DIGITAL_PIN_TO_ANALOG_PIN(pin)); SERIAL_ECHO(buffer); }while(0)
-#define GET_ARRAY_PIN(p) pin_array[p].pin
-#define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
-#define VALID_PIN(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
-#define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
-#define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
+#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define printPinNumber(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(p) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); SERIAL_ECHO(buffer); }while(0)
+#define getPinByIndex(p) pin_array[p].pin
+#define getPinIsDigitalByIndex(p) pin_array[p].is_digital
+#define isValidPin(pin) (pin >= 0 && pin < int8_t(NUMBER_PINS_TOTAL))
+#define digitalPinToAnalogIndex(p) int(p - analogInputToDigitalPin(0))
+#define isAnalogPin(P) WITHIN(P, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
 #define pwm_status(pin) (((g_pinStatus[pin] & 0xF) == PIN_STATUS_PWM) && \
                         ((g_APinDescription[pin].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM))
 #define MULTI_NAME_PAD 14 // space needed to be pretty if not first name assigned to a pin
 
-bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
+bool getValidPinMode(int8_t pin) {  // 1: output, 0: input
   volatile Pio* port = g_APinDescription[pin].pPort;
   uint32_t mask = g_APinDescription[pin].ulPin;
   uint8_t pin_status = g_pinStatus[pin] & 0xF;
@@ -86,12 +85,14 @@ bool GET_PINMODE(int8_t pin) {  // 1: output, 0: input
           || pwm_status(pin));
 }
 
-void pwm_details(int32_t pin) {
+void printPinPWM(int32_t pin) {
   if (pwm_status(pin)) {
     uint32_t chan = g_APinDescription[pin].ulPWMChannel;
     SERIAL_ECHOPGM("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
   }
 }
+
+void printPinPort(const pin_t) {}
 
 /**
  * DUE Board pin   |  PORT  | Label

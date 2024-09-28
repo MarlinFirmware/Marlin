@@ -23,8 +23,7 @@
 
 /**
  * AZTEEG_X3_PRO (Arduino Mega) pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/AZTEEG_X3_PRO/AZTEEG%20X3%20PRO%201.0%20PUB.pdf
- * Origin: http://files.panucatt.com/datasheets/x3pro_sch_v1.0.zip
+ * Schematic: http://files.panucatt.com/datasheets/x3pro_sch_v1.0.zip
  * ATmega2560
  */
 
@@ -145,7 +144,7 @@
 #undef BEEPER_PIN
 #define BEEPER_PIN                            33
 
-#if EITHER(VIKI2, miniVIKI)
+#if ANY(VIKI2, miniVIKI)
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       49  // For easy adapter board
   #undef BEEPER_PIN
@@ -172,7 +171,7 @@
 #undef SPINDLE_DIR_PIN
 
 #if HAS_CUTTER                                    // EXP2 header
-  #if EITHER(VIKI2, miniVIKI)
+  #if ANY(VIKI2, miniVIKI)
     #define BTN_EN2                           31  // Pin 7 needed for Spindle PWM
   #endif
   #define SPINDLE_LASER_PWM_PIN                7  // Hardware PWM

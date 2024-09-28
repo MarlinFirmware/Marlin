@@ -67,7 +67,7 @@
  *
  *            Interior pins:
  *                            LCD_PINS_RS             40 * * 53   SCK2
- *                            LCD_PINS_ENABLE         41 * * 52   MOSI2
+ *                            LCD_PINS_EN             41 * * 52   MOSI2
  *                            LCD_PINS_D4             42 * * 51   MISO2
  *                            LCD_PINS_D5     CS2     43 * * 50   A24
  *                            LCD_PINS_D6     MOSI2   44 * * 49   A23
@@ -132,7 +132,7 @@
 
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                         40
-  #define LCD_PINS_ENABLE                     41
+  #define LCD_PINS_EN                         41
   #define LCD_PINS_D4                         42
   #define LCD_PINS_D5                         43
   #define LCD_PINS_D6                         44

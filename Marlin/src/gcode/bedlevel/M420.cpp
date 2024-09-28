@@ -27,7 +27,10 @@
 #include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 #include "../../module/planner.h"
-#include "../../module/probe.h"
+
+#if ENABLED(MARLIN_DEV_MODE)
+  #include "../../module/probe.h"
+#endif
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/settings.h"
@@ -105,13 +108,12 @@ void GcodeSuite::M420() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!a) {
-          SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+          SERIAL_ECHOLNPGM(GCODE_ERR_MSG("EEPROM storage not available."));
           return;
         }
 
         if (!WITHIN(storage_slot, 0, a - 1)) {
-          SERIAL_ECHOLNPGM("?Invalid storage slot.");
-          SERIAL_ECHOLNPGM("?Use 0 to ", a - 1);
+          SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Invalid storage slot. Use 0 to ", a - 1));
           return;
         }
 
@@ -120,7 +122,7 @@ void GcodeSuite::M420() {
 
       #else
 
-        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("EEPROM storage not available."));
         return;
 
       #endif
@@ -245,10 +247,12 @@ void GcodeSuite::M420() {
 }
 
 void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(
     TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
   ));
-  SERIAL_ECHOF(
+  SERIAL_ECHO(
     F("  M420 S"), planner.leveling_active
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       , FPSTR(SP_Z_STR), LINEAR_UNIT(planner.z_fade_height)

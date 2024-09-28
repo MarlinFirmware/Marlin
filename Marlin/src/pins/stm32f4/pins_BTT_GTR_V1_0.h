@@ -31,7 +31,7 @@
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS                            // DIAG jumpers rendered useless due to a board design error
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define M5_EXTENDER                               // The M5 extender is attached
 
@@ -106,15 +106,33 @@
 // Pins on the extender
 //
 #if ENABLED(M5_EXTENDER)
-  #define X2_STOP_PIN                       PI4   // M5 M1_STOP
-  #define Y2_STOP_PIN                       PF12  // M5 M5_STOP
-  #define Z2_STOP_PIN                       PF4   // M5 M2_STOP
-  #define Z3_STOP_PIN                       PI7   // M5 M4_STOP
-  #define Z4_STOP_PIN                       PF6   // M5 M3_STOP
+  #define USES_DIAG_JUMPERS                       // DIAG jumpers work on M5 extender
+  #ifndef X2_STOP_PIN
+    #define X2_STOP_PIN                     PI4   // M5 M1_STOP
+  #endif
+  #ifndef Y2_STOP_PIN
+    #define Y2_STOP_PIN                     PF12  // M5 M5_STOP
+  #endif
+  #ifndef Z2_STOP_PIN
+    #define Z2_STOP_PIN                     PF4   // M5 M2_STOP
+  #endif
+  #ifndef Z3_STOP_PIN
+    #define Z3_STOP_PIN                     PI7   // M5 M4_STOP
+  #endif
+  #ifndef Z4_STOP_PIN
+    #define Z4_STOP_PIN                     PF6   // M5 M3_STOP
+  #endif
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PH11  // Z Probe must be PH11
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -272,8 +290,11 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // Temperature Sensors
@@ -390,8 +411,9 @@
 #define EXP2_07_PIN                         PB10
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
 
   #define TFT_CS_PIN                 EXP2_04_PIN
@@ -419,7 +441,7 @@
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
@@ -438,7 +460,7 @@
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_ENABLE          EXP1_03_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -451,7 +473,7 @@
 
       //#define LCD_BACKLIGHT_PIN           -1
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
           #define RGB_LED_R_PIN      EXP1_06_PIN
         #endif

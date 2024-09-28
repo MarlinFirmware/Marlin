@@ -92,35 +92,24 @@ lv_point_t line_points[4][2] = {
   {{PARA_UI_POS_X, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}},
   {{PARA_UI_POS_X, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}}
 };
+enum CfgLang : uint8_t {
+  LANG_en      = LANG_ENGLISH,
+  LANG_zh_CN   = LANG_SIMPLE_CHINESE,
+  LANG_zh_TW   = LANG_COMPLEX_CHINESE,
+  LANG_jp_kana = LANG_JAPAN,
+  LANG_de      = LANG_GERMAN,
+  LANG_fr      = LANG_FRENCH,
+  LANG_ru      = LANG_RUSSIAN,
+  LANG_ko_KR   = LANG_KOREAN,
+  LANG_tr      = LANG_TURKISH,
+  LANG_es      = LANG_SPANISH,
+  LANG_el      = LANG_GREEK,
+  LANG_it      = LANG_ITALY,
+  LANG_pt      = LANG_PORTUGUESE
+};
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if 1 // LCD_LANGUAGE == en
-    gCfgItems.language = LANG_ENGLISH;
-  #elif LCD_LANGUAGE == zh_CN
-    gCfgItems.language = LANG_SIMPLE_CHINESE;
-  #elif LCD_LANGUAGE == zh_TW
-    gCfgItems.language = LANG_COMPLEX_CHINESE;
-  #elif LCD_LANGUAGE == jp_kana
-    gCfgItems.language = LANG_JAPAN;
-  #elif LCD_LANGUAGE == de
-    gCfgItems.language = LANG_GERMAN;
-  #elif LCD_LANGUAGE == fr
-    gCfgItems.language = LANG_FRENCH;
-  #elif LCD_LANGUAGE == ru
-    gCfgItems.language = LANG_RUSSIAN;
-  #elif LCD_LANGUAGE == ko_KR
-    gCfgItems.language = LANG_KOREAN;
-  #elif LCD_LANGUAGE == tr
-    gCfgItems.language = LANG_TURKISH;
-  #elif LCD_LANGUAGE == es
-    gCfgItems.language = LANG_SPANISH;
-  #elif LCD_LANGUAGE == el
-    gCfgItems.language = LANG_GREEK;
-  #elif LCD_LANGUAGE == it
-    gCfgItems.language = LANG_ITALY;
-  #elif LCD_LANGUAGE == pt
-    gCfgItems.language = LANG_PORTUGUESE;
-  #endif
+  gCfgItems.language = CAT(LANG_, LCD_LANGUAGE);
   gCfgItems.leveling_mode     = 0;
   gCfgItems.from_flash_pic    = false;
   gCfgItems.curFilesize       = 0;
@@ -563,7 +552,7 @@ char *creat_title_text() {
   uintptr_t gPicturePreviewStart = 0;
 
   void preview_gcode_prehandle(char *path) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       uintptr_t pre_read_cnt = 0;
       uint32_t *p1;
       char *cur_name;
@@ -593,7 +582,7 @@ char *creat_title_text() {
   }
 
   void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
-    #if ENABLED(SDSUPPORT)
+    #if HAS_MEDIA
       volatile uint32_t i, j;
       volatile uint16_t *p_index;
       char *cur_name;
@@ -631,7 +620,7 @@ char *creat_title_text() {
         p_index = (uint16_t *)(&bmp_public_buf[i]);
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
-      SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
+      SPI_TFT.tftio.writeSequence((uint16_t*)bmp_public_buf, 200);
       #if HAS_BAK_VIEW_IN_FLASH
         W25QXX.init(SPI_QUARTER_SPEED);
         if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
@@ -660,19 +649,15 @@ char *creat_title_text() {
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
-          planner.flow_percentage[0] = 100;
-          planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = 100;
-            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-          #endif
+          TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
+          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
           TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
         return;
       }
-    #endif // SDSUPPORT
+    #endif // HAS_MEDIA
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
@@ -692,7 +677,7 @@ char *creat_title_text() {
       #endif
 
       SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
-      SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
+      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
       y_off++;
     }
@@ -770,7 +755,7 @@ void GUI_RefreshPage() {
         disp_print_time();
         disp_fan_Zpos();
       }
-      if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
+      if (printing_rate_update_flag || marlin_state == MarlinState::MF_SD_COMPLETE) {
         printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }
@@ -951,7 +936,7 @@ void clear_cur_ui() {
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
-    case JERK_UI:                     TERN_(HAS_CLASSIC_JERK, lv_clear_jerk_settings()); break;
+    case JERK_UI:                     TERN_(CLASSIC_JERK, lv_clear_jerk_settings()); break;
     case MOTORDIR_UI:                 break;
     case HOMESPEED_UI:                break;
     case NOZZLE_CONFIG_UI:            break;
@@ -1059,9 +1044,11 @@ void draw_return_ui() {
       case DELTA_LEVELING_PARA_UI:      break;
       case MANUAL_LEVELING_POSITION_UI: lv_draw_tramming_pos_settings(); break;
       case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
-      case STEPS_UI:                    lv_draw_step_settings(); break;
+      #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+        case STEPS_UI:                  lv_draw_step_settings(); break;
+      #endif
       case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
-      #if HAS_CLASSIC_JERK
+      #if ENABLED(CLASSIC_JERK)
         case JERK_UI:                   lv_draw_jerk_settings(); break;
       #endif
       case MOTORDIR_UI:                 break;
@@ -1345,7 +1332,7 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
   void sd_detection() {
     static bool last_sd_status;
@@ -1377,7 +1364,7 @@ void LV_TASK_HANDLER() {
   if (TERN1(USE_SPI_DMA_TC, !get_lcd_dma_lock()))
     lv_task_handler();
 
-  #if BOTH(MKS_TEST, SDSUPPORT)
+  #if ALL(MKS_TEST, HAS_MEDIA)
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 

@@ -30,7 +30,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-namespace Language_fi {
+namespace LanguageNarrow_fi {
   using namespace Language_en; // Inherit undefined strings from English
 
   constexpr uint8_t CHARSIZE              = 2;
@@ -39,33 +39,35 @@ namespace Language_fi {
   LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" valmis.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kortti asetettu");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kortti poistettu");
-  LSTR MSG_MAIN                           = _UxGT("Palaa");
+  LSTR MSG_MAIN_MENU                      = _UxGT("Palaa");
   LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
-  #if HAS_PREHEAT
-    LSTR MSG_PREHEAT_1                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
-    LSTR MSG_PREHEAT_1_H                  = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
-    LSTR MSG_PREHEAT_1_END                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
-    LSTR MSG_PREHEAT_1_END_E              = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin ~");
-    LSTR MSG_PREHEAT_1_ALL                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
-    LSTR MSG_PREHEAT_1_BEDONLY            = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
-    LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
 
-    LSTR MSG_PREHEAT_M                    = _UxGT("Esilämmitä $");
-    LSTR MSG_PREHEAT_M_H                  = _UxGT("Esilämmitä $ ~");
-    LSTR MSG_PREHEAT_M_END                = _UxGT("Esilä. $Suutin");
-    LSTR MSG_PREHEAT_M_END_E              = _UxGT("Esilä. $Suutin ~");
-    LSTR MSG_PREHEAT_M_ALL                = _UxGT("Esilä. $ Kaikki");
-    LSTR MSG_PREHEAT_M_BEDONLY            = _UxGT("Esilä. $ Alusta");
-    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Esilämm. $ konf");
-  #endif
+  LSTR MSG_PREHEAT_1                      = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
+  LSTR MSG_PREHEAT_1_H                    = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
+  LSTR MSG_PREHEAT_1_END                  = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
+  LSTR MSG_PREHEAT_1_END_E                = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin ~");
+  LSTR MSG_PREHEAT_1_ALL                  = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
+  LSTR MSG_PREHEAT_1_BEDONLY              = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
+  LSTR MSG_PREHEAT_1_SETTINGS             = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
+
+  LSTR MSG_PREHEAT_M                      = _UxGT("Esilämmitä $");
+  LSTR MSG_PREHEAT_M_H                    = _UxGT("Esilämmitä $ ~");
+  LSTR MSG_PREHEAT_M_END                  = _UxGT("Esilä. $Suutin");
+  LSTR MSG_PREHEAT_M_END_E                = _UxGT("Esilä. $Suutin ~");
+  LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Esilä. $ Kaikki");
+  LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Esilä. $ Alusta");
+  LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Esilämm. $ konf");
+
   LSTR MSG_COOLDOWN                       = _UxGT("Jäähdytä");
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Virta päälle");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Virta pois");
   LSTR MSG_EXTRUDE                        = _UxGT("Pursota");
   LSTR MSG_RETRACT                        = _UxGT("Vedä takaisin");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Liikuta akseleita");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Tutki ja tasoita");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Säädä Z askeltamalla");
   LSTR MSG_MOVE_X                         = _UxGT("Liikuta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Liikuta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Liikuta Z");
@@ -73,11 +75,8 @@ namespace Language_fi {
   LSTR MSG_MOVE_E                         = _UxGT("Extruder");
   LSTR MSG_MOVE_EN                        = _UxGT("Extruder *");
   LSTR MSG_MOVE_N_MM                      = _UxGT("Liikuta $mm");
-  LSTR MSG_MOVE_01MM                      = _UxGT("Liikuta 0.1mm");
-  LSTR MSG_MOVE_1MM                       = _UxGT("Liikuta 1mm");
-  LSTR MSG_MOVE_10MM                      = _UxGT("Liikuta 10mm");
-  LSTR MSG_MOVE_50MM                      = _UxGT("Liikuta 50mm");
-  LSTR MSG_MOVE_100MM                     = _UxGT("Liikuta 100mm");
+  LSTR MSG_MOVE_N_IN                      = _UxGT("Liikuta $in");
+  LSTR MSG_MOVE_N_DEG                     = _UxGT("Liikuta $") LCD_STR_DEGREE;
   LSTR MSG_SPEED                          = _UxGT("Nopeus");
   LSTR MSG_NOZZLE                         = _UxGT("Suutin");
   LSTR MSG_NOZZLE_N                       = _UxGT("Suutin ~");
@@ -102,7 +101,7 @@ namespace Language_fi {
   LSTR MSG_STORE_EEPROM                   = _UxGT("Tallenna muistiin");
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Lataa muistista");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Palauta oletus");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Päivitä");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Päivitä");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Seuraa");
   LSTR MSG_PREPARE                        = _UxGT("Valmistele");
   LSTR MSG_TUNE                           = _UxGT("Säädä");
@@ -129,4 +128,21 @@ namespace Language_fi {
   LSTR MSG_DELTA_CALIBRATE_CENTER         = _UxGT("Kalibroi Center");
 
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("Väärä tulostin");
+}
+
+namespace LanguageWide_fi {
+  using namespace LanguageNarrow_fi;
+  #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
+  #endif
+}
+
+namespace LanguageTall_fi {
+  using namespace LanguageWide_fi;
+  #if LCD_HEIGHT >= 4
+    // Filament Change screens show up to 3 lines on a 4-line display
+  #endif
+}
+
+namespace Language_fi {
+  using namespace LanguageTall_fi;
 }

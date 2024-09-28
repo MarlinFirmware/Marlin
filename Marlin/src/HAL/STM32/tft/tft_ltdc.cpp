@@ -246,28 +246,28 @@ uint16_t TFT_LTDC::y_cur = 0;
 uint8_t TFT_LTDC::reg = 0;
 volatile uint16_t* TFT_LTDC::framebuffer = (volatile uint16_t* )FRAME_BUFFER_ADDRESS;
 
-void TFT_LTDC::Init() {
+void TFT_LTDC::init() {
 
   // SDRAM pins init
-  for (uint16_t i = 0; PinMap_SDRAM[i].pin != NC; i++)
-    pinmap_pinout(PinMap_SDRAM[i].pin, PinMap_SDRAM);
+  for (uint16_t i = 0; pinMap_SDRAM[i].pin != NC; i++)
+    pinmap_pinout(pinMap_SDRAM[i].pin, pinMap_SDRAM);
 
   // SDRAM peripheral config
   SDRAM_Config();
 
   // LTDC pins init
-  for (uint16_t i = 0; PinMap_LTDC[i].pin != NC; i++)
-    pinmap_pinout(PinMap_LTDC[i].pin, PinMap_LTDC);
+  for (uint16_t i = 0; pinMap_LTDC[i].pin != NC; i++)
+    pinmap_pinout(pinMap_LTDC[i].pin, pinMap_LTDC);
 
   // LTDC peripheral config
   LTDC_Config();
 }
 
-uint32_t TFT_LTDC::GetID() {
+uint32_t TFT_LTDC::getID() {
   return 0xABAB;
 }
 
-uint32_t TFT_LTDC::ReadID(tft_data_t Reg) {
+uint32_t TFT_LTDC::readID(const tft_data_t inReg) {
   return 0xABAB;
 }
 
@@ -275,15 +275,15 @@ bool TFT_LTDC::isBusy() {
   return false;
 }
 
-uint16_t TFT_LTDC::ReadPoint(uint16_t x, uint16_t y) {
+uint16_t TFT_LTDC::readPoint(uint16_t x, uint16_t y) {
   return framebuffer[(TFT_WIDTH * y) + x];
 }
 
-void TFT_LTDC::DrawPoint(uint16_t x, uint16_t y, uint16_t color) {
+void TFT_LTDC::drawPoint(uint16_t x, uint16_t y, uint16_t color) {
   framebuffer[(TFT_WIDTH * y) + x] = color;
 }
 
-void TFT_LTDC::DrawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t color) {
+void TFT_LTDC::drawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t color) {
 
   if (sx == ex || sy == ey) return;
 
@@ -307,7 +307,7 @@ void TFT_LTDC::DrawRect(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint
   SBI(DMA2D->IFCR, 1);
 }
 
-void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t *colors) {
+void TFT_LTDC::drawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uint16_t *colors) {
 
   if (sx == ex || sy == ey) return;
 
@@ -332,18 +332,18 @@ void TFT_LTDC::DrawImage(uint16_t sx, uint16_t sy, uint16_t ex, uint16_t ey, uin
   SBI(DMA2D->IFCR, 1);
 }
 
-void TFT_LTDC::WriteData(uint16_t data) {
+void TFT_LTDC::writeData(uint16_t data) {
   switch (reg) {
     case 0x01: x_cur = x_min = data; return;
     case 0x02: x_max = data; return;
     case 0x03: y_cur = y_min = data; return;
     case 0x04: y_max = data; return;
   }
-  Transmit(data);
+  transmit(data);
 }
 
-void TFT_LTDC::Transmit(tft_data_t Data) {
-  DrawPoint(x_cur, y_cur, Data);
+void TFT_LTDC::transmit(tft_data_t data) {
+  drawPoint(x_cur, y_cur, data);
   x_cur++;
   if (x_cur > x_max) {
     x_cur = x_min;
@@ -352,35 +352,31 @@ void TFT_LTDC::Transmit(tft_data_t Data) {
   }
 }
 
-void TFT_LTDC::WriteReg(uint16_t Reg) {
-  reg = Reg;
-}
+void TFT_LTDC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
 
-void TFT_LTDC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
-
-  while (x_cur != x_min && Count) {
-    Transmit(*Data);
-    if (MemoryIncrease == DMA_PINC_ENABLE) Data++;
-    Count--;
+  while (x_cur != x_min && count) {
+    transmit(*data);
+    if (memoryIncrease == DMA_PINC_ENABLE) data++;
+    count--;
   }
 
   uint16_t width = x_max - x_min + 1;
-  uint16_t height = Count / width;
-  uint16_t x_end_cnt = Count - (width * height);
+  uint16_t height = count / width;
+  uint16_t x_end_cnt = count - (width * height);
 
   if (height) {
-    if (MemoryIncrease == DMA_PINC_ENABLE) {
-      DrawImage(x_min, y_cur, x_min + width, y_cur + height, Data);
-      Data += width * height;
+    if (memoryIncrease == DMA_PINC_ENABLE) {
+      drawImage(x_min, y_cur, x_min + width, y_cur + height, data);
+      data += width * height;
     }
     else
-      DrawRect(x_min, y_cur, x_min + width, y_cur + height, *Data);
+      drawRect(x_min, y_cur, x_min + width, y_cur + height, *data);
     y_cur += height;
   }
 
   while (x_end_cnt) {
-    Transmit(*Data);
-    if (MemoryIncrease == DMA_PINC_ENABLE) Data++;
+    transmit(*data);
+    if (memoryIncrease == DMA_PINC_ENABLE) data++;
     x_end_cnt--;
   }
 }

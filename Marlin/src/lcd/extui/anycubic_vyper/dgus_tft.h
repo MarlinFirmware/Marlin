@@ -29,8 +29,6 @@
 #include "../../../inc/MarlinConfigPre.h"
 #include "../ui_api.h"
 
-#define MAIN_BOARD_FIRMWARE_VER "V2.4.5"
-
 #define DATA_BUF_SIZE 64
 
 /****************** PAGE INDEX***********************/
@@ -124,29 +122,29 @@
 /****************** TXT **************************/
 
 // MAIN PAGE TXT
-#define TXT_MAIN_BED        0x2000
-#define TXT_MAIN_HOTEND     0x2030
-#define TXT_MAIN_MESSAGE    0x2060
+#define TXT_MAIN_BED            (0x2000+0*0x30)
+#define TXT_MAIN_HOTEND         (0x2000+1*0x30)
+#define TXT_MAIN_MESSAGE        (0x2000+2*0x30)
 
 // FILE TXT
-#define TXT_FILE_0          (0x2000+3*0x30)
-#define TXT_DESCRIPT_0      0x5000         // DESCRIBE ADDRESS
-#define TXT_FILE_1          (0x2000+4*0x30)
-#define TXT_DESCRIPT_1      0x5030
-#define TXT_FILE_2          (0x2000+5*0x30)
-#define TXT_DESCRIPT_2      0x5060
-#define TXT_FILE_3          (0x2000+6*0x30)
-#define TXT_DESCRIPT_3      0x5090
-#define TXT_FILE_4          (0x2000+7*0x30)
-#define TXT_DESCRIPT_4      0x50C0
+#define TXT_FILE_0              (0x2000+3*0x30)
+#define TXT_DESCRIPT_0          0x5000         // DESCRIBE ADDRESS
+#define TXT_FILE_1              (0x2000+4*0x30)
+#define TXT_DESCRIPT_1          0x5030
+#define TXT_FILE_2              (0x2000+5*0x30)
+#define TXT_DESCRIPT_2          0x5060
+#define TXT_FILE_3              (0x2000+6*0x30)
+#define TXT_DESCRIPT_3          0x5090
+#define TXT_FILE_4              (0x2000+7*0x30)
+#define TXT_DESCRIPT_4          0x50C0
 
 // PRINT TXT
-#define TXT_PRINT_NAME      0x2000+8*0x30
-#define TXT_PRINT_SPEED     0x2000+9*0x30
-#define TXT_PRINT_TIME      0x2000+10*0x30
-#define TXT_PRINT_PROGRESS  0x2000+11*0x30
-#define TXT_PRINT_HOTEND    0x2000+12*0x30
-#define TXT_PRINT_BED       0x2000+13*0x30
+#define TXT_PRINT_NAME          (0x2000+8*0x30)
+#define TXT_PRINT_SPEED         (0x2000+9*0x30)
+#define TXT_PRINT_TIME          (0x2000+10*0x30)
+#define TXT_PRINT_PROGRESS      (0x2000+11*0x30)
+#define TXT_PRINT_HOTEND        (0x2000+12*0x30)
+#define TXT_PRINT_BED           (0x2000+13*0x30)
 
 // PRINT ADJUST TXT
 
@@ -158,8 +156,8 @@
 
 #define TXT_BED_NOW             (0x2000+17*0x30)
 #define TXT_BED_TARGET          (0x2000+18*0x30)
-#define TXT_HOTEND_NOW           (0x2000+19*0x30)
-#define TXT_HOTEND_TARGET        (0x2000+20*0x30)
+#define TXT_HOTEND_NOW          (0x2000+19*0x30)
+#define TXT_HOTEND_TARGET       (0x2000+20*0x30)
 
 // SPEED SET TXT
 #define TXT_FAN_SPEED_NOW       (0x2000+21*0x30)
@@ -171,23 +169,23 @@
 #define TXT_ABOUT               (0x2000+25*0x30)
 
 // RECORT TXT
-#define TXT_RECORT_0             (0x2000+26*0x30)
-#define TXT_RECORT_1             (0x2000+27*0x30)
-#define TXT_RECORT_2             (0x2000+28*0x30)
-#define TXT_RECORT_3             (0x2000+29*0x30)
-#define TXT_RECORT_4             (0x2000+30*0x30)
-#define TXT_RECORT_5             (0x2000+31*0x30)
+#define TXT_RECORT_0            (0x2000+26*0x30)
+#define TXT_RECORT_1            (0x2000+27*0x30)
+#define TXT_RECORT_2            (0x2000+28*0x30)
+#define TXT_RECORT_3            (0x2000+29*0x30)
+#define TXT_RECORT_4            (0x2000+30*0x30)
+#define TXT_RECORT_5            (0x2000+31*0x30)
 
 // ADVANCE LEVEL TXT
-#define TXT_LEVEL_OFFSET             (0x2000+32*0x30)
+#define TXT_LEVEL_OFFSET        (0x2000+32*0x30)
 
 // FILAMENT TXT
-#define TXT_FILAMENT_TEMP        (0x2000+33*0x30)
+#define TXT_FILAMENT_TEMP       (0x2000+33*0x30)
 
-#define TXT_FINISH_TIME          (0x2000+34*0x30)
-#define TXT_VERSION              (0x2000+35*0x30)
-#define TXT_PREHEAT_HOTEND       (0x2000+36*0x30)
-#define TXT_PREHEAT_BED          (0x2000+37*0x30)
+#define TXT_FINISH_TIME         (0x2000+34*0x30)
+#define TXT_VERSION             (0x2000+35*0x30)
+#define TXT_PREHEAT_HOTEND      (0x2000+36*0x30)
+#define TXT_PREHEAT_BED         (0x2000+37*0x30)
 
 #define TXT_OUTAGE_RECOVERY_FILE 0x2180
 
@@ -281,7 +279,6 @@
 #define KEY_LEVEL_DEC           2
 #define KEY_LEVEL_ENSURE        4
 
-
 #define KEY_PREPARE_TO_PREHEAT  3
 #define KEY_PREHEAT_TO_PREPARE  1
 #define KEY_PREHEAT_PLA         2
@@ -342,12 +339,11 @@ namespace Anycubic {
     static uint8_t      data_buf[DATA_BUF_SIZE];
     static uint8_t      data_index;
     static uint16_t     page_index_last, page_index_last_2;
-    static uint8_t      message_index;
     static uint8_t      pop_up_index;
     static uint32_t     key_value;
     static uint8_t      lcd_txtbox_index;
     static uint8_t      lcd_txtbox_page;
-    static int16_t      feedrate_back;
+    static uint16_t     feedrate_back;
     static language_t   ui_language;
 
     public:
@@ -356,19 +352,18 @@ namespace Anycubic {
       static lcd_info_t lcd_info, lcd_info_back;
       static uint16_t page_index_now;
 
-      static void Startup();
-      static void ParamInit();
-      static void IdleLoop();
-      static void PrinterKilled(FSTR_P,FSTR_P);
-      static void MediaEvent(media_event_t);
-      static void TimerEvent(timer_event_t);
-      static void FilamentRunout();
-      static void ConfirmationRequest(const char * const);
-      static void StatusChange(const char * const);
-      static void PowerLoss();
-      static void PowerLossRecovery();
-      static void HomingStart();
-      static void HomingComplete();
+      static void startup();
+      static void paramInit();
+      static void idleLoop();
+      static void printerKilled(FSTR_P,FSTR_P);
+      static void mediaEvent(media_event_t);
+      static void timerEvent(timer_event_t);
+      static void filamentRunout();
+      static void confirmationRequest(const char * const);
+      static void statusChange(const char * const);
+      static void powerLossRecovery();
+      static void homingStart();
+      static void homingComplete();
 
       static void set_descript_color(const uint16_t color, const uint8_t index=lcd_txtbox_index);
       static void set_language(language_t);
@@ -378,11 +373,15 @@ namespace Anycubic {
       static void store_changes();
 
       #if HAS_HOTEND
-        static void send_temperature_hotend(uint32_t addr);
+        static void send_temperature_hotend(const uint16_t address);
       #endif
       #if HAS_HEATED_BED
-        static void send_temperature_bed(uint32_t addr);
+        static void send_temperature_bed(const uint16_t address);
       #endif
+
+      static void changePageOfTFT(const uint16_t page_index, const bool no_send=false);
+      static void fakeChangePageOfTFT(const uint16_t page_index);
+      static void debugPage(int page=0);
 
       typedef void (*p_fun)();
       static void page1();
@@ -450,30 +449,37 @@ namespace Anycubic {
 
       static void pop_up_manager();
 
-      static void SendtoTFT(FSTR_P const=nullptr);
-      static void SendtoTFTLN(FSTR_P const=nullptr);
-      static bool ReadTFTCommand();
-      static int8_t Findcmndpos(const char *, const char);
-      static void CheckHeaters();
-      static void SendFileList(int8_t);
-      static void SelectFile();
-      static void ProcessPanelRequest();
-      static void PanelInfo(uint8_t);
-      static void PanelAction(uint8_t);
-      static void PanelProcess(uint8_t);
+      static void tftSend(FSTR_P const=nullptr);
+      static void tftSendLn(FSTR_P const=nullptr);
+      static bool readTFTCommand();
+      static int8_t findCmdPos(const char *, const char);
+      static void checkHeaters();
+      static void sendFileList(int8_t);
+      static void selectFile();
+      static void processPanelRequest();
 
-      static void SendValueToTFT(const uint16_t value, const uint16_t address);
-      static void RequestValueFromTFT(const uint16_t address);
-      static void SendTxtToTFT(const char *pdata, const uint16_t address);
-      static void SendColorToTFT(const uint16_t color, const uint16_t address);
-      static void SendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
-      static void ChangePageOfTFT(const uint16_t page_index, const bool no_send=false);
-      static void FakeChangePageOfTFT(const uint16_t page_index);
-      static void LcdAudioSet(const bool audio_on);
+      static void sendValueToTFT(const uint16_t value, const uint16_t address);
+      static void requestValueFromTFT(const uint16_t address);
+
+      static void sendTxtToTFT(const char *pdata, const uint16_t address);
+      static void sendTxtToTFT_P(PGM_P const pstr, const uint16_t address) {
+        char cstr[32];
+        strlcpy_P(cstr, pstr, sizeof(cstr));
+        sendTxtToTFT(cstr, address);
+      }
+      static void sendTxtToTFT(FSTR_P const fstr, const uint16_t address) {
+        sendTxtToTFT_P(FTOP(fstr), address);
+      }
+
+      static void sendColorToTFT(const uint16_t color, const uint16_t address);
+      static void sendTimeToTFT(const uint32_t minutes, const uint16_t address);
+      static void sendReadNumOfTxtToTFT(const uint8_t number, const uint16_t address);
+      static void lcdAudioSet(const bool audio_on);
+      static void showAboutPage();
 
     private:
 
   };
 
-  extern DgusTFT Dgus;
+  extern DgusTFT dgus;
 }

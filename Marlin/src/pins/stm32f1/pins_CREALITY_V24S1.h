@@ -25,6 +25,11 @@
  * Creality v2.4.S1 (STM32F103RE / STM32F103RC) v101 as found in the Ender-7
  */
 
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "Creality 2.4.S1 V101 only supports 1 hotend / E stepper."
+  #define E_ERROR 1
+#endif
+
 #define BOARD_INFO_NAME      "Creality v2.4.S1 V101"
 #define DEFAULT_MACHINE_NAME "Creality3D"
 

@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_MARLINUI_MENU, MIXING_EXTRUDER)
+#if ALL(HAS_MARLINUI_MENU, MIXING_EXTRUDER)
 
 #include "menu_item.h"
 #include "menu_addon.h"
@@ -43,7 +43,7 @@
 
   void _lcd_mixer_gradient_z_edit(const bool isend) {
     ui.defer_status_screen();
-    ENCODER_RATE_MULTIPLY(true);
+    ui.enable_encoder_multiplier(true);
 
     float &zvar = isend ? mixer.gradient.end_z : mixer.gradient.start_z;
 
@@ -170,7 +170,7 @@ void lcd_mixer_mix_edit() {
 
     #if CHANNEL_MIX_EDITING
 
-      LOOP_S_LE_N(n, 1, MIXING_STEPPERS)
+      for (uint8_t n = 1; n <= MIXING_STEPPERS; ++n)
         EDIT_ITEM_FAST_N(float42_52, n, MSG_MIX_COMPONENT_N, &mixer.collector[n-1], 0, 10);
 
       ACTION_ITEM(MSG_CYCLE_MIX, _lcd_mixer_cycle_mix);
@@ -225,7 +225,7 @@ void lcd_mixer_mix_edit() {
 
 void menu_mixer() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN_MENU);
 
   v_index = mixer.get_current_vtool();
   EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool, ENABLED(HAS_DUAL_MIXING));

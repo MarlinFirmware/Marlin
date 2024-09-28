@@ -44,12 +44,12 @@ class WriteSource:
 
   def append_rgb565(self, color):
     value = ((color[0] & 0xF8) << 8) + ((color[1] & 0xFC) << 3) + ((color[2] & 0xF8) >> 3)
-    self.values.append((value & 0x00FF) >> 0);
-    self.values.append((value & 0xFF00) >> 8);
+    self.values.append((value & 0x00FF) >> 0)
+    self.values.append((value & 0xFF00) >> 8)
 
   def append_rgb332(self, color):
     value = (color[0] & 0xE0) + ((color[1] & 0xE0) >> 3) + ((color[2] & 0xC0) >> 6)
-    self.values.append(value);
+    self.values.append(value)
 
   def append_grayscale(self, color, bits):
     luminance = int(0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2])
@@ -99,7 +99,7 @@ if __name__ == "__main__":
   parser.add_argument("-m", "--mode", default="l1", help="Mode, can be l1, l2, l4, l8, rgb332 or rgb565")
   args = parser.parse_args()
 
-  varname = os.path.splitext(os.path.basename(args.input))[0];
+  varname = os.path.splitext(os.path.basename(args.input))[0]
 
   writer = WriteSource(args.mode)
 

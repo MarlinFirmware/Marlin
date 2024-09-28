@@ -4,12 +4,12 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    import struct,uuid,marlin
+    import struct, uuid, marlin
 
-    board = marlin.env.BoardConfig()
+    board = pioutil.env.BoardConfig()
 
     def calculate_crc(contents, seed):
-        accumulating_xor_value = seed;
+        accumulating_xor_value = seed
 
         for i in range(0, len(contents), 4):
             value = struct.unpack('<I', contents[ i : i + 4])[0]
@@ -34,7 +34,7 @@ if pioutil.is_pio_build():
 
         for loop_counter in range(0, block_size):
             # meant to make sure different bits of the key are used.
-            xor_seed = int(loop_counter / key_length)
+            xor_seed = loop_counter // key_length
 
             # IP is a scratch register / R12
             ip = loop_counter - (key_length * xor_seed)
@@ -68,7 +68,7 @@ if pioutil.is_pio_build():
         uid_value = uuid.uuid4()
         file_key = int(uid_value.hex[0:8], 16)
 
-        xor_crc = 0xEF3D4323;
+        xor_crc = 0xEF3D4323
 
         # the input file is exepcted to be in chunks of 0x800
         # so round the size
@@ -83,7 +83,7 @@ if pioutil.is_pio_build():
         output_file.write(struct.pack("<I", file_key))
 
         #TODO - how to enforce that the firmware aligns to block boundaries?
-        block_count = int(len(input_file) / block_size)
+        block_count = len(input_file) // block_size
         print ("Block Count is ", block_count)
         for block_number in range(0, block_count):
             block_offset = (block_number * block_size)
@@ -123,4 +123,4 @@ if pioutil.is_pio_build():
         fwpath.unlink()
 
     marlin.relocate_firmware("0x08008800")
-    marlin.add_post_action(encrypt);
+    marlin.add_post_action(encrypt)

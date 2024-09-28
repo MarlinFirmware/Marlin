@@ -22,13 +22,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDSUPPORT)
+#if HAS_MEDIA
 
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/marlinui.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 /**
@@ -36,9 +36,9 @@
  */
 void GcodeSuite::M524() {
 
-  #if ENABLED(DWIN_LCD_PROUI)
+  #if ENABLED(EXTENSIBLE_UI)
 
-    ui.abort_print();
+    ExtUI::stopPrint(); // Calls ui.abort_print() which does the same as below
 
   #else
 
@@ -51,4 +51,4 @@ void GcodeSuite::M524() {
 
 }
 
-#endif // SDSUPPORT
+#endif // HAS_MEDIA

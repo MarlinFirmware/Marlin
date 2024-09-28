@@ -23,10 +23,8 @@
 
 /**
  * Minitronics v1.0/1.1 pin assignments
- * Schematic (1.0): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Minitronics%20v1.0/minitronics%20-%20Project.pdf
- * Origin (1.0): https://reprap.org/wiki/File:MinitronicsPDF.zip
- * Datasheet (1.1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Minitronics%20v1.1/datasheet%20minitronics%20v1.1.pdf
- * Origin (1.1): https://reprapworld.nl/documentation/datasheet%20minitronics%20v1.1.pdf
+ * Schematic (1.0): https://reprap.org/wiki/File:MinitronicsPDF.zip
+ * Schematic (1.1): https://reprapworld.nl/documentation/datasheet%20minitronics%20v1.1.pdf
  * ATmega1281
  */
 
@@ -47,11 +45,8 @@
 // Limit Switches
 //
 #define X_MIN_PIN                              5
-#define X_MAX_PIN                              2
 #define Y_MIN_PIN                              2
-#define Y_MAX_PIN                             15
 #define Z_MIN_PIN                              6
-#define Z_MAX_PIN                             -1
 
 //
 // Steppers
@@ -60,13 +55,13 @@
 #define X_DIR_PIN                             47
 #define X_ENABLE_PIN                          49
 
-#define Y_STEP_PIN                            39  // A6
-#define Y_DIR_PIN                             40  // A0
+#define Y_STEP_PIN                            39
+#define Y_DIR_PIN                             40
 #define Y_ENABLE_PIN                          38
 
-#define Z_STEP_PIN                            42  // A2
-#define Z_DIR_PIN                             43  // A6
-#define Z_ENABLE_PIN                          41  // A1
+#define Z_STEP_PIN                            42
+#define Z_DIR_PIN                             43
+#define Z_ENABLE_PIN                          41
 
 #define E0_STEP_PIN                           45
 #define E0_DIR_PIN                            44
@@ -108,7 +103,7 @@
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define LCD_PINS_RS                         15  // CS chip select /SS chip slave select
-  #define LCD_PINS_ENABLE                     11  // SID (MOSI)
+  #define LCD_PINS_EN                         11  // SID (MOSI)
   #define LCD_PINS_D4                         10  // SCK (CLK) clock
 
   #define BTN_EN1                             18
@@ -120,7 +115,7 @@
 #else
 
   #define LCD_PINS_RS                         -1
-  #define LCD_PINS_ENABLE                     -1
+  #define LCD_PINS_EN                         -1
 
   // Buttons are directly attached using keypad
   #define BTN_EN1                             -1
@@ -141,7 +136,7 @@
   #define HEATER_BED_PIN                       4  // won't compile
   #define TEMP_BED_PIN                        50
   #define TEMP_0_PIN                          51
-  #define SPINDLE_LASER_ENA_PIN               52  // using A6 because it already has a pullup
   #define SPINDLE_LASER_PWM_PIN                3  // WARNING - LED & resistor pull up to +12/+24V stepper voltage
+  #define SPINDLE_LASER_ENA_PIN               52  // using A6 because it already has a pullup
   #define SPINDLE_DIR_PIN                     53
 #endif

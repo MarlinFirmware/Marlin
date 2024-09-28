@@ -21,10 +21,10 @@
  */
 #pragma once
 
-#include "../config/DGUS_Screen.h"
+#include "../config/DGUS_ScreenID.h"
 
 struct DGUS_ScreenSetup {
-  DGUS_Screen   screen;
+  DGUS_ScreenID screenID;
   bool          (*setup_fn)(void);
 };
 

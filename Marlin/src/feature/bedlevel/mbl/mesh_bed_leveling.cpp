@@ -40,9 +40,9 @@
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
   mesh_bed_leveling::mesh_bed_leveling() {
-    LOOP_L_N(i, GRID_MAX_POINTS_X)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; ++i)
       index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
-    LOOP_L_N(i, GRID_MAX_POINTS_Y)
+    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; ++i)
       index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
@@ -63,7 +63,7 @@
      */
     void mesh_bed_leveling::line_to_destination(const_feedRate_t scaled_fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
-      xy_int8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
+      xy_uint8_t scel = cell_indexes(current_position), ecel = cell_indexes(destination);
       NOMORE(scel.x, GRID_MAX_CELLS_X - 1);
       NOMORE(scel.y, GRID_MAX_CELLS_Y - 1);
       NOMORE(ecel.x, GRID_MAX_CELLS_X - 1);
@@ -80,7 +80,7 @@
 
       float normalized_dist;
       xyze_pos_t dest;
-      const int8_t gcx = _MAX(scel.x, ecel.x), gcy = _MAX(scel.y, ecel.y);
+      const uint8_t gcx = _MAX(scel.x, ecel.x), gcy = _MAX(scel.y, ecel.y);
 
       // Crosses on the X and not already split on this X?
       // The x_splits flags are insurance against rounding errors.
@@ -123,8 +123,7 @@
   #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOPAIR_F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: ", z_offset, 5);
-    SERIAL_ECHOLNPGM("\nMeasured points:");
+    SERIAL_ECHOLN(F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
   }
 

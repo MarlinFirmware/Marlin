@@ -23,8 +23,7 @@
 
 /**
  * BigTreeTech SKR E3 Turbo pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20E3%20Turbo/BTT%20SKR%20E3%20Turbo-SCH.pdf
- * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-E3-Turbo/blob/master/Hardware/BTT%20SKR%20E3%20Turbo-SCH.pdf
+ * Schematic: https://github.com/bigtreetech/BIGTREETECH-SKR-E3-Turbo/blob/master/Hardware/BTT%20SKR%20E3%20Turbo-SCH.pdf
  */
 
 #include "env_validate.h"
@@ -67,6 +66,13 @@
 #endif
 
 //
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
 // Filament Runout Sensor
 //
 #define FIL_RUNOUT_PIN                     P1_26  // E0DET
@@ -80,8 +86,8 @@
 #endif
 
 // LED driving pin
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     P1_24
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN               P1_24
 #endif
 
 //
@@ -153,8 +159,11 @@
   #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
-#endif
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+#endif // HAS_TMC_UART
 
 //
 // TMC Low Power Standby pins
@@ -171,7 +180,10 @@
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
 #define TEMP_BED_PIN                       P0_25
-#define TEMP_BOARD_PIN                     P1_30  // Onboard thermistor, NTC100K
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                   P1_30  // Onboard thermistor, NTC100K
+#endif
 
 //
 // Heaters / Fans
@@ -206,9 +218,8 @@
 #define EXP1_08_PIN                        P0_18
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. See 'pins_BTT_SKR_E3_TURBO.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+
+  CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "Ender-3 V2 display", " Requires a custom cable with TX = P0_15, RX = P0_16.")
 
  /**
   *          Ender-3 V2 display                       SKR E3 Turbo (EXP1)                Ender-3 V2 display --> SKR E3 Turbo
@@ -237,24 +248,22 @@
     #define BTN_ENC                  EXP1_02_PIN
 
     #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_ENABLE          EXP1_08_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_E3_TURBO.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "ZONESTAR_LCD")
 
     #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_ENABLE          EXP1_02_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
     #define LCD_PINS_D4              EXP1_07_PIN
     #define LCD_PINS_D5              EXP1_05_PIN
     #define LCD_PINS_D6              EXP1_03_PIN
     #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                 P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  #elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN

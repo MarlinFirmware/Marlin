@@ -37,11 +37,10 @@ void restore_stepper_drivers() {
 }
 
 void reset_stepper_drivers() {
-  TERN_(HAS_TMC26X, tmc26x_init_to_defaults());
   TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
 }
 
 #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-  // Flags to optimize XYZ Enabled state
+  // Flags to optimize axis enabled state
   xyz_bool_t axis_sw_enabled; // = { false, false, false }
 #endif

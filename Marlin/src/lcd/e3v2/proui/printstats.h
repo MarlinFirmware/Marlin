@@ -23,18 +23,19 @@
 
 /**
  * Print Stats page for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
- * Version: 1.4.2
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
+ * Version: 1.4.0
  * Date: 2022/12/03
  */
 
-class PrintStatsClass {
+class PrintStats {
 public:
-  static void Draw();
-  static void Reset();
+  static void draw();
+  static void reset();
 };
 
-extern PrintStatsClass PrintStats;
+extern PrintStats printStats;
 
-void Goto_PrintStats();
-void PrintStatsReset();
+void gotoPrintStats();
+void printStatsReset();

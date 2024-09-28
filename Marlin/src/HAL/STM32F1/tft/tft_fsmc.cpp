@@ -87,7 +87,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __DSB() {
 #define FSMC_DATA_SETUP_TIME      15  // DataSetupTime
 
 static uint8_t fsmcInit = 0;
-void TFT_FSMC::Init() {
+void TFT_FSMC::init() {
   uint8_t cs = FSMC_CS_PIN, rs = FSMC_RS_PIN;
   uint32_t controllerAddress;
 
@@ -181,35 +181,35 @@ void TFT_FSMC::Init() {
   LCD = (LCD_CONTROLLER_TypeDef*)controllerAddress;
 }
 
-void TFT_FSMC::Transmit(uint16_t Data) {
-  LCD->RAM = Data;
+void TFT_FSMC::transmit(uint16_t data) {
+  LCD->RAM = data;
   __DSB();
 }
 
-void TFT_FSMC::WriteReg(uint16_t Reg) {
-  LCD->REG = Reg;
+void TFT_FSMC::writeReg(const uint16_t inReg) {
+  LCD->REG = inReg;
   __DSB();
 }
 
-uint32_t TFT_FSMC::GetID() {
+uint32_t TFT_FSMC::getID() {
   uint32_t id;
-  WriteReg(0x0000);
+  writeReg(0x0000);
   id = LCD->RAM;
 
   if (id == 0)
-    id = ReadID(LCD_READ_ID);
+    id = readID(LCD_READ_ID);
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
-    id = ReadID(LCD_READ_ID4);
+    id = readID(LCD_READ_ID4);
   if ((id & 0xFF00) == 0 && (id & 0xFF) != 0)
-    id = ReadID(LCD_READ_ID4);
+    id = readID(LCD_READ_ID4);
   return id;
 }
 
- uint32_t TFT_FSMC::ReadID(uint16_t Reg) {
+ uint32_t TFT_FSMC::readID(const uint16_t inReg) {
    uint32_t id;
-   WriteReg(Reg);
+   writeReg(inReg);
    id = LCD->RAM; // dummy read
-   id = Reg << 24;
+   id = inReg << 24;
    id |= (LCD->RAM & 0x00FF) << 16;
    id |= (LCD->RAM & 0x00FF) << 8;
    id |= LCD->RAM & 0x00FF;
@@ -225,11 +225,11 @@ bool TFT_FSMC::isBusy() {
   if ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & (DMA_ISR_TCIF | DMA_ISR_TEIF)) == 0) return true;
 
   __DSB();
-  Abort();
+  abort();
   return false;
 }
 
-void TFT_FSMC::Abort() {
+void TFT_FSMC::abort() {
   dma_channel_reg_map *channel_regs = dma_channel_regs(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
   dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL); // Abort DMA transfer if any
@@ -241,25 +241,25 @@ void TFT_FSMC::Abort() {
   channel_regs->CPAR  = 0U;
 }
 
-void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
   // TODO: HAL STM32 uses DMA2_Channel1 for FSMC on STM32F1
-  dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
-  dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
+  dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | memoryIncrease);
+  dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, count);
   dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
   dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
   TERN_(TFT_SHARED_IO, while (isBusy()));
 }
 
-void TFT_FSMC::Transmit(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
+void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {
   #if defined(FSMC_DMA_DEV) && defined(FSMC_DMA_CHANNEL)
-    dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
-    dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
+    dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | memoryIncrease);
+    dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, count);
     dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
     dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
     while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & (DMA_CCR_TEIE | DMA_CCR_TCIE)) == 0) {}
-    Abort();
+    abort();
   #endif
 }
 
