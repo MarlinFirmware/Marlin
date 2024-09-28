@@ -183,7 +183,7 @@
   void mesh_bed_leveling::report_mesh() {
     SERIAL_ECHO(GRID_MAX_POINTS_X, C('x'), GRID_MAX_POINTS_Y, F(" mesh."));
     #if ENABLED(GLOBAL_MESH_Z_OFFSET)
-      SERIAL_ECHOPGM(" Z offset: ", p_float_t(z_offset, 5));
+      SERIAL_ECHOPGM(" Z offset: ", p_float_t(mesh_z_offset, 5));
     #endif
     SERIAL_ECHOLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
