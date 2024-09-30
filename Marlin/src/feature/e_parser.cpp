@@ -61,9 +61,15 @@ extern bool wait_for_user, wait_for_heatup;
 #endif
 
 void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
+  auto uppercase = [](char c) {
+    if (TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')))
+      c += 'A' - 'a';
+    return c;
+  };
+
   switch (state) {
     case EP_RESET:
-      switch (c) {
+      switch (uppercase(c)) {
         case ' ': case '\n': case '\r': break;
         case 'N': state = EP_N; break;
         case 'M': state = EP_M; break;
@@ -81,7 +87,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
       break;
 
     case EP_N:
-      switch (c) {
+      switch (uppercase(c)) {
         case '0' ... '9':
         case '-': case ' ':     break;
         case 'M': state = EP_M; break;
@@ -174,7 +180,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
       case EP_M87: state = (c == '6') ? EP_M876 : EP_IGNORE; break;
 
       case EP_M876:
-        switch (c) {
+        switch (uppercase(c)) {
           case ' ': break;
           case 'S': state = EP_M876S; break;
           default: state = EP_IGNORE; break;
