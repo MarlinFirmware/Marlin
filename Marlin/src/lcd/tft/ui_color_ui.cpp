@@ -400,59 +400,63 @@ typedef const char*(*to_str_edit_t)(const int32_t);
 static bool mode_keypad = false;
 static int32_t keypad_value = 0, keypad_value_decimal = 0;
 
-static int stepSize = -1;
-static void stepChange(touch_event_t *e) {
-  stepSize = e->index;
-  ui.refresh();
-}
+#if ENABLED(TOUCH_SCREEN)
 
-static void keypadBtnCb(touch_event_t *e) {
-  int32_t dig = e->index;
-  switch (dig) {
-    case -4: // negative / positive
-      keypad_value *= -1;
-      break;
-    case -3: // Clear all
-      keypad_value = 0;
-      keypad_value_decimal = 0;
-      break;
-    case -2: // erase
-      if (keypad_value_decimal == 1) {
+  static int stepSize = -1;
+  static void stepChange(touch_event_t *e) {
+    stepSize = e->index;
+    ui.refresh();
+  }
+
+  static void keypadBtnCb(touch_event_t *e) {
+    int32_t dig = e->index;
+    switch (dig) {
+      case -4: // negative / positive
+        keypad_value *= -1;
+        break;
+      case -3: // Clear all
+        keypad_value = 0;
         keypad_value_decimal = 0;
-      }
-      else {
-        keypad_value = int(keypad_value) / 10;
-        keypad_value_decimal /= 10;
-      }
-      break;
-    case -1: // decimal
-      keypad_value_decimal = keypad_value_decimal == 0 ? 1 : keypad_value_decimal >= 1000000 ? 0 : keypad_value_decimal * 10;
-      break;
-    default: // add digit
-      int8_t neg = keypad_value < 0 ? -1 : 1;
-      if (dig >= 0 && keypad_value * neg < 999999 && keypad_value_decimal < 1000000) {
-        keypad_value = keypad_value * 10 + neg * dig;
-        if (keypad_value_decimal > 0) keypad_value_decimal *= 10;
-      }
+        break;
+      case -2: // erase
+        if (keypad_value_decimal == 1) {
+          keypad_value_decimal = 0;
+        }
+        else {
+          keypad_value = int(keypad_value) / 10;
+          keypad_value_decimal /= 10;
+        }
+        break;
+      case -1: // decimal
+        keypad_value_decimal = keypad_value_decimal == 0 ? 1 : keypad_value_decimal >= 1000000 ? 0 : keypad_value_decimal * 10;
+        break;
+      default: // add digit
+        int8_t neg = keypad_value < 0 ? -1 : 1;
+        if (dig >= 0 && keypad_value * neg < 999999 && keypad_value_decimal < 1000000) {
+          keypad_value = keypad_value * 10 + neg * dig;
+          if (keypad_value_decimal > 0) keypad_value_decimal *= 10;
+        }
+    }
+    ui.refresh();
   }
-  ui.refresh();
-}
 
-static void okClicked() {
-  if (mode_keypad) {
-    float newVal = (float) keypad_value / (keypad_value_decimal?:1);
-    MenuEditItemBase::put_new_value(newVal);
-    touch_event_t te;
-    te.index = -3;
-    keypadBtnCb(&te);
+  static void okClicked() {
+    if (mode_keypad) {
+      float newVal = (float) keypad_value / (keypad_value_decimal?:1);
+      MenuEditItemBase::put_new_value(newVal);
+      touch_event_t te;
+      te.index = -3;
+      keypadBtnCb(&te);
+    }
+    ui.lcd_clicked = true;
   }
-  ui.lcd_clicked = true;
-}
 
-static void setValue(touch_event_t *e) {
-  ui.encoderPosition = e->index;
-  ui.refresh();
-}
+  static void setValue(touch_event_t *e) {
+    ui.encoderPosition = e->index;
+    ui.refresh();
+  }
+
+#endif // TOUCH_SCREEN
 
 void TFT::drawSimpleBtn(const char *label, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, uint16_t colorTxt, BTN_STYLE style, bool selected, TouchControlType touchType, intptr_t data, int32_t index) {
 
@@ -549,7 +553,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
 
     menu_line(line);
     tft_string.set(keypad_value < 0 ? '-' : ' ');
-    tft_string.add(ftostr7xrj(keypad_value, keypad_value_decimal?:1));
+    tft_string.add(ftostr7xrj(keypad_value, keypad_value_decimal ?: 1));
     if (keypad_value_decimal == 1) tft_string.add('.');
     tft_string.trim();
     tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_VALUE, tft_string);
