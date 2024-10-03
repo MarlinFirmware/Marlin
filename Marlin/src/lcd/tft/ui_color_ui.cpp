@@ -492,8 +492,8 @@ void MenuEditItemBase::put_new_value(float newDisplayVal) {
   DEBUG_ECHOLNPGM("After clip Encoder: New value ", newVal, " Min ", minEditValue, " Max ", maxEditValue);
 
   ui.encoderPosition = newVal;
-  // todo fix junction dev (minEditVal is no 0) always adds minEditVal to inputed value
-  // todo does not account for value types where there is a conversion during ftostr (ie. percent)
+  // TODO: Fix junction dev (minEditVal is not 0) always adds minEditVal to input value
+  // TODO: Does not account for value types where there is a conversion during ftostr (i.e., percent)
 }
 
 static void switchKeypad() {
