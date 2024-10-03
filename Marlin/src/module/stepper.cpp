@@ -580,6 +580,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
+  // toggle the ENA state that they all share.
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
     #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;

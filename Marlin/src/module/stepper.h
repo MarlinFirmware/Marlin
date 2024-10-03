@@ -44,6 +44,7 @@
 #include "../inc/MarlinConfig.h"
 
 #include "planner.h"
+#include "motion.h"
 #include "stepper/indirection.h"
 #include "stepper/cycles.h"
 #ifdef __AVR__
@@ -633,9 +634,18 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       CBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
+      #if HAS_Z_AXIS
+        if (TERN0(Z_CAN_FALL_DOWN, axis == Z_AXIS)) {
+          z_min_trusted = false;
+          current_position.z = 0;
+        }
+      #endif
+      // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static bool can_axis_disable(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       return !any_enable_overlap() || !(axis_enabled.bits & enable_overlap[INDEX_OF_AXIS(axis, eindex)]);

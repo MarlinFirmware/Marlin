@@ -652,6 +652,9 @@
 #if DISABLED(DELTA)
   #undef DELTA_HOME_TO_SAFE_ZONE
 #endif
+#if ANY(DELTA, AXEL_TPARA)
+  #define Z_CAN_FALL_DOWN
+#endif
 
 /**
  * This setting is also used by M109 when trying to calculate

@@ -7,7 +7,7 @@
 set -e
 
 #
-# Build with the default configurations
+# Build with modified ArmEd configuration
 #
 restore_configs
 use_example_configs ArmEd

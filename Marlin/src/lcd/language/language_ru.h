@@ -119,6 +119,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_EXTRUDE                          = _UxGT("Выдавить");
   LSTR MSG_RETRACT                          = _UxGT("Втянуть");
   LSTR MSG_MOVE_AXIS                        = _UxGT("Движение по осям");
+  LSTR MSG_PROBE_AND_LEVEL                  = _UxGT("Проба/выравнивание");
   LSTR MSG_BED_LEVELING                     = _UxGT("Выравнивание стола");
   LSTR MSG_LEVEL_BED                        = _UxGT("Выровнять стол");
   LSTR MSG_BED_TRAMMING                     = _UxGT("Выровнять углы");
@@ -161,9 +162,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_MESH_WIZARD                  = _UxGT("Мастер сеток UBL");
   LSTR MSG_UBL_BC_INSERT2                   = _UxGT("Измерение");
   LSTR MSG_UBL_MOVING_TO_NEXT               = _UxGT("Двигаемся дальше");
-  LSTR MSG_UBL_ACTIVATE_MESH                = _UxGT("Активировать UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH              = _UxGT("Деактивировать UBL");
-  LSTR MSG_UBL_MESH_EDIT                    = _UxGT("Редактор сеток");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH             = _UxGT("Править свою сетку");
   LSTR MSG_UBL_SET_TEMP_BED                 = LCD_STR_THERMOMETER _UxGT(" стола, ") LCD_STR_DEGREE _UxGT("C");
   LSTR MSG_UBL_BED_TEMP_CUSTOM              = _UxGT("Своя ") LCD_STR_THERMOMETER _UxGT(" стола,") LCD_STR_DEGREE _UxGT("C");
@@ -467,6 +465,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Смещение X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Смещение Y");
   LSTR MSG_ZPROBE_ZOFFSET                   = _UxGT("Смещение Z");
+  LSTR MSG_BABYSTEP_PROBE_Z                 = _UxGT("Шаг Z смещения");
   LSTR MSG_MOVE_NOZZLE_TO_BED               = _UxGT("Двиг. сопло к столу");
   LSTR MSG_BABYSTEP_X                       = _UxGT("Микрошаг X");
   LSTR MSG_BABYSTEP_Y                       = _UxGT("Микрошаг Y");

@@ -4140,7 +4140,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     case ID_Move:           return GET_TEXT_F(MSG_MOVE_AXIS);
     case ID_ManualLevel:    return GET_TEXT_F(MSG_BED_TRAMMING_MANUAL);
     #if HAS_ZOFFSET_ITEM
-      case ID_ZOffset:      return GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
+      case ID_ZOffset:      return liveadjust ? GET_TEXT_F(MSG_BABYSTEP_PROBE_Z) : GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
     #endif
     #if HAS_PREHEAT
       case ID_Preheat:      return F("Preheat");

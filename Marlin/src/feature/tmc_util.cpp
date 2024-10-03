@@ -32,6 +32,10 @@
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 #if ENABLED(TMC_DEBUG)
   #include "../libs/hex_print.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -207,6 +211,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
+      TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
       kill(F("Driver error"));
     }
   #endif
