@@ -108,6 +108,3 @@ restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41 Z_DRIVER_TYPE A4988 Z2_DRIVER_TYPE A4988 Z2_MIN_PIN 2 X_MAX_PIN -1
 opt_enable Z_MULTI_ENDSTOPS
 exec_test $1 $2 "Dual Z with Dual Z endstops" "$3"
-
-# Clean up
-restore_configs
