@@ -93,6 +93,3 @@ opt_enable PIDTEMPBED S_CURVE_ACCELERATION \
 opt_disable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN FILAMENT_LOAD_UNLOAD_GCODES \
         PARK_HEAD_ON_PAUSE
 exec_test $1 $2 "BigTreeTech SKR 1.4 | MMU2" "$3"
-
-# clean up
-restore_configs

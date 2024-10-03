@@ -1027,12 +1027,12 @@ class Temperature {
         #endif
       #endif
 
-      static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-      }
-
       static bool degHotendNear(const uint8_t e, const celsius_t temp) {
         return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
+      static bool still_heating(const uint8_t e) {
+        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
