@@ -29,7 +29,7 @@
 #if HAS_PRUSA_MMU3
 
 #include "../../core/language.h"
-#include "mmu2_error_converter.h"
+#include "mmu3_error_converter.h"
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/errors_list.h"
 

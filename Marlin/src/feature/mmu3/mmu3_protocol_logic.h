@@ -35,7 +35,7 @@
   #include "mmu_hw/progress_codes.h"
   #include "mmu_hw/buttons.h"
   #include "mmu_hw/registers.h"
-  #include "mmu2_protocol.h"
+  #include "mmu3_protocol.h"
 
   // #include <array> std array is not available on AVR ... we need to "fake" it
   namespace std {
@@ -59,7 +59,7 @@
 
   // Prevent ARM HAL macros from breaking our code
   #undef CRC
-  #include "mmu2_protocol.h"
+  #include "mmu3_protocol.h"
   #include "mmu_hw/buttons.h"
   #include "registers.h"
 

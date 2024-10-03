@@ -25,10 +25,10 @@
  * mmu2.h
  */
 
-#include "mmu2_state.h"
-#include "mmu2_marlin.h"
+#include "mmu3_state.h"
+#include "mmu3_marlin.h"
 
-#include "mmu2_protocol_logic.h"
+#include "mmu3_protocol_logic.h"
 
 #include "../../MarlinCore.h"
 
@@ -43,8 +43,8 @@
     float feedRate; //!< feed rate in mm/s
   };
 
-  static constexpr E_Step ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE };
-  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE };
+  static constexpr E_Step ramming_sequence[] PROGMEM = { MMU3_RAMMING_SEQUENCE };
+  static constexpr E_Step load_to_nozzle_sequence[] PROGMEM = { MMU3_LOAD_TO_NOZZLE_SEQUENCE };
 
   namespace MMU3 {
 

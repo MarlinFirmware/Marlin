@@ -1851,7 +1851,7 @@
 #define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
                           || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
                           || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(MMU_SERIAL_PORT)   && N == MMU_SERIAL_PORT) \
                           || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
                           || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
