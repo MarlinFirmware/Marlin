@@ -240,7 +240,7 @@ void GcodeSuite::G28() {
   #if ENABLED(G28_F_TEMPORARY_FEEDRATE)
     REMEMBER(fr, homing_feedrate_mm_m);
     if (parser.floatval('F') > 0)
-      homing_feedrate_mm_m.x = TERN_(HAS_Y_AXIS, homing_feedrate_mm_m.y =) parser.value_feedrate();
+      homing_feedrate_mm_m.x = TERN_(HAS_Y_AXIS, homing_feedrate_mm_m.y =) parser.value_linear_units(); // mm/min
   #endif
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
