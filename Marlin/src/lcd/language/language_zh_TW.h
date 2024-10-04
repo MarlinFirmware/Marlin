@@ -117,7 +117,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("執行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("傾斜點"); // "Tilting Point"

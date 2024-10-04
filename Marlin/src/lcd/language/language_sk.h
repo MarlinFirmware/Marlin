@@ -74,7 +74,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test uk. priebehu");
   LSTR MSG_HOMING                         = _UxGT("Parkovanie");
   LSTR MSG_AUTO_HOME                      = _UxGT("Domovská pozícia");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Domov os @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Domov os @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Domov os X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Domov os Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Domov os Z");
@@ -190,7 +190,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplik. medz.-X");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Vykonávam G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnávam bod");

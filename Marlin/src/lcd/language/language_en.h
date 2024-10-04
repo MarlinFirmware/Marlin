@@ -101,7 +101,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_HOME_ALL                       = _UxGT("Home All");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
@@ -227,7 +227,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Tilting Point");
@@ -640,7 +640,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Probe Margin");
   LSTR MSG_ZOFFSET                        = _UxGT("Z Offset");
-  LSTR MSG_Z_FEED_RATE                    = _UxGT("Z Feed Rate");
+  LSTR MSG_Z_FEED_RATE                    = _UxGT("Z Feedrate");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Enable HS mode");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Move Nozzle to Bed");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
