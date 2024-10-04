@@ -347,6 +347,9 @@ public:
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
+  #define X_AXIS_UNIT LINEAR_UNIT
+  #define Y_AXIS_UNIT LINEAR_UNIT
+  #define Z_AXIS_UNIT LINEAR_UNIT
   #define I_AXIS_UNIT(V) TERN(AXIS4_ROTATES, (V), LINEAR_UNIT(V))
   #define J_AXIS_UNIT(V) TERN(AXIS5_ROTATES, (V), LINEAR_UNIT(V))
   #define K_AXIS_UNIT(V) TERN(AXIS6_ROTATES, (V), LINEAR_UNIT(V))
