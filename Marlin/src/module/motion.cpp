@@ -141,7 +141,7 @@ xyze_pos_t destination; // {0}
 #endif
 feedRate_t feedrate_mm_s = MMM_TO_MMS(DEFAULT_FEEDRATE_MM_M);
 int16_t feedrate_percentage = 100;
-#if HAS_Y_AXIS
+#if ENABLED(G28_F_TEMPORARY_FEEDRATE)
   xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
 #endif  
 

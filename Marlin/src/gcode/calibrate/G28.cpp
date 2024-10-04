@@ -237,11 +237,10 @@ void GcodeSuite::G28() {
     return;
   }
 
-  #if HAS_Y_AXIS
+  #if ENABLED(G28_F_TEMPORARY_FEEDRATE)
+    REMEMBER(fr, homing_feedrate_mm_m);
     if (parser.floatval('F') > 0)
-      homing_feedrate_mm_m.x = homing_feedrate_mm_m.y = parser.value_feedrate();
-    else
-      homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M);
+      homing_feedrate_mm_m.x = TERN_(HAS_Y_AXIS, homing_feedrate_mm_m.y =) parser.value_feedrate();
   #endif
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)

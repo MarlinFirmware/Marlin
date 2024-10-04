@@ -79,7 +79,7 @@ extern xyz_pos_t cartes;
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-#if HAS_Y_AXIS
+#if ENABLED(G28_F_TEMPORARY_FEEDRATE)
   extern xyz_feedrate_t homing_feedrate_mm_m;
 #else
   constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
