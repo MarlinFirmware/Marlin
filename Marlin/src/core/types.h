@@ -51,8 +51,6 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define MAIN_AXIS_NAMES       NUM_AXIS_LIST(X, Y, Z, I, J, K, U, V, W)
 #define MAIN_AXIS_NAMES_LC    NUM_AXIS_LIST(x, y, z, i, j, k, u, v, w)
 #define STR_AXES_MAIN         NUM_AXIS_GANG("X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
-#define MAIN_AXIS_MAP(F)      MAP(F, MAIN_AXIS_NAMES)
-#define MAIN_AXIS_MAP_LC(F)   MAP(F, MAIN_AXIS_NAMES_LC)
 
 #define LOGICAL_AXIS_GANG(N,V...)  NUM_AXIS_GANG(V) GANG_ITEM_E(N)
 #define LOGICAL_AXIS_CODE(N,V...)  NUM_AXIS_CODE(V) CODE_ITEM_E(N)

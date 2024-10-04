@@ -361,16 +361,16 @@
 // General axis names
 #if HAS_X_AXIS
   #define AXIS1_NAME 'X'
-  #define STR_X      "X"
 #endif
 #if HAS_Y_AXIS
   #define AXIS2_NAME 'Y'
-  #define STR_Y      "Y"
 #endif
 #if HAS_Z_AXIS
   #define AXIS3_NAME 'Z'
-  #define STR_Z      "Z"
 #endif
+#define STR_X "X"
+#define STR_Y "Y"
+#define STR_Z "Z"
 #define STR_E "E"
 #if IS_KINEMATIC
   #define STR_A "A"
