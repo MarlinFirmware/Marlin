@@ -307,7 +307,11 @@ void GcodeSuite::G28() {
       bool finalRaiseZ = false;
     #endif
 
-    #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min)
+    #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+      #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min)
+    #else
+      #define SET_AXIS_FR(...) NOOP
+    #endif
 
     #if ENABLED(DELTA)
 
@@ -366,15 +370,9 @@ void GcodeSuite::G28() {
 
       #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && do##A) SET_AXIS_FR(A);
 
-      #if HAS_X_AXIS
-        OVERRIDE_AXIS_FR(X);
-      #endif
-      #if HAS_Y_AXIS
-        OVERRIDE_AXIS_FR(Y);
-      #endif
-      #if HAS_Z_AXIS
-        OVERRIDE_AXIS_FR(Z);
-      #endif
+      TERN_(HAS_X_AXIS, OVERRIDE_AXIS_FR(X));
+      TERN_(HAS_Y_AXIS, OVERRIDE_AXIS_FR(Y));
+      TERN_(HAS_Z_AXIS, OVERRIDE_AXIS_FR(Z));
 
       #if HAS_Z_AXIS
 
@@ -457,22 +455,17 @@ void GcodeSuite::G28() {
 
       #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
         // Home I (after X)
-        OVERRIDE_AXIS_FR(I);
-        if (doI) homeaxis(I_AXIS);
-        doI = false;
+        if (doI) { OVERRIDE_AXIS_FR(I); homeaxis(I_AXIS); }
       #endif
 
       #if HAS_Y_AXIS
         // Home Y (after X)
-        if (DISABLED(HOME_Y_BEFORE_X) && doY)
-          homeaxis(Y_AXIS);
+        if (DISABLED(HOME_Y_BEFORE_X) && doY) homeaxis(Y_AXIS);
       #endif
 
       #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
         // Home J (after Y)
-        OVERRIDE_AXIS_FR(J);
-        if (doJ) homeaxis(J_AXIS);
-        doJ = false;
+        if (doJ) { OVERRIDE_AXIS_FR(J); homeaxis(J_AXIS); }
       #endif
 
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
