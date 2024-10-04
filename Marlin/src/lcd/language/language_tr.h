@@ -76,7 +76,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("@ Sıfırla");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("@ Sıfırla");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X Sıfırla");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y Sıfırla");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z Sıfırla");

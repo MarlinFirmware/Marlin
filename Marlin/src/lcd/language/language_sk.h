@@ -74,7 +74,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test uk. priebehu");
   LSTR MSG_HOMING                         = _UxGT("Parkovanie");
   LSTR MSG_AUTO_HOME                      = _UxGT("Domovská pozícia");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Domov os @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Domov os @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Domov os X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Domov os Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Domov os Z");

@@ -77,7 +77,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_Z_PROBE                        = _UxGT("Sonda Z");
   LSTR MSG_HOMING                         = _UxGT("Azzeramento");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto home");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");

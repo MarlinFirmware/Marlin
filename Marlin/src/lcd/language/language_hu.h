@@ -62,7 +62,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hiba Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Haladás sáv teszt");
   LSTR MSG_AUTO_HOME                      = _UxGT("X-Y-Z auto kezdöpont");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Kezdö @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Kezdö @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X kezdöpont");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y kezdöpont");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z kezdöpont");
