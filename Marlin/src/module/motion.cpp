@@ -78,7 +78,12 @@
 #endif
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode; // = false;
+bool relative_mode; // = false
+
+#if HAS_Z_AXIS
+  // If Z has been powered on trust that the real Z is >= current_position.z
+  bool z_min_trusted; // = false
+#endif
 
 /**
  * Cartesian Current Position
@@ -2677,8 +2682,12 @@ void prepare_line_to_destination() {
     //
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
     //
-    if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy()))
-      return;
+    #if HOMING_Z_WITH_PROBE
+      if (axis == Z_AXIS && probe.deploy()) {
+        probe.stow();
+        return;
+      }
+    #endif
 
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
@@ -2696,8 +2705,16 @@ void prepare_line_to_destination() {
     //
     #if HOMING_Z_WITH_PROBE
       if (axis == Z_AXIS) {
-        if (TERN0(BLTOUCH, bltouch.deploy())) return;   // BLTouch was deployed above, but get the alarm state.
-        if (TERN0(PROBE_TARE, probe.tare())) return;
+        #if ENABLED(BLTOUCH)
+          if (bltouch.deploy()) {  // BLTouch was deployed above, but get the alarm state.
+            bltouch.stow();
+            return;
+          }
+        #endif
+        if (TERN0(PROBE_TARE, probe.tare())) {
+          probe.stow();
+          return;
+        }
         TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
@@ -2779,8 +2796,10 @@ void prepare_line_to_destination() {
       #endif // DETECT_BROKEN_ENDSTOP
 
       #if ALL(HOMING_Z_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy())
+        if (axis == Z_AXIS && !bltouch.high_speed_mode && bltouch.deploy()) {
+          bltouch.stow();
           return; // Intermediate DEPLOY (in LOW SPEED MODE)
+        }
       #endif
 
       // Slow move towards endstop until triggered

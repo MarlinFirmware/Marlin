@@ -356,7 +356,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     FSTR_P const ds_fstr = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
-    ui.set_max_status(ds_fstr);
+    ui.set_max_status(ds_fstr);  // Set a status message that won't be overwritten by the host
     SERIAL_ECHOLN(deploy ? GET_EN_TEXT_F(MSG_MANUAL_DEPLOY) : GET_EN_TEXT_F(MSG_MANUAL_STOW));
 
     OKAY_BUZZ();
@@ -381,7 +381,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
-    ui.reset_status();
+    ui.reset_alert_level();
+    //ui.reset_status();
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
@@ -938,10 +939,15 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
  * with the previously active tool.
  *
  */
-float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/,
-  const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/,
-  const_float_t z_min_point/*=Z_PROBE_LOW_POINT*/, const_float_t z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/,
-  const bool raise_after_is_relative/*=false*/
+float Probe::probe_at_point(
+  const_float_t rx, const_float_t ry,
+  const ProbePtRaise raise_after,     // = PROBE_PT_NONE
+  const uint8_t verbose_level,        // = 0
+  const bool probe_relative,          // = true
+  const bool sanity_check,            // = true
+  const_float_t z_min_point,          // = Z_PROBE_LOW_POINT
+  const_float_t z_clearance,          // = Z_TWEEN_SAFE_CLEARANCE
+  const bool raise_after_is_rel       // = false
 ) {
   DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
 
@@ -954,11 +960,6 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
     );
     DEBUG_POS("", current_position);
   }
-
-  #if ENABLED(BLTOUCH)
-    // Reset a BLTouch in HS mode if already triggered
-    if (bltouch.high_speed_mode && bltouch.triggered()) bltouch._reset();
-  #endif
 
   // Use a safe Z height for the XY move
   const float safe_z = _MAX(current_position.z, z_clearance);
@@ -997,6 +998,13 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
 
   #else // !BD_SENSOR
 
+    #if ENABLED(BLTOUCH)
+      // Now at the safe_z if it is still triggered it may be in an alarm
+      // condition.  Reset to clear alarm has a side effect of stowing the probe,
+      // which the following deploy will handle.
+      if (bltouch.triggered()) bltouch._reset();
+    #endif
+
     measured_z = deploy() ? NAN : run_z_probe(sanity_check, z_min_point, z_clearance) + offset.z;
 
     // Deploy succeeded and a successful measurement was done.
@@ -1005,7 +1013,7 @@ float Probe::probe_at_point(const_float_t rx, const_float_t ry, const ProbePtRai
       switch (raise_after) {
         default: break;
         case PROBE_PT_RAISE:
-          if (raise_after_is_relative)
+          if (raise_after_is_rel)
             do_z_clearance_by(z_clearance);
           else
             do_z_clearance(z_clearance);

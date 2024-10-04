@@ -58,6 +58,8 @@
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -203,6 +205,11 @@
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
+ *  H         Hold the current X/Y position when executing a home Z, or if
+ *            multiple axes are homed, the position when Z home is executed.
+ *            When using a probe for Z Home, positions close to the edge may
+ *            fail with position unreachable due to probe/nozzle offset.  This
+ *            can be used to avoid a model.
  *
  * Cartesian/SCARA parameters
  *
@@ -330,7 +337,7 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) (homeZZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
+      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZZ && axis_should_home(_AXIS(A)))
 
       const bool homeZZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
@@ -400,7 +407,7 @@ void GcodeSuite::G28() {
           bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
           // Raise above the current Z (which should be synced in the planner)
           // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
-          if (seenR || !TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(Z_AXIS)) {
+          if (seenR || !(z_min_trusted || axis_should_home(Z_AXIS))) {
             z_homing_height += current_position.z;
             with_probe = false;
           }
@@ -487,7 +494,12 @@ void GcodeSuite::G28() {
             #endif
 
             #if ENABLED(Z_SAFE_HOMING)
-              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+              // H means hold the current X/Y position when probing.
+              // Otherwise move to the define safe X/Y position before homing Z.
+              if (!parser.seen_test('H'))
+                home_z_safely();
+              else
+                homeaxis(Z_AXIS);
             #else
               homeaxis(Z_AXIS);
             #endif
@@ -581,6 +593,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
+  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 

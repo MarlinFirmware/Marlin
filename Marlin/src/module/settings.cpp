@@ -179,9 +179,9 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../feature/mmu3/mmu2.h"
+  #include "../feature/mmu3/mmu3.h"
   #include "../feature/mmu3/SpoolJoin.h"
-  #include "../feature/mmu3/mmu2_reporting.h"
+  #include "../feature/mmu3/mmu3_reporting.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables

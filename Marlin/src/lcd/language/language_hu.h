@@ -123,6 +123,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_EXTRUDE                        = _UxGT("Adagol");
   LSTR MSG_RETRACT                        = _UxGT("Visszahúz");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Tengelyek mozgatása");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Érintés/szintezés");
   LSTR MSG_BED_LEVELING                   = _UxGT("Ágy szintezés");
   LSTR MSG_LEVEL_BED                      = _UxGT("Ágy szintezése");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Sarok szint");
@@ -161,13 +162,10 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mérés");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Üres ágyat mérj");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Továbblépés");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktívál");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL deaktívál");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Ágy höfok");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Egyéni ágy höfok");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Fejhöfok");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Egyéni fejhöfok");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Háló szerkesztés");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Egyéni háló szerkesztés");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Finomított háló");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Háló kész");
@@ -463,6 +461,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z szonda eltolás");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z lépés állítás");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Fej az ágyhoz");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikrolépés X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikrolépés Y");

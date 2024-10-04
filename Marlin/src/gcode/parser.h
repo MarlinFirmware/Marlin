@@ -192,7 +192,7 @@ public:
     #if ENABLED(GCODE_CASE_INSENSITIVE)
       FORCE_INLINE static char* strgchr(char *p, char g) {
         auto uppercase = [](char c) {
-          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+          return TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
         };
         const char d = uppercase(g);
         for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;

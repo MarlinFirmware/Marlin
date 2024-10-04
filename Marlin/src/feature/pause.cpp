@@ -62,6 +62,8 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #include "../lcd/marlinui.h"
@@ -149,6 +151,11 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #endif
 
   ui.pause_show_message(PAUSE_MESSAGE_HEATING, mode);
+
+  #if ENABLED(SOVOL_SV06_RTS)
+    rts.gotoPage(ID_Cold_L, ID_Cold_D);
+    rts.updateTempE0();
+  #endif
 
   if (wait) return thermalManager.wait_for_hotend(active_extruder);
 
@@ -277,6 +284,11 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
         // "Wait for filament purge"
         if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
+        #if ENABLED(SOVOL_SV06_RTS)
+          rts.updateTempE0();
+          rts.gotoPage(ID_Purge_L, ID_Purge_D);
+        #endif
+
         // Extrude filament to get into hotend
         unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
@@ -292,6 +304,7 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
+            TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
         }
@@ -354,6 +367,11 @@ bool unload_filament(const_float_t unload_length, const bool show_lcd/*=false*/,
   }
 
   if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_UNLOAD, mode);
+
+  #if ENABLED(SOVOL_SV06_RTS)
+    rts.updateTempE0();
+    rts.gotoPage(ID_Unload_L, ID_Unload_D);
+  #endif
 
   // Retract filament
   unscaled_e_move(-(FILAMENT_UNLOAD_PURGE_RETRACT) * mix_multiplier, (PAUSE_PARK_RETRACT_FEEDRATE) * mix_multiplier);
@@ -503,6 +521,11 @@ void show_continue_prompt(const bool is_reload) {
   DEBUG_ECHOLNPGM("... is_reload:", is_reload);
 
   ui.pause_show_message(is_reload ? PAUSE_MESSAGE_INSERT : PAUSE_MESSAGE_WAITING);
+  #if ENABLED(SOVOL_SV06_RTS)
+    rts.updateTempE0();
+    rts.gotoPage(ID_Insert_L, ID_Insert_D);
+    rts.sendData(Beep, SoundAddr);
+  #endif
   SERIAL_ECHO_START();
   SERIAL_ECHO(is_reload ? F(_PMSG(STR_FILAMENT_CHANGE_INSERT) "\n") : F(_PMSG(STR_FILAMENT_CHANGE_WAIT) "\n"));
 }
@@ -544,6 +567,10 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     // re-heat the nozzle, re-show the continue prompt, restart idle timers, start over
     if (nozzle_timed_out) {
       ui.pause_show_message(PAUSE_MESSAGE_HEAT);
+      #if ENABLED(SOVOL_SV06_RTS)
+        rts.updateTempE0();
+        rts.gotoPage(ID_HeatNozzle_L, ID_HeatNozzle_D);
+      #endif
       SERIAL_ECHO_MSG(_PMSG(STR_FILAMENT_CHANGE_HEAT));
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_USER_CONTINUE, GET_TEXT_F(MSG_HEATER_TIMEOUT), GET_TEXT_F(MSG_REHEAT)));
@@ -709,6 +736,12 @@ void resume_print(
   planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
 
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
+  #if ENABLED(SOVOL_SV06_RTS)
+    if (pause_flag)
+      rts.gotoPage(ID_PrintResume_L, ID_PrintResume_D);
+    else
+      rts.refreshTime();
+  #endif
 
   #ifdef ACTION_ON_RESUMED
     hostui.resumed();
