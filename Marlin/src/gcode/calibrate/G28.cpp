@@ -239,8 +239,10 @@ void GcodeSuite::G28() {
 
   #if ENABLED(EDITABLE_HOMING_FEEDRATE)
     REMEMBER(fr, homing_feedrate_mm_m);
-    if (parser.floatval('F') > 0)
-      homing_feedrate_mm_m.x = TERN_(HAS_Y_AXIS, homing_feedrate_mm_m.y =) parser.value_linear_units(); // mm/min
+    float override_fr_units_min = parser.floatval('F');
+    NOLESS(override_fr_units_min, 0.0f);
+  #else
+    constexpr float override_fr_units_min = 0.0f;
   #endif
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
@@ -307,6 +309,12 @@ void GcodeSuite::G28() {
 
     #if ENABLED(DELTA)
 
+      if (override_fr_units_min) {
+        homing_feedrate_mm_m.x = X_AXIS_UNIT(override_fr_units_min);
+        homing_feedrate_mm_m.y = Y_AXIS_UNIT(override_fr_units_min);
+        homing_feedrate_mm_m.z = Z_AXIS_UNIT(override_fr_units_min);
+      }
+
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
 
       home_delta();
@@ -314,6 +322,12 @@ void GcodeSuite::G28() {
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
     #elif ENABLED(AXEL_TPARA)
+
+      if (override_fr_units_min) {
+        homing_feedrate_mm_m.x = X_AXIS_UNIT(override_fr_units_min);
+        homing_feedrate_mm_m.y = Y_AXIS_UNIT(override_fr_units_min);
+        homing_feedrate_mm_m.z = Z_AXIS_UNIT(override_fr_units_min);
+      }
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
 
@@ -351,6 +365,14 @@ void GcodeSuite::G28() {
       #if !HAS_Y_AXIS
         constexpr bool doY = false;
       #endif
+
+      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && do##A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min);
+
+      XYZ_CODE(
+        OVERRIDE_AXIS_FR(X),
+        OVERRIDE_AXIS_FR(Y),
+        OVERRIDE_AXIS_FR(Z)
+      );
 
       #if HAS_Z_AXIS
 
@@ -433,7 +455,9 @@ void GcodeSuite::G28() {
 
       #if ALL(FOAMCUTTER_XYUV, HAS_I_AXIS)
         // Home I (after X)
+        OVERRIDE_AXIS_FR(I);
         if (doI) homeaxis(I_AXIS);
+        doI = false;
       #endif
 
       #if HAS_Y_AXIS
@@ -444,7 +468,9 @@ void GcodeSuite::G28() {
 
       #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
         // Home J (after Y)
+        OVERRIDE_AXIS_FR(J);
         if (doJ) homeaxis(J_AXIS);
+        doJ = false;
       #endif
 
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
@@ -476,14 +502,9 @@ void GcodeSuite::G28() {
           }
         #endif
 
-        SECONDARY_AXIS_CODE(
-          if (doI) homeaxis(I_AXIS),
-          if (doJ) homeaxis(J_AXIS),
-          if (doK) homeaxis(K_AXIS),
-          if (doU) homeaxis(U_AXIS),
-          if (doV) homeaxis(V_AXIS),
-          if (doW) homeaxis(W_AXIS)
-        );
+        #define _HOME_AXIS(A) if (do##A) homeaxis(_AXIS(A));
+        SECONDARY_AXIS_MAP(OVERRIDE_AXIS_FR);
+        SECONDARY_AXIS_MAP(_HOME_AXIS);
 
       #endif // HAS_Z_AXIS
 
