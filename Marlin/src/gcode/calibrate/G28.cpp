@@ -308,16 +308,14 @@ void GcodeSuite::G28() {
     #endif
 
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
-      #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min)
+      #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min);
     #else
-      #define SET_AXIS_FR(...) NOOP
+      #define SET_AXIS_FR(...) NOOP;
     #endif
 
     #if ENABLED(DELTA)
 
-      if (override_fr_units_min) {
-        SET_AXIS_FR(X); SET_AXIS_FR(Y); SET_AXIS_FR(Z);
-      }
+      if (override_fr_units_min) MAP(SET_AXIS_FR, X, Y, Z);
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
 
@@ -327,9 +325,7 @@ void GcodeSuite::G28() {
 
     #elif ENABLED(AXEL_TPARA)
 
-      if (override_fr_units_min) {
-        SET_AXIS_FR(X); SET_AXIS_FR(Y); SET_AXIS_FR(Z);
-      }
+      if (override_fr_units_min) MAP(SET_AXIS_FR, X, Y, Z);
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
 
