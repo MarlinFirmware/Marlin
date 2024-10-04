@@ -325,6 +325,37 @@
 #define STR_DELAYED_POWEROFF                "Delayed poweroff"
 
 //
+// General axis names
+//
+#if HAS_X_AXIS
+  #define AXIS1_NAME 'X'
+#endif
+#if HAS_Y_AXIS
+  #define AXIS2_NAME 'Y'
+#endif
+#if HAS_Z_AXIS
+  #define AXIS3_NAME 'Z'
+#endif
+#define STR_X "X"
+#define STR_Y "Y"
+#define STR_Z "Z"
+#define STR_E "E"
+#if IS_KINEMATIC
+  #define STR_A "A"
+  #define STR_B "B"
+  #define STR_C "C"
+#else
+  #define STR_A STR_X
+  #define STR_B STR_Y
+  #define STR_C STR_Z
+#endif
+#define STR_X2 STR_A "2"
+#define STR_Y2 STR_B "2"
+#define STR_Z2 STR_C "2"
+#define STR_Z3 STR_C "3"
+#define STR_Z4 STR_C "4"
+
+//
 // Endstop Names used by Endstops::report_states
 //
 #if HAS_X_AXIS
@@ -355,37 +386,7 @@
 #define STR_Z_PROBE                         "z_probe"
 #define STR_PROBE_EN                        "probe_en"
 #define STR_FILAMENT                        "filament"
-
 #define STR_CALIBRATION                     "calibration"
-
-// General axis names
-#if HAS_X_AXIS
-  #define AXIS1_NAME 'X'
-#endif
-#if HAS_Y_AXIS
-  #define AXIS2_NAME 'Y'
-#endif
-#if HAS_Z_AXIS
-  #define AXIS3_NAME 'Z'
-#endif
-#define STR_X "X"
-#define STR_Y "Y"
-#define STR_Z "Z"
-#define STR_E "E"
-#if IS_KINEMATIC
-  #define STR_A "A"
-  #define STR_B "B"
-  #define STR_C "C"
-#else
-  #define STR_A STR_X
-  #define STR_B STR_Y
-  #define STR_C STR_Z
-#endif
-#define STR_X2 STR_A "2"
-#define STR_Y2 STR_B "2"
-#define STR_Z2 STR_C "2"
-#define STR_Z3 STR_C "3"
-#define STR_Z4 STR_C "4"
 
 // Extra Axis and Endstop Names
 #if HAS_I_AXIS
