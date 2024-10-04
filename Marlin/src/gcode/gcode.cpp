@@ -199,11 +199,11 @@ void GcodeSuite::get_destination_from_command() {
       recovery.save();
   #endif
 
-  const float fr_mm_m = parser.floatval('F');
-  if (fr_mm_m > 0) {
-    feedrate_mm_s = parser.value_feedrate();
+  if (parser.floatval('F') > 0) {
+    const float fr_mm_min = parser.value_linear_units();
+    feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_m);
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
 
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
