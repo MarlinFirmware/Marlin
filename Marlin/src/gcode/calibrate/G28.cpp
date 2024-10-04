@@ -237,11 +237,11 @@ void GcodeSuite::G28() {
     return;
   }
 
-  #if NUM_AXES >= 2
-    if (parser.seen_test('F'))
-      homing_feedrate_mm_m.x = homing_feedrate_mm_m.y = parser.floatval('F');
+  #if HAS_Y_AXIS
+    if (parser.floatval('F') > 0)
+      homing_feedrate_mm_m.x = homing_feedrate_mm_m.y = parser.value_feedrate();
     else
-      homing_feedrate_mm_m   = xyz_feedrate_t(HOMING_FEEDRATE_MM_M);
+      homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M);
   #endif
 
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
