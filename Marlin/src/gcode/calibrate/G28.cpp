@@ -376,7 +376,11 @@ void GcodeSuite::G28() {
         constexpr bool doY = false;
       #endif
 
-      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && seen##A) SET_AXIS_FR(A);
+      // Override any specified axes, or just XY for "home all"
+      #define OVERRIDE_AXIS_FR(A) \
+       if (override_fr_units_min && (seen##A || \
+         (home_all && TERN1(HAS_X_AXIS, _AXIS(A) == X_AXIS) && TERN1(HAS_Y_AXIS, _AXIS(A) == Y_AXIS)) \
+       )) SET_AXIS_FR(A);
 
       TERN_(HAS_X_AXIS, OVERRIDE_AXIS_FR(X));
       TERN_(HAS_Y_AXIS, OVERRIDE_AXIS_FR(Y));
