@@ -28,7 +28,7 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2_log.h"
+#include "mmu3_log.h"
 
 namespace MMU3 {
 

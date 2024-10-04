@@ -21,45 +21,33 @@
  */
 
 /**
- * mmu2_power.cpp
+ * mmu2_crc.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2.h"
-#include "mmu2_power.h"
+#include "mmu3_crc.h"
 
-#include "../../MarlinCore.h"
+#ifdef __AVR__
+  #include <util/crc16.h>
+#endif
 
-#include "../../core/macros.h"
-#include "../../core/boards.h"
-#include "../../pins/pins.h"
+namespace modules {
 
-namespace MMU3 {
+namespace crc {
 
-// On MK3 we cannot do actual power cycle on HW. Instead trigger a hardware reset.
-void power_on() {
-  #if PIN_EXISTS(MMU2_RST)
-    OUT_WRITE(MMU2_RST_PIN, HIGH);
-  #endif
-  power_reset();
-}
-
-void power_off() {}
-
-void power_reset() {
-  #if PIN_EXISTS(MMU2_RST) // HW - pulse reset pin
-    WRITE(MMU2_RST_PIN, LOW);
-    safe_delay(100);
-    WRITE(MMU2_RST_PIN, HIGH);
+uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
+  #ifdef __AVR__
+    return _crc8_ccitt_update(crc, b);
   #else
-    mmu3.reset(MMU3::Software); // TODO: Needs redesign. This power implementation shouldn't know anything about the MMU itself
+    return CCITT_updateCX(crc, b);
   #endif
-  // otherwise HW reset is not available
 }
 
-} // MMU3
+} // namespace crc
+
+} // namespace modules
 
 #endif // HAS_PRUSA_MMU3
