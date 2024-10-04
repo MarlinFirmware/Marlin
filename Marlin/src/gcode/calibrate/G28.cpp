@@ -330,21 +330,29 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) (homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
+      #define _UNSAFE(A) (homeZZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(A##_AXIS))))
 
-      const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
+      const bool homeZZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
                    needU = _UNSAFE(U), needV = _UNSAFE(V), needW = _UNSAFE(W)
                  )
                  NUM_AXIS_LIST_(             // Home each axis if needed or flagged
-                   homeX = needX || parser.seen_test('X'),
-                   homeY = needY || parser.seen_test('Y'),
-                   homeZZ = homeZ,
-                   homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
-                   homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
-                   homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
+                   seenX = parser.seen_test('X'),
+                   seenY = parser.seen_test('Y'),
+                   seenZ = homeZZ,
+                   seenI = parser.seen_test(AXIS4_NAME), seenJ = parser.seen_test(AXIS5_NAME),
+                   seenK = parser.seen_test(AXIS6_NAME), seenU = parser.seen_test(AXIS7_NAME),
+                   seenV = parser.seen_test(AXIS8_NAME), seenW = parser.seen_test(AXIS9_NAME)
+                 )
+                 NUM_AXIS_LIST_(             // Home each axis if needed or flagged
+                   homeX = needX || seenX,
+                   homeY = needY || seenY,
+                   homeZ = homeZZ,
+                   homeI = needI || seenI, homeJ = needJ || seenJ,
+                   homeK = needK || seenK, homeU = needU || seenU,
+                   homeV = needV || seenV, homeW = needW || seenW
                  )
                  home_all = NUM_AXIS_GANG_(  // Home-all if all or none are flagged
                       homeX == homeX, && homeY == homeX, && homeZ == homeX,
@@ -361,7 +369,7 @@ void GcodeSuite::G28() {
         constexpr bool doY = false;
       #endif
 
-      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && do##A) SET_AXIS_FR(A);
+      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && seen##A) SET_AXIS_FR(A);
 
       TERN_(HAS_X_AXIS, OVERRIDE_AXIS_FR(X));
       TERN_(HAS_Y_AXIS, OVERRIDE_AXIS_FR(Y));
@@ -369,7 +377,7 @@ void GcodeSuite::G28() {
 
       #if HAS_Z_AXIS
 
-        UNUSED(needZ); UNUSED(homeZZ);
+        UNUSED(needZ); UNUSED(homeZ);
 
         // Z may home first, e.g., when homing away from the bed.
         // This is also permitted when homing with a Z endstop.
