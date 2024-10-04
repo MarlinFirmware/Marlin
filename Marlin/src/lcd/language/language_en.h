@@ -100,7 +100,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_HOMING_FEEDRATE                = _UxGT("Homing Feedrate");
-  LSTR MSG_HOMING_FEEDRATE_N              = _UxGT("@ Homing Feedrate");
+  LSTR MSG_HOMING_FEEDRATE_N              = _UxGT("@ Homing FR");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
   LSTR MSG_HOME_ALL                       = _UxGT("Home All");
   LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
@@ -1233,6 +1233,7 @@ namespace LanguageWide_en {
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Print Time");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
+    LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
   #endif
 }
 
