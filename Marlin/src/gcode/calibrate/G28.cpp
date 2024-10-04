@@ -237,14 +237,6 @@ void GcodeSuite::G28() {
     return;
   }
 
-  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
-    REMEMBER(fr, homing_feedrate_mm_m);
-    float override_fr_units_min = parser.floatval('F');
-    NOLESS(override_fr_units_min, 0.0f);
-  #else
-    constexpr float override_fr_units_min = 0.0f;
-  #endif
-
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
     set_and_report_grblstate(M_HOMING);
@@ -307,9 +299,14 @@ void GcodeSuite::G28() {
       bool finalRaiseZ = false;
     #endif
 
+    // Allow 'G28 F<feedrate>' to override specified homing axes
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+      REMEMBER(fr, homing_feedrate_mm_m);
+      float override_fr_units_min = parser.floatval('F');
+      NOLESS(override_fr_units_min, 0.0f);
       #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min);
     #else
+      constexpr float override_fr_units_min = 0.0f;
       #define SET_AXIS_FR(...) NOOP;
     #endif
 
@@ -538,6 +535,9 @@ void GcodeSuite::G28() {
     #endif // DUAL_X_CARRIAGE
 
     endstops.not_homing();
+
+    // Restore feedrates before any machine-dependent moves
+    TERN_(EDITABLE_HOMING_FEEDRATE, RESTORE(fr));
 
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
