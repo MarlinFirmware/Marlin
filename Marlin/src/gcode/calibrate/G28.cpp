@@ -307,12 +307,12 @@ void GcodeSuite::G28() {
       bool finalRaiseZ = false;
     #endif
 
+    #define SET_AXIS_FR(A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min)
+
     #if ENABLED(DELTA)
 
       if (override_fr_units_min) {
-        homing_feedrate_mm_m.x = X_AXIS_UNIT(override_fr_units_min);
-        homing_feedrate_mm_m.y = Y_AXIS_UNIT(override_fr_units_min);
-        homing_feedrate_mm_m.z = Z_AXIS_UNIT(override_fr_units_min);
+        SET_AXIS_FR(X); SET_AXIS_FR(Y); SET_AXIS_FR(Z);
       }
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
@@ -324,9 +324,7 @@ void GcodeSuite::G28() {
     #elif ENABLED(AXEL_TPARA)
 
       if (override_fr_units_min) {
-        homing_feedrate_mm_m.x = X_AXIS_UNIT(override_fr_units_min);
-        homing_feedrate_mm_m.y = Y_AXIS_UNIT(override_fr_units_min);
-        homing_feedrate_mm_m.z = Z_AXIS_UNIT(override_fr_units_min);
+        SET_AXIS_FR(X); SET_AXIS_FR(Y); SET_AXIS_FR(Z);
       }
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
@@ -366,13 +364,17 @@ void GcodeSuite::G28() {
         constexpr bool doY = false;
       #endif
 
-      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && do##A) homing_feedrate_mm_m.A = A##_AXIS_UNIT(override_fr_units_min);
+      #define OVERRIDE_AXIS_FR(A) if (override_fr_units_min && do##A) SET_AXIS_FR(A);
 
-      XYZ_CODE(
-        OVERRIDE_AXIS_FR(X),
-        OVERRIDE_AXIS_FR(Y),
-        OVERRIDE_AXIS_FR(Z)
-      );
+      #if HAS_X_AXIS
+        OVERRIDE_AXIS_FR(X);
+      #endif
+      #if HAS_Y_AXIS
+        OVERRIDE_AXIS_FR(Y);
+      #endif
+      #if HAS_Z_AXIS
+        OVERRIDE_AXIS_FR(Z);
+      #endif
 
       #if HAS_Z_AXIS
 
