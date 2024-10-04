@@ -319,7 +319,7 @@ void GcodeSuite::G28() {
 
     #if ENABLED(DELTA)
 
-      if (override_fr_units_min) MAP(SET_AXIS_FR, X, Y, Z);
+      if (override_fr_units_min) { MAP(SET_AXIS_FR, X, Y, Z); }
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
 
@@ -329,7 +329,7 @@ void GcodeSuite::G28() {
 
     #elif ENABLED(AXEL_TPARA)
 
-      if (override_fr_units_min) MAP(SET_AXIS_FR, X, Y, Z);
+      if (override_fr_units_min) { MAP(SET_AXIS_FR, X, Y, Z); }
 
       constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a TPARA
 
