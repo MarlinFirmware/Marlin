@@ -31,15 +31,15 @@
  * M210 - Set homing feedrate for one or more axes
  *        in current units (in/mm) per minute
  *
- *  X[feedrate]     Set X axis homing feedrate
- *  Y[feedrate]     Set Y axis homing feedrate
- *  Z[feedrate]     Set Z axis homing feedrate
- *  I[feedrate]     Set I axis homing feedrate
- *  J[feedrate]     Set J axis homing feedrate
- *  K[feedrate]     Set K axis homing feedrate
- *  U[feedrate]     Set U axis homing feedrate
- *  V[feedrate]     Set V axis homing feedrate
- *  W[feedrate]     Set W axis homing feedrate
+ *  X[feedrate]  Set X axis homing feedrate
+ *  Y[feedrate]  Set Y axis homing feedrate
+ *  Z[feedrate]  Set Z axis homing feedrate
+ *  A[feedrate]  Set I axis homing feedrate (configured axis name applies)
+ *  B[feedrate]  Set J axis homing feedrate (configured axis name applies)
+ *  C[feedrate]  Set K axis homing feedrate (configured axis name applies)
+ *  U[feedrate]  Set U axis homing feedrate (configured axis name applies)
+ *  V[feedrate]  Set V axis homing feedrate (configured axis name applies)
+ *  W[feedrate]  Set W axis homing feedrate (configured axis name applies)
  *
  * With no arguments, report the current offsets.
  */
