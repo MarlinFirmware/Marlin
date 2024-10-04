@@ -129,7 +129,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Controle complet");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Offsets Outil");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("Buse 2 Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("Buse 2 @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("Buse 2 @");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26: Chauffage du lit");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("Buse en chauffe...");
   LSTR MSG_G26_MANUAL_PRIME               = _UxGT("Amorce manuelle...");

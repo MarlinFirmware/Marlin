@@ -151,7 +151,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Teljes felügyelet");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-hézag másolása");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. fej Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. fej @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. fej @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Döntési pont");

@@ -193,7 +193,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Pieno controllo");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Gap-X duplicato");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2° ugello Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2° ugello @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2° ugello @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 in corso");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Strumenti UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto inclinaz.");

@@ -192,7 +192,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Yinelenen X-Boşluğu");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");

@@ -173,7 +173,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Lücke duplizieren");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");

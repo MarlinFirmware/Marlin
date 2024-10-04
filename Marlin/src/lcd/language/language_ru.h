@@ -150,7 +150,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_IDEX_DUPE_GAP                    = _UxGT("Дублировать X-зазор");
 
   LSTR MSG_HOTEND_OFFSET_Z                  = _UxGT("2-е сопло Z");
-  LSTR MSG_HOTEND_OFFSET_A                  = _UxGT("2-е сопло @");
+  LSTR MSG_HOTEND_OFFSET_N                  = _UxGT("2-е сопло @");
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");
