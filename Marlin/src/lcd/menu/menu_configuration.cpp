@@ -395,7 +395,40 @@ void menu_advanced_settings();
     END_MENU();
   }
 
-#endif
+#endif // FWRETRACT
+
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+
+  #include "../../module/motion.h"
+  #include "../../module/planner.h"
+  #include "../../gcode/parser.h"
+
+  // Edit homing feedrates in inches- or degrees- or mm-per-minute
+  void menu_homing_feedrate() {
+    START_MENU();
+    BACK_ITEM(MSG_HOMING_FEEDRATE);
+
+    #if ENABLED(MENUS_ALLOW_INCH_UNITS)
+      #define _EDIT_HOMING_FR(A) do{ \
+        const float maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
+        editable.decimal = A##_AXIS_UNIT(homing_feedrate_mm_m.A); \
+        EDIT_ITEM(float5, MSG_HOMING_FEEDRATE_N, &editable.decimal, \
+          A##_AXIS_UNIT(10), A##_AXIS_UNIT(maxfr), []{ \
+          homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
+        }); \
+      }while(0);
+    #else
+      #define _EDIT_HOMING_FR(A) do{ \
+        EDIT_ITEM(float5, MSG_HOMING_FEEDRATE_N, &homing_feedrate_mm_m.A, 10, MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)])); \
+      }while(0);
+    #endif
+
+    MAIN_AXIS_MAP(_EDIT_HOMING_FR);
+
+    END_MENU();
+  }
+
+#endif // EDITABLE_HOMING_FEEDRATE
 
 #if HAS_PREHEAT && DISABLED(SLIM_LCD_MENUS)
 
@@ -424,7 +457,7 @@ void menu_advanced_settings();
     END_MENU();
   }
 
-#endif
+#endif // HAS_PREHEAT && !SLIM_LCD_MENUS
 
 #if ENABLED(CUSTOM_MENU_CONFIG)
 
@@ -621,6 +654,10 @@ void menu_configuration() {
     #elif HAS_DISPLAY_SLEEP
       EDIT_ITEM(uint8, MSG_SCREEN_TIMEOUT, &ui.sleep_timeout_minutes, ui.sleep_timeout_min, ui.sleep_timeout_max, ui.refresh_screen_timeout);
     #endif
+  #endif
+
+  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+    SUBMENU(MSG_HOMING_FEEDRATE, menu_homing_feedrate);
   #endif
 
   #if ENABLED(FWRETRACT)
