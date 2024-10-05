@@ -903,8 +903,10 @@ private:
     static void M210_report(const bool forReplay=true);
   #endif
 
-  static void M211();
-  static void M211_report(const bool forReplay=true);
+  #if HAS_SOFTWARE_ENDSTOPS
+    static void M211();
+    static void M211_report(const bool forReplay=true);
+  #endif
 
   #if HAS_MULTI_EXTRUDER
     static void M217();
