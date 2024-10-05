@@ -66,6 +66,10 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
   #include "../module/probe.h"
 #endif
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
 #endif
@@ -584,6 +588,11 @@ void PrintJobRecovery::resume() {
   // Resume the SD file from the last position
   PROCESS_SUBCOMMANDS_NOW(MString<MAX_CMD_SIZE>(F("M23 "), info.sd_filename));
   PROCESS_SUBCOMMANDS_NOW(TS(F("M24S"), resume_sdpos, 'T', info.print_job_elapsed));
+
+  #if ENABLED(SOVOL_SV06_RTS)
+    if (rts.print_state) rts.refreshTime();
+    rts.start_print_flag = false;
+  #endif
 }
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)

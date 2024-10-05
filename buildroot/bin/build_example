@@ -4,7 +4,7 @@
 #
 #  build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/build-BRANCH)
 #                 -c|--config=<rel>   - Sub-path of the configs to build (within config/examples)
-#                [-e|--export=N]      - Set CONFIG_EXPORT before build and export
+#                [-e|--export=N]      - Use CONFIG_EXPORT N to export the config to the export location
 #                [-a|--archive]       - Archive the build (to the export location)
 #                [-o|--output]        - Redirect export / archiving to another location
 #                                       (By default export to origin config folder)
@@ -19,7 +19,7 @@ usage() { echo "Usage:
 
 build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/build-BRANCH)
                -c|--config=<rel>   - Sub-path of the configs to build (within config/examples)
-              [-e|--export=N]      - Set CONFIG_EXPORT before build and export
+              [-e|--export=N]      - Use CONFIG_EXPORT N to export the config to the export location
               [-a|--archive]       - Archive the build (to the export location)
               [-o|--output]        - Redirect export / archiving to another location
                                      (By default export to origin config folder)
@@ -32,8 +32,9 @@ build_example  -b|--base=<path>    - Configurations root folder (e.g., ./.pio/bu
 }
 
 HERE=`dirname $0`
+PATH="$HERE:$PATH"
 
-source "$HERE/mfutil"
+. mfutil
 
 annc() { echo -e "\033[0;32m$1\033[0m" ; }
 
@@ -100,7 +101,7 @@ SUB="$SUB1/$CONFIG"
 [[ -d "$SUB" ]] || { echo "-c|--config $CONFIG doesn't exist" ; exit 1 ; }
 
 # ...and contains Configuration.h or Configuration_adv.h
-[[ -n $(compgen -G "$SUB/Configuration*.h") ]] || { echo "No configuration files found in $SUB" ; exit 1 ; }
+[[ -f "$SUB"/Configuration.h  || -f "$SUB"/Configuration_adv.h ]] || { echo "No configuration files found in $SUB" ; exit 1 ; }
 
 # Get the location for exports and archives
 if [[ -n $OUTBASE ]]; then
@@ -173,7 +174,7 @@ fi
 set +e
 
 echo "Building example $CONFIG ..."
-"$HERE/mftest" -s -a -n1 ; ERR=$?
+mftest -s -a -n1 ; ERR=$?
 
 ((ERR)) && echo "Failed" || echo "Success"
 
@@ -191,17 +192,22 @@ fi
 #       Currently only BOARD_CREALITY_F401RE env:STM32F401RE_creality
 if ((ARCHIVE)); then
   annc "Archiving"
+  rm -f "$ARCSUB"/*.bin.tar.gz "$ARCSUB"/*.hex.tar.gz
   find "$BUILD" \( "${BNAME[@]}" \) -exec sh -c '
     ARCSUB="$1"
-    shift 1
-    for file in "$@"; do
-      cd "$(dirname "$file")"
-      base=$(basename "$file")
-      tar -czf "$ARCSUB/$base.tar.gz" "$base"
-      rm "$base"
+    CONFIG="$2"
+    shift 2
+    for FILE in "$@"; do
+      cd "${FILE%/*}"
+      BASE=${FILE##*/}
+      SHRT=${BASE%.*}
+      SHASUM=$(sha256sum "$BASE" | cut -d" " -f1)
+      tar -czf "$ARCSUB/$SHRT.tar.gz" "$BASE"
+      echo "$CONFIG\n$SHASUM" > "$ARCSUB/$BASE.sha256.txt"
+      rm "$BASE"
       cd - >/dev/null
     done
-  ' sh "$ARCSUB" {} +
+  ' sh "$ARCSUB" "$CONFIG" {} +
 fi
 
 # Exit with error unless --nofail is set

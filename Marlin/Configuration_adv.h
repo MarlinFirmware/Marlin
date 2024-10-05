@@ -591,6 +591,8 @@
   // Use TEMP_SENSOR_SOC as a trigger for enabling the controller fan
   //#define CONTROLLER_FAN_MIN_SOC_TEMP 40  // (°C) Turn on the fan if the SoC reaches this temperature
 
+  #define CONTROLLER_FAN_BED_HEATING        // Turn on the fan when heating the bed
+
   //#define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
     #define CONTROLLER_FAN_MENU             // Enable the Controller Fan submenu
@@ -1110,8 +1112,8 @@
    * Screw Thread. Use one of the following defines:
    *
    *   M3_CW = M3 Clockwise, M3_CCW = M3 Counter-Clockwise
-   *   M4_CW = M3 Clockwise, M4_CCW = M4 Counter-Clockwise
-   *   M5_CW = M3 Clockwise, M5_CCW = M5 Counter-Clockwise
+   *   M4_CW = M4 Clockwise, M4_CCW = M4 Counter-Clockwise
+   *   M5_CW = M5 Clockwise, M5_CCW = M5 Counter-Clockwise
    *
    * :{'M3_CW':'M3 Clockwise','M3_CCW':'M3 Counter-Clockwise','M4_CW':'M4 Clockwise','M4_CCW':'M4 Counter-Clockwise','M5_CW':'M5 Clockwise','M5_CCW':'M5 Counter-Clockwise'}
    */
@@ -1135,7 +1137,7 @@
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
-  #define FTM_LINEAR_ADV_DEFAULT_K      0         // Default linear advance gain, integer value. (Acceleration-based scaling factor.)
+  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
   #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
   #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
 
@@ -4405,93 +4407,56 @@
   //#define E_MUX0_PIN 40  // Always Required
   //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
+
 #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   // Common settings for MMU2/MMU2S/MMU3
   // Serial port used for communication with MMU2/MMU2S/MMU3.
-  #define MMU2_SERIAL_PORT 2
+  #define MMU_SERIAL_PORT 2
   #define MMU_BAUD 115200
 
-  // Use hardware reset for MMU if a pin is defined for it
-  //#define MMU2_RST_PIN 23
+  //#define MMU_RST_PIN 23    // Define this pin to use Hardware Reset for MMU2/MMU2S/MMU3
 
+  //#define MMU_MENUS         // Add an LCD menu for MMU2/MMU2S/MMU3
+
+  //#define MMU_DEBUG         // Write debug info to serial output
+
+  // Options pertaining to MMU2 and MMU2S
   #if HAS_PRUSA_MMU2
     // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
     //#define MMU2_MODE_12V
 
+    // Settings for filament load / unload from the LCD menu.
+    // This is for Průša MK3-style extruders. Customize for your hardware.
+    #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+
     // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
     #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
-  #endif
 
-  // Add an LCD menu for MMU2/MMU2S/MMU3
-  //#define MMU_MENUS
+    // MMU2 sequences use mm/min. Not compatible with MMU3, which use mm/sec.
+    #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+      {  4.4,  871 }, \
+      { 10.0, 1393 }, \
+      {  4.4,  871 }, \
+      { 10.0,  198 }
 
-  // Settings for filament load / unload from the LCD menu.
-  // This is for Průša MK3-style extruders. Customize for your hardware.
-  #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+    #define MMU2_RAMMING_SEQUENCE \
+      {   1.0, 1000 }, \
+      {   1.0, 1500 }, \
+      {   2.0, 2000 }, \
+      {   1.5, 3000 }, \
+      {   2.5, 4000 }, \
+      { -15.0, 5000 }, \
+      { -14.0, 1200 }, \
+      {  -6.0,  600 }, \
+      {  10.0,  700 }, \
+      { -10.0,  400 }, \
+      { -50.0, 2000 }
 
-  /**
-   * ------------
-   * MMU2 / MMU2S
-   * ------------
-   * MMU2 sequences use mm/min. Not compatible with MMU3 (see below).
-   * #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-   *   {  4.4,  871 }, \
-   *   { 10.0, 1393 }, \
-   *   {  4.4,  871 }, \
-   *   { 10.0,  198 }
-   */
-
-  /* #define MMU2_RAMMING_SEQUENCE \
-   *   {   1.0, 1000 }, \
-   *   {   1.0, 1500 }, \
-   *   {   2.0, 2000 }, \
-   *   {   1.5, 3000 }, \
-   *   {   2.5, 4000 }, \
-   *   { -15.0, 5000 }, \
-   *   { -14.0, 1200 }, \
-   *   {  -6.0,  600 }, \
-   *   {  10.0,  700 }, \
-   *   { -10.0,  400 }, \
-   *   { -50.0, 2000 }
-   */
+  #endif // HAS_PRUSA_MMU2
 
   /**
-   * ----
-   * MMU3
-   * ----
-   * These values are compatible with MMU3 as they are defined in mm/s
-   */
-
-  #define MMU2_EXTRUDER_PTFE_LENGTH       42.3 // (mm)
-  #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7 // (mm)
-
-  #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-    { MMU2_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) }, /* (13.5 mm/s) Fast load ahead of heatbreak */ \
-    { MMU2_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }  // ( 3.3 mm/s) Slow load after heatbreak
-
-  #define MMU2_RAMMING_SEQUENCE \
-    { 0.2816,  MMM_TO_MMS(1339.0) }, \
-    { 0.3051,  MMM_TO_MMS(1451.0) }, \
-    { 0.3453,  MMM_TO_MMS(1642.0) }, \
-    { 0.3990,  MMM_TO_MMS(1897.0) }, \
-    { 0.4761,  MMM_TO_MMS(2264.0) }, \
-    { 0.5767,  MMM_TO_MMS(2742.0) }, \
-    { 0.5691,  MMM_TO_MMS(3220.0) }, \
-    { 0.1081,  MMM_TO_MMS(3220.0) }, \
-    { 0.7644,  MMM_TO_MMS(3635.0) }, \
-    { 0.8248,  MMM_TO_MMS(3921.0) }, \
-    { 0.8483,  MMM_TO_MMS(4033.0) }, \
-    { -15.0,   MMM_TO_MMS(6000.0) }, \
-    { -24.5,   MMM_TO_MMS(1200.0) }, \
-    {  -7.0,   MMM_TO_MMS( 600.0) }, \
-    {  -3.5,   MMM_TO_MMS( 360.0) }, \
-    {  20.0,   MMM_TO_MMS( 454.0) }, \
-    { -20.0,   MMM_TO_MMS( 303.0) }, \
-    { -35.0,   MMM_TO_MMS(2000.0) }
-
-  /**
-   * Using a sensor like the MMU2S
-   * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
+   * Options pertaining to MMU2S devices
+   * Requires the MK3S extruder with a sensor at the extruder idler, like the MMU2S.
    * See https://help.prusa3d.com/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560#42048, step 11
    */
   #if HAS_PRUSA_MMU2S
@@ -4532,14 +4497,9 @@
 
     // MMU3 settings
 
-    #define MMU2_MAX_RETRIES 3  // Number of retries (total time = timeout*retries)
+    #define MMU3_HAS_CUTTER     // Enable cutter related functionality
 
-    // Nominal distance from the extruder gear to the nozzle tip is 87mm
-    // However, some slipping may occur and we need separate distances for
-    // LoadToNozzle and ToolChange.
-    // - +5mm seemed good for LoadToNozzle,
-    // - but too much (made blobs) for a ToolChange
-    #define MMU2_LOAD_TO_NOZZLE_LENGTH 87.0 + 5.0
+    #define MMU3_MAX_RETRIES 3  // Number of retries (total time = timeout*retries)
 
     // As discussed with our PrusaSlicer profile specialist
     // - ToolChange shall not try to push filament into the very tip of the nozzle
@@ -4548,28 +4508,26 @@
     // Beware - this value is used to initialize the MMU logic layer - it will be sent to the MMU upon line up (written into its 8bit register 0x0b)
     // However - in the G-code we can get a request to set the extra load distance at runtime to something else (M708 A0xb Xsomething).
     // The printer intercepts such a call and sets its extra load distance to match the new value as well.
-    #define MMU2_FILAMENT_SENSOR_POSITION    0   // (mm)
-    #define MMU2_LOAD_DISTANCE_PAST_GEARS    5   // (mm)
-    #define MMU2_TOOL_CHANGE_LOAD_LENGTH MMU2_FILAMENT_SENSOR_POSITION + MMU2_LOAD_DISTANCE_PAST_GEARS // (mm)
+    #define MMU3_FILAMENT_SENSOR_E_POSITION  0   // (mm)
+    #define _MMU3_LOAD_DISTANCE_PAST_GEARS   5   // (mm)
+    #define MMU3_TOOL_CHANGE_LOAD_LENGTH (MMU3_FILAMENT_SENSOR_E_POSITION + _MMU3_LOAD_DISTANCE_PAST_GEARS) // (mm)
 
-    #define MMU2_LOAD_TO_NOZZLE_FEED_RATE        20.0 // (mm/s)
-    #define MMU2_UNLOAD_TO_FINDA_FEED_RATE      120.0 // (mm/s)
+    #define MMU3_LOAD_TO_NOZZLE_FEED_RATE        20.0 // (mm/s)
 
-    #define MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0 // (mm/s)
-    #define MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK     -5.0 // (mm) Amount to adjust the length for verifying load-to-nozzle
+    #define MMU3_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0 // (mm/s)
+    #define _MMU3_VERIFY_LOAD_TO_NOZZLE_TWEAK    -5.0 // (mm) Amount to adjust the length for verifying load-to-nozzle
 
     // The first thing the MMU does is initialize its axis.
     // Meanwhile the E-motor will unload 20mm of filament in about 1 second.
-    #define MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH    80.0 // (mm)
-    #define MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0 // (mm/s)
+    #define MMU3_RETRY_UNLOAD_TO_FINDA_LENGTH    80.0 // (mm)
+    #define MMU3_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0 // (mm/s)
 
     // After loading a new filament, the printer will extrude this length of filament
     // then retract to the original position. This is used to check if the filament sensor
     // reading flickers or filament is jammed.
-    #define MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU2_EXTRUDER_PTFE_LENGTH + MMU2_EXTRUDER_HEATBREAK_LENGTH + MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK + MMU2_FILAMENT_SENSOR_POSITION) // (mm)
-
-    #define MMU_HAS_CUTTER            // Enable cutter related functionalities
-    //#define MMU_FORCE_STEALTH_MODE  // Force stealth mode and disable menu item
+    #define _MMU_EXTRUDER_PTFE_LENGTH            42.3 // (mm)
+    #define _MMU_EXTRUDER_HEATBREAK_LENGTH       17.7 // (mm)
+    #define MMU3_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU3_FILAMENT_SENSOR_E_POSITION + _MMU_EXTRUDER_PTFE_LENGTH + _MMU_EXTRUDER_HEATBREAK_LENGTH + _MMU3_VERIFY_LOAD_TO_NOZZLE_TWEAK) // (mm)
 
     /**
      * SpoolJoin Consumes All Filament -- EXPERIMENTAL
@@ -4587,12 +4545,37 @@
      * sensor is triggered through the gears) and the end of the PTFE tube and
      * can cause filament load issues.
      */
-    //#define MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT
+    //#define MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT
 
-  #else
+    // MMU3 sequences use mm/sec. Not compatible with MMU2 which use mm/min.
+    #define MMU3_LOAD_TO_NOZZLE_SEQUENCE \
+      { _MMU_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) }, /* (13.5 mm/s) Fast load ahead of heatbreak */ \
+      { _MMU_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }  /* ( 3.3 mm/s) Slow load after heatbreak */
+
+    #define MMU3_RAMMING_SEQUENCE \
+      { 0.2816,  MMM_TO_MMS(1339.0) }, \
+      { 0.3051,  MMM_TO_MMS(1451.0) }, \
+      { 0.3453,  MMM_TO_MMS(1642.0) }, \
+      { 0.3990,  MMM_TO_MMS(1897.0) }, \
+      { 0.4761,  MMM_TO_MMS(2264.0) }, \
+      { 0.5767,  MMM_TO_MMS(2742.0) }, \
+      { 0.5691,  MMM_TO_MMS(3220.0) }, \
+      { 0.1081,  MMM_TO_MMS(3220.0) }, \
+      { 0.7644,  MMM_TO_MMS(3635.0) }, \
+      { 0.8248,  MMM_TO_MMS(3921.0) }, \
+      { 0.8483,  MMM_TO_MMS(4033.0) }, \
+      { -15.0,   MMM_TO_MMS(6000.0) }, \
+      { -24.5,   MMM_TO_MMS(1200.0) }, \
+      {  -7.0,   MMM_TO_MMS( 600.0) }, \
+      {  -3.5,   MMM_TO_MMS( 360.0) }, \
+      {  20.0,   MMM_TO_MMS( 454.0) }, \
+      { -20.0,   MMM_TO_MMS( 303.0) }, \
+      { -35.0,   MMM_TO_MMS(2000.0) }
+
+  #else // MMU2 (not MMU2S)
 
     /**
-     * MMU1 Extruder Sensor
+     * MMU2 Extruder Sensor
      *
      * Support for a Průša (or other) IR Sensor to detect filament near the extruder
      * and make loading more reliable. Suitable for an extruder equipped with a filament
@@ -4602,14 +4585,12 @@
      * move up to the gears. If no filament is detected, the MMU2 can make some more attempts.
      * If all attempts fail, a filament runout will be triggered.
      */
-    //#define MMU_EXTRUDER_SENSOR
-    #if ENABLED(MMU_EXTRUDER_SENSOR)
-      #define MMU_LOADING_ATTEMPTS_NR 5 // max. number of attempts to load filament if first load fail
+    //#define MMU2_EXTRUDER_SENSOR
+    #if ENABLED(MMU2_EXTRUDER_SENSOR)
+      #define MMU2_LOADING_ATTEMPTS_NR 5  // Number of times to try loading filament before failure
     #endif
 
   #endif
-
-  //#define MMU2_DEBUG  // Write debug info to serial output
 
 #endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
 

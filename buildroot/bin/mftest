@@ -41,7 +41,6 @@ env shortcuts: tree due esp lin lp8|lpc8 lp9|lpc9 m128 m256|mega stm|f1 f4 f7 s6
 TESTPATH=buildroot/tests
 
 STATE_FILE="./.pio/.mftestrc"
-SED=$(which gsed sed | head -n1)
 
 shopt -s extglob nocasematch
 
@@ -163,12 +162,10 @@ if ((AUTO_BUILD)); then
   #
   # Get the MOTHERBOARD define value from the .h file and strip off the "BOARD_" prefix
   #
-  ACODE='/[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
+  ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
   MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
   [[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
-  echo "Got $MB"
-  exit
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
   BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
   BDESC=$( sed -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )

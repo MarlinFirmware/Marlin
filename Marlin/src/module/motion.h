@@ -79,7 +79,12 @@ extern xyz_pos_t cartes;
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  extern xyz_feedrate_t homing_feedrate_mm_m;
+#else
+  constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
+#endif
+
 FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
   float v = TERN0(HAS_Z_AXIS, homing_feedrate_mm_m.z);
   #if DISABLED(DELTA)
@@ -471,7 +476,7 @@ inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
-inline bool axis_should_home(const AxisEnum axis)     { return (axes_should_home() & _BV(axis)) != 0; }
+inline bool axis_should_home(const AxisEnum axis)     { return axes_should_home(_BV(axis)) != 0; }
 inline bool no_axes_homed()                           { return !axes_homed; }
 inline bool all_axes_homed()                          { return main_axes_mask == (axes_homed & main_axes_mask); }
 inline bool homing_needed()                           { return !all_axes_homed(); }

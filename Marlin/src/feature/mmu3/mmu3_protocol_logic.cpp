@@ -28,9 +28,9 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2_protocol_logic.h"
-#include "mmu2_log.h"
-#include "mmu2_fsensor.h"
+#include "mmu3_protocol_logic.h"
+#include "mmu3_log.h"
+#include "mmu3_fsensor.h"
 
   #ifdef __AVR__
     // on MK3/S/+ we shuffle the timers a bit, thus "_millis" may not equal "millis"
@@ -48,7 +48,7 @@
   #endif
 
   #include <string.h>
-  #include "mmu2_supported_version.h"
+  #include "mmu3_supported_version.h"
 
 namespace MMU3 {
 
@@ -186,7 +186,7 @@ namespace MMU3 {
     OldMMUFWDetector oldMMUh4x0r; // old MMU FW hacker ;)
 
     // try to consume as many rx bytes as possible (until a message has been completed)
-    while ((c = MMU2_SERIAL.read()) >= 0) {
+    while ((c = MMU_SERIAL.read()) >= 0) {
       ++bytesConsumed;
       RecordReceivedByte(c);
       switch (protocol.DecodeResponse(c)) {
@@ -234,10 +234,10 @@ namespace MMU3 {
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
       for ( uint8_t i = 0; i < len; i++) {
-        MMU2_SERIAL.write(txbuff[i]);
+        MMU_SERIAL.write(txbuff[i]);
       }
     #else
-      MMU2_SERIAL.write(txbuff, len);
+      MMU_SERIAL.write(txbuff, len);
     #endif
     LogRequestMsg(txbuff, len);
     RecordUARTActivity();
@@ -254,10 +254,10 @@ namespace MMU3 {
     #if defined(__AVR__) || defined(TARGET_LPC1768)
       // TODO: I'm not sure if this is the correct approach with AVR
       for ( uint8_t i = 0; i < len; i++) {
-        MMU2_SERIAL.write(txbuff[i]);
+        MMU_SERIAL.write(txbuff[i]);
       }
     #else
-      MMU2_SERIAL.write(txbuff, len);
+      MMU_SERIAL.write(txbuff, len);
     #endif
     LogRequestMsg(txbuff, len);
     RecordUARTActivity();
@@ -373,7 +373,7 @@ namespace MMU3 {
 
   StepStatus ProtocolLogic::DelayedRestartWait() {
     if (Elapsed(heartBeatPeriod)) { // this basically means, that we are waiting until there is some traffic on
-      while (MMU2_SERIAL.read() != -1); // clear the input buffer
+      while (MMU_SERIAL.read() != -1); // clear the input buffer
       // switch to StartSeq
       start();
     }
@@ -587,7 +587,7 @@ namespace MMU3 {
     , buttonCode(Buttons::NoButton)
     , lastFSensor((uint8_t)WhereIsFilament())
     , regIndex(0)
-    , retryAttempts(MMU2_MAX_RETRIES)
+    , retryAttempts(MMU3_MAX_RETRIES)
     , inAutoRetry(false) {
     // @@TODO currently, I don't see a way of writing the initialization better :(
     // I'd like to write something like: initRegs8 { extraLoadDistance, pulleySlowFeedrate }
@@ -803,14 +803,14 @@ namespace MMU3 {
   }
 
   StepStatus ProtocolLogic::HandleCommunicationTimeout() {
-    MMU2_SERIAL.flush(); // clear the output buffer
+    MMU_SERIAL.flush(); // clear the output buffer
     protocol.ResetResponseDecoder();
     start();
     return SuppressShortDropOuts(PSTR("Communication timeout"), CommunicationTimeout);
   }
 
   StepStatus ProtocolLogic::HandleProtocolError() {
-    MMU2_SERIAL.flush(); // clear the output buffer
+    MMU_SERIAL.flush(); // clear the output buffer
     state = State::InitSequence;
     currentScope = Scope::DelayedRestart;
     DelayedRestartRestart();
@@ -880,7 +880,7 @@ namespace MMU3 {
 
   void ProtocolLogic::ResetRetryAttempts() {
     SERIAL_ECHOLNPGM("ResetRetryAttempts");
-    retryAttempts = MMU2_MAX_RETRIES;
+    retryAttempts = MMU3_MAX_RETRIES;
   }
 
   void __attribute__((noinline)) ProtocolLogic::ResetCommunicationTimeoutAttempts() {

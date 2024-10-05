@@ -200,9 +200,10 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   if (parser.floatval('F') > 0) {
-    feedrate_mm_s = parser.value_feedrate();
+    const float fr_mm_min = parser.value_linear_units();
+    feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
 
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
@@ -740,6 +741,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
             if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();       // M209: Turn Automatic Retract Detection on/off
             break;
         #endif
+      #endif
+
+      #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+        case 210: M210(); break;                                  // M210: Set the homing feedrate
       #endif
 
       #if HAS_SOFTWARE_ENDSTOPS

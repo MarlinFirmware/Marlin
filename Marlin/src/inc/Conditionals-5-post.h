@@ -1851,7 +1851,7 @@
 #define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
                           || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
                           || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(MMU_SERIAL_PORT)   && N == MMU_SERIAL_PORT) \
                           || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
                           || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
@@ -3225,7 +3225,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH

@@ -77,7 +77,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_Z_PROBE                        = _UxGT("Sonda Z");
   LSTR MSG_HOMING                         = _UxGT("Azzeramento");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto home");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
@@ -151,6 +151,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_EXTRUDE                        = _UxGT("Estrudi");
   LSTR MSG_RETRACT                        = _UxGT("Ritrai");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Muovi asse");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Sonda e livella");
   LSTR MSG_BED_LEVELING                   = _UxGT("Livellamento piatto");
   LSTR MSG_LEVEL_BED                      = _UxGT("Livella piatto");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tarat.fine piatto");
@@ -193,7 +194,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Pieno controllo");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Gap-X duplicato");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2° ugello Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2° ugello @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2° ugello @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 in corso");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Strumenti UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto inclinaz.");
@@ -206,13 +207,10 @@ namespace LanguageNarrow_it {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Misura");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Rimuovi e mis.piatto");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Spostamento succes.");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Attiva UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Disattiva UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temp. piatto");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temp. piatto");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temp. ugello");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temp. ugello");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifica mesh");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif.mesh personal.");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Ritocca mesh");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Modif.mesh fatta");
@@ -588,6 +586,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Offset X sonda");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Offset Y sonda");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z sonda");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonda Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Margine sonda");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Velocità Z");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Abilita modo HS");
