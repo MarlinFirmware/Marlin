@@ -914,10 +914,3 @@
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
 #endif
-
-/**
- * HC32 clock speed is hard-coded in Marlin
- */
-#if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
-  #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
-#endif
