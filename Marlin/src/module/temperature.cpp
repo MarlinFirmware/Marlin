@@ -1882,7 +1882,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       static bool last_pause_state;
     #endif
 
-    do {
+    do { // 'break' out of this block
 
       #if DISABLED(PIDTEMPBED)
         if (PENDING(ms, next_bed_check_ms)
@@ -1908,38 +1908,63 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         constexpr bool bed_timed_out = false;
       #endif
 
-      if (!bed_timed_out) {
-        if (is_bed_preheating()) {
-          temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-        }
-        else {
-          #if ENABLED(PIDTEMPBED)
-            temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-          #else
-            // Check if temperature is within the correct band
-            if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
-              #if ENABLED(BED_LIMIT_SWITCHING)
+      if (bed_timed_out) break;
 
-                // Range-limited "bang-bang" bed heating
-                if (temp_bed.is_above_target(BED_HYSTERESIS))
-                  temp_bed.soft_pwm_amount = 0;
-                else if (temp_bed.is_below_target(BED_HYSTERESIS))
-                  temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-
-              #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-
-                // Simple (noisy) "bang-bang" bed heating
-                temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
-
-              #endif
-            }
-            else {
-              temp_bed.soft_pwm_amount = 0;
-              WRITE_HEATER_BED(LOW);
-            }
-          #endif
-        }
+      if (is_bed_preheating()) {
+        temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+        break;
       }
+
+      #if ENABLED(PIDTEMPBED)
+
+        //
+        // PID Bed Heating
+        //
+        temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+
+      #else // !PIDTEMPBED
+
+        //
+        // Range-limited "bang-bang" bed heating
+        //
+
+        // Bed Off if the current bed temperature is outside the allowed range
+        if (!WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
+          temp_bed.soft_pwm_amount = 0;
+          WRITE_HEATER_BED(LOW);
+          break;
+        }
+
+        #if ENABLED(PELTIER_BED)
+          /**
+           * Peltier bang-bang maintains max bed power but changes
+           * current direction to switch between heating/cooling.
+           */
+          if (temp_bed.target && temp_bed.is_above_target(BED_HYSTERESIS)) {  // Fast Cooling
+            temp_bed.soft_pwm_amount = MAX_BED_POWER;
+            temp_bed.peltier_dir_heating = false;
+          }
+          else if (temp_bed.is_below_target(BED_HYSTERESIS)) {                // Heating
+            temp_bed.soft_pwm_amount = MAX_BED_POWER;
+            temp_bed.peltier_dir_heating = true;
+          }
+          else
+            temp_bed.soft_pwm_amount = 0;                                     // Off (ambient cooling)
+
+        #else // !PELTIER_BED
+
+          #if ENABLED(BED_LIMIT_SWITCHING)
+            if (temp_bed.is_above_target(BED_HYSTERESIS))       // Cooling (implicit off)
+              temp_bed.soft_pwm_amount = 0;
+            else if (temp_bed.is_below_target(BED_HYSTERESIS))  // Heating
+              temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+          #else                                                 // Not bed limit switching
+            temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+          #endif
+
+        #endif // !PELTIER_BED
+
+      #endif // !PIDTEMPBED
 
     } while (false);
   }
@@ -2945,6 +2970,10 @@ void Temperature::init() {
   #endif
 
   #if HAS_HEATED_BED
+    #if ENABLED(PELTIER_BED)
+      SET_OUTPUT(PELTIER_DIR_PIN);
+      OUT_WRITE(PELTIER_DIR_PIN, !PELTIER_DIR_HEAT_STATE);
+    #endif
     #ifdef BOARD_OPENDRAIN_MOSFETS
       OUT_WRITE_OD(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
     #else
@@ -3926,6 +3955,9 @@ void Temperature::isr() {
 
       #if HAS_HEATED_BED
         _PWM_MOD(BED, soft_pwm_bed, temp_bed);
+        #if ENABLED(PELTIER_BED)
+          WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating);
+        #endif
       #endif
 
       #if HAS_HEATED_CHAMBER
@@ -4392,15 +4424,15 @@ void Temperature::isr() {
 #if HAS_TEMP_SENSOR
   /**
    * Print a single heater state in the form:
-   *        Bed: " B:nnn.nn /nnn.nn"
-   *    Chamber: " C:nnn.nn /nnn.nn"
-   *      Probe: " P:nnn.nn"
-   *     Cooler: " L:nnn.nn /nnn.nn"
-   *      Board: " M:nnn.nn"
-   *        SoC: " S:nnn.nn"
-   *  Redundant: " R:nnn.nn /nnn.nn"
-   *   Extruder: " T0:nnn.nn /nnn.nn"
-   *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
+   *     Extruder: " T0:nnn.nn /nnn.nn"
+   *          Bed: " B:nnn.nn /nnn.nn"
+   *      Chamber: " C:nnn.nn /nnn.nn"
+   *       Cooler: " L:nnn.nn /nnn.nn"
+   *        Probe: " P:nnn.nn"
+   *        Board: " M:nnn.nn"
+   *          SoC: " S:nnn.nn"
+   *    Redundant: " R:nnn.nn /nnn.nn"
+   *     With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
    */
   static void print_heater_state(const heater_id_t e, const_celsius_float_t c, const_celsius_float_t t
     OPTARG(SHOW_TEMP_ADC_VALUES, const float r)
@@ -4418,11 +4450,11 @@ void Temperature::isr() {
       #if HAS_TEMP_CHAMBER
         case H_CHAMBER: k = 'C'; break;
       #endif
-      #if HAS_TEMP_PROBE
-        case H_PROBE: k = 'P'; show_t = false; break;
-      #endif
       #if HAS_TEMP_COOLER
         case H_COOLER: k = 'L'; break;
+      #endif
+      #if HAS_TEMP_PROBE
+        case H_PROBE: k = 'P'; show_t = false; break;
       #endif
       #if HAS_TEMP_BOARD
         case H_BOARD: k = 'M'; show_t = false; break;
@@ -4450,6 +4482,17 @@ void Temperature::isr() {
     delay(2);
   }
 
+  /**
+   * Print all heater states followed by power data on a single line.
+   * See print_heater_state for heater output strings.
+   * Power output strings are in the format:
+   *     Extruder: " @:nnn"
+   *          Bed: " B@:nnn"
+   *      Peltier: " P@:H/C"
+   *      Chamber: " C@:nnn"
+   *       Cooler: " L@:nnn"
+   *      Hotends: " @0:nnn @1:nnn ..."
+   */
   void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
   ) {
@@ -4481,15 +4524,10 @@ void Temperature::isr() {
       HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
     #endif
     SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
-    #if HAS_HEATED_BED
-      s.append(" B@:", getHeaterPower(H_BED));
-    #endif
-    #if HAS_HEATED_CHAMBER
-      s.append(" C@:", getHeaterPower(H_CHAMBER));
-    #endif
-    #if HAS_COOLER
-      s.append(" C@:", getHeaterPower(H_COOLER));
-    #endif
+    TERN_(HAS_HEATED_BED,     s.append(F(" B@:"), getHeaterPower(H_BED)));
+    TERN_(PELTIER_BED,        s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
+    TERN_(HAS_HEATED_CHAMBER, s.append(F(" C@:"), getHeaterPower(H_CHAMBER)));
+    TERN_(HAS_COOLER,         s.append(F(" L@:"), getHeaterPower(H_COOLER)));
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
     #endif

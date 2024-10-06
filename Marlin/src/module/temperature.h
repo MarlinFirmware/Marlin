@@ -437,6 +437,9 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
+  #if ENABLED(PELTIER_BED)
+    bool peltier_dir_heating; // = false
+  #endif
 } heater_info_t;
 
 // A heater with PID stabilization
