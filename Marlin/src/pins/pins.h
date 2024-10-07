@@ -1052,9 +1052,9 @@
     #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
-  #elif MB(BOARD_BTT_SKR_V3_0)
+  #elif MB(BTT_SKR_V3_0)
     #error "BOARD_BTT_SKR_V3_0 is now BOARD_BTT_SKR_3."
-  #elif MB(BOARD_BTT_SKR_V3_0_EZ)
+  #elif MB(BTT_SKR_V3_0_EZ)
     #error "BOARD_BTT_SKR_V3_0_EZ is now BOARD_BTT_SKR_3_EZ."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
