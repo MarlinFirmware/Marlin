@@ -486,8 +486,8 @@
 #define BOARD_NUCLEO_F767ZI           6001  // ST NUCLEO-F767ZI Dev Board
 #define BOARD_BTT_SKR_SE_BX_V2        6002  // BigTreeTech SKR SE BX V2.0 (STM32H743II)
 #define BOARD_BTT_SKR_SE_BX_V3        6003  // BigTreeTech SKR SE BX V3.0 (STM32H743II)
-#define BOARD_BTT_SKR_V3_0            6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
-#define BOARD_BTT_SKR_V3_0_EZ         6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_SKR_3               6004  // BigTreeTech SKR 3 (STM32H743VI / STM32H723VG)
+#define BOARD_BTT_SKR_3_EZ            6005  // BigTreeTech SKR 3 EZ (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0 6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_0_1  6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1    6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)

@@ -863,10 +863,10 @@
   #include "stm32h7/pins_BTT_SKR_SE_BX_V2.h"        // STM32H7                              env:BTT_SKR_SE_BX
 #elif MB(BTT_SKR_SE_BX_V3)
   #include "stm32h7/pins_BTT_SKR_SE_BX_V3.h"        // STM32H7                              env:BTT_SKR_SE_BX
-#elif MB(BTT_SKR_V3_0)
-  #include "stm32h7/pins_BTT_SKR_V3_0.h"            // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
-#elif MB(BTT_SKR_V3_0_EZ)
-  #include "stm32h7/pins_BTT_SKR_V3_0_EZ.h"         // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
+#elif MB(BTT_SKR_3)
+  #include "stm32h7/pins_BTT_SKR_3.h"               // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
+#elif MB(BTT_SKR_3_EZ)
+  #include "stm32h7/pins_BTT_SKR_3_EZ.h"            // STM32H7                              env:STM32H743VI_btt env:STM32H723VG_btt
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"      // STM32H7                              env:STM32H723ZE_btt
 #elif MB(BTT_OCTOPUS_PRO_V1_0_1)
@@ -989,6 +989,8 @@
   #define BOARD_BTT_MANTA_M4P_V1_0      99927
   #define BOARD_VAKE403D                99928
   #define BOARD_TRONXY_V10              99929
+  #define BOARD_BTT_SKR_V3_0            99930
+  #define BOARD_BTT_SKR_V3_0_EZ         99931
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 is now BOARD_MKS_GEN_13. Please update your configuration."
@@ -1050,6 +1052,10 @@
     #error "BOARD_TRONXY_V10 is now BOARD_TRONXY_CXY_446_V10. Please update your configuration."
   #elif MB(VAKE403D)
     #error "BOARD_VAKE403D is no longer supported in Marlin."
+  #elif MB(BOARD_BTT_SKR_V3_0)
+    #error "BOARD_BTT_SKR_V3_0 is now BOARD_BTT_SKR_3."
+  #elif MB(BOARD_BTT_SKR_V3_0_EZ)
+    #error "BOARD_BTT_SKR_V3_0_EZ is now BOARD_BTT_SKR_3_EZ."
   #elif defined(MOTHERBOARD)
     #error "Unknown MOTHERBOARD value set in Configuration.h."
   #else
@@ -1087,6 +1093,8 @@
   #undef BOARD_BTT_MANTA_M4P_V1_0
   #undef BOARD_VAKE403D
   #undef BOARD_TRONXY_V10
+  #undef BOARD_BTT_SKR_V3_0
+  #undef BOARD_BTT_SKR_V3_0_EZ
 
 #endif
 
