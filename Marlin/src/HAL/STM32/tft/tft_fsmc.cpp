@@ -111,11 +111,11 @@ void TFT_FSMC::init() {
 
   HAL_SRAM_Init(&SRAMx, &timing, &extTiming);
 
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
   #ifdef STM32F1xx
-    __HAL_RCC_DMA1_CLK_ENABLE();
-    DMAtx.Instance                = DMA1_Channel1;
+    DMAtx.Instance                = DMA2_Channel1;
   #elif defined(STM32F4xx)
-    __HAL_RCC_DMA2_CLK_ENABLE();
     DMAtx.Instance                = DMA2_Stream0;
     DMAtx.Init.Channel            = DMA_CHANNEL_0;
     DMAtx.Init.FIFOMode           = DMA_FIFOMODE_ENABLE;
