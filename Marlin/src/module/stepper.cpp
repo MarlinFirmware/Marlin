@@ -580,6 +580,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   // and keep a count of how many times each ENA pin has been set.
 
   // If all the axes that share the enabled bit are disabled
+  // toggle the ENA state that they all share.
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
     #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
@@ -1531,6 +1532,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
+    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1550,21 +1552,15 @@ void Stepper::isr() {
         if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
           nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
           ftMotion_stepper();             // Run FTM Stepping
-        }
-
-        #if ENABLED(BABYSTEPPING)
-          if (nextBabystepISR == 0) {                   // Avoid ANY stepping too soon after baby-stepping
-            nextBabystepISR = babystepping_isr();
-            NOLESS(nextMainISR, (BABYSTEP_TICKS) / 8);  // FULL STOP for 125µs after a baby-step
+          // Define 2.5 msec task for auxilliary functions.
+          if (!ftMotion_nextAuxISR) {
+            TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+            ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
           }
-          if (nextBabystepISR != BABYSTEP_NEVER)        // Avoid baby-stepping too close to axis Stepping
-            NOLESS(nextBabystepISR, nextMainISR / 2);   // TODO: Only look at axes enabled for baby-stepping
-        #endif
-
-        interval = nextMainISR;                         // Interval is either some old nextMainISR or FTM_MIN_TICKS
-        TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR)); // Come back early for Babystepping?
-
-        nextMainISR = 0;                                // For FT Motion fire again ASAP
+        }
+        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
+        nextMainISR -= interval;
+        ftMotion_nextAuxISR -= interval;
       }
 
     #endif
@@ -3422,7 +3418,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
 #if ENABLED(FT_MOTION)
 
   void Stepper::ftMotion_syncPosition() {
-    //planner.synchronize(); planner already synchronized in M493
+    planner.synchronize();
 
     // Update stepper positions from the planner
     AVR_ATOMIC_SECTION_START();
@@ -3538,15 +3534,6 @@ void Stepper::report_positions() {
     #define _FTM_DIR(AXIS) TEST(command, FT_BIT_DIR_##AXIS)
 
     /**
-     * Set bits in axis_did_move for any axes moving in this block,
-     * clearing the bits at the start of each new segment.
-     */
-    if (TEST(command, FT_BIT_START)) axis_did_move.reset();
-
-    #define _FTM_AXIS_DID_MOVE(AXIS) axis_did_move.bset(_AXIS(AXIS), _FTM_STEP(AXIS));
-    LOGICAL_AXIS_MAP(_FTM_AXIS_DID_MOVE);
-
-    /**
      * Update direction bits for steppers that were stepped by this command.
      * HX, HY, HZ direction bits were set for Core kinematics
      * when the block was fetched and are not overwritten here.
@@ -3557,8 +3544,8 @@ void Stepper::report_positions() {
 
     if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(AXIS) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits[_AXIS(A)] != last_set_direction[_AXIS(AXIS)])) \
-                                     SET_STEP_DIR(AXIS);
+      #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
+                                  SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
       TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
@@ -3568,7 +3555,7 @@ void Stepper::report_positions() {
     }
 
     // Start step pulses. Edge stepping will toggle the STEP pin.
-    #define _FTM_STEP_START(AXIS) AXIS##_APPLY_STEP(_FTM_STEP(AXIS), false);
+    #define _FTM_STEP_START(A) A##_APPLY_STEP(_FTM_STEP(A), false);
     LOGICAL_AXIS_MAP(_FTM_STEP_START);
 
     // Apply steps via I2S
@@ -3578,7 +3565,7 @@ void Stepper::report_positions() {
     START_TIMED_PULSE();
 
     // Update step counts
-    #define _FTM_STEP_COUNT(AXIS) if (_FTM_STEP(AXIS)) count_position[_AXIS(AXIS)] += last_direction_bits[_AXIS(AXIS)] ? 1 : -1;
+    #define _FTM_STEP_COUNT(A) if (_FTM_STEP(A)) count_position.A += last_direction_bits.A ? 1 : -1;
     LOGICAL_AXIS_MAP(_FTM_STEP_COUNT);
 
     // Provide EDGE flags for E stepper(s)
@@ -3606,11 +3593,6 @@ void Stepper::report_positions() {
     // Stop pulses. Axes with DEDGE will do nothing, assuming STEP_STATE_* is HIGH
     #define _FTM_STEP_STOP(AXIS) AXIS##_APPLY_STEP(!STEP_STATE_##AXIS, false);
     LOGICAL_AXIS_MAP(_FTM_STEP_STOP);
-
-    // Check endstops on every step using axis_did_move as set by every step
-    // TODO: Update endstop states less frequently to save processing.
-    // NOTE: endstops.poll is still called at 1KHz by Temperature ISR.
-    IF_DISABLED(ENDSTOP_INTERRUPTS_FEATURE, if ((bool)axis_did_move) endstops.update());
 
   } // Stepper::ftMotion_stepper
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2022 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,10 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BTT SKR V3"
+#include "MarlinConfigPre-5-post.h"
+#include "Conditionals-5-post.h"
 
-#include "pins_BTT_SKR_V3_0_common.h"
+#ifndef __MARLIN_DEPS__
+  #include HAL_PATH(.., inc/Conditionals_post.h)
+  #include "../core/types.h"  // Ahead of sanity-checks
+#endif

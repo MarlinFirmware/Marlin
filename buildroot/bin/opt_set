@@ -3,12 +3,33 @@
 # exit on first failure
 set -e
 
-SED=$(which gsed sed | head -n1)
+# Get SED_CMD, SED_I, and the BSDSED flag
+. $(dirname $0)/opt_sed
 
 while [[ $# > 1 ]]; do
   DID=0
-  for FN in Configuration Configuration_adv; do
-    "${SED}" -i "/^\(\s*\)\/*\s*\(#define\s\+${1}\b\) *\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q9}" Marlin/$FN.h && DID=1
+  for FN in Marlin/Configuration.h Marlin/Configuration_adv.h; do
+    if [[ $BSDSED ]]; then
+      # BSD sed version (macOS)
+      $SED_CMD "${SED_I[@]}" \
+        "/^[[:space:]]*\/\{0,2\}[[:space:]]*#define[[:space:]]+${1}\b/{
+          s/^[[:space:]]*\/\{0,2\}[[:space:]]*\(#define[[:space:]]+${1}\b\)[[:space:]]*.*/\1 ${2} \/\/ &/
+          h
+          \$b end
+        }
+        \$!b
+        :end
+        x
+        /./{ x; q0; }
+        x
+        q1" \
+        $FN && DID=1
+    else
+      # GNU sed version
+      $SED_CMD "${SED_I[@]}" \
+        "/^\(\s*\)\/\{0,2\}\s*\(#define\s\+${1}\b\)\s*\(.*\)$/{s//\1\2 ${2} \/\/ \3/;h};\${x;/./{x;q0};x;q1}" \
+        $FN && DID=1
+    fi
   done
   ((DID)) ||
     eval "echo '#define ${1} ${2}' >>Marlin/Configuration.h" ||

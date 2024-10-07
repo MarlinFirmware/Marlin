@@ -22,9 +22,15 @@
 #pragma once
 
 /**
- * Conditionals_post.h
+ * Conditionals-5-post.h
  * Internal defines that depend on Configurations and Pins but are not user-editable.
  */
+
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "MarlinConfigPre-5-post.h"
+//========================================================
 
 #ifdef GITHUB_ACTIONS
   // Extras for CI testing
@@ -50,7 +56,7 @@
 // Determine which type of 'EEPROM' is in use
 #if ENABLED(EEPROM_SETTINGS)
   // EEPROM type may be defined by compile flags, configs, HALs, or pins
-  // Set additional flags to let HALs choose in their Conditionals_post.h
+  // Set additional flags to let HALs choose in their Conditionals-5-post.h
   #if ANY(FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION, QSPI_EEPROM)
     #define USE_EMULATED_EEPROM 1
   #elif ANY(I2C_EEPROM, SPI_EEPROM)
@@ -1845,7 +1851,7 @@
 #define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
                           || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
                           || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(MMU_SERIAL_PORT)   && N == MMU_SERIAL_PORT) \
                           || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
                           || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
@@ -2419,7 +2425,7 @@
 #endif
 
 #define PCAT(P) P##_PIN
-#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P##_PIN) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
+#define NEED_HIT_STATE(P) (USE_##P || (PIN_EXISTS(P) && ((defined(X2_STOP_PIN) && X2_STOP_PIN == PCAT(P)) || (defined(Y2_STOP_PIN) && Y2_STOP_PIN == PCAT(P)) || (defined(Z2_STOP_PIN) && Z2_STOP_PIN == PCAT(P)) || (defined(Z3_STOP_PIN) && Z3_STOP_PIN == PCAT(P)) || (defined(Z4_STOP_PIN) && Z4_STOP_PIN == PCAT(P)))))
 #if !NEED_HIT_STATE(X_MIN)
   #undef X_MIN_ENDSTOP_HIT_STATE
 #endif
@@ -2643,10 +2649,6 @@
 #endif
 
 // Thermal protection
-#if !HAS_HEATED_BED
-  #undef THERMAL_PROTECTION_BED
-  #undef THERMAL_PROTECTION_BED_PERIOD
-#endif
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #define WATCH_HOTENDS 1
 #endif
@@ -3037,7 +3039,7 @@
 #endif
 
 /**
- * Heated bed requires settings
+ * Heated Bed required settings
  */
 #if HAS_HEATED_BED
   #ifndef MIN_BED_POWER
@@ -3047,6 +3049,14 @@
     #define MAX_BED_POWER 255
   #endif
   #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ ENABLED(HEATER_BED_INVERTING))
+  #if ENABLED(PELTIER_BED)
+   /**
+    * A "Heated Bed" Peltier device needs a direction (heat/cool) to be
+    * implemented by a relay (single pin) or H-bridge (2 or 4 pin).
+    * H-Bridge can also perform PWM. (Not recommended for Peltier devices).
+    */
+    #define WRITE_PELTIER_DIR(v) WRITE(PELTIER_DIR_PIN, (v) ? PELTIER_DIR_HEAT_STATE : !PELTIER_DIR_HEAT_STATE)
+  #endif
 #endif
 
 /**
@@ -3194,8 +3204,13 @@
 /**
  * Heater, Fan, and Probe interactions
  */
-#if !HAS_FAN
+#if !ALL(HAS_HOTEND, HAS_FAN)
   #undef ADAPTIVE_FAN_SLOWING
+#endif
+#if DISABLED(ADAPTIVE_FAN_SLOWING)
+  #undef REPORT_ADAPTIVE_FAN_SLOWING
+#endif
+#if DISABLED(ADAPTIVE_FAN_SLOWING) || NONE(MPCTEMP, PIDTEMP)
   #undef TEMP_TUNING_MAINTAIN_FAN
 #endif
 #if !ALL(HAS_BED_PROBE, HAS_FAN)
@@ -3218,7 +3233,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3383,34 +3398,6 @@
   #undef SOUND_ON_DEFAULT
 #endif
 
-/**
- * Z_CLEARANCE_FOR_HOMING / Z_CLEARANCE_BETWEEN_PROBES
- */
-#ifndef Z_CLEARANCE_FOR_HOMING
-  #ifdef Z_CLEARANCE_BETWEEN_PROBES
-    #define Z_CLEARANCE_FOR_HOMING Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_FOR_HOMING 0
-  #endif
-#endif
-
-#ifndef Z_CLEARANCE_BETWEEN_PROBES
-  #define Z_CLEARANCE_BETWEEN_PROBES Z_CLEARANCE_FOR_HOMING
-#endif
-#if PROBE_SELECTED
-  #if Z_CLEARANCE_BETWEEN_PROBES > Z_CLEARANCE_FOR_HOMING
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_BETWEEN_PROBES
-  #else
-    #define Z_CLEARANCE_BETWEEN_MANUAL_PROBES Z_CLEARANCE_FOR_HOMING
-  #endif
-  #ifndef Z_CLEARANCE_MULTI_PROBE
-    #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
-  #endif
-  #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
-    #define BLTOUCH_DELAY 500
-  #endif
-#endif
-
 // Define a starting height for measuring manual probe points
 #ifndef MANUAL_PROBE_START_Z
   #if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
@@ -3540,6 +3527,8 @@
       #define LCD_WIDTH 21
     #elif IS_DWIN_MARLINUI
       // Defined by header
+    #elif HAS_GRAPHICAL_TFT
+      #define LCD_WIDTH ((TFT_WIDTH) / 16)
     #else
       #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
