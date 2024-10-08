@@ -563,7 +563,11 @@ void menu_backlash();
         editable.decimal = stepper.get_shaping_frequency(AXIS);                                                                                                       \
         if (editable.decimal) {                                                                                                                                       \
           ACTION_ITEM_N(AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(AXIS, 0.0f); ui.refresh(); });                                                   \
-          EDIT_ITEM_FAST_N(float41, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });  \
+          #if ENABLED(EDIT_SHAPING_FREQ_INT)
+            EDIT_ITEM_FAST_N( float3, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });\
+          #else
+            EDIT_ITEM_FAST_N(float41, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });\
+          #endif
           editable.decimal = stepper.get_shaping_damping_ratio(AXIS);                                                                                                 \
           EDIT_ITEM_FAST_N(float42_52, AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(AXIS, editable.decimal); });      \
         }                                                                                                                                                             \
