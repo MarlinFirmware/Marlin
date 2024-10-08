@@ -72,14 +72,16 @@ void GcodeSuite::M164() {
    *   B[factor] Mix factor for extruder stepper 2
    *   C[factor] Mix factor for extruder stepper 3
    *   D[factor] Mix factor for extruder stepper 4
-   *   H[factor] Mix factor for extruder stepper 5
-   *   I[factor] Mix factor for extruder stepper 6
+   *   L[factor] Mix factor for extruder stepper 5
+   *   M[factor] Mix factor for extruder stepper 6
+   *   N[factor] Mix factor for extruder stepper 7
+   *   O[factor] Mix factor for extruder stepper 8
    */
   void GcodeSuite::M165() {
     // Get mixing parameters from the G-Code
     // The total "must" be 1.0 (but it will be normalized)
     // If no mix factors are given, the old mix is preserved
-    const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'H', 'I') };
+    const char mixing_codes[] = { LIST_N(MIXING_STEPPERS, 'A', 'B', 'C', 'D', 'L', 'M', 'N', 'O') };
     uint8_t mix_bits = 0;
     MIXER_STEPPER_LOOP(i) {
       if (parser.seenval(mixing_codes[i])) {
@@ -93,6 +95,27 @@ void GcodeSuite::M164() {
       MIXER_STEPPER_LOOP(i)
         if (!TEST(mix_bits, i)) mixer.set_collector(i, 0.0f);
       mixer.normalize();
+    }
+    // Report the latest V-tool mixes
+    if (parser.seen_test('R')) M165_report();
+  }
+
+  void GcodeSuite::M165_report(const bool forReplay/*=true*/) {
+    gcode.report_heading_etc(forReplay, F(STR_CURRENT_VTOOLS));
+    VTOOLS_LOOP(i) {
+      // Get mixes from all tools as a percentage
+      mixer.refresh_collector(100.0, i);
+      SERIAL_ECHO(F("  V"), i, ":");  // Avoid using 'Tn:' substring so output is fully visible on
+                                      // BTT Touchscreen terminal.
+      SERIAL_ECHOLNPGM(LIST_N(DOUBLE(MIXING_STEPPERS),
+         "  A", p_float_t(mixer.collector[0], 1),
+          " B", p_float_t(mixer.collector[1], 1),
+          " C", p_float_t(mixer.collector[2], 1),
+          " D", p_float_t(mixer.collector[3], 1),
+          " L", p_float_t(mixer.collector[4], 1),
+          " M", p_float_t(mixer.collector[5], 1),
+          " N", p_float_t(mixer.collector[6], 1),
+          " O", p_float_t(mixer.collector[7], 1)));
     }
   }
 

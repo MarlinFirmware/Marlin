@@ -51,12 +51,16 @@ enum MixTool {
   #if HAS_MIXER_SYNC_CHANNEL
     , MIXER_AUTORETRACT_TOOL
   #endif
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    , MIXER_PUSHPULL_TOOL
+  #endif
   , NR_MIXING_VIRTUAL_TOOLS
 };
 
-#define MAX_VTOOLS TERN(HAS_MIXER_SYNC_CHANNEL, 254, 255)
+#define MAX_VTOOLS  (255 TERN_(PUSH_PULL_TOOLCHANGE, -1) TERN_(HAS_MIXER_SYNC_CHANNEL, -1))
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
 
+#define VTOOLS_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_VIRTUAL_TOOLS; VAR++)
 #define MIXER_STEPPER_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #if ENABLED(GRADIENT_MIX)
@@ -73,6 +77,13 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
     #endif
   } gradient_t;
 
+#endif
+
+#if ENABLED(PUSH_PULL_TOOLCHANGE)
+  typedef struct {
+    uint8_t direction_bits;                   // Extruder direction, where 1 is negative
+    float scale;                              // The scale to multiply the extruder speed and length
+  } pushpull_t;
 #endif
 
 /**
@@ -118,7 +129,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
+  #if ANY(PUSH_PULL_TOOLCHANGE, HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
@@ -126,7 +137,7 @@ class Mixer {
       // Scale each component to the largest one in terms of COLOR_A_MASK
       // So the largest component will be COLOR_A_MASK and the other will be in proportion to it
       const float scale = (COLOR_A_MASK) * RECIPROCAL(_MAX(
-        LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5])
+        LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7])
       ));
 
       // Scale all values so their maximum is COLOR_A_MASK
@@ -134,8 +145,8 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(
-          F("Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]),
-          F(" ] to Color [ "), LIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5]),
+          F("Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]),
+          F(" ] to Color [ "), LIST_N(MIXING_STEPPERS, tcolor[0], tcolor[1], tcolor[2], tcolor[3], tcolor[4], tcolor[5], tcolor[6], tcolor[7]),
           F(" ]")
         );
       #endif
@@ -148,13 +159,43 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(F("V-tool "), j,
-          F(" [ "), LIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5]),
-          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+          F(" [ "), LIST_N(MIXING_STEPPERS, color[j][0], color[j][1], color[j][2], color[j][3], color[j][4], color[j][5], color[j][6], color[j][7]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]), F(" ]")
         );
       #endif
     }
 
-  #endif // HAS_DUAL_MIXING || GRADIENT_MIX
+  #endif // PUSH_PULL_TOOLCHANGE || HAS_DUAL_MIXING || GRADIENT_MIX
+
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    static pushpull_t pushpull;
+    
+    // Outputs true for positive direction. Used in Stepper.
+    FORCE_INLINE static bool e_dir(uint_fast8_t VAR) { return !TEST(pushpull.direction_bits, VAR); }
+
+    // Update the push/pull v-tool, its direction bits and scale factor
+    static void update_pushpull_tool(const uint_fast8_t new_vtool){
+      pushpull.direction_bits = 0; pushpull.scale = 0;
+      if (new_vtool == selected_vtool) return;
+      
+      mixer_perc_t pull_mix[MIXING_STEPPERS] = {0};
+      update_mix_from_vtool();
+      MIXER_STEPPER_LOOP(i) pull_mix[i] = mix[i];
+      update_mix_from_vtool(new_vtool);
+      MIXER_STEPPER_LOOP(i) {
+        mix[i] -= pull_mix[i];
+        if (mix[i] < 0) {
+          SBI(pushpull.direction_bits, i);
+          mix[i] *= -1.0f;
+        }
+      }
+      copy_mix_to_color(color[MIXER_PUSHPULL_TOOL]);
+      
+      float ctot = 0;
+      MIXER_STEPPER_LOOP(i) ctot += color[MIXER_PUSHPULL_TOOL][i];
+      pushpull.scale = ctot / (COLOR_A_MASK);
+    }
+  #endif // PUSH_PULL_TOOLCHANGE
 
   #if HAS_DUAL_MIXING
 
@@ -192,8 +233,9 @@ class Mixer {
 
       #ifdef MIXER_NORMALIZER_DEBUG
         SERIAL_ECHOLN(
-          F("Gradient [ "), LIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], gradient.color[4], gradient.color[5]),
-          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5]), F(" ]")
+          F("Gradient [ "), LIST_N(MIXING_STEPPERS, gradient.color[0], gradient.color[1], gradient.color[2], gradient.color[3], 
+            gradient.color[4], gradient.color[5], gradient.color[6], gradient.color[7]),
+          F(" ] to Mix [ "), LIST_N(MIXING_STEPPERS, mix[0], mix[1], mix[2], mix[3], mix[4], mix[5], mix[6], mix[7]), F(" ]")
         );
       #endif
     }

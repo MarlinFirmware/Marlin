@@ -42,7 +42,7 @@ int_fast8_t   Mixer::runner = 0;
 mixer_comp_t  Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX)
+#if ANY(HAS_DUAL_MIXING, GRADIENT_MIX, PUSH_PULL_TOOLCHANGE)
   mixer_perc_t Mixer::mix[MIXING_STEPPERS];
 #endif
 
@@ -153,6 +153,13 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
   }
   //SERIAL_EOL();
 }
+
+#if ENABLED(PUSH_PULL_TOOLCHANGE)
+  pushpull_t Mixer::pushpull = {
+    0,  // e_directions
+    0,  // scale
+  };
+#endif
 
 #if ENABLED(GRADIENT_MIX)
 

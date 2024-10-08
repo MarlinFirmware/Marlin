@@ -176,7 +176,7 @@
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
- * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
+ * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDLMNO. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M166 - Set the Gradient Mix for the mixing extruder. (Requires GRADIENT_MIX)
  * M190 - Set bed target temperature and wait. R<temp> Set target temperature and wait. S<temp> Set, but only wait when heating. (Requires TEMP_SENSOR_BED)
  * M192 - Wait for probe to reach target temperature. (Requires TEMP_SENSOR_PROBE)
@@ -858,6 +858,7 @@ private:
     static void M164();
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();
+      static void M165_report(const bool forReplay=true);
     #endif
     #if ENABLED(GRADIENT_MIX)
       static void M166();

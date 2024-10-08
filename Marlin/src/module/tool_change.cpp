@@ -66,6 +66,9 @@
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    #include "stepper.h"
+  #endif
 #endif
 
 #if HAS_LEVELING
@@ -894,6 +897,22 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // DUAL_X_CARRIAGE
 
+#if ANY(TOOLCHANGE_FILAMENT_SWAP, MIXING_EXTRUDER)
+  /**
+   * Check if too cold to move the specified tool
+   *
+   * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
+   * Returns FALSE if able to move.
+   */
+  bool too_cold(uint8_t toolID){
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
+      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
+      return true;
+    }
+    return false;
+  }
+#endif // TOOLCHANGE_FILAMENT_SWAP || MIXING_EXTRUDER
+
 /**
  * Prime active tool using TOOLCHANGE_FILAMENT_SWAP settings
  */
@@ -916,20 +935,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
       thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
     #endif
-  }
-
-  /**
-   * Check if too cold to move the specified tool
-   *
-   * Returns TRUE if too cold to move (also echos message: STR_ERR_HOTEND_TOO_COLD)
-   * Returns FALSE if able to  move.
-   */
-  bool too_cold(uint8_t toolID){
-    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(toolID)) {
-      SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -1120,6 +1125,28 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       return invalid_extruder_error(new_tool);
 
     #if MIXING_VIRTUAL_TOOLS > 1
+      #if ENABLED(PUSH_PULL_TOOLCHANGE)
+        if (too_cold(active_extruder)) SERIAL_ECHO_MSG(STR_ERR_PUSHPULL_TOO_COLD);
+        else {          
+          mixer.update_pushpull_tool(new_tool);
+
+          if (mixer.pushpull.scale > 0) {
+            // Enable Push/Pull V-Tool
+            stepper.apply_directions();
+            mixer.T(MIXER_PUSHPULL_TOOL);
+
+            // Extrude
+            float resume_current_e = current_position.e;
+            unscaled_e_move(MIXING_PUSH_PULL_MM * mixer.pushpull.scale, 
+                            MMM_TO_MMS(MIXING_PUSH_PULL_FEEDRATE) * mixer.pushpull.scale);
+
+            // Reset
+            mixer.pushpull.direction_bits = 0; stepper.apply_directions();
+            current_position.e = resume_current_e; sync_plan_position_e();
+          }
+        }
+      #endif 
+
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
       mixer.T(new_tool);
     #endif

@@ -513,7 +513,11 @@ xyze_int8_t Stepper::count_direction{0};
 //#define E7_APPLY_DIR(FWD) do{ (FWD) ? FWD_E_DIR(7) : REV_E_DIR(7); }while(0)
 
 #if ENABLED(MIXING_EXTRUDER)
-  #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { MIXER_STEPPER_LOOP(j) FWD_E_DIR(j); } else { MIXER_STEPPER_LOOP(j) REV_E_DIR(j); } }while(0)
+  #if ENABLED(PUSH_PULL_TOOLCHANGE)
+    #define E_APPLY_DIR(FWD,Q) MIXER_STEPPER_LOOP(j) do{ if (FWD == mixer.e_dir(j)) { FWD_E_DIR(j); } else { REV_E_DIR(j); } }while(0)
+  #else
+    #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { MIXER_STEPPER_LOOP(j) FWD_E_DIR(j); } else { MIXER_STEPPER_LOOP(j) REV_E_DIR(j); } }while(0)
+  #endif
 #else
   #define E_APPLY_STEP(FWD,Q) E_STEP_WRITE(stepper_extruder, FWD)
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
