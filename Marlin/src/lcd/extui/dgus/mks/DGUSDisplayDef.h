@@ -24,14 +24,19 @@
 #include "../DGUSDisplayDef.h"
 
 //#define DGUS_MKS_RUNOUT_SENSOR
+#if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
+  #ifndef FIL_RUNOUT_PIN
+    #define FIL_RUNOUT_PIN     1
+  #endif
+  #ifndef FIL_RUNOUT2_PIN
+    #define FIL_RUNOUT2_PIN    2
+  #endif
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE LOW
+  #endif
+#endif
 
 #define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
-
-#if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-  #define MT_DET_1_PIN     1
-  #define MT_DET_2_PIN     2
-  #define MT_DET_PIN_STATE LOW
-#endif
 
 #define MKS_FINSH
 

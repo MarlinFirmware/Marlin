@@ -41,8 +41,11 @@
   #include "mks_hardware.h"
   #include "../../../module/endstops.h"
 
-  bool pw_det_sta, pw_off_sta, mt_det_sta;
-  #if PIN_EXISTS(MT_DET_2)
+  bool pw_det_sta, pw_off_sta;
+  #if PIN_EXISTS(FIL_RUNOUT)
+    bool mt_det_sta;
+  #endif
+  #if PIN_EXISTS(FIL_RUNOUT2)
     bool mt_det2_sta;
   #endif
   #if USE_X_MIN
@@ -105,9 +108,11 @@
     delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == LOW);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == LOW);
-    mt_det_sta = (READ(MT_DET_1_PIN) == LOW);
-    #if PIN_EXISTS(MT_DET_2)
-      mt_det2_sta = (READ(MT_DET_2_PIN) == LOW);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      mt_det_sta = (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_STATE);
+    #endif
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      mt_det2_sta = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE);
     #endif
     TERN_(USE_X_MIN, endstopx1_min = ESTATE(X_MIN));
     TERN_(USE_X_MAX, endstopx1_max = ESTATE(X_MAX));
@@ -140,9 +145,11 @@
     delay(10);
     pw_det_sta = (READ(MKS_TEST_POWER_LOSS_PIN) == HIGH);
     pw_off_sta = (READ(MKS_TEST_PS_ON_PIN) == HIGH);
-    mt_det_sta = (READ(MT_DET_1_PIN) == HIGH);
-    #if PIN_EXISTS(MT_DET_2)
-      mt_det2_sta = (READ(MT_DET_2_PIN) == HIGH);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      mt_det_sta = (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE);
+    #endif
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      mt_det2_sta = (READ(FIL_RUNOUT2_PIN) != FIL_RUNOUT2_STATE);
     #endif
     TERN_(USE_X_MIN, endstopx1_min = !ESTATE(X_MIN));
     TERN_(USE_X_MAX, endstopx1_max = !ESTATE(X_MAX));
@@ -177,11 +184,11 @@
       SET_OUTPUT(WIFI_IO0_PIN);
     #endif
 
-    #if PIN_EXISTS(MT_DET_1)
-      SET_INPUT_PULLUP(MT_DET_1_PIN);
+    #if PIN_EXISTS(FIL_RUNOUT)
+      SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
     #endif
-    #if PIN_EXISTS(MT_DET_2)
-      SET_INPUT_PULLUP(MT_DET_2_PIN);
+    #if PIN_EXISTS(FIL_RUNOUT2)
+      SET_INPUT_PULLUP(FIL_RUNOUT2_PIN);
     #endif
 
     SET_INPUT_PULLUP(MKS_TEST_POWER_LOSS_PIN);
@@ -225,8 +232,11 @@
       test_gpio_readlevel_L();
       test_gpio_readlevel_H();
       test_gpio_readlevel_L();
-      if (pw_det_sta && pw_off_sta && mt_det_sta
-        #if PIN_EXISTS(MT_DET_2)
+      if (pw_det_sta && pw_off_sta
+        #if PIN_EXISTS(FIL_RUNOUT)
+          && mt_det_sta
+        #endif
+        #if PIN_EXISTS(FIL_RUNOUT2)
           && mt_det2_sta
         #endif
         #if ENABLED(MKS_HARDWARE_TEST_ONLY_E0)
