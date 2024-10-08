@@ -40,7 +40,7 @@
   #include "../../module/probe.h"
 #endif
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+#if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
   #include "../../feature/babystep.h"
 #endif
 
@@ -241,7 +241,11 @@
 // Include a sub-menu when there's manual probing
 
 void menu_probe_level() {
-  const bool can_babystep_z = TERN0(BABYSTEP_ZPROBE_OFFSET, babystep.can_babystep(Z_AXIS));
+  const bool can_babystep_z = (false
+    #if ANY(BABYSTEP_ZPROBE_OFFSET, BABYSTEP_GLOBAL_Z)
+      || babystep.can_babystep(Z_AXIS)
+    #endif
+  );
 
   #if HAS_LEVELING
     const bool is_homed = all_axes_homed(),
@@ -298,18 +302,18 @@ void menu_probe_level() {
       #endif
 
       //
-      // Mesh Bed Leveling Z-Offset
+      // Leveling Z-Offset
       //
-      #if ENABLED(MESH_BED_LEVELING)
+      #if ENABLED(GLOBAL_MESH_Z_OFFSET)
         #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
           #define LCD_Z_OFFSET_TYPE float43    // Values from -9.000 to +9.000
         #else
           #define LCD_Z_OFFSET_TYPE float42_52 // Values from -99.99 to 99.99
         #endif
-        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_MESH_Z_OFFSET, &mesh_z_offset, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
       #endif
 
-    #endif
+    #endif // HAS_LEVELING
 
   } // no G29 in progress
 
@@ -348,6 +352,9 @@ void menu_probe_level() {
     if (can_babystep_z) {
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         SUBMENU(MSG_BABYSTEP_PROBE_Z, lcd_babystep_zoffset);
+      #endif
+      #if ENABLED(BABYSTEP_GLOBAL_Z)
+        SUBMENU(MSG_ZPROBE_ZOFFSET, goto_lcd_babystep_mesh_zoffset);
       #endif
     }
     else {

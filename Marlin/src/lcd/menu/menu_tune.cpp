@@ -104,6 +104,15 @@
 #endif // BABYSTEPPING
 
 void menu_tune() {
+
+  #if ENABLED(BABYSTEPPING)
+    const bool can_babystep_z = babystep.can_babystep(Z_AXIS);
+    #if ENABLED(BABYSTEP_XY)
+      const bool can_babystep_x = babystep.can_babystep(X_AXIS),
+                 can_babystep_y = babystep.can_babystep(Y_AXIS);
+    #endif
+  #endif
+
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);
 
@@ -113,10 +122,10 @@ void menu_tune() {
   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
   //
-  // Manual bed leveling, Bed Z:
+  // Leveling Z-Offset
   //
-  #if ALL(MESH_BED_LEVELING, LCD_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &bedlevel.z_offset, -1, 1);
+  #if ALL(GLOBAL_MESH_Z_OFFSET, LCD_BED_LEVELING)
+    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &mesh_z_offset, -2, 2);
   #endif
 
   //
@@ -229,14 +238,21 @@ void menu_tune() {
   //
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
-      SUBMENU_N(X_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_x); });
-      SUBMENU_N(Y_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_y); });
+      if (can_babystep_x)
+        SUBMENU_N(X_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_x); });
+      if (can_babystep_y)
+        SUBMENU_N(Y_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_y); });
     #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    #else
-      SUBMENU_N(Z_AXIS, MSG_BABYSTEP_N, lcd_babystep_z);
-    #endif
+    if (can_babystep_z) {
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      #else
+        SUBMENU_N(Z_AXIS, MSG_BABYSTEP_N, lcd_babystep_z);
+      #endif
+      #if ENABLED(BABYSTEP_GLOBAL_Z)
+        SUBMENU(MSG_MESH_Z_OFFSET, goto_lcd_babystep_mesh_zoffset);
+      #endif
+    }
   #endif
 
   END_MENU();

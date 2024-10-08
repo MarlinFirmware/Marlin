@@ -593,7 +593,7 @@ void unified_bed_leveling::G29() {
 
       case 5: adjust_mesh_to_mean(param.C_seen, param.C_constant); break;
 
-      case 6: shift_mesh_height(); break;
+      case 6: shift_mesh_height(param.C_constant); break;
     }
   }
 
@@ -735,10 +735,10 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
 /**
  * G29 P6 C<offset> : Shift Mesh Height by a uniform constant.
  */
-void unified_bed_leveling::shift_mesh_height() {
+void unified_bed_leveling::shift_mesh_height(const_float_t zoffs) {
   GRID_LOOP(x, y)
     if (!isnan(z_values[x][y])) {
-      z_values[x][y] += param.C_constant;
+      z_values[x][y] += zoffs;
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
     }
 }

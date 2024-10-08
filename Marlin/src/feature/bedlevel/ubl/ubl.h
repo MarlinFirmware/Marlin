@@ -75,7 +75,7 @@ private:
   #endif
 
   static bool G29_parse_parameters() __O0;
-  static void shift_mesh_height();
+  static void shift_mesh_height(const_float_t zoffs);
   static void probe_entire_mesh(const xy_pos_t &near, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) __O0;
   static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
   static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
@@ -284,8 +284,6 @@ public:
     return z0;
   }
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
-
-  static constexpr float get_z_offset() { return 0.0f; }
 
   static float get_mesh_x(const uint8_t i) {
     return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);

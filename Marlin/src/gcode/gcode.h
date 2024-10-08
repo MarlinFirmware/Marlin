@@ -241,6 +241,8 @@
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
+ * M423 - Set X-Axis Twist Compensation parameters. (Requires X_AXIS_TWIST_COMPENSATION)
+ * M424 - Set the global Mesh Z Offset. (Requires GLOBAL_MESH_Z_OFFSET)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
@@ -580,11 +582,6 @@ private:
 
   #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
-  #endif
-
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    static void M422();
-    static void M422_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(ASSISTED_TRAMMING)
@@ -1056,6 +1053,12 @@ private:
     static void M412_report(const bool forReplay=true);
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M413_report(const bool forReplay=true);
+    static void M1000();
+  #endif
+
   #if HAS_MULTI_LANGUAGE
     static void M414();
     static void M414_report(const bool forReplay=true);
@@ -1065,6 +1068,21 @@ private:
     static void M420();
     static void M420_report(const bool forReplay=true);
     static void M421();
+  #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    static void M422();
+    static void M422_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    static void M424();
+    static void M424_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1287,17 +1305,6 @@ private:
   #endif
 
   static void M999();
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    static void M413();
-    static void M413_report(const bool forReplay=true);
-    static void M1000();
-  #endif
-
-  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    static void M423();
-    static void M423_report(const bool forReplay=true);
-  #endif
 
   #if HAS_MEDIA
     static void M1001();

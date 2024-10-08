@@ -1514,7 +1514,7 @@ void Planner::check_axes_activity() {
         raw.z += bedlevel.get_z_correction(raw);
       #endif
 
-      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
+      TERN_(GLOBAL_MESH_Z_OFFSET, raw.z += mesh_z_offset);
 
     #endif
   }
@@ -1533,7 +1533,7 @@ void Planner::check_axes_activity() {
     #elif HAS_MESH
 
       const float z_correction = bedlevel.get_z_correction(raw),
-                  z_full_fade = DIFF_TERN(MESH_BED_LEVELING, raw.z, bedlevel.get_z_offset()),
+                  z_full_fade = DIFF_TERN(GLOBAL_MESH_Z_OFFSET, raw.z, mesh_z_offset),
                   z_no_fade = z_full_fade - z_correction;
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

@@ -59,6 +59,12 @@ class TemporaryBedLevelingState {
 
 #if HAS_MESH
 
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    extern float mesh_z_offset;
+  #else
+    static constexpr float mesh_z_offset = 0.0f;
+  #endif
+
   typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
