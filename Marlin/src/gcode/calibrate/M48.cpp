@@ -261,7 +261,13 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      #ifndef LCD_WIDTH
+        #define LCD_WIDTH MAX_MESSAGE_LENGTH
+      #endif
+      if (STATUS_MESSAGE_WIDTH_LCD > 24)
+        ui.set_status_and_level(MString<40>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 3)));
+      else
+        ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
     #endif
   }
 
