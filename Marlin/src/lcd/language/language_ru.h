@@ -58,7 +58,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню отладки");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест индикатора");
   LSTR MSG_AUTO_HOME                        = _UxGT("Парковка XYZ");
-  LSTR MSG_AUTO_HOME_A                      = _UxGT("Парковка @");
+  LSTR MSG_AUTO_HOME_N                      = _UxGT("Парковка @");
   LSTR MSG_AUTO_HOME_X                      = _UxGT("Парковка X");
   LSTR MSG_AUTO_HOME_Y                      = _UxGT("Парковка Y");
   LSTR MSG_AUTO_HOME_Z                      = _UxGT("Парковка Z");
@@ -151,7 +151,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_IDEX_DUPE_GAP                    = _UxGT("Дублировать X-зазор");
 
   LSTR MSG_HOTEND_OFFSET_Z                  = _UxGT("2-е сопло Z");
-  LSTR MSG_HOTEND_OFFSET_A                  = _UxGT("2-е сопло @");
+  LSTR MSG_HOTEND_OFFSET_N                  = _UxGT("2-е сопло @");
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Выполняем G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Инструменты UBL");

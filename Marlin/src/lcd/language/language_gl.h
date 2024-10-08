@@ -122,7 +122,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Espello");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2º Bico Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2º Bico @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2º Bico @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Executando G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Ferramentas UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto de inclinación");

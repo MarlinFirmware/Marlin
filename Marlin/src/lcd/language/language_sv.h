@@ -144,7 +144,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Kontroll");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicera X-Avstånd");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2:a Munstycke Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2:a Munstycke @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2:a Munstycke @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Utför G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Verktyg");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Lutningspunkt");

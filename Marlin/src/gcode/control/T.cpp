@@ -32,7 +32,7 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../../feature/mmu3/mmu2.h"
+  #include "../../feature/mmu3/mmu3.h"
 #elif HAS_PRUSA_MMU2
   #include "../../feature/mmu/mmu2.h"
 #endif

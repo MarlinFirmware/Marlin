@@ -179,9 +179,9 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../feature/mmu3/mmu2.h"
+  #include "../feature/mmu3/mmu3.h"
   #include "../feature/mmu3/SpoolJoin.h"
-  #include "../feature/mmu3/mmu2_reporting.h"
+  #include "../feature/mmu3/mmu3_reporting.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -461,6 +461,13 @@ typedef struct SettingsDataStruct {
   //
   fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
   bool autoretract_enabled;                             // M209 S
+
+  //
+  // EDITABLE_HOMING_FEEDRATE
+  //
+  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+    xyz_feedrate_t homing_feedrate_mm_m;                // M210 X Y Z I J K U V W
+  #endif
 
   //
   // !NO_VOLUMETRIC
@@ -1332,6 +1339,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(TERN(FWRETRACT_AUTORETRACT, fwretract.autoretract_enabled, autoretract_enabled));
     }
+
+    //
+    // Homing Feedrate
+    //
+    #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+      _FIELD_TEST(homing_feedrate_mm_m);
+      EEPROM_WRITE(homing_feedrate_mm_m);
+    #endif
 
     //
     // Volumetric & Filament Size
@@ -2420,6 +2435,14 @@ void MarlinSettings::postprocess() {
           }
         #endif
       }
+
+      //
+      // Homing Feedrate
+      //
+      #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+        _FIELD_TEST(homing_feedrate_mm_m);
+        EEPROM_READ(homing_feedrate_mm_m);
+      #endif
 
       //
       // Volumetric & Filament Size
@@ -3650,6 +3673,11 @@ void MarlinSettings::reset() {
   TERN_(FWRETRACT, fwretract.reset());
 
   //
+  // Homing Feedrate
+  //
+  TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
+
+  //
   // Volumetric & Filament Size
   //
   #if DISABLED(NO_VOLUMETRICS)
@@ -4048,6 +4076,11 @@ void MarlinSettings::reset() {
       gcode.M208_report(forReplay);
       TERN_(FWRETRACT_AUTORETRACT, gcode.M209_report(forReplay));
     #endif
+
+    //
+    // Homing Feedrate
+    //
+    TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
     // Probe Offset
