@@ -22,9 +22,9 @@
 #pragma once
 
 /**
- * BigTreeTech SKR 3 (STM32H743VI / STM32H723VG)
+ * BigTreeTech SKR 3 EZ (STM32H743VI / STM32H723VG)
  */
 
-#define BOARD_INFO_NAME "BTT SKR 3"
+#define BOARD_INFO_NAME "BTT SKR V3 EZ"
 
-#include "pins_BTT_SKR_3_common.h"
+#include "pins_BTT_SKR_V3_0_common.h"
