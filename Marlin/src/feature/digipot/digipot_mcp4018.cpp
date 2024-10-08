@@ -44,7 +44,7 @@
 #define DIGIPOT_A4988_FACTOR            ((DIGIPOT_MCP4018_MAX_VALUE) / DIGIPOT_A4988_Itripmax(DIGIPOT_A4988_Vrefmax))
 #define DIGIPOT_A4988_MAX_CURRENT       2.0
 
-static byte current_to_wiper(const float current) {
+static byte current_to_wiper(const_float_t current) {
   const int16_t value = TERN(DIGIPOT_USE_RAW_VALUES, current, CEIL(current * DIGIPOT_A4988_FACTOR));
   return byte(constrain(value, 0, DIGIPOT_MCP4018_MAX_VALUE));
 }
@@ -83,7 +83,7 @@ static void digipot_i2c_send(const uint8_t channel, const byte v) {
 }
 
 // This is for the MCP4018 I2C based digipot
-void DigipotI2C::set_current(const uint8_t channel, const float current) {
+void DigipotI2C::set_current(const uint8_t channel, const_float_t current) {
   const float ival = _MIN(_MAX(current, 0), float(DIGIPOT_MCP4018_MAX_VALUE));
   digipot_i2c_send(channel, current_to_wiper(ival));
 }

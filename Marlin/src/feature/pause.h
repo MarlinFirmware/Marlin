@@ -131,7 +131,7 @@ bool unload_filament(
   const bool      show_lcd=false,                             // Set LCD status messages?
   const PauseMode mode=PAUSE_MODE_PAUSE_PRINT                 // Pause Mode to apply
   #if ALL(FILAMENT_UNLOAD_ALL_EXTRUDERS, MIXING_EXTRUDER)
-    , const_float_t mix_multiplier=1.0f                       // Extrusion multiplier (for a Mixing Extruder)
+    , const float mix_multiplier=1.0f                         // Extrusion multiplier (for a Mixing Extruder)
   #endif
 );
 

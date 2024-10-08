@@ -277,7 +277,7 @@ class I2CPositionEncodersMgr {
       SERIAL_ECHO_TERNARY(encoders[idx].get_ec_enabled(), " axis is ", "en", "dis", "abled.\n");
     }
 
-    static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
+    static void set_ec_threshold(const int8_t idx, const_float_t newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
       SERIAL_ECHOLNPGM("Error correct threshold for ", C(AXIS_CHAR(axis)), " axis set to ", newThreshold, "mm.");

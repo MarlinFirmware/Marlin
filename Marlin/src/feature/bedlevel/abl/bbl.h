@@ -44,7 +44,7 @@ private:
     static xy_float_t grid_factor_virt;
 
     static float virt_coord(const uint8_t x, const uint8_t y);
-    static float virt_cmr(const float p[4], const uint8_t i, const float t);
+    static float virt_cmr(const float p[4], const uint8_t i, const_float_t t);
     static float virt_2cmr(const uint8_t x, const uint8_t y, const_float_t tx, const_float_t ty);
     static void subdivide_mesh();
   #endif

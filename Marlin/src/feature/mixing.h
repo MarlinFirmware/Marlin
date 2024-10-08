@@ -90,7 +90,7 @@ class Mixer {
   static void refresh_collector(const float proportion=1.0, const uint8_t t=selected_vtool, float (&c)[MIXING_STEPPERS]=collector);
 
   // Used up to Planner level
-  FORCE_INLINE static void set_collector(const uint8_t c, const float f) { collector[c] = _MAX(f, 0.0f); }
+  FORCE_INLINE static void set_collector(const uint8_t c, const_float_t f) { collector[c] = _MAX(f, 0.0f); }
 
   static void normalize(const uint8_t tool_index);
   FORCE_INLINE static void normalize() { normalize(selected_vtool); }

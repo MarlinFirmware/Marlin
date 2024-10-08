@@ -220,7 +220,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
     return z_values[x - 1][y - 1];
   }
 
-  float LevelingBilinear::virt_cmr(const float p[4], const uint8_t i, const float t) {
+  float LevelingBilinear::virt_cmr(const float p[4], const uint8_t i, const_float_t t) {
     return (
         p[i-1] * -t * sq(1 - t)
       + p[i]   * (2 - 5 * sq(t) + 3 * t * sq(t))

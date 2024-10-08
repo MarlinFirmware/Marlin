@@ -48,7 +48,7 @@
   #define DIGIPOT_I2C_MAX_CURRENT   2.5f
 #endif
 
-static byte current_to_wiper(const float current) {
+static byte current_to_wiper(const_float_t current) {
   return byte(TERN(DIGIPOT_USE_RAW_VALUES, current, CEIL(DIGIPOT_I2C_FACTOR * current)));
 }
 
@@ -66,7 +66,7 @@ static void digipot_i2c_send(const byte addr, const byte a, const byte b) {
 }
 
 // This is for the MCP4451 I2C based digipot
-void DigipotI2C::set_current(const uint8_t channel, const float current) {
+void DigipotI2C::set_current(const uint8_t channel, const_float_t current) {
   // These addresses are specific to Azteeg X3 Pro, can be set to others.
   // In this case first digipot is at address A0=0, A1=0, second one is at A0=0, A1=1
   const byte addr = channel < 4 ? DIGIPOT_I2C_ADDRESS_A : DIGIPOT_I2C_ADDRESS_B; // channel 0-3 vs 4-7
