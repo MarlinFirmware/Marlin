@@ -496,6 +496,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
+  LSTR MSG_EXPORT_SETTINGS                = _UxGT("Export Settings");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
   LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Size");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: EEPROM Version");

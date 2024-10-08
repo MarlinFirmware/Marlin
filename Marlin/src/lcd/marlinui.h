@@ -788,6 +788,14 @@ public:
     static void eeprom_alert(const EEPROM_Error) TERN_(EEPROM_AUTO_INIT, {});
   #endif
 
+  #if ENABLED(EXPORT_SETTINGS)
+    static void export_settings();
+  #endif
+
+  #if ENABLED(EXPORT_SETTINGS)
+    static void export_settings(const char* filename);
+  #endif
+
   //
   // Special handling if a move is underway
   //

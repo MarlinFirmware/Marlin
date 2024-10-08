@@ -1,3 +1,4 @@
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -4658,3 +4659,11 @@
 
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
+
+#if ALL(HAS_MEDIA, HAS_MARLINUI_MENU) && DISABLED(SDCARD_READONLY)
+  #define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
+#endif
+
+#if ENABLED(EXPORT_SETTINGS)
+  #define SERIAL_2_FILE   // Dump serial output to file, needed for export settings
+#endif
