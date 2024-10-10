@@ -328,15 +328,15 @@
 #endif
 
 // TODO ? board has inbuilt WiFi (ESP8266) but probably already runs a version of DuetWebServer if you've ever used it on RRF before and i have no idea what you'd need to flash it with to get it to work
-/*
+
 #if ENABLED(WIFISUPPORT)
   //
   // WIFI
   //
-  #define ESP_WIFI_MODULE_COM                  -1  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this // to do
+  #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PE15  // this is the only thing i know forsure going on Mellows' pinout
-  #define ESP_WIFI_MODULE_ENABLE_PIN        -1 // to do
-  #define ESP_WIFI_MODULE_GPIO0_PIN         -1 // to do
+  #define ESP_WIFI_MODULE_RESET_PIN         PE15
+  #define ESP_WIFI_MODULE_ENABLE_PIN        -1 // EN is constantly pulled up to 3.3V on this board
+  #define ESP_WIFI_MODULE_GPIO0_PIN         PE13
 #endif
-*/
+
