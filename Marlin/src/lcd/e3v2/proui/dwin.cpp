@@ -270,6 +270,9 @@ Menu *stepsMenu = nullptr;
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   Menu *homingMenu = nullptr;
 #endif
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  Menu *homingFRMenu = nullptr;
+#endif
 #if ENABLED(FWRETRACT)
   Menu *fwRetractMenu = nullptr;
 #endif
@@ -2659,6 +2662,19 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #if HAS_HOTEND
   void setStepsE() { hmiValue.axis = E_AXIS; setPFloatOnClick( min_steps_edit_values.e, max_steps_edit_values.e, UNITFDIGITS); }
 #endif
+
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  #if HAS_X_AXIS
+    void setHomingX() { setPFloatOnClick(min_homing_edit_values.x, max_homing_edit_values.x, UNITFDIGITS); }
+  #endif
+  #if HAS_Y_AXIS
+    void setHomingY() { setPFloatOnClick(min_homing_edit_values.y, max_homing_edit_values.y, UNITFDIGITS); }
+  #endif
+  #if HAS_Z_AXIS
+    void setHomingZ() { setPFloatOnClick(min_homing_edit_values.z, max_homing_edit_values.z, UNITFDIGITS); }
+  #endif
+#endif
+
 #if ENABLED(FWRETRACT)
   void returnFWRetractMenu() { (previousMenu == filSetMenu) ? drawFilSetMenu() : drawTuneMenu(); }
   void setRetractLength() { setPFloatOnClick( 0, 10, UNITFDIGITS); }
@@ -3545,7 +3561,7 @@ void drawTuneMenu() {
 
 void drawMotionMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU_R(motionMenu, selrect({1, 16, 28, 13}), MSG_MOTION, 10)) {
+  if (SET_MENU_R(motionMenu, selrect({1, 16, 28, 13}), MSG_MOTION, 11)) {
     BACK_ITEM(drawControlMenu);
     MENU_ITEM(ICON_MaxSpeed, MSG_SPEED, onDrawSpeed, drawMaxSpeedMenu);
     MENU_ITEM(ICON_MaxAccelerated, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
@@ -3553,6 +3569,12 @@ void drawMotionMenu() {
       MENU_ITEM(ICON_MaxJerk, MSG_JERK, onDrawJerk, drawMaxJerkMenu);
     #elif HAS_JUNCTION_DEVIATION
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
+    #endif
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
+    #endif
+    #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+      MENU_ITEM(ICON_Homing, MSG_HOMING_FEEDRATE, onDrawSubMenu, drawHomingFRMenu);
     #endif
     #if ENABLED(LIN_ADVANCE)
       EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.extruder_advance_K[0]);
@@ -3562,9 +3584,6 @@ void drawMotionMenu() {
     #endif
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
       EDIT_ITEM(ICON_UBLActive, MSG_STEP_SMOOTHING, onDrawChkbMenu, setAdaptiveStepSmoothing, &stepper.adaptive_step_smoothing_enabled);
-    #endif
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
     #endif
     EDIT_ITEM(ICON_Flow, MSG_FLOW, onDrawPIntMenu, setFlow, &planner.flow_percentage[0]);
     EDIT_ITEM(ICON_Speed, MSG_SPEED, onDrawPIntMenu, setSpeed, &feedrate_percentage);
@@ -3760,6 +3779,27 @@ void drawMaxAccelMenu() {
       #endif
     }
     updateMenu(stepsMenu);
+  }
+
+#endif
+
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+
+  void drawHomingFRMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU(homingFRMenu, MSG_HOMING_FEEDRATE, 4)) {
+      BACK_ITEM(drawMotionMenu);
+      #if HAS_X_AXIS
+        EDIT_ITEM(ICON_HomeX, MSG_HOMING_FEEDRATE_X, onDrawPFloatMenu, setHomingX, &homing_feedrate_mm_m.x);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM(ICON_HomeY, MSG_HOMING_FEEDRATE_Y, onDrawPFloatMenu, setHomingY, &homing_feedrate_mm_m.y);
+      #endif
+      #if HAS_Z_AXIS
+        EDIT_ITEM(ICON_HomeZ, MSG_HOMING_FEEDRATE_Z, onDrawPFloatMenu, setHomingZ, &homing_feedrate_mm_m.z);
+      #endif
+    }
+    updateMenu(homingFRMenu);
   }
 
 #endif
