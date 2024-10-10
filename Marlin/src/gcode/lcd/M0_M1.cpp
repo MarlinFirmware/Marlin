@@ -35,8 +35,6 @@
   #include "../../lcd/marlinui.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin_popup.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -65,7 +63,7 @@ void GcodeSuite::M0_M1() {
       #endif
     }
 
-  #elif ENABLED(DWIN_LCD_PROUI)
+  #elif ENABLED(DWIN_LCD_PROUI) // ProUI with icon, string, button title
 
     if (parser.string_arg)
       dwinPopupContinue(ICON_Continue_1, parser.string_arg, GET_TEXT_F(MSG_USERWAIT));

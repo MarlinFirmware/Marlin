@@ -575,7 +575,7 @@ void Stepper::enable_axis(const AxisEnum axis) {
  */
 bool Stepper::disable_axis(const AxisEnum axis) {
   mark_axis_disabled(axis);
-  TERN_(DWIN_LCD_PROUI, set_axis_never_homed(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
 
   // This scheme prevents shared steppers being disabled. It should consider several axes at once
   // and keep a count of how many times each ENA pin has been set.
@@ -589,7 +589,6 @@ bool Stepper::disable_axis(const AxisEnum axis) {
       MAIN_AXIS_MAP(_CASE_DISABLE)
       default: break;
     }
-    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
   }
 
   return can_disable;

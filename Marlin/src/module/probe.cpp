@@ -96,8 +96,6 @@
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../lcd/e3v2/proui/dwin_popup.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -376,7 +374,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
-    TERN_(DWIN_LCD_PROUI, dwinPopupContinue(ICON_BLTouch, ds_fstr, nullptr));
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
@@ -779,7 +776,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm lower.
-  const float z_probe_low_point = zoffs + z_min_point - float((!axis_is_trusted(Z_AXIS)) * 10);
+  const float z_probe_low_point = zoffs + z_min_point -float((!axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
   // Double-probing does a fast probe followed by a slow probe

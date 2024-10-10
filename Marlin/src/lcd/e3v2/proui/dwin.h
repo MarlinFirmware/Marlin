@@ -276,6 +276,7 @@ void updateVariable();
 void dwinInitScreen();
 void dwinHandleScreen();
 void dwinCheckStatusMessage();
+void dwinDrawStatusMessage();
 void dwinHomingStart();
 void dwinHomingDone();
 #if HAS_MESH
@@ -317,9 +318,15 @@ void dwinRebootScreen();
 #endif
 #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
   void dwinDrawPlot(tempcontrol_t result);
-  void drawHPlot();
-  void drawBPlot();
-  void drawCPlot();
+  #if ENABLED(PIDTEMP)
+    void drawHotendPlot();
+  #endif
+  #if ENABLED(PIDTEMPBED)
+    void drawBedPlot();
+  #endif
+  #if ENABLED(PIDTEMPCHAMBER)
+    void drawChamberPlot();
+  #endif
 #endif
 
 // Menu drawing functions

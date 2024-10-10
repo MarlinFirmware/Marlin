@@ -1044,7 +1044,7 @@ void hmiSDCardUpdate() {
       currentMenu = nullptr;
       drawPrintFileMenu();
     }
-    if (!DWIN_lcd_sd_status && sdPrinting()) ui.abort_print();  // Media removed while printing
+    if (!DWIN_lcd_sd_status && sdPrinting()) ExtUI::stopPrint();  // Media removed while printing
   }
 }
 
@@ -1168,8 +1168,8 @@ void hmiMainMenu() {
 // Pause or Stop popup
 void onClickPauseOrStop() {
   switch (select_print.now) {
-    case PRINT_PAUSE_RESUME: if (hmiFlag.select_flag) ui.pause_print(); break; // Confirm pause
-    case PRINT_STOP: if (hmiFlag.select_flag) ui.abort_print(); break; // Stop confirmed then abort print
+    case PRINT_PAUSE_RESUME: if (hmiFlag.select_flag) ExtUI::pausePrint(); break; // Confirm pause
+    case PRINT_STOP: if (hmiFlag.select_flag) ExtUI::stopPrint(); break; // Stop confirmed then abort print
     default: break;
   }
   return gotoPrintProcess();
@@ -1203,7 +1203,7 @@ void hmiPrinting() {
       case PRINT_SETUP: drawTuneMenu(); break;
       case PRINT_PAUSE_RESUME:
         if (printingIsPaused()) {  // If printer is already in pause
-          ui.resume_print();
+          ExtUI::resumePrint();
           break;
         }
         else
@@ -1230,17 +1230,17 @@ void drawMainArea() {
       case ID_PlotProcess:
         switch (hmiValue.tempControl) {
           #if ENABLED(PIDTEMP)
-            case PIDTEMP_START: drawHPlot(); break;
+            case PIDTEMP_START: drawHotendPlot(); break;
           #elif ENABLED(MPCTEMP)
-            case MPC_STARTED: drawHPlot(); break;
+            case MPC_STARTED: drawHotendPlot(); break;
           #endif
           #if ENABLED(PIDTEMPBED)
-            case PIDTEMPBED_START: drawBPlot(); break;
+            case PIDTEMPBED_START: drawBedPlot(); break;
           #endif
           #if ENABLED(PIDTEMPCHAMBER)
-            case PIDTEMPCHAMBER_START: drawCPlot(); break;
+            case PIDTEMPCHAMBER_START: drawChamberPlot(); break;
           #endif
-        default: break;
+          default: break;
         } break;
     #endif
     case ID_Popup:            popupDraw(); break;
@@ -1554,11 +1554,13 @@ void dwinLevelingDone() {
   void dwinMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
     ui.set_status(TS("X:", p_float_t(xpos, 1), " Y:", p_float_t(ypos, 1), " Z:", p_float_t(zval, 3)));
   }
-  void dwinPointUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval) {
-    ui.set_status(
-      TS(GET_TEXT_F(MSG_PROBING_POINT), F(" "), cpos, F("/"), tpos, F(" Z="), p_float_t(zval, 2))
-    );
-  }
+  #if ENABLED(MESH_BED_LEVELING)
+    void dwinPointUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval) {
+      ui.set_status(
+        TS(GET_TEXT_F(MSG_PROBING_POINT), F(" "), cpos, F("/"), tpos, F(" Z="), p_float_t(zval, 2))
+      );
+    }
+  #endif
 #endif
 
 // PID/MPC process
@@ -1663,14 +1665,14 @@ void dwinLevelingDone() {
       DWINUI::drawButton(BTN_Continue, 86, 305);
     }
 
-    void drawHPlot() {
+    void drawHotendPlot() {
       TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
       TERN_(MPCTEMP, dwinDrawPlot(MPC_STARTED));
     }
-    void drawBPlot() {
+    void drawBedPlot() {
       TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
     }
-    void drawCPlot() {
+    void drawChamberPlot() {
       TERN_(PIDTEMPCHAMBER, dwinDrawPlot(PIDTEMPCHAMBER_START));
     }
 
@@ -1966,27 +1968,6 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
   DWINUI::drawCenteredString(hmiData.colorPopupTxt, 270, GET_TEXT_F(MSG_TURN_OFF));
   dwinUpdateLCD();
 }
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void MarlinUI::pause_show_message(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
-    if (mode != PAUSE_MODE_SAME) pause_mode = mode;
-    switch (message) {
-      case PAUSE_MESSAGE_PARKING:  dwinPopupPause(GET_TEXT_F(MSG_PAUSE_PRINT_PARKING)); break; // M125
-      case PAUSE_MESSAGE_CHANGING: dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INIT)); break; // pause_print (M125, M600)
-      case PAUSE_MESSAGE_WAITING:  dwinPopupPause(GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING), BTN_Continue); break;
-      case PAUSE_MESSAGE_INSERT:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_INSERT), BTN_Continue); break;
-      case PAUSE_MESSAGE_LOAD:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_LOAD)); break;
-      case PAUSE_MESSAGE_UNLOAD:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_UNLOAD)); break; // Unload of pause and Unload of M702
-      case PAUSE_MESSAGE_PURGE:    dwinPopupPause(GET_TEXT_F(TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE))); break;
-      case PAUSE_MESSAGE_OPTION:   gotoFilamentPurge(); break;
-      case PAUSE_MESSAGE_RESUME:   dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME)); break;
-      case PAUSE_MESSAGE_HEAT:     dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEAT), BTN_Continue); break;
-      case PAUSE_MESSAGE_HEATING:  dwinPopupPause(GET_TEXT_F(MSG_FILAMENT_CHANGE_HEATING)); break;
-      case PAUSE_MESSAGE_STATUS:   hmiReturnScreen(); break; // Exit from Pause, Load and Unload
-      default: break;
-    }
-  }
-#endif
 
 void dwinRebootScreen() {
   dwinFrameClear(COLOR_BG_BLACK);
@@ -3134,10 +3115,10 @@ void drawPrepareMenu() {
     MENU_ITEM(ICON_Cool, MSG_COOLDOWN, onDrawCooldown, doCoolDown);
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
       #if ANY(PIDTEMP, MPCTEMP)
-        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHotendPlot);
       #endif
-      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot));
-      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawCPlot));
+      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBedPlot));
+      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawChamberPlot));
     #endif
     MENU_ITEM(ICON_Language, MSG_UI_LANGUAGE, onDrawLanguage, setLanguage);
   }
@@ -3468,10 +3449,10 @@ void drawTuneMenu() {
     #endif
     #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
       #if ANY(PIDTEMP, MPCTEMP)
-        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHPlot);
+        MENU_ITEM(ICON_PIDNozzle, MSG_HOTEND_TEMP_GRAPH, onDrawMenuItem, drawHotendPlot);
       #endif
-      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBPlot));
-      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawCPlot));
+      TERN_(PIDTEMPBED, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawBedPlot));
+      TERN_(PIDTEMPCHAMBER, MENU_ITEM(ICON_PIDBed, MSG_BED_TEMP_GRAPH, onDrawMenuItem, drawChamberPlot));
     #endif
     #if ENABLED(CASE_LIGHT_MENU)
       EDIT_ITEM(ICON_CaseLight, MSG_CASE_LIGHT, onDrawChkbMenu, setCaseLight, &caselight.on);
