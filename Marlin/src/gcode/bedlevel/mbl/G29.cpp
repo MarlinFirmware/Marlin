@@ -140,7 +140,6 @@ void GcodeSuite::G29() {
 
         queue.inject(F("G29S2"));
 
-        TERN_(DWIN_LCD_PROUI, dwinLevelingStart());
         TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
         return;

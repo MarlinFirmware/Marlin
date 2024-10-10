@@ -53,7 +53,6 @@ void GcodeSuite::M302() {
   const bool seen_S = parser.seen('S');
   if (seen_S) {
     thermalManager.extrude_min_temp = parser.value_celsius();
-    TERN_(DWIN_LCD_PROUI, hmiData.extMinT = thermalManager.extrude_min_temp);
     TERN_(EXTENSIBLE_UI, ExtUI::onSetMinExtrusionTemp(thermalManager.extrude_min_temp));
   }
 

@@ -58,6 +58,10 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_MESH
+  #include "meshviewer.h"
+#endif
+
 namespace ExtUI {
   void onStartup() { dwinInitScreen(); }
   void onIdle() {}
@@ -172,6 +176,10 @@ namespace ExtUI {
     }
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
+    }
+    void onMeshUpdate(const xy_int8_t xypos, const_float_t zval) {
+      // Called to indicate a special condition
+      meshViewer.drawMeshPoint(xypos.x, xypos.y, zval);
     }
   #endif
 

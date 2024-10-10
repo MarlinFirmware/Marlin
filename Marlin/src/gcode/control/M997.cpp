@@ -35,7 +35,6 @@
  */
 void GcodeSuite::M997() {
 
-  TERN_(DWIN_LCD_PROUI, dwinRebootScreen());
   TERN_(EXTENSIBLE_UI, ExtUI::onFirmwareFlash());
 
   flashFirmware(parser.intval('S'));

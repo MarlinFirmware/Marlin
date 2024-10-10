@@ -787,7 +787,6 @@ G29_TYPE GcodeSuite::G29() {
 
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
-            TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(abl.meshCount.x, abl.meshCount.y, z));
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
             #if ENABLED(SOVOL_SV06_RTS)
