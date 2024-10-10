@@ -44,7 +44,7 @@ extern char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
 void GcodeSuite::M820() {
   for(byte i=0;i<GCODE_MACROS_SLOTS;i++){
     char * const cmd = gcode_macros[i];
-    SERIAL_ECHOPGM("M81"); SERIAL_PRINT(i,DEC); SERIAL_ECHOPGM(" : ");
+    SERIAL_ECHOPGM("M81"); SERIAL_PRINT(i,PrintBase::Dec); SERIAL_ECHOPGM(" : ");
     SERIAL_ECHOLN(cmd);
 
   }
