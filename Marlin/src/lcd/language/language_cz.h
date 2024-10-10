@@ -126,7 +126,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrcadlení");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");

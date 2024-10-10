@@ -61,7 +61,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Statusbalken-Test");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
@@ -174,7 +174,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Lücke duplizieren");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");

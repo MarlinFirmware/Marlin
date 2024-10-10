@@ -76,7 +76,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("@ Sıfırla");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("@ Sıfırla");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X Sıfırla");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y Sıfırla");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z Sıfırla");
@@ -193,7 +193,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Yinelenen X-Boşluğu");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");

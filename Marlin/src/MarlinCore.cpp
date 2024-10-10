@@ -81,6 +81,8 @@
     #include "lcd/e3v2/jyersui/dwin.h"
   #elif ENABLED(DWIN_LCD_PROUI)
     #include "lcd/extui/ui_api.h"
+  #elif ENABLED(SOVOL_SV06_RTS)
+    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
 #endif
 
@@ -232,8 +234,8 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "feature/mmu3/mmu2.h"
-  #include "feature/mmu3/mmu2_reporting.h"
+  #include "feature/mmu3/mmu3.h"
+  #include "feature/mmu3/mmu3_reporting.h"
   #include "feature/mmu3/SpoolJoin.h"
 #elif HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
@@ -827,7 +829,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  ui.update();
+  #if ENABLED(SOVOL_SV06_RTS)
+    RTS_Update();
+  #else
+    ui.update();
+  #endif
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1164,6 +1170,12 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
+  #if ENABLED(SOVOL_SV06_RTS)
+    LCD_SERIAL.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
@@ -1321,8 +1333,11 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-
-  SETUP_RUN(ui.init());
+  #if ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(RTS_Update());
+  #else
+    SETUP_RUN(ui.init());
+  #endif
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1611,6 +1626,8 @@ void setup() {
 
   #if HAS_DWIN_E3V2_BASIC
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && !HAS_DWIN_E3V2_BASIC

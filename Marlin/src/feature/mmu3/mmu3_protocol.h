@@ -28,7 +28,7 @@
 #include "../../MarlinCore.h"
 
 #include <stdint.h>
-#include "mmu2_crc.h"
+#include "mmu3_crc.h"
 
 // prevent ARM HAL macros from breaking our code
 #undef CRC
