@@ -41,7 +41,6 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abortando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MEDIA_RELEASED                 = _UxGT("Cartão liberado");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Aguardando cartão");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro de leitura");
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB removido");
