@@ -763,6 +763,26 @@ namespace LanguageNarrow_en {
   LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Please wait for reboot."); // ProUI
   LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("No Media");                // ProUI
   LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Please Preheat");          // ProUI
+  LSTR MSG_SCREEN_BACKGROUND              = _UxGT("Screen Background");       // ProUI
+  LSTR MSG_CURSOR                         = _UxGT("Cursor");                  // ProUI
+  LSTR MSG_TITLE_BACKGROUND               = _UxGT("Title Background");        // ProUI
+  LSTR MSG_TITLE_TEXT                     = _UxGT("Title Text");              // ProUI
+  LSTR MSG_TEXT                           = _UxGT("Text");                    // ProUI
+  LSTR MSG_SELECTED                       = _UxGT("Selected");                // ProUI
+  LSTR MSG_SPLIT_LINE                     = _UxGT("Split Line");              // ProUI
+  LSTR MSG_HIGHLIGHT                      = _UxGT("Highlight");               // ProUI
+  LSTR MSG_STATUS_BACKGROUND              = _UxGT("Status Background");       // ProUI
+  LSTR MSG_STATUS_TEXT                    = _UxGT("Status Text");             // ProUI
+  LSTR MSG_POPUP_BACKGROUND               = _UxGT("Popup Background");        // ProUI
+  LSTR MSG_POPUP_TEXT                     = _UxGT("Popup Text");              // ProUI
+  LSTR MSG_ALERT_BACKGROUND               = _UxGT("Alert Background");        // ProUI
+  LSTR MSG_ALERT_TEXT                     = _UxGT("Alert Text");              // ProUI
+  LSTR MSG_PERCENT_TEXT                   = _UxGT("Percent Text");            // ProUI
+  LSTR MSG_BAR_FILL                       = _UxGT("Bar Fill");                // ProUI
+  LSTR MSG_INDICATOR_VALUE                = _UxGT("Indicator value");         // ProUI
+  LSTR MSG_COORDINATE_VALUE               = _UxGT("Coordinate value");        // ProUI
+  LSTR MSG_LOWER                          = _UxGT("Lower");                   // ProUI
+  LSTR MSG_RAISE                          = _UxGT("Raise");                   // ProUI
 
   // Prusa MMU 2
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");
@@ -855,40 +875,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_START_OVER                     = _UxGT("Start Over");
   LSTR MSG_REMINDER_SAVE_SETTINGS         = _UxGT("Remember to Save!");
   LSTR MSG_PASSWORD_REMOVED               = _UxGT("Password Removed");
-
-  LSTR MSG_COLORS_GET                     = _UxGT("Get Color");               // ProUI
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Select Colors");           // ProUI
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Colors applied");          // ProUI
-  LSTR MSG_COLORS_RED                     = _UxGT("Red");                     // ProUI / JyersUI
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Green");                   // ProUI / JyersUI
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Blue");                    // ProUI / JyersUI
-  LSTR MSG_COLORS_WHITE                   = _UxGT("White");                   // ProUI
-
-  LSTR MSG_SCREEN_BACKGROUND              = _UxGT("Screen Background");       // ProUI
-  LSTR MSG_CURSOR                         = _UxGT("Cursor");                  // ProUI
-  LSTR MSG_TITLE_BACKGROUND               = _UxGT("Title Background");        // ProUI
-  LSTR MSG_TITLE_TEXT                     = _UxGT("Title Text");              // ProUI
-  LSTR MSG_TEXT                           = _UxGT("Text");                    // ProUI
-  LSTR MSG_SELECTED                       = _UxGT("Selected");                // ProUI
-  LSTR MSG_SPLIT_LINE                     = _UxGT("Split Line");              // ProUI
-  LSTR MSG_HIGHLIGHT                      = _UxGT("Highlight");               // ProUI
-  LSTR MSG_STATUS_BACKGROUND              = _UxGT("Status Background");       // ProUI
-  LSTR MSG_STATUS_TEXT                    = _UxGT("Status Text");             // ProUI
-  LSTR MSG_POPUP_BACKGROUND               = _UxGT("Popup Background");        // ProUI
-  LSTR MSG_POPUP_TEXT                     = _UxGT("Popup Text");              // ProUI
-  LSTR MSG_ALERT_BACKGROUND               = _UxGT("Alert Background");        // ProUI
-  LSTR MSG_ALERT_TEXT                     = _UxGT("Alert Text");              // ProUI
-  LSTR MSG_PERCENT_TEXT                   = _UxGT("Percent Text");            // ProUI
-  LSTR MSG_BAR_FILL                       = _UxGT("Bar Fill");                // ProUI
-  LSTR MSG_INDICATOR_VALUE                = _UxGT("Indicator value");         // ProUI
-  LSTR MSG_COORDINATE_VALUE               = _UxGT("Coordinate value");        // ProUI
-
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Language");             // ProUI
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Lock Screen");             // ProUI
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Printer is Locked,");      // ProUI
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Scroll to unlock.");       // ProUI
-  LSTR MSG_LOWER                          = _UxGT("Lower");                   // ProUI
-  LSTR MSG_RAISE                          = _UxGT("Raise");                   // ProUI
 
   // Filament Change screens show up to 2 lines on a 3-line display
   LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("Click to continue"));
