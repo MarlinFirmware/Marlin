@@ -79,8 +79,8 @@
 #define BOARD_MKS_GEN_13              1112  // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L               1113  // MKS GEN L
 #define BOARD_KFB_2                   1114  // BigTreeTech or BIQU KFB2.0
-#define BOARD_ZRIB_V20                1115  // zrib V2.0 (Chinese RAMPS replica)
-#define BOARD_ZRIB_V52                1116  // zrib V5.2 (Chinese RAMPS replica)
+#define BOARD_ZRIB_V20                1115  // Zonestar zrib V2.0 (Chinese RAMPS replica)
+#define BOARD_ZRIB_V52                1116  // Zonestar zrib V5.2 (Chinese RAMPS replica)
 #define BOARD_ZRIB_V53                1117  // Zonestar zrib V5.3 (Chinese RAMPS replica)
 #define BOARD_FELIX2                  1118  // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD              1119  // Invent-A-Part RigidBoard
