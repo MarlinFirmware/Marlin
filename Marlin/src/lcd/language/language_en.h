@@ -941,7 +941,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
 
   LSTR MSG_SOUND                          = _UxGT("Sound");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Enable sound");            // ProUI
 
   LSTR MSG_TOP_LEFT                       = _UxGT("Top Left");
   LSTR MSG_BOTTOM_LEFT                    = _UxGT("Bottom Left");
