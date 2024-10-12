@@ -59,6 +59,7 @@
 #endif
 
 #if HAS_MESH
+  #include "../../../feature/bedlevel/bedlevel.h"
   #include "meshviewer.h"
 #endif
 
