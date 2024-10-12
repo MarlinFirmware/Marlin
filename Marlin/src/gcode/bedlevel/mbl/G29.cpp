@@ -167,7 +167,7 @@ void GcodeSuite::G29() {
         bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
         #if ENABLED(DWIN_LCD_PROUI)
           dwinPointUpdate(_MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS), current_position.z);
-        #else if ENABLED(EXTENSIBLE_UI)
+        #elif ENABLED(EXTENSIBLE_UI)
           ExtUI::onMeshUpdate(ix, iy, current_position.z);
         #endif
         SET_SOFT_ENDSTOP_LOOSE(false);
