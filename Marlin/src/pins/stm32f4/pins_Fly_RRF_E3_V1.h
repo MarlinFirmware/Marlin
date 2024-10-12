@@ -112,7 +112,7 @@
   #define CONTROLLER_FAN_PIN                PA6   // "FAN1"
 #endif
 
-/**             
+/**
  *                 ------
  * (BEEPER)  PE12 | 1  2 | PE11  (BTN_ENC)
  * (BTN_EN1) PE10 | 3  4 | RESET
@@ -120,7 +120,7 @@
  * (LCD_RS)  PE7  | 7  8 | PB1 (LCD_EN)
  *           GND  | 9 10 | 5V
  *                 ------
- *                  EXP1       
+ *                  EXP1
  */
 #define EXP1_01_PIN                         PE12
 #define EXP1_02_PIN                         PE11
@@ -162,7 +162,7 @@
       *           GND  | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
       *                 ------                                         ------
       *                  EXP1                                           LCD
-      * 
+      *
       * Needs custom cable:
       *
       *    Board   Adapter   Display Ribbon (coming from display)
@@ -336,7 +336,6 @@
   #define ESP_WIFI_MODULE_COM                  3  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
   #define ESP_WIFI_MODULE_RESET_PIN         PE15
-  #define ESP_WIFI_MODULE_ENABLE_PIN        -1 // EN is constantly pulled up to 3.3V on this board
+  #define ESP_WIFI_MODULE_ENABLE_PIN        -1    // EN is constantly pulled up to 3.3V on this board
   #define ESP_WIFI_MODULE_GPIO0_PIN         PE13
 #endif
-
