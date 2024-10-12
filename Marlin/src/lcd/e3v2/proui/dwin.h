@@ -74,18 +74,11 @@ enum processID : uint8_t {
 
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
-  enum TempControl {
-    AUTOTUNE_DONE,
+  enum tempcontrol_t : uint8_t {
     #if HAS_PID_HEATING
-      #if ENABLED(PIDTEMP)
-        PIDTEMP_START,
-      #endif
-      #if ENABLED(PIDTEMPBED)
-        PIDTEMPBED_START,
-      #endif
-      #if ENABLED(PIDTEMPCHAMBER)
-        PIDTEMPCHAMBER_START,
-      #endif
+      PIDTEMP_START = 1,
+      PIDTEMPBED_START,
+      PIDTEMPCHAMBER_START,
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
@@ -95,10 +88,8 @@ enum processID : uint8_t {
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
     #endif
-    TEMPCONTROL_COUNT
+    AUTOTUNE_DONE = 0
   };
-
-  typedef bits_t(TEMPCONTROL_COUNT) tempcontrol_t;
 
 #endif
 
@@ -285,10 +276,12 @@ void updateVariable();
 void dwinInitScreen();
 void dwinHandleScreen();
 void dwinCheckStatusMessage();
+void dwinDrawStatusMessage();
 void dwinHomingStart();
 void dwinHomingDone();
 #if HAS_MESH
-  void dwinMeshUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
+  void dwinMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval);
+  void dwinPointUpdate(const int8_t cpos, const int8_t tpos, const_float_t zval);
 #endif
 void dwinLevelingStart();
 void dwinLevelingDone();
@@ -308,8 +301,6 @@ void dwinSetDataDefaults();
 void dwinRebootScreen();
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void dwinPopupPause(FSTR_P const fmsg, uint8_t button=0);
-  void drawPopupFilamentPurge();
   void gotoFilamentPurge();
 #endif
 
@@ -327,8 +318,15 @@ void dwinRebootScreen();
 #endif
 #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
   void dwinDrawPlot(tempcontrol_t result);
-  void drawHPlot();
-  void drawBPlot();
+  #if ENABLED(PIDTEMP)
+    void drawHotendPlot();
+  #endif
+  #if ENABLED(PIDTEMPBED)
+    void drawBedPlot();
+  #endif
+  #if ENABLED(PIDTEMPCHAMBER)
+    void drawChamberPlot();
+  #endif
 #endif
 
 // Menu drawing functions

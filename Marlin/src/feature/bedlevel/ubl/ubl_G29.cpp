@@ -1267,6 +1267,7 @@ void unified_bed_leveling::restore_ubl_active_state(const bool is_done/*=true*/)
   set_bed_leveling_enabled(ubl_state_at_invocation);
 
   if (is_done) {
+    TERN_(DWIN_LCD_PROUI, dwinLevelingDone());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 }

@@ -43,7 +43,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
+#if ALL(DWIN_LCD_PROUI, EXTENSIBLE_UI)
 
 #include "dwin_popup.h"
 
@@ -58,10 +58,13 @@
   #include "../../../feature/powerloss.h"
 #endif
 
+#if HAS_MESH
+  #include "../../../feature/bedlevel/bedlevel.h"
+  #include "meshviewer.h"
+#endif
+
 namespace ExtUI {
-
   void onStartup() { dwinInitScreen(); }
-
   void onIdle() {}
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
 
@@ -80,6 +83,7 @@ namespace ExtUI {
   }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
+
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
@@ -93,9 +97,8 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const cstr) {
     // TODO: A version of this method that takes an icon and button title,
     // or implement some kind of ExtUI enum.
-    onUserConfirmRequired(ICON_Continue_1, cstr, GET_TEXT_F(MSG_USERWAIT));
+    dwinPopupConfirm(ICON_Continue_1, cstr, GET_TEXT_F(MSG_USERWAIT));
   }
-
   // For fancy LCDs include an icon ID, message, and translated button title
   void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
     dwinPopupConfirm(icon, cstr, fBtn);
@@ -103,8 +106,6 @@ namespace ExtUI {
   void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
     dwinPopupConfirm(icon, fstr, fBtn);
   }
-
-  void onStatusChanged(const char * const) { dwinCheckStatusMessage(); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
@@ -127,6 +128,12 @@ namespace ExtUI {
     }
   #endif
 
+  void onStatusChanged(const char * const msg) {
+    UNUSED(msg);
+    dwinCheckStatusMessage();
+    dwinDrawStatusMessage();
+  }
+
   void onHomingStart() { dwinHomingStart(); }
   void onHomingDone() { dwinHomingDone(); }
 
@@ -147,11 +154,13 @@ namespace ExtUI {
   void onSettingsStored(const bool success) {
     // Called after the entire EEPROM has been written,
     // whether successful or not.
+    DONE_BUZZ(success);
   }
 
   void onSettingsLoaded(const bool success) {
     // Called after the entire EEPROM has been read,
     // whether successful or not.
+    DONE_BUZZ(success);
   }
 
   #if HAS_LEVELING
@@ -164,13 +173,14 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const_float_t zval) {
-      const int16_t idx = ypos * (GRID_MAX_POINTS_X) + xpos;
-      dwinMeshUpdate(_MIN(idx, GRID_MAX_POINTS), int(GRID_MAX_POINTS), zval);
-      dwinRedrawScreen();
+      dwinMeshUpdate(xpos, ypos, zval);
     }
-
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
       // Called to indicate a special condition
+    }
+    void onMeshUpdate(const xy_int8_t xypos, const_float_t zval) {
+      // Called to indicate a special condition
+      meshViewer.drawMeshPoint(xypos.x, xypos.y, zval);
     }
   #endif
 
@@ -179,7 +189,7 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
+    void onSetPowerLoss(const bool) {
       // Called when power-loss is enabled/disabled
     }
     void onPowerLoss() {
@@ -209,23 +219,20 @@ namespace ExtUI {
         case PID_TEMP_TOO_HIGH:   dwinPIDTuning(tempcontrol_t(PID_TEMP_TOO_HIGH));  break;
         case PID_TUNING_TIMEOUT:  dwinPIDTuning(tempcontrol_t(PID_TUNING_TIMEOUT)); break;
         case PID_DONE:            dwinPIDTuning(AUTOTUNE_DONE);                     break;
-
       }
     }
-
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
       dwinStartM303(count, hid, temp);
     }
-
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)
     void onMPCTuning(const mpcresult_t rst) {
       // Called for temperature MPC tuning result
       switch (rst) {
-        case MPC_STARTED:     dwinMPCTuning(MPC_STARTED);     break;
-        case MPC_TEMP_ERROR:  dwinMPCTuning(MPC_TEMP_ERROR);  break;
-        case MPC_INTERRUPTED: dwinMPCTuning(MPC_INTERRUPTED); break;
+        case MPC_STARTED:     dwinMPCTuning(tempcontrol_t(MPC_STARTED));     break;
+        case MPC_TEMP_ERROR:  dwinMPCTuning(tempcontrol_t(MPC_TEMP_ERROR));  break;
+        case MPC_INTERRUPTED: dwinMPCTuning(tempcontrol_t(MPC_INTERRUPTED)); break;
         case MPC_DONE:        dwinMPCTuning(AUTOTUNE_DONE);   break;
       }
     }
@@ -238,10 +245,9 @@ namespace ExtUI {
   void onSteppersDisabled() {}
   void onSteppersEnabled() {}
   void onAxisDisabled(const axis_t axis) {
-    set_axis_untrusted(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
+    set_axis_never_homed(AxisEnum(axis)); // MRISCOC workaround: https://github.com/MarlinFirmware/Marlin/issues/23095
   }
   void onAxisEnabled(const axis_t) {}
-
 } // ExtUI
 
-#endif // DWIN_LCD_PROUI
+#endif // DWIN_LCD_PROUI && EXTENSIBLE_UI
