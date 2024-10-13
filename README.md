@@ -57,3 +57,23 @@ But MKS TS35 V2 0 has problem with Cyrillic fonts.
 ### Commit - Indicator MKS_MINI_12864_V3
 
 The test is successful. For now I only need it for backup. But they say it works with Klipper too.
+
+
+### Commit - Back to MKS_TS35_V2_0
+
+
+
+
+## Other tests:
+
+can be replaced:
+
+"
+//#define TFT_CLASSIC_UI
+
+//#define TFT_COLOR_UI
+
+#define TFT_LVGL_UI
+"
+
+but without TFT_LVGL_UI there is no MKS_WIFI_MODULE
