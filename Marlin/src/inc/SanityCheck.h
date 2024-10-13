@@ -1073,8 +1073,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
-#elif ENABLED(LINEAR_ADVANCE) && HAS_I_AXIS
-  #error "LINEAR_ADVANCE does not currently support the inclusion of an I axis."
+#elif ENABLED(LIN_ADVANCE) && HAS_I_AXIS
+  #error "LIN_ADVANCE does not currently support the inclusion of an I axis."
 #endif
 
 /**
