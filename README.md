@@ -52,3 +52,8 @@ Marlin error in LIN_ADVANCE:
 ### Commit - Allow international symbols in long filenames.
 
 But MKS TS35 V2 0 has problem with Cyrillic fonts.
+
+
+### Commit - Indicator MKS_MINI_12864_V3
+
+The test is successful. For now I only need it for backup. But they say it works with Klipper too.
