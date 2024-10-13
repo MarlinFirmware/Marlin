@@ -14,3 +14,10 @@ Configured as 'SUNLU S9+'
 Stepper drivers A4988
 
 \+ LIN_ADVANCE
+
+
+### Commit - MKS Lcd
+
+Fixed observed bugs in MKS.
+
+At the end of a program, the elapsed time is displayed (from version 2.0.9.2)
