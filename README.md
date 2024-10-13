@@ -30,3 +30,21 @@ At the end of a program, the elapsed time is displayed (from version 2.0.9.2)
 Calibrated by M303 E0 S250 C8 U for 'Ender-3 CR10' head
 
 3 materials in Preheat Constants. (on MKS_TS35_V2_0 only 2 work)
+
+
+
+### Commit - Stepper drivers TMC2209
+
+Marlin error in LIN_ADVANCE:
+
+"
+//#define EDGE_STEPPING
+
+//Already enabled by default but interferes with TMC2209
+
+//in older versions it is //#define SQUARE_WAVE_STEPPING but now if we disable it it also asks:
+
+#define NO_EDGE_STEPPING_WARNING
+"
+
+\+ More diagnostics
