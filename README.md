@@ -32,7 +32,6 @@ Calibrated by M303 E0 S250 C8 U for 'Ender-3 CR10' head
 3 materials in Preheat Constants. (on MKS_TS35_V2_0 only 2 work)
 
 
-
 ### Commit - Stepper drivers TMC2209
 
 Marlin error in LIN_ADVANCE:
@@ -48,3 +47,8 @@ Marlin error in LIN_ADVANCE:
 "
 
 \+ More diagnostics
+
+
+### Commit - Allow international symbols in long filenames.
+
+But MKS TS35 V2 0 has problem with Cyrillic fonts.
