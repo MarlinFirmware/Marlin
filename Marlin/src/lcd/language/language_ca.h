@@ -150,7 +150,10 @@ namespace LanguageNarrow_ca {
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s primer");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalatge X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Decalatge Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalatge Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Decalatge @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Pas a pas el Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropas X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropas Y");

@@ -228,7 +228,10 @@ namespace LanguageNarrow_eu {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("BLTouch jaitsi/luzatu");
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("BLTouch igo/jaso");
   LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s lehenengo");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Konpentsatu");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Konpentsatu");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Konpentsatu");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Konpentsatu");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z pausoz egokitu");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");

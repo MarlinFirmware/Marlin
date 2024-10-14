@@ -465,6 +465,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Смещение X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Смещение Y");
   LSTR MSG_ZPROBE_ZOFFSET                   = _UxGT("Смещение Z");
+  LSTR MSG_ZPROBE_OFFSET_N                  = _UxGT("Смещение @");
   LSTR MSG_BABYSTEP_PROBE_Z                 = _UxGT("Шаг Z смещения");
   LSTR MSG_MOVE_NOZZLE_TO_BED               = _UxGT("Двиг. сопло к столу");
   LSTR MSG_BABYSTEP_X                       = _UxGT("Микрошаг X");

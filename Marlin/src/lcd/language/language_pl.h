@@ -366,7 +366,10 @@ namespace LanguageNarrow_pl {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
   LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Offset X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Offset Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Offset @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z offsetu");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");

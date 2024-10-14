@@ -366,6 +366,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探針X偏移量"); // "Probe X Offset"
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探針Y偏移量"); // "Probe Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探針Z偏移量"); // "Probe Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("探針@偏移量"); // "Probe @ Offset"
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步調整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量調整X軸"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量調整Y軸"); // "Babystep Y"

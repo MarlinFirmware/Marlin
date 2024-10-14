@@ -395,6 +395,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desf. Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desf. Sonda Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desf. Sonda Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Desf. Sonda @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Ajuste Z al paso");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropaso X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropaso Y");

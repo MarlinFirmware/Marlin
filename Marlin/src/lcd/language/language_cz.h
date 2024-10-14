@@ -384,7 +384,10 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
   LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ ofset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok a Z offset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

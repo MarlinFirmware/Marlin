@@ -525,6 +525,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sondenversatz Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sondenversatz Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Sondenversatz @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z Offset mit Pas");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Sondenrand");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z-Vorschub");
