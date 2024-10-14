@@ -957,11 +957,13 @@ void MarlinUI::init() {
       // If the action button is pressed...
       static bool wait_for_unclick; // = false
 
+      // Set lcd_clicked for most clicks.
+      // Ignore the click when clearing wait_for_user or waking the screen.
       auto do_click = [&]{
-        wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
-        lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
-        wait_for_user = false;                          //  - Any click clears wait for user
-        quick_feedback();                               //  - Always make a click sound
+        wait_for_unclick = true;
+        lcd_clicked = !wait_for_user && !display_is_asleep();
+        wait_for_user = false;
+        quick_feedback();
       };
 
       #if HAS_TOUCH_BUTTONS
