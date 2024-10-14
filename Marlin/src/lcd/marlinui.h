@@ -232,7 +232,7 @@ public:
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
-    static bool sound_on; // Initialized by settings.load()
+    static bool sound_on; // Initialized by settings.load
   #else
     static constexpr bool sound_on = true;
   #endif
