@@ -3791,15 +3791,15 @@ void drawMaxAccelMenu() {
       BACK_ITEM(drawMotionMenu);
       #if HAS_X_AXIS
         static uint16_t xhome = static_cast<uint16_t>(homing_feedrate_mm_m.x);
-        EDIT_ITEM(ICON_HomeX, MSG_HOMING_FEEDRATE_X, onDrawPIntMenu, setHomingX, &xhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkX, MSG_HOMING_FEEDRATE_X, onDrawPIntMenu, setHomingX, &xhome);
       #endif
       #if HAS_Y_AXIS
         static uint16_t yhome = static_cast<uint16_t>(homing_feedrate_mm_m.y);
-        EDIT_ITEM(ICON_HomeY, MSG_HOMING_FEEDRATE_Y, onDrawPIntMenu, setHomingY, &yhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkY, MSG_HOMING_FEEDRATE_Y, onDrawPIntMenu, setHomingY, &yhome);
       #endif
       #if HAS_Z_AXIS
         static uint16_t zhome = static_cast<uint16_t>(homing_feedrate_mm_m.z);
-        EDIT_ITEM(ICON_HomeZ, MSG_HOMING_FEEDRATE_Z, onDrawPIntMenu, setHomingZ, &zhome);
+        EDIT_ITEM(ICON_MaxSpeedJerkZ, MSG_HOMING_FEEDRATE_Z, onDrawPIntMenu, setHomingZ, &zhome);
       #endif
     }
     updateMenu(homingFRMenu);
