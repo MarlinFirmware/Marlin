@@ -208,7 +208,8 @@ namespace LanguageNarrow_pl {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Zapis siatki stołu");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Sterowanie LED");
-  LSTR MSG_LEDS                           = _UxGT("Światła");
+  LSTR MSG_LIGHTS                         = _UxGT("Światła");
+  LSTR MSG_LIGHT_N                        = _UxGT("Światło #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Ustawienia świateł");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Czerwony");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Pomarańczowy");
@@ -366,7 +367,10 @@ namespace LanguageNarrow_pl {
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("UWAGA: Złe ustawienia mogą uszkodzić drukarkę. Kontynuować?");
   LSTR MSG_HOME_FIRST                     = _UxGT("Najpierw Home %s");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Offset X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Offset Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Offset @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z offsetu");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Przesuń dyszę do stołu");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Łącznie");

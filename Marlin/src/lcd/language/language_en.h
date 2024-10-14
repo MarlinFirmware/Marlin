@@ -310,7 +310,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Save Bed Mesh");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Control");
-  LSTR MSG_LEDS                           = _UxGT("Lights");
+  LSTR MSG_LIGHTS                         = _UxGT("Lights");
+  LSTR MSG_LIGHT_N                        = _UxGT("Light #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Light Presets");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Red");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -322,7 +323,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("White");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Default");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Channel {");
-  LSTR MSG_LEDS2                          = _UxGT("Lights #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Light #2 Presets");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Brightness");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Custom Lights");
@@ -331,6 +331,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_INTENSITY_B                    = _UxGT("Blue Intensity");
   LSTR MSG_INTENSITY_W                    = _UxGT("White Intensity");
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("Brightness");
+  LSTR MSG_LIGHT_ENCODER                  = _UxGT("Encoder Light");
+  LSTR MSG_LIGHT_ENCODER_PRESETS          = _UxGT("Encoder Light Presets");
 
   LSTR MSG_MOVING                         = _UxGT("Moving...");
   LSTR MSG_FREE_XY                        = _UxGT("Free XY");
@@ -496,6 +498,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
+  LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
   LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Size");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: EEPROM Version");
@@ -639,6 +642,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Probe X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Probe Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Probe Z Offset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Probe @ Offset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Probe Margin");
   LSTR MSG_ZOFFSET                        = _UxGT("Z Offset");
@@ -1100,6 +1104,7 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("X Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
+    LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
   #endif
 }
 

@@ -2317,7 +2317,7 @@ void Temperature::task() {
 
 #if HAS_USER_THERMISTORS
 
-  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load()
+  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load
 
   void Temperature::reset_user_thermistors() {
     user_thermistor_t default_user_thermistor[USER_THERMISTORS] = {

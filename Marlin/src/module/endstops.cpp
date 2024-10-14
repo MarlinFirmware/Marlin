@@ -65,7 +65,7 @@ Endstops endstops;
 
 // private:
 
-bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
+bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load
 
 volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
@@ -95,7 +95,7 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   volatile bool Endstops::calibration_stop_state;
 #endif
 
-// Initialized by settings.load()
+// Initialized by settings.load
 #if ENABLED(X_DUAL_ENDSTOPS)
   float Endstops::x2_endstop_adj;
 #endif

@@ -170,7 +170,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Lưu lưới bàn");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Điều khiển LED");                       // LED Control
-  LSTR MSG_LEDS                           = _UxGT("Đèn");                                  // Lights
+  LSTR MSG_LIGHTS                         = _UxGT("Đèn");                                  // Lights
+  LSTR MSG_LIGHT_N                        = _UxGT("Đèn #{");                               // Light #{
   LSTR MSG_LED_PRESETS                    = _UxGT("Đèn định sẵn");                         // Light Presets
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Đỏ");                                   // Red
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Cam");                                  // Orange
@@ -321,7 +322,10 @@ namespace LanguageNarrow_vi {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Đem Đầu Dò-Z");                        // Deploy Z-Probe
   LSTR MSG_MANUAL_STOW                    = _UxGT("Cất Đầu Dò-Z");                        // Stow Z-Probe
   LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s Trước");                     // Home %s first
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Đầu Dò Bù Đắp X");                     // Probe X Offset
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Đầu Dò Bù Đắp Y");                     // Probe Y Offset
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Đầu Dò Bù Đắp Z");                     // Probe Z Offset
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Đầu Dò Bù Đắp @");                     // Probe @ Offset
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Điều chỉnh Z từng");                   // Babystep Probe Z
   LSTR MSG_BABYSTEP_X                     = _UxGT("Nhít X");                              // Babystep X
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Nhít Y");

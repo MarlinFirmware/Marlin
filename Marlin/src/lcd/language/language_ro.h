@@ -194,7 +194,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Save Bed Mesh");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Control");
-  LSTR MSG_LEDS                           = _UxGT("Lights");
+  LSTR MSG_LIGHTS                         = _UxGT("Lights");
+  LSTR MSG_LIGHT_N                        = _UxGT("Light #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Light Presets");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Red");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -417,6 +418,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Probe X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Probe Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Probe Z Offset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Probe @ Offset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Pas Z ajustare");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

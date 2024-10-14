@@ -445,7 +445,7 @@ typedef struct HeaterInfo : public TempInfo {
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load()
+  T pid;  // Initialized by settings.load
 };
 
 #if ENABLED(MPCTEMP)

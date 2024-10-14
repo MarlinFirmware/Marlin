@@ -338,8 +338,8 @@ void menu_probe_level() {
     // Probe XY Offsets
     //
     #if HAS_PROBE_XY_OFFSET
-      EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
-      EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
+      EDIT_ITEM_N(float31sign, X_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
+      EDIT_ITEM_N(float31sign, Y_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
     #endif
 
     //
@@ -352,7 +352,7 @@ void menu_probe_level() {
     }
     else {
       #if HAS_BED_PROBE
-        EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
       #endif
     }
 
