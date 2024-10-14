@@ -2665,13 +2665,13 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
   #if HAS_X_AXIS
-    void setHomingX() { setPFloatOnClick(min_homing_edit_values.x, max_homing_edit_values.x, UNITFDIGITS); }
+    void setHomingX() { setPIntOnClick(min_homing_edit_values.x, max_homing_edit_values.x); }
   #endif
   #if HAS_Y_AXIS
-    void setHomingY() { setPFloatOnClick(min_homing_edit_values.y, max_homing_edit_values.y, UNITFDIGITS); }
+    void setHomingY() { setPIntOnClick(min_homing_edit_values.y, max_homing_edit_values.y); }
   #endif
   #if HAS_Z_AXIS
-    void setHomingZ() { setPFloatOnClick(min_homing_edit_values.z, max_homing_edit_values.z, UNITFDIGITS); }
+    void setHomingZ() { setPIntOnClick(min_homing_edit_values.z, max_homing_edit_values.z); }
   #endif
 #endif
 
@@ -3790,13 +3790,16 @@ void drawMaxAccelMenu() {
     if (SET_MENU(homingFRMenu, MSG_HOMING_FEEDRATE, 4)) {
       BACK_ITEM(drawMotionMenu);
       #if HAS_X_AXIS
-        EDIT_ITEM(ICON_HomeX, MSG_HOMING_FEEDRATE_X, onDrawPFloatMenu, setHomingX, &homing_feedrate_mm_m.x);
+        static uint16_t xhome = static_cast<uint16_t>(homing_feedrate_mm_m.x);
+        EDIT_ITEM(ICON_HomeX, MSG_HOMING_FEEDRATE_X, onDrawPIntMenu, setHomingX, &xhome);
       #endif
       #if HAS_Y_AXIS
-        EDIT_ITEM(ICON_HomeY, MSG_HOMING_FEEDRATE_Y, onDrawPFloatMenu, setHomingY, &homing_feedrate_mm_m.y);
+        static uint16_t yhome = static_cast<uint16_t>(homing_feedrate_mm_m.y);
+        EDIT_ITEM(ICON_HomeY, MSG_HOMING_FEEDRATE_Y, onDrawPIntMenu, setHomingY, &yhome);
       #endif
       #if HAS_Z_AXIS
-        EDIT_ITEM(ICON_HomeZ, MSG_HOMING_FEEDRATE_Z, onDrawPFloatMenu, setHomingZ, &homing_feedrate_mm_m.z);
+        static uint16_t zhome = static_cast<uint16_t>(homing_feedrate_mm_m.z);
+        EDIT_ITEM(ICON_HomeZ, MSG_HOMING_FEEDRATE_Z, onDrawPIntMenu, setHomingZ, &zhome);
       #endif
     }
     updateMenu(homingFRMenu);
