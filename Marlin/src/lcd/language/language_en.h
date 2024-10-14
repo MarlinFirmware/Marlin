@@ -496,6 +496,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LOAD_EEPROM                    = _UxGT("Load Settings");
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Restore Defaults");
   LSTR MSG_INIT_EEPROM                    = _UxGT("Initialize EEPROM");
+  LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Err: EEPROM CRC");
   LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Err: EEPROM Size");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Err: EEPROM Version");
@@ -1098,6 +1099,7 @@ namespace LanguageWide_en {
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
+    LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
   #endif
 }
 
