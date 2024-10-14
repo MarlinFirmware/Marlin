@@ -225,7 +225,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_7_SAVE_MESH                  = _UxGT("7.Зберегти сітку");
 
   LSTR MSG_LED_CONTROL                      = _UxGT("Керування світлом");
-  LSTR MSG_LEDS                             = _UxGT("Підсвітка");
+  LSTR MSG_LIGHTS                           = _UxGT("Підсвітка");
+  LSTR MSG_LIGHT_N                          = _UxGT("Світло #{");
   LSTR MSG_LED_PRESETS                      = _UxGT("Передустан. світла");
   LSTR MSG_SET_LEDS_RED                     = _UxGT("Червоний");
   LSTR MSG_SET_LEDS_ORANGE                  = _UxGT("Помаранчевий");
@@ -237,7 +238,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Білий");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("За умовчанням");
   LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
-  LSTR MSG_LEDS2                            = _UxGT("Світло #2");
   LSTR MSG_NEO2_PRESETS                     = _UxGT("Передуст. світла #2");
   LSTR MSG_NEO2_BRIGHTNESS                  = _UxGT("Яскравість");
   LSTR MSG_CUSTOM_LEDS                      = _UxGT("Своє світло");

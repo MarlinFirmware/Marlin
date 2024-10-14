@@ -208,7 +208,8 @@ namespace LanguageNarrow_pl {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Zapis siatki stołu");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Sterowanie LED");
-  LSTR MSG_LEDS                           = _UxGT("Światła");
+  LSTR MSG_LIGHTS                         = _UxGT("Światła");
+  LSTR MSG_LIGHT_N                        = _UxGT("Światło #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Ustawienia świateł");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Czerwony");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Pomarańczowy");

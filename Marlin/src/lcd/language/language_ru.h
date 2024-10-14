@@ -226,7 +226,8 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_7_SAVE_MESH                  = _UxGT("7.Сохранить сетку");
 
   LSTR MSG_LED_CONTROL                      = _UxGT("Настройка подсветки");
-  LSTR MSG_LEDS                             = _UxGT("Подсветка");
+  LSTR MSG_LIGHTS                           = _UxGT("Подсветка");
+  LSTR MSG_LIGHT_N                          = _UxGT("Свет #{");
   LSTR MSG_LED_PRESETS                      = _UxGT("Предустановки света");
   LSTR MSG_SET_LEDS_RED                     = _UxGT("Красный");
   LSTR MSG_SET_LEDS_ORANGE                  = _UxGT("Оранжевый");
@@ -238,7 +239,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Белый");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("Свет по умолчанию");
   LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
-  LSTR MSG_LEDS2                            = _UxGT("Свет #2");
   LSTR MSG_NEO2_PRESETS                     = _UxGT("Свет #2 предустан.");
   LSTR MSG_NEO2_BRIGHTNESS                  = _UxGT("Яркость");
   LSTR MSG_CUSTOM_LEDS                      = _UxGT("Свой цвет подсветки");

@@ -200,7 +200,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Uložit síť bodů");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Nastavení LED");
-  LSTR MSG_LEDS                           = _UxGT("Světla");
+  LSTR MSG_LIGHTS                         = _UxGT("Světla");
+  LSTR MSG_LIGHT_N                        = _UxGT("Světla #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Světla Předvolby");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Červená");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Oranžová");

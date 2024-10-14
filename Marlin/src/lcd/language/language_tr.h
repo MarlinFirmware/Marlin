@@ -274,7 +274,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Tabla Mesh Kaydet");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontrolü");
-  LSTR MSG_LEDS                           = _UxGT("LEDler");
+  LSTR MSG_LIGHTS                         = _UxGT("LEDler");
+  LSTR MSG_LIGHT_N                        = _UxGT("Işıklar #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("LED Hazır Ayarları");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Kırmızı");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Turuncu");
@@ -286,7 +287,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Beyaz");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Varsayılan");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
-  LSTR MSG_LEDS2                          = _UxGT("Işıklar #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Işık #2 Ön Ayarları");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Parlaklık");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Özel Işıklar");

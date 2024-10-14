@@ -190,7 +190,8 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. 保存熱床網格");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("燈管控制"); // "LED Control"
-  LSTR MSG_LEDS                           = _UxGT("燈"); // "Lights"
+  LSTR MSG_LIGHTS                         = _UxGT("燈"); // "Lights"
+  LSTR MSG_LIGHT_N                        = _UxGT("燈 #{"); // "Light #{"
   LSTR MSG_LED_PRESETS                    = _UxGT("燈預置"); // "Light Presets"
   LSTR MSG_SET_LEDS_RED                   = _UxGT("红"); // "Red"
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙"); // "Orange"

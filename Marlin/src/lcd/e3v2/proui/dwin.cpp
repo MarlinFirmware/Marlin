@@ -3358,7 +3358,7 @@ void drawFilSetMenu() {
     if (SET_MENU(ledControlMenu, MSG_LED_CONTROL, 10)) {
       BACK_ITEM((currentMenu == tuneMenu) ? drawTuneMenu : drawControlMenu);
       #if !ALL(CASE_LIGHT_MENU, CASE_LIGHT_USE_NEOPIXEL)
-        EDIT_ITEM(ICON_LedControl, MSG_LEDS, onDrawChkbMenu, setLedStatus, &leds.lights_on);
+        EDIT_ITEM(ICON_LedControl, MSG_LIGHTS, onDrawChkbMenu, setLedStatus, &leds.lights_on);
       #endif
       #if HAS_COLOR_LEDS
         #if ENABLED(LED_COLOR_PRESETS)
@@ -3450,7 +3450,7 @@ void drawTuneMenu() {
         MENU_ITEM(ICON_LedControl, MSG_LED_CONTROL, onDrawSubMenu, drawLedControlMenu);
       #endif
     #elif ENABLED(LED_CONTROL_MENU) && DISABLED(CASE_LIGHT_USE_NEOPIXEL)
-      EDIT_ITEM(ICON_LedControl, MSG_LEDS, onDrawChkbMenu, setLedStatus, &leds.lights_on);
+      EDIT_ITEM(ICON_LedControl, MSG_LIGHTS, onDrawChkbMenu, setLedStatus, &leds.lights_on);
     #endif
   }
   updateMenu(tuneMenu);

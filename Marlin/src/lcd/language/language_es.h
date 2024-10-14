@@ -198,7 +198,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Guardar Mall. cama");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Control LED");
-  LSTR MSG_LEDS                           = _UxGT("LEDS");
+  LSTR MSG_LIGHTS                         = _UxGT("Luces");
+  LSTR MSG_LIGHT_N                        = _UxGT("Luce #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Color predefinido");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rojo");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Naranja");

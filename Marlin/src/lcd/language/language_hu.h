@@ -226,7 +226,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Ágy háló mentése");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED vezérlés");
-  LSTR MSG_LEDS                           = _UxGT("Világítás");
+  LSTR MSG_LIGHTS                         = _UxGT("Világítás");
+  LSTR MSG_LIGHT_N                        = _UxGT("Világítás #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Beállított színek");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Piros");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Narancs");
@@ -238,7 +239,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Fehér");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Alapérték");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Csatorna {");
-  LSTR MSG_LEDS2                          = _UxGT("LED-ek #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Fény #2 megadott");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Fényerö");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Egyéni szín");

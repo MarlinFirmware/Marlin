@@ -202,7 +202,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Stocker grille");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Controle LED");
-  LSTR MSG_LEDS                           = _UxGT("Lumiere");
+  LSTR MSG_LIGHTS                         = _UxGT("Lumiere");
+  LSTR MSG_LIGHT_N                        = _UxGT("Lumiere #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Preregl. LED");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rouge");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");

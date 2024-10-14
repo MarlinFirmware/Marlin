@@ -217,7 +217,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Spara Bädd Nät");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontroll");
-  LSTR MSG_LEDS                           = _UxGT("Ljus");
+  LSTR MSG_LIGHTS                         = _UxGT("Ljus");
+  LSTR MSG_LIGHT_N                        = _UxGT("Ljus #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Ljus Förinställd");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Röd");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -229,7 +230,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Vitt");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
-  LSTR MSG_LEDS2                          = _UxGT("Ljus #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Ljus #2 Förinställd");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Ljusstyrka");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Anpassat Ljus");
