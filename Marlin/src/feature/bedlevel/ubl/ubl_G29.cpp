@@ -297,6 +297,21 @@ G29_parameters_t unified_bed_leveling::param;
 
 void unified_bed_leveling::G29() {
 
+  #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+      // Disable Fixed-Time Motion for probing
+    struct OnExit {
+      bool isactive;
+      OnExit() {
+        isactive = ftMotion.cfg.active;
+        ftMotion.cfg.active = false;
+      }
+      ~OnExit() {
+        ftMotion.cfg.active = isactive;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
+
   bool probe_deployed = false;
   if (G29_parse_parameters()) return; // Abort on parameter error
 

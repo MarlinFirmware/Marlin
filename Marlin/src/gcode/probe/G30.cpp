@@ -34,6 +34,10 @@
   #include "../../feature/probe_temp_comp.h"
 #endif
 
+#if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+  #include "../../module/ft_motion.h"
+#endif
+
 #if ANY(DWIN_CREALITY_LCD_JYERSUI, EXTENSIBLE_UI)
   #define VERBOSE_SINGLE_PROBE
 #endif
@@ -49,6 +53,21 @@
  *   C   Enable probe temperature compensation (0 or 1, default 1)
  */
 void GcodeSuite::G30() {
+
+  #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+        // Disable Fixed-Time Motion for probing
+    struct OnExit {
+      bool isactive;
+      OnExit() {
+        isactive = ftMotion.cfg.active;
+        ftMotion.cfg.active = false;
+      }
+      ~OnExit() {
+        ftMotion.cfg.active = isactive;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
 
   xy_pos_t probepos = current_position;
 
