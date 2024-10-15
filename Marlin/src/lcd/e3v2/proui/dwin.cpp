@@ -2664,14 +2664,23 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #endif
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  void updateHomingFR(AxisEnum axis, feedRate_t value) {
+    switch (axis) {
+      case X_AXIS: homing_feedrate_mm_m.x = value; break;
+      case Y_AXIS: homing_feedrate_mm_m.y = value; break;
+      case Z_AXIS: homing_feedrate_mm_m.z = value; break;
+      default: break;
+      }
+  }
+  void applyHomingFR() { updateHomingFR(HMI_value.axis, MenuData.Value); }
   #if HAS_X_AXIS
-    void setHomingX() { setPIntOnClick(min_homing_edit_values.x, max_homing_edit_values.x); }
+    void setHomingX() { setIntOnClick(min_homing_edit_values.x, max_homing_edit_values.x, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
   #if HAS_Y_AXIS
-    void setHomingY() { setPIntOnClick(min_homing_edit_values.y, max_homing_edit_values.y); }
+    void setHomingY() { setIntOnClick(min_homing_edit_values.y, max_homing_edit_values.y, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
   #if HAS_Z_AXIS
-    void setHomingZ() { setPIntOnClick(min_homing_edit_values.z, max_homing_edit_values.z); }
+    void setHomingZ() { setIntOnClick(min_homing_edit_values.z, max_homing_edit_values.z, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
 #endif
 
