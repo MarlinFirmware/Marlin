@@ -180,7 +180,8 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Salvar Malha");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Controle do LED");
-  LSTR MSG_LEDS                           = _UxGT("Luz");
+  LSTR MSG_LIGHTS                         = _UxGT("Luz");
+  LSTR MSG_LIGHT_N                        = _UxGT("Luz #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Configuração da Luz");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Luz Vermelha");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Luz Laranja");
@@ -337,6 +338,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Compensar Sonda em X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Compensar Sonda em Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Compensar Sonda em Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Compensar Sonda em @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Passinho X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Passinho Y");
