@@ -43,7 +43,7 @@ extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void printer_state_polling() {
-  char str_1[16];
+  char str_1[16], str_2[16];    //str_2[16] е добавен заради грешка на MKS
   if (uiCfg.print_state == PAUSING) {
     #if HAS_MEDIA
       if (!planner.has_blocks_queued() && card.getIndex() > MIN_FILE_PRINTED)
@@ -65,7 +65,7 @@ void printer_state_polling() {
           gcode.process_subcommands_now(public_buf_l);
         }
         if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
-          sprintf_P(public_buf_l, PSTR("G1 X%s Y%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1), dtostrf(gCfgItems.pausePosY, 1, 1, str_1));
+          sprintf_P(public_buf_l, PSTR("G1 X%s Y%s"), dtostrf(gCfgItems.pausePosX, 1, 1, str_1), dtostrf(gCfgItems.pausePosY, 1, 1, str_2));
           gcode.process_subcommands_now(public_buf_l);
         }
         uiCfg.print_state = PAUSED;
@@ -85,7 +85,7 @@ void printer_state_polling() {
   if (uiCfg.print_state == RESUMING) {
     if (IS_SD_PAUSED()) {
       if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
-        sprintf_P(public_buf_m, PSTR("G1 X%s Y%s"), dtostrf(uiCfg.current_x_position_bak, 1, 1, str_1), dtostrf(uiCfg.current_y_position_bak, 1, 1, str_1));
+        sprintf_P(public_buf_m, PSTR("G1 X%s Y%s"), dtostrf(uiCfg.current_x_position_bak, 1, 1, str_1), dtostrf(uiCfg.current_y_position_bak, 1, 1, str_2));
         gcode.process_subcommands_now(public_buf_m);
       }
       if (gCfgItems.pausePosZ != (float)-1) {
