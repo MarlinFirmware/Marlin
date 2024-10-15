@@ -121,7 +121,7 @@ constexpr xyze_float_t max_steps_edit_values =
                            #ifdef DEFAULT_MAX_MULTIPLIER
                              default_homing * DEFAULT_MAX_MULTIPLIER
                            #else
-                             { 10000, 10000, 2000 }
+                             { 10000, 10000, 3000 }
                            #endif
                          ;
 #endif
