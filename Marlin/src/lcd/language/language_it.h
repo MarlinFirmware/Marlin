@@ -77,7 +77,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_Z_PROBE                        = _UxGT("Sonda Z");
   LSTR MSG_HOMING                         = _UxGT("Azzeramento");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto home");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
@@ -194,7 +194,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Pieno controllo");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Gap-X duplicato");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2° ugello Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2° ugello @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2° ugello @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 in corso");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Strumenti UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto inclinaz.");
@@ -275,7 +275,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Salva mesh piatto");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Controllo LED");
-  LSTR MSG_LEDS                           = _UxGT("Luci");
+  LSTR MSG_LIGHTS                         = _UxGT("Luci");
+  LSTR MSG_LIGHT_N                        = _UxGT("Luce #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Presets luce");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rosso");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Arancione");
@@ -287,7 +288,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Bianco");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Predefinito");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Canale {");
-  LSTR MSG_LEDS2                          = _UxGT("Luci #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Presets luce #2");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Luminosità");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Luci personalizzate");
@@ -586,6 +586,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Offset X sonda");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Offset Y sonda");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Offset Z sonda");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Offset @ sonda");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonda Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Margine sonda");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Velocità Z");

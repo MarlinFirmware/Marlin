@@ -58,7 +58,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
   LSTR MSG_HOMING                         = _UxGT("Origine");
   LSTR MSG_AUTO_HOME                      = _UxGT("Origine auto");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Origine @ auto");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Origine @ auto");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Origine X auto");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Origine Y auto");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Origine Z auto");
@@ -130,7 +130,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Contrôle complet");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Offsets Outil");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("Buse 2 Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("Buse 2 @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("Buse 2 @");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26: Chauffage du lit");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("Buse en chauffe...");
   LSTR MSG_G26_MANUAL_PRIME               = _UxGT("Amorce manuelle...");
@@ -202,7 +202,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Stocker grille");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Contrôle LED");
-  LSTR MSG_LEDS                           = _UxGT("Lumière");
+  LSTR MSG_LIGHTS                         = _UxGT("Lumière");
+  LSTR MSG_LIGHT_N                        = _UxGT("Lumière #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Préregl. LED");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rouge");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -420,6 +421,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Décalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Décalage Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Décalage Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Décalage @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonde Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

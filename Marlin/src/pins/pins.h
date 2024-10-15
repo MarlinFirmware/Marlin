@@ -575,6 +575,8 @@
   #include "stm32g0/pins_BTT_MANTA_M8P_V1_0.h"      // STM32G0                              env:STM32G0B1VE_btt
 #elif MB(BTT_MANTA_M8P_V1_1)
   #include "stm32g0/pins_BTT_MANTA_M8P_V1_1.h"      // STM32G0                              env:STM32G0B1VE_btt
+#elif MB(BTT_SKRAT_V1_0)
+  #include "stm32g0/pins_BTT_SKRAT_V1_0.h"          // STM32G0                              env:STM32G0B1VE_btt env:STM32G0B1VE_btt_xfer
 
 //
 // STM32 ARM Cortex-M0

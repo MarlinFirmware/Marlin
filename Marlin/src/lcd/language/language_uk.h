@@ -59,7 +59,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню Debug");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест лінії прогр.");
   LSTR MSG_AUTO_HOME                        = _UxGT("Авто паркування");
-  LSTR MSG_AUTO_HOME_A                      = _UxGT("Паркування @");
+  LSTR MSG_AUTO_HOME_N                      = _UxGT("Паркування @");
   LSTR MSG_AUTO_HOME_X                      = _UxGT("Паркування X");
   LSTR MSG_AUTO_HOME_Y                      = _UxGT("Паркування Y");
   LSTR MSG_AUTO_HOME_Z                      = _UxGT("Паркування Z");
@@ -149,7 +149,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_IDEX_DUPE_GAP                    = _UxGT("Дублюв. X-проміжок");
 
   LSTR MSG_HOTEND_OFFSET_Z                  = _UxGT("Друге сопло Z");
-  LSTR MSG_HOTEND_OFFSET_A                  = _UxGT("Друге сопло @");
+  LSTR MSG_HOTEND_OFFSET_N                  = _UxGT("Друге сопло @");
 
   LSTR MSG_UBL_DOING_G29                    = _UxGT("Виконується G29");
   LSTR MSG_UBL_TOOLS                        = _UxGT("Інструменти UBL");
@@ -225,7 +225,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_UBL_7_SAVE_MESH                  = _UxGT("7.Зберегти сітку");
 
   LSTR MSG_LED_CONTROL                      = _UxGT("Керування світлом");
-  LSTR MSG_LEDS                             = _UxGT("Підсвітка");
+  LSTR MSG_LIGHTS                           = _UxGT("Підсвітка");
+  LSTR MSG_LIGHT_N                          = _UxGT("Світло #{");
   LSTR MSG_LED_PRESETS                      = _UxGT("Передустан. світла");
   LSTR MSG_SET_LEDS_RED                     = _UxGT("Червоний");
   LSTR MSG_SET_LEDS_ORANGE                  = _UxGT("Помаранчевий");
@@ -237,7 +238,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_SET_LEDS_WHITE                   = _UxGT("Білий");
   LSTR MSG_SET_LEDS_DEFAULT                 = _UxGT("За умовчанням");
   LSTR MSG_LED_CHANNEL_N                    = _UxGT("Канал {");
-  LSTR MSG_LEDS2                            = _UxGT("Світло #2");
   LSTR MSG_NEO2_PRESETS                     = _UxGT("Передуст. світла #2");
   LSTR MSG_NEO2_BRIGHTNESS                  = _UxGT("Яскравість");
   LSTR MSG_CUSTOM_LEDS                      = _UxGT("Своє світло");
@@ -475,6 +475,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_ZPROBE_XOFFSET                   = _UxGT("Зміщення по X");
   LSTR MSG_ZPROBE_YOFFSET                   = _UxGT("Зміщення по Y");
   LSTR MSG_ZPROBE_ZOFFSET                   = _UxGT("Зміщення по Z");
+  LSTR MSG_ZPROBE_OFFSET_N                  = _UxGT("Зміщення по @");
   LSTR MSG_BABYSTEP_PROBE_Z                 = _UxGT("Крок Z зміщення");
   LSTR MSG_MOVE_NOZZLE_TO_BED               = _UxGT("Рухати сопло до столу");
   LSTR MSG_BABYSTEP_X                       = _UxGT("Мікрокрок X");

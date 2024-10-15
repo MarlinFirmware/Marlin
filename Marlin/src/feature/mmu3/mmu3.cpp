@@ -28,15 +28,15 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2.h"
-#include "mmu2_error_converter.h"
-#include "mmu2_fsensor.h"
-#include "mmu2_log.h"
-#include "mmu2_marlin.h"
-#include "mmu2_marlin_macros.h"
-#include "mmu2_power.h"
-#include "mmu2_progress_converter.h"
-#include "mmu2_reporting.h"
+#include "mmu3.h"
+#include "mmu3_error_converter.h"
+#include "mmu3_fsensor.h"
+#include "mmu3_log.h"
+#include "mmu3_marlin.h"
+#include "mmu3_marlin_macros.h"
+#include "mmu3_power.h"
+#include "mmu3_progress_converter.h"
+#include "mmu3_reporting.h"
 
 #include "strlen_cx.h"
 #include "SpoolJoin.h"
@@ -91,7 +91,7 @@ namespace MMU3 {
   int MMU3::mmu_hw_enabled_addr; // Initialized by settings.load
 
   MMU3::MMU3()
-    : logic(MMU2_TOOL_CHANGE_LOAD_LENGTH, MMU2_LOAD_TO_NOZZLE_FEED_RATE)
+    : logic(MMU3_TOOL_CHANGE_LOAD_LENGTH, MMU3_LOAD_TO_NOZZLE_FEED_RATE)
     , extruder(MMU2_NO_TOOL)
     , tool_change_extruder(MMU2_NO_TOOL)
     , resume_position()
@@ -121,10 +121,10 @@ namespace MMU3 {
       settings.save();
     #endif
 
-    MMU2_SERIAL.begin(MMU_BAUD);
+    MMU_SERIAL.begin(MMU_BAUD);
 
     powerOn();
-    MMU2_SERIAL.flush(); // Make sure the UART buffer is clear before starting communication
+    MMU_SERIAL.flush(); // Make sure the UART buffer is clear before starting communication
 
     setCurrentTool(MMU2_NO_TOOL);
     _state = xState::Connecting;
@@ -153,7 +153,7 @@ namespace MMU3 {
 
     _state = xState::Stopped;
     logic.stop();
-    MMU2_SERIAL.end();
+    MMU_SERIAL.end();
   }
 
   void MMU3::tune() {
@@ -279,14 +279,14 @@ namespace MMU3 {
         && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
         && e_active()
-        #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
+        #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           && runout.enabled // to prevent M600 to be triggered during M600 AUTO
           && !FILAMENT_PRESENT() // so the filament is totally consumed
         #endif
     ) {
       SERIAL_ECHOLN_P("FINDA filament runout!");
       if (spooljoin.isEnabled() && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN) { // Can't auto if F=?
-        #if ENABLED(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
+        #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           // set the current tool to FILAMENT_UNKNOWN so that we don't try to unload it
           extruder = MMU2_NO_TOOL;
           // disable the filament runout sensor (this is going to be re-enabled after the filament is loaded)
@@ -294,7 +294,7 @@ namespace MMU3 {
           runout.filament_ran_out = false; // trying to disable the purge more / continue message
           runout.enabled = false;
         #endif
-        queue.enqueue_now(F("M600A")); // Save print and run M600 command
+        queue.enqueue_now(F("M600A")); // Save print and run M600 A (automatic) command
       }
       else {
         marlin_stop_and_save_print_to_ram();
@@ -349,7 +349,7 @@ namespace MMU3 {
 
     // MMU has finished its load, push the filament further by some defined constant length
     // If the filament sensor reads 0 at any moment, then report FAILURE
-    const float tryload_length = MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH - logic.ExtraLoadDistance();
+    const float tryload_length = MMU3_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH - logic.ExtraLoadDistance();
     TryLoadUnloadReporter tlur(tryload_length);
 
     /**
@@ -378,7 +378,7 @@ namespace MMU3 {
     // Pixel index will go from 0 to 10, then back from 10 to 0.
     // A change in this value indicates a new pixel should be drawn on the display.
     for (uint8_t move = 0; move < 2; move++) {
-      extruder_move(move == 0 ? tryload_length : -tryload_length, MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE);
+      extruder_move(move == 0 ? tryload_length : -tryload_length, MMU3_VERIFY_LOAD_TO_NOZZLE_FEED_RATE);
       while (planner_any_moves()) {
         filament_inserted = filament_inserted && (WhereIsFilament() == FilamentState::AT_FSENSOR);
         tlur.Progress(filament_inserted);
@@ -392,7 +392,7 @@ namespace MMU3 {
   }
 
   bool MMU3::toolChangeCommonOnce(uint8_t slot) {
-    static_assert(MMU2_MAX_RETRIES > 1); // Need >1 retries to do the cut in the last attempt
+    static_assert(MMU3_MAX_RETRIES > 1); // Need >1 retries to do the cut in the last attempt
     uint8_t retries = 0;
     for (;;) {
       for (;;) {
@@ -419,9 +419,9 @@ namespace MMU3 {
 
       // Prepare a retry attempt
       unloadInner();
-      if (retries == (MMU2_MAX_RETRIES) - 1 && cutter_enabled()) {
+      if (retries == (MMU3_MAX_RETRIES) - 1 && cutter_enabled()) {
         cutFilamentInner(slot); // try cutting filament tip at the last attempt
-        retries = 0; // reset retries every MMU2_MAX_RETRIES
+        retries = 0; // reset retries every MMU3_MAX_RETRIES
       }
 
       ++retries;
@@ -1013,7 +1013,7 @@ namespace MMU3 {
   void MMU3::execute_load_to_nozzle_sequence() {
     planner_synchronize();
     // Compensate for configurable Extra Loading Distance
-    planner_set_current_position_E(planner_get_current_position_E() - (logic.ExtraLoadDistance() - MMU2_FILAMENT_SENSOR_POSITION));
+    planner_set_current_position_E(planner_get_current_position_E() - (logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION));
     execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]));
   }
 
@@ -1120,7 +1120,7 @@ namespace MMU3 {
   }
 
   void __attribute__((noinline)) MMU3::helpUnloadToFinda() {
-    extruder_move(-MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH, MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE);
+    extruder_move(-MMU3_RETRY_UNLOAD_TO_FINDA_LENGTH, MMU3_RETRY_UNLOAD_TO_FINDA_FEED_RATE);
   }
 
   void MMU3::onMMUProgressMsgSame(ProgressCode pc) {

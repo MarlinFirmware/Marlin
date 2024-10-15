@@ -36,7 +36,7 @@
 
 #include "../../feature/pause.h"
 #include "../../libs/nozzle.h"
-#include "mmu2_marlin.h"
+#include "mmu3_marlin.h"
 
 namespace MMU3 {
 

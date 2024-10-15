@@ -61,7 +61,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Statusbalken-Test");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_AUTO_HOME                      = _UxGT("Auto Home");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Home @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Home @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Home Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Home Z");
@@ -174,7 +174,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("vollstä. Kontrolle");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-Lücke duplizieren");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. Düse Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. Düse @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. Düse @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 ausführen");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL-Werkzeuge");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Berührungspunkt");
@@ -254,7 +254,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Bettnetz speichern");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Licht-Steuerung");
-  LSTR MSG_LEDS                           = _UxGT("Licht");
+  LSTR MSG_LIGHTS                         = _UxGT("Licht");
+  LSTR MSG_LIGHT_N                        = _UxGT("Lichter #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Licht-Einstellung");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rot");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -266,7 +267,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Weiß");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Standard");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
-  LSTR MSG_LEDS2                          = _UxGT("Lichter #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Licht #2 Voreinst.");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Helligkeit");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Benutzerdefiniert");
@@ -525,6 +525,7 @@ namespace LanguageNarrow_de {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Sondenversatz X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Sondenversatz Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Sondenversatz Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Sondenversatz @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z Offset mit Pas");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Sondenrand");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z-Vorschub");

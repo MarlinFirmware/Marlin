@@ -117,7 +117,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("執行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("傾斜點"); // "Tilting Point"
@@ -190,7 +190,8 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. 保存熱床網格");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("燈管控制"); // "LED Control"
-  LSTR MSG_LEDS                           = _UxGT("燈"); // "Lights"
+  LSTR MSG_LIGHTS                         = _UxGT("燈"); // "Lights"
+  LSTR MSG_LIGHT_N                        = _UxGT("燈 #{"); // "Light #{"
   LSTR MSG_LED_PRESETS                    = _UxGT("燈預置"); // "Light Presets"
   LSTR MSG_SET_LEDS_RED                   = _UxGT("红"); // "Red"
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙"); // "Orange"
@@ -366,6 +367,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探針X偏移量"); // "Probe X Offset"
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探針Y偏移量"); // "Probe Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探針Z偏移量"); // "Probe Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("探針@偏移量"); // "Probe @ Offset"
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步調整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量調整X軸"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量調整Y軸"); // "Babystep Y"

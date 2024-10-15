@@ -28,7 +28,7 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2_protocol.h"
+#include "mmu3_protocol.h"
 
 // protocol definition
 // command: Q0

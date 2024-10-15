@@ -291,7 +291,7 @@ void menu_move() {
   END_MENU();
 }
 
-#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_A, F("G28" STR_##N));
+#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_N, F("G28" STR_##N));
 
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   //
@@ -464,7 +464,7 @@ void menu_move() {
       #if HAS_EXTRUDERS
         EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
         if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
-          EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+          EDIT_ITEM(float62, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 1000.0f);
       #endif
     }
     END_MENU();

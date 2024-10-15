@@ -125,7 +125,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("镜像复制");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("完全控制");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("第二喷头是Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("第二喷头是@");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("第二喷头是@");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("执行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("倾斜點");
@@ -204,7 +204,8 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. 保存热床网格");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED控制"); // "LED Control"
-  LSTR MSG_LEDS                           = _UxGT("灯"); // "Lights"
+  LSTR MSG_LIGHTS                         = _UxGT("灯"); // "Lights"
+  LSTR MSG_LIGHT_N                        = _UxGT("灯 #{"); // "Light #{"
   LSTR MSG_LED_PRESETS                    = _UxGT("灯预置"); // "Light Presets"
   LSTR MSG_SET_LEDS_RED                   = _UxGT("红"); // "Red"
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙"); // "Orange"
@@ -424,9 +425,10 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_MANUAL_STOW                    = _UxGT("收好Z探针");
   LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s 先"); // "Home ... first"
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探针偏移量");
-  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
-  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移"); // "X Offset"
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移"); // "Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探针Z偏移"); // "Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("探针@偏移"); // "@ Offset"
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步调整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量调整X轴"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量调整Y轴"); // "Babystep Y"

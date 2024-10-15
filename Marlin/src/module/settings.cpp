@@ -179,9 +179,9 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../feature/mmu3/mmu2.h"
+  #include "../feature/mmu3/mmu3.h"
   #include "../feature/mmu3/SpoolJoin.h"
-  #include "../feature/mmu3/mmu2_reporting.h"
+  #include "../feature/mmu3/mmu3_reporting.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -461,6 +461,13 @@ typedef struct SettingsDataStruct {
   //
   fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
   bool autoretract_enabled;                             // M209 S
+
+  //
+  // EDITABLE_HOMING_FEEDRATE
+  //
+  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+    xyz_feedrate_t homing_feedrate_mm_m;                // M210 X Y Z I J K U V W
+  #endif
 
   //
   // !NO_VOLUMETRIC
@@ -1332,6 +1339,14 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(TERN(FWRETRACT_AUTORETRACT, fwretract.autoretract_enabled, autoretract_enabled));
     }
+
+    //
+    // Homing Feedrate
+    //
+    #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+      _FIELD_TEST(homing_feedrate_mm_m);
+      EEPROM_WRITE(homing_feedrate_mm_m);
+    #endif
 
     //
     // Volumetric & Filament Size
@@ -2422,6 +2437,14 @@ void MarlinSettings::postprocess() {
       }
 
       //
+      // Homing Feedrate
+      //
+      #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+        _FIELD_TEST(homing_feedrate_mm_m);
+        EEPROM_READ(homing_feedrate_mm_m);
+      #endif
+
+      //
       // Volumetric & Filament Size
       //
       {
@@ -3077,17 +3100,24 @@ void MarlinSettings::postprocess() {
   #endif // HAS_EARLY_LCD_SETTINGS
 
   bool MarlinSettings::load() {
+    // If the EEPROM data is valid load it
     if (validate()) {
       const EEPROM_Error err = _load();
       const bool success = (err == ERR_EEPROM_NOERR);
       TERN_(EXTENSIBLE_UI, ExtUI::onSettingsLoaded(success));
       return success;
     }
+
+    // Otherwise reset settings to default "factory settings"
     reset();
+
+    // Options to overwrite the EEPROM on error
     #if ANY(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
-      (void)save();
-      SERIAL_ECHO_MSG("EEPROM Initialized");
+      (void)init_eeprom();
+      LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
+      SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
     #endif
+
     return false;
   }
 
@@ -3650,6 +3680,11 @@ void MarlinSettings::reset() {
   TERN_(FWRETRACT, fwretract.reset());
 
   //
+  // Homing Feedrate
+  //
+  TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
+
+  //
   // Volumetric & Filament Size
   //
   #if DISABLED(NO_VOLUMETRICS)
@@ -4048,6 +4083,11 @@ void MarlinSettings::reset() {
       gcode.M208_report(forReplay);
       TERN_(FWRETRACT_AUTORETRACT, gcode.M209_report(forReplay));
     #endif
+
+    //
+    // Homing Feedrate
+    //
+    TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
     // Probe Offset
