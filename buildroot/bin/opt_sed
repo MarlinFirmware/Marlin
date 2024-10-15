@@ -1,0 +1,9 @@
+# Detect sed version
+SED_CMD="sed"
+SED_I=(-i)
+if command -v gsed >/dev/null 2>&1; then
+  SED_CMD="gsed"
+elif [[ "$(uname)" == "Darwin" ]]; then
+  SED_I=(-i '')
+  BSDSED=1
+fi

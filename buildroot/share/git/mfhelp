@@ -40,7 +40,6 @@ Modify Configuration.h / Configuration_adv.h:
 
 Modify pins files:
 
-  pins_set ............. Set the value of a pin in a pins file
   pinsformat.py ........ Python script to format pins files
 
 THIS
