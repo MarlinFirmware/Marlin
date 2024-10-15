@@ -2674,13 +2674,13 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
   }
   void applyHomingFR() { updateHomingFR(HMI_value.axis, MenuData.Value); }
   #if HAS_X_AXIS
-    void setHomingX() { setIntOnClick(min_homing_edit_values.x, max_homing_edit_values.x, homing_feedrate_mm_m.x, applyHomingFR); }
+    void setHomingX() { hmiValue.axis = X_AXIS; setIntOnClick(min_homing_edit_values.x, max_homing_edit_values.x, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
   #if HAS_Y_AXIS
-    void setHomingY() { setIntOnClick(min_homing_edit_values.y, max_homing_edit_values.y, homing_feedrate_mm_m.x, applyHomingFR); }
+    void setHomingY() { hmiValue.axis = Y_AXIS; setIntOnClick(min_homing_edit_values.y, max_homing_edit_values.y, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
   #if HAS_Z_AXIS
-    void setHomingZ() { setIntOnClick(min_homing_edit_values.z, max_homing_edit_values.z, homing_feedrate_mm_m.x, applyHomingFR); }
+    void setHomingZ() { hmiValue.axis = Z_AXIS; setIntOnClick(min_homing_edit_values.z, max_homing_edit_values.z, homing_feedrate_mm_m.x, applyHomingFR); }
   #endif
 #endif
 
