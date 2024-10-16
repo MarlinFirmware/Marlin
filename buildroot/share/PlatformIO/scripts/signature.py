@@ -216,7 +216,7 @@ def compute_build_signature(env):
         if not conf_schema: exit(1)
 
         # Start with a preferred @section ordering
-        preorder = ('info','machine','extruder','stepper drivers','geometry','homing','endstops','probes','lcd','interface','host','reporting')
+        preorder = ('info','user','machine','extruder','bed temp','fans','stepper drivers','geometry','homing','endstops','probes','lcd','interface','host','reporting')
         sections = { key:{} for key in preorder }
 
         # Group options by schema @section

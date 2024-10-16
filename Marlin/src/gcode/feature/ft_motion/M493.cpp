@@ -190,25 +190,18 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    R 0.00  Set the vibration tolerance for the Y axis
  */
 void GcodeSuite::M493() {
-  struct { bool update:1, reset_ft:1, report_h:1; } flag = { false };
+  struct { bool update:1, report:1; } flag = { false };
 
   if (!parser.seen_any())
-    flag.report_h = true;
+    flag.report = true;
 
   // Parse 'S' mode parameter.
   if (parser.seen('S')) {
     const bool active = parser.value_bool();
-
     if (active != ftMotion.cfg.active) {
-      switch (active) {
-        case false:
-          flag.reset_ft = true;
-          // fall-thru
-        case true:
-          flag.report_h = true;
-          ftMotion.cfg.active = active;
-          break;
-      }
+      stepper.ftMotion_syncPosition();
+      ftMotion.cfg.active = active;
+      flag.report = true;
     }
   }
 
@@ -228,7 +221,7 @@ void GcodeSuite::M493() {
           case ftMotionShaper_3HEI:
           case ftMotionShaper_MZV:
             ftMotion.cfg.shaper[axis] = newsh;
-            flag.update = flag.report_h = true;
+            flag.update = flag.report = true;
             break;
         }
       }
@@ -249,7 +242,7 @@ void GcodeSuite::M493() {
     if (parser.seen('P')) {
       const bool val = parser.value_bool();
       ftMotion.cfg.linearAdvEna = val;
-      flag.report_h = true;
+      flag.report = true;
       SERIAL_ECHO_TERNARY(val, "Linear Advance ", "en", "dis", "abled.\n");
     }
 
@@ -258,7 +251,7 @@ void GcodeSuite::M493() {
       const float val = parser.value_float();
       if (val >= 0.0f) {
         ftMotion.cfg.linearAdvK = val;
-        flag.report_h = true;
+        flag.report = true;
       }
       else // Value out of range.
         SERIAL_ECHOLNPGM("Linear Advance gain out of range.");
@@ -281,7 +274,7 @@ void GcodeSuite::M493() {
           #endif
           case dynFreqMode_DISABLED:
             ftMotion.cfg.dynFreqMode = val;
-            flag.report_h = true;
+            flag.report = true;
             break;
           default:
             SERIAL_ECHOLNPGM("?Invalid Dynamic Frequency Mode [D] value.");
@@ -309,7 +302,7 @@ void GcodeSuite::M493() {
         // TODO: Frequency minimum is dependent on the shaper used; the above check isn't always correct.
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq.x = val;
-          flag.update = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.report = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid [", C('A'), "] frequency value.");
@@ -323,7 +316,7 @@ void GcodeSuite::M493() {
       if (parser.seenval('F')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.x = parser.value_float();
-          flag.report_h = true;
+          flag.report = true;
         }
         else
           SERIAL_ECHOLNPGM("Wrong mode for [", C('F'), "] frequency scaling.");
@@ -370,7 +363,7 @@ void GcodeSuite::M493() {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
           ftMotion.cfg.baseFreq.y = val;
-          flag.update = flag.reset_ft = flag.report_h = true;
+          flag.update = flag.report = true;
         }
         else // Frequency out of range.
           SERIAL_ECHOLNPGM("Invalid frequency [", C('B'), "] value.");
@@ -384,7 +377,7 @@ void GcodeSuite::M493() {
       if (parser.seenval('H')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.y = parser.value_float();
-          flag.report_h = true;
+          flag.report = true;
         }
         else
           SERIAL_ECHOLNPGM("Wrong mode for [", C('H'), "] frequency scaling.");
@@ -423,16 +416,9 @@ void GcodeSuite::M493() {
 
   #endif // HAS_Y_AXIS
 
-  planner.synchronize();
-
   if (flag.update) ftMotion.update_shaping_params();
 
-  if (flag.reset_ft) {
-    stepper.ftMotion_syncPosition();
-    ftMotion.reset();
-  }
-
-  if (flag.report_h) say_shaping();
+  if (flag.report) say_shaping();
 }
 
 #endif // FT_MOTION
