@@ -49,7 +49,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // public:
 
-fwretract_settings_t FWRetract::settings;     // M207 S F Z W, M208 S F R W
+fwretract_settings_t FWRetract::settings;     // M207 S F Z W, M208 S F W R
 
 #if ENABLED(FWRETRACT_AUTORETRACT)
   bool FWRetract::autoretract_enabled;        // M209 S - Autoretract switch
@@ -57,8 +57,8 @@ fwretract_settings_t FWRetract::settings;     // M207 S F Z W, M208 S F R W
 
 Flags<EXTRUDERS> FWRetract::retracted;        // Which extruders are currently retracted
 
-float FWRetract::current_retract[EXTRUDERS],  // Retract value used by planner
-      FWRetract::current_hop;
+float FWRetract::current_retract[EXTRUDERS];  // Retract value used by planner
+float FWRetract::current_hop;
 
 void FWRetract::reset() {
   TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
@@ -197,25 +197,25 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  *
  *   S[+units]    retract_length
  *   F[units/min] retract_feedrate_mm_s
- *   Z[units]     retract_zraise
  *   W[+units]    swap_retract_length (multi-extruder)
+ *   Z[units]     retract_zraise
  */
 void FWRetract::M207() {
-  if (!parser.seen("FSWZ")) return M207_report();
+  if (!parser.seen("SFWZ")) return M207_report();
   if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
   if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
   if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
 }
 
 void FWRetract::M207_report() {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM_P(
-      PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
-    , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
-    , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s))
-    , SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
+    PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length),
+    PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s)),
+    PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length),
+    SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
   );
 }
 
@@ -224,24 +224,25 @@ void FWRetract::M207_report() {
  *
  *   S[+units]    retract_recover_extra (in addition to M207 S*)
  *   F[units/min] retract_recover_feedrate_mm_s
- *   R[units/min] swap_retract_recover_feedrate_mm_s
  *   W[+units]    swap_retract_recover_extra (multi-extruder)
+ *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void FWRetract::M208() {
-  if (!parser.seen("FSRW")) return M208_report();
+  if (!parser.seen("SFRW")) return M208_report();
   if (parser.seenval('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
   if (parser.seenval('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seenval('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seenval('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
 }
 
 void FWRetract::M208_report() {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM(
-      "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
-    , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
-    , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
+    "  M208 S", LINEAR_UNIT(settings.retract_recover_extra),
+    " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s)),
+    " W", LINEAR_UNIT(settings.swap_retract_recover_extra),
+    " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }
 
