@@ -843,7 +843,8 @@
   #include "stm32f4/pins_BLACKBEEZMINI.h"           // STM32F4                              env:BLACKBEEZMINI_V1
 #elif MB(XTLW_CLIMBER_8TH)
   #include "stm32f4/pins_XTLW_CLIMBER_8TH.h"        // STM32F4                              env:XTLW_CLIMBER_8TH
-
+#elif MB(FLY_RRF_E3_V1)
+  #include "stm32f4/pins_Fly_RRF_E3_V1.h"           // STM32F4                              env:FLY_RRF_E3_V1
 //
 // Other ARM Cortex-M4
 //
