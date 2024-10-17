@@ -863,7 +863,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
   block->final_rate = final_rate;
 
-  #if ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE) && DISABLED(LA_ZERO_SLOWDOWN)
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
@@ -2402,12 +2402,14 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          // Scale E acceleration so that it will be possible to jump to the advance speed.
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2) {
-            accel = max_accel_steps_per_s2;
-            if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
-          }
+          #if DISABLED(LA_ZERO_SLOWDOWN)
+            // Scale E acceleration so that it will be possible to jump to the advance speed.
+            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+            if (accel > max_accel_steps_per_s2) {
+              accel = max_accel_steps_per_s2;
+              if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+            }
+          #endif
         }
       }
     #endif
@@ -2453,7 +2455,18 @@ bool Planner::_populate_block(
         if (block->la_advance_rate >> block->la_scaling > 10000)
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
       #endif
-    }
+    } 
+    #if ENABLED(LA_ZERO_SLOWDOWN)
+      else if (block->steps.e){
+        // Retraction/deretraction are still managed by the zero_slowdown_isr, because the current_la_rate may not be zero when they start
+        for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
+          block->la_scaling++;
+      } else if (block->step_event_count){
+        // Travel move
+        // dividend = block->step_event_count
+        // block->la_scaling = 0
+      }
+    #endif
   #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
@@ -2681,7 +2694,8 @@ bool Planner::_populate_block(
       }
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    // In the LA_ZERO_SLOWDOWN case, the extra jerk will be applied by the residual curent_la_step_rate. 
+    #if ENABLED(LIN_ADVANCE) && DISABLED(LA_ZERO_SLOWDOWN)
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
       // perform well; it takes more time/effort to push/melt filament than the reverse).

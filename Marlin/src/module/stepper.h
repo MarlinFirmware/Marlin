@@ -439,6 +439,14 @@ class Stepper {
                          la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
                          la_advance_steps; // Count of steps added to increase nozzle pressure
       static bool        la_active;        // Whether linear advance is used on the present segment.
+      #if ENABLED(LA_ZERO_SLOWDOWN)
+        static float     current_la_step_rate;         // Current (gradually changing) linear advance rate
+        static float     current_la_step_count;        // Currently advanced steps
+        static uint32_t curr_step_rate; // needed for new la algo
+        static float a_max;
+        static float xy_to_e_steps;
+        static void set_la_interval(int32_t rate);
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -504,6 +512,9 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
       static void advance_isr();
+      #if ENABLED(LA_ZERO_SLOWDOWN)
+        static hal_timer_t zero_slowdown_isr();
+      #endif 
     #endif
 
     #if ENABLED(BABYSTEPPING)
