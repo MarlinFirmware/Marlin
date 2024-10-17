@@ -93,7 +93,7 @@ void event_filament_runout(const uint8_t extruder) {
 
   //action:out_of_filament
   #if ENABLED(HOST_PROMPT_SUPPORT)
-    hostui.prompt_do(PROMPT_FILAMENT_RUNOUT, F("FilamentRunout T"), tool); //action:out_of_filament
+    hostui.prompt_do(PROMPT_FILAMENT_RUNOUT, F("filamentRunout T"), tool); //action:out_of_filament
   #endif
 
   const bool run_runout_script = !runout.host_handling;
