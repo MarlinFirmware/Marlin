@@ -41,6 +41,9 @@ jobs:
       matrix:
         test-platform:
 
+        # RP2040
+        - SKR_Pico
+
         # Native
         - linux_native
         - simulator_linux_release
