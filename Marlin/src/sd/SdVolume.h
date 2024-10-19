@@ -46,6 +46,7 @@
 
 #include "SdFatConfig.h"
 #include "SdFatStructs.h"
+#include "disk_io_driver.h"
 
 //==============================================================================
 // SdVolume class
