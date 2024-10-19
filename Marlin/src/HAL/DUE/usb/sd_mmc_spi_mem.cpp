@@ -19,7 +19,7 @@ void sd_mmc_spi_mem_init() {
 }
 
 inline bool media_ready() {
-  return IS_SD_INSERTED() && !IS_SD_PRINTING() && !IS_SD_FILE_OPEN() && card.isMounted();
+  return IS_SD_MOUNTED() && IS_SD_INSERTED() && !IS_SD_FILE_OPEN() && !IS_SD_PRINTING();
 }
 
 bool sd_mmc_spi_unload(bool) { return true; }
