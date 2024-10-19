@@ -142,99 +142,96 @@ void mount_file_sys(const uint8_t disk_type) {
   }
 }
 
-#define ILLEGAL_CHAR_REPLACE 0x5F // '_'
+#define ILLEGAL_CHAR_REPLACE '_' // 0x5F
 
+#if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
 
- #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-static bool removeIllegalChars(const char *unsanitizedName, char *sanitizedName) { 
-    const size_t maxLength = LONG_FILENAME_LENGTH;  
-    uint8_t i = 0;  
-    const char *fileExtension = NULL;  
-    
+  static bool removeIllegalChars(const char *unsanitizedName, char *sanitizedName) {
+    const size_t maxLength = LONG_FILENAME_LENGTH;
+    uint8_t i = 0;
+    const char *fileExtension = NULL;
+
     const char *dot = strrchr(unsanitizedName, '.');
     if (dot && dot != unsanitizedName) {
-        fileExtension = dot;  
+      fileExtension = dot;
     }
 
-   
     size_t extensionLength = fileExtension ? strlen(fileExtension) : 0;
-    size_t nameMaxLength = maxLength - extensionLength - 3;  
+    size_t nameMaxLength = maxLength - extensionLength - 3;
 
     while (*unsanitizedName && unsanitizedName != fileExtension && i < nameMaxLength) {
-        uint8_t c = *unsanitizedName++;
-        if (c < 0x21 || c == 0x7F) {
-            c = ILLEGAL_CHAR_REPLACE;  
-        } else {
-            PGM_P illegalChars = PSTR("|<>^+=?/[];,*\"\\");
-            while (const uint8_t illegalChar = pgm_read_byte(illegalChars++)) {
-                if (c == illegalChar) {
-                    c = ILLEGAL_CHAR_REPLACE;
-                    break;
-                }
-            }
+      uint8_t c = *unsanitizedName++;
+      if (c < 0x21 || c == 0x7F) {
+        c = ILLEGAL_CHAR_REPLACE;
+      }
+      else {
+        PGM_P illegalChars = PSTR("|<>^+=?/[];,*\"\\");
+        while (const uint8_t illegalChar = pgm_read_byte(illegalChars++)) {
+          if (c == illegalChar) {
+            c = ILLEGAL_CHAR_REPLACE;
+            break;
+          }
         }
-        sanitizedName[i++] = c;
+      }
+      sanitizedName[i++] = c;
     }
 
-    
     if (i >= nameMaxLength) {
-        snprintf(sanitizedName + nameMaxLength, 4, "~1");
-        i = strlen(sanitizedName);  
+      snprintf(sanitizedName + nameMaxLength, 4, "~1");
+      i = strlen(sanitizedName);
     }
-
 
     if (fileExtension) {
-        strncpy(sanitizedName + i, fileExtension, maxLength - i - 1);  
-        sanitizedName[maxLength - 1] = '\0';  
-    } else {
-        sanitizedName[i] = '\0'; 
+      strncpy(sanitizedName + i, fileExtension, maxLength - i - 1);
+      sanitizedName[maxLength - 1] = '\0';
     }
-
-    return sanitizedName[0] != '\0';  
-}
-#endif
-
-
-
- #if !ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-static bool longName2DosName(const char *longName, char *dosName) {
-  uint8_t i = FILENAME_LENGTH;
-  while (i) dosName[--i] = '\0';
-
-  while (*longName) {
-    uint8_t c = *longName++;
-    if (c == '.') { // For a dot...
-      if (i == 0) return false;
-      strcat_P(dosName, PSTR(".GCO"));
-      return dosName[0] != '\0';
-    }
-
-    // Fail for illegal characters
-    if (c < 0x21 || c == 0x7F)   // Check size, non-printable characters
-      c = ILLEGAL_CHAR_REPLACE;  // replace non-printable chars with underscore '_'
     else {
-      PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (const uint8_t b = pgm_read_byte(p++))
-        if (b == c) c = ILLEGAL_CHAR_REPLACE;  // replace illegal chars with underscore '_'
+      sanitizedName[i] = '\0';
     }
 
-    dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
-
-    if (i >= 5) {
-      strcat_P(dosName, PSTR("~1.GCO"));
-      return dosName[0] != '\0';
-    }
-  }
-
-  return dosName[0] != '\0'; // Return true if any name was set
+    return sanitizedName[0] != '\0';
 }
-#endif
 
-static bool sanitizeName(const char *unsanitizedName, char *sanitizedName) {
+#else // !LONG_FILENAME_WRITE_SUPPORT
+
+  static bool longName2DosName(const char *longName, char *dosName) {
+    uint8_t i = FILENAME_LENGTH;
+    while (i) dosName[--i] = '\0';
+
+    while (*longName) {
+      uint8_t c = *longName++;
+      if (c == '.') { // For a dot...
+        if (i == 0) return false;
+        strcat_P(dosName, PSTR(".GCO"));
+        return dosName[0] != '\0';
+      }
+
+      // Fail for illegal characters
+      if (c < 0x21 || c == 0x7F)   // Check size, non-printable characters
+        c = ILLEGAL_CHAR_REPLACE;  // replace non-printable chars
+      else {
+        PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
+        while (const uint8_t b = pgm_read_byte(p++))
+        if (b == c) c = ILLEGAL_CHAR_REPLACE;  // replace illegal chars
+      }
+
+      dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
+
+      if (i >= 5) {
+        strcat_P(dosName, PSTR("~1.GCO"));
+        return dosName[0] != '\0';
+      }
+    }
+
+    return dosName[0] != '\0'; // Return true if any name was set
+}
+#endif // !LONG_FILENAME_WRITE_SUPPORT
+
+static bool sanitizeName(const char * const unsanitizedName, char * const sanitizedName) {
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-    return removeIllegalChars(unsanitizedName,sanitizedName);
+    return removeIllegalChars(unsanitizedName, sanitizedName);
   #else
-    return longName2DosName((const char *)unsanitizedName,sanitizedName);
+    return longName2DosName((const char *)unsanitizedName, sanitizedName);
   #endif
 }
 
@@ -1009,11 +1006,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   strcat_P((char *)list_file.file_name[sel_id], PSTR("/"));
 
                 if (file_writer.fileTransfer == 1) {
-                  #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-                  char dosName[LONG_FILENAME_LENGTH];
-                  #else
-                  char dosName[FILENAME_LENGTH];
-                  #endif
+                  char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_LENGTH, FILENAME_LENGTH)];
                   uint8_t fileName[sizeof(list_file.file_name[sel_id])];
                   fileName[0] = '\0';
                   if (has_path_selected == 1) {
@@ -1608,11 +1601,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   wifi_delay(1000);
 
   #if HAS_MEDIA
-    #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-    char dosName[LONG_FILENAME_LENGTH];
-    #else
-    char dosName[FILENAME_LENGTH];
-    #endif
+    char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_LENGTH, FILENAME_LENGTH)];
 
     if (!sanitizeName((const char *)file_writer.saveFileName, dosName)) {
       clear_cur_ui();
