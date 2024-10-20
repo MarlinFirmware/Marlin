@@ -505,7 +505,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
   #else
-    static_assert((BABYSTEP_MULTIPLICATOR_Z == (int)BABYSTEP_MULTIPLICATOR_Z) && (BABYSTEP_MULTIPLICATOR_Z != 0), "BABYSTEP_MULTIPLICATOR_Z must be a non-zero integer.");
+    static_assert(BABYSTEP_MULTIPLICATOR_Z && BABYSTEP_MULTIPLICATOR_Z == int(BABYSTEP_MULTIPLICATOR_Z), "BABYSTEP_MULTIPLICATOR_Z must be a non-zero integer.");
   #endif
 #endif
 
