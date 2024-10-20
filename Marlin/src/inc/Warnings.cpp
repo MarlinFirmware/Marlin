@@ -31,6 +31,24 @@
 // Warnings! Located here so they will appear just once in the build output.
 //
 
+// static_warning works like a static_assert but only emits a (messy) warning.
+#ifdef __GNUC__
+  namespace mfwarn {
+    struct true_type {};
+    struct false_type {};
+    template <int test> struct converter : public true_type {};
+    template <> struct converter<0> : public false_type {};
+  }
+  #define static_warning(cond, msg) \
+    struct CAT(static_warning, __LINE__) { \
+      void _(::mfwarn::false_type const&) __attribute__((deprecated(msg))) {}; \
+      void _(::mfwarn::true_type const&) {}; \
+      CAT(static_warning, __LINE__)() {_(::mfwarn::converter<(cond)>());} \
+    }
+#else
+  #define static_warning(...)
+#endif
+
 #if ENABLED(MARLIN_DEV_MODE)
   #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
   #ifdef __LONG_MAX__
@@ -40,6 +58,21 @@
       #warning "The 'long' type is the same as the 'int' type on this platform."
     #endif
   #endif
+#endif
+
+#if !USE_STD_CONFIGS
+  #if __has_include("../../Configuration.h")
+    #define HAS_IGNORED_CONFIGS
+  #elif __has_include("../../Configuration_adv.h")
+    #define HAS_IGNORED_CONFIGS
+  #endif
+  #ifdef HAS_IGNORED_CONFIGS
+    #warning "Configuration.h and Configuration_adv.h are being ignored, overridden by Config.h."
+  #endif
+#endif
+
+#if CONFIG_EXPORT % 100 == 5
+  #warning "Rename 'Config-export.h' to 'Config.h' to override Configuration.h and Configuration_adv.h."
 #endif
 
 #if DISABLED(DEBUG_FLAGS_GCODE)
@@ -81,8 +114,8 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
+  #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
@@ -664,21 +697,30 @@
 #endif
 
 #if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (C=HR4988, E=A4988, A=TMC2208, B=TMC2209, H=TMC2225, H8=HR4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
-#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-  #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && NONE(Z_SAFE_HOMING, NO_Z_SAFE_HOMING_WARNING)
+  #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
+#endif
+
+#if HAS_TRINAMIC_CONFIG && NONE(EDGE_STEPPING, NO_EDGE_STEPPING_WARNING)
+  #error "EDGE_STEPPING is strongly recommended with Trinamic stepper drivers. (Enable EDGE_STEPPING or define NO_EDGE_STEPPING_WARNING to suppress this warning.)"
+#endif
+
+#if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
+  #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
 //
 // Warn users of potential endstop/DIAG pin conflicts to prevent homing issues when not using sensorless homing
 //
-#if !USE_SENSORLESS
+#if !USE_SENSORLESS && HAS_DIAG_PINS
   #if ENABLED(USES_DIAG_JUMPERS) && DISABLED(DIAG_JUMPERS_REMOVED)
     #warning "Motherboard DIAG jumpers must be removed when SENSORLESS_HOMING is disabled. (Define DIAG_JUMPERS_REMOVED to suppress this warning.)"
   #endif
@@ -688,15 +730,41 @@
 #endif
 
 #if ENABLED(QUICK_HOME) && (X_SPI_SENSORLESS || Y_SPI_SENSORLESS)
-  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
+  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust SENSORLESS_BACKOFF_MM for better results."
+#endif
+
+#if HIGHER_CURRENT_HOME_WARNING
+  #warning "High homing currents can lead to damage if a sensor fails or is set up incorrectly."
+#endif
+
+#if USE_SENSORLESS && DISABLED(NO_HOMING_CURRENT_WARNING)
+  #if ENABLED(X_SENSORLESS) && defined(X_CURRENT_HOME) && !HAS_CURRENT_HOME(X)
+    #warning "It's recommended to set X_CURRENT_HOME lower than X_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(X2_SENSORLESS) && defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
+    #warning "It's recommended to set X2_CURRENT_HOME lower than X2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
+  #if ENABLED(Y_SENSORLESS) && defined(Y_CURRENT_HOME) && !HAS_CURRENT_HOME(Y)
+    #warning "It's recommended to set Y_CURRENT_HOME lower than Y_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Y2_SENSORLESS) && defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
+    #warning "It's recommended to set Y2_CURRENT_HOME lower than Y2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
+  #if ENABLED(Z_SENSORLESS) && defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z)
+    #warning "It's recommended to set Z_CURRENT_HOME lower than Z_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z2_SENSORLESS) && defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)
+    #warning "It's recommended to set Z2_CURRENT_HOME lower than Z2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z3_SENSORLESS) && defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)
+    #warning "It's recommended to set Z3_CURRENT_HOME lower than Z3_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z4_SENSORLESS) && defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #warning "It's recommended to set Z4_CURRENT_HOME lower than Z4_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
 #endif
 
 #if CANNOT_EMBED_CONFIGURATION
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
 
-#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
-  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
+#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX && DISABLED(NO_LCD_CONTRAST_WARNING)
+  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX. (Define NO_LCD_CONTRAST_WARNING to suppress this warning.)"
 #endif
 
 #if PROGRESS_MSG_EXPIRE > 0 && HAS_STATUS_MESSAGE_TIMEOUT
@@ -765,8 +833,13 @@
 /**
  * Input Shaping
  */
-#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#if HAS_ZV_SHAPING
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+    #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+  #endif
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "Input Shaping has not been tested with I2S_STEPPER_STREAM."
+  #endif
 #endif
 
 /**
@@ -840,4 +913,18 @@
  */
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+#endif
+
+/**
+ * HC32 clock speed is hard-coded in Marlin
+ */
+#if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
+  #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
+#endif
+
+/**
+ * Peltier with PIDTEMPBED
+ */
+#if ALL(PELTIER_BED, PIDTEMPBED)
+  #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
 #endif

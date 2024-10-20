@@ -59,9 +59,9 @@ float Z_distance = 0.1;
 //
 // Persistent settings
 //
-xy_int_t mks_corner_offsets[5];   // Initialized by settings.load()
-xyz_int_t mks_park_pos;           // Initialized by settings.load()
-celsius_t mks_min_extrusion_temp; // Initialized by settings.load()
+xy_int_t mks_corner_offsets[5];   // Initialized by settings.load
+xyz_int_t mks_park_pos;           // Initialized by settings.load
+celsius_t mks_min_extrusion_temp; // Initialized by settings.load
 
 void MKS_reset_settings() {
   constexpr xy_int_t init_dgus_level_offsets[5] = {
@@ -69,7 +69,7 @@ void MKS_reset_settings() {
     { 20, 20 }, { 20, 20 },
     { X_CENTER, Y_CENTER }
   };
-  mks_language_index = MKS_SimpleChinese;
+  mks_language_index = MKS_English;
   COPY(mks_corner_offsets, init_dgus_level_offsets);
   mks_park_pos.set(20, 20, 10);
   mks_min_extrusion_temp = 0;

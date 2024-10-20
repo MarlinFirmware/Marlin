@@ -58,7 +58,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
   LSTR MSG_HOMING                         = _UxGT("Origine");
   LSTR MSG_AUTO_HOME                      = _UxGT("Origine auto");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Origine @ auto");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Origine @ auto");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Origine X auto");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Origine Y auto");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Origine Z auto");
@@ -69,9 +69,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Mise a niveau OK!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Hauteur lissee");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Regl. decal origine");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("Decal. origine X"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Decal. origine Y"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Decal. origine Z"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Decalages appliques");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Assistant Molettes");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Molette du lit"); // Not a selection of the origin
@@ -103,6 +103,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrusion");
   LSTR MSG_RETRACT                        = _UxGT("Retractation");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Deplacer un axe");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Calibrage auto");
   LSTR MSG_BED_LEVELING                   = _UxGT("Regler Niv. lit");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveau du lit");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Niveau des coins");
@@ -129,7 +130,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Controle complet");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Offsets Outil");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("Buse 2 Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("Buse 2 @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("Buse 2 @");
   LSTR MSG_G26_HEATING_BED                = _UxGT("G26: Chauffage du lit");
   LSTR MSG_G26_HEATING_NOZZLE             = _UxGT("Buse en chauffe...");
   LSTR MSG_G26_MANUAL_PRIME               = _UxGT("Amorce manuelle...");
@@ -144,13 +145,10 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mesure");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("oter et mesurer lit");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Aller au suivant");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("Activer l'UBL");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("Desactiver l'UBL");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Temperature lit");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Temperature lit");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Temperature buse");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Temperature buse");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Modifier grille");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Modif. grille perso");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Reglage fin");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Terminer");
@@ -204,7 +202,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Stocker grille");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Controle LED");
-  LSTR MSG_LEDS                           = _UxGT("Lumiere");
+  LSTR MSG_LIGHTS                         = _UxGT("Lumiere");
+  LSTR MSG_LIGHT_N                        = _UxGT("Lumiere #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Preregl. LED");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rouge");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -255,12 +254,16 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_AUTOTEMP                       = _UxGT("Temp. Auto.");
   LSTR MSG_LCD_ON                         = _UxGT("Marche");
   LSTR MSG_LCD_OFF                        = _UxGT("Arret");
+
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("PID Autotune *");
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("Tuning PID termine");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Echec Autotune! E incorrect");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Echec Autotune! Temp. trop haute");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Echec Autotune! Oper. expiree");
+
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature trop basse");
+
   LSTR MSG_SELECT_E                       = _UxGT("Selectionner *");
   LSTR MSG_ACC                            = _UxGT("Acceleration");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -418,6 +421,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalage X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Decalage Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Decalage Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Decalage @");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep sonde Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
@@ -599,7 +604,6 @@ namespace LanguageNarrow_fr_na {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Impossible pendant une impression");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Impossible tant que l'imprimante est en attente");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Aucun fichier selectionne");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Temperature trop basse");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Execution de la commande...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Bed PID desactive");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID desactive");

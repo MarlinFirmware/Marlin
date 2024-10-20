@@ -90,15 +90,15 @@
   #endif
 #endif
 
-#ifdef MMU2_SERIAL_PORT
-  #if WITHIN(MMU2_SERIAL_PORT, 1, 9)
-    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+#ifdef MMU_SERIAL_PORT
+  #if WITHIN(MMU_SERIAL_PORT, 1, 9)
+    #define MMU_SERIAL MSERIAL(MMU_SERIAL_PORT)
   #elif !defined(USBCON)
-    #error "MMU2_SERIAL_PORT must be from 1 to 9."
-  #elif MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL MSerialUSB
+    #error "MMU_SERIAL_PORT must be from 1 to 9."
+  #elif MMU_SERIAL_PORT == -1
+    #define MMU_SERIAL MSerialUSB
   #else
-    #error "MMU2_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
+    #error "MMU_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
   #endif
 #endif
 
@@ -112,8 +112,16 @@
   #else
     #error "LCD_SERIAL_PORT must be from 1 to 9, or -1 for Native USB."
   #endif
-  #if HAS_DGUS_LCD
+  #if ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
     #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
+
+#ifdef RS485_SERIAL_PORT
+  #if WITHIN(RS485_SERIAL_PORT, 1, 9)
+    #define RS485_SERIAL MSERIAL(RS485_SERIAL_PORT)
+  #else
+    #error "RS485_SERIAL_PORT must be from 1 to 9."
   #endif
 #endif
 
@@ -121,7 +129,7 @@
  * TODO: review this to return 1 for pins that are not analog input
  */
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
 //

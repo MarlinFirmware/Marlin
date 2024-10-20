@@ -228,10 +228,14 @@
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
 
+  //
+  // MKS Testing for code in lcd/extui/mks_ui
+  //
   #if ENABLED(MKS_TEST)
     #define MKS_TEST_POWER_LOSS_PIN         PA2   // PW_DET
     #define MKS_TEST_PS_ON_PIN              PB2   // PW_OFF
   #endif
+
 #else
   //#define POWER_LOSS_PIN                  PA2   // PW_DET
   //#define PS_ON_PIN                       PB2   // PW_OFF
@@ -296,8 +300,7 @@
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
+ * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
  */
 
 #if ENABLED(TFT_CLASSIC_UI)

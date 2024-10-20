@@ -285,11 +285,11 @@
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN."
 #elif defined(HAVE_TMCDRIVER)
-  #error "HAVE_TMCDRIVER is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "HAVE_TMCDRIVER is obsolete."
 #elif defined(STEALTHCHOP)
   #error "STEALTHCHOP is now STEALTHCHOP_(XY|Z|E)."
 #elif defined(HAVE_TMC26X)
-  #error "HAVE_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "HAVE_TMC26X is now obsolete."
 #elif defined(HAVE_TMC2130)
   #error "HAVE_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130."
 #elif defined(HAVE_TMC2208)
@@ -298,10 +298,10 @@
   #error "HAVE_L6470DRIVER is obsolete. L64xx stepper drivers are no longer supported in Marlin."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) || defined(Z3_IS_TMC) \
    || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC) || defined(E6_IS_TMC) || defined(E7_IS_TMC)
-  #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "[AXIS]_IS_TMC is now obsolete."
 #elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) || defined(Z3_IS_TMC26X) \
    || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X) || defined(E5_IS_TMC26X) || defined(E6_IS_TMC26X) || defined(E7_IS_TMC26X)
-  #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X."
+  #error "[AXIS]_IS_TMC26X is now obsolete."
 #elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) || defined(Z3_IS_TMC2130) \
    || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130) || defined(E5_IS_TMC2130) || defined(E6_IS_TMC2130) || defined(E7_IS_TMC2130)
   #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130."
@@ -468,7 +468,7 @@
 #elif defined(ANYCUBIC_LCD_SERIAL_PORT)
   #error "ANYCUBIC_LCD_SERIAL_PORT is now LCD_SERIAL_PORT."
 #elif defined(INTERNAL_SERIAL_PORT)
-  #error "INTERNAL_SERIAL_PORT is now MMU2_SERIAL_PORT."
+  #error "INTERNAL_SERIAL_PORT is now MMU_SERIAL_PORT."
 #elif defined(X_DUAL_ENDSTOPS_ADJUSTMENT) || defined(Y_DUAL_ENDSTOPS_ADJUSTMENT) || defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
   #error "[XYZ]_DUAL_ENDSTOPS_ADJUSTMENT is now [XYZ]2_ENDSTOP_ADJUSTMENT."
 #elif defined(Z_TRIPLE_ENDSTOPS_ADJUSTMENT2) || defined(Z_TRIPLE_ENDSTOPS_ADJUSTMENT3)
@@ -497,6 +497,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018)."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN."
+#elif defined(DISABLE_ENCODER)
+  #error "DISABLE_ENCODER is now NO_BACK_MENU_ITEM."
 #elif defined(LCD_FULL_PIXEL_HEIGHT) || defined(LCD_FULL_PIXEL_WIDTH)
   #error "LCD_FULL_PIXEL_(WIDTH|HEIGHT) is deprecated and should be removed."
 #elif defined(FSMC_UPSCALE)
@@ -641,6 +643,8 @@
   #error "PROBE_PT_[123]_[XY] is now defined using PROBE_PT_[123] with an array { x, y }."
 #elif defined(SQUARE_WAVE_STEPPING)
   #error "SQUARE_WAVE_STEPPING is now EDGE_STEPPING."
+#elif defined(MINIMUM_STEPPER_PULSE)
+  #error "MINIMUM_STEPPER_PULSE (in µs) is now MINIMUM_STEPPER_PULSE_NS. Multiply old MINIMUM_STEPPER_PULSE x 1000!"
 #elif defined(FAN_PIN)
   #error "FAN_PIN is now FAN0_PIN."
 #elif defined(X_MIN_ENDSTOP_INVERTING) || defined(Y_MIN_ENDSTOP_INVERTING) || defined(Z_MIN_ENDSTOP_INVERTING) \
@@ -672,7 +676,7 @@
 #elif defined(Z2_USE_ENDSTOP)
   #error "Z2_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z2_USE_ENDSTOP _ZMAX_' becomes 'Z2_STOP_PIN Z_MAX_PIN')"
 #elif defined(Z3_USE_ENDSTOP)
-  #error "Z3_USE_ENDSTOP is obsolete. Instead set Z2_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
+  #error "Z3_USE_ENDSTOP is obsolete. Instead set Z3_STOP_PIN directly. (e.g., 'Z3_USE_ENDSTOP _ZMAX_' becomes 'Z3_STOP_PIN Z_MAX_PIN')"
 #elif defined(Z4_USE_ENDSTOP)
   #error "Z4_USE_ENDSTOP is obsolete. Instead set Z4_STOP_PIN directly. (e.g., 'Z4_USE_ENDSTOP _ZMAX_' becomes 'Z4_STOP_PIN Z_MAX_PIN')"
 #elif defined(INTEGRATED_BABYSTEPPING)
@@ -691,6 +695,54 @@
   #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING is now CTC_A10S_A13."
 #elif defined(Z_PROBE_END_SCRIPT)
   #error "Z_PROBE_END_SCRIPT is now EVENT_GCODE_AFTER_G29."
+#elif defined(WIFI_SERIAL)
+  #error "WIFI_SERIAL is now WIFI_SERIAL_PORT."
+#elif defined(CALIBRATION_MEASUREMENT_RESOLUTION)
+  #error "CALIBRATION_MEASUREMENT_RESOLUTION is no longer needed and should be removed."
+#elif defined(MMU2_MENUS)
+  #error "MMU2_MENUS is now MMU_MENUS."
+#elif defined(MMU2_SERIAL_PORT)
+  #error "MMU2_SERIAL_PORT is now MMU_SERIAL_PORT."
+#elif defined(MMU2_RST_PIN)
+  #error "MMU2_RST_PIN is now MMU_RST_PIN."
+#elif defined(MMU2_MAX_RETRIES)
+  #error "MMU2_MAX_RETRIES is now MMU3_MAX_RETRIES."
+#elif defined(MMU2_FILAMENT_SENSOR_POSITION)
+  #error "MMU2_FILAMENT_SENSOR_POSITION is now MMU3_FILAMENT_SENSOR_POSITION."
+#elif defined(MMU2_TOOL_CHANGE_LOAD_LENGTH)
+  #error "MMU2_TOOL_CHANGE_LOAD_LENGTH is now MMU3_TOOL_CHANGE_LOAD_LENGTH."
+#elif defined(MMU2_LOAD_TO_NOZZLE_FEED_RATE)
+  #error "MMU2_LOAD_TO_NOZZLE_FEED_RATE is now MMU3_LOAD_TO_NOZZLE_FEED_RATE."
+#elif defined(MMU2_UNLOAD_TO_FINDA_FEED_RATE)
+  #error "MMU2_UNLOAD_TO_FINDA_FEED_RATE is no longer needed and should be removed."
+#elif defined(MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE)
+  #error "MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE is now MMU3_VERIFY_LOAD_TO_NOZZLE_FEED_RATE."
+#elif defined(MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH)
+  #error "MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH is now MMU3_RETRY_UNLOAD_TO_FINDA_LENGTH."
+#elif defined(MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE)
+  #error "MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE is now MMU3_RETRY_UNLOAD_TO_FINDA_FEED_RATE."
+#elif defined(MMU2_FILAMENT_SENSOR_POSITION)
+  #error "MMU2_FILAMENT_SENSOR_POSITION is now MMU3_FILAMENT_SENSOR_E_POSITION."
+#elif defined(MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH)
+  #error "MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH is now MMU3_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH."
+#elif defined(MMU_HAS_CUTTER)
+  #error "MMU_HAS_CUTTER is now MMU3_HAS_CUTTER."
+#elif defined(MMU_FORCE_STEALTH_MODE)
+  #error "MMU_FORCE_STEALTH_MODE is obsolete and should be removed."
+#elif defined(MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
+  #error "MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT is now MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT."
+#elif HAS_PRUSA_MMU3 && defined(MMU2_LOAD_TO_NOZZLE_SEQUENCE)
+  #error "MMU2_LOAD_TO_NOZZLE_SEQUENCE is now MMU3_LOAD_TO_NOZZLE_SEQUENCE for MMU_MODEL MMU3."
+#elif HAS_PRUSA_MMU3 && defined(MMU2_RAMMING_SEQUENCE)
+  #error "MMU2_RAMMING_SEQUENCE is now MMU3_RAMMING_SEQUENCE for MMU_MODEL MMU3."
+#elif defined(MMU_EXTRUDER_SENSOR)
+  #error "MMU_EXTRUDER_SENSOR is now MMU2_EXTRUDER_SENSOR."
+#elif defined(MMU_LOADING_ATTEMPTS_NR)
+  #error "MMU_LOADING_ATTEMPTS_NR is now MMU2_LOADING_ATTEMPTS_NR."
+#elif defined(MMU2_DEBUG)
+  #error "MMU2_DEBUG is now MMU_DEBUG."
+#elif defined(FTM_SHAPING_DEFAULT_X_FREQ) || defined(FTM_SHAPING_DEFAULT_Y_FREQ)
+  #error "FTM_SHAPING_DEFAULT_[XY]_FREQ is now FTM_SHAPING_DEFAULT_FREQ_[XY]."
 #endif
 
 // Changes to Probe Temp Compensation (#17392)
@@ -718,6 +770,8 @@
 #define _L6474              0x6474
 #define _L6480              0x6480
 #define _POWERSTEP01        0xF00D
+#define _TMC26X             0x2600
+#define _TMC26X_STANDALONE  0x2601
 #if HAS_DRIVER(L6470)
   #error "L6470 stepper drivers are no longer supported in Marlin."
 #elif HAS_DRIVER(L6474)
@@ -726,8 +780,12 @@
   #error "L6480 stepper drivers are no longer supported in Marlin."
 #elif HAS_DRIVER(POWERSTEP01)
   #error "POWERSTEP01 stepper drivers are no longer supported in Marlin."
+#elif HAS_DRIVER(TMC26X) || HAS_DRIVER(TMC26X_STANDALONE)
+  #error "TMC26X stepper drivers are no longer supported in Marlin."
 #endif
 #undef _L6470
 #undef _L6474
 #undef _L6480
 #undef _POWERSTEP01
+#undef _TMC26X
+#undef _TMC26X_STANDALONE

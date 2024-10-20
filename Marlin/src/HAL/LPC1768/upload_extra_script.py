@@ -13,9 +13,9 @@ if pioutil.is_pio_build():
     target_drive = "REARM"
 
     import platform
-
     current_OS = platform.system()
-    Import("env")
+
+    env = pioutil.env
 
     def print_error(e):
         print('\nUnable to find destination disk (%s)\n' \

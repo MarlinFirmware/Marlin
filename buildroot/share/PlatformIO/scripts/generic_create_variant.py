@@ -8,14 +8,14 @@
 import pioutil, re
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
-    import shutil,marlin
+    import shutil, marlin
     from pathlib import Path
 
     #
     # Get the platform name from the 'platform_packages' option,
     # or look it up by the platform.class.name.
     #
-    env = marlin.env
+    env = pioutil.env
     platform = env.PioPlatform()
 
     from platformio.package.meta import PackageSpec

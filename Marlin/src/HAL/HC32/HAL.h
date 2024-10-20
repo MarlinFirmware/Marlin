@@ -114,22 +114,19 @@
 // Misc. Functions
 //
 #ifndef analogInputToDigitalPin
-#define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
-#define CRITICAL_SECTION_START        \
-  uint32_t primask = __get_PRIMASK(); \
-  (void)__iCliRetVal()
+#define CRITICAL_SECTION_START()        \
+  const bool irqon = !__get_PRIMASK();  \
+  __disable_irq();                      \
+  __DSB();
+#define CRITICAL_SECTION_END()          \
+  __DSB();                              \
+  if (irqon) __enable_irq();
 
-#define CRITICAL_SECTION_END \
-  if (!primask)              \
-  (void)__iSeiRetVal()
-
-// Disable interrupts
-#define cli() noInterrupts()
-
-// Enable interrupts
-#define sei() interrupts()
+#define cli() __disable_irq()
+#define sei() __enable_irq()
 
 // bss_end alias
 #define __bss_end __bss_end__
@@ -142,11 +139,30 @@
 // ADC
 //
 #define HAL_ADC_VREF_MV 3300
-#define HAL_ADC_RESOLUTION 10
+#define HAL_ADC_RESOLUTION 12
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+//
+// Debug port disable
+// JTMS / SWDIO = PA13
+// JTCK / SWCLK = PA14
+// JTDI         = PA15
+// JTDO         = PB3
+// NJTRST       = PB4
+//
+#define DBG_SWCLK _BV(0)
+#define DBG_SWDIO _BV(1)
+#define DBG_TDO   _BV(2)
+#define DBG_TDI   _BV(3)
+#define DBG_TRST  _BV(4)
+#define DBG_ALL (DBG_SWCLK | DBG_SWDIO | DBG_TDO | DBG_TDI | DBG_TRST)
+
+#define JTAGSWD_RESET() PORT_DebugPortSetting(DBG_ALL, Enable);
+#define JTAG_DISABLE() PORT_DebugPortSetting(DBG_TDO | DBG_TDI | DBG_TRST, Disable);
+#define JTAGSWD_DISABLE() PORT_DebugPortSetting(DBG_ALL, Disable);
 
 //
 // MarlinHAL implementation
