@@ -44,6 +44,13 @@
 //#define STRING_DISTRIBUTION_DATE "2024-10-20"
 
 /**
+ * The protocol for communication to the host. Protocol indicates communication
+ * standards such as the use of ASCII, "echo:" and "error:" line prefixes, etc.
+ * (Other behaviors are given by the firmware version and capabilities report.)
+ */
+//#define PROTOCOL_VERSION "1.0"
+
+/**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
 //#define MACHINE_NAME "3D Printer"
@@ -68,8 +75,8 @@
 //#define WEBSITE_URL "marlinfw.org"
 
 /**
- * Set the vendor info the serial USB interface, if changable
- * Currently only supported by DUE platform
+ * Set the vendor info the serial USB interface, if changeable.
+ * Currently only supported by DUE platform.
  */
 //#define USB_DEVICE_VENDOR_ID           0x0000
 //#define USB_DEVICE_PRODUCT_ID          0x0000
