@@ -34,7 +34,7 @@ jobs:
     name: Build Test
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: true
