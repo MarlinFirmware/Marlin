@@ -1101,6 +1101,9 @@ namespace LanguageWide_en {
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("Longest Job Time");
     LSTR MSG_INFO_PRINT_FILAMENT          = _UxGT("Extruded Total");
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
+    LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("X Homing Feedrate");
+    LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
+    LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
   #endif
 }
