@@ -34,7 +34,7 @@ extern char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
  * M820: List defined M810 - M819 macros
  */
 void GcodeSuite::M820() {
-  SERIAL_ECHOLNPGM(STR_M810_M819_MACROS);
+  SERIAL_ECHOLNPGM(STR_STORED_MACROS);
   for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; ++i) {
     char * const cmd = gcode_macros[i];
     if (*cmd) {
