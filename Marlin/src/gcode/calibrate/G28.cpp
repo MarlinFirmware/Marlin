@@ -52,6 +52,10 @@
   #include "../../feature/bltouch.h"
 #endif
 
+#if ENABLED(FT_MOTION)
+  #include "../../module/ft_motion.h"
+#endif
+
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -129,6 +133,22 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+
+    #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+            // Disable Fixed-Time Motion for probing
+      struct OnExit {
+        bool isactive;
+        OnExit() {
+          isactive = ftMotion.cfg.active;
+          ftMotion.cfg.active = false;
+        }
+        ~OnExit() {
+          ftMotion.cfg.active = isactive;
+          ftMotion.init();
+        }
+      } on_exit;
+    #endif
+
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
@@ -218,6 +238,22 @@
  *  Z   Home to the Z endstop
  */
 void GcodeSuite::G28() {
+
+  #if ENABLED(FT_MOTION) && ANY(BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
+      // Disable Fixed-Time Motion for probing
+    struct OnExit {
+      bool isactive;
+      OnExit() {
+        isactive = ftMotion.cfg.active;
+        ftMotion.cfg.active = false;
+      }
+      ~OnExit() {
+        ftMotion.cfg.active = isactive;
+        ftMotion.init();
+      }
+    } on_exit;
+  #endif
+
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
