@@ -188,3 +188,13 @@
                    || HAS_DRIVER(TMC5130_STANDALONE) || HAS_DRIVER(TMC5160_STANDALONE)
   #define HAS_DIAG_PINS 1
 #endif
+
+// Hybrid Threshold ranges
+#define _TMC2100_THRS     65535
+#define _TMC2130_THRS     65535
+#define _TMC2160_THRS       255
+#define _TMC2208_THRS       255
+#define _TMC2209_THRS       255
+#define _TMC2660_THRS     65535
+#define _TMC5130_THRS     65535
+#define _TMC5160_THRS     65535
