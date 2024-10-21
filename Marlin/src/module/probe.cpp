@@ -574,7 +574,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
 /**
  * @brief Move down until the probe triggers or the low limit is reached
- *        Used by run_z_probe to do a single Z probe move.
+ *        Used by run_z_probe to do a single Z-Probe move.
  *
  * @param  z        Z destination
  * @param  fr_mm_s  Feedrate in mm/s
@@ -709,7 +709,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   }
 
   /**
-   * @brief Tare the Z probe
+   * @brief Tare the Z-Probe
    *
    * @details Signal to the probe to tare itself
    *
@@ -741,7 +741,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
  *          Leaves current_position.z at the height where the probe triggered.
  *
  * @param sanity_check Flag to compare the probe result with the expected result
- *                     based on the probe Z offset. If the result is too far away
+ *                     based on the probe Z-Offset. If the result is too far away
  *                     (more than Z_PROBE_ERROR_TOLERANCE too early) then throw an error.
  * @param z_min_point Override the minimum probing height (-2mm), to allow deeper probing.
  * @param z_clearance Z clearance to apply on probe failure.
@@ -779,7 +779,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   };
 
   // Stop the probe before it goes too low to prevent damage.
-  // For known Z probe below the expected trigger point, otherwise -10mm lower.
+  // For known Z-Probe below the expected trigger point, otherwise -10mm lower.
   const float z_probe_low_point = zoffs + z_min_point -float((!axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
@@ -1060,7 +1060,7 @@ float Probe::probe_at_point(
      * The servo might be deployed and positioned too low to stow
      * when starting up the machine or rebooting the board.
      * There's no way to know where the nozzle is positioned until
-     * homing has been done - no homing with z-probe without init!
+     * homing has been done - no homing with Z-Probe without init!
      */
     STOW_Z_SERVO();
 
@@ -1072,7 +1072,7 @@ float Probe::probe_at_point(
 #if HAS_DELTA_SENSORLESS_PROBING
 
   /**
-   * Set the sensorless Z offset
+   * Set the sensorless Z-Offset
    */
   void Probe::set_offset_sensorless_adj(const_float_t sz) {
     DEBUG_SECTION(pso, "Probe::set_offset_sensorless_adj", true);

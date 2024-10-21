@@ -201,7 +201,7 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(BLINKM)
 
-    // This variant uses i2c to send the RGB components to the device.
+    // This variant uses I2C to send the RGB components to the device.
     blinkm_set_led_color(incol);
 
   #endif

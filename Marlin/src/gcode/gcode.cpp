@@ -194,7 +194,7 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY) && !PIN_EXISTS(POWER_LOSS)
-    // Only update power loss recovery on moves with E
+    // Only update Power-Loss Recovery on moves with E
     if (recovery.enabled && IS_SD_PRINTING() && seen.e && (seen.x || seen.y))
       recovery.save();
   #endif
@@ -404,7 +404,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_BED_PROBE
-        case 30: G30(); break;                                    // G30: Single Z probe
+        case 30: G30(); break;                                    // G30: Single Z-Probe
         #if ENABLED(Z_PROBE_SLED)
           case 31: G31(); break;                                  // G31: dock the sled
           case 32: G32(); break;                                  // G32: undock the sled
@@ -445,8 +445,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if SAVED_POSITIONS
-        case 60: G60(); break;                                    // G60:  save current position
-        case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
+        case 60: G60(); break;                                    // G60: Save current position
+        case 61: G61(); break;                                    // G61: Apply/restore saved coordinates
       #endif
 
       #if ALL(PTC_PROBE, PTC_BED)
@@ -553,7 +553,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-        case 48: M48(); break;                                    // M48: Z probe repeatability test
+        case 48: M48(); break;                                    // M48: Z-Probe repeatability test
       #endif
 
       #if ENABLED(SET_PROGRESS_MANUALLY)
@@ -663,8 +663,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 81: M81(); break;                                      // M81: Turn off Power, including Power Supply, if possible
 
       #if HAS_EXTRUDERS
-        case 82: M82(); break;                                    // M82: Set E axis normal mode (same as other axes)
-        case 83: M83(); break;                                    // M83: Set E axis relative mode
+        case 82: M82(); break;                                    // M82: Set E-Axis normal mode (same as other axes)
+        case 83: M83(); break;                                    // M83: Set E-Axis relative mode
       #endif
 
       case 18: case 84: M18_M84(); break;                         // M18/M84: Disable Steppers / Set Timeout
@@ -820,8 +820,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(EXPERIMENTAL_I2CBUS)
-        case 260: M260(); break;                                  // M260: Send data to an i2c slave
-        case 261: M261(); break;                                  // M261: Request data from an i2c slave
+        case 260: M260(); break;                                  // M260: Send data to an I2C slave
+        case 261: M261(); break;                                  // M261: Request data from an I2C slave
       #endif
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -892,7 +892,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Twist Compensation data
+        case 423: M423(); break;                                  // M423: Reset, modify, or report X-Axis Twist Compensation data
       #endif
 
       #if ENABLED(BACKLASH_GCODE)
@@ -968,7 +968,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         case 600: M600(); break;                                  // M600: Pause for Filament Change
         #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
-          case 603: M603(); break;                                  // M603: Configure Filament Change
+          case 603: M603(); break;                                // M603: Configure Filament Change
         #endif
       #endif
 
@@ -1013,7 +1013,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if HAS_BED_PROBE
-        case 851: M851(); break;                                  // M851: Set Z Probe Z Offset
+        case 851: M851(); break;                                  // M851: Set Z-Probe Offset
       #endif
 
       #if ENABLED(SKEW_CORRECTION_GCODE)

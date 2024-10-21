@@ -401,7 +401,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("初始化存储卡"); // "Init. SD card"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更换存储卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z-Probe out. bed" Z-Probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因数"); // "Skew Factor"
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch"); // "BLTouch"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("自检");

@@ -284,7 +284,7 @@ void Endstops::not_homing() {
   }
 #endif
 
-// Enable / disable endstop z-probe checking
+// Enable / disable endstop Z-Probe checking
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
@@ -1176,7 +1176,7 @@ void Endstops::update() {
   bool Endstops::monitor_flag = false;
 
   /**
-   * Monitor Endstops and Z Probe for changes
+   * Monitor Endstops and Z-Probe for changes
    *
    * If a change is detected then the LED is toggled and
    * a message is sent out the serial port.

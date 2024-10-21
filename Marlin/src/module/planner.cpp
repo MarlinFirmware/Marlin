@@ -1542,7 +1542,7 @@ void Planner::check_axes_activity() {
         else if (z_full_fade >= z_fade_height)                                // Above the fade height?
           raw.z = z_full_fade;                                                //  Nothing more to unapply.
         else                                                                  // Within the fade zone?
-          raw.z = z_no_fade / (1.0f - z_correction * inverse_z_fade_height);  // Unapply the faded Z offset
+          raw.z = z_no_fade / (1.0f - z_correction * inverse_z_fade_height);  // Unapply the faded Z-Offset
       #else
         raw.z = z_no_fade;
       #endif
@@ -1971,7 +1971,7 @@ bool Planner::_populate_block(
 
   /**
    * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the distance along the X axis equals the X_AXIS joint displacement and same holds true for Y_AXIS.
+   * For cartesian bots, the distance along the X-Axis equals the X_AXIS joint displacement and same holds true for Y_AXIS.
    * But for geometries like CORE_XY that is not true. For these machines we need to create 2 additional variables, named X_HEAD and Y_HEAD, to store the displacent of the head along the X and Y axes in a cartesian coordinate system.
    * The displacement of the head along the axes of the cartesian coordinate system has to be calculated from "X_AXIS" and "Y_AXIS" (should be renamed to A_JOINT and B_JOINT)
    * displacements in joints space using forward kinematics (A=X+Y and B=X-Y in the case of CORE_XY).

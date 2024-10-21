@@ -391,7 +391,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare Media");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Inlocuire Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Eliberare Media");
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Self-Test");

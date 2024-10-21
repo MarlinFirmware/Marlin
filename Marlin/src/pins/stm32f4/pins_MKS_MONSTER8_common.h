@@ -41,7 +41,7 @@
 // Use one of these or SDCard-based Emulation will be used
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#define I2C_EEPROM                                // Need use jumpers set i2c for EEPROM
+#define I2C_EEPROM                                // Need use jumpers set I2C for EEPROM
 #define MARLIN_EEPROM_SIZE                0x1000  // 4K
 #define I2C_SCL_PIN                         PB8   // I2C_SCL and CAN_RX
 #define I2C_SDA_PIN                         PB9   // I2C_SDA and CAN_TX

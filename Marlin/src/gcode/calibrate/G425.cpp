@@ -333,7 +333,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
   #endif
 
   /**
-   * Allow Y axis to probe and compute values before X axis (or remaining arbitrary axes)
+   * Allow Y-Axis to probe and compute values before X-Axis (or remaining arbitrary axes)
    * to assist with centering in calibration object. Lulzbot saw issues with higher uncertainty
    * values where the nozzle was catching on the edges of the cube, and this was intended to help
    * ensure the probe object remained centered.

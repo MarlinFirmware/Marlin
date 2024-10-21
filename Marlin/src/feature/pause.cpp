@@ -760,7 +760,7 @@ void resume_print(
     if (did_pause_print) {
       --did_pause_print;
       card.startOrResumeFilePrinting();
-      // Write PLR now to update the z axis value
+      // Write PLR now to update the Z-Axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
     }
   #endif

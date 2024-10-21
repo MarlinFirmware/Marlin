@@ -71,7 +71,7 @@ void GcodeSuite::M261() {
   if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE)
     i2c.relay(bytes, style);
   else
-    SERIAL_ERROR_MSG("Bad i2c request");
+    SERIAL_ERROR_MSG("Bad I2C request");
 }
 
 #endif

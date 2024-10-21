@@ -74,7 +74,7 @@
 #define Z_STOP_PIN                    Z_DIAG_PIN  // Z-STOP
 
 //
-// Z Probe (when not Z_STOP_PIN)
+// Z-Probe (when not Z_STOP_PIN)
 //
 #define Z_MIN_PROBE_PIN                     PA6   // BLTouch
 
@@ -96,7 +96,7 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PB9   // PWRDET

@@ -125,7 +125,7 @@
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PH11  // Z Probe must be PH11
+  #define Z_MIN_PROBE_PIN                   PH11  // Z-Probe must be PH11
 #endif
 
 //

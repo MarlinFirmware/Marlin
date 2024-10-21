@@ -1479,7 +1479,7 @@ void restore_feedrate_and_scaling() {
       // the movement limits must be shifted by the tool offset to
       // retain the same physical limit when other tools are selected.
 
-      if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z axis is "special" and shouldn't be modified
+      if (new_tool_index == old_tool_index || axis == Z_AXIS) { // The Z-Axis is "special" and shouldn't be modified
         const float offs = (axis == Z_AXIS) ? 0 : hotend_offset[active_extruder][axis];
         soft_endstop.min[axis] = base_min_pos(axis) + offs;
         soft_endstop.max[axis] = base_max_pos(axis) + offs;
@@ -2028,7 +2028,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
   }
 
   /**
-   * Prepare a linear move in a dual X axis setup
+   * Prepare a linear move in a dual X-Axis setup
    *
    * Return true if current_position[] was set to destination[]
    */
@@ -2680,7 +2680,7 @@ void prepare_line_to_destination() {
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
 
     //
-    // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
+    // Homing Z with a probe? Raise Z (maybe) and deploy the Z-Probe.
     //
     #if HOMING_Z_WITH_PROBE
       if (axis == Z_AXIS && probe.deploy()) {
@@ -2987,7 +2987,7 @@ void prepare_line_to_destination() {
       if (axis == Z_AXIS) bdl.config_state = BDS_IDLE;
     #endif
 
-    // Put away the Z probe
+    // Put away the Z-Probe
     if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
@@ -3007,7 +3007,7 @@ void prepare_line_to_destination() {
       }
     #endif
 
-    // Clear retracted status if homing the Z axis
+    // Clear retracted status if homing the Z-Axis
     #if ENABLED(FWRETRACT)
       if (axis == Z_AXIS) fwretract.current_hop = 0.0;
     #endif
@@ -3063,7 +3063,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #endif
 
   /**
-   * Z Probe Z Homing? Account for the probe's Z offset.
+   * Z-Probe Z Homing? Account for the probe's Z-Offset.
    */
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {

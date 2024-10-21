@@ -32,13 +32,13 @@ typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
 /**
- * For a light i2c protocol that runs on two boards running Marlin see:
+ * For a light I2C protocol that runs on two boards running Marlin see:
  * See https://github.com/MarlinFirmware/Marlin/issues/4776#issuecomment-246262879
  */
 #if I2C_SLAVE_ADDRESS > 0
 
-  void i2c_on_receive(int bytes); // Demo i2c onReceive handler
-  void i2c_on_request();          // Demo i2c onRequest handler
+  void i2c_on_receive(int bytes); // Demo I2C onReceive handler
+  void i2c_on_request();          // Demo I2C onRequest handler
 
 #endif
 
@@ -183,7 +183,7 @@ class TWIBus {
     uint8_t capture(char *dst, const uint8_t bytes);
 
     /**
-     * @brief Flush the i2c bus.
+     * @brief Flush the I2C bus.
      * @details Get all bytes on the bus and throw them away.
      */
     static void flush();

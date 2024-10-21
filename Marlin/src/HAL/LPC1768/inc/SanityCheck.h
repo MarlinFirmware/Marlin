@@ -193,7 +193,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #undef ANY_RX
 
 //
-// Flag any i2c pin conflicts
+// Flag any I2C pin conflicts
 //
 #if ANY(HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, PCA9632, I2C_EEPROM)
   #define USEDI2CDEV_M 1  // <Arduino>/Wire.cpp
@@ -220,19 +220,19 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #define PIN_IS_SDA1(P) (PIN_EXISTS(P) && P##_PIN == P0_00)
     #define PIN_IS_SCL1(P) (P##_PIN == P0_01)
     #if PIN_IS_SDA1(X_MIN) || PIN_IS_SCL1(X_MAX)
-      #error "One or more i2c (1) pins overlaps with X endstop pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with X endstop pins! Disable I2C peripherals."
     #elif PIN_IS_SDA1(X2_DIR) || PIN_IS_SCL1(X2_STEP)
-      #error "One or more i2c (1) pins overlaps with X2 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with X2 pins! Disable I2C peripherals."
     #elif PIN_IS_SDA1(Y2_DIR) || PIN_IS_SCL1(Y2_STEP)
-      #error "One or more i2c (1) pins overlaps with Y2 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with Y2 pins! Disable I2C peripherals."
     #elif PIN_IS_SDA1(Z2_DIR) || PIN_IS_SCL1(Z2_STEP)
-      #error "One or more i2c (1) pins overlaps with Z2 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with Z2 pins! Disable I2C peripherals."
     #elif PIN_IS_SDA1(Z3_DIR) || PIN_IS_SCL1(Z3_STEP)
-      #error "One or more i2c (1) pins overlaps with Z3 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with Z3 pins! Disable I2C peripherals."
     #elif PIN_IS_SDA1(Z4_DIR) || PIN_IS_SCL1(Z4_STEP)
-      #error "One or more i2c (1) pins overlaps with Z4 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with Z4 pins! Disable I2C peripherals."
     #elif HAS_MULTI_EXTRUDER && (PIN_IS_SDA1(E1_DIR) || PIN_IS_SCL1(E1_STEP))
-      #error "One or more i2c (1) pins overlaps with E1 pins! Disable i2c peripherals."
+      #error "One or more I2C (1) pins overlaps with E1 pins! Disable I2C peripherals."
     #endif
     #undef PIN_IS_SDA1
     #undef PIN_IS_SCL1
@@ -240,31 +240,31 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #define PIN_IS_SDA2(P) (P##_PIN == P0_10)
     #define PIN_IS_SCL2(P) (P##_PIN == P0_11)
     #if PIN_IS_SDA2(Y_STOP)
-      #error "i2c SDA2 overlaps with Y endstop pin!"
+      #error "I2C SDA2 overlaps with Y endstop pin!"
     #elif USE_Z_MIN_PROBE && PIN_IS_SDA2(Z_MIN_PROBE)
-      #error "i2c SDA2 overlaps with Z probe pin!"
+      #error "I2C SDA2 overlaps with Z-Probe pin!"
     #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
-      #error "i2c SDA2 overlaps with X/Y ENABLE pin!"
+      #error "I2C SDA2 overlaps with X/Y ENABLE pin!"
     #elif AXIS_HAS_SPI(X) && PIN_IS_SDA2(X_CS)
-      #error "i2c SDA2 overlaps with X CS pin!"
+      #error "I2C SDA2 overlaps with X CS pin!"
     #elif PIN_IS_SDA2(X2_ENABLE)
-      #error "i2c SDA2 overlaps with X2 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with X2 enable pin! Disable I2C peripherals."
     #elif PIN_IS_SDA2(Y2_ENABLE)
-      #error "i2c SDA2 overlaps with Y2 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with Y2 enable pin! Disable I2C peripherals."
     #elif PIN_IS_SDA2(Z2_ENABLE)
-      #error "i2c SDA2 overlaps with Z2 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with Z2 enable pin! Disable I2C peripherals."
     #elif PIN_IS_SDA2(Z3_ENABLE)
-      #error "i2c SDA2 overlaps with Z3 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with Z3 enable pin! Disable I2C peripherals."
     #elif PIN_IS_SDA2(Z4_ENABLE)
-      #error "i2c SDA2 overlaps with Z4 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with Z4 enable pin! Disable I2C peripherals."
     #elif HAS_MULTI_EXTRUDER && PIN_IS_SDA2(E1_ENABLE)
-      #error "i2c SDA2 overlaps with E1 enable pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with E1 enable pin! Disable I2C peripherals."
     #elif HAS_MULTI_EXTRUDER && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
-      #error "i2c SDA2 overlaps with E1 CS pin! Disable i2c peripherals."
+      #error "I2C SDA2 overlaps with E1 CS pin! Disable I2C peripherals."
     #elif EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
-      #error "i2c SCL2 overlaps with E0 STEP/DIR pin! Disable i2c peripherals."
+      #error "I2C SCL2 overlaps with E0 STEP/DIR pin! Disable I2C peripherals."
     #elif PIN_IS_SDA2(X_DIR) || PIN_IS_SDA2(Y_DIR)
-      #error "One or more i2c pins overlaps with X/Y DIR pin! Disable i2c peripherals."
+      #error "One or more I2C pins overlaps with X/Y DIR pin! Disable I2C peripherals."
     #endif
     #undef PIN_IS_SDA2
     #undef PIN_IS_SCL2

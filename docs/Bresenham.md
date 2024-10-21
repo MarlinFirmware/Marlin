@@ -139,15 +139,15 @@ With slow movements that are composed of a similar, but not equal number of step
 
 It is nearly trivial to extend Bresenham to "oversample" in that situation: Let's do it:
 
-Assume that we want to use Bresenham to calculate when to step (move in Y direction), but we want to do it, not for integer increments of the X axis, rather than, for fractional increments.
+Assume that we want to use Bresenham to calculate when to step (move in Y direction), but we want to do it, not for integer increments of the X-Axis, rather than, for fractional increments.
 
-Let's call 'r' the count of subdivisions we want to split an integer increment of the X axis:
+Let's call 'r' the count of subdivisions we want to split an integer increment of the X-Axis:
 
 ```
 m = Δy/Δx = increment of y due to the increment of x1
 ```
 
-Every time we move `1/r` in the X axis, then the Y axis should move `m.1/r`
+Every time we move `1/r` in the X-Axis, then the Y-Axis should move `m.1/r`
 
 But, as stated previously, due to the resolution of the screen, there are 2 choices:
 

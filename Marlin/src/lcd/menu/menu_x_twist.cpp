@@ -41,7 +41,7 @@ void _goto_manual_move_z(const_float_t);
 float measured_z, z_offset;
 
 //
-// Step 9: X Axis Twist Compensation Wizard is finished.
+// Step 9: X-Axis Twist Compensation Wizard is finished.
 //
 void xatc_wizard_done() {
   if (!ui.wait_for_move) {
@@ -58,7 +58,7 @@ void xatc_wizard_done() {
 void xatc_wizard_goto_next_point();
 
 //
-// Step 8: Ask the user if he wants to update the z-offset of the probe
+// Step 8: Ask the user if he wants to update the Z-Offset of the probe
 //
 void xatc_wizard_update_z_offset() {
   MenuItem_confirm::select_screen(
@@ -74,10 +74,10 @@ void xatc_wizard_update_z_offset() {
 }
 
 //
-// Step 7: Set the Z-offset for this point and go to the next one.
+// Step 7: Set the Z-Offset for this point and go to the next one.
 //
 void xatc_wizard_set_offset_and_go_to_next_point() {
-  // Set Z-offset at probed point
+  // Set Z-Offset at probed point
   xatc.z_offset[manual_probe_index++] = probe.offset.z + current_position.z - measured_z;
   // Go to next point
   ui.goto_screen(xatc_wizard_goto_next_point);
@@ -148,13 +148,13 @@ void xatc_wizard_goto_next_point() {
       manual_probe_index++; // Go to next point
   }
   else {
-    // Compute the z-offset by averaging the values found with this wizard
+    // Compute the Z-Offset by averaging the values found with this wizard
     z_offset = 0;
     for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) z_offset += xatc.z_offset[i];
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
-    // This way they are indipendent from the z-offset
+    // This way they are indipendent from the Z-Offset
     for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);

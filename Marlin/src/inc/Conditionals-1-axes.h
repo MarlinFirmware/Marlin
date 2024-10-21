@@ -519,7 +519,7 @@
  *
  * DISTINCT_AXES is the number of distinct addressable axes (not steppers).
  *  Includes all linear axes plus all distinguished extruders.
- *  The default behavior is to treat all extruders as a single E axis
+ *  The default behavior is to treat all extruders as a single E-Axis
  *  with shared motion and temperature settings.
  *
  * DISTINCT_E is the number of distinguished extruders. By default this

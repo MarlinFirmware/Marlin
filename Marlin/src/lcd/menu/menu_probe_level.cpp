@@ -343,7 +343,7 @@ void menu_probe_level() {
     #endif
 
     //
-    // Probe Z Offset - Babystep or Edit
+    // Probe Z-Offset - Babystep or Edit
     //
     if (can_babystep_z) {
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -357,7 +357,7 @@ void menu_probe_level() {
     }
 
     //
-    // Probe Z Offset Wizard
+    // Probe Z-Offset Wizard
     //
     #if ENABLED(PROBE_OFFSET_WIZARD)
       SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);

@@ -44,7 +44,7 @@ typedef struct {
 
 /**
  * Probe temperature compensation implementation.
- * Z-probes like the P.I.N.D.A V2 allow for compensation of
+ * Z-Probes like the P.I.N.D.A V2 allow for compensation of
  * measurement errors/shifts due to changed temperature.
  */
 

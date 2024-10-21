@@ -152,7 +152,7 @@ public:
 #endif
 
 /**
- * G29: Detailed Z probe, probes the bed at 3 or more points.
+ * G29: Detailed Z-Probe, probes the bed at 3 or more points.
  *      Will fail if the printer has not been homed with G28.
  *
  * Enhanced G29 Auto Bed Leveling Probe Routine
@@ -202,7 +202,7 @@ public:
  *
  * Parameters with BILINEAR leveling only:
  *
- *  Z  Supply an additional Z probe offset
+ *  Z  Supply an additional Z-Probe Offset
  *
  * Extra parameters with PROBE_MANUALLY:
  *
@@ -224,9 +224,9 @@ public:
  *
  * Without PROBE_MANUALLY:
  *
- *  E  By default G29 will engage the Z probe, test the bed, then disengage.
- *     Include "E" to engage/disengage the Z probe for each sample.
- *     There's no extra effect if you have a fixed Z probe.
+ *  E  By default G29 will engage the Z-Probe, test the bed, then disengage.
+ *     Include "E" to engage/disengage the Z-Probe for each sample.
+ *     There's no extra effect if you have a fixed Z-Probe.
  */
 G29_TYPE GcodeSuite::G29() {
 
@@ -453,7 +453,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
     }
 
-    // Position bed horizontally and Z probe vertically.
+    // Position bed horizontally and Z-Probe vertically.
     #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X
@@ -1002,7 +1002,7 @@ G29_TYPE GcodeSuite::G29() {
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z-Probe End Script: ", EVENT_GCODE_AFTER_G29);
     planner.synchronize();
     process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
   #endif

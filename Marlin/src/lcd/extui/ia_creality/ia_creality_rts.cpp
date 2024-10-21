@@ -798,7 +798,7 @@ void RTS::handleData() {
           if (tmpSteps == 0) tmpSteps = getZOffset_mm() < tmp_zprobe_offset ? 1 : -1;
           smartAdjustAxis_steps(-tmpSteps, axis_t(Z), false);
           char zOffs[20], tmp1[11];
-          sprintf_P(zOffs, PSTR("Z Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
+          sprintf_P(zOffs, PSTR("Z-Offset : %s"), dtostrf(getZOffset_mm(), 1, 3, tmp1));
           onStatusChanged(zOffs);
         }
         else {
@@ -1110,14 +1110,14 @@ void RTS::handleData() {
 
     case Bedlevel: {
       switch (recdat.data[0]) {
-        case 1:   // Z-axis to home
+        case 1:   // Z-Axis to home
           // Disallow Z homing if X or Y are unknown
           injectCommands(isAxisPositionKnown(axis_t(X)) && isAxisPositionKnown(axis_t(Y)) ? F("G28Z\nG1F1500Z0.0") : F("G28\nG1F1500Z0.0"));
           sendData(getZOffset_mm() * 100, ProbeOffset_Z);
           break;
 
         #if HAS_BED_PROBE
-          case 2:   // Z-axis to Up
+          case 2:   // Z-Axis to Up
             if (WITHIN((getZOffset_mm() + 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
               smartAdjustAxis_steps(getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
               //setZOffset_mm(getZOffset_mm() + 0.1);
@@ -1126,7 +1126,7 @@ void RTS::handleData() {
             }
             break;
 
-          case 3:   // Z-axis to Down
+          case 3:   // Z-Axis to Down
             if (WITHIN((getZOffset_mm() - 0.1), PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX)) {
               smartAdjustAxis_steps(-getAxisSteps_per_mm(Z) / 10, axis_t(Z), false);
               //babystepAxis_steps(int16_t(-getAxisSteps_per_mm(Z)) / 10, axis_t(Z));

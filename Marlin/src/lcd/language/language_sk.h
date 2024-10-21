@@ -777,8 +777,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Referencia Z");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Presúvam na pozíciu");
 
-  LSTR MSG_XATC                           = _UxGT("Sprievodca X-Twist");
-  LSTR MSG_XATC_DONE                      = _UxGT("Spriev. X-Twist dokonč.!");
+  LSTR MSG_XATC                           = _UxGT("Sprievodca X-Axis Twist");
+  LSTR MSG_XATC_DONE                      = _UxGT("Spriev. X-Axis Twist dokonč.!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Aktual. ofset sondy Z na ");
 
   LSTR MSG_SOUND                          = _UxGT("Zvuk");

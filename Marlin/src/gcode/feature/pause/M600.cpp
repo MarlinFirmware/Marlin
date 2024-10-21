@@ -62,7 +62,7 @@
  * M600: Pause for filament change
  *
  *  E[distance] - Retract the filament this far
- *  Z[distance] - Move the Z axis by this distance
+ *  Z[distance] - Move the Z-Axis by this distance
  *  X[position] - Move to this X position (instead of NOZZLE_PARK_POINT.x)
  *  Y[position] - Move to this Y position (instead of NOZZLE_PARK_POINT.y)
  *  I[position] - Move to this I position (instead of NOZZLE_PARK_POINT.i)
@@ -140,7 +140,7 @@ void GcodeSuite::M600() {
   NUM_AXIS_CODE(
     if (parser.seenval('X')) park_point.x = parser.linearval('X'),
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y'),
-    if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z axis
+    if (parser.seenval('Z')) park_point.z = parser.linearval('Z'),    // Lift Z-Axis
     if (parser.seenval('I')) park_point.i = parser.linearval('I'),
     if (parser.seenval('J')) park_point.j = parser.linearval('J'),
     if (parser.seenval('K')) park_point.k = parser.linearval('K'),

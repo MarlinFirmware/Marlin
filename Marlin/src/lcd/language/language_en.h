@@ -97,7 +97,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Progress Bar Test");
   LSTR MSG_ENDSTOP_TEST                   = _UxGT("Endstop Test");
-  LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
+  LSTR MSG_Z_PROBE                        = _UxGT("Z-Probe");
   LSTR MSG_HOMING                         = _UxGT("Homing");
   LSTR MSG_HOMING_FEEDRATE                = _UxGT("Homing Feedrate");
   LSTR MSG_HOMING_FEEDRATE_N              = _UxGT("@ Homing FR");
@@ -611,7 +611,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Attach USB Drive");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Change ") MEDIA_TYPE_EN;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Release ") MEDIA_TYPE_EN;
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Self-Test");
@@ -873,10 +873,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_BCURRENT                   = STR_B _UxGT("Driver Current");
   LSTR MSG_TMC_CCURRENT                   = STR_C _UxGT("Driver Current");
   LSTR MSG_TMC_ECURRENT                   = _UxGT("E Driver Current");
-  LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
+  LSTR MSG_TMC_HYBRID_THRS                = _UxGT(STR_HYBRID_THRESHOLD);
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Enabled");
+  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT(STR_TMC_STEALTH " Enabled");
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
@@ -903,7 +903,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_ZETA_N                     = _UxGT("@ Damping");
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
 
-  LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
+  LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X-Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
   LSTR MSG_FTDI_HEATER_TIMEOUT            = _UxGT("Idle timeout, temperature decreased. Press Okay to reheat and again to resume.");
   LSTR MSG_HEATER_TIMEOUT                 = _UxGT("Heater Timeout");
@@ -911,12 +911,12 @@ namespace LanguageNarrow_en {
   LSTR MSG_REHEATING                      = _UxGT("Reheating...");
   LSTR MSG_REHEATDONE                     = _UxGT("Reheat Done");
 
-  LSTR MSG_PROBE_WIZARD                   = _UxGT("Z Probe Wizard");
+  LSTR MSG_PROBE_WIZARD                   = _UxGT("Z-Probe Wizard");
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Probing Z Reference");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Moving to Probing Pos");
 
-  LSTR MSG_XATC                           = _UxGT("X-Twist Wizard");
-  LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Wizard Done!");
+  LSTR MSG_XATC                           = _UxGT("X-Axis Twist Wizard");
+  LSTR MSG_XATC_DONE                      = _UxGT("X-Axis Twist Wizard Done!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Update Z-Offset to ");
 
   LSTR MSG_SOUND                          = _UxGT("Sound");

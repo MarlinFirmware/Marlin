@@ -184,7 +184,7 @@ void GcodeSuite::M709() {
  */
 void GcodeSuite::MMU3_report(const bool forReplay/*=true*/) {
   using namespace MMU3;
-  report_heading(forReplay, F("MMU3 Operational Stats"));
+  report_heading(forReplay, F(STR_MM3_STATS));
   SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
   SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
   #if ENABLED(MMU3_HAS_CUTTER)

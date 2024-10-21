@@ -480,9 +480,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if IS_SCARA
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(BABYSTEP_XY) && ANY(MARKFORGED_XY, MARKFORGED_YX)
-    #error "BABYSTEPPING only implemented for Z axis on MarkForged."
+    #error "BABYSTEPPING only implemented for Z-Axis on MarkForged."
   #elif ALL(DELTA, BABYSTEP_XY)
-    #error "BABYSTEPPING only implemented for Z axis on deltabots."
+    #error "BABYSTEPPING only implemented for Z-Axis on deltabots."
   #elif ALL(BABYSTEP_ZPROBE_OFFSET, MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
@@ -1070,13 +1070,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if HAS_LEVELING && !HAS_Z_AXIS
   #error "Leveling in Marlin requires three or more axes, with Z as the vertical axis."
 #elif ENABLED(CNC_WORKSPACE_PLANES) && !HAS_Z_AXIS
-  #error "CNC_WORKSPACE_PLANES currently requires a Z axis"
+  #error "CNC_WORKSPACE_PLANES currently requires a Z-Axis"
 #elif ENABLED(DIRECT_STEPPING) && NUM_AXES > XYZ
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
 #elif ENABLED(LIN_ADVANCE) && HAS_I_AXIS
-  #error "LIN_ADVANCE does not currently support the inclusion of an I axis."
+  #error "LIN_ADVANCE does not currently support the inclusion of an I-axis."
 #endif
 
 /**
@@ -1084,9 +1084,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if HAS_I_AXIS
   #if !defined(I_MIN_POS) || !defined(I_MAX_POS)
-    #error "I_MIN_POS and I_MAX_POS are required for the I axis."
+    #error "I_MIN_POS and I_MAX_POS are required for the I-Axis."
   #elif !defined(I_HOME_DIR)
-    #error "I_HOME_DIR is required for the I axis."
+    #error "I_HOME_DIR is required for the I-Axis."
   #elif HAS_I_ENABLE && !defined(I_ENABLE_ON)
     #error "I_ENABLE_ON is required for the I stepper."
   #elif !defined(INVERT_I_DIR)
@@ -1099,9 +1099,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(AXIS5_ROTATES) && DISABLED(AXIS4_ROTATES)
     #error "AXIS5_ROTATES requires AXIS4_ROTATES."
   #elif !defined(J_MIN_POS) || !defined(J_MAX_POS)
-    #error "J_MIN_POS and J_MAX_POS are required for the J axis."
+    #error "J_MIN_POS and J_MAX_POS are required for the J-Axis."
   #elif !defined(J_HOME_DIR)
-    #error "J_HOME_DIR is required for the J axis."
+    #error "J_HOME_DIR is required for the J-Axis."
   #elif HAS_J_ENABLE && !defined(J_ENABLE_ON)
     #error "J_ENABLE_ON is required for the J stepper."
   #elif !defined(INVERT_J_DIR)
@@ -1114,9 +1114,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(AXIS6_ROTATES) && DISABLED(AXIS5_ROTATES)
     #error "AXIS6_ROTATES requires AXIS5_ROTATES."
   #elif !defined(K_MIN_POS) || !defined(K_MAX_POS)
-    #error "K_MIN_POS and K_MAX_POS are required for the K axis."
+    #error "K_MIN_POS and K_MAX_POS are required for the K-Axis."
   #elif !defined(K_HOME_DIR)
-    #error "K_HOME_DIR is required for the K axis."
+    #error "K_HOME_DIR is required for the K-Axis."
   #elif HAS_K_ENABLE && !defined(K_ENABLE_ON)
     #error "K_ENABLE_ON is required for the K stepper."
   #elif !defined(INVERT_K_DIR)
@@ -1129,9 +1129,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(AXIS7_ROTATES) && DISABLED(AXIS6_ROTATES)
     #error "AXIS7_ROTATES requires AXIS6_ROTATES."
   #elif !defined(U_MIN_POS) || !defined(U_MAX_POS)
-    #error "U_MIN_POS and U_MAX_POS are required for the U axis."
+    #error "U_MIN_POS and U_MAX_POS are required for the U-Axis."
   #elif !defined(U_HOME_DIR)
-    #error "U_HOME_DIR is required for the U axis."
+    #error "U_HOME_DIR is required for the U-Axis."
   #elif HAS_U_ENABLE && !defined(U_ENABLE_ON)
     #error "U_ENABLE_ON is required for the U stepper."
   #elif !defined(INVERT_U_DIR)
@@ -1144,9 +1144,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(AXIS8_ROTATES) && DISABLED(AXIS7_ROTATES)
     #error "AXIS8_ROTATES requires AXIS7_ROTATES."
   #elif !defined(V_MIN_POS) || !defined(V_MAX_POS)
-    #error "V_MIN_POS and V_MAX_POS are required for the V axis."
+    #error "V_MIN_POS and V_MAX_POS are required for the V-Axis."
   #elif !defined(V_HOME_DIR)
-    #error "V_HOME_DIR is required for the V axis."
+    #error "V_HOME_DIR is required for the V-Axis."
   #elif HAS_V_ENABLE && !defined(V_ENABLE_ON)
     #error "V_ENABLE_ON is required for the V stepper."
   #elif !defined(INVERT_V_DIR)
@@ -1159,9 +1159,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif ENABLED(AXIS9_ROTATES) && DISABLED(AXIS8_ROTATES)
     #error "AXIS9_ROTATES requires AXIS8_ROTATES."
   #elif !defined(W_MIN_POS) || !defined(W_MAX_POS)
-    #error "W_MIN_POS and W_MAX_POS are required for the W axis."
+    #error "W_MIN_POS and W_MAX_POS are required for the W-Axis."
   #elif !defined(W_HOME_DIR)
-    #error "W_HOME_DIR is required for the W axis."
+    #error "W_HOME_DIR is required for the W-Axis."
   #elif HAS_W_ENABLE && !defined(W_ENABLE_ON)
     #error "W_ENABLE_ON is required for the W stepper."
   #elif !defined(INVERT_W_DIR)
@@ -1866,7 +1866,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 /**
  * Allen Key
- * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
+ * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed Z-Axis.
  */
 #if ALL(Z_HOME_TO_MIN, Z_PROBE_ALLEN_KEY, Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #error "You can't home to a Z min endstop with a Z_PROBE_ALLEN_KEY."
@@ -2430,41 +2430,41 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if !IS_SCARA
   // Delta and Cartesian require some kind of endstop
   #if   X_HOME_TO_MIN && !HAS_X_MIN_STATE
-    #error "X_MIN_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X axis homing."
+    #error "X_MIN_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X-Axis homing."
   #elif X_HOME_TO_MAX && !HAS_X_MAX_STATE
-    #error "X_MAX_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X axis homing."
+    #error "X_MAX_PIN, X_STOP_PIN, or X_SPI_SENSORLESS is required for X-Axis homing."
   #elif Y_HOME_TO_MIN && !HAS_Y_MIN_STATE
-    #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
+    #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y-Axis homing."
   #elif Y_HOME_TO_MAX && !HAS_Y_MAX_STATE
-    #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
+    #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y-Axis homing."
   #elif Z_HOME_TO_MIN && NONE(HAS_Z_MIN_STATE, USE_PROBE_FOR_Z_HOMING)
-    #error "Z_MIN_PIN, Z_STOP_PIN, Z_SPI_SENSORLESS, or USE_PROBE_FOR_Z_HOMING is required for Z axis homing."
+    #error "Z_MIN_PIN, Z_STOP_PIN, Z_SPI_SENSORLESS, or USE_PROBE_FOR_Z_HOMING is required for Z-Axis homing."
   #elif Z_HOME_TO_MAX && !HAS_Z_MAX_STATE
-    #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
+    #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z-Axis homing."
   #elif I_HOME_TO_MIN && !HAS_I_MIN_STATE
-    #error "I_MIN_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I axis homing."
+    #error "I_MIN_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I-Axis homing."
   #elif I_HOME_TO_MAX && !HAS_I_MAX_STATE
-    #error "I_MAX_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I axis homing."
+    #error "I_MAX_PIN, I_STOP_PIN, or I_SPI_SENSORLESS is required for I-Axis homing."
   #elif J_HOME_TO_MIN && !HAS_J_MIN_STATE
-    #error "J_MIN_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J axis homing."
+    #error "J_MIN_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J-Axis homing."
   #elif J_HOME_TO_MAX && !HAS_J_MAX_STATE
-    #error "J_MAX_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J axis homing."
+    #error "J_MAX_PIN, J_STOP_PIN, or J_SPI_SENSORLESS is required for J-Axis homing."
   #elif K_HOME_TO_MIN && !HAS_K_MIN_STATE
-    #error "K_MIN_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K axis homing."
+    #error "K_MIN_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K-Axis homing."
   #elif K_HOME_TO_MAX && !HAS_K_MAX_STATE
-    #error "K_MAX_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K axis homing."
+    #error "K_MAX_PIN, K_STOP_PIN, or K_SPI_SENSORLESS is required for K-Axis homing."
   #elif U_HOME_TO_MIN && !HAS_U_MIN_STATE
-    #error "U_MIN_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U axis homing."
+    #error "U_MIN_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U-Axis homing."
   #elif U_HOME_TO_MAX && !HAS_U_MAX_STATE
-    #error "U_MAX_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U axis homing."
+    #error "U_MAX_PIN, U_STOP_PIN, or U_SPI_SENSORLESS is required for U-Axis homing."
   #elif V_HOME_TO_MIN && !HAS_V_MIN_STATE
-    #error "V_MIN_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V axis homing."
+    #error "V_MIN_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V-Axis homing."
   #elif V_HOME_TO_MAX && !HAS_V_MAX_STATE
-    #error "V_MAX_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V axis homing."
+    #error "V_MAX_PIN, V_STOP_PIN, or V_SPI_SENSORLESS is required for V-Axis homing."
   #elif W_HOME_TO_MIN && !HAS_W_MIN_STATE
-    #error "W_MIN_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W axis homing."
+    #error "W_MIN_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W-Axis homing."
   #elif W_HOME_TO_MAX && !HAS_W_MAX_STATE
-    #error "W_MAX_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W axis homing."
+    #error "W_MAX_PIN, W_STOP_PIN, or W_SPI_SENSORLESS is required for W-Axis homing."
   #endif
 #endif
 
@@ -4398,10 +4398,10 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif
   #if HAS_DYNAMIC_FREQ_MM
-    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
+    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z-Axis.");
   #endif
   #if HAS_DYNAMIC_FREQ_G
-    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
+    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X-Axis and an extruder.");
   #endif
 #endif
 

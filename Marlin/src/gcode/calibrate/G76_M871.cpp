@@ -311,7 +311,7 @@
 void GcodeSuite::M871() {
 
   if (parser.seen('R')) {
-    // Reset z-probe offsets to factory defaults
+    // Reset Z-Probe Offsets to factory defaults
     ptc.clear_all_offsets();
     SERIAL_ECHOLNPGM("Offsets reset to default.");
   }
@@ -330,7 +330,7 @@ void GcodeSuite::M871() {
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
   }
-  else // Print current Z-probe adjustments. Note: Values in EEPROM might differ.
+  else // Print current Z-Probe adjustments. Note: Values in EEPROM might differ.
     ptc.print_offsets();
 }
 

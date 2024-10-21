@@ -107,8 +107,8 @@
  *                            configured position, delay, and retract length.
  *
  * PHOTO_POSITION parameters:
- *    A - X offset to the return position
- *    B - Y offset to the return position
+ *    A - X-Offset to the return position
+ *    B - Y-Offset to the return position
  *    F - Override the XY movement feedrate
  *    R - Retract/recover length (current units)
  *    S - Retract/recover feedrate (mm/min)

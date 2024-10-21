@@ -49,7 +49,7 @@
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
 /**
- * G29: Mesh-based Z probe, probes a grid and produces a
+ * G29: Mesh-based Z-Probe, probes a grid and produces a
  *      mesh to compensate for variable bed height
  *
  * Parameters With MESH_BED_LEVELING:
@@ -58,7 +58,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S1              Start probing mesh points
  *  S2              Probe the next mesh point
  *  S3 In Jn Zn.nn  Manually modify a single point
- *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
+ *  S4 Zn.nn        Set Z-Offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
@@ -105,7 +105,7 @@ void GcodeSuite::G29() {
         if (parser.seen_test('N'))
           queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
-        // Position bed horizontally and Z probe vertically.
+        // Position bed horizontally and Z-Probe vertically.
         #if HAS_SAFE_BED_LEVELING
           xyze_pos_t safe_position = current_position;
           #ifdef SAFE_BED_LEVELING_START_X

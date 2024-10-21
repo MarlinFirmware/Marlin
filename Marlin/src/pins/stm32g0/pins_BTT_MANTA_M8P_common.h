@@ -66,7 +66,7 @@
 #define E1_DIAG_PIN                         PC2   // MIN6
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Z-Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB2   // PROBE

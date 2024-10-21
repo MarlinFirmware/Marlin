@@ -56,7 +56,7 @@
 #define Z_STOP_PIN                          PD1   // Shares J4 connector with PC3
 
 //
-// Z Probe must be this pin
+// Z-Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PD1
@@ -70,7 +70,7 @@
 #endif
 
 //
-// Power Loss Detection
+// Power-Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PD4

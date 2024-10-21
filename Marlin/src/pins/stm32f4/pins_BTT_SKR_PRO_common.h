@@ -107,7 +107,7 @@
 #endif
 
 //
-// Z Probe must be this pin
+// Z-Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PA2

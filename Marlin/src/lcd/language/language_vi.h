@@ -312,7 +312,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Khởi tạo phương tiện");                // Attach media
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Thay phương tiện");                    // Change midea
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Phát hành phương tiện");
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z Probe past bed
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z-Probe past bed
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Hệ số nghiêng");                       // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTOUCH");                             // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Tự kiểm tra BLTOUCH ");                // BLTouch Self-Test

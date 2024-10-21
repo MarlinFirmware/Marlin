@@ -90,7 +90,7 @@
                   z1 = z_values[iend.x][iend.y    ] + xratio * (z_values[iend.x + 1][iend.y    ] - z_values[iend.x][iend.y    ]),
                   z2 = z_values[iend.x][iend.y + 1] + xratio * (z_values[iend.x + 1][iend.y + 1] - z_values[iend.x][iend.y + 1]);
 
-      // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z offset.
+      // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z-Offset.
       const float z0 = (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end.z);
 
       // Undefined parts of the Mesh in z_values[][] are NAN.

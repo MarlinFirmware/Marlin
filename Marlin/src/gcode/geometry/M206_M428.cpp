@@ -75,7 +75,7 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
  *       current_position and the nearest "reference point."
  *       If an axis is past center its endstop position
  *       is the reference-point. Otherwise it uses 0. This allows
- *       the Z offset to be set near the bed when using a max endstop.
+ *       the Z-Offset to be set near the bed when using a max endstop.
  *
  *       M428 can't be used more than 2cm away from 0 or an endstop.
  *

@@ -79,7 +79,7 @@
   #define Z_MIN_PIN                         PB1   // BLTouch IN PIN (TOUCH pins in the schematic have changed)
   #define Z_MAX_PIN                         PA7
 #else
-  #define Z_STOP_PIN                        PA7   // Z-axis limit switch
+  #define Z_STOP_PIN                        PA7   // Z-Axis limit switch
 #endif
 
 #ifndef Z_MIN_PROBE_PIN

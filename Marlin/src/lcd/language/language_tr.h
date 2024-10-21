@@ -73,7 +73,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
   LSTR MSG_ENDSTOP_TEST                   = _UxGT("Endstop Test");
-  LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
+  LSTR MSG_Z_PROBE                        = _UxGT("Z-Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
   LSTR MSG_AUTO_HOME_N                    = _UxGT("@ Sıfırla");
@@ -823,8 +823,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Z Referansını Tarama");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Prob Konumuna Geçme");
 
-  LSTR MSG_XATC                           = _UxGT("X-Twist Sihirbazı");
-  LSTR MSG_XATC_DONE                      = _UxGT("X-Twist Sihirbazı Bitti!");
+  LSTR MSG_XATC                           = _UxGT("X-Axis Twist Sihirbazı");
+  LSTR MSG_XATC_DONE                      = _UxGT("X-Axis Twist Sihirbazı Bitti!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Prob Z-Offset güncelle ");
 
   LSTR MSG_SOUND                          = _UxGT("Ses");

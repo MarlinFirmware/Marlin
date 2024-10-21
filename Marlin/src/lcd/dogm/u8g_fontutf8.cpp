@@ -152,8 +152,8 @@ static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, cons
  * @brief Draw a lchar_t at the specified position
  *
  * @param pu8g : U8G pointer
- * @param x : position x axis
- * @param y : position y axis
+ * @param x : position X-Axis
+ * @param y : position Y-Axis
  * @param wc : the lchar_t
  * @param max_width : the pixel width of the string allowed
  *
@@ -186,8 +186,8 @@ unsigned int uxg_DrawLchar(u8g_t *pu8g, unsigned int x, unsigned int y, const lc
  * @brief Draw a UTF-8 string at the specified position
  *
  * @param pu8g : U8G pointer
- * @param x : position x axis
- * @param y : position y axis
+ * @param x : position X-Axis
+ * @param y : position Y-Axis
  * @param utf8_msg : the UTF-8 string
  * @param max_width : the pixel width of the string allowed
  *
@@ -220,8 +220,8 @@ unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const 
  * @brief Draw a ROM UTF-8 string at the specified position
  *
  * @param pu8g : U8G pointer
- * @param x : position x axis
- * @param y : position y axis
+ * @param x : position X-Axis
+ * @param y : position Y-Axis
  * @param utf8_msg : the UTF-8 string
  * @param max_width : the pixel width of the string allowed
  *

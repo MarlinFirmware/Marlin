@@ -77,7 +77,7 @@
 
 #if ENABLED(PROBE_ACTIVATION_SWITCH)
   #ifndef PROBE_ACTIVATION_SWITCH_PIN
-    #define PROBE_ACTIVATION_SWITCH_PIN     PC2   // Optoswitch to Enable Z Probe
+    #define PROBE_ACTIVATION_SWITCH_PIN     PC2   // Optoswitch to Enable Z-Probe
   #endif
 #endif
 
