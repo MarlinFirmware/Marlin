@@ -195,7 +195,8 @@ namespace LanguageNarrow_gl {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Gardar Malla Cama");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Control LED");
-  LSTR MSG_LEDS                           = _UxGT("Luces");
+  LSTR MSG_LIGHTS                         = _UxGT("Luces");
+  LSTR MSG_LIGHT_N                        = _UxGT("Luce #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Axustes Luz");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Vermello");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Laranxa");
@@ -409,7 +410,8 @@ namespace LanguageNarrow_gl {
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Desfases Sonda");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desfase Sonda Y");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desfase Z");
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desfase Sonda Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Desfase Sonda @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Micropaso Sonda-Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropaso X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropaso Y");

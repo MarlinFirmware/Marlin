@@ -167,65 +167,72 @@ void MenuEditItemBase::goto_edit_screen(
  * General function to go directly to a screen
  */
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
-  if (currentScreen != screen) {
+  if (currentScreen == screen) return;
 
-    wake_display();
+  wake_display();
 
-    thermalManager.set_menu_cold_override(false);
+  thermalManager.set_menu_cold_override(false);
 
-    TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
+  TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
 
-    TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
+  TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-    TERN_(SET_PROGRESS_PERCENT, progress_reset());
+  TERN_(SET_PROGRESS_PERCENT, progress_reset());
 
-    #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
-      static millis_t doubleclick_expire_ms = 0;
-      // Going to menu_main from status screen? Remember first click time.
-      // Going back to status screen within a very short time? Go to Z babystepping.
-      if (screen == menu_main) {
-        if (on_status_screen())
-          doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
-      }
-      else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
-        if (BABYSTEP_ALLOWED())
-          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
-        else {
-          #if ENABLED(MOVE_Z_WHEN_IDLE)
-            ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
-            screen = []{ lcd_move_axis(Z_AXIS); };
-          #endif
-        }
-      }
-    #endif
-
-    currentScreen = screen;
-    encoderPosition = encoder;
-    encoderTopLine = top;
-    screen_items = items;
-    if (on_status_screen()) {
-      defer_status_screen(false);
-      clear_menu_history();
-      TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
+  /**
+   * Double-click on the status screen is a shortcut for one of these:
+   *   - Babystep the Probe Z Offset
+   *   - Babystep the Z axis
+   *   - Move the Z axis
+   */
+  #if ALL(DOUBLECLICK_FOR_Z_BABYSTEPPING, BABYSTEPPING)
+    static millis_t doubleclick_expire_ms = 0;
+    if (screen == menu_main) {
+      if (on_status_screen())
+        doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
     }
+    else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+      if (BABYSTEP_ALLOWED())
+        screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+      else {
+        #if ENABLED(MOVE_Z_WHEN_IDLE)
+          ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
+          screen = []{ lcd_move_axis(Z_AXIS); };
+        #endif
+      }
+    }
+  #endif
 
-    clear_for_drawing();
+  //
+  // Go to the new screen
+  //
 
-    // Re-initialize custom characters that may be re-used
-    #if HAS_MARLINUI_HD44780
-      if (TERN1(AUTO_BED_LEVELING_UBL, !bedlevel.lcd_map_control))
-        set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
-    #endif
-
-    refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    screen_changed = true;
-    TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
-
-    TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
-    enable_encoder_multiplier(false);
-
-    set_selection(false);
+  currentScreen = screen;
+  encoderPosition = encoder;
+  encoderTopLine = top;
+  screen_items = items;
+  if (on_status_screen()) {
+    defer_status_screen(false);
+    clear_menu_history();
+    TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
   }
+
+  clear_for_drawing();
+
+  // Re-initialize custom characters that may be re-used
+  #if HAS_MARLINUI_HD44780
+    if (TERN1(AUTO_BED_LEVELING_UBL, !bedlevel.lcd_map_control))
+      set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
+  #endif
+
+  refresh(LCDVIEW_CALL_REDRAW_NEXT);
+  screen_changed = true;
+  TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
+
+  TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
+  enable_encoder_multiplier(false);
+
+  set_selection(false);
 }
 
 ////////////////////////////////////////////

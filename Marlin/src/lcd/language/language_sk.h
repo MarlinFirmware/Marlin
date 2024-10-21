@@ -271,7 +271,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Uložiť sieť bodov");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Nastavenie LED");
-  LSTR MSG_LEDS                           = _UxGT("Svetlo");
+  LSTR MSG_LIGHTS                         = _UxGT("Svetlo");
+  LSTR MSG_LIGHT_N                        = _UxGT("Svetlo #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Predvolby svetla");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Červená");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Oranžová");
@@ -283,7 +284,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Biela");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Obnoviť nastavenie");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanál {");
-  LSTR MSG_LEDS2                          = _UxGT("Svetlo #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Predvolby svetla #2");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Jas");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Vlastná farba");
@@ -567,6 +567,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ ofset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z posuň");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Hranica sondy");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Rýchl. posunu Z");

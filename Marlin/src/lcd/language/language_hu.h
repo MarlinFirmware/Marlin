@@ -226,7 +226,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Ágy háló mentése");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED vezérlés");
-  LSTR MSG_LEDS                           = _UxGT("Világítás");
+  LSTR MSG_LIGHTS                         = _UxGT("Világítás");
+  LSTR MSG_LIGHT_N                        = _UxGT("Világítás #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Beállított színek");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Piros");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Narancs");
@@ -238,7 +239,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Fehér");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Alapérték");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Csatorna {");
-  LSTR MSG_LEDS2                          = _UxGT("LED-ek #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Fény #2 megadott");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Fényerö");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Egyéni szín");
@@ -461,6 +461,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z szonda eltolás");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ szonda eltolás");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z lépés állítás");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Fej az ágyhoz");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikrolépés X");

@@ -145,7 +145,10 @@ namespace LanguageNarrow_pt {
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inici. cartão SD");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar cartão SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desvio X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desvio Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desvio Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Desvio @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Passo Z ajuste");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Fim de curso");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Aquecimento falhou");

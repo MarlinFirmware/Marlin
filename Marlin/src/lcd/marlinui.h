@@ -232,7 +232,7 @@ public:
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
-    static bool sound_on; // Initialized by settings.load()
+    static bool sound_on; // Initialized by settings.load
   #else
     static constexpr bool sound_on = true;
   #endif
@@ -305,6 +305,7 @@ public:
   #endif
 
   // Sleep or wake the display (e.g., by turning the backlight off/on).
+  static bool display_is_asleep() IF_DISABLED(HAS_DISPLAY_SLEEP, { return false; });
   static void sleep_display(const bool=true) IF_DISABLED(HAS_DISPLAY_SLEEP, {});
   static void wake_display() { sleep_display(false); }
 

@@ -37,7 +37,7 @@
 //#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
 
 #if HAS_MULTI_EXTRUDER
-  toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
+  toolchange_settings_t toolchange_settings;  // Initialized by settings.load
 #endif
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
