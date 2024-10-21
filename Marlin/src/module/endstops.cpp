@@ -30,6 +30,9 @@
 #include "../sd/cardreader.h"
 #include "temperature.h"
 #include "../lcd/marlinui.h"
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
+#endif
 
 #if ENABLED(FT_MOTION)
   #include "ft_motion.h"
@@ -62,7 +65,7 @@ Endstops endstops;
 
 // private:
 
-bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
+bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load
 
 volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
@@ -92,7 +95,7 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   volatile bool Endstops::calibration_stop_state;
 #endif
 
-// Initialized by settings.load()
+// Initialized by settings.load
 #if ENABLED(X_DUAL_ENDSTOPS)
   float Endstops::x2_endstop_adj;
 #endif
@@ -272,8 +275,12 @@ void Endstops::not_homing() {
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
   // If the last move failed to trigger an endstop, call kill
   void Endstops::validate_homing_move() {
-    if (trigger_state()) hit_on_purpose();
-    else kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+    if (trigger_state())
+      hit_on_purpose();
+    else {
+      TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
+      kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
+    }
   }
 #endif
 

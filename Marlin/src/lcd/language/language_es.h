@@ -125,7 +125,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Copia Reflejada");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Control Total");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2ª Fusor Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2ª Fusor @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2ª Fusor @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Hacer G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Herramientas UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Punto de inclinación");
@@ -198,7 +198,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Guardar Mall. cama");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Control LED");
-  LSTR MSG_LEDS                           = _UxGT("LEDS");
+  LSTR MSG_LIGHTS                         = _UxGT("Luces");
+  LSTR MSG_LIGHT_N                        = _UxGT("Luce #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Color predefinido");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Rojo");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Naranja");
@@ -395,6 +396,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desf. Sonda X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desf. Sonda Y");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Desf. Sonda Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Desf. Sonda @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Ajuste Z al paso");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Micropaso X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Micropaso Y");

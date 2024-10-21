@@ -28,13 +28,13 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2.h"
-#include "mmu2_log.h"
-#include "mmu2_fsensor.h"
-#include "mmu2_reporting.h"
-#include "mmu2_error_converter.h"
-#include "mmu2_marlin_macros.h"
-#include "mmu2_progress_converter.h"
+#include "mmu3.h"
+#include "mmu3_log.h"
+#include "mmu3_fsensor.h"
+#include "mmu3_reporting.h"
+#include "mmu3_error_converter.h"
+#include "mmu3_marlin_macros.h"
+#include "mmu3_progress_converter.h"
 #include "mmu_hw/buttons.h"
 #include "mmu_hw/error_codes.h"
 #include "mmu_hw/errors_list.h"

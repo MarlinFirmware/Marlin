@@ -437,12 +437,15 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
+  #if ENABLED(PELTIER_BED)
+    bool peltier_dir_heating; // = false
+  #endif
 } heater_info_t;
 
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load()
+  T pid;  // Initialized by settings.load
 };
 
 #if ENABLED(MPCTEMP)
@@ -1027,12 +1030,12 @@ class Temperature {
         #endif
       #endif
 
-      static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-      }
-
       static bool degHotendNear(const uint8_t e, const celsius_t temp) {
         return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
+      static bool still_heating(const uint8_t e) {
+        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up

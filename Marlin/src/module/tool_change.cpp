@@ -37,7 +37,7 @@
 //#define DEBUG_TOOLCHANGE_FILAMENT_SWAP
 
 #if HAS_MULTI_EXTRUDER
-  toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
+  toolchange_settings_t toolchange_settings;  // Initialized by settings.load
 #endif
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
@@ -77,7 +77,7 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../feature/mmu3/mmu2.h"
+  #include "../feature/mmu3/mmu3.h"
 #elif HAS_PRUSA_MMU2
   #include "../feature/mmu/mmu2.h"
 #elif HAS_PRUSA_MMU1
