@@ -195,6 +195,7 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
+ * M210 - Set or Report the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
@@ -272,6 +273,14 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ *
+ * M704 - Preload to MMU (Requires PRUSA_MMU3)
+ * M705 - Eject filament (Requires PRUSA_MMU3)
+ * M706 - Cut filament (Requires PRUSA_MMU3)
+ * M707 - Read from MMU register (Requires PRUSA_MMU3)
+ * M708 - Write to MMU register (Requires PRUSA_MMU3)
+ * M709 - MMU power & reset (Requires PRUSA_MMU3)
+ *
  * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
@@ -889,8 +898,15 @@ private:
     #endif
   #endif
 
-  static void M211();
-  static void M211_report(const bool forReplay=true);
+  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+    static void M210();
+    static void M210_report(const bool forReplay=true);
+  #endif
+
+  #if HAS_SOFTWARE_ENDSTOPS
+    static void M211();
+    static void M211_report(const bool forReplay=true);
+  #endif
 
   #if HAS_MULTI_EXTRUDER
     static void M217();
@@ -1024,7 +1040,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
     static void M403();
   #endif
 
@@ -1160,6 +1176,16 @@ private:
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     static void M701();
     static void M702();
+  #endif
+
+  #if HAS_PRUSA_MMU3
+    static void M704();
+    static void M705();
+    static void M706();
+    static void M707();
+    static void M708();
+    static void M709();
+    static void MMU3_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(GCODE_REPEAT_MARKERS)
