@@ -1622,6 +1622,9 @@ void RTS::handleData() {
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
+      #ifndef Z_PROBE_LOW_POINT
+        #define Z_PROBE_LOW_POINT -2
+      #endif
       LIMIT(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
       xy_uint8_t point = { xPnt, yPnt };
       setMeshPoint(point, meshVal);
