@@ -204,7 +204,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
       float get_extrusion_scale_output(const bool, const int32_t, const float, const int16_t) { return 0; }
 
-      float get_pid_output(const float target, const float current) {
+      float get_pid_output(const_float_t target, const_float_t current) {
         const float pid_error = target - current;
         float output_pow;
         if (!target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
@@ -273,7 +273,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         for (uint8_t i = 0; i < LPQ_ARR_SZ; ++i) lpq[i] = 0;
       }
 
-      float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
+      float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const_float_t e_mm_per_step, const int16_t lpq_len) {
         work_c = 0;
         if (!is_active) return work_c;
 
@@ -360,7 +360,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         work_f = fan_speed > (SCALE_MIN_SPEED) ? Kf + (SCALE_LIN_FACTOR) * fan_speed : 0;
         return work_f;
       }
-      float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const float e_mm_per_step, const int16_t lpq_len) {
+      float get_extrusion_scale_output(const bool is_active, const int32_t e_position, const_float_t e_mm_per_step, const int16_t lpq_len) {
         return cPID::get_extrusion_scale_output(is_active, e_position, e_mm_per_step, lpq_len);
       }
   };

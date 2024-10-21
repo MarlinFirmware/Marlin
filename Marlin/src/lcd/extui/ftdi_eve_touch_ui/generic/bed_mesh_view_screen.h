@@ -36,7 +36,7 @@ class BedMeshViewScreen : public BedMeshBase, public CachedScreen<BED_MESH_VIEW_
     static bool changeHighlightedValue(uint8_t tag);
     static void drawHighlightedPointValue();
   public:
-    static void onMeshUpdate(const int8_t x, const int8_t y, const float val);
+    static void onMeshUpdate(const int8_t x, const int8_t y, const_float_t val);
     static void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t);
     static void onEntry();
     static void onRedraw(draw_mode_t);

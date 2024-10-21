@@ -585,11 +585,11 @@ void drawEditFloat3(const uint8_t row, const uint16_t value, const bool active=f
   dwinDrawFloatValue(true, true, 0, font8x16, COLOR_WHITE, active ? COLOR_SELECT : COLOR_BG_BLACK, 3, UNITFDIGITS, 220 - UNITFDIGITS * 8, EBASE(row), (int32_t)value);
 }
 
-void drawEditSignedFloat2(const uint8_t row, const float value, const bool active=false) {
+void drawEditSignedFloat2(const uint8_t row, const_float_t value, const bool active=false) {
   dwinDrawSignedFloat(font8x16, active ? COLOR_SELECT : COLOR_BG_BLACK, 2, UNITFDIGITS + 1, 220 + 8 - UNITFDIGITS * 8, EBASE(row), value);
 }
 
-void drawEditSignedFloat3(const uint8_t row, const float value, const bool active=false) {
+void drawEditSignedFloat3(const uint8_t row, const_float_t value, const bool active=false) {
   dwinDrawSignedFloat(font8x16, active ? COLOR_SELECT : COLOR_BG_BLACK, 3, UNITFDIGITS, 220 - UNITFDIGITS * 8, EBASE(row), value);
 }
 
@@ -597,7 +597,7 @@ void drawStatInt(const uint16_t xpos, const uint16_t ypos, const uint16_t value)
   dwinDrawIntValue(true, true, 0, DWIN_FONT_STAT, COLOR_WHITE, COLOR_BG_BLACK, 3, xpos, ypos, value);
 }
 
-void drawStatFloat(const uint16_t xpos, const uint16_t ypos, const float value) {
+void drawStatFloat(const uint16_t xpos, const uint16_t ypos, const_float_t value) {
   dwinDrawFloatValue(true, true, 0, DWIN_FONT_STAT, COLOR_WHITE, COLOR_BG_BLACK, 2, 2, xpos, ypos, value);
 }
 

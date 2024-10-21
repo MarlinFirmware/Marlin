@@ -74,7 +74,7 @@ public:
     writeVariable(var.VP, (WireType)Getter(selector));
   }
 
-  template<typename T, void(*Setter)(const float V, const T), T selector>
+  template<typename T, void(*Setter)(const_float_t V, const T), T selector>
   static void getVariable(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
     Setter(newvalue, selector);
@@ -112,7 +112,7 @@ private:
 extern DGUSDisplay dgus;
 
 // compile-time x^y
-constexpr float cpow(const float x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
+constexpr float cpow(const_float_t x, const int y) { return y == 0 ? 1.0 : x * cpow(x, y - 1); }
 
 //
 const uint16_t* findScreenVPMapList(uint8_t screen);

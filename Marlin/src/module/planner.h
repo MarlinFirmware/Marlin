@@ -880,7 +880,7 @@ class Planner {
     private:
 
       // Allow do_homing_move to access internal functions, such as buffer_segment.
-      friend void do_homing_move(const AxisEnum, const float, const feedRate_t, const bool);
+      friend void do_homing_move(const AxisEnum, const_float_t, const feedRate_t, const bool);
   #endif
 
     /**

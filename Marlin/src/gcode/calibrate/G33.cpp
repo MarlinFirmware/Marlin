@@ -175,7 +175,7 @@ static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool p
 /**
  * - Probe a grid
  */
-static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const float dcr, const bool towers_set, const bool stow_after_each, const bool probe_at_offset) {
+static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const_float_t dcr, const bool towers_set, const bool stow_after_each, const bool probe_at_offset) {
   const bool _0p_calibration      = probe_points == 0,
              _1p_calibration      = probe_points == 1 || probe_points == -1,
              _4p_calibration      = probe_points == 2,
@@ -259,7 +259,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
  *  - formulae for approximative forward kinematics in the end-stop displacement matrix
  *  - definition of the matrix scaling parameters
  */
-static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_at_pt_axis[NPP + 1], const float dcr) {
+static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_at_pt_axis[NPP + 1], const_float_t dcr) {
   xyz_pos_t pos{0};
 
   LOOP_CAL_ALL(rad) {
@@ -271,7 +271,7 @@ static void reverse_kinematics_probe_points(float z_pt[NPP + 1], abc_float_t mm_
   }
 }
 
-static void forward_kinematics_probe_points(abc_float_t mm_at_pt_axis[NPP + 1], float z_pt[NPP + 1], const float dcr) {
+static void forward_kinematics_probe_points(abc_float_t mm_at_pt_axis[NPP + 1], float z_pt[NPP + 1], const_float_t dcr) {
   const float r_quot = dcr / delta_radius;
 
   #define ZPP(N,I,A) (((1.0f + r_quot * (N)) / 3.0f) * mm_at_pt_axis[I].A)
@@ -290,7 +290,7 @@ static void forward_kinematics_probe_points(abc_float_t mm_at_pt_axis[NPP + 1], 
   z_pt[_AB] = Zp1(_AB, a) + Zp1(_AB, b) + Zm2(_AB, c);
 }
 
-static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const float dcr, abc_float_t delta_e, const float delta_r, abc_float_t delta_t) {
+static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const_float_t dcr, abc_float_t delta_e, const_float_t delta_r, abc_float_t delta_t) {
   const float z_center = z_pt[CEN];
   abc_float_t diff_mm_at_pt_axis[NPP + 1], new_mm_at_pt_axis[NPP + 1];
 
@@ -312,12 +312,12 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const float d
   recalc_delta_settings();
 }
 
-static float auto_tune_h(const float dcr) {
+static float auto_tune_h(const_float_t dcr) {
   const float r_quot = dcr / delta_radius;
   return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
 }
 
-static float auto_tune_r(const float dcr) {
+static float auto_tune_r(const_float_t dcr) {
   constexpr float diff = 0.01f, delta_r = diff;
   float r_fac = 0.0f, z_pt[NPP + 1] = { 0.0f };
   abc_float_t delta_e = { 0.0f }, delta_t = { 0.0f };
@@ -328,7 +328,7 @@ static float auto_tune_r(const float dcr) {
   return r_fac;
 }
 
-static float auto_tune_a(const float dcr) {
+static float auto_tune_a(const_float_t dcr) {
   constexpr float diff = 0.01f, delta_r = 0.0f;
   float a_fac = 0.0f, z_pt[NPP + 1] = { 0.0f };
   abc_float_t delta_e = { 0.0f }, delta_t = { 0.0f };

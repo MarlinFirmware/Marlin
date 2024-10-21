@@ -133,7 +133,7 @@ struct measurements_t {
   class restorer_smoothing {
     const float val_;
   public:
-    restorer_smoothing(const float temp_val) : val_(backlash.get_smoothing_mm()) { backlash.set_smoothing_mm(temp_val); }
+    restorer_smoothing(const_float_t temp_val) : val_(backlash.get_smoothing_mm()) { backlash.set_smoothing_mm(temp_val); }
     ~restorer_smoothing() { backlash.set_smoothing_mm(val_); }
   };
 
@@ -152,7 +152,7 @@ inline void calibration_move() {
  *   m                  in     - Measurement record
  *   uncertainty        in     - How far away from the object top to park
  */
-inline void park_above_object(measurements_t &m, const float uncertainty) {
+inline void park_above_object(measurements_t &m, const_float_t uncertainty) {
   // Move to safe distance above calibration object
   current_position.z = m.obj_center.z + dimensions.z / 2 + uncertainty;
   calibration_move();
@@ -215,7 +215,7 @@ float measuring_movement(const AxisEnum axis, const int dir, const bool stop_sta
  *   backlash_ptr       in/out - When not nullptr, measure and record axis backlash
  *   uncertainty        in     - If uncertainty is CALIBRATION_MEASUREMENT_UNKNOWN, do a fast probe.
  */
-inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const float uncertainty) {
+inline float measure(const AxisEnum axis, const int dir, const bool stop_state, float * const backlash_ptr, const_float_t uncertainty) {
   const bool fast = uncertainty == CALIBRATION_MEASUREMENT_UNKNOWN;
 
   // Save the current position of the specified axis
@@ -246,7 +246,7 @@ inline float measure(const AxisEnum axis, const int dir, const bool stop_state, 
  *   probe_top_at_edge  in     - When probing sides, probe top of calibration object nearest edge
  *                               to find out height of edge
  */
-inline void probe_side(measurements_t &m, const float uncertainty, const side_t side, const bool probe_top_at_edge=false) {
+inline void probe_side(measurements_t &m, const_float_t uncertainty, const side_t side, const bool probe_top_at_edge=false) {
   const xyz_float_t dimensions = CALIBRATION_OBJECT_DIMENSIONS;
   AxisEnum axis;
   float dir = 1;
@@ -322,7 +322,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
  *   m                  in/out - Measurement record: center, backlash and error values be updated.
  *   uncertainty        in     - How far away from the calibration object to begin probing
  */
-inline void probe_sides(measurements_t &m, const float uncertainty) {
+inline void probe_sides(measurements_t &m, const_float_t uncertainty) {
   #if ENABLED(CALIBRATION_MEASURE_AT_TOP_EDGES)
     constexpr bool probe_top_at_edge = true;
   #else
@@ -630,7 +630,7 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
  */
-inline void calibrate_backlash(measurements_t &m, const float uncertainty) {
+inline void calibrate_backlash(measurements_t &m, const_float_t uncertainty) {
   // Backlash compensation should be off while measuring backlash
 
   {
@@ -746,7 +746,7 @@ inline void update_measurements(measurements_t &m, const AxisEnum axis) {
  * Prerequisites:
  *    - Call calibrate_backlash() beforehand for best accuracy
  */
-inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const uint8_t extruder) {
+inline void calibrate_toolhead(measurements_t &m, const_float_t uncertainty, const uint8_t extruder) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
@@ -786,7 +786,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
  *   m              in/out - Measurement record, updated with new readings
  *   uncertainty    in     - How far away from the object to begin probing
  */
-inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
+inline void calibrate_all_toolheads(measurements_t &m, const_float_t uncertainty) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 

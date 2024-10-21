@@ -202,13 +202,13 @@ class Backlash::StepAdjuster {
     correction = v;
   }
 
-  void Backlash::set_distance_mm(const AxisEnum axis, const float v) {
+  void Backlash::set_distance_mm(const AxisEnum axis, const_float_t v) {
     StepAdjuster adjuster;
     distance_mm[axis] = v;
   }
 
   #ifdef BACKLASH_SMOOTHING_MM
-    void Backlash::set_smoothing_mm(const float v) {
+    void Backlash::set_smoothing_mm(const_float_t v) {
       StepAdjuster adjuster;
       smoothing_mm = v;
     }

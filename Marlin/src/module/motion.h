@@ -566,9 +566,9 @@ void home_if_needed(const bool keeplev=false);
   #endif
 
   // Return true if the given point is within the printable area
-  bool position_is_reachable(const_float_t rx, const_float_t ry, const float inset=0);
+  bool position_is_reachable(const_float_t rx, const_float_t ry, const_float_t inset=0.0f);
 
-  inline bool position_is_reachable(const xy_pos_t &pos, const float inset=0) {
+  inline bool position_is_reachable(const xy_pos_t &pos, const_float_t inset=0.0f) {
     return position_is_reachable(pos.x, pos.y, inset);
   }
 

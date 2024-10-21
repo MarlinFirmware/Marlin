@@ -78,13 +78,13 @@ public:
   #if ENABLED(BACKLASH_GCODE)
     static void set_correction_uint8(const uint8_t v);
     static uint8_t get_correction_uint8() { return correction; }
-    static void set_correction(const float v) { set_correction_uint8(_MAX(0, _MIN(1.0, v)) * all_on + 0.5f); }
+    static void set_correction(const_float_t v) { set_correction_uint8(_MAX(0, _MIN(1.0, v)) * all_on + 0.5f); }
     static float get_correction() { return float(get_correction_uint8()) / all_on; }
-    static void set_distance_mm(const AxisEnum axis, const float v);
-    static float get_distance_mm(const AxisEnum axis) {return distance_mm[axis];}
+    static void set_distance_mm(const AxisEnum axis, const_float_t v);
+    static float get_distance_mm(const AxisEnum axis) { return distance_mm[axis]; }
     #ifdef BACKLASH_SMOOTHING_MM
-      static void set_smoothing_mm(const float v);
-      static float get_smoothing_mm() {return smoothing_mm;}
+      static void set_smoothing_mm(const_float_t v);
+      static float get_smoothing_mm() { return smoothing_mm; }
     #endif
   #endif
 

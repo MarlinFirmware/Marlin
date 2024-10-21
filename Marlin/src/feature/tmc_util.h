@@ -85,16 +85,16 @@ class TMCStorage {
 template<class TMC, char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(const uint16_t cs_pin, const float RS) :
+    TMCMarlin(const uint16_t cs_pin, const_float_t RS) :
       TMC(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t axis_chain_index) :
+    TMCMarlin(const uint16_t cs_pin, const_float_t RS, const uint8_t axis_chain_index) :
       TMC(cs_pin, RS, axis_chain_index)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
+    TMCMarlin(const uint16_t CS, const_float_t RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
+    TMCMarlin(const uint16_t CS, const_float_t RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK,  axis_chain_index)
       {}
     uint16_t rms_current() { return TMC::rms_current(); }
@@ -102,7 +102,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       this->val_mA = mA;
       TMC::rms_current(mA);
     }
-    void rms_current(const uint16_t mA, const float mult) {
+    void rms_current(const uint16_t mA, const_float_t mult) {
       this->val_mA = mA;
       TMC::rms_current(mA, mult);
     }
@@ -160,13 +160,13 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(Stream * SerialPort, const float RS, const uint8_t) :
+    TMCMarlin(Stream * SerialPort, const_float_t RS, const uint8_t) :
       TMC2208Stepper(SerialPort, RS)
       {}
-    TMCMarlin(Stream * SerialPort, const float RS, uint8_t addr, const uint16_t mul_pin1, const uint16_t mul_pin2) :
+    TMCMarlin(Stream * SerialPort, const_float_t RS, uint8_t addr, const uint16_t mul_pin1, const uint16_t mul_pin2) :
       TMC2208Stepper(SerialPort, RS, addr, mul_pin1, mul_pin2)
      {}
-    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t) :
+    TMCMarlin(const uint16_t RX, const uint16_t TX, const_float_t RS, const uint8_t) :
       TMC2208Stepper(RX, TX, RS)
       {}
 
@@ -175,7 +175,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       this->val_mA = mA;
       TMC2208Stepper::rms_current(mA);
     }
-    void rms_current(const uint16_t mA, const float mult) {
+    void rms_current(const uint16_t mA, const_float_t mult) {
       this->val_mA = mA;
       TMC2208Stepper::rms_current(mA, mult);
     }
@@ -215,10 +215,10 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2209Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(Stream * SerialPort, const float RS, const uint8_t addr) :
+    TMCMarlin(Stream * SerialPort, const_float_t RS, const uint8_t addr) :
       TMC2209Stepper(SerialPort, RS, addr)
       {}
-    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t addr) :
+    TMCMarlin(const uint16_t RX, const uint16_t TX, const_float_t RS, const uint8_t addr) :
       TMC2209Stepper(RX, TX, RS, addr)
       {}
     uint8_t get_address() { return slave_address; }
@@ -227,7 +227,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       this->val_mA = mA;
       TMC2209Stepper::rms_current(mA);
     }
-    void rms_current(const uint16_t mA, const float mult) {
+    void rms_current(const uint16_t mA, const_float_t mult) {
       this->val_mA = mA;
       TMC2209Stepper::rms_current(mA, mult);
     }
@@ -281,10 +281,10 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
 class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
   public:
-    TMCMarlin(const uint16_t cs_pin, const float RS, const uint8_t) :
+    TMCMarlin(const uint16_t cs_pin, const_float_t RS, const uint8_t) :
       TMC2660Stepper(cs_pin, RS)
       {}
-    TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
+    TMCMarlin(const uint16_t CS, const_float_t RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t) :
       TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
     uint16_t rms_current() { return TMC2660Stepper::rms_current(); }

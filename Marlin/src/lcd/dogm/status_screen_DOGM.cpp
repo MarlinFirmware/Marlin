@@ -224,7 +224,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 }
 
 #if DO_DRAW_FLOWMETER
-  FORCE_INLINE void _draw_centered_flowrate(const float flow, const uint8_t tx, const uint8_t ty) {
+  FORCE_INLINE void _draw_centered_flowrate(const_float_t flow, const uint8_t tx, const uint8_t ty) {
     const char *str = ftostr11ns(flow);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
     lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);
@@ -233,7 +233,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 #endif
 
 #if DO_DRAW_AMMETER
-  FORCE_INLINE void _draw_centered_current(const float current, const uint8_t tx, const uint8_t ty) {
+  FORCE_INLINE void _draw_centered_current(const_float_t current, const uint8_t tx, const uint8_t ty) {
     const char *str = ftostr31ns(current);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
     lcd_put_u8str(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty, &str[3-len]);

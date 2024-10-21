@@ -326,17 +326,17 @@ public:
     }
 
     static float linear_value_to_mm(const_float_t v)                  { return v * linear_unit_factor; }
-    static float axis_value_to_mm(const AxisEnum axis, const float v) { return v * axis_unit_factor(axis); }
-    static float per_axis_value(const AxisEnum axis, const float v)   { return v / axis_unit_factor(axis); }
+    static float axis_value_to_mm(const AxisEnum axis, const_float_t v) { return v * axis_unit_factor(axis); }
+    static float per_axis_value(const AxisEnum axis, const_float_t v)   { return v / axis_unit_factor(axis); }
 
   #else
 
     static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
     static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static constexpr float linear_value_to_mm(const_float_t v)             { return v; }
-    static constexpr float axis_value_to_mm(const AxisEnum, const float v) { return v; }
-    static constexpr float per_axis_value(const AxisEnum, const float v)   { return v; }
+    static constexpr float linear_value_to_mm(const_float_t v)               { return v; }
+    static constexpr float axis_value_to_mm(const AxisEnum, const_float_t v) { return v; }
+    static constexpr float per_axis_value(const AxisEnum, const_float_t v)   { return v; }
 
   #endif
 
@@ -421,17 +421,17 @@ public:
   void unknown_command_warning();
 
   // Provide simple value accessors with default option
-  static char*     stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()   : dval; }
+  static char*     stringval(const char c, char * const dval=nullptr) { return seenval(c) ? value_string()     : dval; }
   static float     floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  static bool      boolval(const char c, const bool dval=false)   { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
-  static uint8_t   byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
-  static int16_t   intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
-  static uint16_t  ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
-  static int32_t   longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
-  static uint32_t  ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
+  static bool      boolval(const char c, const bool dval=false)     { return seenval(c) ? value_bool()         : (seen(c) ? true : dval); }
+  static uint8_t   byteval(const char c, const uint8_t dval=0)      { return seenval(c) ? value_byte()         : dval; }
+  static int16_t   intval(const char c, const int16_t dval=0)       { return seenval(c) ? value_int()          : dval; }
+  static uint16_t  ushortval(const char c, const uint16_t dval=0)   { return seenval(c) ? value_ushort()       : dval; }
+  static int32_t   longval(const char c, const int32_t dval=0)      { return seenval(c) ? value_long()         : dval; }
+  static uint32_t  ulongval(const char c, const uint32_t dval=0)    { return seenval(c) ? value_ulong()        : dval; }
   static float     linearval(const char c, const float dval=0)    { return seenval(c) ? value_linear_units() : dval; }
   static float     axisunitsval(const char c, const AxisEnum a, const float dval=0)
-                                                                         { return seenval(c) ? value_axis_units(a)  : dval; }
+                                                                       { return seenval(c) ? value_axis_units(a)  : dval; }
   static celsius_t celsiusval(const char c, const celsius_t dval=0)    { return seenval(c) ? value_celsius() : dval; }
   static feedRate_t feedrateval(const char c, const feedRate_t dval=0) { return seenval(c) ? value_feedrate() : dval; }
 
