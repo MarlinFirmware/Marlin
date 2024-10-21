@@ -44,6 +44,8 @@ int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper comman
 
 bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
 
+XYZEval<millis_t> FTMotion::axis_move_end_ti = { 0 };
+AxisBits FTMotion::axis_move_dir;
 
 // Private variables.
 
@@ -88,12 +90,14 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
 // Shaping variables.
-#if HAS_X_AXIS
+#if HAS_FTM_SHAPING
   FTMotion::shaping_t FTMotion::shaping = {
-    0,
-    x:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } },            // ena, d_zi, Ai, Ni, max_i
+    zi_idx: 0
+    #if HAS_X_AXIS
+      , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+    #endif
     #if HAS_Y_AXIS
-      y:{ false, { 0.0f }, { 0.0f }, { 0 }, { 0 } }           // ena, d_zi, Ai, Ni, max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
   };
 #endif
@@ -111,8 +115,6 @@ constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); 
 //-----------------------------------------------------------------
 
 // Public functions.
-
-static bool markBlockStart = false;
 
 // Controller main, to be invoked from non-isr task.
 void FTMotion::loop() {
@@ -141,7 +143,6 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
-    markBlockStart = true;
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -166,7 +167,7 @@ void FTMotion::loop() {
       discard_planner_block_protected();
 
       // Check if the block needs to be runout:
-      if (!batchRdy && !planner.movesplanned()) {
+      if (!batchRdy && !planner.has_blocks_queued()) {
         runoutBlock();
         makeVector(); // Do an additional makeVector call to guarantee batchRdy set this loop.
       }
@@ -211,7 +212,7 @@ void FTMotion::loop() {
 
 }
 
-#if HAS_X_AXIS
+#if HAS_FTM_SHAPING
 
   // Refresh the gains used by shaping functions.
   void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol) {
@@ -362,7 +363,7 @@ void FTMotion::loop() {
     #endif
   }
 
-#endif // HAS_X_AXIS
+#endif // HAS_FTM_SHAPING
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
@@ -383,13 +384,15 @@ void FTMotion::reset() {
 
   stepper.axis_did_move.reset();
 
-  #if HAS_X_AXIS
-    ZERO(shaping.x.d_zi);
+  #if HAS_FTM_SHAPING
+    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+
+  axis_move_end_ti.reset();
 }
 
 // Private functions.
@@ -429,7 +432,11 @@ void FTMotion::runoutBlock() {
 
   const int32_t n_to_settle_and_fill_batch = n_to_settle_shaper + n_to_fill_batch_after_settling;
 
-  max_intervals = (PROP_BATCHES) * (FTM_BATCH_SIZE) + n_to_settle_and_fill_batch;
+  const int32_t N_needed_to_propagate_to_stepper = PROP_BATCHES;
+
+  const int32_t n_to_use = N_needed_to_propagate_to_stepper * (FTM_BATCH_SIZE) + n_to_settle_and_fill_batch;
+
+  max_intervals = n_to_use;
 
   blockProcRdy = true;
 }
@@ -549,6 +556,26 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPosn_prevBlock += moveDist;
 
+  // Watch endstops until the move ends
+  const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
+
+  #define __SET_MOVE_END(A,V) do{ if (V) { axis_move_end_ti.A = move_end_ti; axis_move_dir.A = (V > 0); } }while(0);
+  #define _SET_MOVE_END(A) __SET_MOVE_END(A, moveDist[_AXIS(A)])
+  #if CORE_IS_XY
+    __SET_MOVE_END(X, moveDist.x + moveDist.y);
+    __SET_MOVE_END(Y, moveDist.x - moveDist.y);
+  #else
+    _SET_MOVE_END(X);
+    _SET_MOVE_END(Y);
+  #endif
+  TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
+  SECONDARY_AXIS_MAP(_SET_MOVE_END);
+
+  // If the endstop is already pressed, endstop interrupts won't invoke
+  // endstop_triggered and the move will grind. So check here for a
+  // triggered endstop, which shortly marks the block for discard.
+  endstops.update();
+
 }
 
 // Generate data points of the trajectory.
@@ -565,6 +592,7 @@ void FTMotion::makeVector() {
   else if (makeVector_idx < (N1 + N2)) {
     // Coasting phase
     dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
+    //accel_k = 0.0f;
   }
   else {
     // Deceleration phase
@@ -579,7 +607,7 @@ void FTMotion::makeVector() {
   #if HAS_EXTRUDERS
     if (cfg.linearAdvEna) {
       float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
-      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK;
+      if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
 
       e_raw_z1 = traj.e[makeVector_batchIdx];
       e_advanced_z1 += dedt_adj * (FTM_TS);
@@ -626,15 +654,17 @@ void FTMotion::makeVector() {
   }
 
   // Apply shaping if active on each axis
-  #if HAS_X_AXIS
-    if (shaping.x.ena) {
-      shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
-      traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
-      for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
-        const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-        traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+  #if HAS_FTM_SHAPING
+    #if HAS_X_AXIS
+      if (shaping.x.ena) {
+        shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
+        traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+        for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
+          const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
+          traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+        }
       }
-    }
+    #endif
 
     #if HAS_Y_AXIS
       if (shaping.y.ena) {
@@ -647,7 +677,7 @@ void FTMotion::makeVector() {
       }
     #endif
     if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
-  #endif // HAS_X_AXIS
+  #endif // HAS_FTM_SHAPING
 
   // Filled up the queue with regular and shaped steps
   if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
@@ -716,12 +746,6 @@ void FTMotion::convertToSteps(const uint32_t idx) {
 
     // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
     cmd = 0;
-
-    // Mark the start of a new block
-    if (markBlockStart) {
-      cmd = _BV(FT_BIT_START);
-      markBlockStart = false;
-    }
 
     // Accumulate the errors for all axes
     err_P += delta;

@@ -59,9 +59,9 @@ float Z_distance = 0.1;
 //
 // Persistent settings
 //
-xy_int_t mks_corner_offsets[5];   // Initialized by settings.load()
-xyz_int_t mks_park_pos;           // Initialized by settings.load()
-celsius_t mks_min_extrusion_temp; // Initialized by settings.load()
+xy_int_t mks_corner_offsets[5];   // Initialized by settings.load
+xyz_int_t mks_park_pos;           // Initialized by settings.load
+celsius_t mks_min_extrusion_temp; // Initialized by settings.load
 
 void MKS_reset_settings() {
   constexpr xy_int_t init_dgus_level_offsets[5] = {

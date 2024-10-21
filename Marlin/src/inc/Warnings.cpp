@@ -60,7 +60,7 @@
   #endif
 #endif
 
-#if USE_BASE_CONFIGS
+#if !USE_STD_CONFIGS
   #if __has_include("../../Configuration.h")
     #define HAS_IGNORED_CONFIGS
   #elif __has_include("../../Configuration_adv.h")
@@ -737,25 +737,25 @@
   #warning "High homing currents can lead to damage if a sensor fails or is set up incorrectly."
 #endif
 
-#if USE_SENSORLESS
-  #if defined(X_CURRENT_HOME) && !HAS_CURRENT_HOME(X)
-    #warning "It's recommended to set X_CURRENT_HOME lower than X_CURRENT with SENSORLESS_HOMING."
-  #elif defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
-    #warning "It's recommended to set X2_CURRENT_HOME lower than X2_CURRENT with SENSORLESS_HOMING."
+#if USE_SENSORLESS && DISABLED(NO_HOMING_CURRENT_WARNING)
+  #if ENABLED(X_SENSORLESS) && defined(X_CURRENT_HOME) && !HAS_CURRENT_HOME(X)
+    #warning "It's recommended to set X_CURRENT_HOME lower than X_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(X2_SENSORLESS) && defined(X2_CURRENT_HOME) && !HAS_CURRENT_HOME(X2)
+    #warning "It's recommended to set X2_CURRENT_HOME lower than X2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
-  #if defined(Y_CURRENT_HOME) && !HAS_CURRENT_HOME(Y)
-    #warning "It's recommended to set Y_CURRENT_HOME lower than Y_CURRENT with SENSORLESS_HOMING."
-  #elif defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
-    #warning "It's recommended to set Y2_CURRENT_HOME lower than Y2_CURRENT with SENSORLESS_HOMING."
+  #if ENABLED(Y_SENSORLESS) && defined(Y_CURRENT_HOME) && !HAS_CURRENT_HOME(Y)
+    #warning "It's recommended to set Y_CURRENT_HOME lower than Y_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Y2_SENSORLESS) && defined(Y2_CURRENT_HOME) && !HAS_CURRENT_HOME(Y2)
+    #warning "It's recommended to set Y2_CURRENT_HOME lower than Y2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
-  #if defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z)
-    #warning "It's recommended to set Z_CURRENT_HOME lower than Z_CURRENT with SENSORLESS_HOMING."
-  #elif defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)
-    #warning "It's recommended to set Z2_CURRENT_HOME lower than Z2_CURRENT with SENSORLESS_HOMING."
-  #elif defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)
-    #warning "It's recommended to set Z3_CURRENT_HOME lower than Z3_CURRENT with SENSORLESS_HOMING."
-  #elif defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
-    #warning "It's recommended to set Z4_CURRENT_HOME lower than Z4_CURRENT with SENSORLESS_HOMING."
+  #if ENABLED(Z_SENSORLESS) && defined(Z_CURRENT_HOME) && !HAS_CURRENT_HOME(Z)
+    #warning "It's recommended to set Z_CURRENT_HOME lower than Z_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z2_SENSORLESS) && defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)
+    #warning "It's recommended to set Z2_CURRENT_HOME lower than Z2_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z3_SENSORLESS) && defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)
+    #warning "It's recommended to set Z3_CURRENT_HOME lower than Z3_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z4_SENSORLESS) && defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4)
+    #warning "It's recommended to set Z4_CURRENT_HOME lower than Z4_CURRENT with SENSORLESS_HOMING. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
   #endif
 #endif
 
@@ -920,4 +920,11 @@
  */
 #if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
   #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
+#endif
+
+/**
+ * Peltier with PIDTEMPBED
+ */
+#if ALL(PELTIER_BED, PIDTEMPBED)
+  #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
 #endif
