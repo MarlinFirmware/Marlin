@@ -585,7 +585,7 @@
   #endif
 #endif
 
-#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, HAS_DWIN_E3V2_BASIC, DWIN_CREALITY_LCD_JYERSUI)
   /**
    * HAS_DISPLAY indicates the display uses these MarlinUI methods...
    *  - update
