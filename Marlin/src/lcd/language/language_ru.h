@@ -186,7 +186,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_G26_CANCELED                     = _UxGT("G26 завершена");
   LSTR MSG_G26_LEAVING                      = _UxGT("Выйти из G26");
   LSTR MSG_UBL_CONTINUE_MESH                = _UxGT("Продолжить сетку");
-  LSTR MSG_UBL_MESH_LEVELING                = _UxGT("Выравнивание сетки");
   LSTR MSG_UBL_3POINT_MESH_LEVELING         = _UxGT("3-точечное выравн.");
   LSTR MSG_UBL_GRID_MESH_LEVELING           = _UxGT("Выравнивание сеткой");
   LSTR MSG_UBL_MESH_LEVEL                   = _UxGT("Выровнять сетку");
@@ -496,6 +495,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_DELTA_CALIBRATE_Y                = _UxGT("Калибровать Y");
   LSTR MSG_DELTA_CALIBRATE_Z                = _UxGT("Калибровать Z");
   LSTR MSG_DELTA_CALIBRATE_CENTER           = _UxGT("Калибровать центр");
+  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS    = _UxGT("Делаю дельта-калибровку");
   LSTR MSG_DELTA_SETTINGS                   = _UxGT("Настройки дельты");
   LSTR MSG_DELTA_AUTO_CALIBRATE             = _UxGT("Автокалибр. дельты");
   LSTR MSG_DELTA_DIAG_ROD                   = _UxGT("Стержень диаг.");
@@ -509,7 +509,8 @@ namespace LanguageNarrow_ru {
   LSTR MSG_UBL_LEVELING                     = _UxGT("Выравнивание UBL");
   LSTR MSG_MESH_LEVELING                    = _UxGT("Выравнивание сеткой");
   LSTR MSG_MESH_DONE                        = _UxGT("Зондиров. выполнено");
-
+  LSTR MSG_MESH_SETTINGS                    = _UxGT("Сетка Настройки");
+  LSTR MSG_RESET_STATS                      = _UxGT("Сбросить статистику печати?");
   LSTR MSG_INFO_STATS_MENU                  = _UxGT("Статистика принтера");
   LSTR MSG_INFO_BOARD_MENU                  = _UxGT("Данные платы");
   LSTR MSG_INFO_THERMISTOR_MENU             = _UxGT("Термисторы");
@@ -772,8 +773,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ERR_TEMP_MALFUNCTION             = _UxGT("СБОЙ ТЕМПЕРАТУРЫ");
   LSTR MSG_PLEASE_WAIT                      = _UxGT("Ожидайте...");
   LSTR MSG_PREHEATING                       = _UxGT("Нагреваю...");
-  LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS    = _UxGT("Делаю дельта-калибровку");
-  LSTR MSG_RESET_STATS                      = _UxGT("Сбросить статистику печати?");
   LSTR MSG_FAN_SPEED_FAULT                  = _UxGT("Сбой скорости кулера");
 
   LSTR MSG_COLORS_GET                       = _UxGT("Получить цвет");               // ProUI

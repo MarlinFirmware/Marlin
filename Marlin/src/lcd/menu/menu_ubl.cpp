@@ -550,7 +550,7 @@ void _menu_ubl_tools() {
     SUBMENU(MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
   #endif
   SUBMENU(MSG_EDIT_MESH, _lcd_ubl_edit_mesh);
-  SUBMENU(MSG_UBL_MESH_LEVELING, _lcd_ubl_mesh_leveling);
+  SUBMENU(MSG_MESH_LEVELING, _lcd_ubl_mesh_leveling);
   END_MENU();
 }
 
