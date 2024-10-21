@@ -383,6 +383,8 @@ void Endstops::event_handler() {
       )
     );
 
+    TERN_(CNC_ABORT_ON_ENDSTOP_HIT, kill());
+
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
