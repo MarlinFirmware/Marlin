@@ -696,7 +696,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
   LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Settings");
   LSTR MSG_INFO_PRINTER_STATS_MENU        = _UxGT("Printer Stats");
-  LSTR MSG_INFO_STATS_MENU                = _UxGT("Stats");
   LSTR MSG_RESET_STATS                    = _UxGT("Reset Print Stats?");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Printer Stats");
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
