@@ -38,7 +38,7 @@
 #define BOARD_WEBSITE_URL    "github.com/makerbase-mks/MKS-TinyBee"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-// MAX_EXPANDER_BITS is defined for MKS TinyBee in HAL/ESP32/inc/Conditionals_adv.h
+// MAX_EXPANDER_BITS is defined for MKS TinyBee in HAL/ESP32/inc/Conditionals-4-adv.h
 
 //
 // Servos

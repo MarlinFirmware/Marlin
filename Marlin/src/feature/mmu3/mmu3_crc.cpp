@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,33 @@
  */
 
 /**
- * $(filename)
+ * mmu2_crc.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_PRUSA_MMU3
+
+#include "mmu3_crc.h"
+
+#ifdef __AVR__
+  #include <util/crc16.h>
+#endif
+
+namespace modules {
+
+namespace crc {
+
+uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
+  #ifdef __AVR__
+    return _crc8_ccitt_update(crc, b);
+  #else
+    return CCITT_updateCX(crc, b);
+  #endif
+}
+
+} // namespace crc
+
+} // namespace modules
+
+#endif // HAS_PRUSA_MMU3
