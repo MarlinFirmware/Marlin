@@ -952,10 +952,6 @@ void JyersDWIN::drawPopup(FSTR_P const line1, FSTR_P const line2, FSTR_P const l
   }
 }
 
-void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-  jyersDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
-}
-
 void JyersDWIN::popupSelect() {
   const uint16_t c1 = selection ? COLOR_BG_WINDOW : getColor(eeprom_settings.highlight_box, COLOR_WHITE),
                  c2 = selection ? getColor(eeprom_settings.highlight_box, COLOR_WHITE) : COLOR_BG_WINDOW;
@@ -3980,7 +3976,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       }
       break;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
 
       case ID_PreheatHotend:
 
@@ -4291,7 +4287,7 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #endif
     case ID_Tune:           return TUNE_TOTAL;
 
-    #if HAS_PREHEAT && HAS_HOTEND
+    #if ALL(HAS_PREHEAT, HAS_HOTEND)
       case ID_PreheatHotend: return PREHEATHOTEND_TOTAL;
     #endif
 
@@ -4925,12 +4921,6 @@ void JyersDWIN::update() {
   }
 }
 
-void MarlinUI::update() { jyersDWIN.update(); }
-
-#if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
-#endif
-
 void JyersDWIN::stateUpdate() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
     if (!printing) startPrint(card.isFileOpen() || TERN0(POWER_LOSS_RECOVERY, recovery.valid()));
@@ -5136,6 +5126,20 @@ void JyersDWIN::resetSettings() {
   TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   redrawScreen();
 }
+
+//
+// MarlinUI Functions
+//
+
+void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
+  jyersDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
+}
+
+void MarlinUI::update() { jyersDWIN.update(); }
+
+#if HAS_LCD_BRIGHTNESS
+  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
+#endif
 
 void MarlinUI::init_lcd() {
   delay(800);

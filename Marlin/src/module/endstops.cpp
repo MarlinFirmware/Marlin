@@ -375,13 +375,13 @@ void Endstops::event_handler() {
     #endif
     SERIAL_EOL();
 
-    TERN_(HAS_STATUS_MESSAGE,
+    #if HAS_STATUS_MESSAGE
       ui.status_printf(0,
         F(S_FMT GANG_N_1(NUM_AXES, " %c") " %c"),
         GET_TEXT_F(MSG_LCD_ENDSTOPS),
         NUM_AXIS_LIST_(chrX, chrY, chrZ, chrI, chrJ, chrK, chrU, chrV, chrW) chrP
-      )
-    );
+      );
+    #endif
 
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {

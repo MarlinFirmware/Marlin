@@ -1649,6 +1649,8 @@ void MarlinUI::host_notify(const char * const cstr) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
   void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
+    if (set_alert_level(level)) return;
+
     MString<30> msg;
 
     va_list args;
@@ -1865,6 +1867,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 #endif // HAS_MEDIA
 
 #if HAS_MARLINUI_MENU
+
   void MarlinUI::reset_settings() {
     settings.reset();
     completion_feedback();
@@ -1886,7 +1889,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
-#endif
+#endif // HAS_MARLINUI_MENU
 
 #if ENABLED(EEPROM_SETTINGS)
 
