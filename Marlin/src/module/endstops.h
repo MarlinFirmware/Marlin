@@ -37,8 +37,6 @@
 #define _ESN_ITEM(K,A,M) ES_ITEM(K,ES_ENUM(A,M))
 #define ES_MINMAX(A) ES_ITEM(HAS_##A##_MIN_STATE, ES_ENUM(A,MIN)) ES_ITEM(HAS_##A##_MAX_STATE, ES_ENUM(A,MAX))
 
-#define HAS_CURRENT_HOME(N) ((N##_CURRENT_HOME > 0) && (N##_CURRENT_HOME != N##_CURRENT))
-
 /**
  * Basic Endstop Flag Bits:
  * - Each axis with an endstop gets a flag for its homing direction.
@@ -287,11 +285,6 @@ class Endstops {
       static tmc_spi_homing_t tmc_spi_homing;
       static void clear_endstop_state();
       static bool tmc_spi_homing_check();
-    #endif
-  public:
-    // Basic functions for Sensorless Homing
-    #if USE_SENSORLESS
-      static void set_z_sensorless_current(const bool onoff);
     #endif
 };
 

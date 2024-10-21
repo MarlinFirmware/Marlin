@@ -171,21 +171,19 @@
    * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
-   * If the screen stays white, disable 'TFT_RESET_PIN'
-   * to let the bootloader init the screen.
+   * If the screen stays white, disable 'TFT_RESET_PIN' to let the bootloader init the screen.
    *
-   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting a 'TFT_RESET_PIN' may cause a flicker when switching menus
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF0   // A0
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
+
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2

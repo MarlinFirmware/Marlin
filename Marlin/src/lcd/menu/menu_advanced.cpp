@@ -608,29 +608,6 @@ void menu_backlash();
 
   #endif
 
-  // M851 - Z Probe Offsets
-  #if HAS_BED_PROBE
-    void menu_probe_offsets() {
-      START_MENU();
-      BACK_ITEM(MSG_ADVANCED_SETTINGS);
-      #if HAS_PROBE_XY_OFFSET
-        EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
-        EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX);
-      #endif
-      EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
-
-      #if ENABLED(PROBE_OFFSET_WIZARD)
-        SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
-      #endif
-
-      #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-        SUBMENU(MSG_XATC, xatc_wizard_continue);
-      #endif
-
-      END_MENU();
-    }
-  #endif
-
 #endif // !SLIM_LCD_MENUS
 
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
@@ -710,11 +687,6 @@ void menu_advanced_settings() {
       EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
         OPTARG(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk)
       );
-    #endif
-
-    // M851 - Z Probe Offsets
-    #if HAS_BED_PROBE
-      if (!is_busy) SUBMENU(MSG_ZPROBE_OFFSETS, menu_probe_offsets);
     #endif
 
   #endif // !SLIM_LCD_MENUS

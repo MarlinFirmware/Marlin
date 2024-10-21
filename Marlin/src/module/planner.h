@@ -80,12 +80,10 @@
 
 // Feedrate for manual moves
 #ifdef MANUAL_FEEDRATE
+  #define _RATE_MM_SEC(A) MMM_TO_MMS(manual_feedrate_mm_m.A),
   constexpr xyze_feedrate_t manual_feedrate_mm_m = MANUAL_FEEDRATE,
-                            manual_feedrate_mm_s = LOGICAL_AXIS_ARRAY(
-                              MMM_TO_MMS(manual_feedrate_mm_m.e),
-                              MMM_TO_MMS(manual_feedrate_mm_m.x), MMM_TO_MMS(manual_feedrate_mm_m.y), MMM_TO_MMS(manual_feedrate_mm_m.z),
-                              MMM_TO_MMS(manual_feedrate_mm_m.i), MMM_TO_MMS(manual_feedrate_mm_m.j), MMM_TO_MMS(manual_feedrate_mm_m.k),
-                              MMM_TO_MMS(manual_feedrate_mm_m.u), MMM_TO_MMS(manual_feedrate_mm_m.v), MMM_TO_MMS(manual_feedrate_mm_m.w));
+                            manual_feedrate_mm_s = { LOGICAL_AXIS_MAP_LC(_RATE_MM_SEC) };
+  #undef _RATE_MM_SEC
 #endif
 
 #if ENABLED(BABYSTEPPING)
@@ -1114,7 +1112,13 @@ class Planner {
     #endif // HAS_JUNCTION_DEVIATION
 };
 
-#define PLANNER_XY_FEEDRATE() _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+#if HAS_Y_AXIS
+  #define PLANNER_XY_FEEDRATE_MM_S _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS])
+#elif HAS_X_AXIS
+  #define PLANNER_XY_FEEDRATE_MM_S planner.settings.max_feedrate_mm_s[X_AXIS]
+#else
+  #define PLANNER_XY_FEEDRATE_MM_S 60.0f
+#endif
 
 #define ANY_AXIS_MOVES(BLOCK)  \
   (false NUM_AXIS_GANG(        \
