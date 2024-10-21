@@ -190,6 +190,7 @@ float BedLevelTools::getMinValue() {
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
+  TERN_(PROUI_MESH_EDIT, if ((MESH_MAX_X <= MESH_MIN_X) || (MESH_MAX_Y <= MESH_MIN_Y)) return false);
   GRID_LOOP(x, y) {
     const float z = bedlevel.z_values[x][y];
     if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
@@ -246,7 +247,7 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        constexpr bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
+        const bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         else

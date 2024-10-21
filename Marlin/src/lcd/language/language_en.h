@@ -645,6 +645,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Probe @ Offset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Probe Margin");
+  LSTR MSG_ZPROBE_MULTIPLE                = _UxGT("Multiple Probing");
   LSTR MSG_ZOFFSET                        = _UxGT("Z Offset");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z Feedrate");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Enable HS mode");
@@ -695,6 +696,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
   LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Settings");
   LSTR MSG_INFO_PRINTER_STATS_MENU        = _UxGT("Printer Stats");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Stats");
   LSTR MSG_RESET_STATS                    = _UxGT("Reset Print Stats?");
