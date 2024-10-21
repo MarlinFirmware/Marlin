@@ -118,14 +118,14 @@
   #endif
 #endif
 
-#ifdef MMU2_SERIAL_PORT
-  #if MMU2_SERIAL_PORT == -1
-    #define MMU2_SERIAL UsbSerial
-  #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
-    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+#ifdef MMU_SERIAL_PORT
+  #if MMU_SERIAL_PORT == -1
+    #define MMU_SERIAL UsbSerial
+  #elif WITHIN(MMU_SERIAL_PORT, 1, NUM_UARTS)
+    #define MMU_SERIAL MSERIAL(MMU_SERIAL_PORT)
   #else
-    #define MMU2_SERIAL MSERIAL(1) // dummy port
-    static_assert(false, "MMU2_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+    #define MMU_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "MMU_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
