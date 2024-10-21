@@ -329,6 +329,7 @@ G29_TYPE GcodeSuite::G29() {
           set_bed_leveling_enabled(false);
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
+          TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(i, j, rz));
           TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           if (abl.reenable) {
             set_bed_leveling_enabled(true);
@@ -434,7 +435,6 @@ G29_TYPE GcodeSuite::G29() {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #endif
-
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
     if (!faux) {
@@ -448,7 +448,11 @@ G29_TYPE GcodeSuite::G29() {
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
         if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
+          #if ENABLED(EXTENSIBLE_UI)
+            ExtUI::getLevelingBedTemp()
+          #else
+            LEVELING_BED_TEMP
+          #endif
         );
       #endif
     }
@@ -576,6 +580,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float newz = abl.measured_z + abl.Z_offset;
         abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
+        TERN_(DWIN_LCD_PROUI, meshViewer.drawMeshPoint(abl.meshCount.x, abl.meshCount.y, newz));
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
@@ -863,7 +868,8 @@ G29_TYPE GcodeSuite::G29() {
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(bedlevel.z_values, abl.z_values);
-        TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        if (parser.boolval('K')) bedlevel.extrapolate_unprobed_bed_level();
+        else if (ENABLED(DWIN_LCD_PROUI) || ENABLED(IS_KINEMATIC)) bedlevel.extrapolate_unprobed_bed_level();
         bedlevel.refresh_bed_level();
 
         bedlevel.print_leveling_grid();
@@ -999,7 +1005,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
+  TERN_(Z_AFTER_PROBING, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe End Script: ", EVENT_GCODE_AFTER_G29);
