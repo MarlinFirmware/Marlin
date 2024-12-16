@@ -368,7 +368,10 @@ class Stepper {
     #endif
 
     #if ENABLED(FREEZE_FEATURE)
-      static bool frozen;                 // Set this flag to instantly freeze motion
+      static bool frozen_pin;                   // Set this flag to freeze motion
+      static bool frozen_solid;                 // Are we stopped?
+      static uint32_t frozen_time;              // How stepper ticks passed
+      static void check_frozen_time(uint32_t &step_rate);
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)

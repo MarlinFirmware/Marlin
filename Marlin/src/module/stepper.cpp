@@ -200,7 +200,9 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 #endif
 
 #if ENABLED(FREEZE_FEATURE)
-  bool Stepper::frozen; // = false
+  bool Stepper::frozen_pin = false;
+  bool Stepper::frozen_solid = false;
+  uint32_t Stepper::frozen_time = 0;
 #endif
 
 // Delta error variables for the Bresenham line tracer
@@ -1841,6 +1843,22 @@ void Stepper::isr() {
         #endif
       }
     }
+  }
+
+  // If there is no current block, do nothing
+  if (!current_block || step_events_completed >= step_event_count) return;
+
+  // Skipping step processing causes motion to freeze
+  #if ENABLED(FREEZE_FEATURE)
+    if(frozen_pin && frozen_solid) return;
+  #endif
+
+  // Count of pending loops and events for this iteration
+  const uint32_t pending_events = step_event_count - step_events_completed;
+  uint8_t events_to_do = _MIN(pending_events, steps_per_isr);
+
+  // Just update the value we will get at the end of the loop
+  step_events_completed += events_to_do;
 
     // If there is no current block, do nothing
     if (!current_block || step_events_completed >= step_event_count) return;
@@ -2461,9 +2479,15 @@ void Stepper::isr() {
           // acc_step_rate is in steps/second
 
           // step_rate to timer interval and steps per stepper isr
+          #if ENABLED(FREEZE_FEATURE)
+            if(frozen_time) check_frozen_time(acc_step_rate);
+          #endif
           interval = calc_multistep_timer_interval(acc_step_rate << oversampling_factor);
           acceleration_time += interval;
           deceleration_time = 0; // Reset since we're doing acceleration first.
+          #if ENABLED(FREEZE_FEATURE)
+            if(frozen_pin && !frozen_solid) frozen_time += interval * 2;
+          #endif
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
@@ -2527,8 +2551,21 @@ void Stepper::isr() {
           #endif
 
           // step_rate to timer interval and steps per stepper isr
+          #if ENABLED(FREEZE_FEATURE)
+            if(frozen_time) check_frozen_time(step_rate);
+          #endif
           interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
           deceleration_time += interval;
+          #if ENABLED(FREEZE_FEATURE)
+            if(!frozen_pin) {
+              if(frozen_time) {
+                if(frozen_time > interval * 2) frozen_time -= interval * 2;
+                else frozen_time = 0;
+              }
+              
+              frozen_solid = false;
+            }
+          #endif
 
           // Apply Nonlinear Extrusion, if enabled
           calc_nonlinear_e(step_rate << oversampling_factor);
@@ -2576,21 +2613,31 @@ void Stepper::isr() {
         else {  // Must be in cruise phase otherwise
 
           // Calculate the ticks_nominal for this nominal speed, if not done yet
-          if (ticks_nominal == 0) {
+          if (ticks_nominal == 0
+            #if ENABLED(FREEZE_FEATURE)
+              || frozen_time
+            #endif
+          ) {
+
+            #if ENABLED(FREEZE_FEATURE)
+              if(frozen_time) check_frozen_time(step_rate);
+            #endif
+            uint32_t step_rate = current_block->nominal_rate;
+
             // step_rate to timer interval and loops for the nominal speed
-            ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
+            ticks_nominal = calc_multistep_timer_interval(step_rate << oversampling_factor);
             deceleration_time = ticks_nominal / 2;
 
             // Prepare for deceleration
-            IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
-            TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate);
+            IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = step_rate);
+            TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = step_rate);
 
             // Apply Nonlinear Extrusion, if enabled
-            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
+            calc_nonlinear_e(step_rate << oversampling_factor);
 
             #if HAS_ROUGH_LIN_ADVANCE
               if (la_active)
-                la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
+                la_interval = calc_timer_interval(step_rate >> current_block->la_scaling);
             #endif
 
             // Adjust Laser Power - Cruise
@@ -2610,6 +2657,17 @@ void Stepper::isr() {
 
           // The timer interval is just the nominal value for the nominal speed
           interval = ticks_nominal;
+  
+          #if ENABLED(FREEZE_FEATURE)
+            if(frozen_pin) {
+               if(!frozen_solid) frozen_time += ticks_nominal;
+            } else {
+              if (frozen_time > ticks_nominal) frozen_time -= ticks_nominal;
+              else frozen_time = 0;
+                
+              frozen_solid = false;
+            }
+          #endif
         }
       }
 
@@ -2917,12 +2975,18 @@ void Stepper::isr() {
         #endif
 
         // Calculate the initial timer interval
-        interval = calc_multistep_timer_interval(current_block->initial_rate << oversampling_factor);
+        uint32_t step_rate = current_block->initial_rate;
+        #if ENABLED(FREEZE_FEATURE)
+          if(frozen_time) check_frozen_time(step_rate);
+        #endif
+
+
+        interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         // Initialize ac/deceleration time as if half the time passed.
         acceleration_time = deceleration_time = interval / 2;
 
         // Apply Nonlinear Extrusion, if enabled
-        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
+        calc_nonlinear_e(step_rate << oversampling_factor);
 
         #if ENABLED(LIN_ADVANCE)
           #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -2930,7 +2994,7 @@ void Stepper::isr() {
           #else
             if (la_active) {
               const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-              la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+              la_interval = calc_timer_interval((step_rate + la_step_rate) >> current_block->la_scaling);
             }
           #endif
         #endif
@@ -3864,3 +3928,13 @@ void Stepper::report_positions() {
   }
 
 #endif // BABYSTEPPING
+
+#if ENABLED(FREEZE_FEATURE)
+  void Stepper::check_frozen_time(uint32_t &step_rate) {
+    uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
+    if(freeze_rate >= step_rate) step_rate = 1;
+    else step_rate -= freeze_rate;
+    
+    frozen_solid = step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK);
+  }
+#endif

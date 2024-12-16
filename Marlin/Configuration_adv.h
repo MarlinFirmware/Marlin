@@ -4437,10 +4437,11 @@
  * Note this does NOT pause spindles, lasers, fans, heaters or any other auxiliary device.
  * @section interface
  */
-//#define FREEZE_FEATURE
+#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
-  //#define FREEZE_PIN 41   // Override the default (KILL) pin here
-  #define FREEZE_STATE LOW  // State of pin indicating freeze
+  #define FREEZE_PIN      5   // Override the default (KILL) pin here
+  #define FREEZE_JERK     2
+  #define FREEZE_STATE    LOW  // State of pin indicating freeze
 #endif
 
 /**
