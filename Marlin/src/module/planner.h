@@ -249,7 +249,11 @@ typedef struct PlannerBlock {
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
              acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
-             deceleration_time;
+             deceleration_time,
+             acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+             deceleration_time_inverse;
+  #if ENABLED(FREEZE_FEATURE)
+    uint32_t acceleration_rate;             // The rate used for freeze acceleration calculation
   #endif
   #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used

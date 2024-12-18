@@ -2479,7 +2479,7 @@ void Stepper::isr() {
           // acc_step_rate is in steps/second
 
         #if ENABLED(FREEZE_FEATURE)
-          if(frozen_time) check_frozen_time(acc_step_rate);
+          check_frozen_time(acc_step_rate);
         #endif
 
         // step_rate to timer interval and steps per stepper isr
@@ -2553,7 +2553,7 @@ void Stepper::isr() {
           #endif
 
         #if ENABLED(FREEZE_FEATURE)
-          if(frozen_time) check_frozen_time(step_rate);
+          check_frozen_time(step_rate);
         #endif
 
         // step_rate to timer interval and steps per stepper isr
@@ -2656,7 +2656,7 @@ void Stepper::isr() {
           interval = ticks_nominal;
 
           #if ENABLED(FREEZE_FEATURE)
-            check_frozen_pin(2, interval);
+            check_frozen_time(step_rate);
           #endif
         }
       }
@@ -2876,6 +2876,10 @@ void Stepper::isr() {
 
         // No step events completed so far
         step_events_completed = 0;
+
+        #if ENABLED(FREEZE_FEATURE)
+          check_frozen_time(step_rate);
+        #endif
 
         // Compute the acceleration and deceleration points
         accelerate_before = current_block->accelerate_before << oversampling_factor;
@@ -3925,10 +3929,22 @@ void Stepper::report_positions() {
 #endif // BABYSTEPPING
 
 #if ENABLED(FREEZE_FEATURE)
-  void Stepper::check_frozen_time(uint32_t &step_rate) {
-    uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
-    if(freeze_rate >= step_rate) step_rate = 1;
-    else step_rate -= freeze_rate;
+
+void Stepper::check_frozen_time(uint32_t &step_rate) {
+  //If frozen_time is 0 there is no need to modify the current step_rate
+  if(!frozen_time) return;
+
+  #if ENABLED(S_CURVE_ACCELERATION)
+    //If the machine is configured to use S_CURVE_ACCELERATION standard ramp acceleration 
+    // rate will not have been calculated at this point
+    if(!current_block->acceleration_rate) {
+      current_block->acceleration_rate = (uint32_t)(current_block->acceleration_steps_per_s2 * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
+    }
+  #endif
+
+  uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
+  if(freeze_rate >= step_rate) step_rate = 1;
+  else step_rate -= freeze_rate;
     
   frozen_solid = step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK);
 }

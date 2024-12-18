@@ -4437,7 +4437,7 @@
  * Note this does NOT pause spindles, lasers, fans, heaters or any other auxiliary device.
  * @section interface
  */
-#define FREEZE_FEATURE
+//#define FREEZE_FEATURE
 #if ENABLED(FREEZE_FEATURE)
   #define FREEZE_PIN      5     // Override the default (KILL) pin here
   #define FREEZE_JERK     2     // Completely halt when motion has decelerated below this value 
