@@ -203,6 +203,9 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
   bool Stepper::frozen_pin = false;
   bool Stepper::frozen_solid = false;
   uint32_t Stepper::frozen_time = 0;
+  #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
+    uint8_t Stepper::frozen_last_laser_power = 0;
+  #endif
 #endif
 
 // Delta error variables for the Bresenham line tracer
@@ -3945,8 +3948,8 @@ void Stepper::check_frozen_time(uint32_t &step_rate) {
   uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
   if(freeze_rate >= step_rate) step_rate = 1;
   else step_rate -= freeze_rate;
-    
-  frozen_solid = step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK);
+
+  set_frozen_solid(step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK));
 }
 
 void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
@@ -3962,7 +3965,7 @@ void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
           else frozen_time = 0;
         }
         
-        frozen_solid = false;
+        set_frozen_solid(false);
       }
     break;
 
@@ -3979,11 +3982,28 @@ void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
             ticks_nominal = 0;      //Reset ticks_nominal to allow for recalculation of interval at nominal_rate
           }
         }
-          
-        frozen_solid = false;
+
+        set_frozen_solid(false);
       }
     break;
   }
+}
+
+void Stepper::set_frozen_solid(uint8_t solid) {
+  if(solid != frozen_solid) {
+    if(solid) {
+      #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
+        frozen_last_laser_power = cutter.last_power_applied;
+        cutter.apply_power(0);
+      #endif
+    } else {
+      #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
+        cutter.apply_power(frozen_last_laser_power);
+      #endif
+    }
+  }
+
+  frozen_solid = solid;
 }
 
 #endif
