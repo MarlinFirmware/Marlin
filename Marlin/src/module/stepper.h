@@ -368,15 +368,8 @@ class Stepper {
     #endif
 
     #if ENABLED(FREEZE_FEATURE)
-      static bool frozen_pin;                   // Set directly by pin state
-      static bool frozen_solid;                 // Are we completely stopped?
-      static uint32_t frozen_time;              // How much time has past since frozen_pin was triggered?
-      #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
-        static uint8_t frozen_last_laser_power;    // Saved laser power prior to halting motion
-      #endif
-      static void check_frozen_time(uint32_t &step_rate);
-      static void check_frozen_pin(uint8_t type, uint32_t interval);
-      static void set_frozen_solid(uint8_t solid);
+      static inline void set_frozen_triggered(bool state) { set_frozen_flag(state, 1); }
+      static inline bool is_frozen_triggered() { return frozen_state & 1; }
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -808,6 +801,19 @@ class Stepper {
       static void ftMotion_stepper();
     #endif
 
+    #if ENABLED(FREEZE_FEATURE)
+      static uint8_t frozen_state;                  // Frozen flags
+      static uint32_t frozen_time;                  // How much time has past since frozen_state was triggered?
+      #if ENABLED(LASER_FEATURE)
+        static uint8_t frozen_last_laser_power;     // Saved laser power prior to halting motion
+      #endif
+
+      static void check_frozen_time(uint32_t &step_rate);
+      static void check_frozen_state(uint8_t type, uint32_t interval);
+      static inline void set_frozen_flag(bool state, uint8_t flag) { frozen_state = state ? (frozen_state | flag) : (frozen_state & ~(flag)); }
+      static inline void set_frozen_solid(bool state);
+      static inline bool is_frozen_solid() { return frozen_state & 2; }
+    #endif
 };
 
 extern Stepper stepper;

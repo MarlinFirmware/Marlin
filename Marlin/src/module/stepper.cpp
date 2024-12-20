@@ -200,11 +200,10 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 #endif
 
 #if ENABLED(FREEZE_FEATURE)
-  bool Stepper::frozen_pin = false;
-  bool Stepper::frozen_solid = false;
-  uint32_t Stepper::frozen_time = 0;
-  #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
-    uint8_t Stepper::frozen_last_laser_power = 0;
+  uint8_t Stepper::frozen_state = 0;                  // Frozen flags
+  uint32_t Stepper::frozen_time = 0;                  // How much time has past since frozen_state was triggered?
+  #if ENABLED(LASER_FEATURE)
+    uint8_t frozen_last_laser_power = 0;              // Saved laser power prior to halting motion
   #endif
 #endif
 
@@ -1853,7 +1852,7 @@ void Stepper::isr() {
 
   // Skipping step processing causes motion to freeze
   #if ENABLED(FREEZE_FEATURE)
-    if(frozen_pin && frozen_solid) return;
+    if(is_frozen_triggered() && is_frozen_solid()) return;
   #endif
 
   // Count of pending loops and events for this iteration
@@ -2439,6 +2438,12 @@ void Stepper::isr() {
     // If no queued movements, just wait 1ms for the next block
     hal_timer_t interval = (STEPPER_TIMER_RATE) / 1000UL;
 
+    // If we are frozen solid
+    #if ENABLED(FREEZE_FEATURE)
+      if(is_frozen_triggered() && is_frozen_solid()) {
+        return interval;
+      } else
+    #endif
     // If there is a current block
     if (current_block) {
       // If current block is finished, reset pointer and finalize state
@@ -2491,7 +2496,7 @@ void Stepper::isr() {
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
         #if ENABLED(FREEZE_FEATURE)
-          check_frozen_pin(0, interval);
+          check_frozen_state(1, interval);
         #endif
 
           // Apply Nonlinear Extrusion, if enabled
@@ -2564,7 +2569,7 @@ void Stepper::isr() {
         deceleration_time += interval;
 
         #if ENABLED(FREEZE_FEATURE)
-          check_frozen_pin(1, interval);
+          check_frozen_state(2, interval);
         #endif
 
           // Apply Nonlinear Extrusion, if enabled
@@ -2682,6 +2687,9 @@ void Stepper::isr() {
       #endif
     }
     else { // !current_block
+      #if ENABLED(FREEZE_FEATURE)
+        check_frozen_state(0, interval);
+      #endif
       #if ENABLED(LASER_FEATURE)
         if (cutter.cutter_mode == CUTTER_MODE_DYNAMIC)
           cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
@@ -2734,6 +2742,9 @@ void Stepper::isr() {
         #if ENABLED(POWER_LOSS_RECOVERY)
           recovery.info.sdpos = current_block->sdpos;
           recovery.info.current_position = current_block->start_position;
+        #endif
+        #if ENABLED(FREEZE_FEATURE)
+          check_frozen_state(3, interval);
         #endif
 
         #if ENABLED(DIRECT_STEPPING)
@@ -2981,7 +2992,7 @@ void Stepper::isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
 
         #if ENABLED(FREEZE_FEATURE)
-          check_frozen_pin(0, interval);
+          check_frozen_state(1, interval);
         #endif
 
         // Initialize ac/deceleration time as if half the time passed.
@@ -3933,6 +3944,21 @@ void Stepper::report_positions() {
 
 #if ENABLED(FREEZE_FEATURE)
 
+void Stepper::set_frozen_solid(bool state) {
+  if(state != is_frozen_solid()) {
+    set_frozen_flag(state, 2);
+
+    #if ENABLED(LASER_FEATURE)
+      if(state) {
+          frozen_last_laser_power = cutter.last_power_applied;
+          cutter.apply_power(0);  // No movement in dynamic mode so turn Laser off
+      } else {
+            cutter.apply_power(frozen_last_laser_power);  // No movement in dynamic mode so turn Laser off
+      }
+    #endif
+  }
+}
+
 void Stepper::check_frozen_time(uint32_t &step_rate) {
   //If frozen_time is 0 there is no need to modify the current step_rate
   if(!frozen_time) return;
@@ -3946,32 +3972,55 @@ void Stepper::check_frozen_time(uint32_t &step_rate) {
   #endif
 
   uint32_t freeze_rate = STEP_MULTIPLY(frozen_time, current_block->acceleration_rate);
-  if(freeze_rate >= step_rate) step_rate = 1;
+  if(freeze_rate >= step_rate) step_rate = 0;
   else step_rate -= freeze_rate;
 
-  set_frozen_solid(step_rate < (current_block->acceleration_steps_per_s2 / current_block->acceleration * FREEZE_JERK));
+  uint32_t min_step_rate = (current_block->steps_per_mm * FREEZE_JERK);
+  if(step_rate <= min_step_rate) {
+    set_frozen_solid(true);
+    step_rate = min_step_rate;
+  }
 }
 
-void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
+void Stepper::check_frozen_state(uint8_t type, uint32_t interval) {
   switch(type) {
-    case 0: //acceleration
-      if(frozen_pin && !frozen_solid) frozen_time += interval * 2;
-    break;
-
-    case 1: //deceleration
-      if(!frozen_pin) {
-        if(frozen_time) {
-          if(frozen_time > interval * 2) frozen_time -= interval * 2;
-          else frozen_time = 0;
-        }
-        
+    case 0: //Stationary
+      //If triggered while stationary immediately set solid flag
+      if(is_frozen_triggered()) {
+        frozen_time = 0;
+        set_frozen_solid(true);
+      } else {
         set_frozen_solid(false);
       }
     break;
 
-    case 2: //cruise
-      if(frozen_pin) {
-          if(!frozen_solid) frozen_time += interval;
+    case 1: //Acceleration
+      //If frozen state is activated during the acceleration phase of a block we need to double our decceleration efforts
+      if(is_frozen_triggered()) {
+        if(!is_frozen_solid()) {
+          frozen_time += interval * 2;
+        }
+      } else {
+        set_frozen_solid(false);
+      }
+    break;
+
+    case 2: //Deceleration
+      //If frozen state is deactivated during the deceleration phase we need to double our acceleration efforts
+      if(!is_frozen_triggered()) {
+        if(frozen_time) {
+          if(frozen_time > interval * 2) frozen_time -= interval * 2;
+          else frozen_time = 0;
+        }
+
+        set_frozen_solid(false);
+      }
+    break;
+
+    case 3: //Cruise
+      //During cruise stage acceleration/deceleration take place at regular rate
+      if(is_frozen_triggered()) {
+          if(!is_frozen_solid()) frozen_time += interval;
       } else {
         if(frozen_time) {
           if (frozen_time > interval) {
@@ -3987,23 +4036,6 @@ void Stepper::check_frozen_pin(uint8_t type, uint32_t interval) {
       }
     break;
   }
-}
-
-void Stepper::set_frozen_solid(uint8_t solid) {
-  if(solid != frozen_solid) {
-    if(solid) {
-      #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
-        frozen_last_laser_power = cutter.last_power_applied;
-        cutter.apply_power(0);
-      #endif
-    } else {
-      #if ALL(LASER_FEATURE, FREEZE_TURN_LASER_OFF)
-        cutter.apply_power(frozen_last_laser_power);
-      #endif
-    }
-  }
-
-  frozen_solid = solid;
 }
 
 #endif

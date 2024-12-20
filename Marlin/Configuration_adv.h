@@ -4434,7 +4434,7 @@
 /**
  * Freeze / unfreeze functionality
  * Potentially useful for rapid stop that allows being resumed. Halts stepper movement after decelerating to FREEZE_JERK.
- * Note this does NOT pause spindles, fans, heaters or any other auxiliary device unless specified below.
+ * Note this controls laser PWM but does NOT pause spindles, fans, heaters or any other auxiliary devices.
  * @section interface
  */
 //#define FREEZE_FEATURE
@@ -4442,7 +4442,6 @@
   #define FREEZE_PIN          5     // Override the default (KILL) pin here
   #define FREEZE_JERK         2     // Completely halt when motion has decelerated below this value 
   #define FREEZE_STATE        LOW   // State of pin indicating freeze
-  //#define FREEZE_TURN_LASER_OFF     // If defined this will turn the laser off while machine is stationary
 #endif
 
 /**
