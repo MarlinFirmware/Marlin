@@ -993,3 +993,10 @@
 #if ALL(SMOOTH_LIN_ADVANCE, MIXING_EXTRUDER)
   #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
 #endif
+
+/**
+ * FREEZE_FEATURE may override the KILL_PIN
+ */
+#if FREEZE_STOLE_KILL_PIN_WARNING
+  #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
+#endif

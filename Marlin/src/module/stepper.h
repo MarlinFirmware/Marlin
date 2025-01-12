@@ -318,6 +318,22 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // NONLINEAR_EXTRUSION
 
+// Pause resume ramping constants
+#if ENABLED(REALTIME_RAMPING)
+  #define MIN_REALTIME_RAMPING_FACTOR   500
+  #define MAX_REALTIME_RAMPING_FACTOR 10000
+#endif
+
+#if ENABLED(FREEZE_FEATURE)
+  typedef enum FreezePhase : uint8_t {
+    FREEZE_STATIONARY,
+    FREEZE_ACCELERATION,
+    FREEZE_DECELERATION,
+    FREEZE_CRUISE
+  };
+  enum FrozenState { FROZEN_SLOWING, FROZEN_SOLID };
+#endif
+
 //
 // Stepper class definition
 //
@@ -368,8 +384,8 @@ class Stepper {
     #endif
 
     #if ENABLED(FREEZE_FEATURE)
-      static inline void set_frozen_triggered(bool state) { set_frozen_flag(state, 1); }
-      static inline bool is_frozen_triggered() { return frozen_state & 1; }
+      static inline void set_frozen_triggered(bool state) { set_frozen_flag(state, FROZEN_SLOWING); }
+      static inline bool is_frozen_triggered() { return TEST(frozen_state, FROZEN_SLOWING); }
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -803,17 +819,16 @@ class Stepper {
 
     #if ENABLED(FREEZE_FEATURE)
       static uint8_t frozen_state;                  // Frozen flags
-      static uint32_t frozen_time;                  // How much time has past since frozen_state was triggered?
+      static uint32_t frozen_time;                  // How much time passed since frozen_state was triggered?
       #if ENABLED(LASER_FEATURE)
         static uint8_t frozen_last_laser_power;     // Saved laser power prior to halting motion
       #endif
-
       static void check_frozen_time(uint32_t &step_rate);
-      static void check_frozen_state(uint8_t type, uint32_t interval);
-      static inline void set_frozen_flag(bool state, uint8_t flag) { frozen_state = state ? (frozen_state | flag) : (frozen_state & ~(flag)); }
+      static void check_frozen_state(const FreezePhase type, const uint32_t interval);
+      static inline void set_frozen_flag(bool state, uint8_t flag) { SET_BIT_TO(frozen_state, flag, state); }
       static inline void set_frozen_solid(bool state);
-      static inline bool is_frozen_solid() { return frozen_state & 2; }
-    #endif
+      static inline bool is_frozen_solid() { return TEST(frozen_state, FROZEN_SOLID); }
+    #endif // FREEZE_FEATURE
 };
 
 extern Stepper stepper;
