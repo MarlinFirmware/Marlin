@@ -1098,6 +1098,15 @@
   #endif
 #endif
 
+#if ENABLED(LASER_FEATURE)
+  #ifndef LASER_POWERUP_DELAY 
+    #define LASER_POWERUP_DELAY SPINDLE_LASER_POWERUP_DELAY
+  #endif
+  #ifndef LASER_POWERDOWN_DELAY 
+    #define LASER_POWERDOWN_DELAY SPINDLE_LASER_POWERDOWN_DELAY
+  #endif
+#endif
+
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
