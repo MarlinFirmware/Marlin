@@ -158,11 +158,15 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_AUTORETRACT                    = _UxGT("Retraction auto");                          // Auto-Retract
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Changer filament");                         // Change Filament
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Changer filament *");                       // Change * Filament
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");                            // Attach (MEDIA_TYPE_EN)
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le media");                         // Attach (MEDIA_TYPE_EN)
   LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");                            // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");                           // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser media");                         // Refresh (MEDIA_TYPE_EN)
-  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exec. auto.gcode");                         // Run Autofiles
+  LSTR MSG_CHANGE_SD                      = _UxGT("Actualiser SD");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Actualiser USB");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exec. auto.g");                             // Run Autofiles
+  LSTR MSG_RUN_AUTOFILES_SD               = _UxGT("Exec. SD auto.g");
+  LSTR MSG_RUN_AUTOFILES_USB              = _UxGT("Exec. USB auto.g");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");                         // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset");                                    // Reset
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Decalage X");                               // Probe X Offset
@@ -412,6 +416,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");                       // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");                             // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le media");                         // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Retirer le SD");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Retirer le USB");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur ecart");                            // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Self-Test");                                // Self-Test

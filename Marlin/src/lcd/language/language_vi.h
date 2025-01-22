@@ -159,6 +159,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_ATTACH_SD                      = _UxGT("Khởi tạo thẻ SD");                          // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Khởi tạo thanh USB");                       // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Thay phương tiện");                         // Refresh (MEDIA_TYPE_EN)
+  LSTR MSG_CHANGE_SD                      = _UxGT("Thay thẻ SD");                              // Change SD
+  LSTR MSG_CHANGE_USB                     = _UxGT("Thay thanh USB");                           // Change USB
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Khởi chạy tự động");                        // Run Autofiles
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                         // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Bặt lại BLTouch");                          // Reset
@@ -367,6 +369,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Dỡ dây nhựa *");                            // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Dỡ tất cả");                                // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Phát hành phương tiện");                    // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Phát hành thẻ SD");                         // Release SD
+  LSTR MSG_RELEASE_USB                    = _UxGT("Phát hành thanh USB");                      // Release USB
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Hệ số nghiêng");                            // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTOUCH");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Tự kiểm tra BLTOUCH ");                     // Self-Test

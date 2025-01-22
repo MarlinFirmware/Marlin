@@ -160,10 +160,12 @@ namespace LanguageNarrow_hu {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto visszah.");                            // Auto-Retract
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Szálcsere");                                // Change Filament
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Szálcsere *");                              // Change * Filament
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló SD");                                // Attach (MEDIA_TYPE_EN)
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló");                                   // Attach (MEDIA_TYPE_EN)
   LSTR MSG_ATTACH_SD                      = _UxGT("Tároló SD");                                // Attach SD Card
   LSTR MSG_ATTACH_USB                     = _UxGT("Tároló USB");                               // Attach USB Drive
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Tároló csere");                             // Refresh (MEDIA_TYPE_EN)
+  LSTR MSG_CHANGE_SD                      = _UxGT("Tároló SD csere");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Tároló USB csere");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Fájl auto. futtatás");                      // Run Autofiles
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z szonda tálcán kivül");                    // Z Probe Past Bed
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Visszaállítás");                            // Reset
@@ -416,6 +418,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Szál eltávolítás *");                       // Unload * Filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Mindet eltávolít");                         // Unload All
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Tároló Kiadása");                           // Release (MEDIA_TYPE_EN)
+  LSTR MSG_RELEASE_SD                     = _UxGT("Tároló SD Kiadása");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Tároló USB Kiadása");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Ferdeség faktor");                          // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");                                  // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Önteszt");                                  // Self-Test
