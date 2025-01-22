@@ -126,8 +126,14 @@ int16_t CardReader::nrItems = -1;
 
 #endif // SDCARD_SORT_ALPHA
 
-#if HAS_SDCARD
-  CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
+// Onboard and/or external SPI SD Card
+#if NEED_SD2CARD_SPI
+  sdcard_driver_t CardReader::media_driver_sdcard;
+#endif
+
+// Onboard SDIO SD Card
+#if NEED_SD2CARD_SDIO
+  sdiocard_driver_t CardReader::media_driver_sdiocard;
 #endif
 
 #if HAS_USB_FLASH_DRIVE
@@ -135,10 +141,14 @@ int16_t CardReader::nrItems = -1;
 #endif
 
 DiskIODriver* CardReader::driver = (
-  #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
+  #if DEFAULT_VOLUME_IS(ONBOARD) || DEFAULT_VOLUME_IS(LCD)
+    &CardReader::media_driver_sdcard
+  #elif DEFAULT_VOLUME_IS(SDIO)
+    &CardReader::media_driver_sdiocard
+  #elif DEFAULT_VOLUME_IS(USBFD)
     &CardReader::media_driver_usbFlash
   #else
-    &CardReader::media_driver_sdcard
+    nullptr
   #endif
 );
 
@@ -611,7 +621,7 @@ void CardReader::manage_media() {
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat > MEDIA_BOOT)) {
       // If both SD/FD mount simultaneously prefer the default
       #if HAS_MULTI_VOLUME
-        #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
+        #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(ONBOARD)
           if (vadd & INSERT_USB) selectMediaFlashDrive();
           else if (vadd & INSERT_SD) selectMediaSDCard();
         #else
