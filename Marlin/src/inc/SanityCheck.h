@@ -343,7 +343,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(LCD_PROGRESS_BAR)
   #if NONE(HAS_MEDIA, SET_PROGRESS_MANUALLY)
-    #error "LCD_PROGRESS_BAR requires SDSUPPORT or SET_PROGRESS_MANUALLY."
+    #error "LCD_PROGRESS_BAR requires VOLUME0 or SET_PROGRESS_MANUALLY."
   #elif NONE(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
     #error "LCD_PROGRESS_BAR only applies to HD44780 character LCD and TFTGLCD_PANEL_(SPI|I2C)."
   #elif HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
@@ -398,11 +398,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if HAS_MEDIA
   #if HAS_MULTI_VOLUME
-    #if !(DEFAULT_VOLUME_IS(SD_ONBOARD) || DEFAULT_VOLUME_IS(USB_FLASH_DRIVE))
-      #error "DEFAULT_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+    #if !(DEFAULT_VOLUME_IS(ONBOARD) || SHARED_VOLUME_IS(SDIO) || DEFAULT_VOLUME_IS(USBFD) || DEFAULT_VOLUME_IS(LCD) || DEFAULT_VOLUME_IS(CUSTOM))
+      #error "DEFAULT_VOLUME must be ONBOARD, SDIO, USBFD, LCD, or CUSTOM."
     #endif
-    #if !(SHARED_VOLUME_IS(SD_ONBOARD) || SHARED_VOLUME_IS(USB_FLASH_DRIVE))
-      #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+    #if !(SHARED_VOLUME_IS(ONBOARD) || SHARED_VOLUME_IS(SDIO) || SHARED_VOLUME_IS(USBFD) || SHARED_VOLUME_IS(LCD) || SHARED_VOLUME_IS(CUSTOM))
+      #error "DEFAULT_SHARED_VOLUME must be ONBOARD, SDIO, USBFD, LCD, or CUSTOM."
     #endif
   #endif
   #if ALL(ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU, SD_CONNECTION_TYPICAL, HAS_SD_DETECT) && SD_DETECT_STATE == LOW
@@ -2861,7 +2861,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #if DISABLED(TFT_RES_480x320)
     #error "TFT_LVGL_UI requires TFT_RES_480x320."
   #elif !HAS_MEDIA
-    #error "TFT_LVGL_UI requires SDSUPPORT."
+    #error "TFT_LVGL_UI requires VOLUME0."
   #endif
 #endif
 
@@ -2877,7 +2877,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #ifndef BEEPER_PIN
     #error "ANYCUBIC_LCD_CHIRON requires BEEPER_PIN"
   #elif !HAS_MEDIA
-    #error "ANYCUBIC_LCD_CHIRON requires SDSUPPORT"
+    #error "ANYCUBIC_LCD_CHIRON requires VOLUME#"
   #elif TEMP_SENSOR_BED == 0
     #error "ANYCUBIC_LCD_CHIRON requires heatbed (TEMP_SENSOR_BED)"
   #elif NONE(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, MESH_BED_LEVELING)
@@ -2891,8 +2891,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), "zh_CN") == 0, "LCD_LANGUAGE_2 must be set to zh_CN for ANYCUBIC_LCD_VYPER.");
 #endif
 
-#if ENABLED(NO_LCD_SDCARD) && SD_CONNECTION_IS(LCD)
-  #error "SDCARD_CONNECTION cannot be set to LCD for the enabled display. No available SD card reader."
+#if ENABLED(NO_LCD_SDCARD) && ANY_VOLUME_IS(LCD)
+  #error "VOLUMEn cannot be set to LCD. No available SD card reader."
 #endif
 
 /**
@@ -2900,7 +2900,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  */
 #if ENABLED(DWIN_CREALITY_LCD)
   #if !HAS_MEDIA
-    #error "DWIN_CREALITY_LCD requires SDSUPPORT to be enabled."
+    #error "DWIN_CREALITY_LCD requires VOLUME0."
   #elif ANY(PID_EDIT_MENU, PID_AUTOTUNE_MENU)
     #error "DWIN_CREALITY_LCD does not support PID_EDIT_MENU or PID_AUTOTUNE_MENU."
   #elif ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
@@ -2912,7 +2912,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #elif ENABLED(DWIN_LCD_PROUI)
   #if !HAS_MEDIA
-    #error "DWIN_LCD_PROUI requires SDSUPPORT to be enabled."
+    #error "DWIN_LCD_PROUI requires VOLUME0."
   #elif ALL(LCD_BED_LEVELING, PROBE_MANUALLY)
     #error "DWIN_LCD_PROUI does not support LCD_BED_LEVELING with PROBE_MANUALLY."
   #endif
@@ -3871,7 +3871,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 #if HAS_USB_FLASH_DRIVE && DISABLED(USE_OTG_USB_HOST) && !PINS_EXIST(USB_CS, USB_INTR)
-  #error "USB_CS_PIN and USB_INTR_PIN (or USE_OTG_USB_HOST) are required for USB_FLASH_DRIVE_SUPPORT."
+  #error "USB_CS_PIN and USB_INTR_PIN (or USE_OTG_USB_HOST) are required for VOLUME# USBFD."
 #elif ENABLED(USE_OTG_USB_HOST) && DISABLED(HAS_OTG_USB_HOST_SUPPORT)
   #error "The current board does not support USE_OTG_USB_HOST."
 #endif
@@ -4096,7 +4096,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * on boards where TMC drivers share the SPI bus with SD.
  */
 #if HAS_TMC_SPI && ALL(HAS_MEDIA, MONITOR_DRIVER_STATUS, USES_SHARED_SPI)
-  #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
+  #error "MONITOR_DRIVER_STATUS and VOLUME# cannot be used together on boards with shared SPI."
 #endif
 
 // Although it just toggles STEP, EDGE_STEPPING requires HIGH state for logic
@@ -4373,7 +4373,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #elif !HAS_MESH
     #error "DGUS_LCD_UI E3S1PRO requires mesh leveling."
   #elif !HAS_MEDIA
-    #error "DGUS_LCD_UI E3S1PRO requires SDSUPPORT."
+    #error "DGUS_LCD_UI E3S1PRO requires VOLUME0."
   #elif DISABLED(POWER_LOSS_RECOVERY)
     #error "DGUS_LCD_UI E3S1PRO requires POWER_LOSS_RECOVERY."
   #elif DISABLED(LCD_BED_TRAMMING)
@@ -4397,8 +4397,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 // Check requirements for upload.py
-#if ENABLED(XFER_BUILD) && !ALL(SDSUPPORT, BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
-  #error "SDSUPPORT, BINARY_FILE_TRANSFER, and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
+#if ENABLED(XFER_BUILD) && !ALL(HAS_MEDIA, BINARY_FILE_TRANSFER, CUSTOM_FIRMWARE_UPLOAD)
+  #error "VOLUME#, BINARY_FILE_TRANSFER, and CUSTOM_FIRMWARE_UPLOAD are required for custom upload."
 #endif
 
 /**

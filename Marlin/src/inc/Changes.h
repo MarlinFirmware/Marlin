@@ -415,8 +415,8 @@
   #error "CASE_LIGHT_NEOPIXEL_COLOR is now CASE_LIGHT_DEFAULT_COLOR."
 #elif defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   #error "ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED is now SD_ABORT_ON_ENDSTOP_HIT."
-#elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM_CABLE)
-  #error "LPC_SD_(LCD|ONBOARD|CUSTOM_CABLE) are now SDCARD_CONNECTION."
+#elif defined(LPC_SD_LCD) || defined(LPC_SD_ONBOARD) || defined(LPC_SD_CUSTOM)
+  #error "LPC_SD_(LCD|ONBOARD|CUSTOM) are now VOLUME0."
 #elif defined(USB_SD_DISABLED)
   #error "USB_SD_DISABLED is now NO_SD_HOST_DRIVE."
 #elif defined(USB_SD_ONBOARD)
@@ -761,6 +761,8 @@
   #error "DEFAULT_Kc is now (uppercase) DEFAULT_KC."
 #elif defined(DEFAULT_Kf)
   #error "DEFAULT_Kf is now (uppercase) DEFAULT_KF."
+#elif defined(SDSUPPORT)
+  //#error "SDSUPPORT is now enabled by defining VOLUME0, VOLUME1, etc."
 #endif
 
 // SDSS renamed to SD_SS_PIN
@@ -821,9 +823,9 @@
   #define SV_SD_ONBOARD      201
   #define SV_USB_FLASH_DRIVE 202
   #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD) || SHARED_VOLUME_IS(SV_SD_ONBOARD)
-    #error "SV_SD_ONBOARD is now SD_ONBOARD."
+    #error "SV_SD_ONBOARD is now ONBOARD."
   #elif DEFAULT_VOLUME_IS(SV_USB_FLASH_DRIVE) || SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
-    #error "SV_USB_FLASH_DRIVE is now USB_FLASH_DRIVE."
+    #error "SV_USB_FLASH_DRIVE is now USBFD."
   #endif
   // Skip less clear "bad value" errors in inc/SanityCheck.h
   #if DEFAULT_VOLUME_IS(SV_SD_ONBOARD)
@@ -835,10 +837,10 @@
   #endif
   #if SHARED_VOLUME_IS(SV_SD_ONBOARD)
     #undef DEFAULT_SHARED_VOLUME
-    #define DEFAULT_SHARED_VOLUME SD_ONBOARD
+    #define DEFAULT_SHARED_VOLUME ONBOARD
   #elif SHARED_VOLUME_IS(SV_USB_FLASH_DRIVE)
     #undef DEFAULT_SHARED_VOLUME
-    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE
+    #define DEFAULT_SHARED_VOLUME USBFD
   #endif
   #undef SV_SD_ONBOARD
   #undef SV_USB_FLASH_DRIVE

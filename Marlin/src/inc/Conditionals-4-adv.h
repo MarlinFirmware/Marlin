@@ -1326,10 +1326,13 @@
 
 #if ENABLED(MULTI_VOLUME)
   #define HAS_MULTI_VOLUME 1
-  #define SD_ONBOARD      101
-  #define USB_FLASH_DRIVE 102
-  #define DEFAULT_VOLUME_IS(N) (DEFAULT_VOLUME == N)
-  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == N)
+  #define MV_ONBOARD     101
+  #define MV_SDIO        102
+  #define MV_USBFD       103
+  #define MV_CUSTOM      104
+  #define _MV_ID(V) _CAT(MV_, V)
+  #define DEFAULT_VOLUME_IS(N) (_MV_ID(DEFAULT_VOLUME) == _MV_ID(N))
+  #define SHARED_VOLUME_IS(N) (_MV_ID(DEFAULT_SHARED_VOLUME) == _MV_ID(N))
 #else
   #define DEFAULT_VOLUME_IS(...) 0
   #define SHARED_VOLUME_IS(...) 0
@@ -1337,9 +1340,9 @@
 
 #if ANY(USB_FLASH_DRIVE_SUPPORT, VOLUME_USB_FLASH_DRIVE)
   #define HAS_USB_FLASH_DRIVE 1
-  #if NONE(USE_OTG_USB_HOST, USE_UHS2_USB, USE_UHS3_USB)
-    #define USE_UHS2_USB
-  #endif
+#endif
+#if HAS_USB_FLASH_DRIVE && NONE(USE_OTG_USB_HOST, USE_UHS2_USB, USE_UHS3_USB)
+  #define USE_UHS2_USB
 #endif
 
 /**
@@ -1495,18 +1498,7 @@
   #define HAS_SAFE_BED_LEVELING 1
 #endif
 
-//
-// SD Card connection methods
-// Defined here so pins and sanity checks can use them
-//
-#if HAS_MEDIA
-  #define _SDCARD_LCD          1
-  #define _SDCARD_ONBOARD      2
-  #define _SDCARD_CUSTOM_CABLE 3
-  #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
-  #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
-#else
-  #define SD_CONNECTION_IS(...) 0
+#if !HAS_MEDIA
   #undef SD_ABORT_ON_ENDSTOP_HIT
 #endif
 
