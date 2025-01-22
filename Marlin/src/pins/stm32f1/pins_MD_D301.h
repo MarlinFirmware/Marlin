@@ -153,8 +153,8 @@
 //
 // SD Support
 //
-#if !defined(SDCARD_CONNECTION) && DISABLED(NO_LCD_SDCARD)
-  #define SDCARD_CONNECTION                  LCD
+#if !defined(VOLUME0) && DISABLED(NO_LCD_SDCARD)
+  #define VOLUME0                            LCD
 #endif
 
 #define SD_DETECT_PIN                       PE3

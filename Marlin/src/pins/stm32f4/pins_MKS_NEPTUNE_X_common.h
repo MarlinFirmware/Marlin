@@ -191,8 +191,8 @@
 #define MKS_WIFI_MODULE_SERIAL   1  // USART1
 #define MKS_WIFI_MODULE_SPI      2  // SPI2
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+#ifndef VOLUME0
+  #define VOLUME0                        ONBOARD
 #endif
 
 // MKS WIFI MODULE
@@ -212,7 +212,7 @@
 // Onboard SD card
 //
 // detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
-#if SD_CONNECTION_IS(ONBOARD)
+#if ANY_VOLUME_IS(ONBOARD)
   #define ENABLE_SPI3
   #define SD_SS_PIN                         -1
   #define SD_SS_PIN                         PC9

@@ -202,11 +202,11 @@
 //
 //#define SD_CARD_DETECT_PIN                PC13
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              LCD
+#ifndef VOLUME0
+  #define VOLUME0                            LCD
 #endif
 
-#if SD_CONNECTION_IS(LCD)
+#if ANY_VOLUME_IS(LCD)
 
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
