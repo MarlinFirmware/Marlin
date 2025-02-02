@@ -949,6 +949,13 @@
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
 
 //
+// GD32 ARM Cortex-M4
+//
+
+#elif MB(MFL_CREALITY_V422)
+  #include "gd32f3/pins_MFL_CREALITY_V422.h"        // GD32F303RE                           env:mfl_creality_GD32F303RE
+
+//
 // Raspberry Pi RP2040
 //
 

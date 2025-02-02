@@ -241,9 +241,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-// Serial DMA is only available for some STM32 MCUs and HC32
+// Serial DMA is only available for some STM32 MCUs, HC32 and GD32
 #if ENABLED(SERIAL_DMA)
-  #ifdef ARDUINO_ARCH_HC32
+  #if defined(ARDUINO_ARCH_HC32) || defined(ARDUINO_ARCH_MFL)
     // checks for HC32 are located in HAL/HC32/inc/SanityCheck.h
   #elif DISABLED(HAL_STM32) || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx, STM32H7xx)
     #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."

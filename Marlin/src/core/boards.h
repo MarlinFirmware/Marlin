@@ -540,6 +540,12 @@
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
+// GD32 ARM Cortex-M4
+//
+
+#define BOARD_MFL_CREALITY_V422	      7300  // Creality V4.2.2 MFL (GD32F303RE)
+
+//
 // Raspberry Pi
 //
 
