@@ -119,5 +119,4 @@ extern "C" {
 }
 
 #endif // POSTMORTEM_DEBUGGING
-
 #endif // ARDUINO_ARCH_MFL

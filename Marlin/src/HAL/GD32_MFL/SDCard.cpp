@@ -22,9 +22,9 @@
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
 
+#include "SDCard.hpp"
 #include <string.h>
-#include "SDIO_Card_DMA.hpp"
-#include "DMA.hpp"
+#include <DMA.hpp>
 
 namespace sdio {
 

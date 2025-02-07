@@ -135,7 +135,6 @@ private:
     volatile bool multiblock_;
     volatile Operational_State current_state_;
 
-
     // Private helper methods
     SDIO_Error_Type validate_voltage();
     SDIO_Error_Type get_r1_result(Command_Index index);

@@ -33,6 +33,7 @@
 
 #define SERIAL_INDEX_MIN 0
 #define SERIAL_INDEX_MAX 4
+
 #include "../shared/serial_ports.h"
 
 #if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)

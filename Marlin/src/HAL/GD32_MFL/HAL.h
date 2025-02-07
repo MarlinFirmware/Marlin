@@ -35,7 +35,6 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #include <stdint.h>
-
 #include <GPIO.hpp>
 #include <AFIO.hpp>
 
@@ -89,8 +88,8 @@ static inline void servo_action_wrapper(Servo_Action_t action) {
     }
 }
 
-#define PAUSE_SERVO_OUTPUT()    servo_action_wrapper(PAUSE_SERVO)  //libServo::pause_all_servos()
-#define RESUME_SERVO_OUTPUT()   servo_action_wrapper(RESUME_SERVO) //libServo::resume_all_servos()
+#define PAUSE_SERVO_OUTPUT()    servo_action_wrapper(PAUSE_SERVO)
+#define RESUME_SERVO_OUTPUT()   servo_action_wrapper(RESUME_SERVO)
 
 //
 // ADC
@@ -102,7 +101,7 @@ static inline void servo_action_wrapper(Servo_Action_t action) {
 #endif
 
 #define HAL_ADC_VREF_MV         3300
-#define HAL_ADC_FILTERED        // Disable Marlin's oversampling as MFL framework used 16bit hardware oversampling by default
+#define HAL_ADC_FILTERED        // Disable Marlin's oversampling as the MFL framework uses 16bit hardware oversampling by default
 
 #define GET_PIN_MAP_PIN(index)          (index)
 #define GET_PIN_MAP_INDEX(pin)          (pin)

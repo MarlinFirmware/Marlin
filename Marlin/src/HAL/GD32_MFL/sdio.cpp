@@ -30,7 +30,7 @@
 
 #include <PinOpsMap.hpp>
 #include <PinOps.hpp>
-#include "SDIO_Card_DMA.hpp"
+#include "SDCard.hpp"
 #include "sdio.h"
 
 using namespace sdio;
@@ -38,14 +38,10 @@ using namespace sdio;
 inline constexpr uint32_t TARGET_SDIO_CLOCK = 6000000U;
 inline constexpr uint32_t SDIO_BLOCK_SIZE = 512U;
 inline constexpr uint8_t SDIO_READ_RETRIES = 3U;
-inline constexpr uint32_t SD_TIMEOUT = 500;
+inline constexpr uint32_t SD_TIMEOUT = 500;	// ms
 
 Card_State cardState = Card_State::READY;
 
-// configure the bus width mode
-// Options are: Bus_Width::WIDTH_1BIT
-//              Bus_Width::WIDTH_4BIT
-//
 bool SDIO_SetBusWidth(Bus_Width width) {
 	return (CardDMA_I.set_hardware_bus_width(width) == SDIO_Error_Type::OK);
 }
@@ -62,8 +58,6 @@ void mfl_sdio_init() {
 	NVIC_EnableIRQ(SDIO_IRQn);
 }
 
-// Initializes the SDIO card
-// @return `true` if the initialization is successful, `false` otherwise
 bool SDIO_Init() {
 	SDIO_Error_Type result = SDIO_Error_Type::OK;
 	uint8_t retryCount = SDIO_READ_RETRIES;
@@ -78,9 +72,6 @@ bool SDIO_Init() {
 		if (!--retries) return false;
 	}
 
-    #if ENABLED(MARLIN_DEV_MODE)
-		SERIAL_ECHOPGM("\nincreasing clock!");
-	#endif
 	CardDMA_I.set_desired_clock(TARGET_SDIO_CLOCK, false, false);
 
 	retries = retryCount;
@@ -108,12 +99,6 @@ bool SDIO_Init() {
 	return true;
 }
 
-// @brief Read or Write a block
-// @details Read or Write a block with SDIO
-// @param block The block index
-// @param src The data buffer source for a write
-// @param dst The data buffer destination for a read
-// @return true on success
 static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t* src, uint8_t* dst) {
 	hal.watchdog_refresh();
 	SDIO_Error_Type result = SDIO_Error_Type::OK;
@@ -150,11 +135,6 @@ static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t* src, uint8_t*
 	return true;
 }
 
-// @brief Read a block
-// @details Read a block from media with SDIO
-// @param block The block index
-// @param dst The block buffer
-// @return true on success
 bool SDIO_ReadBlock(uint32_t block, uint8_t* dst) {
 	// Check if the address is aligned to 4 bytes
 	if (reinterpret_cast<uint32_t>(dst) & 0x03) {
@@ -165,19 +145,12 @@ bool SDIO_ReadBlock(uint32_t block, uint8_t* dst) {
 	while (retries--) {
 		if (SDIO_ReadWriteBlock_DMA(block, nullptr, dst)) {
 			return true;
-		} //else {
-			//hal.watchdog_refresh();
-		//}
+		}
 	}
 
 	return false;
 }
 
-// @brief Write a block
-// @details Write a block to media with SDIO
-// @param block The block index
-// @param src The block data
-// @return true on success
 bool SDIO_WriteBlock(uint32_t block, const uint8_t* src) {
 	// Check if the address is aligned to 4 bytes
 	if (reinterpret_cast<uint32_t>(src) & 0x03) {
@@ -189,29 +162,23 @@ bool SDIO_WriteBlock(uint32_t block, const uint8_t* src) {
 		if (SDIO_ReadWriteBlock_DMA(block, src, nullptr)) {
 			return true;
 			delay(10);
-		} //else {
-			//hal.watchdog_refresh();
-		//}
+		}
 	}
 
 	return false;
 }
 
-// Checks if the SDIO card is ready for operations.
-// @return true if the SDIO card is ready, false otherwise
 bool SDIO_IsReady() {
 	return (CardDMA_I.get_state() == sdio::Operational_State::READY);
 }
 
-// @brief Get the size of the SDIO card.
-// @return The size of the SDIO card in bytes.
 uint32_t SDIO_GetCardSize() {
 	return CardDMA_I.get_card_capacity();
 }
 
-// Handles the DMA1 interrupt for the specified channel.
-// @param channelx The channel number for which the interrupt is being handled.
-// @throws None
+//
+// DMA interrupt handler
+//
 void DMA1_IRQHandler() {
 	auto& dma_instance = CardDMA_I.get_dma_instance();
 	bool is_receive = CardDMA_I.get_is_sdio_rx();
@@ -225,8 +192,6 @@ void DMA1_IRQHandler() {
         	CardDMA_I.set_sdio_dma_enable(false);
         	CardDMA_I.clear_sdio_data_flags();
 			CardDMA_I.set_state(sdio::Operational_State::READY);
-			// TODO:
-			// Rx complete callback
         } else {
         	CardDMA_I.set_data_end_interrupt();
         }
