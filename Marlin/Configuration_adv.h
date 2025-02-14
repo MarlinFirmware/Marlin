@@ -3970,6 +3970,11 @@
   #endif
 #endif
 
+//#define FEEDRATE_PRINTING_LIMIT
+#if ENABLED(FEEDRATE_PRINTING_LIMIT)
+  #define DEFAULT_FEEDRATE_PRINTING_LIMIT 0   // (mm/sec)
+#endif
+
 // @section reporting
 
 /**
