@@ -7,16 +7,16 @@
 # Usage: mac_gcc apple|macports|homebrew
 #
 
-# Detect Homebrew path
-HOMEBREW_PATH=$(brew --prefix)/bin
-
 which port >/dev/null && HAS_MACPORTS=1
 which brew >/dev/null && HAS_HOMEBREW=1
+
+MACPORTS_PATH=$(dirname $(which port))
+HOMEBREW_PATH=$(brew --prefix)/bin
 
 if [[ $1 == "apple" || $1 == "darwin" || $1 == "system" ]]; then
 
   if ((HAS_MACPORTS)); then
-    cd /opt/local/bin
+    cd $MACPORTS_PATH
     sudo rm -f gcc g++ cc ld
     cd -
   fi
@@ -31,7 +31,7 @@ elif [[ $1 =~ ".*ports" ]]; then
 
   ((HAS_MACPORTS)) || { echo "MacPorts is not installed"; exit 1; }
 
-  GCCV=$( find /opt/local/bin -name "gcc-mp-*" | sort -r | head -1 | sed 's/.*gcc-mp-//' )
+  GCCV=$( find $MACPORTS_PATH -name "gcc-mp-*" | sort -r | head -1 | sed 's/.*gcc-mp-//' )
   [[ $GCCV -ge 11 ]] || GCCV=14
 
   getport() { port installed $1 | grep $1 || sudo port install $1; }
@@ -39,7 +39,7 @@ elif [[ $1 =~ ".*ports" ]]; then
 
   getports "gcc$GCCV" glm mesa libsdl2 libsdl2_net
 
-  cd /opt/local/bin
+  cd $MACPORTS_PATH
   sudo rm -f gcc g++ cc ld
   sudo ln -s "gcc-mp-$GCCV" gcc
   sudo ln -s "g++-mp-$GCCV" g++
