@@ -7,17 +7,8 @@
 # Usage: mac_gcc apple|macports|homebrew
 #
 
-# Detect architecture
-ARCH=$(uname -m)
-
-if [[ $ARCH == "arm64" ]]; then
-  HOMEBREW_PATH="/opt/homebrew/bin"
-elif [[ $ARCH == "x86_64" ]]; then
-  HOMEBREW_PATH="/usr/local/bin"
-else
-  echo "Unsupported architecture: $ARCH"
-  exit 1
-fi
+# Detect Homebrew path
+HOMEBREW_PATH=$(brew --prefix)/bin
 
 which port >/dev/null && HAS_MACPORTS=1
 which brew >/dev/null && HAS_HOMEBREW=1
