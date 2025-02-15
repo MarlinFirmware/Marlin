@@ -598,6 +598,10 @@ public:
 
       static void status_screen();
 
+    #else
+
+      static void quick_feedback(const bool=true) {}
+
     #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
@@ -633,10 +637,6 @@ public:
 
   static bool detected() IF_DISABLED(HAS_WIRED_LCD, { return true; });
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
-
-  #if !HAS_WIRED_LCD
-    static void quick_feedback(const bool=true) {}
-  #endif
 
   static void completion_feedback(const bool good=true);
 
