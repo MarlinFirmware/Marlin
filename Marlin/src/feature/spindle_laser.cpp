@@ -39,7 +39,7 @@
 #endif
 
 SpindleLaser cutter;
-ToolTypeEnum SpindleLaser::active_tool_type;                               // Tool type: 0 for extruder, 1 for spindle, 2 for laser
+ToolTypeEnum SpindleLaser::active_tool_type;                          // Tool type (etruder, laser, or spindle tool)
 bool SpindleLaser::enable_state;                                      // Virtual enable state, controls enable pin if present and or apply power if > 0
 uint8_t SpindleLaser::power,                                          // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
         SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking

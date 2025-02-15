@@ -3969,7 +3969,7 @@ void Temperature::isr() {
 
   // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
   #if LASER_SAFETY_TIMEOUT_MS > 0
-    if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS))) {
+    if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS)) && cutter.active_tool_type == TYPE_LASER) {
       cutter.power = 0;       // Prevent planner idle from re-enabling power
       cutter.apply_power(0);
     }
