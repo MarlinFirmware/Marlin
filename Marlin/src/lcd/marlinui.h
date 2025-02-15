@@ -205,15 +205,6 @@ public:
 
   static void init();
 
-  #if HAS_DISPLAY || HAS_DWIN_E3V2
-    static void init_lcd();
-    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-    static void clear_lcd();
-  #else
-    static void init_lcd() {}
-    static void clear_lcd() {}
-  #endif
-
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
@@ -504,15 +495,15 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
-  // Periodic or as-needed display update
-  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
-
   // Tell the screen to redraw on the next call
   FORCE_INLINE static void refresh() {
     TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
   }
 
   #if HAS_DISPLAY
+
+    // Periodic or as-needed display update
+    static void update();
 
     static void init_lcd();
 
@@ -632,6 +623,7 @@ public:
 
   #else // No LCD
 
+    static void update() {}
     static void init_lcd() {}
     static void clear_lcd() {}
     static void clear_for_drawing() {}
