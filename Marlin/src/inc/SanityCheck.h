@@ -1452,6 +1452,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "BIQU MicroProbe requires a PROBE_ENABLE_PIN."
     #endif
 
+    #if ENABLED(FT_MOTION) && DISABLED(DELAY_BEFORE_PROBING)
+      #error "BIQU MicroProbe requires DELAY_BEFORE_PROBING."
+    #endif
+
     #if ENABLED(BIQU_MICROPROBE_V1)
       #if ENABLED(INVERTED_PROBE_STATE)
         #if Z_MIN_PROBE_ENDSTOP_HIT_STATE != LOW
