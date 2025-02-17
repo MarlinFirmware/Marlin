@@ -912,6 +912,12 @@ class Temperature {
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
 
+      #if ENABLED(FAN_SPEED_OFFSET)
+        int16_t fan_speed_offset[FAN_COUNT] = {0};
+        uint8_t fan_speed_offset_thr_min[FAN_COUNT] = {uint8_t(FAN_SPEED_OFFSET_MIN_THR * 2.55f)};
+        uint8_t fan_speed_offset_thr_max[FAN_COUNT] = {uint8_t(FAN_SPEED_OFFSET_MAX_THR * 2.55f)};
+      #endif
+
       #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         void set_fans_paused(const bool p);
       #endif
