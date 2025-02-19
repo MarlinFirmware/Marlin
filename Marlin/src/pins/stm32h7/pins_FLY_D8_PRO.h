@@ -177,7 +177,7 @@
  *         EXP1                  EXP2
  */
 #define EXP1_01_PIN                         PB11
-#define EXP1_02_PIN                         PE7
+#define EXP1_02_PIN                         PE7   // (Not PB2)
 #define EXP1_03_PIN                         PA14
 #define EXP1_04_PIN                         PA13
 #define EXP1_05_PIN                         PB10
