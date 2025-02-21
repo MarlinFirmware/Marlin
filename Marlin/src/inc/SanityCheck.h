@@ -1925,7 +1925,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   constexpr const_float_t sanity_X1_HOME_POS = X1_MIN_POS;
   constexpr const_float_t sanity_X2_HOME_POS = X2_HOME_POS;
   constexpr const_float_t sanity_X2_MIN_POS = X2_MIN_POS;
-  
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
   #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
