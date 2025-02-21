@@ -1,0 +1,50 @@
+/**
+ * Remote debugging on STM32 using the "Cortex Debug" extension.
+ *
+ * Copy one or more of the configurations items below into .vscode/launch.json
+ * to add those debug options to the PlatformIO IDE "Run & Debug" panel.
+ *
+ * Examples for BigTreeTech SKR 2 (USB) and Native Simulator. Modify for your own build.
+ *
+ * NOTE: The PlatformIO extension will remove items when regenerating launch.json.
+ */
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32 (ST-Link)",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "showDevDebugOutput": false,
+            "configFiles": [ "interface/stlink.cfg", "target/stm32f4x.cfg" ],
+            "device": "stlink",
+            "executable": "${workspaceRoot}/.pio/build/BIGTREE_SKR_2_USB_debug/firmware.elf",
+            "openOCDLaunchCommands": [ "init", "reset init" ],
+            "svdFile": "${env:HOME}/.platformio/platforms/ststm32@12.1.1/misc/svd/STM32F40x.svd",
+        },
+        {
+            "name": "Launch Sim (ggdb)",
+            "request": "launch",
+            "type": "cppdbg",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/.pio/build/simulator_macos_debug/debug/MarlinSimulator",
+            //"program": "${workspaceRoot}/.pio/build/simulator_linux_debug/MarlinSimulator",
+            //"program": "${workspaceRoot}/.pio/build/simulator_windows/MarlinSimulator",
+            "miDebuggerPath": "/opt/local/bin/ggdb",
+            "MIMode": "gdb"
+        },
+        {
+            "name": "Launch Sim (lldb)",
+            "request": "launch",
+            "type": "cppdbg",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/.pio/build/simulator_macos_debug/debug/MarlinSimulator",
+            //"program": "${workspaceRoot}/.pio/build/simulator_linux_debug/MarlinSimulator",
+            //"program": "${workspaceRoot}/.pio/build/simulator_windows/MarlinSimulator",
+            //"targetArchitecture": "arm64",
+            "MIMode": "lldb"
+        }
+    ]
+}

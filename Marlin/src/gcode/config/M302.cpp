@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,6 +26,10 @@
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
+
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../lcd/e3v2/proui/dwin_defines.h"
+#endif
 
 /**
  * M302: Allow cold extrudes, or set the minimum extrude temperature
@@ -37,7 +41,7 @@
  *
  *       M302         ; report current cold extrusion state
  *       M302 P0      ; enable cold extrusion checking
- *       M302 P1      ; disables cold extrusion checking
+ *       M302 P1      ; disable cold extrusion checking
  *       M302 S0      ; always allow extrusion (disables checking)
  *       M302 S170    ; only allow extrusion above 170
  *       M302 S170 P1 ; set min extrude temp to 170 but leave disabled
@@ -47,6 +51,7 @@ void GcodeSuite::M302() {
   if (seen_S) {
     thermalManager.extrude_min_temp = parser.value_celsius();
     thermalManager.allow_cold_extrude = (thermalManager.extrude_min_temp == 0);
+    TERN_(DWIN_LCD_PROUI, HMI_data.ExtMinT = thermalManager.extrude_min_temp);
   }
 
   if (parser.seen('P'))
@@ -55,8 +60,8 @@ void GcodeSuite::M302() {
     // Report current state
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Cold extrudes are ");
-    serialprintPGM(thermalManager.allow_cold_extrude ? PSTR("en") : PSTR("dis"));
-    SERIAL_ECHOLNPAIR("abled (min temp ", thermalManager.extrude_min_temp, "C)");
+    SERIAL_ECHOF(thermalManager.allow_cold_extrude ? F("en") : F("dis"));
+    SERIAL_ECHOLNPGM("abled (min temp ", thermalManager.extrude_min_temp, "C)");
   }
 }
 

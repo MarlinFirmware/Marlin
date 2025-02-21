@@ -16,18 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * HJC2560-C Rev2.x pin assignments
+ * Geeetech HJC2560-C Rev 2.x board pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "ADIMLab Gantry v2"
 #define BOARD_INFO_NAME      "HJC2560-C"
@@ -103,7 +101,10 @@
 #define SDSS                                  53
 #define SD_DETECT_PIN                         39
 //#define LED_PIN                              8
-#define CASE_LIGHT_PIN                         8  // 8 默认挤出机风扇作为Case LED，如果需要PWM FAN,则需要将FAN_PIN置为7，LED_PIN置为8
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       8  // 8 默认挤出机风扇作为Case LED，如果需要PWM FAN,则需要将FAN_PIN置为7，LED_PIN置为8
+#endif
 
 //#define SAFETY_TRIGGERED_PIN                28  // PIN to detect the safety circuit has triggered
 //#define MAIN_VOLTAGE_MEASURE_PIN            14  // ANALOG PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
@@ -111,20 +112,20 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if ENABLED(SPINDLE_LASER_ENABLE)
+#if HAS_CUTTER
   #define SPINDLE_DIR_PIN                     16
-  #define SPINDLE_LASER_ENABLE_PIN            17  // Pin should have a pullup!
+  #define SPINDLE_LASER_ENA_PIN               17  // Pin should have a pullup!
   #define SPINDLE_LASER_PWM_PIN                9  // Hardware PWM
 #endif
 
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20  // LCD_CS
     #define LCD_PINS_ENABLE                   15  // LCD_SDA
@@ -133,7 +134,7 @@
     #if ENABLED(HJC_LCD_SMART_CONTROLLER)
       #define LCD_BACKLIGHT_PIN                5  // LCD_Backlight
       //#ifndef LCD_CONTRAST_PIN
-      //  #define LCD_CONTRAST_PIN  5   // LCD_Contrast
+      //  #define LCD_CONTRAST_PIN             5  // LCD_Contrast
       //#endif
       #ifndef FIL_RUNOUT_PIN
         #define FIL_RUNOUT_PIN                24  // Filament runout
@@ -153,10 +154,10 @@
   #else
 
     // Buttons attached to a shift register
-    #define SHIFT_CLK                         38
-    #define SHIFT_LD                          42
-    #define SHIFT_OUT                         40
-    #define SHIFT_EN                          17
+    #define SHIFT_CLK_PIN                     38
+    #define SHIFT_LD_PIN                      42
+    #define SHIFT_OUT_PIN                     40
+    #define SHIFT_EN_PIN                      17
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                    5
@@ -165,6 +166,6 @@
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

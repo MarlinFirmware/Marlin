@@ -14,20 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
+
+/**
+ * HAL for Arduino AVR
+ */
 
 #include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-#include "watchdog.h"
 #include "math.h"
 
 #ifdef USBCON
   #include <HardwareSerial.h>
 #else
-  #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
   #include "MarlinSerial.h"
 #endif
 
@@ -37,6 +40,19 @@
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+
+//
+// Default graphical display delays
+//
+#if F_CPU >= 20000000
+  #define CPU_ST7920_DELAY_1 150
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 150
+#elif F_CPU == 16000000
+  #define CPU_ST7920_DELAY_1 125
+  #define CPU_ST7920_DELAY_2   0
+  #define CPU_ST7920_DELAY_3 188
+#endif
 
 #ifndef pgm_read_ptr
   // Compatibility for avr-libc 1.8.0-4.1 included with Ubuntu for
@@ -50,343 +66,97 @@
 // Defines
 // ------------------------
 
-//#define analogInputToDigitalPin(IO) IO
+// AVR PROGMEM extension for sprintf_P
+#define S_FMT "%S"
+
+// AVR PROGMEM extension for string define
+#define PGMSTR(NAM,STR) const char NAM[] PROGMEM = STR
 
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START()  unsigned char _sreg = SREG; cli()
   #define CRITICAL_SECTION_END()    SREG = _sreg
 #endif
-#define ISRS_ENABLED() TEST(SREG, SREG_I)
-#define ENABLE_ISRS()  sei()
-#define DISABLE_ISRS() cli()
 
-// On AVR this is in math.h?
-//#define square(x) ((x)*(x))
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+#define PWM_FREQUENCY 1000     // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 
 // ------------------------
 // Types
 // ------------------------
 
-typedef uint16_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFF
-
 typedef int8_t pin_t;
 
-#define SHARED_SERVOS HAS_SERVOS
-#define HAL_SERVO_LIB Servo
+#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+class Servo;
+typedef Servo hal_servo_t;
 
 // ------------------------
-// Public Variables
-// ------------------------
-
-//extern uint8_t MCUSR;
-
 // Serial ports
+// ------------------------
+
 #ifdef USBCON
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL0 bluetoothSerial
-  #else
-    #define MYSERIAL0 Serial
+  #include "../../core/serial_hook.h"
+  typedef ForwardSerial1Class< decltype(Serial) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+  #ifdef BLUETOOTH
+    typedef ForwardSerial1Class< decltype(bluetoothSerial) > BTSerial;
+    extern BTSerial btSerial;
   #endif
-  #define NUM_SERIAL 1
+
+  #define MYSERIAL1 TERN(BLUETOOTH, btSerial, MSerial0)
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)
-    #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
-
-  #define MYSERIAL0 customizedSerial1
+  #define MYSERIAL1 customizedSerial1
 
   #ifdef SERIAL_PORT_2
     #if !WITHIN(SERIAL_PORT_2, -1, 3)
-      #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
-    #elif SERIAL_PORT_2 == SERIAL_PORT
-      #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
+      #error "SERIAL_PORT_2 must be from 0 to 3, or -1 for USB Serial."
     #endif
-    #define MYSERIAL1 customizedSerial2
-    #define NUM_SERIAL 2
-  #else
-    #define NUM_SERIAL 1
+    #define MYSERIAL2 customizedSerial2
+  #endif
+
+  #ifdef SERIAL_PORT_3
+    #if !WITHIN(SERIAL_PORT_3, -1, 3)
+      #error "SERIAL_PORT_3 must be from 0 to 3, or -1 for USB Serial."
+    #endif
+    #define MYSERIAL3 customizedSerial3
   #endif
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if !WITHIN(DGUS_SERIAL_PORT, -1, 3)
-    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+#ifdef MMU2_SERIAL_PORT
+  #if !WITHIN(MMU2_SERIAL_PORT, -1, 3)
+    #error "MMU2_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
   #endif
-  #define DGUS_SERIAL internalDgusSerial
-
-  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.get_tx_buffer_free
+  #define MMU2_SERIAL mmuSerial
 #endif
 
-// ------------------------
-// Public functions
-// ------------------------
+#ifdef LCD_SERIAL_PORT
+  #if !WITHIN(LCD_SERIAL_PORT, -1, 3)
+    #error "LCD_SERIAL_PORT must be from 0 to 3, or -1 for USB Serial."
+  #endif
+  #define LCD_SERIAL lcdSerial
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.get_tx_buffer_free()
+  #endif
+#endif
 
-void HAL_init();
-
-//void cli();
-
-//void _delay_ms(const int delay);
-
-inline void HAL_clear_reset_source() { MCUSR = 0; }
-inline uint8_t HAL_get_reset_source() { return MCUSR; }
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-extern "C" {
-  int freeMemory();
-}
-#pragma GCC diagnostic pop
-
-// timers
-#define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
-
-#define STEP_TIMER_NUM          1
-#define TEMP_TIMER_NUM          0
-#define PULSE_TIMER_NUM         STEP_TIMER_NUM
-
-#define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
-
-#define STEPPER_TIMER_RATE      HAL_TIMER_RATE
-#define STEPPER_TIMER_PRESCALE  8
-#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
-
-#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
-#define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
-#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
-
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-#define STEPPER_ISR_ENABLED()             TEST(TIMSK1, OCIE1A)
-
-#define ENABLE_TEMPERATURE_INTERRUPT()     SBI(TIMSK0, OCIE0B)
-#define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
-#define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
-
-FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t) {
-  switch (timer_num) {
-    case STEP_TIMER_NUM:
-      // waveform generation = 0100 = CTC
-      SET_WGM(1, CTC_OCRnA);
-
-      // output mode = 00 (disconnected)
-      SET_COMA(1, NORMAL);
-
-      // Set the timer pre-scaler
-      // Generally we use a divider of 8, resulting in a 2MHz timer
-      // frequency on a 16MHz MCU. If you are going to change this, be
-      // sure to regenerate speed_lookuptable.h with
-      // create_speed_lookuptable.py
-      SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
-
-      // Init Stepper ISR to 122 Hz for quick starting
-      // (F_CPU) / (STEPPER_TIMER_PRESCALE) / frequency
-      OCR1A = 0x4000;
-      TCNT1 = 0;
-      break;
-
-    case TEMP_TIMER_NUM:
-      // Use timer0 for temperature measurement
-      // Interleave temperature interrupt with millies interrupt
-      OCR0B = 128;
-      break;
-  }
-}
-
-#define TIMER_OCR_1             OCR1A
-#define TIMER_COUNTER_1         TCNT1
-
-#define TIMER_OCR_0             OCR0A
-#define TIMER_COUNTER_0         TCNT0
-
-#define _CAT(a,V...) a##V
-#define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)
-#define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
-#define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)
-
-/**
- * On AVR there is no hardware prioritization and preemption of
- * interrupts, so this emulates it. The UART has first priority
- * (otherwise, characters will be lost due to UART overflow).
- * Then: Stepper, Endstops, Temperature, and -finally- all others.
- */
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
-
-/* 18 cycles maximum latency */
-#define HAL_STEP_TIMER_ISR() \
-extern "C" void TIMER1_COMPA_vect() __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER1_COMPA_vect_bottom() asm ("TIMER1_COMPA_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER1_COMPA_vect() { \
-  __asm__ __volatile__ ( \
-    A("push r16")                      /* 2 Save R16 */ \
-    A("in r16, __SREG__")              /* 1 Get SREG */ \
-    A("push r16")                      /* 2 Save SREG into stack */ \
-    A("lds r16, %[timsk0]")            /* 2 Load into R0 the Temperature timer Interrupt mask register */ \
-    A("push r16")                      /* 2 Save TIMSK0 into the stack */ \
-    A("andi r16,~%[msk0]")             /* 1 Disable the temperature ISR */ \
-    A("sts %[timsk0], r16")            /* 2 And set the new value */ \
-    A("lds r16, %[timsk1]")            /* 2 Load into R0 the stepper timer Interrupt mask register [TIMSK1] */ \
-    A("andi r16,~%[msk1]")             /* 1 Disable the stepper ISR */ \
-    A("sts %[timsk1], r16")            /* 2 And set the new value */ \
-    A("push r16")                      /* 2 Save TIMSK1 into stack */ \
-    A("in r16, 0x3B")                  /* 1 Get RAMPZ register */ \
-    A("push r16")                      /* 2 Save RAMPZ into stack */ \
-    A("in r16, 0x3C")                  /* 1 Get EIND register */ \
-    A("push r0")                       /* C runtime can modify all the following registers without restoring them */ \
-    A("push r1")                       \
-    A("push r18")                      \
-    A("push r19")                      \
-    A("push r20")                      \
-    A("push r21")                      \
-    A("push r22")                      \
-    A("push r23")                      \
-    A("push r24")                      \
-    A("push r25")                      \
-    A("push r26")                      \
-    A("push r27")                      \
-    A("push r30")                      \
-    A("push r31")                      \
-    A("clr r1")                        /* C runtime expects this register to be 0 */ \
-    A("call TIMER1_COMPA_vect_bottom") /* Call the bottom handler - No inlining allowed, otherwise registers used are not saved */   \
-    A("pop r31")                       \
-    A("pop r30")                       \
-    A("pop r27")                       \
-    A("pop r26")                       \
-    A("pop r25")                       \
-    A("pop r24")                       \
-    A("pop r23")                       \
-    A("pop r22")                       \
-    A("pop r21")                       \
-    A("pop r20")                       \
-    A("pop r19")                       \
-    A("pop r18")                       \
-    A("pop r1")                        \
-    A("pop r0")                        \
-    A("out 0x3C, r16")                 /* 1 Restore EIND register */ \
-    A("pop r16")                       /* 2 Get the original RAMPZ register value */ \
-    A("out 0x3B, r16")                 /* 1 Restore RAMPZ register to its original value */ \
-    A("pop r16")                       /* 2 Get the original TIMSK1 value but with stepper ISR disabled */ \
-    A("ori r16,%[msk1]")               /* 1 Reenable the stepper ISR */ \
-    A("cli")                           /* 1 Disable global interrupts - Reenabling Stepper ISR can reenter amd temperature can reenter, and we want that, if it happens, after this ISR has ended */ \
-    A("sts %[timsk1], r16")            /* 2 And restore the old value - This reenables the stepper ISR */ \
-    A("pop r16")                       /* 2 Get the temperature timer Interrupt mask register [TIMSK0] */ \
-    A("sts %[timsk0], r16")            /* 2 And restore the old value - This reenables the temperature ISR */ \
-    A("pop r16")                       /* 2 Get the old SREG value */ \
-    A("out __SREG__, r16")             /* 1 And restore the SREG value */ \
-    A("pop r16")                       /* 2 Restore R16 value */ \
-    A("reti")                          /* 4 Return from interrupt */ \
-    :                                   \
-    : [timsk0] "i" ((uint16_t)&TIMSK0), \
-      [timsk1] "i" ((uint16_t)&TIMSK1), \
-      [msk0] "M" ((uint8_t)(1<<OCIE0B)),\
-      [msk1] "M" ((uint8_t)(1<<OCIE1A)) \
-    : \
-  ); \
-} \
-void TIMER1_COMPA_vect_bottom()
-
-/* 14 cycles maximum latency */
-#define HAL_TEMP_TIMER_ISR() \
-extern "C" void TIMER0_COMPB_vect() __attribute__ ((signal, naked, used, externally_visible)); \
-extern "C" void TIMER0_COMPB_vect_bottom()  asm ("TIMER0_COMPB_vect_bottom") __attribute__ ((used, externally_visible, noinline)); \
-void TIMER0_COMPB_vect() { \
-  __asm__ __volatile__ ( \
-    A("push r16")                       /* 2 Save R16 */ \
-    A("in r16, __SREG__")               /* 1 Get SREG */ \
-    A("push r16")                       /* 2 Save SREG into stack */ \
-    A("lds r16, %[timsk0]")             /* 2 Load into R0 the Temperature timer Interrupt mask register */ \
-    A("andi r16,~%[msk0]")              /* 1 Disable the temperature ISR */ \
-    A("sts %[timsk0], r16")             /* 2 And set the new value */ \
-    A("sei")                            /* 1 Enable global interrupts - It is safe, as the temperature ISR is disabled, so we cannot reenter it */    \
-    A("push r16")                       /* 2 Save TIMSK0 into stack */ \
-    A("in r16, 0x3B")                   /* 1 Get RAMPZ register */ \
-    A("push r16")                       /* 2 Save RAMPZ into stack */ \
-    A("in r16, 0x3C")                   /* 1 Get EIND register */ \
-    A("push r0")                        /* C runtime can modify all the following registers without restoring them */ \
-    A("push r1")                        \
-    A("push r18")                       \
-    A("push r19")                       \
-    A("push r20")                       \
-    A("push r21")                       \
-    A("push r22")                       \
-    A("push r23")                       \
-    A("push r24")                       \
-    A("push r25")                       \
-    A("push r26")                       \
-    A("push r27")                       \
-    A("push r30")                       \
-    A("push r31")                       \
-    A("clr r1")                         /* C runtime expects this register to be 0 */ \
-    A("call TIMER0_COMPB_vect_bottom")  /* Call the bottom handler - No inlining allowed, otherwise registers used are not saved */   \
-    A("pop r31")                        \
-    A("pop r30")                        \
-    A("pop r27")                        \
-    A("pop r26")                        \
-    A("pop r25")                        \
-    A("pop r24")                        \
-    A("pop r23")                        \
-    A("pop r22")                        \
-    A("pop r21")                        \
-    A("pop r20")                        \
-    A("pop r19")                        \
-    A("pop r18")                        \
-    A("pop r1")                         \
-    A("pop r0")                         \
-    A("out 0x3C, r16")                  /* 1 Restore EIND register */ \
-    A("pop r16")                        /* 2 Get the original RAMPZ register value */ \
-    A("out 0x3B, r16")                  /* 1 Restore RAMPZ register to its original value */ \
-    A("pop r16")                        /* 2 Get the original TIMSK0 value but with temperature ISR disabled */ \
-    A("ori r16,%[msk0]")                /* 1 Enable temperature ISR */ \
-    A("cli")                            /* 1 Disable global interrupts - We must do this, as we will reenable the temperature ISR, and we don't want to reenter this handler until the current one is done */ \
-    A("sts %[timsk0], r16")             /* 2 And restore the old value */ \
-    A("pop r16")                        /* 2 Get the old SREG */ \
-    A("out __SREG__, r16")              /* 1 And restore the SREG value */ \
-    A("pop r16")                        /* 2 Restore R16 */ \
-    A("reti")                           /* 4 Return from interrupt */ \
-    :                                   \
-    : [timsk0] "i"((uint16_t)&TIMSK0),  \
-      [msk0] "M" ((uint8_t)(1<<OCIE0B)) \
-    : \
-  ); \
-} \
-void TIMER0_COMPB_vect_bottom()
-
+//
 // ADC
-#ifdef DIDR2
-  #define HAL_ANALOG_SELECT(ind) do{ if (ind < 8) SBI(DIDR0, ind); else SBI(DIDR2, ind & 0x07); }while(0)
-#else
-  #define HAL_ANALOG_SELECT(ind) SBI(DIDR0, ind);
-#endif
-
-inline void HAL_adc_init() {
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
-  #endif
-}
-
-#define SET_ADMUX_ADCSRA(ch) ADMUX = _BV(REFS0) | (ch & 0x07); SBI(ADCSRA, ADSC)
-#ifdef MUX5
-  #define HAL_START_ADC(ch) if (ch > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#else
-  #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
-#endif
-
+//
+#define HAL_ADC_VREF        5.0
 #define HAL_ADC_RESOLUTION 10
-#define HAL_READ_ADC()  ADC
-#define HAL_ADC_READY() !TEST(ADCSRA, ADSC)
 
+//
+// Pin Mapping for M42, M43, M226
+//
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define HAL_SENSITIVE_PINS 0, 1
+#define HAL_SENSITIVE_PINS 0, 1,
 
 #ifdef __AVR_AT90USB1286__
   #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)
@@ -395,21 +165,113 @@ inline void HAL_adc_init() {
 // AVR compatibility
 #define strtof strtod
 
-/**
- *  set_pwm_frequency
- *  Sets the frequency of the timer corresponding to the provided pin
- *  as close as possible to the provided desired frequency. Internally
- *  calculates the required waveform generation mode, prescaler and
- *  resolution values required and sets the timer registers accordingly.
- *  NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
- *  NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST FAN PWM Settings)
- */
-void set_pwm_frequency(const pin_t pin, int f_desired);
+// ------------------------
+// Free Memory Accessor
+// ------------------------
 
-/**
- * set_pwm_duty
- *  Sets the PWM duty cycle of the provided pin to the provided value
- *  Optionally allows inverting the duty cycle [default = false]
- *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
- */
-void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+extern "C" int freeMemory();
+
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
+  static void init();          // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Restart the firmware from 0x0
+
+  // Interrupts
+  static bool isr_state() { return TEST(SREG, SREG_I); }
+  static void isr_on()  { sei(); }
+  static void isr_off() { cli(); }
+
+  static void delay_ms(const int ms) { _delay_ms(ms); }
+
+  // Tasks, called from idle()
+  static void idletask() {}
+
+  // Reset
+  static uint8_t reset_reason;
+  static uint8_t get_reset_source() { return reset_reason; }
+  static void clear_reset_source() { MCUSR = 0; }
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  // Called by Temperature::init once at startup
+  static void adc_init() {
+    ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
+    DIDR0 = 0;
+    #ifdef DIDR2
+      DIDR2 = 0;
+    #endif
+  }
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const uint8_t ch) {
+    #ifdef DIDR2
+      if (ch > 7) { SBI(DIDR2, ch & 0x07); return; }
+    #endif
+    SBI(DIDR0, ch);
+  }
+
+  // Begin ADC sampling on the given channel. Called from Temperature::isr!
+  static void adc_start(const uint8_t ch) {
+    #ifdef MUX5
+      ADCSRB = ch > 7 ? _BV(MUX5) : 0;
+    #else
+      ADCSRB = 0;
+    #endif
+    ADMUX = _BV(REFS0) | (ch & 0x07);
+    SBI(ADCSRA, ADSC);
+  }
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return !TEST(ADCSRA, ADSC); }
+
+  // The current value of the ADC register
+  static __typeof__(ADC) adc_value() { return ADC; }
+
+  /**
+   * init_pwm_timers
+   * Set the default frequency for timers 2-5 to 1000HZ
+   */
+  static void init_pwm_timers();
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the scale of the provided value to enable finer PWM duty control [default = 255]
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);
+
+  /**
+   * Set the frequency of the timer for the given pin as close as
+   * possible to the provided desired frequency. Internally calculate
+   * the required waveform generation mode, prescaler, and resolution
+   * values and set timer registers accordingly.
+   * NOTE that the frequency is applied to all pins on the timer (Ex OC3A, OC3B and OC3B)
+   * NOTE that there are limitations, particularly if using TIMER2. (see Configuration_adv.h -> FAST_PWM_FAN Settings)
+   */
+  static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+};

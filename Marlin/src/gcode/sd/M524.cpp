@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,13 +27,27 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../lcd/e3v2/proui/dwin.h"
+#endif
+
 /**
  * M524: Abort the current SD print job (started with M24)
  */
 void GcodeSuite::M524() {
 
-  if (IS_SD_PRINTING())
-    card.flag.abort_sd_printing = true;
+  #if ENABLED(DWIN_LCD_PROUI)
+
+    HMI_flag.abort_flag = true;    // The LCD will handle it
+
+  #else
+
+    if (IS_SD_PRINTING())
+      card.abortFilePrintSoon();
+    else if (card.isMounted())
+      card.closefile();
+
+  #endif
 
 }
 

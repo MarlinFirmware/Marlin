@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,9 +26,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(SDSUPPORT)
+#if BOTH(HAS_MARLINUI_MENU, SDSUPPORT)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../sd/cardreader.h"
 
 void lcd_sd_updir() {
@@ -45,25 +45,12 @@ void lcd_sd_updir() {
 
   void MarlinUI::reselect_last_file() {
     if (sd_encoder_position == 0xFFFF) return;
-    //#if HAS_GRAPHICAL_LCD
-    //  // This is a hack to force a screen update.
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.synchronize();
-    //  safe_delay(50);
-    //  ui.synchronize();
-    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
-    //  ui.drawing_screen = ui.screen_changed = true;
-    //#endif
-
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
-
     defer_status_screen();
-
-    //#if HAS_GRAPHICAL_LCD
-    //  update();
-    //#endif
+    TERN_(HAS_TOUCH_SLEEP, ui.wakeup_screen());
   }
+
 #endif
 
 inline void sdcard_start_selected_file() {
@@ -74,10 +61,10 @@ inline void sdcard_start_selected_file() {
 
 class MenuItem_sdfile : public MenuItem_sdbase {
   public:
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
-      MenuItem_sdbase::draw(sel, row, pstr, theCard, false);
+    static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, fstr, theCard, false);
     }
-    static void action(PGM_P const pstr, CardReader &) {
+    static void action(FSTR_P const fstr, CardReader &) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;
@@ -85,45 +72,43 @@ class MenuItem_sdfile : public MenuItem_sdbase {
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
-        MenuItem_submenu::action(pstr, []{
+        MenuItem_submenu::action(fstr, []{
           char * const longest = card.longest_filename();
           char buffer[strlen(longest) + 2];
           buffer[0] = ' ';
           strcpy(buffer + 1, longest);
           MenuItem_confirm::select_screen(
-            GET_TEXT(MSG_BUTTON_PRINT), GET_TEXT(MSG_BUTTON_CANCEL),
-            sdcard_start_selected_file, ui.goto_previous_screen,
-            GET_TEXT(MSG_START_PRINT), buffer, PSTR("?")
+            GET_TEXT_F(MSG_BUTTON_PRINT), GET_TEXT_F(MSG_BUTTON_CANCEL),
+            sdcard_start_selected_file, nullptr,
+            GET_TEXT_F(MSG_START_PRINT), buffer, F("?")
           );
         });
       #else
         sdcard_start_selected_file();
-        UNUSED(pstr);
+        UNUSED(fstr);
       #endif
     }
 };
 
 class MenuItem_sdfolder : public MenuItem_sdbase {
   public:
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) {
-      MenuItem_sdbase::draw(sel, row, pstr, theCard, true);
+    static inline void draw(const bool sel, const uint8_t row, FSTR_P const fstr, CardReader &theCard) {
+      MenuItem_sdbase::draw(sel, row, fstr, theCard, true);
     }
-    static void action(PGM_P const, CardReader &theCard) {
+    static void action(FSTR_P const, CardReader &theCard) {
       card.cd(theCard.filename);
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
-      #if HAS_GRAPHICAL_LCD
-        ui.drawing_screen = false;
-      #endif
+      TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
       ui.refresh();
     }
 };
 
-void menu_media() {
+void menu_media_filelist() {
   ui.encoder_direction_menus();
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     static uint16_t fileCnt;
     if (ui.first_page) fileCnt = card.get_num_Files();
   #else
@@ -131,35 +116,49 @@ void menu_media() {
   #endif
 
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  #if ENABLED(MULTI_VOLUME)
+    ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media); });
+  #else
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
+  #endif
   if (card.flag.workDirIsRoot) {
-    #if !PIN_EXISTS(SD_DETECT)
+    #if !HAS_SD_DETECT
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())
-    ACTION_ITEM_P(PSTR(LCD_STR_FOLDER ".."), lcd_sd_updir);
+    ACTION_ITEM_F(F(LCD_STR_FOLDER " .."), lcd_sd_updir);
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          fileCnt - 1 -
-        #endif
-      i;
-
-      card.getfilename_sorted(nr);
-
+      card.getfilename_sorted(SD_ORDER(i, fileCnt));
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
-    else {
+    else
       SKIP_ITEM();
-    }
   }
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && SDSUPPORT
+#if ENABLED(MULTI_VOLUME)
+  void menu_media_select() {
+    START_MENU();
+    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN) : GET_TEXT_F(MSG_BACK));
+    #if ENABLED(VOLUME_SD_ONBOARD)
+      ACTION_ITEM(MSG_SD_CARD, []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    #if ENABLED(VOLUME_USB_FLASH_DRIVE)
+      ACTION_ITEM(MSG_USB_DISK, []{ card.changeMedia(&card.media_driver_usbFlash); card.mount(); ui.goto_screen(menu_media_filelist); });
+    #endif
+    END_MENU();
+  }
+#endif
+
+void menu_media() {
+  TERN(MULTI_VOLUME, menu_media_select, menu_media_filelist)();
+}
+
+#endif // HAS_MARLINUI_MENU && SDSUPPORT

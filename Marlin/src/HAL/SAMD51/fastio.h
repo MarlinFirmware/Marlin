@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  */
 
 #ifndef MASK
-  #define MASK(PIN) (1 << PIN)
+  #define MASK(PIN) _BV(PIN)
 #endif
 
 /**
@@ -131,7 +131,7 @@
    */
   #define PWM_PIN(P)        (WITHIN(P, 2, 13) || WITHIN(P, 22, 23) || WITHIN(P, 44, 45) || P == 48)
 
-  // Return fullfilled ADCx->INPUTCTRL.reg
+  // Return fulfilled ADCx->INPUTCTRL.reg
   #define PIN_TO_INPUTCTRL(P)     (  (PIN_TO_AIN(P) == 0) ? ADC_INPUTCTRL_MUXPOS_AIN0   \
                                    : (PIN_TO_AIN(P) == 1) ? ADC_INPUTCTRL_MUXPOS_AIN1   \
                                    : (PIN_TO_AIN(P) == 2) ? ADC_INPUTCTRL_MUXPOS_AIN2   \

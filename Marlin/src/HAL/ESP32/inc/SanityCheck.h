@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,14 +25,30 @@
   #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#if (ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125) || (ENABLED(FAST_PWM_FAN_FREQUENCY) && FAST_PWM_FAN_FREQUENCY > 78125)
+  #error "SPINDLE_LASER_FREQUENCY and FAST_PWM_FREQUENCY maximum value is 78125Hz for ESP32."
 #endif
 
 #if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on this platform."
+  #error "TMC220x Software Serial is not supported on ESP32."
 #endif
 
 #if BOTH(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on ESP32."
+#endif
+
+#if MB(MKS_TINYBEE) && ENABLED(FAST_PWM_FAN)
+  #error "FAST_PWM_FAN is not available on TinyBee."
+#endif
+
+#if USING_PULLDOWNS
+  #error "PULLDOWN pin mode is not available on ESP32 boards."
+#endif
+
+#if BOTH(I2S_STEPPER_STREAM, LIN_ADVANCE)
+  #error "I2S stream is currently incompatible with LIN_ADVANCE."
 #endif

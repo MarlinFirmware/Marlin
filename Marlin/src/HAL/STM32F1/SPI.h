@@ -126,6 +126,7 @@ private:
     bitOrder = inBitOrder;
     dataMode = inDataMode;
     dataSize = inDataSize;
+    //state    = SPI_STATE_IDLE;
   }
   uint32_t clock;
   uint32_t dataSize;
@@ -137,8 +138,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)() = NULL;
-  void (*transmitCallback)() = NULL;
+  void (*receiveCallback)() = nullptr;
+  void (*transmitCallback)() = nullptr;
 
   friend class SPIClass;
 };
@@ -161,6 +162,11 @@ public:
    * @param spiPortNumber Number of the SPI port to manage.
    */
   SPIClass(uint32_t spiPortNumber);
+
+  /**
+   * Init using pins
+   */
+  SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel=-1);
 
   /**
    * @brief Equivalent to begin(SPI_1_125MHZ, MSBFIRST, 0).
@@ -187,11 +193,11 @@ public:
    */
   void end();
 
-  void beginTransaction(SPISettings settings) { beginTransaction(BOARD_SPI_DEFAULT_SS, settings); }
-  void beginTransaction(uint8_t pin, SPISettings settings);
+  void beginTransaction(const SPISettings &settings) { beginTransaction(BOARD_SPI_DEFAULT_SS, settings); }
+  void beginTransaction(uint8_t pin, const SPISettings &settings);
   void endTransaction();
 
-  void beginTransactionSlave(SPISettings settings);
+  void beginTransactionSlave(const SPISettings &settings);
 
   void setClockDivider(uint32_t clockDivider);
   void setBitOrder(BitOrder bitOrder);
@@ -206,6 +212,8 @@ public:
    * Requires an added function spi_data_size on STM32F1 / cores / maple / libmaple / spi.c
    */
   void setDataSize(uint32_t ds);
+
+  uint32_t getDataSize() { return _currentSetting->dataSize; }
 
   /* Victor Perez 2017. Added to set and clear callback functions for callback
    * on DMA transfer completion.
@@ -405,13 +413,5 @@ private:
   BitOrder bitOrder;
   */
 };
-
-/**
- * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
- */
-static inline void waitSpiTxEnd(spi_dev *spi_d) {
-  while (spi_is_tx_empty(spi_d) == 0) { /* nada */ } // wait until TXE=1
-  while (spi_is_busy(spi_d) != 0) { /* nada */ }     // wait until BSY=0
-}
 
 extern SPIClass SPI;

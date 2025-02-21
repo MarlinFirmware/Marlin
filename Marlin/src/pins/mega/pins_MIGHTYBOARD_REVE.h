@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,9 +37,8 @@
  *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME      "Mightyboard"
 #define DEFAULT_MACHINE_NAME "MB Replicator"
@@ -70,7 +69,7 @@
 #endif
 
 //
-// Filament Runout Pins
+// Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                      49
@@ -116,8 +115,9 @@
 #define DIGIPOTS_I2C_SDA_E1                   77  // J6
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A 0x2F              // unshifted slave address (5E <- 2F << 1)
+  #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
+#define DIGIPOT_ENABLE_I2C_PULLUPS                // MightyBoard doesn't have hardware I2C pin pull-ups.
 
 //
 // Temperature Sensors
@@ -125,7 +125,7 @@
 // K7 - 69 / ADC15 - 15
 #define TEMP_BED_PIN                          15
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 // Uses a separate SPI bus
 //
 //  3 E5 DO (SO)
@@ -133,67 +133,49 @@
 //  2 E4 CS2
 // 78 E2 SCK
 //
-#define THERMO_SCK_PIN                        78  // E2
-#define THERMO_DO_PIN                          3  // E5
-#define THERMO_CS1_PIN                         5  // E3
-#define THERMO_CS2_PIN                         2  // E4
+#define TEMP_0_CS_PIN                          5  // E3
+#define TEMP_0_SCK_PIN                        78  // E2
+#define TEMP_0_MISO_PIN                        3  // E5
+//#define TEMP_0_MOSI_PIN                    ...  // For MAX31865
 
-#define MAX6675_SS_PIN            THERMO_CS1_PIN
-#define MAX6675_SS2_PIN           THERMO_CS2_PIN
-#define MAX6675_SCK_PIN           THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
+#define TEMP_1_CS_PIN                          2  // E4
+#define TEMP_1_SCK_PIN            TEMP_0_SCK_PIN
+#define TEMP_1_MISO_PIN          TEMP_0_MISO_PIN
+//#define TEMP_1_MOSI_PIN        TEMP_0_MOSI_PIN
 
 //
-// Augmentation for auto-assigning plugs
-//
-// Two thermocouple connectors allows for either
-// 2 extruders or 1 extruder and a heated bed.
-// With no heated bed, an additional 24V fan is possible.
+// FET Pin Mapping - FET 1 is closest to the input power connector
 //
 
-// Labels from the schematic:
-#define EX1_HEAT_PIN                           6  // H3
-#define EX1_FAN_PIN                            7  // H4
-#define EX2_HEAT_PIN                          11  // B5
-#define EX2_FAN_PIN                           12  // B6
-#define HBP_PIN                               45  // L4
-#define EXTRA_FET_PIN                         44  // L5
-
-#if HOTENDS > 1
-  #if TEMP_SENSOR_BED
-    #define IS_EEB
-  #else
-    #define IS_EEF
-  #endif
-#elif TEMP_SENSOR_BED
-  #define IS_EFB
-#else
-  #define IS_EFF
-#endif
+#define MOSFET_1_PIN                           6  // Plug EX1 Pin 1-2 -> PH3 #15 -> Logical 06
+#define MOSFET_2_PIN                           7  // Plug EX1 Pin 3-4 -> PH4 #16 -> Logical 07
+#define MOSFET_3_PIN                          11  // Plug EX2 1-2 -> PB5 #24 -> Logical 11
+#define MOSFET_4_PIN                          12  // Plug EX2 3-4 -> PB6 #25 -> Logical 12
+#define MOSFET_5_PIN                          45  // Plug HBD 1-2 -> PL4 #39 -> Logical 45
+#define MOSFET_6_PIN                          44  // Plug Extra 1-2 -> PL5 #40 -> Logical 44 (FET not soldered in all boards)
 
 //
 // Heaters / Fans (24V)
 //
-#define HEATER_0_PIN                EX1_HEAT_PIN
 
-#if ENABLED(IS_EFB)                               // Hotend, Fan, Bed
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EEF)                             // Hotend, Hotend, Fan
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-#elif ENABLED(IS_EEB)                             // Hotend, Hotend, Bed
-  #define HEATER_1_PIN              EX2_HEAT_PIN
-  #define HEATER_BED_PIN                 HBP_PIN
-#elif ENABLED(IS_EFF)                             // Hotend, Fan, Fan
-  #define FAN1_PIN                       HBP_PIN
+#define HEATER_0_PIN                MOSFET_1_PIN // EX1
+#define HEATER_1_PIN                MOSFET_3_PIN // EX2
+#define HEATER_BED_PIN              MOSFET_5_PIN // HBP
+
+// EX1 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           MOSFET_2_PIN
+#else
+  #ifndef FAN_PIN
+    #define FAN_PIN                 MOSFET_2_PIN
+  #endif
 #endif
-
-#ifndef FAN_PIN
-  #if EITHER(IS_EFB, IS_EFF)                      // Hotend, Fan, Bed or Hotend, Fan, Fan
-    #define FAN_PIN                 EX2_HEAT_PIN
-  #elif EITHER(IS_EEF, IS_SF)                     // Hotend, Hotend, Fan or Spindle, Fan
-    #define FAN_PIN                      HBP_PIN
-  #else
-    #define FAN_PIN                EXTRA_FET_PIN
+// EX2 FAN (Automatic Fans are disabled by default in Configuration_adv.h - comment that out for auto fans)
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           MOSFET_4_PIN
+#else
+  #ifndef FAN1_PIN
+    #define FAN1_PIN                MOSFET_4_PIN
   #endif
 #endif
 
@@ -203,13 +185,14 @@
 #define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
+#define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
 
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
     #define LCD_PINS_ENABLE                   72  // J2: LEFT
@@ -255,7 +238,7 @@
   #define BTN_CENTER                          15  // J0
   #define BTN_ENC                     BTN_CENTER
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card
@@ -263,9 +246,6 @@
 #define SDSS                                  53  // B0
 #define SD_DETECT_PIN                          9  // H6
 
-//
-// TMC 220x
-//
 #if HAS_TMC_UART
   /**
    * TMC220x stepper drivers

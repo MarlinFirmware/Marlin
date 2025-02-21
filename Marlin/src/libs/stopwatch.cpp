@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,14 +34,10 @@ millis_t Stopwatch::startTimestamp;
 millis_t Stopwatch::stopTimestamp;
 
 bool Stopwatch::stop() {
-  #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("stop"));
-  #endif
+  debug(F("stop"));
 
   if (isRunning() || isPaused()) {
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onPrintTimerStopped();
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     state = STOPPED;
     stopTimestamp = millis();
     return true;
@@ -50,14 +46,10 @@ bool Stopwatch::stop() {
 }
 
 bool Stopwatch::pause() {
-  #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("pause"));
-  #endif
+  debug(F("pause"));
 
   if (isRunning()) {
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onPrintTimerPaused();
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerPaused());
     state = PAUSED;
     stopTimestamp = millis();
     return true;
@@ -66,13 +58,9 @@ bool Stopwatch::pause() {
 }
 
 bool Stopwatch::start() {
-  #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("start"));
-  #endif
+  debug(F("start"));
 
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onPrintTimerStarted();
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStarted());
 
   if (!isRunning()) {
     if (isPaused()) accumulator = duration();
@@ -86,18 +74,14 @@ bool Stopwatch::start() {
 }
 
 void Stopwatch::resume(const millis_t with_time) {
-  #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("resume"));
-  #endif
+  debug(F("resume"));
 
   reset();
   if ((accumulator = with_time)) state = RUNNING;
 }
 
 void Stopwatch::reset() {
-  #if ENABLED(DEBUG_STOPWATCH)
-    Stopwatch::debug(PSTR("reset"));
-  #endif
+  debug(F("reset"));
 
   state = STOPPED;
   startTimestamp = 0;
@@ -106,18 +90,13 @@ void Stopwatch::reset() {
 }
 
 millis_t Stopwatch::duration() {
-  return ((isRunning() ? millis() : stopTimestamp)
-          - startTimestamp) / 1000UL + accumulator;
+  return accumulator + MS_TO_SEC((isRunning() ? millis() : stopTimestamp) - startTimestamp);
 }
 
 #if ENABLED(DEBUG_STOPWATCH)
 
-  void Stopwatch::debug(const char func[]) {
-    if (DEBUGGING(INFO)) {
-      SERIAL_ECHOPGM("Stopwatch::");
-      serialprintPGM(func);
-      SERIAL_ECHOLNPGM("()");
-    }
+  void Stopwatch::debug(FSTR_P const func) {
+    if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::", func, "()");
   }
 
 #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,6 +26,6 @@
 /**
  * Math helper functions for 32 bit CPUs
  */
-static FORCE_INLINE uint32_t MultiU32X24toH32(uint32_t longIn1, uint32_t longIn2) {
+FORCE_INLINE static uint32_t MultiU32X24toH32(uint32_t longIn1, uint32_t longIn2) {
   return ((uint64_t)longIn1 * longIn2 + 0x00800000) >> 24;
 }

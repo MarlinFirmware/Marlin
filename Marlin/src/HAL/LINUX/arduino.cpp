@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __PLAT_LINUX__
 
 #include <iostream>
@@ -32,9 +31,7 @@ void cli() { } // Disable
 void sei() { } // Enable
 
 // Time functions
-void _delay_ms(const int delay_ms) {
-  delay(delay_ms);
-}
+void _delay_ms(const int ms) { delay(ms); }
 
 uint32_t millis() {
   return (uint32_t)Clock::millis();
@@ -75,20 +72,6 @@ uint16_t analogRead(pin_t adc_pin) {
   if (!VALID_PIN(DIGITAL_PIN_TO_ANALOG_PIN(adc_pin))) return 0;
   return Gpio::get(DIGITAL_PIN_TO_ANALOG_PIN(adc_pin));
 }
-
-// **************************
-// Persistent Config Storage
-// **************************
-
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {
-
-}
-
-unsigned char eeprom_read_byte(uint8_t * pos) { return '\0'; }
-
-void eeprom_read_block(void *__dst, const void *__src, size_t __n) { }
-
-void eeprom_update_block(const void *__src, void *__dst, size_t __n) { }
 
 char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s) {
   char format_string[20];

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -61,6 +61,32 @@ void configure_i2c(const uint8_t clock_option) {
 
   // Enable Master I2C operation
   I2C_Cmd(I2CDEV_M, I2C_MASTER_MODE, ENABLE);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+// These two routines are exact copies of the lpc17xx_i2c.c routines.  Couldn't link to
+// to the lpc17xx_i2c.c routines so had to copy them into this file & rename them.
+
+uint32_t _I2C_Start(LPC_I2C_TypeDef *I2Cx) {
+  // Reset STA, STO, SI
+  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC|I2C_I2CONCLR_STOC|I2C_I2CONCLR_STAC;
+
+  // Enter to Master Transmitter mode
+  I2Cx->I2CONSET = I2C_I2CONSET_STA;
+
+  // Wait for complete
+  while (!(I2Cx->I2CONSET & I2C_I2CONSET_SI));
+  I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
+  return (I2Cx->I2STAT & I2C_STAT_CODE_BITMASK);
+}
+
+void _I2C_Stop(LPC_I2C_TypeDef *I2Cx) {
+  /* Make sure start bit is not active */
+  if (I2Cx->I2CONSET & I2C_I2CONSET_STA)
+    I2Cx->I2CONCLR = I2C_I2CONCLR_STAC;
+
+  I2Cx->I2CONSET = I2C_I2CONSET_STO|I2C_I2CONSET_AA;
+  I2Cx->I2CONCLR = I2C_I2CONCLR_SIC;
 }
 
 #ifdef __cplusplus

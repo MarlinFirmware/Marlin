@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * AGCM4 with RAMPS v1.4.4 pin assignments
  */
 
-#ifndef ARDUINO_GRAND_CENTRAL_M4
+#if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
 
@@ -46,7 +46,7 @@
 //
 //#define QSPI_EEPROM                             // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
 #define I2C_EEPROM                                // EEPROM on I2C-0
-#define E2END 0x7FFF                              // 32K (24lc256)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24lc256)
 
 //
 // Limit Switches
@@ -89,13 +89,6 @@
   #define Z_CS_PIN                            32
 #endif
 
-#define Z2_STEP_PIN                           36
-#define Z2_DIR_PIN                            34
-#define Z2_ENABLE_PIN                         30
-#ifndef Z2_CS_PIN
-  #define Z2_CS_PIN                           22
-#endif
-
 #define E0_STEP_PIN                           26
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
@@ -103,18 +96,33 @@
   #define E0_CS_PIN                           43
 #endif
 
+#define E1_STEP_PIN                           36
+#define E1_DIR_PIN                            34
+#define E1_ENABLE_PIN                         30
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                           22
+#endif
+
 //
 // Temperature Sensors
 //
 #define TEMP_0_PIN                            13
-#define TEMP_BED_PIN                          14
+#if TEMP_SENSOR_BED
+  #define TEMP_BED_PIN                        14
+#else
+  #define TEMP_1_PIN                          14
+#endif
 #define TEMP_CHAMBER_PIN                      15
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                          10
-#define HEATER_BED_PIN                         8
+#if TEMP_SENSOR_BED
+  #define HEATER_BED_PIN                       8
+#else
+  #define HEATER_1_PIN                         8
+#endif
 #define FAN_PIN                                9
 #define FAN1_PIN                               7
 #define FAN2_PIN                              12
@@ -122,16 +130,14 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
 #define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                         5  // Analog Input on AUX2
 #endif
 
-// RAMPS 1.4 DIO 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                       4
+  #define FIL_RUNOUT_PIN                      70
 #endif
 
 #ifndef PS_ON_PIN
@@ -187,108 +193,80 @@
   //#define Z2_HARDWARE_SERIAL Serial1
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-
-  //
-  // Software serial
-  //
 
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   47
   #endif
   #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN                   47
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
   #endif
   #ifndef X2_SERIAL_TX_PIN
     #define X2_SERIAL_TX_PIN                  -1
   #endif
   #ifndef X2_SERIAL_RX_PIN
-    #define X2_SERIAL_RX_PIN                  -1
+    #define X2_SERIAL_RX_PIN    X2_SERIAL_TX_PIN
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                   45
   #endif
   #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN                   45
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
   #endif
   #ifndef Y2_SERIAL_TX_PIN
     #define Y2_SERIAL_TX_PIN                  -1
   #endif
   #ifndef Y2_SERIAL_RX_PIN
-    #define Y2_SERIAL_RX_PIN                  -1
+    #define Y2_SERIAL_RX_PIN    Y2_SERIAL_TX_PIN
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                   32
   #endif
   #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN                   32
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
   #endif
   #ifndef Z2_SERIAL_TX_PIN
     #define Z2_SERIAL_TX_PIN                  22
   #endif
   #ifndef Z2_SERIAL_RX_PIN
-    #define Z2_SERIAL_RX_PIN                  22
+    #define Z2_SERIAL_RX_PIN    Z2_SERIAL_TX_PIN
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                  43
   #endif
   #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN                  43
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
   #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                  -1
   #endif
   #ifndef E1_SERIAL_RX_PIN
-    #define E1_SERIAL_RX_PIN                  -1
+    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
-  #ifndef E2_SERIAL_TX_PIN
-    #define E2_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E2_SERIAL_RX_PIN
-    #define E2_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E3_SERIAL_TX_PIN
-    #define E3_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E3_SERIAL_RX_PIN
-    #define E3_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E4_SERIAL_TX_PIN
-    #define E4_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E4_SERIAL_RX_PIN
-    #define E4_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E5_SERIAL_TX_PIN
-    #define E5_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E5_SERIAL_RX_PIN
-    #define E5_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E6_SERIAL_TX_PIN
-    #define E6_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E6_SERIAL_RX_PIN
-    #define E6_SERIAL_RX_PIN                  -1
-  #endif
-  #ifndef E7_SERIAL_TX_PIN
-    #define E7_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E7_SERIAL_RX_PIN
-    #define E7_SERIAL_RX_PIN                  -1
-  #endif
+#endif
+
+//
+// SD Support
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
+  #define SDSS                                83
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN                       95
+#else
+  #define SDSS                                53
 #endif
 
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -296,55 +274,55 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     // TO TEST
-    // #define LCD_PINS_RS         49   // CS chip select /SS chip slave select
-    // #define LCD_PINS_ENABLE     51   // SID (MOSI)
-    // #define LCD_PINS_D4         52   // SCK (CLK) clock
+    //#define LCD_PINS_RS                     49  // CS chip select /SS chip slave select
+    //#define LCD_PINS_ENABLE                 51  // SID (MOSI)
+    //#define LCD_PINS_D4                     52  // SCK (CLK) clock
 
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
-    // #define LCD_PINS_RS         40
-    // #define LCD_PINS_ENABLE     42
-    // #define LCD_PINS_D4         57     // Mega/Due:65 - AGCM4:57
-    // #define LCD_PINS_D5         58     // Mega/Due:66 - AGCM4:58
-    // #define LCD_PINS_D6         44
-    // #define LCD_PINS_D7         56     // Mega/Due:64 - AGCM4:56
+    //#define LCD_PINS_RS                     40
+    //#define LCD_PINS_ENABLE                 42
+    //#define LCD_PINS_D4                     57  // Mega/Due:65 - AGCM4:57
+    //#define LCD_PINS_D5                     58  // Mega/Due:66 - AGCM4:58
+    //#define LCD_PINS_D6                     44
+    //#define LCD_PINS_D7                     56  // Mega/Due:64 - AGCM4:56
 
   #else
 
     #if ENABLED(CR10_STOCKDISPLAY)
 
       // TO TEST
-      // #define LCD_PINS_RS       27
-      // #define LCD_PINS_ENABLE   29
-      // #define LCD_PINS_D4       25
+      //#define LCD_PINS_RS                   27
+      //#define LCD_PINS_ENABLE               29
+      //#define LCD_PINS_D4                   25
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         // TO TEST
-        // #define BEEPER_PIN      37
+        //#define BEEPER_PIN                  37
       #endif
 
     #elif ENABLED(ZONESTAR_LCD)
 
       // TO TEST
-      // #define LCD_PINS_RS       56     // Mega/Due:64 - AGCM4:56
-      // #define LCD_PINS_ENABLE   44
-      // #define LCD_PINS_D4       55     // Mega/Due:63 - AGCM4:55
-      // #define LCD_PINS_D5       40
-      // #define LCD_PINS_D6       42
-      // #define LCD_PINS_D7       57     // Mega/Due:65 - AGCM4:57
+      //#define LCD_PINS_RS                   56  // Mega/Due:64 - AGCM4:56
+      //#define LCD_PINS_ENABLE               44
+      //#define LCD_PINS_D4                   55  // Mega/Due:63 - AGCM4:55
+      //#define LCD_PINS_D5                   40
+      //#define LCD_PINS_D6                   42
+      //#define LCD_PINS_D7                   57  // Mega/Due:65 - AGCM4:57
 
     #else
 
       #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
         // TO TEST
-        // #define LCD_PINS_DC     25   // Set as output on init
-        // #define LCD_PINS_RS     27   // Pull low for 1s to init
+        //#define LCD_PINS_DC                 25  // Set as output on init
+        //#define LCD_PINS_RS                 27  // Pull low for 1s to init
         // DOGM SPI LCD Support
-        // #define DOGLCD_CS       16
-        // #define DOGLCD_MOSI     17
-        // #define DOGLCD_SCK      23
-        // #define DOGLCD_A0       LCD_PINS_DC
+        //#define DOGLCD_CS                   16
+        //#define DOGLCD_MOSI                 17
+        //#define DOGLCD_SCK                  23
+        //#define DOGLCD_A0          LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
         #define LCD_PINS_ENABLE               17
@@ -355,19 +333,19 @@
 
       #define LCD_PINS_D7                     29
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         #define BEEPER_PIN                    33
       #endif
 
     #endif
 
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
-      //#define SHIFT_CLK                     38
-      //#define SHIFT_LD                      42
-      //#define SHIFT_OUT                     40
-      //#define SHIFT_EN                      17
+      //#define SHIFT_CLK_PIN                 38
+      //#define SHIFT_LD_PIN                  42
+      //#define SHIFT_OUT_PIN                 40
+      //#define SHIFT_EN_PIN                  17
     #endif
 
   #endif
@@ -375,19 +353,22 @@
   //
   // LCD Display input pins
   //
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                      37
 
       #if ENABLED(CR10_STOCKDISPLAY)
         // TO TEST
-        // #define BTN_EN1         17
-        // #define BTN_EN2         23
+        //#define BTN_EN1                     17
+        //#define BTN_EN2                     23
       #else
         #define BTN_EN1                       31
         #define BTN_EN2                       33
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+        #endif
       #endif
 
       #define BTN_ENC                         35
@@ -397,71 +378,71 @@
       #define KILL_PIN                        41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        // TO TEST
-        // #define LCD_BACKLIGHT_PIN 39
+        //#define LCD_BACKLIGHT_PIN           39  // TO TEST
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       // TO TEST
-      // #define BTN_EN1           56     // Mega/Due:64 - AGCM4:56
-      // #define BTN_EN2           72     // Mega/Due:59 - AGCM4:72
-      // #define BTN_ENC           55
-      // #define SD_DETECT_PIN     42
+      //#define BTN_EN1                       56  // Mega/Due:64 - AGCM4:56
+      //#define BTN_EN2                       72  // Mega/Due:59 - AGCM4:72
+      //#define BTN_ENC                       55
+      //#define SD_DETECT_PIN                 42
 
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
       // TO TEST
-      // #define BTN_EN1           47
-      // #define BTN_EN2           43
-      // #define BTN_ENC           32
-      // #define LCD_SDSS          SDSS
-      // #define KILL_PIN          41
+      //#define BTN_EN1                       47
+      //#define BTN_EN2                       43
+      //#define BTN_ENC                       32
+      //#define LCD_SDSS                    SDSS
+      //#define KILL_PIN                      41
 
     #elif ENABLED(LCD_I2C_VIKI)
 
       // TO TEST
-      // #define BTN_EN1           40   // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
-      // #define BTN_EN2           42
-      // #define BTN_ENC           -1
+      //#define BTN_EN1                       40  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      //#define BTN_EN2                       42
+      //#define BTN_ENC                       -1
 
-      // #define LCD_SDSS SDSS
-      // #define SD_DETECT_PIN     49
+      //#define LCD_SDSS                    SDSS
+      //#define SD_DETECT_PIN                 49
 
-    #elif ANY(VIKI2, miniVIKI)
+    #elif EITHER(VIKI2, miniVIKI)
 
       // TO TEST
-      // #define DOGLCD_CS         45
-      // #define DOGLCD_A0         44
-      // #define LCD_SCREEN_ROT_180
+      //#define DOGLCD_CS                     45
+      //#define DOGLCD_A0                     44
 
-      // #define BEEPER_PIN        33
-      // #define STAT_LED_RED_PIN  32
-      // #define STAT_LED_BLUE_PIN 35
+      //#define BEEPER_PIN                    33
+      //#define STAT_LED_RED_PIN              32
+      //#define STAT_LED_BLUE_PIN             35
 
-      // #define BTN_EN1           22
-      // #define BTN_EN2            7
-      // #define BTN_ENC           39
+      //#define BTN_EN1                       22
+      //#define BTN_EN2                        7
+      //#define BTN_ENC                       39
 
-      // #define SD_DETECT_PIN     -1   // Pin 49 for display SD interface, 72 for easy adapter board
-      // #define KILL_PIN          31
+      //#define SD_DETECT_PIN                 -1  // Pin 49 for display SD interface, 72 for easy adapter board
+      //#define KILL_PIN                      31
+
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
       // TO TEST
-      // #define DOGLCD_CS         29
-      // #define DOGLCD_A0         27
+      //#define DOGLCD_CS                     29
+      //#define DOGLCD_A0                     27
 
-      // #define BEEPER_PIN        23
-      // #define LCD_BACKLIGHT_PIN 33
+      //#define BEEPER_PIN                    23
+      //#define LCD_BACKLIGHT_PIN             33
 
-      // #define BTN_EN1           35
-      // #define BTN_EN2           37
-      // #define BTN_ENC           31
+      //#define BTN_EN1                       35
+      //#define BTN_EN2                       37
+      //#define BTN_ENC                       31
 
-      // #define LCD_SDSS          SDSS
-      // #define SD_DETECT_PIN     49
-      // #define KILL_PIN          41
+      //#define LCD_SDSS                    SDSS
+      //#define SD_DETECT_PIN                 49
+      //#define KILL_PIN                      41
 
     #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
 
@@ -474,56 +455,52 @@
       //  #define KILL_PIN         41
       //#endif
 
-      #if ENABLED(MKS_MINI_12864)                 // Added in Marlin 1.1.6
+      #if ENABLED(MKS_MINI_12864)
 
         // TO TEST
-        // #define DOGLCD_A0       27
-        // #define DOGLCD_CS       25
-
-        // GLCD features
-        // Uncomment screen orientation
-        // #define LCD_SCREEN_ROT_90
-        // #define LCD_SCREEN_ROT_180
-        // #define LCD_SCREEN_ROT_270
+        //#define DOGLCD_A0                   27
+        //#define DOGLCD_CS                   25
 
         // not connected to a pin
-        // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
+        //#define LCD_BACKLIGHT_PIN           57  // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
-        // #define BTN_EN1         31
-        // #define BTN_EN2         33
+        //#define BTN_EN1                     31
+        //#define BTN_EN2                     33
+
+        //#define LCD_SCREEN_ROTATE          180  // 0, 90, 180, 270
 
       #elif ENABLED(FYSETC_MINI_12864)
 
         // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
 
         // TO TEST
-        // #define DOGLCD_A0       16
-        // #define DOGLCD_CS       17
+        //#define DOGLCD_A0                   16
+        //#define DOGLCD_CS                   17
 
-        // #define BTN_EN1         33
-        // #define BTN_EN2         31
+        //#define BTN_EN1                     33
+        //#define BTN_EN2                     31
 
         //#define FORCE_SOFT_SPI                  // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-        // #define LCD_RESET_PIN   23   // Must be high or open for LCD to operate normally.
+        //#define LCD_RESET_PIN               23  // Must be high or open for LCD to operate normally.
 
         #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
           #ifndef RGB_LED_R_PIN
             // TO TEST
-            // #define RGB_LED_R_PIN 25
+            //#define RGB_LED_R_PIN           25
           #endif
           #ifndef RGB_LED_G_PIN
             // TO TEST
-            // #define RGB_LED_G_PIN 27
+            //#define RGB_LED_G_PIN           27
           #endif
           #ifndef RGB_LED_B_PIN
             // TO TEST
-            // #define RGB_LED_B_PIN 29
+            //#define RGB_LED_B_PIN           29
           #endif
         #elif ENABLED(FYSETC_MINI_12864_2_1)
           // TO TEST
-          // #define NEOPIXEL_PIN    25
+          //#define NEOPIXEL_PIN              25
         #endif
 
       #endif
@@ -531,30 +508,26 @@
     #elif ENABLED(MINIPANEL)
 
       // TO TEST
-      // #define BEEPER_PIN        42
+      //#define BEEPER_PIN                    42
       // not connected to a pin
-      // #define LCD_BACKLIGHT_PIN 57    // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
+      //#define LCD_BACKLIGHT_PIN             57  // backlight LED on A11/D? (Mega/Due:65 - AGCM4:57)
 
-      // #define DOGLCD_A0         44
-      // #define DOGLCD_CS         58    // Mega/Due:66 - AGCM4:58
+      //#define DOGLCD_A0                     44
+      //#define DOGLCD_CS                     58  // Mega/Due:66 - AGCM4:58
 
-      // GLCD features
-      // Uncomment screen orientation
-      // #define LCD_SCREEN_ROT_90
-      // #define LCD_SCREEN_ROT_180
-      // #define LCD_SCREEN_ROT_270
+      //#define BTN_EN1                       40
+      //#define BTN_EN2                       55  // Mega/Due:63 - AGCM4:55
+      //#define BTN_ENC                       72  // Mega/Due:59 - AGCM4:72
 
-      // #define BTN_EN1           40
-      // #define BTN_EN2           55    // Mega/Due:63 - AGCM4:55
-      // #define BTN_ENC           72    // Mega/Due:59 - AGCM4:72
+      //#define SD_DETECT_PIN                 49
+      //#define KILL_PIN                      56  // Mega/Due:64 - AGCM4:56
 
-      // #define SD_DETECT_PIN     49
-      // #define KILL_PIN          56    // Mega/Due:64 - AGCM4:56
+      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(ZONESTAR_LCD)
 
       // TO TEST
-      // #define ADC_KEYPAD_PIN    12
+      //#define ADC_KEYPAD_PIN                12
 
     #elif ENABLED(AZSMZ_12864)
 
@@ -563,50 +536,36 @@
     #else
 
       // Beeper on AUX-4
-      // #define BEEPER_PIN        33
+      //#define BEEPER_PIN                    33
 
       // Buttons are directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         // TO TEST
-        // #define SHIFT_OUT       40
-        // #define SHIFT_CLK       44
-        // #define SHIFT_LD        42
-        // #define BTN_EN1         56    // Mega/Due:64 - AGCM4:56
-        // #define BTN_EN2         72    // Mega/Due:59 - AGCM4:72
-        // #define BTN_ENC         55    // Mega/Due:63 - AGCM4:55
+        //#define SHIFT_OUT_PIN               40
+        //#define SHIFT_CLK_PIN               44
+        //#define SHIFT_LD_PIN                42
+        //#define BTN_EN1                     56  // Mega/Due:64 - AGCM4:56
+        //#define BTN_EN2                     72  // Mega/Due:59 - AGCM4:72
+        //#define BTN_ENC                     55  // Mega/Due:63 - AGCM4:55
       #elif ENABLED(PANEL_ONE)
         // TO TEST
-        // #define BTN_EN1         72    // AUX2 PIN 3 (Mega/Due:59 - AGCM4:72)
-        // #define BTN_EN2         55    // AUX2 PIN 4 (Mega/Due:63 - AGCM4:55)
-        // #define BTN_ENC         49    // AUX3 PIN 7
+        //#define BTN_EN1                     72  // AUX2 PIN 3 (Mega/Due:59 - AGCM4:72)
+        //#define BTN_EN2                     55  // AUX2 PIN 4 (Mega/Due:63 - AGCM4:55)
+        //#define BTN_ENC                     49  // AUX3 PIN 7
       #else
         // TO TEST
-        // #define BTN_EN1         37
-        // #define BTN_EN2         35
-        // #define BTN_ENC         31
+        //#define BTN_EN1                     37
+        //#define BTN_EN2                     35
+        //#define BTN_ENC                     31
       #endif
 
       #if ENABLED(G3D_PANEL)
         // TO TEST
-        // #define SD_DETECT_PIN   49
-        // #define KILL_PIN        41
+        //#define SD_DETECT_PIN               49
+        //#define KILL_PIN                    41
       #endif
 
     #endif
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 
-#endif // HAS_SPI_LCD
-
-//
-// SD Support
-//
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#if SD_CONNECTION_IS(ONBOARD)
-  #undef SDSS
-  #define SDSS                                83
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN                       95
-#endif
+#endif // HAS_WIRED_LCD

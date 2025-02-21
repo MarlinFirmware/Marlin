@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,10 +28,10 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS BASE 1.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS BASE 1.0 supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "MKS BASE 1.0"
 #define MKS_BASE_VERSION 10
 
-#include "pins_MKS_BASE_common.h"
+#include "pins_MKS_BASE_common.h" // ... RAMPS

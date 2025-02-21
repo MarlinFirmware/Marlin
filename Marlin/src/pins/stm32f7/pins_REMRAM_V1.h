@@ -16,22 +16,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef STM32F7xx
+#if NOT_TARGET(STM32F7xx)
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME      "RemRam v1"
 #define DEFAULT_MACHINE_NAME "RemRam"
 
-#define SRAM_EEPROM_EMULATION                     // Emulate the EEPROM using Backup SRAM
+#if NO_EEPROM_SELECTED
+  #define SRAM_EEPROM_EMULATION                   // Emulate the EEPROM using Backup SRAM
+#endif
 
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "RemRam supports only one hotend / E-stepper."
+#if HAS_MULTI_HOTEND || E_STEPPERS > 1
+  #error "RemRam only supports 1 hotend / E stepper."
 #endif
 
 //
@@ -42,14 +44,13 @@
   #define X_MAX_PIN                           59
   #define Y_MIN_PIN                           60
   #define Y_MAX_PIN                           61
-  #define Z_MIN_PIN                           62
   #define Z_MAX_PIN                           63
 #else
   #define X_STOP_PIN                          36
   #define Y_STOP_PIN                          39
-  #define Z_MIN_PIN                           62
   #define Z_MAX_PIN                           42
 #endif
+#define Z_MIN_PIN                             62
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -99,7 +100,9 @@
 #endif
 #define FAN1_PIN                              32  // "FAN2"
 
-#define ORIG_E0_AUTO_FAN_PIN                  32  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     32
+#endif
 
 //
 // Servos
@@ -130,4 +133,4 @@
 // Timers
 //
 
-#define STEP_TIMER                             2
+#define STEP_TIMER  2

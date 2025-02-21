@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#define SCK_PIN   13
-#define MISO_PIN  12
-#define MOSI_PIN  11
-#define SS_PIN    20 //SDSS // A.28, A.29, B.21, C.26, C.29
+#define SD_SCK_PIN  13
+#define SD_MISO_PIN 12
+#define SD_MOSI_PIN 11
+#define SD_SS_PIN   20 // SDSS // A.28, A.29, B.21, C.26, C.29

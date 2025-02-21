@@ -1,0 +1,45 @@
+/*
+Bootstrap Toggle: bootstrap4-toggle.css v3.6.1
+https://gitbrent.github.io/bootstrap4-toggle/
+*/
+.btn-group-xs>.btn,.btn-xs{padding:.35rem .4rem .25rem .4rem;font-size:.875rem;line-height:.5;border-radius:.2rem}.checkbox label .toggle,.checkbox-inline .toggle{margin-left:-1.25rem;margin-right:.35rem}.toggle{position:relative;overflow:hidden}.toggle.btn.btn-light,.toggle.btn.btn-outline-light{border-color:rgba(0,0,0,.15)}.toggle input[type=checkbox]{display:none}.toggle-group{position:absolute;width:200%;top:0;bottom:0;left:0;transition:left .35s;-webkit-transition:left .35s;-moz-user-select:none;-webkit-user-select:none}.toggle-group label,.toggle-group span{cursor:pointer}.toggle.off .toggle-group{left:-100%}.toggle-on{position:absolute;top:0;bottom:0;left:0;right:50%;margin:0;border:0;border-radius:0}.toggle-off{position:absolute;top:0;bottom:0;left:50%;right:0;margin:0;border:0;border-radius:0;box-shadow:none}.toggle-handle{position:relative;margin:0 auto;padding-top:0;padding-bottom:0;height:100%;width:0;border-width:0 1px;background-color:#fff}.toggle.btn-outline-primary .toggle-handle{background-color:var(--primary);border-color:var(--primary)}.toggle.btn-outline-secondary .toggle-handle{background-color:var(--secondary);border-color:var(--secondary)}.toggle.btn-outline-success .toggle-handle{background-color:var(--success);border-color:var(--success)}.toggle.btn-outline-danger .toggle-handle{background-color:var(--danger);border-color:var(--danger)}.toggle.btn-outline-warning .toggle-handle{background-color:var(--warning);border-color:var(--warning)}.toggle.btn-outline-info .toggle-handle{background-color:var(--info);border-color:var(--info)}.toggle.btn-outline-light .toggle-handle{background-color:var(--light);border-color:var(--light)}.toggle.btn-outline-dark .toggle-handle{background-color:var(--dark);border-color:var(--dark)}.toggle[class*=btn-outline]:hover .toggle-handle{background-color:var(--light);opacity:.5}.toggle.btn{min-width:3.7rem;min-height:2.15rem}.toggle-on.btn{padding-right:1.5rem}.toggle-off.btn{padding-left:1.5rem}.toggle.btn-lg{min-width:5rem;min-height:2.815rem}.toggle-on.btn-lg{padding-right:2rem}.toggle-off.btn-lg{padding-left:2rem}.toggle-handle.btn-lg{width:2.5rem}.toggle.btn-sm{min-width:3.125rem;min-height:1.938rem}.toggle-on.btn-sm{padding-right:1rem}.toggle-off.btn-sm{padding-left:1rem}.toggle.btn-xs{min-width:2.19rem;min-height:1.375rem}.toggle-on.btn-xs{padding-right:.8rem}.toggle-off.btn-xs{padding-left:.8rem}
+
+/*
+E4d@box Marlin WUI
+*/
+html, body { height: 100%; margin: 0; }
+
+@media all and (min-width: 500px) {
+  #main-panel{ text-align: center; }
+  #accordion-panels { width: 500px; height:100%; display: block;  margin-left: auto;  margin-right: auto;}
+  .modal-popup { width:400px; }
+}
+
+.console-listbox { height: 450px; }
+@media all and (max-height: 400px) { .console-listbox { height: 245px; } }
+@media all and (min-height:401px) and (max-height: 500px) { .console-listbox { height: 280px; } }
+@media all and (min-height:501px) and (max-height: 600px) { .console-listbox { height: 350px; } }
+@media all and (min-height:601px) and (max-height: 700px) { .console-listbox { height: 350px; } }
+@media all and (min-height:701px) and (max-height: 800px) { .console-listbox { height: 400px; } }
+@media all and (min-height:801px) and (max-height: 900px) { .console-listbox { height: 445px; } }
+@media all and (min-height:901px) and (max-height: 1000px) { .console-listbox { height: 480px; } }
+@keyframes tgle { 0% { opacity: 0; } 49.99% { opacity: 0; } 50% { opacity: 1; } 99.99% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes blink-info { 0% { background-color: #17a2b8; } 50% { opacity: #f8f9fa; } 75% { opacity: #17a2b8; } 100% { opacity: #f8f9fa; } }
+
+.blink { animation-duration: 500ms; animation-name: tgle; animation-iteration-count: infinite; }
+.bg-info-blink { animation-duration: 500ms; animation-name: blink-info; animation-iteration-count: infinite;}
+.modal-popup { width:calc(100%-100px); }
+.field-labels { font-size: 10pt; font-weight: bold; }
+.field-description { font-size: 10pt; font-style: italic; }
+.action-description { font-size: 10pt; }
+.console-listbox { overflow-y: scroll; overflow-x: hidden; }
+.console-list-items-success { background-color: lightgreen; }
+.console-list-items-info { background-color: lightsteelblue; }
+.console-list-items-error { background-color: lightcoral; }
+.console-list-items-terminal { background-color: lightgray; }
+.console-list-items-warning { background-color: orange; }
+.console-list-items { font-size: 9pt; padding-left: 4px; padding-right: 4px; padding-top: 0px; padding-bottom: 4px; }
+.collapse-panel { overflow-y: scroll; overflow-x: hidden; }
+.card-header-title { font-size: 10pt; font-weight: bold; }
+.card-header-description { font-size: 8pt; }
+.badge-description { font-size: 9pt; }

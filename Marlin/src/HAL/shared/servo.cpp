@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -48,7 +48,6 @@
  * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
  * attached()            - Return true if a servo is attached.
  * detach()              - Stop an attached servo from pulsing its i/o pin.
- *
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -66,7 +65,7 @@ uint8_t ServoCount = 0;                         // the total number of attached 
 
 /************ static functions common to all instances ***********************/
 
-static boolean isTimerActive(timer16_Sequence_t timer) {
+static bool anyTimerChannelActive(const timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
   LOOP_L_N(channel, SERVOS_PER_TIMER) {
     if (SERVO(timer, channel).Pin.isActive)
@@ -102,17 +101,18 @@ int8_t Servo::attach(const int inPin, const int inMin, const int inMax) {
   max = (MAX_PULSE_WIDTH - inMax) / 4;
 
   // initialize the timer if it has not already been initialized
-  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if (!isTimerActive(timer)) initISR(timer);
-  servo_info[servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
+  const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
+  if (!anyTimerChannelActive(timer)) initISR(timer);
+  servo_info[servoIndex].Pin.isActive = true;  // this must be set after the check for anyTimerChannelActive
 
   return servoIndex;
 }
 
 void Servo::detach() {
   servo_info[servoIndex].Pin.isActive = false;
-  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if (!isTimerActive(timer)) finISR(timer);
+  const timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
+  if (!anyTimerChannelActive(timer)) finISR(timer);
+  //pinMode(servo_info[servoIndex].Pin.nbr, INPUT); // set servo pin to input
 }
 
 void Servo::write(int value) {
@@ -150,9 +150,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

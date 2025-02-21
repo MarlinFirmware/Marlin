@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,10 +25,11 @@
  * Formbot Raptor pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 3 || E_STEPPERS > 3
-  #error "Formbot supports up to 3 hotends / E-steppers. Comment out this line to continue."
+#define REQUIRE_MEGA2560
+#include "env_validate.h"
+
+#if HOTENDS > 3 || E_STEPPERS > 3
+  #error "Formbot supports up to 3 hotends / E steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -113,28 +114,11 @@
 #define TEMP_1_PIN                            15  // Analog Input
 #define TEMP_BED_PIN                          14  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
-#endif
-
-//
-// Augmentation for auto-assigning RAMPS plugs
-//
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
-    #if TEMP_SENSOR_BED
-      #define IS_RAMPS_EEB
-    #else
-      #define IS_RAMPS_EEF
-    #endif
-  #elif TEMP_SENSOR_BED
-    #define IS_RAMPS_EFB
-  #else
-    #define IS_RAMPS_EFF
-  #endif
+  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -172,14 +156,16 @@
   #define PS_ON_PIN                           12
 #endif
 
-#define CASE_LIGHT_PIN                         5
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       5
+#endif
 
 //
 // LCD / Controller
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BEEPER_PIN                          37
   #define BTN_EN1                             31
   #define BTN_EN2                             33

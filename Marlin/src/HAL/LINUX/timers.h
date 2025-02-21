@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,9 +37,15 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
 
-#define STEP_TIMER_NUM 0  // Timer Index for Stepper
-#define TEMP_TIMER_NUM 1  // Timer Index for Temperature
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#ifndef MF_TIMER_STEP
+  #define MF_TIMER_STEP         0  // Timer Index for Stepper
+#endif
+#ifndef MF_TIMER_PULSE
+  #define MF_TIMER_PULSE        MF_TIMER_STEP
+#endif
+#ifndef MF_TIMER_TEMP
+  #define MF_TIMER_TEMP         1  // Timer Index for Temperature
+#endif
 
 #define TEMP_TIMER_RATE        1000000
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
@@ -52,21 +58,24 @@ typedef uint32_t hal_timer_t;
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
-#define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler()
-#define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler()
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR()  extern "C" void TIMER0_IRQHandler()
+#endif
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR()  extern "C" void TIMER1_IRQHandler()
+#endif
 
 // PWM timer
 #define HAL_PWM_TIMER
 #define HAL_PWM_TIMER_ISR()   extern "C" void TIMER3_IRQHandler()
 #define HAL_PWM_TIMER_IRQn
-
 
 void HAL_timer_init();
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
@@ -83,5 +92,5 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-#define HAL_timer_isr_prologue(TIMER_NUM)
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+#define HAL_timer_isr_prologue(T) NOOP
+#define HAL_timer_isr_epilogue(T) NOOP

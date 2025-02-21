@@ -1,4 +1,26 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * @file    lcdprint_hd44780.cpp
  * @brief   LCD print api for HD44780
  * @author  Yunhui Fu (yhfudev@gmail.com)
@@ -14,25 +36,21 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_CHARACTER_LCD
+#if HAS_MARLINUI_HD44780
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../MarlinCore.h"
 
-#include "ultralcd_HD44780.h"
+#include "marlinui_HD44780.h"
 
 #include <string.h>
 
-#ifndef LCD_CLASS
-  #include <LiquidCrystal.h>
-  #define LCD_CLASS LiquidCrystal
-#endif
 extern LCD_CLASS lcd;
 
 int lcd_glyph_height() { return 1; }
 
 typedef struct _hd44780_charmap_t {
-  wchar_t uchar; // the unicode char
+  lchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
 } hd44780_charmap_t;
@@ -678,6 +696,8 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('ď'), 'd', 0}, // 010F
   {IV('đ'), 'd', 0}, // 0111
   {IV('ę'), 'e', 0}, // 0119
+  {IV('Ě'), 'E', 0}, // 011A
+  {IV('ě'), 'e', 0}, // 011B
   {IV('ğ'), 'g', 0}, // 011F
   {IV('İ'), 'I', 0}, // 0130
   {IV('ı'), 'i', 0}, // 0131
@@ -688,6 +708,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('ń'), 'n', 0}, // 0144
   {IV('ň'), 'n', 0}, // 0148
 
+  {IV('Ř'), 'R', 0}, // 0158
   {IV('ř'), 'r', 0}, // 0159
   {IV('Ś'), 'S', 0}, // 015A
   {IV('ś'), 's', 0}, // 015B
@@ -924,6 +945,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('ю'), '|', 'o'},
     {IV('я'), 'g', 0}, // 044F
     {IV('ё'), 'e', 0}, // 0451
+
   #endif
 
   {IV('•'), '.', 0}, // 2022 ·
@@ -970,7 +992,7 @@ void lcd_put_int(const int i) { lcd.print(i); }
 
 // return < 0 on error
 // return the advanced cols
-int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+int lcd_put_lchar_max(const lchar_t &c, const pixel_len_t max_length) {
 
   // find the HD44780 internal ROM first
   int ret;
@@ -982,7 +1004,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 
   if (max_length < 1) return 0;
 
-  // TODO: fix the '\\' that doesnt exist in the HD44870
+  // TODO: fix the '\\' that doesn't exist in the HD44870
   if (c < 128) {
     lcd.write((uint8_t)c);
     return 1;
@@ -1025,24 +1047,24 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
  *
  * Draw a UTF-8 string
  */
-static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
+static int lcd_put_u8str_max_cb(const char * utf8_str, read_byte_cb_t cb_read_byte, const pixel_len_t max_length) {
   pixel_len_t ret = 0;
-  uint8_t *p = (uint8_t *)utf8_str;
+  const uint8_t *p = (uint8_t *)utf8_str;
   while (ret < max_length) {
-    wchar_t ch = 0;
-    p = get_utf8_value_cb(p, cb_read_byte, &ch);
-    if (!ch) break;
-    ret += lcd_put_wchar_max(ch, max_length - ret);
+    lchar_t wc;
+    p = get_utf8_value_cb(p, cb_read_byte, wc);
+    if (!wc) break;
+    ret += lcd_put_lchar_max(wc, max_length - ret);
   }
   return (int)ret;
 }
 
-int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
+int lcd_put_u8str_max(const char * utf8_str, const pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
-  return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
+int lcd_put_u8str_max_P(PGM_P utf8_pstr, const pixel_len_t max_length) {
+  return lcd_put_u8str_max_cb(utf8_pstr, read_byte_rom, max_length);
 }
 
 #if ENABLED(DEBUG_LCDPRINT)
@@ -1119,4 +1141,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #endif // DEBUG_LCDPRINT
 
-#endif // HAS_CHARACTER_LCD
+#endif // HAS_MARLINUI_HD44780

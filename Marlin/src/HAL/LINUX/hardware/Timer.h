@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -52,7 +52,7 @@ public:
     return (*(intptr_t*)timerid);
   }
 
-  static void handler(int sig, siginfo_t *si, void *uc){
+  static void handler(int sig, siginfo_t *si, void *uc) {
     Timer* _this = (Timer*)si->si_value.sival_ptr;
     _this->avg_error += (Clock::nanos() - _this->start_time) - _this->period; //high_resolution_clock is also limited in precision, but best we have
     _this->avg_error /= 2; //very crude precision analysis (actually within +-500ns usually)

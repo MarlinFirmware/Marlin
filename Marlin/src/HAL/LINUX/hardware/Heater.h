@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,8 +26,8 @@
 struct LowpassFilter {
   uint64_t data_delay = 0;
   uint16_t update(uint16_t value) {
-    data_delay = data_delay - (data_delay >> 6) + value;
-    return (uint16_t)(data_delay >> 6);
+    data_delay += value - (data_delay >> 6);
+    return uint16_t(data_delay >> 6);
   }
 };
 

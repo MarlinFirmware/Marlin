@@ -16,22 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifdef ARDUINO_ARCH_ESP32
-
 #include <HardwareSerial.h>
+
+#include "../shared/Marduino.h"
+#include "../../core/serial_hook.h"
 
 class FlushableHardwareSerial : public HardwareSerial {
 public:
-  FlushableHardwareSerial(int uart_nr);
-
-  inline void flushTX() { /* No need to flush the hardware serial, but defined here for compatibility. */ }
+  FlushableHardwareSerial(int uart_nr) : HardwareSerial(uart_nr) {}
 };
 
-extern FlushableHardwareSerial flushableSerial;
-
-#endif // ARDUINO_ARCH_ESP32
+extern Serial1Class<FlushableHardwareSerial> flushableSerial;

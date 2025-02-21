@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# mfqp [1|2|3]
+# mfqp [1|2]
 #
 #  - git add .
 #  - git commit --amend
-#  - ghpc
+#  - git push -f
 #
 
 MFINFO=$(mfinfo "$@") || exit 1
@@ -17,14 +17,15 @@ IND=6
 while [ $IND -lt ${#INFO[@]} ]; do
   ARG=${INFO[$IND]}
   case "$ARG" in
+    -f|--force ) FORCE=1 ;;
      -h|--help ) USAGE=1 ;;
              * ) USAGE=1 ; echo "unknown option: $ARG" ;;
   esac
   let IND+=1
 done
 
-[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2|3]" 1>&2 ; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2]" 1>&2 ; exit 1 ; }
 
-[[ $CURR == $TARG && $REPO != "MarlinDocumentation" ]] && { echo "Don't alter the PR Target branch."; exit 1 ; }
+[[ $FORCE != 1 && $CURR == $TARG && $REPO != "MarlinDocumentation" ]] && { echo "Don't alter the PR Target branch."; exit 1 ; }
 
 git add . && git commit --amend && git push -f

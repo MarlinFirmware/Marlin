@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,122 +34,115 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
-#include "watchdog.h"
-
-#include "timers.h"
 
 #include <stdint.h>
 #include <util/atomic.h>
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef USE_USB_COMPOSITE
+#if HAS_SD_HOST_DRIVE
   #include "msc_sd.h"
 #endif
+
+#include "MarlinSerial.h"
 
 // ------------------------
 // Defines
 // ------------------------
 
+//
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
+
 #ifndef STM32_FLASH_SIZE
-  #ifdef MCU_STM32F103RE
+  #if ANY(MCU_STM32F103RE, MCU_STM32F103VE, MCU_STM32F103ZE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
   #endif
 #endif
 
+// ------------------------
+// Serial ports
+// ------------------------
+
 #ifdef SERIAL_USB
-  #ifndef USE_USB_COMPOSITE
-    #define UsbSerial Serial
-  #else
+  typedef ForwardSerial1Class< USBSerial > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+  #if HAS_SD_HOST_DRIVE
     #define UsbSerial MarlinCompositeSerial
+  #else
+    #define UsbSerial MSerial0
   #endif
-  #define MSerial1  Serial1
-  #define MSerial2  Serial2
-  #define MSerial3  Serial3
-  #define MSerial4  Serial4
-  #define MSerial5  Serial5
-#else
-  #define MSerial1  Serial
-  #define MSerial2  Serial1
-  #define MSerial3  Serial2
-  #define MSerial4  Serial3
-  #define MSerial5  Serial4
 #endif
 
-#if SERIAL_PORT == 0
-  #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-#elif SERIAL_PORT == -1
-  #define MYSERIAL0 UsbSerial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 MSerial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 MSerial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 MSerial3
-#elif SERIAL_PORT == 4
-  #define MYSERIAL0 MSerial4
-#elif SERIAL_PORT == 5
-  #define MYSERIAL0 MSerial5
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+  #define NUM_UARTS 5
 #else
-  #error "SERIAL_PORT must be from -1 to 5. Please update your configuration."
+  #define NUM_UARTS 3
+#endif
+
+#if SERIAL_PORT == -1
+  #define MYSERIAL1 UsbSerial
+#elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
+  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
+#else
+  #define MYSERIAL1 MSERIAL(1) // dummy port
+  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == 0
-    #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
-    #define MYSERIAL1 UsbSerial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 MSerial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 MSerial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 MSerial3
-  #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 MSerial4
-  #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 MSerial5
+  #if SERIAL_PORT_2 == -1
+    #define MYSERIAL2 UsbSerial
+  #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
+    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
   #else
-    #error "SERIAL_PORT_2 must be from -1 to 5. Please update your configuration."
-  #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
-#endif
-
-#ifdef DGUS_SERIAL
-  #if DGUS_SERIAL_PORT == 0
-    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL UsbSerial
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL MSerial1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL MSerial2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL MSerial3
-  #elif DGUS_SERIAL_PORT == 4
-    #define DGUS_SERIAL MSerial4
-  #elif DGUS_SERIAL_PORT == 5
-    #define DGUS_SERIAL MSerial5
-  #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 5. Please update your configuration."
+    #define MYSERIAL2 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
   #endif
 #endif
 
+#ifdef SERIAL_PORT_3
+  #if SERIAL_PORT_3 == -1
+    #define MYSERIAL3 UsbSerial
+  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
+    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
+  #else
+    #define MYSERIAL3 MSERIAL(1) // dummy port
+    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
 
-// Set interrupt grouping for this MCU
-void HAL_init();
-#define HAL_IDLETASK 1
-void HAL_idletask();
+#ifdef MMU2_SERIAL_PORT
+  #if MMU2_SERIAL_PORT == -1
+    #define MMU2_SERIAL UsbSerial
+  #elif WITHIN(MMU2_SERIAL_PORT, 1, NUM_UARTS)
+    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
+  #else
+    #define MMU2_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "MMU2_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+#endif
+
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL UsbSerial
+  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+  #else
+    #define LCD_SERIAL MSERIAL(1) // dummy port
+    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ". You can also use -1 if the board supports Native USB.")
+  #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #endif
+#endif
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -159,27 +152,11 @@ void HAL_idletask();
 #endif
 
 #ifndef digitalPinHasPWM
-  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
+  #define digitalPinHasPWM(P) !!PIN_MAP[P].timer_device
   #define NO_COMPILE_TIME_PWM
 #endif
 
-#define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); (void)__iCliRetVal()
-#define CRITICAL_SECTION_END()    if (!primask) (void)__iSeiRetVal()
-#define ISRS_ENABLED() (!__get_primask())
-#define ENABLE_ISRS()  ((void)__iSeiRetVal())
-#define DISABLE_ISRS() ((void)__iCliRetVal())
-
-// On AVR this is in math.h?
-#define square(x) ((x)*(x))
-
-#ifndef strncpy_P
-  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
-#endif
-
-// Fix bug in pgm_read_ptr
-#undef pgm_read_ptr
-#define pgm_read_ptr(addr) (*(addr))
-
+// Reset Reason
 #define RST_POWER_ON   1
 #define RST_EXTERNAL   2
 #define RST_BROWN_OUT  4
@@ -195,97 +172,138 @@ void HAL_idletask();
 typedef int8_t pin_t;
 
 // ------------------------
-// Public Variables
+// Interrupts
 // ------------------------
 
-// Result of last ADC conversion
-extern uint16_t HAL_adc_result;
-
-// ------------------------
-// Public functions
-// ------------------------
-
-// Disable interrupts
+#define CRITICAL_SECTION_START()  const bool irqon = !__get_primask(); (void)__iCliRetVal()
+#define CRITICAL_SECTION_END()    if (!irqon) (void)__iSeiRetVal()
 #define cli() noInterrupts()
-
-// Enable interrupts
 #define sei() interrupts()
 
-// Memory related
-#define __bss_end __bss_end__
-
-// Clear reset reason
-void HAL_clear_reset_source();
-
-// Reset reason
-uint8_t HAL_get_reset_source();
-
-void _delay_ms(const int delay);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-
-/*
-extern "C" {
-  int freeMemory();
-}
-*/
-
-extern "C" char* _sbrk(int incr);
-
-/*
-static int freeMemory() {
-  volatile int top;
-  top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
-  return top;
-}
-*/
-
-static int freeMemory() {
-  volatile char top;
-  return &top - reinterpret_cast<char*>(_sbrk(0));
-}
-
-#pragma GCC diagnostic pop
-
-//
-// EEPROM
-//
-
-/**
- * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
- * Wire library should work for i2c EEPROMs.
- */
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
-
-//
+// ------------------------
 // ADC
+// ------------------------
+
+#ifdef ADC_RESOLUTION
+  #define HAL_ADC_RESOLUTION ADC_RESOLUTION
+#else
+  #define HAL_ADC_RESOLUTION 12
+#endif
+
+#define HAL_ADC_VREF         3.3
+
+uint16_t analogRead(const pin_t pin); // need hal.adc_enable() first
+void analogWrite(const pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
+
 //
-
-#define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
-
-void HAL_adc_init();
-
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_ADC_RESOLUTION  10
-#define HAL_READ_ADC()      HAL_adc_result
-#define HAL_ADC_READY()     true
-
-void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result();
-
-uint16_t analogRead(pin_t pin); // need HAL_ANALOG_SELECT() first
-void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
-
+// Pin Mapping for M42, M43, M226
+//
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+#define JTAG_DISABLE()    afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ      // This HAL supports PWM Frequency adjustment
+#ifndef PWM_FREQUENCY
+  #define PWM_FREQUENCY      1000 // Default PWM Frequency
+#endif
+
+// ------------------------
+// Class Utilities
+// ------------------------
+
+// Memory related
+#define __bss_end __bss_end__
+
+void _delay_ms(const int ms);
+
+extern "C" char* _sbrk(int incr);
+
+#pragma GCC diagnostic push
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+static inline int freeMemory() {
+  volatile char top;
+  return &top - _sbrk(0);
+}
+
+#pragma GCC diagnostic pop
+
+// ------------------------
+// MarlinHAL Class
+// ------------------------
+
+class MarlinHAL {
+public:
+
+  // Earliest possible init, before setup()
+  MarlinHAL() {}
+
+  // Watchdog
+  static void watchdog_init()    IF_DISABLED(USE_WATCHDOG, {});
+  static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
+
+  static void init();          // Called early in setup()
+  static void init_board() {}  // Called less early in setup()
+  static void reboot();        // Restart the firmware from 0x0
+
+  // Interrupts
+  static bool isr_state() { return !__get_primask(); }
+  static void isr_on()  { ((void)__iSeiRetVal()); }
+  static void isr_off() { ((void)__iCliRetVal()); }
+
+  static void delay_ms(const int ms) { delay(ms); }
+
+  // Tasks, called from idle()
+  static void idletask();
+
+  // Reset
+  static uint8_t get_reset_source() { return RST_POWER_ON; }
+  static void clear_reset_source() {}
+
+  // Free SRAM
+  static int freeMemory() { return ::freeMemory(); }
+
+  //
+  // ADC Methods
+  //
+
+  static uint16_t adc_result;
+
+  // Called by Temperature::init once at startup
+  static void adc_init();
+
+  // Called by Temperature::init for each sensor at startup
+  static void adc_enable(const pin_t pin) { pinMode(pin, INPUT_ANALOG); }
+
+  // Begin ADC sampling on the given pin. Called from Temperature::isr!
+  static void adc_start(const pin_t pin);
+
+  // Is the ADC ready for reading?
+  static bool adc_ready() { return true; }
+
+  // The current value of the ADC register
+  static uint16_t adc_value() { return adc_result; }
+
+  /**
+   * Set the PWM duty cycle for the pin to the given value.
+   * Optionally invert the duty cycle [default = false]
+   * Optionally change the maximum size of the provided value to enable finer PWM duty control [default = 255]
+   * The timer must be pre-configured with set_pwm_frequency() if the default frequency is not desired.
+   */
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false);
+
+  /**
+   * Set the frequency of the timer for the given pin.
+   * All Timer PWM pins run at the same frequency.
+   */
+  static void set_pwm_frequency(const pin_t pin, const uint16_t f_desired);
+
+};

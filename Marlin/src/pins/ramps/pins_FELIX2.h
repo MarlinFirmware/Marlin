@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Felix 2.0+ supports up to 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Felix 2.0+ supports up to 2 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME "Felix 2.0+"
@@ -49,11 +49,11 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define SD_DETECT_PIN                       6
 
-#endif // NEWPANEL && ULTRA_LCD
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

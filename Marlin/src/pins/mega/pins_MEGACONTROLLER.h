@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,11 +25,11 @@
  * Mega controller pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "Mega Controller supports up to 2 hotends / E steppers."
 #endif
+
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Mega Controller"
 
@@ -121,14 +121,17 @@
   #define CONTROLLER_FAN_PIN            FAN2_PIN
 #endif
 
-#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM_REQUIRED
 
 //
 // Misc. Functions
 //
 #define SDSS                                  53
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                         2
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       2
+#endif
 
 //
 // LCD / Controller
@@ -136,23 +139,20 @@
 #if ENABLED(MINIPANEL)
 
   #define BEEPER_PIN                          46
-  // Pins for DOGM SPI LCD Support
+
   #define DOGLCD_A0                           47
   #define DOGLCD_CS                           45
   #define LCD_BACKLIGHT_PIN                   44  // backlight LED on PA3
 
   #define KILL_PIN                            12
-  // GLCD features
-  // Uncomment screen orientation
-  //#define LCD_SCREEN_ROT_90
-  //#define LCD_SCREEN_ROT_180
-  //#define LCD_SCREEN_ROT_270
 
   #define BTN_EN1                             48
   #define BTN_EN2                             11
   #define BTN_ENC                             10
 
   #define SD_DETECT_PIN                       49
+
+  //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
 #endif // MINIPANEL
 

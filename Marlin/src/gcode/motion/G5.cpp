@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,12 +24,16 @@
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
+#if AXIS_COLLISION('I') || AXIS_COLLISION('J')
+  #error "G5 parameter 'I' or 'J' collision with axis name."
+#endif
+
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 
 /**
  * Parameters interpreted according to:
- * http://linuxcnc.org/docs/2.6/html/gcode/parser.html#sec:G5-Cubic-Spline
+ * https://linuxcnc.org/docs/2.7/html/gcode/g-code.html#gcode:g5
  * However I, J omission is not supported at this point; all
  * parameters can be omitted and default to zero.
  */

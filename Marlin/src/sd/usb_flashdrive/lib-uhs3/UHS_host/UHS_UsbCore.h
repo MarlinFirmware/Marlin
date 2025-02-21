@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  http://www.circuitsathome.com
+Web      :  https://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -189,8 +189,8 @@ e-mail   :  support@circuitsathome.com
 #define                 UHS_USB_HOST_STATE_INITIALIZE 0x10U // Looks like "I"nit
 
 // Host SE result codes.
-// Common SE results are stored in the low nybble, all interface drivers understand these plus 0x1f.
-// Extended SE results are 0x10-0x1e. SE code only understands these internal to the hardware.
+// Common SE results are stored in the low nybble, all interface drivers understand these plus 0x1F.
+// Extended SE results are 0x10-0x1E. SE code only understands these internal to the hardware.
 // Values > 0x1F are driver or other internal error conditions.
 // Return these result codes from your host controller driver to match the error condition
 // ALL Non-zero values are errors.
@@ -248,7 +248,7 @@ e-mail   :  support@circuitsathome.com
 #define                      UHS_HOST_TRANSFER_MAX_MS 10000 // USB transfer timeout in ms, per section 9.2.6.1 of USB 2.0 spec
 #define               UHS_HOST_TRANSFER_RETRY_MAXIMUM 3     // 3 retry limit for a transfer
 #define                    UHS_HOST_DEBOUNCE_DELAY_MS 500   // settle delay in milliseconds
-#define                        UHS_HUB_RESET_DELAY_MS 20    // hub port reset delay, 10ms recomended, but can be up to 20ms
+#define                        UHS_HUB_RESET_DELAY_MS 20    // hub port reset delay, 10ms recommended, but can be up to 20ms
 
 //
 // We only provide the minimum needed information for enumeration.

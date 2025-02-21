@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -44,14 +44,14 @@ void GcodeSuite::M486() {
     cancelable.object_count = parser.intval('T', 1);
   }
 
-  if (parser.seen('S'))
+  if (parser.seenval('S'))
     cancelable.set_active_object(parser.value_int());
 
   if (parser.seen('C')) cancelable.cancel_active_object();
 
-  if (parser.seen('P')) cancelable.cancel_object(parser.value_int());
+  if (parser.seenval('P')) cancelable.cancel_object(parser.value_int());
 
-  if (parser.seen('U')) cancelable.uncancel_object(parser.value_int());
+  if (parser.seenval('U')) cancelable.uncancel_object(parser.value_int());
 }
 
 #endif // CANCEL_OBJECTS

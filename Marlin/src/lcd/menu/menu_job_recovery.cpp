@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,16 +26,16 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(POWER_LOSS_RECOVERY)
+#if BOTH(HAS_MARLINUI_MENU, POWER_LOSS_RECOVERY)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
 #include "../../feature/powerloss.h"
 
 static void lcd_power_loss_recovery_resume() {
   ui.return_to_status();
-  queue.inject_P(PSTR("M1000"));
+  queue.inject(F("M1000"));
 }
 
 void lcd_power_loss_recovery_cancel() {
@@ -54,4 +54,4 @@ void menu_job_recovery() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && POWER_LOSS_RECOVERY
+#endif // HAS_MARLINUI_MENU && POWER_LOSS_RECOVERY

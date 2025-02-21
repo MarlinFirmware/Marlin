@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,14 +27,17 @@
 
 #define BOARD_INFO_NAME "Anycubic RAMPS 1.3"
 
-#define IS_RAMPS_EFB
-#define RAMPS_D9_PIN         44
-#define FAN2_PIN              9
-#define ORIG_E0_AUTO_FAN_PIN  9
+#define MOSFET_B_PIN                         44
 
-#include "pins_RAMPS_13.h"
+#define E1_STEP_PIN                          -1
+#define E1_DIR_PIN                           -1
+#define E1_ENABLE_PIN                        -1
+#define E1_CS_PIN                            -1
 
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#undef E1_CS_PIN
+#define FAN2_PIN                              9
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     9
+#endif
+
+#include "pins_RAMPS_13.h" // ... RAMPS

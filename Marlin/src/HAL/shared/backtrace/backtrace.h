@@ -16,10 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // Perform a backtrace to the serial port
 void backtrace();
+
+// Perform a backtrace to the serial port
+void backtrace_ex(unsigned long sp, unsigned long lr, unsigned long pc);

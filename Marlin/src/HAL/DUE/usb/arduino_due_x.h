@@ -43,7 +43,7 @@
 #pragma once
 
 /**
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
  */
 
 /**
@@ -71,7 +71,7 @@
 /* ------------------------------------------------------------------------ */
 
 /**
- * \page arduino_due_x_board_info "Arduino Due/X - Board informations"
+ * \page arduino_due_x_board_info "Arduino Due/X - Board information"
  * This page lists several definition related to the board description.
  *
  */
@@ -93,5 +93,5 @@
 #define USB_VBOF_GPIO               (PIO_PB10_IDX)
 #define USB_VBOF_FLAGS              (PIO_PERIPH_A | PIO_DEFAULT)
 /*! Active level of the USB_VBOF output pin. */
-#define USB_VBOF_ACTIVE_LEVEL       LOW
+#define USB_VBOF_ACTIVE_STATE       LOW
 /* ------------------------------------------------------------------------ */

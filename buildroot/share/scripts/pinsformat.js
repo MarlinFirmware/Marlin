@@ -38,10 +38,12 @@ for (let m of mpatt) mexpr.push(new RegExp('^' + m + '$'));
 
 const argv = process.argv.slice(2), argc = argv.length;
 
-var src_file = 0, src_name = 'STDIN', dst_file;
+var src_file = 0, src_name = 'STDIN', dst_file, do_log = false;
 if (argc > 0) {
-  src_file = src_name = argv[0];
-  dst_file = argv[argc > 1 ? 1 : 0];
+  let ind = 0;
+  if (argv[0] == '-v') { do_log = true; ind++; }
+  dst_file = src_file = src_name = argv[ind++];
+  if (ind < argc) dst_file = argv[ind];
 }
 
 // Read from file or STDIN until it terminates
@@ -81,7 +83,7 @@ function process_text(txt) {
          aliasPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([A-Z_][A-Z0-9_()]+)\\s*(//.*)?$'),
         switchPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
          undefPatt = new RegExp('^(\\s*(//)?#undef)\\s+([A-Z_][A-Z0-9_]+)\\s*(//.*)?$'),
-           defPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+(\\w+)\\s*(//.*)?$'),
+           defPatt = new RegExp('^(\\s*(//)?#define)\\s+([A-Z_][A-Z0-9_]+)\\s+([-_\\w]+)\\s*(//.*)?$'),
           condPatt = new RegExp('^(\\s*(//)?#(if|ifn?def|else|elif)(\\s+\\S+)*)\\s+(//.*)$'),
           commPatt = new RegExp('^\\s{20,}(//.*)?$');
   const col_value_lj = col_comment - patt.pad - 2;
@@ -98,6 +100,7 @@ function process_text(txt) {
       //
       // #define MY_PIN [pin]
       //
+      if (do_log) console.log("pin:", line);
       const pinnum = r[4].charAt(0) == 'P' ? r[4] : r[4].lpad(patt.pad);
       line = r[1] + ' ' + r[3];
       line = line.rpad(col_value_lj) + pinnum;
@@ -107,31 +110,57 @@ function process_text(txt) {
       //
       // #define MY_PIN -1
       //
+      if (do_log) console.log("pin -1:", line);
       line = r[1] + ' ' + r[3];
       line = line.rpad(col_value_lj) + '-1';
       if (r[5]) line = line.rpad(col_comment) + r[5];
     }
     else if ((r = skipPatt.exec(line)) !== null) {
+      //
+      // #define SKIP_ME
+      //
+      if (do_log) console.log("skip:", line);
     }
     else if ((r = aliasPatt.exec(line)) !== null) {
+      //
+      // #define ALIAS OTHER
+      //
+      if (do_log) console.log("alias:", line);
       line = r[1] + ' ' + r[3];
       line += r[4].lpad(col_value_rj + 1 - line.length);
       if (r[5]) line = line.rpad(col_comment) + r[5];
     }
     else if ((r = switchPatt.exec(line)) !== null) {
+      //
+      // #define SWITCH
+      //
+      if (do_log) console.log("switch:", line);
       line = r[1] + ' ' + r[3];
       if (r[4]) line = line.rpad(col_comment) + r[4];
       check_comment_next = true;
     }
     else if ((r = defPatt.exec(line)) !== null) {
-      line = r[1] + ' ' + r[3] + ' ' + r[4];
-      if (r[5]) line = line.rpad(col_comment) + r[5];
+      //
+      // #define ...
+      //
+      if (do_log) console.log("def:", line);
+      line = r[1] + ' ' + r[3] + ' ';
+      line += r[4].lpad(col_value_rj + 1 - line.length);
+      if (r[5]) line = line.rpad(col_comment - 1) + ' ' + r[5];
     }
     else if ((r = undefPatt.exec(line)) !== null) {
+      //
+      // #undef ...
+      //
+      if (do_log) console.log("undef:", line);
       line = r[1] + ' ' + r[3];
       if (r[4]) line = line.rpad(col_comment) + r[4];
     }
     else if ((r = condPatt.exec(line)) !== null) {
+      //
+      // #if ...
+      //
+      if (do_log) console.log("cond:", line);
       line = r[1].rpad(col_comment) + r[5];
       check_comment_next = true;
     }

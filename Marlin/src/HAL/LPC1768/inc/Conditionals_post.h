@@ -16,11 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if USE_FALLBACK_EEPROM && NONE(SDCARD_EEPROM_EMULATION, SRAM_EEPROM_EMULATION)
+#if USE_FALLBACK_EEPROM
   #define FLASH_EEPROM_EMULATION
+#elif EITHER(I2C_EEPROM, SPI_EEPROM)
+  #define USE_SHARED_EEPROM 1
+#endif
+
+// LPC1768 boards seem to lose steps when saving to EEPROM during print (issue #20785)
+// TODO: Which other boards are incompatible?
+#if defined(MCU_LPC1768) && PRINTCOUNTER_SAVE_INTERVAL > 0
+  #define PRINTCOUNTER_SYNC 1
 #endif

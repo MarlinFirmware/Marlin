@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,7 +25,7 @@
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
+#include "../../module/planner.h"
 
 /**
  * M540: Set whether SD card print should abort on endstop hit (M540 S<0|1>)

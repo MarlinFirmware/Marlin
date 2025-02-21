@@ -17,23 +17,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include "../platforms.h"
 
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#ifdef HAL_STM32
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(EEPROM_SETTINGS, FLASH_EEPROM_EMULATION)
+#if ENABLED(FLASH_EEPROM_EMULATION)
 
 #include "../shared/eeprom_api.h"
 
-
-// Only STM32F4 can support wear leveling at this time
-#ifndef STM32F4xx
-  #undef FLASH_EEPROM_LEVELING
-#endif
+// Better: "utility/stm32_eeprom.h", but only after updating stm32duino to 2.0.0
+// Use EEPROM.h for compatibility, for now.
+#include <EEPROM.h>
 
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
@@ -55,10 +54,10 @@
   #include "stm32_def.h"
 
   #define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
-  #include "src/core/debug_out.h"
+  #include "../../core/debug_out.h"
 
-  #ifndef EEPROM_SIZE
-    #define EEPROM_SIZE           0x1000  // 4kB
+  #ifndef MARLIN_EEPROM_SIZE
+    #define MARLIN_EEPROM_SIZE    0x1000 // 4KB
   #endif
 
   #ifndef FLASH_SECTOR
@@ -68,11 +67,13 @@
     #define FLASH_UNIT_SIZE       0x20000 // 128kB
   #endif
 
-  #define FLASH_ADDRESS_START     (FLASH_END - ((FLASH_SECTOR_TOTAL - FLASH_SECTOR) * FLASH_UNIT_SIZE) + 1)
+  #ifndef FLASH_ADDRESS_START
+    #define FLASH_ADDRESS_START   (FLASH_END - ((FLASH_SECTOR_TOTAL - (FLASH_SECTOR)) * (FLASH_UNIT_SIZE)) + 1)
+  #endif
   #define FLASH_ADDRESS_END       (FLASH_ADDRESS_START + FLASH_UNIT_SIZE  - 1)
 
-  #define EEPROM_SLOTS            (FLASH_UNIT_SIZE/EEPROM_SIZE)
-  #define SLOT_ADDRESS(slot)      (FLASH_ADDRESS_START + (slot * EEPROM_SIZE))
+  #define EEPROM_SLOTS            ((FLASH_UNIT_SIZE) / (MARLIN_EEPROM_SIZE))
+  #define SLOT_ADDRESS(slot)      (FLASH_ADDRESS_START + (slot * (MARLIN_EEPROM_SIZE)))
 
   #define UNLOCK_FLASH()          if (!flash_unlocked) { \
                                     HAL_FLASH_Unlock(); \
@@ -85,12 +86,12 @@
   #define EMPTY_UINT32            ((uint32_t)-1)
   #define EMPTY_UINT8             ((uint8_t)-1)
 
-  static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
+  static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
   static int current_slot = -1;
 
-  static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE must be a multiple of 4"); // Ensure copying as uint32_t is safe
-  static_assert(0 == FLASH_UNIT_SIZE % EEPROM_SIZE, "EEPROM_SIZE must divide evenly into your FLASH_UNIT_SIZE");
-  static_assert(FLASH_UNIT_SIZE >= EEPROM_SIZE, "FLASH_UNIT_SIZE must be greater than or equal to your EEPROM_SIZE");
+  static_assert(0 == MARLIN_EEPROM_SIZE % 4, "MARLIN_EEPROM_SIZE must be a multiple of 4"); // Ensure copying as uint32_t is safe
+  static_assert(0 == FLASH_UNIT_SIZE % MARLIN_EEPROM_SIZE, "MARLIN_EEPROM_SIZE must divide evenly into your FLASH_UNIT_SIZE");
+  static_assert(FLASH_UNIT_SIZE >= MARLIN_EEPROM_SIZE, "FLASH_UNIT_SIZE must be greater than or equal to your MARLIN_EEPROM_SIZE");
   static_assert(IS_FLASH_SECTOR(FLASH_SECTOR), "FLASH_SECTOR is invalid");
   static_assert(IS_POWER_OF_2(FLASH_UNIT_SIZE), "FLASH_UNIT_SIZE should be a power of 2, please check your chip's spec sheet");
 
@@ -98,7 +99,14 @@
 
 static bool eeprom_data_written = false;
 
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
+#endif
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+
 bool PersistentStore::access_start() {
+
+  EEPROM.begin(); // Avoid STM32 EEPROM.h warning (do nothing)
 
   #if ENABLED(FLASH_EEPROM_LEVELING)
 
@@ -106,26 +114,26 @@ bool PersistentStore::access_start() {
       // This must be the first time since power on that we have accessed the storage, or someone
       // loaded and called write_data and never called access_finish.
       // Lets go looking for the slot that holds our configuration.
-      if (eeprom_data_written) DEBUG_ECHOLN("Dangling EEPROM write_data");
+      if (eeprom_data_written) DEBUG_ECHOLNPGM("Dangling EEPROM write_data");
       uint32_t address = FLASH_ADDRESS_START;
       while (address <= FLASH_ADDRESS_END) {
         uint32_t address_value = (*(__IO uint32_t*)address);
         if (address_value != EMPTY_UINT32) {
-          current_slot = (address - FLASH_ADDRESS_START) / EEPROM_SIZE;
+          current_slot = (address - (FLASH_ADDRESS_START)) / (MARLIN_EEPROM_SIZE);
           break;
         }
         address += sizeof(uint32_t);
       }
       if (current_slot == -1) {
-        // We didn't find anything, so we'll just intialize to empty
-        for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
+        // We didn't find anything, so we'll just initialize to empty
+        for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
         current_slot = EEPROM_SLOTS;
       }
       else {
         // load current settings
         uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
-        for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
-        DEBUG_ECHOLNPAIR("EEPROM loaded from slot ", current_slot, ".");
+        for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
+        DEBUG_ECHOLNPGM("EEPROM loaded from slot ", current_slot, ".");
       }
       eeprom_data_written = false;
     }
@@ -140,6 +148,11 @@ bool PersistentStore::access_start() {
 bool PersistentStore::access_finish() {
 
   if (eeprom_data_written) {
+    #ifdef STM32F4xx
+      // MCU may come up with flash error bits which prevent some flash operations.
+      // Clear flags prior to flash operations to prevent errors.
+      __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+    #endif
 
     #if ENABLED(FLASH_EEPROM_LEVELING)
 
@@ -160,11 +173,15 @@ bool PersistentStore::access_finish() {
         current_slot = EEPROM_SLOTS - 1;
         UNLOCK_FLASH();
 
+        TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+        hal.isr_off();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
+        hal.isr_on();
+        TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
-          DEBUG_ECHOLNPAIR("HAL_FLASHEx_Erase=", status);
-          DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPAIR("SectorError=", SectorError);
+          DEBUG_ECHOLNPGM("HAL_FLASHEx_Erase=", status);
+          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLNPGM("SectorError=", SectorError);
           LOCK_FLASH();
           return false;
         }
@@ -174,7 +191,7 @@ bool PersistentStore::access_finish() {
 
       uint32_t offset = 0;
       uint32_t address = SLOT_ADDRESS(current_slot);
-      uint32_t address_end = address + EEPROM_SIZE;
+      uint32_t address_end = address + MARLIN_EEPROM_SIZE;
       uint32_t data = 0;
 
       bool success = true;
@@ -187,9 +204,9 @@ bool PersistentStore::access_finish() {
           offset += sizeof(uint32_t);
         }
         else {
-          DEBUG_ECHOLNPAIR("HAL_FLASH_Program=", status);
-          DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
-          DEBUG_ECHOLNPAIR("address=", address);
+          DEBUG_ECHOLNPGM("HAL_FLASH_Program=", status);
+          DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
+          DEBUG_ECHOLNPGM("address=", address);
           success = false;
           break;
         }
@@ -199,13 +216,24 @@ bool PersistentStore::access_finish() {
 
       if (success) {
         eeprom_data_written = false;
-        DEBUG_ECHOLNPAIR("EEPROM saved to slot ", current_slot, ".");
+        DEBUG_ECHOLNPGM("EEPROM saved to slot ", current_slot, ".");
       }
 
       return success;
 
     #else
+      // The following was written for the STM32F4 but may work with other MCUs as well.
+      // Most STM32F4 flash does not allow reading from flash during erase operations.
+      // This takes about a second on a STM32F407 with a 128kB sector used as EEPROM.
+      // Interrupts during this time can have unpredictable results, such as killing Servo
+      // output. Servo output still glitches with interrupts disabled, but recovers after the
+      // erase.
+      TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+      hal.isr_off();
       eeprom_buffer_flush();
+      hal.isr_on();
+      TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
+
       eeprom_data_written = false;
     #endif
   }
@@ -234,15 +262,9 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    const uint8_t c = (
-      #if ENABLED(FLASH_EEPROM_LEVELING)
-        ram_eeprom[pos]
-      #else
-        eeprom_buffered_read_byte(pos)
-      #endif
-    );
+    const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[pos], eeprom_buffered_read_byte(pos));
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
@@ -251,15 +273,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-size_t PersistentStore::capacity() {
-  return (
-    #if ENABLED(FLASH_EEPROM_LEVELING)
-      EEPROM_SIZE
-    #else
-      E2END + 1
-    #endif
-  );
-}
-
-#endif // EEPROM_SETTINGS && FLASH_EEPROM_EMULATION
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // FLASH_EEPROM_EMULATION
+#endif // HAL_STM32

@@ -16,7 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+//
+// Board-specific options need to be defined before HAL.h
+//
+#if MB(MKS_TINYBEE)
+  #define MAX_EXPANDER_BITS 24  // TinyBee has 3 x HC595
+#endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -35,11 +35,7 @@ void GcodeSuite::M105() {
 
   #if HAS_TEMP_SENSOR
 
-    thermalManager.print_heater_states(target_extruder
-      #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-        , parser.boolval('R')
-      #endif
-    );
+    thermalManager.print_heater_states(target_extruder OPTARG(HAS_TEMP_REDUNDANT, parser.boolval('R')));
 
     SERIAL_EOL();
 

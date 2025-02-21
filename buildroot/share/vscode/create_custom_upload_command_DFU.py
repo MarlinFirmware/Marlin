@@ -10,7 +10,6 @@
 #
 
 import os
-import sys
 from SCons.Script import DefaultEnvironment
 import platform
 current_OS = platform.system()

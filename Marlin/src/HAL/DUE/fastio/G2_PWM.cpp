@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,7 +25,7 @@
  * is NOT used to directly toggle pins. The ISR writes to the pin assigned to
  * that interrupt.
  *
- * All PWMs use the same repetition rate.  The G2 needs about 10KHz min in order to
+ * All PWMs use the same repetition rate.  The G2 needs about 10kHz min in order to
  * not have obvious ripple on the Vref signals.
  *
  * The data structures are setup to minimize the computation done by the ISR which
@@ -154,7 +154,7 @@ void Stepper::digipot_init() {
   NVIC_SetPriority(PWM_IRQn, NVIC_EncodePriority(0, 10, 0));  // normal priority for PWM module (can stand some jitter on the Vref signals)
 }
 
-void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
+void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
 
   if (!(PWM->PWM_CH_NUM[0].PWM_CPRD == PWM_PERIOD_US)) digipot_init();  // Init PWM system if needed
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,7 +29,6 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-#include "timers.h"
 
 void HAL_timer_init() {
   SBI(LPC_SC->PCONP, SBIT_TIMER0);  // Power ON Timer 0
@@ -41,7 +40,7 @@ void HAL_timer_init() {
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
-    case 0:
+    case MF_TIMER_STEP:
       LPC_TIM0->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
       LPC_TIM0->MR0 = uint32_t(STEPPER_TIMER_RATE) / frequency; // Match value (period) to set frequency
       LPC_TIM0->TCR = _BV(SBIT_CNTEN); // Counter Enable
@@ -50,7 +49,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       NVIC_EnableIRQ(TIMER0_IRQn);
       break;
 
-    case 1:
+    case MF_TIMER_TEMP:
       LPC_TIM1->MCR = _BV(SBIT_MR0I) | _BV(SBIT_MR0R); // Match on MR0, reset on MR0, interrupts when NVIC enables them
       LPC_TIM1->MR0 = uint32_t(TEMP_TIMER_RATE) / frequency;
       LPC_TIM1->TCR = _BV(SBIT_CNTEN); // Counter Enable

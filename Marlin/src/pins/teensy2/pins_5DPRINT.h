@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -68,9 +68,7 @@
  * https://bitbucket.org/makible/5dprint-d8-controller-board
  */
 
-#ifndef __AVR_AT90USB1286__
-  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_INFO_NAME      "5DPrint D8"
@@ -144,5 +142,5 @@
 
 //DIGIPOTS slave addresses
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A 0x2C              // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+  #define DIGIPOT_I2C_ADDRESS_A             0x2C  // unshifted slave address for DIGIPOT 0x2C (0x58 <- 0x2C << 1)
 #endif

@@ -40,6 +40,9 @@
 #include <boards.h>
 #include <wirish.h>
 
+#include "../../inc/MarlinConfig.h"
+#include "spi_pins.h"
+
 /** Time in ms for DMA receive timeout */
 #define DMA_TIMEOUT 100
 
@@ -87,6 +90,14 @@ static const spi_pins board_spi_pins[] __FLASH__ = {
 #if BOARD_NR_SPI >= 3
   static void *_spi3_this;
 #endif
+
+/**
+ * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
+ */
+static inline void waitSpiTxEnd(spi_dev *spi_d) {
+  while (spi_is_tx_empty(spi_d) == 0) { /* nada */ } // wait until TXE=1
+  while (spi_is_busy(spi_d) != 0) { /* nada */ }     // wait until BSY=0
+}
 
 /**
  * Constructor
@@ -142,6 +153,18 @@ SPIClass::SPIClass(uint32_t spi_num) {
 
   // added for DMA callbacks.
   _currentSetting->state = SPI_STATE_IDLE;
+}
+
+SPIClass::SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel) : SPIClass(1) {
+  #if BOARD_NR_SPI >= 1
+    if (mosi == BOARD_SPI1_MOSI_PIN) setModule(1);
+  #endif
+  #if BOARD_NR_SPI >= 2
+    if (mosi == BOARD_SPI2_MOSI_PIN) setModule(2);
+  #endif
+  #if BOARD_NR_SPI >= 3
+    if (mosi == BOARD_SPI3_MOSI_PIN) setModule(3);
+  #endif
 }
 
 /**
@@ -216,7 +239,7 @@ void SPIClass::setDataMode(uint8_t dataMode) {
   /**
    * Notes:
    * As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
-   * From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
+   * From the AVR doc https://www.atmel.com/images/doc2585.pdf section 2.4
    *
    * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
    * 0       0     0     Falling     Rising
@@ -243,7 +266,7 @@ void SPIClass::setDataMode(uint8_t dataMode) {
   _currentSetting->spi_d->regs->CR1 = cr1 | (dataMode & (SPI_CR1_CPOL|SPI_CR1_CPHA));
 }
 
-void SPIClass::beginTransaction(uint8_t pin, SPISettings settings) {
+void SPIClass::beginTransaction(uint8_t pin, const SPISettings &settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
@@ -251,7 +274,7 @@ void SPIClass::beginTransaction(uint8_t pin, SPISettings settings) {
   begin();
 }
 
-void SPIClass::beginTransactionSlave(SPISettings settings) {
+void SPIClass::beginTransactionSlave(const SPISettings &settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
@@ -266,7 +289,7 @@ void SPIClass::endTransaction() { }
 
 uint16_t SPIClass::read() {
   while (!spi_is_rx_nonempty(_currentSetting->spi_d)) { /* nada */ }
-  return (uint16)spi_rx_reg(_currentSetting->spi_d);
+  return (uint16_t)spi_rx_reg(_currentSetting->spi_d);
 }
 
 void SPIClass::read(uint8_t *buf, uint32_t len) {
@@ -277,7 +300,7 @@ void SPIClass::read(uint8_t *buf, uint32_t len) {
   regs->DR = 0x00FF;            // write the first byte
   // main loop
   while (--len) {
-    while(!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
+    while (!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
     noInterrupts();    // go atomic level - avoid interrupts to surely get the previously received data
     regs->DR = 0x00FF; // write the next data item to be transmitted into the SPI_DR register. This clears the TXE flag.
     while (!(regs->SR & SPI_SR_RXNE)) { /* nada */ } // wait till data is available in the DR register
@@ -348,8 +371,8 @@ uint16_t SPIClass::transfer16(uint16_t data) const {
 /**
  * Roger Clark and Victor Perez, 2015
  * Performs a DMA SPI transfer with at least a receive buffer.
- * If a TX buffer is not provided, FF is sent over and over for the lenght of the transfer.
- * On exit TX buffer is not modified, and RX buffer cotains the received data.
+ * If a TX buffer is not provided, FF is sent over and over for the length of the transfer.
+ * On exit TX buffer is not modified, and RX buffer contains the received data.
  * Still in progress.
  */
 void SPIClass::dmaTransferSet(const void *transmitBuf, void *receiveBuf) {
@@ -653,7 +676,7 @@ static const spi_pins* dev_to_spi_pins(spi_dev *dev) {
     #if BOARD_NR_SPI >= 3
       case RCC_SPI3: return board_spi_pins + 2;
     #endif
-    default: return NULL;
+    default: return nullptr;
   }
 }
 
@@ -710,6 +733,6 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   return baud_rates[i];
 }
 
-SPIClass SPI(1);
+SPIClass SPI(SPI_DEVICE);
 
 #endif // __STM32F1__

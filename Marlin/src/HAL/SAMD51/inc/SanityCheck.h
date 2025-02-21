@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,8 +31,13 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if defined(MAX6675_SCK_PIN) && defined(MAX6675_DO_PIN) && (MAX6675_SCK_PIN == SCK1 || MAX6675_DO_PIN == MISO1)
+#if (defined(TEMP_0_SCK_PIN) && defined(TEMP_0_MISO_PIN) && (TEMP_0_SCK_PIN == SCK1 || TEMP_0_MISO_PIN == MISO1)) || \
+    (defined(TEMP_1_SCK_PIN) && defined(TEMP_1_MISO_PIN) && (TEMP_1_SCK_PIN == SCK1 || TEMP_1_MISO_PIN == MISO1))
   #error "OnBoard SPI BUS can't be shared with other devices."
+#endif
+
+#if SERVO_TC == MF_TIMER_RTC
+  #error "Servos can't use RTC timer"
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -43,6 +48,10 @@
   #error "SDIO_SUPPORT is not supported on SAMD51."
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on SAMD51."
+#endif
+
+#if ENABLED(POSTMORTEM_DEBUGGING)
+  #error "POSTMORTEM_DEBUGGING is not yet supported on AGCM4."
 #endif

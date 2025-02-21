@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __PLAT_LINUX__
 
 #include <random>
@@ -52,7 +51,7 @@ void LinearAxis::update() {
 }
 
 void LinearAxis::interrupt(GpioEvent ev) {
-  if (ev.pin_id == step_pin && !Gpio::pin_map[enable_pin].value){
+  if (ev.pin_id == step_pin && !Gpio::pin_map[enable_pin].value) {
     if (ev.event == GpioEvent::RISE) {
       last_update = ev.timestamp;
       position += -1 + 2 * Gpio::pin_map[dir_pin].value;

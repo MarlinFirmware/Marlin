@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,11 +24,19 @@
 
 #if ENABLED(PLATFORM_M997_SUPPORT)
 
+#if ENABLED(DWIN_LCD_PROUI)
+  #include "../../lcd/e3v2/proui/dwin.h"
+#endif
+
 /**
  * M997: Perform in-application firmware update
  */
 void GcodeSuite::M997() {
+
+  TERN_(DWIN_LCD_PROUI, DWIN_RebootScreen());
+
   flashFirmware(parser.intval('S'));
+
 }
 
 #endif

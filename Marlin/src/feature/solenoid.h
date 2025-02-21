@@ -16,12 +16,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-void enable_solenoid_on_active_extruder();
 void disable_all_solenoids();
 void enable_solenoid(const uint8_t num);
 void disable_solenoid(const uint8_t num);

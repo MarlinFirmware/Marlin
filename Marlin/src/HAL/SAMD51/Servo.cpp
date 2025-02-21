@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,11 +29,9 @@
 
 #if HAS_SERVOS
 
-#include "../shared/Marduino.h"
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 #include "SAMD51.h"
-#include "timers.h"
 
 #define __TC_GCLK_ID(t)         TC##t##_GCLK_ID
 #define _TC_GCLK_ID(t)          __TC_GCLK_ID(t)
@@ -55,7 +53,7 @@
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
 FORCE_INLINE static uint16_t getTimerCount() {
-  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
+  Tc * const tc = timer_config[SERVO_TC].pTc;
 
   tc->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
   SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB || tc->COUNT16.SYNCBUSY.bit.COUNT);
@@ -67,7 +65,7 @@ FORCE_INLINE static uint16_t getTimerCount() {
 // Interrupt handler for the TC
 // ----------------------------
 HAL_SERVO_TIMER_ISR() {
-  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
+  Tc * const tc = timer_config[SERVO_TC].pTc;
   const timer16_Sequence_t timer =
     #ifndef _useTimer1
       _timer2
@@ -79,7 +77,8 @@ HAL_SERVO_TIMER_ISR() {
   ;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
-  if (currentServoIndex[timer] < 0) {
+  int8_t cho = currentServoIndex[timer];                // Handle the prior servo first
+  if (cho < 0) {                                        // Servo -1 indicates the refresh interval completed...
     #if defined(_useTimer1) && defined(_useTimer2)
       if (currentServoIndex[timer ^ 1] >= 0) {
         // Wait for both channels
@@ -88,46 +87,38 @@ HAL_SERVO_TIMER_ISR() {
         return;
       }
     #endif
-    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;
+    tc->COUNT16.COUNT.reg = TC_COUNTER_START_VAL;       // ...so reset the timer
     SYNC(tc->COUNT16.SYNCBUSY.bit.COUNT);
   }
-  else if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && SERVO(timer, currentServoIndex[timer]).Pin.isActive)
-    digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, LOW);      // pulse this channel low if activated
+  else if (SERVO_INDEX(timer, cho) < ServoCount)        // prior channel handled?
+    digitalWrite(SERVO(timer, cho).Pin.nbr, LOW);       // pulse the prior channel LOW
 
-  // Select the next servo controlled by this timer
-  currentServoIndex[timer]++;
+  currentServoIndex[timer] = ++cho;                     // go to the next channel (or 0)
+  if (cho < SERVOS_PER_TIMER && SERVO_INDEX(timer, cho) < ServoCount) {
+    if (SERVO(timer, cho).Pin.isActive)                 // activated?
+      digitalWrite(SERVO(timer, cho).Pin.nbr, HIGH);    // yes: pulse HIGH
 
-  if (SERVO_INDEX(timer, currentServoIndex[timer]) < ServoCount && currentServoIndex[timer] < SERVOS_PER_TIMER) {
-    if (SERVO(timer, currentServoIndex[timer]).Pin.isActive)                // check if activated
-      digitalWrite(SERVO(timer, currentServoIndex[timer]).Pin.nbr, HIGH);   // it's an active channel so pulse it high
-
-    tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)SERVO(timer, currentServoIndex[timer]).ticks;
+    tc->COUNT16.CC[tcChannel].reg = getTimerCount() - (uint16_t)SERVO(timer, cho).ticks;
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    currentServoIndex[timer] = -1;   // this will get incremented at the end of the refresh period to start again at the first channel
-
-    const uint16_t tcCounterValue = getTimerCount();
-
-    if ((TC_COUNTER_START_VAL - tcCounterValue) + 4UL < usToTicks(REFRESH_INTERVAL))  // allow a few ticks to ensure the next OCR1A not missed
-      tc->COUNT16.CC[tcChannel].reg = TC_COUNTER_START_VAL - (uint16_t)usToTicks(REFRESH_INTERVAL);
-    else
-      tc->COUNT16.CC[tcChannel].reg = (uint16_t)(tcCounterValue - 4UL);               // at least REFRESH_INTERVAL has elapsed
+    currentServoIndex[timer] = -1;                                          // reset the timer COUNT.reg on the next call
+    const uint16_t cval = getTimerCount() - 256 / (SERVO_TIMER_PRESCALER),  // allow 256 cycles to ensure the next CV not missed
+                   ival = (TC_COUNTER_START_VAL) - (uint16_t)usToTicks(REFRESH_INTERVAL); // at least REFRESH_INTERVAL has elapsed
+    tc->COUNT16.CC[tcChannel].reg = min(cval, ival);
   }
   if (tcChannel == 0) {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CC0);
-    // Clear the interrupt
-    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC0;
+    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC0; // Clear the interrupt
   }
   else {
     SYNC(tc->COUNT16.SYNCBUSY.bit.CC1);
-    // Clear the interrupt
-    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC1;
+    tc->COUNT16.INTFLAG.reg = TC_INTFLAG_MC1; // Clear the interrupt
   }
 }
 
-void initISR(timer16_Sequence_t timer) {
-  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
+void initISR(const timer16_Sequence_t timer) {
+  Tc * const tc = timer_config[SERVO_TC].pTc;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
   static bool initialized = false;  // Servo TC has been initialized
@@ -203,9 +194,9 @@ void initISR(timer16_Sequence_t timer) {
   }
 }
 
-void finISR(timer16_Sequence_t timer) {
-  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
-  const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
+void finISR(const timer16_Sequence_t timer_index) {
+  Tc * const tc = timer_config[SERVO_TC].pTc;
+  const uint8_t tcChannel = TIMER_TCCHANNEL(timer_index);
 
   // Disable the match channel interrupt request
   tc->COUNT16.INTENCLR.reg = (tcChannel == 0) ? TC_INTENCLR_MC0 : TC_INTENCLR_MC1;

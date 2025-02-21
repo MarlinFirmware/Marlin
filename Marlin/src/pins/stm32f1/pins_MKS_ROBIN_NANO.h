@@ -16,122 +16,36 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * MKS Robin nano (STM32F130VET6) board pin assignments
+ * MKS Robin nano (STM32F103VET6) board pin assignments
+ * https://github.com/makerbase-mks/MKS-Robin-Nano-V1.X/tree/master/hardware
  */
 
-#ifndef __STM32F1__
-  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
-#endif
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
 
-#define BOARD_INFO_NAME "MKS Robin nano"
+#define BOARD_INFO_NAME "MKS Robin Nano"
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-#define DISABLE_DEBUG
-
-//
-// Limit Switches
-//
-#define X_STOP_PIN                          PA15
-#define Y_STOP_PIN                          PA12
-#define Z_MIN_PIN                           PA11
-#define Z_MAX_PIN                           PC4
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
-#endif
-
-//
-// Steppers
-//
-#define X_ENABLE_PIN                        PE4
-#define X_STEP_PIN                          PE3
-#define X_DIR_PIN                           PE2
-
-#define Y_ENABLE_PIN                        PE1
-#define Y_STEP_PIN                          PE0
-#define Y_DIR_PIN                           PB9
-
-#define Z_ENABLE_PIN                        PB8
-#define Z_STEP_PIN                          PB5
-#define Z_DIR_PIN                           PB4
-
-#define E0_ENABLE_PIN                       PB3
-#define E0_STEP_PIN                         PD6
-#define E0_DIR_PIN                          PD3
-
-#define E1_ENABLE_PIN                       PA3
-#define E1_STEP_PIN                         PA6
-#define E1_DIR_PIN                          PA1
-
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN                          PC1   // TH1
-#define TEMP_1_PIN                          PC2   // TH2
-#define TEMP_BED_PIN                        PC0   // TB1
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN                        PC3   // HEATER1
-#define HEATER_1_PIN                        PB0   // HEATER2
-#define HEATER_BED_PIN                      PA0   // HOT BED
-
-#define FAN_PIN                             PB1   // FAN
+#define DISABLE_JTAG
 
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define TEMP_0_CS_PIN                     PE5   // TC1 - CS1
+//#define TEMP_0_CS_PIN                     PE6   // TC2 - CS2
 
-//
-// Misc. Functions
-//
-#define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PA3   // PW_OFF
+//#define LED_PIN                           PB2
 
-#define LED_PIN                             PB2
+#include "pins_MKS_ROBIN_NANO_common.h"
 
-//
-// SD Card
-//
-#define SDIO_SUPPORT
-#define SD_DETECT_PIN                       PD12
-
-//
-// LCD / Controller
-//
-#define BEEPER_PIN                          PC5
-
-/**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- */
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
-
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #if ENABLED(TOUCH_BUTTONS)
-    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
-  #endif
+#if HAS_TFT_LVGL_UI && FAN1_PIN != PB0 && HEATER_1_PIN != PB0
+  #define BOARD_INIT() OUT_WRITE(PB0, LOW)
 #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,16 +32,7 @@
  * G10 - Retract filament according to settings of M207
  *       TODO: Handle 'G10 P' for tool settings and 'G10 L' for workspace settings
  */
-void GcodeSuite::G10() {
-  #if EXTRUDERS > 1
-    const bool rs = parser.boolval('S');
-  #endif
-  fwretract.retract(true
-    #if EXTRUDERS > 1
-      , rs
-    #endif
-  );
-}
+void GcodeSuite::G10() { fwretract.retract(true E_OPTARG(parser.boolval('S'))); }
 
 /**
  * G11 - Recover filament according to settings of M208

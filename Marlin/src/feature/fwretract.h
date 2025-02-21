@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -42,8 +42,8 @@ typedef struct {
 
 class FWRetract {
 private:
-  #if EXTRUDERS > 1
-    static bool retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+  #if HAS_MULTI_EXTRUDER
+    static Flags<EXTRUDERS> retracted_swap;        // Which extruders are swap-retracted
   #endif
 
 public:
@@ -55,7 +55,7 @@ public:
     static constexpr bool autoretract_enabled = false;
   #endif
 
-  static bool retracted[EXTRUDERS];                // Which extruders are currently retracted
+  static Flags<EXTRUDERS> retracted;               // Which extruders are currently retracted
   static float current_retract[EXTRUDERS],         // Retract value used by planner
                current_hop;                        // Hop value used by planner
 
@@ -63,9 +63,7 @@ public:
 
   static void reset();
 
-  static void refresh_autoretract() {
-    LOOP_L_N(i, EXTRUDERS) retracted[i] = false;
-  }
+  static void refresh_autoretract() { retracted.reset(); }
 
   static void enable_autoretract(const bool enable) {
     #if ENABLED(FWRETRACT_AUTORETRACT)
@@ -74,11 +72,16 @@ public:
     #endif
   }
 
-  static void retract(const bool retracting
-    #if EXTRUDERS > 1
-      , bool swapping = false
-    #endif
-  );
+  static void retract(const bool retracting E_OPTARG(bool swapping=false));
+
+  static void M207_report();
+  static void M207();
+  static void M208_report();
+  static void M208();
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    static void M209_report();
+    static void M209();
+  #endif
 };
 
 extern FWRetract fwretract;

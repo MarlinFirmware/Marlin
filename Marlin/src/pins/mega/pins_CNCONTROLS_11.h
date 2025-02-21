@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,8 @@
  * CartesioV11 pin assignments
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#define ALLOW_MEGA1280
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "CN Controls V11"
 
@@ -95,10 +94,22 @@
   //#define FAN_PIN                            7  // common PWM pin for all tools
 #endif
 
-#define ORIG_E0_AUTO_FAN_PIN                   7
-#define ORIG_E1_AUTO_FAN_PIN                   7
-#define ORIG_E2_AUTO_FAN_PIN                   7
-#define ORIG_E3_AUTO_FAN_PIN                   7
+//
+// Auto fans
+//
+#define AUTO_FAN_PIN                           7
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // Misc. Functions
@@ -124,22 +135,25 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                             6
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                           6
 
-// Pins for DOGM SPI LCD Support
-#define DOGLCD_A0                             26
-#define DOGLCD_CS                             24
-#define DOGLCD_MOSI                           -1
-#define DOGLCD_SCK                            -1
+  #define BTN_EN1                             23
+  #define BTN_EN2                             25
+  #define BTN_ENC                             27
 
-#define BTN_EN1                               23
-#define BTN_EN2                               25
-#define BTN_ENC                               27
+  #if HAS_MARLINUI_U8GLIB
+    #define DOGLCD_A0                         26
+    #define DOGLCD_CS                         24
+    #define DOGLCD_MOSI                       -1  // Prevent auto-define by Conditionals_post.h
+    #define DOGLCD_SCK                        -1
+  #endif
+#endif
 
 // Hardware buttons for manual movement of XYZ
-#define SHIFT_OUT                             19
-#define SHIFT_LD                              18
-#define SHIFT_CLK                             17
+#define SHIFT_OUT_PIN                         19
+#define SHIFT_LD_PIN                          18
+#define SHIFT_CLK_PIN                         17
 
 //#define UI1                                 31
 //#define UI2                                 22

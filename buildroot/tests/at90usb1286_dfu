@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#
+# Build tests for AT90USB1286 ARMED
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_PRINTRBOARD
+exec_test $1 $2 "Printrboard Configuration" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_PRINTRBOARD_REVF
+opt_enable MINIPANEL
+exec_test $1 $2 "Printrboard RevF with MiniPanel and Stepper DAC (in pins file)" "$3"
+
+# clean up
+restore_configs

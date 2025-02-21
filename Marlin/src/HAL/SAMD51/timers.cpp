@@ -15,38 +15,38 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __SAMD51__
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
+
 #include "../../inc/MarlinConfig.h"
-#include "timers.h"
+#include "ServoTimers.h" // for SERVO_TC
 
 // --------------------------------------------------------------------------
 // Local defines
 // --------------------------------------------------------------------------
 
-#define NUM_HARDWARE_TIMERS 8
+#define NUM_HARDWARE_TIMERS 9
 
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
 
-const tTimerConfig TimerConfig[NUM_HARDWARE_TIMERS+1] = {
-  { {.pTc=TC0},  TC0_IRQn, TC_PRIORITY(0) },  // 0 - stepper
+const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
+  { {.pTc=TC0},  TC0_IRQn, TC_PRIORITY(0) },  // 0 - stepper (assigned priority 2)
   { {.pTc=TC1},  TC1_IRQn, TC_PRIORITY(1) },  // 1 - stepper (needed by 32 bit timers)
-  { {.pTc=TC2},  TC2_IRQn, TC_PRIORITY(2) },  // 2 - tone (framework)
-  { {.pTc=TC3},  TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo
-  { {.pTc=TC4},  TC4_IRQn, TC_PRIORITY(4) },  // 4 - software serial
+  { {.pTc=TC2},  TC2_IRQn, 5              },  // 2 - tone (reserved by framework and fixed assigned priority 5)
+  { {.pTc=TC3},  TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo (assigned priority 1)
+  { {.pTc=TC4},  TC4_IRQn, TC_PRIORITY(4) },  // 4 - software serial (no interrupts used)
   { {.pTc=TC5},  TC5_IRQn, TC_PRIORITY(5) },
   { {.pTc=TC6},  TC6_IRQn, TC_PRIORITY(6) },
   { {.pTc=TC7},  TC7_IRQn, TC_PRIORITY(7) },
-  { {.pRtc=RTC}, RTC_IRQn, TC_PRIORITY(8) }   // 8 - temperature
+  { {.pRtc=RTC}, RTC_IRQn, TC_PRIORITY(8) }   // 8 - temperature (assigned priority 6)
 };
 
 // --------------------------------------------------------------------------
@@ -67,19 +67,19 @@ FORCE_INLINE void Disable_Irq(IRQn_Type irq) {
 // --------------------------------------------------------------------------
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
-  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  IRQn_Type irq = timer_config[timer_num].IRQ_Id;
 
   // Disable interrupt, just in case it was already enabled
   Disable_Irq(irq);
 
-  if (timer_num == RTC_TIMER_NUM) {
-    Rtc * const rtc = TimerConfig[timer_num].pRtc;
+  if (timer_num == MF_TIMER_RTC) {
+    Rtc * const rtc = timer_config[timer_num].pRtc;
 
     // Disable timer interrupt
     rtc->MODE0.INTENCLR.reg = RTC_MODE0_INTENCLR_CMP0;
 
     // RTC clock setup
-    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768KHz oscillator
+    OSC32KCTRL->RTCCTRL.reg = OSC32KCTRL_RTCCTRL_RTCSEL_XOSC32K;  // External 32.768kHz oscillator
 
     // Stop timer, just in case, to be able to reconfigure it
     rtc->MODE0.CTRLA.bit.ENABLE = false;
@@ -101,13 +101,13 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     SYNC(rtc->MODE0.SYNCBUSY.bit.ENABLE);
   }
   else {
-    Tc * const tc = TimerConfig[timer_num].pTc;
+    Tc * const tc = timer_config[timer_num].pTc;
 
     // Disable timer interrupt
     tc->COUNT32.INTENCLR.reg = TC_INTENCLR_OVF; // disable overflow interrupt
 
     // TCn clock setup
-    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceeded by TCC ones
+    const uint8_t clockID = GCLK_CLKCTRL_IDs[TCC_INST_NUM + timer_num];   // TC clock are preceded by TCC ones
     GCLK->PCHCTRL[clockID].bit.CHEN = false;
     SYNC(GCLK->PCHCTRL[clockID].bit.CHEN);
     GCLK->PCHCTRL[clockID].reg = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN;   // 120MHz startup code programmed
@@ -121,14 +121,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     tc->COUNT32.CTRLA.bit.SWRST = true;
     SYNC(tc->COUNT32.SYNCBUSY.bit.SWRST);
 
-    // Wave mode, reset counter on overflow on 0 (I use count down to prevent double buffer use)
+    // Wave mode, reset counter on compare match
     tc->COUNT32.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
     tc->COUNT32.CTRLA.reg = TC_CTRLA_MODE_COUNT32 | TC_CTRLA_PRESCALER_DIV1;
-    tc->COUNT32.CTRLBSET.reg = TC_CTRLBCLR_DIR;
+    tc->COUNT32.CTRLBCLR.reg = TC_CTRLBCLR_DIR;
     SYNC(tc->COUNT32.SYNCBUSY.bit.CTRLB);
 
     // Set compare value
-    tc->COUNT32.COUNT.reg = tc->COUNT32.CC[0].reg = (HAL_TIMER_RATE) / frequency;
+    tc->COUNT32.CC[0].reg = (HAL_TIMER_RATE) / frequency;
+    tc->COUNT32.COUNT.reg = 0;
 
     // Enable interrupt on compare
     tc->COUNT32.INTFLAG.reg = TC_INTFLAG_OVF;   // reset pending interrupt
@@ -140,27 +141,27 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   }
 
   // Finally, enable IRQ
-  NVIC_SetPriority(irq, TimerConfig[timer_num].priority);
+  NVIC_SetPriority(irq, timer_config[timer_num].priority);
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   Disable_Irq(irq);
 }
 
 // missing from CMSIS: Check if interrupt is enabled or not
 static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
-  return (NVIC->ISER[(uint32_t)(IRQn) >> 5] & (1 << ((uint32_t)(IRQn) & 0x1F))) != 0;
+  return TEST(NVIC->ISER[uint32_t(IRQn) >> 5], uint32_t(IRQn) & 0x1F);
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  const IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  const IRQn_Type irq = timer_config[timer_num].IRQ_Id;
   return NVIC_GetEnabledIRQ(irq);
 }
 

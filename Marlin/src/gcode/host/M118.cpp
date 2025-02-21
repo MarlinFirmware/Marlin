@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
  */
 void GcodeSuite::M118() {
   bool hasE = false, hasA = false;
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     int8_t port = -1; // Assume no redirect
   #endif
   char *p = parser.string_arg;
@@ -44,7 +44,7 @@ void GcodeSuite::M118() {
     switch (p[0]) {
       case 'A': hasA = true; break;
       case 'E': hasE = true; break;
-      #if NUM_SERIAL > 1
+      #if HAS_MULTI_SERIAL
         case 'P': port = p[1] - '0'; break;
       #endif
     }
@@ -52,24 +52,9 @@ void GcodeSuite::M118() {
     while (*p == ' ') ++p;
   }
 
-  #if NUM_SERIAL > 1
-    const int8_t old_serial = serial_port_index;
-    if (WITHIN(port, 0, NUM_SERIAL))
-      serial_port_index = (
-        port == 0 ? SERIAL_BOTH
-        : port == 1 ? SERIAL_PORT
-        #ifdef SERIAL_PORT_2
-          : port == 2 ? SERIAL_PORT_2
-        #endif
-        : SERIAL_PORT
-      );
-  #endif
+  PORT_REDIRECT(WITHIN(port, 0, NUM_SERIAL) ? (port ? SERIAL_PORTMASK(port - 1) : SerialMask::All) : multiSerial.portMask);
 
   if (hasE) SERIAL_ECHO_START();
-  if (hasA) SERIAL_ECHOPGM("// ");
+  if (hasA) SERIAL_ECHOPGM("//");
   SERIAL_ECHOLN(p);
-
-  #if NUM_SERIAL > 1
-    serial_port_index = old_serial;
-  #endif
 }

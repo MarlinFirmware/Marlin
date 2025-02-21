@@ -16,23 +16,46 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 6 || E_STEPPERS > 6
-  #error "FLYF407ZG supports up to 6 hotends / E-steppers."
+#define ALLOW_STM32DUINO
+#include "env_validate.h"
+
+#if HOTENDS > 6 || E_STEPPERS > 6
+  #error "FLYF407ZG supports up to 6 hotends / E steppers."
 #endif
 
 #define BOARD_INFO_NAME      "FLYF407ZG"
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#undef E2END
-#define E2END 0xFFF                               // 4KB
+// Avoid conflict with fans and TIMER_TONE
+#define TEMP_TIMER  3
+#define STEP_TIMER  5
+
+//
+// EEPROM Emulation
+//
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  //#define SRAM_EEPROM_EMULATION
+  //#define I2C_EEPROM
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across
+  // the 128kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#elif ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8K
+#endif
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+#endif
 
 //
 // Servos
@@ -140,55 +163,89 @@
 #define HEATER_2_PIN                        PE6
 #define HEATER_3_PIN                        PE5
 #define HEATER_4_PIN                        PE4
-#define HEATER_5_PIN                        PA2
+#define HEATER_5_PIN                        PE3
 #define HEATER_BED_PIN                      PE2
 
 #ifndef FAN_PIN
   #define FAN_PIN                           PF8
 #endif
 #define FAN1_PIN                            PF9
-#define FAN2_PIN                            PE3
+#define FAN2_PIN                            PA2
 #define FAN3_PIN                            PA1
 #define FAN4_PIN                            PE13
 #define FAN5_PIN                            PB11
 
+/**
+ *        ------                ------
+ *  PB10 | 1  2 | PE15    PB14 | 1  2 | PB13
+ *  PE14 | 3  4 | PE12    PC5  | 3  4 | PF11
+ *  PE10   5  6 | PE9     PC4    5  6 | PB15
+ *  PE8  | 7  8 | PE7     PB2  | 7  8 | RESET
+ *   GND | 9 10 | 5V       GND | 9 10 | --
+ *        ------                ------
+ *         EXP1                  EXP2
+ */
+#define EXP1_01_PIN                         PB10
+#define EXP1_02_PIN                         PE15
+#define EXP1_03_PIN                         PE14
+#define EXP1_04_PIN                         PE12
+#define EXP1_05_PIN                         PE10
+#define EXP1_06_PIN                         PE9
+#define EXP1_07_PIN                         PE8
+#define EXP1_08_PIN                         PE7
+
+#define EXP2_01_PIN                         PB14
+#define EXP2_02_PIN                         PB13
+#define EXP2_03_PIN                         PC5
+#define EXP2_04_PIN                         PF11
+#define EXP2_05_PIN                         PC4
+#define EXP2_06_PIN                         PB15
+#define EXP2_07_PIN                         PB2
+#define EXP2_08_PIN                         -1    // RESET
+
 //
 // Onboard SD support
 //
-
-#define SDIO_D0_PIN                         PC8
-#define SDIO_D1_PIN                         PC9
 //#define SD_CARD_DETECT_PIN                PC13
-#define SDIO_D2_PIN                         PC10
-#define SDIO_D3_PIN                         PC11
-#define SDIO_CK_PIN                         PC12
-#define SDIO_CMD_PIN                        PD2
 
-#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
+
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
-  #ifndef SDIO_SUPPORT
+  #if DISABLED(SDIO_SUPPORT)
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
-    #define SDSS                     SDIO_D3_PIN
-    #define SCK_PIN                  SDIO_CK_PIN
-    #define MISO_PIN                 SDIO_D0_PIN
-    #define MOSI_PIN                SDIO_CMD_PIN
+    #define SDSS                            PC11
+    #define SD_SCK_PIN                      PC12
+    #define SD_MISO_PIN                     PC8
+    #define SD_MOSI_PIN                     PD2
   #endif
+
+#elif SD_CONNECTION_IS(LCD)
+
+  #define SD_SCK_PIN                 EXP2_02_PIN
+  #define SD_MISO_PIN                EXP2_01_PIN
+  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SDSS                       EXP2_04_PIN
+  #define SD_DETECT_PIN              EXP2_07_PIN
+
 #endif
 
 //
 // Trinamic Software SPI
 //
-
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                     PB15
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK               EXP2_02_PIN
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                     PB14
+    #define TMC_SW_MISO              EXP2_01_PIN
   #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                      PB13
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI              EXP2_06_PIN
   #endif
 #endif
 
@@ -198,52 +255,48 @@
 
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PG13
-  #define X_SERIAL_RX_PIN                   PG13
+  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
 
   #define Y_SERIAL_TX_PIN                   PG10
-  #define Y_SERIAL_RX_PIN                   PG10
+  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
 
   #define Z_SERIAL_TX_PIN                   PD5
-  #define Z_SERIAL_RX_PIN                   PD5
+  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
 
   #define E0_SERIAL_TX_PIN                  PD1
-  #define E0_SERIAL_RX_PIN                  PD1
+  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   #define E1_SERIAL_TX_PIN                  PA14
-  #define E1_SERIAL_RX_PIN                  PA14
+  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   #define E2_SERIAL_TX_PIN                  PG6
-  #define E2_SERIAL_RX_PIN                  PG6
+  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   #define E3_SERIAL_TX_PIN                  PG3
-  #define E3_SERIAL_RX_PIN                  PG3
+  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   #define E4_SERIAL_TX_PIN                  PD10
-  #define E4_SERIAL_RX_PIN                  PD10
+  #define E4_SERIAL_RX_PIN      E4_SERIAL_TX_PIN
 
   #define E5_SERIAL_TX_PIN                  PB12
-  #define E5_SERIAL_RX_PIN                  PB12
-
+  #define E5_SERIAL_RX_PIN      E5_SERIAL_TX_PIN
 #endif
 
 //
 // LCD / Controller
 //
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SDSS                                PF11
-#define SD_DETECT_PIN                       PB2
-#define BEEPER_PIN                          PB10
-#define LCD_PINS_RS                         PE12
-#define LCD_PINS_ENABLE                     PE14
-#define LCD_PINS_D4                         PE10
-#define LCD_PINS_D5                         PE9
-#define LCD_PINS_D6                         PE8
-#define LCD_PINS_D7                         PE7
-#define BTN_EN1                             PC4
-#define BTN_EN2                             PC5
-#define BTN_ENC                             PE15
+#if IS_RRD_SC
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define LCD_PINS_ENABLE            EXP1_03_PIN
+  #define LCD_PINS_D4                EXP1_05_PIN
+  #define LCD_PINS_D5                EXP1_06_PIN
+  #define LCD_PINS_D6                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+#endif
 
 //
 // Filament runout
@@ -251,15 +304,9 @@
 
 #define FIL_RUNOUT_PIN                      PA3
 
-//
-// ST7920 Delays
-//
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
-#endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
-#endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1                96
+  #define BOARD_ST7920_DELAY_2                48
+  #define BOARD_ST7920_DELAY_3               715
 #endif

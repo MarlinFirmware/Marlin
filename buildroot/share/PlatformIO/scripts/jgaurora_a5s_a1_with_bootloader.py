@@ -1,48 +1,35 @@
-import os
-Import("env")
+#
+# jgaurora_a5s_a1_with_bootloader.py
+# Customizations for env:jgaurora_a5s_a1
+#
+import pioutil
+if pioutil.is_pio_build():
 
-# Relocate firmware from 0x08000000 to 0x0800A000
-env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
-#alternatively, for STSTM <=5.1.0 use line below
-#env['CPPDEFINES'].remove(("VECT_TAB_ADDR", 134217728))
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x0800A000"))
+    # Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
+    def addboot(source, target, env):
+        from pathlib import Path
 
-custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/jgaurora_a5s_a1.ld")
-for i, flag in enumerate(env["LINKFLAGS"]):
-    if "-Wl,-T" in flag:
-        env["LINKFLAGS"][i] = "-Wl,-T" + custom_ld_script
-    elif flag == "-T":
-        env["LINKFLAGS"][i + 1] = custom_ld_script
+        fw_path = Path(target[0].path)
+        fwb_path = fw_path.parent / 'firmware_with_bootloader.bin'
+        with fwb_path.open("wb") as fwb_file:
+            bl_path = Path("buildroot/share/PlatformIO/scripts/jgaurora_bootloader.bin")
+            bl_file = bl_path.open("rb")
+            while True:
+                b = bl_file.read(1)
+                if b == b'': break
+                else: fwb_file.write(b)
 
-#append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
-def addboot(source,target,env):
-	firmware = open(target[0].path, "rb")
-	lengthfirmware = os.path.getsize(target[0].path)
-	bootloader_dir = "buildroot/share/PlatformIO/scripts/jgaurora_bootloader.bin"
-	bootloader = open(bootloader_dir, "rb")
-	lengthbootloader = os.path.getsize(bootloader_dir)
-	firmware_with_boothloader_dir = target[0].dir.path +'/firmware_with_bootloader.bin'
-	if os.path.exists(firmware_with_boothloader_dir):
-		os.remove(firmware_with_boothloader_dir)
-	firmwareimage = open(firmware_with_boothloader_dir, "wb")
-	position = 0
-	while position < lengthbootloader:
-		byte = bootloader.read(1)
-		firmwareimage.write(byte)
-		position += 1
-	position = 0
-	while position < lengthfirmware:
-		byte = firmware.read(1)
-		firmwareimage.write(byte)
-		position += 1
-	bootloader.close()
-	firmware.close()
-	firmwareimage.close()
-	firmware_without_bootloader_dir = target[0].dir.path+'/firmware_for_sd_upload.bin'
-	if os.path.exists(firmware_without_bootloader_dir):
-		os.remove(firmware_without_bootloader_dir)
-	os.rename(target[0].path, firmware_without_bootloader_dir)
-	#os.rename(target[0].dir.path+'/firmware_with_bootloader.bin', target[0].dir.path+'/firmware.bin')
+            with fw_path.open("rb") as fw_file:
+                while True:
+                    b = fw_file.read(1)
+                    if b == b'': break
+                    else: fwb_file.write(b)
 
-env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", addboot);
+        fws_path = Path(target[0].dir.path, 'firmware_for_sd_upload.bin')
+        if fws_path.exists():
+            fws_path.unlink()
 
+        fw_path.rename(fws_path)
+
+    import marlin
+    marlin.add_post_action(addboot);

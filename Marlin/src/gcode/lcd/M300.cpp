@@ -16,17 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_BUZZER
+#if HAS_SOUND
 
 #include "../gcode.h"
 
-#include "../../lcd/ultralcd.h" // i2c-based BUZZ
+#include "../../lcd/marlinui.h" // i2c-based BUZZ
 #include "../../libs/buzzer.h"  // Buzzer, if possible
 
 /**
@@ -42,4 +42,4 @@ void GcodeSuite::M300() {
   BUZZ(duration, frequency);
 }
 
-#endif // HAS_BUZZER
+#endif // HAS_SOUND

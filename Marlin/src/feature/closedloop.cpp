@@ -16,9 +16,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -29,12 +30,14 @@
 
 #include "closedloop.h"
 
-void init_closedloop() {
+ClosedLoop closedloop;
+
+void ClosedLoop::init() {
   OUT_WRITE(CLOSED_LOOP_ENABLE_PIN, LOW);
   SET_INPUT_PULLUP(CLOSED_LOOP_MOVE_COMPLETE_PIN);
 }
 
-void set_closedloop(const byte val) {
+void ClosedLoop::set(const byte val) {
   OUT_WRITE(CLOSED_LOOP_ENABLE_PIN, val);
 }
 

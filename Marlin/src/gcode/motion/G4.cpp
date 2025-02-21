@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
-#include "../../module/stepper.h"
-#include "../../lcd/ultralcd.h"
+#include "../../module/planner.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
@@ -38,7 +38,7 @@ void GcodeSuite::G4() {
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
   #endif
 
-  if (!ui.has_status()) LCD_MESSAGEPGM(MSG_DWELL);
+  if (!ui.has_status()) LCD_MESSAGE(MSG_DWELL);
 
   dwell(dwell_ms);
 }

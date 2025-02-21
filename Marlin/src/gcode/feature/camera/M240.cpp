@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -47,7 +47,7 @@
   #endif
 
   #ifdef PHOTO_RETRACT_MM
-    inline void e_move_m240(const float length, const feedRate_t &fr_mm_s) {
+    inline void e_move_m240(const float length, const_feedRate_t fr_mm_s) {
       if (length && thermalManager.hotEnoughToExtrude(active_extruder))
         unscaled_e_move(length, fr_mm_s);
     }
@@ -100,9 +100,9 @@
  * M240: Trigger a camera by...
  *
  *  - CHDK                  : Emulate a Canon RC-1 with a configurable ON duration.
- *                            http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
+ *                            https://captain-slow.dk/2014/03/09/3d-printing-timelapses/
  *  - PHOTOGRAPH_PIN        : Pulse a digital pin 16 times.
- *                            See http://www.doc-diy.net/photo/rc-1_hacked/
+ *                            See https://www.doc-diy.net/photo/rc-1_hacked/
  *  - PHOTO_SWITCH_POSITION : Bump a physical switch with the X-carriage using a
  *                            configured position, delay, and retract length.
  *
@@ -126,7 +126,7 @@ void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
 
-    if (axis_unhomed_error()) return;
+    if (homing_needed_error()) return;
 
     const xyz_pos_t old_pos = {
       current_position.x + parser.linearval('A'),
@@ -135,17 +135,8 @@ void GcodeSuite::M240() {
     };
 
     #ifdef PHOTO_RETRACT_MM
-      const float rval = parser.seenval('R') ? parser.value_linear_units() : _PHOTO_RETRACT_MM;
-      feedRate_t sval = (
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          PAUSE_PARK_RETRACT_FEEDRATE
-        #elif ENABLED(FWRETRACT)
-          RETRACT_FEEDRATE
-        #else
-          45
-        #endif
-      );
-      if (parser.seenval('S')) sval = parser.value_feedrate();
+      const float rval = parser.linearval('R', _PHOTO_RETRACT_MM);
+      const feedRate_t sval = parser.feedrateval('S', TERN(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_RETRACT_FEEDRATE, TERN(FWRETRACT, RETRACT_FEEDRATE, 45)));
       e_move_m240(-rval, sval);
     #endif
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -48,8 +48,8 @@ void GcodeSuite::G42() {
     // Move to current_position, as modified by I, J, P parameters
     destination = current_position;
 
-    if (hasI) destination.x = _GET_MESH_X(ix);
-    if (hasJ) destination.y = _GET_MESH_Y(iy);
+    if (hasI) destination.x = bedlevel.get_mesh_x(ix);
+    if (hasJ) destination.y = bedlevel.get_mesh_y(iy);
 
     #if HAS_PROBE_XY_OFFSET
       if (parser.boolval('P')) {

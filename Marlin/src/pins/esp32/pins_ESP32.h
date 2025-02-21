@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,7 @@
  * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
  */
 
-#ifndef ARDUINO_ARCH_ESP32
-  "Oops! Select an ESP32 board in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "Espressif ESP32"
 
@@ -35,9 +33,11 @@
 // I2S (steppers & other output-only pins)
 //
 #define I2S_STEPPER_STREAM
-#define I2S_WS                                25
-#define I2S_BCK                               26
-#define I2S_DATA                              27
+#if ENABLED(I2S_STEPPER_STREAM)
+  #define I2S_WS                              25
+  #define I2S_BCK                             26
+  #define I2S_DATA                            27
+#endif
 
 //
 // Limit Switches

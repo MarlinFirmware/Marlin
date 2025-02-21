@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,9 +25,7 @@
  * Arduino Mega with RAMPS v1.0, v1.1, v1.2 pin assignments
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-#endif
+#include "env_validate.h"
 
 #define BOARD_INFO_NAME "RAMPS <1.2"
 
@@ -76,11 +74,11 @@
 #define TEMP_0_PIN                             2  // Analog Input
 #define TEMP_BED_PIN                           1  // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
+// SPI for MAX Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
+  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
+  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -106,7 +104,10 @@
 #define SDPOWER_PIN                           48
 #define SDSS                                  53
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                        45  // Hardware PWM
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      45  // Hardware PWM
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

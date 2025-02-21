@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,20 +28,20 @@
 /**
  * Marlin release version identifier
  */
-//#define SHORT_BUILD_VERSION "2.0.5.3"
+//#define SHORT_BUILD_VERSION "2.0.9.7"
 
 /**
  * Verbose version identifier which should contain a reference to the location
  * from where the binary was downloaded or the source code was compiled.
  */
-//#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " (Github)"
+//#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION
 
 /**
  * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-//#define STRING_DISTRIBUTION_DATE "2020-01-31"
+//#define STRING_DISTRIBUTION_DATE "2023-07-04"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -54,7 +54,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-//#define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+//#define SOURCE_CODE_URL "github.com/MarlinFirmware/Marlin"
 
 /**
  * Default generic printer UUID.
@@ -65,12 +65,12 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-//#define WEBSITE_URL "http://marlinfw.org"
+//#define WEBSITE_URL "marlinfw.org"
 
 /**
  * Set the vendor info the serial USB interface, if changable
  * Currently only supported by DUE platform
  */
-//#define  USB_DEVICE_VENDOR_ID           0x0000
-//#define  USB_DEVICE_PRODUCT_ID          0x0000
-//#define  USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
+//#define USB_DEVICE_VENDOR_ID           0x0000
+//#define USB_DEVICE_PRODUCT_ID          0x0000
+//#define USB_DEVICE_MANUFACTURE_NAME    WEBSITE_URL
