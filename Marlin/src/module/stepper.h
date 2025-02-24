@@ -175,7 +175,7 @@ constexpr ena_mask_t enable_overlap[] = {
   };
 
   class ShapingQueue {
-    public:
+    private:
       static shaping_time_t       now;
       static shaping_time_t       times[shaping_echoes];
       static shaping_echo_axis_t  echo_axes[shaping_echoes];
@@ -241,18 +241,21 @@ constexpr ena_mask_t enable_overlap[] = {
         static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
+        static uint16_t get_delay_x() { return delay_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return _peek_y; }
         static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
+        static uint16_t get_delay_y() { return delay_y; }
       #endif
       #if ENABLED(INPUT_SHAPING_Z)
         static shaping_time_t peek_z() { return _peek_z; }
         static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
         static bool empty_z() { return head_z == tail; }
         static uint16_t free_count_z() { return _free_count_z; }
+        static uint16_t get_delay_z() { return delay_z; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);

@@ -2951,8 +2951,6 @@ hal_timer_t Stepper::block_phase_isr() {
       }
     #endif
 
-    #define calc_la(rate) ((rate) * block->xy_to_e_step_ratio * Planner::extruder_advance_K[0])
-
     float lookahead(uint32_t t) {
       for (uint8_t i = 0; block_t * block = Planner::lookahead(i); i++) {
         if (block->is_sync()) continue;
@@ -2960,13 +2958,13 @@ hal_timer_t Stepper::block_phase_isr() {
           if (!block->use_advance_lead) return 0.0f;
           uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
-          return calc_la(rate);
+          return rate * block->xy_to_e_step_ratio;
         }
         t -= block->acceleration_time;
 
         if (t <= block->cruise_time) {
           if (!block->use_advance_lead) return 0.0f;
-          return calc_la(block->cruise_rate);
+          return block->cruise_rate * block->xy_to_e_step_ratio;
         }
         t -= block->cruise_time;
 
@@ -2979,7 +2977,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
           else
             rate = block->final_rate;
-          return calc_la(rate);
+          return rate * block->xy_to_e_step_ratio;
         }
         t -= block->deceleration_time;
       }
@@ -2995,7 +2993,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // and so avoid blobs and improve seams
         if (!is_unretracting) {
           uint32_t t = Planner::extruder_advance_TAU_TICKS + curr_timer_tick;
-          target_pressure = lookahead(t);
+          target_pressure = lookahead(t) * Planner::extruder_advance_K[0];
         }
       }
       else {
@@ -3038,8 +3036,8 @@ hal_timer_t Stepper::block_phase_isr() {
           }
         }
         const XYPair second_pulse_rate = {
-          lookback(ShapingQueue::delay_x).x * Stepper::shaping_x.factor2 / 128.0f,
-          lookback(ShapingQueue::delay_y).y * Stepper::shaping_y.factor2 / 128.0f
+          lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f,
+          lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f
         };
         add_to_buffer(pre_shaping_rate);
 
