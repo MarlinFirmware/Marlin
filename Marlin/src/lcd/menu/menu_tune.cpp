@@ -221,6 +221,11 @@ void menu_tune() {
         EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
   #endif
+  
+  #if (ENABLED(SMOOTH_LIN_ADV))
+    editable.decimal = planner.extruder_advance_TAU;
+    EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ planner.set_advance_tau(editable.decimal); });
+  #endif
 
   //
   // Babystep X:

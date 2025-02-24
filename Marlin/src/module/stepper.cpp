@@ -256,10 +256,15 @@ uint32_t Stepper::advance_divisor = 0,
 #if ENABLED(LIN_ADVANCE)
   hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
               Stepper::la_interval = LA_ADV_NEVER;
-  int32_t     Stepper::la_delta_error = 0,
-              Stepper::la_dividend = 0,
-              Stepper::la_advance_steps = 0;
-  bool        Stepper::la_active = false;
+  #if ENABLED(SMOOTH_LIN_ADV)
+    uint32_t  Stepper::curr_step_rate, // needed for the new LA algo
+              Stepper::curr_timer_tick = 0;
+  #else
+    int32_t     Stepper::la_delta_error = 0,
+                Stepper::la_dividend = 0,
+                Stepper::la_advance_steps = 0;
+    bool        Stepper::la_active = false;
+  #endif
 #endif
 
 #if ENABLED(NONLINEAR_EXTRUSION)
@@ -1521,6 +1526,10 @@ void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
 
+  #if ENABLED(SMOOTH_LIN_ADV)
+    static hal_timer_t zeroSlowdonISR = 0;
+  #endif
+
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
@@ -1594,6 +1603,9 @@ void Stepper::isr() {
       // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
       if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
+      #if ENABLED(SMOOTH_LIN_ADV)
+        if (!zeroSlowdonISR) zeroSlowdonISR = smooth_lin_adv_isr();  // Manage la
+      #endif
 
       #if ENABLED(BABYSTEPPING)
         if (is_babystep)                                  // Avoid ANY stepping too soon after baby-stepping
@@ -1609,6 +1621,7 @@ void Stepper::isr() {
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
+      TERN_(SMOOTH_LIN_ADV, NOMORE(interval, zeroSlowdonISR));          // Come back early for Linear Advance rate update?
       TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
       //
@@ -1621,6 +1634,7 @@ void Stepper::isr() {
       nextMainISR -= interval;
       TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
       TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
+      TERN_(SMOOTH_LIN_ADV, if (zeroSlowdonISR != LA_ADV_NEVER) zeroSlowdonISR -= interval);
       TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     } // standard motion control
@@ -2002,12 +2016,17 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(E);
 
         #if ENABLED(LIN_ADVANCE)
-          if (la_active && step_needed.e) {
-            // don't actually step here, but do subtract movements steps
-            // from the linear advance step count
+          #if ENABLED(SMOOTH_LIN_ADV)
+            // extruder steps are exclusively managed by the LA isr
             step_needed.e = false;
-            la_advance_steps--;
-          }
+          #else
+            if (la_active && step_needed.e) {
+              // don't actually step here, but do subtract movements steps
+              // from the linear advance step count
+              step_needed.e = false;
+              la_advance_steps--;
+            }
+          #endif
         #endif
       #endif
 
@@ -2458,7 +2477,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE)
+        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
             la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
@@ -2487,6 +2506,7 @@ hal_timer_t Stepper::block_phase_isr() {
             else cutter.apply_power(0);
           }
         #endif
+        TERN_(SMOOTH_LIN_ADV, curr_step_rate = acc_step_rate;)
       }
       // Are we in Deceleration phase ?
       else if (step_events_completed >= decelerate_start) {
@@ -2523,7 +2543,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE)
+        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
@@ -2561,7 +2581,7 @@ hal_timer_t Stepper::block_phase_isr() {
             }
           }
         #endif
-
+        TERN_(SMOOTH_LIN_ADV, curr_step_rate = step_rate;)
       }
       else {  // Must be in cruise phase otherwise
 
@@ -2571,13 +2591,14 @@ hal_timer_t Stepper::block_phase_isr() {
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
           // Prepare for deceleration
           IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
+          TERN_(SMOOTH_LIN_ADV, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
           #if ENABLED(NONLINEAR_EXTRUSION)
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
           #endif
 
-          #if ENABLED(LIN_ADVANCE)
+          #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
             if (la_active)
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
@@ -2712,7 +2733,10 @@ hal_timer_t Stepper::block_phase_isr() {
       step_event_count = current_block->step_event_count << oversampling_factor;
 
       // Initialize Bresenham delta errors to 1/2
-      delta_error = TERN_(LIN_ADVANCE, la_delta_error =) -int32_t(step_event_count);
+      delta_error = -int32_t(step_event_count);
+      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+        la_delta_error = delta_error
+      #endif
 
       // Calculate Bresenham dividends and divisors
       advance_dividend = (current_block->steps << 1).asLong();
@@ -2763,15 +2787,18 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
-        la_active = (current_block->la_advance_rate != 0);
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
-        if (la_active) {
-          // Apply LA scaling and discount the effect of frequency scaling
-          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
-        }
+        #if DISABLED(SMOOTH_LIN_ADV)
+          la_active = (current_block->la_advance_rate != 0);
+          if (la_active) {
+            // Apply LA scaling and discount the effect of frequency scaling
+            la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
+          }
+        #endif
+
       #endif
 
       if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
@@ -2847,12 +2874,15 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(NONLINEAR_EXTRUSION)
         calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
       #endif
-
       #if ENABLED(LIN_ADVANCE)
-        if (la_active) {
-          const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
-          la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
-        }
+        #if ENABLED(SMOOTH_LIN_ADV)
+          curr_timer_tick = 0;
+        #else
+          if (la_active) {
+            const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
+            la_interval = calc_timer_interval((current_block->initial_rate + la_step_rate) >> current_block->la_scaling);
+          }
+        #endif
       #endif
     }
   } // !current_block
@@ -2862,18 +2892,187 @@ hal_timer_t Stepper::block_phase_isr() {
 }
 
 #if ENABLED(LIN_ADVANCE)
+  #if ENABLED(SMOOTH_LIN_ADV)
+    void Stepper::set_la_interval(int32_t rate) {
+      if (rate == 0) {
+        la_interval = LA_ADV_NEVER;
+      }
+      else {
+        const bool forward_e = rate > 0;
+        la_interval = calc_timer_interval(uint32_t(ABS(rate)));
+        if (forward_e != motor_direction(E_AXIS)) {
+          last_direction_bits.toggle(E_AXIS);
+          count_direction.e = -count_direction.e;
+          DIR_WAIT_BEFORE();
+          E_APPLY_DIR(forward_e, false);
+          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+          DIR_WAIT_AFTER();
+        }
+      }
+    }
+    #if ENABLED(INPUT_SHAPING_E_SYNCH)
+      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = 
+        (SMOOTH_LIN_ADV_HZ / (20 /* min input shaping frequency*/) / 2.0f + 0.5f);
+      typedef struct {
+          float x;
+          float y;
+      } XYPair;
+
+      typedef struct {
+          XYPair buffer[IS_COMPENSATION_BUFFER_SIZE];
+          uint16_t index;
+      } DelayBuffer;
+
+      DelayBuffer delayBuffer;
+
+      void add_to_buffer(XYPair input) {
+        delayBuffer.buffer[delayBuffer.index] = input;
+        delayBuffer.index++;
+        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE) {
+          delayBuffer.index = 0;
+        }
+      }
+
+      XYPair lookback(shaping_time_t t /* in stepper timer ticks */) {
+        constexpr float STEPPER_TICKS_PER_ADV_TICS = (float) SMOOTH_LIN_ADV_HZ / STEPPER_TIMER_RATE;
+        uint32_t delay_steps = t * STEPPER_TICKS_PER_ADV_TICS  + 0.5f; // Convert time to steps
+        uint16_t past_i;
+        if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
+          // this means the buffer is too small. TODO: how to inform user?
+          past_i = delayBuffer.index;
+        }
+        else {
+          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
+          if (past_i >= IS_COMPENSATION_BUFFER_SIZE) {
+            past_i -= IS_COMPENSATION_BUFFER_SIZE;
+          }
+        }
+        return delayBuffer.buffer[past_i];
+      }
+    #endif
+
+    #define calc_la(rate) ((rate) * block->xy_to_e_step_ratio * Planner::extruder_advance_K[0])
+
+    float lookahead(uint32_t t) {
+      for (uint8_t i = 0; block_t * block = Planner::lookahead(i); i++) {
+        if (block->is_sync()) continue;
+        if (t <= block->acceleration_time) {
+          if (!block->use_advance_lead) return 0.0f;
+          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
+          NOMORE(rate, block->nominal_rate);
+          return calc_la(rate);
+        }
+        t -= block->acceleration_time;
+
+        if (t <= block->cruise_time) {
+          if (!block->use_advance_lead) return 0.0f;
+          return calc_la(block->cruise_rate);
+        }
+        t -= block->cruise_time;
+
+        if (t <= block->deceleration_time) {
+          if (!block->use_advance_lead) return 0.0f;
+          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate);
+          if (rate < block->cruise_rate) {
+            rate = block->cruise_rate - rate;
+            NOLESS(rate, block->final_rate);
+          }
+          else
+            rate = block->final_rate;
+          return calc_la(rate);
+        }
+        t -= block->deceleration_time;
+      }
+      return 0.0f;
+    };
+    
+    hal_timer_t Stepper::smooth_lin_adv_isr() {
+      static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      float target_pressure = 0;
+      if (current_block) {
+        bool is_unretracting = !current_block->use_advance_lead && (current_block->direction_bits.e);
+        // Don't lookahead during unretractions to keep pressure zero at start of lines
+        // and so avoid blobs and improve seams
+        if (!is_unretracting) {
+          uint32_t t = Planner::extruder_advance_TAU_TICKS + curr_timer_tick;
+          target_pressure = lookahead(t);
+        }
+      }
+      else {
+        curr_step_rate = 0;
+      }
+
+      const float last_pressure = soothed_values[SMOOTH_LIN_ADV_EXP_ORDER - 1];
+      for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
+        // Approximate gaussian smoothing via higher order exponential smoothing
+        target_pressure =
+          Planner::extruder_advance_ALPHA * target_pressure +
+          (1 - Planner::extruder_advance_ALPHA) * soothed_values[i];
+        soothed_values[i] = target_pressure;
+      }
+      const float dt_inv = SMOOTH_LIN_ADV_HZ;
+      const float la_step_rate = (target_pressure - last_pressure) * dt_inv;
+
+      float planned_step_rate = 0;
+      if (current_block) {
+        planned_step_rate = curr_step_rate * current_block->xy_to_e_step_ratio;
+      }
+      float total_rate = planned_step_rate + la_step_rate;
+
+      #if ENABLED(INPUT_SHAPING_E_SYNCH)
+        XYPair pre_shaping_rate = {0, 0},
+               first_pulse_rate = {0, 0};
+        float unshaped_rate_e = total_rate;
+        if (current_block) {
+          float xy_length = current_block->steps.x + current_block->steps.y;
+          if (xy_length > 0) {
+            unshaped_rate_e = 0;
+            pre_shaping_rate = {
+              total_rate * current_block->steps.x / xy_length,
+              total_rate * current_block->steps.y / xy_length,
+            };
+            first_pulse_rate = {
+              pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f,
+              pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f
+            };
+          }
+        }
+        const XYPair second_pulse_rate = {
+          lookback(ShapingQueue::delay_x).x * Stepper::shaping_x.factor2 / 128.0f,
+          lookback(ShapingQueue::delay_y).y * Stepper::shaping_y.factor2 / 128.0f
+        };
+        add_to_buffer(pre_shaping_rate);
+
+        const float x = first_pulse_rate.x + second_pulse_rate.x;
+        const float y = first_pulse_rate.y + second_pulse_rate.y;
+
+        total_rate = unshaped_rate_e + x + y;
+      #endif
+
+      set_la_interval(total_rate);
+      
+      curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
+      return SMOOTH_LIN_ADV_INTERVAL;
+    }
+  #endif
 
   // Timer interrupt for E. LA_steps is set in the main routine
   void Stepper::advance_isr() {
     // Apply Bresenham algorithm so that linear advance can piggy back on
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
-    la_delta_error += la_dividend;
-    const bool e_step_needed = la_delta_error >= 0;
+    #if ENABLED(SMOOTH_LIN_ADV)
+      constexpr bool e_step_needed = true;
+    #else
+      la_delta_error += la_dividend;
+      const bool e_step_needed = la_delta_error >= 0;
+    #endif
     if (e_step_needed) {
       count_position.e += count_direction.e;
-      la_advance_steps += count_direction.e;
-      la_delta_error -= advance_divisor;
+      #if DISABLED(SMOOTH_LIN_ADV)
+        la_advance_steps += count_direction.e;
+        la_delta_error -= advance_divisor;
+      #endif
 
       // Set the STEP pulse ON
       E_STEP_WRITE(TERN(MIXING_EXTRUDER, mixer.get_next_stepper(), stepper_extruder), STEP_STATE_E);

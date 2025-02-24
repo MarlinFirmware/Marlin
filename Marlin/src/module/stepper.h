@@ -175,7 +175,7 @@ constexpr ena_mask_t enable_overlap[] = {
   };
 
   class ShapingQueue {
-    private:
+    public:
       static shaping_time_t       now;
       static shaping_time_t       times[shaping_echoes];
       static shaping_echo_axis_t  echo_axes[shaping_echoes];
@@ -435,10 +435,16 @@ class Stepper {
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
                          la_interval;      // Interval between ISR calls for LA
-      static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
-                         la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
-                         la_advance_steps; // Count of steps added to increase nozzle pressure
-      static bool        la_active;        // Whether linear advance is used on the present segment.
+      #if ENABLED(SMOOTH_LIN_ADV)
+        static uint32_t curr_timer_tick, // Current tick relative to block start
+                        curr_step_rate;  // Current motion step rate
+        static void set_la_interval(int32_t rate);
+      #else
+        static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
+                           la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
+                           la_advance_steps; // Count of steps added to increase nozzle pressure
+        static bool        la_active;        // Whether linear advance is used on the present segment.
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -504,6 +510,9 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
       static void advance_isr();
+      #if ENABLED(SMOOTH_LIN_ADV)
+        static hal_timer_t smooth_lin_adv_isr();
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -558,7 +567,9 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      #if (DISABLED(SMOOTH_LIN_ADV))
+        TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      #endif
     }
 
     // Quickly stop all steppers

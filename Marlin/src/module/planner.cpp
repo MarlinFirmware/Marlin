@@ -237,6 +237,11 @@ float Planner::previous_nominal_speed;
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
 #endif
+#if ENABLED(SMOOTH_LIN_ADV)
+  float Planner::extruder_advance_TAU,
+        Planner::extruder_advance_TAU_TICKS,
+        Planner::extruder_advance_ALPHA;
+#endif
 
 #if HAS_POSITION_FLOAT
   xyze_pos_t Planner::position_float; // Needed for accurate maths. Steps cannot be used!
@@ -774,6 +779,21 @@ block_t* Planner::get_current_block() {
 
   return nullptr;
 }
+block_t* Planner::lookahead(uint8_t offset) {
+  // Get the number of moves in the planner queue so far
+  const uint8_t nr_moves = movesplanned();
+
+  // If there are any moves queued ...
+  if (nr_moves < offset) return nullptr;
+  block_t * const block = &block_buffer[block_inc_mod(block_buffer_tail, offset)];
+
+  // No trapezoid calculated? Don't execute yet.
+  if (block->flag.recalculate) return nullptr;
+
+  // Return the block
+  return block;
+
+}
 
 /**
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
@@ -840,13 +860,15 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     }
   }
 
-  #if ENABLED(S_CURVE_ACCELERATION)
+  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
     const float rate_factor = inverse_accel * (STEPPER_TIMER_RATE);
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = rate_factor * float(cruise_rate - initial_rate),
-             deceleration_time = rate_factor * float(cruise_rate - final_rate),
+             deceleration_time = rate_factor * float(cruise_rate - final_rate);
+  #endif
+  #if ENABLED(S_CURVE_ACCELERATION)
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
-             acceleration_time_inverse = get_period_inverse(acceleration_time),
+    uint32_t acceleration_time_inverse = get_period_inverse(acceleration_time),
              deceleration_time_inverse = get_period_inverse(deceleration_time);
   #endif
 
@@ -854,16 +876,22 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   block->accelerate_before = accelerate_steps;
   block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
-  #if ENABLED(S_CURVE_ACCELERATION)
+  #if ENABLED(SMOOTH_LIN_ADV)
+    if (plateau_steps <= 0) block->cruise_time = 0;
+    else block->cruise_time = (float)STEPPER_TIMER_RATE * (float)plateau_steps / (float)cruise_rate;
+  #endif
+   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
     block->acceleration_time = acceleration_time;
     block->deceleration_time = deceleration_time;
+    block->cruise_rate = cruise_rate;
+  #endif
+   #if S_CURVE_ACCELERATION
     block->acceleration_time_inverse = acceleration_time_inverse;
     block->deceleration_time_inverse = deceleration_time_inverse;
-    block->cruise_rate = cruise_rate;
   #endif
   block->final_rate = final_rate;
 
-  #if ENABLED(LIN_ADVANCE)
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
@@ -2407,12 +2435,14 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          // Scale E acceleration so that it will be possible to jump to the advance speed.
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2) {
-            accel = max_accel_steps_per_s2;
-            if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
-          }
+          #if DISABLED(SMOOTH_LIN_ADV)
+            // Scale E acceleration so that it will be possible to jump to the advance speed.
+            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+            if (accel > max_accel_steps_per_s2) {
+              accel = max_accel_steps_per_s2;
+              if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+            }
+          #endif
         }
       }
     #endif
@@ -2442,23 +2472,28 @@ bool Planner::_populate_block(
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    block->la_advance_rate = 0;
-    block->la_scaling = 0;
+    #if ENABLED(SMOOTH_LIN_ADV)
+      block->use_advance_lead = use_advance_lead;
+      block->xy_to_e_step_ratio = (block->direction_bits.e ? 1 : -1) * 
+        float(block->steps.e) / block->step_event_count;
+    #else
+      block->la_advance_rate = 0;
+      block->la_scaling = 0;
+      if (use_advance_lead) {
+        // the Bresenham algorithm will convert this step rate into extruder steps
+        block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
 
-    if (use_advance_lead) {
-      // the Bresenham algorithm will convert this step rate into extruder steps
-      block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
+        // reduce LA ISR frequency by calling it only often enough to ensure that there will
+        // never be more than four extruder steps per call
+        for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
+          block->la_scaling++;
 
-      // reduce LA ISR frequency by calling it only often enough to ensure that there will
-      // never be more than four extruder steps per call
-      for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
-        block->la_scaling++;
-
-      #if ENABLED(LA_DEBUG)
-        if (block->la_advance_rate >> block->la_scaling > 10000)
-          SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
-      #endif
-    }
+        #if ENABLED(LA_DEBUG)
+          if (block->la_advance_rate >> block->la_scaling > 10000)
+            SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
+        #endif
+      } 
+    #endif
   #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
@@ -2686,7 +2721,8 @@ bool Planner::_populate_block(
       }
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    // In the SMOOTH_LIN_ADV case, the extra jerk will be applied by the residual curent_la_step_rate. 
+    #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
       // perform well; it takes more time/effort to push/melt filament than the reverse).
