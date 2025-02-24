@@ -107,10 +107,12 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
     last_i = -1
 
     while len(gcode) > i:
-        try:
-            z, i = find_z(gcode, i + 1)
-        except TypeError:
-            break
+        result = find_z(gcode, i + 1)
+
+        if result is None:
+            break  # Exit loop if find_z() returns None
+
+        z, i = result  # Now safe to unpack
 
         all_z.append(z)
         z_at_line.append(i)
@@ -119,7 +121,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         # last_z = z
         last_i = i
         if 0 < end_at_line <= i or temp_line >= min_g1:
-            # print('break at line {} at height {}'.format(i, z))
+            # print("break at line {} at height {}"".format(i, z))
             break
 
     line_between_z = line_between_z[1:]
@@ -133,7 +135,7 @@ def get_lines(gcode, minimum):
     for count in line_between_z:
         i += 1
         if count > minimum:
-            # print('layer: {}:{}'.format(z_at_line[i-1], z_at_line[i]))
+            # print("layer: {}:{}".format(z_at_line[i-1], z_at_line[i]))
             return z_at_line[i - 1], z_at_line[i]
 
 
@@ -147,21 +149,28 @@ with open(input_file, 'r') as file:
             gcode.append(line)
 file.close()
 
-start, end = get_lines(gcode, min_g1)
+layer_range = get_lines(gcode, min_g1)
+
+if layer_range is None:
+    print("Error: Unable to determine layer range. Exiting.")
+    exit(1)
+
+start, end = layer_range
+
 for i in range(start, end):
     set_mima(gcode[i])
 
-print('x_min:{} x_max:{}\ny_min:{} y_max:{}'.format(min_x, max_x, min_y, max_y))
+print("x_min:{} x_max:{}\ny_min:{} y_max:{}".format(min_x, max_x, min_y, max_y))
 
 # resize min/max - values for minimum scan
 if max_x - min_x < min_size:
     offset_x = int((min_size - (max_x - min_x)) / 2 + 0.5)  # int round up
-    # print('min_x! with {}'.format(int(max_x - min_x)))
+    # print("min_x! with {}".format(int(max_x - min_x)))
     min_x = int(min_x) - offset_x
     max_x = int(max_x) + offset_x
 if max_y - min_y < min_size:
     offset_y = int((min_size - (max_y - min_y)) / 2 + 0.5)  # int round up
-    # print('min_y! with {}'.format(int(max_y - min_y)))
+    # print("min_y! with {}".format(int(max_y - min_y)))
     min_y = int(min_y) - offset_y
     max_y = int(max_y) + offset_y
 
@@ -172,17 +181,12 @@ new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
                                                       max_y,
                                                       probing_points)
 
-out_file = open(output_file, 'w')
-in_file = open(input_file, 'r')
+with open(input_file, 'r') as in_file, open(output_file, 'w') as out_file:
+    for line in in_file:
+        if line.strip().upper().startswith(g29_keyword):  # Improved condition
+            out_file.write(new_command)
+            print("write G29")
+        else:
+            out_file.write(line)
 
-for line in in_file:
-    if line[:len(g29_keyword)].upper() == g29_keyword:
-        out_file.write(new_command)
-        print('write G29')
-    else:
-        out_file.write(line)
-
-file.close()
-out_file.close()
-
-print('auto G29 finished')
+print("auto G29 finished")

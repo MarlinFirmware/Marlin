@@ -11,7 +11,6 @@ Use --single to export all languages to a single CSV file.
 import re
 from pathlib import Path
 from sys import argv
-from languageUtil import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
 
@@ -24,6 +23,39 @@ if not Path(LANGHOME).is_dir():
     print("Error: Couldn't find the '%s' directory." % LANGHOME)
     print("Edit LANGHOME or cd to the root of the repo before running.")
     exit(1)
+
+# A dictionary to contain language names
+LANGNAME = {
+    'an': "Aragonese",
+    'bg': "Bulgarian",
+    'ca': "Catalan",
+    'cz': "Czech",
+    'da': "Danish",
+    'de': "German",
+    'el': "Greek", 'el_CY': "Greek (Cyprus)", 'el_gr': "Greek (Greece)",
+    'en': "English",
+    'es': "Spanish",
+    'eu': "Basque-Euskera",
+    'fi': "Finnish",
+    'fr': "French", 'fr_na': "French (no accent)",
+    'gl': "Galician",
+    'hr': "Croatian (Hrvatski)",
+    'hu': "Hungarian / Magyar",
+    'it': "Italian",
+    'jp_kana': "Japanese (Kana)",
+    'ko_KR': "Korean",
+    'nl': "Dutch",
+    'pl': "Polish",
+    'pt': "Portuguese", 'pt_br': "Portuguese (Brazil)",
+    'ro': "Romanian",
+    'ru': "Russian",
+    'sk': "Slovak",
+    'sv': "Swedish",
+    'tr': "Turkish",
+    'uk': "Ukrainian",
+    'vi': "Vietnamese",
+    'zh_CN': "Simplified Chinese", 'zh_TW': "Traditional Chinese"
+}
 
 # A limit just for testing
 LIMIT = 0
@@ -111,6 +143,10 @@ langcodes = list(language_strings.keys())
 
 # Report the total number of unique strings
 print("Found %s distinct LCD strings." % len(names))
+
+def namebyid(id):
+    if id in LANGNAME: return LANGNAME[id]
+    return '<unknown>'
 
 # Write a single language entry to the CSV file with narrow, wide, and tall strings
 def write_csv_lang(f, strings, name):

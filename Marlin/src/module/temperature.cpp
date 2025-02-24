@@ -4286,7 +4286,7 @@ void Temperature::isr() {
   // Update lcd buttons 488 times per second
   //
   static bool do_buttons;
-  if ((do_buttons ^= true)) ui.update_buttons();
+  if (FLIP(do_buttons)) ui.update_buttons();
 
   /**
    * One sensor is sampled on every other call of the ISR.

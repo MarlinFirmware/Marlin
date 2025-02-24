@@ -14,7 +14,7 @@
 import re, json
 from pathlib import Path
 
-def extend_dict(d:dict, k:tuple):
+def extend_dict(d: dict, k: tuple):
     if len(k) >= 1 and k[0] not in d:
         d[k[0]] = {}
     if len(k) >= 2 and k[1] not in d[k[0]]:
@@ -31,6 +31,7 @@ grouping_patterns = [
     re.compile(r'^(HOTENDS|BED|PROBE|COOLER)$'),
     re.compile(r'^[XYZIJKUVW]M(IN|AX)$')
 ]
+
 # If the indexed part of the option name matches a pattern
 # then add it to the dictionary.
 def find_grouping(gdict, filekey, sectkey, optkey, pindex):
@@ -55,7 +56,7 @@ def group_options(schema):
                 for optkey in s:
                     find_grouping(found_groups, filekey, sectkey, optkey, pindex)
 
-        fkeys = [ k for k in found_groups.keys() ]
+        fkeys = [k for k in found_groups.keys()]
         for kkey in fkeys:
             items = found_groups[kkey]
             if len(items) > 1:
@@ -115,7 +116,7 @@ def extract_files(filekey):
         ERROR           = 9 # Syntax error
 
     # A JSON object to store the data
-    sch_out = { key:{} for key in filekey.values() }
+    sch_out = {key: {} for key in filekey.values()}
     # Regex for #define NAME [VALUE] [COMMENT] with sanitized line
     defgrep = re.compile(r'^(//)?\s*(#define)\s+([A-Za-z0-9_]+)\s*(.*?)\s*(//.+)?$')
     # Pattern to match a float value
@@ -144,7 +145,7 @@ def extract_files(filekey):
                 # Clean the line for easier parsing
                 the_line = the_line.strip()
 
-                if join_line:   # A previous line is being made longer
+                if join_line:  # A previous line is being made longer
                     line += (' ' if line else '') + the_line
                 else:           # Otherwise, start the line anew
                     line, line_start = the_line, line_number
@@ -204,7 +205,7 @@ def extract_files(filekey):
                         if m:
                             sec = m[1]
                         elif not sc.startswith('========'):
-                            bufref.append(c)            # Anything else is part of the comment
+                            bufref.append(c)  # Anything else is part of the comment
                     return opt, sec
 
                 # For slash comments, capture consecutive slash comments.
@@ -223,7 +224,7 @@ def extract_files(filekey):
                     if endpos < 0:
                         cline = line
                     else:
-                        cline, line = line[:endpos].strip(), line[endpos+2:].strip()
+                        cline, line = line[:endpos].strip(), line[endpos + 2 :].strip()
 
                         # Temperature sensors are done
                         if state == Parse.GET_SENSORS:
@@ -252,8 +253,8 @@ def extract_files(filekey):
                 elif state == Parse.NORMAL:
                     # Skip a commented define when evaluating comment opening
                     st = 2 if re.match(r'^//\s*#define', line) else 0
-                    cpos1 = line.find('/*')     # Start a block comment on the line?
-                    cpos2 = line.find('//', st) # Start an end of line comment on the line?
+                    cpos1 = line.find('/*')      # Start a block comment on the line?
+                    cpos2 = line.find('//', st)  # Start an end of line comment on the line?
 
                     # Only the first comment starter gets evaluated
                     cpos = -1
@@ -276,7 +277,7 @@ def extract_files(filekey):
                     # Process the start of a new comment
                     if cpos != -1:
                         comment_buff = []
-                        cline, line = line[cpos+2:].strip(), line[:cpos].strip()
+                        cline, line = line[cpos + 2 :].strip(), line[:cpos].strip()
 
                         if state == Parse.BLOCK_COMMENT:
                             # Strip leading '*' from block comments
@@ -326,7 +327,7 @@ def extract_files(filekey):
                             conditions.append(prev)
 
                     elif cparts[0] == '#if':
-                        conditions.append([ atomize(line[3:].strip()) ])
+                        conditions.append([atomize(line[3:].strip())])
                     elif cparts[0] == '#ifdef':
                         conditions.append([ f'defined({line[6:].strip()})' ])
                     elif cparts[0] == '#ifndef':
@@ -344,10 +345,10 @@ def extract_files(filekey):
                         # Create a new dictionary for the current #define
                         define_info = {
                             'section': section,
-                            'name': define_name,
+                            'name'   : define_name,
                             'enabled': enabled,
-                            'line': line_start,
-                            'sid': sid
+                            'line'   : line_start,
+                            'sid'    : sid
                         }
 
                         # Type is based on the value
@@ -419,7 +420,7 @@ def extract_files(filekey):
                         # If define has already been seen...
                         if define_name in sch_out[fk][section]:
                             info = sch_out[fk][section][define_name]
-                            if isinstance(info, dict): info = [ info ]  # Convert a single dict into a list
+                            if isinstance(info, dict): info = [info]  # Convert a single dict into a list
                             info.append(define_info)                    # Add to the list
                         else:
                             # Add the define dict with name as key
@@ -510,5 +511,5 @@ def main():
             print("Generating YML ...")
             dump_yaml(schema, Path('schema.yml'))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

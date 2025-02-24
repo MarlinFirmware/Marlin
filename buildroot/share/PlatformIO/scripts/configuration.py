@@ -71,7 +71,7 @@ def apply_opt(name, val, conf=None):
         prefix = ""
         if val == "off":
             prefix, val = "//", ""  # Item doesn't appear in config dump
-            #val = "false"          # Item appears in config dump
+            # val = "false"         # Item appears in config dump
 
         # Uppercase the option unless already mixed/uppercase
         added = name.upper() if name.islower() else name
@@ -261,7 +261,7 @@ if __name__ == "__main__":
     #
     # From command line use the given file name
     #
-    import sys
+    import sys, os.path
     args = sys.argv[1:]
     if len(args) > 0:
         if args[0].endswith('.ini'):

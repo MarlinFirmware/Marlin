@@ -17,7 +17,7 @@ TODO: Use the defines and comments above the namespace from existing language fi
 """
 
 import sys, re, requests, csv, datetime
-#from languageUtil import namebyid
+#from languageExport import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
 OUTDIR = 'out-language'
@@ -62,7 +62,7 @@ for row in reader:
         gothead = True
         numcols = len(row)
         if row[0] != 'name':
-            print('Error: first column should be "name"')
+            print("Error: first column should be 'name'")
             exit(1)
         # The rest of the columns are language codes and names
         for i in range(1, numcols):
