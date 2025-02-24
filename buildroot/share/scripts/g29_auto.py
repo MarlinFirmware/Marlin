@@ -110,9 +110,9 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         result = find_z(gcode, i + 1)
 
         if result is None:
-            break  # Exit loop if find_z() returns None
+            break
 
-        z, i = result  # Now safe to unpack
+        z, i = result
 
         all_z.append(z)
         z_at_line.append(i)
@@ -183,7 +183,7 @@ new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
 
 with open(input_file, 'r') as in_file, open(output_file, 'w') as out_file:
     for line in in_file:
-        if line.strip().upper().startswith(g29_keyword):  # Improved condition
+        if line.strip().upper().startswith(g29_keyword):
             out_file.write(new_command)
             print("write G29")
         else:

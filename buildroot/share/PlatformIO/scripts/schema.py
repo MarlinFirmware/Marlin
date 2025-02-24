@@ -329,9 +329,9 @@ def extract_files(filekey):
                     elif cparts[0] == '#if':
                         conditions.append([atomize(line[3:].strip())])
                     elif cparts[0] == '#ifdef':
-                        conditions.append([ f'defined({line[6:].strip()})' ])
+                        conditions.append([f'defined({line[6:].strip()})'])
                     elif cparts[0] == '#ifndef':
-                        conditions.append([ f'!defined({line[7:].strip()})' ])
+                        conditions.append([f'!defined({line[7:].strip()})'])
 
                     # Handle a complete #define line
                     elif defmatch is not None:
