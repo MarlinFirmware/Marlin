@@ -115,6 +115,10 @@ void menu_backlash();
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
       #endif
     #endif
+    #if (ENABLED(SMOOTH_LIN_ADV))
+      editable.decimal = planner.extruder_advance_TAU;
+      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ planner.set_advance_tau(editable.decimal); });
+    #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
@@ -726,6 +730,10 @@ void menu_advanced_settings() {
     #else
       EXTRUDER_LOOP()
         EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+    #endif
+    #if (ENABLED(SMOOTH_LIN_ADV))
+      editable.decimal = planner.extruder_advance_TAU;
+      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ planner.set_advance_tau(editable.decimal); });
     #endif
   #endif
 
