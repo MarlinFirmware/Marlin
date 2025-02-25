@@ -2912,20 +2912,16 @@ hal_timer_t Stepper::block_phase_isr() {
     }
     #if ENABLED(INPUT_SHAPING_E_SYNCH)
       constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = 
-        (SMOOTH_LIN_ADV_HZ / (20 /* min input shaping frequency*/) / 2.0f + 0.5f);
+        (SMOOTH_LIN_ADV_HZ / SHAPING_MIN_FREQ / 2.0f + 0.5f);
+      
       typedef struct {
-          float x;
-          float y;
-      } XYPair;
-
-      typedef struct {
-          XYPair buffer[IS_COMPENSATION_BUFFER_SIZE];
+          xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
           uint16_t index;
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      void add_to_buffer(XYPair input) {
+      void add_to_buffer(xy_float_t input) {
         delayBuffer.buffer[delayBuffer.index] = input;
         delayBuffer.index++;
         if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE) {
@@ -2933,9 +2929,9 @@ hal_timer_t Stepper::block_phase_isr() {
         }
       }
 
-      XYPair lookback(shaping_time_t t /* in stepper timer ticks */) {
-        constexpr float STEPPER_TICKS_PER_ADV_TICS = (float) SMOOTH_LIN_ADV_HZ / STEPPER_TIMER_RATE;
-        uint32_t delay_steps = t * STEPPER_TICKS_PER_ADV_TICS  + 0.5f; // Convert time to steps
+      xy_float_t lookback(shaping_time_t t /* in stepper timer ticks */) {
+        constexpr float ADV_TICKS_PER_STEPPER_TICKS = (float) SMOOTH_LIN_ADV_HZ / STEPPER_TIMER_RATE;
+        uint32_t delay_steps = t * ADV_TICKS_PER_STEPPER_TICKS  + 0.5f; // Convert time to steps
         uint16_t past_i;
         if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
           // this means the buffer is too small. TODO: how to inform user?
@@ -3018,7 +3014,7 @@ hal_timer_t Stepper::block_phase_isr() {
       float total_rate = planned_step_rate + la_step_rate;
 
       #if ENABLED(INPUT_SHAPING_E_SYNCH)
-        XYPair pre_shaping_rate = {0, 0},
+        xy_float_t pre_shaping_rate = {0, 0},
                first_pulse_rate = {0, 0};
         float unshaped_rate_e = total_rate;
         if (current_block) {
@@ -3035,7 +3031,7 @@ hal_timer_t Stepper::block_phase_isr() {
             };
           }
         }
-        const XYPair second_pulse_rate = {
+        const xy_float_t second_pulse_rate = {
           lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f,
           lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f
         };
