@@ -21,6 +21,13 @@
  */
 #pragma once
 
+/**
+ * Firmware download method
+ * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-d/fly-d8-h723/flash/bl
+ * Burn the marlin folder/.pio/build/motherboard name/firmware.bin
+ * 
+ */
+
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 

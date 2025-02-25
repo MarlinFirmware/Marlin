@@ -21,6 +21,14 @@
  */
 #pragma once
 
+
+ /**
+ * Bootloader Download
+ * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-cdy/fly-cdy-v3/bl
+ * 
+ */
+
+
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 

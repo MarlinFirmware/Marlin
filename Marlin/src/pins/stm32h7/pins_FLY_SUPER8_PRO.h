@@ -21,6 +21,12 @@
  */
 #pragma once
 
+/**
+ * Bootloader Download
+ * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-super/fly-super8-pro/flash/bl
+ * 
+ */
+
 #define ALLOW_STM32DUINO
 #include "env_validate.h"
 
