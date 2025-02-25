@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include "../../inc/MarlinConfig.h"
@@ -31,44 +30,44 @@
 // ------------------------
 
 // Timer configuration constants
-#define STEPPER_TIMER_RATE      2000000
-#define TEMP_TIMER_FREQUENCY    1000
+#define STEPPER_TIMER_RATE    2000000
+#define TEMP_TIMER_FREQUENCY  1000
 
 // Timer instance definitions
-#define MF_TIMER_STEP          3
-#define MF_TIMER_TEMP          1
-#define MF_TIMER_PULSE         MF_TIMER_STEP
+#define MF_TIMER_STEP     3
+#define MF_TIMER_TEMP     1
+#define MF_TIMER_PULSE    MF_TIMER_STEP
 
-#define hal_timer_t				uint32_t
-#define HAL_TIMER_TYPE_MAX		UINT16_MAX
+#define hal_timer_t         uint32_t
+#define HAL_TIMER_TYPE_MAX  UINT16_MAX
 
 extern uint32_t GetStepperTimerClkFreq();
 
 // Timer prescaler calculations
-#define STEPPER_TIMER_PRESCALE		(GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)	// Prescaler = 60
-#define PULSE_TIMER_PRESCALE		STEPPER_TIMER_PRESCALE
-#define STEPPER_TIMER_TICKS_PER_US	((STEPPER_TIMER_RATE) / 1000000)				// Stepper timer ticks per µs
-#define PULSE_TIMER_RATE			STEPPER_TIMER_RATE
-#define PULSE_TIMER_TICKS_PER_US	STEPPER_TIMER_TICKS_PER_US
+#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)	// Prescaler = 30
+#define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)				        // Stepper timer ticks per µs
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE
+#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 
 // Timer interrupt priorities
 #define STEP_TIMER_IRQ_PRIORITY 2
 #define TEMP_TIMER_IRQ_PRIORITY 14
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt(MF_TIMER_STEP)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_disable_interrupt(MF_TIMER_STEP)
-#define STEPPER_ISR_ENABLED()				HAL_timer_interrupt_enabled(MF_TIMER_STEP)
-#define ENABLE_TEMPERATURE_INTERRUPT()		HAL_timer_enable_interrupt(MF_TIMER_TEMP)
-#define DISABLE_TEMPERATURE_INTERRUPT()		HAL_timer_disable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
+#define ENABLE_TEMPERATURE_INTERRUPT()		  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define DISABLE_TEMPERATURE_INTERRUPT()     HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 extern void Step_Handler();
 extern void Temp_Handler();
 
 #ifndef HAL_STEP_TIMER_ISR
-	#define HAL_STEP_TIMER_ISR() void Step_Handler()
+  #define HAL_STEP_TIMER_ISR() void Step_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-	#define HAL_TEMP_TIMER_ISR() void Temp_Handler()
+  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 #endif
 
 extern GeneralTimer& Step_Timer;
@@ -92,36 +91,31 @@ void SetTimerInterruptPriorities();
 
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_number) {
-	return (timer_number == MF_TIMER_STEP) ? is_step_timer_initialized : 
-		   (timer_number == MF_TIMER_TEMP) ? is_temp_timer_initialized :
-		   false;
+  return (timer_number == MF_TIMER_STEP) ? is_step_timer_initialized :
+         (timer_number == MF_TIMER_TEMP) ? is_temp_timer_initialized :
+         false;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) {
-	if (HAL_timer_initialized(timer_number)) {
-		if (timer_number == MF_TIMER_STEP) {
-			return Step_Timer.getCounter(TimerFormat::TICK);
-		} else if (timer_number == MF_TIMER_TEMP) {
-			return Temp_Timer.getCounter(TimerFormat::TICK);
-		}
-	}
-	return 0;
+  if (!HAL_timer_initialized(timer_number)) return 0U;
+
+  GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
+  return (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) 
+         ? timer.getCounter(TimerFormat::TICK) 
+         : 0U;
 }
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const hal_timer_t value) {
-	if (HAL_timer_initialized(timer_number)) {
-		if (timer_number == MF_TIMER_STEP) {
-			Step_Timer.setRolloverValue(static_cast<uint32_t>(value + 1U), TimerFormat::TICK);
-			if (value < static_cast<hal_timer_t>(Step_Timer.getCounter(TimerFormat::TICK))) {
-				Step_Timer.refresh();
-			}
-		} else if (timer_number == MF_TIMER_TEMP) {
-			Temp_Timer.setRolloverValue(static_cast<uint32_t>(value + 1U), TimerFormat::TICK);
-			if (value < static_cast<hal_timer_t>(Temp_Timer.getCounter(TimerFormat::TICK))) {
-				Temp_Timer.refresh();
-			}
-		}
-    }
+  if (!HAL_timer_initialized(timer_number)) return;
+
+  const uint32_t new_value = static_cast<uint32_t>(value + 1U);
+  GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
+
+  if (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) {
+    timer.setRolloverValue(new_value, TimerFormat::TICK);
+    if (value < static_cast<hal_timer_t>(timer.getCounter(TimerFormat::TICK)))
+      timer.refresh();
+  }
 }
 
 #define HAL_timer_isr_prologue(T) NOOP

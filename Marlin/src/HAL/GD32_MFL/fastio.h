@@ -21,24 +21,23 @@
  */
 #pragma once
 
-//
 // Fast I/O interfaces for GD32F303RE
-//
+
 #include <GPIO.hpp>
 #include <PinOps.hpp>
 #include <PinOpsMap.hpp>
 
 static inline void fast_write_pin_wrapper(pin_size_t IO, bool V) {
-    if (V) gpio::fast_set_pin(getPortFromPin(IO), getPinInPort(IO));
-    else gpio::fast_clear_pin(getPortFromPin(IO), getPinInPort(IO));
+  if (V) gpio::fast_set_pin(getPortFromPin(IO), getPinInPort(IO));
+  else gpio::fast_clear_pin(getPortFromPin(IO), getPinInPort(IO));
 }
 
 static inline bool fast_read_pin_wrapper(pin_size_t IO) {
-    return gpio::fast_read_pin(getPortFromPin(IO), getPinInPort(IO));
+  return gpio::fast_read_pin(getPortFromPin(IO), getPinInPort(IO));
 }
 
 static inline void fast_toggle_pin_wrapper(pin_size_t IO) {
-    gpio::fast_toggle_pin(getPortFromPin(IO), getPinInPort(IO));
+  gpio::fast_toggle_pin(getPortFromPin(IO), getPinInPort(IO));
 }
 
 // ------------------------
@@ -78,6 +77,6 @@ static inline void fast_toggle_pin_wrapper(pin_size_t IO) {
 #define PWM_PIN(P)              isPinInPinOps(TIMER_PinOps, P)
 #define NO_COMPILE_TIME_PWM
 
-// digitalRead digitalWrite wrappers
+// Wrappers for digitalRead and digitalWrite
 #define extDigitalRead(IO)      digitalRead(IO)
 #define extDigitalWrite(IO, V)  digitalWrite((IO), (V))

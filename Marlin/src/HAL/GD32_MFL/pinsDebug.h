@@ -24,7 +24,7 @@
 #include <Arduino.h>
 
 #ifndef TOTAL_PIN_COUNT
-   #error "Expected TOTAL_PIN_COUNT not found"
+  #error "Expected TOTAL_PIN_COUNT not found"
 #endif
 
 #define NUM_DIGITAL_PINS  TOTAL_PIN_COUNT
@@ -65,7 +65,7 @@ static bool getPinIsDigitalByIndex(const int16_t array_pin) {
   return (!isAnalogPin(pin));
 }
 
-#define MULTI_NAME_PAD 21 // space needed to be pretty if not first name assigned to a pin
+#define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
 
 #ifndef M43_NEVER_TOUCH
   #define M43_NEVER_TOUCH(Index) (Index >= 9 && Index <= 10) // SERIAL pins: PIN_9(TX) PIN_10(RX)

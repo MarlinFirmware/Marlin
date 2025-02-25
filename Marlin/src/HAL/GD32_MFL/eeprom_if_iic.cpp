@@ -40,12 +40,12 @@ void eeprom_init() {
   BL24CXX::init();
 }
 
-void eeprom_write_byte(uint8_t* pos, uint8_t value) {
+void eeprom_write_byte(uint8_t *pos, uint8_t value) {
   const unsigned eeprom_address = (unsigned)pos;
   return BL24CXX::writeOneByte(eeprom_address, value);
 }
 
-uint8_t eeprom_read_byte(uint8_t* pos) {
+uint8_t eeprom_read_byte(uint8_t *pos) {
   const unsigned eeprom_address = (unsigned)pos;
   return BL24CXX::readOneByte(eeprom_address);
 }

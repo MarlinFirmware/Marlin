@@ -23,7 +23,7 @@
 #define ENV_VALIDATE_H
 
 #if NOT_TARGET(ARDUINO_ARCH_MFL)
-    #error "Oops! Make sure you have a GD32F303RE MFL environment selected."
+  #error "Oops! Make sure you have a GD32F303RE MFL environment selected."
 #endif
 
 #endif

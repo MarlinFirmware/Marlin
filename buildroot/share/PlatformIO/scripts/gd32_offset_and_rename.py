@@ -4,7 +4,6 @@
 # - If 'board_build.offset' is provided, either by JSON or by the environment...
 #   - Set linker flag LD_FLASH_OFFSET and relocate the VTAB based on 'build.offset'.
 #   - Set linker flag LD_MAX_DATA_SIZE based on 'build.maximum_ram_size'.
-#   - Define MFL_FLASH_SIZE from 'upload.maximum_size' for use by Flash-based EEPROM emulation.
 #
 # - For 'board_build.rename' add a post-action to rename the firmware file.
 #
@@ -17,15 +16,11 @@ if pioutil.is_pio_build():
     board_keys = board.get("build").keys()
 
     #
-    # For build.offset define LD_FLASH_OFFSET, used by ldscript.ld
+    # For build.offset define LD_FLASH_OFFSET, used by F303RE.ld
     #
     if 'offset' in board_keys:
         LD_FLASH_OFFSET = board.get("build.offset")
         marlin.relocate_vtab(LD_FLASH_OFFSET)
-
-        # Flash size
-        maximum_flash_size = int(board.get("upload.maximum_size") / 1024)
-        marlin.replace_define('MFL_FLASH_SIZE', maximum_flash_size)
 
         # Get upload.maximum_ram_size (defined by /buildroot/share/PlatformIO/boards/VARIOUS.json)
         maximum_ram_size = board.get("upload.maximum_ram_size")
@@ -35,18 +30,6 @@ if pioutil.is_pio_build():
                 env["LINKFLAGS"][i] = "-Wl,--defsym=LD_FLASH_OFFSET=" + LD_FLASH_OFFSET
             if "-Wl,--defsym=LD_MAX_DATA_SIZE" in flag:
                 env["LINKFLAGS"][i] = "-Wl,--defsym=LD_MAX_DATA_SIZE=" + str(maximum_ram_size - 40)
-
-    #
-    # For build.encrypt_mks rename and encode the firmware file.
-    #
-    if 'encrypt_mks' in board_keys:
-
-        # Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt_mks
-        def encrypt(source, target, env):
-            marlin.encrypt_mks(source, target, env, board.get("build.encrypt_mks"))
-
-        if board.get("build.encrypt_mks") != "":
-            marlin.add_post_action(encrypt)
 
     #
     # For build.rename simply rename the firmware file.

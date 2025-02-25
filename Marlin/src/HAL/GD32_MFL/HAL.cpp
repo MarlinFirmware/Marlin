@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
 #include "../platforms.h"
 
 #ifdef ARDUINO_ARCH_MFL
@@ -29,108 +30,91 @@
 uint16_t MarlinHAL::adc_result;
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
-    extern void install_min_serial();
+  extern void install_min_serial();
 #endif
 
 #if ENABLED(MARLIN_DEV_MODE)
-    // Dump the clock frequencies of the system, AHB, APB1, APB2, and F_CPU.
-    static inline void HAL_clock_frequencies_dump() {
-        auto& rcuInstance = rcu::RCU::get_instance();
-        uint32_t freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_SYS);
-        SERIAL_ECHOPGM("\nSYSTEM_CLOCK=", freq);
-        freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_AHB);
-        SERIAL_ECHOPGM("\nABH_CLOCK=", freq);
-        freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB1);
-        SERIAL_ECHOPGM("\nAPB1_CLOCK=", freq);
-        freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB2);
-        SERIAL_ECHOPGM("\nAPB2_CLOCK=", freq,
-        "\nF_CPU=", F_CPU);
-
-        // Done
-        SERIAL_ECHOPGM("\n--\n");
-    }
-#endif // MARLIN_DEV_MODE
+  // Dump the clock frequencies of the system, AHB, APB1, APB2, and F_CPU.
+  static inline void HAL_clock_frequencies_dump() {
+    auto& rcuInstance = rcu::RCU::get_instance();
+    uint32_t freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_SYS);
+    SERIAL_ECHOPGM("\nSYSTEM_CLOCK=", freq);
+    freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_AHB);
+    SERIAL_ECHOPGM("\nABH_CLOCK=", freq);
+    freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB1);
+    SERIAL_ECHOPGM("\nAPB1_CLOCK=", freq);
+    freq = rcuInstance.get_clock_frequency(rcu::Clock_Frequency::CK_APB2);
+    SERIAL_ECHOPGM("\nAPB2_CLOCK=", freq,
+    "\nF_CPU=", F_CPU);
+    // Done
+    SERIAL_ECHOPGM("\n--\n");
+  }
+#endif  // MARLIN_DEV_MODE
 
 // Initializes the Marlin HAL
-//
-// This function performs the necessary setup for the Marlin HAL, including
-// ensuring that F_CPU is a constant expression, initializing the LED pin,
-// setting timer interrupt priorities, printing clock frequencies to the host
-// serial, and registering the min serial.
-// @return None
 void MarlinHAL::init() {
-    constexpr unsigned int cpuFreq = F_CPU;
-    UNUSED(cpuFreq);
+  constexpr unsigned int cpuFreq = F_CPU;
+  UNUSED(cpuFreq);
 
 #if PIN_EXISTS(LED)
-    OUT_WRITE(LED_PIN, LOW);
+  OUT_WRITE(LED_PIN, LOW);
 #endif
 
-    SetTimerInterruptPriorities();
+  SetTimerInterruptPriorities();
 
-    // Print clock frequencies to host serial
-    TERN_(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
+  // Print clock frequencies to host serial
+  TERN_(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
 
-    // Register min serial
-    TERN_(POSTMORTEM_DEBUGGING, install_min_serial());
+  // Register min serial
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());
 }
 
 // Returns the reset source based on the flags set in the RCU module
-// @return The reset source identified based on the set flags
 uint8_t MarlinHAL::get_reset_source() {
-    return
-        (RCU_I.get_flag(rcu::Status_Flags::FLAG_FWDGTRST)) ? RST_WATCHDOG :
-        (RCU_I.get_flag(rcu::Status_Flags::FLAG_SWRST)) ? RST_SOFTWARE :
-        (RCU_I.get_flag(rcu::Status_Flags::FLAG_EPRST)) ? RST_EXTERNAL :
-        (RCU_I.get_flag(rcu::Status_Flags::FLAG_PORRST)) ? RST_POWER_ON :
-        (RCU_I.get_flag(rcu::Status_Flags::FLAG_LPRST)) ? RST_BROWN_OUT :
-        0;
+  return
+    (RCU_I.get_flag(rcu::Status_Flags::FLAG_FWDGTRST)) ? RST_WATCHDOG :
+    (RCU_I.get_flag(rcu::Status_Flags::FLAG_SWRST)) ? RST_SOFTWARE :
+    (RCU_I.get_flag(rcu::Status_Flags::FLAG_EPRST)) ? RST_EXTERNAL :
+    (RCU_I.get_flag(rcu::Status_Flags::FLAG_PORRST)) ? RST_POWER_ON :
+    (RCU_I.get_flag(rcu::Status_Flags::FLAG_LPRST)) ? RST_BROWN_OUT :
+    0;
 }
 
-// Returns the amount of free memory available
-// @return The amount of free memory in bytes
+// Returns the amount of free memory available in bytes
 int MarlinHAL::freeMemory() {
-    volatile char top;
-    return &top - reinterpret_cast<char*>(_sbrk(0));
+  volatile char top;
+  return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
-//
 // Watchdog Timer
-//
 #if ENABLED(USE_WATCHDOG)
-    #define WDT_TIMEOUT_US  TERN(WATCHDOG_DURATION_8S, 8000000, 4000000)   // 4 or 8 second timeout
+  #define WDT_TIMEOUT_US  TERN(WATCHDOG_DURATION_8S, 8000000, 4000000)  // 4 or 8 second timeout
 
-    #include <FWatchdogTimer.h>
+  #include <FWatchdogTimer.h>
 
-    FWatchdogTimer& watchdogTimer = FWatchdogTimer::get_instance();
+  FWatchdogTimer& watchdogTimer = FWatchdogTimer::get_instance();
 
-    // Initializes the watchdog timer
-    // @note This function is disabled if DISABLE_WATCHDOG_INIT is enabled
-    // @return None
-    void MarlinHAL::watchdog_init() {
-        IF_DISABLED(DISABLE_WATCHDOG_INIT, watchdogTimer.begin(WDT_TIMEOUT_US));
-    }
+  // Initializes the watchdog timer
+  void MarlinHAL::watchdog_init() {
+    IF_DISABLED(DISABLE_WATCHDOG_INIT, watchdogTimer.begin(WDT_TIMEOUT_US));
+  }
 
-    // Refreshes the watchdog timer to prevent system reset
-    // @note This function is typically called at regular intervals to prevent the watchdog timer from expiring
-    // @return None
-    void MarlinHAL::watchdog_refresh() {
-        watchdogTimer.reload();
-        #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-            TOGGLE(LED_PIN); // heartbeat indicator
-        #endif
-    }
+  // Refreshes the watchdog timer to prevent system reset
+  void MarlinHAL::watchdog_refresh() {
+    watchdogTimer.reload();
+    #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // Heartbeat indicator
+    #endif
+  }
 #endif
 
 extern "C" {
-    extern unsigned int _ebss; // end of bss section
+  extern unsigned int _ebss;  // End of bss section
 }
 
 // Resets the system to initiate a firmware flash.
-// @param unused  An unused parameter.
-// @return None
 WEAK void flashFirmware(const int16_t) {
-    hal.reboot();
+  hal.reboot();
 }
 
 #endif // ARDUINO_ARCH_MFL

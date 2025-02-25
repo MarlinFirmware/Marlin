@@ -27,30 +27,30 @@
 
 // Inherit and expand on the official library
 class libServo {
-  public:
-    libServo();
+public:
+  libServo();
 
-    int8_t attach(const int pin = 0); // pin == 0 uses value from previous call
-    int8_t attach(const int pin, const int min, const int max);
-    void detach() { mflServo.detach(); }
+  int8_t attach(const int pin = 0); // pin == 0 uses value from previous call
+  int8_t attach(const int pin, const int min, const int max);
+  void detach() { mflServo.detach(); }
 
-    int read() { return mflServo.read(); }
-    void move(const int value);
+  int read() { return mflServo.read(); }
+  void move(const int value);
 
-    void pause();
-    void resume();
+  void pause();
+  void resume();
 
-    static void pause_all_servos();
-    static void resume_all_servos();
+  static void pause_all_servos();
+  static void resume_all_servos();
 
-    static void setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority);
+  static void setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority);
 
-  private:
-    Servo mflServo;
+private:
+  Servo mflServo;
 
-    int servoPin = 0;
-    millis_t delay = 0;
+  int servoPin = 0;
+  millis_t delay = 0;
 
-    bool was_attached_before_pause;
-    int value_before_pause;
+  bool was_attached_before_pause;
+  int value_before_pause;
 };

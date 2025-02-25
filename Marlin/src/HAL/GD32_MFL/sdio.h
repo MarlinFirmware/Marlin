@@ -19,18 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #include <SDIO.hpp>
 #include <DMA.hpp>
 
-inline constexpr uint8_t SDIO_D0_PIN = 40;
-inline constexpr uint8_t SDIO_D1_PIN = 41;
-inline constexpr uint8_t SDIO_D2_PIN = 42;
-inline constexpr uint8_t SDIO_D3_PIN = 43;
-inline constexpr uint8_t SDIO_CK_PIN = 44;
-inline constexpr uint8_t SDIO_CMD_PIN = 50;
+#define SDIO_D0_PIN   40
+#define SDIO_D1_PIN   41
+#define SDIO_D2_PIN   42
+#define SDIO_D3_PIN   43
+#define SDIO_CK_PIN   44
+#define SDIO_CMD_PIN  50
 
 void sdio_mfl_init();
 bool SDIO_SetBusWidth(sdio::Bus_Width width);

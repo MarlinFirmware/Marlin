@@ -43,18 +43,18 @@
 using namespace arduino;
 
 struct MarlinSerial : public UsartSerial {
-    static MarlinSerial& get_instance(usart::USART_Base Base, pin_size_t rxPin = NO_PIN, pin_size_t txPin = NO_PIN);
+  static MarlinSerial& get_instance(usart::USART_Base Base, pin_size_t rxPin = NO_PIN, pin_size_t txPin = NO_PIN);
 
-    void begin(unsigned long baudrate, uint16_t config);
-    inline void begin(unsigned long baudrate) { begin(baudrate, SERIAL_8N1); }
-    void updateRxDmaBuffer();
+  void begin(unsigned long baudrate, uint16_t config);
+  inline void begin(unsigned long baudrate) { begin(baudrate, SERIAL_8N1); }
+  void updateRxDmaBuffer();
 
 #if DISABLED(SERIAL_DMA)
-    FORCE_INLINE static uint8_t buffer_overruns() { return 0; }
+  FORCE_INLINE static uint8_t buffer_overruns() { return 0; }
 #endif
 
 protected:
-    using UsartSerial::UsartSerial;
+  using UsartSerial::UsartSerial;
 };
 
 typedef Serial1Class<MarlinSerial> MSerialT;

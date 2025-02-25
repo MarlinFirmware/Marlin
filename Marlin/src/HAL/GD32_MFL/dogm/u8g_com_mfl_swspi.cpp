@@ -76,23 +76,20 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
     case U8G_COM_MSG_INIT:
       swSpiInit();
       break;
-
     case U8G_COM_MSG_STOP:
       break;
-
     case U8G_COM_MSG_RESET:
       #if PIN_EXISTS(LCD_RESET)
         WRITE(LCD_RESET_PIN, arg_val);
       #endif
       break;
-
     case U8G_COM_MSG_CHIP_SELECT:
       #if U8G_SPI_USE_MODE_3        // This LCD SPI is running mode 3 while SD card is running mode 0
         if (arg_val) {              // SCK idle state needs to be set to the proper idle state before
                                     // the next chip select goes active
           WRITE(DOGLCD_SCK, HIGH);  // Set SCK to mode 3 idle state before CS goes active
           WRITE(DOGLCD_CS, LOW);
-          nop; // hold SCK high for a few ns
+          nop;  // hold SCK high for a few ns
           nop;
          }
         else {
@@ -103,11 +100,9 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
         WRITE(DOGLCD_CS, !arg_val);
       #endif
       break;
-
     case U8G_COM_MSG_WRITE_BYTE:
       u8g_sw_spi_shift_out(arg_val);
       break;
-
     case U8G_COM_MSG_WRITE_SEQ: {
       uint8_t* ptr = (uint8_t*)arg_ptr;
       while (arg_val > 0) {
@@ -115,7 +110,6 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
         arg_val--;
       }
     } break;
-
     case U8G_COM_MSG_WRITE_SEQ_P: {
       uint8_t* ptr = (uint8_t*)arg_ptr;
       while (arg_val > 0) {
@@ -124,8 +118,7 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
         arg_val--;
       }
     } break;
-
-    case U8G_COM_MSG_ADDRESS: /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+    case U8G_COM_MSG_ADDRESS: // define cmd (arg_val = 0) or data mode (arg_val = 1)
       WRITE(DOGLCD_A0, arg_val);
       break;
   }

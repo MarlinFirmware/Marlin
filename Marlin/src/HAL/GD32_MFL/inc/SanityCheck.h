@@ -19,12 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
-//
 // Test mfl specific configuration values for errors at compile-time.
-//
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION  // avoid additional error noise
   #if USE_FALLBACK_EEPROM
@@ -47,9 +44,7 @@
   #error "TEMP_SENSOR_SOC requires 'TEMP_SOC_PIN ATEMP' on GD32"
 #endif
 
-//
 // Check for common serial pin conflicts
-//
 #define _CHECK_SERIAL_PIN(N) (( \
     BTN_EN1 == N || BTN_EN2 == N ||DOGLCD_CS == N || HEATER_BED_PIN == N || FAN0_PIN == N || \
     SDIO_D2_PIN == N || SDIO_D3_PIN == N || SDIO_CK_PIN == N || SDIO_CMD_PIN == N || \

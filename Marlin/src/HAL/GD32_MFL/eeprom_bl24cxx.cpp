@@ -49,14 +49,15 @@ bool PersistentStore::access_start() {
   return true;
 }
 
-bool PersistentStore::access_finish() { return true; }
+bool PersistentStore::access_finish() {
+  return true;
+}
 
-bool PersistentStore::write_data(int& pos, const uint8_t* value, size_t size, uint16_t* crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   uint16_t written = 0;
   while (size--) {
     uint8_t v = *value;
-    uint8_t* const p = (uint8_t* const)REAL_EEPROM_ADDR(pos);
-
+    uint8_t * const p = (uint8_t * const)REAL_EEPROM_ADDR(pos);
     // EPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
     if (v != eeprom_read_byte(p)) {
@@ -76,7 +77,7 @@ bool PersistentStore::write_data(int& pos, const uint8_t* value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int& pos, uint8_t* value, size_t size, uint16_t* crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     const uint8_t c = eeprom_read_byte((uint8_t*)REAL_EEPROM_ADDR(pos));
     if (writing) *value = c;

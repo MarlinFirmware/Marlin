@@ -21,9 +21,9 @@
  */
 #pragma once
 
-#define TS_TYPICAL_V		1.405f
-#define TS_TYPICAL_TEMP		25
-#define TS_TYPICAL_SLOPE	4.5f
+#define TS_TYPICAL_V      1.405
+#define TS_TYPICAL_TEMP   25
+#define TS_TYPICAL_SLOPE  4.5
 
-// TODO: implement voltage scaling (calibrated Vrefint) and ADC resolution scaling (when applicable)
-#define TEMP_SOC_SENSOR(RAW) ((TS_TYPICAL_V - (RAW) / float(OVERSAMPLENR) / float(HAL_ADC_RANGE) * (float(ADC_VREF_MV) / 1000.0f)) / ((TS_TYPICAL_SLOPE) / 1000) + TS_TYPICAL_TEMP)
+// TODO: Implement voltage scaling (calibrated Vrefint) and ADC resolution scaling (when applicable)
+#define TEMP_SOC_SENSOR(RAW) ((TS_TYPICAL_V - (RAW) / float(OVERSAMPLENR) / float(HAL_ADC_RANGE) * (float(ADC_VREF_MV) / 1000)) / ((TS_TYPICAL_SLOPE) / 1000) + TS_TYPICAL_TEMP)

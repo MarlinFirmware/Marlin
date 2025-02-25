@@ -15,12 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
-//
 // Define SPI Pins: SCK, MISO, MOSI
-//
 #ifndef SD_SCK_PIN
   #define SD_SCK_PIN  PIN_SPI_SCK
 #endif

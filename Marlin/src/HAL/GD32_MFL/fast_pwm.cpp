@@ -32,65 +32,65 @@
 static uint16_t timer_frequency[TIMER_COUNT];
 
 void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t value, const uint16_t scale, const bool invert) {
-    // Calculate duty cycle based on inversion flag
-    const uint16_t duty = invert ? scale - value : value;
+  // Calculate duty cycle based on inversion flag
+  const uint16_t duty = invert ? scale - value : value;
 
-    // Check if the pin supports PWM
-    if (PWM_PIN(pin)) {
-        // Get the timer device and index associated with the pin
-        const auto timer_base = getPinOpsPeripheralBase<TIMERPinOps, timer::TIMER_Base>(TIMER_PinOps, static_cast<pin_size_t>(pin));
-
-        // Initialize the timer instance
-        auto& TimerInstance = GeneralTimer::get_instance(timer_base);
-
-        // Get channel and previous channel mode
-        const auto channel = getPackedPinChannel(getPackedPinOps(TIMER_PinOps, static_cast<pin_size_t>(pin)));
-        const InputOutputMode previous = TimerInstance.getChannelMode(channel);
-
-        if (timer_frequency[static_cast<size_t>(timer_base)] == 0) {
-            set_pwm_frequency(pin, PWM_FREQUENCY);
-        }
-
-        // Set the PWM duty cycle
-        TimerInstance.setCaptureCompare(channel, duty, CCFormat::B8);
-
-        // Configure pin as PWM output
-        pinOpsPinout(TIMER_PinOps, static_cast<pin_size_t>(pin));
-
-        // Set channel mode if not already set and start timer
-        if (previous != InputOutputMode::PWM0) {
-            TimerInstance.setChannelMode(channel, InputOutputMode::PWM0, static_cast<pin_size_t>(pin));
-            TimerInstance.start();
-        }
-    } else {
-        pinMode(pin, OUTPUT);
-        digitalWrite(pin, duty < scale / 2 ? LOW : HIGH);
-    }
-}
-
-void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
-    // Check if the pin supports PWM
-    if (!PWM_PIN(pin)) return;
-
-    // Get the timer instance and index associated with the pin
+  // Check if the pin supports PWM
+  if (PWM_PIN(pin)) {
+    // Get the timer peripheral base associated with the pin
     const auto timer_base = getPinOpsPeripheralBase<TIMERPinOps, timer::TIMER_Base>(TIMER_PinOps, static_cast<pin_size_t>(pin));
-
-    // Guard against modifying protected timers
-    #ifdef STEP_TIMER
-      if (static_cast<size_t>(timer_base) == STEP_TIMER) return;
-    #endif
-    #ifdef TEMP_TIMER
-      if (static_cast<size_t>(timer_base) == TEMP_TIMER) return;
-    #endif
-    #if defined(PULSE_TIMER) && MF_TIMER_PULSE != MF_TIMER_STEP
-      if (static_cast<size_t>(timer_base) == PULSE_TIMER) return;
-    #endif
 
     // Initialize the timer instance
     auto& TimerInstance = GeneralTimer::get_instance(timer_base);
 
-    TimerInstance.setRolloverValue(f_desired, TimerFormat::HERTZ);
-    timer_frequency[static_cast<size_t>(timer_base)] = f_desired;
+    // Get channel and previous channel mode
+    const auto channel = getPackedPinChannel(getPackedPinOps(TIMER_PinOps, static_cast<pin_size_t>(pin)));
+    const InputOutputMode previous = TimerInstance.getChannelMode(channel);
+
+    if (timer_frequency[static_cast<size_t>(timer_base)] == 0) {
+      set_pwm_frequency(pin, PWM_FREQUENCY);
+    }
+
+    // Set the PWM duty cycle
+    TimerInstance.setCaptureCompare(channel, duty, CCFormat::B8);
+
+    // Configure pin as PWM output
+    pinOpsPinout(TIMER_PinOps, static_cast<pin_size_t>(pin));
+
+    // Set channel mode if not already set and start timer
+    if (previous != InputOutputMode::PWM0) {
+      TimerInstance.setChannelMode(channel, InputOutputMode::PWM0, static_cast<pin_size_t>(pin));
+      TimerInstance.start();
+    }
+  } else {
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, duty < scale / 2 ? LOW : HIGH);
+  }
+}
+
+void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
+  // Check if the pin supports PWM
+  if (!PWM_PIN(pin)) return;
+
+  // Get the timer peripheral base associated with the pin
+  const auto timer_base = getPinOpsPeripheralBase<TIMERPinOps, timer::TIMER_Base>(TIMER_PinOps, static_cast<pin_size_t>(pin));
+
+  // Guard against modifying protected timers
+  #ifdef STEP_TIMER
+    if (static_cast<size_t>(timer_base) == STEP_TIMER) return;
+  #endif
+  #ifdef TEMP_TIMER
+    if (static_cast<size_t>(timer_base) == TEMP_TIMER) return;
+  #endif
+  #if defined(PULSE_TIMER) && MF_TIMER_PULSE != MF_TIMER_STEP
+    if (static_cast<size_t>(timer_base) == PULSE_TIMER) return;
+  #endif
+
+  // Initialize the timer instance
+  auto& TimerInstance = GeneralTimer::get_instance(timer_base);
+
+  TimerInstance.setRolloverValue(f_desired, TimerFormat::HERTZ);
+  timer_frequency[static_cast<size_t>(timer_base)] = f_desired;
 }
 
 #endif // ARDUINO_ARCH_MFL
