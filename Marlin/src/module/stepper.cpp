@@ -3014,21 +3014,21 @@ hal_timer_t Stepper::block_phase_isr() {
       float total_rate = planned_step_rate + la_step_rate;
 
       #if ENABLED(INPUT_SHAPING_E_SYNCH)
-        xy_float_t pre_shaping_rate = {0, 0},
-               first_pulse_rate = {0, 0};
+        xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
+                   first_pulse_rate = xy_float_t({0, 0});
         float unshaped_rate_e = total_rate;
         if (current_block) {
           float xy_length = current_block->steps.x + current_block->steps.y;
           if (xy_length > 0) {
             unshaped_rate_e = 0;
-            pre_shaping_rate = {
+            pre_shaping_rate = xy_float_t({
               total_rate * current_block->steps.x / xy_length,
               total_rate * current_block->steps.y / xy_length,
-            };
-            first_pulse_rate = {
+            });
+            first_pulse_rate = xy_float_t({
               pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f,
               pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f
-            };
+            });
           }
         }
         const xy_float_t second_pulse_rate = {
