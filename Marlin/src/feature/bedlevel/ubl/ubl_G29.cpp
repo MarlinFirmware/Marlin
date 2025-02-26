@@ -74,6 +74,10 @@
 #define SIZE_OF_LITTLE_RAISE 1
 #define BIG_RAISE_NOT_NEEDED 0
 
+#ifdef USE_PROBE_FOR_MESH_REF
+  float mesh_zero_ref_offset = 0;  // declared in gcode.h as external so it can be set in menu_probe_level.cpp
+#endif
+
 /**
  *   G29: Unified Bed Leveling by Roxy
  *
@@ -320,14 +324,30 @@ void unified_bed_leveling::G29() {
   // Check for commands that require the printer to be homed
   if (may_move) {
     planner.synchronize();
-    #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
-      save_ubl_active_state_and_disable();
-      gcode.process_subcommands_now(F("G28Z"));
-      restore_ubl_active_state(false); // ...without telling ExtUI "done"
-    #else
-      // Send 'N' to force homing before G29 (internal only)
-      if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
-    #endif
+
+  #ifdef USE_PROBE_FOR_MESH_REF
+    // Send 'N' to force homing before G29 (internal only)
+    if (axes_should_home() || parser.seen_test('N')){
+      gcode.home_all_axes(); 
+    } 
+    else {
+      gcode.process_subcommands_now(F("G28L0 X Y"));  // Home X and Y only 
+    }
+    // Set the probe trigger height as Z home before leveling
+    probe.probe_at_point(current_position, PROBE_PT_NONE,0 ,false ,true, Z_PROBE_LOW_POINT, Z_TWEEN_SAFE_CLEARANCE, false);
+    set_axis_is_at_home(Z_AXIS);
+    sync_plan_position();
+  #else
+      #if ALL(DWIN_LCD_PROUI, ZHOME_BEFORE_LEVELING)
+        save_ubl_active_state_and_disable();
+        gcode.process_subcommands_now(F("G28Z"));
+        restore_ubl_active_state(false); // ...without telling ExtUI "done"
+      #else
+        // Send 'N' to force homing before G29 (internal only)
+        if (axes_should_home() || parser.seen_test('N')) gcode.home_all_axes();
+      #endif
+  #endif
+
     probe.use_probing_tool();
 
     #ifdef EVENT_GCODE_BEFORE_G29
@@ -807,7 +827,11 @@ void unified_bed_leveling::shift_mesh_height() {
 
       if (best.pos.x >= 0) {    // mesh point found and is reachable by probe
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_START));
-        const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
+          #ifdef USE_PROBE_FOR_MESH_REF // adjust the mesh point value
+            const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity) - mesh_zero_ref_offset;
+          #else
+            const float measured_z = probe.probe_at_point(best.meshpos(), stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity);
+          #endif
         z_values[best.pos.x][best.pos.y] = isnan(measured_z) ? HUGE_VALF : measured_z;  // Mark invalid point already probed with HUGE_VALF to omit it in the next loop
         #if ENABLED(EXTENSIBLE_UI)
           ExtUI::onMeshUpdate(best.pos, ExtUI::G29_POINT_FINISH);
