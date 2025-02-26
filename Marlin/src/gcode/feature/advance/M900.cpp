@@ -111,7 +111,7 @@ void GcodeSuite::M900() {
         const float tau = parser.value_float();
         if (WITHIN(tau, 0, .5)) {
           planner.synchronize();
-          planner.set_advance_tau(tau);
+          Stepper::set_advance_tau(tau);
         }
         else
           echo_value_oor('U');
