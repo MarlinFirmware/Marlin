@@ -2910,7 +2910,7 @@ hal_timer_t Stepper::block_phase_isr() {
           count_direction.e = -count_direction.e;
           DIR_WAIT_BEFORE();
           E_APPLY_DIR(forward_e, false);
-          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+          TERN_(FT_MOTION, last_set_direction = last_direction_bits);
           DIR_WAIT_AFTER();
         }
       }
