@@ -246,7 +246,7 @@ typedef struct PlannerBlock {
            decelerate_start;                // The index of the step event on which to start decelerating
 
   #if ENABLED(SMOOTH_LIN_ADV)
-    uint32_t cruise_time;
+    uint32_t cruise_time;                   // Cruise time in STEP timer counts
     float xy_to_e_step_ratio;
   #endif
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
