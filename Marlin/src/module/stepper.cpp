@@ -2959,13 +2959,13 @@ hal_timer_t Stepper::block_phase_isr() {
           if (!block->use_advance_lead) return 0.0f;
           uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
-          return rate * block->xy_to_e_step_ratio;
+          return rate * block->e_step_ratio;
         }
         t -= block->acceleration_time;
 
         if (t <= block->cruise_time) {
           if (!block->use_advance_lead) return 0.0f;
-          return block->cruise_rate * block->xy_to_e_step_ratio;
+          return block->cruise_rate * block->e_step_ratio;
         }
         t -= block->cruise_time;
 
@@ -2978,7 +2978,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
           else
             rate = block->final_rate;
-          return rate * block->xy_to_e_step_ratio;
+          return rate * block->e_step_ratio;
         }
         t -= block->deceleration_time;
       }
@@ -3014,7 +3014,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
       float planned_step_rate = 0;
       if (current_block) {
-        planned_step_rate = curr_step_rate * current_block->xy_to_e_step_ratio;
+        planned_step_rate = curr_step_rate * current_block->e_step_ratio;
       }
       float total_rate = planned_step_rate + la_step_rate;
 

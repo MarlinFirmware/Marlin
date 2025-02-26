@@ -2462,7 +2462,7 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(SMOOTH_LIN_ADV)
       block->use_advance_lead = use_advance_lead;
-      block->xy_to_e_step_ratio = (block->direction_bits.e ? 1 : -1) * 
+      block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * 
         float(block->steps.e) / block->step_event_count;
     #else
       block->la_advance_rate = 0;
