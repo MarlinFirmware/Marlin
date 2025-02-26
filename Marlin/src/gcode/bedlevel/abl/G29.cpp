@@ -77,6 +77,10 @@
   #endif
 #endif
 
+#ifdef USE_PROBE_FOR_MESH_REF
+  float mesh_zero_ref_offset = 0;  // declared in gcode.h as external so it can be set in menu_probe_level.cpp
+#endif
+
 /**
  * @brief Do some things before returning from G29.
  * @param retry : true if the G29 can and should be retried. false if the failure is too serious.
@@ -263,9 +267,24 @@ G29_TYPE GcodeSuite::G29() {
     G29_RETURN(false, false);
   }
 
-  // Send 'N' to force homing before G29 (internal only)
-  if (parser.seen_test('N'))
-    process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
+  #ifdef USE_PROBE_FOR_MESH_REF
+    // Send 'N' to force homing before G29 (internal only)
+    if (parser.seen_test('N')){
+      process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));  
+    } 
+    else {
+      process_subcommands_now(F("G28L0 X Y"));  // Home X and Y only 
+    }
+    // Set the probe trigger height as Z home before leveling
+    probe.probe_at_point(current_position, PROBE_PT_NONE,0 ,false ,true, Z_PROBE_LOW_POINT, Z_TWEEN_SAFE_CLEARANCE, false);
+    set_axis_is_at_home(Z_AXIS);
+    sync_plan_position();
+  #else
+    // Send 'N' to force homing before G29 (internal only)
+    if (parser.seen_test('N')){
+      process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));  
+    } 
+  #endif
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false, false);
@@ -592,11 +611,19 @@ G29_TYPE GcodeSuite::G29() {
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-        const float newz = abl.measured_z + abl.Z_offset;
+        #ifdef USE_PROBE_FOR_MESH_REF
+          const float newz = abl.measured_z + mesh_zero_ref_offset;
+        #else
+          const float newz = abl.measured_z + abl.Z_offset;
+        #endif
         abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
+        #ifdef USE_PROBE_FOR_MESH_REF
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + mesh_zero_ref_offset);
+        #else
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
+        #endif
 
       #endif
     }
@@ -798,7 +825,12 @@ G29_TYPE GcodeSuite::G29() {
 
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-            const float z = abl.measured_z + abl.Z_offset;
+            #ifdef USE_PROBE_FOR_MESH_REF
+              const float z = abl.measured_z + mesh_zero_ref_offset; 
+            #else
+              const float z = abl.measured_z + abl.Z_offset; 
+            #endif
+
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
