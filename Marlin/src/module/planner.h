@@ -1049,7 +1049,7 @@ class Planner {
      *
      * WARNING: Called from Stepper ISR context!
      */
-    static block_t* lookahead(uint8_t offset);
+    static block_t* get_future_block(uint8_t offset);
 
     /**
      * "Release" the current block so its slot can be reused.

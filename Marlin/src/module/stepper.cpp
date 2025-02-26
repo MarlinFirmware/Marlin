@@ -2949,7 +2949,7 @@ hal_timer_t Stepper::block_phase_isr() {
     #endif
 
     float lookahead(uint32_t t) {
-      for (uint8_t i = 0; block_t * block = Planner::lookahead(i); i++) {
+      for (uint8_t i = 0; block_t * block = Planner::get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (t <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0.0f;

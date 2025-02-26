@@ -779,20 +779,13 @@ block_t* Planner::get_current_block() {
 
   return nullptr;
 }
-block_t* Planner::lookahead(uint8_t offset) {
-  // Get the number of moves in the planner queue so far
+
+block_t* Planner::get_future_block(uint8_t offset) {
   const uint8_t nr_moves = movesplanned();
-
-  // If there are any moves queued ...
-  if (nr_moves < offset) return nullptr;
+if (nr_moves < offset) return nullptr;
   block_t * const block = &block_buffer[block_inc_mod(block_buffer_tail, offset)];
-
-  // No trapezoid calculated? Don't execute yet.
   if (block->flag.recalculate) return nullptr;
-
-  // Return the block
   return block;
-
 }
 
 /**
