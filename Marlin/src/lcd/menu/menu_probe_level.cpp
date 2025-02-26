@@ -26,6 +26,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#ifdef USE_PROBE_FOR_MESH_REF
+  #include "../../gcode/gcode.h"
+#endif
+
 #if HAS_MARLINUI_MENU && ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
 
 #include "menu_item.h"
@@ -350,7 +354,15 @@ void menu_probe_level() {
     }
     else {
       #if HAS_BED_PROBE
-        EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        #ifdef USE_PROBE_FOR_MESH_REF
+          #ifdef HOME_SWITCH_TO_BED_OFFSET_MENU
+            // Change the name of the menu option as the offsett relates to the fixed Z stop/Homing switch but
+            // reduce the range to -1/+1 and use the same offset variable so function stays the same
+            EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_HOME_OFFSET_Z, &mesh_zero_ref_offset, -1, 0);
+          #endif
+        #else
+          EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
+        #endif         
       #endif
     }
 
