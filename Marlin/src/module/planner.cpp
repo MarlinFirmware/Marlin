@@ -873,7 +873,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     block->deceleration_time = deceleration_time;
     block->cruise_rate = cruise_rate;
   #endif
-   #if S_CURVE_ACCELERATION
+   #if ENABLED(S_CURVE_ACCELERATION)
     block->acceleration_time_inverse = acceleration_time_inverse;
     block->deceleration_time_inverse = deceleration_time_inverse;
   #endif
