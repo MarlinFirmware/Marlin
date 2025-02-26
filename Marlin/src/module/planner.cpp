@@ -237,11 +237,6 @@ float Planner::previous_nominal_speed;
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
 #endif
-#if ENABLED(SMOOTH_LIN_ADV)
-  float Planner::extruder_advance_TAU,
-        Planner::extruder_advance_TAU_TICKS,
-        Planner::extruder_advance_ALPHA;
-#endif
 
 #if HAS_POSITION_FLOAT
   xyze_pos_t Planner::position_float; // Needed for accurate maths. Steps cannot be used!

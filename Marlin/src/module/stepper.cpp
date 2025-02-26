@@ -2894,6 +2894,10 @@ hal_timer_t Stepper::block_phase_isr() {
 
 #if ENABLED(LIN_ADVANCE)
   #if ENABLED(SMOOTH_LIN_ADV)
+    float Stepper::extruder_advance_TAU,
+          Stepper::extruder_advance_TAU_TICKS,
+          Stepper::extruder_advance_ALPHA;
+
     void Stepper::set_la_interval(int32_t rate) {
       if (rate == 0) {
         la_interval = LA_ADV_NEVER;
@@ -2989,7 +2993,7 @@ hal_timer_t Stepper::block_phase_isr() {
         // Don't lookahead during unretractions to keep pressure zero at start of lines
         // and so avoid blobs and improve seams
         if (!is_unretracting) {
-          uint32_t t = Planner::extruder_advance_TAU_TICKS + curr_timer_tick;
+          uint32_t t = extruder_advance_TAU_TICKS + curr_timer_tick;
           target_pressure = lookahead(t) * Planner::extruder_advance_K[0];
         }
       }
@@ -3001,8 +3005,8 @@ hal_timer_t Stepper::block_phase_isr() {
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
         target_pressure =
-          Planner::extruder_advance_ALPHA * target_pressure +
-          (1 - Planner::extruder_advance_ALPHA) * soothed_values[i];
+          extruder_advance_ALPHA * target_pressure +
+          (1 - extruder_advance_ALPHA) * soothed_values[i];
         soothed_values[i] = target_pressure;
       }
       const float dt_inv = SMOOTH_LIN_ADV_HZ;

@@ -351,6 +351,16 @@ class Stepper {
       static constexpr bool adaptive_step_smoothing_enabled = true;
     #endif
 
+    #if ENABLED(SMOOTH_LIN_ADV)
+      static float  extruder_advance_TAU;       // The smoothing time, which is also the lookahead 
+                                                // time of the smoother.
+      static void set_advance_tau(float tau) {
+        extruder_advance_TAU = tau;
+        extruder_advance_TAU_TICKS = tau * STEPPER_TIMER_RATE;
+        // α=1−exp(−dt/τ)
+        extruder_advance_ALPHA = 1 - expf(- SMOOTH_LIN_ADV_INTERVAL * SMOOTH_LIN_ADV_EXP_ORDER / extruder_advance_TAU_TICKS);
+      }
+    #endif
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -447,6 +457,12 @@ class Stepper {
                            la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
                            la_advance_steps; // Count of steps added to increase nozzle pressure
         static bool        la_active;        // Whether linear advance is used on the present segment.
+      #endif
+      
+      #if ENABLED(SMOOTH_LIN_ADV)
+        static float  extruder_advance_TAU_TICKS, // Same as extruder_advance_TAU but in in stepper timer ticks.
+                      extruder_advance_ALPHA;     // The smoothing factor of each stage of the high
+                                                  // order exponential smoothing filter (calculated from tau).
       #endif
     #endif
 

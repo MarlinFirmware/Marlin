@@ -527,11 +527,6 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float extruder_advance_K[DISTINCT_E];
     #endif
-    #if ENABLED(SMOOTH_LIN_ADV)
-      static float extruder_advance_TAU,
-                   extruder_advance_TAU_TICKS,
-                   extruder_advance_ALPHA;
-    #endif
 
     /**
      * The current position of the tool in absolute steps
@@ -1077,15 +1072,6 @@ class Planner {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
         EXTRUDER_LOOP()
           max_e_jerk[E_INDEX_N(e)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
-      }
-    #endif
-
-    #if ENABLED(SMOOTH_LIN_ADV)
-      static void set_advance_tau(float tau) {
-        extruder_advance_TAU = tau;
-        extruder_advance_TAU_TICKS = tau * STEPPER_TIMER_RATE;
-        // α=1−exp(−dt/τ)
-        extruder_advance_ALPHA = 1 - expf(- SMOOTH_LIN_ADV_INTERVAL * SMOOTH_LIN_ADV_EXP_ORDER / extruder_advance_TAU_TICKS);
       }
     #endif
 
