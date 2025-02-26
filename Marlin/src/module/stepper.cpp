@@ -2735,7 +2735,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize Bresenham delta errors to 1/2
       delta_error = -int32_t(step_event_count);
       #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
-        la_delta_error = delta_error
+        la_delta_error = delta_error;
       #endif
 
       // Calculate Bresenham dividends and divisors
