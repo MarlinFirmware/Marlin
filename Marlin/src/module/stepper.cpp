@@ -2874,6 +2874,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #if ENABLED(NONLINEAR_EXTRUSION)
         calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
       #endif
+
       #if ENABLED(LIN_ADVANCE)
         #if ENABLED(SMOOTH_LIN_ADV)
           curr_timer_tick = 0;
