@@ -260,10 +260,10 @@ uint32_t Stepper::advance_divisor = 0,
     uint32_t  Stepper::curr_step_rate, // needed for the new LA algo
               Stepper::curr_timer_tick = 0;
   #else
-    int32_t     Stepper::la_delta_error = 0,
-                Stepper::la_dividend = 0,
-                Stepper::la_advance_steps = 0;
-    bool        Stepper::la_active = false;
+    int32_t   Stepper::la_delta_error = 0,
+              Stepper::la_dividend = 0,
+              Stepper::la_advance_steps = 0;
+    bool      Stepper::la_active = false;
   #endif
 #endif
 
