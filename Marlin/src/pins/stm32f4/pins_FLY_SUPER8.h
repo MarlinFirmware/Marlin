@@ -22,10 +22,9 @@
 
 #pragma once
 
- /**
+/**
  * Bootloader Download
  * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-super/fly-super8/flash/bl
- * 
  */
 
 #define ALLOW_STM32DUINO

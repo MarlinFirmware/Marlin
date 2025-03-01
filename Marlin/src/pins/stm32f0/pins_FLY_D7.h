@@ -25,9 +25,9 @@
  * Firmware download method
  * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-d/fly-d7/flash/bl
  * Burn the marlin folder/.pio/build/motherboard name/firmware.bin
- * Some computers may have USB compatibility issues, which may cause the USB connection to fail. 
+ * Some computers may have USB compatibility issues, which may cause the USB connection to fail.
  * This problem can usually be solved by using a HUB expander.
- * 
+ *
  */
 
 #define BOARD_INFO_NAME "FLY_D7"

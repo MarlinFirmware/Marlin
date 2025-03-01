@@ -25,7 +25,7 @@
  * Firmware download method
  * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-d/fly-d8-f407/flash/bl
  * Burn the marlin folder/.pio/build/motherboard name/firmware.bin
- * 
+ *
  */
 
 #define ALLOW_STM32DUINO
