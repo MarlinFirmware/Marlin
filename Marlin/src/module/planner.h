@@ -494,7 +494,7 @@ class Planner {
       #endif
     #else // CLASSIC_JERK
       // (mm/s^2) M205 XYZ(E) - The largest speed change requiring no acceleration.
-      static TERN(HAS_LINEAR_E_JERK, xyz_pos_t, xyze_pos_t) max_jerk;
+      static xyze_pos_t max_jerk;
     #endif
 
     #if HAS_LEVELING
