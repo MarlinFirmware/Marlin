@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef USE_PROBE_FOR_MESH_REF
+#if ENABLED(USE_PROBE_FOR_MESH_REF)
   #include "../../gcode/gcode.h"
 #endif
 
@@ -347,24 +347,24 @@ void menu_probe_level() {
     //
     // Probe Z Offset - Babystep or Edit
     //
-    if (can_babystep_z) {
-      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        SUBMENU(MSG_BABYSTEP_PROBE_Z, lcd_babystep_zoffset);
-      #endif
-    }
-    else {
-      #if HAS_BED_PROBE
-        #ifdef USE_PROBE_FOR_MESH_REF
-          #ifdef HOME_SWITCH_TO_BED_OFFSET_MENU
-            // Change the name of the menu option as the offsett relates to the fixed Z stop/Homing switch but
-            // reduce the range to -1/+1 and use the same offset variable so function stays the same
-            EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_HOME_OFFSET_Z, &mesh_zero_ref_offset, -1, 0);
-          #endif
-        #else
+    #if HAS_BED_PROBE
+
+      if (can_babystep_z) {
+        #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+          SUBMENU(MSG_BABYSTEP_PROBE_Z, lcd_babystep_zoffset);
+        #endif
+      }
+      else {
+        #if DISABLED(USE_PROBE_FOR_MESH_REF)
           EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_ZPROBE_OFFSET_N, &probe.offset.z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX);
-        #endif         
-      #endif
-    }
+        #elif ENABLED(HOME_SWITCH_TO_BED_OFFSET_MENU)
+          // Change the name of the menu option as the offsett relates to the fixed Z stop/Homing switch but
+          // reduce the range to -1/+1 and use the same offset variable so function stays the same
+          EDIT_ITEM_N(LCD_Z_OFFSET_TYPE, Z_AXIS, MSG_HOME_OFFSET_Z, &mesh_zero_ref_offset, -1, 0);
+        #endif
+      }
+
+    #endif // HAS_BED_PROBE
 
     //
     // Probe Z Offset Wizard

@@ -375,10 +375,6 @@ typedef bits_t(NUM_REL_MODES) relative_t;
 
 extern const char G28_STR[];
 
-#ifdef USE_PROBE_FOR_MESH_REF
-  extern float mesh_zero_ref_offset;
-#endif
-
 class GcodeSuite {
 public:
 
