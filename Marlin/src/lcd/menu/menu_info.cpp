@@ -264,7 +264,7 @@ void menu_info_board() {
 #endif
 
 //
-// "Build Date" submenu
+// "Build Info" submenu
 //
 #if ENABLED(BUILD_INFO_MENU_ITEM)
   void menu_info_build() {
@@ -319,7 +319,7 @@ void menu_info() {
   #endif
 
   #if ENABLED(BUILD_INFO_MENU_ITEM)
-    SUBMENU(MSG_INFO_BUILD, menu_info_build);               // Build Datetime >
+    SUBMENU(MSG_INFO_BUILD, menu_info_build);               // Build Info >
   #endif
 
   END_MENU();
