@@ -211,21 +211,22 @@ while ((1)); do
   # "Index out of range" can fail without an error
   ((MANY)) && ((ERR == 66)) && ERR=0 && break  # "index out of range"
 
-  # Short message reporting Error or Success
-  ((ERR)) && alrt "Failed ($ERR)" || annc "Success"
-
   set -e
 
   if [[ $ERR -gt 0 ]]; then
 
+    alrt "Failed ($ERR)"
+
     # Error? For --nofail simply log. Otherwise return the error.
     if [[ -n $NOFAIL ]]; then
-      date +"%F %T [FAIL] $CONFIG" >>./.pio/error-log.txt
+      date +"%F %T [FAIL] $CONFIG ($BUILDINDEX)" >>./.pio/error-log.txt
     else
       exit $ERR
     fi
 
   else
+
+    annc "Success"
 
     # Copy exports back to the configs
     if [[ -n $EXPNUM ]]; then

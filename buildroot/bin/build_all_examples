@@ -184,7 +184,7 @@ find -ds "$CBASE"/config/examples -type d -name 'Configuration.h' -o -name 'Conf
   ((CEXPORT)) && CARGS+=("-e" "$CEXPORT")
 
   # Build many environments? Add -m argument
-  ((NOFAIL)) && CARGS+=("-m")
+  ((MANY)) && CARGS+=("-m")
 
   # Continue on fail? Add -f argument
   ((NOFAIL)) && CARGS+=("-f")
