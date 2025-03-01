@@ -1921,10 +1921,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  * Dual X Carriage requirements
  */
 #if ENABLED(DUAL_X_CARRIAGE)
-  constexpr const_float_t sanity_X1_MAX_POS = X1_MAX_POS;
-  constexpr const_float_t sanity_X1_HOME_POS = X1_MIN_POS;
-  constexpr const_float_t sanity_X2_HOME_POS = X2_HOME_POS;
-  constexpr const_float_t sanity_X2_MIN_POS = X2_MIN_POS;
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
   #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -1937,9 +1933,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1."
+  #else
+    static_assert((X2_HOME_POS) > (X1_MAX_POS), "X2_HOME_POS must be greater than X1_MAX_POS (i.e., X_BED_SIZE).");
+    static_assert((X2_MIN_POS) > (X1_MIN_POS), "X2_MIN_POS must be greater than X1_MIN_POS (i.e., X_MIN_POS).");
   #endif
-  static_assert(sanity_X2_HOME_POS > sanity_X1_MAX_POS, "X2_HOME_POS must be greater then X1_MAX_POS.");
-  static_assert(sanity_X2_MIN_POS > sanity_X1_HOME_POS, "X2_MIN_POS must be greater than X1_MIN_POS.");
 #endif
 
 #undef GOOD_AXIS_PINS
