@@ -1527,7 +1527,7 @@ void Stepper::isr() {
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
 
   #if ENABLED(SMOOTH_LIN_ADV)
-    static hal_timer_t zeroSlowdonISR = 0;
+    static hal_timer_t smoothLinAdvISR = 0;
   #endif
 
   // Program timer compare for the maximum period, so it does NOT
@@ -1604,7 +1604,7 @@ void Stepper::isr() {
 
       if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
       #if ENABLED(SMOOTH_LIN_ADV)
-        if (!zeroSlowdonISR) zeroSlowdonISR = smooth_lin_adv_isr();  // Manage la
+        if (!smoothLinAdvISR) smoothLinAdvISR = smooth_lin_adv_isr();  // Manage la
       #endif
 
       #if ENABLED(BABYSTEPPING)
@@ -1621,7 +1621,7 @@ void Stepper::isr() {
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
-      TERN_(SMOOTH_LIN_ADV, NOMORE(interval, zeroSlowdonISR));          // Come back early for Linear Advance rate update?
+      TERN_(SMOOTH_LIN_ADV, NOMORE(interval, smoothLinAdvISR));          // Come back early for Linear Advance rate update?
       TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
       //
@@ -1634,7 +1634,7 @@ void Stepper::isr() {
       nextMainISR -= interval;
       TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
       TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
-      TERN_(SMOOTH_LIN_ADV, if (zeroSlowdonISR != LA_ADV_NEVER) zeroSlowdonISR -= interval);
+      TERN_(SMOOTH_LIN_ADV, if (smoothLinAdvISR != LA_ADV_NEVER) smoothLinAdvISR -= interval);
       TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     } // standard motion control
