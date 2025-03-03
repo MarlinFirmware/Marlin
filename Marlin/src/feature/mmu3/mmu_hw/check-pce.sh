@@ -2,7 +2,7 @@
 
 # download Prusa Error Codes for MMU
 #wget https://raw.githubusercontent.com/3d-gussner/Prusa-Error-Codes/master/04_MMU/error-codes.yaml --output-document=error-codes.yaml
-wget https://raw.githubusercontent.com/prusa3d/Prusa-Error-Codes/master/04_MMU/error-codes.yaml --output-document=error-codes.yaml
+wget https://raw.githubusercontent.com/prusa3d/Prusa-Error-Codes/master/yaml/mmu-error-codes.yaml --output-document=error-codes.yaml
 
 oifs="$IFS"  ## save original IFS
 IFS=$'\n'    ## set IFS to break on newline

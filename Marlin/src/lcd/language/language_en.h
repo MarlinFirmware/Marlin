@@ -1040,7 +1040,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_TMC_UNDERVOLTAGE_ERROR   = _UxGT("TMC UNDERVOLTAGE ERR");
   LSTR MSG_TITLE_TMC_DRIVER_SHORTED       = _UxGT("TMC DRIVER SHORTED");
   LSTR MSG_TITLE_SELFTEST_FAILED          = _UxGT("MMU SELFTEST FAILED");
-  LSTR MSG_TITLE_MMU_MCU_ERROR            = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_POWER_ERROR      = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_UNDERVOLTAGE_VCC = _UxGT("MMU MCU UNDERPOWER");
   LSTR MSG_TITLE_MMU_NOT_RESPONDING       = _UxGT("MMU NOT RESPONDING");
   LSTR MSG_TITLE_COMMUNICATION_ERROR      = _UxGT("COMMUNICATION ERROR");
   LSTR MSG_TITLE_FILAMENT_ALREADY_LOADED  = _UxGT("FIL. ALREADY LOADED");
@@ -1065,6 +1066,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_CANNOT_MOVE               = _UxGT("Can't move Selector or Idler.");
   LSTR MSG_DESC_IDLER_CANNOT_HOME         = _UxGT("The Idler cannot home properly. Check for anything blocking its movement.");
   LSTR MSG_DESC_TMC                       = _UxGT("More details online.");
+  LSTR MSG_DESC_MMU_MCU_POWER_ERROR       = _UxGT("MMU detected a power-related issue. Check the wiring and connectors. If the issue persists, contact support.");
+  LSTR MSG_DESC_MMU_MCU_UNDERVOLTAGE_VCC  = _UxGT("MMU MCU detected a 5V undervoltage. There might be an issue with the electronics. Check the wiring and connectors");
   LSTR MSG_DESC_MMU_NOT_RESPONDING        = _UxGT("MMU not responding. Check the wiring and connectors.");
   LSTR MSG_DESC_COMMUNICATION_ERROR       = _UxGT("MMU not responding correctly. Check the wiring and connectors.");
   LSTR MSG_DESC_FILAMENT_ALREADY_LOADED   = _UxGT("Cannot perform the action, filament is already loaded. Unload it first.");
