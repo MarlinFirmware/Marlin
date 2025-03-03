@@ -125,8 +125,10 @@ namespace MMU3 {
         return FindErrorIndex(ERR_SYSTEM_FW_RUNTIME_ERROR);
       case ErrorCode::FINDA_VS_EEPROM_DISREPANCY:
         return FindErrorIndex(ERR_SYSTEM_UNLOAD_MANUALLY);
+      case ErrorCode::MCU_POWER_ERROR:
+        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_POWER_ERROR);
       case ErrorCode::MCU_UNDERVOLTAGE_VCC:
-        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_ERROR);
+        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC);
       default: break;
     }
 
@@ -314,7 +316,8 @@ namespace MMU3 {
 
       case ERR_SYSTEM_QUEUE_FULL:
       case ERR_SYSTEM_FW_RUNTIME_ERROR:
-      case ERR_ELECTRICAL_MMU_MCU_ERROR:
+      case ERR_ELECTRICAL_MMU_MCU_POWER_ERROR:
+      case ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC:
         switch (buttonSelectedOperation) {
           case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
