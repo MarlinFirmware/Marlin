@@ -651,7 +651,7 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
-#if ENABLED(FTM_OPTIMIZE_DIR_STATES)
+#if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
 #endif
@@ -681,7 +681,7 @@ void Stepper::apply_directions() {
     SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
   );
 
-  TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+  TERN_(FT_MOTION, last_set_direction = last_direction_bits);
 
   DIR_WAIT_AFTER();
 }
@@ -1836,7 +1836,7 @@ void Stepper::pulse_phase_isr() {
           last_direction_bits.toggle(_AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
-          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits); \
+          TERN_(FT_MOTION, last_set_direction = last_direction_bits); \
           DIR_WAIT_AFTER(); \
         } \
       } \
@@ -2538,7 +2538,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
                 E_APPLY_DIR(forward_e, false);
 
-                TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+                TERN_(FT_MOTION, last_set_direction = last_direction_bits);
 
                 DIR_WAIT_AFTER();
               }
@@ -3548,13 +3548,13 @@ void Stepper::report_positions() {
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
-    if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
+    if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
+      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) \
                                   SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
-      TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+      last_set_direction = last_direction_bits;
 
       // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
