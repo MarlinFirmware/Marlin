@@ -84,6 +84,7 @@ enum class ErrorCode : uint_fast16_t {
   FILAMENT_EJECTED           = 0x800C, //!< Filament was ejected, waiting for user input - technically, this is not an error
 
   MCU_UNDERVOLTAGE_VCC       = 0x800D, //!< MCU VCC rail undervoltage.
+  MCU_POWER_ERROR            = MCU_UNDERVOLTAGE_VCC, //!< MCU power-related issue - the MCU is not powered properly. Check the wiring and connectors
 
   FILAMENT_CHANGE            = 0x8029, //!< E32809 internal error of the printer - try-load-unload sequence detected missing filament -> failed load into the nozzle
   LOAD_TO_EXTRUDER_FAILED    = 0x802A, //!< E32810 internal error of the printer - try-load-unload sequence detected missing filament -> failed load into the nozzle
