@@ -257,10 +257,10 @@
   #define FAN1_PIN                          PA6
 #endif
 #ifndef FAN2_PIN
-  #define FAN2_PIN                          PA5
+  #define FAN2_PIN                          PB6
 #endif
 #ifndef FAN3_PIN
-  #define FAN3_PIN                          PA4
+  #define FAN3_PIN                          PB7
 #endif
 
 #if HAS_TMC_UART
