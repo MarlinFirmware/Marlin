@@ -84,6 +84,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_EXTRUDE                        = _UxGT("オシダシ"); // "Extrude"
   LSTR MSG_RETRACT                        = _UxGT("ヒキコミセッテイ"); // "Retract"
   LSTR MSG_MOVE_AXIS                      = _UxGT("ジクイドウ"); // "Move axis"
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("プローブ アンド レベリング"); // "Probe and Level"
   LSTR MSG_BED_LEVELING                   = _UxGT("ベッドレベリング"); // "Bed leveling"
   LSTR MSG_LEVEL_BED                      = _UxGT("ベッドレベリング"); // "Level bed"
 
@@ -167,13 +168,22 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("ホショウソクド mm/s"); // "Unretract V"
   LSTR MSG_AUTORETRACT                    = _UxGT("ジドウヒキコミ"); // "Auto-Retract"
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("フィラメントコウカン"); // "Change filament"
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("メディアサイヨミコミ"); // "Init. SD card"
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USBメモリをマウントする"); // "Attach USB Drive"
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("メディアコウカン"); // "Change SD card"
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Zプローブ ベッドガイ"); // "Z probe out. bed"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch ジコシンダン"); // "BLTouch Self-Test"
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch リセット"); // "Reset BLTouch"
   LSTR MSG_HOME_FIRST                     = _UxGT("サキニ %s ヲフッキサセテクダサイ"); // "Home ... first"
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Xオフセット"); // "X Offset"
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Yオフセット"); // "Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Zオフセット"); // "Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@オフセット"); // "@ Offset"
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("プローブZオフセット"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("Xジク ビドウ"); // "Babystep X"
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Yジク ビドウ"); // "Babystep Y"
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Zジク ビドウ"); // "Babystep Z"

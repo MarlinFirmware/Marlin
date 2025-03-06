@@ -120,7 +120,7 @@ void u8g_spiSend_sw_AVR_mode_3(uint8_t val) {
   U8G_ATOMIC_END();
 }
 
-#if ENABLED(FYSETC_MINI_12864)
+#if U8G_SPI_USE_MODE_3
   #define SPISEND_SW_AVR u8g_spiSend_sw_AVR_mode_3
 #else
   #define SPISEND_SW_AVR u8g_spiSend_sw_AVR_mode_0
@@ -143,9 +143,9 @@ uint8_t u8g_com_HAL_AVR_sw_sp_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      #if ENABLED(FYSETC_MINI_12864)           // LCD SPI is running mode 3 while SD card is running mode 0
-        if (arg_val) {                         //   SCK idle state needs to be set to the proper idle state before
-                                               //   the next chip select goes active
+      #if U8G_SPI_USE_MODE_3                                  // LCD SPI is running mode 3 while SD card is running mode 0
+        if (arg_val) {                                        // SCK idle state needs to be set to the proper idle state before
+                                                              //  the next chip select goes active
           u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, 1);  // Set SCK to mode 3 idle state before CS goes active
           u8g_com_arduino_digital_write(u8g, U8G_PI_CS, LOW);
         }

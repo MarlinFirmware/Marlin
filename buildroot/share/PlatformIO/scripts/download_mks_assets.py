@@ -4,10 +4,10 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-    Import("env")
-    import requests,zipfile,tempfile,shutil
+    import requests, zipfile, tempfile, shutil
     from pathlib import Path
 
+    env = pioutil.env
     url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"
     deps_path = Path(env.Dictionary("PROJECT_LIBDEPS_DIR"))
     zip_path = deps_path / "mks-assets.zip"

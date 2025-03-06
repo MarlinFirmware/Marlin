@@ -331,15 +331,24 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
   #endif // HAS_MEDIA
 
-  #if ENABLED(SHOW_BOOTSCREEN)
-    // Set boot screen corner characters
-    if (screen_charset == CHARSET_BOOT) {
-      for (uint8_t i = 4; i--;)
-        createChar_P(i, corner[i]);
-    }
-    else
-  #endif
-    { // Info Screen uses 5 special characters
+  switch (screen_charset) {
+
+    #if ENABLED(SHOW_BOOTSCREEN)
+      case CHARSET_BOOT: {
+        // Set boot screen corner characters
+        for (uint8_t i = 4; i--;) createChar_P(i, corner[i]);
+      } break;
+    #endif
+
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      case CHARSET_BOOT_CUSTOM: {
+        for (uint8_t i = COUNT(customBootChars); i--;)
+          createChar_P(i, customBootChars[i]);
+      } break;
+    #endif
+
+    default: {
+      // Info Screen uses 5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
@@ -361,7 +370,9 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
             createChar_P(LCD_STR_FOLDER[0], folder);
           #endif
         }
-    }
+    } break;
+
+  }
 
 }
 
@@ -400,6 +411,42 @@ bool MarlinUI::detected() {
   return TERN1(DETECT_I2C_LCD_DEVICE, lcd.LcdDetected() == 1);
 }
 
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+
+  #ifndef CUSTOM_BOOTSCREEN_X
+    #define CUSTOM_BOOTSCREEN_X -1
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_Y
+    #define CUSTOM_BOOTSCREEN_Y ((LCD_HEIGHT - COUNT(custom_boot_lines)) / 2)
+  #endif
+  #ifndef CUSTOM_BOOTSCREEN_TIMEOUT
+    #define CUSTOM_BOOTSCREEN_TIMEOUT 2500
+  #endif
+
+  void MarlinUI::draw_custom_bootscreen(const uint8_t/*=0*/) {
+    set_custom_characters(CHARSET_BOOT_CUSTOM);
+    lcd.clear();
+    const int8_t sx = CUSTOM_BOOTSCREEN_X;
+    const uint8_t sy = CUSTOM_BOOTSCREEN_Y;
+    for (lcd_uint_t i = 0; i < COUNT(custom_boot_lines); ++i) {
+      PGM_P const pstr = (PGM_P)pgm_read_ptr(&custom_boot_lines[i]);
+      const uint8_t clen = utf8_strlen_P(pstr);
+      const lcd_uint_t x = sx >= 0 ? sx : (LCD_WIDTH - clen) / 2;
+      for (lcd_uint_t j = 0; j < clen; ++j) {
+        const lchar_t c = pgm_read_byte(&pstr[j]);
+        lcd_put_lchar(x + j, sy + i, c == '\x08' ? '\x00' : c);
+      }
+    }
+  }
+
+  // Shows the custom bootscreen and delays
+  void MarlinUI::show_custom_bootscreen() {
+    draw_custom_bootscreen();
+    safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
+  }
+
+#endif // SHOW_CUSTOM_BOOTSCREEN
+
 #if HAS_SLOW_BUTTONS
   uint8_t MarlinUI::read_slow_buttons() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
@@ -420,6 +467,7 @@ bool MarlinUI::detected() {
 #endif
 
 void MarlinUI::clear_lcd() { lcd.clear(); }
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -466,6 +514,8 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
   }
 
   void MarlinUI::show_bootscreen() {
+    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+
     set_custom_characters(CHARSET_BOOT);
     lcd.clear();
 
@@ -660,9 +710,6 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
       lcd_put_u8str(F("K"));
     #else
       lcd_put_u8str(cutter_power2str(cutter.unitPower));
-      #if CUTTER_UNIT_IS(PERCENT)
-        lcd_put_u8str(F("%"));
-      #endif
     #endif
 
     lcd_put_u8str(F(" "));
@@ -786,8 +833,6 @@ void MarlinUI::draw_status_message(const bool blink) {
 #if HAS_PRINT_PROGRESS
 
   #define TPOFFSET (LCD_WIDTH - 1)
-  static uint8_t timepos = TPOFFSET - 6;
-  static char buffer[8];
 
   #if ENABLED(SHOW_PROGRESS_PERCENT)
     static lcd_uint_t pc = 0, pr = 2;
@@ -806,8 +851,9 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if ENABLED(SHOW_REMAINING_TIME)
     void MarlinUI::drawRemain() {
       if (printJobOngoing()) {
+        char buffer[8];
         const duration_t remaint = get_remaining_time();
-        timepos = TPOFFSET - remaint.toDigital(buffer);
+        const uint8_t timepos = TPOFFSET - remaint.toDigital(buffer);
         IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'R');
         lcd_put_u8str(buffer);
@@ -819,7 +865,8 @@ void MarlinUI::draw_status_message(const bool blink) {
     void MarlinUI::drawInter() {
       const duration_t interactt = interaction_time;
       if (printingIsActive() && interactt.value) {
-        timepos = TPOFFSET - interactt.toDigital(buffer);
+        char buffer[8];
+        const uint8_t timepos = TPOFFSET - interactt.toDigital(buffer);
         IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'C');
         lcd_put_u8str(buffer);
@@ -830,8 +877,9 @@ void MarlinUI::draw_status_message(const bool blink) {
   #if ENABLED(SHOW_ELAPSED_TIME)
     void MarlinUI::drawElapsed() {
       if (printJobOngoing()) {
+        char buffer[8];
         const duration_t elapsedt = print_job_timer.duration();
-        timepos = TPOFFSET - elapsedt.toDigital(buffer);
+        const uint8_t timepos = TPOFFSET - elapsedt.toDigital(buffer);
         IF_DISABLED(LCD_INFO_SCREEN_STYLE, lcd_put_lchar(timepos - 1, 2, 0x20));
         lcd_put_lchar(TERN(LCD_INFO_SCREEN_STYLE, 11, timepos), 2, 'E');
         lcd_put_u8str(buffer);
@@ -1297,7 +1345,7 @@ void MarlinUI::draw_status_screen() {
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, FSTR_P const, CardReader &theCard, const bool isDir) {
       lcd_put_lchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
       uint8_t n = LCD_WIDTH - 2;
-      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, row, sel), n);
+      n -= lcd_put_u8str_max(ui.scrolled_filename(theCard, n, sel), n);
       for (; n; --n) lcd_put_u8str(F(" "));
       lcd_put_lchar(isDir ? LCD_STR_FOLDER[0] : ' ');
     }
@@ -1469,7 +1517,7 @@ void MarlinUI::draw_status_screen() {
         lower_right.column = 0;
         lower_right.row    = 0;
 
-        clear_lcd();
+        clear_for_drawing();
 
         x_map_pixels = (HD44780_CHAR_WIDTH) * (MESH_MAP_COLS) - 2;          // Minus 2 because we are drawing a box around the map
         y_map_pixels = (HD44780_CHAR_HEIGHT) * (MESH_MAP_ROWS) - 2;

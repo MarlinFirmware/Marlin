@@ -135,19 +135,15 @@
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                       PD7   // FSMC_NE1
   #define FSMC_RS_PIN                       PD11  // A16 Register. Only one address needed
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TFT_RESET_PIN                     PC4
   #define TFT_BACKLIGHT_PIN                 PD12
   #define TFT_BACKLIGHT_PWM                 150   // Brightness with alt. TIM4 chan 1 (1-255)
-
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
 
   // Buffer for Color UI
   #define TFT_BUFFER_WORDS                  3200
@@ -158,8 +154,15 @@
   #define LCD_BRIGHTNESS_DEFAULT TFT_BACKLIGHT_PWM
 #endif
 
-#if ENABLED(ONBOARD_SDIO)
-  #define SD_SS_PIN                         -1    // else SDSS set to PA4 in M43 (spi_pins.h)
+//
+// SD Support
+//
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
+  #define ONBOARD_SDIO
 #endif
 
 /**
@@ -202,9 +205,9 @@
   #define SPI_FLASH_MOSI_PIN                PA7
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #else
   #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2K, require this amount of RAM
 #endif

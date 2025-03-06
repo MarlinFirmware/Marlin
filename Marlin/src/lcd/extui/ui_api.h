@@ -74,6 +74,7 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     enum mpcresult_t : uint8_t { MPC_STARTED, MPC_TEMP_ERROR, MPC_INTERRUPTED, MPC_DONE };
   #endif
+  struct probe_limits_t { float xmin, ymin, xmax, ymax; };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -100,7 +101,7 @@ namespace ExtUI {
 
   /**
    * The Extensible UI API is a utility class that can be used to implement:
-   * - An LCD view that responds to standard events, e.g., onMediaInserted(...)
+   * - An LCD view that responds to standard events, e.g., onMediaMounted(...)
    * - An LCD that polls firmware states and settings in a standard manner.
    *   (e.g., With tool indexes and extruder indexes).
    * - Standard hooks to send data to a serial-based controller.
@@ -171,10 +172,10 @@ namespace ExtUI {
   bool isHeaterIdle(const extruder_t);
   celsius_float_t getActualTemp_celsius(const heater_t);
   celsius_float_t getActualTemp_celsius(const extruder_t);
-  celsius_float_t getTargetTemp_celsius(const heater_t);
-  celsius_float_t getTargetTemp_celsius(const extruder_t);
-  float getActualFan_percent(const fan_t);
-  float getTargetFan_percent(const fan_t);
+  celsius_t getTargetTemp_celsius(const heater_t);
+  celsius_t getTargetTemp_celsius(const extruder_t);
+  uint8_t getActualFan_percent(const fan_t);
+  uint8_t getTargetFan_percent(const fan_t);
 
   // High level positions, by Axis ID, Extruder ID
   float getAxisPosition_mm(const axis_t);
@@ -327,6 +328,13 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const_float_t, const extruder_t);
   #endif
 
+  #if HAS_SHAPING
+    float getShapingZeta(const axis_t);
+    void setShapingZeta(const float, const axis_t);
+    float getShapingFrequency(const axis_t);
+    void setShapingFrequency(const float, const axis_t);
+  #endif
+
   // JD or Jerk Control
   #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
@@ -367,6 +375,7 @@ namespace ExtUI {
   #if HAS_BED_PROBE
     float getProbeOffset_mm(const axis_t);
     void setProbeOffset_mm(const_float_t, const axis_t);
+    probe_limits_t getBedProbeLimits();
   #endif
 
   // Backlash Control
@@ -451,11 +460,12 @@ namespace ExtUI {
    * Media access routines
    * Use these to operate on files
    */
-  bool isMediaInserted();
+  bool isMediaMounted();
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
   bool isPrintingPaused();
+  bool isOngoingPrintJob();
 
   void printFile(const char *filename);
   void stopPrint();
@@ -486,7 +496,7 @@ namespace ExtUI {
   void onStartup();
   void onIdle();
 
-  void onMediaInserted();
+  void onMediaMounted();
   void onMediaError();
   void onMediaRemoved();
 

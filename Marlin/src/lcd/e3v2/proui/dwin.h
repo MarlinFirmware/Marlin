@@ -23,7 +23,8 @@
 
 /**
  * DWIN Enhanced implementation for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * Version: 3.25.3
  * Date: 2023/05/18
  */
@@ -370,6 +371,9 @@ void drawMaxAccelMenu();
 #endif
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   void drawHomingMenu();
+#endif
+#if ENABLED(EDITABLE_HOMING_FEEDRATE)
+  void drawHomingFRMenu();
 #endif
 #if ENABLED(FWRETRACT)
   void drawFWRetractMenu();

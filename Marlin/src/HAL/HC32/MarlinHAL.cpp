@@ -232,7 +232,9 @@ int MarlinHAL::freeMemory() {
   return &top - _sbrk(0);
 }
 
-void MarlinHAL::adc_init() {}
+void MarlinHAL::adc_init() {
+  analogReadResolution(HAL_ADC_RESOLUTION);
+}
 
 void MarlinHAL::adc_enable(const pin_t pin) {
   #if TEMP_SENSOR_SOC

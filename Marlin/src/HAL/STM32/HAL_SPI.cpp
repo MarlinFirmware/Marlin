@@ -37,7 +37,7 @@ static SPISettings spiConfig;
 // Public functions
 // ------------------------
 
-#if ENABLED(SOFTWARE_SPI)
+#if ANY(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
   // Software SPI

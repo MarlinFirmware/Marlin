@@ -132,11 +132,8 @@ public:
       SBI32(codebits, ind);                      // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (codenum == 800) {
-          SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
-          print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPGM(") | param = ", param[ind]);
-        }
+        if (codenum == 800)
+          SERIAL_ECHOLNPGM("Set bit ", ind, " of codebits (", _hex_long(codebits), ") | param = ", param[ind]);
       #endif
     }
 
@@ -192,7 +189,7 @@ public:
     #if ENABLED(GCODE_CASE_INSENSITIVE)
       FORCE_INLINE static char* strgchr(char *p, char g) {
         auto uppercase = [](char c) {
-          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+          return TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
         };
         const char d = uppercase(g);
         for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;
@@ -347,6 +344,9 @@ public:
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
+  #define X_AXIS_UNIT LINEAR_UNIT
+  #define Y_AXIS_UNIT LINEAR_UNIT
+  #define Z_AXIS_UNIT LINEAR_UNIT
   #define I_AXIS_UNIT(V) TERN(AXIS4_ROTATES, (V), LINEAR_UNIT(V))
   #define J_AXIS_UNIT(V) TERN(AXIS5_ROTATES, (V), LINEAR_UNIT(V))
   #define K_AXIS_UNIT(V) TERN(AXIS6_ROTATES, (V), LINEAR_UNIT(V))

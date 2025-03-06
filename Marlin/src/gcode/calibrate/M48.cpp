@@ -149,7 +149,7 @@ void GcodeSuite::M48() {
     for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
-        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
+        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
 
       // When there are "legs" of movement move around the point before probing

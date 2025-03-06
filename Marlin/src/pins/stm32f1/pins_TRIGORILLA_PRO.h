@@ -50,11 +50,11 @@
 #endif
 #if ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_START_ADDRESS (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE     (0x800U)     // 2K, but will use 2x more (4K)
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE   (0x800U) // On SD, Limit to 2K, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2K, require this amount of RAM
 #endif
 
 //
@@ -135,26 +135,22 @@
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
    * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
-   * ILI9488 is not supported.
+   * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
    * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
    *
-   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when switching menus
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
   #define TFT_RESET_PIN                     PF11
   #define TFT_BACKLIGHT_PIN                 PD13
 
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-
-  #define ANYCUBIC_TFT35
 #else
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -203,9 +199,8 @@
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
-  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
-  #define SDSS                              PD2
+  #define SD_SS_PIN                         PD2
   #define SD_DETECT_PIN                     -1
 #endif
 
