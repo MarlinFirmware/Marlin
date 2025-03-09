@@ -67,9 +67,9 @@ typedef libServo hal_servo_t;
 #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // Debugging
-#define JTAG_DISABLE()    AFIO_I.set_remap(gpio::Pin_Remap_Select::SWJ_DP_ONLY_REMAP)       // set_remap_wrapper(SWJ_DP_ONLY)
-#define JTAGSWD_DISABLE() AFIO_I.set_remap(gpio::Pin_Remap_Select::SWJ_ALL_DISABLED_REMAP)  // set_remap_wrapper(SWJ_ALL_DISABLED)
-#define JTAGSWD_RESET()   AFIO_I.set_remap(gpio::Pin_Remap_Select::FULL_SWJ_REMAP)          // set_remap_wrapper(FULL_SWJ)
+#define JTAG_DISABLE()    AFIO_I.set_remap(gpio::Pin_Remap_Select::SWJ_DP_ONLY_REMAP)
+#define JTAGSWD_DISABLE() AFIO_I.set_remap(gpio::Pin_Remap_Select::SWJ_ALL_DISABLED_REMAP)
+#define JTAGSWD_RESET()   AFIO_I.set_remap(gpio::Pin_Remap_Select::FULL_SWJ_REMAP)
 
 // ADC
 #ifdef ADC_RESOLUTION

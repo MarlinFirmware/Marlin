@@ -89,7 +89,7 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
                                     // the next chip select goes active
           WRITE(DOGLCD_SCK, HIGH);  // Set SCK to mode 3 idle state before CS goes active
           WRITE(DOGLCD_CS, LOW);
-          nop;  // hold SCK high for a few ns
+          nop;                      // Hold SCK high for a few ns
           nop;
          }
         else {
@@ -118,7 +118,7 @@ uint8_t u8g_com_HAL_MFL_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
         arg_val--;
       }
     } break;
-    case U8G_COM_MSG_ADDRESS: // define cmd (arg_val = 0) or data mode (arg_val = 1)
+    case U8G_COM_MSG_ADDRESS:       // Define cmd (arg_val = 0) or data mode (arg_val = 1)
       WRITE(DOGLCD_A0, arg_val);
       break;
   }

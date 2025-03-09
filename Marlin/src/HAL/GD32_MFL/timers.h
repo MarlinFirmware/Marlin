@@ -76,6 +76,28 @@ extern GeneralTimer& Temp_Timer;
 extern bool is_step_timer_initialized;
 extern bool is_temp_timer_initialized;
 
+// Build-time mapping between timer base and index. Used in timers.cpp and fast_pwm.cpp
+static inline constexpr struct {timer::TIMER_Base base; uint8_t timer_number;} base_to_index[] = {
+  { timer::TIMER_Base::TIMER0_BASE, 0 },
+  { timer::TIMER_Base::TIMER1_BASE, 1 },
+  { timer::TIMER_Base::TIMER2_BASE, 2 },
+  { timer::TIMER_Base::TIMER3_BASE, 3 },
+  { timer::TIMER_Base::TIMER4_BASE, 4 },
+  { timer::TIMER_Base::TIMER5_BASE, 5 },
+  { timer::TIMER_Base::TIMER6_BASE, 6 },
+  { timer::TIMER_Base::TIMER7_BASE, 7 }
+};
+
+// Converts a timer base to an integer timer index.
+constexpr int timer_base_to_index(timer::TIMER_Base base) {
+  for (const auto& timer : base_to_index) {
+    if (timer.base == base) {
+      return static_cast<int>(timer.timer_number);
+    }
+  }
+  return -1;
+}
+
 // ------------------------
 // Public functions
 // ------------------------
@@ -100,6 +122,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) 
   if (!HAL_timer_initialized(timer_number)) return 0U;
 
   GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
+
   return (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) 
          ? timer.getCounter(TimerFormat::TICK) 
          : 0U;

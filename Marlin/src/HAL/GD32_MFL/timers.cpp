@@ -24,6 +24,7 @@
 #ifdef ARDUINO_ARCH_MFL
 
 #include "../../inc/MarlinConfig.h"
+#include "timers.h"
 
 // ------------------------
 // Local defines
@@ -35,7 +36,7 @@
 #define TEMP_TIMER_IRQ_PRIORITY_DEFAULT     14  // Low priority avoids interference with other hardware and timers
 
 #ifndef TIMER_IRQ_PRIORITY
-  #define TIMER_IRQ_PRIORITY 13
+  #define TIMER_IRQ_PRIORITY 12
 #endif
 
 #ifndef STEP_TIMER_IRQ_PRIORITY
@@ -61,11 +62,8 @@
 #endif
 
 #if ENABLED(SPEAKER)
-  // Ensure the default timer priority is somewhere between the STEP and TEMP priorities.
-  // The GD32 MFL framework defaults to priority 14 for all timers. This should be increased so that
-  // timing sensitive operations such as speaker output are not impacted by the long running
-  // temperature ISR. This must be defined in the platformio.ini file or the board's variant.h,
-  // so that it will be consumed by framework code.
+  // The MFL framework default timer priority is 12. The TEMP timer must have lower priority
+  // than this due to the long running temperature ISR, and STEP timer should higher priority.
   #if !(TIMER_IRQ_PRIORITY > STEP_TIMER_IRQ_PRIORITY && TIMER_IRQ_PRIORITY < TEMP_TIMER_IRQ_PRIORITY)
     #error "Default timer interrupt priority is unspecified or set to a value which may degrade performance."
   #endif
@@ -108,10 +106,16 @@ uint32_t GetStepperTimerClkFreq() {
  * @return None
  */
 void HAL_timer_start(const uint8_t timer_number, const uint32_t frequency) {
-  if (HAL_timer_initialized(timer_number)) return;
+  if (HAL_timer_initialized(timer_number) || (timer_number != MF_TIMER_STEP && timer_number != MF_TIMER_TEMP))
+    return;
 
-  GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
   const bool is_step = (timer_number == MF_TIMER_STEP);
+  const uint8_t priority = is_step ?
+                           static_cast<uint8_t>(STEP_TIMER_IRQ_PRIORITY) :
+                           static_cast<uint8_t>(TEMP_TIMER_IRQ_PRIORITY);
+
+  // Get the reference of the timer instance
+  GeneralTimer& timer = is_step ? Step_Timer : Temp_Timer;
 
   if (is_step) {
     timer.setPrescaler(STEPPER_TIMER_PRESCALE);
@@ -119,19 +123,16 @@ void HAL_timer_start(const uint8_t timer_number, const uint32_t frequency) {
                                (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE)),
                                TimerFormat::TICK);
     is_step_timer_initialized = true;
-    timer.setInterruptPriority(static_cast<uint8_t>(STEP_TIMER_IRQ_PRIORITY), 0U);
   }
-  else if (timer_number == MF_TIMER_TEMP) {
+  else {
     timer.setRolloverValue(frequency, TimerFormat::HERTZ);
     is_temp_timer_initialized = true;
-    timer.setInterruptPriority(static_cast<uint8_t>(TEMP_TIMER_IRQ_PRIORITY), 0U);
   }
 
-  if (is_step || timer_number == MF_TIMER_TEMP) {
-    timer.setAutoReloadEnable(false);
-    HAL_timer_enable_interrupt(timer_number);
-    timer.start();
-  }
+  timer.setAutoReloadEnable(false);
+  timer.setInterruptPriority(priority, 0U);
+  HAL_timer_enable_interrupt(timer_number);
+  timer.start();
 }
 
 /**
@@ -190,64 +191,25 @@ void SetTimerInterruptPriorities() {
 // Detect timer conflicts
 // ------------------------
 
-// This list serves two purposes. Firstly, it facilitates build-time mapping between
-// variant-defined timer names and timer numbers. It also replicates
-// the order of timers used in the framework's SoftwareSerial.cpp. The first timer in
-// this list will be automatically used by SoftwareSerial if it is not already defined
-// in the board's variant or compiler options.
-static constexpr struct {timer::TIMER_Base base; uint8_t timer_number;} mfl_timer_map[] = {
-  { timer::TIMER_Base::TIMER6_BASE, 6 },
-  { timer::TIMER_Base::TIMER5_BASE, 5 },
-  { timer::TIMER_Base::TIMER4_BASE, 4 },
-  { timer::TIMER_Base::TIMER3_BASE, 3 },
-  { timer::TIMER_Base::TIMER2_BASE, 2 },
-  { timer::TIMER_Base::TIMER1_BASE, 1 },
-  { timer::TIMER_Base::TIMER7_BASE, 7 },
-  { timer::TIMER_Base::TIMER0_BASE, 0 }
-};
-
-// Converts a timer base address to its corresponding integer timer number.
-//
-// @param base_address The base address of the timer to look up.
-// @return The integer timer number corresponding to the base address, or -1 if not found.
-static constexpr int get_timer_num_from_base_address(timer::TIMER_Base base) {
-  for (const auto& timer : mfl_timer_map) {
-    if (timer.base == base) {
-      return static_cast<int>(timer.timer_number);
-    }
-  }
-  return -1;
-}
-
-// The platform's SoftwareSerial.cpp will use the first timer from mfl_timer_map
-#if HAS_TMC_SW_SERIAL && !defined(TIMER_SERIAL)
-  #define TIMER_SERIAL  (mfl_timer_map[0].base)
-#endif
-
-TERN_(HAS_TMC_SW_SERIAL, static constexpr timer::TIMER_Base timer_serial[] = {static_cast<timer::TIMER_Base>(TIMER_SERIAL)});
-TERN_(SPEAKER,           static constexpr timer::TIMER_Base timer_tone[]   = {static_cast<timer::TIMER_Base>(TIMER_TONE)});
-TERN_(HAS_SERVOS,        static constexpr timer::TIMER_Base timer_servo[]  = {static_cast<timer::TIMER_Base>(TIMER_SERVO)});
+TERN_(SPEAKER, static constexpr timer::TIMER_Base timer_tone[] = {static_cast<timer::TIMER_Base>(TIMER_TONE)});
+TERN_(HAS_SERVOS, static constexpr timer::TIMER_Base timer_servo[] = {static_cast<timer::TIMER_Base>(TIMER_SERVO)});
 
 enum TimerPurpose {
-  PURPOSE_SERIAL,
   PURPOSE_TONE,
   PURPOSE_SERVO,
   PURPOSE_STEP,
   PURPOSE_TEMP
 };
 
-// List of timers to enable checking for conflicts
+// List of timers to check for conflicts
 // Includes the timer purpose to ease debugging when evaluating at build-time
 // This cannot yet account for timers used for PWM output, such as for fans
 static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
-  #if HAS_TMC_SW_SERIAL
-    { PURPOSE_SERIAL, get_timer_num_from_base_address(timer_serial[0]) }, // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
   #if ENABLED(SPEAKER)
-    { PURPOSE_TONE, get_timer_num_from_base_address(timer_tone[0]) },     // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { PURPOSE_TONE, timer_base_to_index(timer_tone[0]) },     // Set in variant.h
   #endif
   #if HAS_SERVOS
-    { PURPOSE_SERVO, get_timer_num_from_base_address(timer_servo[0]) },   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+    { PURPOSE_SERVO, timer_base_to_index(timer_servo[0]) },   // Set in variant.h
   #endif
   { PURPOSE_STEP, MF_TIMER_STEP },
   { PURPOSE_TEMP, MF_TIMER_TEMP },
