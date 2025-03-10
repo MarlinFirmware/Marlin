@@ -488,6 +488,7 @@
 #define BOARD_ZNP_ROBIN_NANO_V1_3     5258  // Elegoo Neptune 2 v1.3 board
 #define BOARD_MKS_NEPTUNE_X           5259  // Elegoo Neptune X
 #define BOARD_MKS_NEPTUNE_3           5260  // Elegoo Neptune 3
+#define BOARD_LANGGO407               5261  // Langgo407 (STM32F407VE)
 
 //
 // Other ARM Cortex-M4

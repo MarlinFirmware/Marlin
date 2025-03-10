@@ -1,0 +1,16 @@
+{
+    "name": "fatfs",
+	"version": "0.0.1",
+	"keywords": "fatfs module. port by langgo",
+	"description": "for usb msc use. fatfs module.",
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>"
+        ]
+    },
+    "frameworks": "arduino",
+	"platforms": "*"
+}
+

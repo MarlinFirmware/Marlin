@@ -865,7 +865,8 @@
   #include "stm32f4/pins_MKS_NEPTUNE_X.h"           // STM32F4                              env:mks_neptune_x
 #elif MB(MKS_NEPTUNE_3)
   #include "stm32f4/pins_MKS_NEPTUNE_3.h"           // STM32F4                              env:mks_neptune_3
-
+#elif MB(LANGGO407)
+  #include "stm32f4/pins_LANGGO407.h"             // STM32F4                              env:LANGGO407VE
 //
 // Other ARM Cortex-M4
 //

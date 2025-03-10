@@ -1,0 +1,16 @@
+{
+    "name": "GD32F4xx_usb_library",
+	"version": "0.0.1",
+	"keywords": "gd32f4xx usb lib. port by langgo",
+	"description": "gd32f4xx usb library for marlin. port by langgo.",
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>"
+        ]
+    },
+    "frameworks": "arduino",
+	"platforms": "*"
+}
+

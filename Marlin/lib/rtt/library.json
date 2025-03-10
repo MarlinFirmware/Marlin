@@ -1,0 +1,16 @@
+{
+    "name": "rtt",
+	"version": "0.0.1",
+	"keywords": "segger rtt log module. port by langgo",
+	"description": "Arduino library for segger rtt log module.",
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>"
+        ]
+    },
+    "frameworks": "arduino",
+	"platforms": "*"
+}
+

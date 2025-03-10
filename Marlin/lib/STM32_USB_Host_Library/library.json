@@ -1,0 +1,16 @@
+{
+    "name": "stm32_host_usb_library",
+	"version": "0.0.1",
+	"keywords": "stm32 usb lib. port by langgo",
+	"description": "stm32 usb library for marlin. port by langgo.",
+    "build": {
+        "srcFilter": [
+            "+<*.c>",
+            "+<*.cpp>",
+            "+<*.h>"
+        ]
+    },
+    "frameworks": "arduino",
+	"platforms": "*"
+}
+
