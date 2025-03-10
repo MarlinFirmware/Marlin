@@ -2227,7 +2227,7 @@
 
   // Developer menu (accessed by touching "About Printer" copyright text)
   //#define TOUCH_UI_DEVELOPER_MENU
-#endif
+#endif // TOUCH_UI_FTDI_EVE
 
 //
 // Classic UI Options

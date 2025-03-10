@@ -271,6 +271,10 @@
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  MString<64> machine_name;
+#endif
+
 MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
