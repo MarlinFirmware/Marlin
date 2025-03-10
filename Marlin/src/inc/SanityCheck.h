@@ -1446,7 +1446,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   /**
    * Check for improper PROBING_MARGIN
    */
-  #if NONE(NOZZLE_AS_PROBE, IS_KINEMATIC)
+  #if NONE(NOZZLE_AS_PROBE, IS_KINEMATIC, SENSORLESS_PROBING)
     #ifdef PROBING_MARGIN
       static_assert(PROBING_MARGIN     >= 0, "PROBING_MARGIN must be >= 0.");
     #endif

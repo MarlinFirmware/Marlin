@@ -142,7 +142,8 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB7
+  #define Z_MIN_PROBE_PIN Z_DIAG_PIN
+  // #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
 //
@@ -210,18 +211,18 @@
   #define Z2_CS_PIN                         PC7
 #endif
 
-#define E0_STEP_PIN                         PF9   // MOTOR 4
-#define E0_DIR_PIN                          PF10
-#define E0_ENABLE_PIN                       PG2
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN                         PF2
+#define Z3_STEP_PIN                         PF9   // MOTOR 4
+#define Z3_DIR_PIN                          PF10
+#define Z3_ENABLE_PIN                       PG2
+#ifndef Z3_CS_PIN
+  #define Z3_CS_PIN                         PF2
 #endif
 
-#define Z3_STEP_PIN                         PC13  // MOTOR 5
-#define Z3_DIR_PIN                          PF0
-#define Z3_ENABLE_PIN                       PF1
-#ifndef Z3_CS_PIN
-  #define Z3_CS_PIN                         PE4
+#define E0_STEP_PIN                         PC13  // MOTOR 5
+#define E0_DIR_PIN                          PF0
+#define E0_ENABLE_PIN                       PF1
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN                         PE4
 #endif
 
 #define I_STEP_PIN                         PE2   // MOTOR 6
