@@ -1213,13 +1213,13 @@ namespace ExtUI {
     #endif
   }
 
-  void onStatusChanged(FSTR_P const fstr) {
+  void onStatusChanged_P(PGM_P const pstr) {
     #ifdef __AVR__
-      char msg[strlen_P(FTOP(fstr)) + 1];
-      strcpy_P(msg, FTOP(fstr));
+      char msg[strlen_P(pstr) + 1];
+      strcpy_P(msg, pstr);
       onStatusChanged(msg);
     #else
-      onStatusChanged(FTOP(fstr));
+      onStatusChanged(pstr);
     #endif
   }
 

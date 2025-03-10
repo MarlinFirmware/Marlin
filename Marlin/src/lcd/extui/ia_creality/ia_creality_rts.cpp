@@ -99,7 +99,12 @@ void RTS::onStartup() {
   sendData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
 
-  onStatusChanged(MACHINE_NAME " Ready");
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    const MString<32> ready(message_string, " Ready");
+    onStatusChanged(ready);
+  #else
+    onStatusChanged(F(MACHINE_NAME " Ready"));
+  #endif
 
   sendData(100, FeedrateDisplay);
 
