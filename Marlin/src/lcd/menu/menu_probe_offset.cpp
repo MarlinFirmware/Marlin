@@ -41,9 +41,10 @@
 
 void _goto_manual_move_z(const_float_t);
 
-// Global storage
+// Global storage - TODO: Keep wizard/process data in a 'ui.scratch' union.
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
+// "Done" - Set the offset, re-enable leveling, go back to the previous screen.
 void set_offset_and_go_back(const_float_t z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
@@ -51,6 +52,10 @@ void set_offset_and_go_back(const_float_t z) {
   ui.goto_previous_screen_no_defer();
 }
 
+/**
+ * @fn probe_offset_wizard_menu
+ * @brief Display a menu to Move Z, Cancel, or signal Done
+ */
 void probe_offset_wizard_menu() {
   START_MENU();
   calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
@@ -88,6 +93,16 @@ void probe_offset_wizard_menu() {
   END_MENU();
 }
 
+/**
+ * @fn prepare_for_probe_offset_wizard
+ * @brief Prepare the Probe Offset Wizard to do user interaction.
+ * @description
+ *   1. Probe a defined point (or the center) for an initial Probe Reference Z (relative to the homed Z0).
+ *      (When homing with the probe, this Z0 is suspect until 'M851 Z' is properly tuned.
+ *       When homing with a Z endstop Z0 is suspect until M206 is properly tuned.)
+ *   2. Stow the probe and move the nozzle over the probed point.
+ *   3. Go to the probe_offset_wizard_menu() screen for Z position adjustment to acquire Z0.
+ */
 void prepare_for_probe_offset_wizard() {
   #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !HOMING_Z_WITH_PROBE
     if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT_F(MSG_PROBE_WIZARD_PROBING));
@@ -126,6 +141,8 @@ void prepare_for_probe_offset_wizard() {
   ui.defer_status_screen();
 }
 
+// Set up the wizard, initiate homing with "Homing XYZ" message.
+// When homing is completed go to prepare_for_probe_offset_wizard().
 void goto_probe_offset_wizard() {
   ui.defer_status_screen();
   set_all_unhomed();
@@ -146,6 +163,7 @@ void goto_probe_offset_wizard() {
   // Home all axes
   queue.inject_P(G28_STR);
 
+  // Show "Homing XYZ" display until homing completes
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
