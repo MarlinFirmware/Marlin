@@ -1367,6 +1367,10 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SETUP_RUN(ui.reset_status(false)); // machine_name Initialized by settings.load()
+  #endif
+
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
   #endif
