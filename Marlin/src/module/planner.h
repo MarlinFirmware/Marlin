@@ -782,13 +782,13 @@ class Planner {
     #endif
 
     #if HAS_POSITION_MODIFIERS
-      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=TERN0(PLANNER_LEVELING)) {
+      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=TERN0(PLANNER_LEVELING, 1)) {
         TERN_(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
       }
 
-      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=TERN0(PLANNER_LEVELING)) {
+      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=TERN0(PLANNER_LEVELING, 1)) {
         TERN_(FWRETRACT, unapply_retract(pos));
         if (leveling) unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
