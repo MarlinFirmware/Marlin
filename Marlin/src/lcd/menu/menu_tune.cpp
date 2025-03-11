@@ -224,7 +224,7 @@ void menu_tune() {
   #endif
   
   #if (ENABLED(SMOOTH_LIN_ADV))
-    editable.decimal = Stepper::extruder_advance_TAU;
+    editable.decimal = Stepper::get_advance_tau();
     EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ Stepper::set_advance_tau(editable.decimal); });
   #endif
 

@@ -149,7 +149,7 @@ void GcodeSuite::M900() {
       #endif
       
       #if (ENABLED(SMOOTH_LIN_ADV))
-        SERIAL_ECHOLNPGM("Advance TAU=", Stepper::extruder_advance_TAU);
+        SERIAL_ECHOLNPGM("Advance TAU=", Stepper::get_advance_tau());
       #endif
 
     #endif
@@ -171,7 +171,7 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
     }
   #endif
   #if (ENABLED(SMOOTH_LIN_ADV))
-    SERIAL_ECHOLNPGM("  M900 U", Stepper::extruder_advance_TAU);
+    SERIAL_ECHOLNPGM("  M900 U", Stepper::get_advance_tau());
   #endif
 }
 
