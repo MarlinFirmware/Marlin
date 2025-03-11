@@ -2983,31 +2983,31 @@ hal_timer_t Stepper::block_phase_isr() {
     };
     
     hal_timer_t Stepper::smooth_lin_adv_isr() {
-      static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
-      float target_pressure = 0;
+      float target_adv_steps = 0;
       if (current_block) {
         bool is_unretracting = !current_block->use_advance_lead && (current_block->direction_bits.e);
         // Don't lookahead during unretractions to keep pressure zero at start of lines
         // and so avoid blobs and improve seams
         if (!is_unretracting) {
           uint32_t t = extruder_advance_TAU_TICKS + curr_timer_tick;
-          target_pressure = lookahead(t) * Planner::extruder_advance_K[0];
+          target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
         }
       }
       else {
         curr_step_rate = 0;
       }
-      static float last_target_pressure = 0;
+      static float last_target_adv_steps = 0;
       const float dt_inv = SMOOTH_LIN_ADV_HZ;
-      float la_step_rate = (target_pressure - last_target_pressure) * dt_inv;
-      last_target_pressure = target_pressure;
+      float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
+      last_target_adv_steps = target_adv_steps;
 
       float planned_step_rate = 0;
       if (current_block) {
         planned_step_rate = curr_step_rate * current_block->e_step_ratio;
       }
       float total_step_rate = la_step_rate + planned_step_rate;
-
+      
+      static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
         total_step_rate =
