@@ -165,7 +165,7 @@ void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen{false};
 
   #if ENABLED(CANCEL_OBJECTS)
-    const bool &skip_move = cancelable.skipping;
+    const bool &skip_move = cancelable.state.skipping;
   #else
     constexpr bool skip_move = false;
   #endif
@@ -200,9 +200,10 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   if (parser.floatval('F') > 0) {
-    feedrate_mm_s = parser.value_feedrate();
+    const float fr_mm_min = parser.value_linear_units();
+    feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = MMS_TO_MMM(feedrate_mm_s));
+    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
 
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
@@ -350,7 +351,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
         G0_G1(TERN_(HAS_FAST_MOVES, parser.codenum == 0)); break;
 
-      #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
+      #if ENABLED(ARC_SUPPORT)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
       #endif
 
@@ -742,6 +743,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         #endif
       #endif
 
+      #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+        case 210: M210(); break;                                  // M210: Set the homing feedrate
+      #endif
+
       #if HAS_SOFTWARE_ENDSTOPS
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
@@ -859,7 +864,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if HAS_PRUSA_MMU2
+      #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
         case 403: M403(); break;
       #endif
 
@@ -988,6 +993,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if HAS_PRUSA_MMU3
+        case 704: M704(); break;                                  // M704: Preload to MMU
+        case 705: M705(); break;                                  // M705: Eject filament
+        case 706: M706(); break;                                  // M706: Cut filament
+        case 707: M707(); break;                                  // M707: Read from MMU register
+        case 708: M708(); break;                                  // M708: Write to MMU register
+        case 709: M709(); break;                                  // M709: MMU power & reset
+      #endif
+
       #if ENABLED(CONTROLLER_FAN_EDITABLE)
         case 710: M710(); break;                                  // M710: Set Controller Fan settings
       #endif
@@ -996,6 +1010,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 810: case 811: case 812: case 813: case 814:
         case 815: case 816: case 817: case 818: case 819:
         M810_819(); break;                                        // M810-M819: Define/execute G-code macro
+        case 820: M820(); break;                                  // M820: Report macros to serial output
       #endif
 
       #if HAS_BED_PROBE

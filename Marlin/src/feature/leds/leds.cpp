@@ -31,7 +31,7 @@
 #include "leds.h"
 
 #if ANY(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
-  #include "../../feature/caselight.h"
+  #include "../caselight.h"
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
@@ -83,7 +83,7 @@ void LEDLights::setup() {
             if (i == 1 && PWM_PIN(RGB_LED_G_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_G_PIN), led_pwm); else WRITE(RGB_LED_G_PIN, b < 100 ? HIGH : LOW);
             if (i == 2 && PWM_PIN(RGB_LED_B_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_B_PIN), led_pwm); else WRITE(RGB_LED_B_PIN, b < 100 ? HIGH : LOW);
             #if ENABLED(RGBW_LED)
-              if (i == 3){
+              if (i == 3) {
                 if (PWM_PIN(RGB_LED_W_PIN)) hal.set_pwm_duty(pin_t(RGB_LED_W_PIN), led_pwm);
                 else WRITE(RGB_LED_W_PIN, b < 100 ? HIGH : LOW);
                 delay(RGB_STARTUP_TEST_INNER_MS);//More slowing for ending

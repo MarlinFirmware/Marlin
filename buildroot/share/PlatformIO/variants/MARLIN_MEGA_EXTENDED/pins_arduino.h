@@ -1,6 +1,6 @@
 /*
   pins_arduino.h - Pin definition functions for Arduino
-  Part of Arduino - http://www.arduino.cc/
+  Part of Arduino - https://www.arduino.cc/
 
   Copyright (c) 2007 David A. Mellis
 

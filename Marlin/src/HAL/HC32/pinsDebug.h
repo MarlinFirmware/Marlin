@@ -18,41 +18,47 @@
  */
 #pragma once
 
+/**
+ * Pins Debugging for HC32
+ *
+ *   - NUMBER_PINS_TOTAL
+ *   - MULTI_NAME_PAD
+ *   - getPinByIndex(index)
+ *   - printPinNameByIndex(index)
+ *   - getPinIsDigitalByIndex(index)
+ *   - digitalPinToAnalogIndex(pin)
+ *   - getValidPinMode(pin)
+ *   - isValidPin(pin)
+ *   - isAnalogPin(pin)
+ *   - digitalRead_mod(pin)
+ *   - pwm_status(pin)
+ *   - printPinPWM(pin)
+ *   - printPinPort(pin)
+ *   - printPinNumber(pin)
+ *   - printPinAnalog(pin)
+ */
+
 #include "../../inc/MarlinConfig.h"
 #include "fastio.h"
 #include <drivers/timera/timera_pwm.h>
 
-//
-// Translation of routines & variables used by pinsDebug.h
-//
 #ifndef BOARD_NR_GPIO_PINS
   #error "Expected BOARD_NR_GPIO_PINS not found."
 #endif
 
 #define NUM_DIGITAL_PINS BOARD_NR_GPIO_PINS
 #define NUMBER_PINS_TOTAL BOARD_NR_GPIO_PINS
-#define isValidPin(pin) IS_GPIO_PIN(pin)
+#define isValidPin(P) IS_GPIO_PIN(P)
 
 // Note: pin_array is defined in `Marlin/src/pins/pinsDebug.h`, and since this file is included
 // after it, it is available in this file as well.
-#define getPinByIndex(p) pin_t(pin_array[p].pin)
-#define digitalRead_mod(p) extDigitalRead(p)
-#define printPinNumber(p)                              \
-  do {                                            \
-    sprintf_P(buffer, PSTR("%3hd "), int16_t(p)); \
-    SERIAL_ECHO(buffer);                          \
-  } while (0)
-#define printPinAnalog(p)                                               \
-  do {                                                                    \
-    sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(pin)); \
-    SERIAL_ECHO(buffer);                                                  \
-  } while (0)
-#define PRINT_PORT(p) printPinPort(p)
-#define printPinNameByIndex(x)                                                          \
-  do {                                                                               \
-    sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); \
-    SERIAL_ECHO(buffer);                                                             \
-  } while (0)
+#define getPinByIndex(x) pin_t(pin_array[x].pin)
+#define digitalRead_mod(P) extDigitalRead(P)
+
+#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(P)); SERIAL_ECHO(buffer); }while(0)
+#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
+
+#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
 
 #define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
 
@@ -71,13 +77,13 @@
   #define M43_NEVER_TOUCH(Q) (IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
 #endif
 
-static int8_t digitalPinToAnalogIndex(pin_t pin) {
+int8_t digitalPinToAnalogIndex(const pin_t pin) {
   if (!isValidPin(pin)) return -1;
   const int8_t adc_channel = int8_t(PIN_MAP[pin].adc_info.channel);
   return pin_t(adc_channel);
 }
 
-static bool isAnalogPin(pin_t pin) {
+bool isAnalogPin(pin_t pin) {
   if (!isValidPin(pin)) return false;
 
   if (PIN_MAP[pin].adc_info.channel != ADC_PIN_INVALID)
@@ -86,12 +92,12 @@ static bool isAnalogPin(pin_t pin) {
   return false;
 }
 
-static bool getValidPinMode(const pin_t pin) {
+bool getValidPinMode(const pin_t pin) {
   return isValidPin(pin) && !IS_INPUT(pin);
 }
 
-static bool getPinIsDigitalByIndex(const int16_t array_pin) {
-  const pin_t pin = getPinByIndex(array_pin);
+bool getPinIsDigitalByIndex(const int16_t index) {
+  const pin_t pin = getPinByIndex(index);
   return (!isAnalogPin(pin));
 }
 

@@ -66,16 +66,16 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA12
   #define IIC_EEPROM_SCL                    PA11
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K
 #endif
 
 //
 // Servos
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                        PB0   // BLTouch OUT *
+  #define SERVO0_PIN                        PB1
 #endif
 
 //
@@ -83,17 +83,17 @@
 //
 #define X_STOP_PIN                          PA5
 #define Y_STOP_PIN                          PA6
-#define Z_STOP_PIN                          PB0   // BLTOUCH *
+#define Z_STOP_PIN                          PB0
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch IN *
+  #define Z_MIN_PROBE_PIN                   PB2
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PC15  // "Pulled-high" *
+  #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high" *
 #endif
 
 //

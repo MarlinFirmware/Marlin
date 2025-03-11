@@ -31,7 +31,7 @@
  * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema4.SchDoc
  * - https://github.com/Ultimaker/Ultimaker2/blob/master/1546%20ultimainboard%20V2.1.4/schema5.SchDoc
  * Schematics (Original+):
- * Schematic (Original+): https://github.com/Ultimaker/Ultimaker-Original-Plus/blob/master/1091_Main_board_v2.1.1_(x1)/Ultimainboard%20rev.%202.1.1%20altium.zip
+ * Schematic (Original+): https://github.com/Ultimaker/Ultimaker-Original-Plus/blob/master/1091_Main_board_v2.1.1_%28x1%29/Ultimainboard%20rev.%202.1.1%20altium.zip
  * ATmega2560
  */
 
@@ -114,7 +114,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         39
 #define LED_PIN                                8
 //#define SAFETY_TRIGGERED_PIN                28  // PIN to detect the safety circuit has triggered

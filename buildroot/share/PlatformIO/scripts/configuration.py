@@ -28,7 +28,10 @@ def apply_opt(name, val, conf=None):
     # 7: Option value
     # 8: Whitespace after value
     # 9: End comment
-    regex = re.compile(rf'^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+    regex = re.compile(
+        rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
+        re.IGNORECASE
+    )
 
     # Find and enable and/or update all matches
     for file in ("Configuration.h", "Configuration_adv.h"):
@@ -110,7 +113,7 @@ def disable_all_options():
             match = regex.match(line)
             if match:
                 name = match[3].upper()
-                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION'): continue
+                if name in ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR'): continue
                 if name.startswith('_'): continue
                 found = True
                 # Comment out the define
@@ -195,7 +198,7 @@ def apply_sections(cp, ckey='all'):
             apply_ini_by_name(cp, 'config:basic')
 
         # Apply historically Configuration_adv.h settings everywhere
-        # (Some of which rely on defines in 'Conditionals_LCD.h')
+        # (Some of which rely on defines in 'Conditionals-2-LCD.h')
         elif ckey in ('adv', 'advanced'):
             apply_ini_by_name(cp, 'config:advanced')
 
@@ -264,7 +267,7 @@ if __name__ == "__main__":
         if args[0].endswith('.ini'):
             ini_file = args[0]
         else:
-            print("Usage: %s <.ini file>" % sys.argv[0])
+            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
         ini_file = config_path('config.ini')
 
