@@ -52,6 +52,11 @@
     IMPLEMENT_SERIAL(SERIAL_PORT_3);
   #endif
 #endif
+#ifdef LCD_SERIAL_PORT
+  #if WITHIN(LCD_SERIAL_PORT, 0, 8)
+    IMPLEMENT_SERIAL(LCD_SERIAL_PORT);
+  #endif
+#endif
 USBSerialType USBSerial(false, SerialUSB);
 
 // ------------------------
