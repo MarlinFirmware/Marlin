@@ -2786,19 +2786,16 @@ hal_timer_t Stepper::block_phase_isr() {
       E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
-      #if ENABLED(LIN_ADVANCE)
+      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
         #endif
-        #if DISABLED(SMOOTH_LIN_ADV)
-          la_active = (current_block->la_advance_rate != 0);
-          if (la_active) {
-            // Apply LA scaling and discount the effect of frequency scaling
-            la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
-          }
-        #endif
-
+        la_active = (current_block->la_advance_rate != 0);
+        if (la_active) {
+          // Apply LA scaling and discount the effect of frequency scaling
+          la_dividend = (advance_dividend.e << current_block->la_scaling) << oversampling_factor;
+        }
       #endif
 
       if ( ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles

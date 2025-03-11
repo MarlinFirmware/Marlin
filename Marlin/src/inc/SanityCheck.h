@@ -849,6 +849,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #endif
 
   #if ENABLED(SMOOTH_LIN_ADV)
+    #if ENABLED(MIXING_EXTRUDER)
+      #warning "SMOOTH_LIN_ADV with MIXING_EXTRUDER is not tested."
+    #endif
     #if DISABLED(CPU_32_BIT)
       #error "SMOOTH_LIN_ADV requires a 32-bit CPU."
     #endif
