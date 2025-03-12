@@ -216,31 +216,31 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         else if (pid_error > PID_FUNCTIONAL_RANGE) {
           pid_reset = true;
           pid_below = true;
-          temp_dState = current;
           output_pow = MAX_POW;
         }
-        else if (pid_reset) {          
-          pid_reset = false;
-          work_d = 0;
-          if(pid_below) 
-          {
-            temp_iState = max_power_over_i_gain;
-            pid_below = false;
+        else {
+          if (pid_reset) {          
+            pid_reset = false;
+            work_d = 0;
+            if(pid_below) 
+            {
+              temp_iState = max_power_over_i_gain;
+              pid_below = false;
+            }
+            else
+            {
+              temp_iState = 0;
+            }
           }
-          else
-          {
-            temp_iState = 0;
-          }
-        }
 
-        temp_iState = constrain(temp_iState + pid_error, temp_iState = -max_power_over_i_gain/4.0f, max_power_over_i_gain);
+          temp_iState = constrain(temp_iState + pid_error, -max_power_over_i_gain/4.0f, max_power_over_i_gain);
 
-        work_p = Kp * pid_error;
-        work_i = Ki * temp_iState;
-        work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+          work_p = Kp * pid_error;
+          work_i = Ki * temp_iState;
+          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
 
-        output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
-        
+          output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
+        } 
 
         temp_dState = current;
 
