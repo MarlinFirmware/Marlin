@@ -222,13 +222,11 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
           if (pid_reset) {          
             pid_reset = false;
             work_d = 0;
-            if(pid_below) 
-            {
+            if(pid_below) {
               temp_iState = max_power_over_i_gain;
               pid_below = false;
             }
-            else
-            {
+            else {
               temp_iState = 0;
             }
           }
