@@ -173,8 +173,10 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t {
     protected:
       bool pid_reset = true;
+      bool pid_below = false;
       float temp_iState = 0.0f, temp_dState = 0.0f;
       float work_p = 0, work_i = 0, work_d = 0;
+      float max_power_over_i_gain = 255.0f;
 
     public:
       float Kp = 0, Ki = 0, Kd = 0;
@@ -189,13 +191,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       float cTerm() const { return 0; }
       float fTerm() const { return 0; }
       void set_Kp(float p) { Kp = p; }
-      void set_Ki(float i) { Ki = scalePID_i(i); }
+      void set_Ki(float i) { Ki = scalePID_i(i); max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);}
       void set_Kd(float d) { Kd = scalePID_d(d); }
       void set_Kc(float) {}
       void set_Kf(float) {}
       int low() const { return MIN_POW; }
       int high() const { return MAX_POW; }
-      void reset() { pid_reset = true; }
+      void reset() { pid_reset = true; pid_below = false;}
       void set(float p, float i, float d, float c=1, float f=0) { set_Kp(p); set_Ki(i); set_Kd(d); set_Kc(c); set_Kf(f); }
       void set(const raw_pid_t &raw) { set(raw.p, raw.i, raw.d); }
       void set(const raw_pidcf_t &raw) { set(raw.p, raw.i, raw.d, raw.c, raw.f); }
@@ -213,24 +215,32 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         }
         else if (pid_error > PID_FUNCTIONAL_RANGE) {
           pid_reset = true;
+          pid_below = true;
+          temp_dState = current;
           output_pow = MAX_POW;
         }
-        else {
-          if (pid_reset) {
-            pid_reset = false;
-            temp_iState = 0.0;
-            work_d = 0.0;
+        else if (pid_reset) {          
+          pid_reset = false;
+          work_d = 0;
+          if(pid_below) 
+          {
+            temp_iState = max_power_over_i_gain;
+            pid_below = false;
           }
-
-          const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
-          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
-          work_p = Kp * pid_error;
-          work_i = Ki * temp_iState;
-          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
-
-          output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
+          else
+          {
+            temp_iState = 0;
+          }
         }
+
+        temp_iState = constrain(temp_iState + pid_error, temp_iState = -max_power_over_i_gain/4.0f, max_power_over_i_gain);
+
+        work_p = Kp * pid_error;
+        work_i = Ki * temp_iState;
+        work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+
+        output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
+        
 
         temp_dState = current;
 
