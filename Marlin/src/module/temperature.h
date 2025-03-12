@@ -219,10 +219,10 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
           output_pow = MAX_POW;
         }
         else {
-          if (pid_reset) {          
+          if (pid_reset) {
             pid_reset = false;
             work_d = 0;
-            if(pid_below) {
+            if (pid_below) {
               temp_iState = max_power_over_i_gain;
               pid_below = false;
             }
@@ -238,7 +238,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
           work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
 
           output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
-        } 
+        }
 
         temp_dState = current;
 
