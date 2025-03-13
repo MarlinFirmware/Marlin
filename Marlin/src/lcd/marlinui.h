@@ -504,11 +504,18 @@ public:
   #if HAS_DISPLAY
 
     static void init_lcd();
-    static void clear_lcd(); // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-    static void clear_for_drawing(); // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
+
+    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+    static void clear_lcd();
+
+    // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
+    static void clear_for_drawing();
+
     static void draw_kill_screen();
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    static void update(); // Periodic or as-needed display update
+
+    // Periodic or as-needed display update
+    static void update();
 
     static void abort_print();
     static void pause_print();
