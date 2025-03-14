@@ -586,7 +586,7 @@
 #define DUMMY_THERMISTOR_998_VALUE  25
 #define DUMMY_THERMISTOR_999_VALUE 100
 
-// Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1
+// Resistor values when using MAX31865 sensors (-5) on TEMP_SENSOR_0 / 1 / 2 / BED
 #if TEMP_SENSOR_IS_MAX_TC(0)
   #define MAX31865_SENSOR_OHMS_0      100 // (Ω) Typically 100 or 1000 (PT100 or PT1000)
   #define MAX31865_CALIBRATION_OHMS_0 430 // (Ω) Typically 430 for Adafruit PT100; 4300 for Adafruit PT1000
@@ -695,6 +695,7 @@
 #define PID_K1     0.95   // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
+  //#define MIN_POWER 0
   //#define PID_DEBUG             // Print PID debug data to the serial port. Use 'M303 D' to toggle activation.
   //#define PID_PARAMS_PER_HOTEND // Use separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with G-code: M301 E[extruder number, 0-2]
