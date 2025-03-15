@@ -814,7 +814,7 @@ namespace MMU3 {
           default: break;
         }
         break;
-      case Buttons::TuneMMU:
+      case Buttons::TuneMMU: // TODO: May go unutilized, but it's here for now
         tune();
         break;
       case Buttons::Load:
@@ -1049,7 +1049,7 @@ namespace MMU3 {
       lastErrorSource = res;
       LogErrorEvent(PrusaErrorTitle(PrusaErrorCodeIndex(ec)));
 
-      if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED && ec != ErrorCode::FILAMENT_CHANGE) {
+      if (ec != ErrorCode::OK && ec != ErrorCode::FILAMENT_EJECTED) {
         IncrementMMUFails();
 
         // Check if it is a "power" failure. TMC-related errors are considered power failures.
@@ -1146,7 +1146,7 @@ namespace MMU3 {
         if (loadFilamentStarted) {
           switch (WhereIsFilament()) {
             case FilamentState::AT_FSENSOR:
-              // fsensor triggered, finish FeedingToExtruder state
+              // fsensor triggered, finish FeedingToBondtech state
               loadFilamentStarted = false;
 
               // Abort any excess E-move from the planner queue

@@ -28,7 +28,7 @@
 /**
  * Extracted from Prusa-Error-Codes repo
  * Subject to automation and optimization
- * BEWARE - This file should only be included by mmu2_error_converter.cpp!
+ * BEWARE: This file should only be included by mmu3_error_converter.cpp!
  */
 #include "inttypes.h"
 #include "../../../core/language.h"
@@ -110,15 +110,16 @@ typedef enum : uint16_t {
   ERR_SYSTEM_FW_RUNTIME_ERROR = 505,
   ERR_SYSTEM_UNLOAD_MANUALLY = 506,
   ERR_SYSTEM_FILAMENT_EJECTED = 507,
-  ERR_SYSTEM_FILAMENT_CHANGE = 508,
 
   ERR_OTHER_UNKNOWN_ERROR = 900
 } err_num_t;
 
-// Avr gcc has serious trouble understanding static data structures in PROGMEM
-// and inadvertedly falls back to copying the whole structure into RAM (which is obviously unwanted).
-// But since this file ought to be generated in the future from yaml prescription,
-// it really makes no difference if there are "nice" data structures or plain arrays.
+/**
+ * Avr gcc has serious trouble understanding static data structures in PROGMEM
+ * and inadvertedly falls back to copying the whole structure into RAM (which is obviously unwanted).
+ * But since this file ought to be generated in the future from yaml prescription,
+ * it really makes no difference if there are "nice" data structures or plain arrays.
+ */
 static const constexpr err_num_t errorCodes[] PROGMEM = {
   ERR_MECHANICAL_FINDA_DIDNT_TRIGGER,
   ERR_MECHANICAL_FINDA_FILAMENT_STUCK,
@@ -164,7 +165,6 @@ static const constexpr err_num_t errorCodes[] PROGMEM = {
   ERR_SYSTEM_FW_RUNTIME_ERROR,
   ERR_SYSTEM_UNLOAD_MANUALLY,
   ERR_SYSTEM_FILAMENT_EJECTED,
-  ERR_SYSTEM_FILAMENT_CHANGE,
   ERR_OTHER_UNKNOWN_ERROR
 };
 
@@ -181,9 +181,9 @@ FSTR_P const errorTitles[] PROGMEM = {
   GET_TEXT_F(MSG_TITLE_SELECTOR_CANNOT_MOVE),
   GET_TEXT_F(MSG_TITLE_IDLER_CANNOT_HOME),
   GET_TEXT_F(MSG_TITLE_IDLER_CANNOT_MOVE),
-  GET_TEXT_F(MSG_TITLE_TMC_WARNING_TMC_TOO_HOT),
-  GET_TEXT_F(MSG_TITLE_TMC_WARNING_TMC_TOO_HOT),
-  GET_TEXT_F(MSG_TITLE_TMC_WARNING_TMC_TOO_HOT),
+  GET_TEXT_F(MSG_TITLE_WARNING_TMC_TOO_HOT),
+  GET_TEXT_F(MSG_TITLE_WARNING_TMC_TOO_HOT),
+  GET_TEXT_F(MSG_TITLE_WARNING_TMC_TOO_HOT),
   GET_TEXT_F(MSG_TITLE_TMC_OVERHEAT_ERROR),
   GET_TEXT_F(MSG_TITLE_TMC_OVERHEAT_ERROR),
   GET_TEXT_F(MSG_TITLE_TMC_OVERHEAT_ERROR),
@@ -213,7 +213,6 @@ FSTR_P const errorTitles[] PROGMEM = {
   GET_TEXT_F(MSG_TITLE_FW_RUNTIME_ERROR),
   GET_TEXT_F(MSG_TITLE_UNLOAD_MANUALLY),
   GET_TEXT_F(MSG_TITLE_FILAMENT_EJECTED),
-  GET_TEXT_F(MSG_TITLE_FILAMENT_CHANGE),
   GET_TEXT_F(MSG_TITLE_UNKNOWN_ERROR)
 };
 
@@ -265,18 +264,19 @@ FSTR_P const errorDescs[] PROGMEM = {
   GET_TEXT_F(MSG_DESC_FW_RUNTIME_ERROR),
   GET_TEXT_F(MSG_DESC_UNLOAD_MANUALLY),
   GET_TEXT_F(MSG_DESC_FILAMENT_EJECTED),
-  GET_TEXT_F(MSG_DESC_FILAMENT_CHANGE),
   GET_TEXT_F(MSG_DESC_UNKNOWN_ERROR)
 };
 
-// We have max 3 buttons/operations to select from.
-// One of them is "More" to show the explanation text normally hidden in the next screens.
-// It is displayed with W (Double down arrow, special character from CGRAM)
-// 01234567890123456789
-// >bttxt   >bttxt   >W
-// Therefore at least some of the buttons, which can occur on the screen together, can only be 8-chars long max @@TODO.
-// Beware - we only have space for 2 buttons on the LCD while the MMU has 3 buttons
-// -> the left button on the MMU is not used/rendered on the LCD (it is also almost unused on the MMU side)
+/**
+ * We have max 3 buttons/operations to select from.
+ * One of them is "More" to show the explanation text normally hidden in the next screens.
+ * It is displayed with W (Double down arrow, special character from CGRAM)
+ * 01234567890123456789
+ * >bttxt   >bttxt   >W
+ * Therefore at least some of the buttons, which can occur on the screen together, can only be 8-chars long max @@TODO.
+ * BEWARE: We only have space for 2 buttons on the LCD while the MMU has 3 buttons
+ * -> the left button on the MMU is not used/rendered on the LCD (it is also almost unused on the MMU side)
+ */
 
 // Used to parse the buttons from Btns().
 FSTR_P const btnOperation[] PROGMEM = {
@@ -284,34 +284,38 @@ FSTR_P const btnOperation[] PROGMEM = {
   GET_TEXT_F(MSG_DONE),
   GET_TEXT_F(MSG_BTN_RESET_MMU),
   GET_TEXT_F(MSG_BTN_UNLOAD),
-  GET_TEXT_F(MSG_BTN_LOAD),
-  GET_TEXT_F(MSG_BTN_EJECT),
-  GET_TEXT_F(MSG_TUNE),
+  //GET_TEXT_F(MSG_BTN_LOAD),
+  //GET_TEXT_F(MSG_BTN_EJECT),
+  //GET_TEXT_F(MSG_TUNE),
   GET_TEXT_F(MSG_BTN_STOP),
-  GET_TEXT_F(MSG_BTN_DISABLE_MMU)
+  GET_TEXT_F(MSG_BTN_DISABLE_MMU),
+  GET_TEXT_F(MSG_BUTTON_SKIP)
+  //GET_TEXT_F(MSG_BTN_MORE)
 };
 
-// We have 8 different operations/buttons at this time, so we need at least 4 bits to encode each.
-// Since one of the buttons is always "More", we can skip that one.
-// Therefore we need just 1 byte to describe the necessary buttons for each screen.
+/**
+ * We have 8 different operations/buttons at this time, so we need at least 4 bits to encode each.
+ * Since one of the buttons is always "More", we can skip that one.
+ * Therefore we need just 1 byte to describe the necessary buttons for each screen.
+ */
 uint8_t constexpr Btns(ButtonOperations bMiddle, ButtonOperations bRight) {
   return ((uint8_t)bRight) << 4 | ((uint8_t)bMiddle);
 }
 
 static const uint8_t errorButtons[] PROGMEM = {
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // FINDA_DIDNT_TRIGGER
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // FINDA_FILAMENT_STUCK
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // FSENSOR_DIDNT_TRIGGER
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // FSENSOR_FILAMENT_STUCK
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FINDA_DIDNT_TRIGGER
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FINDA_FILAMENT_STUCK
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FSENSOR_DIDNT_TRIGGER
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FSENSOR_FILAMENT_STUCK
 
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // PULLEY_CANNOT_MOVE
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // FSENSOR_TOO_EARLY
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // INSPECT_FINDA
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // PULLEY_CANNOT_MOVE
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // FSENSOR_TOO_EARLY
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // INSPECT_FINDA
   Btns(ButtonOperations::Continue, ButtonOperations::NoOperation), // LOAD_TO_EXTRUDER_FAILED
-  Btns(ButtonOperations::Retry, ButtonOperations::Tune),           // SELECTOR_CANNOT_HOME
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // SELECTOR_CANNOT_MOVE
-  Btns(ButtonOperations::Retry, ButtonOperations::Tune),           // IDLER_CANNOT_HOME
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // IDLER_CANNOT_MOVE
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // SELECTOR_CANNOT_HOME
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // SELECTOR_CANNOT_MOVE
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // IDLER_CANNOT_HOME
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // IDLER_CANNOT_MOVE
 
   Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),    // WARNING_TMC_PULLEY_TOO_HOT
   Btns(ButtonOperations::Continue, ButtonOperations::ResetMMU),    // WARNING_TMC_SELECTOR_TOO_HOT
@@ -340,14 +344,13 @@ static const uint8_t errorButtons[] PROGMEM = {
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // MMU_NOT_RESPONDING
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // COMMUNICATION_ERROR
 
-  Btns(ButtonOperations::Unload, ButtonOperations::Continue),      // FILAMENT_ALREADY_LOADED
+  Btns(ButtonOperations::Unload,   ButtonOperations::Continue),    // FILAMENT_ALREADY_LOADED
   Btns(ButtonOperations::StopPrint, ButtonOperations::ResetMMU),   // INVALID_TOOL
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // QUEUE_FULL
   Btns(ButtonOperations::ResetMMU, ButtonOperations::DisableMMU),  // FW_UPDATE_NEEDED
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // FW_RUNTIME_ERROR
-  Btns(ButtonOperations::Retry, ButtonOperations::NoOperation),    // UNLOAD_MANUALLY
+  Btns(ButtonOperations::Retry,    ButtonOperations::NoOperation), // UNLOAD_MANUALLY
   Btns(ButtonOperations::Continue, ButtonOperations::NoOperation), // FILAMENT_EJECTED
-  Btns(ButtonOperations::Eject, ButtonOperations::Load),           // FILAMENT_CHANGE
   Btns(ButtonOperations::ResetMMU, ButtonOperations::NoOperation), // UNKOWN_ERROR
 };
 

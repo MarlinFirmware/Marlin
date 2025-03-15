@@ -1033,7 +1033,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_SELECTOR_CANNOT_HOME     = _UxGT("SELECTOR CANNOT HOME");
   LSTR MSG_TITLE_IDLER_CANNOT_MOVE        = _UxGT("IDLER CANNOT MOVE");
   LSTR MSG_TITLE_IDLER_CANNOT_HOME        = _UxGT("IDLER CANNOT HOME");
-  LSTR MSG_TITLE_TMC_WARNING_TMC_TOO_HOT  = _UxGT("WARNING TMC TOO HOT");
+  LSTR MSG_TITLE_WARNING_TMC_TOO_HOT      = _UxGT("WARNING TMC TOO HOT");
   LSTR MSG_TITLE_TMC_OVERHEAT_ERROR       = _UxGT("TMC OVERHEAT ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_ERROR         = _UxGT("TMC DRIVER ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_RESET         = _UxGT("TMC DRIVER RESET");
@@ -1051,7 +1051,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_FW_RUNTIME_ERROR         = _UxGT("FW RUNTIME ERROR");
   LSTR MSG_TITLE_UNLOAD_MANUALLY          = _UxGT("UNLOAD MANUALLY");
   LSTR MSG_TITLE_FILAMENT_EJECTED         = _UxGT("FILAMENT EJECTED");
-  LSTR MSG_TITLE_FILAMENT_CHANGE          = _UxGT("FILAMENT CHANGE");
   LSTR MSG_TITLE_UNKNOWN_ERROR            = _UxGT("UNKNOWN ERROR");
 
   LSTR MSG_DESC_FINDA_DIDNT_TRIGGER       = _UxGT("FINDA didn't trigger while loading the filament. Ensure the filament can move and FINDA works.");
@@ -1076,7 +1075,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_FW_RUNTIME_ERROR          = _UxGT("Internal runtime error. Try resetting the MMU or updating the firmware.");
   LSTR MSG_DESC_UNLOAD_MANUALLY           = _UxGT("Filament detected unexpectedly. Ensure no filament is loaded. Check the sensors and wiring.");
   LSTR MSG_DESC_FILAMENT_EJECTED          = _UxGT("Remove the ejected filament from the front of the MMU.");
-  LSTR MSG_DESC_FILAMENT_CHANGE           = _UxGT("M600 Filament Change. Load a new filament or eject the old one.");
   LSTR MSG_DESC_UNKNOWN_ERROR             = _UxGT("Unexpected error occurred.");
 
   LSTR MSG_DESC_FW_UPDATE_NEEDED          = _UxGT("MMU FW version is not supported. Update to version " STRINGIFY(mmuVersionMajor) "." STRINGIFY(mmuVersionMinor) "." STRINGIFY(mmuVersionPatch) ".");
