@@ -622,7 +622,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
-    #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
+    #error "PRUSA_MMU2(S) and PRUSA_MMU3 require exactly 5 EXTRUDERS. Please update your Configuration."
   #elif HAS_EXTENDABLE_MMU && EXTRUDERS > 15
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
