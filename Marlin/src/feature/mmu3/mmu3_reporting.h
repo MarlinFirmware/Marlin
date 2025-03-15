@@ -34,14 +34,14 @@
 namespace MMU3 {
 
   enum CommandInProgress : uint8_t {
-    NoCommand = 0,
-    CutFilament = 'K',
-    EjectFilament = 'E',
-    Homing = 'H',
-    LoadFilament = 'L',
-    Reset = 'X',
-    ToolChange = 'T',
-    UnloadFilament = 'U',
+    NoCommand      = 0,
+    CutFilament    = 'K',
+    EjectFilament  = 'E',
+    Homing         = 'H',
+    LoadFilament   = 'L',
+    Reset          = 'X',
+    ToolChange     = 'T',
+    UnloadFilament = 'U'
   };
 
   /**

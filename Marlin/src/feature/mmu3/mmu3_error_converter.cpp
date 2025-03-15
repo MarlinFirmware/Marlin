@@ -92,8 +92,6 @@ namespace MMU3 {
         return FindErrorIndex(ERR_MECHANICAL_LOAD_TO_EXTRUDER_FAILED);
       case ErrorCode::FILAMENT_EJECTED:
         return FindErrorIndex(ERR_SYSTEM_FILAMENT_EJECTED);
-      case ErrorCode::FILAMENT_CHANGE:
-        return FindErrorIndex(ERR_SYSTEM_FILAMENT_CHANGE);
 
       case ErrorCode::STALLED_PULLEY:
       case ErrorCode::MOVE_PULLEY_FAILED:
@@ -125,8 +123,6 @@ namespace MMU3 {
         return FindErrorIndex(ERR_SYSTEM_FW_RUNTIME_ERROR);
       case ErrorCode::FINDA_VS_EEPROM_DISREPANCY:
         return FindErrorIndex(ERR_SYSTEM_UNLOAD_MANUALLY);
-      case ErrorCode::MCU_POWER_ERROR:
-        return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_POWER_ERROR);
       case ErrorCode::MCU_UNDERVOLTAGE_VCC:
         return FindErrorIndex(ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC);
       default: break;
@@ -250,8 +246,8 @@ namespace MMU3 {
       case ERR_MECHANICAL_IDLER_CANNOT_HOME:
         switch (buttonSelectedOperation) {
           // may be allow move selector right and left in the future
-          case ButtonOperations::Tune: // Tune Stallguard threshold
-            return Buttons::TuneMMU;
+          //case ButtonOperations::Tune: // Tune Stallguard threshold
+          //  return Buttons::TuneMMU;  // Goes unused, possibility for future use
           case ButtonOperations::Retry: // "Repeat action"
             return Buttons::Middle;
           default:
@@ -263,16 +259,6 @@ namespace MMU3 {
         switch (buttonSelectedOperation) {
           case ButtonOperations::Continue: // User solved the serious mechanical problem by hand - there is no other way around
             return Buttons::Middle;
-          default:
-            break;
-        }
-        break;
-      case ERR_SYSTEM_FILAMENT_CHANGE:
-        switch (buttonSelectedOperation) {
-          case ButtonOperations::Load:
-            return Buttons::Load;
-          case ButtonOperations::Eject:
-            return Buttons::Eject;
           default:
             break;
         }
