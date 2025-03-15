@@ -21,6 +21,11 @@
  */
 #pragma once
 
+/**
+ * Bootloader Download
+ * https://mellow.klipper.cn/docs/ProductDoc/MainBoard/fly-e3/fly-e3-v2/flash/bl
+ */
+
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
