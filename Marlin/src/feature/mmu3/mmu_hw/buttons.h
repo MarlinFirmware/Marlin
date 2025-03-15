@@ -46,8 +46,8 @@ enum class ButtonOperations : uint8_t {
   //Tune        = 7,
   StopPrint   = 5,
   DisableMMU  = 6,
-  Skip        = 7
-  //MoreInfo    = 8
+  Skip        = 7,
+  MoreInfo    = 8 // Not found in Prusa-Firmware-MMU
 };
 
 // Button codes + extended actions performed on the printer's side
