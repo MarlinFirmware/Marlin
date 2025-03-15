@@ -114,7 +114,7 @@ jobs:
         - BTT_GTR_V1_0
         - BTT_SKR_PRO
         - FLYF407ZG
-        - FYSETC_S6
+        - STM32F446VE_fysetc
         - LERDGEK
         - LERDGEX
         - mks_robin_pro2
@@ -189,6 +189,7 @@ jobs:
 
     - name: Install Simulator dependencies
       run: |
+        sudo apt-get update
         sudo apt-get install build-essential
         sudo apt-get install libsdl2-dev
         sudo apt-get install libsdl2-net-dev
