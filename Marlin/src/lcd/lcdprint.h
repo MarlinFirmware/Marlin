@@ -38,11 +38,6 @@
 
   #include "e3v2/marlinui/marlinui_dwin.h"
 
-  #define LCD_PIXEL_WIDTH     DWIN_WIDTH
-  #define LCD_PIXEL_HEIGHT    DWIN_HEIGHT
-  #define LCD_WIDTH           ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
-  #define LCD_HEIGHT          ((LCD_PIXEL_HEIGHT) / (MENU_LINE_HEIGHT))
-
   // The DWIN lcd_moveto function uses row / column, not pixels
   #define LCD_COL_X(col)    (col)
   #define LCD_ROW_Y(row)    (row)

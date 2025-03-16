@@ -8,8 +8,7 @@ if pioutil.is_pio_build():
     from os.path import join, isfile
     from pprint import pprint
 
-    Import("env")
-
+    env = pioutil.env
     if env.MarlinHas("POSTMORTEM_DEBUGGING"):
         FRAMEWORK_DIR = env.PioPlatform().get_package_dir("framework-arduinoststm32-maple")
         patchflag_path = join(FRAMEWORK_DIR, ".exc-patching-done")

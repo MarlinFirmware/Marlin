@@ -30,7 +30,7 @@
 #define COLOR(color)          RGB(((color >> 16) & 0xFF), ((color >> 8) & 0xFF), (color & 0xFF))
 #define HALF(color)           RGB(RED(color) >> 1, GREEN(color) >> 1, BLUE(color) >> 1)
 
-// RGB565 color picker: https://embeddednotepad.com/page/rgb565-color-picker
+// RGB565 color picker: https://rgbcolorpicker.com/565
 // Hex code to color name: https://www.color-name.com/
 
 #define COLOR_BLACK           0x0000  // #000000

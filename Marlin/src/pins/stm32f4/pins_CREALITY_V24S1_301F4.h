@@ -35,4 +35,6 @@
 #define DISABLE_DEBUG false // DISABLE_(DEBUG|JTAG) is not supported for STM32F4.
 #define ALLOW_STM32F4
 
+#define EEPROM_EXCL_ZONE 916,926  // Ender-3S1 STM32F401 Bootloader EEPROM exclusion zone
+
 #include "../stm32f1/pins_CREALITY_V24S1_301.h"

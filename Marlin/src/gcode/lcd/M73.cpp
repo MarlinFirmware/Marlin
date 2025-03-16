@@ -29,10 +29,6 @@
 #include "../../sd/cardreader.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
-#endif
-
 #if ENABLED(E3S1PRO_RTS)
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif

@@ -30,6 +30,3 @@
   #undef F_CPU
   #define F_CPU BOARD_F_CPU
 #endif
-
-// The Sensitive Pins array is not optimizable
-#define RUNTIME_ONLY_ANALOG_TO_DIGITAL

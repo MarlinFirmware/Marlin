@@ -41,8 +41,6 @@
   #include "../../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../../lcd/e3v2/creality/dwin.h"
-#elif ENABLED(DWIN_LCD_PROUI)
-  #include "../../../lcd/e3v2/proui/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "../../../lcd/e3v2/jyersui/dwin.h" // Temporary fix until it can be better implemented
 #endif
@@ -80,14 +78,14 @@ void GcodeSuite::M1000() {
     if (!force_resume && parser.seen_test('S')) {
       #if HAS_MARLINUI_MENU
         ui.goto_screen(menu_job_recovery);
-      #elif HAS_DWIN_E3V2_BASIC
-        recovery.dwin_flag = true;
+      #elif ENABLED(EXTENSIBLE_UI)
+        ExtUI::onPowerLossResume();
+      #elif HAS_PLR_UI_FLAG
+        recovery.ui_flag_resume = true;
       #elif ENABLED(E3S1PRO_RTS)
         recovery.info.print_job_elapsed = print_job_timer.duration() + recovery.info.print_job_elapsed;
       #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI) // Temporary fix until it can be better implemented
         jyersDWIN.popupHandler(Popup_Resume);
-      #elif ENABLED(EXTENSIBLE_UI)
-        ExtUI::onPowerLossResume();
       #else
         SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif

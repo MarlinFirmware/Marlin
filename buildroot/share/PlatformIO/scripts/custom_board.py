@@ -7,7 +7,7 @@
 import pioutil
 if pioutil.is_pio_build():
     import marlin
-    board = marlin.env.BoardConfig()
+    board = pioutil.env.BoardConfig()
 
     address = board.get("build.address", "")
     if address:

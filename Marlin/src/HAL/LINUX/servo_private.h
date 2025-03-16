@@ -60,7 +60,6 @@
 
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
-
 // Types
 
 typedef struct {

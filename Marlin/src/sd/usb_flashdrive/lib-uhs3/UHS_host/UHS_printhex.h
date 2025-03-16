@@ -91,6 +91,4 @@ template <class T> void D_PrintBin(NOTUSED(T val), NOTUSED(int lvl)) {
 #endif
 }
 
-
-
 #endif // __PRINTHEX_H__

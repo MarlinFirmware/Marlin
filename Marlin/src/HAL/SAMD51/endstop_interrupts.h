@@ -82,6 +82,7 @@
 #define MATCH_Z4_MAX_EILINE(P) TERN0(USE_Z4_MAX, DEFER4(MATCH_EILINE)(P, Z4_MAX_PIN))
 #define MATCH_Z4_MIN_EILINE(P) TERN0(USE_Z4_MIN, DEFER4(MATCH_EILINE)(P, Z4_MIN_PIN))
 #define MATCH_Z_MIN_PROBE_EILINE(P) TERN0(USE_Z_MIN_PROBE, DEFER4(MATCH_EILINE)(P, Z_MIN_PROBE_PIN))
+#define MATCH_CALIBRATION_EILINE(P) TERN0(USE_CALIBRATION, DEFER4(MATCH_EILINE)(P, CALIBRATION_PIN))
 
 #define AVAILABLE_EILINE(P) ( PIN_TO_EILINE(P) != -1    \
   && !MATCH_X_MAX_EILINE(P) && !MATCH_X_MIN_EILINE(P)   \
@@ -98,7 +99,8 @@
   && !MATCH_Z2_MAX_EILINE(P) && !MATCH_Z2_MIN_EILINE(P) \
   && !MATCH_Z3_MAX_EILINE(P) && !MATCH_Z3_MIN_EILINE(P) \
   && !MATCH_Z4_MAX_EILINE(P) && !MATCH_Z4_MIN_EILINE(P) \
-  && !MATCH_Z_MIN_PROBE_EILINE(P) )
+  && !MATCH_Z_MIN_PROBE_EILINE(P)                       \
+  && !MATCH_CALIBRATION_EILINE(P) )
 
 // One ISR for all EXT-Interrupts
 void endstop_ISR() { endstops.update(); }
@@ -182,6 +184,12 @@ void setup_endstop_interrupts() {
       #error "Z_MIN_PROBE_PIN has no EXTINT line available. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
     #endif
     _ATTACH(Z_MIN_PROBE_PIN);
+  #endif
+  #if USE_CALIBRATION
+    #if !AVAILABLE_EILINE(CALIBRATION_PIN)
+      #error "CALIBRATION_PIN has no EXTINT line available. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
+    #endif
+    _ATTACH(CALIBRATION_PIN);
   #endif
   #if USE_I_MAX
     #if !AVAILABLE_EILINE(I_MAX_PIN)

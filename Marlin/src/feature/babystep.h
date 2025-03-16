@@ -64,6 +64,7 @@ public:
     void add_steps_laser(const AxisEnum axis, const int16_t distance);
   #endif
 
+  static bool can_babystep(const AxisEnum axis);
   static void add_steps(const AxisEnum axis, const int16_t distance);
   static void add_mm(const AxisEnum axis, const_float_t mm);
 

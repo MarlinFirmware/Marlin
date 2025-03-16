@@ -23,8 +23,7 @@
 
 /**
  * Azteeg X5 GT pin assignments
- * Wiring diagram: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20GT/X5%20GT%20Wiring%20Diagram.pdf
- * Origin: https://panucattdevices.freshdesk.com/support/solutions/articles/1000244740-support-files
+ * Schematic: https://panucattdevices.freshdesk.com/support/solutions/articles/1000244740-support-files
  */
 
 #include "env_validate.h"
@@ -118,7 +117,7 @@
   #define BTN_ENC                          P2_11
 
   #define SD_DETECT_PIN                    P1_18
-  #define SDSS                             P1_21
+  #define SD_SS_PIN                        P1_21
 
   #define STAT_LED_RED_PIN                 P1_19
   #define STAT_LED_BLUE_PIN                P1_20

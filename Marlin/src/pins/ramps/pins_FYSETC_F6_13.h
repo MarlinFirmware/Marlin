@@ -23,8 +23,7 @@
 
 //
 // FYSETC F6 1.3 (and 1.4) pin assignments
-// Schematic (1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/FYSETC%20F6%201.3/F6_V13.pdf
-// Origin: https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.3/F6_V13.pdf
+// Schematic: https://github.com/FYSETC/FYSETC-F6/blob/master/Hardware/V1.3/F6_V13.pdf
 // ATmega2560
 //
 
@@ -192,7 +191,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_04_PIN
 #define LED_PIN                               13
 #define KILL_PIN                              41
 
@@ -230,9 +228,15 @@
 #define EXP2_08_PIN                           -1  // RESET
 
 //
-// LCDs and Controllers
+// SD Card
 //
+
+#define SD_SS_PIN                    EXP2_04_PIN
 #define SD_DETECT_PIN                EXP2_07_PIN
+
+//
+// LCD / Controller
+//
 
 #if ENABLED(FYSETC_242_OLED_12864)
   #define BTN_EN1                    EXP1_01_PIN

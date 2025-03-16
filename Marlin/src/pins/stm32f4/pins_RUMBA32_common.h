@@ -135,7 +135,7 @@
 #define PS_ON_PIN                           PE11
 #define KILL_PIN                            PC5
 
-#define SDSS                                PA2
+#define SD_SS_PIN                           PA2
 #define SD_DETECT_PIN                       PB0
 #define BEEPER_PIN                          PE8
 
@@ -170,6 +170,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define BTN_ENC                    EXP1_02_PIN

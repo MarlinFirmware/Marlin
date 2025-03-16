@@ -44,6 +44,7 @@ void GcodeSuite::M255() {
 }
 
 void GcodeSuite::M255_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_DISPLAY_SLEEP));
   SERIAL_ECHOLNPGM("  M255 S",
     TERN(HAS_DISPLAY_SLEEP, ui.sleep_timeout_minutes, ui.backlight_timeout_minutes),

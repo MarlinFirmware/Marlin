@@ -35,7 +35,7 @@
 uint8_t buffer[MARLIN_EEPROM_SIZE];
 char filename[] = "eeprom.dat";
 
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;

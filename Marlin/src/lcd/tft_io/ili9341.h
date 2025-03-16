@@ -136,7 +136,6 @@
 #define ILI9341_IFCTL             0xF6 // Interface Control
 #define ILI9341_PUMPRCTL          0xF7 // Pump ratio control
 
-
 static const uint16_t ili9341_init[] = {
   DATASIZE_8BIT,
   ESC_REG(ILI9341_SWRESET), ESC_DELAY(100),

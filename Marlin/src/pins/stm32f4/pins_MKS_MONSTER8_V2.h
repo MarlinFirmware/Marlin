@@ -39,19 +39,17 @@
 //
 #define PW_DET                              PA13  // MT_DET
 #define PW_OFF                              PB12  // Z+
-#define MT_DET_1_PIN                      PW_DET
-#define MT_DET_2_PIN                      PW_OFF
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
+  #define FIL_RUNOUT_PIN                    PA13  // MT_DET
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
+  #define FIL_RUNOUT2_PIN                   PB12  // Z+
 #endif
 
 //
 // MKS WIFI MODULE
 //
-//#define WIFI_SERIAL 1// USART1
+//#define WIFI_SERIAL_PORT                     1  // USART1
 #if ENABLED(MKS_WIFI_MODULE)
   #define WIFI_IO0_PIN                      PB14  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PB15  // MKS ESP WIFI IO1 PIN

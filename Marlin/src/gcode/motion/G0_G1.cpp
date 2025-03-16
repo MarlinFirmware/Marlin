@@ -35,7 +35,9 @@
   #include "../../module/planner.h"
 #endif
 
-#if ENABLED(E3S1PRO_RTS)
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
+#elif ENABLED(E3S1PRO_RTS)
   #include "../../lcd/rts/e3s1pro/lcd_rts.h"
 #endif
 
@@ -122,5 +124,5 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #endif
 
   TERN_(E3S1PRO_RTS, RTS_PauseMoveAxisPage());
-
+  TERN_(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
 }

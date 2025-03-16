@@ -24,11 +24,19 @@
 #include "../queue.h" // for last_N
 
 /**
- * M110: Set Current Line Number
+ * M110: Get or set Current Line Number
+ *
+ * Parameters:
+ *   N<int>  Number to set as last-processed command
+ *
+ * Without parameters:
+ *   Report the last-processed (not last-received or last-enqueued) command
+ *   (To purge the queue and resume from this line, the host should use 'M999' instead.)
  */
 void GcodeSuite::M110() {
 
   if (parser.seenval('N'))
     queue.set_current_line_number(parser.value_long());
-
+  else
+    SERIAL_ECHOLNPGM(STR_LINE_NO, queue.get_current_line_number());
 }
