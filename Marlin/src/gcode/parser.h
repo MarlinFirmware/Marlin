@@ -146,7 +146,7 @@ public:
       if (b) {
         if (param[ind]) {
           char * const ptr = command_ptr + param[ind];
-          value_ptr = valid_number(ptr) ? ptr : nullptr;
+          value_ptr = (valid_number(ptr) || TERN0(GCODE_QUOTED_STRINGS, *(ptr - 1) == '"')) ? ptr : nullptr;
         }
         else
           value_ptr = nullptr;
