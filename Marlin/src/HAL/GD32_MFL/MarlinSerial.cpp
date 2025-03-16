@@ -58,10 +58,10 @@ void MarlinSerial::begin(unsigned long baudrate, uint16_t config) {
   UsartSerial::begin(baudrate, config);
   #if DISABLED(SERIAL_DMA)
     #if ENABLED(EMERGENCY_PARSER)
-    usart_.register_interrupt_callback(
-      usart::Interrupt_Type::INTR_RBNEIE,
-      [this]() { emergency_parser.update(emergency_state, config_.last_data); }
-    );
+      static void emergency_callback() {
+        emergency_parser.update(emergency_state, config_.last_data);
+      }
+      usart_.register_interrupt_callback(usart::Interrupt_Type::INTR_RBNEIE, emergency_callback);
     #endif
   #endif
 }
@@ -73,7 +73,7 @@ void MarlinSerial::updateRxDmaBuffer() {
   uint8_t data;
 
   // Process only the available data
-  while (size_t i = 0; i < available_bytes; ++i) {
+  for (size_t i = 0; i < available_bytes; ++i) {
     if (usart_.read_rx_buffer(data)) {
       emergency_parser.update(emergency_state, data);
     }
