@@ -138,29 +138,23 @@ void PrintJobRecovery::changed() {
  */
 bool PrintJobRecovery::check() {
   //if (!card.isMounted()) card.mount();
+  if (!card.isMounted()) return false;
+
+  #if ENABLED(EEPROM_PLR)
+    BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
+  #else
+    load();
+  #endif
+
   bool success = false;
-  if (card.isMounted()) {
-
-    #ifdef EEPROM_PLR
-      BL24CXX::read(PLR_ADDR, (uint8_t*)&info, sizeof(info));
-    #else
-      load();
-    #endif
-
-    #if HAS_LASER_E3S1PRO
-      const bool is_laser = laser_device.is_laser_device();
-      if (is_laser) purge();
-    #else
-      constexpr bool is_laser = false;
-    #endif
-
-    if (!is_laser) {
-      success = valid();
-      if (!success)
-        cancel();
-      else
-        queue.inject(F("M1000S"));
-    }
+  if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device()))
+    purge();
+  else {
+    success = valid();
+    if (!success)
+      cancel();
+    else
+      queue.inject(F("M1000S"));
   }
   return success;
 }

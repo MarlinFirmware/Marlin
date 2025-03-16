@@ -663,22 +663,15 @@ void GCodeQueue::get_serial_commands() {
       #if ENABLED(E3S1PRO_RTS)
         // the printing results
         if (card_eof) {
-          rts.sendData(100, PRINT_PROCESS_VP);
-          delay(1);
-          rts.sendData(100, PRINT_PROCESS_ICON_VP);
-          delay(1);
+          rts.sendData(100, PRINT_PROCESS_VP); delay(1);
+          rts.sendData(100, PRINT_PROCESS_ICON_VP); delay(1);
 
-          #if HAS_CUTTER
-            const bool is_laser = laser_device.is_laser_device();
-            if (is_laser) {
-              //rts.sendData(exchangePageBase + 60, exchangePageAddr);
-              //change_page_font = 60;
-            }
-          #else
-            constexpr bool is_laser = false;
-          #endif
-
-          if (!is_laser) {
+          const bool is_laser = TERN0(HAS_CUTTER, laser_device.is_laser_device());
+          if (is_laser) {
+            rts.sendData(exchangePageBase + 60, exchangePageAddr);
+            change_page_font = 60;
+          }
+          else {
             rts.sendData(exchangePageBase + 9, exchangePageAddr);
             change_page_font = 9;
           }

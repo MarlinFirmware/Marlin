@@ -863,13 +863,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   #if ENABLED(E3S1PRO_RTS)
-    #if HAS_LASER_E3S1PRO
-      const bool is_laser = laser_device.is_laser_device();
-      if (is_laser) RTSUpdateLaser();
-    #else
-      constexpr bool is_laser = false;
-    #endif
-    if (!is_laser) RTSUpdate();
+    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) {
+      TERN_(HAS_LASER_E3S1PRO, RTSUpdateLaser());
+    }
+    else
+      RTSUpdate();
   #endif
 
   // Run i2c Position Encoders
