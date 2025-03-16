@@ -23,8 +23,7 @@
 
 /**
  * Einsy-Rambo pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Einsy-Rambo/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
- * Origin: https://github.com/ultimachine/Einsy-Rambo/blob/1.1a/board/Project%20Outputs/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
+ * Schematic: https://github.com/ultimachine/Einsy-Rambo/blob/1.1a/board/Project%20Outputs/Schematic%20Prints_Einsy%20Rambo_1.1a.PDF
  */
 
 #include "env_validate.h"
@@ -179,7 +178,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_04_PIN
+#define SD_SS_PIN                    EXP2_04_PIN
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN
@@ -208,6 +207,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN                            32

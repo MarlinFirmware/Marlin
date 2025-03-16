@@ -21,16 +21,14 @@
  */
 #pragma once
 
-#if NOT_TARGET(STM32F4)
-  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-#elif HOTENDS > 1 || E_STEPPERS > 1
+#include "env_validate.h"
+
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "STM32F401CCU6 boards support one hotend / E-steppers only."
 #endif
 
-#include "env_validate.h"
-
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "I3DBEE BP_01"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "I3DBEE BP_01"
 #endif
 
 #define TEMP_TIMER 5
@@ -47,7 +45,7 @@
   #define FLASH_EEPROM_EMULATION
   #define FLASH_EEPROM_LEVELING
   #define FLASH_SECTOR          (FLASH_SECTOR_TOTAL - 1)
-  #define FLASH_UNIT_SIZE       0x4000                                           // 16kB
+  #define FLASH_UNIT_SIZE               0x4000U  // 16K
   #define MARLIN_EEPROM_SIZE    FLASH_UNIT_SIZE
   #undef NO_EEPROM_SELECTED
 #endif
@@ -97,12 +95,12 @@
 #define HEATER_0_PIN                        PA2   // HOTEND MOSFET
 #define HEATER_BED_PIN                      PA0   // BED MOSFET
 
-#define FAN1_PIN                            PA1   // FAN1 header on board - PRINT FAN
+#define FAN0_PIN                            PA1   // FAN1 header on board - PRINT FAN
 
 //
 // SD Card
 //
-#define SDSS                                PA4
+#define SD_SS_PIN                           PA4
 #define SD_DETECT_PIN                       -1
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
@@ -140,6 +138,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
 
@@ -165,7 +164,7 @@
   //
   // GLCD features
   //
-  //#define LCD_CONTRAST                     190
+  //#define LCD_CONTRAST_INIT                190
 
   //
   // Dcreen orientation

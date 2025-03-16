@@ -13,7 +13,7 @@ on:
 
 jobs:
   remove_label:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -32,7 +32,7 @@ jobs:
           - "Needs: Work"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Remove Labels
         uses: actions-ecosystem/action-remove-labels@v1
         with:

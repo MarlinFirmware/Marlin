@@ -88,7 +88,6 @@
 #endif
 //@}
 
-
 /**
  * USB Device Callbacks definitions (Optional)
  * @{
@@ -150,7 +149,6 @@
 
 //@}
 
-
 /**
  * USB Interface Configuration
  * @{
@@ -210,7 +208,6 @@
   //@}
   //@}
 
-
   /**
    * Configuration of MSC interface
    * @{
@@ -244,7 +241,6 @@
   //@}
 
   //@}
-
 
   /**
    * Description of Composite Device

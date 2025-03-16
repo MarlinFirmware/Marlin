@@ -96,6 +96,8 @@ void GcodeSuite::M92() {
 }
 
 void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
   #if NUM_AXES
     #define PRINT_EOL

@@ -33,6 +33,21 @@
 
 #include "../../core/serial_hook.h"
 
+#ifdef USBCON
+  #include <USBSerial.h>
+  typedef ForwardSerial1Class< decltype(SerialUSB) > DefaultSerial1;
+  extern DefaultSerial1 MSerialUSB;
+  #define USB_SERIAL_PORT(...) MSerialUSB
+#endif
+
+#define SERIAL_INDEX_MIN 1
+#define SERIAL_INDEX_MAX 9
+#include "../shared/serial_ports.h"
+
+#if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
+  #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+#endif
+
 #if ENABLED(SERIAL_DMA)
 
   struct MarlinSerial : public HAL_HardwareSerial {
@@ -53,6 +68,7 @@
     inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 
     void _rx_complete_irq(serial_t *obj);
+    FORCE_INLINE static uint8_t buffer_overruns() { return 0; } // Not implemented. Void to avoid platform-dependent code.
 
     protected:
       usart_rx_callback_t _rx_callback;

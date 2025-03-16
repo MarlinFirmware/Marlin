@@ -62,7 +62,7 @@
 // LED defines
 //
 //#define NEOPIXEL_TYPE                 NEO_GRBW  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-//#define NEOPIXEL_PIN                        20  // LED driving pin on motherboard
+//#define BOARD_NEOPIXEL_PIN                  20  // LED driving pin on motherboard
 //#define NEOPIXEL_PIXELS                      3  // Number of LEDs in the strip
 //#define SDA0                                20  // PB12 NeoPixel pin I2C data
 //#define SCL0                                21  // PB13              I2C clock
@@ -152,7 +152,7 @@
 #define SD_MISO_PIN                           68  // set to unused pins for now
 #define SD_MOSI_PIN                           69  // set to unused pins for now
 #define SD_SCK_PIN                            70  // set to unused pins for now
-#define SDSS                                  71  // set to unused pins for now
+#define SD_SS_PIN                             71  // set to unused pins for now
 
 /**
  * G2 uses 8 pins that are not available in the DUE environment:

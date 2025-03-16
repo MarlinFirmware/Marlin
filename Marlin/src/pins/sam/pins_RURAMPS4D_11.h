@@ -155,7 +155,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                   4  // 4,10,52 if using HW SPI.
+#define SD_SS_PIN                              4  // 4,10,52 if using HW SPI.
 #define LED_PIN                               -1  // 13 - HEATER_0_PIN
 #define PS_ON_PIN                             -1  // 65
 
@@ -174,7 +174,7 @@
 //
 // EEPROM
 //
-#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24lc256)
+#define MARLIN_EEPROM_SIZE               0x8000U  // 32K (24lc256)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
@@ -195,27 +195,28 @@
  *              ------                                ------
  *               EXP1                                  EXP2
  */
-#define EXP1_01_PIN                           62
-#define EXP1_02_PIN                           40
-#define EXP1_03_PIN                           64
-#define EXP1_04_PIN                           63
-#define EXP1_05_PIN                           48
-#define EXP1_06_PIN                           50
-#define EXP1_07_PIN                           52
-#define EXP1_08_PIN                           53
+#define EXP1_01_PIN                           62  // BEEPER
+#define EXP1_02_PIN                           40  // ENC
+#define EXP1_03_PIN                           64  // LCD_EN
+#define EXP1_04_PIN                           63  // LCD_RS
+#define EXP1_05_PIN                           48  // LCD_D4 / RESET
+#define EXP1_06_PIN                           50  // LCD_D5
+#define EXP1_07_PIN                           52  // LCD_D6
+#define EXP1_08_PIN                           53  // LCD_D7 / ENABLE
 
 #define EXP2_01_PIN                           74  // MISO
 #define EXP2_02_PIN                           76  // SCK
-#define EXP2_03_PIN                           44
-#define EXP2_04_PIN                           10
-#define EXP2_05_PIN                           42
+#define EXP2_03_PIN                           44  // EN1
+#define EXP2_04_PIN                           10  // SDSS
+#define EXP2_05_PIN                           42  // EN2
 #define EXP2_06_PIN                           75  // MOSI
-#define EXP2_07_PIN                           51
+#define EXP2_07_PIN                           51  // SD DET
 #define EXP2_08_PIN                           -1  // RESET
 
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #if ANY(RADDS_DISPLAY, IS_RRD_SC, IS_RRD_FG_SC)
@@ -240,7 +241,7 @@
   #elif HAS_U8GLIB_I2C_OLED
 
     #define BEEPER_PIN               EXP1_01_PIN
-    #define LCD_SDSS                 EXP2_04_PIN
+    #define LCD_SDSS_PIN             EXP2_04_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #elif ENABLED(FYSETC_MINI_12864)
@@ -270,7 +271,7 @@
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
 
-    //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
+    // https://sparklab-shop.de/elektronik/40/sparklcd-adapter
     #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
     //#define LCD_PINS_D4                     29  //?
     //#define LCD_PINS_EN                     27  //?

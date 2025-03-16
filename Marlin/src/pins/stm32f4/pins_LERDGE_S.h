@@ -169,7 +169,6 @@
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
   #define SD_SS_PIN                         PC11
-  #define SDSS                              PC11
 #endif
 
 //
@@ -209,9 +208,9 @@
   #define TFT_RESET_PIN                     PD6
   #define TFT_BACKLIGHT_PIN                 PD3
 
+  // TODO: See if FSMC DMA can work
   #define FSMC_CS_PIN                       PD7
   #define FSMC_RS_PIN                       PD11
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 

@@ -142,7 +142,6 @@
  */
 #define COMPILER_PACK_RESET()          COMPILER_PRAGMA(pack())
 
-
 /**
  * \brief Set aligned boundary.
  */
@@ -283,14 +282,12 @@ typedef double                  F64;  //!< 64-bit floating-point number.
 typedef uint32_t                iram_size_t;
 //! @}
 
-
 /*! \name Status Types
  */
 //! @{
 typedef bool                Status_bool_t;  //!< Boolean status.
 typedef U8                  Status_t;       //!< 8-bit-coded status.
 //! @}
-
 
 /*! \name Aliasing Aggregate Types
  */
@@ -462,7 +459,6 @@ typedef struct
 #endif
 //! @}
 
-
 #ifndef __ASSEMBLY__ // not for assembling.
 
 //! \name Optimization Control
@@ -581,7 +577,6 @@ typedef struct
 
 //! @}
 
-
 /*! \name Zero-Bit Counting
  *
  * Under GCC, __builtin_clz and __builtin_ctz behave like macros when
@@ -692,7 +687,6 @@ typedef struct
 
 //! @}
 
-
 /*! \name Bit Reversing
  */
 //! @{
@@ -731,7 +725,6 @@ typedef struct
                                    ((U64)bit_reverse32((U64)(u64)) << 32)))
 
 //! @}
-
 
 /*! \name Alignment
  */
@@ -797,7 +790,6 @@ typedef struct
  * \note It may be used as a long jump opcode in some special cases.
  */
 #define Long_call(addr)                   ((*(void (*)(void))(addr))())
-
 
 /*! \name MCU Endianism Handling
  * ARM is MCU little endianism.
@@ -867,7 +859,6 @@ typedef struct
 #define  BE32_TO_CPU(x) swap32(x)
 #define  CPU_TO_BE32(x) swap32(x)
 //! @}
-
 
 /*! \name Endianism Conversion
  *
@@ -955,7 +946,6 @@ typedef struct
 
 //! @}
 
-
 /*! \name Target Abstraction
  */
 //! @{
@@ -996,7 +986,6 @@ typedef U8                  Byte;       //!< 8-bit unsigned integer.
 #define div_ceil(a, b)      (((a) + (b) - 1) / (b))
 
 #endif  // #ifndef __ASSEMBLY__
-
 
 #ifdef __ICCARM__
 #define SHORTENUM           __packed

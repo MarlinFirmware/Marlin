@@ -45,7 +45,6 @@ extern const uint8_t Helvetica_Symbols_19[45] = {
   8,7,7,9,0,11,60,102,195,195,195,102,60,
 };
 
-
 // Helvetica, capital 'A' height: 19px
 extern const uint8_t Helvetica_19[7298] = {
   129,19,32,0,255,0,24,251, // unifont_t

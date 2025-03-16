@@ -23,8 +23,7 @@
 
 /**
  * Dreammaker Overlord v1.1 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Dreammaker%20Overlord%20v1.1/Schematic.pdf
- * Origin: https://github.com/jdpiercy/Overlord-Pro/blob/master/Motherboard/Schematic.pdf
+ * Schematic: https://github.com/jdpiercy/Overlord-Pro/blob/master/Motherboard/Schematic.pdf
  * ATmega2560
  */
 
@@ -100,7 +99,7 @@
 //
 // SD Card
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         38
 
 //
@@ -122,6 +121,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20

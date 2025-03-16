@@ -38,9 +38,7 @@
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
 
-size_t PersistentStore::capacity() {
-  return MARLIN_EEPROM_SIZE;
-}
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 #define _ALIGN(x) __attribute__((aligned(x)))
 static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];
@@ -85,11 +83,10 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing /*=true*/) {
   for (size_t i = 0; i < size; i++) {
-    uint8_t c = HAL_eeprom_data[pos + i];
+    const uint8_t c = HAL_eeprom_data[pos + i];
     if (writing) value[i] = c;
     crc16(crc, &c, 1);
   }
-
   pos += size;
   return false;
 }

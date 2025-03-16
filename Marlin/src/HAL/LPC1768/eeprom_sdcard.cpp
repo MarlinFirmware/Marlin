@@ -49,7 +49,7 @@ bool eeprom_file_open = false;
   #define MARLIN_EEPROM_SIZE size_t(0x1000) // 4KiB of Emulated EEPROM
 #endif
 
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
