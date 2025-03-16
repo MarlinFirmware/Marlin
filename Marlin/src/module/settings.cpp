@@ -496,8 +496,11 @@ typedef struct SettingsDataStruct {
   float planner_filament_size[EXTRUDERS];               // M200 T D  planner.filament_size[]
   float planner_volumetric_extruder_limit[EXTRUDERS];   // M200 T L  planner.volumetric_extruder_limit[]
 
-  #if ENABLED(FEEDRATE_PRINTING_LIMIT)
-    feedRate_t max_printing_feedrate_mm_s;
+  //
+  // Max Print Feedrate
+  //
+  #if HAS_MAX_PRINT_FEEDRATE
+    feedRate_t max_print_feedrate_mm_s;                 // M203 P  planner.max_print_feedrate_mm_s
   #endif
 
   //
@@ -1431,6 +1434,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Max Print Feedrate
+    //
+    #if HAS_MAX_PRINT_FEEDRATE
+      EEPROM_WRITE(planner.max_print_feedrate_mm_s);
+    #endif
+
+    //
     // Volumetric & Filament Size
     //
     {
@@ -1458,10 +1468,6 @@ void MarlinSettings::postprocess() {
 
       #endif
     }
-
-    #if ENABLED(FEEDRATE_PRINTING_LIMIT)
-      EEPROM_WRITE(planner.max_printing_feedrate_mm_s);
-    #endif
 
     //
     // TMC Configuration
@@ -2552,6 +2558,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Max Print Feedrate
+      //
+      #if HAS_MAX_PRINT_FEEDRATE
+        EEPROM_READ(planner.max_print_feedrate_mm_s);
+      #endif
+
+      //
       // Volumetric & Filament Size
       //
       {
@@ -2574,12 +2587,6 @@ void MarlinSettings::postprocess() {
           }
         #endif
       }
-
-      #if ENABLED(FEEDRATE_PRINTING_LIMIT)
-        feedRate_t max_printing_feedrate_mm_s;
-        EEPROM_READ(max_printing_feedrate_mm_s);
-        if (!validating) planner.max_printing_feedrate_mm_s = max_printing_feedrate_mm_s;
-      #endif
 
       //
       // TMC Stepper Settings
@@ -3766,6 +3773,13 @@ void MarlinSettings::reset() {
   #endif
 
   //
+  // Max Print Feedrate
+  //
+  #if HAS_MAX_PRINT_FEEDRATE
+    planner.max_print_feedrate_mm_s = MAX_PRINT_FEEDRATE_MM_S;
+  #endif
+
+  //
   // TMC Homing Hybrid Threshold
   //
   #if ENABLED(HOMING_HYBRID_THRESHOLD)
@@ -3798,10 +3812,6 @@ void MarlinSettings::reset() {
       for (uint8_t q = 0; q < COUNT(planner.volumetric_extruder_limit); ++q)
         planner.volumetric_extruder_limit[q] = DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT;
     #endif
-  #endif
-
-  #if ENABLED(FEEDRATE_PRINTING_LIMIT)
-    planner.max_printing_feedrate_mm_s = DEFAULT_FEEDRATE_PRINTING_LIMIT;
   #endif
 
   endstops.enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));

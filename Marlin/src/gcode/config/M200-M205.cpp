@@ -200,11 +200,19 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
  *       With multiple extruders use T to specify which one.
  */
 void GcodeSuite::M203() {
-  if (!parser.seen("T" STR_AXES_LOGICAL))
+  if (!parser.seen("T" TERN_(HAS_MAX_PRINT_FEEDRATE, "P") STR_AXES_LOGICAL))
     return M203_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
+
+  #if HAS_MAX_PRINT_FEEDRATE
+    // Set the max Printing feedrate, applying only to moves with extrusion.
+    if (parser.seenval('P')) {
+      const float p = parser.value_linear_units();
+      if (p == 0 || p > 100) planner.settings.max_print_feedrate_mm_s = p;
+    }
+  #endif
 
   LOOP_LOGICAL_AXES(i)
     if (parser.seenval(AXIS_CHAR(i))) {
@@ -238,6 +246,10 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
   #if HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS)
     eol = true;
     SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS]));
+  #endif
+
+  #if HAS_MAX_PRINT_FEEDRATE
+    SERIAL_ECHOPGM_P(SP_P_STR, LINEAR_UNIT(planner.settings.max_print_feedrate_mm_s));
   #endif
 
   if (eol) SERIAL_EOL();
