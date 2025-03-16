@@ -67,6 +67,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_EXTRUDE                        = _UxGT("Екструзия");
   LSTR MSG_RETRACT                        = _UxGT("Откат");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Движение по ос");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Нивелиране");
   LSTR MSG_BED_LEVELING                   = _UxGT("Нивелиране");
   LSTR MSG_LEVEL_BED                      = _UxGT("Нивелиране");
   LSTR MSG_MOVE_X                         = _UxGT("Движение по X");
@@ -138,10 +139,19 @@ namespace LanguageNarrow_bg {
   LSTR MSG_AUTORETRACT                    = _UxGT("Автоoткат");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Смяна нишка");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Смяна нишка *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Иниц. SD-Карта");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Иниц. SD-Карта");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Иниц. USB-Карта");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Иниц. SD-Карта");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Смяна SD-Карта");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-сондата е извадена");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Отстояние");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Отстояние");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Отстояние");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Отстояние");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Промяна на Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Министъпка X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Министъпка Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Министъпка Z");

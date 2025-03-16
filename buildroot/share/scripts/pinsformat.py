@@ -43,7 +43,7 @@ mexpr = [ re.compile(f'^{m}$') for m in mpatt ]
 ppad = [ 3, 4, 5, 5 ]
 
 # Match a define line
-definePatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+\s+({mstr})\s*(//.*)?$')
+definePinPatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+?_PIN\s+({mstr})\s*(//.*)?$')
 
 def format_pins(argv):
     src_file = 'stdin'
@@ -93,7 +93,7 @@ def get_pin_pattern(txt):
     # Find the most common matching pattern
     match_threshold = 5
     for line in txt.split('\n'):
-        r = definePatt.match(line)
+        r = definePinPatt.match(line)
         if r == None: continue
         ind = -1
         for p in mexpr:
@@ -271,7 +271,7 @@ def process_text(txt):
         elif tryUndef(wDict):   pass  #undef ...
         elif tryCond(wDict):    pass  #if|ifdef|ifndef|elif ...
 
-        out += wDict['line'] + '\n'
+        out += wDict['line'].rstrip() + '\n'
 
     return re.sub('\n\n$', '\n', re.sub(r'\n\n+', '\n\n', out))
 

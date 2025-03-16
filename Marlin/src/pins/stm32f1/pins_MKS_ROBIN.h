@@ -53,9 +53,9 @@
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -171,21 +171,19 @@
    * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
-   * If the screen stays white, disable 'TFT_RESET_PIN'
-   * to let the bootloader init the screen.
+   * If the screen stays white, disable 'TFT_RESET_PIN' to let the bootloader init the screen.
    *
-   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting a 'TFT_RESET_PIN' may cause a flicker when switching menus
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF0   // A0
-
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
+
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
@@ -227,14 +225,13 @@
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
-  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
-  #define SDSS                              PD2
+  #define SD_SS_PIN                         PD2
   #define SD_DETECT_PIN                     -1
 #endif
 
 //
-// Trinamic TMC2208/2209 UART
+// Trinamic TMC2208/TMC2209 UART
 //
 #if HAS_TMC_UART
   /**
@@ -263,13 +260,9 @@
   //#define TMC_SOFTWARE_SERIAL
   #if ENABLED(TMC_SOFTWARE_SERIAL)
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
-    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
-    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
-    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
-    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
     #define TMC_BAUD_RATE                  19200
   #endif
 #endif

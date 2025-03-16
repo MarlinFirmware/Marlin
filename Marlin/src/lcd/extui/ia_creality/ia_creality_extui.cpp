@@ -59,7 +59,7 @@ void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
   delay_ms(10);
 }
 
-void onMediaInserted() {
+void onMediaMounted() {
   filenavigator.reset();
   filenavigator.getFiles(0);
   fileIndex = 0;
@@ -171,7 +171,7 @@ void onUserConfirmRequired(const char *const msg) {
       case PAUSE_MESSAGE_PURGE: {
         rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
         char newMsg[40] = "Yes to ";
-        strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+        strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
         strcat_P(newMsg, PSTR("           No to Purge"));
         onStatusChanged(newMsg);
         break;
@@ -181,7 +181,7 @@ void onUserConfirmRequired(const char *const msg) {
     case PAUSE_MESSAGE_OPTION: {
       rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
       char newMsg[40] = "Yes to ";
-      strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+      strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
       strcat_P(newMsg, PSTR("           No to Purge"));
       onStatusChanged(newMsg);
       break;

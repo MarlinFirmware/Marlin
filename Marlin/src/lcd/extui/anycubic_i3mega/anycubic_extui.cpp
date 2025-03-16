@@ -39,7 +39,7 @@ namespace ExtUI {
   void onIdle()           { anycubicTFT.onCommandScan(); }
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) { anycubicTFT.onKillTFT(); }
 
-  void onMediaInserted()  { anycubicTFT.onSDCardStateChange(true); }
+  void onMediaMounted()   { anycubicTFT.onSDCardStateChange(true); }
   void onMediaError()     { anycubicTFT.onSDCardError(); }
   void onMediaRemoved()   { anycubicTFT.onSDCardStateChange(false); }
 

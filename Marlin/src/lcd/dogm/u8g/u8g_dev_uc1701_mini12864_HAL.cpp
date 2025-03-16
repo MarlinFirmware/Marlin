@@ -130,7 +130,7 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
     UC1701_V5_RATIO(3),       // set V0 voltage resistor ratio to large
     UC1701_INDICATOR(0),      // indicator disable
     UC1701_ON(1),             // display on
-    UC1701_COLUMN_HI(0),      // set upper 4 bit of the col adr to 0
+    UC1701_COLUMN_HI(0),      // set upper 4 bits of the col adr to 0
     U8G_ESC_END,              // end of sequence
     U8G_ESC_DLY(5)            // delay 5 ms
   #else

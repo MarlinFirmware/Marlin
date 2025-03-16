@@ -22,7 +22,8 @@
 
 /**
  * Mesh Viewer for PRO UI
- * Author: Miguel A. Risco-Castillo (MRISCOC)
+ * Based on the original work of: Miguel Risco-Castillo (MRISCOC)
+ * https://github.com/mriscoc/Ender3V2S1
  * version: 4.2.1
  * Date: 2023/05/05
  */

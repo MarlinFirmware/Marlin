@@ -19,14 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * BOARD_TRONXY_CXY_446_V10
  *
  * CXY-V6-191121 / CXY-446-V10-220413
  */
-
-#pragma once
 
 #include "env_validate.h"
 
@@ -50,11 +49,11 @@
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
-  #define EEPROM_START_ADDRESS                (0x8000000UL + (512 * 1024) - 2 * EEPROM_PAGE_SIZE)
-  #define EEPROM_PAGE_SIZE                    (0x800U)  // 2K, but will use 2x more (4K)
-  #define MARLIN_EEPROM_SIZE                  EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE                  0x800  // 2K (FT24C16A)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K (FT24C16A)
 #endif
 
 //
@@ -62,7 +61,7 @@
 //
 #define SPI_FLASH                                 // W25Q16
 #if ENABLED(SPI_FLASH)
-  #define SPI_FLASH_SIZE                      0x1000000  // 16MB
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define SPI_FLASH_CS_PIN                  PG15
   #define SPI_FLASH_MOSI_PIN                PB5
   #define SPI_FLASH_MISO_PIN                PB4
@@ -79,7 +78,7 @@
 //
 #define ONBOARD_SDIO
 #define SD_DETECT_PIN                       -1
-#define SDIO_CLOCK                            4500000
+#define SDIO_CLOCK                       4500000
 #define SDIO_READ_RETRIES                     16
 
 #define SDIO_D0_PIN                         PC8
@@ -172,22 +171,21 @@
 // TFT with FSMC interface
 //
 #if HAS_FSMC_TFT
-  #define TOUCH_CS_PIN                      PD11
-  #define TOUCH_SCK_PIN                     PB13
-  #define TOUCH_MISO_PIN                    PB14
-  #define TOUCH_MOSI_PIN                    PB15
+  #define LCD_USE_DMA_FSMC
+  //#define FSMC_DMA_DEV                    DMA2 // Maple
+  //#define FSMC_DMA_CHANNEL             DMA_CH5 // Maple
+  #define FSMC_CS_PIN                       PG12
+  #define FSMC_RS_PIN                       PG2
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   #define TFT_RESET_PIN                     PB12
   #define TFT_BACKLIGHT_PIN                 PG8
 
-  #define LCD_USE_DMA_FSMC                    // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-  #define FSMC_CS_PIN                       PG12
-  #define FSMC_RS_PIN                       PG2
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
+  #define TOUCH_CS_PIN                      PD11
+  #define TOUCH_SCK_PIN                     PB13
+  #define TOUCH_MISO_PIN                    PB14
+  #define TOUCH_MOSI_PIN                    PB15
 
   #if ENABLED(TFT_LVGL_UI)
     #define HAS_SPI_FLASH_FONT                    1

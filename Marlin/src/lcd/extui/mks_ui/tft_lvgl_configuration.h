@@ -41,7 +41,6 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data);
 bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 
 void lcdClear(uint16_t color);
-void lv_encoder_pin_init();
 void lv_update_encoder();
 
 lv_fs_res_t spi_flash_open_cb(lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode);

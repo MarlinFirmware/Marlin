@@ -8,6 +8,7 @@
 #define _HC32_APP_CONFIG_H_
 
 #include "../../inc/MarlinConfigPre.h"
+#include "sysclock.h"
 
 //
 // dev mode
@@ -64,7 +65,8 @@
 // redirect printf to host serial
 #define REDIRECT_PRINTF_TO_SERIAL 1
 
-// FIXME override F_CPU to PCLK1, as marlin freaks out otherwise
-#define F_CPU (SYSTEM_CLOCK_FREQUENCIES.pclk1)
+// F_CPU is F_HCLK, as that's the main CPU core's clock.
+// see 'sysclock.h' for more information.
+#define F_CPU F_HCLK
 
 #endif // _HC32_APP_CONFIG_H_

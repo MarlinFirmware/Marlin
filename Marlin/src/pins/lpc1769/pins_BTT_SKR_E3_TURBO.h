@@ -36,7 +36,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K (AT24C32)
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K (AT24C32)
 
 //
 // Servos
@@ -144,19 +144,10 @@
    */
 
   #define X_SERIAL_TX_PIN                  P1_01
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                  P1_10
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                  P1_17
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                 P0_05
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                 P0_22
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -218,9 +209,8 @@
 #define EXP1_08_PIN                        P0_18
 
 #if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
-  #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-    #error "CAUTION! Ender-3 V2 display requires a custom cable with TX = P0_15, RX = P0_16. See 'pins_BTT_SKR_E3_TURBO.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-  #endif
+
+  CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "Ender-3 V2 display", " Requires a custom cable with TX = P0_15, RX = P0_16.")
 
  /**
   *          Ender-3 V2 display                       SKR E3 Turbo (EXP1)                Ender-3 V2 display --> SKR E3 Turbo
@@ -254,9 +244,7 @@
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ZONESTAR_LCD requires wiring modifications. See 'pins_BTT_SKR_E3_TURBO.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "ZONESTAR_LCD")
 
     #define LCD_PINS_RS              EXP1_06_PIN
     #define LCD_PINS_EN              EXP1_02_PIN

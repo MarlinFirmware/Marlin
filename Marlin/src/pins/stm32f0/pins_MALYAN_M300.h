@@ -33,14 +33,9 @@
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
   #ifndef MARLIN_EEPROM_SIZE
-    #define MARLIN_EEPROM_SIZE 0x800U             // 2K
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
   #endif
 #endif
-
-//
-// SD CARD SPI
-//
-#define SDSS                           SD_SS_PIN
 
 //
 // Timers
@@ -90,4 +85,6 @@
 #define HEATER_0_PIN                        PA1   // HOTEND0 MOSFET
 #define HEATER_BED_PIN                      PA5   // BED MOSFET
 
-#define AUTO_FAN_PIN                        PA8
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PA8
+#endif

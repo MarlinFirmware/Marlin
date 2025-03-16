@@ -50,7 +50,7 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(MMU2_MENUS)
+#if ENABLED(MMU_MENUS)
   #include "menu_mmu2.h"
 #endif
 
@@ -72,6 +72,10 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
+#if ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
+  void menu_probe_level();
+#endif
+
 #if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
@@ -88,8 +92,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if ENABLED(LED_CONTROL_MENU)
   void menu_led();
+#elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+  void menu_case_light();
+#elif ENABLED(CASE_LIGHT_MENU)
+  #include "../../feature/caselight.h"
 #endif
 
 #if HAS_CUTTER
@@ -246,40 +254,7 @@ void menu_main() {
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-/*
-
-  For testing purposes
-
-  ACTION_ITEM_N_S_F(1, "Sbs", F("1 Testing $ {"), ui.pause_print, SS_FULL, "Val", 5);
-  ACTION_ITEM_N_S(1, "Sbs", MSG_PREHEAT_M_END_E, ui.pause_print, SS_FULL, "Very Very Very Very Long Value", 5);
-  ACTION_ITEM_S_F("Sbs", F("3 Testing Another $"), ui.pause_print, SS_FULL, "Moderately Value", 5);
-  ACTION_ITEM_S("Self 4", MSG_PREHEAT_M, ui.pause_print, SS_FULL, "Val", 5);
-  ACTION_ITEM_N_F(5, F("Next {"), ui.pause_print, SS_FULL, "Val", 5);
-  ACTION_ITEM_N(6, MSG_LED_CHANNEL_N, ui.pause_print, SS_FULL, "Val", 5);
-  ACTION_ITEM_F(F("Next pause 7 NOT"), ui.pause_print, SS_FULL, "Val", 5);
-  ACTION_ITEM(MSG_PAUSE_PRINT, ui.pause_print, SS_FULL, "Val", 5);
-
-  GCODES_ITEM_N_S_F(1, "Sbs", F("GC 1 Testing $ {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_N_S(1, "GC Sbs", MSG_PREHEAT_M_END_E, FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_S_F("Sbs", F("3 GC Testing Another $"), FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_S("GC Self 4", MSG_PREHEAT_M, FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_N_F(5, F("GC Next {"), FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_N(6, MSG_LED_CHANNEL_N, FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM_F(F("GC Next pause 7 NOT"), FPSTR(G28_STR), SS_FULL, "Val", 5);
-  GCODES_ITEM(MSG_PAUSE_PRINT, FPSTR(G28_STR), SS_FULL, "Val", 5);
-
-  SUBMENU_N_S_F(1, "Sbs", F("SM 1 Testing $ {"), menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_N_S(1, "SM Sbs", MSG_PREHEAT_M_END_E, menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_S_F("Sbs", F("3 SM Testing Another $"), menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_S("SM Self 4", MSG_PREHEAT_M, menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_N_F(5, F("SM Next {"), menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_N(6, MSG_LED_CHANNEL_N, menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU_F(F("SM Next pause 7 NOT"), menu_temperature, SS_FULL, "Val", 5);
-  SUBMENU(MSG_PAUSE_PRINT, menu_temperature, SS_FULL, "Val", 5);
-
-*/
-
-  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_MARLINUI_ENCODER
     #define MEDIA_MENU_AT_TOP
   #endif
 
@@ -318,8 +293,8 @@ void menu_main() {
           #endif
 
           #if HAS_SD_DETECT
-            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
-            #if ENABLED(MULTI_VOLUME)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(HAS_MULTI_VOLUME, "S"))); // M21 Change Media
+            #if HAS_MULTI_VOLUME
               GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
             #endif
           #else                                             // - or -
@@ -339,7 +314,7 @@ void menu_main() {
         #if HAS_SD_DETECT
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
         #else
-          #if ENABLED(MULTI_VOLUME)
+          #if HAS_MULTI_VOLUME
             GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
             GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Media
           #else
@@ -362,6 +337,10 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
+
+    #if ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
+      SUBMENU(MSG_PROBE_AND_LEVEL, menu_probe_level);
+    #endif
   }
 
   #if HAS_CUTTER
@@ -384,8 +363,10 @@ void menu_main() {
     SUBMENU(MSG_MIXER, menu_mixer);
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
+  #if ENABLED(MMU_MENUS)
+    // MMU3 can show print stats which can be useful during
+    // the print, so MMU menus are required for MMU3.
+    if (TERN1(HAS_PRUSA_MMU2, !busy)) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
   #endif
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
@@ -404,8 +385,12 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
-    SUBMENU(MSG_LEDS, menu_led);
+  #if ENABLED(LED_CONTROL_MENU)
+    SUBMENU(MSG_LIGHTS, menu_led);
+  #elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+    SUBMENU(MSG_CASE_LIGHT, menu_case_light);
+  #elif ENABLED(CASE_LIGHT_MENU)
+    EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
   #endif
 
   //
@@ -435,8 +420,8 @@ void menu_main() {
         #endif
 
         #if HAS_SD_DETECT
-          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
-          #if ENABLED(MULTI_VOLUME)
+          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(HAS_MULTI_VOLUME, "S"))); // M21 Change Media
+          #if HAS_MULTI_VOLUME
             GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
           #endif
         #else                                             // - or -
@@ -456,12 +441,12 @@ void menu_main() {
       #if HAS_SD_DETECT
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
       #else
-          #if ENABLED(MULTI_VOLUME)
-            GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
-            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Media
-          #else
-            GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));        // M21 Attach Media
-          #endif
+        #if HAS_MULTI_VOLUME
+          GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
+          GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Media
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));        // M21 Attach Media
+        #endif
       #endif
     }
     // END MEDIA MENU

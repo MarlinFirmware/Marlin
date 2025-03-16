@@ -7,8 +7,7 @@ import pioutil
 if pioutil.is_pio_build():
 
     import os, re
-    Import("env")
-    Import("projenv")
+    env = pioutil.env
 
     os.environ['PATH'] = f"./buildroot/bin/:./buildroot/tests/:{os.environ['PATH']}"
 
