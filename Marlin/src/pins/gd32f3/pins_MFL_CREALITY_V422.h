@@ -57,10 +57,10 @@
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #ifndef IIC_EEPROM_SDA
-    #define IIC_EEPROM_SDA                    11
+    #define IIC_EEPROM_SDA                  PA11
   #endif
   #ifndef IIC_EEPROM_SCL
-    #define IIC_EEPROM_SCL                    12
+    #define IIC_EEPROM_SCL                  PA12
   #endif
   #define MARLIN_EEPROM_SIZE  0x800U  // 2K (24C16)
 #endif
@@ -69,24 +69,24 @@
 // Servos
 //
 #ifndef SERVO0_PIN
-  #define SERVO0_PIN                          16  // BLTouch/CRTouch/MicroProbeV1/V2 OUT
+  #define SERVO0_PIN                        PB0   // BLTouch/CRTouch/MicroProbeV1/V2 OUT
 #endif
 
 //
 // Limit Switches
 //
 #ifndef X_STOP_PIN
-  #define X_STOP_PIN                           5
+  #define X_STOP_PIN                        PA5
 #endif
 #ifndef Y_STOP_PIN
-  #define Y_STOP_PIN                           6
+  #define Y_STOP_PIN                        PA6
 #endif
 #ifndef Z_STOP_PIN
-  #define Z_STOP_PIN                           7
+  #define Z_STOP_PIN                        PA7
 #endif
 
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     17  // BLTouch/CRTouch/MicroProbeV1/V2 IN
+  #define Z_MIN_PROBE_PIN                   PB1   // BLTouch/CRTouch/MicroProbeV1/V2 IN
 #endif
 
 //
@@ -100,68 +100,68 @@
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                       4  // "Pulled-high"
+  #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high"
 #endif
 
 //
 // Steppers
 //
 #ifndef X_STEP_PIN
-  #define X_STEP_PIN                          34
+  #define X_STEP_PIN                        PC2
 #endif
 #ifndef X_DIR_PIN
-  #define X_DIR_PIN                           25
+  #define X_DIR_PIN                         PB9
 #endif
-#define X_ENABLE_PIN                          35  // Shared
+#define X_ENABLE_PIN                        PC3   // Shared
 
 #ifndef Y_STEP_PIN
-  #define Y_STEP_PIN                          24
+  #define Y_STEP_PIN                        PB8
 #endif
 #ifndef Y_DIR_PIN
-  #define Y_DIR_PIN                           23
+  #define Y_DIR_PIN                         PB7
 #endif
 #define Y_ENABLE_PIN                X_ENABLE_PIN
 
 #ifndef Z_STEP_PIN
-  #define Z_STEP_PIN                          22
+  #define Z_STEP_PIN                        PB6
 #endif
 #ifndef Z_DIR_PIN
-  #define Z_DIR_PIN                           21
+  #define Z_DIR_PIN                         PB5
 #endif
 #define Z_ENABLE_PIN                X_ENABLE_PIN
 
 #ifndef E0_STEP_PIN
-  #define E0_STEP_PIN                         20
+  #define E0_STEP_PIN                       PB4
 #endif
 #ifndef E0_DIR_PIN
-  #define E0_DIR_PIN                          19
+  #define E0_DIR_PIN                        PB3
 #endif
 #define E0_ENABLE_PIN               X_ENABLE_PIN
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                            37  // TH1
-#define TEMP_BED_PIN                          36  // TB1
+#define TEMP_0_PIN                          PC5   // TH1
+#define TEMP_BED_PIN                        PC6   // TB1
 
 //
 // Heaters / Fans
 //
 #ifndef HEATER_0_PIN
-  #define HEATER_0_PIN                         1  // HEATER1
+  #define HEATER_0_PIN                      PA1   // HEATER1
 #endif
 #ifndef HEATER_BED_PIN
-  #define HEATER_BED_PIN                       2  // HOT BED
+  #define HEATER_BED_PIN                    PA2   // HOT BED
 #endif
 #ifndef FAN0_PIN
-  #define FAN0_PIN                             0  // FAN
+  #define FAN0_PIN                          PA0   // FAN
 #endif
 #define FAN_SOFT_PWM_REQUIRED
 
 //
 // SD Card
 //
-#define SD_DETECT_PIN                         39
+#define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION ONBOARD
 #define ONBOARD_SDIO
 #define NO_SD_HOST_DRIVE  // This board's SD is only seen by the printer
@@ -176,8 +176,8 @@
  *       -----
  */
 
-#define DEBUG_02_PIN                          13
-#define DEBUG_03_PIN                          14
+#define DEBUG_02_PIN                        PA13
+#define DEBUG_03_PIN                        PA14
 
 #if ANY(RET6_12864_LCD, HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
@@ -192,28 +192,28 @@
    *        ------
    */
   #ifndef EXP3_01_PIN
-    #define EXP3_01_PIN                       38
+    #define EXP3_01_PIN                     PC6
   #endif
   #ifndef EXP3_02_PIN
-    #define EXP3_02_PIN                       18
+    #define EXP3_02_PIN                     PB2
   #endif
   #ifndef EXP3_03_PIN
-    #define EXP3_03_PIN                       26
+    #define EXP3_03_PIN                     PB10
   #endif
   #ifndef EXP3_04_PIN
-    #define EXP3_04_PIN                       27
+    #define EXP3_04_PIN                     PB11
   #endif
   #ifndef EXP3_05_PIN
-    #define EXP3_05_PIN                       30
+    #define EXP3_05_PIN                     PB14
   #endif
   #ifndef EXP3_06_PIN
-    #define EXP3_06_PIN                       29
+    #define EXP3_06_PIN                     PB13
   #endif
   #ifndef EXP3_07_PIN
-    #define EXP3_07_PIN                       28
+    #define EXP3_07_PIN                     PB12
   #endif
   #ifndef EXP3_08_PIN
-    #define EXP3_08_PIN                       31
+    #define EXP3_08_PIN                     PB15
   #endif
 
 #elif ANY(VET6_12864_LCD, DWIN_VET6_CREALITY_LCD)
@@ -228,14 +228,14 @@
    *   GND | 9 10 | 5V
    *        ------
    */
-  #define EXP3_01_PIN                         -1
-  #define EXP3_02_PIN                         37
-  #define EXP3_03_PIN                         26
-  #define EXP3_04_PIN                         -1
-  #define EXP3_05_PIN                          6
-  #define EXP3_06_PIN                          5
-  #define EXP3_07_PIN                          4
-  #define EXP3_08_PIN                          7
+  #define EXP3_01_PIN                       -1
+  #define EXP3_02_PIN                       PC5
+  #define EXP3_03_PIN                       PB10
+  #define EXP3_04_PIN                       -1
+  #define EXP3_05_PIN                       PA6
+  #define EXP3_06_PIN                       PA5
+  #define EXP3_07_PIN                       PA4
+  #define EXP3_08_PIN                       PA7
 
 #elif ENABLED(CR10_STOCKDISPLAY)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
@@ -271,13 +271,13 @@
 // Changing these will not change the pin they are on.
 
 // Hardware UART pins
-#define UART0_TX_PIN                           9  // default uses CH340 RX
-#define UART0_RX_PIN                          10  // default uses CH340 TX
-#define UART1_TX_PIN                           2  // default uses HEATER_BED_PIN
-#define UART1_RX_PIN                           3  // not connected
-#define UART2_TX_PIN                          26  // default uses LCD connector
-#define UART2_RX_PIN                          27  // default uses LCD connector
-#define UART3_TX_PIN                          42  // default uses sdcard SDIO_D2
-#define UART3_RX_PIN                          43  // default uses sdcard SDIO_D3
-#define UART4_TX_PIN                          44  // default uses sdcard SDIO_CK
-#define UART4_RX_PIN                          50  // default uses sdcard SDIO_CMD
+#define UART0_TX_PIN                        PA9   // default uses CH340 RX
+#define UART0_RX_PIN                        PA10  // default uses CH340 TX
+#define UART1_TX_PIN                        PA2   // default uses HEATER_BED_PIN
+#define UART1_RX_PIN                        PA3   // not connected
+#define UART2_TX_PIN                        PB10  // default uses LCD connector
+#define UART2_RX_PIN                        PB11  // default uses LCD connector
+#define UART3_TX_PIN                        PC10  // default uses sdcard SDIO_D2
+#define UART3_RX_PIN                        PC11  // default uses sdcard SDIO_D3
+#define UART4_TX_PIN                        PC12  // default uses sdcard SDIO_CK
+#define UART4_RX_PIN                        PD2   // default uses sdcard SDIO_CMD

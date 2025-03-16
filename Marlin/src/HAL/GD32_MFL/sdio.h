@@ -24,12 +24,12 @@
 #include <SDIO.hpp>
 #include <DMA.hpp>
 
-#define SDIO_D0_PIN   40
-#define SDIO_D1_PIN   41
-#define SDIO_D2_PIN   42
-#define SDIO_D3_PIN   43
-#define SDIO_CK_PIN   44
-#define SDIO_CMD_PIN  50
+#define SDIO_D0_PIN   PC8
+#define SDIO_D1_PIN   PC9
+#define SDIO_D2_PIN   PC10
+#define SDIO_D3_PIN   PC11
+#define SDIO_CK_PIN   PC12
+#define SDIO_CMD_PIN  PD2
 
 void sdio_mfl_init();
 bool SDIO_SetBusWidth(sdio::Bus_Width width);
