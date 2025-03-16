@@ -28,8 +28,10 @@
   #elif NOT_TARGET(STM32F4)
     #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
   #endif
-#endif
+#elif ENABLED(ALLOW_GD32F3) && NOT_TARGET(ARDUINO_ARCH_MFL)
+  #error "Oops! Make sure you have a GD32F303RE MFL environment selected."
 
 #undef ALLOW_STM32F4
+#undef ALLOW_GD32F3
 
 #endif
