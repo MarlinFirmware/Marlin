@@ -205,6 +205,14 @@ public:
 
   static void init();
 
+  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+
+  #if HAS_WIRED_LCD
+    static bool detected();
+  #else
+    static bool detected() { return true; }
+  #endif
+
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
@@ -482,8 +490,8 @@ public:
    * @param cstr    A C-string to set as the status.
    */
   static void set_status_no_expire_P(PGM_P const pstr)      { set_status_P(pstr, true); }
-  static void set_status_no_expire(const char * const cstr) { set_status(cstr, true);   }
-  static void set_status_no_expire(FSTR_P const fstr)       { set_status(fstr, true);   }
+  static void set_status_no_expire(const char * const cstr) { set_status(cstr, true); }
+  static void set_status_no_expire(FSTR_P const fstr)       { set_status(fstr, true); }
 
   /**
    * @brief Set a status with a format string and parameters.
@@ -495,15 +503,15 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
+  // Periodic or as-needed display update
+  static void update() IF_DISABLED(HAS_UI_UPDATE, {});
+
   // Tell the screen to redraw on the next call
   FORCE_INLINE static void refresh() {
     TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
   }
 
   #if HAS_DISPLAY
-
-    // Periodic or as-needed display update
-    static void update();
 
     static void init_lcd();
 
@@ -598,10 +606,6 @@ public:
 
       static void status_screen();
 
-    #else
-
-      static void quick_feedback(const bool=true) {}
-
     #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
@@ -627,7 +631,6 @@ public:
 
   #else // No LCD
 
-    static void update() {}
     static void init_lcd() {}
     static void clear_lcd() {}
     static void clear_for_drawing() {}
@@ -635,8 +638,9 @@ public:
 
   #endif
 
-  static bool detected() IF_DISABLED(HAS_WIRED_LCD, { return true; });
-  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+  #if !HAS_WIRED_LCD
+    static void quick_feedback(const bool=true) {}
+  #endif
 
   static void completion_feedback(const bool good=true);
 

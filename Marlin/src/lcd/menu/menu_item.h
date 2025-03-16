@@ -356,7 +356,7 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 // STATIC_ITEM draws a styled string with no highlight.
-// Parameters: label [, style [, char *value] ]
+// Parameters: label [, style [, char *value]]
 
 #define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \

@@ -71,7 +71,7 @@ def apply_opt(name, val, conf=None):
         prefix = ""
         if val == "off":
             prefix, val = "//", ""  # Item doesn't appear in config dump
-            #val = "false"          # Item appears in config dump
+            # val = "false"         # Item appears in config dump
 
         # Uppercase the option unless already mixed/uppercase
         added = name.upper() if name.islower() else name

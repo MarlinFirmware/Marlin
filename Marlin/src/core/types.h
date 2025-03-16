@@ -225,7 +225,7 @@ struct Flags<N, false> {
 // Flag bits for more than 64 states
 template<size_t N>
 struct Flags<N, true> {
-  uint8_t bitmask[(N+7)>>3];
+  uint8_t bitmask[(N + 7) >> 3];
   // Proxy class for handling bit assignment
   class BitProxy {
   public:
