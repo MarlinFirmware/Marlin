@@ -239,11 +239,6 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 ///////////// Manual Movement //////////////
 ////////////////////////////////////////////
 
-// Helper vars for custom msg pointers
-static FSTR_P _fstr1;
-static const char * _cstr;
-static FSTR_P _fstr2;
-
 //
 // Display a "synchronize" screen with a custom message until
 // all moves are finished. Go back to calling screen when done.
@@ -254,7 +249,7 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
   // Hijack 'editable' for the string pointer
   editable.fstr = fmsg ?: GET_TEXT_F(MSG_MOVING);
   goto_screen([]{
-    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, editable.fstr);
+    if (should_draw()) MenuItem_static::draw(LCD_HEIGHT / 2 - 1, editable.fstr);
   });
 
   defer_status_screen();
@@ -269,7 +264,10 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
  *   Takes up to 2 FSTR_P and 1 RAM string that are seamlessly joined
  *   Message can be synchronized with planner to stay visible untill all moves are fnished.
  */
-void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string /*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize/*=false*/) {
+void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string/*=nullptr*/, FSTR_P const fstr2/*=nullptr*/, bool synchronize/*=false*/) {
+  static FSTR_P _fstr1;
+  static const char * _cstr;
+  static FSTR_P _fstr2;
 
   _fstr1 = fstr1;
   _cstr = string;
@@ -277,9 +275,7 @@ void MarlinUI::goto_message_screen(FSTR_P const fstr1, const char * const string
 
   push_current_screen();
   goto_screen([]{
-    if (should_draw()) {
-      ui.draw_message_on_screen(_fstr1, _cstr, _fstr2);
-    }
+    if (should_draw()) ui.draw_message_on_screen(_fstr1, _cstr, _fstr2);
   });
   if (synchronize) {
     defer_status_screen();
