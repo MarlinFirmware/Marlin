@@ -162,10 +162,6 @@ void menu_backlash();
       }
     #endif // !NO_VOLUMETRICS
 
-    #if ENABLED(FEEDRATE_PRINTING_LIMIT)
-      EDIT_ITEM_FAST(float5, MSG_MAX_PRINTING_SPEED, &planner.max_printing_feedrate_mm_s, 0, MAX(planner.settings.max_feedrate_mm_s[0]*1.414, planner.settings.max_feedrate_mm_s[1]*1.414));
-    #endif
-
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
@@ -711,6 +707,11 @@ void menu_advanced_settings() {
 
     // M203 / M205 - Feedrate items
     SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
+
+    #if HAS_MAX_PRINT_FEEDRATE
+      const float max_rate = 1.4142135f * MAX(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]);
+      EDIT_ITEM_FAST(float5, MSG_MAX_PRINT_SPEED, &planner.max_print_feedrate_mm_s, 0, max_rate);
+    #endif
 
     // M201 - Acceleration items
     SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);

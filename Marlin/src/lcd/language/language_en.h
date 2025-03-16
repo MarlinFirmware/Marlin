@@ -449,11 +449,11 @@ namespace LanguageNarrow_en {
   LSTR MSG_JUNCTION_DEVIATION             = _UxGT("Junction Dev");
   LSTR MSG_STEP_SMOOTHING                 = _UxGT("Step Smoothing");
   LSTR MSG_MAX_SPEED                      = _UxGT("Max Speed (mm/s)");
+  LSTR MSG_MAX_PRINT_SPEED                = _UxGT("Max Print Speed");
   LSTR MSG_VMAX_A                         = _UxGT("Max ") STR_A _UxGT(" Speed");
   LSTR MSG_VMAX_B                         = _UxGT("Max ") STR_B _UxGT(" Speed");
   LSTR MSG_VMAX_C                         = _UxGT("Max ") STR_C _UxGT(" Speed");
   LSTR MSG_VMAX_N                         = _UxGT("Max @ Speed");
-  LSTR MSG_MAX_PRINTING_SPEED             = _UxGT("Max Printing Speed (mm/s)");
   LSTR MSG_VMAX_E                         = _UxGT("Max E Speed");
   LSTR MSG_VMAX_EN                        = _UxGT("Max * Speed");
   LSTR MSG_VMIN                           = _UxGT("Min Velocity");
