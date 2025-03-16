@@ -969,7 +969,7 @@
 //
 
 #elif MB(MFL_CREALITY_V422)
-  #include "gd32f3/pins_MFL_CREALITY_V422.h"        // GD32F303RE                           env:mfl_creality_GD32F303RE
+  #include "gd32f3/pins_MFL_CREALITY_V422.h"        // GD32F303RE                           env:GD32F303RE_creality_mfl
 
 //
 // Raspberry Pi RP2040
