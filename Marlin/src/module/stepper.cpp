@@ -651,7 +651,7 @@ void Stepper::disable_all_steppers() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
-#if ENABLED(FTM_OPTIMIZE_DIR_STATES)
+#if ENABLED(FT_MOTION)
   // We'll compare the updated DIR bits to the last set state
   static AxisBits last_set_direction;
 #endif
@@ -681,7 +681,7 @@ void Stepper::apply_directions() {
     SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
   );
 
-  TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+  TERN_(FT_MOTION, last_set_direction = last_direction_bits);
 
   DIR_WAIT_AFTER();
 }
@@ -1498,6 +1498,12 @@ void Stepper::apply_directions() {
  */
 
 HAL_STEP_TIMER_ISR() {
+  #ifndef __AVR__
+    // Disable interrupts, to avoid ISR preemption while we reprogram the period
+    // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
+    hal.isr_off();
+  #endif
+
   HAL_timer_isr_prologue(MF_TIMER_STEP);
 
   Stepper::isr();
@@ -1514,12 +1520,6 @@ HAL_STEP_TIMER_ISR() {
 void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
-
-  #ifndef __AVR__
-    // Disable interrupts, to avoid ISR preemption while we reprogram the period
-    // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
-    hal.isr_off();
-  #endif
 
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
@@ -1542,8 +1542,6 @@ void Stepper::isr() {
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
-    // Enable ISRs to reduce USART processing latency
-    hal.isr_on();
 
     hal_timer_t interval = 0;
 
@@ -1559,6 +1557,10 @@ void Stepper::isr() {
             ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
           }
         }
+
+        // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
+        hal.isr_on();
+
         interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
         nextMainISR -= interval;
         ftMotion_nextAuxISR -= interval;
@@ -1585,6 +1587,9 @@ void Stepper::isr() {
         const bool is_babystep = (nextBabystepISR == 0);  // 0 = Do Babystepping (XY)Z pulses
         if (is_babystep) nextBabystepISR = babystepping_isr();
       #endif
+
+      // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
+      hal.isr_on();
 
       // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
@@ -1831,7 +1836,7 @@ void Stepper::pulse_phase_isr() {
           last_direction_bits.toggle(_AXIS(AXIS)); \
           DIR_WAIT_BEFORE(); \
           SET_STEP_DIR(AXIS); \
-          TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits); \
+          TERN_(FT_MOTION, last_set_direction = last_direction_bits); \
           DIR_WAIT_AFTER(); \
         } \
       } \
@@ -2533,7 +2538,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
                 E_APPLY_DIR(forward_e, false);
 
-                TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+                TERN_(FT_MOTION, last_set_direction = last_direction_bits);
 
                 DIR_WAIT_AFTER();
               }
@@ -3543,13 +3548,13 @@ void Stepper::report_positions() {
     #define _FTM_SET_DIR(AXIS) if (_FTM_STEP(AXIS)) last_direction_bits.bset(_AXIS(AXIS), _FTM_DIR(AXIS));
     LOGICAL_AXIS_MAP(_FTM_SET_DIR);
 
-    if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_set_direction != last_direction_bits)) {
+    if (last_set_direction != last_direction_bits) {
       // Apply directions (generally applying to the entire linear move)
-      #define _FTM_APPLY_DIR(A) if (TERN1(FTM_OPTIMIZE_DIR_STATES, last_direction_bits.A != last_set_direction.A)) \
+      #define _FTM_APPLY_DIR(A) if (last_direction_bits.A != last_set_direction.A) \
                                   SET_STEP_DIR(A);
       LOGICAL_AXIS_MAP(_FTM_APPLY_DIR);
 
-      TERN_(FTM_OPTIMIZE_DIR_STATES, last_set_direction = last_direction_bits);
+      last_set_direction = last_direction_bits;
 
       // Any DIR change requires a wait period
       DIR_WAIT_AFTER();
