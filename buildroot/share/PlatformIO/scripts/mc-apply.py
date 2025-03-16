@@ -96,5 +96,5 @@ def main():
     else:
         apply_config(conf)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

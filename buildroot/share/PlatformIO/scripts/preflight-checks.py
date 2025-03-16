@@ -33,7 +33,7 @@ if pioutil.is_pio_build():
                     found_envs = re.match(r"\s*#include .+" + envregex, line)
                     if found_envs:
                         envlist = re.findall(envregex + r"(\w+)", line)
-                        return ["env:" + s for s in envlist]
+                        return [ "env:"+s for s in envlist ]
         return []
 
     def check_envs(build_env, board_envs, config):
@@ -91,13 +91,13 @@ if pioutil.is_pio_build():
         motherboard = env['MARLIN_FEATURES']['MOTHERBOARD']
         board_envs = get_envs_for_board(motherboard)
         config = env.GetProjectConfig()
-        result = check_envs("env:" + build_env, board_envs, config)
+        result = check_envs("env:"+build_env, board_envs, config)
 
         # Make sure board is compatible with the build environment. Skip for _test,
         # since the board is manipulated as each unit test is executed.
         if not result and build_env != "linux_native_test":
             err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
-                  (build_env, motherboard, ", ".join([e[4:] for e in board_envs if e.startswith("env:")]))
+                  ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)
 
         #
@@ -136,13 +136,13 @@ if pioutil.is_pio_build():
         #
         mixedin = []
         p = project_dir / "Marlin/src/lcd/dogm"
-        for f in ["ultralcd_DOGM.cpp", "ultralcd_DOGM.h"]:
+        for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
             if (p / f).is_file():
-                mixedin += [f]
+                mixedin += [ f ]
         p = project_dir / "Marlin/src/feature/bedlevel/abl"
-        for f in ["abl.cpp", "abl.h"]:
+        for f in [ "abl.cpp", "abl.h" ]:
             if (p / f).is_file():
-                mixedin += [f]
+                mixedin += [ f ]
         if mixedin:
             err = "ERROR: Old files fell into your Marlin folder. Remove %s and try again" % ", ".join(mixedin)
             raise SystemExit(err)
@@ -157,5 +157,6 @@ if pioutil.is_pio_build():
                     if "M600" in frs and "%c" not in frs:
                         err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
+
 
     sanity_check_target()

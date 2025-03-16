@@ -254,16 +254,16 @@ def compute_build_signature(env):
             sections = {}
             for header in real_config:
                 for name in real_config[header]:
-                    # print(f"  name: {name}")
+                    #print(f"  name: {name}")
                     if name not in ignore:
                         ddict = real_config[header][name]
-                        # print(f"   real_config[{header}][{name}]:", ddict)
+                        #print(f"   real_config[{header}][{name}]:", ddict)
                         sect = ddict['section']
                         if sect not in sections: sections[sect] = {}
                         sections[sect][name] = ddict
 
             # Get all sections as a list of strings, with spaces and dashes replaced by underscores
-            long_list = [re.sub(r'[- ]+', '_', x).lower() for x in sections.keys()]
+            long_list = [ re.sub(r'[- ]+', '_', x).lower() for x in sections.keys() ]
             # Make comma-separated lists of sections with 64 characters or less
             sec_lines = []
             while len(long_list):
@@ -271,7 +271,7 @@ def compute_build_signature(env):
                 while len(long_list) and len(line) + len(long_list[0]) < 64 - 1:
                     line += long_list.pop(0) + ', '
                 sec_lines.append(line.strip())
-            sec_lines[-1] = sec_lines[-1][:-1]  # Remove the last comma
+            sec_lines[-1] = sec_lines[-1][:-1] # Remove the last comma
 
         else:
             sec_lines = ['all']

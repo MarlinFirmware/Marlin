@@ -160,7 +160,7 @@ uint8_t UHS_USB_HOST_BASE::doSoftReset(uint8_t parent, uint8_t port, uint8_t add
         return rcode;
 }
 
-/**
+/*
  * Pseudo code so you may understand the code flow.
  *
  *      reset; (happens at the lower level)
@@ -168,7 +168,7 @@ uint8_t UHS_USB_HOST_BASE::doSoftReset(uint8_t parent, uint8_t port, uint8_t add
  *      reset;
  *      If there are no configuration descriptors {
  *              //
- *              // NOTE: I know of no device that does this.
+ *              // Note: I know of no device that does this.
  *              // I suppose there could be one though.
  *              //
  *              try to enumerate.
@@ -1003,7 +1003,7 @@ uint8_t UHS_USB_HOST_BASE::ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbyt
                                 rcode = ctrlReqRead(pep, &left, &read, nbytes, dataptr);
 
 #if UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE
-                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request >> 32) & 0xFFFFFFFFLU), (uint32_t)(Request & 0xFFFFFFFFLU));
+                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request>>32)&0xFFFFFFFFLU), (uint32_t)(Request&0xFFFFFFFFLU));
                                 // Should only be used for GET_DESCRIPTOR USB_DESCRIPTOR_DEVICE
                                 constexpr uint32_t req_match = ((uint32_t)USB_DESCRIPTOR_DEVICE      << 24) |
                                                                ((uint32_t)USB_REQUEST_GET_DESCRIPTOR <<  8);
@@ -1167,11 +1167,10 @@ uint8_t UHS_NI UHS_VSI::SetInterface(ENUMERATION_INFO *ei) {
 
 #if 0
 
-/**
- * TODO: Move this silliness to a NONE driver.
+/* TO-DO: Move this silliness to a NONE driver.
  * When we have a generic NONE driver we can:
- *  - Extract ALL device information to help users with a new device.
- *  - Use an unknown device from a sketch, kind of like usblib does.
+ *  o Extract ALL device information to help users with a new device.
+ *  o Use an unknown device from a sketch, kind of like usblib does.
  *    This will aid in making more drivers in a faster way.
  */
 uint8_t UHS_USB_HOST_BASE::DefaultAddressing(uint8_t parent, uint8_t port, uint8_t speed) {
