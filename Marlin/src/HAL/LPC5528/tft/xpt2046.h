@@ -27,6 +27,19 @@
   #include <SPI.h>
 #endif
 
+#ifndef TOUCH_MISO_PIN
+  #define TOUCH_MISO_PIN TFT_MISO_PIN
+#endif
+#ifndef TOUCH_MOSI_PIN
+  #define TOUCH_MOSI_PIN TFT_MOSI_PIN
+#endif
+#ifndef TOUCH_SCK_PIN
+  #define TOUCH_SCK_PIN  TFT_SCK_PIN
+#endif
+#ifndef TOUCH_CS_PIN
+  #define TOUCH_CS_PIN   TFT_CS_PIN
+#endif
+
 #define XPT2046_DFR_MODE        0x00
 #define XPT2046_SER_MODE        0x04
 #define XPT2046_CONTROL         0x80
