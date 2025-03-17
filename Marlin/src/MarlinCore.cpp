@@ -271,6 +271,10 @@
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  MString<64> machine_name;
+#endif
+
 MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
@@ -815,7 +819,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_MEDIA, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
+  TERN_(HAS_USB_FLASH_DRIVE, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -1258,7 +1262,7 @@ void setup() {
     SETUP_RUN(runout.setup());
   #endif
 
-  #if HAS_TMC220x
+  #if HAS_TMC_UART
     SETUP_RUN(tmc_serial_begin());
   #endif
 
@@ -1362,6 +1366,10 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SETUP_RUN(ui.reset_status(false)); // machine_name Initialized by settings.load()
+  #endif
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());

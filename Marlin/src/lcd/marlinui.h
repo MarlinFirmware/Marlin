@@ -205,15 +205,6 @@ public:
 
   static void init();
 
-  #if HAS_DISPLAY || HAS_DWIN_E3V2
-    static void init_lcd();
-    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
-    static void clear_lcd();
-  #else
-    static void init_lcd() {}
-    static void clear_lcd() {}
-  #endif
-
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
   #if HAS_WIRED_LCD
@@ -378,17 +369,7 @@ public:
 
   #if HAS_STATUS_MESSAGE
 
-    #if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
-      #else
-        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
-      #endif
-    #else
-      #define MAX_MESSAGE_LENGTH 63
-    #endif
-
-    static MString<MAX_MESSAGE_LENGTH> status_message;
+    static MString<MAX_MESSAGE_SIZE> status_message;
     static uint8_t alert_level; // Higher levels block lower levels
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
@@ -419,7 +400,6 @@ public:
 
   #else
 
-    #define MAX_MESSAGE_LENGTH 1
     static constexpr bool has_status() { return false; }
 
     static bool set_alert_level(int8_t) { return false; }
@@ -521,6 +501,11 @@ public:
   }
 
   #if HAS_DISPLAY
+
+    static void init_lcd();
+
+    // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
+    static void clear_lcd();
 
     // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
     static void clear_for_drawing();
@@ -635,6 +620,8 @@ public:
 
   #else // No LCD
 
+    static void init_lcd() {}
+    static void clear_lcd() {}
     static void clear_for_drawing() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
 
@@ -913,6 +900,29 @@ private:
     #endif
   #endif
 };
+
+/**
+ * @brief Expand a string with optional substitution
+ * @details Expand a string with optional substitutions:
+ *   $ : the clipped string given by fstr or cstr
+ *   { :  '0'....'10' for indexes 0 - 10
+ *   ~ :  '1'....'11' for indexes 0 - 10
+ *   * : 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
+ *   @ : an axis name such as XYZUVW, or E for an extruder
+ *
+ * @param *outstr The output destination buffer
+ * @param ptpl A ROM string (template)
+ * @param ind An index value to use for = ~ * substitution
+ * @param cstr An SRAM C-string to use for $ substitution
+ * @param fstr A ROM F-string to use for $ substitution
+ * @param maxlen The maximum size of the string (in pixels on GLCD)
+ * @return the output width (in pixels on GLCD)
+ */
+uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_SIZE);
+
+inline uint8_t expand_u8str(char * const outstr, FSTR_P const ftpl, const int8_t ind, const char *cstr=nullptr, FSTR_P const fstr=nullptr, const uint8_t maxlen=MAX_MESSAGE_SIZE) {
+  return expand_u8str_P(outstr, FTOP(ftpl), ind, cstr, fstr, maxlen);
+}
 
 #define LCD_MESSAGE_F(S)       ui.set_status(F(S))
 #define LCD_MESSAGE(M)         ui.set_status(GET_TEXT_F(M))
