@@ -133,15 +133,15 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: NVIC_EnableIRQ(TIMER0_IRQn); break; // Enable interrupt handler
-    case MF_TIMER_TEMP: NVIC_EnableIRQ(TIMER1_IRQn); break; // Enable interrupt handler
+    case MF_TIMER_STEP: NVIC_EnableIRQ(CTIMER0_IRQn); break; // Enable interrupt handler
+    case MF_TIMER_TEMP: NVIC_EnableIRQ(CTIMER1_IRQn); break; // Enable interrupt handler
   }
 }
 
 FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: NVIC_DisableIRQ(TIMER0_IRQn); break; // Disable interrupt handler
-    case MF_TIMER_TEMP: NVIC_DisableIRQ(TIMER1_IRQn); break; // Disable interrupt handler
+    case MF_TIMER_STEP: NVIC_DisableIRQ(CTIMER0_IRQn); break; // Disable interrupt handler
+    case MF_TIMER_TEMP: NVIC_DisableIRQ(CTIMER1_IRQn); break; // Disable interrupt handler
   }
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!
@@ -152,8 +152,8 @@ FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
-    case MF_TIMER_STEP: return NVIC_GetEnableIRQ(TIMER0_IRQn); // Check if interrupt is enabled or not
-    case MF_TIMER_TEMP: return NVIC_GetEnableIRQ(TIMER1_IRQn); // Check if interrupt is enabled or not
+    case MF_TIMER_STEP: return NVIC_GetEnableIRQ(CTIMER0_IRQn); // Check if interrupt is enabled or not
+    case MF_TIMER_TEMP: return NVIC_GetEnableIRQ(CTIMER1_IRQn); // Check if interrupt is enabled or not
   }
   return false;
 }
