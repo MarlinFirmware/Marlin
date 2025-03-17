@@ -75,7 +75,9 @@ void GcodeSuite::G61(int8_t slot/*=-1*/) {
 
   // No XYZ...E parameters, move to stored position
 
-  float epos = stored_position[slot].e;
+  #if HAS_EXTRUDERS
+    float epos = stored_position[slot].e;
+  #endif
   if (!parser.seen_axis()) {
     DEBUG_ECHOLNPGM(STR_RESTORING_POSITION, slot, " (all axes)");
     // Move to the saved position, all axes except E

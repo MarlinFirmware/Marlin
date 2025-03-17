@@ -117,7 +117,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         13
 
 // Tools
@@ -149,8 +149,6 @@
   #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                         26
     #define DOGLCD_CS                         24
-    #define DOGLCD_MOSI                       -1  // Prevent auto-define by Conditionals_post.h
-    #define DOGLCD_SCK                        -1
   #endif
 #endif
 

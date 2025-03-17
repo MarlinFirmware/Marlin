@@ -38,9 +38,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #endif
 
 //
@@ -177,19 +177,10 @@
 
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PC10
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PF13
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PF9
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define Z2_SERIAL_TX_PIN                  PD4
-  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PD0
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -268,8 +259,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN

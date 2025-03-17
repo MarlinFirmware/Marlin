@@ -1090,23 +1090,23 @@ void bdf_WriteC(const char *outname, const char *fontname) {
 
   capital_ascent = bdf_capital_A_height > 0 ? bdf_capital_A_height : bdf_capital_1_height;
 
-  fprintf(out_fp, "/*\n");
-  fprintf(out_fp, "  Fontname: %s\n", bdf_font);
-  fprintf(out_fp, "  Copyright: %s\n", bdf_copyright);
-  fprintf(out_fp, "  Capital A Height: %d, '1' Height: %d\n", bdf_capital_A_height, bdf_capital_1_height);
-  fprintf(out_fp, "  Calculated Max Values w=%2d h=%2d x=%2d y=%2d dx=%2d dy=%2d ascent=%2d len=%2d\n",
+  fprintf(out_fp, "/**\n");
+  fprintf(out_fp, " * Fontname: %s\n", bdf_font);
+  fprintf(out_fp, " * Copyright: %s\n", bdf_copyright);
+  fprintf(out_fp, " * Capital A Height: %d, '1' Height: %d\n", bdf_capital_A_height, bdf_capital_1_height);
+  fprintf(out_fp, " * Calculated Max Values w=%2d h=%2d x=%2d y=%2d dx=%2d dy=%2d ascent=%2d len=%2d\n",
     bdf_char_max_width, bdf_char_max_height, bdf_char_max_x, bdf_char_max_y, bdf_delta_max_x, bdf_delta_max_y,
     bdf_char_max_ascent, bdf_glyph_data_max_len);
-  fprintf(out_fp, "  Font Bounding box     w=%2d h=%2d x=%2d y=%2d\n",
+  fprintf(out_fp, " * Font Bounding box     w=%2d h=%2d x=%2d y=%2d\n",
     bdf_font_width, bdf_font_height, bdf_font_x, bdf_font_y);
-  fprintf(out_fp, "  Calculated Min Values           x=%2d y=%2d dx=%2d dy=%2d\n",
+  fprintf(out_fp, " * Calculated Min Values           x=%2d y=%2d dx=%2d dy=%2d\n",
     bdf_char_min_x, bdf_char_min_y, bdf_delta_min_x, bdf_delta_min_y);
 
-  fprintf(out_fp, "  Pure Font   ascent =%2d descent=%2d\n", capital_ascent, bdf_lower_g_descent);
-  fprintf(out_fp, "  X Font      ascent =%2d descent=%2d\n", bdf_char_xascent, bdf_char_xdescent);
-  fprintf(out_fp, "  Max Font    ascent =%2d descent=%2d\n", bdf_char_max_ascent, bdf_char_min_y);
+  fprintf(out_fp, " * Pure Font   ascent =%2d descent=%2d\n", capital_ascent, bdf_lower_g_descent);
+  fprintf(out_fp, " * X Font      ascent =%2d descent=%2d\n", bdf_char_xascent, bdf_char_xdescent);
+  fprintf(out_fp, " * Max Font    ascent =%2d descent=%2d\n", bdf_char_max_ascent, bdf_char_min_y);
 
-  fprintf(out_fp, "*/\n");
+  fprintf(out_fp, " */\n");
   fprintf(out_fp, "const u8g_fntpgm_uint8_t %s[%d] U8G_FONT_SECTION(\"%s\") = {\n", fontname, data_pos, fontname);
   fprintf(out_fp, "  ");
   data_Write(out_fp, "  ");

@@ -172,10 +172,10 @@ namespace ExtUI {
   bool isHeaterIdle(const extruder_t);
   celsius_float_t getActualTemp_celsius(const heater_t);
   celsius_float_t getActualTemp_celsius(const extruder_t);
-  celsius_float_t getTargetTemp_celsius(const heater_t);
-  celsius_float_t getTargetTemp_celsius(const extruder_t);
-  float getActualFan_percent(const fan_t);
-  float getTargetFan_percent(const fan_t);
+  celsius_t getTargetTemp_celsius(const heater_t);
+  celsius_t getTargetTemp_celsius(const extruder_t);
+  uint8_t getActualFan_percent(const fan_t);
+  uint8_t getTargetFan_percent(const fan_t);
 
   // High level positions, by Axis ID, Extruder ID
   float getAxisPosition_mm(const axis_t);
@@ -465,6 +465,7 @@ namespace ExtUI {
   bool isPrintingFromMedia();
   bool isPrinting();
   bool isPrintingPaused();
+  bool isOngoingPrintJob();
 
   void printFile(const char *filename);
   void stopPrint();
@@ -529,8 +530,9 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #endif
 
+  void onStatusChanged_P(PGM_P const msg);
+  inline void onStatusChanged(FSTR_P const fstr) { onStatusChanged_P(FTOP(fstr)); }
   void onStatusChanged(const char * const msg);
-  void onStatusChanged(FSTR_P const fstr);
 
   void onHomingStart();
   void onHomingDone();

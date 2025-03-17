@@ -99,7 +99,12 @@ void RTS::onStartup() {
   sendData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
 
-  onStatusChanged(MACHINE_NAME " Ready");
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    const MString<32> ready(message_string, " Ready");
+    onStatusChanged(ready);
+  #else
+    onStatusChanged(F(MACHINE_NAME " Ready"));
+  #endif
 
   sendData(100, FeedrateDisplay);
 
@@ -1252,7 +1257,7 @@ void RTS::handleData() {
           setTouchScreenConfiguration();
           break;
         case 21:
-          dwin_settings.display_standby ^= true;
+          FLIP(dwin_settings.display_standby);
           setTouchScreenConfiguration();
           break;
         case 22:
@@ -1435,7 +1440,7 @@ void RTS::handleData() {
           // pause_resume_selected = true;
         }
         else {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             bool runouton = false;
             if (getFilamentRunoutState()) {
               #if NUM_RUNOUT_SENSORS > 1
@@ -1622,6 +1627,9 @@ void RTS::handleData() {
 
       float meshVal = float(recdat.data[0] - (recdat.data[0] >= 32768 ? 65536 : 0)) / 1000;
 
+      #ifndef Z_PROBE_LOW_POINT
+        #define Z_PROBE_LOW_POINT -2
+      #endif
       LIMIT(meshVal, Z_PROBE_LOW_POINT, Z_CLEARANCE_BETWEEN_PROBES);
       xy_uint8_t point = { xPnt, yPnt };
       setMeshPoint(point, meshVal);

@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "../MarlinCore.h" // for printingIsPaused
+#include "../MarlinCore.h" // for printingIsPaused, machine_name
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
@@ -50,13 +50,15 @@ MarlinUI ui;
   #include "e3v2/creality/dwin.h"
 #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
   #include "e3v2/jyersui/dwin.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
-  #define BASIC_PROGRESS_BAR 1
+  #define HAS_BASIC_PROGRESS_BAR 1
 #endif
 
-#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, BASIC_PROGRESS_BAR)
+#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, HAS_BASIC_PROGRESS_BAR)
   #include "../module/printcounter.h"
 #endif
 
@@ -70,7 +72,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
-  MString<MAX_MESSAGE_LENGTH> MarlinUI::status_message;
+  MString<MAX_MESSAGE_SIZE> MarlinUI::status_message;
   uint8_t MarlinUI::alert_level; // = 0
   #if HAS_STATUS_MESSAGE_TIMEOUT
     millis_t MarlinUI::status_message_expire_ms; // = 0
@@ -91,7 +93,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_MULTI_LANGUAGE
-  uint8_t MarlinUI::language; // Initialized by settings.load()
+  uint8_t MarlinUI::language; // Initialized by settings.load
   void MarlinUI::set_language(const uint8_t lang) {
     if (lang < NUM_LANGUAGES) {
       language = lang;
@@ -103,7 +105,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_LCD_CONTRAST
-  uint8_t MarlinUI::contrast = LCD_CONTRAST_DEFAULT; // Initialized by settings.load()
+  uint8_t MarlinUI::contrast = LCD_CONTRAST_DEFAULT; // Initialized by settings.load
   void MarlinUI::set_contrast(const uint8_t value) {
     contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
     _set_contrast();
@@ -117,7 +119,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   void MarlinUI::set_brightness(const uint8_t value) {
     backlight = !!value;
     if (backlight) brightness = constrain(value, LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX);
-    _set_brightness();
+    #if DISABLED(SOVOL_SV06_RTS)
+      _set_brightness();
+    #endif
   }
 #endif
 
@@ -134,7 +138,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_PREHEAT
   #include "../module/temperature.h"
 
-  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
+  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load
 
   FSTR_P MarlinUI::get_preheat_label(const uint8_t m) {
     #define _PDEF(N) static PGMSTR(preheat_##N##_label, PREHEAT_##N##_LABEL);
@@ -185,7 +189,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_BACKLIGHT_TIMEOUT
 
   #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
-    uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load()
+    uint8_t MarlinUI::backlight_timeout_minutes; // Initialized by settings.load
   #else
     constexpr uint8_t MarlinUI::backlight_timeout_minutes;
   #endif
@@ -205,7 +209,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #elif HAS_DISPLAY_SLEEP
 
   #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
-    uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load()
+    uint8_t MarlinUI::sleep_timeout_minutes; // Initialized by settings.load
   #else
     constexpr uint8_t MarlinUI::sleep_timeout_minutes;
   #endif
@@ -375,9 +379,9 @@ void MarlinUI::init() {
             }
           }
         #else
-          theCard.longFilename[
-            TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen)
-          ] = '\0'; // cutoff at screen edge
+          // Simply cut off at maxlen
+          const uint8_t chop = TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen);
+          theCard.longFilename[_MAX(chop, LONG_FILENAME_LENGTH - 1)] = '\0';
         #endif
       }
       return outstr;
@@ -594,7 +598,7 @@ void MarlinUI::init() {
    * This is very display-dependent, so the lcd implementation draws this.
    */
 
-  #if BASIC_PROGRESS_BAR
+  #if HAS_BASIC_PROGRESS_BAR
     millis_t MarlinUI::progress_bar_ms; // = 0
     #if PROGRESS_MSG_EXPIRE > 0
       millis_t MarlinUI::expire_status_ms; // = 0
@@ -603,7 +607,7 @@ void MarlinUI::init() {
 
   void MarlinUI::status_screen() {
 
-    #if BASIC_PROGRESS_BAR
+    #if HAS_BASIC_PROGRESS_BAR
 
       //
       // HD44780 implements the following message blinking and
@@ -643,7 +647,7 @@ void MarlinUI::init() {
 
       #endif // PROGRESS_MSG_EXPIRE
 
-    #endif // BASIC_PROGRESS_BAR
+    #endif // HAS_BASIC_PROGRESS_BAR
 
     bool did_expire = status_reset_callback && (*status_reset_callback)();
 
@@ -816,7 +820,7 @@ void MarlinUI::init() {
       // Add a manual move to the queue?
       if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : XY_PROBE_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : PLANNER_XY_FEEDRATE_MM_S;
 
       /**
        * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
@@ -953,11 +957,13 @@ void MarlinUI::init() {
       // If the action button is pressed...
       static bool wait_for_unclick; // = false
 
+      // Set lcd_clicked for most clicks.
+      // Ignore the click when clearing wait_for_user or waking the screen.
       auto do_click = [&]{
-        wait_for_unclick = true;                        //  - Set debounce flag to ignore continuous clicks
-        lcd_clicked = !wait_for_user;                   //  - Keep the click if not waiting for a user-click
-        wait_for_user = false;                          //  - Any click clears wait for user
-        quick_feedback();                               //  - Always make a click sound
+        wait_for_unclick = true;
+        lcd_clicked = !wait_for_user && !display_is_asleep();
+        wait_for_user = false;
+        quick_feedback();
       };
 
       #if HAS_TOUCH_BUTTONS
@@ -1456,6 +1462,62 @@ void MarlinUI::host_notify(const char * const cstr) {
 
 #include <stdarg.h>
 
+uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const uint8_t maxlen/*=MAX_MESSAGE_SIZE*/) {
+  const uint8_t *p = (uint8_t*)ptpl;
+  char *o = outstr;
+  int8_t n = maxlen;
+  while (n > 0) {
+    lchar_t wc;
+    uint8_t *psc = (uint8_t *)p;
+    p = get_utf8_value_cb(p, read_byte_rom, wc);
+    if (!wc) break;
+    if (wc == '{' || wc == '~' || wc == '*') {
+      if (ind >= 0) {
+        if (wc == '*') { *o++ = 'E'; n--; }
+        if (n) {
+          int8_t inum = ind + ((wc == '{') ? 0 : LCD_FIRST_TOOL);
+          if (inum >= 10) {
+            *o++ = ('0' + (inum / 10)); n--;
+            inum %= 10;
+          }
+          if (n) { *o++ = '0' + inum; n--; }
+        }
+      }
+      else {
+        PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
+        strlcpy_P(o, b, n + 1);
+        n -= utf8_strlen(o);
+        o += strlen(o);
+      }
+      if (n > 0) {
+        strlcpy_P(o, (PGM_P)p, n + 1);
+        n -= utf8_strlen(o);
+        o += strlen(o);
+        break;
+      }
+    }
+    else if (wc == '$' && fstr) {
+      strlcpy_P(o, FTOP(fstr), n + 1);
+      n -= utf8_strlen(o);
+      o += strlen(o);
+    }
+    else if (wc == '$' && cstr) {
+      strlcpy(o, cstr, n + 1);
+      n -= utf8_strlen(o);
+      o += strlen(o);
+    }
+    else {
+      if (wc == '@')
+        *o++ = AXIS_CHAR(ind);
+      else
+        while (psc != p) *o++ = read_byte_rom(psc++);
+      *o = '\0';
+      n--;
+    }
+  }
+  return maxlen - n;
+}
+
 #if HAS_STATUS_MESSAGE
 
   #if ENABLED(EXTENSIBLE_UI)
@@ -1466,16 +1528,6 @@ void MarlinUI::host_notify(const char * const cstr) {
    * Reset the status message
    */
   void MarlinUI::reset_status(const bool no_welcome) {
-    #if SERVICE_INTERVAL_1 > 0
-      static PGMSTR(service1, "> " SERVICE_NAME_1 "!");
-    #endif
-    #if SERVICE_INTERVAL_2 > 0
-      static PGMSTR(service2, "> " SERVICE_NAME_2 "!");
-    #endif
-    #if SERVICE_INTERVAL_3 > 0
-      static PGMSTR(service3, "> " SERVICE_NAME_3 "!");
-    #endif
-
     FSTR_P msg;
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
@@ -1487,16 +1539,25 @@ void MarlinUI::host_notify(const char * const cstr) {
       msg = GET_TEXT_F(MSG_PRINTING);
 
     #if SERVICE_INTERVAL_1 > 0
-      else if (print_job_timer.needsService(1)) msg = FPSTR(service1);
+      else if (print_job_timer.needsService(1)) msg = F("> " SERVICE_NAME_1 "!");
     #endif
     #if SERVICE_INTERVAL_2 > 0
-      else if (print_job_timer.needsService(2)) msg = FPSTR(service2);
+      else if (print_job_timer.needsService(2)) msg = F("> " SERVICE_NAME_2 "!");
     #endif
     #if SERVICE_INTERVAL_3 > 0
-      else if (print_job_timer.needsService(3)) msg = FPSTR(service3);
+      else if (print_job_timer.needsService(3)) msg = F("> " SERVICE_NAME_3 "!");
     #endif
 
-    else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
+    else if (!no_welcome) {
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        char new_status[MAX_MESSAGE_SIZE + 1];
+        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &machine_name);
+        _set_status_and_level(new_status, -1);
+        return;
+      #else
+        msg = GET_TEXT_F(WELCOME_MSG);
+      #endif
+    }
 
     else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
       msg = F("");
@@ -1532,7 +1593,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     MString<30> msg;
     pgm ? msg.set_P(ustr) : msg.set(ustr);
-    status_message.set(&msg).utrunc(MAX_MESSAGE_LENGTH);
+    status_message.set(&msg).utrunc(MAX_MESSAGE_SIZE);
 
     finish_status(level > 0); // Persist if the status has a level
   }
@@ -1550,7 +1611,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
 
     // Remove the last partial Unicode glyph, if any
-    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_LENGTH);
+    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_SIZE);
 
     finish_status(persist);
   }
@@ -1578,7 +1639,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     va_list args;
     va_start(args, pfmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, pfmt, args);
+    vsnprintf_P(status_message, MAX_MESSAGE_SIZE, pfmt, args);
     va_end(args);
 
     host_notify(status_message);
@@ -1596,11 +1657,11 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     #if HAS_WIRED_LCD
 
-      #if BASIC_PROGRESS_BAR || ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+      #if HAS_BASIC_PROGRESS_BAR || ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
         const millis_t ms = millis();
       #endif
 
-      #if BASIC_PROGRESS_BAR
+      #if HAS_BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
           expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
@@ -1869,6 +1930,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 #endif // HAS_MEDIA
 
 #if HAS_MARLINUI_MENU
+
   void MarlinUI::reset_settings() {
     settings.reset();
     completion_feedback();
@@ -1890,7 +1952,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
-#endif
+#endif // HAS_MARLINUI_MENU
 
 #if ENABLED(EEPROM_SETTINGS)
 

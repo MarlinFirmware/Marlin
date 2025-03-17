@@ -25,7 +25,7 @@
 #include "../../inc/MarlinConfig.h"
 #include "pinsDebug.h"
 
-int8_t ADC_pin_mode(pin_t pin) { return -1; }
+int8_t ADC_pin_mode(const pin_t) { return -1; }
 
 int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? 0 : -1; }
 
@@ -37,6 +37,7 @@ bool getValidPinMode(const pin_t pin) {
   return (Gpio::getMode(pin) != 0); // Input/output state
 }
 
+// The pin and index are the same on this platform
 bool getPinIsDigitalByIndex(const pin_t pin) {
   return !isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
 }

@@ -79,6 +79,8 @@
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
+  #elif ENABLED(SOVOL_SV06_RTS)
+    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
 #endif
 
@@ -229,12 +231,14 @@
   #include "feature/controllerfan.h"
 #endif
 
-#if HAS_PRUSA_MMU1
-  #include "feature/mmu/mmu.h"
-#endif
-
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU3
+  #include "feature/mmu3/mmu3.h"
+  #include "feature/mmu3/mmu3_reporting.h"
+  #include "feature/mmu3/SpoolJoin.h"
+#elif HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
+#elif HAS_PRUSA_MMU1
+  #include "feature/mmu/mmu.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -267,6 +271,10 @@
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  MString<64> machine_name;
+#endif
+
 MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
@@ -274,7 +282,7 @@ bool wait_for_heatup = false;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  bool wait_for_user; // = false;
+  bool wait_for_user; // = false
 
   void wait_for_user_response(millis_t ms/*=0*/, const bool no_sleep/*=false*/) {
     UNUSED(no_sleep);
@@ -325,7 +333,7 @@ bool pin_is_protected(const pin_t pin) {
 #pragma GCC diagnostic pop
 
 bool printer_busy() {
-  return planner.movesplanned() || printingIsActive();
+  return planner.has_blocks_queued() || printingIsActive();
 }
 
 /**
@@ -351,6 +359,7 @@ void startOrResumeJob() {
     TERN_(CANCEL_OBJECTS, cancelable.reset());
     TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
     TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
+    TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
   }
   print_job_timer.start();
 }
@@ -785,7 +794,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
-    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()))
+    if (TERN1(HAS_PRUSA_MMU2, !mmu2.enabled()) && TERN1(HAS_PRUSA_MMU3, !mmu3.enabled()))
       runout.run();
   #endif
 
@@ -810,7 +819,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_MEDIA, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
+  TERN_(HAS_USB_FLASH_DRIVE, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -822,7 +831,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  ui.update();
+  #if ENABLED(SOVOL_SV06_RTS)
+    RTS_Update();
+  #else
+    ui.update();
+  #endif
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -850,7 +863,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Update the Průša MMU2
-  TERN_(HAS_PRUSA_MMU2, mmu2.mmu_loop());
+  #if HAS_PRUSA_MMU3
+    mmu3.mmu_loop();
+  #elif HAS_PRUSA_MMU2
+    mmu2.mmu_loop();
+  #endif
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
@@ -1155,6 +1172,12 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
+  #if ENABLED(SOVOL_SV06_RTS)
+    LCD_SERIAL.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
@@ -1239,7 +1262,7 @@ void setup() {
     SETUP_RUN(runout.setup());
   #endif
 
-  #if HAS_TMC220x
+  #if HAS_TMC_UART
     SETUP_RUN(tmc_serial_begin());
   #endif
 
@@ -1312,8 +1335,11 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-
-  SETUP_RUN(ui.init());
+  #if ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(RTS_Update());
+  #else
+    SETUP_RUN(ui.init());
+  #endif
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1340,6 +1366,10 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SETUP_RUN(ui.reset_status(false)); // machine_name Initialized by settings.load()
+  #endif
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
@@ -1586,7 +1616,11 @@ void setup() {
     SETUP_RUN(stepper_driver_backward_report());
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if HAS_PRUSA_MMU3
+    if (mmu3.mmu_hw_enabled) SETUP_RUN(mmu3.start());
+    SETUP_RUN(mmu3.status());
+    SETUP_RUN(spooljoin.initStatus());
+  #elif HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
 
@@ -1598,6 +1632,8 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
