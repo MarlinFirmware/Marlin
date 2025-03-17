@@ -37,7 +37,7 @@ namespace LanguageNarrow_nl {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Dutch");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" gereed.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" gereed.");
   LSTR MSG_BACK                           = _UxGT("Terug");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kaart ingestoken");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");

@@ -530,8 +530,9 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #endif
 
+  void onStatusChanged_P(PGM_P const msg);
+  inline void onStatusChanged(FSTR_P const fstr) { onStatusChanged_P(FTOP(fstr)); }
   void onStatusChanged(const char * const msg);
-  void onStatusChanged(FSTR_P const fstr);
 
   void onHomingStart();
   void onHomingDone();

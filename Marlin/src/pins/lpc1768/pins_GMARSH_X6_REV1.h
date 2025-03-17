@@ -50,9 +50,9 @@
 #define X_MIN_PIN                          P0_00
 #define X_MAX_PIN                          P0_01
 #define Y_MIN_PIN                          P0_10
-#define Y_MAX_PIN                          P0_21
+#define Y_MAX_PIN                          P0_11
 #define Z_MIN_PIN                          P2_13
-#define Z_MAX_PIN                          P2_22
+#define Z_MAX_PIN                          P2_12
 
 //
 // Steppers
