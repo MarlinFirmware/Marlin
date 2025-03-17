@@ -36,7 +36,7 @@ namespace LanguageNarrow_fr_na {
 
   LSTR LANGUAGE                           = _UxGT("Francais");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prete.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prete.");
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");

@@ -46,7 +46,7 @@ namespace LanguageNarrow_it {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Italiano");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pronta.");
   LSTR MSG_YES                            = _UxGT("Si");
   LSTR MSG_NO                             = _UxGT("No");
   LSTR MSG_HIGH                           = _UxGT("ALTO");
