@@ -834,9 +834,9 @@ namespace LanguageNarrow_it {
   // Filament Change screens show up to 2 lines on a 3-line display
   //
   LSTR MSG_ADVANCED_PAUSE_WAITING         = _UxGT(MSG_1_LINE("Premi x continuare"));
-  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("Attendere..."));
+  LSTR MSG_FILAMENT_CHANGE_INIT           = _UxGT(MSG_1_LINE("Attendere avvio"));
   LSTR MSG_FILAMENT_CHANGE_INSERT         = _UxGT(MSG_1_LINE("Inserisci e premi"));
-  LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("Riscalda ugello"));
+  LSTR MSG_FILAMENT_CHANGE_HEAT           = _UxGT(MSG_1_LINE("Clic per Riscalda"));
   LSTR MSG_FILAMENT_CHANGE_HEATING        = _UxGT(MSG_1_LINE("Riscaldamento..."));
   LSTR MSG_FILAMENT_CHANGE_UNLOAD         = _UxGT(MSG_1_LINE("Espulsione..."));
   LSTR MSG_FILAMENT_CHANGE_LOAD           = _UxGT(MSG_1_LINE("Caricamento..."));
