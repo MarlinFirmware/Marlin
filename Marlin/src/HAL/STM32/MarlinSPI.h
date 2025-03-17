@@ -71,7 +71,7 @@ public:
 
   byte transfer(uint8_t _data);
   uint8_t dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16_t length);
-  uint8_t dmaSend(const void * transmitBuf, uint16_t length, bool minc = true);
+  uint8_t dmaSend(const void * transmitBuf, uint16_t length, bool minc=true);
 
   /* These methods are deprecated and kept for compatibility.
    * Use SPISettings with SPI.beginTransaction() to configure SPI parameters.
@@ -90,7 +90,7 @@ public:
   void setClockDivider(uint8_t _div);
 
 private:
-  void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc = false);
+  void setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc=false);
 
   spi_t _spi;
   DMA_HandleTypeDef _dmaTx;

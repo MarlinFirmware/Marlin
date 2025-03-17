@@ -47,7 +47,7 @@ void MarlinSPI::begin(void) {
   spi_init(&_spi, _speed, _dataMode, _bitOrder, _dataSize);
 }
 
-void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc) {
+void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc/*=false*/) {
   _dmaHandle.Init.Direction = direction;
   _dmaHandle.Init.PeriphInc = DMA_PINC_DISABLE;
   _dmaHandle.Init.Mode = DMA_NORMAL;
@@ -159,7 +159,7 @@ uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16
   return 1;
 }
 
-uint8_t MarlinSPI::dmaSend(const void * transmitBuf, uint16_t length, bool minc) {
+uint8_t MarlinSPI::dmaSend(const void * transmitBuf, uint16_t length, bool minc/*=true*/) {
   setupDma(_spi.handle, _dmaTx, DMA_MEMORY_TO_PERIPH, minc);
   HAL_DMA_Start(&_dmaTx, (uint32_t)transmitBuf, (uint32_t)&(_spi.handle.Instance->DR), length);
   __HAL_SPI_ENABLE(&_spi.handle);
