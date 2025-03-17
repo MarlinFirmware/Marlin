@@ -47,9 +47,6 @@ typedef enum {
 
 #define ENCODER_WAIT_MS TERN(DWIN_LCD_PROUI, 10, 20)
 
-// Encoder initialization
-void encoderConfiguration();
-
 // Analyze encoder value and return state
 EncoderState encoderReceiveAnalyze();
 

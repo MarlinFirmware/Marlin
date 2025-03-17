@@ -32,8 +32,6 @@
   #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
-#define INLINE_USART_IRQ
-
 #define NO_MAPLE_WARNING     // Disable warning when compiling with Maple env
 
 #include "../stm32f1/pins_CREALITY_V4.h"

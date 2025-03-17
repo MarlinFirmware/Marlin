@@ -38,7 +38,6 @@ void StatisticsScreen::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     char buffer[21];
 
-
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
        .cmd(CLEAR(true,true,true))
        .cmd(COLOR_RGB(bg_text_enabled))

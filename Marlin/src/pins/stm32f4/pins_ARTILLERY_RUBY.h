@@ -33,7 +33,7 @@
   #define FLASH_EEPROM_EMULATION
   //#define I2C_EEPROM
 #endif
-//#define E2END                            0xFFF  // 4K
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 
 #define HAL_TIMER_RATE                     F_CPU
 
@@ -116,15 +116,9 @@
 #define SERVO0_PIN                          PC3
 
 //
-// SPI
-//
-#define SCK_PIN                             PC10
-#define MISO_PIN                            PC11
-#define MOSI_PIN                            PC12
-
-//
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
     #define LCD_PINS_DC                     PB8   // Set as output on init
@@ -174,7 +168,7 @@
   #define BEEPER_PIN                        PC13
 
   #if HAS_MEDIA
-    #define SDSS                            PA15
+    #define SD_SS_PIN                       PA15
     #define SD_DETECT_PIN                   PD2
   #endif
 

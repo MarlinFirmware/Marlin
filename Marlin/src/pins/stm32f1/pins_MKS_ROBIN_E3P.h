@@ -54,7 +54,7 @@
 
 #if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 
 //
@@ -79,6 +79,17 @@
 #define Y_STOP_PIN                          PA12
 #define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
 
 //
 // Steppers
@@ -144,16 +155,9 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                   PD5
-  #define X_SERIAL_RX_PIN                   PD5
-
   #define Y_SERIAL_TX_PIN                   PD7
-  #define Y_SERIAL_RX_PIN                   PD7
-
   #define Z_SERIAL_TX_PIN                   PD4
-  #define Z_SERIAL_RX_PIN                   PD4
-
   #define E0_SERIAL_TX_PIN                  PD9
-  #define E0_SERIAL_RX_PIN                  PD9
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -187,21 +191,25 @@
     #define KILL_PIN_STATE                  HIGH
   #endif
 
-  #define MT_DET_1_PIN                      PA4
-  #define MT_DET_PIN_STATE                  LOW
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE                LOW
+  #endif
 
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
 
+  //
+  // MKS Testing for code in lcd/extui/mks_ui
+  //
   #if ENABLED(MKS_TEST)
     #define MKS_TEST_POWER_LOSS_PIN         PA2   // PW_DET
     #define MKS_TEST_PS_ON_PIN              PB0   // PW_OFF
   #endif
+
 #else
   //#define POWER_LOSS_PIN                  PA2   // PW_DET
   //#define PS_ON_PIN                       PB2   // PW_OFF
-  #define FIL_RUNOUT_PIN                    PA4
 #endif
 
 //#define LED_PIN                           PB2
@@ -248,7 +256,7 @@
   #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -260,10 +268,27 @@
 //
 
 /**
- * Note: MKS Robin TFT screens use various TFT controllers.
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
+ * Note: MKS Robin TFT screens use various TFT controllers
+ * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+ * ILI9488 is not supported
+ * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+ *
+ * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader init the screen.
+ *
+ * Setting an 'LCD_RESET_PIN' may cause a flicker when switching menus
+ * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
+
+#if ENABLED(TFT_SCALED_DOGLCD)
+  // Emulated DOGM SPI
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+#elif ENABLED(HAS_GRAPHICAL_TFT)
+  #define TFT_BUFFER_WORDS                 14400
+#endif
 
 #if HAS_SPI_TFT
 
@@ -295,27 +320,16 @@
 
   #define LCD_USE_DMA_SPI
 
-#endif
+#elif HAS_WIRED_LCD
 
-#if ENABLED(TFT_CLASSIC_UI)
-  // Emulated DOGM SPI
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-#elif ENABLED(TFT_COLOR_UI)
-  #define TFT_BUFFER_WORDS                 14400
-#endif
-
-#if HAS_WIRED_LCD && !HAS_SPI_TFT
   #define BEEPER_PIN                 EXP1_01_PIN
+
   #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
   #define BTN_EN1                    EXP2_03_PIN
   #define BTN_EN2                    EXP2_05_PIN
-  #define LCD_BACKLIGHT_PIN                 -1
+
+  #define LCD_PINS_EN                EXP1_03_PIN
+  #define LCD_PINS_RS                EXP1_04_PIN
 
   #if ENABLED(MKS_MINI_12864)
 
@@ -356,7 +370,7 @@
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
 
-  #else // !MKS_MINI_12864
+  #else // !FYSETC_MINI_12864_2_1
 
     #define LCD_PINS_D4              EXP1_05_PIN
     #if IS_ULTIPANEL
@@ -374,9 +388,13 @@
     #define BOARD_ST7920_DELAY_2             125
     #define BOARD_ST7920_DELAY_3             125
 
-  #endif // !MKS_MINI_12864
+  #endif // !FYSETC_MINI_12864_2_1
 
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
+
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                 EXP1_01_PIN
+#endif
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)
@@ -385,10 +403,6 @@
   #define SPI_FLASH_SCK_PIN                 PB13
   #define SPI_FLASH_MISO_PIN                PB14
   #define SPI_FLASH_MOSI_PIN                PB15
-#endif
-
-#ifndef BEEPER_PIN
-  #define BEEPER_PIN                 EXP1_01_PIN
 #endif
 
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5

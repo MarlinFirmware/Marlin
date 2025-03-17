@@ -54,12 +54,13 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  25
+#define SD_SS_PIN                             25
 #define CASE_LIGHT_PIN                         7
 
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                         27

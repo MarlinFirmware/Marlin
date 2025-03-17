@@ -164,6 +164,8 @@ void GcodeSuite::M217() {
 }
 
 void GcodeSuite::M217_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_TOOL_CHANGING));
 
   SERIAL_ECHOPGM("  M217");

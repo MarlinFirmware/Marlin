@@ -60,6 +60,7 @@ void GcodeSuite::M150() {
 
   #if ENABLED(NEOPIXEL_LED)
     const pixel_index_t index = parser.intval('I', -1);
+    const bool seenK = parser.seen_test('K');
     #if ENABLED(NEOPIXEL2_SEPARATE)
       #ifndef NEOPIXEL_M150_DEFAULT
         #define NEOPIXEL_M150_DEFAULT -1
@@ -69,12 +70,13 @@ void GcodeSuite::M150() {
       int8_t brightness = neo.brightness(), unit = parser.intval('S', NEOPIXEL_M150_DEFAULT);
       switch (unit) {
         case -1: neo2.neoindex = index; // fall-thru
-        case  0:  neo.neoindex = index; old_color = parser.seen('K') ? neo.pixel_color(index >= 0 ? index : 0) : 0; break;
-        case  1: neo2.neoindex = index; brightness = neo2.brightness(); old_color = parser.seen('K') ? neo2.pixel_color(index >= 0 ? index : 0) : 0; break;
+        case  0:  neo.neoindex = index; old_color = seenK ? neo.pixel_color(_MAX(index, 0)) : 0; break;
+        case  1: neo2.neoindex = index; brightness = neo2.brightness(); old_color = seenK ? neo2.pixel_color(_MAX(index, 0)) : 0; break;
       }
     #else
       const uint8_t brightness = neo.brightness();
       neo.neoindex = index;
+      old_color = seenK ? neo.pixel_color(_MAX(index, 0)) : 0;
     #endif
   #endif
 

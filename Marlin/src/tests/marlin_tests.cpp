@@ -37,41 +37,6 @@
 // Startup tests are run at the end of setup()
 void runStartupTests() {
   // Call post-setup tests here to validate behaviors.
-
-  // String with cutoff at 20 chars:
-  // "F-string, 1234.50, 2"
-  SString<20> str20;
-  str20 = F("F-string, ");
-  str20.append(1234.5f).append(',').append(' ')
-       .append(2345.67).append(',').append(' ')
-       .echoln();
-
-  // Truncate to "F-string"
-  str20.trunc(8).echoln();
-
-  // 100 dashes, but chopped down to DEFAULT_MSTRING_SIZE (20)
-  TSS(repchr_t('-', 100)).echoln();
-
-  // Hello World!-123456------   <spaces!33
-  // ^ eol! ... 1234.50*2345.602 = 2895645.67
-  SString<100> str(F("Hello"));
-  str.append(F(" World!"));
-  str += '-';
-  str += uint8_t(123);
-  str += F("456");
-  str += repchr_t('-', 6);
-  str += Spaces(3);
-  str += "< spaces!";
-  str += int8_t(33);
-  str.eol();
-  str += "^ eol!";
-
-  str.append("...", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602).echoln();
-
-  // Print it again with SERIAL_ECHOLN
-  auto print_char_ptr = [](char * const str) { SERIAL_ECHOLN(str); };
-  print_char_ptr(str);
-
 }
 
 // Periodic tests are run from within loop()

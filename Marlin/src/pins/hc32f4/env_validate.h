@@ -22,7 +22,7 @@
 #ifndef ENV_VALIDATE_H
 #define ENV_VALIDATE_H
 
-#ifndef ARDUINO_ARCH_HC32
+#if NOT_TARGET(ARDUINO_ARCH_HC32)
   #error "Oops! Select an HC32F460 board in 'Tools > Board.'"
 #endif
 

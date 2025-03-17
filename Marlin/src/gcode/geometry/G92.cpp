@@ -42,7 +42,7 @@
  *   G92   : Modify Workspace Offsets so the reported position shows the given X [Y [Z [A [B [C [U [V [W ]]]]]]]] [E].
  *   G92.1 : Zero XYZ Workspace Offsets (so the reported position = the native position).
  *
- * With POWER_LOSS_RECOVERY:
+ * With POWER_LOSS_RECOVERY or with AXISn_ROTATES:
  *   G92.9 : Set NATIVE Current Position to the given X [Y [Z [A [B [C [U [V [W ]]]]]]]] [E].
  */
 void GcodeSuite::G92() {
@@ -67,7 +67,7 @@ void GcodeSuite::G92() {
         break;
     #endif
 
-    #if ENABLED(POWER_LOSS_RECOVERY)
+    #if ANY(POWER_LOSS_RECOVERY, HAS_ROTATIONAL_AXES)
       case 9:                                                         // G92.9 - Set Current Position directly (like Marlin 1.0)
         LOOP_LOGICAL_AXES(i) {
           if (parser.seenval(AXIS_CHAR(i))) {

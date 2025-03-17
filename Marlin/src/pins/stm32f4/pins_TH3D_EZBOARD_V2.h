@@ -38,16 +38,16 @@
 // Onboard I2C EEPROM
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
   #undef NO_EEPROM_SELECTED
 #endif
 
 //
-// Neopixels
+// NeoPixel
 //
-#define NEOPIXEL_PIN                        PA8
+#define BOARD_NEOPIXEL_PIN                  PA8
 
 //
 // Servos
@@ -134,17 +134,21 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_TH3D_EZBOARD_V2.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_TH3D_EZBOARD_V2.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_TH3D_EZBOARD_V2.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_TH3D_EZBOARD_V2.");
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -186,13 +190,13 @@
 
 //#define SOFTWARE_SPI
 #define CUSTOM_SPI_PINS
-#define SDSS                                PA4
+#define ONBOARD_SD_CS_PIN                   PA4
+//#define SD_DETECT_PIN                     -1
+
+#define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
-#define SD_SS_PIN                           SDSS
-//#define SD_DETECT_PIN                     -1
-//#define ONBOARD_SD_CS_PIN                 SDSS
 
 //
 // LCD / Controller

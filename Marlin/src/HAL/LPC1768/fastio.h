@@ -66,7 +66,7 @@
 #define _WRITE(IO,V)          WRITE_PIN(IO,V)
 
 /// toggle a pin
-#define _TOGGLE(IO)           _WRITE(IO, !READ(IO))
+#define _TOGGLE(IO)           LPC176x::gpio_toggle(IO)
 
 /// set pin as input
 #define _SET_INPUT(IO)        SET_DIR_INPUT(IO)

@@ -105,12 +105,13 @@
 //
 // Misc. Functions
 //
-#define SDSS                                   4
+#define SD_SS_PIN                              4
 #define PS_ON_PIN                             40
 
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
@@ -148,7 +149,7 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
     #define BEEPER_PIN                        41
-    #define LCD_SDSS                           4
+    #define LCD_SDSS_PIN                       4
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)

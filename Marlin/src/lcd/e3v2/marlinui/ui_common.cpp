@@ -90,6 +90,8 @@ void MarlinUI::clear_lcd() {
   did_first_redraw = false;
 }
 
+void MarlinUI::clear_for_drawing() { clear_lcd(); }
+
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void MarlinUI::show_bootscreen() {
@@ -111,7 +113,7 @@ void MarlinUI::clear_lcd() {
 
     dwinDrawString(false, font10x20, COLOR_YELLOW, COLOR_BG_BLACK, INFO_CENTER - (dwin_string.length * 10) / 2, VERSION_Y, S(dwin_string.string()));
     TERN_(SHOW_CUSTOM_BOOTSCREEN, safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT));
-    clear_lcd();
+    clear_for_drawing();
 
     dwinIconShow(BOOT_ICON, ICON_MarlinBoot, LOGO_CENTER - 266 / 2,  15);
     #if ENABLED(DWIN_MARLINUI_PORTRAIT)
@@ -132,7 +134,7 @@ void MarlinUI::clear_lcd() {
 
   void MarlinUI::bootscreen_completion(const millis_t sofar) {
     if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
-    clear_lcd();
+    clear_for_drawing();
   }
 
 #endif
@@ -186,7 +188,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
   auto status_changed = []{
     static MString<>::hash_t old_hash = 0x0000;
-    const MString<>::hash_t hash = ui.status_message.hash();
+    const MString<>::hash_t hash = status_message.hash();
     const bool hash_changed = hash != old_hash;
     old_hash = hash;
     return hash_changed || !did_first_redraw;
@@ -219,7 +221,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       const char *stat = status_and_len(rlen);
       lcd_put_u8str_max(stat, max_status_chars);
 
-      // If the string doesn't completely fill the line...
+      // If the remaining string doesn't completely fill the line...
       if (rlen < max_status_chars) {
         lcd_put_u8str(F("."));                   // Always at 1+ spaces left, draw a dot
         uint8_t chars = max_status_chars - rlen;  // Amount of space left in characters
@@ -487,7 +489,7 @@ void MarlinUI::draw_status_message(const bool blink) {
         maxlen -= 2;
       }
 
-      dwin_string.add(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
+      dwin_string.add(ui.scrolled_filename(theCard, maxlen, sel), maxlen);
       uint8_t n = maxlen - dwin_string.length;
       while (n > 0) { dwin_string.add(' '); --n; }
       lcd_moveto(1, row);

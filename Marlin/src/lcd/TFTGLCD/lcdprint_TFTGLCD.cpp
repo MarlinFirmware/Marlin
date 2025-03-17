@@ -446,7 +446,6 @@ static const TFTGLCD_charmap_t g_TFTGLCD_charmap_device[] PROGMEM = {
     {IV('⭢'), 0xC7, 0},
     {IV('⭣'), 0xC6, 0},
 
-
     {IV('⯆'), 0xF5, 0},
     {IV('⯇'), 0xF7, 0}, // ⯅
     {IV('⯈'), 0xF6, 0},

@@ -26,10 +26,10 @@
  *
  * The Archim 2.0 board requires Arduino Archim addons installed.
  *
- * - Add the following URL to Arduino IDE's Additional Board Manager URLs:
+ * - Add the following URL to Arduino IDE's Additional Boards Manager URLs:
  *   https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
  *
- * - In the Arduino IDE Board Manager search for Archim and install the package.
+ * - In the Arduino IDE Boards Manager search for Archim and install the package.
  *
  * - Change your target board to "Archim".
  *
@@ -193,7 +193,7 @@
 #define SD_SCK_PIN                            76  // D76 PA27
 #define SD_MISO_PIN                           74  // D74 PA25
 #define SD_MOSI_PIN                           75  // D75 PA26
-#define SDSS                                  87  // D87 PA29
+#define SD_SS_PIN                             87  // D87 PA29
 
 // Unused Digital GPIO J20 Pins
 #define GPIO_PB1_J20_5                        94  // D94 PB1 (Header J20 5)
@@ -235,6 +235,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
@@ -252,9 +253,9 @@
   #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
 #endif
 
-#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, USB_FLASH_DRIVE_SUPPORT)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, HAS_USB_FLASH_DRIVE)
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if HAS_USB_FLASH_DRIVE
     #define DISABLE_DUE_SD_MMC
   #endif
 #endif

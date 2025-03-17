@@ -104,11 +104,13 @@ namespace ExtUI {
 
   #if HAS_PID_HEATING
 
-    void onPidTuning(const result_t rst) {
+    void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPGM("OnPidTuning:", rst);
+      //SERIAL_ECHOLNPGM("OnPIDTuning:", rst);
       switch (rst) {
         case PID_STARTED:
+        case PID_BED_STARTED:
+        case PID_CHAMBER_STARTED:
           set_lcd_error(GET_TEXT_F(MSG_PID_AUTOTUNE));
           break;
         case PID_BAD_HEATER_ID:
@@ -126,6 +128,10 @@ namespace ExtUI {
       }
     }
 
+    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
+      // Called by M303 to update the UI
+    }
+
   #endif
 
   void onPrintTimerStarted() { write_to_lcd(F("{SYS:BUILD}")); }
@@ -134,16 +140,38 @@ namespace ExtUI {
 
   // Not needed for Malyan LCD
   void onStatusChanged(const char * const) {}
-  void onMediaInserted() {}
+
+  void onMediaMounted() {}
   void onMediaError() {}
   void onMediaRemoved() {}
-  void onPlayTone(const uint16_t, const uint16_t) {}
+
+  void onHeatingError(const heater_id_t header_id) {}
+  void onMinTempError(const heater_id_t header_id) {}
+  void onMaxTempError(const heater_id_t header_id) {}
+
+  void onPlayTone(const uint16_t, const uint16_t/*=0*/) {}
+
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const) {}
+
+  // For fancy LCDs include an icon ID, message, and translated button title
+  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {}
+  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {}
+
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    void onPauseMode(
+      const PauseMessage message,
+      const PauseMode mode/*=PAUSE_MODE_SAME*/,
+      const uint8_t extruder/*=active_extruder*/
+    ) {}
+  #endif
+
   void onHomingStart() {}
   void onHomingDone() {}
+
   void onPrintDone() {}
   void onFactoryReset() {}
+
   void onStoreSettings(char*) {}
   void onLoadSettings(const char*) {}
   void onPostprocessSettings() {}
@@ -153,11 +181,18 @@ namespace ExtUI {
   #if HAS_LEVELING
     void onLevelingStart() {}
     void onLevelingDone() {}
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
+    #endif
   #endif
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t, const int8_t, const_float_t) {}
     void onMeshUpdate(const int8_t, const int8_t, const ExtUI::probe_state_t) {}
+  #endif
+
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    void onSetMinExtrusionTemp(const celsius_t) {}
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -172,8 +207,20 @@ namespace ExtUI {
     }
   #endif
 
+  #if ENABLED(MPC_AUTOTUNE)
+    void onMPCTuning(const mpcresult_t rst) {
+      // Called for temperature PID tuning result
+    }
+  #endif
+
+  #if ENABLED(PLATFORM_M997_SUPPORT)
+    void onFirmwareFlash() {}
+  #endif
+
   void onSteppersDisabled() {}
-  void onSteppersEnabled()  {}
+  void onSteppersEnabled() {}
+  void onAxisDisabled(const axis_t) {}
+  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // MALYAN_LCD

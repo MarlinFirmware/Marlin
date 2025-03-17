@@ -38,6 +38,13 @@
 #define SRAM_EEPROM_EMULATION
 
 //
+// Servos
+//
+#define SERVO0_PIN                          PB0   // XS2-5
+#define SERVO1_PIN                          PF7   // XS1-5
+#define SERVO2_PIN                          PF8   // XS1-6
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN                           PG8
@@ -48,11 +55,11 @@
 #define Z_MAX_PIN                           PG3
 
 //
-// Servos
+// Probe enable
 //
-#define SERVO0_PIN                          PB0   // XS2-5
-#define SERVO1_PIN                          PF7   // XS1-5
-#define SERVO2_PIN                          PF8   // XS1-6
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
 
 //
 // Steppers
@@ -95,8 +102,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                                -1    // PB12
-
 #define SD_DETECT_PIN                       PF9
 #define BEEPER_PIN                          PG2
 
@@ -105,19 +110,22 @@
 //
 #if HAS_FSMC_TFT
   /**
-   * Note: MKS Robin TFT screens use various TFT controllers.
-   * If the screen stays white, disable 'LCD_RESET_PIN'
-   * to let the bootloader init the screen.
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'TFT_RESET_PIN' to let the bootloader init the screen.
+   *
+   * Setting a 'TFT_RESET_PIN' may cause a flicker when switching menus
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define LCD_RESET_PIN                     PD13
-  #define LCD_BACKLIGHT_PIN                 PD12
+  #define TFT_RESET_PIN                     PD13
+  #define TFT_BACKLIGHT_PIN                 PD12
 
-  #define TFT_RESET_PIN            LCD_RESET_PIN
-  #define TFT_BACKLIGHT_PIN    LCD_BACKLIGHT_PIN
-
+  #define LCD_USE_DMA_FSMC
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF12  // A0
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
