@@ -641,7 +641,7 @@ f"""/**
  *
  * Exported by Marlin build on {dt_string}.
  */
- """
+"""
 
             subs = (
                 ("Bltouch", "BLTouch"),
