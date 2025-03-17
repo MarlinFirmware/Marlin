@@ -36,7 +36,7 @@ namespace LanguageNarrow_sv {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Swedish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Redo.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Redo.");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEJ");
   LSTR MSG_BACK                           = _UxGT("Bakåt");
