@@ -39,7 +39,7 @@ namespace LanguageNarrow_hu {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Magyar");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Kész.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Kész.");
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");

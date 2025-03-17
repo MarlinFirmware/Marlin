@@ -69,7 +69,7 @@ namespace LanguageNarrow_en {
   LSTR LANGUAGE                           = _UxGT("English");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Ready.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Ready.");
   LSTR MSG_YES                            = _UxGT("YES");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_HIGH                           = _UxGT("HIGH");

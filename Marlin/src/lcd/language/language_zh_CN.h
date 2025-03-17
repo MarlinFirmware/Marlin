@@ -33,7 +33,7 @@ namespace LanguageNarrow_zh_CN {
   constexpr uint8_t CHARSIZE              = 3;
   LSTR LANGUAGE                           = _UxGT("Simplified Chinese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT("已就绪."); // " ready."
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT("已就绪."); // " ready."
   LSTR MSG_MARLIN                         = _UxGT("马林");
   LSTR MSG_YES                            = _UxGT("是");
   LSTR MSG_NO                             = _UxGT("否");

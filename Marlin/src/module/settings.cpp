@@ -571,6 +571,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    MString<64> machine_name;                            // M550 P
+  #endif
+
+  //
   // PASSWORD_FEATURE
   //
   #if ENABLED(PASSWORD_FEATURE)
@@ -1684,6 +1691,13 @@ void MarlinSettings::postprocess() {
     //
     #if CASELIGHT_USES_BRIGHTNESS
       EEPROM_WRITE(caselight.brightness);
+    #endif
+
+    //
+    // CONFIGURABLE_MACHINE_NAME
+    //
+    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+      EEPROM_WRITE(machine_name);
     #endif
 
     //
@@ -2811,6 +2825,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // CONFIGURABLE_MACHINE_NAME
+      //
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        EEPROM_READ(machine_name);
+      #endif
+
+      //
       // Password feature
       //
       #if ENABLED(PASSWORD_FEATURE)
@@ -3398,6 +3419,11 @@ void MarlinSettings::reset() {
   // Case Light Brightness
   //
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+
+  //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION

@@ -947,6 +947,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
       #endif
 
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        case 550: M550(); break;                                  // M550: Set machine name
+      #endif
+
       #if HAS_ETHERNET
         case 552: M552(); break;                                  // M552: Set IP address
         case 553: M553(); break;                                  // M553: Set gateway

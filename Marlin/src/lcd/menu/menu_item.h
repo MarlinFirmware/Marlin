@@ -358,20 +358,24 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
+#define STATIC_SKIP() do{ \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \
-  if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V);     \
-} while(0)
+}while(0)
+
+#define STATIC_ITEM_INNER_F(FLABEL, V...) do{       \
+  STATIC_SKIP();                                    \
+  if (ui.should_draw())                             \
+    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V); \
+}while(0)
 
 #define STATIC_ITEM_F(FLABEL, V...) do{ \
   if (MY_LINE())                        \
     STATIC_ITEM_INNER_F(FLABEL, ##V);   \
   NEXT_ITEM();                          \
-} while(0)
+}while(0)
 
 #define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (MY_LINE()) {                           \
@@ -380,6 +384,16 @@ class MenuItem_bool : public MenuEditItemBase {
   }                                          \
   NEXT_ITEM();                               \
 }while(0)
+
+#define STATIC_ITEM_N_F_C(N, FLABEL, CSTR, V...) do{ \
+  if (MY_LINE()) {                                   \
+    MenuItemBase::init(N, CSTR);                     \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);                \
+  }                                                  \
+  NEXT_ITEM();                                       \
+}while(0)
+
+#define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
 
 // PSTRING_ITEM is like STATIC_ITEM
 // but also takes a PSTR and style.

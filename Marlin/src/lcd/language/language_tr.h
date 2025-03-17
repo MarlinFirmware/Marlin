@@ -45,7 +45,7 @@ namespace LanguageNarrow_tr {
   LSTR LANGUAGE                           = _UxGT("Turkish");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Hazır.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Hazır.");
   LSTR MSG_YES                            = _UxGT("EVET");
   LSTR MSG_NO                             = _UxGT("HAYIR");
   LSTR MSG_HIGH                           = _UxGT("YÜKSEK");
