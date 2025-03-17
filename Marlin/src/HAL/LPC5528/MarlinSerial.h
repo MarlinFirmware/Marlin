@@ -21,7 +21,6 @@
  */
 #pragma once
 
-
 #include "../../inc/MarlinConfigPre.h"
 #if ENABLED(EMERGENCY_PARSER)
   #include "../../feature/e_parser.h"
@@ -30,6 +29,7 @@
 
 #include "LPC55S28.h"
 
+#include <HardwareSerial.h>
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:

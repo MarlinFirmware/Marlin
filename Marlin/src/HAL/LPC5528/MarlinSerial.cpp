@@ -23,8 +23,6 @@
 
 #include "MarlinSerial.h"
 
-#include "../../inc/MarlinConfig.h"
-
 #if USING_HW_SERIAL0
   MarlinSerial _MSerial0(USART0);
   MSerialT MSerial0(true, _MSerial0);
