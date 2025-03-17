@@ -226,7 +226,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
             pid_below = false;
           }
 
-          temp_iState = constrain(temp_iState + pid_error, -0.25f * max_power_over_i_gain, max_power_over_i_gain);
+          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
 
           work_p = Kp * pid_error;
           work_i = Ki * temp_iState;
