@@ -191,7 +191,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       float cTerm() const { return 0; }
       float fTerm() const { return 0; }
       void set_Kp(float p) { Kp = p; }
-      void set_Ki(float i) { Ki = scalePID_i(i); max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW); }
+      void set_Ki(float i) { Ki = scalePID_i(i); max_power_over_i_gain = float(MAX_POW - MIN_POW) / Ki; }
       void set_Kd(float d) { Kd = scalePID_d(d); }
       void set_Kc(float) {}
       void set_Kf(float) {}
