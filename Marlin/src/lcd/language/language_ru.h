@@ -35,7 +35,7 @@ namespace LanguageNarrow_ru {
   constexpr uint8_t CHARSIZE                = 2;
   LSTR LANGUAGE                             = _UxGT("Russian");
 
-  LSTR WELCOME_MSG                          = MACHINE_NAME _UxGT(" Готов.");
+  LSTR WELCOME_MSG                          = MACHINE_NAME_SUBST _UxGT(" Готов.");
   LSTR MSG_YES                              = _UxGT("Да");
   LSTR MSG_NO                               = _UxGT("Нет");
   LSTR MSG_BACK                             = _UxGT("Назад");
@@ -434,7 +434,12 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FILAMENTLOAD_E                   = _UxGT("Подать филамент *");
   LSTR MSG_FILAMENTUNLOAD_E                 = _UxGT("Убрать филамент *");
   LSTR MSG_FILAMENTUNLOAD_ALL               = _UxGT("Выгрузить всё");
-  LSTR MSG_ATTACH_MEDIA                     = _UxGT("Установить SD карту");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Установить SD карту");
+    LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Установить флешка");
+  #else
+    LSTR MSG_ATTACH_MEDIA                   = _UxGT("Установить SD карту");
+  #endif
   LSTR MSG_CHANGE_MEDIA                     = _UxGT("Сменить SD карту");
   LSTR MSG_RELEASE_MEDIA                    = _UxGT("Освободить SD карту");
   LSTR MSG_ZPROBE_OUT                       = _UxGT("Z-зонд вне стола");

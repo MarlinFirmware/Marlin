@@ -69,7 +69,7 @@ namespace LanguageNarrow_en {
   LSTR LANGUAGE                           = _UxGT("English");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Ready.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Ready.");
   LSTR MSG_YES                            = _UxGT("YES");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_HIGH                           = _UxGT("HIGH");
@@ -510,7 +510,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Machine Name");
   LSTR MSG_INFO_SIZE                      = _UxGT("Size");
   LSTR MSG_INFO_FWVERSION                 = _UxGT("Firmware Version");
-  LSTR MSG_INFO_BUILD                     = _UxGT("Build Datetime");
+  LSTR MSG_INFO_BUILD                     = _UxGT("Build Info");
   LSTR MSG_PREPARE                        = _UxGT("Prepare");
   LSTR MSG_TUNE                           = _UxGT("Tune");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Power monitor");
@@ -605,9 +605,12 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Unload Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload * Filament");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Unload All");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Attach ") MEDIA_TYPE_EN;
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Attach SD Card");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Attach USB Drive");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Attach SD Card");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Attach USB Drive");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach ") MEDIA_TYPE_EN;
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Change ") MEDIA_TYPE_EN;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Release ") MEDIA_TYPE_EN;
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");

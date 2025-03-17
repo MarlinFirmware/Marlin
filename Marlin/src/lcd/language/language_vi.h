@@ -33,7 +33,7 @@ namespace LanguageNarrow_vi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Vietnamese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Sẵn sàng.");              // Ready
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Sẵn sàng.");        // Ready
   LSTR MSG_BACK                           = _UxGT("Trở lại");                              // Back
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
@@ -308,7 +308,12 @@ namespace LanguageNarrow_vi {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Dỡ dây nhựa");                         // Unload filament
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Dỡ dây nhựa *");                       // Unload filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Dỡ tất cả");                           // Unload All
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Khởi tạo phương tiện");                // Attach media
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Khởi tạo thẻ SD");                     // Attach SD Card
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Khởi tạo thanh USB");                  // Attach USB Drive
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Khởi tạo phương tiện");                // Attach media
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Thay phương tiện");                    // Change midea
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Phát hành phương tiện");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z Probe past bed

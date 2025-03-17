@@ -45,7 +45,7 @@ namespace LanguageNarrow_tr {
   LSTR LANGUAGE                           = _UxGT("Turkish");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Hazır.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Hazır.");
   LSTR MSG_YES                            = _UxGT("EVET");
   LSTR MSG_NO                             = _UxGT("HAYIR");
   LSTR MSG_HIGH                           = _UxGT("YÜKSEK");
@@ -549,9 +549,12 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("SD Kartı takın");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("USB Sürücüyü takın");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SD Kartı takın");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USB Sürücüyü takın");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Medyayı Ekle");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");

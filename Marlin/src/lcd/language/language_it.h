@@ -46,7 +46,7 @@ namespace LanguageNarrow_it {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Italiano");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pronta.");
   LSTR MSG_YES                            = _UxGT("Si");
   LSTR MSG_NO                             = _UxGT("No");
   LSTR MSG_HIGH                           = _UxGT("ALTO");
@@ -580,9 +580,12 @@ namespace LanguageNarrow_it {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Rimuovi filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Rimuovi filam. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Rimuovi tutto");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Collega ") MEDIA_TYPE_IT;
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Collega scheda SD");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Collega penna USB");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Collega scheda SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Collega penna USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Collega ") MEDIA_TYPE_IT;
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambia ") MEDIA_TYPE_IT;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe fuori piatto");

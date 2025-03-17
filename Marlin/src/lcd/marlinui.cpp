@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "../MarlinCore.h" // for printingIsPaused
+#include "../MarlinCore.h" // for printingIsPaused, machine_name
 #include "../gcode/parser.h" // for axis_is_rotational, using_inch_units
 
 #if HAS_LED_POWEROFF_TIMEOUT || ALL(HAS_WIRED_LCD, PRINTER_EVENT_LEDS) || (HAS_BACKLIGHT_TIMEOUT && defined(NEOPIXEL_BKGD_INDEX_FIRST))
@@ -55,10 +55,10 @@ MarlinUI ui;
 #endif
 
 #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
-  #define BASIC_PROGRESS_BAR 1
+  #define HAS_BASIC_PROGRESS_BAR 1
 #endif
 
-#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, BASIC_PROGRESS_BAR)
+#if ANY(HAS_DISPLAY, HAS_STATUS_MESSAGE, HAS_BASIC_PROGRESS_BAR)
   #include "../module/printcounter.h"
 #endif
 
@@ -72,7 +72,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
   #endif
-  MString<MAX_MESSAGE_LENGTH> MarlinUI::status_message;
+  MString<MAX_MESSAGE_SIZE> MarlinUI::status_message;
   uint8_t MarlinUI::alert_level; // = 0
   #if HAS_STATUS_MESSAGE_TIMEOUT
     millis_t MarlinUI::status_message_expire_ms; // = 0
@@ -598,7 +598,7 @@ void MarlinUI::init() {
    * This is very display-dependent, so the lcd implementation draws this.
    */
 
-  #if BASIC_PROGRESS_BAR
+  #if HAS_BASIC_PROGRESS_BAR
     millis_t MarlinUI::progress_bar_ms; // = 0
     #if PROGRESS_MSG_EXPIRE > 0
       millis_t MarlinUI::expire_status_ms; // = 0
@@ -607,7 +607,7 @@ void MarlinUI::init() {
 
   void MarlinUI::status_screen() {
 
-    #if BASIC_PROGRESS_BAR
+    #if HAS_BASIC_PROGRESS_BAR
 
       //
       // HD44780 implements the following message blinking and
@@ -647,7 +647,7 @@ void MarlinUI::init() {
 
       #endif // PROGRESS_MSG_EXPIRE
 
-    #endif // BASIC_PROGRESS_BAR
+    #endif // HAS_BASIC_PROGRESS_BAR
 
     bool did_expire = status_reset_callback && (*status_reset_callback)();
 
@@ -1462,6 +1462,62 @@ void MarlinUI::host_notify(const char * const cstr) {
 
 #include <stdarg.h>
 
+uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, const char *cstr/*=nullptr*/, FSTR_P const fstr/*=nullptr*/, const uint8_t maxlen/*=MAX_MESSAGE_SIZE*/) {
+  const uint8_t *p = (uint8_t*)ptpl;
+  char *o = outstr;
+  int8_t n = maxlen;
+  while (n > 0) {
+    lchar_t wc;
+    uint8_t *psc = (uint8_t *)p;
+    p = get_utf8_value_cb(p, read_byte_rom, wc);
+    if (!wc) break;
+    if (wc == '{' || wc == '~' || wc == '*') {
+      if (ind >= 0) {
+        if (wc == '*') { *o++ = 'E'; n--; }
+        if (n) {
+          int8_t inum = ind + ((wc == '{') ? 0 : LCD_FIRST_TOOL);
+          if (inum >= 10) {
+            *o++ = ('0' + (inum / 10)); n--;
+            inum %= 10;
+          }
+          if (n) { *o++ = '0' + inum; n--; }
+        }
+      }
+      else {
+        PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
+        strlcpy_P(o, b, n + 1);
+        n -= utf8_strlen(o);
+        o += strlen(o);
+      }
+      if (n > 0) {
+        strlcpy_P(o, (PGM_P)p, n + 1);
+        n -= utf8_strlen(o);
+        o += strlen(o);
+        break;
+      }
+    }
+    else if (wc == '$' && fstr) {
+      strlcpy_P(o, FTOP(fstr), n + 1);
+      n -= utf8_strlen(o);
+      o += strlen(o);
+    }
+    else if (wc == '$' && cstr) {
+      strlcpy(o, cstr, n + 1);
+      n -= utf8_strlen(o);
+      o += strlen(o);
+    }
+    else {
+      if (wc == '@')
+        *o++ = AXIS_CHAR(ind);
+      else
+        while (psc != p) *o++ = read_byte_rom(psc++);
+      *o = '\0';
+      n--;
+    }
+  }
+  return maxlen - n;
+}
+
 #if HAS_STATUS_MESSAGE
 
   #if ENABLED(EXTENSIBLE_UI)
@@ -1492,7 +1548,16 @@ void MarlinUI::host_notify(const char * const cstr) {
       else if (print_job_timer.needsService(3)) msg = F("> " SERVICE_NAME_3 "!");
     #endif
 
-    else if (!no_welcome) msg = GET_TEXT_F(WELCOME_MSG);
+    else if (!no_welcome) {
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        char new_status[MAX_MESSAGE_SIZE + 1];
+        expand_u8str_P(new_status, GET_TEXT(WELCOME_MSG), 0, &machine_name);
+        _set_status_and_level(new_status, -1);
+        return;
+      #else
+        msg = GET_TEXT_F(WELCOME_MSG);
+      #endif
+    }
 
     else if (ENABLED(STATUS_DO_CLEAR_EMPTY))
       msg = F("");
@@ -1528,7 +1593,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     MString<30> msg;
     pgm ? msg.set_P(ustr) : msg.set(ustr);
-    status_message.set(&msg).utrunc(MAX_MESSAGE_LENGTH);
+    status_message.set(&msg).utrunc(MAX_MESSAGE_SIZE);
 
     finish_status(level > 0); // Persist if the status has a level
   }
@@ -1546,7 +1611,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     pgm ? host_notify_P(ustr) : host_notify(ustr);
 
     // Remove the last partial Unicode glyph, if any
-    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_LENGTH);
+    (pgm ? status_message.set_P(ustr) : status_message.set(ustr)).utrunc(MAX_MESSAGE_SIZE);
 
     finish_status(persist);
   }
@@ -1574,7 +1639,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     va_list args;
     va_start(args, pfmt);
-    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, pfmt, args);
+    vsnprintf_P(status_message, MAX_MESSAGE_SIZE, pfmt, args);
     va_end(args);
 
     host_notify(status_message);
@@ -1592,11 +1657,11 @@ void MarlinUI::host_notify(const char * const cstr) {
 
     #if HAS_WIRED_LCD
 
-      #if BASIC_PROGRESS_BAR || ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
+      #if HAS_BASIC_PROGRESS_BAR || ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
         const millis_t ms = millis();
       #endif
 
-      #if BASIC_PROGRESS_BAR
+      #if HAS_BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
           expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
@@ -1865,6 +1930,7 @@ void MarlinUI::host_notify(const char * const cstr) {
 #endif // HAS_MEDIA
 
 #if HAS_MARLINUI_MENU
+
   void MarlinUI::reset_settings() {
     settings.reset();
     completion_feedback();
@@ -1886,7 +1952,7 @@ void MarlinUI::host_notify(const char * const cstr) {
     }
   #endif
 
-#endif
+#endif // HAS_MARLINUI_MENU
 
 #if ENABLED(EEPROM_SETTINGS)
 

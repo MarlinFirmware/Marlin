@@ -46,7 +46,7 @@
   #include "../../../feature/pause.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "../../../feature/runout.h"
 #endif
 
@@ -1342,7 +1342,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, probe_deployed);
             }
             else {
-              probe_deployed ^= true;
+              FLIP(probe_deployed);
               probe.set_deployed(probe_deployed);
               drawCheckbox(row, probe_deployed);
             }
@@ -1355,7 +1355,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawCheckbox(row, livemove);
           }
           else {
-            livemove ^= true;
+            FLIP(livemove);
             drawCheckbox(row, livemove);
           }
           break;
@@ -1400,7 +1400,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, use_probe);
             }
             else {
-              use_probe ^= true;
+              FLIP(use_probe);
               drawCheckbox(row, use_probe);
               if (use_probe) {
                 popupHandler(Popup_Level);
@@ -1616,7 +1616,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 planner.synchronize();
                 redrawMenu();
               }
-              liveadjust ^= true;
+              FLIP(liveadjust);
               drawCheckbox(row, liveadjust);
             }
             break;
@@ -2719,7 +2719,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           else {
-            eeprom_settings.time_format_textual ^= true;
+            FLIP(eeprom_settings.time_format_textual);
             drawCheckbox(row, eeprom_settings.time_format_textual);
           }
           break;
@@ -2857,7 +2857,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define ADVANCED_LOAD (ADVANCED_LA + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_UNLOAD (ADVANCED_LOAD + ENABLED(ADVANCED_PAUSE_FEATURE))
       #define ADVANCED_COLD_EXTRUDE  (ADVANCED_UNLOAD + ENABLED(PREVENT_COLD_EXTRUSION))
-      #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define ADVANCED_FILSENSORENABLED (ADVANCED_COLD_EXTRUDE + ENABLED(HAS_FILAMENT_SENSOR))
       #define ADVANCED_FILSENSORDISTANCE (ADVANCED_FILSENSORENABLED + ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE))
       #define ADVANCED_POWER_LOSS (ADVANCED_FILSENSORDISTANCE + ENABLED(POWER_LOSS_RECOVERY))
       #define ADVANCED_TOTAL ADVANCED_POWER_LOSS
@@ -2877,7 +2877,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, ui.sound_on);
             }
             else {
-              ui.sound_on ^= true;
+              FLIP(ui.sound_on);
               drawCheckbox(row, ui.sound_on);
             }
             break;
@@ -2953,14 +2953,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if HAS_FILAMENT_SENSOR
           case ADVANCED_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
               drawCheckbox(row, runout.enabled);
             }
             else {
-              runout.enabled ^= true;
+              FLIP(runout.enabled);
               drawCheckbox(row, runout.enabled);
             }
             break;
@@ -2975,7 +2975,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 modifyValue(runout.runout_distance(), 0, 999, 10);
               break;
           #endif
-        #endif // FILAMENT_RUNOUT_SENSOR
+        #endif // HAS_FILAMENT_SENSOR
 
         #if ENABLED(POWER_LOSS_RECOVERY)
           case ADVANCED_POWER_LOSS:
@@ -3403,7 +3403,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             else {
-              mesh_conf.viewer_print_value ^= true;
+              FLIP(mesh_conf.viewer_print_value);
               drawCheckbox(row, mesh_conf.viewer_print_value);
             }
             break;
@@ -3413,7 +3413,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             else {
-              mesh_conf.viewer_asymmetric_range ^= true;
+              FLIP(mesh_conf.viewer_asymmetric_range);
               drawCheckbox(row, mesh_conf.viewer_asymmetric_range);
             }
             break;
@@ -3596,7 +3596,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawCheckbox(row, mesh_conf.goto_mesh_value);
             }
             else {
-              mesh_conf.goto_mesh_value ^= true;
+              FLIP(mesh_conf.goto_mesh_value);
               current_position.z = 0;
               mesh_conf.manual_mesh_move(true);
               drawCheckbox(row, mesh_conf.goto_mesh_value);
@@ -3830,7 +3830,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       #define TUNE_LA (TUNE_ZDOWN + ENABLED(LIN_ADVANCE))
       #define TUNE_CHANGEFIL (TUNE_LA + ENABLED(FILAMENT_LOAD_UNLOAD_GCODES))
       #define TUNE_FWRETRACT (TUNE_CHANGEFIL + ENABLED(FWRETRACT))
-      #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(FILAMENT_RUNOUT_SENSOR))
+      #define TUNE_FILSENSORENABLED (TUNE_FWRETRACT + ENABLED(HAS_FILAMENT_SENSOR))
       #define TUNE_BACKLIGHT_OFF (TUNE_FILSENSORENABLED + 1)
       #define TUNE_BACKLIGHT (TUNE_BACKLIGHT_OFF + 1)
       #define TUNE_TOTAL TUNE_BACKLIGHT
@@ -3950,14 +3950,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
         #endif
 
-        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        #if HAS_FILAMENT_SENSOR
           case TUNE_FILSENSORENABLED:
             if (draw) {
               drawMenuItem(row, ICON_Extruder, GET_TEXT_F(MSG_RUNOUT_SENSOR));
               drawCheckbox(row, runout.enabled);
             }
             else {
-              runout.enabled ^= true;
+              FLIP(runout.enabled);
               drawCheckbox(row, runout.enabled);
             }
             break;
@@ -4326,7 +4326,7 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
     case Popup_FilLoad:       drawPopup(option ? F("Unloading Filament") : F("Loading Filament"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_FilChange:     drawPopup(F("Filament Change"), F("Please wait for prompt."), F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Proc_Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       case Popup_Runout:      drawPopup(F("Filament Runout"), F(""), F(""), Proc_Wait, ICON_BLTouch); break;
     #endif
     #if ANY(PIDTEMP, PIDTEMPBED)
@@ -4953,7 +4953,7 @@ void JyersDWIN::stateUpdate() {
       }
     }
   #endif
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     static bool ranout = false;
     if (runout.filament_ran_out != ranout) {
       ranout = runout.filament_ran_out;

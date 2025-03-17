@@ -36,7 +36,7 @@ namespace LanguageNarrow_el_gr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Greek (Greece)");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" έτοιμο.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" έτοιμο.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Εισαγωγή κάρτας");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Αφαίρεση κάρτας");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
@@ -170,7 +170,12 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_AUTORETRACT                    = _UxGT("Αυτόματη ανάσυρση");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Αλλαγή νήματος");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Αλλαγή νήματος *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Προετοιμασία κάρτας SD");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Προετοιμασία SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Προετοιμασία USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Προετοιμασία SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Αλλαγή κάρτας SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός κλίνης");
   LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πριν από Z");

@@ -920,15 +920,15 @@
 #endif
 
 /**
- * HC32 clock speed is hard-coded in Marlin
- */
-#if defined(ARDUINO_ARCH_HC32) && F_CPU == 200000000
-  #warning "HC32 clock is assumed to be 200MHz. If this isn't the case for your board please submit a report so we can add support."
-#endif
-
-/**
  * Peltier with PIDTEMPBED
  */
 #if ALL(PELTIER_BED, PIDTEMPBED)
   #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
+#endif
+
+/**
+ * Board recommended LCD_SERIAL_PORT
+ */
+#if LCD_IS_SERIAL_HOST && defined(BOARD_LCD_SERIAL_PORT) && LCD_SERIAL_PORT != BOARD_LCD_SERIAL_PORT && DISABLED(NO_LCD_SERIAL_PORT_WARNING)
+  #warning "LCD_SERIAL_PORT overrides the default (BOARD_LCD_SERIAL_PORT)."
 #endif

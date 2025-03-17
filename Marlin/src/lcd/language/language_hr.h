@@ -36,7 +36,7 @@ namespace LanguageNarrow_hr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Croatian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" spreman.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" spreman.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD kartica umetnuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
@@ -117,7 +117,12 @@ namespace LanguageNarrow_hr {
   LSTR MSG_STOPPED                        = _UxGT("ZAUSTAVLJEN. ");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Promijeni filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Promijeni filament *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD karticu");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Init. SD karticu");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Init. USB pogon");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Init. SD karticu");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Promijeni SD karticu");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Grijanje neuspješno");
   LSTR MSG_HEATING                        = _UxGT("Grijanje...");
