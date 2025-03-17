@@ -37,7 +37,7 @@ namespace LanguageNarrow_eu {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Basque-Euskera");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prest.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prest.");
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
@@ -219,7 +219,12 @@ namespace LanguageNarrow_eu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Harizpia deskargatu");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Harizpia deskargatu *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Erabat deskargatu");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Hasieratu SD-a");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Hasieratu SD-a");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Hasieratu USB-a");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Hasieratu SD-a");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Aldatu txartela");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z zunda kanpora");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Okertze faktorea");

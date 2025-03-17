@@ -37,7 +37,7 @@ namespace LanguageNarrow_an {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Aragonese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" parada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" parada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
@@ -155,7 +155,12 @@ namespace LanguageNarrow_an {
   LSTR MSG_AUTORETRACT                    = _UxGT("Retraccion auto.");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Cambear filamento");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Cambear filamento *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Encetan. tarcheta");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Encetan. SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Encetan. USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Encetan. SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar tarcheta");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
