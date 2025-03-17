@@ -58,8 +58,7 @@
 // ------------------------
 // Public functions
 // ------------------------
-
-#if ENABLED(LPC_SOFTWARE_SPI)
+#if ENABLED(SOFTWARE_SPI)
 
   // Software SPI
 
@@ -123,7 +122,7 @@
       case SPI_SPEED_6:         baudrate = 12000000; break;
       default:                  baudrate = 12000000; break;
     }
-    spiConfig = SPISettings(baudrate,kSPI_MsbFirst,SPI_MODE0,kSPI_Data8Bits,false);
+    spiConfig = SPISettings(baudrate, kSPI_MsbFirst, SPI_MODE0, kSPI_Data8Bits, false);
     SPI_4.beginTransaction(spiConfig);
   }
 
@@ -165,7 +164,7 @@
     // TODO: Implement this method
   }
 
-#endif // LPC_SOFTWARE_SPI
+#endif // SOFTWARE_SPI
 
 // Retain the pin init state of the SPI, to avoid init more than once,
 // even if more instances of SPIClass exist

@@ -19,11 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../inc/MarlinConfigPre.h"
-
 #ifdef TARGET_LPC5528
 
+#include "../../inc/MarlinConfig.h"
 #include <pwm.h>
 
 #ifndef pin_t

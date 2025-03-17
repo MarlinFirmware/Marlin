@@ -34,7 +34,7 @@ private:
   uint32_t         MaxPluseWidth = 2400;        // 输出最大脉宽值
   uint32_t         TauMsec = 20;
   uint32_t         TauUsec = (TauMsec * 1000);
-   uint32_t        MaxCompare = 65535-1;        // PWM 范围0-（65535 -1）
+  uint32_t         MaxCompare = 65535-1;        // PWM 范围0-（65535 -1）
 
   int servo_pin;
   int degrees;

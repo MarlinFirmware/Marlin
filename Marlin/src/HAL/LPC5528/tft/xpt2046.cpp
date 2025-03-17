@@ -44,11 +44,12 @@ uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 #endif
 
 void XPT2046::Init() {
-  // SET_INPUT(TFT_MISO_PIN);//caden
-  // SET_OUTPUT(TFT_MOSI_PIN);//caden
-  // SET_OUTPUT(TFT_SCK_PIN);//caden
-  // OUT_WRITE(TOUCH_CS_PIN, HIGH);//caden
+  //SET_INPUT(TFT_MISO_PIN); // caden
+  //SET_OUTPUT(TFT_MOSI_PIN); // caden
+  //SET_OUTPUT(TFT_SCK_PIN); // caden
+  //OUT_WRITE(TOUCH_CS_PIN, HIGH); // caden
   OUT_WRITE(TOUCH_CS_PIN, HIGH);
+
   #if PIN_EXISTS(TOUCH_INT)
     // Optional Pendrive interrupt pin
     SET_INPUT(TOUCH_INT_PIN);
@@ -72,9 +73,8 @@ bool XPT2046::isTouched() {
   );
 }
 
-bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {
-  if (isBusy()) return false;
-  if (!isTouched()) return false;
+bool XPT2046::getRawPoint(int16_t * const x, int16_t * const y) {
+  if (isBusy() || !isTouched()) return false;
   *x = getRawData(XPT2046_X);
   *y = getRawData(XPT2046_Y);
   return isTouched();
@@ -97,9 +97,8 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
            delta02 = delta(data[0], data[2]),
            delta12 = delta(data[1], data[2]);
 
-  if (delta01 > delta02 || delta01 > delta12) {
+  if (delta01 > delta02 || delta01 > delta12)
     data[delta02 > delta12 ? 0 : 1] = data[2];
-  }
 
   return (data[0] + data[1]) >> 1;
 }
@@ -120,16 +119,15 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
   uint16_t result = 0;
 
   for (uint8_t j = 0x80; j; j >>= 1) {
-    WRITE(TFT_SCK_PIN, LOW);
-    WRITE(TFT_MOSI_PIN, data & j ? HIGH : LOW);
-    if (READ(TFT_MISO_PIN)) result |= j;
-    WRITE(TFT_SCK_PIN, HIGH);
+    WRITE(TOUCH_SCK_PIN, LOW);
+    WRITE(TOUCH_MOSI_PIN, data & j ? HIGH : LOW);
+    if (READ(TOUCH_MISO_PIN)) result |= j;
+    WRITE(TOUCH_SCK_PIN, HIGH);
   }
-  WRITE(TFT_SCK_PIN, LOW);
+  WRITE(TOUCH_SCK_PIN, LOW);
 
   return result;
 }
 
 #endif // HAS_TFT_XPT2046
-
 #endif // TARGET_LPC5528

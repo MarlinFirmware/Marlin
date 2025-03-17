@@ -20,13 +20,11 @@
  *
  */
 
-#include "../platforms.h"
-
-#ifdef TARGET_LPC5528
-
 /**
  * Implementation of EEPROM settings in SD Card
  */
+
+#ifdef TARGET_LPC5528
 
 #include "../../inc/MarlinConfig.h"
 

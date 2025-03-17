@@ -20,36 +20,3 @@
  *
  */
 #pragma once
-
-
-#include "../../inc/MarlinConfigPre.h"
-#if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/e_parser.h"
-#endif
-#include "../../core/serial_hook.h"
-
-#include "LPC55S28.h"
-
-
-class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
-public:
-
-  MarlinSerial(USART_Type *UARTx) : HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx) { }
-
-  void begin(uint32_t baud);
-
-  void end() {}
-
-  uint8_t availableForWrite() { /* flushTX(); */ return TX_BUFFER_SIZE; }
-
-  #if ENABLED(EMERGENCY_PARSER)
-    bool recv_callback(const char c) override;
-  #endif
-};
-
-typedef ForwardSerial1Class<MarlinSerial> MSerialT;
-extern MSerialT MSerial1;
-extern MSerialT MSerial2;
-extern MSerialT MSerial3;
-extern MSerialT MSerial4;
-extern MSerialT MSerial5;

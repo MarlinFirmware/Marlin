@@ -33,12 +33,7 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-//#include "Servo.h"
-//#include "watchdog.h"
-//#include "MarlinSerial.h"
 
-//#include "../../inc/MarlinConfigPre.h"
-//#include "../../pins/lpc5528/pins_MKS_OWL.h"
 #include "MarlinSerial.h"
 #include <stdint.h>
 
@@ -204,7 +199,7 @@ public:
   static void delay_ms(const int ms) { delay(ms); }
 
   // Watchdog
-  static void watchdog_init() {}
+  static void watchdog_init() IF_DISABLED(USE_WATCHDOG, {});
   static void watchdog_refresh() IF_DISABLED(USE_WATCHDOG, {});
   static bool watchdog_timed_out() IF_DISABLED(USE_WATCHDOG, { return false; });
   static void watchdog_clear_timeout_flag() IF_DISABLED(USE_WATCHDOG, {});

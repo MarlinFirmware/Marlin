@@ -32,41 +32,61 @@
  *
  * For TARGET LPC5528
  */
+
 #include "../shared/Marduino.h"
 
 #ifndef PWM
   #define PWM OUTPUT
 #endif
+#define NO_COMPILE_TIME_PWM
+#define PWM_PIN(P)            true // all pins are PWM capable
 
-// #define _READ(IO)               // bool(READ_BIT(FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->IDR, _BV32(STM_PIN(digitalPinToPinName(IO)))))
-// #define _TOGGLE(IO)             // TBI32(FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->ODR, STM_PIN(digitalPinToPinName(IO)))
-
-#define _READ(IO)               digitalRead(IO)
+/**
+ * Magic I/O routines
+ *
+ * Now you can simply SET_OUTPUT(STEP); WRITE(STEP, HIGH); WRITE(STEP, LOW);
+ *
+ * Why double up on these macros? see https://gcc.gnu.org/onlinedocs/gcc-4.8.5/cpp/Stringification.html
+ */
 
 #define _GET_MODE(IO)
-
 #define _SET_MODE(IO,M)          pinMode(IO, M)
+
+/// Read a pin
+#define _READ(IO)               digitalRead(IO)
+
+/// set pin as output
 #define _SET_OUTPUT(IO)          pinMode(IO, OUTPUT)                               //!< Output Push Pull Mode & GPIO_NOPULL
 #define _SET_OUTPUT_OD(IO)       pinMode(IO, OUTPUT_OPEN_DRAIN)
 
-#define WRITE(IO,V)             digitalWrite(IO, V)
+/// Read a pin wrapper
 #define READ(IO)                digitalRead(IO)
+
+/// Write to a pin wrapper
+#define WRITE(IO,V)             digitalWrite(IO, V)
+
+/// toggle a pin wrapper
 #define TOGGLE(IO)              WRITE(IO, !READ(IO))
 
-#define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
-#define OUT_WRITE_OD(IO,V)      do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); }while(0)
-
+/// set pin as input wrapper
 #define SET_INPUT(IO)           _SET_MODE(IO, INPUT)                              //!< Input Floating Mode
+/// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       //!< Input with Pull-up activation
+/// set pin as input with pulldown wrapper
 #define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLUP)                     //!< Input with Pull-down activation
+/// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)           OUT_WRITE(IO, LOW)
+// set pin as PWM
 #define SET_PWM(IO)             _SET_MODE(IO, PWM)
 
+/// check if pin is an input wrapper
 #define IS_INPUT(IO)
+/// check if pin is an output wrapper
 #define IS_OUTPUT(IO)
 
-#define PWM_PIN(P)              10 //digitalPinHasPWM(P)
-#define NO_COMPILE_TIME_PWM
+// Shorthand
+#define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+#define OUT_WRITE_OD(IO,V)      do{ _SET_OUTPUT_OD(IO); WRITE(IO,V); }while(0)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)      //digitalRead(IO)

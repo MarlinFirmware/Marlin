@@ -19,12 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
 #ifdef TARGET_LPC5528
-
-//#include "HAL.h"
-//#include "usb_serial.h"
 
 #include "../../inc/MarlinConfig.h"
 #include "../shared/Delay.h"
@@ -100,6 +95,9 @@ uint8_t MarlinHAL::get_reset_source() {
 
   //#include <lpc55xx_wdt.h>
   //#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+
+  void MarlinHAL::watchdog_init() {
+  }
 
   void MarlinHAL::watchdog_refresh() {
     WWDT_Refresh(WWDT);

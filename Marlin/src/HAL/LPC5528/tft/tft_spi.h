@@ -44,35 +44,34 @@
 
 class TFT_SPI {
 private:
-  static uint32_t ReadID(uint16_t Reg);
-  static void Transmit(uint16_t Data);
-  static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+  static uint32_t readID(const uint16_t inReg);
+  static void transmit(uint16_t data);
+  static void transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t count);
 
 public:
   static SPIClass SPIx;
 
-  static void Init();
-  static uint32_t GetID();
+  static void init();
+  static uint32_t getID();
   static bool isBusy();
-  static void Abort();
+  static void abort();
 
-  static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT);
-  static void DataTransferEnd() { WRITE(TFT_CS_PIN, HIGH);  HS_SPI.end(); };
-  static void DataTransferAbort();
+  static void dataTransferBegin(const uint16_t dataWidth=DATASIZE_16BIT);
+  static void dataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); HS_SPI.end(); };
+  static void dataTransferAbort();
 
-  static void WriteData(uint16_t Data) { Transmit(Data); }
-  static void WriteReg(uint16_t Reg) { WRITE(TFT_DC_PIN, LOW); Transmit(Reg); WRITE(TFT_DC_PIN, HIGH); }
+  static void writeData(const uint16_t data) { transmit(data); }
+  static void writeReg(const uint16_t inReg) { WRITE(TFT_DC_PIN, LOW); transmit(inReg); WRITE(TFT_DC_PIN, HIGH); }
 
-  static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data,Count); }
-  // static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
-  static void WriteMultiple(uint16_t Color, uint32_t Count) {
-    static uint16_t Data; Data = Color;
-    //LPC dma can only write 0xFFF bytes at once.
-    #define MAX_DMA_SIZE (0x0400 - 1)
-    while (Count > 0) {
-      TransmitDMA(DMA_MINC_DISABLE, &Data, Count > MAX_DMA_SIZE ? MAX_DMA_SIZE : Count);
-      Count = Count > MAX_DMA_SIZE ? Count - MAX_DMA_SIZE : 0;
+  static void writeSequence(uint16_t *data, uint16_t count) { transmitDMA(DMA_MINC_ENABLE, data, count); }
+  //static void writeMultiple(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_MINC_DISABLE, &data, count); }
+  static void writeMultiple(uint16_t color, uint32_t count) {
+    static uint16_t data; data = color;
+    // LPC DMA can only write 0xFFF bytes at once.
+    static constexpr int MAX_DMA_SIZE = (0x0400 - 1);
+    while (count > 0) {
+      transmitDMA(DMA_MINC_DISABLE, &data, count > MAX_DMA_SIZE ? MAX_DMA_SIZE : count);
+      count = count > MAX_DMA_SIZE ? count - MAX_DMA_SIZE : 0;
     }
-    #undef MAX_DMA_SIZE
   }
 };

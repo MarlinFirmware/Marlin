@@ -19,9 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../platforms.h"
-
 #ifdef TARGET_LPC5528
 
 #include "../../inc/MarlinConfig.h"
