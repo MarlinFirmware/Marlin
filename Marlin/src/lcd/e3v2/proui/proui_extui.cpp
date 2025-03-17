@@ -65,8 +65,8 @@ namespace ExtUI {
   void onIdle() {}
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {}
 
-  void onMediaInserted() {}
-  void onMediaError() {}
+  void onMediaMounted() {}
+  void onMediaError()   {}
   void onMediaRemoved() {}
 
   void onHeatingError(const heater_id_t heater_id) {
@@ -195,6 +195,7 @@ namespace ExtUI {
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
+        default: break;
         #if ENABLED(PIDTEMP)
           case PID_STARTED:       dwinPIDTuning(PIDTEMP_START);                     break;
         #endif
@@ -222,7 +223,7 @@ namespace ExtUI {
     void onMPCTuning(const mpcresult_t rst) {
       // Called for temperature MPC tuning result
       switch (rst) {
-        case MPC_STARTED:     dwinMPCTuning(MPCTEMP_START);   break;
+        case MPC_STARTED:     dwinMPCTuning(MPC_STARTED);     break;
         case MPC_TEMP_ERROR:  dwinMPCTuning(MPC_TEMP_ERROR);  break;
         case MPC_INTERRUPTED: dwinMPCTuning(MPC_INTERRUPTED); break;
         case MPC_DONE:        dwinMPCTuning(AUTOTUNE_DONE);   break;

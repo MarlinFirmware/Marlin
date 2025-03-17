@@ -23,8 +23,7 @@
 
 /**
  * BIQU Tango pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/BIQU%20Tango/schematic.png
- * Origin: https://github.com/bigtreetech/Tango-3D-Printer-Motherboard/blob/master/Schematic/Tango%20V1.0.SchDoc
+ * Schematic: https://github.com/bigtreetech/Tango-3D-Printer-Motherboard/blob/master/Schematic/Tango%20V1.0.SchDoc
  * ATmega2560
  */
 

@@ -23,8 +23,7 @@
 
 /**
  * Velleman K8800 (Vertex)
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/Velleman%20K8800/K8800-schematic-V1.4.pdf
- * Origin: https://www.velleman.eu/downloads/files/vertex-delta/schematics/K8800-schematic-V1.4.pdf
+ * Schematic: https://cdn.velleman.eu/downloads/files/vertex-delta/schematics/K8800-schematic-V1.4.pdf
  * ATmega2560, ATmega1280
  */
 
@@ -86,7 +85,7 @@
 //
 // SD Card
 //
-#define SDSS                                  25
+#define SD_SS_PIN                             25
 #define SD_DETECT_PIN                         21  // PD0
 
 //
@@ -96,7 +95,7 @@
 
 #if HAS_WIRED_LCD
 
-  #define LCD_SDSS                            53
+  #define LCD_SDSS_PIN                        53
 
   #define DOGLCD_CS                           29
   #define DOGLCD_A0                           27

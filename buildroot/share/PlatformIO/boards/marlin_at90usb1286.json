@@ -14,7 +14,7 @@
     "maximum_ram_size": 8192,
     "maximum_size": 122880,
     "require_upload_port": true,
-    "protocol": ""
+    "protocol": "teensy-gui"
   },
   "url": "https://github.com/MarlinFirmware/Marlin",
   "vendor": "various"

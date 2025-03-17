@@ -23,10 +23,9 @@
 
 /**
  * Makerbase MKS SBASE pin assignments
- * Schematic (V1.3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
- * Origin (V1.3): http://green-candy.osdn.jp/external/MarlinFW/board_schematics/MKS%20SBASE%20V1.3/MKS%20SBASE%20V1.3_002%20SCH.pdf
  */
 
+#define ALLOW_LPC1768_OR_9
 #include "env_validate.h"
 
 #ifndef BOARD_INFO_NAME
@@ -213,19 +212,19 @@
  *        ------                  ------
  *         EXP1                    EXP2
  */
-#define EXP1_01_PIN                         P1_31
-#define EXP1_02_PIN                         P1_30
-#define EXP1_03_PIN                         P0_18
-#define EXP1_04_PIN                         P0_16
-#define EXP1_05_PIN                         P0_15
+#define EXP1_01_PIN                        P1_31
+#define EXP1_02_PIN                        P1_30
+#define EXP1_03_PIN                        P0_18
+#define EXP1_04_PIN                        P0_16
+#define EXP1_05_PIN                        P0_15
 
-#define EXP2_01_PIN                         P0_08
-#define EXP2_02_PIN                         P0_07
-#define EXP2_03_PIN                         P3_25
-#define EXP2_04_PIN                         P0_28
-#define EXP2_05_PIN                         P3_26
-#define EXP2_06_PIN                         P0_09
-#define EXP2_07_PIN                         P0_27
+#define EXP2_01_PIN                        P0_08
+#define EXP2_02_PIN                        P0_07
+#define EXP2_03_PIN                        P3_25
+#define EXP2_04_PIN                        P0_28
+#define EXP2_05_PIN                        P3_26
+#define EXP2_06_PIN                        P0_09
+#define EXP2_07_PIN                        P0_27
 
 //
 // LCD / Controller
@@ -247,7 +246,7 @@
   #define BTN_EN1                    EXP2_05_PIN
   #define BTN_EN2                    EXP2_03_PIN
   #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_SDSS                   EXP2_04_PIN
+  #define LCD_SDSS_PIN               EXP2_04_PIN
   #define LCD_PINS_EN                EXP1_03_PIN
   #define LCD_PINS_D4                EXP1_05_PIN
   #if ANY(VIKI2, miniVIKI)
@@ -296,7 +295,7 @@
 #endif // HAS_WIRED_LCD
 
 /**
- * Example for trinamic drivers using the J8 connector on MKs Sbase.
+ * Example for Trinamic drivers using the J8 connector on MKS Sbase.
  * 2130s need 1 pin for each driver. 2208/2209s need 2 pins for serial control.
  * This board does not have enough pins to use hardware serial.
  */

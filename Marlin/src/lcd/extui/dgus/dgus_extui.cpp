@@ -48,9 +48,9 @@ namespace ExtUI {
     while (!screen.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() { TERN_(HAS_MEDIA, screen.sdCardInserted()); }
-  void onMediaError()    { TERN_(HAS_MEDIA, screen.sdCardError()); }
-  void onMediaRemoved()  { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
+  void onMediaMounted() { TERN_(HAS_MEDIA, screen.sdCardInserted()); }
+  void onMediaError()   { TERN_(HAS_MEDIA, screen.sdCardError()); }
+  void onMediaRemoved() { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
   void onHeatingError(const heater_id_t header_id) {}
   void onMinTempError(const heater_id_t header_id) {}

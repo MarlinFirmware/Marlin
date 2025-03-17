@@ -45,9 +45,9 @@ namespace ExtUI {
     dgus.printerKilled(error, component);
   }
 
-  void onMediaInserted() { dgus.mediaEvent(AC_media_inserted); }
-  void onMediaError()    { dgus.mediaEvent(AC_media_error);    }
-  void onMediaRemoved()  { dgus.mediaEvent(AC_media_removed);  }
+  void onMediaMounted() { dgus.mediaEvent(AC_media_inserted); }
+  void onMediaError()   { dgus.mediaEvent(AC_media_error);    }
+  void onMediaRemoved() { dgus.mediaEvent(AC_media_removed);  }
 
   void onHeatingError(const heater_id_t header_id) {}
   void onMinTempError(const heater_id_t header_id) {}
@@ -121,7 +121,6 @@ namespace ExtUI {
   void onPostprocessSettings() {
     // Called after loading or resetting stored settings
     dgus.paramInit();
-    dgus.powerLoss();
   }
 
   void onSettingsStored(const bool success) {
@@ -160,7 +159,7 @@ namespace ExtUI {
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     // Called when power-loss is enabled/disabled
-    void onSetPowerLoss(const bool) { dgus.powerLoss(); }
+    void onSetPowerLoss(const bool) { /* nothing to do */ }
     // Called when power-loss state is detected
     void onPowerLoss() { /* handled internally */ }
     // Called on resume from power-loss

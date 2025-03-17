@@ -23,10 +23,8 @@
 
 /**
  * Mini-RAMBo pin assignments
- * Schematic (1.3a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo/Mini-Rambo.PDF
- * Origin (1.3a): https://github.com/ultimachine/Mini-Rambo/blob/1.3a/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
- * Schematic (1.0a): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Mini%20RAMBo%201.0a/Mini-Rambo.PDF
- * Origin (1.0a): https://github.com/ultimachine/Mini-Rambo/blob/v1.1b/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
+ * Schematic (1.3a): https://github.com/ultimachine/Mini-Rambo/blob/1.3a/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
+ * Schematic (1.0a): https://github.com/ultimachine/Mini-Rambo/blob/v1.1b/board/Project%20Outputs%20for%20Mini-Rambo/Mini-Rambo.PDF
  */
 
 #include "env_validate.h"
@@ -123,7 +121,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #if !MB(MINIRAMBO_10A)
   #define CASE_LIGHT_PIN                       9

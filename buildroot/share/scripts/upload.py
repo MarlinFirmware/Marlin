@@ -1,11 +1,6 @@
-import argparse
-import sys
-import os
-import time
-import random
-import serial
-
-Import("env")
+import argparse, sys, os, time, random, serial
+from SCons.Script import DefaultEnvironment
+env = DefaultEnvironment()
 
 import MarlinBinaryProtocol
 
