@@ -55,7 +55,7 @@
       if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
     #endif
     #if HAS_HEATED_CHAMBER
-      if ((indb >= 0 && ui.material_preset[indb].chamber_temp > 0) &&  (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)) // Preheat all selected
+      if ((indb >= 0 && ui.material_preset[indb].chamber_temp > 0) && (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)) // Preheat all selected
         setTargetChamber(ui.material_preset[indb].chamber_temp);
     #endif
     #if HAS_FAN
