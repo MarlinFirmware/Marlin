@@ -1110,6 +1110,8 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
+    LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
   #endif
 }
 
