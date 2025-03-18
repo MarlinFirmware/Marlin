@@ -36,8 +36,9 @@
  */
 void GcodeSuite::M876() {
 
-  if (TERN1(EMERGENCY_PARSER, emergency_parser.isEnabled()) && parser.seenval('S'))
-    hostui.handle_response((uint8_t)parser.value_int());
+  if (TERN0(EMERGENCY_PARSER, emergency_parser.isEnabled())) return;
+
+  if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
 
 }
 
