@@ -1335,7 +1335,7 @@ class Temperature {
     #endif
 
     #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
+      static void lcd_preheat(const uint8_t e, const int8_t indh=-1, const int8_t indb=-1, const int8_t indc=-1);
     #endif
 
   private:

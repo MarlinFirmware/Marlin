@@ -45,7 +45,7 @@
 
 #if HAS_PREHEAT
 
-  void Temperature::lcd_preheat(const uint8_t e, const int8_t indh=-1, const int8_t indb=-1, const int8_t indc=-1) {
+  void Temperature::lcd_preheat(const uint8_t e, const int8_t indh/*=-1*/, const int8_t indb/*=-1*/, const int8_t indc/*=-1*/) {
     UNUSED(e); UNUSED(indh); UNUSED(indb); UNUSED(indc);
     #if HAS_HOTEND
       if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0) setTargetHotend(ui.material_preset[indh].hotend_temp, e);
