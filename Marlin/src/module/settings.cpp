@@ -571,6 +571,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    MString<64> machine_name;                            // M550 P
+  #endif
+
+  //
   // PASSWORD_FEATURE
   //
   #if ENABLED(PASSWORD_FEATURE)
@@ -1684,6 +1691,13 @@ void MarlinSettings::postprocess() {
     //
     #if CASELIGHT_USES_BRIGHTNESS
       EEPROM_WRITE(caselight.brightness);
+    #endif
+
+    //
+    // CONFIGURABLE_MACHINE_NAME
+    //
+    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+      EEPROM_WRITE(machine_name);
     #endif
 
     //
@@ -2811,6 +2825,13 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // CONFIGURABLE_MACHINE_NAME
+      //
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        EEPROM_READ(machine_name);
+      #endif
+
+      //
       // Password feature
       //
       #if ENABLED(PASSWORD_FEATURE)
@@ -2993,7 +3014,7 @@ void MarlinSettings::postprocess() {
       }
       else if (!validating) {
         DEBUG_ECHO_START();
-        DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, ')');
+        DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, C(')'));
         TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
       }
 
@@ -3400,6 +3421,11 @@ void MarlinSettings::reset() {
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
+  // CONFIGURABLE_MACHINE_NAME
+  //
+  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+
+  //
   // TOUCH_SCREEN_CALIBRATION
   //
   TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
@@ -3538,13 +3564,17 @@ void MarlinSettings::reset() {
     #if HAS_HEATED_BED
       constexpr uint16_t bpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_BED) };
     #endif
+    #if HAS_HEATED_CHAMBER
+      constexpr uint16_t cpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_CHAMBER) };
+    #endif
     #if HAS_FAN
       constexpr uint8_t fpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, FAN_SPEED) };
     #endif
     for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
-      TERN_(HAS_HOTEND,     ui.material_preset[i].hotend_temp = hpre[i]);
-      TERN_(HAS_HEATED_BED, ui.material_preset[i].bed_temp = bpre[i]);
-      TERN_(HAS_FAN,        ui.material_preset[i].fan_speed = fpre[i]);
+      TERN_(HAS_HOTEND,         ui.material_preset[i].hotend_temp  = hpre[i]);
+      TERN_(HAS_HEATED_BED,     ui.material_preset[i].bed_temp     = bpre[i]);
+      TERN_(HAS_HEATED_CHAMBER, ui.material_preset[i].chamber_temp = cpre[i]);
+      TERN_(HAS_FAN,            ui.material_preset[i].fan_speed    = fpre[i]);
     }
   #endif
 

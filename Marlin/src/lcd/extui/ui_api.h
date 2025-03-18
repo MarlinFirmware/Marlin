@@ -214,6 +214,9 @@ namespace ExtUI {
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t);
     #endif
+    #if HAS_HEATED_CHAMBER
+      uint16_t getMaterial_preset_C(const uint16_t);
+    #endif
   #endif
 
   // IDEX Machine Mode
@@ -530,8 +533,9 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #endif
 
+  void onStatusChanged_P(PGM_P const msg);
+  inline void onStatusChanged(FSTR_P const fstr) { onStatusChanged_P(FTOP(fstr)); }
   void onStatusChanged(const char * const msg);
-  void onStatusChanged(FSTR_P const fstr);
 
   void onHomingStart();
   void onHomingDone();

@@ -367,13 +367,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   typedef
     #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-      PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDCF_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
-      PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
+      PIDC_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN>
     #elif ENABLED(PID_FAN_SCALING)
-      PIDF_t<0, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDF_t<MIN_POWER, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #else
-      PID_t<0, PID_MAX>
+      PID_t<MIN_POWER, PID_MAX>
     #endif
   hotend_pid_t;
 
@@ -597,6 +597,15 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #if HAS_AUTO_FAN || HAS_FANCHECK
   #define HAS_FAN_LOGIC 1
+#endif
+
+#if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
+  enum PreheatTarget : uint8_t {
+    HOTEND  = (1 << 0),
+    BED     = (1 << 1),
+    CHAMBER = (1 << 2),
+    ALL     = 0xFF
+  };
 #endif
 
 class Temperature {
@@ -1335,7 +1344,8 @@ class Temperature {
     #endif
 
     #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
+      // Apply the "preheat" parameters for a material preset to the hotend (or laser), bed, chamber, or all of the above
+      static void lcd_preheat(const uint8_t m, const uint8_t targets, const uint8_t e=0);
     #endif
 
   private:
