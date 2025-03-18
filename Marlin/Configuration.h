@@ -1539,19 +1539,19 @@
 #if ENABLED(MAG_MOUNTED_PROBE)
   #define PROBE_DEPLOY_FEEDRATE (133*60)  // (mm/min) Probe deploy speed
   #define PROBE_STOW_FEEDRATE   (133*60)  // (mm/min) Probe stow speed
-  /**
-   * Magnetically mounted probe is on a servo
-   * On both deploy and stow the folloing sequence is followed:
-   *  1) The servo is set to deploy position
-   *  2) The apropriate X,Y,Z moves are executed for a deploy or stow operation
-   *  3) The servo is set to the stowed position
-   */
-  //#define MAG_MOUNTED_PROBE_SERVO_NR 0             // Set to servo number to use
-  #ifdef MAG_MOUNTED_PROBE_SERVO_NR
-    #define MAG_MOUNTED_PROBE_SERVO_ANGLES { 90, 0 } // Mag servo Deploy and Stow angles
 
-    #define MAG_MOUNTED_PRE_DEPLOY { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }  // Move to safe position before servo is activated
-    #define MAG_MOUNTED_PRE_STOW { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }    // Move to safe position before servo is activated
+  /**
+   * Magnetically Mounted Probe with a Servo mechanism
+   * Probe Deploy and Stow both follow the same basic sequence:
+   *  - Rotate the SERVO to its Deployed angle
+   *  - Perform XYZ moves to deploy or stow the PROBE
+   *  - Rotate the SERVO to its Stowed angle
+   */
+  //#define MAG_MOUNTED_PROBE_SERVO_NR 0             // Servo Number for this probe
+  #ifdef MAG_MOUNTED_PROBE_SERVO_NR
+    #define MAG_MOUNTED_PROBE_SERVO_ANGLES { 90, 0 } // Servo Angles for Deployed, Stowed
+    #define MAG_MOUNTED_PRE_DEPLOY { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }  // Safe position for servo activation
+    #define MAG_MOUNTED_PRE_STOW   { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }  // Safe position for servo deactivation
   #endif
 
   #define MAG_MOUNTED_DEPLOY_1 { PROBE_DEPLOY_FEEDRATE, { 245, 114, 30 } }  // Move to side Dock & Attach probe
