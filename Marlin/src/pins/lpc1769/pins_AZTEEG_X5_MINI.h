@@ -23,10 +23,7 @@
 
 /**
  * Azteeg X5 MINI pin assignments
- * Schematic (V1): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V1/X5%20Mini%20PUB%20v1.0.pdf
- * Schematic (V2): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V2/X5%20Mini%20V2%20SCH%20Pub.pdf
- * Schematic (V3): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Azteeg%20X5%20MINI/x5mini_design_files/X5mini_design_files/V3/X5%20Mini%20V3%20SCH%20Pub.pdf
- * Origin: http://files.panucatt.com/datasheets/x5mini_design_files.zip
+ * Schematic: http://files.panucatt.com/datasheets/x5mini_design_files.zip
  */
 #include "env_validate.h"
 
@@ -181,7 +178,7 @@
     #define SD_DETECT_PIN               _EXP2_01
     #define KILL_PIN                    _EXP1_10
     #define LCD_PINS_RS                 _EXP2_07
-    #define LCD_SDSS                    _EXP2_07
+    #define LCD_SDSS_PIN                _EXP2_07
     #define LCD_BACKLIGHT_PIN           _EXP2_07
     #define LCD_PINS_EN                 _EXP2_10
     #define LCD_PINS_D4                 _EXP2_09

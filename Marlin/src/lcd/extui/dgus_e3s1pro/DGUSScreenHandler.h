@@ -117,11 +117,11 @@ public:
   #endif
 
   #if HAS_MEDIA
-    /// Marlin informed us that a new SD has been inserted.
+    // Marlin informed us that a new SD has been inserted.
     static void sdCardInserted();
-    /// Marlin informed us that the SD Card has been removed().
+    // Marlin informed us that the SD Card has been removed().
     static void sdCardRemoved();
-    /// Marlin informed us about a bad SD Card.
+    // Marlin informed us about a bad SD Card.
     static void sdCardError();
 
     static const char* getSDCardPrintFilename() { return sdPrintFilename; }
@@ -132,7 +132,7 @@ public:
   #endif
 
   #if HAS_PID_HEATING
-    static void pidTuning(const ExtUI::result_t rst);
+    static void pidTuning(const ExtUI::pidresult_t rst);
   #endif
 
   static void steppersStatusChanged(bool steppersEnabled);

@@ -191,7 +191,7 @@ class MenuItem_bool : public MenuEditItemBase {
       draw(sel, row, fstr, pget());
     }
     static void action(FSTR_P const fstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr) {
-      *ptr ^= true; ui.refresh();
+      FLIP(*ptr); ui.refresh();
       if (callbackFunc) (*callbackFunc)();
     }
 };
@@ -265,7 +265,7 @@ class MenuItem_bool : public MenuEditItemBase {
  *   MenuItem_<type>::action(arg3...)
  *
  * Examples:
- *   BACK_ITEM(MSG_INFO_SCREEN)
+ *   BACK_ITEM(MSG_PREV_SCREEN)
  *     MenuItem_back::action(flabel, ...)
  *     MenuItem_back::draw(sel, row, flabel, ...)
  *
@@ -358,20 +358,24 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
+#define STATIC_SKIP() do{ \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \
-  if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V);     \
-} while(0)
+}while(0)
+
+#define STATIC_ITEM_INNER_F(FLABEL, V...) do{       \
+  STATIC_SKIP();                                    \
+  if (ui.should_draw())                             \
+    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V); \
+}while(0)
 
 #define STATIC_ITEM_F(FLABEL, V...) do{ \
   if (MY_LINE())                        \
     STATIC_ITEM_INNER_F(FLABEL, ##V);   \
   NEXT_ITEM();                          \
-} while(0)
+}while(0)
 
 #define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (MY_LINE()) {                           \
@@ -380,6 +384,16 @@ class MenuItem_bool : public MenuEditItemBase {
   }                                          \
   NEXT_ITEM();                               \
 }while(0)
+
+#define STATIC_ITEM_N_F_C(N, FLABEL, CSTR, V...) do{ \
+  if (MY_LINE()) {                                   \
+    MenuItemBase::init(N, CSTR);                     \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);                \
+  }                                                  \
+  NEXT_ITEM();                                       \
+}while(0)
+
+#define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
 
 // PSTRING_ITEM is like STATIC_ITEM
 // but also takes a PSTR and style.
@@ -426,12 +440,15 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Predefined menu item types //
 
-#if DISABLED(DISABLE_ENCODER)
-  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
-  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
-#else
+#if ENABLED(NO_BACK_MENU_ITEM)
   #define BACK_ITEM_F(FLABEL) NOOP
   #define BACK_ITEM(LABEL)    NOOP
+#elif ENABLED(GENERIC_BACK_MENU_ITEM)
+  #define BACK_ITEM_F(V...)                              MENU_ITEM_F(back, GET_TEXT_F(MSG_BACK))
+  #define BACK_ITEM(V...)                                  MENU_ITEM(back, MSG_BACK)
+#else
+  #define BACK_ITEM_F(FLABEL)                            MENU_ITEM_F(back, FLABEL)
+  #define BACK_ITEM(LABEL)                                 MENU_ITEM(back, LABEL)
 #endif
 
 #define ACTION_ITEM_N_S_F(N, S, FLABEL, ACTION)      MENU_ITEM_N_S_F(function, N, S, FLABEL, ACTION)

@@ -374,10 +374,30 @@ void MarlinUI::draw_kill_screen() {
   } while (u8g.nextPage());
 }
 
-void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+// Erase the LCD contents by drawing an empty box.
+void MarlinUI::clear_lcd() {
+  u8g.setColorIndex(0);
+  u8g.firstPage();
+  do {
+    u8g.drawBox(0, 0, u8g.getWidth(), u8g.getHeight());
+  } while (u8g.nextPage());
+  u8g.setColorIndex(1);
+}
+
+// U8G displays are drawn over multiple loops so must do their own clearing.
+void MarlinUI::clear_for_drawing() {
+  // Automatically cleared by Picture Loop
+}
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep/*=true*/) { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  static bool asleep = false;
+  bool MarlinUI::display_is_asleep() { return asleep; }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (asleep != sleep) {
+      sleep ? u8g.sleepOn() : u8g.sleepOff();
+      asleep = sleep;
+    }
+  }
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -600,7 +620,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       const uint8_t maxlen = LCD_WIDTH - isDir;
       if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
       const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, sel), pixw);
       for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 

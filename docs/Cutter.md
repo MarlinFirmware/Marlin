@@ -81,7 +81,7 @@ A reduced entry laser power factor is based on the entry step rate to cruise ste
 
     block entry laser power = laser power * ( entry step rate / cruise step rate )
 
-The initial power will be set to no less than the laser_power_floor or the inital power calculation.
+The initial power will be set to no less than the laser_power_floor or the initial power calculation.
 
 The reduced final power factor is based on the final step rate to cruise step rate ratio for deceleration.
 
