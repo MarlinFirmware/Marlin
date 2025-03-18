@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-Thermistor Value Lookup Table Generator
+"""Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on:
 https://en.wikipedia.org/wiki/Steinhart-Hart_equation
