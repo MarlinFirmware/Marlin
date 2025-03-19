@@ -21,6 +21,7 @@
  */
 
 #ifdef __PLAT_LINUX__
+#ifndef UNIT_TEST
 
 //#define GPIO_LOGGING // Full GPIO and Positional Logging
 
@@ -135,4 +136,5 @@ int main() {
   read_serial.join();
 }
 
+#endif // UNIT_TEST
 #endif // __PLAT_LINUX__

@@ -23,8 +23,7 @@
 
 /**
  * RUMBA pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/RAMPS/RUMBA/RRD-RUMBA_SCHEMATICS.png
- * Origin: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
+ * Schematic: https://reprap.org/wiki/File:RRD-RUMBA_SCHEMATICS.png
  * ATmega2560
  */
 
@@ -240,7 +239,7 @@
 #define BEEPER_PIN                            44
 
 #if HAS_MEDIA
-  #define SDSS                                53
+  #define SD_SS_PIN                           53
   #define SD_DETECT_PIN                       49
 #endif
 

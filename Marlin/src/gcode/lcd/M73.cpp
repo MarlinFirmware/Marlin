@@ -29,10 +29,6 @@
 #include "../../sd/cardreader.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
-#endif
-
 /**
  * M73: Set percentage complete (for display on LCD)
  *

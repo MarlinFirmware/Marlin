@@ -95,7 +95,7 @@ public:
   static void report_current_mesh();
   static void report_state();
   static void save_ubl_active_state_and_disable();
-  static void restore_ubl_active_state_and_leave();
+  static void restore_ubl_active_state(const bool is_done=true);
   static void display_map(const uint8_t) __O0;
   static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const xy_pos_t&, const bool=false, MeshFlags *done_flags=nullptr) __O0;
   static mesh_index_pair find_furthest_invalid_mesh_point() __O0;

@@ -23,8 +23,7 @@
 
 /**
  * Cohesion3D Mini pin assignments
- * Pinout: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Cohesion3D%20Mini/c3d-pinout.jpg
- * Origin: https://lasergods.com/cohesion3d-mini-pinout-diagram/
+ * Schematic: https://lasergods.com/cohesion3d-mini-pinout-diagram/
  */
 
 #include "env_validate.h"
@@ -148,7 +147,7 @@
   #define BTN_ENC                          P1_30  // EXP1-2
 
   #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_SDSS                         P0_28  // EXP2-4
+  #define LCD_SDSS_PIN                     P0_28  // EXP2-4
   #define LCD_PINS_EN                      P0_18  // EXP1-3
   #define LCD_PINS_D4                      P0_15  // EXP1-5
 

@@ -43,7 +43,7 @@
 
 //#define ERR_INCLUDE_TEMP
 
-#define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
+#define HOTEND_INDEX TERN0(HAS_MULTI_HOTEND, e)
 #define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 #if HAS_FAN
@@ -161,12 +161,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   #define scalePID_d(d)   ( float(d) / PID_dT )
   #define unscalePID_d(d) ( float(d) * PID_dT )
 
-  /// @brief The default PID class, only has Kp, Ki, Kd, other classes extend this one
-  /// @tparam MIN_POW output when current is above target by functional_range
-  /// @tparam MAX_POW output when current is below target by functional_range
-  /// @details This class has methods for Kc and Kf terms, but returns constant default values
-  /// PID classes that implement these features are expected to override these methods
-  /// Since the finally used PID class is typedef-d, there is no need to use virtual functions
+  /**
+   * @brief The default PID class, only has Kp, Ki, Kd, other classes extend this one
+   * @tparam MIN_POW output when current is above target by functional_range
+   * @tparam MAX_POW output when current is below target by functional_range
+   * @details This class has methods for Kc and Kf terms, but returns constant default values.
+   *          PID classes that implement these features are expected to override these methods.
+   *          Since the eventual PID class is typedef-d, there is no need to use virtual functions.
+   */
   template<int MIN_POW, int MAX_POW>
   struct PID_t {
     protected:
@@ -204,31 +206,35 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
       float get_pid_output(const float target, const float current) {
         const float pid_error = target - current;
+        float output_pow;
         if (!target || pid_error < -(PID_FUNCTIONAL_RANGE)) {
           pid_reset = true;
-          return 0;
+          output_pow = 0;
         }
         else if (pid_error > PID_FUNCTIONAL_RANGE) {
           pid_reset = true;
-          return MAX_POW;
+          output_pow = MAX_POW;
         }
+        else {
+          if (pid_reset) {
+            pid_reset = false;
+            temp_iState = 0.0;
+            work_d = 0.0;
+          }
 
-        if (pid_reset) {
-          pid_reset = false;
-          temp_iState = 0.0;
-          work_d = 0.0;
+          const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
+          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+
+          work_p = Kp * pid_error;
+          work_i = Ki * temp_iState;
+          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+
+          output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
         }
-
-        const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
-        temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
-        work_p = Kp * pid_error;
-        work_i = Ki * temp_iState;
-        work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
 
         temp_dState = current;
 
-        return constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
+        return output_pow;
       }
 
   };
@@ -237,7 +243,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
 #if ENABLED(PIDTEMP)
 
-  /// @brief Extrusion scaled PID class
+  // @brief Extrusion scaled PID class
   template<int MIN_POW, int MAX_POW, int LPQ_ARR_SZ>
   struct PIDC_t : public PID_t<MIN_POW, MAX_POW> {
     private:
@@ -289,11 +295,11 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       }
   };
 
-  /// @brief Fan scaled PID, this class implements the get_fan_scale_output() method
-  /// @tparam MIN_POW @see PID_t
-  /// @tparam MAX_POW @see PID_t
-  /// @tparam SCALE_MIN_SPEED parameter from Configuration_adv.h
-  /// @tparam SCALE_LIN_FACTOR parameter from Configuration_adv.h
+  // @brief Fan scaled PID, this class implements the get_fan_scale_output() method
+  // @tparam MIN_POW @see PID_t
+  // @tparam MAX_POW @see PID_t
+  // @tparam SCALE_MIN_SPEED parameter from Configuration_adv.h
+  // @tparam SCALE_LIN_FACTOR parameter from Configuration_adv.h
   template<int MIN_POW, int MAX_POW, int SCALE_MIN_SPEED, int SCALE_LIN_FACTOR>
   struct PIDF_t : public PID_t<MIN_POW, MAX_POW> {
     private:
@@ -323,7 +329,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       }
   };
 
-  /// @brief Inherits PID and PIDC - can't use proper diamond inheritance w/o virtual
+  // @brief Inherits PID and PIDC - can't use proper diamond inheritance w/o virtual
   template<int MIN_POW, int MAX_POW, int LPQ_ARR_SZ, int SCALE_MIN_SPEED, int SCALE_LIN_FACTOR>
   struct PIDCF_t : public PIDC_t<MIN_POW, MAX_POW, LPQ_ARR_SZ> {
     private:
@@ -361,13 +367,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   typedef
     #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-      PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDCF_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
-      PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
+      PIDC_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN>
     #elif ENABLED(PID_FAN_SCALING)
-      PIDF_t<0, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDF_t<MIN_POWER, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #else
-      PID_t<0, PID_MAX>
+      PID_t<MIN_POWER, PID_MAX>
     #endif
   hotend_pid_t;
 
@@ -431,12 +437,15 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
+  #if ENABLED(PELTIER_BED)
+    bool peltier_dir_heating; // = false
+  #endif
 } heater_info_t;
 
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load()
+  T pid;  // Initialized by settings.load
 };
 
 #if ENABLED(MPCTEMP)
@@ -588,6 +597,15 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #if HAS_AUTO_FAN || HAS_FANCHECK
   #define HAS_FAN_LOGIC 1
+#endif
+
+#if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
+  enum PreheatTarget : uint8_t {
+    HOTEND  = (1 << 0),
+    BED     = (1 << 1),
+    CHAMBER = (1 << 2),
+    ALL     = 0xFF
+  };
 #endif
 
 class Temperature {
@@ -1021,12 +1039,12 @@ class Temperature {
         #endif
       #endif
 
-      static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-      }
-
       static bool degHotendNear(const uint8_t e, const celsius_t temp) {
         return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
+      static bool still_heating(const uint8_t e) {
+        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
@@ -1326,7 +1344,8 @@ class Temperature {
     #endif
 
     #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
+      // Apply the "preheat" parameters for a material preset to the hotend (or laser), bed, chamber, or all of the above
+      static void lcd_preheat(const uint8_t m, const uint8_t targets, const uint8_t e=0);
     #endif
 
   private:

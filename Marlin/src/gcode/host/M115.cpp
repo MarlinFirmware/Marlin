@@ -63,11 +63,25 @@
  */
 void GcodeSuite::M115() {
 
+  // Hosts should match one of these
+  #define MACHINE_KINEMATICS "" \
+    TERN_(COREXY, "COREXY") TERN_(COREYX, "COREYX") \
+    TERN_(COREXZ, "COREXZ") TERN_(COREZX, "COREZX") \
+    TERN_(COREYZ, "COREYZ") TERN_(COREZY, "COREZY") \
+    TERN_(MARKFORGED_XY, "MARKFORGED_XY") TERN_(MARKFORGED_YX, "MARKFORGED_YX") \
+    TERN_(POLARGRAPH, "POLARGRAPH") \
+    TERN_(POLAR, "POLAR") \
+    TERN_(DELTA, "DELTA") \
+    TERN_(IS_SCARA, "SCARA") \
+    TERN_(IS_CARTESIAN, "Cartesian") \
+    TERN_(BELTPRINTER, " BELTPRINTER")
+
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
     " SOURCE_CODE_URL:" SOURCE_CODE_URL
     " PROTOCOL_VERSION:" PROTOCOL_VERSION
     " MACHINE_TYPE:" MACHINE_NAME
+    " KINEMATICS:" MACHINE_KINEMATICS
     " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
     #if NUM_AXES != XYZ
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
@@ -95,7 +109,7 @@ void GcodeSuite::M115() {
       SERIAL_ECHO(F("CEDE2A2F-"));
       for (uint8_t i = 1; i <= 6; i++) {
         print_hex_word(UID[(i % 2) ? i : i - 2]);       // 1111-0000-3333-222255554444
-        if (i <= 3) SERIAL_ECHO(C('-'));
+        if (i <= 3) SERIAL_CHAR('-');
       }
     #endif
   #endif
@@ -141,7 +155,7 @@ void GcodeSuite::M115() {
     cap_line(F("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
     // RUNOUT (M412, M600)
-    cap_line(F("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
+    cap_line(F("RUNOUT"), ENABLED(HAS_FILAMENT_SENSOR));
 
     // Z_PROBE (G30)
     cap_line(F("Z_PROBE"), ENABLED(HAS_BED_PROBE));
@@ -180,7 +194,7 @@ void GcodeSuite::M115() {
 
     // MULTI_VOLUME (M21 S/M21 U)
     #if HAS_MEDIA
-      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+      cap_line(F("MULTI_VOLUME"), ENABLED(HAS_MULTI_VOLUME));
     #endif
 
     // REPEAT (M808)

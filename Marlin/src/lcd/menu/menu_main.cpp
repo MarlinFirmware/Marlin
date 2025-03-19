@@ -50,7 +50,7 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(MMU2_MENUS)
+#if ENABLED(MMU_MENUS)
   #include "menu_mmu2.h"
 #endif
 
@@ -72,6 +72,10 @@ void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
+#if ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
+  void menu_probe_level();
+#endif
+
 #if HAS_POWER_MONITOR
   void menu_power_monitor();
 #endif
@@ -88,8 +92,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if ENABLED(LED_CONTROL_MENU)
   void menu_led();
+#elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+  void menu_case_light();
+#elif ENABLED(CASE_LIGHT_MENU)
+  #include "../../feature/caselight.h"
 #endif
 
 #if HAS_CUTTER
@@ -227,17 +235,16 @@ void menu_configuration();
 #endif // CUSTOM_MENU_MAIN
 
 void menu_main() {
-  const bool busy = printingIsActive()
-    #if HAS_MEDIA
-      , card_detected = card.isMounted()
-      , card_open = card_detected && card.isFileOpen()
-    #endif
-  ;
+  const bool busy = printingIsActive();
+  #if HAS_MEDIA
+    const bool card_detected = card.isMounted(),
+               card_open = card_detected && card.isFileOpen();
+  #endif
 
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
 
-  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_ENCODER_WHEEL
+  #if HAS_MEDIA && !defined(MEDIA_MENU_AT_TOP) && !HAS_MARLINUI_ENCODER
     #define MEDIA_MENU_AT_TOP
   #endif
 
@@ -269,15 +276,15 @@ void menu_main() {
   else {
     #if ALL(HAS_MEDIA, MEDIA_MENU_AT_TOP)
       // BEGIN MEDIA MENU
-      #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-      #endif
-
       if (card_detected) {
         if (!card_open) {
+          #if ENABLED(MENU_ADDAUTOSTART)
+            ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+          #endif
+
           #if HAS_SD_DETECT
-            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
-            #if ENABLED(MULTI_VOLUME)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(HAS_MULTI_VOLUME, "S"))); // M21 Change Media
+            #if HAS_MULTI_VOLUME
               GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
             #endif
           #else                                             // - or -
@@ -286,7 +293,7 @@ void menu_main() {
               #if ENABLED(TFT_COLOR_UI)
                 // Menu display issue on item removal with multi language selection menu
                 if (encoderTopLine > 0) encoderTopLine--;
-                ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW);
+                ui.refresh();
               #endif
             });
           #endif
@@ -297,7 +304,7 @@ void menu_main() {
         #if HAS_SD_DETECT
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
         #else
-          #if ENABLED(MULTI_VOLUME)
+          #if HAS_MULTI_VOLUME
             GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
             GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Media
           #else
@@ -320,6 +327,10 @@ void menu_main() {
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
+
+    #if ANY(HAS_LEVELING, HAS_BED_PROBE, ASSISTED_TRAMMING_WIZARD, LCD_BED_TRAMMING)
+      SUBMENU(MSG_PROBE_AND_LEVEL, menu_probe_level);
+    #endif
   }
 
   #if HAS_CUTTER
@@ -346,8 +357,10 @@ void menu_main() {
     SUBMENU(MSG_MIXER, menu_mixer);
   #endif
 
-  #if ENABLED(MMU2_MENUS)
-    if (!busy) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
+  #if ENABLED(MMU_MENUS)
+    // MMU3 can show print stats which can be useful during
+    // the print, so MMU menus are required for MMU3.
+    if (TERN1(HAS_PRUSA_MMU2, !busy)) SUBMENU(MSG_MMU2_MENU, menu_mmu2);
   #endif
 
   SUBMENU(MSG_CONFIGURATION, menu_configuration);
@@ -362,8 +375,12 @@ void menu_main() {
     }
   #endif
 
-  #if ANY(LED_CONTROL_MENU, CASE_LIGHT_MENU)
-    SUBMENU(MSG_LEDS, menu_led);
+  #if ENABLED(LED_CONTROL_MENU)
+    SUBMENU(MSG_LIGHTS, menu_led);
+  #elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
+    SUBMENU(MSG_CASE_LIGHT, menu_case_light);
+  #elif ENABLED(CASE_LIGHT_MENU)
+    EDIT_ITEM(bool, MSG_CASE_LIGHT, &caselight.on, caselight.update_enabled);
   #endif
 
   //
@@ -384,18 +401,32 @@ void menu_main() {
       GCODES_ITEM(MSG_SWITCH_PS_ON, F("M80"));
   #endif
 
+  /**
+   * Card Detected:
+   *  - Autostart
+   *  - Change Media
+   *  - Attach USB Drive
+   *  - Release Media
+   *  - Select From SD
+   * Card Not Detected:
+   *  - No Media
+   *  - Attach SD Card
+   *  - Attach USB Drive
+   *  - Attach Media
+   */
   #if HAS_MEDIA && DISABLED(MEDIA_MENU_AT_TOP)
-    // BEGIN MEDIA MENU
-    #if ENABLED(MENU_ADDAUTOSTART)
-      ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
-    #endif
-
     if (card_detected) {
       if (!card_open) {
+        #if ENABLED(MENU_ADDAUTOSTART)
+          ACTION_ITEM(MSG_RUN_AUTO_FILES, card.autofile_begin); // Run Auto Files
+        #endif
+
         #if HAS_SD_DETECT
-          GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(MULTI_VOLUME, "S"))); // M21 Change Media
-          #if ENABLED(MULTI_VOLUME)
-            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21 Attach USB Media
+          #if HAS_MULTI_VOLUME
+            GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));  // M21S Attach SD Card
+            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U")); // M21U Attach USB Drive
+          #else
+            GCODES_ITEM(MSG_CHANGE_MEDIA, F("M21" TERN_(HAS_MULTI_VOLUME, "S"))); // M21 Change Media
           #endif
         #else                                             // - or -
           ACTION_ITEM(MSG_RELEASE_MEDIA, []{              // M22 Release Media
@@ -403,7 +434,7 @@ void menu_main() {
             #if ENABLED(TFT_COLOR_UI)
               // Menu display issue on item removal with multi language selection menu
               if (encoderTopLine > 0) encoderTopLine--;
-              ui.refresh(LCDVIEW_CLEAR_CALL_REDRAW);
+              ui.refresh();
             #endif
           });
         #endif
@@ -414,15 +445,14 @@ void menu_main() {
       #if HAS_SD_DETECT
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);               // "No Media"
       #else
-          #if ENABLED(MULTI_VOLUME)
-            GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
-            GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Media
-          #else
-            GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));        // M21 Attach Media
-          #endif
+        #if HAS_MULTI_VOLUME
+          GCODES_ITEM(MSG_ATTACH_SD_MEDIA, F("M21S"));    // M21S Attach SD Card
+          GCODES_ITEM(MSG_ATTACH_USB_MEDIA, F("M21U"));   // M21U Attach USB Drive
+        #else
+          GCODES_ITEM(MSG_ATTACH_MEDIA, F("M21"));        // M21 Attach Media
+        #endif
       #endif
     }
-    // END MEDIA MENU
   #endif
 
   #if HAS_SERVICE_INTERVALS
@@ -483,6 +513,10 @@ void menu_main() {
     SUBMENU(LANGUAGE, menu_language);
   #endif
 
+  #if ENABLED(LCD_INFO_MENU)
+    SUBMENU(MSG_INFO_MENU, menu_info);
+  #endif
+
   #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
     SUBMENU(MSG_HOST_SHUTDOWN, []{
       MenuItem_confirm::select_screen(
@@ -491,10 +525,6 @@ void menu_main() {
         GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
       );
     });
-  #endif
-
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
   END_MENU();
