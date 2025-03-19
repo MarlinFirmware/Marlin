@@ -2985,13 +2985,8 @@ hal_timer_t Stepper::block_phase_isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       float target_adv_steps = 0;
       if (current_block) {
-        bool is_unretracting = !current_block->use_advance_lead && (current_block->direction_bits.e);
-        // Don't lookahead during unretractions to keep pressure zero at start of lines
-        // and so avoid blobs and improve seams
-        if (!is_unretracting) {
-          uint32_t t = extruder_advance_TAU_TICKS + curr_timer_tick;
-          target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
-        }
+        uint32_t t = extruder_advance_TAU_TICKS + curr_timer_tick;
+        target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
       }
       else {
         curr_step_rate = 0;
