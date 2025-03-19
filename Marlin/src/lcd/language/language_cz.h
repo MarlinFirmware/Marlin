@@ -41,7 +41,7 @@ namespace LanguageNarrow_cz {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Czech");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" připraven.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" připraven.");
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");

@@ -59,6 +59,8 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //

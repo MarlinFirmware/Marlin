@@ -37,7 +37,7 @@ namespace LanguageNarrow_an {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Aragonese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" parada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" parada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters

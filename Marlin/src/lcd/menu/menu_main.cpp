@@ -234,16 +234,6 @@ void menu_configuration();
 
 #endif // CUSTOM_MENU_MAIN
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  // This menu item is last with an encoder. Otherwise, somewhere in the middle.
-  #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    #define FILAMENT_CHANGE_ITEM() YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, \
-                                    GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"))
-  #else
-    #define FILAMENT_CHANGE_ITEM() SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament)
-  #endif
-#endif
-
 void menu_main() {
   const bool busy = printingIsActive();
   #if HAS_MEDIA
@@ -348,7 +338,11 @@ void menu_main() {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    FILAMENT_CHANGE_ITEM();
+    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"));
+    #else
+      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
+    #endif
   #endif
 
   #if HAS_TEMPERATURE
@@ -381,10 +375,6 @@ void menu_main() {
     }
   #endif
 
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
-  #endif
-
   #if ENABLED(LED_CONTROL_MENU)
     SUBMENU(MSG_LIGHTS, menu_led);
   #elif ALL(CASE_LIGHT_MENU, CASELIGHT_USES_BRIGHTNESS)
@@ -412,7 +402,6 @@ void menu_main() {
   #endif
 
   #if HAS_MEDIA && DISABLED(MEDIA_MENU_AT_TOP)
-    // BEGIN MEDIA MENU
     if (card_detected) {
       if (!card_open) {
         #if ENABLED(MENU_ADDAUTOSTART)
@@ -449,7 +438,6 @@ void menu_main() {
         #endif
       #endif
     }
-    // END MEDIA MENU
   #endif
 
   #if HAS_SERVICE_INTERVALS
@@ -482,7 +470,26 @@ void menu_main() {
     #endif
   #endif
 
-  #if HAS_GAMES && DISABLED(LCD_INFO_MENU)
+  #if HAS_MULTI_LANGUAGE
+    SUBMENU(LANGUAGE, menu_language);
+  #endif
+
+  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
+    SUBMENU(MSG_HOST_SHUTDOWN, []{
+      MenuItem_confirm::select_screen(
+        GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BUTTON_CANCEL),
+        []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
+        GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
+      );
+    });
+  #endif
+
+  #if ENABLED(LCD_INFO_MENU)
+
+    SUBMENU(MSG_INFO_MENU, menu_info);
+
+  #elif HAS_GAMES
+
     #if ENABLED(GAMES_EASTER_EGG)
       SKIP_ITEM();
       SKIP_ITEM();
@@ -504,20 +511,7 @@ void menu_main() {
         #endif
       );
     }
-  #endif
 
-  #if HAS_MULTI_LANGUAGE
-    SUBMENU(LANGUAGE, menu_language);
-  #endif
-
-  #if ENABLED(HOST_SHUTDOWN_MENU_ITEM) && defined(SHUTDOWN_ACTION)
-    SUBMENU(MSG_HOST_SHUTDOWN, []{
-      MenuItem_confirm::select_screen(
-        GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BUTTON_CANCEL),
-        []{ ui.return_to_status(); hostui.shutdown(); }, nullptr,
-        GET_TEXT_F(MSG_HOST_SHUTDOWN), (const char *)nullptr, F("?")
-      );
-    });
   #endif
 
   END_MENU();

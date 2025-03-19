@@ -35,7 +35,7 @@ namespace LanguageNarrow_ro {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Romanian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Pregatit.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Pregatit.");
   LSTR MSG_YES                            = _UxGT("DA");
   LSTR MSG_NO                             = _UxGT("NU");
   LSTR MSG_BACK                           = _UxGT("Inapoi");

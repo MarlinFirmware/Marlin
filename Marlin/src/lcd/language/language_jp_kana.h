@@ -41,7 +41,7 @@ namespace LanguageNarrow_jp_kana {
   // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
   // 片仮名表示定義
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" ジュンビカンリョウ");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" ジュンビカンリョウ");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("メディアガソウニュウサレマシタ"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("メディアガアリマセン"); // "Card removed"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("メディアノトリダシ");

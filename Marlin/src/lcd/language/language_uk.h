@@ -36,7 +36,7 @@ namespace LanguageNarrow_uk {
   constexpr uint8_t CHARSIZE                = 2;
   LSTR LANGUAGE                             = _UxGT("Ukrainian");
 
-  LSTR WELCOME_MSG                          = MACHINE_NAME _UxGT(" Готовий.");
+  LSTR WELCOME_MSG                          = MACHINE_NAME_SUBST _UxGT(" Готовий.");
   LSTR MSG_YES                              = _UxGT("ТАК");
   LSTR MSG_NO                               = _UxGT("НІ");
   LSTR MSG_BACK                             = _UxGT("Назад");

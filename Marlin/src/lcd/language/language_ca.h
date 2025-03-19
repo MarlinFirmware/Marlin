@@ -33,7 +33,7 @@ namespace LanguageNarrow_ca {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Catalan");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" preparada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" preparada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Targeta detectada.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Targeta extreta.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops");
