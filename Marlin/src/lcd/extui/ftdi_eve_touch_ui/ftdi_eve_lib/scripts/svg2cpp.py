@@ -296,7 +296,7 @@ if __name__ == "__main__":
   parser.add_argument('--layer', help='only include layers which have this string in their names')
   args = parser.parse_args()
 
-  f = open(args.filename, "r")
+  f = open(args.filename, "r", encoding='utf-8')
   data = f.read()
 
   # First pass to grab viewbox
