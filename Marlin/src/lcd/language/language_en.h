@@ -155,6 +155,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_PREHEAT_M_END_E                = _UxGT("Preheat $ End ~");
   LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Preheat $ All");
   LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Preheat $ Bed");
+  LSTR MSG_PREHEAT_M_CHAMBER              = _UxGT("Preheat $ Chmb");
   LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Preheat $ Conf");
 
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Preheat Hotend");
@@ -1109,6 +1110,8 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
+    LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
   #endif
 }
 
