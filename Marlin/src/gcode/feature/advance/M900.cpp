@@ -108,14 +108,14 @@ void GcodeSuite::M900() {
 
   #if (ENABLED(SMOOTH_LIN_ADV))
     if (parser.seenval('U')) {
-        const float tau = parser.value_float();
-        if (WITHIN(tau, 0, .5)) {
-          planner.synchronize();
-          Stepper::set_advance_tau(tau);
-        }
-        else
-          echo_value_oor('U');
+      const float tau = parser.value_float();
+      if (WITHIN(tau, 0, .5)) {
+        planner.synchronize();
+        Stepper::set_advance_tau(tau);
       }
+      else
+        echo_value_oor('U');
+    }
   #endif
 
   if (newK != oldK) {
