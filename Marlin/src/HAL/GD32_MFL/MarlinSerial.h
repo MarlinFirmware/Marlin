@@ -53,6 +53,16 @@ struct MarlinSerial : public UsartSerial {
   FORCE_INLINE static uint8_t buffer_overruns() { return 0; }
 #endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  EmergencyParser::State emergency_state;
+
+  // Accessor method to get the last received byte
+  uint8_t get_last_data() { return usart_.get_last_data(); }
+
+  // Register the emergency callback
+  void register_emergency_callback(void (*callback)());
+#endif
+
 protected:
   using UsartSerial::UsartSerial;
 };

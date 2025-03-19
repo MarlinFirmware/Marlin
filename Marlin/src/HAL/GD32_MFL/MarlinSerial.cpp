@@ -54,14 +54,29 @@ MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPi
   MSerialT MSerial4(true, MarlinSerial::get_instance(usart::USART_Base::UART4_BASE, NO_PIN, NO_PIN));
 #endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  // This callback needs to access the specific MarlinSerial instance
+  // We'll use a static pointer to track the current instance
+  static MarlinSerial* current_serial_instance = nullptr;
+
+  static void emergency_callback() {
+    if (current_serial_instance) {
+      uint8_t last_data = current_serial_instance->get_last_data();
+      emergency_parser.update(current_serial_instance->emergency_state, last_data);
+    }
+  }
+
+  void MarlinSerial::register_emergency_callback(void (*callback)()) {
+    usart_.register_interrupt_callback(usart::Interrupt_Type::INTR_RBNEIE, callback);
+  }
+#endif
+
 void MarlinSerial::begin(unsigned long baudrate, uint16_t config) {
   UsartSerial::begin(baudrate, config);
   #if DISABLED(SERIAL_DMA)
     #if ENABLED(EMERGENCY_PARSER)
-      static void emergency_callback() {
-        emergency_parser.update(emergency_state, config_.last_data);
-      }
-      usart_.register_interrupt_callback(usart::Interrupt_Type::INTR_RBNEIE, emergency_callback);
+      current_serial_instance = this;
+      register_emergency_callback(emergency_callback);
     #endif
   #endif
 }
