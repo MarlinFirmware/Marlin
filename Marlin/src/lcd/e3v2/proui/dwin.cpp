@@ -3148,9 +3148,16 @@ void drawPrepareMenu() {
 
 #if ENABLED(LCD_BED_TRAMMING)
 
+  constexpr uint8_t TM_ITEMS = (0
+    + 5
+    + 2 * ALL(HAS_BED_PROBE, HAS_MESH)
+    + (DISABLED(HAS_BED_PROBE) && ENABLED(HAS_ZOFFSET_ITEM))
+    + ENABLED(BED_TRAMMING_INCLUDE_CENTER)
+  );
+
   void drawTrammingMenu() {
     checkkey = ID_Menu;
-    if (SET_MENU(trammingMenu, MSG_BED_TRAMMING, 8)) {
+    if (SET_MENU(trammingMenu, MSG_BED_TRAMMING, TM_ITEMS)) {
       BACK_ITEM(drawPrepareMenu);
       #if HAS_BED_PROBE && HAS_MESH
         MENU_ITEM(ICON_Tram, MSG_TRAMMING_WIZARD, onDrawMenuItem, trammingwizard);
@@ -3201,9 +3208,23 @@ void drawControlMenu() {
   updateMenu(controlMenu);
 }
 
+constexpr uint8_t ASM_ITEMS = (0
+  + 1
+  + COUNT_ENABLED(EEPROM_SETTINGS, HAS_MESH, HAS_BED_PROBE, HAS_HOME_OFFSET, HAS_TRINAMIC_CONFIG, HAS_ESDIAG, \
+                  HAS_LOCKSCREEN, EDITABLE_DISPLAY_TIMEOUT, SOUND_MENU_ITEM, POWER_LOSS_RECOVERY, HAS_GCODE_PREVIEW, \
+                  PROUI_MEDIASORT, BAUD_RATE_GCODE, HAS_CUSTOM_COLORS)
+  + 1
+  + (ENABLED(PIDTEMP) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
+  + ANY(MPC_EDIT_MENU, MPC_AUTOTUNE_MENU)
+  + (ENABLED(PIDTEMPBED) && ANY(PID_AUTOTUNE_MENU, PID_EDIT_MENU))
+  + ENABLED(PRINTCOUNTER) * 2
+  + 1
+  + 2 * ENABLED(HAS_LCD_BRIGHTNESS)
+);
+
 void drawAdvancedSettingsMenu() {
   checkkey = ID_Menu;
-  if (SET_MENU(advancedSettingsMenu, MSG_ADVANCED_SETTINGS, 24)) {
+  if (SET_MENU(advancedSettingsMenu, MSG_ADVANCED_SETTINGS, ASM_ITEMS)) {
     BACK_ITEM(gotoMainMenu);
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(ICON_WriteEEPROM, MSG_STORE_EEPROM, onDrawMenuItem, writeEEPROM);

@@ -3360,10 +3360,8 @@
   #define HAS_FIXED_3POINT 1  // Points are defined for ABL/UBL. Else calculated in probe.get_three_points.
 #endif
 
-#if ENABLED(DWIN_LCD_PROUI) && HAS_MESH
-  #ifndef USE_GRID_MESHVIEWER
-    #define USE_GRID_MESHVIEWER 1
-  #endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define USE_GRID_MESHVIEWER 1
 #endif
 
 /**
