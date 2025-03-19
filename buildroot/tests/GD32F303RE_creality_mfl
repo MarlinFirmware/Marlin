@@ -9,7 +9,7 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_MFL_CREALITY_V422 SERIAL_PORT 0
 opt_enable EEPROM_SETTINGS SDSUPPORT \
-           EMERGENCY_PARSER PINS_DEBUGGING
+           EMERGENCY_PARSER FAN_SOFT_PWM
 opt_add NO_CREALITY_422_DRIVER_WARNING
 opt_add NO_AUTO_ASSIGN_WARNING
 exec_test $1 $2 "Creality V4.2.2 MFL GD32 Default Configuration" "$3"
