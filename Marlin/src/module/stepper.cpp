@@ -3000,22 +3000,20 @@ hal_timer_t Stepper::block_phase_isr() {
       const float dt_inv = SMOOTH_LIN_ADV_HZ;
       float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
-
+      
+      static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
+        // Approximate gaussian smoothing via higher order exponential smoothing
+        la_step_rate =
+          extruder_advance_ALPHA * la_step_rate +
+          (1 - extruder_advance_ALPHA) * soothed_values[i];
+        soothed_values[i] = la_step_rate;
+      }
       float planned_step_rate = 0;
       if (current_block) {
         planned_step_rate = curr_step_rate * current_block->e_step_ratio;
       }
       float total_step_rate = la_step_rate + planned_step_rate;
-      
-      static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
-      for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
-        total_step_rate =
-          extruder_advance_ALPHA * total_step_rate +
-          (1 - extruder_advance_ALPHA) * soothed_values[i];
-        soothed_values[i] = total_step_rate;
-      }
-
       #if ENABLED(INPUT_SHAPING_E_SYNCH)
         xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
                    first_pulse_rate = xy_float_t({0, 0});
