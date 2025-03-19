@@ -2288,7 +2288,9 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if ENABLED(SOUND_MENU_ITEM)
-  void setEnableSound() { toggleCheckboxLine(ui.sound_on); }
+  void setEnableSound() {
+    toggleCheckboxLine(ui.sound_on);
+  }
 #endif
 
 #if ALL(HAS_MESH, USE_GRID_MESHVIEWER)
