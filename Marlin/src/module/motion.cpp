@@ -2626,7 +2626,7 @@ void prepare_line_to_destination() {
         default: return;
       }
 
-      // Phase distance to nearest home phase position when moving in the backout direction from endstop(may be negative).
+      // Phase distance to nearest home phase position when moving in the backout direction from endstop (may be negative).
       int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
       // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
@@ -2638,7 +2638,7 @@ void prepare_line_to_destination() {
       // Skip to next if target position is behind current. So it only moves away from endstop.
       if (phaseDelta < 0) phaseDelta += 1024;
 
-      // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm
+      // Convert TMC µsteps (phase) to whole Marlin µsteps to effector backout direction to mm
       const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.mm_per_step[axis];
 
       // Optional debug messages

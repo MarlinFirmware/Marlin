@@ -811,6 +811,9 @@ namespace ExtUI {
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t index) { return ui.material_preset[index].bed_temp; }
     #endif
+    #if HAS_HEATED_CHAMBER
+      uint16_t getMaterial_preset_C(const uint16_t index) { return ui.material_preset[index].chamber_temp; }
+    #endif
   #endif
 
   feedRate_t getFeedrate_mm_s()                       { return feedrate_mm_s; }
@@ -1213,13 +1216,13 @@ namespace ExtUI {
     #endif
   }
 
-  void onStatusChanged(FSTR_P const fstr) {
+  void onStatusChanged_P(PGM_P const pstr) {
     #ifdef __AVR__
-      char msg[strlen_P(FTOP(fstr)) + 1];
-      strcpy_P(msg, FTOP(fstr));
+      char msg[strlen_P(pstr) + 1];
+      strcpy_P(msg, pstr);
       onStatusChanged(msg);
     #else
-      onStatusChanged(FTOP(fstr));
+      onStatusChanged(pstr);
     #endif
   }
 

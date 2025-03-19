@@ -16,7 +16,7 @@ def set(file_path, define_name, value):
     Returns True if the define was found and replaced, False otherwise.
     '''
     # Read the contents of the file
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
 
     modified = False
@@ -32,7 +32,7 @@ def set(file_path, define_name, value):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.writelines(content)
             return True
 
@@ -42,7 +42,7 @@ def add(file_path, define_name, value=""):
     '''
     Insert a define on the first blank line in a file.
     '''
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
 
     # Prepend a space to the value if it's not empty
@@ -59,7 +59,7 @@ def add(file_path, define_name, value=""):
         # If no blank line is found, append to the end
         content.append(f"#define {define_name}{value}\n")
 
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.writelines(content)
 
 def enable(file_path, define_name, enable=True):
@@ -68,7 +68,7 @@ def enable(file_path, define_name, enable=True):
     Returns True if the define was found, False otherwise.
     '''
     # Read the contents of the file
-    with open(file_path, 'r') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
 
     # Prepare the regex
@@ -96,7 +96,7 @@ def enable(file_path, define_name, enable=True):
 
     # Write the modified content back to the file only if changes were made
     if modified:
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.writelines(content)
 
     return found

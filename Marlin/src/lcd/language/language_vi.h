@@ -33,7 +33,7 @@ namespace LanguageNarrow_vi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Vietnamese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Sẵn sàng.");              // Ready
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Sẵn sàng.");        // Ready
   LSTR MSG_BACK                           = _UxGT("Trở lại");                              // Back
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
