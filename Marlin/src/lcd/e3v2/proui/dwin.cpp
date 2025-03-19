@@ -2294,7 +2294,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
 #endif
 
 #if ALL(HAS_MESH, USE_GRID_MESHVIEWER)
-  void setViewMesh() { toggleCheckboxLine(bedLevelTools.view_mesh); }
+  void toggleGridMeshview() { toggleCheckboxLine(bedLevelTools.grid_meshview); }
 #endif
 
 #if HAS_HOME_OFFSET
@@ -3740,7 +3740,7 @@ void drawFilamentManMenu() {
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if USE_GRID_MESHVIEWER
-        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH, onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH, onDrawChkbMenu, toggleGridMeshview, &bedLevelTools.grid_meshview);
       #endif
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
     }
@@ -4368,7 +4368,7 @@ void drawMaxAccelMenu() {
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if USE_GRID_MESHVIEWER
-        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH, onDrawChkbMenu, setViewMesh, &bedLevelTools.view_mesh);
+        EDIT_ITEM(ICON_PrintSize, MSG_CHANGE_MESH, onDrawChkbMenu, toggleGridMeshview, &bedLevelTools.grid_meshview);
       #endif
     }
     updateMenu(meshMenu);

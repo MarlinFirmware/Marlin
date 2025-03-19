@@ -113,7 +113,7 @@ void MeshViewer::drawMesh(const bed_mesh_t zval, const uint8_t csizex, const uin
 void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/) {
   title.showCaption(GET_TEXT_F(MSG_MESH_VIEWER));
 
-  const bool see_mesh = TERN0(USE_GRID_MESHVIEWER, bedLevelTools.view_mesh);
+  const bool see_mesh = TERN0(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview);
   if (see_mesh) {
     #if USE_GRID_MESHVIEWER
       DWINUI::clearMainArea();
