@@ -492,9 +492,9 @@
 //         5V  GND A3  A4
 //
 #define AUX1_05                               57  // (A3)
-#define AUX1_06                                1
+#define AUX1_06                                1  // TX0
 #define AUX1_07                               58  // (A4)
-#define AUX1_08                                0
+#define AUX1_08                                0  // RX0
 
 //
 // AUX2    GND A9 D40 D42 A11
