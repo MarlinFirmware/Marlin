@@ -226,15 +226,6 @@ void menu_configuration();
 
 #endif // CUSTOM_MENU_MAIN
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-    #define FILAMENT_CHANGE_ITEM() YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, \
-                                    GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"))
-  #else
-    #define FILAMENT_CHANGE_ITEM() SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament)
-  #endif
-#endif
-
 void menu_main() {
   const bool busy = printingIsActive()
     #if HAS_MEDIA
@@ -336,7 +327,11 @@ void menu_main() {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    FILAMENT_CHANGE_ITEM();
+    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      YESNO_ITEM(MSG_FILAMENTCHANGE, menu_change_filament, nullptr, GET_TEXT_F(MSG_FILAMENTCHANGE), (const char *)nullptr, F("?"));
+    #else
+      SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
+    #endif
   #endif
 
   #if HAS_TEMPERATURE
