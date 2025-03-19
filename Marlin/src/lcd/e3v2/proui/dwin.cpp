@@ -2000,7 +2000,7 @@ void dwinRedrawScreen() {
 #endif // ADVANCED_PAUSE_FEATURE
 
 #if HAS_MESH
-  void dwinMeshViewer() {
+  void _dwinMeshViewer() {
     if (!leveling_is_valid())
       dwinPopupContinue(ICON_Leveling_1, GET_TEXT_F(MSG_MESH_VIEWER), GET_TEXT_F(MSG_NO_VALID_MESH));
     else {
@@ -2008,6 +2008,13 @@ void dwinRedrawScreen() {
       meshViewer.draw();
     }
   }
+  void dwinMeshViewer() {
+    TERN_(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview = false);
+    _dwinMeshViewer();
+  }
+  #if ENABLED(USE_GRID_MESHVIEWER)
+    void dwinMeshViewerGrid() { bedLevelTools.grid_meshview = true; _dwinMeshViewer(); }
+  #endif
 #endif
 
 #if HAS_LOCKSCREEN
@@ -2291,10 +2298,6 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void setEnableSound() {
     toggleCheckboxLine(ui.sound_on);
   }
-#endif
-
-#if ALL(HAS_MESH, USE_GRID_MESHVIEWER)
-  void toggleGridMeshview() { toggleCheckboxLine(bedLevelTools.grid_meshview); }
 #endif
 
 #if HAS_HOME_OFFSET
@@ -3740,7 +3743,7 @@ void drawFilamentManMenu() {
       MENU_ITEM(ICON_Axis, MSG_UBL_CONTINUE_MESH, onDrawMenuItem, manualMeshContinue);
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if USE_GRID_MESHVIEWER
-        EDIT_ITEM(ICON_PrintSize, MSG_MESH_VIEW_GRID, onDrawChkbMenu, toggleGridMeshview, &bedLevelTools.grid_meshview);
+        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW_GRID, onDrawSubMenu, dwinMeshViewerGrid);
       #endif
       MENU_ITEM(ICON_MeshSave, MSG_UBL_SAVE_MESH, onDrawMenuItem, manualMeshSave);
     }
@@ -4368,7 +4371,7 @@ void drawMaxAccelMenu() {
       #endif
       MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW, onDrawSubMenu, dwinMeshViewer);
       #if USE_GRID_MESHVIEWER
-        EDIT_ITEM(ICON_PrintSize, MSG_MESH_VIEW_GRID, onDrawChkbMenu, toggleGridMeshview, &bedLevelTools.grid_meshview);
+        MENU_ITEM(ICON_MeshViewer, MSG_MESH_VIEW_GRID, onDrawSubMenu, dwinMeshViewerGrid);
       #endif
     }
     updateMenu(meshMenu);

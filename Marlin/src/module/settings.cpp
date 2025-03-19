@@ -609,13 +609,6 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // Mesh Grid View
-  //
-  #if USE_GRID_MESHVIEWER
-    bool grid_meshview;                                 // ProUI
-  #endif
-
-  //
   // Fan tachometer check
   //
   #if HAS_FANCHECK
@@ -1749,13 +1742,6 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Toggle the meshviewer
-    //
-    #if USE_GRID_MESHVIEWER
-      EEPROM_WRITE(bedLevelTools.grid_meshview);
-    #endif
-
-    //
     // Fan tachometer check
     //
     #if HAS_FANCHECK
@@ -2884,14 +2870,6 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
-      // Toggle the meshviewer
-      //
-      #if USE_GRID_MESHVIEWER
-        _FIELD_TEST(grid_meshview);
-        EEPROM_READ(bedLevelTools.grid_meshview);
-      #endif
-
-      //
       // Fan tachometer check
       //
       #if HAS_FANCHECK
@@ -3458,11 +3436,6 @@ void MarlinSettings::reset() {
   #if ENABLED(SOUND_MENU_ITEM)
     ui.sound_on = ENABLED(SOUND_ON_DEFAULT);
   #endif
-
-  //
-  // Toggle the meshviewer
-  //
-  TERN_(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview = false);
 
   //
   // Magnetic Parking Extruder
