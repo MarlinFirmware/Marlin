@@ -83,7 +83,7 @@ class DWIN_ICO_File:
             rawBytes = infile.read(16)
             entry = Entry()
             entry.parseRawData(rawBytes)
-            # check that it is valid: is offset nonzero?
+            # Check that it is valid: is offset nonzero?
             # Special case: treat missing numbers as valid
             if (entry.offset > 0) or count not in icon_nums:
                 self.entries.append(entry)
@@ -94,11 +94,11 @@ class DWIN_ICO_File:
         if 0 == len(self.entries):
             raise RuntimeError('.ico file is not loaded yet')
 
-        # check for output dir:
+        # Check for output dir:
         if not os.path.exists(outDir):
             os.mkdir(outDir)
 
-        # keep a count
+        # Keep a count
         count = 0
         for entry in self.entries:
             # Skip any empty entries. (Special handling of 39.)
@@ -339,17 +339,17 @@ _iconNames = {
     91: "Info_1",
     92: "DegreesC",
     93: "Printer_0",
-    200: "Checkbox_F",
-    201: "Checkbox_T",
-    202: "Fade",
-    203: "Mesh",
-    204: "Tilt",
-    205: "Brightness",
-    206: "Probe",
-    249: "AxisD",
-    250: "AxisBR",
-    251: "AxisTR",
-    252: "AxisBL",
-    253: "AxisTL",
-    254: "AxisC"
+   200: "Checkbox_F",
+   201: "Checkbox_T",
+   202: "Fade",
+   203: "Mesh",
+   204: "Tilt",
+   205: "Brightness",
+   206: "Probe",
+   249: "AxisD",
+   250: "AxisBR",
+   251: "AxisTR",
+   252: "AxisBL",
+   253: "AxisTL",
+   254: "AxisC"
 }
