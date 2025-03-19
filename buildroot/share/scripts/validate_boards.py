@@ -3,7 +3,6 @@
 # buildroot/share/scripts/validate_boards.py
 # Assert standards for boards.h and pins.h
 #
-
 import sys, re
 
 do_log = False

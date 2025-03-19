@@ -17,7 +17,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #----------------------------------------------------------------
-
 import os.path, argparse, DWIN_ICO
 
 version = '2.0.7'
@@ -26,10 +25,8 @@ version = '2.0.7'
 if __name__ == '__main__':
     try:
         parser = argparse.ArgumentParser(description='Split .ico into JPEG files')
-        parser.add_argument('filename', type=str, nargs=1,
-                            help='name of input .ico file to split')
-        parser.add_argument('outputDir', type=str, nargs=1,
-                            help='name of output directory to create')
+        parser.add_argument('filename', type=str, nargs=1, help='name of input .ico file to split')
+        parser.add_argument('outputDir', type=str, nargs=1, help='name of output directory to create')
         args = parser.parse_args()
 
         filename = args.filename[0]

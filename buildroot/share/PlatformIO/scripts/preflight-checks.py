@@ -158,5 +158,4 @@ if pioutil.is_pio_build():
                         err = "ERROR: FILAMENT_RUNOUT_SCRIPT needs a %c parameter (e.g., \"M600 T%c\") when NUM_RUNOUT_SENSORS is > 1"
                         raise SystemExit(err)
 
-
     sanity_check_target()

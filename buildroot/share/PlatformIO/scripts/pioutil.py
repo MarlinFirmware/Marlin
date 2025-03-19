@@ -1,7 +1,6 @@
 #
 # pioutil.py
 #
-
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 

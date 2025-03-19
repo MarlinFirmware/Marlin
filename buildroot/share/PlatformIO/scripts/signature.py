@@ -42,8 +42,10 @@ def enabled_defines(filepath):
     for line in f:
         sline = line.strip()
 
-        m = re.match(spatt, sline) # @section ...
-        if m: section = m.group(1).strip() ; continue
+        m = re.match(spatt, sline)  # @section ...
+        if m:
+            section = m.group(1).strip()
+            continue
 
         if incomment:
             if '*/' in sline:
@@ -58,15 +60,15 @@ def enabled_defines(filepath):
         if sline[:7] == "#define":
             # Extract the key here (we don't care about the value)
             kv = sline[8:].strip().split()
-            outdict[kv[0]] = { 'name':kv[0], 'section': section }
+            outdict[kv[0]] = {'name': kv[0], 'section': section}
     return outdict
 
 # Compute the SHA256 hash of a file
 def get_file_sha256sum(filepath):
     sha256_hash = hashlib.sha256()
-    with open(filepath,"rb") as f:
+    with open(filepath, "rb") as f:
         # Read and update hash string value in blocks of 4K
-        for byte_block in iter(lambda: f.read(4096),b""):
+        for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
@@ -78,7 +80,12 @@ def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(outpath, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=False, compresslevel=9) as zipf:
         zipf.write(filepath, arcname=storedname)
 
-ignore = ('CONFIGURATION_H_VERSION', 'CONFIGURATION_ADV_H_VERSION', 'CONFIG_EXAMPLES_DIR', 'CONFIG_EXPORT')
+ignore = (
+    'CONFIGURATION_H_VERSION',
+    'CONFIGURATION_ADV_H_VERSION',
+    'CONFIG_EXAMPLES_DIR',
+    'CONFIG_EXPORT'
+)
 
 #
 # Compute a build signature and/or export the configuration
@@ -155,15 +162,13 @@ def compute_build_signature(env):
         if '(' in key and ')' in key: continue
         # Then filter dumb values
         if r.match(value): continue
-
         build_defines[key] = value if len(value) else ""
 
     #
     # Continue to gather data for CONFIGURATION_EMBEDDING or CONFIG_EXPORT
     #
     is_embed = 'CONFIGURATION_EMBEDDING' in build_defines
-    if not (is_embed or 'CONFIG_EXPORT' in build_defines):
-        return
+    if not (is_embed or 'CONFIG_EXPORT' in build_defines): return
 
     # Filter out useless macros from the output
     cleaned_build_defines = {}
@@ -173,7 +178,7 @@ def compute_build_signature(env):
         # Remove all keys ending by "_T_DECLARED" as it's a copy of extraneous system stuff
         if key.endswith("_T_DECLARED"): continue
         # Remove keys that are not in the #define list in the Configuration list
-        if key not in conf_names + [ 'DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE' ]: continue
+        if key not in conf_names + ['DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE']: continue
         # Add to a new dictionary for simplicity
         cleaned_build_defines[key] = build_defines[key]
 
@@ -187,7 +192,7 @@ def compute_build_signature(env):
             if key in conf_defines[header]:
                 if key[0:2] == '__': continue
                 val = cleaned_build_defines[key]
-                real_config[header][key] = { 'file':header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
+                real_config[header][key] = {'file': header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
 
     def tryint(key):
         try: return int(build_defines[key])
@@ -207,20 +212,11 @@ def compute_build_signature(env):
             print(red + "Error: " + str(exc))
             conf_schema = None
 
-    optorder = ('MOTHERBOARD','SERIAL_PORT','BAUDRATE','USE_WATCHDOG','THERMAL_PROTECTION_HOTENDS','THERMAL_PROTECTION_HYSTERESIS','THERMAL_PROTECTION_PERIOD','BUFSIZE','BLOCK_BUFFER_SIZE','MAX_CMD_SIZE','EXTRUDERS','TEMP_SENSOR_0','TEMP_HYSTERESIS','HEATER_0_MINTEMP','HEATER_0_MAXTEMP','PREHEAT_1_TEMP_HOTEND','BANG_MAX','PIDTEMP','PID_K1','PID_MAX','PID_FUNCTIONAL_RANGE','DEFAULT_KP','DEFAULT_KI','DEFAULT_KD','X_DRIVER_TYPE','Y_DRIVER_TYPE','Z_DRIVER_TYPE','E0_DRIVER_TYPE','X_BED_SIZE','X_MIN_POS','X_MAX_POS','Y_BED_SIZE','Y_MIN_POS','Y_MAX_POS','Z_MIN_POS','Z_MAX_POS','X_HOME_DIR','Y_HOME_DIR','Z_HOME_DIR','X_MIN_ENDSTOP_HIT_STATE','Y_MIN_ENDSTOP_HIT_STATE','Z_MIN_ENDSTOP_HIT_STATE','DEFAULT_AXIS_STEPS_PER_UNIT','AXIS_RELATIVE_MODES','DEFAULT_MAX_FEEDRATE','DEFAULT_MAX_ACCELERATION','HOMING_FEEDRATE_MM_M','HOMING_BUMP_DIVISOR','X_ENABLE_ON','Y_ENABLE_ON','Z_ENABLE_ON','E_ENABLE_ON','INVERT_X_DIR','INVERT_Y_DIR','INVERT_Z_DIR','INVERT_E0_DIR','STEP_STATE_E','STEP_STATE_X','STEP_STATE_Y','STEP_STATE_Z','DISABLE_X','DISABLE_Y','DISABLE_Z','DISABLE_E','PROPORTIONAL_FONT_RATIO','DEFAULT_NOMINAL_FILAMENT_DIA','JUNCTION_DEVIATION_MM','DEFAULT_ACCELERATION','DEFAULT_TRAVEL_ACCELERATION','DEFAULT_RETRACT_ACCELERATION','DEFAULT_MINIMUMFEEDRATE','DEFAULT_MINTRAVELFEEDRATE','MINIMUM_PLANNER_SPEED','MIN_STEPS_PER_SEGMENT','DEFAULT_MINSEGMENTTIME','BED_OVERSHOOT','BUSY_WHILE_HEATING','DEFAULT_EJERK','DEFAULT_KEEPALIVE_INTERVAL','DEFAULT_LEVELING_FADE_HEIGHT','DISABLE_OTHER_EXTRUDERS','DISPLAY_CHARSET_HD44780','EEPROM_BOOT_SILENT','EEPROM_CHITCHAT','ENDSTOPPULLUPS','EXTRUDE_MAXLENGTH','EXTRUDE_MINTEMP','HOST_KEEPALIVE_FEATURE','HOTEND_OVERSHOOT','JD_HANDLE_SMALL_SEGMENTS','LCD_INFO_SCREEN_STYLE','LCD_LANGUAGE','MAX_BED_POWER','MESH_INSET','MIN_SOFTWARE_ENDSTOPS','MAX_SOFTWARE_ENDSTOPS','MIN_SOFTWARE_ENDSTOP_X','MIN_SOFTWARE_ENDSTOP_Y','MIN_SOFTWARE_ENDSTOP_Z','MAX_SOFTWARE_ENDSTOP_X','MAX_SOFTWARE_ENDSTOP_Y','MAX_SOFTWARE_ENDSTOP_Z','PREHEAT_1_FAN_SPEED','PREHEAT_1_LABEL','PREHEAT_1_TEMP_BED','PREVENT_COLD_EXTRUSION','PREVENT_LENGTHY_EXTRUDE','PRINTJOB_TIMER_AUTOSTART','PROBING_MARGIN','SHOW_BOOTSCREEN','SOFT_PWM_SCALE','STRING_CONFIG_H_AUTHOR','TEMP_BED_HYSTERESIS','TEMP_BED_RESIDENCY_TIME','TEMP_BED_WINDOW','TEMP_RESIDENCY_TIME','TEMP_WINDOW','VALIDATE_HOMING_ENDSTOPS','XY_PROBE_FEEDRATE','Z_CLEARANCE_BETWEEN_PROBES','Z_CLEARANCE_DEPLOY_PROBE','Z_CLEARANCE_MULTI_PROBE','ARC_SUPPORT','AUTO_REPORT_TEMPERATURES','AUTOTEMP','AUTOTEMP_OLDWEIGHT','BED_CHECK_INTERVAL','DEFAULT_STEPPER_TIMEOUT_SEC','DEFAULT_VOLUMETRIC_EXTRUDER_LIMIT','DISABLE_IDLE_X','DISABLE_IDLE_Y','DISABLE_IDLE_Z','DISABLE_IDLE_E','E0_AUTO_FAN_PIN','ENCODER_100X_STEPS_PER_SEC','ENCODER_10X_STEPS_PER_SEC','ENCODER_RATE_MULTIPLIER','EXTENDED_CAPABILITIES_REPORT','EXTRUDER_AUTO_FAN_SPEED','EXTRUDER_AUTO_FAN_TEMPERATURE','FANMUX0_PIN','FANMUX1_PIN','FANMUX2_PIN','FASTER_GCODE_PARSER','HOMING_BUMP_MM','MAX_ARC_SEGMENT_MM','MIN_ARC_SEGMENT_MM','MIN_CIRCLE_SEGMENTS','N_ARC_CORRECTION','SERIAL_OVERRUN_PROTECTION','SLOWDOWN','SLOWDOWN_DIVISOR','TEMP_SENSOR_BED','THERMAL_PROTECTION_BED_HYSTERESIS','THERMOCOUPLE_MAX_ERRORS','TX_BUFFER_SIZE','WATCH_BED_TEMP_INCREASE','WATCH_BED_TEMP_PERIOD','WATCH_TEMP_INCREASE','WATCH_TEMP_PERIOD')
-
-    def optsort(x, optorder):
-        return optorder.index(x) if x in optorder else float('inf')
-
-    #
-    # CONFIG_EXPORT 102 = config.ini, 105 = Config.h
-    # Get sections using the schema class
-    #
-    if extended_dump and config_dump in (2, 5):
+    optorder = ('MOTHERBOARD', 'SERIAL_PORT', 'BAUDRATE', 'USE_WATCHDOG', 'THERMAL_PROTECTION_HOTENDS', 'THERMAL_PROTECTION_HYSTERESIS', 'THERMAL_PROTECTION_PERIOD', 'BUFSIZE', 'BLOCK_BUFFER_SIZE', 'MAX_CMD_SIZE', 'EXTRUDERS', 'TEMP_SENSOR_0', 'TEMP_HYSTERESIS', 'HEATER_0_MINTEMP', 'HEATER_0_MAXTEMP', 'PREHEAT_1_TEMP_HOTEND', 'BANG_MAX', 'PIDTEMP', 'PID_K1', 'PID_MAX', 'PID_FUNCTIONAL_RANGE', 'DEFAULT_KP', 'DEFAULT_KI', 'DEFAULT_KD', 'X_DRIVER_TYPE', 'Y_DRIVER_TYPE', 'Z_DRIVER_TYPE', 'E0_DRIVER_TYPE', 'X_BED_SIZE', 'X_MIN_POS', 'X_MAX_POS', 'Y_BED_SIZE', 'Y_MIN_POS', 'Y_MAX_POS', 'Z_MIN_POS', 'Z_MAX_POS', 'X_HOME_DIR', 'Y_HOME_DIR', 'Z_HOME_DIR', 'X_MIN_ENDSTOP_HIT_STATE', 'Y_MIN_ENDSTOP_HIT_STATE', 'Z_MIN_ENDSTOP_HIT_STATE', 'DEFAULT_AXIS_STEPS_PER_UNIT', 'AXIS_RELATIVE_MODES', 'DEFAULT_MAX_FEEDRATE', 'DEFAULT_ 
         if not conf_schema: exit(1)
 
         # Start with a preferred @section ordering
-        preorder = ('test','custom','info','machine','eeprom','stepper drivers','multi stepper','idex','extruder','geometry','homing','kinematics','motion','motion control','endstops','filament runout sensors','probe type','probes','bltouch','leveling','temperature','hotend temp','mpctemp','pid temp','mpc temp','bed temp','chamber temp','fans','tool change','advanced pause','calibrate','calibration','media','lcd','lights','caselight','interface','custom main menu','custom config menu','custom buttons','develop','debug matrix','delta','scara','tpara','polar','polargraph','cnc','nozzle park','nozzle clean','gcode','serial','host','filament width','i2c encoders','i2cbus','joystick','multi-material','nanodlp','network','photo','power','psu control','reporting','safety','security','servos','stats','tmc/config','tmc/hybrid','tmc/serial','tmc/smart','tmc/spi','tmc/stallguard','tmc/status','tmc/stealthchop','tmc/tmc26x','units','volumetrics','extras')
+        preorder = ('test', 'custom', 'info', 'machine', 'eeprom', 'stepper drivers', 'multi stepper', 'idex', 'extruder', 'geometry', 'homing', 'kinematics', 'motion', 'motion control', 'endstops', 'filament runout sensors', 'probe type', 'probes', 'bltouch', 'leveling', 'temperature', 'hotend temp', 'mpctemp', 'pid temp', 'mpc temp', 'bed temp', 'chamber temp', 'fans', 'tool change', 'advanced pause', 'calibrate', 'calibration', 'media', 'lcd', 'lights', 'caselight', 'interface', 'custom main menu', 'custom config menu', 'custom buttons', 'develop', 'debug matrix', 'delta', 'scara', 'tpara', 'polar', 'polargraph', 'cnc', 'nozzle park', 'nozzle clean', 'gcode', 'serial', 'host', 'filament width', 'i2c encoders', 'i2cbus', 'joystick', 'multi-material', 'nanodlp', 'network', 'photo', 'power', 'psu control', 'reporting', 'safety', 'security', 'servos', 'stats', 'tmc/config', 'tmc/hybrid', 'tmc/serial', 'tmc/smart', 'tmc/spi', 'tmc/stallguard', 'tmc/status', 'tmc/stealthchop', 'tmc/tmc26x', 'units', 'volumetrics', 'extras')
 
         sections = { key:{} for key in preorder }
 
@@ -263,7 +259,7 @@ def compute_build_signature(env):
                         sections[sect][name] = ddict
 
             # Get all sections as a list of strings, with spaces and dashes replaced by underscores
-            long_list = [ re.sub(r'[- ]+', '_', x).lower() for x in sections.keys() ]
+            long_list = [re.sub(r'[- ]+', '_', x).lower() for x in sections.keys()]
             # Make comma-separated lists of sections with 64 characters or less
             sec_lines = []
             while len(long_list):
@@ -271,8 +267,7 @@ def compute_build_signature(env):
                 while len(long_list) and len(line) + len(long_list[0]) < 64 - 1:
                     line += long_list.pop(0) + ', '
                 sec_lines.append(line.strip())
-            sec_lines[-1] = sec_lines[-1][:-1] # Remove the last comma
-
+            sec_lines[-1] = sec_lines[-1][:-1]  # Remove the last comma
         else:
             sec_lines = ['all']
 
@@ -281,8 +276,12 @@ def compute_build_signature(env):
         for line in sec_lines[1:]: sec_list += '\n' + ext_fmt.format('', line)
 
         config_ini = build_path / 'config.ini'
-        with config_ini.open('w') as outfile:
-            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+        with config_ini.open('w', encoding='utf-8') as outfile:
+            filegrp = {
+                'Configuration.h'    : 'config:basic',
+                'Configuration_adv.h': 'config:advanced'
+            }
+
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -337,7 +336,6 @@ f'''#
 '''         )
 
             if extended_dump:
-
                 # Loop through the sections
                 for skey in sorted(sections):
                     #print(f"  skey: {skey}")
@@ -351,9 +349,7 @@ f'''#
                         if val == '': val = 'on'
                         #print(f"  {name} = {val}")
                         outfile.write(ini_fmt.format(name.lower(), val) + '\n')
-
             else:
-
                 # Standard export just dumps config:basic and config:advanced sections
                 for header in real_config:
                     outfile.write(f'\n[{filegrp[header]}]\n')
@@ -370,10 +366,13 @@ f'''#
     #
     if config_dump == 5:
         print(yellow + "Generating Config-export.h ...")
-
         config_h = Path('Marlin', 'Config-export.h')
-        with config_h.open('w') as outfile:
-            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+        with config_h.open('w', encoding='utf-8') as outfile:
+            filegrp = {
+                'Configuration.h'    : 'config:basic',
+                'Configuration_adv.h': 'config:advanced'
+            }
+
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -385,7 +384,7 @@ f'''#
  */
 '''
 
-            subs = (('Bltouch','BLTouch'),('hchop','hChop'),('Eeprom','EEPROM'),('Gcode','G-code'),('lguard','lGuard'),('Idex','IDEX'),('Lcd','LCD'),('Mpc','MPC'),('Pid','PID'),('Psu','PSU'),('Scara','SCARA'),('Spi','SPI'),('Tmc','TMC'),('Tpara','TPARA'))
+            subs = (('Bltouch', 'BLTouch'), ('hchop', 'hChop'), ('Eeprom', 'EEPROM'), ('Gcode', 'G-code'), ('lguard', 'lGuard'), ('Idex', 'IDEX'), ('Lcd', 'LCD'), ('Mpc', 'MPC'), ('Pid', 'PID'), ('Psu', 'PSU'), ('Scara', 'SCARA'), ('Spi', 'SPI'), ('Tmc', 'TMC'), ('Tpara', 'TPARA'))
             define_fmt = '#define {0:40} {1}'
             if extended_dump:
                 # Loop through the sections
@@ -402,7 +401,6 @@ f'''#
                             out_text += f"\n//\n// {head}\n//\n"
                             headed = True
                         out_text += define_fmt.format(name, val).strip() + '\n'
-
             else:
                 # Dump config options in just two sections, by file
                 for header in real_config:
@@ -413,14 +411,12 @@ f'''#
                         if name in ignore: continue
                         val = opts[name]['value']
                         out_text += define_fmt.format(name, val).strip() + '\n'
-
             outfile.write(out_text)
 
     #
     # CONFIG_EXPORT 3 = schema.json, 13 = schema_grouped.json, 4 = schema.yml
     #
     if config_dump in (3, 4, 13):
-
         if conf_schema:
             #
             # 3 = schema.json
@@ -442,7 +438,7 @@ f'''#
                 except ImportError:
                     env.Execute(env.VerboseAction(
                         '$PYTHONEXE -m pip install "pyyaml"',
-                        "Installing YAML for schema.yml export",
+                        "Installing YAML for schema.yml export"
                     ))
                     import yaml
                 schema.dump_yaml(conf_schema, build_path / 'schema.yml')
@@ -452,8 +448,7 @@ f'''#
     # Skip if an identical JSON file was already present.
     #
     if not same_hash and config_dump == 1:
-        with marlin_json.open('w') as outfile:
-
+        with marlin_json.open('w', encoding='utf-8') as outfile:
             json_data = {}
             if extended_dump:
                 print(yellow + "Extended dump ...")
@@ -478,9 +473,10 @@ f'''#
 
             # Append the source code version and date
             json_data['VERSION'] = {
-                'DETAILED_BUILD_VERSION': cleaned_build_defines['DETAILED_BUILD_VERSION'],
+                'DETAILED_BUILD_VERSION'  : cleaned_build_defines['DETAILED_BUILD_VERSION'],
                 'STRING_DISTRIBUTION_DATE': cleaned_build_defines['STRING_DISTRIBUTION_DATE']
             }
+
             try:
                 curver = subprocess.check_output(["git", "describe", "--match=NeVeRmAtCh", "--always"]).strip()
                 json_data['VERSION']['GIT_REF'] = curver.decode()
@@ -497,17 +493,17 @@ f'''#
         return
 
     # Compress the JSON file as much as we can
-    if not same_hash:
-        compress_file(marlin_json, json_name, marlin_zip)
+    if not same_hash: compress_file(marlin_json, json_name, marlin_zip)
 
     # Generate a C source file containing the entire ZIP file as an array
-    with open('Marlin/src/mczip.h','wb') as result_file:
+    with open('Marlin/src/mczip.h', 'wb') as result_file:
         result_file.write(
               b'#ifndef NO_CONFIGURATION_EMBEDDING_WARNING\n'
             + b'  #warning "Generated file \'mc.zip\' is embedded (Define NO_CONFIGURATION_EMBEDDING_WARNING to suppress this warning.)"\n'
             + b'#endif\n'
             + b'const unsigned char mc_zip[] PROGMEM = {\n '
         )
+
         count = 0
         for b in (build_path / 'mc.zip').open('rb').read():
             result_file.write(b' 0x%02X,' % b)
