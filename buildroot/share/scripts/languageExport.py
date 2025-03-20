@@ -15,8 +15,8 @@ from languageUtil import namebyid
 LANGHOME = "Marlin/src/lcd/language"
 
 # Write multiple sheets if true, otherwise write one giant sheet
-MULTISHEET = '--single' not in argv[1:]
-OUTDIR = 'out-csv'
+MULTISHEET = "--single" not in argv[1:]
+OUTDIR = "out-csv"
 
 # Check for the path to the language files
 if not Path(LANGHOME).is_dir():
@@ -29,24 +29,24 @@ LIMIT = 0
 
 # A dictionary to contain strings for each language.
 # Init with 'en' so English will always be first.
-language_strings = { 'en': {} }
+language_strings = {"en": {}}
 
 # A dictionary to contain all distinct LCD string names
 names = {}
 
 # Get all "language_*.h" files
-langfiles = sorted(list(Path(LANGHOME).glob('language_*.h')))
+langfiles = sorted(list(Path(LANGHOME).glob("language_*.h")))
 
 # Read each language file
 for langfile in langfiles:
     # Get the language code from the filename
-    langcode = langfile.name.replace('language_', '').replace('.h', '')
+    langcode = langfile.name.replace("language_", "").replace(".h", "")
 
     # Skip 'test' and any others that we don't want
-    if langcode in ['test']: continue
+    if langcode in ["test"]: continue
 
     # Open the file
-    f = open(langfile, 'r', encoding='utf-8')
+    f = open(langfile, "r", encoding="utf-8")
     if not f: continue
 
     # Flags to indicate a wide or tall section
@@ -54,24 +54,26 @@ for langfile in langfiles:
     # A counter for the number of strings in the file
     stringcount = 0
     # A dictionary to hold all the strings
-    strings = { 'narrow': {}, 'wide': {}, 'tall': {} }
+    strings = {"narrow": {}, "wide": {}, "tall": {}}
     # Read each line in the file
     for line in f:
         # Clean up the line for easier parsing
         line = line.split("//")[0].strip()
-        if line.endswith(';'): line = line[:-1].strip()
+        if line.endswith(";"): line = line[:-1].strip()
 
         # Check for wide or tall sections, assume no complicated nesting
         if line.startswith("#endif") or line.startswith("#else"):
             wideflag, tallflag = False, False
-        elif re.match(r'#if.*WIDTH\s*>=?\s*2[01].*', line): wideflag = True
-        elif re.match(r'#if.*LCD_HEIGHT\s*>=?\s*4.*', line): tallflag = True
+        elif re.match(r'#if.*WIDTH\s*>=?\s*2[01].*', line):
+            wideflag = True
+        elif re.match(r'#if.*LCD_HEIGHT\s*>=?\s*4.*', line):
+            tallflag = True
 
         # For string-defining lines capture the string data
         match = re.match(r'LSTR\s+([A-Z0-9_]+)\s*=\s*(.+)\s*', line)
         if match:
             # Name and quote-sanitized value
-            name, value = match.group(1), match.group(2).replace('\\"', '$$$')
+            name, value = match.group(1), match.group(2).replace('\\"', "$$$")
 
             # Remove all _UxGT wrappers from the value in a non-greedy way
             value = re.sub(r'_UxGT\((".*?")\)', r'\1', value)
@@ -81,16 +83,16 @@ for langfile in langfiles:
             multimatch = re.match(r'.*MSG_(\d)_LINE\s*\(\s*(.+?)\s*\).*', value)
             if multimatch:
                 multiline = int(multimatch.group(1))
-                value = '|' + re.sub(r'"\s*,\s*"', '|', multimatch.group(2))
+                value = "|" + re.sub(r'"\s*,\s*"', "|", multimatch.group(2))
 
             # Wrap inline defines in parentheses
             value = re.sub(r' *([A-Z0-9]+_[A-Z0-9_]+) *', r'(\1)', value)
             # Remove quotes around strings
-            value = re.sub(r'"(.*?)"', r'\1', value).replace('$$$', '""')
+            value = re.sub(r'"(.*?)"', r'\1', value).replace("$$$", '""')
             # Store all unique names as dictionary keys
             names[name] = 1
             # Store the string as narrow or wide
-            strings['tall' if tallflag else 'wide' if wideflag else 'narrow'][name] = value
+            strings["tall" if tallflag else "wide" if wideflag else "narrow"][name] = value
 
             # Increment the string counter
             stringcount += 1
@@ -113,12 +115,12 @@ print("Found %s distinct LCD strings." % len(names))
 
 # Write a single language entry to the CSV file with narrow, wide, and tall strings
 def write_csv_lang(f, strings, name):
-    f.write(',')
-    if name in strings['narrow']: f.write('"%s"' % strings['narrow'][name])
-    f.write(',')
-    if name in strings['wide']: f.write('"%s"' % strings['wide'][name])
-    f.write(',')
-    if name in strings['tall']: f.write('"%s"' % strings['tall'][name])
+    f.write(",")
+    if name in strings["narrow"]: f.write('"%s"' % strings["narrow"][name])
+    f.write(",")
+    if name in strings["wide"]:   f.write('"%s"' % strings["wide"][name])
+    f.write(",")
+    if name in strings["tall"]:   f.write('"%s"' % strings["tall"][name])
 
 if MULTISHEET:
     #
@@ -127,28 +129,28 @@ if MULTISHEET:
     Path.mkdir(Path(OUTDIR), exist_ok=True)
 
     for lang in langcodes:
-        with open("%s/language_%s.csv" % (OUTDIR, lang), 'w', encoding='utf-8') as f:
-            lname = lang + ' ' + namebyid(lang)
-            header = ['name', lname, lname + ' (wide)', lname + ' (tall)']
+        with open("%s/language_%s.csv" % (OUTDIR, lang), "w", encoding="utf-8") as f:
+            lname = lang + " " + namebyid(lang)
+            header = ["name", lname, lname + " (wide)", lname + " (tall)"]
             f.write('"' + '","'.join(header) + '"\n')
 
             for name in names.keys():
                 f.write('"' + name + '"')
                 write_csv_lang(f, language_strings[lang], name)
-                f.write('\n')
+                f.write("\n")
 
 else:
     #
     # Export one large sheet containing all languages
     #
-    with open("languages.csv", 'w', encoding='utf-8') as f:
-        header = ['name']
+    with open("languages.csv", "w", encoding="utf-8") as f:
+        header = ["name"]
         for lang in langcodes:
-            lname = lang + ' ' + namebyid(lang)
-            header += [lname, lname + ' (wide)', lname + ' (tall)']
+            lname = lang + " " + namebyid(lang)
+            header += [lname, lname + " (wide)", lname + " (tall)"]
         f.write('"' + '","'.join(header) + '"\n')
 
         for name in names.keys():
             f.write('"' + name + '"')
             for lang in langcodes: write_csv_lang(f, language_strings[lang], name)
-            f.write('\n')
+            f.write("\n")

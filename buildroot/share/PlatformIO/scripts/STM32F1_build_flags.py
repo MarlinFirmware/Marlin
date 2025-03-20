@@ -52,6 +52,6 @@ else:
                 "-mthumb",
                 "--specs=nano.specs",
                 "--specs=nosys.specs",
-                "-u_printf_float",
-            ],
+                "-u_printf_float"
+            ]
         )

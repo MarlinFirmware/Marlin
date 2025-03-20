@@ -18,7 +18,6 @@ if pioutil.is_pio_build():
     #
     emsg = ''
     fatal = 0
-
     import sys
     if sys.platform == 'darwin':
         import shutil

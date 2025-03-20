@@ -484,8 +484,7 @@ def main():
         if len(args) == 0: args = ["some"]
 
         # Does the given array intersect at all with args?
-        def inargs(c):
-            return len(set(args) & set(c)) > 0
+        def inargs(c): return len(set(args) & set(c)) > 0
 
         # Help / Unknown option
         unk = not inargs(["some", "json", "jsons", "group", "yml", "yaml"])

@@ -200,10 +200,8 @@ def compute_build_signature(env):
                 }
 
     def tryint(key):
-        try:
-            return int(build_defines[key])
-        except:
-            return 0
+        try: return int(build_defines[key])
+        except: return 0
 
     # Get the CONFIG_EXPORT value and do an extended dump if > 100
     # For example, CONFIG_EXPORT 102 will make a 'config.ini' with a [config:] group for each schema @section
@@ -539,7 +537,6 @@ def compute_build_signature(env):
                 "Configuration.h"    : "config:basic",
                 "Configuration_adv.h": "config:advanced"
             }
-
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -630,7 +627,6 @@ f"""#
                 "Configuration.h"    : "config:basic",
                 "Configuration_adv.h": "config:advanced"
             }
-
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -751,7 +747,6 @@ f"""/**
                 "DETAILED_BUILD_VERSION"  : cleaned_build_defines["DETAILED_BUILD_VERSION"],
                 "STRING_DISTRIBUTION_DATE": cleaned_build_defines["STRING_DISTRIBUTION_DATE"]
             }
-
             try:
                 curver = subprocess.check_output(["git", "describe", "--match=NeVeRmAtCh", "--always"]).strip()
                 json_data["VERSION"]["GIT_REF"] = curver.decode()
@@ -778,7 +773,6 @@ f"""/**
             + b"#endif\n"
             + b"const unsigned char mc_zip[] PROGMEM = {\n "
         )
-
         count = 0
         for b in (build_path / "mc.zip").open("rb").read():
             result_file.write(b" 0x%02X," % b)
