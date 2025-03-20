@@ -11,7 +11,6 @@
 import pioutil
 if pioutil.is_pio_build():
     import marlin
-
     env = marlin.env
     board = env.BoardConfig()
     board_keys = board.get("build").keys()

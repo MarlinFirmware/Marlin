@@ -4,6 +4,7 @@
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, expandvars
+
     env = pioutil.env
 
     # Custom HEX from ELF

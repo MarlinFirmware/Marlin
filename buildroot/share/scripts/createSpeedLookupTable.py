@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-from __future__ import print_function, division
-
 """ Generate the stepper delay lookup table for Marlin firmware. """
 
+from __future__ import print_function, division
 import argparse
 
 __author__ = "Ben Gamari <bgamari@gmail.com>"

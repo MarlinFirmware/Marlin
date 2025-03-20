@@ -128,8 +128,7 @@ def disable_all_options():
 # Fetch configuration files from GitHub given the path.
 # Return True if any files were fetched.
 def fetch_example(url):
-    if url.endswith("/"):
-        url = url[:-1]
+    if url.endswith("/"): url = url[:-1]
     if not url.startswith("http"):
         brch = "bugfix-2.1.x"
         if "@" in url: url, brch = map(str.strip, url.split("@"))
@@ -163,8 +162,7 @@ def fetch_example(url):
             shutil.move("wgot", config_path(fn))
             gotfile = True
 
-    if Path("wgot").exists():
-        shutil.rmtree("wgot")
+    if Path("wgot").exists(): shutil.rmtree("wgot")
 
     return gotfile
 
@@ -231,8 +229,7 @@ def apply_config_ini(cp):
         # For a key ending in .ini load and parse another .ini file
         if ckey.endswith(".ini"):
             sect = "base"
-            if "@" in ckey:
-                sect, ckey = map(str.strip, ckey.split("@"))
+            if "@" in ckey: sect, ckey = map(str.strip, ckey.split("@"))
             cp2 = configparser.ConfigParser()
             cp2.read(config_path(ckey), encoding="utf-8")
             apply_sections(cp2, sect)

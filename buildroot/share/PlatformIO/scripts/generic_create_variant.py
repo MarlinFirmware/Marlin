@@ -6,7 +6,6 @@
 # will be picked up by PlatformIO just like any other variant.
 #
 import pioutil, re
-
 marlin_variant_pattern = re.compile("marlin_.*")
 if pioutil.is_pio_build():
     import shutil, marlin

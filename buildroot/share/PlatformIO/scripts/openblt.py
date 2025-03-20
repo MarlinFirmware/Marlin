@@ -4,8 +4,8 @@
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join
-    env = pioutil.env
 
+    env = pioutil.env
     board = env.BoardConfig()
     board_keys = board.get("build").keys()
     if "encode" in board_keys:

@@ -21,6 +21,7 @@
 #
 
 """ Generate Marlin TFT Images from bitmaps/PNG/JPG """
+
 import sys, struct
 from PIL import Image
 

@@ -4,9 +4,9 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-
     import re, sys
     from pathlib import Path
+
     env = pioutil.env
 
     def get_envs_for_board(board):

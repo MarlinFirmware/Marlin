@@ -3,18 +3,16 @@
 # Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
 #
 import pioutil
-
 if pioutil.is_pio_build():
     import requests, zipfile, tempfile, shutil
     from pathlib import Path
 
     env = pioutil.env
+
     url = "https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/archive/0263cdaccf.zip"
     deps_path = Path(env.Dictionary("PROJECT_LIBDEPS_DIR"))
     zip_path = deps_path / "mks-assets.zip"
-    assets_path = Path(
-        env.Dictionary("PROJECT_BUILD_DIR"), env.Dictionary("PIOENV"), "assets"
-    )
+    assets_path = Path(env.Dictionary("PROJECT_BUILD_DIR"), env.Dictionary("PIOENV"), "assets")
 
     def download_mks_assets():
         print("Downloading MKS Assets for TFT_LVGL_UI")

@@ -3,7 +3,6 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-
     import shutil
     from os.path import join, isfile
     from pprint import pprint

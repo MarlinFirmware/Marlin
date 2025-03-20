@@ -1,8 +1,6 @@
-import argparse, sys, os, time, random, serial
+import argparse, sys, os, time, random, serial, MarlinBinaryProtocol
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
-
-import MarlinBinaryProtocol
 
 #-----------------#
 # Upload Callback #

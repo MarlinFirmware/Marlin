@@ -4,7 +4,6 @@
 #
 import shutil
 from pathlib import Path
-
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 

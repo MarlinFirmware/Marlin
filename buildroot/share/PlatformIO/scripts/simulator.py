@@ -41,7 +41,6 @@ if pioutil.is_pio_build():
             mesa_path = "/opt/local/include/GL/gl.h"
 
             import os.path
-
             if os.path.exists(xcode_path):
                 env['BUILD_FLAGS'] += ["-F" + xcode_path]
                 emsg = "\u001b[33mUsing OpenGL framework headers from Xcode.app"

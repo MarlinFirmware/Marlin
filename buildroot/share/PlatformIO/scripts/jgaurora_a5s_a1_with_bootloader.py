@@ -8,7 +8,6 @@ if pioutil.is_pio_build():
     # Append ${PROGNAME}.bin firmware after bootloader and save it as 'jgaurora_firmware.bin'
     def addboot(source, target, env):
         from pathlib import Path
-
         fw_path = Path(target[0].path)
         fwb_path = fw_path.parent / "firmware_with_bootloader.bin"
         with fwb_path.open("wb") as fwb_file:
