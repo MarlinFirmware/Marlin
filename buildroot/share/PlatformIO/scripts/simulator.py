@@ -30,6 +30,7 @@ if pioutil.is_pio_build():
             emsg += "\n\u001b[31mSee 'native.ini' for instructions to install GCC with MacPorts or Homebrew."
             fatal = 1
         else:
+
             #
             # Silence half of the ranlib warnings. (No equivalent for 'ARFLAGS')
             #

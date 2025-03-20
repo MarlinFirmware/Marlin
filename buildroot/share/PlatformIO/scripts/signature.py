@@ -591,6 +591,7 @@ f"""#
 """         )
 
             if extended_dump:
+
                 # Loop through the sections
                 for skey in sorted(sections):
                     #print(f"  skey: {skey}")
@@ -605,6 +606,7 @@ f"""#
                         #print(f"  {name} = {val}")
                         outfile.write(ini_fmt.format(name.lower(), val) + "\n")
             else:
+
                 # Standard export just dumps config:basic and config:advanced sections
                 for header in real_config:
                     outfile.write(f"\n[{filegrp[header]}]\n")
