@@ -151,7 +151,7 @@ class WriteDataStructure:
   def write_to_file(self, id):
     base_filename = os.path.splitext(self.input_filename)[0] + '.h'
 
-    with open(base_filename, 'w') as outfile:
+    with open(base_filename, "w") as outfile:
       outfile.write(header)
       outfile.write("const PROGMEM uint16_t " + id + "[] = {" + ", ".join(self.hex_words) + "};\n")
 
