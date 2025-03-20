@@ -475,7 +475,7 @@ def main():
         def inargs(c): return len(set(args) & set(c)) > 0
 
         # Help / Unknown option
-        unk = not inargs(['some','json','jsons','group','yml','yaml'])
+        unk = not inargs(['some','json','jsons','group','yml','yaml', '-h', '--help'])
         if (unk): print(f"Unknown option: '{args[0]}'")
         if inargs(['-h', '--help']) or unk:
             print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
