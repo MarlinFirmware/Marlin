@@ -1793,7 +1793,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     // If the move is only in Z/E don't split up the move
     if (!diff.x && !diff.y) {
       planner.buffer_line(destination, scaled_fr_mm_s);
-      return false; // caller will update current_position
+      return false; // Caller will update current_position
     }
 
     // Fail if attempting move outside printable radius
@@ -1866,7 +1866,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     // Ensure last segment arrives at target location.
     planner.buffer_line(destination, scaled_fr_mm_s, active_extruder, hints);
 
-    return false; // caller will update current_position
+    return false; // Caller will update current_position
   }
 
 #else // !IS_KINEMATIC
@@ -1960,7 +1960,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
           #endif
         #elif ENABLED(SEGMENT_LEVELED_MOVES)
           segmented_line_to_destination(scaled_fr_mm_s);
-          return false; // caller will update current_position
+          return false; // Caller will update current_position
         #else
           /**
            * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
@@ -1979,7 +1979,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     #endif // HAS_MESH
 
     planner.buffer_line(destination, scaled_fr_mm_s);
-    return false; // caller will update current_position
+    return false; // Caller will update current_position
   }
 
 #endif // !IS_KINEMATIC
@@ -1993,14 +1993,14 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  DualXMode dual_x_carriage_mode         = DEFAULT_DUAL_X_CARRIAGE_MODE;
-  float inactive_extruder_x              = X2_MAX_POS,                    // Used in mode 0 & 1
-        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // Used in mode 2 & 3
-  xyz_pos_t raised_parked_position;                                       // Used in mode 1
-  bool active_extruder_parked            = false;                         // Used in mode 1, 2 & 3
-  millis_t delayed_move_time             = 0;                             // Used in mode 1
-  celsius_t duplicate_extruder_temp_offset = 0;                           // Used in mode 2 & 3
-  bool idex_mirrored_mode                = false;                         // Used in mode 3
+  DualXMode dual_x_carriage_mode           = DEFAULT_DUAL_X_CARRIAGE_MODE;
+  float inactive_extruder_x                = X2_MAX_POS,                   // Used in mode 0 & 1
+        duplicate_extruder_x_offset        = DEFAULT_DUPLICATION_X_OFFSET; // Used in mode 2 & 3
+  xyz_pos_t raised_parked_position;                                        // Used in mode 1
+  millis_t delayed_move_time               = 0;                            // Used in mode 1
+  celsius_t duplicate_extruder_temp_offset = 0;                            // Used in mode 2 & 3
+  bool active_extruder_parked              = false,                        // Used in mode 1, 2 & 3
+       idex_mirrored_mode                  = false;                        // Used in mode 3
 
   float x_home_pos(const uint8_t extruder) {
     if (extruder == 0) return X_HOME_POS;
