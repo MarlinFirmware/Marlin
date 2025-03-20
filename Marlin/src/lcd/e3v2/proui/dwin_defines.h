@@ -36,6 +36,10 @@
 //#define TITLE_CENTERED        // Center Menu Title Text
 
 #if HAS_MESH
+  #define USE_GRID_MESHVIEWER 1
+#endif
+
+#if HAS_MESH
   #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
   #if ENABLED(PROUI_MESH_EDIT)
     #define Z_OFFSET_MIN  -3.0  // (mm)
