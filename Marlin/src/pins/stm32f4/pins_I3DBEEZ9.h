@@ -253,31 +253,14 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                   PA15
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PB8
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PB9
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PB3
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PG15
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PG12
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #define E3_SERIAL_TX_PIN                  PE2
-  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
-
   #define E4_SERIAL_TX_PIN                  PG11
-  #define E4_SERIAL_RX_PIN      E4_SERIAL_TX_PIN
-
   #define E5_SERIAL_TX_PIN                  PD2
-  #define E5_SERIAL_RX_PIN      E5_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -402,7 +385,7 @@
 #if SD_CONNECTION_IS(LCD)
 
   #define SD_DETECT_PIN              EXP2_07_PIN
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
@@ -411,7 +394,7 @@
   // function with Hardware SPI. This is not currently configurable in the HAL,
   // so force Software SPI to work around this issue.
   #define SOFTWARE_SPI
-  #define SDSS                              PA4
+  #define SD_SS_PIN                         PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PB5
@@ -443,7 +426,6 @@
     #define E6_CS_PIN                EXP1_06_PIN
     #if HAS_TMC_UART
       #define E6_SERIAL_TX_PIN       EXP1_06_PIN
-      #define E6_SERIAL_RX_PIN       EXP1_06_PIN
     #endif
   #endif
 
@@ -456,7 +438,6 @@
     #define E7_CS_PIN                EXP1_04_PIN
     #if HAS_TMC_UART
       #define E7_SERIAL_TX_PIN       EXP1_04_PIN
-      #define E7_SERIAL_RX_PIN       EXP1_04_PIN
     #endif
   #else
     #define E7_ENABLE_PIN            EXP2_07_PIN
@@ -471,7 +452,6 @@
     #define E8_CS_PIN                EXP1_02_PIN
     #if HAS_TMC_UART
       #define E8_SERIAL_TX_PIN       EXP1_02_PIN
-      #define E8_SERIAL_RX_PIN       EXP1_02_PIN
     #endif
   #else
     #define E8_ENABLE_PIN            EXP2_07_PIN

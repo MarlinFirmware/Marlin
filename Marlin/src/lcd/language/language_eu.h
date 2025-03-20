@@ -37,7 +37,7 @@ namespace LanguageNarrow_eu {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Basque-Euskera");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prest.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prest.");
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
@@ -108,7 +108,8 @@ namespace LanguageNarrow_eu {
   LSTR MSG_UBL_MESH_LEVEL                 = _UxGT("Sarea berdindu");
   LSTR MSG_UBL_MAP_TYPE                   = _UxGT("Mapa mota");
   LSTR MSG_LED_CONTROL                    = _UxGT("LED ezarpenak");
-  LSTR MSG_LEDS                           = _UxGT("Argiak");
+  LSTR MSG_LIGHTS                         = _UxGT("Argiak");
+  LSTR MSG_LIGHT_N                        = _UxGT("Argi #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Argi aurrehautaketak");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Gorria");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Laranja");
@@ -218,7 +219,12 @@ namespace LanguageNarrow_eu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Harizpia deskargatu");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Harizpia deskargatu *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Erabat deskargatu");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Hasieratu SD-a");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Hasieratu SD-a");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Hasieratu USB-a");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Hasieratu SD-a");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Aldatu txartela");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z zunda kanpora");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Okertze faktorea");
@@ -228,7 +234,10 @@ namespace LanguageNarrow_eu {
   LSTR MSG_BLTOUCH_DEPLOY                 = _UxGT("BLTouch jaitsi/luzatu");
   LSTR MSG_BLTOUCH_STOW                   = _UxGT("BLTouch igo/jaso");
   LSTR MSG_HOME_FIRST                     = _UxGT("Etxera %s lehenengo");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Konpentsatu");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Konpentsatu");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Konpentsatu");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Konpentsatu");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z pausoz egokitu");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikro-urratsa X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikro-urratsa Y");

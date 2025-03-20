@@ -37,7 +37,7 @@ namespace LanguageNarrow_nl {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Dutch");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" gereed.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" gereed.");
   LSTR MSG_BACK                           = _UxGT("Terug");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kaart ingestoken");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");
@@ -146,13 +146,21 @@ namespace LanguageNarrow_nl {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Verv. Filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Verv. Filament *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD kaart");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Init. SD kaart");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Init. USB stick");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Init. SD kaart");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Verv. SD Kaart");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe uit. bed");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset"); // accepted English term in Dutch
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Offset"); // accepted English term in Dutch
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Offset");
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Offset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");

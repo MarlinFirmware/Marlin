@@ -5,5 +5,12 @@
  * see the documentation: https://zed.dev/docs/configuring-zed#settings-files
  */
 {
-  "enable_language_servers": false
+  "languages": {
+    "C": {
+      "enable_language_server": false
+    },
+    "C++": {
+      "enable_language_server": false
+    }
+  }
 }

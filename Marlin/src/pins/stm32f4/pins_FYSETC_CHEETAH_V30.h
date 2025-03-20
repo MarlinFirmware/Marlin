@@ -94,28 +94,16 @@
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                 PB3
   #endif
-  #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
-  #endif
 
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                 PB3
-  #endif
-  #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                 PB3
   #endif
-  #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
-  #endif
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                PB3
-  #endif
-  #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
   #endif
 
   // Default TMC slave addresses
@@ -160,7 +148,7 @@
 // Misc. Functions
 //
 #if 0
-  #define SDSS                              PA4
+  #define SD_SS_PIN                         PA4
   #define SD_DETECT_PIN                     PC3
 #endif
 
@@ -221,7 +209,7 @@
 #define SD_MISO_PIN                  EXP2_10_PIN
 #define SD_MOSI_PIN                  EXP2_05_PIN
 
-#define SDSS                         EXP2_07_PIN
+#define SD_SS_PIN                    EXP2_07_PIN
 #define SD_DETECT_PIN                EXP2_04_PIN
 
 #if HAS_WIRED_LCD

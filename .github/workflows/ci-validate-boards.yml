@@ -23,7 +23,7 @@ jobs:
     name: Validate boards.h
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Check out the PR

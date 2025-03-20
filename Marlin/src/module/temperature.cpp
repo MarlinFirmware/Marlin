@@ -52,6 +52,8 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -695,7 +697,14 @@ volatile bool Temperature::raw_temps_ready = false;
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
 
     // Run UI update
-    ui.update();
+    #if ENABLED(SOVOL_SV06_RTS)
+      RTS_Update();
+    #else
+      ui.update();
+    #endif
+
+    // Update beeper queue
+    TERN_(HAS_BEEPER, buzzer.tick());
 
     return temp_ready;
   }
@@ -886,11 +895,15 @@ volatile bool Temperature::raw_temps_ready = false;
                 temp_change_ms = ms + SEC_TO_MS(watch_temp_period);   // - move the expiration timer up
                 if (current_temp > watch_temp_target) heated = true;  // - Flag if target temperature reached
               }
-              else if (ELAPSED(ms, temp_change_ms))                   // Watch timer expired
+              else if (ELAPSED(ms, temp_change_ms)) {                 // Watch timer expired
+                TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHeat_L, ID_KillHeat_D));
                 _TEMP_ERROR(heater_id, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, current_temp);
+              }
             }
-            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
+            else if (current_temp < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) { // Heated, then temperature fell too far?
+              TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillRunaway_L, ID_KillRunaway_D));
               _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current_temp);
+            }
           }
         #endif
       } // every 2 seconds
@@ -903,6 +916,7 @@ volatile bool Temperature::raw_temps_ready = false;
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
         TERN_(EXTENSIBLE_UI, ExtUI::onPIDTuning(ExtUI::pidresult_t::PID_TUNING_TIMEOUT));
         TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PID_TIMEOUT)));
+        TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHeat_L, ID_KillHeat_D));
         SERIAL_ECHOPGM(STR_PID_AUTOTUNE); SERIAL_ECHOLNPGM(STR_PID_TIMEOUT);
         break;
       }
@@ -1485,6 +1499,13 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
 // Temperature Error Handlers
 //
 
+/**
+ * Loud Kill
+ * @brief  Produce a loud alarm, park the head, "kill" the machine
+ *         in response to a temperature error, e.g., a thermal runaway.
+ * @param  lcd_msg:  The message to display on the LCD
+ * @param  heater_id:  The heater that caused the error
+ */
 inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
   marlin_state = MarlinState::MF_KILLED;
   thermalManager.disable_all_heaters();
@@ -1515,13 +1536,24 @@ inline void loud_kill(FSTR_P const lcd_msg, const heater_id_t heater_id) {
   kill(lcd_msg, HEATER_FSTR(heater_id));
 }
 
+/**
+ * Temperature Error
+ * @brief  Handle a temperature error, e.g., a thermal runaway.
+ * @param  heater_id:  The heater that caused the error
+ * @param  serial_msg:  The message to display on the serial console
+ * @param  lcd_msg:  The message to display on the LCD
+ * @param  deg:  The detected temperature (if ERR_INCLUDE_TEMP)
+ */
 void Temperature::_temp_error(
   const heater_id_t heater_id, FSTR_P const serial_msg, FSTR_P const lcd_msg
   OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)
 ) {
+  #if BOGUS_TEMPERATURE_GRACE_PERIOD
+    #define HAS_BOGUS_TEMPERATURE_GRACE_PERIOD 1
+  #endif
   static uint8_t killed = 0;
 
-  if (IsRunning() && TERN1(BOGUS_TEMPERATURE_GRACE_PERIOD, killed == 2)) {
+  if (IsRunning() && killed == TERN(HAS_BOGUS_TEMPERATURE_GRACE_PERIOD, 2, 0)) {
     SERIAL_ERROR_START();
     SERIAL_ECHO(serial_msg);
     SERIAL_ECHOPGM(STR_STOPPED_HEATER);
@@ -1555,7 +1587,13 @@ void Temperature::_temp_error(
   disable_all_heaters(); // always disable (even for bogus temp)
   hal.watchdog_refresh();
 
-  #if BOGUS_TEMPERATURE_GRACE_PERIOD
+  #if HAS_BOGUS_TEMPERATURE_GRACE_PERIOD
+
+    // During boot the temperature may be unreliable, so when killed ==
+    //  0: Set the expire time
+    //  1: Check the expiration time has elapsed
+    //  2: Kill the machine
+    // >2: Do nothing
     const millis_t ms = millis();
     static millis_t expire_ms;
     switch (killed) {
@@ -1571,23 +1609,40 @@ void Temperature::_temp_error(
         ++killed;
         break;
     }
-  #elif defined(BOGUS_TEMPERATURE_GRACE_PERIOD)
-    UNUSED(killed);
+
   #else
+
     if (!killed) { killed = 1; loud_kill(lcd_msg, heater_id); }
+
   #endif
 }
 
+/**
+ * Max Temp Error
+ * @brief - The temperature reading is out of range, e.g., too high.
+ *          May be caused by a disconnected thermistor which has infinite resistance.
+ * @param heater_id:  The heater that caused the error
+ * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
+ */
 void Temperature::maxtemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
   #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(1));
     TERN_(EXTENSIBLE_UI, ExtUI::onMaxTempError(heater_id));
   #endif
   _TEMP_ERROR(heater_id, F(STR_T_MAXTEMP), MSG_ERR_MAXTEMP, deg);
 }
 
+/**
+ * Min Temp Error
+ * @brief - The temperature reading is out of range, e.g., too high.
+ *          May be caused by a shorted thermistor which has near zero resistance.
+ * @param heater_id:  The heater that caused the error
+ * @param deg:  The detected temperature (if ERR_INCLUDE_TEMP)
+ */
 void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_TEMP, const celsius_float_t deg)) {
   #if HAS_HOTEND || HAS_HEATED_BED
+    TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
     TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
     TERN_(EXTENSIBLE_UI, ExtUI::onMinTempError(heater_id));
   #endif
@@ -1652,6 +1707,13 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if HAS_HOTEND
 
+  /**
+   * PID Output Hotend
+   * @brief Calculate the power output for the hotend (using PID or MPC)
+   *        that is required to get closer to the target temperature.
+   * @param E_NAME:  The extruder index
+   * @return The power output for the hotend
+   */
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
     const uint8_t ee = HOTEND_INDEX;
 
@@ -1766,6 +1828,12 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if ENABLED(PIDTEMPBED)
 
+  /**
+   * PID Output Bed
+   * @brief Calculate the bed power output using PID that is required
+   *        to get closer to the target temperature.
+   * @return The power output for the bed
+   */
   float Temperature::get_pid_output_bed() {
     static PIDRunner<bed_info_t> bed_pid(temp_bed);
     const float pid_output = bed_pid.get_pid_output();
@@ -1777,6 +1845,12 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if ENABLED(PIDTEMPCHAMBER)
 
+  /**
+   * PID Output Chamber
+   * @brief Calculate the chamber power output using PID that is required
+   *        to get closer to the target temperature.
+   * @return The power output for the chamber
+   */
   float Temperature::get_pid_output_chamber() {
     static PIDRunner<chamber_info_t> chamber_pid(temp_chamber);
     const float pid_output = chamber_pid.get_pid_output();
@@ -1788,12 +1862,20 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if HAS_HOTEND
 
+  /**
+   * Manage Hotend Temperatures
+   * @brief Task for managing hotends, called from Temperature::task()
+   * @param ms Current Time
+   */
   void Temperature::manage_hotends(const millis_t &ms) {
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       {
         const auto deg = degHotend(e);
-        if (deg > temp_range[e].maxtemp) MAXTEMP_ERROR(e, deg);
+        if (deg > temp_range[e].maxtemp) {
+          TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
+          MAXTEMP_ERROR(e, deg);
+        }
       }
       #endif
 
@@ -1814,6 +1896,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           if (watch_hotend[e].check(temp))          // Increased enough?
             start_watching_hotend(e);               // If temp reached, turn off elapsed check
           else {
+            TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHeat_L, ID_KillHeat_D));
             TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
             TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(e));
             _TEMP_ERROR(e, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, temp);
@@ -1828,12 +1911,20 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if HAS_HEATED_BED
 
+  /**
+   * Manage Heated Bed Temperature
+   * @brief Task for managing the heated bed, called from Temperature::task()
+   * @param ms Current Time
+   */
   void Temperature::manage_heated_bed(const millis_t &ms) {
 
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
       const auto deg = degBed();
-      if (deg > BED_MAXTEMP) MAXTEMP_ERROR(H_BED, deg);
+      if (deg > BED_MAXTEMP) {
+        TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillBadTemp_L, ID_KillBadTemp_D));
+        MAXTEMP_ERROR(H_BED, deg);
+      }
     }
     #endif
 
@@ -1845,6 +1936,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         if (watch_bed.check(deg))               // Increased enough?
           start_watching_bed();                 // If temp reached, turn off elapsed check
         else {
+          TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHeat_L, ID_KillHeat_D));
           TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
           TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(H_BED));
           _TEMP_ERROR(H_BED, FPSTR(str_t_heating_failed), MSG_ERR_HEATING_FAILED, deg);
@@ -1861,7 +1953,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       static bool last_pause_state;
     #endif
 
-    do {
+    do { // 'break' out of this block
 
       #if DISABLED(PIDTEMPBED)
         if (PENDING(ms, next_bed_check_ms)
@@ -1887,38 +1979,63 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         constexpr bool bed_timed_out = false;
       #endif
 
-      if (!bed_timed_out) {
-        if (is_bed_preheating()) {
-          temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-        }
-        else {
-          #if ENABLED(PIDTEMPBED)
-            temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
-          #else
-            // Check if temperature is within the correct band
-            if (WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
-              #if ENABLED(BED_LIMIT_SWITCHING)
+      if (bed_timed_out) break;
 
-                // Range-limited "bang-bang" bed heating
-                if (temp_bed.is_above_target(BED_HYSTERESIS))
-                  temp_bed.soft_pwm_amount = 0;
-                else if (temp_bed.is_below_target(BED_HYSTERESIS))
-                  temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
-
-              #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
-
-                // Simple (noisy) "bang-bang" bed heating
-                temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
-
-              #endif
-            }
-            else {
-              temp_bed.soft_pwm_amount = 0;
-              WRITE_HEATER_BED(LOW);
-            }
-          #endif
-        }
+      if (is_bed_preheating()) {
+        temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+        break;
       }
+
+      #if ENABLED(PIDTEMPBED)
+
+        //
+        // PID Bed Heating
+        //
+        temp_bed.soft_pwm_amount = WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP) ? (int)get_pid_output_bed() >> 1 : 0;
+
+      #else // !PIDTEMPBED
+
+        //
+        // Range-limited "bang-bang" bed heating
+        //
+
+        // Bed Off if the current bed temperature is outside the allowed range
+        if (!WITHIN(temp_bed.celsius, BED_MINTEMP, BED_MAXTEMP)) {
+          temp_bed.soft_pwm_amount = 0;
+          WRITE_HEATER_BED(LOW);
+          break;
+        }
+
+        #if ENABLED(PELTIER_BED)
+          /**
+           * Peltier bang-bang maintains max bed power but changes
+           * current direction to switch between heating/cooling.
+           */
+          if (temp_bed.target && temp_bed.is_above_target(BED_HYSTERESIS)) {  // Fast Cooling
+            temp_bed.soft_pwm_amount = MAX_BED_POWER;
+            temp_bed.peltier_dir_heating = false;
+          }
+          else if (temp_bed.is_below_target(BED_HYSTERESIS)) {                // Heating
+            temp_bed.soft_pwm_amount = MAX_BED_POWER;
+            temp_bed.peltier_dir_heating = true;
+          }
+          else
+            temp_bed.soft_pwm_amount = 0;                                     // Off (ambient cooling)
+
+        #else // !PELTIER_BED
+
+          #if ENABLED(BED_LIMIT_SWITCHING)
+            if (temp_bed.is_above_target(BED_HYSTERESIS))       // Cooling (implicit off)
+              temp_bed.soft_pwm_amount = 0;
+            else if (temp_bed.is_below_target(BED_HYSTERESIS))  // Heating
+              temp_bed.soft_pwm_amount = MAX_BED_POWER >> 1;
+          #else                                                 // Not bed limit switching
+            temp_bed.soft_pwm_amount = temp_bed.is_below_target() ? MAX_BED_POWER >> 1 : 0;
+          #endif
+
+        #endif // !PELTIER_BED
+
+      #endif // !PIDTEMPBED
 
     } while (false);
   }
@@ -1927,6 +2044,11 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if HAS_HEATED_CHAMBER
 
+  /**
+   * Manage Heated Chamber Temperature
+   * @brief Task for managing the heated chamber, called from Temperature::task()
+   * @param ms Current Time
+   */
   void Temperature::manage_heated_chamber(const millis_t &ms) {
 
     #ifndef CHAMBER_CHECK_INTERVAL
@@ -2059,6 +2181,11 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 
 #if HAS_COOLER
 
+  /**
+   * Manage Heated Cooler Temperature
+   * @brief Task for managing the cooler, called from Temperature::task()
+   * @param ms Current Time
+   */
   void Temperature::manage_cooler(const millis_t &ms) {
 
     #ifndef COOLER_CHECK_INTERVAL
@@ -2271,7 +2398,7 @@ void Temperature::task() {
 
 #if HAS_USER_THERMISTORS
 
-  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load()
+  user_thermistor_t Temperature::user_thermistor[USER_THERMISTORS]; // Initialized by settings.load
 
   void Temperature::reset_user_thermistors() {
     user_thermistor_t default_user_thermistor[USER_THERMISTORS] = {
@@ -2924,6 +3051,10 @@ void Temperature::init() {
   #endif
 
   #if HAS_HEATED_BED
+    #if ENABLED(PELTIER_BED)
+      SET_OUTPUT(PELTIER_DIR_PIN);
+      OUT_WRITE(PELTIER_DIR_PIN, !PELTIER_DIR_HEAT_STATE);
+    #endif
     #ifdef BOARD_OPENDRAIN_MOSFETS
       OUT_WRITE_OD(HEATER_BED_PIN, ENABLED(HEATER_BED_INVERTING));
     #else
@@ -3298,6 +3429,7 @@ void Temperature::init() {
       } // fall through
 
       case TRRunaway:
+        TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillRunaway_L, ID_KillRunaway_D));
         TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
         TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(heater_id));
         _TEMP_ERROR(heater_id, FPSTR(str_t_thermal_runaway), MSG_ERR_THERMAL_RUNAWAY, current);
@@ -3415,13 +3547,14 @@ void Temperature::disable_all_heaters() {
 #endif // SINGLENOZZLE_STANDBY_TEMP || SINGLENOZZLE_STANDBY_FAN
 
 #if HAS_MAX_TC
-
   typedef TERN(HAS_MAX31855, uint32_t, uint16_t) max_tc_temp_t;
 
   #ifndef THERMOCOUPLE_MAX_ERRORS
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
+#endif
 
+#if TEMP_SENSOR_IS_MAX_TC(0) || TEMP_SENSOR_IS_MAX_TC(1) || TEMP_SENSOR_IS_MAX_TC(2)
   /**
    * @brief Read MAX Thermocouple temperature.
    *
@@ -3678,7 +3811,7 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Set thermocouple above max temperature (TMAX)
-        max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX << (BED_MAX_TC_DISCARD_BITS + 1);
+        max_tc_temp = max_tc_temp_t(TEMP_SENSOR_BED_MAX_TC_TMAX) << (BED_MAX_TC_DISCARD_BITS + 1);
       }
     }
     else {
@@ -3726,7 +3859,6 @@ void Temperature::update_raw_temperatures() {
     temp_bed.update();
   #endif
 
-  TERN_(HAS_TEMP_ADC_2,       temp_hotend[2].update());
   TERN_(HAS_TEMP_ADC_3,       temp_hotend[3].update());
   TERN_(HAS_TEMP_ADC_4,       temp_hotend[4].update());
   TERN_(HAS_TEMP_ADC_5,       temp_hotend[5].update());
@@ -3904,6 +4036,9 @@ void Temperature::isr() {
 
       #if HAS_HEATED_BED
         _PWM_MOD(BED, soft_pwm_bed, temp_bed);
+        #if ENABLED(PELTIER_BED)
+          WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating);
+        #endif
       #endif
 
       #if HAS_HEATED_CHAMBER
@@ -4370,15 +4505,15 @@ void Temperature::isr() {
 #if HAS_TEMP_SENSOR
   /**
    * Print a single heater state in the form:
-   *        Bed: " B:nnn.nn /nnn.nn"
-   *    Chamber: " C:nnn.nn /nnn.nn"
-   *      Probe: " P:nnn.nn"
-   *     Cooler: " L:nnn.nn /nnn.nn"
-   *      Board: " M:nnn.nn"
-   *        SoC: " S:nnn.nn"
-   *  Redundant: " R:nnn.nn /nnn.nn"
-   *   Extruder: " T0:nnn.nn /nnn.nn"
-   *   With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
+   *     Extruder: " T0:nnn.nn /nnn.nn"
+   *          Bed: " B:nnn.nn /nnn.nn"
+   *      Chamber: " C:nnn.nn /nnn.nn"
+   *       Cooler: " L:nnn.nn /nnn.nn"
+   *        Probe: " P:nnn.nn"
+   *        Board: " M:nnn.nn"
+   *          SoC: " S:nnn.nn"
+   *    Redundant: " R:nnn.nn /nnn.nn"
+   *     With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
    */
   static void print_heater_state(const heater_id_t e, const_celsius_float_t c, const_celsius_float_t t
     OPTARG(SHOW_TEMP_ADC_VALUES, const float r)
@@ -4396,11 +4531,11 @@ void Temperature::isr() {
       #if HAS_TEMP_CHAMBER
         case H_CHAMBER: k = 'C'; break;
       #endif
-      #if HAS_TEMP_PROBE
-        case H_PROBE: k = 'P'; show_t = false; break;
-      #endif
       #if HAS_TEMP_COOLER
         case H_COOLER: k = 'L'; break;
+      #endif
+      #if HAS_TEMP_PROBE
+        case H_PROBE: k = 'P'; show_t = false; break;
       #endif
       #if HAS_TEMP_BOARD
         case H_BOARD: k = 'M'; show_t = false; break;
@@ -4428,6 +4563,17 @@ void Temperature::isr() {
     delay(2);
   }
 
+  /**
+   * Print all heater states followed by power data on a single line.
+   * See print_heater_state for heater output strings.
+   * Power output strings are in the format:
+   *     Extruder: " @:nnn"
+   *          Bed: " B@:nnn"
+   *      Peltier: " P@:H/C"
+   *      Chamber: " C@:nnn"
+   *       Cooler: " L@:nnn"
+   *      Hotends: " @0:nnn @1:nnn ..."
+   */
   void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
   ) {
@@ -4459,15 +4605,10 @@ void Temperature::isr() {
       HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
     #endif
     SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
-    #if HAS_HEATED_BED
-      s.append(" B@:", getHeaterPower(H_BED));
-    #endif
-    #if HAS_HEATED_CHAMBER
-      s.append(" C@:", getHeaterPower(H_CHAMBER));
-    #endif
-    #if HAS_COOLER
-      s.append(" C@:", getHeaterPower(H_COOLER));
-    #endif
+    TERN_(HAS_HEATED_BED,     s.append(F(" B@:"), getHeaterPower(H_BED)));
+    TERN_(PELTIER_BED,        s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
+    TERN_(HAS_HEATED_CHAMBER, s.append(F(" C@:"), getHeaterPower(H_CHAMBER)));
+    TERN_(HAS_COOLER,         s.append(F(" L@:"), getHeaterPower(H_COOLER)));
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
     #endif
@@ -4624,6 +4765,10 @@ void Temperature::isr() {
           hmiFlag.heat_flag = 0;
           duration_t elapsed = print_job_timer.duration();  // Print timer
           dwin_heat_time = elapsed.value;
+        #elif ENABLED(SOVOL_SV06_RTS)
+          update_time_value = RTS_UPDATE_VALUE;
+          if (IS_SD_PRINTING()) rts.refreshTime();
+          rts.start_print_flag = false;
         #else
           ui.reset_status();
         #endif

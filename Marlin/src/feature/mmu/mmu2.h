@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * mmu2.h - Support for Průša MMU2 and MMU2S
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_FILAMENT_SENSOR
@@ -85,7 +89,7 @@ private:
     FORCE_INLINE static bool load_to_gears() { return true; }
   #endif
 
-  #if ENABLED(MMU_EXTRUDER_SENSOR)
+  #if ENABLED(MMU2_EXTRUDER_SENSOR)
     #define MMU_LOAD_FEEDRATE 19.02f // (mm/s)
     static void mmu_continue_loading();
   #endif

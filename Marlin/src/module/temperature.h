@@ -367,13 +367,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   typedef
     #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-      PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDCF_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
-      PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
+      PIDC_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN>
     #elif ENABLED(PID_FAN_SCALING)
-      PIDF_t<0, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDF_t<MIN_POWER, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #else
-      PID_t<0, PID_MAX>
+      PID_t<MIN_POWER, PID_MAX>
     #endif
   hotend_pid_t;
 
@@ -437,12 +437,15 @@ typedef struct HeaterInfo : public TempInfo {
   uint8_t soft_pwm_amount;
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
+  #if ENABLED(PELTIER_BED)
+    bool peltier_dir_heating; // = false
+  #endif
 } heater_info_t;
 
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load()
+  T pid;  // Initialized by settings.load
 };
 
 #if ENABLED(MPCTEMP)
@@ -1027,12 +1030,12 @@ class Temperature {
         #endif
       #endif
 
-      static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(wholeDegHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
-      }
-
       static bool degHotendNear(const uint8_t e, const celsius_t temp) {
         return ABS(wholeDegHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
+      static bool still_heating(const uint8_t e) {
+        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
@@ -1329,10 +1332,6 @@ class Temperature {
       static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}
-    #endif
-
-    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
   private:

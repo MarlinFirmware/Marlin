@@ -71,11 +71,13 @@ inline void toggle_pins() {
     else {
       hal.watchdog_refresh();
       printPinStateExt(pin, ignore_protection, true, F("Pulsing   "));
-      #ifdef __STM32F1__
-        const auto prior_mode = _GET_MODE(i);
-      #else
-        const bool prior_mode = getValidPinMode(pin);
-      #endif
+      const auto prior_mode = (
+        #ifdef __STM32F1__
+          _GET_MODE(i)
+        #else
+          getValidPinMode(pin)
+        #endif
+      );
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);

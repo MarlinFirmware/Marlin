@@ -35,7 +35,7 @@ namespace LanguageNarrow_ro {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Romanian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Pregatit.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Pregatit.");
   LSTR MSG_YES                            = _UxGT("DA");
   LSTR MSG_NO                             = _UxGT("NU");
   LSTR MSG_BACK                           = _UxGT("Inapoi");
@@ -121,7 +121,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Mirrored Copy");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Full Control");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2nd Nozzle Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2nd Nozzle @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2nd Nozzle @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Doing G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Tools");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Tilting Point");
@@ -194,7 +194,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Save Bed Mesh");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Control");
-  LSTR MSG_LEDS                           = _UxGT("Lights");
+  LSTR MSG_LIGHTS                         = _UxGT("Lights");
+  LSTR MSG_LIGHT_N                        = _UxGT("Light #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Light Presets");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Red");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Orange");
@@ -387,7 +388,12 @@ namespace LanguageNarrow_ro {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Scoatere Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Scoatere Filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Scoate Tot");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare Media");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Atasare card SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Atasare FD USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Atasare card SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Inlocuire Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Eliberare Media");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
@@ -417,6 +423,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Probe X Offset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Probe Y Offset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Probe Z Offset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Probe @ Offset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Pas Z ajustare");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

@@ -550,7 +550,7 @@
     #endif
   #endif
 
-  #if DISABLED(USB_FLASH_DRIVE_SUPPORT) || ALL(MULTI_VOLUME, VOLUME_SD_ONBOARD)
+  #if !HAS_USB_FLASH_DRIVE || ALL(HAS_MULTI_VOLUME, VOLUME_SD_ONBOARD)
     #if ENABLED(ONBOARD_SDIO)
       #define NEED_SD2CARD_SDIO 1
     #else
@@ -1851,7 +1851,7 @@
 #define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
                           || (defined(SERIAL_PORT_2)     && N == SERIAL_PORT_2) \
                           || (defined(SERIAL_PORT_3)     && N == SERIAL_PORT_3) \
-                          || (defined(MMU2_SERIAL_PORT)  && N == MMU2_SERIAL_PORT) \
+                          || (defined(MMU_SERIAL_PORT)   && N == MMU_SERIAL_PORT) \
                           || (defined(LCD_SERIAL_PORT)   && N == LCD_SERIAL_PORT) \
                           || (defined(RS485_SERIAL_PORT) && N == RS485_SERIAL_PORT) )
 
@@ -3039,7 +3039,7 @@
 #endif
 
 /**
- * Heated bed requires settings
+ * Heated Bed required settings
  */
 #if HAS_HEATED_BED
   #ifndef MIN_BED_POWER
@@ -3049,6 +3049,14 @@
     #define MAX_BED_POWER 255
   #endif
   #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, (v) ^ ENABLED(HEATER_BED_INVERTING))
+  #if ENABLED(PELTIER_BED)
+   /**
+    * A "Heated Bed" Peltier device needs a direction (heat/cool) to be
+    * implemented by a relay (single pin) or H-bridge (2 or 4 pin).
+    * H-Bridge can also perform PWM. (Not recommended for Peltier devices).
+    */
+    #define WRITE_PELTIER_DIR(v) WRITE(PELTIER_DIR_PIN, (v) ? PELTIER_DIR_HEAT_STATE : !PELTIER_DIR_HEAT_STATE)
+  #endif
 #endif
 
 /**
@@ -3225,7 +3233,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH

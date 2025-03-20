@@ -33,7 +33,7 @@ namespace LanguageNarrow_vi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Vietnamese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Sẵn sàng.");              // Ready
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Sẵn sàng.");        // Ready
   LSTR MSG_BACK                           = _UxGT("Trở lại");                              // Back
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
@@ -170,7 +170,8 @@ namespace LanguageNarrow_vi {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Lưu lưới bàn");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Điều khiển LED");                       // LED Control
-  LSTR MSG_LEDS                           = _UxGT("Đèn");                                  // Lights
+  LSTR MSG_LIGHTS                         = _UxGT("Đèn");                                  // Lights
+  LSTR MSG_LIGHT_N                        = _UxGT("Đèn #{");                               // Light #{
   LSTR MSG_LED_PRESETS                    = _UxGT("Đèn định sẵn");                         // Light Presets
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Đỏ");                                   // Red
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Cam");                                  // Orange
@@ -308,7 +309,12 @@ namespace LanguageNarrow_vi {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Dỡ dây nhựa");                         // Unload filament
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Dỡ dây nhựa *");                       // Unload filament
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Dỡ tất cả");                           // Unload All
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Khởi tạo phương tiện");                // Attach media
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Khởi tạo thẻ SD");                     // Attach SD Card
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Khởi tạo thanh USB");                  // Attach USB Drive
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Khởi tạo phương tiện");                // Attach media
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Thay phương tiện");                    // Change midea
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Phát hành phương tiện");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z Probe past bed
@@ -321,7 +327,10 @@ namespace LanguageNarrow_vi {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Đem Đầu Dò-Z");                        // Deploy Z-Probe
   LSTR MSG_MANUAL_STOW                    = _UxGT("Cất Đầu Dò-Z");                        // Stow Z-Probe
   LSTR MSG_HOME_FIRST                     = _UxGT("Về nhà %s Trước");                     // Home %s first
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Đầu Dò Bù Đắp X");                     // Probe X Offset
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Đầu Dò Bù Đắp Y");                     // Probe Y Offset
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Đầu Dò Bù Đắp Z");                     // Probe Z Offset
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Đầu Dò Bù Đắp @");                     // Probe @ Offset
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Điều chỉnh Z từng");                   // Babystep Probe Z
   LSTR MSG_BABYSTEP_X                     = _UxGT("Nhít X");                              // Babystep X
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Nhít Y");

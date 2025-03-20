@@ -29,28 +29,14 @@
  */
 
 /**
- * Rev B    26 DEC 2016
- *
- * 1) added pointer to a current Arduino IDE extension
- * 2) added support for M3, M4 & M5 spindle control commands
- * 3) added case light pin definition
- */
-
-/**
- * A useable Arduino IDE extension (Boards Manager) can be found at
+ * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
+ * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
+ * Once installed select the SANGUINO board and then select the CPU.
  */
 
 #define ALLOW_MEGA644
@@ -99,7 +85,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  31  // SCL pin of I2C header || CS Pin for SD Card support
+#define SD_SS_PIN                             31  // SCL pin of I2C header || CS Pin for SD Card support
 #define PS_ON_PIN                             19
 
 #ifndef CASE_LIGHT_PIN

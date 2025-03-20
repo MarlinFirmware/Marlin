@@ -79,6 +79,8 @@
     #include "lcd/e3v2/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/e3v2/jyersui/dwin.h"
+  #elif ENABLED(SOVOL_SV06_RTS)
+    #include "lcd/sovol_rts/sovol_rts.h"
   #endif
 #endif
 
@@ -230,8 +232,8 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "feature/mmu3/mmu2.h"
-  #include "feature/mmu3/mmu2_reporting.h"
+  #include "feature/mmu3/mmu3.h"
+  #include "feature/mmu3/mmu3_reporting.h"
   #include "feature/mmu3/SpoolJoin.h"
 #elif HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
@@ -268,6 +270,10 @@
 #endif
 
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
+
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  MString<64> machine_name;
+#endif
 
 MarlinState marlin_state = MarlinState::MF_INITIALIZING;
 
@@ -813,7 +819,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_MEDIA, card.manage_media());
 
   // Handle USB Flash Drive insert / remove
-  TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
+  TERN_(HAS_USB_FLASH_DRIVE, card.diskIODriver()->idle());
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -825,7 +831,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
-  ui.update();
+  #if ENABLED(SOVOL_SV06_RTS)
+    RTS_Update();
+  #else
+    ui.update();
+  #endif
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1162,6 +1172,12 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
+  #if ENABLED(SOVOL_SV06_RTS)
+    LCD_SERIAL.begin(BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #endif
+
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
@@ -1246,7 +1262,7 @@ void setup() {
     SETUP_RUN(runout.setup());
   #endif
 
-  #if HAS_TMC220x
+  #if HAS_TMC_UART
     SETUP_RUN(tmc_serial_begin());
   #endif
 
@@ -1319,8 +1335,11 @@ void setup() {
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
-
-  SETUP_RUN(ui.init());
+  #if ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(RTS_Update());
+  #else
+    SETUP_RUN(ui.init());
+  #endif
 
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
@@ -1347,6 +1366,10 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SETUP_RUN(ui.reset_status(false)); // machine_name Initialized by settings.load()
+  #endif
 
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
@@ -1609,6 +1632,8 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
+  #elif ENABLED(SOVOL_SV06_RTS)
+    SETUP_RUN(rts.init());
   #endif
 
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)

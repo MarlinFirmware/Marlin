@@ -41,7 +41,7 @@ namespace LanguageNarrow_cz {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Czech");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" připraven.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" připraven.");
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");
@@ -126,7 +126,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("Zrcadlení");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");
 
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Provádím G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL nástroje");
@@ -200,7 +200,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Uložit síť bodů");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Nastavení LED");
-  LSTR MSG_LEDS                           = _UxGT("Světla");
+  LSTR MSG_LIGHTS                         = _UxGT("Světla");
+  LSTR MSG_LIGHT_N                        = _UxGT("Světla #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Světla Předvolby");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Červená");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Oranžová");
@@ -358,7 +359,12 @@ namespace LanguageNarrow_cz {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunout filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunout vše");
 
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načíst médium");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Načíst SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Načíst USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Načíst SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vyměnit médium");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Vysunout médium");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl");
@@ -384,7 +390,10 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Vysunout Z-sondu");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Zasunout Z-sondu");
   LSTR MSG_HOME_FIRST                     = _UxGT("Domů %s první");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ ofset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok a Z offset");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystep X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystep Y");

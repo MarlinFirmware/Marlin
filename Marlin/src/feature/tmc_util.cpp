@@ -32,6 +32,10 @@
 #include "../libs/duration_t.h"
 #include "../gcode/gcode.h"
 
+#if ENABLED(SOVOL_SV06_RTS)
+  #include "../lcd/sovol_rts/sovol_rts.h"
+#endif
+
 #if ENABLED(TMC_DEBUG)
   #include "../libs/hex_print.h"
   #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -207,6 +211,7 @@
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
       TERN_(TMC_DEBUG, tmc_report_all());
+      TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
       kill(F("Driver error"));
     }
   #endif
@@ -609,9 +614,10 @@
         default: break;
       }
     }
-  #endif
+  #endif // TMC2160 || TMC5160
 
   #if HAS_TMC220x
+
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE_SUM: SERIAL_ECHO(st.pwm_scale_sum()); break;
@@ -659,7 +665,8 @@
         }
       }
     #endif
-  #endif
+
+  #endif // HAS_TMC220x
 
   #if HAS_DRIVER(TMC2660)
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
