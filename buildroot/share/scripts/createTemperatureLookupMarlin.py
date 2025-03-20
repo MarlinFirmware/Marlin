@@ -8,9 +8,9 @@ https://en.wikipedia.org/wiki/Steinhart-Hart_equation
 The main use is for Arduino programs that read data from the circuit board described here:
 https://reprap.org/wiki/Temperature_Sensor_v2.0
 
-Usage: python createTemperatureLookupMarlin.py [options]
+usage: python createTemperatureLookupMarlin.py [options]
 
-Options:
+options:
   -h, --help        Show this help
   --rp=...          Pull-up resistor
   --t1=ttt:rrr      Low temperature temperature:resistance point (around 25 degC)
@@ -18,9 +18,7 @@ Options:
   --t3=ttt:rrr      High temperature temperature:resistance point (around 250 degC)
   --num-temps=...   The number of temperature points to calculate (default: 36)
 """
-
 from __future__ import print_function, division
-
 from math import *
 import sys, getopt
 
@@ -34,7 +32,7 @@ TMIN   = 0                                  # Lowest temperature in table
 TMAX   = 350                                # Highest temperature in table
 
 class Thermistor:
-    "Class to do the thermistor maths"
+    """ Class to do the thermistor maths """
 
     def __init__(self, rp, t1, r1, t2, r2, t3, r3):
         l1 = log(r1)
@@ -66,7 +64,7 @@ class Thermistor:
 
     def voltage(self, adc):
         "Convert ADC reading into a Voltage"
-        return adc * VSTEP
+        return adc * VSTEP                  # Convert the 10 bit ADC value to a voltage
 
     def resist(self, adc):
         "Convert ADC reading into a resistance in Ohms"

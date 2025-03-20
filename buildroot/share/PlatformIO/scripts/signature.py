@@ -481,10 +481,10 @@ def compute_build_signature(env):
         # Group options by schema @section
         for header in real_config:
             for name in real_config[header]:
-                # print(f"  name: {name}")
+                #print(f"  name: {name}")
                 if name in ignore: continue
                 ddict = real_config[header][name]
-                # print(f"   real_config[{header}][{name}]:", ddict)
+                #print(f"   real_config[{header}][{name}]:", ddict)
                 sect = ddict["section"]
                 if sect not in sections: sections[sect] = {}
                 sections[sect][name] = ddict
@@ -508,10 +508,10 @@ def compute_build_signature(env):
             sections = {}
             for header in real_config:
                 for name in real_config[header]:
-                    # print(f"  name: {name}")
+                    #print(f"  name: {name}")
                     if name not in ignore:
                         ddict = real_config[header][name]
-                        # print(f"   real_config[{header}][{name}]:", ddict)
+                        #print(f"   real_config[{header}][{name}]:", ddict)
                         sect = ddict["section"]
                         if sect not in sections: sections[sect] = {}
                         sections[sect][name] = ddict
@@ -596,7 +596,7 @@ f"""#
             if extended_dump:
                 # Loop through the sections
                 for skey in sorted(sections):
-                    # print(f"  skey: {skey}")
+                    #print(f"  skey: {skey}")
                     sani = re.sub(r'[- ]+', "_", skey).lower()
                     outfile.write(f"\n[config:{sani}]\n")
                     opts = sections[skey]
@@ -605,7 +605,7 @@ f"""#
                         if name in ignore: continue
                         val = opts[name]["value"]
                         if val == "": val = "on"
-                        # print(f"  {name} = {val}")
+                        #print(f"  {name} = {val}")
                         outfile.write(ini_fmt.format(name.lower(), val) + "\n")
             else:
                 # Standard export just dumps config:basic and config:advanced sections
@@ -664,7 +664,7 @@ f"""/**
             if extended_dump:
                 # Loop through the sections
                 for skey in sections:
-                    # print(f"  skey: {skey}")
+                    #print(f"  skey: {skey}")
                     opts = sections[skey]
                     headed = False
                     opts_keys = sorted(opts.keys(), key=lambda x: optsort(x, optorder))
@@ -739,7 +739,7 @@ f"""/**
             else:
                 for header in real_config:
                     conf = real_config[header]
-                    # print(f"real_config[{header}]", conf)
+                    #print(f"real_config[{header}]", conf)
                     for name in conf:
                         if name in ignore: continue
                         json_data[name] = conf[name]["value"]

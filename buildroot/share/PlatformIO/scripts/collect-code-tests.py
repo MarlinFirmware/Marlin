@@ -2,10 +2,8 @@
 # collect-code-tests.py
 # Convenience script to collect all code tests. Used by env:linux_native_test in native.ini.
 #
-
 import pioutil
 if pioutil.is_pio_build():
-
     import os, re
     env = pioutil.env
 

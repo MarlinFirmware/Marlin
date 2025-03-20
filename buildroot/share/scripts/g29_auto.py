@@ -1,36 +1,37 @@
 #!/usr/bin/env python
-
-# This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
-# It will analyze the first 2 layers and return the maximum size for this part
-# Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
-# The new file will be created in the same folder.
-
+"""
+This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
+It will analyze the first 2 layers and return the maximum size for this part
+Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
+The new file will be created in the same folder.
+"""
 from __future__ import print_function
 
 # Your G-code file/folder
 folder = "../"
 my_file = "test.gcode"
 
-# this is the minimum of G1 instructions which should be between 2 different heights
-min_g1 = 3
+# This is the minimum of G0-G1 instructions which should be between 2 different heights
+min_g = 3
 
-# maximum number of lines to parse, I don't want to parse the complete file
-# only the first plane is we are interested in
-max_g1 = 100000000
+# Maximum number of lines to parse, I don't want to parse the complete file
+# Only the first plane is we are interested in
+max_g = 100000000
 
-# g29 keyword
+# G29 keyword
 g29_keyword = "G29"
 
-# output filename
+# Output filename
 output_file = folder + "g29_" + my_file
-# input filename
+# Input filename
 input_file = folder + my_file
 
-# minimum scan size
+# Minimum scan size
 min_size = 40
-probing_points = 3  # points x points
+probing_points = 3  # Points x points
+max_lines = 1500
 
-# other stuff
+# Other stuff
 min_x = 500
 min_y = min_x
 max_x = -500
@@ -42,11 +43,19 @@ lines_of_g1 = 0
 
 gcode = []
 
-# return only G0-G1-lines
+g29_found = False
+g28_found = False
+
+YELLOW = '\033[33m'
+GREEN = '\033[32m'
+RED = '\033[31m'
+RESET = '\033[0m'
+
+# Return only G0-G1 lines
 def has_g_move(line):
     return line[:2].upper() in ("G0", "G1")
 
-# find position in g1 (x,y,z)
+# Find position in G move (x,y,z)
 def find_axis(line, axis):
     found = False
     number = ""
@@ -69,7 +78,7 @@ def find_axis(line, axis):
     except ValueError:
         return None
 
-# save the min or max-values for each axis
+# Save the min or max-values for each axis
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
 
@@ -85,8 +94,7 @@ def set_mima(line):
 
     return min_x, max_x, min_y, max_y
 
-
-# find z in the code and return it
+# Find z in the code and return it
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
         my_z = find_axis(gcode[i], "Z")
@@ -105,7 +113,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         result = find_z(gcode, i + 1)
 
         if result is None:
-            break
+            raise ValueError(f'{RED}Unable to determine Z height.{RESET}')
 
         z, i = result
 
@@ -115,8 +123,8 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         line_between_z.append(i - last_i - 1)
         # last_z = z
         last_i = i
-        if 0 < end_at_line <= i or temp_line >= min_g1:
-            # print("break at line {} at height {}"".format(i, z))
+        if 0 < end_at_line <= i or temp_line >= min_g:
+            #print("break at line {} at height {}"".format(i, z))
             break
 
     line_between_z = line_between_z[1:]
@@ -125,29 +133,28 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
 # get the lines which should be the first layer
 def get_lines(gcode, minimum):
     i = 0
-    all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g1)
-    # print("Detected Z heights:", all_z)
+    all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g)
+    #print("Detected Z heights:", all_z)
     for count in line_between_z:
         i += 1
         if count > minimum:
-            # print("layer: {}:{}".format(z_at_line[i-1], z_at_line[i]))
+            #print("layer: {}:{}".format(z_at_line[i-1], z_at_line[i]))
             return z_at_line[i - 1], z_at_line[i]
 
 with open(input_file, "r", encoding="utf_8") as file:
     lines = 0
     for line in file:
         lines += 1
-        if lines > 1500:
+        if lines > max_lines:
             break
         if has_g_move(line):
             gcode.append(line)
 file.close()
 
-layer_range = get_lines(gcode, min_g1)
+layer_range = get_lines(gcode, min_g)
 
 if layer_range is None:
-    print("Error: Unable to determine layer range. Exiting.")
-    exit(1)
+    raise ValueError(f"{RED}Unable to determine layer range.{RESET}")
 
 start, end = layer_range
 
@@ -159,21 +166,18 @@ print("x_min:{} x_max:{}\ny_min:{} y_max:{}".format(min_x, max_x, min_y, max_y))
 # resize min/max - values for minimum scan
 if max_x - min_x < min_size:
     offset_x = int((min_size - (max_x - min_x)) / 2 + 0.5)  # int round up
-    # print("min_x! with {}".format(int(max_x - min_x)))
+    #print("min_x! with {}".format(int(max_x - min_x)))
     min_x = int(min_x) - offset_x
     max_x = int(max_x) + offset_x
 if max_y - min_y < min_size:
     offset_y = int((min_size - (max_y - min_y)) / 2 + 0.5)  # int round up
-    # print("min_y! with {}".format(int(max_y - min_y)))
+    #print("min_y! with {}".format(int(max_y - min_y)))
     min_y = int(min_y) - offset_y
     max_y = int(max_y) + offset_y
 
 new_command = "G29 L{0} R{1} F{2} B{3} P{4}\n".format(
     min_x, max_x, min_y, max_y, probing_points
 )
-
-g29_found = False
-g28_found = False
 
 with open(input_file, "r", encoding="utf_8") as in_file, open(output_file, "w", encoding="utf_8") as out_file:
     for line in in_file:

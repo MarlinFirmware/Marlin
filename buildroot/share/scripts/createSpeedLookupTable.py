@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 from __future__ import print_function, division
 
 """ Generate the stepper delay lookup table for Marlin firmware. """
@@ -24,7 +23,7 @@ print("#if F_CPU == %d" % cpu_freq)
 print()
 
 print("  const struct { uint16_t base; uint8_t gain; } speed_lookuptable_fast[256] PROGMEM = {")
-a = [0 for i in range(8)] + [ int(0.5 + float(timer_freq) / (i * 256)) for i in range(8, 256)]
+a = [0 for i in range(8)] + [int(0.5 + float(timer_freq) / (i * 256)) for i in range(8, 256)]
 b = [0 for i in range(8)] + [a[i] - a[i + 1] for i in range(8, 255)]
 b.append(b[-1])
 for i in range(32):

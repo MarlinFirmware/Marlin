@@ -22,7 +22,7 @@ Usage: mftest [-a|--autobuild]
        mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
-OPTIONS
+Options:
   -a --autobuild   PIO Build using the MOTHERBOARD environment.
   -d --default     Restore to defaults before applying configs.
   -h --help        Print this help.

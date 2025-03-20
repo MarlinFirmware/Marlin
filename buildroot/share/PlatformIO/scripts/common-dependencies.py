@@ -4,7 +4,6 @@
 #
 import pioutil
 if pioutil.is_pio_build():
-
     import os, re, fnmatch, glob
     srcfilepattern = re.compile(r".*[.](cpp|c)$")
     marlinbasedir = os.path.join(os.getcwd(), "Marlin/")

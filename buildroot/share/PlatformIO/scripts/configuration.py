@@ -7,7 +7,7 @@ import re, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
-def blab(str,level=1):
+def blab(str, level=1):
     if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
@@ -249,10 +249,8 @@ def apply_config_ini(cp):
 
         if ckey == '[disable]':
             disable_all_options()
-
         elif ckey == 'all':
             apply_sections(cp)
-
         else:
             # Apply keyed sections after external files are done
             apply_sections(cp, 'config:' + ckey)
@@ -267,7 +265,7 @@ if __name__ == "__main__":
         if args[0].endswith('.ini'):
             ini_file = args[0]
         else:
-            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
+            print("usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
         ini_file = config_path('config.ini')
 

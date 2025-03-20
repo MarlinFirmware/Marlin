@@ -3,7 +3,6 @@
 # Note: the 16x16 glyphs are not produced
 # Author: Taylor Talkington
 # License: GPL
-
 import bdflib.reader, math
 
 def glyph_bits(size_x, size_y, font, glyph_ord):
@@ -31,7 +30,7 @@ def glyph_bits(size_x, size_y, font, glyph_ord):
 def marlin_font_hzk():
     fonts = [
         [ 6, 12, "marlin-6x12-3.bdf"],
-        [ 8, 16, "marlin-8x16.bdf" ],
+        [ 8, 16, "marlin-8x16.bdf"],
         [10, 20, "marlin-10x20.bdf"],
         [12, 24, "marlin-12x24.bdf"],
         [14, 28, "marlin-14x28.bdf"],
@@ -47,6 +46,11 @@ def marlin_font_hzk():
             with open(f[2], "rb") as file:
                 print(f"{f[0]}x{f[1]}")
                 font = bdflib.reader.read_bdf(file)
+
+                if font is None:
+                    print(f'Failed to read font from {f[2]}')
+                    continue  # Skip this font and move to the next one
+
                 for glyph in range(128):
                     bits = glyph_bits(f[0], f[1], font, glyph)
                     glyph_bytes = math.ceil(f[0] / 8)
