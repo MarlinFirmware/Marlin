@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""
-Bitwise RLE compress a Marlin mono DOGM bitmap.
-Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
-Output: A new file with the original and compressed data.
-
-usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
-"""
+#
+# Bitwise RLE compress a Marlin mono DOGM bitmap.
+# Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
+# Output: A new file with the original and compressed data.
+#
+# Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
+#
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
@@ -58,14 +58,14 @@ def addCompressedData(input_file, output_file):
 
     #print("\nRaw Bitmap Data", raw_data)
 
-    """
-    Bitwise RLE (run length) encoding
-    Convert data from raw mono bitmap to a bitwise run-length-encoded format.
-    - The first nybble is the starting bit state. Changing this nybble inverts the bitmap.
-    - The following bytes provide the runs for alternating on/off bits.
-      - A value of 0-14 encodes a run of 1-15.
-      - A value of 16 indicates a run of 16-270 calculated using the next two bytes.
-    """
+    #
+    # Bitwise RLE (run length) encoding
+    # Convert data from raw mono bitmap to a bitwise run-length-encoded format.
+    # - The first nybble is the starting bit state. Changing this nybble inverts the bitmap.
+    # - The following bytes provide the runs for alternating on/off bits.
+    #   - A value of 0-14 encodes a run of 1-15.
+    #   - A value of 16 indicates a run of 16-270 calculated using the next two bytes.
+    #
     def bitwise_rle_encode(data):
 
         def get_bit(data, n): return 1 if (data[n // 8] & (0x80 >> (n & 7))) else 0
@@ -185,7 +185,7 @@ def addCompressedData(input_file, output_file):
             break
 
 if len(sys.argv) <= 2:
-    print('usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE')
+    print('Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE')
     exit(1)
 
 output_h = sys.argv[2]

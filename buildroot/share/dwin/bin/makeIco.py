@@ -17,6 +17,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #----------------------------------------------------------------
+
 import os.path, argparse, DWIN_ICO
 
 version = '2.0.7'
@@ -25,8 +26,10 @@ version = '2.0.7'
 if __name__ == '__main__':
     try:
         parser = argparse.ArgumentParser(description='Make .ico from JPEG files')
-        parser.add_argument('iconDir', type=str, nargs=1, help='name of directory containing icon JPGs')
-        parser.add_argument('filename', type=str, nargs=1, help='name of new .ico file to create')
+        parser.add_argument('iconDir', type=str, nargs=1,
+                            help='name of directory containing icon JPGs')
+        parser.add_argument('filename', type=str, nargs=1,
+                            help='name of new .ico file to create')
         args = parser.parse_args()
 
         filename = args.filename[0]

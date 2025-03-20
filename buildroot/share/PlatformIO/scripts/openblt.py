@@ -13,8 +13,6 @@ if pioutil.is_pio_build():
             join("$BUILD_DIR", "${PROGNAME}.bin"),
             env.VerboseAction(" ".join([
                 "$OBJCOPY", "-O", "srec",
-                '"$BUILD_DIR/${PROGNAME}.elf"',
-                '"' + join("$BUILD_DIR", 
-                board.get("build.encode")) + '"'
+                "\"$BUILD_DIR/${PROGNAME}.elf\"", "\"" + join("$BUILD_DIR", board.get("build.encode")) + "\""
             ]), "Building " + board.get("build.encode"))
         )

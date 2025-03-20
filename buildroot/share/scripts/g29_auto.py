@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""
-This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
-It will analyze the first 2 layers and return the maximum size for this part
-Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
-The new file will be created in the same folder.
-"""
+
+# This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
+# It will analyze the first 2 layers and return the maximum size for this part
+# Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
+# The new file will be created in the same folder.
+
 from __future__ import print_function
 
 # Your G-code file/folder
@@ -18,7 +18,7 @@ min_g = 3
 # only the first plane is we are interested in
 max_g = 100000000
 
-# g29 keyword
+# G29 keyword
 g29_keyword = 'G29'
 
 # output filename
@@ -78,6 +78,7 @@ def find_axis(line, axis):
     except ValueError:
         return None
 
+
 # save the min or max-values for each axis
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
@@ -94,12 +95,14 @@ def set_mima(line):
 
     return min_x, max_x, min_y, max_y
 
+
 # find z in the code and return it
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
         my_z = find_axis(gcode[i], 'Z')
         if my_z is not None:
             return my_z, i
+
 
 def z_parse(gcode, start_at_line=0, end_at_line=0):
     i = start_at_line
@@ -119,7 +122,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
 
         all_z.append(z)
         z_at_line.append(i)
-        temp_line = i - last_i - 1
+        temp_line = i - last_i -1
         line_between_z.append(i - last_i - 1)
         # last_z = z
         last_i = i
@@ -129,6 +132,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
 
     line_between_z = line_between_z[1:]
     return all_z, line_between_z, z_at_line
+
 
 # get the lines which should be the first layer
 def get_lines(gcode, minimum):
@@ -140,6 +144,7 @@ def get_lines(gcode, minimum):
         if count > minimum:
             #print('layer: {}:{}'.format(z_at_line[i-1], z_at_line[i]))
             return z_at_line[i - 1], z_at_line[i]
+
 
 with open(input_file, 'r', encoding='utf_8') as file:
     lines = 0
@@ -175,9 +180,12 @@ if max_y - min_y < min_size:
     min_y = int(min_y) - offset_y
     max_y = int(max_y) + offset_y
 
-new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(
-    min_x, max_x, min_y, max_y, probing_points
-)
+
+new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
+                                                      max_x,
+                                                      min_y,
+                                                      max_y,
+                                                      probing_points)
 
 with open(input_file, 'r', encoding='utf_8') as in_file, open(output_file, 'w', encoding='utf_8') as out_file:
     for line in in_file:

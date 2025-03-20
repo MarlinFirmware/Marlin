@@ -15,6 +15,7 @@ TODO: Use the defines and comments above the namespace from existing language fi
       Get the correct 'using namespace' for languages that don't inherit from English.
 
 """
+
 import sys, re, requests, csv, datetime
 #from languageExport import namebyid
 
@@ -61,7 +62,7 @@ for row in reader:
         gothead = True
         numcols = len(row)
         if row[0] != 'name':
-            print("Error: first column should be 'name'")
+            print('Error: first column should be "name"')
             exit(1)
         # The rest of the columns are language codes and names
         for i in range(1, numcols):
@@ -84,8 +85,8 @@ for row in reader:
 from pathlib import Path
 Path.mkdir(Path(OUTDIR), exist_ok=True)
 
-FILEHEADER = \
-"""/**
+FILEHEADER = '''
+/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -123,7 +124,7 @@ FILEHEADER = \
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
-"""
+'''
 
 # Iterate over the languages which correspond to the columns
 # The columns are assumed to be grouped by language in the order Narrow, Wide, Tall

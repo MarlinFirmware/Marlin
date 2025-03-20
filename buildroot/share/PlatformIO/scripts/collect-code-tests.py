@@ -2,8 +2,10 @@
 # collect-code-tests.py
 # Convenience script to collect all code tests. Used by env:linux_native_test in native.ini.
 #
+
 import pioutil
 if pioutil.is_pio_build():
+
     import os, re
     env = pioutil.env
 
@@ -20,7 +22,7 @@ if pioutil.is_pio_build():
         test_suites = collect_test_suites()
         for path in test_suites:
             name = re.sub(r'^\d+-|\.ini$', '', path.name)
-            targets += [name];
+            targets += [name]
 
             env.AddCustomTarget(
                 name = f"marlin_{name}",

@@ -12,7 +12,7 @@ def Upload(source, target, env):
     #-------#
     # Debug #
     #-------#
-    Debug = False  # Set to True to enable script debug
+    Debug = False                # Set to True to enable script debug
     def debugPrint(data):
         if Debug: print(f"[Debug]: {data}")
 
@@ -130,6 +130,7 @@ def Upload(source, target, env):
         print(' OK' if _RemoveFirmwareFile(FirmwareFile) else ' Error!')
         _ClosePort()
 
+
     #---------------------#
     # Callback Entrypoint #
     #---------------------#
@@ -140,16 +141,16 @@ def Upload(source, target, env):
 
     # Get Marlin evironment vars
     MarlinEnv = env['MARLIN_FEATURES']
-    marlin_pioenv                     = _GetMarlinEnv(MarlinEnv, 'PIOENV')
-    marlin_motherboard                = _GetMarlinEnv(MarlinEnv, 'MOTHERBOARD')
-    marlin_board_info_name            = _GetMarlinEnv(MarlinEnv, 'BOARD_INFO_NAME')
-    marlin_board_custom_build_flags   = _GetMarlinEnv(MarlinEnv, 'BOARD_CUSTOM_BUILD_FLAGS')
-    marlin_firmware_bin               = _GetMarlinEnv(MarlinEnv, 'FIRMWARE_BIN')
+    marlin_pioenv = _GetMarlinEnv(MarlinEnv, 'PIOENV')
+    marlin_motherboard = _GetMarlinEnv(MarlinEnv, 'MOTHERBOARD')
+    marlin_board_info_name = _GetMarlinEnv(MarlinEnv, 'BOARD_INFO_NAME')
+    marlin_board_custom_build_flags = _GetMarlinEnv(MarlinEnv, 'BOARD_CUSTOM_BUILD_FLAGS')
+    marlin_firmware_bin = _GetMarlinEnv(MarlinEnv, 'FIRMWARE_BIN')
     marlin_long_filename_host_support = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_HOST_SUPPORT') is not None
-    marlin_longname_write             = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_WRITE_SUPPORT') is not None
-    marlin_custom_firmware_upload     = _GetMarlinEnv(MarlinEnv, 'CUSTOM_FIRMWARE_UPLOAD') is not None
-    marlin_short_build_version        = _GetMarlinEnv(MarlinEnv, 'SHORT_BUILD_VERSION')
-    marlin_string_config_h_author     = _GetMarlinEnv(MarlinEnv, 'STRING_CONFIG_H_AUTHOR')
+    marlin_longname_write = _GetMarlinEnv(MarlinEnv, 'LONG_FILENAME_WRITE_SUPPORT') is not None
+    marlin_custom_firmware_upload = _GetMarlinEnv(MarlinEnv, 'CUSTOM_FIRMWARE_UPLOAD') is not None
+    marlin_short_build_version = _GetMarlinEnv(MarlinEnv, 'SHORT_BUILD_VERSION')
+    marlin_string_config_h_author = _GetMarlinEnv(MarlinEnv, 'STRING_CONFIG_H_AUTHOR')
 
     # Get firmware upload params
     upload_firmware_source_path = os.path.join(env["PROJECT_BUILD_DIR"], env["PIOENV"], f"{env['PROGNAME']}.bin") if 'PROGNAME' in env else str(source[0])
@@ -180,16 +181,16 @@ def Upload(source, target, env):
     if upload_compression:
         if sys.version_info[0] > 2:
             try:
-                import heatshrink2
+               import heatshrink2
             except ImportError:
-                print("Installing 'heatshrink2' python module...")
-                env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
+               print("Installing 'heatshrink2' python module...")
+               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
         else:
             try:
-                import heatshrink
+               import heatshrink
             except ImportError:
-                print("Installing 'heatshrink' python module...")
-                env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
+               print("Installing 'heatshrink' python module...")
+               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
 
     try:
 
@@ -235,7 +236,7 @@ def Upload(source, target, env):
                 raise Exception(f"CUSTOM_FIRMWARE_UPLOAD must be enabled in 'Configuration_adv.h' for '{marlin_motherboard}'")
 
             # Init & Open serial port
-            port = serial.Serial(upload_port, baudrate=upload_speed, write_timeout=0, timeout=0.1)
+            port = serial.Serial(upload_port, baudrate = upload_speed, write_timeout = 0, timeout = 0.1)
             _OpenPort()
 
             # Check SD card status
@@ -248,7 +249,7 @@ def Upload(source, target, env):
                     print(f'Found: {FirmwareFile}')
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1 : len(FirmwareFiles) - 2], marlin_long_filename_host_support)  # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_long_filename_host_support)   # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
                 print('No old firmware files to delete')
             else:
