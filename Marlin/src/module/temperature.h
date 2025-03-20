@@ -599,15 +599,6 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
   #define HAS_FAN_LOGIC 1
 #endif
 
-#if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-  enum PreheatTarget : uint8_t {
-    HOTEND  = (1 << 0),
-    BED     = (1 << 1),
-    CHAMBER = (1 << 2),
-    ALL     = 0xFF
-  };
-#endif
-
 class Temperature {
 
   public:
@@ -1341,11 +1332,6 @@ class Temperature {
       static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}
-    #endif
-
-    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
-      // Apply the "preheat" parameters for a material preset to the hotend (or laser), bed, chamber, or all of the above
-      static void lcd_preheat(const uint8_t m, const uint8_t targets, const uint8_t e=0);
     #endif
 
   private:
