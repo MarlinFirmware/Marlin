@@ -8,8 +8,7 @@ from pathlib import Path
 
 verbose = 0
 def blab(str, level=1):
-    if verbose >= level:
-        print(f"[config] {str}")
+    if verbose >= level: print(f"[config] {str}")
 
 def config_path(cpath):
     return Path("Marlin", cpath)
