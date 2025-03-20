@@ -239,8 +239,7 @@ if pioutil.is_pio_build():
 
                     def filt(x):
                         common = os.path.commonpath([plain, x])
-                        if not common == os.path.normpath(plain):
-                            return True
+                        if not common == os.path.normpath(plain): return True
                         onremove(x, "dcr")
                         return False
 
@@ -248,8 +247,7 @@ if pioutil.is_pio_build():
                 else:
                     # Remove matching source entries.
                     def filt(x):
-                        if not fnmatch.fnmatch(x, plain):
-                            return True
+                        if not fnmatch.fnmatch(x, plain): return True
                         onremove(x)
                         return False
 
