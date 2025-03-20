@@ -264,7 +264,7 @@ def process_text(txt):
 
         if wDict['check_comment_next']:
             # Comments in column 50
-            line = rpad('', col_comment) + r[1]
+            line = rpad('', col_comment) + (r[1] if r else '')
 
         elif trySkip1(wDict):   pass  #define SKIP_ME
         elif tryPindef(wDict):  pass  #define MY_PIN [pin]
