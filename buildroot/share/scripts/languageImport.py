@@ -157,11 +157,7 @@ for i in range(1, numcols):
         # Write the opening header for the new language file
         #f.write(FILEHEADER % namebyid(lang))
         f.write("/**\n * Imported from %s on %s at %s\n */\n" %
-            (
-                FILEPATH,
-                datetime.date.today(),
-                datetime.datetime.now().strftime("%H:%M:%S")
-            )
+            (FILEPATH, datetime.date.today(), datetime.datetime.now().strftime("%H:%M:%S"))
         )
 
     # Start a namespace for the language and style

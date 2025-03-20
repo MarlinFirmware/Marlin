@@ -111,16 +111,8 @@ class DWIN_ICO_File:
                 blob = infile.read(entry.length)
                 outfile.write(blob)
                 # Seek file position, read length bytes, and write to new output file.
-                print(
-                    "(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s" %
-                    (
-                        count,
-                        entry.width,
-                        entry.height,
-                        entry.offset,
-                        entry.length,
-                        os.path.basename(outfilename)
-                    )
+                print("(%3d: width=%3d height=%3d offset=%6d len=%4d) ... %s" %
+                    (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename))
                 )
 
             count += 1
