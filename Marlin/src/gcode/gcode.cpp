@@ -243,7 +243,7 @@ void GcodeSuite::get_destination_from_command() {
 }
 
 /**
- * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
+ * Dwell waits immediately. It does not synchronize.
  * @param time unit: ms
  */
 void GcodeSuite::dwell(const millis_t time) {

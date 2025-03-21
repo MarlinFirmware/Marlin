@@ -32,6 +32,9 @@ void idle(const bool no_stepper_sleep);
 #define MS_TO_SEC(N) millis_t((N)/1000UL)
 #define MS_TO_SEC_PRECISE(N) (float(N)/1000.0f)
 
+#define FUTURE(START,DURA) (millis_t(millis()-(START))<(DURA))
+#define PAST(START,DURA) (!FUTURE(START,DURA))
+
 constexpr bool _PENDING(const millis_t now, const millis_t soon) { return (now < soon); }
 constexpr bool _PENDING(const millis_t now, const millis_t start, const millis_t interval) { return (millis_t(now - start) < interval); }
 
@@ -62,10 +65,10 @@ struct MTimeout {
 //For constant delays up to about 60s(and instant start). Usage example: Mdelay myDelay(500);myDelay.idle();
 struct MDelay{
   const uint16_t start_ms = (uint16_t)millis();
-  const uint16_t delay_ms;  
+  const uint16_t delay_ms;
   MDelay(uint16_t delay_ms):delay_ms(delay_ms){}//(Initializer list must be used to initialize constant data member)
   inline bool pending(const uint16_t ms=(uint16_t)millis()) const { return ((uint16_t)(ms - start_ms) < delay_ms); }//Stay immune to timer overflow!
-  inline bool elapsed(const uint16_t ms=(uint16_t)millis()) const { return ((uint16_t)(ms - start_ms) > delay_ms); } 
+  inline bool elapsed(const uint16_t ms=(uint16_t)millis()) const { return ((uint16_t)(ms - start_ms) > delay_ms); }
   inline void idle(const bool nss=false) const {while(pending()) ::idle(nss);}
   inline void dofunc(timeoutFunc_t fn) const {while(pending()) fn();}
   millis_t remaining(const uint16_t ms=millis()) const { return pending(ms) ? delay_ms - (uint16_t)(ms - start_ms) : 0; }
