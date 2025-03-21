@@ -1816,7 +1816,8 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   bool Motion::idex_mirrored_mode           = false;                        // Used in mode 3
   xyz_pos_t Motion::raised_parked_position;                                 // Used in mode 1
   bool Motion::active_extruder_parked       = false;                        // Used in mode 1, 2 & 3
-  millis_t Motion::delayed_move_time        = 0;                            // Used in mode 1
+  millis_t Motion::delayed_move_start_ms    = 0;                            // Used in mode 1
+  uint16_t Motion::delayed_move_interval    = 0;                            // Used in mode 1
   celsius_t Motion::duplicate_extruder_temp_offset = 0;                     // Used in mode 2 & 3
 
   void Motion::set_extruder_duplication(const bool dupe, const int8_t tool_index/*=-1*/) {
@@ -1831,7 +1832,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   }
 
   void Motion::idex_set_parked(const bool park/*=true*/) {
-    delayed_move_time = 0;
+    delayed_move_interval = 0;
     active_extruder_parked = park;
     if (park) raised_parked_position = position;  // Remember current raised toolhead position for use by unpark
   }
@@ -1852,10 +1853,11 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
-            if (delayed_move_time != UINT32_MAX) {
-              position = destination;
-              NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_time = millis() + 1000UL;
+            if (delayed_move_interval != 1) {
+              motion.position = motion.destination;
+              NOLESS(raised_parked_position.z, motion.destination.z);
+              delayed_move_start_ms = millis();
+              delayed_move_interval = 1000;
               return true;
             }
           }
