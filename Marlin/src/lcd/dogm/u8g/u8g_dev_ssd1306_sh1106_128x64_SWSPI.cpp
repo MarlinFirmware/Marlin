@@ -64,7 +64,7 @@
 #define PAGE_HEIGHT 8
 
 #define SH1106_PAGE_ADR(N)        (0x20), (N)
-#define SH1106_COL_ADR(N)         (0x10 | ((N) >> 4)), ((N) & 0xFF)
+#define SH1106_COL_ADR(N)         (0x10 | ((N) >> 4)), ((N) & 0xF)
 #define SH1106_COLUMN_RANGE(N,O)  (0x21), (N), (O)
 #define SH1106_PAGE_RANGE(N,O)    (0x22), (N), (O)
 #define SH1106_SCROLL(N)          ((N) ? 0x2F : 0x2E)
