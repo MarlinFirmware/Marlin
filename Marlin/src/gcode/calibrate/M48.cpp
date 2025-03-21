@@ -261,14 +261,10 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      ui.set_status_and_level(TS(
-        // "Deviation: 0.123456"
-        GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)
-        #if ENABLED(STATUS_MESSAGE_SCROLLING) || MAX_MESSAGE_SIZE > LCD_WIDTH || LCD_WIDTH > 40
-          // ", Max Delta: 0.123456"
-          , F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 6)
-        #endif
-      ));
+      if (MAX_MESSAGE_SIZE > 40)
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 3)));
+      else
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
     #endif
   }
 
