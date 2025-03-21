@@ -55,7 +55,6 @@
 #define TIMER_TCCHANNEL(t)      ((t) & 1)
 #define TC_COUNTER_START_VAL    0xFFFF
 
-
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
 FORCE_INLINE static uint16_t getTimerCount() {

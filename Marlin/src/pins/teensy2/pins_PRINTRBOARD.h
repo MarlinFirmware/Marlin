@@ -26,14 +26,10 @@
  *
  *  Converted to Arduino pin numbering
  *
- *  Schematic (RevA): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.A/schematic.png
- *  Origin (RevA): https://raw.githubusercontent.com/lwalkera/printrboard/revA/Printrboard.sch
- *  Schematic (RevB): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.B/schematic.png
- *  Origin (RevB): https://raw.githubusercontent.com/lwalkera/printrboard/revB/Printrboard.sch
- *  Schematic (RevC): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.C/schematic.png
- *  Origin (RevC): https://raw.githubusercontent.com/lwalkera/printrboard/revC/Printrboard.sch
- *  Schematic (RevD): https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Printrboard%20Rev.D/schematic.png
- *  Origin (RevD): https://raw.githubusercontent.com/lwalkera/printrboard/RevD/Printrboard.sch
+ *  Schematic (RevA): https://raw.githubusercontent.com/lwalkera/printrboard/revA/Printrboard.sch
+ *  Schematic (RevB): https://raw.githubusercontent.com/lwalkera/printrboard/revB/Printrboard.sch
+ *  Schematic (RevC): https://raw.githubusercontent.com/lwalkera/printrboard/revC/Printrboard.sch
+ *  Schematic (RevD): https://raw.githubusercontent.com/lwalkera/printrboard/RevD/Printrboard.sch
  */
 
 /**
@@ -130,6 +126,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                          9  // E1       JP11-11
@@ -149,7 +146,7 @@
     #define BTN_EN2                            3  // D3 RX1   JP2-7
     #define BTN_ENC                           45  // F7 TDI   JP2-12
 
-    #define SDSS                              43  // F5 TMS   JP2-8
+    #define SD_SS_PIN                         43  // F5 TMS   JP2-8
 
     #define STAT_LED_RED_PIN                  12  // C2    JP11-14
     #define STAT_LED_BLUE_PIN                 10  // C0    JP11-12
@@ -162,7 +159,8 @@
     #define BTN_EN2                            2  // D2 TX1   JP2-5
     #define BTN_ENC                           41  // F3       JP2-4
 
-    #define SDSS                              38  // F0       B-THERM connector - use SD card on Panelolu2
+    #define SD_SS_PIN                         38  // F0       B-THERM connector - use SD card on Panelolu2
+    #undef LCD_PINS_EN                            // not used, causes false pin conflict report
 
   #else
 
@@ -175,5 +173,5 @@
 #endif // HAS_WIRED_LCD && IS_NEWPANEL
 
 #ifndef SDSS
-  #define SDSS                                26  // B6 SDCS
+  #define SD_SS_PIN                           26  // B6 SDCS
 #endif

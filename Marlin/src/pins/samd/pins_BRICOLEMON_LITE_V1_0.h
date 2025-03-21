@@ -44,7 +44,7 @@
  */
 //#define FLASH_EEPROM_EMULATION
 #define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE               0x10000  // 64K (CAT24C512)
+#define MARLIN_EEPROM_SIZE              0x10000U  // 64K (CAT24C512)
 
 // This is another option to emulate an EEPROM, but it's more efficient to not lose the data in the first place.
 //#define SDCARD_EEPROM_EMULATION
@@ -359,8 +359,9 @@
       //#define BTN_EN1                       47
       //#define BTN_EN2              EXP2_03_PIN
       //#define BTN_ENC                       32
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define KILL_PIN             EXP1_01_PIN
+      //#undef LCD_PINS_EN                        // not used, causes false pin conflict report
 
     #elif ENABLED(LCD_I2C_VIKI)
 
@@ -369,7 +370,7 @@
       //#define BTN_EN2              EXP2_05_PIN
       //#define BTN_ENC                       -1
 
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define SD_DETECT_PIN        EXP2_10_PIN
 
     #elif ANY(VIKI2, miniVIKI)
@@ -403,7 +404,7 @@
       //#define BTN_EN2              EXP1_06_PIN
       //#define BTN_ENC                       31
 
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define SD_DETECT_PIN        EXP2_10_PIN
       //#define KILL_PIN             EXP1_01_PIN
 
@@ -560,31 +561,13 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDSS                                83
-  #undef SD_DETECT_PIN
+  #define SD_SS_PIN                           83
   #define SD_DETECT_PIN                       95
 #else
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
 #endif
 
 #if HAS_TMC_UART
-  /**
-   * Address for the UART Configuration of the TMC2209. Override in Configuration files.
-   * To test TMC2209 Steppers enable TMC_DEBUG in Configuration_adv.h and test the M122 command with voltage on the steppers.
-   */
-  #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                 0b00
-  #endif
-  #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                 0b01
-  #endif
-  #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                 0b10
-  #endif
-  #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                0b11
-  #endif
-
   /**
    * TMC2208/TMC2209 stepper drivers
    *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
@@ -594,8 +577,28 @@
   //#define Z_HARDWARE_SERIAL  Serial1
   //#define E0_HARDWARE_SERIAL Serial1
 
-  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
-  #define TMC_BAUD_RATE 250000
+  // Default TMC slave addresses
+  #ifndef X_SLAVE_ADDRESS
+    #define X_SLAVE_ADDRESS                  0
+  #endif
+  #ifndef Y_SLAVE_ADDRESS
+    #define Y_SLAVE_ADDRESS                  1
+  #endif
+  #ifndef Z_SLAVE_ADDRESS
+    #define Z_SLAVE_ADDRESS                  2
+  #endif
+  #ifndef E0_SLAVE_ADDRESS
+    #define E0_SLAVE_ADDRESS                 3
+  #endif
+  static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BRICOLEMON_LITE_V1_0.");
+  static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_BRICOLEMON_LITE_V1_0.");
+  static_assert(Z_SLAVE_ADDRESS == 2, "Z_SLAVE_ADDRESS must be 2 for BOARD_BRICOLEMON_LITE_V1_0.");
+  static_assert(E0_SLAVE_ADDRESS == 3, "E0_SLAVE_ADDRESS must be 3 for BOARD_BRICOLEMON_LITE_V1_0.");
+
+  // Reduce baud rate to improve software serial reliability
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200 // 250000
+  #endif
 
   //
   // Software serial

@@ -96,7 +96,6 @@
 #ifndef FAN0_PIN
   #define FAN0_PIN                             7  // M106 Sxxx command supported and tested. M107 as well.
 #endif
-
-#ifndef FAN_PIN1
-  #define FAN_PIN1                            12  // Currently Unsupported by Marlin
+#ifndef FAN1_PIN
+  #define FAN1_PIN                            12  // Currently Unsupported by Marlin
 #endif

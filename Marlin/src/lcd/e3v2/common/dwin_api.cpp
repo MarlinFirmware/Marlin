@@ -93,16 +93,18 @@ bool dwinHandshake() {
 // Get font character width
 uint8_t fontWidth(uint8_t cfont) {
   switch (cfont) {
-    case font6x12 : return 6;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 6;
+      case font20x40: return 20;
+      case font24x48: return 24;
+      case font28x56: return 28;
+      case font32x64: return 32;
+    #endif
     case font8x16 : return 8;
     case font10x20: return 10;
     case font12x24: return 12;
     case font14x28: return 14;
     case font16x32: return 16;
-    case font20x40: return 20;
-    case font24x48: return 24;
-    case font28x56: return 28;
-    case font32x64: return 32;
     default: return 0;
   }
 }
@@ -110,16 +112,18 @@ uint8_t fontWidth(uint8_t cfont) {
 // Get font character height
 uint8_t fontHeight(uint8_t cfont) {
   switch (cfont) {
-    case font6x12 : return 12;
+    #if DISABLED(TJC_DISPLAY)
+      case font6x12 : return 12;
+      case font20x40: return 40;
+      case font24x48: return 48;
+      case font28x56: return 56;
+      case font32x64: return 64;
+    #endif
     case font8x16 : return 16;
     case font10x20: return 20;
     case font12x24: return 24;
     case font14x28: return 28;
     case font16x32: return 32;
-    case font20x40: return 40;
-    case font24x48: return 48;
-    case font28x56: return 56;
-    case font32x64: return 64;
     default: return 0;
   }
 }
@@ -153,21 +157,84 @@ void dwinFrameClear(const uint16_t color) {
   dwinSend(i);
 }
 
-// Draw a point
-//  color: point color
-//  width: point width   0x01-0x0F
-//  height: point height 0x01-0x0F
-//  x,y: upper left point
-void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
-  size_t i = 0;
-  dwinByte(i, 0x02);
-  dwinWord(i, color);
-  dwinByte(i, width);
-  dwinByte(i, height);
-  dwinWord(i, x);
-  dwinWord(i, y);
-  dwinSend(i);
-}
+#if DISABLED(TJC_DISPLAY)
+
+  // Draw a point
+  //  color: point color
+  //  width: point width   0x01-0x0F
+  //  height: point height 0x01-0x0F
+  //  x,y: upper left point
+  void dwinDrawPoint(uint16_t color, uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+    size_t i = 0;
+    dwinByte(i, 0x02);
+    dwinWord(i, color);
+    dwinByte(i, width);
+    dwinByte(i, height);
+    dwinWord(i, x);
+    dwinWord(i, y);
+    dwinSend(i);
+  }
+
+  // Draw a map of multiple points using minimal amount of point drawing commands
+  //  color: point color
+  //  point_width: point width   0x01-0x0F
+  //  point_height: point height 0x01-0x0F
+  //  x,y: upper left point
+  //  map_columns: columns in theh point map. each column is a byte in the map and contains 8 points
+  //  map_rows: rows in the point map
+  //  map: point bitmap. 2D array of points, 1 bit per point
+  // Note: somewhat similar to U8G's drawBitmap() function, see https://github.com/olikraus/u8glib/wiki/userreference#drawbitmap
+  void dwinDrawPointMap(
+    const uint16_t color,
+    const uint8_t point_width, const uint8_t point_height,
+    const uint16_t x, const uint16_t y,
+    const uint16_t map_columns, const uint16_t map_rows,
+    const uint8_t *map_data
+  ) {
+    // At how many bytes should we flush the send buffer?
+    // One byte is used (hidden) for F_HONE, and we need 4 bytes when appending a point.
+    // So we should flush the send buffer when we have less than 5 bytes left.
+    constexpr size_t flush_send_buffer_at = (COUNT(dwinSendBuf) - 1 - 4);
+
+    // How long is the header of each draw command?
+    // => 1B CMD, 2B COLOR, 1B WIDTH, 1B HEIGHT
+    constexpr size_t command_header_size = 5;
+
+    size_t i = 0;
+    for (uint16_t row = 0; row < map_rows; row++) {
+      for (uint16_t col = 0; col < map_columns; col++) {
+        const uint8_t map_byte = map_data[(row * map_columns) + col];
+        for (uint8_t bit = 0; bit < 8; bit++) {
+          // Draw a point at this position?
+          if (TEST(map_byte, bit)) {
+            // Flush the send buffer and prepare next draw if either
+            // a) The buffer reached the 'should flush' state, or
+            // b) This is the first point to draw
+            if (i >= flush_send_buffer_at || i == 0) {
+              // Dispatch the current draw command
+              if (i > command_header_size) dwinSend(i);
+
+              // Prepare the next draw command
+              i = 0;
+              dwinByte(i, 0x02); // cmd: draw point(s)
+              dwinWord(i, color);
+              dwinByte(i, point_width);
+              dwinByte(i, point_height);
+            }
+
+            // Append point coordinates to draw command
+            dwinWord(i, x + (point_width * ((8 * col) + (7 - bit)))); // x
+            dwinWord(i, y + (point_height * (row)));                  // y
+          }
+        }
+      }
+    }
+
+    // Dispatch final draw command if the buffer contains any points
+    if (i > command_header_size) dwinSend(i);
+  }
+
+#endif // !TJC_DISPLAY
 
 // Draw a line
 //  color: Line segment color
@@ -234,7 +301,7 @@ void dwinFrameAreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 //  rlimit: To limit the drawn string length
 void dwinDrawString(bool bShow, uint8_t size, uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const char * const string, uint16_t rlimit/*=0xFFFF*/) {
-  #if NONE(DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, IS_DWIN_MARLINUI)
+  #if ENABLED(DWIN_CREALITY_LCD)
     dwinDrawRectangle(1, bColor, x, y, x + (fontWidth(size) * strlen_P(string)), y + fontHeight(size));
   #endif
   constexpr uint8_t widthAdjust = 0;

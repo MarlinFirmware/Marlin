@@ -14,10 +14,10 @@ jobs:
     name: Close Stale Issues
     if: github.repository == 'MarlinFirmware/Marlin'
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/stale@v8
+    - uses: actions/stale@v9
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: |

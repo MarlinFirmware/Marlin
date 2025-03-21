@@ -28,7 +28,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #include <U8glib-HAL.h>
-#include "HAL_LCD_class_defines.h"
+#include "u8g/HAL_LCD_class_defines.h"
 
 //#define ALTERNATIVE_LCD
 
@@ -38,16 +38,19 @@
 
   #if HAS_MEDIA
     #ifdef __SAMD21__
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL             // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #else
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+      // Hardware SPI on DUE
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X                 // 2 stripes, SW SPI (Original u8glib device)
     #endif
     #define U8G_PARAM LCD_PINS_RS
   #elif (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
-    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+    // Hardware SPI shared with SD Card
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
-    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+    // Software SPI
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X                   // 2 stripes, SW SPI (Original u8glib device)
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS
   #endif
 
@@ -97,7 +100,7 @@
   #define SMART_RAMPS MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #define U8G_CLASS U8GLIB_64128N_2X_HAL                        // 4 stripes (HW-SPI)
 
-  #if (SMART_RAMPS && defined(__SAM3X8E__)) || DOGLCD_SCK != SD_SCK_PIN || DOGLCD_MOSI != SD_MOSI_PIN
+  #if (SMART_RAMPS && defined(__SAM3X8E__)) || (defined(DOGLCD_SCK) && (DOGLCD_SCK != -1 && DOGLCD_SCK != SD_SCK_PIN)) || (defined(DOGLCD_MOSI) && (DOGLCD_MOSI != -1 && DOGLCD_MOSI != SD_MOSI_PIN))
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
@@ -152,7 +155,11 @@
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_SH1306_128X64_2X                   // 4 stripes
   #else
-    #define U8G_CLASS U8GLIB_SH1306_128X64                      // 8 stripes
+    #if ENABLED(U8GLIB_SSD1306_SPI)
+      #define U8G_CLASS U8GLIB_SSD1306_128X64_SW_SPI_HAL
+    #else
+      #define U8G_CLASS U8GLIB_SH1306_128X64                    // 8 stripes
+    #endif
   #endif
 
 #elif ANY(MKS_12864OLED, ZONESTAR_12864OLED)
@@ -165,7 +172,11 @@
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
   #else
-    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
+    #if ENABLED(U8GLIB_SH1106_SPI)
+      #define U8G_CLASS U8GLIB_SH1106_128X64_SW_SPI_HAL
+    #else
+      #define U8G_CLASS U8GLIB_SH1106_128X64                    // 8 stripes
+    #endif
   #endif
 
 #elif ENABLED(U8GLIB_SH1106_EINSTART)
@@ -190,7 +201,7 @@
 
   // Generic support for SSD1309 OLED I2C LCDs
 
-  #define U8G_CLASS U8GLIB_SSD1309_128X64
+  #define U8G_CLASS TERN(LCD_DOUBLE_BUFFER, U8GLIB_SSD1309_128X64_F, U8GLIB_SSD1309_128X64)
   #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
 
 #elif ENABLED(U8GLIB_SSD1306)
@@ -230,7 +241,7 @@
   #if ENABLED(FORCE_SOFT_SPI)
     #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0 // SW-SPI
   #else
-    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                      // HW-SPI
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                          // HW-SPI
   #endif
 #endif
 

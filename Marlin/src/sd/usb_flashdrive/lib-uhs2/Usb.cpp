@@ -29,7 +29,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
+#if HAS_USB_FLASH_DRIVE && DISABLED(USE_UHS3_USB)
 
 #include "Usb.h"
 
@@ -201,7 +201,7 @@ uint8_t USB::ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bReque
  * Keep sending INs and writes data to memory area pointed by 'data'
  * rcode 0 if no errors. rcode 01-0f is relayed from dispatchPkt(). Rcode f0 means RCVDAVIRQ error, fe = USB xfer timeout
  */
-uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval /*= 0*/) {
+uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval/*=0*/) {
   EpInfo *pep = nullptr;
   uint16_t nak_limit = 0;
 
@@ -792,4 +792,4 @@ uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
   return ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, 0x0000, nullptr, nullptr);
 }
 
-#endif // USB_FLASH_DRIVE_SUPPORT
+#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB

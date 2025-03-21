@@ -81,6 +81,12 @@ void MarlinHAL::init() {
   #if HAS_SERVO_3
     OUT_WRITE(SERVO3_PIN, LOW);
   #endif
+  #if HAS_SERVO_4
+    OUT_WRITE(SERVO4_PIN, LOW);
+  #endif
+  #if HAS_SERVO_5
+    OUT_WRITE(SERVO5_PIN, LOW);
+  #endif
 
   init_pwm_timers();   // Init user timers to default frequency - 1000HZ
 

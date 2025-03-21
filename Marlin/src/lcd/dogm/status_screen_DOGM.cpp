@@ -323,6 +323,11 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
 
       } // PAGE_CONTAINS
 
+      #if HAS_MULTI_EXTRUDER && NONE(SLIM_LCD_MENUS, STATUS_HOTEND_NUMBERLESS, SINGLENOZZLE)
+        if (active_extruder == heater_id)
+          u8g.drawBitmapP(_MAX(0, STATUS_HOTEND_X(heater_id) - 6), STATUS_HEATERS_Y + 3, 1, 5, status_active_extruder_indicator_bmp);
+      #endif
+
     #endif // !STATUS_COMBINE_HEATERS
 
     if (PAGE_UNDER(7)) {
@@ -370,7 +375,6 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
 
       #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
-
 
       // Draw a heating progress bar, if specified
       #if ANY(STATUS_HEAT_PERCENT, STATUS_HEAT_POWER)
@@ -888,7 +892,12 @@ void MarlinUI::draw_status_screen() {
     lcd_put_lchar(3, EXTRAS_2_BASELINE, LCD_STR_FEEDRATE[0]);
 
     set_font(FONT_STATUSMENU);
-    lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(feedrate_percentage));
+
+    #if ENABLED(ULTIPANEL_FLOWPERCENT)
+      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(planner.flow_percentage[active_extruder]));
+    #else
+      lcd_put_u8str(12, EXTRAS_2_BASELINE, i16tostr3rj(feedrate_percentage));
+    #endif
     lcd_put_u8str(F("%"));
 
     //

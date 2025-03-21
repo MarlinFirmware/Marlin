@@ -86,7 +86,7 @@
  *   (EN1) 33 | 3  4 | (5 SDSS?)     (EN)      26 | 3  4 | 27 (RS)
  *   (EN2) 32   5  6 | (23 MOSI?)    (D4)      14 | 5  6   --
  * (SDDET 2?) | 7  8 | (RESET)                 -- | 7  8 | --
- *         -- | 9 10 | --                   (GND) | 9 10 | (5V)
+ *         -- | 9 10 | --                     GND | 9 10 | 5V
  *             ------                              ------
  *              EXP2                                EXP1
  */
@@ -111,7 +111,7 @@
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #endif
 

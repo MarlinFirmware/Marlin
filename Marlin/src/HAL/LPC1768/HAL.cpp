@@ -35,8 +35,6 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-DefaultSerial1 USBSerial(false, UsbSerial);
-
 uint32_t MarlinHAL::adc_result = 0;
 pin_t MarlinHAL::adc_pin = 0;
 
@@ -110,6 +108,12 @@ void MarlinHAL::init() {
   #endif
   #if HAS_SERVO_3
     INIT_SERVO(3);
+  #endif
+  #if HAS_SERVO_4
+    INIT_SERVO(4);
+  #endif
+  #if HAS_SERVO_5
+    INIT_SERVO(5);
   #endif
 
   //debug_frmwrk_init();

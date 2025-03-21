@@ -86,7 +86,6 @@ enum scsi_sbc_mode {
   SCSI_MS_MODE_CACHING = 0x08,    //!< Caching mode page
 };
 
-
 //! \name SBC-2 Device-Specific Parameter
 //@{
 #define SCSI_MS_SBC_WP              0x80    //!< Write Protected

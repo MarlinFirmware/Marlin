@@ -23,14 +23,14 @@
 
 /**
  * Smoothieware Smoothieboard pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/Smoothieware%20Smoothieboard%20V1/http.i.imgur.com.oj4zqs3.png
- * Origin: http://smoothieware.org/_media///external/http.i.imgur.com.oj4zqs3.png
+ * See https://smoothieware.github.io/Webif-pack/documentation/web/html/smoothieboard.html
  */
 
+#define ALLOW_LPC1768_OR_9
 #include "env_validate.h"
 
 #define BOARD_INFO_NAME   "Smoothieboard"
-#define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
+#define BOARD_WEBSITE_URL "smoothieware.github.io"
 
 //
 // Servos
@@ -93,6 +93,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(VIKI2, miniVIKI)
 
   #define BEEPER_PIN                       P1_31
@@ -104,7 +105,7 @@
   #define BTN_ENC                          P1_30
 
   #define SD_DETECT_PIN                    P1_18
-  #define SDSS                             P1_21
+  #define SD_SS_PIN                        P1_21
 
   #define STAT_LED_RED_PIN                 P1_19
   #define STAT_LED_BLUE_PIN                P1_20
@@ -131,12 +132,7 @@
 
   /**
    * The Smoothieboard supports the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with either
-   * a custom cable with breakouts to the pins indicated below or the RRD GLCD Adapter board
-   * found at http://smoothieware.org/rrdglcdadapter
-   *
-   * Other links to information about setting up a display panel with Smoothieboard
-   * http://chibidibidiwah.wdfiles.com/local--files/panel/smoothieboard2sd.jpg
-   * http://smoothieware.org/panel
+   * a custom cable with breakouts to the pins indicated below or the RRD GLCD Adapter board.
    */
   #if IS_RRD_FG_SC
     //  EXP1 Pins

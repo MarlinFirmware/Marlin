@@ -33,7 +33,7 @@
 #include "../../../../module/planner.h"
 
 #include "../../ui_api.h"
-#include "../../../marlinui.h"
+#include "../../../marlinui.h" // For material presets
 
 #if HAS_STEALTHCHOP
   #include "../../../../module/stepper/trinamic.h"
@@ -59,9 +59,9 @@ float Z_distance = 0.1;
 //
 // Persistent settings
 //
-xy_int_t mks_corner_offsets[5];   // Initialized by settings.load()
-xyz_int_t mks_park_pos;           // Initialized by settings.load()
-celsius_t mks_min_extrusion_temp; // Initialized by settings.load()
+xy_int_t mks_corner_offsets[5];   // Initialized by settings.load
+xyz_int_t mks_park_pos;           // Initialized by settings.load
+celsius_t mks_min_extrusion_temp; // Initialized by settings.load
 
 void MKS_reset_settings() {
   constexpr xy_int_t init_dgus_level_offsets[5] = {
@@ -69,7 +69,7 @@ void MKS_reset_settings() {
     { 20, 20 }, { 20, 20 },
     { X_CENTER, Y_CENTER }
   };
-  mks_language_index = MKS_SimpleChinese;
+  mks_language_index = MKS_English;
   COPY(mks_corner_offsets, init_dgus_level_offsets);
   mks_park_pos.set(20, 20, 10);
   mks_min_extrusion_temp = 0;
@@ -602,11 +602,18 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Fan Data
   #if HAS_FAN
-    #define FAN_VPHELPER(N)                                                                                                                    \
-      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.setUint8, screen.sendFanToDisplay), \
-      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr),                               \
+    #if HOTENDS <= 4
+      #define FAN_CONTROL HOTENDS
+    #elif FAN_COUNT <= 4
+      #define FAN_CONTROL FAN_COUNT
+    #else
+      #define FAN_CONTROL 4
+    #endif
+    #define FAN_VPHELPER(N) \
+      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.percentageToUint8, screen.sendFanToDisplay), \
+      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr), \
       VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, screen.sendFanStatusToDisplay),
-    REPEAT(FAN_COUNT, FAN_VPHELPER)
+    REPEAT(FAN_CONTROL, FAN_VPHELPER)
   #endif
 
   // Feedrate
@@ -646,9 +653,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER_STR(VP_PrintsTotal, nullptr, VP_PrintsTotal_LEN, nullptr, screen.sendPrintsTotalToDisplay),
   #endif
 
-  VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
-  VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
-  VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+    VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+    VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+  #endif
 
   VPHELPER(VP_X_MAX_SPEED, &planner.settings.max_feedrate_mm_s[X_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_Y_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Y_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
@@ -742,10 +751,12 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_AutoTurnOffSw, nullptr, screen.getTurnOffCtrl, nullptr),
 
-  #if HAS_HOTEND
-    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
-    #if HAS_MULTI_HOTEND
-      VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    #if HAS_HOTEND
+      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
+      #if HAS_MULTI_HOTEND
+        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<0>),
+      #endif
     #endif
   #endif
 

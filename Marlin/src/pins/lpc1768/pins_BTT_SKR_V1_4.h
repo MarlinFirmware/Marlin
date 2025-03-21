@@ -23,8 +23,7 @@
 
 /**
  * BigTreeTech SKR 1.4 pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/BTT%20SKR%20V1.4%20+%20Turbo/BTT%20SKR%20V1.4-SCH.pdf
- * Origin: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/blob/master/BTT%20SKR%20V1.4/Hardware/BTT%20SKR%20V1.4-SCH.pdf
+ * Schematic: https://github.com/bigtreetech/BIGTREETECH-SKR-V1.3/blob/master/BTT%20SKR%20V1.4/Hardware/BTT%20SKR%20V1.4-SCH.pdf
  */
 
 #include "env_validate.h"
@@ -49,9 +48,9 @@
 #endif
 
 #if ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x8000  // 32K
+  #define MARLIN_EEPROM_SIZE             0x8000U  // 32K
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -132,6 +131,13 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                  P0_10
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -228,19 +234,10 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                  P1_10
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                  P1_09
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                  P1_08
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                 P1_04
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                 P1_01
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -289,10 +286,8 @@
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ANET_FULL_GRAPHICS_LCD_ALT_WIRING requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+  #if ENABLED(CTC_A10S_A13)
+    CONTROLLER_WARNING("BTT_SKR_V1_4", "CTC_A10S_A13")
 
     /**
      * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -300,7 +295,7 @@
      *
      * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
      *
-     * The ANET_FULL_GRAPHICS_LCD_ALT_WIRING connector plug:
+     * The CTC_A10S_A13 connector plug:
      *
      *                BEFORE                     AFTER
      *                ------                     ------
@@ -324,9 +319,7 @@
     #define BEEPER_PIN               EXP1_08_PIN
 
   #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
-    #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-      #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
-    #endif
+    CONTROLLER_WARNING("BTT_SKR_V1_4", "ANET_FULL_GRAPHICS_LCD")
 
    /**
     * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
@@ -444,9 +437,7 @@
 
     #elif ENABLED(MKS_TS35_V2_0)
 
-      #ifndef NO_CONTROLLER_CUSTOM_WIRING_WARNING
-        #error "CAUTION! MKS_TS35_V2_0 requires wiring modifications. The SKR 1.4 EXP ports are rotated 180° from what the MKS_TS35_V2_0 expects. (Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this error.)"
-      #endif
+      CONTROLLER_WARNING("BTT_SKR_V1_4", "MKS_TS35_V2_0", " The SKR 1.4 EXP ports are rotated 180°.")
 
       /**                      ------                                   ------
        *               BEEPER | 1  2 | BTN_ENC               SPI1_MISO | 1  2 | SPI1_SCK
@@ -528,7 +519,7 @@
     #define LCD_PINS_EN              EXP1_03_PIN
     #define LCD_PINS_D4              EXP1_05_PIN
 
-    #define LCD_SDSS                 EXP2_04_PIN  // (16) J3-7 & AUX-4
+    #define LCD_SDSS_PIN             EXP2_04_PIN  // (16) J3-7 & AUX-4
 
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS              EXP1_03_PIN
@@ -591,8 +582,8 @@
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     P1_24
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN               P1_24
 #endif
 
 /**

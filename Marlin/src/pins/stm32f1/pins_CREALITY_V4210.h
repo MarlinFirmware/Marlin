@@ -54,10 +54,10 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K (24C16)
 #else
   #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -74,6 +74,13 @@
 
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PA5   // BLTouch IN
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //

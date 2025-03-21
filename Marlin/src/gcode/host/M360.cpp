@@ -61,7 +61,9 @@ void GcodeSuite::M360() {
   PGMSTR(X_STR,    "X");
   PGMSTR(Y_STR,    "Y");
   PGMSTR(Z_STR,    "Z");
-  PGMSTR(JERK_STR, "Jerk");
+  #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)
+    PGMSTR(JERK_STR, "Jerk");
+  #endif
 
   //
   // Basics and Enabled items
@@ -182,7 +184,11 @@ void GcodeSuite::M360() {
   config_line(F("NumExtruder"), EXTRUDERS);
   #if HAS_EXTRUDERS
     EXTRUDER_LOOP() {
-      config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));
+      #if HAS_LINEAR_E_JERK
+        config_line_e(e, JERK_STR, planner.max_e_jerk[E_INDEX_N(e)]);
+      #elif ENABLED(CLASSIC_JERK)
+        config_line_e(e, JERK_STR, planner.max_jerk.e);
+      #endif
       config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
       config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));

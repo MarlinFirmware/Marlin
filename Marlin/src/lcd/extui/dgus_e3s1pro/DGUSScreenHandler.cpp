@@ -281,7 +281,7 @@ void DGUSScreenHandler::configurationStoreRead(bool success) {
   }
 }
 
-void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration) {
+void DGUSScreenHandler::playTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
   if (WITHIN(frequency, 1, 255)) {
     if (WITHIN(duration, 1, 255))
       dgus.playSound((uint8_t)frequency, (uint8_t)duration);
@@ -369,7 +369,7 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
 #endif
 
 #if HAS_PID_HEATING
-  void DGUSScreenHandler::pidTuning(const ExtUI::result_t rst) {
+  void DGUSScreenHandler::pidTuning(const ExtUI::pidresult_t rst) {
     dgus.playSound(3);
   }
 #endif

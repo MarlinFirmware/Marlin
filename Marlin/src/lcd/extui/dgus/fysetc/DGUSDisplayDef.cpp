@@ -406,11 +406,18 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Fan Data
   #if HAS_FAN
+    #if HOTENDS <= 4
+      #define FAN_CONTROL HOTENDS
+    #elif FAN_COUNT <= 4
+      #define FAN_CONTROL FAN_COUNT
+    #else
+      #define FAN_CONTROL 4
+    #endif
     #define FAN_VPHELPER(N) \
       VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.percentageToUint8, screen.sendPercentageToDisplay), \
       VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr), \
       VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, screen.sendFanStatusToDisplay),
-    REPEAT(FAN_COUNT, FAN_VPHELPER)
+    REPEAT(FAN_CONTROL, FAN_VPHELPER)
   #endif
 
   // Feedrate
@@ -431,13 +438,15 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER_STR(VP_PrintsTotal, nullptr, VP_PrintsTotal_LEN, nullptr, screen.sendPrintsTotalToDisplay),
   #endif
 
-  VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
-  #if HAS_EXTRUDERS
-    VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
-    #if HAS_MULTI_EXTRUDER
-      VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<1>),
+    #if HAS_EXTRUDERS
+      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+      #if HAS_MULTI_EXTRUDER
+        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMExtruderChanged, screen.sendFloatAsIntValueToDisplay<1>),
+      #endif
     #endif
   #endif
 

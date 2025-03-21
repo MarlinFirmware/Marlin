@@ -41,8 +41,12 @@ inline void idle_no_sleep() { idle(true); }
 void kill(FSTR_P const lcd_error=nullptr, FSTR_P const lcd_component=nullptr, const bool steppers_off=false);
 void minkill(const bool steppers_off=false);
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  extern MString<64> machine_name;
+#endif
+
 // Global State of the firmware
-enum MarlinState : uint8_t {
+enum class MarlinState : uint8_t {
   MF_INITIALIZING = 0,
   MF_STOPPED,
   MF_KILLED,
@@ -53,8 +57,8 @@ enum MarlinState : uint8_t {
 };
 
 extern MarlinState marlin_state;
-inline bool IsRunning() { return marlin_state >= MF_RUNNING; }
-inline bool IsStopped() { return marlin_state == MF_STOPPED; }
+inline bool IsRunning() { return marlin_state >= MarlinState::MF_RUNNING; }
+inline bool IsStopped() { return marlin_state == MarlinState::MF_STOPPED; }
 
 bool printingIsActive();
 bool printJobOngoing();

@@ -25,6 +25,10 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
+#if !ARDUINO_ARCH_ESP32
+  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#endif
+
 constexpr char DIGIT(const uint8_t n) { return '0' + n; }
 
 template <typename T1, typename T2>

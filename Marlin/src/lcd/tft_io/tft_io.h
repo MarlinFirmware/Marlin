@@ -38,7 +38,7 @@
 #endif
 
 #ifndef TFT_DRIVER
-  #define TFT_DRIVER    AUTO
+  #define TFT_DRIVER AUTO
 #endif
 
 #define ESC_REG(x)   0xFFFF, 0x00FF & (uint16_t)x

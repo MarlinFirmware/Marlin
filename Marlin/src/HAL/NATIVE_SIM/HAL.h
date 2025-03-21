@@ -71,37 +71,10 @@ extern MSerialT serial_stream_2;
 extern MSerialT serial_stream_3;
 
 #define _MSERIAL(X) serial_stream_##X
-#define MSERIAL(X) _MSERIAL(X)
 
-#if WITHIN(SERIAL_PORT, 0, 3)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#else
-  #error "SERIAL_PORT must be from 0 to 3. Please update your configuration."
-#endif
-
-#ifdef SERIAL_PORT_2
-  #if WITHIN(SERIAL_PORT_2, 0, 3)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #else
-    #error "SERIAL_PORT_2 must be from 0 to 3. Please update your configuration."
-  #endif
-#endif
-
-#ifdef MMU2_SERIAL_PORT
-  #if WITHIN(MMU2_SERIAL_PORT, 0, 3)
-    #define MMU2_SERIAL MSERIAL(MMU2_SERIAL_PORT)
-  #else
-    #error "MMU2_SERIAL_PORT must be from 0 to 3. Please update your configuration."
-  #endif
-#endif
-
-#ifdef LCD_SERIAL_PORT
-  #if WITHIN(LCD_SERIAL_PORT, 0, 3)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #else
-    #error "LCD_SERIAL_PORT must be from 0 to 3. Please update your configuration."
-  #endif
-#endif
+#define SERIAL_INDEX_MIN 0
+#define SERIAL_INDEX_MAX 3
+#include "../shared/serial_ports.h"
 
 // ------------------------
 // Interrupts
@@ -262,5 +235,15 @@ public:
   static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
     analogWrite(pin, v);
   }
+
+  static void set_pwm_frequency(const pin_t, int) {}
+
+  #ifndef HAS_LIBBSD
+    /**
+     * Redirect missing strlcpy here
+     */
+    static size_t _strlcpy(char *dst, const char *src, size_t dsize);
+    #define strlcpy hal._strlcpy
+  #endif
 
 };

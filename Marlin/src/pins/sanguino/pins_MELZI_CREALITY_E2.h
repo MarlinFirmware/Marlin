@@ -56,6 +56,7 @@
 //
 // LCD / Controller
 //
+
 #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
   #if ENABLED(CR10_STOCKDISPLAY)
     #if HAS_MEDIA
@@ -75,7 +76,7 @@
   #define LCD_PINS_DEFINED
 #endif
 
-#define LCD_SDSS                              31  // Controller's SD card
+#define LCD_SDSS_PIN                          31  // Controller's SD card
 
 #include "pins_MELZI.h" // ... SANGUINOLOLU_12 ... SANGUINOLOLU_11
 

@@ -27,7 +27,7 @@
 #include "solenoid.h"
 
 #include "../module/motion.h" // for active_extruder
-#include "../module/tool_change.h"
+#include "../module/tool_change.h" // for parking_extruder_set_parked
 
 // Used primarily with MANUAL_SOLENOID_CONTROL
 static void set_solenoid(const uint8_t num, const uint8_t state) {

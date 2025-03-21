@@ -294,9 +294,7 @@ typedef enum {
   LEVELING_UI,
   MESHLEVELING_UI,
   BIND_UI,
-  #if HAS_BED_PROBE
-    NOZZLE_PROBE_OFFSET_UI,
-  #endif
+  OPTITEM(HAS_BED_PROBE, NOZZLE_PROBE_OFFSET_UI)
   TOOL_UI,
   HARDWARE_TEST_UI,
   WIFI_LIST_UI,
@@ -402,11 +400,11 @@ typedef enum {
   level_pos_y4,
   level_pos_x5,
   level_pos_y5,
+
   #if HAS_BED_PROBE
-    x_offset,
-    y_offset,
-    z_offset,
+    x_offset, y_offset, z_offset,
   #endif
+
   load_length,
   load_speed,
   unload_length,

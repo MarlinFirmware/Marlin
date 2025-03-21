@@ -248,7 +248,6 @@
 
 #endif
 
-
 /* this data is used to patch FT813 displays that use a GT911 as a touch-controller */
 #ifdef PATCH_GT911
   constexpr PROGMEM unsigned char GT911_data[] = {

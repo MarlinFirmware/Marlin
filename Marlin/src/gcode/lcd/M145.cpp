@@ -37,6 +37,7 @@
  *   S<material>
  *   H<hotend temp>
  *   B<bed temp>
+ *   C<chamber temp>
  *   F<fan speed>
  */
 void GcodeSuite::M145() {
@@ -53,6 +54,10 @@ void GcodeSuite::M145() {
       if (parser.seenval('B'))
         mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
     #endif
+    #if HAS_HEATED_CHAMBER
+      if (parser.seenval('C'))
+        mat.chamber_temp = constrain(parser.value_int(), CHAMBER_MINTEMP, CHAMBER_MAX_TARGET);
+    #endif
     #if HAS_FAN
       if (parser.seenval('F'))
         mat.fan_speed = constrain(parser.value_int(), 0, 255);
@@ -61,6 +66,8 @@ void GcodeSuite::M145() {
 }
 
 void GcodeSuite::M145_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_MATERIAL_HEATUP));
   for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
     report_echo_start(forReplay);

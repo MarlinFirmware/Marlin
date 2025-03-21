@@ -116,6 +116,23 @@
 //#define dbg_print printf
 #define dbg_print(...)
 
+// Marlin modification: Redefine the otg_freeze_clock and otg_unfreeze_clock macros
+// to add memory barriers to ensure that any accesses to USB registers aren't re-ordered
+// to occur while the clock is frozen.
+#undef otg_freeze_clock
+#undef otg_unfreeze_clock
+
+#define otg_freeze_clock() do { \
+	__DSB(); \
+	Set_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+} while (0)
+
+#define otg_unfreeze_clock() \
+do { \
+	Clr_bits(UOTGHS->UOTGHS_CTRL, UOTGHS_CTRL_FRZCLK); \
+	__DSB(); \
+} while (0)
+
 /**
  * \ingroup udd_group
  * \defgroup udd_udphs_group USB On-The-Go High-Speed Port for device mode (UOTGHS)
@@ -276,7 +293,6 @@
 # endif
 #endif
 
-
 /**
  * \name Power management routine.
  */
@@ -292,7 +308,6 @@
 static bool udd_b_idle;
 //! State of sleep manager
 static bool udd_b_sleep_initialized = false;
-
 
 /*! \brief Authorize or not the CPU powerdown mode
  *
@@ -320,7 +335,6 @@ static void udd_sleep_mode(bool b_idle)
 #endif // UDD_NO_SLEEP_MGR
 
 //@}
-
 
 /**
  * \name Control endpoint low level management routine.
@@ -393,7 +407,6 @@ static void udd_ctrl_send_zlp_out(void);
 //! \brief Call callback associated to setup request
 static void udd_ctrl_endofrequest(void);
 
-
 /**
  * \brief Main interrupt routine for control endpoint
  *
@@ -404,7 +417,6 @@ static void udd_ctrl_endofrequest(void);
 static bool udd_ctrl_interrupt(void);
 
 //@}
-
 
 /**
  * \name Management of bulk/interrupt/isochronous endpoints
@@ -442,7 +454,6 @@ typedef struct {
 	//! A stall has been requested but not executed
 	uint8_t stall_requested:1;
 } udd_ep_job_t;
-
 
 //! Array to register a job on bulk/interrupt/isochronous endpoint
 static udd_ep_job_t udd_ep_job[USB_DEVICE_MAX_EP];
@@ -504,7 +515,6 @@ static bool udd_ep_interrupt(void);
 
 #endif // (0!=USB_DEVICE_MAX_EP)
 //@}
-
 
 // ------------------------
 //--- INTERNAL ROUTINES TO MANAGED GLOBAL EVENTS
@@ -611,6 +621,18 @@ ISR(UDD_USB_INT_FUN)
 		// The wakeup interrupt is automatic acked when a suspend occur
 		udd_disable_wake_up_interrupt();
 		udd_enable_suspend_interrupt();
+
+		// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
+		// enabled in udd_attach, which caused a race condition where they could
+		// be raised and unclearable with the clock is frozen. They are now
+		// enabled here, after the clock has been unfrozen in response to the wake
+		// interrupt.
+		udd_enable_reset_interrupt();
+		udd_enable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+		udd_enable_msof_interrupt();
+#endif
+
 		udd_sleep_mode(true); // Enter in IDLE mode
 #ifdef UDC_RESUME_EVENT
 		UDC_RESUME_EVENT();
@@ -642,12 +664,10 @@ udd_interrupt_sof_end:
 	return;
 }
 
-
 bool udd_include_vbus_monitoring(void)
 {
 	return true;
 }
-
 
 void udd_enable(void)
 {
@@ -735,7 +755,6 @@ void udd_enable(void)
 	cpu_irq_restore(flags);
 }
 
-
 void udd_disable(void)
 {
 	irqflags_t flags;
@@ -776,6 +795,27 @@ void udd_disable(void)
 	cpu_irq_restore(flags);
 }
 
+// Marlin modification: The original implementation did not use a memory
+// barrier between disabling and clearing interrupts. This sometimes
+// allowed interrupts to remain raised and unclearable after the clock
+// was frozen. This helper was added to ensure that memory barriers
+// are used consistently from all places where interrupts are disabled.
+static void disable_and_ack_sync_interrupts()
+{
+	// Disable USB line events
+	udd_disable_reset_interrupt();
+	udd_disable_sof_interrupt();
+#ifdef USB_DEVICE_HS_SUPPORT
+	udd_disable_msof_interrupt();
+#endif
+	__DSB();
+	udd_ack_reset();
+	udd_ack_sof();
+#ifdef USB_DEVICE_HS_SUPPORT
+	udd_ack_msof();
+#endif
+	__DSB();
+}
 
 void udd_attach(void)
 {
@@ -796,17 +836,16 @@ void udd_attach(void)
 	udd_attach_device();
 
 	// Enable USB line events
-	udd_enable_reset_interrupt();
 	udd_enable_suspend_interrupt();
 	udd_enable_wake_up_interrupt();
-	udd_enable_sof_interrupt();
-#ifdef USB_DEVICE_HS_SUPPORT
-	udd_enable_msof_interrupt();
-#endif
-	// Reset following interrupts flag
-	udd_ack_reset();
-	udd_ack_sof();
-	udd_ack_msof();
+
+	// Marlin modification: The RESET, SOF, and MSOF interrupts were previously
+	// enabled here, which caused a race condition where they could be raised
+	// and unclearable with the clock is frozen. They are now enabled in the
+	// wake interrupt handler, after the clock has been unfrozen. They are now
+	// explicitly disabled here to ensure that they cannot be raised before
+	// the clock is frozen.
+	disable_and_ack_sync_interrupts();
 
 	// The first suspend interrupt must be forced
 	// The first suspend interrupt is not detected else raise it
@@ -817,17 +856,21 @@ void udd_attach(void)
 	cpu_irq_restore(flags);
 }
 
-
 void udd_detach(void)
 {
 	otg_unfreeze_clock();
 
 	// Detach device from the bus
 	udd_detach_device();
+
+	// Marlin modification: Added the explicit disabling of the RESET, SOF, and
+	// MSOF interrupts here, to ensure that they cannot be raised after the
+	// clock is frozen.
+	disable_and_ack_sync_interrupts();
+
 	otg_freeze_clock();
 	udd_sleep_mode(false);
 }
-
 
 bool udd_is_high_speed(void)
 {
@@ -838,7 +881,6 @@ bool udd_is_high_speed(void)
 #endif
 }
 
-
 void udd_set_address(uint8_t address)
 {
 	udd_disable_address();
@@ -846,12 +888,10 @@ void udd_set_address(uint8_t address)
 	udd_enable_address();
 }
 
-
 uint8_t udd_getaddress(void)
 {
 	return udd_get_configured_address();
 }
-
 
 uint16_t udd_get_frame_number(void)
 {
@@ -875,13 +915,11 @@ void udd_send_remotewakeup(void)
 	}
 }
 
-
 void udd_set_setup_payload(uint8_t *payload, uint16_t payload_size)
 {
 	udd_g_ctrlreq.payload = payload;
 	udd_g_ctrlreq.payload_size = payload_size;
 }
-
 
 #if (0 != USB_DEVICE_MAX_EP)
 bool udd_ep_alloc(udd_ep_id_t ep, uint8_t bmAttributes,
@@ -1006,7 +1044,6 @@ bool udd_ep_alloc(udd_ep_id_t ep, uint8_t bmAttributes,
 	return true;
 }
 
-
 void udd_ep_free(udd_ep_id_t ep)
 {
 	uint8_t ep_index = ep & USB_EP_ADDR_MASK;
@@ -1019,13 +1056,11 @@ void udd_ep_free(udd_ep_id_t ep)
 	udd_ep_job[ep_index - 1].stall_requested = false;
 }
 
-
 bool udd_ep_is_halted(udd_ep_id_t ep)
 {
 	uint8_t ep_index = ep & USB_EP_ADDR_MASK;
 	return Is_udd_endpoint_stall_requested(ep_index);
 }
-
 
 bool udd_ep_set_halt(udd_ep_id_t ep)
 {
@@ -1067,7 +1102,6 @@ bool udd_ep_set_halt(udd_ep_id_t ep)
 	return true;
 }
 
-
 bool udd_ep_clear_halt(udd_ep_id_t ep)
 {
 	uint8_t ep_index = ep & USB_EP_ADDR_MASK;
@@ -1107,7 +1141,6 @@ bool udd_ep_clear_halt(udd_ep_id_t ep)
 	}
 	return true;
 }
-
 
 bool udd_ep_run(udd_ep_id_t ep, bool b_shortpacket,
 		uint8_t * buf, iram_size_t buf_size,
@@ -1175,7 +1208,6 @@ bool udd_ep_run(udd_ep_id_t ep, bool b_shortpacket,
 #endif
 }
 
-
 void udd_ep_abort(udd_ep_id_t ep)
 {
 	uint8_t ep_index = ep & USB_EP_ADDR_MASK;
@@ -1203,7 +1235,6 @@ void udd_ep_abort(udd_ep_id_t ep)
 	}
 	udd_ep_abort_job(ep);
 }
-
 
 bool udd_ep_wait_stall_clear(udd_ep_id_t ep,
 		udd_callback_halt_cleared_t callback)
@@ -1239,7 +1270,6 @@ bool udd_ep_wait_stall_clear(udd_ep_id_t ep,
 }
 #endif // (0 != USB_DEVICE_MAX_EP)
 
-
 #ifdef USB_DEVICE_HS_SUPPORT
 
 void udd_test_mode_j(void)
@@ -1248,19 +1278,16 @@ void udd_test_mode_j(void)
 	udd_enable_hs_test_mode_j();
 }
 
-
 void udd_test_mode_k(void)
 {
 	udd_enable_hs_test_mode();
 	udd_enable_hs_test_mode_k();
 }
 
-
 void udd_test_mode_se0_nak(void)
 {
 	udd_enable_hs_test_mode();
 }
-
 
 void udd_test_mode_packet(void)
 {
@@ -1304,8 +1331,6 @@ void udd_test_mode_packet(void)
 	udd_ack_fifocon(0);
 }
 #endif // USB_DEVICE_HS_SUPPORT
-
-
 
 // ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE CONTROL ENDPOINT
@@ -1355,7 +1380,6 @@ static void udd_ctrl_init(void)
 	udd_g_ctrlreq.payload_size = 0;
 	udd_ep_control_state = UDD_EPCTRL_SETUP;
 }
-
 
 static void udd_ctrl_setup_received(void)
 {
@@ -1417,7 +1441,6 @@ static void udd_ctrl_setup_received(void)
 		cpu_irq_restore(flags);
 	}
 }
-
 
 static void udd_ctrl_in_sent(void)
 {
@@ -1501,7 +1524,6 @@ static void udd_ctrl_in_sent(void)
 	// because OUT endpoint is already free and ZLP OUT accepted.
 	cpu_irq_restore(flags);
 }
-
 
 static void udd_ctrl_out_received(void)
 {
@@ -1593,7 +1615,6 @@ static void udd_ctrl_out_received(void)
 	cpu_irq_restore(flags);
 }
 
-
 static void udd_ctrl_underflow(void)
 {
 	if (Is_udd_out_received(0))
@@ -1610,7 +1631,6 @@ static void udd_ctrl_underflow(void)
 	}
 }
 
-
 static void udd_ctrl_overflow(void)
 {
 	if (Is_udd_in_send(0))
@@ -1626,14 +1646,12 @@ static void udd_ctrl_overflow(void)
 	}
 }
 
-
 static void udd_ctrl_stall_data(void)
 {
 	// Stall all packets on IN & OUT control endpoint
 	udd_ep_control_state = UDD_EPCTRL_STALL_REQ;
 	udd_enable_stall_handshake(0);
 }
-
 
 static void udd_ctrl_send_zlp_in(void)
 {
@@ -1652,7 +1670,6 @@ static void udd_ctrl_send_zlp_in(void)
 	cpu_irq_restore(flags);
 }
 
-
 static void udd_ctrl_send_zlp_out(void)
 {
 	irqflags_t flags;
@@ -1668,7 +1685,6 @@ static void udd_ctrl_send_zlp_out(void)
 	cpu_irq_restore(flags);
 }
 
-
 static void udd_ctrl_endofrequest(void)
 {
 	// If a callback is registered then call it
@@ -1676,7 +1692,6 @@ static void udd_ctrl_endofrequest(void)
 		udd_g_ctrlreq.callback();
 	}
 }
-
 
 static bool udd_ctrl_interrupt(void)
 {
@@ -1728,7 +1743,6 @@ static bool udd_ctrl_interrupt(void)
 	return false;
 }
 
-
 // ------------------------
 //--- INTERNAL ROUTINES TO MANAGED THE BULK/INTERRUPT/ISOCHRONOUS ENDPOINTS
 
@@ -1743,7 +1757,6 @@ static void udd_ep_job_table_reset(void)
 	}
 }
 
-
 static void udd_ep_job_table_kill(void)
 {
 	uint8_t i;
@@ -1754,7 +1767,6 @@ static void udd_ep_job_table_kill(void)
 	}
 }
 
-
 static void udd_ep_abort_job(udd_ep_id_t ep)
 {
 	ep &= USB_EP_ADDR_MASK;
@@ -1762,7 +1774,6 @@ static void udd_ep_abort_job(udd_ep_id_t ep)
 	// Abort job on endpoint
 	udd_ep_finish_job(&udd_ep_job[ep - 1], true, ep);
 }
-
 
 static void udd_ep_finish_job(udd_ep_job_t * ptr_job, bool b_abort, uint8_t ep_num)
 {
@@ -1833,7 +1844,6 @@ static void udd_ep_trans_done(udd_ep_id_t ep)
 		udd_endpoint_dma_set_addr(ep, (uint32_t) & ptr_job->buf[ptr_job->buf_cnt]);
 		udd_dma_ctrl |= UOTGHS_DEVDMACONTROL_END_BUFFIT |
 				UOTGHS_DEVDMACONTROL_CHANN_ENB;
-
 
 		// Disable IRQs to have a short sequence
 		// between read of EOT_STA and DMA enable
@@ -2043,6 +2053,12 @@ static bool udd_ep_interrupt(void)
 				dbg_print("I ");
 				udd_disable_in_send_interrupt(ep);
 				// One bank is free then send a ZLP
+
+				// Marlin modification: Add a barrier to ensure in_send is disabled
+				// before it is cleared. This was not an observed problem, but
+				// other interrupts were seen to misbehave without this barrier.
+				__DSB();
+
 				udd_ack_in_send(ep);
 				udd_ack_fifocon(ep);
 				udd_ep_finish_job(ptr_job, false, ep);

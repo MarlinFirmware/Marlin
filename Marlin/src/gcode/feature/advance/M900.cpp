@@ -141,6 +141,8 @@ void GcodeSuite::M900() {
 }
 
 void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_LINEAR_ADVANCE));
   #if DISTINCT_E < 2
     report_echo_start(forReplay);

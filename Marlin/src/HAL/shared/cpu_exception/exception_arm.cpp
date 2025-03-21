@@ -26,7 +26,6 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-
 /*
   On ARM CPUs exception handling is quite powerful.
 

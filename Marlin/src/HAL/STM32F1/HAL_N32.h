@@ -850,7 +850,6 @@ typedef struct {
   __IO uint32_t BDCR;       /* compatible */
   __IO uint32_t CSR;        /* compatible */
 
-
   __IO uint32_t AHBRSTR;    /* Not compatible, ADC reset here settings */
   __IO uint32_t CFGR2;      /* Not compatible, ADC clock settings here */
   __IO uint32_t CFGR3;      /* Not compatible, add a new register */

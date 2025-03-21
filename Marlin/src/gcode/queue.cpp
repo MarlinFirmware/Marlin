@@ -37,14 +37,6 @@ GCodeQueue queue;
 #include "../MarlinCore.h"
 #include "../core/bug_on.h"
 
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../feature/leds/printer_event_leds.h"
-#endif
-
-#if HAS_ETHERNET
-  #include "../feature/ethernet.h"
-#endif
-
 #if ENABLED(BINARY_FILE_TRANSFER)
   #include "../feature/binary_stream.h"
 #endif
@@ -99,13 +91,17 @@ PGM_P GCodeQueue::injected_commands_P; // = nullptr
  */
 char GCodeQueue::injected_commands[64]; // = { 0 }
 
+/**
+ * Commit the accumulated G-code command to the ring buffer,
+ * also setting its origin info.
+ */
 void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
   TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
-  advance_pos(index_w, 1);
+  advance_w();
 }
 
 /**
@@ -706,7 +702,7 @@ void GCodeQueue::advance() {
   #endif // HAS_MEDIA
 
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
-  ring_buffer.advance_pos(ring_buffer.index_r, -1);
+  ring_buffer.advance_r();
 }
 
 #if ENABLED(BUFFER_MONITORING)

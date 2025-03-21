@@ -204,7 +204,10 @@ void hmiPrintSpeed();
 void hmiMaxFeedspeedXYZE();
 void hmiMaxAccelerationXYZE();
 void hmiMaxJerkXYZE();
-void hmiStepXYZE();
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  void hmiStepXYZE();
+#endif
+
 void hmiSetLanguageCache();
 
 void updateVariable();
@@ -241,7 +244,6 @@ void hmiStep();            // Transmission ratio
 
 void hmiInit();
 void dwinInitScreen();
-void dwinUpdate();
 void eachMomentUpdate();
 void dwinHandleScreen();
 void dwinStatusChanged(const char * const cstr=nullptr);

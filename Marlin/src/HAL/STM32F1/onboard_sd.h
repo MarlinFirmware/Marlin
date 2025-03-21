@@ -47,7 +47,6 @@ typedef enum {
   RES_PARERR      /* 4: Invalid Parameter */
 } DRESULT;
 
-
 #if _DISKIO_ISDIO
 /* Command structure for iSDIO ioctl command */
 typedef struct {

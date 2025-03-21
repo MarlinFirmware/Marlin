@@ -51,7 +51,9 @@
 //
 // Enable I2S stepper stream
 //
-#define I2S_STEPPER_STREAM
+#ifndef I2S_STEPPER_STREAM
+  #define I2S_STEPPER_STREAM
+#endif
 #if ENABLED(I2S_STEPPER_STREAM)
   #define I2S_WS                              26
   #define I2S_BCK                             25
@@ -116,12 +118,12 @@
 #define SD_MOSI_PIN                           23
 #define SD_MISO_PIN                           19
 #define SD_SCK_PIN                            18
-#define SDSS                                   5
+#define SD_SS_PIN                              5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
 #if HAS_WIRED_LCD
 

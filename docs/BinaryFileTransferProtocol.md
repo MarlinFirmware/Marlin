@@ -1,5 +1,5 @@
 # Marlin Binary File Transfer (BFT)
-Marlin is capable of transferring binary data to the internal storage (SD card) via serial when built with `BINARY_FILE_TRANSFER` enabled. The following is a description of the binary protocol that must be used to conduct transfers once the printer is in binary mode after running `M28 B1`. 
+Marlin is capable of transferring binary data to the internal storage (SD card) via serial when built with `BINARY_FILE_TRANSFER` enabled. The following is a description of the binary protocol that must be used to conduct transfers once the printer is in binary mode after running `M28 B1`.
 
 ## Data Endianness
 All data structures are **little-endian**! This means that when constructing the packets with multi-byte values, the lower bits are packed first. For example, each packet should start with a 16-bit start token with the value of `0xB5AD`. The data itself should start with a value of `0xAD` followed by `0xB5` etc.

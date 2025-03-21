@@ -39,7 +39,7 @@
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
 #define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
 static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];

@@ -48,7 +48,6 @@ ServiceBinary=%12%\usbser.sys
 ;  String Definitions
 ;------------------------------------------------------------------------------
 
-
 [Strings]
 STM         = "LeafLabs"
 MFGNAME     = "LeafLabs"

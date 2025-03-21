@@ -101,7 +101,7 @@ enum menuID : uint8_t {
         ID_MaxSpeed,
         ID_MaxAcceleration,
         ID_MaxJerk,
-        ID_Steps,
+        OPTITEM(EDITABLE_STEPS_PER_UNIT, ID_Steps)
       ID_Visual,
         ID_ColorSettings,
       ID_Advanced,
@@ -154,9 +154,8 @@ enum colorID : uint8_t {
 };
 
 #define Custom_Colors       10
-#define COLOR_AQUA          RGB(0x00,0x3F,0x1F)
 #define COLOR_LIGHT_WHITE   0xBDD7
-#define COLOR_GREEN         RGB(0x00,0x3F,0x00)
+#define COLOR_GREEN         RGB(0x00, 0x3F, 0x00)
 #define COLOR_LIGHT_GREEN   0x3460
 #define COLOR_CYAN          0x07FF
 #define COLOR_LIGHT_CYAN    0x04F3

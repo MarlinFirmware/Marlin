@@ -63,8 +63,11 @@ public:
   static void lcdBLKAdjust(DGUS_VP_Variable &var, void *val_ptr);
   static void sdFileBack(DGUS_VP_Variable &var, void *val_ptr);
 
-  static void handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
-  static void handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    static void handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
+    static void handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+  #endif
+
   static void handleMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleExtruderMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleAccChange(DGUS_VP_Variable &var, void *val_ptr);
@@ -75,7 +78,7 @@ public:
   static void handleFeedRateMinChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleMin_T_F(DGUS_VP_Variable &var, void *val_ptr);
 
-  #if HAS_PID_HEATING
+  #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
     static void filamentLoadUnload(DGUS_VP_Variable &var, void *val_ptr, const int filamentDir);
     static void filamentLoad(DGUS_VP_Variable &var, void *val_ptr);
     static void filamentUnload(DGUS_VP_Variable &var, void *val_ptr);

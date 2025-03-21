@@ -8,13 +8,11 @@ DriverVer =04/14/2008, 5.1.2600.5512
 [Manufacturer]
 %PROVIDER%=DeviceList,ntamd64
 
-
 [DeviceList]
 %DESCRIPTION%=LPC1768USB, USB\VID_1D50&PID_6029&MI_00
 
 [DeviceList.ntamd64]
 %DESCRIPTION%=LPC1768USB, USB\VID_1D50&PID_6029&MI_00
-
 
 [LPC1768USB]
 include=mdmcpq.inf
@@ -27,7 +25,6 @@ AddService=usbser, 0x00000002, LowerFilter_Service_Inst
 
 [SerialPropPageAddReg]
 HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
-
 
 [Strings]
 PROVIDER   = "marlinfw.org"

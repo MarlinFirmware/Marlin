@@ -95,7 +95,7 @@ void showCheckboxLine(const bool checked) {
 }
 
 void toggleCheckboxLine(bool &checked) {
-  checked = !checked;
+  FLIP(checked);
   showCheckboxLine(checked);
 }
 
@@ -263,7 +263,7 @@ void setPFloatOnClick(const float lo, const float hi, uint8_t dp, void (*apply)(
 
 // Generic menu control using the encoder
 void hmiMenu() {
-  EncoderState encoder_diffState = get_encoder_state();
+  const EncoderState encoder_diffState = get_encoder_state();
   if (currentMenu) {
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (encoder_diffState == ENCODER_DIFF_ENTER)
@@ -280,10 +280,8 @@ void hmiMenu() {
 //  1 : live change
 //  2 : apply change
 int8_t hmiGet(bool draw) {
-  const int32_t lo = menuData.minValue;
-  const int32_t hi = menuData.maxValue;
-  const int32_t cval = menuData.value;
-  EncoderState encoder_diffState = TERN(SMOOTH_ENCODER_MENUITEMS, get_encoder_state(), encoderReceiveAnalyze());
+  const int32_t lo = menuData.minValue, hi = menuData.maxValue, cval = menuData.value;
+  const EncoderState encoder_diffState = TERN(SMOOTH_ENCODER_MENUITEMS, get_encoder_state(), encoderReceiveAnalyze());
   if (encoder_diffState != ENCODER_DIFF_NO) {
     if (applyEncoder(encoder_diffState, menuData.value)) {
       encoderRate.enabled = false;
@@ -300,7 +298,7 @@ int8_t hmiGet(bool draw) {
 
 // Set and draw a value using the encoder
 void hmiSetDraw() {
-  int8_t val = hmiGet(true);
+  const int8_t val = hmiGet(true);
   switch (val) {
     case 0: return;
     case 1: if (menuData.liveUpdate) menuData.liveUpdate(); break;
@@ -310,7 +308,7 @@ void hmiSetDraw() {
 
 // Set an value without drawing
 void hmiSetNoDraw() {
-  int8_t val = hmiGet(false);
+  const int8_t val = hmiGet(false);
   switch (val) {
     case 0: return;
     case 1: if (menuData.liveUpdate) menuData.liveUpdate(); break;
@@ -320,7 +318,7 @@ void hmiSetNoDraw() {
 
 // Set an integer pointer variable using the encoder
 void hmiSetPInt() {
-  int8_t val = hmiGet(true);
+  const int8_t val = hmiGet(true);
   switch (val) {
     case 0: return;
     case 1: if (menuData.liveUpdate) menuData.liveUpdate(); break;
@@ -392,14 +390,14 @@ CustomMenuItem** Menu::items() {
 
 int8_t Menu::count() {
   return MenuItemCount;
-};
+}
 
 /* MenuItem Class ===========================================================*/
 
 void CustomMenuItem::draw(int8_t line) {
   if (line < 0 || line >= TROWS) return;
   if (onDraw != nullptr) (*onDraw)(static_cast<MenuItem*>(this), line);
-};
+}
 
 void CustomMenuItem::redraw(bool erase/*=false*/) {
   const int8_t line = currentMenu->line(this->pos);
@@ -438,7 +436,7 @@ void MenuItem::setFrame(uint8_t id, uint16_t x1, uint16_t y1, uint16_t x2, uint1
 
 MenuItemPtr::MenuItemPtr(uint8_t cicon, const char * const text, OnDrawItem ondraw, OnClickItem onclick, void* val) : MenuItem(cicon, text, ondraw, onclick) {
   value = val;
-};
+}
 
 // Menu auxiliary functions ===================================================
 

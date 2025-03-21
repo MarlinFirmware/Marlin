@@ -47,12 +47,16 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
+  #define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
+#endif
+
 #if HAS_MEDIA
   extern ExtUI::FileList filelist;
 #endif
 
 bool DGUSAutoTurnOff = false;
-MKS_Language mks_language_index; // Initialized by settings.load()
+MKS_Language mks_language_index; // Initialized by settings.load
 
 #if 0
 void DGUSScreenHandlerMKS::sendinfoscreen_ch(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4) {
@@ -872,40 +876,44 @@ void DGUSScreenHandlerMKS::handleChangeLevelPoint(DGUS_VP_Variable &var, void *v
   skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
 }
 
-void DGUSScreenHandlerMKS::handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t raw = BE16_P(val_ptr);
-  const float value = (float)raw;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-  ExtUI::axis_t axis;
-  switch (var.VP) {
-    default: return;
-    case VP_X_STEP_PER_MM: axis = ExtUI::axis_t::X; break;
-    case VP_Y_STEP_PER_MM: axis = ExtUI::axis_t::Y; break;
-    case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
+  void DGUSScreenHandlerMKS::handleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    const uint16_t raw = BE16_P(val_ptr);
+    const float value = (float)raw;
+
+    ExtUI::axis_t axis;
+    switch (var.VP) {
+      default: return;
+      case VP_X_STEP_PER_MM: axis = ExtUI::axis_t::X; break;
+      case VP_Y_STEP_PER_MM: axis = ExtUI::axis_t::Y; break;
+      case VP_Z_STEP_PER_MM: axis = ExtUI::axis_t::Z; break;
+    }
+    ExtUI::setAxisSteps_per_mm(value, axis);
+    settings.save();
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
-  ExtUI::setAxisSteps_per_mm(value, axis);
-  settings.save();
-  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-}
 
-void DGUSScreenHandlerMKS::handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  const uint16_t raw = BE16_P(val_ptr);
-  const float value = (float)raw;
+  void DGUSScreenHandlerMKS::handleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    const uint16_t raw = BE16_P(val_ptr);
+    const float value = (float)raw;
 
-  ExtUI::extruder_t extruder;
-  switch (var.VP) {
-    default: return;
-    #if HAS_HOTEND
-      case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
-    #endif
-    #if HAS_MULTI_HOTEND
-      case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
-    #endif
+    ExtUI::extruder_t extruder;
+    switch (var.VP) {
+      default: return;
+      #if HAS_HOTEND
+        case VP_E0_STEP_PER_MM: extruder = ExtUI::extruder_t::E0; break;
+      #endif
+      #if HAS_MULTI_HOTEND
+        case VP_E1_STEP_PER_MM: extruder = ExtUI::extruder_t::E1; break;
+      #endif
+    }
+    ExtUI::setAxisSteps_per_mm(value, extruder);
+    settings.save();
+    skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
   }
-  ExtUI::setAxisSteps_per_mm(value, extruder);
-  settings.save();
-  skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-}
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 void DGUSScreenHandlerMKS::handleMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t raw = BE16_P(val_ptr);
@@ -1370,8 +1378,8 @@ void DGUSScreenHandlerMKS::extrudeLoadInit() {
 }
 
 void DGUSScreenHandlerMKS::runoutInit() {
-  #if PIN_EXISTS(MT_DET_1)
-    SET_INPUT_PULLUP(MT_DET_1_PIN);
+  #if ENABLED(DGUS_MKS_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT)
+    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
   #endif
   runout_mks.de_count      = 0;
   runout_mks.de_times      = 10;
@@ -1395,17 +1403,17 @@ void DGUSScreenHandlerMKS::runoutIdle() {
         break;
 
       case UNRUNOUT_STATUS:
-        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+        if (FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
-        if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
+        if (!FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
       case RUNOUT_WAITING_STATUS:
-        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+        if (FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 

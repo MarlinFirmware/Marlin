@@ -27,12 +27,6 @@
 
 #define LOGO_TIME_DELAY TERN(USE_MKS_GREEN_UI, 8000, 1500)
 
-#if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
-  #define MT_DET_1_PIN     1
-  #define MT_DET_2_PIN     2
-  #define MT_DET_PIN_STATE LOW
-#endif
-
 #define MKS_FINSH
 
 extern uint16_t manualMoveStep;
@@ -235,12 +229,11 @@ enum DGUS_ScreenID : uint8_t {
   #endif
 
   DGUS_SCREEN_CONFIRM                = 240,
-  DGUS_SCREEN_KILL                   = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_KILL                   = 250, //!< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
   DGUS_SCREEN_WAITING                = 251,
-  DGUS_SCREEN_POPUP                  = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_POPUP                  = 252, //!< special target, popup screen will also return this code to say "return to previous screen"
   DGUS_SCREEN_UNUSED                 = 255
 };
-
 
 // Place for status messages.
 constexpr uint16_t VP_M117 = 0x7020;
@@ -298,7 +291,6 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
 
   constexpr uint16_t VP_MARLIN_VERSION                = 0x1A00;
   constexpr uint8_t VP_MARLIN_VERSION_LEN             = 16;       // there is more space on the display, if needed.
-
 
   constexpr uint16_t VP_SCREENCHANGE_ASK              = 0x1500;
   constexpr uint16_t VP_SCREENCHANGE                  = 0x1501;   // Key-Return button to new menu pressed. Data contains target screen in low byte and info in high byte.
@@ -515,7 +507,6 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_TMC_E1_Current                = 0x3442;
   constexpr uint16_t VP_TMC_Z1_Current                = 0x3444;
 
-
   constexpr uint16_t VP_PrintTime_H                   = 0x3500;
   constexpr uint16_t VP_PrintTime_M                   = 0x3502;
   constexpr uint16_t VP_PrintTime_S                   = 0x3504;
@@ -591,7 +582,6 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_Level_Point_Five_X             = 0x4110;
   constexpr uint16_t VP_Level_Point_Five_Y             = 0x4112;
 
-
   /* H43 Version */
   constexpr uint16_t VP_MKS_H43_VERSION                = 0x4A00;   // MKS H43 V1.0.0
   constexpr uint16_t VP_MKS_H43_VERSION_LEN            = 16;
@@ -630,7 +620,6 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_E0_Max_Acc_Speed_Dis          = 0x5210;
   constexpr uint16_t VP_E1_Max_Acc_Speed_Dis          = 0x5220;
 
-
   constexpr uint16_t VP_PrintTime_Dis                 = 0x5470;
   constexpr uint16_t VP_E0_Temp_Dis                   = 0x5310;
   constexpr uint16_t VP_E1_Temp_Dis                   = 0x5320;
@@ -641,11 +630,9 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
 
   constexpr uint16_t VP_Min_Ex_Temp_Dis               = 0x5380;
 
-
   constexpr uint16_t VP_X_PARK_POS_Dis                = 0x53E0;
   constexpr uint16_t VP_Y_PARK_POS_Dis                = 0x53F0;
   constexpr uint16_t VP_Z_PARK_POS_Dis                = 0x5400;
-
 
   constexpr uint16_t VP_TravelAcc_Dis                 = 0x5440;
   constexpr uint16_t VP_FeedRateMin_Dis               = 0x5450;

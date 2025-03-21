@@ -34,7 +34,7 @@
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB10
   #define I2C_SDA_PIN                       PB11
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4KB
 #endif
 
 // Avoid conflict with TIMER_TONE
@@ -118,6 +118,13 @@
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB15
+#endif
+
+//
+// Probe enable
+//
+#if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
+  #define PROBE_ENABLE_PIN            SERVO0_PIN
 #endif
 
 //
@@ -254,7 +261,7 @@
 // SD Support
 //
 #ifndef SDCARD_CONNECTION
-  #if HAS_WIRED_LCD
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
@@ -294,34 +301,17 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                   PG14
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PG13
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PG12
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define Z2_SERIAL_TX_PIN                  PG11
-  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PG10
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PG9
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PD7
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #define E3_SERIAL_TX_PIN                  PD6
-  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
-
   #define E4_SERIAL_TX_PIN                  PG8
-  #define E4_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
-
+  #define E4_SERIAL_RX_PIN      E3_SERIAL_RX_PIN
   #define E5_SERIAL_TX_PIN                  PG7
-  #define E5_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
+  #define E5_SERIAL_RX_PIN      E3_SERIAL_RX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -383,16 +373,14 @@
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_OCTOPUS_MAX_EZ onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
-  #define SDSS                              PB12
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PB12
   #define SD_SCK_PIN                        PE12
   #define SD_MISO_PIN                       PE13
   #define SD_MOSI_PIN                       PE14
   #define SD_DETECT_PIN                     PB13
   #define SOFTWARE_SPI
 #elif SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -403,7 +391,7 @@
 #endif
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
 
 #if ENABLED(BTT_MINI_12864)                       // BTT Mini 12864 V2.0 connected via 18-pin FPC cable
@@ -435,14 +423,14 @@
   #define NEOPIXEL_PIN               EXP1_06_PIN
 
 #elif HAS_WIRED_LCD
-  #error "Only BTT_MINI_12864 (BTT Mini 12864 V2.0 with FPC cable) is currently supported on the BIGTREE_OCTOPUS_MAX_EZ."
+  #error "Only BTT_MINI_12864 (BTT Mini 12864 V2.0 with FPC cable) is currently supported on the Octopus Max EZ."
 #endif
 
 //
 // NeoPixel LED
 //
-#ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                      PE10
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN                PE10
 #endif
 #ifndef NEOPIXEL2_PIN
   #define NEOPIXEL2_PIN                     PE9

@@ -24,7 +24,7 @@
 /**
  * Pin assignments for the RUMBA32
  *
- * https://aus3d.com.au/rumba32
+ * https://aus3d.com.au/products/rumba32-control-board
  * https://github.com/Aus3D/RUMBA32
  */
 
@@ -33,10 +33,10 @@
 #if NO_EEPROM_SELECTED
   #if MB(RUMBA32_V1_0)
     #define FLASH_EEPROM_EMULATION
-    #define MARLIN_EEPROM_SIZE            0x1000  // 4K
+    #define MARLIN_EEPROM_SIZE           0x1000U  // 4K
   #elif MB(RUMBA32_V1_1)
     #define I2C_EEPROM
-    #define MARLIN_EEPROM_SIZE            0x2000  // 8K (24LC64T-I/OT)
+    #define MARLIN_EEPROM_SIZE           0x2000U  // 8K (24LC64T-I/OT)
   #endif
 #endif
 

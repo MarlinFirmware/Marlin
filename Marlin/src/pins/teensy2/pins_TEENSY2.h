@@ -156,7 +156,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  20  // B0
+#define SD_SS_PIN                             20  // B0
 #define LED_PIN                                6  // D6
 #define PS_ON_PIN                             27  // B7
 
@@ -167,6 +167,7 @@
 //
 // LCD / Controller
 //
+
 #if IS_ULTIPANEL
   #define LCD_PINS_RS                          8  // E0
   #define LCD_PINS_EN                          9  // E1
