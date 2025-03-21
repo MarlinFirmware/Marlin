@@ -222,6 +222,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_M48_TEST                       = _UxGT("M48 Probe Test");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Point");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Probe out of bounds");
+  LSTR MSG_M48_DEV                        = _UxGT("Dev");
   LSTR MSG_M48_DEVIATION                  = _UxGT("Deviation");
   LSTR MSG_M48_MAX_DELTA                  = _UxGT("Max delta");
   LSTR MSG_IDEX_MENU                      = _UxGT("IDEX Mode");
