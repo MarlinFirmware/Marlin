@@ -36,7 +36,7 @@ namespace LanguageNarrow_es {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Spanish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Lista");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Lista");
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Atrás");

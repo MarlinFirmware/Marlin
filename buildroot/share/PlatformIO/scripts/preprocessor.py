@@ -87,8 +87,8 @@ def search_compiler(env):
         # Use any item in $PATH corresponding to a platformio toolchain bin folder
         if ppath.match(env['PROJECT_PACKAGES_DIR'] + "/**/bin"):
             for gpath in ppath.glob(gcc_exe):
-                # Skip '*-elf-g++' (crosstool-NG) except for xtensa32
-                if not gpath.stem.endswith('-elf-g++') or "xtensa32" in str(gpath):
+                # Skip '*-elf-g++' (crosstool-NG) except for xtensa32/xtensa-esp32
+                if not gpath.stem.endswith('-elf-g++') or "xtensa" in str(gpath):
                     gccpath = str(gpath.resolve())
                     break
 

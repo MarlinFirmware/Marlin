@@ -55,12 +55,12 @@
 
 #if defined(ARDUINO) && !defined(ARDUINO_ARCH_STM32) && !defined(ARDUINO_ARCH_SAM)
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_MARLINUI_U8GLIB
 
-#include "../shared/Marduino.h"
-#include "../shared/Delay.h"
+#include "../../shared/Marduino.h"
+#include "../../shared/Delay.h"
 
 #include <U8glib-HAL.h>
 

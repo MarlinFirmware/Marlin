@@ -85,72 +85,72 @@
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
 static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_CS(1),              // enable chip
-  U8G_ESC_RST(15),            // do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
+  U8G_ESC_CS(0),              // Disable chip
+  U8G_ESC_ADR(0),             // Instruction mode
+  U8G_ESC_CS(1),              // Enable chip
+  U8G_ESC_RST(15),            // Do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
 
   ST7565_BIAS_MODE(0),        // 0xA2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
   ST7565_ADC_REVERSE(0),      // Normal ADC Select (according to Displaytech 64128N datasheet)
 
-  ST7565_OUT_MODE(1),         // common output mode: set scan direction
+  ST7565_OUT_MODE(1),         // Common output mode: set scan direction
   ST7565_START_LINE(0),       // Display start line for Displaytech 64128N
 
-  ST7565_POWER_CONTROL(0x4),  // power control: turn on voltage converter
-  U8G_ESC_DLY(50),            // delay 50 ms
+  ST7565_POWER_CONTROL(0x4),  // Power control: turn on voltage converter
+  U8G_ESC_DLY(50),            // Delay 50 ms
 
-  ST7565_POWER_CONTROL(0x6),  // power control: turn on voltage regulator
-  U8G_ESC_DLY(50),            // delay 50 ms
+  ST7565_POWER_CONTROL(0x6),  // Power control: turn on voltage regulator
+  U8G_ESC_DLY(50),            // Delay 50 ms
 
-  ST7565_POWER_CONTROL(0x7),  // power control: turn on voltage follower
-  U8G_ESC_DLY(50),            // delay 50 ms
+  ST7565_POWER_CONTROL(0x7),  // Power control: turn on voltage follower
+  U8G_ESC_DLY(50),            // Delay 50 ms
 
   #ifdef ST7565_VOLTAGE_DIVIDER_VALUE
                               // Set V5 voltage resistor ratio. Affects brightness of Displaytech 64128N
     ST7565_V5_RATIO(ST7565_VOLTAGE_DIVIDER_VALUE),
   #endif
 
-  ST7565_INVERTED(0),         // display normal, bit val 0: LCD pixel off.
+  ST7565_INVERTED(0),         // Display normal, bit val 0: LCD pixel off.
 
   ST7565_CONTRAST(0x1E),      // Contrast value for Displaytech 64128N
 
-  ST7565_ON(1),               // display on
+  ST7565_ON(1),               // Display on
 
-  U8G_ESC_DLY(100),           // delay 100 ms
-  ST7565_ALL_PIX(1),          // display all points, ST7565
-  U8G_ESC_DLY(100),           // delay 100 ms
-  U8G_ESC_DLY(100),           // delay 100 ms
-  ST7565_ALL_PIX(0),          // normal display
-  U8G_ESC_CS(0),              // disable chip
-  U8G_ESC_END                 // end of sequence
+  U8G_ESC_DLY(100),           // Delay 100 ms
+  ST7565_ALL_PIX(1),          // Display all points, ST7565
+  U8G_ESC_DLY(100),           // Delay 100 ms
+  U8G_ESC_DLY(100),           // Delay 100 ms
+  ST7565_ALL_PIX(0),          // Normal display
+  U8G_ESC_CS(0),              // Disable chip
+  U8G_ESC_END                 // End of sequence
 };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_CS(1),              // enable chip
-  ST7565_COLUMN_ADR(ST7565_XOFFSET), // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
-  U8G_ESC_END                 // end of sequence
+  U8G_ESC_ADR(0),             // Instruction mode
+  U8G_ESC_CS(1),              // Enable chip
+  ST7565_COLUMN_ADR(ST7565_XOFFSET), // High 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
+  U8G_ESC_END                 // End of sequence
 };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_on[] PROGMEM = {
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_CS(1),              // enable chip
-  ST7565_SLEEP_MODE(),        // static indicator off
-  //0x00,                     // indicator register set (not sure if this is required)
-  ST7565_ON(0),               // display off
-  ST7565_ALL_PIX(1),          // all points on
-  U8G_ESC_CS(0),              // disable chip, bugfix 12 nov 2014
-  U8G_ESC_END                 // end of sequence
+  U8G_ESC_ADR(0),             // Instruction mode
+  U8G_ESC_CS(1),              // Enable chip
+  ST7565_SLEEP_MODE(),        // Static indicator off
+  //0x00,                     // Indicator register set (not sure if this is required)
+  ST7565_ON(0),               // Display off
+  ST7565_ALL_PIX(1),          // All points on
+  U8G_ESC_CS(0),              // Disable chip, bugfix 12 nov 2014
+  U8G_ESC_END                 // End of sequence
   };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_off[] PROGMEM = {
-  U8G_ESC_ADR(0),             // instruction mode
-  U8G_ESC_CS(1),              // enable chip
-  ST7565_ALL_PIX(0),          // all points off
-  ST7565_ON(1),               // display on
-  U8G_ESC_DLY(50),            // delay 50 ms
-  U8G_ESC_CS(0),              // disable chip, bugfix 12 nov 2014
-  U8G_ESC_END                 // end of sequence
+  U8G_ESC_ADR(0),             // Instruction mode
+  U8G_ESC_CS(1),              // Enable chip
+  ST7565_ALL_PIX(0),          // All points off
+  ST7565_ON(1),               // Display on
+  U8G_ESC_DLY(50),            // Delay 50 ms
+  U8G_ESC_CS(0),              // Disable chip, bugfix 12 nov 2014
+  U8G_ESC_END                 // End of sequence
 };
 
 uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t msg, void *arg) {
@@ -164,15 +164,15 @@ uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t m
     case U8G_DEV_MSG_PAGE_NEXT: {
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_data_start);
-        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(pb->p.page)); /* select current page (ST7565R) */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
+        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(pb->p.page)); // select current page (ST7565R)
+        u8g_SetAddress(u8g, dev, 1);           // data mode
         if (!u8g_pb_WriteBuffer(pb, u8g, dev)) return 0;
         u8g_SetChipSelect(u8g, dev, 0);
       }
       break;
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
-      u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
+      u8g_SetAddress(u8g, dev, 0);          // instruction mode
       u8g_WriteByte(u8g, dev, 0x81);
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 2);
       u8g_SetChipSelect(u8g, dev, 0);
@@ -199,21 +199,21 @@ uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_data_start);
-        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(2 * pb->p.page)); /* select current page (ST7565R) */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
+        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(2 * pb->p.page)); // select current page (ST7565R)
+        u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)pb->buf);
         u8g_SetChipSelect(u8g, dev, 0);
 
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_data_start);
-        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(2 * pb->p.page + 1)); /* select current page (ST7565R) */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
+        u8g_WriteByte(u8g, dev, ST7565_PAGE_ADR(2 * pb->p.page + 1)); // select current page (ST7565R)
+        u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
         u8g_SetChipSelect(u8g, dev, 0);
       }
       break;
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
-      u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
+      u8g_SetAddress(u8g, dev, 0);          // instruction mode
       u8g_WriteByte(u8g, dev, 0x81);
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 2);
       u8g_SetChipSelect(u8g, dev, 0);

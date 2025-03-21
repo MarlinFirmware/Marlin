@@ -70,7 +70,7 @@ def group_options(schema):
 def load_boards():
     bpath = Path("Marlin/src/core/boards.h")
     if bpath.is_file():
-        with bpath.open() as bfile:
+        with bpath.open(encoding='utf-8') as bfile:
             boards = []
             for line in bfile:
                 if line.startswith("#define BOARD_"):

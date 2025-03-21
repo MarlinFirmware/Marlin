@@ -71,11 +71,11 @@ for WORD in $(awk '/LSTR/{print $2}' language_en.h); do
   # Find all selected languages that lack the string
   LANG_MISSING=" "
   for LANG in $TEST_LANGS; do
-    if [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${LANG}.h) -eq 0 ]]; then
+    if [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${LANG}.h 2>/dev/null) -eq 0 ]]; then
       INHERIT=$(awk '/using namespace/{print $3}' language_${LANG}.h | sed -E 's/Language_([a-zA-Z_]+)\s*;/\1/')
       if [[ -z $INHERIT || $INHERIT == "en" ]]; then
         LANG_MISSING+="$LANG "
-      elif [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${INHERIT}.h) -eq 0 ]]; then
+      elif [[ $(grep -c -E "^ *LSTR +$WORD\b" language_${INHERIT}.h 2>/dev/null) -eq 0 ]]; then
         LANG_MISSING+="$LANG "
       fi
     fi

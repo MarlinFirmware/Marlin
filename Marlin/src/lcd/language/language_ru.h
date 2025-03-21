@@ -35,7 +35,7 @@ namespace LanguageNarrow_ru {
   constexpr uint8_t CHARSIZE                = 2;
   LSTR LANGUAGE                             = _UxGT("Russian");
 
-  LSTR WELCOME_MSG                          = MACHINE_NAME _UxGT(" Готов.");
+  LSTR WELCOME_MSG                          = MACHINE_NAME_SUBST _UxGT(" Готов.");
   LSTR MSG_YES                              = _UxGT("Да");
   LSTR MSG_NO                               = _UxGT("Нет");
   LSTR MSG_BACK                             = _UxGT("Назад");

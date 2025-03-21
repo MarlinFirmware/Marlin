@@ -189,6 +189,9 @@
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
   #endif
+  #ifndef MIN_POWER
+    #define MIN_POWER 0
+  #endif
 #else
   #undef MPCTEMP
   #undef PIDTEMP

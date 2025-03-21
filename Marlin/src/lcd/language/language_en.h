@@ -69,7 +69,7 @@ namespace LanguageNarrow_en {
   LSTR LANGUAGE                           = _UxGT("English");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Ready.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Ready.");
   LSTR MSG_YES                            = _UxGT("YES");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_HIGH                           = _UxGT("HIGH");
@@ -155,6 +155,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_PREHEAT_M_END_E                = _UxGT("Preheat $ End ~");
   LSTR MSG_PREHEAT_M_ALL                  = _UxGT("Preheat $ All");
   LSTR MSG_PREHEAT_M_BEDONLY              = _UxGT("Preheat $ Bed");
+  LSTR MSG_PREHEAT_M_CHAMBER              = _UxGT("Preheat $ Chmb");
   LSTR MSG_PREHEAT_M_SETTINGS             = _UxGT("Preheat $ Conf");
 
   LSTR MSG_PREHEAT_HOTEND                 = _UxGT("Preheat Hotend");
@@ -197,6 +198,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MESH_VIEWER                    = _UxGT("Mesh Viewer");
   LSTR MSG_EDIT_MESH                      = _UxGT("Edit Mesh");
   LSTR MSG_MESH_VIEW                      = _UxGT("View Mesh");
+  LSTR MSG_MESH_VIEW_GRID                 = _UxGT("View Mesh (grid)");
   LSTR MSG_EDITING_STOPPED                = _UxGT("Mesh Editing Stopped");
   LSTR MSG_NO_VALID_MESH                  = _UxGT("No valid mesh");
   LSTR MSG_ACTIVATE_MESH                  = _UxGT("Activate Leveling");
@@ -511,7 +513,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Machine Name");
   LSTR MSG_INFO_SIZE                      = _UxGT("Size");
   LSTR MSG_INFO_FWVERSION                 = _UxGT("Firmware Version");
-  LSTR MSG_INFO_BUILD                     = _UxGT("Build Datetime");
+  LSTR MSG_INFO_BUILD                     = _UxGT("Build Info");
   LSTR MSG_PREPARE                        = _UxGT("Prepare");
   LSTR MSG_TUNE                           = _UxGT("Tune");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Power monitor");
@@ -924,10 +926,11 @@ namespace LanguageNarrow_en {
 
   LSTR MSG_SOUND                          = _UxGT("Sound");
 
-  LSTR MSG_TOP_LEFT                       = _UxGT("Top Left");
-  LSTR MSG_BOTTOM_LEFT                    = _UxGT("Bottom Left");
-  LSTR MSG_TOP_RIGHT                      = _UxGT("Top Right");
-  LSTR MSG_BOTTOM_RIGHT                   = _UxGT("Bottom Right");
+  LSTR MSG_TOP_LEFT                       = _UxGT("Touch Top Left");
+  LSTR MSG_BOTTOM_LEFT                    = _UxGT("Touch Bottom Left");
+  LSTR MSG_TOP_RIGHT                      = _UxGT("Touch Top Right");
+  LSTR MSG_BOTTOM_RIGHT                   = _UxGT("Touch Bottom Right");
+  LSTR MSG_TOUCH_CALIBRATION              = _UxGT("Touch Calibration");
   LSTR MSG_CALIBRATION_COMPLETED          = _UxGT("Calibration Completed");
   LSTR MSG_CALIBRATION_FAILED             = _UxGT("Calibration Failed");
 
@@ -1108,6 +1111,8 @@ namespace LanguageWide_en {
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
+    LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
+    LSTR MSG_PREHEAT_M_SETTINGS           = _UxGT("Preheat $ Config");
   #endif
 }
 

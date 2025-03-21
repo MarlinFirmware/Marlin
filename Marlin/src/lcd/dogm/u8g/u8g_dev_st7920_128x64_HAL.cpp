@@ -63,22 +63,22 @@
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
 static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
-  U8G_ESC_CS(0),      // disable chip
-  U8G_ESC_ADR(0),     // instruction mode
-  U8G_ESC_RST(15),    // do reset low pulse with (15*16)+2 milliseconds (=maximum delay)
+  U8G_ESC_CS(0),      // Disable chip
+  U8G_ESC_ADR(0),     // Instruction mode
+  U8G_ESC_RST(15),    // Do reset low pulse with (15*16)+2 milliseconds (=maximum delay)
   U8G_ESC_DLY(100),   // 8 Dez 2012: additional delay 100 ms because of reset
-  U8G_ESC_CS(1),      // enable chip
-  U8G_ESC_DLY(50),    // delay 50 ms
+  U8G_ESC_CS(1),      // Enable chip
+  U8G_ESC_DLY(50),    // Delay 50 ms
 
   0x038,              // 8 Bit interface (DL=1), basic instruction set (RE=0)
-  0x00C,              // display on, cursor & blink off; 0x08: all off
+  0x00C,              // Display on, cursor & blink off; 0x08: all off
   0x006,              // Entry mode: Cursor move to right, DDRAM address counter (AC) plus 1, no shift
-  0x002,              // disable scroll, enable CGRAM address
-  0x001,              // clear RAM, needs 1.6 ms
-  U8G_ESC_DLY(100),   // delay 100 ms
+  0x002,              // Disable scroll, enable CGRAM address
+  0x001,              // Clear RAM, needs 1.6 ms
+  U8G_ESC_DLY(100),   // Delay 100 ms
 
-  U8G_ESC_CS(0),      // disable chip
-  U8G_ESC_END         // end of sequence
+  U8G_ESC_CS(0),      // Disable chip
+  U8G_ESC_END         // End of sequence
 };
 
 void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev) {
@@ -115,24 +115,24 @@ uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       uint8_t *ptr;
       u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
-      u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
+      u8g_SetAddress(u8g, dev, 0);           // Cmd mode
       u8g_SetChipSelect(u8g, dev, 1);
       y = pb->p.page_y0;
       ptr = (uint8_t *)pb->buf;
       for (i = 0; i < 8; i ++) {
-        u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
-        u8g_WriteByte(u8g, dev, 0x03E );      /* enable extended mode */
+        u8g_SetAddress(u8g, dev, 0);           // Cmd mode
+        u8g_WriteByte(u8g, dev, 0x03E );      // Enable extended mode
 
         if (y < 32) {
-          u8g_WriteByte(u8g, dev, 0x080 | y );      /* y pos  */
-          u8g_WriteByte(u8g, dev, 0x080  );      /* set x pos to 0*/
+          u8g_WriteByte(u8g, dev, 0x080 | y );      // Y pos
+          u8g_WriteByte(u8g, dev, 0x080  );      // Set x pos to 0
         }
         else {
-          u8g_WriteByte(u8g, dev, 0x080 | (y-32) );      /* y pos  */
-          u8g_WriteByte(u8g, dev, 0x080 | 8);      /* set x pos to 64*/
+          u8g_WriteByte(u8g, dev, 0x080 | (y-32) );      // Y pos
+          u8g_WriteByte(u8g, dev, 0x080 | 8);      // Set x pos to 64
         }
 
-        u8g_SetAddress(u8g, dev, 1);                  /* data mode */
+        u8g_SetAddress(u8g, dev, 1);                  // Data mode
         u8g_WriteSequence(u8g, dev, (LCD_PIXEL_WIDTH) / 8, ptr);
         ptr += (LCD_PIXEL_WIDTH) / 8;
         y++;
@@ -160,24 +160,24 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
       uint8_t *ptr;
       u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
-      u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
+      u8g_SetAddress(u8g, dev, 0);           // Cmd mode
       u8g_SetChipSelect(u8g, dev, 1);
       y = pb->p.page_y0;
       ptr = (uint8_t *)pb->buf;
       for (i = 0; i < 32; i ++) {
-        u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
-        u8g_WriteByte(u8g, dev, 0x03E );      /* enable extended mode */
+        u8g_SetAddress(u8g, dev, 0);           // Cmd mode
+        u8g_WriteByte(u8g, dev, 0x03E );      // Enable extended mode
 
         if (y < 32) {
-          u8g_WriteByte(u8g, dev, 0x080 | y );      /* y pos  */
-          u8g_WriteByte(u8g, dev, 0x080  );      /* set x pos to 0*/
+          u8g_WriteByte(u8g, dev, 0x080 | y );      // Y pos
+          u8g_WriteByte(u8g, dev, 0x080  );      // Set x pos to 0
         }
         else {
-          u8g_WriteByte(u8g, dev, 0x080 | (y-32) );      /* y pos  */
-          u8g_WriteByte(u8g, dev, 0x080 | 8);      /* set x pos to 64*/
+          u8g_WriteByte(u8g, dev, 0x080 | (y-32) );      // Y pos
+          u8g_WriteByte(u8g, dev, 0x080 | 8);      // Set x pos to 64
         }
 
-        u8g_SetAddress(u8g, dev, 1);                  /* data mode */
+        u8g_SetAddress(u8g, dev, 1);                  // Data mode
         u8g_WriteSequence(u8g, dev, (LCD_PIXEL_WIDTH) / 8, ptr);
         ptr += (LCD_PIXEL_WIDTH) / 8;
         y++;
@@ -200,7 +200,7 @@ U8G_PB_DEV(u8g_dev_st7920_128x64_HAL_hw_spi, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT, 
 u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_HW_SPI };
 
 #if NONE(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32) || defined(U8G_HAL_LINKS)
-  // Also use this device for HAL version of rrd class. This results in the same device being used
+  // Also use this device for HAL version of RRD class. This results in the same device being used
   // for the ST7920 for HAL systems no matter what is selected in marlinui_DOGM.h.
   u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 #endif
