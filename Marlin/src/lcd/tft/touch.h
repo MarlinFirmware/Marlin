@@ -85,6 +85,7 @@ class Touch {
     static uint16_t controls_count;
 
     static millis_t next_touch_ms, time_to_hold, repeat_delay, nada_start_ms;
+    static MTimeout24 touch_timer;
     static TouchControlType touch_control_type;
 
     static bool get_point(int16_t * const x, int16_t * const y);

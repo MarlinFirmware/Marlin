@@ -180,8 +180,7 @@ void GcodeSuite::M240() {
 
   #ifdef PHOTO_POSITION
     #if PHOTO_DELAY_MS > 0
-      const millis_t timeout = millis() + parser.intval('P', PHOTO_DELAY_MS);
-      while (PENDING(millis(), timeout)) marlin.idle();
+      MTimeout(parser.intval('P', PHOTO_DELAY_MS)).idle();
     #endif
     motion.blocking_move(old_pos, fr_mm_s);
     #ifdef PHOTO_RETRACT_MM

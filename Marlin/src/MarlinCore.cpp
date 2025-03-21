@@ -306,7 +306,8 @@ PGMSTR(M112_KILL_STR, "M112 Shutdown");
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_start();
     if (ms) ms += millis(); // expire time
-    while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
+    const MTimeout24 expiration(ms);
+    while (wait_for_user && (!ms || expiration.pending()))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     user_resume();
     while (ui.button_pressed()) safe_delay(50);
@@ -531,10 +532,10 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   #if HAS_HOME
     // Handle a standalone HOME button
     constexpr millis_t HOME_DEBOUNCE_DELAY = 1000UL;
-    static millis_t next_home_key_ms; // = 0
+    static millis_t prev_home_key_ms; // = 0
     if (!card.isStillPrinting() && !READ(HOME_PIN)) { // HOME_PIN goes LOW when pressed
-      if (ELAPSED(ms, next_home_key_ms)) {
-        next_home_key_ms = ms + HOME_DEBOUNCE_DELAY;
+      if (ELAPSED(ms, prev_home_key_ms, HOME_DEBOUNCE_DELAY)) {
+        prev_home_key_ms = ms;
         LCD_MESSAGE(MSG_AUTO_HOME);
         queue.inject_P(G28_STR);
       }
@@ -547,13 +548,12 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
     #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
     #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
-      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
-      static millis_t next_cub_ms_##N;                                 \
+      static millis_t prev_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
         && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)    \
       ) {                                                              \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                            \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
+        if (ELAPSED(ms, prev_cub_ms_##N, CUB_DEBOUNCE_DELAY_##N)) {    \
+          prev_cub_ms_##N = ms;                                        \
           CODE;                                                        \
           if (ENABLED(BUTTON##N##_IMMEDIATE))                          \
             gcode.process_subcommands_now(F(BUTTON##N##_GCODE));       \
@@ -698,6 +698,8 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
+  // Check for power needing to be turned on or off
+  // Send a bool to pause the power-off timer for ongoing activities
   TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
   TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
@@ -746,16 +748,16 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   TERN_(MONITOR_DRIVER_STATUS, monitor_tmc_drivers());
 
   // Limit check_axes_activity frequency to 10Hz
-  static millis_t next_check_axes_ms = 0;
-  if (ELAPSED(ms, next_check_axes_ms)) {
+  static millis_t prev_check_axes_ms = 0;
+  if (ELAPSED(ms, prev_check_axes_ms, 100UL)) {
     planner.check_axes_activity();
-    next_check_axes_ms = ms + 100UL;
+    prev_check_axes_ms = ms;
   }
 
   #if PIN_EXISTS(FET_SAFETY)
-    static millis_t FET_next;
-    if (ELAPSED(ms, FET_next)) {
-      FET_next = ms + FET_SAFETY_DELAY;  // 2µs pulse every FET_SAFETY_DELAY mS
+    static millis_t prev_FET = 0;
+    if (ELAPSED(ms, prev_FET, FET_SAFETY_DELAY)) { // 2µs pulse every FET_SAFETY_DELAY mS
+      prev_FET = ms;
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
       DELAY_US(2);
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
@@ -767,6 +769,9 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
   #include "feature/babystep.h"
 #endif
+
+// For millis_t.h
+void marlin_idle(const bool no_stepper_sleep/*=false*/) { marlin.idle(no_stepper_sleep); }
 
 /**
  * Standard idle routine keeps the machine alive:
@@ -837,7 +842,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
-    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
+    if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_start_ms, default_sg_guard_duration)))
       for (uint8_t i = 0; i < 4; ++i) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
 
@@ -874,12 +879,12 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
   {
-    static millis_t i2cpem_next_update_ms;
+    static MTimeout24 i2c_encoder_timer;
     if (planner.has_blocks_queued()) {
       const millis_t ms = millis();
-      if (ELAPSED(ms, i2cpem_next_update_ms)) {
+      if (i2c_encoder_timer.elapsed(ms)) {
+        i2c_encoder_timer.start(I2CPE_MIN_UPD_TIME_MS, ms);
         I2CPEM.update();
-        i2cpem_next_update_ms = ms + I2CPE_MIN_UPD_TIME_MS;
       }
     }
   }
@@ -1195,13 +1200,11 @@ void setup() {
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
 
   MYSERIAL1.begin(BAUDRATE);
-  millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  MTimeout24(1000).wait_until([]{ return MYSERIAL1.connected(); });
 
   #if ENABLED(SOVOL_SV06_RTS)
     LCD_SERIAL.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    MTimeout24(1000).wait_until([]{ return LCD_SERIAL.connected(); });
   #endif
 
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
@@ -1209,15 +1212,13 @@ void setup() {
       #define BAUDRATE_2 BAUDRATE
     #endif
     MYSERIAL2.begin(BAUDRATE_2);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL2.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    MTimeout24(1000).wait_until([]{ return MYSERIAL2.connected(); });
     #ifdef SERIAL_PORT_3
       #ifndef BAUDRATE_3
         #define BAUDRATE_3 BAUDRATE
       #endif
       MYSERIAL3.begin(BAUDRATE_3);
-      serial_connect_timeout = millis() + 1000UL;
-      while (!MYSERIAL3.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+      MTimeout24(1000).wait_until([]{ return MYSERIAL3.connected(); });
     #endif
   #endif
   SERIAL_ECHOLNPGM("start");
