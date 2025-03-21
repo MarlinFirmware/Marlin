@@ -78,7 +78,7 @@ class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
 public:
   U8GLIB_SH1106_128X64_2X_I2C_2_WIRE() : U8GLIB() { }
   U8GLIB_SH1106_128X64_2X_I2C_2_WIRE(uint8_t options) { init(options); }
-  void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options); }
+  void init(uint8_t options=U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options); }
 };
 
 extern u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire;
@@ -87,7 +87,7 @@ class U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE : public U8GLIB {
 public:
   U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE() : U8GLIB() { }
   U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE(uint8_t options) { init(options); }
-  void init(uint8_t options = U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options); }
+  void init(uint8_t options=U8G_I2C_OPT_NONE) { U8GLIB::init(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options); }
 };
 
 #if ENABLED(U8GLIB_SH1106_SPI)
