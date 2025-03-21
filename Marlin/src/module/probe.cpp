@@ -275,7 +275,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
     #ifdef MAG_MOUNTED_PRE_DEPLOY
       constexpr mag_probe_move_t pre_deploy = MAG_MOUNTED_PRE_DEPLOY;
       do_blocking_move_to(pre_deploy.where, MMM_TO_MMS(pre_deploy.fr_mm_min));
-    #endif    
+    #endif
     #if HAS_MAG_MOUNTED_SERVO_PROBE
       servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
     #endif

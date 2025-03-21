@@ -128,7 +128,7 @@ private:
 
   enum class FileTransfer : uint8_t { QUERY, OPEN, CLOSE, WRITE, ABORT };
 
-  static size_t data_waiting; 
+  static size_t data_waiting;
   static uint16_t transfer_time_last, idle_time_last;
   static bool transfer_active, dummy_transfer, compression;
 
