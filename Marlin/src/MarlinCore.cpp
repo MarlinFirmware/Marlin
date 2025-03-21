@@ -485,9 +485,9 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   #if ENABLED(PHOTO_GCODE) && PIN_EXISTS(CHDK)
     // Check if CHDK should be set to LOW (after M240 set it HIGH)
-    extern millis_t chdk_timeout;
-    if (chdk_timeout && ELAPSED(ms, chdk_timeout)) {
-      chdk_timeout = 0;
+    extern TTimeout<uint16_t> chdk_timeout;
+    if (chdk_timeout.on_elapsed(ms)) {
+      chdk_timeout.cancel();
       WRITE(CHDK_PIN, LOW);
     }
   #endif
