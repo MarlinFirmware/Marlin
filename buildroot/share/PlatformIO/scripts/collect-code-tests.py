@@ -11,12 +11,12 @@ if pioutil.is_pio_build():
     os.environ["PATH"] = f"./buildroot/bin/:./buildroot/tests/:{os.environ['PATH']}"
 
     def collect_test_suites():
-        """ Get all the test suites """
+        """Get all the test suites"""
         from pathlib import Path
         return sorted(list(Path("./test").glob("*.ini")))
 
     def register_test_suites():
-        """ Register all the test suites """
+        """Register all the test suites"""
         targets = []
         test_suites = collect_test_suites()
         for path in test_suites:

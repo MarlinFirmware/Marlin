@@ -32,7 +32,7 @@ TMIN   = 0                                  # Lowest temperature in table
 TMAX   = 350                                # Highest temperature in table
 
 class Thermistor:
-    """ Class to do the thermistor maths """
+    """Class to do the thermistor maths"""
 
     def __init__(self, rp, t1, r1, t2, r2, t3, r3):
         l1 = log(r1)

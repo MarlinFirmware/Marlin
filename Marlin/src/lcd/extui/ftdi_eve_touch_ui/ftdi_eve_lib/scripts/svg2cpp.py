@@ -272,7 +272,7 @@ class SVGParser(HTMLParser):
                 return value
 
     def layer_matches(self):
-        """ Are we in the correct layer? """
+        """Are we in the correct layer?"""
         if not self.args.layer:
             return True
         for l in self.groups:

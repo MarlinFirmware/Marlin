@@ -20,7 +20,7 @@ from PIL import Image
 import argparse, textwrap
 
 def pack_rle(data):
-    """ Use run-length encoding to pack the bytes """
+    """Use run-length encoding to pack the bytes"""
     rle   = []
     value = data[0]
     count = 0
