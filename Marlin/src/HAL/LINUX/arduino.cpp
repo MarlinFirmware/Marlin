@@ -33,8 +33,8 @@ void sei() { } // Enable
 // Time functions
 void _delay_ms(const int ms) { delay(ms); }
 
-uint32_t millis() {
-  return (uint32_t)Clock::millis();
+unsigned long millis() {
+  return (unsigned long)Clock::millis();
 }
 
 // This is required for some Arduino libraries we are using

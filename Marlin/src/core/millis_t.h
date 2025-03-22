@@ -30,5 +30,8 @@ typedef uint32_t millis_t;
 #define MS_TO_SEC(N) millis_t((N)/1000UL)
 #define MS_TO_SEC_PRECISE(N) (float(N)/1000.0f)
 
-#define PENDING(NOW,SOON) ((int32_t)(NOW-(SOON))<0)
+#define FUTURE(START,DURA) (millis_t(millis()-(START))<(DURA))
+#define PAST(START,DURA) (!FUTURE(START,DURA))
+
+#define PENDING(NOW,SOON) (int32_t((NOW)-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
