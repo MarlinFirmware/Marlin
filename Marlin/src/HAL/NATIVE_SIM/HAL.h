@@ -52,7 +52,9 @@ uint8_t _getc();
 // ------------------------
 
 #define CPU_32_BIT
-#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+class Servo;
+typedef Servo hal_servo_t;
 
 #define F_CPU 100000000
 #define SystemCoreClock F_CPU
