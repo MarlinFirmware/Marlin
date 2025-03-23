@@ -1,0 +1,21 @@
+
+; Linear Units:
+  G21 ; (mm)
+; Temperature Units:
+  M149 C ; Units in Celsius
+; Filament settings (Disabled):
+  M200 S0 D40.00
+; Steps per unit:
+  M92 X23.19 Y235.00 Z143.79 E500.00
+; Max feedrates (units/s):
+  M203 X300.00 Y20.00 Z20.00 E25.00
+; Max Acceleration (units/s2):
+  M201 X3000.00 Y3000.00 Z100.00 E10000.00
+; Acceleration (units/s2) (P<print-accel> R<retract-accel> T<travel-accel>):
+  M204 P3000.00 R3000.00 T50.00
+; Advanced (B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate> X<max_jerk> Y<max_jerk> Z<max_jerk> E<max_jerk>):
+  M205 B20000.00 S0.00 T0.00 X10.00 Y10.00 Z0.30 E5.00
+; Home offset:
+  M206 X1305.00 Z0.00
+; Polar:
+  M665 S180.00
