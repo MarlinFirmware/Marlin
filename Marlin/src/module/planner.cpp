@@ -3138,7 +3138,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
       const xyz_pos_t diff = delta - position_float;
       if (!NEAR_ZERO(diff.b)) {
         if (delta.a <= POLAR_FAST_RADIUS )
-          {}//calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
+          calculated_feedrate = settings.max_feedrate_mm_s[Y_AXIS];
         else {
           // Normalized vector of movement
           const float diffBLength = ABS((2.0f * M_PI * diff.a) * (diff.b / 360.0f)),
