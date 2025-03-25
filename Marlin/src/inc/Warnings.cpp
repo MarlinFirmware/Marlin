@@ -899,6 +899,13 @@
 #endif
 
 /**
+ * MKS_TINYBEE Analog Reference
+ */
+#if MB(MKS_TINYBEE) && !defined(ADC_REFERENCE_VOLTAGE)
+  #warning "If you experience odd temperature readings make sure to measure the analog reference voltage. See pins_MKS_TINYBEE.h for details"
+#endif
+
+/**
  * No PWM on the Piezo Beeper?
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)

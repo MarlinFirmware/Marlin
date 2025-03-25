@@ -127,7 +127,6 @@
  */
 
 #ifndef ADC_REFERENCE_VOLTAGE
-  #warning "If you experience odd temperature readings make sure to measure the analog reference voltage. See pins_MKS_TINYBEE.h for details"
   #define ADC_REFERENCE_VOLTAGE              2.565
 #endif
 
