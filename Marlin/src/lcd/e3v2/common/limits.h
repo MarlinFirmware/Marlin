@@ -65,6 +65,11 @@ constexpr xyze_float_t max_acceleration_edit_values =
                          #endif
                        ;
 
+#if ENABLED(DEFAULT_ACCELERATION_SPINDLE) 
+  constexpr float default_acceleration_spindle = DEFAULT_ACCELERATION_SPINDLE;
+  constexpr acceleration_edit_values_spindle = default_acceleration_spindle * DEFAULT_MAX_MULTIPLIER;
+#endif
+
 //
 // Max Jerk limits
 //

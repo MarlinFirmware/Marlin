@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V90"
+#define EEPROM_VERSION "V91"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -250,6 +250,11 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_HOTEND_OFFSET
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
+  #endif
+
+
+  #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+    uint16_t accel_spindle;
   #endif
 
   //
@@ -941,6 +946,14 @@ void MarlinSettings::postprocess() {
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
           EEPROM_WRITE(hotend_offset[e]);
+      #endif
+    }
+
+    {
+      #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+        const uint16_t accel_spindle = cutter.acceleration_spindle_deg_per_s2;
+        _FIELD_TEST(accel_spindle);
+        EEPROM_WRITE(accel_spindle);
       #endif
     }
 
@@ -2021,6 +2034,15 @@ void MarlinSettings::postprocess() {
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
             EEPROM_READ(hotend_offset[e]);
+        #endif
+      }
+
+      {
+        #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+          uint16_t accel_spindle;
+          _FIELD_TEST(accel_spindle)
+          EEPROM_READ(accel_spindle); // cutter.acceleration_spindle_deg_per_s2
+          if (!validating) accel_spindle = DEFAULT_ACCELERATION_SPINDLE;
         #endif
       }
 
@@ -3358,6 +3380,10 @@ void MarlinSettings::reset() {
   #endif
 
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+
+  #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+    cutter.acceleration_spindle_deg_per_s2 = DEFAULT_ACCELERATION_SPINDLE;
+  #endif
 
   //
   // Filament Runout Sensor
