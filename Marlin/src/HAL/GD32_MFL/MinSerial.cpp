@@ -28,17 +28,56 @@
 #if ENABLED(POSTMORTEM_DEBUGGING)
 #include "../shared/MinSerial.h"
 
-#include "MinSerialHelper.h"
+// Base addresses for USART peripherals
+static constexpr uintptr_t USART_base[] = {
+  0x40013800, // USART0
+  0x40004400, // USART1
+  0x40004800, // USART2
+  0x40004C00, // UART3
+  0x40005000  // UART4
+};
 
-// isb
+// Register offsets
+static constexpr uint32_t STAT0_OFFSET = 0x00U;
+static constexpr uint32_t DATA_OFFSET = 0x04U;
+static constexpr uint32_t BAUD_OFFSET = 0x08U;
+static constexpr uint32_t CTL0_OFFSET = 0x0CU;
+static constexpr uint32_t CTL1_OFFSET = 0x14U;
+
+// Bit positions
+static constexpr uint32_t TBE_BIT = 7;
+static constexpr uint32_t TEN_BIT = 3;
+static constexpr uint32_t UEN_BIT = 13;
+
+// NVIC interrupt numbers for USART
+static constexpr int nvicUART[] = { 37, 38, 39, 52, 53 };
+
+// RCU PCLK values for USART
+static constexpr rcu::RCU_PCLK clockRegs[] = {
+  rcu::RCU_PCLK::PCLK_USART0,
+  rcu::RCU_PCLK::PCLK_USART1,
+  rcu::RCU_PCLK::PCLK_USART2,
+  rcu::RCU_PCLK::PCLK_UART3,
+  rcu::RCU_PCLK::PCLK_UART4
+};
+
+// Memory barrier instructions
 #define isb() __asm__ __volatile__ ("isb" : : : "memory")
-
-// dsb
 #define dsb() __asm__ __volatile__ ("dsb" : : : "memory")
+#define sw_barrier() __asm__ volatile("" : : : "memory")
 
-#if WITHIN(SERIAL_PORT, 0, 4)
-  rcu::RCU_PCLK pclk = clockRegs[SERIAL_PORT];
-#endif
+// Direct register access macros
+#define USART_REG(offset) (*(volatile uint32_t*)(USART_base[SERIAL_PORT] + (offset)))
+#define USART_STAT0 USART_REG(STAT0_OFFSET)
+#define USART_DATA  USART_REG(DATA_OFFSET)
+#define USART_BAUD  USART_REG(BAUD_OFFSET)
+#define USART_CTL0  USART_REG(CTL0_OFFSET)
+#define USART_CTL1  USART_REG(CTL1_OFFSET)
+
+// Bit manipulation macros
+#define READ_BIT(reg, bit) (((reg) >> (bit)) & 1U)
+#define SET_BIT(reg, bit) ((reg) |= (1U << (bit)))
+#define CLEAR_BIT(reg, bit) ((reg) &= ~(1U << (bit)))
 
 // Initializes the MinSerial interface.
 // This function sets up the USART interface for serial communication.
@@ -48,15 +87,15 @@ static void MinSerialBegin() {
     #warning "Using POSTMORTEM_DEBUGGING requires a physical U(S)ART hardware in case of severe error."
     #warning "Disabling the severe error reporting feature currently because the used serial port is not a HW port."
   #else
-    const int nvicUART[] = { 37, 38, 39, 52, 53 };
     int nvicIndex = nvicUART[SERIAL_PORT];
 
+    // NVIC base address for interrupt disable
     struct NVICMin {
       volatile uint32_t ISER[32];
       volatile uint32_t ICER[32];
     };
-
     NVICMin *nvicBase = (NVICMin*)0xE000E100;
+  
     SBI32(nvicBase->ICER[nvicIndex >> 5], nvicIndex & 0x1F);
 
     // We require memory barriers to properly disable interrupts
@@ -64,32 +103,39 @@ static void MinSerialBegin() {
     dsb();
     isb();
 
+    // Get the RCU PCLK for this USART
+    rcu::RCU_PCLK pclk = clockRegs[SERIAL_PORT];
+
     // Disable then enable usart peripheral clocks
     rcu::RCU_DEVICE.set_pclk_enable(pclk, false);
     rcu::RCU_DEVICE.set_pclk_enable(pclk, true);
 
-    uint32_t baudrate = register_read<uint32_t>(USART_Min_Regs::BAUD);
-    register_write(USART_Min_Regs::CTL0, 0);  // reset the USART
-    register_write(USART_Min_Regs::CTL1, 0);  // 1 stop bit
+    // Save current baudrate
+    uint32_t baudrate = USART_BAUD;
 
-    // Recompute isn't needed since we don't touch the baudrate
-    register_write(USART_Min_Regs::BAUD, baudrate);
-    bit_write(USART_Min_Regs::CTL0, static_cast<uint32_t>(CTL0_bits::TEN), 1);
-    bit_write(USART_Min_Regs::CTL0, static_cast<uint32_t>(CTL0_bits::UEN), 1);  // 8 bits, no parity, 1 stop bit (TEN | UEN)
+    // Reset USART control registers
+    USART_CTL0 = 0;
+    USART_CTL1 = 0; // 1 stop bit
+
+    // Restore baudrate
+    USART_BAUD = baudrate;
+
+    // Enable transmitter and USART (8 bits, no parity, 1 stop bit)
+    SET_BIT(USART_CTL0, TEN_BIT);
+    SET_BIT(USART_CTL0, UEN_BIT);
   #endif
 }
-
-// Software memory barrier to prevent GCC overoptimization
-#define sw_barrier() __asm__ volatile("": : :"memory");
 
 // Writes a single character to the serial port.
 static void MinSerialWrite(char c) {
   #if WITHIN(SERIAL_PORT, 0, 4)
-    while (!(bit_read(USART_Min_Regs::STAT0, static_cast<uint32_t>(STAT0_bits::TBE)))) {
+    // Wait until transmit buffer is empty
+    while (!READ_BIT(USART_STAT0, TBE_BIT)) {
       hal.watchdog_refresh();
       sw_barrier();
     }
-    register_write(USART_Min_Regs::DATA, c);
+    // Write character to data register
+    USART_DATA = c;
   #endif
 }
 

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-// Test mfl specific configuration values for errors at compile-time.
+// Test MFL GD32 specific configuration values for errors at compile-time.
 #if ENABLED(SDCARD_EEPROM_EMULATION) && !HAS_MEDIA
   #undef SDCARD_EEPROM_EMULATION  // avoid additional error noise
   #if USE_FALLBACK_EEPROM
