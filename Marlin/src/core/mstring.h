@@ -318,5 +318,5 @@ public:
 #ifndef TS_SIZE
   #define TS_SIZE 63
 #endif
-typedef MString<TS_SIZE, DISABLED(UNSAFE_MSTRING)> TString;
+typedef MString<TS_SIZE> TString;
 #define TS(V...) TString(V)
