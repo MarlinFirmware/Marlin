@@ -143,6 +143,11 @@ void GcodeSuite::G34() {
 
       probe.use_probing_tool();
 
+      #ifdef EVENT_GCODE_BEFORE_G34
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G34 G-code: ", EVENT_GCODE_BEFORE_G34);
+        gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G34));
+      #endif
+
       TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
       // Compute a worst-case clearance height to probe from. After the first
@@ -440,6 +445,12 @@ void GcodeSuite::G34() {
         sync_plan_position();
       #endif
 
+      #ifdef EVENT_GCODE_AFTER_G34
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G34 G-code: ", EVENT_GCODE_AFTER_G34);
+        planner.synchronize();
+        process_subcommands_now(F(EVENT_GCODE_AFTER_G34));
+      #endif
+
       probe.use_probing_tool(false);
 
       #if ALL(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
@@ -447,6 +458,12 @@ void GcodeSuite::G34() {
       #endif
 
     }while(0);
+
+    #ifdef EVENT_GCODE_AFTER_G34
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G34 G-code: ", EVENT_GCODE_AFTER_G34);
+      planner.synchronize();
+      process_subcommands_now(F(EVENT_GCODE_AFTER_G34));
+    #endif
 
     probe.use_probing_tool(false);
 
