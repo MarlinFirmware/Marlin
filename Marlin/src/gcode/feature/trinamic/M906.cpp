@@ -37,6 +37,8 @@ static void tmc_print_current(TMC &st) {
 /**
  * M906: Set motor current in milliamps.
  *
+ * With no parameters report driver currents.
+ *
  * Parameters:
  *   X[current]  - Set mA current for X driver(s)
  *   Y[current]  - Set mA current for Y driver(s)
@@ -52,9 +54,14 @@ static void tmc_print_current(TMC &st) {
  *   I[index]    - Axis sub-index (Omit or 0 for X, Y, Z; 1 for X2, Y2, Z2; 2 for Z3; 3 for Z4.)
  *   T[index]    - Extruder index (Zero-based. Omit for E0 only.)
  *
- * With no parameters report driver currents.
+ * With EDITABLE_HOMING_CURRENT:
+ *   H           - Set / Report Homing Current. Alias for M920.
  */
 void GcodeSuite::M906() {
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    if (parser.seen_test('H')) return M920();
+  #endif
+
   #define TMC_SAY_CURRENT(Q) tmc_print_current(stepper##Q)
   #define TMC_SET_CURRENT(Q) stepper##Q.rms_current(value)
 

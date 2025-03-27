@@ -470,6 +470,13 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
+  // TMC Homing Current
+  //
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    homing_current_t homing_current_mA;                 // M920 X Y Z...
+  #endif
+
+  //
   // !NO_VOLUMETRIC
   //
   bool parser_volumetric_enabled;                       // M200 S  parser.volumetric_enabled
@@ -1353,6 +1360,14 @@ void MarlinSettings::postprocess() {
     #if ENABLED(EDITABLE_HOMING_FEEDRATE)
       _FIELD_TEST(homing_feedrate_mm_m);
       EEPROM_WRITE(homing_feedrate_mm_m);
+    #endif
+
+    //
+    // TMC Homing Current
+    //
+    #if ENABLED(EDITABLE_HOMING_CURRENT)
+      _FIELD_TEST(homing_current_mA);
+      EEPROM_WRITE(homing_current_mA);
     #endif
 
     //
@@ -2412,6 +2427,14 @@ void MarlinSettings::postprocess() {
       #if ENABLED(EDITABLE_HOMING_FEEDRATE)
         _FIELD_TEST(homing_feedrate_mm_m);
         EEPROM_READ(homing_feedrate_mm_m);
+      #endif
+
+      //
+      // TMC Homing Current
+      //
+      #if ENABLED(EDITABLE_HOMING_CURRENT)
+        _FIELD_TEST(homing_current_mA);
+        EEPROM_READ(homing_current_mA);
       #endif
 
       //
@@ -3627,6 +3650,29 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
 
   //
+  // TMC Homing Current
+  //
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    homing_current_t base_homing_current_mA = {
+      OPTITEM(X_HAS_HOME_CURRENT,  X_CURRENT_HOME)
+      OPTITEM(Y_HAS_HOME_CURRENT,  Y_CURRENT_HOME)
+      OPTITEM(Z_HAS_HOME_CURRENT,  Z_CURRENT_HOME)
+      OPTITEM(X2_HAS_HOME_CURRENT, X2_CURRENT_HOME)
+      OPTITEM(Y2_HAS_HOME_CURRENT, Y2_CURRENT_HOME)
+      OPTITEM(Z2_HAS_HOME_CURRENT, Z2_CURRENT_HOME)
+      OPTITEM(Z3_HAS_HOME_CURRENT, Z3_CURRENT_HOME)
+      OPTITEM(Z4_HAS_HOME_CURRENT, Z4_CURRENT_HOME)
+      OPTITEM(I_HAS_HOME_CURRENT,  I_CURRENT_HOME)
+      OPTITEM(J_HAS_HOME_CURRENT,  J_CURRENT_HOME)
+      OPTITEM(K_HAS_HOME_CURRENT,  K_CURRENT_HOME)
+      OPTITEM(U_HAS_HOME_CURRENT,  U_CURRENT_HOME)
+      OPTITEM(V_HAS_HOME_CURRENT,  V_CURRENT_HOME)
+      OPTITEM(W_HAS_HOME_CURRENT,  W_CURRENT_HOME)
+    };
+    homing_current_mA = base_homing_current_mA;
+  #endif
+
+  //
   // Volumetric & Filament Size
   //
   #if DISABLED(NO_VOLUMETRICS)
@@ -4057,6 +4103,11 @@ void MarlinSettings::reset() {
       //
       TERN_(USE_SENSORLESS, gcode.M914_report(forReplay));
     #endif
+
+    //
+    // TMC Homing Current
+    //
+    TERN_(EDITABLE_HOMING_CURRENT, gcode.M920_report(forReplay));
 
     //
     // TMC stepping mode

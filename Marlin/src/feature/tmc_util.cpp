@@ -43,6 +43,10 @@
   #endif
 #endif
 
+#if ENABLED(EDITABLE_HOMING_CURRENT)
+  homing_current_t homing_current_mA;
+#endif
+
 /**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.

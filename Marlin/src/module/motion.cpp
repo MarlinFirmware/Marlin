@@ -271,48 +271,7 @@ void report_current_position_projected() {
     #define debug_current(...)
   #endif
 
-  #if HAS_CURRENT_HOME_X
-    int16_t saved_current_X;
-  #endif
-  #if HAS_CURRENT_HOME_Y
-    int16_t saved_current_Y;
-  #endif
-  #if HAS_CURRENT_HOME_Z
-    int16_t saved_current_Z;
-  #endif
-  #if HAS_CURRENT_HOME_X2
-    int16_t saved_current_X2;
-  #endif
-  #if HAS_CURRENT_HOME_Y2
-    int16_t saved_current_Y2;
-  #endif
-  #if HAS_CURRENT_HOME_Z2
-    int16_t saved_current_Z2;
-  #endif
-  #if HAS_CURRENT_HOME_Z3
-    int16_t saved_current_Z3;
-  #endif
-  #if HAS_CURRENT_HOME_Z4
-    int16_t saved_current_Z4;
-  #endif
-  #if HAS_CURRENT_HOME_I
-    int16_t saved_current_I;
-  #endif
-  #if HAS_CURRENT_HOME_J
-    int16_t saved_current_J;
-  #endif
-  #if HAS_CURRENT_HOME_K
-    int16_t saved_current_K;
-  #endif
-  #if HAS_CURRENT_HOME_U
-    int16_t saved_current_U;
-  #endif
-  #if HAS_CURRENT_HOME_V
-    int16_t saved_current_V;
-  #endif
-  #if HAS_CURRENT_HOME_W
-    int16_t saved_current_W;
-  #endif
+  homing_current_t saved_current_mA;
 
   /**
    * Set motors to their homing / probing currents.
@@ -320,11 +279,13 @@ void report_current_position_projected() {
    */
   void set_homing_current(const AxisEnum axis) {
 
+    #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
+
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
     #define _SAVE_SET_CURRENT(A) \
-      saved_current_##A = stepper##A.getMilliamps(); \
-      stepper##A.rms_current(A##_CURRENT_HOME); \
-      debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+      saved_current_mA.A = stepper##A.getMilliamps(); \
+      stepper##A.rms_current(HOMING_CURRENT(A)); \
+      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A))
 
     #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
 
@@ -478,8 +439,8 @@ void report_current_position_projected() {
 
     // Restore the saved current
     #define _RESTORE_CURRENT(A) \
-      stepper##A.rms_current(saved_current_##A); \
-      debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
+      stepper##A.rms_current(saved_current_mA.A); \
+      debug_current(F(STR_##A), HOMING_CURRENT(A), saved_current_mA.A)
 
     #define _MAP_RESTORE(A) OPTCODE(A##_HAS_HOME_CURRENT, _RESTORE_CURRENT(A))
 
