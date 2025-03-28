@@ -696,9 +696,14 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-#if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+#if ENABLED(EMIT_CREALITY_422_WARNING)
+  #if DISABLED(NO_CREALITY_422_MCU_WARNING)
+    #warning "Double-check your 4.2.2 board for STM32 / GD32. Use BOARD_CREALITY_V422 or BOARD_CREALITY_V422_GD32_MFL as appropriate for your MCU. (Define NO_CREALITY_422_MCU_WARNING to suppress this warning.)"
+  #endif
+  #if DISABLED(NO_CREALITY_422_DRIVER_WARNING)
+    // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+    #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  #endif
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
