@@ -66,8 +66,9 @@ constexpr xyze_float_t max_acceleration_edit_values =
                        ;
 
 #if HAS_SPINDLE_ACCELERATION
+  constexpr float min_acceleration_edit_values_spindle = 1;
   constexpr float default_acceleration_spindle = DEFAULT_ACCELERATION_SPINDLE;
-  constexpr acceleration_edit_values_spindle = default_acceleration_spindle * DEFAULT_MAX_MULTIPLIER;
+  constexpr float max_acceleration_edit_values_spindle = default_acceleration_spindle * DEFAULT_MAX_MULTIPLIER;
 #endif
 
 //

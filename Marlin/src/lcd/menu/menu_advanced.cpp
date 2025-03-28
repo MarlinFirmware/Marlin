@@ -37,6 +37,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
@@ -548,7 +552,7 @@ void menu_backlash();
     #endif
 
     #if HAS_SPINDLE_ACCELERATION
-      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, accel_edit_scaled_spindle);
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, accel_edit_spindle);
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
