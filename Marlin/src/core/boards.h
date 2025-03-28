@@ -559,6 +559,12 @@
 #define BOARD_CREALITY_V422_GD32_MFL  7300  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
 
 //
+// GD32 ARM Cortex-M3
+//
+
+#define BOARD_AQUILA_V101_GD32_MFL    7301  // Voxelab Aquila V1.0.1 MFL (GD32F103RC) ... STM32/HC32 Variant Above!
+
+//
 // Raspberry Pi
 //
 

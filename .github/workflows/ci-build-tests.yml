@@ -154,6 +154,9 @@ jobs:
         # GD32F3
         - GD32F303RE_creality_mfl
 
+        # GD32F1
+        - GD32F103RC_aquila_mfl
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769

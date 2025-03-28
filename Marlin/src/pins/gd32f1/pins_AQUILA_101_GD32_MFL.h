@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,23 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifndef ENV_VALIDATE_H
-#define ENV_VALIDATE_H
+#pragma once
 
-#if NOT_TARGET(__STM32F1__, STM32F1)
-  #if NONE(ALLOW_STM32F4, ALLOW_GD32F3, ALLOW_GD32F1)
-    #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-  #elif ENABLED(ALLOW_STM32F4) && NOT_TARGET(STM32F4)
-    #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
-  #elif ENABLED(ALLOW_GD32F3) && NOT_TARGET(ARDUINO_ARCH_MFL)
-    #error "Oops! Make sure you have a GD32F3 MFL environment selected."
-  #elif ENABLED(ALLOW_GD32F1) && NOT_TARGET(ARDUINO_ARCH_MFL)
-    #error "Oops! Make sure you have a GD32F1 MFL environment selected."
-  #endif
+/**
+ * Aquila v1.0.1 GD32 MFL (GD32F103RC) board pin assignments
+ */
+
+#define ALLOW_GD32F1
+
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "Aquila v1.0.1 GD32 MFL"
+#endif
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
-#undef ALLOW_STM32F4
-#undef ALLOW_GD32F3
-#undef ALLOW_GD32F1
-
-#endif
+#include "../stm32f1/pins_CREALITY_V4.h"

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Build tests for GD32F103RC_aquila_mfl
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_AQUILA_V101_GD32_MFL SERIAL_PORT 0
+opt_enable EEPROM_SETTINGS SDSUPPORT EMERGENCY_PARSER FAN_SOFT_PWM PINS_DEBUGGING
+opt_add NO_CREALITY_422_DRIVER_WARNING
+opt_add NO_AUTO_ASSIGN_WARNING
+exec_test $1 $2 "Aquila v1.0.1 MFL GD32 Default Configuration" "$3"
+
+# cleanup
+restore_configs
