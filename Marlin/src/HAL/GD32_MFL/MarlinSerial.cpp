@@ -82,18 +82,18 @@ void MarlinSerial::begin(unsigned long baudrate, uint16_t config) {
 }
 
 void MarlinSerial::updateRxDmaBuffer() {
-#if ENABLED(EMERGENCY_PARSER)
-  // Get the number of bytes available in the receive buffer
-  size_t available_bytes = usart_.available_for_read(true);
-  uint8_t data;
+  #if ENABLED(EMERGENCY_PARSER)
+    // Get the number of bytes available in the receive buffer
+    size_t available_bytes = usart_.available_for_read(true);
+    uint8_t data;
 
-  // Process only the available data
-  for (size_t i = 0; i < available_bytes; ++i) {
-    if (usart_.read_rx_buffer(data)) {
-      emergency_parser.update(emergency_state, data);
+    // Process only the available data
+    for (size_t i = 0; i < available_bytes; ++i) {
+      if (usart_.read_rx_buffer(data)) {
+        emergency_parser.update(emergency_state, data);
+      }
     }
-  }
-#endif
+  #endif
   // Call the base class implementation to handle any additional updates
   UsartSerial::updateRxDmaBuffer();
 }

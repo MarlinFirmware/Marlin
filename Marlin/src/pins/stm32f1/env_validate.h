@@ -23,7 +23,7 @@
 #define ENV_VALIDATE_H
 
 #if NOT_TARGET(__STM32F1__, STM32F1)
-  #if DISABLED(ALLOW_STM32F4) && DISABLED(ALLOW_GD32F3)
+  #if NONE(ALLOW_STM32F4, ALLOW_GD32F3)
     #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
   #elif ENABLED(ALLOW_STM32F4) && NOT_TARGET(STM32F4)
     #error "Oops! Select an STM32F4 board in 'Tools > Board.'"

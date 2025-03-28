@@ -24,7 +24,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EMERGENCY_PARSER)
-#include "../../feature/e_parser.h"
+  #include "../../feature/e_parser.h"
 #endif
 
 #include <UsartSerial.hpp>
@@ -49,19 +49,19 @@ struct MarlinSerial : public UsartSerial {
   inline void begin(unsigned long baudrate) { begin(baudrate, SERIAL_8N1); }
   void updateRxDmaBuffer();
 
-#if DISABLED(SERIAL_DMA)
-  FORCE_INLINE static uint8_t buffer_overruns() { return 0; }
-#endif
+  #if DISABLED(SERIAL_DMA)
+    FORCE_INLINE static uint8_t buffer_overruns() { return 0; }
+  #endif
 
-#if ENABLED(EMERGENCY_PARSER)
-  EmergencyParser::State emergency_state;
+  #if ENABLED(EMERGENCY_PARSER)
+    EmergencyParser::State emergency_state;
 
-  // Accessor method to get the last received byte
-  uint8_t get_last_data() { return usart_.get_last_data(); }
+    // Accessor method to get the last received byte
+    uint8_t get_last_data() { return usart_.get_last_data(); }
 
-  // Register the emergency callback
-  void register_emergency_callback(void (*callback)());
-#endif
+    // Register the emergency callback
+    void register_emergency_callback(void (*callback)());
+  #endif
 
 protected:
   using UsartSerial::UsartSerial;
