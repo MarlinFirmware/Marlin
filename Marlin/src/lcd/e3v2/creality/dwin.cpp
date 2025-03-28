@@ -1595,21 +1595,24 @@ void hmiMaxAccelerationXYZE() {
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
 
-void hmiSpindleAcceleration() {
-  EncoderState encoder_diffState = encoderReceiveAnalyze();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
-  if (applyEncoder(encoder_diffState, hmiValues.spindleAcceleration)) {
-    checkkey = ID_SpindleAcceleration;
-    encoderRate.enabled = false;
-    cutter.spindle_acceleration_deg_per_s2 = hmiValues.spindleAcceleration;
-    drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration);
-    return;
+
+#if HAS_SPINDLE_ACCELERATION
+  void hmiSpindleAcceleration() {
+    EncoderState encoder_diffState = encoderReceiveAnalyze();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (applyEncoder(encoder_diffState, hmiValues.spindleAcceleration)) {
+      checkkey = ID_SpindleAcceleration;
+      encoderRate.enabled = false;
+      cutter.spindle_acceleration_deg_per_s2 = hmiValues.spindleAcceleration;
+      drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration);
+      return;
+    }
+    // SpindleAcceleration limit
+    LIMIT(hmiValues.spindleAcceleration, min_acceleration_edit_values_spindle, max_acceleration_edit_values_spindle);
+    // SpindleAcceleration value
+    drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
   }
-  // MaxAcceleration limit
-  LIMIT(hmiValues.spindleAcceleration, min_acceleration_edit_values_spindle, max_acceleration_edit_values_spindle);
-  // MaxAcceleration value
-  drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
-}
+#endif
 
 #if ENABLED(CLASSIC_JERK)
 

@@ -60,6 +60,10 @@
   #include "../HAL/shared/eeprom_api.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -254,7 +258,7 @@ typedef struct SettingsDataStruct {
 
 
   #if HAS_SPINDLE_ACCELERATION
-    uint16_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
+    uint32_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
   #endif
 
   //
@@ -2038,7 +2042,7 @@ void MarlinSettings::postprocess() {
 
       {
         #if HAS_SPINDLE_ACCELERATION
-          _FIELD_TEST(acceleration_spindle)
+          _FIELD_TEST(acceleration_spindle);
           EEPROM_READ(cutter.acceleration_spindle_deg_per_s2);
         #endif
       }

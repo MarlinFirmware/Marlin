@@ -115,7 +115,7 @@ public:
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
   #if HAS_SPINDLE_ACCELERATION
-    static uint16_t acceleration_spindle_deg_per_s2;
+    static uint32_t acceleration_spindle_deg_per_s2;
   #endif
   static void init();
 

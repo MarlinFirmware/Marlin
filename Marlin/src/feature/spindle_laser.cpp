@@ -44,7 +44,7 @@ uint8_t SpindleLaser::power,                                          // Actual 
         SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 
 #if HAS_SPINDLE_ACCELERATION
-  uint16_t SpindleLaser::acceleration_spindle_deg_per_s2;
+  uint32_t SpindleLaser::acceleration_spindle_deg_per_s2;
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -93,7 +93,7 @@ void SpindleLaser::init() {
   #endif
   TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
   #if HAS_SPINDLE_ACCELERATION
-    acceleration_spindle_deg_per_s2 = uint16_t(DEFAULT_ACCELERATION_SPINDLE); // Init Acceleration
+    acceleration_spindle_deg_per_s2 = uint32_t(DEFAULT_ACCELERATION_SPINDLE); // Init Acceleration
   #endif
 }
 
