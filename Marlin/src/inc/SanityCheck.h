@@ -1805,8 +1805,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef _BAD_HOME_CURRENT
 
 #if ENABLED(PROBING_USE_CURRENT_HOME)
-  #if  (defined(Z_CURRENT_HOME)  && !HAS_CURRENT_HOME(Z))  || (defined(Z2_CURRENT_HOME) && !HAS_CURRENT_HOME(Z2)) \
-    || (defined(Z3_CURRENT_HOME) && !HAS_CURRENT_HOME(Z3)) || (defined(Z4_CURRENT_HOME) && !HAS_CURRENT_HOME(Z4))
+  #if  (defined(Z_CURRENT_HOME)  && !Z_HAS_HOME_CURRENT)  || (defined(Z2_CURRENT_HOME) && !Z2_HAS_HOME_CURRENT) \
+    || (defined(Z3_CURRENT_HOME) && !Z3_HAS_HOME_CURRENT) || (defined(Z4_CURRENT_HOME) && !Z4_HAS_HOME_CURRENT)
     #error "PROBING_USE_CURRENT_HOME requires a Z_CURRENT_HOME value that differs from Z_CURRENT."
   #endif
 #endif
@@ -2452,28 +2452,28 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
-#if E_STEPPERS > 0 && !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
+#if E_STEPPERS > 0 && !ALL(HAS_E0_DIR, HAS_E0_STEP, HAS_E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 1 && !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+#if E_STEPPERS > 1 && !ALL(HAS_E1_DIR, HAS_E1_STEP, HAS_E1_ENABLE)
   #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 2 && !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+#if E_STEPPERS > 2 && !ALL(HAS_E2_DIR, HAS_E2_STEP, HAS_E2_ENABLE)
   #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 3 && !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+#if E_STEPPERS > 3 && !ALL(HAS_E3_DIR, HAS_E3_STEP, HAS_E3_ENABLE)
   #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 4 && !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+#if E_STEPPERS > 4 && !ALL(HAS_E4_DIR, HAS_E4_STEP, HAS_E4_ENABLE)
   #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 5 && !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+#if E_STEPPERS > 5 && !ALL(HAS_E5_DIR, HAS_E5_STEP, HAS_E5_ENABLE)
   #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 6 && !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+#if E_STEPPERS > 6 && !ALL(HAS_E6_DIR, HAS_E6_STEP, HAS_E6_ENABLE)
   #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 7 && !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+#if E_STEPPERS > 7 && !ALL(HAS_E7_DIR, HAS_E7_STEP, HAS_E7_ENABLE)
   #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
 #endif
 
@@ -3230,7 +3230,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef INVALID_TMC_ADDRESS
 
 #define _TMC_MICROSTEP_IS_VALID(MS) (MS == 0 || MS == 2 || MS == 4 || MS == 8 || MS == 16 || MS == 32 || MS == 64 || MS == 128 || MS == 256)
-#define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
+#define TMC_MICROSTEP_IS_VALID(M) (!M##_IS_TRINAMIC || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
 #define INVALID_TMC_MS(ST) static_assert(0, "Invalid " STRINGIFY(ST) "_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256.")
 
 #if !TMC_MICROSTEP_IS_VALID(X)

@@ -95,7 +95,7 @@ if pioutil.is_pio_build():
 
         # Make sure board is compatible with the build environment. Skip for _test,
         # since the board is manipulated as each unit test is executed.
-        if not result and build_env != "linux_native_test":
+        if not result and not build_env.endswith("_native_test"):
             err = "Error: Build environment '%s' is incompatible with %s. Use one of these environments: %s" % \
                   ( build_env, motherboard, ", ".join([ e[4:] for e in board_envs if e.startswith("env:") ]) )
             raise SystemExit(err)

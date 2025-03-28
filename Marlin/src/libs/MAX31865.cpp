@@ -346,7 +346,7 @@ inline uint16_t MAX31865::readRawImmediate() {
   }
   else {
     TERN_(MAX31865_USE_READ_ERROR_DETECTION, const millis_t ms = millis());
-    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS((int)(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp + 1000))) {
+    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(int(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp, 1000UL))) {
       // If 2 readings within 1s differ too much (~20°C) it's a read error.
       lastFault = 0x01;
       lastRead |= 1;

@@ -164,7 +164,7 @@ void MMU2::mmu_loop() {
         MMU2_SEND("S1");    // Read Version
         state = -2;
       }
-      else if (ELAPSED(millis(), prev_request + 30000)) { // 30sec after reset disable MMU
+      else if (ELAPSED(millis(), prev_request, 30000)) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
@@ -276,7 +276,7 @@ void MMU2::mmu_loop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), prev_P0_request + 300)) {
+      else if (ELAPSED(millis(), prev_P0_request, 300)) {
         MMU2_SEND("P0");  // Read FINDA
         state = 2; // wait for response
       }
@@ -296,7 +296,7 @@ void MMU2::mmu_loop() {
         if (cmd == MMU_CMD_NONE) ready = true;
         state = 1;
       }
-      else if (ELAPSED(millis(), prev_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
+      else if (ELAPSED(millis(), prev_request, MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
       TERN_(HAS_PRUSA_MMU2S, check_filament());
@@ -335,7 +335,7 @@ void MMU2::mmu_loop() {
           last_cmd = MMU_CMD_NONE;
         }
       }
-      else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
+      else if (ELAPSED(millis(), prev_request, MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");

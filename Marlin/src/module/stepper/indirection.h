@@ -810,48 +810,24 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_STEPPER_U
-  #if HAS_U_ENABLE
-    #define  ENABLE_STEPPER_U() U_ENABLE_WRITE( U_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_U() NOOP
-  #endif
+  #define  ENABLE_STEPPER_U() TERN(HAS_U_ENABLE, U_ENABLE_WRITE( U_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_U
-  #if HAS_U_ENABLE
-    #define DISABLE_STEPPER_U() U_ENABLE_WRITE(!U_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_U() NOOP
-  #endif
+  #define DISABLE_STEPPER_U() TERN(HAS_U_ENABLE, U_ENABLE_WRITE(!U_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_V
-  #if HAS_V_ENABLE
-    #define  ENABLE_STEPPER_V() V_ENABLE_WRITE( V_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_V() NOOP
-  #endif
+  #define  ENABLE_STEPPER_V() TERN(HAS_V_ENABLE, V_ENABLE_WRITE( V_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_V
-  #if HAS_V_ENABLE
-    #define DISABLE_STEPPER_V() V_ENABLE_WRITE(!V_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_V() NOOP
-  #endif
+  #define DISABLE_STEPPER_V() TERN(HAS_V_ENABLE, V_ENABLE_WRITE(!V_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_W
-  #if HAS_W_ENABLE
-    #define  ENABLE_STEPPER_W() W_ENABLE_WRITE( W_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_W() NOOP
-  #endif
+  #define  ENABLE_STEPPER_W() TERN(HAS_W_ENABLE, W_ENABLE_WRITE( W_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_W
-  #if HAS_W_ENABLE
-    #define DISABLE_STEPPER_W() W_ENABLE_WRITE(!W_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_W() NOOP
-  #endif
+  #define DISABLE_STEPPER_W() TERN(HAS_W_ENABLE, W_ENABLE_WRITE(!W_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E0
@@ -877,93 +853,45 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_STEPPER_E2
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define  ENABLE_STEPPER_E2() E2_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E2() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E2() TERN(HAS_E2_ENABLE, E2_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E2
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define DISABLE_STEPPER_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E2() NOOP
-  #endif
+  #define DISABLE_STEPPER_E2() TERN(HAS_E2_ENABLE, E2_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E3
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define  ENABLE_STEPPER_E3() E3_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E3() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E3() TERN(HAS_E3_ENABLE, E3_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E3
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define DISABLE_STEPPER_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E3() NOOP
-  #endif
+  #define DISABLE_STEPPER_E3() TERN(HAS_E3_ENABLE, E3_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E4
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define  ENABLE_STEPPER_E4() E4_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E4() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E4() TERN(HAS_E4_ENABLE, E4_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E4
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define DISABLE_STEPPER_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E4() NOOP
-  #endif
+  #define DISABLE_STEPPER_E4() TERN(HAS_E4_ENABLE, E4_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E5
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
-    #define  ENABLE_STEPPER_E5() E5_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E5() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E5() TERN(HAS_E5_ENABLE, E5_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E5
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
-    #define DISABLE_STEPPER_E5() E5_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E5() NOOP
-  #endif
+  #define DISABLE_STEPPER_E5() TERN(HAS_E5_ENABLE, E5_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E6
-  #if E_STEPPERS > 6 && HAS_E6_ENABLE
-    #define  ENABLE_STEPPER_E6() E6_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E6() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E6() TERN(HAS_E6_ENABLE, E6_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E6
-  #if E_STEPPERS > 6 && HAS_E6_ENABLE
-    #define DISABLE_STEPPER_E6() E6_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E6() NOOP
-  #endif
+  #define DISABLE_STEPPER_E6() TERN(HAS_E6_ENABLE, E6_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 #ifndef ENABLE_STEPPER_E7
-  #if E_STEPPERS > 7 && HAS_E7_ENABLE
-    #define  ENABLE_STEPPER_E7() E7_ENABLE_WRITE( E_ENABLE_ON)
-  #else
-    #define  ENABLE_STEPPER_E7() NOOP
-  #endif
+  #define  ENABLE_STEPPER_E7() TERN(HAS_E7_ENABLE, E7_ENABLE_WRITE( E_ENABLE_ON), NOOP)
 #endif
 #ifndef DISABLE_STEPPER_E7
-  #if E_STEPPERS > 7 && HAS_E7_ENABLE
-    #define DISABLE_STEPPER_E7() E7_ENABLE_WRITE(!E_ENABLE_ON)
-  #else
-    #define DISABLE_STEPPER_E7() NOOP
-  #endif
+  #define DISABLE_STEPPER_E7() TERN(HAS_E7_ENABLE, E7_ENABLE_WRITE(!E_ENABLE_ON), NOOP)
 #endif
 
 //
@@ -1077,121 +1005,57 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_AXIS_E0
-  #if E_STEPPERS && HAS_E0_ENABLE
-    #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
-  #else
-    #define  ENABLE_AXIS_E0() NOOP
-  #endif
+  #define  ENABLE_AXIS_E0() TERN(HAS_E0_ENABLE, ENABLE_STEPPER_E0(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E0
-  #if E_STEPPERS && HAS_E0_ENABLE
-    #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
-  #else
-    #define DISABLE_AXIS_E0() NOOP
-  #endif
+  #define DISABLE_AXIS_E0() TERN(HAS_E0_ENABLE, DISABLE_STEPPER_E0(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E1
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
-    #define  ENABLE_AXIS_E1() ENABLE_STEPPER_E1()
-  #else
-    #define  ENABLE_AXIS_E1() NOOP
-  #endif
+  #define  ENABLE_AXIS_E1() TERN(HAS_E1_ENABLE, ENABLE_STEPPER_E1(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E1
-  #if E_STEPPERS > 1 && HAS_E1_ENABLE
-    #define DISABLE_AXIS_E1() DISABLE_STEPPER_E1()
-  #else
-    #define DISABLE_AXIS_E1() NOOP
-  #endif
+  #define DISABLE_AXIS_E1() TERN(HAS_E1_ENABLE, DISABLE_STEPPER_E1(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E2
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define  ENABLE_AXIS_E2() ENABLE_STEPPER_E2()
-  #else
-    #define  ENABLE_AXIS_E2() NOOP
-  #endif
+  #define  ENABLE_AXIS_E2() TERN(HAS_E2_ENABLE, ENABLE_STEPPER_E2(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E2
-  #if E_STEPPERS > 2 && HAS_E2_ENABLE
-    #define DISABLE_AXIS_E2() DISABLE_STEPPER_E2()
-  #else
-    #define DISABLE_AXIS_E2() NOOP
-  #endif
+  #define DISABLE_AXIS_E2() TERN(HAS_E2_ENABLE, DISABLE_STEPPER_E2(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E3
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define  ENABLE_AXIS_E3() ENABLE_STEPPER_E3()
-  #else
-    #define  ENABLE_AXIS_E3() NOOP
-  #endif
+  #define  ENABLE_AXIS_E3() TERN(HAS_E3_ENABLE, ENABLE_STEPPER_E3(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E3
-  #if E_STEPPERS > 3 && HAS_E3_ENABLE
-    #define DISABLE_AXIS_E3() DISABLE_STEPPER_E3()
-  #else
-    #define DISABLE_AXIS_E3() NOOP
-  #endif
+  #define DISABLE_AXIS_E3() TERN(HAS_E3_ENABLE, DISABLE_STEPPER_E3(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E4
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define  ENABLE_AXIS_E4() ENABLE_STEPPER_E4()
-  #else
-    #define  ENABLE_AXIS_E4() NOOP
-  #endif
+  #define  ENABLE_AXIS_E4() TERN(HAS_E4_ENABLE, ENABLE_STEPPER_E4(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E4
-  #if E_STEPPERS > 4 && HAS_E4_ENABLE
-    #define DISABLE_AXIS_E4() DISABLE_STEPPER_E4()
-  #else
-    #define DISABLE_AXIS_E4() NOOP
-  #endif
+  #define DISABLE_AXIS_E4() TERN(HAS_E4_ENABLE, DISABLE_STEPPER_E4(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E5
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
-    #define  ENABLE_AXIS_E5() ENABLE_STEPPER_E5()
-  #else
-    #define  ENABLE_AXIS_E5() NOOP
-  #endif
+  #define  ENABLE_AXIS_E5() TERN(HAS_E5_ENABLE, ENABLE_STEPPER_E5(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E5
-  #if E_STEPPERS > 5 && HAS_E5_ENABLE
-    #define DISABLE_AXIS_E5() DISABLE_STEPPER_E5()
-  #else
-    #define DISABLE_AXIS_E5() NOOP
-  #endif
+  #define DISABLE_AXIS_E5() TERN(HAS_E5_ENABLE, DISABLE_STEPPER_E5(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E6
-  #if E_STEPPERS > 6 && HAS_E6_ENABLE
-    #define  ENABLE_AXIS_E6() ENABLE_STEPPER_E6()
-  #else
-    #define  ENABLE_AXIS_E6() NOOP
-  #endif
+  #define  ENABLE_AXIS_E6() TERN(HAS_E6_ENABLE, ENABLE_STEPPER_E6(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E6
-  #if E_STEPPERS > 6 && HAS_E6_ENABLE
-    #define DISABLE_AXIS_E6() DISABLE_STEPPER_E6()
-  #else
-    #define DISABLE_AXIS_E6() NOOP
-  #endif
+  #define DISABLE_AXIS_E6() TERN(HAS_E6_ENABLE, DISABLE_STEPPER_E6(), NOOP)
 #endif
 
 #ifndef ENABLE_AXIS_E7
-  #if E_STEPPERS > 7 && HAS_E7_ENABLE
-    #define  ENABLE_AXIS_E7() ENABLE_STEPPER_E7()
-  #else
-    #define  ENABLE_AXIS_E7() NOOP
-  #endif
+  #define  ENABLE_AXIS_E7() TERN(HAS_E7_ENABLE, ENABLE_STEPPER_E7(), NOOP)
 #endif
 #ifndef DISABLE_AXIS_E7
-  #if E_STEPPERS > 7 && HAS_E7_ENABLE
-    #define DISABLE_AXIS_E7() DISABLE_STEPPER_E7()
-  #else
-    #define DISABLE_AXIS_E7() NOOP
-  #endif
+  #define DISABLE_AXIS_E7() TERN(HAS_E7_ENABLE, DISABLE_STEPPER_E7(), NOOP)
 #endif

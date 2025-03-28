@@ -632,7 +632,7 @@ void MarlinUI::init() {
 
       // If the message will blink rather than expire...
       #if DISABLED(PROGRESS_MSG_ONCE)
-        if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
+        if (ELAPSED(ms, progress_bar_ms, PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
           progress_bar_ms = ms;
       #endif
 

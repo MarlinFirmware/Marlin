@@ -1307,8 +1307,75 @@
   #endif
 #endif
 
+#if AXIS_IS_TMC(X)
+  #define X_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Y)
+  #define Y_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z)
+  #define Z_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(I)
+  #define I_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(J)
+  #define J_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(K)
+  #define K_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(U)
+  #define U_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(V)
+  #define V_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(W)
+  #define W_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(X2)
+  #define X2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Y2)
+  #define Y2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z2)
+  #define Z2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z3)
+  #define Z3_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z4)
+  #define Z4_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E0)
+  #define E0_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E1)
+  #define E1_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E2)
+  #define E2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E3)
+  #define E3_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E4)
+  #define E4_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E5)
+  #define E5_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E6)
+  #define E6_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E7)
+  #define E7_IS_TRINAMIC 1
+#endif
+
 // Test for edge stepping on any axis
-#define AXIS_HAS_DEDGE(A) (ENABLED(EDGE_STEPPING) && AXIS_IS_TMC(A))
+#define AXIS_HAS_DEDGE(A) ALL(EDGE_STEPPING, A##_IS_TRINAMIC)
 
 #if ENABLED(DIRECT_STEPPING)
   #ifndef STEPPER_PAGES

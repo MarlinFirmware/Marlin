@@ -630,7 +630,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrid küszöbérték");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Motoros kezdöpont");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Léptetö mód");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop mód");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Újraindítás");
   LSTR MSG_SERVICE_IN                     = _UxGT(" be:");
   LSTR MSG_BACKLASH                       = _UxGT("Holtjáték");

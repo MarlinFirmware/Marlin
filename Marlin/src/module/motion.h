@@ -636,6 +636,9 @@ void home_if_needed(const bool keeplev=false);
   void set_home_offset(const AxisEnum axis, const_float_t v);
 #endif
 
+//
+// Trinamic Stepper Drivers
+//
 #if USE_SENSORLESS
   struct sensorless_t;
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);

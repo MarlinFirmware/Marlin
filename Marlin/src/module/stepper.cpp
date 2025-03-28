@@ -2949,54 +2949,20 @@ void Stepper::init() {
   TERN_(HAS_MICROSTEPS, microstep_init());
 
   // Init Dir Pins
-  TERN_(HAS_X_DIR, X_DIR_INIT());
+  TERN_(HAS_X_DIR,  X_DIR_INIT());
   TERN_(HAS_X2_DIR, X2_DIR_INIT());
-  #if HAS_Y_DIR
-    Y_DIR_INIT();
-    #if ALL(HAS_Y2_STEPPER, HAS_Y2_DIR)
-      Y2_DIR_INIT();
-    #endif
-  #endif
-  #if HAS_Z_DIR
-    Z_DIR_INIT();
-    #if NUM_Z_STEPPERS >= 2 && HAS_Z2_DIR
-      Z2_DIR_INIT();
-    #endif
-    #if NUM_Z_STEPPERS >= 3 && HAS_Z3_DIR
-      Z3_DIR_INIT();
-    #endif
-    #if NUM_Z_STEPPERS >= 4 && HAS_Z4_DIR
-      Z4_DIR_INIT();
-    #endif
-  #endif
-  SECONDARY_AXIS_CODE(
-    I_DIR_INIT(), J_DIR_INIT(), K_DIR_INIT(),
-    U_DIR_INIT(), V_DIR_INIT(), W_DIR_INIT()
-  );
-  #if HAS_E0_DIR
-    E0_DIR_INIT();
-  #endif
-  #if HAS_E1_DIR
-    E1_DIR_INIT();
-  #endif
-  #if HAS_E2_DIR
-    E2_DIR_INIT();
-  #endif
-  #if HAS_E3_DIR
-    E3_DIR_INIT();
-  #endif
-  #if HAS_E4_DIR
-    E4_DIR_INIT();
-  #endif
-  #if HAS_E5_DIR
-    E5_DIR_INIT();
-  #endif
-  #if HAS_E6_DIR
-    E6_DIR_INIT();
-  #endif
-  #if HAS_E7_DIR
-    E7_DIR_INIT();
-  #endif
+  TERN_(HAS_Y_DIR,  Y_DIR_INIT());
+  TERN_(HAS_Y2_DIR, Y2_DIR_INIT());
+  TERN_(HAS_Z_DIR,  Z_DIR_INIT());
+  TERN_(HAS_Z2_DIR, Z2_DIR_INIT());
+  TERN_(HAS_Z3_DIR, Z3_DIR_INIT());
+  TERN_(HAS_Z4_DIR, Z4_DIR_INIT());
+  TERN_(HAS_I_DIR,  I_DIR_INIT());
+  TERN_(HAS_K_DIR,  K_DIR_INIT());
+  TERN_(HAS_K_DIR,  K_DIR_INIT());
+  TERN_(HAS_U_DIR,  U_DIR_INIT());
+  TERN_(HAS_V_DIR,  V_DIR_INIT());
+  TERN_(HAS_W_DIR,  W_DIR_INIT());
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
@@ -3027,15 +2993,15 @@ void Stepper::init() {
     #endif
     Z_ENABLE_INIT();
     if (Z_ENABLE_INIT_STATE) Z_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
-    #if NUM_Z_STEPPERS >= 2 && HAS_Z2_ENABLE
+    #if HAS_Z2_ENABLE
       Z2_ENABLE_INIT();
       if (Z_ENABLE_INIT_STATE) Z2_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
-    #if NUM_Z_STEPPERS >= 3 && HAS_Z3_ENABLE
+    #if HAS_Z3_ENABLE
       Z3_ENABLE_INIT();
       if (Z_ENABLE_INIT_STATE) Z3_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
-    #if NUM_Z_STEPPERS >= 4 && HAS_Z4_ENABLE
+    #if HAS_Z4_ENABLE
       Z4_ENABLE_INIT();
       if (Z_ENABLE_INIT_STATE) Z4_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
     #endif
@@ -3133,7 +3099,7 @@ void Stepper::init() {
     _WRITE_STEP(AXIS, !_STEP_STATE(PIN)); \
     _DISABLE_AXIS(AXIS)
 
-  #define E_AXIS_INIT(NUM) AXIS_INIT(E## NUM, E)
+  #define E_AXIS_INIT(NUM) DEFER(AXIS_INIT)(E##NUM, E)
 
   // Init Step Pins
   #if HAS_X_STEP
@@ -3167,49 +3133,21 @@ void Stepper::init() {
     #endif
     AXIS_INIT(Z, Z);
   #endif
-  #if HAS_I_STEP
-    AXIS_INIT(I, I);
-  #endif
-  #if HAS_J_STEP
-    AXIS_INIT(J, J);
-  #endif
-  #if HAS_K_STEP
-    AXIS_INIT(K, K);
-  #endif
-  #if HAS_U_STEP
-    AXIS_INIT(U, U);
-  #endif
-  #if HAS_V_STEP
-    AXIS_INIT(V, V);
-  #endif
-  #if HAS_W_STEP
-    AXIS_INIT(W, W);
-  #endif
+  TERN_(HAS_I_STEP, AXIS_INIT(I, I));
+  TERN_(HAS_J_STEP, AXIS_INIT(J, J));
+  TERN_(HAS_K_STEP, AXIS_INIT(K, K));
+  TERN_(HAS_U_STEP, AXIS_INIT(U, U));
+  TERN_(HAS_V_STEP, AXIS_INIT(V, V));
+  TERN_(HAS_W_STEP, AXIS_INIT(W, W));
 
-  #if E_STEPPERS && HAS_E0_STEP
-    E_AXIS_INIT(0);
-  #endif
-  #if (E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)) && HAS_E1_STEP
-    E_AXIS_INIT(1);
-  #endif
-  #if E_STEPPERS > 2 && HAS_E2_STEP
-    E_AXIS_INIT(2);
-  #endif
-  #if E_STEPPERS > 3 && HAS_E3_STEP
-    E_AXIS_INIT(3);
-  #endif
-  #if E_STEPPERS > 4 && HAS_E4_STEP
-    E_AXIS_INIT(4);
-  #endif
-  #if E_STEPPERS > 5 && HAS_E5_STEP
-    E_AXIS_INIT(5);
-  #endif
-  #if E_STEPPERS > 6 && HAS_E6_STEP
-    E_AXIS_INIT(6);
-  #endif
-  #if E_STEPPERS > 7 && HAS_E7_STEP
-    E_AXIS_INIT(7);
-  #endif
+  TERN_(HAS_E0_STEP, E_AXIS_INIT(0));
+  TERN_(HAS_E1_STEP, E_AXIS_INIT(1));
+  TERN_(HAS_E2_STEP, E_AXIS_INIT(2));
+  TERN_(HAS_E3_STEP, E_AXIS_INIT(3));
+  TERN_(HAS_E4_STEP, E_AXIS_INIT(4));
+  TERN_(HAS_E5_STEP, E_AXIS_INIT(5));
+  TERN_(HAS_E6_STEP, E_AXIS_INIT(6));
+  TERN_(HAS_E7_STEP, E_AXIS_INIT(7));
 
   #if DISABLED(I2S_STEPPER_STREAM)
     HAL_timer_start(MF_TIMER_STEP, 122); // Init Stepper ISR to 122 Hz for quick starting
