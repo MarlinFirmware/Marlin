@@ -901,8 +901,8 @@
 /**
  * MKS_TINYBEE Analog Reference
  */
-#if MB(MKS_TINYBEE) && !defined(ADC_REFERENCE_VOLTAGE)
-  #warning "If you experience odd temperature readings make sure to measure the analog reference voltage. See pins_MKS_TINYBEE.h for details"
+#if ENABLED(EMIT_ADC_REFERENCE_VOLTAGE_WARNING)
+  #warning "Check your ADC_REFERENCE_VOLTAGE on MKS TinyBee! Measure the Analog Reference voltage on the board. See pins_MKS_TINYBEE.h for details."
 #endif
 
 /**

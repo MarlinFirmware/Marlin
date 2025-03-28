@@ -127,6 +127,7 @@
  */
 
 #ifndef ADC_REFERENCE_VOLTAGE
+  #define EMIT_ADC_REFERENCE_VOLTAGE_WARNING
   #define ADC_REFERENCE_VOLTAGE              2.565
 #endif
 
