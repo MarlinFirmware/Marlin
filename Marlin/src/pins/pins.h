@@ -968,8 +968,8 @@
 // GD32 ARM Cortex-M4
 //
 
-#elif MB(MFL_CREALITY_V422)
-  #include "gd32f3/pins_MFL_CREALITY_V422.h"        // GD32F303RE                           env:GD32F303RE_creality_mfl
+#elif MB(CREALITY_V422_GD32_MFL)
+  #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
 
 //
 // Raspberry Pi RP2040
