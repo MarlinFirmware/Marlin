@@ -3724,6 +3724,45 @@ static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION re
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
+#ifdef MAXIMUM_STEPPER_RATE
+  #if HAS_X_AXIS
+    static_assert(sanity_arr_1[X_AXIS] * sanity_arr_2[X_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the X axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_Y_AXIS
+    static_assert(sanity_arr_1[Y_AXIS] * sanity_arr_2[Y_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the Y axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_Z_AXIS
+    static_assert(sanity_arr_1[Z_AXIS] * sanity_arr_2[Z_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the Z axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_I_AXIS
+    static_assert(sanity_arr_1[I_AXIS] * sanity_arr_2[I_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the I axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_J_AXIS
+    static_assert(sanity_arr_1[J_AXIS] * sanity_arr_2[J_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the J axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_K_AXIS
+    static_assert(sanity_arr_1[K_AXIS] * sanity_arr_2[K_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the K axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_U_AXIS
+    static_assert(sanity_arr_1[U_AXIS] * sanity_arr_2[U_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the U axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_V_AXIS
+    static_assert(sanity_arr_1[V_AXIS] * sanity_arr_2[V_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the V axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+  #if HAS_W_AXIS
+    static_assert(sanity_arr_1[W_AXIS] * sanity_arr_2[W_AXIS] <= MAXIMUM_STEPPER_RATE,
+    "For the W axis, the maximum stepper rate calculated from DEFAULT_AXIS_STEPS_PER_UNIT and DEFAULT_MAX_FEEDRATE exceeds " STRINGIFY(MAXIMUM_STEPPER_RATE) " (i.e., MAXIMUM_STEPPER_RATE).");
+  #endif
+#endif
+
 #if NUM_AXES
   constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
   static_assert(COUNT(sanity_arr_4) == NUM_AXES,  "HOMING_FEEDRATE_MM_M requires " _NUM_AXES_STR "elements (and no others).");
