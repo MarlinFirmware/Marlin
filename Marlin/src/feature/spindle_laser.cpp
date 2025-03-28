@@ -43,7 +43,7 @@ bool SpindleLaser::enable_state;                                      // Virtual
 uint8_t SpindleLaser::power,                                          // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
         SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 
-#if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+#if HAS_SPINDLE_ACCELERATION
   uint16_t SpindleLaser::acceleration_spindle_deg_per_s2;
 #endif
 
@@ -92,8 +92,8 @@ void SpindleLaser::init() {
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
   TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
-  #if ENABLED(DEFAULT_ACCELERATON_SPINDLE)
-    acceleration_spindle_deg_per_s2 = uint16_t(DEFAULT_ACCELERATON_SPINDLE);
+  #if HAS_SPINDLE_ACCELERATION
+    acceleration_spindle_deg_per_s2 = uint16_t(DEFAULT_ACCELERATION_SPINDLE); // Init Acceleration
   #endif
 }
 
@@ -107,19 +107,18 @@ void SpindleLaser::init() {
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
     #endif
-    #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
-    const int 
-        diff = ocr - last_power_applied
-        abs_diff = ABS(diff);
-    uint8_t current_ocr = last_power_applied;
-      //Duration between ocr increments. SPEED_POWER_MAX is in RPM.
-      const millis_t duration = (float(SPEED_POWER_MAX) * 23.529411f / float(acceleration_spindle_deg_per_s2)) * abs_diff ; 
-      while (current_ocr != ocr) {  
+    #if HAS_SPINDLE_ACCELERATION
+      const int16_t diff = ocr - last_power_applied;
+      const uint8_t abs_diff = ABS(diff);
+      uint8_t current_ocr = last_power_applied;
+      // Duration between ocr increments. SPEED_POWER_MAX is in RPM.
+      const millis_t duration = (float(SPEED_POWER_MAX) * 23.529411f / float(acceleration_spindle_deg_per_s2)) * abs_diff;
+      while (current_ocr != ocr) {
         hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), (diff > 0 ? (++current_ocr) : (--current_ocr)) ^ SPINDLE_LASER_PWM_OFF);
         safe_delay(duration);
       }
     #else
-      hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);  
+      hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
     #endif
   }
 

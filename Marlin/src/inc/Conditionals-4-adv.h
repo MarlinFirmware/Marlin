@@ -1090,6 +1090,9 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
+  #if DEFAULT_ACCELERATION_SPINDLE
+    #define HAS_SPINDLE_ACCELERATION 1
+  #endif
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)

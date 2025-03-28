@@ -253,8 +253,8 @@ typedef struct SettingsDataStruct {
   #endif
 
 
-  #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
-    uint16_t accel_spindle;
+  #if HAS_SPINDLE_ACCELERATION
+    uint16_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
   #endif
 
   //
@@ -950,10 +950,9 @@ void MarlinSettings::postprocess() {
     }
 
     {
-      #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
-        const uint16_t accel_spindle = cutter.acceleration_spindle_deg_per_s2;
-        _FIELD_TEST(accel_spindle);
-        EEPROM_WRITE(accel_spindle);
+      #if HAS_SPINDLE_ACCELERATION
+        _FIELD_TEST(acceleration_spindle);
+        EEPROM_WRITE(cutter.acceleration_spindle_deg_per_s2);
       #endif
     }
 
@@ -2038,11 +2037,9 @@ void MarlinSettings::postprocess() {
       }
 
       {
-        #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
-          uint16_t accel_spindle;
-          _FIELD_TEST(accel_spindle)
-          EEPROM_READ(accel_spindle); // cutter.acceleration_spindle_deg_per_s2
-          if (!validating) accel_spindle = DEFAULT_ACCELERATION_SPINDLE;
+        #if HAS_SPINDLE_ACCELERATION
+          _FIELD_TEST(acceleration_spindle)
+          EEPROM_READ(cutter.acceleration_spindle_deg_per_s2);
         #endif
       }
 
@@ -2054,7 +2051,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+          if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -3381,7 +3378,7 @@ void MarlinSettings::reset() {
 
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
-  #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+  #if HAS_SPINDLE_ACCELERATION
     cutter.acceleration_spindle_deg_per_s2 = DEFAULT_ACCELERATION_SPINDLE;
   #endif
 

@@ -114,7 +114,7 @@ public:
   static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
                         unitPower;        // Power as displayed status in PWM, Percentage or RPM
 
-  #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+  #if HAS_SPINDLE_ACCELERATION
     static uint16_t acceleration_spindle_deg_per_s2;
   #endif
   static void init();

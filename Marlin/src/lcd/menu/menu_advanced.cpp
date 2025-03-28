@@ -511,7 +511,7 @@ void menu_backlash();
     #else
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
-    #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
+    #if HAS_SPINDLE_ACCELERATION
       constexpr uint32_t accel_edit_spindle = 99000;
     #endif
 
@@ -547,8 +547,8 @@ void menu_backlash();
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.refresh_acceleration_rates(); });
     #endif
 
-    #if ENABLED(DEFAULT_ACCELERATION_SPINDLE)
-      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, accel_edit_scaled_spindle, []{ });
+    #if HAS_SPINDLE_ACCELERATION
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, accel_edit_scaled_spindle);
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
