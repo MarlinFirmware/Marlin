@@ -698,7 +698,9 @@
 
 #if ENABLED(EMIT_CREALITY_422_WARNING)
   #if DISABLED(NO_CREALITY_422_MCU_WARNING)
-    #warning "Double-check your 4.2.2 board for STM32 / GD32. Use BOARD_CREALITY_V422 or BOARD_CREALITY_V422_GD32_MFL as appropriate for your MCU. (Define NO_CREALITY_422_MCU_WARNING to suppress this warning.)"
+    #warning "Double-check your 4.2.2 board for STM32 / GD32. Use BOARD_CREALITY_V422 or BOARD_CREALITY_V422_GD32_MFL as appropriate for your MCU."
+    #warning "GD32 Serial Ports are numbered starting from 0. STM32 Serial Ports are numbered starting from 1."
+    #warning "(Define NO_CREALITY_422_MCU_WARNING to suppress these warnings.)"
   #endif
   #if DISABLED(NO_CREALITY_422_DRIVER_WARNING)
     // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
