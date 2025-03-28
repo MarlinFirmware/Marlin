@@ -257,6 +257,7 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if ENABLED(NONLINEAR_EXTRUSION)
   ne_coeff_t Stepper::ne;
+  bool Stepper::ne_on = true;
   ne_fix_t Stepper::ne_fix;
   int32_t Stepper::ne_edividend;
   uint32_t Stepper::ne_scale;
@@ -2836,7 +2837,7 @@ hal_timer_t Stepper::block_phase_isr() {
         ne_edividend = advance_dividend.e;
         const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
         ne_scale = (1L << 24) * scale;
-        if (current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
+        if (ne_on && current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
           ne_fix.A = (1L << 24) * ne.A;
           ne_fix.B = (1L << 24) * ne.B;
           ne_fix.C = (1L << 24) * ne.C;

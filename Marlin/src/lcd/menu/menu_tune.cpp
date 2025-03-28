@@ -34,6 +34,7 @@
 #include "../../module/stepper.h"
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
+#include "../../module/stepper.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
@@ -232,6 +233,10 @@ void menu_tune() {
         }
       #endif
     #endif
+  #endif
+
+  #if ENABLED(NONLINEAR_EXTRUSION)
+    EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne_on);
   #endif
 
   //

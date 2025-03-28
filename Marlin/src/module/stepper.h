@@ -344,6 +344,7 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static ne_coeff_t ne;
+      static bool ne_on;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
