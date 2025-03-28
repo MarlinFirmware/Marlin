@@ -975,7 +975,7 @@
 // GD32 ARM Cortex-M3
 //
 
-#elif MB(MFL_AQUILA)
+#elif MB(AQUILA_V101_GD32_MFL)
   #include "gd32f1/pins_AQUILA_101_GD32_MFL.h"      // GD32F103RC                           env:GD32F103RC_aquila_mfl
 
 //
