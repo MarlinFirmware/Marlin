@@ -372,7 +372,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 // E1 Stepper
-#if E_STEPPERS > 1
+#if E_STEPPERS > 1 || ENABLED(E_DUAL_STEPPER_DRIVERS)
   #ifndef E1_ENABLE_INIT
     #define E1_ENABLE_INIT() SET_OUTPUT(E1_ENABLE_PIN)
     #define E1_ENABLE_WRITE(STATE) WRITE(E1_ENABLE_PIN,STATE)
