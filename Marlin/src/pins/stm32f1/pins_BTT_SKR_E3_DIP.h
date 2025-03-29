@@ -302,9 +302,9 @@
 
   #elif ENABLED(ULTI_CONTROLLER)
 
-    #define LCD_PINS_D6             EXP1_03_PIN
-    #define DOGLCD_SCL_PIN          EXP1_07_PIN  // I2C1
-    #define DOGLCD_SDA_PIN          EXP1_08_PIN  // I2C1
+    #define LCD_PINS_D6              EXP1_03_PIN
+    #define DOGLCD_SCL_PIN           EXP1_07_PIN  // I2C1
+    #define DOGLCD_SDA_PIN           EXP1_08_PIN  // I2C1
 
   #else
     #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, ULTI_CONTROLLER, MKS_MINI_12864, FYSETC_MINI_12864_2_1 and MKS_LCD12864A/B are currently supported on the SKR E3 DIP."

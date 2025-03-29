@@ -383,7 +383,7 @@
 #define BOARD_CHITU3D_V6              5036  // Chitu3D TronXY X5SA V6 Board (STM32F103ZE)
 #define BOARD_CHITU3D_V9              5037  // Chitu3D TronXY X5SA V9 Board (STM32F103ZE)
 #define BOARD_CREALITY_V4             5038  // Creality v4.x (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V422           5039  // Creality v4.2.2 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V422           5039  // Creality v4.2.2 (STM32F103RC / STM32F103RE) ... GD32 Variant Below!
 #define BOARD_CREALITY_V423           5040  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V425           5041  // Creality v4.2.5 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V427           5042  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
@@ -553,11 +553,17 @@
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
 
 //
+// GD32 ARM Cortex-M4
+//
+
+#define BOARD_CREALITY_V422_GD32_MFL  7300  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
+
+//
 // Raspberry Pi
 //
 
-#define BOARD_RP2040                  6200 // Generic RP2040 Test board
-#define BOARD_BTT_SKR_PICO            6201 // BigTreeTech SKR Pico 1.x
+#define BOARD_RP2040                  6200  // Generic RP2040 Test board
+#define BOARD_BTT_SKR_PICO            6201  // BigTreeTech SKR Pico 1.x
 
 //
 // Custom board

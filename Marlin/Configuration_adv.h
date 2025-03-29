@@ -2995,6 +2995,8 @@
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
 
+  //#define EDITABLE_HOMING_CURRENT   // Add a G-code and menu to modify the Homing Current
+
   /**
    * Interpolate microsteps to 256
    * Override for each driver with <driver>_INTERPOLATE settings below

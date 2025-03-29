@@ -847,72 +847,28 @@ enum StealthIndex : uint8_t {
 #endif // TMC5160
 
 void restore_trinamic_drivers() {
-  #if AXIS_IS_TMC(X)
-    stepperX.push();
-  #endif
-  #if AXIS_IS_TMC(X2)
-    stepperX2.push();
-  #endif
-  #if AXIS_IS_TMC(Y)
-    stepperY.push();
-  #endif
-  #if AXIS_IS_TMC(Y2)
-    stepperY2.push();
-  #endif
-  #if AXIS_IS_TMC(Z)
-    stepperZ.push();
-  #endif
-  #if AXIS_IS_TMC(Z2)
-    stepperZ2.push();
-  #endif
-  #if AXIS_IS_TMC(Z3)
-    stepperZ3.push();
-  #endif
-  #if AXIS_IS_TMC(Z4)
-    stepperZ4.push();
-  #endif
-  #if AXIS_IS_TMC(I)
-    stepperI.push();
-  #endif
-  #if AXIS_IS_TMC(J)
-    stepperJ.push();
-  #endif
-  #if AXIS_IS_TMC(K)
-    stepperK.push();
-  #endif
-  #if AXIS_IS_TMC(U)
-    stepperU.push();
-  #endif
-  #if AXIS_IS_TMC(V)
-    stepperV.push();
-  #endif
-  #if AXIS_IS_TMC(W)
-    stepperW.push();
-  #endif
-  #if AXIS_IS_TMC(E0)
-    stepperE0.push();
-  #endif
-  #if AXIS_IS_TMC(E1)
-    stepperE1.push();
-  #endif
-  #if AXIS_IS_TMC(E2)
-    stepperE2.push();
-  #endif
-  #if AXIS_IS_TMC(E3)
-    stepperE3.push();
-  #endif
-  #if AXIS_IS_TMC(E4)
-    stepperE4.push();
-  #endif
-  #if AXIS_IS_TMC(E5)
-    stepperE5.push();
-  #endif
-  #if AXIS_IS_TMC(E6)
-    stepperE6.push();
-  #endif
-  #if AXIS_IS_TMC(E7)
-    stepperE7.push();
-  #endif
+  TERN_(X_IS_TRINAMIC,  stepperX.push());
+  TERN_(X2_IS_TRINAMIC, stepperX2.push());
+  TERN_(Y_IS_TRINAMIC,  stepperY.push());
+  TERN_(Y2_IS_TRINAMIC, stepperY2.push());
+  TERN_(Z_IS_TRINAMIC,  stepperZ.push());
+  TERN_(Z2_IS_TRINAMIC, stepperZ2.push());
+  TERN_(Z3_IS_TRINAMIC, stepperZ3.push());
+  TERN_(Z4_IS_TRINAMIC, stepperZ4.push());
+  TERN_(I_IS_TRINAMIC,  stepperI.push());
+  TERN_(J_IS_TRINAMIC,  stepperJ.push());
+  TERN_(K_IS_TRINAMIC,  stepperK.push());
+  TERN_(U_IS_TRINAMIC,  stepperU.push());
+  TERN_(V_IS_TRINAMIC,  stepperV.push());
+  TERN_(W_IS_TRINAMIC,  stepperW.push());
+  TERN_(E0_IS_TRINAMIC, stepperE0.push());
+  TERN_(E1_IS_TRINAMIC, stepperE1.push());
+  TERN_(E2_IS_TRINAMIC, stepperE2.push());
+  TERN_(E3_IS_TRINAMIC, stepperE3.push());
+  TERN_(E4_IS_TRINAMIC, stepperE4.push());
+  TERN_(E5_IS_TRINAMIC, stepperE5.push());
+  TERN_(E6_IS_TRINAMIC, stepperE6.push());
+  TERN_(E7_IS_TRINAMIC, stepperE7.push());
 }
 
 void reset_trinamic_drivers() {
@@ -923,88 +879,44 @@ void reset_trinamic_drivers() {
     ENABLED(STEALTHCHOP_U), ENABLED(STEALTHCHOP_V), ENABLED(STEALTHCHOP_W)
   );
 
-  #if AXIS_IS_TMC(X)
-    TMC_INIT(X, STEALTH_AXIS_X);
-  #endif
-  #if AXIS_IS_TMC(X2)
-    TMC_INIT(X2, STEALTH_AXIS_X);
-  #endif
-  #if AXIS_IS_TMC(Y)
-    TMC_INIT(Y, STEALTH_AXIS_Y);
-  #endif
-  #if AXIS_IS_TMC(Y2)
-    TMC_INIT(Y2, STEALTH_AXIS_Y);
-  #endif
-  #if AXIS_IS_TMC(Z)
-    TMC_INIT(Z, STEALTH_AXIS_Z);
-  #endif
-  #if AXIS_IS_TMC(Z2)
-    TMC_INIT(Z2, STEALTH_AXIS_Z);
-  #endif
-  #if AXIS_IS_TMC(Z3)
-    TMC_INIT(Z3, STEALTH_AXIS_Z);
-  #endif
-  #if AXIS_IS_TMC(Z4)
-    TMC_INIT(Z4, STEALTH_AXIS_Z);
-  #endif
-  #if AXIS_IS_TMC(I)
-    TMC_INIT(I, STEALTH_AXIS_I);
-  #endif
-  #if AXIS_IS_TMC(J)
-    TMC_INIT(J, STEALTH_AXIS_J);
-  #endif
-  #if AXIS_IS_TMC(K)
-    TMC_INIT(K, STEALTH_AXIS_K);
-  #endif
-  #if AXIS_IS_TMC(U)
-    TMC_INIT(U, STEALTH_AXIS_U);
-  #endif
-  #if AXIS_IS_TMC(V)
-    TMC_INIT(V, STEALTH_AXIS_V);
-  #endif
-  #if AXIS_IS_TMC(W)
-    TMC_INIT(W, STEALTH_AXIS_W);
-  #endif
-  #if AXIS_IS_TMC(E0)
-    TMC_INIT(E0, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E1)
-    TMC_INIT(E1, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E2)
-    TMC_INIT(E2, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E3)
-    TMC_INIT(E3, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E4)
-    TMC_INIT(E4, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E5)
-    TMC_INIT(E5, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E6)
-    TMC_INIT(E6, STEALTH_AXIS_E);
-  #endif
-  #if AXIS_IS_TMC(E7)
-    TMC_INIT(E7, STEALTH_AXIS_E);
-  #endif
+  TERN_(X_IS_TRINAMIC,  TMC_INIT(X,  STEALTH_AXIS_X));
+  TERN_(X2_IS_TRINAMIC, TMC_INIT(X2, STEALTH_AXIS_X));
+  TERN_(Y_IS_TRINAMIC,  TMC_INIT(Y,  STEALTH_AXIS_Y));
+  TERN_(Y2_IS_TRINAMIC, TMC_INIT(Y2, STEALTH_AXIS_Y));
+  TERN_(Z_IS_TRINAMIC,  TMC_INIT(Z,  STEALTH_AXIS_Z));
+  TERN_(Z2_IS_TRINAMIC, TMC_INIT(Z2, STEALTH_AXIS_Z));
+  TERN_(Z3_IS_TRINAMIC, TMC_INIT(Z3, STEALTH_AXIS_Z));
+  TERN_(Z4_IS_TRINAMIC, TMC_INIT(Z4, STEALTH_AXIS_Z));
+  TERN_(I_IS_TRINAMIC,  TMC_INIT(I,  STEALTH_AXIS_I));
+  TERN_(J_IS_TRINAMIC,  TMC_INIT(J,  STEALTH_AXIS_J));
+  TERN_(K_IS_TRINAMIC,  TMC_INIT(K,  STEALTH_AXIS_K));
+  TERN_(U_IS_TRINAMIC,  TMC_INIT(U,  STEALTH_AXIS_U));
+  TERN_(V_IS_TRINAMIC,  TMC_INIT(V,  STEALTH_AXIS_V));
+  TERN_(W_IS_TRINAMIC,  TMC_INIT(W,  STEALTH_AXIS_W));
+  TERN_(E0_IS_TRINAMIC, TMC_INIT(E0, STEALTH_AXIS_E));
+  TERN_(E1_IS_TRINAMIC, TMC_INIT(E1, STEALTH_AXIS_E));
+  TERN_(E2_IS_TRINAMIC, TMC_INIT(E2, STEALTH_AXIS_E));
+  TERN_(E3_IS_TRINAMIC, TMC_INIT(E3, STEALTH_AXIS_E));
+  TERN_(E4_IS_TRINAMIC, TMC_INIT(E4, STEALTH_AXIS_E));
+  TERN_(E5_IS_TRINAMIC, TMC_INIT(E5, STEALTH_AXIS_E));
+  TERN_(E6_IS_TRINAMIC, TMC_INIT(E6, STEALTH_AXIS_E));
+  TERN_(E7_IS_TRINAMIC, TMC_INIT(E7, STEALTH_AXIS_E));
 
   #if USE_SENSORLESS
-    TERN_(X_SENSORLESS, stepperX.homing_threshold(X_STALL_SENSITIVITY));
+    TERN_(X_SENSORLESS,  stepperX.homing_threshold(X_STALL_SENSITIVITY));
     TERN_(X2_SENSORLESS, stepperX2.homing_threshold(X2_STALL_SENSITIVITY));
-    TERN_(Y_SENSORLESS, stepperY.homing_threshold(Y_STALL_SENSITIVITY));
+    TERN_(Y_SENSORLESS,  stepperY.homing_threshold(Y_STALL_SENSITIVITY));
     TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(Y2_STALL_SENSITIVITY));
-    TERN_(Z_SENSORLESS, stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
+    TERN_(Z_SENSORLESS,  stepperZ.homing_threshold(Z_STALL_SENSITIVITY));
     TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(Z2_STALL_SENSITIVITY));
     TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(Z3_STALL_SENSITIVITY));
     TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(Z4_STALL_SENSITIVITY));
-    TERN_(I_SENSORLESS, stepperI.homing_threshold(I_STALL_SENSITIVITY));
-    TERN_(J_SENSORLESS, stepperJ.homing_threshold(J_STALL_SENSITIVITY));
-    TERN_(K_SENSORLESS, stepperK.homing_threshold(K_STALL_SENSITIVITY));
-    TERN_(U_SENSORLESS, stepperU.homing_threshold(U_STALL_SENSITIVITY));
-    TERN_(V_SENSORLESS, stepperV.homing_threshold(V_STALL_SENSITIVITY));
-    TERN_(W_SENSORLESS, stepperW.homing_threshold(W_STALL_SENSITIVITY));
+    TERN_(I_SENSORLESS,  stepperI.homing_threshold(I_STALL_SENSITIVITY));
+    TERN_(J_SENSORLESS,  stepperJ.homing_threshold(J_STALL_SENSITIVITY));
+    TERN_(K_SENSORLESS,  stepperK.homing_threshold(K_STALL_SENSITIVITY));
+    TERN_(U_SENSORLESS,  stepperU.homing_threshold(U_STALL_SENSITIVITY));
+    TERN_(V_SENSORLESS,  stepperV.homing_threshold(V_STALL_SENSITIVITY));
+    TERN_(W_SENSORLESS,  stepperW.homing_threshold(W_STALL_SENSITIVITY));
   #endif
 
   #ifdef TMC_ADV

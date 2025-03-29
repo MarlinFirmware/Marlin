@@ -107,7 +107,7 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
 
   uint dir = gpio_get_dir( Ard_num);
 
-  if(dir) return MODE_PIN_OUTPUT;
+  if (dir) return MODE_PIN_OUTPUT;
   else return MODE_PIN_INPUT;
 
 }

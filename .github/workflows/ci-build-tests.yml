@@ -151,6 +151,9 @@ jobs:
         # HC32
         - HC32F460C_aquila_101
 
+        # GD32F3
+        - GD32F303RE_creality_mfl
+
         # LPC176x - Lengthy tests
         - LPC1768
         - LPC1769
