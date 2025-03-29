@@ -29,11 +29,9 @@ class DGUSScreenHandlerMKS : public DGUSScreenHandler {
 public:
   DGUSScreenHandlerMKS() = default;
 
-  #if 0
-  static void sendinfoscreen_ch(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
-  static void sendinfoscreen_en(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4);
-  static void sendInfoScreen(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language);
-  #endif
+  static void sendinfoscreen(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
+  static void sendinfoscreen(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4);
+  static void sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, uint16_t language);
 
   static void screenBackChange(DGUS_VP_Variable &var, void *val_ptr);
 
@@ -69,10 +67,8 @@ public:
   #endif
 
   static void handleMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr);
-  static void handleExtruderMaxSpeedChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleAccChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleMaxAccChange(DGUS_VP_Variable &var, void *val_ptr);
-  static void handleExtruderAccChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleChangeLevelPoint(DGUS_VP_Variable &var, void *val_ptr);
   static void handleTravelAccChange(DGUS_VP_Variable &var, void *val_ptr);
   static void handleFeedRateMinChange(DGUS_VP_Variable &var, void *val_ptr);
@@ -98,7 +94,7 @@ public:
   static void sendFanToDisplay(DGUS_VP_Variable &var);
   static void sendGbkToDisplay(DGUS_VP_Variable &var);
   static void sendStringToDisplay_Language(DGUS_VP_Variable &var);
-  static void sendTMCStepValue(DGUS_VP_Variable &var);
+  static void sendTMCSensValue(DGUS_VP_Variable &var);
 
   static void setUint8(DGUS_VP_Variable &var, void *val_ptr);
 
