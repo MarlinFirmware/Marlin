@@ -2958,11 +2958,19 @@ void Stepper::init() {
   TERN_(HAS_Z3_DIR, Z3_DIR_INIT());
   TERN_(HAS_Z4_DIR, Z4_DIR_INIT());
   TERN_(HAS_I_DIR,  I_DIR_INIT());
-  TERN_(HAS_K_DIR,  K_DIR_INIT());
+  TERN_(HAS_J_DIR,  J_DIR_INIT());
   TERN_(HAS_K_DIR,  K_DIR_INIT());
   TERN_(HAS_U_DIR,  U_DIR_INIT());
   TERN_(HAS_V_DIR,  V_DIR_INIT());
   TERN_(HAS_W_DIR,  W_DIR_INIT());
+  TERN_(HAS_E0_DIR, E0_DIR_INIT());
+  TERN_(HAS_E1_DIR, E1_DIR_INIT());
+  TERN_(HAS_E2_DIR, E2_DIR_INIT());
+  TERN_(HAS_E3_DIR, E3_DIR_INIT());
+  TERN_(HAS_E4_DIR, E4_DIR_INIT());
+  TERN_(HAS_E5_DIR, E5_DIR_INIT());
+  TERN_(HAS_E6_DIR, E6_DIR_INIT());
+  TERN_(HAS_E7_DIR, E7_DIR_INIT());
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
