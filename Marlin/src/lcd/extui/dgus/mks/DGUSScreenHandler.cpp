@@ -641,30 +641,24 @@ void DGUSScreenHandlerMKS::tmcChangeConfig(DGUS_VP_Variable &var, void *val_ptr)
 
   switch (var.VP) {
     case VP_TMC_X_SENS:
-      #if USE_SENSORLESS
-        #if X_HAS_STEALTHCHOP
-          stepperX.homing_threshold(_MIN(tmc_val, 255));
-          settings.save();
-          //tmc_stall_sens.x = stepperX.homing_threshold();
-        #endif
+      #if USE_SENSORLESS && X_HAS_STEALTHCHOP
+        stepperX.homing_threshold(_MIN(tmc_val, 255));
+        settings.save();
+        tmc_stall_sens.x = stepperX.homing_threshold();
       #endif
       break;
     case VP_TMC_Y_SENS:
-      #if USE_SENSORLESS
-        #if Y_HAS_STEALTHCHOP
-          stepperY.homing_threshold(_MIN(tmc_val, 255));
-          settings.save();
-          //tmc_stall_sens.y = stepperY.homing_threshold();
-        #endif
+      #if USE_SENSORLESS && Y_HAS_STEALTHCHOP
+        stepperY.homing_threshold(_MIN(tmc_val, 255));
+        settings.save();
+        tmc_stall_sens.y = stepperY.homing_threshold();
       #endif
       break;
     case VP_TMC_Z_SENS:
-      #if USE_SENSORLESS
-        #if Z_HAS_STEALTHCHOP
-          stepperZ.homing_threshold(_MIN(tmc_val, 255));
-          settings.save();
-          //tmc_stall_sens.z = stepperZ.homing_threshold();
-        #endif
+      #if USE_SENSORLESS && Z_HAS_STEALTHCHOP
+        stepperZ.homing_threshold(_MIN(tmc_val, 255));
+        settings.save();
+        tmc_stall_sens.z = stepperZ.homing_threshold();
       #endif
       break;
     case VP_TMC_X_Current:
@@ -719,11 +713,6 @@ void DGUSScreenHandlerMKS::tmcChangeConfig(DGUS_VP_Variable &var, void *val_ptr)
     default:
       break;
   }
-  #if USE_SENSORLESS
-    TERN_(X_HAS_STEALTHCHOP, tmc_stall_sens.x = stepperX.homing_threshold());
-    TERN_(Y_HAS_STEALTHCHOP, tmc_stall_sens.y = stepperY.homing_threshold());
-    TERN_(Z_HAS_STEALTHCHOP, tmc_stall_sens.z = stepperZ.homing_threshold());
-  #endif
 }
 
 void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
