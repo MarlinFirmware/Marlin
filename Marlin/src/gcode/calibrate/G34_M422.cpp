@@ -221,9 +221,9 @@ void GcodeSuite::G34() {
 
           if (DEBUGGING(LEVELING))
             DEBUG_ECHOLNPGM(
-              "Z_PROBE_LOW_POINT: ", p_float_t(Z_PROBE_LOW_POINT, 2),
-              "z_probe: ", p_float_t(z_probe, 2),
-              "Probe Tgt: ", p_float_t((Z_PROBE_LOW_POINT) - z_probe * 0.5f, 2)
+              "Z_PROBE_LOW_POINT: ", p_float_t(Z_PROBE_LOW_POINT, 3),
+              "z_probe: ", p_float_t(z_probe, 3),
+              "Probe Tgt: ", p_float_t((Z_PROBE_LOW_POINT) - z_probe * 0.5f, 3)
             );
 
           const float z_probed_height = probe.probe_at_point(
@@ -308,7 +308,7 @@ void GcodeSuite::G34() {
 
         SERIAL_EOL();
 
-        SString<15 + TERN0(TRIPLE_Z, 30) + TERN0(QUAD_Z, 45)> msg(F("1:2="), p_float_t(ABS(z_measured[1] - z_measured[0]), 3));
+        SString<15 + TERN0(TRIPLE_Z, 30) + TERN0(QUAD_Z, 45)> msg(F("1-2="), p_float_t(ABS(z_measured[1] - z_measured[0]), 3));
         #if TRIPLE_Z
           msg.append(F(" 3-2="), p_float_t(ABS(z_measured[2] - z_measured[1]), 3))
              .append(F(" 3-1="), p_float_t(ABS(z_measured[2] - z_measured[0]), 3));
@@ -419,7 +419,7 @@ void GcodeSuite::G34() {
         SERIAL_ECHOLNPGM("G34 aborted.");
       else {
         SERIAL_ECHOLNPGM("Did ", iteration + (iteration != z_auto_align_iterations), " of ", z_auto_align_iterations);
-        SERIAL_ECHOLNPGM("Accuracy: ", p_float_t(z_maxdiff, 2));
+        SERIAL_ECHOLNPGM("Accuracy: ", p_float_t(z_maxdiff, 3));
       }
 
       // Stow the probe because the last call to probe.probe_at_point(...)
@@ -435,9 +435,9 @@ void GcodeSuite::G34() {
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
         if (DEBUGGING(LEVELING))
           DEBUG_ECHOLNPGM(
-            "z_measured_min: ", p_float_t(z_measured_min, 2),
-            "Z_TWEEN_SAFE_CLEARANCE: ", p_float_t(Z_TWEEN_SAFE_CLEARANCE, 2),
-            "zoffs: ", p_float_t(zoffs, 2)
+            "z_measured_min: ", p_float_t(z_measured_min, 3),
+            "Z_TWEEN_SAFE_CLEARANCE: ", p_float_t(Z_TWEEN_SAFE_CLEARANCE, 3),
+            "zoffs: ", p_float_t(zoffs, 3)
           );
 
         if (!err_break)
