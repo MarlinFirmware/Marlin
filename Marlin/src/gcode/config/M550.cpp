@@ -29,31 +29,35 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M550: Set machine name
+ * M550: Set machine name (RepRapFirmware)
  *
  * Parameters:
- *  P "<name>" Set the name using the 'P' parameter (RepRapFirmware)
- *  "<name>" Set the name using the "string" parameter
+ *  P <name> Set the name using the 'P' parameter (NOTE: Without quotes results in all capital letters)
+ *  P "<name>" Set the name using the 'P' and "string" parameter (GCODE_QUOTED_STRINGS must be enabled)
+ *  "<name>" Set the name using the "string" parameter (GCODE_QUOTED_STRINGS must be enabled)
+ *  <none> Print the name only
  */
 void GcodeSuite::M550() {
   bool did_set = true;
 
   if (parser.seenval('P'))
     machine_name = parser.value_string();
-  else if (TERN(GCODE_QUOTED_STRINGS, false, parser.seen('P')))
-    machine_name = parser.string_arg[0] == 'P' ? &parser.string_arg[1] : parser.string_arg;
-  else if (parser.string_arg && parser.string_arg[0])
-    machine_name = parser.string_arg;
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+    else if (parser.seen('P'))
+      machine_name = &parser.string_arg[1];
+    else if (parser.string_arg && parser.string_arg[0])
+      machine_name = parser.string_arg
+  #endif
   else
     did_set = false;
 
   if (did_set) {
     machine_name.trim();
     ui.reset_status(false);
+    SERIAL_ECHOLN("RepRap name change OK");
   }
   else
     SERIAL_ECHOLNPGM("RepRap name: ", &machine_name);
-
 }
 
 #endif // CONFIGURABLE_MACHINE_NAME
