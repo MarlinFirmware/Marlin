@@ -38,7 +38,7 @@
 #endif
 
 // If an axis's Homing Current differs from standard current...
-#define HAS_HOME_CURRENT(N) (N##_CURRENT_HOME > 0 && N##_CURRENT_HOME != N##_CURRENT)
+#define HAS_HOME_CURRENT(N) TERN0(EDITABLE_HOMING_CURRENT, N##_IS_TRINAMIC && N##_HOME_DIR != 0) || (N##_CURRENT_HOME > 0 && N##_CURRENT_HOME != N##_CURRENT)
 #if HAS_HOME_CURRENT(X)
   #define X_HAS_HOME_CURRENT 1
 #endif

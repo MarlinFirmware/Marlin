@@ -1065,17 +1065,19 @@
     #define HAS_X_MS_PINS 1
   #endif
 
-  #if PIN_EXISTS(X2_ENABLE) || ALL(SOFTWARE_DRIVER_ENABLE, X2_IS_TRINAMIC)
-    #define HAS_X2_ENABLE 1
-  #endif
-  #if PIN_EXISTS(X2_DIR)
-    #define HAS_X2_DIR 1
-  #endif
-  #if PIN_EXISTS(X2_STEP)
-    #define HAS_X2_STEP 1
-  #endif
-  #if PIN_EXISTS(X2_MS1)
-    #define HAS_X2_MS_PINS 1
+  #if HAS_X2_STEPPER
+    #if PIN_EXISTS(X2_ENABLE) || ALL(SOFTWARE_DRIVER_ENABLE, X2_IS_TRINAMIC)
+      #define HAS_X2_ENABLE 1
+    #endif
+    #if PIN_EXISTS(X2_DIR)
+      #define HAS_X2_DIR 1
+    #endif
+    #if PIN_EXISTS(X2_STEP)
+      #define HAS_X2_STEP 1
+    #endif
+    #if PIN_EXISTS(X2_MS1)
+      #define HAS_X2_MS_PINS 1
+    #endif
   #endif
 #endif
 
