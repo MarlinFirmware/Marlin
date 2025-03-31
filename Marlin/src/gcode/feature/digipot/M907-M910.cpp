@@ -51,10 +51,25 @@ void GcodeSuite::M907() {
     if (!parser.seen("BS" STR_AXES_LOGICAL))
       return M907_report();
 
-    if (parser.seenval('S')) for (uint8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i) stepper.set_digipot_current(i, parser.value_int());
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper.set_digipot_current(i, parser.value_int());    // X Y Z (I J K U V W) E (map to drivers according to DIGIPOT_CHANNELS. Default with NUM_AXES 3: map X Y Z E to X Y Z E0)
-    // Additional extruders use B,C.
-    // TODO: Change these parameters because 'E' is used and D should be reserved for debugging. B<index>?
+    // S<current> - Set current in mA for all axes
+    if (parser.seenval('S'))
+      for (uint8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i)
+        stepper.set_digipot_current(i, parser.value_int());
+
+    // X Y Z (I J K U V W) E (map to drivers according to DIGIPOT_CHANNELS.
+    // Default with NUM_AXES 3: map X Y Z E to X Y Z E0)
+    LOOP_LOGICAL_AXES(i)
+      if (parser.seenval(IAXIS_CHAR(i)))
+        stepper.set_digipot_current(i, parser.value_int());
+
+    /**
+     * Additional extruders use B,C in this legacy protocol
+     * TODO: Update to allow for an index with X, Y, Z, E axis to isolate a single stepper
+     *       and use configured axis names instead of IJKUVW. i.e., Match the behavior of
+     *       other G-codes that set stepper-specific parameters. If necessary deprecate G-codes.
+     *       Bonus Points: Standardize a method that all G-codes can use to refer to one or
+     *       more steppers/drivers and apply to various G-codes.
+     */
     #if E_STEPPERS >= 2
       if (parser.seenval('B')) stepper.set_digipot_current(E_AXIS + 1, parser.value_int());
       #if E_STEPPERS >= 3
@@ -72,14 +87,12 @@ void GcodeSuite::M907() {
 
       if (!parser.seen("S"
         #if HAS_X_Y_XY_I_J_K_U_V_W
-          "XY" SECONDARY_AXIS_GANG("I", "J", "K", "U", "V", "W")
+          NUM_AXIS_GANG("X", "Y",, "I", "J", "K", "U", "V", "W")
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           "Z"
         #endif
-        #if HAS_MOTOR_CURRENT_PWM_E
-          "E"
-        #endif
+        TERN_(HAS_MOTOR_CURRENT_PWM_E, "E")
       )) return M907_report();
 
       if (parser.seenval('S')) for (uint8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a) stepper.set_digipot_current(a, parser.value_int());
