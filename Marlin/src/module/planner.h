@@ -816,7 +816,11 @@ class Planner {
     FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
-    FORCE_INLINE static void clear_block_buffer() { block_buffer_nonbusy = block_buffer_head = block_buffer_tail = 0; }
+    FORCE_INLINE static void clear_block_buffer() {
+      block_buffer_tail = 0;
+      block_buffer_head = 0;
+      block_buffer_nonbusy = 0;
+    }
 
     // Check if movement queue is full
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
