@@ -2958,137 +2958,44 @@ void Stepper::init() {
   TERN_(HAS_Z3_DIR, Z3_DIR_INIT());
   TERN_(HAS_Z4_DIR, Z4_DIR_INIT());
   TERN_(HAS_I_DIR,  I_DIR_INIT());
-  TERN_(HAS_K_DIR,  K_DIR_INIT());
+  TERN_(HAS_J_DIR,  J_DIR_INIT());
   TERN_(HAS_K_DIR,  K_DIR_INIT());
   TERN_(HAS_U_DIR,  U_DIR_INIT());
   TERN_(HAS_V_DIR,  V_DIR_INIT());
   TERN_(HAS_W_DIR,  W_DIR_INIT());
+  TERN_(HAS_E0_DIR, E0_DIR_INIT());
+  TERN_(HAS_E1_DIR, E1_DIR_INIT());
+  TERN_(HAS_E2_DIR, E2_DIR_INIT());
+  TERN_(HAS_E3_DIR, E3_DIR_INIT());
+  TERN_(HAS_E4_DIR, E4_DIR_INIT());
+  TERN_(HAS_E5_DIR, E5_DIR_INIT());
+  TERN_(HAS_E6_DIR, E6_DIR_INIT());
+  TERN_(HAS_E7_DIR, E7_DIR_INIT());
 
-  // Init Enable Pins - steppers default to disabled.
-  #if HAS_X_ENABLE
-    #ifndef X_ENABLE_INIT_STATE
-      #define X_ENABLE_INIT_STATE !X_ENABLE_ON
-    #endif
-    X_ENABLE_INIT();
-    if (X_ENABLE_INIT_STATE) X_ENABLE_WRITE(X_ENABLE_INIT_STATE);
-    #if ALL(HAS_X2_STEPPER, HAS_X2_ENABLE)
-      X2_ENABLE_INIT();
-      if (X_ENABLE_INIT_STATE) X2_ENABLE_WRITE(X_ENABLE_INIT_STATE);
-    #endif
-  #endif
-  #if HAS_Y_ENABLE
-    #ifndef Y_ENABLE_INIT_STATE
-      #define Y_ENABLE_INIT_STATE !Y_ENABLE_ON
-    #endif
-    Y_ENABLE_INIT();
-    if (Y_ENABLE_INIT_STATE) Y_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
-    #if ALL(HAS_Y2_STEPPER, HAS_Y2_ENABLE)
-      Y2_ENABLE_INIT();
-      if (Y_ENABLE_INIT_STATE) Y2_ENABLE_WRITE(Y_ENABLE_INIT_STATE);
-    #endif
-  #endif
-  #if HAS_Z_ENABLE
-    #ifndef Z_ENABLE_INIT_STATE
-      #define Z_ENABLE_INIT_STATE !Z_ENABLE_ON
-    #endif
-    Z_ENABLE_INIT();
-    if (Z_ENABLE_INIT_STATE) Z_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
-    #if HAS_Z2_ENABLE
-      Z2_ENABLE_INIT();
-      if (Z_ENABLE_INIT_STATE) Z2_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
-    #endif
-    #if HAS_Z3_ENABLE
-      Z3_ENABLE_INIT();
-      if (Z_ENABLE_INIT_STATE) Z3_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
-    #endif
-    #if HAS_Z4_ENABLE
-      Z4_ENABLE_INIT();
-      if (Z_ENABLE_INIT_STATE) Z4_ENABLE_WRITE(Z_ENABLE_INIT_STATE);
-    #endif
-  #endif
-  #if HAS_I_ENABLE
-    I_ENABLE_INIT();
-    if (!I_ENABLE_ON) I_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_J_ENABLE
-    J_ENABLE_INIT();
-    if (!J_ENABLE_ON) J_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_K_ENABLE
-    K_ENABLE_INIT();
-    if (!K_ENABLE_ON) K_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_U_ENABLE
-    U_ENABLE_INIT();
-    if (!U_ENABLE_ON) U_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_V_ENABLE
-    V_ENABLE_INIT();
-    if (!V_ENABLE_ON) V_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_W_ENABLE
-    W_ENABLE_INIT();
-    if (!W_ENABLE_ON) W_ENABLE_WRITE(HIGH);
-  #endif
-  #if HAS_E0_ENABLE
-    #ifndef E_ENABLE_INIT_STATE
-      #define E_ENABLE_INIT_STATE !E_ENABLE_ON
-    #endif
-    #ifndef E0_ENABLE_INIT_STATE
-      #define E0_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E0_ENABLE_INIT();
-    if (E0_ENABLE_INIT_STATE) E0_ENABLE_WRITE(E0_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E1_ENABLE
-    #ifndef E1_ENABLE_INIT_STATE
-      #define E1_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E1_ENABLE_INIT();
-    if (E1_ENABLE_INIT_STATE) E1_ENABLE_WRITE(E1_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E2_ENABLE
-    #ifndef E2_ENABLE_INIT_STATE
-      #define E2_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E2_ENABLE_INIT();
-    if (E2_ENABLE_INIT_STATE) E2_ENABLE_WRITE(E2_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E3_ENABLE
-    #ifndef E3_ENABLE_INIT_STATE
-      #define E3_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E3_ENABLE_INIT();
-    if (E3_ENABLE_INIT_STATE) E3_ENABLE_WRITE(E3_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E4_ENABLE
-    #ifndef E4_ENABLE_INIT_STATE
-      #define E4_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E4_ENABLE_INIT();
-    if (E4_ENABLE_INIT_STATE) E4_ENABLE_WRITE(E4_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E5_ENABLE
-    #ifndef E5_ENABLE_INIT_STATE
-      #define E5_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E5_ENABLE_INIT();
-    if (E5_ENABLE_INIT_STATE) E5_ENABLE_WRITE(E5_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E6_ENABLE
-    #ifndef E6_ENABLE_INIT_STATE
-      #define E6_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E6_ENABLE_INIT();
-    if (E6_ENABLE_INIT_STATE) E6_ENABLE_WRITE(E6_ENABLE_INIT_STATE);
-  #endif
-  #if HAS_E7_ENABLE
-    #ifndef E7_ENABLE_INIT_STATE
-      #define E7_ENABLE_INIT_STATE E_ENABLE_INIT_STATE
-    #endif
-    E7_ENABLE_INIT();
-    if (E7_ENABLE_INIT_STATE) E7_ENABLE_WRITE(E7_ENABLE_INIT_STATE);
-  #endif
+  // Init Enable Pins - Steppers default to disabled.
+  #define _INIT_CONFIG_ENABLE(A) do{ A##_ENABLE_INIT(); if (A##_ENABLE_INIT_STATE) A##_ENABLE_WRITE(HIGH); }while(0)
+  TERN_(HAS_X_ENABLE,  _INIT_CONFIG_ENABLE(X));
+  TERN_(HAS_X2_ENABLE, _INIT_CONFIG_ENABLE(X2));
+  TERN_(HAS_Y_ENABLE,  _INIT_CONFIG_ENABLE(Y));
+  TERN_(HAS_Y2_ENABLE, _INIT_CONFIG_ENABLE(Y2));
+  TERN_(HAS_Z_ENABLE,  _INIT_CONFIG_ENABLE(Z));
+  TERN_(HAS_Z2_ENABLE, _INIT_CONFIG_ENABLE(Z2));
+  TERN_(HAS_Z3_ENABLE, _INIT_CONFIG_ENABLE(Z3));
+  TERN_(HAS_Z4_ENABLE, _INIT_CONFIG_ENABLE(Z4));
+  TERN_(HAS_I_ENABLE,  _INIT_CONFIG_ENABLE(I));
+  TERN_(HAS_J_ENABLE,  _INIT_CONFIG_ENABLE(J));
+  TERN_(HAS_K_ENABLE,  _INIT_CONFIG_ENABLE(K));
+  TERN_(HAS_U_ENABLE,  _INIT_CONFIG_ENABLE(U));
+  TERN_(HAS_V_ENABLE,  _INIT_CONFIG_ENABLE(V));
+  TERN_(HAS_W_ENABLE,  _INIT_CONFIG_ENABLE(W));
+  TERN_(HAS_E0_ENABLE, _INIT_CONFIG_ENABLE(E0));
+  TERN_(HAS_E1_ENABLE, _INIT_CONFIG_ENABLE(E1));
+  TERN_(HAS_E2_ENABLE, _INIT_CONFIG_ENABLE(E2));
+  TERN_(HAS_E3_ENABLE, _INIT_CONFIG_ENABLE(E3));
+  TERN_(HAS_E4_ENABLE, _INIT_CONFIG_ENABLE(E4));
+  TERN_(HAS_E5_ENABLE, _INIT_CONFIG_ENABLE(E5));
+  TERN_(HAS_E6_ENABLE, _INIT_CONFIG_ENABLE(E6));
+  TERN_(HAS_E7_ENABLE, _INIT_CONFIG_ENABLE(E7));
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT()
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
@@ -3747,7 +3654,7 @@ void Stepper::report_positions() {
         #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_I, MOTOR_CURRENT_PWM_J, MOTOR_CURRENT_PWM_K, MOTOR_CURRENT_PWM_U, MOTOR_CURRENT_PWM_V, MOTOR_CURRENT_PWM_W)
           case 0:
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+        #if HAS_MOTOR_CURRENT_PWM_Z
           case 1:
         #endif
         #if HAS_MOTOR_CURRENT_PWM_E
@@ -3766,7 +3673,7 @@ void Stepper::report_positions() {
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
     void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
-      if (WITHIN(driver, 0, MOTOR_CURRENT_COUNT - 1))
+      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
         motor_current_setting[driver] = current; // update motor_current_setting
 
       if (!initialized) return;
@@ -3812,7 +3719,7 @@ void Stepper::report_positions() {
             #endif
             break;
           case 1:
-            #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+            #if HAS_MOTOR_CURRENT_PWM_Z
               _WRITE_CURRENT_PWM(Z);
             #endif
             break;
@@ -3877,7 +3784,7 @@ void Stepper::report_positions() {
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_W)
           INIT_CURRENT_PWM(W);
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+        #if HAS_MOTOR_CURRENT_PWM_Z
           INIT_CURRENT_PWM(Z);
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
