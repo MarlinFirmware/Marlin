@@ -38,7 +38,7 @@ namespace LanguageNarrow_gl {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Galician");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" lista.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" lista.");
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NON");
   LSTR MSG_BACK                           = _UxGT("Atrás");
@@ -558,7 +558,8 @@ namespace LanguageNarrow_gl {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Limiar Hibrido");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Orixe sen Sensores");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Modo de pasos");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Habilit.");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reiniciar");
   LSTR MSG_SERVICE_IN                     = _UxGT(" dentro:");
   LSTR MSG_BACKLASH                       = _UxGT("Reacción");

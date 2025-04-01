@@ -33,7 +33,7 @@ namespace LanguageNarrow_ko_KR {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Korean");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" 준비.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" 준비.");
   LSTR MSG_BACK                           = _UxGT("뒤로");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("카드 삽입됨");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");

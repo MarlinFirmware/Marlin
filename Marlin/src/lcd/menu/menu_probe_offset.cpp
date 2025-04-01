@@ -96,7 +96,7 @@ void probe_offset_wizard_menu() {
 /**
  * @fn prepare_for_probe_offset_wizard
  * @brief Prepare the Probe Offset Wizard to do user interaction.
- * @description
+ * @details
  *   1. Probe a defined point (or the center) for an initial Probe Reference Z (relative to the homed Z0).
  *      (When homing with the probe, this Z0 is suspect until 'M851 Z' is properly tuned.
  *       When homing with a Z endstop Z0 is suspect until M206 is properly tuned.)

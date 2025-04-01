@@ -37,7 +37,7 @@ namespace LanguageNarrow_eu {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Basque-Euskera");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prest.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prest.");
   LSTR MSG_BACK                           = _UxGT("Atzera");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");

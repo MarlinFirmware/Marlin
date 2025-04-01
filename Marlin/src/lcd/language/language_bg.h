@@ -36,7 +36,7 @@ namespace LanguageNarrow_bg {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Bulgarian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Готов.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Готов.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Картата е поставена");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Картата е извадена");
   LSTR MSG_MAIN_MENU                      = _UxGT("Меню");

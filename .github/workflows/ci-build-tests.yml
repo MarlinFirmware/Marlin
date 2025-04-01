@@ -113,7 +113,7 @@ jobs:
         - BTT_GTR_V1_0
         - BTT_SKR_PRO
         - FLYF407ZG
-        - FYSETC_S6
+        - STM32F446VE_fysetc
         - LERDGEK
         - LERDGEX
         - mks_robin_pro2
@@ -150,6 +150,9 @@ jobs:
 
         # HC32
         - HC32F460C_aquila_101
+
+        # GD32F3
+        - GD32F303RE_creality_mfl
 
         # LPC176x - Lengthy tests
         - LPC1768
