@@ -29,24 +29,29 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M550: Set machine name (RepRapFirmware)
+ * M550: Set machine name
  *
  * Parameters:
- *  P <name> Set the name using the 'P' parameter (NOTE: Without quotes results in all capital letters)
- *  P "<name>" Set the name using the 'P' and "string" parameter (GCODE_QUOTED_STRINGS must be enabled)
- *  "<name>" Set the name using the "string" parameter (GCODE_QUOTED_STRINGS must be enabled)
- *  <none> Print the name only
+ *   P<name> - Set the name using the 'P' parameter and following string without spaces
+ *             (NOTE: ALL CAPS unless GCODE_CASE_INSENSITIVE is enabled.)
+ *
+ * With GCODE_QUOTED_STRINGS:
+ *   P "<name>" Get the name from the 'P' parameter, quoting required for spaces in the name
+ *   "<name>" Get the name from the "string" parameter
  */
 void GcodeSuite::M550() {
   bool did_set = true;
 
-  if (parser.seenval('P'))
-    machine_name = parser.value_string();
-  #if ENABLED(GCODE_QUOTED_STRINGS)
-    else if (parser.seen('P'))
+  if (parser.seenval('P')) {
+    #if ENABLED(GCODE_QUOTED_STRINGS)
       machine_name = &parser.string_arg[1];
-    else if (parser.string_arg && parser.string_arg[0])
-      machine_name = parser.string_arg
+    #else
+      machine_name = parser.value_string();
+    #endif
+  }
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+    else if (parser.has_string())
+      machine_name = parser.string_arg;
   #endif
   else
     did_set = false;
@@ -54,7 +59,6 @@ void GcodeSuite::M550() {
   if (did_set) {
     machine_name.trim();
     ui.reset_status(false);
-    SERIAL_ECHOLN("RepRap name change OK");
   }
   else
     SERIAL_ECHOLNPGM("RepRap name: ", &machine_name);
