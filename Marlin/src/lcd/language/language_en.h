@@ -387,6 +387,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_LED_BRIGHTNESS                 = _UxGT("Brightness");
   LSTR MSG_HOTEND_TOO_COLD                = _UxGT("Hotend too cold");
   LSTR MSG_CHAMBER                        = _UxGT("Enclosure");
+  LSTR MSG_MAX_FAN_SPEED                  = _UxGT("Max Fan Speed");
   LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan ~");
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra Fan Speed");
   LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Fan Speed ~");

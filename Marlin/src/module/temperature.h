@@ -919,6 +919,7 @@ class Temperature {
 
       static uint8_t fan_speed[FAN_COUNT];
       #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
+      static uint8_t max_fan_speed;
 
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
 

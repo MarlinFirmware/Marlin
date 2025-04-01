@@ -436,6 +436,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_FAN
 
   uint8_t Temperature::fan_speed[FAN_COUNT] = ARRAY_N_1(FAN_COUNT, FAN_OFF_PWM);
+  uint8_t Temperature::max_fan_speed = 255;
 
   #if ENABLED(EXTRA_FAN_SPEED)
 
