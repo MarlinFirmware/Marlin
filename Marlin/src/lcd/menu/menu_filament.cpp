@@ -235,18 +235,15 @@ static FSTR_P pause_header() {
 
 // Portions from STATIC_ITEM...
 #define HOTEND_STATUS_ITEM() do { \
-  if (_menuLineNr == _thisItemNr) { \
+  if ( MY_LINE()) { \
     if (ui.should_draw()) { \
       IF_DISABLED(HAS_GRAPHICAL_TFT, MenuItem_static::draw(_lcdLineNr, GET_TEXT_F(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
-    if (_skipStatic && encoderLine <= _thisItemNr) { \
-      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-      ++encoderLine; \
-    } \
+    STATIC_SKIP(); \
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); \
   } \
-  ++_thisItemNr; \
+  NEXT_ITEM(); \
 }while(0)
 
 void menu_pause_option() {
@@ -307,11 +304,9 @@ void lcd_pause_waiting_message()  { _lcd_pause_message(GET_TEXT_F(MSG_ADVANCED_P
 void lcd_pause_resume_message()   { _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_RESUME));  }
 
 void lcd_pause_purge_message() {
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_CONT_PURGE));
-  #else
-    _lcd_pause_message(GET_TEXT_F(MSG_FILAMENT_CHANGE_PURGE));
-  #endif
+  _lcd_pause_message(GET_TEXT_F(
+    TERN(ADVANCED_PAUSE_CONTINUOUS_PURGE, MSG_FILAMENT_CHANGE_CONT_PURGE, MSG_FILAMENT_CHANGE_PURGE)
+  ));
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
