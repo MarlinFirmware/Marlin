@@ -17,7 +17,7 @@ help:
 	@echo "make tests-all-local-docker    : Run all tests locally, using docker"
 	@echo "make unit-test-single-local    : Run unit tests for a single config locally"
 	@echo "make unit-test-single-local-docker : Run unit tests for a single config locally, using docker"
-	@echo "make unit-test-all-local      : Run all code tests locally"
+	@echo "make unit-test-all-local       : Run all code tests locally"
 	@echo "make unit-test-all-local-docker : Run all code tests locally, using docker"
 	@echo "make setup-local-docker        : Setup local docker using buildx"
 	@echo ""

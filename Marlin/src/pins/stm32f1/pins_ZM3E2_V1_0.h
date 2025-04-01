@@ -192,7 +192,6 @@
   //   2 +5V
   //   1 GND
 
-  #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN
   #define LCD_PINS_EN                EXP1_06_PIN
   #define LCD_PINS_D4                EXP1_04_PIN
@@ -220,7 +219,6 @@
   //   3 RX3    PB11  KNOB_ENB
 
   #define FORCE_SOFT_SPI
-  #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define LCD_PINS_RS                EXP1_06_PIN  // = LCD_RESET_PIN
   #define LCD_PINS_DC                EXP1_04_PIN  // DC
   #define DOGLCD_CS                  EXP1_03_PIN  // CS

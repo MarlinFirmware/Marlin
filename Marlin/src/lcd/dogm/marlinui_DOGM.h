@@ -38,19 +38,19 @@
 
   #if HAS_MEDIA
     #ifdef __SAMD21__
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL             // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #else
       // Hardware SPI on DUE
-      #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X                 // 2 stripes, SW SPI (Original u8glib device)
     #endif
     #define U8G_PARAM LCD_PINS_RS
   #elif (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
     // Hardware SPI shared with SD Card
-    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
     // Software SPI
-    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X                   // 2 stripes, SW SPI (Original u8glib device)
     #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS
   #endif
 
@@ -201,7 +201,7 @@
 
   // Generic support for SSD1309 OLED I2C LCDs
 
-  #define U8G_CLASS U8GLIB_SSD1309_128X64
+  #define U8G_CLASS TERN(LCD_DOUBLE_BUFFER, U8GLIB_SSD1309_128X64_F, U8GLIB_SSD1309_128X64)
   #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
 
 #elif ENABLED(U8GLIB_SSD1306)

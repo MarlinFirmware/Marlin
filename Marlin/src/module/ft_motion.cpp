@@ -582,7 +582,7 @@ void FTMotion::makeVector() {
     float accel_k = 0.0f;                                 // (mm/s^2) Acceleration K factor
     float tau = (makeVector_idx + 1) * (FTM_TS);          // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
-  
+
     if (makeVector_idx < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
@@ -599,25 +599,25 @@ void FTMotion::makeVector() {
       dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
       accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
     }
-  
+
     #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPosn.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
-  
+
     #if HAS_EXTRUDERS
       if (cfg.linearAdvEna) {
         float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
         if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
-  
+
         e_raw_z1 = traj.e[makeVector_batchIdx];
         e_advanced_z1 += dedt_adj * (FTM_TS);
         traj.e[makeVector_batchIdx] = e_advanced_z1;
       }
     #endif
-  
+
     // Update shaping parameters if needed.
-  
+
     switch (cfg.dynFreqMode) {
-  
+
       #if HAS_DYNAMIC_FREQ_MM
         case dynFreqMode_Z_BASED: {
           static float oldz = 0.0f;
@@ -635,7 +635,7 @@ void FTMotion::makeVector() {
           }
         } break;
       #endif
-  
+
       #if HAS_DYNAMIC_FREQ_G
         case dynFreqMode_MASS_BASED:
           // Update constantly. The optimization done for Z value makes
@@ -648,10 +648,10 @@ void FTMotion::makeVector() {
           #endif
           break;
       #endif
-  
+
       default: break;
     }
-  
+
     // Apply shaping if active on each axis
     #if HAS_FTM_SHAPING
       #if HAS_X_AXIS
@@ -664,7 +664,7 @@ void FTMotion::makeVector() {
           }
         }
       #endif
-  
+
       #if HAS_Y_AXIS
         if (shaping.y.ena) {
           shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
@@ -677,13 +677,13 @@ void FTMotion::makeVector() {
       #endif
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
     #endif // HAS_FTM_SHAPING
-  
+
     // Filled up the queue with regular and shaped steps
     if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
       makeVector_batchIdx = BATCH_SIDX_IN_WINDOW;
       batchRdy = true;
     }
-  
+
     if (++makeVector_idx == max_intervals) {
       blockProcRdy = false;
       makeVector_idx = 0;

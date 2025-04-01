@@ -34,7 +34,7 @@ namespace LanguageNarrow_de {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Deutsch");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" bereit");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" bereit");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEIN");
   LSTR MSG_HIGH                           = _UxGT("HOCH");
@@ -719,7 +719,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid threshold");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorloses Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Schrittmodus");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop einsch.");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" im:");
   LSTR MSG_BACKLASH                       = _UxGT("Spiel");

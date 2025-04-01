@@ -571,15 +571,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             125
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              90
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             600
-  #endif
+  #define BOARD_ST7920_DELAY_1               125
+  #define BOARD_ST7920_DELAY_2                90
+  #define BOARD_ST7920_DELAY_3               600
 #endif
 
 #if ENABLED(WIFISUPPORT)

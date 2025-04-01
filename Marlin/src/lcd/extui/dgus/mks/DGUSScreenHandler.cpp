@@ -673,49 +673,49 @@ void DGUSScreenHandlerMKS::tmcChangeConfig(DGUS_VP_Variable &var, void *val_ptr)
       #endif
       break;
     case VP_TMC_X_Current:
-      #if AXIS_IS_TMC(X)
+      #if X_IS_TRINAMIC
         stepperX.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_X1_Current:
-      #if AXIS_IS_TMC(X2)
+      #if X2_IS_TRINAMIC
         stepperX2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y_Current:
-      #if AXIS_IS_TMC(Y)
+      #if Y_IS_TRINAMIC
         stepperY.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y1_Current:
-      #if AXIS_IS_TMC(X2)
+      #if X2_IS_TRINAMIC
         stepperY2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z_Current:
-      #if AXIS_IS_TMC(Z)
+      #if Z_IS_TRINAMIC
         stepperZ.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z1_Current:
-      #if AXIS_IS_TMC(Z2)
+      #if Z2_IS_TRINAMIC
         stepperZ2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E0_Current:
-      #if AXIS_IS_TMC(E0)
+      #if E0_IS_TRINAMIC
         stepperE0.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E1_Current:
-      #if AXIS_IS_TMC(E1)
+      #if E1_IS_TRINAMIC
         stepperE1.rms_current(tmc_val);
         settings.save();
       #endif

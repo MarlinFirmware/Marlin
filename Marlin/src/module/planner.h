@@ -782,13 +782,27 @@ class Planner {
     #endif
 
     #if HAS_POSITION_MODIFIERS
-      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
+      /**
+       * @brief   Apply Skew, Leveling, and Retraction modifiers to the given cartesian position.
+       * @details By default leveling is only applied if the planner is the leveling handler (i.e., PLANNER_LEVELING).
+       *
+       * @param pos       The position to modify
+       * @param leveling  Optional bool whether to include the leveling modifier
+       */
+      FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, const bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
         TERN_(FWRETRACT, apply_retract(pos));
       }
 
-      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, bool leveling=ENABLED(PLANNER_LEVELING)) {
+      /**
+       * @brief   Un-apply Skew, Leveling, and Retraction modifiers to the given cartesian position.
+       * @details By default leveling is only un-applied if the planner is the leveling handler (i.e., PLANNER_LEVELING).
+       *
+       * @param pos       The position to un-modify
+       * @param leveling  Optional bool whether to include the leveling modifier
+       */
+      FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, const bool leveling=ENABLED(PLANNER_LEVELING)) {
         TERN_(FWRETRACT, unapply_retract(pos));
         if (leveling) unapply_leveling(pos);
         TERN_(SKEW_CORRECTION, unskew(pos));
@@ -802,7 +816,11 @@ class Planner {
     FORCE_INLINE static uint8_t nonbusy_movesplanned() { return block_dec_mod(block_buffer_head, block_buffer_nonbusy); }
 
     // Remove all blocks from the buffer
-    FORCE_INLINE static void clear_block_buffer() { block_buffer_nonbusy = block_buffer_head = block_buffer_tail = 0; }
+    FORCE_INLINE static void clear_block_buffer() {
+      block_buffer_tail = 0;
+      block_buffer_head = 0;
+      block_buffer_nonbusy = 0;
+    }
 
     // Check if movement queue is full
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
