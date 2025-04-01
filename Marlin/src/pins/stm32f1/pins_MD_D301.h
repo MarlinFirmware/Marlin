@@ -148,7 +148,7 @@
 // USB connect control
 //
 #define USB_CONNECT_PIN                     PA15
-#define USB_CONNECT_INVERTING false
+#define USB_CONNECT_INVERTING              false
 
 //
 // SD Support

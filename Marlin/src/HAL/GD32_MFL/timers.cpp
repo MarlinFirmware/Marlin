@@ -97,10 +97,10 @@ uint32_t GetStepperTimerClkFreq() {
 
 /**
  * @brief Starts a hardware timer
- * 
+ *
  * If the timer is not already initialized, this function will initialize it with the given frequency.
  * The timer is started immediately after initialization
- * 
+ *
  * @param timer The timer base index to start
  * @param frequency The frequency at which the timer should run
  * @return None
@@ -137,7 +137,7 @@ void HAL_timer_start(const uint8_t timer_number, const uint32_t frequency) {
 
 /**
  * @brief Enables the interrupt for the specified timer
- * 
+ *
  * @param handle The timer handle for which to enable the interrupt
  * @return None
  */
@@ -154,7 +154,7 @@ void HAL_timer_enable_interrupt(const uint8_t timer_number) {
 
 /**
  * @brief Disables the interrupt for the specified timer
- * 
+ *
  * @param handle The timer handle for which to disable the interrupt
  * @return None
  */
@@ -168,7 +168,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_number) {
 
 /**
  * @brief Checks if the interrupt is enabled for the specified timer
- * 
+ *
  * @param handle The timer handle to check
  * @return True if the interrupt is enabled, false otherwise
  */

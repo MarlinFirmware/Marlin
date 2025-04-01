@@ -95,7 +95,7 @@ static void MinSerialBegin() {
       volatile uint32_t ICER[32];
     };
     NVICMin *nvicBase = (NVICMin*)0xE000E100;
-  
+
     SBI32(nvicBase->ICER[nvicIndex >> 5], nvicIndex & 0x1F);
 
     // We require memory barriers to properly disable interrupts

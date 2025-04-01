@@ -160,12 +160,12 @@ private:
     info->csd.device_size = (static_cast<uint32_t>(csd_bytes[6] & 0x03U) << 10U) |
                  (static_cast<uint32_t>(csd_bytes[7]) << 2U) |
                  (static_cast<uint32_t>((csd_bytes[8] & 0xC0U) >> 6U));
-    info->csd.device_size_multiplier = static_cast<uint8_t>((csd_bytes[9] & 0x03U) << 1U | 
+    info->csd.device_size_multiplier = static_cast<uint8_t>((csd_bytes[9] & 0x03U) << 1U |
                                  (csd_bytes[10] & 0x80U) >> 7U);
 
     info->block_size = static_cast<uint32_t>(1 << info->csd.read_block_length);
-    info->capacity = static_cast<uint32_t>((info->csd.device_size + 1U) * 
-            (1U << (info->csd.device_size_multiplier + 2U)) * 
+    info->capacity = static_cast<uint32_t>((info->csd.device_size + 1U) *
+            (1U << (info->csd.device_size_multiplier + 2U)) *
             info->block_size);
   }
 
@@ -175,15 +175,15 @@ private:
                  static_cast<uint32_t>(csd_bytes[9]);
 
     info->block_size = BLOCK_SIZE;
-    info->capacity = static_cast<uint32_t>((info->csd.device_size + 1U) * 
+    info->capacity = static_cast<uint32_t>((info->csd.device_size + 1U) *
             BLOCK_SIZE * KILOBYTE);
   }
 
   void process_common_csd_tail(Card_Info* info, const uint8_t* csd_bytes) {
-    info->csd.sector_size = static_cast<uint8_t>(((csd_bytes[9] & 0x3FU) << 1U) | 
+    info->csd.sector_size = static_cast<uint8_t>(((csd_bytes[9] & 0x3FU) << 1U) |
                           (csd_bytes[10] & 0x80U) >> 7U);
     info->csd.speed_factor = static_cast<uint8_t>((csd_bytes[11] & 0x1CU) >> 2U);
-    info->csd.write_block_length = static_cast<uint8_t>(((csd_bytes[11] & 0x03U) << 2U) | 
+    info->csd.write_block_length = static_cast<uint8_t>(((csd_bytes[11] & 0x03U) << 2U) |
                               ((csd_bytes[12] & 0xC0U) >> 6U));
     info->csd.checksum = static_cast<uint8_t>((csd_bytes[15] & 0xFEU) >> 1U);
   }

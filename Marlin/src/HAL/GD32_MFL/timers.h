@@ -123,8 +123,8 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) 
 
   GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
 
-  return (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) 
-         ? timer.getCounter(TimerFormat::TICK) 
+  return (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP)
+         ? timer.getCounter(TimerFormat::TICK)
          : 0U;
 }
 
