@@ -1888,12 +1888,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * ULTIPANEL encoder
+ * Encoder pulses must be positive
  */
-#if IS_ULTIPANEL && NONE(IS_NEWPANEL, SR_LCD_2W_NL) && !PIN_EXISTS(SHIFT_CLK)
-  #error "ULTIPANEL controllers require some kind of encoder."
-#endif
-
 #if ENCODER_PULSES_PER_STEP < 0
   #error "ENCODER_PULSES_PER_STEP should not be negative, use REVERSE_MENU_DIRECTION instead."
 #endif
@@ -4041,11 +4037,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #elif _PIN_CONFLICT(CONTROLLERFAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CONTROLLERFAN_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_XY)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_XY."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_XY_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_Z)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_Z."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_Z_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_E)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_E."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_E_PIN."
     #endif
   #endif
   #undef _PIN_CONFLICT
