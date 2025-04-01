@@ -401,7 +401,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
   char msg[m + 1];                               \
-  if (_menuLineNr == _thisItemNr) {              \
+  if (MY_LINE()) {                               \
     msg[0] = ':'; msg[1] = ' ';                  \
     strlcpy_P(msg + 2, PVAL, m - 1);             \
     if (msg[m - 1] & 0x80) msg[m - 1] = '\0';    \
@@ -410,8 +410,7 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define PSTRING_ITEM_N_F_P(N, V...) do{ \
-  if (_menuLineNr == _thisItemNr)       \
-    MenuItemBase::init(N);              \
+  if (MY_LINE()) MenuItemBase::init(N); \
   PSTRING_ITEM_F_P(V);                  \
 }while(0)
 
