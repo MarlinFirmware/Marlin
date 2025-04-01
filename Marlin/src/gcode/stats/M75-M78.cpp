@@ -43,7 +43,7 @@ void GcodeSuite::M75() {
   startOrResumeJob(); // ... ExtUI::onPrintTimerStarted()
   #if ENABLED(DWIN_LCD_PROUI)
     // TODO: Remove if M75 <string> is never used
-    if (!IS_SD_PRINTING()) dwinPrintHeader(parser.string_arg && parser.string_arg[0] ? parser.string_arg : GET_TEXT(MSG_HOST_START_PRINT));
+    if (!IS_SD_PRINTING()) dwinPrintHeader(parser.has_string() ? parser.string_arg : GET_TEXT(MSG_HOST_START_PRINT));
   #endif
 }
 
