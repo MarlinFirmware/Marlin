@@ -927,6 +927,7 @@ class Temperature {
     #endif
 
     #if HAS_FAN
+      static uint8_t max_fan_speed;
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
       #if ENABLED(REPORT_FAN_CHANGE)
         static void report_fan_speed(const uint8_t fan);
