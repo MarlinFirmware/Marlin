@@ -965,18 +965,18 @@
   #include "hc32f4/pins_CREALITY_ENDER2P_V24S4.h"   // HC32F460                             env:HC32F460C_e2p24s4
 
 //
-// GD32 ARM Cortex-M4
-//
-
-#elif MB(CREALITY_V422_GD32_MFL)
-  #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
-
-//
 // GD32 ARM Cortex-M3
 //
 
 #elif MB(AQUILA_V101_GD32_MFL)
   #include "gd32f1/pins_AQUILA_101_GD32_MFL.h"      // GD32F103RC                           env:GD32F103RC_aquila_mfl
+
+//
+// GD32 ARM Cortex-M4
+//
+
+#elif MB(CREALITY_V422_GD32_MFL)
+  #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
 
 //
 // Raspberry Pi RP2040
