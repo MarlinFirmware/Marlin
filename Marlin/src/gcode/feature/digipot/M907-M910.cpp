@@ -97,7 +97,7 @@ void GcodeSuite::M907() {
 
       // S<current> - Set all stepper current to the same value
       if (parser.seenval('S')) {
-        const int16_t v = value_int();
+        const int16_t v = parser.value_int();
         for (uint8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a)
           stepper.set_digipot_current(a, v);
       }
@@ -129,7 +129,7 @@ void GcodeSuite::M907() {
 
     // S<current> - Set the same current in Amps on all channels
     if (parser.seenval('S')) {
-      const float v = value_float();
+      const float v = parser.value_float();
       for (uint8_t q = 0; q < DIGIPOT_I2C_NUM_CHANNELS; ++q)
         digipot_i2c.set_current(q, v);
     }
