@@ -1890,7 +1890,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * ULTIPANEL encoder
  */
-#if IS_ULTIPANEL && NONE(HAS_ROTARY_ENCODER, SR_LCD_2W_NL, SR_LCD_3W_NL) && !PIN_EXISTS(SHIFT_CLK)
+#if IS_ULTIPANEL && NONE(HAS_ROTARY_ENCODER, SR_LCD_2W_NL, SR_LCD_3W_NL) && !ANY_PIN(SHIFT_CLK, ADC_KEYPAD)
   #error "ULTIPANEL controllers require some kind of encoder."
 #endif
 
