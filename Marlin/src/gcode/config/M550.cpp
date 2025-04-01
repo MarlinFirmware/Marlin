@@ -28,40 +28,44 @@
 #include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
 
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
+
 /**
  * M550: Set machine name
  *
  * Parameters:
- *   P<name> - Set the name using the 'P' parameter and following string without spaces
+ *   P<name> - Set the name using the 'P' parameter and following string
  *             (NOTE: ALL CAPS unless GCODE_CASE_INSENSITIVE is enabled.)
  *
- * With GCODE_QUOTED_STRINGS:
+ * With GCODE_QUOTED_STRINGS these can also be used:
  *   P "<name>" Get the name from the 'P' parameter, quoting required for spaces in the name
  *   "<name>" Get the name from the "string" parameter
  */
 void GcodeSuite::M550() {
-  bool did_set = true;
-
-  if (parser.seenval('P')) {
-    #if ENABLED(GCODE_QUOTED_STRINGS)
-      machine_name = &parser.string_arg[1];
-    #else
-      machine_name = parser.value_string();
-    #endif
-  }
   #if ENABLED(GCODE_QUOTED_STRINGS)
+    if (parser.seenval('P'))
+      machine_name = parser.value_string();
+      //machine_name = &parser.string_arg[1];
+    else if (parser.has_string())
+      machine_name = parser.string_arg;
+  #else
+    if (parser.seenval('P'))
+      machine_name = parser.value_string();
+      //machine_name = &parser.string_arg[1];
     else if (parser.has_string())
       machine_name = parser.string_arg;
   #endif
-  else
-    did_set = false;
 
-  if (did_set) {
-    machine_name.trim();
-    ui.reset_status(false);
-  }
-  else
+  else {
     SERIAL_ECHOLNPGM("RepRap name: ", &machine_name);
+    return;
+  }
+
+  machine_name.trim();
+  ui.reset_status(false);
+
+  DEBUG_ECHOLNPGM("RepRap name: ", &machine_name);
 }
 
 #endif // CONFIGURABLE_MACHINE_NAME
