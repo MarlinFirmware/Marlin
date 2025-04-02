@@ -36,7 +36,7 @@ namespace LanguageNarrow_sv {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Swedish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Redo.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Redo.");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEJ");
   LSTR MSG_BACK                           = _UxGT("Bakåt");
@@ -614,7 +614,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Tröskelvärde");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorlös Hemning");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stegningsläge");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("Smyghack Aktiverad");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("Smyghack");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Återställ");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

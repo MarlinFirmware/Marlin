@@ -33,7 +33,7 @@ namespace LanguageNarrow_vi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Vietnamese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Sẵn sàng.");              // Ready
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Sẵn sàng.");        // Ready
   LSTR MSG_BACK                           = _UxGT("Trở lại");                              // Back
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
@@ -436,7 +436,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Ngưỡng Hỗn Hợp");                      // Hybrid threshold
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Vô cảm biến");                         // Sensorless homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Chế độ từng bước");                    // Stepping mode
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("CắtTàngHình được kích hoạt");          // StealthChop enabled
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("CắtTàngHình");                         // StealthChop
 
   LSTR MSG_SHORT_DAY                      = _UxGT("n");                                   // d - ngày - One character only
   LSTR MSG_SHORT_HOUR                     = _UxGT("g");                                   // h - giờ  - One character only

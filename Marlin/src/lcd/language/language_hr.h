@@ -36,7 +36,7 @@ namespace LanguageNarrow_hr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Croatian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" spreman.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" spreman.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD kartica umetnuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
