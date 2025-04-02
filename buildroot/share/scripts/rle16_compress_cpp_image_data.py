@@ -3,7 +3,7 @@
 Utility to compress Marlin RGB565 TFT data to RLE16 format.
 Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
 
-usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
+Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
 """
 import sys, struct, re
 
@@ -88,7 +88,7 @@ def addCompressedData(input_file, output_file):
 
     def append_byte(data, byte, cols=240):
         if data == "": data = "  "
-        data += "0x{0:02X}, ".format(byte)  # 6 characters
+        data += ("0x{0:02X}, ".format(byte))  # 6 characters
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
         return data
 
@@ -131,7 +131,7 @@ def addCompressedData(input_file, output_file):
 if len(sys.argv) <= 2:
     print("Utility to compress Marlin RGB565 TFT data to RLE16 format.")
     print("Reads a Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.")
-    print("usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp")
+    print("Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp")
     exit(1)
 
 output_cpp = sys.argv[2]

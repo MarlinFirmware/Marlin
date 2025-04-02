@@ -2,7 +2,7 @@
 """
 Formatter script for pins_MYPINS.h files
 
-usage: pinsformat.py [infile] [outfile]
+Usage: pinsformat.py [infile] [outfile]
 
 With no parameters convert STDIN to STDOUT
 """
@@ -212,7 +212,7 @@ def process_text(txt):
         r = defPatt.match(line)
         if r == None: return False
         logmsg("def:", line)
-        line = f"{r[1]} {r[3]} "
+        line = f"{r[1]} {r[3]}"
         line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
         if r[5]: line = rpad(line, col_comment - 1) + " " + r[5]
         d["line"] = line

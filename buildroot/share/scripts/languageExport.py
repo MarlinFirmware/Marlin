@@ -64,10 +64,8 @@ for langfile in langfiles:
         # Check for wide or tall sections, assume no complicated nesting
         if line.startswith("#endif") or line.startswith("#else"):
             wideflag, tallflag = False, False
-        elif re.match(r'#if.*WIDTH\s*>=?\s*2[01].*', line):
-            wideflag = True
-        elif re.match(r'#if.*LCD_HEIGHT\s*>=?\s*4.*', line):
-            tallflag = True
+        elif re.match(r'#if.*WIDTH\s*>=?\s*2[01].*', line): wideflag = True
+        elif re.match(r'#if.*LCD_HEIGHT\s*>=?\s*4.*', line): tallflag = True
 
         # For string-defining lines capture the string data
         match = re.match(r'LSTR\s+([A-Z0-9_]+)\s*=\s*(.+)\s*', line)

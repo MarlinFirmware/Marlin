@@ -8,9 +8,9 @@ https://en.wikipedia.org/wiki/Steinhart-Hart_equation
 The main use is for Arduino programs that read data from the circuit board described here:
 https://reprap.org/wiki/Temperature_Sensor_v2.0
 
-usage: python createTemperatureLookupMarlin.py [options]
+Usage: python createTemperatureLookupMarlin.py [options]
 
-options:
+Options:
   -h, --help        Show this help
   --rp=...          Pull-up resistor
   --t1=ttt:rrr      Low temperature temperature:resistance point (around 25 degC)

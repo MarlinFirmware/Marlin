@@ -15,9 +15,9 @@ if pioutil.is_pio_build():
 
             if sys.platform == "win32":
                 envregex = r'(?:env|win):'
-            elif sys.platform == 'darwin':
+            elif sys.platform == "darwin":
                 envregex = r'(?:env|mac|uni):'
-            elif sys.platform == 'linux':
+            elif sys.platform == "linux":
                 envregex = r'(?:env|lin|uni):'
             else:
                 envregex = r'(?:env):'
@@ -78,7 +78,7 @@ if pioutil.is_pio_build():
                     modified_text = text.replace("BOTH(", "ALL(").replace("EITHER(", "ANY(")
                     if text != modified_text:
                         conf_modified = True
-                        with open(conf_path, "w", encoding="utf8") as file:
+                        with open(conf_path, "w", encoding="utf-8") as file:
                             file.write(modified_text)
 
         if conf_modified:

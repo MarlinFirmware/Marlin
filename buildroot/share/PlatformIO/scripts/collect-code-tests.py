@@ -42,9 +42,9 @@ if pioutil.is_pio_build():
             )
 
         env.AddCustomTarget(
-            name = "test-marlin",
-            dependencies = None,
-            actions = [
+            name="test-marlin",
+            dependencies=None,
+            actions=[
                 f"platformio run -t marlin_{name} -e {env['PIOENV']}"
                 for name in targets
             ],

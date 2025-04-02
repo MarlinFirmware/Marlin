@@ -106,14 +106,14 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
     all_z = []
     line_between_z = []
     z_at_line = []
-    # last_z = 0
+    #last_z = 0
     last_i = -1
 
     while len(gcode) > i:
         result = find_z(gcode, i + 1)
 
         if result is None:
-            raise ValueError(f'{RED}Unable to determine Z height.{RESET}')
+            raise ValueError(f"{RED}Unable to determine Z height.{RESET}")
 
         z, i = result
 
@@ -185,7 +185,7 @@ with open(input_file, "r", encoding="utf_8") as in_file, open(output_file, "w", 
         if line.strip().upper().startswith(g29_keyword):
             g29_found = True
             out_file.write(new_command)
-            print("Write G29.")
+            print(f"{YELLOW}Write G29.{RESET}")
         else:
             out_file.write(line)
 
@@ -193,10 +193,10 @@ with open(input_file, "r", encoding="utf_8") as in_file, open(output_file, "w", 
         if not g29_found and line.strip().upper().startswith("G28"):
             g28_found = True  # Mark that G28 was found
             out_file.write(new_command)  # Insert G29 command
-            print("Note: G29 was not found.\nInserted G29 after G28.")
+            print(f"{YELLOW}Note: G29 was not found.\nInserted G29 after G28.{RESET}")
 
 # Debugging messages
 if not g28_found and not g29_found:
-    print("Warning: G28 not found! G29 was not added.")
-
-print("auto G29 finished!")
+    print(f"{RED}Error: G28 not found! G29 was not added.{RESET}")
+else:
+    print(f"{GREEN}auto G29 finished!{RESET}")

@@ -201,15 +201,15 @@ class Protocol(object):
 
     def transmit_packet(self, packet):
         packet = bytearray(packet)
-        if self.simulate_errors > 0 and random.random() > (1.0 - self.simulate_errors):
+        if (self.simulate_errors > 0 and random.random() > (1.0 - self.simulate_errors)):
             if random.random() > 0.9:
-                # random data drop
+                # Random data drop
                 start = random.randint(0, len(packet))
                 end = start + random.randint(1, 10)
                 packet = packet[:start] + packet[end:]
                 #print("Dropping {0} bytes".format(end - start))
             else:
-                # random corruption
+                # Random corruption
                 packet = self.corrupt_array(packet)
                 #print("Single byte corruption")
         self.port.write(packet)
@@ -237,7 +237,7 @@ class Protocol(object):
 
     # checksum 16 fletchers
     def checksum(self, cs, value):
-        cs_low = ((cs & 0xFF) + value) % 255
+        cs_low = (((cs & 0xFF) + value) % 255)
         return ((((cs >> 8) + cs_low) % 255) << 8) | cs_low
 
     def build_checksum(self, buffer):
@@ -365,8 +365,8 @@ class FileTransferProtocol(object):
         print("File Transfer version: {0}, compression: {1}".format(self.version, self.compression["algorithm"]))
 
     def open(self, filename, compression, dummy):
-        payload = b"\1" if dummy else b"\0"  # dummy transfer
-        payload += b"\1" if compression else b"\0"  # Payload compression
+        payload =  b"\1" if dummy else b"\0"              # dummy transfer
+        payload += b"\1" if compression else b"\0"        # Payload compression
         payload += (bytearray(filename, "utf8") + b"\0")  # Target filename + null terminator
 
         timeout = TimeOut(5000)

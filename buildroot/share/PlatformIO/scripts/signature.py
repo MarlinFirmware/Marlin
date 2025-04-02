@@ -77,7 +77,13 @@ def get_file_sha256sum(filepath):
 #
 import zipfile
 def compress_file(filepath, storedname, outpath):
-    with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED, allowZip64=False, compresslevel=9) as zipf:
+    with zipfile.ZipFile(
+        outpath,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+        allowZip64=False,
+        compresslevel=9
+    ) as zipf:
         zipf.write(filepath, arcname=storedname)
 
 ignore = (

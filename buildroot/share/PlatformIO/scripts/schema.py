@@ -490,7 +490,7 @@ def main():
         unk = not inargs(["some", "json", "jsons", "group", "yml", "yaml"])
         if unk: print(f"Unknown option: '{args[0]}'")
         if inargs(["-h", "--help"]) or unk:
-            print("usage: schema.py [some|json|jsons|group|yml|yaml]...")
+            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
             print("       some  = json + yml")
             print("       jsons = json + group")
             return

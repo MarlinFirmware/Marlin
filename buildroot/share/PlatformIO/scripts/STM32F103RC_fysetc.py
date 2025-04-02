@@ -9,7 +9,7 @@ if pioutil.is_pio_build():
 
     # Custom HEX from ELF
     env.AddPostAction(
-        join("$BUILD_DIR", "${PROGNAME}.elf"),  # NOTE: $BUILD_DIR is a full path
+        join("$BUILD_DIR", "${PROGNAME}.elf"),  # Note: $BUILD_DIR is a full path
         env.VerboseAction(" ".join(["$OBJCOPY", "-O ihex", "$TARGET", '"' + join("$BUILD_DIR", "${PROGNAME}.hex") + '"']), "Building $TARGET")
     )
 

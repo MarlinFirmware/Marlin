@@ -91,7 +91,7 @@ def apply_opt(name, val, conf=None):
                     break
                 linenum += 1
             currtime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            lines.insert(linenum,f"{prefix}#define {added:30} // Added by config.ini {currtime}\n")
+            lines.insert(linenum, f"{prefix}#define {added:30} // Added by config.ini {currtime}\n")
             fullpath.write_text("".join(lines), encoding="utf-8")
 
 # Disable all (most) defined options in the configuration files.
@@ -113,7 +113,7 @@ def disable_all_options():
                 if name in (
                     "CONFIGURATION_H_VERSION",
                     "CONFIGURATION_ADV_H_VERSION",
-                    "CONFIG_EXAMPLES_DIR",
+                    "CONFIG_EXAMPLES_DIR"
                 ): continue
                 if name.startswith("_"): continue
                 found = True
@@ -263,13 +263,13 @@ if __name__ == "__main__":
     #
     # From command line use the given file name
     #
-    import sys
+    import sys, os.path
     args = sys.argv[1:]
     if len(args) > 0:
         if args[0].endswith(".ini"):
             ini_file = args[0]
         else:
-            print("usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
+            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
     else:
         ini_file = config_path("config.ini")
 
