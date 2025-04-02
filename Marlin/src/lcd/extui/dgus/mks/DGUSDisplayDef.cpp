@@ -144,6 +144,7 @@ const uint16_t VPList_Main[] PROGMEM = {
   0x0000
 };
 */
+
 const uint16_t MKSList_Home[] PROGMEM = {
   INFO_BAR
 
@@ -158,7 +159,7 @@ const uint16_t MKSList_Setting[] PROGMEM = {
 
 const uint16_t MKSList_Tool[] PROGMEM = {
   INFO_BAR
- 
+
   // LCD BackLight
   VP_LCD_BLK,
 
@@ -401,7 +402,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { MKSLCD_SCREEN_AXIS_ACC_MAX, MKSList_MaxAcc },             // Page 53
   { MKSLCD_SCREEN_LEVEL_DATA, MKSList_Level_Point },          // Page 48
   { MKSLCD_PrintPause_SET, MKSList_PrintPauseConfig },        // Page 49
-  //{ MKSLCD_FILAMENT_DATA, MKSList_SD_File },                  // Page 50
+  //{ MKSLCD_FILAMENT_DATA, MKSList_SD_File },                // Page 50
   { MKSLCD_SCREEN_Config, MKSList_TempOnly },                 // Page 46
   { MKSLCD_SCREEN_Config_MOTOR, MKSList_MotionConfig },       // Page 47
   { MKSLCD_PID, MKSList_PID },                                // Page 56
@@ -469,7 +470,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_HOTEND
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
@@ -494,7 +495,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_MULTI_HOTEND
     VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[ExtUI::extruder_t::E1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_MOVE_E1, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E1_STATUS, &thermalManager.temp_hotend[1].target, nullptr, screen.sendHeaterStatusToDisplay),
@@ -631,28 +632,28 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   #if HAS_TRINAMIC_CONFIG   // TMC Current Setting
-    #if AXIS_IS_TMC(X)
+    #if X_IS_TRINAMIC
       VPHELPER(VP_TMC_X_Current, &stepperX.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Y)
+    #if Y_IS_TRINAMIC
       VPHELPER(VP_TMC_Y_Current, &stepperY.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Z)
+    #if Z_IS_TRINAMIC
       VPHELPER(VP_TMC_Z_Current, &stepperZ.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(E0)
+    #if E0_IS_TRINAMIC
       VPHELPER(VP_TMC_E0_Current, &stepperE0.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(E1)
+    #if E1_IS_TRINAMIC
       VPHELPER(VP_TMC_E1_Current, &stepperE1.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(X2)
+    #if X2_IS_TRINAMIC
       VPHELPER(VP_TMC_X1_Current, &stepperX2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Y2)
+    #if Y2_IS_TRINAMIC
       VPHELPER(VP_TMC_Y1_Current, &stepperY2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Z2)
+    #if Z2_IS_TRINAMIC
       VPHELPER(VP_TMC_Z1_Current, &stepperZ2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
   #endif

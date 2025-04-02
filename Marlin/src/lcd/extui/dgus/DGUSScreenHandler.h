@@ -32,7 +32,7 @@
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
 
   typedef struct  {
-    ExtUI::extruder_t extruder; // which extruder to operate
+    uint8_t extruder; // which extruder index to operate
     uint8_t action; // load or unload
     bool heated; // heating done ?
     float purge_length; // the length to extrude before unload, prevent filament jam

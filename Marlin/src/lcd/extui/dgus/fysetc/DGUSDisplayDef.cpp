@@ -361,7 +361,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_HOTEND
     VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[ExtUI::extruder_t::E0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
+    VPHELPER(VP_Flowrate_E0, &planner.flow_percentage[0], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination.e, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E0_CONTROL, &thermalManager.temp_hotend[0].target, screen.handleHeaterControl, nullptr),
@@ -382,7 +382,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #if HAS_MULTI_HOTEND
     VPHELPER(VP_T_E1_Is, &thermalManager.temp_hotend[1].celsius, nullptr, screen.sendFloatAsLongValueToDisplay<0>),
     VPHELPER(VP_T_E1_Set, &thermalManager.temp_hotend[1].target, screen.handleTemperatureChanged, screen.sendWordValueToDisplay),
-    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[ExtUI::extruder_t::E1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),  // ERROR: Flow is per-extruder, not per-hotend
+    VPHELPER(VP_Flowrate_E1, &planner.flow_percentage[1], screen.handleFlowRateChanged, screen.sendWordValueToDisplay),  // ERROR: Flow is per-extruder, not per-hotend
     VPHELPER(VP_MOVE_E1, nullptr, screen.handleManualExtrude, nullptr),
     VPHELPER(VP_E1_CONTROL, &thermalManager.temp_hotend[1].target, screen.handleHeaterControl, nullptr),
     VPHELPER(VP_E1_STATUS, &thermalManager.temp_hotend[1].target, nullptr, screen.sendHeaterStatusToDisplay),

@@ -435,16 +435,16 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_PrintsTotal                   = 0x3380;
   constexpr uint16_t VP_PrintsTotal_LEN               = 16;
 
-  constexpr uint16_t VP_File_Pictutr0                 = 0x3400;
-  constexpr uint16_t VP_File_Pictutr1                 = 0x3402;
-  constexpr uint16_t VP_File_Pictutr2                 = 0x3404;
-  constexpr uint16_t VP_File_Pictutr3                 = 0x3406;
-  constexpr uint16_t VP_File_Pictutr4                 = 0x3408;
-  constexpr uint16_t VP_File_Pictutr5                 = 0x340A;
-  constexpr uint16_t VP_File_Pictutr6                 = 0x340C;
-  constexpr uint16_t VP_File_Pictutr7                 = 0x340E;
-  constexpr uint16_t VP_File_Pictutr8                 = 0x3410;
-  constexpr uint16_t VP_File_Pictutr9                 = 0x3412;
+  constexpr uint16_t VP_File_Picture0                 = 0x3400;
+  constexpr uint16_t VP_File_Picture1                 = 0x3402;
+  constexpr uint16_t VP_File_Picture2                 = 0x3404;
+  constexpr uint16_t VP_File_Picture3                 = 0x3406;
+  constexpr uint16_t VP_File_Picture4                 = 0x3408;
+  constexpr uint16_t VP_File_Picture5                 = 0x340A;
+  constexpr uint16_t VP_File_Picture6                 = 0x340C;
+  constexpr uint16_t VP_File_Picture7                 = 0x340E;
+  constexpr uint16_t VP_File_Picture8                 = 0x3410;
+  constexpr uint16_t VP_File_Picture9                 = 0x3412;
 
   constexpr uint16_t VP_BED_STATUS                    = 0x341C;
 
@@ -486,7 +486,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_PID_AUTOTUNE_E0               = 0x3800;
   constexpr uint16_t VP_PID_AUTOTUNE_E1               = 0x3802;
   constexpr uint16_t VP_PID_AUTOTUNE_BED              = 0x380C;
-  
+
   // Calibrate Z
   constexpr uint16_t VP_Z_CALIBRATE                   = 0x3810;
 
@@ -585,7 +585,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_Extrusion_Dis                 = 0x5230;
   constexpr uint16_t VP_HeatBed_Dis                   = 0x5240;
 
-  constexpr uint16_t VP_Printting_Dis                 = 0x5430;
+  constexpr uint16_t VP_Printing_Dis                 = 0x5430;
   constexpr uint16_t VP_FactoryDefaults_Dis           = 0x54C0;
   constexpr uint16_t VP_StoreSetting_Dis              = 0x54B0;
   constexpr uint16_t VP_Info_EEPROM_2_Dis             = 0x54D0;
@@ -618,8 +618,8 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
 
   constexpr uint16_t VP_Length_Dis                    = 0x5B00;
 
-  constexpr uint16_t VP_PrintConfrim_Info_Dis         = 0x5B90;
-  constexpr uint16_t VP_StopPrintConfrim_Info_Dis     = 0x5B80;
+  constexpr uint16_t VP_PrintConfirm_Info_Dis         = 0x5B90;
+  constexpr uint16_t VP_StopPrintConfirm_Info_Dis     = 0x5B80;
 
   constexpr uint16_t VP_Point_One_Dis                 = 0x5BA0;
   constexpr uint16_t VP_Point_Two_Dis                 = 0x5BB0;
