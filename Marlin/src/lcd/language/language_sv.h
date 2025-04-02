@@ -614,7 +614,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Tröskelvärde");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorlös Hemning");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stegningsläge");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("Smyghack Aktiverad");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("Smyghack");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Återställ");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

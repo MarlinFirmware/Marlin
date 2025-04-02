@@ -1,6 +1,6 @@
 #
 # collect-code-tests.py
-# Convenience script to collect all code tests. Used by env:linux_native_test in native.ini.
+# Convenience script to collect all code tests. Used by test envs in native.ini.
 #
 import pioutil
 if pioutil.is_pio_build():
@@ -31,7 +31,7 @@ if pioutil.is_pio_build():
                     "restore_configs",
                     f"cp -f {path} ./Marlin/config.ini",
                     "python ./buildroot/share/PlatformIO/scripts/configuration.py",
-                    f"platformio test -e linux_native_test -f {name}",
+                    f"platformio test -e {env['PIOENV']} -f {name}",
                     "restore_configs",
                 ],
                 title="Marlin: {}".format(name.lower().title().replace("_", " ")),
@@ -42,10 +42,10 @@ if pioutil.is_pio_build():
             )
 
         env.AddCustomTarget(
-            name="test-marlin",
-            dependencies=None,
-            actions=[
-                f"platformio run -t marlin_{name} -e linux_native_test"
+            name = "test-marlin",
+            dependencies = None,
+            actions = [
+                f"platformio run -t marlin_{name} -e {env['PIOENV']}"
                 for name in targets
             ],
             title="Marlin: Test all code test suites",

@@ -115,10 +115,21 @@
 //#define CONTROLLER_FAN_PIN                 148  // FAN2
 //#define E0_AUTO_FAN_PIN                    148  // FAN2
 
-//
-// ADC Reference Voltage
-//
-#define ADC_REFERENCE_VOLTAGE                  2.565  // 2.5V reference VDDA
+/**
+ * ADC Reference Voltage
+ *
+ * In some boards the voltage reference is a bit off due to low quality
+ * components. That is enough to throw off the ADC readings and thus the
+ * temperatures by more than 10°C in some cases. If you experience that
+ * problem, measure the reference voltage (VDDA) at the 2nd pin of
+ * TH1/TH2 (with the sensors disconnected) and set ADC_REFERENCE_VOLTAGE
+ * in your config.
+ */
+
+#ifndef ADC_REFERENCE_VOLTAGE
+  #define EMIT_ADC_REFERENCE_VOLTAGE_WARNING
+  #define ADC_REFERENCE_VOLTAGE              2.565
+#endif
 
 /**
  *                 ------                                 ------

@@ -438,156 +438,68 @@ namespace ExtUI {
   #if HAS_TRINAMIC_CONFIG
     float getAxisCurrent_mA(const axis_t axis) {
       switch (axis) {
-        #if AXIS_IS_TMC(X)
-          case X: return stepperX.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y)
-          case Y: return stepperY.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z)
-          case Z: return stepperZ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(I)
-          case I: return stepperI.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(J)
-          case J: return stepperJ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(K)
-          case K: return stepperK.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(U)
-          case U: return stepperU.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(V)
-          case V: return stepperV.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(W)
-          case W: return stepperW.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(X2)
-          case X2: return stepperX2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          case Y2: return stepperY2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          case Z2: return stepperZ2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          case Z3: return stepperZ3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          case Z4: return stepperZ4.getMilliamps();
-        #endif
+        OPTCODE(X_IS_TRINAMIC,  case X:  return stepperX.getMilliamps())
+        OPTCODE(Y_IS_TRINAMIC,  case Y:  return stepperY.getMilliamps())
+        OPTCODE(Z_IS_TRINAMIC,  case Z:  return stepperZ.getMilliamps())
+        OPTCODE(I_IS_TRINAMIC,  case I:  return stepperI.getMilliamps())
+        OPTCODE(J_IS_TRINAMIC,  case J:  return stepperJ.getMilliamps())
+        OPTCODE(K_IS_TRINAMIC,  case K:  return stepperK.getMilliamps())
+        OPTCODE(U_IS_TRINAMIC,  case U:  return stepperU.getMilliamps())
+        OPTCODE(V_IS_TRINAMIC,  case V:  return stepperV.getMilliamps())
+        OPTCODE(W_IS_TRINAMIC,  case W:  return stepperW.getMilliamps())
+        OPTCODE(X2_IS_TRINAMIC, case X2: return stepperX2.getMilliamps())
+        OPTCODE(Y2_IS_TRINAMIC, case Y2: return stepperY2.getMilliamps())
+        OPTCODE(Z2_IS_TRINAMIC, case Z2: return stepperZ2.getMilliamps())
+        OPTCODE(Z3_IS_TRINAMIC, case Z3: return stepperZ3.getMilliamps())
+        OPTCODE(Z4_IS_TRINAMIC, case Z4: return stepperZ4.getMilliamps())
         default: return NAN;
       };
     }
 
     float getAxisCurrent_mA(const extruder_t extruder) {
       switch (extruder) {
-        #if AXIS_IS_TMC(E0)
-          case E0: return stepperE0.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E1)
-          case E1: return stepperE1.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E2)
-          case E2: return stepperE2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E3)
-          case E3: return stepperE3.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E4)
-          case E4: return stepperE4.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E5)
-          case E5: return stepperE5.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E6)
-          case E6: return stepperE6.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(E7)
-          case E7: return stepperE7.getMilliamps();
-        #endif
+        OPTCODE(E0_IS_TRINAMIC, case E0: return stepperE0.getMilliamps())
+        OPTCODE(E1_IS_TRINAMIC, case E1: return stepperE1.getMilliamps())
+        OPTCODE(E2_IS_TRINAMIC, case E2: return stepperE2.getMilliamps())
+        OPTCODE(E3_IS_TRINAMIC, case E3: return stepperE3.getMilliamps())
+        OPTCODE(E4_IS_TRINAMIC, case E4: return stepperE4.getMilliamps())
+        OPTCODE(E5_IS_TRINAMIC, case E5: return stepperE5.getMilliamps())
+        OPTCODE(E6_IS_TRINAMIC, case E6: return stepperE6.getMilliamps())
+        OPTCODE(E7_IS_TRINAMIC, case E7: return stepperE7.getMilliamps())
         default: return NAN;
       };
     }
 
     void setAxisCurrent_mA(const_float_t mA, const axis_t axis) {
       switch (axis) {
-        #if AXIS_IS_TMC(X)
-          case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Y)
-          case Y: stepperY.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Z)
-          case Z: stepperZ.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(I)
-          case I: stepperI.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(J)
-          case J: stepperJ.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(K)
-          case K: stepperK.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(U)
-          case U: stepperU.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(V)
-          case V: stepperV.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(W)
-          case W: stepperW.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(X2)
-          case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          case Y2: stepperY2.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          case Z3: stepperZ3.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          case Z4: stepperZ4.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
+        case X:  TERN_(X_IS_TRINAMIC,  stepperX.rms_current(constrain(mA, 400, 1500))); break;
+        case Y:  TERN_(Y_IS_TRINAMIC,  stepperY.rms_current(constrain(mA, 400, 1500))); break;
+        case Z:  TERN_(Z_IS_TRINAMIC,  stepperZ.rms_current(constrain(mA, 400, 1500))); break;
+        case I:  TERN_(I_IS_TRINAMIC,  stepperI.rms_current(constrain(mA, 400, 1500))); break;
+        case J:  TERN_(J_IS_TRINAMIC,  stepperJ.rms_current(constrain(mA, 400, 1500))); break;
+        case K:  TERN_(K_IS_TRINAMIC,  stepperK.rms_current(constrain(mA, 400, 1500))); break;
+        case U:  TERN_(U_IS_TRINAMIC,  stepperU.rms_current(constrain(mA, 400, 1500))); break;
+        case V:  TERN_(V_IS_TRINAMIC,  stepperV.rms_current(constrain(mA, 400, 1500))); break;
+        case W:  TERN_(W_IS_TRINAMIC,  stepperW.rms_current(constrain(mA, 400, 1500))); break;
+        case X2: TERN_(X2_IS_TRINAMIC, stepperX2.rms_current(constrain(mA, 400, 1500))); break;
+        case Y2: TERN_(Y2_IS_TRINAMIC, stepperY2.rms_current(constrain(mA, 400, 1500))); break;
+        case Z2: TERN_(Z2_IS_TRINAMIC, stepperZ2.rms_current(constrain(mA, 400, 1500))); break;
+        case Z3: TERN_(Z3_IS_TRINAMIC, stepperZ3.rms_current(constrain(mA, 400, 1500))); break;
+        case Z4: TERN_(Z4_IS_TRINAMIC, stepperZ4.rms_current(constrain(mA, 400, 1500))); break;
         default: break;
       };
     }
 
     void setAxisCurrent_mA(const_float_t mA, const extruder_t extruder) {
       switch (extruder) {
-        #if AXIS_IS_TMC(E0)
-          case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E1)
-          case E1: stepperE1.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E2)
-          case E2: stepperE2.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E3)
-          case E3: stepperE3.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E4)
-          case E4: stepperE4.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E5)
-          case E5: stepperE5.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E6)
-          case E6: stepperE6.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
-        #if AXIS_IS_TMC(E7)
-          case E7: stepperE7.rms_current(constrain(mA, 400, 1500)); break;
-        #endif
+        case E0: TERN_(E0_IS_TRINAMIC, stepperE0.rms_current(constrain(mA, 400, 1500))); break;
+        case E1: TERN_(E1_IS_TRINAMIC, stepperE1.rms_current(constrain(mA, 400, 1500))); break;
+        case E2: TERN_(E2_IS_TRINAMIC, stepperE2.rms_current(constrain(mA, 400, 1500))); break;
+        case E3: TERN_(E3_IS_TRINAMIC, stepperE3.rms_current(constrain(mA, 400, 1500))); break;
+        case E4: TERN_(E4_IS_TRINAMIC, stepperE4.rms_current(constrain(mA, 400, 1500))); break;
+        case E5: TERN_(E5_IS_TRINAMIC, stepperE5.rms_current(constrain(mA, 400, 1500))); break;
+        case E6: TERN_(E6_IS_TRINAMIC, stepperE6.rms_current(constrain(mA, 400, 1500))); break;
+        case E7: TERN_(E7_IS_TRINAMIC, stepperE7.rms_current(constrain(mA, 400, 1500))); break;
         default: break;
       };
     }
@@ -614,48 +526,20 @@ namespace ExtUI {
 
     void setTMCBumpSensitivity(const_float_t value, const axis_t axis) {
       switch (axis) {
-        #if X_SENSORLESS
-          case X: stepperX.homing_threshold(value); break;
-        #endif
-        #if Y_SENSORLESS
-          case Y: stepperY.homing_threshold(value); break;
-        #endif
-        #if Z_SENSORLESS
-          case Z: stepperZ.homing_threshold(value); break;
-        #endif
-        #if I_SENSORLESS
-          case I: stepperI.homing_threshold(value); break;
-        #endif
-        #if J_SENSORLESS
-          case J: stepperJ.homing_threshold(value); break;
-        #endif
-        #if K_SENSORLESS
-          case K: stepperK.homing_threshold(value); break;
-        #endif
-        #if U_SENSORLESS
-          case U: stepperU.homing_threshold(value); break;
-        #endif
-        #if V_SENSORLESS
-          case V: stepperV.homing_threshold(value); break;
-        #endif
-        #if W_SENSORLESS
-          case W: stepperW.homing_threshold(value); break;
-        #endif
-        #if X2_SENSORLESS
-          case X2: stepperX2.homing_threshold(value); break;
-        #endif
-        #if Y2_SENSORLESS
-          case Y2: stepperY2.homing_threshold(value); break;
-        #endif
-        #if Z2_SENSORLESS
-          case Z2: stepperZ2.homing_threshold(value); break;
-        #endif
-        #if Z3_SENSORLESS
-          case Z3: stepperZ3.homing_threshold(value); break;
-        #endif
-        #if Z4_SENSORLESS
-          case Z4: stepperZ4.homing_threshold(value); break;
-        #endif
+        case X: TERN_(X_SENSORLESS, stepperX.homing_threshold(value)); break;
+        case Y: TERN_(Y_SENSORLESS, stepperY.homing_threshold(value)); break;
+        case Z: TERN_(Z_SENSORLESS, stepperZ.homing_threshold(value)); break;
+        case I: TERN_(I_SENSORLESS, stepperI.homing_threshold(value)); break;
+        case J: TERN_(J_SENSORLESS, stepperJ.homing_threshold(value)); break;
+        case K: TERN_(K_SENSORLESS, stepperK.homing_threshold(value)); break;
+        case U: TERN_(U_SENSORLESS, stepperU.homing_threshold(value)); break;
+        case V: TERN_(V_SENSORLESS, stepperV.homing_threshold(value)); break;
+        case W: TERN_(W_SENSORLESS, stepperW.homing_threshold(value)); break;
+        case X2: TERN_(X2_SENSORLESS, stepperX2.homing_threshold(value)); break;
+        case Y2: TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(value)); break;
+        case Z2: TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(value)); break;
+        case Z3: TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(value)); break;
+        case Z4: TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(value)); break;
         default: break;
       }
       UNUSED(value);
