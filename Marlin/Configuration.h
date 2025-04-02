@@ -696,8 +696,9 @@
 #define PID_K1     0.95   // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
-  //#define MIN_POWER 0
-  //#define PID_DEBUG             // Print PID debug data to the serial port. Use 'M303 D' to toggle activation.
+  //#define MIN_POWER 0           // Min power to improve PID stability (0..PID_MAX).
+                                  // Get the power from the temperature report ('M105' => @:nnn) and try P*2-20 to P*2-10.
+  //#define PID_DEBUG             // Print PID debug data to the serial port. Use 'M303 D' to enable/disable.
   //#define PID_PARAMS_PER_HOTEND // Use separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with G-code: M301 E[extruder number, 0-2]
 
@@ -796,8 +797,9 @@
 //#define PIDTEMPBED
 
 #if ENABLED(PIDTEMPBED)
-  //#define MIN_BED_POWER 0
-  //#define PID_BED_DEBUG // Print Bed PID debug data to the serial port.
+  //#define MIN_BED_POWER 0   // Min power to improve PID stability (0..MAX_BED_POWER).
+                              // Get the power from the temperature report ('M105' => B@:nnn) and try P*2-20 to P*2-10.
+  //#define PID_BED_DEBUG     // Print Bed PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
@@ -878,12 +880,12 @@
 #define MAX_CHAMBER_POWER 255 // limits duty cycle to chamber heater; 255=full current
 
 #if ENABLED(PIDTEMPCHAMBER)
-  #define MIN_CHAMBER_POWER 0
-  //#define PID_CHAMBER_DEBUG // Print Chamber PID debug data to the serial port.
+  //#define MIN_CHAMBER_POWER 0 // Min power to improve PID stability. (0..MAX_CHAMBER_POWER)
+                                // Get the power from the temperature report ('M105' => C@:nnn) and try P*2-20 to P*2-10.
+  //#define PID_CHAMBER_DEBUG   // Print Chamber PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
   // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
   // and placed inside the small Creality printer enclosure tent.
-  //
   #define DEFAULT_chamberKp  37.04
   #define DEFAULT_chamberKi   1.40
   #define DEFAULT_chamberKd 655.17
@@ -1024,9 +1026,6 @@
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define PRINTABLE_RADIUS       140.0    // (mm)
-
-  // Maximum reachable area
-  #define DELTA_MAX_RADIUS       140.0    // (mm)
 
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 250.0        // (mm)
