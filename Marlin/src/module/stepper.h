@@ -590,6 +590,8 @@ class Stepper {
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
       FORCE_INLINE static void set_samostatny_pohyb(const bool state) { samostatny_pohyb = state; }
+      static int32_t angleA(const float angle);
+      static int32_t angleB(const float angle);
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_x_lock(const bool state) { locked_X_motor = state; }

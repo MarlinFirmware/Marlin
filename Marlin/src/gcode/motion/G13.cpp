@@ -34,7 +34,9 @@ void GcodeSuite::G13() {
     const float z_val = parser.floatval('Z'),
                 v_val = parser.floatval('V'),
                 w_val = parser.floatval('W');
-    set_relative_mode(true);
+    if(parser.seenval('R')){
+     set_relative_mode(true);
+    }
     stepper.set_samostatny_pohyb(true);
     current_position[Z_AXIS] += z_val;
     current_position[I_AXIS] += v_val;
@@ -42,9 +44,9 @@ void GcodeSuite::G13() {
     planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
     planner.synchronize();
     stepper.set_samostatny_pohyb(false);
-    set_relative_mode(false);
-  }
-  else {
-    SERIAL_ECHOLNPGM("kokot");
+    if(parser.seenval('R')){
+      set_relative_mode(false);
+    }
+    SERIAL_ECHOLNPGM("", current_position);
   }
 }
