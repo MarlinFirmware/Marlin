@@ -43,7 +43,13 @@ namespace ExtUI {
   void onIdle() { screen.loop(); }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
-    screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
+    #if DGUS_LCD_UI_MKS
+      const char* null_str = "";
+      screen.sendInfoScreen(FTOP(GET_TEXT_F(MSG_HALTED)), FTOP(error), null_str, FTOP(GET_TEXT_F(MSG_PLEASE_RESET)));
+    #else
+      screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
+    #endif
+
     screen.gotoScreen(DGUS_SCREEN_KILL);
     while (!screen.loop());  // Wait while anything is left to be sent
   }
@@ -62,9 +68,14 @@ namespace ExtUI {
   void onPrintTimerStopped() {}
   void onFilamentRunout(const extruder_t extruder) {}
 
-  void onUserConfirmRequired(const char * const msg) {
+  void onUserConfirmRequired(const char * msg) {
     if (msg) {
-      screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
+      #if DGUS_LCD_UI_MKS
+      const char* null_str = "";
+        screen.sendInfoScreen(FTOP(F("Please confirm.")), null_str, msg, null_str);
+      #else
+        screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
+      #endif
       screen.setupConfirmAction(setUserConfirmed);
       screen.gotoScreen(DGUS_SCREEN_POPUP);
     }

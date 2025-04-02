@@ -535,7 +535,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_HOME_Dis                      = 0x5000;
   constexpr uint16_t VP_Setting_Dis                   = 0x5010;
   constexpr uint16_t VP_Tool_Dis                      = 0x5020;
-  constexpr uint16_t VP_Printing_Dis                  = 0x5030;
+  constexpr uint16_t VP_Print_Dis                     = 0x5250;
 
   constexpr uint16_t VP_Language_Dis                  = 0x5080;
   constexpr uint16_t VP_LossPoint_Dis                 = 0x5090;
@@ -585,7 +585,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_Extrusion_Dis                 = 0x5230;
   constexpr uint16_t VP_HeatBed_Dis                   = 0x5240;
 
-  constexpr uint16_t VP_Printing_Dis                 = 0x5430;
+  constexpr uint16_t VP_Printing_Dis                  = 0x5430;
   constexpr uint16_t VP_FactoryDefaults_Dis           = 0x54C0;
   constexpr uint16_t VP_StoreSetting_Dis              = 0x54B0;
   constexpr uint16_t VP_Info_EEPROM_2_Dis             = 0x54D0;
@@ -626,8 +626,6 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_Point_Three_Dis               = 0x5BC0;
   constexpr uint16_t VP_Point_Four_Dis                = 0x5BD0;
   constexpr uint16_t VP_Point_Five_Dis                = 0x5BE0;
-
-  constexpr uint16_t VP_Print_Dis                     = 0x5250;
 
   constexpr uint16_t VP_About_Dis                     = 0x5A00;
   constexpr uint16_t VP_Config_Dis                    = 0x5A10;

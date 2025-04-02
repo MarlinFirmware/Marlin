@@ -1519,9 +1519,6 @@ void DGUSScreenHandlerMKS::languageDisplay(uint8_t var) {
       const char StopPrintConfirm_Info_buf_en[] = "Stop Print?";
       dgus.writeVariable(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_en, 32, true);
 
-      const char Printing_buf_en[] = "Printing";
-      dgus.writeVariable(VP_Printing_Dis, Printing_buf_en, 32, true);
-
       const char LCD_BLK_buf_en[] = "Backlight";
       dgus.writeVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_en, 32, true);
 
@@ -1776,9 +1773,6 @@ void DGUSScreenHandlerMKS::languageDisplay(uint8_t var) {
 
       const uint16_t StopPrintConfirm_Info_buf_ch[] = { 0xC7CA, 0xF1B7, 0xA3CD, 0xB9D6, 0xF2B4, 0xA1D3, 0x2000 };
       dgus.writeVariable(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_ch, 32, true);
-
-      const uint16_t Printing_buf_ch[] = { 0xF2B4, 0xA1D3, 0xD0D6, 0x2000 };
-      dgus.writeVariable(VP_Printing_Dis, Printing_buf_ch, 32, true);
 
       const uint16_t LCD_BLK_buf_ch[] = { 0xB3B1, 0xE2B9, 0xE8C9, 0xC3D6, 0x2000 };
       dgus.writeVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_ch, 32, true);
