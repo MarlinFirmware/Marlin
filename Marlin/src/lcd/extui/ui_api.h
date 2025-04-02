@@ -519,8 +519,10 @@ namespace ExtUI {
 
   void onFilamentRunout(const extruder_t extruder);
 
-  void onUserConfirmRequired(const char * const msg);
+  void onUserConfirmRequired(const char * const cstr);
   void onUserConfirmRequired(FSTR_P const fstr);
+  void onUserContinue(const char * const cstr);
+  void onUserContinue(FSTR_P const fstr);
 
   // For fancy LCDs include an icon ID, message, and translated button title
   void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn);

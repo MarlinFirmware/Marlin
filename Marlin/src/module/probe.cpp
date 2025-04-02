@@ -394,7 +394,11 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     #endif
 
     TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(ds_fstr));
+    #if ENABLED(DWIN_LCD_PROUI)
+      ExtUI::onUserContinue(ds_fstr);
+    #elif ENABLED(EXTENSIBLE_UI)
+      ExtUI::onUserConfirmRequired(ds_fstr);
+    #endif
     TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_alert_level();

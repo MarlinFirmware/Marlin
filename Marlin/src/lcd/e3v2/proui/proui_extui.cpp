@@ -107,6 +107,12 @@ namespace ExtUI {
   void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
     dwinPopupConfirm(icon, fstr, fBtn);
   }
+  void onUserContinue(const char * const cstr) {
+    dwinPopupContinue(ICON_Continue_1, cstr, GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING));
+  }
+  void onUserContinue(FSTR_P const fstr) {
+    dwinPopupContinue(ICON_Continue_1, FTOP(fstr), GET_TEXT_F(MSG_ADVANCED_PAUSE_WAITING));
+  }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void onPauseMode(const PauseMessage message, const PauseMode mode/*=PAUSE_MODE_SAME*/, const uint8_t extruder/*=active_extruder*/) {
