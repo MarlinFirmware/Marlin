@@ -290,7 +290,9 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
         #endif
         break;
       case 1: // Load ABS
-        TERN_(PREHEAT_2_TEMP_HOTEND, e_temp = PREHEAT_2_TEMP_HOTEND);
+        #ifdef PREHEAT_2_TEMP_HOTEND
+          e_temp = PREHEAT_2_TEMP_HOTEND;
+        #endif
         break;
       case 2: // Load PET
         #ifdef PREHEAT_3_TEMP_HOTEND
