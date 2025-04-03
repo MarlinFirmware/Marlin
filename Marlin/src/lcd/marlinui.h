@@ -486,6 +486,7 @@ public:
 
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
+  static void refresh() {}
 
   #if HAS_DISPLAY
 
