@@ -596,6 +596,10 @@ public:
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
 
+    #else
+
+      static void quick_feedback(const bool=true) {}
+
     #endif // HAS_WIRED_LCD
 
     #if HAS_MARLINUI_U8GLIB
@@ -618,11 +622,6 @@ public:
 
   #endif // HAS_DISPLAY
 
-  /// TODO: Maybe this is not necessary?
-  // #if !HAS_WIRED_LCD
-  //   static void quick_feedback(const bool=true) {}
-  // #endif
-
   static void init();
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
@@ -633,11 +632,6 @@ public:
       #define MARLINUI_SCROLL_NAME 1
     #endif
     static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, const bool doScroll);
-  #endif
-
-  #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-    static void zoffset_overlay(const int8_t dir);
-    static void zoffset_overlay(const_float_t zvalue);
   #endif
 
   #if HAS_PREHEAT
@@ -665,6 +659,11 @@ public:
   #endif
 
   #if HAS_MARLINUI_MENU
+
+    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+      static void zoffset_overlay(const int8_t dir);
+      static void zoffset_overlay(const_float_t zvalue);
+    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
