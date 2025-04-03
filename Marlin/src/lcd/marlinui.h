@@ -486,7 +486,11 @@ public:
 
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
-  static void refresh() {}
+
+  // Tell the screen to redraw on the next call
+  FORCE_INLINE static void refresh() {
+    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+  }
 
   #if HAS_DISPLAY
 
@@ -500,8 +504,6 @@ public:
 
     static void draw_kill_screen();
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-
-    // Periodic or as-needed display update
     static void update();
 
     static void abort_print();
@@ -531,7 +533,6 @@ public:
       static LCDViewAction lcdDrawUpdate;
       FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
       FORCE_INLINE static void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
-      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); } // Tell the screen to redraw on the next call
 
       static bool detected();
 
@@ -610,9 +611,6 @@ public:
     #if IS_DWIN_MARLINUI
       static bool did_first_redraw;
     #endif
-
-    static void draw_kill_screen();
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
 
   #else // No LCD
 
