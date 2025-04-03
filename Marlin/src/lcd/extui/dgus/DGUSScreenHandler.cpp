@@ -514,14 +514,12 @@ void DGUSScreenHandler::handleSettings(DGUS_VP_Variable &var, void *val_ptr) {
         #if ENABLED(PIDTEMP)
           #if HAS_HOTEND
             case VP_PID_AUTOTUNE_E0: // Autotune Extruder 0
-              sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E0);
-              queue.enqueue_one_now(buf);
+              queue.enqueue_one_now(F("M303 E0 C5 S210 U1"));
               break;
           #endif
           #if HAS_MULTI_HOTEND
             case VP_PID_AUTOTUNE_E1:
-              sprintf_P(buf, PSTR("M303 E%d C5 S210 U1"), ExtUI::extruder_t::E1);
-              queue.enqueue_one_now(buf);
+              queue.enqueue_one_now(F("M303 E1 C5 S210 U1"));
               break;
           #endif
         #endif
