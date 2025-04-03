@@ -387,23 +387,13 @@ void DGUSScreenHandlerMKS::getOffsetValue(DGUS_VP_Variable &var, void *val_ptr) 
 }
 
 void DGUSScreenHandlerMKS::languageChange(DGUS_VP_Variable &var, void *val_ptr) {
-  switch (BE16_P(val_ptr)) {
-    case MKS_SimpleChinese:
-      languageDisplay(MKS_SimpleChinese);
-      mks_language_index = MKS_SimpleChinese;
-      dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_Choose);
-      dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_NoChoose);
-      settings.save();
-      break;
-    case MKS_English:
-      languageDisplay(MKS_English);
-      mks_language_index = MKS_English;
-      dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_NoChoose);
-      dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_Choose);
-      settings.save();
-      break;
-    default: break;
-  }
+  const MKS_Language lang = (MKS_Language)BE16_P(val_ptr);
+  if (lang != MKS_SimpleChinese && lang != MKS_English) return;
+  mks_language_index = lang;
+  updateDisplayLanguage();
+  dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)(lang == MKS_English ? MKS_Language_NoChoose : MKS_Language_Choose));
+  dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)(lang == MKS_English ? MKS_Language_Choose : MKS_Language_NoChoose));
+  settings.save();
 }
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -1167,7 +1157,7 @@ bool DGUSScreenHandlerMKS::loop() {
 
   if (language_times != 0) {
     languagePInit();
-    languageDisplay(mks_language_index);
+    updateDisplayLanguage();
     language_times--;
   }
 
@@ -1272,8 +1262,8 @@ void DGUSScreenHandlerMKS::runoutIdle() {
   #endif // DGUS_MKS_RUNOUT_SENSOR
 }
 
-void DGUSScreenHandlerMKS::languageDisplay(uint8_t var) {
-  switch(var) {
+void DGUSScreenHandlerMKS::updateDisplayLanguage() {
+  switch (mks_language_index) {
     case MKS_English : {
       const char home_buf_en[] = "Home";
       dgus.writeStringVar(VP_HOME_Dis, home_buf_en);

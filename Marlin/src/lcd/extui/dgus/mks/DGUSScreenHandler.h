@@ -54,7 +54,7 @@ public:
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     static void handleGetExMinTemp(DGUS_VP_Variable &var, void *val_ptr);
   #endif
-  static void languageDisplay(uint8_t var);
+  static void updateDisplayLanguage();
   static void tmcChangeConfig(DGUS_VP_Variable &var, void *val_ptr);
   static void getTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr);
   static void languagePInit();
