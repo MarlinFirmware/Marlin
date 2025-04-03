@@ -53,22 +53,6 @@ extern xyz_int_t tmc_stall_sens;
 
 extern uint16_t lcd_default_light;
 
-#if X_HAS_STEALTHCHOP
-  extern uint16_t tmc_x_current;
-#endif
-#if Y_HAS_STEALTHCHOP
-  extern uint16_t tmc_y_current;
-#endif
-#if Z_HAS_STEALTHCHOP
-  extern uint16_t tmc_z_current;
-#endif
-#if E0_HAS_STEALTHCHOP
-  extern uint16_t tmc_e0_current;
-#endif
-#if E1_HAS_STEALTHCHOP
-  extern uint16_t tmc_e1_current;
-#endif
-
 typedef enum {
   EX_HEATING,
   EX_HEAT_STATUS,
@@ -80,7 +64,7 @@ typedef enum {
 typedef struct {
   //uint8_t ex_change_flag:1;
   //uint8_t ex_heat_flag:1;
-  uint8_t ex_load_unload_flag:1;  //0:unload  1:load
+  uint8_t ex_load_unload_flag:1;  // 0:unload  1:load
   EX_STATUS_DEF ex_status;
   uint32_t ex_tick_start;
   uint32_t ex_tick_end;
@@ -121,118 +105,118 @@ extern NOZZLE_PARK_DEF nozzle_park_mks;
 enum DGUS_ScreenID : uint8_t {
   #if ENABLED(USE_MKS_GREEN_UI)
 
-    DGUS_SCREEN_BOOT                 =  33,
-    DGUS_SCREEN_MAIN                 =  60,
-    DGUS_SCREEN_STATUS               =  60,
-    DGUS_SCREEN_STATUS2              =  60,
-    DGUS_SCREEN_PREHEAT              =  18,
-    DGUS_SCREEN_POWER_LOSS           = 100,
-    DGUS_SCREEN_MANUALMOVE           = 192,
-    DGUS_SCREEN_UTILITY              = 120,
-    DGUS_SCREEN_FILAMENT_UNLOADING   = 158,
-    DGUS_SCREEN_SDFILELIST           =  15,
-    DGUS_SCREEN_SDPRINTMANIPULATION  =  15,
-    DGUS_SCREEN_SDPRINTTUNE          =  17,
+    DGUS_SCREEN_BOOT                =  33,
+    DGUS_SCREEN_MAIN                =  60,
+    DGUS_SCREEN_STATUS              =  60,
+    DGUS_SCREEN_STATUS2             =  60,
+    DGUS_SCREEN_PREHEAT             =  18,
+    DGUS_SCREEN_POWER_LOSS          = 100,
+    DGUS_SCREEN_MANUALMOVE          = 192,
+    DGUS_SCREEN_UTILITY             = 120,
+    DGUS_SCREEN_FILAMENT_UNLOADING  = 158,
+    DGUS_SCREEN_SDFILELIST          =  15,
+    DGUS_SCREEN_SDPRINTMANIPULATION =  15,
+    DGUS_SCREEN_SDPRINTTUNE         =  17,
 
-    MKSLCD_SCREEN_BOOT                  =  33,
-    MKSLCD_SCREEN_HOME                  =  60,   // MKS main page
-    MKSLCD_SCREEN_SETTING               =  62,   // MKS Setting page / no wifi whit
-    MKSLCD_SCREEM_TOOL                  =  64,   // MKS Tool page
-    MKSLCD_SCREEN_EXTRUDE_P1            =  75,
-    MKSLCD_SCREEN_EXTRUDE_P2            =  77,
-    MKSLCD_SCREEN_LEVEL                 =  73,
-    MKSLCD_AUTO_LEVEL                   =  81,
-    MKSLCD_SCREEN_MOVE                  =  66,
-    MKSLCD_SCREEN_PRINT                 =  68,
-    MKSLCD_SCREEN_PAUSE                 =  70,
-    MKSLCD_SCREEN_CHOOSE_FILE           =  87,
-    //MKSLCD_SCREEN_NO_CHOOSE_FILE        =  88, //Missing in 1.31 firmware
-    MKSLCD_SCREEN_Config                = 101,
-    MKSLCD_SCREEN_Config_MOTOR          = 103,
-    MKSLCD_SCREEN_STEPS_MM              = 104,
-    MKSLCD_SCREEN_AXIS_SPEED            = 102,
-    MKSLCD_SCREEN_AXIS_ACC_MAX          = 105,
-    MKSLCD_SCREEN_PRINT_CONFIG          =  72,
-    MKSLCD_SCREEN_LEVEL_DATA            = 106,
-    MKSLCD_PrintPause_SET               = 107,
-    //MKSLCD_FILAMENT_DATA                =  50, //Missing in 1.31 firmware
-    MKSLCD_ABOUT                        =  83,
-    MKSLCD_PID                          = 108,
-    MKSLCD_PAUSE_SETTING_MOVE           =  98,
-    MKSLCD_PAUSE_SETTING_EX             =  96,
-    MKSLCD_PAUSE_SETTING_EX2            =  97,
-    MKSLCD_SCREEN_PRINT_CONFIRM         =  94,
-    MKSLCD_SCREEN_EX_CONFIG             = 112,
-    MKSLCD_SCREEN_EEP_Config            =  89,
-    MKSLCD_SCREEN_PrintDone             =  92,
-    MKSLCD_SCREEN_TMC_Config            = 111,
-    MKSLCD_Screen_Offset_Config         = 109,
-    MKSLCD_Screen_PMove                 =  98,
-    MKSLCD_Screen_Baby                  =  79,
+    MKSLCD_SCREEN_BOOT              =  33,
+    MKSLCD_SCREEN_HOME              =  60,  // MKS main page
+    MKSLCD_SCREEN_SETTING           =  62,  // MKS Setting page / no wifi whit
+    MKSLCD_SCREEM_TOOL              =  64,  // MKS Tool page
+    MKSLCD_SCREEN_EXTRUDE_P1        =  75,
+    MKSLCD_SCREEN_EXTRUDE_P2        =  77,
+    MKSLCD_SCREEN_LEVEL             =  73,
+    MKSLCD_AUTO_LEVEL               =  81,
+    MKSLCD_SCREEN_MOVE              =  66,
+    MKSLCD_SCREEN_PRINT             =  68,
+    MKSLCD_SCREEN_PAUSE             =  70,
+    MKSLCD_SCREEN_CHOOSE_FILE       =  87,
+    //MKSLCD_SCREEN_NO_CHOOSE_FILE  =  88,  // Missing in 1.31 firmware
+    MKSLCD_SCREEN_Config            = 101,
+    MKSLCD_SCREEN_Config_MOTOR      = 103,
+    MKSLCD_SCREEN_STEPS_MM          = 104,
+    MKSLCD_SCREEN_AXIS_SPEED        = 102,
+    MKSLCD_SCREEN_AXIS_ACC_MAX      = 105,
+    MKSLCD_SCREEN_PRINT_CONFIG      =  72,
+    MKSLCD_SCREEN_LEVEL_DATA        = 106,
+    MKSLCD_PrintPause_SET           = 107,
+    //MKSLCD_FILAMENT_DATA          =  50,  // Missing in 1.31 firmware
+    MKSLCD_ABOUT                    =  83,
+    MKSLCD_PID                      = 108,
+    MKSLCD_PAUSE_SETTING_MOVE       =  98,
+    MKSLCD_PAUSE_SETTING_EX         =  96,
+    MKSLCD_PAUSE_SETTING_EX2        =  97,
+    MKSLCD_SCREEN_PRINT_CONFIRM     =  94,
+    MKSLCD_SCREEN_EX_CONFIG         = 112,
+    MKSLCD_SCREEN_EEP_Config        =  89,
+    MKSLCD_SCREEN_PrintDone         =  92,
+    MKSLCD_SCREEN_TMC_Config        = 111,
+    MKSLCD_Screen_Offset_Config     = 109,
+    MKSLCD_Screen_PMove             =  98,
+    MKSLCD_Screen_Baby              =  79,
 
   #else
 
-    DGUS_SCREEN_BOOT                 = 120,
-    DGUS_SCREEN_MAIN                 =   1,
+    DGUS_SCREEN_BOOT                = 120,
+    DGUS_SCREEN_MAIN                =   1,
 
-    DGUS_SCREEN_STATUS               =   1,
-    DGUS_SCREEN_STATUS2              =   1,
-    DGUS_SCREEN_PREHEAT              =  18,
-    DGUS_SCREEN_POWER_LOSS           = 100,
-    DGUS_SCREEN_MANUALMOVE           = 192,
-    DGUS_SCREEN_UTILITY              = 120,
-    DGUS_SCREEN_FILAMENT_UNLOADING   = 158,
-    DGUS_SCREEN_SDFILELIST           =  15,
-    DGUS_SCREEN_SDPRINTMANIPULATION  =  15,
-    DGUS_SCREEN_SDPRINTTUNE          =  17,
+    DGUS_SCREEN_STATUS              =   1,
+    DGUS_SCREEN_STATUS2             =   1,
+    DGUS_SCREEN_PREHEAT             =  18,
+    DGUS_SCREEN_POWER_LOSS          = 100,
+    DGUS_SCREEN_MANUALMOVE          = 192,
+    DGUS_SCREEN_UTILITY             = 120,
+    DGUS_SCREEN_FILAMENT_UNLOADING  = 158,
+    DGUS_SCREEN_SDFILELIST          =  15,
+    DGUS_SCREEN_SDPRINTMANIPULATION =  15,
+    DGUS_SCREEN_SDPRINTTUNE         =  17,
 
-    MKSLCD_SCREEN_BOOT                  =   0,
-    MKSLCD_SCREEN_HOME                  =   1,   // MKS main page
-    MKSLCD_SCREEN_SETTING               =   2,   // MKS Setting page / no wifi whit
-    MKSLCD_SCREEM_TOOL                  =   3,   // MKS Tool page
-    MKSLCD_SCREEN_EXTRUDE_P1            =   4,
-    MKSLCD_SCREEN_EXTRUDE_P2            =  11,
-    MKSLCD_SCREEN_LEVEL                 =   5,
-    MKSLCD_AUTO_LEVEL                   =  73,
-    MKSLCD_SCREEN_LEVEL_PRESS           =   9,
-    MKSLCD_SCREEN_MOVE                  =   6,
-    MKSLCD_SCREEN_PRINT                 =   7,
-    MKSLCD_SCREEN_PRINT_PRESS           =  13,
-    MKSLCD_SCREEN_PAUSE                 =  26,
-    MKSLCD_SCREEN_PAUSE_PRESS           =  26,
-    MKSLCD_SCREEN_CHOOSE_FILE           =  15,
-    //MKSLCD_SCREEN_NO_CHOOSE_FILE        =  17, //Missing in 1.30 firmware
-    MKSLCD_SCREEN_Config                =  46,
-    MKSLCD_SCREEN_Config_MOTOR          =  47,
-    MKSLCD_SCREEN_STEPS_MM              =  51,
-    MKSLCD_SCREEN_MOTOR_SPEED           =  55,
-    MKSLCD_SCREEN_MOTOR_ACC_MAX         =  53,
-    MKSLCD_SCREEN_PRINT_CONFIG          =  60,
-    MKSLCD_SCREEN_LEVEL_DATA            =  48,
-    MKSLCD_PrintPause_SET               =  49,
-    //MKSLCD_FILAMENT_DATA                =  50, //Missing in 1.31 firmware
-    MKSLCD_ABOUT                        =  36,
-    MKSLCD_PID                          =  56,
-    MKSLCD_PAUSE_SETTING_MOVE           =  58,
-    MKSLCD_PAUSE_SETTING_EX             =  57,
-    MKSLCD_PAUSE_SETTING_EX2            =  61,
-    MKSLCD_SCREEN_NO_FILE               =  42,
-    MKSLCD_SCREEN_PRINT_CONFIRM         =  43,
-    MKSLCD_SCREEN_EX_CONFIG             =  65,
-    MKSLCD_SCREEN_EEP_Config            =  20,
-    MKSLCD_SCREEN_PrintDone             =  25,
-    MKSLCD_SCREEN_TMC_Config            =  70,
-    MKSLCD_Screen_Offset_Config         =  30,
-    MKSLCD_Screen_PMove                 =  64,
-    MKSLCD_Screen_Baby                  =  71,
+    MKSLCD_SCREEN_BOOT              =   0,
+    MKSLCD_SCREEN_HOME              =   1,  // MKS main page
+    MKSLCD_SCREEN_SETTING           =   2,  // MKS Setting page / no wifi whit
+    MKSLCD_SCREEM_TOOL              =   3,  // MKS Tool page
+    MKSLCD_SCREEN_EXTRUDE_P1        =   4,
+    MKSLCD_SCREEN_EXTRUDE_P2        =  11,
+    MKSLCD_SCREEN_LEVEL             =   5,
+    MKSLCD_AUTO_LEVEL               =  73,
+    MKSLCD_SCREEN_LEVEL_PRESS       =   9,
+    MKSLCD_SCREEN_MOVE              =   6,
+    MKSLCD_SCREEN_PRINT             =   7,
+    MKSLCD_SCREEN_PRINT_PRESS       =  13,
+    MKSLCD_SCREEN_PAUSE             =  26,
+    MKSLCD_SCREEN_PAUSE_PRESS       =  26,
+    MKSLCD_SCREEN_CHOOSE_FILE       =  15,
+    //MKSLCD_SCREEN_NO_CHOOSE_FILE  =  17,  // Missing in 1.30 firmware
+    MKSLCD_SCREEN_Config            =  46,
+    MKSLCD_SCREEN_Config_MOTOR      =  47,
+    MKSLCD_SCREEN_STEPS_MM          =  51,
+    MKSLCD_SCREEN_MOTOR_SPEED       =  55,
+    MKSLCD_SCREEN_MOTOR_ACC_MAX     =  53,
+    MKSLCD_SCREEN_PRINT_CONFIG      =  60,
+    MKSLCD_SCREEN_LEVEL_DATA        =  48,
+    MKSLCD_PrintPause_SET           =  49,
+    //MKSLCD_FILAMENT_DATA          =  50,  // Missing in 1.31 firmware
+    MKSLCD_ABOUT                    =  36,
+    MKSLCD_PID                      =  56,
+    MKSLCD_PAUSE_SETTING_MOVE       =  58,
+    MKSLCD_PAUSE_SETTING_EX         =  57,
+    MKSLCD_PAUSE_SETTING_EX2        =  61,
+    MKSLCD_SCREEN_NO_FILE           =  42,
+    MKSLCD_SCREEN_PRINT_CONFIRM     =  43,
+    MKSLCD_SCREEN_EX_CONFIG         =  65,
+    MKSLCD_SCREEN_EEP_Config        =  20,
+    MKSLCD_SCREEN_PrintDone         =  25,
+    MKSLCD_SCREEN_TMC_Config        =  70,
+    MKSLCD_Screen_Offset_Config     =  30,
+    MKSLCD_Screen_PMove             =  64,
+    MKSLCD_Screen_Baby              =  71,
 
   #endif
 
-  DGUS_SCREEN_CONFIRM                = 240,
-  DGUS_SCREEN_KILL                   = 250, ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
-  DGUS_SCREEN_WAITING                = 252, // Missing in 1.30 and 1.31 firmware, workaround
-  DGUS_SCREEN_POPUP                  = 252, ///< special target, popup screen will also return this code to say "return to previous screen"
-  DGUS_SCREEN_UNUSED                 = 255
+  DGUS_SCREEN_CONFIRM               = 240,
+  DGUS_SCREEN_KILL                  = 250,  ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_WAITING               = 252,  // Missing in 1.30 and 1.31 firmware, workaround
+  DGUS_SCREEN_POPUP                 = 252,  ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_UNUSED                = 255
 };
 
 // Place for status messages.
