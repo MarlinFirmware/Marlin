@@ -74,6 +74,9 @@ public:
   static void writeStringVariable(uint16_t adr, const char * const cstr, uint8_t vallen=32) {
     writeVariable(adr, (const void *)cstr, vallen, true);
   }
+  static void writeStringVariable(uint16_t adr, const uint16_t * const zhstr, uint8_t vallen=16) {
+    writeVariable(adr, (const void *)zhstr, vallen, true);
+  }
   static void writeVariable(uint16_t adr, FSTR_P const fstr, uint8_t vallen=32) {
     writeStringVariable_P(adr, FTOP(fstr), vallen);
   }
