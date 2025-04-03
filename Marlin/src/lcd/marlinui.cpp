@@ -1722,6 +1722,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     pgm ? host_notify_P(ustr) : host_notify(ustr);
   }
   void MarlinUI::status_printf_P(int8_t level, PGM_P const pfmt, ...) {
+    if (set_alert_level(level)) return;
+
     MString<30> msg;
 
     va_list args;

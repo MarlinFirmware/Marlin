@@ -487,15 +487,7 @@ public:
   template<typename... Args>
   static void status_printf(int8_t level, FSTR_P const ffmt, Args... more) { status_printf_P(level, FTOP(ffmt), more...); }
 
-  // Tell the screen to redraw on the next call
-  FORCE_INLINE static void refresh() {
-    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
-  }
-
   #if HAS_DISPLAY
-
-    // Periodic or as-needed display update
-    static void update();
 
     static void init_lcd();
 
@@ -505,9 +497,19 @@ public:
     // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
     static void clear_for_drawing();
 
+    static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
+
+    // Periodic or as-needed display update
+    static void update();
+
     static void abort_print();
     static void pause_print();
     static void resume_print();
+
+    #if DISABLED(LIGHTWEIGHT_UI)
+      static void draw_status_message(const bool blink);
+    #endif
 
     #if ENABLED(FLOWMETER_SAFETY)
       static void flow_fault();
@@ -522,6 +524,9 @@ public:
     #endif
 
     #if HAS_WIRED_LCD
+
+      static bool detected();
+      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); } // Tell the screen to redraw on the next call
 
       static millis_t next_button_update_ms;
 
@@ -555,15 +560,13 @@ public:
       #endif
 
       #if ENABLED(LCD_PROGRESS_BAR) && !HAS_MARLINUI_U8GLIB
-        static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+        static millis_t progress_bar_ms; // Start time for the current progress bar cycle
         static void draw_progress_bar(const uint8_t percent);
         #if PROGRESS_MSG_EXPIRE > 0
           static millis_t expire_status_ms; // = 0
           FORCE_INLINE static void reset_progress_bar_timeout() { expire_status_ms = 0; }
         #endif
       #endif
-
-      static uint8_t lcd_status_update_delay;
 
       #if HAS_LCD_CONTRAST
         static uint8_t contrast;
@@ -577,7 +580,9 @@ public:
         static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
       #endif
 
+      static uint8_t lcd_status_update_delay;
       static void quick_feedback(const bool clear_buttons=true);
+      static void status_screen();
 
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
@@ -588,11 +593,11 @@ public:
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
 
-      static void status_screen();
-
     #else
 
       static void quick_feedback(const bool=true) {}
+      static bool detected() { return true; }
+      FORCE_INLINE static void refresh() {}
 
     #endif // HAS_WIRED_LCD
 
@@ -606,28 +611,19 @@ public:
       static bool did_first_redraw;
     #endif
 
-    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-      static void zoffset_overlay(const int8_t dir);
-      static void zoffset_overlay(const_float_t zvalue);
-    #endif
-
     static void draw_kill_screen();
     static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    #if DISABLED(LIGHTWEIGHT_UI)
-      static void draw_status_message(const bool blink);
-    #endif
 
   #else // No LCD
 
-    static void update() {}
     static void init_lcd() {}
     static void clear_lcd() {}
     static void clear_for_drawing() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
+    static void update() {}
 
-  #endif
+  #endif // HAS_DISPLAY
 
-  static bool detected() IF_DISABLED(HAS_WIRED_LCD, { return true; });
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
 
   static void completion_feedback(const bool good=true);
@@ -664,6 +660,11 @@ public:
   #endif
 
   #if HAS_MARLINUI_MENU
+
+    #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+      static void zoffset_overlay(const int8_t dir);
+      static void zoffset_overlay(const_float_t zvalue);
+    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;

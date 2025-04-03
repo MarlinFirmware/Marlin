@@ -180,23 +180,14 @@ void PrintCounter::saveStats() {
   TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
 }
 
-#if HAS_SERVICE_INTERVALS
-  inline void _service_when(char buffer[], const char * const msg, const uint32_t when) {
-    SERIAL_ECHOPGM(STR_STATS);
-    SERIAL_ECHOPGM_P(msg);
-    SERIAL_ECHOLNPGM(" in ", duration_t(when).toString(buffer));
-  }
-#endif
-
 void PrintCounter::showStats() {
   char buffer[22];
 
-  SERIAL_ECHOPGM(STR_STATS);
-  SERIAL_ECHOLNPGM(
-    "Prints: ", data.totalPrints,
-    ", Finished: ", data.finishedPrints,
-    ", Failed: ", data.totalPrints - data.finishedPrints
-                    - ((isRunning() || isPaused()) ? 1 : 0) // Remove 1 from failures with an active counter
+  const uint16_t unfail = (isRunning() || isPaused()); // Remove 1 from failures with an active counter
+  SERIAL_ECHOLN(F(STR_STATS),
+    F("Prints: "), data.totalPrints,
+    F(", Finished: "), data.finishedPrints,
+    F(", Failed: "), data.totalPrints - data.finishedPrints - unfail
   );
 
   SERIAL_ECHOPGM(STR_STATS);
@@ -223,14 +214,19 @@ void PrintCounter::showStats() {
 
   SERIAL_EOL();
 
-  #if SERVICE_INTERVAL_1 > 0
-    _service_when(buffer, PSTR(SERVICE_NAME_1), data.nextService1);
-  #endif
-  #if SERVICE_INTERVAL_2 > 0
-    _service_when(buffer, PSTR(SERVICE_NAME_2), data.nextService2);
-  #endif
-  #if SERVICE_INTERVAL_3 > 0
-    _service_when(buffer, PSTR(SERVICE_NAME_3), data.nextService3);
+  #if HAS_SERVICE_INTERVALS
+    auto _service_when = [](char outstr[], PGM_P const msg, const uint32_t when) {
+      SERIAL_ECHOLN(F(STR_STATS), FPSTR(msg), F(" in "), duration_t(when).toString(outstr));
+    };
+    #if SERVICE_INTERVAL_1 > 0
+      _service_when(buffer, PSTR(SERVICE_NAME_1), data.nextService1);
+    #endif
+    #if SERVICE_INTERVAL_2 > 0
+      _service_when(buffer, PSTR(SERVICE_NAME_2), data.nextService2);
+    #endif
+    #if SERVICE_INTERVAL_3 > 0
+      _service_when(buffer, PSTR(SERVICE_NAME_3), data.nextService3);
+    #endif
   #endif
 }
 

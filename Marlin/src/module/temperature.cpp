@@ -4624,7 +4624,7 @@ void Temperature::isr() {
     }
   #endif
 
-  #if HAS_HOTEND && HAS_STATUS_MESSAGE
+  #if ALL(HAS_HOTEND, HAS_STATUS_MESSAGE)
     void Temperature::set_heating_message(const uint8_t e, const bool isM104/*=false*/) {
       const bool heating = isHeatingHotend(e);
       ui.status_printf(0,

@@ -1059,7 +1059,7 @@ void drawMotionMenu() {
     clearPopupArea();
     drawPopupBkgd105();
     if (toohigh) {
-      dwinIconShow(ICON, ICON_TempTooHigh, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooHigh, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 237, 386,  52, 285); // Temp Too High
         dwinFrameAreaCopy(1, 151, 389, 185, 402, 187, 285);
@@ -1071,7 +1071,7 @@ void drawMotionMenu() {
       }
     }
     else {
-      dwinIconShow(ICON, ICON_TempTooLow, 102, 165);
+      dwinIconShow(ICON, ICON_TempTooLow, 100, 165);
       if (hmiIsChinese()) {
         dwinFrameAreaCopy(1, 103, 371, 270, 386, 52, 285); // Tenp Too Low
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
@@ -1090,7 +1090,7 @@ void drawMotionMenu() {
   void popupWindowETempTooLow() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_TempTooLow, 102, 105);
+    dwinIconShow(ICON, ICON_TempTooLow, 100, 105);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 103, 371, 136, 386, 69, 240);      // Nozzle Too Cold
       dwinFrameAreaCopy(1, 170, 371, 270, 386, 69 + 33, 240);
@@ -1114,9 +1114,9 @@ void popupWindowResume() {
     dwinIconShow(ICON, ICON_Continue_C, 146, 307);
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 14) / 2, 115, F("Continue Print"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 22) / 2, 192, F("It looks like the last"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 21) / 2, 212, F("file was interrupted."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 14) / 2, 115, F("Continue Print"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 22) / 2, 192, F("It looks like the last"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 21) / 2, 212, F("file was interrupted."));
     dwinIconShow(ICON, ICON_Cancel_E,    26, 307);
     dwinIconShow(ICON, ICON_Continue_E, 146, 307);
   }
@@ -1125,15 +1125,15 @@ void popupWindowResume() {
 void popupWindowHome(const bool parking/*=false*/) {
   clearMainWindow();
   drawPopupBkgd60();
-  dwinIconShow(ICON, ICON_Printer_0, 101, 105);
+  dwinIconShow(ICON, ICON_Printer_0, 81, 90);
   if (hmiIsChinese()) {
     dwinFrameAreaCopy(1, 0, 371, 33, 386, 85, 240);       // Wait for Move to Complete
     dwinFrameAreaCopy(1, 203, 286, 271, 302, 118, 240);
     dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
   }
 }
 
@@ -1142,14 +1142,14 @@ void popupWindowHome(const bool parking/*=false*/) {
   void popupWindowLeveling() {
     clearMainWindow();
     drawPopupBkgd60();
-    dwinIconShow(ICON, ICON_AutoLeveling, 101, 105);
+    dwinIconShow(ICON, ICON_AutoLeveling, 100, 107);
     if (hmiIsChinese()) {
       dwinFrameAreaCopy(1, 0, 371, 100, 386, 84, 240);    // Wait for Leveling
       dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
     }
     else {
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 12) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 12) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
     }
   }
 
@@ -1176,8 +1176,8 @@ void popupwindowPauseOrStop() {
     dwinIconShow(ICON, ICON_Cancel_C, 146, 280);
   }
   else {
-         if (select_print.now == PRINT_PAUSE_RESUME) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
-    else if (select_print.now == PRINT_STOP) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
+         if (select_print.now == PRINT_PAUSE_RESUME) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
+    else if (select_print.now == PRINT_STOP) dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
     dwinIconShow(ICON, ICON_Confirm_E, 26, 280);
     dwinIconShow(ICON, ICON_Cancel_E, 146, 280);
   }
@@ -1499,7 +1499,7 @@ void hmiMoveDone(const AxisEnum axis) {
 
 #endif // HAS_HEATED_BED
 
-#if HAS_PREHEAT && HAS_FAN
+#if ALL(HAS_PREHEAT, HAS_FAN)
 
   void hmiFanSpeed() {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
@@ -1829,9 +1829,11 @@ void MarlinUI::update() {
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
   clearMainWindow();
   drawPopupBkgd60();
-  dwinIconShow(ICON, ICON_Printer_0, 101, 105);
-  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 15) / 2, 230, GET_TEXT_F(MSG_PRINTER_KILLED));
-  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (272 - 8 * 20) / 2, 260, GET_TEXT_F(MSG_TURN_OFF));
+  dwinIconShow(ICON, ICON_Printer_0, 81, 90);
+  uint8_t slen = utf8_strlen(lcd_error);
+  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 15) / 2, 210, GET_TEXT_F(MSG_PRINTER_KILLED));
+  dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * slen) / 2, 240, lcd_error);
+  dwinDrawString(true, font8x16, COLOR_ERROR_RED, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 20) / 2, 270, GET_TEXT_F(MSG_TURN_OFF));
 }
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
@@ -4277,7 +4279,7 @@ void dwinHandleScreen() {
     #if HAS_HEATED_BED
       case ID_BedTemp:      hmiBedTemp(); break;
     #endif
-    #if HAS_PREHEAT && HAS_FAN
+    #if ALL(HAS_PREHEAT, HAS_FAN)
       case ID_FanSpeed:     hmiFanSpeed(); break;
     #endif
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
