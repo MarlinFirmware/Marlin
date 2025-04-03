@@ -208,6 +208,13 @@ public:
 
   static void init();
 
+  #if HAS_WIRED_LCD
+    static bool detected();
+  #else
+    static bool detected() { return true; }
+    static void quick_feedback(const bool=true) {}
+  #endif
+
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
@@ -534,8 +541,6 @@ public:
       FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
       FORCE_INLINE static void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
 
-      static bool detected();
-
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         static void draw_custom_bootscreen(const uint8_t frame=0);
         static void show_custom_bootscreen();
@@ -594,11 +599,6 @@ public:
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
-
-    #else
-
-      static void quick_feedback(const bool=true) {}
-      static bool detected() { return true; }
 
     #endif // HAS_WIRED_LCD
 
