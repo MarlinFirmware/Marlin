@@ -44,8 +44,7 @@ namespace ExtUI {
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
     #if DGUS_LCD_UI_MKS
-      const char* null_str = "";
-      screen.sendInfoScreen(FTOP(GET_TEXT_F(MSG_HALTED)), FTOP(error), null_str, FTOP(GET_TEXT_F(MSG_PLEASE_RESET)));
+      screen.sendInfoScreenMKS(GET_TEXT_F(MSG_HALTED), error, nullptr, GET_TEXT_F(MSG_PLEASE_RESET), mks_language_index);
     #else
       screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET), true, true, true, true);
     #endif
@@ -71,8 +70,7 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * msg) {
     if (msg) {
       #if DGUS_LCD_UI_MKS
-      const char* null_str = "";
-        screen.sendInfoScreen(FTOP(F("Please confirm.")), null_str, msg, null_str);
+        screen.sendInfoScreenMKS(F("Please confirm."), nullptr, msg, nullptr, mks_language_index);
       #else
         screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
       #endif
