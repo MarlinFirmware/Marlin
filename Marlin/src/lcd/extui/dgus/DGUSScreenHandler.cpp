@@ -607,7 +607,7 @@ void DGUSScreenHandler::handleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
     uint16_t value = BE16_P(val_ptr);
     if (value) {
       queue.inject(F("M1000"));
-      dgus.writeStringVariable(VP_SD_Print_Filename, filelist.filename());
+      dgus.writeStringVar(VP_SD_Print_Filename, filelist.filename());
       gotoScreen(PLR_SCREEN_RECOVER);
     }
     else {

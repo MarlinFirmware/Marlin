@@ -59,17 +59,17 @@ bool DGUSAutoTurnOff = false;
 MKS_Language mks_language_index; // Initialized by settings.load
 
 void DGUSScreenHandlerMKS::sendInfoScreen(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4) {
-  dgus.writeStringVariable(VP_MSGSTR1, line1);
-  dgus.writeStringVariable(VP_MSGSTR2, line2);
-  dgus.writeStringVariable(VP_MSGSTR3, line3);
-  dgus.writeStringVariable(VP_MSGSTR4, line4);
+  dgus.writeStringVar(VP_MSGSTR1, line1);
+  dgus.writeStringVar(VP_MSGSTR2, line2);
+  dgus.writeStringVar(VP_MSGSTR3, line3);
+  dgus.writeStringVar(VP_MSGSTR4, line4);
 }
 
 void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
-  dgus.writeStringVariable(VP_MSGSTR1, line1);
-  dgus.writeStringVariable(VP_MSGSTR2, line2);
-  dgus.writeStringVariable(VP_MSGSTR3, line3);
-  dgus.writeStringVariable(VP_MSGSTR4, line4);
+  dgus.writeStringVar(VP_MSGSTR1, line1);
+  dgus.writeStringVar(VP_MSGSTR2, line2);
+  dgus.writeStringVar(VP_MSGSTR3, line3);
+  dgus.writeStringVar(VP_MSGSTR4, line4);
 }
 
 void DGUSScreenHandlerMKS::sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language) {
@@ -434,11 +434,11 @@ void DGUSScreenHandlerMKS::levelControl(DGUS_VP_Variable &var, void *val_ptr) {
           default:
           case MKS_English: {
             const char level_buf_en[] = "Start Leveling";
-            dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_en);
+            dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_en);
           } break;
           case MKS_SimpleChinese: {
             const uint16_t level_buf_ch[] = { 0xAABF, 0xBCCA, 0xF7B5, 0xBDC6, 0x2000 };
-            dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_ch);
+            dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_ch);
           } break;
         }
 
@@ -513,11 +513,11 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
             default:
             case MKS_English: {
               const char level_buf_en1[] = "Next Point";
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_en1);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_en1);
             } break;
             case MKS_SimpleChinese: {
               const uint16_t level_buf_ch1[] = { 0xC2CF, 0xBBD2, 0xE3B5, 0x2000 };
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_ch1);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_ch1);
             } break;
           }
         }
@@ -528,11 +528,11 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
             default:
             case MKS_English: {
               const char level_buf_en2[] = "Next Point";
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_en2);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_en2);
             } break;
             case MKS_SimpleChinese: {
               const uint16_t level_buf_ch2[] = { 0xC2CF, 0xBBD2, 0xE3B5, 0x2000 };
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_ch2);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_ch2);
             } break;
           }
         }
@@ -543,11 +543,11 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
             default:
             case MKS_English: {
               const char level_buf_en2[] = "Leveling Done";
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_en2);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_en2);
             } break;
             case MKS_SimpleChinese: {
               const uint16_t level_buf_ch2[] = { 0xF7B5, 0xBDC6, 0xEACD, 0xC9B3, 0x2000 };
-              dgus.writeStringVariable(VP_AutoLevel_1_Dis, level_buf_ch2);
+              dgus.writeStringVar(VP_AutoLevel_1_Dis, level_buf_ch2);
             } break;
           }
           settings.save();
@@ -1276,46 +1276,46 @@ void DGUSScreenHandlerMKS::languageDisplay(uint8_t var) {
   switch(var) {
     case MKS_English : {
       const char home_buf_en[] = "Home";
-      dgus.writeStringVariable(VP_HOME_Dis, home_buf_en);
+      dgus.writeStringVar(VP_HOME_Dis, home_buf_en);
 
       const char setting_buf_en[] = "Settings";
-      dgus.writeStringVariable(VP_Setting_Dis, setting_buf_en);
+      dgus.writeStringVar(VP_Setting_Dis, setting_buf_en);
 
       const char Tool_buf_en[] = "Tools";
-      dgus.writeStringVariable(VP_Tool_Dis, Tool_buf_en);
+      dgus.writeStringVar(VP_Tool_Dis, Tool_buf_en);
 
       const char Print_buf_en[] = "Print";
-      dgus.writeStringVariable(VP_Print_Dis, Print_buf_en);
+      dgus.writeStringVar(VP_Print_Dis, Print_buf_en);
 
       const char Language_buf_en[] = "Language";
-      dgus.writeStringVariable(VP_Language_Dis, Language_buf_en);
+      dgus.writeStringVar(VP_Language_Dis, Language_buf_en);
 
       const char About_buf_en[] = "About";
-      dgus.writeStringVariable(VP_About_Dis, About_buf_en);
+      dgus.writeStringVar(VP_About_Dis, About_buf_en);
 
       const char Config_buf_en[] = "Config";
-      dgus.writeStringVariable(VP_Config_Dis, Config_buf_en);
+      dgus.writeStringVar(VP_Config_Dis, Config_buf_en);
 
       const char MotorConfig_buf_en[] = "Motion Config";
-      dgus.writeStringVariable(VP_MotorConfig_Dis, MotorConfig_buf_en);
+      dgus.writeStringVar(VP_MotorConfig_Dis, MotorConfig_buf_en);
 
       const char LevelConfig_buf_en[] = "Level Config";
-      dgus.writeStringVariable(VP_LevelConfig_Dis, LevelConfig_buf_en);
+      dgus.writeStringVar(VP_LevelConfig_Dis, LevelConfig_buf_en);
 
       const char TemperatureConfig_buf_en[] = "Temperature";
-      dgus.writeStringVariable(VP_TemperatureConfig_Dis, TemperatureConfig_buf_en);
+      dgus.writeStringVar(VP_TemperatureConfig_Dis, TemperatureConfig_buf_en);
 
       const char Probe_Offset_buf_en[] = "Probe Offset";
-      dgus.writeStringVariable(VP_Probe_Offset_Dis, Probe_Offset_buf_en);
+      dgus.writeStringVar(VP_Probe_Offset_Dis, Probe_Offset_buf_en);
 
       const char Advance_buf_en[] = "Advanced";
-      dgus.writeStringVariable(VP_Advance_Dis, Advance_buf_en);
+      dgus.writeStringVar(VP_Advance_Dis, Advance_buf_en);
 
       const char Filament_buf_en[] = "Extrude";
-      dgus.writeStringVariable(VP_Filament_Dis, Filament_buf_en);
+      dgus.writeStringVar(VP_Filament_Dis, Filament_buf_en);
 
       const char Move_buf_en[] = "Move";
-      dgus.writeStringVariable(VP_Move_Dis, Move_buf_en);
+      dgus.writeStringVar(VP_Move_Dis, Move_buf_en);
 
       const char Level_buf_en[] =
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1325,217 +1325,217 @@ void DGUSScreenHandlerMKS::languageDisplay(uint8_t var) {
         #endif
         "Level"
       ;
-      dgus.writeStringVariable(VP_Level_Dis, Level_buf_en);
+      dgus.writeStringVar(VP_Level_Dis, Level_buf_en);
 
       const char AxisRes_buf_en[] = "Axis Resolution";
-      dgus.writeStringVariable(VP_AxisRes_Dis, AxisRes_buf_en);
+      dgus.writeStringVar(VP_AxisRes_Dis, AxisRes_buf_en);
 
       const char AxisMaxSpeed_buf_en[] = "Axis Max Speed";
-      dgus.writeStringVariable(VP_AxisMaxSpeed_Dis, AxisMaxSpeed_buf_en);
+      dgus.writeStringVar(VP_AxisMaxSpeed_Dis, AxisMaxSpeed_buf_en);
 
       const char AxisMaxAcc_buf_en[] = "Axis Max Acc.";
-      dgus.writeStringVariable(VP_AxisMaxAcc_Dis, AxisMaxAcc_buf_en);
+      dgus.writeStringVar(VP_AxisMaxAcc_Dis, AxisMaxAcc_buf_en);
 
       const char TravelAcc_buf_en[] = "Travel Acc.";
-      dgus.writeStringVariable(VP_TravelAcc_Dis, TravelAcc_buf_en);
+      dgus.writeStringVar(VP_TravelAcc_Dis, TravelAcc_buf_en);
 
       const char FeedRateMin_buf_en[] = "Min FeedRate";
-      dgus.writeStringVariable(VP_FeedRateMin_Dis, FeedRateMin_buf_en);
+      dgus.writeStringVar(VP_FeedRateMin_Dis, FeedRateMin_buf_en);
 
       const char TravelFeeRateMin_buf_en[] = "Travel Min FeedRate";
-      dgus.writeStringVariable(VP_TravelFeeRateMin_Dis, TravelFeeRateMin_buf_en);
+      dgus.writeStringVar(VP_TravelFeeRateMin_Dis, TravelFeeRateMin_buf_en);
 
       const char Acc_buf_en[] = "Acceleration";
-      dgus.writeStringVariable(VP_ACC_Dis, Acc_buf_en);
+      dgus.writeStringVar(VP_ACC_Dis, Acc_buf_en);
 
       const char Point_One_buf_en[] = "Point 1";
-      dgus.writeStringVariable(VP_Point_One_Dis, Point_One_buf_en);
+      dgus.writeStringVar(VP_Point_One_Dis, Point_One_buf_en);
 
       const char Point_Two_buf_en[] = "Point 2";
-      dgus.writeStringVariable(VP_Point_Two_Dis, Point_Two_buf_en);
+      dgus.writeStringVar(VP_Point_Two_Dis, Point_Two_buf_en);
 
       const char Point_Three_buf_en[] = "Point 3";
-      dgus.writeStringVariable(VP_Point_Three_Dis, Point_Three_buf_en);
+      dgus.writeStringVar(VP_Point_Three_Dis, Point_Three_buf_en);
 
       const char Point_Four_buf_en[] = "Point 4";
-      dgus.writeStringVariable(VP_Point_Four_Dis, Point_Four_buf_en);
+      dgus.writeStringVar(VP_Point_Four_Dis, Point_Four_buf_en);
 
       const char Point_Five_buf_en[] = "Point 5";
-      dgus.writeStringVariable(VP_Point_Five_Dis, Point_Five_buf_en);
+      dgus.writeStringVar(VP_Point_Five_Dis, Point_Five_buf_en);
 
       const char Extrusion_buf_en[] = "Extrusion";
-      dgus.writeStringVariable(VP_Extrusion_Dis, Extrusion_buf_en);
+      dgus.writeStringVar(VP_Extrusion_Dis, Extrusion_buf_en);
 
       const char HeatBed_buf_en[] = "HeatBed";
-      dgus.writeStringVariable(VP_HeatBed_Dis, HeatBed_buf_en);
+      dgus.writeStringVar(VP_HeatBed_Dis, HeatBed_buf_en);
 
       const char FactoryDefaults_buf_en[] = "Factory Defaults";
-      dgus.writeStringVariable(VP_FactoryDefaults_Dis, FactoryDefaults_buf_en);
+      dgus.writeStringVar(VP_FactoryDefaults_Dis, FactoryDefaults_buf_en);
 
       const char StoreSetting_buf_en[] = "Store Setting";
-      dgus.writeStringVariable(VP_StoreSetting_Dis, StoreSetting_buf_en);
+      dgus.writeStringVar(VP_StoreSetting_Dis, StoreSetting_buf_en);
 
       const char PrintPauseConfig_buf_en[] = "PrintPause Config";
-      dgus.writeStringVariable(VP_PrintPauseConfig_Dis, PrintPauseConfig_buf_en);
+      dgus.writeStringVar(VP_PrintPauseConfig_Dis, PrintPauseConfig_buf_en);
 
       const char X_Steps_mm_buf_en[] = "X steps/mm";
-      dgus.writeStringVariable(VP_X_Steps_mm_Dis, X_Steps_mm_buf_en);
+      dgus.writeStringVar(VP_X_Steps_mm_Dis, X_Steps_mm_buf_en);
 
       const char Y_Steps_mm_buf_en[] = "Y steps/mm";
-      dgus.writeStringVariable(VP_Y_Steps_mm_Dis, Y_Steps_mm_buf_en);
+      dgus.writeStringVar(VP_Y_Steps_mm_Dis, Y_Steps_mm_buf_en);
 
       const char Z_Steps_mm_buf_en[] = "Z steps/mm";
-      dgus.writeStringVariable(VP_Z_Steps_mm_Dis, Z_Steps_mm_buf_en);
+      dgus.writeStringVar(VP_Z_Steps_mm_Dis, Z_Steps_mm_buf_en);
 
       const char E0_Steps_mm_buf_en[] = "E0 steps/mm";
-      dgus.writeStringVariable(VP_E0_Steps_mm_Dis, E0_Steps_mm_buf_en);
+      dgus.writeStringVar(VP_E0_Steps_mm_Dis, E0_Steps_mm_buf_en);
 
       const char E1_Steps_mm_buf_en[] = "E1 steps/mm";
-      dgus.writeStringVariable(VP_E1_Steps_mm_Dis, E1_Steps_mm_buf_en);
+      dgus.writeStringVar(VP_E1_Steps_mm_Dis, E1_Steps_mm_buf_en);
 
       const char X_Max_Speed_buf_en[] = "X Max Speed";
-      dgus.writeStringVariable(VP_X_Max_Speed_Dis, X_Max_Speed_buf_en);
+      dgus.writeStringVar(VP_X_Max_Speed_Dis, X_Max_Speed_buf_en);
 
       const char Y_Max_Speed_buf_en[] = "Y Max Speed";
-      dgus.writeStringVariable(VP_Y_Max_Speed_Dis, Y_Max_Speed_buf_en);
+      dgus.writeStringVar(VP_Y_Max_Speed_Dis, Y_Max_Speed_buf_en);
 
       const char Z_Max_Speed_buf_en[] = "Z Max Speed";
-      dgus.writeStringVariable(VP_Z_Max_Speed_Dis, Z_Max_Speed_buf_en);
+      dgus.writeStringVar(VP_Z_Max_Speed_Dis, Z_Max_Speed_buf_en);
 
       const char E0_Max_Speed_buf_en[] = "E0 Max Speed";
-      dgus.writeStringVariable(VP_E0_Max_Speed_Dis, E0_Max_Speed_buf_en);
+      dgus.writeStringVar(VP_E0_Max_Speed_Dis, E0_Max_Speed_buf_en);
 
       const char E1_Max_Speed_buf_en[] = "E1 Max Speed";
-      dgus.writeStringVariable(VP_E1_Max_Speed_Dis, E1_Max_Speed_buf_en);
+      dgus.writeStringVar(VP_E1_Max_Speed_Dis, E1_Max_Speed_buf_en);
 
       const char X_Max_Acc_Speed_buf_en[] = "X Max Acc";
-      dgus.writeStringVariable(VP_X_Max_Acc_Dis, X_Max_Acc_Speed_buf_en);
+      dgus.writeStringVar(VP_X_Max_Acc_Dis, X_Max_Acc_Speed_buf_en);
 
       const char Y_Max_Acc_Speed_buf_en[] = "Y Max Acc";
-      dgus.writeStringVariable(VP_Y_Max_Acc_Dis, Y_Max_Acc_Speed_buf_en);
+      dgus.writeStringVar(VP_Y_Max_Acc_Dis, Y_Max_Acc_Speed_buf_en);
 
       const char Z_Max_Acc_Speed_buf_en[] = "Z Max Acc";
-      dgus.writeStringVariable(VP_Z_Max_Acc_Dis, Z_Max_Acc_Speed_buf_en);
+      dgus.writeStringVar(VP_Z_Max_Acc_Dis, Z_Max_Acc_Speed_buf_en);
 
       const char E0_Max_Acc_Speed_buf_en[] = "E0 Max Acc";
-      dgus.writeStringVariable(VP_E0_Max_Acc_Dis, E0_Max_Acc_Speed_buf_en);
+      dgus.writeStringVar(VP_E0_Max_Acc_Dis, E0_Max_Acc_Speed_buf_en);
 
       const char E1_Max_Acc_Speed_buf_en[] = "E1 Max Acc";
-      dgus.writeStringVariable(VP_E1_Max_Acc_Dis, E1_Max_Acc_Speed_buf_en);
+      dgus.writeStringVar(VP_E1_Max_Acc_Dis, E1_Max_Acc_Speed_buf_en);
 
       const char X_PARK_POS_buf_en[] = "X Park Pos";
-      dgus.writeStringVariable(VP_X_PARK_POS_Dis, X_PARK_POS_buf_en);
+      dgus.writeStringVar(VP_X_PARK_POS_Dis, X_PARK_POS_buf_en);
 
       const char Y_PARK_POS_buf_en[] = "Y Park Pos";
-      dgus.writeStringVariable(VP_Y_PARK_POS_Dis, Y_PARK_POS_buf_en);
+      dgus.writeStringVar(VP_Y_PARK_POS_Dis, Y_PARK_POS_buf_en);
 
       const char Z_PARK_POS_buf_en[] = "Z Park Pos";
-      dgus.writeStringVariable(VP_Z_PARK_POS_Dis, Z_PARK_POS_buf_en);
+      dgus.writeStringVar(VP_Z_PARK_POS_Dis, Z_PARK_POS_buf_en);
 
       const char Length_buf_en[] = "Length";
-      dgus.writeStringVariable(VP_Length_Dis, Length_buf_en);
+      dgus.writeStringVar(VP_Length_Dis, Length_buf_en);
 
       const char Speed_buf_en[] = "Speed";
-      dgus.writeStringVariable(VP_Speed_Dis, Speed_buf_en);
+      dgus.writeStringVar(VP_Speed_Dis, Speed_buf_en);
 
       const char InOut_buf_en[] = "In/Out";
-      dgus.writeStringVariable(VP_InOut_Dis, InOut_buf_en);
+      dgus.writeStringVar(VP_InOut_Dis, InOut_buf_en);
 
       const char PrintTimet_buf_en[] = "Print Time";
-      dgus.writeStringVariable(VP_PrintTime_Dis, PrintTimet_buf_en);
+      dgus.writeStringVar(VP_PrintTime_Dis, PrintTimet_buf_en);
 
       const char E0_Temp_buf_en[] = "E0 Temp";
-      dgus.writeStringVariable(VP_E0_Temp_Dis, E0_Temp_buf_en);
+      dgus.writeStringVar(VP_E0_Temp_Dis, E0_Temp_buf_en);
 
       const char E1_Temp_buf_en[] = "E1 Temp";
-      dgus.writeStringVariable(VP_E1_Temp_Dis, E1_Temp_buf_en);
+      dgus.writeStringVar(VP_E1_Temp_Dis, E1_Temp_buf_en);
 
       const char HB_Temp_buf_en[] = "HB Temp";
-      dgus.writeStringVariable(VP_HB_Temp_Dis, HB_Temp_buf_en);
+      dgus.writeStringVar(VP_HB_Temp_Dis, HB_Temp_buf_en);
 
       const char Feedrate_buf_en[] = "Feedrate";
-      dgus.writeStringVariable(VP_Feedrate_Dis, Feedrate_buf_en);
+      dgus.writeStringVar(VP_Feedrate_Dis, Feedrate_buf_en);
 
       const char PrintAcc_buf_en[] = "Print Speed";
-      dgus.writeStringVariable(VP_PrintAcc_Dis, PrintAcc_buf_en);
+      dgus.writeStringVar(VP_PrintAcc_Dis, PrintAcc_buf_en);
 
       const char FAN_Speed_buf_en[] = "FAN Speed";
-      dgus.writeStringVariable(VP_Fan_Speed_Dis, FAN_Speed_buf_en);
+      dgus.writeStringVar(VP_Fan_Speed_Dis, FAN_Speed_buf_en);
 
       const char Printing_buf_en[] = "Printing";
-      dgus.writeStringVariable(VP_Printing_Dis, Printing_buf_en);
+      dgus.writeStringVar(VP_Printing_Dis, Printing_buf_en);
 
       const char Info_EEPROM_1_buf_en[] = "Store setting?";
-      dgus.writeStringVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_en);
+      dgus.writeStringVar(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_en);
 
       const char Info_EEPROM_2_buf_en[] = "Revert setting?";
-      dgus.writeStringVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_en);
+      dgus.writeStringVar(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_en);
 
       const char Info_PrintFinish_1_buf_en[] = "Print Done";
-      dgus.writeStringVariable(VP_Info_PrintFinish_1_Dis, Info_PrintFinish_1_buf_en);
+      dgus.writeStringVar(VP_Info_PrintFinish_1_Dis, Info_PrintFinish_1_buf_en);
 
       const char TMC_X_Step_buf_en[] = "X Sensitivity";
-      dgus.writeStringVariable(VP_TMC_X_SENS_Dis, TMC_X_Step_buf_en);
+      dgus.writeStringVar(VP_TMC_X_SENS_Dis, TMC_X_Step_buf_en);
 
       const char TMC_Y_Step_buf_en[] = "Y Sensitivity";
-      dgus.writeStringVariable(VP_TMC_Y_SENS_Dis, TMC_Y_Step_buf_en);
+      dgus.writeStringVar(VP_TMC_Y_SENS_Dis, TMC_Y_Step_buf_en);
 
       const char TMC_Z_Step_buf_en[] = "Z Sensitivity";
-      dgus.writeStringVariable(VP_TMC_Z_SENS_Dis, TMC_Z_Step_buf_en);
+      dgus.writeStringVar(VP_TMC_Z_SENS_Dis, TMC_Z_Step_buf_en);
 
       const char TMC_X_Current_buf_en[] = "X Current";
-      dgus.writeStringVariable(VP_TMC_X_Current_Dis, TMC_X_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_X_Current_Dis, TMC_X_Current_buf_en);
 
       const char TMC_Y_Current_buf_en[] = "Y Current";
-      dgus.writeStringVariable(VP_TMC_Y_Current_Dis, TMC_Y_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_Y_Current_Dis, TMC_Y_Current_buf_en);
 
       const char TMC_Z_Current_buf_en[] = "Z Current";
-      dgus.writeStringVariable(VP_TMC_Z_Current_Dis, TMC_Z_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_Z_Current_Dis, TMC_Z_Current_buf_en);
 
       const char TMC_E0_Current_buf_en[] = "E0 Current";
-      dgus.writeStringVariable(VP_TMC_E0_Current_Dis, TMC_E0_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_E0_Current_Dis, TMC_E0_Current_buf_en);
 
       const char TMC_X1_Current_buf_en[] = "X2 Current";
-      dgus.writeStringVariable(VP_TMC_X1_Current_Dis, TMC_X1_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_X1_Current_Dis, TMC_X1_Current_buf_en);
 
       const char TMC_Y1_Current_buf_en[] = "Y2 Current";
-      dgus.writeStringVariable(VP_TMC_Y1_Current_Dis, TMC_Y1_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_Y1_Current_Dis, TMC_Y1_Current_buf_en);
 
       const char TMC_Z1_Current_buf_en[] = "Z2 Current";
-      dgus.writeStringVariable(VP_TMC_Z1_Current_Dis, TMC_Z1_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_Z1_Current_Dis, TMC_Z1_Current_buf_en);
 
       const char TMC_E1_Current_buf_en[] = "E1 Current";
-      dgus.writeStringVariable(VP_TMC_E1_Current_Dis, TMC_E1_Current_buf_en);
+      dgus.writeStringVar(VP_TMC_E1_Current_Dis, TMC_E1_Current_buf_en);
 
       const char Min_Ex_Temp_buf_en[] = "Min Extrude Temp";
-      dgus.writeStringVariable(VP_Min_Ex_Temp_Dis, Min_Ex_Temp_buf_en);
+      dgus.writeStringVar(VP_Min_Ex_Temp_Dis, Min_Ex_Temp_buf_en);
 
       const char X_Offset_buf_en[] = "X Offset";
-      dgus.writeStringVariable(VP_X_Offset_Dis, X_Offset_buf_en);
+      dgus.writeStringVar(VP_X_Offset_Dis, X_Offset_buf_en);
 
       const char Y_Offset_buf_en[] = "Y Offset";
-      dgus.writeStringVariable(VP_Y_Offset_Dis, Y_Offset_buf_en);
+      dgus.writeStringVar(VP_Y_Offset_Dis, Y_Offset_buf_en);
 
       const char Z_Offset_buf_en[] = "Z Offset";
-      dgus.writeStringVariable(VP_Z_Offset_Dis, Z_Offset_buf_en);
+      dgus.writeStringVar(VP_Z_Offset_Dis, Z_Offset_buf_en);
 
       const char AutoLEVEL_INFO1_buf_en[] = "Please Press Button!";
-      dgus.writeStringVariable(VP_AutoLEVEL_INFO1, AutoLEVEL_INFO1_buf_en);
+      dgus.writeStringVar(VP_AutoLEVEL_INFO1, AutoLEVEL_INFO1_buf_en);
 
       const char EX_TEMP_INFO2_buf_en[] = "Please wait a monent";
-      dgus.writeStringVariable(VP_EX_TEMP_INFO2_Dis, EX_TEMP_INFO2_buf_en);
+      dgus.writeStringVar(VP_EX_TEMP_INFO2_Dis, EX_TEMP_INFO2_buf_en);
 
       const char EX_TEMP_INFO3_buf_en[] = "Cancel";
-      dgus.writeStringVariable(VP_EX_TEMP_INFO3_Dis, EX_TEMP_INFO3_buf_en);
+      dgus.writeStringVar(VP_EX_TEMP_INFO3_Dis, EX_TEMP_INFO3_buf_en);
 
       const char PrintConfirm_Info_buf_en[] = "Start Print?";
-      dgus.writeStringVariable(VP_PrintConfirm_Info_Dis, PrintConfirm_Info_buf_en);
+      dgus.writeStringVar(VP_PrintConfirm_Info_Dis, PrintConfirm_Info_buf_en);
 
       const char StopPrintConfirm_Info_buf_en[] = "Stop Print?";
-      dgus.writeStringVariable(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_en);
+      dgus.writeStringVar(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_en);
 
       const char LCD_BLK_buf_en[] = "Backlight";
-      dgus.writeStringVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_en);
+      dgus.writeStringVar(VP_LCD_BLK_Dis, LCD_BLK_buf_en);
 
     } break;
 

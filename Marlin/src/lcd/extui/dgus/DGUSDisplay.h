@@ -68,17 +68,17 @@ public:
   static void writeVariable(uint16_t adr, int8_t value);
   static void writeVariable(uint16_t adr, long value);
 
-  static void writeStringVariable_P(uint16_t adr, PGM_P const pstr, uint8_t vallen=32) {
+  static void writeStringVar_P(uint16_t adr, PGM_P const pstr, uint8_t vallen=32) {
     writeVariable_P(adr, (const void *)pstr, vallen, true);
   }
-  static void writeStringVariable(uint16_t adr, const char * const cstr, uint8_t vallen=32) {
+  static void writeStringVar(uint16_t adr, const char * const cstr, uint8_t vallen=32) {
     writeVariable(adr, (const void *)cstr, vallen, true);
   }
-  static void writeStringVariable(uint16_t adr, const uint16_t * const zhstr, uint8_t vallen=16) {
+  static void writeStringVar(uint16_t adr, const uint16_t * const zhstr, uint8_t vallen=16) {
     writeVariable(adr, (const void *)zhstr, vallen, true);
   }
   static void writeVariable(uint16_t adr, FSTR_P const fstr, uint8_t vallen=32) {
-    writeStringVariable_P(adr, FTOP(fstr), vallen);
+    writeStringVar_P(adr, FTOP(fstr), vallen);
   }
 
   // Utility functions for bridging ui_api and dgus
