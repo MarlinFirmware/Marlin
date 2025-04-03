@@ -525,14 +525,14 @@ public:
 
     #if HAS_WIRED_LCD
 
-      static bool detected();
-      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); } // Tell the screen to redraw on the next call
-
       static millis_t next_button_update_ms;
 
       static LCDViewAction lcdDrawUpdate;
       FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
       FORCE_INLINE static void refresh(const LCDViewAction type) { lcdDrawUpdate = type; }
+      FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); } // Tell the screen to redraw on the next call
+
+      static bool detected();
 
       #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
         static void draw_custom_bootscreen(const uint8_t frame=0);
@@ -597,7 +597,6 @@ public:
 
       static void quick_feedback(const bool=true) {}
       static bool detected() { return true; }
-      FORCE_INLINE static void refresh() {}
 
     #endif // HAS_WIRED_LCD
 
