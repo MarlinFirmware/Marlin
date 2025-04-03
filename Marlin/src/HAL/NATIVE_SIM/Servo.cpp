@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,11 +24,17 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if HAS_BED_PROBE
+  // Simulator bed probbe always needs simbltouch otherwise it will not compile
+  #include "bltouch.h"
+  Bltouch simbltouch;
+#endif // HAS_BED_PROBE
+
 #if HAS_SERVOS
 
 #include "Servo.h"
 
-#define DEBUG_SERVOS
+//#define DEBUG_SERVOS
 #define DEBUG_OUT ENABLED(DEBUG_SERVOS)
 #include "../../../core/debug_out.h"
 
@@ -59,6 +65,20 @@ void Servo::detach() {
 
 void Servo::write(int value) {
   // Write stub
+  #if ENABLED(BLTOUCH)
+    if (this->servoIndex == Z_PROBE_SERVO_NR) {
+      switch (value) {
+        case BLTOUCH_DEPLOY:
+          simbltouch.enable();
+          break;
+        case BLTOUCH_STOW:
+          simbltouch.disable();
+          break;
+        default:
+          break;
+      }
+    }
+  #endif // BLTOUCH
   this->value = value;
   DEBUG_ECHOLNPGM("Debug Servo: write ", value);
 }
