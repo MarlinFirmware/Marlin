@@ -663,7 +663,8 @@ namespace LanguageNarrow_uk {
   LSTR MSG_TMC_HYBRID_THRS                  = _UxGT("Гібридний поріг");
   LSTR MSG_TMC_HOMING_THRS                  = _UxGT("Дім без кінцевиків");
   LSTR MSG_TMC_STEPPING_MODE                = _UxGT("Режим мікрокроку");
-  LSTR MSG_TMC_STEALTH_ENABLED              = _UxGT("Тихий режим увімк.");
+  LSTR MSG_TMC_STEALTHCHOP                  = _UxGT("Тихий режим увімк.");
+
   LSTR MSG_SERVICE_RESET                    = _UxGT("Зкидання");
   LSTR MSG_SERVICE_IN                       = _UxGT(" в:");
   LSTR MSG_BACKLASH                         = _UxGT("Люфт");
