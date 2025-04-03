@@ -1619,6 +1619,10 @@
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
 
+  #if ENABLED(U8GLIB_SSD1309)
+    //#define LCD_DOUBLE_BUFFER           // Optimize display updates. Costs ~1K of SRAM.
+  #endif
+
   #if HAS_WIRED_LCD
     //#define DOUBLE_LCD_FRAMERATE        // Not recommended for slow boards.
   #endif
