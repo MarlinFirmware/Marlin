@@ -74,7 +74,7 @@ void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2
 
 void DGUSScreenHandlerMKS::sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language) {
   if (language == MKS_English)
-    DGUSScreenHandlerMKS::sendInfoScreen((char *)line1, (char *)line2, (char *)line3, (char *)line4);
+    DGUSScreenHandlerMKS::sendInfoScreen_P((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
     DGUSScreenHandlerMKS::sendInfoScreen((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
 }
@@ -1362,7 +1362,7 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
       const char FactoryDefaults_buf_en[] = "Factory Defaults";
       dgus.writeStringVar(VP_FactoryDefaults_Dis, FactoryDefaults_buf_en);
 
-      const char StoreSetting_buf_en[] = "Store Setting";
+      const char StoreSetting_buf_en[] = "Store Settings";
       dgus.writeStringVar(VP_StoreSetting_Dis, StoreSetting_buf_en);
 
       const char PrintPauseConfig_buf_en[] = "PrintPause Config";
@@ -1455,10 +1455,10 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
       const char Printing_buf_en[] = "Printing";
       dgus.writeStringVar(VP_Printing_Dis, Printing_buf_en);
 
-      const char Info_EEPROM_1_buf_en[] = "Store setting?";
+      const char Info_EEPROM_1_buf_en[] = "Store Settings?";
       dgus.writeStringVar(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_en);
 
-      const char Info_EEPROM_2_buf_en[] = "Revert setting?";
+      const char Info_EEPROM_2_buf_en[] = "Revert Settings?";
       dgus.writeStringVar(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_en);
 
       const char Info_PrintFinish_1_buf_en[] = "Print Done";
