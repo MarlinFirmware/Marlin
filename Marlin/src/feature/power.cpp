@@ -261,7 +261,7 @@ void Power::power_off() {
       nextPowerCheck = now + 2500UL;
       if (is_power_needed())
         power_on();
-      else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn + SEC_TO_MS(POWER_TIMEOUT))))
+      else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn, SEC_TO_MS(POWER_TIMEOUT))))
         power_off();
     }
   }

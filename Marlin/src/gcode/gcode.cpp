@@ -139,6 +139,7 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
  * Get the target E stepper from the 'T' parameter.
  * If there is no 'T' parameter then dval will be substituted.
  * Returns -1 if the resulting E stepper index is out of range.
+ * Use a default of -2 for silent failure.
  */
 int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   const int8_t e = parser.intval('T', dval);
@@ -242,11 +243,11 @@ void GcodeSuite::get_destination_from_command() {
 }
 
 /**
- * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
+ * Dwell waits immediately. It does not synchronize.
  */
-void GcodeSuite::dwell(millis_t time) {
-  time += millis();
-  while (PENDING(millis(), time)) idle();
+void GcodeSuite::dwell(const millis_t time) {
+  const millis_t start_ms = millis();
+  while (PENDING(millis(), start_ms, time)) idle();
 }
 
 /**
@@ -1055,12 +1056,15 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 912: M912(); break;                                // M912: Clear TMC2130 prewarn triggered flags
         #endif
         #if ENABLED(HYBRID_THRESHOLD)
-          case 913: M913(); break;                                // M913: Set HYBRID_THRESHOLD speed.
+          case 913: M913(); break;                                // M913: Set HYBRID_THRESHOLD speed
         #endif
         #if USE_SENSORLESS
-          case 914: M914(); break;                                // M914: Set StallGuard sensitivity.
+          case 914: M914(); break;                                // M914: Set StallGuard sensitivity
         #endif
         case 919: M919(); break;                                  // M919: Set stepper Chopper Times
+        #if ENABLED(EDITABLE_HOMING_CURRENT)
+          case 920: M920(); break;                                // M920: Set Homing Current
+        #endif
       #endif
 
       #if HAS_MICROSTEPS

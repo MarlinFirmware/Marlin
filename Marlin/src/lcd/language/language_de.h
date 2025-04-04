@@ -719,7 +719,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid threshold");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorloses Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Schrittmodus");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop einsch.");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" im:");
   LSTR MSG_BACKLASH                       = _UxGT("Spiel");
