@@ -208,13 +208,6 @@ public:
 
   static void init();
 
-  #if HAS_WIRED_LCD
-    static bool detected();
-  #else
-    static bool detected() { return true; }
-    static void quick_feedback(const bool=true) {}
-  #endif
-
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
@@ -501,6 +494,9 @@ public:
 
   #if HAS_DISPLAY
 
+    // Periodic or as-needed display update
+    static void update();
+
     static void init_lcd();
 
     // Erase the LCD contents. Do the lowest-level thing required to clear the LCD.
@@ -509,13 +505,12 @@ public:
     // Clear the LCD before new drawing. Some LCDs do nothing because they redraw frequently.
     static void clear_for_drawing();
 
-    static void draw_kill_screen();
-    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
-    static void update();
-
     static void abort_print();
     static void pause_print();
     static void resume_print();
+
+    static void draw_kill_screen();
+    static void kill_screen(FSTR_P const lcd_error, FSTR_P const lcd_component);
 
     #if DISABLED(LIGHTWEIGHT_UI)
       static void draw_status_message(const bool blink);
@@ -614,15 +609,20 @@ public:
 
   #else // No LCD
 
+    static void update() {}
     static void init_lcd() {}
     static void clear_lcd() {}
     static void clear_for_drawing() {}
     static void kill_screen(FSTR_P const, FSTR_P const) {}
-    static void update() {}
 
   #endif // HAS_DISPLAY
 
+  static bool detected() IF_DISABLED(HAS_WIRED_LCD, { return true; });
   static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+
+  #if !HAS_WIRED_LCD
+    static void quick_feedback(const bool=true) {}
+  #endif
 
   static void completion_feedback(const bool good=true);
 
@@ -719,9 +719,6 @@ public:
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_plot(const uint8_t x_plot, const uint8_t y_plot);
-    #endif
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
       static void ubl_mesh_edit_start(const_float_t initial);
       static float ubl_mesh_value();
     #endif
