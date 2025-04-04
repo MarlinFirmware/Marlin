@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 # Written By Marcio Teixeira 2021 - SynDaver Labs, Inc.
-# Edited By Andrew 2025 - ClassicRocker883
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +32,7 @@ class WriteSource:
             self.byte   = 0
 
     def add_bits_to_byte(self, value, size=1):
-        self.offset    -= size
+        self.offset -= size
         self.byte = self.byte | value << self.offset
         if self.offset == 0:
             self.finish_byte()
