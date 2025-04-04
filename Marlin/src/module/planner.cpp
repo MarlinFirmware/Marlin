@@ -2227,7 +2227,7 @@ bool Planner::_populate_block(
   else
     NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
 
-  const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
+  const float inverse_millimeters = 1.0f / block->millimeters; // Inverse millimeters to remove multiple divides
 
   /**
    * Calculate inverse time for this move. No divide by zero due to previous checks.

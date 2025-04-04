@@ -264,9 +264,9 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if ENABLED(NONLINEAR_EXTRUSION)
   ne_coeff_t Stepper::ne;
-  ne_fix_t Stepper::ne_fix;
-  int32_t Stepper::ne_edividend;
-  uint32_t Stepper::ne_scale;
+  ne_fix_t   Stepper::ne_fix;
+  int32_t    Stepper::ne_edividend;
+  uint32_t   Stepper::ne_scale;
 #endif
 
 #if HAS_ZV_SHAPING
@@ -281,12 +281,12 @@ uint32_t Stepper::advance_divisor = 0,
   shaping_echo_axis_t ShapingQueue::echo_axes[shaping_echoes];
   uint16_t            ShapingQueue::tail = 0;
 
-  #define SHAPING_VAR_DEFS(AXIS)                                           \
-    shaping_time_t  ShapingQueue::delay_##AXIS;                            \
-    shaping_time_t  ShapingQueue::_peek_##AXIS = shaping_time_t(-1);       \
-    uint16_t        ShapingQueue::head_##AXIS = 0;                         \
-    uint16_t        ShapingQueue::_free_count_##AXIS = shaping_echoes - 1; \
-    ShapeParams     Stepper::shaping_##AXIS;
+  #define SHAPING_VAR_DEFS(AXIS)                                          \
+    shaping_time_t ShapingQueue::delay_##AXIS;                            \
+    shaping_time_t ShapingQueue::_peek_##AXIS = shaping_time_t(-1);       \
+    uint16_t       ShapingQueue::head_##AXIS = 0;                         \
+    uint16_t       ShapingQueue::_free_count_##AXIS = shaping_echoes - 1; \
+    ShapeParams    Stepper::shaping_##AXIS;
 
   TERN_(INPUT_SHAPING_X, SHAPING_VAR_DEFS(x))
   TERN_(INPUT_SHAPING_Y, SHAPING_VAR_DEFS(y))
@@ -306,7 +306,7 @@ hal_timer_t Stepper::ticks_nominal = 0;
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-xyz_long_t Stepper::endstops_trigsteps;
+xyz_long_t  Stepper::endstops_trigsteps;
 xyze_long_t Stepper::count_position{0};
 xyze_int8_t Stepper::count_direction{0};
 
@@ -426,7 +426,7 @@ xyze_int8_t Stepper::count_direction{0};
     else if (last_moved_extruder) X2_STEP_WRITE(STATE); else X_STEP_WRITE(STATE); \
   }while(0)
 #elif HAS_X_AXIS
-  #define X_APPLY_DIR(FWD,Q) X_DIR_WRITE(FWD)
+  #define X_APPLY_DIR(FWD,Q)    X_DIR_WRITE(FWD)
   #define X_APPLY_STEP(STATE,Q) X_STEP_WRITE(STATE)
 #endif
 
@@ -438,7 +438,7 @@ xyze_int8_t Stepper::count_direction{0};
     #define Y_APPLY_STEP(STATE,Q) do{ Y_STEP_WRITE(STATE); Y2_STEP_WRITE(STATE); }while(0)
   #endif
 #elif HAS_Y_AXIS
-  #define Y_APPLY_DIR(FWD,Q) Y_DIR_WRITE(FWD)
+  #define Y_APPLY_DIR(FWD,Q)    Y_DIR_WRITE(FWD)
   #define Y_APPLY_STEP(STATE,Q) Y_STEP_WRITE(STATE)
 #endif
 
@@ -475,32 +475,32 @@ xyze_int8_t Stepper::count_direction{0};
     #define Z_APPLY_STEP(STATE,Q) do{ Z_STEP_WRITE(STATE); Z2_STEP_WRITE(STATE); }while(0)
   #endif
 #elif HAS_Z_AXIS
-  #define Z_APPLY_DIR(FWD,Q) Z_DIR_WRITE(FWD)
+  #define Z_APPLY_DIR(FWD,Q)    Z_DIR_WRITE(FWD)
   #define Z_APPLY_STEP(STATE,Q) Z_STEP_WRITE(STATE)
 #endif
 
 #if HAS_I_AXIS
-  #define I_APPLY_DIR(FWD,Q) I_DIR_WRITE(FWD)
+  #define I_APPLY_DIR(FWD,Q)    I_DIR_WRITE(FWD)
   #define I_APPLY_STEP(STATE,Q) I_STEP_WRITE(STATE)
 #endif
 #if HAS_J_AXIS
-  #define J_APPLY_DIR(FWD,Q) J_DIR_WRITE(FWD)
+  #define J_APPLY_DIR(FWD,Q)    J_DIR_WRITE(FWD)
   #define J_APPLY_STEP(STATE,Q) J_STEP_WRITE(STATE)
 #endif
 #if HAS_K_AXIS
-  #define K_APPLY_DIR(FWD,Q) K_DIR_WRITE(FWD)
+  #define K_APPLY_DIR(FWD,Q)    K_DIR_WRITE(FWD)
   #define K_APPLY_STEP(STATE,Q) K_STEP_WRITE(STATE)
 #endif
 #if HAS_U_AXIS
-  #define U_APPLY_DIR(FWD,Q) U_DIR_WRITE(FWD)
+  #define U_APPLY_DIR(FWD,Q)    U_DIR_WRITE(FWD)
   #define U_APPLY_STEP(STATE,Q) U_STEP_WRITE(STATE)
 #endif
 #if HAS_V_AXIS
-  #define V_APPLY_DIR(FWD,Q) V_DIR_WRITE(FWD)
+  #define V_APPLY_DIR(FWD,Q)    V_DIR_WRITE(FWD)
   #define V_APPLY_STEP(STATE,Q) V_STEP_WRITE(STATE)
 #endif
 #if HAS_W_AXIS
-  #define W_APPLY_DIR(FWD,Q) W_DIR_WRITE(FWD)
+  #define W_APPLY_DIR(FWD,Q)    W_DIR_WRITE(FWD)
   #define W_APPLY_STEP(STATE,Q) W_STEP_WRITE(STATE)
 #endif
 
@@ -1437,28 +1437,28 @@ void Stepper::apply_directions() {
         int32_t C = bezier_C;
 
          __asm__ __volatile__(
-          ".syntax unified" "\n\t"              // is to prevent CM0,CM1 non-unified syntax
-          A("lsrs  %[ahi],%[alo],#1")           // a  = F << 31      1 cycles
-          A("lsls  %[alo],%[alo],#31")          //                   1 cycles
-          A("umull %[flo],%[fhi],%[fhi],%[t]")  // f *= t            5 cycles [fhi:flo=64bits]
-          A("umull %[flo],%[fhi],%[fhi],%[t]")  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
-          A("lsrs  %[flo],%[fhi],#1")           //                   1 cycles [31bits]
-          A("smlal %[alo],%[ahi],%[flo],%[C]")  // a+=(f>>33)*C;     5 cycles
-          A("umull %[flo],%[fhi],%[fhi],%[t]")  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
-          A("lsrs  %[flo],%[fhi],#1")           //                   1 cycles [31bits]
-          A("smlal %[alo],%[ahi],%[flo],%[B]")  // a+=(f>>33)*B;     5 cycles
-          A("umull %[flo],%[fhi],%[fhi],%[t]")  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
-          A("lsrs  %[flo],%[fhi],#1")           // f>>=33;           1 cycles [31bits]
-          A("smlal %[alo],%[ahi],%[flo],%[A]")  // a+=(f>>33)*A;     5 cycles
-          A("lsrs  %[alo],%[ahi],#6")           // a>>=38            1 cycles
+          ".syntax unified" "\n\t"             // is to prevent CM0,CM1 non-unified syntax
+          A("lsrs  %[ahi],%[alo],#1")          // a  = F << 31      1 cycles
+          A("lsls  %[alo],%[alo],#31")         //                   1 cycles
+          A("umull %[flo],%[fhi],%[fhi],%[t]") // f *= t            5 cycles [fhi:flo=64bits]
+          A("umull %[flo],%[fhi],%[fhi],%[t]") // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+          A("lsrs  %[flo],%[fhi],#1")          //                   1 cycles [31bits]
+          A("smlal %[alo],%[ahi],%[flo],%[C]") // a+=(f>>33)*C;     5 cycles
+          A("umull %[flo],%[fhi],%[fhi],%[t]") // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+          A("lsrs  %[flo],%[fhi],#1")          //                   1 cycles [31bits]
+          A("smlal %[alo],%[ahi],%[flo],%[B]") // a+=(f>>33)*B;     5 cycles
+          A("umull %[flo],%[fhi],%[fhi],%[t]") // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+          A("lsrs  %[flo],%[fhi],#1")          // f>>=33;           1 cycles [31bits]
+          A("smlal %[alo],%[ahi],%[flo],%[A]") // a+=(f>>33)*A;     5 cycles
+          A("lsrs  %[alo],%[ahi],#6")          // a>>=38            1 cycles
           : [alo]"+r"( alo ) ,
             [flo]"+r"( flo ) ,
             [fhi]"+r"( fhi ) ,
             [ahi]"+r"( ahi ) ,
-            [A]"+r"( A ) ,  // <== Note: Even if A, B, C, and t registers are INPUT ONLY
-            [B]"+r"( B ) ,  //  GCC does bad optimizations on the code if we list them as
-            [C]"+r"( C ) ,  //  such, breaking this function. So, to avoid that problem,
-            [t]"+r"( t )    //  we list all registers as input-outputs.
+            [A]"+r"( A ) , // <== Note: Even if A, B, C, and t registers are INPUT ONLY
+            [B]"+r"( B ) , //  GCC does bad optimizations on the code if we list them as
+            [C]"+r"( C ) , //  such, breaking this function. So, to avoid that problem,
+            [t]"+r"( t )   //  we list all registers as input-outputs.
           :
           : "cc"
         );

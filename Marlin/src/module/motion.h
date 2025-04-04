@@ -45,8 +45,8 @@ constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
-extern xyze_pos_t current_position,  // High-level current tool position
-                  destination;       // Destination for a move
+extern xyze_pos_t current_position, // High-level current tool position
+                  destination;      // Destination for a move
 
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
@@ -470,20 +470,20 @@ void set_axis_is_at_home(const AxisEnum axis);
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
 #endif
 
-inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
-inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
-inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
-inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
-inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
-inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
+inline void set_axis_unhomed(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
+inline void set_axis_untrusted(const AxisEnum axis) { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
+inline void set_all_unhomed()                       { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
+inline void set_axis_homed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
+inline void set_axis_trusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
+inline void set_all_homed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
-inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
-inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
-inline bool axis_should_home(const AxisEnum axis)     { return axes_should_home(_BV(axis)) != 0; }
-inline bool no_axes_homed()                           { return !axes_homed; }
-inline bool all_axes_homed()                          { return main_axes_mask == (axes_homed & main_axes_mask); }
-inline bool homing_needed()                           { return !all_axes_homed(); }
-inline bool all_axes_trusted()                        { return main_axes_mask == (axes_trusted & main_axes_mask); }
+inline bool axis_was_homed(const AxisEnum axis)     { return TEST(axes_homed, axis); }
+inline bool axis_is_trusted(const AxisEnum axis)    { return TEST(axes_trusted, axis); }
+inline bool axis_should_home(const AxisEnum axis)   { return axes_should_home(_BV(axis)) != 0; }
+inline bool no_axes_homed()                         { return !axes_homed; }
+inline bool all_axes_homed()                        { return main_axes_mask == (axes_homed & main_axes_mask); }
+inline bool homing_needed()                         { return !all_axes_homed(); }
+inline bool all_axes_trusted()                      { return main_axes_mask == (axes_trusted & main_axes_mask); }
 
 void home_if_needed(const bool keeplev=false);
 
@@ -589,7 +589,7 @@ void home_if_needed(const bool keeplev=false);
  * Duplication mode
  */
 #if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
+  extern bool extruder_duplication_enabled; // Used in Dual X mode 2
 #endif
 
 /**
@@ -605,13 +605,13 @@ void home_if_needed(const bool keeplev=false);
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x,                 // Used in mode 0 & 1
-               duplicate_extruder_x_offset;         // Used in mode 2 & 3
-  extern xyz_pos_t raised_parked_position;          // Used in mode 1
-  extern millis_t delayed_move_time;                // Used in mode 1
-  extern celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
-  extern bool active_extruder_parked,               // Used in mode 1, 2 & 3
-              idex_mirrored_mode;                   // Used in mode 3
+  extern float inactive_extruder_x,                // Used in mode 0 & 1
+               duplicate_extruder_x_offset;        // Used in mode 2 & 3
+  extern xyz_pos_t raised_parked_position;         // Used in mode 1
+  extern millis_t delayed_move_time;               // Used in mode 1
+  extern celsius_t duplicate_extruder_temp_offset; // Used in mode 2 & 3
+  extern bool active_extruder_parked,              // Used in mode 1, 2 & 3
+              idex_mirrored_mode;                  // Used in mode 3
 
   FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
