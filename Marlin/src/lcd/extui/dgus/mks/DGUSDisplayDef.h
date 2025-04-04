@@ -213,9 +213,9 @@ enum DGUS_ScreenID : uint8_t {
   #endif
 
   DGUS_SCREEN_CONFIRM               = 240,
-  DGUS_SCREEN_KILL                  = 250,  ///< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
+  DGUS_SCREEN_KILL                  = 250,  //!< Kill Screen. Must always be 250 (to be able to display "Error wrong LCD Version")
   DGUS_SCREEN_WAITING               = 252,  // Missing in 1.30 and 1.31 firmware, workaround
-  DGUS_SCREEN_POPUP                 = 252,  ///< special target, popup screen will also return this code to say "return to previous screen"
+  DGUS_SCREEN_POPUP                 = 252,  //!< special target, popup screen will also return this code to say "return to previous screen"
   DGUS_SCREEN_UNUSED                = 255
 };
 
@@ -327,7 +327,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_E0_FILAMENT_LOAD_UNLOAD       = 0x2500;
   constexpr uint16_t VP_E1_FILAMENT_LOAD_UNLOAD       = 0x2504;
   constexpr uint16_t VP_LOAD_Filament                 = 0x2508;
-  //constexpr uint16_t VP_LOAD_UNLOAD_Cancel            = 0x250A;
+  //constexpr uint16_t VP_LOAD_UNLOAD_Cancel          = 0x250A;
   constexpr uint16_t VP_UNLOAD_Filament               = 0x250B;
   constexpr uint16_t VP_Filament_distance             = 0x2600;
   constexpr uint16_t VP_Filament_speed                = 0x2604;
@@ -492,8 +492,8 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
   constexpr uint16_t VP_E1_BED_PREHEAT                = 0x4022;
 
   // Filament load and unload
-  // constexpr uint16_t VP_E0_FILAMENT_LOAD_UNLOAD      = 0x4030;
-  // constexpr uint16_t VP_E1_FILAMENT_LOAD_UNLOAD      = 0x4032;
+  //constexpr uint16_t VP_E0_FILAMENT_LOAD_UNLOAD     = 0x4030;
+  //constexpr uint16_t VP_E1_FILAMENT_LOAD_UNLOAD     = 0x4032;
 
   // Settings store , reset
 

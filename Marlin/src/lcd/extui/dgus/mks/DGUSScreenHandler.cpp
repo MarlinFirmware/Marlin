@@ -65,11 +65,18 @@ void DGUSScreenHandlerMKS::sendInfoScreen(const uint16_t *line1, const uint16_t 
   dgus.writeStringVar(VP_MSGSTR4, line4);
 }
 
-void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
+void DGUSScreenHandlerMKS::sendInfoScreen(const char *line1, const char *line2, const char *line3, const char *line4) {
   dgus.writeStringVar(VP_MSGSTR1, line1);
   dgus.writeStringVar(VP_MSGSTR2, line2);
   dgus.writeStringVar(VP_MSGSTR3, line3);
   dgus.writeStringVar(VP_MSGSTR4, line4);
+}
+
+void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
+  dgus.writeStringVar_P(VP_MSGSTR1, line1);
+  dgus.writeStringVar_P(VP_MSGSTR2, line2);
+  dgus.writeStringVar_P(VP_MSGSTR3, line3);
+  dgus.writeStringVar_P(VP_MSGSTR4, line4);
 }
 
 void DGUSScreenHandlerMKS::sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language) {
@@ -110,7 +117,7 @@ void DGUSScreenHandlerMKS::setUint8(DGUS_VP_Variable &var, void *val_ptr) {
 
 void DGUSScreenHandlerMKS::sendGbkToDisplay(DGUS_VP_Variable &var) {
   uint16_t *tmp = (uint16_t*) var.memadr;
-  dgus.writeVariable(var.VP, tmp, var.size, true);
+  dgus.writeStringVar(var.VP, tmp, var.size);
 }
 
 void DGUSScreenHandlerMKS::sendStringToDisplay_Language(DGUS_VP_Variable &var) {
@@ -118,11 +125,11 @@ void DGUSScreenHandlerMKS::sendStringToDisplay_Language(DGUS_VP_Variable &var) {
     default:
     case MKS_English: {
       char *tmp = (char*) var.memadr;
-      dgus.writeVariable(var.VP, tmp, var.size, true);
+      dgus.writeStringVar(var.VP, tmp, var.size);
     } break;
     case MKS_SimpleChinese: {
       uint16_t *tmp = (uint16_t *)var.memadr;
-      dgus.writeVariable(var.VP, tmp, var.size, true);
+      dgus.writeStringVar(var.VP, tmp, var.size);
     } break;
   }
 }
@@ -168,7 +175,7 @@ void DGUSScreenHandlerMKS::sendTMCSensValue(DGUS_VP_Variable &var) {
 
     #if ENABLED(DGUS_PRINT_FILENAME)
       // Send print filename
-      dgus.writeVariable(VP_SD_Print_Filename, filelist.filename(), VP_SD_FileName_LEN, true);
+      dgus.writeStringVar(VP_SD_Print_Filename, filelist.filename(), VP_SD_FileName_LEN);
     #endif
 
     // Setup Confirmation screen
@@ -391,8 +398,7 @@ void DGUSScreenHandlerMKS::languageChange(DGUS_VP_Variable &var, void *val_ptr) 
   if (lang != MKS_SimpleChinese && lang != MKS_English) return;
   mks_language_index = lang;
   updateDisplayLanguage();
-  dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)(lang == MKS_English ? MKS_Language_NoChoose : MKS_Language_Choose));
-  dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)(lang == MKS_English ? MKS_Language_Choose : MKS_Language_NoChoose));
+  languagePInit();
   settings.save();
 }
 
@@ -1042,7 +1048,6 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
 
   void DGUSScreenHandler::handleFilamentOption(DGUS_VP_Variable &var, void *val_ptr) {
-    uint8_t e_temp = 0;
     filament_data.heated = false;
     uint16_t preheat_option = BE16_P(val_ptr);
     if (preheat_option >= 10) {     // Unload filament type
@@ -1055,6 +1060,7 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
     else                            // Cancel filament operation
       filament_data.action = 0;
 
+    uint8_t e_temp = 0;
     switch (preheat_option) {
       case 0: // Load PLA
         #ifdef PREHEAT_1_TEMP_HOTEND
@@ -1077,23 +1083,21 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
         #endif
         break;
       case 9: // Cool down
-      default: e_temp = 0; break;
+      default:
+        e_temp = 0; break;
     }
 
     if (filament_data.action == 0) { // Go back to utility screen
-      #if HAS_EXTRUDER
-        thermalManager.setTargetHotend(e_temp, 0);
-      #endif
-      #if HAS_MULTI_EXTRUDER
-        thermalManager.setTargetHotend(e_temp, 1);
-      #endif
+      TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
+      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }
+
     // Go to the preheat screen to show the heating progress
     switch (var.VP) {
       default: return;
-      #if HAS_EXTRUDER
+      #if HAS_EXTRUDERS
         case VP_E0_FILAMENT_LOAD_UNLOAD:
           filament_data.extruder = 0;
           thermalManager.setTargetHotend(e_temp, filament_data.extruder);
@@ -1197,17 +1201,8 @@ bool DGUSScreenHandlerMKS::loop() {
 }
 
 void DGUSScreenHandlerMKS::languagePInit() {
-  switch (mks_language_index) {
-    default:
-    case MKS_English:
-      dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_NoChoose);
-      dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_Choose);
-      break;
-    case MKS_SimpleChinese:
-      dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)MKS_Language_Choose);
-      dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)MKS_Language_NoChoose);
-      break;
-  }
+  dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)(lang == MKS_English ? MKS_Language_NoChoose : MKS_Language_Choose));
+  dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)(lang == MKS_English ? MKS_Language_Choose : MKS_Language_NoChoose));
 }
 
 void DGUSScreenHandlerMKS::extrudeLoadInit() {
@@ -1512,7 +1507,7 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
       const char AutoLEVEL_INFO1_buf_en[] = "Please Press Button!";
       dgus.writeStringVar(VP_AutoLEVEL_INFO1, AutoLEVEL_INFO1_buf_en);
 
-      const char EX_TEMP_INFO2_buf_en[] = "Please wait a monent";
+      const char EX_TEMP_INFO2_buf_en[] = "Please wait a moment";
       dgus.writeStringVar(VP_EX_TEMP_INFO2_Dis, EX_TEMP_INFO2_buf_en);
 
       const char EX_TEMP_INFO3_buf_en[] = "Cancel";
@@ -1527,47 +1522,47 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
       const char LCD_BLK_buf_en[] = "Backlight";
       dgus.writeStringVar(VP_LCD_BLK_Dis, LCD_BLK_buf_en);
 
-    } break;
+    } break; // MKS_English
 
-    case MKS_SimpleChinese : {
+    case MKS_SimpleChinese: {
       uint16_t home_buf_ch[] = { 0xF7D6, 0xB3D2 };
-      dgus.writeVariable(VP_HOME_Dis, home_buf_ch, 4, true);
+      dgus.writeStringVar(VP_HOME_Dis, home_buf_ch, 4);
 
       const uint16_t Setting_Dis[] = { 0xE8C9, 0xC3D6, 0x2000, 0x2000, 0x2000 };
-      dgus.writeVariable(VP_Setting_Dis, Setting_Dis, 7, true);
+      dgus.writeStringVar(VP_Setting_Dis, Setting_Dis, 7);
 
       const uint16_t Tool_Dis[] = { 0xA4B9, 0xDFBE };
-      dgus.writeVariable(VP_Tool_Dis, Tool_Dis, 4, true);
+      dgus.writeStringVar(VP_Tool_Dis, Tool_Dis, 4);
 
       const uint16_t Print_buf_ch[] = { 0xF2B4, 0xA1D3, 0x2000 };
-      dgus.writeVariable(VP_Print_Dis, Print_buf_ch, 6, true);
+      dgus.writeStringVar(VP_Print_Dis, Print_buf_ch, 6);
 
       const uint16_t Language_buf_ch[] = { 0xEFD3, 0xD4D1, 0x2000, 0x2000 };
-      dgus.writeVariable(VP_Language_Dis, Language_buf_ch, 8, true);
+      dgus.writeStringVar(VP_Language_Dis, Language_buf_ch, 8);
 
       const uint16_t About_buf_ch[] = { 0xD8B9, 0xDAD3, 0x2000 };
-      dgus.writeVariable(VP_About_Dis, About_buf_ch, 6, true);
+      dgus.writeStringVar(VP_About_Dis, About_buf_ch, 6);
 
       const uint16_t Config_buf_ch[] = { 0xE4C5, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_Config_Dis, Config_buf_ch, 6, true);
+      dgus.writeStringVar(VP_Config_Dis, Config_buf_ch, 6);
 
       const uint16_t MotorConfig_buf_ch[] = { 0xE7B5, 0xFABB, 0xE4C5, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_MotorConfig_Dis, MotorConfig_buf_ch, 12, true);
+      dgus.writeStringVar(VP_MotorConfig_Dis, MotorConfig_buf_ch, 12);
 
       const uint16_t LevelConfig_buf_ch[] = { 0xD6CA, 0xAFB6, 0xF7B5, 0xBDC6, 0xE8C9, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_LevelConfig_Dis, LevelConfig_buf_ch, 32, true);
+      dgus.writeStringVar(VP_LevelConfig_Dis, LevelConfig_buf_ch, 32);
 
       const uint16_t TemperatureConfig_buf_ch[] = { 0xC2CE, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TemperatureConfig_Dis, TemperatureConfig_buf_ch, 11, true);
+      dgus.writeStringVar(VP_TemperatureConfig_Dis, TemperatureConfig_buf_ch, 11);
 
       const uint16_t Advance_buf_ch[] = { 0xDFB8, 0xB6BC, 0xE8C9, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_Advance_Dis, Advance_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Advance_Dis, Advance_buf_ch, 32);
 
       const uint16_t Filament_buf_ch[] = { 0xB7BC, 0xF6B3, 0x2000 };
-      dgus.writeVariable(VP_Filament_Dis, Filament_buf_ch, 8, true);
+      dgus.writeStringVar(VP_Filament_Dis, Filament_buf_ch, 8);
 
       const uint16_t Move_buf_ch[] = { 0xC6D2, 0xAFB6, 0x2000  };
-      dgus.writeVariable(VP_Move_Dis, Move_buf_ch, 4, true);
+      dgus.writeStringVar(VP_Move_Dis, Move_buf_ch, 4);
 
       const uint16_t Level_buf_ch[] = {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -1579,211 +1574,211 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
         #endif
         , 0xF7B5, 0xBDC6, 0x2000
       };
-      dgus.writeVariable(VP_Level_Dis, Level_buf_ch, 32, true);
+      dgus.writeStringVar(VP_Level_Dis, Level_buf_ch, 32);
 
       const uint16_t AxisRes_buf_ch[] = { 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_AxisRes_Dis, AxisRes_buf_ch, 16, true);
+      dgus.writeStringVar(VP_AxisRes_Dis, AxisRes_buf_ch);
 
       const uint16_t AxisMaxSpeed_buf_ch[] = { 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_AxisMaxSpeed_Dis, AxisMaxSpeed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_AxisMaxSpeed_Dis, AxisMaxSpeed_buf_ch);
 
       const uint16_t AxisMaxAcc_buf_ch[] = { 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_AxisMaxAcc_Dis, AxisMaxAcc_buf_ch, 16, true);
+      dgus.writeStringVar(VP_AxisMaxAcc_Dis, AxisMaxAcc_buf_ch);
 
       const uint16_t TravelAcc_buf_ch[] = { 0xD5BF, 0xD0D0, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TravelAcc_Dis, TravelAcc_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TravelAcc_Dis, TravelAcc_buf_ch);
 
       const uint16_t FeedRateMin_buf_ch[] = { 0xEED7, 0xA1D0, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_FeedRateMin_Dis, FeedRateMin_buf_ch, 12, true);
+      dgus.writeStringVar(VP_FeedRateMin_Dis, FeedRateMin_buf_ch, 12);
 
       const uint16_t TravelFeeRateMin_buf_ch[] = { 0xD5BF, 0xD0D0, 0xEED7, 0xA1D0, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TravelFeeRateMin_Dis, TravelFeeRateMin_buf_ch, 24, true);
+      dgus.writeStringVar(VP_TravelFeeRateMin_Dis, TravelFeeRateMin_buf_ch, 24);
 
       const uint16_t Acc_buf_ch[] = { 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_ACC_Dis, Acc_buf_ch, 16, true);
+      dgus.writeStringVar(VP_ACC_Dis, Acc_buf_ch);
 
       const uint16_t Point_One_buf_ch[] = { 0xDAB5, 0xBBD2, 0xE3B5, 0x2000 };
-      dgus.writeVariable(VP_Point_One_Dis, Point_One_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Point_One_Dis, Point_One_buf_ch, 12);
 
       const uint16_t Point_Two_buf_ch[] = { 0xDAB5, 0xFEB6, 0xE3B5, 0x2000 };
-      dgus.writeVariable(VP_Point_Two_Dis, Point_Two_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Point_Two_Dis, Point_Two_buf_ch, 12);
 
       const uint16_t Point_Three_buf_ch[] = { 0xDAB5, 0xFDC8, 0xE3B5, 0x2000 };
-      dgus.writeVariable(VP_Point_Three_Dis, Point_Three_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Point_Three_Dis, Point_Three_buf_ch, 12);
 
       const uint16_t Point_Four_buf_ch[] = { 0xDAB5, 0xC4CB, 0xE3B5, 0x2000 };
-      dgus.writeVariable(VP_Point_Four_Dis, Point_Four_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Point_Four_Dis, Point_Four_buf_ch, 12);
 
       const uint16_t Point_Five_buf_ch[] = { 0xDAB5, 0xE5CE, 0xE3B5, 0x2000 };
-      dgus.writeVariable(VP_Point_Five_Dis, Point_Five_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Point_Five_Dis, Point_Five_buf_ch, 12);
 
       const uint16_t Extrusion_buf_ch[] = { 0xB7BC, 0xF6B3, 0xB7CD, 0x2000 };
-      dgus.writeVariable(VP_Extrusion_Dis, Extrusion_buf_ch, 12, true);
+      dgus.writeStringVar(VP_Extrusion_Dis, Extrusion_buf_ch, 12);
 
       const uint16_t HeatBed_buf_ch[] = { 0xC8C8, 0xB2B4, 0x2000 };
-      dgus.writeVariable(VP_HeatBed_Dis, HeatBed_buf_ch, 12, true);
+      dgus.writeStringVar(VP_HeatBed_Dis, HeatBed_buf_ch, 12);
 
       const uint16_t FactoryDefaults_buf_ch[] = { 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_FactoryDefaults_Dis, FactoryDefaults_buf_ch, 16, true);
+      dgus.writeStringVar(VP_FactoryDefaults_Dis, FactoryDefaults_buf_ch);
 
       const uint16_t StoreSetting_buf_ch[] = { 0xA3B1, 0xE6B4, 0xE8C9, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_StoreSetting_Dis, StoreSetting_buf_ch, 16, true);
+      dgus.writeStringVar(VP_StoreSetting_Dis, StoreSetting_buf_ch);
 
       const uint16_t PrintPauseConfig_buf_ch[] = { 0xDDD4, 0xA3CD, 0xBBCE, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_PrintPauseConfig_Dis, PrintPauseConfig_buf_ch, 32, true);
+      dgus.writeStringVar(VP_PrintPauseConfig_Dis, PrintPauseConfig_buf_ch, 32);
 
       const uint16_t X_Steps_mm_buf_ch[] = { 0x2058, 0xE1D6, 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_X_Steps_mm_Dis, X_Steps_mm_buf_ch, 16, true);
+      dgus.writeStringVar(VP_X_Steps_mm_Dis, X_Steps_mm_buf_ch);
 
       const uint16_t Y_Steps_mm_buf_ch[] = { 0x2059, 0xE1D6, 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_Y_Steps_mm_Dis, Y_Steps_mm_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Y_Steps_mm_Dis, Y_Steps_mm_buf_ch);
 
       const uint16_t Z_Steps_mm_buf_ch[] = { 0x205A, 0xE1D6, 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_Z_Steps_mm_Dis, Z_Steps_mm_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Z_Steps_mm_Dis, Z_Steps_mm_buf_ch);
 
       const uint16_t E0_Steps_mm_buf_ch[] = { 0x3045, 0xE1D6, 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_E0_Steps_mm_Dis, E0_Steps_mm_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E0_Steps_mm_Dis, E0_Steps_mm_buf_ch);
 
       const uint16_t E1_Steps_mm_buf_ch[] = { 0x3145, 0xE1D6, 0xF6C2, 0xE5B3, 0x2000 };
-      dgus.writeVariable(VP_E1_Steps_mm_Dis, E1_Steps_mm_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E1_Steps_mm_Dis, E1_Steps_mm_buf_ch);
 
       const uint16_t X_Max_Speed_buf_ch[] = { 0x2058, 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_X_Max_Speed_Dis, X_Max_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_X_Max_Speed_Dis, X_Max_Speed_buf_ch);
 
       const uint16_t Y_Max_Speed_buf_ch[] = { 0x2059, 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Y_Max_Speed_Dis, Y_Max_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Y_Max_Speed_Dis, Y_Max_Speed_buf_ch);
 
       const uint16_t Z_Max_Speed_buf_ch[] = { 0x205A, 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Z_Max_Speed_Dis, Z_Max_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Z_Max_Speed_Dis, Z_Max_Speed_buf_ch);
 
       const uint16_t E0_Max_Speed_buf_ch[] = { 0x3045, 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E0_Max_Speed_Dis, E0_Max_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E0_Max_Speed_Dis, E0_Max_Speed_buf_ch);
 
       const uint16_t E1_Max_Speed_buf_ch[] = { 0x3145, 0xEED7, 0xF3B4, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E1_Max_Speed_Dis, E1_Max_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E1_Max_Speed_Dis, E1_Max_Speed_buf_ch);
 
       const uint16_t X_Max_Acc_Speed_buf_ch[] = { 0x2058, 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_X_Max_Acc_Dis, X_Max_Acc_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_X_Max_Acc_Dis, X_Max_Acc_Speed_buf_ch);
 
       const uint16_t Y_Max_Acc_Speed_buf_ch[] = { 0x2059, 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Y_Max_Acc_Dis, Y_Max_Acc_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Y_Max_Acc_Dis, Y_Max_Acc_Speed_buf_ch);
 
       const uint16_t Z_Max_Acc_Speed_buf_ch[] = { 0x205A, 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Z_Max_Acc_Dis, Z_Max_Acc_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Z_Max_Acc_Dis, Z_Max_Acc_Speed_buf_ch);
 
       const uint16_t E0_Max_Acc_Speed_buf_ch[] = { 0x3045, 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E0_Max_Acc_Dis, E0_Max_Acc_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E0_Max_Acc_Dis, E0_Max_Acc_Speed_buf_ch);
 
       const uint16_t E1_Max_Acc_Speed_buf_ch[] = { 0x3145, 0xEED7, 0xF3B4, 0xD3BC, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E1_Max_Acc_Dis, E1_Max_Acc_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E1_Max_Acc_Dis, E1_Max_Acc_Speed_buf_ch);
 
       const uint16_t X_PARK_POS_buf_ch[] = { 0x2058, 0xDDD4, 0xA3CD, 0xBBCE, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_X_PARK_POS_Dis, X_PARK_POS_buf_ch, 16, true);
+      dgus.writeStringVar(VP_X_PARK_POS_Dis, X_PARK_POS_buf_ch);
 
       const uint16_t Y_PARK_POS_buf_ch[] = { 0x2059, 0xDDD4, 0xA3CD, 0xBBCE, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_Y_PARK_POS_Dis, Y_PARK_POS_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Y_PARK_POS_Dis, Y_PARK_POS_buf_ch);
 
       const uint16_t Z_PARK_POS_buf_ch[] = { 0x205A, 0xDDD4, 0xA3CD, 0xBBCE, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_Z_PARK_POS_Dis, Z_PARK_POS_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Z_PARK_POS_Dis, Z_PARK_POS_buf_ch);
 
       const uint16_t Length_buf_ch[] = { 0xBDB2, 0xA4B3, 0x2000 };
-      dgus.writeVariable(VP_Length_Dis, Length_buf_ch, 8, true);
+      dgus.writeStringVar(VP_Length_Dis, Length_buf_ch, 8);
 
       const uint16_t Speed_buf_ch[] = { 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Speed_Dis, Speed_buf_ch, 8, true);
+      dgus.writeStringVar(VP_Speed_Dis, Speed_buf_ch, 8);
 
       const uint16_t InOut_buf_ch[] = { 0xF8BD, 0xF6B3, 0x2000 };
-      dgus.writeVariable(VP_InOut_Dis, InOut_buf_ch, 8, true);
+      dgus.writeStringVar(VP_InOut_Dis, InOut_buf_ch, 8);
 
-      const uint16_t PrintTimet_buf_en[] = { 0xF2B4, 0xA1D3, 0xB1CA, 0xE4BC, 0x2000 };
-      dgus.writeVariable(VP_PrintTime_Dis, PrintTimet_buf_en, 16, true);
+      const uint16_t PrintTimet_buf_ch[] = { 0xF2B4, 0xA1D3, 0xB1CA, 0xE4BC, 0x2000 };
+      dgus.writeStringVar(VP_PrintTime_Dis, PrintTimet_buf_ch);
 
       const uint16_t E0_Temp_buf_ch[] = { 0x3045, 0xC2CE, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E0_Temp_Dis, E0_Temp_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E0_Temp_Dis, E0_Temp_buf_ch);
 
       const uint16_t E1_Temp_buf_ch[] = { 0x3145, 0xC2CE, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_E1_Temp_Dis, E1_Temp_buf_ch, 16, true);
+      dgus.writeStringVar(VP_E1_Temp_Dis, E1_Temp_buf_ch);
 
       const uint16_t HB_Temp_buf_ch[] = { 0xC8C8, 0xB2B4, 0xC2CE, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_HB_Temp_Dis, HB_Temp_buf_ch, 16, true);
+      dgus.writeStringVar(VP_HB_Temp_Dis, HB_Temp_buf_ch);
 
       const uint16_t Feedrate_buf_ch[] = { 0xB7BC, 0xF6B3, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Feedrate_Dis, Feedrate_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Feedrate_Dis, Feedrate_buf_ch);
 
       const uint16_t PrintAcc_buf_ch[] = { 0xF2B4, 0xA1D3, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_PrintAcc_Dis, PrintAcc_buf_ch, 16, true);
+      dgus.writeStringVar(VP_PrintAcc_Dis, PrintAcc_buf_ch);
 
       const uint16_t FAN_Speed_buf_ch[] = { 0xE7B7, 0xC8C9, 0xD9CB, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Fan_Speed_Dis, FAN_Speed_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Fan_Speed_Dis, FAN_Speed_buf_ch);
 
       const uint16_t Printing_buf_ch[] = { 0xF2B4, 0xA1D3, 0xD0D6, 0x2000 };
-      dgus.writeVariable(VP_Printing_Dis, Printing_buf_ch, 16, true);
+      dgus.writeStringVar(VP_Printing_Dis, Printing_buf_ch);
 
       const uint16_t Info_EEPROM_1_buf_ch[] = { 0xC7CA, 0xF1B7, 0xA3B1, 0xE6B4, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
-      dgus.writeVariable(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_ch, 32, true);
+      dgus.writeStringVar(VP_Info_EEPROM_1_Dis, Info_EEPROM_1_buf_ch, 32);
 
       const uint16_t Info_EEPROM_2_buf_ch[] = { 0xC7CA, 0xF1B7, 0xD6BB, 0xB4B8, 0xF6B3, 0xA7B3, 0xE8C9, 0xC3D6, 0xBFA3, 0x2000 };
-      dgus.writeVariable(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_ch, 32, true);
+      dgus.writeStringVar(VP_Info_EEPROM_2_Dis, Info_EEPROM_2_buf_ch, 32);
 
       const uint16_t TMC_X_Step_buf_ch[] = { 0x2058, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TMC_X_SENS_Dis, TMC_X_Step_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_X_SENS_Dis, TMC_X_Step_buf_ch);
 
       const uint16_t TMC_Y_Step_buf_ch[] = { 0x2059, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TMC_Y_SENS_Dis, TMC_Y_Step_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Y_SENS_Dis, TMC_Y_Step_buf_ch);
 
       const uint16_t TMC_Z_Step_buf_ch[] = { 0x205A, 0xE9C1, 0xF4C3, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_TMC_Z_SENS_Dis, TMC_Z_Step_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Z_SENS_Dis, TMC_Z_Step_buf_ch);
 
       const uint16_t Info_PrintFinish_1_buf_ch[] = { 0xF2B4, 0xA1D3, 0xEACD, 0xC9B3, 0x2000 };
-      dgus.writeVariable(VP_Info_PrintFinish_1_Dis, Info_PrintFinish_1_buf_ch, 32, true);
+      dgus.writeStringVar(VP_Info_PrintFinish_1_Dis, Info_PrintFinish_1_buf_ch, 32);
 
       const uint16_t TMC_X_Current_buf_ch[] = { 0x2058, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_X_Current_Dis, TMC_X_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_X_Current_Dis, TMC_X_Current_buf_ch);
 
       const uint16_t TMC_Y_Current_buf_ch[] = { 0x2059, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_Y_Current_Dis, TMC_Y_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Y_Current_Dis, TMC_Y_Current_buf_ch);
 
       const uint16_t TMC_Z_Current_buf_ch[] = { 0x205A, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_Z_Current_Dis, TMC_Z_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Z_Current_Dis, TMC_Z_Current_buf_ch);
 
       const uint16_t TMC_E0_Current_buf_ch[] = { 0x3045, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_E0_Current_Dis, TMC_E0_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_E0_Current_Dis, TMC_E0_Current_buf_ch);
 
       const uint16_t TMC_X1_Current_buf_ch[] = { 0x3158, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_X1_Current_Dis, TMC_X1_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_X1_Current_Dis, TMC_X1_Current_buf_ch);
 
       const uint16_t TMC_Y1_Current_buf_ch[] = { 0x3159, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_Y1_Current_Dis, TMC_Y1_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Y1_Current_Dis, TMC_Y1_Current_buf_ch);
 
       const uint16_t TMC_Z1_Current_buf_ch[] = { 0x315A, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_Z1_Current_Dis, TMC_Z1_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_Z1_Current_Dis, TMC_Z1_Current_buf_ch);
 
       const uint16_t TMC_E1_Current_buf_ch[] = { 0x3145, 0xE1D6, 0xE7B5, 0xF7C1, 0x2000 };
-      dgus.writeVariable(VP_TMC_E1_Current_Dis, TMC_E1_Current_buf_ch, 16, true);
+      dgus.writeStringVar(VP_TMC_E1_Current_Dis, TMC_E1_Current_buf_ch);
 
       const uint16_t Min_Ex_Temp_buf_ch[] = { 0xEED7, 0xA1D0, 0xB7BC, 0xF6B3, 0xC2CE, 0xC8B6, 0x2000 };
-      dgus.writeVariable(VP_Min_Ex_Temp_Dis, Min_Ex_Temp_buf_ch, 32, true);
+      dgus.writeStringVar(VP_Min_Ex_Temp_Dis, Min_Ex_Temp_buf_ch, 32);
 
       const uint16_t AutoLEVEL_INFO1_buf_ch[] = { 0xEBC7, 0xB4B0, 0xC2CF, 0xB4B0, 0xA5C5, 0x2000 };
-      dgus.writeVariable(VP_AutoLEVEL_INFO1, AutoLEVEL_INFO1_buf_ch, 32, true);
+      dgus.writeStringVar(VP_AutoLEVEL_INFO1, AutoLEVEL_INFO1_buf_ch, 32);
 
       const uint16_t EX_TEMP_INFO2_buf_ch[] = { 0xEBC7, 0xD4C9, 0xC8B5, 0x2000 };
-      dgus.writeVariable(VP_EX_TEMP_INFO2_Dis, EX_TEMP_INFO2_buf_ch, 32, true);
+      dgus.writeStringVar(VP_EX_TEMP_INFO2_Dis, EX_TEMP_INFO2_buf_ch, 32);
 
       const uint16_t EX_TEMP_INFO3_buf_ch[] = { 0xA1C8, 0xFBCF, 0xD3BC, 0xC8C8, 0x2000 };
-      dgus.writeVariable(VP_EX_TEMP_INFO3_Dis, EX_TEMP_INFO3_buf_ch, 32, true);
+      dgus.writeStringVar(VP_EX_TEMP_INFO3_Dis, EX_TEMP_INFO3_buf_ch, 32);
 
       const uint16_t PrintConfirm_Info_buf_ch[] = { 0xC7CA, 0xF1B7, 0xAABF, 0xBCCA, 0xF2B4, 0xA1D3, 0x2000 };
-      dgus.writeVariable(VP_PrintConfirm_Info_Dis, PrintConfirm_Info_buf_ch, 32, true);
+      dgus.writeStringVar(VP_PrintConfirm_Info_Dis, PrintConfirm_Info_buf_ch, 32);
 
       const uint16_t StopPrintConfirm_Info_buf_ch[] = { 0xC7CA, 0xF1B7, 0xA3CD, 0xB9D6, 0xF2B4, 0xA1D3, 0x2000 };
-      dgus.writeVariable(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_ch, 32, true);
+      dgus.writeStringVar(VP_StopPrintConfirm_Info_Dis, StopPrintConfirm_Info_buf_ch, 32);
 
       const uint16_t LCD_BLK_buf_ch[] = { 0xB3B1, 0xE2B9, 0xE8C9, 0xC3D6, 0x2000 };
-      dgus.writeVariable(VP_LCD_BLK_Dis, LCD_BLK_buf_ch, 32, true);
+      dgus.writeStringVar(VP_LCD_BLK_Dis, LCD_BLK_buf_ch, 32);
 
-    } break;
-  }
+    } break; // MKS_SimpleChinese
+  } // switch
 }
 
 #endif // DGUS_LCD_UI_MKS

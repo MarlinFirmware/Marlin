@@ -511,7 +511,6 @@ void DGUSScreenHandler::handleSettings(DGUS_VP_Variable &var, void *val_ptr) {
 
 #if HAS_PID_HEATING
   void DGUSScreenHandler::handlePIDAutotune(DGUS_VP_Variable &var, void *val_ptr) {
-
     switch (var.VP) {
       default: break;
         #if ENABLED(PIDTEMP)

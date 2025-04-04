@@ -32,6 +32,7 @@ class DGUSScreenHandlerMKS : public DGUSScreenHandler {
 public:
   DGUSScreenHandlerMKS() = default;
 
+  static void sendInfoScreen(const char *line1, const char *line2, const char *line3, const char *line4);
   static void sendInfoScreen(const uint16_t *line1, const uint16_t *line2, const uint16_t *line3, const uint16_t *line4);
   static void sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4);
   static void sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language);
