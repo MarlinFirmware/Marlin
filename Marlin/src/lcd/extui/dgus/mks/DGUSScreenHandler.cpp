@@ -65,14 +65,7 @@ void DGUSScreenHandlerMKS::sendInfoScreen(const uint16_t *line1, const uint16_t 
   dgus.writeStringVar(VP_MSGSTR4, line4);
 }
 
-void DGUSScreenHandlerMKS::sendInfoScreen(const char *line1, const char *line2, const char *line3, const char *line4) {
-  dgus.writeStringVar(VP_MSGSTR1, line1);
-  dgus.writeStringVar(VP_MSGSTR2, line2);
-  dgus.writeStringVar(VP_MSGSTR3, line3);
-  dgus.writeStringVar(VP_MSGSTR4, line4);
-}
-
-void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
+void DGUSScreenHandlerMKS::sendInfoScreen(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
   dgus.writeStringVar_P(VP_MSGSTR1, line1);
   dgus.writeStringVar_P(VP_MSGSTR2, line2);
   dgus.writeStringVar_P(VP_MSGSTR3, line3);
@@ -81,7 +74,7 @@ void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2
 
 void DGUSScreenHandlerMKS::sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language) {
   if (language == MKS_English)
-    DGUSScreenHandlerMKS::sendInfoScreen_P((char *)line1, (char *)line2, (char *)line3, (char *)line4);
+    DGUSScreenHandlerMKS::sendInfoScreen((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
     DGUSScreenHandlerMKS::sendInfoScreen((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
 }
