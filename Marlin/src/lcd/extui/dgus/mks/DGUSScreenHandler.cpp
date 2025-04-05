@@ -1201,8 +1201,8 @@ bool DGUSScreenHandlerMKS::loop() {
 }
 
 void DGUSScreenHandlerMKS::languagePInit() {
-  dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)(lang == MKS_English ? MKS_Language_NoChoose : MKS_Language_Choose));
-  dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)(lang == MKS_English ? MKS_Language_Choose : MKS_Language_NoChoose));
+  dgus.writeVariable(VP_LANGUAGE_CHANGE1, (uint8_t)(mks_language_index == MKS_English ? MKS_Language_NoChoose : MKS_Language_Choose));
+  dgus.writeVariable(VP_LANGUAGE_CHANGE2, (uint8_t)(mks_language_index == MKS_English ? MKS_Language_Choose : MKS_Language_NoChoose));
 }
 
 void DGUSScreenHandlerMKS::extrudeLoadInit() {
