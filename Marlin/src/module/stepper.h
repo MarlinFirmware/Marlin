@@ -307,9 +307,11 @@ class Stepper {
 
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
-      static bool samostatny_pohyb;
+      
     #endif
-
+    
+    static bool samostatny_pohyb;
+    
     #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
       #if HAS_MOTOR_CURRENT_PWM
         #ifndef PWM_MOTOR_CURRENT
@@ -586,10 +588,10 @@ class Stepper {
       static void microstep_mode(const uint8_t driver, const uint8_t stepping);
       static void microstep_readings();
     #endif
+    FORCE_INLINE static void set_samostatny_pohyb(const bool state) { samostatny_pohyb = state; }
 
     #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
-      FORCE_INLINE static void set_samostatny_pohyb(const bool state) { samostatny_pohyb = state; }
       static int32_t angleA(const float angle);
       static int32_t angleB(const float angle);
     #endif

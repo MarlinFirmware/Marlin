@@ -156,8 +156,10 @@ Stepper stepper; // Singleton
 
 #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
-  bool Stepper::samostatny_pohyb = false;
+  
 #endif
+
+bool Stepper::samostatny_pohyb = false;
 
 #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
   bool Stepper::initialized; // = false

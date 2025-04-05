@@ -119,8 +119,6 @@
   #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
 
-#define I_STOP_PIN E3_DIAG_PIN
-#define J_STOP_PIN E3_DIAG_PIN
 
 #ifdef I_STALL_SENSITIVITY
   #define I_STOP_PIN                  E3_DIAG_PIN

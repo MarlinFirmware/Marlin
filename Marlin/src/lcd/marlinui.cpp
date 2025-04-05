@@ -860,7 +860,7 @@ void MarlinUI::init() {
       #else
 
         // For Cartesian / Core motion simply move to the current_position
-        if(axis == I_AXIS || axis == J_AXIS) {
+        if(axis == I_AXIS /*|| axis == J_AXIS*/) {
           stepper.set_samostatny_pohyb(true);          
           planner.buffer_line(current_position, fr,
             TERN_(MULTI_E_MANUAL, axis == E_AXIS ? e_index :) active_extruder

@@ -2411,14 +2411,14 @@ void prepare_line_to_destination() {
 
     const feedRate_t home_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
-    if (DEBUGGING(LEVELING)) {
+    // if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOPGM("...(", C(AXIS_CHAR(axis)), ", ", distance, ", ");
       if (fr_mm_s)
         DEBUG_ECHO(fr_mm_s);
       else
         DEBUG_ECHOPGM("[", home_fr_mm_s, "]");
       DEBUG_ECHOLNPGM(")");
-    }
+    // }
 
     // Only do some things when moving towards an endstop
     const int8_t axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
@@ -2661,7 +2661,8 @@ void prepare_line_to_destination() {
       if (true MAIN_AXIS_MAP(_ANDCANT)) return;
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
+    // if (DEBUGGING(LEVELING)) 
+    DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
@@ -2707,7 +2708,7 @@ void prepare_line_to_destination() {
       if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
         const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
         /*if (DEBUGGING(LEVELING))*/ SERIAL_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
-        if(axis != I_AXIS && axis != J_AXIS){
+        if(axis != I_AXIS /*&& axis != J_AXIS*/){
           do_homing_move(axis, backoff_length, homing_feedrate(axis));
           SERIAL_ECHOLNPGM("r");      
         }
@@ -2737,7 +2738,7 @@ void prepare_line_to_destination() {
     //
     const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
     /*if (DEBUGGING(LEVELING))*/ SERIAL_ECHOLNPGM("Home Fast: ", move_length, "mm");
-    if(axis != I_AXIS && axis != J_AXIS){
+    if(axis != I_AXIS /*&& axis != J_AXIS*/){
       do_homing_move(axis, move_length, 0.0, !use_probe_bump);
     SERIAL_ECHOLNPGM("e");      
     }
@@ -2751,7 +2752,7 @@ void prepare_line_to_destination() {
 
       // Move away from the endstop by the axis HOMING_BUMP_MM
       /*if (DEBUGGING(LEVELING))*/ SERIAL_ECHOLNPGM("Move Away: ", -bump, "mm");
-      if(axis != I_AXIS && axis != J_AXIS){
+      if(axis != I_AXIS /*&& axis != J_AXIS*/){
         do_homing_move(axis, -bump, TERN0(HOMING_Z_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
         SERIAL_ECHOLNPGM("t");      
       }
@@ -2789,7 +2790,7 @@ void prepare_line_to_destination() {
       // Slow move towards endstop until triggered
       const float rebump = bump * 2;
       /*if (DEBUGGING(LEVELING))*/ SERIAL_ECHOLNPGM("Re-bump: ", rebump, "mm");
-      if(axis != I_AXIS && axis != J_AXIS){
+      if(axis != I_AXIS /*&& axis != J_AXIS*/){
 
         do_homing_move(axis, rebump, get_homing_bump_feedrate(axis), true);
         SERIAL_ECHOLNPGM("d");

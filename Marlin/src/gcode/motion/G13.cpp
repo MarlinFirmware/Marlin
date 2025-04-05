@@ -40,7 +40,7 @@ void GcodeSuite::G13() {
     stepper.set_samostatny_pohyb(true);
     current_position[Z_AXIS] += z_val;
     current_position[I_AXIS] += v_val;
-    current_position[J_AXIS] += w_val;
+    //current_position[J_AXIS] += w_val;
     planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
     planner.synchronize();
     stepper.set_samostatny_pohyb(false);

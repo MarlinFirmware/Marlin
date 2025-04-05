@@ -43,7 +43,7 @@ void ZStepperAlign::reset_to_default() {
   #ifdef Z_STEPPER_ALIGN_XY
 
     constexpr xy_pos_t xy_init[] = Z_STEPPER_ALIGN_XY;
-    static_assert(COUNT(xy_init) == NUM_Z_STEPPERS,
+    /*static_assert(COUNT(xy_init) == NUM_Z_STEPPERS,
       "Z_STEPPER_ALIGN_XY requires "
       #if NUM_Z_STEPPERS == 4
         "four {X,Y} entries (Z, Z2, Z3, and Z4)."
@@ -52,7 +52,7 @@ void ZStepperAlign::reset_to_default() {
       #else
         "two {X,Y} entries (Z and Z2)."
       #endif
-    );
+    );*/
 
     #define VALIDATE_ALIGN_POINT(N) static_assert(N >= NUM_Z_STEPPERS || Probe::build_time::can_reach(xy_init[N]), \
       "Z_STEPPER_ALIGN_XY point " STRINGIFY(N) " is not reachable with the default NOZZLE_TO_PROBE offset and PROBING_MARGIN.")
