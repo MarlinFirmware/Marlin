@@ -65,7 +65,14 @@ void DGUSScreenHandlerMKS::sendInfoScreen(const uint16_t *line1, const uint16_t 
   dgus.writeStringVar(VP_MSGSTR4, line4);
 }
 
-void DGUSScreenHandlerMKS::sendInfoScreen(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
+void DGUSScreenHandlerMKS::sendInfoScreen(const char *line1, const char *line2, const char *line3, const char *line4) {
+  dgus.writeStringVar(VP_MSGSTR1, line1);
+  dgus.writeStringVar(VP_MSGSTR2, line2);
+  dgus.writeStringVar(VP_MSGSTR3, line3);
+  dgus.writeStringVar(VP_MSGSTR4, line4);
+}
+
+void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2, PGM_P const line3, PGM_P const line4) {
   dgus.writeStringVar_P(VP_MSGSTR1, line1);
   dgus.writeStringVar_P(VP_MSGSTR2, line2);
   dgus.writeStringVar_P(VP_MSGSTR3, line3);
