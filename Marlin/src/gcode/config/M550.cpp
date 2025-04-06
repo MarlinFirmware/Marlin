@@ -69,7 +69,7 @@ void GcodeSuite::M550() {
   machine_name.trim();
   ui.reset_status(false);
 
-  DEBUG_ECHOLNPGM("RepRap name: ", &machine_name);
+  DEBUG_ECHOLNPGM("RepRap name => ", &machine_name);
 }
 
 #endif // CONFIGURABLE_MACHINE_NAME
