@@ -24,6 +24,8 @@
  * A more sophisticated hardware SPI that has not been fully debugged. Source:
  *   https://github.com/MarlinFirmware/Marlin/tree/071c7a78f2
  */
+#if 0 // Included for reference
+
 #ifdef TARGET_LPC1768
 
 #include "../spi_api.h"
@@ -424,3 +426,5 @@ extern "C" void SSP1_IRQHandler(void) {
 }
 
 #endif // TARGET_LPC1768
+
+#endif // Included for reference
