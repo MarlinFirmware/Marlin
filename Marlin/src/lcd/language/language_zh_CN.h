@@ -33,7 +33,7 @@ namespace LanguageNarrow_zh_CN {
   constexpr uint8_t CHARSIZE              = 3;
   LSTR LANGUAGE                           = _UxGT("Simplified Chinese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT("已就绪."); // " ready."
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT("已就绪."); // " ready."
   LSTR MSG_MARLIN                         = _UxGT("马林");
   LSTR MSG_YES                            = _UxGT("是");
   LSTR MSG_NO                             = _UxGT("否");
@@ -398,7 +398,12 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("卸载丝料"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("卸载丝料 *"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("卸载全部"); // "Unload All"
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("初始化存储卡"); // "Init. SD card"
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("挂载存储卡"); // "Attach SD Card"
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("挂载U盘"); // "Attach USB Drive"
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("挂载存储卡"); // "Attach SD Card"
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更换存储卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
@@ -575,7 +580,8 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("混合阈值");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("无感回零");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("步进模式");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop已使能");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop已使能");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("复位");
   LSTR MSG_SERVICE_IN                     = _UxGT(" 在:");
   LSTR MSG_BACKLASH                       = _UxGT("回差");

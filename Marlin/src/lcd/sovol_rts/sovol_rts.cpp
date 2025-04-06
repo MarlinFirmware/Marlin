@@ -39,8 +39,6 @@ RTS rts;
 #include <stdio.h>
 #include <string.h>
 #include "../../MarlinCore.h"
-#include "../../core/serial.h"
-#include "../../core/macros.h"
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
@@ -55,8 +53,7 @@ RTS rts;
 #include "../../feature/tmc_util.h"
 #include "../../gcode/queue.h"
 #include "../../gcode/gcode.h"
-//#include "../marlinui.h"
-//#include "../utf8.h"
+#include "../marlinui.h"
 #include "../../libs/BL24CXX.h"
 
 #if ENABLED(FIX_MOUNTED_PROBE)
@@ -118,14 +115,13 @@ char commandbuf[30];
 
 static SovolPage change_page_number = ID_Startup;
 
-uint16_t remain_time = 0;
+uint32_t remain_time = 0;
 
 static bool last_card_insert_st;
 bool card_insert_st;
 bool sd_printing;
 
 int16_t fan_speed;
-char cmd[MAX_CMD_SIZE + 16];
 
 inline void RTS_line_to_current(const AxisEnum axis) {
   if (!planner.is_full())
@@ -262,7 +258,7 @@ void RTS::init() {
         inStop = -1;
         inInc = -1;
       }
-      zig ^= true;
+      FLIP(zig);
       for (int8_t x = inStart; x != inStop; x += inInc) {
         sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
         showcount++;
@@ -524,7 +520,7 @@ void RTS::sdCardStop() {
   thermalManager.zero_fan_speeds();
   wait_for_heatup = wait_for_user = false;
   poweroff_continue = false;
-  #if ALL(SDSUPPORT, POWER_LOSS_RECOVERY)
+  #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
     if (card.flag.mounted) card.removeJobRecoveryFile();
   #endif
   #ifdef EVENT_GCODE_SD_STOP
@@ -1097,7 +1093,7 @@ void RTS::handleData() {
           thermalManager.disable_all_heaters();
           print_job_timer.reset();
 
-          #if ALL(SDSUPPORT, POWER_LOSS_RECOVERY)
+          #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
             if (card.flag.mounted) {
               card.removeJobRecoveryFile();
               recovery.info.valid_head = 0;
@@ -1210,7 +1206,7 @@ void RTS::handleData() {
               inStop = -1;
               inInc = -1;
             }
-            zig ^= true;
+            FLIP(zig);
             for (int8_t x = inStart; x != inStop; x += inInc) {
               sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
               showcount++;
@@ -1365,7 +1361,7 @@ void RTS::handleData() {
     #if HAS_FILAMENT_SENSOR
       case FilamentChange: // Automatic material
         switch (recdat.data[0]) {
-          case 1: if (runout.filament_ran_out) break;
+          case 1: if (FILAMENT_IS_OUT()) break;
           case 2:
             updateTempE0();
             wait_for_heatup = wait_for_user = false;
@@ -1401,18 +1397,10 @@ void RTS::handleData() {
       case TMCDriver:
         switch (recdat.data[0]) {
           case 1:  // Current
-            #if AXIS_IS_TMC(X)
-              sendData(stepperX.getMilliamps(), Current_X_VP);
-            #endif
-            #if AXIS_IS_TMC(Y)
-              sendData(stepperY.getMilliamps(), Current_Y_VP);
-            #endif
-            #if AXIS_IS_TMC(Z)
-              sendData(stepperZ.getMilliamps(), Current_Z_VP);
-            #endif
-            #if AXIS_IS_TMC(E0)
-              sendData(stepperE0.getMilliamps(), Current_E_VP);
-            #endif
+            TERN_(X_IS_TRINAMIC, sendData(stepperX.getMilliamps(), Current_X_VP));
+            TERN_(Y_IS_TRINAMIC, sendData(stepperY.getMilliamps(), Current_Y_VP));
+            TERN_(Z_IS_TRINAMIC, sendData(stepperZ.getMilliamps(), Current_Z_VP));
+            TERN_(E0_IS_TRINAMIC, sendData(stepperE0.getMilliamps(), Current_E_VP));
             gotoPage(ID_DriverA_L, ID_DriverA_D);
             break;
 
@@ -1437,39 +1425,19 @@ void RTS::handleData() {
         }
         break;
 
-      #if AXIS_IS_TMC(X)
-        case Current_X:    sprintf_P(cmd, PSTR("M906 X%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if X_HAS_STEALTHCHOP
-        case Threshold_X:  sprintf_P(cmd, PSTR("M913 X%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if X_SENSORLESS
-        case Sensorless_X: sprintf_P(cmd, PSTR("M914 X%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
+      case Current_X:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906X"), int(recdat.data[0])))); break;
+      case Threshold_X:  TERN_(X_HAS_STEALTHCHOP, queue.inject(TS(F("M913X"), int(recdat.data[0])))); break;
+      case Sensorless_X: TERN_(X_SENSORLESS,      queue.inject(TS(F("M914X"), int(recdat.data[0])))); break;
 
-      #if AXIS_IS_TMC(Y)
-        case Current_Y:    sprintf_P(cmd, PSTR("M906 Y%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if Y_HAS_STEALTHCHOP
-        case Threshold_Y:  sprintf_P(cmd, PSTR("M913 Y%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if Y_SENSORLESS
-        case Sensorless_Y: sprintf_P(cmd, PSTR("M914 Y%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
+      case Current_Y:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906Y"), int(recdat.data[0])))); break;
+      case Threshold_Y:  TERN_(Y_HAS_STEALTHCHOP, queue.inject(TS(F("M913Y"), int(recdat.data[0])))); break;
+      case Sensorless_Y: TERN_(Y_SENSORLESS,      queue.inject(TS(F("M914Y"), int(recdat.data[0])))); break;
 
-      #if AXIS_IS_TMC(Z)
-        case Current_Z:    sprintf_P(cmd, PSTR("M906 Z%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if Z_HAS_STEALTHCHOP
-        case Threshold_Z:  sprintf_P(cmd, PSTR("M913 Z%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
+      case Current_Z:    TERN_(Z_IS_TRINAMIC,     queue.inject(TS(F("M906Z"), int(recdat.data[0])))); break;
+      case Threshold_Z:  TERN_(Z_HAS_STEALTHCHOP, queue.inject(TS(F("M913Z"), int(recdat.data[0])))); break;
 
-      #if AXIS_IS_TMC(E0)
-        case Current_E:   sprintf_P(cmd, PSTR("M906 E%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
-      #if E0_HAS_STEALTHCHOP
-        case Threshold_E: sprintf_P(cmd, PSTR("M913 E%i"), recdat.data[0]); queue.inject(cmd); break;
-      #endif
+      case Current_E:    TERN_(AXIS_IS_TMC_E,     queue.inject(TS(F("M906E"), int(recdat.data[0])))); break;
+      case Threshold_E:  TERN_(E_HAS_STEALTHCHOP, queue.inject(TS(F("M913E"), int(recdat.data[0])))); break;
 
     #endif // HAS_TRINAMIC_CONFIG
 
@@ -1530,7 +1498,7 @@ void RTS::handleData() {
 
       updateFan0();
 
-      job_percent = card.percentDone() + 1;
+      job_percent = ui.get_progress_percent();
       if (job_percent <= 100) sendData(uint8_t(job_percent), PRINT_PROCESS_ICON_VP);
 
       sendData(uint8_t(card.percentDone()), PRINT_PROCESS_VP);
@@ -1626,13 +1594,13 @@ void RTS::onIdle() {
 
     if (card.isPrinting() && (last_cardpercentValue != card.percentDone())) {
       if (card.percentDone() > 0) {
-        job_percent = card.percentDone();
+        job_percent = ui.get_progress_percent();
         if (job_percent <= 100) sendData(uint8_t(job_percent), PRINT_PROCESS_ICON_VP);
         // Estimate remaining time every 20 seconds
         static millis_t next_remain_time_update = 0;
         if (ELAPSED(ms, next_remain_time_update)) {
           if (thermalManager.degHotend(0) >= thermalManager.degTargetHotend(0) - 5) {
-            remain_time = elapsed.value / (job_percent * 0.01f) - elapsed.value;
+            remain_time = ui.get_remaining_time();
             next_remain_time_update += 20 * 1000UL;
             sendData(remain_time / 3600, PRINT_SURPLUS_TIME_HOUR_VP);
             sendData((remain_time % 3600) / 60, PRINT_SURPLUS_TIME_MIN_VP);

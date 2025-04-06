@@ -36,7 +36,7 @@ namespace LanguageNarrow_sv {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Swedish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Redo.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Redo.");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEJ");
   LSTR MSG_BACK                           = _UxGT("Bakåt");
@@ -417,7 +417,12 @@ namespace LanguageNarrow_sv {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Lossa Tråd");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Lossa *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Lossa All");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Bifoga Media");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Bifoga SD-kort");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Bifoga USB-minne");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Bifoga SD-kort");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Byt Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Släpp Media");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Sond Utanför Bädd");
@@ -609,7 +614,8 @@ namespace LanguageNarrow_sv {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Tröskelvärde");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorlös Hemning");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stegningsläge");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("Smyghack Aktiverad");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("Smyghack");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Återställ");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

@@ -67,6 +67,7 @@
   #undef MECHANICAL_SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
+  #undef HOTEND_OVERSHOOT
   #undef DISABLE_E
   #undef PREVENT_LENGTHY_EXTRUDE
   #undef FILAMENT_RUNOUT_SENSOR
@@ -187,6 +188,9 @@
   #define HAS_HOTEND 1
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
+  #endif
+  #ifndef MIN_POWER
+    #define MIN_POWER 0
   #endif
 #else
   #undef MPCTEMP

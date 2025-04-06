@@ -36,7 +36,7 @@ namespace LanguageNarrow_da {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Danish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" er klar");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" er klar");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kort isat");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kort fjernet");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu");

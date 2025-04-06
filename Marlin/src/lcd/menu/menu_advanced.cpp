@@ -88,7 +88,7 @@ void menu_backlash();
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_A STR_B, 0);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+    #if HAS_MOTOR_CURRENT_PWM_Z
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
     #if HAS_MOTOR_CURRENT_PWM_E
@@ -154,9 +154,12 @@ void menu_backlash();
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
-      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999,
-        []{ runout.set_runout_distance(editable.decimal); }, true
-      );
+      auto set_runout_distance = []{ runout.set_runout_distance(editable.decimal); };
+      #if ENABLED(FILAMENT_MOTION_SENSOR)
+        EDIT_ITEM_FAST(float31, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 0.1, 10, set_runout_distance, true);
+      #else
+        EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
+      #endif
     #endif
 
     END_MENU();

@@ -177,8 +177,7 @@
   #define SDIO_CMD_PIN                      PD2
 #elif SD_CONNECTION_IS(LCD)
   #define CUSTOM_SPI_PINS
-  #define SDSS                              PA4
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
@@ -276,14 +275,8 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif

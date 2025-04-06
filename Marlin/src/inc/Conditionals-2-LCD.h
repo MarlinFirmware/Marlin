@@ -36,6 +36,12 @@
 #if ENABLED(SDSUPPORT)
   #define HAS_MEDIA 1
 #endif
+#if ENABLED(MULTI_VOLUME)
+  #define HAS_MULTI_VOLUME 1
+#endif
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define HAS_USB_FLASH_DRIVE 1
+#endif
 
 //
 // Serial Port Info
@@ -195,7 +201,7 @@
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_ULTIPANEL 1
-  #define ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -585,7 +591,7 @@
   #endif
 #endif
 
-#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI)
+#if ANY(HAS_WIRED_LCD, EXTENSIBLE_UI, HAS_DWIN_E3V2)
   /**
    * HAS_DISPLAY indicates the display uses these MarlinUI methods...
    *  - update
@@ -605,22 +611,24 @@
    *    (calling advance_status_scroll, status_and_len for a scrolling status message)
    */
   #define HAS_DISPLAY 1
+  #define HAS_UI_UPDATE 1
+  #define HAS_STATUS_MESSAGE 1
 #endif
 
-#if ANY(HAS_DISPLAY, DWIN_CREALITY_LCD)
-  #define HAS_UI_UPDATE 1
+#if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    #define MAX_MESSAGE_SIZE _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * (LCD_WIDTH))
+  #else
+    #define MAX_MESSAGE_SIZE (MAX_LANG_CHARSIZE * (LCD_WIDTH))
+  #endif
+#elif HAS_STATUS_MESSAGE
+  #define MAX_MESSAGE_SIZE 63
+#else
+  #define MAX_MESSAGE_SIZE 1
 #endif
 
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
   #define HAS_LCDPRINT 1
-#endif
-
-#if HAS_DISPLAY || HAS_LCDPRINT
-  #define HAS_UTF8_UTILS 1
-#endif
-
-#if ANY(HAS_DISPLAY, HAS_DWIN_E3V2)
-  #define HAS_STATUS_MESSAGE 1
 #endif
 
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
@@ -649,7 +657,7 @@
 #if !HAS_MARLINUI_HD44780
   #undef LCD_INFO_SCREEN_STYLE
 #endif
-#if NONE(HAS_MARLINUI_U8GLIB, HAS_TFT_LVGL_UI, TFT_COLOR_UI, DGUS_LCD_UI_E3S1PRO)
+#if NONE(HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, HAS_TFT_LVGL_UI, TFT_COLOR_UI, DGUS_LCD_UI_E3S1PRO)
   #undef LCD_LANGUAGE
 #endif
 #if DISABLED(MPC_AUTOTUNE)

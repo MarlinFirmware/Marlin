@@ -36,7 +36,7 @@ namespace LanguageNarrow_fr_na {
 
   LSTR LANGUAGE                           = _UxGT("Francais");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prete.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prete.");
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
@@ -392,7 +392,12 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le media");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Charger le SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Charger le USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Charger le SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le media");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
@@ -571,7 +576,8 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Seuil hybride");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Home sans capteur");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Mode pas a pas");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop active");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reinit.");
   LSTR MSG_SERVICE_IN                     = _UxGT("  dans:");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");

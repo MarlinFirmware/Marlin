@@ -50,9 +50,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -309,16 +309,18 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN                   PF10
-  #define Y_SERIAL_TX_PIN                   PD4
-  #define Z_SERIAL_TX_PIN                   PC8
-  #define E0_SERIAL_TX_PIN                  PD8
-  #define E1_SERIAL_TX_PIN                  PB11
+  //#define X_SERIAL_TX_PIN                 PF10
+  //#define Y_SERIAL_TX_PIN                 PD4
+  //#define Z_SERIAL_TX_PIN                 PC8
+  //#define E0_SERIAL_TX_PIN                PD8
+  //#define E1_SERIAL_TX_PIN                PB11
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
+  //#ifndef TMC_BAUD_RATE
+  //  #define TMC_BAUD_RATE                19200
+  //#endif
+
+  #error "UART-based drivers are not supported on this board."
 
 #endif
 
@@ -378,7 +380,6 @@
 #define ONBOARD_SD_CS_PIN                   PB8   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                   ONBOARD_SD_CS_PIN
 #define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
@@ -517,15 +518,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 #if HAS_SPI_TFT

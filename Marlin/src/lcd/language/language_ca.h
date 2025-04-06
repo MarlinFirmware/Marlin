@@ -33,7 +33,7 @@ namespace LanguageNarrow_ca {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Catalan");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" preparada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" preparada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Targeta detectada.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Targeta extreta.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops");
@@ -145,7 +145,12 @@ namespace LanguageNarrow_ca {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto retraccio");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Canvia filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Canvia filament *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inicialitza SD");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Inicialitza SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Inicialitza USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Inicialitza SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Canvia SD");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fora");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reinicia BLTouch");

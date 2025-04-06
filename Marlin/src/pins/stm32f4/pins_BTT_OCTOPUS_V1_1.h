@@ -23,6 +23,8 @@
 
 #define BOARD_INFO_NAME "BTT OCTOPUS V1.1"
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Temperature Sensors
 //
@@ -31,5 +33,7 @@
 #else
   #define TEMP_0_PIN                        PF4   // TH0
 #endif
+
+#define EXP2_10_PIN                         PC5
 
 #include "pins_BTT_OCTOPUS_V1_common.h"

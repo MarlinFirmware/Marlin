@@ -171,7 +171,7 @@ void onUserConfirmRequired(const char *const msg) {
       case PAUSE_MESSAGE_PURGE: {
         rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
         char newMsg[40] = "Yes to ";
-        strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+        strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
         strcat_P(newMsg, PSTR("           No to Purge"));
         onStatusChanged(newMsg);
         break;
@@ -181,7 +181,7 @@ void onUserConfirmRequired(const char *const msg) {
     case PAUSE_MESSAGE_OPTION: {
       rts.sendData(ExchangePageBase + 78, ExchangepageAddr);
       char newMsg[40] = "Yes to ";
-      strcat_P(newMsg, TERN1(FILAMENT_RUNOUT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
+      strcat_P(newMsg, TERN1(HAS_FILAMENT_SENSOR, !ExtUI::getFilamentRunoutState() && getFilamentRunoutEnabled()) ? PSTR("Continue") : PSTR("Disable "));
       strcat_P(newMsg, PSTR("           No to Purge"));
       onStatusChanged(newMsg);
       break;
@@ -252,9 +252,15 @@ void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn)
   }
 #endif
 
-void onStatusChanged(const char *const statMsg) {
-  for (int16_t j = 0; j < 20; j++) // Clear old message
+static constexpr int16_t STATUS_MESSAGE_SIZE = 20;
+
+void clearStatus() {
+  for (int16_t j = 0; j < STATUS_MESSAGE_SIZE; j++) // Clear old message
     rts.sendData(' ', StatusMessageString + j);
+}
+
+void onStatusChanged(const char * const statMsg) {
+  clearStatus();
   rts.sendData(statMsg, StatusMessageString);
 }
 

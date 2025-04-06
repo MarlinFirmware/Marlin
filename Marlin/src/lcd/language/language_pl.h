@@ -44,7 +44,7 @@ namespace LanguageNarrow_pl {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Polski");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" gotowy.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" gotowy.");
   LSTR MSG_YES                            = _UxGT("TAK");
   LSTR MSG_NO                             = _UxGT("NIE");
   LSTR MSG_BACK                           = _UxGT("Wstecz");
@@ -358,7 +358,12 @@ namespace LanguageNarrow_pl {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Wysuń Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Wysuń Filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Wysuń wszystkie");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inicjal. karty SD");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Inicjal. karty SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Inicjal. dysk flash");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Inicjal. karty SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Zmiana karty SD");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Zwolnienie karty");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z za stołem");

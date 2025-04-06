@@ -41,7 +41,7 @@ namespace LanguageNarrow_cz {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Czech");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" připraven.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" připraven.");
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");
@@ -359,7 +359,12 @@ namespace LanguageNarrow_cz {
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunout filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunout vše");
 
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načíst médium");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Načíst SD");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Načíst USB");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Načíst SD");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vyměnit médium");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Vysunout médium");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl");
@@ -529,7 +534,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridní práh");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Domů bez senzorů");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim kroků");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop povolen");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" za:");
   LSTR MSG_BACKLASH                       = _UxGT("Vůle");
