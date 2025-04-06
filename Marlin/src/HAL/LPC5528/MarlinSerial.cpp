@@ -23,6 +23,10 @@
 
 #include "MarlinSerial.h"
 
+#ifdef USBCON
+  DefaultSerial1 MSerial0(false, UsbSerial);
+#endif
+
 #if USING_HW_SERIAL0
   MarlinSerial _MSerial0(USART0);
   MSerialT MSerial0(true, _MSerial0);
@@ -50,4 +54,24 @@ void MarlinSerial::begin(uint32_t baud) {
   HardwareSerial::begin(baud);
 }
 
-#endif // TARGET_LPC5528
+#if ENABLED(EMERGENCY_PARSER)
+
+  bool MarlinSerial::recv_callback(const char c) {
+    // Need to figure out which serial port we are and react in consequence (Marlin does not have CONTAINER_OF macro)
+    if (false) {}
+    #if USING_HW_SERIAL0
+      else if (this == &_MSerial0) emergency_parser.update(MSerial0.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL1
+      else if (this == &_MSerial1) emergency_parser.update(MSerial1.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL2
+      else if (this == &_MSerial2) emergency_parser.update(MSerial2.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL3
+      else if (this == &_MSerial3) emergency_parser.update(MSerial3.emergency_state, c);
+    #endif
+    return true;
+  }
+
+#endif

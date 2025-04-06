@@ -25,10 +25,6 @@
 #include "../shared/Delay.h"
 #include "fastio.h"
 
-#ifdef USBCON
-  DefaultSerial1 MSerial0(false, UsbSerial);
-#endif
-
 int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));

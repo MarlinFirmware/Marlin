@@ -46,69 +46,15 @@
 
 #define F_CPU 150000000L
 
-//
-// Serial Ports --- if use USB CDC
-//
-#ifdef USBCON
-  //#include <USBSerial.h>
-  #include "../../core/serial_hook.h"
-  typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
-  extern DefaultSerial1 MSerial0;
-#endif
-
-// ------------------------
-// Serial ports
-// ------------------------
-
-// redefine for LPC5528 Library
+// Redefine for LPC5528 Library
 #ifndef byte
   typedef uint8_t byte;
 #endif
 
-// define for serial
-#define _MSERIAL(X) MSerial##X
-#define MSERIAL(X) _MSERIAL(X)
-
-#if SERIAL_PORT == -1
-  #define MYSERIAL1 MSerial0
-#elif WITHIN(SERIAL_PORT, 1, 8)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#else
-  //#error "SERIAL_PORT must be from 1 to 8. You can also use -1 if the board supports Native USB."
-#endif
-
-#ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == -1
-    #define MYSERIAL2 MSerial0
-  #elif WITHIN(SERIAL_PORT_2, 1, 8)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #else
-    #error "SERIAL_PORT_2 must be from 1 to 8. You can also use -1 if the board supports Native USB."
-  #endif
-#endif
-
-#ifdef SERIAL_PORT_3
-  #if SERIAL_PORT_3 == -1
-    #define MYSERIAL3 MSerial0
-  #elif WITHIN(SERIAL_PORT_3, 1, 8)
-    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
-  #else
-    #error "SERIAL_PORT_3 must be from 1 to 8. You can also use -1 if the board supports Native USB."
-  #endif
-#endif
-
-#ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL MSerial0
-  #elif WITHIN(LCD_SERIAL_PORT, 1, 8)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #else
-    #error "LCD_SERIAL_PORT must be from 1 to 8. You can also use -1 if the board supports Native USB."
-  #endif
-  #if HAS_DGUS_LCD
-    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
-  #endif
-#endif
+//
+// Serial ports
+//
+#include "MarlinSerial.h"
 
 //
 // Interrupts
