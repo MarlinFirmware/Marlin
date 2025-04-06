@@ -116,7 +116,7 @@ constexpr uint16_t VP_MOVE_E1 = 0x2112;
 //constexpr uint16_t VP_MOVE_E4 = 0x2118;
 //constexpr uint16_t VP_MOVE_E5 = 0x211A;
 constexpr uint16_t VP_HOME_ALL = 0x2120;
-constexpr uint16_t VP_MOTOR_LOCK_UNLOK = 0x2130;
+constexpr uint16_t VP_MOTOR_LOCK_UNLOCK = 0x2130;
 
 // Power loss recovery
 constexpr uint16_t VP_POWER_LOSS_RECOVERY = 0x2180;

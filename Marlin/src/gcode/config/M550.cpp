@@ -44,17 +44,21 @@
  */
 void GcodeSuite::M550() {
   #if ENABLED(GCODE_QUOTED_STRINGS)
-    if (parser.seenval('P'))
+    if (parser.seenval('P')) {
       machine_name = parser.value_string();
       //machine_name = &parser.string_arg[1];
-    else if (parser.has_string())
+    }
+    else if (parser.has_string()) {
       machine_name = parser.string_arg;
+    }
   #else
-    if (parser.seenval('P'))
+    if (parser.seenval('P')) {
       machine_name = parser.value_string();
       //machine_name = &parser.string_arg[1];
-    else if (parser.has_string())
+    }
+    else if (parser.has_string()) {
       machine_name = parser.string_arg;
+    }
   #endif
 
   else {
