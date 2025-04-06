@@ -24,7 +24,6 @@
  * msc_sd
  * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
  */
-#include "../platforms.h"
 
 #ifdef TARGET_LPC5528
 

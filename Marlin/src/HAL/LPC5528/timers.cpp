@@ -21,8 +21,6 @@
  */
 
 /**
- * Description:
- *
  * Timers for LPC5528
  */
 
@@ -36,30 +34,26 @@ void HAL_timer_init() {
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
-  // 我们只需要初始化两个定时器即可完成脉冲输出的方式，
-  // 在过去的GRBL里，是通过两个定时器来相互拉扯形成脉冲
-  // 来控制电机的，在Marlin上做了改变，脉冲是通过一个定
-  // 时器来产生的。
-
   switch (timer_num) {
 
     case MF_TIMER_STEP:
-    timer_start(timer_num, 1000000 / frequency);                    //add TEMP_TIMER_RATE by M 2022.3.9
-    NVIC_SetPriority(CTIMER0_IRQn, NVIC_EncodePriority(0, 1, 0));   // fix-wang-2022-10-31
-    break;
+      timer_start(timer_num, 1000000 / frequency);                    //add TEMP_TIMER_RATE by M 2022.3.9
+      NVIC_SetPriority(CTIMER0_IRQn, NVIC_EncodePriority(0, 1, 0));   // fix-wang-2022-10-31
+      break;
+
     case MF_TIMER_TEMP:
-    timer_start(timer_num, TEMP_TIMER_RATE / frequency);            //add TEMP_TIMER_RATE by M 2022.3.9
-    NVIC_SetPriority(CTIMER1_IRQn, NVIC_EncodePriority(0, 2, 0));   // fix-wang-2022-10-31
-    break;
+      timer_start(timer_num, TEMP_TIMER_RATE / frequency);            //add TEMP_TIMER_RATE by M 2022.3.9
+      NVIC_SetPriority(CTIMER1_IRQn, NVIC_EncodePriority(0, 2, 0));   // fix-wang-2022-10-31
+      break;
 
-    // case TMC_TIMER:
-    // timer_start(timer_num, TEMP_TIMER_RATE / frequency);
-    // NVIC_SetPriority(CTIMER4_IRQn, NVIC_EncodePriority(0, 4, 0));
-    // break;
+    //case TMC_TIMER:
+    //timer_start(timer_num, TEMP_TIMER_RATE / frequency);
+    //NVIC_SetPriority(CTIMER4_IRQn, NVIC_EncodePriority(0, 4, 0));
+    //break;
 
-    // case MF_TIMER_PULSE:
-    // timer_start(timer_num, PULSE_TIMER_RATE / frequency);     //add TEMP_TIMER_RATE by M 2022.3.9
-    // break;
+    //case MF_TIMER_PULSE:
+    //timer_start(timer_num, PULSE_TIMER_RATE / frequency);     //add TEMP_TIMER_RATE by M 2022.3.9
+    //break;
 
     default:
     break;

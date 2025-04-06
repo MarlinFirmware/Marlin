@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build tests for LPC1768 (NXP ARM Cortex-M3)
+# Build tests for LPC5528 (NXP ARM Cortex-M33)
 #
 
 # exit on first failure

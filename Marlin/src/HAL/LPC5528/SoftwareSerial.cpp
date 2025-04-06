@@ -1,4 +1,26 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * SoftwareSerial.cpp (formerly NewSoftSerial.cpp)
  *
  * Multi-instance software serial library for Arduino/Wiring
@@ -30,7 +52,6 @@
  * The latest version of this library can always be found at
  * http://arduiniana.org.
  */
-
 
 #ifdef TARGET_LPC5528
 
@@ -214,7 +235,8 @@ inline void SoftwareSerial::recv() {
       else {
         rx_tick_cnt = 1; // Waiting for start bit, but we don't get right level. Wait for next Interrupt to ckech RX pin level
       }
-    } else if (rx_bit_cnt >= 8) { // rx_bit_cnt >= 8 : waiting for stop bit
+    }
+    else if (rx_bit_cnt >= 8) { // rx_bit_cnt >= 8 : waiting for stop bit
       if (inbit) {
         // stop bit read complete add to buffer
         uint8_t next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
@@ -335,8 +357,8 @@ int SoftwareSerial::available() {
 size_t SoftwareSerial::write(uint8_t b) {
   // wait for previous transmit to complete
   _output_pending = 1;
-  while (active_out)
-    ;
+  while (active_out) { /* nada */ }
+
   // add start and stop bits.
   tx_buffer = b << 1 | 0x200;
   if (_inverse_logic) {
@@ -464,7 +486,7 @@ extern "C"{
     /* Clear the status flags that were set */
     CTIMER_ClearStatusFlags(CTIMER4, int_stat);
       //USER Code
-    if(pFunc_Ctimer[0] != NULL){
+    if (pFunc_Ctimer[0] != NULL){
       pFunc_Ctimer[0]();
     }
   }

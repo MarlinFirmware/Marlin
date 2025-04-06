@@ -39,7 +39,7 @@
   #define PWM OUTPUT
 #endif
 #define NO_COMPILE_TIME_PWM
-#define PWM_PIN(P)            true // all pins are PWM capable
+#define PWM_PIN(P)            true // All pins are PWM capable
 
 /**
  * Magic I/O routines
@@ -55,9 +55,9 @@
 /// Read a pin
 #define _READ(IO)               digitalRead(IO)
 
-/// set pin as output
-#define _SET_OUTPUT(IO)          pinMode(IO, OUTPUT)                               //!< Output Push Pull Mode & GPIO_NOPULL
-#define _SET_OUTPUT_OD(IO)       pinMode(IO, OUTPUT_OPEN_DRAIN)
+/// Set pin as output
+#define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)             //!< Output Push Pull Mode & GPIO_NOPULL
+#define _SET_OUTPUT_OD(IO)      pinMode(IO, OUTPUT_OPEN_DRAIN)
 
 /// Read a pin wrapper
 #define READ(IO)                digitalRead(IO)
@@ -65,23 +65,23 @@
 /// Write to a pin wrapper
 #define WRITE(IO,V)             digitalWrite(IO, V)
 
-/// toggle a pin wrapper
+/// Toggle a pin wrapper
 #define TOGGLE(IO)              WRITE(IO, !READ(IO))
 
-/// set pin as input wrapper
-#define SET_INPUT(IO)           _SET_MODE(IO, INPUT)                              //!< Input Floating Mode
-/// set pin as input with pullup wrapper
-#define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       //!< Input with Pull-up activation
-/// set pin as input with pulldown wrapper
-#define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLUP)                     //!< Input with Pull-down activation
-/// set pin as output wrapper  -  reads the pin and sets the output to that value
+/// Set pin as input wrapper
+#define SET_INPUT(IO)           _SET_MODE(IO, INPUT)            //!< Input Floating Mode
+/// Set pin as input with pullup wrapper
+#define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)     //!< Input with Pull-up activation
+/// Set pin as input with pulldown wrapper
+#define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLUP)     //!< Input with Pull-down activation
+/// Set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)           OUT_WRITE(IO, LOW)
-// set pin as PWM
+/// Set pin as PWM
 #define SET_PWM(IO)             _SET_MODE(IO, PWM)
 
-/// check if pin is an input wrapper
+/// Check if pin is an input wrapper
 #define IS_INPUT(IO)
-/// check if pin is an output wrapper
+/// Check if pin is an output wrapper
 #define IS_OUTPUT(IO)
 
 // Shorthand

@@ -19,8 +19,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+ #pragma once
 
-#if ENABLED(USE_WATCHDOG)
-  #error "USE_WATCHDOG is not implemented on LPC5528."
-#endif
+/**
+ * A more sophisticated hardware SPI that has not been fully debugged. Source:
+ *   https://github.com/MarlinFirmware/Marlin/tree/071c7a78f2
+ */
+
+//new config options
+#define SD_SPI_CHANNEL (HAL::SPI::CHANNEL_2)
+#define LCD_SPI_FREQUENCY 4000000
+#define LCD_SPI_CHANNEL (HAL::SPI::CHANNEL_1)
+
+//#define SOFTWARE_SPI
+
+/** onboard SD card */
+//#define SCK_PIN           P0_7
+//#define MISO_PIN          P0_8
+//#define MOSI_PIN          P0_9
+//#define SS_PIN            P0_6
+
+/** external */
+#define SCK_PIN           52 //P0_15
+#define MISO_PIN          50 //P0_17
+#define MOSI_PIN          51 //P0_18
+#define SS_PIN            53 //P1_23

@@ -25,9 +25,7 @@
  * Copyright (c) 2009 by William Greiman
  */
 
-/**
- * For TARGET_LPC5528
- */
+#ifdef TARGET_LPC5528
 
 /**
  * Hardware SPI and Software SPI implementations are included in this file.
@@ -43,10 +41,9 @@
  *
  * A more sophisticated hardware SPI can be found at the following link.
  * This implementation has not been fully debugged.
+ *
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
-
-#ifdef TARGET_LPC5528
 
 #include "../../inc/MarlinConfig.h"
 #include <SPI.h>

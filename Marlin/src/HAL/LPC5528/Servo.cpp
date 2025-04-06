@@ -22,54 +22,50 @@
 
 #ifdef TARGET_LPC5528
 
-#include "../platforms.h"
-
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 
 #include "Servo.h"
 
-#define MAX_SERVORS   10
+#define MAX_SERVOS   10
 
-long map(long x, long in_min, long in_max, long out_min, long out_max)
-{
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void libServo::bspPwmOut(int pin, uint32_t duty) {
   pwm_write(pin,duty);
-  // TODO..
+  // TODO: ...
 }
 
 void libServo::bspPwmDeinit(int pin) {
   pwm_detach_pin(pin);
-  // TODO..
+  // TODO: ...
 }
 
-
-/* 初始化PWM 引脚 */
+// Initialize the PWM pin
 int8_t libServo::attach(const int inPin) {
-  // if(chCount >= MAX_SERVORS) return -1;
-  if(inPin > 0 ) servo_pin = inPin;
+  //if (chCount >= MAX_SERVOS) return -1;
+  if (inPin > 0 ) servo_pin = inPin;
   bool result = true;
   pwm_init(50);
-  analogWriteResolution(65535);  //
+  analogWriteResolution(65535);
   result = pwm_attach_pin(SERVO0_PIN, 65535);
- // auto result = TODO.. 这里需要初始化对饮引脚, 成功返回true, 失败返回false.
+  //auto result = TODO: Need to init the pair of PWM pins here, return true if successful, and return false if failed.
   return result;
 }
 
-/* 禁用对应引脚PWM输出 */
+// Disable the corresponding pin PWM output
 void libServo::detach() { bspPwmDeinit(servo_pin); }
 
-/* 计算比较值，输出PWM */
+// Calculate the comparison value and output PWM
 void libServo::write(int inDegrees) {
   degrees = constrain(inDegrees, minAngle, maxAngle);
   int us = map(degrees, minAngle, maxAngle, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   int duty = map(us, 0, TauUsec, 0, MaxCompare);
 
-  /* PWM输出↓ */
+  // PWM output
   bspPwmOut(servo_pin, duty);
 }
 
@@ -85,6 +81,5 @@ void libServo::move(const int value) {
 
 int libServo::read() { return degrees; }
 
-#endif
-
+#endif // HAS_SERVOS
 #endif // TARGET_LPC5528
