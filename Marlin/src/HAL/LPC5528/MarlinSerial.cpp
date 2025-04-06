@@ -75,3 +75,5 @@ void MarlinSerial::begin(uint32_t baud) {
   }
 
 #endif
+
+#endif // TARGET_LPC5528
