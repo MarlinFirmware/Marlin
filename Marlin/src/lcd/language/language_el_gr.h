@@ -36,7 +36,7 @@ namespace LanguageNarrow_el_gr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Greek (Greece)");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" έτοιμο.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" έτοιμο.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Εισαγωγή κάρτας");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Αφαίρεση κάρτας");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters

@@ -47,7 +47,7 @@ namespace LanguageNarrow_sk {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Slovenčina");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pripravená.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pripravená.");
   LSTR MSG_YES                            = _UxGT("ÁNO");
   LSTR MSG_NO                             = _UxGT("NIE");
   LSTR MSG_HIGH                           = _UxGT("VYSOKÁ");
@@ -761,7 +761,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridný prah");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Bezsenzor. domov");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim krokovania");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop zapnutý");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Vynulovať");
   LSTR MSG_SERVICE_IN                     = _UxGT("za:");
   LSTR MSG_BACKLASH                       = _UxGT("Kompenz. vôle");

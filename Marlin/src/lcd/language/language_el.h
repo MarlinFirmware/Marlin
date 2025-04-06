@@ -36,7 +36,7 @@ namespace LanguageNarrow_el {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Greek (Greece)");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" έτοιμος.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" έτοιμος.");
   LSTR MSG_YES                            = _UxGT("ΝΑΙ");
   LSTR MSG_NO                             = _UxGT("ΟΧΙ");
   LSTR MSG_BACK                           = _UxGT("Πίσω");

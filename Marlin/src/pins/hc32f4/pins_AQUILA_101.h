@@ -37,6 +37,8 @@
   #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 1
+
 //
 // Onboard crystal oscillator
 //

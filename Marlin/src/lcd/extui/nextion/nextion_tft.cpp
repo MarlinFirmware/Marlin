@@ -63,12 +63,16 @@ void NextionTFT::startup() {
   delay_ms(100);
   SEND_VAL("tmppage.connected", 1);
 
-  SEND_VALasTXT("tmppage.marlin", SHORT_BUILD_VERSION);
-  SEND_VALasTXT("tmppage.compiled", __DATE__ " / " __TIME__);
+  SEND_TXT("tmppage.marlin", SHORT_BUILD_VERSION);
+  SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
   SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
-  SEND_VALasTXT("tmppage.printer", MACHINE_NAME);
-  SEND_VALasTXT("tmppage.author", STRING_CONFIG_H_AUTHOR);
-  SEND_VALasTXT("tmppage.released", STRING_DISTRIBUTION_DATE);
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    SEND_VALasTXT("tmppage.printer", &machine_name);
+  #else
+    SEND_TXT("tmppage.printer", MACHINE_NAME);
+  #endif
+  SEND_TXT("tmppage.author", STRING_CONFIG_H_AUTHOR);
+  SEND_TXT("tmppage.released", STRING_DISTRIBUTION_DATE);
   SEND_VALasTXT("tmppage.bedx", X_BED_SIZE);
   SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
   SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
@@ -222,12 +226,16 @@ void NextionTFT::panelInfo(uint8_t req) {
   case 2: // Printer Info
     if (!isPrinting()) {
       SEND_VAL("tmppage.connected", 1);
-      SEND_VALasTXT("tmppage.marlin", SHORT_BUILD_VERSION);
-      SEND_VALasTXT("tmppage.compiled", __DATE__ " / " __TIME__);
+      SEND_TXT("tmppage.marlin", SHORT_BUILD_VERSION);
+      SEND_TXT("tmppage.compiled", __DATE__ " / " __TIME__);
       SEND_VALasTXT("tmppage.extruder", EXTRUDERS);
-      SEND_VALasTXT("tmppage.printer", MACHINE_NAME);
-      SEND_VALasTXT("tmppage.author", STRING_CONFIG_H_AUTHOR);
-      SEND_VALasTXT("tmppage.released", STRING_DISTRIBUTION_DATE);
+      #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+        SEND_VALasTXT("tmppage.printer", &machine_name);
+      #else
+        SEND_TXT("tmppage.printer", MACHINE_NAME);
+      #endif
+      SEND_TXT("tmppage.author", STRING_CONFIG_H_AUTHOR);
+      SEND_TXT("tmppage.released", STRING_DISTRIBUTION_DATE);
       SEND_VALasTXT("tmppage.bedx", X_BED_SIZE);
       SEND_VALasTXT("tmppage.bedy", Y_BED_SIZE);
       SEND_VALasTXT("tmppage.bedz", Z_MAX_POS);
@@ -430,59 +438,43 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 36: // Endstop Info
     #if X_HOME_TO_MIN
-      SEND_VALasTXT("x1", READ(X_MIN_PIN) == X_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("x1", READ(X_MIN_PIN) == X_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #elif X_HOME_TO_MAX
-      SEND_VALasTXT("x2", READ(X_MAX_PIN) == X_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("x2", READ(X_MAX_PIN) == X_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #endif
     #if Y_HOME_TO_MIN
-      SEND_VALasTXT("y1", READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("y1", READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #elif Y_HOME_TO_MAX
-      SEND_VALasTXT("y2", READ(X_MAX_PIN) == Y_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("y2", READ(X_MAX_PIN) == Y_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #endif
     #if Z_HOME_TO_MIN
-      SEND_VALasTXT("z1", READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("z1", READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #elif Z_HOME_TO_MAX
-      SEND_VALasTXT("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #endif
     #if USE_Z2_MIN
-      SEND_VALasTXT("z2", READ(Z2_MIN_PIN) == Z2_MIN_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("z2", READ(Z2_MIN_PIN) == Z2_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #elif USE_Z2_MAX
-      SEND_VALasTXT("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? "triggered" : "open");
+      SEND_TXT_F("z2", READ(Z2_MAX_PIN) == Z2_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
     #endif
     #if HAS_BED_PROBE
-      //SEND_VALasTXT("bltouch", PROBE_TRIGGERED() ? "triggered" : "open");
+      //SEND_TXT_F("bltouch", PROBE_TRIGGERED() ? F("triggered") : F("open"));
     #else
       SEND_NA("bltouch");
     #endif
     break;
 
   case 37: // PID
-    #if ENABLED(PIDTEMP)
-      #define SEND_PID_INFO_0(A, B) SEND_VALasTXT(A, getPID_K##B(E0))
-    #else
-      #define SEND_PID_INFO_0(A, B) SEND_NA(A)
-    #endif
+    #define SEND_PID_INFO_0(A, B) TERN(PIDTEMP, SEND_VALasTXT(A, getPID_K##B(E0)), SEND_NA(A))
     #if ALL(PIDTEMP, HAS_MULTI_EXTRUDER)
       #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
       #define SEND_PID_INFO_1(A, B) SEND_NA(A)
     #endif
-    #if ENABLED(PIDTEMPBED)
-      #define SEND_PID_INFO_BED(A, B) SEND_VALasTXT(A, getBedPID_K##B())
-    #else
-      #define SEND_PID_INFO_BED(A, B) SEND_NA(A)
-    #endif
-    SEND_PID_INFO_0("p0", p);
-    SEND_PID_INFO_0("i0", i);
-    SEND_PID_INFO_0("d0", d);
-
-    SEND_PID_INFO_1("p1", p);
-    SEND_PID_INFO_1("i1", i);
-    SEND_PID_INFO_1("d1", d);
-
-    SEND_PID_INFO_BED("hbp", p);
-    SEND_PID_INFO_BED("hbi", i);
-    SEND_PID_INFO_BED("hbd", d);
+    #define SEND_PID_INFO_BED(A, B) TERN(PIDTEMPBED, SEND_VALasTXT(A, getBedPID_K##B()), SEND_NA(A))
+    SEND_PID_INFO_0("p0", p); SEND_PID_INFO_0("i0", i); SEND_PID_INFO_0("d0", d);
+    SEND_PID_INFO_1("p1", p); SEND_PID_INFO_1("i1", i); SEND_PID_INFO_1("d1", d);
+    SEND_PID_INFO_BED("hbp", p); SEND_PID_INFO_BED("hbi", i); SEND_PID_INFO_BED("hbd", d);
     break;
   }
 }
