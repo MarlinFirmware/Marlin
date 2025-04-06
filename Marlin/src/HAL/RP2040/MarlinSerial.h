@@ -76,5 +76,5 @@ extern USBSerialType USBSerial;
 #include "../shared/serial_ports.h"
 
 #if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
-  #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+  #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
 #endif

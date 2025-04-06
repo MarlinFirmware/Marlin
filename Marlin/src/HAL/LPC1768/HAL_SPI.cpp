@@ -26,10 +26,6 @@
  */
 
 /**
- * For TARGET_LPC1768
- */
-
-/**
  * Hardware SPI and Software SPI implementations are included in this file.
  * The hardware SPI runs faster and has higher throughput but is not compatible
  * with some LCD interfaces/adapters.

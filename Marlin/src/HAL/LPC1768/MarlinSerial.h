@@ -49,7 +49,7 @@ public:
 
   void end() {}
 
-  uint8_t availableForWrite(void) { /* flushTX(); */ return TX_BUFFER_SIZE; }
+  uint8_t availableForWrite() { /* flushTX(); */ return TX_BUFFER_SIZE; }
 
   #if ENABLED(EMERGENCY_PARSER)
     bool recv_callback(const char c) override;

@@ -39,6 +39,9 @@
 #ifndef TOUCH_CS_PIN
   #define TOUCH_CS_PIN   TFT_CS_PIN
 #endif
+#ifndef TOUCH_INT_PIN
+  #define TOUCH_INT_PIN  -1
+#endif
 
 #define XPT2046_DFR_MODE        0x00
 #define XPT2046_SER_MODE        0x04
@@ -62,12 +65,12 @@ private:
   static uint16_t getRawData(const XPTCoordinate coordinate);
   static bool isTouched();
 
-  static inline void DataTransferBegin() { WRITE(TOUCH_CS_PIN, LOW); };
-  static inline void DataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
+  static void dataTransferBegin() { WRITE(TOUCH_CS_PIN, LOW); };
+  static void dataTransferEnd() { WRITE(TOUCH_CS_PIN, HIGH); };
   #if ENABLED(TOUCH_BUTTONS_HW_SPI)
-    static uint16_t HardwareIO(uint16_t data);
+    static uint16_t hardwareIO(uint16_t data);
   #endif
-  static uint16_t SoftwareIO(uint16_t data);
+  static uint16_t softwareIO(uint16_t data);
   static uint16_t IO(uint16_t data = 0);
 
 public:
@@ -75,6 +78,6 @@ public:
     static SPIClass SPIx;
   #endif
 
-  static void Init();
+  static void init();
   static bool getRawPoint(int16_t * const x, int16_t * const y);
 };

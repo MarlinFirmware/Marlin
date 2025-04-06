@@ -55,8 +55,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     //timer_start(timer_num, PULSE_TIMER_RATE / frequency);     //add TEMP_TIMER_RATE by M 2022.3.9
     //break;
 
-    default:
-    break;
+    default: break;
   }
 }
 

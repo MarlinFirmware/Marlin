@@ -39,10 +39,8 @@
  * WRITE nor digitalWrite when the hardware SPI module within the LPC17xx is
  * active. If any of these pins are shared then the software SPI must be used.
  *
- * A more sophisticated hardware SPI can be found at the following link.
- * This implementation has not been fully debugged.
- *
- * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
+ * A more sophisticated hardware SPI is included for future reference.
+ * See: spi_impl-071c7a78f2.cpp and spi_pins-071c7a78f2.h
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -95,7 +93,11 @@
       (void)spiTransfer(buf[i]);
   }
 
-#else
+#else // !SOFTWARE_SPI
+
+  /**
+   * Hardware SPI
+   */
 
   #ifdef SD_SPI_SPEED
     #define INIT_SPI_SPEED SD_SPI_SPEED
@@ -161,7 +163,7 @@
     // TODO: Implement this method
   }
 
-#endif // SOFTWARE_SPI
+#endif // !SOFTWARE_SPI
 
 // Retain the pin init state of the SPI, to avoid init more than once,
 // even if more instances of SPIClass exist

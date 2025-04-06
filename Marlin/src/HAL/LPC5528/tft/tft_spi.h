@@ -56,15 +56,15 @@ public:
   static bool isBusy();
   static void abort();
 
-  static void dataTransferBegin(const uint16_t dataWidth=DATASIZE_16BIT);
   static void dataTransferEnd() { WRITE(TFT_CS_PIN, HIGH); HS_SPI.end(); };
+  static void dataTransferBegin(uint16_t dataWidth=DATASIZE_16BIT);
   static void dataTransferAbort();
 
-  static void writeData(const uint16_t data) { transmit(data); }
+  static void writeData(uint16_t data) { transmit(data); }
   static void writeReg(const uint16_t inReg) { WRITE(TFT_DC_PIN, LOW); transmit(inReg); WRITE(TFT_DC_PIN, HIGH); }
 
-  static void writeSequence(uint16_t *data, uint16_t count) { transmitDMA(DMA_MINC_ENABLE, data, count); }
   //static void writeMultiple(uint16_t color, uint16_t count) { static uint16_t data; data = color; transmitDMA(DMA_MINC_DISABLE, &data, count); }
+  static void writeSequence(uint16_t *data, uint16_t count) { transmit(DMA_MINC_ENABLE, data, count); }
   static void writeMultiple(uint16_t color, uint32_t count) {
     static uint16_t data; data = color;
     // LPC DMA can only write 0xFFF bytes at once.

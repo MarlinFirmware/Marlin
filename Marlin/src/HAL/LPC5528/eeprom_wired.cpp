@@ -27,14 +27,14 @@
 
 /**
  * PersistentStore for Arduino-style EEPROM interface
- * with simple implementations supplied by Marlin.
+ * with implementations supplied by the framework.
  */
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
+  #define MARLIN_EEPROM_SIZE           0x8000 // 32K
 #endif
 size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE - eeprom_exclude_size; }
 
@@ -63,7 +63,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    // Read from either external EEPROM, program flash or Backup SRAM
+    // Read from external EEPROM
     const uint8_t c = eeprom_read_byte((uint8_t*)REAL_EEPROM_ADDR(pos));
     if (writing) *value = c;
     crc16(crc, &c, 1);

@@ -19,18 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifdef TARGET_LPC5528
 
+#include "../../inc/MarlinConfigPre.h"
 
-#ifndef SD_SCK_PIN
-  #define SD_SCK_PIN        -1 // P0_15
-#endif
-#ifndef SD_MISO_PIN
-  #define SD_MISO_PIN       -1 // P0_17
-#endif
-#ifndef SD_MOSI_PIN
-  #define SD_MOSI_PIN       -1 // P0_18
-#endif
-#ifndef SD_SS_PIN
-  #define SD_SS_PIN         -1 // P1_23
-#endif
+#if ENABLED(EMERGENCY_PARSER)
+
+#include "../../feature/e_parser.h"
+
+EmergencyParser::State emergency_state;
+
+bool CDC_RecvCallback(const char c) {
+  emergency_parser.update(emergency_state, c);
+  return true;
+}
+
+#endif // EMERGENCY_PARSER
+#endif // TARGET_LPC5528

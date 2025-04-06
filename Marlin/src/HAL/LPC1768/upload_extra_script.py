@@ -1,8 +1,8 @@
 #
 # upload_extra_script.py
 # set the output_port
-#  if target_filename is found then that drive is used
-#  else if target_drive is found then that drive is used
+#  if target_drive is found then that drive is used
+#  else if target_filename is found then that drive is used
 #
 from __future__ import print_function
 

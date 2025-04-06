@@ -58,18 +58,17 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE          160000000 //((F_CPU) / 1) // GetStepperTimerClkFreq()   // 150MHz
 
-#ifndef STEP_TIMER_NUM
-  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#ifndef MF_TIMER_STEP
+  #define MF_TIMER_STEP         0  // Timer Index for Stepper
 #endif
-#ifndef PULSE_TIMER_NUM
-  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#ifndef MF_TIMER_PULSE
+  #define MF_TIMER_PULSE        MF_TIMER_STEP
 #endif
-#ifndef TEMP_TIMER_NUM
-  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#ifndef MF_TIMER_TEMP
+  #define MF_TIMER_TEMP         1  // Timer Index for Temperature
 #endif
-
-#ifndef PWM_TIMER_NUM
-  #define PWM_TIMER_NUM         2  // Timer Index for PWM
+#ifndef MF_TIMER_PWM
+  #define MF_TIMER_PWM          3  // Timer Index for PWM
 #endif
 
 #define TEMP_TIMER_RATE        1000000
@@ -84,23 +83,23 @@ extern uint32_t GetStepperTimerClkFreq(void);
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
 #define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_STEP)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_STEP)
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(MF_TIMER_STEP)
 
-#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
-#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
+#define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(STEP_TIMER_NUM)
+  #define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(MF_TIMER_STEP)
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
   #define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
 #endif
 
 // Timer references by index
-#define STEP_TIMER_PTR _HAL_TIMER(STEP_TIMER_NUM)
-#define TEMP_TIMER_PTR _HAL_TIMER(TEMP_TIMER_NUM)
+#define STEP_TIMER_PTR _HAL_TIMER(MF_TIMER_STEP)
+#define TEMP_TIMER_PTR _HAL_TIMER(MF_TIMER_TEMP)
 
 // ------------------------
 // Public functions
