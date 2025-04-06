@@ -22,7 +22,7 @@
 #pragma once
 
 #include "LPC55S28.h"
-#include <HardwareSerial.h>
+#include <Arduino.h>
 
 #include "../../inc/MarlinConfigPre.h"
 #if ENABLED(EMERGENCY_PARSER)
@@ -34,15 +34,14 @@
 // Serial Ports --- if use USB CDC
 //
 #ifdef USBCON
-  //#include <USBSerial.h>
   #include "../../core/serial_hook.h"
   typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
-  extern DefaultSerial1 MSerial0;
+  extern DefaultSerial1 USBSerial;
 #endif
 
 #define SERIAL_INDEX_MIN 1
 #define SERIAL_INDEX_MAX 8
-#define USB_SERIAL_PORT(...) MSerial0
+#define USB_SERIAL_PORT(...) USBSerial
 #include "../shared/serial_ports.h"
 
 #if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
@@ -71,3 +70,6 @@ extern MSerialT MSerial2;
 extern MSerialT MSerial3;
 extern MSerialT MSerial4;
 extern MSerialT MSerial5;
+extern MSerialT MSerial6;
+extern MSerialT MSerial7;
+extern MSerialT MSerial8;

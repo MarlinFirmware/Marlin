@@ -36,7 +36,7 @@
  *
  * Some of the LCD interfaces/adapters result in the LCD SPI and the SD card
  * SPI sharing pins. The SCK, MOSI & MISO pins can NOT be set/cleared with
- * WRITE nor digitalWrite when the hardware SPI module within the LPC17xx is
+ * WRITE nor digitalWrite when the hardware SPI module within the LPC55xx is
  * active. If any of these pins are shared then the software SPI must be used.
  *
  * A more sophisticated hardware SPI is included for future reference.

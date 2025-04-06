@@ -41,6 +41,16 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00080000
 
+#elif defined(TARGET_LPC5528)
+
+  // TODO
+  #define START_SRAM_ADDR   0x10000000
+  #define END_SRAM_ADDR     0x10008000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00080000
+
+  #warning "Validated unwmemaccess values needed for TARGET_LPC5528."
+
 #elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx) || defined(STM32G0xx)
 
   // For STM32F103ZET6/STM32F103VET6/STM32F0xx

@@ -28,14 +28,20 @@
 
 #define CPU_32_BIT
 
-#include "../../core/macros.h"
+#include <stdint.h>
+#include <stdarg.h>
+#include <algorithm>
+
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 
+//
+// Serial Ports
+//
+
 #include "MarlinSerial.h"
-#include <stdint.h>
 
 //
 // Default graphical display delays
@@ -50,11 +56,6 @@
 #ifndef byte
   typedef uint8_t byte;
 #endif
-
-//
-// Serial ports
-//
-#include "MarlinSerial.h"
 
 //
 // Interrupts

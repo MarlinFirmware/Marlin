@@ -23,13 +23,10 @@
 
 #include "MarlinSerial.h"
 
-#ifdef USBCON
-  DefaultSerial1 MSerial0(false, UsbSerial);
-#endif
+#include "../../inc/MarlinConfig.h"
 
-#if USING_HW_SERIAL0
-  MarlinSerial _MSerial0(USART0);
-  MSerialT MSerial0(true, _MSerial0);
+#ifdef USBCON
+  DefaultSerial1 USBSerial(false, UsbSerial);
 #endif
 
 #if USING_HW_SERIAL1
@@ -45,9 +42,37 @@
 #if USING_HW_SERIAL3
   MarlinSerial _MSerial3(USART3);
   MSerialT MSerial3(true, _MSerial3);
-  extern "C" void FLEXCOMM3_IRQHandler() {
-    _MSerial3.IRQHandler();
-  }
+  extern "C" void FLEXCOMM3_IRQHandler() { _MSerial3.IRQHandler(); }
+#endif
+
+#if USING_HW_SERIAL4
+  MarlinSerial _MSerial4(USART4);
+  MSerialT MSerial4(true, _MSerial4);
+  extern "C" void FLEXCOMM4_IRQHandler() { _MSerial4.IRQHandler(); }
+#endif
+
+#if USING_HW_SERIAL5
+  MarlinSerial _MSerial5(USART5);
+  MSerialT MSerial5(true, _MSerial5);
+  extern "C" void FLEXCOMM5_IRQHandler() { _MSerial5.IRQHandler(); }
+#endif
+
+#if USING_HW_SERIAL6
+  MarlinSerial _MSerial6(USART6);
+  MSerialT MSerial6(true, _MSerial6);
+  extern "C" void FLEXCOMM6_IRQHandler() { _MSerial6.IRQHandler(); }
+#endif
+
+#if USING_HW_SERIAL7
+  MarlinSerial _MSerial7(USART7);
+  MSerialT MSerial7(true, _MSerial7);
+  extern "C" void FLEXCOMM7_IRQHandler() { _MSerial7.IRQHandler(); }
+#endif
+
+#if USING_HW_SERIAL8
+  MarlinSerial _MSerial8(USART8);
+  MSerialT MSerial8(true, _MSerial8);
+  extern "C" void FLEXCOMM8_IRQHandler() { _MSerial8.IRQHandler(); }
 #endif
 
 void MarlinSerial::begin(uint32_t baud) {
@@ -70,6 +95,12 @@ void MarlinSerial::begin(uint32_t baud) {
     #endif
     #if USING_HW_SERIAL3
       else if (this == &_MSerial3) emergency_parser.update(MSerial3.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL4
+      else if (this == &_MSerial4) emergency_parser.update(MSerial4.emergency_state, c);
+    #endif
+    #if USING_HW_SERIAL5
+      else if (this == &_MSerial5) emergency_parser.update(MSerial5.emergency_state, c);
     #endif
     return true;
   }
