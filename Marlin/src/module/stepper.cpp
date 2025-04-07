@@ -1451,14 +1451,14 @@ void Stepper::apply_directions() {
           A("lsrs  %[flo],%[fhi],#1")           // f>>=33;           1 cycles [31bits]
           A("smlal %[alo],%[ahi],%[flo],%[A]")  // a+=(f>>33)*A;     5 cycles
           A("lsrs  %[alo],%[ahi],#6")           // a>>=38            1 cycles
-          : [alo]"+r"( alo ) ,
-            [flo]"+r"( flo ) ,
-            [fhi]"+r"( fhi ) ,
-            [ahi]"+r"( ahi ) ,
-            [A]"+r"( A ) ,  // <== Note: Even if A, B, C, and t registers are INPUT ONLY
-            [B]"+r"( B ) ,  //  GCC does bad optimizations on the code if we list them as
-            [C]"+r"( C ) ,  //  such, breaking this function. So, to avoid that problem,
-            [t]"+r"( t )    //  we list all registers as input-outputs.
+          : [alo]"+r"( alo ),
+            [flo]"+r"( flo ),
+            [fhi]"+r"( fhi ),
+            [ahi]"+r"( ahi ),
+            [A]"+r"( A ), // <== Note: Even if A, B, C, and t registers are INPUT ONLY
+            [B]"+r"( B ), //  GCC does bad optimizations on the code if we list them as
+            [C]"+r"( C ), //  such, breaking this function. So, to avoid that problem,
+            [t]"+r"( t )  //  we list all registers as input-outputs.
           :
           : "cc"
         );

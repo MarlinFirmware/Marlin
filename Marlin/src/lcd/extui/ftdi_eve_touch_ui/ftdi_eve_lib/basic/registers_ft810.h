@@ -105,7 +105,7 @@ namespace FTDI {
     static constexpr uint32_t VOL_SOUND         = 0x302084;  //    8    0xFF             r/w     Audio Synthesizer Volume
     static constexpr uint32_t SOUND             = 0x302088;  //   16    0x0000           r/w     Audio Sound Effect Select
     static constexpr uint32_t PLAY              = 0x30208C;  //    1    0x00             r/w     Audio Start Effect Playback
-    static constexpr uint32_t GPIO_DIR          = 0x302090;  //    8    0x80             r/w     GPIO Pin Direction: 0 = Input , 1 = Output
+    static constexpr uint32_t GPIO_DIR          = 0x302090;  //    8    0x80             r/w     GPIO Pin Direction: 0 = Input, 1 = Output
     static constexpr uint32_t GPIO              = 0x302094;  //    8    0x00             r/w     GPIO Pin Values for 0, 1, 7 Drive Strength 2, 3, 4, 5, 6
     static constexpr uint32_t GPIOX_DIR         = 0x302098;  //   16    0x8000           r/w     Extended GPIO Pin Direction
     static constexpr uint32_t GPIOX             = 0x30209C;  //   16    0x0080           r/w     Extended GPIO Pin Values

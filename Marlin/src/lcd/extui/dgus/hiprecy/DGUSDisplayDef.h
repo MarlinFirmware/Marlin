@@ -121,13 +121,13 @@ constexpr uint16_t VP_MOTOR_LOCK_UNLOCK = 0x2130;
 // Power loss recovery
 constexpr uint16_t VP_POWER_LOSS_RECOVERY = 0x2180;
 
-// Fan Control Buttons , switch between "off" and "on"
+// Fan Control Buttons, switch between "off" and "on"
 constexpr uint16_t VP_FAN0_CONTROL = 0x2200;
 constexpr uint16_t VP_FAN1_CONTROL = 0x2202;
 //constexpr uint16_t VP_FAN2_CONTROL = 0x2204;
 //constexpr uint16_t VP_FAN3_CONTROL = 0x2206;
 
-// Heater Control Buttons , triged between "cool down" and "heat PLA" state
+// Heater Control Buttons, triged between "cool down" and "heat PLA" state
 constexpr uint16_t VP_E0_CONTROL = 0x2210;
 constexpr uint16_t VP_E1_CONTROL = 0x2212;
 //constexpr uint16_t VP_E2_CONTROL = 0x2214;
@@ -147,7 +147,7 @@ constexpr uint16_t VP_E0_BED_PREHEAT = 0x2220;
 // Filament load and unload
 constexpr uint16_t VP_E0_FILAMENT_LOAD_UNLOAD = 0x2300;
 
-// Settings store , reset
+// Settings store, reset
 constexpr uint16_t VP_SETTINGS = 0x2400;
 
 // PID autotune
@@ -257,7 +257,7 @@ constexpr uint16_t VP_BED_STATUS = 0x331C;
 constexpr uint16_t VP_MOVE_OPTION = 0x3400;
 
 // Step per mm
-constexpr uint16_t VP_X_STEP_PER_MM = 0x3600; // at the moment , uint16_t , 0~1638.4
+constexpr uint16_t VP_X_STEP_PER_MM = 0x3600; // at the moment, uint16_t, 0~1638.4
 //constexpr uint16_t VP_X2_STEP_PER_MM = 0x3602;
 constexpr uint16_t VP_Y_STEP_PER_MM = 0x3604;
 //constexpr uint16_t VP_Y2_STEP_PER_MM = 0x3606;
@@ -271,7 +271,7 @@ constexpr uint16_t VP_E0_STEP_PER_MM = 0x3610;
 //constexpr uint16_t VP_E5_STEP_PER_MM = 0x361A;
 
 // PIDs
-constexpr uint16_t VP_E0_PID_P = 0x3700; // at the moment , uint16_t , 0~1638.4
+constexpr uint16_t VP_E0_PID_P = 0x3700; // at the moment, uint16_t, 0~1638.4
 constexpr uint16_t VP_E0_PID_I = 0x3702;
 constexpr uint16_t VP_E0_PID_D = 0x3704;
 constexpr uint16_t VP_BED_PID_P = 0x3710;

@@ -40,7 +40,7 @@ namespace Theme {
 
   const PROGMEM SoundPlayer::sound_t sad_trombone[] = {
     {TRUMPET,      NOTE_A3S, 10},
-    {TRUMPET,      NOTE_A3 , 10},
+    {TRUMPET,      NOTE_A3,  10},
     {TRUMPET,      NOTE_G3S, 10},
     {TRUMPET,      NOTE_G3,  20},
     {SILENCE,      END_SONG, 0}
@@ -263,7 +263,7 @@ namespace Theme {
     {SILENCE,      REST,     2},
 
     {PIANO,        NOTE_D4,  4},
-    {PIANO,        NOTE_G4 , 3},
+    {PIANO,        NOTE_G4,  3},
     {SILENCE,      REST,     1},
     {PIANO,        NOTE_F4S, 4},
     {PIANO,        NOTE_G4,  4},

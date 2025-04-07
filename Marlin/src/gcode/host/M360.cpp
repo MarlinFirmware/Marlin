@@ -44,7 +44,7 @@ static void config_line(PGM_P const name, const float val, PGM_P const pref=null
   SERIAL_ECHOLN(val);
 }
 static void config_line(FSTR_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
-  config_line(FTOP(name), val, FTOP(pref) , ind);
+  config_line(FTOP(name), val, FTOP(pref), ind);
 }
 static void config_line_e(const int8_t e, PGM_P const name, const float val) {
   config_line(name, val, PSTR("Extr."), e + 1);

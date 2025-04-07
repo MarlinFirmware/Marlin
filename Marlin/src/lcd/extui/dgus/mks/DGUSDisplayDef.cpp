@@ -327,7 +327,7 @@ const uint16_t MKSList_MotionConfig[] PROGMEM = {
 
 const uint16_t MKSList_EX_Config[] PROGMEM = {
   INFO_BAR
-  VP_MIN_EX_T,VP_Min_EX_T_E,
+  VP_MIN_EX_T, VP_Min_EX_T_E,
 
   0x0000
 };
@@ -666,9 +666,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_SD_Print_LiveAdjustZ_Confirm, nullptr, screen.zOffsetConfirm, nullptr),
 
-  VPHELPER(VP_ZOffset_Distance,nullptr ,screen.getZoffsetDistance, nullptr),
+  VPHELPER(VP_ZOffset_Distance, nullptr, screen.getZoffsetDistance, nullptr),
   VPHELPER(VP_MESH_LEVEL_ADJUST, nullptr, screen.meshLevelDistanceConfig, nullptr),
-  VPHELPER(VP_MESH_LEVEL_POINT,nullptr, screen.meshLevel, nullptr),
+  VPHELPER(VP_MESH_LEVEL_POINT, nullptr, screen.meshLevel, nullptr),
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     VPHELPER(VP_Min_EX_T_E, &thermalManager.extrude_min_temp, screen.getMinExtrudeTemp, screen.sendWordValueToDisplay),
@@ -709,9 +709,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
       VPHELPER(VP_ZOffset_DE_DIS, &z_offset_add, nullptr, screen.sendFloatAsLongValueToDisplay<2>),
     #endif
     #if HAS_BED_PROBE
-      VPHELPER(VP_OFFSET_X, &probe.offset.x, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
-      VPHELPER(VP_OFFSET_Y, &probe.offset.y, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
-      VPHELPER(VP_OFFSET_Z, &probe.offset.z, screen.getOffsetValue,screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_X, &probe.offset.x, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_Y, &probe.offset.y, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
+      VPHELPER(VP_OFFSET_Z, &probe.offset.z, screen.getOffsetValue, screen.sendFloatAsLongValueToDisplay<2>),
     #endif
   #else
     VPHELPER(VP_SD_FileSelected, nullptr, screen.printReturn, nullptr),

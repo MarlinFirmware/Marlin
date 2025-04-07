@@ -290,7 +290,7 @@ struct MultiSerial : public SerialBase< MultiSerial< REPEAT(NUM_SERIAL, _S_NAME)
   }
 
   #define _S_REFS(N) Serial##N##T & serial##N,
-  #define _S_INIT(N) ,serial##N (serial##N)
+  #define _S_INIT(N) , serial##N (serial##N)
 
   MultiSerial(REPEAT(NUM_SERIAL, _S_REFS) const SerialMask mask=ALL, const bool e=false)
     : BaseClassT(e), portMask(mask) REPEAT(NUM_SERIAL, _S_INIT) {}

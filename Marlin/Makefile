@@ -843,7 +843,7 @@ REMOVE = rm -f
 MV = mv -f
 
 # Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
+CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D, $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
 CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
@@ -868,8 +868,8 @@ else ifeq ($(HARDWARE_VARIANT), archim)
 endif
 
 # Add all the source directories as include directories too
-CINCS = ${addprefix -I ,${VPATH}}
-CXXINCS = ${addprefix -I ,${VPATH}}
+CINCS = ${addprefix -I, ${VPATH}}
+CXXINCS = ${addprefix -I, ${VPATH}}
 
 # Silence warnings for library code (won't work for .h files, unfortunately)
 LIBWARN = -w -Wno-packed-bitfield-compat

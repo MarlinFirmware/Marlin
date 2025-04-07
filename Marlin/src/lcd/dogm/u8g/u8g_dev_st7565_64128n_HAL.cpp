@@ -80,7 +80,7 @@
 #define ST7565_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
 #define ST7565_PAGE_ADR(N)       (0xB0 | (N))
 #define ST7565_START_LINE(N)     (0x40 | (N))
-#define ST7565_SLEEP_MODE()      (0xAC) // ,(N) needed?
+#define ST7565_SLEEP_MODE()      (0xAC) // (N) needed?
 #define ST7565_NOOP()            (0xE3)
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
