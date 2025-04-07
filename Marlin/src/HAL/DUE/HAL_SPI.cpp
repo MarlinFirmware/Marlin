@@ -130,12 +130,12 @@
       A("nop")                                             /* Result will be 0 */
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
-      : [idx]"+r"( idx )
-      : [txval]"r"( bout ),
-        [mosi_mask]"r"( MOSI_MASK ),
-        [mosi_port]"r"( MOSI_PORT_PLUS30 ),
-        [sck_mask]"r"( SCK_MASK ),
-        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : [idx]"+r"(idx)
+      : [txval]"r"(bout),
+        [mosi_mask]"r"(MOSI_MASK),
+        [mosi_port]"r"(MOSI_PORT_PLUS30),
+        [sck_mask]"r"(SCK_MASK),
+        [sck_port]"r"(SCK_PORT_PLUS30)
       : "cc"
     );
 
@@ -152,7 +152,7 @@
   static uint8_t spiTransferRx0(uint8_t) { // using Mode 0
     uint32_t bin = 0;
     uint32_t work = 0;
-    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS(((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
     uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
 
@@ -210,9 +210,9 @@
 
       : [bin]"+r"(bin),
         [work]"+r"(work)
-      : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
-        [sck_mask]"r"( SCK_MASK ),
-        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : [bitband_miso_port]"r"(BITBAND_MISO_PORT),
+        [sck_mask]"r"(SCK_MASK),
+        [sck_port]"r"(SCK_PORT_PLUS30)
       : "cc"
     );
 
@@ -335,14 +335,14 @@
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
       A("bne.n loop%=")                                    /* Repeat until done */
 
-      : [ptr]"+r" ( ptr ),
-        [todo]"+r" ( todo ),
-        [work]"+r"( work ),
-        [txval]"+r"( txval )
-      : [mosi_mask]"r"( MOSI_MASK ),
-        [mosi_port]"r"( MOSI_PORT_PLUS30 ),
-        [sck_mask]"r"( SCK_MASK ),
-        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : [ptr]"+r" (ptr),
+        [todo]"+r" (todo),
+        [work]"+r"(work),
+        [txval]"+r"(txval)
+      : [mosi_mask]"r"(MOSI_MASK),
+        [mosi_port]"r"(MOSI_PORT_PLUS30),
+        [sck_mask]"r"(SCK_MASK),
+        [sck_port]"r"(SCK_PORT_PLUS30)
       : "cc"
     );
   }
@@ -350,7 +350,7 @@
   static void spiRxBlock0(uint8_t *ptr, uint32_t todo) {
     uint32_t bin = 0;
     uint32_t work = 0;
-    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS(((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
     uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
 
@@ -416,9 +416,9 @@
         [todo]"+r"(todo),
         [bin]"+r"(bin),
         [work]"+r"(work)
-      : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
-        [sck_mask]"r"( SCK_MASK ),
-        [sck_port]"r"( SCK_PORT_PLUS30 )
+      : [bitband_miso_port]"r"(BITBAND_MISO_PORT),
+        [sck_mask]"r"(SCK_MASK),
+        [sck_port]"r"(SCK_PORT_PLUS30)
       : "cc"
     );
   }
