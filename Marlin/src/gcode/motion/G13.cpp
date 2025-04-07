@@ -30,23 +30,29 @@
 #include "../../module/planner.h"
 
 void GcodeSuite::G13() {
-  if (parser.seenval('Z') && parser.seenval('V') && parser.seenval('W')) {
+  if (parser.seenval('Z') && parser.seenval('W') /*&& parser.seenval('V')*/) {
     const float z_val = parser.floatval('Z'),
                 v_val = parser.floatval('V'),
                 w_val = parser.floatval('W');
-    if(parser.seenval('R')){
+    //if(parser.seenval('R')){
+    
      set_relative_mode(true);
-    }
+    //}
+    
+    planner.synchronize();
     stepper.set_samostatny_pohyb(true);
+    
+    wv_pos[0] = w_val;
+
     current_position[Z_AXIS] += z_val;
-    current_position[I_AXIS] += v_val;
+    current_position[I_AXIS] += wv_pos[0] - w_val;
     //current_position[J_AXIS] += w_val;
     planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
     planner.synchronize();
     stepper.set_samostatny_pohyb(false);
-    if(parser.seenval('R')){
+    //if(parser.seenval('R')){
       set_relative_mode(false);
-    }
+    //}
     SERIAL_ECHOLNPGM("", current_position);
   }
 }

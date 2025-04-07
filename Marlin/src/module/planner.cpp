@@ -1790,7 +1790,7 @@ bool Planner::_populate_block(
 ) {
   xyze_long_t dist = target - position;
 
-  //* <-- add a slash to enable
+  /* <-- add a slash to enable
     SERIAL_ECHOLNPGM(
       "  _populate_block FR:", fr_mm_s,
       #if HAS_X_AXIS
@@ -2873,7 +2873,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
     }
   #endif
 
-  //* <-- add a slash to enable
+  /* <-- add a slash to enable
     SERIAL_ECHOPGM("  buffer_segment FR:", fr_mm_s);
     #if IS_KINEMATIC
       SERIAL_ECHOPGM(" A:", abce.a, " (", position.a, "->", target.a, ") B:", abce.b);

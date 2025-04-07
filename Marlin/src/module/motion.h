@@ -48,6 +48,7 @@ extern bool relative_mode;
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
 
+extern xy_pos_t wv_pos;
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   extern Flags<SAVED_POSITIONS> did_save_position;
