@@ -250,7 +250,7 @@ uint32_t Stepper::advance_divisor = 0,
   #ifdef __AVR__
     bool __attribute__((used)) Stepper::A_negative __asm__("A_negative"); // If A coefficient was negative
   #endif
-  bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
+  bool Stepper::bezier_2nd_half;    // = false If Bézier curve has been initialized or not
 #endif
 
 #if ENABLED(LIN_ADVANCE)
@@ -746,10 +746,10 @@ void Stepper::apply_directions() {
    * overflows on the evaluation of the Bézier curve, means we can use
    *
    *   t: unsigned Q0.32 (0 <= t < 1) |range 0 to 0xFFFFFFFF unsigned
-   *   A:   signed Q24.7 ,            |range = +/- 250000 * 6 * 128 = +/- 192000000 = 0x0B71B000 | 28 bits + sign
-   *   B:   signed Q24.7 ,            |range = +/- 250000 *15 * 128 = +/- 480000000 = 0x1C9C3800 | 29 bits + sign
-   *   C:   signed Q24.7 ,            |range = +/- 250000 *10 * 128 = +/- 320000000 = 0x1312D000 | 29 bits + sign
-   *   F:   signed Q24.7 ,            |range = +/- 250000     * 128 =      32000000 = 0x01E84800 | 25 bits + sign
+   *   A:   signed Q24.7,             |range = +/- 250000 * 6 * 128 = +/- 192000000 = 0x0B71B000 | 28 bits + sign
+   *   B:   signed Q24.7,             |range = +/- 250000 *15 * 128 = +/- 480000000 = 0x1C9C3800 | 29 bits + sign
+   *   C:   signed Q24.7,             |range = +/- 250000 *10 * 128 = +/- 320000000 = 0x1312D000 | 29 bits + sign
+   *   F:   signed Q24.7,             |range = +/- 250000     * 128 =      32000000 = 0x01E84800 | 25 bits + sign
    *
    * The trapezoid generator state contains the following information, that we will use to create and evaluate
    * the Bézier curve:
@@ -843,10 +843,10 @@ void Stepper::apply_directions() {
    *     So, the resulting range of the coefficients are:
    *
    *       t: unsigned (0 <= t < 1) |range 0 to 0xFFFFFF unsigned
-   *       A:   signed Q24 , range = 250000 * 6 = 1500000 = 0x16E360 | 21 bits
-   *       B:   signed Q24 , range = 250000 *15 = 3750000 = 0x393870 | 22 bits
-   *       C:   signed Q24 , range = 250000 *10 = 2500000 = 0x1312D0 | 21 bits
-   *       F:   signed Q24 , range = 250000     =  250000 = 0x0ED090 | 20 bits
+   *       A:   signed Q24,         |range = 250000 * 6 = 1500000 = 0x16E360 | 21 bits
+   *       B:   signed Q24,         |range = 250000 *15 = 3750000 = 0x393870 | 22 bits
+   *       C:   signed Q24,         |range = 250000 *10 = 2500000 = 0x1312D0 | 21 bits
+   *       F:   signed Q24,         |range = 250000     =  250000 = 0x0ED090 | 20 bits
    *
    *    And for each curve, estimate its coefficients with:
    *
