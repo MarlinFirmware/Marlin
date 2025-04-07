@@ -131,7 +131,7 @@
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       : [idx]"+r"( idx )
-      : [txval]"r"( bout ) ,
+      : [txval]"r"( bout ),
         [mosi_mask]"r"( MOSI_MASK ),
         [mosi_port]"r"( MOSI_PORT_PLUS30 ),
         [sck_mask]"r"( SCK_MASK ),
@@ -335,9 +335,9 @@
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
       A("bne.n loop%=")                                    /* Repeat until done */
 
-      : [ptr]"+r" ( ptr ) ,
-        [todo]"+r" ( todo ) ,
-        [work]"+r"( work ) ,
+      : [ptr]"+r" ( ptr ),
+        [todo]"+r" ( todo ),
+        [work]"+r"( work ),
         [txval]"+r"( txval )
       : [mosi_mask]"r"( MOSI_MASK ),
         [mosi_port]"r"( MOSI_PORT_PLUS30 ),
