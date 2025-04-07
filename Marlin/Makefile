@@ -843,7 +843,7 @@ REMOVE = rm -f
 MV = mv -f
 
 # Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D, $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
+CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
 CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)

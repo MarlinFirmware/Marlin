@@ -413,7 +413,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * LDR immediate.
        *  We are only interested when destination is PC.
-       *  LDR Rt,[Rn, #n]
+       *  LDR Rt,[Rn , #n]
        */
       else if ((instr & 0xFFF0) == 0xF8D0) {
         uint8_t     rn = (instr  & 0xF);
@@ -433,7 +433,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * LDR immediate
        *  We are only interested when destination is PC.
-       *  LDR Rt,[Rn, #-n]
+       *  LDR Rt,[Rn , #-n]
        *  LDR Rt,[Rn], #+/-n]
        *  LDR Rt,[Rn, #+/-n]!
        */
@@ -654,7 +654,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 12: /* ORR */
         case 13: /* MUL */
         case 15: /* MVN */
-          UnwPrintd8("%s r%d, r%d\t; r%d %s, r%d %s",mnu[op],rd, rs, rd, M_Origin2Str(state->regData[rd].o), rs, M_Origin2Str(state->regData[rs].o));
+          UnwPrintd8("%s r%d ,r%d\t; r%d %s, r%d %s",mnu[op],rd, rs, rd, M_Origin2Str(state->regData[rd].o), rs, M_Origin2Str(state->regData[rs].o));
           break;
 
         case 5: /* ADC */
@@ -670,7 +670,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
           break;
 
         case 14: /* BIC */
-          UnwPrintd5("r%d, r%d\t; r%d %s", rd, rs, rs, M_Origin2Str(state->regData[rs].o));
+          UnwPrintd5("r%d ,r%d\t; r%d %s", rd, rs, rs, M_Origin2Str(state->regData[rs].o));
           break;
       }
 

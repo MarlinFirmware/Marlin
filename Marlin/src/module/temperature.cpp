@@ -242,8 +242,8 @@
 #endif
 
 #if HAS_HOTEND_THERMISTOR
-  #define NEXT_TEMPTABLE(N) , TEMPTABLE_##N
-  #define NEXT_TEMPTABLE_LEN(N) , TEMPTABLE_##N##_LEN
+  #define NEXT_TEMPTABLE(N) ,TEMPTABLE_##N
+  #define NEXT_TEMPTABLE_LEN(N) ,TEMPTABLE_##N##_LEN
   static const temp_entry_t* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0 REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE));
   static constexpr uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(TEMPTABLE_0_LEN REPEAT_S(1, HOTENDS, NEXT_TEMPTABLE_LEN));
 #endif

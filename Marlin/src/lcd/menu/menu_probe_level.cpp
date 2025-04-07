@@ -217,7 +217,7 @@
   }
 
   void menu_edit_mesh() {
-    static uint8_t xind, yind; // = 0
+    static uint8_t xind, yind; // =0
     START_MENU();
     BACK_ITEM(MSG_BED_LEVELING);
     EDIT_ITEM(uint8, MSG_MESH_X, &xind, 0, (GRID_MAX_POINTS_X) - 1);

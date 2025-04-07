@@ -175,7 +175,7 @@ do { \
  * - UDC_SOF_EVENT()<br>
  *   Called for each received SOF, Note: Each 1ms in HS/FS mode only.
  *
- * Dynamic callbacks, called "endpoint job", are registered
+ * Dynamic callbacks, called "endpoint job" , are registered
  * in udd_ep_job_t structure via the following functions:
  * - udd_ep_run()<br>
  *   To call it when a transfer is finish

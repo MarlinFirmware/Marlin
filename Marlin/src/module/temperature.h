@@ -700,7 +700,7 @@ class Temperature {
       enum IdleIndex : int8_t {
         _II = -1
 
-        #define _IDLE_INDEX_E(N) , IDLE_INDEX_E##N
+        #define _IDLE_INDEX_E(N) ,IDLE_INDEX_E##N
         REPEAT(HOTENDS, _IDLE_INDEX_E)
         #undef _IDLE_INDEX_E
 
@@ -1393,7 +1393,7 @@ class Temperature {
       enum RunawayIndex : int8_t {
         _RI = -1
         #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-          #define _RUNAWAY_IND_E(N) , RUNAWAY_IND_E##N
+          #define _RUNAWAY_IND_E(N) ,RUNAWAY_IND_E##N
           REPEAT(HOTENDS, _RUNAWAY_IND_E)
           #undef _RUNAWAY_IND_E
         #endif

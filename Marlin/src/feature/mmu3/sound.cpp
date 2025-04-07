@@ -35,7 +35,7 @@
   // eSOUND_MODE eSoundMode=e_SOUND_MODE_LOUD;
   // doesn't matter if Sound_Init is called (i.e. the value is in the EEPROM)
   // !?! eSOUND_MODE eSoundMode; in ultraldc.cpp :: cd_settings_menu() it appears as a local variable like this
-  eSOUND_MODE eSoundMode; // = e_SOUND_MODE_DEFAULT;
+  eSOUND_MODE eSoundMode; // =e_SOUND_MODE_DEFAULT;
 
 
   static void Sound_SaveMode(void);

@@ -61,7 +61,7 @@ MAP(_N_LBL, LOGICAL_AXIS_NAMES); MAP(_SP_N_LBL, LOGICAL_AXIS_NAMES);
     SerialLeafT2 msSerial2(ethernet.have_telnet_client, MYSERIAL2, false);
   #endif
 
-  #define __S_LEAF(N) , SERIAL_LEAF_##N
+  #define __S_LEAF(N) ,SERIAL_LEAF_##N
   #define _S_LEAF(N) __S_LEAF(N)
 
   SerialOutputT multiSerial( SERIAL_LEAF_1 REPEAT_S(2, INCREMENT(NUM_SERIAL), _S_LEAF) );

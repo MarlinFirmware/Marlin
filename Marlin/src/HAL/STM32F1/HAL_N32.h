@@ -603,7 +603,7 @@ typedef struct {
 #define DMA_CHCFG7_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
 #define DMA_CHCFG7_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG7_PSIZE , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG7_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
 #define DMA_CHCFG7_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
 #define DMA_CHCFG7_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
@@ -627,7 +627,7 @@ typedef struct {
 #define DMA_CHCFG8_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
 #define DMA_CHCFG8_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG8_PSIZE , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG8_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
 #define DMA_CHCFG8_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
 #define DMA_CHCFG8_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
