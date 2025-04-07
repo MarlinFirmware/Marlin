@@ -3720,6 +3720,84 @@ static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION re
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
+#if MAXIMUM_STEPPER_RATE
+  static_assert(TERN1(HAS_X_AXIS, sanity_arr_1[X_AXIS] * sanity_arr_2[X_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[X] * DEFAULT_AXIS_STEPS_PER_UNIT[X] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_Y_AXIS, sanity_arr_1[Y_AXIS] * sanity_arr_2[Y_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[Y] * DEFAULT_AXIS_STEPS_PER_UNIT[Y] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_Z_AXIS, sanity_arr_1[Z_AXIS] * sanity_arr_2[Z_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[Z] * DEFAULT_AXIS_STEPS_PER_UNIT[Z] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_I_AXIS, sanity_arr_1[I_AXIS] * sanity_arr_2[I_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[I] * DEFAULT_AXIS_STEPS_PER_UNIT[I] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_J_AXIS, sanity_arr_1[J_AXIS] * sanity_arr_2[J_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[J] * DEFAULT_AXIS_STEPS_PER_UNIT[J] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_K_AXIS, sanity_arr_1[K_AXIS] * sanity_arr_2[K_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[K] * DEFAULT_AXIS_STEPS_PER_UNIT[K] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_U_AXIS, sanity_arr_1[U_AXIS] * sanity_arr_2[U_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[U] * DEFAULT_AXIS_STEPS_PER_UNIT[U] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_V_AXIS, sanity_arr_1[V_AXIS] * sanity_arr_2[V_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[V] * DEFAULT_AXIS_STEPS_PER_UNIT[V] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_W_AXIS, sanity_arr_1[W_AXIS] * sanity_arr_2[W_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[W] * DEFAULT_AXIS_STEPS_PER_UNIT[W] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  #if ALL(HAS_EXTRUDERS, SANITY_CHECK_E_STEPPER_RATES)
+    #if DISABLED(DISTINCT_E_FACTORS)
+      static_assert(sanity_arr_1[E_AXIS] * sanity_arr_2[E_AXIS] <= MAXIMUM_STEPPER_RATE,
+        "Slow down! DEFAULT_MAX_FEEDRATE[E] * DEFAULT_AXIS_STEPS_PER_UNIT[E] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+      );
+    #else
+      #define _ELEM_E(A,N) _MIN(E_AXIS+N,COUNT(sanity_arr_##A)-1)
+      static_assert(sanity_arr_1[_ELEM_E(1,0)] * sanity_arr_2[_ELEM_E(2,0)] <= MAXIMUM_STEPPER_RATE,
+        "Slow down! DEFAULT_MAX_FEEDRATE[E0] * DEFAULT_AXIS_STEPS_PER_UNIT[E0] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+      );
+      #if HAS_MULTI_EXTRUDER
+        static_assert(sanity_arr_1[_ELEM_E(1,1)] * sanity_arr_2[_ELEM_E(2,1)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E1] * DEFAULT_AXIS_STEPS_PER_UNIT[E1] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 2
+        static_assert(sanity_arr_1[_ELEM_E(1,2)] * sanity_arr_2[_ELEM_E(2,2)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E2] * DEFAULT_AXIS_STEPS_PER_UNIT[E2] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 3
+        static_assert(sanity_arr_1[_ELEM_E(1,3)] * sanity_arr_2[_ELEM_E(2,3)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E3] * DEFAULT_AXIS_STEPS_PER_UNIT[E3] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 4
+        static_assert(sanity_arr_1[_ELEM_E(1,4)] * sanity_arr_2[_ELEM_E(2,4)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E4] * DEFAULT_AXIS_STEPS_PER_UNIT[E4] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 5
+        static_assert(sanity_arr_1[_ELEM_E(1,5)] * sanity_arr_2[_ELEM_E(2,5)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E5] * DEFAULT_AXIS_STEPS_PER_UNIT[E5] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 6
+        static_assert(sanity_arr_1[_ELEM_E(1,6)] * sanity_arr_2[_ELEM_E(2,6)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E6] * DEFAULT_AXIS_STEPS_PER_UNIT[E6] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 7
+        static_assert(sanity_arr_1[_ELEM_E(1,7)] * sanity_arr_2[_ELEM_E(2,7)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E7] * DEFAULT_AXIS_STEPS_PER_UNIT[E7] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #undef _ELEM_E
+    #endif
+  #endif // HAS_EXTRUDERS
+#endif // MAXIMUM_STEPPER_RATE
+
 #if NUM_AXES
   constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
   static_assert(COUNT(sanity_arr_4) == NUM_AXES,  "HOMING_FEEDRATE_MM_M requires " _NUM_AXES_STR "elements (and no others).");
