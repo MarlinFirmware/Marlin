@@ -46,15 +46,16 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-tests-v1
+        key: ${{ runner.os }}-pip-unit-v1
         restore-keys: |
-          ${{ runner.os }}-pip-tests-
+          ${{ runner.os }}-pip-unit-
 
     - name: Cache PlatformIO
       uses: actions/cache@v4
       with:
         path: |
           ~/.platformio
+          .pio/build
           .pio/libdeps
         key: ${{ runner.os }}-pio-tests-v1
         restore-keys: |
