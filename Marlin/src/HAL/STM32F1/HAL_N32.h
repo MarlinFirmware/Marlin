@@ -239,8 +239,8 @@ typedef struct {
 #define ADC_WORKMODE_SLOW_INTERL            ((uint32_t)0x00080000)
 #define ADC_WORKMODE_ALTER_TRIG             ((uint32_t)0x00090000)
 
-#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) //!< For ADC1, ADC2, ADC3 and ADC4
-#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) //!< For ADC1, ADC2, ADC3 and ADC4
+#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) //!< For ADC1, ADC2, ADC3, and ADC4
+#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) //!< For ADC1, ADC2, ADC3, and ADC4
 
 #define ADC_DAT_ALIGN_R      ((uint32_t)0x00000000)
 #define ADC_DAT_ALIGN_L      ((uint32_t)0x00000800)
