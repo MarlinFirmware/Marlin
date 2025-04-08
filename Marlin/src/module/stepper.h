@@ -305,10 +305,10 @@ class Stepper {
       #endif
     );
 
-    #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    //#if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool separate_multi_axis;
       
-    #endif
+    //#endif
     
     static bool samostatny_pohyb;
     
@@ -365,7 +365,7 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    //#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       static bool locked_Z_motor, locked_Z2_motor
                   #if NUM_Z_STEPPERS >= 3
                     , locked_Z3_motor
@@ -374,7 +374,7 @@ class Stepper {
                     #endif
                   #endif
                   ;
-    #endif
+    //#endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
 
@@ -592,10 +592,10 @@ class Stepper {
     //Dumbass things added by ME
     FORCE_INLINE static void set_samostatny_pohyb(const bool state) { samostatny_pohyb = state; }
 
-    #if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    //#if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
 
-    #endif
+    //#endif
     #if ENABLED(X_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_x_lock(const bool state) { locked_X_motor = state; }
       FORCE_INLINE static void set_x2_lock(const bool state) { locked_X2_motor = state; }
@@ -604,7 +604,7 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+    //#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
       FORCE_INLINE static void set_z1_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
       #if NUM_Z_STEPPERS >= 3
@@ -623,7 +623,7 @@ class Stepper {
           #endif
         #endif
       }
-    #endif
+    //#endif
 
     #if ENABLED(BABYSTEPPING)
       static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention

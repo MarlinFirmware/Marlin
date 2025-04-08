@@ -170,7 +170,7 @@
 //#define Z3_DRIVER_TYPE TMC2209
 //#define Z4_DRIVER_TYPE A4988
 #define I_DRIVER_TYPE  A4988
-//#define J_DRIVER_TYPE  A4988
+#define J_DRIVER_TYPE  A4988
 // #define K_DRIVER_TYPE  TMC2209
 //#define U_DRIVER_TYPE  A4988
 //#define V_DRIVER_TYPE  A4988
@@ -206,7 +206,7 @@
   //#define AXIS4_ROTATES
 #endif
 #ifdef J_DRIVER_TYPE
-  #define AXIS5_NAME 'W' // :['B', 'C', 'U', 'V', 'W']
+  #define AXIS5_NAME 'V' // :['B', 'C', 'U', 'V', 'W']
   //#define AXIS5_ROTATES
 #endif
 #ifdef K_DRIVER_TYPE
@@ -711,9 +711,9 @@
     #define DEFAULT_Ki_LIST {   1.08,   1.08 }
     #define DEFAULT_Kd_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_Kp  6.78
+    #define DEFAULT_Ki   0.47
+    #define DEFAULT_Kd 24.68
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -1263,7 +1263,7 @@
  * Override with M92 (when enabled below)
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400, 689 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 400, 400, 689 }
 
 /**
  * Enable support for M92. Disable to save at least ~530 bytes of flash.
@@ -1275,7 +1275,7 @@
  * Override with M203
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 5, 5, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1288,7 +1288,7 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 100, 100, 10000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1595,7 +1595,7 @@
  *
  * Some examples:
  *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, -1 }   // Example "1"
- *   #define NOZZLE_TO_PROBE_OFFSET {-10,  5, -1 }   // Example "2"
+ * NOZZLE_TO_PROBE_OFFSET  #define NOZZLE_TO_PROBE_OFFSET {-10,  5, -1 }   // Example "2"
  *   #define NOZZLE_TO_PROBE_OFFSET {  5, -5, -1 }   // Example "3"
  *   #define NOZZLE_TO_PROBE_OFFSET {-15,-10, -1 }   // Example "4"
  *
@@ -1609,7 +1609,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0, 0, 0 }
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -2316,7 +2316,7 @@
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
-#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60), (4*60) }
+#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60), (4*60), (4*60) }
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
@@ -3586,7 +3586,7 @@
   //#define NEOPIXEL2_PIN               5
   #define NEOPIXEL_PIXELS              30 // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
   #define NEOPIXEL_IS_SEQUENTIAL          // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS         127 // Initial brightness (0-255)
+  #define NEOPIXEL_BRIGHTNESS         255 // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST         // Cycle through colors at startup
 
   // Support for second Adafruit NeoPixel LED driver controlled with M150 S1 ...

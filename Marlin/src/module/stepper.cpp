@@ -154,10 +154,10 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+//#if ANY(HAS_EXTRA_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
   
-#endif
+//#endif
 
 bool Stepper::samostatny_pohyb = false;
 
@@ -191,7 +191,7 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
 
-#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+//#if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
     #if NUM_Z_STEPPERS >= 3
       , Stepper::locked_Z3_motor = false
@@ -200,7 +200,7 @@ bool Stepper::abort_current_block;
       #endif
     #endif
   ;
-#endif
+//#endif
 
 // In timer_ticks
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
@@ -339,10 +339,13 @@ xyze_int8_t Stepper::count_direction{0};
     if (!locked_##A## _motor) A## _STEP_WRITE(V); \
     if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
   }                                               \
+  else if (samostatny_pohyb) {                    \
+    A## _STEP_WRITE(V);                           \
+  }                                               \
   else {                                          \
     A##_STEP_WRITE(V);                            \
     A##2_STEP_WRITE(V);                           \
-  }
+  }                                     
 
 #define TRIPLE_ENDSTOP_APPLY_STEP(A,V)           \
   if (separate_multi_axis) {                     \
@@ -376,6 +379,7 @@ xyze_int8_t Stepper::count_direction{0};
   }                                               \
   else if (samostatny_pohyb) {                    \
     A## _STEP_WRITE(V);                           \
+    SERIAL_ECHOLNPGM("a")                         \
   }                                               \
   else {                                          \
     A## _STEP_WRITE(V);                           \
@@ -495,8 +499,8 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 //zmenene J_DIR_WRITE na Z3_DIR_WRITE a I_STEP_WRITE na Z2_STEP_WRITE
 #if HAS_J_AXIS
-  #define J_APPLY_DIR(FWD,Q) Z3_DIR_WRITE(FWD);
-  #define J_APPLY_STEP(FWD,Q) Z3_STEP_WRITE(FWD)
+  #define J_APPLY_DIR(FWD,Q) Z_DIR_WRITE(FWD);
+  #define J_APPLY_STEP(FWD,Q) Z_STEP_WRITE(FWD)
 #endif
 #if HAS_K_AXIS
   #define K_APPLY_DIR(FWD,Q) K_DIR_WRITE(FWD)
@@ -695,7 +699,7 @@ void Stepper::apply_directions() {
     LOGICAL_AXIS_CODE(
       SET_STEP_DIR(E),
       SET_STEP_DIR(X), SET_STEP_DIR(Y), SET_STEP_DIR(Z), // ABC
-      SET_STEP_DIR(X), SET_STEP_DIR(X), SET_STEP_DIR(K),
+      SET_STEP_DIR(Z), SET_STEP_DIR(Z), SET_STEP_DIR(K),
       SET_STEP_DIR(U), SET_STEP_DIR(V), SET_STEP_DIR(W)
     );    
   }
