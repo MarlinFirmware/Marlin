@@ -26,9 +26,11 @@ void GcodeSuite::G14() {
   //z3_offset = z3_offset - ((sin(rad_x) * X_BED_SIZE) / 2);
 
   // Apply movement to the bed
+  wv_pos[0] = z_offset;
+  wv_pos[1] = z2_offset;
   planner.synchronize();  // Ensure previous moves are completed
-  current_position[Z_AXIS] += z_offset;
-  current_position[I_AXIS] += z2_offset;
+  current_position[Z_AXIS] += wv_pos[0] - current_position[Z_AXIS];
+  current_position[I_AXIS] += wv_pos[1] - current_position[I_AXIS];
   //current_position[J_AXIS] += z3_offset;
   
   stepper.set_samostatny_pohyb(true);
