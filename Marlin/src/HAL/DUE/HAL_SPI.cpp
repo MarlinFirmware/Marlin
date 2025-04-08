@@ -208,8 +208,8 @@
       A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
       A("bfi %[bin],%[work],#0,#1")                /* Store read bit as the bit 0 */
 
-      : [bin]"+r"(bin),
-        [work]"+r"(work)
+      : [bin]"+r"( bin ),
+        [work]"+r"( work )
       : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
         [sck_mask]"r"( SCK_MASK ),
         [sck_port]"r"( SCK_PORT_PLUS30 )
@@ -412,10 +412,10 @@
       A("strb.w %[bin], [%[ptr]], #1")             /* Store read value into buffer, increment buffer pointer */
       A("bne.n loop%=")                            /* Repeat until done */
 
-      : [ptr]"+r"(ptr),
-        [todo]"+r"(todo),
-        [bin]"+r"(bin),
-        [work]"+r"(work)
+      : [ptr]"+r"( ptr ),
+        [todo]"+r"( todo ),
+        [bin]"+r"( bin ),
+        [work]"+r"( work )
       : [bitband_miso_port]"r"( BITBAND_MISO_PORT ),
         [sck_mask]"r"( SCK_MASK ),
         [sck_port]"r"( SCK_PORT_PLUS30 )
