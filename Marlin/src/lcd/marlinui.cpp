@@ -527,29 +527,27 @@ void MarlinUI::init() {
 
         #define ADC_MIN_KEY_DELAY 100
         if (keypad_buttons) {
-          #if HAS_ENCODER_ACTION
-            refresh(LCDVIEW_REDRAW_NOW);
-            #if HAS_MARLINUI_MENU
-              if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
-                     if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-                else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-                else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
-                else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
-              }
-              else
-            #endif
-            {
-              #if HAS_MARLINUI_MENU
-                     if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
-                else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
-                else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
-                else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
-              #else
-                     if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
-                else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
-              #endif
+          refresh(LCDVIEW_REDRAW_NOW);
+          #if HAS_MARLINUI_MENU
+            if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
+              else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             }
+            else
           #endif
+          {
+            #if HAS_MARLINUI_MENU
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
+              else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
+              else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
+            #else
+                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
+            #endif
+          }
           next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
           return true;
         }
@@ -1337,11 +1335,11 @@ void MarlinUI::init() {
           const int8_t pulses = epps * encoderDirection;
 
           if (BUTTON_PRESSED(UP)) {
-            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            encoderDiff = pulses * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(DOWN)) {
-            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            encoderDiff = pulses * -(ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(LEFT)) {

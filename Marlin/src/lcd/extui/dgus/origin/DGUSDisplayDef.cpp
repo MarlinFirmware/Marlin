@@ -150,7 +150,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_HOME_ALL, nullptr, screen.handleManualMove, nullptr),
   #endif
 
-  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, screen.handleMotorLockUnlock, nullptr),
+  VPHELPER(VP_MOTOR_LOCK_UNLOCK, nullptr, screen.handleMotorLockUnlock, nullptr),
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, screen.handlePowerLossRecovery, nullptr),
   #endif
