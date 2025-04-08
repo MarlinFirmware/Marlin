@@ -1314,9 +1314,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawFloat(current_position.e, row);
             }
             else {
-              if (thermalManager.targetTooColdToExtrude(0)) {
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
-              }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   popupHandler(Popup_Heating);
@@ -1745,9 +1744,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_ReadEEPROM, GET_TEXT_F(MSG_FILAMENTUNLOAD));
             else {
-              if (thermalManager.targetTooColdToExtrude(0)) {
+              if (thermalManager.targetTooColdToExtrude(0))
                 popupHandler(Popup_ETemp);
-              }
               else {
                 if (thermalManager.temp_hotend[0].is_below_target(2)) {
                   popupHandler(Popup_Heating);
@@ -4302,11 +4300,11 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
 
 void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/) {
   popup = last_popup = popupid;
-  FSTR_P const PWID = F("Please wait until done.");
+  FSTR_P const PWID = GET_TEXT_F(MSG_PLEASE_WAIT);
   switch (popupid) {
     case Popup_Pause:         drawPopup(GET_TEXT_F(MSG_PAUSE_PRINT), F(""), F(""), Proc_Popup); break;
     case Popup_Stop:          drawPopup(GET_TEXT_F(MSG_STOP_PRINT), F(""), F(""), Proc_Popup); break;
-    case Popup_Resume:        drawPopup(F("Resume Print?"), F("Looks Like the last"), F("print was interrupted."), Proc_Popup); break;
+    case Popup_Resume:        drawPopup(F("Resume Print?"), GET_TEXT_F(MSG_OUTAGE_RECOVERY2), GET_TEXT_F(MSG_OUTAGE_RECOVERY3), Proc_Popup); break;
     case Popup_ConfFilChange: drawPopup(F("Confirm Filament Change"), F(""), F(""), Proc_Popup); break;
     case Popup_PurgeMore:     drawPopup(F("Purge more filament?"), F("(Cancel to finish process)"), F(""), Proc_Popup); break;
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -4314,14 +4312,14 @@ void JyersDWIN::popupHandler(const PopupID popupid, const bool option/*=false*/)
       case Popup_MeshSlot:    drawPopup(F("Mesh slot not selected"), F("(Confirm to select slot 0)"), F(""), Proc_Popup); break;
     #endif
     case Popup_ETemp:         drawPopup(GET_TEXT_F(MSG_HOTEND_TOO_COLD), F("Open Preheat Menu?"), F(""), Proc_Popup); break;
-    case Popup_ManualProbing: drawPopup(F("Manual Probing"), F("(Confirm to probe)"), F("(cancel to exit)"), Proc_Popup); break;
+    case Popup_ManualProbing: drawPopup(F("Manual Probing"), F("(Confirm to probe)"), F("(Cancel to exit)"), Proc_Popup); break;
     case Popup_Level:         drawPopup(GET_TEXT_F(MSG_BED_LEVELING), PWID, F(""), Proc_Wait, ICON_AutoLeveling); break;
     case Popup_Home:          drawPopup(option ? F("Parking") : GET_TEXT_F(MSG_HOMING), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
     case Popup_MoveWait:      drawPopup(GET_TEXT_F(MSG_UBL_MOVING_TO_NEXT), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_Heating:       drawPopup(GET_TEXT_F(MSG_HEATING), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_FilLoad:       drawPopup(option ? F("Unloading Filament") : F("Loading Filament"), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_FilChange:     drawPopup(F("Filament Change"), F("Please wait for prompt."), F(""), Proc_Wait, ICON_BLTouch); break;
-    case Popup_TempWarn:      drawPopup(option ? F("Nozzle temp too low!") : F("Nozzle temp too high!"), F(""), F(""), Proc_Wait, option ? ICON_TempTooLow : ICON_TempTooHigh); break;
+    case Popup_Heating:       drawPopup(GET_TEXT_F(MSG_HEATING), PWID, F(""), Proc_Wait, ICON_TempTooLow); break;
+    case Popup_FilLoad:       drawPopup(option ? GET_TEXT_F(MSG_UNLOADING_FILAMENT) : GET_TEXT_F(MSG_LOADING_FILAMENT), PWID, F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_FilChange:     drawPopup(F("Filament Change"), GET_TEXT_F(MSG_PLEASE_WAIT), F(""), Proc_Wait, ICON_BLTouch); break;
+    case Popup_TempWarn:      drawPopup(option ? GET_TEXT_F(MSG_TEMP_TOO_HIGH) : GET_TEXT_F(MSG_TEMP_TOO_LOW), F(""), F(""), Proc_Wait, option ? ICON_TempTooHigh : ICON_TempTooLow); break;
     #if HAS_FILAMENT_SENSOR
       case Popup_Runout:      drawPopup(F("Filament Runout"), F(""), F(""), Proc_Wait, ICON_BLTouch); break;
     #endif

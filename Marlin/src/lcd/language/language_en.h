@@ -390,21 +390,21 @@ namespace LanguageNarrow_en {
   LSTR MSG_PID_AUTOTUNE_DONE              = _UxGT("PID tuning done");
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Autotune failed!");
 
-  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for Nozzle is running.");
-  LSTR MSG_PID_FOR_BED                    = _UxGT("for BED is running.");
-  LSTR MSG_PID_FOR_CHAMBER                = _UxGT("for CHAMBER is running.");
+  LSTR MSG_PID_FOR_NOZZLE                 = _UxGT("for Nozzle is running");
+  LSTR MSG_PID_FOR_BED                    = _UxGT("for BED is running");
+  LSTR MSG_PID_FOR_CHAMBER                = _UxGT("for CHAMBER is running");
 
   LSTR MSG_TEMP_NOZZLE                    = _UxGT("Nozzle Temperature");
   LSTR MSG_TEMP_BED                       = _UxGT("Bed Temperature");
   LSTR MSG_TEMP_CHAMBER                   = _UxGT("Chamber Temperature");
 
-  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder.");
-  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high.");
+  LSTR MSG_BAD_HEATER_ID                  = _UxGT("Bad extruder");
+  LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Temperature too high");
   LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Temperature too low");
 
-  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder.");
-  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high.");
-  LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout.");
+  LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Autotune failed! Bad extruder");
+  LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Autotune failed! Temperature too high");
+  LSTR MSG_PID_TIMEOUT                    = _UxGT("Autotune failed! Timeout");
 
   LSTR MSG_MPC_MEASURING_AMBIENT          = _UxGT("Testing heat loss");
   LSTR MSG_MPC_HEATING_PAST_200           = _UxGT("Heating to >200C");
@@ -548,6 +548,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_STOP_PRINT                     = _UxGT("Stop Print");
   LSTR MSG_CANCEL_PRINT                   = _UxGT("Cancel Print");
   LSTR MSG_OUTAGE_RECOVERY                = _UxGT("Power Outage");
+  LSTR MSG_OUTAGE_RECOVERY2               = _UxGT("It looks like the last");
+  LSTR MSG_OUTAGE_RECOVERY3               = _UxGT("print was interrupted");
   LSTR MSG_RESUME_BED_TEMP                = _UxGT("Resume Bed Temp");
   LSTR MSG_HOST_START_PRINT               = _UxGT("Host Start");
   LSTR MSG_PRINTING_OBJECT                = _UxGT("Print Obj");

@@ -1066,8 +1066,8 @@ void drawMotionMenu() {
         dwinFrameAreaCopy(1, 189, 389, 271, 402,  95, 310);
       }
       else {
-        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 36, 300, F("Nozzle or Bed temperature"));
-        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 92, 300, F("is too high"));
+        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 13) / 2, 300, F("Nozzle or Bed"));
+        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 20) / 2, 300, GET_TEXT_F(MSG_TEMP_TOO_HIGH));
       }
     }
     else {
@@ -1077,8 +1077,8 @@ void drawMotionMenu() {
         dwinFrameAreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
       else {
-        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 36, 300, F("Nozzle or Bed temperature"));
-        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 92, 300, F("is too low"));
+        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 13) / 2, 300, F("Nozzle or Bed"));
+        dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 19) / 2, 300, GET_TEXT_F(MSG_TEMP_TOO_LOW));
       }
     }
   }
@@ -1097,7 +1097,7 @@ void drawMotionMenu() {
       dwinIconShow(ICON, ICON_Confirm_C, 86, 280);
     }
     else {
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, 20, 235, F("Nozzle is too cold"));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 18) / 2, 235, F("Nozzle is too cold"));
       dwinIconShow(ICON, ICON_Confirm_E, 86, 280);
     }
   }
@@ -1132,8 +1132,8 @@ void popupWindowHome(const bool parking/*=false*/) {
     dwinFrameAreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * (parking ? 7 : 10)) / 2, 230, parking ? GET_TEXT_F(MSG_PAUSE_PRINT_PARKING) : GET_TEXT_F(MSG_LEVEL_BED_HOMING));
+    dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, GET_TEXT_F(MSG_PLEASE_WAIT));
   }
 }
 
@@ -1149,7 +1149,7 @@ void popupWindowHome(const bool parking/*=false*/) {
     }
     else {
       dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 12) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, F("Please wait until done."));
+      dwinDrawString(true, font8x16, COLOR_POPUP_TEXT, COLOR_BG_WINDOW, (DWIN_WIDTH - MENU_CHR_W * 23) / 2, 260, GET_TEXT_F(MSG_PLEASE_WAIT));
     }
   }
 
@@ -1931,7 +1931,7 @@ void redrawSDList() {
   }
   else {
     dwinDrawRectangle(1, COLOR_BG_RED, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
-    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
+    dwinDrawString(false, font16x32, COLOR_YELLOW, COLOR_BG_RED, (DWIN_WIDTH - MENU_CHR_W * 8) / 2, MBASE(3), F("No Media"));
   }
 }
 
