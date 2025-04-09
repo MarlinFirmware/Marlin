@@ -549,14 +549,20 @@
 // HC32 ARM Cortex-M4
 //
 
-#define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/V1.0.1/V1.0.2/V1.0.3 as found in the Voxelab Aquila X2 and C2
+#define BOARD_AQUILA_V101             7200  // Voxelab Aquila V1.0.0/1/2/3 (e.g., Aquila X2, C2). ... GD32 Variant Below!
 #define BOARD_CREALITY_ENDER2P_V24S4  7201  // Creality Ender 2 Pro v2.4.S4_170 (HC32f460kcta)
+
+//
+// GD32 ARM Cortex-M3
+//
+
+#define BOARD_AQUILA_V101_GD32_MFL    7300  // Voxelab Aquila V1.0.1 MFL (GD32F103RC) ... STM32/HC32 Variant Above!
 
 //
 // GD32 ARM Cortex-M4
 //
 
-#define BOARD_CREALITY_V422_GD32_MFL  7300  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
+#define BOARD_CREALITY_V422_GD32_MFL  7400  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
 
 //
 // Raspberry Pi
