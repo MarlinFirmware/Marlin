@@ -350,7 +350,7 @@
   static void spiRxBlock0(uint8_t *ptr, uint32_t todo) {
     uint32_t bin = 0;
     uint32_t work = 0;
-    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS(((uint32_t)PORT(SD_MISO_PIN))+0x3C, PIN_SHIFT(SD_MISO_PIN)); /* PDSR of port in bitband area */
     uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SD_SCK_PIN)) + 0x30;    /* SODR of port */
     uint32_t SCK_MASK = PIN_MASK(SD_SCK_PIN);
 
