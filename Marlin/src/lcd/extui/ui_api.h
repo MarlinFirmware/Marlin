@@ -430,7 +430,7 @@ namespace ExtUI {
     float getPID_Kp(const extruder_t);
     float getPID_Ki(const extruder_t);
     float getPID_Kd(const extruder_t);
-    void setPID(const_float_t, const_float_t , const_float_t , extruder_t);
+    void setPID(const_float_t, const_float_t, const_float_t, extruder_t);
     void startPIDTune(const celsius_t, extruder_t);
   #endif
 
@@ -439,7 +439,7 @@ namespace ExtUI {
     float getBedPID_Kp();
     float getBedPID_Ki();
     float getBedPID_Kd();
-    void setBedPID(const_float_t, const_float_t , const_float_t);
+    void setBedPID(const_float_t, const_float_t, const_float_t);
     void startBedPIDTune(const celsius_t);
   #endif
 
