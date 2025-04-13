@@ -42,7 +42,7 @@ void GcodeSuite::M550() {
     machine_name = parser.value_string();
   else if (TERN(GCODE_QUOTED_STRINGS, false, parser.seen('P')))
     machine_name = parser.string_arg[0] == 'P' ? &parser.string_arg[1] : parser.string_arg;
-  else if (parser.string_arg && parser.string_arg[0])
+  else if (parser.has_string())
     machine_name = parser.string_arg;
   else
     did_set = false;

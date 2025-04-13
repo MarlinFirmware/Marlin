@@ -652,7 +652,7 @@ void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units,
   else {
     if (noOffset) {
       const int32_t raw_count = encoders[idx].get_raw_count();
-      SERIAL_CHAR(AXIS_CHAR(encoders[idx).get_axis()], ' ');
+      SERIAL_CHAR(AXIS_CHAR(encoders[idx].get_axis()), ' ');
 
       for (uint8_t j = 31; j > 0; j--)
         SERIAL_ECHO((bool)(0x00000001 & (raw_count >> j)));
@@ -707,7 +707,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   // and enable it (it will likely have failed initialization on power-up, before the address change).
   const int8_t idx = idx_from_addr(newaddr);
   if (idx >= 0 && !encoders[idx].get_active()) {
-    SERIAL_CHAR(AXIS_CHAR(encoders[idx).get_axis()]);
+    SERIAL_CHAR(AXIS_CHAR(encoders[idx].get_axis()));
     SERIAL_ECHOLNPGM(" axis encoder was not detected on printer startup. Trying again.");
     encoders[idx].set_active(encoders[idx].passes_test(true));
   }
