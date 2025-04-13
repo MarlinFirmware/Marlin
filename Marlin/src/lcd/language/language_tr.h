@@ -796,7 +796,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Yumuşatma");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Sabit Zamanlı Hareket");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -807,7 +807,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");

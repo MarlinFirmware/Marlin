@@ -811,7 +811,7 @@ namespace LanguageNarrow_ru {
 
   // did not translate as there is no local terms/slang yet
   LSTR MSG_FIXED_TIME_MOTION                = _UxGT("FT Motion");
-  LSTR MSG_FTM_CMPN_MODE                    = _UxGT("@ Режим комп.:");
+  LSTR MSG_FTM_CMPN_MODE                    = _UxGT("@ Режим комп.: $");
   LSTR MSG_FTM_ZV                           = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                          = _UxGT("ZVD");
   LSTR MSG_FTM_EI                           = _UxGT("EI");
@@ -820,7 +820,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FTM_MZV                          = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS                 = _UxGT("Ulendo ФBС");
   //LSTR MSG_FTM_DISCTF                     = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                     = _UxGT("DF Mode:");
+  LSTR MSG_FTM_DYN_MODE                     = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                      = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                   = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                  = _UxGT("@ Base Freq.");

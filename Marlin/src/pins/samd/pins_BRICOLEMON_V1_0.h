@@ -30,7 +30,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BRICOLEMON V1.0" // , Lemoncrest & BricoGeek collaboration.
+  #define BOARD_INFO_NAME "BRICOLEMON V1.0" // Lemoncrest & BricoGeek collaboration.
 #endif
 
 /**

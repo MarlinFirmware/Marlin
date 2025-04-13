@@ -427,7 +427,7 @@ private:
         v1 = -rmax;
         v2 =  rmin;
       }
-      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3) , F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
+      jyersDWIN.updateStatus(TS(GET_TEXT_F(MSG_COLORS_RED), ' ', p_float_t(v1, 3), F("..0.."), p_float_t(v2, 3), ' ', GET_TEXT_F(MSG_COLORS_GREEN)));
       drawing_mesh = false;
     }
 
@@ -3033,7 +3033,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawMenuItem(row, ICON_StepY, F("M48 Probe Test"));
               else {
                 gcode.process_subcommands_now(
-                  TS(F("G28O\nM48X") , p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
+                  TS(F("G28O\nM48X"), p_float_t((X_BED_SIZE + X_MIN_POS) / 2.0f, 3), 'Y', p_float_t((Y_BED_SIZE + Y_MIN_POS) / 2.0f, 3), 'P', testcount)
                 );
               }
               break;

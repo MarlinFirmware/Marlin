@@ -311,7 +311,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUS_SCREEN_PID_E,               VPList_PIDE0                },
   { DGUS_SCREEN_PID_BED,             VPList_PIDBED               },
   { DGUS_SCREEN_INFOS,               VPList_Infos                },
-  { 0 , nullptr } // List is terminated with an nullptr as table entry.
+  { 0, nullptr } // List is terminated with an nullptr as table entry.
 };
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
