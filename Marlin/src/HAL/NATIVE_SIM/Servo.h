@@ -24,24 +24,21 @@
 // BLTouch BLTCommand definition
 #include "../../../feature/bltouch.h"
 
- class Servo
- {
- public:
-   Servo();
-   uint8_t attach(int pin);           // attach the given pin to the next free channel, sets pinMode, returns channel number or INVALID_SERVO if failure
-   uint8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
-   void detach();
-   void write(int value);             // if value is < 200 it's treated as an angle, otherwise as pulse width in microseconds
-   void writeMicroseconds(int value); // Write pulse width in microseconds
-   int read();                        // returns current pulse width as an angle between 0 and 180 degrees
-   int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
-   bool attached();                   // return true if this servo is attached, otherwise false
-   int move (const BLTCommand cmd);
- private:
-    uint8_t servoIndex;               // index into the channel data for this servo
-    int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
-    int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH
-    int value;                        // pulse width in microseconds for this servo
-  };
-
-
+class Servo {
+public:
+  Servo();
+  uint8_t attach(int pin);            // Attach the given pin to the next free channel, set pinMode, return channel number or INVALID_SERVO if failure
+  uint8_t attach(int pin, int min, int max); // As above but also set min and max values for writes.
+  void detach();
+  void write(int value);              // If value is < 200 it's treated as an angle, otherwise as pulse width in microseconds
+  void writeMicroseconds(int value);  // Write pulse width in microseconds
+  int read();                         // Return current pulse width as an angle between 0 and 180 degrees
+  int readMicroseconds();             // Return current pulse width in microseconds for this servo
+  bool attached();                    // Return true if this servo is attached, otherwise false
+  int move (const BLTCommand cmd);
+private:
+  uint8_t servoIndex;                 // Index into the channel data for this servo
+  int8_t min;                         // Minimum is this value times 4 added to MIN_PULSE_WIDTH
+  int8_t max;                         // Maximum is this value times 4 added to MAX_PULSE_WIDTH
+  int value;                          // Pulse width in microseconds for this servo
+};
