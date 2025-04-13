@@ -1649,8 +1649,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #elif ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING is not compatible with DELTA printers."
-  #elif !(WITHIN(GRID_MAX_POINTS_X, 2, 7) && WITHIN(GRID_MAX_POINTS_Y, 2, 7))
-    #error "GRID_MAX_POINTS_[XY] must be between 2 and 7 with MESH_BED_LEVELING."
+  #elif !WITHIN(GRID_MAX_POINTS_X, 2, 255) || !WITHIN(GRID_MAX_POINTS_Y, 2, 255)
+    #error "GRID_MAX_POINTS_[XY] must be between 2 and 255 for MESH_BED_LEVELING."
   #endif
 #endif
 
