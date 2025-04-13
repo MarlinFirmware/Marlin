@@ -326,7 +326,7 @@ void DGUSScreenHandler::sendHeaterStatusToDisplay(DGUS_VP_Variable &var) {
   void DGUSScreenHandler::sdCardError() {
     DGUSScreenHandler::sdCardRemoved();
     #if DGUS_LCD_UI_MKS
-      sendInfoScreenMKS(F("NOTICE"), nullptr, F("SD card error"), nullptr, mks_language_index);
+      screen.sendInfoScreenMKS(F("NOTICE"), nullptr, F("SD card error"), nullptr, mks_language_index);
     #else
       sendInfoScreen(F("NOTICE"), nullptr, F("SD card error"), nullptr);
     #endif
