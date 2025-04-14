@@ -57,13 +57,13 @@ constexpr xyze_float_t min_acceleration_edit_values = LOGICAL_AXIS_ARRAY_1(MIN_A
 #if !defined(MAX_ACCEL_EDIT_VALUES) && defined(DEFAULT_MAX_MULTIPLIER)
   constexpr xyze_float_t default_max_acceleration = DEFAULT_MAX_ACCELERATION;
 #endif
-constexpr xyze_float_t max_acceleration_edit_values = (
+constexpr xyze_float_t max_acceleration_edit_values =
                          #ifdef MAX_ACCEL_EDIT_VALUES
                            MAX_ACCEL_EDIT_VALUES
                          #else
                            default_max_acceleration * DEFAULT_MAX_MULTIPLIER
                          #endif
-                       );
+                       ;
 
 #if HAS_SPINDLE_ACCELERATION
   constexpr float min_acceleration_edit_values_spindle = 1,
