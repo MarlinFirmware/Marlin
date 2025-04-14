@@ -516,7 +516,7 @@ void menu_backlash();
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
     #if HAS_SPINDLE_ACCELERATION
-      constexpr uint32_t accel_edit_spindle = 99000;
+      constexpr uint32_t max_spindle_accel_edit = 99000;
     #endif
 
     START_MENU();
@@ -552,7 +552,7 @@ void menu_backlash();
     #endif
 
     #if HAS_SPINDLE_ACCELERATION
-      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, accel_edit_spindle);
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, max_spindle_accel_edit);
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT

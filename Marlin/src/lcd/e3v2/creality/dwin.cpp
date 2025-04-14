@@ -1597,6 +1597,7 @@ void hmiMaxAccelerationXYZE() {
 
 
 #if HAS_SPINDLE_ACCELERATION
+
   void hmiSpindleAcceleration() {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
@@ -1612,7 +1613,8 @@ void hmiMaxAccelerationXYZE() {
     // SpindleAcceleration value
     drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
   }
-#endif
+
+#endif // HAS_SPINDLE_ACCELERATION
 
 #if ENABLED(CLASSIC_JERK)
 

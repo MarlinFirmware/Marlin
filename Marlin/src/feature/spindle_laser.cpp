@@ -44,7 +44,7 @@ uint8_t SpindleLaser::power,                                          // Actual 
         SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 
 #if HAS_SPINDLE_ACCELERATION
-  uint32_t SpindleLaser::acceleration_spindle_deg_per_s2;
+  uint32_t SpindleLaser::acceleration_spindle_deg_per_s2;             // (°/s/s) Spindle acceleration. Initialized by settings.load
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -92,9 +92,6 @@ void SpindleLaser::init() {
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
   TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
-  #if HAS_SPINDLE_ACCELERATION
-    acceleration_spindle_deg_per_s2 = uint32_t(DEFAULT_ACCELERATION_SPINDLE); // Init Acceleration
-  #endif
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -112,11 +109,12 @@ void SpindleLaser::init() {
       const uint8_t abs_diff = ABS(diff);
       uint8_t current_ocr = last_power_applied;
       // Duration between ocr increments. SPEED_POWER_MAX is in RPM.
-      const millis_t duration = (float(SPEED_POWER_MAX) * 23.529411f / float(acceleration_spindle_deg_per_s2)) * abs_diff;
+      const millis_t duration = (float(SPEED_POWER_MAX) * (60000.f / 2550.f) / float(acceleration_spindle_deg_per_s2)) * abs_diff;
       millis_t next_ocr_change = millis() + duration;
       while (current_ocr != ocr) {
-        while(PENDING(millis(), next_ocr_change)) idle();
-        hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), (diff > 0 ? (++current_ocr) : (--current_ocr)) ^ SPINDLE_LASER_PWM_OFF);
+        while (PENDING(millis(), next_ocr_change)) idle();
+        current_ocr += diff > 0 ? 1 : -1;
+        hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), current_ocr ^ SPINDLE_LASER_PWM_OFF);
         next_ocr_change += duration;
       }
     #else

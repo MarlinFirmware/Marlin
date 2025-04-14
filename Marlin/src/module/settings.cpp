@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V91"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -256,7 +256,9 @@ typedef struct SettingsDataStruct {
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
   #endif
 
-
+  //
+  // Spindle Acceleration
+  //
   #if HAS_SPINDLE_ACCELERATION
     uint32_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
   #endif
@@ -943,7 +945,7 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
-    // Hotend Offsets, if any
+    // Hotend Offsets
     //
     {
       #if HAS_HOTEND_OFFSET
@@ -953,6 +955,9 @@ void MarlinSettings::postprocess() {
       #endif
     }
 
+    //
+    // Spindle Acceleration
+    //
     {
       #if HAS_SPINDLE_ACCELERATION
         _FIELD_TEST(acceleration_spindle);
@@ -2030,7 +2035,7 @@ void MarlinSettings::postprocess() {
       #endif // NUM_AXES
 
       //
-      // Hotend Offsets, if any
+      // Hotend Offsets
       //
       {
         #if HAS_HOTEND_OFFSET
@@ -2040,6 +2045,9 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
+      //
+      // Spindle Acceleration
+      //
       {
         #if HAS_SPINDLE_ACCELERATION
           _FIELD_TEST(acceleration_spindle);
@@ -3374,14 +3382,23 @@ void MarlinSettings::reset() {
 
   TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
+  //
+  // Home Offset
+  //
   #if HAS_SCARA_OFFSET
     scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
     home_offset.reset();
   #endif
 
+  //
+  // Hotend Offsets
+  //
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
+  //
+  // Spindle Acceleration
+  //
   #if HAS_SPINDLE_ACCELERATION
     cutter.acceleration_spindle_deg_per_s2 = DEFAULT_ACCELERATION_SPINDLE;
   #endif
