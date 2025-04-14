@@ -41,4 +41,5 @@ private:
   int8_t min;                         // Minimum is this value times 4 added to MIN_PULSE_WIDTH
   int8_t max;                         // Maximum is this value times 4 added to MAX_PULSE_WIDTH
   int value;                          // Pulse width in microseconds for this servo
+  int servo_pin = 0;                  // pin number for this servo
 };

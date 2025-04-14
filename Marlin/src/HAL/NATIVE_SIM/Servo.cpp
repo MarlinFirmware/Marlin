@@ -49,6 +49,7 @@ uint8_t ServoCount = 0;                                // the total number of at
 uint8_t Servo::attach(int pin) {
   // Attach stub
   DEBUG_ECHOLNPGM("Debug Servo: attach to pin ", pin, " servo index ", this->servoIndex);
+  if (pin > 0) servo_pin = pin;
   return this->servoIndex ;
 }
 
@@ -80,6 +81,8 @@ void Servo::write(int value) {
     }
   #endif // BLTOUCH
   this->value = value;
+  hal.set_pwm_duty(pin_t(this->servo_pin), value);
+  // Simulate the servo movement
   DEBUG_ECHOLNPGM("Debug Servo: write ", value);
 }
 
