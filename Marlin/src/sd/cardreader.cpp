@@ -330,24 +330,21 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
       }
     }
     else if (is_visible_entity(p OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin))) {
-      if (prepend) { SERIAL_ECHO(prepend); SERIAL_CHAR('/'); }
-      SERIAL_ECHO(createFilename(filename, p));
-      SERIAL_CHAR(' ');
-      SERIAL_ECHO(p.fileSize);
+      if (prepend) SERIAL_ECHO(prepend, C('/'));
+      SERIAL_ECHO(createFilename(filename, p), C(' '), p.fileSize);
       if (includeTime) {
-        SERIAL_CHAR(' ');
         uint16_t crmodDate = p.lastWriteDate, crmodTime = p.lastWriteTime;
         if (crmodDate < p.creationDate || (crmodDate == p.creationDate && crmodTime < p.creationTime)) {
           crmodDate = p.creationDate;
           crmodTime = p.creationTime;
         }
-        SERIAL_ECHOPGM("0x", hex_word(crmodDate));
+        SERIAL_ECHOPGM(" 0x", hex_word(crmodDate));
         print_hex_word(crmodTime);
       }
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
         if (includeLong) {
           SERIAL_CHAR(' ');
-          if (prependLong) { SERIAL_ECHO(prependLong); SERIAL_CHAR('/'); }
+          if (prependLong) SERIAL_ECHO(prependLong, C('/'));
           SERIAL_ECHO(longFilename[0] ? longFilename : filename);
         }
       #endif
@@ -470,10 +467,7 @@ void CardReader::printSelectedFilename() {
     SERIAL_ECHO(dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
       selectFileByName(dosFilename);
-      if (longFilename[0]) {
-        SERIAL_CHAR(' ');
-        SERIAL_ECHO(longFilename);
-      }
+      if (longFilename[0]) SERIAL_ECHO(C(' '), longFilename);
     #endif
   }
   else
@@ -856,11 +850,8 @@ void CardReader::report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool i
     if (has_job) old_sdpos = sdpos;
   #endif
 
-  if (has_job) {
-    SERIAL_ECHOPGM(STR_SD_PRINTING_BYTE, sdpos);
-    SERIAL_CHAR('/');
-    SERIAL_ECHOLN(filesize);
-  }
+  if (has_job)
+    SERIAL_ECHOLN(F(STR_SD_PRINTING_BYTE), sdpos, C('/'), filesize);
   else
     SERIAL_ECHOLNPGM(STR_SD_NOT_PRINTING);
 }

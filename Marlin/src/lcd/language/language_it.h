@@ -861,8 +861,8 @@ namespace LanguageNarrow_it {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Appianamento");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Movimento a Tempo-Fisso");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Modo Comp:");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("Modo DF:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Modo Comp: $");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("Modo DF: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Base-Z");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Base-Massa");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Freq. base");
