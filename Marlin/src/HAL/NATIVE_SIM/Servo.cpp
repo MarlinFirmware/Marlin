@@ -20,6 +20,7 @@
  *
  */
 #include "../platforms.h"
+
 #ifdef __PLAT_NATIVE_SIM__
 
 #include "../../inc/MarlinConfig.h"
@@ -28,7 +29,7 @@
   // Simulator bed probbe always needs simbltouch otherwise it will not compile
   #include "bltouch.h"
   Bltouch simbltouch;
-#endif // HAS_BED_PROBE
+#endif
 
 #if HAS_SERVOS
 
@@ -40,7 +41,7 @@
 
 uint8_t ServoCount = 0;                                // the total number of attached servos
 
- Servo::Servo() {
+Servo::Servo() {
   // Constructor stub
   DEBUG_ECHOLNPGM("Debug Servo: constructor");
   this->servoIndex = ServoCount++;                    // assign a servo index to this instance
@@ -69,14 +70,9 @@ void Servo::write(int value) {
   #if ENABLED(BLTOUCH)
     if (this->servoIndex == Z_PROBE_SERVO_NR) {
       switch (value) {
-        case BLTOUCH_DEPLOY:
-          simbltouch.enable();
-          break;
-        case BLTOUCH_STOW:
-          simbltouch.disable();
-          break;
-        default:
-          break;
+        case BLTOUCH_DEPLOY: simbltouch.enable();  break;
+        case BLTOUCH_STOW:   simbltouch.disable(); break;
+        default: break;
       }
     }
   #endif // BLTOUCH
