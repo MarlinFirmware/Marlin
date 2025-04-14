@@ -787,7 +787,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrit Eşiği");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensörsüz Sıfırlama");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Adım Modu");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Aktif");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Resetle");
   LSTR MSG_SERVICE_IN                     = _UxGT(" içinde:");
   LSTR MSG_BACKLASH                       = _UxGT("Ters Tepki");
@@ -795,7 +796,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Yumuşatma");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Sabit Zamanlı Hareket");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -806,7 +807,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");

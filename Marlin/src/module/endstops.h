@@ -32,7 +32,7 @@
 #define ES_ENUM(A,M) _ES_ENUM(A,M)
 
 #define _ES_ITEM(N) , N
-#define ES_ITEM(K,N) TERN(K,_ES_ITEM,_IF_1_ELSE)(N)
+#define ES_ITEM(K,N) TERN(K,_ES_ITEM,OMIT)(N)
 
 #define _ESN_ITEM(K,A,M) ES_ITEM(K,ES_ENUM(A,M))
 #define ES_MINMAX(A) ES_ITEM(HAS_##A##_MIN_STATE, ES_ENUM(A,MIN)) ES_ITEM(HAS_##A##_MAX_STATE, ES_ENUM(A,MAX))

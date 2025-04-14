@@ -219,7 +219,7 @@ bool SDIO_CmdAppSetBusWidth(uint32_t rsa, uint32_t argument) {
 
 bool SDIO_CmdAppOperCommand(uint32_t sdType) {
   if (!SDIO_CmdAppCommand(0)) return false;
-  SDIO_SendCommand(ACMD41_SD_APP_OP_COND , SDMMC_VOLTAGE_WINDOW_SD | sdType);
+  SDIO_SendCommand(ACMD41_SD_APP_OP_COND, SDMMC_VOLTAGE_WINDOW_SD | sdType);
   return SDIO_GetCmdResp3();
 }
 
