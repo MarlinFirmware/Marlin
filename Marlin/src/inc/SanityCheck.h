@@ -4072,6 +4072,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
     #elif !(defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
       #error "SPINDLE_LASER_USE_PWM equation constant(s) missing."
+    #elif DEFAULT_ACCELERATION_SPINDLE > SPEED_POWER_MAX - SPEED_POWER_MIN
+      #error "DEFAULT_ACCELERATION_SPINDLE must be <= SPEED_POWER_MAX - SPEED_POWER_MIN."
     #elif _PIN_CONFLICT(X_MIN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with X_MIN_PIN."
     #elif _PIN_CONFLICT(X_MAX)

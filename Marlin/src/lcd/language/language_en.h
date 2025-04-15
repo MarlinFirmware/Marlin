@@ -452,6 +452,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
+  LSTR MSG_A_SPINDLE                      = _UxGT("Spindle Accel");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
   LSTR MSG_SHAPING_ENABLE_N               = _UxGT("Enable @ shaping");
   LSTR MSG_SHAPING_DISABLE_N              = _UxGT("Disable @ shaping");

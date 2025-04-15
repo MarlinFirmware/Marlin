@@ -1312,9 +1312,9 @@ void RTS::handleData() {
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      case Hot_Bed_P: thermalManager.temp_bed.pid.Kp = float(recdat.data[0]) / 100.0f; break;
-      case Hot_Bed_I: thermalManager.temp_bed.pid.Ki = float(recdat.data[0]) * 8.0f / 10000.0f; break;
-      case Hot_Bed_D: thermalManager.temp_bed.pid.Kd = float(recdat.data[0]) / 0.8f; break;
+      case Hot_Bed_P: thermalManager.temp_bed.pid.set_Kp(float(recdat.data[0]) / 100.0f); break;
+      case Hot_Bed_I: thermalManager.temp_bed.pid.set_Ki(float(recdat.data[0]) * 8.0f / 10000.0f); break;
+      case Hot_Bed_D: thermalManager.temp_bed.pid.set_Kd(float(recdat.data[0]) / 0.8f); break;
     #endif
 
     #if HAS_X_AXIS
