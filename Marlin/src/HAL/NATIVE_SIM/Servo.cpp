@@ -25,12 +25,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
-  // Simulator bed probbe always needs simbltouch otherwise it will not compile
-  #include "bltouch.h"
-  Bltouch simbltouch;
-#endif
-
 #if HAS_SERVOS
 
 #include "Servo.h"
@@ -50,14 +44,14 @@ Servo::Servo() {
 uint8_t Servo::attach(int pin) {
   // Attach stub
   DEBUG_ECHOLNPGM("Debug Servo: attach to pin ", pin, " servo index ", this->servoIndex);
-  if (pin > 0) servo_pin = pin;
-  return this->servoIndex ;
+  return attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
 uint8_t Servo::attach(int pin, int min, int max) {
   // Attach with min and max stub
   DEBUG_ECHOLNPGM("Debug Servo: attach to pin ", pin, " with min ", min, " and max ", max);
-  return 0;
+  if (pin > 0) servo_pin = pin;
+  return this->servoIndex;
 }
 
 void Servo::detach() {
@@ -65,25 +59,19 @@ void Servo::detach() {
   DEBUG_ECHOLNPGM("Debug Servo: detach");
 }
 
+// If value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
 void Servo::write(int value) {
-  // Write stub
-  #if ENABLED(BLTOUCH)
-    if (this->servoIndex == Z_PROBE_SERVO_NR) {
-      switch (value) {
-        case BLTOUCH_DEPLOY: simbltouch.enable();  break;
-        case BLTOUCH_STOW:   simbltouch.disable(); break;
-        default: break;
-      }
-    }
-  #endif // BLTOUCH
-  this->value = value;
-  hal.set_pwm_duty(pin_t(this->servo_pin), value);
-  // Simulate the servo movement
+  if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
+    value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN_US(min), SERVO_MAX_US(max));
+  }
+  writeMicroseconds(value);
   DEBUG_ECHOLNPGM("Debug Servo: write ", value);
 }
 
 void Servo::writeMicroseconds(int value) {
-  // Write microseconds stub
+  // Simulate the servo movement
+  this->value = value;
+  hal.set_pwm_duty(pin_t(this->servo_pin), (float(value) / 20000) * UINT16_MAX );
   DEBUG_ECHOLNPGM("Debug Servo: write microseconds ", value);
 }
 

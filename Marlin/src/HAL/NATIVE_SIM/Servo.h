@@ -24,6 +24,12 @@
 // BLTouch BLTCommand definition
 #include "../../../feature/bltouch.h"
 
+#define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo
+#define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo
+#define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
+#define SERVO_MIN_US(v) (MIN_PULSE_WIDTH - (v) * 4) // minimum value in uS for this servo
+#define SERVO_MAX_US(v) (MAX_PULSE_WIDTH - (v) * 4) // maximum value in uS for this servo
+
 class Servo {
 public:
   Servo();
