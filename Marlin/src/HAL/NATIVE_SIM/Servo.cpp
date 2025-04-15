@@ -71,7 +71,7 @@ void Servo::write(int value) {
 void Servo::writeMicroseconds(int value) {
   // Simulate the servo movement
   this->value = value;
-  hal.set_pwm_duty(pin_t(this->servo_pin), (float(value) / 20000) * UINT16_MAX );
+  hal.set_pwm_duty(pin_t(this->servo_pin), (float(value) / 20000) * UINT16_MAX, UINT16_MAX);
   DEBUG_ECHOLNPGM("Debug Servo: write microseconds ", value);
 }
 
