@@ -190,11 +190,6 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-#if HAS_ETHERNET
-  void ETH0_report();
-  void MAC_report();
-#endif
-
 #define _EN_ITEM(N) , E##N
 #define _EN1_ITEM(N) , E##N:1
 
@@ -4210,11 +4205,11 @@ void MarlinSettings::reset() {
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");
-      if (!forReplay) ETH0_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M552_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M553_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M554_report();
+      if (!forReplay) ethernet.ETH0_report(false);
+      ethernet.MAC_report(forReplay);
+      gcode.M552_report(forReplay);
+      gcode.M553_report(forReplay);
+      gcode.M554_report(forReplay);
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
