@@ -4283,10 +4283,15 @@ void Temperature::isr() {
   #endif // SLOW_PWM_HEATERS
 
   //
-  // Update lcd buttons 488 times per second
+  // Update lcd buttons at ~488Hz or ~976Hz
   //
-  static bool do_buttons;
-  if ((do_buttons ^= true)) ui.update_buttons();
+  #if ENABLED(FAST_BUTTON_POLLING)
+    constexpr bool do_buttons = true;
+  #else
+    static bool do_buttons;
+    do_buttons ^= true;
+  #endif
+  if (do_buttons) ui.update_buttons();
 
   /**
    * One sensor is sampled on every other call of the ISR.
