@@ -1569,7 +1569,7 @@ void MarlinSettings::postprocess() {
         dummyf = 0;
         for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
       #endif
-      
+
       _FIELD_TEST(stepper_extruder_advance_TAU);
 
       #if ENABLED(SMOOTH_LIN_ADV)
@@ -2675,7 +2675,7 @@ void MarlinSettings::postprocess() {
           if (!validating)
             COPY(planner.extruder_advance_K, extruder_advance_K);
         #endif
-        
+
         #if ENABLED(SMOOTH_LIN_ADV)
           _FIELD_TEST(stepper_extruder_advance_TAU);
           float tau;

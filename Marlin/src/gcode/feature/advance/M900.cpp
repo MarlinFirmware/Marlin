@@ -106,7 +106,7 @@ void GcodeSuite::M900() {
 
   #endif
 
-  #if (ENABLED(SMOOTH_LIN_ADV))
+  #if ENABLED(SMOOTH_LIN_ADV)
     if (parser.seenval('U')) {
       const float tau = parser.value_float();
       if (WITHIN(tau, 0, .5)) {
@@ -147,8 +147,8 @@ void GcodeSuite::M900() {
         EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), planner.extruder_advance_K[e]);
         SERIAL_EOL();
       #endif
-      
-      #if (ENABLED(SMOOTH_LIN_ADV))
+
+      #if ENABLED(SMOOTH_LIN_ADV)
         SERIAL_ECHOLNPGM("Advance TAU=", Stepper::get_advance_tau());
       #endif
 
@@ -170,7 +170,7 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
       SERIAL_ECHOLNPGM("  M900 T", e, " K", planner.extruder_advance_K[e]);
     }
   #endif
-  #if (ENABLED(SMOOTH_LIN_ADV))
+  #if ENABLED(SMOOTH_LIN_ADV)
     SERIAL_ECHOLNPGM("  M900 U", Stepper::get_advance_tau());
   #endif
 }

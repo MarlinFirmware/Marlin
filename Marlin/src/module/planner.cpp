@@ -2462,7 +2462,7 @@ bool Planner::_populate_block(
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(SMOOTH_LIN_ADV)
       block->use_advance_lead = use_advance_lead;
-      block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * 
+      block->e_step_ratio = (block->direction_bits.e ? 1 : -1) *
         float(block->steps.e) / block->step_event_count;
     #else
       block->la_advance_rate = 0;
@@ -2480,7 +2480,7 @@ bool Planner::_populate_block(
           if (block->la_advance_rate >> block->la_scaling > 10000)
             SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
         #endif
-      } 
+      }
     #endif
   #endif
 
@@ -2709,7 +2709,7 @@ bool Planner::_populate_block(
       }
     #endif
 
-    // In the SMOOTH_LIN_ADV case, the extra jerk will be applied by the residual curent_la_step_rate. 
+    // In the SMOOTH_LIN_ADV case, the extra jerk will be applied by the residual curent_la_step_rate.
     #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't

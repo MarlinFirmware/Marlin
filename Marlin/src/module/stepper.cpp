@@ -2913,9 +2913,9 @@ hal_timer_t Stepper::block_phase_isr() {
       }
     }
     #if ENABLED(INPUT_SHAPING_E_SYNCH)
-      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = 
+      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE =
         (SMOOTH_LIN_ADV_HZ / SHAPING_MIN_FREQ / 2.0f + 0.5f);
-      
+
       typedef struct {
           xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
           uint16_t index;
@@ -2981,7 +2981,7 @@ hal_timer_t Stepper::block_phase_isr() {
       }
       return 0.0f;
     };
-    
+
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       float target_adv_steps = 0;
       if (current_block) {
@@ -2995,7 +2995,7 @@ hal_timer_t Stepper::block_phase_isr() {
       const float dt_inv = SMOOTH_LIN_ADV_HZ;
       float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
-      
+
       static float soothed_values[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
@@ -3040,7 +3040,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
 
       set_la_interval(total_step_rate);
-      
+
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
     }

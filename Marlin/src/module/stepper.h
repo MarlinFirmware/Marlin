@@ -459,9 +459,9 @@ class Stepper {
                            la_advance_steps; // Count of steps added to increase nozzle pressure
         static bool        la_active;        // Whether linear advance is used on the present segment.
       #endif
-      
+
       #if ENABLED(SMOOTH_LIN_ADV)
-        static float  extruder_advance_TAU,       // The smoothing time, which is also the lookahead 
+        static float  extruder_advance_TAU,       // The smoothing time, which is also the lookahead
                                                   // time of the smoother.
                       extruder_advance_TAU_TICKS, // Same as extruder_advance_TAU but in in stepper timer ticks.
                       extruder_advance_ALPHA;     // The smoothing factor of each stage of the high

@@ -859,7 +859,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #if ENABLED(S_CURVE_ACCELERATION)
       #warning "SMOOTH_LIN_ADV together with S_CURVE_ACCELERATION is untested."
     #endif
-    
+
     #if ENABLED(INPUT_SHAPING_E_SYNCH)
       static_assert(ENABLED(INPUT_SHAPING_X), "INPUT_SHAPING_E_SYNCH requires INPUT_SHAPING_X.");
       static_assert(ENABLED(INPUT_SHAPING_Y), "INPUT_SHAPING_E_SYNCH requires INPUT_SHAPING_Y.");
