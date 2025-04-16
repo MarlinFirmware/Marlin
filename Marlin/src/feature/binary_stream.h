@@ -134,7 +134,7 @@ private:
 public:
 
   static void idle() {
-    // If a transfer is interrupted and a file is left open, abort it after timeout ms
+    // If a transfer is interrupted and a file is left open, abort it after 'idle_period' ms
     const millis_t ms = millis();
     if (transfer_active && ELAPSED(ms, idle_timeout)) {
       idle_timeout = ms + idle_period;
