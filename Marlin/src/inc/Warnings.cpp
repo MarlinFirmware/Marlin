@@ -950,7 +950,7 @@
 /**
  * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
  */
-#if ENABLED(SMOOTH_LIN_ADVANCE
+#if ENABLED(SMOOTH_LIN_ADVANCE)
   #if ENABLED(MIXING_EXTRUDER)
     #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
   #endif

@@ -353,12 +353,12 @@ class Stepper {
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static void set_advance_tau(const float tau) {
-        extruder_advance_TAU = tau;
-        extruder_advance_TAU_TICKS = tau * (STEPPER_TIMER_RATE);
+        extruder_advance_tau = tau;
+        extruder_advance_tau_ticks = tau * (STEPPER_TIMER_RATE);
         // α=1−exp(−dt/τ)
-        extruder_advance_ALPHA = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_TAU_TICKS);
+        extruder_advance_ALPHA = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks);
       }
-      static float get_advance_tau() { return extruder_advance_TAU; }
+      static float get_advance_tau() { return extruder_advance_tau; }
     #endif
 
   private:
@@ -459,9 +459,9 @@ class Stepper {
       #endif
 
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static float  extruder_advance_TAU,       // The smoothing time, which is also the lookahead
+        static float  extruder_advance_tau,       // The smoothing time, which is also the lookahead
                                                   // time of the smoother.
-                      extruder_advance_TAU_TICKS, // Same as extruder_advance_TAU but in in stepper timer ticks.
+                      extruder_advance_tau_ticks, // Same as extruder_advance_tau but in in stepper timer ticks.
                       extruder_advance_ALPHA;     // The smoothing factor of each stage of the high
                                                   // order exponential smoothing filter (calculated from tau).
       #endif
@@ -588,7 +588,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      #if (DISABLED(SMOOTH_LIN_ADVANCE))
+      #if DISABLED(SMOOTH_LIN_ADVANCE)
         TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
       #endif
     }

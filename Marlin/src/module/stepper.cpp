@@ -2891,8 +2891,8 @@ hal_timer_t Stepper::block_phase_isr() {
 
 #if ENABLED(LIN_ADVANCE)
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    float Stepper::extruder_advance_TAU,
-          Stepper::extruder_advance_TAU_TICKS,
+    float Stepper::extruder_advance_tau,
+          Stepper::extruder_advance_tau_ticks,
           Stepper::extruder_advance_ALPHA;
 
     void Stepper::set_la_interval(const int32_t rate) {
@@ -2986,7 +2986,7 @@ hal_timer_t Stepper::block_phase_isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       float target_adv_steps = 0;
       if (current_block) {
-        uint32_t t = extruder_advance_TAU_TICKS + curr_timer_tick;
+        uint32_t t = extruder_advance_tau_ticks + curr_timer_tick;
         target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
       }
       else {
