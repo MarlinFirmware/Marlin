@@ -488,7 +488,7 @@ typedef struct SettingsDataStruct {
   // LIN_ADVANCE
   //
   float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
-  float stepper_extruder_advance_TAU; // Stepper::get_advance_tau()
+  float stepper_extruder_advance_TAU; // stepper.get_advance_tau()
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -1573,7 +1573,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(stepper_extruder_advance_TAU);
 
       #if ENABLED(SMOOTH_LIN_ADV)
-        EEPROM_WRITE(Stepper::get_advance_tau());
+        EEPROM_WRITE(stepper.get_advance_tau());
       #else
         EEPROM_WRITE(0);
       #endif
@@ -2680,8 +2680,8 @@ void MarlinSettings::postprocess() {
           _FIELD_TEST(stepper_extruder_advance_TAU);
           float tau;
           EEPROM_READ(tau);
-          if (!validating) {
-            Stepper::set_advance_tau(tau);
+          if (!validating)
+            stepper.set_advance_tau(tau);
           }
         #endif
       }
@@ -3736,7 +3736,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(SMOOTH_LIN_ADV)
-    Stepper::set_advance_tau(ADVANCE_TAU);
+    stepper.set_advance_tau(ADVANCE_TAU);
   #endif
 
   //

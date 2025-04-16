@@ -352,16 +352,15 @@ class Stepper {
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADV)
-      static void set_advance_tau(float tau) {
+      static void set_advance_tau(const float tau) {
         extruder_advance_TAU = tau;
-        extruder_advance_TAU_TICKS = tau * STEPPER_TIMER_RATE;
+        extruder_advance_TAU_TICKS = tau * (STEPPER_TIMER_RATE);
         // α=1−exp(−dt/τ)
-        extruder_advance_ALPHA = 1 - expf(- SMOOTH_LIN_ADV_INTERVAL * SMOOTH_LIN_ADV_EXP_ORDER / extruder_advance_TAU_TICKS);
+        extruder_advance_ALPHA = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_TAU_TICKS);
       }
-      static float get_advance_tau() {
-        return extruder_advance_TAU;
-      }
+      static float get_advance_tau() { return extruder_advance_TAU; }
     #endif
+
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -448,16 +447,15 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
-                         la_interval;      // Interval between ISR calls for LA
+                         la_interval;       // Interval between ISR calls for LA
       #if ENABLED(SMOOTH_LIN_ADV)
-        static uint32_t curr_timer_tick, // Current tick relative to block start
-                        curr_step_rate;  // Current motion step rate
-        static void set_la_interval(int32_t rate);
+        static uint32_t curr_timer_tick,    // Current tick relative to block start
+                        curr_step_rate;     // Current motion step rate
       #else
-        static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
-                           la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
-                           la_advance_steps; // Count of steps added to increase nozzle pressure
-        static bool        la_active;        // Whether linear advance is used on the present segment.
+        static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
+                        la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR
+                        la_advance_steps;   // Count of steps added to increase nozzle pressure
+        static bool     la_active;          // Whether linear advance is used on the present segment.
       #endif
 
       #if ENABLED(SMOOTH_LIN_ADV)
@@ -533,6 +531,7 @@ class Stepper {
       // The Linear advance ISR phase
       static void advance_isr();
       #if ENABLED(SMOOTH_LIN_ADV)
+        static void set_la_interval(const int32_t rate);
         static hal_timer_t smooth_lin_adv_isr();
       #endif
     #endif

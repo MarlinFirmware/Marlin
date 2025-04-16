@@ -925,3 +925,15 @@
 #if ALL(PELTIER_BED, PIDTEMPBED)
   #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
 #endif
+
+/**
+ * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
+ */
+#if ENABLED(SMOOTH_LIN_ADV
+  #if ENABLED(MIXING_EXTRUDER)
+    #warning "SMOOTH_LIN_ADV with MIXING_EXTRUDER is untested. Use with caution."
+  #endif
+  #if ENABLED(S_CURVE_ACCELERATION)
+    #warning "SMOOTH_LIN_ADV together with S_CURVE_ACCELERATION is untested."
+  #endif
+#endif

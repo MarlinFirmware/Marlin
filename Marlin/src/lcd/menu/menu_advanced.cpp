@@ -116,8 +116,8 @@ void menu_backlash();
       #endif
     #endif
     #if ENABLED(SMOOTH_LIN_ADV)
-      editable.decimal = Stepper::get_advance_tau();
-      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ Stepper::set_advance_tau(editable.decimal); });
+      editable.decimal = stepper.get_advance_tau();
+      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -732,8 +732,8 @@ void menu_advanced_settings() {
         EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
     #if ENABLED(SMOOTH_LIN_ADV)
-      editable.decimal = Stepper::get_advance_tau();
-      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ Stepper::set_advance_tau(editable.decimal); });
+      editable.decimal = stepper.get_advance_tau();
+      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
     #endif
   #endif
 

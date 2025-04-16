@@ -848,24 +848,20 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #endif
 
+  /**
+   * Smooth Linear Advance
+   */
   #if ENABLED(SMOOTH_LIN_ADV)
-    #if ENABLED(MIXING_EXTRUDER)
-      #warning "SMOOTH_LIN_ADV with MIXING_EXTRUDER is not tested."
-    #endif
-    #if DISABLED(CPU_32_BIT)
+    #if DISTINCT_E > 1
+      #error "SMOOTH_LIN_ADV is not compatible with multiple extruders."
+    #elif DISABLED(CPU_32_BIT)
       #error "SMOOTH_LIN_ADV requires a 32-bit CPU."
-    #endif
-    static_assert(DISTINCT_E == 1, "SMOOTH_LIN_ADV is not compatible with multiple extruders.");
-    #if ENABLED(S_CURVE_ACCELERATION)
-      #warning "SMOOTH_LIN_ADV together with S_CURVE_ACCELERATION is untested."
-    #endif
-
-    #if ENABLED(INPUT_SHAPING_E_SYNCH)
-      static_assert(ENABLED(INPUT_SHAPING_X), "INPUT_SHAPING_E_SYNCH requires INPUT_SHAPING_X.");
-      static_assert(ENABLED(INPUT_SHAPING_Y), "INPUT_SHAPING_E_SYNCH requires INPUT_SHAPING_Y.");
+    #elif ENABLED(INPUT_SHAPING_E_SYNC) && NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+      #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
   #endif
-#endif
+
+#endif // LIN_ADVANCE
 
 /**
  * Nonlinear Extrusion requirements

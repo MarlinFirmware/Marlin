@@ -63,6 +63,11 @@ void GcodeSuite::M900() {
   float &kref = planner.extruder_advance_K[E_INDEX_N(tool_index)], newK = kref;
   const float oldK = newK;
 
+  #if ENABLED(SMOOTH_LIN_ADV)
+    const float oldU = planner.extruder_advance_tau[E_INDEX_N(tool_index)];
+    float newU = oldU;
+  #endif
+
   #if ENABLED(ADVANCE_K_EXTRA)
 
     float &lref = other_extruder_advance_K[E_INDEX_N(tool_index)];
@@ -109,18 +114,19 @@ void GcodeSuite::M900() {
   #if ENABLED(SMOOTH_LIN_ADV)
     if (parser.seenval('U')) {
       const float tau = parser.value_float();
-      if (WITHIN(tau, 0, .5)) {
-        planner.synchronize();
-        Stepper::set_advance_tau(tau);
-      }
+      if (WITHIN(tau, 0.0f, 0.5f))
+        newU = tau;
       else
         echo_value_oor('U');
     }
   #endif
 
-  if (newK != oldK) {
+  if (newK != oldK || TERN0(SMOOTH_LIN_ADV, newU != oldU)) {
     planner.synchronize();
-    kref = newK;
+    if (newK != oldK) kref = newK;
+    #if ENABLED(SMOOTH_LIN_ADV)
+      if (newU != oldU) stepper.set_advance_tau(newU);
+    #endif
   }
 
   if (!parser.seen_any()) {
@@ -137,22 +143,27 @@ void GcodeSuite::M900() {
         }
       #endif
 
-    #else
+    #else // !ADVANCE_K_EXTRA
 
       SERIAL_ECHO_START();
       #if DISTINCT_E < 2
-        SERIAL_ECHOLNPGM("Advance K=", planner.extruder_advance_K[0]);
+        SERIAL_ECHOPGM("Advance K=", planner.extruder_advance_K[0]);
+        #if ENABLED(SMOOTH_LIN_ADV)
+          SERIAL_ECHOPGM(" TAU=", stepper.get_advance_tau());
+        #endif
+        SERIAL_EOL();
       #else
         SERIAL_ECHOPGM("Advance K");
         EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), planner.extruder_advance_K[e]);
         SERIAL_EOL();
+        #if ENABLED(SMOOTH_LIN_ADV)
+          SERIAL_ECHOPGM("Advance TAU");
+          EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), planner.extruder_advance_tau[e]);
+          SERIAL_EOL();
+        #endif
       #endif
 
-      #if ENABLED(SMOOTH_LIN_ADV)
-        SERIAL_ECHOLNPGM("Advance TAU=", Stepper::get_advance_tau());
-      #endif
-
-    #endif
+    #endif // !ADVANCE_K_EXTRA
   }
 
 }
@@ -163,15 +174,20 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F(STR_LINEAR_ADVANCE));
   #if DISTINCT_E < 2
     report_echo_start(forReplay);
-    SERIAL_ECHOLNPGM("  M900 K", planner.extruder_advance_K[0]);
+    SERIAL_ECHOPGM("  M900 K", planner.extruder_advance_K[0]);
+    #if ENABLED(SMOOTH_LIN_ADV)
+      SERIAL_ECHOPGM("  M900 U", stepper.get_advance_tau());
+    #endif
+    SERIAL_EOL();
   #else
     EXTRUDER_LOOP() {
       report_echo_start(forReplay);
-      SERIAL_ECHOLNPGM("  M900 T", e, " K", planner.extruder_advance_K[e]);
+      SERIAL_ECHOPGM("  M900 T", e, " K", planner.extruder_advance_K[e]);
+      #if ENABLED(SMOOTH_LIN_ADV)
+        SERIAL_ECHOPGM(" U", planner.extruder_advance_tau[e]);
+      #endif
+      SERIAL_EOL();
     }
-  #endif
-  #if ENABLED(SMOOTH_LIN_ADV)
-    SERIAL_ECHOLNPGM("  M900 U", Stepper::get_advance_tau());
   #endif
 }
 

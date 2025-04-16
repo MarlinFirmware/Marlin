@@ -2347,14 +2347,20 @@
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
   //#define SMOOTH_LIN_ADV          // Removes motion acceleration limitation by allowing to gradual ramp up of nozzle pressure
   #if ENABLED(SMOOTH_LIN_ADV)
-    #define ADVANCE_TAU 0.01      // (secs) Smoothing time to reduce extruder acceleration due to linear advance.
-                                  // It is also the time ahead the smoother needs to look in the planner
-                                  // so the planner needs to have enough blocks loaded.
-                                  // for k=0.04 at 10k acceleration and an orbiter 2, it can be as low as 0.0075.
-                                  // The lower the better until stepper skipps
-                                  // Higher k and higher print accelerations may require larger tau to avoid skipping steps
-    #define SMOOTH_LIN_ADV_HZ 5000   // How often to update extruder speed
-    #define INPUT_SHAPING_E_SYNCH    // Synchronize the extruder shaped xy axes (increrses precision)
+    /**
+     * ADVANCE_TAU is also the time ahead that the smoother needs to look
+     * into the planner, so the planner needs to have enough blocks loaded.
+     * For k=0.04 at 10k acceleration and an "Orbiter 2" extruder it can be as low as 0.0075.
+     * Adjust by lowering the value until you observe the extruder skipping, then raise slightly.
+     * Higher k and higher XY acceleration may require larger ADVANCE_TAU to avoid skipping steps.
+     */
+    #if ENABLED(DISTINCT_E_FACTORS)
+      #define ADVANCE_TAU { 0.01 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
+    #else
+      #define ADVANCE_TAU 0.01       // (s) Smoothing time to reduce extruder acceleration
+    #endif
+    #define SMOOTH_LIN_ADV_HZ 5000   // (Hz) How often to update extruder speed
+    #define INPUT_SHAPING_E_SYNC     // Synchronize the extruder-shaped XY axes (to increase precision)
   #endif
 #endif
 
