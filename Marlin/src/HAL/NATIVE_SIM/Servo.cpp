@@ -93,7 +93,7 @@ bool Servo::attached() {
   return false;
 }
 
-int Servo::move(const BLTCommand cmd) {
+int Servo::move(const unsigned char cmd) {
   // Move stub
   DEBUG_ECHOLNPGM("Debug Servo: move ", cmd);
   write(cmd);

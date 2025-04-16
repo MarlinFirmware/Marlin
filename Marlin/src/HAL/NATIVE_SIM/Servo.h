@@ -21,9 +21,6 @@
  */
 #pragma once
 
-// BLTouch BLTCommand definition
-#include "../../../feature/bltouch.h"
-
 #define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo
 #define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo
 #define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
@@ -41,7 +38,7 @@ public:
   int read();                         // Return current pulse width as an angle between 0 and 180 degrees
   int readMicroseconds();             // Return current pulse width in microseconds for this servo
   bool attached();                    // Return true if this servo is attached, otherwise false
-  int move (const BLTCommand cmd);
+  int move (const unsigned char cmd);
 private:
   uint8_t servoIndex;                 // Index into the channel data for this servo
   int8_t min;                         // Minimum is this value times 4 added to MIN_PULSE_WIDTH
