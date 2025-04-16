@@ -31,8 +31,8 @@ void MarlinGame::frame_start() {
 
 void MarlinGame::frame_end() {}
 
-void MarlinGame::set_color(const color color) {
-  switch (color) {
+void MarlinGame::set_color(const color clr) {
+  switch (clr) {
     default:
     case color::WHITE: u8g.setColorIndex(1); break;
     case color::BLACK: u8g.setColorIndex(0); break;

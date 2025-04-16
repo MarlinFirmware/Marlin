@@ -4,7 +4,7 @@ With Marlin version 2.0.9.x or higher, Laser improvements were introduced that e
 
 ### Architecture
 
-Laser selectable feature capability is defined through 4 global mode flags within G-code ,laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines.
+Laser selectable feature capability is defined through 4 global mode flags within G-code, laser/spindle, planner and stepper routines. The default mode maintains the standard laser function. G-Codes are received, processed and parsed to determine what mode to set through M3, M4 and M5 commands. When the inline mode parameter set is detected, laser power processing will be driven through the planner and stepper routines. Handling of the initial power values and settings are performed by G-Code parsing and the laser/spindle routines.
 
 Inline power feeds from the block->inline_power variable into the planner's laser.power when in continuous power mode. Further power adjustment will be applied if the laser power trap feature is active otherwise laser.power is used as set in the stepper for the entire block. When laser power trap is active the power levels are step incremented during acceleration and step decremented during deceleration.
 

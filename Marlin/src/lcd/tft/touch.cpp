@@ -102,7 +102,7 @@ void Touch::idle() {
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(now, touch_time, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;

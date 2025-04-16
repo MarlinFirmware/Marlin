@@ -37,6 +37,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
@@ -88,7 +92,7 @@ void menu_backlash();
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_A STR_B, 0);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+    #if HAS_MOTOR_CURRENT_PWM_Z
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
     #if HAS_MOTOR_CURRENT_PWM_E
@@ -515,6 +519,9 @@ void menu_backlash();
     #else
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
+    #if HAS_SPINDLE_ACCELERATION
+      constexpr uint32_t max_spindle_accel_edit = 99000;
+    #endif
 
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
@@ -546,6 +553,10 @@ void menu_backlash();
        });
     #elif E_STEPPERS
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.refresh_acceleration_rates(); });
+    #endif
+
+    #if HAS_SPINDLE_ACCELERATION
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, max_spindle_accel_edit);
     #endif
 
     #ifdef XY_FREQUENCY_LIMIT
