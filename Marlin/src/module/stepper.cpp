@@ -2893,7 +2893,7 @@ hal_timer_t Stepper::block_phase_isr() {
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     float Stepper::extruder_advance_tau,
           Stepper::extruder_advance_tau_ticks,
-          Stepper::extruder_advance_ALPHA;
+          Stepper::extruder_advance_alpha;
 
     void Stepper::set_la_interval(const int32_t rate) {
       if (rate == 0) {
@@ -3000,7 +3000,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static float smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        la_step_rate = extruder_advance_ALPHA * la_step_rate + (1 - extruder_advance_ALPHA) * smoothed_vals[i];
+        la_step_rate = extruder_advance_alpha * la_step_rate + (1 - extruder_advance_alpha) * smoothed_vals[i];
         smoothed_vals[i] = la_step_rate;
       }
       const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;

@@ -356,7 +356,7 @@ class Stepper {
         extruder_advance_tau = tau;
         extruder_advance_tau_ticks = tau * (STEPPER_TIMER_RATE);
         // α=1−exp(−dt/τ)
-        extruder_advance_ALPHA = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks);
+        extruder_advance_alpha = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks);
       }
       static float get_advance_tau() { return extruder_advance_tau; }
     #endif
@@ -455,15 +455,14 @@ class Stepper {
         static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
                         la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR
                         la_advance_steps;   // Count of steps added to increase nozzle pressure
-        static bool     la_active;          // Whether linear advance is used on the present segment.
+        static bool     la_active;          // Whether linear advance is used on the present segment
       #endif
 
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static float  extruder_advance_tau,       // The smoothing time, which is also the lookahead
-                                                  // time of the smoother.
-                      extruder_advance_tau_ticks, // Same as extruder_advance_tau but in in stepper timer ticks.
-                      extruder_advance_ALPHA;     // The smoothing factor of each stage of the high
-                                                  // order exponential smoothing filter (calculated from tau).
+        static float  extruder_advance_tau,       // The smoothing time; also the lookahead time of the smoother
+                      extruder_advance_tau_ticks, // Same as extruder_advance_tau but in in stepper timer ticks
+                      extruder_advance_alpha;     // The smoothing factor of each stage of the high-order exponential
+                                                  // smoothing filter (calculated from tau)
       #endif
     #endif
 
