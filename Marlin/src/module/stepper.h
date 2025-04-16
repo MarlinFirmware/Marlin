@@ -354,7 +354,7 @@ class Stepper {
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       static void set_advance_tau(const float tau) {
         extruder_advance_tau = tau;
-        extruder_advance_tau_ticks = tau * (STEPPER_TIMER_RATE);
+        extruder_advance_tau_ticks = tau * (STEPPER_TIMER_RATE); // i.e., <= STEPPER_TIMER_RATE / 2
         // α=1−exp(−dt/τ)
         extruder_advance_alpha = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks);
       }

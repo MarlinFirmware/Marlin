@@ -500,8 +500,10 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
-  float stepper_extruder_advance_tau; // stepper.get_advance_tau()
+  float planner_extruder_advance_K[DISTINCT_E];         // M900 K  planner.extruder_advance_K
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    float stepper_extruder_advance_tau[DISTINCT_E];     // M900 U  stepper.extruder_advance_tau
+  #endif
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -1559,17 +1561,13 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(LIN_ADVANCE)
         EEPROM_WRITE(planner.extruder_advance_K);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          EEPROM_WRITE(stepper.get_advance_tau());
+        #endif
       #else
         dummyf = 0;
         for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
-      #endif
-
-      _FIELD_TEST(stepper_extruder_advance_tau);
-
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        EEPROM_WRITE(stepper.get_advance_tau());
-      #else
-        EEPROM_WRITE(0);
       #endif
     }
 
@@ -2649,15 +2647,12 @@ void MarlinSettings::postprocess() {
         #if ENABLED(LIN_ADVANCE)
           if (!validating)
             COPY(planner.extruder_advance_K, extruder_advance_K);
-        #endif
-
-        #if ENABLED(SMOOTH_LIN_ADVANCE)
-          _FIELD_TEST(stepper_extruder_advance_tau);
-          float tau;
-          EEPROM_READ(tau);
-          if (!validating)
-            stepper.set_advance_tau(tau);
-          }
+          #if ENABLED(SMOOTH_LIN_ADVANCE)
+            _FIELD_TEST(stepper_extruder_advance_tau);
+            float tau;
+            EEPROM_READ(tau);
+            if (!validating) stepper.set_advance_tau(tau);
+          #endif
         #endif
       }
 
@@ -3760,10 +3755,15 @@ void MarlinSettings::reset() {
     #else
       planner.extruder_advance_K[0] = ADVANCE_K;
     #endif
-  #endif
-
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    stepper.set_advance_tau(ADVANCE_TAU);
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if ENABLED(DISTINCT_E_FACTORS)
+        constexpr float linAdvanceTau[] = ADVANCE_TAU;
+        EXTRUDER_LOOP()
+          stepper.set_advance_tau(linAdvanceTau[_MAX(uint8_t(e), COUNT(linAdvanceTau) - 1)], e);
+      #else
+        stepper.set_advance_tau(ADVANCE_TAU);
+      #endif
+    #endif
   #endif
 
   //

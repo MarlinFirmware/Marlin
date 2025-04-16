@@ -114,14 +114,20 @@ void menu_backlash();
     #if ENABLED(LIN_ADVANCE)
       #if DISTINCT_E < 2
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          editable.decimal = stepper.get_advance_tau();
+          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+        #endif
       #else
         EXTRUDER_LOOP()
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          EXTRUDER_LOOP() {
+            editable.decimal = stepper.get_advance_tau();
+            EDIT_ITEM_N(float54, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+          }
+        #endif
       #endif
-    #endif
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      editable.decimal = stepper.get_advance_tau();
-      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -142,7 +148,7 @@ void menu_backlash();
             EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
-    #endif
+    #endif // !NO_VOLUMETRICS
 
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
@@ -738,13 +744,19 @@ void menu_advanced_settings() {
   #elif ENABLED(LIN_ADVANCE)
     #if DISTINCT_E < 2
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        editable.decimal = stepper.get_advance_tau();
+        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #endif
     #else
       EXTRUDER_LOOP()
         EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
-    #endif
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      editable.decimal = stepper.get_advance_tau();
-      EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        EXTRUDER_LOOP() {
+          editable.decimal = stepper.get_advance_tau();
+          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+        }
+      #endif
     #endif
   #endif
 
