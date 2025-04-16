@@ -848,7 +848,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     }
   }
 
-  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
+  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     const float rate_factor = inverse_accel * (STEPPER_TIMER_RATE);
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = rate_factor * float(cruise_rate - initial_rate),
@@ -864,11 +864,11 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   block->accelerate_before = accelerate_steps;
   block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     if (plateau_steps <= 0) block->cruise_time = 0;
     else block->cruise_time = (float)STEPPER_TIMER_RATE * (float)plateau_steps / (float)cruise_rate;
   #endif
-   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
+   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     block->acceleration_time = acceleration_time;
     block->deceleration_time = deceleration_time;
     block->cruise_rate = cruise_rate;
@@ -879,7 +879,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #endif
   block->final_rate = final_rate;
 
-  #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
@@ -2423,7 +2423,7 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          #if DISABLED(SMOOTH_LIN_ADV)
+          #if DISABLED(SMOOTH_LIN_ADVANCE)
             // Scale E acceleration so that it will be possible to jump to the advance speed.
             const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
             if (accel > max_accel_steps_per_s2) {
@@ -2460,7 +2460,7 @@ bool Planner::_populate_block(
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADV)
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
       block->use_advance_lead = use_advance_lead;
       block->e_step_ratio = (block->direction_bits.e ? 1 : -1) *
         float(block->steps.e) / block->step_event_count;
@@ -2709,8 +2709,8 @@ bool Planner::_populate_block(
       }
     #endif
 
-    // In the SMOOTH_LIN_ADV case, the extra jerk will be applied by the residual curent_la_step_rate.
-    #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+    // In the SMOOTH_LIN_ADVANCE case, the extra jerk will be applied by the residual curent_la_step_rate.
+    #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
       // perform well; it takes more time/effort to push/melt filament than the reverse).

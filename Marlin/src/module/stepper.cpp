@@ -256,7 +256,7 @@ uint32_t Stepper::advance_divisor = 0,
 #if ENABLED(LIN_ADVANCE)
   hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
               Stepper::la_interval = LA_ADV_NEVER;
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t  Stepper::curr_step_rate, // needed for the new LA algo
               Stepper::curr_timer_tick = 0;
   #else
@@ -1526,7 +1526,7 @@ void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
 
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     static hal_timer_t smoothLinAdvISR = 0;
   #endif
 
@@ -1603,7 +1603,7 @@ void Stepper::isr() {
       // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
       if (!nextMainISR) nextMainISR = block_phase_isr();  // Manage acc/deceleration, get next block
-      #if ENABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         if (!smoothLinAdvISR) smoothLinAdvISR = smooth_lin_adv_isr();  // Manage la
       #endif
 
@@ -1621,7 +1621,7 @@ void Stepper::isr() {
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
-      TERN_(SMOOTH_LIN_ADV, NOMORE(interval, smoothLinAdvISR));          // Come back early for Linear Advance rate update?
+      TERN_(SMOOTH_LIN_ADVANCE, NOMORE(interval, smoothLinAdvISR));          // Come back early for Linear Advance rate update?
       TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
       //
@@ -1634,7 +1634,7 @@ void Stepper::isr() {
       nextMainISR -= interval;
       TERN_(HAS_ZV_SHAPING, ShapingQueue::decrement_delays(interval));
       TERN_(LIN_ADVANCE, if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval);
-      TERN_(SMOOTH_LIN_ADV, if (smoothLinAdvISR != LA_ADV_NEVER) smoothLinAdvISR -= interval);
+      TERN_(SMOOTH_LIN_ADVANCE, if (smoothLinAdvISR != LA_ADV_NEVER) smoothLinAdvISR -= interval);
       TERN_(BABYSTEPPING, if (nextBabystepISR != BABYSTEP_NEVER) nextBabystepISR -= interval);
 
     } // standard motion control
@@ -2016,7 +2016,7 @@ void Stepper::pulse_phase_isr() {
         PULSE_PREP(E);
 
         #if ENABLED(LIN_ADVANCE)
-          #if ENABLED(SMOOTH_LIN_ADV)
+          #if ENABLED(SMOOTH_LIN_ADVANCE)
             // extruder steps are exclusively managed by the LA isr
             step_needed.e = false;
           #else
@@ -2477,7 +2477,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
             la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
@@ -2506,7 +2506,7 @@ hal_timer_t Stepper::block_phase_isr() {
             else cutter.apply_power(0);
           }
         #endif
-        TERN_(SMOOTH_LIN_ADV, curr_step_rate = acc_step_rate;)
+        TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = acc_step_rate;)
       }
       // Are we in Deceleration phase ?
       else if (step_events_completed >= decelerate_start) {
@@ -2543,7 +2543,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
@@ -2581,7 +2581,7 @@ hal_timer_t Stepper::block_phase_isr() {
             }
           }
         #endif
-        TERN_(SMOOTH_LIN_ADV, curr_step_rate = step_rate;)
+        TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = step_rate;)
       }
       else {  // Must be in cruise phase otherwise
 
@@ -2591,14 +2591,14 @@ hal_timer_t Stepper::block_phase_isr() {
           ticks_nominal = calc_multistep_timer_interval(current_block->nominal_rate << oversampling_factor);
           // Prepare for deceleration
           IF_DISABLED(S_CURVE_ACCELERATION, acc_step_rate = current_block->nominal_rate);
-          TERN_(SMOOTH_LIN_ADV, curr_step_rate = current_block->nominal_rate;)
+          TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
           #if ENABLED(NONLINEAR_EXTRUSION)
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
           #endif
 
-          #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+          #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
             if (la_active)
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
@@ -2734,7 +2734,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Initialize Bresenham delta errors to 1/2
       delta_error = -int32_t(step_event_count);
-      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
         la_delta_error = delta_error;
       #endif
 
@@ -2786,7 +2786,7 @@ hal_timer_t Stepper::block_phase_isr() {
       E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
-      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;
@@ -2873,7 +2873,7 @@ hal_timer_t Stepper::block_phase_isr() {
       #endif
 
       #if ENABLED(LIN_ADVANCE)
-        #if ENABLED(SMOOTH_LIN_ADV)
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
           curr_timer_tick = 0;
         #else
           if (la_active) {
@@ -2890,7 +2890,7 @@ hal_timer_t Stepper::block_phase_isr() {
 }
 
 #if ENABLED(LIN_ADVANCE)
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     float Stepper::extruder_advance_TAU,
           Stepper::extruder_advance_TAU_TICKS,
           Stepper::extruder_advance_ALPHA;
@@ -3047,7 +3047,7 @@ hal_timer_t Stepper::block_phase_isr() {
     // Apply Bresenham algorithm so that linear advance can piggy back on
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
-    #if ENABLED(SMOOTH_LIN_ADV)
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
       constexpr bool e_step_needed = true;
     #else
       la_delta_error += la_dividend;
@@ -3056,7 +3056,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
     if (e_step_needed) {
       count_position.e += count_direction.e;
-      #if DISABLED(SMOOTH_LIN_ADV)
+      #if DISABLED(SMOOTH_LIN_ADVANCE)
         la_advance_steps += count_direction.e;
         la_delta_error -= advance_divisor;
       #endif

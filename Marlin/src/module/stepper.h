@@ -351,7 +351,7 @@ class Stepper {
       static constexpr bool adaptive_step_smoothing_enabled = true;
     #endif
 
-    #if ENABLED(SMOOTH_LIN_ADV)
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
       static void set_advance_tau(const float tau) {
         extruder_advance_TAU = tau;
         extruder_advance_TAU_TICKS = tau * (STEPPER_TIMER_RATE);
@@ -448,7 +448,7 @@ class Stepper {
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
                          la_interval;       // Interval between ISR calls for LA
-      #if ENABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,    // Current tick relative to block start
                         curr_step_rate;     // Current motion step rate
       #else
@@ -458,7 +458,7 @@ class Stepper {
         static bool     la_active;          // Whether linear advance is used on the present segment.
       #endif
 
-      #if ENABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         static float  extruder_advance_TAU,       // The smoothing time, which is also the lookahead
                                                   // time of the smoother.
                       extruder_advance_TAU_TICKS, // Same as extruder_advance_TAU but in in stepper timer ticks.
@@ -530,7 +530,7 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
       static void advance_isr();
-      #if ENABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         static void set_la_interval(const int32_t rate);
         static hal_timer_t smooth_lin_adv_isr();
       #endif
@@ -588,7 +588,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      #if (DISABLED(SMOOTH_LIN_ADV))
+      #if (DISABLED(SMOOTH_LIN_ADVANCE))
         TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
       #endif
     }

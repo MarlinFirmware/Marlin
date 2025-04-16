@@ -851,11 +851,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   /**
    * Smooth Linear Advance
    */
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     #if DISTINCT_E > 1
-      #error "SMOOTH_LIN_ADV is not compatible with multiple extruders."
+      #error "SMOOTH_LIN_ADVANCE is not compatible with multiple extruders."
     #elif DISABLED(CPU_32_BIT)
-      #error "SMOOTH_LIN_ADV requires a 32-bit CPU."
+      #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
     #elif ENABLED(INPUT_SHAPING_E_SYNC) && NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif

@@ -1572,7 +1572,7 @@ void MarlinSettings::postprocess() {
 
       _FIELD_TEST(stepper_extruder_advance_TAU);
 
-      #if ENABLED(SMOOTH_LIN_ADV)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         EEPROM_WRITE(stepper.get_advance_tau());
       #else
         EEPROM_WRITE(0);
@@ -2676,7 +2676,7 @@ void MarlinSettings::postprocess() {
             COPY(planner.extruder_advance_K, extruder_advance_K);
         #endif
 
-        #if ENABLED(SMOOTH_LIN_ADV)
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
           _FIELD_TEST(stepper_extruder_advance_TAU);
           float tau;
           EEPROM_READ(tau);
@@ -3735,7 +3735,7 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     stepper.set_advance_tau(ADVANCE_TAU);
   #endif
 

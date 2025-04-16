@@ -43,7 +43,7 @@
   #define JD_USE_LOOKUP_TABLE
 #endif
 
-#if ENABLED(SMOOTH_LIN_ADV)
+#if ENABLED(SMOOTH_LIN_ADVANCE)
   #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to gaussian smoothing between 3 and 7
   #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) //HZ
 #endif
@@ -245,11 +245,11 @@ typedef struct PlannerBlock {
   uint32_t accelerate_before,               // The index of the step event where cruising starts
            decelerate_start;                // The index of the step event on which to start decelerating
 
-  #if ENABLED(SMOOTH_LIN_ADV)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t cruise_time;                   // Cruise time in STEP timer counts
     float e_step_ratio;
   #endif
-  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADV)
+  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
              acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
              deceleration_time;
@@ -265,7 +265,7 @@ typedef struct PlannerBlock {
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADV)
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
       bool use_advance_lead;
     #else
       uint32_t la_advance_rate;               // The rate at which steps are added whilst accelerating
