@@ -869,14 +869,14 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     block->acceleration_time = acceleration_time;
     block->deceleration_time = deceleration_time;
-    #if ENABLED(S_CURVE_ACCELERATION)
-      block->acceleration_time_inverse = acceleration_time_inverse;
-      block->deceleration_time_inverse = deceleration_time_inverse;
-    #endif
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      block->cruise_time = plateau_steps > 0 ? float(plateau_steps) * float(STEPPER_TIMER_RATE) / float(cruise_rate) : 0;
-    #endif
     block->cruise_rate = cruise_rate;
+  #endif
+  #if ENABLED(S_CURVE_ACCELERATION)
+    block->acceleration_time_inverse = acceleration_time_inverse;
+    block->deceleration_time_inverse = deceleration_time_inverse;
+  #endif
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    block->cruise_time = plateau_steps > 0 ? float(plateau_steps) * float(STEPPER_TIMER_RATE) / float(cruise_rate) : 0;
   #endif
 
   #if HAS_ROUGH_LIN_ADVANCE
@@ -2424,17 +2424,17 @@ bool Planner::_populate_block(
         if (e_D_ratio > 3.0f)
           use_advance_lead = false;
         else {
-          #if DISABLED(SMOOTH_LIN_ADVANCE)
+          #if HAS_ROUGH_LIN_ADVANCE
             // Scale E acceleration so that it will be possible to jump to the advance speed.
             const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
             if (accel > max_accel_steps_per_s2) {
               accel = max_accel_steps_per_s2;
-              if (ENABLED(LA_DEBUG)) SERIAL_ECHOLNPGM("Acceleration limited.");
+              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
             }
           #endif
         }
       }
-    #endif
+    #endif // LIN_ADVANCE
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
@@ -2475,10 +2475,9 @@ bool Planner::_populate_block(
       for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
         block->la_scaling++;
 
-      #if ENABLED(LA_DEBUG)
-        if (block->la_advance_rate >> block->la_scaling > 10000)
+      // Output debugging if the rate gets very high
+      if (TERN0(LA_DEBUG, DEBUGGING(INFO)) && block->la_advance_rate >> block->la_scaling > 10000)
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
-      #endif
     }
   #endif // LIN_ADVANCE
 

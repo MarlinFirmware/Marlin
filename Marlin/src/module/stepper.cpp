@@ -3054,7 +3054,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
     if (e_step_needed) {
       count_position.e += count_direction.e;
-      #if DISABLED(SMOOTH_LIN_ADVANCE)
+      #if HAS_ROUGH_LIN_ADVANCE
         la_advance_steps += count_direction.e;
         la_delta_error -= advance_divisor;
       #endif
