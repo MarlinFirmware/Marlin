@@ -72,7 +72,7 @@ MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPi
 #endif
 
 void MarlinSerial::begin(unsigned long baudrate, uint16_t config) {
-  UsartSerial::begin(baudrate, config);
+  UsartSerial::begin(baudrate, config, false);
   #if DISABLED(SERIAL_DMA)
     UsartSerial::begin(baudrate, config);
     #if ENABLED(EMERGENCY_PARSER)
