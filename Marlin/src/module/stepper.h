@@ -585,9 +585,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      #if DISABLED(SMOOTH_LIN_ADVANCE)
-        TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
-      #endif
+      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers

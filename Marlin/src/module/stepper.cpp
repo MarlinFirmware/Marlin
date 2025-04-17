@@ -2477,7 +2477,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(acc_step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+        #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps < current_block->max_adv_steps ? current_block->la_advance_rate : 0;
             la_interval = calc_timer_interval((acc_step_rate + la_step_rate) >> current_block->la_scaling);
@@ -2543,7 +2543,7 @@ hal_timer_t Stepper::block_phase_isr() {
           calc_nonlinear_e(step_rate << oversampling_factor);
         #endif
 
-        #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+        #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
             const uint32_t la_step_rate = la_advance_steps > current_block->final_adv_steps ? current_block->la_advance_rate : 0;
             if (la_step_rate != step_rate) {
@@ -2598,7 +2598,7 @@ hal_timer_t Stepper::block_phase_isr() {
             calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
           #endif
 
-          #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+          #if HAS_ROUGH_LIN_ADVANCE
             if (la_active)
               la_interval = calc_timer_interval(current_block->nominal_rate >> current_block->la_scaling);
           #endif
@@ -2734,9 +2734,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Initialize Bresenham delta errors to 1/2
       delta_error = -int32_t(step_event_count);
-      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
-        la_delta_error = delta_error;
-      #endif
+      TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
 
       // Calculate Bresenham dividends and divisors
       advance_dividend = (current_block->steps << 1).asLong();
@@ -2786,7 +2784,7 @@ hal_timer_t Stepper::block_phase_isr() {
       E_TERN_(stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
-      #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+      #if HAS_ROUGH_LIN_ADVANCE
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
           if (stepper_extruder != last_moved_extruder) la_advance_steps = 0;

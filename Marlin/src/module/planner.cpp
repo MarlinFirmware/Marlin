@@ -879,7 +879,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
     block->cruise_rate = cruise_rate;
   #endif
 
-  #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #if HAS_ROUGH_LIN_ADVANCE
     if (block->la_advance_rate) {
       const float comp = extruder_advance_K[E_INDEX_N(block->extruder)] * block->steps.e / block->step_event_count;
       block->max_adv_steps = cruise_rate * comp;
@@ -2708,8 +2708,8 @@ bool Planner::_populate_block(
       }
     #endif
 
-    // In the SMOOTH_LIN_ADVANCE case, the extra jerk will be applied by the residual curent_la_step_rate.
-    #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+    // In the SMOOTH_LIN_ADVANCE case, the extra jerk will be applied by the residual current la_step_rate.
+    #if HAS_ROUGH_LIN_ADVANCE
       // Advance affects E_AXIS speed and therefore jerk. Add a speed correction whenever
       // LA is turned OFF. No correction is applied when LA is turned ON (because it didn't
       // perform well; it takes more time/effort to push/melt filament than the reverse).
@@ -2724,7 +2724,7 @@ bool Planner::_populate_block(
       // Prepare for next segment.
       previous_advance_rate = block->la_advance_rate;
       previous_e_mm_per_step = mm_per_step[E_AXIS_N(extruder)];
-    #endif
+    #endif // HAS_ROUGH_LIN_ADVANCE
 
     xyze_float_t speed_diff = current_speed;
     float vmax_junction;
