@@ -257,7 +257,7 @@ uint32_t Stepper::advance_divisor = 0,
   hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
               Stepper::la_interval = LA_ADV_NEVER;
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    uint32_t  Stepper::curr_step_rate, // needed for the new LA algo
+    uint32_t  Stepper::curr_step_rate,
               Stepper::curr_timer_tick = 0;
   #else
     int32_t   Stepper::la_delta_error = 0,
@@ -2951,7 +2951,7 @@ hal_timer_t Stepper::block_phase_isr() {
     #endif
 
     float lookahead(uint32_t t) {
-      for (uint8_t i = 0; block_t * block = Planner::get_future_block(i); i++) {
+      for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (t <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0.0f;

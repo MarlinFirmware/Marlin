@@ -775,7 +775,7 @@ block_t* Planner::get_current_block() {
   return nullptr;
 }
 
-block_t* Planner::get_future_block(uint8_t offset) {
+block_t* Planner::get_future_block(const uint8_t offset) {
   const uint8_t nr_moves = movesplanned();
   if (nr_moves <= offset) return nullptr;
   block_t * const block = &block_buffer[block_inc_mod(block_buffer_tail, offset)];
@@ -788,7 +788,7 @@ block_t* Planner::get_future_block(uint8_t offset) {
  * by the provided factors. If entry_factor is 0 don't change the initial_rate.
  * Assumes that the implied initial_rate and final_rate are no less than
  * sqrt(block->acceleration_steps_per_s2 / 2). This is ensured through
- * minimum_planner_speed_sqr / min_entry_speed_sqr though note there's one
+ * minimum_planner_speed_sqr / min_entry_speed_sqr - but there's one
  * exception in recalculate_trapezoids().
  *
  * ############ VERY IMPORTANT ############
@@ -864,20 +864,20 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
   block->accelerate_before = accelerate_steps;
   block->decelerate_start = block->step_event_count - decelerate_steps;
   block->initial_rate = initial_rate;
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    if (plateau_steps <= 0) block->cruise_time = 0;
-    else block->cruise_time = (float)STEPPER_TIMER_RATE * (float)plateau_steps / (float)cruise_rate;
-  #endif
-   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
+  block->final_rate = final_rate;
+
+  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     block->acceleration_time = acceleration_time;
     block->deceleration_time = deceleration_time;
+    #if ENABLED(S_CURVE_ACCELERATION)
+      block->acceleration_time_inverse = acceleration_time_inverse;
+      block->deceleration_time_inverse = deceleration_time_inverse;
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      block->cruise_time = plateau_steps > 0 ? float(plateau_steps) * float(STEPPER_TIMER_RATE) / float(cruise_rate) : 0;
+    #endif
     block->cruise_rate = cruise_rate;
   #endif
-   #if ENABLED(S_CURVE_ACCELERATION)
-    block->acceleration_time_inverse = acceleration_time_inverse;
-    block->deceleration_time_inverse = deceleration_time_inverse;
-  #endif
-  block->final_rate = final_rate;
 
   #if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
     if (block->la_advance_rate) {
@@ -2458,33 +2458,30 @@ bool Planner::_populate_block(
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = uint32_t(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
 
-  #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      block->use_advance_lead = use_advance_lead;
-      block->e_step_ratio = (block->direction_bits.e ? 1 : -1) *
-        float(block->steps.e) / block->step_event_count;
-    #else
-      block->la_advance_rate = 0;
-      block->la_scaling = 0;
-      if (use_advance_lead) {
-        // the Bresenham algorithm will convert this step rate into extruder steps
-        block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    block->use_advance_lead = use_advance_lead;
+    block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * float(block->steps.e) / block->step_event_count;
+  #elif ENABLED(LIN_ADVANCE)
+    block->la_advance_rate = 0;
+    block->la_scaling = 0;
+    if (use_advance_lead) {
+      // The Bresenham algorithm will convert this step rate into extruder steps
+      block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
 
-        // reduce LA ISR frequency by calling it only often enough to ensure that there will
-        // never be more than four extruder steps per call
-        for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
-          block->la_scaling++;
+      // Reduce LA ISR frequency by calling it only often enough to ensure that there will
+      // never be more than four extruder steps per call
+      for (uint32_t dividend = block->steps.e << 1; dividend <= (block->step_event_count >> 2); dividend <<= 1)
+        block->la_scaling++;
 
-        #if ENABLED(LA_DEBUG)
-          if (block->la_advance_rate >> block->la_scaling > 10000)
-            SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
-        #endif
-      }
-    #endif
-  #endif
+      #if ENABLED(LA_DEBUG)
+        if (block->la_advance_rate >> block->la_scaling > 10000)
+          SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
+      #endif
+    }
+  #endif // LIN_ADVANCE
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
   // accelerating at the current limit. Since we can only change the speed every step this is a

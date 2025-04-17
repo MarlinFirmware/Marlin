@@ -44,8 +44,8 @@
 #endif
 
 #if ENABLED(SMOOTH_LIN_ADVANCE)
-  #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to gaussian smoothing between 3 and 7
-  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) //HZ
+  #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to Gaussian smoothing between 3 and 7
+  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) // Hz
 #endif
 
 #include "motion.h"
@@ -268,10 +268,10 @@ typedef struct PlannerBlock {
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       bool use_advance_lead;
     #else
-      uint32_t la_advance_rate;               // The rate at which steps are added whilst accelerating
-      uint8_t  la_scaling;                    // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
-      uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
-               final_adv_steps;               // Advance steps for exit speed pressure
+      uint32_t la_advance_rate;             // The rate at which steps are added whilst accelerating
+      uint8_t  la_scaling;                  // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
+      uint16_t max_adv_steps,               // Max advance steps to get cruising speed pressure
+               final_adv_steps;             // Advance steps for exit speed pressure
     #endif
   #endif
 
@@ -1057,12 +1057,12 @@ class Planner {
     static block_t* get_current_block();
 
     /**
-     * Get an planned upcomming block from the buffer.
-     * Return nullptr if the buffer doesn't have the `current + offset` yet .
+     * Get a planned upcoming block from the buffer.
+     * Return nullptr if the buffer doesn't have the `current + offset` yet.
      *
      * WARNING: Called from Stepper ISR context!
      */
-    static block_t* get_future_block(uint8_t offset);
+    static block_t* get_future_block(const uint8_t offset);
 
     /**
      * "Release" the current block so its slot can be reused.
