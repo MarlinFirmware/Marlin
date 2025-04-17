@@ -500,9 +500,11 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[DISTINCT_E];         // M900 K  planner.extruder_advance_K
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    float stepper_extruder_advance_tau[DISTINCT_E];     // M900 U  stepper.extruder_advance_tau
+  #if ENABLED(LIN_ADVANCE)
+    float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      float stepper_extruder_advance_tau[DISTINCT_E];   // M900 U  stepper.extruder_advance_tau
+    #endif
   #endif
 
   //
@@ -1557,17 +1559,13 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
     {
-      _FIELD_TEST(planner_extruder_advance_K);
-
       #if ENABLED(LIN_ADVANCE)
+        _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_WRITE(planner.extruder_advance_K);
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           _FIELD_TEST(stepper_extruder_advance_tau);
-          EEPROM_WRITE(stepper.get_advance_tau());
+          EEPROM_WRITE(stepper.extruder_advance_tau);
         #endif
-      #else
-        dummyf = 0;
-        for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
       #endif
     }
 
@@ -2641,17 +2639,17 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
       {
-        float extruder_advance_K[DISTINCT_E];
-        _FIELD_TEST(planner_extruder_advance_K);
-        EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
+          float extruder_advance_K[DISTINCT_E];
+          _FIELD_TEST(planner_extruder_advance_K);
+          EEPROM_READ(extruder_advance_K);
           if (!validating)
             COPY(planner.extruder_advance_K, extruder_advance_K);
           #if ENABLED(SMOOTH_LIN_ADVANCE)
             _FIELD_TEST(stepper_extruder_advance_tau);
-            float tau;
+            float tau[DISTINCT_E];
             EEPROM_READ(tau);
-            if (!validating) stepper.set_advance_tau(tau);
+            if (!validating) EXTRUDER_LOOP() stepper.set_advance_tau(tau[e], e);
           #endif
         #endif
       }

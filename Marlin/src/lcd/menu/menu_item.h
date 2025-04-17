@@ -276,6 +276,14 @@ class MenuItem_bool : public MenuEditItemBase {
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *
+ * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
+ * _MENU_ITEM_F(TYPE, V...)              Item with optional data
+ * _MENU_ITEM_N_S_F(TYPE, N, S, V...)    Item with index value, C-string, and optional data
+ * _MENU_ITEM_N_f_F(TYPE, N, f, V...)    Item with index value and F-string
+ * _MENU_ITEM_N_F(TYPE, N, V...)         Item with index value
+ * _MENU_ITEM_S_F(TYPE, S, V...)         Item with a unique string
+ * _MENU_ITEM_f_F(TYPE, f, V...)         Item with a unique F-string
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)

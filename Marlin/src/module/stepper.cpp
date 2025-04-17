@@ -2891,9 +2891,9 @@ hal_timer_t Stepper::block_phase_isr() {
 
 #if ENABLED(LIN_ADVANCE)
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    float Stepper::extruder_advance_tau,
-          Stepper::extruder_advance_tau_ticks,
-          Stepper::extruder_advance_alpha;
+    float Stepper::extruder_advance_tau[DISTINCT_E],
+          Stepper::extruder_advance_tau_ticks[DISTINCT_E],
+          Stepper::extruder_advance_alpha[DISTINCT_E];
 
     void Stepper::set_la_interval(const int32_t rate) {
       if (rate == 0) {
@@ -2986,7 +2986,7 @@ hal_timer_t Stepper::block_phase_isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       float target_adv_steps = 0;
       if (current_block) {
-        uint32_t t = extruder_advance_tau_ticks + curr_timer_tick;
+        const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
         target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
       }
       else {
@@ -3000,7 +3000,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static float smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        la_step_rate = extruder_advance_alpha * la_step_rate + (1 - extruder_advance_alpha) * smoothed_vals[i];
+        la_step_rate = extruder_advance_alpha[0] * la_step_rate + (1 - extruder_advance_alpha[0]) * smoothed_vals[i];
         smoothed_vals[i] = la_step_rate;
       }
       const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;
