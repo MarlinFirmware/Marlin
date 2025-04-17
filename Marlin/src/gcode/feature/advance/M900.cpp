@@ -64,7 +64,7 @@ void GcodeSuite::M900() {
   const float oldK = newK;
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    const float oldU = stepper.extruder_advance_tau[E_INDEX_N(tool_index)];
+    const float oldU = stepper.get_advance_tau(E_INDEX_N(tool_index));
     float newU = oldU;
   #endif
 
@@ -158,7 +158,7 @@ void GcodeSuite::M900() {
         SERIAL_EOL();
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           SERIAL_ECHOPGM("Advance TAU");
-          EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), stepper.extruder_advance_tau[e]);
+          EXTRUDER_LOOP() SERIAL_ECHO(C(' '), C('0' + e), C(':'), stepper.get_advance_tau(e));
           SERIAL_EOL();
         #endif
       #endif
@@ -184,7 +184,7 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
       report_echo_start(forReplay);
       SERIAL_ECHOPGM("  M900 T", e, " K", planner.extruder_advance_K[e]);
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        SERIAL_ECHOPGM(" U", stepper.extruder_advance_tau[e]);
+        SERIAL_ECHOPGM(" U", stepper.get_advance_tau(e));
       #endif
       SERIAL_EOL();
     }

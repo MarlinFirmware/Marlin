@@ -104,6 +104,10 @@ void menu_backlash();
 #endif
 
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #define HAS_ADV_FILAMENT_MENU 1
+#endif
+
+#if HAS_ADV_FILAMENT_MENU
   //
   // Advanced Settings > Filament
   //
@@ -114,21 +118,22 @@ void menu_backlash();
     #if ENABLED(LIN_ADVANCE)
       #if DISTINCT_E < 2
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-        #if ENABLED(SMOOTH_LIN_ADVANCE)
-          editable.decimal = stepper.get_advance_tau();
-          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
-        #endif
       #else
         EXTRUDER_LOOP()
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
-        #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #endif
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        #if DISTINCT_E < 2
+          editable.decimal = stepper.get_advance_tau();
+          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+        #else
           EXTRUDER_LOOP() {
-            editable.decimal = stepper.get_advance_tau();
-            EDIT_ITEM_N(float54, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+            editable.decimal = stepper.get_advance_tau(e);
+            EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
           }
         #endif
       #endif
-    #endif
+    #endif // LIN_ADVANCE
 
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
@@ -179,7 +184,7 @@ void menu_backlash();
     END_MENU();
   }
 
-#endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+#endif // HAS_ADV_FILAMENT_MENU
 
 //
 // Advanced Settings > Temperature helpers
@@ -739,22 +744,25 @@ void menu_advanced_settings() {
     SUBMENU(MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HAS_ADV_FILAMENT_MENU
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
-  #elif ENABLED(LIN_ADVANCE)
+  #endif
+
+  #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
     #if DISTINCT_E < 2
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        editable.decimal = stepper.get_advance_tau();
-        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
-      #endif
     #else
       EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if DISTINCT_E < 2
+        editable.decimal = stepper.get_advance_tau();
+        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #else
         EXTRUDER_LOOP() {
-          editable.decimal = stepper.get_advance_tau();
-          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+          editable.decimal = stepper.get_advance_tau(e);
+          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
         }
       #endif
     #endif

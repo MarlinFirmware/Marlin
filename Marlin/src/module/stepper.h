@@ -295,6 +295,7 @@ constexpr ena_mask_t enable_overlap[] = {
 class Stepper {
   friend class Max7219;
   friend class FTMotion;
+  friend class MarlinSettings;
   friend void stepperTask(void *);
 
   public:
@@ -352,13 +353,13 @@ class Stepper {
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static void set_advance_tau(const float tau) {
-        extruder_advance_tau = tau;
-        extruder_advance_tau_ticks = tau * (STEPPER_TIMER_RATE); // i.e., <= STEPPER_TIMER_RATE / 2
+      static void set_advance_tau(const_float_t tau, const uint8_t e=E_INDEX_N(active_extruder)) {
+        extruder_advance_tau[e] = tau;
+        extruder_advance_tau_ticks[e] = tau * (STEPPER_TIMER_RATE); // i.e., <= STEPPER_TIMER_RATE / 2
         // α=1−exp(−dt/τ)
-        extruder_advance_alpha = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks);
+        extruder_advance_alpha[e] = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[e]);
       }
-      static float get_advance_tau() { return extruder_advance_tau; }
+      static float get_advance_tau(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_tau[e]; }
     #endif
 
   private:
