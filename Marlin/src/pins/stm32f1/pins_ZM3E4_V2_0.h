@@ -276,7 +276,6 @@
 #define WIFI_EN                             PC14
 
 #if ENABLED(ZONESTAR_12864LCD)
-  #define LCDSCREEN_NAME "ZONESTAR LCD12864"
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_04_PIN  // 8 SCK make sure for zonestar zm3e4!
@@ -286,7 +285,6 @@
   #define BTN_EN2                    EXP1_08_PIN
   #define BTN_ENC                    EXP1_07_PIN
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define LCDSCREEN_NAME "REPRAPDISCOUNT LCD12864"
   #define LCD_PINS_RS                EXP2_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP2_06_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP2_04_PIN  // 8 SCK make sure for zonestar zm3e4!
@@ -297,7 +295,6 @@
   #define BTN_ENC                    EXP2_07_PIN
 #elif ENABLED(ZONESTAR_DWIN_LCD)
   // Connect to EXP2 connector
-  #define LCDSCREEN_NAME "ZONESTAR DWIN LCD"
   #define BEEPER_PIN                 EXP2_05_PIN  // PE11
   #define KILL_PIN                          -1    // EXP1_01_PIN
   #define BTN_EN2                    EXP2_07_PIN  // PE8

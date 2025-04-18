@@ -43,6 +43,10 @@ bool SpindleLaser::enable_state;                                      // Virtual
 uint8_t SpindleLaser::power,                                          // Actual power output 0-255 ocr or "0 = off" > 0 = "on"
         SpindleLaser::last_power_applied; // = 0                      // Basic power state tracking
 
+#if HAS_SPINDLE_ACCELERATION
+  uint32_t SpindleLaser::acceleration_spindle_deg_per_s2;             // (°/s/s) Spindle acceleration. Initialized by settings.load
+#endif
+
 #if ENABLED(LASER_FEATURE)
   cutter_test_pulse_t SpindleLaser::testPulse = 50;                   // (ms) Test fire pulse default duration
   uint8_t SpindleLaser::last_block_power; // = 0                      // Track power changes for dynamic inline power
@@ -100,7 +104,22 @@ void SpindleLaser::init() {
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
     #endif
-    hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #if HAS_SPINDLE_ACCELERATION
+      const int16_t diff = ocr - last_power_applied;
+      const uint8_t abs_diff = ABS(diff);
+      uint8_t current_ocr = last_power_applied;
+      // Duration between ocr increments. SPEED_POWER_MAX is in RPM.
+      const millis_t duration = (float(SPEED_POWER_MAX) * (60000.f / 2550.f) / float(acceleration_spindle_deg_per_s2)) * abs_diff;
+      millis_t next_ocr_change = millis() + duration;
+      while (current_ocr != ocr) {
+        while (PENDING(millis(), next_ocr_change)) idle();
+        current_ocr += diff > 0 ? 1 : -1;
+        hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), current_ocr ^ SPINDLE_LASER_PWM_OFF);
+        next_ocr_change += duration;
+      }
+    #else
+      hal.set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #endif
   }
 
   void SpindleLaser::set_ocr(const uint8_t ocr) {
@@ -111,10 +130,10 @@ void SpindleLaser::init() {
   }
 
   void SpindleLaser::ocr_off() {
+    _set_ocr(0);
     #if PIN_EXISTS(SPINDLE_LASER_ENA)
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE); // Cutter OFF
     #endif
-    _set_ocr(0);
   }
 #endif // SPINDLE_LASER_USE_PWM
 
@@ -127,9 +146,8 @@ void SpindleLaser::init() {
  */
 void SpindleLaser::apply_power(const uint8_t opwr) {
   if (enabled() || opwr == 0) {                                   // 0 check allows us to disable where no ENA pin exists
-    // Test and set the last power used to improve performance
+    // Test the last power used to improve performance
     if (opwr == last_power_applied) return;
-    last_power_applied = opwr;
     // Handle PWM driven or just simple on/off
     #if ENABLED(SPINDLE_LASER_USE_PWM)
       if (CUTTER_UNIT_IS(RPM) && unitPower == 0)
@@ -146,6 +164,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       WRITE(SPINDLE_LASER_ENA_PIN, enabled() ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
       isReadyForUI = true;
     #endif
+    last_power_applied = opwr;
   }
   else {
     #if PIN_EXISTS(SPINDLE_LASER_ENA)

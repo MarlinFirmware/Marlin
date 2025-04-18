@@ -130,7 +130,7 @@ void ChironTFT::idleLoop()  {
 void ChironTFT::printerKilled(FSTR_P const error, FSTR_P const component)  {
   tftSendLn(AC_msg_kill_lcd);
   #if ACDEBUG(AC_MARLIN)
-    DEBUG_ECHOLNPGM("printerKilled()\nerror: ", error , "\ncomponent: ", component);
+    DEBUG_ECHOLNPGM("printerKilled()\nerror: ", error, "\ncomponent: ", component);
   #endif
 }
 
@@ -875,7 +875,7 @@ void ChironTFT::panelProcess(uint8_t req) {
               const float currval = getMeshPoint(pos);
               setMeshPoint(pos, constrain(currval + Zshift, AC_LOWEST_MESHPOINT_VAL, 2));
               #if ACDEBUG(AC_INFO)
-                DEBUG_ECHOLNPGM("Change mesh point X", x," Y",y ," from ", currval, " to ", getMeshPoint(pos) );
+                DEBUG_ECHOLNPGM("Change mesh point X", x," Y", y," from ", currval, " to ", getMeshPoint(pos) );
               #endif
             }
             const float currZOffset = getZOffset_mm();
