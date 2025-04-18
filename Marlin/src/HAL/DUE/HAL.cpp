@@ -118,10 +118,9 @@ void watchdogSetup() {
     uint32_t value =
       WDT_MR_WDV(timeout) |               // With the specified timeout
       WDT_MR_WDD(timeout) |               // and no invalid write window
-    #if !(SAMV70 || SAMV71 || SAME70 || SAMS70)
-      WDT_MR_WDRPROC   |                  // WDT fault resets processor only - We want
+      //WDT_MR_WDRPROC   |                // WDT fault resets processor only - We want
                                           // to keep PIO controller state
-    #endif
+                                          // DO NOT Enable for Archim / Due boards as may cause hangs with IO state retained
       WDT_MR_WDDBGHLT  |                  // WDT stops in debug state.
       WDT_MR_WDIDLEHLT;                   // WDT stops in idle state.
 
