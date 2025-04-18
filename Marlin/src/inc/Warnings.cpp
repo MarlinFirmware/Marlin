@@ -954,7 +954,4 @@
   #if ENABLED(MIXING_EXTRUDER)
     #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
   #endif
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #warning "SMOOTH_LIN_ADVANCE together with S_CURVE_ACCELERATION is untested."
-  #endif
 #endif

@@ -2460,10 +2460,7 @@ bool Planner::_populate_block(
     block->acceleration_rate = uint32_t(accel * (float(1UL << 24) / (STEPPER_TIMER_RATE)));
   #endif
 
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    block->use_advance_lead = use_advance_lead;
-    block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * float(block->steps.e) / block->step_event_count;
-  #elif ENABLED(LIN_ADVANCE)
+  #if HAS_ROUGH_LIN_ADVANCE
     block->la_advance_rate = 0;
     block->la_scaling = 0;
     if (use_advance_lead) {
@@ -2479,7 +2476,10 @@ bool Planner::_populate_block(
       if (TERN0(LA_DEBUG, DEBUGGING(INFO)) && block->la_advance_rate >> block->la_scaling > 10000)
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
     }
-  #endif // LIN_ADVANCE
+  #elif ENABLED(SMOOTH_LIN_ADVANCE)
+    block->use_advance_lead = use_advance_lead;
+    block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * float(block->steps.e) / block->step_event_count;
+  #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
   // accelerating at the current limit. Since we can only change the speed every step this is a

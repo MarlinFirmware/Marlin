@@ -256,14 +256,14 @@ uint32_t Stepper::advance_divisor = 0,
 #if ENABLED(LIN_ADVANCE)
   hal_timer_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
               Stepper::la_interval = LA_ADV_NEVER;
-  #if ENABLED(SMOOTH_LIN_ADVANCE)
-    uint32_t  Stepper::curr_step_rate,
-              Stepper::curr_timer_tick = 0;
-  #else
+  #if HAS_ROUGH_LIN_ADVANCE
     int32_t   Stepper::la_delta_error = 0,
               Stepper::la_dividend = 0,
               Stepper::la_advance_steps = 0;
     bool      Stepper::la_active = false;
+  #else
+    uint32_t  Stepper::curr_step_rate,
+              Stepper::curr_timer_tick = 0;
   #endif
 #endif
 
@@ -1621,7 +1621,7 @@ void Stepper::isr() {
       TERN_(INPUT_SHAPING_Y, NOMORE(interval, ShapingQueue::peek_y()));   // Time until next input shaping echo for Y
       TERN_(INPUT_SHAPING_Z, NOMORE(interval, ShapingQueue::peek_z()));   // Time until next input shaping echo for Z
       TERN_(LIN_ADVANCE, NOMORE(interval, nextAdvanceISR));               // Come back early for Linear Advance?
-      TERN_(SMOOTH_LIN_ADVANCE, NOMORE(interval, smoothLinAdvISR));          // Come back early for Linear Advance rate update?
+      TERN_(SMOOTH_LIN_ADVANCE, NOMORE(interval, smoothLinAdvISR));       // Come back early for Linear Advance rate update?
       TERN_(BABYSTEPPING, NOMORE(interval, nextBabystepISR));             // Come back early for Babystepping?
 
       //
@@ -2014,20 +2014,18 @@ void Stepper::pulse_phase_isr() {
 
       #if ANY(HAS_E0_STEP, MIXING_EXTRUDER)
         PULSE_PREP(E);
+      #endif
 
-        #if ENABLED(LIN_ADVANCE)
-          #if ENABLED(SMOOTH_LIN_ADVANCE)
-            // extruder steps are exclusively managed by the LA isr
-            step_needed.e = false;
-          #else
-            if (la_active && step_needed.e) {
-              // don't actually step here, but do subtract movements steps
-              // from the linear advance step count
-              step_needed.e = false;
-              la_advance_steps--;
-            }
-          #endif
-        #endif
+      #if HAS_ROUGH_LIN_ADVANCE
+        if (la_active && step_needed.e) {
+          // don't actually step here, but do subtract movements steps
+          // from the linear advance step count
+          step_needed.e = false;
+          la_advance_steps--;
+        }
+      #elif ENABLED(SMOOTH_LIN_ADVANCE)
+        // Extruder steps are exclusively managed by the LA isr
+        step_needed.e = false;
       #endif
 
       #if HAS_ZV_SHAPING
@@ -2888,7 +2886,9 @@ hal_timer_t Stepper::block_phase_isr() {
 }
 
 #if ENABLED(LIN_ADVANCE)
+
   #if ENABLED(SMOOTH_LIN_ADVANCE)
+
     float Stepper::extruder_advance_tau[DISTINCT_E],
           Stepper::extruder_advance_tau_ticks[DISTINCT_E],
           Stepper::extruder_advance_alpha[DISTINCT_E];
@@ -2912,26 +2912,24 @@ hal_timer_t Stepper::block_phase_isr() {
     }
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE =
-        (SMOOTH_LIN_ADV_HZ / SHAPING_MIN_FREQ / 2.0f + 0.5f);
+
+      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
 
       typedef struct {
-          xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
-          uint16_t index;
+        xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
+        uint16_t index;
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
       void add_to_buffer(xy_float_t input) {
-        delayBuffer.buffer[delayBuffer.index] = input;
-        delayBuffer.index++;
-        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE) {
+        delayBuffer.buffer[delayBuffer.index++] = input;
+        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE)
           delayBuffer.index = 0;
-        }
       }
 
       xy_float_t lookback(shaping_time_t t /* in stepper timer ticks */) {
-        constexpr float ADV_TICKS_PER_STEPPER_TICKS = (float) SMOOTH_LIN_ADV_HZ / STEPPER_TIMER_RATE;
+        constexpr float ADV_TICKS_PER_STEPPER_TICKS = float(SMOOTH_LIN_ADV_HZ) / (STEPPER_TIMER_RATE);
         uint32_t delay_steps = t * ADV_TICKS_PER_STEPPER_TICKS  + 0.5f; // Convert time to steps
         uint16_t past_i;
         if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
@@ -2939,14 +2937,12 @@ hal_timer_t Stepper::block_phase_isr() {
           past_i = delayBuffer.index;
         }
         else {
-          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
-          if (past_i >= IS_COMPENSATION_BUFFER_SIZE) {
-            past_i -= IS_COMPENSATION_BUFFER_SIZE;
-          }
+          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps) % IS_COMPENSATION_BUFFER_SIZE;
         }
         return delayBuffer.buffer[past_i];
       }
-    #endif
+
+    #endif // INPUT_SHAPING_E_SYNC
 
     float lookahead(uint32_t t) {
       for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
@@ -2991,7 +2987,7 @@ hal_timer_t Stepper::block_phase_isr() {
         curr_step_rate = 0;
       }
       static float last_target_adv_steps = 0;
-      const float dt_inv = SMOOTH_LIN_ADV_HZ;
+      constexpr float dt_inv = SMOOTH_LIN_ADV_HZ;
       float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
@@ -3003,7 +2999,9 @@ hal_timer_t Stepper::block_phase_isr() {
       }
       const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;
       float total_step_rate = la_step_rate + planned_step_rate;
+
       #if ENABLED(INPUT_SHAPING_E_SYNC)
+
         xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
                    first_pulse_rate = xy_float_t({0, 0});
         float unshaped_rate_e = total_step_rate;
@@ -3031,25 +3029,26 @@ hal_timer_t Stepper::block_phase_isr() {
                     y = first_pulse_rate.y + second_pulse_rate.y;
 
         total_step_rate = unshaped_rate_e + x + y;
-      #endif
+
+      #endif // INPUT_SHAPING_E_SYNC
 
       set_la_interval(total_step_rate);
 
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
     }
-  #endif
+  #endif // SMOOTH_LIN_ADVANCE
 
   // Timer interrupt for E. LA_steps is set in the main routine
   void Stepper::advance_isr() {
     // Apply Bresenham algorithm so that linear advance can piggy back on
     // the acceleration and speed values calculated in block_phase_isr().
     // This helps keep LA in sync with, for example, S_CURVE_ACCELERATION.
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      constexpr bool e_step_needed = true;
-    #else
+    #if HAS_ROUGH_LIN_ADVANCE
       la_delta_error += la_dividend;
       const bool e_step_needed = la_delta_error >= 0;
+    #else
+      constexpr bool e_step_needed = true;
     #endif
 
     if (e_step_needed) {
