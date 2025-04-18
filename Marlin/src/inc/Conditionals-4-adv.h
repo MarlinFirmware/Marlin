@@ -53,6 +53,10 @@
     #undef NUM_SERVOS
     #define NUM_SERVOS INCREMENT(Z_PROBE_SERVO_NR)
   #endif
+  #if HAS_MAG_MOUNTED_SERVO_PROBE && NUM_SERVOS <= MAG_MOUNTED_PROBE_SERVO_NR
+    #undef NUM_SERVOS
+    #define NUM_SERVOS INCREMENT(MAG_MOUNTED_PROBE_SERVO_NR)
+  #endif
   #if ENABLED(CHAMBER_VENT) && NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
     #undef NUM_SERVOS
     #define NUM_SERVOS INCREMENT(CHAMBER_VENT_SERVO_NR)
@@ -1086,6 +1090,9 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
+  #if DEFAULT_ACCELERATION_SPINDLE
+    #define HAS_SPINDLE_ACCELERATION 1
+  #endif
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)
@@ -1292,7 +1299,7 @@
     #define MAXIMUM_STEPPER_RATE 150000
   #elif HAS_DRIVER(DRV8825)
     #define MAXIMUM_STEPPER_RATE 250000
-  #elif HAS_DRIVER(A4988)
+  #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
     #define MAXIMUM_STEPPER_RATE 500000
   #elif HAS_DRIVER(LV8729)
     #define MAXIMUM_STEPPER_RATE 1000000
@@ -1303,8 +1310,75 @@
   #endif
 #endif
 
+#if AXIS_IS_TMC(X)
+  #define X_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Y)
+  #define Y_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z)
+  #define Z_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(I)
+  #define I_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(J)
+  #define J_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(K)
+  #define K_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(U)
+  #define U_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(V)
+  #define V_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(W)
+  #define W_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(X2)
+  #define X2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Y2)
+  #define Y2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z2)
+  #define Z2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z3)
+  #define Z3_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(Z4)
+  #define Z4_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E0)
+  #define E0_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E1)
+  #define E1_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E2)
+  #define E2_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E3)
+  #define E3_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E4)
+  #define E4_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E5)
+  #define E5_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E6)
+  #define E6_IS_TRINAMIC 1
+#endif
+#if AXIS_IS_TMC(E7)
+  #define E7_IS_TRINAMIC 1
+#endif
+
 // Test for edge stepping on any axis
-#define AXIS_HAS_DEDGE(A) (ENABLED(EDGE_STEPPING) && AXIS_IS_TMC(A))
+#define AXIS_HAS_DEDGE(A) ALL(EDGE_STEPPING, A##_IS_TRINAMIC)
 
 #if ENABLED(DIRECT_STEPPING)
   #ifndef STEPPER_PAGES

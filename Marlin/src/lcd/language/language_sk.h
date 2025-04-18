@@ -761,7 +761,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridný prah");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Bezsenzor. domov");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim krokovania");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop zapnutý");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Vynulovať");
   LSTR MSG_SERVICE_IN                     = _UxGT("za:");
   LSTR MSG_BACKLASH                       = _UxGT("Kompenz. vôle");
