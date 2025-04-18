@@ -300,10 +300,10 @@ bool load_filament(const_float_t slow_load_length/*=0*/, const_float_t fast_load
           // Show "Purge More" / "Resume" menu and wait for reply
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
+          pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
           #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
-            pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
           while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) idle_no_sleep();
