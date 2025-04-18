@@ -35,11 +35,7 @@
  * M876: Handle Prompt Response
  */
 void GcodeSuite::M876() {
-
-  if (TERN0(EMERGENCY_PARSER, emergency_parser.isEnabled())) return;
-
   if (parser.seenval('S')) hostui.handle_response((uint8_t)parser.value_int());
-
 }
 
 #endif // HAS_GCODE_M876
