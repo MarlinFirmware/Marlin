@@ -3006,27 +3006,27 @@ hal_timer_t Stepper::block_phase_isr() {
                    first_pulse_rate = xy_float_t({0, 0});
         float unshaped_rate_e = total_step_rate;
         if (current_block) {
-          float xy_length = current_block->steps.x + current_block->steps.y;
+          const float xy_length = TERN0(INPUT_SHAPING_X, current_block->steps.x) + TERN0(INPUT_SHAPING_Y, current_block->steps.y);
           if (xy_length > 0) {
             unshaped_rate_e = 0;
             pre_shaping_rate = xy_float_t({
-              total_step_rate * current_block->steps.x / xy_length,
-              total_step_rate * current_block->steps.y / xy_length,
+              TERN0(INPUT_SHAPING_X, total_step_rate * current_block->steps.x / xy_length),
+              TERN0(INPUT_SHAPING_Y, total_step_rate * current_block->steps.y / xy_length)
             });
             first_pulse_rate = xy_float_t({
-              pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f,
-              pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f
+              TERN0(INPUT_SHAPING_X, pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f),
+              TERN0(INPUT_SHAPING_Y, pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f)
             });
           }
         }
         const xy_float_t second_pulse_rate = {
-          lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f,
-          lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f
+          TERN0(INPUT_SHAPING_X, lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f),
+          TERN0(INPUT_SHAPING_Y, lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f)
         };
         add_to_buffer(pre_shaping_rate);
 
-        const float x = first_pulse_rate.x + second_pulse_rate.x,
-                    y = first_pulse_rate.y + second_pulse_rate.y;
+        const float x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
+                    y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
 
         total_step_rate = unshaped_rate_e + x + y;
 
