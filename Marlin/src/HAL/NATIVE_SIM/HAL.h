@@ -52,7 +52,9 @@ uint8_t _getc();
 // ------------------------
 
 #define CPU_32_BIT
-#define SHARED_SERVOS HAS_SERVOS  // Use shared/servos.cpp
+
+class Servo;
+typedef Servo hal_servo_t;
 
 #define F_CPU 100000000
 #define SystemCoreClock F_CPU
@@ -232,8 +234,10 @@ public:
    * No option to invert the duty cycle [default = false]
    * No option to change the scale of the provided value to enable finer PWM duty control [default = 255]
    */
-  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t=255, const bool=false) {
-    analogWrite(pin, v);
+  static void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false) {
+    auto value = map(v, 0, v_size, 0, UINT16_MAX);
+    value = invert ? UINT16_MAX - value : value;
+    analogWrite(pin, value);
   }
 
   static void set_pwm_frequency(const pin_t, int) {}
