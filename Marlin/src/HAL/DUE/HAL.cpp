@@ -102,8 +102,8 @@ void watchdogSetup() {
 
   #if ENABLED(USE_WATCHDOG)
 
-    #ifndef NO_WDT_MR_WDRPROC
-      #define NO_WDT_MR_WDRPROC
+    #ifndef WATCHDOG_PIO_RESET
+      #define WATCHDOG_PIO_RESET
     #endif
 
     // 4 seconds timeout
@@ -122,7 +122,7 @@ void watchdogSetup() {
     uint32_t value = (0
       | WDT_MR_WDV(timeout)               // With the specified timeout
       | WDT_MR_WDD(timeout)               // and no invalid write window
-      #if NONE(NO_WDT_MR_WDRPROC, SAMV70, SAMV71, SAME70, SAMS70)
+      #if NONE(WATCHDOG_PIO_RESET, SAMV70, SAMV71, SAME70, SAMS70)
         | WDT_MR_WDRPROC                  // WDT fault resets processor only with this flag.
                                           // Omit to also reset the PIO controller.
       #endif
