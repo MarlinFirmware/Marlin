@@ -3012,6 +3012,10 @@
   #undef MICROSTEP_MODES
 #endif
 
+#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MICROSTEPS)
+  #define HAS_STEPPER_CONTROL 1
+#endif
+
 /**
  * Helper Macros for heaters and extruder fan
  */
