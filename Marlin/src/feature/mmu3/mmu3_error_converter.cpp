@@ -47,12 +47,10 @@ namespace MMU3 {
   }
 
   // Find the error index statically to save on runtime overhead
-  static constexpr uint8_t FindErrorIndex(const uint16_t pec) {
+  static uint8_t FindErrorIndex(const uint16_t pec) {
     constexpr uint16_t errorCodesSize = COUNT(errorCodes);
     constexpr const auto *errorCodesEnd = errorCodes + errorCodesSize;
-    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](const uint16_t ed) {
-      return ed == pec;
-    });
+    const auto *i = find_if_cx(errorCodes, errorCodesEnd, [pec](const uint16_t ed) { return ed == pec; });
     return (i != errorCodesEnd) ? (i - errorCodes) : (errorCodesSize - 1);
   }
 

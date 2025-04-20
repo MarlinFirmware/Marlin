@@ -33,8 +33,8 @@
 
 namespace MMU3 {
 
-  enum CommandInProgress : uint8_t {
-    NoCommand      = 0,
+  enum CommandInProgress : unsigned char {
+    NoCommand      = '\0',
     CutFilament    = 'K',
     EjectFilament  = 'E',
     Homing         = 'H',
