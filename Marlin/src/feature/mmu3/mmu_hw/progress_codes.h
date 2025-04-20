@@ -40,7 +40,7 @@ enum class ProgressCode : uint_fast8_t {
   UnloadingToFinda,      // P3
   UnloadingToPulley,     // P4
   FeedingToFinda,        // P5
-  FeedingToBondtech,     // P6
+  FeedingToExtruder,     // P6
   FeedingToNozzle,       // P7
   AvoidingGrind,         // P8
   FinishingMoves,        // P9

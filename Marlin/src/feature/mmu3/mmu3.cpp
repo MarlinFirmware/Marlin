@@ -1146,7 +1146,7 @@ namespace MMU3 {
         if (loadFilamentStarted) {
           switch (WhereIsFilament()) {
             case FilamentState::AT_FSENSOR:
-              // fsensor triggered, finish FeedingToBondtech state
+              // fsensor triggered, finish FeedingToExtruder state
               loadFilamentStarted = false;
 
               // Abort any excess E-move from the planner queue
