@@ -51,6 +51,12 @@ bool FilamentMonitorBase::enabled = true,
   #if ENABLED(FILAMENT_MOTION_SENSOR)
     uint8_t FilamentSensorEncoder::motion_detected;
   #endif
+
+  //Определение новых переменных
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    bool RunoutResponseDelayed::ignore_motion = false; 
+    float RunoutResponseDelayed::motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
+  #endif 
 #else
   int8_t RunoutResponseDebounced::runout_count[NUM_RUNOUT_SENSORS]; // = 0
 #endif
@@ -71,6 +77,16 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
+ 
+  // Игнорируем энкодер при срабатывании концевика
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    RunoutResponseDelayed::set_ignore_motion(true); // Используем публичный метод
+
+    // Сбрасываем счетчик движения, чтобы он не сработал во время выдавливания 300мм
+    for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) {
+      RunoutResponseDelayed::filament_motion_present(i);
+    }
+  #endif
 
   if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
 
@@ -145,6 +161,13 @@ void event_filament_runout(const uint8_t extruder) {
         queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
       #endif
     }
+  #endif
+}
+
+void handle_runout_on_print_start() {
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    RunoutResponseDelayed::set_ignore_motion(false);
+    RunoutResponseDelayed::reset(); // Добавить сброс счетчиков
   #endif
 }
 
