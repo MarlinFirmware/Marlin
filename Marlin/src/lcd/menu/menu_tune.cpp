@@ -113,6 +113,14 @@ void menu_tune() {
   //
   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
 
+  #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
+    EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, float(VOLUMETRIC_EXTRUDER_LIMIT_MAX), planner.calculate_volumetric_extruder_limits);
+    #if HAS_MULTI_EXTRUDER
+      EXTRUDER_LOOP()
+        EDIT_ITEM_FAST_N(float42_52, e, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[e], 0.0f, float(VOLUMETRIC_EXTRUDER_LIMIT_MAX), planner.calculate_volumetric_extruder_limits);
+    #endif
+  #endif
+
   //
   // Manual bed leveling, Bed Z:
   //
