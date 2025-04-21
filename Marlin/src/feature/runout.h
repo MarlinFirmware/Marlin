@@ -362,9 +362,15 @@ class FilamentSensorBase {
   class RunoutResponseDelayed {
     private:
       static countdown_t mm_countdown;
+      static bool ignore_motion;  // Игнорировать энкодер при остановке
 
     public:
       static float runout_distance_mm;
+      #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+        static float motion_distance_mm;
+      #endif
+
+      static void set_ignore_motion(bool ignore) { ignore_motion = ignore; }
 
       static void reset() {
         for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) filament_present(i);
@@ -394,7 +400,9 @@ class FilamentSensorBase {
         runout_flags_t runout_flags{0};
         for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) if (mm_countdown.runout[i] < 0) runout_flags.set(i);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) if (mm_countdown.motion[i] < 0) runout_flags.set(i);
+          if (!ignore_motion) {
+            for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) if (mm_countdown.motion[i] < 0) runout_flags.set(i);
+          }  
         #endif
         return runout_flags;
       }
@@ -419,8 +427,8 @@ class FilamentSensorBase {
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
         static void filament_motion_present(const uint8_t extruder) {
           // Same logic as filament_present
-          if (mm_countdown.motion[extruder] < runout_distance_mm || did_pause_print) {
-            mm_countdown.motion[extruder] = runout_distance_mm;
+          if (mm_countdown.motion[extruder] < motion_distance_mm || did_pause_print) {
+            mm_countdown.motion[extruder] = motion_distance_mm;
             mm_countdown.motion_reset.clear(extruder);
           }
           else
@@ -445,7 +453,7 @@ class FilamentSensorBase {
         }
 
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          if (e < NUM_MOTION_SENSORS) {
+          if (e < NUM_MOTION_SENSORS && !ignore_motion) {
             mm_countdown.motion[e] -= mm;
             if (mm_countdown.motion_reset[e]) filament_motion_present(e); // Reset pending. Try to reset.
           }
