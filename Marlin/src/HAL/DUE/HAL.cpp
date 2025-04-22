@@ -102,6 +102,10 @@ void watchdogSetup() {
 
   #if ENABLED(USE_WATCHDOG)
 
+    #ifndef WATCHDOG_PIO_RESET
+      #define WATCHDOG_PIO_RESET
+    #endif
+
     // 4 seconds timeout
     uint32_t timeout = TERN(WATCHDOG_DURATION_8S, 8000, 4000);
 
@@ -115,15 +119,16 @@ void watchdogSetup() {
       timeout = 0xFFF;
 
     // We want to enable the watchdog with the specified timeout
-    uint32_t value =
-      WDT_MR_WDV(timeout) |               // With the specified timeout
-      WDT_MR_WDD(timeout) |               // and no invalid write window
-    #if !(SAMV70 || SAMV71 || SAME70 || SAMS70)
-      WDT_MR_WDRPROC   |                  // WDT fault resets processor only - We want
-                                          // to keep PIO controller state
-    #endif
-      WDT_MR_WDDBGHLT  |                  // WDT stops in debug state.
-      WDT_MR_WDIDLEHLT;                   // WDT stops in idle state.
+    uint32_t value = (0
+      | WDT_MR_WDV(timeout)               // With the specified timeout
+      | WDT_MR_WDD(timeout)               // and no invalid write window
+      #if NONE(WATCHDOG_PIO_RESET, SAMV70, SAMV71, SAME70, SAMS70)
+        | WDT_MR_WDRPROC                  // WDT fault resets processor only with this flag.
+                                          // Omit to also reset the PIO controller.
+      #endif
+      | WDT_MR_WDDBGHLT                   // WDT stops in debug state.
+      | WDT_MR_WDIDLEHLT                  // WDT stops in idle state.
+    );
 
     #if ENABLED(WATCHDOG_RESET_MANUAL)
       // We enable the watchdog timer, but only for the interrupt.
