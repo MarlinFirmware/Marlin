@@ -76,15 +76,8 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
- 
-  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-    // Ignore the encoder after runout is triggered
-    RunoutResponseDelayed::set_ignore_motion(true);
 
-    // Reset motion counter so it doesn't trigger during a long purge
-    for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i)
-      RunoutResponseDelayed::filament_motion_present(i);
-  #endif
+  runout.init_for_restart(false); // Reset and disable
 
   if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
 
