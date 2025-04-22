@@ -362,15 +362,16 @@ class FilamentSensorBase {
   class RunoutResponseDelayed {
     private:
       static countdown_t mm_countdown;
-      static bool ignore_motion;  // Игнорировать энкодер при остановке
+      static bool ignore_motion;  // Flag to ignore the encoder
 
     public:
       static float runout_distance_mm;
+
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        static float motion_distance_mm;
+        static constexpr float motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
       #endif
 
-      static void set_ignore_motion(bool ignore) { ignore_motion = ignore; }
+      static void set_ignore_motion(const bool ignore) { ignore_motion = ignore; }
 
       static void reset() {
         for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i) filament_present(i);

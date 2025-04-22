@@ -2039,9 +2039,7 @@
       //#define FILAMENT_SWITCH_AND_MOTION
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
 
-        #ifndef FILAMENT_MOTION_DISTANCE_MM
-          #define FILAMENT_MOTION_DISTANCE_MM 3.0
-        #endif   
+        #define FILAMENT_MOTION_DISTANCE_MM 3.0 // (mm) Missing distance required to trigger runout
         
         #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_MOTION#_PIN for each.
         //#define FIL_MOTION1_PIN    -1
