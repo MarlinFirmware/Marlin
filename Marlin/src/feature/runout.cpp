@@ -53,9 +53,9 @@ bool FilamentMonitorBase::enabled = true,
   #endif
 
   #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-    bool RunoutResponseDelayed::ignore_motion = false; 
+    bool RunoutResponseDelayed::ignore_motion = false;
     constexpr float RunoutResponseDelayed::motion_distance_mm;
-  #endif 
+  #endif
 #else
   int8_t RunoutResponseDebounced::runout_count[NUM_RUNOUT_SENSORS]; // = 0
 #endif
@@ -159,14 +159,6 @@ void event_filament_runout(const uint8_t extruder) {
         queue.inject(F(FILAMENT_RUNOUT_SCRIPT));
       #endif
     }
-  #endif
-}
-
-void filament_runout_init_for_restart(const bool onoff/*=true*/) {
-  UNUSED(onoff);
-  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-    RunoutResponseDelayed::reset();
-    RunoutResponseDelayed::set_ignore_motion(!onoff);
   #endif
 }
 
