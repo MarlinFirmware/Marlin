@@ -46,8 +46,10 @@
 
 #if ENABLED(FILAMENT_MOTION_SENSOR)
   #define HAS_FILAMENT_MOTION 1
-#endif
-#if DISABLED(FILAMENT_MOTION_SENSOR) || ENABLED(FILAMENT_SWITCH_AND_MOTION)
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    #define HAS_FILAMENT_SWITCH 1
+  #endif
+#else
   #define HAS_FILAMENT_SWITCH 1
 #endif
 
@@ -495,3 +497,5 @@ class FilamentSensorBase {
   };
 
 #endif // !HAS_FILAMENT_RUNOUT_DISTANCE
+
+void filament_runout_init_for_restart(const bool onoff=true);

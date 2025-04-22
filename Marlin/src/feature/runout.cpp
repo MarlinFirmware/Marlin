@@ -162,10 +162,11 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 }
 
-void handle_runout_on_print_start() {
+void filament_runout_init_for_restart(const bool onoff/*=true*/) {
+  UNUSED(onoff);
   #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-    RunoutResponseDelayed::set_ignore_motion(false);
     RunoutResponseDelayed::reset();
+    RunoutResponseDelayed::set_ignore_motion(!onoff);
   #endif
 }
 
