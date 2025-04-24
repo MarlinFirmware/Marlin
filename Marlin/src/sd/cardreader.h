@@ -78,6 +78,14 @@ typedef struct {
     ;
 } card_flags_t;
 
+enum MediaPresence : int8_t {
+  MEDIA_BOOT    = -1,
+  INSERT_NONE   = 0x00,
+  INSERT_MEDIA  = 0x01,
+  INSERT_SD     = TERN(HAS_MULTI_VOLUME, 0x02, 0x00),
+  INSERT_USB    = TERN(HAS_MULTI_VOLUME, 0x04, 0x00)
+};
+
 enum ListingFlags : uint8_t { LS_LONG_FILENAME, LS_ONLY_BIN, LS_TIMESTAMP };
 enum SortFlag : int8_t { AS_REV = -1, AS_OFF, AS_FWD, AS_ALSO_REV };
 
@@ -101,6 +109,9 @@ public:
   #endif
 
   CardReader();
+
+  // Init at startup before mounting media
+  static void init();
 
   /**
    * Media Selection - Only one drive may be active at a time,
