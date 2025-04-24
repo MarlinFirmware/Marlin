@@ -175,9 +175,9 @@ void TFTGLCD::clr_screen() {
     SPI_SEND_ONE(CLR_SCREEN);
     WRITE(TFTGLCD_CS, HIGH);
   #else
-    Wire.beginTransmission(uint8_t(LCD_I2C_ADDRESS));  //set I2C device address
+    Wire.beginTransmission(uint8_t(LCD_I2C_ADDRESS)); // Transmit to LCD via I2C
     Wire.write(CLR_SCREEN);
-    Wire.endTransmission(); //transmit data
+    Wire.endTransmission();                           // Send the data
   #endif
 }
 
@@ -376,10 +376,6 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
 
 #if HAS_LCD_CONTRAST
   void MarlinUI::_set_contrast() { lcd.setContrast(contrast); }
-#endif
-
-#if !IS_TFTGLCD_PANEL
-  void lcd_moveto(const uint8_t col, const uint8_t row) { lcd.setCursor(col, row); }
 #endif
 
 static void center_text(FSTR_P const fstart, const uint8_t y) {
