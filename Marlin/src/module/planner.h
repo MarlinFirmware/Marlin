@@ -247,9 +247,9 @@ typedef struct PlannerBlock {
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t cruise_time;                   // Cruise time in STEP timer counts
-    int32_t e_step_ratio_q30;                // ratio of e steps to block steps in signed Q8.24
+    int32_t e_step_ratio_q30;               // Ratio of e steps to block steps.
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      uint32_t xy_length_inv_q30;             // inverse of block->steps.x + block.steps.y in Q8.24
+      uint32_t xy_length_inv_q30;           // inverse of block->steps.x + block.steps.y
     #endif
   #endif
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
@@ -528,7 +528,16 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_K[DISTINCT_E];
+      static void set_advance_k(const_float_t k, const uint8_t e=E_INDEX_N(active_extruder)) {
+        extruder_advance_K[e] = k;
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          extruder_advance_K_q15[e] = k * (1UL << 15);
+        #endif
+      }
+      static float get_advance_k(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_K[e]; }
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static float get_advance_k_q15(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_K_q15[e]; }
+      #endif
     #endif
 
     /**
@@ -603,6 +612,13 @@ class Planner {
 
     #if HAS_WIRED_LCD
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
+    #endif
+
+    #if ENABLED(LIN_ADVANCE)
+      static float extruder_advance_K[DISTINCT_E];
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static uint32_t extruder_advance_K_q15[DISTINCT_E];
+      #endif
     #endif
 
   public:

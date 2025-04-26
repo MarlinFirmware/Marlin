@@ -117,10 +117,13 @@ void menu_backlash();
 
     #if ENABLED(LIN_ADVANCE)
       #if DISTINCT_E < 2
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+        editable.decimal = planner.get_advance_k();
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
       #else
-        EXTRUDER_LOOP()
-          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+        EXTRUDER_LOOP() {
+          editable.decimal = stepper.get_advance_k(e);
+          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ stepper.set_advance_k(editable.decimal, e); });
+        }
       #endif
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         #if DISTINCT_E < 2
@@ -750,10 +753,13 @@ void menu_advanced_settings() {
 
   #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
     #if DISTINCT_E < 2
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+      editable.decimal = planner.get_advance_k();
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
     #else
-      EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+      EXTRUDER_LOOP() {
+        editable.decimal = stepper.get_advance_k(e);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ stepper.set_advance_k(editable.decimal, e); });
+      }
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #if DISTINCT_E < 2

@@ -1507,7 +1507,8 @@ HAL_STEP_TIMER_ISR() {
 #ifdef CPU_32_BIT
   #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
   FORCE_INLINE static int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) {
-    return (int32_t)(((int64_t)x * y + (1LL << (q - 1))) >> q);
+    // Not doing rounding on purpose (for performance)
+    return ((int64_t)x * y) >> q;
   }
 
 #else
@@ -2971,27 +2972,38 @@ hal_timer_t Stepper::block_phase_isr() {
     }
 
     hal_timer_t Stepper::smooth_lin_adv_isr() {
-      int32_t target_adv_steps_q13 = 0;
+      int32_t target_adv_steps_q15 = 0;
       if (current_block) {
         const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
-        target_adv_steps_q13 = lookahead(t) * (Planner::extruder_advance_K[0]*(1UL<<13));// todo keep k in q format
+       /**
+         * Reason to use Q15 fixed point notation for adv_steps:
+         * To safely maximize resolution we need the to know maximum imaginable target advance steps
+         * and from it calculate the maximum left shifts (q) we can do without overflow.
+         * extruder_steps_per_second = k * (motion_speed * line_width * line_height * steps_per_mm_extruder) / (π * (filament_diameter/2)²)
+         *                           ≈ k * volumetric_speed * steps_per_mm_extruder / 2.4
+         * Extreme case: (k=1, volumetric_speed=100 mm³/s, steps_per_mm_extruder=1000 steps/mm)
+         *  ---> target_adv_steps ≈ 41560 steps < 2^16
+         *  Therefore 16 bits needed for the integer part +1 for sign, leaving 32-16-1 = 15 for decimals
+         *  So we can safely use Q15 (store with 15 left shifts)
+         */
+        target_adv_steps_q15 = lookahead(t) * Planner::get_advance_k_q15();
       }
       else {
         curr_step_rate = 0;
       }
-      static int32_t last_target_adv_steps_q13 = 0;
+      static int32_t last_target_adv_steps_q15 = 0;
       constexpr uint16_t dt_inv = SMOOTH_LIN_ADV_HZ;
-      int32_t la_step_rate_q13 = (target_adv_steps_q13 - last_target_adv_steps_q13) * dt_inv;
-      last_target_adv_steps_q13 = target_adv_steps_q13;
+      int32_t la_step_rate_q15 = (target_adv_steps_q15 - last_target_adv_steps_q15) * dt_inv;
+      last_target_adv_steps_q15 = target_adv_steps_q15;
 
-      static int32_t smoothed_vals_q13[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      static int32_t smoothed_vals_q15[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
       
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        smoothed_vals_q13[i] += MULT_Q(30, la_step_rate_q13 - smoothed_vals_q13[i], extruder_advance_alpha_q30[0]);
-        la_step_rate_q13 = smoothed_vals_q13[i];
+        smoothed_vals_q15[i] += MULT_Q(30, la_step_rate_q15 - smoothed_vals_q15[i], extruder_advance_alpha_q30[0]);
+        la_step_rate_q15 = smoothed_vals_q15[i];
       }
-      int32_t la_step_rate = MULT_Q(13, la_step_rate_q13, 1);
+      int32_t la_step_rate = MULT_Q(15, la_step_rate_q15, 1);
 
       const int32_t planned_step_rate = current_block
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
