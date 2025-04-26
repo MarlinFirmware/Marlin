@@ -221,7 +221,7 @@ void menu_tune() {
     #else
       EXTRUDER_LOOP() {
         editable.decimal = planner.get_advance_k(e);
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ stepper.set_advance_k(editable.decimal, e); });
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, e); });
       }
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
