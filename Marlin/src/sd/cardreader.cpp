@@ -28,10 +28,6 @@
 
 #if HAS_MEDIA
 
-#if HAS_MULTI_VOLUME && !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
-  #error "DEFAULT_SHARED_VOLUME must be either SV_SD_ONBOARD or SV_USB_FLASH_DRIVE."
-#endif
-
 //#define DEBUG_CARDREADER
 
 #include "cardreader.h"
@@ -144,7 +140,13 @@ int16_t CardReader::nrItems = -1;
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
-DiskIODriver* CardReader::driver = nullptr;
+DiskIODriver* CardReader::driver = (
+  #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
+    &CardReader::media_driver_usbFlash
+  #else
+    &CardReader::media_driver_sdcard
+  #endif
+);
 
 MarlinVolume CardReader::volume;
 MediaFile CardReader::myfile;
@@ -158,12 +160,6 @@ MediaFile CardReader::myfile;
 uint32_t CardReader::filesize, CardReader::sdpos;
 
 CardReader::CardReader() {
-  #if HAS_USB_FLASH_DRIVE && !SHARED_VOLUME_IS(SD_ONBOARD)
-    selectMediaFlashDrive();
-  #else
-    selectMediaSDCard();
-  #endif
-
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
     #if ENABLED(SDSORT_GCODE)
@@ -604,11 +600,15 @@ void CardReader::manage_media() {
 
     // Try to mount the media (but not at boot if SD_IGNORE_AT_STARTUP)
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat > MEDIA_BOOT)) {
+      // If both SD/FD mount simultaneously prefer the default
       #if HAS_MULTI_VOLUME
-        if ((vadd & INSERT_SD) && !isSDCardSelected())
-          selectMediaSDCard();
-        if ((vadd & INSERT_USB) && !isFlashDriveSelected())
-          selectMediaFlashDrive();
+        #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
+          if (vadd & INSERT_USB) selectMediaFlashDrive();
+          else if (vadd & INSERT_SD) selectMediaSDCard();
+        #else
+          if (vadd & INSERT_SD) selectMediaSDCard();
+          else if (vadd & INSERT_USB) selectMediaFlashDrive();
+        #endif
       #endif
       safe_delay(500);                  // Time for inserted media to settle. May re-enter for multiple media?
       mount();

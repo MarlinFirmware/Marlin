@@ -1248,11 +1248,12 @@
 
 #if ENABLED(MULTI_VOLUME)
   #define HAS_MULTI_VOLUME 1
-  #define SV_SD_ONBOARD      101
-  #define SV_USB_FLASH_DRIVE 102
-  #define _VOLUME_ID(N) _CAT(SV_, N)
-  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
+  #define SD_ONBOARD      101
+  #define USB_FLASH_DRIVE 102
+  #define DEFAULT_VOLUME_IS(N) (DEFAULT_VOLUME == N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == N)
 #else
+  #define DEFAULT_VOLUME_IS(...) 0
   #define SHARED_VOLUME_IS(...) 0
 #endif
 
