@@ -359,11 +359,9 @@ class Stepper {
         // α=1−exp(−dt/τ)
         float alpha_float = 1.0f - expf(-((float)SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[e]);
         extruder_advance_alpha_q30[e] = (int32_t)(alpha_float * (1LL << 30));
-
       }
       static float get_advance_tau(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_tau[e]; }
-    #endif  
-
+    #endif
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -452,12 +450,12 @@ class Stepper {
       static hal_timer_t nextAdvanceISR,
                          la_interval;       // Interval between ISR calls for LA
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t curr_timer_tick,                      // Current tick relative to block start
-                        curr_step_rate;                       // Current motion step rate
-        static float  extruder_advance_tau[DISTINCT_E];       // Smoothing time; also the lookahead time of the smoother
+        static uint32_t curr_timer_tick,                        // Current tick relative to block start
+                        curr_step_rate;                         // Current motion step rate
+        static float  extruder_advance_tau[DISTINCT_E];         // Smoothing time; also the lookahead time of the smoother
         static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
-                        extruder_advance_alpha_q30[DISTINCT_E];     // The smoothing factor of each stage of the high-order exponential
-                                                                // smoothing filter (calculated from tau) * 2^24
+                        extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
+                                                                // smoothing filter (calculated from tau)
       #else
         static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
                         la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR
