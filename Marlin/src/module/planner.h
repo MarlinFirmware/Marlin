@@ -247,7 +247,10 @@ typedef struct PlannerBlock {
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t cruise_time;                   // Cruise time in STEP timer counts
-    float e_step_ratio;
+    int32_t e_step_ratio_q30;                // ratio of e steps to block steps in signed Q8.24
+    #if ENABLED(INPUT_SHAPING_E_SYNC)
+      uint32_t xy_length_inv_q30;             // inverse of block->steps.x + block.steps.y in Q8.24
+    #endif
   #endif
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase

@@ -1506,6 +1506,10 @@ HAL_STEP_TIMER_ISR() {
 
 #ifdef CPU_32_BIT
   #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
+  FORCE_INLINE static int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) {
+    return (int32_t)(((int64_t)x * y + (1LL << (q - 1))) >> q);
+  }
+
 #else
   #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 #endif
@@ -2877,9 +2881,9 @@ hal_timer_t Stepper::block_phase_isr() {
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
 
-    float Stepper::extruder_advance_tau[DISTINCT_E],
-          Stepper::extruder_advance_tau_ticks[DISTINCT_E],
-          Stepper::extruder_advance_alpha[DISTINCT_E];
+    float Stepper::extruder_advance_tau[DISTINCT_E];
+    uint32_t Stepper::extruder_advance_tau_ticks[DISTINCT_E],
+             Stepper::extruder_advance_alpha_q30[DISTINCT_E];
 
     void Stepper::set_la_interval(const int32_t rate) {
       if (rate == 0) {
@@ -2904,21 +2908,22 @@ hal_timer_t Stepper::block_phase_isr() {
       constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
 
       typedef struct {
-        xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
+        xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
         uint16_t index;
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      void add_to_buffer(xy_float_t input) {
+      void add_to_buffer(xy_long_t input) {
         delayBuffer.buffer[delayBuffer.index++] = input;
         if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE)
           delayBuffer.index = 0;
       }
 
-      xy_float_t lookback(shaping_time_t t /* in stepper timer ticks */) {
-        constexpr float ADV_TICKS_PER_STEPPER_TICKS = float(SMOOTH_LIN_ADV_HZ) / (STEPPER_TIMER_RATE);
-        uint32_t delay_steps = t * ADV_TICKS_PER_STEPPER_TICKS  + 0.5f; // Convert time to steps
+      xy_long_t lookback(shaping_time_t t /* in stepper timer ticks */) {
+        constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = ((uint64_t)SMOOTH_LIN_ADV_HZ * (1UL << 30)) / STEPPER_TIMER_RATE;
+        uint16_t delay_steps = MULT_Q(30, t,  ADV_TICKS_PER_STEPPER_TICKS_Q30);
+
         uint16_t past_i;
         if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
           // this means the buffer is too small. TODO: how to inform user?
@@ -2932,20 +2937,20 @@ hal_timer_t Stepper::block_phase_isr() {
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    float lookahead(uint32_t t) {
+    int32_t lookahead(uint32_t t) {
       for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (t <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0.0f;
           uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
-          return rate * block->e_step_ratio;
+          return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         t -= block->acceleration_time;
 
         if (t <= block->cruise_time) {
           if (!block->use_advance_lead) return 0.0f;
-          return block->cruise_rate * block->e_step_ratio;
+          return MULT_Q(30, block->cruise_rate, block->e_step_ratio_q30);
         }
         t -= block->cruise_time;
 
@@ -2958,7 +2963,7 @@ hal_timer_t Stepper::block_phase_isr() {
           }
           else
             rate = block->final_rate;
-          return rate * block->e_step_ratio;
+            return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         t -= block->deceleration_time;
       }
@@ -2966,55 +2971,64 @@ hal_timer_t Stepper::block_phase_isr() {
     }
 
     hal_timer_t Stepper::smooth_lin_adv_isr() {
-      float target_adv_steps = 0;
+      int32_t target_adv_steps_q13 = 0;
       if (current_block) {
         const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
-        target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
+        target_adv_steps_q13 = lookahead(t) * (Planner::extruder_advance_K[0]*(1UL<<13));// todo keep k in q format
       }
       else {
         curr_step_rate = 0;
       }
-      static float last_target_adv_steps = 0;
-      constexpr float dt_inv = SMOOTH_LIN_ADV_HZ;
-      float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
-      last_target_adv_steps = target_adv_steps;
+      static int32_t last_target_adv_steps_q13 = 0;
+      constexpr uint16_t dt_inv = SMOOTH_LIN_ADV_HZ;
+      int32_t la_step_rate_q13 = (target_adv_steps_q13 - last_target_adv_steps_q13) * dt_inv;
+      last_target_adv_steps_q13 = target_adv_steps_q13;
 
-      static float smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      static int32_t smoothed_vals_q13[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        la_step_rate = extruder_advance_alpha[0] * la_step_rate + (1 - extruder_advance_alpha[0]) * smoothed_vals[i];
-        smoothed_vals[i] = la_step_rate;
+        smoothed_vals_q13[i] += MULT_Q(30, la_step_rate_q13 - smoothed_vals_q13[i], extruder_advance_alpha_q30[0]);
+        la_step_rate_q13 = smoothed_vals_q13[i];
       }
-      const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;
-      float total_step_rate = la_step_rate + planned_step_rate;
+      int32_t la_step_rate = MULT_Q(13, la_step_rate_q13, 1);
+
+      const int32_t planned_step_rate = current_block
+        ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
+        : 0;
+
+      int32_t total_step_rate = la_step_rate + planned_step_rate;
 
       #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-        xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
-                   first_pulse_rate = xy_float_t({0, 0});
-        float unshaped_rate_e = total_step_rate;
+        xy_long_t pre_shaping_rate = xy_long_t({0, 0}),
+                  first_pulse_rate = xy_long_t({0, 0});
+        int32_t unshaped_rate_e = total_step_rate;
         if (current_block) {
-          const float xy_length = TERN0(INPUT_SHAPING_X, current_block->steps.x) + TERN0(INPUT_SHAPING_Y, current_block->steps.y);
-          if (xy_length > 0) {
+          if (current_block->xy_length_inv_q30 > 0) {
             unshaped_rate_e = 0;
-            pre_shaping_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, total_step_rate * current_block->steps.x / xy_length),
-              TERN0(INPUT_SHAPING_Y, total_step_rate * current_block->steps.y / xy_length)
+
+            pre_shaping_rate = xy_long_t({
+              TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
+              TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
             });
-            first_pulse_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f),
-              TERN0(INPUT_SHAPING_Y, pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f)
-            });
+            
+            first_pulse_rate = xy_long_t({
+              TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
+              TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
+            }); 
           }
         }
-        const xy_float_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f),
-          TERN0(INPUT_SHAPING_Y, lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f)
+
+        const xy_long_t second_pulse_rate = {
+          TERN0(INPUT_SHAPING_X, (lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
+          TERN0(INPUT_SHAPING_Y, (lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
         };
+        
         add_to_buffer(pre_shaping_rate);
 
-        const float x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                    y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
+                      y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
 
         total_step_rate = unshaped_rate_e + x + y;
 

@@ -2478,7 +2478,11 @@ bool Planner::_populate_block(
     }
   #elif ENABLED(SMOOTH_LIN_ADVANCE)
     block->use_advance_lead = use_advance_lead;
-    block->e_step_ratio = (block->direction_bits.e ? 1 : -1) * float(block->steps.e) / block->step_event_count;
+    block->e_step_ratio_q30 = ((int64_t)(block->direction_bits.e ? 1 : -1) * block->steps.e * (1UL << 30)) / block->step_event_count;
+    #if ENABLED(INPUT_SHAPING_E_SYNC)
+      uint32_t xy_steps = TERN0(INPUT_SHAPING_X, block->steps.x) + TERN0(INPUT_SHAPING_Y, block->steps.y);
+      block->xy_length_inv_q30 = xy_steps ? ((1UL << 30) / xy_steps) : 0;
+    #endif
   #endif
 
   // Formula for the average speed over a 1 step worth of distance if starting from zero and
