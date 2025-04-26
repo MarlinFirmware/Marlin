@@ -2923,7 +2923,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
       xy_long_t lookback(shaping_time_t t /* in stepper timer ticks */) {
         constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = ((uint64_t)SMOOTH_LIN_ADV_HZ * (1UL << 30)) / STEPPER_TIMER_RATE;
-        uint16_t delay_steps = MULT_Q(30, t,  ADV_TICKS_PER_STEPPER_TICKS_Q30);
+        uint16_t delay_steps = MULT_Q(30, t, ADV_TICKS_PER_STEPPER_TICKS_Q30);
         uint16_t past_i;
         if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
           // this means the buffer is too small. TODO: how to inform user?
