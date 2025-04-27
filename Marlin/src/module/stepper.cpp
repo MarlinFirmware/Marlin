@@ -2973,7 +2973,7 @@ hal_timer_t Stepper::block_phase_isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
+        const uint32_t t = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
         target_adv_steps = MULT_Q(27, lookahead(t), Planner::get_advance_k_q27());
       }
       else {
@@ -2988,7 +2988,7 @@ hal_timer_t Stepper::block_phase_isr() {
       
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[0]);
+        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
 
