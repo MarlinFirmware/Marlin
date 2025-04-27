@@ -237,7 +237,7 @@ float Planner::previous_nominal_speed;
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    uint32_t Planner::extruder_advance_K_q15[DISTINCT_E]; 
+    uint32_t Planner::extruder_advance_K_q27[DISTINCT_E]; 
   #endif
 #endif
 
