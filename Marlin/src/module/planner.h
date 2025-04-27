@@ -536,7 +536,7 @@ class Planner {
       }
       static float get_advance_k(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_K[e]; }
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static float get_advance_k_q15(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_K_q15[e]; }
+        static uint32_t get_advance_k_q15(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_K_q15[e]; }
       #endif
     #endif
 
