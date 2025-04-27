@@ -77,7 +77,7 @@ void MarlinHAL::init() {
 
   HAL_timer_init();
 
-  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+  #if ALL(EMERGENCY_PARSER, USBD_USE_CDC)
     USB_Hook_init();
   #endif
 

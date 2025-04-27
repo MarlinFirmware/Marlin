@@ -65,7 +65,8 @@ uint16_t adc_results[ADC_COUNT];
         emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
     }
   #endif
-#endif
+
+#endif // SERIAL_USB && !HAS_SD_HOST_DRIVE
 
 // ------------------------
 // Watchdog Timer
