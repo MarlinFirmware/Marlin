@@ -148,7 +148,7 @@ void menu_media_filelist() {
     BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
     #if ENABLED(VOLUME_SD_ONBOARD)
       #if ENABLED(SDSUPPORT)
-        ACTION_ITEM(TERN(SPI_IS_EXTERNAL, MSG_SD_CARD_EXTERNAL, MSG_SD_CARD), []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
+        ACTION_ITEM(TERN(SPI_SD_IS_EXTERNAL, MSG_SD_CARD_EXTERNAL, MSG_SD_CARD), []{ card.changeMedia(&card.media_driver_sdcard); card.mount(); ui.goto_screen(menu_media_filelist); });
       #endif
       #if ENABLED(SDIO_SUPPORT)
         ACTION_ITEM(TERN(SDIO_IS_ONBOARD, MSG_SD_CARD_ONBOARD, MSG_SDIO_CARD), []{ card.changeMedia(&card.media_driver_sdiocard); card.mount(); ui.goto_screen(menu_media_filelist); });
