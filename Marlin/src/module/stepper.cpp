@@ -2930,7 +2930,9 @@ hal_timer_t Stepper::block_phase_isr() {
           past_i = delayBuffer.index;
         }
         else {
-          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps) % IS_COMPENSATION_BUFFER_SIZE;
+          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
+          // Avoid modulo for performance, can take 100s of cycles in M0
+          if (past_i >= IS_COMPENSATION_BUFFER_SIZE) past_i -= IS_COMPENSATION_BUFFER_SIZE;
         }
         return delayBuffer.buffer[past_i];
       }
