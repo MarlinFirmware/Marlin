@@ -2921,44 +2921,44 @@ hal_timer_t Stepper::block_phase_isr() {
           delayBuffer.index = 0;
       }
 
-      xy_long_t lookback(shaping_time_t t /* in stepper timer ticks */) {
+      xy_long_t lookback(shaping_time_t stepper_ticks) {
         constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = ((uint64_t)SMOOTH_LIN_ADV_HZ * (1UL << 30)) / STEPPER_TIMER_RATE;
-        uint16_t delay_steps = MULT_Q(30, t, ADV_TICKS_PER_STEPPER_TICKS_Q30);
-        uint16_t past_i;
+        uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
+        uint16_t buffer_index;
         if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
           // this means the buffer is too small. TODO: how to inform user?
-          past_i = delayBuffer.index;
+          buffer_index = delayBuffer.index;
         }
         else {
-          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
+          buffer_index = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
           // Avoid modulo for performance, can take 100s of cycles in M0
-          if (past_i >= IS_COMPENSATION_BUFFER_SIZE) past_i -= IS_COMPENSATION_BUFFER_SIZE;
+          if (buffer_index >= IS_COMPENSATION_BUFFER_SIZE) buffer_index -= IS_COMPENSATION_BUFFER_SIZE;
         }
-        return delayBuffer.buffer[past_i];
+        return delayBuffer.buffer[buffer_index];
       }
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    int32_t lookahead(uint32_t t) {
+    int32_t lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
         if (block->is_sync()) continue;
-        if (t <= block->acceleration_time) {
+        if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->acceleration_time;
+        stepper_ticks -= block->acceleration_time;
 
-        if (t <= block->cruise_time) {
+        if (stepper_ticks <= block->cruise_time) {
           if (!block->use_advance_lead) return 0.0f;
           return MULT_Q(30, block->cruise_rate, block->e_step_ratio_q30);
         }
-        t -= block->cruise_time;
+        stepper_ticks -= block->cruise_time;
 
-        if (t <= block->deceleration_time) {
+        if (stepper_ticks <= block->deceleration_time) {
           if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate);
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
           if (rate < block->cruise_rate) {
             rate = block->cruise_rate - rate;
             NOLESS(rate, block->final_rate);
@@ -2967,7 +2967,7 @@ hal_timer_t Stepper::block_phase_isr() {
             rate = block->final_rate;
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->deceleration_time;
+        stepper_ticks -= block->deceleration_time;
       }
       return 0.0f;
     }
@@ -2975,8 +2975,8 @@ hal_timer_t Stepper::block_phase_isr() {
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t t = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
-        target_adv_steps = MULT_Q(27, lookahead(t), Planner::get_advance_k_q27());
+        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
+        target_adv_steps = MULT_Q(27, lookahead(stepper_ticks), Planner::get_advance_k_q27());
       }
       else {
         curr_step_rate = 0;
