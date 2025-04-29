@@ -54,12 +54,12 @@ void GcodeSuite::M21() {
     if (newvol != vol) {
       vol = newvol;
       switch (newvol + 1) {
-        default: card.changeMedia(&card.media_driver_sdcard); break;
+        default: card.selectMediaSDCard(); break;
         #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-          case SV_USB_FLASH_DRIVE: card.changeMedia(&card.media_driver_usbFlash); break;
+          case SV_USB_FLASH_DRIVE: card.selectMediaFlashDrive(); break;
         #endif
         #if ENABLED(SDIO_SUPPORT)
-          case SV_SDIO_ONBOARD: card.changeMedia(&card.media_driver_sdiocard); break;
+          case SV_SDIO_ONBOARD: card.selectMediaSDIOCard(); break;
         #endif
       }
     }
@@ -73,7 +73,7 @@ void GcodeSuite::M21() {
  * M22: Release the SD Card or USB Flash Drive
  */
 void GcodeSuite::M22() {
-  if (!IS_SD_PRINTING()) card.release();
+  if (!card.isStillPrinting()) card.release();
 }
 
 #endif // HAS_MEDIA

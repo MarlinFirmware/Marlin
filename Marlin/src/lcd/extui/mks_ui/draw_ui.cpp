@@ -1332,19 +1332,6 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
 
-#if HAS_MEDIA
-
-  void sd_detection() {
-    static bool last_sd_status;
-    const bool sd_status = IS_SD_INSERTED();
-    if (sd_status != last_sd_status) {
-      last_sd_status = sd_status;
-      if (sd_status) card.mount(); else card.release();
-    }
-  }
-
-#endif
-
 void lv_ex_line(lv_obj_t *line, lv_point_t *points) {
   // Copy the previous line and apply the new style
   lv_line_set_points(line, points, 2);     // Set the points
