@@ -588,8 +588,10 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
 }
 
 void StatusScreen::onMediaMounted() {
-  if (AT_SCREEN(StatusScreen))
-    setStatusMessage(GET_TEXT_F(MSG_MEDIA_INSERTED));
+  if (!AT_SCREEN(StatusScreen)) return;
+  setStatusMessage(ExtUI::isMediaMountedSD()  ? GET_TEXT_F(MSG_MEDIA_INSERTED_SD) :
+                   ExtUI::isMediaMountedUSB() ? GET_TEXT_F(MSG_MEDIA_INSERTED_USB) :
+                                                GET_TEXT_F(MSG_MEDIA_INSERTED));
 }
 
 void StatusScreen::onMediaRemoved() {

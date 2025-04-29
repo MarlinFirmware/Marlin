@@ -38,6 +38,8 @@
   #define DEFAULT_MACHINE_NAME "Panowin F1"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Limit Switches
 //

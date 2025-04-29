@@ -102,13 +102,13 @@ static void disp_key_value() {
     #endif
 
     #if HAS_X_AXIS
-      case XMaxFeedRate:  dtostrf(planner.settings.max_feedrate_mm_s[X_AXIS], 1, 1, public_buf_m); break;
+      case XMaxFeedRate: dtostrf(planner.settings.max_feedrate_mm_s[X_AXIS], 1, 1, public_buf_m); break;
     #endif
     #if HAS_Y_AXIS
-      case YMaxFeedRate:  dtostrf(planner.settings.max_feedrate_mm_s[Y_AXIS], 1, 1, public_buf_m); break;
+      case YMaxFeedRate: dtostrf(planner.settings.max_feedrate_mm_s[Y_AXIS], 1, 1, public_buf_m); break;
     #endif
     #if HAS_Z_AXIS
-      case ZMaxFeedRate:  dtostrf(planner.settings.max_feedrate_mm_s[Z_AXIS], 1, 1, public_buf_m); break;
+      case ZMaxFeedRate: dtostrf(planner.settings.max_feedrate_mm_s[Z_AXIS], 1, 1, public_buf_m); break;
     #endif
     #if HAS_EXTRUDERS
       case E0MaxFeedRate: dtostrf(planner.settings.max_feedrate_mm_s[E_AXIS], 1, 1, public_buf_m); break;
@@ -134,13 +134,13 @@ static void disp_key_value() {
 
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       #if HAS_X_AXIS
-        case Xstep:  dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, public_buf_m); break;
+        case Xstep: dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, public_buf_m); break;
       #endif
       #if HAS_Y_AXIS
-        case Ystep:  dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, public_buf_m); break;
+        case Ystep: dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, public_buf_m); break;
       #endif
       #if HAS_Z_AXIS
-        case Zstep:  dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, public_buf_m); break;
+        case Zstep: dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, public_buf_m); break;
       #endif
       #if HAS_EXTRUDERS
         case E0step: dtostrf(planner.settings.axis_steps_per_mm[E_AXIS], 1, 1, public_buf_m); break;
@@ -150,21 +150,11 @@ static void disp_key_value() {
       #endif
     #endif
 
-    #if AXIS_IS_TMC(X)
-      case Xcurrent: dtostrf(stepperX.getMilliamps(), 1, 1, public_buf_m); break;
-    #endif
-    #if AXIS_IS_TMC(Y)
-      case Ycurrent: dtostrf(stepperY.getMilliamps(), 1, 1, public_buf_m); break;
-    #endif
-    #if AXIS_IS_TMC(Z)
-      case Zcurrent: dtostrf(stepperZ.getMilliamps(), 1, 1, public_buf_m); break;
-    #endif
-    #if AXIS_IS_TMC(E0)
-      case E0current: dtostrf(stepperE0.getMilliamps(), 1, 1, public_buf_m); break;
-    #endif
-    #if AXIS_IS_TMC(E1)
-      case E1current: dtostrf(stepperE1.getMilliamps(), 1, 1, public_buf_m); break;
-    #endif
+    case Xcurrent: TERN_(X_IS_TRINAMIC, dtostrf(stepperX.getMilliamps(),  1, 1, public_buf_m)); break;
+    case Ycurrent: TERN_(Y_IS_TRINAMIC, dtostrf(stepperY.getMilliamps(),  1, 1, public_buf_m)); break;
+    case Zcurrent: TERN_(Z_IS_TRINAMIC, dtostrf(stepperZ.getMilliamps(),  1, 1, public_buf_m)); break;
+    case E0current: TERN_(E0_IS_TRINAMIC, dtostrf(stepperE0.getMilliamps(), 1, 1, public_buf_m)); break;
+    case E1current: TERN_(E1_IS_TRINAMIC, dtostrf(stepperE1.getMilliamps(), 1, 1, public_buf_m)); break;
 
     case pause_pos_x: dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_m); break;
     case pause_pos_y: dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_m); break;
@@ -275,21 +265,11 @@ static void set_value_confirm() {
       case E1step: planner.settings.axis_steps_per_mm[E_AXIS_N(1)] = atof(key_value); planner.refresh_positioning(); break;
     #endif
 
-    #if AXIS_IS_TMC(X)
-      case Xcurrent: stepperX.rms_current(atoi(key_value)); break;
-    #endif
-    #if AXIS_IS_TMC(Y)
-      case Ycurrent: stepperY.rms_current(atoi(key_value)); break;
-    #endif
-    #if AXIS_IS_TMC(Z)
-      case Zcurrent: stepperZ.rms_current(atoi(key_value)); break;
-    #endif
-    #if AXIS_IS_TMC(E0)
-      case E0current: stepperE0.rms_current(atoi(key_value)); break;
-    #endif
-    #if AXIS_IS_TMC(E1)
-      case E1current: stepperE1.rms_current(atoi(key_value)); break;
-    #endif
+    case Xcurrent: TERN_(X_IS_TRINAMIC, stepperX.rms_current(atoi(key_value))); break;
+    case Ycurrent: TERN_(Y_IS_TRINAMIC, stepperY.rms_current(atoi(key_value))); break;
+    case Zcurrent: TERN_(Z_IS_TRINAMIC, stepperZ.rms_current(atoi(key_value))); break;
+    case E0current: TERN_(E0_IS_TRINAMIC, stepperE0.rms_current(atoi(key_value))); break;
+    case E1current: TERN_(E1_IS_TRINAMIC, stepperE1.rms_current(atoi(key_value))); break;
 
     case pause_pos_x: gCfgItems.pausePosX = atof(key_value); update_spi_flash(); break;
     case pause_pos_y: gCfgItems.pausePosY = atof(key_value); update_spi_flash(); break;
