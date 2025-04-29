@@ -162,7 +162,7 @@ public:
     return TERN0(HAS_USB_FLASH_DRIVE, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_usbFlash));
   }
   static bool isMediaSelected() {
-    return isSDCardSelected() || isSDIOCardSelected(); || isFlashDriveSelected();
+    return isSDCardSelected() || isSDIOCardSelected() || isFlashDriveSelected();
   }
 
   /**

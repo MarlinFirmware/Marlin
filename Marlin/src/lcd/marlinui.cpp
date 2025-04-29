@@ -1916,6 +1916,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
           if (card.isSDCardSelected())
             LCD_MESSAGE(MSG_MEDIA_INSERTED_SD);
+          else if (card.isSDIOCardSelected())
+            LCD_MESSAGE(MSG_MEDIA_INSERTED_SD);
           else if (card.isFlashDriveSelected())
             LCD_MESSAGE(MSG_MEDIA_INSERTED_USB);
           else
