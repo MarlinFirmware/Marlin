@@ -53,7 +53,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                        = _UxGT("Главное меню");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфигурация");
-  LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS                 = _UxGT("Выключить двигатели");
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню отладки");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест индикатора");
@@ -435,14 +434,14 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FILAMENTLOAD_E                   = _UxGT("Подать филамент *");
   LSTR MSG_FILAMENTUNLOAD_E                 = _UxGT("Убрать филамент *");
   LSTR MSG_FILAMENTUNLOAD_ALL               = _UxGT("Выгрузить всё");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Установить SD карту");
-    LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Установить флешка");
-  #else
-    LSTR MSG_ATTACH_MEDIA                   = _UxGT("Установить SD карту");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                     = _UxGT("Установить SD карту");
+  LSTR MSG_ATTACH_SD                        = _UxGT("Установить SD карту");
+  LSTR MSG_ATTACH_USB                       = _UxGT("Монтировать USB"); // Установить флешка
   LSTR MSG_CHANGE_MEDIA                     = _UxGT("Сменить SD карту");
   LSTR MSG_RELEASE_MEDIA                    = _UxGT("Освободить SD карту");
+  LSTR MSG_RUN_AUTOFILES                    = _UxGT("Автостарт");
+
   LSTR MSG_ZPROBE_OUT                       = _UxGT("Z-зонд вне стола");
   LSTR MSG_SKEW_FACTOR                      = _UxGT("Фактор перекоса");
   LSTR MSG_BLTOUCH                          = _UxGT("Z-зонд BLTouch");
@@ -766,7 +765,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT        = _UxGT("Вытирание при откате");
   LSTR MSG_PARK_FAILED                      = _UxGT("Не удалось запарковать");
   LSTR MSG_FILAMENTUNLOAD                   = _UxGT("Выгрузить филамент");
-  LSTR MSG_ATTACH_USB_MEDIA                 = _UxGT("Монтировать USB");
   LSTR MSG_BLTOUCH_SPEED_MODE               = _UxGT("Высокая скорость");
   LSTR MSG_MANUAL_PENUP                     = _UxGT("Поднять перо");
   LSTR MSG_MANUAL_PENDOWN                   = _UxGT("Опустить перо");

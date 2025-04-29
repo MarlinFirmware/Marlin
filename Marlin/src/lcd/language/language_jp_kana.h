@@ -47,7 +47,6 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("メディアノトリダシ");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("エンドストップ"); // "Endstops" // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("メイン"); // "Main"
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("ジドウカイシ"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("モーターデンゲン オフ"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("デバッグメニュー"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("プログレスバー テスト"); // "Progress Bar Test"
@@ -168,13 +167,13 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("ホショウソクド mm/s"); // "Unretract V"
   LSTR MSG_AUTORETRACT                    = _UxGT("ジドウヒキコミ"); // "Auto-Retract"
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("フィラメントコウカン"); // "Change filament"
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SDカードをマウントする"); // "Attach SD Card"
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USBメモリをマウントする"); // "Attach USB Drive"
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("SDカードをマウントする"); // "Attach SD Card"
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+  LSTR MSG_ATTACH_SD                      = _UxGT("SDカードをマウントする"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("USBメモリをマウントする"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("メディアコウカン"); // "Change SD card"
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("ジドウカイシ"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Zプローブ ベッドガイ"); // "Z probe out. bed"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch ジコシンダン"); // "BLTouch Self-Test"
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("BLTouch リセット"); // "Reset BLTouch"

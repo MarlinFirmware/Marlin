@@ -62,11 +62,11 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #ifdef LULZBOT_LCD_MACHINE_NAME
     cmd.tag(3);
     draw_text_box(cmd, BTN_POS(1,7), BTN_SIZE(4,3), F(
-          "Firmware:"
+      "Firmware:"
     ), OPT_CENTER, font_xlarge);
 
     draw_text_box(cmd, BTN_POS(1,10), BTN_SIZE(4,2), F(
-          "" LULZBOT_M115_EXTRUDER_TYPE ""
+      "" LULZBOT_M115_EXTRUDER_TYPE ""
     ), OPT_CENTER, font_xlarge);
   #endif
 
@@ -77,7 +77,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #endif
 
   draw_text_box(cmd, BTN_POS(1,19), BTN_SIZE(4,3), F(
-        "Version:"
+    "Version:"
   ), OPT_CENTER, font_xlarge);
 
   draw_text_box(cmd, BTN_POS(1,22), BTN_SIZE(4,2), F(
@@ -92,16 +92,17 @@ void AboutScreen::onRedraw(draw_mode_t) {
 }
 
 bool AboutScreen::onTouchEnd(uint8_t tag) {
-  switch(tag) {
+  switch (tag) {
     default: return false;
     #if ALL(PRINTCOUNTER, FTDI_STATISTICS_SCREEN)
       case 1: GOTO_SCREEN(StatisticsScreen); break;
     #endif
-    case 2: GOTO_PREVIOUS(); return true;
+    case 2: GOTO_PREVIOUS(); break;
     #if ALL(TOUCH_UI_DEVELOPER_MENU, FTDI_DEVELOPER_MENU)
       case 3: GOTO_SCREEN(DeveloperMenu); break;
     #endif
   }
+  return true;
 }
 
 #endif // EXTENSIBLE_UI

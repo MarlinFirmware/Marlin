@@ -294,9 +294,9 @@ MenuItem *fanSpeedItem = nullptr;
 MenuItem *mMeshMoveZItem = nullptr;
 MenuItem *editZValueItem = nullptr;
 
-bool isPrinting() { return printingIsActive() || printingIsPaused(); }
-bool sdPrinting() { return isPrinting() && IS_SD_FILE_OPEN(); }
-bool hostPrinting() { return isPrinting() && !IS_SD_FILE_OPEN(); }
+bool isPrinting()   { return printingIsActive() || printingIsPaused(); }
+bool sdPrinting()   { return isPrinting() && card.isStillPrinting(); }
+bool hostPrinting() { return isPrinting() && !card.isStillPrinting(); }
 
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
