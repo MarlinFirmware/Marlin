@@ -42,32 +42,32 @@
 
 // Clean up unused temperature sensors and sub-options
 
-#define CHECK_TEMP_SENSOR(N) (!TEMP_SENSOR_##N || HOTENDS < (N+1))
-
-#if CHECK_TEMP_SENSOR(0)
+#define UNUSED_TEMP_SENSOR(N) (!TEMP_SENSOR_##N || N >= HOTENDS)
+#if UNUSED_TEMP_SENSOR(0)
   #undef TEMP_SENSOR_0
 #endif
-#if CHECK_TEMP_SENSOR(1)
+#if UNUSED_TEMP_SENSOR(1)
   #undef TEMP_SENSOR_1
 #endif
-#if CHECK_TEMP_SENSOR(2)
+#if UNUSED_TEMP_SENSOR(2)
   #undef TEMP_SENSOR_2
 #endif
-#if CHECK_TEMP_SENSOR(3)
+#if UNUSED_TEMP_SENSOR(3)
   #undef TEMP_SENSOR_3
 #endif
-#if CHECK_TEMP_SENSOR(4)
+#if UNUSED_TEMP_SENSOR(4)
   #undef TEMP_SENSOR_4
 #endif
-#if CHECK_TEMP_SENSOR(5)
+#if UNUSED_TEMP_SENSOR(5)
   #undef TEMP_SENSOR_5
 #endif
-#if CHECK_TEMP_SENSOR(6)
+#if UNUSED_TEMP_SENSOR(6)
   #undef TEMP_SENSOR_6
 #endif
-#if CHECK_TEMP_SENSOR(7)
+#if UNUSED_TEMP_SENSOR(7)
   #undef TEMP_SENSOR_7
 #endif
+#undef UNUSED_TEMP_SENSOR
 
 #if !TEMP_SENSOR_BED
   #undef TEMP_SENSOR_BED
