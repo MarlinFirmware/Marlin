@@ -2931,14 +2931,42 @@ hal_timer_t Stepper::block_phase_isr() {
       }
 
     #endif // INPUT_SHAPING_E_SYNC
+    #if ENABLED(S_CURVE_ACCELERATION)
+      static int32_t bezier_A_backup; 
+      static int32_t bezier_B_backup; 
+      static int32_t bezier_C_backup; 
+      static uint32_t bezier_F_backup; 
+      static uint32_t bezier_AV_backup; 
+      void Stepper::backup_bezier(){
+        bezier_A_backup = bezier_A;
+        bezier_B_backup = bezier_B;
+        bezier_C_backup = bezier_C;
+        bezier_F_backup = bezier_F;
+        bezier_AV_backup = bezier_AV;
+      }
+      void Stepper::recover_bezier(){
+        bezier_A = bezier_A_backup;
+        bezier_B = bezier_B_backup;
+        bezier_C = bezier_C_backup;
+        bezier_F = bezier_F_backup;
+        bezier_AV = bezier_AV_backup;
+      }
+    #endif
 
     int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
-          NOMORE(rate, block->nominal_rate);
+          #if ENABLED(S_CURVE_ACCELERATION)
+            Stepper::backup_bezier();
+            Stepper::_calc_bezier_curve_coeffs(block->initial_rate, block->cruise_rate, block->acceleration_time_inverse);
+            uint32_t rate = Stepper::_eval_bezier_curve(stepper_ticks);
+            Stepper::recover_bezier();
+          #else
+            uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
+            NOMORE(rate, block->nominal_rate);
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->acceleration_time;
@@ -2951,13 +2979,20 @@ hal_timer_t Stepper::block_phase_isr() {
 
         if (stepper_ticks <= block->deceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
-          if (rate < block->cruise_rate) {
-            rate = block->cruise_rate - rate;
-            NOLESS(rate, block->final_rate);
-          }
-          else
-            rate = block->final_rate;
+          #if ENABLED(S_CURVE_ACCELERATION)
+            Stepper::backup_bezier();
+            Stepper::_calc_bezier_curve_coeffs(block->cruise_rate, block->final_rate, block->deceleration_time_inverse);
+            uint32_t rate = Stepper::_eval_bezier_curve(stepper_ticks);
+            Stepper::recover_bezier();
+          #else
+            uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
+            if (rate < block->cruise_rate) {
+              rate = block->cruise_rate - rate;
+              NOLESS(rate, block->final_rate);
+            }
+            else
+              rate = block->final_rate;
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->deceleration_time;

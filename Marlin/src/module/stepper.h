@@ -558,6 +558,10 @@ class Stepper {
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static void set_la_interval(int32_t step_rate);
         static hal_timer_t smooth_lin_adv_isr();
+        #if ENABLED(S_CURVE_ACCELERATION)
+          static void backup_bezier();
+          static void recover_bezier();
+        #endif
       #endif
     #endif
 
@@ -770,8 +774,10 @@ class Stepper {
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
+      public:
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
       static int32_t _eval_bezier_curve(const uint32_t curr_step);
+      private:
     #endif
 
     #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
