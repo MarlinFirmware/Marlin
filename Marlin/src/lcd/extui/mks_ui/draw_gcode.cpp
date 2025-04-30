@@ -34,7 +34,7 @@ static lv_obj_t *scr, *outL, *outV = 0;
 static int currentWritePos = 0;
 extern uint8_t public_buf[513];
 extern "C" { extern char public_buf_m[100]; }
-extern bool volatile gcode_output_update_flag;
+extern bool gcode_output_update_flag;
 
 enum {
   ID_GCODE_RETURN = 1,
@@ -44,8 +44,7 @@ enum {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   lv_clear_gcode();
-  public_buf[0] = 0; // Clear output buffer
-  public_buf_m[0] = 0; // Clear output buffer
+  public_buf[0] = public_buf_m[0] = 0; // Clear output buffer
   MYSERIAL1.setHook();
   switch (obj->mks_obj_id) {
     case ID_GCODE_RETURN:
@@ -61,8 +60,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_show_gcode_output(void * that, const char * txt) {
   // Ignore echo of command
   if (!memcmp(txt, "echo:", 5)) {
-    public_buf[0] = 0; // Clear output buffer
-    public_buf_m[0] = 0; // Clear output buffer
+    public_buf[0] = public_buf_m[0] = 0; // Clear output buffer
     return;
   }
 
@@ -96,8 +94,7 @@ void lv_eom_hook(void *) {
 void lv_draw_gcode(bool clear) {
   if (clear) {
     currentWritePos = 0;
-    public_buf[0] = 0;
-    public_buf_m[0] = 0;
+    public_buf[0] = public_buf_m[0] = 0;
     MYSERIAL1.setHook();
     gcode_output_update_flag = false;
   }

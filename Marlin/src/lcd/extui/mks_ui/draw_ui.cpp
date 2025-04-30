@@ -71,7 +71,7 @@ uint32_t size = 809;
 uint16_t row;
 bool temps_update_flag;
 uint8_t printing_rate_update_flag;
-bool volatile gcode_output_update_flag;
+bool gcode_output_update_flag;
 
 extern bool once_flag;
 extern uint8_t sel_id;
