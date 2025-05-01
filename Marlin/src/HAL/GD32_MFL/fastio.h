@@ -31,7 +31,7 @@
 template<typename T>
 static inline void fast_write_pin_wrapper(pin_size_t IO, T V) {
   const PortPinPair& pp = port_pin_map[IO];
-  gpio::fast_write_pin(pp.port, pp.pin, V);
+  gpio::fast_write_pin(pp.port, pp.pin, static_cast<bool>(V));
 }
 
 static inline auto fast_read_pin_wrapper(pin_size_t IO) -> bool {
