@@ -1256,8 +1256,8 @@ void drawMainArea() {
 void hmiWaitForUser() {
   EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState != ENCODER_DIFF_NO && !ui.backlight) {
-    if (checkkey == ID_WaitResponse) hmiReturnScreen();
-    return ui.refresh_brightness();
+    ui.refresh_brightness();
+    return hmiReturnScreen();
   }
   if (!wait_for_user) {
     switch (checkkey) {
@@ -1937,7 +1937,16 @@ void MarlinUI::update() {
 }
 
 #if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
+  void MarlinUI::_set_brightness() {
+    if (backlight) {
+      dwinLCDBrightness(brightness);
+      wait_for_user = false;
+    }
+    else {
+      dwinLCDBrightness(0);
+      wait_for_user = true;
+    }
+  }
 #endif
 
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
@@ -2252,7 +2261,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void applyBrightness() { ui.set_brightness(menuData.value); }
   void liveBrightness() { dwinLCDBrightness(menuData.value); }
   void setBrightness() { setIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, applyBrightness, liveBrightness); }
-  void turnOffBacklight() { hmiSaveProcessID(ID_WaitResponse); ui.set_brightness(0); dwinRedrawScreen(); }
+  void turnOffBacklight() { ui.set_brightness(0); dwinRedrawScreen(); }
 #endif
 
 #if ENABLED(CASE_LIGHT_MENU)
