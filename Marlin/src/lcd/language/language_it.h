@@ -38,7 +38,13 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define MEDIA_TYPE_IT "Media"
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_IT "SD"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_IT "USB"
+#else
+  #define MEDIA_TYPE_IT "Media"
+#endif
 
 namespace LanguageNarrow_it {
   using namespace Language_en; // Inherit undefined strings from English
@@ -69,7 +75,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principale");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Impostaz. avanzate");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurazione");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Esegui files auto");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disabilita motori");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu di debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barra avanzam.");
@@ -581,14 +586,14 @@ namespace LanguageNarrow_it {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Rimuovi filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Rimuovi filam. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Rimuovi tutto");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Collega scheda SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Collega penna USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Collega ") MEDIA_TYPE_IT;
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Collega ") MEDIA_TYPE_IT;
+  LSTR MSG_ATTACH_SD                      = _UxGT("Collega scheda SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Collega penna USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambia ") MEDIA_TYPE_IT;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Esegui files auto");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe fuori piatto");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Fattore distorsione");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

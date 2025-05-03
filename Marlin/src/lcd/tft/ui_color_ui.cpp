@@ -323,7 +323,7 @@ void MarlinUI::draw_status_screen() {
       if (cm && pa)
         add_control(SDCARD_ICON_X, SDCARD_ICON_Y, STOP, imgCancel, true, COLOR_CONTROL_CANCEL);
       else
-        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_media, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
+        add_control(SDCARD_ICON_X, SDCARD_ICON_Y, menu_file_selector, imgSD, cm && !pa, COLOR_CONTROL_ENABLED, COLOR_CONTROL_DISABLED);
     #endif
   #endif
 

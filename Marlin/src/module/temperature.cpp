@@ -4772,7 +4772,7 @@ void Temperature::isr() {
           dwin_heat_time = elapsed.value;
         #elif ENABLED(SOVOL_SV06_RTS)
           update_time_value = RTS_UPDATE_VALUE;
-          if (IS_SD_PRINTING()) rts.refreshTime();
+          if (card.isStillPrinting()) rts.refreshTime();
           rts.start_print_flag = false;
         #else
           ui.reset_status();
