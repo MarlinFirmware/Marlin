@@ -87,7 +87,7 @@
 #endif
 
 /**
- *  Multi-Material-Unit supported models
+ * Multi-Material-Unit supported models
  */
 #ifdef MMU_MODEL
   #define HAS_MMU 1
