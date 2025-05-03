@@ -927,19 +927,28 @@ void sdCardFolder(char * const dirname) {
 
 void onClickSDItem() {
   const uint16_t hasUpDir = !card.flag.workDirIsRoot;
-  if (hasUpDir && currentMenu->selected == 1) return sdCardUp();
+  if (hasUpDir && currentMenu->selected == 1) {
+    sdCardUp();
+    return;
+  }
   else {
     const uint16_t filenum = currentMenu->selected - 1 - hasUpDir;
     card.selectFileByIndexSorted(filenum);
 
     // Enter that folder!
-    if (card.flag.filenameIsDir) return sdCardFolder(card.filename);
+    if (card.flag.filenameIsDir) {
+      sdCardFolder(card.filename);
+      return;
+    }
 
-    if (card.fileIsBinary())
-      return dwinPopupConfirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+    if (card.fileIsBinary()) {
+      dwinPopupConfirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+      return;
+    }
     else {
       dwinPrintHeader(card.longest_filename()); // Save filename
-      return gotoConfirmToPrint();
+      gotoConfirmToPrint();
+      return;
     }
   }
 }
@@ -1171,7 +1180,7 @@ void onClickPauseOrStop() {
     case PRINT_STOP: if (hmiFlag.select_flag) ExtUI::stopPrint(); break; // Stop confirmed then abort print
     default: break;
   }
-  return gotoPrintProcess();
+  gotoPrintProcess();
 }
 
 // Printing
@@ -1205,10 +1214,14 @@ void hmiPrinting() {
           ExtUI::resumePrint();
           break;
         }
-        else
-          return gotoPopup(popupPauseOrStop, onClickPauseOrStop);
-      case PRINT_STOP:
-        return gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        else {
+          gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+          return;
+        }
+      case PRINT_STOP: {
+        gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        return;
+      }
       default: break;
     }
   }
@@ -1257,7 +1270,8 @@ void hmiWaitForUser() {
   EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState != ENCODER_DIFF_NO && !ui.backlight) {
     ui.refresh_brightness();
-    return hmiReturnScreen();
+    hmiReturnScreen();
+    return;
   }
   if (!wait_for_user) {
     switch (checkkey) {
@@ -1387,7 +1401,8 @@ void eachMomentUpdate() {
     }
     #if HAS_PLR_UI_FLAG
       else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
-        return gotoPowerLossRecovery();
+        gotoPowerLossRecovery();
+        return;
       }
     #endif
 
@@ -1426,7 +1441,8 @@ void eachMomentUpdate() {
     if (hmiFlag.select_flag) {
       queue.inject(F("M1000C"));
       select_page.reset();
-      return gotoMainMenu();
+      gotoMainMenu();
+      return;
     }
     else {
       hmiSaveProcessID(ID_NothingToDo);
@@ -2060,7 +2076,8 @@ void dwinRedrawScreen() {
     dwinResetStatusLine();
     if (hmiFlag.select_flag) {     // Confirm
       gotoMainMenu();
-      return card.openAndPrintFile(card.filename);
+      card.openAndPrintFile(card.filename);
+      return;
     }
     else
       hmiReturnScreen();
@@ -2070,7 +2087,10 @@ void dwinRedrawScreen() {
 
 void gotoConfirmToPrint() {
   #if HAS_GCODE_PREVIEW
-    if (hmiData.enablePreview) return gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
+    if (hmiData.enablePreview) {
+      gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
+      return;
+    }
   #endif
   card.openAndPrintFile(card.filename); // Direct print SD file
 }
@@ -2203,7 +2223,8 @@ void axisMove(AxisEnum axis) {
   #if HAS_HOTEND
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(0)) {
       gcode.process_subcommands_now(F("G92E0"));  // Reset extruder position
-      return dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      return;
     }
   #endif
   planner.synchronize();
