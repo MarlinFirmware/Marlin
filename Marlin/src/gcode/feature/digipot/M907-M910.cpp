@@ -104,11 +104,11 @@ void GcodeSuite::M907() {
 
       // X Y I J K U V W - All aliases to set the current for "most axes."
       // Only the value of the last given parameter is used.
-      if (ENABLED(HAS_X_Y_XY_I_J_K_U_V_W) && NUM_AXIS_GANG(
+      if (ENABLED(HAS_X_Y_XY_I_J_K_U_V_W) && (NUM_AXIS_GANG(
              parser.seenval('X'), || parser.seenval('Y'), || false,
           || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K'),
           || parser.seenval('U'), || parser.seenval('V'), || parser.seenval('W')
-      ))
+      )))
         stepper.set_digipot_current(0, parser.value_int());
 
       // Z<current> - Set the current just for the Z axis

@@ -52,7 +52,6 @@ namespace LanguageNarrow_ro {
   LSTR MSG_MAIN_MENU                      = _UxGT("Principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Setari Avansate");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurare");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Dezactivare Motoare");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Meniu Debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test Bara Progres");
@@ -388,14 +387,14 @@ namespace LanguageNarrow_ro {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Scoatere Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Scoatere Filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Scoate Tot");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Atasare card SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Atasare FD USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Atasare card SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare card SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Atasare card SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Atasare FD USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Inlocuire Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Eliberare Media");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

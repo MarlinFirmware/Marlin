@@ -36,12 +36,6 @@
 #if ENABLED(SDSUPPORT)
   #define HAS_MEDIA 1
 #endif
-#if ENABLED(MULTI_VOLUME)
-  #define HAS_MULTI_VOLUME 1
-#endif
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define HAS_USB_FLASH_DRIVE 1
-#endif
 
 //
 // Serial Port Info
@@ -78,7 +72,7 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
+// MKS_MINI_12864_V3, BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
 #if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
