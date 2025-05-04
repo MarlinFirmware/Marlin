@@ -25,7 +25,6 @@
 #include "SDCard.h"
 #include <string.h>
 #include <DMA.hpp>
-#include <bit>
 
 namespace sdio {
 
@@ -737,9 +736,16 @@ auto CardDMA::get_card_specific_data(Card_Info* info) -> SDIO_Error_Type {
 }
 
 constexpr auto CardDMA::get_data_block_size_index(uint16_t size) -> Block_Size {
-  return (size >= 1 && size <= 16384 && std::has_single_bit(size))
-    ? static_cast<Block_Size>(std::countr_zero(size))
-    : Block_Size::BYTES_1;
+  if (size < 1 || size > 16384) return Block_Size::BYTES_1;
+
+  // Check if size is a power of two
+  if ((size & (size - 1)) != 0) return Block_Size::BYTES_1;
+
+  // Count trailing zeros to find the index
+  uint16_t index = 0;
+  while ((size >>= 1) != 0) ++index;
+
+  return static_cast<Block_Size>(index);
 }
 
 auto CardDMA::get_card_state(Card_State* card_state) -> SDIO_Error_Type {
