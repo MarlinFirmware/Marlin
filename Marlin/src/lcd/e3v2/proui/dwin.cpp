@@ -1958,7 +1958,7 @@ void MarlinUI::update() {
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() {
-    wait_for_user = !backlight;
+    if (!backlight) wait_for_user = true;
     dwinLCDBrightness(backlight ? brightness : 0);
   }
 #endif
