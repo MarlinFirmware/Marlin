@@ -43,8 +43,8 @@
 #endif
 
 #if HAS_SD_HOST_DRIVE
-  #include "msc_sd.h"
-  #include "usbd_cdc_if.h"
+  #include "sd/msc_sd.h"
+  #include <usbd_cdc_if.h>
 #endif
 
 // ------------------------
@@ -87,7 +87,7 @@ void MarlinHAL::init() {
 
   SetTimerInterruptPriorities();
 
-  #if ENABLED(EMERGENCY_PARSER) && (USBD_USE_CDC || USBD_USE_CDC_MSC)
+  #if ENABLED(EMERGENCY_PARSER) && ANY(USBD_USE_CDC, USBD_USE_CDC_MSC)
     USB_Hook_init();
   #endif
 
@@ -97,7 +97,7 @@ void MarlinHAL::init() {
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
-    delay(1000);                                        // Give OS time to notice
+    delay_ms(1000);                                     // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }

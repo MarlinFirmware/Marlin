@@ -79,20 +79,20 @@ inline void toggle_pins() {
         #endif
       );
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
-        if (pin == TEENSY_E2) {
-          SET_OUTPUT(TEENSY_E2);
+        if (pin == PIN_E2) {
+          SET_OUTPUT(PIN_E2);
           for (int16_t j = 0; j < repeat; j++) {
-            WRITE(TEENSY_E2, LOW);  safe_delay(wait);
-            WRITE(TEENSY_E2, HIGH); safe_delay(wait);
-            WRITE(TEENSY_E2, LOW);  safe_delay(wait);
+            WRITE(PIN_E2, LOW);  safe_delay(wait);
+            WRITE(PIN_E2, HIGH); safe_delay(wait);
+            WRITE(PIN_E2, LOW);  safe_delay(wait);
           }
         }
-        else if (pin == TEENSY_E3) {
-          SET_OUTPUT(TEENSY_E3);
+        else if (pin == PIN_E3) {
+          SET_OUTPUT(PIN_E3);
           for (int16_t j = 0; j < repeat; j++) {
-            WRITE(TEENSY_E3, LOW);  safe_delay(wait);
-            WRITE(TEENSY_E3, HIGH); safe_delay(wait);
-            WRITE(TEENSY_E3, LOW);  safe_delay(wait);
+            WRITE(PIN_E3, LOW);  safe_delay(wait);
+            WRITE(PIN_E3, HIGH); safe_delay(wait);
+            WRITE(PIN_E3, LOW);  safe_delay(wait);
           }
         }
         else

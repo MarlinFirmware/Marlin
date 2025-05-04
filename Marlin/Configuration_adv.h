@@ -1342,20 +1342,20 @@
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
 
-  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/min
-  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/min
-  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/min
+  #define CALIBRATION_FEEDRATE_SLOW             60    // (mm/min)
+  #define CALIBRATION_FEEDRATE_FAST           1200    // (mm/min)
+  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // (mm/min)
 
   // The following parameters refer to the conical section of the nozzle tip.
-  #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // mm
-  #define CALIBRATION_NOZZLE_OUTER_DIAMETER      2.0  // mm
+  #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // (mm)
+  #define CALIBRATION_NOZZLE_OUTER_DIAMETER      2.0  // (mm)
 
   // Uncomment to enable reporting (required for "G425 V", but consumes flash).
   //#define CALIBRATION_REPORTING
 
   // The true location and dimension the cube/bolt/washer on the bed.
-  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // mm
-  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // mm
+  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // (mm)
+  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // (mm)
 
   // Comment out any sides which are unreachable by the probe. For best
   // auto-calibration results, all sides must be reachable.
@@ -1960,8 +1960,8 @@
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME SV_SD_ONBOARD
-    #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
 #endif // HAS_MEDIA
@@ -2268,6 +2268,8 @@
   #define ADC_BUTTON_DEBOUNCE_DELAY 16  // (count) Increase if buttons bounce or repeat too fast
 #endif
 
+//#define FAST_BUTTON_POLLING           // Poll buttons at ~1kHz on 8-bit AVR. Set to 'false' for slow polling on 32-bit.
+
 // @section safety
 
 /**
@@ -2350,6 +2352,24 @@
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
+
+  //#define SMOOTH_LIN_ADVANCE    // Remove limits on acceleration by gradual increase of nozzle pressure
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    /**
+     * ADVANCE_TAU is also the time ahead that the smoother needs to look
+     * into the planner, so the planner needs to have enough blocks loaded.
+     * For k=0.04 at 10k acceleration and an "Orbiter 2" extruder it can be as low as 0.0075.
+     * Adjust by lowering the value until you observe the extruder skipping, then raise slightly.
+     * Higher k and higher XY acceleration may require larger ADVANCE_TAU to avoid skipping steps.
+     */
+    #if ENABLED(DISTINCT_E_FACTORS)
+      #define ADVANCE_TAU { 0.01 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
+    #else
+      #define ADVANCE_TAU 0.01       // (s) Smoothing time to reduce extruder acceleration
+    #endif
+    #define SMOOTH_LIN_ADV_HZ 5000   // (Hz) How often to update extruder speed
+    #define INPUT_SHAPING_E_SYNC     // Synchronize the extruder-shaped XY axes (to increase precision)
+  #endif
 #endif
 
 /**
@@ -2994,6 +3014,8 @@
 #if HAS_TRINAMIC_CONFIG
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+
+  //#define EDITABLE_HOMING_CURRENT   // Add a G-code and menu to modify the Homing Current
 
   /**
    * Interpolate microsteps to 256
@@ -3680,6 +3702,8 @@
       #define SPEED_POWER_MIN          5000    // (RPM)
       #define SPEED_POWER_MAX         30000    // (RPM) SuperPID router controller 0 - 30,000 RPM
       #define SPEED_POWER_STARTUP     25000    // (RPM) M3/M4 speed/power default (with no arguments)
+
+      //#define DEFAULT_ACCELERATION_SPINDLE   1000 // (°/s/s) Default spindle acceleration (speed change with time)
     #endif
 
   #else

@@ -527,29 +527,27 @@ void MarlinUI::init() {
 
         #define ADC_MIN_KEY_DELAY 100
         if (keypad_buttons) {
-          #if HAS_ENCODER_ACTION
-            refresh(LCDVIEW_REDRAW_NOW);
-            #if HAS_MARLINUI_MENU
-              if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
-                     if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-                else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-                else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
-                else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
-              }
-              else
-            #endif
-            {
-              #if HAS_MARLINUI_MENU
-                     if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
-                else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
-                else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
-                else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
-              #else
-                     if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
-                else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
-              #endif
+          refresh(LCDVIEW_REDRAW_NOW);
+          #if HAS_MARLINUI_MENU
+            if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
+              else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             }
+            else
           #endif
+          {
+            #if HAS_MARLINUI_MENU
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
+              else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
+              else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
+            #else
+                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
+            #endif
+          }
           next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
           return true;
         }
@@ -632,7 +630,7 @@ void MarlinUI::init() {
 
       // If the message will blink rather than expire...
       #if DISABLED(PROGRESS_MSG_ONCE)
-        if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
+        if (ELAPSED(ms, progress_bar_ms, PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
           progress_bar_ms = ms;
       #endif
 
@@ -1116,7 +1114,7 @@ void MarlinUI::init() {
       #if MARLINUI_SCROLL_NAME
         // If scrolling of long file names is enabled and we are in the sd card menu,
         // cause a refresh to occur until all the text has scrolled into view.
-        if (currentScreen == menu_media && filename_scroll_max && !lcd_status_update_delay--) {
+        if (currentScreen == menu_file_selector && filename_scroll_max && !lcd_status_update_delay--) {
           lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
           if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
           refresh(LCDVIEW_REDRAW_NOW);
@@ -1337,11 +1335,11 @@ void MarlinUI::init() {
           const int8_t pulses = epps * encoderDirection;
 
           if (BUTTON_PRESSED(UP)) {
-            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            encoderDiff = pulses * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(DOWN)) {
-            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+            encoderDiff = pulses * -(ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(LEFT)) {
@@ -1542,7 +1540,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     if (printingIsPaused())
       msg = GET_TEXT_F(MSG_PRINT_PAUSED);
     #if HAS_MEDIA
-      else if (IS_SD_PRINTING())
+      else if (card.isStillPrinting())
         return set_status_no_expire(card.longest_filename());
     #endif
     else if (print_job_timer.isRunning())
@@ -1745,7 +1743,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
       wait_for_heatup = wait_for_user = false;
-      if (IS_SD_PRINTING())
+      if (card.isStillPrinting())
         card.abortFilePrintSoon();
       else if (card.isMounted())
         card.closefile();
@@ -1812,7 +1810,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   void MarlinUI::resume_print() {
     reset_status();
     TERN_(PARK_HEAD_ON_PAUSE, wait_for_heatup = wait_for_user = false);
-    TERN_(HAS_MEDIA, if (IS_SD_PAUSED()) queue.inject_P(M24_STR));
+    TERN_(HAS_MEDIA, if (card.isPaused()) queue.inject_P(M24_STR));
     #ifdef ACTION_ON_RESUME
       hostui.resume();
     #endif
@@ -1893,35 +1891,60 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
     #include "extui/ui_api.h"
   #endif
 
-  void MarlinUI::media_changed(const uint8_t old_status, const uint8_t status) {
+  void MarlinUI::media_changed(const MediaPresence old_status, const MediaPresence status) {
     TERN_(HAS_DISPLAY_SLEEP, refresh_screen_timeout());
     if (old_status == status) {
       TERN_(EXTENSIBLE_UI, ExtUI::onMediaError()); // Failed to mount/unmount
       return;
     }
 
-    if (old_status < 2) {   // Skip this section on first boot check
-      if (status) {         // Media Mounted
+    if (old_status > MEDIA_BOOT) {  // Skip this section on first boot check
+
+      if (status > old_status) {    // Media Mounted
+
         #if ENABLED(EXTENSIBLE_UI)
+
           ExtUI::onMediaMounted();
+
         #elif ENABLED(BROWSE_MEDIA_ON_INSERT)
+
           clear_menu_history();
           quick_feedback();
           goto_screen(MEDIA_MENU_GATEWAY);
+
         #else
-          LCD_MESSAGE(MSG_MEDIA_INSERTED);
+
+          if (card.isSDCardSelected())
+            LCD_MESSAGE(MSG_MEDIA_INSERTED_SD);
+          else if (card.isFlashDriveSelected())
+            LCD_MESSAGE(MSG_MEDIA_INSERTED_USB);
+          else
+            LCD_MESSAGE(MSG_MEDIA_INSERTED);
+
         #endif
       }
       else {                // Media Removed
+
         #if ENABLED(EXTENSIBLE_UI)
+
           ExtUI::onMediaRemoved();
-        #elif HAS_SD_DETECT // Q: Does "Media Removed" need to be shown for manual release too?
-          LCD_MESSAGE(MSG_MEDIA_REMOVED);
-          #if HAS_MARLINUI_MENU
-            if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status) return_to_status();
-          #endif
+
+        #elif HAS_SD_DETECT || HAS_USB_FLASH_DRIVE // Q: Does "Media Removed" need to be shown for manual release too?
+
+          if ((old_status ^ status) & INSERT_SD)
+            LCD_MESSAGE(MSG_MEDIA_REMOVED_SD);
+          else if ((old_status ^ status) & INSERT_USB)
+            LCD_MESSAGE(MSG_MEDIA_REMOVED_USB);
+          else
+            LCD_MESSAGE(MSG_MEDIA_REMOVED);
+
+          if (ENABLED(HAS_WIRED_LCD) || !defer_return_to_status)
+            return_to_status();
+
         #elif HAS_WIRED_LCD
+
           return_to_status();
+
         #endif
       }
     }
