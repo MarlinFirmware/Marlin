@@ -406,7 +406,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
-  #if ENABLED(SWITCHING_NOZZLE_PARK_TO_PROBE)
+  #if ENABLED(SWITCHING_NOZZLE_LIFT_TO_PROBE)
     servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][deploy ? 1 : 0]);
   #endif
 
