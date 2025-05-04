@@ -143,7 +143,7 @@ auto CardDMA::validate_voltage() -> SDIO_Error_Type {
       return SDIO_Error_Type::ACMD41_FAILED;
     }
     response = sdio_.get_response(Response_Type::RESPONSE0);
-    valid_voltage = (((response >> 31U) == 1U) ? true : false);
+    valid_voltage = ((response >> 31U) == 1U);
     count++;
   }
 
