@@ -68,7 +68,7 @@ public:
   [[nodiscard]] auto get_card_capacity() const -> uint32_t;
 
   // SDIO configuration
-  inline void sdio_configure(const SDIO_Config config) { sdio_.init(config); }
+  void sdio_configure(const SDIO_Config config) { sdio_.init(config); }
 
   // Interrupt handler
   void handle_interrupts();
@@ -79,20 +79,20 @@ public:
   auto store_csd() -> SDIO_Error_Type;
 
   // Inlined accessor methods
-  inline auto get_config() -> SDIO_Config& { return config_; }
-  inline auto get_dma_instance() -> dma::DMA& { return dma_; }
-  inline void set_data_end_interrupt() { sdio_.set_interrupt_enable(Interrupt_Type::DTENDIE, true); }
-  inline void set_sdio_dma_enable(bool enable) { sdio_.set_dma_enable(enable); }
-  inline auto get_is_sdio_rx() -> bool { return is_rx_; }
-  inline void clear_sdio_data_flags() { sdio_.clear_multiple_interrupt_flags(clear_data_flags); }
-  inline void clear_sdio_cmd_flags() { sdio_.clear_multiple_interrupt_flags(clear_command_flags); }
-  inline void clear_sdio_common_flags() { sdio_.clear_multiple_interrupt_flags(clear_common_flags); }
-  inline auto get_state() -> Operational_State { return current_state_; }
-  inline void set_state(Operational_State state) { current_state_ = state; }
-  inline void set_transfer_error(SDIO_Error_Type error) { transfer_error_ = error; }
-  inline void set_transfer_end(bool end) { transfer_end_ = end; };
+  auto get_config() -> SDIO_Config& { return config_; }
+  auto get_dma_instance() -> dma::DMA& { return dma_; }
+  void set_data_end_interrupt() { sdio_.set_interrupt_enable(Interrupt_Type::DTENDIE, true); }
+  void set_sdio_dma_enable(bool enable) { sdio_.set_dma_enable(enable); }
+  auto get_is_sdio_rx() -> bool { return is_rx_; }
+  void clear_sdio_data_flags() { sdio_.clear_multiple_interrupt_flags(clear_data_flags); }
+  void clear_sdio_cmd_flags() { sdio_.clear_multiple_interrupt_flags(clear_command_flags); }
+  void clear_sdio_common_flags() { sdio_.clear_multiple_interrupt_flags(clear_common_flags); }
+  auto get_state() -> Operational_State { return current_state_; }
+  void set_state(Operational_State state) { current_state_ = state; }
+  void set_transfer_error(SDIO_Error_Type error) { transfer_error_ = error; }
+  void set_transfer_end(bool end) { transfer_end_ = end; };
 
-  inline auto set_desired_clock(uint32_t desired_clock, bool wide_bus, bool low_power) -> SDIO_Error_Type {
+  auto set_desired_clock(uint32_t desired_clock, bool wide_bus, bool low_power) -> SDIO_Error_Type {
     sdio_.init(SDIO_Config{
       .desired_clock = desired_clock,
       .enable_bypass = false,
@@ -143,16 +143,16 @@ private:
   auto get_command_sent_result() -> SDIO_Error_Type;
   auto get_r1_result(Command_Index index) -> SDIO_Error_Type;
   auto get_r6_result(Command_Index index, uint16_t* rca) -> SDIO_Error_Type;
-  inline auto get_r7_result() -> SDIO_Error_Type { return check_sdio_status(Command_Index::INVALID, false, false); };
-  inline void sync_domains() { delayMicroseconds(8); }
+  auto get_r7_result() -> SDIO_Error_Type { return check_sdio_status(Command_Index::INVALID, false, false); };
+  void sync_domains() { delayMicroseconds(8); }
 
-  inline auto validate_transfer_params(uint32_t* buf, uint16_t size) -> bool {
+  auto validate_transfer_params(uint32_t* buf, uint16_t size) -> bool {
     if (buf == nullptr) return false;
     // Size must be > 0, <= 2048 and power of 2
     return size > 0U && size <= 2048U && !(size & (size - 1U));
   }
 
-  inline void process_sdsc_specific_csd(Card_Info* info, const uint8_t* csd_bytes) {
+  void process_sdsc_specific_csd(Card_Info* info, const uint8_t* csd_bytes) {
     const uint32_t device_size = ((csd_bytes[6] & 0x3U) << 10) |
                                  (csd_bytes[7] << 2) |
                                  ((csd_bytes[8] >> 6) & 0x3U);
@@ -171,7 +171,7 @@ private:
                      info->block_size;
   }
 
-  inline void process_sdhc_specific_csd(Card_Info* info, const uint8_t* csd_bytes) {
+  void process_sdhc_specific_csd(Card_Info* info, const uint8_t* csd_bytes) {
     info->csd.device_size = static_cast<uint32_t>((csd_bytes[7] & 0x3FU) << 16) |
                             static_cast<uint32_t>((csd_bytes[8]) << 8) |
                             static_cast<uint32_t>(csd_bytes[9]);
@@ -182,7 +182,7 @@ private:
                      BLOCK_SIZE * KILOBYTE);
   }
 
-  inline void process_common_csd_tail(Card_Info* info, const uint8_t* csd_bytes) {
+  void process_common_csd_tail(Card_Info* info, const uint8_t* csd_bytes) {
     // Calculate sector_size
     info->csd.sector_size = static_cast<uint8_t>(((csd_bytes[9] & 0x3FU) << 1) |
                                                   (csd_bytes[10] & 0x80U) >> 7);
@@ -196,7 +196,7 @@ private:
     info->csd.checksum = static_cast<uint8_t>((csd_bytes[15] & 0xFEU) >> 1);
   }
 
-  inline void disable_all_interrupts() {
+  void disable_all_interrupts() {
     sdio_.set_interrupt_enable(Interrupt_Type::DTCRCERRIE, false);
     sdio_.set_interrupt_enable(Interrupt_Type::DTTMOUTIE, false);
     sdio_.set_interrupt_enable(Interrupt_Type::DTENDIE, false);
@@ -208,7 +208,7 @@ private:
   }
 
   template <typename CheckFunc>
-  inline auto send_command_and_check(Command_Index command, uint32_t argument,
+  auto send_command_and_check(Command_Index command, uint32_t argument,
      Command_Response response, Wait_Type type, CheckFunc check_result) -> SDIO_Error_Type {
     sdio_.set_command_state_machine(command, argument, response, type);
     sync_domains();
