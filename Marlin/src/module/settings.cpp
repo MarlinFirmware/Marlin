@@ -60,6 +60,10 @@
   #include "../HAL/shared/eeprom_api.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "probe.h"
 #endif
@@ -186,11 +190,6 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-#if HAS_ETHERNET
-  void ETH0_report();
-  void MAC_report();
-#endif
-
 #define _EN_ITEM(N) , E##N
 #define _EN1_ITEM(N) , E##N:1
 
@@ -253,6 +252,13 @@ typedef struct SettingsDataStruct {
   //
   #if HAS_HOTEND_OFFSET
     xyz_pos_t hotend_offset[HOTENDS - 1];               // M218 XYZ
+  #endif
+
+  //
+  // Spindle Acceleration
+  //
+  #if HAS_SPINDLE_ACCELERATION
+    uint32_t acceleration_spindle;                      // cutter.acceleration_spindle_deg_per_s2
   #endif
 
   //
@@ -497,10 +503,15 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
+  #if ENABLED(LIN_ADVANCE)
+    float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      float stepper_extruder_advance_tau[DISTINCT_E];   // M900 U  stepper.extruder_advance_tau
+    #endif
+  #endif
 
   //
-  // HAS_MOTOR_CURRENT_PWM
+  // Stepper Motors Current
   //
   #ifndef MOTOR_CURRENT_COUNT
     #if HAS_MOTOR_CURRENT_PWM
@@ -943,13 +954,23 @@ void MarlinSettings::postprocess() {
     #endif // NUM_AXES
 
     //
-    // Hotend Offsets, if any
+    // Hotend Offsets
     //
     {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; ++e)
           EEPROM_WRITE(hotend_offset[e]);
+      #endif
+    }
+
+    //
+    // Spindle Acceleration
+    //
+    {
+      #if HAS_SPINDLE_ACCELERATION
+        _FIELD_TEST(acceleration_spindle);
+        EEPROM_WRITE(cutter.acceleration_spindle_deg_per_s2);
       #endif
     }
 
@@ -1540,13 +1561,13 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
     {
-      _FIELD_TEST(planner_extruder_advance_K);
-
       #if ENABLED(LIN_ADVANCE)
+        _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_WRITE(planner.extruder_advance_K);
-      #else
-        dummyf = 0;
-        for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          EEPROM_WRITE(stepper.extruder_advance_tau);
+        #endif
       #endif
     }
 
@@ -1985,13 +2006,23 @@ void MarlinSettings::postprocess() {
       #endif // NUM_AXES
 
       //
-      // Hotend Offsets, if any
+      // Hotend Offsets
       //
       {
         #if HAS_HOTEND_OFFSET
           // Skip hotend 0 which must be 0
           for (uint8_t e = 1; e < HOTENDS; ++e)
             EEPROM_READ(hotend_offset[e]);
+        #endif
+      }
+
+      //
+      // Spindle Acceleration
+      //
+      {
+        #if HAS_SPINDLE_ACCELERATION
+          _FIELD_TEST(acceleration_spindle);
+          EEPROM_READ(cutter.acceleration_spindle_deg_per_s2);
         #endif
       }
 
@@ -2003,7 +2034,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
         #if HAS_FILAMENT_SENSOR
-        if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+          if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
         TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
@@ -2607,15 +2638,27 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
+      #if ENABLED(LIN_ADVANCE)
       {
         float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
-        #if ENABLED(LIN_ADVANCE)
-          if (!validating)
-            COPY(planner.extruder_advance_K, extruder_advance_K);
+        if (!validating)
+          COPY(planner.extruder_advance_K, extruder_advance_K);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          float tau[DISTINCT_E];
+          EEPROM_READ(tau);
+          if (!validating) {
+            #if ENABLED(DISTINCT_E_FACTORS)
+              EXTRUDER_LOOP() stepper.set_advance_tau(tau[e], e);
+            #else
+              stepper.set_advance_tau(tau[0]);
+            #endif
+          }
         #endif
       }
+      #endif
 
       //
       // Motor Current PWM
@@ -3286,13 +3329,26 @@ void MarlinSettings::reset() {
 
   TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
+  //
+  // Home Offset
+  //
   #if HAS_SCARA_OFFSET
     scara_home_offset.reset();
   #elif HAS_HOME_OFFSET
     home_offset.reset();
   #endif
 
+  //
+  // Hotend Offsets
+  //
   TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+
+  //
+  // Spindle Acceleration
+  //
+  #if HAS_SPINDLE_ACCELERATION
+    cutter.acceleration_spindle_deg_per_s2 = DEFAULT_ACCELERATION_SPINDLE;
+  #endif
 
   //
   // Filament Runout Sensor
@@ -3702,6 +3758,15 @@ void MarlinSettings::reset() {
       }
     #else
       planner.extruder_advance_K[0] = ADVANCE_K;
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if ENABLED(DISTINCT_E_FACTORS)
+        constexpr float linAdvanceTau[] = ADVANCE_TAU;
+        EXTRUDER_LOOP()
+          stepper.set_advance_tau(linAdvanceTau[_MAX(uint8_t(e), COUNT(linAdvanceTau) - 1)], e);
+      #else
+        stepper.set_advance_tau(ADVANCE_TAU);
+      #endif
     #endif
   #endif
 
@@ -4166,11 +4231,11 @@ void MarlinSettings::reset() {
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");
-      if (!forReplay) ETH0_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M552_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M553_report();
-      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); gcode.M554_report();
+      if (!forReplay) ethernet.ETH0_report(false);
+      ethernet.MAC_report(forReplay);
+      gcode.M552_report(forReplay);
+      gcode.M553_report(forReplay);
+      gcode.M554_report(forReplay);
     #endif
 
     TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));

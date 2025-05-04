@@ -119,7 +119,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUS_SCREEN_FLOWRATES,           VPList_SD_FlowRates         },
   { DGUS_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
   { DGUS_SCREEN_SDFILELIST,          VPList_SDFileList           },
-  { 0 , nullptr } // List is terminated with an nullptr as table entry.
+  { 0, nullptr } // List is terminated with an nullptr as table entry.
 };
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;

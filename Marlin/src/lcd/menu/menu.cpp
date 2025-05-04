@@ -204,6 +204,15 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
   #endif
 
   //
+  // Clear alerts when exiting the Status Screen to the Main Menu
+  //
+
+  if (currentScreen == status_screen && screen == menu_main) {
+    reset_alert_level();
+    reset_status();
+  }
+
+  //
   // Go to the new screen
   //
 

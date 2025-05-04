@@ -61,7 +61,6 @@ namespace LanguageNarrow_pl {
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu główne");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ustawienie zaawansowane");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguracja");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Wyłącz silniki");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu Debugowania");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Testowy pasek postępu");
@@ -358,14 +357,14 @@ namespace LanguageNarrow_pl {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Wysuń Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Wysuń Filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Wysuń wszystkie");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Inicjal. karty SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Inicjal. dysk flash");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Inicjal. karty SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inicjal. karty SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Inicjal. karty SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Inicjal. dysk flash");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Zmiana karty SD");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Zwolnienie karty");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z za stołem");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Współczynik skrzywienia");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Self-Test");

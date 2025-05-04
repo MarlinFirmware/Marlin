@@ -1137,11 +1137,11 @@ private:
 
   #if HAS_ETHERNET
     static void M552();
-    static void M552_report();
+    static void M552_report(const bool forReplay=true);
     static void M553();
-    static void M553_report();
+    static void M553_report(const bool forReplay=true);
     static void M554();
-    static void M554_report();
+    static void M554_report(const bool forReplay=true);
   #endif
 
   #if HAS_STEALTHCHOP

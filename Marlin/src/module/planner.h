@@ -43,6 +43,11 @@
   #define JD_USE_LOOKUP_TABLE
 #endif
 
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to Gaussian smoothing between 3 and 7
+  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) // Hz
+#endif
+
 #include "motion.h"
 #include "../gcode/queue.h"
 
@@ -240,11 +245,17 @@ typedef struct PlannerBlock {
   uint32_t accelerate_before,               // The index of the step event where cruising starts
            decelerate_start;                // The index of the step event on which to start decelerating
 
-  #if ENABLED(S_CURVE_ACCELERATION)
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    uint32_t cruise_time;                   // Cruise time in STEP timer counts
+    float e_step_ratio;
+  #endif
+  #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
     uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
              acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
-             deceleration_time,
-             acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+             deceleration_time;
+  #endif
+  #if ENABLED(S_CURVE_ACCELERATION)
+    uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
@@ -254,10 +265,14 @@ typedef struct PlannerBlock {
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
-    uint32_t la_advance_rate;               // The rate at which steps are added whilst accelerating
-    uint8_t  la_scaling;                    // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
-    uint16_t max_adv_steps,                 // Max advance steps to get cruising speed pressure
-             final_adv_steps;               // Advance steps for exit speed pressure
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      bool use_advance_lead;
+    #else
+      uint32_t la_advance_rate;             // The rate at which steps are added whilst accelerating
+      uint8_t  la_scaling;                  // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
+      uint16_t max_adv_steps,               // Max advance steps to get cruising speed pressure
+               final_adv_steps;             // Advance steps for exit speed pressure
+    #endif
   #endif
 
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
@@ -1040,6 +1055,14 @@ class Planner {
      * WARNING: Called from Stepper ISR context!
      */
     static block_t* get_current_block();
+
+    /**
+     * Get a planned upcoming block from the buffer.
+     * Return nullptr if the buffer doesn't have the `current + offset` yet.
+     *
+     * WARNING: Called from Stepper ISR context!
+     */
+    static block_t* get_future_block(const uint8_t offset);
 
     /**
      * "Release" the current block so its slot can be reused.

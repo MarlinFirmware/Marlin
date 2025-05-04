@@ -60,18 +60,6 @@ extern const char M23_STR[], M24_STR[];
   #include "Sd2Card.h"
 #endif
 
-#if HAS_MULTI_VOLUME
-  #define SV_SD_ONBOARD      1
-  #define SV_USB_FLASH_DRIVE 2
-  #define _VOLUME_ID(N) _CAT(SV_, N)
-  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == _VOLUME_ID(N))
-  #if !SHARED_VOLUME_IS(SD_ONBOARD) && !SHARED_VOLUME_IS(USB_FLASH_DRIVE)
-    #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
-  #endif
-#else
-  #define SHARED_VOLUME_IS(...) 0
-#endif
-
 typedef struct {
   bool saving:1,                // Receiving a G-code file or logging commands during a print
        logging:1,               // Log enqueued commands to the open file. See GCodeQueue::advance()
@@ -89,6 +77,14 @@ typedef struct {
        #endif
     ;
 } card_flags_t;
+
+enum MediaPresence : int8_t {
+  MEDIA_BOOT    = -1,
+  INSERT_NONE   = 0x00,
+  INSERT_MEDIA  = 0x01,
+  INSERT_SD     = TERN(HAS_MULTI_VOLUME, 0x02, 0x00),
+  INSERT_USB    = TERN(HAS_MULTI_VOLUME, 0x04, 0x00)
+};
 
 enum ListingFlags : uint8_t { LS_LONG_FILENAME, LS_ONLY_BIN, LS_TIMESTAMP };
 enum SortFlag : int8_t { AS_REV = -1, AS_OFF, AS_FWD, AS_ALSO_REV };
@@ -114,15 +110,88 @@ public:
 
   CardReader();
 
+  // Init at startup before mounting media
+  static void init();
+
+  /**
+   * Media Selection - Only one drive may be active at a time,
+   * so switching drives (currently) returns to the root folder.
+   * TODO: Save the last-used path for each device and cd <oldpath> on mount.
+   */
   static void changeMedia(DiskIODriver *_driver) { driver = _driver; }
 
-  static MediaFile getroot() { return root; }
+  static DiskIODriver* diskIODriver() { return driver; }
 
+  #if HAS_SDCARD
+    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
+    static sdcard_driver_t media_driver_sdcard;
+  #endif
+
+  #if HAS_USB_FLASH_DRIVE
+    static DiskIODriver_USBFlash media_driver_usbFlash;
+  #endif
+
+  static void selectMediaSDCard() {
+    #if HAS_SDCARD
+      changeMedia(&media_driver_sdcard);
+    #endif
+  }
+
+  static void selectMediaFlashDrive() {
+    #if HAS_USB_FLASH_DRIVE
+      changeMedia(&media_driver_usbFlash);
+    #endif
+  }
+
+  static bool isSDCardSelected() {
+    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+  }
+  static bool isFlashDriveSelected() {
+    return TERN0(HAS_USB_FLASH_DRIVE, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_usbFlash));
+  }
+  static bool isMediaSelected() {
+    return isSDCardSelected() || isFlashDriveSelected();
+  }
+
+  /**
+   * Media Detection - Inserted and Mounted Media
+   *
+   * Marlin 2.1.x supports up to two drives, either an SD Card or USB-FD.
+   * SD Card may have SPI or SDIO interface.
+   * SDIO / USB drives may be shared via MSC when not in use by Marlin.
+   */
+
+  // No card detect line? Assume the card is inserted.
+  static bool isSDCardInserted() {
+    return (
+      #if HAS_SD_DETECT
+        READ(SD_DETECT_PIN) == SD_DETECT_STATE
+      #else
+        ENABLED(HAS_SDCARD)
+      #endif
+    );
+  }
+
+  // Use the isInserted state from the driver
+  static bool isFlashDriveInserted() { return TERN0(HAS_USB_FLASH_DRIVE, DiskIODriver_USBFlash::isInserted()); }
+
+  // NOTE: If the SD Card has no DETECT line this always returns true
+  static bool isInserted() { return isFlashDriveInserted() || isSDCardInserted(); }
+
+  // Mount and release physical media
   static void mount();
   static void release();
+
   static bool isMounted() { return flag.mounted; }
 
-  // Handle media insert/remove
+  static bool isSDCardMounted() {
+    return isMounted() && isSDCardSelected();
+  }
+  static bool isFlashDriveMounted() {
+    return isMounted() && isFlashDriveSelected();
+  }
+
+  // Handle media insert/remove (including mounting on boot-up)
   static void manage_media();
 
   // SD Card Logging
@@ -141,6 +210,9 @@ public:
     static void diveToNewestFile(MediaFile parent, uint32_t &compareDateTime, MediaFile &outdir, char * const outname);
     static bool selectNewestFile();
   #endif
+
+  // The root directory of the current mounted drive
+  static MediaFile getroot() { return root; }
 
   // Basic file ops
   static void openFileRead(const char * const path, const uint8_t subcall=0);
@@ -178,6 +250,7 @@ public:
   static void pauseSDPrint()       { flag.sdprinting = false; }
   static bool isPrinting()         { return flag.sdprinting; }
   static bool isStillPrinting()    { return flag.sdprinting && !flag.abort_sd_printing; }
+  static bool isStillFetching()    { return isStillPrinting() && !flag.sdprintdone; }
   static bool isPaused()           { return isFileOpen() && !isPrinting(); }
   #if HAS_PRINT_PROGRESS_PERMYRIAD
     static uint16_t permyriadDone() {
@@ -232,22 +305,19 @@ public:
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
-  static MediaFile& getWorkDir()    { return workDir.isOpen() ? workDir : root; }
+  static MediaFile& getWorkDir() { return workDir.isOpen() ? workDir : root; }
 
   // Print File stats
   static uint32_t getFileSize()  { return filesize; }
   static uint32_t getIndex()     { return sdpos; }
-  static bool isFileOpen()       { return isMounted() && file.isOpen(); }
+  static bool isFileOpen()       { return isMounted() && myfile.isOpen(); }
   static bool eof()              { return getIndex() >= getFileSize(); }
 
   // File data operations
-  static int16_t get()                            { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
-  static int16_t read(void *buf, uint16_t nbyte)  { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  static int16_t write(void *buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
-  static void setIndex(const uint32_t index)      { file.seekSet((sdpos = index)); }
-
-  // TODO: rename to diskIODriver()
-  static DiskIODriver* diskIODriver() { return driver; }
+  static int16_t get()                            { int16_t out = (int16_t)myfile.read(); sdpos = myfile.curPosition(); return out; }
+  static int16_t read(void *buf, uint16_t nbyte)  { return myfile.isOpen() ? myfile.read(buf, nbyte) : -1; }
+  static int16_t write(void *buf, uint16_t nbyte) { return myfile.isOpen() ? myfile.write(buf, nbyte) : -1; }
+  static void setIndex(const uint32_t index)      { myfile.seekSet((sdpos = index)); }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     //
@@ -257,17 +327,17 @@ public:
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 
-  #if SHARED_VOLUME_IS(USB_FLASH_DRIVE) || HAS_USB_FLASH_DRIVE
-    #define HAS_USB_FLASH_DRIVE 1
-    static DiskIODriver_USBFlash media_driver_usbFlash;
-  #endif
-
-  #if NEED_SD2CARD_SDIO || NEED_SD2CARD_SPI
-    typedef TERN(NEED_SD2CARD_SDIO, DiskIODriver_SDIO, DiskIODriver_SPI_SD) sdcard_driver_t;
-    static sdcard_driver_t media_driver_sdcard;
-  #endif
-
 private:
+  //
+  // Driver, volume, and temporary file
+  //
+  static DiskIODriver *driver;
+  static MarlinVolume volume;
+
+  static MediaFile myfile;
+  static uint32_t filesize, // Total size of the current file, in bytes
+                  sdpos;    // Index most recently read (one behind file.getPos)
+
   //
   // Working directory and parents
   //
@@ -330,13 +400,6 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  static DiskIODriver *driver;
-  static MarlinVolume volume;
-  static MediaFile file;
-
-  static uint32_t filesize, // Total size of the current file, in bytes
-                  sdpos;    // Index most recently read (one behind file.getPos)
-
   //
   // Procedure calls to other files
   //
@@ -363,31 +426,29 @@ private:
   #endif
 };
 
-#if HAS_USB_FLASH_DRIVE
-  #define IS_SD_INSERTED() DiskIODriver_USBFlash::isInserted()
-#elif HAS_SD_DETECT
-  #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
-#else
-  // No card detect line? Assume the card is inserted.
-  #define IS_SD_INSERTED() true
-#endif
-
-#define IS_SD_MOUNTED()   card.isMounted()
-#define IS_SD_PRINTING()  card.isStillPrinting()
-#define IS_SD_FETCHING()  (!card.flag.sdprintdone && card.isStillPrinting())
-#define IS_SD_PAUSED()    card.isPaused()
-#define IS_SD_FILE_OPEN() card.isFileOpen()
-
-extern CardReader card;
-
 #else // !HAS_MEDIA
 
-#define IS_SD_MOUNTED()   false
-#define IS_SD_PRINTING()  false
-#define IS_SD_FETCHING()  false
-#define IS_SD_PAUSED()    false
-#define IS_SD_FILE_OPEN() false
+class CardReader {
+public:
+  static constexpr bool isSDCardSelected()      { return false; }
+  static constexpr bool isFlashDriveSelected()  { return false; }
+
+  static constexpr bool isSDCardInserted()      { return false; }
+  static constexpr bool isFlashDriveInserted()  { return false; }
+  static constexpr bool isInserted()            { return false; }
+
+  static constexpr bool isSDCardMounted()       { return false; }
+  static constexpr bool isFlashDriveMounted()   { return false; }
+  static constexpr bool isMounted()             { return false; }
+
+  static constexpr bool isStillPrinting()       { return false; }
+  static constexpr bool isStillFetching()       { return false; }
+  static constexpr bool isPaused()              { return false; }
+  static constexpr bool isFileOpen()            { return false; }
+};
 
 #define LONG_FILENAME_LENGTH 0
 
 #endif // !HAS_MEDIA
+
+extern CardReader card;

@@ -294,9 +294,9 @@ MenuItem *fanSpeedItem = nullptr;
 MenuItem *mMeshMoveZItem = nullptr;
 MenuItem *editZValueItem = nullptr;
 
-bool isPrinting() { return printingIsActive() || printingIsPaused(); }
-bool sdPrinting() { return isPrinting() && IS_SD_FILE_OPEN(); }
-bool hostPrinting() { return isPrinting() && !IS_SD_FILE_OPEN(); }
+bool isPrinting()   { return printingIsActive() || printingIsPaused(); }
+bool sdPrinting()   { return isPrinting() && card.isStillPrinting(); }
+bool hostPrinting() { return isPrinting() && !card.isStillPrinting(); }
 
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
@@ -589,7 +589,11 @@ void drawPrintProgressElapsed() {
 #endif
 
 void ICON_ResumeOrPause() {
-  if (checkkey == ID_PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? ICON_Resume() : ICON_Pause();
+  if (checkkey != ID_PrintProcess) return;
+  if (print_job_timer.isPaused() || hmiFlag.pause_flag)
+    ICON_Resume();
+  else
+    ICON_Pause();
 }
 
 // Print a string (up to 30 characters) in the header,
@@ -927,19 +931,28 @@ void sdCardFolder(char * const dirname) {
 
 void onClickSDItem() {
   const uint16_t hasUpDir = !card.flag.workDirIsRoot;
-  if (hasUpDir && currentMenu->selected == 1) return sdCardUp();
+  if (hasUpDir && currentMenu->selected == 1) {
+    sdCardUp();
+    return;
+  }
   else {
     const uint16_t filenum = currentMenu->selected - 1 - hasUpDir;
     card.selectFileByIndexSorted(filenum);
 
     // Enter that folder!
-    if (card.flag.filenameIsDir) return sdCardFolder(card.filename);
+    if (card.flag.filenameIsDir) {
+      sdCardFolder(card.filename);
+      return;
+    }
 
-    if (card.fileIsBinary())
-      return dwinPopupConfirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+    if (card.fileIsBinary()) {
+      dwinPopupConfirm(ICON_Error, F("Please check filenames"), F("Only G-code can be printed"));
+      return;
+    }
     else {
       dwinPrintHeader(card.longest_filename()); // Save filename
-      return gotoConfirmToPrint();
+      gotoConfirmToPrint();
+      return;
     }
   }
 }
@@ -1171,7 +1184,7 @@ void onClickPauseOrStop() {
     case PRINT_STOP: if (hmiFlag.select_flag) ExtUI::stopPrint(); break; // Stop confirmed then abort print
     default: break;
   }
-  return gotoPrintProcess();
+  gotoPrintProcess();
 }
 
 // Printing
@@ -1205,10 +1218,12 @@ void hmiPrinting() {
           ExtUI::resumePrint();
           break;
         }
-        else
-          return gotoPopup(popupPauseOrStop, onClickPauseOrStop);
-      case PRINT_STOP:
-        return gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        return;
+      case PRINT_STOP: {
+        gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        return;
+      }
       default: break;
     }
   }
@@ -1256,8 +1271,9 @@ void drawMainArea() {
 void hmiWaitForUser() {
   EncoderState encoder_diffState = get_encoder_state();
   if (encoder_diffState != ENCODER_DIFF_NO && !ui.backlight) {
-    if (checkkey == ID_WaitResponse) hmiReturnScreen();
-    return ui.refresh_brightness();
+    ui.refresh_brightness();
+    hmiReturnScreen();
+    return;
   }
   if (!wait_for_user) {
     switch (checkkey) {
@@ -1387,7 +1403,8 @@ void eachMomentUpdate() {
     }
     #if HAS_PLR_UI_FLAG
       else if (DWIN_lcd_sd_status && recovery.ui_flag_resume) { // Resume interrupted print
-        return gotoPowerLossRecovery();
+        gotoPowerLossRecovery();
+        return;
       }
     #endif
 
@@ -1426,7 +1443,8 @@ void eachMomentUpdate() {
     if (hmiFlag.select_flag) {
       queue.inject(F("M1000C"));
       select_page.reset();
-      return gotoMainMenu();
+      gotoMainMenu();
+      return;
     }
     else {
       hmiSaveProcessID(ID_NothingToDo);
@@ -1510,15 +1528,17 @@ void hmiReturnScreen() {
   drawMainArea();
 }
 
+#if ANY(TJC_DISPLAY, DACAI_DISPLAY)
+  #define HOME_AND_KILL_ICON ICON_BLTouch
+#else
+  #define HOME_AND_KILL_ICON ICON_Printer_0
+#endif
+
 void dwinHomingStart() {
   hmiFlag.home_flag = true;
   hmiSaveProcessID(ID_Homing);
   title.showCaption(GET_TEXT_F(MSG_HOMING));
-  #if ANY(TJC_DISPLAY, DACAI_DISPLAY)
-    dwinShowPopup(ICON_BLTouch, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
-  #else
-    dwinShowPopup(ICON_Printer_0, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
-  #endif
+  dwinShowPopup(HOME_AND_KILL_ICON, GET_TEXT_F(MSG_HOMING), GET_TEXT_F(MSG_PLEASE_WAIT));
 }
 
 void dwinHomingDone() {
@@ -1937,15 +1957,14 @@ void MarlinUI::update() {
 }
 
 #if HAS_LCD_BRIGHTNESS
-  void MarlinUI::_set_brightness() { dwinLCDBrightness(backlight ? brightness : 0); }
+  void MarlinUI::_set_brightness() {
+    if (!backlight) wait_for_user = true;
+    dwinLCDBrightness(backlight ? brightness : 0);
+  }
 #endif
 
 void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
-  #if ANY(TJC_DISPLAY, DACAI_DISPLAY)
-    dwinDrawPopup(ICON_BLTouch, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
-  #else
-    dwinDrawPopup(ICON_Printer_0, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
-  #endif
+  dwinDrawPopup(HOME_AND_KILL_ICON, GET_TEXT_F(MSG_PRINTER_KILLED), lcd_error);
   DWINUI::drawCenteredString(hmiData.colorPopupTxt, 270, GET_TEXT_F(MSG_TURN_OFF));
   dwinUpdateLCD();
 }
@@ -2051,7 +2070,8 @@ void dwinRedrawScreen() {
     dwinResetStatusLine();
     if (hmiFlag.select_flag) {     // Confirm
       gotoMainMenu();
-      return card.openAndPrintFile(card.filename);
+      card.openAndPrintFile(card.filename);
+      return;
     }
     else
       hmiReturnScreen();
@@ -2061,7 +2081,10 @@ void dwinRedrawScreen() {
 
 void gotoConfirmToPrint() {
   #if HAS_GCODE_PREVIEW
-    if (hmiData.enablePreview) return gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
+    if (hmiData.enablePreview) {
+      gotoPopup(preview.drawFromSD, onClickConfirmToPrint);
+      return;
+    }
   #endif
   card.openAndPrintFile(card.filename); // Direct print SD file
 }
@@ -2194,7 +2217,8 @@ void axisMove(AxisEnum axis) {
   #if HAS_HOTEND
     if (axis == E_AXIS && thermalManager.tooColdToExtrude(0)) {
       gcode.process_subcommands_now(F("G92E0"));  // Reset extruder position
-      return dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_HOTEND_TOO_COLD), GET_TEXT_F(MSG_PLEASE_PREHEAT));
+      return;
     }
   #endif
   planner.synchronize();
@@ -2252,7 +2276,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   void applyBrightness() { ui.set_brightness(menuData.value); }
   void liveBrightness() { dwinLCDBrightness(menuData.value); }
   void setBrightness() { setIntOnClick(LCD_BRIGHTNESS_MIN, LCD_BRIGHTNESS_MAX, ui.brightness, applyBrightness, liveBrightness); }
-  void turnOffBacklight() { hmiSaveProcessID(ID_WaitResponse); ui.set_brightness(0); dwinRedrawScreen(); }
+  void turnOffBacklight() { ui.set_brightness(0); dwinRedrawScreen(); }
 #endif
 
 #if ENABLED(CASE_LIGHT_MENU)
