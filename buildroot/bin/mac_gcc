@@ -11,7 +11,9 @@ which port >/dev/null && HAS_MACPORTS=1
 which brew >/dev/null && HAS_HOMEBREW=1
 
 MACPORTS_PATH=$(dirname "$(which port)")
-HOMEBREW_PATH="$(brew --prefix)/bin"
+if ((HAS_HOMEBREW)); then
+  HOMEBREW_PATH="$(brew --prefix)/bin"
+fi
 
 if [[ $1 == "apple" || $1 == "darwin" || $1 == "system" ]]; then
 

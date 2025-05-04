@@ -133,13 +133,11 @@ namespace ExtUI {
   #endif
 
   // For fancy LCDs include an icon ID, message, and translated button title
-  void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
     onUserConfirmRequired(cstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
-  void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
+  void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
     onUserConfirmRequired(fstr);
-    UNUSED(icon); UNUSED(fBtn);
   }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)

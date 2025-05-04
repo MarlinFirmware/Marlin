@@ -48,7 +48,7 @@ bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
   // The previous write should've already delayed to detect the alarm.
   if (cmd != current) {
     servo[Z_PROBE_SERVO_NR].move(cmd);
-    safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
+    safe_delay(_MAX(ms, uint32_t(BLTOUCH_DELAY)));  // BLTOUCH_DELAY is also the *minimum* delay
   }
   return triggered();
 }

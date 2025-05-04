@@ -82,7 +82,9 @@ typedef libServo hal_servo_t;
 
 // Disable Marlin's software oversampling.
 // The MFL framework uses 16x hardware oversampling by default
-#define HAL_ADC_FILTERED
+#ifdef GD32F303RE
+  #define HAL_ADC_FILTERED
+#endif
 
 #define GET_PIN_MAP_PIN(index)        index
 #define GET_PIN_MAP_INDEX(pin)        pin

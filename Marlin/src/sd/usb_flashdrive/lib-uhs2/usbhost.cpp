@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_USB_FLASH_DRIVE && DISABLED(USE_UHS3_USB)
+#if ALL(HAS_USB_FLASH_DRIVE, USE_UHS2_USB)
 
 #if !PINS_EXIST(USB_CS, USB_INTR)
   #error "USB_FLASH_DRIVE_SUPPORT requires USB_CS_PIN and USB_INTR_PIN (or USE_UHS3_USB) to be defined."
@@ -109,7 +109,7 @@ bool MAX3421e::start() {
   // Initialize pins and SPI bus
 
   SET_OUTPUT(USB_CS_PIN);
-  SET_INPUT_PULLUP(USB_INTR_PIN);
+  SET_INPUT_PULLUP(USB_INTR_PIN); // Active LOW
   ncs();
   spiBegin();
 
@@ -203,4 +203,4 @@ uint8_t MAX3421e::IntHandler() {
   return HIRQ_sendback;
 }
 
-#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB
+#endif // HAS_USB_FLASH_DRIVE && USE_UHS2_USB

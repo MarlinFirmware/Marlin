@@ -31,8 +31,6 @@ void cli() { } // Disable
 void sei() { } // Enable
 
 // Time functions
-void _delay_ms(const int ms) { delay(ms); }
-
 unsigned long millis() {
   return (unsigned long)Clock::millis();
 }

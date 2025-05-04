@@ -1595,6 +1595,27 @@ void hmiMaxAccelerationXYZE() {
   drawEditInteger4(select_acc.now, hmiValues.maxAcceleration, true);
 }
 
+
+#if HAS_SPINDLE_ACCELERATION
+
+  void hmiSpindleAcceleration() {
+    EncoderState encoder_diffState = encoderReceiveAnalyze();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
+    if (applyEncoder(encoder_diffState, hmiValues.spindleAcceleration)) {
+      checkkey = ID_SpindleAcceleration;
+      encoderRate.enabled = false;
+      cutter.spindle_acceleration_deg_per_s2 = hmiValues.spindleAcceleration;
+      drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration);
+      return;
+    }
+    // SpindleAcceleration limit
+    LIMIT(hmiValues.spindleAcceleration, min_acceleration_edit_values_spindle, max_acceleration_edit_values_spindle);
+    // SpindleAcceleration value
+    drawEditInteger4(select_acc.now, hmiValues.spindleAcceleration, true);
+  }
+
+#endif // HAS_SPINDLE_ACCELERATION
+
 #if ENABLED(CLASSIC_JERK)
 
   void hmiMaxJerkXYZE() {
@@ -4283,6 +4304,9 @@ void dwinHandleScreen() {
     case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
+    #if HAS_SPINDLE_ACCELERATION
+      case ID_SpindleAccelerationValue: hmiSpindleAcceleration(); break;
+    #endif
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif

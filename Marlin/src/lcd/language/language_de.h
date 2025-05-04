@@ -55,7 +55,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug-Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Statusbalken-Test");
@@ -493,14 +492,14 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filament entladen");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filament entladen *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Alles entladen");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SD initial.");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USB initial.");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("SD initial.");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB initial.");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medium getauscht"); // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medium freigeben"); // if Marlin gets confused - M22
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Sonde außerhalb");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Korrekturfaktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
