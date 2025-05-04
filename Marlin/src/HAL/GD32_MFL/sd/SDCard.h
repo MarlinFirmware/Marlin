@@ -149,10 +149,7 @@ private:
   inline auto validate_transfer_params(uint32_t* buf, uint16_t size) -> bool {
     if (buf == nullptr) return false;
     // Size must be > 0, <= 2048 and power of 2
-    if (size == 0U || size > 2048U || size & (size - 1U)) {
-      return false;
-    }
-    return true;
+    return size > 0U && size <= 2048U && !(size & (size - 1U));
   }
 
   inline void process_sdsc_specific_csd(Card_Info* info, const uint8_t* csd_bytes) {
