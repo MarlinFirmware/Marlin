@@ -31,7 +31,7 @@
 #include "leds.h"
 
 #if ANY(CASE_LIGHT_USE_RGB_LED, CASE_LIGHT_USE_NEOPIXEL)
-  #include "../../feature/caselight.h"
+  #include "../caselight.h"
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)

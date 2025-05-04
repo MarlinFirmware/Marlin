@@ -47,7 +47,7 @@ namespace LanguageNarrow_sk {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Slovenčina");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pripravená.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pripravená.");
   LSTR MSG_YES                            = _UxGT("ÁNO");
   LSTR MSG_NO                             = _UxGT("NIE");
   LSTR MSG_HIGH                           = _UxGT("VYSOKÁ");
@@ -68,13 +68,12 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MAIN_MENU                      = _UxGT("Hlavná ponuka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Pokročilé nastav.");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurácia");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto-štart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolniť motory");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Ponuka ladenia");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test uk. priebehu");
   LSTR MSG_HOMING                         = _UxGT("Parkovanie");
   LSTR MSG_AUTO_HOME                      = _UxGT("Domovská pozícia");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Domov os @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Domov os @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Domov os X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Domov os Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Domov os Z");
@@ -190,7 +189,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Plná kontrola");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplik. medz.-X");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. tryska Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. tryska @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. tryska @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Vykonávam G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("Nástroje UBL");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Vyrovnávam bod");
@@ -271,7 +270,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Uložiť sieť bodov");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("Nastavenie LED");
-  LSTR MSG_LEDS                           = _UxGT("Svetlo");
+  LSTR MSG_LIGHTS                         = _UxGT("Svetlo");
+  LSTR MSG_LIGHT_N                        = _UxGT("Svetlo #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Predvolby svetla");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Červená");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Oranžová");
@@ -283,7 +283,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Biela");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Obnoviť nastavenie");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanál {");
-  LSTR MSG_LEDS2                          = _UxGT("Svetlo #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Predvolby svetla #2");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Jas");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Vlastná farba");
@@ -392,10 +391,10 @@ namespace LanguageNarrow_sk {
   LSTR MSG_A_RETRACT                      = _UxGT("A-retrakt");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-prejazd");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Tvarov. vstupu");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("Povol. tvarov. @");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("Zakáz. tvarov. @");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("Frekvencia @");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("Tlmenie @");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("Povol. tvarov. @");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("Zakáz. tvarov. @");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("Frekvencia @");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("Tlmenie @");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Max. frekvencia");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min. posun");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Kroky/mm");
@@ -533,11 +532,14 @@ namespace LanguageNarrow_sk {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Vysunúť filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunúť filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunúť všetko");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načítať kartu");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Načítať SD kartu");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Načítať USB disk");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načítať SD kartu");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Načítať SD kartu");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Načítať USB disk");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vymeniť kartu");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Odpojiť kartu");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Auto-štart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl.");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Faktor skosenia");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -567,6 +569,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X ofset");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y ofset");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z ofset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ ofset");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Krok Z posuň");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Hranica sondy");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Rýchl. posunu Z");
@@ -757,7 +760,8 @@ namespace LanguageNarrow_sk {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridný prah");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Bezsenzor. domov");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim krokovania");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop zapnutý");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Vynulovať");
   LSTR MSG_SERVICE_IN                     = _UxGT("za:");
   LSTR MSG_BACKLASH                       = _UxGT("Kompenz. vôle");

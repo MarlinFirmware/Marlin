@@ -35,7 +35,7 @@
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K (AT24C32)
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K (AT24C32)
 #define I2C_SCL_PIN                         PB8
 #define I2C_SDA_PIN                         PB9
 
@@ -197,25 +197,12 @@
 //
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                   PE6
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PB7
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PB3
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PD0
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #define E3_SERIAL_TX_PIN                  PD15
-  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -280,7 +267,6 @@
   #elif SD_CONNECTION_IS(CUSTOM_CABLE)
     #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
   #endif
-  #define SDSS                         SD_SS_PIN
 #endif
 
 //

@@ -49,7 +49,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
-// Initialized by settings.load()
+// Initialized by settings.load
 float delta_height;
 abc_float_t delta_endstop_adj{0};
 float delta_radius,

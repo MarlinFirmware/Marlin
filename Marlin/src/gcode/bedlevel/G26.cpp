@@ -102,7 +102,7 @@
 #define G26_OK false
 #define G26_ERR true
 
-#include "../../gcode/gcode.h"
+#include "../gcode.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 #include "../../MarlinCore.h"

@@ -27,8 +27,8 @@
 #include "../../MarlinCore.h"
 
 #if HAS_PRUSA_MMU3
-  #include "../../feature/mmu3/mmu2.h"
-  #include "../../feature/mmu3/mmu2_reporting.h"
+  #include "../../feature/mmu3/mmu3.h"
+  #include "../../feature/mmu3/mmu3_reporting.h"
   #include "../../feature/mmu3/SpoolJoin.h"
 #else
   #include "../../feature/mmu/mmu2.h"
@@ -263,7 +263,7 @@ void menu_mmu3_statistics() {
 
 void action_mmu2_reset() {
   #if HAS_PRUSA_MMU3
-    #if PIN_EXISTS(MMU2_RST)
+    #if PIN_EXISTS(MMU_RST)
       mmu3.reset(MMU3::MMU3::ResetForm::ResetPin);
     #else
       mmu3.reset(MMU3::MMU3::ResetForm::Software);

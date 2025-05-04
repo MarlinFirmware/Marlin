@@ -36,7 +36,7 @@
 #if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K (AT24C32)
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K (AT24C32)
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB8
   #define I2C_SDA_PIN                       PB9
@@ -288,28 +288,13 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   #define X_SERIAL_TX_PIN                   PC4
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PD11
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PC6
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define Z2_SERIAL_TX_PIN                  PC7
-  #define Z2_SERIAL_RX_PIN      Z2_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PF2
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PE4
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PE1
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #define E3_SERIAL_TX_PIN                  PD3
-  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -359,8 +344,7 @@
   #define SD_DETECT_PIN                     PC14
 #elif SD_CONNECTION_IS(LCD)
 
-  #define SDSS                              PA4
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
@@ -390,7 +374,6 @@
   #define E4_CS_PIN                  EXP1_06_PIN
   #if HAS_TMC_UART
     #define E4_SERIAL_TX_PIN         EXP1_06_PIN
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
   #endif
 
   // M2 on Driver Expansion Module
@@ -401,7 +384,6 @@
   #define E5_CS_PIN                  EXP1_04_PIN
   #if HAS_TMC_UART
     #define E5_SERIAL_TX_PIN         EXP1_04_PIN
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
   #endif
 
   // M3 on Driver Expansion Module
@@ -412,7 +394,6 @@
   #define E6_CS_PIN                  EXP1_02_PIN
   #if HAS_TMC_UART
     #define E6_SERIAL_TX_PIN         EXP1_02_PIN
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION
@@ -549,13 +530,13 @@
   /**
    *                      -------
    *            GND | 9  |       | 8 | 3.3V
-   *  (ESP-CS) PB12 | 10 |       | 7 | PB15 (ESP-MOSI)
-   *           3.3V | 11 |       | 6 | PB14 (ESP-MISO)
+   *  (ESP-CS) PB12 | 10 |       | 7 | PC3  (ESP-MOSI)
+   *             -- | 11 |       | 6 | PC2  (ESP-MISO)
    * (ESP-IO0)  PD7 | 12 |       | 5 | PB13 (ESP-CLK)
    * (ESP-IO4) PD10 | 13 |       | 4 | --
-   *             -- | 14 |       | 3 | PE15 (ESP-EN)
+   *             -- | 14 |       | 3 | PG8  (ESP-EN)
    *  (ESP-RX)  PD8 | 15 |       | 2 | --
-   *  (ESP-TX)  PD9 | 16 |       | 1 | PE14 (ESP-RST)
+   *  (ESP-TX)  PD9 | 16 |       | 1 | PG7  (ESP-RST)
    *                      -------
    *                       WIFI
    */

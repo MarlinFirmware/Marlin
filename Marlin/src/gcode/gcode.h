@@ -128,6 +128,8 @@
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
+ * M86  - Set / Report Hotend Idle Timeout. (Requires HOTEND_IDLE_TIMEOUT)
+ * M87  - Cancel Hotend Idle Timeout (by setting the timeout period to 0). (Requires HOTEND_IDLE_TIMEOUT)
  * M92  - Set planner.settings.axis_steps_per_mm for one or more axes. (Requires EDITABLE_STEPS_PER_UNIT)
  *
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
@@ -157,7 +159,7 @@
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
  *
- * M122 - Debug stepper (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M122 - Debug stepper (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2660))
  * M123 - Report fan tachometers. (Requires En_FAN_TACHO_PIN) Optionally set auto-report interval. (Requires AUTO_REPORT_FANS)
  * M125 - Save current position and move to filament change position. (Requires PARK_HEAD_ON_PAUSE)
  *
@@ -195,6 +197,7 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
+ * M210 - Set or Report the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
@@ -212,6 +215,8 @@
  * M281 - Set servo min|max position: "M281 P<index> L<min> U<max>". (Requires EDITABLE_SERVO_ANGLES)
  * M282 - Detach servo: "M282 P<index>". (Requires SERVO_DETACH_GCODE)
  * M290 - Babystepping (Requires BABYSTEPPING)
+ * M293 - Babystep Z UP (Requires EP_BABYSTEPPING)
+ * M294 - Babystep Z DOWN (Requires EP_BABYSTEPPING)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -245,6 +250,7 @@
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
+ * M493 - Get or set input FT Motion / Shaping parameters. (Requires FT_MOTION)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -255,12 +261,13 @@
  * M512 - Set/Change/Remove Password (Requires PASSWORD_CHANGE_GCODE)
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
+ * M550 - Set the machine name: "M550 P<name>". (Requires CONFIGURABLE_MACHINE_NAME)
  * M552 - Get or set IP address. Enable/disable network interface. (Requires enabled Ethernet port)
  * M553 - Get or set IP netmask. (Requires enabled Ethernet port)
  * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
- * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
+ * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
- * M592 - Get or set nonlinear extrusion parameters. (Requires NONLINEAR_EXTRUSION)
+ * M592 - Get or set Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -273,15 +280,17 @@
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  *
- * M704 - Preload to MMU (Requires PRUSA_MMU3)
- * M705 - Eject filament (Requires PRUSA_MMU3)
- * M706 - Cut filament (Requires PRUSA_MMU3)
- * M707 - Read from MMU register (Requires PRUSA_MMU3)
- * M708 - Write to MMU register (Requires PRUSA_MMU3)
- * M709 - MMU power & reset (Requires PRUSA_MMU3)
+ *** PRUSA_MMU3 ***
+ * M704 - Preload to MMU
+ * M705 - Eject filament
+ * M706 - Cut filament
+ * M707 - Read from MMU register
+ * M708 - Write to MMU register
+ * M709 - MMU power & reset
  *
  * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
  * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
+ * M820 - Report all defined M810-M819 G-code macros (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, plus SKEW_CORRECTION_FOR_Z for IJ)
  *
@@ -299,17 +308,19 @@
  *
  * M871 - Print/reset/clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
- * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set or get motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M900 - Set or Report Linear Advance K-factor. (Requires LIN_ADVANCE)
+ * M906 - Set or Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
  * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires HAS_MOTOR_CURRENT_DAC)
- * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
- * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M911 - Report stepper driver overtemperature pre-warn condition. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2660))
+ * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2660))
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
- * M919 - Get or Set motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc. If no parameters are given, report. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
+ * M919 - Set or Report motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
+ *        If no parameters are given, report. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2660))
+ * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
@@ -422,14 +433,14 @@ public:
 
   static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
-    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+    return max_inactive_time && ELAPSED(ms, previous_move_ms, max_inactive_time);
   }
   FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
 
   #if HAS_DISABLE_IDLE_AXES
     static millis_t stepper_inactive_time;
     FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
-      return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+      return ELAPSED(ms, previous_move_ms, stepper_inactive_time);
     }
   #else
     static bool stepper_inactive_timeout(const millis_t) { return false; }
@@ -494,7 +505,7 @@ public:
     #define KEEPALIVE_STATE(N) NOOP
   #endif
 
-  static void dwell(millis_t time);
+  static void dwell(const millis_t time);
 
 private:
 
@@ -897,8 +908,15 @@ private:
     #endif
   #endif
 
-  static void M211();
-  static void M211_report(const bool forReplay=true);
+  #if ENABLED(EDITABLE_HOMING_FEEDRATE)
+    static void M210();
+    static void M210_report(const bool forReplay=true);
+  #endif
+
+  #if HAS_SOFTWARE_ENDSTOPS
+    static void M211();
+    static void M211_report(const bool forReplay=true);
+  #endif
 
   #if HAS_MULTI_EXTRUDER
     static void M217();
@@ -1113,13 +1131,17 @@ private:
     static void M540();
   #endif
 
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    static void M550();
+  #endif
+
   #if HAS_ETHERNET
     static void M552();
-    static void M552_report();
+    static void M552_report(const bool forReplay=true);
     static void M553();
-    static void M553_report();
+    static void M553_report(const bool forReplay=true);
     static void M554();
-    static void M554_report();
+    static void M554_report(const bool forReplay=true);
   #endif
 
   #if HAS_STEALTHCHOP
@@ -1186,6 +1208,7 @@ private:
 
   #if ENABLED(GCODE_MACROS)
     static void M810_819();
+    static void M820();
   #endif
 
   #if HAS_BED_PROBE
@@ -1237,6 +1260,10 @@ private:
       static void M914_report(const bool forReplay=true);
     #endif
     static void M919();
+    #if ENABLED(EDITABLE_HOMING_CURRENT)
+      static void M920();
+      static void M920_report(const bool forReplay=true);
+    #endif
   #endif
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC

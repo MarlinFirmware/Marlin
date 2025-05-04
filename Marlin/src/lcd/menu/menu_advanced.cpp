@@ -37,6 +37,10 @@
   #include "../../gcode/parser.h"
 #endif
 
+#if HAS_SPINDLE_ACCELERATION
+  #include "../../feature/spindle_laser.h"
+#endif
+
 #if HAS_BED_PROBE
   #include "../../module/probe.h"
 #endif
@@ -88,7 +92,7 @@ void menu_backlash();
     #if ANY_PIN(MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y)
       EDIT_CURRENT_PWM(STR_A STR_B, 0);
     #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+    #if HAS_MOTOR_CURRENT_PWM_Z
       EDIT_CURRENT_PWM(STR_C, 1);
     #endif
     #if HAS_MOTOR_CURRENT_PWM_E
@@ -100,6 +104,10 @@ void menu_backlash();
 #endif
 
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #define HAS_ADV_FILAMENT_MENU 1
+#endif
+
+#if HAS_ADV_FILAMENT_MENU
   //
   // Advanced Settings > Filament
   //
@@ -114,7 +122,18 @@ void menu_backlash();
         EXTRUDER_LOOP()
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
       #endif
-    #endif
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        #if DISTINCT_E < 2
+          editable.decimal = stepper.get_advance_tau();
+          EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+        #else
+          EXTRUDER_LOOP() {
+            editable.decimal = stepper.get_advance_tau(e);
+            EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
+          }
+        #endif
+      #endif
+    #endif // LIN_ADVANCE
 
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
@@ -134,7 +153,7 @@ void menu_backlash();
             EDIT_ITEM_FAST_N(float43, e, MSG_FILAMENT_DIAM_E, &planner.filament_size[e], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
       }
-    #endif
+    #endif // !NO_VOLUMETRICS
 
     #if ENABLED(CONFIGURE_FILAMENT_CHANGE)
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
@@ -154,15 +173,18 @@ void menu_backlash();
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
-      EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999,
-        []{ runout.set_runout_distance(editable.decimal); }, true
-      );
+      auto set_runout_distance = []{ runout.set_runout_distance(editable.decimal); };
+      #if ENABLED(FILAMENT_MOTION_SENSOR)
+        EDIT_ITEM_FAST(float31, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 0.1, 10, set_runout_distance, true);
+      #else
+        EDIT_ITEM_FAST(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 999, set_runout_distance, true);
+      #endif
     #endif
 
     END_MENU();
   }
 
-#endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+#endif // HAS_ADV_FILAMENT_MENU
 
 //
 // Advanced Settings > Temperature helpers
@@ -508,6 +530,9 @@ void menu_backlash();
     #else
       const xyze_ulong_t &max_accel_edit_scaled = max_accel_edit;
     #endif
+    #if HAS_SPINDLE_ACCELERATION
+      constexpr uint32_t max_spindle_accel_edit = 99000;
+    #endif
 
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
@@ -541,6 +566,10 @@ void menu_backlash();
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, max_accel_edit_scaled.e, []{ planner.refresh_acceleration_rates(); });
     #endif
 
+    #if HAS_SPINDLE_ACCELERATION
+      EDIT_ITEM_FAST(long5_25, MSG_A_SPINDLE, &cutter.acceleration_spindle_deg_per_s2, 100, max_spindle_accel_edit);
+    #endif
+
     #ifdef XY_FREQUENCY_LIMIT
       EDIT_ITEM(int8, MSG_XY_FREQUENCY_LIMIT, &planner.xy_freq_limit_hz, 0, 100, planner.refresh_frequency_limit, true);
       editable.uint8 = uint8_t(LROUND(planner.xy_freq_min_speed_factor * 255)); // percent to u8
@@ -559,20 +588,20 @@ void menu_backlash();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
       // M593 F Frequency and D Damping ratio
-      #define SHAPING_MENU_FOR_AXIS(AXIS)                                                                                                                             \
-        editable.decimal = stepper.get_shaping_frequency(AXIS);                                                                                                       \
-        if (editable.decimal) {                                                                                                                                       \
-          ACTION_ITEM_N(AXIS, MSG_SHAPING_DISABLE, []{ stepper.set_shaping_frequency(AXIS, 0.0f); ui.refresh(); });                                                   \
-          EDIT_ITEM_FAST_N(float41, AXIS, MSG_SHAPING_FREQ, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(AXIS, editable.decimal); });  \
-          editable.decimal = stepper.get_shaping_damping_ratio(AXIS);                                                                                                 \
-          EDIT_ITEM_FAST_N(float42_52, AXIS, MSG_SHAPING_ZETA, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(AXIS, editable.decimal); });      \
-        }                                                                                                                                                             \
-        else                                                                                                                                                          \
-          ACTION_ITEM_N(AXIS, MSG_SHAPING_ENABLE, []{ stepper.set_shaping_frequency(AXIS, (SHAPING_FREQ_X) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
+      #define SHAPING_MENU_FOR_AXIS(A)                                                                                                                                        \
+        editable.decimal = stepper.get_shaping_frequency(_AXIS(A));                                                                                                           \
+        if (editable.decimal) {                                                                                                                                               \
+          ACTION_ITEM_N(_AXIS(A), MSG_SHAPING_DISABLE_N, []{ stepper.set_shaping_frequency(_AXIS(A), 0.0f); ui.refresh(); });                                                   \
+          EDIT_ITEM_FAST_N(float41, _AXIS(A), MSG_SHAPING_FREQ_N, &editable.decimal, min_frequency, 200.0f, []{ stepper.set_shaping_frequency(_AXIS(A), editable.decimal); });  \
+          editable.decimal = stepper.get_shaping_damping_ratio(_AXIS(A));                                                                                                     \
+          EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_SHAPING_ZETA_N, &editable.decimal, 0.0f, 1.0f, []{ stepper.set_shaping_damping_ratio(_AXIS(A), editable.decimal); });      \
+        }                                                                                                                                                                     \
+        else                                                                                                                                                                  \
+          ACTION_ITEM_N(_AXIS(A), MSG_SHAPING_ENABLE_N, []{ stepper.set_shaping_frequency(_AXIS(A), (SHAPING_FREQ_##A) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
 
-      TERN_(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X_AXIS))
-      TERN_(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y_AXIS))
-      TERN_(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z_AXIS))
+      TERN_(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X))
+      TERN_(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y))
+      TERN_(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z))
 
       END_MENU();
     }
@@ -715,14 +744,27 @@ void menu_advanced_settings() {
     SUBMENU(MSG_TEMPERATURE, menu_advanced_temperature);
   #endif
 
-  #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+  #if HAS_ADV_FILAMENT_MENU
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
-  #elif ENABLED(LIN_ADVANCE)
+  #endif
+
+  #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
     #if DISTINCT_E < 2
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
     #else
       EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if DISTINCT_E < 2
+        editable.decimal = stepper.get_advance_tau();
+        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #else
+        EXTRUDER_LOOP() {
+          editable.decimal = stepper.get_advance_tau(e);
+          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
+        }
+      #endif
     #endif
   #endif
 

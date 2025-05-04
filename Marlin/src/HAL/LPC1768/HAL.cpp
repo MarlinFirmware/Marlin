@@ -35,8 +35,6 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-DefaultSerial1 USBSerial(false, UsbSerial);
-
 uint32_t MarlinHAL::adc_result = 0;
 pin_t MarlinHAL::adc_pin = 0;
 
@@ -175,13 +173,8 @@ void MarlinHAL::init() {
 // HAL idle task
 void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
-    // If Marlin is using the SD card we need to lock it to prevent access from
-    // a PC via USB.
-    // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
-    // this will not reliably detect delete operations. To be safe we will lock
-    // the disk if Marlin has it mounted. Unfortunately there is currently no way
-    // to unmount the disk from the LCD menu.
-    // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
+    // When Marlin is using the SD Card it must be locked to prevent PC access via USB.
+    // For maximum safety we lock the disk if Marlin has it mounted for any reason.
     if (card.isMounted())
       MSC_Aquire_Lock();
     else

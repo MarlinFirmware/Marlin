@@ -28,8 +28,8 @@
 
 #if HAS_PRUSA_MMU3
 
-#include "mmu2.h"
-#include "mmu2_marlin_macros.h"
+#include "mmu3.h"
+#include "mmu3_marlin_macros.h"
 #include "mmu_hw/errors_list.h"
 #include "ultralcd.h"
 

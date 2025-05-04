@@ -174,9 +174,10 @@
  * Thermocouple Options — for MAX6675 (-2), MAX31855 (-3), and MAX31865 (-5).
  */
 //#define TEMP_SENSOR_FORCE_HW_SPI                // Ignore SCK/MOSI/MISO pins; use CS and the default SPI bus.
-//#define MAX31865_SENSOR_WIRES_0 2               // (2-4) Number of wires for the probe connected to a MAX31865 board.
-//#define MAX31865_SENSOR_WIRES_1 2
-//#define MAX31865_SENSOR_WIRES_2 2
+//#define MAX31865_SENSOR_WIRES_0   2             // (2-4) Number of wires for the probe connected to a MAX31865 board.
+//#define MAX31865_SENSOR_WIRES_1   2
+//#define MAX31865_SENSOR_WIRES_2   2
+//#define MAX31865_SENSOR_WIRES_BED 2
 
 //#define MAX31865_50HZ_FILTER                    // Use a 50Hz filter instead of the default 60Hz.
 //#define MAX31865_USE_READ_ERROR_DETECTION       // Treat value spikes (20°C delta in under 1s) as read errors.
@@ -188,6 +189,7 @@
 //#define MAX31865_WIRE_OHMS_0              0.95f // For 2-wire, set the wire resistances for more accurate readings.
 //#define MAX31865_WIRE_OHMS_1              0.0f
 //#define MAX31865_WIRE_OHMS_2              0.0f
+//#define MAX31865_WIRE_OHMS_BED            0.0f
 
 /**
  * Hephestos 2 24V heated bed upgrade kit.
@@ -203,7 +205,7 @@
 //
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
-  #if ENABLED(BED_LIMIT_SWITCHING)
+  #if ANY(BED_LIMIT_SWITCHING, PELTIER_BED)
     #define BED_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > BED_HYSTERESIS
   #endif
 #endif
@@ -211,17 +213,18 @@
 //
 // Heated Chamber options
 //
-#if DISABLED(PIDTEMPCHAMBER)
-  #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
-  #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-    #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
-  #endif
-#endif
 
 #if TEMP_SENSOR_CHAMBER
   //#define HEATER_CHAMBER_PIN      P2_04   // Required heater on/off pin (example: SKR 1.4 Turbo HE1 plug)
   //#define HEATER_CHAMBER_INVERTING false
   //#define FAN1_PIN                   -1   // Remove the fan signal on pin P2_04 (example: SKR 1.4 Turbo HE1 plug)
+
+  #if DISABLED(PIDTEMPCHAMBER)
+    #define CHAMBER_CHECK_INTERVAL 5000   // (ms) Interval between checks in bang-bang control
+    #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+      #define CHAMBER_HYSTERESIS 2        // (°C) Only set the relevant heater state when ABS(T-target) > CHAMBER_HYSTERESIS
+    #endif
+  #endif
 
   //#define CHAMBER_FAN               // Enable a fan on the chamber
   #if ENABLED(CHAMBER_FAN)
@@ -590,6 +593,8 @@
 
   // Use TEMP_SENSOR_SOC as a trigger for enabling the controller fan
   //#define CONTROLLER_FAN_MIN_SOC_TEMP 40  // (°C) Turn on the fan if the SoC reaches this temperature
+
+  #define CONTROLLER_FAN_BED_HEATING        // Turn on the fan when heating the bed
 
   //#define CONTROLLER_FAN_EDITABLE         // Enable M710 configurable settings
   #if ENABLED(CONTROLLER_FAN_EDITABLE)
@@ -1017,7 +1022,7 @@
 
 #endif // BLTOUCH
 
-// @section calibration
+// @section calibrate
 
 /**
  * Z Steppers Auto-Alignment
@@ -1110,8 +1115,8 @@
    * Screw Thread. Use one of the following defines:
    *
    *   M3_CW = M3 Clockwise, M3_CCW = M3 Counter-Clockwise
-   *   M4_CW = M3 Clockwise, M4_CCW = M4 Counter-Clockwise
-   *   M5_CW = M3 Clockwise, M5_CCW = M5 Counter-Clockwise
+   *   M4_CW = M4 Clockwise, M4_CCW = M4 Counter-Clockwise
+   *   M5_CW = M5 Clockwise, M5_CCW = M5 Counter-Clockwise
    *
    * :{'M3_CW':'M3 Clockwise','M3_CCW':'M3 Counter-Clockwise','M4_CW':'M4 Clockwise','M4_CCW':'M4 Counter-Clockwise','M5_CW':'M5 Clockwise','M5_CCW':'M5 Counter-Clockwise'}
    */
@@ -1135,7 +1140,7 @@
   #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
-  #define FTM_LINEAR_ADV_DEFAULT_K      0         // Default linear advance gain, integer value. (Acceleration-based scaling factor.)
+  #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
   #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
   #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
 
@@ -1258,8 +1263,8 @@
 #define DISABLE_IDLE_E    // Shut down all idle extruders
 
 // Default Minimum Feedrates for printing and travel moves
-#define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s. °/s for rotational-only moves) Minimum feedrate. Set with M205 S.
-#define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s. °/s for rotational-only moves) Minimum travel feedrate. Set with M205 T.
+#define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s) Minimum feedrate. Set with M205 S.
+#define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
 
 // Minimum time that a segment needs to take as the buffer gets emptied
 #define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
@@ -1337,20 +1342,20 @@
   //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
 
-  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/min
-  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/min
-  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/min
+  #define CALIBRATION_FEEDRATE_SLOW             60    // (mm/min)
+  #define CALIBRATION_FEEDRATE_FAST           1200    // (mm/min)
+  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // (mm/min)
 
   // The following parameters refer to the conical section of the nozzle tip.
-  #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // mm
-  #define CALIBRATION_NOZZLE_OUTER_DIAMETER      2.0  // mm
+  #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // (mm)
+  #define CALIBRATION_NOZZLE_OUTER_DIAMETER      2.0  // (mm)
 
   // Uncomment to enable reporting (required for "G425 V", but consumes flash).
   //#define CALIBRATION_REPORTING
 
   // The true location and dimension the cube/bolt/washer on the bed.
-  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // mm
-  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // mm
+  #define CALIBRATION_OBJECT_CENTER     { 264.0, -22.0,  -2.0 } // (mm)
+  #define CALIBRATION_OBJECT_DIMENSIONS {  10.0,  10.0,  10.0 } // (mm)
 
   // Comment out any sides which are unreachable by the probe. For best
   // auto-calibration results, all sides must be reachable.
@@ -1414,24 +1419,24 @@
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
 /**
- *  @section  stepper motor current
+ * @section stepper motor current
  *
- *  Some boards have a means of setting the stepper motor current via firmware.
+ * Some boards have a means of setting the stepper motor current via firmware.
  *
- *  The power on motor currents are set by:
- *    PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
- *                         known compatible chips: A4982
- *    DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
- *                         known compatible chips: AD5206
- *    DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
- *                         known compatible chips: MCP4728
- *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, AZTEEG_X5_MINI_WIFI, MIGHTYBOARD_REVE
- *                         known compatible chips: MCP4451, MCP4018
+ * The power on motor currents are set by:
+ *   PWM_MOTOR_CURRENT - used by MINIRAMBO & ULTIMAIN_2
+ *                        known compatible chips: A4982
+ *   DIGIPOT_MOTOR_CURRENT - used by BQ_ZUM_MEGA_3D, RAMBO & SCOOVO_X9H
+ *                        known compatible chips: AD5206
+ *   DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
+ *                        known compatible chips: MCP4728
+ *   DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, AZTEEG_X5_MINI_WIFI, MIGHTYBOARD_REVE
+ *                        known compatible chips: MCP4451, MCP4018
  *
- *  Motor currents can also be set by M907 - M910 and by the LCD.
- *    M907 - applies to all.
- *    M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
- *    M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
+ * Motor currents can also be set by M907 - M910 and by the LCD.
+ *   M907 - applies to all.
+ *   M908 - BQ_ZUM_MEGA_3D, RAMBO, PRINTRBOARD_REVF, RIGIDBOARD_V2 & SCOOVO_X9H
+ *   M909, M910 & LCD - only PRINTRBOARD_REVF & RIGIDBOARD_V2
  */
 //#define PWM_MOTOR_CURRENT { 1300, 1300, 1250 }          // Values in milliamps
 //#define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
@@ -1546,6 +1551,7 @@
   //#define LCD_INFO_MENU
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
+    //#define BUILD_INFO_MENU_ITEM           // Add a menu item to display the build date and time
   #endif
 
   /**
@@ -1612,6 +1618,10 @@
 
   //#define SOUND_MENU_ITEM   // Add a mute option to the LCD menu
   #define SOUND_ON_DEFAULT    // Buzzer/speaker default enabled state
+
+  #if ENABLED(U8GLIB_SSD1309)
+    //#define LCD_DOUBLE_BUFFER           // Optimize display updates. Costs ~1K of SRAM.
+  #endif
 
   #if HAS_WIRED_LCD
     //#define DOUBLE_LCD_FRAMERATE        // Not recommended for slow boards.
@@ -1864,7 +1874,7 @@
    *
    *    SCLK, MOSI, MISO --> SCLK, MOSI, MISO
    *    INT              --> SD_DETECT_PIN [1]
-   *    SS               --> SDSS
+   *    SS               --> SD_SS_PIN
    *
    * [1] On AVR an interrupt-capable pin is best for UHS3 compatibility.
    */
@@ -1891,7 +1901,7 @@
     //#define USE_OTG_USB_HOST
 
     #if DISABLED(USE_OTG_USB_HOST)
-      #define USB_CS_PIN    SDSS
+      #define USB_CS_PIN    SD_SS_PIN
       #define USB_INTR_PIN  SD_DETECT_PIN
     #endif
   #endif
@@ -1950,8 +1960,8 @@
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME SV_SD_ONBOARD
-    #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
 #endif // HAS_MEDIA
@@ -2002,7 +2012,7 @@
   #if IS_U8GLIB_ST7920
     // Enable this option and reduce the value to optimize screen updates.
     // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
-    //#define DOGM_SPI_DELAY_US 5
+    //#define DOGM_SPI_DELAY_US      5  // (µs) Delay after each SPI transfer
 
     //#define LIGHTWEIGHT_UI
     #if ENABLED(LIGHTWEIGHT_UI)
@@ -2032,17 +2042,17 @@
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define STATUS_HEAT_POWER         // Show heater output power as a vertical bar
 
-  // Frivolous Game Options
-  //#define MARLIN_BRICKOUT
-  //#define MARLIN_INVADERS
-  //#define MARLIN_SNAKE
-  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
-
 #endif // HAS_MARLINUI_U8GLIB
 
 #if HAS_MARLINUI_U8GLIB || IS_DWIN_MARLINUI
   #define MENU_HOLLOW_FRAME           // Enable to save many cycles by drawing a hollow frame on Menu Screens
   //#define OVERLAY_GFX_REVERSE       // Swap the CW/CCW indicators in the graphics overlay
+
+  // Frivolous Game Options
+  //#define MARLIN_BRICKOUT
+  //#define MARLIN_INVADERS
+  //#define MARLIN_SNAKE
+  //#define GAMES_EASTER_EGG          // Add extra blank lines above the "Games" sub-menu
 #endif
 
 //
@@ -2221,7 +2231,7 @@
 
   // Developer menu (accessed by touching "About Printer" copyright text)
   //#define TOUCH_UI_DEVELOPER_MENU
-#endif
+#endif // TOUCH_UI_FTDI_EVE
 
 //
 // Classic UI Options
@@ -2255,8 +2265,10 @@
 // ADC Button Debounce
 //
 #if HAS_ADC_BUTTONS
-  #define ADC_BUTTON_DEBOUNCE_DELAY 16  // Increase if buttons bounce or repeat too fast
+  #define ADC_BUTTON_DEBOUNCE_DELAY 16  // (count) Increase if buttons bounce or repeat too fast
 #endif
+
+//#define FAST_BUTTON_POLLING           // Poll buttons at ~1kHz on 8-bit AVR. Set to 'false' for slow polling on 32-bit.
 
 // @section safety
 
@@ -2296,7 +2308,7 @@
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
-    #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+    #define DOUBLECLICK_MAX_INTERVAL 1250   // (ms) Maximum interval between clicks.
                                             // Note: Extra time may be added to mitigate controller latency.
     //#define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on double-click when printer is idle.
     #if ENABLED(MOVE_Z_WHEN_IDLE)
@@ -2340,6 +2352,24 @@
   //#define ADVANCE_K_EXTRA       // Add a second linear advance constant, configurable with M900 L.
   //#define LA_DEBUG              // Print debug information to serial during operation. Disable for production use.
   //#define EXPERIMENTAL_I2S_LA   // Allow I2S_STEPPER_STREAM to be used with LA. Performance degrades as the LA step rate reaches ~20kHz.
+
+  //#define SMOOTH_LIN_ADVANCE    // Remove limits on acceleration by gradual increase of nozzle pressure
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    /**
+     * ADVANCE_TAU is also the time ahead that the smoother needs to look
+     * into the planner, so the planner needs to have enough blocks loaded.
+     * For k=0.04 at 10k acceleration and an "Orbiter 2" extruder it can be as low as 0.0075.
+     * Adjust by lowering the value until you observe the extruder skipping, then raise slightly.
+     * Higher k and higher XY acceleration may require larger ADVANCE_TAU to avoid skipping steps.
+     */
+    #if ENABLED(DISTINCT_E_FACTORS)
+      #define ADVANCE_TAU { 0.01 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
+    #else
+      #define ADVANCE_TAU 0.01       // (s) Smoothing time to reduce extruder acceleration
+    #endif
+    #define SMOOTH_LIN_ADV_HZ 5000   // (Hz) How often to update extruder speed
+    #define INPUT_SHAPING_E_SYNC     // Synchronize the extruder-shaped XY axes (to increase precision)
+  #endif
 #endif
 
 /**
@@ -2628,19 +2658,23 @@
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-// Transmission to Host Buffer Size
-// To save 386 bytes of flash (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
-// To buffer a simple "ok" you need 4 bytes.
-// For ADVANCED_OK (M105) you need 32 bytes.
-// For debug-echo: 128 bytes for the optimal speed.
-// Other output doesn't need to be that speedy.
-// :[0, 2, 4, 8, 16, 32, 64, 128, 256]
+/**
+ * Host Transmit Buffer Size
+ *  - Costs 386 bytes of flash and TX_BUFFER_SIZE+3 bytes of SRAM (if not 0).
+ *  - 4 bytes required to buffer a simple "ok".
+ *  - 32 bytes for ADVANCED_OK (M105).
+ *  - 128 bytes for the optimal speed of 'debug-echo:'
+ *  - Other output doesn't need to be that speedy.
+ * :[0, 2, 4, 8, 16, 32, 64, 128, 256]
+ */
 #define TX_BUFFER_SIZE 0
 
-// Host Receive Buffer Size
-// Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
-// To use flow control, set this buffer size to at least 1024 bytes.
-// :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+/**
+ * Host Receive Buffer Size
+ * Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
+ * To use flow control, set this buffer size to at least 1024 bytes.
+ * :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+ */
 //#define RX_BUFFER_SIZE 1024
 
 #if RX_BUFFER_SIZE >= 1024
@@ -2980,6 +3014,8 @@
 #if HAS_TRINAMIC_CONFIG
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+
+  //#define EDITABLE_HOMING_CURRENT   // Add a G-code and menu to modify the Homing Current
 
   /**
    * Interpolate microsteps to 256
@@ -3666,6 +3702,8 @@
       #define SPEED_POWER_MIN          5000    // (RPM)
       #define SPEED_POWER_MAX         30000    // (RPM) SuperPID router controller 0 - 30,000 RPM
       #define SPEED_POWER_STARTUP     25000    // (RPM) M3/M4 speed/power default (with no arguments)
+
+      //#define DEFAULT_ACCELERATION_SPINDLE   1000 // (°/s/s) Default spindle acceleration (speed change with time)
     #endif
 
   #else
@@ -3907,7 +3945,7 @@
 /**
  * Extra options for the M114 "Current Position" report
  */
-//#define M114_DETAIL         // Use 'M114` for details to check planner calculations
+//#define M114_DETAIL         // Use 'M114 D' for details to check planner calculations
 //#define M114_REALTIME       // Real current position based on forward kinematics
 //#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
@@ -3954,7 +3992,6 @@
  * Spend 28 bytes of SRAM to optimize the G-code parser
  */
 #define FASTER_GCODE_PARSER
-
 #if ENABLED(FASTER_GCODE_PARSER)
   //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
 #endif
@@ -4405,93 +4442,56 @@
   //#define E_MUX0_PIN 40  // Always Required
   //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
+
 #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   // Common settings for MMU2/MMU2S/MMU3
   // Serial port used for communication with MMU2/MMU2S/MMU3.
-  #define MMU2_SERIAL_PORT 2
+  #define MMU_SERIAL_PORT 2
   #define MMU_BAUD 115200
 
-  // Use hardware reset for MMU if a pin is defined for it
-  //#define MMU2_RST_PIN 23
+  //#define MMU_RST_PIN 23    // Define this pin to use Hardware Reset for MMU2/MMU2S/MMU3
 
+  //#define MMU_MENUS         // Add an LCD menu for MMU2/MMU2S/MMU3
+
+  //#define MMU_DEBUG         // Write debug info to serial output
+
+  // Options pertaining to MMU2 and MMU2S
   #if HAS_PRUSA_MMU2
     // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
     //#define MMU2_MODE_12V
 
+    // Settings for filament load / unload from the LCD menu.
+    // This is for Průša MK3-style extruders. Customize for your hardware.
+    #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+
     // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
     #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
-  #endif
 
-  // Add an LCD menu for MMU2/MMU2S/MMU3
-  //#define MMU_MENUS
+    // MMU2 sequences use mm/min. Not compatible with MMU3, which use mm/sec.
+    #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+      {  4.4,  871 }, \
+      { 10.0, 1393 }, \
+      {  4.4,  871 }, \
+      { 10.0,  198 }
 
-  // Settings for filament load / unload from the LCD menu.
-  // This is for Průša MK3-style extruders. Customize for your hardware.
-  #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+    #define MMU2_RAMMING_SEQUENCE \
+      {   1.0, 1000 }, \
+      {   1.0, 1500 }, \
+      {   2.0, 2000 }, \
+      {   1.5, 3000 }, \
+      {   2.5, 4000 }, \
+      { -15.0, 5000 }, \
+      { -14.0, 1200 }, \
+      {  -6.0,  600 }, \
+      {  10.0,  700 }, \
+      { -10.0,  400 }, \
+      { -50.0, 2000 }
 
-  /**
-   * ------------
-   * MMU2 / MMU2S
-   * ------------
-   * MMU2 sequences use mm/min. Not compatible with MMU3 (see below).
-   * #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-   *   {  4.4,  871 }, \
-   *   { 10.0, 1393 }, \
-   *   {  4.4,  871 }, \
-   *   { 10.0,  198 }
-   */
-
-  /* #define MMU2_RAMMING_SEQUENCE \
-   *   {   1.0, 1000 }, \
-   *   {   1.0, 1500 }, \
-   *   {   2.0, 2000 }, \
-   *   {   1.5, 3000 }, \
-   *   {   2.5, 4000 }, \
-   *   { -15.0, 5000 }, \
-   *   { -14.0, 1200 }, \
-   *   {  -6.0,  600 }, \
-   *   {  10.0,  700 }, \
-   *   { -10.0,  400 }, \
-   *   { -50.0, 2000 }
-   */
+  #endif // HAS_PRUSA_MMU2
 
   /**
-   * ----
-   * MMU3
-   * ----
-   * These values are compatible with MMU3 as they are defined in mm/s
-   */
-
-  #define MMU2_EXTRUDER_PTFE_LENGTH       42.3 // (mm)
-  #define MMU2_EXTRUDER_HEATBREAK_LENGTH  17.7 // (mm)
-
-  #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-    { MMU2_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) }, /* (13.5 mm/s) Fast load ahead of heatbreak */ \
-    { MMU2_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }  // ( 3.3 mm/s) Slow load after heatbreak
-
-  #define MMU2_RAMMING_SEQUENCE \
-    { 0.2816,  MMM_TO_MMS(1339.0) }, \
-    { 0.3051,  MMM_TO_MMS(1451.0) }, \
-    { 0.3453,  MMM_TO_MMS(1642.0) }, \
-    { 0.3990,  MMM_TO_MMS(1897.0) }, \
-    { 0.4761,  MMM_TO_MMS(2264.0) }, \
-    { 0.5767,  MMM_TO_MMS(2742.0) }, \
-    { 0.5691,  MMM_TO_MMS(3220.0) }, \
-    { 0.1081,  MMM_TO_MMS(3220.0) }, \
-    { 0.7644,  MMM_TO_MMS(3635.0) }, \
-    { 0.8248,  MMM_TO_MMS(3921.0) }, \
-    { 0.8483,  MMM_TO_MMS(4033.0) }, \
-    { -15.0,   MMM_TO_MMS(6000.0) }, \
-    { -24.5,   MMM_TO_MMS(1200.0) }, \
-    {  -7.0,   MMM_TO_MMS( 600.0) }, \
-    {  -3.5,   MMM_TO_MMS( 360.0) }, \
-    {  20.0,   MMM_TO_MMS( 454.0) }, \
-    { -20.0,   MMM_TO_MMS( 303.0) }, \
-    { -35.0,   MMM_TO_MMS(2000.0) }
-
-  /**
-   * Using a sensor like the MMU2S
-   * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
+   * Options pertaining to MMU2S devices
+   * Requires the MK3S extruder with a sensor at the extruder idler, like the MMU2S.
    * See https://help.prusa3d.com/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560#42048, step 11
    */
   #if HAS_PRUSA_MMU2S
@@ -4532,14 +4532,9 @@
 
     // MMU3 settings
 
-    #define MMU2_MAX_RETRIES 3  // Number of retries (total time = timeout*retries)
+    #define MMU3_HAS_CUTTER     // Enable cutter related functionality
 
-    // Nominal distance from the extruder gear to the nozzle tip is 87mm
-    // However, some slipping may occur and we need separate distances for
-    // LoadToNozzle and ToolChange.
-    // - +5mm seemed good for LoadToNozzle,
-    // - but too much (made blobs) for a ToolChange
-    #define MMU2_LOAD_TO_NOZZLE_LENGTH 87.0 + 5.0
+    #define MMU3_MAX_RETRIES 3  // Number of retries (total time = timeout*retries)
 
     // As discussed with our PrusaSlicer profile specialist
     // - ToolChange shall not try to push filament into the very tip of the nozzle
@@ -4548,28 +4543,26 @@
     // Beware - this value is used to initialize the MMU logic layer - it will be sent to the MMU upon line up (written into its 8bit register 0x0b)
     // However - in the G-code we can get a request to set the extra load distance at runtime to something else (M708 A0xb Xsomething).
     // The printer intercepts such a call and sets its extra load distance to match the new value as well.
-    #define MMU2_FILAMENT_SENSOR_POSITION    0   // (mm)
-    #define MMU2_LOAD_DISTANCE_PAST_GEARS    5   // (mm)
-    #define MMU2_TOOL_CHANGE_LOAD_LENGTH MMU2_FILAMENT_SENSOR_POSITION + MMU2_LOAD_DISTANCE_PAST_GEARS // (mm)
+    #define MMU3_FILAMENT_SENSOR_E_POSITION  0   // (mm)
+    #define _MMU3_LOAD_DISTANCE_PAST_GEARS   5   // (mm)
+    #define MMU3_TOOL_CHANGE_LOAD_LENGTH (MMU3_FILAMENT_SENSOR_E_POSITION + _MMU3_LOAD_DISTANCE_PAST_GEARS) // (mm)
 
-    #define MMU2_LOAD_TO_NOZZLE_FEED_RATE        20.0 // (mm/s)
-    #define MMU2_UNLOAD_TO_FINDA_FEED_RATE      120.0 // (mm/s)
+    #define MMU3_LOAD_TO_NOZZLE_FEED_RATE        20.0 // (mm/s)
 
-    #define MMU2_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0 // (mm/s)
-    #define MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK     -5.0 // (mm) Amount to adjust the length for verifying load-to-nozzle
+    #define MMU3_VERIFY_LOAD_TO_NOZZLE_FEED_RATE 50.0 // (mm/s)
+    #define _MMU3_VERIFY_LOAD_TO_NOZZLE_TWEAK    -5.0 // (mm) Amount to adjust the length for verifying load-to-nozzle
 
     // The first thing the MMU does is initialize its axis.
     // Meanwhile the E-motor will unload 20mm of filament in about 1 second.
-    #define MMU2_RETRY_UNLOAD_TO_FINDA_LENGTH    80.0 // (mm)
-    #define MMU2_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0 // (mm/s)
+    #define MMU3_RETRY_UNLOAD_TO_FINDA_LENGTH    80.0 // (mm)
+    #define MMU3_RETRY_UNLOAD_TO_FINDA_FEED_RATE 80.0 // (mm/s)
 
     // After loading a new filament, the printer will extrude this length of filament
     // then retract to the original position. This is used to check if the filament sensor
     // reading flickers or filament is jammed.
-    #define MMU2_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU2_EXTRUDER_PTFE_LENGTH + MMU2_EXTRUDER_HEATBREAK_LENGTH + MMU2_VERIFY_LOAD_TO_NOZZLE_TWEAK + MMU2_FILAMENT_SENSOR_POSITION) // (mm)
-
-    #define MMU_HAS_CUTTER            // Enable cutter related functionalities
-    //#define MMU_FORCE_STEALTH_MODE  // Force stealth mode and disable menu item
+    #define _MMU_EXTRUDER_PTFE_LENGTH            42.3 // (mm)
+    #define _MMU_EXTRUDER_HEATBREAK_LENGTH       17.7 // (mm)
+    #define MMU3_CHECK_FILAMENT_PRESENCE_EXTRUSION_LENGTH (MMU3_FILAMENT_SENSOR_E_POSITION + _MMU_EXTRUDER_PTFE_LENGTH + _MMU_EXTRUDER_HEATBREAK_LENGTH + _MMU3_VERIFY_LOAD_TO_NOZZLE_TWEAK) // (mm)
 
     /**
      * SpoolJoin Consumes All Filament -- EXPERIMENTAL
@@ -4587,12 +4580,37 @@
      * sensor is triggered through the gears) and the end of the PTFE tube and
      * can cause filament load issues.
      */
-    //#define MMU_SPOOL_JOIN_CONSUMES_ALL_FILAMENT
+    //#define MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT
 
-  #else
+    // MMU3 sequences use mm/sec. Not compatible with MMU2 which use mm/min.
+    #define MMU3_LOAD_TO_NOZZLE_SEQUENCE \
+      { _MMU_EXTRUDER_PTFE_LENGTH,      MMM_TO_MMS(810) }, /* (13.5 mm/s) Fast load ahead of heatbreak */ \
+      { _MMU_EXTRUDER_HEATBREAK_LENGTH, MMM_TO_MMS(198) }  /* ( 3.3 mm/s) Slow load after heatbreak */
+
+    #define MMU3_RAMMING_SEQUENCE \
+      { 0.2816,  MMM_TO_MMS(1339.0) }, \
+      { 0.3051,  MMM_TO_MMS(1451.0) }, \
+      { 0.3453,  MMM_TO_MMS(1642.0) }, \
+      { 0.3990,  MMM_TO_MMS(1897.0) }, \
+      { 0.4761,  MMM_TO_MMS(2264.0) }, \
+      { 0.5767,  MMM_TO_MMS(2742.0) }, \
+      { 0.5691,  MMM_TO_MMS(3220.0) }, \
+      { 0.1081,  MMM_TO_MMS(3220.0) }, \
+      { 0.7644,  MMM_TO_MMS(3635.0) }, \
+      { 0.8248,  MMM_TO_MMS(3921.0) }, \
+      { 0.8483,  MMM_TO_MMS(4033.0) }, \
+      { -15.0,   MMM_TO_MMS(6000.0) }, \
+      { -24.5,   MMM_TO_MMS(1200.0) }, \
+      {  -7.0,   MMM_TO_MMS( 600.0) }, \
+      {  -3.5,   MMM_TO_MMS( 360.0) }, \
+      {  20.0,   MMM_TO_MMS( 454.0) }, \
+      { -20.0,   MMM_TO_MMS( 303.0) }, \
+      { -35.0,   MMM_TO_MMS(2000.0) }
+
+  #else // MMU2 (not MMU2S)
 
     /**
-     * MMU1 Extruder Sensor
+     * MMU2 Extruder Sensor
      *
      * Support for a Průša (or other) IR Sensor to detect filament near the extruder
      * and make loading more reliable. Suitable for an extruder equipped with a filament
@@ -4602,14 +4620,12 @@
      * move up to the gears. If no filament is detected, the MMU2 can make some more attempts.
      * If all attempts fail, a filament runout will be triggered.
      */
-    //#define MMU_EXTRUDER_SENSOR
-    #if ENABLED(MMU_EXTRUDER_SENSOR)
-      #define MMU_LOADING_ATTEMPTS_NR 5 // max. number of attempts to load filament if first load fail
+    //#define MMU2_EXTRUDER_SENSOR
+    #if ENABLED(MMU2_EXTRUDER_SENSOR)
+      #define MMU2_LOADING_ATTEMPTS_NR 5  // Number of times to try loading filament before failure
     #endif
 
   #endif
-
-  //#define MMU2_DEBUG  // Write debug info to serial output
 
 #endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
 

@@ -32,7 +32,7 @@
 #endif
 
 #if HAS_PRUSA_MMU3
-  #include "../../feature/mmu3/mmu2.h"
+  #include "../../feature/mmu3/mmu3.h"
 #elif HAS_PRUSA_MMU2
   #include "../../feature/mmu/mmu2.h"
 #endif
@@ -69,7 +69,7 @@ void GcodeSuite::T(const int8_t tool_index) {
   reset_stepper_timeout();
 
   #if HAS_PRUSA_MMU3
-    if (parser.string_arg) {
+    if (parser.has_string()) {
       mmu3.tool_change(parser.string_arg[0], uint8_t(tool_index));   // Special commands T?/Tx/Tc
       return;
     }

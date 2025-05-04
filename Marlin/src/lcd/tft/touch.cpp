@@ -102,7 +102,7 @@ void Touch::idle() {
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(now, touch_time, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
@@ -313,6 +313,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
     next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
+  bool MarlinUI::display_is_asleep() { return touch.isSleeping(); }
   void MarlinUI::sleep_display(const bool sleep/*=true*/) {
     if (!sleep) touch.wakeUp();
   }

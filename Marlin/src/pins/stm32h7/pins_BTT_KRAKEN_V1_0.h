@@ -36,9 +36,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 // Avoid conflict with TIMER_TONE
@@ -387,16 +387,14 @@
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_KRAKEN_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
-  #define SDSS                              PB12
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PB12
   #define SD_SCK_PIN                        PB13
   #define SD_MISO_PIN                       PB14
   #define SD_MOSI_PIN                       PB15
   #define SD_DETECT_PIN                     PE15
   #define SOFTWARE_SPI
 #elif SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -426,7 +424,6 @@
   #define E4_CS_PIN                  EXP1_06_PIN
   #if HAS_TMC_UART
     #define E4_SERIAL_TX_PIN         EXP1_06_PIN
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
   #endif
 
   // M2 on Driver Expansion Module
@@ -437,7 +434,6 @@
   #define E5_CS_PIN                  EXP1_04_PIN
   #if HAS_TMC_UART
     #define E5_SERIAL_TX_PIN         EXP1_04_PIN
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
   #endif
 
   // M3 on Driver Expansion Module
@@ -448,7 +444,6 @@
   #define E6_CS_PIN                  EXP1_02_PIN
   #if HAS_TMC_UART
     #define E6_SERIAL_TX_PIN         EXP1_02_PIN
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
   #endif
 
 #endif // BTT_MOTOR_EXPANSION

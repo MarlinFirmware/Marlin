@@ -48,7 +48,7 @@
   #define I2C_EEPROM
   #define I2C_SCL_PIN                       PF1
   #define I2C_SDA_PIN                       PF0
-  #define MARLIN_EEPROM_SIZE             0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4KB
 #endif
 
 //
@@ -144,37 +144,20 @@
   // TMC2208/TMC2209 stepper drivers
   //
   #define X_SERIAL_TX_PIN                   PD2
-  #define X_SERIAL_RX_PIN                   PD2
-
   #define X2_SERIAL_TX_PIN                  PE15
-  #define X2_SERIAL_RX_PIN                  PE15
-
   #define Y_SERIAL_TX_PIN                   PD8
-  #define Y_SERIAL_RX_PIN                   PD8
-
   #define Z_SERIAL_TX_PIN                   PD7
-  #define Z_SERIAL_RX_PIN                   PD7
-
   #define Z2_SERIAL_TX_PIN                  PC14
-  #define Z2_SERIAL_RX_PIN                  PC14
-
   #define E0_SERIAL_TX_PIN                  PC15
-  #define E0_SERIAL_RX_PIN                  PC15
-
   #define E1_SERIAL_TX_PIN                  PG3
-  #define E1_SERIAL_RX_PIN                  PG3
-
   #define E2_SERIAL_TX_PIN                  PD9
-  #define E2_SERIAL_RX_PIN                  PD9
-
   #define E3_SERIAL_TX_PIN                  PF5
-  #define E3_SERIAL_RX_PIN                  PF5
-
   #define E4_SERIAL_TX_PIN                  PG11
-  #define E4_SERIAL_RX_PIN                  PG11
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 #endif
 
 //
@@ -272,7 +255,7 @@
 #define SD_MISO_PIN                  EXP2_10_PIN
 #define SD_MOSI_PIN                  EXP2_05_PIN
 
-#define SDSS                         EXP2_07_PIN
+#define SD_SS_PIN                    EXP2_07_PIN
 #define SD_DETECT_PIN                EXP2_04_PIN
 
 //
@@ -308,7 +291,7 @@
   #define BTN_EN1                    EXP2_08_PIN
   #define BTN_EN2                    EXP2_06_PIN
 
-  #define LCD_SDSS                   EXP2_07_PIN
+  #define LCD_SDSS_PIN               EXP2_07_PIN
 
   #define LCD_PINS_EN                EXP1_08_PIN
   #define LCD_PINS_D4                EXP1_06_PIN

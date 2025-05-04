@@ -28,6 +28,3 @@ opt_set MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1 SERIAL_PORT -1 \
         TEMP_SENSOR_COOLER 1000 TEMP_COOLER_PIN PD13
 opt_enable LASER_FEATURE LASER_SAFETY_TIMEOUT_MS REPRAP_DISCOUNT_SMART_CONTROLLER
 exec_test $1 $2 "BigTreeTech SKR Pro | HD44780 | Laser (Percent) | Cooling | LCD" "$3"
-
-# clean up
-restore_configs

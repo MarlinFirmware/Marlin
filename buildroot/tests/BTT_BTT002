@@ -21,6 +21,3 @@ exec_test $1 $2 "BigTreeTech BTT002 Default Configuration plus TMC steppers" "$3
 #
 use_example_configs Prusa/MK3S-BigTreeTech-BTT002
 exec_test $1 $2 "BigTreeTech BTT002 with Prusa MK3S and related options" "$3"
-
-# clean up
-restore_configs

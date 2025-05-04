@@ -33,7 +33,7 @@ namespace LanguageNarrow_zh_CN {
   constexpr uint8_t CHARSIZE              = 3;
   LSTR LANGUAGE                           = _UxGT("Simplified Chinese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT("已就绪."); // " ready."
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT("已就绪."); // " ready."
   LSTR MSG_MARLIN                         = _UxGT("马林");
   LSTR MSG_YES                            = _UxGT("是");
   LSTR MSG_NO                             = _UxGT("否");
@@ -54,7 +54,6 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_MAIN_MENU                      = _UxGT("主菜单"); // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("关闭步进电机"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("调试菜单"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("进度条测试"); // "Progress Bar Test"
@@ -125,7 +124,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_IDEX_MODE_MIRRORED_COPY        = _UxGT("镜像复制");
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("完全控制");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("第二喷头是Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("第二喷头是@");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("第二喷头是@");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("执行G29"); // "Doing G29"
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL工具"); // "UBL Tools"
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("倾斜點");
@@ -204,7 +203,8 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. 保存热床网格");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED控制"); // "LED Control"
-  LSTR MSG_LEDS                           = _UxGT("灯"); // "Lights"
+  LSTR MSG_LIGHTS                         = _UxGT("灯"); // "Lights"
+  LSTR MSG_LIGHT_N                        = _UxGT("灯 #{"); // "Light #{"
   LSTR MSG_LED_PRESETS                    = _UxGT("灯预置"); // "Light Presets"
   LSTR MSG_SET_LEDS_RED                   = _UxGT("红"); // "Red"
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("橙"); // "Orange"
@@ -397,9 +397,14 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("卸载丝料"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("卸载丝料 *"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("卸载全部"); // "Unload All"
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("初始化存储卡"); // "Init. SD card"
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_SD                      = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("挂载U盘"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更换存储卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("自动开始"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因数"); // "Skew Factor"
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch"); // "BLTouch"
@@ -424,9 +429,10 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_MANUAL_STOW                    = _UxGT("收好Z探针");
   LSTR MSG_HOME_FIRST                     = _UxGT("归位 %s 先"); // "Home ... first"
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("探针偏移量");
-  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移");
-  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("探针X偏移"); // "X Offset"
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("探针Y偏移"); // "Y Offset"
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("探针Z偏移"); // "Z Offset"
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("探针@偏移"); // "@ Offset"
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("逐步调整Z"); // "Babystep Probe Z"
   LSTR MSG_BABYSTEP_X                     = _UxGT("微量调整X轴"); // "Babystep X" lcd_babystep_x, Babystepping enables the user to control the axis in tiny amounts
   LSTR MSG_BABYSTEP_Y                     = _UxGT("微量调整Y轴"); // "Babystep Y"
@@ -573,7 +579,8 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("混合阈值");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("无感回零");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("步进模式");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop已使能");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop已使能");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("复位");
   LSTR MSG_SERVICE_IN                     = _UxGT(" 在:");
   LSTR MSG_BACKLASH                       = _UxGT("回差");

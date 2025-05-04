@@ -26,8 +26,8 @@
 
 #include "../../gcode.h"
 #include "../../../module/settings.h"
-#include "../../../feature/mmu3/mmu2.h"
-#include "../../../feature/mmu3/mmu2_reporting.h"
+#include "../../../feature/mmu3/mmu3.h"
+#include "../../../feature/mmu3/mmu3_reporting.h"
 #include "../../../feature/mmu3/SpoolJoin.h"
 
 // Shared by the G-codes below to save flash memory.
@@ -39,7 +39,7 @@ static void gcodes_M704_M705_M706(uint16_t gcode) {
       case 704: mmu3.load_to_feeder(mmuSlotIndex); break;
       case 705: mmu3.eject_filament(mmuSlotIndex, false); break;
       case 706:
-        #if ENABLED(MMU_HAS_CUTTER)
+        #if ENABLED(MMU3_HAS_CUTTER)
           if (mmu3.cutter_mode > 0) mmu3.cut_filament(mmuSlotIndex);
         #endif
         break;
@@ -187,7 +187,7 @@ void GcodeSuite::MMU3_report(const bool forReplay/*=true*/) {
   report_heading(forReplay, F("MMU3 Operational Stats"));
   SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
   SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
-  #if ENABLED(MMU_HAS_CUTTER)
+  #if ENABLED(MMU3_HAS_CUTTER)
     SERIAL_ECHOPGM("  Cutter             ");
     serialprintln_onoff(mmu3.cutter_mode != 0);
   #endif

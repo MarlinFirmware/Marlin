@@ -52,12 +52,18 @@
   #include "../../feature/bltouch.h"
 #endif
 
+#if FT_MOTION_DISABLE_FOR_PROBING
+  #include "../../module/ft_motion.h"
+#endif
+
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
 #elif ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/e3v2/creality/dwin.h"
+#elif ENABLED(SOVOL_SV06_RTS)
+  #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
 #if ENABLED(LASER_FEATURE)
@@ -82,10 +88,8 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    #if HAS_CURRENT_HOME(X)
-      set_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
 
@@ -107,10 +111,8 @@
 
     current_position.set(0.0, 0.0);
 
-    #if HAS_CURRENT_HOME(X)
-      restore_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       restore_homing_current(Y_AXIS);
     #endif
 
@@ -127,6 +129,11 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+
+    #if FT_MOTION_DISABLE_FOR_PROBING
+      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
+    #endif
+
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
@@ -203,6 +210,11 @@
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
+ *  H         Hold the current X/Y position when executing a home Z, or if
+ *            multiple axes are homed, the position when Z home is executed.
+ *            When using a probe for Z Home, positions close to the edge may
+ *            fail with position unreachable due to probe/nozzle offset.  This
+ *            can be used to avoid a model.
  *
  * Cartesian/SCARA parameters
  *
@@ -277,6 +289,10 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
+    #if FT_MOTION_DISABLE_FOR_PROBING
+      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
+    #endif
+
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -315,9 +331,9 @@ void GcodeSuite::G28() {
 
     #else // !DELTA && !AXEL_TPARA
 
-      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZ && axis_should_home(_AXIS(A)))
+      #define _UNSAFE(A) TERN0(Z_SAFE_HOMING, homeZZ && axis_should_home(_AXIS(A)))
 
-      const bool homeZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
+      const bool homeZZ = TERN0(HAS_Z_AXIS, parser.seen_test('Z')),
                  NUM_AXIS_LIST_(             // Other axes should be homed before Z safe-homing
                    needX = _UNSAFE(X), needY = _UNSAFE(Y), needZ = false, // UNUSED
                    needI = _UNSAFE(I), needJ = _UNSAFE(J), needK = _UNSAFE(K),
@@ -326,7 +342,7 @@ void GcodeSuite::G28() {
                  NUM_AXIS_LIST_(             // Home each axis if needed or flagged
                    homeX = needX || parser.seen_test('X'),
                    homeY = needY || parser.seen_test('Y'),
-                   homeZZ = homeZ,
+                   homeZ = homeZZ,
                    homeI = needI || parser.seen_test(AXIS4_NAME), homeJ = needJ || parser.seen_test(AXIS5_NAME),
                    homeK = needK || parser.seen_test(AXIS6_NAME), homeU = needU || parser.seen_test(AXIS7_NAME),
                    homeV = needV || parser.seen_test(AXIS8_NAME), homeW = needW || parser.seen_test(AXIS9_NAME)
@@ -348,7 +364,7 @@ void GcodeSuite::G28() {
 
       #if HAS_Z_AXIS
 
-        UNUSED(needZ); UNUSED(homeZZ);
+        UNUSED(needZ);
 
         // Z may home first, e.g., when homing away from the bed.
         // This is also permitted when homing with a Z endstop.
@@ -432,8 +448,7 @@ void GcodeSuite::G28() {
 
       #if HAS_Y_AXIS
         // Home Y (after X)
-        if (DISABLED(HOME_Y_BEFORE_X) && doY)
-          homeaxis(Y_AXIS);
+        if (DISABLED(HOME_Y_BEFORE_X) && doY) homeaxis(Y_AXIS);
       #endif
 
       #if ALL(FOAMCUTTER_XYUV, HAS_J_AXIS)
@@ -459,7 +474,12 @@ void GcodeSuite::G28() {
             #endif
 
             #if ENABLED(Z_SAFE_HOMING)
-              if (TERN1(POWER_LOSS_RECOVERY, !parser.seen_test('H'))) home_z_safely(); else homeaxis(Z_AXIS);
+              // H means hold the current X/Y position when probing.
+              // Otherwise move to the define safe X/Y position before homing Z.
+              if (!parser.seen_test('H'))
+                home_z_safely();
+              else
+                homeaxis(Z_AXIS);
             #else
               homeaxis(Z_AXIS);
             #endif
@@ -555,6 +575,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
+  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 

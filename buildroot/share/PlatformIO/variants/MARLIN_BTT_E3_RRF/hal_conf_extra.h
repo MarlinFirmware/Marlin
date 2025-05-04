@@ -1,22 +1,56 @@
 #pragma once
 
-#define HAL_MODULE_ENABLED
-#define HAL_ADC_MODULE_ENABLED
-#define HAL_CRC_MODULE_ENABLED
-#define HAL_DMA_MODULE_ENABLED
-#define HAL_EXTI_MODULE_ENABLED   // Needed for Endstop (and other external) Interrupts
-#define HAL_GPIO_MODULE_ENABLED
-#define HAL_I2C_MODULE_ENABLED
-#define HAL_PWR_MODULE_ENABLED
-#define HAL_RCC_MODULE_ENABLED
-//#define HAL_RTC_MODULE_ENABLED // Real Time Clock...do we use it?
-#define HAL_SPI_MODULE_ENABLED
-#define HAL_TIM_MODULE_ENABLED
-#define HAL_USART_MODULE_ENABLED
-#define HAL_CORTEX_MODULE_ENABLED
-//#define HAL_UART_MODULE_ENABLED // by default
-//#define HAL_PCD_MODULE_ENABLED  // Since STM32 v3.10700.191028 this is automatically added if any type of USB is enabled (as in Arduino IDE)
-#define HAL_SD_MODULE_ENABLED
+#ifndef HAL_MODULE_ENABLED
+  #define HAL_MODULE_ENABLED
+#endif
+#ifndef HAL_ADC_MODULE_ENABLED
+  #define HAL_ADC_MODULE_ENABLED
+#endif
+#ifndef HAL_CRC_MODULE_ENABLED
+  #define HAL_CRC_MODULE_ENABLED
+#endif
+#ifndef HAL_DMA_MODULE_ENABLED
+  #define HAL_DMA_MODULE_ENABLED
+#endif
+#ifndef HAL_EXTI_MODULE_ENABLED
+  #define HAL_EXTI_MODULE_ENABLED // Needed for Endstop (and other external) Interrupts
+#endif
+#ifndef HAL_GPIO_MODULE_ENABLED
+  #define HAL_GPIO_MODULE_ENABLED
+#endif
+#ifndef HAL_I2C_MODULE_ENABLED
+  #define HAL_I2C_MODULE_ENABLED
+#endif
+#ifndef HAL_PWR_MODULE_ENABLED
+  #define HAL_PWR_MODULE_ENABLED
+#endif
+#ifndef HAL_RCC_MODULE_ENABLED
+  #define HAL_RCC_MODULE_ENABLED
+#endif
+#ifndef HAL_RTC_MODULE_ENABLED
+  //#define HAL_RTC_MODULE_ENABLED // Real Time Clock...do we use it?
+#endif
+#ifndef HAL_SPI_MODULE_ENABLED
+  #define HAL_SPI_MODULE_ENABLED
+#endif
+#ifndef HAL_TIM_MODULE_ENABLED
+  #define HAL_TIM_MODULE_ENABLED
+#endif
+#ifndef HAL_USART_MODULE_ENABLED
+  #define HAL_USART_MODULE_ENABLED
+#endif
+#ifndef HAL_CORTEX_MODULE_ENABLED
+  #define HAL_CORTEX_MODULE_ENABLED
+#endif
+#ifndef HAL_UART_MODULE_ENABLED
+  //#define HAL_UART_MODULE_ENABLED // by default
+#endif
+#ifndef HAL_PCD_MODULE_ENABLED
+  //#define HAL_PCD_MODULE_ENABLED  // Since STM32 v3.10700.191028 this is automatically added if any type of USB is enabled (as in Arduino IDE)
+#endif
+#ifndef HAL_SD_MODULE_ENABLED
+  #define HAL_SD_MODULE_ENABLED
+#endif
 
 #undef HAL_DAC_MODULE_ENABLED
 #undef HAL_FLASH_MODULE_ENABLED

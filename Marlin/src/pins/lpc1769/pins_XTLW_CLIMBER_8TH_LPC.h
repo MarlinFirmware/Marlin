@@ -99,25 +99,12 @@
 #endif
 
 #if HAS_TMC_UART
-
   #define X_SERIAL_TX_PIN                  P1_04
-  #define X_SERIAL_RX_PIN                  P1_04
-
   #define X2_SERIAL_TX_PIN                 P0_10
-  #define X2_SERIAL_RX_PIN                 P0_10
-
   #define Y_SERIAL_TX_PIN                  P1_10
-  #define Y_SERIAL_RX_PIN                  P1_10
-
   #define Z_SERIAL_TX_PIN                  P1_16
-  #define Z_SERIAL_RX_PIN                  P1_16
-
   #define E0_SERIAL_TX_PIN                 P4_28
-  #define E0_SERIAL_RX_PIN                 P4_28
-
   #define E1_SERIAL_TX_PIN                 P2_12
-  #define E1_SERIAL_RX_PIN                 P2_12
-
 #endif
 
 //
@@ -209,7 +196,7 @@
     #define BTN_EN1                        P0_00
     #define BTN_EN2                        P0_01
 
-    #define LCD_SDSS                       P0_16
+    #define LCD_SDSS_PIN                   P0_16
 
     #if ENABLED(MKS_12864OLED_SSD1306)
 

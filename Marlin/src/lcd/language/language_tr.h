@@ -45,7 +45,7 @@ namespace LanguageNarrow_tr {
   LSTR LANGUAGE                           = _UxGT("Turkish");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Hazır.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Hazır.");
   LSTR MSG_YES                            = _UxGT("EVET");
   LSTR MSG_NO                             = _UxGT("HAYIR");
   LSTR MSG_HIGH                           = _UxGT("YÜKSEK");
@@ -68,7 +68,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
@@ -76,7 +75,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("@ Sıfırla");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("@ Sıfırla");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X Sıfırla");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y Sıfırla");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z Sıfırla");
@@ -193,7 +192,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Yinelenen X-Boşluğu");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");
@@ -274,7 +273,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Tabla Mesh Kaydet");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontrolü");
-  LSTR MSG_LEDS                           = _UxGT("LEDler");
+  LSTR MSG_LIGHTS                         = _UxGT("LEDler");
+  LSTR MSG_LIGHT_N                        = _UxGT("Işıklar #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("LED Hazır Ayarları");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Kırmızı");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Turuncu");
@@ -286,7 +286,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Beyaz");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Varsayılan");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
-  LSTR MSG_LEDS2                          = _UxGT("Işıklar #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Işık #2 Ön Ayarları");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Parlaklık");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Özel Işıklar");
@@ -397,10 +396,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_A_RETRACT                      = _UxGT("G.Çekme Hızı");
   LSTR MSG_A_TRAVEL                       = _UxGT("Gezinme Hızı");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("@ Biçimlemeyi Aç");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("@ Biçimlemeyi Kapat");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("@ frekans");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("@ sönümleme");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("@ Biçimlemeyi Aç");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("@ Biçimlemeyi Kapat");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("@ frekans");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("@ sönümleme");
   LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_C_FREQ                 = STR_C _UxGT(" frekansı");   // ProUI
@@ -550,11 +549,14 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("SD Kartı takın");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("USB Sürücüyü takın");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD Kartı takın");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB Sürücüyü takın");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Oto. Başlat");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Çarpıklık Faktörü");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -586,6 +588,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofseti");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofseti");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofseti");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Prob Ofseti");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z ayarı adımsal");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Prob Payı");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z İlerleme Hızı");
@@ -783,7 +786,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrit Eşiği");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensörsüz Sıfırlama");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Adım Modu");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Aktif");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Resetle");
   LSTR MSG_SERVICE_IN                     = _UxGT(" içinde:");
   LSTR MSG_BACKLASH                       = _UxGT("Ters Tepki");
@@ -791,7 +795,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Yumuşatma");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Sabit Zamanlı Hareket");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -802,7 +806,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");

@@ -9,7 +9,6 @@
 # so at every release be sure to create a dev- tag and publish it to origin.
 #
 
-SED=$(which gsed sed | head -n1)
 SELF=`basename "$0"`
 DRYRUN=0
 

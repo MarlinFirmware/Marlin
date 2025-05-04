@@ -291,7 +291,7 @@ void menu_move() {
   END_MENU();
 }
 
-#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_A, F("G28" STR_##N));
+#define _HOME_ITEM(N) GCODES_ITEM_N(N##_AXIS, MSG_AUTO_HOME_N, F("G28" STR_##N));
 
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_SUBMENU)
   //
@@ -419,15 +419,14 @@ void menu_move() {
 
     bool show_state = c.active;
     EDIT_ITEM(bool, MSG_FIXED_TIME_MOTION, &show_state, []{
-      ftMotion.cfg.active ^= true;
+      FLIP(ftMotion.cfg.active);
       ftMotion.update_shaping_params();
     });
 
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       #if HAS_X_AXIS
-        SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
-        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
+        SUBMENU_N_S(X_AXIS, shaper_name[X_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
 
         if (AXIS_HAS_SHAPER(X)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.x, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -437,8 +436,7 @@ void menu_move() {
         }
       #endif
       #if HAS_Y_AXIS
-        SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
-        MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
+        SUBMENU_N_S(Y_AXIS, shaper_name[Y_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
 
         if (AXIS_HAS_SHAPER(Y)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.y, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -449,8 +447,7 @@ void menu_move() {
       #endif
 
       #if HAS_DYNAMIC_FREQ
-        SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-        MENU_ITEM_ADDON_START_RJ(11); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+        SUBMENU_S(dmode, MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           #if HAS_X_AXIS
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.x, 0.0f, 20.0f);
@@ -464,7 +461,7 @@ void menu_move() {
       #if HAS_EXTRUDERS
         EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
         if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
-          EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+          EDIT_ITEM(float62, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 1000.0f);
       #endif
     }
     END_MENU();
@@ -489,21 +486,18 @@ void menu_move() {
     BACK_ITEM(MSG_TUNE);
 
     #if HAS_X_AXIS
-      SUBMENU_N(X_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
-      MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[X_AXIS]); MENU_ITEM_ADDON_END();
+      SUBMENU_N_S(X_AXIS, shaper_name[X_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
     #endif
     #if HAS_Y_AXIS
-      SUBMENU_N(Y_AXIS, MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
-      MENU_ITEM_ADDON_START_RJ(5); lcd_put_u8str(shaper_name[Y_AXIS]); MENU_ITEM_ADDON_END();
+      SUBMENU_N_S(Y_AXIS, shaper_name[Y_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
     #endif
     #if HAS_DYNAMIC_FREQ
-      SUBMENU(MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
-      MENU_ITEM_ADDON_START_RJ(dmode.length()); lcd_put_u8str(dmode); MENU_ITEM_ADDON_END();
+      SUBMENU_S(dmode, MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
       if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0, 10);
+        EDIT_ITEM(float62, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 1000.0f);
     #endif
 
     END_MENU();

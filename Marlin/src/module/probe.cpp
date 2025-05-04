@@ -82,7 +82,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE
+#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
   #include "servo.h"
 #endif
 
@@ -103,7 +103,7 @@
 
 Probe probe;
 
-xyz_pos_t Probe::offset; // Initialized by settings.load()
+xyz_pos_t Probe::offset; // Initialized by settings.load
 
 #if HAS_PROBE_XY_OFFSET
   const xy_pos_t &Probe::offset_xy = Probe::offset;
@@ -272,6 +272,13 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   typedef struct { float fr_mm_min; xyz_pos_t where; } mag_probe_move_t;
 
   inline void run_deploy_moves() {
+    #ifdef MAG_MOUNTED_PRE_DEPLOY
+      constexpr mag_probe_move_t pre_deploy = MAG_MOUNTED_PRE_DEPLOY;
+      do_blocking_move_to(pre_deploy.where, MMM_TO_MMS(pre_deploy.fr_mm_min));
+    #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
+    #endif
     #ifdef MAG_MOUNTED_DEPLOY_1
       constexpr mag_probe_move_t deploy_1 = MAG_MOUNTED_DEPLOY_1;
       do_blocking_move_to(deploy_1.where, MMM_TO_MMS(deploy_1.fr_mm_min));
@@ -292,9 +299,19 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       constexpr mag_probe_move_t deploy_5 = MAG_MOUNTED_DEPLOY_5;
       do_blocking_move_to(deploy_5.where, MMM_TO_MMS(deploy_5.fr_mm_min));
     #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
+    #endif
   }
 
   inline void run_stow_moves() {
+    #ifdef MAG_MOUNTED_PRE_STOW
+      constexpr mag_probe_move_t pre_stow = MAG_MOUNTED_PRE_STOW;
+      do_blocking_move_to(pre_stow.where, MMM_TO_MMS(pre_stow.fr_mm_min));
+    #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][0]);
+    #endif
     #ifdef MAG_MOUNTED_STOW_1
       constexpr mag_probe_move_t stow_1 = MAG_MOUNTED_STOW_1;
       do_blocking_move_to(stow_1.where, MMM_TO_MMS(stow_1.fr_mm_min));
@@ -314,6 +331,9 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #ifdef MAG_MOUNTED_STOW_5
       constexpr mag_probe_move_t stow_5 = MAG_MOUNTED_STOW_5;
       do_blocking_move_to(stow_5.where, MMM_TO_MMS(stow_5.fr_mm_min));
+    #endif
+    #if HAS_MAG_MOUNTED_SERVO_PROBE
+      servo[MAG_MOUNTED_PROBE_SERVO_NR].move(servo_angles[MAG_MOUNTED_PROBE_SERVO_NR][1]);
     #endif
   }
 
@@ -385,6 +405,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     //ui.reset_status();
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
+
+  #if ENABLED(SWITCHING_NOZZLE_LIFT_TO_PROBE)
+    servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][deploy ? 1 : 0]);
+  #endif
 
   #if ENABLED(SOLENOID_PROBE)
 
@@ -541,7 +565,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
 
     // Only deploy/stow if needed
-    if (PROBE_TRIGGERED() == deploy) {
+    if (PROBE_TRIGGERED() == deploy || !deploy) {
       if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
                                                    // otherwise an Allen-Key probe can't be stowed.
       probe_specific_action(deploy);
@@ -961,11 +985,6 @@ float Probe::probe_at_point(
     DEBUG_POS("", current_position);
   }
 
-  #if ENABLED(BLTOUCH)
-    // Reset a BLTouch in HS mode if already triggered
-    if (bltouch.high_speed_mode && bltouch.triggered()) bltouch._reset();
-  #endif
-
   // Use a safe Z height for the XY move
   const float safe_z = _MAX(current_position.z, z_clearance);
 
@@ -1002,6 +1021,13 @@ float Probe::probe_at_point(
     measured_z = current_position.z - bdl.read(); // Difference between Z-home-relative Z and sensor reading
 
   #else // !BD_SENSOR
+
+    #if ENABLED(BLTOUCH)
+      // Now at the safe_z if it is still triggered it may be in an alarm
+      // condition.  Reset to clear alarm has a side effect of stowing the probe,
+      // which the following deploy will handle.
+      if (bltouch.triggered()) bltouch._reset();
+    #endif
 
     measured_z = deploy() ? NAN : run_z_probe(sanity_check, z_min_point, z_clearance) + offset.z;
 

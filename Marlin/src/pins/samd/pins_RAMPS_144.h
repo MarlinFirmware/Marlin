@@ -46,7 +46,7 @@
 //
 //#define QSPI_EEPROM                             // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
 #define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24lc256)
+#define MARLIN_EEPROM_SIZE               0x8000U  // 32K (24lc256)
 
 //
 // Foam Cutter requirements
@@ -210,53 +210,29 @@
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   47
   #endif
-  #ifndef X_SERIAL_RX_PIN
-    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
-  #endif
   #ifndef X2_SERIAL_TX_PIN
     #define X2_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef X2_SERIAL_RX_PIN
-    #define X2_SERIAL_RX_PIN    X2_SERIAL_TX_PIN
   #endif
 
   #ifndef Y_SERIAL_TX_PIN
     #define Y_SERIAL_TX_PIN                   45
   #endif
-  #ifndef Y_SERIAL_RX_PIN
-    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
-  #endif
   #ifndef Y2_SERIAL_TX_PIN
     #define Y2_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef Y2_SERIAL_RX_PIN
-    #define Y2_SERIAL_RX_PIN    Y2_SERIAL_TX_PIN
   #endif
 
   #ifndef Z_SERIAL_TX_PIN
     #define Z_SERIAL_TX_PIN                   32
   #endif
-  #ifndef Z_SERIAL_RX_PIN
-    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
-  #endif
   #ifndef Z2_SERIAL_TX_PIN
     #define Z2_SERIAL_TX_PIN                  22
-  #endif
-  #ifndef Z2_SERIAL_RX_PIN
-    #define Z2_SERIAL_RX_PIN    Z2_SERIAL_TX_PIN
   #endif
 
   #ifndef E0_SERIAL_TX_PIN
     #define E0_SERIAL_TX_PIN                  43
   #endif
-  #ifndef E0_SERIAL_RX_PIN
-    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
-  #endif
   #ifndef E1_SERIAL_TX_PIN
     #define E1_SERIAL_TX_PIN                  -1
-  #endif
-  #ifndef E1_SERIAL_RX_PIN
-    #define E1_SERIAL_RX_PIN    E1_SERIAL_TX_PIN
   #endif
 #endif
 
@@ -268,11 +244,11 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDSS                                83
+  #define SD_SS_PIN                           83
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       95
 #else
-  #define SDSS                                53
+  #define SD_SS_PIN                           53
 #endif
 
 //
@@ -562,7 +538,7 @@
       #define BTN_EN1                    AUX4_04
       #define BTN_EN2                    AUX4_06
       #define BTN_ENC                    AUX4_03
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #define KILL_PIN                   AUX4_07
       #undef LCD_PINS_EN                          // not used, causes false pin conflict report
 
@@ -572,7 +548,7 @@
       #define BTN_EN2                    AUX2_08
       #define BTN_ENC                         -1
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
@@ -608,7 +584,7 @@
       #define BTN_EN2                EXP1_01_PIN
       #define BTN_ENC                EXP2_03_PIN
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif

@@ -129,11 +129,11 @@ typedef Servo hal_servo_t;
   #endif
 #endif
 
-#ifdef MMU2_SERIAL_PORT
-  #if !WITHIN(MMU2_SERIAL_PORT, 0, 3)
-    #error "MMU2_SERIAL_PORT must be from 0 to 3"
+#ifdef MMU_SERIAL_PORT
+  #if !WITHIN(MMU_SERIAL_PORT, 0, 3)
+    #error "MMU_SERIAL_PORT must be from 0 to 3"
   #endif
-  #define MMU2_SERIAL mmuSerial
+  #define MMU_SERIAL mmuSerial
 #endif
 
 #ifdef LCD_SERIAL_PORT
@@ -204,7 +204,7 @@ public:
   static void isr_on()  { sei(); }
   static void isr_off() { cli(); }
 
-  static void delay_ms(const int ms) { _delay_ms(ms); }
+  static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from idle()
   static void idletask() {}

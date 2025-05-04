@@ -31,28 +31,14 @@
  */
 
 /**
- * Rev B    26 DEC 2016
- *
- * 1) added pointer to a current Arduino IDE extension
- * 2) added support for M3, M4 & M5 spindle control commands
- * 3) added case light pin definition
- */
-
-/**
- * A useable Arduino IDE extension (Boards Manager) can be found at
+ * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
+ * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
+ * Once installed select the SANGUINO board and then select the CPU.
  */
 
 #define ALLOW_MEGA644P
@@ -123,8 +109,8 @@
  * If you encounter issues with these pins, upgrade your
  * Sanguino libraries! See #368.
  */
-//#define SDSS                                24
-#define SDSS                             AUX1_09
+//#define SD_SS_PIN                           24
+#define SD_SS_PIN                        AUX1_09
 
 #if IS_MELZI
   #define LED_PIN                        AUX1_01
@@ -257,8 +243,8 @@
 
     #if IS_MELZI
       #define BTN_ENC                    AUX1_05
-      #ifndef LCD_SDSS
-        #define LCD_SDSS                 AUX1_07  // Panelolu2 SD card reader rather than the Melzi
+      #ifndef LCD_SDSS_PIN
+        #define LCD_SDSS_PIN             AUX1_07  // Panelolu2 SD card reader rather than the Melzi
       #endif
     #else
       #define BTN_ENC                    AUX1_07
@@ -268,8 +254,8 @@
   #else // !LCD_FOR_MELZI && !ZONESTAR_LCD && !LCD_I2C_PANELOLU2
 
     #define BTN_ENC                      AUX1_02
-    #ifndef LCD_SDSS
-      #define LCD_SDSS                   AUX1_03  // Smart Controller SD card reader rather than the Melzi
+    #ifndef LCD_SDSS_PIN
+      #define LCD_SDSS_PIN               AUX1_03  // Smart Controller SD card reader rather than the Melzi
     #endif
 
   #endif

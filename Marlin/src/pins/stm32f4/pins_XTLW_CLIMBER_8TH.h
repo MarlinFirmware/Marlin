@@ -146,22 +146,11 @@
 #if HAS_TMC_UART
 
   #define X_SERIAL_TX_PIN                   PC15
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define X2_SERIAL_TX_PIN                  PA8
-  #define X2_SERIAL_RX_PIN      X2_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PB6
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PD5
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PD1
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PE9
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -188,8 +177,7 @@
   #define SDIO_CMD_PIN                      PD2
 #elif SD_CONNECTION_IS(LCD)
   #define CUSTOM_SPI_PINS
-  #define SDSS                              PA4
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
@@ -287,14 +275,8 @@
 #endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if ENABLED(U8GLIB_ST7920)
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif

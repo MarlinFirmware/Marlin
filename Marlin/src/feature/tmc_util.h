@@ -29,7 +29,7 @@
 #include <TMCStepper.h>
 #include "../module/planner.h"
 
-#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }   // { toff, hend, hstrt }
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
 #define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
@@ -77,8 +77,8 @@ class TMCStorage {
 
     struct {
       OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
-      OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
-      OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
+      OPTCODE(HYBRID_THRESHOLD, uint16_t hybrid_thrs = 0)
+      OPTCODE(USE_SENSORLESS,   int16_t  homing_thrs = 0)
     } stored;
 };
 
@@ -374,6 +374,32 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
   #endif // SPI_ENDSTOPS
 
 #endif // USE_SENSORLESS
+
+#if HAS_HOMING_CURRENT
+
+  // Axes that have a distinct homing current
+  struct homing_current_t {
+    OPTCODE(X_HAS_HOME_CURRENT,  uint16_t X)
+    OPTCODE(Y_HAS_HOME_CURRENT,  uint16_t Y)
+    OPTCODE(Z_HAS_HOME_CURRENT,  uint16_t Z)
+    OPTCODE(X2_HAS_HOME_CURRENT, uint16_t X2)
+    OPTCODE(Y2_HAS_HOME_CURRENT, uint16_t Y2)
+    OPTCODE(Z2_HAS_HOME_CURRENT, uint16_t Z2)
+    OPTCODE(Z3_HAS_HOME_CURRENT, uint16_t Z3)
+    OPTCODE(Z4_HAS_HOME_CURRENT, uint16_t Z4)
+    OPTCODE(I_HAS_HOME_CURRENT,  uint16_t I)
+    OPTCODE(J_HAS_HOME_CURRENT,  uint16_t J)
+    OPTCODE(K_HAS_HOME_CURRENT,  uint16_t K)
+    OPTCODE(U_HAS_HOME_CURRENT,  uint16_t U)
+    OPTCODE(V_HAS_HOME_CURRENT,  uint16_t V)
+    OPTCODE(W_HAS_HOME_CURRENT,  uint16_t W)
+  };
+
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    extern homing_current_t homing_current_mA;
+  #endif
+
+#endif // HAS_HOMING_CURRENT
 
 #endif // HAS_TRINAMIC_CONFIG
 

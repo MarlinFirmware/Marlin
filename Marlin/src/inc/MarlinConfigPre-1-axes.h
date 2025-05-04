@@ -25,7 +25,7 @@
 #define __MARLIN_FIRMWARE__
 #endif
 
-#if __has_include("../../Config.h")
+#if __has_include("../../../Marlin/Config.h")
   #include "../../Config.h"
 #else
   #define USE_STD_CONFIGS 1

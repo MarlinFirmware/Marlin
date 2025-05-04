@@ -42,7 +42,7 @@
 //#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM                                // Need use jumpers set i2c for EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 #define I2C_SCL_PIN                         PB8   // I2C_SCL and CAN_RX
 #define I2C_SDA_PIN                         PB9   // I2C_SDA and CAN_TX
 
@@ -72,6 +72,16 @@
 //
 #if ENABLED(PROBE_ENABLE_DISABLE) && !defined(PROBE_ENABLE_PIN)
   #define PROBE_ENABLE_PIN            SERVO0_PIN
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PC5   // Y+
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PB12  // Z+
 #endif
 
 //
@@ -158,28 +168,13 @@
   // No Hardware serial for steppers
   //
   #define X_SERIAL_TX_PIN                   PE6
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PE3
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PB7
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PB3
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PD0
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #define E3_SERIAL_TX_PIN                  PD15
-  #define E3_SERIAL_RX_PIN      E3_SERIAL_TX_PIN
-
   #define E4_SERIAL_TX_PIN                  PD11
-  #define E4_SERIAL_RX_PIN      E4_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
@@ -262,15 +257,14 @@
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
-  #define SD_SS_PIN                         -1
-  #define SDSS                              PC9
+  #define SD_SS_PIN                         PC9
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
   #define SD_DETECT_PIN                     PC4   // SD_DETECT_PIN doesn't work with NO_SD_HOST_DRIVE disabled
 #elif SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN

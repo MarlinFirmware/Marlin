@@ -36,18 +36,17 @@ namespace LanguageNarrow_el_gr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Greek (Greece)");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" έτοιμο.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" έτοιμο.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Εισαγωγή κάρτας");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Αφαίρεση κάρτας");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Βασική Οθόνη");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Αυτόματη εκκίνηση");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση βηματιστή");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Αρχικό σημείο X");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Αρχικό σημείο Y");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Αρχικό σημείο Z");
-  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Επαναφορά στο αρχικό σημείο ΧΥΖ");
+  LSTR MSG_LEVEL_BED_HOMING               = _UxGT("Επαναφορά στο αρχικό σημείο ΧΥZ");
   LSTR MSG_LEVEL_BED_WAITING              = _UxGT("Κάντε κλικ για να ξεκινήσετε");
   LSTR MSG_LEVEL_BED_NEXT_POINT           = _UxGT("Επόμενο σημείο");
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Ολοκλήρωση επιπεδοποίησης!");
@@ -170,19 +169,27 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_AUTORETRACT                    = _UxGT("Αυτόματη ανάσυρση");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Αλλαγή νήματος");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Αλλαγή νήματος *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Προετοιμασία κάρτας SD");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Προετοιμασία SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Προετοιμασία SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Προετοιμασία USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Αλλαγή κάρτας SD");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Αυτόματη εκκίνηση");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός κλίνης");
-  LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πριν από Ζ");
-  LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥΖ πρώτα");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Μετατόπιση Ζ");
+  LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πριν από Z");
+  LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥZ πρώτα");
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Μετατόπιση X");
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Μετατόπιση Y");
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Μετατόπιση Z");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("Μετατόπιση @");
   LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Βήμα Z ρύθμιση");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Μικρό βήμα Χ");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Μικρό βήμα Υ");
-  LSTR MSG_BABYSTEP_Z                     = _UxGT("Μικρό βήμα Ζ");
+  LSTR MSG_BABYSTEP_Z                     = _UxGT("Μικρό βήμα Z");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Ματαίωση endstop ");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Ανεπιτυχής θέρμανση");
-  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Λάθος: ΠΛΕΟΝΑΖΟΥΣΑ ΘΕΡΜΟΤΗΤΑ");
+  LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Λάθος: ΠΛΕΟΝΑZΟΥΣΑ ΘΕΡΜΟΤΗΤΑ");
   LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΤΗΤΑΣ");
   LSTR MSG_ERR_MAXTEMP                    = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
   LSTR MSG_ERR_MINTEMP                    = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
