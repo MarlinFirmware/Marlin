@@ -78,10 +78,10 @@
     TERN_(MARLIN_SMALL_BUILD, return);
 
     if (!forReplay) {
-      report_heading(forReplay, F(STR_FILAMENT_SETTINGS), false);
+      report_heading(false, F(STR_FILAMENT_SETTINGS), false);
       if (!parser.volumetric_enabled) SERIAL_ECHOPGM(" (Disabled):");
       SERIAL_EOL();
-      report_echo_start(forReplay);
+      report_echo_start(false);
     }
 
     #if EXTRUDERS == 1
@@ -231,7 +231,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
 
   #if ENABLED(DISTINCT_E_FACTORS)
     for (uint8_t i = 0; i < E_STEPPERS; ++i) {
-      if (!forReplay) SERIAL_ECHO_START();
+      report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])

@@ -27,109 +27,77 @@
 
 #if HAS_SD_HOST_DRIVE
 
-#include "../shared/Marduino.h"
-#include "msc_sd.h"
-#include "usbd_core.h"
-
 #include "../../sd/cardreader.h"
 
-#include <USB.h>
-#include <USBMscHandler.h>
+#include <tusb.h>  // TinyUSB device stack
 
 #define BLOCK_SIZE 512
-#define PRODUCT_ID 0x29
+#define SD_MULTIBLOCK_RETRY_CNT 1
 
-class Sd2CardUSBMscHandler : public USBMscHandler {
-public:
-  DiskIODriver* diskIODriver() {
-    #if HAS_MULTI_VOLUME
-      #if SHARED_VOLUME_IS(SD_ONBOARD)
-        return &card.media_driver_sdcard;
-      #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
-        return &card.media_driver_usbFlash;
-      #endif
-    #else
-      return card.diskIODriver();
+DiskIODriver* diskIODriver() {
+  #if HAS_MULTI_VOLUME
+    #if SHARED_VOLUME_IS(SD_ONBOARD)
+      return &card.media_driver_sdcard;
+    #elif SHARED_VOLUME_IS(USB_FLASH_DRIVE)
+      return &card.media_driver_usbFlash;
     #endif
-  }
+  #else
+    return card.diskIODriver();
+  #endif
+}
 
-  bool GetCapacity(uint32_t *pBlockNum, uint16_t *pBlockSize) {
-    *pBlockNum = diskIODriver()->cardSize();
-    *pBlockSize = BLOCK_SIZE;
-    return true;
-  }
+/** Callbacks used by TinyUSB MSC **/
 
-  bool Write(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = diskIODriver();
-    // single block
-    if (blkLen == 1) {
-      watchdog_refresh();
-      sd2card->writeBlock(blkAddr, pBuf);
-      return true;
+extern "C" {
+
+bool tud_msc_ready_cb(uint8_t lun) {
+  return diskIODriver()->isReady();
+}
+
+int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, void* buffer, uint32_t bufsize) {
+  const uint32_t blocks = bufsize / BLOCK_SIZE;
+  for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; rcount--; ) {
+    if (diskIODriver()->readBlocks(lba, (uint8_t*)buffer, blocks))
+      return bufsize; // Success
+  }
+  return -1; // Failure after retries
+}
+
+int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint8_t const* buffer, uint32_t bufsize) {
+  const uint32_t blocks = bufsize / BLOCK_SIZE;
+  for (uint16_t rcount = SD_MULTIBLOCK_RETRY_CNT; rcount--; ) {
+    if (diskIODriver()->writeBlocks(lba, buffer, blocks))
+      return bufsize; // Success
+  }
+  return -1; // Failure after retries
+}
+
+void tud_msc_inquiry_cb(uint8_t lun, uint8_t vendor_id[8], uint8_t product_id[16], uint8_t product_rev[4]) {
+  memcpy(vendor_id,  "MARLIN  ", 8);
+  memcpy(product_id, "Product       ", 16);
+  memcpy(product_rev, "0.01", 4);
+}
+
+void tud_msc_capacity_cb(uint8_t lun, uint32_t* block_count, uint16_t* block_size) {
+  *block_count = diskIODriver()->cardSize();
+  *block_size = BLOCK_SIZE;
+}
+
+void tud_msc_start_stop_cb(uint8_t lun, uint8_t power_condition, bool start, bool load_eject) {
+  if (load_eject) {
+    if (start) {
+      // Handle media load
+    } else {
+      // Handle media eject
     }
-
-    // multi block optimization
-    sd2card->writeStart(blkAddr, blkLen);
-    while (blkLen--) {
-      watchdog_refresh();
-      sd2card->writeData(pBuf);
-      pBuf += BLOCK_SIZE;
-    }
-    sd2card->writeStop();
-    return true;
   }
+}
 
-  bool Read(uint8_t *pBuf, uint32_t blkAddr, uint16_t blkLen) {
-    auto sd2card = diskIODriver();
-    // single block
-    if (blkLen == 1) {
-      watchdog_refresh();
-      sd2card->readBlock(blkAddr, pBuf);
-      return true;
-    }
-
-    // multi block optimization
-    sd2card->readStart(blkAddr);
-    while (blkLen--) {
-      watchdog_refresh();
-      sd2card->readData(pBuf);
-      pBuf += BLOCK_SIZE;
-    }
-    sd2card->readStop();
-    return true;
-  }
-
-  bool IsReady() {
-    return diskIODriver()->isReady();
-  }
-};
-
-Sd2CardUSBMscHandler usbMscHandler;
-
-/* USB Mass storage Standard Inquiry Data */
-uint8_t  Marlin_STORAGE_Inquirydata[] = { /* 36 */
-  /* LUN 0 */
-  0x00,
-  0x80,
-  0x02,
-  0x02,
-  (STANDARD_INQUIRY_DATA_LEN - 5),
-  0x00,
-  0x00,
-  0x00,
-  'M', 'A', 'R', 'L', 'I', 'N', ' ', ' ', /* Manufacturer : 8 bytes */
-  'P', 'r', 'o', 'd', 'u', 'c', 't', ' ', /* Product      : 16 Bytes */
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-  '0', '.', '0', '1',                     /* Version      : 4 Bytes */
-};
-
-USBMscHandler *pSingleMscHandler = &usbMscHandler;
+} // extern "C"
 
 void MSC_SD_init() {
-  USBDevice.end();
-  delay(200);
-  USBDevice.registerMscHandlers(1, &pSingleMscHandler, Marlin_STORAGE_Inquirydata);
-  USBDevice.begin();
+  tusb_init();
+  // Add USB reinitialization logic if needed
 }
 
 #endif // HAS_SD_HOST_DRIVE

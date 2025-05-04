@@ -173,7 +173,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t {
     protected:
       bool pid_reset = true;
-      float temp_iState = 0.0f, temp_dState = 0.0f;
+      float temp_dState = 0;
       float work_p = 0, work_i = 0, work_d = 0;
 
     public:
@@ -217,17 +217,14 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         }
         else {
           if (pid_reset) {
+            work_i = 0;
+            work_d = 0;
             pid_reset = false;
-            temp_iState = 0.0;
-            work_d = 0.0;
           }
 
-          const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
-          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
-
           work_p = Kp * pid_error;
-          work_i = Ki * temp_iState;
-          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
+          work_i = constrain(work_i + Ki * pid_error, 0, float(MAX_POW - MIN_POW));
+          work_d += (Kd * (temp_dState - current) - work_d) * PID_K2;
 
           output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
         }

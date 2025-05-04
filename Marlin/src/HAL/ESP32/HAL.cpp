@@ -34,13 +34,13 @@
 
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
-  #include "wifi.h"
+  #include "wifi/wifi.h"
   #if ENABLED(OTASUPPORT)
-    #include "ota.h"
+    #include "wifi/ota.h"
   #endif
   #if ENABLED(WEBSUPPORT)
-    #include "spiffs.h"
-    #include "web.h"
+    #include "wifi/spiffs.h"
+    #include "wifi/web.h"
   #endif
 #endif
 
@@ -174,8 +174,6 @@ void MarlinHAL::idletask() {
 uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
 
 void MarlinHAL::reboot() { ESP.restart(); }
-
-void _delay_ms(const int ms) { delay(ms); }
 
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }

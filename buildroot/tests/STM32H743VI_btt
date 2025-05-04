@@ -12,6 +12,7 @@ set -e
 #
 restore_configs
 use_example_configs "Creality/Ender-5 Plus/BigTreeTech SKR 3"
+opt_set DEFAULT_MAX_FEEDRATE '{ 6250, 6250, 15, 5375 }'
 exec_test $1 $2 "Creality Ender-5 Plus with BigTreeTech SKR 3" "$3"
 
 

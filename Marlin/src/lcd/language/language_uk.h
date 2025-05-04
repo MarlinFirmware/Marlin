@@ -54,7 +54,6 @@ namespace LanguageNarrow_uk {
   LSTR MSG_MAIN_MENU                        = _UxGT("Основне меню");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Інші налаштування");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфігурація");
-  LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS                 = _UxGT("Вимкнути двигуни");
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню Debug");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест лінії прогр.");
@@ -445,14 +444,14 @@ namespace LanguageNarrow_uk {
   LSTR MSG_FILAMENTUNLOAD                   = _UxGT("Видалити пруток");
   LSTR MSG_FILAMENTUNLOAD_E                 = _UxGT("Видалити пруток *");
   LSTR MSG_FILAMENTUNLOAD_ALL               = _UxGT("Видалити все");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Вставити SD-картку");
-    LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Вставити USB флешка");
-  #else
-    LSTR MSG_ATTACH_MEDIA                   = _UxGT("Вставити SD-картку");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                     = _UxGT("Вставити SD-картку");
+  LSTR MSG_ATTACH_SD                        = _UxGT("Вставити SD-картку");
+  LSTR MSG_ATTACH_USB                       = _UxGT("Вставити USB флешка");
   LSTR MSG_CHANGE_MEDIA                     = _UxGT("Заміна SD-картки");
   LSTR MSG_RELEASE_MEDIA                    = _UxGT("Видаліть SD-картку");
+  LSTR MSG_RUN_AUTOFILES                    = _UxGT("Автостарт");
+
   LSTR MSG_ZPROBE_OUT                       = _UxGT("Z-Зонд поза столом");
   LSTR MSG_SKEW_FACTOR                      = _UxGT("Фактор нахилу");
   LSTR MSG_BLTOUCH                          = _UxGT("BLTouch");

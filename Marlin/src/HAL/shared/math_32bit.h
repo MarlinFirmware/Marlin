@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../core/macros.h"
+#include <stdint.h>
 
 /**
  * Math helper functions for 32 bit CPUs

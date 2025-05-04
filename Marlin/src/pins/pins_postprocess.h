@@ -891,7 +891,7 @@
     #endif
     #define AUTO_ASSIGNED_X2_DIAG 1
   #endif
-#endif
+#endif // HAS_X2_STEPPER
 
 #ifndef X2_CS_PIN
   #define X2_CS_PIN  -1
@@ -976,7 +976,7 @@
     #endif
     #define AUTO_ASSIGNED_Y2_DIAG 1
   #endif
-#endif
+#endif // HAS_Y2_STEPPER
 
 #ifndef Y2_CS_PIN
   #define Y2_CS_PIN  -1
@@ -1061,7 +1061,7 @@
     #endif
     #define AUTO_ASSIGNED_Z2_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 2
 
 #ifndef Z2_CS_PIN
   #define Z2_CS_PIN  -1
@@ -1146,7 +1146,7 @@
     #endif
     #define AUTO_ASSIGNED_Z3_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 3
 
 #ifndef Z3_CS_PIN
   #define Z3_CS_PIN  -1
@@ -1231,7 +1231,7 @@
     #endif
     #define AUTO_ASSIGNED_Z4_DIAG 1
   #endif
-#endif
+#endif // NUM_Z_STEPPERS >= 4
 
 #ifndef Z4_CS_PIN
   #define Z4_CS_PIN  -1
@@ -1316,7 +1316,7 @@
     #endif
     #define AUTO_ASSIGNED_I_DIAG 1
   #endif
-#endif
+#endif // HAS_I_AXIS
 
 #ifndef I_CS_PIN
   #define I_CS_PIN  -1
@@ -1401,7 +1401,7 @@
     #endif
     #define AUTO_ASSIGNED_J_DIAG 1
   #endif
-#endif
+#endif // HAS_J_AXIS
 
 #ifndef J_CS_PIN
   #define J_CS_PIN  -1
@@ -1486,7 +1486,7 @@
     #endif
     #define AUTO_ASSIGNED_K_DIAG 1
   #endif
-#endif
+#endif // HAS_K_AXIS
 
 #ifndef K_CS_PIN
   #define K_CS_PIN  -1
@@ -1571,7 +1571,7 @@
     #endif
     #define AUTO_ASSIGNED_U_DIAG 1
   #endif
-#endif
+#endif // HAS_U_AXIS
 
 #ifndef U_CS_PIN
   #define U_CS_PIN  -1
@@ -1656,7 +1656,7 @@
     #endif
     #define AUTO_ASSIGNED_V_DIAG 1
   #endif
-#endif
+#endif // HAS_V_AXIS
 
 #ifndef V_CS_PIN
   #define V_CS_PIN  -1
@@ -1734,7 +1734,7 @@
     #endif
     #define AUTO_ASSIGNED_W_DIAG 1
   #endif
-#endif
+#endif // HAS_W_AXIS
 
 #ifndef W_CS_PIN
   #define W_CS_PIN  -1

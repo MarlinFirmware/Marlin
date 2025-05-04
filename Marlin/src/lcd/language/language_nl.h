@@ -43,7 +43,6 @@ namespace LanguageNarrow_nl {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Hoofdmenu");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren uit");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu"); // accepted English terms
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Vooruitgang Test");
@@ -146,13 +145,13 @@ namespace LanguageNarrow_nl {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Verv. Filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Verv. Filament *");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Init. SD kaart");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Init. USB stick");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Init. SD kaart");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD kaart");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Init. SD kaart");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Init. USB stick");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Verv. SD Kaart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe uit. bed");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");

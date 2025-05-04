@@ -144,7 +144,9 @@ def main(argv):
         print("    { OV(%7.2f), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" %
             (adc, temp,
             ',' if temp != temps[-1] else ' ',
-            t.voltage(adc), t.resist(adc), t.resol(adc))
+            t.voltage(adc),
+            t.resist( adc),
+            t.resol(  adc))
         )
     print("};")
 

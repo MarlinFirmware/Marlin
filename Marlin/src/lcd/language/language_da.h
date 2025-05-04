@@ -133,7 +133,9 @@ namespace LanguageNarrow_da {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Skift filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Skift filament *");
+
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Skift SD kort");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Probe udenfor plade");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Selv-Test");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s først");

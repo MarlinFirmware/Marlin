@@ -74,7 +74,6 @@ extern "C" {
 
 // Time functions
 extern "C" void delay(const int ms);
-void _delay_ms(const int ms);
 void delayMicroseconds(unsigned long);
 unsigned long millis();
 
