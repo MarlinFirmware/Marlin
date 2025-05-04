@@ -27,9 +27,12 @@
 #include <PinOps.hpp>
 #include <PinOpsMap.hpp>
 
-static inline void fast_write_pin_wrapper(pin_size_t IO, bool V) {
-  if (V) gpio::fast_set_pin(getPortFromPin(IO), getPinInPort(IO));
-  else gpio::fast_clear_pin(getPortFromPin(IO), getPinInPort(IO));
+template<typename T>
+static inline void fast_write_pin_wrapper(pin_size_t IO, T V) {
+  auto port = getPortFromPin(IO);
+  auto pin = getPinInPort(IO);
+  if (static_cast<bool>(V)) gpio::fast_set_pin(port, pin);
+  else                      gpio::fast_clear_pin(port, pin);
 }
 
 static inline bool fast_read_pin_wrapper(pin_size_t IO) {

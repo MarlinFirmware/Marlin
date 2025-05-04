@@ -255,8 +255,10 @@ public:
   #endif
 
   #if HAS_MEDIA
-    #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
-    static void media_changed(const uint8_t old_stat, const uint8_t stat);
+    #define MEDIA_MENU_GATEWAY     TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper,     menu_file_selector)
+    #define MEDIA_MENU_GATEWAY_SD  TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper_sd,  menu_file_selector_sd)
+    #define MEDIA_MENU_GATEWAY_USB TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper_usb, menu_file_selector_usb)
+    static void media_changed(const MediaPresence old_stat, const MediaPresence stat);
   #endif
 
   #if HAS_LCD_BRIGHTNESS
@@ -864,7 +866,7 @@ public:
       TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
-  #else
+  #else // !HAS_ENCODER_ACTION
 
     static void update_buttons() {}
     static bool hw_button_pressed() { return false; }

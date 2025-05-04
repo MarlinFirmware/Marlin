@@ -54,7 +54,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MAIN_MENU                      = _UxGT("Huvud");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advancerade inställningar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostarta Filer");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Inaktivera Stegare");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Meny");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Framstegsindikator Test");
@@ -417,14 +416,14 @@ namespace LanguageNarrow_sv {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Lossa Tråd");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Lossa *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Lossa All");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Bifoga SD-kort");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Bifoga USB-minne");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Bifoga SD-kort");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Bifoga SD-kort");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Bifoga SD-kort");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Bifoga USB-minne");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Byt Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Släpp Media");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostarta Filer");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Sond Utanför Bädd");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skev Faktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

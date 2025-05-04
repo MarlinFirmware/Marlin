@@ -81,7 +81,7 @@ void DGUSScreenHandlerMKS::sendInfoScreen_P(PGM_P const line1, PGM_P const line2
 
 void DGUSScreenHandlerMKS::sendInfoScreenMKS(const void *line1, const void *line2, const void *line3, const void *line4, const MKS_Language language) {
   if (language == MKS_English)
-    DGUSScreenHandlerMKS::sendInfoScreen_P((char *)line1, (char *)line2, (char *)line3, (char *)line4);
+    DGUSScreenHandlerMKS::sendInfoScreen((char *)line1, (char *)line2, (char *)line3, (char *)line4);
   else if (language == MKS_SimpleChinese)
     DGUSScreenHandlerMKS::sendInfoScreen((uint16_t *)line1, (uint16_t *)line2, (uint16_t *)line3, (uint16_t *)line4);
 }
@@ -1525,7 +1525,7 @@ void DGUSScreenHandlerMKS::updateDisplayLanguage() {
     } break; // MKS_English
 
     case MKS_SimpleChinese: {
-      uint16_t home_buf_ch[] = { 0xF7D6, 0xB3D2 };
+      const uint16_t home_buf_ch[] = { 0xF7D6, 0xB3D2 };
       dgus.writeStringVar(VP_HOME_Dis, home_buf_ch, 4);
 
       const uint16_t Setting_Dis[] = { 0xE8C9, 0xC3D6, 0x2000, 0x2000, 0x2000 };

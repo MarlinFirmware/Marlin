@@ -131,30 +131,15 @@ void tft_lvgl_init() {
   // Init TFT first!
   SPI_TFT.spiInit(SPI_FULL_SPEED);
   SPI_TFT.lcdInit();
-
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if HAS_USB_FLASH_DRIVE
-    uint16_t usb_flash_loop = 1000;
-    #if HAS_MULTI_VOLUME && !HAS_SD_HOST_DRIVE
-      if (IS_SD_INSERTED())
-        card.changeMedia(&card.media_driver_sdcard);
-      else
-        card.changeMedia(&card.media_driver_usbFlash);
-    #endif
-    do {
-      card.media_driver_usbFlash.idle();
-      hal.watchdog_refresh();
-      delay(2);
-    } while (!card.media_driver_usbFlash.isInserted() && usb_flash_loop--);
-    card.mount();
-  #elif HAS_LOGO_IN_FLASH
+  #if HAS_LOGO_IN_FLASH
+    // Leave the boot screen visible for a moment
     delay(1000);
-    hal.watchdog_refresh();
+    hal.watchdog_refresh();     // LVGL init takes time
     delay(1000);
+    hal.watchdog_refresh();     // LVGL init takes time
   #endif
-
-  hal.watchdog_refresh();     // LVGL init takes time
 
   #if HAS_MEDIA
     UpdateAssets();

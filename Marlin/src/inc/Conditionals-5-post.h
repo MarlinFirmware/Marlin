@@ -550,7 +550,9 @@
     #endif
   #endif
 
+  // Tests indicating a single or multi-volume SD Card
   #if !HAS_USB_FLASH_DRIVE || ALL(HAS_MULTI_VOLUME, VOLUME_SD_ONBOARD)
+    #define HAS_SDCARD 1
     #if ENABLED(ONBOARD_SDIO)
       #define NEED_SD2CARD_SDIO 1
     #else
@@ -3012,6 +3014,10 @@
   #undef MICROSTEP_MODES
 #endif
 
+#if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MICROSTEPS)
+  #define HAS_STEPPER_CONTROL 1
+#endif
+
 /**
  * Helper Macros for heaters and extruder fan
  */
@@ -3555,6 +3561,10 @@
 
 #if BUTTONS_EXIST(EN1, EN2, ENC)
   #define HAS_ROTARY_ENCODER 1
+#endif
+
+#if defined(CPU_32_BIT) && !defined(FAST_BUTTON_POLLING)
+  #define FAST_BUTTON_POLLING
 #endif
 
 #if PIN_EXISTS(SAFE_POWER) && DISABLED(DISABLE_DRIVER_SAFE_POWER_PROTECT)

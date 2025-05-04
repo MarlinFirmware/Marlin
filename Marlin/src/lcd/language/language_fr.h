@@ -52,7 +52,6 @@ namespace LanguageNarrow_fr {
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Arrêter moteurs");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
@@ -392,14 +391,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Charger le SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Charger le USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Charger le SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser média");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le média");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exéc. auto.gcode");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur écart");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
