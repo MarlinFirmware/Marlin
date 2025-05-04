@@ -589,7 +589,11 @@ void drawPrintProgressElapsed() {
 #endif
 
 void ICON_ResumeOrPause() {
-  if (checkkey == ID_PrintProcess) (print_job_timer.isPaused() || hmiFlag.pause_flag) ? ICON_Resume() : ICON_Pause();
+  if (checkkey != ID_PrintProcess) return;
+  if (print_job_timer.isPaused() || hmiFlag.pause_flag)
+    ICON_Resume();
+  else
+    ICON_Pause();
 }
 
 // Print a string (up to 30 characters) in the header,
@@ -1214,10 +1218,8 @@ void hmiPrinting() {
           ExtUI::resumePrint();
           break;
         }
-        else {
-          gotoPopup(popupPauseOrStop, onClickPauseOrStop);
-          return;
-        }
+        gotoPopup(popupPauseOrStop, onClickPauseOrStop);
+        return;
       case PRINT_STOP: {
         gotoPopup(popupPauseOrStop, onClickPauseOrStop);
         return;
