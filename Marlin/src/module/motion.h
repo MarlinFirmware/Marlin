@@ -95,6 +95,8 @@ FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_FEEDRATE)
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
+#else
+  #define XY_PROBE_FEEDRATE_MM_S ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
 #endif
 
 #if HAS_BED_PROBE
