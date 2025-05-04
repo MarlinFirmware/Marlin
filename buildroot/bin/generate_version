@@ -3,11 +3,18 @@
 # generate_version
 #
 # Make a Version.h file to accompany CUSTOM_VERSION_FILE
+# Invoked automatically by Arduino IDE
 #
 # Authors: jbrazio, thinkyhead, InsanityAutomation, rfinnie
 #
 
 set -e
+
+# Only run if ALLOW_GENERATE_VERSION is set
+if [[ "$ALLOW_GENERATE_VERSION" != "1" ]]; then
+  echo "Skipping generate_version because ALLOW_GENERATE_VERSION is not set."
+  exit 0
+fi
 
 DIR="${1:-Marlin}"
 READ_FILE="${READ_FILE:-${DIR}/Version.h}"

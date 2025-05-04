@@ -92,7 +92,9 @@ bool is_temp_timer_initialized = false;
 
 // Retrieves the clock frequency of the stepper timer
 uint32_t GetStepperTimerClkFreq() {
-  return Step_Timer.getTimerClockFrequency();
+  // Cache result
+  static uint32_t clkFreq = Step_Timer.getTimerClockFrequency();
+  return clkFreq;
 }
 
 /**
@@ -191,10 +193,12 @@ void SetTimerInterruptPriorities() {
 // Detect timer conflicts
 // ------------------------
 
+TERN_(HAS_TMC_SW_SERIAL, static constexpr timer::TIMER_Base timer_serial[] = {static_cast<timer::TIMER_Base>(TIMER_SERIAL)});
 TERN_(SPEAKER, static constexpr timer::TIMER_Base timer_tone[] = {static_cast<timer::TIMER_Base>(TIMER_TONE)});
 TERN_(HAS_SERVOS, static constexpr timer::TIMER_Base timer_servo[] = {static_cast<timer::TIMER_Base>(TIMER_SERVO)});
 
 enum TimerPurpose {
+  PURPOSE_SERIAL,
   PURPOSE_TONE,
   PURPOSE_SERVO,
   PURPOSE_STEP,
@@ -205,6 +209,9 @@ enum TimerPurpose {
 // Includes the timer purpose to ease debugging when evaluating at build-time
 // This cannot yet account for timers used for PWM output, such as for fans
 static constexpr struct { TimerPurpose p; int t; } timers_in_use[] = {
+  #if HAS_TMC_SW_SERIAL
+    { PURPOSE_SERIAL, timer_base_to_index(timer_serial[0]) }, // Set in variant.h
+  #endif
   #if ENABLED(SPEAKER)
     { PURPOSE_TONE, timer_base_to_index(timer_tone[0]) },     // Set in variant.h
   #endif

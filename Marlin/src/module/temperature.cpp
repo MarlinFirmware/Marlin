@@ -1755,7 +1755,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
       float ambient_xfer_coeff = mpc.ambient_xfer_coeff_fan0;
       #if ENABLED(MPC_INCLUDE_FAN)
         const uint8_t fan_index = TERN(SINGLEFAN, 0, ee);
-        const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f : ) fan_speed[fan_index] * RECIPROCAL(255);
+        const float fan_fraction = TERN_(MPC_FAN_0_ACTIVE_HOTEND, !this_hotend ? 0.0f :) fan_speed[fan_index] * RECIPROCAL(255);
         ambient_xfer_coeff += fan_fraction * mpc.fan255_adjustment;
       #endif
 
@@ -3589,7 +3589,7 @@ void Temperature::disable_all_heaters() {
         #define THERMO_SEL(A,B,C) (hindex > 1 ? (C) : hindex == 1 ? (B) : (A))
         #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; case 2: WRITE(TEMP_2_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
       #elif MAX_TC_COUNT > 1
-        #define THERMO_SEL(A,B,C) ( hindex == 1 ? (B) : (A))
+        #define THERMO_SEL(A,B,C) (hindex == 1 ? (B) : (A))
         #define MAXTC_CS_WRITE(V) do{ switch (hindex) { case 1: WRITE(TEMP_1_CS_PIN, V); break; default: WRITE(TEMP_0_CS_PIN, V); } }while(0)
       #endif
     #else
@@ -4283,10 +4283,15 @@ void Temperature::isr() {
   #endif // SLOW_PWM_HEATERS
 
   //
-  // Update lcd buttons 488 times per second
+  // Update lcd buttons at ~488Hz or ~976Hz
   //
-  static bool do_buttons;
-  if (FLIP(do_buttons)) ui.update_buttons();
+  #if ENABLED(FAST_BUTTON_POLLING)
+    constexpr bool do_buttons = true;
+  #else
+    static bool do_buttons;
+    FLIP(do_buttons);
+  #endif
+  if (do_buttons) ui.update_buttons();
 
   /**
    * One sensor is sampled on every other call of the ISR.
@@ -4767,7 +4772,7 @@ void Temperature::isr() {
           dwin_heat_time = elapsed.value;
         #elif ENABLED(SOVOL_SV06_RTS)
           update_time_value = RTS_UPDATE_VALUE;
-          if (IS_SD_PRINTING()) rts.refreshTime();
+          if (card.isStillPrinting()) rts.refreshTime();
           rts.start_print_flag = false;
         #else
           ui.reset_status();

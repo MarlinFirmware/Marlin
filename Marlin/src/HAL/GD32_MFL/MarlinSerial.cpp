@@ -60,10 +60,9 @@ MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPi
   static MarlinSerial* current_serial_instance = nullptr;
 
   static void emergency_callback() {
-    if (current_serial_instance) {
-      uint8_t last_data = current_serial_instance->get_last_data();
-      emergency_parser.update(current_serial_instance->emergency_state, last_data);
-    }
+    if (!current_serial_instance) return;
+    const uint8_t last_data = current_serial_instance->get_last_data();
+    emergency_parser.update(current_serial_instance->emergency_state, last_data);
   }
 
   void MarlinSerial::register_emergency_callback(void (*callback)()) {
@@ -72,26 +71,23 @@ MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPi
 #endif
 
 void MarlinSerial::begin(unsigned long baudrate, uint16_t config) {
-  UsartSerial::begin(baudrate, config);
-  #if DISABLED(SERIAL_DMA)
-    #if ENABLED(EMERGENCY_PARSER)
-      current_serial_instance = this;
-      register_emergency_callback(emergency_callback);
-    #endif
+  UsartSerial::begin(baudrate, config, ENABLED(SERIAL_DMA));
+  #if ENABLED(EMERGENCY_PARSER) && DISABLED(SERIAL_DMA)
+    current_serial_instance = this;
+    register_emergency_callback(emergency_callback);
   #endif
 }
 
 void MarlinSerial::updateRxDmaBuffer() {
   #if ENABLED(EMERGENCY_PARSER)
     // Get the number of bytes available in the receive buffer
-    size_t available_bytes = usart_.available_for_read(true);
-    uint8_t data;
+    const size_t available_bytes = usart_.available_for_read(true);
 
     // Process only the available data
     for (size_t i = 0; i < available_bytes; ++i) {
-      if (usart_.read_rx_buffer(data)) {
+      uint8_t data;
+      if (usart_.read_rx_buffer(data))
         emergency_parser.update(emergency_state, data);
-      }
     }
   #endif
   // Call the base class implementation to handle any additional updates

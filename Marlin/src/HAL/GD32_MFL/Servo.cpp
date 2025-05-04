@@ -41,23 +41,26 @@ static uint32_t servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityG
 // This must be called after the MFL Servo class has initialized the timer.
 // To be safe this is currently called after every call to attach().
 static void fixServoTimerInterruptPriority() {
-  NVIC_SetPriority(getTimerUpIRQ(TIMER_SERVO), servo_interrupt_priority);
+  auto& servoTimerIdx = GeneralTimer::get_instance(static_cast<timer::TIMER_Base>(TIMER_SERVO));
+  NVIC_SetPriority(servoTimerIdx.getTimerUpIRQ(), servo_interrupt_priority);
 }
 
 // Default constructor for libServo class.
 // Initializes the servo delay, pause state, and pause value.
 // Registers the servo instance in the servos array.
-libServo::libServo() : delay(servoDelay[servoCount]),
+libServo::libServo() :
+  delay(servoDelay[servoCount]),
   was_attached_before_pause(false),
-  value_before_pause(0) {
+  value_before_pause(0)
+{
   servos[servoCount++] = this;
 }
 
 // Attaches a servo to a specified pin.
 int8_t libServo::attach(const int pin) {
   if (servoCount >= MAX_SERVOS) return -1;
-  if (pin > 0) servo_pin = pin;
-  auto result = mflServo.attach(servo_pin);
+  if (pin > 0) servoPin = pin;
+  auto result = mflServo.attach(servoPin);
   fixServoTimerInterruptPriority();
   return result;
 }
@@ -65,8 +68,8 @@ int8_t libServo::attach(const int pin) {
 // Attaches a servo to a specified pin with minimum and maximum pulse widths.
 int8_t libServo::attach(const int pin, const int min, const int max) {
   if (servoCount >= MAX_SERVOS) return -1;
-  if (pin > 0) servo_pin = pin;
-  auto result = mflServo.attach(servo_pin, min, max);
+  if (pin > 0) servoPin = pin;
+  auto result = mflServo.attach(servoPin, min, max);
   fixServoTimerInterruptPriority();
   return result;
 }

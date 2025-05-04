@@ -52,7 +52,6 @@ namespace LanguageNarrow_el {
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Αποτυχία εκκίνησης USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Αποτυχία αρχικοποίησης SD");
   LSTR MSG_MAIN_MENU                      = _UxGT("Αρχική Οθόνη");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Αυτόματη εκκίνηση");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση μοτέρ");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτόμ. επαναφορά XYZ");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Επαναφορά X");
@@ -180,13 +179,13 @@ namespace LanguageNarrow_el {
   LSTR MSG_AUTORETRACT                    = _UxGT("Αυτόματη ανάσυρση");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Αλλαγή νήματος");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Αλλαγή νήματος *");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Προετοιμασία SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Προετοιμασία USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Προετοιμασία SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Προετοιμασία SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Προετοιμασία SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Προετοιμασία USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Αλλαγή κάρτας SD");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Αυτόματη εκκίνηση");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Διερεύνηση Z εκτός Επ.Εκτύπωσης"); // SHORTEN
   LSTR MSG_YX_UNHOMED                     = _UxGT("Επαναφορά Χ/Υ πρώτα");
   LSTR MSG_XYZ_UNHOMED                    = _UxGT("Επαναφορά ΧΥZ πρώτα");

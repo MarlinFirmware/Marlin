@@ -40,11 +40,12 @@
  * Some jitter in the Vref signal is OK so the interrupt priority is left at its default value.
  */
 
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if MB(PRINTRBOARD_G2)
 
 #include "G2_PWM.h"
+#include "../../../module/stepper.h"
 
 #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
   #define G2_PWM_X 1

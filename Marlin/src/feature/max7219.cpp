@@ -757,7 +757,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_MULTISTEPPING
     static uint8_t last_multistepping = 0;
-    const uint8_t multistepping = Stepper::steps_per_isr;
+    const uint8_t multistepping = stepper.steps_per_isr;
     if (multistepping != last_multistepping) {
       static uint8_t log2_old = 0;
       uint8_t log2_new = 0;

@@ -35,7 +35,7 @@
 #if HAS_MEDIA
   #include "../../sd/cardreader.h"
   #if ENABLED(ESP3D_WIFISUPPORT)
-    #include "sd_ESP32.h"
+    #include <sd_ESP32.h>
   #endif
 #endif
 

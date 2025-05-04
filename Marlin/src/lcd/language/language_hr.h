@@ -41,7 +41,6 @@ namespace LanguageNarrow_hr {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Main");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto pokretanje");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Ugasi steppere");
   LSTR MSG_AUTO_HOME                      = _UxGT("Automatski homing");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home-aj X");
@@ -117,13 +116,13 @@ namespace LanguageNarrow_hr {
   LSTR MSG_STOPPED                        = _UxGT("ZAUSTAVLJEN. ");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Promijeni filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Promijeni filament *");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Init. SD karticu");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Init. USB pogon");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Init. SD karticu");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD karticu");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Init. SD karticu");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Init. USB pogon");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Promijeni SD karticu");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Auto pokretanje");
+
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Grijanje neuspješno");
   LSTR MSG_HEATING                        = _UxGT("Grijanje...");
   LSTR MSG_BED_HEATING                    = _UxGT("Grijanje Bed-a...");
