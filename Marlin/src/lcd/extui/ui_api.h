@@ -464,6 +464,9 @@ namespace ExtUI {
    * Use these to operate on files
    */
   bool isMediaMounted();
+  bool isMediaMountedSD();
+  bool isMediaMountedUSB();
+
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();

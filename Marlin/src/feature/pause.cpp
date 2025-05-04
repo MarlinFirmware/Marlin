@@ -439,7 +439,7 @@ bool pause_print(const_float_t retract, const xyz_pos_t &park_point, const bool 
 
   // Pause the print job and timer
   #if HAS_MEDIA
-    const bool was_sd_printing = IS_SD_PRINTING();
+    const bool was_sd_printing = card.isStillPrinting();
     if (was_sd_printing) {
       card.pauseSDPrint();
       ++did_pause_print; // Indicate SD pause also

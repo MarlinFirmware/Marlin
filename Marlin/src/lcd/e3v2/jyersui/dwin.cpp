@@ -4653,7 +4653,7 @@ void JyersDWIN::popupControl() {
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               popupHandler(Popup_Home, true);
               #if HAS_MEDIA
-                if (IS_SD_PRINTING()) card.pauseSDPrint();
+                if (card.isStillPrinting()) card.pauseSDPrint();
               #endif
               planner.synchronize();
               queue.inject(F("M125"));

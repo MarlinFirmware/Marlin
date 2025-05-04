@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * BRICOLEMON Board. Based on ATSAMD51 (AGCM4), bootloader and credits by ADAFRUIT.
+ * Bricolemon Board. Based on ATSAMD51 (AGCM4), bootloader and credits by ADAFRUIT.
+ * https://lemoncrest.com https://bricogeek.com
  */
 
 #if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
@@ -30,11 +31,11 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BRICOLEMON V1.0" // Lemoncrest & BricoGeek collaboration.
+  #define BOARD_INFO_NAME "Bricolemon V1.0" // Lemoncrest & BricoGeek collaboration.
 #endif
 
 /**
- * BRICOLEMON Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
+ * Bricolemon Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
  * This board its a 3.3V LOGIC Board, following the ADAFRUIT example, all of the board is open source.
  * Schematic: https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon/EsquemaBricolemon_REVB.pdf
  * 3DSTEP: https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon/BricolemonREVB.step
@@ -43,41 +44,52 @@
  * NOTE: We need the Serial port on the -1 to make it work!!. Remember to change it on configuration.h #define SERIAL_PORT -1
  */
 
-/**
- * EEPROM EMULATION: Works with some bugs already, but the board needs an I2C EEPROM memory soldered on.
- */
-//#define FLASH_EEPROM_EMULATION
-#define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE              0x10000U  // 64K (CAT24C512)
-
-//This its another option to emulate an EEPROM, but its more efficient to dont loose the data the first One.
-//#define SDCARD_EEPROM_EMULATION
-
 //
-// BLTouch
+// EEPROM Emulation: Works (with some bugs) already, but the board needs an I2C EEPROM memory soldered on.
 //
-#define SERVO0_PIN                            33  // BLTouch PWM
-
-//
-//  Limit Switches
-//
-#define X_STOP_PIN                            10
-#define Y_STOP_PIN                            11
-#define Z_STOP_PIN                            12
-
-/**
- * NOTE: Useful if extra TMC2209 are to be used as independent axes.
- * We need to configure the new digital PIN, for this we could configure on the board the extra pin of this stepper, for example as a MIN_PIN/MAX_PIN. This pin is the D14.
- */
-//#define Z2_STOP_PIN                         14
-//#define X2_STOP_PIN                         14
-//#define Y2_STOP_PIN                         14
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM                              // EEPROM on I2C-0
+  //#define FLASH_EEPROM_EMULATION
+  //#define SDCARD_EEPROM_EMULATION
+  #if ENABLED(I2C_EEPROM)
+    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
+  #if ENABLED(SDCARD_EEPROM_EMULATION)
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
+  #else
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
+  #endif
+  #undef NO_EEPROM_SELECTED
+#endif
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Servos
 //
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     12
+#define SERVO0_PIN                            33  // BL_TOUCH
+
+//
+// TMC StallGuard DIAG pins - Require soldered bridges!
+//
+#define X_DIAG_PIN                            10  // X_STOP
+#define Y_DIAG_PIN                            11  // Y_STOP
+#define Z_DIAG_PIN                            12  // Z_STOP
+#define E0_DIAG_PIN                           48  // E0_STOP
+#define E1_DIAG_PIN                           14  // E1_STOP
+
+//
+// Limit Switches
+//
+#define X_STOP_PIN                    X_DIAG_PIN
+#define Y_STOP_PIN                    Y_DIAG_PIN
+#define Z_STOP_PIN                    Z_DIAG_PIN
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      48  // E0_STOP
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                     14  // E1_STOP
 #endif
 
 //
@@ -103,46 +115,17 @@
 #define E1_DIR_PIN                            46
 #define E1_ENABLE_PIN                         47
 
-// Filament runout. You may choose to use this pin for some other purpose. It's a normal GPIO that can be configured as I/O.
-// For example, a switch to detect any kind of behavior, Power supply pin .... etc.
-#define FIL_RUNOUT_PIN                        32
-
-// This board have the option to use an extra TMC2209 stepper, one of the use could be as a second extruder.
-#if EXTRUDERS < 2
-  // TODO: Corregir aquí que cuando tenemos dos extrusores o lo que sea, utiliza los endstop que le sobran, osea los max, no hay Z2_endstop
-  #if NUM_Z_STEPPERS > 1
-    #define Z2_STOP_PIN                       14
-  #endif
-#else
-  // If we want to configure the extra stepper as a Extruder, we should have undef all of the extra motors.
-  #undef X2_DRIVER_TYPE
-  #undef Y2_DRIVER_TYPE
-  #undef Z2_DRIVER_TYPE
-  #undef Z3_DRIVER_TYPE
-  #undef Z4_DRIVER_TYPE
-
-  // Si tenemos más de un extrusor lo que hacemos es definir el nuevo extrusor así como sus pines
-  // Acordarse de definir el #define TEMP_SENSOR_1, ya que este contiene el tipo de sonda del extrusor E1
-
-  #define FIL_RUNOUT2_PIN                     14
-
-#endif
-
 //
-// Extruder / Bed
-//
-
 // Temperature Sensors
+//
 #define TEMP_0_PIN                             1
-
-// You could use one of the ADC for a temp chamber if you don't use the second extruder, for example.
-#if TEMP_SENSOR_CHAMBER > 0
-  #define TEMP_CHAMBER_PIN                     3
-#else
-  #define TEMP_1_PIN                           3
-#endif
-
+#define TEMP_1_PIN                             3
 #define TEMP_BED_PIN                           2
+
+// You could use one of the ADC for a chamber if you don't use the second extruder, for example.
+#if TEMP_SENSOR_CHAMBER
+  #define TEMP_CHAMBER_PIN            TEMP_1_PIN
+#endif
 
 //
 // Heaters / Fans
@@ -635,19 +618,19 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
   #ifndef E1_SLAVE_ADDRESS
-    #define E1_SLAVE_ADDRESS                 0
+    #define E1_SLAVE_ADDRESS                   0
   #endif
   static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BRICOLEMON_V1_0.");
   static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_BRICOLEMON_V1_0.");

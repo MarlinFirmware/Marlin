@@ -54,7 +54,6 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_MAIN_MENU                      = _UxGT("主菜单"); // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("关闭步进电机"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("调试菜单"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("进度条测试"); // "Progress Bar Test"
@@ -398,14 +397,14 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("卸载丝料"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("卸载丝料 *"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("卸载全部"); // "Unload All"
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("挂载存储卡"); // "Attach SD Card"
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("挂载U盘"); // "Attach USB Drive"
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("挂载存储卡"); // "Attach SD Card"
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_SD                      = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("挂载U盘"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更换存储卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("自动开始"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因数"); // "Skew Factor"
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch"); // "BLTouch"

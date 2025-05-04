@@ -68,7 +68,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
@@ -550,14 +549,14 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SD Kartı takın");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USB Sürücüyü takın");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Medyayı Ekle");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD Kartı takın");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB Sürücüyü takın");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Oto. Başlat");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Çarpıklık Faktörü");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

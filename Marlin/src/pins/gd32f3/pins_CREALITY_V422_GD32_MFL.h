@@ -27,11 +27,7 @@
 
 #define ALLOW_GD32F3
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME      "Creality V4.2.2 MFL"
-#endif
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender-3 MFL"
-#endif
+#define BOARD_INFO_NAME      "Creality V4.2.2 MFL"
+#define DEFAULT_MACHINE_NAME "Ender-3 MFL"
 
 #include "../stm32f1/pins_CREALITY_V4.h"

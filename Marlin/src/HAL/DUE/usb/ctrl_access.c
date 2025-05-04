@@ -63,8 +63,8 @@
 #include "compiler.h"
 #include "preprocessor.h"
 #ifdef FREERTOS_USED
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include <FreeRTOS.h>
+#include <semphr.h>
 #endif
 #include "ctrl_access.h"
 
