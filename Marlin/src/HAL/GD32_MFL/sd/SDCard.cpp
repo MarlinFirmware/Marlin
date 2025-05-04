@@ -759,7 +759,7 @@ auto CardDMA::get_card_state(Card_State* card_state) -> SDIO_Error_Type {
 
   if (response & All_R1_Error_Bits) {
     for (const auto& entry : errorTableR1) {
-      if (response & (1 << entry.bit_position)) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
@@ -849,7 +849,7 @@ auto CardDMA::get_r1_result(Command_Index index) -> SDIO_Error_Type {
 
   if (response & All_R1_Error_Bits) {
     for (const auto& entry : errorTableR1) {
-      if (response & (1 << entry.bit_position)) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
@@ -867,7 +867,7 @@ auto CardDMA::get_r6_result(Command_Index index, uint16_t* rca) -> SDIO_Error_Ty
 
   if (response & R6_Error_Bits) {
     for (const auto& entry : errorTableR6) {
-      if (response & (1 << entry.bit_position)) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
