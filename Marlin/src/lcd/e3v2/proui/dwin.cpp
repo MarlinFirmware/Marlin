@@ -1958,14 +1958,11 @@ void MarlinUI::update() {
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() {
-    if (backlight) {
-      dwinLCDBrightness(brightness);
-      if (checkkey != ID_PrintDone) wait_for_user = false;
-    }
-    else {
-      dwinLCDBrightness(0);
+    dwinLCDBrightness(backlight ? brightness : 0);
+    if (!backlight)
       wait_for_user = true;
-    }
+    else if (checkkey != ID_PrintDone)
+      wait_for_user = false;
   }
 #endif
 
