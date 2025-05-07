@@ -33,8 +33,8 @@
 
 using namespace arduino;
 
-MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPin, pin_size_t txPin) {
-  UsartSerial& serial = UsartSerial::get_instance(Base, rxPin, txPin);
+auto MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPin, pin_size_t txPin) -> MarlinSerial& {
+  auto& serial = UsartSerial::get_instance(Base, rxPin, txPin);
   return *reinterpret_cast<MarlinSerial*>(&serial);
 }
 
@@ -61,7 +61,7 @@ MarlinSerial& MarlinSerial::get_instance(usart::USART_Base Base, pin_size_t rxPi
 
   static void emergency_callback() {
     if (!current_serial_instance) return;
-    const uint8_t last_data = current_serial_instance->get_last_data();
+    const auto last_data = current_serial_instance->get_last_data();
     emergency_parser.update(current_serial_instance->emergency_state, last_data);
   }
 

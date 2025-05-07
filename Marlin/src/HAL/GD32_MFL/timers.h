@@ -89,7 +89,7 @@ static inline constexpr struct {timer::TIMER_Base base; uint8_t timer_number;} b
 };
 
 // Converts a timer base to an integer timer index.
-constexpr int timer_base_to_index(timer::TIMER_Base base) {
+constexpr auto timer_base_to_index(timer::TIMER_Base base) -> int {
   for (const auto& timer : base_to_index) {
     if (timer.base == base) {
       return static_cast<int>(timer.timer_number);
@@ -131,7 +131,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const hal_timer_t value) {
   if (!HAL_timer_initialized(timer_number)) return;
 
-  const uint32_t new_value = static_cast<uint32_t>(value + 1U);
+  const auto new_value = static_cast<uint32_t>(value + 1U);
   GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
 
   if (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) {
