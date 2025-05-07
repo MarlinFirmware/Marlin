@@ -638,7 +638,7 @@
     #endif
   #elif Y_HOME_TO_MIN
     #define Y_STOP_PIN Y_MIN_PIN
-  #elif X_HOME_TO_MAX
+  #elif Y_HOME_TO_MAX
     #define Y_STOP_PIN Y_MAX_PIN
   #endif
   #if !defined(Y2_STOP_PIN) && ENABLED(Y_DUAL_ENDSTOPS) && PIN_EXISTS(Y_STOP)

@@ -43,7 +43,7 @@
 using namespace arduino;
 
 struct MarlinSerial : public UsartSerial {
-  static MarlinSerial& get_instance(usart::USART_Base Base, pin_size_t rxPin = NO_PIN, pin_size_t txPin = NO_PIN);
+  static auto get_instance(usart::USART_Base Base, pin_size_t rxPin = NO_PIN, pin_size_t txPin = NO_PIN) -> MarlinSerial&;
 
   void begin(unsigned long baudrate, uint16_t config);
   inline void begin(unsigned long baudrate) { begin(baudrate, SERIAL_8N1); }
@@ -57,7 +57,7 @@ struct MarlinSerial : public UsartSerial {
     EmergencyParser::State emergency_state;
 
     // Accessor method to get the last received byte
-    uint8_t get_last_data() { return usart_.get_last_data(); }
+    auto get_last_data() -> uint8_t { return usart_.get_last_data(); }
 
     // Register the emergency callback
     void register_emergency_callback(void (*callback)());

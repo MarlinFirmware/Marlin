@@ -21,26 +21,27 @@
  */
 #pragma once
 
-// Fast I/O interfaces for GD32F303RE
+// Fast I/O interfaces for GD32
 
 #include <GPIO.hpp>
+#include <variant.h>
 #include <PinOps.hpp>
 #include <PinOpsMap.hpp>
 
 template<typename T>
 static inline void fast_write_pin_wrapper(pin_size_t IO, T V) {
-  auto port = getPortFromPin(IO);
-  auto pin = getPinInPort(IO);
-  if (static_cast<bool>(V)) gpio::fast_set_pin(port, pin);
-  else                      gpio::fast_clear_pin(port, pin);
+  const PortPinPair& pp = port_pin_map[IO];
+  gpio::fast_write_pin(pp.port, pp.pin, static_cast<bool>(V));
 }
 
-static inline bool fast_read_pin_wrapper(pin_size_t IO) {
-  return gpio::fast_read_pin(getPortFromPin(IO), getPinInPort(IO));
+static inline auto fast_read_pin_wrapper(pin_size_t IO) -> bool {
+  const PortPinPair& pp = port_pin_map[IO];
+  return gpio::fast_read_pin(pp.port, pp.pin);
 }
 
 static inline void fast_toggle_pin_wrapper(pin_size_t IO) {
-  gpio::fast_toggle_pin(getPortFromPin(IO), getPinInPort(IO));
+  const PortPinPair& pp = port_pin_map[IO];
+  gpio::fast_toggle_pin(pp.port, pp.pin);
 }
 
 // ------------------------
