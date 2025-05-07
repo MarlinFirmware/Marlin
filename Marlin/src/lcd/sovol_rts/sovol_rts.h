@@ -381,8 +381,6 @@ extern void RTS_Init();
 
 extern int16_t update_time_value;
 extern bool poweroff_continue;
-extern bool sdcard_pause_check;
-extern bool sd_printing_autopause;
 extern bool pause_flag;
 
 void RTS_AutoBedLevelPage();

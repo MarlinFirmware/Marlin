@@ -51,6 +51,10 @@
 #include "stepper.h"
 #include "temperature.h"
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -709,6 +713,17 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(GCODE_MACROS_IN_EEPROM)
     char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1];
+  #endif
+
+  //
+  // Creality RTS
+  //
+  #if ENABLED(CREALITY_RTS)
+    bool wifi_enable_flag;        // M194 S
+    #if ENABLED(BLTOUCH_AND_Z_LIMIT)
+      float zCoordinateOffset;    // RTS Z offset
+    #endif
+    float bedNozzleHeightCalZ;
   #endif
 
 } SettingsData;
@@ -1762,6 +1777,15 @@ void MarlinSettings::postprocess() {
     //
     #if HAS_MULTI_LANGUAGE
       EEPROM_WRITE(ui.language);
+    #endif
+
+    #if ENABLED(CREALITY_RTS)
+      _FIELD_TEST(wifi_enable_flag);
+      EEPROM_WRITE(wifi_enable_flag);
+      #if ENABLED(BLTOUCH_AND_Z_LIMIT)
+        EEPROM_WRITE(rts.zCoordinateOffset);         // Z轴空间坐标差
+      #endif
+      EEPROM_WRITE(bedNozzleHeightCalZ); // caixiaoliang add 20210807
     #endif
 
     //
@@ -2898,6 +2922,15 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+      #if ENABLED(CREALITY_RTS)
+        _FIELD_TEST(wifi_enable_flag);
+        EEPROM_READ(wifi_enable_flag);
+        #if ENABLED(BLTOUCH_AND_Z_LIMIT)
+          EEPROM_READ(rts.zCoordinateOffset);
+        #endif
+        EEPROM_READ(bedNozzleHeightCalZ);
+      #endif
+
       //
       // Model predictive control
       //
@@ -3688,6 +3721,11 @@ void MarlinSettings::reset() {
       stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
   #endif
 
+  #if ENABLED(CREALITY_RTS)
+    ui.language = 1; // 0:Chinese, 1:English
+    wifi_enable_flag = true;
+  #endif
+
   //
   // Adaptive Step Smoothing state
   //
@@ -4183,6 +4221,11 @@ void MarlinSettings::reset() {
     // MMU3
     //
     TERN_(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
+
+    #if ENABLED(CREALITY_RTS)
+      CONFIG_ECHO_HEADING("WIFI Enabled");
+      CONFIG_ECHO_MSG("  M194 S", wifi_enable_flag);
+    #endif
   }
 
 #endif // !DISABLE_M503
