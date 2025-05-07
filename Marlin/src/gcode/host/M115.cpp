@@ -43,6 +43,10 @@
   #include "../../libs/hex_print.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
+
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
@@ -50,11 +54,14 @@
     #if ENABLED(MINIMAL_CAP_LINES)
       if (ena) SERIAL_ECHOLNPGM("Cap:", name, ":1");
     #else
-      SERIAL_ECHOPGM("Cap:", name);
-      SERIAL_CHAR(':', '0' + ena);
-      SERIAL_EOL();
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
     #endif
   }
+  #if ENABLED(CREALITY_RTS)
+    inline void cap_line_uchar(FSTR_P const name, const uint8_t ena) {
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
+    }
+  #endif
 #endif
 
 /**
@@ -138,6 +145,11 @@ void GcodeSuite::M115() {
 
     // BINARY_FILE_TRANSFER (M28 B1)
     cap_line(F("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
+
+    #if ENABLED(CREALITY_RTS)
+      // Creality New Cloud Print Information
+      cap_line_uchar(F("IS_PLR"), g_cloudPLRStatusValue); // Send status to continue print after power failure
+    #endif
 
     // EEPROM (M500, M501)
     cap_line(F("EEPROM"), ENABLED(EEPROM_SETTINGS));
@@ -257,6 +269,9 @@ void GcodeSuite::M115() {
       cap_line(F("IS_PLR"), RTS::recoveryPrompt());
       cap_line(F("LED_STAT"), TERN0(CASE_LIGHT_ENABLE, caselight.on));
     #endif
+
+    // Creality WiFi
+    TERN_(CREALITY_RTS, cap_line(F("WIFI"), wifi_enable_flag));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

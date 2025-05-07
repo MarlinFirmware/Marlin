@@ -110,7 +110,6 @@ float axis_unit = 10;
 int16_t update_time_value = 0;
 
 bool poweroff_continue = false;
-char commandbuf[30];
 
 static SovolPage change_page_number = ID_Startup;
 
