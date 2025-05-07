@@ -93,7 +93,7 @@ void IIC::start() {
   SDA_OUT();    // SDA line output
   IIC_SDA_1();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(4 + EXTRA_DELAY); // Setup time before SCL high
   #endif
 
@@ -121,7 +121,7 @@ void IIC::stop() {
   delay_us(4 + EXTRA_DELAY);
   IIC_SCL_1();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(4 + EXTRA_DELAY); // Setup time with SCL high
   #endif
 
@@ -146,7 +146,7 @@ uint8_t IIC::wait_ack() {
   }
   IIC_SCL_0(); // Clock output 0
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY); // Hold time after SCL falls
   #endif
 
@@ -157,7 +157,7 @@ uint8_t IIC::wait_ack() {
 void IIC::ack() {
   IIC_SCL_0();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
   #endif
 
@@ -168,7 +168,7 @@ void IIC::ack() {
   delay_us(2 + EXTRA_DELAY);
   IIC_SCL_0();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY); // Data hold time
   #endif
 }
@@ -177,7 +177,7 @@ void IIC::ack() {
 void IIC::nAck() {
   IIC_SCL_0();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
   #endif
 
@@ -188,7 +188,7 @@ void IIC::nAck() {
   delay_us(2 + EXTRA_DELAY);
   IIC_SCL_0();
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY); // Data hold time
   #endif
 }
@@ -201,7 +201,7 @@ void IIC::send_byte(uint8_t txd) {
   SDA_OUT();
   IIC_SCL_0(); // Pull down the clock to start data transmission
 
-  #ifdef USE_EXTRA_EEPROM_DELAY
+  #ifdef EXTRA_EEPROM_DELAY
     delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
   #endif
 
@@ -226,7 +226,7 @@ uint8_t IIC::read_byte(unsigned char ack_chr) {
     delay_us(2);
     IIC_SCL_1();
 
-    #ifdef USE_EXTRA_EEPROM_DELAY
+    #ifdef EXTRA_EEPROM_DELAY
       delay_us(EXTRA_DELAY); // Delay before reading to allow EEPROM to output data
     #endif
 
