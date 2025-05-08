@@ -1278,7 +1278,7 @@ void hmiWaitForUser() {
   if (!wait_for_user) {
     switch (checkkey) {
       case ID_PrintDone: select_page.reset(); gotoMainMenu(); break;
-      default: hmiReturnScreen(); break;
+      default: ui.reset_status(true); hmiReturnScreen(); break;
     }
   }
 }
@@ -1958,8 +1958,11 @@ void MarlinUI::update() {
 
 #if HAS_LCD_BRIGHTNESS
   void MarlinUI::_set_brightness() {
-    if (!backlight) wait_for_user = true;
     dwinLCDBrightness(backlight ? brightness : 0);
+    if (!backlight)
+      wait_for_user = true;
+    else if (checkkey != ID_PrintDone)
+      wait_for_user = false;
   }
 #endif
 

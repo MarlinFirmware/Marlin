@@ -28,7 +28,7 @@
 
 namespace sdio {
 
-CardDMA& CardDMA::get_instance() {
+auto CardDMA::get_instance() -> CardDMA& {
   static CardDMA instance;
   return instance;
 }
@@ -38,9 +38,7 @@ CardDMA::CardDMA() :
     sdcard_cid_{0U, 0U, 0U, 0U},
     sdcard_scr_{0U, 0U},
     desired_clock_(Default_Desired_Clock),
-    stop_condition_(0U),
     total_bytes_(0U),
-    count_(0U),
     sdio_(SDIO::get_instance()),
     config_(sdio_.get_config()),
     dmaBase_(dma::DMA_Base::DMA1_BASE),
@@ -50,15 +48,15 @@ CardDMA::CardDMA() :
     transfer_error_(SDIO_Error_Type::OK),
     interface_version_(Interface_Version::UNKNOWN),
     card_type_(Card_Type::UNKNOWN),
+    current_state_(Operational_State::READY),
     transfer_end_(false),
-    is_rx_(false),
     multiblock_(false),
-    current_state_(Operational_State::READY)
+    is_rx_(false)
 {
 }
 
 // Initialize card and put in standby state
-SDIO_Error_Type CardDMA::init() {
+auto CardDMA::init() -> SDIO_Error_Type {
   // Reset SDIO peripheral
   sdio_.reset();
   sync_domains();
@@ -79,7 +77,7 @@ SDIO_Error_Type CardDMA::init() {
 }
 
 // Startup command procedure according to SDIO specification
-SDIO_Error_Type CardDMA::begin_startup_procedure() {
+auto CardDMA::begin_startup_procedure() -> SDIO_Error_Type {
   sdio_.set_power_mode(Power_Control::POWER_ON);
   sdio_.set_clock_enable(true);
   sync_domains();
@@ -124,12 +122,12 @@ SDIO_Error_Type CardDMA::begin_startup_procedure() {
 }
 
 // Voltage validation
-SDIO_Error_Type CardDMA::validate_voltage() {
+auto CardDMA::validate_voltage() -> SDIO_Error_Type {
   uint32_t response = 0U;
   uint32_t count = 0U;
   bool valid_voltage = false;
 
-  while ((count < Max_Voltage_Checks) && (valid_voltage == false)) {
+  while (count < Max_Voltage_Checks && valid_voltage == false) {
     if (send_command_and_check(Command_Index::CMD55, 0, Command_Response::RSP_SHORT,
            Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD55]() {
       return get_r1_result(cmd);
@@ -144,7 +142,7 @@ SDIO_Error_Type CardDMA::validate_voltage() {
       return SDIO_Error_Type::ACMD41_FAILED;
     }
     response = sdio_.get_response(Response_Type::RESPONSE0);
-    valid_voltage = (((response >> 31U) == 1U) ? true : false);
+    valid_voltage = ((response >> 31U) == 1U);
     count++;
   }
 
@@ -171,7 +169,7 @@ void CardDMA::begin_shutdown_procedure() {
 }
 
 // Initialize card
-SDIO_Error_Type CardDMA::card_init() {
+auto CardDMA::card_init() -> SDIO_Error_Type {
   if (sdio_.get_power_mode() == static_cast<uint32_t>(Power_Control::POWER_OFF)) {
     return SDIO_Error_Type::INVALID_OPERATION;
   }
@@ -221,7 +219,7 @@ SDIO_Error_Type CardDMA::card_init() {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::store_cid() {
+auto CardDMA::store_cid() -> SDIO_Error_Type {
   // Store the CID register values
   sdcard_cid_[0] = sdio_.get_response(Response_Type::RESPONSE0);
   sdcard_cid_[1] = sdio_.get_response(Response_Type::RESPONSE1);
@@ -231,7 +229,7 @@ SDIO_Error_Type CardDMA::store_cid() {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::store_csd() {
+auto CardDMA::store_csd() -> SDIO_Error_Type {
   // Store the CSD register values
   sdcard_csd_[0] = sdio_.get_response(Response_Type::RESPONSE0);
   sdcard_csd_[1] = sdio_.get_response(Response_Type::RESPONSE1);
@@ -241,7 +239,7 @@ SDIO_Error_Type CardDMA::store_csd() {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::set_hardware_bus_width(Bus_Width width) {
+auto CardDMA::set_hardware_bus_width(Bus_Width width) -> SDIO_Error_Type {
   if (card_type_ == Card_Type::SD_MMC || width == Bus_Width::WIDTH_8BIT) {
     return SDIO_Error_Type::UNSUPPORTED_FUNCTION;
   }
@@ -283,7 +281,7 @@ SDIO_Error_Type CardDMA::set_hardware_bus_width(Bus_Width width) {
   return SDIO_Error_Type::UNSUPPORTED_FUNCTION;
 }
 
-SDIO_Error_Type CardDMA::read(uint8_t* buf, uint32_t address, uint32_t count) {
+auto CardDMA::read(uint8_t* buf, uint32_t address, uint32_t count) -> SDIO_Error_Type {
   if (current_state_ == Operational_State::READY) {
     transfer_error_ = SDIO_Error_Type::OK;
     current_state_ = Operational_State::BUSY;
@@ -340,7 +338,7 @@ SDIO_Error_Type CardDMA::read(uint8_t* buf, uint32_t address, uint32_t count) {
   }
 }
 
-SDIO_Error_Type CardDMA::write(uint8_t* buf, uint32_t address, uint32_t count) {
+auto CardDMA::write(uint8_t* buf, uint32_t address, uint32_t count) -> SDIO_Error_Type {
   // Enable the interrupts
   sdio_.set_interrupt_enable(Interrupt_Type::DTCRCERRIE, true);
   sdio_.set_interrupt_enable(Interrupt_Type::DTTMOUTIE, true);
@@ -363,7 +361,7 @@ SDIO_Error_Type CardDMA::write(uint8_t* buf, uint32_t address, uint32_t count) {
   // CMD25/CMD24 (WRITE_MULTIPLE_BLOCK/WRITE_BLOCK) send write command
   Command_Index write_cmd = (count > 1U) ? Command_Index::CMD25 : Command_Index::CMD24;
   if (send_command_and_check(write_cmd, address, Command_Response::RSP_SHORT,
-         Wait_Type::WT_NONE, [this, cmd = write_cmd]() {
+     Wait_Type::WT_NONE, [this, cmd = write_cmd]() {
     return get_r1_result(cmd);
   }) != SDIO_Error_Type::OK) {
     sdio_.clear_multiple_interrupt_flags(clear_common_flags);
@@ -379,16 +377,16 @@ SDIO_Error_Type CardDMA::write(uint8_t* buf, uint32_t address, uint32_t count) {
   Block_Size block_size = get_data_block_size_index(total_bytes_);
 
   sdio_.set_data_state_machine_and_send(Data_Timeout, total_bytes_, block_size,
-         Transfer_Mode::BLOCK, Transfer_Direction::SDIO_TO_CARD, true);
+     Transfer_Mode::BLOCK, Transfer_Direction::SDIO_TO_CARD, true);
 
-  while ((dma_.get_flag(dma::Status_Flags::FLAG_FTFIF)) || (dma_.get_flag(dma::Status_Flags::FLAG_ERRIF))) {
+  while (dma_.get_flag(dma::Status_Flags::FLAG_FTFIF) || dma_.get_flag(dma::Status_Flags::FLAG_ERRIF)) {
     // Wait for the IRQ handler to clear
   }
 
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::erase(uint32_t address_start, uint32_t address_end) {
+auto CardDMA::erase(uint32_t address_start, uint32_t address_end) -> SDIO_Error_Type {
   SDIO_Error_Type result = SDIO_Error_Type::OK;
 
   // Card command classes CSD
@@ -459,9 +457,11 @@ void CardDMA::handle_interrupts() {
     disable_all_interrupts();
     sdio_.set_data_state_machine_enable(false);
 
-    if ((multiblock_) && (!is_rx_)) {
+    if (multiblock_ && !is_rx_) {
       transfer_error_ = stop_transfer();
-      if (transfer_error_ != SDIO_Error_Type::OK) {}
+      if (transfer_error_ != SDIO_Error_Type::OK) {
+        return;
+      }
     }
 
     if (!is_rx_) {
@@ -497,7 +497,7 @@ void CardDMA::handle_interrupts() {
   }
 }
 
-SDIO_Error_Type CardDMA::select_deselect() {
+auto CardDMA::select_deselect() -> SDIO_Error_Type {
   // CMD7 (SELECT/DESELECT_CARD)
   if (send_command_and_check(Command_Index::CMD7, static_cast<uint32_t>(sdcard_rca_ << RCA_Shift),
          Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD7]() {
@@ -508,7 +508,7 @@ SDIO_Error_Type CardDMA::select_deselect() {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_card_interface_status(uint32_t* status) {
+auto CardDMA::get_card_interface_status(uint32_t* status) -> SDIO_Error_Type {
   if (status == nullptr) return SDIO_Error_Type::INVALID_PARAMETER;
 
   // CMD13 (SEND_STATUS)
@@ -524,7 +524,7 @@ SDIO_Error_Type CardDMA::get_card_interface_status(uint32_t* status) {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_sdcard_status(uint32_t* status) {
+auto CardDMA::get_sdcard_status(uint32_t* status) -> SDIO_Error_Type {
   uint32_t count = 0U;
 
   // CMD16 (SET_BLOCKLEN)
@@ -599,7 +599,7 @@ void CardDMA::check_dma_complete() {
   }
 }
 
-SDIO_Error_Type CardDMA::stop_transfer() {
+auto CardDMA::stop_transfer() -> SDIO_Error_Type {
   // CMD12 (STOP_TRANSMISSION)
   if (send_command_and_check(Command_Index::CMD12, 0, Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD12]() {
     return get_r1_result(cmd);
@@ -609,7 +609,7 @@ SDIO_Error_Type CardDMA::stop_transfer() {
   return SDIO_Error_Type::OK;
 }
 
-Transfer_State CardDMA::get_transfer_state() {
+auto CardDMA::get_transfer_state() -> Transfer_State {
   Transfer_State transfer_state = Transfer_State::IDLE;
   if (sdio_.get_flag(Status_Flags::FLAG_TXRUN) | sdio_.get_flag(Status_Flags::FLAG_RXRUN)) {
     transfer_state = Transfer_State::BUSY;
@@ -618,7 +618,7 @@ Transfer_State CardDMA::get_transfer_state() {
   return transfer_state;
 }
 
-uint32_t CardDMA::get_card_capacity() const {
+[[nodiscard]] auto CardDMA::get_card_capacity() const -> uint32_t {
   auto extract_bits = [](uint32_t value, uint8_t start_bit, uint8_t length) -> uint32_t {
     return (value >> start_bit) & ((1U << length) - 1U);
   };
@@ -665,7 +665,7 @@ uint32_t CardDMA::get_card_capacity() const {
   return capacity;
 }
 
-SDIO_Error_Type CardDMA::get_card_specific_data(Card_Info* info) {
+auto CardDMA::get_card_specific_data(Card_Info* info) -> SDIO_Error_Type {
   if (info == nullptr) return SDIO_Error_Type::INVALID_PARAMETER;
 
   // Store basic card information
@@ -735,28 +735,20 @@ SDIO_Error_Type CardDMA::get_card_specific_data(Card_Info* info) {
   return SDIO_Error_Type::OK;
 }
 
-constexpr Block_Size CardDMA::get_data_block_size_index(uint16_t size) {
-  switch (size) {
-    case 1: return Block_Size::BYTES_1;
-    case 2: return Block_Size::BYTES_2;
-    case 4: return Block_Size::BYTES_4;
-    case 8: return Block_Size::BYTES_8;
-    case 16: return Block_Size::BYTES_16;
-    case 32: return Block_Size::BYTES_32;
-    case 64: return Block_Size::BYTES_64;
-    case 128: return Block_Size::BYTES_128;
-    case 256: return Block_Size::BYTES_256;
-    case 512: return Block_Size::BYTES_512;
-    case 1024: return Block_Size::BYTES_1024;
-    case 2048: return Block_Size::BYTES_2048;
-    case 4096: return Block_Size::BYTES_4096;
-    case 8192: return Block_Size::BYTES_8192;
-    case 16384: return Block_Size::BYTES_16384;
-    default: return Block_Size::BYTES_1;
-  }
+constexpr auto CardDMA::get_data_block_size_index(uint16_t size) -> Block_Size {
+  if (size < 1 || size > 16384) return Block_Size::BYTES_1;
+
+  // Check if size is a power of two
+  if ((size & (size - 1)) != 0) return Block_Size::BYTES_1;
+
+  // Count trailing zeros to find the index
+  uint16_t index = 0;
+  while ((size >>= 1) != 0) ++index;
+
+  return static_cast<Block_Size>(index);
 }
 
-SDIO_Error_Type CardDMA::get_card_state(Card_State* card_state) {
+auto CardDMA::get_card_state(Card_State* card_state) -> SDIO_Error_Type {
   // CMD13 (SEND_STATUS)
   if (send_command_and_check(Command_Index::CMD13, static_cast<uint32_t>(sdcard_rca_ << RCA_Shift),
          Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD13]() {
@@ -773,7 +765,7 @@ SDIO_Error_Type CardDMA::get_card_state(Card_State* card_state) {
 
   if (response & All_R1_Error_Bits) {
     for (const auto& entry : errorTableR1) {
-      if (response & entry.mask) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
@@ -783,23 +775,28 @@ SDIO_Error_Type CardDMA::get_card_state(Card_State* card_state) {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_command_sent_result() {
-  volatile uint32_t timeout = 0x00FFFFFFU;
+auto CardDMA::get_command_sent_result() -> SDIO_Error_Type {
+  constexpr uint32_t MAX_TIMEOUT = 0x00FFFFFFU;
+  uint32_t timeout = MAX_TIMEOUT;
 
-  while ((sdio_.get_flag(Status_Flags::FLAG_CMDSEND) == false) && (timeout != 0U)) {
-    timeout = timeout - 1U;
+  // Wait for command sent flag or timeout
+  while (!sdio_.get_flag(Status_Flags::FLAG_CMDSEND) && timeout) {
+    --timeout;
   }
-  if (timeout == 0U) return SDIO_Error_Type::RESPONSE_TIMEOUT;
-  sdio_.clear_multiple_interrupt_flags(clear_command_flags);
 
+  // Check if timeout occurred
+  if (timeout == 0U) {
+    return SDIO_Error_Type::RESPONSE_TIMEOUT;
+  }
+
+  // Clear command flags and return success
+  sdio_.clear_multiple_interrupt_flags(clear_command_flags);
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::check_sdio_status(Command_Index index, bool check_index, bool ignore_crc) {
+auto CardDMA::check_sdio_status(Command_Index index, bool check_index, bool ignore_crc) -> SDIO_Error_Type {
   // Wait until one of the relevant flags is set
-  bool flag_set = sdio_.wait_cmd_flags();
-
-  if (!flag_set) {
+  if (!sdio_.wait_cmd_flags()) {
     return SDIO_Error_Type::RESPONSE_TIMEOUT;
   }
 
@@ -810,56 +807,55 @@ SDIO_Error_Type CardDMA::check_sdio_status(Command_Index index, bool check_index
     // If cmd was received, check the index
     // Responses that dont do an index check will send an invalid cmd index
     if (check_index && (index != Command_Index::INVALID)) {
-      uint8_t idx = sdio_.get_command_index();
-      if (idx != static_cast<uint8_t>(index)) {
+      uint8_t received_idx = sdio_.get_command_index();
+      if (received_idx != static_cast<uint8_t>(index)) {
+        sdio_.clear_multiple_interrupt_flags(clear_command_flags);
         return SDIO_Error_Type::ILLEGAL_COMMAND;
       }
     }
-    // Clear all flags before returning
+
+    // Command received successfully
     sdio_.clear_multiple_interrupt_flags(clear_command_flags);
     return SDIO_Error_Type::OK;
   }
 
-  // Timeout check
+  // Check for timeout
   if (sdio_.get_flag(Status_Flags::FLAG_CMDTMOUT)) {
     sdio_.clear_flag(Clear_Flags::FLAG_CMDTMOUTC);
     return SDIO_Error_Type::RESPONSE_TIMEOUT;
   }
 
-  // CRC check
-  if (!ignore_crc) {
-    if (sdio_.get_flag(Status_Flags::FLAG_CCRCERR)) {
-      sdio_.clear_flag(Clear_Flags::FLAG_CCRCERRC);
-      return SDIO_Error_Type::COMMAND_CRC_ERROR;
-    }
+  // Check for CRC error if not ignored
+  if (!ignore_crc && sdio_.get_flag(Status_Flags::FLAG_CCRCERR)) {
+    sdio_.clear_flag(Clear_Flags::FLAG_CCRCERRC);
+    return SDIO_Error_Type::COMMAND_CRC_ERROR;
   }
 
-  // Responses that dont do an index check will send an invalid cmd index
+  // Final index check (redundant with the first check, but keeping for safety)
+  // This code path should rarely be taken due to the earlier checks
   if (check_index && (index != Command_Index::INVALID)) {
-    uint8_t idx = sdio_.get_command_index();
-    if (idx != static_cast<uint8_t>(index)) {
+    uint8_t received_idx = sdio_.get_command_index();
+    if (received_idx != static_cast<uint8_t>(index)) {
+      sdio_.clear_multiple_interrupt_flags(clear_command_flags);
       return SDIO_Error_Type::ILLEGAL_COMMAND;
     }
   }
 
-  // Clear all flags before returning
+  // Clear all flags and return success
   sdio_.clear_multiple_interrupt_flags(clear_command_flags);
-
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_r1_result(Command_Index index) {
+auto CardDMA::get_r1_result(Command_Index index) -> SDIO_Error_Type {
   SDIO_Error_Type result = check_sdio_status(index, true, false);
-  if (result != SDIO_Error_Type::OK) {
-    return result;
-  }
+  if (result != SDIO_Error_Type::OK) return result;
 
   // Get the R1 response and check for errors
   uint32_t response = sdio_.get_response(Response_Type::RESPONSE0);
 
   if (response & All_R1_Error_Bits) {
     for (const auto& entry : errorTableR1) {
-      if (response & entry.mask) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
@@ -869,7 +865,7 @@ SDIO_Error_Type CardDMA::get_r1_result(Command_Index index) {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_r6_result(Command_Index index, uint16_t* rca) {
+auto CardDMA::get_r6_result(Command_Index index, uint16_t* rca) -> SDIO_Error_Type {
   SDIO_Error_Type result = check_sdio_status(index, true, false);
   if (result != SDIO_Error_Type::OK) return result;
 
@@ -877,7 +873,7 @@ SDIO_Error_Type CardDMA::get_r6_result(Command_Index index, uint16_t* rca) {
 
   if (response & R6_Error_Bits) {
     for (const auto& entry : errorTableR6) {
-      if (response & entry.mask) {
+      if (TEST(response, entry.bit_position)) {
         return entry.errorType;
       }
     }
@@ -888,18 +884,13 @@ SDIO_Error_Type CardDMA::get_r6_result(Command_Index index, uint16_t* rca) {
   return SDIO_Error_Type::OK;
 }
 
-SDIO_Error_Type CardDMA::get_r7_result() {
-  return check_sdio_status(Command_Index::INVALID, false, false);
-}
-
-SDIO_Error_Type CardDMA::get_scr(uint16_t rca, uint32_t* scr) {
+auto CardDMA::get_scr(uint16_t rca, uint32_t* scr) -> SDIO_Error_Type {
   uint32_t temp_scr[2] = {0U, 0U};
   uint32_t index_scr = 0U;
-  uint32_t* src_data = scr;
 
   // CMD16 (SET_BLOCKLEN)
   if (send_command_and_check(Command_Index::CMD16, 8U, Command_Response::RSP_SHORT,
-         Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD16]() {
+       Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD16]() {
     return get_r1_result(cmd);
   }) != SDIO_Error_Type::OK) {
     return SDIO_Error_Type::CMD16_FAILED;
@@ -907,7 +898,7 @@ SDIO_Error_Type CardDMA::get_scr(uint16_t rca, uint32_t* scr) {
 
   // CMD55 (APP_CMD)
   if (send_command_and_check(Command_Index::CMD55, static_cast<uint32_t>(sdcard_rca_ << RCA_Shift),
-         Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD55]() {
+       Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD55]() {
     return get_r1_result(cmd);
   }) != SDIO_Error_Type::OK) {
     return SDIO_Error_Type::CMD55_FAILED;
@@ -919,7 +910,7 @@ SDIO_Error_Type CardDMA::get_scr(uint16_t rca, uint32_t* scr) {
 
   // ACMD51 (SEND_SCR)
   if (send_command_and_check(Command_Index::ACMD51, 0U, Command_Response::RSP_SHORT,
-        Wait_Type::WT_NONE, [this, cmd = Command_Index::ACMD51]() {
+       Wait_Type::WT_NONE, [this, cmd = Command_Index::ACMD51]() {
     return get_r1_result(cmd);
   }) != SDIO_Error_Type::OK) {
     return SDIO_Error_Type::ACMD51_FAILED;
@@ -928,36 +919,41 @@ SDIO_Error_Type CardDMA::get_scr(uint16_t rca, uint32_t* scr) {
   // Store SCR
   while (!sdio_.check_scr_flags()) {
     if (sdio_.get_flag(Status_Flags::FLAG_RXDTVAL)) {
-      *(temp_scr + index_scr) = sdio_.read_fifo_word();
-      ++index_scr;
+      temp_scr[index_scr++] = sdio_.read_fifo_word();
     }
   }
 
+  // Check for errors
   if (sdio_.get_flag(Status_Flags::FLAG_DTTMOUT)) {
     sdio_.clear_flag(Clear_Flags::FLAG_DTTMOUTC);
     return SDIO_Error_Type::DATA_TIMEOUT;
-  } else if (sdio_.get_flag(Status_Flags::FLAG_DTCRCERR)) {
+  }
+  else if (sdio_.get_flag(Status_Flags::FLAG_DTCRCERR)) {
     sdio_.clear_flag(Clear_Flags::FLAG_DTCRCERRC);
     return SDIO_Error_Type::DATA_CRC_ERROR;
-  } else if (sdio_.get_flag(Status_Flags::FLAG_RXORE)) {
+  }
+  else if (sdio_.get_flag(Status_Flags::FLAG_RXORE)) {
     sdio_.clear_flag(Clear_Flags::FLAG_RXOREC);
     return SDIO_Error_Type::RX_FIFO_OVERRUN;
   }
 
   sdio_.clear_multiple_interrupt_flags(clear_data_flags);
 
-  constexpr uint32_t Zero_Seven = (0xFFU << 0U);
-  constexpr uint32_t Eight_Fifteen = (0xFFU << 8U);
-  constexpr uint32_t Sixteen_Twentythree = (0xFFU << 16U);
-  constexpr uint32_t TwentyFour_Thirtyone = (0xFFU << 24U);
+  constexpr uint32_t BYTE0_MASK = 0xFFU;
+  constexpr uint32_t BYTE1_MASK = 0xFF00U;
+  constexpr uint32_t BYTE2_MASK = 0xFF0000U;
+  constexpr uint32_t BYTE3_MASK = 0xFF000000U;
 
-  // adjust SCR value
-  *src_data = ((temp_scr[1] & Zero_Seven) << 24U) | ((temp_scr[1] & Eight_Fifteen) << 8U) |
-       ((temp_scr[1] & Sixteen_Twentythree) >> 8U) | ((temp_scr[1] & TwentyFour_Thirtyone) >> 24U);
+  // Byte-swap the SCR values (convert from big-endian to little-endian)
+  scr[0] = ((temp_scr[1] & BYTE0_MASK) << 24) |
+           ((temp_scr[1] & BYTE1_MASK) << 8)  |
+           ((temp_scr[1] & BYTE2_MASK) >> 8)  |
+           ((temp_scr[1] & BYTE3_MASK) >> 24);
 
-  src_data = src_data + 1U;
-  *src_data = ((temp_scr[0] & Zero_Seven) << 24U) | ((temp_scr[0] & Eight_Fifteen) << 8U) |
-       ((temp_scr[0] & Sixteen_Twentythree) >> 8U) | ((temp_scr[0] & TwentyFour_Thirtyone) >> 24U);
+  scr[1] = ((temp_scr[0] & BYTE0_MASK) << 24) |
+           ((temp_scr[0] & BYTE1_MASK) << 8)  |
+           ((temp_scr[0] & BYTE2_MASK) >> 8)  |
+           ((temp_scr[0] & BYTE3_MASK) >> 24);
 
   return SDIO_Error_Type::OK;
 }
@@ -965,23 +961,22 @@ SDIO_Error_Type CardDMA::get_scr(uint16_t rca, uint32_t* scr) {
 // DMA for rx/tx is always DMA1 channel 3
 void CardDMA::set_dma_parameters(uint8_t* buf, uint32_t count, bool is_write) {
   constexpr uint32_t flag_bits = (1U << static_cast<uint32_t>(dma::INTF_Bits::GIF3));
-
   dma_.clear_flags(flag_bits);
 
   // Disable and reset DMA
   dma_.set_channel_enable(false);
   dma_.clear_channel();
 
-  dma_.init({
-    count,
-    static_cast<uint32_t>(reinterpret_cast<uintptr_t>(buf)),
-    static_cast<uint32_t>(reinterpret_cast<uintptr_t>(sdio_.reg_address(SDIO_Regs::FIFO))),
-    dma::Bit_Width::WIDTH_32BIT,
-    dma::Bit_Width::WIDTH_32BIT,
-    dma::Increase_Mode::INCREASE_DISABLE,
-    dma::Increase_Mode::INCREASE_ENABLE,
-    dma::Channel_Priority::MEDIUM_PRIORITY,
-    is_write ? dma::Transfer_Direction::M2P : dma::Transfer_Direction::P2M
+  dma_.init(dma::DMA_Config{
+    .count = count,
+    .memory_address = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(buf)),
+    .peripheral_address = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(sdio_.reg_address(SDIO_Regs::FIFO))),
+    .peripheral_bit_width = dma::Bit_Width::WIDTH_32BIT,
+    .memory_bit_width = dma::Bit_Width::WIDTH_32BIT,
+    .peripheral_increase = dma::Increase_Mode::INCREASE_DISABLE,
+    .memory_increase = dma::Increase_Mode::INCREASE_ENABLE,
+    .channel_priority = dma::Channel_Priority::MEDIUM_PRIORITY,
+    .direction = is_write ? dma::Transfer_Direction::M2P : dma::Transfer_Direction::P2M
   });
 
   dma_.set_memory_to_memory_enable(false);
@@ -995,24 +990,29 @@ void CardDMA::set_dma_parameters(uint8_t* buf, uint32_t count, bool is_write) {
   dma_.set_channel_enable(true);
 }
 
-SDIO_Error_Type CardDMA::wait_for_card_ready() {
-  volatile uint32_t timeout = 0x00FFFFFFU;
+auto CardDMA::wait_for_card_ready() -> SDIO_Error_Type {
+  constexpr uint32_t MAX_TIMEOUT = 0x00FFFFFFU;
+  uint32_t timeout = MAX_TIMEOUT;
   uint32_t response = sdio_.get_response(Response_Type::RESPONSE0);
 
-  while (((response & static_cast<uint32_t>(R1_Status::READY_FOR_DATA)) == 0U) && (timeout != 0U)) {
-    // Continue to send CMD13 to poll the state of card until buffer empty or timeout
-    timeout = timeout - 1U;
+  // Poll until card is ready for data or timeout occurs
+  while (((response & static_cast<uint32_t>(R1_Status::READY_FOR_DATA)) == 0U) && timeout) {
+    --timeout;
+
     // CMD13 (SEND_STATUS)
     if (send_command_and_check(Command_Index::CMD13, static_cast<uint32_t>(sdcard_rca_ << RCA_Shift),
-           Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD13]() {
+         Command_Response::RSP_SHORT, Wait_Type::WT_NONE, [this, cmd = Command_Index::CMD13]() {
       return get_r1_result(cmd);
     }) != SDIO_Error_Type::OK) {
       return SDIO_Error_Type::CMD13_FAILED;
     }
+
+    // Get updated response
     response = sdio_.get_response(Response_Type::RESPONSE0);
   }
 
-  return (timeout == 0U) ? SDIO_Error_Type::ERROR : SDIO_Error_Type::OK;
+  // Return error if timeout occurred, otherwise success
+  return timeout ? SDIO_Error_Type::OK : SDIO_Error_Type::ERROR;
 }
 
 } // namespace sdio
