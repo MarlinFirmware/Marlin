@@ -147,6 +147,16 @@ void GcodeSuite::M360() {
   config_line(SIZE_STR, wmax.z - wmin.z, Z_STR);
 
   //
+  // Axis Steps per mm
+  //
+  #define _STEPS(A) planner.settings.axis_steps_per_mm[A##_AXIS]
+  PGMSTR(S_MM_STR, "Steps/mm");
+  config_line(S_MM_STR, _STEPS(X, acceleration), X_STR);
+  config_line(S_MM_STR, _STEPS(Y, acceleration), Y_STR);
+  config_line(S_MM_STR, _STEPS(Z, acceleration), Z_STR);
+  #undef _STEPS
+
+  //
   // Print and Travel Acceleration
   //
   #define _ACCEL(A,B) _MIN(planner.settings.max_acceleration_mm_per_s2[A##_AXIS], planner.settings.B)
@@ -158,6 +168,7 @@ void GcodeSuite::M360() {
   config_line(T_ACC_STR, _ACCEL(X, travel_acceleration), X_STR);
   config_line(T_ACC_STR, _ACCEL(Y, travel_acceleration), Y_STR);
   config_line(T_ACC_STR, _ACCEL(Z, travel_acceleration), Z_STR);
+  #undef _ACCEL
 
   config_prefix(PSTR("PrinterType"));
   SERIAL_ECHOLNPGM(
@@ -189,8 +200,9 @@ void GcodeSuite::M360() {
       #elif ENABLED(CLASSIC_JERK)
         config_line_e(e, JERK_STR, planner.max_jerk.e);
       #endif
-      config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
+      config_line_e(e, F("Steps/mm"), planner.axis_steps_per_mm[E_AXIS_N(e)]);
       config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
+      config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
       config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
       config_line_e(e, F("MaxTemp"), thermalManager.hotend_maxtemp[e]);
     }
