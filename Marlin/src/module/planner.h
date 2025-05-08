@@ -1087,8 +1087,8 @@ class Planner {
     #if HAS_LINEAR_E_JERK
       FORCE_INLINE static void recalculate_max_e_jerk() {
         const float prop = junction_deviation_mm * SQRT(0.5) / (1.0f - SQRT(0.5));
-        EXTRUDER_LOOP()
-          max_e_jerk[E_INDEX_N(e)] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
+        for (uint8_t i = 0; i < DISTINCT_E; ++i)
+          max_e_jerk[i] = SQRT(prop * settings.max_acceleration_mm_per_s2[E_AXIS + i]);
       }
     #endif
 

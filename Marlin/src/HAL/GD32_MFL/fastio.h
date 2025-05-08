@@ -29,17 +29,17 @@
 #include <PinOpsMap.hpp>
 
 template<typename T>
-static inline void fast_write_pin_wrapper(pin_size_t IO, T V) {
+FORCE_INLINE static void fast_write_pin_wrapper(pin_size_t IO, T V) {
   const PortPinPair& pp = port_pin_map[IO];
   gpio::fast_write_pin(pp.port, pp.pin, static_cast<bool>(V));
 }
 
-static inline auto fast_read_pin_wrapper(pin_size_t IO) -> bool {
+FORCE_INLINE static auto fast_read_pin_wrapper(pin_size_t IO) -> bool {
   const PortPinPair& pp = port_pin_map[IO];
   return gpio::fast_read_pin(pp.port, pp.pin);
 }
 
-static inline void fast_toggle_pin_wrapper(pin_size_t IO) {
+FORCE_INLINE static void fast_toggle_pin_wrapper(pin_size_t IO) {
   const PortPinPair& pp = port_pin_map[IO];
   gpio::fast_toggle_pin(pp.port, pp.pin);
 }
