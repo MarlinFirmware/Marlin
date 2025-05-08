@@ -452,48 +452,35 @@ void menu_backlash();
 
 #endif // SHOW_MENU_ADVANCED_TEMPERATURE
 
-#if DISABLED(SLIM_LCD_MENUS)
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
 
-  // M203 / M205 Velocity options
-  void menu_advanced_velocity() {
-    // M203 Max Feedrate
-    constexpr xyze_feedrate_t max_fr_edit =
-      #ifdef MAX_FEEDRATE_EDIT_VALUES
-        MAX_FEEDRATE_EDIT_VALUES
-      #elif ENABLED(LIMITED_MAX_FR_EDITING)
-        DEFAULT_MAX_FEEDRATE
-      #else
-        LOGICAL_AXIS_ARRAY_1(9999)
-      #endif
-    ;
-    #if ENABLED(LIMITED_MAX_FR_EDITING) && !defined(MAX_FEEDRATE_EDIT_VALUES)
-      const xyze_feedrate_t max_fr_edit_scaled = max_fr_edit * 2;
-    #else
-      const xyze_feedrate_t &max_fr_edit_scaled = max_fr_edit;
-    #endif
-
+  // M92 Steps-per-mm
+  void menu_advanced_steps_per_mm() {
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     LOOP_NUM_AXES(a)
-      EDIT_ITEM_FAST_N(float5, a, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[a], 1, max_fr_edit_scaled[a]);
+      EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
 
-    #if E_STEPPERS
-      EDIT_ITEM_FAST_N(float5, E_AXIS, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
-    #endif
     #if ENABLED(DISTINCT_E_FACTORS)
       for (uint8_t n = 0; n < E_STEPPERS; ++n)
-        EDIT_ITEM_FAST_N(float5, n, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(n)], 1, max_fr_edit_scaled.e);
+        EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
+          const uint8_t e = MenuItemBase::itemIndex;
+          if (e == active_extruder)
+            planner.refresh_positioning();
+          else
+            planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
+        });
+    #elif E_STEPPERS
+      EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
     #endif
-
-    // M205 S Min Feedrate
-    EDIT_ITEM_FAST(float5, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 9999);
-
-    // M205 T Min Travel Feedrate
-    EDIT_ITEM_FAST(float5, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 9999);
 
     END_MENU();
   }
+
+#endif // EDITABLE_STEPS_PER_UNIT
+
+#if DISABLED(SLIM_LCD_MENUS)
 
   // M201 / M204 Accelerations
   void menu_advanced_acceleration() {
@@ -579,6 +566,47 @@ void menu_backlash();
     END_MENU();
   }
 
+  // M203 / M205 Velocity options
+  void menu_advanced_velocity() {
+    // M203 Max Feedrate
+    constexpr xyze_feedrate_t max_fr_edit =
+      #ifdef MAX_FEEDRATE_EDIT_VALUES
+        MAX_FEEDRATE_EDIT_VALUES
+      #elif ENABLED(LIMITED_MAX_FR_EDITING)
+        DEFAULT_MAX_FEEDRATE
+      #else
+        LOGICAL_AXIS_ARRAY_1(9999)
+      #endif
+    ;
+    #if ENABLED(LIMITED_MAX_FR_EDITING) && !defined(MAX_FEEDRATE_EDIT_VALUES)
+      const xyze_feedrate_t max_fr_edit_scaled = max_fr_edit * 2;
+    #else
+      const xyze_feedrate_t &max_fr_edit_scaled = max_fr_edit;
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    LOOP_NUM_AXES(a)
+      EDIT_ITEM_FAST_N(float5, a, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[a], 1, max_fr_edit_scaled[a]);
+
+    #if E_STEPPERS
+      EDIT_ITEM_FAST_N(float5, E_AXIS, MSG_VMAX_N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
+    #endif
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t n = 0; n < E_STEPPERS; ++n)
+        EDIT_ITEM_FAST_N(float5, n, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(n)], 1, max_fr_edit_scaled.e);
+    #endif
+
+    // M205 S Min Feedrate
+    EDIT_ITEM_FAST(float5, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 9999);
+
+    // M205 T Min Travel Feedrate
+    EDIT_ITEM_FAST(float5, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 9999);
+
+    END_MENU();
+  }
+
   #if ENABLED(SHAPING_MENU)
 
     void menu_advanced_input_shaping() {
@@ -639,34 +667,6 @@ void menu_backlash();
 
 #endif // !SLIM_LCD_MENUS
 
-#if ENABLED(EDITABLE_STEPS_PER_UNIT)
-
-  // M92 Steps-per-mm
-  void menu_advanced_steps_per_mm() {
-    START_MENU();
-    BACK_ITEM(MSG_ADVANCED_SETTINGS);
-
-    LOOP_NUM_AXES(a)
-      EDIT_ITEM_FAST_N(float72, a, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[a], 5, 9999, []{ planner.refresh_positioning(); });
-
-    #if ENABLED(DISTINCT_E_FACTORS)
-      for (uint8_t n = 0; n < E_STEPPERS; ++n)
-        EDIT_ITEM_FAST_N(float72, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{
-          const uint8_t e = MenuItemBase::itemIndex;
-          if (e == active_extruder)
-            planner.refresh_positioning();
-          else
-            planner.mm_per_step[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
-        });
-    #elif E_STEPPERS
-      EDIT_ITEM_FAST_N(float72, E_AXIS, MSG_N_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, []{ planner.refresh_positioning(); });
-    #endif
-
-    END_MENU();
-  }
-
-#endif // EDITABLE_STEPS_PER_UNIT
-
 void menu_advanced_settings() {
   #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
     const bool is_busy = printer_busy();
@@ -679,7 +679,26 @@ void menu_advanced_settings() {
   START_MENU();
   BACK_ITEM(MSG_CONFIGURATION);
 
+  // M92 - Steps Per mm
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    if (!is_busy) SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #endif
+
   #if DISABLED(SLIM_LCD_MENUS)
+    // M201 - Acceleration items
+    SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
+
+    // M203 / M205 - Feedrate items
+    SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
+
+    #if ENABLED(CLASSIC_JERK)
+      // M205 - Max Jerk
+      SUBMENU(MSG_JERK, menu_advanced_jerk);
+    #elif HAS_JUNCTION_DEVIATION
+      EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
+        OPTARG(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk)
+      );
+    #endif
 
     #if ENABLED(POLARGRAPH)
       // M665 - Polargraph Settings
@@ -698,32 +717,12 @@ void menu_advanced_settings() {
       ACTION_ITEM(MSG_SET_HOME_OFFSETS, []{ queue.inject(F("M428")); ui.return_to_status(); });
     #endif
 
-    // M203 / M205 - Feedrate items
-    SUBMENU(MSG_MAX_SPEED, menu_advanced_velocity);
-
-    // M201 - Acceleration items
-    SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
-
     // M593 - Acceleration items
     #if ENABLED(SHAPING_MENU)
       SUBMENU(MSG_INPUT_SHAPING, menu_advanced_input_shaping);
     #endif
 
-    #if ENABLED(CLASSIC_JERK)
-      // M205 - Max Jerk
-      SUBMENU(MSG_JERK, menu_advanced_jerk);
-    #elif HAS_JUNCTION_DEVIATION
-      EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
-        OPTARG(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk)
-      );
-    #endif
-
   #endif // !SLIM_LCD_MENUS
-
-  // M92 - Steps Per mm
-  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-    if (!is_busy) SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
-  #endif
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);

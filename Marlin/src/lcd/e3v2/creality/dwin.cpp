@@ -3309,11 +3309,11 @@ void drawStepsMenu() {
         dwinDrawLabel(4, GET_TEXT_F(MSG_E_STEPS));
       #endif
     #else
-      say_steps_per_mm_en(1); say_x_en(101, 1);     // "Steps-per-mm X"
-      say_steps_per_mm_en(2); say_y_en(101, 2);     // "Y"
-      say_steps_per_mm_en(3); say_z_en(101, 3);     // "Z"
+      say_steps_per_mm_en(1); say_x_en(101, 1);   // "Steps-per-mm X"
+      say_steps_per_mm_en(2); say_y_en(101, 2);   // "Y"
+      say_steps_per_mm_en(3); say_z_en(101, 3);   // "Z"
       #if HAS_HOTEND
-        say_steps_per_mm_en(4); say_e_en(101, 4);   // "E"
+        say_steps_per_mm_en(4); say_e_en(101, 4); // "E"
       #endif
     #endif
   }
