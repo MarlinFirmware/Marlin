@@ -582,12 +582,16 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_X_STEP_PER_MM, &planner.settings.axis_steps_per_mm[X_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
     VPHELPER(VP_Y_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Y_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
     VPHELPER(VP_Z_STEP_PER_MM, &planner.settings.axis_steps_per_mm[Z_AXIS], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+  #endif
 
-    #if HAS_HOTEND
-      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
-      #if HAS_MULTI_HOTEND
-        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
-      #endif
+  VPHELPER(VP_X_MAX_SPEED, &planner.settings.max_feedrate_mm_s[X_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Y_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Y_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+  VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+
+  #if HAS_HOTEND
+    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(0)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
+    #if HAS_MULTI_HOTEND
+      VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
     #endif
   #endif
 
@@ -602,21 +606,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #endif
   #endif
 
-  VPHELPER(VP_X_MAX_SPEED, &planner.settings.max_feedrate_mm_s[X_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
-  VPHELPER(VP_Y_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Y_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
-  VPHELPER(VP_Z_MAX_SPEED, &planner.settings.max_feedrate_mm_s[Z_AXIS], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
-
-  #if HAS_HOTEND
-    VPHELPER(VP_E0_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(0)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
-    #if HAS_MULTI_HOTEND
-      VPHELPER(VP_E1_MAX_SPEED, &planner.settings.max_feedrate_mm_s[E_AXIS_N(1)], screen.handleMaxSpeedChange, screen.sendFloatAsIntValueToDisplay<0>),
-    #endif
-  #endif
-
-  //VPHELPER(VP_DEFAULT_ACC, (uint16_t *)&planner.settings.acceleration, screen.handleAccChange, screen.sendWordValueToDisplay),
   VPHELPER(VP_TRAVEL_SPEED, (uint16_t *)&planner.settings.travel_acceleration, screen.handleTravelAccChange, screen.sendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_FEEDRATE_MIN_SPEED, (uint16_t *)&planner.settings.min_feedrate_mm_s, screen.handleFeedRateMinChange, screen.sendFloatAsIntValueToDisplay<0>),
   VPHELPER(VP_T_F_SPEED, (uint16_t *)&planner.settings.min_travel_feedrate_mm_s, screen.handleMin_T_F, screen.sendFloatAsIntValueToDisplay<0>),
+  //VPHELPER(VP_DEFAULT_ACC, (uint16_t *)&planner.settings.acceleration, screen.handleAccChange, screen.sendWordValueToDisplay),
 
   VPHELPER(VP_X_PARK_POS, &mks_park_pos.x, screen.getParkPos, screen.sendWordValueToDisplay),
   VPHELPER(VP_Y_PARK_POS, &mks_park_pos.y, screen.getParkPos, screen.sendWordValueToDisplay),
@@ -682,6 +675,15 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   VPHELPER(VP_AutoTurnOffSw, nullptr, screen.getTurnOffCtrl, nullptr),
+
+  #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+    #if HAS_HOTEND
+      VPHELPER(VP_E0_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(0)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+      #if HAS_MULTI_HOTEND
+        VPHELPER(VP_E1_STEP_PER_MM, &planner.settings.axis_steps_per_mm[E_AXIS_N(1)], screen.handleStepPerMMChanged, screen.sendFloatAsIntValueToDisplay<0>),
+      #endif
+    #endif
+  #endif
 
   // SDCard File listing
 

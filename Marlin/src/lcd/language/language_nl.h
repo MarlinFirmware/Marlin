@@ -139,9 +139,9 @@ namespace LanguageNarrow_nl {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ruil Retract mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retract  F");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Hop mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Unretr. mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Ruil Unretr. mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Unretr. FR");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ruil Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Unretr. FR");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Verv. Filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Verv. Filament *");

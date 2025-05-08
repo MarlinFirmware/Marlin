@@ -1318,43 +1318,43 @@ void RTS::handleData() {
     #endif
 
     #if HAS_X_AXIS
-      case Steps_X: planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) / 10.0f; break;
-      case Amax_X: planner.settings.max_acceleration_mm_per_s2[X_AXIS] = recdat.data[0]; break;
       case Vmax_X: planner.settings.max_feedrate_mm_s[X_AXIS] = recdat.data[0]; break;
+      case Amax_X: planner.settings.max_acceleration_mm_per_s2[X_AXIS] = recdat.data[0]; break;
+      case Steps_X: planner.settings.axis_steps_per_mm[X_AXIS] = float(recdat.data[0]) / 10.0f; break;
       #if ENABLED(CLASSIC_JERK)
         case Jerk_X: planner.max_jerk.x = float(recdat.data[0]) / 10.0f; break;
       #endif
     #endif
     #if HAS_Y_AXIS
-      case Steps_Y: planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) / 10.0f; break;
-      case Amax_Y: planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = recdat.data[0]; break;
       case Vmax_Y: planner.settings.max_feedrate_mm_s[Y_AXIS] = recdat.data[0]; break;
+      case Amax_Y: planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = recdat.data[0]; break;
+      case Steps_Y: planner.settings.axis_steps_per_mm[Y_AXIS] = float(recdat.data[0]) / 10.0f; break;
       #if ENABLED(CLASSIC_JERK)
         case Jerk_Y: planner.max_jerk.y = float(recdat.data[0]) / 10.0f; break;
       #endif
     #endif
     #if HAS_Z_AXIS
-      case Steps_Z: planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) / 10.0f; break;
-      case Amax_Z: planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = recdat.data[0]; break;
       case Vmax_Z: planner.settings.max_feedrate_mm_s[Z_AXIS] = recdat.data[0]; break;
+      case Amax_Z: planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = recdat.data[0]; break;
+      case Steps_Z: planner.settings.axis_steps_per_mm[Z_AXIS] = float(recdat.data[0]) / 10.0f; break;
       #if ENABLED(CLASSIC_JERK)
         case Jerk_Z: planner.max_jerk.z = float(recdat.data[0]) / 10.0f; break;
       #endif
     #endif
     #if HAS_HOTEND
-      case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f; break;
-      case Amax_E: planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0]; break;
       case Vmax_E: planner.settings.max_feedrate_mm_s[E_AXIS] = recdat.data[0]; break;
+      case Amax_E: planner.settings.max_acceleration_mm_per_s2[E_AXIS] = recdat.data[0]; break;
+      case Steps_E: planner.settings.axis_steps_per_mm[E_AXIS] = float(recdat.data[0]) / 10.0f; break;
       #if ENABLED(CLASSIC_JERK)
         case Jerk_E: planner.max_jerk.e = float(recdat.data[0]) / 10.0f; break;
       #endif
+      case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
+      #if ENABLED(LIN_ADVANCE)
+        case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
+      #endif
     #endif
     case Accel: planner.settings.acceleration = recdat.data[0]; break;
-    case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
     case A_Travel: planner.settings.travel_acceleration = recdat.data[0]; break;
-    #if ENABLED(LIN_ADVANCE)
-      case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
-    #endif
 
     case AdvancedBackKey: gotoPage(ID_Advanced_L, ID_Advanced_D); break;
 

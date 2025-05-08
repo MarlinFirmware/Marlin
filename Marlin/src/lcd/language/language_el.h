@@ -173,9 +173,9 @@ namespace LanguageNarrow_el {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Εναλλαγή ανάσυρσης mm"); // SHORTEN
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Ανάσυρση V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Μεταπήδηση mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Unretr. mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("S Unretr. mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Unretract V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("S Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Unretract V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Αυτόματη ανάσυρση");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Αλλαγή νήματος");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Αλλαγή νήματος *");

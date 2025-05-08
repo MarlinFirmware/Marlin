@@ -328,12 +328,12 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_STOPPED                        = _UxGT("已停止"); // "STOPPED. "
   LSTR MSG_CONTROL_RETRACT                = _UxGT("回縮長度mm"); // "Retract mm" retract_length, retract length (positive mm)
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("換手回抽長度mm"); // "Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  LSTR MSG_CONTROL_RETRACTF               = _UxGT("回縮速率mm/s"); // "Retract V" retract_feedrate, feedrate for retracting (mm/s)
+  LSTR MSG_CONTROL_RETRACTF               = _UxGT("回縮速率mm/s"); // "Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Hop mm"); // "Hop mm" retract_zraise, retract Z-lift
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("回縮恢復長度mm"); // "UnRet +mm" recover_extra, additional recover length (mm, added to retract length when recovering)
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("換手回縮恢復長度mm"); // "S UnRet+mm" swap_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("回縮恢復後進料速率mm/s"); // "Unretract V" recover_feedrate, feedrate for recovering from retraction (mm/s)
-  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("S UnRet V"); // "S UnRet V"
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("回縮恢復長度mm"); // "UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("換手回縮恢復長度mm"); // "S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("回縮恢復後進料速率mm/s"); // "Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S UnRet V"); // "S UnRet V"
   LSTR MSG_AUTORETRACT                    = _UxGT("自動回縮"); // "Auto-Retract" autoretract_enabled,
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("交換長度"); // "Swap Length"
   LSTR MSG_FILAMENT_PURGE_LENGTH          = _UxGT("清除長度"); // "Purge Length"

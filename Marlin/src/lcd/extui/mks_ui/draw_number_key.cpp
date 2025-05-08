@@ -71,24 +71,15 @@ static void disp_key_value() {
 
   switch (value) {
     default: break;
-
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      #if HAS_X_AXIS
-        case Xstep: dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, public_buf_m); break;
-      #endif
-      #if HAS_Y_AXIS
-        case Ystep: dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, public_buf_m); break;
-      #endif
-      #if HAS_Z_AXIS
-        case Zstep: dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, public_buf_m); break;
-      #endif
-      #if HAS_EXTRUDERS
-        case E0step: dtostrf(planner.settings.axis_steps_per_mm[E_AXIS], 1, 1, public_buf_m); break;
-        #if HAS_MULTI_EXTRUDER
-          case E1step: dtostrf(planner.settings.axis_steps_per_mm[E_AXIS_N(1)], 1, 1, public_buf_m); break;
-        #endif
-      #endif
-    #endif
+    case PrintAcceleration:
+      dtostrf(planner.settings.acceleration, 1, 1, public_buf_m);
+      break;
+    case RetractAcceleration:
+      dtostrf(planner.settings.retract_acceleration, 1, 1, public_buf_m);
+      break;
+    case TravelAcceleration:
+      dtostrf(planner.settings.travel_acceleration, 1, 1, public_buf_m);
+      break;
 
     #if HAS_X_AXIS
       case XAcceleration: itoa(planner.settings.max_acceleration_mm_per_s2[X_AXIS], public_buf_m, 10); break;
@@ -126,16 +117,6 @@ static void disp_key_value() {
       #endif
     #endif
 
-    case PrintAcceleration:
-      dtostrf(planner.settings.acceleration, 1, 1, public_buf_m);
-      break;
-    case RetractAcceleration:
-      dtostrf(planner.settings.retract_acceleration, 1, 1, public_buf_m);
-      break;
-    case TravelAcceleration:
-      dtostrf(planner.settings.travel_acceleration, 1, 1, public_buf_m);
-      break;
-
     #if ENABLED(CLASSIC_JERK)
       #if HAS_X_AXIS
         case XJerk: dtostrf(planner.max_jerk.x, 1, 1, public_buf_m); break;
@@ -148,6 +129,24 @@ static void disp_key_value() {
       #endif
       #if HAS_EXTRUDERS
         case EJerk: dtostrf(planner.max_jerk.e, 1, 1, public_buf_m); break;
+      #endif
+    #endif
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      #if HAS_X_AXIS
+        case Xstep: dtostrf(planner.settings.axis_steps_per_mm[X_AXIS], 1, 1, public_buf_m); break;
+      #endif
+      #if HAS_Y_AXIS
+        case Ystep: dtostrf(planner.settings.axis_steps_per_mm[Y_AXIS], 1, 1, public_buf_m); break;
+      #endif
+      #if HAS_Z_AXIS
+        case Zstep: dtostrf(planner.settings.axis_steps_per_mm[Z_AXIS], 1, 1, public_buf_m); break;
+      #endif
+      #if HAS_EXTRUDERS
+        case E0step: dtostrf(planner.settings.axis_steps_per_mm[E_AXIS], 1, 1, public_buf_m); break;
+        #if HAS_MULTI_EXTRUDER
+          case E1step: dtostrf(planner.settings.axis_steps_per_mm[E_AXIS_N(1)], 1, 1, public_buf_m); break;
+        #endif
       #endif
     #endif
 
@@ -215,14 +214,9 @@ static void disp_key_value() {
 static void set_value_confirm() {
   switch (value) {
     default: break;
-
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      case Xstep:  planner.settings.axis_steps_per_mm[X_AXIS] = atof(key_value); planner.refresh_positioning(); break;
-      case Ystep:  planner.settings.axis_steps_per_mm[Y_AXIS] = atof(key_value); planner.refresh_positioning(); break;
-      case Zstep:  planner.settings.axis_steps_per_mm[Z_AXIS] = atof(key_value); planner.refresh_positioning(); break;
-      case E0step: planner.settings.axis_steps_per_mm[E_AXIS] = atof(key_value); planner.refresh_positioning(); break;
-      case E1step: planner.settings.axis_steps_per_mm[E_AXIS_N(1)] = atof(key_value); planner.refresh_positioning(); break;
-    #endif
+    case PrintAcceleration:   planner.settings.acceleration = atof(key_value); break;
+    case RetractAcceleration: planner.settings.retract_acceleration = atof(key_value); break;
+    case TravelAcceleration:  planner.settings.travel_acceleration = atof(key_value); break;
 
     #if HAS_X_AXIS
       case XAcceleration: planner.settings.max_acceleration_mm_per_s2[X_AXIS] = atof(key_value); break;
@@ -256,15 +250,19 @@ static void set_value_confirm() {
       case E1MaxFeedRate: planner.settings.max_feedrate_mm_s[E_AXIS_N(1)] = atof(key_value); break;
     #endif
 
-    case PrintAcceleration:   planner.settings.acceleration = atof(key_value); break;
-    case RetractAcceleration: planner.settings.retract_acceleration = atof(key_value); break;
-    case TravelAcceleration:  planner.settings.travel_acceleration = atof(key_value); break;
-
     #if ENABLED(CLASSIC_JERK)
       case XJerk: planner.max_jerk.x = atof(key_value); break;
       case YJerk: planner.max_jerk.y = atof(key_value); break;
       case ZJerk: planner.max_jerk.z = atof(key_value); break;
       case EJerk: planner.max_jerk.e = atof(key_value); break;
+    #endif
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case Xstep:  planner.settings.axis_steps_per_mm[X_AXIS] = atof(key_value); planner.refresh_positioning(); break;
+      case Ystep:  planner.settings.axis_steps_per_mm[Y_AXIS] = atof(key_value); planner.refresh_positioning(); break;
+      case Zstep:  planner.settings.axis_steps_per_mm[Z_AXIS] = atof(key_value); planner.refresh_positioning(); break;
+      case E0step: planner.settings.axis_steps_per_mm[E_AXIS] = atof(key_value); planner.refresh_positioning(); break;
+      case E1step: planner.settings.axis_steps_per_mm[E_AXIS_N(1)] = atof(key_value); planner.refresh_positioning(); break;
     #endif
 
     case Xcurrent: TERN_(X_IS_TRINAMIC, stepperX.rms_current(atoi(key_value))); break;

@@ -301,10 +301,10 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Retrair Troca mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retrair V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saltar mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Des-Retrair mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Des-RetTroca mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Des-Retrair  V");
-  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("Des-RetTroca V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Des-Retrair mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Des-RetTroca mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Des-Retrair  V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("Des-RetTroca V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Retração Automática");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Distancia Retração");
   LSTR MSG_FILAMENT_PURGE_LENGTH          = _UxGT("Distancia Purga");

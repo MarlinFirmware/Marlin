@@ -44,32 +44,32 @@ FWRetract fwretract; // Single instance - this calls the constructor
 // private:
 
 #if HAS_MULTI_EXTRUDER
-  Flags<EXTRUDERS> FWRetract::retracted_swap; // Which extruders are swap-retracted
+  Flags<EXTRUDERS> FWRetract::retracted_swap;         // Which extruders are swap-retracted
 #endif
 
 // public:
 
-fwretract_settings_t FWRetract::settings;     // M207 S F Z W, M208 S F W R
+fwretract_settings_t FWRetract::settings;             // M207 S F Z W, M208 S F W R
 
 #if ENABLED(FWRETRACT_AUTORETRACT)
-  bool FWRetract::autoretract_enabled;        // M209 S - Autoretract switch
+  bool FWRetract::autoretract_enabled;                // M209 S - Autoretract switch
 #endif
 
-Flags<EXTRUDERS> FWRetract::retracted;        // Which extruders are currently retracted
+Flags<EXTRUDERS> FWRetract::retracted;                // Which extruders are currently retracted
 
-float FWRetract::current_retract[EXTRUDERS],  // Retract value used by planner
+float FWRetract::current_retract[EXTRUDERS],          // Retract value used by planner
       FWRetract::current_hop;
 
 void FWRetract::reset() {
   TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
-  settings.retract_feedrate = RETRACT_FEEDRATE;
-  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
+  settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zraise = RETRACT_ZRAISE;
-  settings.recover_extra = RETRACT_RECOVER_LENGTH;
-  settings.recover_feedrate = RETRACT_RECOVER_FEEDRATE;
-  settings.swap_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
-  settings.swap_recover_feedrate = RETRACT_RECOVER_FEEDRATE_SWAP;
+  settings.retract_recover_extra = RETRACT_RECOVER_LENGTH;
+  settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
+  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
+  settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
+  settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
   retracted.reset();
@@ -136,13 +136,13 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
-    prepare_internal_move_to_destination( // Set current from destination
-      MUL_TERN(RETRACT_SYNC_MIXING, settings.retract_feedrate, MIXING_STEPPERS)
+    prepare_internal_move_to_destination(                 // set current from destination
+      MUL_TERN(RETRACT_SYNC_MIXING, settings.retract_feedrate_mm_s, MIXING_STEPPERS)
     );
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (!current_hop && settings.retract_zraise > 0.01f) { // Apply hop only once
-      current_hop += settings.retract_zraise;              // Add to the hop total (again, only once)
+    if (!current_hop && settings.retract_zraise > 0.01f) {  // Apply hop only once
+      current_hop += settings.retract_zraise;               // Add to the hop total (again, only once)
       // Raise up, set_current_to_destination. Maximum Z feedrate
       prepare_internal_move_to_destination(fr_max_z);
     }
@@ -155,23 +155,23 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
       prepare_internal_move_to_destination(fr_max_z);
     }
 
-    const float extra_recover = swapping ? settings.swap_recover_extra : settings.recover_extra;
+    const float extra_recover = swapping ? settings.swap_retract_recover_extra : settings.retract_recover_extra;
     if (extra_recover) {
-      current_position.e -= extra_recover; // Adjust the current E position by the extra amount to recover
-      sync_plan_position_e();              // Sync the planner position so the extra amount is recovered
+      current_position.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
+      sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 
     current_retract[active_extruder] = 0;
 
     // Recover E, set_current_to_destination
     prepare_internal_move_to_destination(
-      MUL_TERN(RETRACT_SYNC_MIXING, swapping ? settings.swap_recover_feedrate : settings.recover_feedrate, MIXING_STEPPERS)
+      MUL_TERN(RETRACT_SYNC_MIXING, swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s, MIXING_STEPPERS)
     );
   }
 
-  TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool)); // Restore original mixing tool
+  TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
 
-  retracted.set(active_extruder, retracting);           // Active extruder now retracted / recovered
+  retracted.set(active_extruder, retracting);             // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
   #if HAS_MULTI_EXTRUDER
@@ -198,16 +198,16 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  * M207: Set firmware retraction values
  *
  *   S[+units]    retract_length
- *   F[units/min] retract_feedrate
  *   W[+units]    swap_retract_length (multi-extruder)
+ *   F[units/min] retract_feedrate_mm_s
  *   Z[units]     retract_zraise
  */
 void FWRetract::M207() {
-  if (!parser.seen("SFWZ")) return M207_report();
+  if (!parser.seen("FSWZ")) return M207_report();
   if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
-  if (parser.seenval('F')) settings.retract_feedrate      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
+  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M207_report() {
@@ -215,8 +215,8 @@ void FWRetract::M207_report() {
 
   SERIAL_ECHOLNPGM_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
-    , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate))
     , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
+    , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s))
     , SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
   );
 }
@@ -224,27 +224,26 @@ void FWRetract::M207_report() {
 /**
  * M208: Set firmware un-retraction values
  *
- *   S[+units]    recover_extra (in addition to M207 S*)
- *   F[units/min] recover_feedrate
- *   W[+units]    swap_recover_extra (multi-extruder)
- *   R[units/min] swap_recover_feedrate
+ *   S[+units]    retract_recover_extra (in addition to M207 S*)
+ *   W[+units]    swap_retract_recover_extra (multi-extruder)
+ *   F[units/min] retract_recover_feedrate_mm_s
+ *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void FWRetract::M208() {
-  if (!parser.seen("SFWR")) return M208_report();
-  if (parser.seen('S')) settings.recover_extra              = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) settings.recover_feedrate           = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) settings.swap_recover_extra         = parser.value_axis_units(E_AXIS);
-  if (parser.seen('R')) settings.swap_recover_feedrate      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (!parser.seen("FSRW")) return M208_report();
+  if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M208_report() {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM(
-      "  M208 S", LINEAR_UNIT(settings.recover_extra)
-    , " F", LINEAR_UNIT(MMS_TO_MMM(settings.recover_feedrate))
-    , " W", LINEAR_UNIT(settings.swap_recover_extra)
-    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_recover_feedrate))
+      "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
+    , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
+    , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
   );
 }
 

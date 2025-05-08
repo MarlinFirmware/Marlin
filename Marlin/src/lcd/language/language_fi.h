@@ -117,9 +117,9 @@ namespace LanguageNarrow_fi {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Va. Vedä mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vedä V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Z mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Unretr. mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Va. Unretr. mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Unretract V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Va. Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Unretract V");
   LSTR MSG_AUTORETRACT                    = _UxGT("AutoVeto.");
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Kalibrointi");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Kalibroi X");

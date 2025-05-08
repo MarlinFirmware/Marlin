@@ -501,10 +501,10 @@ namespace LanguageNarrow_sk {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Výmena Re.mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retraktovať  V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Zdvih Z mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Unretr. mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("S Unretr. mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Unretract V");
-  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("S UnRet V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("S Unretr. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Unretract V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S UnRet V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Dĺžka výmeny");
   LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Vymeniť naviac");

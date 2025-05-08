@@ -387,10 +387,10 @@ namespace LanguageNarrow_sv {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Byt Dra.mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Dra tillbaka V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Hoppa mm");
-  LSTR MSG_CONTROL_RECOVER                = _UxGT("Åter dra tillbaka. mm");
-  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Byt åter dra t. mm");
-  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Återdrat. V");
-  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("Byt åter dra. V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Åter dra tillbaka. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Byt åter dra t. mm");
+  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Återdrat. V");
+  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("Byt åter dra. V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Dra-tillbka");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Byt Längd");
   LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Byt Extra");

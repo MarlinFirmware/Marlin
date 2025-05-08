@@ -1090,7 +1090,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // Retract if previously retracted
       #if ENABLED(FWRETRACT)
         if (fwretract.retracted[active_extruder])
-          unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate);
+          unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
       #endif
 
       // If resume_position is negative
@@ -1623,7 +1623,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     // Retract if previously retracted
     #if ENABLED(FWRETRACT)
       if (fwretract.retracted[active_extruder])
-        unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate);
+        unscaled_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
     #endif
 
     // If resume_position is negative
