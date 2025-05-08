@@ -132,9 +132,9 @@ namespace LanguageNarrow_bg {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Смяна Откат mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Откат  V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Скок mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Възврат mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Смяна Възврат mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Възврат  V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Възврат mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Смяна Възврат mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Възврат  V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Автоoткат");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Смяна нишка");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Смяна нишка *");

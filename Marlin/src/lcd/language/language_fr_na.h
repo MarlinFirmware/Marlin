@@ -360,10 +360,10 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Ech. retr. mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Vit. retract") LCD_STR_DEGREE;
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Saut Z mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Ret.reprise mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Ech.reprise mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("V.ret. reprise");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("V.ech. reprise");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Ret.reprise mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Ech.reprise mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("V.ret. reprise");
+  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("V.ech. reprise");
   LSTR MSG_AUTORETRACT                    = _UxGT("Retraction auto");
   LSTR MSG_TOOL_CHANGE                    = _UxGT("Changement outil");
   LSTR MSG_TOOL_CHANGE_ZLIFT              = _UxGT("Augmenter Z");

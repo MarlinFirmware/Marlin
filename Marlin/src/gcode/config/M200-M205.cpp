@@ -248,7 +248,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
  *    T<accel> Travel (non printing) moves
  */
 void GcodeSuite::M204() {
-  if (!parser.seen("PRST"))
+  if (!parser.seen("SPRT"))
     return M204_report();
   else {
     //planner.synchronize();

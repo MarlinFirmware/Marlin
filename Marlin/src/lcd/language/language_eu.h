@@ -206,10 +206,10 @@ namespace LanguageNarrow_eu {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Swap Atzera mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Atzera egin V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Igo mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Atzera egin mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Swap Atzera mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Atzera egin V");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S UnRet V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Atzera egin mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Swap Atzera mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Atzera egin V");
+  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("S UnRet V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Atzera egin");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Aldatu harizpia");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Aldatu harizpia *");

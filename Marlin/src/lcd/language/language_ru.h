@@ -402,13 +402,13 @@ namespace LanguageNarrow_ru {
   LSTR MSG_STOPPED                          = _UxGT("ОСТАНОВЛЕНО. ");
   LSTR MSG_CONTROL_RETRACT                  = _UxGT("Откат, мм");
   LSTR MSG_CONTROL_RETRACT_SWAP             = _UxGT("Откат смены,мм");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP     = _UxGT("Возвр.смены,мм");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF    = _UxGT("Возвр.смены V");
+  LSTR MSG_CONTROL_RECOVER_SWAP             = _UxGT("Возвр.смены,мм");
+  LSTR MSG_CONTROL_RECOVER_SWAPF            = _UxGT("Возвр.смены V");
   LSTR MSG_AUTORETRACT                      = _UxGT("Автооткат");
   LSTR MSG_CONTROL_RETRACT_ZHOP             = _UxGT("Подскок Z, мм");
   LSTR MSG_CONTROL_RETRACTF                 = _UxGT("Втягивание V");
-  LSTR MSG_CONTROL_RETRACT_RECOVER          = _UxGT("Возврат, мм");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF         = _UxGT("Возврат V");
+  LSTR MSG_CONTROL_RECOVER                  = _UxGT("Возврат, мм");
+  LSTR MSG_CONTROL_RECOVERF                 = _UxGT("Возврат V");
 
   LSTR MSG_FILAMENT_SWAP_LENGTH             = _UxGT("Длина замены");
   LSTR MSG_FILAMENT_SWAP_EXTRA              = _UxGT("Доп. длина");
@@ -874,8 +874,8 @@ namespace LanguageWide_ru {
     LSTR MSG_INIT_EEPROM                    = _UxGT("Инициализация EEPROM");
     LSTR MSG_CONTROL_RETRACT                = _UxGT("Откат, мм");
     LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Откат при смене, мм");
-    LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Возврат при смене, мм");
-    LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("Возврат при смене, V");
+    LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Возврат при смене, мм");
+    LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("Возврат при смене, V");
     LSTR MSG_AUTORETRACT                    = _UxGT("Автооткат");
     LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Дополнительная длина");
     LSTR MSG_SINGLENOZZLE_PRIME_SPEED       = _UxGT("Начальная скор.");

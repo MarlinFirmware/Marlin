@@ -162,9 +162,9 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("ヒキコミリョウS mm"); // "Swap Re.mm"
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("ヒキコミソクド mm/s"); // "Retract V"
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("ノズルタイヒ mm"); // "Hop mm"
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("ホショウリョウ mm"); // "Unretr. mm"
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("ホショウリョウS mm"); // "S Unretr. mm"
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("ホショウソクド mm/s"); // "Unretract V"
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("ホショウリョウ mm"); // "Unretr. mm"
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("ホショウリョウS mm"); // "S Unretr. mm"
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("ホショウソクド mm/s"); // "Unretract V"
   LSTR MSG_AUTORETRACT                    = _UxGT("ジドウヒキコミ"); // "Auto-Retract"
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("フィラメントコウカン"); // "Change filament"
 

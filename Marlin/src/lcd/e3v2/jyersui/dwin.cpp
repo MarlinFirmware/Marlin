@@ -2352,17 +2352,27 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           else
             drawMenu(ID_HomeOffsets);
           break;
-        case MOTION_SPEED:
-          if (draw)
-            drawMenuItem(row, ICON_MaxSpeed, GET_TEXT_F(MSG_MAX_SPEED), nullptr, true);
-          else
-            drawMenu(ID_MaxSpeed);
-          break;
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          case MOTION_STEPS:
+            if (draw)
+              drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
+            else
+              drawMenu(ID_Steps);
+            break;
+        #endif
+
         case MOTION_ACCEL:
           if (draw)
             drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ACCELERATION), nullptr, true);
           else
             drawMenu(ID_MaxAcceleration);
+          break;
+        case MOTION_SPEED:
+          if (draw)
+            drawMenuItem(row, ICON_MaxSpeed, GET_TEXT_F(MSG_MAX_SPEED), nullptr, true);
+          else
+            drawMenu(ID_MaxSpeed);
           break;
 
         #if ENABLED(CLASSIC_JERK)
@@ -2371,15 +2381,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_MaxJerk, GET_TEXT_F(MSG_JERK), nullptr, true);
             else
               drawMenu(ID_MaxJerk);
-            break;
-        #endif
-
-        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-          case MOTION_STEPS:
-            if (draw)
-              drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
-            else
-              drawMenu(ID_Steps);
             break;
         #endif
 
@@ -4097,10 +4098,10 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case FWRETRACT_RETSPD:
             if (draw) {
               drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_SINGLENOZZLE_RETRACT_SPEED));
-              drawFloat(fwretract.settings.retract_feedrate_mm_s, row, false, 1);
+              drawFloat(fwretract.settings.retract_feedrate, row, false, 1);
             }
             else
-              modifyValue(fwretract.settings.retract_feedrate_mm_s, 1, 90, 1);
+              modifyValue(fwretract.settings.retract_feedrate, 1, 90, 1);
             break;
           case FWRETRACT_RETZHOP:
             if (draw) {
@@ -4113,18 +4114,18 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case FWRETRACT_RECSPD:
             if (draw) {
               drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_SINGLENOZZLE_UNRETRACT_SPEED));
-              drawFloat(fwretract.settings.retract_recover_feedrate_mm_s, row, false, 1);
+              drawFloat(fwretract.settings.recover_feedrate, row, false, 1);
             }
             else
-              modifyValue(fwretract.settings.retract_recover_feedrate_mm_s, 1, 90, 1);
+              modifyValue(fwretract.settings.recover_feedrate, 1, 90, 1);
             break;
           case FWRETRACT_RECLEN:
             if (draw) {
-              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_CONTROL_RETRACT_RECOVER));
-              drawFloat(fwretract.settings.retract_recover_extra, row, false, 10);
+              drawMenuItem(row, ICON_FWRetLength, GET_TEXT_F(MSG_CONTROL_RECOVER));
+              drawFloat(fwretract.settings.recover_extra, row, false, 10);
             }
             else
-              modifyValue(fwretract.settings.retract_recover_extra, -5, 5, 10);
+              modifyValue(fwretract.settings.recover_extra, -5, 5, 10);
             break;
         }
         break;

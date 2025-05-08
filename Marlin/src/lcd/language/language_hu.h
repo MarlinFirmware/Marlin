@@ -401,10 +401,10 @@ namespace LanguageNarrow_hu {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Visszahúzás cs. mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Viszahúzás");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Ugrás mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Visszah.helyre mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Csere.visszah.helyre mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Visszahúzás V");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S Vissza.h V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Visszah.helyre mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Csere.visszah.helyre mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Visszahúzás V");
+  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("S Vissza.h V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto visszah.");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Visszahúzás távolság");
   LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Extra csere");

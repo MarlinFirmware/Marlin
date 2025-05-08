@@ -359,10 +359,10 @@ namespace LanguageNarrow_gl {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Cambio retra. mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retraer V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Alzar Z mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Recup. retra. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Cambio recup. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Recuperacion V");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("S UnRet V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Recup. retra. mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Cambio recup. mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Recuperacion V");
+  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("S UnRet V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retracción");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Lonxitude Retracción");
   LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Cambio Extra");

@@ -553,10 +553,10 @@ namespace LanguageNarrow_it {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Scamb. ritrai mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Ritrai V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Salta mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Avanza mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Scamb. Avanza mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Avanza V");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAPF  = _UxGT("Scamb. avanza V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Avanza mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Scamb. Avanza mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Avanza V");
+  LSTR MSG_CONTROL_RECOVER_SWAPF          = _UxGT("Scamb. avanza V");
   LSTR MSG_AUTORETRACT                    = _UxGT("AutoRitrai");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Lunghezza scambio");
   LSTR MSG_FILAMENT_SWAP_EXTRA            = _UxGT("Extra scambio");

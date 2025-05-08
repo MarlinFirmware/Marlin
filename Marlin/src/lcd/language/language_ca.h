@@ -138,9 +138,9 @@ namespace LanguageNarrow_ca {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Swap Retreure mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Retreu V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Aixeca mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("DesRet +mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Swap DesRet +mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("DesRet V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("DesRet +mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Swap DesRet +mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("DesRet V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto retraccio");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Canvia filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Canvia filament *");

@@ -127,9 +127,9 @@ namespace LanguageNarrow_da {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Skift Re.mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Tilbagetræk V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Hop mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Unretr. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Skift Unretr. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Unretract V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Unretr. mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Skift Unretr. mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Unretract V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Skift filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Skift filament *");

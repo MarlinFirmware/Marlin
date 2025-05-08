@@ -136,9 +136,9 @@ namespace LanguageNarrow_pt {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Troca Retrair mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT(" Retrair  V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT(" Levantar mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT(" DesRet mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Troca DesRet mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT(" DesRet  V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT(" DesRet mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Troca DesRet mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT(" DesRet  V");
   LSTR MSG_AUTORETRACT                    = _UxGT(" Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Trocar filamento");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Trocar filamento *");

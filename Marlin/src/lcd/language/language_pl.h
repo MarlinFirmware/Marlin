@@ -340,9 +340,9 @@ namespace LanguageNarrow_pl {
   LSTR MSG_CONTROL_RETRACT_SWAP           = _UxGT("Z Wycof. mm");
   LSTR MSG_CONTROL_RETRACTF               = _UxGT("Wycofaj  V");
   LSTR MSG_CONTROL_RETRACT_ZHOP           = _UxGT("Skok Z mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER        = _UxGT("Cof. wycof. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVER_SWAP   = _UxGT("Z Cof. wyc. mm");
-  LSTR MSG_CONTROL_RETRACT_RECOVERF       = _UxGT("Cof. wycof.  V");
+  LSTR MSG_CONTROL_RECOVER                = _UxGT("Cof. wycof. mm");
+  LSTR MSG_CONTROL_RECOVER_SWAP           = _UxGT("Z Cof. wyc. mm");
+  LSTR MSG_CONTROL_RECOVERF               = _UxGT("Cof. wycof.  V");
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto. wycofanie");
   LSTR MSG_FILAMENT_SWAP_LENGTH           = _UxGT("Długość zmiany");
   LSTR MSG_FILAMENT_PURGE_LENGTH          = _UxGT("Długość oczyszczania");

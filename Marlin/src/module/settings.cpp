@@ -204,11 +204,11 @@ typedef struct {     bool NUM_AXIS_LIST_(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1,
 #define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
 
 // Defaults for reset / fill in on load
-static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
-static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
   static const float   _DASU[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT;
 #endif
+static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
+static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
 
 /**
  * Current EEPROM Layout
@@ -1947,31 +1947,30 @@ void MarlinSettings::postprocess() {
       {
         // Get only the number of E stepper parameters previously stored
         // Any steppers added later are set to their defaults
-        uint32_t tmp1[NUM_AXES + e_factors];
-        EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
-
-        EEPROM_READ(planner.settings.min_segment_time_us);
-
         #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-          float tmp2[NUM_AXES + e_factors];
-          EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
+          float tmp1[NUM_AXES + e_factors];
+          EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // axis_steps_per_mm
         #endif
+
+        uint32_t tmp2[NUM_AXES + e_factors];
+        EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // max_acceleration_mm_per_s2
 
         feedRate_t tmp3[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp3, sizeof(tmp3)); // max_feedrate_mm_s
 
         if (!validating) LOOP_DISTINCT_AXES(i) {
           const bool in = (i < e_factors + NUM_AXES);
-          planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
           #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-            planner.settings.axis_steps_per_mm[i]        = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+            planner.settings.axis_steps_per_mm[i]        = in ? tmp1[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
           #endif
+          planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp2[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
           planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
         }
 
         EEPROM_READ(planner.settings.acceleration);
         EEPROM_READ(planner.settings.retract_acceleration);
         EEPROM_READ(planner.settings.travel_acceleration);
+        EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
@@ -3279,17 +3278,17 @@ void MarlinSettings::postprocess() {
  */
 void MarlinSettings::reset() {
   LOOP_DISTINCT_AXES(i) {
-    planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       planner.settings.axis_steps_per_mm[i] = pgm_read_float(&_DASU[ALIM(i, _DASU)]);
     #endif
+    planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
   }
 
-  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.acceleration = DEFAULT_ACCELERATION;
   planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
+  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
