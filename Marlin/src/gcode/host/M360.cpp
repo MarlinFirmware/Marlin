@@ -46,6 +46,12 @@ static void config_line(PGM_P const name, const float val, PGM_P const pref=null
 static void config_line(FSTR_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
   config_line(FTOP(name), val, FTOP(pref), ind);
 }
+static void config_line(PGM_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
+  config_line(name, val, FTOP(pref), ind);
+}
+static void config_line(FSTR_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
+  config_line(FTOP(name), val, pref, ind);
+}
 static void config_line_e(const int8_t e, PGM_P const name, const float val) {
   config_line(name, val, PSTR("Extr."), e + 1);
 }
@@ -58,9 +64,6 @@ static void config_line_e(const int8_t e, FSTR_P const name, const float val) {
  *       in RepRapFirmware-compatible format
  */
 void GcodeSuite::M360() {
-  PGMSTR(X_STR,    "X");
-  PGMSTR(Y_STR,    "Y");
-  PGMSTR(Z_STR,    "Z");
   #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)
     PGMSTR(JERK_STR, "Jerk");
   #endif
@@ -83,19 +86,50 @@ void GcodeSuite::M360() {
   config_line(F("EEPROM"),                      ENABLED(EEPROM_SETTINGS));
 
   //
+  // Axis letters, in PROGMEM
+  //
+  PGMSTR(X_STR, "X"); PGMSTR(Y_STR, "Y"); PGMSTR(Z_STR, "Z");
+  PGMSTR(I_STR, STR_I); PGMSTR(J_STR, STR_J); PGMSTR(K_STR, STR_K);
+  PGMSTR(U_STR, STR_U); PGMSTR(V_STR, STR_V); PGMSTR(W_STR, STR_W);
+
+  //
   // Homing Directions
   //
   PGMSTR(H_DIR_STR, "HomeDir");
-  config_line(H_DIR_STR, X_HOME_DIR, X_STR);
-  config_line(H_DIR_STR, Y_HOME_DIR, Y_STR);
-  config_line(H_DIR_STR, Z_HOME_DIR, Z_STR);
+  #if X_HOME_DIR
+    config_line(H_DIR_STR, X_HOME_DIR, X_STR);
+  #endif
+  #if Y_HOME_DIR
+    config_line(H_DIR_STR, Y_HOME_DIR, Y_STR);
+  #endif
+  #if Z_HOME_DIR
+    config_line(H_DIR_STR, Z_HOME_DIR, Z_STR);
+  #endif
+  #if I_HOME_DIR
+    config_line(H_DIR_STR, I_HOME_DIR, I_STR);
+  #endif
+  #if J_HOME_DIR
+    config_line(H_DIR_STR, J_HOME_DIR, J_STR);
+  #endif
+  #if K_HOME_DIR
+    config_line(H_DIR_STR, K_HOME_DIR, K_STR);
+  #endif
+  #if U_HOME_DIR
+    config_line(H_DIR_STR, U_HOME_DIR, U_STR);
+  #endif
+  #if V_HOME_DIR
+    config_line(H_DIR_STR, V_HOME_DIR, V_STR);
+  #endif
+  #if W_HOME_DIR
+    config_line(H_DIR_STR, W_HOME_DIR, W_STR);
+  #endif
 
   //
   // XYZ Axis Jerk
   //
   #if ENABLED(CLASSIC_JERK)
     if (planner.max_jerk.x == planner.max_jerk.y)
-      config_line(F("XY"), planner.max_jerk.x, FPSTR(JERK_STR));
+      config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
       config_line(X_STR, planner.max_jerk.x, JERK_STR);
       config_line(Y_STR, planner.max_jerk.y, JERK_STR);
@@ -112,62 +146,62 @@ void GcodeSuite::M360() {
     PGMSTR(UNRET_STR, "RetractionUndo");
     PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
-    config_line(F("Length"),     fwretract.settings.retract_length, FPSTR(RET_STR));
+    config_line(F("Length"),     fwretract.settings.retract_length, RET_STR);
     config_line(SPEED_STR,       fwretract.settings.retract_feedrate, RET_STR);
-    config_line(F("LongLength"), fwretract.settings.swap_retract_length, FPSTR(RET_STR));
-    config_line(F("ZLift"),      fwretract.settings.retract_zraise, FPSTR(RET_STR));
+    config_line(F("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
+    config_line(F("ZLift"),      fwretract.settings.retract_zraise, RET_STR);
     // M11 Recover (undo) with swap (long) moves
-    config_line(F("ExtraLength"),     fwretract.settings.recover_extra, FPSTR(UNRET_STR));
+    config_line(F("ExtraLength"),     fwretract.settings.recover_extra, UNRET_STR);
     config_line(SPEED_STR,            fwretract.settings.recover_feedrate, UNRET_STR);
-    config_line(F("ExtraLongLength"), fwretract.settings.swap_recover_extra, FPSTR(UNRET_STR));
-    config_line(F("LongSpeed"),       fwretract.settings.swap_recover_feedrate, FPSTR(UNRET_STR));
+    config_line(F("ExtraLongLength"), fwretract.settings.swap_recover_extra, UNRET_STR);
+    config_line(F("LongSpeed"),       fwretract.settings.swap_recover_feedrate, UNRET_STR);
   #endif
 
   //
   // Workspace boundaries
   //
-  const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                  dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+  const xyz_pos_t dmin = LOGICAL_AXIS_ARRAY( X_MIN_POS, Y_MIN_POS, Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
+                  dmax = LOGICAL_AXIS_ARRAY( X_MAX_POS, Y_MAX_POS, Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
   xyz_pos_t cmin = dmin, cmax = dmax;
   apply_motion_limits(cmin);
   apply_motion_limits(cmax);
   const xyz_pos_t wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
   PGMSTR(MIN_STR, "Min");
+  #define _REPORT_MIN(Q) config_line(MIN_STR, wmin.Q, Q##_STR)
+  LOGICAL_AXIS_MAP(_REPORT_MIN);
+
   PGMSTR(MAX_STR, "Max");
+  #define _REPORT_MAX(Q) config_line(MAX_STR, wmax.Q, Q##_STR)
+  LOGICAL_AXIS_MAP(_REPORT_MAX);
+
   PGMSTR(SIZE_STR, "Size");
-  config_line(MIN_STR, wmin.x, X_STR);
-  config_line(MIN_STR, wmin.y, Y_STR);
-  config_line(MIN_STR, wmin.z, Z_STR);
-  config_line(MAX_STR, wmax.x, X_STR);
-  config_line(MAX_STR, wmax.y, Y_STR);
-  config_line(MAX_STR, wmax.z, Z_STR);
-  config_line(SIZE_STR, wmax.x - wmin.x, X_STR);
-  config_line(SIZE_STR, wmax.y - wmin.y, Y_STR);
-  config_line(SIZE_STR, wmax.z - wmin.z, Z_STR);
+  #define _REPORT_SIZE(Q) config_line(SIZE_STR, wmax.Q - wmin.Q, Q##_STR)
+  LOGICAL_AXIS_MAP(_REPORT_SIZE);
 
   //
   // Axis Steps per mm
   //
   PGMSTR(S_MM_STR, "Steps/mm");
-  config_line(S_MM_STR, planner.settings.axis_steps_per_mm[X_AXIS], X_STR);
-  config_line(S_MM_STR, planner.settings.axis_steps_per_mm[Y_AXIS], Y_STR);
-  config_line(S_MM_STR, planner.settings.axis_steps_per_mm[Z_AXIS], Z_STR);
+  #define _REPORT_S_MM(A) config_line(S_MM_STR, planner.settings.axis_steps_per_mm[_AXIS(A)], A##_STR);
+  LOGICAL_AXIS_MAP(_REPORT_S_MM);
 
   //
   // Print and Travel Acceleration
   //
   #define _ACCEL(A,B) _MIN(planner.settings.max_acceleration_mm_per_s2[A##_AXIS], planner.settings.B)
-  PGMSTR(P_ACC_STR, "PrintAccel");
-  PGMSTR(T_ACC_STR, "TravelAccel");
-  config_line(P_ACC_STR, _ACCEL(X, acceleration), X_STR);
-  config_line(P_ACC_STR, _ACCEL(Y, acceleration), Y_STR);
-  config_line(P_ACC_STR, _ACCEL(Z, acceleration), Z_STR);
-  config_line(T_ACC_STR, _ACCEL(X, travel_acceleration), X_STR);
-  config_line(T_ACC_STR, _ACCEL(Y, travel_acceleration), Y_STR);
-  config_line(T_ACC_STR, _ACCEL(Z, travel_acceleration), Z_STR);
-  #undef _ACCEL
 
+  PGMSTR(P_ACC_STR, "PrintAccel");
+  #define _REPORT_P_ACC(A) config_line(P_ACC_STR, _ACCEL(A, acceleration), A##_STR);
+  LOGICAL_AXIS_MAP(_REPORT_P_ACC);
+
+  PGMSTR(T_ACC_STR, "TravelAccel");
+  #define _REPORT_T_ACC(A) config_line(T_ACC_STR, _ACCEL(A, travel_acceleration), A##_STR);
+  LOGICAL_AXIS_MAP(_REPORT_T_ACC);
+
+  //
+  // Printer Type
+  //
   config_prefix(PSTR("PrinterType"));
   SERIAL_ECHOLNPGM(
     TERN_(DELTA,         "Delta")
