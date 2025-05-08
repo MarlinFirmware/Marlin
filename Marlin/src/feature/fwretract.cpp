@@ -60,39 +60,16 @@ Flags<EXTRUDERS> FWRetract::retracted;        // Which extruders are currently r
 float FWRetract::current_retract[EXTRUDERS],  // Retract value used by planner
       FWRetract::current_hop;
 
-
-/*===========================================================
-                DELETE THIS BEFORE MERGING
-                USED TO MAKE SUCCESSFUL CHECKS
-=============================================================*/
-  #ifndef RECOVER_LENGTH
-    #define RECOVER_LENGTH RETRACT_RECOVER_LENGTH
-  #endif
-  #ifndef RECOVER_FEEDRATE
-    #define RECOVER_FEEDRATE RETRACT_RECOVER_LENGTH_SWAP
-  #endif
-  #ifndef RECOVER_LENGTH_SWAP
-    #define RECOVER_LENGTH_SWAP RETRACT_RECOVER_FEEDRATE
-  #endif
-  #ifndef RECOVER_FEEDRATE_SWAP
-    #define RECOVER_FEEDRATE_SWAP RETRACT_RECOVER_FEEDRATE_SWAP
-  #endif
-/*===========================================================
-                DELETE THIS BEFORE MERGING
-                USED TO MAKE SUCCESSFUL CHECKS
-=============================================================*/
-
-
 void FWRetract::reset() {
   TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate = RETRACT_FEEDRATE;
   settings.swap_retract_length = RETRACT_LENGTH_SWAP;
   settings.retract_zraise = RETRACT_ZRAISE;
-  settings.recover_extra = RECOVER_LENGTH;
-  settings.recover_feedrate = RECOVER_FEEDRATE;
-  settings.swap_recover_extra = RECOVER_LENGTH_SWAP;
-  settings.swap_recover_feedrate = RECOVER_FEEDRATE_SWAP;
+  settings.recover_extra = RETRACT_RECOVER_LENGTH;
+  settings.recover_feedrate = RETRACT_RECOVER_FEEDRATE;
+  settings.swap_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
+  settings.swap_recover_feedrate = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
   retracted.reset();
