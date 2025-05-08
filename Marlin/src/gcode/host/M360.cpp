@@ -39,23 +39,29 @@ static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
   SERIAL_ECHOPGM_P(name, C(':'));
 }
-static void config_line(PGM_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
+template<typename T>
+static void config_line(PGM_P const name, const T val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
   SERIAL_ECHOLN(val);
 }
-static void config_line(FSTR_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
+template<typename T>
+static void config_line(FSTR_P const name, const T val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
   config_line(FTOP(name), val, FTOP(pref), ind);
 }
-static void config_line(PGM_P const name, const float val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
+template<typename T>
+static void config_line(PGM_P const name, const T val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
   config_line(name, val, FTOP(pref), ind);
 }
-static void config_line(FSTR_P const name, const float val, PGM_P const pref=nullptr, const int8_t ind=-1) {
+template<typename T>
+static void config_line(FSTR_P const name, const T val, PGM_P const pref=nullptr, const int8_t ind=-1) {
   config_line(FTOP(name), val, pref, ind);
 }
-static void config_line_e(const int8_t e, PGM_P const name, const float val) {
+template<typename T>
+static void config_line_e(const int8_t e, PGM_P const name, const T val) {
   config_line(name, val, PSTR("Extr."), e + 1);
 }
-static void config_line_e(const int8_t e, FSTR_P const name, const float val) {
+template<typename T>
+static void config_line_e(const int8_t e, FSTR_P const name, const T val) {
   config_line_e(e, FTOP(name), val);
 }
 
@@ -64,10 +70,6 @@ static void config_line_e(const int8_t e, FSTR_P const name, const float val) {
  *       in RepRapFirmware-compatible format
  */
 void GcodeSuite::M360() {
-  #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)
-    PGMSTR(JERK_STR, "Jerk");
-  #endif
-
   //
   // Basics and Enabled items
   //
@@ -88,9 +90,8 @@ void GcodeSuite::M360() {
   //
   // Axis letters, in PROGMEM
   //
-  PGMSTR(X_STR, "X"); PGMSTR(Y_STR, "Y"); PGMSTR(Z_STR, "Z");
-  PGMSTR(I_STR, STR_I); PGMSTR(J_STR, STR_J); PGMSTR(K_STR, STR_K);
-  PGMSTR(U_STR, STR_U); PGMSTR(V_STR, STR_V); PGMSTR(W_STR, STR_W);
+  #define _DEFINE_A_STR(Q) PGMSTR(Q##_STR, STR_##Q);
+  MAIN_AXIS_MAP(_DEFINE_A_STR);
 
   //
   // Homing Directions
@@ -124,17 +125,23 @@ void GcodeSuite::M360() {
     config_line(H_DIR_STR, W_HOME_DIR, W_STR);
   #endif
 
+  #if ANY(CLASSIC_JERK, HAS_LINEAR_E_JERK)
+    PGMSTR(JERK_STR, "Jerk");
+  #endif
+
   //
   // XYZ Axis Jerk
   //
   #if ENABLED(CLASSIC_JERK)
-    if (planner.max_jerk.x == planner.max_jerk.y)
+    #define _REPORT_JERK(Q), config_line(Q##_STR, planner.max_jerk.Q, JERK_STR);
+    if (TERN0(HAS_Y_AXIS, planner.max_jerk.x == planner.max_jerk.y))
       config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
-      config_line(X_STR, planner.max_jerk.x, JERK_STR);
-      config_line(Y_STR, planner.max_jerk.y, JERK_STR);
+      TERN_(HAS_X_AXIS, _REPORT_JERK(X));
+      TERN_(HAS_Y_AXIS, _REPORT_JERK(Y));
     }
-    config_line(Z_STR, planner.max_jerk.z, JERK_STR);
+    TERN_(HAS_Z_AXIS, config_line(Z_STR, planner.max_jerk.z, JERK_STR));
+    SECONDARY_AXIS_MAP(_REPORT_JERK);
   #endif
 
   //
@@ -168,36 +175,36 @@ void GcodeSuite::M360() {
   const xyz_pos_t wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
   PGMSTR(MIN_STR, "Min");
-  #define _REPORT_MIN(Q) config_line(MIN_STR, wmin.Q, Q##_STR)
-  LOGICAL_AXIS_MAP(_REPORT_MIN);
+  #define _REPORT_MIN(Q) config_line(MIN_STR, wmin.Q, Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_MIN);
 
   PGMSTR(MAX_STR, "Max");
-  #define _REPORT_MAX(Q) config_line(MAX_STR, wmax.Q, Q##_STR)
-  LOGICAL_AXIS_MAP(_REPORT_MAX);
+  #define _REPORT_MAX(Q) config_line(MAX_STR, wmax.Q, Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_MAX);
 
   PGMSTR(SIZE_STR, "Size");
-  #define _REPORT_SIZE(Q) config_line(SIZE_STR, wmax.Q - wmin.Q, Q##_STR)
-  LOGICAL_AXIS_MAP(_REPORT_SIZE);
+  #define _REPORT_SIZE(Q) config_line(SIZE_STR, wmax.Q - wmin.Q, Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_SIZE);
 
   //
   // Axis Steps per mm
   //
   PGMSTR(S_MM_STR, "Steps/mm");
-  #define _REPORT_S_MM(A) config_line(S_MM_STR, planner.settings.axis_steps_per_mm[_AXIS(A)], A##_STR);
-  LOGICAL_AXIS_MAP(_REPORT_S_MM);
+  #define _REPORT_S_MM(Q) config_line(S_MM_STR, planner.settings.axis_steps_per_mm[_AXIS(Q)], Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_S_MM);
 
   //
   // Print and Travel Acceleration
   //
-  #define _ACCEL(A,B) _MIN(planner.settings.max_acceleration_mm_per_s2[A##_AXIS], planner.settings.B)
+  #define _ACCEL(Q,B) _MIN(planner.settings.max_acceleration_mm_per_s2[Q##_AXIS], planner.settings.B)
 
   PGMSTR(P_ACC_STR, "PrintAccel");
-  #define _REPORT_P_ACC(A) config_line(P_ACC_STR, _ACCEL(A, acceleration), A##_STR);
-  LOGICAL_AXIS_MAP(_REPORT_P_ACC);
+  #define _REPORT_P_ACC(Q) config_line(P_ACC_STR, _ACCEL(Q, acceleration), Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_P_ACC);
 
   PGMSTR(T_ACC_STR, "TravelAccel");
-  #define _REPORT_T_ACC(A) config_line(T_ACC_STR, _ACCEL(A, travel_acceleration), A##_STR);
-  LOGICAL_AXIS_MAP(_REPORT_T_ACC);
+  #define _REPORT_T_ACC(Q) config_line(T_ACC_STR, _ACCEL(Q, travel_acceleration), Q##_STR);
+  MAIN_AXIS_MAP(_REPORT_T_ACC);
 
   //
   // Printer Type
