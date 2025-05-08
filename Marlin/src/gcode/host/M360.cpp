@@ -114,11 +114,11 @@ void GcodeSuite::M360() {
     // M10 Retract with swap (long) moves
     config_line(F("Length"),     fwretract.settings.retract_length, FPSTR(RET_STR));
     config_line(SPEED_STR,       fwretract.settings.retract_feedrate, RET_STR);
-    config_line(F("ZLift"),      fwretract.settings.retract_zraise, FPSTR(RET_STR));
     config_line(F("LongLength"), fwretract.settings.swap_retract_length, FPSTR(RET_STR));
+    config_line(F("ZLift"),      fwretract.settings.retract_zraise, FPSTR(RET_STR));
     // M11 Recover (undo) with swap (long) moves
-    config_line(SPEED_STR,            fwretract.settings.recover_feedrate, UNRET_STR);
     config_line(F("ExtraLength"),     fwretract.settings.recover_extra, FPSTR(UNRET_STR));
+    config_line(SPEED_STR,            fwretract.settings.recover_feedrate, UNRET_STR);
     config_line(F("ExtraLongLength"), fwretract.settings.swap_recover_extra, FPSTR(UNRET_STR));
     config_line(F("LongSpeed"),       fwretract.settings.swap_recover_feedrate, FPSTR(UNRET_STR));
   #endif
