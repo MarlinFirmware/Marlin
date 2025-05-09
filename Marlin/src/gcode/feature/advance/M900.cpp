@@ -29,7 +29,7 @@
 #include "../../../module/stepper.h"
 
 #if ENABLED(ADVANCE_K_EXTRA)
-  float other_extruder_advance_K[DISTINCT_E];
+  float other_extruder_advance_K[EXTRUDERS];
   uint8_t lin_adv_slot = 0;
 #endif
 
@@ -70,7 +70,7 @@ void GcodeSuite::M900() {
 
   #if ENABLED(ADVANCE_K_EXTRA)
 
-    float &lref = other_extruder_advance_K[E_INDEX_N(tool_index)];
+    float &lref = other_extruder_advance_K[tool_index];
 
     const bool old_slot = TEST(lin_adv_slot, tool_index), // The tool's current slot (0 or 1)
                new_slot = parser.boolval('S', old_slot);  // The passed slot (default = current)

@@ -126,7 +126,7 @@
 #endif
 
 #if ENABLED(ADVANCE_K_EXTRA)
-  extern float other_extruder_advance_K[DISTINCT_E];
+  extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if HAS_MULTI_EXTRUDER
@@ -3763,7 +3763,9 @@ void MarlinSettings::reset() {
       }
     #else
       planner.set_advance_k(ADVANCE_K);
-      TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[0] = ADVANCE_K);
+      #if ENABLED(ADVANCE_K_EXTRA)
+        EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
+      #endif
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #if ENABLED(DISTINCT_E_FACTORS)
