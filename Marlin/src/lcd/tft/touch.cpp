@@ -190,8 +190,7 @@ void Touch::touch(touch_control_t *control) {
           #if HOTENDS == 1
             MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE), &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
           #else
-            MenuItemBase::itemIndex = heater;
-            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater), [heater]{ thermalManager.start_watching_hotend(heater); });
           #endif
         }
       #endif
@@ -225,15 +224,14 @@ void Touch::touch(touch_control_t *control) {
       break;
 
     #if HAS_EXTRUDERS
-      case FLOWRATE:
+      case FLOWRATE: {
+        const uint8_t e = control->data;
         ui.clear_for_drawing();
-        MenuItemBase::itemIndex = control->data;
-        #if EXTRUDERS == 1
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #else
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #endif
-        break;
+        MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_EXTRUDER, MSG_FLOW_N, MSG_FLOW)),
+          &planner.flow_percentage[e], FLOW_EDIT_MIN, FLOW_EDIT_MAX,
+          [e]{ planner.refresh_e_factor(e); }
+        );
+      } break;
     #endif
 
     case STOP:

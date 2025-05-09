@@ -66,13 +66,13 @@ static void _change_filament_with_temp(const uint16_t celsius) {
 }
 
 #if HAS_PREHEAT
-  static void _change_filament_with_preset() {
-    _change_filament_with_temp(ui.material_preset[MenuItemBase::itemIndex].hotend_temp);
+  static void _change_filament_with_preset(const uint8_t m) {
+    _change_filament_with_temp(ui.material_preset[m].hotend_temp);
   }
 #endif
 
-static void _change_filament_with_custom() {
-  _change_filament_with_temp(thermalManager.degTargetHotend(MenuItemBase::itemIndex));
+static void _change_filament_with_custom(const int8_t extruder) {
+  _change_filament_with_temp(thermalManager.degTargetHotend(extruder));
 }
 
 //
@@ -91,20 +91,18 @@ inline FSTR_P change_filament_header(const PauseMode mode) {
 void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
   _change_filament_extruder = extruder;
-  const int8_t old_index = MenuItemBase::itemIndex;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_F(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if HAS_PREHEAT
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
-      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
+      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, [m]{ _change_filament_with_preset(m); });
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
     EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
-    _change_filament_with_custom
+    [extruder]{ _change_filament_with_custom(extruder); }
   );
   END_MENU();
-  MenuItemBase::itemIndex = old_index;
 }
 
 /**
@@ -143,12 +141,12 @@ void menu_change_filament() {
       FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
       for (uint8_t s = 0; s < E_STEPPERS; ++s) {
         if (thermalManager.targetTooColdToExtrude(s))
-          SUBMENU_N_F(s, fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
+          SUBMENU_N_F(s, fmsg, [s]{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, s); });
         else {
-          ACTION_ITEM_N_F(s, fmsg, []{
+          ACTION_ITEM_N_F(s, fmsg, [s]{
             PGM_P const cmdpstr = PSTR("M600 B0 T%i");
             char cmd[strlen_P(cmdpstr) + 3 + 1];
-            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
+            sprintf_P(cmd, cmdpstr, int(s));
             queue.inject(cmd);
           });
         }
@@ -168,11 +166,11 @@ void menu_change_filament() {
           FSTR_P const msg_load = GET_TEXT_F(MSG_FILAMENTLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
             if (thermalManager.targetTooColdToExtrude(s))
-              SUBMENU_N_F(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
+              SUBMENU_N_F(s, msg_load, [s]{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, s); });
             else {
-              ACTION_ITEM_N_F(s, msg_load, []{
+              ACTION_ITEM_N_F(s, msg_load, [s]{
                 char cmd[12];
-                sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
+                sprintf_P(cmd, PSTR("M701 T%i"), int(s));
                 queue.inject(cmd);
               });
             }
@@ -196,11 +194,11 @@ void menu_change_filament() {
           FSTR_P const msg_unload = GET_TEXT_F(MSG_FILAMENTUNLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
             if (thermalManager.targetTooColdToExtrude(s))
-              SUBMENU_N_F(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
+              SUBMENU_N_F(s, msg_unload, [s]{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, s); });
             else {
-              ACTION_ITEM_N_F(s, msg_unload, []{
+              ACTION_ITEM_N_F(s, msg_unload, [s]{
                 char cmd[12];
-                sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
+                sprintf_P(cmd, PSTR("M702 T%i"), int(s));
                 queue.inject(cmd);
               });
             }

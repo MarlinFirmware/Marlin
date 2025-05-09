@@ -33,8 +33,7 @@
 
 #include "../../feature/cancel_object.h"
 
-static void lcd_cancel_object_confirm() {
-  const int8_t v = MenuItemBase::itemIndex;
+static void lcd_cancel_object_confirm(const int8_t v) {
   const char item_num[] = {
     ' ',
     char((v > 9) ? '0' + (v / 10) : ' '),
@@ -42,8 +41,8 @@ static void lcd_cancel_object_confirm() {
     '\0'
   };
   MenuItem_confirm::confirm_screen(
-    []{
-      cancelable.cancel_object(MenuItemBase::itemIndex);
+    [v]{
+      cancelable.cancel_object(v);
       ui.completion_feedback();
       ui.goto_previous_screen();
     },
@@ -63,7 +62,7 @@ void menu_cancelobject() {
     if (i == ao) continue;                                          // Active is drawn on -1 index
     const int8_t j = i < 0 ? ao : i;                                // Active or index item
     if (!cancelable.is_canceled(j)) {                               // Not canceled already?
-      SUBMENU_N(j, MSG_CANCEL_OBJECT_N, lcd_cancel_object_confirm); // Offer the option.
+      SUBMENU_N(j, MSG_CANCEL_OBJECT_N, [j]{ lcd_cancel_object_confirm(j); }); // Offer the option.
       if (i < 0) SKIP_ITEM();                                       // Extra line after active
     }
   }
