@@ -748,10 +748,11 @@ void menu_advanced_settings() {
   #endif
 
   #if HAS_ADV_FILAMENT_MENU
-    SUBMENU(MSG_FILAMENT, menu_advanced_filament);
-  #endif
 
-  #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
+    SUBMENU(MSG_FILAMENT, menu_advanced_filament);
+
+  #elif ENABLED(LIN_ADVANCE)
+
     #if DISABLED(DISTINCT_E_FACTORS)
       editable.decimal = planner.get_advance_k();
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
@@ -772,7 +773,8 @@ void menu_advanced_settings() {
         }
       #endif
     #endif
-  #endif
+
+  #endif // LIN_ADVANCE && !HAS_ADV_FILAMENT_MENU
 
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
