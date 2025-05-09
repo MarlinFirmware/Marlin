@@ -33,38 +33,35 @@
   #include "../../module/temperature.h"
 #endif
 
-static void config_prefix(PGM_P const name, PGM_P const pref=nullptr, const int8_t ind=-1) {
+#include <cstddef>
+
+struct ProgStr {
+  PGM_P ptr;
+  constexpr ProgStr(PGM_P p) : ptr(p) {}
+  ProgStr(FSTR_P f) : ptr(FTOP(f)) {}
+  ProgStr(std::nullptr_t) : ptr(nullptr) {}
+
+  constexpr operator PGM_P() const { return ptr; }
+  constexpr explicit operator bool() const { return ptr != nullptr; }
+};
+
+static void config_prefix(ProgStr name, ProgStr pref=nullptr, int8_t ind=-1) {
   SERIAL_ECHOPGM("Config:");
   if (pref) SERIAL_ECHOPGM_P(pref);
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
   SERIAL_ECHOPGM_P(name, C(':'));
 }
+
 template<typename T>
-static void config_line(PGM_P const name, const T val, PGM_P const pref=nullptr, const int8_t ind=-1) {
+static void config_line(ProgStr name, const T val, ProgStr pref=nullptr, int8_t ind=-1) {
   config_prefix(name, pref, ind);
   SERIAL_ECHOLN(val);
 }
+
 template<typename T>
-static void config_line(FSTR_P const name, const T val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
-  config_line(FTOP(name), val, FTOP(pref), ind);
-}
-template<typename T>
-static void config_line(PGM_P const name, const T val, FSTR_P const pref=nullptr, const int8_t ind=-1) {
-  config_line(name, val, FTOP(pref), ind);
-}
-template<typename T>
-static void config_line(FSTR_P const name, const T val, PGM_P const pref=nullptr, const int8_t ind=-1) {
-  config_line(FTOP(name), val, pref, ind);
-}
-template<typename T>
-static void config_line_e(const int8_t e, PGM_P const name, const T val) {
+static void config_line_e(int8_t e, ProgStr name, const T val) {
   config_line(name, val, PSTR("Extr."), e + 1);
 }
-template<typename T>
-static void config_line_e(const int8_t e, FSTR_P const name, const T val) {
-  config_line_e(e, FTOP(name), val);
-}
-
 /**
  * M360: Report Firmware configuration
  *       in RepRapFirmware-compatible format
