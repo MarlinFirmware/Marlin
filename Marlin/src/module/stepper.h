@@ -358,8 +358,8 @@ class Stepper {
         extruder_advance_tau[i] = tau;
         extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
         // α=1−exp(−dt/τ)
-        const float alpha_float = 1.0f - expf(-((float)SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
-        extruder_advance_alpha_q30[i] = (int32_t)(alpha_float * (1UL << 30));
+        const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
+        extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
       }
       static float get_advance_tau(const uint8_t e=active_extruder) {
         return extruder_advance_tau[E_INDEX_N(e)];
