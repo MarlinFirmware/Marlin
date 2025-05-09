@@ -60,7 +60,8 @@ void GcodeSuite::M900() {
     }
   #endif
 
-  float oldK = planner.get_advance_k(E_INDEX_N(tool_index)), newK = oldK;
+  const float oldK = planner.get_advance_k(E_INDEX_N(tool_index));
+  float newK = oldK;
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     const float oldU = stepper.get_advance_tau(E_INDEX_N(tool_index));
