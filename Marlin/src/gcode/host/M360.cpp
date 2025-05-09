@@ -47,9 +47,9 @@ struct ProgStr {
 
 static void config_prefix(ProgStr name, ProgStr pref=nullptr, int8_t ind=-1) {
   SERIAL_ECHOPGM("Config:");
-  if (pref) SERIAL_ECHOPGM_P(pref);
+  if (pref) SERIAL_ECHOPGM_P(static_cast<PGM_P>(pref));
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
-  SERIAL_ECHOPGM_P(name, C(':'));
+  SERIAL_ECHOPGM_P(static_cast<PGM_P>(name), C(':'));
 }
 
 template<typename T>
@@ -130,7 +130,7 @@ void GcodeSuite::M360() {
   // XYZ Axis Jerk
   //
   #if ENABLED(CLASSIC_JERK)
-    #define _REPORT_JERK(Q), config_line(Q##_STR, planner.max_jerk.Q, JERK_STR);
+    #define _REPORT_JERK(Q) config_line(Q##_STR, planner.max_jerk.Q, JERK_STR);
     if (TERN0(HAS_Y_AXIS, planner.max_jerk.x == planner.max_jerk.y))
       config_line(F("XY"), planner.max_jerk.x, JERK_STR);
     else {
@@ -151,21 +151,21 @@ void GcodeSuite::M360() {
     PGMSTR(SPEED_STR, "Speed");
     // M10 Retract with swap (long) moves
     config_line(F("Length"),     fwretract.settings.retract_length, RET_STR);
-    config_line(SPEED_STR,       fwretract.settings.retract_feedrate, RET_STR);
     config_line(F("LongLength"), fwretract.settings.swap_retract_length, RET_STR);
+    config_line(SPEED_STR,       fwretract.settings.retract_feedrate_mm_s, RET_STR);
     config_line(F("ZLift"),      fwretract.settings.retract_zraise, RET_STR);
     // M11 Recover (undo) with swap (long) moves
-    config_line(F("ExtraLength"),     fwretract.settings.recover_extra, UNRET_STR);
-    config_line(SPEED_STR,            fwretract.settings.recover_feedrate, UNRET_STR);
-    config_line(F("ExtraLongLength"), fwretract.settings.swap_recover_extra, UNRET_STR);
-    config_line(F("LongSpeed"),       fwretract.settings.swap_recover_feedrate, UNRET_STR);
+    config_line(F("ExtraLength"),     fwretract.settings.retract_recover_extra, UNRET_STR);
+    config_line(F("ExtraLongLength"), fwretract.settings.swap_retract_recover_extra, UNRET_STR);
+    config_line(SPEED_STR,            fwretract.settings.retract_recover_feedrate_mm_s, UNRET_STR);
+    config_line(F("LongSpeed"),       fwretract.settings.swap_retract_recover_feedrate_mm_s, UNRET_STR);
   #endif
 
   //
   // Workspace boundaries
   //
-  const xyz_pos_t dmin = LOGICAL_AXIS_ARRAY( X_MIN_POS, Y_MIN_POS, Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
-                  dmax = LOGICAL_AXIS_ARRAY( X_MAX_POS, Y_MAX_POS, Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
+  const xyz_pos_t dmin = NUM_AXIS_ARRAY(X_MIN_POS, Y_MIN_POS, Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
+                  dmax = NUM_AXIS_ARRAY(X_MAX_POS, Y_MAX_POS, Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
   xyz_pos_t cmin = dmin, cmax = dmax;
   apply_motion_limits(cmin);
   apply_motion_limits(cmax);
