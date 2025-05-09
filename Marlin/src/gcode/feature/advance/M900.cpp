@@ -172,23 +172,17 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_LINEAR_ADVANCE));
-  #if DISTINCT_E < 2
+  DISTINCT_E_LOOP() {
     report_echo_start(forReplay);
-    SERIAL_ECHOPGM("  M900 K", planner.get_advance_k());
+    SERIAL_ECHOPGM("  M900 T", e);
+    #if DISTINCT_E > 1
+      SERIAL_ECHOPGM(" K", planner.get_advance_k(e));
+    #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      SERIAL_ECHOPGM("  M900 U", stepper.get_advance_tau());
+      SERIAL_ECHOPGM(" U", stepper.get_advance_tau(e));
     #endif
     SERIAL_EOL();
-  #else
-    EXTRUDER_LOOP() {
-      report_echo_start(forReplay);
-      SERIAL_ECHOPGM("  M900 T", e, " K", planner.get_advance_k(e));
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        SERIAL_ECHOPGM(" U", stepper.get_advance_tau(e));
-      #endif
-      SERIAL_EOL();
-    }
-  #endif
+  }
 }
 
 #endif // LIN_ADVANCE

@@ -2987,7 +2987,7 @@ hal_timer_t Stepper::block_phase_isr() {
       last_target_adv_steps = target_adv_steps;
 
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
-      
+
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
@@ -3013,11 +3013,11 @@ hal_timer_t Stepper::block_phase_isr() {
               TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
               TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
             });
-            
+
             first_pulse_rate = xy_long_t({
               TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
               TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
-            }); 
+            });
           }
         }
 
@@ -3025,7 +3025,7 @@ hal_timer_t Stepper::block_phase_isr() {
           TERN0(INPUT_SHAPING_X, (lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
           TERN0(INPUT_SHAPING_Y, (lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
         };
-        
+
         add_to_buffer(pre_shaping_rate);
 
         const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),

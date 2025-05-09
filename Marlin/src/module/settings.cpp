@@ -1561,7 +1561,7 @@ void MarlinSettings::postprocess() {
     {
       #if ENABLED(LIN_ADVANCE)
         _FIELD_TEST(planner_extruder_advance_K);
-        EXTRUDER_LOOP() EEPROM_WRITE(planner.get_advance_k(e));
+        EEPROM_WRITE(planner.extruder_advance_K);
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           _FIELD_TEST(stepper_extruder_advance_tau);
           EEPROM_WRITE(stepper.extruder_advance_tau);
@@ -2643,24 +2643,13 @@ void MarlinSettings::postprocess() {
         float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
-        if (!validating) {
-          #if ENABLED(DISTINCT_E_FACTORS)
-              EXTRUDER_LOOP() planner.set_advance_k(extruder_advance_K[e], e);
-          #else
-            planner.set_advance_k(extruder_advance_K[0]);
-          #endif
-        }
+        if (!validating) COPY(planner.extruder_advance_K, extruder_advance_K);
+
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           _FIELD_TEST(stepper_extruder_advance_tau);
           float tau[DISTINCT_E];
           EEPROM_READ(tau);
-          if (!validating) {
-            #if ENABLED(DISTINCT_E_FACTORS)
-              EXTRUDER_LOOP() stepper.set_advance_tau(tau[e], e);
-            #else
-              stepper.set_advance_tau(tau[0]);
-            #endif
-          }
+          if (!validating) COPY(stepper.extruder_advance_tau, tau);
         #endif
       }
       #endif

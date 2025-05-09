@@ -353,14 +353,17 @@ class Stepper {
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static void set_advance_tau(const_float_t tau, const uint8_t e=E_INDEX_N(active_extruder)) {
-        extruder_advance_tau[e] = tau;
-        extruder_advance_tau_ticks[e] = tau * STEPPER_TIMER_RATE;
+      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+        const uint8_t i = E_INDEX_N(e);
+        extruder_advance_tau[i] = tau;
+        extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
         // α=1−exp(−dt/τ)
-        float alpha_float = 1.0f - expf(-((float)SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[e]);
-        extruder_advance_alpha_q30[e] = (int32_t)(alpha_float * (1UL << 30));
+        const float alpha_float = 1.0f - expf(-((float)SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
+        extruder_advance_alpha_q30[i] = (int32_t)(alpha_float * (1UL << 30));
       }
-      static float get_advance_tau(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_tau[e]; }
+      static float get_advance_tau(const uint8_t e=active_extruder) {
+        return extruder_advance_tau[E_INDEX_N(e)];
+      }
     #endif
   private:
 
