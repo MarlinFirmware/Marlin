@@ -615,7 +615,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \
     editable.uint8 = thermalManager.fan_speed[F]; \
-    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update(F)); \
+    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, []{ on_fan_update(F); }); \
     EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.extra_fan_speed[F].speed, 3, 255); \
   }while(0)
 

@@ -43,12 +43,11 @@
 // Change Filament > Change/Unload/Load Filament
 //
 static PauseMode _change_filament_mode; // = PAUSE_MODE_PAUSE_PRINT
-static int8_t _change_filament_extruder; // = 0
 
-inline FSTR_P _change_filament_command() {
+inline FSTR_P _change_filament_command(const int8_t extruder) {
   switch (_change_filament_mode) {
     case PAUSE_MODE_LOAD_FILAMENT:    return F("M701 T%d");
-    case PAUSE_MODE_UNLOAD_FILAMENT:  return _change_filament_extruder >= 0
+    case PAUSE_MODE_UNLOAD_FILAMENT:  return extruder >= 0
                                            ? F("M702 T%d") : F("M702 ;%d");
     case PAUSE_MODE_CHANGE_FILAMENT:
     case PAUSE_MODE_PAUSE_PRINT:
@@ -58,21 +57,21 @@ inline FSTR_P _change_filament_command() {
 }
 
 // Initiate Filament Load/Unload/Change at the specified temperature
-static void _change_filament_with_temp(const uint16_t celsius) {
+static void _change_filament_with_temp(const uint16_t celsius, const int8_t e) {
   char cmd[11];
-  sprintf_P(cmd, FTOP(_change_filament_command()), _change_filament_extruder);
-  thermalManager.setTargetHotend(celsius, _change_filament_extruder);
+  sprintf_P(cmd, FTOP(_change_filament_command(e)), e);
+  thermalManager.setTargetHotend(celsius, e);
   queue.inject(cmd);
 }
 
 #if HAS_PREHEAT
-  static void _change_filament_with_preset(const uint8_t m) {
-    _change_filament_with_temp(ui.material_preset[m].hotend_temp);
+  static void _change_filament_with_preset(const uint8_t m, const int8_t e) {
+    _change_filament_with_temp(ui.material_preset[m].hotend_temp, e);
   }
 #endif
 
-static void _change_filament_with_custom(const int8_t extruder) {
-  _change_filament_with_temp(thermalManager.degTargetHotend(extruder));
+static void _change_filament_with_custom(const int8_t e) {
+  _change_filament_with_temp(thermalManager.degTargetHotend(e), e);
 }
 
 //
@@ -88,19 +87,18 @@ inline FSTR_P change_filament_header(const PauseMode mode) {
   return GET_TEXT_F(MSG_FILAMENTCHANGE);
 }
 
-void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
+void _menu_temp_filament_op(const PauseMode mode, const int8_t e) {
   _change_filament_mode = mode;
-  _change_filament_extruder = extruder;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_F(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if HAS_PREHEAT
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
-      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, [m]{ _change_filament_with_preset(m); });
+      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, [m,e]{ _change_filament_with_preset(m,e); });
   #endif
-  EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
-    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
-    [extruder]{ _change_filament_with_custom(extruder); }
+  EDIT_ITEM_FAST_N(int3, e, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[e].target,
+    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(e),
+    [e]{ _change_filament_with_custom(e); }
   );
   END_MENU();
 }
