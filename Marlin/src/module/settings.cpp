@@ -3746,28 +3746,34 @@ void MarlinSettings::reset() {
   //
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(DISTINCT_E_FACTORS)
+
       constexpr float linAdvanceK[] = ADVANCE_K;
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        constexpr float linAdvanceTau[] = ADVANCE_TAU;
+      #endif
+
       EXTRUDER_LOOP() {
-        const float a = linAdvanceK[_MAX(uint8_t(e), COUNT(linAdvanceK) - 1)];
-        planner.set_advance_k(a, e);
+        const float k = linAdvanceK[_MAX(uint8_t(e), COUNT(linAdvanceK) - 1)];
+        planner.set_advance_k(k, e);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          const float t = linAdvanceTau[_MAX(uint8_t(e), COUNT(linAdvanceTau) - 1)];
+          stepper.set_advance_tau(t, e);
+        #endif
         TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
       }
-    #else
+
+    #else // !DISTINCT_E_FACTORS
+
       planner.set_advance_k(ADVANCE_K);
       #if ENABLED(ADVANCE_K_EXTRA)
         EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
       #endif
-    #endif
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      #if ENABLED(DISTINCT_E_FACTORS)
-        constexpr float linAdvanceTau[] = ADVANCE_TAU;
-        EXTRUDER_LOOP()
-          stepper.set_advance_tau(linAdvanceTau[_MAX(uint8_t(e), COUNT(linAdvanceTau) - 1)], e);
-      #else
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         stepper.set_advance_tau(ADVANCE_TAU);
       #endif
+
     #endif
-  #endif
+  #endif // LIN_ADVANCE
 
   //
   // Motor Current PWM
