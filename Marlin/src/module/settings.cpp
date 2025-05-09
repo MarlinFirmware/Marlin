@@ -3509,12 +3509,12 @@ void MarlinSettings::reset() {
   endstops.factory_reset();
 
   //
-  // Preheat parameters
+  // Material Presets
   //
   TERN_(HAS_PREHEAT, ui.reset_material_presets());
 
   //
-  // Temperature Manager reset
+  // Temperature Manager
   //
   thermalManager.factory_reset();
 

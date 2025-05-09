@@ -712,6 +712,9 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 void Temperature::factory_reset() {
+  //
+  // Hotend PID
+  //
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       constexpr float defKp[] =
@@ -771,15 +774,21 @@ void Temperature::factory_reset() {
     }
   #endif // PIDTEMP
 
+  //
   // PID Extrusion Scaling
+  //
   TERN_(PID_EXTRUSION_SCALING, lpq_len = 20); // Default last-position-queue size
 
+  //
   // Heated Bed PID
+  //
   #if ENABLED(PIDTEMPBED)
     temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
   #endif
 
+  //
   // Heated Chamber PID
+  //
   #if ENABLED(PIDTEMPCHAMBER)
     temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
   #endif
@@ -787,7 +796,7 @@ void Temperature::factory_reset() {
   // User-Defined Thermistors
   TERN_(HAS_USER_THERMISTORS, reset_user_thermistors());
 
-}
+} // factory_reset
 
 #if HAS_PID_HEATING
 

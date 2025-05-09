@@ -648,7 +648,7 @@ namespace ExtUI {
 
     void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-      planner.set_advance_k(constrain(value, 0, 10), E_INDEX_N(extruder - E0));
+        planner.set_advance_k(constrain(value, 0, 10), E_INDEX_N(extruder - E0));
     }
   #endif
 
