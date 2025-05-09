@@ -43,11 +43,12 @@
 // Change Filament > Change/Unload/Load Filament
 //
 static PauseMode _change_filament_mode; // = PAUSE_MODE_PAUSE_PRINT
+static int8_t _change_filament_extruder; // = 0
 
-inline FSTR_P _change_filament_command(const int8_t extruder) {
+inline FSTR_P _change_filament_command() {
   switch (_change_filament_mode) {
     case PAUSE_MODE_LOAD_FILAMENT:    return F("M701 T%d");
-    case PAUSE_MODE_UNLOAD_FILAMENT:  return extruder >= 0
+    case PAUSE_MODE_UNLOAD_FILAMENT:  return _change_filament_extruder >= 0
                                            ? F("M702 T%d") : F("M702 ;%d");
     case PAUSE_MODE_CHANGE_FILAMENT:
     case PAUSE_MODE_PAUSE_PRINT:
@@ -57,21 +58,21 @@ inline FSTR_P _change_filament_command(const int8_t extruder) {
 }
 
 // Initiate Filament Load/Unload/Change at the specified temperature
-static void _change_filament_with_temp(const uint16_t celsius, const int8_t e) {
+static void _change_filament_with_temp(const uint16_t celsius) {
   char cmd[11];
-  sprintf_P(cmd, FTOP(_change_filament_command(e)), e);
-  thermalManager.setTargetHotend(celsius, e);
+  sprintf_P(cmd, FTOP(_change_filament_command()), _change_filament_extruder);
+  thermalManager.setTargetHotend(celsius, _change_filament_extruder);
   queue.inject(cmd);
 }
 
 #if HAS_PREHEAT
-  static void _change_filament_with_preset(const uint8_t m, const int8_t e) {
-    _change_filament_with_temp(ui.material_preset[m].hotend_temp, e);
+  static void _change_filament_with_preset() {
+    _change_filament_with_temp(ui.material_preset[MenuItemBase::itemIndex].hotend_temp);
   }
 #endif
 
-static void _change_filament_with_custom(const int8_t e) {
-  _change_filament_with_temp(thermalManager.degTargetHotend(e), e);
+static void _change_filament_with_custom() {
+  _change_filament_with_temp(thermalManager.degTargetHotend(MenuItemBase::itemIndex));
 }
 
 //
@@ -87,20 +88,23 @@ inline FSTR_P change_filament_header(const PauseMode mode) {
   return GET_TEXT_F(MSG_FILAMENTCHANGE);
 }
 
-void _menu_temp_filament_op(const PauseMode mode, const int8_t e) {
+void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
+  _change_filament_extruder = extruder;
+  const int8_t old_index = MenuItemBase::itemIndex;
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_F(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if HAS_PREHEAT
     for (uint8_t m = 0; m < PREHEAT_COUNT; ++m)
-      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, [m,e]{ _change_filament_with_preset(m,e); });
+      ACTION_ITEM_N_f(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
-  EDIT_ITEM_FAST_N(int3, e, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[e].target,
-    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(e),
-    [e]{ _change_filament_with_custom(e); }
+  EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
+    EXTRUDE_MINTEMP, thermalManager.hotend_max_target(extruder),
+    _change_filament_with_custom
   );
   END_MENU();
+  MenuItemBase::itemIndex = old_index;
 }
 
 /**
@@ -139,12 +143,12 @@ void menu_change_filament() {
       FSTR_P const fmsg = GET_TEXT_F(MSG_FILAMENTCHANGE_E);
       for (uint8_t s = 0; s < E_STEPPERS; ++s) {
         if (thermalManager.targetTooColdToExtrude(s))
-          SUBMENU_N_F(s, fmsg, [s]{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, s); });
+          SUBMENU_N_F(s, fmsg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
-          ACTION_ITEM_N_F(s, fmsg, [s]{
+          ACTION_ITEM_N_F(s, fmsg, []{
             PGM_P const cmdpstr = PSTR("M600 B0 T%i");
             char cmd[strlen_P(cmdpstr) + 3 + 1];
-            sprintf_P(cmd, cmdpstr, int(s));
+            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
             queue.inject(cmd);
           });
         }
@@ -164,11 +168,11 @@ void menu_change_filament() {
           FSTR_P const msg_load = GET_TEXT_F(MSG_FILAMENTLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
             if (thermalManager.targetTooColdToExtrude(s))
-              SUBMENU_N_F(s, msg_load, [s]{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, s); });
+              SUBMENU_N_F(s, msg_load, []{ _menu_temp_filament_op(PAUSE_MODE_LOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
-              ACTION_ITEM_N_F(s, msg_load, [s]{
+              ACTION_ITEM_N_F(s, msg_load, []{
                 char cmd[12];
-                sprintf_P(cmd, PSTR("M701 T%i"), int(s));
+                sprintf_P(cmd, PSTR("M701 T%i"), int(MenuItemBase::itemIndex));
                 queue.inject(cmd);
               });
             }
@@ -192,11 +196,11 @@ void menu_change_filament() {
           FSTR_P const msg_unload = GET_TEXT_F(MSG_FILAMENTUNLOAD_E);
           for (uint8_t s = 0; s < E_STEPPERS; ++s) {
             if (thermalManager.targetTooColdToExtrude(s))
-              SUBMENU_N_F(s, msg_unload, [s]{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, s); });
+              SUBMENU_N_F(s, msg_unload, []{ _menu_temp_filament_op(PAUSE_MODE_UNLOAD_FILAMENT, MenuItemBase::itemIndex); });
             else {
-              ACTION_ITEM_N_F(s, msg_unload, [s]{
+              ACTION_ITEM_N_F(s, msg_unload, []{
                 char cmd[12];
-                sprintf_P(cmd, PSTR("M702 T%i"), int(s));
+                sprintf_P(cmd, PSTR("M702 T%i"), int(MenuItemBase::itemIndex));
                 queue.inject(cmd);
               });
             }

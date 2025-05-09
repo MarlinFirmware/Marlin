@@ -594,8 +594,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
   #include "../../module/temperature.h"
 
-  inline void on_fan_update(const uint8_t fan) {
-    thermalManager.set_fan_speed(fan, editable.uint8);
+  inline void on_fan_update() {
+    thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
     TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));
   }
 
@@ -615,7 +615,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
   #define _FAN_EDIT_ITEMS(F,L) do{ \
     editable.uint8 = thermalManager.fan_speed[F]; \
-    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, []{ on_fan_update(F); }); \
+    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
     EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.extra_fan_speed[F].speed, 3, 255); \
   }while(0)
 
@@ -629,7 +629,7 @@ class MenuItem_bool : public MenuEditItemBase {
     #define DEFINE_SINGLENOZZLE_ITEM() \
       auto singlenozzle_item = [&](const uint8_t f) { \
         editable.uint8 = thermalManager.singlenozzle_fan_speed[f]; \
-        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, [f] { on_fan_update(f); }); \
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update); \
       }
   #else
     #define DEFINE_SINGLENOZZLE_ITEM() NOOP

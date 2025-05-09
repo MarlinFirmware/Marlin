@@ -65,14 +65,14 @@
 
     // Indexed "Preheat ABC" and "Heat Bed" items
     #define PREHEAT_ITEMS(M,E) do{ \
-      ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_all(M, E); }); \
-      ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_END_E, []{ _preheat_end(M, E); }); \
+      ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_all(M, MenuItemBase::itemIndex); }); \
+      ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_END_E, []{ _preheat_end(M, MenuItemBase::itemIndex); }); \
     }while(0)
 
   #elif HAS_MULTI_HOTEND
 
     // No heated bed, so just indexed "Preheat ABC" items
-    #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_end(M, E); })
+    #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_f(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_end(M, MenuItemBase::itemIndex); })
 
   #endif
 
@@ -155,7 +155,7 @@ void menu_temperature() {
   #elif HAS_MULTI_HOTEND
     HOTEND_LOOP() {
       editable.celsius = thermalManager.temp_hotend[e].target;
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &editable.celsius, 0, thermalManager.hotend_max_target(e), [e]{ thermalManager.setTargetHotend(editable.celsius, e); });
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &editable.celsius, 0, thermalManager.hotend_max_target(e), []{ thermalManager.setTargetHotend(editable.celsius, MenuItemBase::itemIndex); });
     }
   #endif
 

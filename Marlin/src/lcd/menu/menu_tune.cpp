@@ -128,7 +128,7 @@ void menu_tune() {
     EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
   #elif HAS_MULTI_HOTEND
     HOTEND_LOOP()
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.hotend_max_target(e), [e]{ thermalManager.start_watching_hotend(e); });
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.hotend_max_target(e), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
@@ -207,7 +207,7 @@ void menu_tune() {
     // Flow En:
     #if HAS_MULTI_EXTRUDER
       EXTRUDER_LOOP()
-        EDIT_ITEM_N(int3, e, MSG_FLOW_N, &planner.flow_percentage[e], FLOW_EDIT_MIN, FLOW_EDIT_MAX, [e]{ planner.refresh_e_factor(e); });
+        EDIT_ITEM_N(int3, e, MSG_FLOW_N, &planner.flow_percentage[e], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif
   #endif
 
@@ -221,7 +221,7 @@ void menu_tune() {
     #else
       EXTRUDER_LOOP() {
         editable.decimal = planner.get_advance_k(e);
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, [e]{ planner.set_advance_k(editable.decimal, e); });
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
       }
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -231,7 +231,7 @@ void menu_tune() {
       #else
         EXTRUDER_LOOP() {
           editable.decimal = stepper.get_advance_tau(e);
-          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, [e]{ stepper.set_advance_tau(editable.decimal, e); });
+          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
         }
       #endif
     #endif
