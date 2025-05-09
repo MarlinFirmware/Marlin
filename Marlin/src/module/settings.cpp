@@ -200,9 +200,6 @@ typedef struct {     bool NUM_AXIS_LIST_(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1,
 
 #undef _EN_ITEM
 
-// Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
-
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
@@ -3619,23 +3616,18 @@ void MarlinSettings::reset() {
       #endif
 
       EXTRUDER_LOOP() {
-        const float k = linAdvanceK[_MAX(uint8_t(e), COUNT(linAdvanceK) - 1)];
+        const float k = linAdvanceK[ALIM(e, linAdvanceK)];
         planner.set_advance_k(k, e);
-        #if ENABLED(SMOOTH_LIN_ADVANCE)
-          const float t = linAdvanceTau[_MAX(uint8_t(e), COUNT(linAdvanceTau) - 1)];
-          stepper.set_advance_tau(t, e);
-        #endif
+        TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e));
         TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = k);
       }
 
     #else // !DISTINCT_E_FACTORS
 
       planner.set_advance_k(ADVANCE_K);
+      TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(ADVANCE_TAU));
       #if ENABLED(ADVANCE_K_EXTRA)
         EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
-      #endif
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        stepper.set_advance_tau(ADVANCE_TAU);
       #endif
 
     #endif
