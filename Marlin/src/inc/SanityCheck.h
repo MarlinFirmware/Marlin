@@ -3725,7 +3725,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  * Check per-axis initializers for errors
  */
 
-#define __PLUS_TEST(I,A) && (sanity_arr_##A[_MIN(I,signed(COUNT(sanity_arr_##A)-1))] > 0)
+#define __PLUS_TEST(I,A) && (sanity_arr_##A[ALIM(I,sanity_arr_##A)] > 0)
 #define _PLUS_TEST(A) (1 REPEAT2(14,__PLUS_TEST,A))
 #if HAS_MULTI_EXTRUDER
   #define _EXTRA_NOTE " (Did you forget to enable DISTINCT_E_FACTORS?)"

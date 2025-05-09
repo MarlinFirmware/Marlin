@@ -362,9 +362,8 @@ typedef struct PlannerSettings {
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     float axis_steps_per_mm[DISTINCT_AXES];
   #else
-    #define _DLIM(I) ALIM(I, _dasu)
-    #define _DASU(N) _dasu[_DLIM(N)],
-    #define _EASU(N) _dasu[_DLIM(E_AXIS + N)],
+    #define _DASU(N) _dasu[ALIM(N, _dasu)],
+    #define _EASU(N) _dasu[ALIM(E_AXIS + N, _dasu)],
     static constexpr float axis_steps_per_mm[DISTINCT_AXES] = {
       REPEAT(NUM_AXES, _DASU)
       TERN_(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
