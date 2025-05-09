@@ -2940,7 +2940,7 @@ hal_timer_t Stepper::block_phase_isr() {
     #endif // INPUT_SHAPING_E_SYNC
 
     int32_t lookahead(uint32_t stepper_ticks) {
-      for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
+      for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0.0f;
@@ -2976,7 +2976,7 @@ hal_timer_t Stepper::block_phase_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
         const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
-        target_adv_steps = MULT_Q(27, lookahead(stepper_ticks), Planner::get_advance_k_q27());
+        target_adv_steps = MULT_Q(27, lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
         curr_step_rate = 0;

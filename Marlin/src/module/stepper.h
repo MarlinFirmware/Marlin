@@ -353,6 +353,7 @@ class Stepper {
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
       static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
         const uint8_t i = E_INDEX_N(e);
         extruder_advance_tau[i] = tau;
@@ -365,6 +366,7 @@ class Stepper {
         return extruder_advance_tau[E_INDEX_N(e)];
       }
     #endif
+
   private:
 
     static block_t* current_block;        // A pointer to the block currently being traced
@@ -455,7 +457,6 @@ class Stepper {
       #if ENABLED(SMOOTH_LIN_ADVANCE)
         static uint32_t curr_timer_tick,                        // Current tick relative to block start
                         curr_step_rate;                         // Current motion step rate
-        static float  extruder_advance_tau[DISTINCT_E];         // Smoothing time; also the lookahead time of the smoother
         static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
                         extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
                                                                 // smoothing filter (calculated from tau)

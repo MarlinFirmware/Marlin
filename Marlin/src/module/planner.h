@@ -528,6 +528,7 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
+      static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
         extruder_advance_K[E_INDEX_N(e)] = k;
         #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -618,11 +619,8 @@ class Planner {
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_K[DISTINCT_E];
-      #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t extruder_advance_K_q27[DISTINCT_E];
-      #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static uint32_t extruder_advance_K_q27[DISTINCT_E];
     #endif
 
   public:
