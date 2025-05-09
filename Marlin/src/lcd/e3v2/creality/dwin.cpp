@@ -1437,7 +1437,7 @@ void hmiMoveDone(const AxisEnum axis) {
       #endif
 
       if (hmiValues.show_mode == -1) // Temperature
-        checkkey = ID_TemperatureID;
+        checkkey = ID_Temperature;
       else
         checkkey = ID_Tune;
       drawEditInteger3(temp_line, hmiValues.tempE);
@@ -1486,7 +1486,7 @@ void hmiMoveDone(const AxisEnum axis) {
           }
         #endif
       #endif
-      checkkey = hmiValues.show_mode == -1 ? ID_TemperatureID : ID_Tune;
+      checkkey = hmiValues.show_mode == -1 ? ID_Temperature : ID_Tune;
       drawEditInteger3(bed_line, hmiValues.tempBed);
       thermalManager.setTargetBed(hmiValues.tempBed);
       return;
@@ -1528,7 +1528,7 @@ void hmiMoveDone(const AxisEnum axis) {
           return;
         }
       #endif
-      checkkey = hmiValues.show_mode == -1 ? ID_TemperatureID : ID_Tune;
+      checkkey = hmiValues.show_mode == -1 ? ID_Temperature : ID_Tune;
       drawEditInteger3(fan_line, hmiValues.fanSpeed);
       thermalManager.set_fan_speed(0, hmiValues.fanSpeed);
       return;
@@ -1735,7 +1735,7 @@ void updateVariable() {
         drawEditInteger3(TUNE_CASE_FAN + MROWS - index_tune, _fanspeed);
     #endif
   }
-  else if (checkkey == ID_TemperatureID) {
+  else if (checkkey == ID_Temperature) {
     // Temperature page temperature update
     #if HAS_HOTEND
       if (_new_hotend_target) drawEditInteger3(TEMP_CASE_TEMP, _hotendtarget);
@@ -2754,7 +2754,7 @@ void hmiPrepare() {
       #if HAS_ZOFFSET_ITEM
         case PREPARE_CASE_ZOFF:
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-            checkkey = ID_HomeOffset;
+            checkkey = ID_ZOffset;
             hmiValues.show_mode = -4;
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(PREPARE_CASE_ZOFF + MROWS - index_prepare, hmiValues.offset_value, true);
@@ -2935,7 +2935,7 @@ void hmiControl() {
         gotoMainMenu();
         break;
       case CONTROL_CASE_TEMP:
-        checkkey = ID_TemperatureID;
+        checkkey = ID_Temperature;
         hmiValues.show_mode = -1;
         select_temp.reset();
         drawTemperatureMenu();
@@ -3055,7 +3055,7 @@ void hmiAxisMove() {
               return;
             }
           #endif
-          checkkey = ID_Extruder;
+          checkkey = ID_MoveE;
           hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
           drawEditSignedFloat3(4, hmiValues.moveScaled.e, true);
           encoderRate.enabled = true;
@@ -3844,7 +3844,7 @@ void hmiTune() {
       #if HAS_ZOFFSET_ITEM
         case TUNE_CASE_ZOFF: // Z-offset
           #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-            checkkey = ID_HomeOffset;
+            checkkey = ID_ZOffset;
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(TUNE_CASE_ZOFF + MROWS - index_tune, hmiValues.offset_value, true);
             encoderRate.enabled = true;
@@ -3878,7 +3878,7 @@ void hmiTune() {
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
       switch (select_PLA.now) {
         case CASE_BACK:
-          checkkey = ID_TemperatureID;
+          checkkey = ID_Temperature;
           select_temp.now = TEMP_CASE_PLA;
           hmiValues.show_mode = -1;
           drawTemperatureMenu();
@@ -3935,7 +3935,7 @@ void hmiTune() {
       else if (encoder_diffState == ENCODER_DIFF_ENTER) {
         switch (select_ABS.now) {
           case CASE_BACK:
-            checkkey = ID_TemperatureID;
+            checkkey = ID_Temperature;
             select_temp.now = TEMP_CASE_ABS;
             hmiValues.show_mode = -1;
             drawTemperatureMenu();
@@ -4008,34 +4008,36 @@ void hmiMaxAcceleration() {
   dwinUpdateLCD();
 }
 
-// Steps per mm
-void hmiStep() {
-  EncoderState encoder_diffState = get_encoder_state();
-  if (encoder_diffState == ENCODER_DIFF_NO) return;
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+  // Steps per mm
+  void hmiStep() {
+    EncoderState encoder_diffState = get_encoder_state();
+    if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-  // Avoid flicker by updating only the previous menu
-  if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_step.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_step.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_CCW) {
-    if (select_step.dec()) moveHighlight(-1, select_step.now);
-  }
-  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (WITHIN(select_step.now, 1, 4)) {
-      checkkey = ID_StepValue;
-      hmiFlag.step_axis = AxisEnum(select_step.now - 1);
-      hmiValues.maxStepScaled = planner.settings.axis_steps_per_mm[hmiFlag.step_axis] * MINUNITMULT;
-      drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
-      encoderRate.enabled = true;
+    // Avoid flicker by updating only the previous menu
+    if (encoder_diffState == ENCODER_DIFF_CW) {
+      if (select_step.inc(1 + 3 + ENABLED(HAS_HOTEND))) moveHighlight(1, select_step.now);
     }
-    else { // Back
-      checkkey = ID_Motion;
-      select_motion.now = MOTION_CASE_STEPS;
-      drawMotionMenu();
+    else if (encoder_diffState == ENCODER_DIFF_CCW) {
+      if (select_step.dec()) moveHighlight(-1, select_step.now);
     }
+    else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+      if (WITHIN(select_step.now, 1, 4)) {
+        checkkey = ID_StepValue;
+        hmiFlag.step_axis = AxisEnum(select_step.now - 1);
+        hmiValues.maxStepScaled = planner.settings.axis_steps_per_mm[hmiFlag.step_axis] * MINUNITMULT;
+        drawEditFloat3(select_step.now, hmiValues.maxStepScaled, true);
+        encoderRate.enabled = true;
+      }
+      else { // Back
+        checkkey = ID_Motion;
+        select_motion.now = MOTION_CASE_STEPS;
+        drawMotionMenu();
+      }
+    }
+    dwinUpdateLCD();
   }
-  dwinUpdateLCD();
-}
+#endif
 
 // Max Speed
 void hmiMaxSpeed() {
@@ -4259,9 +4261,10 @@ void dwinHandleScreen() {
     case ID_Control:        hmiControl(); break;
     case ID_Leveling:       break;
     case ID_PrintProcess:   hmiPrinting(); break;
+    case ID_PrintSpeed:     hmiPrintSpeed(); break;
     case ID_PrintWindow:    hmiPauseOrStop(); break;
     case ID_AxisMove:       hmiAxisMove(); break;
-    case ID_TemperatureID:  hmiTemperature(); break;
+    case ID_Temperature:    hmiTemperature(); break;
     case ID_Motion:         hmiMotion(); break;
     case ID_AdvSet:         hmiAdvSet(); break;
     #if HAS_HOME_OFFSET
@@ -4284,20 +4287,26 @@ void dwinHandleScreen() {
       #endif
     #endif
     case ID_MaxAcceleration: hmiMaxAcceleration(); break;
-    case ID_Step:           hmiStep(); break;
+    case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_Step:         hmiStep(); break;
+      case ID_StepValue:    hmiStepXYZE(); break;
+    #endif
     case ID_MaxSpeed:       hmiMaxSpeed(); break;
+    case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:      hmiMaxJerk(); break;
+      case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
     #endif
     case ID_MoveX:          hmiMoveX(); break;
     case ID_MoveY:          hmiMoveY(); break;
     case ID_MoveZ:          hmiMoveZ(); break;
     #if HAS_HOTEND
-      case ID_Extruder:     hmiMoveE(); break;
+      case ID_MoveE:        hmiMoveE(); break;
       case ID_ETemp:        hmiETemp(); break;
     #endif
     #if ANY(HAS_BED_PROBE, BABYSTEPPING)
-      case ID_HomeOffset:   hmiZoffset(); break;
+      case ID_ZOffset:      hmiZoffset(); break;
     #endif
     #if HAS_HEATED_BED
       case ID_BedTemp:      hmiBedTemp(); break;
@@ -4305,17 +4314,8 @@ void dwinHandleScreen() {
     #if HAS_PREHEAT && HAS_FAN
       case ID_FanSpeed:     hmiFanSpeed(); break;
     #endif
-    case ID_PrintSpeed:     hmiPrintSpeed(); break;
-    case ID_MaxSpeedValue:  hmiMaxFeedspeedXYZE(); break;
-    case ID_MaxAccelerationValue: hmiMaxAccelerationXYZE(); break;
     #if HAS_SPINDLE_ACCELERATION
       case ID_SpindleAccelerationValue: hmiSpindleAcceleration(); break;
-    #endif
-    #if ENABLED(CLASSIC_JERK)
-      case ID_MaxJerkValue: hmiMaxJerkXYZE(); break;
-    #endif
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-      case ID_StepValue:    hmiStepXYZE(); break;
     #endif
     default: break;
   }

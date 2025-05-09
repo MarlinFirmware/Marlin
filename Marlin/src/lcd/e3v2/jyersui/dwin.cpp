@@ -2352,17 +2352,27 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           else
             drawMenu(ID_HomeOffsets);
           break;
-        case MOTION_SPEED:
-          if (draw)
-            drawMenuItem(row, ICON_MaxSpeed, GET_TEXT_F(MSG_MAX_SPEED), nullptr, true);
-          else
-            drawMenu(ID_MaxSpeed);
-          break;
         case MOTION_ACCEL:
           if (draw)
             drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ACCELERATION), nullptr, true);
           else
             drawMenu(ID_MaxAcceleration);
+          break;
+
+        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+          case MOTION_STEPS:
+            if (draw)
+              drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
+            else
+              drawMenu(ID_Steps);
+            break;
+        #endif
+
+        case MOTION_SPEED:
+          if (draw)
+            drawMenuItem(row, ICON_MaxSpeed, GET_TEXT_F(MSG_MAX_SPEED), nullptr, true);
+          else
+            drawMenu(ID_MaxSpeed);
           break;
 
         #if ENABLED(CLASSIC_JERK)
@@ -2371,15 +2381,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_MaxJerk, GET_TEXT_F(MSG_JERK), nullptr, true);
             else
               drawMenu(ID_MaxJerk);
-            break;
-        #endif
-
-        #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-          case MOTION_STEPS:
-            if (draw)
-              drawMenuItem(row, ICON_Step, GET_TEXT_F(MSG_STEPS_PER_MM), nullptr, true);
-            else
-              drawMenu(ID_Steps);
             break;
         #endif
 
@@ -2439,6 +2440,127 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           break;
       }
       break;
+
+    case ID_MaxAcceleration:
+
+      #define ACCEL_BACK 0
+      #define ACCEL_X (ACCEL_BACK + ENABLED(HAS_X_AXIS))
+      #define ACCEL_Y (ACCEL_X + ENABLED(HAS_Y_AXIS))
+      #define ACCEL_Z (ACCEL_Y + ENABLED(HAS_Z_AXIS))
+      #define ACCEL_E (ACCEL_Z + ENABLED(HAS_HOTEND))
+      #define ACCEL_TOTAL ACCEL_E
+
+      switch (item) {
+        case ACCEL_BACK:
+          if (draw)
+            drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
+          else
+            drawMenu(ID_Motion, MOTION_ACCEL);
+          break;
+        #if HAS_X_AXIS
+          case ACCEL_X:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccX, GET_TEXT_F(MSG_AMAX_A));
+              drawFloat(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, ACCELERATION_UNIT);
+            }
+            else
+              modifyValue(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values.x, max_acceleration_edit_values.x, ACCELERATION_UNIT);
+            break;
+        #endif
+        #if HAS_Y_AXIS
+          case ACCEL_Y:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccY, GET_TEXT_F(MSG_AMAX_B));
+              drawFloat(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, ACCELERATION_UNIT);
+            }
+            else
+              modifyValue(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values.y, max_acceleration_edit_values.y, ACCELERATION_UNIT);
+            break;
+        #endif
+        #if HAS_Z_AXIS
+          case ACCEL_Z:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccZ, GET_TEXT_F(MSG_AMAX_C));
+              drawFloat(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, ACCELERATION_UNIT);
+            }
+            else
+              modifyValue(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values.z, max_acceleration_edit_values.z, ACCELERATION_UNIT);
+            break;
+        #endif
+        #if HAS_HOTEND
+          case ACCEL_E:
+            if (draw) {
+              drawMenuItem(row, ICON_MaxAccE, GET_TEXT_F(MSG_AMAX_E));
+              drawFloat(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, ACCELERATION_UNIT);
+            }
+            else
+              modifyValue(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values.e, max_acceleration_edit_values.e, ACCELERATION_UNIT);
+            break;
+        #endif
+      }
+      break;
+
+    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
+      case ID_Steps:
+
+        #define STEPS_BACK 0
+        #define STEPS_X (STEPS_BACK + ENABLED(HAS_X_AXIS))
+        #define STEPS_Y (STEPS_X + ENABLED(HAS_Y_AXIS))
+        #define STEPS_Z (STEPS_Y + ENABLED(HAS_Z_AXIS))
+        #define STEPS_E (STEPS_Z + ENABLED(HAS_HOTEND))
+        #define STEPS_TOTAL STEPS_E
+
+        switch (item) {
+          case STEPS_BACK:
+            if (draw)
+              drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
+            else
+              drawMenu(ID_Motion, MOTION_STEPS);
+            break;
+          #if HAS_X_AXIS
+            case STEPS_X:
+              if (draw) {
+                drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_A_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_Y_AXIS
+            case STEPS_Y:
+              if (draw) {
+                drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_B_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_Z_AXIS
+            case STEPS_Z:
+              if (draw) {
+                drawMenuItem(row, ICON_StepZ, GET_TEXT_F(MSG_C_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
+              break;
+          #endif
+          #if HAS_HOTEND
+            case STEPS_E:
+              if (draw) {
+                drawMenuItem(row, ICON_StepE, GET_TEXT_F(MSG_E_STEPS));
+                drawFloat(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
+              }
+              else
+                modifyValue(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
+              break;
+          #endif
+        }
+        break;
+    #endif // EDITABLE_STEPS_PER_UNIT
+
     case ID_MaxSpeed:
 
       #define SPEED_BACK 0
@@ -2501,64 +2623,6 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
       }
       break;
 
-    case ID_MaxAcceleration:
-
-      #define ACCEL_BACK 0
-      #define ACCEL_X (ACCEL_BACK + ENABLED(HAS_X_AXIS))
-      #define ACCEL_Y (ACCEL_X + ENABLED(HAS_Y_AXIS))
-      #define ACCEL_Z (ACCEL_Y + ENABLED(HAS_Z_AXIS))
-      #define ACCEL_E (ACCEL_Z + ENABLED(HAS_HOTEND))
-      #define ACCEL_TOTAL ACCEL_E
-
-      switch (item) {
-        case ACCEL_BACK:
-          if (draw)
-            drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
-          else
-            drawMenu(ID_Motion, MOTION_ACCEL);
-          break;
-        #if HAS_X_AXIS
-          case ACCEL_X:
-            if (draw) {
-              drawMenuItem(row, ICON_MaxAccX, GET_TEXT_F(MSG_AMAX_A));
-              drawFloat(planner.settings.max_acceleration_mm_per_s2[X_AXIS], row, false, ACCELERATION_UNIT);
-            }
-            else
-              modifyValue(planner.settings.max_acceleration_mm_per_s2[X_AXIS], min_acceleration_edit_values.x, max_acceleration_edit_values.x, ACCELERATION_UNIT);
-            break;
-        #endif
-        #if HAS_Y_AXIS
-          case ACCEL_Y:
-            if (draw) {
-              drawMenuItem(row, ICON_MaxAccY, GET_TEXT_F(MSG_AMAX_B));
-              drawFloat(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], row, false, ACCELERATION_UNIT);
-            }
-            else
-              modifyValue(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], min_acceleration_edit_values.y, max_acceleration_edit_values.y, ACCELERATION_UNIT);
-            break;
-        #endif
-        #if HAS_Z_AXIS
-          case ACCEL_Z:
-            if (draw) {
-              drawMenuItem(row, ICON_MaxAccZ, GET_TEXT_F(MSG_AMAX_C));
-              drawFloat(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], row, false, ACCELERATION_UNIT);
-            }
-            else
-              modifyValue(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], min_acceleration_edit_values.z, max_acceleration_edit_values.z, ACCELERATION_UNIT);
-            break;
-        #endif
-        #if HAS_HOTEND
-          case ACCEL_E:
-            if (draw) {
-              drawMenuItem(row, ICON_MaxAccE, GET_TEXT_F(MSG_AMAX_E));
-              drawFloat(planner.settings.max_acceleration_mm_per_s2[E_AXIS], row, false, ACCELERATION_UNIT);
-            }
-            else
-              modifyValue(planner.settings.max_acceleration_mm_per_s2[E_AXIS], min_acceleration_edit_values.e, max_acceleration_edit_values.e, ACCELERATION_UNIT);
-            break;
-        #endif
-      }
-      break;
     #if ENABLED(CLASSIC_JERK)
       case ID_MaxJerk:
 
@@ -2618,70 +2682,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           #endif
         }
         break;
-    #endif
-
-    #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-
-      case ID_Steps:
-
-        #define STEPS_BACK 0
-        #define STEPS_X (STEPS_BACK + ENABLED(HAS_X_AXIS))
-        #define STEPS_Y (STEPS_X + ENABLED(HAS_Y_AXIS))
-        #define STEPS_Z (STEPS_Y + ENABLED(HAS_Z_AXIS))
-        #define STEPS_E (STEPS_Z + ENABLED(HAS_HOTEND))
-        #define STEPS_TOTAL STEPS_E
-
-        switch (item) {
-          case STEPS_BACK:
-            if (draw)
-              drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
-            else
-              drawMenu(ID_Motion, MOTION_STEPS);
-            break;
-          #if HAS_X_AXIS
-            case STEPS_X:
-              if (draw) {
-                drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_A_STEPS));
-                drawFloat(planner.settings.axis_steps_per_mm[X_AXIS], row, false, STEPS_UNIT);
-              }
-              else
-                modifyValue(planner.settings.axis_steps_per_mm[X_AXIS], min_steps_edit_values.x, max_steps_edit_values.x, STEPS_UNIT);
-              break;
-          #endif
-          #if HAS_Y_AXIS
-            case STEPS_Y:
-              if (draw) {
-                drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_B_STEPS));
-                drawFloat(planner.settings.axis_steps_per_mm[Y_AXIS], row, false, STEPS_UNIT);
-              }
-              else
-                modifyValue(planner.settings.axis_steps_per_mm[Y_AXIS], min_steps_edit_values.y, max_steps_edit_values.y, STEPS_UNIT);
-              break;
-          #endif
-          #if HAS_Z_AXIS
-            case STEPS_Z:
-              if (draw) {
-                drawMenuItem(row, ICON_StepZ, GET_TEXT_F(MSG_C_STEPS));
-                drawFloat(planner.settings.axis_steps_per_mm[Z_AXIS], row, false, STEPS_UNIT);
-              }
-              else
-                modifyValue(planner.settings.axis_steps_per_mm[Z_AXIS], min_steps_edit_values.z, max_steps_edit_values.z, STEPS_UNIT);
-              break;
-          #endif
-          #if HAS_HOTEND
-            case STEPS_E:
-              if (draw) {
-                drawMenuItem(row, ICON_StepE, GET_TEXT_F(MSG_E_STEPS));
-                drawFloat(planner.settings.axis_steps_per_mm[E_AXIS], row, false, STEPS_UNIT);
-              }
-              else
-                modifyValue(planner.settings.axis_steps_per_mm[E_AXIS], min_steps_edit_values.e, max_steps_edit_values.e, STEPS_UNIT);
-              break;
-          #endif
-        }
-        break;
-
-    #endif // EDITABLE_STEPS_PER_UNIT
+    #endif // CLASSIC_JERK
 
     case ID_Visual:
 
@@ -4179,13 +4180,13 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
     #endif
     case ID_Motion:         return GET_TEXT_F(MSG_MOTION);
     case ID_HomeOffsets:    return GET_TEXT_F(MSG_SET_HOME_OFFSETS);
-    case ID_MaxSpeed:       return GET_TEXT_F(MSG_MAX_SPEED);
     case ID_MaxAcceleration: return F("Max Acceleration");
-    #if ENABLED(CLASSIC_JERK)
-      case ID_MaxJerk:      return F("Max Jerk");
-    #endif
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       case ID_Steps:        return GET_TEXT_F(MSG_STEPS_PER_MM);
+    #endif
+    case ID_MaxSpeed:       return GET_TEXT_F(MSG_MAX_SPEED);
+    #if ENABLED(CLASSIC_JERK)
+      case ID_MaxJerk:      return F("Max Jerk");
     #endif
     case ID_Visual:         return F("Visual Settings");
     case ID_Advanced:       return GET_TEXT_F(MSG_ADVANCED_SETTINGS);
@@ -4212,7 +4213,9 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
       case ID_ManualMesh:   return GET_TEXT_F(MSG_MANUAL_LEVELING);
     #endif
     case ID_Tune:           return GET_TEXT_F(MSG_TUNE);
-    case ID_PreheatHotend:  return GET_TEXT_F(MSG_PREHEAT_HOTEND);
+    #if HAS_PREHEAT && HAS_HOTEND
+      case ID_PreheatHotend:  return GET_TEXT_F(MSG_PREHEAT_HOTEND);
+    #endif
   }
   return F("");
 }
@@ -4258,13 +4261,13 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #endif
     case ID_Motion:         return MOTION_TOTAL;
     case ID_HomeOffsets:    return HOMEOFFSETS_TOTAL;
-    case ID_MaxSpeed:       return SPEED_TOTAL;
     case ID_MaxAcceleration: return ACCEL_TOTAL;
-    #if ENABLED(CLASSIC_JERK)
-      case ID_MaxJerk:      return JERK_TOTAL;
-    #endif
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       case ID_Steps:        return STEPS_TOTAL;
+    #endif
+    case ID_MaxSpeed:       return SPEED_TOTAL;
+    #if ENABLED(CLASSIC_JERK)
+      case ID_MaxJerk:      return JERK_TOTAL;
     #endif
     case ID_Visual:         return VISUAL_TOTAL;
     case ID_Advanced:       return ADVANCED_TOTAL;
@@ -4274,14 +4277,9 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
     #if HAS_TRINAMIC_CONFIG
       case ID_TMCMenu:      return TMC_TOTAL;
     #endif
+    case ID_ColorSettings:  return COLORSETTINGS_TOTAL;
     case ID_Info:           return INFO_TOTAL;
     case ID_InfoMain:       return INFO_TOTAL;
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
-      case ID_UBLMesh:      return UBL_M_TOTAL;
-    #endif
-    #if ENABLED(PROBE_MANUALLY)
-      case ID_ManualMesh:   return MMESH_TOTAL;
-    #endif
     #if HAS_MESH
       case ID_Leveling:     return LEVELING_TOTAL;
       case ID_LevelView:    return LEVELING_VIEW_TOTAL;
@@ -4289,13 +4287,16 @@ uint8_t JyersDWIN::getMenuSize(const uint8_t menu) {
       case ID_MeshViewer:   return MESHVIEW_TOTAL;
       case ID_LevelManual:  return LEVELING_M_TOTAL;
     #endif
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
+      case ID_UBLMesh:      return UBL_M_TOTAL;
+    #endif
+    #if ENABLED(PROBE_MANUALLY)
+      case ID_ManualMesh:   return MMESH_TOTAL;
+    #endif
     case ID_Tune:           return TUNE_TOTAL;
-
     #if HAS_PREHEAT && HAS_HOTEND
       case ID_PreheatHotend: return PREHEATHOTEND_TOTAL;
     #endif
-
-    case ID_ColorSettings:  return COLORSETTINGS_TOTAL;
   }
   return 0;
 }

@@ -98,10 +98,10 @@ enum menuID : uint8_t {
         #endif
       ID_Motion,
         ID_HomeOffsets,
-        ID_MaxSpeed,
         ID_MaxAcceleration,
-        ID_MaxJerk,
         OPTITEM(EDITABLE_STEPS_PER_UNIT, ID_Steps)
+        ID_MaxSpeed,
+        ID_MaxJerk,
       ID_Visual,
         ID_ColorSettings,
       ID_Advanced,
