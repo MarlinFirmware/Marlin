@@ -76,16 +76,16 @@ void GcodeSuite::M360() {
   config_line(F("Baudrate"),                    BAUDRATE);
   config_line(F("InputBuffer"),                 MAX_CMD_SIZE);
   config_line(F("PrintlineCache"),              BUFSIZE);
-  config_line(F("MixingExtruder"),              ENABLED(MIXING_EXTRUDER));
-  config_line(F("SDCard"),                      ENABLED(HAS_MEDIA));
-  config_line(F("Fan"),                         ENABLED(HAS_FAN));
-  config_line(F("LCD"),                         ENABLED(HAS_DISPLAY));
+  config_line(F("MixingExtruder"),              bool(ENABLED(MIXING_EXTRUDER)));
+  config_line(F("SDCard"),                      bool(ENABLED(HAS_MEDIA)));
+  config_line(F("Fan"),                         bool(ENABLED(HAS_FAN)));
+  config_line(F("LCD"),                         bool(ENABLED(HAS_DISPLAY)));
   config_line(F("SoftwarePowerSwitch"),         1);
-  config_line(F("SupportLocalFilamentchange"),  ENABLED(ADVANCED_PAUSE_FEATURE));
-  config_line(F("CaseLights"),                  ENABLED(CASE_LIGHT_ENABLE));
-  config_line(F("ZProbe"),                      ENABLED(HAS_BED_PROBE));
-  config_line(F("Autolevel"),                   ENABLED(HAS_LEVELING));
-  config_line(F("EEPROM"),                      ENABLED(EEPROM_SETTINGS));
+  config_line(F("SupportLocalFilamentchange"),  bool(ENABLED(ADVANCED_PAUSE_FEATURE)));
+  config_line(F("CaseLights"),                  bool(ENABLED(CASE_LIGHT_ENABLE)));
+  config_line(F("ZProbe"),                      bool(ENABLED(HAS_BED_PROBE)));
+  config_line(F("Autolevel"),                   bool(ENABLED(HAS_LEVELING)));
+  config_line(F("EEPROM"),                      bool(ENABLED(EEPROM_SETTINGS)));
 
   //
   // Axis letters, in PROGMEM
