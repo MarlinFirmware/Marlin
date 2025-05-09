@@ -3763,6 +3763,7 @@ void MarlinSettings::reset() {
       }
     #else
       planner.set_advance_k(ADVANCE_K);
+      TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[0] = ADVANCE_K);
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #if ENABLED(DISTINCT_E_FACTORS)
