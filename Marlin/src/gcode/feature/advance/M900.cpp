@@ -60,11 +60,11 @@ void GcodeSuite::M900() {
     }
   #endif
 
-  const float oldK = planner.get_advance_k(E_INDEX_N(tool_index));
+  const float oldK = planner.get_advance_k(tool_index);
   float newK = oldK;
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
-    const float oldU = stepper.get_advance_tau(E_INDEX_N(tool_index));
+    const float oldU = stepper.get_advance_tau(tool_index);
     float newU = oldU;
   #endif
 
@@ -123,9 +123,9 @@ void GcodeSuite::M900() {
 
   if (newK != oldK || TERN0(SMOOTH_LIN_ADVANCE, newU != oldU)) {
     planner.synchronize();
-    if (newK != oldK) planner.set_advance_k(newK, E_INDEX_N(tool_index));
+    if (newK != oldK) planner.set_advance_k(newK, tool_index);
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      if (newU != oldU) stepper.set_advance_tau(newU, E_INDEX_N(tool_index));
+      if (newU != oldU) stepper.set_advance_tau(newU, tool_index);
     #endif
   }
 
