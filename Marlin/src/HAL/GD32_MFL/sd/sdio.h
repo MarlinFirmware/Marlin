@@ -1,7 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2019 BigTreeTech [https://github.com/bigtreetech]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -22,12 +21,16 @@
  */
 #pragma once
 
-#include <USBComposite.h>
+#include <SDIO.hpp>
+#include <DMA.hpp>
 
-#include "../../inc/MarlinConfigPre.h"
-#include "../../core/serial_hook.h"
+#define SDIO_D0_PIN   PC8
+#define SDIO_D1_PIN   PC9
+#define SDIO_D2_PIN   PC10
+#define SDIO_D3_PIN   PC11
+#define SDIO_CK_PIN   PC12
+#define SDIO_CMD_PIN  PD2
 
-extern USBMassStorage MarlinMSC;
-extern Serial1Class<USBCompositeSerial> MarlinCompositeSerial;
-
-void MSC_SD_init();
+void sdio_mfl_init();
+auto SDIO_SetBusWidth(sdio::Bus_Width width) -> bool;
+void DMA1_IRQHandler(dma::DMA_Channel channel);

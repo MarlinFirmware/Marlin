@@ -101,29 +101,27 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
     }
 };
 
-#if HAS_MULTI_VOLUME
-  void menu_media_select() {
-    START_MENU();
-    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
-    #if HAS_SDCARD
-      ACTION_ITEM(MSG_SD_CARD,  []{ card.selectMediaSDCard();     card.mount(); ui.goto_screen(menu_file_selector); });
-    #endif
-    #if HAS_USB_FLASH_DRIVE
-      ACTION_ITEM(MSG_USB_DISK, []{ card.selectMediaFlashDrive(); card.mount(); ui.goto_screen(menu_file_selector); });
-    #endif
-    END_MENU();
+// Shortcut menu items to go directly to inserted — not necessarily mounted — drives
+void menu_file_selector_sd() {
+  if (!card.isSDCardSelected()) {
+    card.release();
+    card.selectMediaSDCard();
   }
-#endif
-
-/**
- * "Select From Media" menu item. Depending on single or multiple drives:
- *   - menu_file_selector - List files on the current media
- *   - menu_media_select  - Select one of the attached drives, then go to the file list
- */
-void menu_media() {
-  ui.goto_screen(TERN(HAS_MULTI_VOLUME, menu_media_select, menu_file_selector));
+  if (!card.isSDCardMounted()) card.mount();
+  ui.goto_screen(menu_file_selector);
 }
 
+// Shortcut menu items to go directly to inserted — not necessarily mounted — drives
+void menu_file_selector_usb() {
+  if (!card.isFlashDriveSelected()) {
+    card.release();
+    card.selectMediaFlashDrive();
+  }
+  if (!card.isFlashDriveMounted()) card.mount();
+  ui.goto_screen(menu_file_selector);
+}
+
+// Shortcut menu items to go directly to inserted — not necessarily mounted — drives
 void menu_file_selector() {
   ui.encoder_direction_menus();
 
@@ -135,11 +133,9 @@ void menu_file_selector() {
   #endif
 
   START_MENU();
-  #if HAS_MULTI_VOLUME
-    ACTION_ITEM(MSG_BACK, []{ ui.goto_screen(menu_media_select); });
-  #else
-    BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
-  #endif
+
+  BACK_ITEM_F(TERN1(BROWSE_MEDIA_ON_INSERT, screen_history_depth) ? GET_TEXT_F(MSG_MAIN_MENU) : GET_TEXT_F(MSG_BACK));
+
   if (card.flag.workDirIsRoot) {
     #if !HAS_SD_DETECT
       ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });

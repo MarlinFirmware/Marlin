@@ -1938,6 +1938,9 @@
     //#define CUSTOM_FIRMWARE_UPLOAD
   #endif
 
+  // "Over-the-air" Firmware Update with M936 - Required to set EEPROM flag
+  //#define OTA_FIRMWARE_UPDATE
+
   /**
    * Set this option to one of the following (or the board's defaults apply):
    *
@@ -1960,7 +1963,8 @@
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
     #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_SHARED_VOLUME SV_USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
 #endif // HAS_MEDIA

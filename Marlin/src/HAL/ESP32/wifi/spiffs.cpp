@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,18 +19,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifdef ARDUINO_ARCH_ESP32
 
-#include <SDIO.hpp>
-#include <DMA.hpp>
+#include "../../../inc/MarlinConfigPre.h"
 
-#define SDIO_D0_PIN   PC8
-#define SDIO_D1_PIN   PC9
-#define SDIO_D2_PIN   PC10
-#define SDIO_D3_PIN   PC11
-#define SDIO_CK_PIN   PC12
-#define SDIO_CMD_PIN  PD2
+#if ALL(WIFISUPPORT, WEBSUPPORT)
 
-void sdio_mfl_init();
-bool SDIO_SetBusWidth(sdio::Bus_Width width);
-void DMA1_IRQHandler(dma::DMA_Channel channel);
+#include "../../../core/serial.h"
+
+#include <FS.h>
+#include <SPIFFS.h>
+
+bool spiffs_initialized;
+
+void spiffs_init() {
+  if (SPIFFS.begin(true))  // formatOnFail = true
+    spiffs_initialized = true;
+  else
+    SERIAL_ERROR_MSG("SPIFFS mount failed");
+}
+
+#endif // WIFISUPPORT && WEBSUPPORT
+#endif // ARDUINO_ARCH_ESP32

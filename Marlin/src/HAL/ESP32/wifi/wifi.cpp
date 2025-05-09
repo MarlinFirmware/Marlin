@@ -21,11 +21,11 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
 
-#include "../../core/serial.h"
+#include "../../../core/serial.h"
 
 #include <WiFi.h>
 #include <ESPmDNS.h>

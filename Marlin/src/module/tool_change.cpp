@@ -1415,6 +1415,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #endif
 
     } // (new_tool != old_tool)
+    else {
+      // For switching-nozzle-with-servos you may have manually-edited servo angles
+      // or other functions that can affect angles. So here we ensure a T# command
+      // restores active tool position even when recalling the same tool.
+      TERN_(SWITCHING_NOZZLE_TWO_SERVOS, lower_nozzle(new_tool));
+    }
 
     planner.synchronize();
 

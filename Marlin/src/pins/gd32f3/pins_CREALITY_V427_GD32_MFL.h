@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,29 +19,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_ESP32
+#pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+/**
+ * Creality MFL GD32 V4.2.7 (GD32F303RE) board pin assignments
+ */
 
-#if ALL(WIFISUPPORT, WEBSUPPORT)
+#define ALLOW_GD32F3
 
-#include "../../inc/MarlinConfig.h"
+#define BOARD_INFO_NAME      "Creality V4.2.7 MFL"
+#define DEFAULT_MACHINE_NAME "Creality3D MFL"
 
-#undef DISABLED  // esp32-hal-gpio.h
-#include <SPIFFS.h>
-#include "wifi.h"
+//
+// Steppers
+//
+#define X_STEP_PIN                          PB9
+#define X_DIR_PIN                           PC2
 
-AsyncEventSource events("/events"); // event source (Server-Sent events)
+#define Y_STEP_PIN                          PB7
+#define Y_DIR_PIN                           PB8
 
-void onNotFound(AsyncWebServerRequest *request) {
-  request->send(404);
-}
+#define Z_STEP_PIN                          PB5
+#define Z_DIR_PIN                           PB6
 
-void web_init() {
-  server.addHandler(&events);       // attach AsyncEventSource
-  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-  server.onNotFound(onNotFound);
-}
+#define E0_STEP_PIN                         PB3
+#define E0_DIR_PIN                          PB4
 
-#endif // WIFISUPPORT && WEBSUPPORT
-#endif // ARDUINO_ARCH_ESP32
+#include "../stm32f1/pins_CREALITY_V4.h"

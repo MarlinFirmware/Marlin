@@ -19,11 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_STM32F1
+#ifdef __STM32F1__
 
 #include <libmaple/stm32.h>
 
-#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
+#include "../../../inc/MarlinConfig.h" // Allow pins/pins.h to set density
 
 #if ANY(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
 
@@ -308,4 +308,4 @@ bool SDIO_GetCmdResp7() {
 }
 
 #endif // STM32_HIGH_DENSITY || STM32_XL_DENSITY
-#endif // ARDUINO_ARCH_STM32F1
+#endif // __STM32F1__

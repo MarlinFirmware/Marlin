@@ -22,20 +22,21 @@
  */
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_SD_HOST_DRIVE
 
 #include "msc_sd.h"
-#include "SPI.h"
-#include "usb_reg_map.h"
+#include "../SPI.h"
+
+#include <usb_reg_map.h>
 
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
 Serial1Class<USBCompositeSerial> MarlinCompositeSerial(true);
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if SD_CONNECTION_IS(ONBOARD)
 

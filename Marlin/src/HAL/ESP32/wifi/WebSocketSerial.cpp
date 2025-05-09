@@ -21,7 +21,7 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
 

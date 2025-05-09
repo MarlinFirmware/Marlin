@@ -84,10 +84,10 @@
 #elif ENABLED(USE_OTG_USB_HOST)
 
   #if HAS_SD_HOST_DRIVE
-    #include HAL_PATH(../.., msc_sd.h)
+    #include HAL_PATH(../.., sd/msc_sd.h)
   #endif
 
-  #include HAL_PATH(../.., usb_host.h)
+  #include HAL_PATH(../.., sd/usb_host.h)
 
   #define UHS_START usb.start()
   #define rREVISION 0
@@ -293,7 +293,7 @@ uint32_t DiskIODriver_USBFlash::cardSize() {
   #if USB_DEBUG < 3
     const uint32_t
   #endif
-      lun0_capacity = bulk.GetCapacity(0);
+  lun0_capacity = bulk.GetCapacity(0);
   return lun0_capacity;
 }
 

@@ -574,10 +574,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Obj");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Obj {");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Continue Job");
-  LSTR MSG_MEDIA_MENU                     = MEDIA_TYPE_EN _UxGT(" Print");
   LSTR MSG_TURN_OFF                       = _UxGT("Turn off now");
   LSTR MSG_END_LOOPS                      = _UxGT("End Loops");
-  LSTR MSG_NO_MEDIA                       = _UxGT("No ") MEDIA_TYPE_EN;
   LSTR MSG_DWELL                          = _UxGT("Sleep...");
   LSTR MSG_USERWAIT                       = _UxGT("Click to Resume...");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Print Paused");
@@ -641,6 +639,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Run Autofiles");
   LSTR MSG_RUN_AUTOFILES_SD               = _UxGT("Run SD Autofiles");
   LSTR MSG_RUN_AUTOFILES_USB              = _UxGT("Run USB Autofiles");
+  LSTR MSG_MEDIA_MENU                     = MEDIA_TYPE_EN _UxGT(" Print");
+  LSTR MSG_MEDIA_MENU_SD                  = _UxGT("Select from SD");
+  LSTR MSG_MEDIA_MENU_USB                 = _UxGT("Select from USB");
+  LSTR MSG_NO_MEDIA                       = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Detected");
 
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
@@ -1130,6 +1132,9 @@ namespace LanguageWide_en {
     LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Object {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continue Print Job");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Select from ") MEDIA_TYPE_EN;
+    LSTR MSG_MEDIA_MENU_SD                = _UxGT("Select from SD Card");
+    LSTR MSG_MEDIA_MENU_USB               = _UxGT("Select from USB Drive");
+    LSTR MSG_NO_MEDIA                     = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Found");
     LSTR MSG_TURN_OFF                     = _UxGT("Turn off the printer");
     LSTR MSG_END_LOOPS                    = _UxGT("End Repeat Loops");
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");          // ProUI

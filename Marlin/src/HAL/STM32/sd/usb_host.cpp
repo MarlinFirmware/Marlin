@@ -20,18 +20,17 @@
  *
  */
 
-#include "../platforms.h"
+#include "../../platforms.h"
 
 #ifdef HAL_STM32
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ALL(USE_OTG_USB_HOST, USBHOST)
 
 #include "usb_host.h"
-#include "../shared/Marduino.h"
-#include "usbh_core.h"
-#include "usbh_msc.h"
+#include <usbh_core.h>
+#include <usbh_msc.h>
 
 USBH_HandleTypeDef hUsbHost;
 USBHost usb;

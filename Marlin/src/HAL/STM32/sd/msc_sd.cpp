@@ -20,20 +20,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
+#include "../../platforms.h"
 
 #ifdef HAL_STM32
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if HAS_SD_HOST_DRIVE
 
-#include "../shared/Marduino.h"
+#include "../../../sd/cardreader.h"
+
 #include "msc_sd.h"
-#include "usbd_core.h"
 
-#include "../../sd/cardreader.h"
-
+#include <usbd_core.h>
 #include <USB.h>
 #include <USBMscHandler.h>
 
@@ -49,6 +48,7 @@
 class Sd2CardUSBMscHandler : public USBMscHandler {
 public:
   DiskIODriver* diskIODriver() {
+    // TODO: Explore a variable shared volume, or auto share the un-mounted volume(s)
     #if HAS_MULTI_VOLUME
       #if SHARED_VOLUME_IS(SD_ONBOARD)
         return &card.media_driver_sdcard;

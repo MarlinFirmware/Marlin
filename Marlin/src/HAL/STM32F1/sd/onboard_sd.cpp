@@ -13,13 +13,13 @@
 
 #ifdef __STM32F1__
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if SD_CONNECTION_IS(ONBOARD)
 
 #include "onboard_sd.h"
-#include "SPI.h"
-#include "fastio.h"
+#include "../SPI.h"
+#include "../fastio.h"
 
 #ifndef ONBOARD_SPI_DEVICE
   #define ONBOARD_SPI_DEVICE SPI_DEVICE

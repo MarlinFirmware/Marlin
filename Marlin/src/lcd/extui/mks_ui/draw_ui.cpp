@@ -71,6 +71,7 @@ uint32_t size = 809;
 uint16_t row;
 bool temps_update_flag;
 uint8_t printing_rate_update_flag;
+bool gcode_output_update_flag;
 
 extern bool once_flag;
 extern uint8_t sel_id;
@@ -861,6 +862,13 @@ void GUI_RefreshPage() {
       if (temps_update_flag) {
         temps_update_flag = false;
         disp_z_offset_value();
+      }
+      break;
+
+    case GCODE_UI:
+      if (gcode_output_update_flag) {
+        gcode_output_update_flag = false;
+        disp_gcode_output();
       }
       break;
 

@@ -226,6 +226,9 @@ class MenuItem_bool : public MenuEditItemBase {
  * should be done before the menu loop (START_MENU / START_SCREEN).
  */
 
+// CAUTION! When using menu items in a lambda or sub-function always use:
+#define INJECT_MENU_ITEMS(FN) { FN; if (ui.screen_changed) return; }
+
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *

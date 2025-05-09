@@ -27,7 +27,7 @@
 #undef ENABLED
 #undef DISABLED
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ALL(WIFISUPPORT, OTASUPPORT)
 

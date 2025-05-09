@@ -386,7 +386,7 @@
 #define BOARD_CREALITY_V422           5039  // Creality v4.2.2 (STM32F103RC / STM32F103RE) ... GD32 Variant Below!
 #define BOARD_CREALITY_V423           5040  // Creality v4.2.3 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V425           5041  // Creality v4.2.5 (STM32F103RC / STM32F103RE)
-#define BOARD_CREALITY_V427           5042  // Creality v4.2.7 (STM32F103RC / STM32F103RE)
+#define BOARD_CREALITY_V427           5042  // Creality v4.2.7 (STM32F103RC / STM32F103RE) ... GD32 Variant Below!
 #define BOARD_CREALITY_V4210          5043  // Creality v4.2.10 (STM32F103RC / STM32F103RE) as found in the CR-30
 #define BOARD_CREALITY_V431           5044  // Creality v4.3.1 (STM32F103RC / STM32F103RE)
 #define BOARD_CREALITY_V431_A         5045  // Creality v4.3.1a (STM32F103RC / STM32F103RE)
@@ -563,6 +563,7 @@
 //
 
 #define BOARD_CREALITY_V422_GD32_MFL  7400  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
+#define BOARD_CREALITY_V427_GD32_MFL  7401  // Creality V4.2.7 MFL (GD32F303RE) ... STM32 Variant Above!
 
 //
 // Raspberry Pi

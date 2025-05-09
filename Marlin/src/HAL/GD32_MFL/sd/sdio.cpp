@@ -20,11 +20,11 @@
  *
  */
 
-#include "../platforms.h"
+#include "../../platforms.h"
 
 #ifdef ARDUINO_ARCH_MFL
 
-#include "../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfig.h"
 
 #if ENABLED(ONBOARD_SDIO)
 
@@ -47,7 +47,7 @@ inline constexpr uint8_t SDIO_READ_RETRIES = READ_RETRIES;
 
 Card_State cardState = Card_State::READY;
 
-bool SDIO_SetBusWidth(Bus_Width width) {
+auto SDIO_SetBusWidth(Bus_Width width) -> bool {
   return (CardDMA_I.set_hardware_bus_width(width) == SDIO_Error_Type::OK);
 }
 
@@ -215,7 +215,6 @@ void DMA1_IRQHandler() {
   }
 }
 
-
 extern "C" {
 
   void SDIO_IRQHandler(void) {
@@ -227,7 +226,6 @@ extern "C" {
   }
 
 } // extern "C"
-
 
 #endif // ONBOARD_SDIO
 #endif // ARDUINO_ARCH_MFL

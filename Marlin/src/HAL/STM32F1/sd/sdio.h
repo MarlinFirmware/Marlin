@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h" // Allow pins/pins.h to override SDIO clock / retries
+#include "../../../inc/MarlinConfig.h" // Allow pins/pins.h to override SDIO clock / retries
 
 #include <libmaple/sdio.h>
 #include <libmaple/dma.h>
