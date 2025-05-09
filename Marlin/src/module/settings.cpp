@@ -1950,8 +1950,6 @@ void MarlinSettings::postprocess() {
         uint32_t tmp1[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
 
-        EEPROM_READ(planner.settings.min_segment_time_us);
-
         #if ENABLED(EDITABLE_STEPS_PER_UNIT)
           float tmp2[NUM_AXES + e_factors];
           EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
@@ -1972,6 +1970,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.acceleration);
         EEPROM_READ(planner.settings.retract_acceleration);
         EEPROM_READ(planner.settings.travel_acceleration);
+        EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 

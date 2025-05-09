@@ -353,7 +353,6 @@ constexpr uint8_t block_inc_mod(const uint8_t v1, const uint8_t v2) {
 
 typedef struct PlannerSettings {
    uint32_t max_acceleration_mm_per_s2[DISTINCT_AXES]; // (mm/s^2) M201 XYZE
-   uint32_t min_segment_time_us;                       // (µs) M205 B
 
   // (steps) M92 XYZE - Steps per millimeter
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
@@ -371,12 +370,13 @@ typedef struct PlannerSettings {
     #undef _DLIM
   #endif
 
- feedRate_t max_feedrate_mm_s[DISTINCT_AXES]; // (mm/s)   M203 XYZE - Max speeds
-      float acceleration,                     // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
-            retract_acceleration,             // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
-            travel_acceleration;              // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
- feedRate_t min_feedrate_mm_s,                // (mm/s)   M205 S - Minimum linear feedrate
-            min_travel_feedrate_mm_s;         // (mm/s)   M205 T - Minimum travel feedrate
+  feedRate_t max_feedrate_mm_s[DISTINCT_AXES]; // (mm/s)   M203 XYZE - Max speeds
+       float acceleration,                     // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+             retract_acceleration,             // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+             travel_acceleration;              // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+    uint32_t min_segment_time_us;              // (µs)     M205 B - Minimum segment time
+  feedRate_t min_feedrate_mm_s,                // (mm/s)   M205 S - Minimum linear feedrate
+             min_travel_feedrate_mm_s;         // (mm/s)   M205 T - Minimum travel feedrate
 } planner_settings_t;
 
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
