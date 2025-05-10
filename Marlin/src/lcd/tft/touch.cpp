@@ -181,12 +181,11 @@ void Touch::touch(touch_control_t *control) {
     case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
     case INCREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff++ : ui.encoderPosition++, ui.encoderPosition++); break;
     case DECREASE:  hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff-- : ui.encoderPosition--, ui.encoderPosition--); break;
-    case HEATER:
-      int8_t heater;
-      heater = control->data;
+    case HEATER: {
       ui.clear_for_drawing();
-      #if HAS_HOTEND
-        if (heater >= 0) { // HotEnd
+      const int8_t heater = control->data;
+      if (TERN0(HAS_HOTEND, heater >= 0)) { // Hotend
+        #if HAS_HOTEND
           #if HOTENDS == 1
             MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE),
               &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0),
@@ -199,8 +198,8 @@ void Touch::touch(touch_control_t *control) {
               []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); }
             );
           #endif
-        }
-      #endif
+        #endif
+      }
       #if HAS_HEATED_BED
         else if (heater == H_BED) {
           MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
@@ -217,14 +216,16 @@ void Touch::touch(touch_control_t *control) {
         }
       #endif
 
-      break;
-    case FAN:
+    } break;
+
+    case FAN: {
       ui.clear_for_drawing();
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
       MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
-      break;
+    } break;
+
     case FEEDRATE:
       ui.clear_for_drawing();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
