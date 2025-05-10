@@ -184,37 +184,37 @@ void Touch::touch(touch_control_t *control) {
     case HEATER: {
       ui.clear_for_drawing();
       const int8_t heater = control->data;
-      if (TERN0(HAS_HOTEND, heater >= 0)) { // Hotend
-        #if HAS_HOTEND
-          #if HOTENDS == 1
-            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE),
-              &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0),
-              []{ thermalManager.start_watching_hotend(0); }
-            );
-          #else
-            MenuItemBase::itemIndex = heater;
-            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE_N),
-              &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater),
-              []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); }
+      switch (heater) {
+        default: // Hotend
+          #if HAS_HOTEND
+            #define HOTEND_HEATER(N) TERN0(HAS_MULTI_HOTEND, N)
+            TERN_(HAS_MULTI_HOTEND, MenuItemBase::itemIndex = heater);
+            MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_NOZZLE_N, MSG_NOZZLE)),
+              &thermalManager.temp_hotend[HOTEND_HEATER(heater)].target, 0, thermalManager.hotend_max_target(HOTEND_HEATER(heater)),
+              []{ thermalManager.start_watching_hotend(HOTEND_HEATER(MenuItemBase::itemIndex)); }
             );
           #endif
+          break;
+
+        #if HAS_HEATED_BED
+          case H_BED:
+            MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            break;
         #endif
-      }
-      #if HAS_HEATED_BED
-        else if (heater == H_BED) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
-        }
-      #endif
-      #if HAS_HEATED_CHAMBER
-        else if (heater == H_CHAMBER) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAX_TARGET, thermalManager.start_watching_chamber);
-        }
-      #endif
-      #if HAS_COOLER
-        else if (heater == H_COOLER) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
-        }
-      #endif
+
+        #if HAS_HEATED_CHAMBER
+          case H_CHAMBER:
+            MenuItem_int3::action(GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAX_TARGET, thermalManager.start_watching_chamber);
+           break;
+        #endif
+
+        #if HAS_COOLER
+          case H_COOLER:
+            MenuItem_int3::action(GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
+           break;
+        #endif
+
+      } // switch
 
     } break;
 
