@@ -782,18 +782,16 @@ void Temperature::factory_reset() {
   //
   // Heated Bed PID
   //
-  #if ENABLED(PIDTEMPBED)
-    temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
-  #endif
+  TERN_(PIDTEMPBED, temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd));
 
   //
   // Heated Chamber PID
   //
-  #if ENABLED(PIDTEMPCHAMBER)
-    temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
-  #endif
+  TERN_(PIDTEMPCHAMBER, temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd));
 
-  // User-Defined Thermistors
+  //
+  // User-defined Thermistors
+  //
   TERN_(HAS_USER_THERMISTORS, reset_user_thermistors());
 
 } // factory_reset
@@ -993,7 +991,7 @@ void Temperature::factory_reset() {
             }
           }
         #endif
-      } // every 2 seconds
+      } // Every 2 seconds
 
       // Timeout after PID_AUTOTUNE_MAX_CYCLE_MINS minutes since the last undershoot/overshoot cycle
       #ifndef PID_AUTOTUNE_MAX_CYCLE_MINS
@@ -1451,18 +1449,10 @@ void Temperature::factory_reset() {
 
 int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
   switch (heater_id) {
-    #if HAS_HEATED_BED
-      case H_BED: return temp_bed.soft_pwm_amount;
-    #endif
-    #if HAS_HEATED_CHAMBER
-      case H_CHAMBER: return temp_chamber.soft_pwm_amount;
-    #endif
-    #if HAS_COOLER
-      case H_COOLER: return temp_cooler.soft_pwm_amount;
-    #endif
-    #if HAS_HOTEND
-      case 0 ... HOTENDS - 1: return temp_hotend[heater_id].soft_pwm_amount;
-    #endif
+    OPTCODE(HAS_HEATED_BED,     case H_BED:             return temp_bed.soft_pwm_amount)
+    OPTCODE(HAS_HEATED_CHAMBER, case H_CHAMBER:         return temp_chamber.soft_pwm_amount)
+    OPTCODE(HAS_COOLER,         case H_COOLER:          return temp_cooler.soft_pwm_amount)
+    OPTCODE(HAS_HOTEND,         case 0 ... HOTENDS - 1: return temp_hotend[heater_id].soft_pwm_amount)
     default: return 0;
   }
 }
@@ -2314,9 +2304,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
         }
         else {
           temp_cooler.soft_pwm_amount = 0;
-          #if ENABLED(COOLER_FAN)
-            set_fan_speed(COOLER_FAN_INDEX, temp_cooler.is_above_target(-2) ? COOLER_FAN_BASE : 0);
-          #endif
+          TERN_(COOLER_FAN, set_fan_speed(COOLER_FAN_INDEX, temp_cooler.is_above_target(-2) ? COOLER_FAN_BASE : 0));
           WRITE_HEATER_COOLER(LOW);
         }
       }
@@ -2489,48 +2477,20 @@ void Temperature::task() {
 
   void Temperature::reset_user_thermistors() {
     user_thermistor_t default_user_thermistor[USER_THERMISTORS] = {
-      #if TEMP_SENSOR_0_IS_CUSTOM
-        { true, HOTEND0_SH_C_COEFF, 0, HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS, 0, 0, HOTEND0_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_1_IS_CUSTOM
-        { true, HOTEND1_SH_C_COEFF, 0, HOTEND1_PULLUP_RESISTOR_OHMS, HOTEND1_RESISTANCE_25C_OHMS, 0, 0, HOTEND1_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_2_IS_CUSTOM
-        { true, HOTEND2_SH_C_COEFF, 0, HOTEND2_PULLUP_RESISTOR_OHMS, HOTEND2_RESISTANCE_25C_OHMS, 0, 0, HOTEND2_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_3_IS_CUSTOM
-        { true, HOTEND3_SH_C_COEFF, 0, HOTEND3_PULLUP_RESISTOR_OHMS, HOTEND3_RESISTANCE_25C_OHMS, 0, 0, HOTEND3_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_4_IS_CUSTOM
-        { true, HOTEND4_SH_C_COEFF, 0, HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS, 0, 0, HOTEND4_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_5_IS_CUSTOM
-        { true, HOTEND5_SH_C_COEFF, 0, HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS, 0, 0, HOTEND5_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_6_IS_CUSTOM
-        { true, HOTEND6_SH_C_COEFF, 0, HOTEND6_PULLUP_RESISTOR_OHMS, HOTEND6_RESISTANCE_25C_OHMS, 0, 0, HOTEND6_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_7_IS_CUSTOM
-        { true, HOTEND7_SH_C_COEFF, 0, HOTEND7_PULLUP_RESISTOR_OHMS, HOTEND7_RESISTANCE_25C_OHMS, 0, 0, HOTEND7_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_BED_IS_CUSTOM
-        { true, BED_SH_C_COEFF, 0, BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS, 0, 0, BED_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_CHAMBER_IS_CUSTOM
-        { true, CHAMBER_SH_C_COEFF, 0, CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS, 0, 0, CHAMBER_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_COOLER_IS_CUSTOM
-        { true, COOLER_SH_C_COEFF, 0, COOLER_PULLUP_RESISTOR_OHMS, COOLER_RESISTANCE_25C_OHMS, 0, 0, COOLER_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_PROBE_IS_CUSTOM
-        { true, PROBE_SH_C_COEFF, 0, PROBE_PULLUP_RESISTOR_OHMS, PROBE_RESISTANCE_25C_OHMS, 0, 0, PROBE_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_BOARD_IS_CUSTOM
-        { true, BOARD_SH_C_COEFF, 0, BOARD_PULLUP_RESISTOR_OHMS, BOARD_RESISTANCE_25C_OHMS, 0, 0, BOARD_BETA, 0 },
-      #endif
-      #if TEMP_SENSOR_REDUNDANT_IS_CUSTOM
-        { true, REDUNDANT_SH_C_COEFF, 0, REDUNDANT_PULLUP_RESISTOR_OHMS, REDUNDANT_RESISTANCE_25C_OHMS, 0, 0, REDUNDANT_BETA, 0 },
-      #endif
+      OPTITEM(TEMP_SENSOR_0_IS_CUSTOM,       { true, HOTEND0_SH_C_COEFF,   0, HOTEND0_PULLUP_RESISTOR_OHMS,   HOTEND0_RESISTANCE_25C_OHMS,   0, 0, HOTEND0_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_1_IS_CUSTOM,       { true, HOTEND1_SH_C_COEFF,   0, HOTEND1_PULLUP_RESISTOR_OHMS,   HOTEND1_RESISTANCE_25C_OHMS,   0, 0, HOTEND1_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_2_IS_CUSTOM,       { true, HOTEND2_SH_C_COEFF,   0, HOTEND2_PULLUP_RESISTOR_OHMS,   HOTEND2_RESISTANCE_25C_OHMS,   0, 0, HOTEND2_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_3_IS_CUSTOM,       { true, HOTEND3_SH_C_COEFF,   0, HOTEND3_PULLUP_RESISTOR_OHMS,   HOTEND3_RESISTANCE_25C_OHMS,   0, 0, HOTEND3_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_4_IS_CUSTOM,       { true, HOTEND4_SH_C_COEFF,   0, HOTEND4_PULLUP_RESISTOR_OHMS,   HOTEND4_RESISTANCE_25C_OHMS,   0, 0, HOTEND4_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_5_IS_CUSTOM,       { true, HOTEND5_SH_C_COEFF,   0, HOTEND5_PULLUP_RESISTOR_OHMS,   HOTEND5_RESISTANCE_25C_OHMS,   0, 0, HOTEND5_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_6_IS_CUSTOM,       { true, HOTEND6_SH_C_COEFF,   0, HOTEND6_PULLUP_RESISTOR_OHMS,   HOTEND6_RESISTANCE_25C_OHMS,   0, 0, HOTEND6_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_7_IS_CUSTOM,       { true, HOTEND7_SH_C_COEFF,   0, HOTEND7_PULLUP_RESISTOR_OHMS,   HOTEND7_RESISTANCE_25C_OHMS,   0, 0, HOTEND7_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_BED_IS_CUSTOM,     { true, BED_SH_C_COEFF,       0, BED_PULLUP_RESISTOR_OHMS,       BED_RESISTANCE_25C_OHMS,       0, 0, BED_BETA,       0 })
+      OPTITEM(TEMP_SENSOR_CHAMBER_IS_CUSTOM, { true, CHAMBER_SH_C_COEFF,   0, CHAMBER_PULLUP_RESISTOR_OHMS,   CHAMBER_RESISTANCE_25C_OHMS,   0, 0, CHAMBER_BETA,   0 })
+      OPTITEM(TEMP_SENSOR_COOLER_IS_CUSTOM,  { true, COOLER_SH_C_COEFF,    0, COOLER_PULLUP_RESISTOR_OHMS,    COOLER_RESISTANCE_25C_OHMS,    0, 0, COOLER_BETA,    0 })
+      OPTITEM(TEMP_SENSOR_PROBE_IS_CUSTOM,   { true, PROBE_SH_C_COEFF,     0, PROBE_PULLUP_RESISTOR_OHMS,     PROBE_RESISTANCE_25C_OHMS,     0, 0, PROBE_BETA,     0 })
+      OPTITEM(TEMP_SENSOR_BOARD_IS_CUSTOM,   { true, BOARD_SH_C_COEFF,     0, BOARD_PULLUP_RESISTOR_OHMS,     BOARD_RESISTANCE_25C_OHMS,     0, 0, BOARD_BETA,     0 })
+      TERN_(TEMP_SENSOR_REDUNDANT_IS_CUSTOM, { true, REDUNDANT_SH_C_COEFF, 0, REDUNDANT_PULLUP_RESISTOR_OHMS, REDUNDANT_RESISTANCE_25C_OHMS, 0, 0, REDUNDANT_BETA, 0 })
     };
     COPY(user_thermistor, default_user_thermistor);
   }
@@ -2902,9 +2862,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_bed.setraw(read_max_tc_bed());
   #endif
 
-  #if HAS_HOTEND
-    HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e);
-  #endif
+  TERN_(HAS_HOTEND, HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e));
 
   TERN_(HAS_HEATED_BED,     temp_bed.celsius       = analog_to_celsius_bed(temp_bed.getraw()));
   TERN_(HAS_TEMP_CHAMBER,   temp_chamber.celsius   = analog_to_celsius_chamber(temp_chamber.getraw()));
@@ -3104,9 +3062,7 @@ void Temperature::init() {
     ));
   #endif
 
-  #if ENABLED(MPCTEMP)
-    HOTEND_LOOP() temp_hotend[e].modeled_block_temp = NAN;
-  #endif
+  TERN_(MPCTEMP, HOTEND_LOOP() temp_hotend[e].modeled_block_temp = NAN);
 
   #if HAS_HEATER_0
     #ifdef BOARD_OPENDRAIN_MOSFETS
@@ -3115,27 +3071,13 @@ void Temperature::init() {
       OUT_WRITE(HEATER_0_PIN, ENABLED(HEATER_0_INVERTING));
     #endif
   #endif
-  #if HAS_HEATER_1
-    OUT_WRITE(HEATER_1_PIN, ENABLED(HEATER_1_INVERTING));
-  #endif
-  #if HAS_HEATER_2
-    OUT_WRITE(HEATER_2_PIN, ENABLED(HEATER_2_INVERTING));
-  #endif
-  #if HAS_HEATER_3
-    OUT_WRITE(HEATER_3_PIN, ENABLED(HEATER_3_INVERTING));
-  #endif
-  #if HAS_HEATER_4
-    OUT_WRITE(HEATER_4_PIN, ENABLED(HEATER_4_INVERTING));
-  #endif
-  #if HAS_HEATER_5
-    OUT_WRITE(HEATER_5_PIN, ENABLED(HEATER_5_INVERTING));
-  #endif
-  #if HAS_HEATER_6
-    OUT_WRITE(HEATER_6_PIN, ENABLED(HEATER_6_INVERTING));
-  #endif
-  #if HAS_HEATER_7
-    OUT_WRITE(HEATER_7_PIN, ENABLED(HEATER_7_INVERTING));
-  #endif
+  TERN_(HAS_HEATER_1, OUT_WRITE(HEATER_1_PIN, ENABLED(HEATER_1_INVERTING)));
+  TERN_(HAS_HEATER_2, OUT_WRITE(HEATER_2_PIN, ENABLED(HEATER_2_INVERTING)));
+  TERN_(HAS_HEATER_3, OUT_WRITE(HEATER_3_PIN, ENABLED(HEATER_3_INVERTING)));
+  TERN_(HAS_HEATER_4, OUT_WRITE(HEATER_4_PIN, ENABLED(HEATER_4_INVERTING)));
+  TERN_(HAS_HEATER_5, OUT_WRITE(HEATER_5_PIN, ENABLED(HEATER_5_INVERTING)));
+  TERN_(HAS_HEATER_6, OUT_WRITE(HEATER_6_PIN, ENABLED(HEATER_6_INVERTING)));
+  TERN_(HAS_HEATER_7, OUT_WRITE(HEATER_7_PIN, ENABLED(HEATER_7_INVERTING)));
 
   #if HAS_HEATED_BED
     #if ENABLED(PELTIER_BED)
@@ -3149,41 +3091,19 @@ void Temperature::init() {
     #endif
   #endif
 
-  #if HAS_HEATED_CHAMBER
-    OUT_WRITE(HEATER_CHAMBER_PIN, ENABLED(HEATER_CHAMBER_INVERTING));
-  #endif
+  TERN_(HAS_HEATED_CHAMBER, OUT_WRITE(HEATER_CHAMBER_PIN, ENABLED(HEATER_CHAMBER_INVERTING)));
 
-  #if HAS_COOLER
-    OUT_WRITE(COOLER_PIN, ENABLED(COOLER_INVERTING));
-  #endif
+  TERN_(HAS_COOLER, OUT_WRITE(COOLER_PIN, ENABLED(COOLER_INVERTING)));
 
-  #if HAS_FAN0
-    INIT_FAN_PIN(FAN0_PIN);
-  #endif
-  #if HAS_FAN1
-    INIT_FAN_PIN(FAN1_PIN);
-  #endif
-  #if HAS_FAN2
-    INIT_FAN_PIN(FAN2_PIN);
-  #endif
-  #if HAS_FAN3
-    INIT_FAN_PIN(FAN3_PIN);
-  #endif
-  #if HAS_FAN4
-    INIT_FAN_PIN(FAN4_PIN);
-  #endif
-  #if HAS_FAN5
-    INIT_FAN_PIN(FAN5_PIN);
-  #endif
-  #if HAS_FAN6
-    INIT_FAN_PIN(FAN6_PIN);
-  #endif
-  #if HAS_FAN7
-    INIT_FAN_PIN(FAN7_PIN);
-  #endif
-  #if ENABLED(USE_CONTROLLER_FAN)
-    INIT_FAN_PIN(CONTROLLER_FAN_PIN);
-  #endif
+  TERN_(HAS_FAN0, INIT_FAN_PIN(FAN0_PIN));
+  TERN_(HAS_FAN1, INIT_FAN_PIN(FAN1_PIN));
+  TERN_(HAS_FAN2, INIT_FAN_PIN(FAN2_PIN));
+  TERN_(HAS_FAN3, INIT_FAN_PIN(FAN3_PIN));
+  TERN_(HAS_FAN4, INIT_FAN_PIN(FAN4_PIN));
+  TERN_(HAS_FAN5, INIT_FAN_PIN(FAN5_PIN));
+  TERN_(HAS_FAN6, INIT_FAN_PIN(FAN6_PIN));
+  TERN_(HAS_FAN7, INIT_FAN_PIN(FAN7_PIN));
+  TERN_(USE_CONTROLLER_FAN, INIT_FAN_PIN(CONTROLLER_FAN_PIN));
 
   TERN_(HAS_MAXTC_SW_SPI, max_tc_spi.init());
 
@@ -3212,9 +3132,7 @@ void Temperature::init() {
   TERN_(POWER_MONITOR_CURRENT,  hal.adc_enable(POWER_MONITOR_CURRENT_PIN));
   TERN_(POWER_MONITOR_VOLTAGE,  hal.adc_enable(POWER_MONITOR_VOLTAGE_PIN));
 
-  #if HAS_JOY_ADC_EN
-    SET_INPUT_PULLUP(JOY_EN_PIN);
-  #endif
+  TERN_(HAS_JOY_ADC_EN, SET_INPUT_PULLUP(JOY_EN_PIN));
 
   HAL_timer_start(MF_TIMER_TEMP, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
@@ -3576,9 +3494,7 @@ void Temperature::disable_all_heaters() {
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
 
   bool Temperature::auto_job_over_threshold() {
-    #if HAS_HOTEND
-      HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
-    #endif
+    TERN_(HAS_HOTEND, HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true);
     return TERN0(HAS_HEATED_BED, degTargetBed() > BED_MINTEMP)
         || TERN0(HAS_HEATED_CHAMBER, degTargetChamber() > CHAMBER_MINTEMP);
   }
@@ -3977,9 +3893,7 @@ void Temperature::readings_ready() {
   // Filament Sensor - can be read any time since IIR filtering is used
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.reading_ready());
 
-  #if HAS_HOTEND
-    HOTEND_LOOP() temp_hotend[e].reset();
-  #endif
+  TERN_(HAS_HOTEND, HOTEND_LOOP() temp_hotend[e].reset());
 
   TERN_(HAS_HEATED_BED,     temp_bed.reset());
   TERN_(HAS_TEMP_CHAMBER,   temp_chamber.reset());
@@ -4123,24 +4037,16 @@ void Temperature::isr() {
 
       #if HAS_HEATED_BED
         _PWM_MOD(BED, soft_pwm_bed, temp_bed);
-        #if ENABLED(PELTIER_BED)
-          WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating);
-        #endif
+         TERN_(PELTIER_BED, WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating));
       #endif
 
-      #if HAS_HEATED_CHAMBER
-        _PWM_MOD(CHAMBER, soft_pwm_chamber, temp_chamber);
-      #endif
+      TERN_(HAS_HEATED_CHAMBER, _PWM_MOD(CHAMBER, soft_pwm_chamber, temp_chamber));
 
-      #if HAS_COOLER
-        _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
-      #endif
+      TERN_(HAS_COOLER, _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler));
 
       #if ENABLED(FAN_SOFT_PWM)
 
-        #if ENABLED(USE_CONTROLLER_FAN)
-          WRITE(CONTROLLER_FAN_PIN, soft_pwm_controller.add(pwm_mask, controllerFan.soft_pwm_speed));
-        #endif
+        TERN_(USE_CONTROLLER_FAN, WRITE(CONTROLLER_FAN_PIN, soft_pwm_controller.add(pwm_mask, controllerFan.soft_pwm_speed)));
 
         #define _FAN_PWM(N) do{                                     \
           uint8_t &spcf = soft_pwm_count_fan[N];                    \
@@ -4148,30 +4054,14 @@ void Temperature::isr() {
           WRITE_FAN(N, spcf > pwm_mask ? HIGH : LOW);               \
         }while(0)
 
-        #if HAS_FAN0
-          _FAN_PWM(0);
-        #endif
-        #if HAS_FAN1
-          _FAN_PWM(1);
-        #endif
-        #if HAS_FAN2
-          _FAN_PWM(2);
-        #endif
-        #if HAS_FAN3
-          _FAN_PWM(3);
-        #endif
-        #if HAS_FAN4
-          _FAN_PWM(4);
-        #endif
-        #if HAS_FAN5
-          _FAN_PWM(5);
-        #endif
-        #if HAS_FAN6
-          _FAN_PWM(6);
-        #endif
-        #if HAS_FAN7
-          _FAN_PWM(7);
-        #endif
+        TERN_(HAS_FAN0, _FAN_PWM(0));
+        TERN_(HAS_FAN1, _FAN_PWM(1));
+        TERN_(HAS_FAN2, _FAN_PWM(2));
+        TERN_(HAS_FAN3, _FAN_PWM(3));
+        TERN_(HAS_FAN4, _FAN_PWM(4));
+        TERN_(HAS_FAN5, _FAN_PWM(5));
+        TERN_(HAS_FAN6, _FAN_PWM(6));
+        TERN_(HAS_FAN7, _FAN_PWM(7));
       #endif
     }
     else {
@@ -4181,46 +4071,22 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
 
-      #if HAS_HEATED_BED
-        _PWM_LOW(BED, soft_pwm_bed);
-      #endif
+      TERN_(HAS_HEATED_BED, _PWM_LOW(BED, soft_pwm_bed));
 
-      #if HAS_HEATED_CHAMBER
-        _PWM_LOW(CHAMBER, soft_pwm_chamber);
-      #endif
+      TERN_(HAS_HEATED_CHAMBER, _PWM_LOW(CHAMBER, soft_pwm_chamber));
 
-      #if HAS_COOLER
-        _PWM_LOW(COOLER, soft_pwm_cooler);
-      #endif
+      TERN_(HAS_COOLER, _PWM_LOW(COOLER, soft_pwm_cooler));
 
       #if ENABLED(FAN_SOFT_PWM)
-        #if HAS_FAN0
-          if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
-        #endif
-        #if HAS_FAN1
-          if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN(1, LOW);
-        #endif
-        #if HAS_FAN2
-          if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
-        #endif
-        #if HAS_FAN3
-          if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
-        #endif
-        #if HAS_FAN4
-          if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
-        #endif
-        #if HAS_FAN5
-          if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
-        #endif
-        #if HAS_FAN6
-          if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
-        #endif
-        #if HAS_FAN7
-          if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
-        #endif
-        #if ENABLED(USE_CONTROLLER_FAN)
-          if (soft_pwm_controller.count <= pwm_count_tmp) WRITE(CONTROLLER_FAN_PIN, LOW);
-        #endif
+        TERN_(HAS_FAN0, if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW));
+        TERN_(HAS_FAN1, if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN(1, LOW));
+        TERN_(HAS_FAN2, if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW));
+        TERN_(HAS_FAN3, if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW));
+        TERN_(HAS_FAN4, if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW));
+        TERN_(HAS_FAN5, if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW));
+        TERN_(HAS_FAN6, if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW));
+        TERN_(HAS_FAN7, if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW));
+        TERN_(USE_CONTROLLER_FAN, if (soft_pwm_controller.count <= pwm_count_tmp) WRITE(CONTROLLER_FAN_PIN, LOW));
       #endif
     }
 
@@ -4254,17 +4120,11 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
 
-      #if HAS_HEATED_BED
-        _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
-      #endif
+      TERN_(HAS_HEATED_BED, _SLOW_PWM(BED, soft_pwm_bed, temp_bed));
 
-      #if HAS_HEATED_CHAMBER
-        _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
-      #endif
+      TERN_(HAS_HEATED_CHAMBER, _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber));
 
-      #if HAS_COOLER
-        _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler);
-      #endif
+      TERN_(HAS_COOLER, _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler));
 
     } // slow_pwm_count == 0
 
@@ -4273,17 +4133,11 @@ void Temperature::isr() {
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
 
-    #if HAS_HEATED_BED
-      _PWM_OFF(BED, soft_pwm_bed);
-    #endif
+    TERN_(HAS_HEATED_BED, _PWM_OFF(BED, soft_pwm_bed));
 
-    #if HAS_HEATED_CHAMBER
-      _PWM_OFF(CHAMBER, soft_pwm_chamber);
-    #endif
+    TERN_(HAS_HEATED_CHAMBER, _PWM_OFF(CHAMBER, soft_pwm_chamber));
 
-    #if HAS_COOLER
-      _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler);
-    #endif
+    TERN_(HAS_COOLER, _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler));
 
     #if ENABLED(FAN_SOFT_PWM)
       if (pwm_count_tmp >= 127) {
@@ -4292,55 +4146,23 @@ void Temperature::isr() {
           soft_pwm_count_fan[N] = soft_pwm_amount_fan[N] >> 1;  \
           WRITE_FAN(N, soft_pwm_count_fan[N] > 0 ? HIGH : LOW); \
         }while(0)
-        #if HAS_FAN0
-          _PWM_FAN(0);
-        #endif
-        #if HAS_FAN1
-          _PWM_FAN(1);
-        #endif
-        #if HAS_FAN2
-          _PWM_FAN(2);
-        #endif
-        #if HAS_FAN3
-          _FAN_PWM(3);
-        #endif
-        #if HAS_FAN4
-          _FAN_PWM(4);
-        #endif
-        #if HAS_FAN5
-          _FAN_PWM(5);
-        #endif
-        #if HAS_FAN6
-          _FAN_PWM(6);
-        #endif
-        #if HAS_FAN7
-          _FAN_PWM(7);
-        #endif
+        TERN_(HAS_FAN0, _PWM_FAN(0));
+        TERN_(HAS_FAN1, _PWM_FAN(1));
+        TERN_(HAS_FAN2, _PWM_FAN(2));
+        TERN_(HAS_FAN3, _FAN_PWM(3));
+        TERN_(HAS_FAN4, _FAN_PWM(4));
+        TERN_(HAS_FAN5, _FAN_PWM(5));
+        TERN_(HAS_FAN6, _FAN_PWM(6));
+        TERN_(HAS_FAN7, _FAN_PWM(7));
       }
-      #if HAS_FAN0
-        if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW);
-      #endif
-      #if HAS_FAN1
-        if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN(1, LOW);
-      #endif
-      #if HAS_FAN2
-        if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW);
-      #endif
-      #if HAS_FAN3
-        if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW);
-      #endif
-      #if HAS_FAN4
-        if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW);
-      #endif
-      #if HAS_FAN5
-        if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW);
-      #endif
-      #if HAS_FAN6
-        if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW);
-      #endif
-      #if HAS_FAN7
-        if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW);
-      #endif
+      TERN_(HAS_FAN0, if (soft_pwm_count_fan[0] <= pwm_count_tmp) WRITE_FAN(0, LOW));
+      TERN_(HAS_FAN1, if (soft_pwm_count_fan[1] <= pwm_count_tmp) WRITE_FAN(1, LOW));
+      TERN_(HAS_FAN2, if (soft_pwm_count_fan[2] <= pwm_count_tmp) WRITE_FAN(2, LOW));
+      TERN_(HAS_FAN3, if (soft_pwm_count_fan[3] <= pwm_count_tmp) WRITE_FAN(3, LOW));
+      TERN_(HAS_FAN4, if (soft_pwm_count_fan[4] <= pwm_count_tmp) WRITE_FAN(4, LOW));
+      TERN_(HAS_FAN5, if (soft_pwm_count_fan[5] <= pwm_count_tmp) WRITE_FAN(5, LOW));
+      TERN_(HAS_FAN6, if (soft_pwm_count_fan[6] <= pwm_count_tmp) WRITE_FAN(6, LOW));
+      TERN_(HAS_FAN7, if (soft_pwm_count_fan[7] <= pwm_count_tmp) WRITE_FAN(7, LOW));
     #endif // FAN_SOFT_PWM
 
     // SOFT_PWM_SCALE to frequency:
@@ -4359,9 +4181,7 @@ void Temperature::isr() {
       slow_pwm_count++;
       slow_pwm_count &= 0x7F;
 
-      #if HAS_HOTEND
-        HOTEND_LOOP() soft_pwm_hotend[e].dec();
-      #endif
+      TERN_(HAS_HOTEND, HOTEND_LOOP() soft_pwm_hotend[e].dec());
       TERN_(HAS_HEATED_BED, soft_pwm_bed.dec());
       TERN_(HAS_HEATED_CHAMBER, soft_pwm_chamber.dec());
       TERN_(HAS_COOLER, soft_pwm_cooler.dec());
@@ -4376,7 +4196,7 @@ void Temperature::isr() {
     constexpr bool do_buttons = true;
   #else
     static bool do_buttons;
-    do_buttons ^= true;
+    FLIP(do_buttons);
   #endif
   if (do_buttons) ui.update_buttons();
 
@@ -4598,6 +4418,7 @@ void Temperature::isr() {
   /**
    * Print a single heater state in the form:
    *     Extruder: " T0:nnn.nn /nnn.nn"
+   *     With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
    *          Bed: " B:nnn.nn /nnn.nn"
    *      Chamber: " C:nnn.nn /nnn.nn"
    *       Cooler: " L:nnn.nn /nnn.nn"
@@ -4605,7 +4426,6 @@ void Temperature::isr() {
    *        Board: " M:nnn.nn"
    *          SoC: " S:nnn.nn"
    *    Redundant: " R:nnn.nn /nnn.nn"
-   *     With ADC: " T0:nnn.nn /nnn.nn (nnn.nn)"
    */
   static void print_heater_state(const heater_id_t e, const_celsius_float_t c, const_celsius_float_t t
     OPTARG(SHOW_TEMP_ADC_VALUES, const float r)
@@ -4614,30 +4434,14 @@ void Temperature::isr() {
     bool show_t = true;
     switch (e) {
       default:
-        #if HAS_TEMP_HOTEND
-          k = 'T'; break;
-        #endif
-      #if HAS_TEMP_BED
-        case H_BED: k = 'B'; break;
-      #endif
-      #if HAS_TEMP_CHAMBER
-        case H_CHAMBER: k = 'C'; break;
-      #endif
-      #if HAS_TEMP_COOLER
-        case H_COOLER: k = 'L'; break;
-      #endif
-      #if HAS_TEMP_PROBE
-        case H_PROBE: k = 'P'; show_t = false; break;
-      #endif
-      #if HAS_TEMP_BOARD
-        case H_BOARD: k = 'M'; show_t = false; break;
-      #endif
-      #if HAS_TEMP_SOC
-        case H_SOC: k = 'S'; show_t = false; break;
-      #endif
-      #if HAS_TEMP_REDUNDANT
-        case H_REDUNDANT: k = 'R'; break;
-      #endif
+        OPTCODE(HAS_TEMP_HOTEND, k = 'T'; break)
+      OPTCODE(HAS_TEMP_BED, case H_BED: k = 'B'; break)
+      OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: k = 'C'; break)
+      OPTCODE(HAS_TEMP_COOLER, case H_COOLER: k = 'L'; break)
+      OPTCODE(HAS_TEMP_PROBE, case H_PROBE: k = 'P'; show_t = false; break)
+      OPTCODE(HAS_TEMP_BOARD, case H_BOARD: k = 'M'; show_t = false; break)
+      OPTCODE(HAS_TEMP_SOC, case H_SOC: k = 'S'; show_t = false; break)
+      OPTCODE(HAS_TEMP_REDUNDANT, case H_REDUNDANT: k = 'R'; break)
     }
     #ifndef HEATER_STATE_FLOAT_PRECISION
       #define HEATER_STATE_FLOAT_PRECISION _MIN(SERIAL_FLOAT_PRECISION, 2)
@@ -4669,41 +4473,22 @@ void Temperature::isr() {
   void Temperature::print_heater_states(const int8_t target_extruder
     OPTARG(HAS_TEMP_REDUNDANT, const bool include_r/*=false*/)
   ) {
-    #if HAS_TEMP_HOTEND
-      print_heater_state(H_NONE, degHotend(target_extruder), degTargetHotend(target_extruder) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(target_extruder)));
-    #endif
-    #if HAS_HEATED_BED
-      print_heater_state(H_BED, degBed(), degTargetBed() OPTARG(SHOW_TEMP_ADC_VALUES, rawBedTemp()));
-    #endif
-    #if HAS_TEMP_CHAMBER
-      print_heater_state(H_CHAMBER, degChamber(), TERN0(HAS_HEATED_CHAMBER, degTargetChamber()) OPTARG(SHOW_TEMP_ADC_VALUES, rawChamberTemp()));
-    #endif
-    #if HAS_TEMP_COOLER
-      print_heater_state(H_COOLER, degCooler(), TERN0(HAS_COOLER, degTargetCooler()) OPTARG(SHOW_TEMP_ADC_VALUES, rawCoolerTemp()));
-    #endif
-    #if HAS_TEMP_PROBE
-      print_heater_state(H_PROBE, degProbe(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawProbeTemp()));
-    #endif
-    #if HAS_TEMP_BOARD
-      print_heater_state(H_BOARD, degBoard(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawBoardTemp()));
-    #endif
-    #if HAS_TEMP_SOC
-      print_heater_state(H_SOC, degSoc(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawSocTemp()));
-    #endif
-    #if HAS_TEMP_REDUNDANT
-      if (include_r) print_heater_state(H_REDUNDANT, degRedundant(), degRedundantTarget() OPTARG(SHOW_TEMP_ADC_VALUES, rawRedundantTemp()));
-    #endif
-    #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e)));
-    #endif
+    TERN_(HAS_TEMP_HOTEND,  print_heater_state(H_NONE, degHotend(target_extruder), degTargetHotend(target_extruder) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(target_extruder))));
+    TERN_(HAS_HEATED_BED,   print_heater_state(H_BED, degBed(), degTargetBed() OPTARG(SHOW_TEMP_ADC_VALUES, rawBedTemp())));
+    TERN_(HAS_TEMP_CHAMBER, print_heater_state(H_CHAMBER, degChamber(), TERN0(HAS_HEATED_CHAMBER, degTargetChamber()) OPTARG(SHOW_TEMP_ADC_VALUES, rawChamberTemp())));
+    TERN_(HAS_TEMP_COOLER,  print_heater_state(H_COOLER, degCooler(), TERN0(HAS_COOLER, degTargetCooler()) OPTARG(SHOW_TEMP_ADC_VALUES, rawCoolerTemp())));
+    TERN_(HAS_TEMP_PROBE,   print_heater_state(H_PROBE, degProbe(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawProbeTemp())));
+    TERN_(HAS_TEMP_BOARD,   print_heater_state(H_BOARD, degBoard(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawBoardTemp())));
+    TERN_(HAS_TEMP_SOC,     print_heater_state(H_SOC, degSoc(), 0 OPTARG(SHOW_TEMP_ADC_VALUES, rawSocTemp())));
+    TERN_(HAS_TEMP_REDUNDANT, if (include_r) print_heater_state(H_REDUNDANT, degRedundant(), degRedundantTarget() OPTARG(SHOW_TEMP_ADC_VALUES, rawRedundantTemp())));
+    TERN_(HAS_MULTI_HOTEND, HOTEND_LOOP() print_heater_state((heater_id_t)e, degHotend(e), degTargetHotend(e) OPTARG(SHOW_TEMP_ADC_VALUES, rawHotendTemp(e))));
+
     SString<100> s(F(" @:"), getHeaterPower((heater_id_t)target_extruder));
     TERN_(HAS_HEATED_BED,     s.append(F(" B@:"), getHeaterPower(H_BED)));
     TERN_(PELTIER_BED,        s.append(F(" P@:"), temp_bed.peltier_dir_heating ? 'H' : 'C'));
     TERN_(HAS_HEATED_CHAMBER, s.append(F(" C@:"), getHeaterPower(H_CHAMBER)));
     TERN_(HAS_COOLER,         s.append(F(" L@:"), getHeaterPower(H_COOLER)));
-    #if HAS_MULTI_HOTEND
-      HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e));
-    #endif
+    TERN_(HAS_MULTI_HOTEND, HOTEND_LOOP() s.append(F(" @"), e, ':', getHeaterPower((heater_id_t)e)));
     s.echo();
   }
 

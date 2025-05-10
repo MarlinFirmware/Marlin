@@ -360,8 +360,8 @@
 #define H_REDUNDANT -7
 #define H_SOC       -6
 #define H_BOARD     -5
-#define H_COOLER    -4
-#define H_PROBE     -3
+#define H_PROBE     -4
+#define H_COOLER    -3
 #define H_CHAMBER   -2
 #define H_BED       -1
 #define H_E0         0
