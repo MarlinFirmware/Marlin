@@ -116,14 +116,14 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
       #else
         EXTRUDER_LOOP()
           EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
       #endif
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        #if DISTINCT_E < 2
+        #if DISABLED(DISTINCT_E_FACTORS)
           editable.decimal = stepper.get_advance_tau();
           EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
         #else
@@ -749,14 +749,14 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
-    #if DISTINCT_E < 2
+    #if DISABLED(DISTINCT_E_FACTORS)
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
     #else
       EXTRUDER_LOOP()
         EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         editable.decimal = stepper.get_advance_tau();
         EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
       #else

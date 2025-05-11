@@ -215,14 +215,14 @@ void menu_tune() {
   // Advance K:
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
-    #if DISTINCT_E < 2
+    #if DISABLED(DISTINCT_E_FACTORS)
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
     #else
       EXTRUDER_LOOP()
         EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         editable.decimal = stepper.get_advance_tau();
         EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
       #else

@@ -36,9 +36,11 @@
 /**
  * M900: Get or Set Linear Advance K-factor
  *  T<tool>     Which tool to address
- *  K<factor>   Set current advance K factor (Slot 0).
- *  L<factor>   Set secondary advance K factor (Slot 1). Requires ADVANCE_K_EXTRA.
- *  S<0/1>      Activate slot 0 or 1. Requires ADVANCE_K_EXTRA.
+ *  K<factor>   Set current advance K factor (aka Slot 0).
+ *
+ * With ADVANCE_K_EXTRA:
+ *  S<0/1>      Activate slot 0 or 1.
+ *  L<factor>   Set secondary advance K factor (Slot 1).
  */
 void GcodeSuite::M900() {
 
@@ -72,31 +74,31 @@ void GcodeSuite::M900() {
 
     float &lref = other_extruder_advance_K[E_INDEX_N(tool_index)];
 
-    const bool old_slot = TEST(lin_adv_slot, tool_index), // The tool's current slot (0 or 1)
-               new_slot = parser.boolval('S', old_slot);  // The passed slot (default = current)
+    const bool old_slot = TEST(lin_adv_slot, tool_index), // Each tool uses 1 bit to store its current slot (0 or 1)
+               new_slot = parser.boolval('S', old_slot);  // The new slot (0 or 1) to set for the tool (default = no change)
 
     // If a new slot is being selected swap the current and
     // saved K values. Do here so K/L will apply correctly.
     if (new_slot != old_slot) {                       // Not the same slot?
       SET_BIT_TO(lin_adv_slot, tool_index, new_slot); // Update the slot for the tool
-      newK = lref;                                    // Get new K value from backup
-      lref = oldK;                                    // Save K to backup
+      newK = lref;                                    // Get the backup K value (to apply below)
+      lref = oldK;                                    // Back up the active K value
     }
 
     // Set the main K value. Apply if the main slot is active.
     if (parser.seenval('K')) {
       const float K = parser.value_float();
       if (!WITHIN(K, 0, 10)) echo_value_oor('K');
-      else if (new_slot)        lref = K;             // S1 Knn
-      else                      newK = K;             // S0 Knn
+      else if (new_slot)        lref = K;             // S1 Knn (set main K in its backup slot)
+      else                      newK = K;             // S0 Knn (use main K now)
     }
 
     // Set the extra K value. Apply if the extra slot is active.
     if (parser.seenval('L')) {
       const float L = parser.value_float();
       if (!WITHIN(L, 0, 10)) echo_value_oor('L');
-      else if (!new_slot)       lref = L;             // S0 Lnn
-      else                      newK = L;             // S1 Lnn
+      else if (!new_slot)       lref = L;             // S0 Lnn (set extra K in its backup slot)
+      else                      newK = L;             // S1 Lnn (use extra K now)
     }
 
   #else
@@ -133,7 +135,7 @@ void GcodeSuite::M900() {
 
     #if ENABLED(ADVANCE_K_EXTRA)
 
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         SERIAL_ECHOLNPGM("Advance S", new_slot, " K", kref, "(S", !new_slot, " K", lref, ")");
       #else
         EXTRUDER_LOOP() {
@@ -146,7 +148,7 @@ void GcodeSuite::M900() {
     #else // !ADVANCE_K_EXTRA
 
       SERIAL_ECHO_START();
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         SERIAL_ECHOPGM("Advance K=", planner.extruder_advance_K[0]);
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           SERIAL_ECHOPGM(" TAU=", stepper.get_advance_tau());
@@ -172,7 +174,7 @@ void GcodeSuite::M900_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_LINEAR_ADVANCE));
-  #if DISTINCT_E < 2
+  #if DISABLED(DISTINCT_E_FACTORS)
     report_echo_start(forReplay);
     SERIAL_ECHOPGM("  M900 K", planner.extruder_advance_K[0]);
     #if ENABLED(SMOOTH_LIN_ADVANCE)
