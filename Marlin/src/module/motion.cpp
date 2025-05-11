@@ -1198,7 +1198,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
      */
     #define SCARA_MIN_SEGMENT_LENGTH 0.5f
   #elif ENABLED(POLAR)
-    #define POLAR_MIN_SEGMENT_LENGTH 5.0f
+    #define POLAR_MIN_SEGMENT_LENGTH 0.5f
   #endif
 
   /**
