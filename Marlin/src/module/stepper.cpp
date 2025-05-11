@@ -2911,17 +2911,15 @@ hal_timer_t Stepper::block_phase_isr() {
       typedef struct {
         xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
         uint16_t index;
+        void add(const xy_long_t &input) {
+          buffer[index] = input;
+          if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
+        }
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      void add_to_buffer(xy_long_t input) {
-        delayBuffer.buffer[delayBuffer.index++] = input;
-        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE)
-          delayBuffer.index = 0;
-      }
-
-      xy_long_t lookback(shaping_time_t stepper_ticks) {
+      xy_long_t smooth_lin_adv_lookback(shaping_time_t stepper_ticks) {
         constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
         const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
         uint16_t buffer_index;
@@ -2938,11 +2936,11 @@ hal_timer_t Stepper::block_phase_isr() {
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    int32_t lookahead(uint32_t stepper_ticks) {
+    int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (stepper_ticks <= block->acceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
+          if (!block->use_advance_lead) return 0;
           uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
           return MULT_Q(30, rate, block->e_step_ratio_q30);
@@ -2950,13 +2948,13 @@ hal_timer_t Stepper::block_phase_isr() {
         stepper_ticks -= block->acceleration_time;
 
         if (stepper_ticks <= block->cruise_time) {
-          if (!block->use_advance_lead) return 0.0f;
+          if (!block->use_advance_lead) return 0;
           return MULT_Q(30, block->cruise_rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->cruise_time;
 
         if (stepper_ticks <= block->deceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
+          if (!block->use_advance_lead) return 0;
           uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
           if (rate < block->cruise_rate) {
             rate = block->cruise_rate - rate;
@@ -2968,14 +2966,14 @@ hal_timer_t Stepper::block_phase_isr() {
         }
         stepper_ticks -= block->deceleration_time;
       }
-      return 0.0f;
+      return 0;
     }
 
     hal_timer_t Stepper::smooth_lin_adv_isr() {
       int32_t target_adv_steps = 0;
       if (current_block) {
         const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
-        target_adv_steps = MULT_Q(27, lookahead(stepper_ticks), planner.get_advance_k_q27());
+        target_adv_steps = MULT_Q(27, smooth_lin_adv_lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
         curr_step_rate = 0;
@@ -3021,11 +3019,11 @@ hal_timer_t Stepper::block_phase_isr() {
         }
 
         const xy_long_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, (lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
-          TERN0(INPUT_SHAPING_Y, (lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
+          TERN0(INPUT_SHAPING_X, (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
+          TERN0(INPUT_SHAPING_Y, (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
         };
 
-        add_to_buffer(pre_shaping_rate);
+        delayBuffer.add(pre_shaping_rate);
 
         const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
                       y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
@@ -3039,6 +3037,7 @@ hal_timer_t Stepper::block_phase_isr() {
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
     }
+
   #endif // SMOOTH_LIN_ADVANCE
 
   // Timer interrupt for E. LA_steps is set in the main routine
