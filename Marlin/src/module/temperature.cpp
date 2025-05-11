@@ -4156,11 +4156,17 @@ void Temperature::isr() {
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
 
-      TERN_(HAS_HEATED_BED, _SLOW_PWM(BED, soft_pwm_bed, temp_bed));
+      #if HAS_HEATED_BED
+        _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
+      #endif
 
-      TERN_(HAS_HEATED_CHAMBER, _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber));
+      #if HAS_HEATED_CHAMBER
+        _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
+      #endif
 
-      TERN_(HAS_COOLER, _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler));
+      #if HAS_COOLER
+        _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler);
+      #endif
 
     } // slow_pwm_count == 0
 
@@ -4169,11 +4175,17 @@ void Temperature::isr() {
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
 
-    TERN_(HAS_HEATED_BED, _PWM_OFF(BED, soft_pwm_bed));
+    #if HAS_HEATED_BED
+      _PWM_OFF(BED, soft_pwm_bed);
+    #endif
 
-    TERN_(HAS_HEATED_CHAMBER, _PWM_OFF(CHAMBER, soft_pwm_chamber));
+    #if HAS_HEATED_CHAMBER
+      _PWM_OFF(CHAMBER, soft_pwm_chamber);
+    #endif
 
-    TERN_(HAS_COOLER, _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler));
+    #if HAS_COOLER
+      _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler);
+    #endif
 
     #if ENABLED(FAN_SOFT_PWM)
       if (pwm_count_tmp >= 127) {
