@@ -2863,14 +2863,13 @@ void Temperature::updateTemperaturesFromRawValues() {
   #endif
 
   TERN_(HAS_HOTEND, HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e));
-
-  TERN_(HAS_HEATED_BED,     temp_bed.celsius       = analog_to_celsius_bed(temp_bed.getraw()));
-  TERN_(HAS_TEMP_CHAMBER,   temp_chamber.celsius   = analog_to_celsius_chamber(temp_chamber.getraw()));
-  TERN_(HAS_TEMP_COOLER,    temp_cooler.celsius    = analog_to_celsius_cooler(temp_cooler.getraw()));
-  TERN_(HAS_TEMP_PROBE,     temp_probe.celsius     = analog_to_celsius_probe(temp_probe.getraw()));
-  TERN_(HAS_TEMP_BOARD,     temp_board.celsius     = analog_to_celsius_board(temp_board.getraw()));
-  TERN_(HAS_TEMP_SOC,       temp_soc.celsius       = analog_to_celsius_soc(temp_soc.getraw()));
-  TERN_(HAS_TEMP_REDUNDANT, temp_redundant.celsius = analog_to_celsius_redundant(temp_redundant.getraw()));
+  TERN_(HAS_HEATED_BED,           temp_bed.celsius       = analog_to_celsius_bed(temp_bed.getraw()));
+  TERN_(HAS_TEMP_CHAMBER,         temp_chamber.celsius   = analog_to_celsius_chamber(temp_chamber.getraw()));
+  TERN_(HAS_TEMP_COOLER,          temp_cooler.celsius    = analog_to_celsius_cooler(temp_cooler.getraw()));
+  TERN_(HAS_TEMP_PROBE,           temp_probe.celsius     = analog_to_celsius_probe(temp_probe.getraw()));
+  TERN_(HAS_TEMP_BOARD,           temp_board.celsius     = analog_to_celsius_board(temp_board.getraw()));
+  TERN_(HAS_TEMP_SOC,             temp_soc.celsius       = analog_to_celsius_soc(temp_soc.getraw()));
+  TERN_(HAS_TEMP_REDUNDANT,       temp_redundant.celsius = analog_to_celsius_redundant(temp_redundant.getraw()));
 
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
   TERN_(HAS_POWER_MONITOR,     power_monitor.capture_values());
@@ -4230,9 +4229,9 @@ void Temperature::isr() {
       slow_pwm_count &= 0x7F;
 
       TERN_(HAS_HOTEND, HOTEND_LOOP() soft_pwm_hotend[e].dec());
-      TERN_(HAS_HEATED_BED, soft_pwm_bed.dec());
-      TERN_(HAS_HEATED_CHAMBER, soft_pwm_chamber.dec());
-      TERN_(HAS_COOLER, soft_pwm_cooler.dec());
+      TERN_(HAS_HEATED_BED,           soft_pwm_bed.dec());
+      TERN_(HAS_HEATED_CHAMBER,       soft_pwm_chamber.dec());
+      TERN_(HAS_COOLER,               soft_pwm_cooler.dec());
     }
 
   #endif // SLOW_PWM_HEATERS
@@ -4483,12 +4482,12 @@ void Temperature::isr() {
     switch (e) {
       default:
         OPTCODE(HAS_TEMP_HOTEND, k = 'T'; break)
-      OPTCODE(HAS_TEMP_BED, case H_BED: k = 'B'; break)
-      OPTCODE(HAS_TEMP_CHAMBER, case H_CHAMBER: k = 'C'; break)
-      OPTCODE(HAS_TEMP_COOLER, case H_COOLER: k = 'L'; break)
-      OPTCODE(HAS_TEMP_PROBE, case H_PROBE: k = 'P'; show_t = false; break)
-      OPTCODE(HAS_TEMP_BOARD, case H_BOARD: k = 'M'; show_t = false; break)
-      OPTCODE(HAS_TEMP_SOC, case H_SOC: k = 'S'; show_t = false; break)
+      OPTCODE(HAS_TEMP_BED,       case H_BED:       k = 'B'; break)
+      OPTCODE(HAS_TEMP_CHAMBER,   case H_CHAMBER:   k = 'C'; break)
+      OPTCODE(HAS_TEMP_COOLER,    case H_COOLER:    k = 'L'; break)
+      OPTCODE(HAS_TEMP_PROBE,     case H_PROBE:     k = 'P'; show_t = false; break)
+      OPTCODE(HAS_TEMP_BOARD,     case H_BOARD:     k = 'M'; show_t = false; break)
+      OPTCODE(HAS_TEMP_SOC,       case H_SOC:       k = 'S'; show_t = false; break)
       OPTCODE(HAS_TEMP_REDUNDANT, case H_REDUNDANT: k = 'R'; break)
     }
     #ifndef HEATER_STATE_FLOAT_PRECISION
