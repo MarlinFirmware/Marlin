@@ -945,9 +945,9 @@ namespace LanguageWide_it {
   using namespace LanguageNarrow_it;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
     LSTR MSG_HOST_START_PRINT             = _UxGT("Avvio stampa host");
-    LSTR MSG_PRINTING_OBJECT              = _UxGT("Sto stampando l'oggetto");
-    LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancella l'oggetto");
-    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancella l'oggetto {");
+    LSTR MSG_PRINTING_OBJECT              = _UxGT("Stampa oggetto");
+    LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancella oggetto");
+    LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancella oggetto {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continua il job di stampa");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Selez.da supporto");
     LSTR MSG_TURN_OFF                     = _UxGT("Spegni la stampante");
