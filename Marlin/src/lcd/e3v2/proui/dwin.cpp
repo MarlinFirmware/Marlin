@@ -2984,50 +2984,6 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   }
 #endif
 
-#if ENABLED(EDITABLE_STEPS_PER_UNIT)
-
-  #if HAS_X_AXIS
-    void onDrawStepsX(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 153, 148, 194, 161);
-        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Y_AXIS
-    void onDrawStepsY(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 153, 148, 194, 161);
-        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Z_AXIS
-    void onDrawStepsZ(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 153, 148, 194, 161);
-        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_HOTEND
-    void onDrawStepsE(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 153, 148, 194, 161);
-        dwinFrameAreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-#endif // EDITABLE_STEPS_PER_UNIT
-
 void onDrawSpeed(MenuItem* menuitem, int8_t line) {
   if (hmiIsChinese())
     menuitem->setFrame(1, 173, 133, 228, 147);
@@ -3554,7 +3510,7 @@ void drawTuneMenu() {
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
     #endif
     #if ENABLED(PROUI_ITEM_ADVK)
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
     #endif
     #if HAS_LOCKSCREEN
       MENU_ITEM(ICON_Lock, MSG_LOCKSCREEN, onDrawMenuItem, dwinLockScreen);
@@ -3678,7 +3634,7 @@ void drawMotionMenu() {
   checkkey = ID_Menu;
   if (SET_MENU_R(motionMenu, selrect({1, 16, 28, 13}), MSG_MOTION, items)) {
     BACK_ITEM(drawControlMenu);
-    MENU_ITEM(ICON_MaxAccelerated, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
+    MENU_ITEM(ICON_MaxAccel, MSG_ACCELERATION, onDrawAcc, drawMaxAccelMenu);
     #if ENABLED(EDITABLE_STEPS_PER_UNIT)
       MENU_ITEM(ICON_Step, MSG_STEPS_PER_MM, onDrawSteps, drawStepsMenu);
     #endif
@@ -3692,7 +3648,7 @@ void drawMotionMenu() {
       MENU_ITEM(ICON_Homing, MSG_HOMING_FEEDRATE, onDrawSubMenu, drawHomingFRMenu);
     #endif
     #if ENABLED(LIN_ADVANCE)
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
     #endif
     #if ENABLED(SHAPING_MENU)
       MENU_ITEM(ICON_InputShaping, MSG_INPUT_SHAPING, onDrawSubMenu, drawInputShaping_menu);
@@ -3824,52 +3780,6 @@ void drawTemperatureMenu() {
   updateMenu(temperatureMenu);
 }
 
-void drawMaxAccelMenu() {
-  constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
-  checkkey = ID_Menu;
-  if (SET_MENU_R(maxAccelMenu, selrect({1, 16, 28, 13}), MSG_AMAX_EN, items)) {
-    BACK_ITEM(drawMotionMenu);
-    #if HAS_X_AXIS
-      EDIT_ITEM(ICON_MaxAccX, MSG_AMAX_A, onDrawMaxAccelX, setMaxAccelX, &planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
-    #endif
-    #if HAS_Y_AXIS
-      EDIT_ITEM(ICON_MaxAccY, MSG_AMAX_B, onDrawMaxAccelY, setMaxAccelY, &planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
-    #endif
-    #if HAS_Z_AXIS
-      EDIT_ITEM(ICON_MaxAccZ, MSG_AMAX_C, onDrawMaxAccelZ, setMaxAccelZ, &planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
-    #endif
-    #if HAS_HOTEND
-      EDIT_ITEM(ICON_MaxAccE, MSG_AMAX_E, onDrawMaxAccelE, setMaxAccelE, &planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
-    #endif
-  }
-  updateMenu(maxAccelMenu);
-}
-
-#if ENABLED(EDITABLE_STEPS_PER_UNIT)
-
-  void drawStepsMenu() {
-    constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
-    checkkey = ID_Menu;
-    if (SET_MENU_R(stepsMenu, selrect({1, 16, 28, 13}), MSG_STEPS_PER_MM, items)) {
-      BACK_ITEM(drawMotionMenu);
-      #if HAS_X_AXIS
-        EDIT_ITEM(ICON_StepX, MSG_A_STEPS, onDrawStepsX, setStepsX, &planner.settings.axis_steps_per_mm[X_AXIS]);
-      #endif
-      #if HAS_Y_AXIS
-        EDIT_ITEM(ICON_StepY, MSG_B_STEPS, onDrawStepsY, setStepsY, &planner.settings.axis_steps_per_mm[Y_AXIS]);
-      #endif
-      #if HAS_Z_AXIS
-        EDIT_ITEM(ICON_StepZ, MSG_C_STEPS, onDrawStepsZ, setStepsZ, &planner.settings.axis_steps_per_mm[Z_AXIS]);
-      #endif
-      #if HAS_HOTEND
-        EDIT_ITEM(ICON_StepE, MSG_E_STEPS, onDrawStepsE, setStepsE, &planner.settings.axis_steps_per_mm[E_AXIS]);
-      #endif
-    }
-    updateMenu(stepsMenu);
-  }
-
-#endif
-
 void drawMaxSpeedMenu() {
   constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
   checkkey = ID_Menu;
@@ -3889,6 +3799,27 @@ void drawMaxSpeedMenu() {
     #endif
   }
   updateMenu(maxSpeedMenu);
+}
+
+void drawMaxAccelMenu() {
+  constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
+  checkkey = ID_Menu;
+  if (SET_MENU_R(maxAccelMenu, selrect({1, 16, 28, 13}), MSG_AMAX_EN, items)) {
+    BACK_ITEM(drawMotionMenu);
+    #if HAS_X_AXIS
+      EDIT_ITEM(ICON_MaxAccX, MSG_AMAX_A, onDrawMaxAccelX, setMaxAccelX, &planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
+    #endif
+    #if HAS_Y_AXIS
+      EDIT_ITEM(ICON_MaxAccY, MSG_AMAX_B, onDrawMaxAccelY, setMaxAccelY, &planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+    #endif
+    #if HAS_Z_AXIS
+      EDIT_ITEM(ICON_MaxAccZ, MSG_AMAX_C, onDrawMaxAccelZ, setMaxAccelZ, &planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
+    #endif
+    #if HAS_HOTEND
+      EDIT_ITEM(ICON_MaxAccE, MSG_AMAX_E, onDrawMaxAccelE, setMaxAccelE, &planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+    #endif
+  }
+  updateMenu(maxAccelMenu);
 }
 
 #if ENABLED(CLASSIC_JERK)
@@ -3915,6 +3846,71 @@ void drawMaxSpeedMenu() {
   }
 
 #endif // CLASSIC_JERK
+
+#if ENABLED(EDITABLE_STEPS_PER_UNIT)
+
+  #if HAS_X_AXIS
+    void onDrawStepsX(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 44, MBASE(line));      // X
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_Y_AXIS
+    void onDrawStepsY(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 44, MBASE(line));      // Y
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_Z_AXIS
+    void onDrawStepsZ(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 44, MBASE(line));      // Z
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  #if HAS_HOTEND
+    void onDrawStepsE(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 153, 148, 194, 161);
+        dwinFrameAreaCopy(1,  18, 150,  25, 160, LBLX + 44, MBASE(line));    // E
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
+
+  void drawStepsMenu() {
+    constexpr uint8_t items = 1 + COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, HAS_Z_AXIS, HAS_HOTEND);
+    checkkey = ID_Menu;
+    if (SET_MENU_R(stepsMenu, selrect({1, 16, 28, 13}), MSG_STEPS_PER_MM, items)) {
+      BACK_ITEM(drawMotionMenu);
+      #if HAS_X_AXIS
+        EDIT_ITEM(ICON_StepX, MSG_A_STEPS, onDrawStepsX, setStepsX, &planner.settings.axis_steps_per_mm[X_AXIS]);
+      #endif
+      #if HAS_Y_AXIS
+        EDIT_ITEM(ICON_StepY, MSG_B_STEPS, onDrawStepsY, setStepsY, &planner.settings.axis_steps_per_mm[Y_AXIS]);
+      #endif
+      #if HAS_Z_AXIS
+        EDIT_ITEM(ICON_StepZ, MSG_C_STEPS, onDrawStepsZ, setStepsZ, &planner.settings.axis_steps_per_mm[Z_AXIS]);
+      #endif
+      #if HAS_HOTEND
+        EDIT_ITEM(ICON_StepE, MSG_E_STEPS, onDrawStepsE, setStepsE, &planner.settings.axis_steps_per_mm[E_AXIS]);
+      #endif
+    }
+    updateMenu(stepsMenu);
+  }
+
+#endif // EDITABLE_STEPS_PER_UNIT
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
 

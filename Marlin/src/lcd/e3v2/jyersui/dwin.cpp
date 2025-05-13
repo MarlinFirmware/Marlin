@@ -2354,7 +2354,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           break;
         case MOTION_ACCEL:
           if (draw)
-            drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ACCELERATION), nullptr, true);
+            drawMenuItem(row, ICON_MaxAccel, GET_TEXT_F(MSG_ACCELERATION), nullptr, true);
           else
             drawMenu(ID_MaxAcceleration);
           break;
@@ -2398,7 +2398,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(LIN_ADVANCE)
           case MOTION_LA:
             if (draw) {
-              drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
+              drawMenuItem(row, ICON_MaxAccel, GET_TEXT_F(MSG_ADVANCE_K));
               drawFloat(planner.get_advance_k(), row, false, 100);
             }
             else {
@@ -2907,7 +2907,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
         case ADVANCED_CORNER:
           if (draw) {
-            drawMenuItem(row, ICON_MaxAccelerated, F("Bed Screw Inset"));
+            drawMenuItem(row, ICON_MaxAccel, F("Bed Screw Inset"));
             drawFloat(corner_pos, row, false, 10);
           }
           else
@@ -2917,7 +2917,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(LIN_ADVANCE)
           case ADVANCED_LA:
             if (draw) {
-              drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
+              drawMenuItem(row, ICON_MaxAccel, GET_TEXT_F(MSG_ADVANCE_K));
               drawFloat(planner.get_advance_k(), row, false, 100);
             }
             else {
@@ -3930,7 +3930,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
         #if ENABLED(LIN_ADVANCE)
           case TUNE_LA:
             if (draw) {
-              drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
+              drawMenuItem(row, ICON_MaxAccel, GET_TEXT_F(MSG_ADVANCE_K));
               drawFloat(planner.get_advance_k(), row, false, 100);
             }
             else {
