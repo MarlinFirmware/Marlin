@@ -203,7 +203,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  *   Z[units]     retract_zraise
  */
 void FWRetract::M207() {
-  if (!parser.seen("SWFZ")) return M207_report();
+  if (!parser.seen("FSWZ")) return M207_report();
   if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
   if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
   if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
@@ -230,7 +230,7 @@ void FWRetract::M207_report() {
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void FWRetract::M208() {
-  if (!parser.seen("SWFR")) return M208_report();
+  if (!parser.seen("FSRW")) return M208_report();
   if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
   if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
