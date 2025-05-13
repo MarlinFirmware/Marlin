@@ -1506,13 +1506,12 @@ HAL_STEP_TIMER_ISR() {
 
 #ifdef CPU_32_BIT
   #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
-  FORCE_INLINE static int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) {
-    // Not doing rounding on purpose (for performance)
-    return ((int64_t)x * y) >> q;
-  }
-
 #else
   #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
+#endif
+
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }
 #endif
 
 void Stepper::isr() {
@@ -2919,16 +2918,12 @@ hal_timer_t Stepper::block_phase_isr() {
 
       DelayBuffer delayBuffer;
 
-      xy_long_t smooth_lin_adv_lookback(shaping_time_t stepper_ticks) {
+      xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
         constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
         const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
-        uint16_t buffer_index;
-        if (TERN0(VALIDATE_DELAY_STEPS, delay_steps >= IS_COMPENSATION_BUFFER_SIZE)) {
-          buffer_index = delayBuffer.index; // Catch and fix if the buffer is too small
-        }
-        else {
-          buffer_index = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps);
-          // Avoid modulo for performance, can take 100s of cycles in M0
+        uint16_t buffer_index = delayBuffer.index;
+        if (TERN1(VALIDATE_DELAY_STEPS, delay_steps < IS_COMPENSATION_BUFFER_SIZE)) {
+          buffer_index += IS_COMPENSATION_BUFFER_SIZE - delay_steps;
           if (buffer_index >= IS_COMPENSATION_BUFFER_SIZE) buffer_index -= IS_COMPENSATION_BUFFER_SIZE;
         }
         return delayBuffer.buffer[buffer_index];
