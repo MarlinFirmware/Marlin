@@ -2910,9 +2910,13 @@ hal_timer_t Stepper::block_phase_isr() {
       typedef struct {
         xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
         uint16_t index;
-        void add(const xy_long_t &input) {
+        FORCE_INLINE void add(const xy_long_t &input) {
           buffer[index] = input;
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
+        }
+        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
+          const uint16_t i = index + IS_COMPENSATION_BUFFER_SIZE - n;
+          return buffer[i < IS_COMPENSATION_BUFFER_SIZE ? i : i - IS_COMPENSATION_BUFFER_SIZE];
         }
       } DelayBuffer;
 
@@ -2921,12 +2925,7 @@ hal_timer_t Stepper::block_phase_isr() {
       xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
         constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
         const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
-        uint16_t buffer_index = delayBuffer.index;
-        if (TERN1(VALIDATE_DELAY_STEPS, delay_steps < IS_COMPENSATION_BUFFER_SIZE)) {
-          buffer_index += IS_COMPENSATION_BUFFER_SIZE - delay_steps;
-          if (buffer_index >= IS_COMPENSATION_BUFFER_SIZE) buffer_index -= IS_COMPENSATION_BUFFER_SIZE;
-        }
-        return delayBuffer.buffer[buffer_index];
+        return delayBuffer.past_item(delay_steps);
       }
 
     #endif // INPUT_SHAPING_E_SYNC
