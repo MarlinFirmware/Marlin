@@ -63,12 +63,12 @@ float FWRetract::current_retract[EXTRUDERS],          // Retract value used by p
 void FWRetract::reset() {
   TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
-  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zraise = RETRACT_ZRAISE;
   settings.retract_recover_extra = RETRACT_RECOVER_LENGTH;
-  settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
   settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
+  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
+  settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
@@ -205,9 +205,9 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
 void FWRetract::M207() {
   if (!parser.seen("FSWZ")) return M207_report();
   if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
-  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
   if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
+  if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M207_report() {
@@ -232,9 +232,9 @@ void FWRetract::M207_report() {
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
   if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
-  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
 }
 
 void FWRetract::M208_report() {

@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V91"
+#define EEPROM_VERSION "V90"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -1947,6 +1947,8 @@ void MarlinSettings::postprocess() {
         uint32_t tmp1[NUM_AXES + e_factors];
         EEPROM_READ((uint8_t *)tmp1, sizeof(tmp1)); // max_acceleration_mm_per_s2
 
+        EEPROM_READ(planner.settings.min_segment_time_us);
+
         #if ENABLED(EDITABLE_STEPS_PER_UNIT)
           float tmp2[NUM_AXES + e_factors];
           EEPROM_READ((uint8_t *)tmp2, sizeof(tmp2)); // axis_steps_per_mm
@@ -1967,7 +1969,6 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(planner.settings.acceleration);
         EEPROM_READ(planner.settings.retract_acceleration);
         EEPROM_READ(planner.settings.travel_acceleration);
-        EEPROM_READ(planner.settings.min_segment_time_us);
         EEPROM_READ(planner.settings.min_feedrate_mm_s);
         EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
@@ -3278,10 +3279,10 @@ void MarlinSettings::reset() {
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
   }
 
+  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.acceleration = DEFAULT_ACCELERATION;
   planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
-  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
