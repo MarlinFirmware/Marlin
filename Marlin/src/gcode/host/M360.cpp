@@ -22,6 +22,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+/**
+ * M360 Report Printer Configuration - Repetier Firmware
+ * See https://github.com/repetier/Repetier-Firmware/blob/master/src/ArduinoAVR/Repetier/Printer.cpp
+ */
 #if ENABLED(REPETIER_GCODE_M360)
 
 #include "../gcode.h"
@@ -236,7 +240,6 @@ void GcodeSuite::M360() {
       #elif ENABLED(CLASSIC_JERK)
         config_line_e(e, JERK_STR, planner.max_jerk.e);
       #endif
-      config_line_e(e, F("Steps/mm"), planner.settings.axis_steps_per_mm[E_AXIS_N(e)]);
       config_line_e(e, F("Acceleration"), planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(e)]);
       config_line_e(e, F("MaxSpeed"), planner.settings.max_feedrate_mm_s[E_AXIS_N(e)]);
       config_line_e(e, F("Diameter"), TERN(NO_VOLUMETRICS, DEFAULT_NOMINAL_FILAMENT_DIA, planner.filament_size[e]));
