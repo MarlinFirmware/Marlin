@@ -2916,7 +2916,7 @@ hal_timer_t Stepper::block_phase_isr() {
         }
         FORCE_INLINE xy_long_t past_item(const uint16_t n) {
           const int16_t i = int16_t(index) - n;
-          return buffer[i > 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
+          return buffer[i >= 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
         }
       } DelayBuffer;
 
