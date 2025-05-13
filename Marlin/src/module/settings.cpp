@@ -3282,10 +3282,10 @@ void MarlinSettings::reset() {
     planner.settings.max_feedrate_mm_s[i] = pgm_read_float(&_DMF[ALIM(i, _DMF)]);
   }
 
-  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.acceleration = DEFAULT_ACCELERATION;
   planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
+  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
 
