@@ -70,8 +70,9 @@ bool isAnalogPin(const pin_t pin) {
   if (!isValidPin(pin)) return false;
 
   if (getAdcChannel(pin) != adc::ADC_Channel::INVALID) {
-    auto& instance = gpio::GPIO::get_instance(getPortFromPin(pin)).value();
-    return instance.get_pin_mode(getPinInPort(pin)) == gpio::Pin_Mode::ANALOG && !M43_NEVER_TOUCH(pin);
+    const PortPinPair& pp = port_pin_map[pin];
+    auto& instance = gpio::GPIO::get_instance(pp.port).value();
+    return instance.get_pin_mode(pp.pin) == gpio::Pin_Mode::ANALOG && !M43_NEVER_TOUCH(pin);
   }
 
   return false;
@@ -80,8 +81,9 @@ bool isAnalogPin(const pin_t pin) {
 bool getValidPinMode(const pin_t pin) {
   if (!isValidPin(pin)) return false;
 
-  auto& instance = gpio::GPIO::get_instance(getPortFromPin(pin)).value();
-  gpio::Pin_Mode mode = instance.get_pin_mode(getPinInPort(pin));
+  const PortPinPair& pp = port_pin_map[pin];
+  auto& instance = gpio::GPIO::get_instance(pp.port).value();
+  gpio::Pin_Mode mode = instance.get_pin_mode(pp.pin);
 
   return mode != gpio::Pin_Mode::ANALOG && mode != gpio::Pin_Mode::INPUT_FLOATING &&
          mode != gpio::Pin_Mode::INPUT_PULLUP && mode != gpio::Pin_Mode::INPUT_PULLDOWN;

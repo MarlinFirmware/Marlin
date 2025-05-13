@@ -200,9 +200,6 @@ typedef struct {     bool NUM_AXIS_LIST_(X:1, Y:1, Z:1, I:1, J:1, K:1, U:1, V:1,
 
 #undef _EN_ITEM
 
-// Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
-
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
 static const feedRate_t _DMF[] PROGMEM = DEFAULT_MAX_FEEDRATE;
@@ -500,10 +497,15 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[DISTINCT_E]; // M900 K  planner.extruder_advance_K
+  #if ENABLED(LIN_ADVANCE)
+    float planner_extruder_advance_K[DISTINCT_E];       // M900 K  planner.extruder_advance_K
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      float stepper_extruder_advance_tau[DISTINCT_E];   // M900 U  stepper.extruder_advance_tau
+    #endif
+  #endif
 
   //
-  // HAS_MOTOR_CURRENT_PWM
+  // Stepper Motors Current
   //
   #ifndef MOTOR_CURRENT_COUNT
     #if HAS_MOTOR_CURRENT_PWM
@@ -1554,13 +1556,13 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
     {
-      _FIELD_TEST(planner_extruder_advance_K);
-
       #if ENABLED(LIN_ADVANCE)
+        _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_WRITE(planner.extruder_advance_K);
-      #else
-        dummyf = 0;
-        for (uint8_t q = DISTINCT_E; q--;) EEPROM_WRITE(dummyf);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          EEPROM_WRITE(stepper.extruder_advance_tau);
+        #endif
       #endif
     }
 
@@ -2633,15 +2635,27 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
+      #if ENABLED(LIN_ADVANCE)
       {
         float extruder_advance_K[DISTINCT_E];
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
-        #if ENABLED(LIN_ADVANCE)
-          if (!validating)
-            COPY(planner.extruder_advance_K, extruder_advance_K);
+        if (!validating)
+          COPY(planner.extruder_advance_K, extruder_advance_K);
+        #if ENABLED(SMOOTH_LIN_ADVANCE)
+          _FIELD_TEST(stepper_extruder_advance_tau);
+          float tau[DISTINCT_E];
+          EEPROM_READ(tau);
+          if (!validating) {
+            #if ENABLED(DISTINCT_E_FACTORS)
+              EXTRUDER_LOOP() stepper.set_advance_tau(tau[e], e);
+            #else
+              stepper.set_advance_tau(tau[0]);
+            #endif
+          }
         #endif
       }
+      #endif
 
       //
       // Motor Current PWM
@@ -3493,151 +3507,17 @@ void MarlinSettings::reset() {
   //
   // Endstop Adjustments
   //
-
-  #if ENABLED(X_DUAL_ENDSTOPS)
-    #ifndef X2_ENDSTOP_ADJUSTMENT
-      #define X2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.x2_endstop_adj = X2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Y_DUAL_ENDSTOPS)
-    #ifndef Y2_ENDSTOP_ADJUSTMENT
-      #define Y2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.y2_endstop_adj = Y2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Z_MULTI_ENDSTOPS)
-    #ifndef Z2_ENDSTOP_ADJUSTMENT
-      #define Z2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
-    #if NUM_Z_STEPPERS >= 3
-      #ifndef Z3_ENDSTOP_ADJUSTMENT
-        #define Z3_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
-    #endif
-    #if NUM_Z_STEPPERS >= 4
-      #ifndef Z4_ENDSTOP_ADJUSTMENT
-        #define Z4_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
-    #endif
-  #endif
+  endstops.factory_reset();
 
   //
-  // Preheat parameters
+  // Material Presets
   //
-  #if HAS_PREHEAT
-    #define _PITEM(N,T) PREHEAT_##N##_##T,
-    #if HAS_HOTEND
-      constexpr uint16_t hpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_HOTEND) };
-    #endif
-    #if HAS_HEATED_BED
-      constexpr uint16_t bpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_BED) };
-    #endif
-    #if HAS_HEATED_CHAMBER
-      constexpr uint16_t cpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_CHAMBER) };
-    #endif
-    #if HAS_FAN
-      constexpr uint8_t fpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, FAN_SPEED) };
-    #endif
-    for (uint8_t i = 0; i < PREHEAT_COUNT; ++i) {
-      TERN_(HAS_HOTEND,         ui.material_preset[i].hotend_temp  = hpre[i]);
-      TERN_(HAS_HEATED_BED,     ui.material_preset[i].bed_temp     = bpre[i]);
-      TERN_(HAS_HEATED_CHAMBER, ui.material_preset[i].chamber_temp = cpre[i]);
-      TERN_(HAS_FAN,            ui.material_preset[i].fan_speed    = fpre[i]);
-    }
-  #endif
+  TERN_(HAS_PREHEAT, ui.reset_material_presets());
 
   //
-  // Hotend PID
+  // Temperature Manager
   //
-
-  #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_PARAMS_PER_HOTEND)
-      constexpr float defKp[] =
-        #ifdef DEFAULT_Kp_LIST
-          DEFAULT_Kp_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
-        #endif
-      , defKi[] =
-        #ifdef DEFAULT_Ki_LIST
-          DEFAULT_Ki_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
-        #endif
-      , defKd[] =
-        #ifdef DEFAULT_Kd_LIST
-          DEFAULT_Kd_LIST
-        #else
-          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
-        #endif
-      ;
-      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
-      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        constexpr float defKc[] =
-          #ifdef DEFAULT_Kc_LIST
-            DEFAULT_Kc_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
-      #endif
-      #if ENABLED(PID_FAN_SCALING)
-        constexpr float defKf[] =
-          #ifdef DEFAULT_Kf_LIST
-            DEFAULT_Kf_LIST
-          #else
-            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
-          #endif
-        ;
-        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
-      #endif
-      #define PID_DEFAULT(N,E) def##N[E]
-    #else
-      #define PID_DEFAULT(N,E) DEFAULT_##N
-    #endif
-    HOTEND_LOOP() {
-      thermalManager.temp_hotend[e].pid.set(
-        PID_DEFAULT(Kp, ALIM(e, defKp)),
-        PID_DEFAULT(Ki, ALIM(e, defKi)),
-        PID_DEFAULT(Kd, ALIM(e, defKd))
-        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(Kc, ALIM(e, defKc)))
-        OPTARG(PID_FAN_SCALING, PID_DEFAULT(Kf, ALIM(e, defKf)))
-      );
-    }
-  #endif
-
-  //
-  // PID Extrusion Scaling
-  //
-  TERN_(PID_EXTRUSION_SCALING, thermalManager.lpq_len = 20); // Default last-position-queue size
-
-  //
-  // Heated Bed PID
-  //
-  #if ENABLED(PIDTEMPBED)
-    thermalManager.temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
-  #endif
-
-  //
-  // Heated Chamber PID
-  //
-  #if ENABLED(PIDTEMPCHAMBER)
-    thermalManager.temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
-  #endif
-
-  //
-  // User-Defined Thermistors
-  //
-  TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
+  thermalManager.factory_reset();
 
   //
   // Power Monitor
@@ -3733,16 +3613,27 @@ void MarlinSettings::reset() {
   //
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(DISTINCT_E_FACTORS)
+
       constexpr float linAdvanceK[] = ADVANCE_K;
       EXTRUDER_LOOP() {
-        const float a = linAdvanceK[_MAX(uint8_t(e), COUNT(linAdvanceK) - 1)];
+        const float a = linAdvanceK[ALIM(e, linAdvanceK)];
         planner.extruder_advance_K[e] = a;
         TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
       }
     #else
       planner.extruder_advance_K[0] = ADVANCE_K;
     #endif
-  #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if ENABLED(DISTINCT_E_FACTORS)
+        constexpr float linAdvanceTau[] = ADVANCE_TAU;
+        EXTRUDER_LOOP()
+          stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e);
+      #else
+        stepper.set_advance_tau(ADVANCE_TAU);
+      #endif
+
+    #endif
+  #endif // LIN_ADVANCE
 
   //
   // Motor Current PWM

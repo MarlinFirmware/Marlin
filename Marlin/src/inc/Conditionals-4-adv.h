@@ -231,6 +231,7 @@
   #undef FWRETRACT
   #undef LCD_SHOW_E_TOTAL
   #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
   #undef PID_EXTRUSION_SCALING
   #undef SHOW_TEMP_ADC_VALUES
@@ -337,6 +338,10 @@
 // Linear advance uses Jerk since E is an isolated axis
 #if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
+#endif
+
+#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.
@@ -1241,8 +1246,22 @@
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
 
-#if HAS_USB_FLASH_DRIVE && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
-  #define USE_UHS2_USB
+#if ENABLED(MULTI_VOLUME)
+  #define HAS_MULTI_VOLUME 1
+  #define SD_ONBOARD      101
+  #define USB_FLASH_DRIVE 102
+  #define DEFAULT_VOLUME_IS(N) (DEFAULT_VOLUME == N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == N)
+#else
+  #define DEFAULT_VOLUME_IS(...) 0
+  #define SHARED_VOLUME_IS(...) 0
+#endif
+
+#if ANY(USB_FLASH_DRIVE_SUPPORT, VOLUME_USB_FLASH_DRIVE)
+  #define HAS_USB_FLASH_DRIVE 1
+  #if NONE(USE_OTG_USB_HOST, USE_UHS2_USB, USE_UHS3_USB)
+    #define USE_UHS2_USB
+  #endif
 #endif
 
 /**

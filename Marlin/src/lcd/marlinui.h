@@ -255,8 +255,10 @@ public:
   #endif
 
   #if HAS_MEDIA
-    #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
-    static void media_changed(const uint8_t old_stat, const uint8_t stat);
+    #define MEDIA_MENU_GATEWAY     TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper,     menu_file_selector)
+    #define MEDIA_MENU_GATEWAY_SD  TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper_sd,  menu_file_selector_sd)
+    #define MEDIA_MENU_GATEWAY_USB TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper_usb, menu_file_selector_usb)
+    static void media_changed(const MediaPresence old_stat, const MediaPresence stat);
   #endif
 
   #if HAS_LCD_BRIGHTNESS
@@ -646,6 +648,7 @@ public:
   #if HAS_PREHEAT
     enum PreheatTarget : uint8_t { PT_HOTEND, PT_BED, PT_FAN, PT_CHAMBER, PT_ALL = 0xFF };
     static preheat_t material_preset[PREHEAT_COUNT];
+    static void reset_material_presets();
     static FSTR_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
     static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
@@ -864,7 +867,7 @@ public:
       TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
-  #else
+  #else // !HAS_ENCODER_ACTION
 
     static void update_buttons() {}
     static bool hw_button_pressed() { return false; }
