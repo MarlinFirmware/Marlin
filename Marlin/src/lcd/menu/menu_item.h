@@ -115,61 +115,63 @@ class TMenuEditItem : MenuEditItemBase {
  * a primitive storage type, a string function, and a scale factor for edit / display.
  * The EDIT_ITEM macros take care of calling action and draw methods as needed.
  *
- * For example, DEFINE_MENU_EDIT_ITEM_TYPE(percent, uint8_t, ui8tostr4pctrj, 100.f/255.f, +0.5f) expands into:
+ * For example, DEFINE_MENU_EDIT_ITEM_TYPE(percent, uint8_t, ui8tostr4pctrj, 100.f/255.f) expands into:
  *
  *   struct MenuEditItemInfo_percent {
  *     typedef uint8_t type_t;
- *     static int32_t scaleToEncoder(const type_t &value) { return value * (100.f/255.f) +0.5f; }
- *     static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (100.f/255.f) +0.5f; }
- *     static const char* strfunc(const type_t &value) { return ui8tostr4pctrj(_DOFIX(uint8_t,value)); }
+ *     static int32_t scaleToEncoder(const type_t &value) { return int32_t(value * (100.f / 255.f)); }
+ *     static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (100.f / 255.f); }
+ *     static const char* strfunc(const type_t &value) { return ui8tostr4pctrj(value); }
  *   };
  *   typedef TMenuEditItem<MenuEditItemInfo_percent> MenuItem_percent
  */
-#define __DOFIXfloat PROBE()
-#define _DOFIX(TYPE,V) TYPE(TERN(IS_PROBE(__DOFIX##TYPE),FIXFLOAT(V),(V)))
-#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE, ETC...) \
+#define __ISfloat
+#define ROUNDED(V,N)        (roundf((V) * (N)) / (N))
+#define _DOROUND(TYPE,V,S)  TYPE(TERN(__IS##TYPE,ROUNDED(V,S),(V)))
+#define _DOFLOOR(TYPE,V...) TYPE(TERN(__IS##TYPE,floorf(V),(V)))
+#define DEFINE_MENU_EDIT_ITEM_TYPE(NAME, TYPE, STRFUNC, SCALE) \
   struct MenuEditItemInfo_##NAME { \
     typedef TYPE type_t; \
     /* scale the given value to the encoder */ \
-    static int32_t scaleToEncoder(const type_t &value) { return value * (SCALE) ETC; } \
-    static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (SCALE) ETC; } \
-    static const char* strfunc(const type_t &value) { return STRFUNC(_DOFIX(TYPE,value)); } \
+    static int32_t scaleToEncoder(const type_t &value) { return int32_t(_DOFLOOR(TYPE, value * (SCALE))); } \
+    static type_t unscaleEncoder(const int32_t value) { return type_t(value) / (SCALE); } \
+    static const char* strfunc(const type_t &value) { return STRFUNC(_DOROUND(TYPE,value,SCALE)); } \
   }; \
   typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
 
-//                         NAME         TYPE      STRFUNC          SCALE         ROUND
-DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f, + 0.5f   ); // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1                   ); // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1                   ); // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1                   ); // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1                   ); // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8       ,uint8_t  ,ui8tostr3rj     ,   1                   ); // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_3    ,uint16_t ,ui16tostr3rj    ,   1                   ); // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_4    ,uint16_t ,ui16tostr4rj    ,   0.1f                ); // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f               ); // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float3      ,float    ,ftostr3rj       ,   1                   ); // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float42_52  ,float    ,ftostr42_52     , 100        , + 0.001f ); // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000        , + 0.0001f); // -1.234, _1.234, +1.234
-DEFINE_MENU_EDIT_ITEM_TYPE(float53     ,float    ,ftostr53sign    ,1000        , + 0.0001f); // -12.345, _2.345, +2.345
-DEFINE_MENU_EDIT_ITEM_TYPE(float54     ,float    ,ftostr54sign   ,10000       , + 0.00001f); // -1.2345, _1.2345, +1.2345
-DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1                   ); // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1                   ); // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f               ); // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM_TYPE(float31     ,float    ,ftostr31rj      ,  10        , + 0.01f  ); // 45.6       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float41     ,float    ,ftostr41rj      ,  10        , + 0.01f  ); // 345.6      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10        , + 0.01f  ); // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10        , + 0.01f  ); // 12345.6    right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float32     ,float    ,ftostr32rj      , 100        , + 0.001f ); // 1.23
-DEFINE_MENU_EDIT_ITEM_TYPE(float42     ,float    ,ftostr42rj      , 100        , + 0.001f ); // 12.34      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float52     ,float    ,ftostr52rj      , 100        , + 0.001f ); // 123.45     right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float62     ,float    ,ftostr62rj      , 100        , + 0.001f ); // 1234.56    right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100        , + 0.001f ); // 12345.67   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10        , + 0.01f  ); // +12.3
-DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10        , + 0.01f  ); // +123.4
-DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10        , + 0.01f  ); // +1234.5
-DEFINE_MENU_EDIT_ITEM_TYPE(float52sign ,float    ,ftostr52sign    , 100        , + 0.001f ); // +123.45
-DEFINE_MENU_EDIT_ITEM_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f               ); // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f               ); // 12345      right-justified (25 increment)
+//                         NAME         TYPE      STRFUNC          SCALE
+DEFINE_MENU_EDIT_ITEM_TYPE(percent     ,uint8_t  ,ui8tostr4pctrj  , 100.f/255.f ); // 100%       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(percent_3   ,uint8_t  ,pcttostrpctrj   ,   1         ); // 100%       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int3        ,int16_t  ,i16tostr3rj     ,   1         ); // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int4        ,int16_t  ,i16tostr4signrj ,   1         ); // 1234, -123 right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(int8        ,int8_t   ,i8tostr3rj      ,   1         ); // 123, -12   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint8       ,uint8_t  ,ui8tostr3rj     ,   1         ); // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_3    ,uint16_t ,ui16tostr3rj    ,   1         ); // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_4    ,uint16_t ,ui16tostr4rj    ,   0.1f      ); // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(uint16_5    ,uint16_t ,ui16tostr5rj    ,   0.01f     ); // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float3      ,float    ,ftostr3rj       ,   1         ); // 123        right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float42_52  ,float    ,ftostr42_52     , 100         ); // _2.34, 12.34, -2.34 or 123.45, -23.45
+DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000         ); // -1.234, _1.234, +1.234
+DEFINE_MENU_EDIT_ITEM_TYPE(float53     ,float    ,ftostr53sign    ,1000         ); // -12.345, _2.345, +2.345
+DEFINE_MENU_EDIT_ITEM_TYPE(float54     ,float    ,ftostr54sign   ,10000         ); // -1.2345, _1.2345, +1.2345
+DEFINE_MENU_EDIT_ITEM_TYPE(float4      ,float    ,ftostr4sign     ,   1         ); // 1234       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1         ); // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f     ); // 12345      right-justified (25 increment)
+DEFINE_MENU_EDIT_ITEM_TYPE(float31     ,float    ,ftostr31rj      ,  10         ); // 45.6       right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float41     ,float    ,ftostr41rj      ,  10         ); // 345.6      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10         ); // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float61     ,float    ,ftostr61rj      ,  10         ); // 12345.6    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float32     ,float    ,ftostr32rj      , 100         ); // 1.23
+DEFINE_MENU_EDIT_ITEM_TYPE(float42     ,float    ,ftostr42rj      , 100         ); // 12.34      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float52     ,float    ,ftostr52rj      , 100         ); // 123.45     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float62     ,float    ,ftostr62rj      , 100         ); // 1234.56    right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float72     ,float    ,ftostr72rj      , 100         ); // 12345.67   right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10         ); // +12.3
+DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10         ); // +123.4
+DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10         ); // +1234.5
+DEFINE_MENU_EDIT_ITEM_TYPE(float52sign ,float    ,ftostr52sign    , 100         ); // +123.45
+DEFINE_MENU_EDIT_ITEM_TYPE(long5       ,uint32_t ,ftostr5rj       ,   0.01f     ); // 12345      right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(long5_25    ,uint32_t ,ftostr5rj       ,   0.04f     ); // 12345      right-justified (25 increment)
 
 #if HAS_BED_PROBE
   #if WITHIN(PROBE_OFFSET_ZMIN, -9, 9)
