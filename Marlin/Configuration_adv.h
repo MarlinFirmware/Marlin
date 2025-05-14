@@ -1938,6 +1938,9 @@
     //#define CUSTOM_FIRMWARE_UPLOAD
   #endif
 
+  // "Over-the-air" Firmware Update with M936 - Required to set EEPROM flag
+  //#define OTA_FIRMWARE_UPDATE
+
   /**
    * Set this option to one of the following (or the board's defaults apply):
    *
@@ -2363,11 +2366,11 @@
      * Higher k and higher XY acceleration may require larger ADVANCE_TAU to avoid skipping steps.
      */
     #if ENABLED(DISTINCT_E_FACTORS)
-      #define ADVANCE_TAU { 0.01 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
+      #define ADVANCE_TAU { 0.02 }   // (s) Smoothing time to reduce extruder acceleration, per extruder
     #else
-      #define ADVANCE_TAU 0.01       // (s) Smoothing time to reduce extruder acceleration
+      #define ADVANCE_TAU 0.02       // (s) Smoothing time to reduce extruder acceleration
     #endif
-    #define SMOOTH_LIN_ADV_HZ 5000   // (Hz) How often to update extruder speed
+    #define SMOOTH_LIN_ADV_HZ 1000   // (Hz) How often to update extruder speed
     #define INPUT_SHAPING_E_SYNC     // Synchronize the extruder-shaped XY axes (to increase precision)
   #endif
 #endif
