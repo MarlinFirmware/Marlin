@@ -113,11 +113,11 @@ extern int16_t feedrate_percentage;
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_FEEDRATE)
 #else
   #if HAS_Y_AXIS
-    #define XY_PROBE_FEEDRATE MMM_TO_MMS((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
+    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #elif HAS_X_AXIS
-    #define XY_PROBE_FEEDRATE MMM_TO_MMS(homing_feedrate_mm_m.x)
+    #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(homing_feedrate_mm_m.x)
   #else
-    #define XY_PROBE_FEEDRATE 60.0f
+    #define XY_PROBE_FEEDRATE_MM_S 60.0f
   #endif
 #endif
 
