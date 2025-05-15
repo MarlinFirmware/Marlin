@@ -169,7 +169,7 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
 
   #ifdef XY_FREQUENCY_LIMIT
     SERIAL_ECHOPGM_P(PSTR(" F"), planner.xy_freq_limit_hz);
-    SERIAL_ECHOPGM_P(PSTR(" S"), planner.xy_freq_min_speed_factor);
+    SERIAL_ECHOPGM_P(PSTR(" S"), (planner.xy_freq_min_speed_factor * 100));
   #endif
 
   #if NUM_AXES || (HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS))
