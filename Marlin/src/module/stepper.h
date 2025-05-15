@@ -352,13 +352,18 @@ class Stepper {
     #endif
 
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      static void set_advance_tau(const_float_t tau, const uint8_t e=E_INDEX_N(active_extruder)) {
-        extruder_advance_tau[e] = tau;
-        extruder_advance_tau_ticks[e] = tau * (STEPPER_TIMER_RATE); // i.e., <= STEPPER_TIMER_RATE / 2
+      static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
+      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+        const uint8_t i = E_INDEX_N(e);
+        extruder_advance_tau[i] = tau;
+        extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
         // α=1−exp(−dt/τ)
-        extruder_advance_alpha[e] = 1.0f - expf(-(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[e]);
+        const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
+        extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
       }
-      static float get_advance_tau(const uint8_t e=E_INDEX_N(active_extruder)) { return extruder_advance_tau[e]; }
+      static float get_advance_tau(const uint8_t e=active_extruder) {
+        return extruder_advance_tau[E_INDEX_N(e)];
+      }
     #endif
 
   private:
@@ -449,12 +454,11 @@ class Stepper {
       static hal_timer_t nextAdvanceISR,
                          la_interval;       // Interval between ISR calls for LA
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static uint32_t curr_timer_tick,                      // Current tick relative to block start
-                        curr_step_rate;                       // Current motion step rate
-        static float  extruder_advance_tau[DISTINCT_E],       // Smoothing time; also the lookahead time of the smoother
-                      extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
-                      extruder_advance_alpha[DISTINCT_E];     // The smoothing factor of each stage of the high-order exponential
-                                                              // smoothing filter (calculated from tau)
+        static uint32_t curr_timer_tick,                        // Current tick relative to block start
+                        curr_step_rate;                         // Current motion step rate
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
+                        extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
+                                                                // smoothing filter (calculated from tau)
       #else
         static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
                         la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR

@@ -16,6 +16,10 @@
 Additional documentation can be found at the [Marlin Home Page](//marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
+---
+This README is available in other languages
+> **Versão em português:** [README-PT-BR.md](README-PT-BR.md)
+
 ## Marlin 2.1 Bugfix Branch
 
 __Not for production use. Use with caution!__

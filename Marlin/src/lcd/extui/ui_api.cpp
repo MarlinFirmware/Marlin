@@ -643,12 +643,12 @@ namespace ExtUI {
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
-      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[E_INDEX_N(extruder - E0)] : 0;
+      return (extruder < EXTRUDERS) ? planner.get_advance_k(E_INDEX_N(extruder - E0)) : 0;
     }
 
     void setLinearAdvance_mm_mm_s(const_float_t value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[E_INDEX_N(extruder - E0)] = constrain(value, 0, 10);
+        planner.set_advance_k(constrain(value, 0, 10), E_INDEX_N(extruder - E0));
     }
   #endif
 

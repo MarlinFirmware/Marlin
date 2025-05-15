@@ -126,7 +126,7 @@
 #endif
 
 #if ENABLED(ADVANCE_K_EXTRA)
-  extern float other_extruder_advance_K[DISTINCT_E];
+  extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
 #if HAS_MULTI_EXTRUDER
@@ -2641,18 +2641,14 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(planner_extruder_advance_K);
         EEPROM_READ(extruder_advance_K);
         if (!validating)
-          COPY(planner.extruder_advance_K, extruder_advance_K);
+          DISTINCT_E_LOOP() planner.set_advance_k(extruder_advance_K[e], e);
+
         #if ENABLED(SMOOTH_LIN_ADVANCE)
           _FIELD_TEST(stepper_extruder_advance_tau);
           float tau[DISTINCT_E];
           EEPROM_READ(tau);
-          if (!validating) {
-            #if ENABLED(DISTINCT_E_FACTORS)
-              EXTRUDER_LOOP() stepper.set_advance_tau(tau[e], e);
-            #else
-              stepper.set_advance_tau(tau[0]);
-            #endif
-          }
+          if (!validating)
+            DISTINCT_E_LOOP() stepper.set_advance_tau(tau[e], e);
         #endif
       }
       #endif
@@ -3615,21 +3611,23 @@ void MarlinSettings::reset() {
     #if ENABLED(DISTINCT_E_FACTORS)
 
       constexpr float linAdvanceK[] = ADVANCE_K;
-      EXTRUDER_LOOP() {
-        const float a = linAdvanceK[ALIM(e, linAdvanceK)];
-        planner.extruder_advance_K[e] = a;
-        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = a);
-      }
-    #else
-      planner.extruder_advance_K[0] = ADVANCE_K;
-    #endif
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      #if ENABLED(DISTINCT_E_FACTORS)
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
         constexpr float linAdvanceTau[] = ADVANCE_TAU;
-        EXTRUDER_LOOP()
-          stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e);
-      #else
-        stepper.set_advance_tau(ADVANCE_TAU);
+      #endif
+
+      EXTRUDER_LOOP() {
+        const float k = linAdvanceK[ALIM(e, linAdvanceK)];
+        planner.set_advance_k(k, e);
+        TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e));
+        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = k);
+      }
+
+    #else // !DISTINCT_E_FACTORS
+
+      planner.set_advance_k(ADVANCE_K);
+      TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(ADVANCE_TAU));
+      #if ENABLED(ADVANCE_K_EXTRA)
+        EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
       #endif
 
     #endif
