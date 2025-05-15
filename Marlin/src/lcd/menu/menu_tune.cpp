@@ -216,10 +216,13 @@ void menu_tune() {
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if DISABLED(DISTINCT_E_FACTORS)
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+      editable.decimal = planner.get_advance_k();
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
     #else
-      EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+      EXTRUDER_LOOP() {
+        editable.decimal = planner.get_advance_k(e);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+      }
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
       #if DISABLED(DISTINCT_E_FACTORS)

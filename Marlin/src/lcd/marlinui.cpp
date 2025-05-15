@@ -1224,7 +1224,7 @@ void MarlinUI::init() {
           #ifdef NEOPIXEL_BKGD_INDEX_FIRST
             neo.set_background_off();
             neo.show();
-          #elif PIN_EXIST(LCD_BACKLIGHT)
+          #elif PIN_EXISTS(LCD_BACKLIGHT)
             WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           #endif
           backlight_off_ms = 0;

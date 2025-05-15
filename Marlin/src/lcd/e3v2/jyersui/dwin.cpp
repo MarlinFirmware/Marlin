@@ -2398,10 +2398,13 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case MOTION_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
+
             break;
         #endif
       }
@@ -2914,10 +2917,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case ADVANCED_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 
@@ -3925,10 +3930,12 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           case TUNE_LA:
             if (draw) {
               drawMenuItem(row, ICON_MaxAccelerated, GET_TEXT_F(MSG_ADVANCE_K));
-              drawFloat(planner.extruder_advance_K[0], row, false, 100);
+              drawFloat(planner.get_advance_k(), row, false, 100);
             }
-            else
-              modifyValue(planner.extruder_advance_K[0], 0, 10, 100);
+            else {
+              static float k = planner.get_advance_k();
+              modifyValue(k, 0, 10, 100, []{ planner.set_advance_k(k); });
+            }
             break;
         #endif
 

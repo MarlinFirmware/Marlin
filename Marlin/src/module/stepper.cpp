@@ -1510,6 +1510,10 @@ HAL_STEP_TIMER_ISR() {
   #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 #endif
 
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }
+#endif
+
 void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
@@ -2877,9 +2881,9 @@ hal_timer_t Stepper::block_phase_isr() {
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
 
-    float Stepper::extruder_advance_tau[DISTINCT_E],
-          Stepper::extruder_advance_tau_ticks[DISTINCT_E],
-          Stepper::extruder_advance_alpha[DISTINCT_E];
+    float Stepper::extruder_advance_tau[DISTINCT_E];
+    uint32_t Stepper::extruder_advance_tau_ticks[DISTINCT_E],
+             Stepper::extruder_advance_alpha_q30[DISTINCT_E];
 
     void Stepper::set_la_interval(const int32_t rate) {
       if (rate == 0) {
@@ -2904,117 +2908,119 @@ hal_timer_t Stepper::block_phase_isr() {
       constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
 
       typedef struct {
-        xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
+        xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
         uint16_t index;
+        FORCE_INLINE void add(const xy_long_t &input) {
+          buffer[index] = input;
+          if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
+        }
+        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
+          const int16_t i = int16_t(index) - n;
+          return buffer[i >= 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
+        }
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      void add_to_buffer(xy_float_t input) {
-        delayBuffer.buffer[delayBuffer.index++] = input;
-        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE)
-          delayBuffer.index = 0;
-      }
-
-      xy_float_t lookback(shaping_time_t t /* in stepper timer ticks */) {
-        constexpr float ADV_TICKS_PER_STEPPER_TICKS = float(SMOOTH_LIN_ADV_HZ) / (STEPPER_TIMER_RATE);
-        uint32_t delay_steps = t * ADV_TICKS_PER_STEPPER_TICKS  + 0.5f; // Convert time to steps
-        uint16_t past_i;
-        if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
-          // this means the buffer is too small. TODO: how to inform user?
-          past_i = delayBuffer.index;
-        }
-        else {
-          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps) % IS_COMPENSATION_BUFFER_SIZE;
-        }
-        return delayBuffer.buffer[past_i];
+      xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
+        constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
+        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
+        return delayBuffer.past_item(delay_steps);
       }
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    float lookahead(uint32_t t) {
+    int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
-        if (t <= block->acceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
+        if (stepper_ticks <= block->acceleration_time) {
+          if (!block->use_advance_lead) return 0;
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
-          return rate * block->e_step_ratio;
+          return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->acceleration_time;
+        stepper_ticks -= block->acceleration_time;
 
-        if (t <= block->cruise_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          return block->cruise_rate * block->e_step_ratio;
+        if (stepper_ticks <= block->cruise_time) {
+          if (!block->use_advance_lead) return 0;
+          return MULT_Q(30, block->cruise_rate, block->e_step_ratio_q30);
         }
-        t -= block->cruise_time;
+        stepper_ticks -= block->cruise_time;
 
-        if (t <= block->deceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate);
+        if (stepper_ticks <= block->deceleration_time) {
+          if (!block->use_advance_lead) return 0;
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
           if (rate < block->cruise_rate) {
             rate = block->cruise_rate - rate;
             NOLESS(rate, block->final_rate);
           }
           else
             rate = block->final_rate;
-          return rate * block->e_step_ratio;
+          return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->deceleration_time;
+        stepper_ticks -= block->deceleration_time;
       }
-      return 0.0f;
+      return 0;
     }
 
     hal_timer_t Stepper::smooth_lin_adv_isr() {
-      float target_adv_steps = 0;
+      int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
-        target_adv_steps = lookahead(t) * planner.extruder_advance_K[0];
+        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
+        target_adv_steps = MULT_Q(27, smooth_lin_adv_lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
         curr_step_rate = 0;
       }
-      static float last_target_adv_steps = 0;
-      constexpr float dt_inv = SMOOTH_LIN_ADV_HZ;
-      float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
+      static int32_t last_target_adv_steps = 0;
+      constexpr uint16_t dt_inv = SMOOTH_LIN_ADV_HZ;
+      int32_t la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
-      static float smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        la_step_rate = extruder_advance_alpha[0] * la_step_rate + (1 - extruder_advance_alpha[0]) * smoothed_vals[i];
-        smoothed_vals[i] = la_step_rate;
+        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
+        la_step_rate = smoothed_vals[i];
       }
-      const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;
-      float total_step_rate = la_step_rate + planned_step_rate;
+
+      const int32_t planned_step_rate = current_block
+        ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
+        : 0;
+
+      int32_t total_step_rate = la_step_rate + planned_step_rate;
 
       #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-        xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
-                   first_pulse_rate = xy_float_t({0, 0});
-        float unshaped_rate_e = total_step_rate;
+        xy_long_t pre_shaping_rate = xy_long_t({0, 0}),
+                  first_pulse_rate = xy_long_t({0, 0});
+        int32_t unshaped_rate_e = total_step_rate;
         if (current_block) {
-          const float xy_length = TERN0(INPUT_SHAPING_X, current_block->steps.x) + TERN0(INPUT_SHAPING_Y, current_block->steps.y);
-          if (xy_length > 0) {
+          if (current_block->xy_length_inv_q30 > 0) {
             unshaped_rate_e = 0;
-            pre_shaping_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, total_step_rate * current_block->steps.x / xy_length),
-              TERN0(INPUT_SHAPING_Y, total_step_rate * current_block->steps.y / xy_length)
+
+            pre_shaping_rate = xy_long_t({
+              TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
+              TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
             });
-            first_pulse_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f),
-              TERN0(INPUT_SHAPING_Y, pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f)
+
+            first_pulse_rate = xy_long_t({
+              TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
+              TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
             });
           }
         }
-        const xy_float_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f),
-          TERN0(INPUT_SHAPING_Y, lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f)
-        };
-        add_to_buffer(pre_shaping_rate);
 
-        const float x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                    y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        const xy_long_t second_pulse_rate = {
+          TERN0(INPUT_SHAPING_X, (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
+          TERN0(INPUT_SHAPING_Y, (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
+        };
+
+        delayBuffer.add(pre_shaping_rate);
+
+        const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
+                      y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
 
         total_step_rate = unshaped_rate_e + x + y;
 
@@ -3025,6 +3031,7 @@ hal_timer_t Stepper::block_phase_isr() {
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
     }
+
   #endif // SMOOTH_LIN_ADVANCE
 
   // Timer interrupt for E. LA_steps is set in the main routine
