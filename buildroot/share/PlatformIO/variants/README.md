@@ -3,7 +3,7 @@
 This `buildroot/share/PlatformIO/variants` folder contains Marlin custom variants for both generic and custom boards.
 
 Marlin specifies board variants in PlatformIO INI files in one of two ways:
-- The `board_build.variant = VARIANT_MAME` field specifies the variant subfolder name directly.
+- The `board_build.variant = VARIANT_NAME` field specifies the variant subfolder name directly.
 - The `board = board_name` field names a custom board JSON file that contains a `build.variant` field.
 
 ## Variant File Naming

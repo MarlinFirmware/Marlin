@@ -116,14 +116,17 @@ void menu_backlash();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
 
     #if ENABLED(LIN_ADVANCE)
-      #if DISTINCT_E < 2
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+      #if DISABLED(DISTINCT_E_FACTORS)
+        editable.decimal = planner.get_advance_k();
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
       #else
-        EXTRUDER_LOOP()
-          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+        EXTRUDER_LOOP() {
+          editable.decimal = planner.get_advance_k(e);
+          EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+        }
       #endif
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        #if DISTINCT_E < 2
+        #if DISABLED(DISTINCT_E_FACTORS)
           editable.decimal = stepper.get_advance_tau();
           EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
         #else
@@ -745,18 +748,22 @@ void menu_advanced_settings() {
   #endif
 
   #if HAS_ADV_FILAMENT_MENU
-    SUBMENU(MSG_FILAMENT, menu_advanced_filament);
-  #endif
 
-  #if ENABLED(LIN_ADVANCE) && DISABLED(HAS_ADV_FILAMENT_MENU)
-    #if DISTINCT_E < 2
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+    SUBMENU(MSG_FILAMENT, menu_advanced_filament);
+
+  #elif ENABLED(LIN_ADVANCE)
+
+    #if DISABLED(DISTINCT_E_FACTORS)
+      editable.decimal = planner.get_advance_k();
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
     #else
-      EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+      EXTRUDER_LOOP() {
+        editable.decimal = planner.get_advance_k(e);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+      }
     #endif
     #if ENABLED(SMOOTH_LIN_ADVANCE)
-      #if DISTINCT_E < 2
+      #if DISABLED(DISTINCT_E_FACTORS)
         editable.decimal = stepper.get_advance_tau();
         EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
       #else
@@ -766,7 +773,8 @@ void menu_advanced_settings() {
         }
       #endif
     #endif
-  #endif
+
+  #endif // LIN_ADVANCE && !HAS_ADV_FILAMENT_MENU
 
   // M540 S - Abort on endstop hit when SD printing
   #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
