@@ -65,59 +65,12 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // MIN4
-  #else
-    #define X_MIN_PIN                E0_DIAG_PIN  // MIN4
-  #endif
-#elif NEEDS_X_MINMAX
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                 X_DIAG_PIN  // MIN1
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // MIN4
-  #endif
-#else
-  #define X_STOP_PIN                  X_DIAG_PIN  // MIN1
-#endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // MIN5
-  #else
-    #define Y_MIN_PIN                E1_DIAG_PIN  // MIN5
-  #endif
-#elif NEEDS_Y_MINMAX
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN  // MIN2
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // MIN5
-  #endif
-#else
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // MIN2
-#endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // MIN6
-  #else
-    #define Z_MIN_PIN                E2_DIAG_PIN  // MIN6
-  #endif
-#elif NEEDS_Z_MINMAX
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                 Z_DIAG_PIN  // MIN3
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // MIN6
-  #endif
-#else
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // MIN3
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // MIN1
+#define Y_STOP_PIN                    Y_DIAG_PIN  // MIN2
+#define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
+#define X_OTHR_PIN                   E0_DIAG_PIN  // MIN4
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // MIN5
+#define Z_OTHR_PIN                   E2_DIAG_PIN  // MIN6
 
 //
 // Z Probe (when not Z_MIN_PIN)

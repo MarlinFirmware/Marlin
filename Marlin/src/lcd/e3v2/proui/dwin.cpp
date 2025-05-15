@@ -2697,7 +2697,8 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  void setLA_K() { setPFloatOnClick(0, 10, 3); }
+  void applyLA_K() { planner.set_advance_k(menuData.value / MINUNITMULT); }
+  void setLA_K() { setPFloatOnClick(0, 10, 3, applyLA_K); }
 #endif
 
 #if HAS_X_AXIS
@@ -3559,7 +3560,7 @@ void drawTuneMenu() {
       EDIT_ITEM(ICON_JDmm, MSG_JUNCTION_DEVIATION, onDrawPFloat3Menu, setJDmm, &planner.junction_deviation_mm);
     #endif
     #if ENABLED(PROUI_ITEM_ADVK)
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.extruder_advance_K[0]);
+      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
     #endif
     #if HAS_LOCKSCREEN
       MENU_ITEM(ICON_Lock, MSG_LOCKSCREEN, onDrawMenuItem, dwinLockScreen);
@@ -3700,7 +3701,7 @@ void drawMotionMenu() {
       MENU_ITEM(ICON_Homing, MSG_HOMING_FEEDRATE, onDrawSubMenu, drawHomingFRMenu);
     #endif
     #if ENABLED(LIN_ADVANCE)
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.extruder_advance_K[0]);
+      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &planner.get_advance_k());
     #endif
     #if ENABLED(SHAPING_MENU)
       MENU_ITEM(ICON_InputShaping, MSG_INPUT_SHAPING, onDrawSubMenu, drawInputShaping_menu);
