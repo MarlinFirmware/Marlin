@@ -167,6 +167,11 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
     SERIAL_ECHOPGM_P(SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS]));
   #endif
 
+  #ifdef XY_FREQUENCY_LIMIT
+    SERIAL_ECHOPGM_P(PSTR(" F"), planner.xy_freq_limit_hz);
+    SERIAL_ECHOPGM_P(PSTR(" S"), planner.xy_freq_min_speed_factor);
+  #endif
+
   #if NUM_AXES || (HAS_EXTRUDERS && DISABLED(DISTINCT_E_FACTORS))
     SERIAL_EOL();
   #endif
