@@ -124,8 +124,13 @@
  *  S<percent> : Speed factor percentage.
  */
 void GcodeSuite::M201() {
-  if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS")))
+  if (!parser.seen("T" STR_AXES_LOGICAL 
+    #ifdef XY_FREQUENCY_LIMIT
+      "FS"
+    #endif
+  )) {
     return M201_report();
+  }
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
