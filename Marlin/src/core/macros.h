@@ -138,7 +138,7 @@
 // Macros to chain up to 40 conditions
 #define _DO_1(W,C,A)       (_##W##_1(A))
 #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
-#define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
+#define _DO_3(W,C,A, ...)  (_##W##_1(A) C _DO_2(W,C,__VA_ARGS__))
 #define _DO_4(W,C,A,V...)  (_##W##_1(A) C _DO_3(W,C,V))
 #define _DO_5(W,C,A,V...)  (_##W##_1(A) C _DO_4(W,C,V))
 #define _DO_6(W,C,A,V...)  (_##W##_1(A) C _DO_5(W,C,V))
@@ -176,9 +176,9 @@
 #define _DO_38(W,C,A,V...) (_##W##_1(A) C _DO_37(W,C,V))
 #define _DO_39(W,C,A,V...) (_##W##_1(A) C _DO_38(W,C,V))
 #define _DO_40(W,C,A,V...) (_##W##_1(A) C _DO_39(W,C,V))
-#define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
-#define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
-#define DO(W,C,V...)       (_DO_N(W,C,NUM_ARGS(V),V))
+#define __DO_N(W,C,N,...)  _DO_##N(W,C,__VA_ARGS__)
+#define _DO_N(W,C,N,...)  __DO_N(W,C,N,__VA_ARGS__)
+#define DO(W,C,...)       (_DO_N(W,C,NUM_ARGS(__VA_ARGS__),__VA_ARGS__))
 
 // Concatenate symbol names, without or with pre-expansion
 #define _CAT(a,V...) a##V
@@ -379,11 +379,11 @@
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define NUM_ARGS(V...) _NUM_ARGS(0,V,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
+#define NUM_ARGS(...) _NUM_ARGS(0,__VA_ARGS__,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0)
 
 // Use TWO_ARGS(__VA_ARGS__) to get whether there are 1, 2, or >2 arguments
 #define _TWO_ARGS(_,n,m,l,k,j,i,h,g,f,e,d,c,b,a,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
-#define TWO_ARGS(V...) _TWO_ARGS(0,V,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
+#define TWO_ARGS(...) _TWO_ARGS(0,__VA_ARGS__,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,1,0)
 
 #ifdef __cplusplus
 
