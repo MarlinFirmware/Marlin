@@ -2924,8 +2924,10 @@ hal_timer_t Stepper::block_phase_isr() {
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
         FORCE_INLINE xy_long_t past_item(const uint16_t n) {
-          const int16_t i = int16_t(index) - n;
-          return buffer[i >= 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
+          int16_t i = int16_t(index) - n;
+          if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
+          // if (i < 0) return {0, 0}; // This can only happen if the input shaping frequency was set blow the minimum configured at build time. It means input shaping will also be missbehaving, but the menu doesn't dissalow it. Input shaping setters should forbid this instead
+          return buffer[i];
         }
       } DelayBuffer;
 
@@ -3010,26 +3012,25 @@ hal_timer_t Stepper::block_phase_isr() {
             unshaped_rate_e = 0;
 
             pre_shaping_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
-              TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
+              MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30),
+              MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30)
             });
 
-            first_pulse_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
-              TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
-            });
+            first_pulse_rate = pre_shaping_rate;
+            TERN_(INPUT_SHAPING_X, if (Stepper::shaping_x.enabled) first_pulse_rate.X = (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7;)
+            TERN_(INPUT_SHAPING_Y, if (Stepper::shaping_y.enabled) first_pulse_rate.Y = (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7;)
           }
         }
 
-        const xy_long_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
-          TERN0(INPUT_SHAPING_Y, (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
-        };
+        xy_long_t second_pulse_rate = xy_long_t({0, 0});
+
+        TERN_(INPUT_SHAPING_X, if (Stepper::shaping_x.enabled) second_pulse_rate.X = (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2) >> 7;)
+        TERN_(INPUT_SHAPING_Y, if (Stepper::shaping_y.enabled) second_pulse_rate.Y = (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2) >> 7;)
 
         delayBuffer.add(pre_shaping_rate);
 
-        const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                      y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        const int32_t x = first_pulse_rate.x + second_pulse_rate.x,
+                      y = first_pulse_rate.y + second_pulse_rate.y;
 
         total_step_rate = unshaped_rate_e + x + y;
 
