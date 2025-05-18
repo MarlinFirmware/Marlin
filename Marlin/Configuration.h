@@ -767,6 +767,7 @@
 
   #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // (mm) M306 Autotuning position, ideally bed center at first layer height.
   #define MPC_TUNING_END_Z 10.0f                      // (mm) M306 Autotuning final Z position.
+  //#define MPC_DISABLE_STEPPERS                      // Immediately disable steppers after tune finished and Z raised.
 #endif
 
 //===========================================================================
