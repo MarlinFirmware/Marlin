@@ -75,17 +75,16 @@ enum processID : uint8_t {
 #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
 
   enum tempcontrol_t : uint8_t {
+    AUTOTUNE_DONE,
     #if HAS_PID_HEATING
-      PID_DONE = 0,
-      PID_STARTED,
-      PID_BED_STARTED,
-      PID_CHAMBER_STARTED,
+      OPTITEM(PIDTEMP, PID_STARTED)
+      OPTITEM(PIDTEMPBED, PID_BED_STARTED)
+      OPTITEM(PIDTEMPCHAMBER, PID_CHAMBER_STARTED)
       PID_BAD_HEATER_ID,
       PID_TEMP_TOO_HIGH,
       PID_TUNING_TIMEOUT,
     #endif
     #if ENABLED(MPC_AUTOTUNE)
-      MPC_DONE = 0,
       MPC_STARTED,
       MPC_TEMP_ERROR,
       MPC_INTERRUPTED,
@@ -178,10 +177,8 @@ typedef struct {
 
 typedef struct {
   rgb_t color;                        // Color
-  #if HAS_PID_HEATING
-    tempcontrol_t tempControl = PID_DONE;
-  #elif ENABLED(MPC_AUTOTUNE)
-    tempcontrol_t tempControl = MPC_DONE;
+  #if ANY(HAS_PID_HEATING, MPC_AUTOTUNE)
+    tempcontrol_t tempControl = AUTOTUNE_DONE;
   #endif
   uint8_t select = 0;                 // Auxiliary selector variable
   AxisEnum axis = X_AXIS;             // Axis Select
@@ -321,9 +318,7 @@ void dwinRebootScreen();
 #endif
 #if ALL(PROUI_TUNING_GRAPH, PROUI_ITEM_PLOT)
   void dwinDrawPlot(tempcontrol_t result);
-  #if ENABLED(PIDTEMP)
-    void drawHotendPlot();
-  #endif
+  void drawHotendPlot();
   #if ENABLED(PIDTEMPBED)
     void drawBedPlot();
   #endif

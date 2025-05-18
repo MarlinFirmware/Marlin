@@ -63,7 +63,10 @@ void GcodeSuite::M48() {
     hmiSaveProcessID(ID_NothingToDo);
   #endif
 
-  if (homing_needed_error()) return TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
+  if (homing_needed_error()) {
+    TERN_(DWIN_LCD_PROUI, hmiReturnScreen());
+    return;
+  }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {

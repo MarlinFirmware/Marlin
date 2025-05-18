@@ -1245,19 +1245,13 @@ void drawMainArea() {
     #if ENABLED(PROUI_ITEM_PLOT)
       case ID_PlotProcess:
         switch (hmiValue.tempControl) {
-          #if ENABLED(PIDTEMP)
-            case PID_STARTED: drawHotendPlot(); break;
-          #elif ENABLED(MPCTEMP)
-            case MPC_STARTED: drawHotendPlot(); break;
-          #endif
-          #if ENABLED(PIDTEMPBED)
-            case PID_BED_STARTED: drawBedPlot(); break;
-          #endif
-          #if ENABLED(PIDTEMPCHAMBER)
-            case PID_CHAMBER_STARTED: drawChamberPlot(); break;
-          #endif
+          TERN_(PIDTEMP,          case PID_STARTED:)
+          TERN_(MPCTEMP,          case MPC_STARTED:)        drawHotendPlot(); break;
+          OPTCODE(PIDTEMPBED,     case PID_BED_STARTED:     drawBedPlot(); break)
+          OPTCODE(PIDTEMPCHAMBER, case PID_CHAMBER_STARTED: drawChamberPlot(); break)
           default: break;
-        } break;
+        }
+        break;
     #endif
     case ID_Popup:            popupDraw(); break;
     #if HAS_LOCKSCREEN
@@ -1690,12 +1684,8 @@ void dwinLevelingDone() {
       TERN_(PIDTEMP, dwinDrawPlot(PID_STARTED));
       TERN_(MPCTEMP, dwinDrawPlot(MPC_STARTED));
     }
-    void drawBedPlot() {
-      TERN_(PIDTEMPBED, dwinDrawPlot(PID_BED_STARTED));
-    }
-    void drawChamberPlot() {
-      TERN_(PIDTEMPCHAMBER, dwinDrawPlot(PID_CHAMBER_STARTED));
-    }
+    TERN_(PIDTEMPBED, void drawBedPlot() { dwinDrawPlot(PID_BED_STARTED); })
+    TERN_(PIDTEMPCHAMBER, void drawChamberPlot() { dwinDrawPlot(PID_CHAMBER_STARTED); })
 
   #endif // PROUI_ITEM_PLOT
 
@@ -1764,7 +1754,7 @@ void dwinLevelingDone() {
         checkkey = last_checkkey;
         dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_PID_AUTOTUNE_FAILED), GET_TEXT_F(MSG_TEMP_TOO_HIGH));
         break;
-      case PID_DONE:
+      case AUTOTUNE_DONE:
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_PID_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         break;
@@ -1800,7 +1790,7 @@ void dwinLevelingDone() {
         dwinPopupContinue(ICON_TempTooHigh, GET_TEXT_F(MSG_ERROR), F(STR_MPC_AUTOTUNE_INTERRUPTED));
         ui.reset_alert_level();
         break;
-      case MPC_DONE:
+      case AUTOTUNE_DONE:
         checkkey = last_checkkey;
         dwinPopupConfirm(ICON_TempTooLow, GET_TEXT_F(MSG_MPC_AUTOTUNE), GET_TEXT_F(MSG_BUTTON_DONE));
         ui.reset_alert_level();

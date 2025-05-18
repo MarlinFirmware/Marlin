@@ -209,7 +209,12 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
-      dwinPIDTuning(tempcontrol_t(rst));
+      if (rst == PID_DONE) {
+        dwinPIDTuning(AUTOTUNE_DONE);
+      }
+      else {
+        dwinPIDTuning(tempcontrol_t(rst));
+      }
     }
     void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
       dwinStartM303(count, hid, temp);
@@ -219,7 +224,12 @@ namespace ExtUI {
   #if ENABLED(MPC_AUTOTUNE)
     void onMPCTuning(const mpcresult_t rst) {
       // Called for temperature MPC tuning result
-      dwinMPCTuning(tempcontrol_t(rst));
+      if (rst == MPC_DONE) {
+        dwinMPCTuning(AUTOTUNE_DONE);
+      }
+      else {
+        dwinMPCTuning(tempcontrol_t(rst));
+      }
     }
   #endif
 
