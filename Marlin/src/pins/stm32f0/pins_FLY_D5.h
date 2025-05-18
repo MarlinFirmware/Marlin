@@ -119,7 +119,7 @@
 #ifndef TMC_BAUD_RATE
   #define TMC_BAUD_RATE                    9600
 #endif
-  
+
 #endif
 
 //
