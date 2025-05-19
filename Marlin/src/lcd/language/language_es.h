@@ -28,7 +28,13 @@
  * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
-#define MEDIA_TYPE_ES "SD/FD"
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_ES "SD"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_ES "USB"
+#else
+  #define MEDIA_TYPE_ES "SD/FD"
+#endif
 
 namespace LanguageNarrow_es {
   using namespace Language_en; // Inherit undefined strings from English
@@ -36,7 +42,7 @@ namespace LanguageNarrow_es {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Spanish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Lista");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Lista");
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Atrás");
@@ -54,7 +60,6 @@ namespace LanguageNarrow_es {
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Ajustes avanzados");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuración");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automático");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Apagar motores");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menú depuración");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Prob. barra progreso");
@@ -368,14 +373,14 @@ namespace LanguageNarrow_es {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descargar filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descargar fil. *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descargar todo");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Iniciar SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Iniciar USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Iniciar ") MEDIA_TYPE_ES;
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar ") MEDIA_TYPE_ES;
+  LSTR MSG_ATTACH_SD                      = _UxGT("Iniciar SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Iniciar USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar ") MEDIA_TYPE_ES;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Lanzar ") MEDIA_TYPE_ES;
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Inicio automático");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera cama");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Factor de desviación");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -543,7 +548,8 @@ namespace LanguageNarrow_es {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Límite Hibrido");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Origen sin sensores");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Modo de pasos");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Habilit.");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reiniciar");
   LSTR MSG_SERVICE_IN                     = _UxGT(" dentro:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

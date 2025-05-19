@@ -503,7 +503,7 @@ void DGUSRxHandler::probe(DGUS_VP &vp, void *data_ptr) {
   UNUSED(data_ptr);
 
   #if ENABLED(MESH_BED_LEVELING)
-    screen.setStatusMessage(FPSTR(DGUS_MSG_ABL_REQUIRED));
+    screen.setStatusMessage(GET_TEXT_F(DGUS_MSG_ABL_REQUIRED));
     return;
   #endif
 

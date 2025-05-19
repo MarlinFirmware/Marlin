@@ -30,6 +30,10 @@
 
 #include "menu_item.h"
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  #include "../../MarlinCore.h"
+#endif
+
 #if HAS_GAMES
   #include "game/game.h"
 #endif
@@ -246,7 +250,11 @@ void menu_info_board() {
     STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
-    STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);         // My3DPrinter
+    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+      STATIC_ITEM_C(&machine_name, SS_DEFAULT|SS_INVERT);         // My3DPrinter
+    #else
+      STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);       // My3DPrinter
+    #endif
     STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if HAS_LEVELING

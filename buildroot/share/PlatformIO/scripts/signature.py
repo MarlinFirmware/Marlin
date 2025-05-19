@@ -195,9 +195,9 @@ def compute_build_signature(env):
 
     # Get the CONFIG_EXPORT value and do an extended dump if > 100
     # For example, CONFIG_EXPORT 102 will make a 'config.ini' with a [config:] group for each schema @section
-    config_dump = tryint('CONFIG_EXPORT')
+    config_dump = 101 if is_embed else tryint('CONFIG_EXPORT')
     extended_dump = config_dump > 100
-    if extended_dump: config_dump -= 100
+    config_dump %= 100
 
     # Get the schema class for exports that require it
     if config_dump in (3, 4) or (extended_dump and config_dump in (2, 5)):
@@ -451,7 +451,7 @@ f'''#
     # Produce a JSON file for CONFIGURATION_EMBEDDING or CONFIG_EXPORT == 1 or 101
     # Skip if an identical JSON file was already present.
     #
-    if not same_hash and (config_dump == 1 or is_embed):
+    if not same_hash and config_dump == 1:
         with marlin_json.open('w') as outfile:
 
             json_data = {}
@@ -468,12 +468,11 @@ f'''#
                         json_data[header][s][name] = c['value']
             else:
                 for header in real_config:
-                    json_data[header] = {}
                     conf = real_config[header]
                     #print(f"real_config[{header}]", conf)
                     for name in conf:
                         if name in ignore: continue
-                        json_data[header][name] = conf[name]['value']
+                        json_data[name] = conf[name]['value']
 
             json_data['__INITIAL_HASH'] = hashes
 

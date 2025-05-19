@@ -92,7 +92,7 @@
   #define MICROSTEP32 HIGH,HIGH,LOW
 #endif
 
-//#define MOTOR_FAULT_PIN                     22  // PB26 , motor X-Y-Z-E0 motor FAULT
+//#define MOTOR_FAULT_PIN                     22  // PB26, motor X-Y-Z-E0 motor FAULT
 
 //
 // Temperature Sensors

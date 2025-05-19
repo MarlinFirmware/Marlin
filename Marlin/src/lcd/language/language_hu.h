@@ -39,7 +39,7 @@ namespace LanguageNarrow_hu {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Magyar");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Kész.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Kész.");
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");
@@ -57,7 +57,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("További beállítások");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguráció");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Fájl auto. futtatás");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorok kikapcsolása");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hiba Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Haladás sáv teszt");
@@ -431,14 +430,14 @@ namespace LanguageNarrow_hu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Szál eltávolítás");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Szál eltávolítás *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Mindet eltávolít");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Tároló SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Tároló USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Tároló SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Tároló USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Tároló csere");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Tároló Kiadása");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Fájl auto. futtatás");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z szonda tálcán kivül");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Ferdeség faktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -630,7 +629,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrid küszöbérték");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Motoros kezdöpont");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Léptetö mód");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop mód");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Újraindítás");
   LSTR MSG_SERVICE_IN                     = _UxGT(" be:");
   LSTR MSG_BACKLASH                       = _UxGT("Holtjáték");

@@ -230,11 +230,12 @@ static void _lcd_goto_next_corner() {
     );
   }
 
+  // Probe down and return 'true' if the probe triggered
   bool _lcd_bed_tramming_probe(const bool verify=false) {
-    if (verify) line_to_z(current_position.z + (BED_TRAMMING_Z_HOP)); // do clearance if needed
-    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy()); // Deploy in LOW SPEED MODE on every probe action
-    do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW)); // Move down to lower tolerance
-    if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) { // check if probe triggered
+    if (verify) line_to_z(current_position.z + (BED_TRAMMING_Z_HOP));                 // Do clearance if needed
+    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy());                   // Deploy in LOW SPEED MODE on every probe action
+    do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, z_probe_slow_mm_s);  // Move down to lower tolerance
+    if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) {                                // Probe triggered?
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
@@ -251,10 +252,10 @@ static void _lcd_goto_next_corner() {
       if (TERN0(NEEDS_PROBE_DEPLOY, good_points == nr_edge_points - 1))
         do_z_clearance(BED_TRAMMING_Z_HOP);
 
-      return true; // probe triggered
+      return true; // Triggered
     }
-    line_to_z(last_z); // go back to tolerance middle point before raise
-    return false; // probe not triggered
+    line_to_z(last_z); // Go back to tolerance middle point before raise
+    return false; // Not triggered
   }
 
   bool _lcd_bed_tramming_raise() {

@@ -62,7 +62,7 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-    if (TERN1(M73_REPORT_SD_ONLY, IS_SD_PRINTING())) {
+    if (TERN1(M73_REPORT_SD_ONLY, card.isStillPrinting())) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM(" M73");
       #if ENABLED(SET_PROGRESS_PERCENT)

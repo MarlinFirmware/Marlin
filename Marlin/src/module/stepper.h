@@ -140,7 +140,6 @@ constexpr ena_mask_t enable_overlap[] = {
   #ifdef SHAPING_MAX_STEPRATE
     constexpr float max_step_rate = SHAPING_MAX_STEPRATE;
   #else
-    #define ISALIM(I, ARR) _MIN(I, COUNT(ARR) - 1)
     constexpr float     _ISDASU[] = DEFAULT_AXIS_STEPS_PER_UNIT;
     constexpr feedRate_t _ISDMF[] = DEFAULT_MAX_FEEDRATE;
     constexpr float max_shaped_rate = TERN0(INPUT_SHAPING_X, _ISDMF[X_AXIS] * _ISDASU[X_AXIS]) +
@@ -149,7 +148,7 @@ constexpr ena_mask_t enable_overlap[] = {
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
       template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
-        return _MAX(_ISDMF[ISALIM(INDEX - 1, _ISDMF)] * _ISDASU[ISALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
+        return _MAX(_ISDMF[ALIM(INDEX - 1, _ISDMF)] * _ISDASU[ALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
         return TERN0(ADAPTIVE_STEP_SMOOTHING, min_step_isr_frequency);
@@ -241,18 +240,21 @@ constexpr ena_mask_t enable_overlap[] = {
         static bool dequeue_x() { SHAPING_QUEUE_DEQUEUE(x) }
         static bool empty_x() { return head_x == tail; }
         static uint16_t free_count_x() { return _free_count_x; }
+        static uint16_t get_delay_x() { return delay_x; }
       #endif
       #if ENABLED(INPUT_SHAPING_Y)
         static shaping_time_t peek_y() { return _peek_y; }
         static bool dequeue_y() { SHAPING_QUEUE_DEQUEUE(y) }
         static bool empty_y() { return head_y == tail; }
         static uint16_t free_count_y() { return _free_count_y; }
+        static uint16_t get_delay_y() { return delay_y; }
       #endif
       #if ENABLED(INPUT_SHAPING_Z)
         static shaping_time_t peek_z() { return _peek_z; }
         static bool dequeue_z() { SHAPING_QUEUE_DEQUEUE(z) }
         static bool empty_z() { return head_z == tail; }
         static uint16_t free_count_z() { return _free_count_z; }
+        static uint16_t get_delay_z() { return delay_z; }
       #endif
       static void purge() {
         const auto st = shaping_time_t(-1);
@@ -292,6 +294,7 @@ constexpr ena_mask_t enable_overlap[] = {
 class Stepper {
   friend class Max7219;
   friend class FTMotion;
+  friend class MarlinSettings;
   friend void stepperTask(void *);
 
   public:
@@ -346,6 +349,21 @@ class Stepper {
       static bool adaptive_step_smoothing_enabled;
     #else
       static constexpr bool adaptive_step_smoothing_enabled = true;
+    #endif
+
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      static float extruder_advance_tau[DISTINCT_E]; // Smoothing time; also the lookahead time of the smoother
+      static void set_advance_tau(const_float_t tau, const uint8_t e=active_extruder) {
+        const uint8_t i = E_INDEX_N(e);
+        extruder_advance_tau[i] = tau;
+        extruder_advance_tau_ticks[i] = tau * STEPPER_TIMER_RATE;
+        // α=1−exp(−dt/τ)
+        const float alpha_float = 1.0f - expf(-float(SMOOTH_LIN_ADV_INTERVAL) * (SMOOTH_LIN_ADV_EXP_ORDER) / extruder_advance_tau_ticks[i]);
+        extruder_advance_alpha_q30[i] = int32_t(alpha_float * _BV32(30));
+      }
+      static float get_advance_tau(const uint8_t e=active_extruder) {
+        return extruder_advance_tau[E_INDEX_N(e)];
+      }
     #endif
 
   private:
@@ -434,11 +452,19 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       static constexpr hal_timer_t LA_ADV_NEVER = HAL_TIMER_TYPE_MAX;
       static hal_timer_t nextAdvanceISR,
-                         la_interval;      // Interval between ISR calls for LA
-      static int32_t     la_delta_error,   // Analogue of delta_error.e for E steps in LA ISR
-                         la_dividend,      // Analogue of advance_dividend.e for E steps in LA ISR
-                         la_advance_steps; // Count of steps added to increase nozzle pressure
-      static bool        la_active;        // Whether linear advance is used on the present segment.
+                         la_interval;       // Interval between ISR calls for LA
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static uint32_t curr_timer_tick,                        // Current tick relative to block start
+                        curr_step_rate;                         // Current motion step rate
+        static uint32_t extruder_advance_tau_ticks[DISTINCT_E], // Same as extruder_advance_tau but in in stepper timer ticks
+                        extruder_advance_alpha_q30[DISTINCT_E]; // The smoothing factor of each stage of the high-order exponential
+                                                                // smoothing filter (calculated from tau)
+      #else
+        static int32_t  la_delta_error,     // Analogue of delta_error.e for E steps in LA ISR
+                        la_dividend,        // Analogue of advance_dividend.e for E steps in LA ISR
+                        la_advance_steps;   // Count of steps added to increase nozzle pressure
+        static bool     la_active;          // Whether linear advance is used on the present segment
+      #endif
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
@@ -504,6 +530,10 @@ class Stepper {
     #if ENABLED(LIN_ADVANCE)
       // The Linear advance ISR phase
       static void advance_isr();
+      #if ENABLED(SMOOTH_LIN_ADVANCE)
+        static void set_la_interval(const int32_t rate);
+        static hal_timer_t smooth_lin_adv_isr();
+      #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -558,7 +588,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      TERN_(LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers
