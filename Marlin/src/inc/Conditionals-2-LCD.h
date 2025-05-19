@@ -663,11 +663,6 @@
   #define BOOT_MARLIN_LOGO_SMALL
 #endif
 
-// Flow and feedrate editing
-#if HAS_EXTRUDERS && ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
-  #define HAS_FLOW_EDIT 1
-#endif
-
 /**
  * TFT Displays
  *
