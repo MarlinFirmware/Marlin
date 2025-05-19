@@ -1673,11 +1673,12 @@
 
 #endif // HAS_DISPLAY
 
-#if HAS_FEEDRATE_EDIT
+// Some displays offer Feedrate / Flow editing.
+#if ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN, ULTIPANEL_FEEDMULTIPLY)
   #define SPEED_EDIT_MIN    10  // (%) Feedrate percentage edit range minimum
   #define SPEED_EDIT_MAX   999  // (%) Feedrate percentage edit range maximum
 #endif
-#if HAS_FLOW_EDIT
+#if ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
   #define FLOW_EDIT_MIN     10  // (%) Flow percentage edit range minimum
   #define FLOW_EDIT_MAX    999  // (%) Flow percentage edit range maximum
 #endif
