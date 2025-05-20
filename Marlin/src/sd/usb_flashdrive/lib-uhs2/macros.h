@@ -32,12 +32,12 @@
 // HANDY MACROS
 ////////////////////////////////////////////////////////////////////////////////
 
-#define VALUE_BETWEEN(v,l,h) (((v)>(l)) && ((v)<(h)))
-#define VALUE_WITHIN(v,l,h) (((v)>=(l)) && ((v)<=(h)))
+#define VALUE_BETWEEN(v,l,h) (((v) > (l)) && ((v) < (h)))
+#define VALUE_WITHIN(v,l,h) (((v) >= (l)) && ((v) <= (h)))
 #define output_pgm_message(wa,fp,mp,el) wa = &mp, fp((char *)pgm_read_pointer(wa), el)
-#define output_if_between(v,l,h,wa,fp,mp,el) if (VALUE_BETWEEN(v,l,h)) output_pgm_message(wa,fp,mp[v-(l+1)],el);
+#define output_if_between(v,l,h,wa,fp,mp,el) if (VALUE_BETWEEN(v, l, h)) output_pgm_message(wa, fp, mp[v - (l + 1)], el);
 
-#define SWAP(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#define SWAP(a,b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 #ifndef __BYTE_GRABBING_DEFINED__
 #define __BYTE_GRABBING_DEFINED__ 1
 #ifdef BROKEN_OPTIMIZER_LITTLE_ENDIAN

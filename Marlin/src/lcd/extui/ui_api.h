@@ -590,8 +590,8 @@ namespace ExtUI {
  *
  *   UI_INCREMENT(TargetTemp_celsius, E0)
  */
-#define UI_INCREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
-#define UI_DECREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
+#define UI_INCREMENT_BY(method,inc,...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
+#define UI_DECREMENT_BY(method,inc,...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
 
-#define UI_INCREMENT(method, ...) UI_INCREMENT_BY(method, increment, ##__VA_ARGS__)
-#define UI_DECREMENT(method, ...) UI_DECREMENT_BY(method, increment, ##__VA_ARGS__)
+#define UI_INCREMENT(method,...) UI_INCREMENT_BY(method, increment, ##__VA_ARGS__)
+#define UI_DECREMENT(method,...) UI_DECREMENT_BY(method, increment, ##__VA_ARGS__)

@@ -272,9 +272,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 24: // TMC Motor Current
     #if HAS_TRINAMIC_CONFIG
-      #define SEND_TRINAMIC_CURR(A, B) SEND_VALasTXT(A, getAxisCurrent_mA(B))
+      #define SEND_TRINAMIC_CURR(A,B) SEND_VALasTXT(A, getAxisCurrent_mA(B))
     #else
-      #define SEND_TRINAMIC_CURR(A, B) SEND_NA(A)
+      #define SEND_TRINAMIC_CURR(A,B) SEND_NA(A)
     #endif
     SEND_TRINAMIC_CURR("x",  X);
     SEND_TRINAMIC_CURR("x2", X2);
@@ -288,9 +288,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 25: // TMC Bump Sensitivity
     #if HAS_TRINAMIC_CONFIG
-      #define SEND_TRINAMIC_BUMP(A, B) SEND_VALasTXT(A, getTMCBumpSensitivity(B))
+      #define SEND_TRINAMIC_BUMP(A,B) SEND_VALasTXT(A, getTMCBumpSensitivity(B))
     #else
-      #define SEND_TRINAMIC_BUMP(A, B) SEND_NA(A)
+      #define SEND_TRINAMIC_BUMP(A,B) SEND_NA(A)
     #endif
     SEND_TRINAMIC_BUMP("x",  X);
     SEND_TRINAMIC_BUMP("x2", X2);
@@ -302,9 +302,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 26: // TMC Hybrid Threshold Speed
     #if 0 && ALL(HAS_TRINAMIC_CONFIG, HYBRID_THRESHOLD)
-      #define SEND_TRINAMIC_THRS(A, B) SEND_VALasTXT(A, getAxisPWMthrs(B))
+      #define SEND_TRINAMIC_THRS(A,B) SEND_VALasTXT(A, getAxisPWMthrs(B))
     #else
-      #define SEND_TRINAMIC_THRS(A, B) SEND_NA(A)
+      #define SEND_TRINAMIC_THRS(A,B) SEND_NA(A)
     #endif
     SEND_TRINAMIC_THRS("x",  X);
     SEND_TRINAMIC_THRS("x2", X2);
@@ -319,9 +319,9 @@ void NextionTFT::panelInfo(uint8_t req) {
   case 27: // Printcounter
     #if ENABLED(PRINTCOUNTER)
       char buffer[21];
-      #define SEND_PRINT_INFO(A, B) SEND_VALasTXT(A, B(buffer))
+      #define SEND_PRINT_INFO(A,B) SEND_VALasTXT(A, B(buffer))
     #else
-      #define SEND_PRINT_INFO(A, B) SEND_NA(A)
+      #define SEND_PRINT_INFO(A,B) SEND_NA(A)
     #endif
     SEND_PRINT_INFO("t5", getTotalPrints_str);
     SEND_PRINT_INFO("t3", getFinishedPrints_str);
@@ -333,9 +333,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 28: // Filament load/unload
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      #define SEND_PAUSE_INFO(A, B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
+      #define SEND_PAUSE_INFO(A,B) SEND_VALasTXT(A, fc_settings[getActiveTool()].B)
     #else
-      #define SEND_PAUSE_INFO(A, B) SEND_NA(A)
+      #define SEND_PAUSE_INFO(A,B) SEND_NA(A)
     #endif
     SEND_PAUSE_INFO("filamentin", load_length);
     SEND_PAUSE_INFO("filamentout", unload_length);
@@ -384,9 +384,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 31: // Jerk
     #if ENABLED(CLASSIC_JERK)
-      #define SEND_JERK_INFO(A, B) SEND_VALasTXT(A, getAxisMaxJerk_mm_s(B))
+      #define SEND_JERK_INFO(A,B) SEND_VALasTXT(A, getAxisMaxJerk_mm_s(B))
     #else
-      #define SEND_JERK_INFO(A, B) SEND_NA(A)
+      #define SEND_JERK_INFO(A,B) SEND_NA(A)
       //SEND_VALasTXT("x", getJunctionDeviation_mm());
       SEND_TXT("tmppage.M117", "classic Jerk not enabled");
     #endif
@@ -416,9 +416,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 34: // Dual X carriage offset
     #if ENABLED(DUAL_X_CARRIAGE)
-      #define SEND_IDEX_INFO(A, B) SEND_VALasTXT(A, getNozzleOffset_mm(B, getActiveTool()))
+      #define SEND_IDEX_INFO(A,B) SEND_VALasTXT(A, getNozzleOffset_mm(B, getActiveTool()))
     #else
-      #define SEND_IDEX_INFO(A, B) SEND_NA(A)
+      #define SEND_IDEX_INFO(A,B) SEND_NA(A)
     #endif
     SEND_IDEX_INFO("x", X);
     SEND_IDEX_INFO("y", Y);
@@ -427,9 +427,9 @@ void NextionTFT::panelInfo(uint8_t req) {
 
   case 35: // Probe offset
     #if HAS_PROBE_XY_OFFSET
-      #define SEND_PROBE_INFO(A, B) SEND_VALasTXT(A, getProbeOffset_mm(B))
+      #define SEND_PROBE_INFO(A,B) SEND_VALasTXT(A, getProbeOffset_mm(B))
     #else
-      #define SEND_PROBE_INFO(A, B) SEND_NA(A)
+      #define SEND_PROBE_INFO(A,B) SEND_NA(A)
     #endif
     SEND_PROBE_INFO("x", X);
     SEND_PROBE_INFO("y", Y);
@@ -465,13 +465,13 @@ void NextionTFT::panelInfo(uint8_t req) {
     break;
 
   case 37: // PID
-    #define SEND_PID_INFO_0(A, B) TERN(PIDTEMP, SEND_VALasTXT(A, getPID_K##B(E0)), SEND_NA(A))
+    #define SEND_PID_INFO_0(A,B) TERN(PIDTEMP, SEND_VALasTXT(A, getPID_K##B(E0)), SEND_NA(A))
     #if ALL(PIDTEMP, HAS_MULTI_EXTRUDER)
-      #define SEND_PID_INFO_1(A, B) SEND_VALasTXT(A, getPID_K##B(E1))
+      #define SEND_PID_INFO_1(A,B) SEND_VALasTXT(A, getPID_K##B(E1))
     #else
-      #define SEND_PID_INFO_1(A, B) SEND_NA(A)
+      #define SEND_PID_INFO_1(A,B) SEND_NA(A)
     #endif
-    #define SEND_PID_INFO_BED(A, B) TERN(PIDTEMPBED, SEND_VALasTXT(A, getBedPID_K##B()), SEND_NA(A))
+    #define SEND_PID_INFO_BED(A,B) TERN(PIDTEMPBED, SEND_VALasTXT(A, getBedPID_K##B()), SEND_NA(A))
     SEND_PID_INFO_0("p0", p); SEND_PID_INFO_0("i0", i); SEND_PID_INFO_0("d0", d);
     SEND_PID_INFO_1("p1", p); SEND_PID_INFO_1("i1", i); SEND_PID_INFO_1("d1", d);
     SEND_PID_INFO_BED("hbp", p); SEND_PID_INFO_BED("hbi", i); SEND_PID_INFO_BED("hbd", d);

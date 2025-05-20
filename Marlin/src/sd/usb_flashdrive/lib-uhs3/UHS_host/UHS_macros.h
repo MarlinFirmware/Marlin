@@ -114,14 +114,14 @@ e-mail   :  support@circuitsathome.com
 #endif
 
 #if defined(__arm__) && defined(CORE_TEENSY)
-#define UHS_PIN_WRITE(p, v) digitalWriteFast(p, v)
+#define UHS_PIN_WRITE(p,v) digitalWriteFast(p, v)
 #define UHS_PIN_READ(p) digitalReadFast(p)
 #endif
 // TODO: Fast inline code for AVR and SAM based microcontrollers
 //       This can be done pretty easily.
 //       For now, this will just work out-of-the-box.
 #ifndef UHS_PIN_WRITE
-#define UHS_PIN_WRITE(p, v) digitalWrite(p, v)
+#define UHS_PIN_WRITE(p,v) digitalWrite(p, v)
 #endif
 #ifndef UHS_PIN_READ
 #define UHS_PIN_READ(p) digitalRead(p)
@@ -154,16 +154,16 @@ e-mail   :  support@circuitsathome.com
 // Bonus, it makes code easier to read too.
 // Bitbanding is a wonderful thing.
 #define BITNR(i) (i&0x1?0:i&0x2?1:i&0x4?2:i&0x8?3:i&0x10?4:i&0x20?5:i&0x40?6:i&0x80?7:i&0x100?8:i&0x200?9:i&0x400?10:i&0x800?11:i&0x1000?12:i&0x2000?13:i&0x4000?14:i&0x8000?15:i&0x10000?16:i&0x20000?17:i&0x40000?18:i&0x80000?19:i&0x100000?20:i&0x200000?21:i&0x400000?22:i&0x800000?23:i&0x1000000?24:i&0x2000000?25:i&0x4000000?26:i&0x8000000?27:i&0x10000000?28:i&0x20000000?29:i&0x40000000?30:i&0x80000000?31:32)
-#define UHS_KIO_BITBAND_ADDR(r, i) (((uint32_t)&(r) - 0x40000000) * 32 + (i) * 4 + 0x42000000)
-#define UHS_KIO_SETBIT_ATOMIC(r, m) (*(uint32_t *)UHS_KIO_BITBAND_ADDR((r), BITNR((m)))) = 1
-#define UHS_KIO_CLRBIT_ATOMIC(r, m) (*(uint32_t *)UHS_KIO_BITBAND_ADDR((r), BITNR((m)))) = 0
+#define UHS_KIO_BITBAND_ADDR(r,i) (((uint32_t)&(r) - 0x40000000) * 32 + (i) * 4 + 0x42000000)
+#define UHS_KIO_SETBIT_ATOMIC(r,m) (*(uint32_t *)UHS_KIO_BITBAND_ADDR((r), BITNR((m)))) = 1
+#define UHS_KIO_CLRBIT_ATOMIC(r,m) (*(uint32_t *)UHS_KIO_BITBAND_ADDR((r), BITNR((m)))) = 0
 
-#define VALUE_BETWEEN(v,l,h) (((v)>(l)) && ((v)<(h)))
-#define VALUE_WITHIN(v,l,h) (((v)>=(l)) && ((v)<=(h)))
+#define VALUE_BETWEEN(v,l,h) (((v) > (l)) && ((v) < (h)))
+#define VALUE_WITHIN(v,l,h) (((v) >= (l)) && ((v) <= (h)))
 #define output_pgm_message(wa,fp,mp,el) wa = &mp, fp((char *)pgm_read_pointer(wa), el)
-#define output_if_between(v,l,h,wa,fp,mp,el) if(VALUE_BETWEEN(v,l,h)) output_pgm_message(wa,fp,mp[v-(l+1)],el);
+#define output_if_between(v,l,h,wa,fp,mp,el) if(VALUE_BETWEEN(v, l, h)) output_pgm_message(wa, fp, mp[v - (l + 1)], el);
 
-#define UHS_SWAP_VALUES(a, b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
+#define UHS_SWAP_VALUES(a,b) (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b)))
 #ifndef __BYTE_GRABBING_DEFINED__
 #define __BYTE_GRABBING_DEFINED__ 1
 #ifdef BROKEN_OPTIMIZER_LITTLE_ENDIAN
@@ -217,8 +217,8 @@ e-mail   :  support@circuitsathome.com
 #define USBTRACE(s) (USBTRACE1((s), 0x80)); USB_HOST_SERIAL.flush()
 #define USBTRACE3(s,r,l) (Notify(PSTR(s), l), D_PrintHex((r), l), Notify(PSTR("\r\n"), l))
 #define USBTRACE3X(s,r,l) (Notify(PSTR(s), l), D_PrintHex((r), l))
-#define USBTRACE2(s,r) (USBTRACE3((s),(r),0x80)); USB_HOST_SERIAL.flush()
-#define USBTRACE2X(s,r) (USBTRACE3X((s),(r),0x80)); USB_HOST_SERIAL.flush()
+#define USBTRACE2(s,r) (USBTRACE3((s), (r), 0x80)); USB_HOST_SERIAL.flush()
+#define USBTRACE2X(s,r) (USBTRACE3X((s), (r), 0x80)); USB_HOST_SERIAL.flush()
 
 #define VOID0 ((void)0)
 #ifndef NOTUSED

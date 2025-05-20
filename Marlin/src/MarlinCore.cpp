@@ -527,7 +527,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     const bool printer_not_busy = !printingIsActive();
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
     #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
-    #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
+    #define _CHECK_CUSTOM_USER_BUTTON(N,CODE) do{                      \
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t next_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
