@@ -749,6 +749,8 @@ class Stepper {
 
     #if NONLINEAR_EXTRUSION_Q24
       static void calc_nonlinear_e(const uint32_t step_rate);
+    #else
+      static void calc_nonlinear_e(const uint32_t) {}
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
