@@ -403,13 +403,13 @@ void menu_move() {
 
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[NUM_AXES_SHAPED] {};
+    static MString<20> shaper_name[NUM_AXES_SHAPED] {};
     #if HAS_X_AXIS
       for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
         shaper_name[a] = get_shaper_name(AxisEnum(a));
     #endif
     #if HAS_DYNAMIC_FREQ
-      MString<20> dmode = get_dyn_freq_mode_name();
+      static MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
     ft_config_t &c = ftMotion.cfg;
@@ -469,13 +469,13 @@ void menu_move() {
 
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[NUM_AXES_SHAPED] {};
+    static MString<20> shaper_name[NUM_AXES_SHAPED] {};
     #if HAS_X_AXIS
       for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
         shaper_name[a] = get_shaper_name(AxisEnum(a));
     #endif
     #if HAS_DYNAMIC_FREQ
-      MString<20> dmode = get_dyn_freq_mode_name();
+      static MString<20> dmode = get_dyn_freq_mode_name();
     #endif
 
     #if HAS_EXTRUDERS
