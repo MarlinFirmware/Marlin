@@ -39,8 +39,6 @@
   #include "../../libs/hex_print.h"
 #endif
 
-//#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
-
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   inline void cap_line(FSTR_P const name, const bool ena=true) {
     #if ENABLED(MINIMAL_CAP_LINES)
@@ -122,10 +120,10 @@ void GcodeSuite::M115() {
     serial_index_t port = queue.ring_buffer.command_port();
 
     // PAREN_COMMENTS
-    TERN_(PAREN_COMMENTS, cap_line(F("PAREN_COMMENTS")));
+    cap_line(F("PAREN_COMMENTS"), ENABLED(PAREN_COMMENTS));
 
     // QUOTED_STRINGS
-    TERN_(GCODE_QUOTED_STRINGS, cap_line(F("QUOTED_STRINGS")));
+    cap_line(F("QUOTED_STRINGS"), ENABLED(GCODE_QUOTED_STRINGS));
 
     // SERIAL_XON_XOFF
     cap_line(F("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
@@ -186,6 +184,9 @@ void GcodeSuite::M115() {
     // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
     cap_line(F("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
+    // HAS_DISPLAY
+    cap_line(F("DISPLAY"), ENABLED(HAS_DISPLAY));
+
     // PROMPT SUPPORT (M876)
     cap_line(F("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
 
@@ -227,6 +228,9 @@ void GcodeSuite::M115() {
     // ARC_SUPPORT (G2-G3)
     cap_line(F("ARCS"), ENABLED(ARC_SUPPORT));
 
+    // BEZIER_CURVE_SUPPORT (G5)
+    cap_line(F("BEZIERS"), ENABLED(BEZIER_CURVE_SUPPORT));
+
     // BABYSTEPPING (M290)
     cap_line(F("BABYSTEPPING"), ENABLED(BABYSTEPPING));
 
@@ -250,6 +254,33 @@ void GcodeSuite::M115() {
 
     // HEATED_BED
     cap_line(F("HEATED_BED"), ENABLED(HAS_HEATED_BED));
+
+    // MIXING_EXTRUDER
+    cap_line(F("MIXING_EXTRUDER"), ENABLED(MIXING_EXTRUDER));
+
+    // DUAL_X_CARRIAGE
+    cap_line(F("DUAL_X_CARRIAGE"), ENABLED(DUAL_X_CARRIAGE));
+
+    // NOZZLE_PARK_FEATURE
+    cap_line(F("NOZZLE_PARKING"), ENABLED(NOZZLE_PARK_FEATURE));
+
+    // NOZZLE_CLEAN_FEATURE
+    cap_line(F("NOZZLE_CLEANING"), ENABLED(NOZZLE_CLEAN_FEATURE));
+
+    // INPUT_SHAPING
+    cap_line(F("INPUT_SHAPING"), ANY(INPUT_SHAPING_X, INPUT_SHAPING_Y));
+
+    // LIN_ADVANCE
+    cap_line(F("LINEAR_ADVANCE"), ENABLED(LIN_ADVANCE));
+
+    // FIRMWARE_RETRACT
+    cap_line(F("FIRMWARE_RETRACT"), ENABLED(FWRETRACT));
+
+    // POWER_LOSS_RECOVERY
+    cap_line(F("POWER_LOSS_RECOVERY"), ENABLED(POWER_LOSS_RECOVERY));
+
+    // DIRECT_STEPPING
+    cap_line(F("DIRECT_STEPPING"), ENABLED(DIRECT_STEPPING));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
