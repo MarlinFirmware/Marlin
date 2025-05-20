@@ -2840,15 +2840,15 @@ hal_timer_t Stepper::block_phase_isr() {
       #if NONLINEAR_EXTRUSION_Q24
         ne_edividend = advance_dividend.e;
         const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-        ne_scale_q24 = (1L << 24) * scale;
+        ne_scale_q24 = _BV32(24) * scale;
         if (current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
-          ne_q24.A = (1L << 24) * ne.A;
-          ne_q24.B = (1L << 24) * ne.B;
-          ne_q24.C = (1L << 24) * ne.C;
+          ne_q24.A = _BV32(24) * ne.A;
+          ne_q24.B = _BV32(24) * ne.B;
+          ne_q24.C = _BV32(24) * ne.C;
         }
         else {
           ne_q24.A = ne_q24.B = 0;
-          ne_q24.C = (1L << 24);
+          ne_q24.C = _BV32(24);
         }
       #endif
 
