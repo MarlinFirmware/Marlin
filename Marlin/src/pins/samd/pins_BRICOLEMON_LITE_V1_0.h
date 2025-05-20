@@ -22,13 +22,15 @@
 #pragma once
 
 /**
- * BRICOLEMON LITE Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
+ * Bricolemon Lite Board. Based on atsamd51 (AGCM4), bootloader and credits by ADAFRUIT.
+ * https://lemoncrest.com https://bricogeek.com
+ *
  * This board its a 3.3V LOGIC Board, following the ADAFRUIT example, all of the board is open source.
  * Schematic: Refer to the Bricolemon
- * 3DSTEP: https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon%20Lite/LC_BG_002_PCB_V1I4.step
- * PinDemux: https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon/PinDEMUX.xlsx
+ * 3DSTEP:    https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon%20Lite/LC_BG_002_PCB_V1I4.step
+ * PinDemux:  https://github.com/bricogeek/bricolemon/blob/master/Documentacion/Bricolemon/PinDEMUX.xlsx
  *
- * NOTE: We need the Serial port on the -1 to make it work!!. Remember to change it on configuration.h #define SERIAL_PORT -1
+ * NOTE: Requires SERIAL_PORT -1
  */
 
 #if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
@@ -36,37 +38,50 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BRICOLEMON LITE V1.0" // Lemoncrest & BricoGeek collaboration.
+  #define BOARD_INFO_NAME "Bricolemon Lite v1.0" // Lemoncrest & BricoGeek collaboration.
 #endif
 
-/**
- * EEPROM EMULATION: Works with some bugs already, but the board needs an I2C EEPROM memory soldered on.
- */
-//#define FLASH_EEPROM_EMULATION
-#define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE              0x10000U  // 64K (CAT24C512)
-
-// This is another option to emulate an EEPROM, but it's more efficient to not lose the data in the first place.
-//#define SDCARD_EEPROM_EMULATION
+//
+// EEPROM Emulation: Works (with some bugs) already, but the board needs an I2C EEPROM memory soldered on.
+//
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM                              // EEPROM on I2C-0
+  //#define FLASH_EEPROM_EMULATION
+  //#define SDCARD_EEPROM_EMULATION
+  #if ENABLED(I2C_EEPROM)
+    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
+  #if ENABLED(SDCARD_EEPROM_EMULATION)
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
+  #else
+    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
+  #endif
+  #undef NO_EEPROM_SELECTED
+#endif
 
 //
-// BLTOUCH PIN: This pin is the signal pin for the BLTOUCH sensor.
+// Servos
 //
-#define SERVO0_PIN                            33  // BLTouch PWM
+#define SERVO0_PIN                            33  // BL_TOUCH
+
+//
+// TMC StallGuard DIAG pins - Require soldered bridges!
+//
+#define X_DIAG_PIN                            10  // X_STOP
+#define Y_DIAG_PIN                            11  // Y_STOP
+#define Z_DIAG_PIN                            12  // Z_STOP
+#define E0_DIAG_PIN                           32  // E_STOP
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN                            10
-#define Y_STOP_PIN                            11
-#define Z_STOP_PIN                            12
+#define X_STOP_PIN                    X_DIAG_PIN
+#define Y_STOP_PIN                    Y_DIAG_PIN
+#define Z_STOP_PIN                    Z_DIAG_PIN
 
 //
-// Z Probe (when not Z_MIN_PIN)
+// Filament Runout Sensor
 //
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     12
-#endif
+#define FIL_RUNOUT_PIN                        32  // E_STOP
 
 //
 // Steppers
@@ -86,10 +101,6 @@
 #define E0_STEP_PIN                            2
 #define E0_DIR_PIN                            25
 #define E0_ENABLE_PIN                         29
-
-// Filament runout. You may choose to use this pin for some other purpose. It's a normal GPIO that can be configured as I/O.
-// For example, a switch to detect any kind of behavior, Power supply pin .... etc.
-#define FIL_RUNOUT_PIN                        32
 
 //
 // Temperature Sensors
@@ -579,16 +590,16 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
   static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_BRICOLEMON_LITE_V1_0.");
   static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_BRICOLEMON_LITE_V1_0.");

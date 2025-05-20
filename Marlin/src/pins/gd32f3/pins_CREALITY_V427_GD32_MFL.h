@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,14 +21,28 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" {
-#endif
+/**
+ * Creality MFL GD32 V4.2.7 (GD32F303RE) board pin assignments
+ */
 
-void lv_draw_gcode(bool clear = false);
-void lv_clear_gcode();
-void disp_gcode_output();
+#define ALLOW_GD32F3
 
-#ifdef __cplusplus
-  } /* C-declarations for C++ */
-#endif
+#define BOARD_INFO_NAME      "Creality V4.2.7 MFL"
+#define DEFAULT_MACHINE_NAME "Creality3D MFL"
+
+//
+// Steppers
+//
+#define X_STEP_PIN                          PB9
+#define X_DIR_PIN                           PC2
+
+#define Y_STEP_PIN                          PB7
+#define Y_DIR_PIN                           PB8
+
+#define Z_STEP_PIN                          PB5
+#define Z_DIR_PIN                           PB6
+
+#define E0_STEP_PIN                         PB3
+#define E0_DIR_PIN                          PB4
+
+#include "../stm32f1/pins_CREALITY_V4.h"

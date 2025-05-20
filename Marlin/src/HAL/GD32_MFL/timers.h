@@ -44,9 +44,9 @@
 extern uint32_t GetStepperTimerClkFreq();
 
 // Timer prescaler calculations
-#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)	// Prescaler = 30
+#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE) // Prescaler = 30
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)				        // Stepper timer ticks per µs
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)                // Stepper timer ticks per µs
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE
 #define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 
@@ -57,7 +57,7 @@ extern uint32_t GetStepperTimerClkFreq();
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
 #define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
-#define ENABLE_TEMPERATURE_INTERRUPT()		  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()      HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT()     HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 extern void Step_Handler();
@@ -89,7 +89,7 @@ static inline constexpr struct {timer::TIMER_Base base; uint8_t timer_number;} b
 };
 
 // Converts a timer base to an integer timer index.
-constexpr int timer_base_to_index(timer::TIMER_Base base) {
+constexpr auto timer_base_to_index(timer::TIMER_Base base) -> int {
   for (const auto& timer : base_to_index) {
     if (timer.base == base) {
       return static_cast<int>(timer.timer_number);
@@ -131,7 +131,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const hal_timer_t value) {
   if (!HAL_timer_initialized(timer_number)) return;
 
-  const uint32_t new_value = static_cast<uint32_t>(value + 1U);
+  const auto new_value = static_cast<uint32_t>(value + 1U);
   GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
 
   if (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) {

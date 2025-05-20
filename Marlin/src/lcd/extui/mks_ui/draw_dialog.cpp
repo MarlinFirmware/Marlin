@@ -123,7 +123,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     #endif
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
-    uiCfg.print_state = IDLE;      
+    uiCfg.print_state = IDLE;
     clear_cur_ui();
     lv_draw_ready_print();
   }

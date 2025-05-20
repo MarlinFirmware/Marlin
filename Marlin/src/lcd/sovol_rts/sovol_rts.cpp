@@ -894,7 +894,7 @@ void RTS::handleData() {
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP));
+          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -1292,7 +1292,7 @@ void RTS::handleData() {
 
         #if ENABLED(LIN_ADVANCE)
           case 7: // Confirm
-            sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
+            sendData(planner.get_advance_k() * 100, Advance_K_VP);
             gotoPage(ID_Advanced_L, ID_Advanced_D);
             break;
         #endif
@@ -1350,7 +1350,7 @@ void RTS::handleData() {
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
       #if ENABLED(LIN_ADVANCE)
-        case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
+        case Advance_K: planner.set_advance_k(float(recdat.data[0]) / 100.0f); break;
       #endif
     #endif
     case Accel: planner.settings.acceleration = recdat.data[0]; break;

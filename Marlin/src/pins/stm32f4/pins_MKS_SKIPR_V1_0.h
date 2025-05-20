@@ -56,49 +56,15 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN  // X-
-#elif NEEDS_X_MINMAX
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                 X_DIAG_PIN  // X-
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // MT-DET
-  #endif
-#else
-  #define X_STOP_PIN                  X_DIAG_PIN  // X-
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // X-
+#define Y_STOP_PIN                    Y_DIAG_PIN  // Y-
+#define Z_STOP_PIN                    Z_DIAG_PIN  // Z+
+#define X_OTHR_PIN                   E0_DIAG_PIN  // MT-DET
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // NEOPIXEL
+#define Z_OTHR_PIN                   E2_DIAG_PIN  // PWRDET
 
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-
-#elif NEEDS_Y_MINMAX
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN  // Y-
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // NEOPIXEL
-  #endif
-#else
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-
-#endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-
-#elif NEEDS_Z_MINMAX
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                 Z_DIAG_PIN  // Z-
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // Z+
-  #endif
-#else
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-
-#endif
-
-#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(USE_PROBE_FOR_Z_HOMING)
-  #ifndef Z_MIN_PROBE_PIN
-    #define Z_MIN_PROBE_PIN          E2_DIAG_PIN  // defaults to 'Z+' connector
-  #endif
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN            E2_DIAG_PIN  // Z+
 #endif
 
 //
