@@ -45,7 +45,7 @@ namespace LanguageNarrow_tr {
   LSTR LANGUAGE                           = _UxGT("Turkish");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Hazır.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Hazır.");
   LSTR MSG_YES                            = _UxGT("EVET");
   LSTR MSG_NO                             = _UxGT("HAYIR");
   LSTR MSG_HIGH                           = _UxGT("YÜKSEK");
@@ -68,7 +68,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
@@ -76,7 +75,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_Z_PROBE                        = _UxGT("Z Probe");
   LSTR MSG_HOMING                         = _UxGT("Sıfırlanıyor");
   LSTR MSG_AUTO_HOME                      = _UxGT("Eksenleri Sıfırla");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("@ Sıfırla");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("@ Sıfırla");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X Sıfırla");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y Sıfırla");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z Sıfırla");
@@ -101,9 +100,9 @@ namespace LanguageNarrow_tr {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Seviyeleme Tamam!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Kaçınma Yüksekliği");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Ofset Ayarla");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset Sıfırla");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset Sıfırla");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset Sıfırla");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Ofset Sıfırla"); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Ofset Sıfırla"); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Ofset Sıfırla"); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Ofset Tamam");
   LSTR MSG_ERR_M428_TOO_FAR               = _UxGT("MIN/MAX Çok Fazla");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Hizalama Sihirbazı");
@@ -150,6 +149,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_EXTRUDE                        = _UxGT("Ekstrüzyon");
   LSTR MSG_RETRACT                        = _UxGT("Geri Çek");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Eksen Hareketleri");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Prob ve Seviyeleme");
   LSTR MSG_BED_LEVELING                   = _UxGT("Tabla Seviyeleme");
   LSTR MSG_LEVEL_BED                      = _UxGT("Tablayı Seviyele");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Tabla Hizalama");
@@ -192,7 +192,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Tam Kontrol");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Yinelenen X-Boşluğu");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. nozul Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. nozul @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. nozul @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("G29 Çalışıyor");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL Araçları");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Eğim Noktası");
@@ -205,13 +205,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Ölçüm");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Tablayı Kaldır & Ölç");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Sonrakine Git");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL'i Aktifleştir");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL'i Pasifleştir");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Tabla Sıcaklığı");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Nozul Sıcaklığı");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Nozul Sıcaklığı");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Mesh Düzenleme");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Özel Mesh Düzenleme");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("İnce Ayar Mesh");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Mesh Düzenleme Tamam");
@@ -276,7 +273,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7.Tabla Mesh Kaydet");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED Kontrolü");
-  LSTR MSG_LEDS                           = _UxGT("LEDler");
+  LSTR MSG_LIGHTS                         = _UxGT("LEDler");
+  LSTR MSG_LIGHT_N                        = _UxGT("Işıklar #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("LED Hazır Ayarları");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Kırmızı");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Turuncu");
@@ -288,7 +286,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Beyaz");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Varsayılan");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Kanal {");
-  LSTR MSG_LEDS2                          = _UxGT("Işıklar #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Işık #2 Ön Ayarları");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Parlaklık");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Özel Işıklar");
@@ -341,6 +338,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MAX                            = " " LCD_STR_THERMOMETER _UxGT(" Max");
   LSTR MSG_FACTOR                         = " " LCD_STR_THERMOMETER _UxGT(" Çarpan");
   LSTR MSG_AUTOTEMP                       = _UxGT("Oto. Sıcaklık");
+  LSTR MSG_TIMEOUT                        = _UxGT("Zaman aşımı");
   LSTR MSG_LCD_ON                         = _UxGT("Açık");
   LSTR MSG_LCD_OFF                        = _UxGT("Kapalı");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Kalibrasyonu");
@@ -350,7 +348,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_PID_AUTOTUNE_FAILED            = _UxGT("Kalibrasyon başarısız!");
   LSTR MSG_BAD_HEATER_ID                  = _UxGT("Kötü ekstruder.");
   LSTR MSG_TEMP_TOO_HIGH                  = _UxGT("Sıcaklık çok yüksek.");
-  LSTR MSG_TIMEOUT                        = _UxGT("Zaman aşımı");
+  LSTR MSG_TEMP_TOO_LOW                   = _UxGT("Sıcaklık çok düşük");
   LSTR MSG_PID_BAD_HEATER_ID              = _UxGT("Kalibrasyon başarısız! Kötü ekstruder.");
   LSTR MSG_PID_TEMP_TOO_HIGH              = _UxGT("Kalibrasyon başarısız! Sıcaklık çok yüksek.");
   LSTR MSG_PID_TIMEOUT                    = _UxGT("Kalibrasyon başarısız! Zaman aşımı.");
@@ -398,16 +396,16 @@ namespace LanguageNarrow_tr {
   LSTR MSG_A_RETRACT                      = _UxGT("G.Çekme Hızı");
   LSTR MSG_A_TRAVEL                       = _UxGT("Gezinme Hızı");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("@ Biçimlemeyi Aç");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("@ Biçimlemeyi Kapat");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("@ frekans");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("@ sönümleme");
-  LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");
-  LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frekansı");
-  LSTR MSG_SHAPING_A_ZETA                 = STR_A _UxGT(" sönümleme ");
-  LSTR MSG_SHAPING_B_ZETA                 = STR_B _UxGT(" sönümleme ");
-  LSTR MSG_SHAPING_X_ENABLE               = _UxGT("X şekilleme etkin");
-  LSTR MSG_SHAPING_Y_ENABLE               = _UxGT("Y şekilleme etkin");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("@ Biçimlemeyi Aç");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("@ Biçimlemeyi Kapat");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("@ frekans");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("@ sönümleme");
+  LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");   // ProUI
+  LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frekansı");   // ProUI
+  LSTR MSG_SHAPING_C_FREQ                 = STR_C _UxGT(" frekansı");   // ProUI
+  LSTR MSG_SHAPING_A_ZETA                 = STR_A _UxGT(" sönümleme");  // ProUI
+  LSTR MSG_SHAPING_B_ZETA                 = STR_B _UxGT(" sönümleme");  // ProUI
+  LSTR MSG_SHAPING_C_ZETA                 = STR_C _UxGT(" sönümleme");  // ProUI
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("XY Frek. Sınırı");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min FR Factörü");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Adım/mm");
@@ -551,11 +549,14 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("SD Kartı takın");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("USB Sürücüyü takın");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD Kartı takın");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB Sürücüyü takın");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Oto. Başlat");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Çarpıklık Faktörü");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -587,6 +588,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Prob Ofseti");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Prob Ofseti");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Prob Ofseti");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Prob Ofseti");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z ayarı adımsal");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Prob Payı");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z İlerleme Hızı");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("HS modunu aç");
@@ -656,31 +659,31 @@ namespace LanguageNarrow_tr {
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Işık Parlaklğı");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("HATALI YAZICI");
 
-  LSTR MSG_COLORS_GET                     = _UxGT("Renk Al");
-  LSTR MSG_COLORS_SELECT                  = _UxGT("Renkleri Seç");
-  LSTR MSG_COLORS_APPLIED                 = _UxGT("Uygulanan renkler");
-  LSTR MSG_COLORS_RED                     = _UxGT("Kırmızı");
-  LSTR MSG_COLORS_GREEN                   = _UxGT("Yeşil");
-  LSTR MSG_COLORS_BLUE                    = _UxGT("Mavi");
-  LSTR MSG_COLORS_WHITE                   = _UxGT("Beyaz");
-  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Dili");
-  LSTR MSG_SOUND_ENABLE                   = _UxGT("Sesi etkinleştir");
-  LSTR MSG_LOCKSCREEN                     = _UxGT("Kilit Ekranı");
-  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Yazıcı Kilitlendi,");
-  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");
-  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");
+  LSTR MSG_COLORS_GET                     = _UxGT("Renk Al");               // ProUI
+  LSTR MSG_COLORS_SELECT                  = _UxGT("Renkleri Seç");          // ProUI
+  LSTR MSG_COLORS_APPLIED                 = _UxGT("Uygulanan renkler");     // ProUI
+  LSTR MSG_COLORS_RED                     = _UxGT("Kırmızı");               // ProUI / JyersUI
+  LSTR MSG_COLORS_GREEN                   = _UxGT("Yeşil");                 // ProUI / JyersUI
+  LSTR MSG_COLORS_BLUE                    = _UxGT("Mavi");                  // ProUI / JyersUI
+  LSTR MSG_COLORS_WHITE                   = _UxGT("Beyaz");                 // ProUI
+  LSTR MSG_UI_LANGUAGE                    = _UxGT("UI Dili");               // ProUI
+  LSTR MSG_SOUND_ENABLE                   = _UxGT("Sesi etkinleştir");      // ProUI
+  LSTR MSG_LOCKSCREEN                     = _UxGT("Kilit Ekranı");          // ProUI
+  LSTR MSG_LOCKSCREEN_LOCKED              = _UxGT("Yazıcı Kilitlendi,");    // ProUI
+  LSTR MSG_LOCKSCREEN_UNLOCK              = _UxGT("Açmak için kaydırın.");  // ProUI
+  LSTR MSG_PLEASE_WAIT_REBOOT             = _UxGT("Y.Başlatma bekleyin.");  // ProUI
+  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Medya Yok");             // ProUI
+  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");      // ProUI
 
-  LSTR MSG_MEDIA_NOT_INSERTED             = _UxGT("Medya Yok");
-  LSTR MSG_PLEASE_PREHEAT                 = _UxGT("Ön Isıtma Lütfen");
   LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Baskı");
   LSTR MSG_INFO_PRINT_TIME                = _UxGT("Süre");
   LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("En Uzun");
   LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Filaman");
-
   LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Tamamlanan");
   LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Sıc.");
   LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Sıc.");
   LSTR MSG_INFO_PSU                       = _UxGT("Güç Kaynağı");
+
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Sürücü Gücü");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Sürücü %");
   LSTR MSG_ERROR_TMC                      = _UxGT("TMC BAĞLANTI HATASI");
@@ -692,14 +695,11 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENT_CHANGE_OPTION_HEADER  = _UxGT("Seçenekler:");
   LSTR MSG_FILAMENT_CHANGE_OPTION_PURGE   = _UxGT("Daha Fazla Temizle");
   LSTR MSG_FILAMENT_CHANGE_OPTION_RESUME  = _UxGT("Baskıyı sürdür");
-  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?");
+  LSTR MSG_FILAMENT_CHANGE_PURGE_CONTINUE = _UxGT("Temizle veya Devam?"); // ProUI
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozul: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Fil. Sensörü");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Aşınma Farkı mm");
-  LSTR MSG_RUNOUT_ENABLE                  = _UxGT("Fil. Sens. Aç");
-  LSTR MSG_RUNOUT_ACTIVE                  = _UxGT("Fil. Sens. Aktif");
-  LSTR MSG_INVERT_EXTRUDER                = _UxGT("Ekstruder Ters Çevir");
-  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");
+  LSTR MSG_EXTRUDER_MIN_TEMP              = _UxGT("Ekstruder Min Isı");   // ProUI
   LSTR MSG_FANCHECK                       = _UxGT("Fan Takosu Kontrolü");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Sıfırlama Başarısız");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Başarısız");
@@ -786,7 +786,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrit Eşiği");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensörsüz Sıfırlama");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Adım Modu");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Aktif");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Resetle");
   LSTR MSG_SERVICE_IN                     = _UxGT(" içinde:");
   LSTR MSG_BACKLASH                       = _UxGT("Ters Tepki");
@@ -794,7 +795,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Yumuşatma");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Sabit Zamanlı Hareket");
-  LSTR MSG_FTM_MODE                       = _UxGT("Hareket Modu:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -805,7 +806,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
@@ -867,7 +868,6 @@ namespace LanguageNarrow_tr {
   LSTR DGUS_MSG_NOT_WHILE_PRINTING        = _UxGT("Yazdırma sırasında izin verilmez");
   LSTR DGUS_MSG_NOT_WHILE_IDLE            = _UxGT("Boştayken izin verilmez");
   LSTR DGUS_MSG_NO_FILE_SELECTED          = _UxGT("Seçili dosya yok");
-  LSTR DGUS_MSG_TEMP_TOO_LOW              = _UxGT("Sıcaklık çok düşük");
   LSTR DGUS_MSG_EXECUTING_COMMAND         = _UxGT("Komut yürütülüyor...");
   LSTR DGUS_MSG_BED_PID_DISABLED          = _UxGT("Tabla PID pasif");
   LSTR DGUS_MSG_PID_DISABLED              = _UxGT("PID devre dışı");
@@ -899,9 +899,9 @@ namespace LanguageWide_tr {
     LSTR MSG_MEDIA_MENU                   = _UxGT("SD Karttan Yazdır");
     LSTR MSG_TURN_OFF                     = _UxGT("Yazıcıyı kapat");
     LSTR MSG_END_LOOPS                    = _UxGT("Tekrr Döngüler Bitir");
-    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");
-    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");
-    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");
+    LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("Ortam yerleştirilmedi.");        // ProUI
+    LSTR MSG_PLEASE_PREHEAT               = _UxGT("Lütfen önce hotend'i ısıtın.");  // ProUI
+    LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Baskı Sayısını Sıfırla");        // ProUI
     LSTR MSG_INFO_PRINT_COUNT             = _UxGT("Baskı Sayısı");
     LSTR MSG_INFO_PRINT_TIME              = _UxGT("Toplam Baskı Süresi");
     LSTR MSG_INFO_PRINT_LONGEST           = _UxGT("En Uzun Baskı Süresi");

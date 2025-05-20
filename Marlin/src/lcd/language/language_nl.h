@@ -37,13 +37,12 @@ namespace LanguageNarrow_nl {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Dutch");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" gereed.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" gereed.");
   LSTR MSG_BACK                           = _UxGT("Terug");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kaart ingestoken");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kaart verwijderd");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Hoofdmenu");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren uit");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu"); // accepted English terms
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Vooruitgang Test");
@@ -76,6 +75,7 @@ namespace LanguageNarrow_nl {
   LSTR MSG_EXTRUDE                        = _UxGT("Extrude");
   LSTR MSG_RETRACT                        = _UxGT("Retract");
   LSTR MSG_MOVE_AXIS                      = _UxGT("As verplaatsen");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Z probe & Level");
   LSTR MSG_BED_LEVELING                   = _UxGT("Bed Leveling");
   LSTR MSG_LEVEL_BED                      = _UxGT("Level bed");
 
@@ -145,13 +145,22 @@ namespace LanguageNarrow_nl {
   LSTR MSG_AUTORETRACT                    = _UxGT("Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Verv. Filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Verv. Filament *");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD kaart");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Init. SD kaart");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Init. USB stick");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Verv. SD Kaart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe uit. bed");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch Zelf-Test");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_HOME_FIRST                     = _UxGT("Home %s Eerst");
-  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset"); // accepted English term in Dutch
+  LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Offset"); // accepted English term in Dutch
+  LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Offset");
+  LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z Offset");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ Offset");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Babystep Probe Z");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Babystap X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Babystap Y");
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystap Z");

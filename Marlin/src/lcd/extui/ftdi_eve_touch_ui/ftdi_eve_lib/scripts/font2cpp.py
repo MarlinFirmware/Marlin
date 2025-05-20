@@ -17,8 +17,7 @@
 
 from __future__ import print_function
 from PIL import Image
-import argparse
-import textwrap
+import argparse, textwrap
 
 def pack_rle(data):
   """Use run-length encoding to pack the bytes"""
@@ -57,7 +56,7 @@ class WriteSource:
       data.append(0)
     # Combine each two adjacent values into one
     i = iter(data)
-    data = list(map(lambda a, b: a << 4 | b, i ,i))
+    data = list(map(lambda a, b: a << 4 | b, i, i))
     # Pack the data
     data = pack_rle(data)
     # Convert values into hex strings

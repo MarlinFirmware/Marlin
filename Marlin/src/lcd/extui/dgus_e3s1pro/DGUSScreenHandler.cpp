@@ -208,7 +208,7 @@ void DGUSScreenHandler::userConfirmation() {
     if (confirm_return_screen >= DGUS_ScreenID::FILE1 && confirm_return_screen <= DGUS_ScreenID::FILE4)
       dgus_sdcard_handler.onPageLoad(DGUS_SCREEN_TO_PAGE(confirm_return_screen));
 
-    #ifdef DEBUG_DGUSLCD
+    #if ENABLED(DEBUG_DGUSLCD)
       DEBUG_ECHOLNPGM("trig confirmed, ret:", (uint16_t)confirm_return_screen);
     #endif
 
@@ -369,7 +369,7 @@ void DGUSScreenHandler::addCurrentPageStringLength(size_t stringLength, size_t t
 #endif
 
 #if HAS_PID_HEATING
-  void DGUSScreenHandler::pidTuning(const ExtUI::result_t rst) {
+  void DGUSScreenHandler::pidTuning(const ExtUI::pidresult_t rst) {
     dgus.playSound(3);
   }
 #endif

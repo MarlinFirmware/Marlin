@@ -39,7 +39,7 @@ namespace LanguageNarrow_hu {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Magyar");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Kész.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Kész.");
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");
@@ -57,12 +57,11 @@ namespace LanguageNarrow_hu {
   LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("További beállítások");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguráció");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Fájl auto. futtatás");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorok kikapcsolása");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hiba Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Haladás sáv teszt");
   LSTR MSG_AUTO_HOME                      = _UxGT("X-Y-Z auto kezdöpont");
-  LSTR MSG_AUTO_HOME_A                    = _UxGT("Kezdö @");
+  LSTR MSG_AUTO_HOME_N                    = _UxGT("Kezdö @");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("X kezdöpont");
   LSTR MSG_AUTO_HOME_Y                    = _UxGT("Y kezdöpont");
   LSTR MSG_AUTO_HOME_Z                    = _UxGT("Z kezdöpont");
@@ -76,9 +75,9 @@ namespace LanguageNarrow_hu {
   LSTR MSG_LEVEL_BED_DONE                 = _UxGT("Szintezés kész!");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Szint csökkentés");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Kezdöpont eltolás");
-  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Kezdö eltol.");
-  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Kezdö eltol.");
-  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Kezdö eltol.");
+  LSTR MSG_HOME_OFFSET_X                  = _UxGT("X Kezdö eltol."); // DWIN
+  LSTR MSG_HOME_OFFSET_Y                  = _UxGT("Y Kezdö eltol."); // DWIN
+  LSTR MSG_HOME_OFFSET_Z                  = _UxGT("Z Kezdö eltol."); // DWIN
   LSTR MSG_HOME_OFFSETS_APPLIED           = _UxGT("Eltolás beállítva.");
   LSTR MSG_TRAMMING_WIZARD                = _UxGT("Elektromos varázsló");
   LSTR MSG_SELECT_ORIGIN                  = _UxGT("Eredeti választása");
@@ -123,6 +122,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_EXTRUDE                        = _UxGT("Adagol");
   LSTR MSG_RETRACT                        = _UxGT("Visszahúz");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Tengelyek mozgatása");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Érintés/szintezés");
   LSTR MSG_BED_LEVELING                   = _UxGT("Ágy szintezés");
   LSTR MSG_LEVEL_BED                      = _UxGT("Ágy szintezése");
   LSTR MSG_BED_TRAMMING                   = _UxGT("Sarok szint");
@@ -151,7 +151,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_IDEX_MODE_FULL_CTRL            = _UxGT("Teljes felügyelet");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("X-hézag másolása");
   LSTR MSG_HOTEND_OFFSET_Z                = _UxGT("2. fej Z");
-  LSTR MSG_HOTEND_OFFSET_A                = _UxGT("2. fej @");
+  LSTR MSG_HOTEND_OFFSET_N                = _UxGT("2. fej @");
   LSTR MSG_UBL_DOING_G29                  = _UxGT("Szintezz! G29");
   LSTR MSG_UBL_TOOLS                      = _UxGT("UBL eszköz");
   LSTR MSG_LCD_TILTING_MESH               = _UxGT("Döntési pont");
@@ -161,13 +161,10 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_BC_INSERT2                 = _UxGT("Mérés");
   LSTR MSG_UBL_BC_REMOVE                  = _UxGT("Üres ágyat mérj");
   LSTR MSG_UBL_MOVING_TO_NEXT             = _UxGT("Továbblépés");
-  LSTR MSG_UBL_ACTIVATE_MESH              = _UxGT("UBL aktívál");
-  LSTR MSG_UBL_DEACTIVATE_MESH            = _UxGT("UBL deaktívál");
   LSTR MSG_UBL_SET_TEMP_BED               = _UxGT("Ágy höfok");
   LSTR MSG_UBL_BED_TEMP_CUSTOM            = _UxGT("Egyéni ágy höfok");
   LSTR MSG_UBL_SET_TEMP_HOTEND            = _UxGT("Fejhöfok");
   LSTR MSG_UBL_HOTEND_TEMP_CUSTOM         = _UxGT("Egyéni fejhöfok");
-  LSTR MSG_UBL_MESH_EDIT                  = _UxGT("Háló szerkesztés");
   LSTR MSG_UBL_EDIT_CUSTOM_MESH           = _UxGT("Egyéni háló szerkesztés");
   LSTR MSG_UBL_FINE_TUNE_MESH             = _UxGT("Finomított háló");
   LSTR MSG_UBL_DONE_EDITING_MESH          = _UxGT("Háló kész");
@@ -228,7 +225,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_UBL_7_SAVE_MESH                = _UxGT("7. Ágy háló mentése");
 
   LSTR MSG_LED_CONTROL                    = _UxGT("LED vezérlés");
-  LSTR MSG_LEDS                           = _UxGT("Világítás");
+  LSTR MSG_LIGHTS                         = _UxGT("Világítás");
+  LSTR MSG_LIGHT_N                        = _UxGT("Világítás #{");
   LSTR MSG_LED_PRESETS                    = _UxGT("Beállított színek");
   LSTR MSG_SET_LEDS_RED                   = _UxGT("Piros");
   LSTR MSG_SET_LEDS_ORANGE                = _UxGT("Narancs");
@@ -240,7 +238,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_SET_LEDS_WHITE                 = _UxGT("Fehér");
   LSTR MSG_SET_LEDS_DEFAULT               = _UxGT("Alapérték");
   LSTR MSG_LED_CHANNEL_N                  = _UxGT("Csatorna {");
-  LSTR MSG_LEDS2                          = _UxGT("LED-ek #2");
   LSTR MSG_NEO2_PRESETS                   = _UxGT("Fény #2 megadott");
   LSTR MSG_NEO2_BRIGHTNESS                = _UxGT("Fényerö");
   LSTR MSG_CUSTOM_LEDS                    = _UxGT("Egyéni szín");
@@ -433,9 +430,14 @@ namespace LanguageNarrow_hu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Szál eltávolítás");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Szál eltávolítás *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Mindet eltávolít");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Tároló SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Tároló USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Tároló csere");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Tároló Kiadása");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Fájl auto. futtatás");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z szonda tálcán kivül");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Ferdeség faktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -463,6 +465,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X szonda eltolás");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y szonda eltolás");
   LSTR MSG_ZPROBE_ZOFFSET                 = _UxGT("Z szonda eltolás");
+  LSTR MSG_ZPROBE_OFFSET_N                = _UxGT("@ szonda eltolás");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Z lépés állítás");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Fej az ágyhoz");
   LSTR MSG_BABYSTEP_X                     = _UxGT("Mikrolépés X");
   LSTR MSG_BABYSTEP_Y                     = _UxGT("Mikrolépés Y");
@@ -625,7 +629,8 @@ namespace LanguageNarrow_hu {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrid küszöbérték");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Motoros kezdöpont");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Léptetö mód");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop mód");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Újraindítás");
   LSTR MSG_SERVICE_IN                     = _UxGT(" be:");
   LSTR MSG_BACKLASH                       = _UxGT("Holtjáték");

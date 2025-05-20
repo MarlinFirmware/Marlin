@@ -143,7 +143,7 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
 
   updateNewScreen(target);
 
-  #ifdef DEBUG_DGUSLCD
+  #if ENABLED(DEBUG_DGUSLCD)
     if (!findScreenVPMapList(target)) DEBUG_ECHOLNPGM("WARNING: No screen Mapping found for ", target);
   #endif
 }
@@ -290,7 +290,9 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
         #endif
         break;
       case 1: // Load ABS
-        TERN_(PREHEAT_2_TEMP_HOTEND, e_temp = PREHEAT_2_TEMP_HOTEND);
+        #ifdef PREHEAT_2_TEMP_HOTEND
+          e_temp = PREHEAT_2_TEMP_HOTEND;
+        #endif
         break;
       case 2: // Load PET
         #ifdef PREHEAT_3_TEMP_HOTEND
@@ -310,9 +312,9 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
 
     if (filament_data.action == 0) { // Go back to utility screen
       #if HAS_HOTEND
-        thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E0);
+        thermalManager.setTargetHotend(e_temp, 0);
         #if HAS_MULTI_HOTEND
-          thermalManager.setTargetHotend(e_temp, ExtUI::extruder_t::E1);
+          thermalManager.setTargetHotend(e_temp, 1);
         #endif
       #endif
       gotoScreen(DGUS_SCREEN_UTILITY);
@@ -322,13 +324,13 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
         default: return;
           #if HAS_HOTEND
             case VP_E0_FILAMENT_LOAD_UNLOAD:
-              filament_data.extruder = ExtUI::extruder_t::E0;
+              filament_data.extruder = 0;
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);
               break;
           #endif
           #if HAS_MULTI_HOTEND
             case VP_E1_FILAMENT_LOAD_UNLOAD:
-              filament_data.extruder = ExtUI::extruder_t::E1;
+              filament_data.extruder = 1;
               thermalManager.setTargetHotend(e_temp, filament_data.extruder);
               break;
           #endif
@@ -350,7 +352,7 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
           //gotoScreen(DGUS_SCREEN_FILAMENT_LOADING);
           filament_data.heated = true;
         }
-        movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder) + movevalue;
+        movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0) + movevalue;
       }
       else { // unload filament
         if (!filament_data.heated) {
@@ -359,14 +361,14 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
         }
         // Before unloading extrude to prevent jamming
         if (filament_data.purge_length >= 0) {
-          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder) + movevalue;
+          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0) + movevalue;
           filament_data.purge_length -= movevalue;
         }
         else {
-          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder) - movevalue;
+          movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0) - movevalue;
         }
       }
-      ExtUI::setAxisPosition_mm(movevalue, filament_data.extruder);
+      ExtUI::setAxisPosition_mm(movevalue, filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0);
     }
   }
 #endif // DGUS_FILAMENT_LOADUNLOAD

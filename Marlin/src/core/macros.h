@@ -55,9 +55,6 @@
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
-// Nanoseconds per cycle
-#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -67,7 +64,7 @@
 
 // Macros for bit masks
 #undef _BV
-#define _BV(n) (1<<(n))
+#define _BV(b) (1 << (b))
 #define TEST(n,b) (!!((n)&_BV(b)))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
 #ifndef SBI
@@ -83,17 +80,21 @@
 #define CBI32(n,b) (n &= ~_BV32(b))
 #define TBI32(N,B) (N ^= _BV32(B))
 
+// Macros for common maths operations
 #define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
 #define NORMSQ(x,y,z) (sq(x)+sq(y)+sq(z))
 
-#define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
+#define FLOAT_SQ(I) sq(float(I))
+#define CIRCLE_AREA(R) (float(M_PI) * FLOAT_SQ(R))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
+
+#define FLIP(X) (X = !(X))
 
 // Macros to constrain values
 #ifdef __cplusplus
@@ -196,8 +197,8 @@
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
 #define ANY(V...)          !DISABLED(V)
-#define ALL                 ENABLED
-#define NONE                DISABLED
+#define ALL(V...)           ENABLED(V)
+#define NONE(V...)          DISABLED(V)
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
@@ -205,19 +206,23 @@
 #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
 #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
 #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
-#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION ? 'A' : '<nul>'
 #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
 #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
 #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 #define IF_DISABLED(O,A)    TERN(O,,A)
 
+// "Ternary" that emits or omits the given content
+#define EMIT(V...) V
+#define OMIT(...)
+#define TERN_(O,A)          _TERN(_ENA_1(O),OMIT,EMIT)(A) // OPTION ? 'A' : '<nul>'
+
 // Macros to conditionally emit array items and function arguments
 #define _OPTITEM(A...)      A,
-#define OPTITEM(O,A...)     TERN_(O,DEFER4(_OPTITEM)(A))
+#define OPTITEM(O,A...)     TERN_(O,DEFER(_OPTITEM)(A))
 #define _OPTARG(A...)       , A
-#define OPTARG(O,A...)      TERN_(O,DEFER4(_OPTARG)(A))
+#define OPTARG(O,A...)      TERN_(O,DEFER(_OPTARG)(A))
 #define _OPTCODE(A)         A;
-#define OPTCODE(O,A)        TERN_(O,DEFER4(_OPTCODE)(A))
+#define OPTCODE(O,A)        TERN_(O,DEFER(_OPTCODE)(A))
 
 // Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
@@ -542,6 +547,9 @@
 
 #endif
 
+// Limit an index to an array size
+#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
+
 // Macros for adding
 #define INC_0   1
 #define INC_1   2
@@ -629,7 +637,7 @@
 #define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
 
 // Force define expansion
-#define EVAL           EVAL16
+#define EVAL(V...)     EVAL16(V)
 #define EVAL4096(V...) EVAL2048(EVAL2048(V))
 #define EVAL2048(V...) EVAL1024(EVAL1024(V))
 #define EVAL1024(V...) EVAL512(EVAL512(V))
@@ -653,11 +661,8 @@
 #define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
 #define _IF_ELSE(TF) _CAT(_IF_, TF)
 
-#define _IF_1(V...) V _IF_1_ELSE
-#define _IF_0(...)    _IF_0_ELSE
-
-#define _IF_1_ELSE(...)
-#define _IF_0_ELSE(V...) V
+#define _IF_1(V...) V OMIT
+#define _IF_0(...)    EMIT
 
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0

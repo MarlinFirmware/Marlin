@@ -31,6 +31,7 @@
 #include "menu_item.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
+#include "../../module/stepper.h"
 #include "../../module/temperature.h"
 #include "../../MarlinCore.h"
 
@@ -191,6 +192,14 @@ void menu_tune() {
   #endif // HAS_FAN
 
   //
+  // FT_MOTION
+  //
+  #if ENABLED(FT_MOTION_MENU)
+    void menu_tune_ft_motion();
+    SUBMENU(MSG_FIXED_TIME_MOTION, menu_tune_ft_motion);
+  #endif
+
+  //
   // Flow:
   //
   #if HAS_EXTRUDERS
@@ -206,11 +215,25 @@ void menu_tune() {
   // Advance K:
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
-    #if DISTINCT_E < 2
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
+    #if DISABLED(DISTINCT_E_FACTORS)
+      editable.decimal = planner.get_advance_k();
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal); });
     #else
-      EXTRUDER_LOOP()
-        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &planner.extruder_advance_K[e], 0, 10);
+      EXTRUDER_LOOP() {
+        editable.decimal = planner.get_advance_k(e);
+        EDIT_ITEM_N(float42_52, e, MSG_ADVANCE_K_E, &editable.decimal, 0.0f, 10.0f, []{ planner.set_advance_k(editable.decimal, MenuItemBase::itemIndex); });
+      }
+    #endif
+    #if ENABLED(SMOOTH_LIN_ADVANCE)
+      #if DISABLED(DISTINCT_E_FACTORS)
+        editable.decimal = stepper.get_advance_tau();
+        EDIT_ITEM(float54, MSG_ADVANCE_TAU, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal); });
+      #else
+        EXTRUDER_LOOP() {
+          editable.decimal = stepper.get_advance_tau(e);
+          EDIT_ITEM_N(float54, e, MSG_ADVANCE_TAU_E, &editable.decimal, 0.0f, 0.5f, []{ stepper.set_advance_tau(editable.decimal, MenuItemBase::itemIndex); });
+        }
+      #endif
     #endif
   #endif
 
@@ -225,7 +248,7 @@ void menu_tune() {
       SUBMENU_N(Y_AXIS, MSG_BABYSTEP_N, []{ _lcd_babystep_go(_lcd_babystep_y); });
     #endif
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      SUBMENU_N(Z_AXIS, MSG_ZPROBE_OFFSET_N, lcd_babystep_zoffset);
     #else
       SUBMENU_N(Z_AXIS, MSG_BABYSTEP_N, lcd_babystep_z);
     #endif

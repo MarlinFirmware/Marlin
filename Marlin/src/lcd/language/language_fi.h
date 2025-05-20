@@ -36,11 +36,11 @@ namespace LanguageNarrow_fi {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Finnish");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" valmis.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" valmis.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Kortti asetettu");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Kortti poistettu");
   LSTR MSG_MAIN_MENU                      = _UxGT("Palaa");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Automaatti");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Automaatti");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Vapauta moottorit");
   LSTR MSG_AUTO_HOME                      = _UxGT("Aja referenssiin");
 
@@ -66,6 +66,8 @@ namespace LanguageNarrow_fi {
   LSTR MSG_EXTRUDE                        = _UxGT("Pursota");
   LSTR MSG_RETRACT                        = _UxGT("Vedä takaisin");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Liikuta akseleita");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Tutki ja tasoita");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Säädä Z askeltamalla");
   LSTR MSG_MOVE_X                         = _UxGT("Liikuta X");
   LSTR MSG_MOVE_Y                         = _UxGT("Liikuta Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Liikuta Z");

@@ -79,7 +79,7 @@ extern "C"
 #define NVIC_GET_PENDING(n) NVIC_GetPendingIRQ((IRQn_Type)n)
 #define NVIC_SET_PENDING(n) NVIC_SetPendingIRQ((IRQn_Type)n)
 #define NVIC_ENABLE_IRQ(n) NVIC_EnableIRQ((IRQn_Type)n)
-#define NVIC_SET_PRIORITY(n ,p) NVIC_SetPriority((IRQn_Type)n, (uint32_t) p)
+#define NVIC_SET_PRIORITY(n, p) NVIC_SetPriority((IRQn_Type)n, (uint32_t) p)
 //extern "C" {
 //        extern uint32_t _VectorsRam[VECTORTABLE_SIZE] __attribute__((aligned(VECTORTABLE_ALIGNMENT)));
 //}

@@ -29,18 +29,18 @@
 
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
-  report_heading(forReplay, F(STR_NONLINEAR_EXTRUSION));
+  report_heading_etc(forReplay, F(STR_NONLINEAR_EXTRUSION));
   SERIAL_ECHOLNPGM("  M592 A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
 }
 
 /**
  * M592: Get or set nonlinear extrusion parameters
- *  A<factor>   Linear coefficient (default 0.0)
- *  B<factor>   Quadratic coefficient (default 0.0)
+ *  A<factor>   Quadratic coefficient (default 0.0)
+ *  B<factor>   Linear coefficient (default 0.0)
  *  C<factor>   Constant coefficient (default 1.0)
  *
  * Adjusts the amount of extrusion based on the instantaneous velocity of extrusion, as a multiplier.
- * The amount of extrusion is multiplied by max(C, C + A*v + B*v^2) where v is extruder velocity in mm/s.
+ * The amount of extrusion is multiplied by max(C, A*v^2 + B*v + C) where v is extruder velocity in mm/s.
  * Only adjusts forward extrusions, since those are the ones affected by backpressure.
  */
 void GcodeSuite::M592() {
@@ -49,6 +49,12 @@ void GcodeSuite::M592() {
   if (parser.seenval('A')) stepper.ne.A = parser.value_float();
   if (parser.seenval('B')) stepper.ne.B = parser.value_float();
   if (parser.seenval('C')) stepper.ne.C = parser.value_float();
+
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    stepper.ne_q30.A = _BV32(30) * (stepper.ne.A * planner.mm_per_step[E_AXIS_N(0)] * planner.mm_per_step[E_AXIS_N(0)]);
+    stepper.ne_q30.B = _BV32(30) * (stepper.ne.B * planner.mm_per_step[E_AXIS_N(0)]);
+    stepper.ne_q30.C = _BV32(30) * stepper.ne.C;
+  #endif
 }
 
 #endif // NONLINEAR_EXTRUSION

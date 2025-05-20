@@ -60,6 +60,21 @@
   #endif
 #endif
 
+#if !USE_STD_CONFIGS
+  #if __has_include("../../Configuration.h")
+    #define HAS_IGNORED_CONFIGS
+  #elif __has_include("../../Configuration_adv.h")
+    #define HAS_IGNORED_CONFIGS
+  #endif
+  #ifdef HAS_IGNORED_CONFIGS
+    #warning "Configuration.h and Configuration_adv.h are being ignored, overridden by Config.h."
+  #endif
+#endif
+
+#if CONFIG_EXPORT % 100 == 5
+  #warning "Rename 'Config-export.h' to 'Config.h' to override Configuration.h and Configuration_adv.h."
+#endif
+
 #if DISABLED(DEBUG_FLAGS_GCODE)
   #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
 #endif
@@ -99,8 +114,8 @@
   #warning "Warning! Don't use dummy thermistors (998/999) for final build!"
 #endif
 
-#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT)
-  #warning "Your Configuration provides no method to acquire user feedback!"
+#if NONE(HAS_RESUME_CONTINUE, HOST_PROMPT_SUPPORT, UNIT_TEST, NO_USER_FEEDBACK_WARNING)
+  #warning "Your Configuration provides no method to acquire user feedback! (Define NO_USER_FEEDBACK_WARNING to suppress this warning.)"
 #endif
 
 #if MB(DUE3DOM_MINI) && PIN_EXISTS(TEMP_2) && !TEMP_SENSOR_BOARD
@@ -681,17 +696,32 @@
   #warning "Don't forget to update your TFT settings in Configuration.h."
 #endif
 
-#if ENABLED(EMIT_CREALITY_422_WARNING) && DISABLED(NO_CREALITY_422_DRIVER_WARNING)
-  // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
-  #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+#if ENABLED(EMIT_CREALITY_422_WARNING)
+  #if DISABLED(NO_CREALITY_422_MCU_WARNING)
+    #warning "Double-check your 4.2.2 board for STM32 / GD32. Use BOARD_CREALITY_V422 or BOARD_CREALITY_V422_GD32_MFL as appropriate for your MCU."
+    #warning "GD32 Serial Ports are numbered starting from 0. STM32 Serial Ports are numbered starting from 1."
+    #warning "(Define NO_CREALITY_422_MCU_WARNING to suppress these warnings.)"
+  #endif
+  #if DISABLED(NO_CREALITY_422_DRIVER_WARNING)
+    // Driver labels: A=TMC2208, B=TMC2209, C=HR4988, E=A4988, H=TMC2225, H8=HR4988
+    #warning "Creality 4.2.2 boards come with a variety of stepper drivers. Check the board label (typically on SD Card module) and set the correct *_DRIVER_TYPE! (A/H: TMC2208_STANDALONE  B: TMC2209_STANDALONE  C/E/H8: A4988). (Define NO_CREALITY_422_DRIVER_WARNING to suppress this warning.)"
+  #endif
 #endif
 
 #if ENABLED(PRINTCOUNTER_SYNC)
   #warning "To prevent step loss, motion will pause for PRINTCOUNTER auto-save."
 #endif
 
-#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
-  #error "Z_SAFE_HOMING is recommended when homing with a probe. Enable Z_SAFE_HOMING or comment out this line to continue."
+#if HOMING_Z_WITH_PROBE && IS_CARTESIAN && NONE(Z_SAFE_HOMING, NO_Z_SAFE_HOMING_WARNING)
+  #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
+#endif
+
+#if HAS_TRINAMIC_CONFIG && NONE(EDGE_STEPPING, NO_EDGE_STEPPING_WARNING)
+  #error "EDGE_STEPPING is strongly recommended with Trinamic stepper drivers. (Enable EDGE_STEPPING or define NO_EDGE_STEPPING_WARNING to suppress this warning.)"
+#endif
+
+#if ENABLED(BIQU_MICROPROBE_V2) && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, NO_MICROPROBE_WARNING)
+  #warning "BIQU MicroProbe V2 detect signal requires a strong pull-up. Some processors have weak internal pull-up capabilities, so we recommended connecting MicroProbe SIGNAL / GND to Z-MIN / Z-STOP instead of the dedicated PROBE port. (Define NO_MICROPROBE_WARNING to suppress this warning.)"
 #endif
 
 //
@@ -706,16 +736,46 @@
   #endif
 #endif
 
-#if ENABLED(QUICK_HOME) && (X_SPI_SENSORLESS || Y_SPI_SENSORLESS)
-  #warning "SPI_ENDSTOPS may be unreliable with QUICK_HOME. Adjust back-offs for better results."
+#if ENABLED(QUICK_HOME)
+  #if X_SPI_SENSORLESS || Y_SPI_SENSORLESS
+    #warning "If SPI_ENDSTOPS are unreliable with QUICK_HOME try adjusting SENSORLESS_BACKOFF_MM, Travel Acceleration (M204 T), Homing Feedrate (M210 XY), or disable QUICK_HOME."
+  #elif X_SENSORLESS || Y_SENSORLESS
+    #warning "If SENSORLESS_HOMING is unreliable with QUICK_HOME try adjusting SENSORLESS_BACKOFF_MM, Travel Acceleration (M204 T), Homing Feedrate (M210 XY), or disable QUICK_HOME."
+  #endif
+#endif
+
+#if HIGHER_CURRENT_HOME_WARNING
+  #warning "High homing currents can lead to damage if a sensor fails or is set up incorrectly."
+#endif
+
+#if USE_SENSORLESS && DISABLED(NO_HOMING_CURRENT_WARNING)
+  #if ENABLED(X_SENSORLESS) && defined(X_CURRENT_HOME) && !X_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set X_CURRENT_HOME less than X_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(X2_SENSORLESS) && defined(X2_CURRENT_HOME) && !X2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set X2_CURRENT_HOME less than X2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
+  #if ENABLED(Y_SENSORLESS) && defined(Y_CURRENT_HOME) && !Y_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Y_CURRENT_HOME less than Y_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Y2_SENSORLESS) && defined(Y2_CURRENT_HOME) && !Y2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Y2_CURRENT_HOME less than Y2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
+  #if ENABLED(Z_SENSORLESS) && defined(Z_CURRENT_HOME) && !Z_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z_CURRENT_HOME less than Z_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z2_SENSORLESS) && defined(Z2_CURRENT_HOME) && !Z2_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z2_CURRENT_HOME less than Z2_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z3_SENSORLESS) && defined(Z3_CURRENT_HOME) && !Z3_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z3_CURRENT_HOME less than Z3_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #elif ENABLED(Z4_SENSORLESS) && defined(Z4_CURRENT_HOME) && !Z4_HAS_HOME_CURRENT
+    #warning "With SENSORLESS_HOMING it is recommended to set Z4_CURRENT_HOME less than Z4_CURRENT. (Define NO_HOMING_CURRENT_WARNING to suppress this warning.)"
+  #endif
 #endif
 
 #if CANNOT_EMBED_CONFIGURATION
   #warning "Disabled CONFIGURATION_EMBEDDING because the target usually has less flash storage. Define FORCE_CONFIG_EMBED to override."
 #endif
 
-#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX
-  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX."
+#if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX && DISABLED(NO_LCD_CONTRAST_WARNING)
+  #warning "Contrast cannot be changed when LCD_CONTRAST_MIN >= LCD_CONTRAST_MAX. (Define NO_LCD_CONTRAST_WARNING to suppress this warning.)"
 #endif
 
 #if PROGRESS_MSG_EXPIRE > 0 && HAS_STATUS_MESSAGE_TIMEOUT
@@ -784,8 +844,13 @@
 /**
  * Input Shaping
  */
-#if HAS_ZV_SHAPING && ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-  #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+#if HAS_ZV_SHAPING
+  #if ANY(IS_CORE, MARKFORGED_XY, MARKFORGED_YX)
+    #warning "Input Shaping for CORE / MARKFORGED kinematic axes is still experimental."
+  #endif
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "Input Shaping has not been tested with I2S_STEPPER_STREAM."
+  #endif
 #endif
 
 /**
@@ -841,6 +906,13 @@
 #endif
 
 /**
+ * MKS_TINYBEE Analog Reference
+ */
+#if ENABLED(EMIT_ADC_REFERENCE_VOLTAGE_WARNING)
+  #warning "Check your ADC_REFERENCE_VOLTAGE on MKS TinyBee! Measure the Analog Reference voltage on the board. See pins_MKS_TINYBEE.h for details."
+#endif
+
+/**
  * No PWM on the Piezo Beeper?
  */
 #if PIN_EXISTS(BEEPER) && ALL(SPEAKER, NO_SPEAKER)
@@ -859,4 +931,27 @@
  */
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
   #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+#endif
+
+/**
+ * Peltier with PIDTEMPBED
+ */
+#if ALL(PELTIER_BED, PIDTEMPBED)
+  #warning "PELTIER_BED with PIDTEMPBED requires extra circuitry. Use with caution."
+#endif
+
+/**
+ * Board recommended LCD_SERIAL_PORT
+ */
+#if LCD_IS_SERIAL_HOST && defined(BOARD_LCD_SERIAL_PORT) && LCD_SERIAL_PORT != BOARD_LCD_SERIAL_PORT && DISABLED(NO_LCD_SERIAL_PORT_WARNING)
+  #warning "LCD_SERIAL_PORT overrides the default (BOARD_LCD_SERIAL_PORT)."
+#endif
+
+/**
+ * Smooth Linear Advance with Mixing Extruder, S-Curve Acceleration
+ */
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  #if ENABLED(MIXING_EXTRUDER)
+    #warning "SMOOTH_LIN_ADVANCE with MIXING_EXTRUDER is untested. Use with caution."
+  #endif
 #endif

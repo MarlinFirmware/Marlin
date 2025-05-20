@@ -29,7 +29,7 @@
 #include <TMCStepper.h>
 #include "../module/planner.h"
 
-#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }   // { toff, hend, hstrt }
 #define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
 #define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
 #define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
@@ -77,8 +77,8 @@ class TMCStorage {
 
     struct {
       OPTCODE(HAS_STEALTHCHOP,  bool stealthChop_enabled = false)
-      OPTCODE(HYBRID_THRESHOLD, uint8_t hybrid_thrs = 0)
-      OPTCODE(USE_SENSORLESS,   int16_t homing_thrs = 0)
+      OPTCODE(HYBRID_THRESHOLD, uint16_t hybrid_thrs = 0)
+      OPTCODE(USE_SENSORLESS,   int16_t  homing_thrs = 0)
     } stored;
 };
 
@@ -144,15 +144,13 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       #endif
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
+    #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr int8_t sgt_min = -64,
@@ -207,12 +205,10 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
     #endif
 };
 
@@ -269,15 +265,13 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
+    #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr uint8_t sgt_min = 0,
@@ -315,12 +309,10 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
       }
     #endif
 
-    #if ANY(HAS_MARLINUI_MENU, DWIN_LCD_PROUI)
-      void refresh_stepper_current() { rms_current(this->val_mA); }
+    void refresh_stepper_current() { rms_current(this->val_mA); }
 
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr int8_t sgt_min = -64,
@@ -328,14 +320,14 @@ class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC266
 };
 
 void monitor_tmc_drivers();
-void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
+void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_interval(const uint16_t update_interval);
   #endif
-  void tmc_report_all(LOGICAL_AXIS_DECL(const bool, true));
-  void tmc_get_registers(LOGICAL_AXIS_ARGS(const bool));
+  void tmc_report_all(LOGICAL_AXIS_DECL_LC(const bool, true));
+  void tmc_get_registers(LOGICAL_AXIS_ARGS_LC(const bool));
 #endif
 
 /**
@@ -382,6 +374,32 @@ void test_tmc_connection(LOGICAL_AXIS_DECL(const bool, true));
   #endif // SPI_ENDSTOPS
 
 #endif // USE_SENSORLESS
+
+#if HAS_HOMING_CURRENT
+
+  // Axes that have a distinct homing current
+  struct homing_current_t {
+    OPTCODE(X_HAS_HOME_CURRENT,  uint16_t X)
+    OPTCODE(Y_HAS_HOME_CURRENT,  uint16_t Y)
+    OPTCODE(Z_HAS_HOME_CURRENT,  uint16_t Z)
+    OPTCODE(X2_HAS_HOME_CURRENT, uint16_t X2)
+    OPTCODE(Y2_HAS_HOME_CURRENT, uint16_t Y2)
+    OPTCODE(Z2_HAS_HOME_CURRENT, uint16_t Z2)
+    OPTCODE(Z3_HAS_HOME_CURRENT, uint16_t Z3)
+    OPTCODE(Z4_HAS_HOME_CURRENT, uint16_t Z4)
+    OPTCODE(I_HAS_HOME_CURRENT,  uint16_t I)
+    OPTCODE(J_HAS_HOME_CURRENT,  uint16_t J)
+    OPTCODE(K_HAS_HOME_CURRENT,  uint16_t K)
+    OPTCODE(U_HAS_HOME_CURRENT,  uint16_t U)
+    OPTCODE(V_HAS_HOME_CURRENT,  uint16_t V)
+    OPTCODE(W_HAS_HOME_CURRENT,  uint16_t W)
+  };
+
+  #if ENABLED(EDITABLE_HOMING_CURRENT)
+    extern homing_current_t homing_current_mA;
+  #endif
+
+#endif // HAS_HOMING_CURRENT
 
 #endif // HAS_TRINAMIC_CONFIG
 

@@ -223,15 +223,21 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    //const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
+    //const xy_pos_t pos { max_length(X_AXIS), max_length(Y_AXIS) };
     //const float mlz = max_length(X_AXIS),
 
     // Move all carriages together linearly until an endstop is hit.
     //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
 
+    // Set the homing current for all motors
+    TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
+
     current_position.set(0, 0, max_length(Z_AXIS));
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
+
+    // Restore the homing current for all motors
+    TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -287,7 +293,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+    //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x, ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
   }
 
 #endif

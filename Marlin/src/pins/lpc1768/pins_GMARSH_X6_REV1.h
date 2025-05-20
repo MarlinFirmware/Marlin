@@ -23,8 +23,7 @@
 
 /**
  * GMARSH X6 Rev.1 pin assignments
- * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/GMARSH%20X6%20Rev.1/armprinter_2208_1heater.pdf
- * Origin: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
+ * Schematic: https://github.com/gmarsh/gmarsh_x6/blob/master/armprinter_2208_1heater.pdf
  */
 
 #include "env_validate.h"
@@ -51,9 +50,9 @@
 #define X_MIN_PIN                          P0_00
 #define X_MAX_PIN                          P0_01
 #define Y_MIN_PIN                          P0_10
-#define Y_MAX_PIN                          P0_21
+#define Y_MAX_PIN                          P0_11
 #define Z_MIN_PIN                          P2_13
-#define Z_MAX_PIN                          P2_22
+#define Z_MAX_PIN                          P2_12
 
 //
 // Steppers
@@ -88,22 +87,11 @@
 //
 #if HAS_TMC_UART
   #define X_SERIAL_TX_PIN                  P1_00
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                  P1_09
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                  P1_16
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                 P0_04
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                 P2_02
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                 P2_06
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
 
   // Reduce baud rate to improve software serial reliability
   #ifndef TMC_BAUD_RATE
