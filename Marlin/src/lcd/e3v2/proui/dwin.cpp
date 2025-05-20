@@ -2685,7 +2685,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  void applyLA_K() { planner.set_advance_k(menuData.value / MINUNITMULT); }
+  void applyLA_K() { planner.set_advance_k(menuData.value / POW(10, 3)); }
   void setLA_K() { setPFloatOnClick(0, 10, 3, applyLA_K); }
 #endif
 
