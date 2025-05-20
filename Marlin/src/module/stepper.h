@@ -477,11 +477,9 @@ class Stepper {
       #endif
     #endif
 
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      #if DISABLED(SMOOTH_LIN_ADVANCE)
-        static int32_t ne_edividend;
-		static uint32_t ne_scale_q24;
-      #endif
+    #if ENABLED(NONLINEAR_EXTRUSION) && DISABLED(SMOOTH_LIN_ADVANCE)
+      static int32_t ne_edividend;
+      static uint32_t ne_scale_q24;
     #endif
 
     #if ENABLED(BABYSTEPPING)

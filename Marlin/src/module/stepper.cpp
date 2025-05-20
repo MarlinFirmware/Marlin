@@ -258,11 +258,14 @@ uint32_t Stepper::advance_divisor = 0,
 #if ENABLED(NONLINEAR_EXTRUSION)
   ne_coeff_t Stepper::ne;
   #if DISABLED(SMOOTH_LIN_ADVANCE)
-    ne_q24_t Stepper::ne_q24;  
-    uint32_t Stepper::ne_scale_q24;
-    int32_t  Stepper::ne_edividend;
+    ne_q24_t Stepper::ne_q24;
   #else
     ne_q30_t Stepper::ne_q30;
+  #endif
+  // private:
+  #if DISABLED(SMOOTH_LIN_ADVANCE)
+    int32_t Stepper::ne_edividend;
+    uint32_t Stepper::ne_scale_q24;
   #endif
 #endif
 
