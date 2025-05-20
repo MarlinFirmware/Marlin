@@ -286,6 +286,7 @@ constexpr ena_mask_t enable_overlap[] = {
 #if ENABLED(NONLINEAR_EXTRUSION)
   typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
   #if DISABLED(SMOOTH_LIN_ADVANCE)
+    #define NONLINEAR_EXTRUSION_Q24 1
     typedef struct { int32_t A, B, C; } ne_q24_t;
   #else
     typedef struct { int32_t A, B, C; } ne_q30_t;
@@ -347,12 +348,11 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static ne_coeff_t ne;
-      #if DISABLED(SMOOTH_LIN_ADVANCE)
+      #if NONLINEAR_EXTRUSION_Q24
         static ne_q24_t ne_q24;
       #else
         static ne_q30_t ne_q30;
       #endif
-      static bool ne_on;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -477,7 +477,7 @@ class Stepper {
       #endif
     #endif
 
-    #if ENABLED(NONLINEAR_EXTRUSION) && DISABLED(SMOOTH_LIN_ADVANCE)
+    #if NONLINEAR_EXTRUSION_Q24
       static int32_t ne_edividend;
       static uint32_t ne_scale_q24;
     #endif
@@ -747,8 +747,8 @@ class Stepper {
     // Evaluate axis motions and set bits in axis_did_move
     static void set_axis_moved_for_current_block();
 
-    #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-      static void calc_nonlinear_e(uint32_t step_rate);
+    #if NONLINEAR_EXTRUSION_Q24
+      static void calc_nonlinear_e(const uint32_t step_rate);
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)

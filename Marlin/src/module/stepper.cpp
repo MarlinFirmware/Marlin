@@ -257,13 +257,13 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if ENABLED(NONLINEAR_EXTRUSION)
   ne_coeff_t Stepper::ne;
-  #if DISABLED(SMOOTH_LIN_ADVANCE)
+  #if NONLINEAR_EXTRUSION_Q24
     ne_q24_t Stepper::ne_q24;
   #else
     ne_q30_t Stepper::ne_q30;
   #endif
   // private:
-  #if DISABLED(SMOOTH_LIN_ADVANCE)
+  #if NONLINEAR_EXTRUSION_Q24
     int32_t Stepper::ne_edividend;
     uint32_t Stepper::ne_scale_q24;
   #endif
@@ -2248,8 +2248,8 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #endif // !CPU_32_BIT
 }
 
-#if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-  void Stepper::calc_nonlinear_e(uint32_t step_rate) {
+#if NONLINEAR_EXTRUSION_Q24
+  void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
     const uint32_t velocity_q24 = ne_scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
     int32_t vd_q24 = (((((int64_t)ne_q24.A * velocity_q24) >> 24) * velocity_q24) >> 24) + (((int64_t)ne_q24.B * velocity_q24) >> 24);
     NOLESS(vd_q24, 0);
@@ -2470,9 +2470,7 @@ hal_timer_t Stepper::block_phase_isr() {
         acceleration_time += interval;
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
-        #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-          calc_nonlinear_e(acc_step_rate << oversampling_factor);
-        #endif
+        TERN_(NONLINEAR_EXTRUSION_Q24, calc_nonlinear_e(acc_step_rate << oversampling_factor));
 
         #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
@@ -2536,9 +2534,7 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
-        #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-          calc_nonlinear_e(step_rate << oversampling_factor);
-        #endif
+        TERN_(NONLINEAR_EXTRUSION_Q24, calc_nonlinear_e(step_rate << oversampling_factor));
 
         #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
@@ -2591,9 +2587,7 @@ hal_timer_t Stepper::block_phase_isr() {
           TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
-          #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
-          #endif
+          TERN_(NONLINEAR_EXTRUSION_Q24, calc_nonlinear_e(current_block->nominal_rate << oversampling_factor));
 
           #if HAS_ROUGH_LIN_ADVANCE
             if (la_active)
@@ -2843,7 +2837,7 @@ hal_timer_t Stepper::block_phase_isr() {
         acc_step_rate = current_block->initial_rate;
       #endif
 
-      #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
+      #if NONLINEAR_EXTRUSION_Q24
         ne_edividend = advance_dividend.e;
         const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
         ne_scale_q24 = (1L << 24) * scale;
@@ -2863,9 +2857,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize ac/deceleration time as if half the time passed.
       acceleration_time = deceleration_time = interval / 2;
 
-      #if ENABLED(NONLINEAR_EXTRUSION) and DISABLED(SMOOTH_LIN_ADVANCE)
-        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
-      #endif
+      TERN_(NONLINEAR_EXTRUSION_Q24, calc_nonlinear_e(current_block->initial_rate << oversampling_factor));
 
       #if ENABLED(LIN_ADVANCE)
         #if ENABLED(SMOOTH_LIN_ADVANCE)
