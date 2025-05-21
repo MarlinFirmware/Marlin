@@ -810,14 +810,12 @@ class Temperature {
 
   public:
     /**
-     * Instance Methods
-     */
-
-    void init();
-
-    /**
      * Static (class) methods
      */
+
+    static void init();
+
+    static void factory_reset();
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
