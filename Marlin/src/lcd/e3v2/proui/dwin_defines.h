@@ -63,17 +63,15 @@
   #define HAS_ZOFFSET_ITEM 1
 #endif
 
-#include "../common/dwin_color.h"
-
-#define defColorBackground  COLOR_BG_BLACK
-#define defColorCursor      COLOR_WHITE
-#define defColorTitleBg     COLOR_RED
+#define defColorBackground  RGB(1, 12, 8)
+#define defColorCursor      RGB(20, 49, 31)
+#define defColorTitleBg     RGB(0, 23, 16)
 #define defColorTitleTxt    COLOR_WHITE
 #define defColorText        COLOR_WHITE
 #define defColorSelected    COLOR_SELECT
-#define defColorSplitLine   COLOR_WHITE
+#define defColorSplitLine   RGB(0, 23, 16)
 #define defColorHighlight   COLOR_WHITE
-#define defColorStatusBg    COLOR_BG_BLACK
+#define defColorStatusBg    RGB(0, 23, 16)
 #define defColorStatusTxt   COLOR_YELLOW
 #define defColorPopupBg     COLOR_BG_WINDOW
 #define defColorPopupTxt    COLOR_POPUP_TEXT
@@ -83,8 +81,7 @@
 #define defColorBarfill     COLOR_BARFILL
 #define defColorIndicator   COLOR_WHITE
 #define defColorCoordinate  COLOR_WHITE
-#define defColorButton      COLOR_RED
-
+#define defColorButton      RGB(0, 23, 16)
 #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
   #define defColorLeds      LEDColorWhite()
 #endif
@@ -136,9 +133,8 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
-//#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
-#define USE_GRID_MESHVIEWER 1
-// #define HAS_LOCKSCREEN 1      // Simple lockscreen
+#define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables

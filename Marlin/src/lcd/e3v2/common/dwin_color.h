@@ -29,17 +29,17 @@
 
 // RGB565 colors: https://rgbcolorpicker.com/565
 #define COLOR_WHITE         0xFFFF
-#define COLOR_YELLOW        0xFF0F
-#define COLOR_RED           0xA804
-#define COLOR_ERROR_RED     0xC000  // Error!
+#define COLOR_YELLOW        RGB(0x1F, 0x3F, 0x00)
+#define COLOR_RED           RGB(0x1F, 0x00, 0x00)
+#define COLOR_ERROR_RED     0xB000  // Error!
 #define COLOR_BG_RED        0xF00F  // Red background color
 #define COLOR_BG_WINDOW     0x31E8  // Popup background color
 #define COLOR_BG_BLUE       0x1125  // Dark blue background color
 #define COLOR_BG_BLACK      0x0841  // Black background color
 #define COLOR_ICONBLUE      0x45FA  // Lighter blue that matches icons/accents
 #define COLOR_POPUP_TEXT    0xD6BA  // Popup font background color
-#define COLOR_LINE          COLOR_WHITE  // Split line color
-#define COLOR_RECTANGLE     COLOR_RED  // Blue square cursor color
-#define COLOR_PERCENT       COLOR_WHITE  // Percentage color
+#define COLOR_LINE          0x3A6A  // Split line color
+#define COLOR_RECTANGLE     0xEE2F  // Blue square cursor color
+#define COLOR_PERCENT       0xFE29  // Percentage color
 #define COLOR_BARFILL       0x10E4  // Fill color of progress bar
-#define COLOR_SELECT        0x8430  // Selected color
+#define COLOR_SELECT        0x33BB  // Selected color
