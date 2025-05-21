@@ -256,6 +256,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
         TERN_(HAS_MARLINUI_MENU, this->stored.hybrid_thrs = thrs);
       }
     #endif
+
     #if USE_SENSORLESS
       int16_t homing_threshold() { return TMC2209Stepper::SGTHRS(); }
       void homing_threshold(int16_t sgt_val) {
@@ -324,6 +325,7 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
         TERN_(HAS_MARLINUI_MENU, this->stored.hybrid_thrs = thrs);
       }
     #endif
+
     #if USE_SENSORLESS
       int16_t homing_threshold() { return TMC2240Stepper::sgt(); }
       void homing_threshold(int16_t sgt_val) {
@@ -333,15 +335,12 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       }
     #endif
 
-    #if HAS_MARLINUI_MENU
-      void refresh_stepper_current() { rms_current(this->val_mA); }
-
-      #if ENABLED(HYBRID_THRESHOLD)
-        void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
-      #endif
-      #if USE_SENSORLESS
-        void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
-      #endif
+    void refresh_stepper_current() { rms_current(this->val_mA); }
+    #if ENABLED(HYBRID_THRESHOLD)
+      void refresh_hybrid_thrs() { set_pwm_thrs(this->stored.hybrid_thrs); }
+    #endif
+    #if USE_SENSORLESS
+      void refresh_homing_thrs() { homing_threshold(this->stored.homing_thrs); }
     #endif
 
     static constexpr int8_t sgt_min = -64,

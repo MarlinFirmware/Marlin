@@ -141,6 +141,7 @@
     }
 
   #endif // HAS_TMCX1X0
+
   #if HAS_DRIVER(TMC2240)
 
     #if ENABLED(TMC_DEBUG)
@@ -200,7 +201,7 @@
       return data;
     }
 
-  #endif // HAS_TMCX1X0
+  #endif // TMC2240
 
   #if HAS_TMC220x
 
