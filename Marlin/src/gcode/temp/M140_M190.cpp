@@ -129,8 +129,7 @@ void GcodeSuite::M140_M190(const bool isM190) {
   else {
     ui.set_status_reset_fn([]{
       const celsius_t c = thermalManager.degTargetBed();
-      c < 30 || thermalManager.degBedNear(c);
-      return;
+      return c < 30 || thermalManager.degBedNear(c);
     });
   }
 }
