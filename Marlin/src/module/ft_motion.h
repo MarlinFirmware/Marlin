@@ -169,6 +169,8 @@ class FTMotion {
 
     static xyze_long_t steps;
 
+    static uint8_t current_extruder_idx;
+
     // Shaping variables.
     #if HAS_FTM_SHAPING
 
