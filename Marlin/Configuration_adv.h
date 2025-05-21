@@ -3028,8 +3028,12 @@
   #define INTERPOLATE      true
 
   #if HAS_DRIVER(TMC2240)
-    #define TMC2240_CURRENT_RANGE   2   // :{ 0:'1A', 1:'2A', 2:'3A', 3:'3A' }
+    #define TMC2240_CURRENT_RANGE   1   // RMS: { 0:'690mA', 1:'1410mA', 2:'2120mA', 3:'2110mA' }
+                                        // PEAK:{ 0:'1A', 1:'2A', 2:'3A', 3:'3A' }  
+                                        // Determins max current. Lower is more internal current resolution, higher runs cooler
     #define TMC2240_Rref        12000   // ('rref', 12000, minval=12000, maxval=60000)
+    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/us', 1:'200V/us', 2:'400V/us', 3:'800V/us' }
+                                        // Lower is more silent, higher runs cooler
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X)

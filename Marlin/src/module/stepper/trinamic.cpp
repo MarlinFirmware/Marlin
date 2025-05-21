@@ -767,7 +767,9 @@ enum StealthIndex : uint8_t {
     st.stored.stealthChop_enabled = stealth;
 
     TMC2240_n::DRV_CONF_t drv_conf{0};
+    st.Rref = TMC2240_Rref;
     drv_conf.current_range = TMC2240_CURRENT_RANGE;
+    drv_conf.slope_control = TMC2240_SLOPE_CONTROL;
     st.DRV_CONF(drv_conf.sr);
 
     //SERIAL_ECHOLNPGM("mA=", mA);
@@ -783,6 +785,7 @@ enum StealthIndex : uint8_t {
     chopconf.hend = chop_init.hend + 3;   // -1 + 3
     chopconf.TBL    = 2;
     chopconf.tpfd   = 4;
+    TERN_(EDGE_STEPPING, chopconf.dedge = true);
 
     st.CHOPCONF(chopconf.sr);
     st.microsteps(microsteps);

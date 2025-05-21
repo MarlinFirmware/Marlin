@@ -289,7 +289,7 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       {}
 
     //uint8_t get_address() { return slave_address; }
-    uint16_t get_microstep_counter() { return TMC2240Stepper::MSCNT(); }
+    uint16_t get_microstep_counter() { return TMC2240Stepper::microsteps(); }
 
     uint16_t rms_current() { return TMC2240Stepper::rms_current(); }
     void rms_current(const uint16_t mA) {
