@@ -496,7 +496,8 @@ void GcodeSuite::G33() {
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, dcr, towers_set, stow_after_each, probe_at_offset)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
-      return ac_cleanup();
+      ac_cleanup();
+      return;
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
 

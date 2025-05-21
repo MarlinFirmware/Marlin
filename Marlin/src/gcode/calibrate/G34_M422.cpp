@@ -474,7 +474,10 @@ void GcodeSuite::G34() {
  */
 void GcodeSuite::M422() {
 
-  if (!parser.seen_any()) return M422_report();
+  if (!parser.seen_any()) {
+    M422_report();
+    return;
+  }
 
   if (parser.seen('R')) {
     z_stepper_align.reset_to_default();

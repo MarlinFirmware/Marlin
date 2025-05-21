@@ -30,10 +30,10 @@
  * M149: Set temperature units
  */
 void GcodeSuite::M149() {
-       if (parser.seen('C')) parser.set_input_temp_units(TEMPUNIT_C);
-  else if (parser.seen('K')) parser.set_input_temp_units(TEMPUNIT_K);
-  else if (parser.seen('F')) parser.set_input_temp_units(TEMPUNIT_F);
-  else M149_report();
+  if (parser.seen('C')) parser.set_input_temp_units(TEMPUNIT_C);
+  if (parser.seen('K')) parser.set_input_temp_units(TEMPUNIT_K);
+  if (parser.seen('F')) parser.set_input_temp_units(TEMPUNIT_F);
+  if (!parser.seen_any()) M149_report();
 }
 
 void GcodeSuite::M149_report(const bool forReplay/*=true*/) {

@@ -35,12 +35,10 @@
  *  S<index> : The language to select
  */
 void GcodeSuite::M414() {
-
   if (parser.seenval('S'))
     ui.set_language(parser.value_byte());
   else
     M414_report();
-
 }
 
 void GcodeSuite::M414_report(const bool forReplay/*=true*/) {

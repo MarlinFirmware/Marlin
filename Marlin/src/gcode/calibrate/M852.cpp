@@ -36,7 +36,10 @@
  *  K[yz_factor] - New YZ skew factor
  */
 void GcodeSuite::M852() {
-  if (!parser.seen("SIJK")) return M852_report();
+  if (!parser.seen("SIJK")) {
+    M852_report();
+    return;
+  }
 
   uint8_t badval = 0, setval = 0;
 

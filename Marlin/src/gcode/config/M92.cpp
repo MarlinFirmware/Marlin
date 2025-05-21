@@ -48,8 +48,11 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen(STR_AXES_LOGICAL TERN_(MAGIC_NUMBERS_GCODE, "HL")))
-    return M92_report(true, target_extruder);
+  if (!parser.seen(STR_AXES_LOGICAL TERN_(MAGIC_NUMBERS_GCODE, "HL"))) {
+    M92_report(true, target_extruder);
+    return;
+  }
+
 
   LOOP_LOGICAL_AXES(i) {
     if (parser.seenval(AXIS_CHAR(i))) {

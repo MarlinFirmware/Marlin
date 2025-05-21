@@ -225,8 +225,10 @@ void GcodeSuite::G29() {
           return;
         }
       }
-      else
-        return echo_not_entered('J');
+      else {
+        echo_not_entered('J');
+        return;
+      }
 
       if (parser.seenval('J')) {
         iy = parser.value_int();
@@ -235,22 +237,28 @@ void GcodeSuite::G29() {
           return;
         }
       }
-      else
-        return echo_not_entered('J');
+      else {
+        echo_not_entered('J');
+        return;
+      }
 
       if (parser.seenval('Z')) {
         bedlevel.z_values[ix][iy] = parser.value_linear_units();
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
       }
-      else
-        return echo_not_entered('Z');
+      else {
+        echo_not_entered('Z');
+        return;
+      }
       break;
 
     case MeshSetZOffset:
       if (parser.seenval('Z'))
         bedlevel.z_offset = parser.value_linear_units();
-      else
-        return echo_not_entered('Z');
+      else {
+        echo_not_entered('Z');
+        return;
+      }
       break;
 
     case MeshReset:

@@ -58,7 +58,10 @@ void GcodeSuite::M86_report(const bool forReplay/*=true*/) {
  *  T<temp>     : Minimum extruder temperature to consider for timeout (> idle temperature)
  */
 void GcodeSuite::M86() {
-  if (!parser.seen_any()) return M86_report();
+  if (!parser.seen_any()) {
+    M86_report();
+    return;
+  }
   hotend_idle_settings_t &c = hotend_idle.cfg;
   if (parser.seenval('S')) c.timeout = parser.value_ushort();
   if (parser.seenval('T')) c.trigger = parser.value_celsius();

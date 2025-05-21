@@ -35,7 +35,10 @@
  *  D<dval> - Set the D value
  */
 void GcodeSuite::M309() {
-  if (!parser.seen("PID")) return M309_report();
+  if (!parser.seen("PID")) {
+    M309_report();
+    return;
+  }
   if (parser.seenval('P')) thermalManager.temp_chamber.pid.set_Kp(parser.value_float());
   if (parser.seenval('I')) thermalManager.temp_chamber.pid.set_Ki(parser.value_float());
   if (parser.seenval('D')) thermalManager.temp_chamber.pid.set_Kd(parser.value_float());

@@ -357,16 +357,22 @@ void GcodeSuite::M100() {
   }
 
   #if ENABLED(M100_FREE_MEMORY_DUMPER)
-    if (parser.seen('D'))
-      return dump_free_memory(free_memory_start, free_memory_end);
+    if (parser.seen('D')) {
+      dump_free_memory(free_memory_start, free_memory_end);
+      return;
+    }
   #endif
 
-  if (parser.seen('F'))
-    return free_memory_pool_report(free_memory_start, free_memory_end - free_memory_start);
+  if (parser.seen('F')) {
+    free_memory_pool_report(free_memory_start, free_memory_end - free_memory_start);
+    return;
+  }
 
   #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
-    if (parser.seen('C'))
-      return corrupt_free_memory(free_memory_start, parser.value_int());
+    if (parser.seen('C')) {
+      corrupt_free_memory(free_memory_start, parser.value_int());
+      return;
+    }
   #endif
 }
 

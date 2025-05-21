@@ -36,7 +36,10 @@
  * *** TODO: Deprecate M206 for SCARA in favor of M665.
  */
 void GcodeSuite::M206() {
-  if (!parser.seen_any()) return M206_report();
+  if (!parser.seen_any()) {
+    M206_report();
+    return;
+  }
   LOOP_NUM_AXES(a)
     if (parser.seenval(AXIS_CHAR(a))) set_home_offset((AxisEnum)a, parser.value_axis_units((AxisEnum)a));
   #if ENABLED(MORGAN_SCARA)

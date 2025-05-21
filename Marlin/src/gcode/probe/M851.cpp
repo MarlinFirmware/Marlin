@@ -33,7 +33,10 @@
  */
 void GcodeSuite::M851() {
   // No parameters? Show current state.
-  if (!parser.seen("XYZ")) return M851_report();
+  if (!parser.seen_any()) {
+    M851_report();
+    return;
+  }
 
   // Start with current offsets and modify
   xyz_pos_t offs = probe.offset;

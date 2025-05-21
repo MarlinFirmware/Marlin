@@ -62,7 +62,8 @@ extern bool wait_for_user, wait_for_heatup;
 
 void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
   auto uppercase = [](char c) {
-    return TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
+    TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
+    return;
   };
 
   switch (state) {

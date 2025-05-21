@@ -83,7 +83,10 @@ void GcodeSuite::G60() {
   const uint8_t slot = parser.byteval(seenD ? 'D' : seenQ ? 'Q' : 'S');
 
   // G60 Q : Redirect to G61(slot)
-  if (seenQ) return G61(slot);
+  if (seenQ) {
+    G61(slot);
+    return;
+  }
 
   // Valid slot number?
   if (SAVED_POSITIONS < 256 && slot >= SAVED_POSITIONS) {

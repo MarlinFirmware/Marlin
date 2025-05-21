@@ -57,21 +57,21 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
       if (fast_move) {
-        old_feedrate = feedrate_mm_s;             // Back up the (old) motion mode feedrate
-        feedrate_mm_s = fast_move_feedrate;       // Get G0 feedrate from last usage
+        old_feedrate = feedrate_mm_s;            // Back up the (old) motion mode feedrate
+        feedrate_mm_s = fast_move_feedrate;      // Get G0 feedrate from last usage
       }
     #endif
   #endif
 
-  get_destination_from_command();                 // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
+  get_destination_from_command();                // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
 
   #ifdef G0_FEEDRATE
     if (fast_move) {
       #if ENABLED(VARIABLE_G0_FEEDRATE)
-        fast_move_feedrate = feedrate_mm_s;       // Save feedrate for the next G0
+        fast_move_feedrate = feedrate_mm_s;      // Save feedrate for the next G0
       #else
-        old_feedrate = feedrate_mm_s;             // Back up the (new) motion mode feedrate
-        feedrate_mm_s = MMM_TO_MMS(G0_FEEDRATE);  // Get the fixed G0 feedrate
+        old_feedrate = feedrate_mm_s;            // Back up the (new) motion mode feedrate
+        feedrate_mm_s = MMM_TO_MMS(G0_FEEDRATE); // Get the fixed G0 feedrate
       #endif
     }
   #endif
@@ -86,9 +86,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         const float echange = destination.e - current_position.e;
         // Is this a retract or recover move?
         if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
-          current_position.e = destination.e;       // Hide a G1-based retract/recover from calculations
-          sync_plan_position_e();                   // AND from the planner
-          return fwretract.retract(echange < 0.0);  // Firmware-based retract/recover (double-retract ignored)
+          current_position.e = destination.e;    // Hide a G1-based retract/recover from calculations
+          sync_plan_position_e();                // AND from the planner
+          fwretract.retract(echange < 0.0);      // Firmware-based retract/recover (double-retract ignored)
+          return;
         }
       }
     }
@@ -108,9 +109,9 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
 
   #if ENABLED(NANODLP_Z_SYNC)
     #if ENABLED(NANODLP_ALL_AXIS)
-      #define _MOVE_SYNC parser.seenval('X') || parser.seenval('Y') || parser.seenval('Z')  // For any move wait and output sync message
+      #define _MOVE_SYNC parser.seenval('X') || parser.seenval('Y') || parser.seenval('Z') // For any move wait and output sync message
     #else
-      #define _MOVE_SYNC parser.seenval('Z')  // Only for Z move
+      #define _MOVE_SYNC parser.seenval('Z') // Only for Z move
     #endif
     if (_MOVE_SYNC) {
       planner.synchronize();

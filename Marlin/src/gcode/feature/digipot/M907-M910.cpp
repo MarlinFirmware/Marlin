@@ -49,8 +49,10 @@ void GcodeSuite::M907() {
 
   #if HAS_MOTOR_CURRENT_SPI
 
-    if (!parser.seen("BS" STR_AXES_LOGICAL))
-      return M907_report();
+    if (!parser.seen("BS" STR_AXES_LOGICAL)) {
+      M907_report();
+      return;
+    }
 
     // S<current> - Set current in mA for all axes
     if (parser.seenval('S'))
@@ -93,7 +95,10 @@ void GcodeSuite::M907() {
         #endif
         TERN_(HAS_MOTOR_CURRENT_PWM_Z, "Z")
         TERN_(HAS_MOTOR_CURRENT_PWM_E, "E")
-      )) return M907_report();
+      )) {
+        M907_report();
+        return;
+      }
 
       // S<current> - Set all stepper current to the same value
       if (parser.seenval('S')) {

@@ -35,7 +35,10 @@
  *  U<angle> - Stowed Angle
  */
 void GcodeSuite::M281() {
-  if (!parser.seen_any()) return M281_report();
+  if (!parser.seen_any()) {
+    M281_report();
+    return;
+  }
 
   if (!parser.seenval('P')) return;
 

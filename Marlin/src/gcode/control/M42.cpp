@@ -62,7 +62,10 @@ void GcodeSuite::M42() {
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
+  if (!parser.boolval('I') && pin_is_protected(pin)) {
+    protected_pin_err();
+    return;
+  }
 
   bool avoidWrite = false;
   if (parser.seenval('T')) {

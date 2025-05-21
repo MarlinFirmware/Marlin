@@ -1289,7 +1289,8 @@ void hmiMoveDone(const AxisEnum axis) {
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (applyEncoder(encoder_diffState, hmiValues.moveScaled.x)) {
       drawEditFloat3(1, hmiValues.moveScaled.x);
-      return hmiMoveDone(X_AXIS);
+      hmiMoveDone(X_AXIS);
+      return;
     }
     LIMIT(hmiValues.moveScaled.x, (X_MIN_POS) * MINUNITMULT, (X_MAX_POS) * MINUNITMULT);
     current_position.x = hmiValues.moveScaled.x / MINUNITMULT;
@@ -1307,7 +1308,8 @@ void hmiMoveDone(const AxisEnum axis) {
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (applyEncoder(encoder_diffState, hmiValues.moveScaled.y)) {
       drawEditFloat3(2, hmiValues.moveScaled.y);
-      return hmiMoveDone(Y_AXIS);
+      hmiMoveDone(Y_AXIS);
+      return;
     }
     LIMIT(hmiValues.moveScaled.y, (Y_MIN_POS) * MINUNITMULT, (Y_MAX_POS) * MINUNITMULT);
     current_position.y = hmiValues.moveScaled.y / MINUNITMULT;
@@ -1325,7 +1327,8 @@ void hmiMoveDone(const AxisEnum axis) {
     if (encoder_diffState == ENCODER_DIFF_NO) return;
     if (applyEncoder(encoder_diffState, hmiValues.moveScaled.z)) {
       drawEditFloat3(3, hmiValues.moveScaled.z);
-      return hmiMoveDone(Z_AXIS);
+      hmiMoveDone(Z_AXIS);
+      return;
     }
     LIMIT(hmiValues.moveScaled.z, (Z_MIN_POS) * MINUNITMULT, (Z_MAX_POS) * MINUNITMULT);
     current_position.z = hmiValues.moveScaled.z / MINUNITMULT;
@@ -1345,7 +1348,8 @@ void hmiMoveDone(const AxisEnum axis) {
     if (applyEncoder(encoder_diffState, hmiValues.moveScaled.e)) {
       last_E_scaled = hmiValues.moveScaled.e;
       drawEditSignedFloat3(4, last_E_scaled);
-      return hmiMoveDone(E_AXIS);
+      hmiMoveDone(E_AXIS);
+      return;
     }
     LIMIT(hmiValues.moveScaled.e, last_E_scaled - (EXTRUDE_MAXLENGTH) * MINUNITMULT, last_E_scaled + (EXTRUDE_MAXLENGTH) * MINUNITMULT);
     current_position.e = hmiValues.moveScaled.e / MINUNITMULT;

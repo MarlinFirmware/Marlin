@@ -44,8 +44,10 @@
  * With no arguments, report the current offsets.
  */
 void GcodeSuite::M210() {
-  if (!parser.seen_any())
-    return M210_report();
+  if (!parser.seen_any()) {
+    M210_report();
+    return;
+  }
 
   #if HAS_X_AXIS
     if (parser.floatval('X') > 0)        homing_feedrate_mm_m.x = parser.value_axis_units(X_AXIS);

@@ -44,8 +44,10 @@ void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
  * Only adjusts forward extrusions, since those are the ones affected by backpressure.
  */
 void GcodeSuite::M592() {
-  if (!parser.seen_any()) return M592_report();
-
+  if (!parser.seen_any()) {
+    M592_report();
+    return;
+  }
   if (parser.seenval('A')) stepper.ne.A = parser.value_float();
   if (parser.seenval('B')) stepper.ne.B = parser.value_float();
   if (parser.seenval('C')) stepper.ne.C = parser.value_float();
