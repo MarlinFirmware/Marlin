@@ -61,21 +61,21 @@ namespace LanguageNarrow_it {
   LSTR MSG_ERROR                          = _UxGT("Errore");
 
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annullando...");
-  LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_IT _UxGT(" inserito");
+  LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_IT _UxGT(" inserita");
   LSTR MSG_MEDIA_INSERTED_SD              = _UxGT("Scheda SD inserita");
   LSTR MSG_MEDIA_INSERTED_USB             = _UxGT("Unità USB inserita");
-  LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_IT _UxGT(" rimosso");
+  LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_IT _UxGT(" rimossa");
   LSTR MSG_MEDIA_REMOVED_SD               = _UxGT("Scheda SD rimossa");
   LSTR MSG_MEDIA_REMOVED_USB              = _UxGT("Unità USB rimossa");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Aspettando ") MEDIA_TYPE_IT;
+  LSTR MSG_MEDIA_WAITING                  = _UxGT("In attesa ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_WAITING_SD               = _UxGT("In attesa scheda SD");
   LSTR MSG_MEDIA_WAITING_USB              = _UxGT("In attesa unità USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Iniz.") MEDIA_TYPE_IT _UxGT(" fallita");
   LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("Iniz. SD fallita");
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("Iniz. USB fallita");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err.leggendo ") MEDIA_TYPE_IT;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Dispos.USB rimosso");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Avvio USB fallito");
+  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Unità USB rimossa");
+  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Iniz. USB fallito");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Ordina ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aggiorna ") MEDIA_TYPE_IT;
 
@@ -550,7 +550,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancella oggetto");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Canc. oggetto {");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Cont.proc.stampa");
-  LSTR MSG_MEDIA_MENU                     = _UxGT("Stampa da ") MEDIA_TYPE_IT;
   LSTR MSG_TURN_OFF                       = _UxGT("Spegni stampante");
   LSTR MSG_END_LOOPS                      = _UxGT("Fine cicli di rip.");
   LSTR MSG_NO_MEDIA                       = MEDIA_TYPE_IT _UxGT(" non presente");
@@ -607,7 +606,7 @@ namespace LanguageNarrow_it {
 
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Collega ") MEDIA_TYPE_IT;
   LSTR MSG_ATTACH_SD                      = _UxGT("Collega scheda SD");
-  LSTR MSG_ATTACH_USB                     = _UxGT("Collega penna USB");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Collega unità USB");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
   LSTR MSG_RELEASE_SD                     = _UxGT("Rilascia sceda SD");
   LSTR MSG_RELEASE_USB                    = _UxGT("Rilascia unità USB");
