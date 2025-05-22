@@ -75,7 +75,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("Iniz. USB fallita");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err.leggendo ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Unità USB rimossa");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Iniz. USB fallito");
+  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Iniz. USB fallita");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Ordina ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aggiorna ") MEDIA_TYPE_IT;
 
