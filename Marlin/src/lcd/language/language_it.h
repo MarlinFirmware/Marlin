@@ -552,7 +552,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Cont.proc.stampa");
   LSTR MSG_TURN_OFF                       = _UxGT("Spegni stampante");
   LSTR MSG_END_LOOPS                      = _UxGT("Fine cicli di rip.");
-  LSTR MSG_NO_MEDIA                       = MEDIA_TYPE_IT _UxGT(" non presente");
   LSTR MSG_DWELL                          = _UxGT("Sospensione...");
   LSTR MSG_USERWAIT                       = _UxGT("Premi tasto..");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Stampa sospesa");
