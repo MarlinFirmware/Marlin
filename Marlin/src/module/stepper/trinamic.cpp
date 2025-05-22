@@ -775,53 +775,42 @@ enum StealthIndex : uint8_t {
     const chopper_timing_t &chop_init, const bool interpolate, float hold_multiplier
   ) {
     st.begin();
-    TMC2240_n::GCONF_t gconf{0};
-    gconf.en_pwm_mode = !stealth;
-    st.GCONF(gconf.sr);
-    st.en_pwm_mode(stealth);
-    st.stored.stealthChop_enabled = stealth;
 
-    TMC2240_n::DRV_CONF_t drv_conf{0};
     st.Rref = TMC2240_Rref;
+    TMC2240_n::DRV_CONF_t drv_conf{0};
     drv_conf.current_range = TMC2240_CURRENT_RANGE;
     drv_conf.slope_control = TMC2240_SLOPE_CONTROL;
     st.DRV_CONF(drv_conf.sr);
 
-    //SERIAL_ECHOLNPGM("mA=", mA);
-    st.rms_current(mA, hold_multiplier);
-
-    st.iholddelay(6);
-    st.irundelay(4);
-
-    TMC2240_n::CHOPCONF_t chopconf{0};
-    chopconf.toff = chop_init.toff;       //  3
-    chopconf.intpol = interpolate;        //  1
-    chopconf.hstrt = chop_init.hstrt - 1; //  6 - 1
-    chopconf.hend = chop_init.hend + 3;   // -1 + 3
-    chopconf.TBL    = 2;
-    chopconf.tpfd   = 4;
+    CHOPCONF_t chopconf{0};
+    chopconf.tbl = 0b01;
+    chopconf.toff = chop_init.toff;
+    chopconf.intpol = interpolate;
+    chopconf.hend = chop_init.hend + 3;
+    chopconf.hstrt = chop_init.hstrt - 1;
     TERN_(EDGE_STEPPING, chopconf.dedge = true);
-
     st.CHOPCONF(chopconf.sr);
+
+    st.rms_current(mA, hold_multiplier);
     st.microsteps(microsteps);
-    //st.CHOPCONF(0x14410153);  // 0x14410153
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
-    TMC2240_n::PWMCONF_t  pwmconf{0};
-    pwmconf.pwm_ofs = 30;
-    pwmconf.pwm_autoscale = 1;
-    pwmconf.pwm_autograd = 1;
-    pwmconf.pwm_reg = 4;
+    st.en_pwm_mode(stealth);
+    st.stored.stealthChop_enabled = stealth;
+
+    TMC2240_n::PWMCONF_t pwmconf{0};
     pwmconf.pwm_lim = 12;
+    pwmconf.pwm_reg = 8;
+    pwmconf.pwm_autograd = true;
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_freq = 0b01;
+    pwmconf.pwm_grad = 14;
+    pwmconf.pwm_ofs = 36;
     st.PWMCONF(pwmconf.sr);
-    st.TPOWERDOWN(10);
 
-    //st.GCONF(0x00);
-    //st.IHOLD_IRUN(0x04071F03);
-    //st.CHOPCONF(0x14410153);  // 0x14410153
-    //st.PWMCONF(0xC40C1E1D);
-    st.GSTAT(0x07);
-    st.GSTAT(0x00);
-    delay(200);
+    TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+    st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC2240
 
@@ -924,6 +913,7 @@ enum StealthIndex : uint8_t {
     st.PWMCONF(pwmconf.sr);
 
     TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC5160
