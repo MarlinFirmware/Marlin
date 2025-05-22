@@ -1016,9 +1016,9 @@ namespace LanguageWide_it {
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancella oggetto");
     LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancella oggetto {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continua il job di stampa");
-    LSTR MSG_MEDIA_MENU                   = _UxGT("Selez.da supporto");
-    LSTR MSG_MEDIA_MENU_SD                = _UxGT("Selez da scheda SD");
-    LSTR MSG_MEDIA_MENU_USB               = _UxGT("Selez. da unità USB");
+    LSTR MSG_MEDIA_MENU                   = _UxGT("Seleziona da ") MEDIA_TYPE_IT;
+    LSTR MSG_MEDIA_MENU_SD                = _UxGT("Seleziona da scheda SD");
+    LSTR MSG_MEDIA_MENU_USB               = _UxGT("Seleziona da unità USB");
     LSTR MSG_NO_MEDIA                     = MEDIA_TYPE_EN _UxGT(" non trovato");
     LSTR MSG_TURN_OFF                     = _UxGT("Spegni la stampante");
     LSTR MSG_END_LOOPS                    = _UxGT("Termina i cicli di ripetizione");
