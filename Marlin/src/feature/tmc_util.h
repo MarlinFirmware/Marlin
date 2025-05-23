@@ -95,7 +95,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
       {}
     TMCMarlin(const uint16_t CS, const float RS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
-      TMC(CS, RS, pinMOSI, pinMISO, pinSCK,  axis_chain_index)
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK, axis_chain_index)
       {}
     uint16_t rms_current() { return this->rms_current(); }
     void rms_current(uint16_t mA) {
@@ -286,7 +286,7 @@ class TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC224
       TMC2240Stepper(cs_pin, axis_chain_index)
       {}
     TMCMarlin(const uint16_t CS, const uint16_t pinMOSI, const uint16_t pinMISO, const uint16_t pinSCK, const uint8_t axis_chain_index) :
-      TMC2240Stepper(CS, pinMOSI, pinMISO, pinSCK ,axis_chain_index )
+      TMC2240Stepper(CS, pinMOSI, pinMISO, pinSCK, axis_chain_index )
       {}
 
     //uint8_t get_address() { return slave_address; }
