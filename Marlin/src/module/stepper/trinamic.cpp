@@ -40,17 +40,26 @@ enum StealthIndex : uint8_t {
 };
 #define TMC_INIT(ST, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, stealthchop_by_axis[STEALTH_INDEX], chopper_timing_##ST, ST##_INTERPOLATE, ST##_HOLD_MULTIPLIER)
 
+//
 //   IC = TMC model number
 //   ST = Stepper object letter
 //   L  = Label characters
 //   AI = Axis Enum Index
 // SWHW = SW/SH UART selection
+//
+
 #if ENABLED(TMC_USE_SW_SPI)
-  #if HAS_DRIVER(TMC2240)
-    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
-  #else
-    #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
-  #endif
+  #define ___TMC_SPI_RSENSE_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #define ___TMC_SPI_DEFINE_2100 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_2130 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_2160 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_2208 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_2209 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_2240(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #define ___TMC_SPI_DEFINE_2660 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_5130 ___TMC_SPI_RSENSE_DEFINE
+  #define ___TMC_SPI_DEFINE_5160 ___TMC_SPI_RSENSE_DEFINE
+  #define __TMC_SPI_DEFINE(IC, ST, L, AI) ___TMC_SPI_DEFINE_##IC(IC, ST, L, AI)
 #else
   #define __TMC_SPI_DEFINE(IC, ST, L, AI) TMCMarlin<IC##Stepper, L, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
 #endif
