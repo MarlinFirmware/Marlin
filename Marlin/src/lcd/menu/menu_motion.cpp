@@ -405,19 +405,38 @@ void menu_move() {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wdangling-pointer"
 
+  #if ALL(__AVR__, HAS_MARLINUI_U8GLIB) && DISABLED(REDUCE_CODE_SIZE_FOR_FT_MOTION_ON_AVR)
+    #define CACHE_PREV_STRING
+  #endif
+
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
     ft_config_t &c = ftMotion.cfg;
 
     #ifdef __AVR__
       // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
       #if HAS_X_AXIS
         MString<20> shaper_name;
-        auto _shaper_name = [&](const AxisEnum a) { shaper_name = get_shaper_name(a); return shaper_name; };
+        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        auto _shaper_name = [&](const AxisEnum a) {
+          if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
+            TERN_(CACHE_PREV_STRING, prev_a = a);
+            shaper_name = get_shaper_name(a);
+          }
+          return shaper_name;
+        };
       #endif
       #if HAS_DYNAMIC_FREQ
         MString<20> dmode;
-        auto _dmode = [&]{ dmode = get_dyn_freq_mode_name(); return dmode; };
+        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        auto _dmode = [&]{
+          if (TERN1(CACHE_PREV_STRING, !got_d)) {
+            TERN_(CACHE_PREV_STRING, got_d = true);
+            dmode = get_dyn_freq_mode_name();
+          }
+          return dmode;
+        };
       #endif
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
@@ -481,13 +500,28 @@ void menu_move() {
     // Define stuff ahead of the menu loop
     #ifdef __AVR__
       // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
       #if HAS_X_AXIS
         MString<20> shaper_name;
-        auto _shaper_name = [&](const AxisEnum a) { shaper_name = get_shaper_name(a); return shaper_name; };
+        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        auto _shaper_name = [&](const AxisEnum a) {
+          if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
+            TERN_(CACHE_PREV_STRING, prev_a = a);
+            shaper_name = get_shaper_name(a);
+          }
+          return shaper_name;
+        };
       #endif
       #if HAS_DYNAMIC_FREQ
         MString<20> dmode;
-        auto _dmode = [&]{ dmode = get_dyn_freq_mode_name(); return dmode; };
+        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        auto _dmode = [&]{
+          if (TERN1(CACHE_PREV_STRING, !got_d)) {
+            TERN_(CACHE_PREV_STRING, got_d = true);
+            dmode = get_dyn_freq_mode_name();
+          }
+          return dmode;
+        };
       #endif
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
