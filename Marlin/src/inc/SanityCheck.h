@@ -3381,7 +3381,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     // Stall detection DIAG = HIGH : TMC2209/2240
     // Stall detection DIAG = LOW  : TMC2130/2160/2660/5130/5160
     #if X_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(X,TMC2209) || AXIS_DRIVER_TYPE(X,TMC2240)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(X,TMC2209) || AXIS_DRIVER_TYPE(X,TMC2240))
       #if X_HOME_TO_MIN && X_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
           #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE HIGH for X MIN homing with TMC2209/2240."
