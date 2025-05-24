@@ -149,6 +149,12 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
+
+    // If the endstop is already pressed, endstop interrupts won't invoke
+    // endstop_triggered and the move will grind. So check here for a
+    // triggered endstop, which shortly marks the block for discard.
+    endstops.update();
+
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -577,12 +583,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   #endif
   TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
   SECONDARY_AXIS_MAP(_SET_MOVE_END);
-
-  // If the endstop is already pressed, endstop interrupts won't invoke
-  // endstop_triggered and the move will grind. So check here for a
-  // triggered endstop, which shortly marks the block for discard.
-  endstops.update();
-
 }
 
 // Generate data points of the trajectory.
