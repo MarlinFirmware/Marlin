@@ -192,7 +192,8 @@
         if (ui.use_click()) {
           if (fmsg_next == nullptr) {
             KEEPALIVE_STATE(IN_HANDLER);
-            return ui.go_back();
+            ui.go_back();
+            return;
           }
           if (!multi_screen) break;
           if (fmsg_next == nullptr) fmsg_next = fmsg;

@@ -1425,7 +1425,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   const millis_t ms = millis();
   if (ELAPSED(ms, next_idle_ms)) {
     next_idle_ms = ms + 200UL;
-    return idle();
+    idle();
+    return;
   }
   thermalManager.task();  // Returns immediately on most calls
 }

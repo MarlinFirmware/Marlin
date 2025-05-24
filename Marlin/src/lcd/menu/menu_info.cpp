@@ -49,7 +49,10 @@
   // About Printer > Printer Stats
   //
   void menu_info_stats() {
-    if (ui.use_click()) return ui.go_back();
+    if (ui.use_click()) {
+      ui.go_back();
+      return;
+    }
 
     printStatistics stats = print_job_timer.getStats();
 
@@ -101,7 +104,10 @@
 //
 #if HAS_TEMP_SENSOR
   void menu_info_thermistors() {
-    if (ui.use_click()) return ui.go_back();
+    if (ui.use_click()) {
+      ui.go_back();
+      return;
+    }
 
     START_SCREEN();
 
@@ -212,7 +218,10 @@
 // About Printer > Board Info
 //
 void menu_info_board() {
-  if (ui.use_click()) return ui.go_back();
+  if (ui.use_click()) {
+    ui.go_back();
+    return;
+  }
 
   START_SCREEN();
   STATIC_ITEM_F(F(BOARD_INFO_NAME), SS_DEFAULT|SS_INVERT);      // MyPrinterController
@@ -245,7 +254,10 @@ void menu_info_board() {
 #else
 
   void menu_info_printer() {
-    if (ui.use_click()) return ui.go_back();
+    if (ui.use_click()) {
+      ui.go_back();
+      return;
+    }
     START_SCREEN();
     STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
@@ -276,7 +288,10 @@ void menu_info_board() {
 //
 #if ENABLED(BUILD_INFO_MENU_ITEM)
   void menu_info_build() {
-    if (ui.use_click()) return ui.go_back();
+    if (ui.use_click()) {
+      ui.go_back();
+      return;
+    }
     START_SCREEN();
     STATIC_ITEM_F(F(__DATE__ " " __TIME__));                      // YYYY-MM-DD HH:MM
     END_SCREEN();
