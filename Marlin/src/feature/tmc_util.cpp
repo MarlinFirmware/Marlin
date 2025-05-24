@@ -142,6 +142,67 @@
 
   #endif // HAS_TMCX1X0
 
+  #if HAS_DRIVER(TMC2240)
+
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+    #endif
+
+    static TMC_driver_data get_driver_data(TMC2240Stepper &st) {
+      constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
+      constexpr uint32_t S2G_bm = 0x18000000;
+      #if ENABLED(TMC_DEBUG)
+        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
+        constexpr uint8_t STEALTH_bp = 14;
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STALL_GUARD_bp = 24;
+        constexpr uint8_t STST_bp = 31;
+      #endif
+      TMC_driver_data data;
+      const auto ds = data.drv_status = st.DRV_STATUS();
+      #ifdef __AVR__
+
+        // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
+        uint8_t spart;
+        #if ENABLED(TMC_DEBUG)
+          data.sg_result = ds & SG_RESULT_bm;
+          spart = ds >> 8;
+          data.is_stealth = TEST(spart, STEALTH_bp - 8);
+          spart = ds >> 16;
+          data.cs_actual = spart & (CS_ACTUAL_bm >> 16);
+        #endif
+        spart = ds >> 24;
+        data.is_ot = TEST(spart, OT_bp - 24);
+        data.is_otpw = TEST(spart, OTPW_bp - 24);
+        data.is_s2g = !!(spart & (S2G_bm >> 24));
+        #if ENABLED(TMC_DEBUG)
+          data.is_stall = TEST(spart, STALL_GUARD_bp - 24);
+          data.is_standstill = TEST(spart, STST_bp - 24);
+          data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
+        #endif
+
+      #else // !__AVR__
+
+        data.is_ot = TEST(ds, OT_bp);
+        data.is_otpw = TEST(ds, OTPW_bp);
+        data.is_s2g = !!(ds & S2G_bm);
+        #if ENABLED(TMC_DEBUG)
+          constexpr uint8_t CS_ACTUAL_sb = 16;
+          data.sg_result = ds & SG_RESULT_bm;
+          data.is_stealth = TEST(ds, STEALTH_bp);
+          data.cs_actual = (ds & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
+          data.is_stall = TEST(ds, STALL_GUARD_bp);
+          data.is_standstill = TEST(ds, STST_bp);
+          data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
+        #endif
+
+      #endif // !__AVR__
+
+      return data;
+    }
+
+  #endif // TMC2240
+
   #if HAS_TMC220x
 
     #if ENABLED(TMC_DEBUG)
@@ -1023,6 +1084,21 @@
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth) {
     st.en_spreadCycle(!restore_stealth);
     st.TCOOLTHRS(0);
+  }
+
+  bool tmc_enable_stallguard(TMC2240Stepper &st) {
+    const bool stealthchop_was_enabled = st.en_pwm_mode();
+
+    st.TCOOLTHRS(0xFFFFF);
+    st.en_pwm_mode(false);
+    st.diag0_stall(true);
+
+    return stealthchop_was_enabled;
+  }
+  void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth) {
+    st.TCOOLTHRS(0);
+    st.en_pwm_mode(restore_stealth);
+    st.diag0_stall(false);
   }
 
   bool tmc_enable_stallguard(TMC2660Stepper) {
