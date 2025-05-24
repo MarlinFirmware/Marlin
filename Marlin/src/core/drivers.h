@@ -207,6 +207,7 @@
 #define THRS_TMC2160       255
 #define THRS_TMC2208       255
 #define THRS_TMC2209       255
+#define THRS_TMC2240       255
 #define THRS_TMC2660     65535
 #define THRS_TMC5130     65535
 #define THRS_TMC5160     65535
