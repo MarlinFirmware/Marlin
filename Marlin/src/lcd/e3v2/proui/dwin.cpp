@@ -3548,7 +3548,7 @@ void drawTuneMenu() {
     #if ENABLED(PROUI_ITEM_ADVK)
       float editable_decimal = planner.get_advance_k();
       EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &editable_decimal);
-      #endif
+    #endif
     #if HAS_LOCKSCREEN
       MENU_ITEM(ICON_Lock, MSG_LOCKSCREEN, onDrawMenuItem, dwinLockScreen);
     #endif
