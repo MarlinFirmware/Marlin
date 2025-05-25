@@ -223,8 +223,8 @@ void DiskIODriver_USBFlash::idle() {
         #endif
         #if USB_DEBUG >= 1
           SERIAL_ECHOLNPGM("Waiting for media");
+          LCD_MESSAGE(MSG_MEDIA_WAITING_USB);
         #endif
-        LCD_MESSAGE(MSG_MEDIA_WAITING);
         GOTO_STATE_AFTER_DELAY(state, 2000);
       }
       break;
@@ -237,9 +237,9 @@ void DiskIODriver_USBFlash::idle() {
     // Handle device removal events
     #if USB_DEBUG >= 1
       SERIAL_ECHOLNPGM("USB device removed");
+      if (state != MEDIA_READY)
+        LCD_MESSAGE(MSG_MEDIA_WARN_USB_REMOVED);
     #endif
-    if (state != MEDIA_READY)
-      LCD_MESSAGE(MSG_MEDIA_WARN_USB_REMOVED);
     GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
   }
 
@@ -247,8 +247,8 @@ void DiskIODriver_USBFlash::idle() {
     // Handle media removal events
     #if USB_DEBUG >= 1
       SERIAL_ECHOLNPGM("Media removed");
+      LCD_MESSAGE(MSG_MEDIA_REMOVED_USB);
     #endif
-    LCD_MESSAGE(MSG_MEDIA_REMOVED);
     GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
   }
 
