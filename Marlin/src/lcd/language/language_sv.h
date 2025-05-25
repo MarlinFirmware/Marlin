@@ -46,7 +46,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Väntar på media");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Media init misslyckades");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Media läsningsfel");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB enhet borttagen");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB enhet borttagen");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start misslyckad");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Underanrop överskriden");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Slutstop"); // Max length 8 characters

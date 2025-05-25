@@ -58,7 +58,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("SD Kart Bekleniyor");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("SD K. Başlatma Hatası");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Kart Okuma Hatası");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Çıkarıldı");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB Çıkarıldı");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Başlat. Hatası");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Medyayı Sırala");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Medyayı Güncelle");

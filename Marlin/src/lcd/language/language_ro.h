@@ -44,7 +44,7 @@ namespace LanguageNarrow_ro {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Inlaturat");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Astept Media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Eroare Citire Media");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Dispozitiv USB Inlaturat");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("Dispozitiv USB Inlaturat");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Pornire USB Esuata");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Eroare:Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters

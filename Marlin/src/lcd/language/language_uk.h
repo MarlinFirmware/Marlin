@@ -46,7 +46,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставте SD-картку");
   LSTR MSG_MEDIA_INIT_FAIL                  = _UxGT("Збій ініціаліз. SD");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Помилка зчитування");
-  LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск видалений");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED           = _UxGT("USB диск видалений");
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Помилка USB диску");
   LSTR MSG_KILL_SUBCALL_OVERFLOW            = _UxGT("Переповн. виклику");
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр.кінцевики");

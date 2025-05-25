@@ -239,7 +239,7 @@ void DiskIODriver_USBFlash::idle() {
       SERIAL_ECHOLNPGM("USB device removed");
     #endif
     if (state != MEDIA_READY)
-      LCD_MESSAGE(MSG_MEDIA_USB_REMOVED);
+      LCD_MESSAGE(MSG_MEDIA_WARN_USB_REMOVED);
     GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
   }
 

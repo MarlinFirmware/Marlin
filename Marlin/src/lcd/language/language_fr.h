@@ -45,7 +45,7 @@ namespace LanguageNarrow_fr {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB débranché");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB débranché");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");

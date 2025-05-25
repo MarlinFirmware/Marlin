@@ -45,7 +45,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media retire");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture media");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB debranche");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB debranche");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur media USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butees");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butees SW");

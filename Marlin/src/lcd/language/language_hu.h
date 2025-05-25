@@ -49,7 +49,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Várakozás a tárolóra");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Tároló-kártya hiba");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Tároló olvasási hiba");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB eltávolítva");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB eltávolítva");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB eszköz hiba");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Túlfolyás");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Végállás"); // Maximum 8 karakter

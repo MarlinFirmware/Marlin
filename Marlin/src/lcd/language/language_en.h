@@ -97,7 +97,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("SD Card Init Fail");
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("USB Drive Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB device removed");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Sort ") MEDIA_TYPE_EN;
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");

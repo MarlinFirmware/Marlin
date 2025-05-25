@@ -54,7 +54,7 @@ namespace LanguageNarrow_pl {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Oczekiwanie na kartę");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Błąd inicializacji karty");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Bład odczytu karty");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Urządzenie USB usunięte");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("Urządzenie USB usunięte");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Błąd uruchomienia USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Krańców."); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Progr. Krańcówki");

@@ -47,7 +47,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Расшир. настройки");
   LSTR MSG_KILL_SUBCALL_OVERFLOW            = _UxGT("Переполн. вызова");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
-  LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED           = _UxGT("USB диск удалён");
   LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр. концевики");
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters

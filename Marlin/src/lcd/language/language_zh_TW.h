@@ -42,7 +42,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("記憶卡被拔出"); // "Card removed"
   LSTR MSG_MEDIA_WAITING                  = _UxGT("等待記憶卡"); // "Waiting for media"
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("記憶卡讀取錯誤"); //"Media read error"
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB裝置已移除"); // "USB device removed"
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB裝置已移除"); // "USB device removed"
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB啟動失敗"); // "USB start failed"
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("擋塊"); // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("軟體擋塊"); // "Soft Endstops"

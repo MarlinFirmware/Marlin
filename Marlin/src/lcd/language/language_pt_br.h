@@ -43,7 +43,7 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Aguardando cartão");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro de leitura");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB removido");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB removido");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB falhou");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Fins de curso");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Fins curso");

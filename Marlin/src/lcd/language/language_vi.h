@@ -40,7 +40,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Phương tiện được rút ra");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Chờ đợi phương tiện");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Lỗi đọc phương tiện");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB được rút ra");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB được rút ra");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB khởi thất bại");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Công tắc");                             // Endstops - công tắc hành trình
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Công tắc mềm");                         // Soft Endstops

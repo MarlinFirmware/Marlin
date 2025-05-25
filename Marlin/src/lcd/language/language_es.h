@@ -52,7 +52,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura ") MEDIA_TYPE_ES;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters

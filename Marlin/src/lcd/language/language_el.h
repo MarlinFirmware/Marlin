@@ -48,7 +48,7 @@ namespace LanguageNarrow_el {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Αναμονή για κάρτα");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Ματαίωση...");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" σφάλμα ανάγνωσης");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB αφαιρέθη");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB αφαιρέθη");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Αποτυχία εκκίνησης USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Αποτυχία αρχικοποίησης SD");
   LSTR MSG_MAIN_MENU                      = _UxGT("Αρχική Οθόνη");

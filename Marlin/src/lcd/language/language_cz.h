@@ -50,7 +50,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Médium vyjmuto");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Čekání na médium");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čtení média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB odstraněno");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB odstraněno");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");

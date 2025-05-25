@@ -60,7 +60,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Čakám na kartu");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Inicial.karty zlyhala");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čítania karty");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB zaria. odstrán.");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("USB zaria. odstrán.");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba spúšťania USB");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Preteč. podprogramu");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znakov

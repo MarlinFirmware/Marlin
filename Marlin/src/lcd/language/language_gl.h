@@ -53,7 +53,7 @@ namespace LanguageNarrow_gl {
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarxeta retirada");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("Agardando ao ") MEDIA_TYPE_GL;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro lectura ") MEDIA_TYPE_GL;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
+  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("Disp. USB retirado");
   LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbord. Subch.");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("FinCarro");
