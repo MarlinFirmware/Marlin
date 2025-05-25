@@ -531,9 +531,7 @@ class Planner {
       static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
         UNUSED(e);
         extruder_advance_K[E_INDEX_N(e)] = k;
-        #if ENABLED(SMOOTH_LIN_ADVANCE)
-          extruder_advance_K_q27[E_INDEX_N(e)] = k * (1UL << 27);
-        #endif
+        TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
       static float get_advance_k(const uint8_t e=active_extruder) {
         UNUSED(e);

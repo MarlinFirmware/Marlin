@@ -147,7 +147,7 @@ constexpr ena_mask_t enable_overlap[] = {
                                       TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
-      template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
+      template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
         return _MAX(_ISDMF[ALIM(INDEX - 1, _ISDMF)] * _ISDASU[ALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {
@@ -285,7 +285,12 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #if ENABLED(NONLINEAR_EXTRUSION)
   typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
-  typedef struct { int32_t A, B, C; } ne_fix_t;
+  #if DISABLED(SMOOTH_LIN_ADVANCE)
+    #define NONLINEAR_EXTRUSION_Q24 1
+    typedef struct { int32_t A, B, C; } ne_q24_t;
+  #else
+    typedef struct { int32_t A, B, C; } ne_q30_t;
+  #endif
 #endif
 
 //
@@ -343,6 +348,11 @@ class Stepper {
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       static ne_coeff_t ne;
+      #if NONLINEAR_EXTRUSION_Q24
+        static ne_q24_t ne_q24;
+      #else
+        static ne_q30_t ne_q30;
+      #endif
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -467,10 +477,9 @@ class Stepper {
       #endif
     #endif
 
-    #if ENABLED(NONLINEAR_EXTRUSION)
+    #if NONLINEAR_EXTRUSION_Q24
       static int32_t ne_edividend;
-      static uint32_t ne_scale;
-      static ne_fix_t ne_fix;
+      static uint32_t ne_scale_q24;
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -531,7 +540,7 @@ class Stepper {
       // The Linear advance ISR phase
       static void advance_isr();
       #if ENABLED(SMOOTH_LIN_ADVANCE)
-        static void set_la_interval(const int32_t rate);
+        static void set_la_interval(int32_t step_rate);
         static hal_timer_t smooth_lin_adv_isr();
       #endif
     #endif
@@ -738,8 +747,10 @@ class Stepper {
     // Evaluate axis motions and set bits in axis_did_move
     static void set_axis_moved_for_current_block();
 
-    #if ENABLED(NONLINEAR_EXTRUSION)
-      static void calc_nonlinear_e(uint32_t step_rate);
+    #if NONLINEAR_EXTRUSION_Q24
+      static void calc_nonlinear_e(const uint32_t step_rate);
+    #else
+      static void calc_nonlinear_e(const uint32_t) {}
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
