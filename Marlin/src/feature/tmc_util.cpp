@@ -72,7 +72,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -298,7 +298,7 @@
     st.printLabel();
     SString<60> report(':', pwm_scale);
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
       #if HAS_STALLGUARD
@@ -575,6 +575,25 @@
 
   template<class TMC>
   static void print_vsense(TMC &st) { SERIAL_ECHO(st.vsense() ? F("1=.18") : F("0=.325")); }
+  #if HAS_DRIVER(TMC2160)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+  #if HAS_DRIVER(TMC5160)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+  #if HAS_DRIVER(TMC2240)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+
+  template <typename TMC>
+  void print_cs_actual(TMC &st) { SERIAL_ECHO(st.cs_actual(), F("/31")); }
+  #if HAS_DRIVER(TMC2240)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_cs_actual(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
@@ -600,12 +619,6 @@
   #endif
 
   #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
-    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-    void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
-
-    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-    void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
-
     static void _tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_ECHO(st.PWM_SCALE()); break;
@@ -676,6 +689,21 @@
 
   #endif // HAS_TMC220x
 
+  #if HAS_DRIVER(TMC2240)
+    static void _tmc_parse_drv_status(TMC2240Stepper, const TMC_drv_status_enum) { }
+    static void _tmc_status(TMC2240Stepper &st, const TMC_debug_enum i) {
+      switch (i) {
+        case TMC_PWM_SCALE_SUM: SERIAL_ECHO(st.pwm_scale_sum()); break;
+        case TMC_PWM_SCALE_AUTO: SERIAL_ECHO(st.pwm_scale_auto()); break;
+        case TMC_PWM_OFS_AUTO: SERIAL_ECHO(st.pwm_ofs_auto()); break;
+        case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
+        case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        default: break;
+      }
+    }
+  #endif
+
   #if HAS_DRIVER(TMC2660)
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
     static void _tmc_status(TMC2660Stepper &st, const TMC_debug_enum i) {
@@ -685,6 +713,21 @@
       }
     }
   #endif
+
+  template <typename TMC>
+  void print_tstep(TMC &st) {
+    const uint32_t tstep_value = st.TSTEP();
+    if (tstep_value != 0xFFFFF)
+      SERIAL_ECHO(tstep_value);
+    else
+      SERIAL_ECHOPGM("max");
+  }
+  void print_tstep(TMC2660Stepper &st) { }
+
+  template <typename TMC>
+  void print_blank_time(TMC &st) { SERIAL_ECHO(st.blank_time()); }
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void print_blank_time(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
 
   template <typename TMC>
   static void tmc_status(TMC &st, const TMC_debug_enum i) {
@@ -703,16 +746,10 @@
         SERIAL_ECHO(st.ihold());
         SERIAL_ECHOPGM("/31");
         break;
-      case TMC_CS_ACTUAL:
-        SERIAL_ECHO(st.cs_actual());
-        SERIAL_ECHOPGM("/31");
-        break;
+      case TMC_CS_ACTUAL: print_cs_actual(st); break;
       case TMC_VSENSE: print_vsense(st); break;
       case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-      case TMC_TSTEP: {
-        const uint32_t tstep_value = st.TSTEP();
-        if (tstep_value != 0xFFFFF) SERIAL_ECHO(tstep_value); else SERIAL_ECHOPGM("max");
-      } break;
+      case TMC_TSTEP: print_tstep(st); break;
       #if ENABLED(HYBRID_THRESHOLD)
         case TMC_TPWMTHRS: SERIAL_ECHO(uint32_t(st.TPWMTHRS())); break;
         case TMC_TPWMTHRS_MMS: {
@@ -725,7 +762,7 @@
         case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
       #endif
       case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
-      case TMC_TBL: SERIAL_ECHO(st.blank_time()); break;
+      case TMC_TBL: print_blank_time(st); break;
       case TMC_HEND: SERIAL_ECHO(st.hysteresis_end()); break;
       case TMC_HSTRT: SERIAL_ECHO(st.hysteresis_start()); break;
       case TMC_MSCNT: SERIAL_ECHO(st.get_microstep_counter()); break;
@@ -753,10 +790,10 @@
         //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
         case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
-        case TMC_TBL: SERIAL_ECHO(st.blank_time()); break;
+        case TMC_TBL: print_blank_time(st); break;
         case TMC_HEND: SERIAL_ECHO(st.hysteresis_end()); break;
         case TMC_HSTRT: SERIAL_ECHO(st.hysteresis_start()); break;
-        default: break;
+        default: _tmc_status(st, i); break;
       }
     }
   #endif
@@ -916,10 +953,10 @@
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
     TMC_REPORT("uStep count",        TMC_MSCNT);
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_TMCX1X0 || HAS_TMC220x
+    #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
     #endif
-    #if HAS_TMCX1X0
+    #if HAS_TMCX1X0_OR_2240
       DRV_REPORT("stallguard",       TMC_STALLGUARD);
       DRV_REPORT("fsactive",         TMC_FSACTIVE);
     #endif
@@ -944,21 +981,22 @@
 
   #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_long(st.REG_CASE(), ':'); break
 
-  #if HAS_TMCX1X0
-    static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
-      switch (i) {
-        PRINT_TMC_REGISTER(TCOOLTHRS);
-        PRINT_TMC_REGISTER(THIGH);
-        PRINT_TMC_REGISTER(COOLCONF);
-        default: SERIAL_CHAR('\t'); break;
-      }
-    }
-  #endif
-  #if HAS_TMC220x
-    static void tmc_get_ic_registers(TMC2208Stepper, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
-  #endif
-
   #if HAS_TRINAMIC_CONFIG
+
+    template<class TMC>
+    static void tmc_get_ic_registers(TMC &, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
+
+    #if HAS_TMCX1X0
+      static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
+        switch (i) {
+          PRINT_TMC_REGISTER(TCOOLTHRS);
+          PRINT_TMC_REGISTER(THIGH);
+          PRINT_TMC_REGISTER(COOLCONF);
+          default: SERIAL_CHAR('\t'); break;
+        }
+      }
+    #endif
+
     template<class TMC>
     static void tmc_get_registers(TMC &st, const TMC_get_registers_enum i) {
       switch (i) {
@@ -978,7 +1016,8 @@
       }
       SERIAL_CHAR('\t');
     }
-  #endif
+  #endif // HAS_TRINAMIC_CONFIG
+
   #if HAS_DRIVER(TMC2660)
     template <char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
     static void tmc_get_registers(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_get_registers_enum i) {
@@ -1105,7 +1144,7 @@
     // TODO
     return false;
   }
-  void tmc_disable_stallguard(TMC2660Stepper, const bool) {};
+  void tmc_disable_stallguard(TMC2660Stepper, const bool) { }
 
 #endif // USE_SENSORLESS
 
