@@ -401,18 +401,47 @@ void menu_move() {
 
   #endif // HAS_DYNAMIC_FREQ
 
+  // Suppress warning about storing a stack address in a static string pointer
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdangling-pointer"
+
+  #if ALL(__AVR__, HAS_MARLINUI_U8GLIB) && DISABLED(REDUCE_CODE_SIZE_FOR_FT_MOTION_ON_AVR)
+    #define CACHE_PREV_STRING
+  #endif
+
   void menu_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
-        shaper_name[a] = get_shaper_name(AxisEnum(a));
-    #endif
-    #if HAS_DYNAMIC_FREQ
-      MString<20> dmode = get_dyn_freq_mode_name();
-    #endif
-
     ft_config_t &c = ftMotion.cfg;
+
+    #ifdef __AVR__
+      // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
+      #if HAS_X_AXIS
+        MString<20> shaper_name;
+        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        auto _shaper_name = [&](const AxisEnum a) {
+          if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
+            TERN_(CACHE_PREV_STRING, prev_a = a);
+            shaper_name = get_shaper_name(a);
+          }
+          return shaper_name;
+        };
+      #endif
+      #if HAS_DYNAMIC_FREQ
+        MString<20> dmode;
+        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        auto _dmode = [&]{
+          if (TERN1(CACHE_PREV_STRING, !got_d)) {
+            TERN_(CACHE_PREV_STRING, got_d = true);
+            dmode = get_dyn_freq_mode_name();
+          }
+          return dmode;
+        };
+      #endif
+    #else
+      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
+      auto _dmode = []{ return get_dyn_freq_mode_name(); };
+    #endif
 
     START_MENU();
     BACK_ITEM(MSG_MOTION);
@@ -426,7 +455,7 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       #if HAS_X_AXIS
-        SUBMENU_N_S(X_AXIS, shaper_name[X_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
+        SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
 
         if (AXIS_HAS_SHAPER(X)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.x, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -436,7 +465,7 @@ void menu_move() {
         }
       #endif
       #if HAS_Y_AXIS
-        SUBMENU_N_S(Y_AXIS, shaper_name[Y_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
+        SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
 
         if (AXIS_HAS_SHAPER(Y)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.y, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
@@ -447,7 +476,7 @@ void menu_move() {
       #endif
 
       #if HAS_DYNAMIC_FREQ
-        SUBMENU_S(dmode, MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+        SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
         if (c.dynFreqMode != dynFreqMode_DISABLED) {
           #if HAS_X_AXIS
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.x, 0.0f, 20.0f);
@@ -469,13 +498,34 @@ void menu_move() {
 
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
-    MString<20> shaper_name[NUM_AXES_SHAPED] {};
-    #if HAS_X_AXIS
-      for (uint_fast8_t a = X_AXIS; a < NUM_AXES_SHAPED; ++a)
-        shaper_name[a] = get_shaper_name(AxisEnum(a));
-    #endif
-    #if HAS_DYNAMIC_FREQ
-      MString<20> dmode = get_dyn_freq_mode_name();
+    #ifdef __AVR__
+      // Copy Flash strings to RAM for C-string substitution
+      // For U8G paged rendering check and skip extra string copy
+      #if HAS_X_AXIS
+        MString<20> shaper_name;
+        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        auto _shaper_name = [&](const AxisEnum a) {
+          if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
+            TERN_(CACHE_PREV_STRING, prev_a = a);
+            shaper_name = get_shaper_name(a);
+          }
+          return shaper_name;
+        };
+      #endif
+      #if HAS_DYNAMIC_FREQ
+        MString<20> dmode;
+        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        auto _dmode = [&]{
+          if (TERN1(CACHE_PREV_STRING, !got_d)) {
+            TERN_(CACHE_PREV_STRING, got_d = true);
+            dmode = get_dyn_freq_mode_name();
+          }
+          return dmode;
+        };
+      #endif
+    #else
+      auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
+      auto _dmode = []{ return get_dyn_freq_mode_name(); };
     #endif
 
     #if HAS_EXTRUDERS
@@ -486,13 +536,13 @@ void menu_move() {
     BACK_ITEM(MSG_TUNE);
 
     #if HAS_X_AXIS
-      SUBMENU_N_S(X_AXIS, shaper_name[X_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
+      SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
     #endif
     #if HAS_Y_AXIS
-      SUBMENU_N_S(Y_AXIS, shaper_name[Y_AXIS], MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
+      SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
     #endif
     #if HAS_DYNAMIC_FREQ
-      SUBMENU_S(dmode, MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
+      SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
     #endif
     #if HAS_EXTRUDERS
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
@@ -502,6 +552,8 @@ void menu_move() {
 
     END_MENU();
   }
+
+  #pragma GCC diagnostic pop
 
 #endif // FT_MOTION_MENU
 
