@@ -1103,7 +1103,10 @@ void Temperature::factory_reset() {
     #endif
 
     do_z_clearance(MPC_TUNING_END_Z, false);
-    TERN_(MPC_DISABLE_STEPPERS, planner.finish_and_disable());
+
+    #ifdef EVENT_GCODE_AFTER_MPC_TUNE
+      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_MPC_TUNE), false);
+    #endif
 
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
   }
