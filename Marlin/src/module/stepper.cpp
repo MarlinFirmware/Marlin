@@ -2926,7 +2926,10 @@ hal_timer_t Stepper::block_phase_isr() {
         FORCE_INLINE xy_long_t past_item(const uint16_t n) {
           int16_t i = int16_t(index) - n;
           if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
-          // if (i < 0) return {0, 0}; // This can only happen if the input shaping frequency was set blow the minimum configured at build time. It means input shaping will also be missbehaving, but the menu doesn't dissalow it. Input shaping setters should forbid this instead
+          // The following only happens when IS Freq is set below the minimum
+          // configured at build time ...in which case IS will also misbehave!
+          // Using setters whenever possible prevents values being set too low.
+          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
           return buffer[i];
         }
       } DelayBuffer;
