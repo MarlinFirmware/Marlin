@@ -68,8 +68,7 @@ void GcodeSuite::M166() {
 
   mixer.refresh_gradient();
 
-  SERIAL_ECHOPGM("Gradient Mix ");
-  serialprint_onoff(mixer.gradient.enabled);
+  SERIAL_ECHOPGM("Gradient Mix ", ON_OFF(mixer.gradient.enabled));
   if (mixer.gradient.enabled) {
 
     #if ENABLED(GRADIENT_VTOOL)

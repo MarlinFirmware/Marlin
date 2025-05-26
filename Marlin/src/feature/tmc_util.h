@@ -422,6 +422,9 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
   bool tmc_enable_stallguard(TMC2209Stepper &st);
   void tmc_disable_stallguard(TMC2209Stepper &st, const bool restore_stealth);
 
+  bool tmc_enable_stallguard(TMC2240Stepper &st);
+  void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth);
+
   bool tmc_enable_stallguard(TMC2660Stepper);
   void tmc_disable_stallguard(TMC2660Stepper, const bool);
 

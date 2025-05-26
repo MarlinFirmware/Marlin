@@ -99,7 +99,7 @@ void GcodeSuite::G29() {
     case MeshReport:
       SERIAL_ECHOPGM("Mesh Bed Leveling ");
       if (leveling_is_valid()) {
-        serialprintln_onoff(planner.leveling_active);
+        SERIAL_ECHOLN(ON_OFF(planner.leveling_active));
         bedlevel.report_mesh();
       }
       else

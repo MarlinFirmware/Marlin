@@ -90,17 +90,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_EN _UxGT(" Removed");
   LSTR MSG_MEDIA_REMOVED_SD               = _UxGT("SD Card Removed");
   LSTR MSG_MEDIA_REMOVED_USB              = _UxGT("USB Drive Removed");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for ") MEDIA_TYPE_EN;
-  LSTR MSG_MEDIA_WAITING_SD               = _UxGT("Waiting for SD Card");
-  LSTR MSG_MEDIA_WAITING_USB              = _UxGT("Waiting for USB Drive");
   LSTR MSG_MEDIA_INIT_FAIL                = MEDIA_TYPE_EN _UxGT(" Init Fail");
   LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("SD Card Init Fail");
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("USB Drive Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Sort ") MEDIA_TYPE_EN;
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
+  LSTR MSG_USB_FD_WAITING_FOR_MEDIA       = _UxGT("Wait for USB Drive");
+  LSTR MSG_USB_FD_MEDIA_REMOVED           = _UxGT("USB Drive Removed");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB device removed");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
 
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
