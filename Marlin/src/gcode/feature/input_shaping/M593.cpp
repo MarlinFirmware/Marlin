@@ -64,10 +64,7 @@ void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
  *  Y            Set the given parameters only for the Y axis.
  */
 void GcodeSuite::M593() {
-  if (!parser.seen_any()) {
-    M593_report();
-    return;
-  }
+  if (!parser.seen_any()) return M593_report();
 
   const bool seen_X = TERN0(INPUT_SHAPING_X, parser.seen_test('X')),
              seen_Y = TERN0(INPUT_SHAPING_Y, parser.seen_test('Y')),

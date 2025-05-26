@@ -51,10 +51,7 @@ constexpr bool has_large_area() {
 //
 
 void lcd_move_axis(const AxisEnum axis) {
-  if (ui.use_click()) {
-    ui.goto_previous_screen_no_defer();
-    return;
-  }
+  if (ui.use_click()) return ui.goto_previous_screen_no_defer();
   if (ui.encoderPosition && !ui.manual_move.processing) {
     // Get motion limit from software endstops, if any
     float min, max;

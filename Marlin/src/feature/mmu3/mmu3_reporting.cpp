@@ -261,8 +261,7 @@ namespace MMU3 {
           msg_next = nullptr;
           // Prevent this function being triggered again...
           SetButtonResponse(ButtonOperations::NoOperation);
-          ui.go_back();
-          return;
+          return ui.go_back();
         }
         fmsg = msg_next;
       }

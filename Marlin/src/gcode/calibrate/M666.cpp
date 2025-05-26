@@ -84,10 +84,7 @@
    *       Set All: M666 Z<offset>
    */
   void GcodeSuite::M666() {
-    if (!parser.seen_any()) {
-      M666_report();
-      return;
-    }
+    if (!parser.seen_any()) return M666_report();
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (parser.seenval('X')) endstops.x2_endstop_adj = parser.value_linear_units();

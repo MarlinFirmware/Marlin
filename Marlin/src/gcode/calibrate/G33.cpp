@@ -39,17 +39,17 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-constexpr uint8_t _7P_STEP = 1,            // 7-point step - to change number of calibration points
-                  _4P_STEP = _7P_STEP * 2, // 4-point step
-                  NPP      = _7P_STEP * 6; // number of calibration points on the radius
-enum CalEnum : char {                      // the 7 main calibration points - add definitions if needed
-  CEN = 0,
-  __A = 1,
-  _AB = __A + _7P_STEP,
-  __B = _AB + _7P_STEP,
-  _BC = __B + _7P_STEP,
-  __C = _BC + _7P_STEP,
-  _CA = __C + _7P_STEP,
+constexpr uint8_t _7P_STEP = 1,              // 7-point step - to change number of calibration points
+                  _4P_STEP = _7P_STEP * 2,   // 4-point step
+                  NPP      = _7P_STEP * 6;   // number of calibration points on the radius
+enum CalEnum : char {                        // the 7 main calibration points - add definitions if needed
+  CEN      = 0,
+  __A      = 1,
+  _AB      = __A + _7P_STEP,
+  __B      = _AB + _7P_STEP,
+  _BC      = __B + _7P_STEP,
+  __C      = _BC + _7P_STEP,
+  _CA      = __C + _7P_STEP,
 };
 
 #define LOOP_CAL_PT(VAR, S, N) for (uint8_t VAR=S; VAR<=NPP; VAR+=N)
@@ -496,8 +496,7 @@ void GcodeSuite::G33() {
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, dcr, towers_set, stow_after_each, probe_at_offset)) {
       SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
-      ac_cleanup();
-      return;
+      return ac_cleanup();
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
 
@@ -544,10 +543,12 @@ void GcodeSuite::G33() {
         case 0:
           test_precision = 0.0f; // forced end
           break;
+
         case 1:
           test_precision = 0.0f; // forced end
           LOOP_NUM_AXES(axis) e_delta[axis] = +Z4(CEN);
           break;
+
         case 2:
           if (towers_set) { // see 4 point calibration (towers) matrix
             e_delta.set((+Z4(__A) -Z2(__B) -Z2(__C)) * h_factor  +Z4(CEN),
@@ -562,6 +563,7 @@ void GcodeSuite::G33() {
             r_delta   = (+Z4(_BC) +Z4(_CA) +Z4(_AB) -Z12(CEN)) * r_factor;
           }
           break;
+
         default: // see 7 point calibration (towers & opposites) matrix
           e_delta.set((+Z2(__A) -Z1(__B) -Z1(__C) -Z2(_BC) +Z1(_CA) +Z1(_AB)) * h_factor  +Z4(CEN),
                       (-Z1(__A) +Z2(__B) -Z1(__C) +Z1(_BC) -Z2(_CA) +Z1(_AB)) * h_factor  +Z4(CEN),
@@ -588,6 +590,7 @@ void GcodeSuite::G33() {
     }
 
     if (verbose_level != 0) {                                    // !dry run
+
       // Normalize angles to least-squares
       if (_angle_results) {
         float a_sum = 0.0f;

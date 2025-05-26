@@ -59,10 +59,7 @@ static void tmc_print_current(TMC &st) {
  */
 void GcodeSuite::M906() {
   #if ENABLED(EDITABLE_HOMING_CURRENT)
-    if (parser.seen_test('H')) {
-      M920();
-      return;
-    }
+    if (parser.seen_test('H')) return M920();
   #endif
 
   #define TMC_SAY_CURRENT(Q) tmc_print_current(stepper##Q)

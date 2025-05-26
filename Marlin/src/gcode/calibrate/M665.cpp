@@ -46,10 +46,8 @@
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   void GcodeSuite::M665() {
-    if (!parser.seen_any()) {
-      M665_report();
-      return;
-    }
+    if (!parser.seen_any()) return M665_report();
+
     if (parser.seenval('H')) delta_height              = parser.value_linear_units();
     if (parser.seenval('L')) delta_diagonal_rod        = parser.value_linear_units();
     if (parser.seenval('R')) delta_radius              = parser.value_linear_units();
@@ -102,10 +100,8 @@
    *   B, T, and Y are all aliases for the elbow angle
    */
   void GcodeSuite::M665() {
-    if (!parser.seen_any()) {
-      M665_report();
-      return;
-    }
+    if (!parser.seen_any()) return M665_report();
+
     if (parser.seenval('S')) segments_per_second = parser.value_float();
 
     #if HAS_SCARA_OFFSET
@@ -168,10 +164,7 @@
    *   H[length]    - Maximum belt length
    */
   void GcodeSuite::M665() {
-    if (!parser.seen_any()) {
-      M665_report();
-      return;
-    }
+    if (!parser.seen_any()) return M665_report();
     if (parser.seenval('S')) segments_per_second = parser.value_float();
     if (parser.seenval('L')) draw_area_min.x = parser.value_linear_units();
     if (parser.seenval('R')) draw_area_max.x = parser.value_linear_units();
@@ -204,10 +197,7 @@
    *   S[segments]  - Segments-per-second
    */
   void GcodeSuite::M665() {
-    if (!parser.seen_any()) {
-      M665_report();
-      return;
-    }
+    if (!parser.seen_any()) return M665_report();
     if (parser.seenval('S')) segments_per_second = parser.value_float();
   }
 

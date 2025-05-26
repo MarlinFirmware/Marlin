@@ -38,10 +38,8 @@
    *    L<float>    - Volumetric extruder limit (in mm^3/sec). L0 disables the limit.
    */
   void GcodeSuite::M200() {
-    if (!parser.seen("DST" TERN_(VOLUMETRIC_EXTRUDER_LIMIT, "L"))) {
-      M200_report();
-      return;
-    }
+    if (!parser.seen("DST" TERN_(VOLUMETRIC_EXTRUDER_LIMIT, "L")))
+      return M200_report();
 
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
@@ -126,10 +124,8 @@
  *  S<percent> : Speed factor percentage.
  */
 void GcodeSuite::M201() {
-  if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS"))) {
-    M201_report();
-    return;
-  }
+  if (!parser.seen("T" STR_AXES_LOGICAL TERN_(XY_FREQUENCY_LIMIT, "FS")))
+    return M201_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
@@ -192,10 +188,8 @@ void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
  *       With multiple extruders use T to specify which one.
  */
 void GcodeSuite::M203() {
-  if (!parser.seen("T" STR_AXES_LOGICAL)) {
-    M203_report();
-    return;
-  }
+  if (!parser.seen("T" STR_AXES_LOGICAL))
+    return M203_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
@@ -254,10 +248,8 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
  *    T<accel> Travel (non printing) moves
  */
 void GcodeSuite::M204() {
-  if (!parser.seen("PRST")) {
-    M204_report();
-    return;
-  }
+  if (!parser.seen("PRST"))
+    return M204_report();
   else {
     //planner.synchronize();
     // 'S' for legacy compatibility. Should NOT BE USED for new development
@@ -306,10 +298,7 @@ void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
  *    J(mm)          : Junction Deviation
  */
 void GcodeSuite::M205() {
-  if (!parser.seen_any()) {
-    M205_report();
-    return;
-  }
+  if (!parser.seen_any()) return M205_report();
 
   //planner.synchronize();
   if (parser.seenval(M205_MIN_SEG_TIME_PARAM)) planner.settings.min_segment_time_us = parser.value_ulong();

@@ -870,10 +870,7 @@ void CardReader::openFileWrite(const char * const path) {
 
   MediaFile *diveDir;
   const char * const fname = diveToFile(false, diveDir, path);
-  if (!fname) {
-    openFailed(path);
-    return;
-  }
+  if (!fname) return openFailed(path);
 
   #if DISABLED(SDCARD_READONLY)
     if (myfile.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {

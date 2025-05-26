@@ -289,10 +289,7 @@ inline void servo_probe_test() {
 void GcodeSuite::M43() {
 
   // 'T' must be first. It uses 'S' and 'E' differently.
-  if (parser.seen('T')) {
-    toggle_pins();
-    return;
-  }
+  if (parser.seen('T')) return toggle_pins();
 
   // 'E' Enable or disable endstop monitoring and return
   if (parser.seen('E')) {
@@ -302,10 +299,7 @@ void GcodeSuite::M43() {
   }
 
   // 'S' Run servo probe test and return
-  if (parser.seen('S')) {
-    servo_probe_test();
-    return;
-  }
+  if (parser.seen('S')) return servo_probe_test();
 
   // 'P' Get the range of pins to test or watch
   uint8_t first_pin = PARSED_PIN_INDEX('P', 0),

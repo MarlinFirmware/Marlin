@@ -41,10 +41,7 @@
  */
 void GcodeSuite::M218() {
 
-  if (!parser.seen_any()) {
-    M218_report();
-    return;
-  }
+  if (!parser.seen_any()) return M218_report();
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;

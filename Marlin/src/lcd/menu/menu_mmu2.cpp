@@ -143,10 +143,7 @@ void spool_join_status() { spooljoin.initStatus(); }
 
 // Fail Stats Menu
 void menu_mmu3_fail_stats_last_print() {
-  if (ui.use_click()) {
-    ui.go_back();
-    return;
-  }
+  if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH];
 
   // had to cast the uint8_t values to uint16_t before formatting them.
@@ -170,10 +167,7 @@ void menu_mmu3_fail_stats_last_print() {
 }
 
 void menu_mmu3_fail_stas_total() {
-  if (ui.use_click()) {
-    ui.go_back();
-    return;
-  }
+  if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH], buffer2[LCD_WIDTH], buffer3[LCD_WIDTH];
 
   sprintf_P(buffer1, PSTR("%hu"), MMU3::operation_statistics.fail_total_num);
@@ -214,10 +208,7 @@ static void mmu3_reset_stats() {
 }
 
 void menu_mmu3_toolchange_stat_total() {
-  if (ui.use_click()) {
-    ui.go_back();
-    return;
-  }
+  if (ui.use_click()) return ui.go_back();
   char buffer1[LCD_WIDTH];
   sprintf_P(buffer1, PSTR("%u"), MMU3::operation_statistics.tool_change_counter);
 

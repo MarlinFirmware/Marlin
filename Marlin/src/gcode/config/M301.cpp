@@ -50,10 +50,8 @@ void GcodeSuite::M301() {
   // default behavior (omitting E parameter) is to update for extruder 0 only
   int8_t e = E_TERN0(parser.byteval('E', -1)); // extruder being updated
 
-  if (!parser.seen("PID" TERN_(PID_EXTRUSION_SCALING, "CL") TERN_(PID_FAN_SCALING, "F"))) {
-    M301_report(true E_OPTARG(e));
-    return;
-  }
+  if (!parser.seen("PID" TERN_(PID_EXTRUSION_SCALING, "CL") TERN_(PID_FAN_SCALING, "F")))
+    return M301_report(true E_OPTARG(e));
 
   if (e == -1) e = 0;
 

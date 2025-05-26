@@ -1116,10 +1116,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     UNUSED(no_move);
 
-    if (new_tool >= MIXING_VIRTUAL_TOOLS) {
-      invalid_extruder_error(new_tool);
-      return;
-    }
+    if (new_tool >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(new_tool);
 
     #if MIXING_VIRTUAL_TOOLS > 1
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
@@ -1155,16 +1153,13 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_MIRRORED_MODE
-      if (new_tool != 0 && idex_is_duplicating()) {
-        invalid_extruder_error(new_tool);
-        return;
-      }
+      if (new_tool != 0 && idex_is_duplicating())
+         return invalid_extruder_error(new_tool);
     #endif
 
-    if (new_tool >= EXTRUDERS) {
-      invalid_extruder_error(new_tool);
-      return;
-    }
+    if (new_tool >= EXTRUDERS)
+      return invalid_extruder_error(new_tool);
+
     if (!no_move && homing_needed()) {
       no_move = true;
       DEBUG_ECHOLNPGM("No move (not homed)");
@@ -1435,10 +1430,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     #if HAS_PRUSA_MMU1
-      if (new_tool >= E_STEPPERS) {
-        invalid_extruder_error(new_tool);
-        return;
-      }
+      if (new_tool >= E_STEPPERS) return invalid_extruder_error(new_tool);
       select_multiplexed_stepper(new_tool);
     #endif
 
@@ -1537,6 +1529,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   #include "../core/debug_out.h"
 
   bool extruder_migration() {
+
     if (thermalManager.targetTooColdToExtrude(active_extruder)) {
       DEBUG_ECHOLNPGM("Migration Source Too Cold");
       return false;
@@ -1551,6 +1544,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     }
 
     // Migrate to a target or the next extruder
+
     uint8_t migration_extruder = active_extruder;
 
     if (migration.target) {
