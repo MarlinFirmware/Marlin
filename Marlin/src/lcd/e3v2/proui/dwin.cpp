@@ -2595,23 +2595,25 @@ void setFlow() { setPIntOnClick(FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refres
 
 #if ENABLED(MESH_BED_LEVELING)
 
+  #define MESH_Z_FDIGITS 2
+
   void manualMeshStart() {
     LCD_MESSAGE(MSG_UBL_BUILD_MESH_MENU);
     gcode.process_subcommands_now(F("G28XYO\nG28Z\nM211S0\nG29S1"));
     #ifdef MANUAL_PROBE_START_Z
       const uint8_t line = currentMenu->line(mMeshMoveZItem->pos);
-      DWINUI::drawSignedFloat(hmiData.colorText, hmiData.colorBackground, 3, 2, VALX - 2 * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(line), MANUAL_PROBE_START_Z);
+      DWINUI::drawSignedFloat(hmiData.colorText, hmiData.colorBackground, 3, MESH_Z_FDIGITS, VALX - 2 * DWINUI::fontWidth(DWIN_FONT_MENU), MBASE(line), MANUAL_PROBE_START_Z);
     #endif
   }
 
   void liveMeshMoveZ() {
-    *menuData.floatPtr = menuData.value / POW(10, 2);
+    *menuData.floatPtr = menuData.value / POW(10, MESH_Z_FDIGITS);
     if (!planner.is_full()) {
       planner.synchronize();
       planner.buffer_line(current_position, manual_feedrate_mm_s[Z_AXIS]);
     }
   }
-  void setMMeshMoveZ() { setPFloatOnClick(-1, 1, 2, planner.synchronize, liveMeshMoveZ); }
+  void setMMeshMoveZ() { setPFloatOnClick(-1, 1, MESH_Z_FDIGITS, planner.synchronize, liveMeshMoveZ); }
 
   void manualMeshContinue() {
     gcode.process_subcommands_now(F("G29S2"));
@@ -2685,8 +2687,9 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  void applyLA_K() { planner.set_advance_k(menuData.value / POW(10, 3)); }
-  void setLA_K() { setPFloatOnClick(0, 10, 3, applyLA_K); }
+  #define LA_FDIGITS 3
+  void applyLA_K() { planner.set_advance_k(menuData.value / POW(10, LA_FDIGITS)); }
+  void setLA_K() { setPFloatOnClick(0, 10, LA_FDIGITS, applyLA_K); }
 #endif
 
 #if HAS_X_AXIS
@@ -4027,9 +4030,10 @@ void drawMaxAccelMenu() {
     void setSensorResponse() { setPFloatOnClick(0, 1, 4); }
     void setAmbientXfer() { setPFloatOnClick(0, 1, 4); }
     #if ENABLED(MPC_INCLUDE_FAN)
-      void onDrawFanAdj(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 4, thermalManager.temp_hotend[0].fanCoefficient()); }
-      void applyFanAdj() { thermalManager.temp_hotend[0].applyFanAdjustment(menuData.value / POW(10, 4)); }
-      void setFanAdj() { setFloatOnClick(0, 1, 4, thermalManager.temp_hotend[0].fanCoefficient(), applyFanAdj); }
+      #define MPC_FAN_FDIGITS 4
+      void onDrawFanAdj(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, MPC_FAN_FDIGITS, thermalManager.temp_hotend[0].fanCoefficient()); }
+      void applyFanAdj() { thermalManager.temp_hotend[0].applyFanAdjustment(menuData.value / POW(10, MPC_FAN_FDIGITS)); }
+      void setFanAdj() { setFloatOnClick(0, 1, MPC_FAN_FDIGITS, thermalManager.temp_hotend[0].fanCoefficient(), applyFanAdj); }
     #endif
   #endif
 
@@ -4073,27 +4077,28 @@ void drawMaxAccelMenu() {
   #endif
 
   #if ENABLED(PID_EDIT_MENU)
-    void setKp() { setPFloatOnClick(0, 1000, 2); }
+    #define PID_FDIGITS 2
+    void setKp() { setPFloatOnClick(0, 1000, PID_FDIGITS); }
     void applyPIDi() {
-      *menuData.floatPtr = scalePID_i(menuData.value / POW(10, 2));
+      *menuData.floatPtr = scalePID_i(menuData.value / POW(10, PID_FDIGITS));
       TERN_(PIDTEMP, thermalManager.updatePID());
     }
     void applyPIDd() {
-      *menuData.floatPtr = scalePID_d(menuData.value / POW(10, 2));
+      *menuData.floatPtr = scalePID_d(menuData.value / POW(10, PID_FDIGITS));
       TERN_(PIDTEMP, thermalManager.updatePID());
     }
     void setKi() {
       menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
       const float value = unscalePID_i(*menuData.floatPtr);
-      setFloatOnClick(0, 1000, 2, value, applyPIDi);
+      setFloatOnClick(0, 1000, PID_FDIGITS, value, applyPIDi);
     }
     void setKd() {
       menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;
       const float value = unscalePID_d(*menuData.floatPtr);
-      setFloatOnClick(0, 1000, 2, value, applyPIDd);
+      setFloatOnClick(0, 1000, PID_FDIGITS, value, applyPIDd);
     }
-    void onDrawPIDi(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_i(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
-    void onDrawPIDd(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, 2, unscalePID_d(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
+    void onDrawPIDi(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, PID_FDIGITS, unscalePID_i(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
+    void onDrawPIDd(MenuItem* menuitem, int8_t line) { onDrawFloatMenu(menuitem, line, PID_FDIGITS, unscalePID_d(*(float*)static_cast<MenuItemPtr*>(menuitem)->value)); }
   #endif // PID_EDIT_MENU
 
 #endif // HAS_PID_HEATING
