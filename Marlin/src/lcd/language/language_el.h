@@ -45,12 +45,12 @@ namespace LanguageNarrow_el {
 
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Κάρτα εισήχθη");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Κάρτα αφαιρέθη");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Αναμονή για κάρτα");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Ματαίωση...");
-  LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" σφάλμα ανάγνωσης");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB αφαιρέθη");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Αποτυχία εκκίνησης USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Αποτυχία αρχικοποίησης SD");
+  LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" σφάλμα ανάγνωσης");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB αφαιρέθη");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Αποτυχία εκκίνησης USB");
+
   LSTR MSG_MAIN_MENU                      = _UxGT("Αρχική Οθόνη");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Απενεργοποίηση μοτέρ");
   LSTR MSG_AUTO_HOME                      = _UxGT("Αυτόμ. επαναφορά XYZ");
