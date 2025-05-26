@@ -49,7 +49,6 @@ namespace LanguageNarrow_cz {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Rušení...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Médium vloženo");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Médium vyjmuto");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Čekání na médium");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čtení média");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB odstraněno");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Chyba USB");

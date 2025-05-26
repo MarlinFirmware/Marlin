@@ -44,7 +44,6 @@ namespace LanguageNarrow_fr {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Média inséré");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB débranché");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur média USB");

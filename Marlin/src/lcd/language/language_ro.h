@@ -43,7 +43,6 @@ namespace LanguageNarrow_ro {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abandon...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Introdus");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Inlaturat");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Astept Media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Eroare Citire Media");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Dispozitiv USB Inlaturat");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Pornire USB Esuata");

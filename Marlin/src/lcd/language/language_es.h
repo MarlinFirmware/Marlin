@@ -50,7 +50,6 @@ namespace LanguageNarrow_es {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_ES _UxGT(" insertado");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_ES _UxGT(" retirado");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura ") MEDIA_TYPE_ES;
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Disp. USB retirado");

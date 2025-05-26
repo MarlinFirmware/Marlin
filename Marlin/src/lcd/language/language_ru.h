@@ -43,7 +43,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_MEDIA_ABORTING                   = _UxGT("Прерывание...");
   LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD карта вставлена");
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
-  LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   LSTR MSG_MEDIA_INIT_FAIL                  = _UxGT("Сбой инициализ. SD");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Расшир. настройки");
   LSTR MSG_KILL_SUBCALL_OVERFLOW            = _UxGT("Переполн. вызова");

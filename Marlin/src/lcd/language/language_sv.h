@@ -44,7 +44,6 @@ namespace LanguageNarrow_sv {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Avbryter...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Instatt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Borttaget");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Väntar på media");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Media init misslyckades");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Media läsningsfel");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB enhet borttagen");

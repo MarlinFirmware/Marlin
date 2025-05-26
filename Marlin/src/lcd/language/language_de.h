@@ -45,7 +45,6 @@ namespace LanguageNarrow_de {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abbruch...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Warten auf Medium");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Medium Init fehlgesch.");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Medium Lesefehler");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Gerät entfernt");

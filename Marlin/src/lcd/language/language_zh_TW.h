@@ -41,7 +41,6 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("正在中止..."); // "Aborting..."
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("記憶卡已插入"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("記憶卡被拔出"); // "Card removed"
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("等待記憶卡"); // "Waiting for media"
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("記憶卡讀取錯誤"); //"Media read error"
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB裝置已移除"); // "USB device removed"
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB啟動失敗"); // "USB start failed"

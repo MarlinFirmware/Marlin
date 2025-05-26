@@ -58,7 +58,6 @@ namespace LanguageNarrow_sk {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Ruším...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta vložená");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta vybraná");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Čakám na kartu");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Inicial.karty zlyhala");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čítania karty");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB zaria. odstrán.");

@@ -45,7 +45,6 @@ namespace LanguageNarrow_el {
 
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Κάρτα εισήχθη");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Κάρτα αφαιρέθη");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Αναμονή για κάρτα");
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Ματαίωση...");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Αποτυχία αρχικοποίησης SD");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" σφάλμα ανάγνωσης");

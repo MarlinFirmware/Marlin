@@ -47,7 +47,6 @@ namespace LanguageNarrow_hu {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Megszakítás...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tároló behelyezve");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tároló eltávolítva");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Várakozás a tárolóra");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Tároló-kártya hiba");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Tároló olvasási hiba");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB eltávolítva");

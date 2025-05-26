@@ -39,7 +39,6 @@ namespace LanguageNarrow_vi {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Phương tiện được rút ra");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Chờ đợi phương tiện");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Lỗi đọc phương tiện");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB được rút ra");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB khởi thất bại");

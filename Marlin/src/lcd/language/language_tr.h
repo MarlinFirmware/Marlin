@@ -56,7 +56,6 @@ namespace LanguageNarrow_tr {
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Durduruluyor...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD K. Yerleştirildi.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD Kart Çıkarıldı.");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("SD Kart Bekleniyor");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("SD K. Başlatma Hatası");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Kart Okuma Hatası");
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Çıkarıldı");
