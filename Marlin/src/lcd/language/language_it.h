@@ -66,18 +66,18 @@ namespace LanguageNarrow_it {
   LSTR MSG_MEDIA_INSERTED_USB             = _UxGT("Unità USB inserita");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_IT _UxGT(" rimossa");
   LSTR MSG_MEDIA_REMOVED_SD               = _UxGT("Scheda SD rimossa");
-  LSTR MSG_MEDIA_REMOVED_USB              = _UxGT("Unità USB rimossa");
   LSTR MSG_MEDIA_WAITING                  = _UxGT("In attesa ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_WAITING_SD               = _UxGT("In attesa scheda SD");
-  LSTR MSG_MEDIA_WAITING_USB              = _UxGT("In attesa unità USB");
+  LSTR MSG_USB_FD_WAITING_FOR_MEDIA       = _UxGT("In attesa unità USB");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Iniz.") MEDIA_TYPE_IT _UxGT(" fallita");
   LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("Iniz. SD fallita");
   LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("Iniz. USB fallita");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err.leggendo ") MEDIA_TYPE_IT;
-  LSTR MSG_MEDIA_WARN_USB_REMOVED         = _UxGT("Unità USB rimossa");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Iniz. USB fallita");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Ordina ") MEDIA_TYPE_IT;
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Aggiorna ") MEDIA_TYPE_IT;
+  LSTR MSG_USB_FD_MEDIA_REMOVED           = _UxGT("Unità USB rimossa");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Unità USB rimossa");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Iniz. USB fallita");
 
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Overflow sottochiamate");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Finecor."); // Max 8 characters
