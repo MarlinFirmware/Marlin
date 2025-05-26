@@ -228,9 +228,7 @@ void GcodeSuite::M420() {
   if (to_enable && !planner.leveling_active)
     SERIAL_ERROR_MSG(STR_ERR_M420_FAILED);
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPGM("Bed Leveling ");
-  serialprintln_onoff(planner.leveling_active);
+  SERIAL_ECHO_MSG("Bed Leveling ", ON_OFF(planner.leveling_active));
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     SERIAL_ECHO_START();
@@ -252,14 +250,13 @@ void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(
     TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
   ));
-  SERIAL_ECHO(
+  SERIAL_ECHOLN(
     F("  M420 S"), planner.leveling_active
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       , FPSTR(SP_Z_STR), LINEAR_UNIT(planner.z_fade_height)
     #endif
-    , F(" ; Leveling ")
+    , F(" ; Leveling "), ON_OFF(planner.leveling_active)
   );
-  serialprintln_onoff(planner.leveling_active);
 }
 
 #endif // HAS_LEVELING

@@ -595,13 +595,15 @@
     void print_cs_actual(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
   #endif
 
+  static void print_true_or_false(const bool tf) { SERIAL_ECHO(TRUE_FALSE(tf)); }
+
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_ECHO(st.PWM_SCALE()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.en_pwm_mode()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -623,7 +625,7 @@
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_ECHO(st.PWM_SCALE()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.en_pwm_mode()); break;
         case TMC_GLOBAL_SCALER:
           {
             const uint16_t value = st.GLOBAL_SCALER();
@@ -631,7 +633,7 @@
             SERIAL_ECHOPGM("/256");
           }
           break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -645,8 +647,8 @@
         case TMC_PWM_SCALE_AUTO: SERIAL_ECHO(st.pwm_scale_auto()); break;
         case TMC_PWM_OFS_AUTO: SERIAL_ECHO(st.pwm_ofs_auto()); break;
         case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.stealth()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -697,8 +699,8 @@
         case TMC_PWM_SCALE_AUTO: SERIAL_ECHO(st.pwm_scale_auto()); break;
         case TMC_PWM_OFS_AUTO: SERIAL_ECHO(st.pwm_ofs_auto()); break;
         case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.stealth()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -708,7 +710,7 @@
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
     static void _tmc_status(TMC2660Stepper &st, const TMC_debug_enum i) {
       switch (i) {
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -734,7 +736,7 @@
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_CODES: st.printLabel(); break;
-      case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
+      case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
@@ -757,9 +759,9 @@
           if (tpwmthrs_val) SERIAL_ECHO(tpwmthrs_val); else SERIAL_CHAR('-');
         } break;
       #endif
-      case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
+      case TMC_OTPW: print_true_or_false(st.otpw()); break;
       #if ENABLED(MONITOR_DRIVER_STATUS)
-        case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
+        case TMC_OTPW_TRIGGERED: print_true_or_false(st.getOTPW()); break;
       #endif
       case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
       case TMC_TBL: print_blank_time(st); break;
@@ -776,7 +778,7 @@
       SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
-        case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
+        case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
         case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
         case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
@@ -786,8 +788,8 @@
           break;
         case TMC_VSENSE: SERIAL_ECHO(st.vsense() ? F("1=.165") : F("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-        //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
-        //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
+        //case TMC_OTPW: print_true_or_false(st.otpw()); break;
+        //case TMC_OTPW_TRIGGERED: print_true_or_false(st.getOTPW()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
         case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
         case TMC_TBL: print_blank_time(st); break;
