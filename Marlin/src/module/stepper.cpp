@@ -1541,7 +1541,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
+    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxiliary tasks.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1558,7 +1558,7 @@ void Stepper::isr() {
       if (using_ftMotion) {
         ftMotion_stepper();             // Run FTM Stepping
         
-        // Define 2.5 msec task for auxilliary functions.
+        // Define 2.5 msec task for auxiliary functions.
         if (!ftMotion_nextAuxISR) {
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
           ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
