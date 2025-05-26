@@ -41,10 +41,10 @@
  */
 void GcodeSuite::M413() {
 
+  if (!parser.seen_any()) return M413_report();
+
   if (parser.seen('S'))
     recovery.enable(parser.value_bool());
-  else
-    M413_report();
 
   #if HAS_PLR_BED_THRESHOLD
     if (parser.seenval('B'))
