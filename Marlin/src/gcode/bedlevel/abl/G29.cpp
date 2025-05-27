@@ -156,7 +156,7 @@ public:
 #endif
 
 /**
- * G29: Detailed Z-Probe, probes the bed at 3 or more points.
+ * G29: Detailed Z probe, probes the bed at 3 or more points.
  *      Will fail if the printer has not been homed with G28.
  *
  * Enhanced G29 Auto Bed Leveling Probe Routine
@@ -206,7 +206,7 @@ public:
  *
  * Parameters with BILINEAR leveling only:
  *
- *  Z  Supply an additional Z-Probe Offset
+ *  Z  Supply an additional Z probe offset
  *
  * Extra parameters with PROBE_MANUALLY:
  *
@@ -228,9 +228,9 @@ public:
  *
  * Without PROBE_MANUALLY:
  *
- *  E  By default G29 will engage the Z-Probe, test the bed, then disengage.
- *     Include "E" to engage/disengage the Z-Probe for each sample.
- *     There's no extra effect if you have a fixed Z-Probe.
+ *  E  By default G29 will engage the Z probe, test the bed, then disengage.
+ *     Include "E" to engage/disengage the Z probe for each sample.
+ *     There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
 
@@ -471,7 +471,7 @@ G29_TYPE GcodeSuite::G29() {
       #endif
     }
 
-    // Position bed horizontally and Z-Probe vertically.
+    // Position bed horizontally and Z probe vertically.
     #if HAS_SAFE_BED_LEVELING
       xyze_pos_t safe_position = current_position;
       #ifdef SAFE_BED_LEVELING_START_X

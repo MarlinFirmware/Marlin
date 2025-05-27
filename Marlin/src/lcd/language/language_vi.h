@@ -317,7 +317,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Phát hành phương tiện");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Khởi chạy tự động");                    // Autostart
 
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z-Probe past bed
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Đầu Dò Z qua bàn");                    // Z Probe past bed
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Hệ số nghiêng");                       // Skew Factor
   LSTR MSG_BLTOUCH                        = _UxGT("BLTOUCH");                             // BLTouch
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Tự kiểm tra BLTOUCH ");                // BLTouch Self-Test

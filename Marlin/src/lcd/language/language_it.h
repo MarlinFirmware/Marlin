@@ -619,7 +619,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MEDIA_MENU_USB                 = _UxGT("Selez. da USB");
   LSTR MSG_NO_MEDIA                       = MEDIA_TYPE_IT _UxGT(" non rilevato");
 
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-probe fuori piatto");
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z probe fuori piatto");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Fattore distorsione");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("Autotest BLTouch");
@@ -636,7 +636,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("PERICOLO: impostazioni errate possono cause danni! Procedo comunque?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Inizializ.TouchMI");
-  LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Test Z-Offset");
+  LSTR MSG_TOUCHMI_ZTEST                  = _UxGT("Test Z offset");
   LSTR MSG_TOUCHMI_SAVE                   = _UxGT("Memorizzare");
   LSTR MSG_MANUAL_DEPLOY_TOUCHMI          = _UxGT("Estendi TouchMI");
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Estendi sonda-Z");
@@ -910,12 +910,12 @@ namespace LanguageNarrow_it {
   LSTR MSG_REHEATING                      = _UxGT("Riscaldando...");
   LSTR MSG_REHEATDONE                     = _UxGT("Riscaldato");
 
-  LSTR MSG_PROBE_WIZARD                   = _UxGT("Wizard Z-Offset");
+  LSTR MSG_PROBE_WIZARD                   = _UxGT("Wizard Z offset");
   LSTR MSG_PROBE_WIZARD_PROBING           = _UxGT("Altezza di riferimento sonda");
   LSTR MSG_PROBE_WIZARD_MOVING            = _UxGT("Spostati in posizione di rilevazione");
 
-  LSTR MSG_XATC                           = _UxGT("Proc.guid.X-Axis Twist");
-  LSTR MSG_XATC_DONE                      = _UxGT("Proc.guid.X-Axis Twist eseg.!");
+  LSTR MSG_XATC                           = _UxGT("Proc.guid.X-Twist");
+  LSTR MSG_XATC_DONE                      = _UxGT("Proc.guid.X-Twist eseg.!");
   LSTR MSG_XATC_UPDATE_Z_OFFSET           = _UxGT("Agg.Offset-Z sonda a ");
 
   LSTR MSG_SOUND                          = _UxGT("Suoni");

@@ -160,7 +160,7 @@ void plan_arc(
         temp_position.u       += per_circle_U,
         temp_position.v       += per_circle_V,
         temp_position.w       += per_circle_W,
-        temp_position.e       += per_circle_E                   // Destination E-Axis
+        temp_position.e       += per_circle_E                   // Destination E axis
       );
       plan_arc(temp_position, offset, clockwise, 0);            // Plan a single whole circle
     }

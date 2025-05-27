@@ -87,7 +87,7 @@
     const float minfr = _MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
-    // Set homing current to X and Y-Axis if defined
+    // Set homing current to X and Y axis if defined
     TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
@@ -142,7 +142,7 @@
     sync_plan_position();
 
     /**
-     * Move the Z-Probe (or just the nozzle) to the safe homing point
+     * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
@@ -461,7 +461,7 @@ void GcodeSuite::G28() {
 
       #if ENABLED(FOAMCUTTER_XYUV)
 
-        // Skip homing of unused Z-Axis for foamcutters
+        // Skip homing of unused Z axis for foamcutters
         if (doZ) set_axis_is_at_home(Z_AXIS);
 
       #elif HAS_Z_AXIS

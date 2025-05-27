@@ -761,7 +761,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
  *  - Update the Print Job Timer state
  *  - Update the Beeper queue
  *  - Read Buttons and Update the LCD
- *  - Run I2C Position Encoders
+ *  - Run i2c Position Encoders
  *  - Auto-report Temperatures / SD Status
  *  - Update the Průša MMU2
  *  - Handle Joystick jogging
@@ -836,7 +836,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
     ui.update();
   #endif
 
-  // Run I2C Position Encoders
+  // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
   {
     static millis_t i2cpem_next_update_ms;
@@ -1071,7 +1071,7 @@ inline void tmc_standby_setup() {
  *    • Filament Runout Sensor
  *    • TMC220x Stepper Drivers (Serial)
  *    • PSU control
- *    • Power-Loss Recovery
+ *    • Power-loss Recovery
  *    • Stepper Driver Reset: DISABLE
  *    • TMC Stepper Drivers (SPI)
  *    • Run hal.init_board() for additional pins setup

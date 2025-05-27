@@ -73,7 +73,7 @@
 #define Z_OTHR_PIN                   E2_DIAG_PIN  // E2DET
 
 //
-// Z-Probe (when not Z_MIN_PIN)
+// Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                   PB7
@@ -102,7 +102,7 @@
 #endif
 
 //
-// Power-Loss Detection
+// Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                    PC0   // PWRDET

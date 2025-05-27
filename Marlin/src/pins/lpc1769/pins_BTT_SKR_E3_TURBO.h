@@ -61,7 +61,7 @@
 #define Z_STOP_PIN                    Z_DIAG_PIN
 
 //
-// Z-Probe
+// Z Probe
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                  P1_22
@@ -93,7 +93,7 @@
 #endif
 
 //
-// Power-Loss Detection
+// Power Loss Detection
 //
 #ifndef POWER_LOSS_PIN
   #define POWER_LOSS_PIN                   P1_20  // PWRDET

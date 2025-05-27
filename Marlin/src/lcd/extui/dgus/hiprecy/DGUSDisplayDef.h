@@ -118,7 +118,7 @@ constexpr uint16_t VP_MOVE_E1 = 0x2112;
 constexpr uint16_t VP_HOME_ALL = 0x2120;
 constexpr uint16_t VP_MOTOR_LOCK_UNLOCK = 0x2130;
 
-// Power-Loss Recovery
+// Power loss recovery
 constexpr uint16_t VP_POWER_LOSS_RECOVERY = 0x2180;
 
 // Fan Control Buttons, switch between "off" and "on"

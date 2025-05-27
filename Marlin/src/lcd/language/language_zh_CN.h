@@ -406,7 +406,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("自动开始"); // "Autostart"
 
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z-probe out. bed" Z-probe is not within the physical limits
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因数"); // "Skew Factor"
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch"); // "BLTouch"
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("自检");

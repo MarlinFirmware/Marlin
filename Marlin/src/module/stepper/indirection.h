@@ -574,7 +574,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 /**
- * Extruder indirection for the single E-Axis
+ * Extruder indirection for the single E axis
  */
 #if HAS_SWITCHING_EXTRUDER // One stepper driver per two extruders, reversed on odd index
   #if EXTRUDERS > 7

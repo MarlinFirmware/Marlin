@@ -358,7 +358,7 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("釋放媒體"); // "Release Media"
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("自動開始"); // "Autostart"
 
-  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探針在熱床之外"); // "Z-probe out. bed" Z-probe is not within the physical limits
+  LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探針在熱床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因數"); // "Skew Factor"
 
   LSTR MSG_BLTOUCH_SELFTEST               = _UxGT("BLTouch 自檢"); // "BLTouch Self-Test"

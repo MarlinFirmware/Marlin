@@ -269,7 +269,7 @@ constexpr uint16_t SP_T_Bed_Set   = 0x5040;
 
   constexpr uint16_t VP_BACK_PAGE                     = 0x1600;
   constexpr uint16_t VP_SETTINGS                      = 0x1620;
-  // Power-Loss Recovery
+  // Power loss recovery
   constexpr uint16_t VP_POWER_LOSS_RECOVERY           = 0x1680;
   /* -------------------------------0x2000-0x2FFF------------------------------- */
   // Temperatures.

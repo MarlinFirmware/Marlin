@@ -53,7 +53,7 @@
 #endif
 
 //
-// Z-Probe must be this pin
+// Z Probe must be this pin
 //
 #define Z_MIN_PROBE_PIN                     PC5   // PROBE
 
@@ -79,7 +79,7 @@
 // Power-loss Detection
 //
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PE0   // Power-Loss Detection: PWR-DET
+  #define POWER_LOSS_PIN                    PE0   // Power Loss Detection: PWR-DET
 #endif
 
 //

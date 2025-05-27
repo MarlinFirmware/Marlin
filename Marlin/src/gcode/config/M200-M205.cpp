@@ -27,7 +27,7 @@
 #if DISABLED(NO_VOLUMETRICS)
 
   /**
-   * M200: Set filament diameter and set E-Axis units to cubic units
+   * M200: Set filament diameter and set E axis units to cubic units
    *
    *    T<extruder> - Optional extruder number. Current extruder if omitted.
    *    D<linear>   - Set filament diameter and enable. D0 disables volumetric.
@@ -78,7 +78,7 @@
     TERN_(MARLIN_SMALL_BUILD, return);
 
     if (!forReplay) {
-      report_heading(false, F(STR_VOLUMETRIC_EXTRUSION), false);
+      report_heading(false, F(STR_FILAMENT_SETTINGS), false);
       if (!parser.volumetric_enabled) SERIAL_ECHOPGM(" (Disabled):");
       SERIAL_EOL();
       report_echo_start(false);

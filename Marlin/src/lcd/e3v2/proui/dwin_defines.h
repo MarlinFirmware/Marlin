@@ -119,7 +119,7 @@
   #define PROUI_MEDIASORT     // Enable option to sort G-code files
 #endif
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #define PROUI_ITEM_PLR      // Tune > Power-Loss Recovery
+  #define PROUI_ITEM_PLR      // Tune > Power-loss Recovery
 #endif
 #if ENABLED(HAS_JUNCTION_DEVIATION)
   #define PROUI_ITEM_JD       // Tune > Junction Deviation

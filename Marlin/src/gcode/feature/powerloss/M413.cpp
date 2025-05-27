@@ -30,7 +30,7 @@
 #include "../../../lcd/marlinui.h"
 
 /**
- * M413: Enable / Disable Power-Loss Recovery
+ * M413: Enable / Disable power-loss recovery
  *
  * Parameters
  *   S[bool] - Flag to enable / disable.

@@ -36,7 +36,7 @@
 
 //
 // It is required to disable JTAG function because its pins are
-// used as GPIO to drive the Y-Axis stepper.
+// used as GPIO to drive the Y axis stepper.
 // DO NOT ENABLE!
 //
 #define DISABLE_JTAG

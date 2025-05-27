@@ -248,7 +248,7 @@ void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(
-    TERN(MESH_BED_LEVELING, STR_MBL, TERN(AUTO_BED_LEVELING_UBL, STR_UBL, STR_ABL))
+    TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))
   ));
   SERIAL_ECHOLN(
     F("  M420 S"), planner.leveling_active

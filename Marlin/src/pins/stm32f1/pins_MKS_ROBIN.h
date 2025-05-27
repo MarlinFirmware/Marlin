@@ -139,7 +139,7 @@
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
 //
-// Power-Loss detection
+// Power loss detection
 //
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 

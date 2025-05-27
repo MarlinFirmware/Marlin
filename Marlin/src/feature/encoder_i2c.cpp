@@ -20,12 +20,12 @@
  *
  */
 
-// todo: add support for multiple encoders on a single axis
-// todo: add Z-Axis auto-leveling
-// todo: consolidate some of the related M codes?
-// todo: add endstop-replacement mode?
-// todo: try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
-// todo: consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
+//todo:  add support for multiple encoders on a single axis
+//todo:    add z axis auto-leveling
+//todo:  consolidate some of the related M codes?
+//todo:  add endstop-replacement mode?
+//todo:  try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
+//todo:    consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
 
 #include "../inc/MarlinConfig.h"
 
@@ -788,10 +788,10 @@ int8_t I2CPositionEncodersMgr::parse() {
  *   U        Units in mm or raw step count.
  *
  *   If A or I not specified:
- *    X       Report on X-Axis encoder, if present.
- *    Y       Report on Y-Axis encoder, if present.
- *    Z       Report on Z-Axis encoder, if present.
- *    E       Report on E-Axis encoder, if present.
+ *    X       Report on X axis encoder, if present.
+ *    Y       Report on Y axis encoder, if present.
+ *    Z       Report on Z axis encoder, if present.
+ *    E       Report on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M860() {
   if (parse()) return;
@@ -817,10 +817,10 @@ void I2CPositionEncodersMgr::M860() {
  *   I<index> Module index.  [0, I2CPE_ENCODER_CNT - 1]
  *
  *   If A or I not specified:
- *    X       Report on X-Axis encoder, if present.
- *    Y       Report on Y-Axis encoder, if present.
- *    Z       Report on Z-Axis encoder, if present.
- *    E       Report on E-Axis encoder, if present.
+ *    X       Report on X axis encoder, if present.
+ *    Y       Report on Y axis encoder, if present.
+ *    Z       Report on Z axis encoder, if present.
+ *    E       Report on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M861() {
   if (parse()) return;
@@ -845,10 +845,10 @@ void I2CPositionEncodersMgr::M861() {
  *   I<index> Module index.  [0, I2CPE_ENCODER_CNT - 1]
  *
  *   If A or I not specified:
- *    X       Report on X-Axis encoder, if present.
- *    Y       Report on Y-Axis encoder, if present.
- *    Z       Report on Z-Axis encoder, if present.
- *    E       Report on E-Axis encoder, if present.
+ *    X       Report on X axis encoder, if present.
+ *    Y       Report on Y axis encoder, if present.
+ *    Z       Report on Z axis encoder, if present.
+ *    E       Report on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M862() {
   if (parse()) return;
@@ -874,10 +874,10 @@ void I2CPositionEncodersMgr::M862() {
  *   P        Number of rePeats/iterations.
  *
  *   If A or I not specified:
- *    X       Report on X-Axis encoder, if present.
- *    Y       Report on Y-Axis encoder, if present.
- *    Z       Report on Z-Axis encoder, if present.
- *    E       Report on E-Axis encoder, if present.
+ *    X       Report on X axis encoder, if present.
+ *    Y       Report on Y axis encoder, if present.
+ *    Z       Report on Z axis encoder, if present.
+ *    E       Report on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M863() {
   if (parse()) return;
@@ -952,10 +952,10 @@ void I2CPositionEncodersMgr::M864() {
  *   I<index> Module index.  [0, I2CPE_ENCODER_CNT - 1].
  *
  *   If A or I not specified:
- *    X       Check X-Axis encoder, if present.
- *    Y       Check Y-Axis encoder, if present.
- *    Z       Check Z-Axis encoder, if present.
- *    E       Check E-Axis encoder, if present.
+ *    X       Check X axis encoder, if present.
+ *    Y       Check Y axis encoder, if present.
+ *    Z       Check Z axis encoder, if present.
+ *    E       Check E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M865() {
   if (parse()) return;
@@ -981,10 +981,10 @@ void I2CPositionEncodersMgr::M865() {
  *   R        Reset error counter.
  *
  *   If A or I not specified:
- *    X       Act on X-Axis encoder, if present.
- *    Y       Act on Y-Axis encoder, if present.
- *    Z       Act on Z-Axis encoder, if present.
- *    E       Act on E-Axis encoder, if present.
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M866() {
   if (parse()) return;
@@ -1019,10 +1019,10 @@ void I2CPositionEncodersMgr::M866() {
  *            supplied, toggle.
  *
  *   If A or I not specified:
- *    X       Act on X-Axis encoder, if present.
- *    Y       Act on Y-Axis encoder, if present.
- *    Z       Act on Z-Axis encoder, if present.
- *    E       Act on E-Axis encoder, if present.
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M867() {
   if (parse()) return;
@@ -1055,10 +1055,10 @@ void I2CPositionEncodersMgr::M867() {
  *   T        New error correction threshold.
  *
  *   If A not specified:
- *    X       Act on X-Axis encoder, if present.
- *    Y       Act on Y-Axis encoder, if present.
- *    Z       Act on Z-Axis encoder, if present.
- *    E       Act on E-Axis encoder, if present.
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M868() {
   if (parse()) return;
@@ -1091,10 +1091,10 @@ void I2CPositionEncodersMgr::M868() {
  *   I<index> Module index.  [0, I2CPE_ENCODER_CNT - 1].
  *
  *   If A not specified:
- *    X       Act on X-Axis encoder, if present.
- *    Y       Act on Y-Axis encoder, if present.
- *    Z       Act on Z-Axis encoder, if present.
- *    E       Act on E-Axis encoder, if present.
+ *    X       Act on X axis encoder, if present.
+ *    Y       Act on Y axis encoder, if present.
+ *    Z       Act on Z axis encoder, if present.
+ *    E       Act on E axis encoder, if present.
  */
 void I2CPositionEncodersMgr::M869() {
   if (parse()) return;
