@@ -257,7 +257,7 @@ uint32_t Stepper::advance_divisor = 0,
 
 #if ENABLED(NONLINEAR_EXTRUSION)
   ne_coeff_t Stepper::ne;
-  bool Stepper::ne_on = true;
+  bool Stepper::ne_on = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
   #if NONLINEAR_EXTRUSION_Q24
     ne_q24_t Stepper::ne_q24;
   #else
