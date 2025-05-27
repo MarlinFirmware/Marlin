@@ -45,6 +45,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#if FT_MOTION_DISABLE_FOR_PROBING
+  #include "../../module/ft_motion.h"
+#endif
+
 // Save 130 bytes with non-duplication of PSTR
 inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
@@ -62,6 +66,10 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S5              Reset and disable mesh
  */
 void GcodeSuite::G29() {
+
+  #if FT_MOTION_DISABLE_FOR_PROBING
+    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
+  #endif
 
   DEBUG_SECTION(log_G29, "G29", true);
 
@@ -91,7 +99,7 @@ void GcodeSuite::G29() {
     case MeshReport:
       SERIAL_ECHOPGM("Mesh Bed Leveling ");
       if (leveling_is_valid()) {
-        serialprintln_onoff(planner.leveling_active);
+        SERIAL_ECHOLN(ON_OFF(planner.leveling_active));
         bedlevel.report_mesh();
       }
       else

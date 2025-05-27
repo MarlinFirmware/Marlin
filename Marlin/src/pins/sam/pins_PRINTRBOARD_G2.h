@@ -102,10 +102,6 @@
 #define E0_ENABLE_PIN                         37  // PB22
 
 // Microstepping mode pins
-#define Z_MS1_PIN                             52  // PB21 MODE0     MOTOR 1
-#define Z_MS2_PIN                             52  // PB21 MODE1
-#define Z_MS3_PIN                             65  // PB20 MODE2
-
 #define X_MS1_PIN                             43  // PA20 MODE0     MOTOR 2
 #define X_MS2_PIN                             43  // PA20 MODE1
 #define X_MS3_PIN                             42  // PA19 MODE2
@@ -113,6 +109,10 @@
 #define Y_MS1_PIN                             77  // PA28 MODE0     MOTOR 3
 #define Y_MS2_PIN                             77  // PA28 MODE1
 #define Y_MS3_PIN                             76  // PA27 MODE2
+
+#define Z_MS1_PIN                             52  // PB21 MODE0     MOTOR 1
+#define Z_MS2_PIN                             52  // PB21 MODE1
+#define Z_MS3_PIN                             65  // PB20 MODE2
 
 #define E0_MS1_PIN                            38  // PB11 MODE0     MOTOR 4
 #define E0_MS2_PIN                            38  // PB11 MODE1
@@ -152,7 +152,7 @@
 #define SD_MISO_PIN                           68  // set to unused pins for now
 #define SD_MOSI_PIN                           69  // set to unused pins for now
 #define SD_SCK_PIN                            70  // set to unused pins for now
-#define SDSS                                  71  // set to unused pins for now
+#define SD_SS_PIN                             71  // set to unused pins for now
 
 /**
  * G2 uses 8 pins that are not available in the DUE environment:

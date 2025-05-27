@@ -67,6 +67,7 @@
   #undef MECHANICAL_SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef HOTEND_IDLE_TIMEOUT
+  #undef HOTEND_OVERSHOOT
   #undef DISABLE_E
   #undef PREVENT_LENGTHY_EXTRUDE
   #undef FILAMENT_RUNOUT_SENSOR
@@ -86,7 +87,7 @@
 #endif
 
 /**
- *  Multi-Material-Unit supported models
+ * Multi-Material-Unit supported models
  */
 #ifdef MMU_MODEL
   #define HAS_MMU 1
@@ -187,6 +188,9 @@
   #define HAS_HOTEND 1
   #ifndef HOTEND_OVERSHOOT
     #define HOTEND_OVERSHOOT 15
+  #endif
+  #ifndef MIN_POWER
+    #define MIN_POWER 0
   #endif
 #else
   #undef MPCTEMP
@@ -540,6 +544,8 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define _DISTINCT_E_LOOP(E) for (int8_t E = 0; E < DISTINCT_E; E++)
+#define DISTINCT_E_LOOP() _DISTINCT_E_LOOP(e)
 #define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
 #define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
 #define _HOTEND_LOOP(H) for (int8_t H = 0; H < HOTENDS; H++)

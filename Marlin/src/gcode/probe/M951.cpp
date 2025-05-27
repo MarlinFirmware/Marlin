@@ -80,7 +80,7 @@ void GcodeSuite::M951() {
   if (parser.seenval('H')) mpe_settings.fast_feedrate       = MMM_TO_MMS(parser.value_linear_units());
   if (parser.seenval('D')) mpe_settings.travel_distance     = parser.value_linear_units();
   if (parser.seenval('C')) mpe_settings.compensation_factor = parser.value_float();
-  if (!parser.seen("CDHIJLR")) mpe_settings_report();
+  if (!parser.seen_any()) mpe_settings_report();
 }
 
 #endif // MAGNETIC_PARKING_EXTRUDER

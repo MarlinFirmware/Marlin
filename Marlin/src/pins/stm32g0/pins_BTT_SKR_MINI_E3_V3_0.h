@@ -34,8 +34,6 @@
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
-#define LED_PIN                             PD8
-
 // Onboard I2C EEPROM
 #if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
   #undef NO_EEPROM_SELECTED
@@ -43,8 +41,12 @@
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
+
+#define BOARD_LCD_SERIAL_PORT 1
+
+#define LED_PIN                             PD8
 
 //
 // Servos
@@ -443,7 +445,6 @@
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                   ONBOARD_SD_CS_PIN
 #define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6

@@ -47,9 +47,7 @@ void GcodeSuite::M401() {
                seenS = parser.seen('S');
     if (seenH || seenS) {
       if (seenS) bltouch.high_speed_mode = parser.value_bool();
-      SERIAL_ECHO_START();
-      SERIAL_ECHOPGM("BLTouch HS mode ");
-      serialprintln_onoff(bltouch.high_speed_mode);
+      SERIAL_ECHO_MSG("BLTouch HS mode ", ON_OFF(bltouch.high_speed_mode));
       return;
     }
   #endif

@@ -36,23 +36,23 @@ namespace LanguageNarrow_fr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Français");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" prête.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" prête.");
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Média inséré");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB débranché");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB débranché");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur média USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancée");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exéc. auto.gcode");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Arrêter moteurs");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
@@ -392,9 +392,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le média");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser média");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le média");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exéc. auto.gcode");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur écart");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -568,7 +573,8 @@ namespace LanguageNarrow_fr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Seuil hybride");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Home sans capteur");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Mode pas à pas");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop activé");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Réinit.");
   LSTR MSG_SERVICE_IN                     = _UxGT("  dans:");
   LSTR MSG_BACKLASH_CORRECTION            = _UxGT("Correction");

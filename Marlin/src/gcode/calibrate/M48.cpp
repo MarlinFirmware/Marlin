@@ -261,7 +261,19 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      if (MAX_MESSAGE_SIZE <= 20) {
+        // 12345678901234567890
+        // Deviation: 0.123456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      } else if (MAX_MESSAGE_SIZE <= 30) {
+        // 123456789012345678901234567890
+        // Dev:0.12345, Max delta:0.12345
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEV), ':', w_float_t(sigma, 2, 5), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), ':', w_float_t(_MAX(mean - min, max - mean), 2, 5)));
+      } else {
+        // 1234567890123456789012345678901234567890
+        // Deviation: 1.23456, Max delta: 1.23456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 6)));
+      }
     #endif
   }
 

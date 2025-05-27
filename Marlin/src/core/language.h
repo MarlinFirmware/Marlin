@@ -88,6 +88,7 @@
   #undef  MACHINE_NAME
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
+#define MACHINE_NAME_SUBST TERN(CONFIGURABLE_MACHINE_NAME, "$", MACHINE_NAME)
 
 #define MARLIN_WEBSITE_URL "marlinfw.org"
 
@@ -311,12 +312,20 @@
 #define STR_RETRACT_S_F_Z                   "Retract (S<length> F<feedrate> Z<lift>)"
 #define STR_RECOVER_S_F                     "Recover (S<length> F<feedrate>)"
 #define STR_AUTO_RETRACT_S                  "Auto-Retract (S<enable>)"
+#define STR_FILAMENT_LOAD_UNLOAD            "Filament load/unload"
+#define STR_POWER_LOSS_RECOVERY             "Power-loss recovery"
+#define STR_FILAMENT_RUNOUT_SENSOR          "Filament runout sensor"
+#define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"
+#define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
 #define STR_HOMING_FEEDRATE                 "Homing Feedrate"
+#define STR_HOMING_CURRENT                  "Homing Current (mA)"
+#define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
+#define STR_STALLGUARD_THRESHOLD            "StallGuard Threshold"
+#define STR_HOME_OFFSET                     "Home offset"
 #define STR_SOFT_ENDSTOPS                   "Soft endstops"
 #define STR_PROBE_OFFSET                    "Probe Offset"
 #define STR_SKEW_FACTOR                     "Skew Factor"
 #define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
-#define STR_TMC_STEALTH                     "StealthChop"
 #define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
 #define STR_STALLGUARD_THRESHOLD            "StallGuard Threshold"
 #define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"

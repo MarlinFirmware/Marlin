@@ -73,19 +73,17 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   char str_1[16];
   if (event != LV_EVENT_RELEASED) return;
   //lv_clear_z_offset_wizard();
-  if (!queue.ring_buffer.full(3)) {
-    bool do_inject = true;
-    float dist = uiCfg.move_dist;
-    switch (obj->mks_obj_id) {
-      case ID_M_Z_N: dist *= -1; case ID_M_Z_P: cur_label = 'Z'; break;
-      default: do_inject = false;
-    }
-    if (do_inject) {
-      sprintf_P(public_buf_l, PSTR("G91\nG1 %c%s F%d\nG90"), cur_label, dtostrf(dist, 1, 3, str_1), uiCfg.moveSpeed);
-      queue.inject(public_buf_l);
-      //calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
-      disp_cur_wizard_pos();
-    }
+  bool do_inject = true;
+  float dist = uiCfg.move_dist;
+  switch (obj->mks_obj_id) {
+    case ID_M_Z_N: dist *= -1; case ID_M_Z_P: cur_label = 'Z'; break;
+    default: do_inject = false;
+  }
+  if (do_inject) {
+    sprintf_P(public_buf_l, PSTR("G91\nG1 %c%s F%d\nG90"), cur_label, dtostrf(dist, 1, 3, str_1), uiCfg.moveSpeed);
+    queue.inject(public_buf_l);
+    //calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
+    disp_cur_wizard_pos();
   }
 
   switch (obj->mks_obj_id) {
