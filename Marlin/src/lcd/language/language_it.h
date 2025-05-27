@@ -606,7 +606,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ATTACH_SD                      = _UxGT("Collega scheda SD");
   LSTR MSG_ATTACH_USB                     = _UxGT("Collega unità USB");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
-  LSTR MSG_RELEASE_SD                     = _UxGT("Rilascia sceda SD");
+  LSTR MSG_RELEASE_SD                     = _UxGT("Rilascia scheda SD");
   LSTR MSG_RELEASE_USB                    = _UxGT("Rilascia unità USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Selez.") MEDIA_TYPE_IT;
   LSTR MSG_CHANGE_SD                      = _UxGT("Selez. scheda SD");
