@@ -27,7 +27,6 @@ e-mail   :  support@circuitsathome.com
 #include "UHS_max3421e.h"
 #include <SPI.h>
 
-
 #ifndef SPI_HAS_TRANSACTION
 #error "Your SPI library installation is too old."
 #else
@@ -57,8 +56,6 @@ e-mail   :  support@circuitsathome.com
 #else
 #define USB_HOST_SHIELD_USE_ISR 1
 #endif
-
-
 
 #if !USB_HOST_SHIELD_USE_ISR
 #error NOISR Polled mode _NOT SUPPORTED YET_
@@ -179,8 +176,6 @@ e-mail   :  support@circuitsathome.com
 #endif
 #endif
 #endif
-
-
 
 #ifdef NO_AUTO_SPEED
 // Ugly details section...
@@ -465,7 +460,6 @@ public:
                 // Enable interrupts
                 interrupts();
         };
-
 
         int16_t UHS_NI Init(int16_t mseconds);
 

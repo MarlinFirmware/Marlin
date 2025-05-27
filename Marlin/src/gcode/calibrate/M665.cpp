@@ -62,6 +62,8 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_DELTA_SETTINGS));
     SERIAL_ECHOLNPGM_P(
         PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
@@ -132,6 +134,8 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_SCARA_SETTINGS " (" STR_S_SEG_PER_SEC TERN_(HAS_SCARA_OFFSET, " " STR_SCARA_P_T_Z) ")"));
     SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), segments_per_second
@@ -170,6 +174,8 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_POLARGRAPH_SETTINGS));
     SERIAL_ECHOLNPGM_P(
       PSTR("  M665 S"), LINEAR_UNIT(segments_per_second),
@@ -196,10 +202,11 @@
   }
 
   void GcodeSuite::M665_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
     report_heading_etc(forReplay, F(STR_POLAR_SETTINGS));
     SERIAL_ECHOLNPGM_P(PSTR("  M665 S"), segments_per_second);
   }
 
-#endif
+#endif // POLAR
 
 #endif // IS_KINEMATIC

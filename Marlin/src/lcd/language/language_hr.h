@@ -36,12 +36,11 @@ namespace LanguageNarrow_hr {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Croatian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" spreman.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" spreman.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD kartica umetnuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD kartica uklonjena");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Main");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto pokretanje");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Ugasi steppere");
   LSTR MSG_AUTO_HOME                      = _UxGT("Automatski homing");
   LSTR MSG_AUTO_HOME_X                    = _UxGT("Home-aj X");
@@ -74,8 +73,10 @@ namespace LanguageNarrow_hr {
   LSTR MSG_SWITCH_PS_ON                   = _UxGT("Uključi napajanje");
   LSTR MSG_SWITCH_PS_OFF                  = _UxGT("Isključi napajanje");
   LSTR MSG_MOVE_AXIS                      = _UxGT("Miči os");
+  LSTR MSG_PROBE_AND_LEVEL                = _UxGT("Probe i Nivelacija");
   LSTR MSG_BED_LEVELING                   = _UxGT("Niveliraj bed");
   LSTR MSG_LEVEL_BED                      = _UxGT("Niveliraj bed");
+  LSTR MSG_BABYSTEP_PROBE_Z               = _UxGT("Korak Z offset");
   LSTR MSG_MOVE_X                         = _UxGT("Miči X");
   LSTR MSG_MOVE_Y                         = _UxGT("Miči Y");
   LSTR MSG_MOVE_Z                         = _UxGT("Miči Z");
@@ -115,8 +116,13 @@ namespace LanguageNarrow_hr {
   LSTR MSG_STOPPED                        = _UxGT("ZAUSTAVLJEN. ");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Promijeni filament");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Promijeni filament *");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Init. SD karticu");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Init. SD karticu");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Init. USB pogon");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Promijeni SD karticu");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Auto pokretanje");
+
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Grijanje neuspješno");
   LSTR MSG_HEATING                        = _UxGT("Grijanje...");
   LSTR MSG_BED_HEATING                    = _UxGT("Grijanje Bed-a...");

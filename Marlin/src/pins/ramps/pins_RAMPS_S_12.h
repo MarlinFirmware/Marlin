@@ -184,7 +184,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 
 #ifndef KILL_PIN
@@ -244,13 +244,10 @@
   #endif
 #endif
 
-//////////////////////////
-// LCDs and Controllers //
-//////////////////////////
+//
+// LCD / Controller
+//
 
-//
-// LCD Display output pins
-//
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          45
   #define LCD_PINS_RS                         19

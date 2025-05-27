@@ -31,13 +31,13 @@
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
 
-#define USES_DIAG_JUMPERS
+#define USES_DIAG_PINS                            // DIAG jumpers rendered useless due to a board design error
 #define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
 #define M5_EXTENDER                               // The M5 extender is attached
 
 // Onboard I2C EEPROM
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x2000  // 8K (24C64)
+#define MARLIN_EEPROM_SIZE               0x2000U  // 8K (24C64)
 
 //
 // Servos
@@ -68,44 +68,31 @@
 //
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // X+
-  #else
-    #define X_MIN_PIN                E0_DIAG_PIN  // X+
-  #endif
+  #define X_OTHR_PIN                        PG14  // X+
 #else
-  #define X_MIN_PIN                   X_DIAG_PIN  // X-
-  #define X_MAX_PIN                  E0_DIAG_PIN  // X+
+  #define X_MIN_PIN                         PF2   // X-
+  #define X_MAX_PIN                         PG14  // X+
 #endif
-
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // Y+
-  #else
-    #define Y_MIN_PIN                E1_DIAG_PIN  // Y+
-  #endif
+  #define Y_OTHR_PIN                        PG9   // Y+
 #else
-  #define Y_MIN_PIN                   Y_DIAG_PIN  // Y-
-  #define Y_MAX_PIN                  E1_DIAG_PIN  // Y+
+  #define Y_MIN_PIN                         PC13  // Y-
+  #define Y_MAX_PIN                         PG9   // Y+
 #endif
-
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // Z+
-  #else
-    #define Z_MIN_PIN                E2_DIAG_PIN  // Z+
-  #endif
+  #define Z_OTHR_PIN                        PD3   // Z+
 #else
-  #define Z_MIN_PIN                   Z_DIAG_PIN  // Z-
-  #define Z_MAX_PIN                  E2_DIAG_PIN  // Z+
+  #define Z_MIN_PIN                         PE0   // Z-
+  #define Z_MAX_PIN                         PD3   // Z+
 #endif
 
 //
 // Pins on the extender
 //
 #if ENABLED(M5_EXTENDER)
+  #define USES_DIAG_JUMPERS                       // DIAG jumpers work on M5 extender
   #ifndef X2_STOP_PIN
     #define X2_STOP_PIN                     PI4   // M5 M1_STOP
   #endif
@@ -254,38 +241,17 @@
   //#define E7_HARDWARE_SERIAL Serial1  // M5 MOTOR 5
 
   #define X_SERIAL_TX_PIN                   PC14
-  #define X_SERIAL_RX_PIN        X_SERIAL_TX_PIN
-
   #define Y_SERIAL_TX_PIN                   PE1
-  #define Y_SERIAL_RX_PIN        Y_SERIAL_TX_PIN
-
   #define Z_SERIAL_TX_PIN                   PB5
-  #define Z_SERIAL_RX_PIN        Z_SERIAL_TX_PIN
-
   #define E0_SERIAL_TX_PIN                  PG10
-  #define E0_SERIAL_RX_PIN      E0_SERIAL_TX_PIN
-
   #define E1_SERIAL_TX_PIN                  PD4
-  #define E1_SERIAL_RX_PIN      E1_SERIAL_TX_PIN
-
   #define E2_SERIAL_TX_PIN                  PC12
-  #define E2_SERIAL_RX_PIN      E2_SERIAL_TX_PIN
-
   #if ENABLED(M5_EXTENDER)
     #define E3_SERIAL_TX_PIN                PG4
-    #define E3_SERIAL_RX_PIN    E3_SERIAL_TX_PIN
-
     #define E4_SERIAL_TX_PIN                PE15
-    #define E4_SERIAL_RX_PIN    E4_SERIAL_TX_PIN
-
     #define E5_SERIAL_TX_PIN                PE7
-    #define E5_SERIAL_RX_PIN    E5_SERIAL_TX_PIN
-
     #define E6_SERIAL_TX_PIN                PF15
-    #define E6_SERIAL_RX_PIN    E6_SERIAL_TX_PIN
-
     #define E7_SERIAL_TX_PIN                PH14
-    #define E7_SERIAL_RX_PIN    E7_SERIAL_TX_PIN
   #endif
 
   // Reduce baud rate to improve software serial reliability
@@ -367,12 +333,11 @@
 #if SD_CONNECTION_IS(LCD)
 
   #define SD_DETECT_PIN              EXP2_07_PIN
-  #define SDSS                       EXP2_04_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
 
 #elif SD_CONNECTION_IS(ONBOARD)
 
-  #define SDSS                              PA4
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PA4
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
@@ -410,8 +375,9 @@
 #define EXP2_07_PIN                         PB10
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
+
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
 
   #define TFT_CS_PIN                 EXP2_04_PIN

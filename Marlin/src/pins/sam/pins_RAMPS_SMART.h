@@ -64,7 +64,7 @@
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE                0x1000  // 4K
+#define MARLIN_EEPROM_SIZE               0x1000U  // 4K
 
 // See EEPROM device datasheet for the following values. These are for 24xx256
 #define EEPROM_DEVICE_ADDRESS               0x50  // 7 bit i2c address (without R/W bit)
@@ -95,6 +95,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(AZSMZ_12864)
 
   // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel

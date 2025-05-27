@@ -35,9 +35,12 @@
 // Inline laser power
 #include "../module/planner.h"
 
+#define RPM_TO_PWM(X) ((X) * 255 / (SPEED_POWER_MAX))
+#define PWM_TO_RPM(X) ((X) * (SPEED_POWER_MAX) / 255)
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
+#define PWM_TO_PCT(X) ((X) * 100 / 255)
 #define PCT_TO_SERVO(X) ((X) * 180 / 100)
-
+#define CUTTER_PWM_TO_SPWR(X) (CUTTER_UNIT_IS(PERCENT) ? PWM_TO_PCT(X) : (CUTTER_UNIT_IS(RPM) ? PWM_TO_RPM(X) : X))
 
 // Laser/Cutter operation mode
 enum CutterMode : int8_t {
@@ -106,11 +109,14 @@ public:
   static uint8_t power,
                  last_power_applied;      // Basic power state tracking
 
-  static cutter_frequency_t frequency;  // Set PWM frequency; range: 2K-50K
+  static cutter_frequency_t frequency;    // (Hz) Laser/Spindle PWM frequency (2000..50000)
 
-  static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage or RPM
-                        unitPower;        // Power as displayed status in PWM, Percentage or RPM
+  static cutter_power_t menuPower,        // Power as set via LCD menu in PWM, Percentage, or RPM
+                        unitPower;        // Power as displayed status in PWM, Percentage, or RPM
 
+  #if HAS_SPINDLE_ACCELERATION
+    static uint32_t acceleration_spindle_deg_per_s2;  // (°/s/s) Spindle acceleration
+  #endif
   static void init();
 
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY

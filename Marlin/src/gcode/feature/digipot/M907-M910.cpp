@@ -46,15 +46,32 @@
  *                Set percentage of max current for all axes (Requires HAS_DIGIPOT_DAC)
  */
 void GcodeSuite::M907() {
+
   #if HAS_MOTOR_CURRENT_SPI
 
     if (!parser.seen("BS" STR_AXES_LOGICAL))
       return M907_report();
 
-    if (parser.seenval('S')) for (uint8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i) stepper.set_digipot_current(i, parser.value_int());
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper.set_digipot_current(i, parser.value_int());    // X Y Z (I J K U V W) E (map to drivers according to DIGIPOT_CHANNELS. Default with NUM_AXES 3: map X Y Z E to X Y Z E0)
-    // Additional extruders use B,C.
-    // TODO: Change these parameters because 'E' is used and D should be reserved for debugging. B<index>?
+    // S<current> - Set current in mA for all axes
+    if (parser.seenval('S'))
+      for (uint8_t i = 0; i < MOTOR_CURRENT_COUNT; ++i)
+        stepper.set_digipot_current(i, parser.value_int());
+
+    // X Y Z I J K U V W E
+    // Map to drivers according to pots addresses.
+    // Default with NUM_AXES 3: map X Y Z E to X Y Z E0.
+    LOOP_LOGICAL_AXES(i)
+      if (parser.seenval(IAXIS_CHAR(i)))
+        stepper.set_digipot_current(i, parser.value_int());
+
+    /**
+     * Additional extruders use B,C in this legacy protocol
+     * TODO: Update to allow for an index with X, Y, Z, E axis to isolate a single stepper
+     *       and use configured axis names instead of IJKUVW. i.e., Match the behavior of
+     *       other G-codes that set stepper-specific parameters. If necessary deprecate G-codes.
+     *       Bonus Points: Standardize a method that all G-codes can use to refer to one or
+     *       more steppers/drivers and apply to various G-codes.
+     */
     #if E_STEPPERS >= 2
       if (parser.seenval('B')) stepper.set_digipot_current(E_AXIS + 1, parser.value_int());
       #if E_STEPPERS >= 3
@@ -68,70 +85,106 @@ void GcodeSuite::M907() {
       #define HAS_X_Y_XY_I_J_K_U_V_W 1
     #endif
 
-    #if HAS_X_Y_XY_I_J_K_U_V_W || ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_Z)
+    #if ANY(HAS_X_Y_XY_I_J_K_U_V_W, HAS_MOTOR_CURRENT_PWM_E, HAS_MOTOR_CURRENT_PWM_Z)
 
       if (!parser.seen("S"
         #if HAS_X_Y_XY_I_J_K_U_V_W
-          "XY" SECONDARY_AXIS_GANG("I", "J", "K", "U", "V", "W")
+          NUM_AXIS_GANG("X", "Y",, "I", "J", "K", "U", "V", "W")
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          "Z"
-        #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          "E"
-        #endif
+        TERN_(HAS_MOTOR_CURRENT_PWM_Z, "Z")
+        TERN_(HAS_MOTOR_CURRENT_PWM_E, "E")
       )) return M907_report();
 
-      if (parser.seenval('S')) for (uint8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a) stepper.set_digipot_current(a, parser.value_int());
+      // S<current> - Set all stepper current to the same value
+      if (parser.seenval('S')) {
+        const int16_t v = parser.value_int();
+        for (uint8_t a = 0; a < MOTOR_CURRENT_COUNT; ++a)
+          stepper.set_digipot_current(a, v);
+      }
 
-      #if HAS_X_Y_XY_I_J_K_U_V_W
-        if (NUM_AXIS_GANG(
-               parser.seenval('X'), || parser.seenval('Y'), || false,
-            || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K'),
-            || parser.seenval('U'), || parser.seenval('V'), || parser.seenval('W')
-        )) stepper.set_digipot_current(0, parser.value_int());
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        if (parser.seenval('Z')) stepper.set_digipot_current(1, parser.value_int());
-      #endif
-      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        if (parser.seenval('E')) stepper.set_digipot_current(2, parser.value_int());
-      #endif
+      // X Y I J K U V W - All aliases to set the current for "most axes."
+      // Only the value of the last given parameter is used.
+      if (ENABLED(HAS_X_Y_XY_I_J_K_U_V_W) && (NUM_AXIS_GANG(
+             parser.seenval('X'), || parser.seenval('Y'), || false,
+          || parser.seenval('I'), || parser.seenval('J'), || parser.seenval('K'),
+          || parser.seenval('U'), || parser.seenval('V'), || parser.seenval('W')
+      )))
+        stepper.set_digipot_current(0, parser.value_int());
+
+      // Z<current> - Set the current just for the Z axis
+      if (TERN0(HAS_MOTOR_CURRENT_PWM_Z, parser.seenval('Z')))
+        stepper.set_digipot_current(1, parser.value_int());
+
+      // Z<current> - Set the current just for the Extruder
+      if (TERN0(HAS_MOTOR_CURRENT_PWM_E, parser.seenval('E')))
+        stepper.set_digipot_current(2, parser.value_int());
 
     #endif
 
   #endif // HAS_MOTOR_CURRENT_PWM
 
   #if HAS_MOTOR_CURRENT_I2C
-    // this one uses actual amps in floating point
-    if (parser.seenval('S')) for (uint8_t q = 0; q < DIGIPOT_I2C_NUM_CHANNELS; ++q) digipot_i2c.set_current(q, parser.value_float());
-      LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) digipot_i2c.set_current(i, parser.value_float());      // X Y Z (I J K U V W) E (map to drivers according to pots adresses. Default with NUM_AXES 3 X Y Z E: map to X Y Z E0)
+    // This current driver takes actual Amps in floating point
+    // rather than milli-amps or some scalar unit.
+
+    // S<current> - Set the same current in Amps on all channels
+    if (parser.seenval('S')) {
+      const float v = parser.value_float();
+      for (uint8_t q = 0; q < DIGIPOT_I2C_NUM_CHANNELS; ++q)
+        digipot_i2c.set_current(q, v);
+    }
+
+    // X Y Z I J K U V W E
+    // Map to drivers according to pots addresses.
+    // Default with NUM_AXES 3: map X Y Z E to X Y Z E0.
+    LOOP_LOGICAL_AXES(i)
+      if (parser.seenval(IAXIS_CHAR(i)))
+        digipot_i2c.set_current(i, parser.value_float());
+
     // Additional extruders use B,C,D.
-    // TODO: Change these parameters because 'E' is used and because 'D' should be reserved for debugging. B<index>?
+    // TODO: Make parameters work like other axis-specific / stepper-specific. See above.
     #if E_STEPPERS >= 2
       for (uint8_t i = E_AXIS + 1; i < _MAX(DIGIPOT_I2C_NUM_CHANNELS, (NUM_AXES + 3)); i++)
-        if (parser.seenval('B' + i - (E_AXIS + 1))) digipot_i2c.set_current(i, parser.value_float());
+        if (parser.seenval('B' + i - (E_AXIS + 1)))
+          digipot_i2c.set_current(i, parser.value_float());
     #endif
-  #endif
+
+  #endif // HAS_MOTOR_CURRENT_I2C
 
   #if HAS_MOTOR_CURRENT_DAC
+
+    // S<current> - Set the same current percentage on all axes
     if (parser.seenval('S')) {
       const float dac_percent = parser.value_float();
-      LOOP_LOGICAL_AXES(i) stepper_dac.set_current_percent(i, dac_percent);
+      LOOP_LOGICAL_AXES(i)
+        stepper_dac.set_current_percent(i, dac_percent);
     }
-    LOOP_LOGICAL_AXES(i) if (parser.seenval(IAXIS_CHAR(i))) stepper_dac.set_current_percent(i, parser.value_float());   // X Y Z (I J K U V W) E (map to drivers according to DAC_STEPPER_ORDER. Default with NUM_AXES 3: X Y Z E map to X Y Z E0)
+
+    // X Y Z I J K U V W E
+    // Map to drivers according to pots addresses.
+    // Default with NUM_AXES 3: map X Y Z E to X Y Z E0.
+    LOOP_LOGICAL_AXES(i)
+      if (parser.seenval(IAXIS_CHAR(i)))
+        stepper_dac.set_current_percent(i, parser.value_float());
+
   #endif
 }
 
 #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
       SERIAL_ECHOLNPGM_P(                                     // PWM-based has 3 values:
-          PSTR("  M907 X"), stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
-        , SP_Z_STR,         stepper.motor_current_setting[1]  // Z
-        , SP_E_STR,         stepper.motor_current_setting[2]  // E
+        PSTR("  M907 X"),   stepper.motor_current_setting[0]  // X, Y, (I, J, K, U, V, W)
+        #if HAS_MOTOR_CURRENT_PWM_Z
+          , SP_Z_STR,       stepper.motor_current_setting[1]  // Z
+        #endif
+        #if HAS_MOTOR_CURRENT_PWM_E
+          , SP_E_STR,       stepper.motor_current_setting[2]  // E
+        #endif
       );
     #elif HAS_MOTOR_CURRENT_SPI
       SERIAL_ECHOPGM("  M907");                               // SPI-based has 5 values:

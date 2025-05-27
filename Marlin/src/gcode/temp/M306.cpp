@@ -49,7 +49,7 @@
  */
 
 void GcodeSuite::M306() {
-  const uint8_t e = TERN(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder), 0);
+  const uint8_t e = TERN0(HAS_MULTI_EXTRUDER, parser.intval('E', active_extruder));
   if (e >= (EXTRUDERS)) {
     SERIAL_ECHOLNPGM("?(E)xtruder index out of range (0-", (EXTRUDERS) - 1, ").");
     return;
@@ -88,6 +88,8 @@ void GcodeSuite::M306() {
 }
 
 void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F("Model predictive control"));
   HOTEND_LOOP() {
     report_echo_start(forReplay);

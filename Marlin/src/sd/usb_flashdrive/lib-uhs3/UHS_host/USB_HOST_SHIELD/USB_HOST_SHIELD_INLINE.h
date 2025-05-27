@@ -28,7 +28,6 @@
     #error digitalPinToInterrupt not defined, complain to your board maintainer.
 #endif
 
-
 #if USB_HOST_SHIELD_USE_ISR
 
   // allow two slots. this makes the maximum allowed shield count TWO
@@ -46,7 +45,6 @@
     ISRodd->ISRTask();
   }
 #endif
-
 
 void UHS_NI MAX3421E_HOST::resume_host() {
   // Used on MCU that lack control of IRQ priority (AVR).
@@ -874,7 +872,6 @@ void UHS_NI MAX3421E_HOST::ISRbottom() {
   EnablePoll();
   DDSB();
 }
-
 
 /* USB main task. Services the MAX3421e */
 #if !USB_HOST_SHIELD_USE_ISR

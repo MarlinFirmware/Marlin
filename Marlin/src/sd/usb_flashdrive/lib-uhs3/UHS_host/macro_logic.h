@@ -126,11 +126,9 @@ AJK_IIF(AJK_BITAND(AJK_IS_COMPARABLE(x))(AJK_IS_COMPARABLE(y)) ) \
 
 #define AJK_EQUAL(x, y) AJK_COMPL(AJK_NOT_EQUAL(x, y))
 
-
 #define AJK_COMMA() ,
 
 #define AJK_COMMA_IF(n) AJK_IF(n)(AJK_COMMA, AJK_EAT)()
-
 
 #define AJK_COMMA_VAR(AJK_count, AJK_v) AJK_COMMA_IF(AJK_count) AJK_v ## AJK_count
 

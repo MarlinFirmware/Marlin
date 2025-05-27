@@ -57,8 +57,6 @@
                                        : (P == 3 && WITHIN(B, 20, 21)) ? 10 + (B) - 20                                        \
                                        : -1)
 
-
-
 #define A2_AIN 3
 #define A3_AIN 4
 #define A4_AIN 5

@@ -128,7 +128,6 @@ static inline void osc_enable(uint32_t ul_id) {
     pmc_switch_sclk_to_32kxtal(PMC_OSC_BYPASS);
     break;
 
-
   case OSC_MAINCK_4M_RC:
     pmc_switch_mainck_to_fastrc(CKGR_MOR_MOSCRCF_4_MHz);
     break;
@@ -140,7 +139,6 @@ static inline void osc_enable(uint32_t ul_id) {
   case OSC_MAINCK_12M_RC:
     pmc_switch_mainck_to_fastrc(CKGR_MOR_MOSCRCF_12_MHz);
     break;
-
 
   case OSC_MAINCK_XTAL:
     pmc_switch_mainck_to_xtal(PMC_OSC_XTAL/*,

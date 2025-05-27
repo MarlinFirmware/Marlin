@@ -106,7 +106,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
 #define SUICIDE_PIN                           54  // PIN that has to be turned on right after start, to keep power flowing.
@@ -118,6 +118,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define BEEPER_PIN                          18

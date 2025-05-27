@@ -30,69 +30,18 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include "../../core/macros.h"
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
 #include "timers.h"
-#include "MarlinSerial.h"
-
-#include <stdint.h>
 
 //
 // Serial Ports
 //
-#define _MSERIAL(X) MSerial##X
-#define MSERIAL(X) _MSERIAL(X)
-#define NUM_UARTS 4
 
-#if SERIAL_PORT == -1
-  #error "USB Serial is not supported on HC32F460"
-#elif WITHIN(SERIAL_PORT, 1, NUM_UARTS)
-  #define MYSERIAL1 MSERIAL(SERIAL_PORT)
-#else
-  #define MYSERIAL1 MSERIAL(1) // Dummy port
-  static_assert(false, "SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-#endif
-
-#ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == -1
-    #error "USB Serial is not supported on HC32F460"
-  #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
-    #define MYSERIAL2 MSERIAL(SERIAL_PORT_2)
-  #else
-    #define MYSERIAL2 MSERIAL(1) // Dummy port
-    static_assert(false, "SERIAL_PORT_2 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
-#endif
-
-#ifdef SERIAL_PORT_3
-  #if SERIAL_PORT_3 == -1
-    #error "USB Serial is not supported on HC32F460"
-  #elif WITHIN(SERIAL_PORT_3, 1, NUM_UARTS)
-    #define MYSERIAL3 MSERIAL(SERIAL_PORT_3)
-  #else
-    #define MYSERIAL3 MSERIAL(1) // Dummy port
-    static_assert(false, "SERIAL_PORT_3 must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
-#endif
-
-#ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == -1
-    #error "USB Serial is not supported on HC32F460"
-  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
-  #else
-    #define LCD_SERIAL MSERIAL(1) // Dummy port
-    static_assert(false, "LCD_SERIAL_PORT must be from 1 to " STRINGIFY(NUM_UARTS) ".")
-  #endif
-
-  #if HAS_DGUS_LCD
-    #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
-  #endif
-#endif
+#include "MarlinSerial.h"
 
 //
 // Emergency Parser
@@ -114,22 +63,19 @@
 // Misc. Functions
 //
 #ifndef analogInputToDigitalPin
-#define analogInputToDigitalPin(p) (p)
+  #define analogInputToDigitalPin(p) pin_t(p)
 #endif
 
-#define CRITICAL_SECTION_START        \
-  uint32_t primask = __get_PRIMASK(); \
-  (void)__iCliRetVal()
+#define CRITICAL_SECTION_START()        \
+  const bool irqon = !__get_PRIMASK();  \
+  __disable_irq();                      \
+  __DSB();
+#define CRITICAL_SECTION_END()          \
+  __DSB();                              \
+  if (irqon) __enable_irq();
 
-#define CRITICAL_SECTION_END \
-  if (!primask)              \
-  (void)__iSeiRetVal()
-
-// Disable interrupts
-#define cli() noInterrupts()
-
-// Enable interrupts
-#define sei() interrupts()
+#define cli() __disable_irq()
+#define sei() __enable_irq()
 
 // bss_end alias
 #define __bss_end __bss_end__
@@ -142,11 +88,30 @@
 // ADC
 //
 #define HAL_ADC_VREF_MV 3300
-#define HAL_ADC_RESOLUTION 10
+#define HAL_ADC_RESOLUTION 12
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+//
+// Debug port disable
+// JTMS / SWDIO = PA13
+// JTCK / SWCLK = PA14
+// JTDI         = PA15
+// JTDO         = PB3
+// NJTRST       = PB4
+//
+#define DBG_SWCLK _BV(0)
+#define DBG_SWDIO _BV(1)
+#define DBG_TDO   _BV(2)
+#define DBG_TDI   _BV(3)
+#define DBG_TRST  _BV(4)
+#define DBG_ALL (DBG_SWCLK | DBG_SWDIO | DBG_TDO | DBG_TDI | DBG_TRST)
+
+#define JTAGSWD_RESET() PORT_DebugPortSetting(DBG_ALL, Enable);
+#define JTAG_DISABLE() PORT_DebugPortSetting(DBG_TDO | DBG_TDI | DBG_TRST, Disable);
+#define JTAGSWD_DISABLE() PORT_DebugPortSetting(DBG_ALL, Disable);
 
 //
 // MarlinHAL implementation

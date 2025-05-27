@@ -62,13 +62,13 @@ void GcodeSuite::M48() {
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {
-    SERIAL_ECHOLNPGM("?(V)erbose level implausible (0-4).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(V)erbose level implausible (0-4)."));
     return;
   }
 
   const int8_t n_samples = parser.byteval('P', 10);
   if (!WITHIN(n_samples, 4, 50)) {
-    SERIAL_ECHOLNPGM("?Sample size not plausible (4-50).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Sample size not plausible (4-50)."));
     return;
   }
 
@@ -82,7 +82,7 @@ void GcodeSuite::M48() {
 
   if (!probe.can_reach(test_position)) {
     LCD_MESSAGE_MAX(MSG_M48_OUT_OF_BOUNDS);
-    SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG(" (X,Y) out of bounds."));
     return;
   }
 
@@ -90,7 +90,7 @@ void GcodeSuite::M48() {
   bool seen_L = parser.seen('L');
   uint8_t n_legs = seen_L ? parser.value_byte() : 0;
   if (n_legs > 15) {
-    SERIAL_ECHOLNPGM("?Legs of movement implausible (0-15).");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Legs of movement implausible (0-15)."));
     return;
   }
   if (n_legs == 1) n_legs = 2;
@@ -149,7 +149,7 @@ void GcodeSuite::M48() {
     for (uint8_t n = 0; n < n_samples; ++n) {
       #if HAS_STATUS_MESSAGE
         // Display M48 progress in the status bar
-        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
+        ui.status_printf(0, F(S_FMT ": %d/%d"), GET_TEXT_F(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
 
       // When there are "legs" of movement move around the point before probing
@@ -261,7 +261,19 @@ void GcodeSuite::M48() {
 
     #if HAS_STATUS_MESSAGE
       // Display M48 results in the status bar
-      ui.set_status_and_level(MString<30>(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      if (MAX_MESSAGE_SIZE <= 20) {
+        // 12345678901234567890
+        // Deviation: 0.123456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6)));
+      } else if (MAX_MESSAGE_SIZE <= 30) {
+        // 123456789012345678901234567890
+        // Dev:0.12345, Max delta:0.12345
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEV), ':', w_float_t(sigma, 2, 5), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), ':', w_float_t(_MAX(mean - min, max - mean), 2, 5)));
+      } else {
+        // 1234567890123456789012345678901234567890
+        // Deviation: 1.23456, Max delta: 1.23456
+        ui.set_status_and_level(TS(GET_TEXT_F(MSG_M48_DEVIATION), F(": "), w_float_t(sigma, 2, 6), F(", "), GET_TEXT(MSG_M48_MAX_DELTA), F(": "), w_float_t(_MAX(mean - min, max - mean), 2, 6)));
+      }
     #endif
   }
 

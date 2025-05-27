@@ -131,7 +131,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                   4
+#define SD_SS_PIN                              4
 #define LED_PIN                               13
 
 /**
@@ -166,6 +166,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN

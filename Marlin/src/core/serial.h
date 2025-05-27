@@ -171,8 +171,8 @@ template<> void SERIAL_ECHO(const p_float_t pf);
 template<> void SERIAL_ECHO(const w_float_t wf);
 
 // Specializations for F-string
-template<> void SERIAL_ECHO(const FSTR_P fstr);
-template<> void SERIAL_ECHOLN(const FSTR_P fstr);
+template<> void SERIAL_ECHO(FSTR_P const fstr);
+template<> void SERIAL_ECHOLN(FSTR_P const fstr);
 
 // Print any number of items with arbitrary types (except loose PROGMEM strings)
 template <typename T, typename ... Args>
@@ -233,9 +233,9 @@ void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P 
 // Print up to 255 spaces
 void SERIAL_ECHO_SP(uint8_t count);
 
-void serialprint_onoff(const bool onoff);
-void serialprintln_onoff(const bool onoff);
-void serialprint_truefalse(const bool tf);
+inline FSTR_P const ON_OFF(const bool onoff) { return onoff ? F("ON") : F("OFF"); }
+inline FSTR_P const TRUE_FALSE(const bool tf) { return tf ? F("true") : F("false"); }
+
 void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
 
 void print_bin(const uint16_t val);
@@ -247,7 +247,7 @@ inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P 
 
 void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
-  print_xyze(LOGICAL_AXIS_ELEM_(xyze) prefix, suffix);
+  print_xyze(LOGICAL_AXIS_ELEM_LC_(xyze) prefix, suffix);
 }
 
 template<typename T>
@@ -283,13 +283,13 @@ public:
   SString& set() { super::set(); return *this; }
 
   template<typename... Args>
-  SString& setf_P(PGM_P const fmt, Args... more) { super::setf_P(fmt, more...); return *this; }
+  SString& setf_P(PGM_P const pfmt, Args... more) { super::setf_P(pfmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(const char *fmt, Args... more)   { super::setf(fmt, more...); return *this; }
+  SString& setf(const char *fmt, Args... more)    { super::setf(fmt, more...); return *this; }
 
   template<typename... Args>
-  SString& setf(FSTR_P const fmt, Args... more)  { super::setf(fmt, more...); return *this; }
+  SString& setf(FSTR_P const ffmt, Args... more)  { super::setf(ffmt, more...); return *this; }
 
   template <typename T>
   SString& set(const T &v) { super::set(v); return *this; }

@@ -64,7 +64,7 @@ void GcodeSuite::M919() {
     if (WITHIN(toff, 1, 15))
       DEBUG_ECHOLNPGM(".toff: ", toff);
     else {
-      SERIAL_ECHOLNPGM("?O out of range (1..15)");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("O out of range (1..15)"));
       err = true;
     }
   }
@@ -74,7 +74,7 @@ void GcodeSuite::M919() {
     if (WITHIN(hend, -3, 12))
       DEBUG_ECHOLNPGM(".hend: ", hend);
     else {
-      SERIAL_ECHOLNPGM("?P out of range (-3..12)");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("P out of range (-3..12)"));
       err = true;
     }
   }
@@ -84,16 +84,16 @@ void GcodeSuite::M919() {
     if (WITHIN(hstrt, 1, 8))
       DEBUG_ECHOLNPGM(".hstrt: ", hstrt);
     else {
-      SERIAL_ECHOLNPGM("?S out of range (1..8)");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("S out of range (1..8)"));
       err = true;
     }
   }
 
   if (err) return;
 
-  #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+  #if ANY(X2_IS_TRINAMIC, Y2_IS_TRINAMIC, Z2_IS_TRINAMIC, Z3_IS_TRINAMIC, Z4_IS_TRINAMIC)
     const int8_t index = parser.byteval('I');
-  #elif AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+  #elif ANY(X_IS_TRINAMIC, Y_IS_TRINAMIC, Z_IS_TRINAMIC)
     constexpr int8_t index = -1;
   #endif
 
@@ -107,7 +107,7 @@ void GcodeSuite::M919() {
 
   #define TMC_SET_CHOPPER_TIME(Q) stepper##Q.set_chopper_times(make_chopper_timing(CHOPPER_TIMING_##Q, toff, hend, hstrt))
 
-  #if AXIS_IS_TMC(E0) || AXIS_IS_TMC(E1) || AXIS_IS_TMC(E2) || AXIS_IS_TMC(E3) || AXIS_IS_TMC(E4) || AXIS_IS_TMC(E5) || AXIS_IS_TMC(E6) || AXIS_IS_TMC(E7)
+  #if ANY(E0_IS_TRINAMIC, E1_IS_TRINAMIC, E2_IS_TRINAMIC, E3_IS_TRINAMIC, E4_IS_TRINAMIC, E5_IS_TRINAMIC, E6_IS_TRINAMIC, E7_IS_TRINAMIC)
     #define HAS_E_CHOPPER 1
     int8_t eindex = -1;
   #endif
@@ -118,166 +118,69 @@ void GcodeSuite::M919() {
     // Get the chopper timing for the specified axis and index
     switch (i) {
       default: // A specified axis isn't Trinamic
-        SERIAL_ECHOLNPGM("?Axis ", C(AXIS_CHAR(i)), " has no TMC drivers.");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Axis ", C(AXIS_CHAR(i)), " has no TMC drivers."));
         break;
 
-      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
+      #if X_IS_TRINAMIC || X2_IS_TRINAMIC
         case X_AXIS:
-          #if AXIS_IS_TMC(X)
-            if (index <= 0) TMC_SET_CHOPPER_TIME(X);
-          #endif
-          #if AXIS_IS_TMC(X2)
-            if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2);
-          #endif
+          TERN_(X_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(X));
+          TERN_(X2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2));
           break;
       #endif
 
-      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
+      #if Y_IS_TRINAMIC || Y2_IS_TRINAMIC
         case Y_AXIS:
-          #if AXIS_IS_TMC(Y)
-            if (index <= 0) TMC_SET_CHOPPER_TIME(Y);
-          #endif
-          #if AXIS_IS_TMC(Y2)
-            if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Y2);
-          #endif
+          TERN_(Y_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Y));
+          TERN_(Y2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Y2));
           break;
       #endif
 
-      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+      #if ANY(Z_IS_TRINAMIC, Z2_IS_TRINAMIC, Z3_IS_TRINAMIC, Z4_IS_TRINAMIC)
         case Z_AXIS:
-          #if AXIS_IS_TMC(Z)
-            if (index <= 0) TMC_SET_CHOPPER_TIME(Z);
-          #endif
-          #if AXIS_IS_TMC(Z2)
-            if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Z2);
-          #endif
-          #if AXIS_IS_TMC(Z3)
-            if (index < 0 || index == 2) TMC_SET_CHOPPER_TIME(Z3);
-          #endif
-          #if AXIS_IS_TMC(Z4)
-            if (index < 0 || index == 3) TMC_SET_CHOPPER_TIME(Z4);
-          #endif
+          TERN_(Z_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Z));
+          TERN_(Z2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Z2));
+          TERN_(Z3_IS_TRINAMIC, if (index < 0 || index == 2) TMC_SET_CHOPPER_TIME(Z3));
+          TERN_(Z4_IS_TRINAMIC, if (index < 0 || index == 3) TMC_SET_CHOPPER_TIME(Z4));
           break;
       #endif
 
-      #if AXIS_IS_TMC(I)
+      #if I_IS_TRINAMIC
         case I_AXIS: TMC_SET_CHOPPER_TIME(I); break;
       #endif
-      #if AXIS_IS_TMC(J)
+      #if J_IS_TRINAMIC
         case J_AXIS: TMC_SET_CHOPPER_TIME(J); break;
       #endif
-      #if AXIS_IS_TMC(K)
+      #if K_IS_TRINAMIC
         case K_AXIS: TMC_SET_CHOPPER_TIME(K); break;
       #endif
-      #if AXIS_IS_TMC(U)
+      #if U_IS_TRINAMIC
         case U_AXIS: TMC_SET_CHOPPER_TIME(U); break;
       #endif
-      #if AXIS_IS_TMC(V)
+      #if V_IS_TRINAMIC
         case V_AXIS: TMC_SET_CHOPPER_TIME(V); break;
       #endif
-      #if AXIS_IS_TMC(W)
+      #if W_IS_TRINAMIC
         case W_AXIS: TMC_SET_CHOPPER_TIME(W); break;
       #endif
 
       #if HAS_E_CHOPPER
         case E_AXIS: {
-          #if AXIS_IS_TMC(E0)
-            if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0);
-          #endif
-          #if AXIS_IS_TMC(E1)
-            if (eindex < 0 || eindex == 1) TMC_SET_CHOPPER_TIME(E1);
-          #endif
-          #if AXIS_IS_TMC(E2)
-            if (eindex < 0 || eindex == 2) TMC_SET_CHOPPER_TIME(E2);
-          #endif
-          #if AXIS_IS_TMC(E3)
-            if (eindex < 0 || eindex == 3) TMC_SET_CHOPPER_TIME(E3);
-          #endif
-          #if AXIS_IS_TMC(E4)
-            if (eindex < 0 || eindex == 4) TMC_SET_CHOPPER_TIME(E4);
-          #endif
-          #if AXIS_IS_TMC(E5)
-            if (eindex < 0 || eindex == 5) TMC_SET_CHOPPER_TIME(E5);
-          #endif
-          #if AXIS_IS_TMC(E6)
-            if (eindex < 0 || eindex == 6) TMC_SET_CHOPPER_TIME(E6);
-          #endif
-          #if AXIS_IS_TMC(E7)
-            if (eindex < 0 || eindex == 7) TMC_SET_CHOPPER_TIME(E7);
-          #endif
+          TERN_(E0_IS_TRINAMIC, if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0));
+          TERN_(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CHOPPER_TIME(E1));
+          TERN_(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CHOPPER_TIME(E2));
+          TERN_(E3_IS_TRINAMIC, if (eindex < 0 || eindex == 3) TMC_SET_CHOPPER_TIME(E3));
+          TERN_(E4_IS_TRINAMIC, if (eindex < 0 || eindex == 4) TMC_SET_CHOPPER_TIME(E4));
+          TERN_(E5_IS_TRINAMIC, if (eindex < 0 || eindex == 5) TMC_SET_CHOPPER_TIME(E5));
+          TERN_(E6_IS_TRINAMIC, if (eindex < 0 || eindex == 6) TMC_SET_CHOPPER_TIME(E6));
+          TERN_(E7_IS_TRINAMIC, if (eindex < 0 || eindex == 7) TMC_SET_CHOPPER_TIME(E7));
         } break;
       #endif
     }
   }
 
   if (report) {
-    #define TMC_SAY_CHOPPER_TIME(Q) tmc_print_chopper_time(stepper##Q)
-    #if AXIS_IS_TMC(X)
-      TMC_SAY_CHOPPER_TIME(X);
-    #endif
-    #if AXIS_IS_TMC(X2)
-      TMC_SAY_CHOPPER_TIME(X2);
-    #endif
-    #if AXIS_IS_TMC(Y)
-      TMC_SAY_CHOPPER_TIME(Y);
-    #endif
-    #if AXIS_IS_TMC(Y2)
-      TMC_SAY_CHOPPER_TIME(Y2);
-    #endif
-    #if AXIS_IS_TMC(Z)
-      TMC_SAY_CHOPPER_TIME(Z);
-    #endif
-    #if AXIS_IS_TMC(Z2)
-      TMC_SAY_CHOPPER_TIME(Z2);
-    #endif
-    #if AXIS_IS_TMC(Z3)
-      TMC_SAY_CHOPPER_TIME(Z3);
-    #endif
-    #if AXIS_IS_TMC(Z4)
-      TMC_SAY_CHOPPER_TIME(Z4);
-    #endif
-    #if AXIS_IS_TMC(I)
-      TMC_SAY_CHOPPER_TIME(I);
-    #endif
-    #if AXIS_IS_TMC(J)
-      TMC_SAY_CHOPPER_TIME(J);
-    #endif
-    #if AXIS_IS_TMC(K)
-      TMC_SAY_CHOPPER_TIME(K);
-    #endif
-    #if AXIS_IS_TMC(U)
-      TMC_SAY_CHOPPER_TIME(U);
-    #endif
-    #if AXIS_IS_TMC(V)
-      TMC_SAY_CHOPPER_TIME(V);
-    #endif
-    #if AXIS_IS_TMC(W)
-      TMC_SAY_CHOPPER_TIME(W);
-    #endif
-    #if AXIS_IS_TMC(E0)
-      TMC_SAY_CHOPPER_TIME(E0);
-    #endif
-    #if AXIS_IS_TMC(E1)
-      TMC_SAY_CHOPPER_TIME(E1);
-    #endif
-    #if AXIS_IS_TMC(E2)
-      TMC_SAY_CHOPPER_TIME(E2);
-    #endif
-    #if AXIS_IS_TMC(E3)
-      TMC_SAY_CHOPPER_TIME(E3);
-    #endif
-    #if AXIS_IS_TMC(E4)
-      TMC_SAY_CHOPPER_TIME(E4);
-    #endif
-    #if AXIS_IS_TMC(E5)
-      TMC_SAY_CHOPPER_TIME(E5);
-    #endif
-    #if AXIS_IS_TMC(E6)
-      TMC_SAY_CHOPPER_TIME(E6);
-    #endif
-    #if AXIS_IS_TMC(E7)
-      TMC_SAY_CHOPPER_TIME(E7);
-    #endif
+    #define TMC_SAY_CHOPPER_TIME(Q) OPTCODE(Q##_IS_TRINAMIC, tmc_print_chopper_time(stepper##Q))
+    MAP(TMC_SAY_CHOPPER_TIME, ALL_AXIS_NAMES)
   }
 }
 

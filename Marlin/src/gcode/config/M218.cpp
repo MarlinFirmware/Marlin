@@ -63,7 +63,9 @@ void GcodeSuite::M218() {
 }
 
 void GcodeSuite::M218_report(const bool forReplay/*=true*/) {
-  report_heading_etc(forReplay, F(STR_HOTEND_OFFSETS));
+  TERN_(MARLIN_SMALL_BUILD, return);
+
+  report_heading(forReplay, F(STR_HOTEND_OFFSETS));
   for (uint8_t e = 1; e < HOTENDS; ++e) {
     report_echo_start(forReplay);
     SERIAL_ECHOLNPGM_P(

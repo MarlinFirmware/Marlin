@@ -213,7 +213,6 @@ void udd_send_remotewakeup(void);
  */
 void udd_set_setup_payload( uint8_t *payload, uint16_t payload_size );
 
-
 /**
  * \name Endpoint Management
  *

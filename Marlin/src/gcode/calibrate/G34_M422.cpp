@@ -110,19 +110,19 @@ void GcodeSuite::G34() {
 
       const int8_t z_auto_align_iterations = parser.intval('I', Z_STEPPER_ALIGN_ITERATIONS);
       if (!WITHIN(z_auto_align_iterations, 1, 30)) {
-        SERIAL_ECHOLNPGM("?(I)teration out of bounds (1-30).");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(I)teration out of bounds (1-30)."));
         break;
       }
 
       const float z_auto_align_accuracy = parser.floatval('T', Z_STEPPER_ALIGN_ACC);
-      if (!WITHIN(z_auto_align_accuracy, 0.01f, 1.0f)) {
-        SERIAL_ECHOLNPGM("?(T)arget accuracy out of bounds (0.01-1.0).");
+      if (!WITHIN(z_auto_align_accuracy, 0.001f, 1.0f)) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(T)arget accuracy out of bounds (0.001-1.0)."));
         break;
       }
 
       const float z_auto_align_amplification = TERN(HAS_Z_STEPPER_ALIGN_STEPPER_XY, Z_STEPPER_ALIGN_AMP, parser.floatval('A', Z_STEPPER_ALIGN_AMP));
       if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
-        SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(A)mplification out of bounds (0.5-2.0)."));
         break;
       }
 
@@ -212,7 +212,28 @@ void GcodeSuite::G34() {
           // Probe a Z height for each stepper.
           // Probing sanity check is disabled, as it would trigger even in normal cases because
           // current_position.z has been manually altered in the "dirty trick" above.
-          const float z_probed_height = probe.probe_at_point(DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)), raise_after, 0, true, false, (Z_PROBE_LOW_POINT) - z_probe * 0.5f, z_probe * 0.5f);
+
+          if (DEBUGGING(LEVELING))
+            DEBUG_ECHOLNPGM(
+              "Z_PROBE_LOW_POINT: ", p_float_t(Z_PROBE_LOW_POINT, 2),
+              "z_probe: ", p_float_t(z_probe, 2),
+              "Probe Tgt: ", p_float_t((Z_PROBE_LOW_POINT) - z_probe * 0.5f, 2)
+            );
+
+          const float z_probed_height = probe.probe_at_point(
+            DIFF_TERN(HAS_HOME_OFFSET, ppos, xy_pos_t(home_offset)),   // xy
+            raise_after,                                               // raise_after
+            (DEBUGGING(LEVELING) || DEBUGGING(INFO)) ? 3 : 0,          // verbose_level
+            true, false,                                               // probe_relative, sanity_check
+            (Z_PROBE_LOW_POINT) - (z_probe * 0.5f),                    // z_min_point
+            Z_TWEEN_SAFE_CLEARANCE                                     // z_clearance
+          );
+
+          if (DEBUGGING(LEVELING)) {
+            DEBUG_ECHOLNPGM_P(PSTR("Probing X"), ppos.x, SP_Y_STR, ppos.y);
+            DEBUG_ECHOLNPGM("Height = ", z_probed_height);
+          }
+
           if (isnan(z_probed_height)) {
             SERIAL_ECHOLNPGM(STR_ERR_PROBING_FAILED);
             LCD_MESSAGE(MSG_LCD_PROBING_FAILED);
@@ -236,7 +257,12 @@ void GcodeSuite::G34() {
         // Adapt the next probe clearance height based on the new measurements.
         // Safe_height = lowest distance to bed (= highest measurement) plus highest measured misalignment.
         z_maxdiff = z_measured_max - z_measured_min;
-        z_probe = (Z_TWEEN_SAFE_CLEARANCE + zoffs) + z_measured_max + z_maxdiff; //Not sure we need z_maxdiff, but leaving it in for safety.
+
+        // The intent of the line below seems to be to clamp the probe depth on successive iterations of G34, but in reality if the amplification
+        // factor is not completely accurate, this was causing probing to fail as the probe stopped fractions of a mm from the trigger point
+        // on the second iteration very reliably. This may be restored with an uncertainty factor at some point, however its usefulness after
+        // all probe points have seen a successful probe is questionable.
+        //z_probe = (Z_TWEEN_SAFE_CLEARANCE + zoffs) + z_measured_max + z_maxdiff; // Not sure we need z_maxdiff, but leaving it in for safety.
 
         #if HAS_Z_STEPPER_ALIGN_STEPPER_XY
           // Replace the initial values in z_measured with calculated heights at
@@ -339,7 +365,7 @@ void GcodeSuite::G34() {
             if (decreasing_accuracy(last_z_align_move[zstepper], z_align_abs)) {
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", zstepper + 1, " last_z_align_move = ", last_z_align_move[zstepper]);
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Z", zstepper + 1, " z_align_abs = ", z_align_abs);
-              adjustment_reverse = !adjustment_reverse;
+              FLIP(adjustment_reverse);
             }
 
             // Remember the alignment for the next iteration, but only if steppers move,
@@ -401,7 +427,15 @@ void GcodeSuite::G34() {
         // Use the probed height from the last iteration to determine the Z height.
         // z_measured_min is used, because all steppers are aligned to z_measured_min.
         // Ideally, this would be equal to the 'z_probe * 0.5f' which was added earlier.
-        current_position.z -= z_measured_min - (Z_TWEEN_SAFE_CLEARANCE + zoffs); //we shouldn't want to subtract the clearance from here right? (Depends if we added it further up)
+        if (DEBUGGING(LEVELING))
+          DEBUG_ECHOLNPGM(
+            "z_measured_min: ", p_float_t(z_measured_min, 2),
+            "Z_TWEEN_SAFE_CLEARANCE: ", p_float_t(Z_TWEEN_SAFE_CLEARANCE, 2),
+            "zoffs: ", p_float_t(zoffs, 2)
+          );
+
+        if (!err_break)
+          current_position.z -= z_measured_min - (Z_TWEEN_SAFE_CLEARANCE + zoffs); // We shouldn't want to subtract the clearance from here right? (Depends if we added it further up)
         sync_plan_position();
       #endif
 
@@ -450,7 +484,7 @@ void GcodeSuite::M422() {
   const bool is_probe_point = parser.seen_test('S');
 
   if (TERN0(HAS_Z_STEPPER_ALIGN_STEPPER_XY, is_probe_point && parser.seen_test('W'))) {
-    SERIAL_ECHOLNPGM("?(S) and (W) may not be combined.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S) and (W) may not be combined."));
     return;
   }
 
@@ -460,7 +494,7 @@ void GcodeSuite::M422() {
   );
 
   if (!is_probe_point && TERN1(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !parser.seen_test('W'))) {
-    SERIAL_ECHOLNPGM("?(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required.");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required."));
     return;
   }
 
@@ -490,11 +524,11 @@ void GcodeSuite::M422() {
 
   if (is_probe_point) {
     if (!probe.can_reach(pos.x, Y_CENTER)) {
-      SERIAL_ECHOLNPGM("?(X) out of bounds.");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(X) out of bounds."));
       return;
     }
     if (!probe.can_reach(pos)) {
-      SERIAL_ECHOLNPGM("?(Y) out of bounds.");
+      SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(Y) out of bounds."));
       return;
     }
   }
@@ -503,6 +537,8 @@ void GcodeSuite::M422() {
 }
 
 void GcodeSuite::M422_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading(forReplay, F(STR_Z_AUTO_ALIGN));
   for (uint8_t i = 0; i < NUM_Z_STEPPERS; ++i) {
     report_echo_start(forReplay);

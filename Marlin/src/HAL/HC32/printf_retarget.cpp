@@ -23,7 +23,7 @@
 #ifdef ARDUINO_ARCH_HC32
 #ifdef REDIRECT_PRINTF_TO_SERIAL
 
-#if !defined(__GNUC__)
+#ifndef __GNUC__
   #error "only GCC is supported"
 #endif
 

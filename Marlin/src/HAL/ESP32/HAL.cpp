@@ -34,13 +34,13 @@
 
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
-  #include "wifi.h"
+  #include "wifi/wifi.h"
   #if ENABLED(OTASUPPORT)
-    #include "ota.h"
+    #include "wifi/ota.h"
   #endif
   #if ENABLED(WEBSUPPORT)
-    #include "spiffs.h"
-    #include "web.h"
+    #include "wifi/spiffs.h"
+    #include "wifi/web.h"
   #endif
 #endif
 
@@ -175,8 +175,6 @@ uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
 
 void MarlinHAL::reboot() { ESP.restart(); }
 
-void _delay_ms(const int ms) { delay(ms); }
-
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
@@ -209,16 +207,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 // ADC
 // ------------------------
 
-#define ADC1_CHANNEL(pin) ADC1_GPIO ## pin ## _CHANNEL
-
+// https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/api-reference/peripherals/adc.html
 adc1_channel_t get_channel(int pin) {
   switch (pin) {
-    case 39: return ADC1_CHANNEL(39);
-    case 36: return ADC1_CHANNEL(36);
-    case 35: return ADC1_CHANNEL(35);
-    case 34: return ADC1_CHANNEL(34);
-    case 33: return ADC1_CHANNEL(33);
-    case 32: return ADC1_CHANNEL(32);
+    case 39: return ADC1_CHANNEL_3;
+    case 36: return ADC1_CHANNEL_0;
+    case 35: return ADC1_CHANNEL_7;
+    case 34: return ADC1_CHANNEL_6;
+    case 33: return ADC1_CHANNEL_5;
+    case 32: return ADC1_CHANNEL_4;
+    case 37: return ADC1_CHANNEL_1;
+    case 38: return ADC1_CHANNEL_2;
   }
   return ADC1_CHANNEL_MAX;
 }

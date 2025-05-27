@@ -27,6 +27,12 @@
  * Test configuration values for errors at compile-time.
  */
 
+//========================================================
+// Get requirements for the benefit of IntelliSense, etc.
+//
+#include "MarlinConfig.h"
+//========================================================
+
 /**
  * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
@@ -235,9 +241,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-// Serial DMA is only available for some STM32 MCUs
+// Serial DMA is only available for some STM32 MCUs, HC32 and GD32
 #if ENABLED(SERIAL_DMA)
-  #if !HAL_STM32 || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx)
+  #if ANY(ARDUINO_ARCH_HC32, ARDUINO_ARCH_MFL)
+    // See HAL/.../inc/SanityCheck.h
+  #elif DISABLED(HAL_STM32) || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx, STM32H7xx)
     #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."
   #elif !defined(HAL_UART_MODULE_ENABLED) || defined(HAL_UART_MODULE_ONLY)
     #error "SERIAL_DMA requires STM32 platform HAL UART (without HAL_UART_MODULE_ONLY)."
@@ -345,8 +353,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if LCD_INFO_SCREEN_STYLE > 0
   #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
-  #elif LCD_INFO_SCREEN_STYLE > 1
-    #error "LCD_INFO_SCREEN_STYLE only has options 0 and 1 at this time."
+  #elif LCD_INFO_SCREEN_STYLE > 2
+    #error "LCD_INFO_SCREEN_STYLE only has options 0 (Classic), 1 (Průša), and 2 (CNC)."
   #endif
 #endif
 
@@ -386,8 +394,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
-  #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
+  #error "SHOW_CUSTOM_BOOTSCREEN requires Character LCD, Graphical LCD, or TOUCH_UI_FTDI_EVE."
 #elif ENABLED(SHOW_CUSTOM_BOOTSCREEN) && DISABLED(SHOW_BOOTSCREEN)
   #error "SHOW_CUSTOM_BOOTSCREEN requires SHOW_BOOTSCREEN."
 #elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
@@ -408,10 +416,20 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * SD Card Settings
  */
-#if ALL(HAS_MEDIA, HAS_SD_DETECT, SD_CONNECTION_TYPICAL, ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU) && SD_DETECT_STATE == LOW
-  #error "SD_DETECT_STATE must be set HIGH for SD on the ELB_FULL_GRAPHIC_CONTROLLER."
+#if HAS_MEDIA
+  #if HAS_MULTI_VOLUME
+    #if !(DEFAULT_VOLUME_IS(SD_ONBOARD) || DEFAULT_VOLUME_IS(USB_FLASH_DRIVE))
+      #error "DEFAULT_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+    #endif
+    #if !(SHARED_VOLUME_IS(SD_ONBOARD) || SHARED_VOLUME_IS(USB_FLASH_DRIVE))
+      #error "DEFAULT_SHARED_VOLUME must be either SD_ONBOARD or USB_FLASH_DRIVE."
+    #endif
+  #endif
+  #if ALL(ELB_FULL_GRAPHIC_CONTROLLER, HAS_MARLINUI_MENU, SD_CONNECTION_TYPICAL, HAS_SD_DETECT) && SD_DETECT_STATE == LOW
+    #error "SD_DETECT_STATE must be set HIGH for SD on the ELB_FULL_GRAPHIC_CONTROLLER."
+  #endif
+  #undef SD_CONNECTION_TYPICAL
 #endif
-#undef SD_CONNECTION_TYPICAL
 
 /**
  * SD File Sorting
@@ -469,7 +487,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     #error "BABYSTEPPING is not implemented for SCARA yet."
   #elif ENABLED(BABYSTEP_XY) && ANY(MARKFORGED_XY, MARKFORGED_YX)
     #error "BABYSTEPPING only implemented for Z axis on MarkForged."
@@ -492,10 +510,12 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #elif ENABLED(BABYSTEP_XY) && !defined(BABYSTEP_MULTIPLICATOR_XY)
     #error "BABYSTEP_XY requires BABYSTEP_MULTIPLICATOR_XY."
   #elif ENABLED(BABYSTEP_MILLIMETER_UNITS)
-    static_assert(BABYSTEP_MULTIPLICATOR_Z <= 0.1f, "BABYSTEP_MULTIPLICATOR_Z must be less or equal to 0.1mm.");
+    static_assert(BABYSTEP_MULTIPLICATOR_Z <= 0.1f, "BABYSTEP_MULTIPLICATOR_Z with BABYSTEP_MILLIMETER_UNITS must be less or equal to 0.1mm.");
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
+  #else
+    static_assert(BABYSTEP_MULTIPLICATOR_Z && BABYSTEP_MULTIPLICATOR_Z == int(BABYSTEP_MULTIPLICATOR_Z), "BABYSTEP_MULTIPLICATOR_Z must be a non-zero integer.");
   #endif
 #endif
 
@@ -505,8 +525,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_FILAMENT_SENSOR
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif HAS_PRUSA_MMU2 && NUM_RUNOUT_SENSORS != 1
-      #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
+  #elif (HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3) && NUM_RUNOUT_SENSORS != 1
+      #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S / MMU3."
   #elif NUM_RUNOUT_SENSORS != 1 && NUM_RUNOUT_SENSORS != E_STEPPERS
     #error "NUM_RUNOUT_SENSORS must be either 1 or number of E steppers."
   #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
@@ -543,6 +563,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE) && defined(FILAMENT_RUNOUT_SCRIPT)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
+  #elif DGUS_LCD_UI_MKS
+    #error "MKS UI is not currently compatible with FILAMENT_RUNOUT_SENSOR. Define DGUS_MKS_RUNOUT_SENSOR instead."
   #endif
 #endif
 
@@ -597,7 +619,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 /**
  * Multi-Material-Unit 2 / EXTENDABLE_EMU_MMU2 requirements
  */
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
     #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
@@ -605,16 +627,22 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
     #error "PRUSA_MMU2(S) requires NOZZLE_PARK_FEATURE. Enable it to continue."
-  #elif HAS_PRUSA_MMU2S && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_MARLINUI_MENU
-    #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
-  #elif ENABLED(MMU2_MENUS) && !HAS_MARLINUI_MENU
-    #error "MMU2_MENUS requires an LCD supporting MarlinUI."
+  #elif (HAS_PRUSA_MMU2S || HAS_PRUSA_MMU3) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2S and HAS_PRUSA_MMU3 requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif ENABLED(MMU2_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "MMU2_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif ENABLED(MMU2_EXTRUDER_SENSOR) && !HAS_MARLINUI_MENU
+    #error "MMU2_EXTRUDER_SENSOR requires an LCD supporting MarlinUI."
+  #elif ENABLED(MMU_MENUS) && !HAS_MARLINUI_MENU
+    #error "MMU_MENUS requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && !HAS_MARLINUI_MENU
+    #error "MMU3 requires an LCD supporting MarlinUI."
+  #elif HAS_PRUSA_MMU3 && DISABLED(MMU_MENUS)
+    #error "MMU3 requires MMU_MENUS."
+  #elif HAS_PRUSA_MMU3 && DISABLED(EEPROM_SETTINGS)
+    #error "MMU3 requires EEPROM_SETTINGS."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
-    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "MMU2_FILAMENT_RUNOUT_SCRIPT cannot make use of M600 unless ADVANCED_PAUSE_FEATURE is enabled");
+    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required for MMU2_FILAMENT_RUNOUT_SCRIPT to use M600.");
   #endif
 #endif
 
@@ -688,8 +716,8 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "MECHANICAL_SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "MECHANICAL_SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif HAS_PRUSA_MMU2
-    #error "MECHANICAL_SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+    #error "MECHANICAL_SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif !defined(EVENT_GCODE_TOOLCHANGE_T0)
     #error "MECHANICAL_SWITCHING_NOZZLE requires EVENT_GCODE_TOOLCHANGE_T0."
   #elif !defined(EVENT_GCODE_TOOLCHANGE_T1)
@@ -702,12 +730,14 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
     #error "SWITCHING_NOZZLE and DUAL_X_CARRIAGE are incompatible."
   #elif ENABLED(SINGLENOZZLE)
     #error "SWITCHING_NOZZLE and SINGLENOZZLE are incompatible."
-  #elif HAS_PRUSA_MMU2
-    #error "SWITCHING_NOZZLE and PRUSA_MMU2(S) are incompatible."
+  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+    #error "SWITCHING_NOZZLE and PRUSA_MMU2(2S,3) are incompatible."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
   #elif !defined(SWITCHING_NOZZLE_SERVO_NR)
     #error "SWITCHING_NOZZLE requires SWITCHING_NOZZLE_SERVO_NR."
+  #elif ALL(SWITCHING_NOZZLE_LIFT_TO_PROBE, NOZZLE_AS_PROBE)
+    #error "SWITCHING_NOZZLE_LIFT_TO_PROBE cannot be used with NOZZLE_AS_PROBE."
   #elif SWITCHING_NOZZLE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
     #error "SERVO0_PIN must be defined for your SWITCHING_NOZZLE."
   #elif SWITCHING_NOZZLE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -816,7 +846,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Linear Advance 1.5 - Check K value range
  */
 #if ENABLED(LIN_ADVANCE)
-  #if DISTINCT_E > 1
+  #if ENABLED(DISTINCT_E_FACTORS)
     constexpr float lak[] = ADVANCE_K;
     static_assert(COUNT(lak) <= DISTINCT_E, "The ADVANCE_K array has too many elements (i.e., more than " STRINGIFY(DISTINCT_E) ").");
     #define _LIN_ASSERT(N) static_assert(N >= COUNT(lak) || WITHIN(lak[N], 0, 10), "ADVANCE_K values must be from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9).");
@@ -829,15 +859,27 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if ENABLED(DIRECT_STEPPING)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. (Extrusion is controlled externally by the Step Daemon.)"
   #endif
-#endif
+
+  /**
+   * Smooth Linear Advance
+   */
+  #if ENABLED(SMOOTH_LIN_ADVANCE)
+    #ifndef CPU_32_BIT
+      #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
+    #elif ENABLED(S_CURVE_ACCELERATION)
+      #error "SMOOTH_LIN_ADVANCE is not compatible with S_CURVE_ACCELERATION."
+    #elif ENABLED(INPUT_SHAPING_E_SYNC) && NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y)
+      #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
+    #endif
+  #endif
+
+#endif // LIN_ADVANCE
 
 /**
  * Nonlinear Extrusion requirements
  */
 #if ENABLED(NONLINEAR_EXTRUSION)
-  #if DISABLED(ADAPTIVE_STEP_SMOOTHING)
-    #error "ADAPTIVE_STEP_SMOOTHING is required for NONLINEAR_EXTRUSION."
-  #elif HAS_MULTI_EXTRUDER
+  #if HAS_MULTI_EXTRUDER
     #error "NONLINEAR_EXTRUSION doesn't currently support multi-extruder setups."
   #elif DISABLED(CPU_32_BIT)
     #error "NONLINEAR_EXTRUSION requires a 32-bit CPU."
@@ -966,7 +1008,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && NONE(HAS_Z_SERVO_PROBE, POLARGRAPH) && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR) && !defined(MAG_MOUNTED_PROBE_SERVO_NR)
   #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead, switching extruder, or POLARGRAPH is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
@@ -1009,8 +1051,12 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 // Fan Kickstart power
-#if FAN_KICKSTART_TIME && !WITHIN(FAN_KICKSTART_POWER, 64, 255)
-  #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+#if FAN_KICKSTART_TIME
+  #if ENABLED(FAN_KICKSTART_LINEAR) && FAN_KICKSTART_POWER != 255
+    #error "FAN_KICKSTART_LINEAR requires a FAN_KICKSTART_POWER of 255."
+  #elif !WITHIN(FAN_KICKSTART_POWER, 64, 255)
+    #error "FAN_KICKSTART_POWER must be an integer from 64 to 255."
+  #endif
 #endif
 
 /**
@@ -1057,8 +1103,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "DIRECT_STEPPING does not currently support more than 3 axes (i.e., XYZ)."
 #elif ENABLED(FOAMCUTTER_XYUV) && !(HAS_I_AXIS && HAS_J_AXIS)
   #error "FOAMCUTTER_XYUV requires I and J steppers to be enabled."
-#elif ENABLED(LINEAR_ADVANCE) && HAS_I_AXIS
-  #error "LINEAR_ADVANCE does not currently support the inclusion of an I axis."
+#elif ENABLED(LIN_ADVANCE) && HAS_I_AXIS
+  #error "LIN_ADVANCE does not currently support the inclusion of an I axis."
 #endif
 
 /**
@@ -1207,7 +1253,54 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if 1 < 0 \
   + (DISABLED(BLTOUCH) && HAS_Z_SERVO_PROBE) \
   + COUNT_ENABLED(PROBE_MANUALLY, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, RACK_AND_PINION_PROBE, SENSORLESS_PROBING, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2)
-  #error "Please enable only one probe option: PROBE_MANUALLY, SENSORLESS_PROBING, BLTOUCH, BD_SENSOR, FIX_MOUNTED_PROBE, NOZZLE_AS_PROBE, TOUCH_MI_PROBE, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, MAGLEV4, MAG_MOUNTED_PROBE, BIQU_MICROPROBE_V1, BIQU_MICROPROBE_V2, or Z Servo."
+  #error "Please enable only one probe option. See the following errors:"
+  #if ENABLED(BLTOUCH)
+    #error "(BLTOUCH is enabled.)"
+  #elif HAS_Z_SERVO_PROBE
+    #error "(Z_SERVO_PROBE is enabled.)"
+  #endif
+  #if ENABLED(PROBE_MANUALLY)
+    #error "(PROBE_MANUALLY is enabled.)"
+  #endif
+  #if ENABLED(BD_SENSOR)
+    #error "(BD_SENSOR is enabled.)"
+  #endif
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    #error "(FIX_MOUNTED_PROBE is enabled.)"
+  #endif
+  #if ENABLED(NOZZLE_AS_PROBE)
+    #error "(NOZZLE_AS_PROBE is enabled.)"
+  #endif
+  #if ENABLED(TOUCH_MI_PROBE)
+    #error "(TOUCH_MI_PROBE is enabled.)"
+  #endif
+  #if ENABLED(SOLENOID_PROBE)
+    #error "(SOLENOID_PROBE is enabled.)"
+  #endif
+  #if ENABLED(Z_PROBE_ALLEN_KEY)
+    #error "(Z_PROBE_ALLEN_KEY is enabled.)"
+  #endif
+  #if ENABLED(Z_PROBE_SLED)
+    #error "(Z_PROBE_SLED is enabled.)"
+  #endif
+  #if ENABLED(RACK_AND_PINION_PROBE)
+    #error "(RACK_AND_PINION_PROBE is enabled.)"
+  #endif
+  #if ENABLED(SENSORLESS_PROBING)
+    #error "(SENSORLESS_PROBING is enabled.)"
+  #endif
+  #if ENABLED(MAGLEV4)
+    #error "(MAGLEV4 is enabled.)"
+  #endif
+  #if ENABLED(MAG_MOUNTED_PROBE)
+    #error "(MAG_MOUNTED_PROBE is enabled.)"
+  #endif
+  #if ENABLED(BIQU_MICROPROBE_V1)
+    #error "(BIQU_MICROPROBE_V1 is enabled.)"
+  #endif
+  #if ENABLED(BIQU_MICROPROBE_V2)
+    #error "(BIQU_MICROPROBE_V2 is enabled.)"
+  #endif
 #endif
 
 #if HAS_BED_PROBE
@@ -1439,14 +1532,18 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
    * Check for improper PROBING_MARGIN
    */
   #if NONE(NOZZLE_AS_PROBE, IS_KINEMATIC)
-    static_assert(PROBING_MARGIN       >= 0, "PROBING_MARGIN must be >= 0.");
+    #ifdef PROBING_MARGIN
+      static_assert(PROBING_MARGIN     >= 0, "PROBING_MARGIN must be >= 0.");
+    #endif
     static_assert(PROBING_MARGIN_BACK  >= 0, "PROBING_MARGIN_BACK must be >= 0.");
     static_assert(PROBING_MARGIN_FRONT >= 0, "PROBING_MARGIN_FRONT must be >= 0.");
     static_assert(PROBING_MARGIN_LEFT  >= 0, "PROBING_MARGIN_LEFT must be >= 0.");
     static_assert(PROBING_MARGIN_RIGHT >= 0, "PROBING_MARGIN_RIGHT must be >= 0.");
   #endif
   #define _MARGIN(A) TERN(IS_KINEMATIC, PRINTABLE_RADIUS, ((A##_BED_SIZE) / 2))
-  static_assert(PROBING_MARGIN       < _MARGIN(X), "PROBING_MARGIN is too large.");
+  #ifdef PROBING_MARGIN
+    static_assert(PROBING_MARGIN     < _MARGIN(X), "PROBING_MARGIN is too large.");
+  #endif
   static_assert(PROBING_MARGIN_BACK  < _MARGIN(Y), "PROBING_MARGIN_BACK is too large.");
   static_assert(PROBING_MARGIN_FRONT < _MARGIN(Y), "PROBING_MARGIN_FRONT is too large.");
   static_assert(PROBING_MARGIN_LEFT  < _MARGIN(X), "PROBING_MARGIN_LEFT is too large.");
@@ -1463,8 +1560,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     PROBE_OFFSET_ASSERT("PROBE_OFFSET_YMIN", PROBE_OFFSET_YMIN, -(Y_BED_SIZE), Y_BED_SIZE);
     PROBE_OFFSET_ASSERT("PROBE_OFFSET_YMAX", PROBE_OFFSET_YMAX, -(Y_BED_SIZE), Y_BED_SIZE);
   #endif
-  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -20, 20);
-  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -20, 20);
+  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMIN", PROBE_OFFSET_ZMIN, -(Z_MAX_POS), Z_MAX_POS);
+  PROBE_OFFSET_ASSERT("PROBE_OFFSET_ZMAX", PROBE_OFFSET_ZMAX, -(Z_MAX_POS), Z_MAX_POS);
 
   /**
    * Check for improper NOZZLE_AS_PROBE or NOZZLE_TO_PROBE_OFFSET
@@ -1508,9 +1605,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #endif
 
-  #if Z_PROBE_LOW_POINT > 0
-    #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
-  #endif
+  static_assert(Z_PROBE_LOW_POINT <= 0, "Z_PROBE_LOW_POINT must be less than or equal to 0.");
 
   #if ENABLED(PROBE_ACTIVATION_SWITCH)
     #ifndef PROBE_ACTIVATION_SWITCH_STATE
@@ -1545,6 +1640,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "BED_TRAMMING_USE_PROBE is incompatible with SENSORLESS_PROBING."
     #endif
   #endif
+  static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0.");
+#elif ANY(DGUS_LCD_UI_RELOADED, DGUS_LCD_UI_E3S1PRO)
+  #error "LCD_BED_TRAMMING is required for the selected display."
 #endif
 
 /**
@@ -1577,8 +1675,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #elif ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING is not compatible with DELTA printers."
-  #elif (GRID_MAX_POINTS_X) > 9 || (GRID_MAX_POINTS_Y) > 9
-    #error "GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y must be less than 10 for MBL."
+  #elif !WITHIN(GRID_MAX_POINTS_X, 2, 255) || !WITHIN(GRID_MAX_POINTS_Y, 2, 255)
+    #error "GRID_MAX_POINTS_[XY] must be between 2 and 255 for MESH_BED_LEVELING."
   #endif
 #endif
 
@@ -1718,11 +1816,40 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Assert that the homing current must not be greater than the base current.
+ * Current may be reduced "to prevent damage" but in fact it's typically reduced to prevent spurious
+ * DIAG triggering from fast high torque moves with large jerk values which are more prone to cause binding.
+ */
+#define _BAD_HOME_CURRENT(N) (N##_CURRENT_HOME > N##_CURRENT) ||
+#if MAIN_AXIS_MAP(_BAD_HOME_CURRENT) MAP(_BAD_HOME_CURRENT, X2, Y2, Z2, Z3, Z4) 0
+  #ifndef ALLOW_HIGHER_CURRENT_HOME
+    #error "*_CURRENT_HOME should be <= *_CURRENT. Define ALLOW_HIGHER_CURRENT_HOME in your configuration to continue anyway."
+  #else
+    #define HIGHER_CURRENT_HOME_WARNING 1
+  #endif
+#endif
+#undef _BAD_HOME_CURRENT
+
+#if ENABLED(PROBING_USE_CURRENT_HOME)
+  #if  (defined(Z_CURRENT_HOME)  && !Z_HAS_HOME_CURRENT)  || (defined(Z2_CURRENT_HOME) && !Z2_HAS_HOME_CURRENT) \
+    || (defined(Z3_CURRENT_HOME) && !Z3_HAS_HOME_CURRENT) || (defined(Z4_CURRENT_HOME) && !Z4_HAS_HOME_CURRENT)
+    #error "PROBING_USE_CURRENT_HOME requires a Z_CURRENT_HOME value that differs from Z_CURRENT."
+  #endif
+#endif
+
+/**
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
   static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
   static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+#endif
+
+/**
+ * Make sure Z_CLEARANCE_FOR_HOMING is below Z_MAX_POS
+ */
+#if HAS_Z_AXIS
+  static_assert(Z_CLEARANCE_FOR_HOMING <= Z_MAX_POS, "Z_CLEARANCE_FOR_HOMING must be less than or equal to Z_MAX_POS.");
 #endif
 
 // Check Safe Bed Leveling settings
@@ -1787,12 +1914,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * ULTIPANEL encoder
+ * Encoder pulses must be positive
  */
-#if IS_ULTIPANEL && NONE(IS_NEWPANEL, SR_LCD_2W_NL) && !PIN_EXISTS(SHIFT_CLK)
-  #error "ULTIPANEL controllers require some kind of encoder."
-#endif
-
 #if ENCODER_PULSES_PER_STEP < 0
   #error "ENCODER_PULSES_PER_STEP should not be negative, use REVERSE_MENU_DIRECTION instead."
 #endif
@@ -1832,6 +1955,9 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
   #elif X_HOME_TO_MAX
     #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1."
+  #else
+    static_assert((X2_HOME_POS) > (X1_MAX_POS), "X2_HOME_POS must be greater than X1_MAX_POS (i.e., X_BED_SIZE).");
+    static_assert((X2_MIN_POS) > (X1_MIN_POS), "X2_MIN_POS must be greater than X1_MIN_POS (i.e., X_MIN_POS).");
   #endif
 #endif
 
@@ -2014,6 +2140,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MAX31865_SENSOR_WIRES_2 must be defined as an integer between 2 and 4."
   #elif !defined(MAX31865_SENSOR_OHMS_2) || !defined(MAX31865_CALIBRATION_OHMS_2)
     #error "MAX31865_SENSOR_OHMS_2 and MAX31865_CALIBRATION_OHMS_2 must be set if TEMP_SENSOR_2/TEMP_SENSOR_REDUNDANT is MAX31865."
+  #endif
+#endif
+#if TEMP_SENSOR_BED_IS_MAX31865
+  #if !defined(MAX31865_SENSOR_WIRES_BED) || !WITHIN(MAX31865_SENSOR_WIRES_BED, 2, 4)
+    #error "MAX31865_SENSOR_WIRES_BED must be defined as an integer between 2 and 4."
+  #elif !defined(MAX31865_SENSOR_OHMS_BED) || !defined(MAX31865_CALIBRATION_OHMS_BED)
+    #error "MAX31865_SENSOR_OHMS_BED and MAX31865_CALIBRATION_OHMS_BED must be set if TEMP_SENSOR_BED is MAX31865."
   #endif
 #endif
 
@@ -2341,28 +2474,28 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #endif
 #endif
 
-#if E_STEPPERS > 0 && !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
+#if E_STEPPERS > 0 && !ALL(HAS_E0_DIR, HAS_E0_STEP, HAS_E0_ENABLE)
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 1 && !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+#if E_STEPPERS > 1 && !ALL(HAS_E1_DIR, HAS_E1_STEP, HAS_E1_ENABLE)
   #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 2 && !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+#if E_STEPPERS > 2 && !ALL(HAS_E2_DIR, HAS_E2_STEP, HAS_E2_ENABLE)
   #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 3 && !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+#if E_STEPPERS > 3 && !ALL(HAS_E3_DIR, HAS_E3_STEP, HAS_E3_ENABLE)
   #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 4 && !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+#if E_STEPPERS > 4 && !ALL(HAS_E4_DIR, HAS_E4_STEP, HAS_E4_ENABLE)
   #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 5 && !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+#if E_STEPPERS > 5 && !ALL(HAS_E5_DIR, HAS_E5_STEP, HAS_E5_ENABLE)
   #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 6 && !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+#if E_STEPPERS > 6 && !ALL(HAS_E6_DIR, HAS_E6_STEP, HAS_E6_ENABLE)
   #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
 #endif
-#if E_STEPPERS > 7 && !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+#if E_STEPPERS > 7 && !ALL(HAS_E7_DIR, HAS_E7_STEP, HAS_E7_ENABLE)
   #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
 #endif
 
@@ -2379,8 +2512,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Y_MIN_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
   #elif Y_HOME_TO_MAX && !HAS_Y_MAX_STATE
     #error "Y_MAX_PIN, Y_STOP_PIN, or Y_SPI_SENSORLESS is required for Y axis homing."
-  #elif Z_HOME_TO_MIN && !HAS_Z_MIN_STATE
-    #error "Z_MIN_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
+  #elif Z_HOME_TO_MIN && NONE(HAS_Z_MIN_STATE, USE_PROBE_FOR_Z_HOMING)
+    #error "Z_MIN_PIN, Z_STOP_PIN, Z_SPI_SENSORLESS, or USE_PROBE_FOR_Z_HOMING is required for Z axis homing."
   #elif Z_HOME_TO_MAX && !HAS_Z_MAX_STATE
     #error "Z_MAX_PIN, Z_STOP_PIN, or Z_SPI_SENSORLESS is required for Z axis homing."
   #elif I_HOME_TO_MIN && !HAS_I_MIN_STATE
@@ -2453,6 +2586,51 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Some kind of Z4 Endstop must be defined for Z_MULTI_ENDSTOPS and Z4_DRIVER_TYPE."
   #elif Z_SPI_SENSORLESS && !(AXIS_HAS_SPI(Z2) && (NUM_Z_STEPPERS < 3 || AXIS_HAS_SPI(Z3)) && (NUM_Z_STEPPERS < 4 || AXIS_HAS_SPI(Z4)))
     #error "All Z Stepper Drivers must be SPI-capable to use SPI Endstops on Z."
+  #endif
+  #if PIN_EXISTS(Z2_STOP)
+    #if X_HOME_TO_MIN && Z2_STOP_PIN == X_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z2_STOP_PIN == X_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z2_STOP_PIN == Y_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z2_STOP_PIN == Y_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z2_STOP_PIN == Z_MIN_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z2_STOP_PIN == Z_MAX_PIN
+      #error "Z2_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z3_STOP)
+    #if X_HOME_TO_MIN && Z3_STOP_PIN == X_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z3_STOP_PIN == X_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z3_STOP_PIN == Y_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z3_STOP_PIN == Y_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z3_STOP_PIN == Z_MIN_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z3_STOP_PIN == Z_MAX_PIN
+      #error "Z3_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
+  #endif
+  #if PIN_EXISTS(Z4_STOP)
+    #if X_HOME_TO_MIN && Z4_STOP_PIN == X_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MIN_PIN when homing to X_MIN"
+    #elif X_HOME_TO_MAX && Z4_STOP_PIN == X_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as X_MAX_PIN when homing to X_MAX"
+    #elif Y_HOME_TO_MIN && Z4_STOP_PIN == Y_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MIN_PIN when homing to Y_MIN"
+    #elif Y_HOME_TO_MAX && Z4_STOP_PIN == Y_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Y_MAX_PIN when homing to Y_MAX"
+    #elif Z_HOME_TO_MIN && Z4_STOP_PIN == Z_MIN_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MIN_PIN when homing to Z_MIN"
+    #elif Z_HOME_TO_MAX && Z4_STOP_PIN == Z_MAX_PIN
+      #error "Z4_STOP_PIN can't be the same as Z_MAX_PIN when homing to Z_MAX"
+    #endif
   #endif
 #endif
 
@@ -2635,7 +2813,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   + COUNT_ENABLED(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON, ANYCUBIC_TFT35, ANYCUBIC_LCD_VYPER) \
   + DGUS_UI_IS(ORIGIN) + DGUS_UI_IS(FYSETC) + DGUS_UI_IS(HIPRECY) + DGUS_UI_IS(MKS) + DGUS_UI_IS(RELOADED) + DGUS_UI_IS(IA_CREALITY) \
   + COUNT_ENABLED(ENDER2_STOCKDISPLAY, CR10_STOCKDISPLAY) \
-  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE) \
+  + COUNT_ENABLED(DWIN_CREALITY_LCD, DWIN_LCD_PROUI, DWIN_CREALITY_LCD_JYERSUI, DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE, SOVOL_SV06_RTS) \
   + COUNT_ENABLED(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_GENERIC_12864_1_1) \
   + COUNT_ENABLED(LCD_SAINSMART_I2C_1602, LCD_SAINSMART_I2C_2004) \
   + COUNT_ENABLED(MKS_12864OLED, MKS_12864OLED_SSD1306) \
@@ -2690,6 +2868,28 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
 #undef IS_U8GLIB_SSD1306
 #undef IS_EXTUI
+
+/**
+ * Make sure LCD language settings are distinct
+ */
+#if NUM_LANGUAGES > 1
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_2), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_2 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+#endif
+#if NUM_LANGUAGES > 2
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_3), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_3 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_3), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_3 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+#endif
+#if NUM_LANGUAGES > 3
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_4), STRINGIFY(LCD_LANGUAGE_3)), "Error: LCD_LANGUAGE_4 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_3.");
+#endif
+#if NUM_LANGUAGES > 4
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_2)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_2.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_3)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_3.");
+  static_assert(strcmp(STRINGIFY(LCD_LANGUAGE_5), STRINGIFY(LCD_LANGUAGE_4)), "Error: LCD_LANGUAGE_5 (" STRINGIFY(LCD_LANGUAGE) ") cannot be the same as LCD_LANGUAGE_4.");
+#endif
 
 #if ANY(TFT_GENERIC, MKS_TS35_V2_0, MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35, MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R, \
         TFT_TRONXY_X5SA, ANYCUBIC_TFT35, ANYCUBIC_TFT35, LONGER_LK_TFT28, ANET_ET4_TFT28, ANET_ET5_TFT35, BIQU_BX_TFT70, BTT_TFT35_SPI_V1_0)
@@ -2780,6 +2980,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if HAS_BACKLIGHT_TIMEOUT
   #if !HAS_ENCODER_ACTION && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires an LCD with encoder or keypad."
+  #elif HAS_DISPLAY_SLEEP
+    #error "LCD_BACKLIGHT_TIMEOUT_MINS and DISPLAY_SLEEP_MINUTES are not currently supported at the same time."
   #elif ENABLED(NEOPIXEL_BKGD_INDEX_FIRST)
     #if PIN_EXISTS(LCD_BACKLIGHT)
       #error "LCD_BACKLIGHT_PIN and NEOPIXEL_BKGD_INDEX_FIRST are not supported at the same time."
@@ -2788,6 +2990,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
   #elif !PIN_EXISTS(LCD_BACKLIGHT) && DISABLED(HAS_DWIN_E3V2)
     #error "LCD_BACKLIGHT_TIMEOUT_MINS requires LCD_BACKLIGHT_PIN, NEOPIXEL_BKGD_INDEX_FIRST, or an Ender-3 V2 DWIN LCD."
+  #endif
+#elif HAS_DISPLAY_SLEEP
+  #if NONE(TOUCH_SCREEN, HAS_MARLINUI_U8GLIB) || ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI_12864, CR10_STOCKDISPLAY, MINIPANEL)
+    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
+    #undef HAS_DISPLAY_SLEEP
+  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
+    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
+  #elif DISABLED(EDITABLE_DISPLAY_TIMEOUT) && DISPLAY_SLEEP_MINUTES == 0
+    #error "DISPLAY_SLEEP_MINUTES must be greater than 0 with EDITABLE_DISPLAY_TIMEOUT disabled."
   #endif
 #endif
 
@@ -2802,17 +3013,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * Display Sleep is not supported by these common displays
- */
-#if HAS_DISPLAY_SLEEP
-  #if ANY(IS_U8GLIB_LM6059_AF, IS_U8GLIB_ST7565_64128, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI_12864, CR10_STOCKDISPLAY, MINIPANEL)
-    #error "DISPLAY_SLEEP_MINUTES is not supported by your display."
-  #elif !WITHIN(DISPLAY_SLEEP_MINUTES, 0, 255)
-    #error "DISPLAY_SLEEP_MINUTES must be between 0 and 255."
-  #endif
-#endif
-
-/**
  * Some boards forbid the use of -1 Native USB
  */
 #if ENABLED(BOARD_NO_NATIVE_USB)
@@ -2821,8 +3021,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT to a valid value for your board."
   #elif SERIAL_PORT_2 == -1
     #error "SERIAL_PORT_2 is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT_2 to a valid value for your board."
-  #elif MMU2_SERIAL_PORT == -1
-    #error "MMU2_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set MMU2_SERIAL_PORT to a valid value for your board."
+  #elif MMU_SERIAL_PORT == -1
+    #error "MMU_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set MMU_SERIAL_PORT to a valid value for your board."
   #elif LCD_SERIAL_PORT == -1
     #error "LCD_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set LCD_SERIAL_PORT to a valid value for your board."
   #endif
@@ -2831,13 +3031,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 /**
  * MMU2 require a dedicated serial port
  */
-#ifdef MMU2_SERIAL_PORT
-  #if MMU2_SERIAL_PORT == SERIAL_PORT
-    #error "MMU2_SERIAL_PORT cannot be the same as SERIAL_PORT."
-  #elif defined(SERIAL_PORT_2) && MMU2_SERIAL_PORT == SERIAL_PORT_2
-    #error "MMU2_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
-  #elif defined(LCD_SERIAL_PORT) && MMU2_SERIAL_PORT == LCD_SERIAL_PORT
-    #error "MMU2_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
+#ifdef MMU_SERIAL_PORT
+  #if MMU_SERIAL_PORT == SERIAL_PORT
+    #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && MMU_SERIAL_PORT == SERIAL_PORT_2
+    #error "MMU_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(LCD_SERIAL_PORT) && MMU_SERIAL_PORT == LCD_SERIAL_PORT
+    #error "MMU_SERIAL_PORT cannot be the same as LCD_SERIAL_PORT."
+  #elif defined(RS485_SERIAL_PORT) && MMU_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "MMU_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #endif
 
@@ -2849,6 +3051,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT."
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
+  #elif defined(RS485_SERIAL_PORT) && LCD_SERIAL_PORT == RS485_SERIAL_PORT
+    #error "LCD_SERIAL_PORT cannot be the same as RS485_SERIAL_PORT."
   #endif
 #else
   #if HAS_DGUS_LCD
@@ -2859,6 +3063,17 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined."
   #elif ENABLED(NEXTION_LCD)
     #error "NEXTION_LCD requires LCD_SERIAL_PORT to be defined."
+  #endif
+#endif
+
+/**
+ * RS485 bus requires a dedicated serial port
+ */
+#ifdef RS485_SERIAL_PORT
+  #if RS485_SERIAL_PORT == SERIAL_PORT
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT."
+  #elif defined(SERIAL_PORT_2) && RS485_SERIAL_PORT == SERIAL_PORT_2
+    #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #endif
 #endif
 
@@ -2919,49 +3134,69 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #define INVALID_TMC_UART(ST) (AXIS_HAS_UART(ST) && !(defined(ST##_HARDWARE_SERIAL) || (PINS_EXIST(ST##_SERIAL_RX, ST##_SERIAL_TX))))
 #if INVALID_TMC_UART(X)
   #error "TMC2208 or TMC2209 on X requires X_HARDWARE_SERIAL or X_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(X2)
+#endif
+#if INVALID_TMC_UART(X2)
   #error "TMC2208 or TMC2209 on X2 requires X2_HARDWARE_SERIAL or X2_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Y)
+#endif
+#if INVALID_TMC_UART(Y)
   #error "TMC2208 or TMC2209 on Y requires Y_HARDWARE_SERIAL or Y_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Y2)
+#endif
+#if INVALID_TMC_UART(Y2)
   #error "TMC2208 or TMC2209 on Y2 requires Y2_HARDWARE_SERIAL or Y2_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Z)
+#endif
+#if INVALID_TMC_UART(Z)
   #error "TMC2208 or TMC2209 on Z requires Z_HARDWARE_SERIAL or Z_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Z2)
+#endif
+#if INVALID_TMC_UART(Z2)
   #error "TMC2208 or TMC2209 on Z2 requires Z2_HARDWARE_SERIAL or Z2_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Z3)
+#endif
+#if INVALID_TMC_UART(Z3)
   #error "TMC2208 or TMC2209 on Z3 requires Z3_HARDWARE_SERIAL or Z3_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(Z4)
+#endif
+#if INVALID_TMC_UART(Z4)
   #error "TMC2208 or TMC2209 on Z4 requires Z4_HARDWARE_SERIAL or Z4_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E0)
+#endif
+#if INVALID_TMC_UART(E0)
   #error "TMC2208 or TMC2209 on E0 requires E0_HARDWARE_SERIAL or E0_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E1)
+#endif
+#if INVALID_TMC_UART(E1)
   #error "TMC2208 or TMC2209 on E1 requires E1_HARDWARE_SERIAL or E1_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E2)
+#endif
+#if INVALID_TMC_UART(E2)
   #error "TMC2208 or TMC2209 on E2 requires E2_HARDWARE_SERIAL or E2_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E3)
+#endif
+#if INVALID_TMC_UART(E3)
   #error "TMC2208 or TMC2209 on E3 requires E3_HARDWARE_SERIAL or E3_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E4)
+#endif
+#if INVALID_TMC_UART(E4)
   #error "TMC2208 or TMC2209 on E4 requires E4_HARDWARE_SERIAL or E4_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E5)
+#endif
+#if INVALID_TMC_UART(E5)
   #error "TMC2208 or TMC2209 on E5 requires E5_HARDWARE_SERIAL or E5_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E6)
+#endif
+#if INVALID_TMC_UART(E6)
   #error "TMC2208 or TMC2209 on E6 requires E6_HARDWARE_SERIAL or E6_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(E7)
+#endif
+#if INVALID_TMC_UART(E7)
   #error "TMC2208 or TMC2209 on E7 requires E7_HARDWARE_SERIAL or E7_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(I)
+#endif
+#if INVALID_TMC_UART(I)
   #error "TMC2208 or TMC2209 on I requires I_HARDWARE_SERIAL or I_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(J)
+#endif
+#if INVALID_TMC_UART(J)
   #error "TMC2208 or TMC2209 on J requires J_HARDWARE_SERIAL or J_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(K)
+#endif
+#if INVALID_TMC_UART(K)
   #error "TMC2208 or TMC2209 on K requires K_HARDWARE_SERIAL or K_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(U)
+#endif
+#if INVALID_TMC_UART(U)
   #error "TMC2208 or TMC2209 on U requires U_HARDWARE_SERIAL or U_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(V)
+#endif
+#if INVALID_TMC_UART(V)
   #error "TMC2208 or TMC2209 on V requires V_HARDWARE_SERIAL or V_SERIAL_(RX|TX)_PIN."
-#elif INVALID_TMC_UART(W)
+#endif
+#if INVALID_TMC_UART(W)
   #error "TMC2208 or TMC2209 on W requires W_HARDWARE_SERIAL or W_SERIAL_(RX|TX)_PIN."
-
 #endif
 #undef INVALID_TMC_UART
 
@@ -3017,7 +3252,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #undef INVALID_TMC_ADDRESS
 
 #define _TMC_MICROSTEP_IS_VALID(MS) (MS == 0 || MS == 2 || MS == 4 || MS == 8 || MS == 16 || MS == 32 || MS == 64 || MS == 128 || MS == 256)
-#define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
+#define TMC_MICROSTEP_IS_VALID(M) (!M##_IS_TRINAMIC || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
 #define INVALID_TMC_MS(ST) static_assert(0, "Invalid " STRINGIFY(ST) "_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256.")
 
 #if !TMC_MICROSTEP_IS_VALID(X)
@@ -3143,19 +3378,19 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "SPI_ENDSTOPS requires stepper drivers with SPI support."
     #endif
   #else // !SPI_ENDSTOPS
-    // Stall detection DIAG = HIGH : TMC2209
-    // Stall detection DIAG = LOW  : TMC2130/TMC2160/TMC2660/TMC5130/TMC5160
+    // Stall detection DIAG = HIGH : TMC2209/2240
+    // Stall detection DIAG = LOW  : TMC2130/2160/2660/5130/5160
     #if X_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(X,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(X,TMC2209) || AXIS_DRIVER_TYPE(X,TMC2240))
       #if X_HOME_TO_MIN && X_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE HIGH for X MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE HIGH for X MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_HIT_STATE LOW for X MIN homing."
         #endif
       #elif X_HOME_TO_MAX && X_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE HIGH for X MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE HIGH for X MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_HIT_STATE LOW for X MAX homing."
         #endif
@@ -3164,16 +3399,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if Y_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(Y,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(Y,TMC2209) || AXIS_DRIVER_TYPE(Y,TMC2240))
       #if Y_HOME_TO_MIN && Y_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE HIGH for Y MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE HIGH for Y MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_HIT_STATE LOW for Y MIN homing."
         #endif
       #elif Y_HOME_TO_MAX && Y_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_HIT_STATE HIGH for Y MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_HIT_STATE HIGH for Y MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_HIT_STATE LOW for Y MAX homing."
         #endif
@@ -3182,16 +3417,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if Z_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(Z,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(Z,TMC2209) || AXIS_DRIVER_TYPE(Z,TMC2240))
       #if Z_HOME_TO_MIN && Z_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE HIGH for Z MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE HIGH for Z MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_HIT_STATE LOW for Z MIN homing."
         #endif
       #elif Z_HOME_TO_MAX && Z_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_HIT_STATE HIGH for Z MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_HIT_STATE HIGH for Z MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_HIT_STATE LOW for Z MAX homing."
         #endif
@@ -3200,16 +3435,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if I_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(I,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(I,TMC2209) || AXIS_DRIVER_TYPE(I,TMC2240))
       #if I_HOME_TO_MIN && I_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE HIGH for I MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE HIGH for I MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires I_MIN_ENDSTOP_HIT_STATE LOW for I MIN homing."
         #endif
       #elif I_HOME_TO_MAX && I_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires I_MAX_ENDSTOP_HIT_STATE HIGH for I MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires I_MAX_ENDSTOP_HIT_STATE HIGH for I MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires I_MAX_ENDSTOP_HIT_STATE LOW for I MAX homing."
         #endif
@@ -3218,16 +3453,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if J_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(J,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(J,TMC2209) || AXIS_DRIVER_TYPE(J,TMC2240))
       #if J_HOME_TO_MIN && J_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE HIGH for J MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE HIGH for J MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires J_MIN_ENDSTOP_HIT_STATE LOW for J MIN homing."
         #endif
       #elif J_HOME_TO_MAX && J_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires J_MAX_ENDSTOP_HIT_STATE HIGH for J MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires J_MAX_ENDSTOP_HIT_STATE HIGH for J MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires J_MAX_ENDSTOP_HIT_STATE LOW for J MAX homing."
         #endif
@@ -3236,16 +3471,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if K_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(K,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(K,TMC2209) || AXIS_DRIVER_TYPE(K,TMC2240))
       #if K_HOME_TO_MIN && K_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE HIGH for K MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE HIGH for K MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires K_MIN_ENDSTOP_HIT_STATE LOW for K MIN homing."
         #endif
       #elif K_HOME_TO_MAX && K_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires K_MAX_ENDSTOP_HIT_STATE HIGH for K MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires K_MAX_ENDSTOP_HIT_STATE HIGH for K MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires K_MAX_ENDSTOP_HIT_STATE LOW for K MAX homing."
         #endif
@@ -3254,16 +3489,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if U_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(U,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(U,TMC2209) || AXIS_DRIVER_TYPE(U,TMC2240))
       #if U_HOME_TO_MIN && U_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE HIGH for U MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE HIGH for U MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires U_MIN_ENDSTOP_HIT_STATE LOW for U MIN homing."
         #endif
       #elif U_HOME_TO_MAX && U_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires U_MAX_ENDSTOP_HIT_STATE HIGH for U MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires U_MAX_ENDSTOP_HIT_STATE HIGH for U MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires U_MAX_ENDSTOP_HIT_STATE LOW for U MAX homing."
         #endif
@@ -3272,16 +3507,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if V_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(V,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(V,TMC2209) || AXIS_DRIVER_TYPE(V,TMC2240))
       #if V_HOME_TO_MIN && V_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE HIGH for V MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE HIGH for V MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires V_MIN_ENDSTOP_HIT_STATE LOW for V MIN homing."
         #endif
       #elif V_HOME_TO_MAX && V_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires V_MAX_ENDSTOP_HIT_STATE HIGH for V MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires V_MAX_ENDSTOP_HIT_STATE HIGH for V MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires V_MAX_ENDSTOP_HIT_STATE LOW for V MAX homing."
         #endif
@@ -3290,16 +3525,16 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #endif
 
     #if W_SENSORLESS
-      #define _HIT_STATE AXIS_DRIVER_TYPE(W,TMC2209)
+      #define _HIT_STATE (AXIS_DRIVER_TYPE(W,TMC2209) || AXIS_DRIVER_TYPE(W,TMC2240))
       #if W_HOME_TO_MIN && W_MIN_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE HIGH for W MIN homing with TMC2209."
+          #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE HIGH for W MIN homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires W_MIN_ENDSTOP_HIT_STATE LOW for W MIN homing."
         #endif
       #elif W_HOME_TO_MAX && W_MAX_ENDSTOP_HIT_STATE != _HIT_STATE
         #if _HIT_STATE
-          #error "SENSORLESS_HOMING requires W_MAX_ENDSTOP_HIT_STATE HIGH for W MAX homing with TMC2209."
+          #error "SENSORLESS_HOMING requires W_MAX_ENDSTOP_HIT_STATE HIGH for W MAX homing with TMC2209/2240."
         #else
           #error "SENSORLESS_HOMING requires W_MAX_ENDSTOP_HIT_STATE LOW for W MAX homing."
         #endif
@@ -3343,15 +3578,64 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "MARKFORGED requires both X and Y to use sensorless homing if either one does."
 #endif
 
+// TMC Hybrid Threshold
+#if ENABLED(HYBRID_THRESHOLD)
+  #if !STEALTHCHOP_ENABLED
+    #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
+  #elif defined(X_HYBRID_THRESHOLD) && X_HYBRID_THRESHOLD == 0
+    #error "X_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(X2_HYBRID_THRESHOLD) && X2_HYBRID_THRESHOLD == 0
+    #error "X2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y_HYBRID_THRESHOLD) && Y_HYBRID_THRESHOLD == 0
+    #error "Y_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Y2_HYBRID_THRESHOLD) && Y2_HYBRID_THRESHOLD == 0
+    #error "Y2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z_HYBRID_THRESHOLD) && Z_HYBRID_THRESHOLD == 0
+    #error "Z_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z2_HYBRID_THRESHOLD) && Z2_HYBRID_THRESHOLD == 0
+    #error "Z2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z3_HYBRID_THRESHOLD) && Z3_HYBRID_THRESHOLD == 0
+    #error "Z3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(Z4_HYBRID_THRESHOLD) && Z4_HYBRID_THRESHOLD == 0
+    #error "Z4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(I_HYBRID_THRESHOLD) && I_HYBRID_THRESHOLD == 0
+    #error "I_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(J_HYBRID_THRESHOLD) && J_HYBRID_THRESHOLD == 0
+    #error "J_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(K_HYBRID_THRESHOLD) && K_HYBRID_THRESHOLD == 0
+    #error "K_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(U_HYBRID_THRESHOLD) && U_HYBRID_THRESHOLD == 0
+    #error "U_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(V_HYBRID_THRESHOLD) && V_HYBRID_THRESHOLD == 0
+    #error "V_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(W_HYBRID_THRESHOLD) && W_HYBRID_THRESHOLD == 0
+    #error "W_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E0_HYBRID_THRESHOLD) && E0_HYBRID_THRESHOLD == 0
+    #error "E0_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E1_HYBRID_THRESHOLD) && E1_HYBRID_THRESHOLD == 0
+    #error "E1_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E2_HYBRID_THRESHOLD) && E2_HYBRID_THRESHOLD == 0
+    #error "E2_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E3_HYBRID_THRESHOLD) && E3_HYBRID_THRESHOLD == 0
+    #error "E3_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E4_HYBRID_THRESHOLD) && E4_HYBRID_THRESHOLD == 0
+    #error "E4_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E5_HYBRID_THRESHOLD) && E5_HYBRID_THRESHOLD == 0
+    #error "E5_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E6_HYBRID_THRESHOLD) && E6_HYBRID_THRESHOLD == 0
+    #error "E6_HYBRID_THRESHOLD must be greater than 0."
+  #elif defined(E7_HYBRID_THRESHOLD) && E7_HYBRID_THRESHOLD == 0
+    #error "E7_HYBRID_THRESHOLD must be greater than 0."
+  #endif
+#endif // HYBRID_THRESHOLD
+
 // Other TMC feature requirements
-#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
-  #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
-#elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
-  #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
+#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+  #error "SENSORLESS_HOMING requires TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, or TMC5160 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
-  #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2660, or TMC5160 stepper drivers."
+  #error "SENSORLESS_PROBING requires TMC2130, TMC2160, TMC2209, TMC2240, TMC2660, or TMC5160 stepper drivers."
 #elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
-  #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, or TMC5160 stepper drivers."
+  #error "STEALTHCHOP requires TMC2130, TMC2160, TMC2208, TMC2209, TMC2240, or TMC5160 stepper drivers."
 #endif
 
 /**
@@ -3429,7 +3713,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if HAS_MOTOR_CURRENT_I2C
   #if ALL(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
-  #elif !MB(MKS_SBASE, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
+  #elif !MB(MKS_SBASE, AZTEEG_X3_PRO, AZTEEG_X5_GT, AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI) \
     && (!defined(DIGIPOTS_I2C_SDA_X) || !defined(DIGIPOTS_I2C_SDA_Y) || !defined(DIGIPOTS_I2C_SDA_Z) || !defined(DIGIPOTS_I2C_SDA_E0) || !defined(DIGIPOTS_I2C_SDA_E1))
       #error "DIGIPOT_MCP4018/4451 requires DIGIPOTS_I2C_SDA_* pins to be defined."
   #endif
@@ -3439,7 +3723,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
  * Check per-axis initializers for errors
  */
 
-#define __PLUS_TEST(I,A) && (sanity_arr_##A[_MIN(I,signed(COUNT(sanity_arr_##A)-1))] > 0)
+#define __PLUS_TEST(I,A) && (sanity_arr_##A[ALIM(I,sanity_arr_##A)] > 0)
 #define _PLUS_TEST(A) (1 REPEAT2(14,__PLUS_TEST,A))
 #if HAS_MULTI_EXTRUDER
   #define _EXTRA_NOTE " (Did you forget to enable DISTINCT_E_FACTORS?)"
@@ -3461,6 +3745,84 @@ constexpr float sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
 static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION requires " _LOGICAL_AXES_STR "elements.");
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
+
+#if MAXIMUM_STEPPER_RATE
+  static_assert(TERN1(HAS_X_AXIS, sanity_arr_1[X_AXIS] * sanity_arr_2[X_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[X] * DEFAULT_AXIS_STEPS_PER_UNIT[X] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_Y_AXIS, sanity_arr_1[Y_AXIS] * sanity_arr_2[Y_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[Y] * DEFAULT_AXIS_STEPS_PER_UNIT[Y] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_Z_AXIS, sanity_arr_1[Z_AXIS] * sanity_arr_2[Z_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[Z] * DEFAULT_AXIS_STEPS_PER_UNIT[Z] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_I_AXIS, sanity_arr_1[I_AXIS] * sanity_arr_2[I_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[I] * DEFAULT_AXIS_STEPS_PER_UNIT[I] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_J_AXIS, sanity_arr_1[J_AXIS] * sanity_arr_2[J_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[J] * DEFAULT_AXIS_STEPS_PER_UNIT[J] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_K_AXIS, sanity_arr_1[K_AXIS] * sanity_arr_2[K_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[K] * DEFAULT_AXIS_STEPS_PER_UNIT[K] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_U_AXIS, sanity_arr_1[U_AXIS] * sanity_arr_2[U_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[U] * DEFAULT_AXIS_STEPS_PER_UNIT[U] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_V_AXIS, sanity_arr_1[V_AXIS] * sanity_arr_2[V_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[V] * DEFAULT_AXIS_STEPS_PER_UNIT[V] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  static_assert(TERN1(HAS_W_AXIS, sanity_arr_1[W_AXIS] * sanity_arr_2[W_AXIS] <= MAXIMUM_STEPPER_RATE),
+    "Slow down! DEFAULT_MAX_FEEDRATE[W] * DEFAULT_AXIS_STEPS_PER_UNIT[W] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+  );
+  #if ALL(HAS_EXTRUDERS, SANITY_CHECK_E_STEPPER_RATES)
+    #if DISABLED(DISTINCT_E_FACTORS)
+      static_assert(sanity_arr_1[E_AXIS] * sanity_arr_2[E_AXIS] <= MAXIMUM_STEPPER_RATE,
+        "Slow down! DEFAULT_MAX_FEEDRATE[E] * DEFAULT_AXIS_STEPS_PER_UNIT[E] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+      );
+    #else
+      #define _ELEM_E(A,N) _MIN(E_AXIS+N,COUNT(sanity_arr_##A)-1)
+      static_assert(sanity_arr_1[_ELEM_E(1,0)] * sanity_arr_2[_ELEM_E(2,0)] <= MAXIMUM_STEPPER_RATE,
+        "Slow down! DEFAULT_MAX_FEEDRATE[E0] * DEFAULT_AXIS_STEPS_PER_UNIT[E0] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+      );
+      #if HAS_MULTI_EXTRUDER
+        static_assert(sanity_arr_1[_ELEM_E(1,1)] * sanity_arr_2[_ELEM_E(2,1)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E1] * DEFAULT_AXIS_STEPS_PER_UNIT[E1] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 2
+        static_assert(sanity_arr_1[_ELEM_E(1,2)] * sanity_arr_2[_ELEM_E(2,2)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E2] * DEFAULT_AXIS_STEPS_PER_UNIT[E2] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 3
+        static_assert(sanity_arr_1[_ELEM_E(1,3)] * sanity_arr_2[_ELEM_E(2,3)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E3] * DEFAULT_AXIS_STEPS_PER_UNIT[E3] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 4
+        static_assert(sanity_arr_1[_ELEM_E(1,4)] * sanity_arr_2[_ELEM_E(2,4)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E4] * DEFAULT_AXIS_STEPS_PER_UNIT[E4] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 5
+        static_assert(sanity_arr_1[_ELEM_E(1,5)] * sanity_arr_2[_ELEM_E(2,5)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E5] * DEFAULT_AXIS_STEPS_PER_UNIT[E5] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 6
+        static_assert(sanity_arr_1[_ELEM_E(1,6)] * sanity_arr_2[_ELEM_E(2,6)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E6] * DEFAULT_AXIS_STEPS_PER_UNIT[E6] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #if EXTRUDERS > 7
+        static_assert(sanity_arr_1[_ELEM_E(1,7)] * sanity_arr_2[_ELEM_E(2,7)] <= MAXIMUM_STEPPER_RATE,
+          "Slow down! DEFAULT_MAX_FEEDRATE[E7] * DEFAULT_AXIS_STEPS_PER_UNIT[E7] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")."
+        );
+      #endif
+      #undef _ELEM_E
+    #endif
+  #endif // HAS_EXTRUDERS
+#endif // MAXIMUM_STEPPER_RATE
 
 #if NUM_AXES
   constexpr float sanity_arr_4[] = HOMING_FEEDRATE_MM_M;
@@ -3563,6 +3925,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "Z_STEPPER_ALIGN_STEPPER_XY requires 3 or 4 Z steppers."
     #endif
   #endif
+  static_assert(WITHIN(Z_STEPPER_ALIGN_ACC, 0.001, 1.0), "Z_STEPPER_ALIGN_ACC needs to be between 0.001 and 1.0");
 #endif
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
@@ -3588,11 +3951,9 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "PRINTCOUNTER requires EEPROM_SETTINGS."
 #endif
 
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && !PINS_EXIST(USB_CS, USB_INTR) && DISABLED(USE_OTG_USB_HOST)
-  #error "USB_CS_PIN and USB_INTR_PIN are required for USB_FLASH_DRIVE_SUPPORT."
-#endif
-
-#if ENABLED(USE_OTG_USB_HOST) && !defined(HAS_OTG_USB_HOST_SUPPORT)
+#if HAS_USB_FLASH_DRIVE && DISABLED(USE_OTG_USB_HOST) && !PINS_EXIST(USB_CS, USB_INTR)
+  #error "USB_CS_PIN and USB_INTR_PIN (or USE_OTG_USB_HOST) are required for USB_FLASH_DRIVE_SUPPORT."
+#elif ENABLED(USE_OTG_USB_HOST) && DISABLED(HAS_OTG_USB_HOST_SUPPORT)
   #error "The current board does not support USE_OTG_USB_HOST."
 #endif
 
@@ -3686,6 +4047,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "POWER_OFF_DELAY must be a positive value."
   #elif ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN) && !(defined(AUTO_POWER_E_TEMP) || defined(AUTO_POWER_CHAMBER_TEMP) || defined(AUTO_POWER_COOLER_TEMP))
     #error "POWER_OFF_WAIT_FOR_COOLDOWN requires AUTO_POWER_E_TEMP, AUTO_POWER_CHAMBER_TEMP, and/or AUTO_POWER_COOLER_TEMP."
+  #elif ENABLED(PSU_OFF_REDUNDANT) && !PIN_EXISTS(PS_ON1)
+    #error "PSU_OFF_REDUNDANT requires PS_ON1_PIN."
   #endif
 #endif
 
@@ -3702,7 +4065,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #elif ENABLED(LASER_MOVE_G0_OFF)
       #error "LASER_MOVE_G0_OFF is no longer required, G0 and G28 cannot apply power."
     #elif ENABLED(LASER_MOVE_G28_OFF)
-      #error "LASER_MOVE_G0_OFF is no longer required, G0 and G28 cannot apply power."
+      #error "LASER_MOVE_G28_OFF is no longer required, G0 and G28 cannot apply power."
     #elif ENABLED(LASER_MOVE_POWER)
       #error "LASER_MOVE_POWER is no longer applicable."
     #endif
@@ -3735,6 +4098,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
     #elif !(defined(SPEED_POWER_MIN) && defined(SPEED_POWER_MAX) && defined(SPEED_POWER_STARTUP))
       #error "SPINDLE_LASER_USE_PWM equation constant(s) missing."
+    #elif DEFAULT_ACCELERATION_SPINDLE > SPEED_POWER_MAX - SPEED_POWER_MIN
+      #error "DEFAULT_ACCELERATION_SPINDLE must be <= SPEED_POWER_MAX - SPEED_POWER_MIN."
     #elif _PIN_CONFLICT(X_MIN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with X_MIN_PIN."
     #elif _PIN_CONFLICT(X_MAX)
@@ -3778,11 +4143,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #elif _PIN_CONFLICT(CONTROLLERFAN)
       #error "SPINDLE_LASER_PWM_PIN conflicts with CONTROLLERFAN_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_XY)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_XY."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_XY_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_Z)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_Z."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_Z_PIN."
     #elif _PIN_CONFLICT(MOTOR_CURRENT_PWM_E)
-      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_E."
+      #error "SPINDLE_LASER_PWM_PIN conflicts with MOTOR_CURRENT_PWM_E_PIN."
     #endif
   #endif
   #undef _PIN_CONFLICT
@@ -3811,7 +4176,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Check to make sure MONITOR_DRIVER_STATUS isn't enabled
  * on boards where TMC drivers share the SPI bus with SD.
  */
-#if HAS_TMC_SPI && ALL(MONITOR_DRIVER_STATUS, HAS_MEDIA, USES_SHARED_SPI)
+#if HAS_TMC_SPI && ALL(HAS_MEDIA, MONITOR_DRIVER_STATUS, USES_SHARED_SPI)
   #error "MONITOR_DRIVER_STATUS and SDSUPPORT cannot be used together on boards with shared SPI."
 #endif
 
@@ -3862,6 +4227,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "TOUCH_CALIBRATION_[XY] and TOUCH_OFFSET_[XY] are required for resistive touch screens with TOUCH_SCREEN_CALIBRATION disabled."
 #endif
 
+// GT911 Capacitive touch screen such as BIQU_BX_TFT70
+#if ALL(TFT_TOUCH_DEVICE_GT911, TOUCH_SCREEN_CALIBRATION)
+  #error "TOUCH_SCREEN_CALIBRATION is not supported by the selected LCD controller."
+#endif
+
 /**
  * Sanity check WiFi options
  */
@@ -3873,11 +4243,11 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #if !(defined(WIFI_SSID) && defined(WIFI_PWD))
     #error "ESP32 motherboard with WIFISUPPORT requires WIFI_SSID and WIFI_PWD."
   #endif
-#elif ENABLED(WIFI_CUSTOM_COMMAND)
+#elif ENABLED(WIFI_CUSTOM_COMMAND) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_CUSTOM_COMMAND requires an ESP32 motherboard and WIFISUPPORT."
-#elif ENABLED(OTASUPPORT)
+#elif ENABLED(OTASUPPORT) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "OTASUPPORT requires an ESP32 motherboard and WIFISUPPORT."
-#elif defined(WIFI_SSID) || defined(WIFI_PWD)
+#elif (defined(WIFI_SSID) || defined(WIFI_PWD)) && NONE(ESP3D_WIFISUPPORT, WIFISUPPORT)
   #error "WIFI_SSID and WIFI_PWD only apply to ESP32 motherboard with WIFISUPPORT."
 #endif
 
@@ -3903,7 +4273,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  * Sanity Check for Slim LCD Menus and Probe Offset Wizard
  */
 #if ALL(SLIM_LCD_MENUS, PROBE_OFFSET_WIZARD)
-  #error "SLIM_LCD_MENUS disables \"Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.\""
+  #error "SLIM_LCD_MENUS disables 'Advanced Settings > Probe Offsets > PROBE_OFFSET_WIZARD.'"
 #endif
 
 /**
@@ -4113,14 +4483,30 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 /**
+ * Direct Stepping requirements
+ */
+#if ENABLED(DIRECT_STEPPING)
+  #ifdef CPU_32_BIT
+    #error "Direct Stepping is not supported on 32-bit boards."
+  #elif !IS_FULL_CARTESIAN
+    #error "Direct Stepping is incompatible with enabled kinematics."
+  #endif
+#endif
+
+/**
  * Input Shaping requirements
  */
 #if HAS_ZV_SHAPING
   #if ENABLED(DELTA)
-    #error "Input Shaping is not compatible with DELTA kinematics."
-  #elif ENABLED(SCARA)
+    #if !ALL(INPUT_SHAPING_X, INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+      #error "INPUT_SHAPING_X, INPUT_SHAPING_Y and INPUT_SHAPING_Z must all be enabled for DELTA."
+    #else
+      static_assert(SHAPING_FREQ_X == SHAPING_FREQ_Y && SHAPING_FREQ_Y == SHAPING_FREQ_Z, "SHAPING_FREQ_X, SHAPING_FREQ_Y and SHAPING_FREQ_Z must be the same for DELTA.");
+      static_assert(SHAPING_ZETA_X == SHAPING_ZETA_Y && SHAPING_ZETA_Y == SHAPING_ZETA_Z, "SHAPING_ZETA_X, SHAPING_ZETA_Y and SHAPING_ZETA_Z must be the same for DELTA.");
+    #endif
+  #elif IS_SCARA
     #error "Input Shaping is not compatible with SCARA kinematics."
-  #elif ENABLED(TPARA)
+  #elif ENABLED(AXEL_TPARA)
     #error "Input Shaping is not compatible with TPARA kinematics."
   #elif ENABLED(POLAR)
     #error "Input Shaping is not compatible with POLAR kinematics."
@@ -4129,9 +4515,19 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #elif ENABLED(DIRECT_STEPPING)
     #error "Input Shaping is not compatible with DIRECT_STEPPING."
   #elif ALL(INPUT_SHAPING_X, CORE_IS_XZ)
-    #error "INPUT_SHAPING_X is not supported with COREXZ."
+    #if !ALL(INPUT_SHAPING_X, INPUT_SHAPING_Z)
+      #error "INPUT_SHAPING_X and INPUT_SHAPING_Z must both be enabled for COREXZ."
+    #else
+      static_assert(SHAPING_FREQ_X == SHAPING_FREQ_Z, "SHAPING_FREQ_X and SHAPING_FREQ_Z must be the same for COREXZ.");
+      static_assert(SHAPING_ZETA_X == SHAPING_ZETA_Z, "SHAPING_ZETA_X and SHAPING_ZETA_Z must be the same for COREXZ.");
+    #endif
   #elif ALL(INPUT_SHAPING_Y, CORE_IS_YZ)
-    #error "INPUT_SHAPING_Y is not supported with COREYZ."
+    #if !ALL(INPUT_SHAPING_Y, INPUT_SHAPING_Z)
+      #error "INPUT_SHAPING_Y and INPUT_SHAPING_Z must both be enabled for COREYZ."
+    #else
+      static_assert(SHAPING_FREQ_Y == SHAPING_FREQ_Z, "SHAPING_FREQ_Y and SHAPING_FREQ_Z must be the same for COREYZ.");
+      static_assert(SHAPING_ZETA_Y == SHAPING_ZETA_Z, "SHAPING_ZETA_Y and SHAPING_ZETA_Z must be the same for COREYZ.");
+    #endif
   #elif ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     #if !ALL(INPUT_SHAPING_X, INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_X and INPUT_SHAPING_Y must both be enabled for COREXY, COREYX, or MARKFORGED_*."
@@ -4146,6 +4542,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #else
     TERN_(INPUT_SHAPING_X, static_assert((SHAPING_FREQ_X) > 0, "SHAPING_FREQ_X must be > 0 or SHAPING_MIN_FREQ must be set."));
     TERN_(INPUT_SHAPING_Y, static_assert((SHAPING_FREQ_Y) > 0, "SHAPING_FREQ_Y must be > 0 or SHAPING_MIN_FREQ must be set."));
+    TERN_(INPUT_SHAPING_Z, static_assert((SHAPING_FREQ_Z) > 0, "SHAPING_FREQ_Z must be > 0 or SHAPING_MIN_FREQ must be set."));
   #endif
   #ifdef __AVR__
     #if ENABLED(INPUT_SHAPING_X)
@@ -4162,6 +4559,13 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
         static_assert((SHAPING_FREQ_Y) == 0 || (SHAPING_FREQ_Y) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Y is below the minimum (16) for AVR 16MHz.");
       #endif
     #endif
+    #if ENABLED(INPUT_SHAPING_Z)
+      #if F_CPU > 16000000
+        static_assert((SHAPING_FREQ_Z) == 0 || (SHAPING_FREQ_Z) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Z is below the minimum (20) for AVR 20MHz.");
+      #else
+        static_assert((SHAPING_FREQ_Z) == 0 || (SHAPING_FREQ_Z) * 2 * 0x10000 >= (STEPPER_TIMER_RATE), "SHAPING_FREQ_Z is below the minimum (16) for AVR 16MHz.");
+      #endif
+    #endif
   #endif
 #endif
 
@@ -4173,6 +4577,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     #error "FT_MOTION does not currently support MIXING_EXTRUDER."
   #elif DISABLED(FTM_UNIFIED_BWS)
     #error "FT_MOTION requires FTM_UNIFIED_BWS to be enabled because FBS is not yet implemented."
+  #endif
+  #if !HAS_X_AXIS
+    static_assert(FTM_DEFAULT_SHAPER_X != ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
+  #endif
+  #if HAS_DYNAMIC_FREQ_MM
+    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_Z_BASED, "dynFreqMode_Z_BASED requires a Z axis.");
+  #endif
+  #if HAS_DYNAMIC_FREQ_G
+    static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
   #endif
 #endif
 
@@ -4194,6 +4607,10 @@ static_assert(WITHIN(MULTISTEPPING_LIMIT, 1, 128) && IS_POWER_OF_2(MULTISTEPPING
 
 #if ALL(ULTIPANEL_FEEDMULTIPLY, ULTIPANEL_FLOWPERCENT)
   #error "Only enable ULTIPANEL_FEEDMULTIPLY or ULTIPANEL_FLOWPERCENT, but not both."
+#endif
+
+#if ENABLED(CONFIGURABLE_MACHINE_NAME) && DISABLED(GCODE_QUOTED_STRINGS)
+  #error "CONFIGURABLE_MACHINE_NAME requires GCODE_QUOTED_STRINGS."
 #endif
 
 // Misc. Cleanup

@@ -158,7 +158,6 @@ void SPIFlashStorage::beginWrite(const uint32_t startAddress) {
   #endif
 }
 
-
 void SPIFlashStorage::endWrite() {
   // Flush remaining data
   #if HAS_SPI_FLASH_COMPRESSION

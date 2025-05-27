@@ -244,7 +244,7 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
 void StatusScreen::draw_buttons(draw_mode_t what) {
   int16_t x, y, h, v;
 
-  const bool has_media = isMediaInserted() && !isPrintingFromMedia();
+  const bool has_media = isMediaMounted() && !isPrintingFromMedia();
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -318,7 +318,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 13: GOTO_SCREEN(BioConfirmHomeE); break;
     case 14: SpinnerDialogBox::enqueueAndWait(F("G28Z")); break;
     case 15: GOTO_SCREEN(TemperatureScreen);  break;
-    case 16: fine_motion = !fine_motion; break;
+    case 16: FLIP(fine_motion); break;
     default: return false;
   }
   // If a passcode is enabled, the LockScreen will prevent the

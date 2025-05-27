@@ -40,7 +40,6 @@ unifont_t *TFT_String::font_header;
   uint16_t TFT_String::extra_count;
 #endif
 
-
 uint16_t TFT_String::data[];
 uint16_t TFT_String::span;
 uint8_t TFT_String::length;

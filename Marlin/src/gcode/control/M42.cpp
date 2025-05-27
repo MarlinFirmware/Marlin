@@ -79,7 +79,7 @@ void GcodeSuite::M42() {
       #ifdef OUTPUT_OPEN_DRAIN
         case 5: pinMode(pin, OUTPUT_OPEN_DRAIN); break;
       #endif
-      default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
+      default: SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Invalid Pin Mode")); return;
     }
   }
 
@@ -94,7 +94,7 @@ void GcodeSuite::M42() {
   #endif
 
   if (avoidWrite) {
-    SERIAL_ECHOLNPGM("?Cannot write to INPUT");
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Cannot write to INPUT"));
     return;
   }
 

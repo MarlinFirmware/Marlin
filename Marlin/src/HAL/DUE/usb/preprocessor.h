@@ -51,5 +51,4 @@
 #include "stringz.h"
 #include "mrepeat.h"
 
-
 #endif  // _PREPROCESSOR_H_

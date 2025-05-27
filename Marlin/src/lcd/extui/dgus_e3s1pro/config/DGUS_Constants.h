@@ -45,13 +45,3 @@
 #ifndef DGUS_STATUS_EXPIRATION_MS
   #define DGUS_STATUS_EXPIRATION_MS 30000
 #endif
-
-#ifndef BED_TRAMMING_Z_HOP
-  #define BED_TRAMMING_Z_HOP 4.0
-#endif
-
-#ifndef BED_TRAMMING_HEIGHT
-  #define BED_TRAMMING_HEIGHT 0.0
-#endif
-
-static_assert(BED_TRAMMING_Z_HOP >= 0, "BED_TRAMMING_Z_HOP must be >= 0. Please update your configuration.");

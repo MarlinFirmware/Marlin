@@ -38,6 +38,7 @@ void GcodeSuite::M250() {
 }
 
 void GcodeSuite::M250_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_LCD_CONTRAST));
   SERIAL_ECHOLNPGM("  M250 C", ui.contrast);
 }

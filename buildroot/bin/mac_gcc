@@ -1,0 +1,79 @@
+#!/usr/bin/env zsh
+#
+# Prepare a 'gcc' compatible with the native Simulator build.
+# Support for MacPorts and Homebrew.
+# To reset and use the system (Clang) compiler, run with 'apple'.
+#
+# Usage: mac_gcc apple|macports|homebrew
+#
+
+which port >/dev/null && HAS_MACPORTS=1
+which brew >/dev/null && HAS_HOMEBREW=1
+
+if ((HAS_MACPORTS)); then
+  MACPORTS_PATH=$(dirname "$(which port)")
+  cd $MACPORTS_PATH
+  sudo rm -f cpp gcc g++ cc ld
+  cd -
+fi
+
+if ((HAS_HOMEBREW)); then
+  HOMEBREW_PATH="$(brew --prefix)/bin"
+  cd $HOMEBREW_PATH
+  rm -f cpp gcc g++ cc ld
+  cd -
+fi
+
+if [[ $1 == "apple" || $1 == "darwin" || $1 == "system" ]]; then
+
+  # Nothing to do
+
+elif [[ $1 =~ ".*ports" ]]; then
+
+  ((HAS_MACPORTS)) || { echo "MacPorts is not installed"; exit 1; }
+
+  GCCV=$( find $MACPORTS_PATH -name "cpp-mp-*" | sort -r | head -1 | sed 's/.*cpp-mp-//' )
+  [[ $GCCV -ge 11 ]] || GCCV=14
+
+  getport() { port installed $1 | grep $1 || sudo port install $1; }
+  getports() { for p in $@; do getport $p; done; }
+
+  getports "gcc$GCCV" glm mesa libsdl2 libsdl2_net
+
+  cd $MACPORTS_PATH
+  sudo ln -s "cpp-mp-$GCCV" cpp
+  sudo ln -s "gcc-mp-$GCCV" gcc
+  sudo ln -s "g++-mp-$GCCV" g++
+  sudo ln -s g++ cc
+  sudo ln -s ld-classic ld
+  cd -
+
+elif [[ $1 =~ ".*brew" ]]; then
+
+  ((HAS_HOMEBREW)) || { echo "Homebrew is not installed"; exit 1; }
+
+  GCCV=$( find $HOMEBREW_PATH -name "cpp-*" | sort -r | head -1 | sed 's/.*cpp-//' )
+  [[ $GCCV -ge 11 ]] || brew install gcc
+  GCCV=$( find $HOMEBREW_PATH -name "cpp-*" | sort -r | head -1 | sed 's/.*cpp-//' )
+
+  brew install glm mesa sdl2 sdl2_net
+
+  cd $HOMEBREW_PATH
+  ln -s "cpp-$GCCV" cpp
+  ln -s "gcc-$GCCV" gcc
+  ln -s "g++-$GCCV" g++
+  ln -s g++ cc
+  if [[ -f "$MACPORTS_PATH/ld-classic" ]]; then
+    ln -s "$MACPORTS_PATH/ld-classic" ld
+  else
+    echo "MacPorts may be required for a compatible 'ld' linker!"
+  fi
+  cd -
+
+else
+
+  echo "Usage: $(basename $0) apple|macports|homebrew"
+
+fi
+
+rehash

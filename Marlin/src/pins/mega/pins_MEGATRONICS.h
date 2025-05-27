@@ -23,8 +23,7 @@
 
 /**
  * MegaTronics pin assignments
- * Schematic: https://green-candy.osdn.jp/external/MarlinFW/board_schematics/MegaTronics/Megatronics_1_0_sch.pdf
- * Origin: https://reprap.org/mediawiki/images/a/a3/Megatronics_1_0_sch.pdf
+ * Schematic: https://reprap.org/mediawiki/images/a/a3/Megatronics_1_0_sch.pdf
  * ATmega2560
  */
 
@@ -96,7 +95,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
 

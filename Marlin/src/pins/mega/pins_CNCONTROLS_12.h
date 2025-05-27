@@ -24,7 +24,7 @@
 /**
  * CartesioV12 pin assignments
  * Comes with an Arduino Mega, see
- * https://web.archive.org/web/20171024190029/http://mauk.cc/mediawiki/index.php/Electronical_assembly
+ * https://web.archive.org/web/20171024190029/mauk.cc/mediawiki/index.php/Electronical_assembly
  * ATmega2560, ATmega1280
  */
 
@@ -117,7 +117,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         15
 
 // Tools
@@ -143,6 +143,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          16
 

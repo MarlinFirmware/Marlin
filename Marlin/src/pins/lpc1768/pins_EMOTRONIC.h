@@ -23,8 +23,7 @@
 
 /**
  * eMotion-Tech eMotronic pin assignments
- * Schematic: http://green-candy.osdn.jp/external/MarlinFW/board_schematics/eMotion-Tech%20eMotronic/eMotronic_brd_sources_1.0.4/eMotronic_sch.pdf
- * Origin: https://data.emotion-tech.com/ftp/Datasheets_et_sources/Sources/eMotronic_brd_sources_1.0.4.zip
+ * Schematic: https://data.emotion-tech.com/ftp/Datasheets_et_sources/Sources/eMotronic_brd_sources_1.0.4.zip
  *
  * Board pins<->features assignments are based on the
  * Micro-Delta Rework printer default connections.
@@ -138,6 +137,7 @@
 //
 // LCD / Controller
 //
+
 #if ENABLED(EMOTION_TECH_LCD)
   #define BEEPER_PIN                 EXP2_01_PIN
   #define DOGLCD_A0                  EXP2_06_PIN

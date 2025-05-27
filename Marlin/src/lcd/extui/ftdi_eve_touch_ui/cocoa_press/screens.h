@@ -22,7 +22,6 @@
 
 #pragma once
 
-
 /********************************* DL CACHE SLOTS ******************************/
 
 // In order to reduce SPI traffic, we cache display lists (DL) in RAMG. This

@@ -29,10 +29,6 @@
 #include "../../sd/cardreader.h"
 #include "../../libs/numtostr.h"
 
-#if ENABLED(DWIN_LCD_PROUI)
-  #include "../../lcd/e3v2/proui/dwin.h"
-#endif
-
 /**
  * M73: Set percentage complete (for display on LCD)
  *
@@ -66,7 +62,7 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-    if (TERN1(M73_REPORT_SD_ONLY, IS_SD_PRINTING())) {
+    if (TERN1(M73_REPORT_SD_ONLY, card.isStillPrinting())) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM(" M73");
       #if ENABLED(SET_PROGRESS_PERCENT)

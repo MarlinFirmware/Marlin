@@ -47,7 +47,6 @@ UHS_EpInfo* UHS_USB_HOST_BASE::getEpInfoEntry(uint8_t addr, uint8_t ep) {
         if(!p || !p->epinfo)
                 return NULL;
 
-
         UHS_EpInfo *pep;
         for(uint8_t j = 0; j < UHS_HOST_MAX_INTERFACE_DRIVERS; j++) {
                 pep = (UHS_EpInfo *)(p->epinfo[j]);
@@ -310,7 +309,6 @@ again:
                         HOST_DEBUG("Configuring error: 0x%2.2x Can't get USB_FD_DEVICE_DESCRIPTOR\r\n", rcode);
                         return rcode;
                 }
-
 
 #if UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE
                 ei.address = addrPool.AllocAddress(parent, false, port);
@@ -1111,7 +1109,6 @@ uint8_t UHS_USB_HOST_BASE::enumerateInterface(ENUMERATION_INFO *ei) {
         return devConfigIndex;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Vendor Specific Interface Class
 ////////////////////////////////////////////////////////////////////////////////
@@ -1167,7 +1164,6 @@ uint8_t UHS_NI UHS_VSI::SetInterface(ENUMERATION_INFO *ei) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 
 #if 0
 

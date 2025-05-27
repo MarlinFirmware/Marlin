@@ -49,6 +49,6 @@
 #include "pins_RAMPS.h"
 
 //
-// LCDs and Controllers
+// LCD / Controller
 //
 #undef BEEPER_PIN

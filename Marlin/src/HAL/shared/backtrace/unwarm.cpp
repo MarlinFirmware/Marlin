@@ -50,7 +50,6 @@ void UnwInvalidateRegisterFile(RegData *regFile) {
   } while (t < 13);
 }
 
-
 /**
  * Initialize the data used for unwinding.
  */
@@ -128,7 +127,6 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
    */
   return state->cb->report((void *)state->reportData, &entry);
 }
-
 
 /**
  * Write some register to memory.

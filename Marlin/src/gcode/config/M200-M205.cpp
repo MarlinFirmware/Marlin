@@ -67,7 +67,7 @@
         if (WITHIN(lval, 0, VOLUMETRIC_EXTRUDER_LIMIT_MAX))
           planner.set_volumetric_extruder_limit(target_extruder, lval);
         else
-          SERIAL_ECHOLNPGM("?L value out of range (0-" STRINGIFY(VOLUMETRIC_EXTRUDER_LIMIT_MAX) ").");
+          SERIAL_ECHOLNPGM(GCODE_ERR_MSG("L value out of range (0-" STRINGIFY(VOLUMETRIC_EXTRUDER_LIMIT_MAX) ")."));
       }
     #endif
 
@@ -75,11 +75,13 @@
   }
 
   void GcodeSuite::M200_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
     if (!forReplay) {
-      report_heading(forReplay, F(STR_FILAMENT_SETTINGS), false);
+      report_heading(false, F(STR_FILAMENT_SETTINGS), false);
       if (!parser.volumetric_enabled) SERIAL_ECHOPGM(" (Disabled):");
       SERIAL_EOL();
-      report_echo_start(forReplay);
+      report_echo_start(false);
     }
 
     #if EXTRUDERS == 1
@@ -142,6 +144,8 @@ void GcodeSuite::M201() {
 }
 
 void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_MAX_ACCELERATION));
   #if NUM_AXES
     SERIAL_ECHOPGM_P(
@@ -198,6 +202,8 @@ void GcodeSuite::M203() {
 }
 
 void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_MAX_FEEDRATES));
   #if NUM_AXES
     SERIAL_ECHOPGM_P(
@@ -225,7 +231,7 @@ void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
 
   #if ENABLED(DISTINCT_E_FACTORS)
     for (uint8_t i = 0; i < E_STEPPERS; ++i) {
-      if (!forReplay) SERIAL_ECHO_START();
+      report_echo_start(forReplay);
       SERIAL_ECHOLNPGM_P(
           PSTR("  M203 T"), i
         , SP_E_STR, VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)])
@@ -255,6 +261,8 @@ void GcodeSuite::M204() {
 }
 
 void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(STR_ACCELERATION_P_R_T));
   SERIAL_ECHOLNPGM_P(
       PSTR("  M204 P"), LINEAR_UNIT(planner.settings.acceleration)
@@ -329,6 +337,8 @@ void GcodeSuite::M205() {
 }
 
 void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
+  TERN_(MARLIN_SMALL_BUILD, return);
+
   report_heading_etc(forReplay, F(
     "Advanced (" M205_MIN_SEG_TIME_STR "<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
     TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")

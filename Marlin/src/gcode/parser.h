@@ -97,6 +97,8 @@ public:
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
 
+  FORCE_INLINE static bool has_string() { return string_arg && string_arg[0]; }
+
   #if ENABLED(DEBUG_GCODE_PARSER)
     static void debug();
   #endif
@@ -132,11 +134,8 @@ public:
       SBI32(codebits, ind);                      // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (codenum == 800) {
-          SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
-          print_hex_word((uint16_t)(codebits & 0xFFFF));
-          SERIAL_ECHOLNPGM(") | param = ", param[ind]);
-        }
+        if (codenum == 800)
+          SERIAL_ECHOLNPGM("Set bit ", ind, " of codebits (", _hex_long(codebits), ") | param = ", param[ind]);
       #endif
     }
 
@@ -149,7 +148,7 @@ public:
       if (b) {
         if (param[ind]) {
           char * const ptr = command_ptr + param[ind];
-          value_ptr = valid_number(ptr) ? ptr : nullptr;
+          value_ptr = (valid_number(ptr) || TERN0(GCODE_QUOTED_STRINGS, *(ptr - 1) == '"')) ? ptr : nullptr;
         }
         else
           value_ptr = nullptr;
@@ -192,7 +191,7 @@ public:
     #if ENABLED(GCODE_CASE_INSENSITIVE)
       FORCE_INLINE static char* strgchr(char *p, char g) {
         auto uppercase = [](char c) {
-          return c + (WITHIN(c, 'a', 'z') ? 'A' - 'a' : 0);
+          return TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')) ? c + 'A' - 'a' : c;
         };
         const char d = uppercase(g);
         for (char cc; (cc = uppercase(*p)); p++) if (cc == d) return p;
@@ -288,6 +287,17 @@ public:
   // Bool is true with no value or non-zero
   static bool value_bool() { return !has_value() || !!value_byte(); }
 
+  static constexpr bool axis_is_rotational(const AxisEnum axis) {
+    return (false
+      || TERN0(AXIS4_ROTATES, axis == I_AXIS)
+      || TERN0(AXIS5_ROTATES, axis == J_AXIS)
+      || TERN0(AXIS6_ROTATES, axis == K_AXIS)
+      || TERN0(AXIS7_ROTATES, axis == U_AXIS)
+      || TERN0(AXIS8_ROTATES, axis == V_AXIS)
+      || TERN0(AXIS9_ROTATES, axis == W_AXIS)
+    );
+  }
+
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
@@ -307,14 +317,7 @@ public:
     }
 
     static float axis_unit_factor(const AxisEnum axis) {
-      if (false
-        || TERN0(AXIS4_ROTATES, axis == I_AXIS)
-        || TERN0(AXIS5_ROTATES, axis == J_AXIS)
-        || TERN0(AXIS6_ROTATES, axis == K_AXIS)
-        || TERN0(AXIS7_ROTATES, axis == U_AXIS)
-        || TERN0(AXIS8_ROTATES, axis == V_AXIS)
-        || TERN0(AXIS9_ROTATES, axis == W_AXIS)
-      ) return 1.0f;
+      if (axis_is_rotational(axis)) return 1.0f;
       #if HAS_EXTRUDERS
         if (axis >= E_AXIS && volumetric_enabled) return volumetric_unit_factor;
       #endif
@@ -327,12 +330,12 @@ public:
 
   #else
 
-    static float mm_to_linear_unit(const_float_t mm)     { return mm; }
-    static float mm_to_volumetric_unit(const_float_t mm) { return mm; }
+    static constexpr float mm_to_linear_unit(const_float_t mm)     { return mm; }
+    static constexpr float mm_to_volumetric_unit(const_float_t mm) { return mm; }
 
-    static float linear_value_to_mm(const_float_t v)             { return v; }
-    static float axis_value_to_mm(const AxisEnum, const float v) { return v; }
-    static float per_axis_value(const AxisEnum, const float v)   { return v; }
+    static constexpr float linear_value_to_mm(const_float_t v)             { return v; }
+    static constexpr float axis_value_to_mm(const AxisEnum, const float v) { return v; }
+    static constexpr float per_axis_value(const AxisEnum, const float v)   { return v; }
 
   #endif
 
@@ -343,6 +346,9 @@ public:
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
+  #define X_AXIS_UNIT LINEAR_UNIT
+  #define Y_AXIS_UNIT LINEAR_UNIT
+  #define Z_AXIS_UNIT LINEAR_UNIT
   #define I_AXIS_UNIT(V) TERN(AXIS4_ROTATES, (V), LINEAR_UNIT(V))
   #define J_AXIS_UNIT(V) TERN(AXIS5_ROTATES, (V), LINEAR_UNIT(V))
   #define K_AXIS_UNIT(V) TERN(AXIS6_ROTATES, (V), LINEAR_UNIT(V))
@@ -402,7 +408,7 @@ public:
 
   #else // !TEMPERATURE_UNITS_SUPPORT
 
-    static float to_temp_units(int16_t c) { return (float)c; }
+    static constexpr float to_temp_units(int16_t c) { return (float)c; }
 
     static celsius_t value_celsius()      { return value_int(); }
     static celsius_t value_celsius_diff() { return value_int(); }

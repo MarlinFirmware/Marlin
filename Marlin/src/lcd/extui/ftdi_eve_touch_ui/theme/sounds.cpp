@@ -165,7 +165,6 @@ namespace Theme {
     {ORGAN,        NOTE_A4,  4},
     {SILENCE,      REST,     36},
 
-
     {ORGAN,        NOTE_C5S, 4},
     {ORGAN,        NOTE_D5,  2},
     {ORGAN,        NOTE_E5,  2},

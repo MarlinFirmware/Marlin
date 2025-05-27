@@ -140,7 +140,7 @@ bool MarlinUI::detected() { return true; }
         uint8_t *dst = (uint8_t*)bmp;
 
         auto rle_nybble = [&](const uint16_t i) -> uint8_t {
-          const uint8_t b = bmp_rle[i / 2];
+          const uint8_t b = pgm_read_byte(&bmp_rle[i / 2]);
           return (i & 1 ? b & 0xF : b >> 4);
         };
 
@@ -197,7 +197,7 @@ bool MarlinUI::detected() { return true; }
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
-            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
+            const uint8_t fr = ALIM(f, custom_bootscreen_animation);
             const millis_t frame_time = pgm_read_word(&custom_bootscreen_animation[fr].duration);
           #endif
           u8g.firstPage();
@@ -374,10 +374,30 @@ void MarlinUI::draw_kill_screen() {
   } while (u8g.nextPage());
 }
 
-void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
+// Erase the LCD contents by drawing an empty box.
+void MarlinUI::clear_lcd() {
+  u8g.setColorIndex(0);
+  u8g.firstPage();
+  do {
+    u8g.drawBox(0, 0, u8g.getWidth(), u8g.getHeight());
+  } while (u8g.nextPage());
+  u8g.setColorIndex(1);
+}
+
+// U8G displays are drawn over multiple loops so must do their own clearing.
+void MarlinUI::clear_for_drawing() {
+  // Automatically cleared by Picture Loop
+}
 
 #if HAS_DISPLAY_SLEEP
-  void MarlinUI::sleep_display(const bool sleep)  { sleep ? u8g.sleepOn() : u8g.sleepOff(); }
+  static bool asleep = false;
+  bool MarlinUI::display_is_asleep() { return asleep; }
+  void MarlinUI::sleep_display(const bool sleep/*=true*/) {
+    if (asleep != sleep) {
+      sleep ? u8g.sleepOn() : u8g.sleepOff();
+      asleep = sleep;
+    }
+  }
 #endif
 
 #if HAS_LCD_BRIGHTNESS
@@ -600,7 +620,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       const uint8_t maxlen = LCD_WIDTH - isDir;
       if (isDir) lcd_put_lchar(LCD_STR_FOLDER[0]);
       const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
-      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+      pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, sel), pixw);
       for (; n > MENU_FONT_WIDTH; n -= MENU_FONT_WIDTH) lcd_put_u8str(F(" "));
     }
 

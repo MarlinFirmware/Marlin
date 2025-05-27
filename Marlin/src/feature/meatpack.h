@@ -144,7 +144,6 @@ struct MeatpackSerial : public SerialBase <MeatpackSerial < SerialT >> {
   void flushTX()                      { CALL_IF_EXISTS(void, &out, flushTX); }
   SerialFeature features(serial_index_t index) const  { return SerialFeature::MeatPack | CALL_IF_EXISTS(SerialFeature, &out, features, index);  }
 
-
   int available(serial_index_t index) {
     if (charCount) return charCount;          // The buffer still has data
     if (out.available(index) <= 0) return 0;  // No data to read

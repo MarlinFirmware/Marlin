@@ -26,10 +26,7 @@
  * PR #7500. It is hardwired for the PRINTRBOARD_G2 Motor Current needs.
  */
 
-#include "../../../inc/MarlinConfigPre.h"
-#include "../../../module/stepper.h"
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\module\stepper.h
-//C:\Users\bobku\Documents\GitHub\Marlin-Bob-2\Marlin\src\HAL\HAL_DUE\G2_PWM.h
+#include <stdint.h>
 
 #define PWM_PERIOD_US  100  // base repetition rate in micro seconds
 
@@ -48,7 +45,6 @@ extern volatile uint32_t *SODR_A, *SODR_B, *CODR_A, *CODR_B;
 #define _PIN(IO) (DIO ## IO ## _PIN)
 
 #define PWM_MAP_INIT_ROW(IO,ZZ) { ZZ == 'A' ? SODR_A : SODR_B,  ZZ == 'A' ? CODR_A : CODR_B, 1 << _PIN(IO) }
-
 
 #define PWM_MAP_INIT {  PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_X_PIN, 'B'), \
                         PWM_MAP_INIT_ROW(MOTOR_CURRENT_PWM_Y_PIN, 'B'), \
