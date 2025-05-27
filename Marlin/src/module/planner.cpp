@@ -1753,10 +1753,12 @@ bool Planner::_buffer_steps(const xyze_long_t &target
     // variable, so there is no risk setting this here (but it MUST be done
     // before the following line!!)
 
-    if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device()))
-      delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE;
-    else
+    do {
+      #if HAS_LASER_E3S1PRO
+        if (laser_device.is_laser_device()) { delay_before_delivering = LASER_BLOCK_DELAY_FOR_1ST_MOVE; break; }
+      #endif
       delay_before_delivering = TERN_(FT_MOTION, ftMotion.cfg.active ? BLOCK_DELAY_NONE :) BLOCK_DELAY_FOR_1ST_MOVE;
+    } while(0);
   }
 
   // Move buffer head
