@@ -2456,17 +2456,6 @@ void Temperature::task() {
   UNUSED(ms);
 }
 
-// For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
-static constexpr celsius_float_t temp_ad595(const adc_raw_t raw) {
-  return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
-             * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
-}
-// For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
-static constexpr celsius_float_t temp_ad8495(const adc_raw_t raw) {
-  return raw * (float(ADC_VREF_MV) /  5.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
-             * (TEMP_SENSOR_AD8495_GAIN) + (TEMP_SENSOR_AD8495_OFFSET);
-}
-
 /**
  * Bisect search for the range of the 'raw' value, then interpolate
  * proportionally between the under and over values.
@@ -2603,6 +2592,22 @@ static constexpr celsius_float_t temp_ad8495(const adc_raw_t raw) {
 
     // Return degrees C (up to 999, as the LCD only displays 3 digits)
     return _MIN(value + THERMISTOR_ABS_ZERO_C, 999);
+  }
+#endif
+
+#if ANY_THERMISTOR_IS(-1)
+  // For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
+  static constexpr celsius_float_t temp_ad595(const adc_raw_t raw) {
+    return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+               * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
+  }
+#endif
+
+#if ANY_THERMISTOR_IS(-4)
+  // For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
+  static constexpr celsius_float_t temp_ad8495(const adc_raw_t raw) {
+    return raw * (float(ADC_VREF_MV) /  5.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+               * (TEMP_SENSOR_AD8495_GAIN) + (TEMP_SENSOR_AD8495_OFFSET);
   }
 #endif
 
@@ -2841,14 +2846,11 @@ static constexpr celsius_float_t temp_ad8495(const adc_raw_t raw) {
 #if HAS_TEMP_SOC
   // For SoC temperature measurement.
   celsius_float_t Temperature::analog_to_celsius_soc(const raw_adc_t raw) {
-    return (
-      #ifdef TEMP_SOC_SENSOR
-        TEMP_SOC_SENSOR(raw)
-      #else
-        0
-        #error "TEMP_SENSOR_SOC requires the TEMP_SOC_SENSOR(RAW) macro to be defined for your board."
-      #endif
-    );
+    #ifndef TEMP_SOC_SENSOR
+      #error "TEMP_SENSOR_SOC requires the TEMP_SOC_SENSOR(RAW) macro to be defined for your board."
+      #define TEMP_SOC_SENSOR(...) 0
+    #endif
+    return TEMP_SOC_SENSOR(raw);
   }
 #endif
 
