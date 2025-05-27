@@ -2873,10 +2873,10 @@ hal_timer_t Stepper::block_phase_isr() {
             planner.laser_inline.status.isSyncPower = false;          // Clear the flag to process subsequent trap calc's.
           else if (current_block->laser.status.isEnabled) {
             #if ENABLED(LASER_POWER_TRAP)
-              TERN_(DEBUG_LASER_TRAP, SERIAL_ECHO_MSG("InitTrapPwr:",current_block->laser.trap_ramp_active_pwr));
+              TERN_(DEBUG_LASER_TRAP, SERIAL_ECHO_MSG("InitTrapPwr:", current_block->laser.trap_ramp_active_pwr));
               cutter.apply_power(current_block->laser.status.isPowered ? current_block->laser.trap_ramp_active_pwr : 0);
             #else
-              TERN_(DEBUG_CUTTER_POWER, SERIAL_ECHO_MSG("InlinePwr:",current_block->laser.power));
+              TERN_(DEBUG_CUTTER_POWER, SERIAL_ECHO_MSG("InlinePwr:", current_block->laser.power));
               cutter.apply_power(current_block->laser.status.isPowered ? current_block->laser.power : 0);
             #endif
           }
