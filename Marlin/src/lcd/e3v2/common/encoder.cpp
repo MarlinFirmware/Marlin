@@ -174,39 +174,39 @@ EncoderState encoderReceiveAnalyze() {
   //  luminance: brightness (0~0xFF)
   //  change_Time: gradient time (ms)
   void LED_GraduallyControl(const uint8_t RGB_Scale, const uint8_t luminance, const uint16_t change_Interval) {
-    struct { uint8_t r, g, b; } led_data[LED_NUM];
+    struct { uint8_t g, r, b; } led_data[LED_NUM];
     for (uint8_t i = 0; i < LED_NUM; i++) {
       switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5:
-          led_data[i] = { luminance * 10/10, luminance * 7/10, luminance * 5/10 };
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 5/10 };
           break;
         case RGB_SCALE_R10_G7_B4:
-          led_data[i] = { luminance * 10/10, luminance * 7/10, luminance * 4/10 };
+          led_data[i] = { luminance * 7/10, luminance * 10/10, luminance * 4/10 };
           break;
         case RGB_SCALE_R10_G8_B7:
-          led_data[i] = { luminance * 10/10, luminance * 8/10, luminance * 7/10 };
+          led_data[i] = { luminance * 8/10, luminance * 10/10, luminance * 7/10 };
           break;
       }
     }
 
-    struct { bool r, g, b; } led_flag = { false, false, false };
+    struct { bool g, r, b; } led_flag;
     for (uint8_t i = 0; i < LED_NUM; i++) {
+      led_flag = { false, false, false };
       while (1) {
         const uint8_t g = uint8_t(LED_DataArray[i] >> 16),
                       r = uint8_t(LED_DataArray[i] >> 8),
                       b = uint8_t(LED_DataArray[i]);
-        if (r == led_data[i].r) led_flag.r = true;
-        else LED_DataArray[i] += (r > led_data[i].r) ? -_BV32(8) : _BV32(8);
         if (g == led_data[i].g) led_flag.g = true;
         else LED_DataArray[i] += (g > led_data[i].g) ? -_BV32(16) : _BV32(16);
+        if (r == led_data[i].r) led_flag.r = true;
+        else LED_DataArray[i] += (r > led_data[i].r) ? -_BV32(8) : _BV32(8);
         if (b == led_data[i].b) led_flag.b = true;
         else LED_DataArray[i] += (b > led_data[i].b) ? -_BV32(0) : _BV32(0);
+
         LED_WriteData();
-        if (led_flag.r && led_flag.g && led_flag.b) break;
+        if (led_flag.g && led_flag.r && led_flag.b) break;
         delay(change_Interval);
       }
-      // Reset for the next LED
-      led_flag = { false, false, false };
     }
   }
 

@@ -1557,7 +1557,7 @@ void Stepper::isr() {
 
       if (using_ftMotion) {
         ftMotion_stepper();             // Run FTM Stepping
-        
+
         // Define 2.5 msec task for auxiliary functions.
         if (!ftMotion_nextAuxISR) {
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
@@ -1566,7 +1566,7 @@ void Stepper::isr() {
 
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
-        
+
         interval = FTM_MIN_TICKS;
         ftMotion_nextAuxISR -= interval;
       }
