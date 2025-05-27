@@ -139,7 +139,7 @@ void menu_backlash();
     #endif // LIN_ADVANCE
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne_on);
+      EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
