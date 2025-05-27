@@ -30,11 +30,12 @@
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_NONLINEAR_EXTRUSION));
-  SERIAL_ECHOLNPGM("  M592 A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
+  SERIAL_ECHOLNPGM("  M592 S", stepper.ne_on, " A", stepper.ne.A, " B", stepper.ne.B, " C", stepper.ne.C);
 }
 
 /**
  * M592: Get or set nonlinear extrusion parameters
+ *  S<flag>     Enable / Disable Nonlinear Extrusion
  *  A<factor>   Quadratic coefficient (default 0.0)
  *  B<factor>   Linear coefficient (default 0.0)
  *  C<factor>   Constant coefficient (default 1.0)
@@ -46,6 +47,7 @@ void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M592() {
   if (!parser.seen_any()) return M592_report();
 
+  if (parser.seen('S')) stepper.ne_on = parser.value_bool();
   if (parser.seenval('A')) stepper.ne.A = parser.value_float();
   if (parser.seenval('B')) stepper.ne.B = parser.value_float();
   if (parser.seenval('C')) stepper.ne.C = parser.value_float();
