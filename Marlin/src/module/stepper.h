@@ -147,7 +147,7 @@ constexpr ena_mask_t enable_overlap[] = {
                                       TERN0(INPUT_SHAPING_Z, _ISDMF[Z_AXIS] * _ISDASU[Z_AXIS]);
     #if defined(__AVR__) || !defined(ADAPTIVE_STEP_SMOOTHING)
       // min_step_isr_frequency is known at compile time on AVRs and any reduction in SRAM is welcome
-      template<unsigned int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
+      template<int INDEX=DISTINCT_AXES> constexpr float max_isr_rate() {
         return _MAX(_ISDMF[ALIM(INDEX - 1, _ISDMF)] * _ISDASU[ALIM(INDEX - 1, _ISDASU)], max_isr_rate<INDEX - 1>());
       }
       template<> constexpr float max_isr_rate<0>() {

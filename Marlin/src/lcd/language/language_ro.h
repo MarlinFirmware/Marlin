@@ -39,14 +39,15 @@ namespace LanguageNarrow_ro {
   LSTR MSG_YES                            = _UxGT("DA");
   LSTR MSG_NO                             = _UxGT("NU");
   LSTR MSG_BACK                           = _UxGT("Inapoi");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abandon...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Introdus");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Inlaturat");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Astept Media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Eroare Citire Media");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Dispozitiv USB Inlaturat");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Pornire USB Esuata");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Dispozitiv USB Inlaturat");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Pornire USB Esuata");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Eroare:Subcall Overflow");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Principal");

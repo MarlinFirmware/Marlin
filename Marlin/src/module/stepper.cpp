@@ -1541,7 +1541,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
+    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxiliary tasks.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1556,21 +1556,18 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
-        if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
-          nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
-          ftMotion_stepper();             // Run FTM Stepping
-          // Define 2.5 msec task for auxilliary functions.
-          if (!ftMotion_nextAuxISR) {
-            TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-            ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
-          }
+        ftMotion_stepper();             // Run FTM Stepping
+        
+        // Define 2.5 msec task for auxiliary functions.
+        if (!ftMotion_nextAuxISR) {
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+          ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
         }
 
-        // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
+        // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
-
-        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
-        nextMainISR -= interval;
+        
+        interval = FTM_MIN_TICKS;
         ftMotion_nextAuxISR -= interval;
       }
 

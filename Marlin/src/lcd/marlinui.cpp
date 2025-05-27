@@ -1957,7 +1957,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
           if ((old_status ^ status) & INSERT_SD)
             LCD_MESSAGE(MSG_MEDIA_REMOVED_SD);
           else if ((old_status ^ status) & INSERT_USB)
-            LCD_MESSAGE(MSG_MEDIA_REMOVED_USB);
+            LCD_MESSAGE(MSG_USB_FD_MEDIA_REMOVED);
           else
             LCD_MESSAGE(MSG_MEDIA_REMOVED);
 
