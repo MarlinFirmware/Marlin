@@ -662,12 +662,11 @@ char *creat_title_text() {
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
-    int index;
-    int y_off = 0;
     static constexpr uint16_t draw_col_count = 40; // Number of rows displayed each time, determines the size of bmp_public_buf
     static constexpr int draw_count = 200 / draw_col_count; // Total number of times to be displayed
     static constexpr uint32_t pixel_count = (DEFAULT_VIEW_MAX_SIZE) / draw_count; // Number of pixels read per time (uint8_t)
-    for (index = 0; index < draw_count; index++) { // 200*200
+    int y_off = 0;
+    for (int index = 0; index < draw_count; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
           flash_view_Read(bmp_public_buf, pixel_count); // 16k
