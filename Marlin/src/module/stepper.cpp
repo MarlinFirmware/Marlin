@@ -3019,8 +3019,8 @@ hal_timer_t Stepper::block_phase_isr() {
         }
 
         const xy_long_t second_pulse_rate = xy_long_t({
-          TERN0(INPUT_SHAPING_X, shaping_x.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * shaping_x.factor2) >> 7 : 0);
-          TERN0(INPUT_SHAPING_Y, shaping_y.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * shaping_y.factor2) >> 7 : 0);
+          TERN0(INPUT_SHAPING_X, shaping_x.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * shaping_x.factor2) >> 7 : 0),
+          TERN0(INPUT_SHAPING_Y, shaping_y.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * shaping_y.factor2) >> 7 : 0)
         });
 
         delayBuffer.add(pre_shaping_rate);
