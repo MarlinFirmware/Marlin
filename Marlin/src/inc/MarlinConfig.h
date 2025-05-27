@@ -25,7 +25,6 @@
 // Prefix header for all Marlin sources
 //
 
-#include "MarlinConfigPre-6-type.h" // Include even with __MARLIN_DEPS__
 #include "Conditionals-6-type.h"
 
 #ifndef __MARLIN_DEPS__

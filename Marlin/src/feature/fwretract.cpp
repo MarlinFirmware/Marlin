@@ -244,6 +244,7 @@ void FWRetract::M208_report() {
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
     , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
     , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
+    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }
 

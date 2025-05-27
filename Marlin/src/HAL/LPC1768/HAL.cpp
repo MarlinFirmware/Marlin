@@ -173,13 +173,8 @@ void MarlinHAL::init() {
 // HAL idle task
 void MarlinHAL::idletask() {
   #if HAS_SHARED_MEDIA
-    // If Marlin is using the SD card we need to lock it to prevent access from
-    // a PC via USB.
-    // Other HALs use card.isStillPrinting() and card.isFileOpen() to check for access but
-    // this will not reliably detect delete operations. To be safe we will lock
-    // the disk if Marlin has it mounted. Unfortunately there is currently no way
-    // to unmount the disk from the LCD menu.
-    // if (card.isStillPrinting() || card.isFileOpen())
+    // When Marlin is using the SD Card it must be locked to prevent PC access via USB.
+    // For maximum safety we lock the disk if Marlin has it mounted for any reason.
     if (card.isMounted())
       MSC_Aquire_Lock();
     else

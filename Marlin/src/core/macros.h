@@ -547,6 +547,9 @@
 
 #endif
 
+// Limit an index to an array size
+#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
+
 // Macros for adding
 #define INC_0   1
 #define INC_1   2
