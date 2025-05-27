@@ -47,7 +47,7 @@ inline constexpr uint8_t SDIO_READ_RETRIES = READ_RETRIES;
 
 Card_State cardState = Card_State::READY;
 
-bool SDIO_SetBusWidth(Bus_Width width) {
+auto SDIO_SetBusWidth(Bus_Width width) -> bool {
   return (CardDMA_I.set_hardware_bus_width(width) == SDIO_Error_Type::OK);
 }
 

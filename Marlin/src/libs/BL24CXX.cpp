@@ -44,6 +44,10 @@
   #define EEPROM_DEVICE_ADDRESS (0x50 << 1)
 #endif
 
+#ifdef ARDUINO_ARCH_MFL
+  #define EXTRA_EEPROM_DELAY
+#endif
+
 // IO direction setting
 #ifdef __STM32F1__
   #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
@@ -60,6 +64,14 @@
 #define IIC_SDA_1() WRITE(IIC_EEPROM_SDA, HIGH)
 #define READ_SDA()  READ(IIC_EEPROM_SDA)
 
+#ifdef EXTRA_EEPROM_DELAY
+  #define EXTRA_DELAY     1
+  #define EXTRA_DELAY_LOW 4 // SCL low period (tLOW)
+#else
+  #define EXTRA_DELAY     0
+  #define EXTRA_DELAY_LOW 0
+#endif
+
 //
 // Simple IIC interface via libmaple
 //
@@ -70,28 +82,51 @@ void IIC::init() {
   SET_OUTPUT(IIC_EEPROM_SCL);
   IIC_SCL_1();
   IIC_SDA_1();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY); // Ensure bus free time
+  #endif
 }
 
 // Generate IIC start signal
 void IIC::start() {
   SDA_OUT();    // SDA line output
   IIC_SDA_1();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(4 + EXTRA_DELAY); // Setup time before SCL high
+  #endif
+
   IIC_SCL_1();
-  delay_us(4);
+  delay_us(4 + EXTRA_DELAY);
   IIC_SDA_0();  // START:when CLK is high, DATA change from high to low
-  delay_us(4);
+  delay_us(4 + EXTRA_DELAY);
   IIC_SCL_0();  // Clamp the I2C bus, ready to send or receive data
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
+  #endif
 }
 
 // Generate IIC stop signal
 void IIC::stop() {
   SDA_OUT();    // SDA line output
   IIC_SCL_0();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
+  #endif
+
   IIC_SDA_0();  // STOP:when CLK is high DATA change from low to high
-  delay_us(4);
+  delay_us(4 + EXTRA_DELAY);
   IIC_SCL_1();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(4 + EXTRA_DELAY); // Setup time with SCL high
+  #endif
+
   IIC_SDA_1();  // Send I2C bus end signal
-  delay_us(4);
+  delay_us(4 + EXTRA_DELAY);
 }
 
 // Wait for the response signal to arrive
@@ -100,8 +135,9 @@ void IIC::stop() {
 uint8_t IIC::wait_ack() {
   uint8_t ucErrTime = 0;
   SDA_IN();      // SDA is set as input
-  IIC_SDA_1(); delay_us(1);
-  IIC_SCL_1(); delay_us(1);
+  IIC_SDA_1(); delay_us(1 + EXTRA_DELAY);
+  IIC_SCL_1(); delay_us(1 + EXTRA_DELAY);
+
   while (READ_SDA()) {
     if (++ucErrTime > 250) {
       stop();
@@ -109,29 +145,52 @@ uint8_t IIC::wait_ack() {
     }
   }
   IIC_SCL_0(); // Clock output 0
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY); // Hold time after SCL falls
+  #endif
+
   return 0;
 }
 
 // Generate ACK response
 void IIC::ack() {
   IIC_SCL_0();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
+  #endif
+
   SDA_OUT();
   IIC_SDA_0();
   delay_us(2);
   IIC_SCL_1();
-  delay_us(2);
+  delay_us(2 + EXTRA_DELAY);
   IIC_SCL_0();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY); // Data hold time
+  #endif
 }
 
 // No ACK response
 void IIC::nAck() {
   IIC_SCL_0();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
+  #endif
+
   SDA_OUT();
   IIC_SDA_1();
   delay_us(2);
   IIC_SCL_1();
-  delay_us(2);
+  delay_us(2 + EXTRA_DELAY);
   IIC_SCL_0();
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY); // Data hold time
+  #endif
 }
 
 // Send one IIC byte
@@ -141,13 +200,18 @@ void IIC::nAck() {
 void IIC::send_byte(uint8_t txd) {
   SDA_OUT();
   IIC_SCL_0(); // Pull down the clock to start data transmission
+
+  #ifdef EXTRA_EEPROM_DELAY
+    delay_us(EXTRA_DELAY_LOW); // Ensure SCL low period
+  #endif
+
   for (uint8_t t = 0; t < 8; ++t) {
     // IIC_SDA = (txd & 0x80) >> 7;
     if (txd & 0x80) IIC_SDA_1(); else IIC_SDA_0();
     txd <<= 1;
     delay_us(2);   // All three delays are necessary for TEA5767
     IIC_SCL_1();
-    delay_us(2);
+    delay_us(2 + EXTRA_DELAY);
     IIC_SCL_0();
     delay_us(2);
   }
@@ -161,6 +225,11 @@ uint8_t IIC::read_byte(unsigned char ack_chr) {
     IIC_SCL_0();
     delay_us(2);
     IIC_SCL_1();
+
+    #ifdef EXTRA_EEPROM_DELAY
+      delay_us(EXTRA_DELAY); // Delay before reading to allow EEPROM to output data
+    #endif
+
     receive <<= 1;
     if (READ_SDA()) receive++;
     delay_us(1);

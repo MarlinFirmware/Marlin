@@ -406,6 +406,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
 
+  #if ENABLED(SWITCHING_NOZZLE_LIFT_TO_PROBE)
+    servo[SWITCHING_NOZZLE_SERVO_NR].move(servo_angles[SWITCHING_NOZZLE_SERVO_NR][deploy ? 1 : 0]);
+  #endif
+
   #if ENABLED(SOLENOID_PROBE)
 
     #if HAS_SOLENOID_1
@@ -850,7 +854,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
 
       // Probe downward slowly to find the bed
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
-      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW), sanity_check)) return NAN;
+      if (try_to_probe(PSTR("SLOW"), z_probe_low_point, z_probe_slow_mm_s, sanity_check)) return NAN;
 
       TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 

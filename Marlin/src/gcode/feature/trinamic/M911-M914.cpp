@@ -32,7 +32,9 @@
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
 
-  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2160) \
+                     || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2209) || AXIS_DRIVER_TYPE(ST, TMC2240) \
+                     || AXIS_DRIVER_TYPE(ST, TMC2660) || AXIS_DRIVER_TYPE(ST, TMC5130) || AXIS_DRIVER_TYPE(ST, TMC5160))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
   #if HAS_X_AXIS && (M91x_USE(X) || M91x_USE(X2))
@@ -68,15 +70,13 @@
   #endif
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_USE_I && !M91x_USE_J && !M91x_USE_K && !M91x_USE_U && !M91x_USE_V && !M91x_USE_W && !M91x_SOME_E
-    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2240, 2660, 5130, or 5160."
   #endif
 
   template<typename TMC>
   static void tmc_report_otpw(TMC &st) {
     st.printLabel();
-    SERIAL_ECHOPGM(" temperature prewarn triggered: ");
-    serialprint_truefalse(st.getOTPW());
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM(" temperature prewarn triggered: ", TRUE_FALSE(st.getOTPW()));
   }
 
   template<typename TMC>

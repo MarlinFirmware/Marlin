@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,33 +19,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * Platform-independent Arduino functions for I2C EEPROM.
- * Enable USE_SHARED_EEPROM if not supplied by the framework.
+ * Creality MFL GD32 V4.2.7 (GD32F303RE) board pin assignments
  */
-#ifdef ARDUINO_ARCH_HC32
 
-#include "../../../inc/MarlinConfig.h"
+#define ALLOW_GD32F3
 
-#if ENABLED(IIC_BL24CXX_EEPROM)
+#define BOARD_INFO_NAME      "Creality V4.2.7 MFL"
+#define DEFAULT_MACHINE_NAME "Creality3D MFL"
 
-#include "../../../libs/BL24CXX.h"
-#include "../../shared/eeprom_if.h"
+//
+// Steppers
+//
+#define X_STEP_PIN                          PB9
+#define X_DIR_PIN                           PC2
 
-void eeprom_init() {
-  BL24CXX::init();
-}
+#define Y_STEP_PIN                          PB7
+#define Y_DIR_PIN                           PB8
 
-void eeprom_write_byte(uint8_t *pos, unsigned char value) {
-  const unsigned eeprom_address = (unsigned)pos;
-  BL24CXX::writeOneByte(eeprom_address, value);
-}
+#define Z_STEP_PIN                          PB5
+#define Z_DIR_PIN                           PB6
 
-uint8_t eeprom_read_byte(uint8_t *pos) {
-  const unsigned eeprom_address = (unsigned)pos;
-  return BL24CXX::readOneByte(eeprom_address);
-}
+#define E0_STEP_PIN                         PB3
+#define E0_DIR_PIN                          PB4
 
-#endif // IIC_BL24CXX_EEPROM
-#endif // ARDUINO_ARCH_HC32
+#include "../stm32f1/pins_CREALITY_V4.h"
