@@ -42,7 +42,13 @@
 #endif
 #undef en
 
-#define MEDIA_TYPE_EN "Media"
+#if HAS_SDCARD && !HAS_USB_FLASH_DRIVE
+  #define MEDIA_TYPE_EN "SD Card"
+#elif HAS_USB_FLASH_DRIVE && !HAS_SDCARD
+  #define MEDIA_TYPE_EN "USB Drive"
+#else
+  #define MEDIA_TYPE_EN "Media"
+#endif
 
 #ifndef PREHEAT_1_LABEL
   #define PREHEAT_1_LABEL ""
@@ -76,23 +82,31 @@ namespace LanguageNarrow_en {
   LSTR MSG_LOW                            = _UxGT("LOW");
   LSTR MSG_BACK                           = _UxGT("Back");
   LSTR MSG_ERROR                          = _UxGT("Error");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Aborting...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_EN _UxGT(" Inserted");
+  LSTR MSG_MEDIA_INSERTED_SD              = _UxGT("SD Card Inserted");
+  LSTR MSG_MEDIA_INSERTED_USB             = _UxGT("USB Drive Inserted");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_EN _UxGT(" Removed");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Waiting for ") MEDIA_TYPE_EN;
+  LSTR MSG_MEDIA_REMOVED_SD               = _UxGT("SD Card Removed");
+  LSTR MSG_MEDIA_REMOVED_USB              = _UxGT("USB Drive Removed");
   LSTR MSG_MEDIA_INIT_FAIL                = MEDIA_TYPE_EN _UxGT(" Init Fail");
+  LSTR MSG_MEDIA_INIT_FAIL_SD             = _UxGT("SD Card Init Fail");
+  LSTR MSG_MEDIA_INIT_FAIL_USB            = _UxGT("USB Drive Init Fail");
   LSTR MSG_MEDIA_READ_ERROR               = MEDIA_TYPE_EN _UxGT(" read error");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB device removed");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB start failed");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Sort ") MEDIA_TYPE_EN;
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
+  LSTR MSG_USB_FD_WAITING_FOR_MEDIA       = _UxGT("Wait for USB Drive");
+  LSTR MSG_USB_FD_MEDIA_REMOVED           = _UxGT("USB Drive Removed");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB device removed");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
+
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Main Menu");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Run Auto Files");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Disable Steppers");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug Menu");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Progress Bar Test");
@@ -222,7 +236,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_M48_TEST                       = _UxGT("M48 Probe Test");
   LSTR MSG_M48_POINT                      = _UxGT("M48 Point");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Probe out of bounds");
+  LSTR MSG_M48_DEV                        = _UxGT("Dev");
   LSTR MSG_M48_DEVIATION                  = _UxGT("Deviation");
+  LSTR MSG_M48_MAX_DELTA                  = _UxGT("Max delta");
   LSTR MSG_IDEX_MENU                      = _UxGT("IDEX Mode");
   LSTR MSG_OFFSETS_MENU                   = _UxGT("Tool Offsets");
   LSTR MSG_IDEX_MODE_AUTOPARK             = _UxGT("Auto-Park");
@@ -450,6 +466,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_AMAX_EN                        = _UxGT("Max * Accel");
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
+  LSTR MSG_A_SPINDLE                      = _UxGT("Spindle Accel");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
   LSTR MSG_SHAPING_ENABLE_N               = _UxGT("Enable @ shaping");
   LSTR MSG_SHAPING_DISABLE_N              = _UxGT("Disable @ shaping");
@@ -489,7 +506,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_MAX_BELT_LEN                   = _UxGT("Max Belt Len");
   LSTR MSG_LINEAR_ADVANCE                 = _UxGT("Linear Advance");
   LSTR MSG_ADVANCE_K                      = _UxGT("Advance K");
+  LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_K_E                    = _UxGT("Advance K *");
+  LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_CONTRAST                       = _UxGT("LCD Contrast");
   LSTR MSG_BRIGHTNESS                     = _UxGT("LCD Brightness");
   LSTR MSG_SCREEN_TIMEOUT                 = _UxGT("LCD Timeout (m)");
@@ -554,10 +573,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_CANCEL_OBJECT                  = _UxGT("Cancel Obj");
   LSTR MSG_CANCEL_OBJECT_N                = _UxGT("Cancel Obj {");
   LSTR MSG_CONTINUE_PRINT_JOB             = _UxGT("Continue Job");
-  LSTR MSG_MEDIA_MENU                     = MEDIA_TYPE_EN _UxGT(" Print");
   LSTR MSG_TURN_OFF                       = _UxGT("Turn off now");
   LSTR MSG_END_LOOPS                      = _UxGT("End Loops");
-  LSTR MSG_NO_MEDIA                       = _UxGT("No ") MEDIA_TYPE_EN;
   LSTR MSG_DWELL                          = _UxGT("Sleep...");
   LSTR MSG_USERWAIT                       = _UxGT("Click to Resume...");
   LSTR MSG_PRINT_PAUSED                   = _UxGT("Print Paused");
@@ -608,14 +625,24 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Unload Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload * Filament");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Unload All");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Attach SD Card");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Attach USB Drive");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach ") MEDIA_TYPE_EN;
-  #endif
-  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Change ") MEDIA_TYPE_EN;
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Attach ") MEDIA_TYPE_EN;
+  LSTR MSG_ATTACH_SD                      = _UxGT("Attach SD Card");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Attach USB Drive");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Release ") MEDIA_TYPE_EN;
+  LSTR MSG_RELEASE_SD                     = _UxGT("Release SD Card");
+  LSTR MSG_RELEASE_USB                    = _UxGT("Release USB Drive");
+  LSTR MSG_CHANGE_MEDIA                   = _UxGT("Refresh ") MEDIA_TYPE_EN;
+  LSTR MSG_CHANGE_SD                      = _UxGT("Select SD Card");
+  LSTR MSG_CHANGE_USB                     = _UxGT("Select USB Drive");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Run Autofiles");
+  LSTR MSG_RUN_AUTOFILES_SD               = _UxGT("Run SD Autofiles");
+  LSTR MSG_RUN_AUTOFILES_USB              = _UxGT("Run USB Autofiles");
+  LSTR MSG_MEDIA_MENU                     = MEDIA_TYPE_EN _UxGT(" Print");
+  LSTR MSG_MEDIA_MENU_SD                  = _UxGT("Select from SD");
+  LSTR MSG_MEDIA_MENU_USB                 = _UxGT("Select from USB");
+  LSTR MSG_NO_MEDIA                       = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Detected");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -660,6 +687,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
+
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Heating Failed");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: REDUNDANT TEMP");
   LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("THERMAL RUNAWAY");
@@ -681,6 +709,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_CHAMBER_HEATING                = _UxGT("Chamber Heating...");
   LSTR MSG_CHAMBER_COOLING                = _UxGT("Chamber Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");
+
   LSTR MSG_DELTA_CALIBRATE                = _UxGT("Delta Calibration");
   LSTR MSG_DELTA_CALIBRATION_IN_PROGRESS  = _UxGT("Delta Calibration in progress");
   LSTR MSG_DELTA_CALIBRATE_X              = _UxGT("Calibrate X");
@@ -692,14 +721,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Height");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radius");
+
   LSTR MSG_INFO_MENU                      = _UxGT("About Printer");
   LSTR MSG_INFO_PRINTER_MENU              = _UxGT("Printer Info");
-  LSTR MSG_3POINT_LEVELING                = _UxGT("3-Point Leveling");
-  LSTR MSG_LINEAR_LEVELING                = _UxGT("Linear Leveling");
-  LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinear Leveling");
-  LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
-  LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
-  LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
   LSTR MSG_INFO_PRINTER_STATS_MENU        = _UxGT("Printer Stats");
   LSTR MSG_INFO_STATS_MENU                = _UxGT("Stats");
   LSTR MSG_RESET_STATS                    = _UxGT("Reset Print Stats?");
@@ -710,6 +734,22 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocol");
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Runaway Watch: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Runaway Watch: ON");
+  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Prints");
+  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
+  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Longest");
+  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extruded");
+  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completed");
+  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
+  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
+  LSTR MSG_INFO_PSU                       = _UxGT("PSU");
+
+  LSTR MSG_3POINT_LEVELING                = _UxGT("3-Point Leveling");
+  LSTR MSG_LINEAR_LEVELING                = _UxGT("Linear Leveling");
+  LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinear Leveling");
+  LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
+  LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
+  LSTR MSG_MESH_DONE                      = _UxGT("Mesh probing done");
+
   LSTR MSG_HOTEND_IDLE_TIMEOUT            = _UxGT("Hotend Idle Timeout");
   LSTR MSG_BED_IDLE_TIMEOUT               = _UxGT("Bed Idle Timeout");
   LSTR MSG_HOTEND_IDLE_DISABLE            = _UxGT("Disable Timeout");
@@ -720,15 +760,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
   LSTR MSG_KILL_EXPECTED_PRINTER          = _UxGT("INCORRECT PRINTER");
-
-  LSTR MSG_INFO_PRINT_COUNT               = _UxGT("Prints");
-  LSTR MSG_INFO_PRINT_TIME                = _UxGT("Total");
-  LSTR MSG_INFO_PRINT_LONGEST             = _UxGT("Longest");
-  LSTR MSG_INFO_PRINT_FILAMENT            = _UxGT("Extruded");
-  LSTR MSG_INFO_COMPLETED_PRINTS          = _UxGT("Completed");
-  LSTR MSG_INFO_MIN_TEMP                  = _UxGT("Min Temp");
-  LSTR MSG_INFO_MAX_TEMP                  = _UxGT("Max Temp");
-  LSTR MSG_INFO_PSU                       = _UxGT("PSU");
 
   LSTR MSG_DRIVE_STRENGTH                 = _UxGT("Drive Strength");
   LSTR MSG_DAC_PERCENT_N                  = _UxGT("@ Driver %");
@@ -872,6 +903,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_PURGE          = _UxGT(MSG_1_LINE("Purging..."));
   LSTR MSG_FILAMENT_CHANGE_CONT_PURGE     = _UxGT(MSG_1_LINE("Click to finish"));
   LSTR MSG_FILAMENT_CHANGE_RESUME         = _UxGT(MSG_1_LINE("Resuming..."));
+
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
   LSTR MSG_TMC_ACURRENT                   = STR_A _UxGT("Driver Current");
@@ -881,7 +913,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Enabled");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+  LSTR MSG_TMC_HOMING_CURRENT             = _UxGT("Homing Current");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");
@@ -889,7 +923,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Smoothing");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Fixed-Time Motion");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Comp. Mode:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Comp. Mode: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -900,7 +934,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
@@ -1097,6 +1131,9 @@ namespace LanguageWide_en {
     LSTR MSG_CANCEL_OBJECT_N              = _UxGT("Cancel Object {");
     LSTR MSG_CONTINUE_PRINT_JOB           = _UxGT("Continue Print Job");
     LSTR MSG_MEDIA_MENU                   = _UxGT("Select from ") MEDIA_TYPE_EN;
+    LSTR MSG_MEDIA_MENU_SD                = _UxGT("Select from SD Card");
+    LSTR MSG_MEDIA_MENU_USB               = _UxGT("Select from USB Drive");
+    LSTR MSG_NO_MEDIA                     = _UxGT("No ") MEDIA_TYPE_EN _UxGT(" Found");
     LSTR MSG_TURN_OFF                     = _UxGT("Turn off the printer");
     LSTR MSG_END_LOOPS                    = _UxGT("End Repeat Loops");
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");          // ProUI

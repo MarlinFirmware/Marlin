@@ -66,24 +66,14 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-#else
-  #define X_STOP_PIN                        PE7   // X-STOP
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                  X_DIAG_PIN  // X-STOP
 #endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-#else
-  #define Y_STOP_PIN                        PE8   // Y-STOP
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-STOP
 #endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PE9   // Z-STOP
-  #endif
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
 
 //
@@ -472,7 +462,7 @@
     #define LCD_READ_ID                     0xD3
     #define LCD_USE_DMA_SPI
 
-    #define TFT_BUFFER_SIZE                14400
+    #define TFT_BUFFER_WORDS               14400
 
   #endif
 

@@ -226,6 +226,9 @@ class MenuItem_bool : public MenuEditItemBase {
  * should be done before the menu loop (START_MENU / START_SCREEN).
  */
 
+// CAUTION! When using menu items in a lambda or sub-function always use:
+#define INJECT_MENU_ITEMS(FN) { FN; if (ui.screen_changed) return; }
+
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *
@@ -276,6 +279,14 @@ class MenuItem_bool : public MenuEditItemBase {
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *
+ * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
+ * _MENU_ITEM_F(TYPE, V...)              Item with optional data
+ * _MENU_ITEM_N_S_F(TYPE, N, S, V...)    Item with index value, C-string, and optional data
+ * _MENU_ITEM_N_f_F(TYPE, N, f, V...)    Item with index value and F-string
+ * _MENU_ITEM_N_F(TYPE, N, V...)         Item with index value
+ * _MENU_ITEM_S_F(TYPE, S, V...)         Item with a unique string
+ * _MENU_ITEM_f_F(TYPE, f, V...)         Item with a unique F-string
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -401,7 +412,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
   char msg[m + 1];                               \
-  if (_menuLineNr == _thisItemNr) {              \
+  if (MY_LINE()) {                               \
     msg[0] = ':'; msg[1] = ' ';                  \
     strlcpy_P(msg + 2, PVAL, m - 1);             \
     if (msg[m - 1] & 0x80) msg[m - 1] = '\0';    \
@@ -410,8 +421,7 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define PSTRING_ITEM_N_F_P(N, V...) do{ \
-  if (_menuLineNr == _thisItemNr)       \
-    MenuItemBase::init(N);              \
+  if (MY_LINE()) MenuItemBase::init(N); \
   PSTRING_ITEM_F_P(V);                  \
 }while(0)
 

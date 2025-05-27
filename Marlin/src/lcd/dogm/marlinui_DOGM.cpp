@@ -197,7 +197,7 @@ bool MarlinUI::detected() { return true; }
       #endif
         {
           #if ENABLED(CUSTOM_BOOTSCREEN_ANIMATED_FRAME_TIME)
-            const uint8_t fr = _MIN(f, COUNT(custom_bootscreen_animation) - 1);
+            const uint8_t fr = ALIM(f, custom_bootscreen_animation);
             const millis_t frame_time = pgm_read_word(&custom_bootscreen_animation[fr].duration);
           #endif
           u8g.firstPage();

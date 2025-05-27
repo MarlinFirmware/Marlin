@@ -191,14 +191,14 @@ inline void printPinStateExt(const pin_t pin, const bool ignore, const bool exte
   auto alt_pin_echo = [](const pin_t &pin) {
     #if AVR_AT90USB1286_FAMILY
       // Use FastIO for pins Teensy doesn't expose
-      if (pin == 46) {
-        printPinIOState(IS_OUTPUT(46));
-        printPinState(READ(46));
+      if (pin == PIN_E2) {
+        printPinIOState(IS_OUTPUT(PIN_E2));
+        printPinState(READ(PIN_E2));
         return false;
       }
-      else if (pin == 47) {
-        printPinIOState(IS_OUTPUT(47));
-        printPinState(READ(47));
+      else if (pin == PIN_E3) {
+        printPinIOState(IS_OUTPUT(PIN_E3));
+        printPinState(READ(PIN_E3));
         return false;
       }
     #endif
