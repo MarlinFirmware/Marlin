@@ -2921,8 +2921,13 @@ hal_timer_t Stepper::block_phase_isr() {
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
         FORCE_INLINE xy_long_t past_item(const uint16_t n) {
-          const int16_t i = int16_t(index) - n;
-          return buffer[i >= 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
+          int16_t i = int16_t(index) - n;
+          if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
+          // The following only happens when IS Freq is set below the minimum
+          // configured at build time ...in which case IS will also misbehave!
+          // Using setters whenever possible prevents values being set too low.
+          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
+          return buffer[i];
         }
       } DelayBuffer;
 
@@ -2995,44 +3000,38 @@ hal_timer_t Stepper::block_phase_isr() {
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
         : 0;
 
-      int32_t total_step_rate = la_step_rate + planned_step_rate;
-
       #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-        xy_long_t pre_shaping_rate = xy_long_t({0, 0}),
-                  first_pulse_rate = xy_long_t({0, 0});
-        int32_t unshaped_rate_e = total_step_rate;
-        if (current_block) {
-          if (current_block->xy_length_inv_q30 > 0) {
-            unshaped_rate_e = 0;
+        int32_t unshaped_rate_e = la_step_rate + planned_step_rate;
 
-            pre_shaping_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
-              TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
-            });
+        xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
+        if (current_block && current_block->xy_length_inv_q30 > 0) {
+          pre_shaping_rate = xy_long_t({
+            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
+            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
+          });
+          unshaped_rate_e = 0;
 
-            first_pulse_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
-              TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
-            });
-          }
+          first_pulse_rate = xy_long_t({
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
+          });
         }
 
-        const xy_long_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
-          TERN0(INPUT_SHAPING_Y, (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
-        };
+        const xy_long_t second_pulse_rate = xy_long_t({
+          TERN0(INPUT_SHAPING_X, shaping_x.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * shaping_x.factor2) >> 7 : 0),
+          TERN0(INPUT_SHAPING_Y, shaping_y.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * shaping_y.factor2) >> 7 : 0)
+        });
 
         delayBuffer.add(pre_shaping_rate);
 
-        const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                      y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        set_la_interval(unshaped_rate_e + first_pulse_rate.x + second_pulse_rate.x + first_pulse_rate.y + second_pulse_rate.y);
 
-        total_step_rate = unshaped_rate_e + x + y;
+      #else // !INPUT_SHAPING_E_SYNC
 
-      #endif // INPUT_SHAPING_E_SYNC
+        set_la_interval(la_step_rate + planned_step_rate);
 
-      set_la_interval(total_step_rate);
+      #endif
 
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
