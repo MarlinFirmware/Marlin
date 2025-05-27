@@ -9,12 +9,16 @@
     <a href="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml/badge.svg"></a>
     <a href="https://github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
     <br />
-    <a href="https://bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="https://img.shields.io/static/v1?label=&message=Follow @marlinfw.org&color=1185FE&logo=bluesky&logoColor=white"></a>
+    <a href="https://bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="https://img.shields.io/badge/Follow%20@marlinfw.org-0085ff?logo=bluesky&logoColor=white"></a>
     <a href="https://fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="https://img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
 </p>
 
 Additional documentation can be found at the [Marlin Home Page](//marlinfw.org/).
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
+
+---
+This README is available in other languages
+> **Versão em português:** [README-PT-BR.md](README-PT-BR.md)
 
 ## Marlin 2.1 Bugfix Branch
 

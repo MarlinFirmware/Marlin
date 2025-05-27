@@ -48,14 +48,15 @@ namespace LanguageNarrow_pl {
   LSTR MSG_YES                            = _UxGT("TAK");
   LSTR MSG_NO                             = _UxGT("NIE");
   LSTR MSG_BACK                           = _UxGT("Wstecz");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Przerywanie...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Karta włożona");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Karta usunięta");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Oczekiwanie na kartę");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Błąd inicializacji karty");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Bład odczytu karty");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Urządzenie USB usunięte");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Błąd uruchomienia USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Urządzenie USB usunięte");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Błąd uruchomienia USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Krańców."); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Progr. Krańcówki");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu główne");
