@@ -2597,7 +2597,7 @@ void Temperature::task() {
 
 #if ANY_THERMISTOR_IS(-1)
   // For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
-  static constexpr celsius_float_t temp_ad595(const adc_raw_t raw) {
+  static constexpr celsius_float_t temp_ad595(const raw_adc_t raw) {
     return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
                * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
   }
@@ -2605,7 +2605,7 @@ void Temperature::task() {
 
 #if ANY_THERMISTOR_IS(-4)
   // For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
-  static constexpr celsius_float_t temp_ad8495(const adc_raw_t raw) {
+  static constexpr celsius_float_t temp_ad8495(const raw_adc_t raw) {
     return raw * (float(ADC_VREF_MV) /  5.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
                * (TEMP_SENSOR_AD8495_GAIN) + (TEMP_SENSOR_AD8495_OFFSET);
   }
