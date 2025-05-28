@@ -162,7 +162,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   calibration_move();
 }
 
-#if HAS_MULTI_HOTEND
+#if HAS_TOOLCHANGE
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
@@ -789,8 +789,10 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
 inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) {
   TEMPORARY_BACKLASH_CORRECTION(backlash.all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
-
-  HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
+ 
+  for (int8_t t = 0; t < TOOLS; t++) {
+    calibrate_toolhead(m, uncertainty, t);
+  }
 
   TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
 
@@ -820,12 +822,6 @@ inline void calibrate_all() {
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
 
   TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
-
-  // Cycle the toolheads so the servos settle into their "natural" positions
-  #if HAS_TOOLCHANGE
-    for (int8_t t = 0; t < TOOLS; t++)
-      set_nozzle(m, t);
-  #endif
 
   // Do a slow and precise calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
