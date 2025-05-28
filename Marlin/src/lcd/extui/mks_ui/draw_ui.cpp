@@ -579,7 +579,7 @@ char *creat_title_text() {
         update_spi_flash();
       }
       card.closefile();
-    #endif
+    #endif // HAS_MEDIA
   }
 
   void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
@@ -662,33 +662,27 @@ char *creat_title_text() {
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
-    int index;
+    static constexpr uint16_t draw_col_count = 40; // Number of rows displayed each time, determines the size of bmp_public_buf
+    static constexpr int draw_count = 200 / draw_col_count; // Total number of times to be displayed
+    static constexpr uint32_t pixel_count = (DEFAULT_VIEW_MAX_SIZE) / draw_count; // Number of pixels read per time (uint8_t)
     int y_off = 0;
-    // W25QXX.init(SPI_QUARTER_SPEED);
-    #define DRAW_COL_COUNT 40                     // Number of rows displayed each time, determines the size of bmp_public_buf
-    #define DRAW_COUNT (200 / DRAW_COL_COUNT)     // Total number of times to be displayed
-    #define PIXEL_COUNT (DEFAULT_VIEW_MAX_SIZE / DRAW_COUNT)  // Number of pixels read per time (uint8_t)
-    for (index = 0; index < DRAW_COUNT; index++) { // 200*200
+    for (int index = 0; index < draw_count; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
-          flash_view_Read(bmp_public_buf, PIXEL_COUNT); // 16k
+          flash_view_Read(bmp_public_buf, pixel_count); // 16k
         }
         else {
-          default_view_Read(bmp_public_buf, PIXEL_COUNT); // 16k
+          default_view_Read(bmp_public_buf, pixel_count); // 16k
         }
       #else
-        default_view_Read(bmp_public_buf, PIXEL_COUNT); // 8k
+        default_view_Read(bmp_public_buf, pixel_count); // 8k
       #endif
 
-      SPI_TFT.setWindow(xpos_pixel, y_off * DRAW_COL_COUNT + ypos_pixel, 200, DRAW_COL_COUNT); // 200 * DRAW_COL_COUNT
-      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), (uint16_t)(PIXEL_COUNT / 2));
+      SPI_TFT.setWindow(xpos_pixel, y_off * draw_col_count + ypos_pixel, 200, draw_col_count); // 200 * draw_col_count
+      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), uint16_t(pixel_count / 2));
 
       y_off++;
     }
-    #undef DRAW_COL_COUNT
-    #undef DRAW_COUNT
-    #undef PIXEL_COUNT
-    // W25QXX.init(SPI_QUARTER_SPEED);
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
@@ -706,6 +700,7 @@ char *creat_title_text() {
       }
     #endif
   }
+
 #endif // HAS_GCODE_PREVIEW
 
 void print_time_run() {

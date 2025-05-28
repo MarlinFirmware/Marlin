@@ -232,6 +232,7 @@ static FSTR_P const assets[] = {
 #endif
 
 #if ENABLED(USE_HASH_TABLE)
+
   typedef struct {
     char name[PIC_NAME_MAX_LEN - PIC_NAME_OFFSET];    /* key */
     uint32_t addr;
@@ -245,7 +246,7 @@ static FSTR_P const assets[] = {
     uint8_t Pic_cnt;
     W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
     if (Pic_cnt == 0xFF) Pic_cnt = 0;
-    
+
     uint32_t tmp_cnt = 0;
     for (uint8_t i = 0; i < Pic_cnt; i++) {
       char name[PIC_NAME_MAX_LEN - PIC_NAME_OFFSET];
@@ -254,7 +255,7 @@ static FSTR_P const assets[] = {
         W25QXX.SPI_FLASH_BufferRead((uint8_t*)&name[j], PIC_NAME_ADDR + tmp_cnt, 1);
         tmp_cnt++;
       } while (name[j++] != '\0');
-      
+
       uint32_t addr;
       if (DeviceCode == 0x9488 || DeviceCode == 0x5761)
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
@@ -281,15 +282,15 @@ static FSTR_P const assets[] = {
     HASH_FIND_STR(pic_hash, (char*)(Pname + PIC_NAME_OFFSET), entry);
     return entry ? entry->addr : 0;
   }
-#else
+
+#else // !USE_HASH_TABLE
+
   uint32_t lv_get_pic_addr(uint8_t *Pname) {
     uint8_t Pic_cnt;
     uint8_t i, j;
     PIC_MSG PIC;
     uint32_t tmp_cnt = 0;
     uint32_t addr = 0;
-
-    // currentFlashPage = 0;
 
     #if ENABLED(MARLIN_DEV_MODE)
       SERIAL_ECHOLNPGM("Getting picture SPI Flash Address: ", (const char*)Pname);
@@ -311,12 +312,13 @@ static FSTR_P const assets[] = {
           addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
         else
           addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
-        return addr;
+        break;
       }
     }
     return addr;
   }
-#endif
+
+#endif // !USE_HASH_TABLE
 
 const char *assetsPath = "assets";
 const char *bakPath = "_assets";
@@ -367,8 +369,8 @@ uint8_t picLogoWrite(uint8_t *LogoName, uint8_t *Logo_Wbuff, uint32_t LogoWriteS
 
 uint32_t TitleLogoWrite_Addroffset = 0;
 uint8_t picTitleLogoWrite(uint8_t *TitleLogoName, uint8_t *TitleLogo_Wbuff, uint32_t TitleLogoWriteSize) {
-  if (TitleLogoWriteSize <= 0)
-    return 0;
+  if (TitleLogoWriteSize <= 0) return 0;
+
   if ((DeviceCode == 0x9488) || (DeviceCode == 0x5761))
     W25QXX.SPI_FLASH_BufferWrite(TitleLogo_Wbuff, PIC_ICON_LOGO_ADDR_TFT35 + TitleLogoWrite_Addroffset, TitleLogoWriteSize);
   else
@@ -399,9 +401,7 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
   union union32 size_tmp;
 
   W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
-
-  if (pic_counter == 0xFF)
-    pic_counter = 0;
+  if (pic_counter == 0xFF) pic_counter = 0;
 
   if ((DeviceCode == 0x9488) || (DeviceCode == 0x5761))
     picSaveAddr = PIC_DATA_ADDR_TFT35 + pic_counter * PER_PIC_MAX_SPACE_TFT35;
@@ -617,8 +617,7 @@ void picRead(uint8_t *Pname, uint8_t *P_Rbuff) {
   PIC_MSG PIC;
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xFF)
-    Pic_cnt = 0;
+  if (Pic_cnt == 0xFF) Pic_cnt = 0;
 
   for (i = 0; i < Pic_cnt; i++) {
     j = 0;
@@ -643,9 +642,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
       SPIFlash.beginRead(addr);
     }
     SPIFlash.readData(P_Rbuff, size);
-    // currentFlashPage++;
   #else
-    // W25QXX.init(SPI_QUARTER_SPEED);
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
   #endif
 }

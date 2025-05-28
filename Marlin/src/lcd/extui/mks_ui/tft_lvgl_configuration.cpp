@@ -273,8 +273,6 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
     SPI_TFT.tftio.writeSequence((uint16_t*)color_p, width * height);
     lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
   #endif
-
-  // W25QXX.init(SPI_QUARTER_SPEED);
 }
 
 #if ENABLED(USE_SPI_DMA_TC)
@@ -352,10 +350,6 @@ lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * pa
     lv_img_cache_invalidate_src(cache_path_name);
     strcpy(last_path_name, path);
   }
-  // else {
-  //   W25QXX.init(SPI_QUARTER_SPEED);
-  //   currentFlashPage = 0;
-  // }
   pic_read_addr_offset = pic_read_base_addr;
   return LV_FS_RES_OK;
 }

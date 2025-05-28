@@ -341,7 +341,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_MOVE_N_MM                      = _UxGT("Muovi di $mm");
   LSTR MSG_MOVE_N_IN                      = _UxGT("Muovi di $in");
   LSTR MSG_MOVE_N_DEG                     = _UxGT("Muovi di $") LCD_STR_DEGREE;
-  LSTR MSG_LIVE_MOVE                      = _UxGT("Modalità live");
+  LSTR MSG_LIVE_MOVE                      = _UxGT("Movimento live");
   LSTR MSG_SPEED                          = _UxGT("Velocità");
   LSTR MSG_MESH_Z_OFFSET                  = _UxGT("Piatto Z");
   LSTR MSG_NOZZLE                         = _UxGT("Ugello");
@@ -606,7 +606,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_ATTACH_SD                      = _UxGT("Collega scheda SD");
   LSTR MSG_ATTACH_USB                     = _UxGT("Collega unità USB");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Rilascia ") MEDIA_TYPE_IT;
-  LSTR MSG_RELEASE_SD                     = _UxGT("Rilascia sceda SD");
+  LSTR MSG_RELEASE_SD                     = _UxGT("Rilascia scheda SD");
   LSTR MSG_RELEASE_USB                    = _UxGT("Rilascia unità USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Selez.") MEDIA_TYPE_IT;
   LSTR MSG_CHANGE_SD                      = _UxGT("Selez. scheda SD");
@@ -1007,7 +1007,6 @@ namespace LanguageNarrow_it {
 namespace LanguageWide_it {
   using namespace LanguageNarrow_it;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_LIVE_MOVE                    = _UxGT("Movimento live");
     LSTR MSG_HOST_START_PRINT             = _UxGT("Avvio stampa host");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Stampa oggetto");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Cancella oggetto");
