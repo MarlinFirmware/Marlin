@@ -39,16 +39,17 @@ namespace LanguageNarrow_ru {
   LSTR MSG_YES                              = _UxGT("Да");
   LSTR MSG_NO                               = _UxGT("Нет");
   LSTR MSG_BACK                             = _UxGT("Назад");
+
   LSTR MSG_MEDIA_ABORTING                   = _UxGT("Прерывание...");
   LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD карта вставлена");
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
-  LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   LSTR MSG_MEDIA_INIT_FAIL                  = _UxGT("Сбой инициализ. SD");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Расшир. настройки");
   LSTR MSG_KILL_SUBCALL_OVERFLOW            = _UxGT("Переполн. вызова");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
-  LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
-  LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
+  LSTR MSG_USB_FD_DEVICE_REMOVED            = _UxGT("USB диск удалён");
+  LSTR MSG_USB_FD_USB_FAILED                = _UxGT("Ошибка USB диска");
+
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр. концевики");
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                        = _UxGT("Главное меню");

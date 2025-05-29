@@ -654,7 +654,7 @@ typedef struct SettingsDataStruct {
   // Fixed-Time Motion
   //
   #if ENABLED(FT_MOTION)
-    ft_config_t ftMotion_cfg;                          // M493
+    ft_config_t ftMotion_cfg;                           // M493
   #endif
 
   //

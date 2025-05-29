@@ -41,15 +41,16 @@ namespace LanguageNarrow_de {
   LSTR MSG_LOW                            = _UxGT("RUNTER");
   LSTR MSG_BACK                           = _UxGT("Zurück");
   LSTR MSG_ERROR                          = _UxGT("Fehler");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abbruch...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Warten auf Medium");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Medium Init fehlgesch.");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Medium Lesefehler");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Gerät entfernt");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Start fehlge.");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Gerät entfernt");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB Start fehlge.");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall überschritten");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopp"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");

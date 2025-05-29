@@ -29,6 +29,9 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "SPIFlashStorage.h"
+
+#define USE_HASH_TABLE
 
 #ifndef HAS_SPI_FLASH_FONT
   #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code
@@ -53,7 +56,8 @@
 #endif
 
 #define PIC_MAX_CN           100    // Maximum number of pictures
-#define PIC_NAME_MAX_LEN      50    // Picture name maximum length
+#define PIC_NAME_MAX_LEN      30    // Picture name maximum length
+#define PIC_NAME_OFFSET        4    // Same picture filename section
 
 #define LOGO_MAX_SIZE_TFT35             (300 * 1024)
 #define LOGO_MAX_SIZE_TFT32             (150 * 1024)
@@ -61,7 +65,11 @@
 #define DEFAULT_VIEW_MAX_SIZE           (200 * 200 * 2)
 #define FLASH_VIEW_MAX_SIZE             (200 * 200 * 2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (9 * 1024)
+#if HAS_SPI_FLASH_COMPRESSION
+  #define PER_PIC_MAX_SPACE_TFT35       ( 9 * 1024)
+#else
+  #define PER_PIC_MAX_SPACE_TFT35       (32 * 1024)
+#endif
 #define PER_PIC_MAX_SPACE_TFT32         (16 * 1024)
 #define PER_FONT_MAX_SPACE              (16 * 1024)
 
@@ -154,6 +162,9 @@ typedef struct pic_msg PIC_MSG;
 #define PIC_SIZE_xM   6
 #define FONT_SIZE_xM  2
 
+#if ENABLED(USE_HASH_TABLE)
+  void init_img_map();
+#endif
 void picRead(uint8_t *Pname, uint8_t *P_Rbuff);
 void picLogoRead(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize);
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size);

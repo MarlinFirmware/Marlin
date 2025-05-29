@@ -458,7 +458,7 @@ public:
   static int8_t get_target_e_stepper_from_command(const int8_t dval=-1);
   static void get_destination_from_command();
 
-  static void process_parsed_command(const bool no_ok=false);
+  static void process_parsed_command(bool no_ok=false);
   static void process_next_command();
 
   // Execute G-code in-place, preserving current G-code parameters
