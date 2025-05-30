@@ -155,6 +155,8 @@
   #include "ramps/pins_RUMBA.h"                     // ATmega2560                           env:mega2560
 #elif MB(RUMBA_RAISE3D)
   #include "ramps/pins_RUMBA_RAISE3D.h"             // ATmega2560                           env:mega2560
+#elif MB(RUMBA_E3D)
+  #include "ramps/pins_RUMBA_E3D.h"                 // ATmega2560                           env:mega2560
 #elif MB(RL200)
   #include "ramps/pins_RL200.h"                     // ATmega2560                           env:mega2560
 #elif MB(FORMBOT_TREX2PLUS)
