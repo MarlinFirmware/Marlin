@@ -153,7 +153,7 @@ public:
   }
 
   static bool isSDCardSelected() {
-    return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
   }
   static bool isSDIOCardSelected() {
     return TERN0(NEED_SD2CARD_SDIO, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));

@@ -1868,8 +1868,8 @@
   /**
    * SDIO Storage is more efficient than SPI
    */
-  //#define SDIO_SUPPORT
-  #if ENABLED(SDIO_SUPPORT)
+  //#define ONBOARD_SDIO
+  #if ENABLED(ONBOARD_SDIO)
     //#define SDIO_IS_ONBOARD      // Use friendly label for SDIO on UI menu
     #if ENABLED(SDIO_IS_ONBOARD)
       //#define SPI_SD_IS_EXTERNAL // Use friendly label to specify that the SPI SD card is external if SDIO is onboard
@@ -1974,11 +1974,9 @@
   //#define MULTI_VOLUME
   #if ENABLED(MULTI_VOLUME)
     #define VOLUME_SD_ONBOARD
-    #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-      #define VOLUME_USB_FLASH_DRIVE
-    #endif
-    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'SDIO_ONBOARD', 'USB_FLASH_DRIVE' ]
-    #define DEFAULT_SHARED_VOLUME SD_ONBOARD       // :[ 'SD_ONBOARD', 'SDIO_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define VOLUME_USB_FLASH_DRIVE
+    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
   #endif
 
 #endif // HAS_MEDIA

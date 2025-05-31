@@ -363,7 +363,7 @@ void menu_main() {
             if (card.isSDCardInserted())
               SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
             if (card.isSDIOCardInserted())
-             SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
+              SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
             if (card.isFlashDriveInserted())
               SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY_USB);
           #else

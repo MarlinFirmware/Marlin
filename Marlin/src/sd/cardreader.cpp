@@ -152,6 +152,7 @@ DiskIODriver* CardReader::driver = (
   #endif
 );
 
+DiskIODriver* CardReader::driver = nullptr;
 MarlinVolume CardReader::volume;
 MediaFile CardReader::myfile;
 
