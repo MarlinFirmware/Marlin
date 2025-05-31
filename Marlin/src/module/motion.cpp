@@ -2530,6 +2530,14 @@ void prepare_line_to_destination() {
       use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
     );
 
+    #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true)) {
+        planner.synchronize();
+        endstops.hit_on_purpose(); // Reset the Z Endstop state
+        endstops.z_homing_active = true; // Set the Z Endstop homing state to active
+      }
+    #endif
+
     //
     // Fast move towards endstop until triggered
     //
@@ -2794,6 +2802,13 @@ void prepare_line_to_destination() {
     // Restore axis motor(s) current after homing
     //
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
+
+    // Reset Z homing flag
+    #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true)) {
+        endstops.z_homing_active = false;
+      }
+    #endif
 
   } // homeaxis()
 
