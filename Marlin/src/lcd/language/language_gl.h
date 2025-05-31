@@ -48,14 +48,15 @@ namespace LanguageNarrow_gl {
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NON");
   LSTR MSG_BACK                           = _UxGT("Atrás");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarxeta inserida");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarxeta retirada");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Agardando ao ") MEDIA_TYPE_GL;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro lectura ") MEDIA_TYPE_GL;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Disp. USB retirado");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbord. Subch.");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("FinCarro");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("FinCarro SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");

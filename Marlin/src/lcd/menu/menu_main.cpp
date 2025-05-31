@@ -358,13 +358,13 @@ void menu_main() {
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);                 // [No Media]
         }
         else {
-          #if ALL(HAS_MULTI_VOLUME, SHOW_UNMOUNTED_DRIVES)
+          #if ENABLED(SHOW_UNMOUNTED_DRIVES)
             // [Select from SD/USB] (or Password First)
-            if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
+            if (card.isSDCardInserted())
               SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
-            if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDIOCardInserted()))
-              SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
-            if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isFlashDriveInserted()))
+            if (card.isSDIOCardInserted())
+             SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SDIO);
+            if (card.isFlashDriveInserted())
               SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY_USB);
           #else
             #define M21(T) F("M21" TERN_(HAS_MULTI_VOLUME, T))
