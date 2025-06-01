@@ -67,10 +67,10 @@ private:
   static G29_parameters_t param;
 
   #if IS_NEWPANEL
-    static void move_z_with_encoder(const_float_t multiplier);
+    static void move_z_with_encoder(const float multiplier);
     static float measure_point_with_encoder();
     static float measure_business_card_thickness();
-    static void manually_probe_remaining_mesh(const xy_pos_t&, const_float_t, const_float_t, const bool) __O0;
+    static void manually_probe_remaining_mesh(const xy_pos_t&, const float, const float, const bool) __O0;
     static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) __O0;
   #endif
 
@@ -101,13 +101,13 @@ public:
   static mesh_index_pair find_furthest_invalid_mesh_point() __O0;
   static void reset();
   static void invalidate();
-  static void set_all_mesh_points_to_value(const_float_t value);
-  static void adjust_mesh_to_mean(const bool cflag, const_float_t value);
+  static void set_all_mesh_points_to_value(const float value);
+  static void adjust_mesh_to_mean(const bool cflag, const float value);
   static bool sanity_check();
   static void smart_fill_mesh();
 
   static void G29() __O0;                           // O0 for no optimization
-  static void smart_fill_wlsf(const_float_t ) __O2; // O2 gives smaller code than Os on A2560
+  static void smart_fill_wlsf(const float ) __O2; // O2 gives smaller code than Os on A2560
 
   static int8_t storage_slot;
 
@@ -130,42 +130,42 @@ public:
 
   unified_bed_leveling();
 
-  FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
+  FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
-  static int8_t cell_index_x_raw(const_float_t x) {
+  static int8_t cell_index_x_raw(const float x) {
     return FLOOR((x - (MESH_MIN_X)) * RECIPROCAL(MESH_X_DIST));
   }
 
-  static int8_t cell_index_y_raw(const_float_t y) {
+  static int8_t cell_index_y_raw(const float y) {
     return FLOOR((y - (MESH_MIN_Y)) * RECIPROCAL(MESH_Y_DIST));
   }
 
-  static bool cell_index_x_valid(const_float_t x) {
+  static bool cell_index_x_valid(const float x) {
     return WITHIN(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static bool cell_index_y_valid(const_float_t y) {
+  static bool cell_index_y_valid(const float y) {
     return WITHIN(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static uint8_t cell_index_x(const_float_t x) {
+  static uint8_t cell_index_x(const float x) {
     return constrain(cell_index_x_raw(x), 0, GRID_MAX_CELLS_X - 1);
   }
 
-  static uint8_t cell_index_y(const_float_t y) {
+  static uint8_t cell_index_y(const float y) {
     return constrain(cell_index_y_raw(y), 0, GRID_MAX_CELLS_Y - 1);
   }
 
-  static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
+  static xy_uint8_t cell_indexes(const float x, const float y) {
     return { cell_index_x(x), cell_index_y(y) };
   }
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
-  static int8_t closest_x_index(const_float_t x) {
+  static int8_t closest_x_index(const float x) {
     const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * RECIPROCAL(MESH_X_DIST);
     return WITHIN(px, 0, (GRID_MAX_POINTS_X) - 1) ? px : -1;
   }
-  static int8_t closest_y_index(const_float_t y) {
+  static int8_t closest_y_index(const float y) {
     const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * RECIPROCAL(MESH_Y_DIST);
     return WITHIN(py, 0, (GRID_MAX_POINTS_Y) - 1) ? py : -1;
   }
@@ -188,7 +188,7 @@ public:
    *  It is fairly expensive with its 4 floating point additions and 2 floating point
    *  multiplications.
    */
-  FORCE_INLINE static float calc_z0(const_float_t a0, const_float_t a1, const_float_t z1, const_float_t a2, const_float_t z2) {
+  FORCE_INLINE static float calc_z0(const float a0, const float a1, const float z1, const float a2, const float z2) {
     return z1 + (z2 - z1) * (a0 - a1) / (a2 - a1);
   }
 
@@ -202,7 +202,7 @@ public:
    * z_correction_for_x_on_horizontal_mesh_line is an optimization for
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
-  static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const int x1_i, const int yi) {
+  static float z_correction_for_x_on_horizontal_mesh_line(const float rx0, const int x1_i, const int yi) {
     if (!WITHIN(x1_i, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(yi, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
@@ -225,7 +225,7 @@ public:
   //
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
-  static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
+  static float z_correction_for_y_on_vertical_mesh_line(const float ry0, const int xi, const int y1_i) {
     if (!WITHIN(xi, 0, (GRID_MAX_POINTS_X) - 1) || !WITHIN(y1_i, 0, (GRID_MAX_POINTS_Y) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
@@ -251,7 +251,7 @@ public:
    * Z-Height at both ends. Then it does a linear interpolation of these heights based
    * on the Y position within the cell.
    */
-  static float get_z_correction(const_float_t rx0, const_float_t ry0) {
+  static float get_z_correction(const float rx0, const float ry0) {
     const int8_t cx = cell_index_x(rx0), cy = cell_index_y(ry0); // return values are clamped
 
     /**
@@ -295,9 +295,9 @@ public:
   }
 
   #if UBL_SEGMENTED
-    static bool line_to_destination_segmented(const_feedRate_t scaled_fr_mm_s);
+    static bool line_to_destination_segmented(const feedRate_t scaled_fr_mm_s);
   #else
-    static void line_to_destination_cartesian(const_feedRate_t scaled_fr_mm_s, const uint8_t e);
+    static void line_to_destination_cartesian(const feedRate_t scaled_fr_mm_s, const uint8_t e);
   #endif
 
   static bool mesh_is_valid() {

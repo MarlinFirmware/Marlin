@@ -49,7 +49,7 @@ struct vector_3 {
     struct { float x, y, z; };
     float pos[3];
   };
-  vector_3(const_float_t _x, const_float_t _y, const_float_t _z) : x(_x), y(_y), z(_z) {}
+  vector_3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {}
   vector_3(const xy_float_t   &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); }
   vector_3(const xyz_float_t  &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }
   vector_3(const xyze_float_t &in) { TERN_(HAS_X_AXIS, x = in.x); TERN_(HAS_Y_AXIS, y = in.y); TERN_(HAS_Z_AXIS, z = in.z); }

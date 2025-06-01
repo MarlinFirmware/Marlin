@@ -123,12 +123,12 @@ class TFilamentMonitor : public FilamentMonitorBase {
         response.filament_motion_present(extruder);
       }
       static float& motion_distance() { return response.motion_distance_mm; }
-      static void set_motion_distance(const_float_t mm) { response.motion_distance_mm = mm; }
+      static void set_motion_distance(const float mm) { response.motion_distance_mm = mm; }
     #endif
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       static float& runout_distance() { return response.runout_distance_mm; }
-      static void set_runout_distance(const_float_t mm) { response.runout_distance_mm = mm; }
+      static void set_runout_distance(const float mm) { response.runout_distance_mm = mm; }
     #endif
 
     // Handle a block completion. RunoutResponseDelayed uses this to

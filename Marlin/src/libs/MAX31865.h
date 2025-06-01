@@ -153,7 +153,7 @@ public:
              int8_t spi_clk);
   #endif
 
-  void begin(max31865_numwires_t wires, const_float_t zero_res, const_float_t ref_res, const_float_t wire_res);
+  void begin(max31865_numwires_t wires, const float zero_res, const float ref_res, const float wire_res);
 
   uint8_t readFault();
   void clearFault();

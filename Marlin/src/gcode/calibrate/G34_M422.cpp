@@ -323,7 +323,7 @@ void GcodeSuite::G34() {
         msg.echoln();
         ui.set_status(msg);
 
-        auto decreasing_accuracy = [](const_float_t v1, const_float_t v2) {
+        auto decreasing_accuracy = [](const float v1, const float v2) {
           if (v1 < v2 * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
             LCD_MESSAGE(MSG_DECREASING_ACCURACY);

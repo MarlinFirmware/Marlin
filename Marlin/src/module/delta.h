@@ -116,7 +116,7 @@ void refresh_delta_clip_start_height();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics(const_float_t z1, const_float_t z2, const_float_t z3);
+void forward_kinematics(const float z1, const float z2, const float z3);
 
 FORCE_INLINE void forward_kinematics(const abc_float_t &point) {
   forward_kinematics(point.a, point.b, point.c);

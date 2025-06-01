@@ -716,7 +716,7 @@ void unified_bed_leveling::G29() {
  * G29 P5 C<value> : Adjust Mesh To Mean (and subtract the given offset).
  *                   Find the mean average and shift the mesh to center on that value.
  */
-void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t offset) {
+void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float offset) {
   float sum = 0;
   uint8_t n = 0;
   GRID_LOOP(x, y)
@@ -870,7 +870,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
     return false;
   }
 
-  void unified_bed_leveling::move_z_with_encoder(const_float_t multiplier) {
+  void unified_bed_leveling::move_z_with_encoder(const float multiplier) {
     ui.wait_for_release();
     while (!ui.button_pressed()) {
       idle();
@@ -953,7 +953,7 @@ void set_message_with_feedback(FSTR_P const fstr) {
    *          Move to INVALID points and
    *          NOTE: Blocks the G-code queue and captures Marlin UI during use.
    */
-  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const_float_t z_clearance, const_float_t thick, const bool do_ubl_mesh_map) {
+  void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float z_clearance, const float thick, const bool do_ubl_mesh_map) {
     ui.capture();
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
@@ -1661,10 +1661,10 @@ void unified_bed_leveling::smart_fill_mesh() {
        */
       #if ENABLED(VALIDATE_MESH_TILT)
         auto d_from = []{ DEBUG_ECHOPGM("D from "); };
-        auto normed = [&](const xy_pos_t &pos, const_float_t zadd) {
+        auto normed = [&](const xy_pos_t &pos, const float zadd) {
           return normal.x * pos.x + normal.y * pos.y + zadd;
         };
-        auto debug_pt = [](const int num, const xy_pos_t &pos, const_float_t zadd) {
+        auto debug_pt = [](const int num, const xy_pos_t &pos, const float zadd) {
           d_from();
           DEBUG_ECHOLN(F("Point "), num, C(':'), p_float_t(normed(pos, zadd), 6), F("   Z error = "), p_float_t(zadd - get_z_correction(pos), 6));
         };
@@ -1685,7 +1685,7 @@ void unified_bed_leveling::smart_fill_mesh() {
 #endif // HAS_BED_PROBE
 
 #if ENABLED(UBL_G29_P31)
-  void unified_bed_leveling::smart_fill_wlsf(const_float_t weight_factor) {
+  void unified_bed_leveling::smart_fill_wlsf(const float weight_factor) {
 
     // For each undefined mesh point, compute a distance-weighted least squares fit
     // from all the originally populated mesh points, weighted toward the point

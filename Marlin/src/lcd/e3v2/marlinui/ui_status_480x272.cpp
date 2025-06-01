@@ -108,7 +108,7 @@ void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink, 
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
 
-  void _draw_e_value(const_float_t value, const uint16_t x, const uint16_t y) {
+  void _draw_e_value(const float value, const uint16_t x, const uint16_t y) {
     const uint8_t scale = value >= 100000.0f ? 10 : 1; // show cm after 99,999mm
     const bool e_redraw = !ui.did_first_redraw || old_is_printing != print_job_timer.isRunning();
 
