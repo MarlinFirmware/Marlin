@@ -632,6 +632,9 @@ private:
     static void G80();
   #endif
 
+  static void G90() { set_relative_mode(false); }
+  static void G91() { set_relative_mode(true); }
+
   static void G92();
 
   #if ENABLED(CALIBRATION_GCODE)
