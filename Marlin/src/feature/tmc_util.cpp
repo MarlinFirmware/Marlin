@@ -992,8 +992,8 @@
       TMC_REPORT("Analog in (v)",    TMC_VAIN);
       TMC_REPORT("Supply (v)",       TMC_VSUPPLY);
       TMC_REPORT("Temp (°C)",        TMC_TEMP);
-      TMC_REPORT("OT pre warn (v)",  TMC_OVERTEMP);
-      TMC_REPORT("OV theshold (°C)", TMC_OVERVOLT_THD);
+      TMC_REPORT("OT pre warn (°C)", TMC_OVERTEMP);
+      TMC_REPORT("OV theshold (v)",  TMC_OVERVOLT_THD);
     #endif
     SERIAL_EOL();
   }
