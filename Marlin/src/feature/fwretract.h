@@ -56,8 +56,8 @@ public:
   #endif
 
   static Flags<EXTRUDERS> retracted;               // Which extruders are currently retracted
-  static float current_retract[EXTRUDERS],         // Retract value used by planner
-               current_hop;                        // Hop value used by planner
+  static float current_retract[EXTRUDERS];         // Retract value used by planner
+  static float current_hop;                        // Hop value used by planner
 
   FWRetract() { reset(); }
 
