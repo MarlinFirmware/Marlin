@@ -21,7 +21,7 @@ import argparse, re, sys, os
 
 from html.parser import HTMLParser
 
-description = '''
+description = """
 This program extracts line segments from a SVG file and writes
 them as coordinates in a C array. The x and y values will be
 scaled from 0x0000 to 0xFFFE. 0xFFFF is used as path separator.
@@ -47,9 +47,9 @@ could also use inkscape-applytransforms Inkscape extension.
 [2] "Approximate Curves by Straight Lines..." has replaced
 "Flatten Beziers".
 
-'''
+"""
 
-header = '''
+header = """
 /****************************************************************************
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -74,7 +74,7 @@ header = '''
  */
 
 #pragma once
-'''
+"""
 
 class ComputeBoundingBox:
   def reset(self):
