@@ -765,15 +765,15 @@
 #endif
 
 // Consolidate TMC26X, validate migration (#24373)
-#define _ISMAX_1(A) defined(A##_MAX_CURRENT)
-#define _ISSNS_1(A) defined(A##_SENSE_RESISTOR)
-#if DO(ISMAX,||,ALL_AXIS_NAMES)
+#define _ISMAX(A) defined(A##_MAX_CURRENT) ||
+#define _ISSNS(A) defined(A##_SENSE_RESISTOR) ||
+#if MAP(_ISMAX, ALL_AXIS_NAMES) 0
   #error "*_MAX_CURRENT is now set with *_CURRENT."
-#elif DO(ISSNS,||,ALL_AXIS_NAMES)
+#elif MAP(_ISSNS, ALL_AXIS_NAMES) 0
   #error "*_SENSE_RESISTOR (in Milli-Ohms) is now set with *_RSENSE (in Ohms), so you must divide values by 1000."
 #endif
-#undef _ISMAX_1
-#undef _ISSNS_1
+#undef _ISMAX
+#undef _ISSNS
 
 // L64xx stepper drivers have been removed
 #define _L6470              0x6470

@@ -1001,7 +1001,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH < 20
 
         #if HAS_PRINT_PROGRESS
-          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 2));
+          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 1));
           rotate_progress();
         #endif
 

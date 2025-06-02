@@ -256,10 +256,7 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if ENABLED(NONLINEAR_EXTRUSION)
-  ne_coeff_t Stepper::ne;
-  ne_fix_t Stepper::ne_fix;
-  int32_t Stepper::ne_edividend;
-  uint32_t Stepper::ne_scale;
+  nonlinear_t Stepper::ne;              // Initialized by settings.load
 #endif
 
 #if HAS_ZV_SHAPING
@@ -1510,6 +1507,10 @@ HAL_STEP_TIMER_ISR() {
   #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 #endif
 
+#if ENABLED(SMOOTH_LIN_ADVANCE)
+  FORCE_INLINE static constexpr int32_t MULT_Q(uint8_t q, int32_t x, int32_t y) { return (int64_t(x) * y) >> q; }
+#endif
+
 void Stepper::isr() {
 
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
@@ -1530,7 +1531,7 @@ void Stepper::isr() {
   uint8_t max_loops = 10;
 
   #if ENABLED(FT_MOTION)
-    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxilliary tasks.
+    static uint32_t ftMotion_nextAuxISR = 0U;  // Storage for the next ISR of the auxiliary tasks.
     const bool using_ftMotion = ftMotion.cfg.active;
   #else
     constexpr bool using_ftMotion = false;
@@ -1545,21 +1546,18 @@ void Stepper::isr() {
     #if ENABLED(FT_MOTION)
 
       if (using_ftMotion) {
-        if (!nextMainISR) {               // Main ISR is ready to fire during this iteration?
-          nextMainISR = FTM_MIN_TICKS;    // Set to minimum interval (a limit on the top speed)
-          ftMotion_stepper();             // Run FTM Stepping
-          // Define 2.5 msec task for auxilliary functions.
-          if (!ftMotion_nextAuxISR) {
-            TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
-            ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
-          }
+        ftMotion_stepper();             // Run FTM Stepping
+
+        // Define 2.5 msec task for auxiliary functions.
+        if (!ftMotion_nextAuxISR) {
+          TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
+          ftMotion_nextAuxISR = (STEPPER_TIMER_RATE) / 400;
         }
 
-        // Enable ISRs to reduce latency for higher priority ISRs, or all ISRs if no prioritization.
+        // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
 
-        interval = _MIN(nextMainISR, ftMotion_nextAuxISR);
-        nextMainISR -= interval;
+        interval = FTM_MIN_TICKS;
         ftMotion_nextAuxISR -= interval;
       }
 
@@ -2237,13 +2235,13 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
   #endif // !CPU_32_BIT
 }
 
-#if ENABLED(NONLINEAR_EXTRUSION)
-  void Stepper::calc_nonlinear_e(uint32_t step_rate) {
-    const uint32_t velocity = ne_scale * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd =  (((((int64_t)ne_fix.A * velocity) >> 24) * velocity) >> 24) + (((int64_t)ne_fix.B * velocity) >> 24);
-    NOLESS(vd, 0);
+#if NONLINEAR_EXTRUSION_Q24
+  void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
+    const uint32_t velocity_q24 = ne.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    int32_t vd_q24 = ((((int64_t(ne.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(ne.q24.B) * velocity_q24) >> 24);
+    NOLESS(vd_q24, 0);
 
-    advance_dividend.e = (uint64_t(ne_fix.C + vd) * ne_edividend) >> 24;
+    advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.edividend) >> 24;
   }
 #endif
 
@@ -2459,9 +2457,7 @@ hal_timer_t Stepper::block_phase_isr() {
         acceleration_time += interval;
         deceleration_time = 0; // Reset since we're doing acceleration first.
 
-        #if ENABLED(NONLINEAR_EXTRUSION)
-          calc_nonlinear_e(acc_step_rate << oversampling_factor);
-        #endif
+        calc_nonlinear_e(acc_step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
@@ -2525,9 +2521,7 @@ hal_timer_t Stepper::block_phase_isr() {
         interval = calc_multistep_timer_interval(step_rate << oversampling_factor);
         deceleration_time += interval;
 
-        #if ENABLED(NONLINEAR_EXTRUSION)
-          calc_nonlinear_e(step_rate << oversampling_factor);
-        #endif
+        calc_nonlinear_e(step_rate << oversampling_factor);
 
         #if HAS_ROUGH_LIN_ADVANCE
           if (la_active) {
@@ -2580,9 +2574,7 @@ hal_timer_t Stepper::block_phase_isr() {
           TERN_(SMOOTH_LIN_ADVANCE, curr_step_rate = current_block->nominal_rate;)
           deceleration_time = ticks_nominal / 2;
 
-          #if ENABLED(NONLINEAR_EXTRUSION)
-            calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
-          #endif
+          calc_nonlinear_e(current_block->nominal_rate << oversampling_factor);
 
           #if HAS_ROUGH_LIN_ADVANCE
             if (la_active)
@@ -2832,18 +2824,19 @@ hal_timer_t Stepper::block_phase_isr() {
         acc_step_rate = current_block->initial_rate;
       #endif
 
-      #if ENABLED(NONLINEAR_EXTRUSION)
-        ne_edividend = advance_dividend.e;
-        const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-        ne_scale = (1L << 24) * scale;
-        if (current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
-          ne_fix.A = (1L << 24) * ne.A;
-          ne_fix.B = (1L << 24) * ne.B;
-          ne_fix.C = (1L << 24) * ne.C;
+      // Calculate Nonlinear Extrusion fixed-point quotients
+      #if NONLINEAR_EXTRUSION_Q24
+        ne.edividend = advance_dividend.e;
+        const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        ne.scale_q24 = _BV32(24) * scale;
+        if (ne.settings.enabled && current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
+          ne.q24.A = _BV32(24) * ne.settings.coeff.A;
+          ne.q24.B = _BV32(24) * ne.settings.coeff.B;
+          ne.q24.C = _BV32(24) * ne.settings.coeff.C;
         }
         else {
-          ne_fix.A = ne_fix.B = 0;
-          ne_fix.C = (1L << 24);
+          ne.q24.A = ne.q24.B = 0;
+          ne.q24.C = _BV32(24);
         }
       #endif
 
@@ -2852,9 +2845,7 @@ hal_timer_t Stepper::block_phase_isr() {
       // Initialize ac/deceleration time as if half the time passed.
       acceleration_time = deceleration_time = interval / 2;
 
-      #if ENABLED(NONLINEAR_EXTRUSION)
-        calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
-      #endif
+      calc_nonlinear_e(current_block->initial_rate << oversampling_factor);
 
       #if ENABLED(LIN_ADVANCE)
         #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -2877,17 +2868,27 @@ hal_timer_t Stepper::block_phase_isr() {
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
 
-    float Stepper::extruder_advance_tau[DISTINCT_E],
-          Stepper::extruder_advance_tau_ticks[DISTINCT_E],
-          Stepper::extruder_advance_alpha[DISTINCT_E];
+    float Stepper::extruder_advance_tau[DISTINCT_E];
+    uint32_t Stepper::extruder_advance_tau_ticks[DISTINCT_E],
+             Stepper::extruder_advance_alpha_q30[DISTINCT_E];
 
-    void Stepper::set_la_interval(const int32_t rate) {
-      if (rate == 0) {
+    void Stepper::set_la_interval(int32_t step_rate) {
+      if (step_rate == 0) {
         la_interval = LA_ADV_NEVER;
       }
       else {
-        const bool forward_e = rate > 0;
-        la_interval = calc_timer_interval(uint32_t(ABS(rate)));
+        const bool forward_e = step_rate > 0;
+
+        #if ENABLED(NONLINEAR_EXTRUSION)
+          if (forward_e && ANY_AXIS_MOVES(current_block)) {
+            // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
+            int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
+            NOLESS(vd_q30, 0);
+            step_rate = (int64_t(step_rate) * (ne.q30.C + vd_q30)) >> 30;
+          }
+        #endif
+
+        la_interval = calc_timer_interval(uint32_t(ABS(step_rate)));
         if (forward_e != motor_direction(E_AXIS)) {
           last_direction_bits.toggle(E_AXIS);
           count_direction.e = -count_direction.e;
@@ -2904,127 +2905,129 @@ hal_timer_t Stepper::block_phase_isr() {
       constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
 
       typedef struct {
-        xy_float_t buffer[IS_COMPENSATION_BUFFER_SIZE];
+        xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
         uint16_t index;
+        FORCE_INLINE void add(const xy_long_t &input) {
+          buffer[index] = input;
+          if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
+        }
+        FORCE_INLINE xy_long_t past_item(const uint16_t n) {
+          int16_t i = int16_t(index) - n;
+          if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
+          // The following only happens when IS Freq is set below the minimum
+          // configured at build time ...in which case IS will also misbehave!
+          // Using setters whenever possible prevents values being set too low.
+          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
+          return buffer[i];
+        }
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      void add_to_buffer(xy_float_t input) {
-        delayBuffer.buffer[delayBuffer.index++] = input;
-        if (delayBuffer.index == IS_COMPENSATION_BUFFER_SIZE)
-          delayBuffer.index = 0;
-      }
-
-      xy_float_t lookback(shaping_time_t t /* in stepper timer ticks */) {
-        constexpr float ADV_TICKS_PER_STEPPER_TICKS = float(SMOOTH_LIN_ADV_HZ) / (STEPPER_TIMER_RATE);
-        uint32_t delay_steps = t * ADV_TICKS_PER_STEPPER_TICKS  + 0.5f; // Convert time to steps
-        uint16_t past_i;
-        if (delay_steps>= IS_COMPENSATION_BUFFER_SIZE) {
-          // this means the buffer is too small. TODO: how to inform user?
-          past_i = delayBuffer.index;
-        }
-        else {
-          past_i = (delayBuffer.index + IS_COMPENSATION_BUFFER_SIZE - delay_steps) % IS_COMPENSATION_BUFFER_SIZE;
-        }
-        return delayBuffer.buffer[past_i];
+      xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
+        constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
+        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
+        return delayBuffer.past_item(delay_steps);
       }
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    float lookahead(uint32_t t) {
-      for (uint8_t i = 0; block_t *block = Planner::get_future_block(i); i++) {
+    int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
+      for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
-        if (t <= block->acceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate) + block->initial_rate;
+        if (stepper_ticks <= block->acceleration_time) {
+          if (!block->use_advance_lead) return 0;
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
           NOMORE(rate, block->nominal_rate);
-          return rate * block->e_step_ratio;
+          return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->acceleration_time;
+        stepper_ticks -= block->acceleration_time;
 
-        if (t <= block->cruise_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          return block->cruise_rate * block->e_step_ratio;
+        if (stepper_ticks <= block->cruise_time) {
+          if (!block->use_advance_lead) return 0;
+          return MULT_Q(30, block->cruise_rate, block->e_step_ratio_q30);
         }
-        t -= block->cruise_time;
+        stepper_ticks -= block->cruise_time;
 
-        if (t <= block->deceleration_time) {
-          if (!block->use_advance_lead) return 0.0f;
-          uint32_t rate = STEP_MULTIPLY(t, block->acceleration_rate);
+        if (stepper_ticks <= block->deceleration_time) {
+          if (!block->use_advance_lead) return 0;
+          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
           if (rate < block->cruise_rate) {
             rate = block->cruise_rate - rate;
             NOLESS(rate, block->final_rate);
           }
           else
             rate = block->final_rate;
-          return rate * block->e_step_ratio;
+          return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
-        t -= block->deceleration_time;
+        stepper_ticks -= block->deceleration_time;
       }
-      return 0.0f;
+      return 0;
     }
 
     hal_timer_t Stepper::smooth_lin_adv_isr() {
-      float target_adv_steps = 0;
+      int32_t target_adv_steps = 0;
       if (current_block) {
-        const uint32_t t = extruder_advance_tau_ticks[0] + curr_timer_tick;
-        target_adv_steps = lookahead(t) * Planner::extruder_advance_K[0];
+        const uint32_t stepper_ticks = extruder_advance_tau_ticks[E_INDEX_N(active_extruder)] + curr_timer_tick;
+        target_adv_steps = MULT_Q(27, smooth_lin_adv_lookahead(stepper_ticks), planner.get_advance_k_q27());
       }
       else {
         curr_step_rate = 0;
       }
-      static float last_target_adv_steps = 0;
-      constexpr float dt_inv = SMOOTH_LIN_ADV_HZ;
-      float la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
+      static int32_t last_target_adv_steps = 0;
+      constexpr uint16_t dt_inv = SMOOTH_LIN_ADV_HZ;
+      int32_t la_step_rate = (target_adv_steps - last_target_adv_steps) * dt_inv;
       last_target_adv_steps = target_adv_steps;
 
-      static float smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+      static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
+
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
         // Approximate gaussian smoothing via higher order exponential smoothing
-        la_step_rate = extruder_advance_alpha[0] * la_step_rate + (1 - extruder_advance_alpha[0]) * smoothed_vals[i];
-        smoothed_vals[i] = la_step_rate;
+        smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
+        la_step_rate = smoothed_vals[i];
       }
-      const float planned_step_rate = current_block ? curr_step_rate * current_block->e_step_ratio : 0;
-      float total_step_rate = la_step_rate + planned_step_rate;
+
+      const int32_t planned_step_rate = current_block
+        ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
+        : 0;
 
       #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-        xy_float_t pre_shaping_rate = xy_float_t({0, 0}),
-                   first_pulse_rate = xy_float_t({0, 0});
-        float unshaped_rate_e = total_step_rate;
-        if (current_block) {
-          const float xy_length = TERN0(INPUT_SHAPING_X, current_block->steps.x) + TERN0(INPUT_SHAPING_Y, current_block->steps.y);
-          if (xy_length > 0) {
-            unshaped_rate_e = 0;
-            pre_shaping_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, total_step_rate * current_block->steps.x / xy_length),
-              TERN0(INPUT_SHAPING_Y, total_step_rate * current_block->steps.y / xy_length)
-            });
-            first_pulse_rate = xy_float_t({
-              TERN0(INPUT_SHAPING_X, pre_shaping_rate.x * Stepper::shaping_x.factor1 / 128.0f),
-              TERN0(INPUT_SHAPING_Y, pre_shaping_rate.y * Stepper::shaping_y.factor1 / 128.0f)
-            });
-          }
+        int32_t unshaped_rate_e = la_step_rate + planned_step_rate;
+
+        xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
+        if (current_block && current_block->xy_length_inv_q30 > 0) {
+          pre_shaping_rate = xy_long_t({
+            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
+            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
+          });
+          unshaped_rate_e = 0;
+
+          first_pulse_rate = xy_long_t({
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
+          });
         }
-        const xy_float_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2 / 128.0f),
-          TERN0(INPUT_SHAPING_Y, lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2 / 128.0f)
-        };
-        add_to_buffer(pre_shaping_rate);
 
-        const float x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                    y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        const xy_long_t second_pulse_rate = xy_long_t({
+          TERN0(INPUT_SHAPING_X, shaping_x.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * shaping_x.factor2) >> 7 : 0),
+          TERN0(INPUT_SHAPING_Y, shaping_y.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * shaping_y.factor2) >> 7 : 0)
+        });
 
-        total_step_rate = unshaped_rate_e + x + y;
+        delayBuffer.add(pre_shaping_rate);
 
-      #endif // INPUT_SHAPING_E_SYNC
+        set_la_interval(unshaped_rate_e + first_pulse_rate.x + second_pulse_rate.x + first_pulse_rate.y + second_pulse_rate.y);
 
-      set_la_interval(total_step_rate);
+      #else // !INPUT_SHAPING_E_SYNC
+
+        set_la_interval(la_step_rate + planned_step_rate);
+
+      #endif
 
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
     }
+
   #endif // SMOOTH_LIN_ADVANCE
 
   // Timer interrupt for E. LA_steps is set in the main routine

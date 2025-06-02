@@ -32,5 +32,5 @@
 #define SDIO_CMD_PIN  PD2
 
 void sdio_mfl_init();
-bool SDIO_SetBusWidth(sdio::Bus_Width width);
+auto SDIO_SetBusWidth(sdio::Bus_Width width) -> bool;
 void DMA1_IRQHandler(dma::DMA_Channel channel);
