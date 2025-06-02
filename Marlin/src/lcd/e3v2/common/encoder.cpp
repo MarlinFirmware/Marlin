@@ -137,9 +137,8 @@ EncoderState encoderReceiveAnalyze() {
 
   // LED write data
   void LED_WriteData() {
-    uint8_t tempCounter_LED, tempCounter_Bit;
-    for (tempCounter_LED = 0; tempCounter_LED < LED_NUM; tempCounter_LED++) {
-      for (tempCounter_Bit = 0; tempCounter_Bit < 24; tempCounter_Bit++) {
+    for (uint8_t tempCounter_LED = 0; tempCounter_LED < LED_NUM; tempCounter_LED++) {
+      for (uint8_t tempCounter_Bit = 0; tempCounter_Bit < 24; tempCounter_Bit++) {
         if (LED_DataArray[tempCounter_LED] & (0x800000 >> tempCounter_Bit)) {
           LED_DATA_HIGH;
           DELAY_NS(300);
@@ -190,20 +189,22 @@ EncoderState encoderReceiveAnalyze() {
       }
     }
 
-    struct { bool g, r, b; } led_flag = { false, false, false };
+    struct { bool g, r, b; } led_flag;
     for (uint8_t i = 0; i < LED_NUM; i++) {
+      led_flag = { false, false, false };
       while (1) {
         const uint8_t g = uint8_t(LED_DataArray[i] >> 16),
                       r = uint8_t(LED_DataArray[i] >> 8),
                       b = uint8_t(LED_DataArray[i]);
         if (g == led_data[i].g) led_flag.g = true;
-        else LED_DataArray[i] += (g > led_data[i].g) ? -0x010000 : 0x010000;
+        else LED_DataArray[i] += (g > led_data[i].g) ? -_BV32(16) : _BV32(16);
         if (r == led_data[i].r) led_flag.r = true;
-        else LED_DataArray[i] += (r > led_data[i].r) ? -0x000100 : 0x000100;
+        else LED_DataArray[i] += (r > led_data[i].r) ? -_BV32(8) : _BV32(8);
         if (b == led_data[i].b) led_flag.b = true;
-        else LED_DataArray[i] += (b > led_data[i].b) ? -0x000001 : 0x000001;
+        else LED_DataArray[i] += (b > led_data[i].b) ? -_BV32(0) : _BV32(0);
+
         LED_WriteData();
-        if (led_flag.r && led_flag.g && led_flag.b) break;
+        if (led_flag.g && led_flag.r && led_flag.b) break;
         delay(change_Interval);
       }
     }
