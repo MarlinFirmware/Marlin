@@ -283,15 +283,41 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // HAS_ZV_SHAPING
 
+//
+// NonLinear Extrusion data
+//
 #if ENABLED(NONLINEAR_EXTRUSION)
-  typedef struct { float A, B, C; void reset() { A = B = 0.0f; C = 1.0f; } } ne_coeff_t;
+
   #if DISABLED(SMOOTH_LIN_ADVANCE)
     #define NONLINEAR_EXTRUSION_Q24 1
-    typedef struct { int32_t A, B, C; } ne_q24_t;
-  #else
-    typedef struct { int32_t A, B, C; } ne_q30_t;
   #endif
-#endif
+
+  typedef struct {
+    bool enabled;
+    struct {
+      float A, B, C;
+      void reset() { A = B = 0.0f; C = 1.0f; }
+    } coeff;
+    void reset() {
+      enabled = ENABLED(NONLINEAR_EXTRUSION_DEFAULT_ON);
+      coeff.reset();
+    }
+  } nonlinear_settings_t;
+
+  typedef struct {
+    nonlinear_settings_t settings;
+    union {
+      struct { int32_t A, B, C; } q24;
+      struct { int32_t A, B, C; } q30;
+    };
+    #if NONLINEAR_EXTRUSION_Q24
+      protected:
+        int32_t edividend;
+        uint32_t scale_q24;
+    #endif
+  } nonlinear_t;
+
+#endif // NONLINEAR_EXTRUSION
 
 //
 // Stepper class definition
@@ -347,12 +373,7 @@ class Stepper {
     #endif
 
     #if ENABLED(NONLINEAR_EXTRUSION)
-      static ne_coeff_t ne;
-      #if NONLINEAR_EXTRUSION_Q24
-        static ne_q24_t ne_q24;
-      #else
-        static ne_q30_t ne_q30;
-      #endif
+      static nonlinear_t ne;
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING_TOGGLE)
@@ -475,11 +496,6 @@ class Stepper {
                         la_advance_steps;   // Count of steps added to increase nozzle pressure
         static bool     la_active;          // Whether linear advance is used on the present segment
       #endif
-    #endif
-
-    #if NONLINEAR_EXTRUSION_Q24
-      static int32_t ne_edividend;
-      static uint32_t ne_scale_q24;
     #endif
 
     #if ENABLED(BABYSTEPPING)

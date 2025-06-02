@@ -45,13 +45,14 @@ namespace LanguageNarrow_cz {
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Rušení...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Médium vloženo");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Médium vyjmuto");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Čekání na médium");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čtení média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB odstraněno");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB odstraněno");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Chyba USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hlavní nabídka");

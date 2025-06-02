@@ -249,7 +249,7 @@ typedef struct PlannerBlock {
     uint32_t cruise_time;                   // Cruise time in STEP timer counts
     int32_t e_step_ratio_q30;               // Ratio of e steps to block steps.
     #if ENABLED(INPUT_SHAPING_E_SYNC)
-      uint32_t xy_length_inv_q30;           // inverse of block->steps.x + block.steps.y
+      uint32_t xy_length_inv_q30;           // Inverse of block->steps.x + block.steps.y
     #endif
   #endif
   #if ANY(S_CURVE_ACCELERATION, SMOOTH_LIN_ADVANCE)
@@ -370,7 +370,6 @@ typedef struct PlannerSettings {
     };
     #undef _EASU
     #undef _DASU
-    #undef _DLIM
   #endif
 
   feedRate_t max_feedrate_mm_s[DISTINCT_AXES]; // (mm/s)   M203 XYZE - Max speeds

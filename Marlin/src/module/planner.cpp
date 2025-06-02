@@ -1505,10 +1505,12 @@ void Planner::check_axes_activity() {
 
 #if HAS_LEVELING
 
-  constexpr xy_pos_t level_fulcrum = {
-    TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_HOME_POS),
-    TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
-  };
+  #if ABL_PLANAR
+    constexpr xy_pos_t level_fulcrum = {
+      TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_HOME_POS),
+      TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_HOME_POS)
+    };
+  #endif
 
   /**
    * rx, ry, rz - Cartesian positions in mm
@@ -3253,8 +3255,8 @@ void Planner::refresh_positioning() {
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     LOOP_DISTINCT_AXES(i) mm_per_step[i] = 1.0f / settings.axis_steps_per_mm[i];
     #if ALL(NONLINEAR_EXTRUSION, SMOOTH_LIN_ADVANCE)
-      stepper.ne_q30.A = _BV32(30) * (stepper.ne.A * mm_per_step[E_AXIS_N(0)] * mm_per_step[E_AXIS_N(0)]);
-      stepper.ne_q30.B = _BV32(30) * (stepper.ne.B * mm_per_step[E_AXIS_N(0)]);
+      stepper.ne.q30.A = _BV32(30) * (stepper.ne.settings.coeff.A * mm_per_step[E_AXIS_N(0)] * mm_per_step[E_AXIS_N(0)]);
+      stepper.ne.q30.B = _BV32(30) * (stepper.ne.settings.coeff.B * mm_per_step[E_AXIS_N(0)]);
     #endif
   #endif
   set_position_mm(current_position);

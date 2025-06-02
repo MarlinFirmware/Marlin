@@ -86,9 +86,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
         const float echange = destination.e - current_position.e;
         // Is this a retract or recover move?
         if (WITHIN(ABS(echange), MIN_AUTORETRACT, MAX_AUTORETRACT) && fwretract.retracted[active_extruder] == (echange > 0.0)) {
-          current_position.e = destination.e;       // Hide a G1-based retract/recover from calculations
-          sync_plan_position_e();                   // AND from the planner
-          return fwretract.retract(echange < 0.0);  // Firmware-based retract/recover (double-retract ignored)
+          current_position.e = destination.e;    // Hide a G1-based retract/recover from calculations
+          sync_plan_position_e();                // AND from the planner
+          fwretract.retract(echange < 0.0);      // Firmware-based retract/recover (double-retract ignored)
+          return;
         }
       }
     }
