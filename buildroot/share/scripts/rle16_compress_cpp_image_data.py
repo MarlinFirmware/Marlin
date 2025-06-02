@@ -5,6 +5,7 @@ Reads the existing Marlin RGB565 cpp file and generates a new file with the addi
 
 Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
 """
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):

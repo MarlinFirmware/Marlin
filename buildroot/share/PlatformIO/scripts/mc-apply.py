@@ -15,6 +15,7 @@
 #    -h, --help   show this help message and exit
 #    --opt        Output as an option setting script.
 #
+
 import json, sys, os, config, argparse
 
 def report_version(conf):

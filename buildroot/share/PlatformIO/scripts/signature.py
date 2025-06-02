@@ -2,6 +2,7 @@
 #
 # signature.py
 #
+
 import schema, subprocess, re, json, hashlib
 from datetime import datetime
 from pathlib import Path
@@ -75,6 +76,7 @@ def get_file_sha256sum(filepath):
 #
 # Compress a JSON file into a zip file
 #
+
 import zipfile
 def compress_file(filepath, storedname, outpath):
     with zipfile.ZipFile(

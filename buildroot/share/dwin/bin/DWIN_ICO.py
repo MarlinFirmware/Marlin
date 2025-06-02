@@ -53,6 +53,7 @@
 # * One exception is number 39: that header entry is blank, and dwin.h
 #   does not define a name for 39. This is specially handled to
 #   prevent reordering stock icons.
+
 import os, struct
 from PIL import Image
 

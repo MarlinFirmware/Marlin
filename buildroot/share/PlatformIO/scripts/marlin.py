@@ -2,6 +2,7 @@
 # marlin.py
 # Helper module with some commonly-used functions
 #
+
 import shutil
 from pathlib import Path
 from SCons.Script import DefaultEnvironment

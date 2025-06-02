@@ -6,6 +6,7 @@ Make sure both copies always match:
  - buildroot/share/PlatformIO/scripts/config.py
 
 """
+
 import re
 
 FILES = ("Marlin/Configuration.h", "Marlin/Configuration_adv.h")

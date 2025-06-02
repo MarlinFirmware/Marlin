@@ -2,6 +2,7 @@
 """
 Extract the builds used in Github CI, so that we can run them locally
 """
+
 import yaml
 
 # Set the yaml file to parse

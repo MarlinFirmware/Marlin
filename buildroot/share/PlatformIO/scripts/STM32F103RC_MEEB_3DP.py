@@ -1,6 +1,7 @@
 #
 # STM32F103RC_MEEB_3DP.py
 #
+
 import pioutil
 if pioutil.is_pio_build():
     env = pioutil.env

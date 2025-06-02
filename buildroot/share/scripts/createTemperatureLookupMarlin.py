@@ -18,6 +18,7 @@ Options:
   --t3=ttt:rrr      High temperature temperature:resistance point (around 250 degC)
   --num-temps=...   The number of temperature points to calculate (default: 36)
 """
+
 from __future__ import print_function, division
 from math import *
 import sys, getopt

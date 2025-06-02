@@ -6,6 +6,7 @@ Output: A new file with the original and compressed data.
 
 Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
 """
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):

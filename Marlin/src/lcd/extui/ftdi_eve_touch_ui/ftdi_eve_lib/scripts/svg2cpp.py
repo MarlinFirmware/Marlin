@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 # Written By Marcio Teixeira 2018 - Aleph Objects, Inc.
-# Edited By Andrew 2025 - ClassicRocker883
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,12 +14,13 @@
 #
 # To view a copy of the GNU General Public License, go to the following
 # location: <https://www.gnu.org/licenses/>.
+
 from __future__ import print_function
-import argparse, re, sys, os
+import argparse, re, sys
 
 from html.parser import HTMLParser
 
-description = """
+usage = """
 This program extracts line segments from a SVG file and writes
 them as coordinates in a C array. The x and y values will be
 scaled from 0x0000 to 0xFFFE. 0xFFFF is used as path separator.
@@ -33,8 +33,8 @@ SVG file into the proper format, use the following procedure:
   - Convert all Objects to Paths (Path -> Object to Path)
   - Convert all Strokes to Paths (Path -> Stroke to Path)
   - Combine all paths into one (Path -> Combine) [1]
-  - Convert all curves into short line segments [2]
-      (Extensions -> Modify Paths -> Appoximate Curves by Straight Lines...)
+  - Convert all curves into short line segments
+        (Extensions -> Modify Paths -> Flatten Beziers...)
   - Save as new SVG
   - Convert into a header file using this utility
   - To give paths individual names, break apart paths and
@@ -42,9 +42,6 @@ SVG file into the proper format, use the following procedure:
 
 [1] Combining paths is necessary to remove transforms. You
 could also use inkscape-applytransforms Inkscape extension.
-
-[2] "Approximate Curves by Straight Lines..." has replaced
-"Flatten Beziers".
 
 """
 
@@ -123,10 +120,8 @@ class ComputeBoundingBox:
         return False
 
 class WriteDataStructure:
-    def __init__(self, bounding_box, input_filename):
+    def __init__(self, bounding_box):
         self.bounds = bounding_box
-        self.reset()
-        self.input_filename = input_filename
 
     def reset(self):
         self.hex_words = []
@@ -144,15 +139,8 @@ class WriteDataStructure:
     def path_finished(self, id):
         if self.hex_words and self.hex_words[0] == "0xFFFF":
             self.hex_words.pop(0)
-        self.write_to_file(id)
+        print("const PROGMEM uint16_t", id + "[] = {" + ", ".join (self.hex_words) + "};")
         self.hex_words = []
-
-    def write_to_file(self, id):
-        base_filename = os.path.splitext(self.input_filename)[0] + ".h"
-
-        with open(base_filename, "w") as outfile:
-            outfile.write(header)
-            outfile.write("const PROGMEM uint16_t " + id + "[] = {" + ", ".join(self.hex_words) + "};\n")
 
 class SVGParser(HTMLParser):
     def __init__(self, args):
@@ -227,7 +215,7 @@ class SVGParser(HTMLParser):
         """
 
         self.d = d
-        while self.d:
+        while (self.d):
             if self.eat_token(r'\s+'):
                 pass  # Just eat the spaces
 
@@ -266,7 +254,7 @@ class SVGParser(HTMLParser):
                 print("Syntax error:", d, "in path", id, "\n", file=sys.stderr)
                 quit()
 
-    def find_attr(self, attrs, what):
+    def find_attr(attrs, what):
         for attr, value in attrs:
             if attr == what:
                 return value
@@ -283,19 +271,19 @@ class SVGParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         self.tags.append(tag)
         if tag == "svg":
-            self.viewbox = self.find_attr(attrs, "viewbox")
+            self.viewbox = SVGParser.find_attr(attrs, "viewbox")
         if tag == "g":
-            label = self.find_attr(attrs, "inkscape:label")
+            label = SVGParser.find_attr(attrs, "inkscape:label")
             self.groups.append(label)
             if label and self.layer_matches():
                 print("Reading layer:", label, file=sys.stderr)
         if tag == "path" and self.layer_matches():
-            id = self.find_attr(attrs, "id")
-            transform = self.find_attr(attrs, "transform")
+            id = SVGParser.find_attr(attrs, "id")
+            transform = SVGParser.find_attr(attrs, "transform")
             if transform:
                 print("Found transform in path", id, "! Cannot process file!", file=sys.stderr)
                 quit()
-            d = self.find_attr(attrs, "d")
+            d = SVGParser.find_attr(attrs, "d")
             if d:
                 self.process_svg_path_data(id, d)
                 if self.op:
@@ -309,7 +297,7 @@ class SVGParser(HTMLParser):
             print("Error popping tag off list")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawTextHelpFormatter)
+    parser = argparse.ArgumentParser()
     parser.add_argument("filename")
     parser.add_argument("--layer", help="only include layers which have this string in their names")
     args = parser.parse_args()
@@ -330,7 +318,7 @@ if __name__ == "__main__":
         b.write()
 
     # Last pass to process paths
-    w = WriteDataStructure(b, args.filename)
+    w = WriteDataStructure(b)
     p = SVGParser(args)
     p.set_consumer(w)
     p.feed(data)

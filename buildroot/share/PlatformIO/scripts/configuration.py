@@ -3,6 +3,7 @@
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
+
 import re, shutil, configparser, datetime
 from pathlib import Path
 

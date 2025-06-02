@@ -6,6 +6,7 @@ Usage: pinsformat.py [infile] [outfile]
 
 With no parameters convert STDIN to STDOUT
 """
+
 import sys, re
 
 do_log = False

@@ -2,6 +2,7 @@
 # post:common-dependencies-post.py
 # Convenience script to add build flags for Marlin Enabled Features
 #
+
 import pioutil
 if pioutil.is_pio_build():
     env = pioutil.env

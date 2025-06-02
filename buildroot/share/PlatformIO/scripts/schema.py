@@ -11,6 +11,7 @@
 # been extended to evaluate conditions and can determine what options are actually enabled, not just which
 # options are uncommented. That will be migrated to this script for standalone migration.
 #
+
 import re, json
 from pathlib import Path
 

@@ -2,6 +2,7 @@
 # common-cxxflags.py
 # Convenience script to apply customizations to CPP flags
 #
+
 import pioutil
 if pioutil.is_pio_build():
     env = pioutil.env

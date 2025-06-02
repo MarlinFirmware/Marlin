@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-"""Generate the stepper delay lookup table for Marlin firmware"""
+"""
+Generate the stepper delay lookup table for Marlin firmware
+"""
 
 from __future__ import print_function, division
 import argparse
