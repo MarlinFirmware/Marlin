@@ -3,14 +3,14 @@
 <h1 align="center">Marlin 3D Printer Firmware</h1>
 
 <p align="center">
-    <a href="/LICENSE"><img alt="GPL-V3.0 License" src="https://img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="https://img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
-    <a href="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml"><img alt="CI Status" src="https://github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml/badge.svg"></a>
-    <a href="https://github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="https://img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
+    <a href="/LICENSE"><img alt="GPL-V3.0 License" src="//img.shields.io/github/license/marlinfirmware/marlin.svg"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/graphs/contributors"><img alt="Contributors" src="//img.shields.io/github/contributors/marlinfirmware/marlin.svg"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/releases"><img alt="Last Release Date" src="//img.shields.io/github/release-date/MarlinFirmware/Marlin"></a>
+    <a href="//github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml"><img alt="CI Status" src="//github.com/MarlinFirmware/Marlin/actions/workflows/ci-build-tests.yml/badge.svg"></a>
+    <a href="//github.com/sponsors/thinkyhead"><img alt="GitHub Sponsors" src="//img.shields.io/github/sponsors/thinkyhead?color=db61a2"></a>
     <br />
-    <a href="https://bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="https://img.shields.io/badge/Follow%20@marlinfw.org-0085ff?logo=bluesky&logoColor=white"></a>
-    <a href="https://fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="https://img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
+    <a href="//bsky.app/profile/marlinfw.org"><img alt="Follow marlinfw.org on Bluesky" src="//img.shields.io/badge/Follow%20@marlinfw.org-0085ff?logo=bluesky&logoColor=white"></a>
+    <a href="//fosstodon.org/@marlinfirmware"><img alt="Follow MarlinFirmware on Mastodon" src="//img.shields.io/mastodon/follow/109450200866020466?domain=https%3A%2F%2Ffosstodon.org&logoColor=%2300B&style=social"></a>
 </p>
 
 Additional documentation can be found at the [Marlin Home Page](//marlinfw.org/).
@@ -18,13 +18,53 @@ Please test this firmware and let us know if it misbehaves in any way. Volunteer
 
 ---
 ### 🌍 Translations
-| [Aragonés (an)](https://translate.google.com/translate?sl=auto&tl=an&u=https://github.com/MarlinFirmware/Marlin) | [Български (bg)](https://translate.google.com/translate?sl=auto&tl=bg&u=https://github.com/MarlinFirmware/Marlin) | [Català (ca)](https://translate.google.com/translate?sl=auto&tl=ca&u=https://github.com/MarlinFirmware/Marlin) | [Čeština (cz)](https://translate.google.com/translate?sl=auto&tl=cs&u=https://github.com/MarlinFirmware/Marlin) | [Dansk (da)](https://translate.google.com/translate?sl=auto&tl=da&u=https://github.com/MarlinFirmware/Marlin) |
-| [Deutsch (de)](https://translate.google.com/translate?sl=auto&tl=de&u=https://github.com/MarlinFirmware/Marlin) | [Ελληνικά (el)](https://translate.google.com/translate?sl=auto&tl=el&u=https://github.com/MarlinFirmware/Marlin) | [Ελληνικά Κύπρος (el_CY)](https://translate.google.com/translate?sl=auto&tl=el&u=https://github.com/MarlinFirmware/Marlin) | [English (en)](https://github.com/MarlinFirmware/Marlin) | [Español (es)](https://translate.google.com/translate?sl=auto&tl=es&u=https://github.com/MarlinFirmware/Marlin) |
-| [Euskara (eu)](https://translate.google.com/translate?sl=auto&tl=eu&u=https://github.com/MarlinFirmware/Marlin) | [Suomi (fi)](https://translate.google.com/translate?sl=auto&tl=fi&u=https://github.com/MarlinFirmware/Marlin) | [Français (fr)](https://translate.google.com/translate?sl=auto&tl=fr&u=https://github.com/MarlinFirmware/Marlin) | [Français N.A. (fr_na)](https://translate.google.com/translate?sl=auto&tl=fr&u=https://github.com/MarlinFirmware/Marlin) | [Galego (gl)](https://translate.google.com/translate?sl=auto&tl=gl&u=https://github.com/MarlinFirmware/Marlin) |
-| [Hrvatski (hr)](https://translate.google.com/translate?sl=auto&tl=hr&u=https://github.com/MarlinFirmware/Marlin) | [Magyar (hu)](https://translate.google.com/translate?sl=auto&tl=hu&u=https://github.com/MarlinFirmware/Marlin) | [Italiano (it)](https://translate.google.com/translate?sl=auto&tl=it&u=https://github.com/MarlinFirmware/Marlin) | [にほんご (jp_kana)](https://translate.google.com/translate?sl=auto&tl=ja&u=https://github.com/MarlinFirmware/Marlin) | [한국어 (ko_KR)](https://translate.google.com/translate?sl=auto&tl=ko&u=https://github.com/MarlinFirmware/Marlin) |
-| [Nederlands (nl)](https://translate.google.com/translate?sl=auto&tl=nl&u=https://github.com/MarlinFirmware/Marlin) | [Polski (pl)](https://translate.google.com/translate?sl=auto&tl=pl&u=https://github.com/MarlinFirmware/Marlin) | [Português (pt)](https://translate.google.com/translate?sl=auto&tl=pt&u=https://github.com/MarlinFirmware/Marlin) | [Português (Brasil) (pt_br)](https://translate.google.com/translate?sl=auto&tl=pt-BR&u=https://github.com/MarlinFirmware/Marlin) | [Română (ro)](https://translate.google.com/translate?sl=auto&tl=ro&u=https://github.com/MarlinFirmware/Marlin) |
-| [Русский (ru)](https://translate.google.com/translate?sl=auto&tl=ru&u=https://github.com/MarlinFirmware/Marlin) | [Slovenčina (sk)](https://translate.google.com/translate?sl=auto&tl=sk&u=https://github.com/MarlinFirmware/Marlin) | [Svenska (sv)](https://translate.google.com/translate?sl=auto&tl=sv&u=https://github.com/MarlinFirmware/Marlin) | [Türkçe (tr)](https://translate.google.com/translate?sl=auto&tl=tr&u=https://github.com/MarlinFirmware/Marlin) | [Українська (uk)](https://translate.google.com/translate?sl=auto&tl=uk&u=https://github.com/MarlinFirmware/Marlin) |
-| [Tiếng Việt (vi)](https://translate.google.com/translate?sl=auto&tl=vi&u=https://github.com/MarlinFirmware/Marlin) | [简体中文 (zh_CN)](https://translate.google.com/translate?sl=auto&tl=zh-CN&u=https://github.com/MarlinFirmware/Marlin) | [繁體中文 (zh_TW)](https://translate.google.com/translate?sl=auto&tl=zh-TW&u=https://github.com/MarlinFirmware/Marlin) |  |  |
+<table>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=an">Aragonés</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=bg">Български</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ca">Català</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=cs">Čeština</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=da">Dansk</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=de">Deutsch</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=el">Ελληνικά</a></td>
+</tr>
+<tr>
+  <td><a href="//github.com/MarlinFirmware/Marlin">English</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=es">Español</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=eu">Euskara</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=fi">Suomi</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=fr">Français</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=gl">Galego</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=hr">Hrvatski</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=hu">Magyar</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=it">Italiano</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ja">にほんご</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ko">한국어</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=nl">Nederlands</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pl">Polski</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pt">Português</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=pt-BR">Português (Brasil)</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ro">Română</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=ru">Русский</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=sk">Slovenčina</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=sv">Svenska</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=tr">Türkçe</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=uk">Українська</a></td>
+</tr>
+<tr>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=vi">Tiếng Việt</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=zh-CN">简体中文</a></td>
+  <td><a href="//translate.google.com/translate?u=github.com/MarlinFirmware/Marlin&sl=auto&tl=zh-TW">繁體中文</a></td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td></td>
+</tr>
+</table>
 
 ## Marlin 2.1 Bugfix Branch
 
@@ -146,11 +186,11 @@ Name|Role|Link|Donate
 
 ## Star History
 
-<a id="starchart" href="https://star-history.com/#MarlinFirmware/Marlin&Date">
+<a id="starchart" href="//star-history.com/#MarlinFirmware/Marlin&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="//api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="//api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date" />
+    <img alt="Star History Chart" src="//api.star-history.com/svg?repos=MarlinFirmware/Marlin&type=Date" />
   </picture>
 </a>
 
