@@ -36,6 +36,9 @@ jobs:
 
     runs-on: ubuntu-22.04
 
+    env:
+      CONFIG_BRANCH: ${{ github.base_ref || github.ref_name }}
+
     strategy:
       fail-fast: true
       matrix:
@@ -204,6 +207,13 @@ jobs:
         sudo apt-get install libsdl2-dev
         sudo apt-get install libsdl2-net-dev
         sudo apt-get install libglm-dev
+
+    - name: Checkout Configurations
+      uses: actions/checkout@v4
+      with:
+        repository: MarlinFirmware/Configurations
+        ref: ${{ env.CONFIG_BRANCH }}
+        path: ConfigurationsRepo
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |

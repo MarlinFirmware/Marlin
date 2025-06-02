@@ -711,6 +711,93 @@ volatile bool Temperature::raw_temps_ready = false;
 
 #endif
 
+void Temperature::factory_reset() {
+  //
+  // Hotend PID
+  //
+  #if ENABLED(PIDTEMP)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      constexpr float defKp[] =
+        #ifdef DEFAULT_Kp_LIST
+          DEFAULT_Kp_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
+        #endif
+      , defKi[] =
+        #ifdef DEFAULT_Ki_LIST
+          DEFAULT_Ki_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
+        #endif
+      , defKd[] =
+        #ifdef DEFAULT_Kd_LIST
+          DEFAULT_Kd_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
+        #endif
+      ;
+      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        constexpr float defKc[] =
+          #ifdef DEFAULT_Kc_LIST
+            DEFAULT_Kc_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #if ENABLED(PID_FAN_SCALING)
+        constexpr float defKf[] =
+          #ifdef DEFAULT_Kf_LIST
+            DEFAULT_Kf_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #define PID_DEFAULT(N,E) def##N[E]
+    #else
+      #define PID_DEFAULT(N,E) DEFAULT_##N
+    #endif
+    HOTEND_LOOP() {
+      temp_hotend[e].pid.set(
+        PID_DEFAULT(Kp, ALIM(e, defKp)),
+        PID_DEFAULT(Ki, ALIM(e, defKi)),
+        PID_DEFAULT(Kd, ALIM(e, defKd))
+        OPTARG(PID_EXTRUSION_SCALING, PID_DEFAULT(Kc, ALIM(e, defKc)))
+        OPTARG(PID_FAN_SCALING, PID_DEFAULT(Kf, ALIM(e, defKf)))
+      );
+    }
+  #endif // PIDTEMP
+
+  //
+  // PID Extrusion Scaling
+  //
+  TERN_(PID_EXTRUSION_SCALING, lpq_len = 20); // Default last-position-queue size
+
+  //
+  // Heated Bed PID
+  //
+  #if ENABLED(PIDTEMPBED)
+    temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
+  #endif
+
+  //
+  // Heated Chamber PID
+  //
+  #if ENABLED(PIDTEMPCHAMBER)
+    temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
+  #endif
+
+  // User-Defined Thermistors
+  TERN_(HAS_USER_THERMISTORS, reset_user_thermistors());
+
+} // factory_reset
+
 #if HAS_PID_HEATING
 
   inline void say_default_() { SERIAL_ECHOPGM("#define DEFAULT_"); }
@@ -939,9 +1026,9 @@ volatile bool Temperature::raw_temps_ready = false;
         auto _set_hotend_pid = [](const uint8_t tool, const raw_pid_t &in_pid) {
           #if ENABLED(PIDTEMP)
             #if ENABLED(PID_PARAMS_PER_HOTEND)
-              thermalManager.temp_hotend[tool].pid.set(in_pid);
+              temp_hotend[tool].pid.set(in_pid);
             #else
-              HOTEND_LOOP() thermalManager.temp_hotend[e].pid.set(in_pid);
+              HOTEND_LOOP() temp_hotend[e].pid.set(in_pid);
             #endif
             updatePID();
           #endif
@@ -1016,6 +1103,10 @@ volatile bool Temperature::raw_temps_ready = false;
     #endif
 
     do_z_clearance(MPC_TUNING_END_Z, false);
+
+    #ifdef EVENT_GCODE_AFTER_MPC_TUNE
+      gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_MPC_TUNE));
+    #endif
 
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = true);
   }
@@ -2369,11 +2460,6 @@ void Temperature::task() {
   UNUSED(ms);
 }
 
-// For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
-#define TEMP_AD595(RAW)  ((RAW) * (ADC_VREF_MV / 10) / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
-// For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
-#define TEMP_AD8495(RAW) ((RAW) * (ADC_VREF_MV /  5) / float(HAL_ADC_RANGE) / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
-
 /**
  * Bisect search for the range of the 'raw' value, then interpolate
  * proportionally between the under and over values.
@@ -2513,6 +2599,22 @@ void Temperature::task() {
   }
 #endif
 
+#if ANY_THERMISTOR_IS(-1)
+  // For a 5V input the AD595 returns a value scaled with 10mV per °C. (Minimum input voltage is 5V.)
+  static constexpr celsius_float_t temp_ad595(const raw_adc_t raw) {
+    return raw * (float(ADC_VREF_MV) / 10.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+               * (TEMP_SENSOR_AD595_GAIN) + (TEMP_SENSOR_AD595_OFFSET);
+  }
+#endif
+
+#if ANY_THERMISTOR_IS(-4)
+  // For a 5V input the AD8495 returns a value scaled with 5mV per °C. (Minimum input voltage is 2.7V.)
+  static constexpr celsius_float_t temp_ad8495(const raw_adc_t raw) {
+    return raw * (float(ADC_VREF_MV) /  5.0f) / float(HAL_ADC_RANGE) / (OVERSAMPLENR)
+               * (TEMP_SENSOR_AD8495_GAIN) + (TEMP_SENSOR_AD8495_OFFSET);
+  }
+#endif
+
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
@@ -2539,9 +2641,9 @@ void Temperature::task() {
             return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_0_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_0_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2558,9 +2660,9 @@ void Temperature::task() {
             return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_1_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_1_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2577,9 +2679,9 @@ void Temperature::task() {
             return (int16_t)raw * 0.25f;
           #endif
         #elif TEMP_SENSOR_2_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_2_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2587,9 +2689,9 @@ void Temperature::task() {
         #if TEMP_SENSOR_3_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_3, raw);
         #elif TEMP_SENSOR_3_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_3_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2597,9 +2699,9 @@ void Temperature::task() {
         #if TEMP_SENSOR_4_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_4, raw);
         #elif TEMP_SENSOR_4_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_4_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2607,9 +2709,9 @@ void Temperature::task() {
         #if TEMP_SENSOR_5_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_5, raw);
         #elif TEMP_SENSOR_5_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_5_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2617,9 +2719,9 @@ void Temperature::task() {
         #if TEMP_SENSOR_6_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_6, raw);
         #elif TEMP_SENSOR_6_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_6_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2627,9 +2729,9 @@ void Temperature::task() {
         #if TEMP_SENSOR_7_IS_CUSTOM
           return user_thermistor_to_deg_c(CTI_HOTEND_7, raw);
         #elif TEMP_SENSOR_7_IS_AD595
-          return TEMP_AD595(raw);
+          return temp_ad595(raw);
         #elif TEMP_SENSOR_7_IS_AD8495
-          return TEMP_AD8495(raw);
+          return temp_ad8495(raw);
         #else
           break;
         #endif
@@ -2663,9 +2765,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_BED_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BED, TEMPTABLE_BED_LEN);
     #elif TEMP_SENSOR_BED_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_BED_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;
@@ -2681,9 +2783,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_CHAMBER_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_CHAMBER, TEMPTABLE_CHAMBER_LEN);
     #elif TEMP_SENSOR_CHAMBER_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_CHAMBER_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;
@@ -2699,9 +2801,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_COOLER_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_COOLER, TEMPTABLE_COOLER_LEN);
     #elif TEMP_SENSOR_COOLER_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_COOLER_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;
@@ -2717,9 +2819,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_PROBE_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_PROBE, TEMPTABLE_PROBE_LEN);
     #elif TEMP_SENSOR_PROBE_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_PROBE_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;
@@ -2735,9 +2837,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_BOARD_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_BOARD, TEMPTABLE_BOARD_LEN);
     #elif TEMP_SENSOR_BOARD_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_BOARD_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;
@@ -2748,14 +2850,11 @@ void Temperature::task() {
 #if HAS_TEMP_SOC
   // For SoC temperature measurement.
   celsius_float_t Temperature::analog_to_celsius_soc(const raw_adc_t raw) {
-    return (
-      #ifdef TEMP_SOC_SENSOR
-        TEMP_SOC_SENSOR(raw)
-      #else
-        0
-        #error "TEMP_SENSOR_SOC requires the TEMP_SOC_SENSOR(RAW) macro to be defined for your board."
-      #endif
-    );
+    #ifndef TEMP_SOC_SENSOR
+      #error "TEMP_SENSOR_SOC requires the TEMP_SOC_SENSOR(RAW) macro to be defined for your board."
+      #define TEMP_SOC_SENSOR(...) 0
+    #endif
+    return TEMP_SOC_SENSOR(raw);
   }
 #endif
 
@@ -2773,9 +2872,9 @@ void Temperature::task() {
     #elif TEMP_SENSOR_REDUNDANT_IS_THERMISTOR
       SCAN_THERMISTOR_TABLE(TEMPTABLE_REDUNDANT, TEMPTABLE_REDUNDANT_LEN);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD595
-      return TEMP_AD595(raw);
+      return temp_ad595(raw);
     #elif TEMP_SENSOR_REDUNDANT_IS_AD8495
-      return TEMP_AD8495(raw);
+      return temp_ad8495(raw);
     #else
       UNUSED(raw);
       return 0;

@@ -239,10 +239,10 @@ void FWRetract::M208_report() {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM(
-    "  M208 S", LINEAR_UNIT(settings.retract_recover_extra),
-    " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s)),
-    " W", LINEAR_UNIT(settings.swap_retract_recover_extra),
-    " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
+      "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
+    , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
+    , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
+    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }
 

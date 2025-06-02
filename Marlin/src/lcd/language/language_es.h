@@ -46,15 +46,16 @@ namespace LanguageNarrow_es {
   LSTR MSG_YES                            = _UxGT("SI");
   LSTR MSG_NO                             = _UxGT("NO");
   LSTR MSG_BACK                           = _UxGT("Atrás");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Cancelando...");
   LSTR MSG_MEDIA_INSERTED                 = MEDIA_TYPE_ES _UxGT(" insertado");
   LSTR MSG_MEDIA_REMOVED                  = MEDIA_TYPE_ES _UxGT(" retirado");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Esperando al ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Fallo al iniciar ") MEDIA_TYPE_ES;
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Error lectura ") MEDIA_TYPE_ES;
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Disp. USB retirado");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Inicio USB fallido");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Disp. USB retirado");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Inicio USB fallido");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Desbordamiento de subllamada");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menú principal");
