@@ -2237,11 +2237,11 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 #if NONLINEAR_EXTRUSION_Q24
   void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
-    const uint32_t velocity_q24 = ne.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    const uint32_t velocity_q24 = ne.get_edividend() * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
     int32_t vd_q24 = ((((int64_t(ne.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(ne.q24.B) * velocity_q24) >> 24);
     NOLESS(vd_q24, 0);
 
-    advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.edividend) >> 24;
+    advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.get_edividend()) >> 24;
   }
 #endif
 
@@ -2826,9 +2826,9 @@ hal_timer_t Stepper::block_phase_isr() {
 
       // Calculate Nonlinear Extrusion fixed-point quotients
       #if NONLINEAR_EXTRUSION_Q24
-        ne.edividend = advance_dividend.e;
-        const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-        ne.scale_q24 = _BV32(24) * scale;
+        ne.set_edividend(advance_dividend.e);
+        const float scale = (float(ne.get_edividend()) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        ne.set_scale_q24(_BV32(24) * scale);
         if (ne.settings.enabled && current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
           ne.q24.A = _BV32(24) * ne.settings.coeff.A;
           ne.q24.B = _BV32(24) * ne.settings.coeff.B;

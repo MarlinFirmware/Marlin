@@ -312,8 +312,13 @@ constexpr ena_mask_t enable_overlap[] = {
     };
     #if NONLINEAR_EXTRUSION_Q24
       protected:
-        int32_t edividend;
+         int32_t edividend;
         uint32_t scale_q24;
+      public:
+        void set_edividend( int32_t value) { edividend = value; }
+        void set_scale_q24(uint32_t value) { scale_q24 = value; }
+         int32_t get_edividend() const { return edividend; }
+        uint32_t get_scale_q24() const { return scale_q24; }
     #endif
   } nonlinear_t;
 
