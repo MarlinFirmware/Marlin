@@ -43,15 +43,16 @@ namespace LanguageNarrow_hu {
   LSTR MSG_YES                            = _UxGT("IGEN");
   LSTR MSG_NO                             = _UxGT("NEM");
   LSTR MSG_BACK                           = _UxGT("Vissza");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Megszakítás...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tároló behelyezve");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tároló eltávolítva");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Várakozás a tárolóra");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Tároló-kártya hiba");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Tároló olvasási hiba");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB eltávolítva");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB eszköz hiba");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB eltávolítva");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB eszköz hiba");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Túlfolyás");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Végállás"); // Maximum 8 karakter
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Szoft. végállás");
   LSTR MSG_MAIN_MENU                      = _UxGT("<Fömenü>");

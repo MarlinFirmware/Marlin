@@ -35,13 +35,14 @@ namespace LanguageNarrow_vi {
 
   LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Sẵn sàng.");        // Ready
   LSTR MSG_BACK                           = _UxGT("Trở lại");                              // Back
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Đang hủy bỏ...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Phương tiện được cắm vào");             // Media inserted
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Phương tiện được rút ra");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Chờ đợi phương tiện");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Lỗi đọc phương tiện");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB được rút ra");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB khởi thất bại");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB được rút ra");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB khởi thất bại");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Công tắc");                             // Endstops - công tắc hành trình
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Công tắc mềm");                         // Soft Endstops
   LSTR MSG_MAIN_MENU                      = _UxGT("Chính");                                // Main

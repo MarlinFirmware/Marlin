@@ -887,14 +887,14 @@ namespace ExtUI {
                       y_target = MESH_MIN_Y + pos.y * (MESH_Y_DIST);
           if (x_target != current_position.x || y_target != current_position.y) {
             // If moving across bed, raise nozzle to safe height over bed
-            feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+            feedrate_mm_s = z_probe_fast_mm_s;
             destination.set(current_position.x, current_position.y, Z_CLEARANCE_BETWEEN_PROBES);
             prepare_line_to_destination();
             if (XY_PROBE_FEEDRATE_MM_S) feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
             destination.set(x_target, y_target);
             prepare_line_to_destination();
           }
-          feedrate_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
+          feedrate_mm_s = z_probe_fast_mm_s;
           destination.z = z;
           prepare_line_to_destination();
         #else

@@ -138,6 +138,10 @@ void menu_backlash();
       #endif
     #endif // LIN_ADVANCE
 
+    #if ENABLED(NONLINEAR_EXTRUSION)
+      EDIT_ITEM(bool, MSG_NLE_ON, &stepper.ne.settings.enabled);
+    #endif
+
     #if DISABLED(NO_VOLUMETRICS)
       EDIT_ITEM(bool, MSG_VOLUMETRIC_ENABLED, &parser.volumetric_enabled, planner.calculate_volumetric_multipliers);
 

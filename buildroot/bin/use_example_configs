@@ -15,6 +15,9 @@
 #
 
 import os, subprocess, sys, urllib.request
+from pathlib import Path
+
+CONFIG_FILES = ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h")
 
 def get_current_branch():
   try:
@@ -25,19 +28,45 @@ def get_current_branch():
   except subprocess.CalledProcessError:
     return None
 
-def fetch_configs(branch, config_path):
-  print(f"Fetching {config_path} configurations from {branch}...")
-  base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{branch}/config/{config_path}"
-  files = ["Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h"]
-  marlin_dir = os.path.join(os.getcwd(), "Marlin")
-  if not os.path.exists(marlin_dir):
-    print(f"Directory {marlin_dir} does not exist.")
-    sys.exit(1)
-  for file in files:
+def sparse_checkout(branch, config_path, repo_url="https://github.com/MarlinFirmware/Configurations.git"):
+  configs_dir = Path("ConfigurationsRepo")
+  config_subdir = f"config/{config_path}"
+
+  if not configs_dir.exists():
+    # Step 1: Clone with no checkout
+    subprocess.run([
+      "git", "clone", "--depth", "1", "--filter=blob:none", "--sparse",
+      "--branch", branch, repo_url, str(configs_dir)
+    ], check=True)
+
+  # Step 2: Enable sparse checkout and set the folder
+  subprocess.run(["git", "sparse-checkout", "set", config_subdir], cwd=str(configs_dir), check=True)
+  # Step 3: Pull the latest for that branch/folder
+  subprocess.run(["git", "pull"], cwd=str(configs_dir), check=True)
+
+def copy_config_files(branch, config_path, dest_dir):
+  sparse_checkout(branch, config_path)
+
+  src_dir = Path("ConfigurationsRepo") / "config" / config_path
+  for fname in CONFIG_FILES:
+    src_file = src_dir / fname
+    if src_file.exists():
+      dest_file = dest_dir / fname
+      print(f"Copying {src_file} to {dest_file}")
+      dest_file.write_bytes(src_file.read_bytes())
+    else:
+      print(f"{fname} not found in {src_dir}")
+
+def fetch_config_files(branch, config_path, dest_dir):
+  config_path_url = config_path.replace(' ', '%20')
+  base_url = f"https://raw.githubusercontent.com/MarlinFirmware/Configurations/{branch}/config/{config_path_url}"
+
+  for file in CONFIG_FILES:
     url = f"{base_url}/{file}"
-    dest_file = os.path.join(marlin_dir, file)
+    dest_file = dest_dir / file
     if os.getenv('DEBUG', '0') == '1':
       print(f"Fetching {file} from {url} to {dest_file}")
+
     try:
       urllib.request.urlretrieve(url, dest_file)
     except urllib.error.HTTPError as e:
@@ -46,6 +75,19 @@ def fetch_configs(branch, config_path):
           print(f"File {file} not found (404), skipping.")
       else:
         raise
+
+def fetch_configs(branch, config_path):
+  print(f"Fetching {config_path} configurations from {branch}...")
+
+  marlin_dir = Path("Marlin")
+  if not marlin_dir.exists():
+    print(f"Directory 'Marlin' not found at the current location.")
+    sys.exit(1)
+
+  if os.environ.get('GITHUB_ACTIONS'):        # Running on GitHub ?
+    copy_config_files(branch, config_path, marlin_dir)
+  else:
+    fetch_config_files(branch, config_path, marlin_dir)
 
 def main():
   branch = get_current_branch()
@@ -74,7 +116,7 @@ def main():
       branch = part1
     else:
       config_path = arg
-    config_path = 'examples/'+config_path.replace(' ', '%20')
+    config_path = 'examples/'+config_path
   else:
     config_path = "default"
 
@@ -82,6 +124,7 @@ def main():
     subprocess.run(['restore_configs'], check=True)
   except FileNotFoundError:
     print("restore_configs not found, skipping.")
+
   fetch_configs(branch, config_path)
 
 if __name__ == "__main__":

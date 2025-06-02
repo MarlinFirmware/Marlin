@@ -32,7 +32,7 @@
 
 #include <lvgl.h>
 
-extern uint8_t bmp_public_buf[14 * 1024];
+extern uint8_t bmp_public_buf[16 * 1024];
 extern uint8_t public_buf[513];
 
 void tft_lvgl_init();

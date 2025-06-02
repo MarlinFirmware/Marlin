@@ -40,13 +40,14 @@ namespace LanguageNarrow_fr {
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Média inséré");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Média retiré");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente média");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB débranché");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur média USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB débranché");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur média USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butées");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butées SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");

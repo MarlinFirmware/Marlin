@@ -89,6 +89,12 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
+#if ENABLED(DISTINCT_E_FACTORS)
+  uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
+#else
+  constexpr uint8_t FTMotion::block_extruder_axis;
+#endif
+
 // Shaping variables.
 #if HAS_FTM_SHAPING
   FTMotion::shaping_t FTMotion::shaping = {
@@ -143,6 +149,12 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
+
+    // If the endstop is already pressed, endstop interrupts won't invoke
+    // endstop_triggered and the move will grind. So check here for a
+    // triggered endstop, which shortly marks the block for discard.
+    endstops.update();
+
     blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
@@ -389,6 +401,7 @@ void FTMotion::reset() {
   #endif
 
   TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
 }
@@ -453,13 +466,15 @@ void FTMotion::init() {
 
 // Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
+  // Cache the extruder index for this block
+  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
   startPosn = endPosn_prevBlock;
   const xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
-    current_block->steps.e * planner.mm_per_step[E_AXIS_N(current_block->extruder)] * (current_block->direction_bits.e ? 1 : -1),
+    current_block->steps.e * planner.mm_per_step[block_extruder_axis] * (current_block->direction_bits.e ? 1 : -1),
     current_block->steps.x * planner.mm_per_step[X_AXIS] * (current_block->direction_bits.x ? 1 : -1),
     current_block->steps.y * planner.mm_per_step[Y_AXIS] * (current_block->direction_bits.y ? 1 : -1),
     current_block->steps.z * planner.mm_per_step[Z_AXIS] * (current_block->direction_bits.z ? 1 : -1),
@@ -568,12 +583,6 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   #endif
   TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
   SECONDARY_AXIS_MAP(_SET_MOVE_END);
-
-  // If the endstop is already pressed, endstop interrupts won't invoke
-  // endstop_triggered and the move will grind. So check here for a
-  // triggered endstop, which shortly marks the block for discard.
-  endstops.update();
-
 }
 
 // Generate data points of the trajectory.
@@ -721,7 +730,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #if ENABLED(STEPS_ROUNDING)
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] + (trajMod.A[idx] < 0.0f ? -0.5f : 0.5f))
     const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)), // May be eliminated if guaranteed positive.
+      TOSTEPS(e, block_extruder_axis), // May be eliminated if guaranteed positive.
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
@@ -730,7 +739,7 @@ void FTMotion::convertToSteps(const uint32_t idx) {
   #else
     #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B]) - steps.A
     xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, E_AXIS_N(stepper.current_block->extruder)),
+      TOSTEPS(e, block_extruder_axis),
       TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
       TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
       TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
