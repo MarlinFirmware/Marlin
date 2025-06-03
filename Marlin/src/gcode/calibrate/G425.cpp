@@ -34,7 +34,9 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/endstops.h"
-#include "../../feature/bedlevel/bedlevel.h"
+#if HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
 
 #if HAS_TOOLCHANGE
   #include "../../module/tool_change.h"
@@ -848,7 +850,9 @@ void GcodeSuite::G425() {
 
   if (homing_needed_error()) return;
 
-  TEMPORARY_BED_LEVELING_STATE(false);
+  #if HAS_LEVELING
+    TEMPORARY_BED_LEVELING_STATE(false);
+  #endif
   SET_SOFT_ENDSTOP_LOOSE(true);
 
   measurements_t m;
