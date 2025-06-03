@@ -3513,7 +3513,7 @@ void drawTuneMenu() {
     #endif
     #if ENABLED(PROUI_ITEM_ADVK)
       float editable_k = planner.get_advance_k();
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &editable_k);
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &editable_k);
     #endif
     #if HAS_LOCKSCREEN
       MENU_ITEM(ICON_Lock, MSG_LOCKSCREEN, onDrawMenuItem, dwinLockScreen);
@@ -3652,7 +3652,7 @@ void drawMotionMenu() {
     #endif
     #if ENABLED(LIN_ADVANCE)
       float editable_k = planner.get_advance_k();
-      EDIT_ITEM(ICON_MaxAccelerated, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &editable_k);
+      EDIT_ITEM(ICON_MaxAccel, MSG_ADVANCE_K, onDrawPFloat3Menu, setLA_K, &editable_k);
     #endif
     #if ENABLED(SHAPING_MENU)
       MENU_ITEM(ICON_InputShaping, MSG_INPUT_SHAPING, onDrawSubMenu, drawInputShaping_menu);
