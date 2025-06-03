@@ -526,7 +526,12 @@
     TMC_HSTRT,
     TMC_SGT,
     TMC_MSCNT,
-    TMC_INTERPOLATE
+    TMC_INTERPOLATE,
+    TMC_VAIN,
+    TMC_VSUPPLY,
+    TMC_TEMP,
+    TMC_OVERTEMP,
+    TMC_OVERVOLT_THD
   };
   enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
@@ -701,6 +706,11 @@
         case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
         case TMC_STEALTHCHOP: print_true_or_false(st.stealth()); break;
         case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
+        case TMC_VAIN: SERIAL_ECHO(st.get_ain_voltage()); break;
+        case TMC_VSUPPLY: SERIAL_ECHO(st.get_vsupply_voltage()); break;
+        case TMC_TEMP: SERIAL_ECHO(st.get_chip_temperature()); break;
+        case TMC_OVERTEMP: SERIAL_ECHO(st.get_overtemp_prewarn_celsius()); break;
+        case TMC_OVERVOLT_THD: SERIAL_ECHO(st.get_overvoltage_threshold_voltage()); break;
         default: break;
       }
     }
@@ -978,6 +988,13 @@
       DRV_REPORT("s2vsb\t",          TMC_S2VSB);
     #endif
     DRV_REPORT("Driver registers:\n",TMC_DRV_STATUS_HEX);
+    #if HAS_DRIVER(TMC2240)
+      TMC_REPORT("Analog in (v)",    TMC_VAIN);
+      TMC_REPORT("Supply (v)",       TMC_VSUPPLY);
+      TMC_REPORT("Temp (°C)",        TMC_TEMP);
+      TMC_REPORT("OT pre warn (°C)", TMC_OVERTEMP);
+      TMC_REPORT("OV theshold (v)",  TMC_OVERVOLT_THD);
+    #endif
     SERIAL_EOL();
   }
 
