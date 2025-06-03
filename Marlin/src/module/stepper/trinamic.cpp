@@ -823,24 +823,18 @@ enum StealthIndex : uint8_t {
     st.stored.stealthChop_enabled = stealth;
 
     // 0xC40C1E1D (from Makerbase)
-    //st.PWMCONF(0xC40c1e1d);
-    //pwmconf.pwm_ofs            = 29;
-    //pwmconf.pwm_grad           = 30;
-    //pwmconf.pwm_freq           = 0b00;
-    //pwmconf.pwm_autoscale      = true;
-    //pwmconf.pwm_autograd       = true;
-    //pwmconf.freewheel          = 0;
-    //pwmconf.pwm_meas_sd_enable = false;
-    //pwmconf.pwm_dis_reg_stst   = false;
-    //pwmconf.pwm_reg            = 4;
-    //pwmconf.pwm_lim            = 12;
-
+    //st.PWMCONF(0xC40C1E1D);
     TMC2240_n::PWMCONF_t pwmconf{0};
-    pwmconf.pwm_lim       = 12;
-    pwmconf.pwm_reg       = 4;
-    pwmconf.pwm_autograd  = true;
-    pwmconf.pwm_autoscale = true;
-    pwmconf.pwm_ofs       = 30;
+    pwmconf.pwm_ofs             = 29;
+    pwmconf.pwm_grad            = 30;
+    pwmconf.pwm_freq            = 0b00;  // fPWM = 2/1024 fCLK | 16MHz clock -> 31.3kHz PWM
+    pwmconf.pwm_autograd        = true;
+    pwmconf.pwm_autoscale       = true;
+    pwmconf.freewheel           = 0;
+    pwmconf.pwm_meas_sd_enable  = false;
+    pwmconf.pwm_dis_reg_stst    = false;
+    pwmconf.pwm_reg             = 4;
+    pwmconf.pwm_lim             = 12;
     st.PWMCONF(pwmconf.sr);
 
     TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
