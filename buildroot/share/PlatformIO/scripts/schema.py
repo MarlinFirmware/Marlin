@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
-#
-# schema.py
-#
-# Used by signature.py via common-dependencies.py to generate a schema file during the PlatformIO build
-# when CONFIG_EXPORT is defined in the configuration.
-#
-# This script can also be run standalone from within the Marlin repo to generate JSON and YAML schema files.
-#
-# This script is a companion to abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has
-# been extended to evaluate conditions and can determine what options are actually enabled, not just which
-# options are uncommented. That will be migrated to this script for standalone migration.
-#
+"""
+schema.py
+
+Extract firmware configuration into structured JSON or YAML schema format.
+
+Used by signature.py via common-dependencies.py to generate a schema file during the
+PlatformIO build when CONFIG_EXPORT is defined in the configuration.
+
+This script can also be run standalone from within the Marlin repo, and is a companion to
+abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has been extended to
+evaluate conditions and can determine what options are actually enabled, not just which
+options are uncommented. That will be migrated to this script for standalone migration.
+
+usage: schema.py [-h] [some|json|jsons|group|yml|yaml]
+
+Processes Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
+and produces structured output suitable for documentation, tooling, or automated processing.
+
+positional arguments:
+  some      Generate both JSON and YAML output (schema.json and schema.yml)
+  json      Generate JSON output (schema.json)
+  jsons     Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)
+  group     Generate grouped JSON output only (schema_grouped.json)
+  yml       Generate YAML output (schema.yml)
+  yaml      Same as 'yml'
+
+optional arguments:
+  -h, --help  Show this help message and exit
+"""
+
 import re, json
 from pathlib import Path
 
@@ -478,7 +496,7 @@ def main():
         unk = not inargs(['some','json','jsons','group','yml','yaml', '-h', '--help'])
         if (unk): print(f"Unknown option: '{args[0]}'")
         if inargs(['-h', '--help']) or unk:
-            print("Usage: schema.py [some|json|jsons|group|yml|yaml]...")
+            print("Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]")
             print("       some  = json + yml")
             print("       jsons = json + group")
             return
