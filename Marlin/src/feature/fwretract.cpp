@@ -196,9 +196,9 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  * M207: Set firmware retraction values
  *
  *   S[+units]    retract_length
- *   W[+units]    swap_retract_length (multi-extruder)
  *   F[units/min] retract_feedrate_mm_s
  *   Z[units]     retract_zraise
+ *   W[+units]    swap_retract_length (multi-extruder)
  */
 void FWRetract::M207() {
   if (!parser.seen("FSWZ")) return M207_report();
@@ -223,9 +223,9 @@ void FWRetract::M207_report() {
  * M208: Set firmware un-retraction values
  *
  *   S[+units]    retract_recover_extra (in addition to M207 S*)
- *   W[+units]    swap_retract_recover_extra (multi-extruder)
  *   F[units/min] retract_recover_feedrate_mm_s
  *   R[units/min] swap_retract_recover_feedrate_mm_s
+ *   W[+units]    swap_retract_recover_extra (multi-extruder)
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
