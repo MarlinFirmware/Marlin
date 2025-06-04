@@ -1,8 +1,11 @@
-# Generate a 'HZK' font file for the T5UIC1 DWIN LCD
-# from multiple bdf font files.
-# Note: the 16x16 glyphs are not produced
-# Author: Taylor Talkington
-# License: GPL
+"""
+Generate a 'HZK' font file for the T5UIC1 DWIN LCD
+from multiple bdf font files.
+Note: the 16x16 glyphs are not produced
+Author: Taylor Talkington
+License: GPL
+"""
+
 import bdflib.reader, math
 
 def glyph_bits(size_x, size_y, font, glyph_ord):

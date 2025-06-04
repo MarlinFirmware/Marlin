@@ -4,7 +4,6 @@ config.py - Helper functions for config manipulation
 Make sure both copies always match:
  - buildroot/bin/config.py
  - buildroot/share/PlatformIO/scripts/config.py
-
 """
 
 import re
