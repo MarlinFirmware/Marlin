@@ -1020,7 +1020,7 @@ void drawMotionMenu() {
       #endif
       dwinDrawLabel(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM));     // "Steps/mm"
     #else
-      say_max_en(MOTION_CASE_RATED); say_speed_en(30, MOTION_CASE_SRATE); // "Max Speed"
+      say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE);   // "Max Speed"
       say_max_accel_en(MOTION_CASE_ACCEL);                                // "Max Acceleration"
       #if ENABLED(CLASSIC_JERK)
         say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);      // "Max Jerk"
