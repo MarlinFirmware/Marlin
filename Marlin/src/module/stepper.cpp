@@ -2931,25 +2931,17 @@ hal_timer_t Stepper::block_phase_isr() {
       }
 
     #endif // INPUT_SHAPING_E_SYNC
+
     #if ENABLED(S_CURVE_ACCELERATION)
-      static int32_t bezier_A_backup; 
-      static int32_t bezier_B_backup; 
-      static int32_t bezier_C_backup; 
-      static uint32_t bezier_F_backup; 
-      static uint32_t bezier_AV_backup; 
-      void Stepper::backup_bezier(){
-        bezier_A_backup = bezier_A;
-        bezier_B_backup = bezier_B;
-        bezier_C_backup = bezier_C;
-        bezier_F_backup = bezier_F;
-        bezier_AV_backup = bezier_AV;
-      }
-      void Stepper::recover_bezier(){
-        bezier_A = bezier_A_backup;
-        bezier_B = bezier_B_backup;
-        bezier_C = bezier_C_backup;
-        bezier_F = bezier_F_backup;
-        bezier_AV = bezier_AV_backup;
+      int32_t Stepper::calc_bezier_curve(const int32_t v0, const int32_t v1, const uint32_t av, const uint32_t curr_step) {
+        int32_t A = bezier_A, B = bezier_B, C = bezier_C; 
+        uint32_t F = bezier_F, AV = bezier_AV; 
+        
+        _calc_bezier_curve_coeffs(v0, v1, av);
+        uint32_t rate = Stepper::_eval_bezier_curve(curr_step);
+
+        bezier_A = A; bezier_B = B; bezier_C = C; bezier_F = F; bezier_AV = AV; 
+        return rate;
       }
     #endif
 
@@ -2959,10 +2951,7 @@ hal_timer_t Stepper::block_phase_isr() {
         if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0;
           #if ENABLED(S_CURVE_ACCELERATION)
-            Stepper::backup_bezier();
-            Stepper::_calc_bezier_curve_coeffs(block->initial_rate, block->cruise_rate, block->acceleration_time_inverse);
-            uint32_t rate = Stepper::_eval_bezier_curve(stepper_ticks);
-            Stepper::recover_bezier();
+            uint32_t rate = Stepper::calc_bezier_curve(block->initial_rate, block->cruise_rate, block->acceleration_time_inverse, stepper_ticks);
           #else
             uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
             NOMORE(rate, block->nominal_rate);
@@ -2980,10 +2969,7 @@ hal_timer_t Stepper::block_phase_isr() {
         if (stepper_ticks <= block->deceleration_time) {
           if (!block->use_advance_lead) return 0;
           #if ENABLED(S_CURVE_ACCELERATION)
-            Stepper::backup_bezier();
-            Stepper::_calc_bezier_curve_coeffs(block->cruise_rate, block->final_rate, block->deceleration_time_inverse);
-            uint32_t rate = Stepper::_eval_bezier_curve(stepper_ticks);
-            Stepper::recover_bezier();
+            uint32_t rate = Stepper::calc_bezier_curve(block->cruise_rate, block->final_rate, block->deceleration_time_inverse, stepper_ticks);
           #else
             uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
             if (rate < block->cruise_rate) {
