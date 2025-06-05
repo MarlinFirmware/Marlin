@@ -2938,7 +2938,7 @@ hal_timer_t Stepper::block_phase_isr() {
         uint32_t F = bezier_F, AV = bezier_AV; 
         
         _calc_bezier_curve_coeffs(v0, v1, av);
-        uint32_t rate = Stepper::_eval_bezier_curve(curr_step);
+        uint32_t rate = _eval_bezier_curve(curr_step);
 
         bezier_A = A; bezier_B = B; bezier_C = C; bezier_F = F; bezier_AV = AV; 
         return rate;
