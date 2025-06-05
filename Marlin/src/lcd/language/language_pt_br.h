@@ -38,13 +38,14 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_YES                            = _UxGT("SIM");
   LSTR MSG_NO                             = _UxGT("NÃO");
   LSTR MSG_BACK                           = _UxGT("Voltar");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abortando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Aguardando cartão");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro de leitura");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB removido");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB falhou");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB removido");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB falhou");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Fins de curso");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Fins curso");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");

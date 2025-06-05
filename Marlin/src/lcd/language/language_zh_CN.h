@@ -41,14 +41,15 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_LOW                            = _UxGT("低");
   LSTR MSG_BACK                           = _UxGT("返回"); // ”Back“
   LSTR MSG_ERROR                          = _UxGT("错误");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("存储卡中止...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("存储卡已插入"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("存储卡被拔出"); // "Card removed"
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("等待存储器");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("卡读卡器错误");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB设备已弹出");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB读取失败");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB设备已弹出");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB读取失败");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块"); // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
   LSTR MSG_MAIN_MENU                      = _UxGT("主菜单"); // "Main"
