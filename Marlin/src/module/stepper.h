@@ -311,9 +311,8 @@ constexpr ena_mask_t enable_overlap[] = {
       struct { int32_t A, B, C; } q30;
     };
     #if NONLINEAR_EXTRUSION_Q24
-      protected:
-        int32_t edividend;
-        uint32_t scale_q24;
+      int32_t edividend;
+      uint32_t scale_q24;
     #endif
   } nonlinear_t;
 

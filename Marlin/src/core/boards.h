@@ -275,7 +275,7 @@
 #define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2
 #define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo
 #define BOARD_FLY_CDY                 2511  // FLYmaker FLY CDY
-#define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW_CLIMBER_8TH_LPC
+#define BOARD_XTLW_CLIMBER_8TH_LPC    2512  // XTLW Climber 8
 
 //
 // SAM3X8E ARM Cortex-M3
@@ -283,7 +283,7 @@
 
 #define BOARD_DUE3DOM                 3000  // DUE3DOM for Arduino DUE
 #define BOARD_DUE3DOM_MINI            3001  // DUE3DOM MINI for Arduino DUE
-#define BOARD_RADDS                   3002  // RADDS
+#define BOARD_RADDS                   3002  // RADDS v1.5/v1.6
 #define BOARD_RAMPS_FD_V1             3003  // RAMPS-FD v1
 #define BOARD_RAMPS_FD_V2             3004  // RAMPS-FD v2
 #define BOARD_RAMPS_SMART_EFB         3005  // RAMPS-SMART (Power outputs: Hotend, Fan, Bed)
