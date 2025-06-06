@@ -171,7 +171,7 @@ void RTS::sdCardInit() {
       // Clear the file name displayed in the print interface
       sendData(0, PRINT_FILE_TEXT_VP + j);
     }
-    lcd_sd_status = IS_SD_INSERTED();
+    lcd_sd_status = card.isInserted();
   }
   else {
     // Clean all filename Icons
@@ -186,7 +186,7 @@ bool RTS::sdDetected() {
   static bool state = false, stable = false, was_present = false;
   static millis_t stable_ms = 0;
 
-  const bool present = IS_SD_INSERTED();
+  const bool present = card.isInserted();
   if (present != was_present)
     stable = false;
   else if (!stable) {
@@ -894,7 +894,7 @@ void RTS::handleData() {
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP));
+          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -1292,7 +1292,7 @@ void RTS::handleData() {
 
         #if ENABLED(LIN_ADVANCE)
           case 7: // Confirm
-            sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
+            sendData(planner.get_advance_k() * 100, Advance_K_VP);
             gotoPage(ID_Advanced_L, ID_Advanced_D);
             break;
         #endif
@@ -1312,9 +1312,9 @@ void RTS::handleData() {
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      case Hot_Bed_P: thermalManager.temp_bed.pid.Kp = float(recdat.data[0]) / 100.0f; break;
-      case Hot_Bed_I: thermalManager.temp_bed.pid.Ki = float(recdat.data[0]) * 8.0f / 10000.0f; break;
-      case Hot_Bed_D: thermalManager.temp_bed.pid.Kd = float(recdat.data[0]) / 0.8f; break;
+      case Hot_Bed_P: thermalManager.temp_bed.pid.set_Kp(float(recdat.data[0]) / 100.0f); break;
+      case Hot_Bed_I: thermalManager.temp_bed.pid.set_Ki(float(recdat.data[0]) * 8.0f / 10000.0f); break;
+      case Hot_Bed_D: thermalManager.temp_bed.pid.set_Kd(float(recdat.data[0]) / 0.8f); break;
     #endif
 
     #if HAS_X_AXIS
@@ -1350,7 +1350,7 @@ void RTS::handleData() {
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
       #if ENABLED(LIN_ADVANCE)
-        case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
+        case Advance_K: planner.set_advance_k(float(recdat.data[0]) / 100.0f); break;
       #endif
     #endif
     case Accel: planner.settings.acceleration = recdat.data[0]; break;
@@ -1485,7 +1485,7 @@ void RTS::handleData() {
       sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
 
       // Represents to update file list
-      if (update_sd && lcd_sd_status && IS_SD_INSERTED()) {
+      if (update_sd && lcd_sd_status && card.isInserted()) {
         for (uint16_t i = 0; i < cardRec.Filesum; i++) {
           delay(3);
           sendData(cardRec.display_filename[i], cardRec.addr[i]);
@@ -1654,8 +1654,8 @@ void RTS_Update() {
   // Check the status of card
   rts.sdCardUpdate();
 
-  sd_printing = IS_SD_PRINTING();
-  card_insert_st = IS_SD_INSERTED();
+  sd_printing = card.isStillPrinting();
+  card_insert_st = card.isInserted();
 
   if (!card_insert_st && sd_printing) {
     rts.gotoPage(ID_MediaFail_L, ID_MediaFail_D);

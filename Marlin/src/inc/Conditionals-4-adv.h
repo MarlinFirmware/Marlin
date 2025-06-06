@@ -105,6 +105,10 @@
   #endif
 #endif
 
+#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
+  #undef Z_PROBE_FEEDRATE_FAST
+  #undef Z_PROBE_FEEDRATE_SLOW
+#endif
 #if !HAS_BED_PROBE
   #undef BABYSTEP_ZPROBE_OFFSET
   #undef PROBING_USE_CURRENT_HOME
@@ -231,6 +235,7 @@
   #undef FWRETRACT
   #undef LCD_SHOW_E_TOTAL
   #undef LIN_ADVANCE
+  #undef SMOOTH_LIN_ADVANCE
   #undef MANUAL_E_MOVES_RELATIVE
   #undef PID_EXTRUSION_SCALING
   #undef SHOW_TEMP_ADC_VALUES
@@ -337,6 +342,10 @@
 // Linear advance uses Jerk since E is an isolated axis
 #if ALL(HAS_JUNCTION_DEVIATION, LIN_ADVANCE)
   #define HAS_LINEAR_E_JERK 1
+#endif
+
+#if ENABLED(LIN_ADVANCE) && DISABLED(SMOOTH_LIN_ADVANCE)
+  #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.
@@ -1090,6 +1099,9 @@
   #define _CUTTER_POWER_RPM     3
   #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
   #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT) == _CUTTER_POWER(V))
+  #if DEFAULT_ACCELERATION_SPINDLE
+    #define HAS_SPINDLE_ACCELERATION 1
+  #endif
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)
@@ -1238,8 +1250,22 @@
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
 
-#if HAS_USB_FLASH_DRIVE && NONE(USE_OTG_USB_HOST, USE_UHS3_USB)
-  #define USE_UHS2_USB
+#if ENABLED(MULTI_VOLUME)
+  #define HAS_MULTI_VOLUME 1
+  #define SD_ONBOARD      101
+  #define USB_FLASH_DRIVE 102
+  #define DEFAULT_VOLUME_IS(N) (DEFAULT_VOLUME == N)
+  #define SHARED_VOLUME_IS(N) (DEFAULT_SHARED_VOLUME == N)
+#else
+  #define DEFAULT_VOLUME_IS(...) 0
+  #define SHARED_VOLUME_IS(...) 0
+#endif
+
+#if ANY(USB_FLASH_DRIVE_SUPPORT, VOLUME_USB_FLASH_DRIVE)
+  #define HAS_USB_FLASH_DRIVE 1
+  #if NONE(USE_OTG_USB_HOST, USE_UHS2_USB, USE_UHS3_USB)
+    #define USE_UHS2_USB
+  #endif
 #endif
 
 /**
@@ -1296,7 +1322,7 @@
     #define MAXIMUM_STEPPER_RATE 150000
   #elif HAS_DRIVER(DRV8825)
     #define MAXIMUM_STEPPER_RATE 250000
-  #elif HAS_DRIVER(A4988)
+  #elif HAS_DRIVER(A4988) || HAS_DRIVER(A5984)
     #define MAXIMUM_STEPPER_RATE 500000
   #elif HAS_DRIVER(LV8729)
     #define MAXIMUM_STEPPER_RATE 1000000

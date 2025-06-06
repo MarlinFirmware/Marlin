@@ -40,7 +40,6 @@ namespace LanguageNarrow_bg {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Картата е поставена");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Картата е извадена");
   LSTR MSG_MAIN_MENU                      = _UxGT("Меню");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Изкл. двигатели");
   LSTR MSG_AUTO_HOME                      = _UxGT("Паркиране");
   LSTR MSG_SET_HOME_OFFSETS               = _UxGT("Задай Начало");
@@ -139,13 +138,13 @@ namespace LanguageNarrow_bg {
   LSTR MSG_AUTORETRACT                    = _UxGT("Автоoткат");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Смяна нишка");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Смяна нишка *");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Иниц. SD-Карта");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Иниц. USB-Карта");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Иниц. SD-Карта");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Иниц. SD-Карта");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Иниц. SD-Карта");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Иниц. USB-Карта");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Смяна SD-Карта");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Автостарт");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-сондата е извадена");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("X Отстояние");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Y Отстояние");

@@ -40,19 +40,19 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_YES                            = _UxGT("Oui");
   LSTR MSG_NO                             = _UxGT("Non");
   LSTR MSG_BACK                           = _UxGT("Retour");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Annulation...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media insere");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media retire");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Attente media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Err lecture media");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB debranche");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Erreur media USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB debranche");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Erreur media USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Butees");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Butees SW");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. avancee");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Exec. auto.gcode");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Arreter moteurs");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test barre progress.");
@@ -392,14 +392,14 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Retrait filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Retrait filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Retirer tout");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Charger le SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Charger le USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Charger le SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Charger le SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Charger le USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Actualiser media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Retirer le media");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Exec. auto.gcode");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonde Z hors lit");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Facteur ecart");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

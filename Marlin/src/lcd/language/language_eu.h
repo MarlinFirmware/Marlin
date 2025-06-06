@@ -42,7 +42,6 @@ namespace LanguageNarrow_eu {
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Txartela sartuta");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Txartela kenduta");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu nagusia");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Auto hasiera");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Itzali motoreak");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Arazketa Menua");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Prog. Barra Proba");
@@ -219,13 +218,13 @@ namespace LanguageNarrow_eu {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Harizpia deskargatu");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Harizpia deskargatu *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Erabat deskargatu");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Hasieratu SD-a");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Hasieratu USB-a");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Hasieratu SD-a");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Hasieratu SD-a");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Hasieratu SD-a");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Hasieratu USB-a");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Aldatu txartela");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Auto hasiera");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z zunda kanpora");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Okertze faktorea");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

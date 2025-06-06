@@ -59,41 +59,12 @@
 //
 // Limit Switches
 //
-#if X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                      P1_28  // X+
-  #else
-    #define X_MIN_PIN                      P1_28  // X+
-  #endif
-#else
-  #define X_MIN_PIN                        P1_29  // X-
-  #define X_MAX_PIN                        P1_28  // X+
-#endif
-
-#if Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                      P1_26  // Y+
-  #else
-    #define Y_MIN_PIN                      P1_26  // Y+
-  #endif
-#else
-  #define Y_MIN_PIN                        P1_27  // Y-
-  #define Y_MAX_PIN                        P1_26  // Y+
-#endif
-
-#if Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                      P1_24  // Z+
-  #else
-    #define Z_MIN_PIN                      P1_24  // Z+
-  #endif
-#else
-  #define Z_MIN_PIN                        P1_25  // Z-
-  #define Z_MAX_PIN                        P1_24  // Z+
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // X-
+#define X_OTHR_PIN                         P1_28  // X+
+#define Y_STOP_PIN                    Y_DIAG_PIN  // Y-
+#define Y_OTHR_PIN                         P1_26  // Y+
+#define Z_STOP_PIN                    Z_DIAG_PIN  // Z-
+#define Z_OTHR_PIN                         P1_24  // Z+
 
 //
 // Z Probe (when not Z_MIN_PIN)

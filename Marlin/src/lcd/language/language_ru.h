@@ -39,21 +39,21 @@ namespace LanguageNarrow_ru {
   LSTR MSG_YES                              = _UxGT("Да");
   LSTR MSG_NO                               = _UxGT("Нет");
   LSTR MSG_BACK                             = _UxGT("Назад");
+
   LSTR MSG_MEDIA_ABORTING                   = _UxGT("Прерывание...");
   LSTR MSG_MEDIA_INSERTED                   = _UxGT("SD карта вставлена");
   LSTR MSG_MEDIA_REMOVED                    = _UxGT("SD карта извлечена");
-  LSTR MSG_MEDIA_WAITING                    = _UxGT("Вставьте SD карту");
   LSTR MSG_MEDIA_INIT_FAIL                  = _UxGT("Сбой инициализ. SD");
   LSTR MSG_ADVANCED_SETTINGS                = _UxGT("Расшир. настройки");
   LSTR MSG_KILL_SUBCALL_OVERFLOW            = _UxGT("Переполн. вызова");
   LSTR MSG_MEDIA_READ_ERROR                 = _UxGT("Ошибка чтения");
-  LSTR MSG_MEDIA_USB_REMOVED                = _UxGT("USB диск удалён");
-  LSTR MSG_MEDIA_USB_FAILED                 = _UxGT("Ошибка USB диска");
+  LSTR MSG_USB_FD_DEVICE_REMOVED            = _UxGT("USB диск удалён");
+  LSTR MSG_USB_FD_USB_FAILED                = _UxGT("Ошибка USB диска");
+
   LSTR MSG_LCD_SOFT_ENDSTOPS                = _UxGT("Прогр. концевики");
   LSTR MSG_LCD_ENDSTOPS                     = _UxGT("Концевик"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                        = _UxGT("Главное меню");
   LSTR MSG_CONFIGURATION                    = _UxGT("Конфигурация");
-  LSTR MSG_RUN_AUTO_FILES                   = _UxGT("Автостарт");
   LSTR MSG_DISABLE_STEPPERS                 = _UxGT("Выключить двигатели");
   LSTR MSG_DEBUG_MENU                       = _UxGT("Меню отладки");
   LSTR MSG_PROGRESS_BAR_TEST                = _UxGT("Тест индикатора");
@@ -435,14 +435,14 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FILAMENTLOAD_E                   = _UxGT("Подать филамент *");
   LSTR MSG_FILAMENTUNLOAD_E                 = _UxGT("Убрать филамент *");
   LSTR MSG_FILAMENTUNLOAD_ALL               = _UxGT("Выгрузить всё");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Установить SD карту");
-    LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Установить флешка");
-  #else
-    LSTR MSG_ATTACH_MEDIA                   = _UxGT("Установить SD карту");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                     = _UxGT("Установить SD карту");
+  LSTR MSG_ATTACH_SD                        = _UxGT("Установить SD карту");
+  LSTR MSG_ATTACH_USB                       = _UxGT("Монтировать USB"); // Установить флешка
   LSTR MSG_CHANGE_MEDIA                     = _UxGT("Сменить SD карту");
   LSTR MSG_RELEASE_MEDIA                    = _UxGT("Освободить SD карту");
+  LSTR MSG_RUN_AUTOFILES                    = _UxGT("Автостарт");
+
   LSTR MSG_ZPROBE_OUT                       = _UxGT("Z-зонд вне стола");
   LSTR MSG_SKEW_FACTOR                      = _UxGT("Фактор перекоса");
   LSTR MSG_BLTOUCH                          = _UxGT("Z-зонд BLTouch");
@@ -766,7 +766,6 @@ namespace LanguageNarrow_ru {
   LSTR MSG_SINGLENOZZLE_WIPE_RETRACT        = _UxGT("Вытирание при откате");
   LSTR MSG_PARK_FAILED                      = _UxGT("Не удалось запарковать");
   LSTR MSG_FILAMENTUNLOAD                   = _UxGT("Выгрузить филамент");
-  LSTR MSG_ATTACH_USB_MEDIA                 = _UxGT("Монтировать USB");
   LSTR MSG_BLTOUCH_SPEED_MODE               = _UxGT("Высокая скорость");
   LSTR MSG_MANUAL_PENUP                     = _UxGT("Поднять перо");
   LSTR MSG_MANUAL_PENDOWN                   = _UxGT("Опустить перо");
@@ -811,7 +810,7 @@ namespace LanguageNarrow_ru {
 
   // did not translate as there is no local terms/slang yet
   LSTR MSG_FIXED_TIME_MOTION                = _UxGT("FT Motion");
-  LSTR MSG_FTM_CMPN_MODE                    = _UxGT("@ Режим комп.:");
+  LSTR MSG_FTM_CMPN_MODE                    = _UxGT("@ Режим комп.: $");
   LSTR MSG_FTM_ZV                           = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                          = _UxGT("ZVD");
   LSTR MSG_FTM_EI                           = _UxGT("EI");
@@ -820,7 +819,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_FTM_MZV                          = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS                 = _UxGT("Ulendo ФBС");
   //LSTR MSG_FTM_DISCTF                     = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                     = _UxGT("DF Mode:");
+  LSTR MSG_FTM_DYN_MODE                     = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                      = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                   = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                  = _UxGT("@ Base Freq.");
