@@ -23,6 +23,7 @@
 
 /**
  * feature/pause.h - Pause feature support functions
+ *
  * This may be combined with related G-codes if features are consolidated
  */
 

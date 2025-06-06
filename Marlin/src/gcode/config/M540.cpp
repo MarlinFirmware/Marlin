@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M540.cpp - Endstops Abort SD
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)

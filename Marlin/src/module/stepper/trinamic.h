@@ -22,8 +22,7 @@
 #pragma once
 
 /**
- * module/stepper/trinamic.h
- * Stepper driver indirection for Trinamic
+ * module/stepper/trinamic.h - Stepper driver indirection for Trinamic
  */
 
 #include <TMCStepper.h>

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M100.cpp - Free Memory
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)

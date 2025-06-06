@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * joystick.h - joystick input / jogging
+ * feature/joystick.h - Joystick input / jogging
  */
 
 #include "../inc/MarlinConfigPre.h"

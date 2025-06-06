@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M301.cpp - Set Hotend PID
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PIDTEMP)

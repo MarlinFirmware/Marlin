@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M550.cpp - Machine Name
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)

@@ -21,7 +21,7 @@
  */
 
 /**
- * G76_M871.cpp - Temperature calibration/compensation for z-probing
+ * G76_M871.cpp - Probe Temperature Calibration/Compensation
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -38,7 +38,7 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * G76: calibrate probe and/or bed temperature offsets
+ * G76: Calibrate probe and/or bed temperature offsets
  *  Notes:
  *  - When calibrating probe, bed temperature is held constant.
  *    Compensation values are deltas to first probe measurement at probe temp. = 30°C.

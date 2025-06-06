@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M281.cpp - Edit Servo Angles
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EDITABLE_SERVO_ANGLES)

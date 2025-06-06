@@ -21,7 +21,7 @@
  */
 
 /**
- * joystick.cpp - joystick input / jogging
+ * feature/joystick.cpp - Joystick input / jogging
  */
 
 #include "../inc/MarlinConfigPre.h"

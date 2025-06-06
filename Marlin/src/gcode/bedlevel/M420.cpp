@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * M420.cpp - Bed Leveling State
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_LEVELING
@@ -43,7 +47,7 @@
 //#define M420_C_USE_MEAN
 
 /**
- * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
+ * M420: Enable/Disable Bed Leveling and/or set the Z fade height
  *
  *   S[bool]   Turns leveling on or off
  *   Z[height] Sets the Z fade height (0 or none to disable)

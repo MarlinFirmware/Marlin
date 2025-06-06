@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * module/toolchange.h
+ */
+
 #include "../inc/MarlinConfig.h"
 
 //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE

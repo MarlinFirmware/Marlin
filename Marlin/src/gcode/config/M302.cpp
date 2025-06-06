@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M302.cpp - Cold Extrude
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)

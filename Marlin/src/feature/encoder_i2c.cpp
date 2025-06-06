@@ -22,12 +22,13 @@
 
 /**
  * feature/encoder_i2c.cpp
- * TODO: add support for multiple encoders on a single axis
- * TODO: add z axis auto-leveling
- * TODO: consolidate some of the related M codes?
- * TODO: add endstop-replacement mode?
- * TODO: try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
- * TODO: consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
+ *
+ * TODO: Add support for multiple encoders on a single axis
+ * TODO: Add z axis auto-leveling
+ * TODO: Consolidate some of the related M codes?
+ * TODO: Add endstop-replacement mode?
+ * TODO: Try faster I2C speed; tweak TWI_FREQ (400000L, or faster?); or just TWBR = ((CPU_FREQ / 400000L) - 16) / 2;
+ * TODO: Consider Marlin-optimized Wire library; i.e. MarlinWire, like MarlinSerial
  */
 
 #include "../inc/MarlinConfig.h"

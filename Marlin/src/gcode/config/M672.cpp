@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M672.cpp - Duet Smart Effector Sensitivity
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)

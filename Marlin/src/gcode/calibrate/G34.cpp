@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/G34.cpp - Mechanical Gantry Calibration
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MECHANICAL_GANTRY_CALIBRATION)

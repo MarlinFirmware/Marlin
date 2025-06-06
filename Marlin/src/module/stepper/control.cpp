@@ -22,6 +22,7 @@
 
 /**
  * stepper/control.cpp
+ *
  * Control for Stepper Motor Current and Driver Micro-stepping
  * (other than Trinamic UART / SPI).
  */

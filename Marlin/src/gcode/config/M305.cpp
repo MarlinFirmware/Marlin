@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M305.cpp - User Thermistor Parameters
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_USER_THERMISTORS

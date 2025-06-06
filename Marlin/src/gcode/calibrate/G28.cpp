@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/G28.cpp - Auto Home
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #include "../gcode.h"

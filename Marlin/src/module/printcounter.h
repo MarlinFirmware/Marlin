@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * module/printcounter.h
+ */
+
 #include "../libs/stopwatch.h"
 #include "../libs/duration_t.h"
 #include "../inc/MarlinConfig.h"

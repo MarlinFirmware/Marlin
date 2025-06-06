@@ -21,7 +21,7 @@
  */
 
 /**
- * power.cpp - power control
+ * feature/power.cpp - Power control
  */
 
 #include "../inc/MarlinConfigPre.h"

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M220.cpp - Set Feedrate Percentage
+ */
+
 #include "../gcode.h"
 #include "../../module/motion.h"
 

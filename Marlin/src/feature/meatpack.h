@@ -24,6 +24,7 @@
 
 /**
  * feature/meatpack.h
+ *
  * MeatPack G-code Compression
  *
  * Algorithm & Implementation: Scott Mudge - mail@scottmudge.com

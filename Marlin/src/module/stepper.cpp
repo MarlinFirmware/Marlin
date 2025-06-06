@@ -22,6 +22,7 @@
 
 /**
  * module/stepper.cpp - A singleton object to execute motion plans using stepper motors
+ *
  * Marlin Firmware
  *
  * Derived from Grbl

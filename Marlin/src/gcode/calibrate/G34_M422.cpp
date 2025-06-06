@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/G34_M422.cpp - Z Steppers Auto-Alignment / Set Z Motor XY
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M852.cpp - Bed Skew Compensation
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SKEW_CORRECTION_GCODE)

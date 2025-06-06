@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M304.cpp - Set Bed PID
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PIDTEMPBED)

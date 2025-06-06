@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M48.cpp - Probe Repeatability Test
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * G42.cpp - Move to mesh coordinate
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_MESH

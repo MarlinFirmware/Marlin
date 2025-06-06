@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * module/ft_motion.h
+ */
+
 #include "../inc/MarlinConfigPre.h" // Access the top level configurations.
 #include "../module/planner.h"      // Access block type from planner.
 #include "../module/stepper.h"      // For stepper motion and direction

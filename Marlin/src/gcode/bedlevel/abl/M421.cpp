@@ -21,7 +21,7 @@
  */
 
 /**
- * M421.cpp - Auto Bed Leveling
+ * M421.cpp - Auto Bed Leveling - Set Mesh Value
  */
 
 #include "../../../inc/MarlinConfig.h"

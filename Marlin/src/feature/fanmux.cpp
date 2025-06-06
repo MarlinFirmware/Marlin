@@ -22,7 +22,8 @@
 
 /**
  * feature/pause.cpp - Pause feature support functions
- * This may be combined with related G-codes if features are consolidated.
+ *
+ * This may be combined with related G-codes if features are consolidated
  */
 
 #include "../inc/MarlinConfig.h"

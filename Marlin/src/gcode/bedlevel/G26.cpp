@@ -21,8 +21,10 @@
  */
 
 /**
- *   G26 Mesh Validation Tool
- *
+ * G26.cpp - Mesh Validation Pattern
+ */
+
+/**
  *   G26 is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
  *   In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
  *   be defined. G29 is designed to allow the user to quickly validate the correctness of her Mesh. It will

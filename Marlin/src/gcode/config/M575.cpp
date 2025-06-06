@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M575.cpp - Serial Baud Rate
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(BAUD_RATE_GCODE)

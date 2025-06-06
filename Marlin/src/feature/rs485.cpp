@@ -19,6 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * feature/rs485.cpp - RS485 bus support
+ */
+
 #include "../inc/MarlinConfig.h"
 
 #if HAS_RS485_SERIAL

@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * module/stepper/speed_lookuptable.h
+ */
+
 #if F_CPU == 16000000
 
   const struct { uint16_t base; uint8_t gain; } speed_lookuptable_fast[256] PROGMEM = {

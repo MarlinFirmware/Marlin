@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * temp/M303.cpp - PID Autotune
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_PID_HEATING

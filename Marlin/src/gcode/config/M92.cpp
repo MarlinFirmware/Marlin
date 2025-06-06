@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M92.cpp - Set Axis Steps-per-unit
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)

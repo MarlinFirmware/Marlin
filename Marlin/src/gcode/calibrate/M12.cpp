@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M12.cpp - Closed Loop Stepper Motor Control
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)

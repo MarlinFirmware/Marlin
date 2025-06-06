@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * power.h - power control
+ * feature/power.h - Power control
  */
 
 #if PIN_EXISTS(PS_ON_EDM) || (PIN_EXISTS(PS_ON1_EDM) && ENABLED(PSU_OFF_REDUNDANT))

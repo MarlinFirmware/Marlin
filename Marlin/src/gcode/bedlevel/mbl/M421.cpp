@@ -21,7 +21,7 @@
  */
 
 /**
- * M421.cpp - Mesh Bed Leveling
+ * M421.cpp - Mesh Bed Leveling - Set Mesh Value
  */
 
 #include "../../../inc/MarlinConfig.h"

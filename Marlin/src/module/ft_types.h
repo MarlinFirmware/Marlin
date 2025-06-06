@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * module/ft_types.h
+ */
+
 #include "../core/types.h"
 
 enum ftMotionShaper_t : uint8_t {

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * module/printcounter.cpp
+ */
+
 #include "../inc/MarlinConfig.h"
 
 #if DISABLED(PRINTCOUNTER)

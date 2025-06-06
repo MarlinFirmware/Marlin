@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M666.cpp - Set Delta endstop Adjustments
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ANY(DELTA, HAS_EXTRA_ENDSTOPS)

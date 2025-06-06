@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * module/ft_motion.cpp
+ */
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(FT_MOTION)

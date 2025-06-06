@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/G33.cpp - Delta Auto Calibration
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)

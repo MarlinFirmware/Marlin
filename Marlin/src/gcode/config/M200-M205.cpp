@@ -20,6 +20,16 @@
  *
  */
 
+/**
+ * config/M200-M205.cpp
+ *
+ * - M200: Volumetric Extrusion Diameter
+ * - M201: Print / Travel Move Limits
+ * - M203: Set Max Feedrate
+ * - M204: Set Starting Acceleration
+ * - M205: Set Advanced Settings
+ */
+
 #include "../gcode.h"
 #include "../../MarlinCore.h"
 #include "../../module/planner.h"

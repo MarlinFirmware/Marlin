@@ -23,6 +23,7 @@
 
 /**
  * feature/spindle_laser_types.h
+ *
  * Support for Laser Power or Spindle Power & Direction
  */
 

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * calibrate/M665.cpp - SCARA Configuration
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if IS_KINEMATIC

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M218.cpp - Set Hotend Offset
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_HOTEND_OFFSET

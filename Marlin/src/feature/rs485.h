@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * feature/rs485.h - RS485 bus support
+ */
+
 #include "../inc/MarlinConfigPre.h"
 
 #include <rs485/rs485bus.hpp>

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M309.cpp - Set Chamber PID
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(PIDTEMPCHAMBER)

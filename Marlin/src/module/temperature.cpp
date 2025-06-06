@@ -21,7 +21,7 @@
  */
 
 /**
- * module/temperature.cpp - temperature control
+ * module/temperature.cpp - Temperature control
  */
 
 // Useful when debugging thermocouples

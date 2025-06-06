@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * config/M210.cpp - Homing Feedrate
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EDITABLE_HOMING_FEEDRATE)
