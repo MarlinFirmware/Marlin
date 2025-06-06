@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * temp/M155.cpp - Temperature Auto-Report
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(AUTO_REPORT_TEMPERATURES)

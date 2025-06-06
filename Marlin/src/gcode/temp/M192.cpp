@@ -21,7 +21,7 @@
  */
 
 /**
- * M192.cpp - Wait for probe to reach temperature
+ * temp/M192.cpp - Wait for Probe Temperature
  */
 
 #include "../../inc/MarlinConfig.h"

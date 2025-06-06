@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * temp/M106_M107.cpp - Fan Speed Control
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_FAN

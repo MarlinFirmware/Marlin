@@ -21,9 +21,7 @@
  */
 
 /**
- * gcode/temp/M143_M193.cpp
- *
- * Laser Cooler target temperature control
+ * temp/M143_M193.cpp - Laser Cooler Target Temperature Control
  */
 
 #include "../../inc/MarlinConfig.h"

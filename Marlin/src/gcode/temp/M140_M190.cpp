@@ -21,9 +21,7 @@
  */
 
 /**
- * gcode/temp/M140_M190.cpp
- *
- * Bed target temperature control
+ * temp/M140_M190.cpp - Bed Target Temperature Control
  */
 
 #include "../../inc/MarlinConfig.h"

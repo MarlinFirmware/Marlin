@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * temp/M123.cpp - Fan Tachometers
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_FANCHECK

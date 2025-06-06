@@ -20,11 +20,15 @@
  *
  */
 
+/**
+ * temp/M105.cpp - Report Temperatures
+ */
+
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
 /**
- * M105: Read hot end and bed temperature
+ * M105: Read hotend and bed temperature
  */
 void GcodeSuite::M105() {
 

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * temp/M306.cpp - Model Predictive Temp. Control
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(MPCTEMP)

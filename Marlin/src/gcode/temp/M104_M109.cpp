@@ -21,9 +21,7 @@
  */
 
 /**
- * gcode/temp/M104_M109.cpp
- *
- * Hotend target temperature control
+ * temp/M104_M109.cpp - Hotend Target Temperature Control
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -36,7 +34,7 @@
 #include "../../module/planner.h"
 #include "../../lcd/marlinui.h"
 
-#include "../../MarlinCore.h" // for startOrResumeJob, etc.
+#include "../../MarlinCore.h" // For startOrResumeJob, etc.
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
