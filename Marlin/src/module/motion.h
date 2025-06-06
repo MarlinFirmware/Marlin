@@ -121,7 +121,10 @@ extern int16_t feedrate_percentage;
   #endif
 #endif
 
-#if HAS_BED_PROBE
+#ifdef Z_PROBE_FEEDRATE_SLOW
+  constexpr feedRate_t z_probe_slow_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+#endif
+#ifdef Z_PROBE_FEEDRATE_FAST
   constexpr feedRate_t z_probe_fast_mm_s = MMM_TO_MMS(Z_PROBE_FEEDRATE_FAST);
 #endif
 
