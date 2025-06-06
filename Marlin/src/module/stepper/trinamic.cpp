@@ -822,6 +822,8 @@ enum StealthIndex : uint8_t {
     st.PWMCONF(pwmconf.sr);
 
     TERN(HYBRID_THRESHOLD, st.set_pwm_thrs(hyb_thrs), UNUSED(hyb_thrs));
+
+    st.diag0_pushpull(true);
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC2240
