@@ -44,9 +44,9 @@
 extern uint32_t GetStepperTimerClkFreq();
 
 // Timer prescaler calculations
-#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)	// Prescaler = 30
+#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE) // Prescaler = 30
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)				        // Stepper timer ticks per µs
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)                // Stepper timer ticks per µs
 #define PULSE_TIMER_RATE            STEPPER_TIMER_RATE
 #define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 
@@ -57,7 +57,7 @@ extern uint32_t GetStepperTimerClkFreq();
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
 #define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
-#define ENABLE_TEMPERATURE_INTERRUPT()		  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()      HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT()     HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 extern void Step_Handler();

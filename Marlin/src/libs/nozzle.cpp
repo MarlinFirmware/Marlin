@@ -189,12 +189,12 @@ Nozzle nozzle;
         #if ENABLED(NOZZLE_CLEAN_HEATUP)
           SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
           thermalManager.setTargetHotend(NOZZLE_CLEAN_MIN_TEMP, arrPos);
-          thermalManager.wait_for_hotend(arrPos);
         #else
           SERIAL_ECHOLNPGM("Nozzle too cold - Skipping wipe");
           return;
         #endif
       }
+      thermalManager.wait_for_hotend(arrPos);
     #endif
 
     #if HAS_SOFTWARE_ENDSTOPS
