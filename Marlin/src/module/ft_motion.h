@@ -169,6 +169,12 @@ class FTMotion {
 
     static xyze_long_t steps;
 
+    #if ENABLED(DISTINCT_E_FACTORS)
+      static uint8_t block_extruder_axis;  // Cached extruder axis index
+    #else
+      static constexpr uint8_t block_extruder_axis = E_AXIS;
+    #endif
+
     // Shaping variables.
     #if HAS_FTM_SHAPING
 

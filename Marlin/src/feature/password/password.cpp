@@ -36,7 +36,7 @@ uint32_t Password::value, Password::value_entry;
 
 //
 // Authenticate user with password.
-// Called from Setup, after SD Prinitng Stops/Aborts, and M510
+// Called from Setup, after SD Printing Stops/Aborts, and M510
 //
 void Password::lock_machine() {
   is_locked = true;

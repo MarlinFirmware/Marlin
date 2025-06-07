@@ -40,7 +40,7 @@ def boards_checks(argv):
     logmsg('Checking boards file:', src_file)
 
     # Open the file
-    with open(src_file, 'r') as f:
+    with open(src_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     # Get the board names and numbers
@@ -85,7 +85,7 @@ def boards_checks(argv):
     # Validate that pins.h has all the boards mentioned in it
     #
     pins_boards = []
-    with open('Marlin/src/pins/pins.h', 'r') as f:
+    with open('Marlin/src/pins/pins.h', 'r', encoding='utf-8') as f:
         lines = f.readlines()
         if_count = 0
         for line in lines:

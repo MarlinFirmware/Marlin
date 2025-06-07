@@ -64,7 +64,7 @@ namespace Anycubic {
     DgusTFT::page25, DgusTFT::page26, DgusTFT::page27, DgusTFT::page28, DgusTFT::page29, DgusTFT::page30,
     DgusTFT::page31, DgusTFT::page32
     #if HAS_LEVELING
-      , DgusTFT::page33 , DgusTFT::page34
+      , DgusTFT::page33, DgusTFT::page34
     #endif
   };
 
@@ -1108,7 +1108,7 @@ namespace Anycubic {
         */
       }
       else if (0x82 == data_buf[0]) {
-        // send_cmd_to_pc(cmd ,start );
+        // send_cmd_to_pc(cmd, start );
       }
     }
   }
