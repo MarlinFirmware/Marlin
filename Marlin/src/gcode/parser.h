@@ -97,6 +97,8 @@ public:
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
 
+  FORCE_INLINE static bool has_string() { return string_arg && string_arg[0]; }
+
   #if ENABLED(DEBUG_GCODE_PARSER)
     static void debug();
   #endif

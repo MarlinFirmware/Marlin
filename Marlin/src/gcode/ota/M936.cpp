@@ -34,7 +34,6 @@
 /**
  * M936: Set one of the OTA update flags.
  *   V2 = Upgrade the motherboard firmware
- *   V3 = Upgrade the RTS controller firmware
  */
 void GcodeSuite::M936() {
   static uint8_t ota_update_flag = 0x00;

@@ -110,7 +110,7 @@
       if (mode == ACCUMULATE_TOTAL) return;
 
       // update time_fraction every hundred milliseconds
-      if (instance_count == 0 && ELAPSED(now, last_calc_time + 100000)) {
+      if (instance_count == 0 && now - last_calc_time > 100000) {
         time_fraction = total_time * 128 / (now - last_calc_time);
         last_calc_time = now;
         total_time = 0;

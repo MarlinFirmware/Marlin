@@ -298,6 +298,9 @@ public:
   MString& clear() { return set(); }
   MString& eol() { return append('\n'); }
   MString& trunc(const int &i) { if (i <= SIZE) str[i] = '\0'; debug(F("trunc")); return *this; }
+  MString& ltrim() { char *s = str; while (*s == ' ') ++s; if (s != str) strcpy(str, s); return *this; }
+  MString& rtrim() { int s = length(); while (s && str[s - 1] == ' ') --s; str[s] = '\0'; return *this; }
+  MString& trim() { return rtrim().ltrim(); }
 
   // Truncate on a Unicode boundary
   MString& utrunc(const int &n=SIZE) {

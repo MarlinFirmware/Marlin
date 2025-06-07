@@ -223,7 +223,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
 
-    //const xy_pos_t pos { max_length(X_AXIS) , max_length(Y_AXIS) };
+    //const xy_pos_t pos { max_length(X_AXIS), max_length(Y_AXIS) };
     //const float mlz = max_length(X_AXIS),
 
     // Move all carriages together linearly until an endstop is hit.
@@ -293,7 +293,7 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
 
-    //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x , ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
+    //SERIAL_ECHOLNPGM(" SCARA (x,y,z) ", spos.x, ",", spos.y, ",", spos.z, " Rho=", RHO, " Rho2=", RHO2, " Theta=", THETA, " Phi=", PHI, " Psi=", PSI, " Gamma=", GAMMA);
   }
 
 #endif
