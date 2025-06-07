@@ -85,9 +85,19 @@
 #define MOTOR_CURRENT_PWM_E_PIN               46
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE            2000
+  #define MOTOR_CURRENT_PWM_RANGE            2900
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      54  // ADC0
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                     55  // ADC1
+#endif
 
 //
 // Temperature Sensors

@@ -14,6 +14,13 @@ opt_set MOTHERBOARD BOARD_FYSETC_F6_13 LCD_SERIAL_PORT 1 DGUS_LCD_UI FYSETC
 exec_test $1 $2 "DGUS (FYSETC)" "$3"
 
 #
+# Test DGUS_LCD_UI MKS
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_FYSETC_F6_13 LCD_SERIAL_PORT 1 DGUS_LCD_UI MKS
+exec_test $1 $2 "DGUS (MKS)" "$3"
+
+#
 # Test DGUS_LCD_UI RELOADED
 #
 restore_configs

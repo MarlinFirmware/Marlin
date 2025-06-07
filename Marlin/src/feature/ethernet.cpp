@@ -172,4 +172,46 @@ void MarlinEthernet::check() {
   }
 }
 
+void say_ethernet() { SERIAL_ECHOPGM("  Ethernet "); }
+
+void MarlinEthernet::ETH0_report(const bool forReplay/*=true*/) {
+  say_ethernet();
+  SERIAL_ECHO_TERNARY(ethernet.hardware_enabled, "port ", "en", "dis", "abled.\n");
+  if (ethernet.hardware_enabled) {
+    say_ethernet();
+    SERIAL_ECHO_TERNARY(ethernet.have_telnet_client, "client ", "en", "dis", "abled.\n");
+  }
+  else
+    SERIAL_ECHOLNPGM("Send 'M552 S1' to enable.");
+}
+
+void MarlinEthernet::MAC_report(const bool forReplay/*=true*/) {
+  if (!forReplay) SERIAL_ECHO_START();
+  SERIAL_ECHOPGM("MAC: ");
+  if (ethernet.hardware_enabled) {
+    uint8_t mac[6];
+    Ethernet.MACAddress(mac);
+    for (uint8_t i = 0; i < 6; ++i) {
+      if (mac[i] < 0x10) SERIAL_CHAR('0');
+      SERIAL_PRINT(mac[i], PrintBase::Hex);
+      if (i < 5) SERIAL_CHAR(':');
+    }
+  }
+  else
+    SERIAL_ECHOPGM("Disabled");
+  SERIAL_EOL();
+}
+
+// Display current values when the link is active,
+// otherwise show the stored values
+void MarlinEthernet::ip_report(const uint16_t cmd, FSTR_P const post, const IPAddress &ipo, const bool forReplay/*=true*/) {
+  if (!forReplay) SERIAL_ECHO_START();
+  SERIAL_ECHO(F("  M"), cmd, C(' '));
+  for (uint8_t i = 0; i < 4; ++i) {
+    SERIAL_ECHO(ipo[i]);
+    if (i < 3) SERIAL_CHAR('.');
+  }
+  SERIAL_ECHOLN(F(" ; "), post);
+}
+
 #endif // HAS_ETHERNET

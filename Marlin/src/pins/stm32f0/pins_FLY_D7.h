@@ -133,6 +133,12 @@
   #define E1_SERIAL_TX_PIN                  PB1
   #define E2_SERIAL_TX_PIN                  PB6
   #define E3_SERIAL_TX_PIN                  PC10
+
+// Reduce baud rate to improve software serial reliability
+#ifndef TMC_BAUD_RATE
+  #define TMC_BAUD_RATE                    9600
+#endif
+
 #endif
 
 //

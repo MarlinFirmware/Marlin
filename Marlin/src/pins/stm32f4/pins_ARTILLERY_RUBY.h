@@ -40,27 +40,10 @@
 //
 // Limit Switches
 //
-#if (X_HOME_DIR == 1)
-  #define X_MIN_PIN                         -1
-  #define X_MAX_PIN                         PA2
-#else
-  #define X_MIN_PIN                         PA2
-  #define X_MAX_PIN                         -1
-#endif
-#if (Y_HOME_DIR == 1)
-  #define Y_MIN_PIN                         -1
-  #define Y_MAX_PIN                         PA1
-#else
-  #define Y_MIN_PIN                         PA1
-  #define Y_MAX_PIN                         -1
-#endif
-#if (Z_HOME_DIR == 1)
-  #define Z_MIN_PIN                         PC2
-  #define Z_MAX_PIN                         PA0
-#else
-  #define Z_MIN_PIN                         PA0
-  #define Z_MAX_PIN                         PC2
-#endif
+#define X_STOP_PIN                          PA2
+#define Y_STOP_PIN                          PA1
+#define Z_STOP_PIN                          PA0
+#define Z_OTHR_PIN                          PC2
 
 //
 // Steppers

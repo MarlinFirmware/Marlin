@@ -390,10 +390,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
   else
     tft_string.set();
 
+  const uint16_t color = (style & SS_INVERT) ? COLOR_MENU_INVERT_TEXT : COLOR_MENU_STATIC_TEXT;
+
   const bool center = bool(style & SS_CENTER), full = bool(style & SS_FULL);
   if (!full || !vstr) {
     if (vstr) tft_string.add(vstr);
-    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+    tft.add_text(center ? tft_string.center(TFT_WIDTH) : 0, MENU_TEXT_Y, color, tft_string);
     return;
   }
 
@@ -401,12 +403,12 @@ void MenuItem_static::draw(const uint8_t row, FSTR_P const ftpl, const uint8_t s
   if (*vstr == ':') { tft_string.add(':'); vstr++; }
 
   // Left-justified label
-  tft.add_text(0, MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+  tft.add_text(0, MENU_TEXT_Y, color, tft_string);
 
   // Right-justified value, after spaces
   while (*vstr == ' ') vstr++;
   tft_string.set(vstr);
-  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y, COLOR_MENU_STATIC_TEXT, tft_string);
+  tft.add_text(TFT_WIDTH - 1 - tft_string.width(), MENU_TEXT_Y, color, tft_string);
 }
 
 #if HAS_MEDIA
@@ -487,6 +489,11 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
     touch.clear();
 
     if (stage < CALIBRATION_SUCCESS) {
+      tft_string.set(GET_TEXT(MSG_TOUCH_CALIBRATION));
+      tft.canvas(0, 0, TFT_WIDTH, tft_string.font_height());
+      tft.set_background(COLOR_BACKGROUND);
+      tft.add_text(tft_string.center(TFT_WIDTH), 0, COLOR_MENU_TEXT, tft_string);
+
       switch (stage) {
         case CALIBRATION_TOP_LEFT:     tft_string.set(GET_TEXT(MSG_TOP_LEFT));     break;
         case CALIBRATION_TOP_RIGHT:    tft_string.set(GET_TEXT(MSG_TOP_RIGHT));    break;

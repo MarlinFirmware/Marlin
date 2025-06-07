@@ -239,8 +239,8 @@ typedef struct {
 #define ADC_WORKMODE_SLOW_INTERL            ((uint32_t)0x00080000)
 #define ADC_WORKMODE_ALTER_TRIG             ((uint32_t)0x00090000)
 
-#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) //!< For ADC1, ADC2 , ADC3 and ADC4
-#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) //!< For ADC1, ADC2 , ADC3 and ADC4
+#define ADC_EXT_TRIGCONV_T1_CC3 ((uint32_t)0x00040000) //!< For ADC1, ADC2, ADC3, and ADC4
+#define ADC_EXT_TRIGCONV_NONE   ((uint32_t)0x000E0000) //!< For ADC1, ADC2, ADC3, and ADC4
 
 #define ADC_DAT_ALIGN_R      ((uint32_t)0x00000000)
 #define ADC_DAT_ALIGN_L      ((uint32_t)0x00000800)
@@ -603,9 +603,9 @@ typedef struct {
 #define DMA_CHCFG7_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
 #define DMA_CHCFG7_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG7_PSIZE   , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
-#define DMA_CHCFG7_PSIZE_0 ((uint16_t)0x0100)   //!< Bit 0
-#define DMA_CHCFG7_PSIZE_1 ((uint16_t)0x0200)   //!< Bit 1
+#define DMA_CHCFG7_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG7_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG7_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
 #define DMA_CHCFG7_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
 #define DMA_CHCFG7_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
@@ -627,9 +627,9 @@ typedef struct {
 #define DMA_CHCFG8_PINC  ((uint16_t)0x0040) //!< Peripheral increment mode
 #define DMA_CHCFG8_MINC  ((uint16_t)0x0080) //!< Memory increment mode
 
-#define DMA_CHCFG8_PSIZE   , ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
-#define DMA_CHCFG8_PSIZE_0 ((uint16_t)0x0100)   //!< Bit 0
-#define DMA_CHCFG8_PSIZE_1 ((uint16_t)0x0200)   //!< Bit 1
+#define DMA_CHCFG8_PSIZE   ((uint16_t)0x0300) //!< PSIZE[1:0] bits (Peripheral size)
+#define DMA_CHCFG8_PSIZE_0 ((uint16_t)0x0100) //!< Bit 0
+#define DMA_CHCFG8_PSIZE_1 ((uint16_t)0x0200) //!< Bit 1
 
 #define DMA_CHCFG8_MSIZE   ((uint16_t)0x0C00) //!< MSIZE[1:0] bits (Memory size)
 #define DMA_CHCFG8_MSIZE_0 ((uint16_t)0x0400) //!< Bit 0
