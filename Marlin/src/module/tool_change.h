@@ -125,14 +125,14 @@
 
   inline PGM_P tool_name(const uint8_t tool) {
     switch (tool) {
-      case 0: return GET_TEXT(MSG_TOOL_NAME_0);
-      case 1: return GET_TEXT(MSG_TOOL_NAME_1);
-      OPTCODE(HAS_TOOL_2, case 2: return GET_TEXT(MSG_TOOL_NAME_2))
-      OPTCODE(HAS_TOOL_3, case 3: return GET_TEXT(MSG_TOOL_NAME_3))
-      OPTCODE(HAS_TOOL_4, case 4: return GET_TEXT(MSG_TOOL_NAME_4))
-      OPTCODE(HAS_TOOL_5, case 5: return GET_TEXT(MSG_TOOL_NAME_5))
-      OPTCODE(HAS_TOOL_6, case 6: return GET_TEXT(MSG_TOOL_NAME_6))
-      OPTCODE(HAS_TOOL_7, case 7: return GET_TEXT(MSG_TOOL_NAME_7))
+      case 0: return PSTR(TOOL_NAME_0);
+      case 1: return PSTR(TOOL_NAME_1);
+      OPTCODE(HAS_TOOL_2, case 2: return PSTR(TOOL_NAME_2))
+      OPTCODE(HAS_TOOL_3, case 3: return PSTR(TOOL_NAME_3))
+      OPTCODE(HAS_TOOL_4, case 4: return PSTR(TOOL_NAME_4))
+      OPTCODE(HAS_TOOL_5, case 5: return PSTR(TOOL_NAME_5))
+      OPTCODE(HAS_TOOL_6, case 6: return PSTR(TOOL_NAME_6))
+      OPTCODE(HAS_TOOL_7, case 7: return PSTR(TOOL_NAME_7))
       default: return PSTR("Tool");
     }
   }
