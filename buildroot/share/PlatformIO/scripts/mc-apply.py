@@ -25,7 +25,7 @@ def report_version(conf):
             print(k + ': ' + v)
 
 def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
-    with open(outpath, 'w') as outfile:
+    with open(outpath, 'w', encoding='utf-8') as outfile:
         for key, val in conf.items():
             if key in ('__INITIAL_HASH', 'VERSION'): continue
 
@@ -49,7 +49,7 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
 def back_up_config(name):
     # Back up the existing file before modifying it
     conf_path = 'Marlin/' + name
-    with open(conf_path, 'r') as f:
+    with open(conf_path, 'r', encoding='utf-8') as f:
         # Write a filename.bak#.ext retaining the original extension
         parts = conf_path.split('.')
         nr = ''
@@ -59,7 +59,7 @@ def back_up_config(name):
                 nr = 1 if nr == '' else nr + 1
                 continue
 
-            with open(bak_path, 'w') as b:
+            with open(bak_path, 'w', encoding='utf-8') as b:
                 b.writelines(f.readlines())
                 break
 
@@ -83,7 +83,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        infile = open(args.config_file, 'r')
+        infile = open(args.config_file, 'r', encoding='utf-8')
     except:
         print(f'No {args.config_file} found.')
         sys.exit(1)

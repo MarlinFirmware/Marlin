@@ -88,10 +88,8 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    #if HAS_CURRENT_HOME(X)
-      set_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
 
@@ -113,10 +111,8 @@
 
     current_position.set(0.0, 0.0);
 
-    #if HAS_CURRENT_HOME(X)
-      restore_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       restore_homing_current(Y_AXIS);
     #endif
 
@@ -304,7 +300,8 @@ void GcodeSuite::G28() {
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
-        const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
+        const bool homed_towards_tool = old_tool_index == TERN(X_HOME_TO_MIN, 0, 1),
+                   pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, homed_towards_tool);
       #endif
       tool_change(0, true);
     #endif

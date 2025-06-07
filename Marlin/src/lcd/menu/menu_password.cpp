@@ -140,8 +140,18 @@ void Password::access_menu_password() {
 
 #if ENABLED(PASSWORD_ON_SD_PRINT_MENU)
   void Password::media_gatekeeper() {
-    authenticate_user(menu_media, menu_main);
+    authenticate_user(menu_file_selector, menu_main);
   }
+  #if HAS_SDCARD
+    void Password::media_gatekeeper_sd() {
+      authenticate_user(menu_file_selector_sd, menu_main);
+    }
+  #endif
+  #if HAS_USB_FLASH_DRIVE
+    void Password::media_gatekeeper_usb() {
+      authenticate_user(menu_file_selector_usb, menu_main);
+    }
+  #endif
 #endif
 
 void Password::start_over() {

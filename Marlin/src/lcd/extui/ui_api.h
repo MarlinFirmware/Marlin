@@ -214,6 +214,9 @@ namespace ExtUI {
     #if HAS_HEATED_BED
       uint16_t getMaterial_preset_B(const uint16_t);
     #endif
+    #if HAS_HEATED_CHAMBER
+      uint16_t getMaterial_preset_C(const uint16_t);
+    #endif
   #endif
 
   // IDEX Machine Mode
@@ -427,7 +430,7 @@ namespace ExtUI {
     float getPID_Kp(const extruder_t);
     float getPID_Ki(const extruder_t);
     float getPID_Kd(const extruder_t);
-    void setPID(const_float_t, const_float_t , const_float_t , extruder_t);
+    void setPID(const_float_t, const_float_t, const_float_t, extruder_t);
     void startPIDTune(const celsius_t, extruder_t);
   #endif
 
@@ -436,7 +439,7 @@ namespace ExtUI {
     float getBedPID_Kp();
     float getBedPID_Ki();
     float getBedPID_Kd();
-    void setBedPID(const_float_t, const_float_t , const_float_t);
+    void setBedPID(const_float_t, const_float_t, const_float_t);
     void startBedPIDTune(const celsius_t);
   #endif
 
@@ -461,6 +464,9 @@ namespace ExtUI {
    * Use these to operate on files
    */
   bool isMediaMounted();
+  bool isMediaMountedSD();
+  bool isMediaMountedUSB();
+
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
@@ -530,8 +536,9 @@ namespace ExtUI {
     void onPauseMode(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #endif
 
+  void onStatusChanged_P(PGM_P const msg);
+  inline void onStatusChanged(FSTR_P const fstr) { onStatusChanged_P(FTOP(fstr)); }
   void onStatusChanged(const char * const msg);
-  void onStatusChanged(FSTR_P const fstr);
 
   void onHomingStart();
   void onHomingDone();

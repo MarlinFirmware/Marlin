@@ -185,13 +185,12 @@ void GcodeSuite::M709() {
 void GcodeSuite::MMU3_report(const bool forReplay/*=true*/) {
   using namespace MMU3;
   report_heading(forReplay, F("MMU3 Operational Stats"));
-  SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
-  SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
+  SERIAL_ECHOLNPGM("  MMU                ", ON_OFF(mmu3.mmu_hw_enabled));
+  SERIAL_ECHOLNPGM("  Stealth Mode       ", ON_OFF(mmu3.stealth_mode));
   #if ENABLED(MMU3_HAS_CUTTER)
-    SERIAL_ECHOPGM("  Cutter             ");
-    serialprintln_onoff(mmu3.cutter_mode != 0);
+    SERIAL_ECHOLNPGM("  Cutter             ", ON_OFF(mmu3.cutter_mode != 0));
   #endif
-  SERIAL_ECHOPGM("  SpoolJoin          "); serialprintln_onoff(spooljoin.enabled);
+  SERIAL_ECHOLNPGM("  SpoolJoin          ", ON_OFF(spooljoin.enabled));
   SERIAL_ECHOLNPGM("  Tool Changes       ", operation_statistics.tool_change_counter);
   SERIAL_ECHOLNPGM("  Total Tool Changes ", operation_statistics.tool_change_total_counter);
   SERIAL_ECHOLNPGM("  Fails              ", operation_statistics.fail_num);

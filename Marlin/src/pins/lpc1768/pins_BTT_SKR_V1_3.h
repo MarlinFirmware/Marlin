@@ -43,71 +43,18 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #ifndef X_STOP_PIN
-    #define X_STOP_PIN                X_DIAG_PIN
-  #endif
-  #if X_HOME_TO_MIN
-    #ifndef X_MAX_PIN
-      #define X_MAX_PIN                    P1_28  // X+
-    #endif
-  #else
-    #ifndef X_MIN_PIN
-      #define X_MIN_PIN                    P1_28  // X+
-    #endif
-  #endif
-#else
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                      P1_29  // X-
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                      P1_28  // X+
-  #endif
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                  X_DIAG_PIN
 #endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #ifndef Y_STOP_PIN
-    #define Y_STOP_PIN                Y_DIAG_PIN
-  #endif
-  #if Y_HOME_TO_MIN
-    #ifndef Y_MAX_PIN
-      #define Y_MAX_PIN                    P1_26  // Y+
-    #endif
-  #else
-    #ifndef Y_MIN_PIN
-      #define Y_MIN_PIN                    P1_26  // Y+
-    #endif
-  #endif
-#else
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                      P1_27  // Y-
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                      P1_26  // Y+
-  #endif
+#define X_OTHR_PIN                         P1_28  // X+
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN
 #endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                Z_DIAG_PIN
-  #endif
-  #if Z_HOME_TO_MIN
-    #ifndef Z_MAX_PIN
-      #define Z_MAX_PIN                    P1_24  // Z+
-    #endif
-  #else
-    #ifndef Z_MIN_PIN
-      #define Z_MIN_PIN                    P1_24  // Z+
-    #endif
-  #endif
-#else
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                      P1_25  // Z-
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                      P1_24  // Z+
-  #endif
+#define Y_OTHR_PIN                         P1_26  // Y+
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN
 #endif
+#define Z_OTHR_PIN                         P1_24  // Z+
 
 #define ONBOARD_ENDSTOPPULLUPS                    // Board has built-in pullups
 

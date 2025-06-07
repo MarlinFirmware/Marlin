@@ -65,7 +65,8 @@ uint16_t adc_results[ADC_COUNT];
         emergency_parser.update(MSerial0.emergency_state, buf[i + total - len]);
     }
   #endif
-#endif
+
+#endif // SERIAL_USB && !HAS_SD_HOST_DRIVE
 
 // ------------------------
 // Watchdog Timer
@@ -252,7 +253,7 @@ void MarlinHAL::init() {
   #endif
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING);  // USB clear connection
-    delay(1000);                                         // Give OS time to notice
+    delay_ms(1000);                                      // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
@@ -264,7 +265,7 @@ void MarlinHAL::idletask() {
     /**
      * When Marlin is using the SD card it should be locked to prevent it being
      * accessed from a PC over USB.
-     * Other HALs use (IS_SD_PRINTING() || IS_SD_FILE_OPEN()) to check for access
+     * Other HALs use (card.isStillPrinting() || card.isFileOpen()) to check for access
      * but this won't reliably detect other file operations. To be safe we just lock
      * the drive whenever Marlin has it mounted. LCDs should include an Unmount
      * command so drives can be released as needed.
