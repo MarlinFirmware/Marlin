@@ -598,7 +598,7 @@ void GcodeSuite::G33() {
         LOOP_NUM_AXES(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0f;
       }
 
-      // adjust delta_height and endstops by the max amount
+      // Adjust delta_height and endstops by the max amount
       const float z_temp = _MAX(delta_endstop_adj.a, delta_endstop_adj.b, delta_endstop_adj.c);
       delta_height -= z_temp;
       LOOP_NUM_AXES(axis) delta_endstop_adj[axis] -= z_temp;
@@ -606,7 +606,7 @@ void GcodeSuite::G33() {
     recalc_delta_settings();
     NOMORE(zero_std_dev_min, zero_std_dev);
 
-    // print report
+    // Print report
 
     if (verbose_level == 3 || verbose_level == 0) {
       print_calibration_results(z_at_pt, _tower_results, _opposite_results);

@@ -40,7 +40,7 @@
  *    M32 S60 !PATH/TO/FILE.GCO#  ; Start FILE.GCO at byte 60
  */
 void GcodeSuite::M32() {
-  if (IS_SD_PRINTING()) planner.synchronize();
+  if (card.isStillPrinting()) planner.synchronize();
 
   if (card.isMounted()) {
     const uint8_t call_procedure = parser.boolval('P');

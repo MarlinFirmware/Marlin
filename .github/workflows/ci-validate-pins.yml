@@ -36,9 +36,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-pins-v1
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-pip-pins-
 
     - name: Select Python 3.9
       uses: actions/setup-python@v5

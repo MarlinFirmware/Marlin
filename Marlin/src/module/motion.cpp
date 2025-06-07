@@ -280,48 +280,7 @@ void report_current_position_projected() {
     #define debug_current(...)
   #endif
 
-  #if HAS_CURRENT_HOME(X)
-    int16_t saved_current_X;
-  #endif
-  #if HAS_CURRENT_HOME(Y)
-    int16_t saved_current_Y;
-  #endif
-  #if HAS_CURRENT_HOME(Z)
-    int16_t saved_current_Z;
-  #endif
-  #if HAS_CURRENT_HOME(X2)
-    int16_t saved_current_X2;
-  #endif
-  #if HAS_CURRENT_HOME(Y2)
-    int16_t saved_current_Y2;
-  #endif
-  #if HAS_CURRENT_HOME(Z2)
-    int16_t saved_current_Z2;
-  #endif
-  #if HAS_CURRENT_HOME(Z3)
-    int16_t saved_current_Z3;
-  #endif
-  #if HAS_CURRENT_HOME(Z4)
-    int16_t saved_current_Z4;
-  #endif
-  #if HAS_CURRENT_HOME(I)
-    int16_t saved_current_I;
-  #endif
-  #if HAS_CURRENT_HOME(J)
-    int16_t saved_current_J;
-  #endif
-  #if HAS_CURRENT_HOME(K)
-    int16_t saved_current_K;
-  #endif
-  #if HAS_CURRENT_HOME(U)
-    int16_t saved_current_U;
-  #endif
-  #if HAS_CURRENT_HOME(V)
-    int16_t saved_current_V;
-  #endif
-  #if HAS_CURRENT_HOME(W)
-    int16_t saved_current_W;
-  #endif
+  homing_current_t saved_current_mA;
 
   /**
    * Set motors to their homing / probing currents.
@@ -329,11 +288,15 @@ void report_current_position_projected() {
    */
   void set_homing_current(const AxisEnum axis) {
 
+    #define HOMING_CURRENT(A) TERN(EDITABLE_HOMING_CURRENT, homing_current_mA.A, A##_CURRENT_HOME)
+
     // Saves the running current of the motor at the moment the function is called and sets current to CURRENT_HOME
     #define _SAVE_SET_CURRENT(A) \
-      saved_current_##A = stepper##A.getMilliamps(); \
-      stepper##A.rms_current(A##_CURRENT_HOME); \
-      debug_current(F(STR_##A), saved_current_##A, A##_CURRENT_HOME)
+      saved_current_mA.A = stepper##A.getMilliamps(); \
+      stepper##A.rms_current(HOMING_CURRENT(A)); \
+      debug_current(F(STR_##A), saved_current_mA.A, HOMING_CURRENT(A))
+
+    #define _MAP_SAVE_SET(A) OPTCODE(A##_HAS_HOME_CURRENT, _SAVE_SET_CURRENT(A))
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting homing driver current");
 
@@ -342,34 +305,8 @@ void report_current_position_projected() {
       // CORE and Markforged kinematics
       switch (axis) {
         default: break;
-        case X_AXIS: case Y_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(X2)
-            _SAVE_SET_CURRENT(X2);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            _SAVE_SET_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Y2)
-            _SAVE_SET_CURRENT(Y2);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _SAVE_SET_CURRENT(Z);
-          #endif
-          #if HAS_CURRENT_HOME(Z2)
-            _SAVE_SET_CURRENT(Z2);
-          #endif
-          #if HAS_CURRENT_HOME(Z3)
-            _SAVE_SET_CURRENT(Z3);
-          #endif
-          #if HAS_CURRENT_HOME(Z4)
-            _SAVE_SET_CURRENT(Z4);
-          #endif
-          break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_SAVE_SET, X, X2, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z, Z2, Z3, Z4); break;
       }
 
     #elif CORE_IS_XZ
@@ -377,22 +314,8 @@ void report_current_position_projected() {
       // CORE XZ / ZX
       switch (axis) {
         default: break;
-        case X_AXIS: case Z_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(Z)
-            _SAVE_SET_CURRENT(Z);
-          #endif
-          break;
-        case Y_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _SAVE_SET_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Y2)
-            _SAVE_SET_CURRENT(Y2);
-          #endif
-          break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_SAVE_SET, X, Z); break;
+        case Y_AXIS: MAP(_MAP_SAVE_SET, Y, Y2); break;
       }
 
     #elif CORE_IS_YZ
@@ -400,22 +323,8 @@ void report_current_position_projected() {
       // CORE YZ / ZY
       switch (axis) {
         default: break;
-        case X_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(X2)
-            _SAVE_SET_CURRENT(X2);
-          #endif
-          break;
-        case Y_AXIS: case Z_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _SAVE_SET_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Z)
-            _SAVE_SET_CURRENT(Z);
-          #endif
-          break;
+        case X_AXIS: MAP(_MAP_SAVE_SET, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_SAVE_SET, Y, Z); break;
       }
 
     #elif IS_SCARA
@@ -423,13 +332,13 @@ void report_current_position_projected() {
       // SCARA kinematics
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _SAVE_SET_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _SAVE_SET_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _SAVE_SET_CURRENT(Z); break;
         #endif
       }
@@ -438,13 +347,13 @@ void report_current_position_projected() {
 
       // TPARA or DELTA kinematics.
       // Z_AXIS is a special mode to apply homing current to all axes.
-      #if HAS_CURRENT_HOME(X)
+      #if X_HAS_HOME_CURRENT
         if (axis == A_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(X);
       #endif
-      #if HAS_CURRENT_HOME(Y)
+      #if Y_HAS_HOME_CURRENT
         if (axis == B_AXIS || axis == Z_AXIS) _SAVE_SET_CURRENT(Y);
       #endif
-      #if HAS_CURRENT_HOME(Z)
+      #if Z_HAS_HOME_CURRENT
         if (axis == C_AXIS) _SAVE_SET_CURRENT(Z);
       #endif
 
@@ -453,13 +362,13 @@ void report_current_position_projected() {
       // POLAR kinematics
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _SAVE_SET_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _SAVE_SET_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _SAVE_SET_CURRENT(Z); break;
         #endif
       }
@@ -470,13 +379,13 @@ void report_current_position_projected() {
       // Useful?
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _SAVE_SET_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _SAVE_SET_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _SAVE_SET_CURRENT(Z); break;
         #endif
       }
@@ -486,27 +395,9 @@ void report_current_position_projected() {
       // Foam cutter
       switch (axis) {
         default: break;
-        case X_AXIS: case I_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(I)
-            _SAVE_SET_CURRENT(I);
-          #endif
-          break;
-        case Y_AXIS: case J_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _SAVE_SET_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(J)
-            _SAVE_SET_CURRENT(J);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _SAVE_SET_CURRENT(Z);
-          #endif
-          break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_SAVE_SET, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_SAVE_SET, Y, J); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z); break;
       }
 
     #else
@@ -514,58 +405,31 @@ void report_current_position_projected() {
       // Cartesian kinematics
       switch (axis) {
         default: break;
-        case X_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _SAVE_SET_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(X2)
-            _SAVE_SET_CURRENT(X2);
-          #endif
-          break;
-        case Y_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _SAVE_SET_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Y2)
-            _SAVE_SET_CURRENT(Y2);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _SAVE_SET_CURRENT(Z);
-          #endif
-          #if HAS_CURRENT_HOME(Z2)
-            _SAVE_SET_CURRENT(Z2);
-          #endif
-          #if HAS_CURRENT_HOME(Z3)
-            _SAVE_SET_CURRENT(Z3);
-          #endif
-          #if HAS_CURRENT_HOME(Z4)
-            _SAVE_SET_CURRENT(Z4);
-          #endif
-          break;
+        case X_AXIS: MAP(_MAP_SAVE_SET, X, X2); break;
+        case Y_AXIS: MAP(_MAP_SAVE_SET, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_SAVE_SET, Z, Z2, Z3, Z4); break;
       }
 
     #endif // kinematics
 
     switch (axis) {
       default: break;
-      #if HAS_CURRENT_HOME(I) && DISABLED(FOAMCUTTER_XYUV)
+      #if I_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
         case I_AXIS: _SAVE_SET_CURRENT(I); break;
       #endif
-      #if HAS_CURRENT_HOME(J) && DISABLED(FOAMCUTTER_XYUV)
+      #if J_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
         case J_AXIS: _SAVE_SET_CURRENT(J); break;
       #endif
-      #if HAS_CURRENT_HOME(K)
+      #if K_HAS_HOME_CURRENT
         case K_AXIS: _SAVE_SET_CURRENT(K); break;
       #endif
-      #if HAS_CURRENT_HOME(U)
+      #if U_HAS_HOME_CURRENT
         case U_AXIS: _SAVE_SET_CURRENT(U); break;
       #endif
-      #if HAS_CURRENT_HOME(V)
+      #if V_HAS_HOME_CURRENT
         case V_AXIS: _SAVE_SET_CURRENT(V); break;
       #endif
-      #if HAS_CURRENT_HOME(W)
+      #if W_HAS_HOME_CURRENT
         case W_AXIS: _SAVE_SET_CURRENT(W); break;
       #endif
     }
@@ -584,8 +448,10 @@ void report_current_position_projected() {
 
     // Restore the saved current
     #define _RESTORE_CURRENT(A) \
-      stepper##A.rms_current(saved_current_##A); \
-      debug_current(F(STR_##A), A##_CURRENT_HOME, saved_current_##A)
+      stepper##A.rms_current(saved_current_mA.A); \
+      debug_current(F(STR_##A), HOMING_CURRENT(A), saved_current_mA.A)
+
+    #define _MAP_RESTORE(A) OPTCODE(A##_HAS_HOME_CURRENT, _RESTORE_CURRENT(A))
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore driver current");
 
@@ -594,28 +460,8 @@ void report_current_position_projected() {
       // CORE and Markforged kinematics
       switch (axis) {
         default: break;
-        case X_AXIS: case Y_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _RESTORE_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(Y)
-            _RESTORE_CURRENT(Y);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _RESTORE_CURRENT(Z);
-          #endif
-          #if HAS_CURRENT_HOME(Z2)
-            _RESTORE_CURRENT(Z2);
-          #endif
-          #if HAS_CURRENT_HOME(Z3)
-            _RESTORE_CURRENT(Z3);
-          #endif
-          #if HAS_CURRENT_HOME(Z4)
-            _RESTORE_CURRENT(Z4);
-          #endif
-          break;
+        case X_AXIS: case Y_AXIS: MAP(_MAP_RESTORE, X, Y); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
       }
 
     #elif CORE_IS_XZ
@@ -623,22 +469,8 @@ void report_current_position_projected() {
       // CORE XZ / ZX
       switch (axis) {
         default: break;
-        case X_AXIS: case Z_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _RESTORE_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(Z)
-            _RESTORE_CURRENT(Z);
-          #endif
-          break;
-        case Y_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _RESTORE_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Y2)
-            _RESTORE_CURRENT(Y2);
-          #endif
-          break;
+        case X_AXIS: case Z_AXIS: MAP(_MAP_RESTORE, X, Z); break;
+        case Y_AXIS: MAP(_MAP_RESTORE, Y, Y2); break;
       }
 
     #elif CORE_IS_YZ
@@ -646,22 +478,8 @@ void report_current_position_projected() {
       // CORE YZ / ZY
       switch (axis) {
         default: break;
-        case X_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _RESTORE_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(X2)
-            _RESTORE_CURRENT(X2);
-          #endif
-          break;
-        case Y_AXIS: case Z_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _RESTORE_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Z)
-            _RESTORE_CURRENT(Z);
-          #endif
-          break;
+        case X_AXIS: MAP(_MAP_RESTORE, X, X2); break;
+        case Y_AXIS: case Z_AXIS: MAP(_MAP_RESTORE, Y, Z); break;
       }
 
     #elif IS_SCARA // Unsupported for now?
@@ -669,13 +487,13 @@ void report_current_position_projected() {
       // SCARA kinematics
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _RESTORE_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _RESTORE_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _RESTORE_CURRENT(Z); break;
         #endif
       }
@@ -684,13 +502,13 @@ void report_current_position_projected() {
 
       // TPARA or DELTA kinematics
       // Z_AXIS is a special mode to set homing current to all axes
-      #if HAS_CURRENT_HOME(X)
+      #if X_HAS_HOME_CURRENT
         if (axis == A_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(X);
       #endif
-      #if HAS_CURRENT_HOME(Y)
+      #if Y_HAS_HOME_CURRENT
         if (axis == B_AXIS || axis == Z_AXIS) _RESTORE_CURRENT(Y);
       #endif
-      #if HAS_CURRENT_HOME(Z)
+      #if Z_HAS_HOME_CURRENT
         if (axis == C_AXIS) _RESTORE_CURRENT(Z);
       #endif
 
@@ -699,13 +517,13 @@ void report_current_position_projected() {
       // POLAR kinematics
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _RESTORE_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _RESTORE_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _RESTORE_CURRENT(Z); break;
         #endif
       }
@@ -716,13 +534,13 @@ void report_current_position_projected() {
       // Useful?
       switch (axis) {
         default: break;
-        #if HAS_CURRENT_HOME(X)
+        #if X_HAS_HOME_CURRENT
           case A_AXIS: _RESTORE_CURRENT(X); break;
         #endif
-        #if HAS_CURRENT_HOME(Y)
+        #if Y_HAS_HOME_CURRENT
           case B_AXIS: _RESTORE_CURRENT(Y); break;
         #endif
-        #if HAS_CURRENT_HOME(Z)
+        #if Z_HAS_HOME_CURRENT
           case C_AXIS: _RESTORE_CURRENT(Z); break;
         #endif
       }
@@ -732,27 +550,9 @@ void report_current_position_projected() {
       // Foam cutter
       switch (axis) {
         default: break;
-        case X_AXIS: case I_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _RESTORE_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(I)
-            _RESTORE_CURRENT(I);
-          #endif
-          break;
-        case Y_AXIS: case J_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _RESTORE_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(J)
-            _RESTORE_CURRENT(J);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _RESTORE_CURRENT(Z);
-          #endif
-          break;
+        case X_AXIS: case I_AXIS: MAP(_MAP_RESTORE, X, I); break;
+        case Y_AXIS: case J_AXIS: MAP(_MAP_RESTORE, Y, J); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z); break;
       }
 
     #else
@@ -760,58 +560,31 @@ void report_current_position_projected() {
       // Cartesian kinematics
       switch (axis) {
         default: break;
-        case X_AXIS:
-          #if HAS_CURRENT_HOME(X)
-            _RESTORE_CURRENT(X);
-          #endif
-          #if HAS_CURRENT_HOME(X2)
-            _RESTORE_CURRENT(X2);
-          #endif
-          break;
-        case Y_AXIS:
-          #if HAS_CURRENT_HOME(Y)
-            _RESTORE_CURRENT(Y);
-          #endif
-          #if HAS_CURRENT_HOME(Y2)
-            _RESTORE_CURRENT(Y2);
-          #endif
-          break;
-        case Z_AXIS:
-          #if HAS_CURRENT_HOME(Z)
-            _RESTORE_CURRENT(Z);
-          #endif
-          #if HAS_CURRENT_HOME(Z2)
-            _RESTORE_CURRENT(Z2);
-          #endif
-          #if HAS_CURRENT_HOME(Z3)
-            _RESTORE_CURRENT(Z3);
-          #endif
-          #if HAS_CURRENT_HOME(Z4)
-            _RESTORE_CURRENT(Z4);
-          #endif
-          break;
+        case X_AXIS: MAP(_MAP_RESTORE, X, X2); break;
+        case Y_AXIS: MAP(_MAP_RESTORE, Y, Y2); break;
+        case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
       }
 
     #endif // kinematics
 
     switch (axis) {
       default: break;
-      #if HAS_CURRENT_HOME(I) && DISABLED(FOAMCUTTER_XYUV)
+      #if I_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
         case I_AXIS: _RESTORE_CURRENT(I); break;
       #endif
-      #if HAS_CURRENT_HOME(J) && DISABLED(FOAMCUTTER_XYUV)
+      #if J_HAS_HOME_CURRENT && DISABLED(FOAMCUTTER_XYUV)
         case J_AXIS: _RESTORE_CURRENT(J); break;
       #endif
-      #if HAS_CURRENT_HOME(K)
+      #if K_HAS_HOME_CURRENT
         case K_AXIS: _RESTORE_CURRENT(K); break;
       #endif
-      #if HAS_CURRENT_HOME(U)
+      #if U_HAS_HOME_CURRENT
         case U_AXIS: _RESTORE_CURRENT(U); break;
       #endif
-      #if HAS_CURRENT_HOME(V)
+      #if V_HAS_HOME_CURRENT
         case V_AXIS: _RESTORE_CURRENT(V); break;
       #endif
-      #if HAS_CURRENT_HOME(W)
+      #if W_HAS_HOME_CURRENT
         case W_AXIS: _RESTORE_CURRENT(W); break;
       #endif
     }
@@ -2226,7 +1999,7 @@ void prepare_line_to_destination() {
    */
   feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
     #if HOMING_Z_WITH_PROBE
-      if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_FEEDRATE_SLOW);
+      if (axis == Z_AXIS) return z_probe_slow_mm_s;
     #endif
     static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
     uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -2635,7 +2408,7 @@ void prepare_line_to_destination() {
         default: return;
       }
 
-      // Phase distance to nearest home phase position when moving in the backout direction from endstop(may be negative).
+      // Phase distance to nearest home phase position when moving in the backout direction from endstop (may be negative).
       int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
       // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
@@ -2647,7 +2420,7 @@ void prepare_line_to_destination() {
       // Skip to next if target position is behind current. So it only moves away from endstop.
       if (phaseDelta < 0) phaseDelta += 1024;
 
-      // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm
+      // Convert TMC µsteps (phase) to whole Marlin µsteps to effector backout direction to mm
       const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.mm_per_step[axis];
 
       // Optional debug messages

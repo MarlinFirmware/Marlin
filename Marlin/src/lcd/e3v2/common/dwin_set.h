@@ -132,17 +132,7 @@
 #define ICON_Printer_0         93
 #define ICON_Box              200
 #define ICON_Checkbox         201
-#define ICON_Fade             202
-#define ICON_Mesh             203
-#define ICON_Tilt             204
-#define ICON_Brightness       205
 #define ICON_Probe            206
-#define ICON_AxisD            249
-#define ICON_AxisBR           250
-#define ICON_AxisTR           251
-#define ICON_AxisBL           252
-#define ICON_AxisTL           253
-#define ICON_AxisC            254
 
 #define ICON_Folder       ICON_More
 #define ICON_AdvSet       ICON_Language
@@ -162,3 +152,31 @@
 #define ICON_FWRetZRaise  ICON_MoveZ
 #define ICON_FWRecSpeed   ICON_Setspeed
 #define ICON_FWRecExtra   ICON_StepE
+
+#if DISABLED(DWIN_CREALITY_LCD_STD_ICONS)
+  // Index of custom icons should be >= CUSTOM_ICON_START
+  #define CUSTOM_ICON_START         200
+  #define ICON_Checkbox_F           ICON_Box
+  #define ICON_Checkbox_T           ICON_Checkbox
+  #define ICON_Fade                 202
+  #define ICON_Mesh                 203
+  #define ICON_Tilt                 204
+  #define ICON_Brightness           205
+  #define ICON_AxisD                249
+  #define ICON_AxisBR               250
+  #define ICON_AxisTR               251
+  #define ICON_AxisBL               252
+  #define ICON_AxisTL               253
+  #define ICON_AxisC                254
+#else
+  #define ICON_Fade                 ICON_Version
+  #define ICON_Mesh                 ICON_Version
+  #define ICON_Tilt                 ICON_Version
+  #define ICON_Brightness           ICON_Version
+  #define ICON_AxisD                ICON_Axis
+  #define ICON_AxisBR               ICON_Axis
+  #define ICON_AxisTR               ICON_Axis
+  #define ICON_AxisBL               ICON_Axis
+  #define ICON_AxisTL               ICON_Axis
+  #define ICON_AxisC                ICON_Axis
+#endif

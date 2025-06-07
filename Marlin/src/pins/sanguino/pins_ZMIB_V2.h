@@ -189,7 +189,6 @@
   //
   // LCD 128x64
   //
-  #define LCDSCREEN_NAME "ZONESTAR_12864LCD"
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS_PIN             EXP1_03_PIN
   #define LCD_PINS_RS                EXP1_03_PIN  // ST7920 CS  (LCD-4)
@@ -204,7 +203,6 @@
   //
   // OLED 128x64
   //
-  #define LCDSCREEN_NAME "ZONESTAR 12864OLED"
   #define FORCE_SOFT_SPI
   #define LCD_PINS_RS                EXP1_06_PIN
   #define LCD_PINS_DC                EXP1_04_PIN
