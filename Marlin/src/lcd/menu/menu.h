@@ -211,7 +211,9 @@ void menu_main();
 void menu_move();
 
 #if HAS_MEDIA
-  void menu_media();
+  void menu_file_selector();
+  void menu_file_selector_sd();
+  void menu_file_selector_usb();
 #endif
 
 ////////////////////////////////////////////

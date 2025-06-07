@@ -87,7 +87,7 @@
 #endif
 
 /**
- *  Multi-Material-Unit supported models
+ * Multi-Material-Unit supported models
  */
 #ifdef MMU_MODEL
   #define HAS_MMU 1
@@ -544,6 +544,8 @@
 #endif
 
 // Helper macros for extruder and hotend arrays
+#define _DISTINCT_E_LOOP(E) for (int8_t E = 0; E < DISTINCT_E; E++)
+#define DISTINCT_E_LOOP() _DISTINCT_E_LOOP(e)
 #define _EXTRUDER_LOOP(E) for (int8_t E = 0; E < EXTRUDERS; E++)
 #define EXTRUDER_LOOP() _EXTRUDER_LOOP(e)
 #define _HOTEND_LOOP(H) for (int8_t H = 0; H < HOTENDS; H++)

@@ -29,16 +29,16 @@
 
 #include "arduino_extras.h"
 #include "../../core/macros.h"
-#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
-//#include "Servo.h"
 #include "watchdog.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <stdint.h>
+#if HAS_SD_HOST_DRIVE
+  #include "msc_sd.h"
+#endif
 
 //
 // Serial Ports
@@ -139,10 +139,10 @@ public:
   static void isr_on()  { __enable_irq(); }
   static void isr_off() { __disable_irq(); }
 
-  static void delay_ms(const int ms) { ::delay(ms); }
+  static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from idle()
-  static void idletask() {}
+  static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
 
   // Reset
   static uint8_t get_reset_source();

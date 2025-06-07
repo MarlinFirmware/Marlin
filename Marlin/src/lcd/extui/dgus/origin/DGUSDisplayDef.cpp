@@ -119,7 +119,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUS_SCREEN_FLOWRATES,           VPList_SD_FlowRates         },
   { DGUS_SCREEN_SDPRINTMANIPULATION, VPList_SD_PrintManipulation },
   { DGUS_SCREEN_SDFILELIST,          VPList_SDFileList           },
-  { 0 , nullptr } // List is terminated with an nullptr as table entry.
+  { 0, nullptr } // List is terminated with an nullptr as table entry.
 };
 
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
@@ -150,7 +150,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_HOME_ALL, nullptr, screen.handleManualMove, nullptr),
   #endif
 
-  VPHELPER(VP_MOTOR_LOCK_UNLOK, nullptr, screen.handleMotorLockUnlock, nullptr),
+  VPHELPER(VP_MOTOR_LOCK_UNLOCK, nullptr, screen.handleMotorLockUnlock, nullptr),
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, screen.handlePowerLossRecovery, nullptr),
   #endif

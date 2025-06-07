@@ -32,7 +32,7 @@
 #define PAGE_HEIGHT 8
 
 #define SSD1309_PAGE_ADR(N)       (0x20), (N)
-#define SSD1309_COL_ADR(N)        (0x10 | ((N) >> 4)), ((N) & 0xFF)
+#define SSD1309_COL_ADR(N)        (0x10 | ((N) >> 4)), ((N) & 0xF)
 #define SSD1309_COLUMN_RANGE(N,O) (0x21), (N), (O)
 #define SSD1309_PAGE_RANGE(N,O)   (0x22), (N), (O)
 #define SSD1309_SCROLL(N)         ((N) ? 0x2F : 0x2E)
