@@ -556,6 +556,10 @@ class Stepper {
       // The Linear advance ISR phase
       static void advance_isr();
       #if ENABLED(SMOOTH_LIN_ADVANCE)
+        #if ENABLED(INPUT_SHAPING_E_SYNC)
+          static xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks);
+        #endif
+        static int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks);
         static void set_la_interval(int32_t step_rate);
         static hal_timer_t smooth_lin_adv_isr();
         #if ENABLED(S_CURVE_ACCELERATION)
