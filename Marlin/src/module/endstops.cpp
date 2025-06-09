@@ -965,7 +965,7 @@ void Endstops::update() {
             && TERN1(USE_Z_MIN_PROBE, !z_probe_enabled)                   // When Z_MIN isn't the probe, Z MIN is ignored while probing
           ) {
             #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-              if (z_homing_active)
+              if (z_homing_active && ftMotion.cfg.active)
             #endif
               PROCESS_ENDSTOP_Z(MIN);
             #if   CORE_DIAG(XZ, X, MIN)
@@ -983,7 +983,7 @@ void Endstops::update() {
         // When closing the gap use the probe trigger state
         #if USE_Z_MIN_PROBE
           #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-            if (z_probe_enabled && z_homing_active) 
+            if (z_probe_enabled && z_homing_active && ftMotion.cfg.active) 
           #else
             if (z_probe_enabled)
           #endif
