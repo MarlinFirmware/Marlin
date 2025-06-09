@@ -28,6 +28,6 @@
 
 // E3D uses PT100 connected to EXP3
 #define TEMP_0_PIN                            10  // Analog Input
-#define TEMP_1_PIN                            9  // Analog Input
+#define TEMP_1_PIN                             9  // Analog Input
 
 #include "pins_RUMBA.h"
