@@ -458,8 +458,8 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 80: G80(); break;                                    // G80: Reset the current motion mode
       #endif
 
-      case 90: set_relative_mode(false); break;                   // G90: Absolute Mode
-      case 91: set_relative_mode(true);  break;                   // G91: Relative Mode
+      case 90: G90(); break;                                      // G90: Absolute Mode
+      case 91: G91(); break;                                      // G91: Relative Mode
 
       case 92: G92(); break;                                      // G92: Set current axis position(s)
 

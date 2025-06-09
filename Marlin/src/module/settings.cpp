@@ -685,7 +685,7 @@ typedef struct SettingsDataStruct {
   // Nonlinear Extrusion
   //
   #if ENABLED(NONLINEAR_EXTRUSION)
-    ne_coeff_t stepper_ne;                              // M592 A B C
+    nonlinear_settings_t stepper_ne_settings;           // M592 S A B C
   #endif
 
   //
@@ -1798,7 +1798,7 @@ void MarlinSettings::postprocess() {
     // Nonlinear Extrusion
     //
     #if ENABLED(NONLINEAR_EXTRUSION)
-      EEPROM_WRITE(stepper.ne);
+      EEPROM_WRITE(stepper.ne.settings);
     #endif
 
     //
@@ -2933,7 +2933,7 @@ void MarlinSettings::postprocess() {
       // Nonlinear Extrusion
       //
       #if ENABLED(NONLINEAR_EXTRUSION)
-        EEPROM_READ(stepper.ne);
+        EEPROM_READ(stepper.ne.settings);
       #endif
 
       //
@@ -3747,7 +3747,7 @@ void MarlinSettings::reset() {
   //
   // Nonlinear Extrusion
   //
-  TERN_(NONLINEAR_EXTRUSION, stepper.ne.reset());
+  TERN_(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
 
   //
   // Input Shaping
