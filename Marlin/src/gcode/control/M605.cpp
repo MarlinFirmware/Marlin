@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M605.cpp - Multi Nozzle Mode
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_DUPLICATION_MODE

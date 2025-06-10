@@ -20,6 +20,14 @@
  *
  */
 
+/**
+ * control/M108_M112_M410.cpp
+ *
+ * M108: Break and Continue
+ * M112: Full Shutdown
+ * M410: Quickstop
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if DISABLED(EMERGENCY_PARSER)

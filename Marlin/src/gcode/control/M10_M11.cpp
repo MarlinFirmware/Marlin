@@ -21,8 +21,7 @@
  */
 
 /**
- * gcode/control/M10_M11.cpp
- * Air Evacuation
+ * control/M10_M11.cpp - Vacuum / Blower Control
  */
 
 #include "../../inc/MarlinConfig.h"

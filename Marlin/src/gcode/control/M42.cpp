@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M42.cpp - Set Pin State
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DIRECT_PIN_CONTROL)

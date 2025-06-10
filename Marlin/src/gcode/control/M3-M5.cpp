@@ -20,6 +20,14 @@
  *
  */
 
+/**
+ * control/M3-M5.cpp
+ *
+ * M3: Spindle CW / Laser On
+ * M4: Spindle CCW / Laser On
+ * M5: Spindle / Laser Off
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_CUTTER

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M85.cpp - Inactivity Shutdown
+ */
+
 #include "../gcode.h"
 
 /**

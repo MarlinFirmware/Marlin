@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M997.cpp - Firmware Update
+ */
+
 #include "../gcode.h"
 
 #if ENABLED(PLATFORM_M997_SUPPORT)

@@ -20,6 +20,16 @@
  *
  */
 
+/**
+ * eeprom/M500-M504.cpp
+ *
+ * M500: Save Settings
+ * M501: Restore Settings
+ * M502: Factory Reset
+ * M503: Report Settings
+ * M504: Validate EEPROM Contents
+ */
+
 #include "../gcode.h"
 #include "../../module/settings.h"
 #include "../../inc/MarlinConfig.h"

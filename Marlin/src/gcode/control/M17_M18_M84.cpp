@@ -20,10 +20,17 @@
  *
  */
 
+/**
+ * control/M17_M18_M84.cpp - Debug Pins
+ *
+ * M17: Enable Steppers
+ * M18, M84: Disable Steppers
+ */
+
 #include "../gcode.h"
-#include "../../MarlinCore.h" // for stepper_inactive_time, disable_e_steppers
+#include "../../MarlinCore.h" // For stepper_inactive_time, disable_e_steppers
 #include "../../lcd/marlinui.h"
-#include "../../module/motion.h" // for e_axis_mask
+#include "../../module/motion.h" // For e_axis_mask
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 

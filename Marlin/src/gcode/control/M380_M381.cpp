@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * control/M380_M381.cpp
+ *
+ * M380: Activate Solenoid
+ * M381: Deactivate Solenoids
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ANY(EXT_SOLENOID, MANUAL_SOLENOID_CONTROL)

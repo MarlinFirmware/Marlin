@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * control/M993_M994.cpp
+ *
+ * M993: Back up flash settings to SD
+ * M994: Restore flash from SD
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if SPI_FLASH_BACKUP

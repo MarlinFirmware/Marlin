@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * control/M80_M81.cpp
+ *
+ * M80: Power On
+ * M81: Power Off
+ */
+
 #include "../gcode.h"
 
 #include "../../module/temperature.h"

@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M999.cpp - STOP Restart
+ */
+
 #include "../gcode.h"
 
 #include "../../lcd/marlinui.h" // for ui.reset_alert_level

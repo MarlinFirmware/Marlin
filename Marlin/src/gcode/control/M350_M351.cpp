@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * control/M350_M351.cpp
+ *
+ * M350: Set Micro-Stepping
+ * M351: Set Microstep Pins
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_MICROSTEPS

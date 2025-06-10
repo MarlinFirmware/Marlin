@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M211.cpp - Software Endstops
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_SOFTWARE_ENDSTOPS

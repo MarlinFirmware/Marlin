@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M7-M9.cpp - Coolant Controls
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if ANY(COOLANT_MIST, COOLANT_FLOOD, AIR_ASSIST)

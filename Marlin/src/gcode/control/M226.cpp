@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M226.cpp - Wait for Pin State
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DIRECT_PIN_CONTROL)

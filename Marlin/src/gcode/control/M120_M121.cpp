@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * control/M120_M121.cpp
+ *
+ * M120: Enable Endstops
+ * M121: Disable Endstops
+ */
+
 #include "../gcode.h"
 #include "../../module/endstops.h"
 

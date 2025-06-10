@@ -20,6 +20,10 @@
  *
  */
 
+/**
+ * control/M282.cpp - Detach Servo
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SERVO_DETACH_GCODE)
