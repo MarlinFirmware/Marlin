@@ -21,7 +21,10 @@
  */
 
 /**
- * temp/M141_M191.cpp - Chamber Target Temperature Control
+ * temp/M141_M191.cpp
+ *
+ * M141: Set Chamber Temperature
+ * M191: Wait for Chamber Temperature
  */
 
 #include "../../inc/MarlinConfig.h"

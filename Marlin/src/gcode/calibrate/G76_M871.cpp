@@ -21,7 +21,10 @@
  */
 
 /**
- * G76_M871.cpp - Probe Temperature Calibration/Compensation
+ * calibrate/G76_M871.cpp
+ *
+ * G76: Probe Temperature Calibration
+ * M871: Probe Temperature Config
  */
 
 #include "../../inc/MarlinConfig.h"

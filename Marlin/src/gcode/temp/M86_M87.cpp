@@ -21,7 +21,10 @@
  */
 
 /**
- * temp/M86_M87.cpp - Hotend Idle Timeout
+ * temp/M86_M87.cpp
+ *
+ * M86: Hotend Idle Timeout
+ * M87: Disable Hotend Idle Timeout
  */
 
 #include "../../inc/MarlinConfigPre.h"

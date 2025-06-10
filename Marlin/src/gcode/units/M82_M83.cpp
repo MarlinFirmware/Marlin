@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * units/M82_M83.cpp
+ *
+ * M82: E Absolute
+ * M83: E Relative
+ */
+
 #include "../../inc/MarlinConfigPre.h"
 
 #if HAS_EXTRUDERS

@@ -21,7 +21,10 @@
  */
 
 /**
- * temp/M143_M193.cpp - Laser Cooler Target Temperature Control
+ * temp/M143_M193.cpp
+ *
+ * M143: Set Laser Cooler Temperature
+ * M193: Wait For Laser Cooler Temperature
  */
 
 #include "../../inc/MarlinConfig.h"

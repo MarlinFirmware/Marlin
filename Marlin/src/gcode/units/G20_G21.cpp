@@ -20,6 +20,13 @@
  *
  */
 
+/**
+ * units/G20_G21.cpp
+ *
+ * G20: Inch Units
+ * G21: Millimeter Units
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(INCH_MODE_SUPPORT)

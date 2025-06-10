@@ -21,7 +21,10 @@
  */
 
 /**
- * temp/M104_M109.cpp - Hotend Target Temperature Control
+ * temp/M104_M109.cpp
+ *
+ * M104: Set Hotend Temperature
+ * M109: Wait for Hotend Temperature
  */
 
 #include "../../inc/MarlinConfigPre.h"

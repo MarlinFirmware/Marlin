@@ -21,7 +21,10 @@
  */
 
 /**
- * temp/M106_M107.cpp - Fan Speed Control
+ * temp/M106_M107.cpp
+ *
+ * M106: Set Fan Speed
+ * M107: Fan Off
  */
 
 #include "../../inc/MarlinConfig.h"
