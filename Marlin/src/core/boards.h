@@ -131,6 +131,7 @@
 #define BOARD_KODAMA_BARDO            1164  // Kodama Bardo V1.x (as found in the Kodama Trinus)
 #define BOARD_XTLW_MFF_V1             1165  // XTLW MFF V1.0
 #define BOARD_XTLW_MFF_V2             1166  // XTLW MFF V2.0
+#define BOARD_RUMBA_E3D               1167  // E3D Rumba BigBox
 
 //
 // RAMBo and derivatives

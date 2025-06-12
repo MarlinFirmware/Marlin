@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,32 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+// ATmega2560
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+#define BOARD_INFO_NAME      "E3D Rumba"
+#define DEFAULT_MACHINE_NAME "E3D BigBox"
 
-#include "../gcode.h"
+// E3D uses PT100 connected to EXP3
+#define TEMP_0_PIN                            10  // Analog Input
+#define TEMP_1_PIN                             9  // Analog Input
 
-#if HAS_TFT_LVGL_UI
-  #include "../../lcd/extui/mks_ui/draw_touch_calibration.h"
-  #include "../../lcd/extui/mks_ui/draw_ui.h"
-#else
-  #include "../../lcd/menu/menu.h"
-#endif
-
-/**
- * M995: Touch screen calibration for TFT display
- */
-void GcodeSuite::M995() {
-
-  #if HAS_TFT_LVGL_UI
-    clear_cur_ui();
-    lv_draw_touch_calibration_screen();
-  #else
-    ui.goto_screen(touch_screen_calibration);
-  #endif
-
-}
-
-#endif // TOUCH_SCREEN_CALIBRATION
+#include "pins_RUMBA.h"
