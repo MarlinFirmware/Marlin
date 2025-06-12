@@ -81,7 +81,6 @@
 #define HEATER_BED_PIN                      PB2   // HOT BED
 #define FAN1_PIN                            PC1   // extruder fan
 
-
 #if HAS_TMC_UART
   // Software serial
   #define X_SERIAL_TX_PIN                   PB12

@@ -866,8 +866,6 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     #ifndef CPU_32_BIT
       #error "SMOOTH_LIN_ADVANCE requires a 32-bit CPU."
-    #elif ENABLED(S_CURVE_ACCELERATION)
-      #error "SMOOTH_LIN_ADVANCE is not compatible with S_CURVE_ACCELERATION."
     #elif ENABLED(INPUT_SHAPING_E_SYNC) && NONE(INPUT_SHAPING_X, INPUT_SHAPING_Y)
       #error "INPUT_SHAPING_E_SYNC requires INPUT_SHAPING_X or INPUT_SHAPING_Y."
     #endif
