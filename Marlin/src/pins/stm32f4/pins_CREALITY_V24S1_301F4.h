@@ -51,4 +51,20 @@
 #define EXP3_03_PIN                         PA2
 #define EXP3_04_PIN                         PA3
 
+  /**
+   *          ----
+   *         | 1  | VCC
+   *         | 2  | VCC
+   *         | 3  | GND
+   *         | 4  | PA14
+   *         | 5  | PA12
+   *         | 6  | PB1
+   *         | 7  | PB2
+   *         | 8  | PA2
+   *         | 9  | PA3
+   *         | 10 | GND
+   *          ----
+   *   Touch screen Interface
+   */
+
 #include "../stm32f1/pins_CREALITY_V24S1_301.h"
