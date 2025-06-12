@@ -38,5 +38,6 @@
 #define EEPROM_EXCL_ZONE 916,926  // Ender-3S1 STM32F401 Bootloader EEPROM exclusion zone
 
 #define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         PA3
 
 #include "../stm32f1/pins_CREALITY_V24S1_301.h"
