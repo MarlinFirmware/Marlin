@@ -37,6 +37,17 @@
 
 #define EEPROM_EXCL_ZONE 916,926  // Ender-3S1 STM32F401 Bootloader EEPROM exclusion zone
 
+  /**
+   *                 ------
+   *           PC6  | 1  2 | PB2
+   *  UART2_TX PA2  | 3  4 | PA3 UART2_RX
+   *           PB14   5  6 | PB13
+   *           PB12 | 7  8 | PB15
+   *            GND | 9 10 | 5V
+   *                 ------
+   *                  EXP3
+   */
+
 #define EXP3_03_PIN                         PA2
 #define EXP3_04_PIN                         PA3
 
