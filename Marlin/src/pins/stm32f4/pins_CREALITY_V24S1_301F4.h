@@ -53,16 +53,16 @@
 
   /**
    *          ----
-   *         | 1  | VCC
-   *         | 2  | VCC
-   *         | 3  | GND
-   *         | 4  | PA14
-   *         | 5  | PA12
-   *         | 6  | PB1
-   *         | 7  | PB2
-   *         | 8  | PA2
-   *         | 9  | PA3
-   *         | 10 | GND
+   *     VCC | 1  |
+   *     VCC | 2  |
+   *     GND | 3  |
+   *    PA14 | 4  |
+   *    PA12 | 5  |
+   *     PB1 | 6  |
+   *     PB2 | 7  |
+   *     PA2 | 8  | UART2_TX
+   *     PA3 | 9  | UART2_RX
+   *     GND | 10 |
    *          ----
    *   Touch screen Interface
    */
