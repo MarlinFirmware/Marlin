@@ -38,8 +38,7 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
-#define VALUE_ITEM_F(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[22]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -53,7 +52,7 @@
 
     printStatistics stats = print_job_timer.getStats();
 
-    char buffer[21];
+    char buffer[22];
 
     START_SCREEN();                                                                       // 12345678901234567890
     VALUE_ITEM(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), SS_FULL);          // Print Count: 999
