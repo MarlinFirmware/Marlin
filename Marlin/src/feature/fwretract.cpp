@@ -49,7 +49,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // public:
 
-fwretract_settings_t FWRetract::settings;     // M207 S F Z W, M208 S F W R
+fwretract_settings_t FWRetract::settings;     // M207 S F W Z, M208 S F W R
 
 #if ENABLED(FWRETRACT_AUTORETRACT)
   bool FWRetract::autoretract_enabled;        // M209 S - Autoretract switch
@@ -64,10 +64,10 @@ void FWRetract::reset() {
   TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
+  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
   settings.retract_zraise = RETRACT_ZRAISE;
   settings.retract_recover_extra = RETRACT_RECOVER_LENGTH;
   settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
   settings.swap_retract_recover_extra = RETRACT_RECOVER_LENGTH_SWAP;
   settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
@@ -197,15 +197,15 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
  *
  *   S[+units]    retract_length
  *   F[units/min] retract_feedrate_mm_s
- *   Z[units]     retract_zraise
  *   W[+units]    swap_retract_length (multi-extruder)
+ *   Z[units]     retract_zraise
  */
 void FWRetract::M207() {
   if (!parser.seen("FSWZ")) return M207_report();
   if (parser.seenval('S')) settings.retract_length        = parser.value_axis_units(E_AXIS);
   if (parser.seenval('F')) settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
   if (parser.seenval('W')) settings.swap_retract_length   = parser.value_axis_units(E_AXIS);
+  if (parser.seenval('Z')) settings.retract_zraise        = parser.value_linear_units();
 }
 
 void FWRetract::M207_report() {
@@ -214,8 +214,8 @@ void FWRetract::M207_report() {
   SERIAL_ECHOLNPGM_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
     , PSTR(" F"), LINEAR_UNIT(MMS_TO_MMM(settings.retract_feedrate_mm_s))
-    , SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
     , PSTR(" W"), LINEAR_UNIT(settings.swap_retract_length)
+    , SP_Z_STR, LINEAR_UNIT(settings.retract_zraise)
   );
 }
 
@@ -224,15 +224,15 @@ void FWRetract::M207_report() {
  *
  *   S[+units]    retract_recover_extra (in addition to M207 S*)
  *   F[units/min] retract_recover_feedrate_mm_s
- *   R[units/min] swap_retract_recover_feedrate_mm_s
  *   W[+units]    swap_retract_recover_extra (multi-extruder)
+ *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void FWRetract::M208() {
   if (!parser.seen("FSRW")) return M208_report();
   if (parser.seen('S')) settings.retract_recover_extra              = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) settings.retract_recover_feedrate_mm_s      = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
   if (parser.seen('W')) settings.swap_retract_recover_extra         = parser.value_axis_units(E_AXIS);
+  if (parser.seen('R')) settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
 }
 
 void FWRetract::M208_report() {
@@ -241,8 +241,8 @@ void FWRetract::M208_report() {
   SERIAL_ECHOLNPGM(
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
     , " F", LINEAR_UNIT(MMS_TO_MMM(settings.retract_recover_feedrate_mm_s))
-    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
     , " W", LINEAR_UNIT(settings.swap_retract_recover_extra)
+    , " R", LINEAR_UNIT(MMS_TO_MMM(settings.swap_retract_recover_feedrate_mm_s))
   );
 }
 

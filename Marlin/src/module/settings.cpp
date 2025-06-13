@@ -462,7 +462,7 @@ typedef struct SettingsDataStruct {
   //
   // FWRETRACT
   //
-  fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
+  fwretract_settings_t fwretract_settings;              // M207 S F W Z, M208 S F W R
   bool autoretract_enabled;                             // M209 S
 
   //
