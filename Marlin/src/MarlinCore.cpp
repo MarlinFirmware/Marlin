@@ -276,7 +276,7 @@
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-  MString<64> machine_name;
+  TString machine_name;
 #endif
 
 MarlinState marlin_state = MarlinState::MF_INITIALIZING;

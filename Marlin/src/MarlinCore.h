@@ -42,7 +42,7 @@ void kill(FSTR_P const lcd_error=nullptr, FSTR_P const lcd_component=nullptr, co
 void minkill(const bool steppers_off=false);
 
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-  extern MString<64> machine_name;
+  extern TString machine_name;
 #endif
 
 // Global State of the firmware
