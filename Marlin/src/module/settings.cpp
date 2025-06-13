@@ -589,7 +589,7 @@ typedef struct SettingsDataStruct {
   // CONFIGURABLE_MACHINE_NAME
   //
   #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    MString<64> machine_name;                            // M550 P
+    TString machine_name;                                // M550
   #endif
 
   //
