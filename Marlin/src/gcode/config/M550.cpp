@@ -28,32 +28,28 @@
 #include "../../MarlinCore.h"
 #include "../../lcd/marlinui.h"
 
-//#define DEBUG_OUT 1
-#include "../../core/debug_out.h"
-
 /**
  * M550: Set or Report Machine Name
  *
  *   <name> - Set the name using the "string" parameter
  *
  * With GCODE_QUOTED_STRINGS:
- *   "<name>" - Set the name using the "string" parameter in quotes (Optional)
+ *   "<name>" - Set the name using the "string" parameter in quotes
+ *              NOTE: Works with or without quotes
  *
  * Without parameters, this reports the current machine name
  */
 void GcodeSuite::M550() {
   if (parser.has_string()) {
       machine_name = parser.string_arg;
+      machine_name.trim();
     }
   else {
     SERIAL_ECHOLNPGM("RepRap name: ", &machine_name);
     return;
   }
 
-  machine_name.trim();
   ui.reset_status(false);
-
-  DEBUG_ECHOLNPGM("RepRap name => ", &machine_name);
 }
 
 #endif // CONFIGURABLE_MACHINE_NAME
