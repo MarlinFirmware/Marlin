@@ -223,6 +223,8 @@
   #include "ramps/pins_XTLW_MFF_V1.h"               // ATmega2560                           env:mega2560
 #elif MB(XTLW_MFF_V2)
   #include "ramps/pins_XTLW_MFF_V2.h"               // ATmega2560                           env:mega2560
+#elif MB(RUMBA_E3D)
+  #include "ramps/pins_RUMBA_E3D.h"                 // ATmega2560                           env:mega2560
 
 //
 // RAMBo and derivatives
