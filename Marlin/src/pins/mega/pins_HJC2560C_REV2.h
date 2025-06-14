@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Geeetech HJC2560-C Rev 2.x board pin assignments
+ * Geeetech HJC2560-C Rev 1.x and 2.x board pin assignments
  * ATmega2560
  */
 
@@ -79,6 +79,13 @@
 #define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      24  // Filament runout
+#endif
+
+//
 // Temperature Sensors
 //
 #define TEMP_0_PIN                             8  // Analog Input
@@ -99,7 +106,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define SD_DETECT_PIN                         39
 //#define LED_PIN                              8
 
@@ -138,9 +145,6 @@
       //#ifndef LCD_CONTRAST_PIN
       //  #define LCD_CONTRAST_PIN             5  // LCD_Contrast
       //#endif
-      #ifndef FIL_RUNOUT_PIN
-        #define FIL_RUNOUT_PIN                24  // Filament runout
-      #endif
     #else
       #define LCD_PINS_D5                     21
       #define LCD_PINS_D6                      5

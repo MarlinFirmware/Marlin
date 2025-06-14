@@ -124,7 +124,7 @@ public:
   static void isr_on()  {}
   static void isr_off() {}
 
-  static void delay_ms(const int ms) { _delay_ms(ms); }
+  static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from idle()
   static void idletask() {}

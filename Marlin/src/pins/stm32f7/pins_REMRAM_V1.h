@@ -37,20 +37,43 @@
 #endif
 
 //
+// Timers
+//
+#define STEP_TIMER  2
+
+//
+// Servos
+//
+#define SERVO0_PIN                            26  // PWM_EXT1
+#define SERVO1_PIN                            27  // PWM_EXT2
+
+//
 // Limit Switches
 //
-#if DISABLED(SENSORLESS_HOMING)
-  #define X_MIN_PIN                           58
-  #define X_MAX_PIN                           59
-  #define Y_MIN_PIN                           60
-  #define Y_MAX_PIN                           61
-  #define Z_MAX_PIN                           63
+#define X_DIAG_PIN                            36
+#define Y_DIAG_PIN                            39
+#define Z_DIAG_PIN                            42
+
+// Direct endstop pin references
+#define _X_MIN_PIN                            58
+#define _X_MAX_PIN                            59
+#define _Y_MIN_PIN                            60
+#define _Y_MAX_PIN                            61
+#define _Z_MIN_PIN                            62
+#define _Z_MAX_PIN                            63
+
+#if ENABLED(SENSORLESS_HOMING)
+  #define X_STOP_PIN                  X_DIAG_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN
 #else
-  #define X_STOP_PIN                          36
-  #define Y_STOP_PIN                          39
-  #define Z_MAX_PIN                           42
+  #define X_MIN_PIN                   _X_MIN_PIN
+  #define X_MAX_PIN                   _X_MAX_PIN
+  #define Y_MIN_PIN                   _Y_MIN_PIN
+  #define Y_MAX_PIN                   _Y_MAX_PIN
+  #define Z_MIN_PIN                   _Z_MIN_PIN
+  #define Z_MAX_PIN                   _Z_MAX_PIN
 #endif
-#define Z_MIN_PIN                             62
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -105,19 +128,17 @@
 #endif
 
 //
-// Servos
+// SD Card
 //
-#define SERVO0_PIN                            26  // PWM_EXT1
-#define SERVO1_PIN                            27  // PWM_EXT2
+#define SD_DETECT_PIN                         56  // SD_CARD_DET
+#define SD_SS_PIN                             57  // Onboard SD card reader
+//#define SD_SS_PIN                            9  // LCD SD card reader
 
-#define SDSS                                  57  // Onboard SD card reader
-//#define SDSS                                 9  // LCD SD card reader
 #define LED_PIN                               21  // STATUS_LED
 
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN                         56  // SD_CARD_DET
 #define BEEPER_PIN                            46  // LCD_BEEPER
 #define LCD_PINS_RS                           49  // LCD_RS
 #define LCD_PINS_EN                           48  // LCD_EN
@@ -128,9 +149,3 @@
 #define BTN_EN1                               54  // BTN_EN1
 #define BTN_EN2                               55  // BTN_EN2
 #define BTN_ENC                               47  // BTN_ENC
-
-//
-// Timers
-//
-
-#define STEP_TIMER  2

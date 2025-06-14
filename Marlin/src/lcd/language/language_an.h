@@ -37,12 +37,11 @@ namespace LanguageNarrow_an {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Aragonese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" parada.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" parada.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Tarcheta mesa");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Tarcheta sacada");
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu prencipal");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Inicio automatico");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Amortar motors");
   LSTR MSG_HOMING                         = _UxGT("Orichen");
   LSTR MSG_AUTO_HOME                      = _UxGT("Levar a l'orichen");
@@ -155,8 +154,13 @@ namespace LanguageNarrow_an {
   LSTR MSG_AUTORETRACT                    = _UxGT("Retraccion auto.");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Cambear filamento");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Cambear filamento *");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Encetan. tarcheta");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Encetan. media");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Encetan. SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Encetan. USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Cambiar tarcheta");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Inicio automatico");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z fuera");
   LSTR MSG_BLTOUCH_RESET                  = _UxGT("Reset BLTouch");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desfase X");

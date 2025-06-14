@@ -241,7 +241,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
           z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
           z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
         }
-        zig_zag = !zig_zag;
+        FLIP(zig_zag);
       }
       if (_7p_intermed_points)
         LOOP_CAL_RAD(rad)
@@ -598,7 +598,7 @@ void GcodeSuite::G33() {
         LOOP_NUM_AXES(axis) delta_tower_angle_trim[axis] -= a_sum / 3.0f;
       }
 
-      // adjust delta_height and endstops by the max amount
+      // Adjust delta_height and endstops by the max amount
       const float z_temp = _MAX(delta_endstop_adj.a, delta_endstop_adj.b, delta_endstop_adj.c);
       delta_height -= z_temp;
       LOOP_NUM_AXES(axis) delta_endstop_adj[axis] -= z_temp;
@@ -606,7 +606,7 @@ void GcodeSuite::G33() {
     recalc_delta_settings();
     NOMORE(zero_std_dev_min, zero_std_dev);
 
-    // print report
+    // Print report
 
     if (verbose_level == 3 || verbose_level == 0) {
       print_calibration_results(z_at_pt, _tower_results, _opposite_results);

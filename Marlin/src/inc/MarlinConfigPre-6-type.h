@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include "MarlinConfigPre-5-post.h"
 #include "Conditionals-5-post.h"
 
 #ifndef __MARLIN_DEPS__

@@ -27,7 +27,7 @@
 #define DEFAULT_MACHINE_NAME "RP2040 Test"
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 
 //
@@ -95,7 +95,7 @@
 #define TEMP_BOARD_PIN                  TEMP_MCU
 
 // SPI for MAX Thermocouple
-#if DISABLED(SDSUPPORT)
+#if !HAS_MEDIA
   #define TEMP_0_CS_PIN                       17  // Don't use 53 if using Display/SD card
 #else
   #define TEMP_0_CS_PIN                       17  // Don't use 49 (SD_DETECT_PIN)
@@ -123,7 +123,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  20
+#define SD_SS_PIN                             20
 //#define LED_PIN                             13
 #define NEOPIXEL_PIN                          15
 
@@ -293,7 +293,7 @@
     #define SPI_FLASH_SCK_PIN         SD_SCK_PIN
   #endif
 
-  #define TFT_BUFFER_SIZE                 0xFFFF
+  #define TFT_BUFFER_WORDS                0xFFFF
   #ifndef TFT_DRIVER
     #define TFT_DRIVER                    ST7796
   #endif
@@ -320,13 +320,13 @@
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                   51  // SID (MOSI)
+    #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
 
   #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
     #define LCD_PINS_RS                       40
-    #define LCD_PINS_ENABLE                   42
+    #define LCD_PINS_EN                       42
     #define LCD_PINS_D4                       65
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
@@ -337,7 +337,7 @@
     #if ENABLED(CR10_STOCKDISPLAY)
 
       #define LCD_PINS_RS                     27
-      #define LCD_PINS_ENABLE                 29
+      #define LCD_PINS_EN                     29
       #define LCD_PINS_D4                     25
 
       #if !IS_NEWPANEL
@@ -347,7 +347,7 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       #define LCD_PINS_RS                     64
-      #define LCD_PINS_ENABLE                 44
+      #define LCD_PINS_EN                     44
       #define LCD_PINS_D4                     63
       #define LCD_PINS_D5                     40
       #define LCD_PINS_D6                     42
@@ -365,7 +365,7 @@
         #define DOGLCD_A0            LCD_PINS_DC
       #else
         #define LCD_PINS_RS                   16
-        #define LCD_PINS_ENABLE               17
+        #define LCD_PINS_EN                   17
         #define LCD_PINS_D4                   23
         #define LCD_PINS_D5                   25
         #define LCD_PINS_D6                   27
@@ -427,7 +427,7 @@
       #define BTN_EN1                         47
       #define BTN_EN2                         43
       #define BTN_ENC                         32
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #define KILL_PIN                        41
 
     #elif ENABLED(LCD_I2C_VIKI)
@@ -436,7 +436,7 @@
       #define BTN_EN2                          7  // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC                         -1
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #define SD_DETECT_PIN                   49
 
     #elif ANY(VIKI2, miniVIKI)
@@ -468,7 +468,7 @@
       #define BTN_EN2                         37
       #define BTN_ENC                         31
 
-      #define LCD_SDSS                      SDSS
+      #define LCD_SDSS_PIN             SD_SS_PIN
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        41
 

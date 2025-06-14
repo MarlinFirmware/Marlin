@@ -42,7 +42,7 @@ void GcodeSuite::M524() {
 
   #else
 
-    if (IS_SD_PRINTING())
+    if (card.isStillPrinting())
       card.abortFilePrintSoon();
     else if (card.isMounted())
       card.closefile();
