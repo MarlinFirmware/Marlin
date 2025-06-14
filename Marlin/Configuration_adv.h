@@ -1394,7 +1394,7 @@
  * Multi-stepping sends steps in bursts to reduce MCU usage for high step-rates.
  * This allows higher feedrates than the MCU could otherwise support.
  */
-#define MULTISTEPPING_LIMIT   16  //: [1, 2, 4, 8, 16, 32, 64, 128]
+#define MULTISTEPPING_LIMIT   16  // :[1, 2, 4, 8, 16, 32, 64, 128]
 
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
@@ -3031,12 +3031,11 @@
   #define INTERPOLATE      true
 
   #if HAS_DRIVER(TMC2240)
-    #define TMC2240_CURRENT_RANGE   1   // RMS: { 0:'690mA', 1:'1410mA', 2:'2120mA', 3:'2110mA' }
-                                        // PEAK:{ 0:'1A', 1:'2A', 2:'3A', 3:'3A' }
-                                        // Determines max current. Lower is more internal current resolution. Higher runs cooler.
-    #define TMC2240_Rref        12000   // ('rref', 12000, minval=12000, maxval=60000)
-    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/us', 1:'200V/us', 2:'400V/us', 3:'800V/us' }
-                                        // Lower is more silent. Higher runs cooler.
+    #define TMC2240_RREF        12000   // (Ω) 12000 .. 60000. (FLY TMC2240 = 12300)
+    // Max Current. Lower for more internal resolution. Raise to run cooler.
+    #define TMC2240_CURRENT_RANGE   1   // :{ 0:'RMS=690mA PEAK=1A', 1:'RMS=1410mA PEAK=2A', 2:'RMS=2120mA PEAK=3A', 3:'RMS=2110mA PEAK=3A' }
+    // Slope Control: Lower is more silent. Higher runs cooler.
+    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/µs', 1:'200V/µs', 2:'400V/µs', 3:'800V/µs' }
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X)

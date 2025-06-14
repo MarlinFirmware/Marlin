@@ -785,7 +785,7 @@ enum StealthIndex : uint8_t {
   ) {
     st.begin();
 
-    st.Rref = TMC2240_Rref;
+    st.Rref = TMC2240_RREF; // Minimum: 12000 ; FLY TMC2240: 12300
 
     TMC2240_n::GCONF_t gconf{0};
     gconf.en_pwm_mode = !stealth;
@@ -796,12 +796,10 @@ enum StealthIndex : uint8_t {
     drv_conf.slope_control = TMC2240_SLOPE_CONTROL;
     st.DRV_CONF(drv_conf.sr);
 
-    // 0x14410153 (from Makerbase)
-    //st.CHOPCONF(0x14410153);  // toff=3, hstrt=5, hend=2, TBL=2, tpfd=4, mres=4, intpol=1, dedge=0
-
+    // Adjust based on user experience
     TMC2240_n::CHOPCONF_t chopconf{0};
     chopconf.toff   = chop_init.toff;       // 3 (3)
-    chopconf.intpol = interpolate;          // 1
+    chopconf.intpol = interpolate;          // true
     chopconf.hend   = chop_init.hend + 3;   // 2 (-1)
     chopconf.hstrt  = chop_init.hstrt - 1;  // 5 (6)
     chopconf.TBL    = 0b10;                 // 36 tCLK
@@ -822,11 +820,10 @@ enum StealthIndex : uint8_t {
     st.en_pwm_mode(stealth);
     st.stored.stealthChop_enabled = stealth;
 
-    // 0xC40C1E1D (from Makerbase)
-    //st.PWMCONF(0xC40C1E1D);
+    // Adjust based on user experience
     TMC2240_n::PWMCONF_t pwmconf{0};
     pwmconf.pwm_ofs             = 29;
-    pwmconf.pwm_grad            = 30;
+    pwmconf.pwm_grad            = 0;
     pwmconf.pwm_freq            = 0b00;  // fPWM = 2/1024 fCLK | 16MHz clock -> 31.3kHz PWM
     pwmconf.pwm_autograd        = true;
     pwmconf.pwm_autoscale       = true;
