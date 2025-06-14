@@ -50,7 +50,7 @@
   #include "motion.h"
 #endif
 
-#if ENABLED(CAN_HOST)
+#if ANY(CAN_HOST, CAN_TOOLHEAD)
   #include "../HAL/shared/CAN.h"
 #endif
 
@@ -4616,11 +4616,12 @@ void Temperature::isr() {
   // Poll endstops state, if required
   endstops.poll();
 
-#if ENABLED(CAN_TOOLHEAD)
-  static uint32_t loopCounter = 0;
-  if ((loopCounter++ % 512) == 0) // Update E0 Temp every  512ms
-    CAN_Send_Message(true); // Send temp report with IO report
-#endif // CAN_TOOLHEAD
+  // Send temperature over CAN bus
+  #if ENABLED(CAN_TOOLHEAD)
+    static uint32_t loopCounter = 0;
+    if (!(loopCounter++ & 0x1FF))   // Update E0 Temp every  512ms
+      CAN_Send_Message(true);       // Send temp report with IO report
+  #endif
 
   // Periodically call the planner timer service routine
   planner.isr();

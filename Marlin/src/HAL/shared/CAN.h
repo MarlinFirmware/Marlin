@@ -93,7 +93,7 @@
 #define CAN_ERROR_MSG_INVALID_BAUDRATE               "Incorrect CAN baudrate"
 
 void CAN_host_idle();                                // CAN idle task
-void CAN_host_send_setup(bool change_status);        // Send configuration to toolhead
+void CAN_host_send_setup(const bool change_status=false);  // Send configuration to toolhead
 uint32_t CAN_host_get_iostate();                     // Read the CAN virtual IO state
 HAL_StatusTypeDef CAN_host_start();                  // Start the CAN device
 HAL_StatusTypeDef CAN_host_stop();                   // Stop the CAN device

@@ -153,8 +153,9 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
       Gcode_type = CAN_ID_GCODE_TYPE_G;
       return HAL_ERROR;
 
-    case 'T': Gcode_type = CAN_ID_GCODE_TYPE_T;
-      return HAL_ERROR;
+    case 'T':
+      Gcode_type = CAN_ID_GCODE_TYPE_T;
+      return HAL_ERROR; // Unknown Gcode type
 
     case 'M': {
       Gcode_type = CAN_ID_GCODE_TYPE_M;
@@ -210,7 +211,7 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
   return status;
 }
 
-void CAN_host_send_setup(bool changeStatus) { // Send setup to toolhead
+void CAN_host_send_setup(const bool changeStatus/*=false*/) { // Send setup to toolhead
 
   // NOTE: Sending many command too fast will cause a Marlin command buffer overrun at the toolhead, add delays if needed
   CAN_toolhead_setup_request = false;
@@ -308,8 +309,8 @@ void CAN_host_send_setup(bool changeStatus) { // Send setup to toolhead
 void CAN_host_idle() { // Tasks that can/should not be done in the ISR
 
   if (CAN_time_sync_request) { // Send time sync timestamps
-     CAN_time_sync_request = false;
-     CAN_host_send_timestamp();
+    CAN_time_sync_request = false;
+    CAN_host_send_timestamp();
   }
 
   if (string_message_complete) { // Received string message is complete, display the string
@@ -386,8 +387,6 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
   switch (Gcode_no) {
     case 109:
       Gcode_no = 104; // Convert M109 (Hotend wait) to M104 (no wait) to keep the toolhead responsive
-      break;
-
     case 104:  // Set hotend target temp
     case 106:  // Set cooling fan speed
     case 107:  // Cooling fan off
@@ -401,7 +400,7 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
     case 997:  // Reboot
       break;
 
-    case 501 ... 502; // M501=Restore settings, M502=Factory defaults
+    case 501 ... 502: // M501=Restore settings, M502=Factory defaults
       CAN_toolhead_setup_request = true; // Also update settings for the toolhead
       // fallthru
 
@@ -568,11 +567,10 @@ void CAN_host_send_position() { // Send the X, Y, Z and E position to the TOOLHE
 }
 
 // Enable a GPIO clock based on the GPIOx address for STM32F4
-void gpio_clock_enable(GPIO_TypeDef *regs)
-{
-    uint32_t pos = ((uint32_t)regs - GPIOA_BASE) >> 10;
-    RCC->AHB1ENR |= (1 << pos);
-    RCC->AHB1ENR;
+void gpio_clock_enable(GPIO_TypeDef *regs) {
+  uint32_t pos = ((uint32_t)regs - GPIOA_BASE) >> 10;
+  RCC->AHB1ENR |= (1 << pos);
+  RCC->AHB1ENR;
 }
 
 void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle) { // Called by HAL_CAN_Init
@@ -727,15 +725,15 @@ if (CAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
 
   // Store all remaining CAN messages in FIFO1
   sFilterConfig.FilterBank           = 1; // This filter bank ID number (0-13 for single CAN instances)
-//sFilterConfig.FilterMode           = CAN_FILTERMODE_IDMASK; // CAN_FILTERMODE_IDMASK / CAN_FILTERMODE_IDLIST (See Figure 342 in RM0090)
-//sFilterConfig.FilterScale          = CAN_FILTERSCALE_32BIT; // CAN_FILTERSCALE_16BIT / CAN_FILTERSCALE_32BIT (See Figure 342 in RM0090)
+  //sFilterConfig.FilterMode         = CAN_FILTERMODE_IDMASK; // CAN_FILTERMODE_IDMASK / CAN_FILTERMODE_IDLIST (See Figure 342 in RM0090)
+  //sFilterConfig.FilterScale        = CAN_FILTERSCALE_32BIT; // CAN_FILTERSCALE_16BIT / CAN_FILTERSCALE_32BIT (See Figure 342 in RM0090)
   sFilterConfig.FilterIdHigh         = 0;                     // ID MSB:   (0-0xFFFF) (StdId[10-0] [ExtId17-13]) (See Figure 342 in RM0090)
-//sFilterConfig.FilterIdLow          = 0;                     // ID LSB:   (0-0xFFFF) ([ExtId12-0][IDE][RTR]  0) (0="don't care")
+  //sFilterConfig.FilterIdLow        = 0;                     // ID LSB:   (0-0xFFFF) ([ExtId12-0][IDE][RTR]  0) (0="don't care")
   sFilterConfig.FilterMaskIdHigh     = 0;                     // Mask MSB: (0-0xFFFF) (StdId[10-0] [ExtId17-13]) (See Figure 342 in RM0090)
-//sFilterConfig.FilterMaskIdLow      = 0;                     // Mask LSB: (0-0xFFFF) ([ExtId12-0][IDE][RTR]  0) (0="don't care")
+  //sFilterConfig.FilterMaskIdLow    = 0;                     // Mask LSB: (0-0xFFFF) ([ExtId12-0][IDE][RTR]  0) (0="don't care")
   sFilterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO1;      // Store message in FIFO0 (CAN_FILTER_FIFO0 / CAN_FILTER_FIFO1)
-//sFilterConfig.FilterActivation     = CAN_FILTER_ENABLE;     // CAN_FILTER_ENABLE / CAN_FILTER_DISABLE
-//sFilterConfig.SlaveStartFilterBank = 0;                     // Start bank number for CAN slave instance (not used in single CAN setups)
+  //sFilterConfig.FilterActivation   = CAN_FILTER_ENABLE;     // CAN_FILTER_ENABLE / CAN_FILTER_DISABLE
+  //sFilterConfig.SlaveStartFilterBank = 0;                   // Start bank number for CAN slave instance (not used in single CAN setups)
   status = HAL_CAN_ConfigFilter(&hCAN1, &sFilterConfig);
   if (status != HAL_OK) return status;
 
@@ -808,14 +806,12 @@ void CAN_host_read_message(CAN_HandleTypeDef *hcan, uint32_t RxFifo) { // ISR! F
 }
 
 void CAN1_RX0_IRQHandler() { // ISR! CAN FIFO0 interrupt handler (overrides weak function)
-
   HAL_CAN_IRQHandler(&hCAN1); // Forward call for callbacks --> HAL_CAN_RxFifo0MsgPendingCallback/HAL_CAN_ErrorCallback
   // OR
   //HAL_CAN_RxFifo0MsgPendingCallback(&hCAN1); // Call the required callback directly, faster but no error reporting
 }
 
 void CAN1_RX1_IRQHandler() { // ISR! CAN FIFO1 Interrupt handler (overrides weak function)
-
   HAL_CAN_IRQHandler(&hCAN1); // Forward call for callbacks --> HAL_CAN_RxFifo1MsgPendingCallback/HAL_CAN_ErrorCallback
   // OR
   //HAL_CAN_RxFifo1MsgPendingCallback(&hCAN1); // Call the required callback directly, faster but no error reporting

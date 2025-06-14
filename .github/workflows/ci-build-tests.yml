@@ -119,6 +119,7 @@ jobs:
         - STM32F446VE_fysetc
         - LERDGEK
         - LERDGEX
+        - mks_monster8_usb_flash_drive_msc_CAN
         - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32

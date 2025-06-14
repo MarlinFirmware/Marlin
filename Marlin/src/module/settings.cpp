@@ -90,6 +90,10 @@
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
 
+#if ENABLED(CAN_HOST)
+  #include "../HAL/shared/CAN.h"
+#endif
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../feature/host_actions.h"
 #endif
