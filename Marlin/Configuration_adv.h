@@ -3502,7 +3502,6 @@
     //#define W_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130, TMC2240, and TMC5160
     //#define IMPROVE_HOMING_RELIABILITY
-    //#define PREFER_STALLGUARD4        // TMC2240
   #endif
 
   // @section tmc/config
