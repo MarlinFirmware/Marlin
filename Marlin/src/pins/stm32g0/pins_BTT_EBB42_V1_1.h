@@ -113,8 +113,8 @@
 //
 // CAN bus
 //
-#define CAN_RX                              PB0
-#define CAN_TX                              PB1
+#define CAN_RX_PIN                          PB0
+#define CAN_TX_PIN                          PB1
 
 //
 // Temperature Sensors

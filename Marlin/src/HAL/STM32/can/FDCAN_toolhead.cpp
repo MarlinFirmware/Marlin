@@ -47,6 +47,9 @@
 
 #include "../../shared/CAN.h"
 
+#define DEBUG_OUT ENABLED(CAN_DEBUG)
+#include "../../../core/debug_out.h"
+
 extern "C" void TIM16_IRQHandler(void); // Override weak functions
 extern "C" void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs);
 extern "C" void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs);
@@ -224,20 +227,19 @@ void process_can_queue() {
   }
 
   if (!parameter_counter) { // Gcode is complete, including all parameters, process the Gcode
-      if (enqueue) {
-          // queue.enqueue_one returns TRUE if the command was queued, FALSE if the Marlin cmd buffer was full
-          if (queue.enqueue_one(CAN_gcode_buffer)) { // Increase tail only when commands was enqueued
-            CAN_queue_tail = (CAN_queue_tail + 1) % CAN_QUEUE_DEPTH;
-            #ifdef CAN_DEBUG
-              SERIAL_ECHOPGM(";", millis(), " "); CAN_gcode_buffer.echoln();
-            #endif
-          }
-          else
-            if (!(identifier & CAN_EXTENDED_ID_MARKER_MASK)) // Standard ID message, so parameters were added to the Gcode
-              CAN_gcode_buffer.trunc(backupLength); // Cut off the part of the Gcode that was added, so we can process the CAN message again
+    if (enqueue) {
+      // queue.enqueue_one returns TRUE if the command was queued, FALSE if the Marlin cmd buffer was full
+      if (queue.enqueue_one(CAN_gcode_buffer)) { // Increase tail only when commands was enqueued
+        CAN_queue_tail = (CAN_queue_tail + 1) % CAN_QUEUE_DEPTH;
+        #if ENABLED(CAN_DEBUG)
+          DEBUG_ECHOPGM(";", millis(), " "); CAN_gcode_buffer.echoln();
+        #endif
       }
-      else
-        CAN_queue_tail = (CAN_queue_tail + 1) % CAN_QUEUE_DEPTH; // Always advance tail
+      else if (!(identifier & CAN_EXTENDED_ID_MARKER_MASK)) // Standard ID message, so parameters were added to the Gcode
+        CAN_gcode_buffer.trunc(backupLength); // Cut off the part of the Gcode that was added, so we can process the CAN message again
+    }
+    else
+      CAN_queue_tail = (CAN_queue_tail + 1) % CAN_QUEUE_DEPTH; // Always advance tail
   }
   else
     CAN_queue_tail = (CAN_queue_tail + 1) % CAN_QUEUE_DEPTH;
@@ -500,20 +502,17 @@ HAL_StatusTypeDef CAN_toolhead_start() { // Start the CAN device
   status = HAL_FDCAN_ActivateNotification(&hCAN1, FDCAN_IT_RX_FIFO1_MESSAGE_LOST, 0); // Calls TIM16_IRQHandler (STM32G0xx)
   if (status != HAL_OK) return status;
 
+  DEBUG_ECHOLNPGM(">>> Voltage Scaling: VOS", (PWR->CR1 & PWR_CR1_VOS_Msk) >> PWR_CR1_VOS_Pos);
+  DEBUG_ECHOLNPGM(">>> FDCAN Peripheral Clock: ", HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / 1000000, "MHz");
+  DEBUG_ECHOLNPGM(">>> FDCAN Timing. Prescaler: ", hCAN1.Init.NominalPrescaler, "   SJW: ", hCAN1.Init.NominalSyncJumpWidth, "   SEG1: ", hCAN1.Init.NominalTimeSeg1, "   SEG2: ", hCAN1.Init.NominalTimeSeg2);
+  DEBUG_ECHOLNPGM(">>> FDCAN Bit sample point: ", 100 * (hCAN1.Init.NominalSyncJumpWidth +  hCAN1.Init.NominalTimeSeg1)/ (hCAN1.Init.NominalSyncJumpWidth +  hCAN1.Init.NominalTimeSeg1 + hCAN1.Init.NominalTimeSeg2), "%");
   #if ENABLED(CAN_DEBUG)
-
-    SERIAL_ECHOLNPGM(">>> Voltage Scaling: VOS", (PWR->CR1 & PWR_CR1_VOS_Msk) >> PWR_CR1_VOS_Pos);
-    SERIAL_ECHOLNPGM(">>> FDCAN Peripheral Clock: ", HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / 1000000, "MHz");
-    SERIAL_ECHOLNPGM(">>> FDCAN Timing. Prescaler: ", hCAN1.Init.NominalPrescaler, "   SJW: ", hCAN1.Init.NominalSyncJumpWidth, "   SEG1: ", hCAN1.Init.NominalTimeSeg1, "   SEG2: ", hCAN1.Init.NominalTimeSeg2);
-    SERIAL_ECHOLNPGM(">>> FDCAN Bit sample point: ", 100 * (hCAN1.Init.NominalSyncJumpWidth +  hCAN1.Init.NominalTimeSeg1)/ (hCAN1.Init.NominalSyncJumpWidth +  hCAN1.Init.NominalTimeSeg1 + hCAN1.Init.NominalTimeSeg2), "%");
     uint32_t baudrate = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN) / hCAN1.Init.NominalPrescaler / (hCAN1.Init.NominalSyncJumpWidth + hCAN1.Init.NominalTimeSeg1 + hCAN1.Init.NominalTimeSeg2);
-    SERIAL_ECHOLNPGM(">>> FDCAN BAUDRATE: ", baudrate);
-
+    DEBUG_ECHOLNPGM(">>> FDCAN BAUDRATE: ", baudrate);
     if (baudrate != CAN_BAUDRATE) {
-      SERIAL_ECHOLNPGM(">>> Toolhead ", CAN_ERROR_MSG_INVALID_BAUDRATE, ": ", baudrate, "  CAN_BAUDRATE=", CAN_BAUDRATE);
+      DEBUG_ECHOLNPGM(">>> Toolhead ", CAN_ERROR_MSG_INVALID_BAUDRATE, ": ", baudrate, "  CAN_BAUDRATE=", CAN_BAUDRATE);
       CAN_toolhead_error_code |= CAN_ERROR_TOOLHEAD_INVALID_BAUDRATE;
     }
-
   #endif
 
   #if PIN_EXISTS(CAN_LED)
@@ -524,7 +523,7 @@ HAL_StatusTypeDef CAN_toolhead_start() { // Start the CAN device
 } // CAN_toolhead_start
 
 // Send an IO status update to the host, and the E0 temperature if requested
-void CAN_toolhead_send_update(bool tempUpdate) { // Called from temperature ISR!
+void CAN_toolhead_send_update(const bool tempUpdate) { // Called from temperature ISR!
   // Send a IO/temp report from the toolhead to the host
   FDCAN_TxHeaderTypeDef CanTxHeader;
   uint8_t can_tx_buffer[8]; // Transmit FDCAN message buffer
@@ -555,7 +554,6 @@ void CAN_toolhead_send_update(bool tempUpdate) { // Called from temperature ISR!
   CanTxHeader.Identifier = CAN_get_virtual_IO(tempUpdate);
 
   if (CAN_request_time_sync) {
-
     // For time sync request, wait for empty TX slot before requesting
     if (HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) == CAN_FIFO_DEPTH) {
       CanTxHeader.Identifier |= (1 << CAN_ID_REQUEST_TIME_SYNC_BIT_POS); // Issue time sync request
@@ -571,7 +569,6 @@ void CAN_toolhead_send_update(bool tempUpdate) { // Called from temperature ISR!
 
 // Send a string message to the host
 void CAN_toolhead_send_string(const char * message) {
-
   FDCAN_TxHeaderTypeDef CanTxHeader;
   uint8_t can_tx_buffer[8]; // Transmit CAN message buffer
 
@@ -589,8 +586,7 @@ void CAN_toolhead_send_string(const char * message) {
 }
 
 void CAN_send_next_string_part() {
-
-  uint32_t len = CAN_string_buffer.length();
+  const uint32_t len = CAN_string_buffer.length();
 
   FDCAN_TxHeaderTypeDef CanTxHeader;
   uint8_t can_tx_buffer[8]; // Transmit CAN message buffer
@@ -606,13 +602,11 @@ void CAN_send_next_string_part() {
 
   uint32_t c = MIN(8, len);
   CanTxHeader.DataLength = (c << CAN_DATALENGTH_OFFSET); // Max message length is 8 bytes (CAN), offset is 16 bits into the DataLength variable
-
   CanTxHeader.Identifier = CAN_get_virtual_IO(false) | CAN_ID_STRING_MESSAGE_BIT_MASK;
 
   // Low priority message, wait until TX FIFO is completely empty before sending the message
   if (HAL_FDCAN_GetTxFifoFreeLevel(&hCAN1) == CAN_FIFO_DEPTH) {
     HAL_FDCAN_AddMessageToTxFifoQ(&hCAN1, &CanTxHeader, (uint8_t *)&CAN_string_buffer); // Send message
-
     if (c < 8)
       CAN_string_buffer.clear();
     else
@@ -655,20 +649,15 @@ void CAN_process_time_sync() {
 
   NTP[4] = NTP[0] + CAN_local_time_adjustment; // Store previous time sync request time
   NTP[3] = 0;
-
 }
 
 void CAN_handle_errors() {
+  const millis_t ms = millis();
 
-  uint32_t ms = millis();
-
-  if (hCAN1.ErrorCode) {
-
-    if (ELAPSED(ms, CAN_next_error_message_time)) { // 12 seconds repeat
-      MString<40> tmp_string(F("Error: CAN Error Code = "), hCAN1.ErrorCode);
-      CAN_toolhead_send_string(tmp_string);
-      CAN_next_error_message_time += 12000; // Delay repeat of message
-    }
+  if (hCAN1.ErrorCode && ELAPSED(ms, CAN_next_error_message_time)) { // 12 seconds repeat
+    MString<40> tmp_string(F("Error: CAN Error Code = "), hCAN1.ErrorCode);
+    CAN_toolhead_send_string(tmp_string);
+    CAN_next_error_message_time += 12000; // Delay repeat of message
   }
 
   if (CAN_toolhead_error_code) {
@@ -682,29 +671,32 @@ void CAN_handle_errors() {
 
       #if ENABLED(CAN_DEBUG)
 
-      if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_RX_FIFO_OVERFLOW) {
-        CAN_toolhead_send_string(CAN_ERROR_MSG_RX_FIFO_OVERFLOW);
-        SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_RX_FIFO_OVERFLOW);
-      }
+        if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_RX_FIFO_OVERFLOW) {
+          CAN_toolhead_send_string(CAN_ERROR_MSG_RX_FIFO_OVERFLOW);
+          SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_RX_FIFO_OVERFLOW);
+        }
 
-      if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_TX_FIFO_OVERFLOW) {
-        CAN_toolhead_send_string(CAN_ERROR_MSG_TX_FIFO_OVERFLOW);
-        SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_TX_FIFO_OVERFLOW);
-      }
+        if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_TX_FIFO_OVERFLOW) {
+          CAN_toolhead_send_string(CAN_ERROR_MSG_TX_FIFO_OVERFLOW);
+          SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_TX_FIFO_OVERFLOW);
+        }
 
-      if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_INCOMPLETE_GCODE_RECEIVED) {
-        CAN_toolhead_send_string(CAN_ERROR_MSG_INCOMPLETE_GCODE);
-        SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_INCOMPLETE_GCODE);
-      }
+        if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_INCOMPLETE_GCODE_RECEIVED) {
+          CAN_toolhead_send_string(CAN_ERROR_MSG_INCOMPLETE_GCODE);
+          SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_INCOMPLETE_GCODE);
+        }
 
-      if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_MARLIN_CMD_BUFFER_OVERFLOW) {
-        CAN_toolhead_send_string(CAN_ERROR_MSG_INCOMPLETE_GCODE);
-        SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_INCOMPLETE_GCODE);
-      }
-      #else
+        if (CAN_toolhead_error_code & CAN_ERROR_TOOLHEAD_MARLIN_CMD_BUFFER_OVERFLOW) {
+          CAN_toolhead_send_string(CAN_ERROR_MSG_INCOMPLETE_GCODE);
+          SERIAL_ECHOLNPGM(">>> ", CAN_ERROR_MSG_INCOMPLETE_GCODE);
+        }
+
+      #else // !CAN_DEBUG
+
         SString<40> string_buffer(F("Error: TOOLHEAD error code="), CAN_toolhead_error_code);
         CAN_toolhead_send_string(CAN_string_buffer);
         CAN_string_buffer.echoln();
+
       #endif
       CAN_previous_error_code = CAN_toolhead_error_code;
     }
@@ -712,11 +704,12 @@ void CAN_handle_errors() {
 } // CAN_handle_errors
 
 void CAN_toolhead_idle() { // Called from MarlinCore.cpp
+  const millis_t ms = millis();
 
   // Send temperature update to host
-  if (ELAPSED(millis(), CAN_next_temp_report_time)) {
+  if (ELAPSED(ms, CAN_next_temp_report_time)) {
     CAN_toolhead_send_update(true);
-    CAN_next_temp_report_time = millis() + CAN_TEMPERATURE_REPORT_INTERVAL;
+    CAN_next_temp_report_time = ms + CAN_TEMPERATURE_REPORT_INTERVAL;
   }
 
   // Process any new CAN messages
@@ -724,11 +717,9 @@ void CAN_toolhead_idle() { // Called from MarlinCore.cpp
     process_can_queue();
 
   // Send next part of a string message to the host
-  if (CAN_string_buffer.length()) {
-    if (ELAPSED(millis(), CAN_send_next_string_part_time)) {
-      CAN_send_next_string_part();
-      CAN_send_next_string_part_time = millis() + 3; // Delay a bit, don't overload the half-duplex CAN bus
-    }
+  if (ELAPSED(ms, CAN_send_next_string_part_time)) {
+    if (CAN_string_buffer.length()) CAN_send_next_string_part();
+    CAN_send_next_string_part_time = ms + 3; // Delay a bit, don't overload the half-duplex CAN bus
   }
 
   // NTP style time sync

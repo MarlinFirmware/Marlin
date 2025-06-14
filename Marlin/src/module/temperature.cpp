@@ -4619,8 +4619,8 @@ void Temperature::isr() {
   // Send temperature over CAN bus
   #if ENABLED(CAN_TOOLHEAD)
     static uint32_t loopCounter = 0;
-    if (!(loopCounter++ & 0x1FF))   // Update E0 Temp every  512ms
-      CAN_Send_Message(true);       // Send temp report with IO report
+    if (!(loopCounter++ & 0x1FF))       // Update E0 Temp every  512ms
+      CAN_toolhead_send_update(true);   // Send temp report with IO report
   #endif
 
   // Periodically call the planner timer service routine

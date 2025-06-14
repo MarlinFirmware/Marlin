@@ -705,11 +705,8 @@ void Endstops::update() {
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
       UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
-
-    #if ENABLED(CAN_TOOLHEAD) // Forward endstop interrupt to host
-      CAN_toolhead_send_update(false); // Send Virtual IO update without temperature report
-    #endif
-
+    // Forward endstop interrupt to host
+    TERN_(CAN_TOOLHEAD, CAN_toolhead_send_update(false)); // Send Virtual IO update without temperature report
   #endif
 
   #if USE_Z_MAX

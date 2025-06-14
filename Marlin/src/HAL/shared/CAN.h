@@ -101,6 +101,6 @@ HAL_StatusTypeDef CAN_host_send_gcode();             // Send Gcode to the toolhe
 HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcode_no, uint32_t parameter1, float value1, uint32_t parameter2, float value2);
 
 HAL_StatusTypeDef CAN_toolhead_start();              // Start the CAN device
-void CAN_toolhead_send_update(bool tempUpdate);      // Send an IO and temp update to the host
+void CAN_toolhead_send_update(const bool tempUpdate); // Send an IO and temp update to the host
 void CAN_toolhead_send_string(const char * message); // Send CAN string to host
 void CAN_toolhead_idle();
