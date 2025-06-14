@@ -85,16 +85,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   bool Endstops::bdp_state; // = false
   #if HOMING_Z_WITH_PROBE
     #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
   #endif
-#elif ENABLED(CAN_HOST) // Read virtual CAN IO probe status if needed
-  #if HAS_BED_PROBE
-    #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? PROBE_READ() : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
-  #endif
-#else
+#elif ALL(CAN_HOST, HAS_BED_PROBE) // Read virtual CAN IO probe status if needed
+  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? PROBE_READ() : READ(P))
+#endif
+#ifndef READ_ENDSTOP
   #define READ_ENDSTOP(P) READ(P)
 #endif
 

@@ -58,10 +58,11 @@
 #endif
 
 #if ENABLED(CAN_HOST)
-  #define FILAMENT_IS_OUT() (bool(CAN_host_get_iostate() & CAN_ID_FILAMENT_MASK) == FIL_RUNOUT_STATE)
-  #define RUNOUT_STATE(N) bool(CAN_host_get_iostate() & CAN_ID_FILAMENT_MASK)  // CAN Virtual Filament Runout pin
+  #define RUNOUT_STATE(N...) bool(CAN_host_get_iostate() & CAN_ID_FILAMENT_MASK)  // CAN Virtual Filament Runout pin
+  #define FILAMENT_IS_OUT(N...) (RUNOUT_STATE() == FIL_RUNOUT_STATE)
 #else
-  #define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
+  #define RUNOUT_STATE(N) READ(FIL_RUNOUT##N##_PIN)
+  #define FILAMENT_IS_OUT(N...) (RUNOUT_STATE(N) == FIL_RUNOUT##N##_STATE)
 #endif
 
 typedef Flags<
@@ -223,7 +224,7 @@ class FilamentSensorBase {
       #undef _INIT_RUNOUT_PIN
     }
 
-    // Return a bitmask of runout pin states
+    // Return a bitmask of runout pin HIGH/LOW states
     static uint8_t poll_runout_pins() {
       #define _OR_RUNOUT(N) | (RUNOUT_STATE(N) ? _BV((N) - 1) : 0)
       return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));

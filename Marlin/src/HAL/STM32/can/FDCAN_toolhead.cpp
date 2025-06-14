@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,7 +27,7 @@
  * Add "__weak" in front of "void TIM16_IRQHandler(void)" to be able to override the function and redirect the interrupt
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(CAN_TOOLHEAD)
 // TODO:
@@ -35,17 +35,17 @@
 // 2. Pickup correct CAN device from CAN_RX_PIN/CAN_TX_PIN
 // 3. Calculate baudrate and data sampling timing from clock frequencies defined by CAN_BAUDRATE
 
-#include "../platforms.h"
-#include "../../gcode/gcode.h"
-#include "../../gcode/parser.h"
-#include "../../gcode/queue.h"
-#include "../../module/temperature.h"
-#include "../../libs/numtostr.h"
-#include "../../inc/MarlinConfig.h"
-#include "../../feature/controllerfan.h"
-#include "../../core/serial.h"
+#include "../../platforms.h"
+#include "../../../gcode/gcode.h"
+#include "../../../gcode/parser.h"
+#include "../../../gcode/queue.h"
+#include "../../../module/temperature.h"
+#include "../../../libs/numtostr.h"
+#include "../../../inc/MarlinConfig.h"
+#include "../../../feature/controllerfan.h"
+#include "../../../core/serial.h"
 
-#include "../shared/CAN.h"
+#include "../../shared/CAN.h"
 
 extern "C" void TIM16_IRQHandler(void); // Override weak functions
 extern "C" void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs);
@@ -108,7 +108,7 @@ float CAN_NTP_clock_drift                     = 0; // Time sync calculated clock
 uint32_t CAN_next_led_flash_time              = 0; // Error LED flashing
 uint32_t CAN_next_error_message_time          = 0; // Controls error message repeat frequency
 
-CAN_MSG_BUFFER CAN_QUEUE[CAN_QUEUE_DEPTH] = { 0 }; // Circular CAN message queue 
+CAN_MSG_BUFFER CAN_QUEUE[CAN_QUEUE_DEPTH] = { 0 }; // Circular CAN message queue
 volatile uint32_t CAN_queue_head              = 0; // Queue head index
 volatile uint32_t CAN_queue_tail              = 0; // Queue tail index
 
@@ -119,20 +119,20 @@ uint32_t CAN_get_virtual_IO(bool tempUpdate) {
 
   bool configured = tempUpdate && CAN_toolhead_not_configured; // Only request setup during temp updates, not IO interrupts
   return (
-  
-    #ifdef Z_MIN_PROBE_PIN
+
+    #if PIN_EXISTS(Z_MIN_PROBE)
       (READ(Z_MIN_PROBE_PIN) << CAN_ID_PROBE_BIT_POS) | // Report probe status
     #endif
-    #ifdef X_MIN_PIN
+    #if PIN_EXISTS(X_MIN)
       (READ(X_MIN_PIN) << CAN_ID_X_ENDSTOP_BIT_POS) | // Report X-min status
     #endif
-    #ifdef Y_MIN_PIN
+    #if PIN_EXISTS(Y_MIN)
       (READ(Y_MIN_PIN) << CAN_ID_Y_ENDSTOP_BIT_POS) | // Report Y-min status
     #endif
-    #ifdef Z_MIN_PIN
+    #if PIN_EXISTS(Z_MIN)
       (READ(Z_MIN_PIN) << CAN_ID_Z_ENDSTOP_BIT_POS) | // Report Z-min status
     #endif
-    #ifdef FILAMENT_RUNOUT_PIN
+    #if PIN_EXISTS(FILAMENT_RUNOUT)
       (READ(FILAMENT_RUNOUT_PIN) << CAN_ID_FILAMENT_BIT_POS) | // Report filament detector status
     #endif
 
@@ -149,7 +149,7 @@ void process_can_queue() {
 
   uint32_t identifier = CAN_QUEUE[CAN_queue_tail].identifier;
   bool enqueue = true;
-  
+
   // Receiving new Gcode
   if (identifier & CAN_EXTENDED_ID_MARKER_MASK) {
 
@@ -180,12 +180,12 @@ void process_can_queue() {
       // Data contains 2 timestamps in uint32_t format
       uint32_t *uint32p = (uint32_t*)CAN_QUEUE[CAN_queue_tail].data;
       NTP[1] = *uint32p++;
-      NTP[2] = *uint32p;   
+      NTP[2] = *uint32p;
       NTP[3] = CAN_QUEUE[CAN_queue_tail].receive_time; // Record time sync response message receive time
 
       enqueue = false; // Timestamps were stored, the idle process will handle the rest
     }
-    
+
     // New Gcode started, so previous Gcode must be complete (all parameters received)
     if (parameter_counter)
       CAN_toolhead_error_code |= CAN_ERROR_TOOLHEAD_INCOMPLETE_GCODE_RECEIVED;
@@ -199,11 +199,11 @@ void process_can_queue() {
   uint32_t backupLength = 0; // Backup string length in case we cannot enqueue the Gcode and have to try again
   // Add parameters (if present) to the received Gcode
   if (parameter_counter && ((identifier >> CAN_ID_PARAMETER1_BIT_POS) & CAN_ID_PARAMETER_LETTER_MASK)) { // Get 1st parameter, make sure it's not empty.
-    backupLength = CAN_gcode_buffer.length();    // Point to place where parameters are added  
+    backupLength = CAN_gcode_buffer.length();    // Point to place where parameters are added
     CAN_gcode_buffer.append(char((identifier & CAN_ID_PARAMETER_LETTER_MASK) + 64)); // Add Gcode parameter letter, e.g., 'X'
     float value = CAN_QUEUE[CAN_queue_tail].data[0];
     if (!isnan(value)) { // No value for parameter if value is "Not A Number"
-      if (value == int(value))  
+      if (value == int(value))
         CAN_gcode_buffer.append(int(CAN_QUEUE[CAN_queue_tail].data[0])); // Integer value
       else
         CAN_gcode_buffer.append(p_float_t(CAN_QUEUE[CAN_queue_tail].data[0], 5));
@@ -214,7 +214,7 @@ void process_can_queue() {
     if (parameter_counter && ((identifier >> CAN_ID_PARAMETER2_BIT_POS) & CAN_ID_PARAMETER_LETTER_MASK)) { // Get 2nd parameter, make sure it's not empty.
       CAN_gcode_buffer.append(char(((identifier >> CAN_ID_PARAMETER2_BIT_POS) & CAN_ID_PARAMETER_LETTER_MASK) + 64)); // Add Gcode parameter letter, e.g., 'X'
       if (!isnan(CAN_QUEUE[CAN_queue_tail].data[1])) { // No value for parameter if value is "Not A Number"
-        if (value == int(value))  
+        if (value == int(value))
           CAN_gcode_buffer.append(int(CAN_QUEUE[CAN_queue_tail].data[1])); // Integer value
         else
           CAN_gcode_buffer.append(p_float_t(CAN_QUEUE[CAN_queue_tail].data[1], 5));
@@ -251,13 +251,13 @@ HAL_StatusTypeDef CAN_receive_msg(uint32_t FIFO) { // ISR! Process received CAN 
     FDCAN_RxHeaderTypeDef CAN_rx_header;
     CAN_QUEUE[CAN_queue_head].receive_time = micros(); // Save receiver timestamp for time sync
     HAL_FDCAN_GetRxMessage(&hCAN1, FIFO, &CAN_rx_header, (uint8_t*)CAN_QUEUE[CAN_queue_head].data);
-    
+
     if (CAN_rx_header.IdType == FDCAN_EXTENDED_ID)                     // Mark extended ID message (new Gcode start)
       CAN_QUEUE[CAN_queue_head].identifier = CAN_EXTENDED_ID_MARKER_MASK + CAN_rx_header.Identifier;
     else
       CAN_QUEUE[CAN_queue_head].identifier = CAN_rx_header.Identifier; // Standard ID message (Gcode parameters)
-      
-    CAN_queue_head = (CAN_queue_head + 1) % CAN_QUEUE_DEPTH; 
+
+    CAN_queue_head = (CAN_queue_head + 1) % CAN_QUEUE_DEPTH;
   }
   else
     CAN_toolhead_error_code |= CAN_ERROR_TOOLHEAD_RX_FIFO_OVERFLOW;
@@ -351,7 +351,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle) { // Called automatical
   uint32_t _CAN_TD_pin = digitalPinToPinName(CAN_TD_PIN);
   uint32_t _CAN_RD_function = pinmap_find_function(digitalPinToPinName(CAN_RD_PIN), PinMap_CAN_RD);
   uint32_t _CAN_TD_function = pinmap_find_function(digitalPinToPinName(CAN_TD_PIN), PinMap_CAN_TD);
-  
+
   // Enable the GPIOx device related to the CAN_RD_pin
   gpio_clock_enable(get_GPIO_Port(STM_PORT(_CAN_RD_pin))); // PB0
 
@@ -382,7 +382,7 @@ int FDCAN_calculate_segments(uint32_t *seg1, uint32_t *seg2) {
 
   uint32_t CAN_clock =  HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
   float clocks_per_bit = CAN_clock / CAN_BAUDRATE; // Clocks per bit must be a whole number
-  
+
   if ((clocks_per_bit != int(clocks_per_bit)) || (clocks_per_bit < 5)) // Minimal 5 clocks per bit (2+2+1)
     return -1; // Baudrate is not possible
 
@@ -414,7 +414,7 @@ HAL_StatusTypeDef CAN_toolhead_start() { // Start the CAN device
     SERIAL_ECHOLNPGM("Impossible CAN baudrate, check CAN clock and baudrate");
     return HAL_ERROR;
   }
-  
+
   __HAL_RCC_FDCAN_CLK_DISABLE(); // Disable for startup, sample calculation were done
 
   hCAN1.Instance                  = FDCAN2;                  // The FDCAN device used
@@ -516,10 +516,9 @@ HAL_StatusTypeDef CAN_toolhead_start() { // Start the CAN device
 
   #endif
 
-  #ifdef CAN_LED_PIN
-    pinMode(CAN_LED_PIN, OUTPUT);
-    digitalWrite(CAN_LED_PIN, HIGH);
-  #endif 
+  #if PIN_EXISTS(CAN_LED)
+    OUT_WRITE(CAN_LED_PIN, HIGH);
+  #endif
 
   return status;
 } // CAN_toolhead_start
@@ -566,7 +565,7 @@ void CAN_toolhead_send_update(bool tempUpdate) { // Called from temperature ISR!
     }
   }
 
-  HAL_FDCAN_AddMessageToTxFifoQ(&hCAN1, &CanTxHeader, can_tx_buffer); 
+  HAL_FDCAN_AddMessageToTxFifoQ(&hCAN1, &CanTxHeader, can_tx_buffer);
 
 } // CAN_toolhead_send_update
 
@@ -637,10 +636,10 @@ void CAN_process_time_sync() {
   SERIAL_ECHOLNPGM(">>> t1: ", NTP[1], " us (remote time sync arrival time)");
   SERIAL_ECHOLNPGM(">>> t2: ", NTP[2], " us (remote time sync response time)");
   SERIAL_ECHOLNPGM(">>> t3: ", NTP[3], " us (local time sync reply receive time)");
-  
+
   if (CAN_NTP_clock_drift)
     SERIAL_ECHOLNPGM(">>> Predicted time adjustment: ", CAN_NTP_clock_drift * float(NTP[0] - NTP[4]) / 1000000.0 , " us");
-    
+
   SERIAL_ECHOPGM(">>> Local time adjustment: ", CAN_local_time_adjustment, " us");
   if (NTP[4]) {
     SERIAL_ECHOLNPGM(" after ",  ftostr42_52(float(NTP[0] - NTP[4]) / 1000000.0), " seconds");
@@ -731,7 +730,7 @@ void CAN_toolhead_idle() { // Called from MarlinCore.cpp
       CAN_send_next_string_part_time = millis() + 3; // Delay a bit, don't overload the half-duplex CAN bus
     }
   }
-  
+
   // NTP style time sync
   if (NTP[3]) // Indicates a host timestamp was received
     CAN_process_time_sync();

@@ -150,7 +150,7 @@ const XrefInfo pin_xref[] PROGMEM = {
 
 #ifndef M43_NEVER_TOUCH
   #define _M43_NEVER_TOUCH(x) WITHIN(x, 9, 12) // SERIAL/USB pins: PA9(TX) PA10(RX) PA11(USB_DM) PA12(USB_DP)
-  #ifdef KILL_PIN
+  #if PIN_EXISTS(KILL)
     #define M43_NEVER_TOUCH(x) m43_never_touch(x)
 
     bool m43_never_touch(const pin_t index) {

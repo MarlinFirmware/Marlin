@@ -893,8 +893,8 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Manage Fixed-time Motion Control
   TERN_(FT_MOTION, ftMotion.loop());
 
+  // Manage CAN bus activity
   TERN_(CAN_HOST, CAN_host_idle());
-
   TERN_(CAN_TOOLHEAD, CAN_toolhead_idle());
 
   IDLE_DONE:
@@ -1251,22 +1251,16 @@ void setup() {
 
   SETUP_RUN(hal.init());
 
+  // Init CAN bus
   #if ENABLED(CAN_HOST)
-    SERIAL_ECHOLN(
-      F(">>> CAN Start: "),
-      CAN_host_start() == HAL_OK ? F("OK") : F("FAILED!")
-    );
+    serial_ternary(F(">>> CAN Start: "), CAN_host_start() == HAL_OK, F("OK"), F("FAILED!"), F("\n"));
   #endif
-
   #if ENABLED(CAN_TOOLHEAD)
-    SERIAL_ECHOLN( F(">>> CAN Start: "),
-      CAN_toolhead_start() == HAL_OK ? F("OK") : F("FAILED!")
-    );
+    serial_ternary(F(">>> CAN Start: "), CAN_toolhead_start() == HAL_OK, F("OK"), F("FAILED!"), F("\n"));
   #endif
 
-  #if ENABLED(HAS_ADXL345_ACCELEROMETER)
-    adxl345.begin();
-  #endif
+  // Init ADXL345 Accelerometer
+  TERN_(HAS_ADXL345_ACCELEROMETER, adxl345.begin());
 
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_IS_MAX_TC(0) || (TEMP_SENSOR_IS_MAX_TC(REDUNDANT) && REDUNDANT_TEMP_MATCH(SOURCE, E0))

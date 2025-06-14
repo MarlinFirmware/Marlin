@@ -27,7 +27,6 @@
 #include "../gcode.h"
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
-#include "../../libs/numtostr.h"
 
 #if ENABLED(CAN_TOOLHEAD)
   #include "../../HAL/shared/CAN.h"
@@ -64,8 +63,9 @@ void GcodeSuite::M306() {
 
     if (parser.seen_test('T')) {
 
-      #if ENABLED(CAN_HOST) // Execute MPC autotune on toolhead
+      #if ENABLED(CAN_HOST)
 
+        // Execute MPC autotune on toolhead
         SERIAL_ECHOLNPGM(
           ">>> Forwarding M306 to toolhead\n"
           ">>> Store MPC setup in the host Configuration.h or use M500\n"
@@ -73,7 +73,7 @@ void GcodeSuite::M306() {
           ">>> Please wait for the auto tune results..."
         );
 
-      #else
+      #else // !CAN_HOST
 
         Temperature::MPCTuningType tuning_type;
         const uint8_t type = parser.byteval('S', 0);
@@ -90,13 +90,13 @@ void GcodeSuite::M306() {
           ui.reset_status();
         }
 
-        #if ENABLED(CAN_TOOLHEAD)
-          M306_report(true); // Report MPC autotune results to CAN host
-        #endif
-      #endif
+        TERN_(CAN_TOOLHEAD, M306_report(true)); // Report MPC autotune results to CAN host
+
+      #endif // !CAN_HOST
 
       return;
-    }
+
+    } // seen(T)
 
   #endif // MPC_AUTOTUNE
 
@@ -125,9 +125,8 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
 
   report_heading(forReplay, F("Model predictive control"));
 
-  #if ENABLED(CAN_HOST) // MPC Autotune info
-    if (forReplay) SERIAL_ECHOLNPGM(">>> Host M306 MPC settings:");
-  #endif
+  // MPC Autotune info
+  if (TERN0(CAN_HOST, forReplay)) SERIAL_ECHOLNPGM(">>> Host M306 MPC settings:");
 
   HOTEND_LOOP() {
     report_echo_start(forReplay);
@@ -151,18 +150,20 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   #if ENABLED(CAN_TOOLHEAD) // Report M306 Autotune results to host
     if (forReplay) {
       MPC_t &mpc = thermalManager.temp_hotend[0].mpc;
-      MString<100> buffer(F("M306 E0 P"), p_float_t(mpc.heater_power, 2),
-                                   " C", p_float_t(mpc.block_heat_capacity, 2),
-                                   " R", p_float_t(mpc.sensor_responsiveness, 4),
-                                   " A", p_float_t(mpc.ambient_xfer_coeff_fan0, 4),
-      #if ENABLED(MPC_INCLUDE_FAN)
-                                   " F", p_float_t(mpc.fanCoefficient(), 4),
-      #endif
-                                   " H", p_float_t(mpc.filament_heat_capacity_permm, 4));
-
-    CAN_toolhead_send_string(buffer);
-  }
-#endif // CAN_TOOLHEAD
+      CAN_toolhead_send_string(
+        MString<100>(
+          F("M306 E0 P"), p_float_t(mpc.heater_power, 2),
+          F(" C"),        p_float_t(mpc.block_heat_capacity, 2),
+          F(" R"),        p_float_t(mpc.sensor_responsiveness, 4),
+          F(" A"),        p_float_t(mpc.ambient_xfer_coeff_fan0, 4),
+          #if ENABLED(MPC_INCLUDE_FAN)
+            F(" F"),      p_float_t(mpc.fanCoefficient(), 4),
+          #endif
+          F(" H"),        p_float_t(mpc.filament_heat_capacity_permm, 4)
+        )
+      );
+    }
+  #endif // CAN_TOOLHEAD
 
 }
 

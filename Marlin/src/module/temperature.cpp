@@ -2919,7 +2919,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_bed.setraw(read_max_tc_bed());
   #endif
 
-  #if HAS_HOTEND && DISABLED(CAN_HOST) // For CAN Host we'll get temperature from CAN bus
+  #if HAS_HOTEND && DISABLED(CAN_HOST) // CAN Host gets temperature from CAN bus
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].getraw(), e);
   #endif
 
@@ -4616,7 +4616,7 @@ void Temperature::isr() {
   // Poll endstops state, if required
   endstops.poll();
 
-#if ENABLED(CAN_TOOLHEAD)  
+#if ENABLED(CAN_TOOLHEAD)
   static uint32_t loopCounter = 0;
   if ((loopCounter++ % 512) == 0) // Update E0 Temp every  512ms
     CAN_Send_Message(true); // Send temp report with IO report

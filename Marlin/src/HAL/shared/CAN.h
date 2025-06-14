@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -103,4 +103,4 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
 HAL_StatusTypeDef CAN_toolhead_start();              // Start the CAN device
 void CAN_toolhead_send_update(bool tempUpdate);      // Send an IO and temp update to the host
 void CAN_toolhead_send_string(const char * message); // Send CAN string to host
-void CAN_toolhead_idle();   
+void CAN_toolhead_idle();

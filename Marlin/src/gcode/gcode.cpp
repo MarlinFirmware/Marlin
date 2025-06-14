@@ -332,9 +332,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
   #if ENABLED(CAN_HOST)
     if (CAN_host_send_gcode() != HAL_OK) { // Send command to toolhead
       SERIAL_ECHOLN(F("Error: CAN failed to send \""), parser.command_ptr, '"');
-      #if ENABLED(CAN_DEBUG)
-        BUZZ(1, SOUND_ERROR);
-      #endif
+      TERN_(CAN_DEBUG, BUZZ(1, SOUND_ERROR));
     }
   #endif
 

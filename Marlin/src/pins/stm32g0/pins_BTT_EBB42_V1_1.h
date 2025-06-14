@@ -111,6 +111,12 @@
 #endif
 
 //
+// CAN bus
+//
+#define CAN_RX                              PB0
+#define CAN_TX                              PB1
+
+//
 // Temperature Sensors
 //
 #define TEMP_0_PIN                          PA3   // Analog Input "TH0"
@@ -141,12 +147,8 @@
 //
 // LCD / Controller
 //
-
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5
   #define BTN_ENC                           PB6
 #endif
-
-#define CAN_RX                              PB0
-#define CAN_TX                              PB1

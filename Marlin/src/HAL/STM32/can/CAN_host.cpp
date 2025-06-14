@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -31,21 +31,24 @@
  * NOTE 6: The filter ID/mask numbers (LOW/HIGH) do not directly relate to the message ID numbers (See Figure 342 in RM0090)
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ALL(CAN_HOST, STM32F4xx)
 
-#include "../platforms.h"
-#include "../../gcode/parser.h"
-#include "../../module/temperature.h"
-#include "../../module/motion.h"  // For current_position variable
-#include "../../module/planner.h" // For steps/mm parameters variables
-#include "../../feature/tmc_util.h"
-#include "../../module/endstops.h"
-#include "../../feature/controllerfan.h" // For controllerFan settings
-#include "../../libs/numtostr.h"  // For float to string conversion
+#include "../../platforms.h"
+#include "../../../gcode/parser.h"
+#include "../../../module/temperature.h"
+#include "../../../module/motion.h"         // For current_position variable
+#include "../../../module/planner.h"        // For steps/mm parameters variables
+#include "../../../feature/tmc_util.h"
+#include "../../../module/endstops.h"
+#include "../../../feature/controllerfan.h" // For controllerFan settings
+#include "../../../libs/numtostr.h"         // For float to string conversion
 
-#include "../shared/CAN.h"
+#include "../../shared/CAN.h"
+
+#define DEBUG_OUT ENABLED(CAN_DEBUG)
+#include "../../../core/debug_out.h"
 
 // Interrupt handlers controlled by the CAN_IER register
 extern "C" void CAN1_RX0_IRQHandler(void);                                  // CAN1 FIFO0 interrupt handler (new message, full, overrun)
@@ -66,9 +69,11 @@ extern "C" void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan);             // C
 
 #ifndef CAN_RD_PIN
   #define CAN_RD_PIN PB8
+  #warning "CAN_RD_PIN auto-assigned to PB8 for HAL/STM32!"
 #endif
 #ifndef CAN_TD_PIN
   #define CAN_TD_PIN PB9
+  #warning "CAN_TD_PIN auto-assigned to PB9 for HAL/STM32!"
 #endif
 
 #if (CAN_BAUDRATE != 1000000) && (CAN_BAUDRATE != 500000) && (CAN_BAUDRATE != 250000) && (CAN_BAUDRATE != 125000)
@@ -139,59 +144,47 @@ void CAN_host_send_timestamp() { // Request receive timestamp + request response
 
 // Send specified Gcode with max 2 parameters and 2 values via CAN bus
 HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcode_no, uint32_t parameter1, float value1, uint32_t parameter2, float value2) {
-
-  HAL_StatusTypeDef status = HAL_OK;
-
   switch (Gcode_type) {
-
     case 'D':
       Gcode_type = CAN_ID_GCODE_TYPE_D;
       return HAL_ERROR;
-    break;
 
     case 'G':
       Gcode_type = CAN_ID_GCODE_TYPE_G;
       return HAL_ERROR;
-    break;
-
-    case 'M':
-      Gcode_type = CAN_ID_GCODE_TYPE_M;
-
-      #if ENABLED(CAN_DEBUG)
-        SERIAL_ECHOPGM("; MSG to toolhead: \"M", Gcode_no);
-        if (parameter1) {
-          SERIAL_CHAR(' ', parameter1);
-          if (value1 == int(value1))
-            SERIAL_ECHO(int(value1)); // Integer value
-          else
-            SERIAL_ECHO(p_float_t(value1, 4));  // Float with 4 digits
-        }
-
-        if (parameter2) {
-          SERIAL_CHAR(' ', parameter2);
-          if (value2 == int(value2))
-            SERIAL_ECHO(int(value2)); // Integer value
-          else
-            SERIAL_ECHO(p_float_t(value2, 4));  // Float with 4 digits
-        }
-        SERIAL_ECHOLN("\"");
-      #endif
-
-    break;
 
     case 'T': Gcode_type = CAN_ID_GCODE_TYPE_T;
       return HAL_ERROR;
-    break;
+
+    case 'M': {
+      Gcode_type = CAN_ID_GCODE_TYPE_M;
+
+      DEBUG_ECHOPGM("; MSG to toolhead: \"M", Gcode_no);
+      if (parameter1) {
+        DEBUG_CHAR(' ', parameter1);
+        if (value1 == int(value1))
+          DEBUG_ECHO(int(value1)); // Integer value
+        else
+          DEBUG_ECHO(p_float_t(value1, 4));  // Float with 4 digits
+      }
+
+      if (parameter2) {
+        DEBUG_CHAR(' ', parameter2);
+        if (value2 == int(value2))
+          DEBUG_ECHO(int(value2)); // Integer value
+        else
+          DEBUG_ECHO(p_float_t(value2, 4));  // Float with 4 digits
+      }
+      DEBUG_ECHOLN("\"");
+
+    } break;
 
     default:
-    return HAL_ERROR; // Unknown Gcode type
+      return HAL_ERROR; // Unknown Gcode type
   }
 
-  if (parameter1 > 31)
-    parameter1 -= 64; // Format 'A' = 1, 'B' = 2, etc.
-
-  if (parameter2 > 31)
-    parameter2 -= 64; // Format 'A' = 1, 'B' = 2, etc.
+  if (parameter1 > 31) parameter1 -= 64; // Format 'A' = 1, 'B' = 2, etc.
+  if (parameter2 > 31) parameter2 -= 64; // Format 'A' = 1, 'B' = 2, etc.
 
   TxHeader.IDE   = CAN_ID_EXT;
   TxHeader.DLC   = 4 * (!!parameter1 + !!parameter2); // Amount of bytes to send (4 or 8)
@@ -206,6 +199,8 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
   uint32_t TxMailbox;  // Stores which Mailbox (0-2) was used to store the sent message
   const uint32_t deadline = millis() + CAN_HOST_MAX_WAIT_TIME;
   while ((HAL_CAN_GetTxMailboxesFreeLevel(&hCAN1) == 0) && PENDING(millis(), deadline)) { /* BLOCKING! Wait for empty TX buffer */ }
+
+  HAL_StatusTypeDef status = HAL_OK;
 
   if (HAL_CAN_GetTxMailboxesFreeLevel(&hCAN1))
     status = HAL_CAN_AddTxMessage(&hCAN1, &TxHeader, CAN_tx_buffer, &TxMailbox); // Queue CAN message
@@ -299,7 +294,7 @@ void CAN_host_send_setup(bool changeStatus) { // Send setup to toolhead
   // M919 TMC Chopper timing for E only
   CAN_host_send_gcode_2params('M', 919, 'O', off, 'P' , Hysteresis End);
   CAN_host_send_gcode_2params('M', 919, 'S', Hysteresis Start, 0, 0);
-  */
+  //*/
 
   #if ALL(USE_CONTROLLER_FAN, CONTROLLER_FAN_EDITABLE)
     CAN_host_send_gcode_2params('M', 710, 'E', controllerFan.settings.extruder_auto_fan_speed, 'P', controllerFan.settings.probing_auto_fan_speed);
@@ -385,27 +380,33 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
   if (parser.command_letter != 'M') // Only forward Mxxx Gcode to toolhead
     return HAL_OK;
 
-  uint32_t Gcode_type = CAN_ID_GCODE_TYPE_M; // M-code, fixed for now
-  uint32_t Gcode_no = parser.codenum & CAN_ID_GCODE_NUMBER_MASK;
+  uint32_t Gcode_type = CAN_ID_GCODE_TYPE_M, // M-code, fixed for now
+           Gcode_no = parser.codenum & CAN_ID_GCODE_NUMBER_MASK;
 
-  if (Gcode_no == 109) // Convert M109(Hotend wait) to M104 (no wait) to keep the toolhead responsive
-    Gcode_no = 104;
+  switch (Gcode_no) {
+    case 109:
+      Gcode_no = 104; // Convert M109 (Hotend wait) to M104 (no wait) to keep the toolhead responsive
+      break;
 
-  if ((Gcode_no == 501) || (Gcode_no == 502)) // M501=Restore settings, M502=Factory defaults
-    CAN_toolhead_setup_request = true; // Also update settings for the toolhead
+    case 104:  // Set hotend target temp
+    case 106:  // Set cooling fan speed
+    case 107:  // Cooling fan off
+    case 115:  // Firmware info (testing)
+    case 119:  // Endstop status (testing)
+    case 150:  // Set NeoPixel values
+    //case 108: // Break and Continue
+    case 280:  // Servo position
+    case 306:  // MPC settings/tuning
+    case 710:  // Control fan PWM
+    case 997:  // Reboot
+      break;
 
-  if ((Gcode_no != 104) &&  // Set hotend target temp
-      (Gcode_no != 106) &&  // Set cooling fan speed
-      (Gcode_no != 107) &&  // Cooling fan off
-      (Gcode_no != 115) &&  // Firmware info (testing)
-      (Gcode_no != 119) &&  // Endstop status (testing)
-      (Gcode_no != 150) &&  // Set NeoPixel values
-    //(Gcode_no != 108) &&  // Break and Continue
-      (Gcode_no != 280) &&  // Servo position
-      (Gcode_no != 306) &&  // MPC settings/tuning
-      (Gcode_no != 710) &&  // Control fan PWM
-      (Gcode_no != 997))    // Reboot
-    return HAL_OK;          // Nothing to do
+    case 501 ... 502; // M501=Restore settings, M502=Factory defaults
+      CAN_toolhead_setup_request = true; // Also update settings for the toolhead
+      // fallthru
+
+    default: return HAL_OK; // Nothing to do
+  }
 
   uint32_t index;
   uint32_t parameter_counter = 0;
@@ -416,11 +417,9 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
   uint8_t CAN_tx_buffer[8];              // 8 bytes CAN data TX buffer
 
   /*
-  switch (parser.command_letter) // Filter/adjust Gcodes
-  {
+  switch (parser.command_letter) { // Filter/adjust Gcodes
     case 'G': Gcode_type = CAN_ID_GCODE_TYPE_G;
-      switch (Gcode_no)
-      {
+      switch (Gcode_no) {
         case 12: break; // No Nozzle cleaning support needed on toolhead
         case 29: case 34: return HAL_OK; // No bedleveling/Z-syncing on toolhead
         break;
@@ -428,8 +427,8 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
       break;
 
     case 'M': Gcode_type = CAN_ID_GCODE_TYPE_M;
-      switch (Gcode_no)
-      { // Save Prog mem: M112, M48, M85, M105, M114, M155, M500, M501, M502, M503, M226, M422
+      switch (Gcode_no) {
+        // Save Prog mem: M112, M48, M85, M105, M114, M155, M500, M501, M502, M503, M226, M422
         case 109: Gcode_no = 104; break;   // Replace M109 with M104
         case 112: Gcode_no = 104; break;   // Don't shutdown board, should stop heating with "M104"
 
@@ -454,9 +453,9 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
         case 280:                     // Don't send servo angle, done via Servo.cpp already
         case 290:                     // No baby stepping
         case 300:                     // No tones
-       // case 303:                     // No PID autotune (done on TOOLHEAD)
+        //case 303:                     // No PID autotune (done on TOOLHEAD)
         case 304:                     // No bed PID settings
-       // case 306:                     // MPC autotune (done on TOOLHEAD)
+        //case 306:                     // MPC autotune (done on TOOLHEAD)
         case 350: case 351:           // No live microstepping adjustment
         case 380: case 381:           // No solenoid support
         case 401: case 402:           // No probe deploy/stow, done via M280 servo angles
@@ -477,51 +476,38 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
         case 998:                     // No ESP3D reset
         return HAL_OK;                // NO CAN MESSAGE
       }
-    break;
+      break;
 
-    case 'T': Gcode_type = CAN_ID_GCODE_TYPE_T;
-      switch (Gcode_no)
-      {
-        case 0: case 1:
-        break;
-      }
-    break;
+    case 'T':
+      Gcode_type = CAN_ID_GCODE_TYPE_T;
+      switch (Gcode_no) { case 0: case 1: break; }
+      break;
 
-    case 'D': Gcode_type = CAN_ID_GCODE_TYPE_D;
-      switch (Gcode_no)
-      {
-        case 0: case 1:
-        break;
-      }
-    break;
+    case 'D':
+      Gcode_type = CAN_ID_GCODE_TYPE_D;
+      switch (Gcode_no) { case 0: case 1: break; }
+      break;
+
     default: return HAL_OK; // Invalid command, nothing to do
   }
   */
 
-  #if ENABLED(CAN_DEBUG)
-    SERIAL_ECHOPGM(">>> CAN Gcode to toolhead: ");
-    SERIAL_CHAR(parser.command_letter);
-    SERIAL_ECHO(Gcode_no);
-  #endif
+  DEBUG_ECHO(F(">>> CAN Gcode to toolhead: "), C(parser.command_letter), Gcode_no);
 
   if (strlen(parser.command_ptr) > 4) // "M107\0", Only scan for parameters if the string is long enough
   for (index = 0; index < sizeof(letters); index++) { // Scan parameters
     if (parser.seen(letters[index])) {
       parameters[parameter_counter] = (letters[index] - 64) & CAN_ID_PARAMETER_LETTER_MASK; // Store parameter letter, A=1, B=2...
 
-      #if ENABLED(CAN_DEBUG)
-        SERIAL_CHAR(' ', letters[index]);
-      #endif
+      DEBUG_CHAR(' ', letters[index]);
 
       if (parser.has_value()) { // Check if there is a value
         values[parameter_counter++] = parser.value_float();
 
-        #if ENABLED(CAN_DEBUG)
-          if (values[parameter_counter - 1] == int(values[parameter_counter - 1]))
-            SERIAL_ECHO(i16tostr3left(values[parameter_counter - 1])); // Integer value
-          else
-            SERIAL_ECHO(p_float_t(values[parameter_counter - 1], 4));  // Float with 4 digits
-        #endif
+        if (values[parameter_counter - 1] == int(values[parameter_counter - 1]))
+          DEBUG_ECHO(i16tostr3left(values[parameter_counter - 1])); // Integer value
+        else
+          DEBUG_ECHO(p_float_t(values[parameter_counter - 1], 4));  // Float with 4 digits
       }
       else // No value for parameter
         values[parameter_counter++] = NAN; // Not A Number, indicates no parameter value is present
@@ -536,9 +522,7 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
     }
   }
 
-  #if ENABLED(CAN_DEBUG)
-    SERIAL_EOL();
-  #endif
+  DEBUG_EOL();
 
   parameters[parameter_counter] = 0; // Set next parameter to 0 (0=no parameter), send in pairs
   index = 0;
@@ -570,7 +554,7 @@ HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (use
       CAN_host_error_code |= CAN_ERROR_HOST_TX_MSG_DROPPED;
 
     if (status != HAL_OK) return status;
-    
+
     TxHeader.IDE = CAN_ID_STD; // All following messages have standard ID for parameter values, 11 bits identifier
   } while (index < parameter_counter);
 
@@ -595,10 +579,10 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle) { // Called by HAL_CAN_Init
 
   if (canHandle->Instance == CAN1)
       __HAL_RCC_CAN1_CLK_ENABLE();       // Enable CAN1 clock
-  
+
   if (canHandle->Instance == CAN2)
       __HAL_RCC_CAN2_CLK_ENABLE();       // Enable CAN2 clock
-  
+
   // Use some macros to find the required setup info based on the provided CAN pins
   uint32_t _CAN_RD_pin = digitalPinToPinName(CAN_RD_PIN);
   uint32_t _CAN_TD_pin = digitalPinToPinName(CAN_TD_PIN);
@@ -681,7 +665,7 @@ int CAN_calculate_segments(uint32_t *seg1, uint32_t *seg2, uint32_t *prescaler) 
 
   *seg1 = (*seg1 - 1) << CAN_BTR_TS1_Pos; // Convert to register values
   *seg2 = (*seg2 - 1) << CAN_BTR_TS2_Pos; // Convert to register values
-  
+
   return HAL_OK;
 }
 
@@ -690,7 +674,7 @@ HAL_StatusTypeDef CAN_host_start() {
   HAL_StatusTypeDef status = HAL_OK;
 
   // The CAN clock must be set first because the sample timing depends on it
-  __HAL_RCC_CAN1_CLK_ENABLE(); 
+  __HAL_RCC_CAN1_CLK_ENABLE();
 
   // Initialize TxHeader with constant values
   TxHeader.ExtId              = 0;
@@ -775,8 +759,8 @@ if (CAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
   status = HAL_CAN_Start(&hCAN1);   // Start the CAN module
   if (status != HAL_OK) return status;
 
-  #ifdef CAN_LED_PIN
-    pinMode(CAN_LED_PIN, OUTPUT);
+  #if PIN_EXISTS(CAN_LED)
+    SET_OUTPUT(CAN_LED_PIN);
   #endif
 
   status = CAN_host_send_gcode_2params('M', 997, 0, 0, 0, 0); // M997, reset toolhead at host startup
@@ -849,4 +833,4 @@ void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan) { // ISR! Interrupt handler 
   HAL_CAN_error_code = hcan->ErrorCode; // Store the received error code
 }
 
-#endif // CAN_HOST && STM32F4xx 
+#endif // CAN_HOST && STM32F4xx
