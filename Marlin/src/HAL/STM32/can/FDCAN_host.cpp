@@ -600,7 +600,6 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* canHandle) { // Called by HAL_FDCAN_
 // Calculate the CAN sample timing, seg1 and seg2, sjw = 1 (no baudrate switching)
 // seg1 range: 2-256, seg2 range: 1-128, SJW = 1, so minimum is 4 clocks per bit
 int FDCAN_calculate_segments(uint32_t *seg1, uint32_t *seg2) {
-
   uint32_t CAN_clock =  HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_FDCAN);
 
   float clocks_per_bit = CAN_clock / CAN_BAUDRATE; // Clocks per bit must be a whole number
@@ -608,8 +607,8 @@ int FDCAN_calculate_segments(uint32_t *seg1, uint32_t *seg2) {
   if ((clocks_per_bit != int(clocks_per_bit)) || (clocks_per_bit < 4)) // Minimal 4 clocks per bit (1+2+1)
     return -1; // Baudrate is not possible
 
- *seg2 = (clocks_per_bit / 8) + 0.5;  // Preferred sample point at 87.5% (7/8)
- *seg1 = uint32_t(clocks_per_bit) - *seg2 - 1; // SJW = 1;
+  *seg2 = (clocks_per_bit / 8) + 0.5;  // Preferred sample point at 87.5% (7/8)
+  *seg1 = uint32_t(clocks_per_bit) - *seg2 - 1; // SJW = 1;
 
   return HAL_OK;
 }

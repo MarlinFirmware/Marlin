@@ -11,8 +11,13 @@ set -e
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_MKS_MONSTER8_V1 SERIAL_PORT -1
+opt_enable CAN_HOST
+exec_test $1 $2 "MKS Monster8 V1 with CAN bus (host)" "$3"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_MONSTER8_V2 SERIAL_PORT -1
 opt_enable CAN_HOST CAN_TOOLHEAD
-exec_test $1 $2 "MKS Monster8 V1 with CAN bus" "$3"
+exec_test $1 $2 "MKS Monster8 V2 with CAN bus (host and toolhead)" "$3"
 
 # cleanup
 restore_configs

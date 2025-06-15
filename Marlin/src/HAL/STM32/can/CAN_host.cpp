@@ -105,7 +105,6 @@ uint32_t CAN_host_get_iostate() {
 }
 
 uint32_t CAN_set_extended_id(int gcode_type, int gcode_no, int parameter1, int parameter2, int count) {
-
   CAN_host_FIFO_toggle_bit = !CAN_host_FIFO_toggle_bit;                                // FIFO toggle bit
 
   return (CAN_host_FIFO_toggle_bit ? EXTID_FIFO_TOGGLE_BIT : 0)                      | // FIFO toggle bit
@@ -114,12 +113,10 @@ uint32_t CAN_set_extended_id(int gcode_type, int gcode_no, int parameter1, int p
          ((gcode_no & CAN_ID_GCODE_NUMBER_MASK) << CAN_ID_GCODE_NUMBER_BIT_POS)      | // Gcode number
          ((parameter1 & CAN_ID_PARAMETER_LETTER_MASK) << CAN_ID_PARAMETER1_BIT_POS)  | // First parameter
          ((parameter2 & CAN_ID_PARAMETER_LETTER_MASK) << CAN_ID_PARAMETER2_BIT_POS);   // Second parameter
-
 }
 
 // Send time sync timestamp of arrival and response time
 void CAN_host_send_timestamp() { // Request receive timestamp + request response timestamp
-
   uint32_t TxMailbox;  // Stores which Mailbox (0-2) was used to store the sent message
 
   TxHeader.IDE   = CAN_ID_EXT;
@@ -139,7 +136,6 @@ void CAN_host_send_timestamp() { // Request receive timestamp + request response
   }
   else
     CAN_host_error_code |= CAN_ERROR_HOST_TX_MSG_DROPPED;
-
 }
 
 // Send specified Gcode with max 2 parameters and 2 values via CAN bus
@@ -211,8 +207,8 @@ HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcod
   return status;
 }
 
-void CAN_host_send_setup(const bool changeStatus/*=false*/) { // Send setup to toolhead
-
+// Send setup to toolhead
+void CAN_host_send_setup(const bool changeStatus/*=false*/) {
   // NOTE: Sending many command too fast will cause a Marlin command buffer overrun at the toolhead, add delays if needed
   CAN_toolhead_setup_request = false;
 
@@ -306,7 +302,8 @@ void CAN_host_send_setup(const bool changeStatus/*=false*/) { // Send setup to t
     CAN_host_send_gcode_2params('M', CAN_HOST_CONFIGURATION_COMPLETE, 0, 0, 0, 0);
 }
 
-void CAN_host_idle() { // Tasks that can/should not be done in the ISR
+// Tasks that can/should not be done in the ISR
+void CAN_host_idle() {
 
   if (CAN_time_sync_request) { // Send time sync timestamps
     CAN_time_sync_request = false;
@@ -345,25 +342,24 @@ void CAN_host_idle() { // Tasks that can/should not be done in the ISR
     CAN_next_error_message_time = millis() + CAN_HOST_ERROR_REPEAT_TIME;
   }
 
-  if (ELAPSED(millis(), CAN_next_temp_report_time)) {
+  if (PENDING(millis(), CAN_next_temp_report_time)) return;
 
-    CAN_next_temp_report_time = millis() + CAN_HOST_ERROR_REPEAT_TIME;
-    if (first_E0_error) {   // Send error notification
-      BUZZ(1, SOUND_ERROR); // Warn with sound
-      SERIAL_ECHOLNPGM("Error: No CAN E0 temp updates");
-    }
-    else // Send only error message
-      SERIAL_ECHOLNPGM(">>> CAN error: No E0 temp updates");
-
-    first_E0_error = false; // Warn only once
-
-    #if DISABLED(CAN_DEBUG) // Only kill if not debugging
-      kill(F("CAN error: No E0 tempeature updates"));
-    #endif
-
-    if (CAN_toolhead_setup_request) // The toolhead requested the setup configuration
-      CAN_host_send_setup(true);
+  CAN_next_temp_report_time = millis() + CAN_HOST_ERROR_REPEAT_TIME;
+  if (first_E0_error) {   // Send error notification
+    BUZZ(1, SOUND_ERROR); // Warn with sound
+    SERIAL_ECHOLNPGM("Error: No CAN E0 temp updates");
   }
+  else // Send only error message
+    SERIAL_ECHOLNPGM(">>> CAN error: No E0 temp updates");
+
+  first_E0_error = false; // Warn only once
+
+  #if DISABLED(CAN_DEBUG) // Only kill if not debugging
+    kill(F("CAN error: No E0 tempeature updates"));
+  #endif
+
+  if (CAN_toolhead_setup_request) // The toolhead requested the setup configuration
+    CAN_host_send_setup(true);
 }
 
 HAL_StatusTypeDef CAN_host_send_gcode() { // Forward a Marlin Gcode via CAN (uses parser.command_letter, Gcode_no, parser.value_float())
@@ -576,10 +572,10 @@ void gpio_clock_enable(GPIO_TypeDef *regs) {
 void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle) { // Called by HAL_CAN_Init
 
   if (canHandle->Instance == CAN1)
-      __HAL_RCC_CAN1_CLK_ENABLE();       // Enable CAN1 clock
+    __HAL_RCC_CAN1_CLK_ENABLE();       // Enable CAN1 clock
 
   if (canHandle->Instance == CAN2)
-      __HAL_RCC_CAN2_CLK_ENABLE();       // Enable CAN2 clock
+    __HAL_RCC_CAN2_CLK_ENABLE();       // Enable CAN2 clock
 
   // Use some macros to find the required setup info based on the provided CAN pins
   uint32_t _CAN_RD_pin = digitalPinToPinName(CAN_RD_PIN);
@@ -628,15 +624,15 @@ HAL_StatusTypeDef CAN_host_stop() {
 }
 
 int seg1_encode(uint32_t s) { // Ds must be between 1 and 16
-// Timing is encoded in 4 bits with an offset of 1
-// 4 bits:  CAN_BTR_TS1_3 : CAN_BTR_TS1_2 : CAN_BTR_TS1_1 : CAN_BTR_TS1_0
-    return (--s << CAN_BTR_TS1_Pos);
+  // Timing is encoded in 4 bits with an offset of 1
+  // 4 bits:  CAN_BTR_TS1_3 : CAN_BTR_TS1_2 : CAN_BTR_TS1_1 : CAN_BTR_TS1_0
+  return (--s << CAN_BTR_TS1_Pos);
 }
 
 int seg2_encode(uint32_t s) { // Must be between 1 and 8
-// Timing is encoded in 3 bits with an offset of 1
-// 3 bits:  CAN_BTR_TS2_2 : CAN_BTR_TS1_1 : CAN_BTR_TS1_0
-    return (--s << CAN_BTR_TS2_Pos);
+  // Timing is encoded in 3 bits with an offset of 1
+  // 3 bits:  CAN_BTR_TS2_2 : CAN_BTR_TS1_1 : CAN_BTR_TS1_0
+  return (--s << CAN_BTR_TS2_Pos);
 }
 
 // Calculate the CAN sample timing, seg1 and seg2, sjw = 1 (no baudrate switching)
@@ -680,11 +676,11 @@ HAL_StatusTypeDef CAN_host_start() {
   TxHeader.RTR                = CAN_RTR_DATA; // Data transmission type: CAN_RTR_DATA / CAN_RTR_REMOTE
   TxHeader.TransmitGlobalTime = DISABLE;      // Put timestamp in Data[6-7], requires Time Triggered Communication Mode
 
-uint32_t seg1, seg2, prescaler;
-if (CAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
-  SERIAL_ECHOLNPGM("Impossible CAN baudrate, check CAN clock and baudrate");
-  return HAL_ERROR;
-}
+  uint32_t seg1, seg2, prescaler;
+  if (CAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
+    SERIAL_ECHOLNPGM("Impossible CAN baudrate, check CAN clock and baudrate");
+    return HAL_ERROR;
+  }
 
   // CAN peripheral clock is 42MHz (168Mhz / 4)
   // CAN baud rate = clock frequency / clock divider / prescaler / (1 + TSG1 + TSG2)
@@ -766,7 +762,8 @@ if (CAN_calculate_segments(&seg1, &seg2, &prescaler) != HAL_OK) {
   return status;
 }// CAN_host_start()
 
-void CAN_host_read_message(CAN_HandleTypeDef *hcan, uint32_t RxFifo) { // ISR! FIFO 0/1 CAN message interrupt handler
+// ISR! FIFO 0/1 CAN message interrupt handler
+void CAN_host_read_message(CAN_HandleTypeDef *hcan, uint32_t RxFifo) {
 
   CAN_RxHeaderTypeDef RxHeader;
   uint8_t CAN_RX_buffer_FIFO[8]; // CAN message buffer
