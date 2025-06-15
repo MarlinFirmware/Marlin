@@ -25,7 +25,7 @@
 #if ENABLED(CAPABILITIES_REPORT)
 
 #include "../gcode.h"
-#include "../queue.h"           // for getting the command port
+#include "../queue.h" // For getting the command port
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
@@ -54,9 +54,11 @@
 #endif
 
 /**
- * M115: Capabilities string and extended capabilities report
- *       If a capability is not reported, hosts should assume
- *       the capability is not present.
+ * M115: Firmware Info
+ *
+ * Capabilities string and extended capabilities report.
+ * If a capability is not reported, hosts should assume
+ * the capability is not present.
  *
  * NOTE: Always make sure to add new capabilities to the RepRap Wiki
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol

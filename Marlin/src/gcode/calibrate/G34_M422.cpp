@@ -56,23 +56,24 @@
 #endif
 
 /**
- * G34: Z-Stepper automatic alignment
+ * G34: Z Steppers Auto-Alignment
  *
- * Manual stepper lock controls (reset by G28):
- *   L                 Unlock all steppers
- *   Z<1-4>            Z stepper to lock / unlock
- *   S<state>          0=UNLOCKED 1=LOCKED. If omitted, assume LOCKED.
+ * Parameters:
+ *   Manual stepper lock controls (reset by G28):
+ *     L        Unlock all steppers
+ *     Z<int>   Target specific Z stepper to lock/unlock (1-4)
+ *     S<bool>  Lock state; 0=UNLOCKED 1=LOCKED. If omitted, assume LOCKED
  *
- *   Examples:
- *     G34 Z1     ; Lock Z1
- *     G34 L Z2   ; Unlock all, then lock Z2
- *     G34 Z2 S0  ; Unlock Z2
+ *   With Z_STEPPER_AUTO_ALIGN:
+ *     I<int>    Number of test iterations. If omitted, Z_STEPPER_ALIGN_ITERATIONS. (1-30)
+ *     T<float>  Target Accuracy factor. If omitted, Z_STEPPER_ALIGN_ACC. (0.01-1.0)
+ *     A<float>  Provide an Amplification value. If omitted, Z_STEPPER_ALIGN_AMP. (0.5-2.0)
+ *     R         Recalculate points based on current probe offsets
  *
- * With Z_STEPPER_AUTO_ALIGN:
- *   I<iterations>     Number of tests. If omitted, Z_STEPPER_ALIGN_ITERATIONS.
- *   T<accuracy>       Target Accuracy factor. If omitted, Z_STEPPER_ALIGN_ACC.
- *   A<amplification>  Provide an Amplification value. If omitted, Z_STEPPER_ALIGN_AMP.
- *   R                 Flag to recalculate points based on current probe offsets
+ * Example:
+ *   G34 Z1    ; Lock Z1
+ *   G34 L Z2  ; Unlock all, then lock Z2
+ *   G34 Z2 S0 ; Unlock Z2
  */
 void GcodeSuite::G34() {
 

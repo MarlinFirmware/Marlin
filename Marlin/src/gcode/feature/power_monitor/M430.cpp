@@ -32,9 +32,9 @@
  * M430: Enable/disable current LCD display
  *       With no parameters report the system current draw (in Amps)
  *
- *  I[bool] - Set Display of current on the LCD
- *  V[bool] - Set Display of voltage on the LCD
- *  W[bool] - Set Display of power on the LCD
+ *  I<bool> - Set Display of current on the LCD
+ *  V<bool> - Set Display of voltage on the LCD
+ *  W<bool> - Set Display of power on the LCD
  */
 void GcodeSuite::M430() {
   bool do_report = true;

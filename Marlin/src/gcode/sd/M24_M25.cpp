@@ -49,6 +49,11 @@
 
 /**
  * M24: Start or Resume SD Print
+ *
+ * Parameters:
+ *   With POWER_LOSS_RECOVERY:
+ *     S<pos>   Position in file to resume from
+ *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
 
