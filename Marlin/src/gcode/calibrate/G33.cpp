@@ -377,12 +377,13 @@ static float auto_tune_a(const float dcr) {
  *
  *   O<bool>  Probe at probe-offset-relative positions instead of the required kinematic points
  *
- * With HAS_DELTA_SENSORLESS_PROBING:
- *   Use these flags to calibrate stall sensitivity: (e.g., `G33 P1 Y Z` to calibrate X only)
- *   X  Don't activate stallguard on X
- *   Y  Don't activate stallguard on Y
- *   Z  Don't activate stallguard on Z
- *   S  Save offset_sensorless_adj
+ *   With HAS_DELTA_SENSORLESS_PROBING:
+ *     Use these flags to calibrate stall sensitivity:
+ *     Example: G33 P1 Y Z - to calibrate X only
+ *     X  Don't activate stallguard on X
+ *     Y  Don't activate stallguard on Y
+ *     Z  Don't activate stallguard on Z
+ *     S  Save offset_sensorless_adj
  */
 void GcodeSuite::G33() {
 
