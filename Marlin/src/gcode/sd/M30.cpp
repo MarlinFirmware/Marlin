@@ -28,7 +28,7 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M30: Delete SD File
+ * M30: Delete Media File
  *
  * Parameters:
  *   <filename>  The filename of the file to delete

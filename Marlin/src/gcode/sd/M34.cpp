@@ -28,9 +28,9 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M34: SDCard Sorting
+ * M34: Media Sorting
  *
- * Set SD Card Sorting Options
+ * Set Media Sorting Options
  *
  * Parameters:
  *   S<inr>  Sorting Order:

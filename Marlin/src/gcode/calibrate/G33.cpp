@@ -93,7 +93,7 @@ void print_signed_float(FSTR_P const prefix, const_float_t f) {
 }
 
 /**
- * Print the delta settings
+ * - Print the delta settings
  */
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
   SERIAL_ECHOPGM(".Height:", delta_height);
@@ -119,7 +119,7 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
 }
 
 /**
- * Print the probe results
+ * - Print the probe results
  */
 static void print_calibration_results(const float z_pt[NPP + 1], const bool tower_points, const bool opposite_points) {
   SERIAL_ECHOPGM(".    ");
@@ -143,13 +143,13 @@ static void print_calibration_results(const float z_pt[NPP + 1], const bool towe
 }
 
 /**
- * Calculate the standard deviation from the zero plane
+ * - Calculate the standard deviation from the zero plane
  */
 static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool _1p_cal, const bool _4p_cal, const bool _4p_opp) {
   if (!_0p_cal) {
     float S2 = sq(z_pt[CEN]);
     int16_t N = 1;
-    if (!_1p_cal) { // std_dev from zero plane
+    if (!_1p_cal) { // std dev from zero plane
       LOOP_CAL_ACT(rad, _4p_cal, _4p_opp) {
         S2 += sq(z_pt[rad]);
         N++;
@@ -161,7 +161,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
 }
 
 /**
- * Probe a point
+ * - Probe a point
  */
 static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool probe_at_offset) {
   #if HAS_BED_PROBE
@@ -173,7 +173,7 @@ static float calibration_probe(const xy_pos_t &xy, const bool stow, const bool p
 }
 
 /**
- * Probe a grid
+ * - Probe a grid
  */
 static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_points, const float dcr, const bool towers_set, const bool stow_after_each, const bool probe_at_offset) {
   const bool _0p_calibration      = probe_points == 0,
@@ -315,7 +315,7 @@ static void calc_kinematics_diff_probe_points(float z_pt[NPP + 1], const float d
 
 static float auto_tune_h(const float dcr) {
   const float r_quot = dcr / delta_radius;
-  return RECIPROCAL(r_quot / (2.0f / 3.0f)); // (2/3)/CR
+  return RECIPROCAL(r_quot / (2.0f / 3.0f));  // (2/3)/CR
 }
 
 static float auto_tune_r(const float dcr) {

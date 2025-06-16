@@ -441,7 +441,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
-      points[0].z = points[1].z = points[2].z = 0; // Probe at 3 arbitrary points
+      points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
@@ -512,8 +512,8 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       if (!abl.dryrun && (abl.gridSpacing != bedlevel.grid_spacing || abl.probe_position_lf != bedlevel.grid_start)) {
-        reset_bed_level();     // Reset grid to 0.0 or "not probed". (Also disables ABL)
-        abl.reenable = false;  // Can't re-enable (on error) until the new grid is written
+        reset_bed_level();      // Reset grid to 0.0 or "not probed". (Also disables ABL)
+        abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
       // Pre-populate local Z values from the stored mesh
       TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
@@ -672,7 +672,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_USES_GRID
 
-      bool zig = PR_OUTER_SIZE & 1; // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      bool zig = PR_OUTER_SIZE & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
@@ -680,15 +680,15 @@ G29_TYPE GcodeSuite::G29() {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) {                     // Zig away from origin
-          inStart = 0;                 // Left or front
-          inStop = PR_INNER_SIZE;      // Right or back
-          inInc = 1;                   // Zig right
+        if (zig) {                      // Zig away from origin
+          inStart = 0;                  // Left or front
+          inStop = PR_INNER_SIZE;       // Right or back
+          inInc = 1;                    // Zig right
         }
-        else {                         // Zag towards origin
-          inStart = PR_INNER_SIZE - 1; // Right or back
-          inStop = -1;                 // Left or front
-          inInc = -1;                  // Zag left
+        else {                          // Zag towards origin
+          inStart = PR_INNER_SIZE - 1;  // Right or back
+          inStop = -1;                  // Left or front
+          inInc = -1;                   // Zag left
         }
 
         FLIP(zig); // zag
@@ -893,8 +893,8 @@ G29_TYPE GcodeSuite::G29() {
       struct { float a, b, d; } plane_equation_coefficients;
 
       finish_incremental_LSF(&lsf_results);
-      plane_equation_coefficients.a = -lsf_results.A; // We should be able to eliminate the '-' on these three lines and down below
-      plane_equation_coefficients.b = -lsf_results.B; // but that is not yet tested.
+      plane_equation_coefficients.a = -lsf_results.A;  // We should be able to eliminate the '-' on these three lines and down below
+      plane_equation_coefficients.b = -lsf_results.B;  // but that is not yet tested.
       plane_equation_coefficients.d = -lsf_results.D;
 
       abl.mean /= abl.abl_points;
@@ -911,7 +911,7 @@ G29_TYPE GcodeSuite::G29() {
       // Create the matrix but don't correct the position yet
       if (!abl.dryrun)
         planner.bed_level_matrix = matrix_3x3::create_look_at(
-          vector_3(-plane_equation_coefficients.a, -plane_equation_coefficients.b, 1) // We can eliminate the '-' here and up above
+          vector_3(-plane_equation_coefficients.a, -plane_equation_coefficients.b, 1)    // We can eliminate the '-' here and up above
         );
 
       // Show the Topography map if enabled
@@ -930,7 +930,7 @@ G29_TYPE GcodeSuite::G29() {
               if (get_min) NOMORE(min_diff, abl.eqnBVector[ind] - tmp.z);
               const float subval = get_min ? abl.mean : tmp.z + min_diff,
                             diff = abl.eqnBVector[ind] - subval;
-              SERIAL_CHAR(' '); if (diff >= 0.0) SERIAL_CHAR('+'); // Include + for column alignment
+              SERIAL_CHAR(' '); if (diff >= 0.0) SERIAL_CHAR('+');   // Include + for column alignment
               SERIAL_ECHO(p_float_t(diff, 5));
             } // xx
             SERIAL_EOL();

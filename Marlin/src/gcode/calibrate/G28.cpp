@@ -26,10 +26,10 @@
 
 #include "../../module/endstops.h"
 #include "../../module/planner.h"
-#include "../../module/stepper.h" // For various
+#include "../../module/stepper.h" // for various
 
 #if HAS_HOMING_CURRENT
-  #include "../../module/motion.h" // For set/restore_homing_current
+  #include "../../module/motion.h" // for set/restore_homing_current
 #endif
 
 #if HAS_MULTI_HOTEND
@@ -208,19 +208,20 @@
  *  None  Home all axes
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
- *  L<bool>    Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
- *  O          Home only if the position is not known and trusted
- *  R<linear>  Raise by n mm/inches before homing
- *  H          Hold the current X/Y position when executing a home Z, or if
- *             multiple axes are homed, the position when Z home is executed.
- *             When using a probe for Z Home, positions close to the edge may
- *             fail with position unreachable due to probe/nozzle offset.  This
- *             can be used to avoid a model.
+ *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
+ *  O         Home only if the position is not known and trusted
+ *  R<linear> Raise by n mm/inches before homing
+ *  H         Hold the current X/Y position when executing a home Z, or if
+ *            multiple axes are homed, the position when Z home is executed.
+ *            When using a probe for Z Home, positions close to the edge may
+ *            fail with position unreachable due to probe/nozzle offset.  This
+ *            can be used to avoid a model.
  *
- * With SCARA/Cartesian:
- *  X  Home to the X endstop
- *  Y  Home to the Y endstop
- *  Z  Home to the Z endstop
+ * Cartesian/SCARA parameters:
+ *
+ *  X   Home to the X endstop
+ *  Y   Home to the Y endstop
+ *  Z   Home to the Z endstop
  */
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));

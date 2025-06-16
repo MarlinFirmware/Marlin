@@ -128,7 +128,7 @@
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
- * M86  - Set/Get Hotend Idle Timeout. (Requires HOTEND_IDLE_TIMEOUT)
+ * M86  - Set / Report Hotend Idle Timeout. (Requires HOTEND_IDLE_TIMEOUT)
  * M87  - Cancel Hotend Idle Timeout (by setting the timeout period to 0). (Requires HOTEND_IDLE_TIMEOUT)
  * M92  - Set planner.settings.axis_steps_per_mm for one or more axes. (Requires EDITABLE_STEPS_PER_UNIT)
  *
@@ -145,11 +145,11 @@
  *        R<temp> Wait for extruder current temp to reach target temp. ** Wait for heating or cooling. **
  *        If AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
  *
- * M110 - Set/Get the current line number. (Used by host printing)
+ * M110 - Set / Report the current line number. (Used by host printing)
  * M111 - Set debug flags: 'M111 S<flagbits>'. See flag bits defined in enum.h.
  * M112 - Full Shutdown.
  *
- * M113 - Set/Get the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
+ * M113 - Set / Report the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
  * M115 - Report capabilities. (Requires CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
@@ -197,10 +197,10 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
- * M210 - Set/Get the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
+ * M210 - Set / Report the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
  * M217 - Set filament swap parameters: 'M217 S<length> P<feedrate> R<feedrate>'. (Requires SINGLENOZZLE)
- * M218 - Set/Get a tool offset: 'M218 T<index> X<offset> Y<offset>'. (Requires 2 or more extruders)
+ * M218 - Set / Report a tool offset: 'M218 T<index> X<offset> Y<offset>'. (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: 'M220 S<percent>' (i.e., "FR" on the LCD)
  *        Use 'M220 B' to back up the Feedrate Percentage and 'M220 R' to restore it. (Requires an MMU_MODEL version 2 or 2S)
  * M221 - Set Flow Percentage: 'M221 S<percent>' (Requires an extruder)
@@ -234,7 +234,7 @@
  * M401 - Deploy and activate Z probe. (Requires a probe)
  * M402 - Deactivate and stow Z probe. (Requires a probe)
  * M403 - Set filament type for PRUSA MMU2
- * M404 - Set/Get the Nominal Filament Width: 'W<diameter>'. (Requires FILAMENT_WIDTH_SENSOR)
+ * M404 - Set / Report the Nominal Filament Width: 'W<diameter>'. (Requires FILAMENT_WIDTH_SENSOR)
  * M405 - Enable Filament Sensor flow control. 'M405 D<delay_cm>'. (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
@@ -250,7 +250,7 @@
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
- * M493 - Set/Get input FT Motion/Shaping parameters. (Requires FT_MOTION)
+ * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -262,20 +262,20 @@
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/Disable SD card abort on endstop hit: 'M540 S<state>'. (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M550 - Set the machine name: 'M550 P<name>'. (Requires CONFIGURABLE_MACHINE_NAME)
- * M552 - Set/Get IP address. Enable/Disable network interface. (Requires enabled Ethernet port)
- * M553 - Set/Get IP netmask. (Requires enabled Ethernet port)
- * M554 - Set/Get IP gateway. (Requires enabled Ethernet port)
+ * M552 - Set / Report IP address. Enable/Disable network interface. (Requires enabled Ethernet port)
+ * M553 - Set / Report IP netmask. (Requires enabled Ethernet port)
+ * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
- * M592 - Set/Get Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
- * M593 - Set/Get input shaping parameters. (Requires INPUT_SHAPING_[XY])
+ * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
+ * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: 'M603 T<tool> U<unload_length> L<load_length>'. (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: 'M605 S<mode> [X<x_offset>] [R<temp_offset>]'. (Requires DUAL_X_CARRIAGE)
  * M665 - Set Delta configurations: 'M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim>' (Requires DELTA)
  *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires MORGAN_SCARA or MP_SCARA)
  *        Set Polargraph draw area and belt length: 'M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>'
- * M666 - Set/Get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
+ * M666 - Set / Report offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -303,13 +303,13 @@
  * M865 - Check position encoder module firmware version.
  * M866 - Report/Reset position encoder module error count.
  * M867 - Enable/Disable or toggle error correction for position encoder modules.
- * M868 - Set/Get position encoder module error correction threshold.
+ * M868 - Set / Report position encoder module error correction threshold.
  * M869 - Report position encoder module error.
  *
  * M871 - Print/Reset/Clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
- * M900 - Set/Get Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set/Get motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
+ * M900 - Set / Report Linear Advance K-factor. (Requires LIN_ADVANCE)
+ * M906 - Set / Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
@@ -318,7 +318,7 @@
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
- * M919 - Set/Get motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
+ * M919 - Set / Report motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
  *        If no parameters are given, report. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)

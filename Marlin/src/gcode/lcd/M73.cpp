@@ -31,7 +31,7 @@
 
 /**
  * M73: Set Print Progress
-
+ *
  * Set next interaction countdown, current print progress
  * percentage, and/or remaining time for display on the LCD.
  *

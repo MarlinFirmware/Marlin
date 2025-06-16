@@ -28,10 +28,10 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M26: Set SD Position
-
- * Set the next read position in the open SD file.
-
+ * M26: Set Media File current index
+ *
+ * Set the next read position for the open file.
+ *
  * Parameters:
  *   S<pos>  Next file read position to set
  */

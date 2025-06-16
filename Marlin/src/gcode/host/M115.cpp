@@ -25,7 +25,7 @@
 #if ENABLED(CAPABILITIES_REPORT)
 
 #include "../gcode.h"
-#include "../queue.h" // For getting the command port
+#include "../queue.h"           // for getting the command port
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"

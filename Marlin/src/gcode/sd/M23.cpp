@@ -29,9 +29,9 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M23: Select SD file
+ * M23: Select File
  *
- * Select an SD file for printing or processing.
+ * Select a file on mounted media for printing or processing.
  * Follow with M24 to run the selected file.
  *
  * Parameters:

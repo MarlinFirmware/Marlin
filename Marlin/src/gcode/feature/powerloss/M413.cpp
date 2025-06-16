@@ -40,7 +40,7 @@
  *            If omitted, report current state.
  *
  * With PLR_BED_THRESHOLD:
- *   B  Bed Temperature above which recovery will proceed without asking permission
+ *   B<temp>  Bed Temperature above which recovery will proceed without asking permission.
  */
 void GcodeSuite::M413() {
 
