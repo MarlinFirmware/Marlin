@@ -21,7 +21,7 @@ If the board contains a bootloader you'll need to find the application address. 
 
 If you're lucky, the bootloader may print the app start address on the serial output during boot. To check for this, use your favorite serial monitor to observe the serial output when you power on the board. Look for a message like "Jumping to 0xC000" or "GotoApp->addr=0xC000". This line would be printed before Marlin's "start" message.
 
-Example:
+**Example:**
 
 ```
 [...]

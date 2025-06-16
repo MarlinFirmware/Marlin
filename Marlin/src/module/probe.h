@@ -149,7 +149,7 @@ public:
        * Return whether the given position is within the bed, and whether the nozzle
        * can reach the position required to put the probe at the given position.
        *
-       * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
+       * EXAMPLE: For a probe offset of -10,+10, then for the probe to reach 0,0 the
        *          nozzle must be be able to reach +10,-10.
        */
       static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {

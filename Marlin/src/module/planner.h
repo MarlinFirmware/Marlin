@@ -965,7 +965,7 @@ class Planner {
      *
      * @brief Add a new linear movement to the buffer.
      * @details The target is cartesian. It's translated to
-     *          delta/scara if needed.
+     *          DELTA/SCARA if needed.
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)

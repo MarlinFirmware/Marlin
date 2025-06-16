@@ -401,7 +401,7 @@ void report_current_position_projected() {
         case Z_AXIS: MAP(_MAP_SAVE_SET, Z, Z2, Z3, Z4); break;
       }
 
-    #endif // kinematics
+    #endif // Kinematics
 
     switch (axis) {
       default: break;
@@ -556,7 +556,7 @@ void report_current_position_projected() {
         case Z_AXIS: MAP(_MAP_RESTORE, Z, Z2, Z3, Z4); break;
       }
 
-    #endif // kinematics
+    #endif // Kinematics
 
     switch (axis) {
       default: break;
@@ -713,7 +713,7 @@ void report_current_position_projected() {
     #endif
   }
 
-#endif // CARTESIAN
+#endif // IS_KINEMATIC / CARTESIAN
 
 void home_if_needed(const bool keeplev/*=false*/) {
   if (!all_axes_trusted()) gcode.home_all_axes(keeplev);
@@ -913,7 +913,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
   #endif
 
   #if IS_KINEMATIC && DISABLED(POLARGRAPH)
-    // kinematic machines are expected to home to a point 1.5x their range? never reachable.
+    // Kinematic machines are expected to home to a point 1.5x their range? never reachable.
     if (!position_is_reachable(x, y)) return;
     destination = current_position;          // sync destination at the start
   #endif
@@ -924,32 +924,32 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
 
     if (DEBUGGING(LEVELING)) DEBUG_POS("destination = current_position", destination);
 
-    // when in the danger zone
+    // When in the danger zone
     if (current_position.z > delta_clip_start_height) {
-      if (z > delta_clip_start_height) {                      // staying in the danger zone
-        destination.set(x, y, z);                             // move directly (uninterpolated)
-        prepare_internal_fast_move_to_destination();          // set current_position from destination
+      if (z > delta_clip_start_height) {                      // Staying in the danger zone
+        destination.set(x, y, z);                             // Move directly (uninterpolated)
+        prepare_internal_fast_move_to_destination();          // Set current_position from destination
         if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         return;
       }
       destination.z = delta_clip_start_height;
-      prepare_internal_fast_move_to_destination();            // set current_position from destination
+      prepare_internal_fast_move_to_destination();            // Set current_position from destination
       if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
     }
 
-    if (z > current_position.z) {                             // raising?
+    if (z > current_position.z) {                             // Raising?
       destination.z = z;
-      prepare_internal_fast_move_to_destination(z_feedrate);  // set current_position from destination
+      prepare_internal_fast_move_to_destination(z_feedrate);  // Set current_position from destination
       if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
     }
 
     destination.set(x, y);
-    prepare_internal_move_to_destination();                   // set current_position from destination
+    prepare_internal_move_to_destination();                   // Set current_position from destination
     if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
 
     if (z < current_position.z) {                             // lowering?
       destination.z = z;
-      prepare_internal_fast_move_to_destination(z_feedrate);  // set current_position from destination
+      prepare_internal_fast_move_to_destination(z_feedrate);  // Set current_position from destination
       if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
     }
 
@@ -1427,7 +1427,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
     next_idle_ms = ms + 200UL;
     return idle();
   }
-  thermalManager.task();  // Returns immediately on most calls
+  thermalManager.task(); // Returns immediately on most calls
 }
 
 /**
@@ -2261,7 +2261,7 @@ void prepare_line_to_destination() {
         const xyze_float_t cart_dist_mm{0};
       #endif
 
-      // Set delta/cartesian axes directly
+      // Set DELTA/Cartesian axes directly
       target[axis] = distance;                  // The move will be towards the endstop
       planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, active_extruder);
     #endif
