@@ -646,12 +646,12 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
 void TFT::draw_edit_screen_buttons(const bool mode_keypad/*=false*/) {
   #if ENABLED(TOUCH_SCREEN)
     #define BUTTON_ROW_Y (TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT)
-    drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,           BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK,       COLOR_WHITE, BTN_FILLED,  false, CALLBACK, intptr_t(switchKeypad));
+    drawSimpleBtn(mode_keypad ? "-/+" : "123", X_MARGIN,         BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_BLACK,       COLOR_WHITE, BTN_FILLED,  false, CALLBACK, intptr_t(switchKeypad));
     if (!mode_keypad) {
-      drawSimpleBtn("-", TFT_WIDTH / 2 - BTN_WIDTH - X_MARGIN / 2, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, DECREASE, intptr_t(stepSize));
-      drawSimpleBtn("+", TFT_WIDTH / 2 + X_MARGIN / 2,             BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, INCREASE, intptr_t(stepSize));
+      drawSimpleBtn("-", (TFT_WIDTH - X_MARGIN) / 2 - BTN_WIDTH, BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, DECREASE, intptr_t(stepSize));
+      drawSimpleBtn("+", (TFT_WIDTH + X_MARGIN) / 2,             BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_WHITE,       COLOR_WHITE, BTN_OUTLINE, false, INCREASE, intptr_t(stepSize));
     }
-    drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH,          BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED,  true,  BUTTON,   intptr_t(okClicked));
+    drawSimpleBtn("OK", TFT_WIDTH - X_MARGIN - BTN_WIDTH,        BUTTON_ROW_Y, BTN_WIDTH, BTN_HEIGHT, COLOR_VIVID_GREEN, COLOR_BLACK, BTN_FILLED,  true,  BUTTON,   intptr_t(okClicked));
   #endif
 }
 
