@@ -163,65 +163,65 @@ public:
  * Will fail if the printer has not been homed with G28.
  *
  * Parameters:
- *   O  Auto-level only if needed
+ *   O  Auto-level only if needed (Optional)
  *
- *   D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
- *      or alter the bed level data. Useful to check the topology
- *      after a first run of G29.
+ *   D<bool>  Dry-Run mode. Just evaluate the bed Topology -
+ *            Don't apply or alter the bed level data.
+ *            Useful to check the topology after a first run of G29.
  *
- *   J  Jettison current bed leveling data
+ *   J<bool>  Jettison current bed leveling data
  *
- *   V  Set the verbose level (0-4).
- *      Example: G29 V3
+ *   V<0-4>  Set the verbose level (0-4)
+ *           Example: G29 V3
  *
  *   With AUTO_BED_LEVELING_LINEAR:
- *     P  Set the size of the grid that will be probed (P x P points).
- *        Example: G29 P4
+ *     P<int>  Set the size of the grid that will be probed (P x P points)
+ *             Example: G29 P4
  *
- *     X  Set the X size of the grid that will be probed (X x Y points).
- *        Example: G29 X7 Y5
+ *     X<int>  Set the X size of the grid that will be probed (X x Y points)
+ *             Example: G29 X7 Y5
  *
- *     Y  Set the Y size of the grid that will be probed (X x Y points).
+ *     Y<int>  Set the Y size of the grid that will be probed (X x Y points)
  *
- *     T  Generate a Bed Topology Report.
+ *     T  Generate a Bed Topology Report
  *        Example: G29 P5 T - for a detailed report.
  *        This is useful for manual bed leveling and finding flaws in the bed
  *        (to assist with part placement).
  *        Not supported by non-linear delta printer bed leveling.
  *
  *   With AUTO_BED_LEVELING_LINEAR and AUTO_BED_LEVELING_BILINEAR:
- *     S  Set the XY travel speed between probe points (in units/min)
- *     H  Set bounds to a centered square H x H units in size
- *     -or-
- *     F  Set the Front limit of the probing grid
- *     B  Set the Back limit of the probing grid
- *     L  Set the Left limit of the probing grid
- *     R  Set the Right limit of the probing grid
+ *     S<rate>    Set the XY travel speed between probe points (in units/min)
+ *     H<linear>  Set bounds to a centered square H x H units in size
+ *       -or-
+ *     F<linear>  Set the Front limit of the probing grid
+ *     B<linear>  Set the Back limit of the probing grid
+ *     L<linear>  Set the Left limit of the probing grid
+ *     R<linear>  Set the Right limit of the probing grid
  *
  *   With AUTO_BED_LEVELING_BILINEAR:
- *     Z  Supply additional Z offset to all probe points.
- *     W  Write a mesh point. (If G29 is idle.)
- *       I  Index for mesh point
- *       J  Index for mesh point
- *       X  For mesh point, overrides I
- *       Y  For mesh point, overrides J
- *       Z  For mesh point. If omitted uses current position's raw Z.
+ *     Z<float>  Supply additional Z offset to all probe points.
+ *     W<bool>  Write a mesh point. (If G29 is idle.)
+ *       I<index>  Index for mesh point
+ *       J<index>  Index for mesh point
+ *       X<float>  For mesh point, overrides I
+ *       Y<float>  For mesh point, overrides J
+ *       Z<float>  For mesh point. If omitted, uses current position's raw Z
  *
  *   With DEBUG_LEVELING_FEATURE:
- *     C  Make a totally fake grid with no actual probing.
- *        For use in testing when no probing is possible.
+ *     C<bool>  Make a totally fake grid with no actual probing.
+ *              For use in testing when no probing is possible.
  *
  *   With PROBE_MANUALLY:
  *     To do manual probing simply repeat G29 until the procedure is complete.
  *     The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort.
  *
- *     Q  Query leveling and G29 state
- *     A  Abort current leveling procedure
+ *     Q<bool>  Query leveling and G29 state
+ *     A<bool>  Abort current leveling procedure
  *
  *   Without PROBE_MANUALLY:
- *     E  By default G29 will engage the Z probe, test the bed, then disengage.
- *        Include "E" to engage/disengage the Z probe for each sample.
- *        There's no extra effect if you have a fixed Z probe.
+ *     E<bool>  By default G29 will engage the Z probe, test the bed, then disengage
+ *              Include "E" to engage/disengage the Z probe for each sample.
+ *              There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
 
