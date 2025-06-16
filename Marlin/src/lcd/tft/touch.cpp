@@ -107,7 +107,7 @@ void Touch::idle() {
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(now, touch_time, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
@@ -154,25 +154,45 @@ void Touch::idle() {
 
 void Touch::touch(touch_control_t *control) {
   switch (control->type) {
+
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case CALIBRATE:
         if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
     #endif
 
-    case MENU_SCREEN: ui.goto_screen(screenFunc_t(control->data)); break;
-    case BACK: ui.goto_previous_screen(); break;
+    case MENU_SCREEN:
+      ui.goto_screen(screenFunc_t(control->data));
+      break;
+
+    case BACK:
+      ui.goto_previous_screen();
+      break;
+
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
+      // fall-thru
+    case CLICK:
       ui.lcd_clicked = true;
       break;
-    case CLICK: ui.lcd_clicked = true; break;
+
     #if HAS_RESUME_CONTINUE
       case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
-    case CANCEL:  ui.encoderPosition = 0; ui.selection = false; ui.lcd_clicked = true; break;
-    case CONFIRM: ui.encoderPosition = 1; ui.selection = true; ui.lcd_clicked = true; break;
+
+    case CANCEL:
+      ui.encoderPosition = 0;
+      ui.selection = false;
+      ui.lcd_clicked = true;
+      break;
+    case CONFIRM:
+      ui.encoderPosition = 1;
+      ui.selection = true;
+      ui.lcd_clicked = true;
+      break;
+
     case MENU_ITEM: ui.encoderPosition = control->data; ui.refresh(); break;
+
     case PAGE_UP:
       encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
@@ -183,52 +203,69 @@ void Touch::touch(touch_control_t *control) {
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < uint32_t(screen_items) ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
-    case SLIDER:    hold(control); ui.encoderPosition = (x - control->x) * control->data / control->width; break;
+
+    case SLIDER:
+      hold(control);
+      ui.encoderPosition = (x - control->x) * control->data / control->width;
+      break;
+
     case INCREASE:
     case DECREASE: {
-      int32_t step = control->type == INCREASE ? 1 : -1;
+      const int32_t step = control->type == INCREASE ? 1 : -1;
       if (control->data != 0) step *= control->data;
-      hold(control, repeat_delay - 5); TERN(AUTO_BED_LEVELING_UBL, ui.external_control ? bedlevel.encoder_diff+=step : ui.encoderPosition+=step, ui.encoderPosition+=step);
-      break;
-    }
-    case HEATER:
-      int8_t heater;
-      heater = control->data;
-      ui.clear_for_drawing();
-      #if HAS_HOTEND
-        if (heater >= 0) { // HotEnd
-          #if HOTENDS == 1
-            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE), &thermalManager.temp_hotend[0].target, 0, thermalManager.hotend_max_target(0), []{ thermalManager.start_watching_hotend(0); });
-          #else
-            MenuItemBase::itemIndex = heater;
-            MenuItem_int3::action(GET_TEXT_F(MSG_NOZZLE_N), &thermalManager.temp_hotend[heater].target, 0, thermalManager.hotend_max_target(heater), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
-          #endif
-        }
+      hold(control, repeat_delay - 5);
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        ui.external_control ? bedlevel.encoder_diff += step : ui.encoderPosition += step
+      #else
+        ui.encoderPosition += step;
       #endif
-      #if HAS_HEATED_BED
-        else if (heater == H_BED) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
-        }
-      #endif
-      #if HAS_HEATED_CHAMBER
-        else if (heater == H_CHAMBER) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAX_TARGET, thermalManager.start_watching_chamber);
-        }
-      #endif
-      #if HAS_COOLER
-        else if (heater == H_COOLER) {
-          MenuItem_int3::action(GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
-        }
-      #endif
+    } break;
 
-      break;
-    case FAN:
+    case HEATER: {
+      const int8_t heater = control->data;
+      ui.clear_for_drawing();
+      switch (heater) {
+        default: // Hotend
+          #if HAS_HOTEND
+            #define HOTEND_HEATER(N) TERN0(HAS_MULTI_HOTEND, N)
+            TERN_(HAS_MULTI_HOTEND, MenuItemBase::itemIndex = heater);
+            MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_NOZZLE_N, MSG_NOZZLE)),
+              &thermalManager.temp_hotend[HOTEND_HEATER(heater)].target, 0, thermalManager.hotend_max_target(HOTEND_HEATER(heater)),
+              []{ thermalManager.start_watching_hotend(HOTEND_HEATER(MenuItemBase::itemIndex)); }
+            );
+          #endif
+          break;
+
+        #if HAS_HEATED_BED
+          case H_BED:
+            MenuItem_int3::action(GET_TEXT_F(MSG_BED), &thermalManager.temp_bed.target, 0, BED_MAX_TARGET, thermalManager.start_watching_bed);
+            break;
+        #endif
+
+        #if HAS_HEATED_CHAMBER
+          case H_CHAMBER:
+            MenuItem_int3::action(GET_TEXT_F(MSG_CHAMBER), &thermalManager.temp_chamber.target, 0, CHAMBER_MAX_TARGET, thermalManager.start_watching_chamber);
+           break;
+        #endif
+
+        #if HAS_COOLER
+          case H_COOLER:
+            MenuItem_int3::action(GET_TEXT_F(MSG_COOLER), &thermalManager.temp_cooler.target, 0, COOLER_MAX_TARGET, thermalManager.start_watching_cooler);
+           break;
+        #endif
+
+      } // switch
+
+    } break;
+
+    case FAN: {
       ui.clear_for_drawing();
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
       MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
-      break;
+    } break;
+
     case FEEDRATE:
       ui.clear_for_drawing();
       MenuItem_int3::action(GET_TEXT_F(MSG_SPEED), &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
@@ -238,11 +275,10 @@ void Touch::touch(touch_control_t *control) {
       case FLOWRATE:
         ui.clear_for_drawing();
         MenuItemBase::itemIndex = control->data;
-        #if EXTRUDERS == 1
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #else
-          MenuItem_int3::action(GET_TEXT_F(MSG_FLOW_N), &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
-        #endif
+        MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_EXTRUDER, MSG_FLOW_N, MSG_FLOW)),
+          &planner.flow_percentage[MenuItemBase::itemIndex], FLOW_EDIT_MIN, FLOW_EDIT_MAX,
+          []{ planner.refresh_e_factor(MenuItemBase::itemIndex); }
+        );
         break;
     #endif
 

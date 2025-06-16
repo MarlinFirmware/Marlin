@@ -41,6 +41,10 @@ inline void idle_no_sleep() { idle(true); }
 void kill(FSTR_P const lcd_error=nullptr, FSTR_P const lcd_component=nullptr, const bool steppers_off=false);
 void minkill(const bool steppers_off=false);
 
+#if ENABLED(CONFIGURABLE_MACHINE_NAME)
+  extern MString<64> machine_name;
+#endif
+
 // Global State of the firmware
 enum class MarlinState : uint8_t {
   MF_INITIALIZING = 0,

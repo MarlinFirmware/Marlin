@@ -129,6 +129,7 @@
 
 // Name displayed in the LCD "Ready" message and Info menu
 //#define CUSTOM_MACHINE_NAME "3D Printer"
+//#define CONFIGURABLE_MACHINE_NAME // Add G-code M550 to set/report the machine name
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -147,9 +148,9 @@
  * Options: A4988, A5984, DRV8825, LV8729, TB6560, TB6600, TMC2100,
  *          TMC2130, TMC2130_STANDALONE, TMC2160, TMC2160_STANDALONE,
  *          TMC2208, TMC2208_STANDALONE, TMC2209, TMC2209_STANDALONE,
- *          TMC2660, TMC2660_STANDALONE, TMC5130, TMC5130_STANDALONE,
- *          TMC5160, TMC5160_STANDALONE
- * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
+ *          TMC2240, TMC2660, TMC2660_STANDALONE,
+ *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
+ * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC2240', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 #define X_DRIVER_TYPE  A4988
 #define Y_DRIVER_TYPE  A4988
@@ -259,6 +260,7 @@
   #define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 }   // A pair of angles for { E0, E1 }.
                                                     // For Dual Servo use two pairs: { { lower, raise }, { lower, raise } }
   #define SWITCHING_NOZZLE_SERVO_DWELL 2500         // Dwell time to wait for servo to make physical move
+  #define SWITCHING_NOZZLE_LIFT_TO_PROBE            // Lift toolheads out of the way while probing
 #endif
 
 // Switch nozzles by bumping the toolhead. Requires EVENT_GCODE_TOOLCHANGE_#.
@@ -695,8 +697,9 @@
 #define PID_K1     0.95   // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
-  //#define MIN_POWER 0
-  //#define PID_DEBUG             // Print PID debug data to the serial port. Use 'M303 D' to toggle activation.
+  //#define MIN_POWER 0           // Min power to improve PID stability (0..PID_MAX).
+                                  // Get the power from the temperature report ('M105' => @:nnn) and try P*2-20 to P*2-10.
+  //#define PID_DEBUG             // Print PID debug data to the serial port. Use 'M303 D' to enable/disable.
   //#define PID_PARAMS_PER_HOTEND // Use separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with G-code: M301 E[extruder number, 0-2]
 
@@ -732,7 +735,12 @@
   //#define MPC_AUTOTUNE_MENU                         // Add MPC auto-tuning to the "Advanced Settings" menu. (~350 bytes of flash)
 
   #define MPC_MAX 255                                 // (0..255) Current to nozzle while MPC is active.
-  #define MPC_HEATER_POWER { 40.0f }                  // (W) Heat cartridge powers.
+  #define MPC_HEATER_POWER { 40.0f }                  // (W) Nominal heat cartridge powers.
+  //#define MPC_PTC                                   // Hotend power changes with temperature (e.g., PTC heat cartridges).
+  #if ENABLED(MPC_PTC)
+    #define MPC_HEATER_ALPHA { 0.0028f }              // Temperature coefficient of resistance of the heat cartridges.
+    #define MPC_HEATER_REFTEMP { 20 }                 // (°C) Reference temperature for MPC_HEATER_POWER and MPC_HEATER_ALPHA.
+  #endif
 
   #define MPC_INCLUDE_FAN                             // Model the fan speed?
 
@@ -764,6 +772,7 @@
 
   #define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // (mm) M306 Autotuning position, ideally bed center at first layer height.
   #define MPC_TUNING_END_Z 10.0f                      // (mm) M306 Autotuning final Z position.
+  //#define EVENT_GCODE_AFTER_MPC_TUNE "M84"          // G-code to execute after MPC tune finished and Z raised.
 #endif
 
 //===========================================================================
@@ -795,13 +804,14 @@
 //#define PIDTEMPBED
 
 #if ENABLED(PIDTEMPBED)
-  //#define MIN_BED_POWER 0
-  //#define PID_BED_DEBUG // Print Bed PID debug data to the serial port.
+  //#define MIN_BED_POWER 0   // Min power to improve PID stability (0..MAX_BED_POWER).
+                              // Get the power from the temperature report ('M105' => B@:nnn) and try P*2-20 to P*2-10.
+  //#define PID_BED_DEBUG     // Print Bed PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp 10.00
-  #define DEFAULT_bedKi .023
+  #define DEFAULT_bedKp  10.00
+  #define DEFAULT_bedKi   0.023
   #define DEFAULT_bedKd 305.4
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
@@ -877,12 +887,12 @@
 #define MAX_CHAMBER_POWER 255 // limits duty cycle to chamber heater; 255=full current
 
 #if ENABLED(PIDTEMPCHAMBER)
-  #define MIN_CHAMBER_POWER 0
-  //#define PID_CHAMBER_DEBUG // Print Chamber PID debug data to the serial port.
+  //#define MIN_CHAMBER_POWER 0 // Min power to improve PID stability. (0..MAX_CHAMBER_POWER)
+                                // Get the power from the temperature report ('M105' => C@:nnn) and try P*2-20 to P*2-10.
+  //#define PID_CHAMBER_DEBUG   // Print Chamber PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
   // Lasko "MyHeat Personal Heater" (200w) modified with a Fotek SSR-10DA to control only the heating element
   // and placed inside the small Creality printer enclosure tent.
-  //
   #define DEFAULT_chamberKp  37.04
   #define DEFAULT_chamberKi   1.40
   #define DEFAULT_chamberKd 655.17
@@ -896,7 +906,7 @@
 #if ANY(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
   //#define PID_OPENLOOP          // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS      // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
-  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+  #define PID_FUNCTIONAL_RANGE 20 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   //#define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of flash)
@@ -1023,9 +1033,6 @@
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define PRINTABLE_RADIUS       140.0    // (mm)
-
-  // Maximum reachable area
-  #define DELTA_MAX_RADIUS       140.0    // (mm)
 
   // Center-to-center distance of the holes in the diagonal push rods.
   #define DELTA_DIAGONAL_ROD 250.0        // (mm)
@@ -1539,6 +1546,20 @@
   #define PROBE_DEPLOY_FEEDRATE (133*60)  // (mm/min) Probe deploy speed
   #define PROBE_STOW_FEEDRATE   (133*60)  // (mm/min) Probe stow speed
 
+  /**
+   * Magnetically Mounted Probe with a Servo mechanism
+   * Probe Deploy and Stow both follow the same basic sequence:
+   *  - Rotate the SERVO to its Deployed angle
+   *  - Perform XYZ moves to deploy or stow the PROBE
+   *  - Rotate the SERVO to its Stowed angle
+   */
+  //#define MAG_MOUNTED_PROBE_SERVO_NR 0             // Servo Number for this probe
+  #ifdef MAG_MOUNTED_PROBE_SERVO_NR
+    #define MAG_MOUNTED_PROBE_SERVO_ANGLES { 90, 0 } // Servo Angles for Deployed, Stowed
+    #define MAG_MOUNTED_PRE_DEPLOY { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }  // Safe position for servo activation
+    #define MAG_MOUNTED_PRE_STOW   { PROBE_DEPLOY_FEEDRATE, { 15, 160, 30 } }  // Safe position for servo deactivation
+  #endif
+
   #define MAG_MOUNTED_DEPLOY_1 { PROBE_DEPLOY_FEEDRATE, { 245, 114, 30 } }  // Move to side Dock & Attach probe
   #define MAG_MOUNTED_DEPLOY_2 { PROBE_DEPLOY_FEEDRATE, { 210, 114, 30 } }  // Move probe off dock
   #define MAG_MOUNTED_DEPLOY_3 { PROBE_DEPLOY_FEEDRATE, {   0,   0,  0 } }  // Extra move if needed
@@ -2022,8 +2043,11 @@
     //#define FILAMENT_MOTION_SENSOR
 
     #if ENABLED(FILAMENT_MOTION_SENSOR)
-      //#define FILAMENT_SWITCH_AND_MOTION
+      //#define FILAMENT_SWITCH_AND_MOTION      // Define separate pins below to sense motion
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+
+        #define FILAMENT_MOTION_DISTANCE_MM 3.0 // (mm) Missing distance required to trigger runout
+
         #define NUM_MOTION_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_MOTION#_PIN for each.
         //#define FIL_MOTION1_PIN    -1
 
@@ -2059,7 +2083,7 @@
         //#define FIL_MOTION8_STATE LOW
         //#define FIL_MOTION8_PULLUP
         //#define FIL_MOTION8_PULLDOWN
-      #endif
+      #endif // FILAMENT_SWITCH_AND_MOTION
     #endif // FILAMENT_MOTION_SENSOR
   #endif // FILAMENT_RUNOUT_DISTANCE_MM
 #endif // FILAMENT_RUNOUT_SENSOR
@@ -2262,7 +2286,7 @@
   //===========================================================================
 
   #define MESH_INSET 10          // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 3    // Don't use more than 7 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -2898,13 +2922,15 @@
 //
 //#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
 
-//
-// ANET and Tronxy 20x4 Controller
-//
-//#define ZONESTAR_LCD            // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
-                                  // This LCD is known to be susceptible to electrical interference
-                                  // which scrambles the display.  Pressing any button clears it up.
-                                  // This is a LCD2004 display with 5 analog buttons.
+/**
+ * ANET and Tronxy 20x4 Controller
+ * LCD2004 display with 5 analog buttons.
+ *
+ * NOTE: Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
+ * This LCD is known to be susceptible to electrical interference which
+ * scrambles the display. Press any button to clear it up.
+ */
+//#define ZONESTAR_LCD
 
 //
 // Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
@@ -3266,7 +3292,7 @@
 #endif
 
 //
-// Touch-screen LCD for Malyan M200/M300 printers
+// LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
 
@@ -3541,22 +3567,26 @@
 // :[1,2,3,4,5,6,7,8]
 //#define NUM_M106_FANS 1
 
-// Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
-// which is not as annoying as with the hardware PWM. On the other hand, if this frequency
-// is too low, you should also increment SOFT_PWM_SCALE.
+/**
+ * Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
+ * which is not as annoying as with the hardware PWM. On the other hand, if this frequency
+ * is too low, you should also increment SOFT_PWM_SCALE.
+ */
 //#define FAN_SOFT_PWM
 
-// Incrementing this by 1 will double the software PWM frequency,
-// affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
-// However, control resolution will be halved for each increment;
-// at zero value, there are 128 effective control positions.
-// :[0,1,2,3,4,5,6,7]
+/**
+ * Incrementing this by 1 will double the software PWM frequency, affecting heaters, and
+ * the fan if FAN_SOFT_PWM is enabled. However, control resolution will be halved for each
+ * increment; at zero value, there are 128 effective control positions.
+ * :[0,1,2,3,4,5,6,7]
+ */
 #define SOFT_PWM_SCALE 0
 
-// If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
-// be used to mitigate the associated resolution loss. If enabled,
-// some of the PWM cycles are stretched so on average the desired
-// duty cycle is attained.
+/**
+ * If SOFT_PWM_SCALE is set to a value higher than 0, dithering can be used to mitigate the
+ * associated resolution loss. If enabled, some of the PWM cycles are stretched so on average
+ * the desired duty cycle is attained.
+ */
 //#define SOFT_PWM_DITHER
 
 // @section extras
@@ -3566,9 +3596,11 @@
 
 // @section lights
 
-// Temperature status LEDs that display the hotend and bed temperature.
-// If all hotends, bed temperature, and target temperature are under 54C
-// then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
+/**
+ * Temperature status LEDs that display the hotend and bed temperature.
+ * If all hotends, bed temperature, and target temperature are under 54C
+ * the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
+ */
 //#define TEMP_STAT_LEDS
 
 // Support for BlinkM/CyzRgb

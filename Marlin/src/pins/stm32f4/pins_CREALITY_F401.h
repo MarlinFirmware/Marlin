@@ -47,6 +47,8 @@
 // 32Mb FLASH
 //#define SPI_FLASH_CS      ?
 
+#define BOARD_LCD_SERIAL_PORT 2
+
 //
 // Servos
 //
