@@ -260,31 +260,32 @@ inline void servo_probe_test() {
 } // servo_probe_test
 
 /**
- * M43: Pin debug - report pin state, watch pins, toggle pins and servo probe test/report
+ * M43: Debug Pins
  *
- *  M43         - report name and state of pin(s)
- *                  P<pin>  Pin to read or watch. If omitted, reads all pins.
- *                  I       Flag to ignore Marlin's pin protection.
+ * Pin debug - report pin state, watch pins, toggle pins and servo probe test/report.
  *
- *  M43 W       - Watch pins -reporting changes- until reset, click, or M108.
- *                  P<pin>  Pin to read or watch. If omitted, read/watch all pins.
- *                  I       Flag to ignore Marlin's pin protection.
+ * Parameters:
+ *   None     Report name and state of pin(s)
+ *   P<pin>   Pin to read or watch. If omitted, read/watcb all pins
+ *   I        Ignore protection when reporting values
  *
- *  M43 E<bool> - Enable / disable background endstop monitoring
- *                  - Machine continues to operate
- *                  - Reports changes to endstops
- *                  - Toggles LED_PIN when an endstop changes
- *                  - Cannot reliably catch the 5mS pulse from BLTouch type probes
+ *   W        Watch pins -reporting changes- until reset, click, or M108
  *
- *  M43 T       - Toggle pin(s) and report which pin is being toggled
- *                  S<pin>  - Start Pin number.   If not given, will default to 0
- *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
- *                  I<bool> - Flag to ignore Marlin's pin protection.   Use with caution!!!!
- *                  R       - Repeat pulses on each pin this number of times before continuing to next pin
- *                  W       - Wait time (in milliseconds) between pulses.  If not given will default to 500
+ *   E<bool>  Enable / disable background endstop monitoring
+ *              - Machine continues to operate
+ *              - Reports changes to endstops
+ *              - Toggles LED_PIN when an endstop changes
+ *              - Cannot reliably catch the 5mS pulse from BLTouch type probes
  *
- *  M43 S       - Servo probe test
- *                  P<index> - Probe index (optional - defaults to 0
+ *   T        Toggle pin(s) and report which pin is being toggled
+ *              I<bool>   Flag to ignore Marlin's pin protection. Use with caution!!!!
+ *              L<pin>    End Pin number. If not given, will default to last pin defined for this board
+ *              R<count>  Repeat pulses on each pin this number of times before continuing to next pin
+ *              S<pin>    Start Pin number. If not given, will default to 0
+ *              W<time>   Wait time (in milliseconds) between pulses.If not given will default to 500
+ *
+ *   S        Servo probe test
+ *              P<index>  Probe index (optional - defaults to 0
  */
 void GcodeSuite::M43() {
 

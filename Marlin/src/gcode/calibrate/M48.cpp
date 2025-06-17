@@ -40,20 +40,23 @@
 #endif
 
 /**
- * M48: Z probe repeatability measurement function.
+ * M48: Probe Repeatability Test
+ *
+ * Z probe repeatability measurement function.
+ * This function requires the machine to be homed before invocation.
  *
  * Usage:
- *   M48 <P#> <X#> <Y#> <V#> <E> <L#> <S> <C#>
- *     P = Number of sampled points (4-50, default 10)
- *     X = Sample X position
- *     Y = Sample Y position
- *     V = Verbose level (0-4, default=1)
- *     E = Engage Z probe for each reading
- *     L = Number of legs of movement before probe
- *     S = Schizoid (Or Star if you prefer)
- *     C = Enable probe temperature compensation (0 or 1, default 1)
+ *   M48 [ C | E | L | P | S | V | X | Y ]
  *
- * This function requires the machine to be homed before invocation.
+ * Parameters:
+ *     P<count>   Number of sampled points (4-50, default 10)
+ *     X<pos>     Sample X position
+ *     Y<pos>     Sample Y position
+ *     V<level>   Verbose level (0-4, default=1)
+ *     E<engage>  Engage Z probe for each reading
+ *     L<legs>    Number of legs of movement before probe
+ *     S<0|1>     Schizoid (Or Star if you prefer)
+ *     C<bool>    Enable probe temperature compensation (0 or 1, default 1)
  */
 
 void GcodeSuite::M48() {

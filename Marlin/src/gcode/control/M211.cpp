@@ -28,9 +28,14 @@
 #include "../../module/motion.h"
 
 /**
- * M211: Enable, Disable, and/or Report software endstops
+ * M211: Software Endstops
  *
- * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
+ * Optionally enable/disable software endstops,
+ * then report the current state.
+ *
+ * Parameters:
+ *   None     Report software endstops state
+ *   S<bool>  Software endstops state (1=ENABLE | 0=DISABLE)
  */
 void GcodeSuite::M211() {
   if (parser.seen('S'))

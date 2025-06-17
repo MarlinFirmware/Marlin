@@ -30,18 +30,20 @@
 #include "../gcode.h"
 
 /**
- * M425: Enable and tune backlash correction.
+ * M425: Backlash Compensation
  *
- *   F<fraction>     Enable/disable/fade-out backlash correction (0.0 to 1.0)
- *   S<smoothing_mm> Distance over which backlash correction is spread
- *   X<distance_mm>  Set the backlash distance on X (0 to disable)
- *   Y<distance_mm>                        ... on Y
- *   Z<distance_mm>                        ... on Z
- *   X               If a backlash measurement was done on X, copy that value
- *   Y                                              ... on Y
- *   Z                                              ... on Z
+ * Enable and tune backlash correction.
  *
- * Type M425 without any arguments to show active values.
+ * Parameters:
+ *   None        Report current backlash correction configuration
+ *   F<value>   Enable/disable/fade-out backlash correction (0.0 to 1.0)
+ *   S<linear>  Distance over which backlash correction is spread
+ *   X<linear>  Set the backlash distance on X (0 to disable)
+ *   Y<linear>  ... on Y
+ *   Z<linear>  ... on Z
+ *   X          If a backlash measurement was done on X, copy that value
+ *   Y          ... on Y
+ *   Z          ... on Z
  */
 void GcodeSuite::M425() {
   bool noArgs = true;

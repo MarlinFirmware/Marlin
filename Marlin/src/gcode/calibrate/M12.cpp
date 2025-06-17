@@ -28,6 +28,13 @@
 #include "../../module/planner.h"
 #include "../../feature/closedloop.h"
 
+/**
+ * M12: Synchronize and optionally force a CLC set
+
+ * Parameters:
+ *   None    Synchronize planner
+ *   S<int>  Force a CLC set
+ */
 void GcodeSuite::M12() {
 
   planner.synchronize();

@@ -458,20 +458,25 @@ void GcodeSuite::G34() {
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 
 /**
- * M422: Set a Z-Stepper automatic alignment XY point.
- *       Use repeatedly to set multiple points.
+ * M422: Set Z Motor XY
  *
- *   S<index> : Index of the probe point to set
+ * Set a Z-Stepper automatic alignment XY point.
+ * Use repeatedly to set multiple points.
  *
- * With Z_STEPPER_ALIGN_STEPPER_XY:
- *   W<index> : Index of the Z stepper position to set
- *              The W and S parameters may not be combined.
+ * Parameters:
+ *   R         Reset alignment and known points to the defaults
+ *             Recalculate points based on current probe offsets
+ *             This will also be done by M502.
+ *   S<index>  Index of the probe point to set
  *
- * S and W require an X and/or Y parameter
- *   X<pos>   : X position to set (Unchanged if omitted)
- *   Y<pos>   : Y position to set (Unchanged if omitted)
+ *   With Z_STEPPER_ALIGN_STEPPER_XY:
+ *     W<index>  Index of the Z stepper position to set
+ *               The W and S parameters may not be combined.
  *
- * R : Recalculate points based on current probe offsets
+ *   S and W require an X and/or Y parameter:
+ *     X<pos>   X position (Unchanged if omitted)
+ *     Y<pos>   Y position (Unchanged if omitted)
+ *
  */
 void GcodeSuite::M422() {
 

@@ -39,11 +39,11 @@
  * M421: Set a single Mesh Bed Leveling Z coordinate
  *
  * Usage:
- *   M421 I<xindex> J<yindex> Z<linear>  : Set the Mesh Point IJ to the Z value
- *   M421 I<xindex> J<yindex> Q<offset>  : Add the Q value to the Mesh Point IJ
- *   M421 I<xindex> J<yindex> N          : Set the Mesh Point IJ to NAN (not set)
- *   M421 C Z<linear>                    : Set the closest Mesh Point to the Z value
- *   M421 C Q<offset>                    : Add the Q value to the closest Mesh Point
+ *   M421 I<xindex> J<yindex> Z<linear>  Set the Mesh Point IJ to the Z value
+ *   M421 I<xindex> J<yindex> Q<offset>  Add the Q value to the Mesh Point IJ
+ *   M421 I<xindex> J<yindex> N          Set the Mesh Point IJ to NAN (not set)
+ *   M421 C Z<linear>                    Set the closest Mesh Point to the Z value
+ *   M421 C Q<offset>                    Add the Q value to the closest Mesh Point
  */
 void GcodeSuite::M421() {
   xy_int8_t ij = { int8_t(parser.intval('I', -1)), int8_t(parser.intval('J', -1)) };

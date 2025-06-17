@@ -32,18 +32,21 @@
   #include "../../module/delta.h"
 
   /**
-   * M665: Set delta configurations
+   * M665: Delta Configuration
    *
-   *    H = delta height
-   *    L = diagonal rod
-   *    R = delta radius
-   *    S = segments per second
-   *    X = Alpha (Tower 1) angle trim
-   *    Y = Beta  (Tower 2) angle trim
-   *    Z = Gamma (Tower 3) angle trim
-   *    A = Alpha (Tower 1) diagonal rod trim
-   *    B = Beta  (Tower 2) diagonal rod trim
-   *    C = Gamma (Tower 3) diagonal rod trim
+   * Configure Delta geometry values.
+   *
+   * Parameters:
+   *   H  Delta height
+   *   L  Diagonal rod
+   *   R  Delta radius
+   *   S  Segments per second
+   *   X  Alpha (Tower 1) angle trim
+   *   Y  Beta  (Tower 2) angle trim
+   *   Z  Gamma (Tower 3) angle trim
+   *   A  Alpha (Tower 1) diagonal rod trim
+   *   B  Beta  (Tower 2) diagonal rod trim
+   *   C  Gamma (Tower 3) diagonal rod trim
    */
   void GcodeSuite::M665() {
     if (!parser.seen_any()) return M665_report();
@@ -84,11 +87,13 @@
   #include "../../module/scara.h"
 
   /**
-   * M665: Set SCARA settings
+   * M665: SCARA Configuration
+   *
+   * Configure SCARA geometry values.
    *
    * Parameters:
    *
-   *   S[segments]          - Segments-per-second
+   *   S<segments-per-second>  Segments per second
    *
    * Without NO_WORKSPACE_OFFSETS:
    *

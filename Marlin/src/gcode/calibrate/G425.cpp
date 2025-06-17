@@ -55,8 +55,26 @@
 #endif
 
 /**
- * G425 backs away from the calibration object by various distances
- * depending on the confidence level:
+ * G425: Backlash Calibration
+ *
+ * Backs away from the calibration object by various distances
+ * depending on the confidence level.
+ *
+ * This command performs an automatic calibration of backlash, positional errors,
+ * and nozzle offset by touching the nozzle to the sides of a bed-mounted,
+ * electrically-conductive object (e.g., a cube, washer or bolt).
+ *
+ * This command measures backlash but doesn’t enable backlash correction.
+ *
+ * Parameters:
+ *   B          Perform calibration of backlash only
+ *
+ *   T<index>   Perform calibration of one toolhead only
+ *
+ *   U<linear>  Uncertainty: how far to start probe away from the cube (mm)
+ *
+ *   With CALIBRATION_REPORTING:
+ *     V  Probe cube and print position, error, backlash and hotend offset
  *
  *   UNKNOWN   - No real notion on where the calibration object is on the bed
  *   UNCERTAIN - Measurement may be uncertain due to backlash
