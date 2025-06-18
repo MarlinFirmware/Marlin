@@ -2882,7 +2882,7 @@ hal_timer_t Stepper::block_phase_isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (forward_e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && forward_e && ANY_AXIS_MOVES(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
             NOLESS(vd_q30, 0);
