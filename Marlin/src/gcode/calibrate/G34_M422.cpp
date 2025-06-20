@@ -144,7 +144,7 @@ void GcodeSuite::G34() {
       probe.use_probing_tool();
 
       #ifdef EVENT_GCODE_BEFORE_G34
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G34 G-code: ", EVENT_GCODE_BEFORE_G34);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G34 G-code: ", F(EVENT_GCODE_BEFORE_G34));
         gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G34));
       #endif
 
@@ -446,7 +446,7 @@ void GcodeSuite::G34() {
       #endif
 
       #ifdef EVENT_GCODE_AFTER_G34
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G34 G-code: ", EVENT_GCODE_AFTER_G34);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G34 G-code: ", F(EVENT_GCODE_AFTER_G34));
         planner.synchronize();
         process_subcommands_now(F(EVENT_GCODE_AFTER_G34));
       #endif
