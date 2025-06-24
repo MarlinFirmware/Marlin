@@ -474,7 +474,3 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
 #endif // HAS_HOMING_CURRENT
 
 #endif // HAS_TRINAMIC_CONFIG
-
-#if HAS_TMC_SPI
-  void tmc_init_cs_pins();
-#endif

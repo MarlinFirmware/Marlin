@@ -529,7 +529,7 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Restore retract and hop state from an active `G10` command
+  // Restore retract and hop state from an active 'G10' command
   #if ENABLED(FWRETRACT)
     EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {

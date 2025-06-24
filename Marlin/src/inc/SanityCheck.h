@@ -1026,6 +1026,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #undef MPC_AUTOTUNE
   #undef MPC_EDIT_MENU
   #undef MPC_AUTOTUNE_MENU
+  #undef MPC_PTC
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)

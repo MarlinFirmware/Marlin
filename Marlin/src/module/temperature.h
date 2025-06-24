@@ -386,6 +386,10 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     static bool e_paused;               // Pause E filament permm tracking
     static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
+    #if ENABLED(MPC_PTC)
+      float heater_alpha;               // M306 L
+      float heater_reftemp;             // M306 Q
+    #endif
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A

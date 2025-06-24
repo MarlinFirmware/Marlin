@@ -65,7 +65,7 @@
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
- * G61  - Apply/restore saved coordinates. (Requires SAVED_POSITIONS)
+ * G61  - Apply/Restore saved coordinates. (Requires SAVED_POSITIONS)
  * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -91,12 +91,12 @@
  *
  *** Print from Media (SDSUPPORT) ***
  * M20  - List SD card. (Requires SDSUPPORT)
- * M21  - Init SD card. (Requires SDSUPPORT) With MULTI_VOLUME select a drive with `M21 Pn` / 'M21 S' / 'M21 U'.
+ * M21  - Init SD card. (Requires SDSUPPORT) With MULTI_VOLUME select a drive with 'M21 Pn' / 'M21 S' / 'M21 U'.
  * M22  - Release SD card. (Requires SDSUPPORT)
  * M23  - Select SD file: "M23 /path/file.gco". (Requires SDSUPPORT)
- * M24  - Start/resume SD print. (Requires SDSUPPORT)
+ * M24  - Start/Resume SD print. (Requires SDSUPPORT)
  * M25  - Pause SD print. (Requires SDSUPPORT)
- * M26  - Set SD position in bytes: "M26 S12345". (Requires SDSUPPORT)
+ * M26  - Set SD position in bytes: 'M26 S12345'. (Requires SDSUPPORT)
  * M27  - Report SD print status. (Requires SDSUPPORT)
  *        OR, with 'S<seconds>' set the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
  *        OR, with 'C' get the current filename.
@@ -104,8 +104,8 @@
  * M29  - Stop SD write. (Requires SDSUPPORT)
  * M30  - Delete file from SD: "M30 /path/file.gco" (Requires SDSUPPORT)
  * M31  - Report time since last M109 or SD card start to serial.
- * M32  - Select file and start SD print: "M32 [S<bytepos>] !/path/file.gco#". (Requires SDSUPPORT)
- *        Use P to run other files as sub-programs: "M32 P !filename#"
+ * M32  - Select file and start SD print: 'M32 [S<bytepos>] !/path/file.gco#'. (Requires SDSUPPORT)
+ *        Use P to run other files as sub-programs: 'M32 P !filename#'
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
@@ -145,11 +145,11 @@
  *        R<temp> Wait for extruder current temp to reach target temp. ** Wait for heating or cooling. **
  *        If AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
  *
- * M110 - Get or set the current line number. (Used by host printing)
- * M111 - Set debug flags: "M111 S<flagbits>". See flag bits defined in enum.h.
+ * M110 - Set / Report the current line number. (Used by host printing)
+ * M111 - Set debug flags: 'M111 S<flagbits>'. See flag bits defined in enum.h.
  * M112 - Full Shutdown.
  *
- * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
+ * M113 - Set / Report the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
  * M115 - Report capabilities. (Requires CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
@@ -184,9 +184,9 @@
  * M192 - Wait for probe to reach target temperature. (Requires TEMP_SENSOR_PROBE)
  * M193 - R<temp> Wait for cooler to reach target temp. ** Wait for cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
- * M201 - Set max acceleration in units/s^2 for print moves: "M201 X<accel> Y<accel> Z<accel> E<accel>"
- * M202 - Set max acceleration in units/s^2 for travel moves: "M202 X<accel> Y<accel> Z<accel> E<accel>" ** UNUSED IN MARLIN! **
- * M203 - Set maximum feedrate: "M203 X<fr> Y<fr> Z<fr> E<fr>" in units/sec.
+ * M201 - Set max acceleration in units/s^2 for print moves: 'M201 X<accel> Y<accel> Z<accel> E<accel>'
+ * M202 - Set max acceleration in units/s^2 for travel moves: 'M202 X<accel> Y<accel> Z<accel> E<accel>' ** UNUSED IN MARLIN! **
+ * M203 - Set maximum feedrate: 'M203 X<fr> Y<fr> Z<fr> E<fr>' in units/sec.
  * M204 - Set default acceleration in units/sec^2: P<printing> R<extruder_only> T<travel>
  * M205 - Set advanced settings. Current units apply:
             S<print> T<travel> minimum speeds
@@ -197,23 +197,23 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
- * M210 - Set or Report the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
+ * M210 - Set / Report the homing feedrate (Requires EDITABLE_HOMING_FEEDRATE)
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
- * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
- * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
- * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
- *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires an MMU_MODEL version 2 or 2S)
- * M221 - Set Flow Percentage: "M221 S<percent>" (Requires an extruder)
- * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
+ * M217 - Set filament swap parameters: 'M217 S<length> P<feedrate> R<feedrate>'. (Requires SINGLENOZZLE)
+ * M218 - Set / Report a tool offset: 'M218 T<index> X<offset> Y<offset>'. (Requires 2 or more extruders)
+ * M220 - Set Feedrate Percentage: 'M220 S<percent>' (i.e., "FR" on the LCD)
+ *        Use 'M220 B' to back up the Feedrate Percentage and 'M220 R' to restore it. (Requires an MMU_MODEL version 2 or 2S)
+ * M221 - Set Flow Percentage: 'M221 S<percent>' (Requires an extruder)
+ * M226 - Wait until a pin is in a given state: 'M226 P<pin> S<state>' (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
- * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
- * M255 - Set LCD sleep time: "M255 S<minutes>" (0-99). (Requires an LCD with brightness or sleep/wake)
- * M256 - Set LCD brightness: "M256 B<brightness>" (0-255). (Requires an LCD with brightness control)
+ * M250 - Set LCD contrast: 'M250 C<contrast>' (0-63). (Requires LCD support)
+ * M255 - Set LCD sleep time: 'M255 S<minutes>' (0-99). (Requires an LCD with brightness or sleep/wake)
+ * M256 - Set LCD brightness: 'M256 B<brightness>' (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
- * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
- * M281 - Set servo min|max position: "M281 P<index> L<min> U<max>". (Requires EDITABLE_SERVO_ANGLES)
- * M282 - Detach servo: "M282 P<index>". (Requires SERVO_DETACH_GCODE)
+ * M280 - Set servo position absolute: 'M280 P<index> S<angle|µs>'. (Requires servos)
+ * M281 - Set servo min|max position: 'M281 P<index> L<min> U<max>'. (Requires EDITABLE_SERVO_ANGLES)
+ * M282 - Detach servo: 'M282 P<index>'. (Requires SERVO_DETACH_GCODE)
  * M290 - Babystepping (Requires BABYSTEPPING)
  * M293 - Babystep Z UP (Requires EP_BABYSTEPPING)
  * M294 - Babystep Z DOWN (Requires EP_BABYSTEPPING)
@@ -234,13 +234,13 @@
  * M401 - Deploy and activate Z probe. (Requires a probe)
  * M402 - Deactivate and stow Z probe. (Requires a probe)
  * M403 - Set filament type for PRUSA MMU2
- * M404 - Display or set the Nominal Filament Width: "W<diameter>". (Requires FILAMENT_WIDTH_SENSOR)
- * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
+ * M404 - Set / Report the Nominal Filament Width: 'W<diameter>'. (Requires FILAMENT_WIDTH_SENSOR)
+ * M405 - Enable Filament Sensor flow control. 'M405 D<delay_cm>'. (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
- * M412 - Enable / Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
- * M413 - Enable / Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
+ * M412 - Enable/Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
+ * M413 - Enable/Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
  * M414 - Set language by index. (Requires LCD_LANGUAGE_2...)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
@@ -250,32 +250,32 @@
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
- * M493 - Get or set input FT Motion / Shaping parameters. (Requires FT_MOTION)
+ * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
- * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
+ * M503 - Print the current settings (in memory): 'M503 S<verbose>'. S0 specifies compact output.
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
  * M510 - Lock Printer (Requires PASSWORD_FEATURE)
  * M511 - Unlock Printer (Requires PASSWORD_UNLOCK_GCODE)
  * M512 - Set/Change/Remove Password (Requires PASSWORD_CHANGE_GCODE)
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
- * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
- * M550 - Set the machine name: "M550 P<name>". (Requires CONFIGURABLE_MACHINE_NAME)
- * M552 - Get or set IP address. Enable/disable network interface. (Requires enabled Ethernet port)
- * M553 - Get or set IP netmask. (Requires enabled Ethernet port)
- * M554 - Get or set IP gateway. (Requires enabled Ethernet port)
+ * M540 - Enable/Disable SD card abort on endstop hit: 'M540 S<state>'. (Requires SD_ABORT_ON_ENDSTOP_HIT)
+ * M550 - Set the machine name: 'M550 P<name>'. (Requires CONFIGURABLE_MACHINE_NAME)
+ * M552 - Set / Report IP address. Enable/Disable network interface. (Requires enabled Ethernet port)
+ * M553 - Set / Report IP netmask. (Requires enabled Ethernet port)
+ * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
- * M592 - Get or set Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
- * M593 - Get or set input shaping parameters. (Requires INPUT_SHAPING_[XY])
- * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
- * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
- * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
- * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
- *        Set SCARA configurations: "M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset> (Requires MORGAN_SCARA or MP_SCARA)
- *        Set Polargraph draw area and belt length: "M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>"
- * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
+ * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
+ * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
+ * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
+ * M603 - Configure filament change: 'M603 T<tool> U<unload_length> L<load_length>'. (Requires ADVANCED_PAUSE_FEATURE)
+ * M605 - Set Dual X-Carriage movement mode: 'M605 S<mode> [X<x_offset>] [R<temp_offset>]'. (Requires DUAL_X_CARRIAGE)
+ * M665 - Set Delta configurations: 'M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim>' (Requires DELTA)
+ *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires MORGAN_SCARA or MP_SCARA)
+ *        Set Polargraph draw area and belt length: 'M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>'
+ * M666 - Set / Report offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -289,10 +289,10 @@
  * M709 - MMU power & reset
  *
  * M808 - Set or Goto a Repeat Marker (Requires GCODE_REPEAT_MARKERS)
- * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
+ * M810-M819 - Define/Execute a G-code macro (Requires GCODE_MACROS)
  * M820 - Report all defined M810-M819 G-code macros (Requires GCODE_MACROS)
  * M851 - Set Z probe's XYZ offsets in current units. (Negative values: X=left, Y=front, Z=below)
- * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, plus SKEW_CORRECTION_FOR_Z for IJ)
+ * M852 - Set skew factors: 'M852 I<xy> J<xz> K<yz>'. (Requires SKEW_CORRECTION_GCODE, plus SKEW_CORRECTION_FOR_Z for IJ)
  *
  *** I2C_POSITION_ENCODERS ***
  * M860 - Report the position of position encoder modules.
@@ -301,15 +301,15 @@
  * M863 - Perform steps-per-mm calibration for position encoder modules.
  * M864 - Change position encoder module I2C address.
  * M865 - Check position encoder module firmware version.
- * M866 - Report or reset position encoder module error count.
- * M867 - Enable/disable or toggle error correction for position encoder modules.
- * M868 - Report or set position encoder module error correction threshold.
+ * M866 - Report/Reset position encoder module error count.
+ * M867 - Enable/Disable or toggle error correction for position encoder modules.
+ * M868 - Set / Report position encoder module error correction threshold.
  * M869 - Report position encoder module error.
  *
- * M871 - Print/reset/clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
+ * M871 - Print/Reset/Clear first layer temperature offset values. (Requires PTC_PROBE, PTC_BED, or PTC_HOTEND)
  * M876 - Handle Prompt Response. (Requires HOST_PROMPT_SUPPORT and not EMERGENCY_PARSER)
- * M900 - Set or Report Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set or Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
+ * M900 - Set / Report Linear Advance K-factor. (Requires LIN_ADVANCE)
+ * M906 - Set / Report motor current in milliamps using axis codes XYZE, etc. Report values if no axis codes given. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
@@ -318,7 +318,7 @@
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
- * M919 - Set or Report motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
+ * M919 - Set / Report motor Chopper Times (time_off, hysteresis_end, hysteresis_start) using axis codes XYZE, etc.
  *        If no parameters are given, report. (Requires *_DRIVER_TYPE TMC(2130|2160|5130|5160|2208|2209|2240|2660))
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
@@ -342,12 +342,12 @@
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  *
- * D... - Custom Development G-code. Add hooks to 'gcode_D.cpp' for developers to test features. (Requires MARLIN_DEV_MODE)
+ * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
  *
  *** "T" Codes ***
  *
- * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
+ * T0-T3 - Select an extruder (tool) by index: 'T<n> F<units/min>'
  */
 
 #include "../inc/MarlinConfig.h"
