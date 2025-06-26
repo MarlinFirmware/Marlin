@@ -77,6 +77,10 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
+#if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+  #include "ft_motion.h"
+#endif
+
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false
 
@@ -2531,10 +2535,10 @@ void prepare_line_to_destination() {
     );
 
     #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true)) {
+      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
         planner.synchronize();
         endstops.hit_on_purpose(); // Reset the Z Endstop state
-        endstops.z_homing_active = true; // Set the Z Endstop homing state to active
+        endstops.z_homing_probing_active = true; // Set the Z Endstop homing state to active
       }
     #endif
 
@@ -2805,8 +2809,8 @@ void prepare_line_to_destination() {
 
     // Reset Z homing flag
     #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true)) {
-        endstops.z_homing_active = false;
+      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
+        endstops.z_homing_probing_active = false;
       }
     #endif
 

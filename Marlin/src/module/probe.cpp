@@ -98,6 +98,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+  #include "ft_motion.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -776,7 +780,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-    endstops.z_homing_active = true;
+   if (ftMotion.cfg.active)
+    endstops.z_homing_probing_active = true;
   #endif
 
   const float zoffs = SUM_TERN(HAS_HOTEND_OFFSET, -offset.z, hotend_offset[active_extruder].z);
@@ -928,7 +933,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   #endif
 
   #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-    endstops.z_homing_active = false;
+    if (ftMotion.cfg.active)
+      endstops.z_homing_probing_active = false;
   #endif
 
   return DIFF_TERN(HAS_HOTEND_OFFSET, measured_z, hotend_offset[active_extruder].z);
