@@ -441,13 +441,7 @@ void FTMotion::runoutBlock() {
   const int32_t n_diff = n_to_settle_shaper - n_to_fill_batch,
                 n_to_fill_batch_after_settling = n_diff > 0 ? (FTM_BATCH_SIZE) - (n_diff % (FTM_BATCH_SIZE)) : -n_diff;
 
-  const int32_t n_to_settle_and_fill_batch = n_to_settle_shaper + n_to_fill_batch_after_settling;
-
-  const int32_t N_needed_to_propagate_to_stepper = PROP_BATCHES;
-
-  const int32_t n_to_use = N_needed_to_propagate_to_stepper * (FTM_BATCH_SIZE) + n_to_settle_and_fill_batch;
-
-  max_intervals = n_to_use;
+  max_intervals =  PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
 
   blockProcRdy = true;
 }

@@ -39,7 +39,15 @@
 #if ENABLED(DELTA)
 
   /**
-   * M666: Set delta endstop adjustment
+   * M666: Set Delta endstop adjustments
+   *
+   * Adjust the endstop offsets on a Delta printer.
+   *
+   * Parameters:
+   *   None    Report current offsets
+   *   X<intint>  Adjustment for the X actuator endstop
+   *   Y<intint>  Adjustment for the Y actuator endstop
+   *   Z<int>  Adjustment for the Z actuator endstop
    */
   void GcodeSuite::M666() {
     DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
@@ -74,14 +82,22 @@
 #else
 
   /**
-   * M666: Set Dual Endstops offsets for X, Y, and/or Z.
-   *       With no parameters report current offsets.
+   * M666: Set Dual Endstop Offsets
    *
-   * For Triple / Quad Z Endstops:
-   *   Set Z2 Only: M666 S2 Z<offset>
-   *   Set Z3 Only: M666 S3 Z<offset>
-   *   Set Z4 Only: M666 S4 Z<offset>
-   *       Set All: M666 Z<offset>
+   * Adjust the offsets for dual (or multiple) endstops.
+   *
+   * Parameters:
+   *   None    Report current offsets
+   *   X<int>  Offset for the X axis endstops
+   *   Y<int>  Offset for the Y axis endstops
+   *   Z<int>  Offset for the Z axis endstops
+   *
+   * Example:
+   *  For Triple / Quad Z Endstops:
+   *    M666 S2 Z<offset> ; Set Z2 Only
+   *    M666 S3 Z<offset> ; Set Z3 Only
+   *    M666 S4 Z<offset> ; Set Z4 Only
+   *    M666 Z<offset>    ; Set All
    */
   void GcodeSuite::M666() {
     if (!parser.seen_any()) return M666_report();

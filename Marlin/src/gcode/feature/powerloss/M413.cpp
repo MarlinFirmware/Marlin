@@ -30,14 +30,17 @@
 #include "../../../lcd/marlinui.h"
 
 /**
- * M413: Enable / Disable power-loss recovery
+ * M413: Power-loss Recovery
+ *
+ * Enable/Disable power-loss recovery
  *
  * Parameters
- *   S[bool] - Flag to enable / disable.
- *             If omitted, report current state.
+ *   None     Report power-loss recovery state
+ *   S<bool>  Flag to enable/disable
+ *            If omitted, report current state.
  *
  * With PLR_BED_THRESHOLD:
- *   B         Bed Temperature above which recovery will proceed without asking permission.
+ *   B<temp>  Bed Temperature above which recovery will proceed without asking permission.
  */
 void GcodeSuite::M413() {
 
