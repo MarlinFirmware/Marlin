@@ -1,0 +1,24 @@
+# Top-level Kconfig for Marlin
+
+menu "Marlin Configuration"
+
+config MOTHERBOARD
+    string "Motherboard type"
+    default "BOARD_RAMPS_14_EFB"
+    help
+      Set the target motherboard type.
+
+config BAUDRATE
+    int "Baudrate for serial communication"
+    default 250000
+    range 9600 1000000
+    help
+      Communication speed between controller and host.
+
+config USE_LCD
+    bool "Enable LCD support"
+    default y
+    help
+      Enable graphical LCD menu support.
+
+endmenu

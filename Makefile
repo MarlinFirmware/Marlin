@@ -111,3 +111,9 @@ BOARDS_FILE := Marlin/src/core/boards.h
 validate-boards:
 	@echo "Validating boards.h file"
 	@python $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
+
+menuconfig:
+	kconfig-mconf Kconfig
+
+genconfig:
+	@python $(SCRIPTS_DIR)/kconfig.py .config > Marlin/Configuration.h
