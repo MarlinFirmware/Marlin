@@ -44,6 +44,7 @@
  * G3   - CCW ARC
  * G4   - Dwell S<seconds> or P<milliseconds>
  * G5   - Cubic B-spline with XYZE destination and IJPQ offsets
+ * G7   - Set Workspace Rotation
  * G10  - Retract filament according to settings of M207 (Requires FWRETRACT)
  * G11  - Retract recover filament according to settings of M208 (Requires FWRETRACT)
  * G12  - Clean tool (Requires NOZZLE_CLEAN_FEATURE)
@@ -532,6 +533,10 @@ private:
 
   #if ENABLED(DIRECT_STEPPING)
     static void G6();
+  #endif
+
+  #if ENABLED(ROTATE_WORKSPACE)
+    static void G7();
   #endif
 
   #if ENABLED(FWRETRACT)

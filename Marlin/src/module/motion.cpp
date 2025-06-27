@@ -137,6 +137,21 @@ xyze_pos_t destination; // {0}
   }
 #endif
 
+#if ENABLED(ROTATE_WORKSPACE)
+  uint8_t active_workspace = 0;
+  float rotation_angles[MAX_ROTATABLE] = { 0.0f };
+
+  // Helper function to rotate a point by theta degrees
+  void rotate_xy(float &x, float &y, float theta_deg) {
+    const float theta = theta_deg * M_PI / 180.0f;
+    const float cos_t = cos(theta), sin_t = sin(theta);
+    float x_new = x * cos_t - y * sin_t;
+    float y_new = x * sin_t + y * cos_t;
+    x = x_new;
+    y = y_new;
+  }
+#endif
+
 // The feedrate for the current move, often used as the default if
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
@@ -1896,6 +1911,17 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
  */
 void prepare_line_to_destination() {
   apply_motion_limits(destination);
+
+  #if ENABLED(ROTATE_WORKSPACE)
+    // Only rotate if angle is nonzero
+    const float theta = rotation_angles[active_workspace];
+    if (theta != 0.0f) {
+      float x = destination.x, y = destination.y;
+      rotate_xy(x, y, theta);
+      destination.x = x;
+      destination.y = y;
+    }
+  #endif
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 

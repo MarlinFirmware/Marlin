@@ -366,6 +366,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 6: G6(); break;                                      // G6: Direct Stepper Move
       #endif
 
+      #if ENABLED(ROTATE_WORKSPACE)
+        case 7: G7(); break;                                      // G7: Set Workspace Rotation
+      #endif
+
       #if ENABLED(FWRETRACT)
         case 10: G10(); break;                                    // G10: Retract / Swap Retract
         case 11: G11(); break;                                    // G11: Recover / Swap Recover

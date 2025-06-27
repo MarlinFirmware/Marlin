@@ -62,6 +62,12 @@ extern xyz_pos_t cartes;
   extern abce_pos_t delta;
 #endif
 
+#if ENABLED(ROTATE_WORKSPACE)
+  #define MAX_ROTATABLE 9
+  extern uint8_t active_workspace;
+  extern float rotation_angles[MAX_ROTATABLE]; // Store rotation for each workspace
+#endif
+
 #if HAS_ABL_NOT_UBL
   extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
