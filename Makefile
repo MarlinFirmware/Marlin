@@ -112,8 +112,10 @@ validate-boards:
 	@echo "Validating boards.h file"
 	@python $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
 
+.PHONY: menuconfig genconfig
+
 menuconfig:
 	kconfig-mconf Kconfig
 
 genconfig:
-	@python $(SCRIPTS_DIR)/kconfig.py .config > Marlin/Configuration.h
+	@python $(SCRIPTS_DIR)/kconfig.py .config > Marlin/
