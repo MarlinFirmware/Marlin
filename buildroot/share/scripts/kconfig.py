@@ -4,8 +4,7 @@ kconfig.py [--clean] .config Marlin
 
 Generate configuration files using Kconfig through terminal UI
 """
-import os
-import sys
+import os, sys
 
 # Map config keys to their target header
 CONFIG_H_KEYS = {
