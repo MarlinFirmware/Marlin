@@ -313,10 +313,6 @@ void unified_bed_leveling::G29() {
   const uint8_t p_val = parser.byteval('P');
   const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen_test('J');
 
-  #if FT_MOTION_DISABLE_FOR_PROBING
-    FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
-  #endif
-
   // Check for commands that require the printer to be homed
   if (may_move) {
     planner.synchronize();
