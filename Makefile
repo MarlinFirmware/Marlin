@@ -118,4 +118,4 @@ menuconfig:
 	kconfig-mconf Kconfig
 
 genconfig:
-	@python $(SCRIPTS_DIR)/kconfig.py .config Marlin
+	@python $(SCRIPTS_DIR)/kconfig.py [--clean] .config Marlin
