@@ -115,10 +115,30 @@ validate-boards:
 .PHONY: menuconfig menuconfigadv genconfig
 
 menuconfig:
-	kconfig-mconf Kconfig
+	@command -v kconfig-mconf >/dev/null 2>&1 && kconfig-mconf Kconfig || \
+	{ \
+	  python3 -c "import kconfiglib" 2>/dev/null && \
+	  python3 -m kconfiglib.menuconfig Kconfig || \
+	  { \
+	    echo "❌ Could not find a working Kconfig menu system."; \
+	    echo "→ Install with: sudo apt install kconfig-frontends"; \
+	    echo "→ Or with: python3 -m pip install kconfiglib"; \
+	    exit 1; \
+	  }; \
+	}
 
 menuconfigadv:
-	kconfig-mconf Kconfig_adv
+	@command -v kconfig-mconf >/dev/null 2>&1 && kconfig-mconf Kconfig_adv || \
+	{ \
+	  python3 -c "import kconfiglib" 2>/dev/null && \
+	  python3 -m kconfiglib.menuconfig Kconfig_adv || \
+	  { \
+	    echo "❌ Could not find a working Kconfig menu system."; \
+	    echo "→ Install with: sudo apt install kconfig-frontends"; \
+	    echo "→ Or with: python3 -m pip install kconfiglib"; \
+	    exit 1; \
+	  }; \
+	}
 
 genconfig:
 	@python $(SCRIPTS_DIR)/kconfig.py
