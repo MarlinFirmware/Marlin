@@ -8,6 +8,7 @@ into Kconfig entries with ENABLE toggles and conditional `depends on` logic.
 Supports:
 - #define and //#define
 - #ifdef / #ifndef / #elif / #else / #endif
+- #if ENABLED(MACRO) / DISABLED(MACRO)
 """
 
 import sys
@@ -24,6 +25,8 @@ RANGE_MAP = {
 
 define_re = re.compile(r'^(?P<comment>\s*\/\/+)?\s*#define\s+(?P<key>[A-Za-z0-9_]+)(?:\s+(?P<val>[^/]*?))?\s*(?://\s*(?P<help>.*))?$')
 ifdef_re = re.compile(r'^\s*#\s*(ifdef|ifndef|elif|else|endif)\s*(\w+)?')
+enabled_if_re = re.compile(r'^\s*#if\s+ENABLED\((\w+)\)')
+disabled_if_re = re.compile(r'^\s*#if\s+DISABLED\((\w+)\)')
 int_re = re.compile(r'^-?\d+$')
 
 DEFAULT_INPUTS = [
@@ -46,12 +49,12 @@ def parse_defines(input_file, output_file):
         outfile.write(f"# Auto-generated {title} file\n\n")
 
         condition_stack = []
+        seen_keys = set()
 
         for line in infile:
             m_if = ifdef_re.match(line)
             if m_if:
                 directive, macro = m_if.group(1), m_if.group(2)
-
                 if directive == "ifdef" and macro:
                     condition_stack.append(kconfig_dep_from_macro(macro))
                 elif directive == "ifndef" and macro:
@@ -69,11 +72,27 @@ def parse_defines(input_file, output_file):
                         condition_stack.pop()
                 continue
 
+            # Handle ENABLED() and DISABLED()
+            m_enabled = enabled_if_re.match(line)
+            m_disabled = disabled_if_re.match(line)
+            if m_enabled:
+                macro = m_enabled.group(1)
+                condition_stack.append(kconfig_dep_from_macro(macro))
+                continue
+            elif m_disabled:
+                macro = m_disabled.group(1)
+                condition_stack.append(kconfig_dep_from_macro(macro, is_not=True))
+                continue
+
             m = define_re.match(line)
             if not m:
                 continue
 
             key = m.group("key")
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+
             val = (m.group("val") or "").strip()
             help_comment = m.group("help")
             is_enabled = m.group("comment") is None
@@ -83,12 +102,29 @@ def parse_defines(input_file, output_file):
             default_enable = "y" if is_enabled else "n"
             depends_on = " && ".join(condition_stack) if condition_stack else None
 
-            outfile.write(f"config {enable_key}\n")
-            outfile.write(f'    bool "{enable_prompt}"\n')
-            outfile.write(f"    default {default_enable}\n")
-            if depends_on:
-                outfile.write(f"    depends on {depends_on}\n")
-            outfile.write("\n")
+            if not (depends_on and (enable_key in depends_on or f"!{enable_key}" in depends_on)):
+                outfile.write(f"config {enable_key}\n")
+                outfile.write(f'    bool "{enable_prompt}"\n')
+                outfile.write(f"    default {default_enable}\n")
+                if depends_on:
+                    outfile.write(f"    depends on {depends_on}\n")
+                outfile.write("\n")
+
+            val_lower = val.lower()
+            if val_lower in {"true", "false"}:
+                default_opt = "true" if val_lower == "true" else "false"
+                outfile.write("choice\n")
+                outfile.write(f'    prompt "Select {key} (true/false)"\n')
+                outfile.write(f"    depends on {enable_key}")
+                if depends_on and enable_key not in depends_on:
+                    outfile.write(f" && {depends_on}")
+                outfile.write("\n")
+                outfile.write(f"    default {key}_{default_opt}\n\n")
+                for opt in ["true", "false"]:
+                    outfile.write(f"config {key}_{opt}\n")
+                    outfile.write(f'    bool "{opt}"\n\n')
+                outfile.write("endchoice\n\n")
+                continue
 
             if key in CHOICE_MAP:
                 choices = CHOICE_MAP[key]
@@ -97,7 +133,7 @@ def parse_defines(input_file, output_file):
                 outfile.write("choice\n")
                 outfile.write(f'    prompt "Select {key}"\n')
                 outfile.write(f"    depends on {enable_key}")
-                if depends_on:
+                if depends_on and enable_key not in depends_on:
                     outfile.write(f" && {depends_on}")
                 outfile.write("\n")
                 outfile.write(f"    default {key}_{default_opt}\n\n")
@@ -112,7 +148,7 @@ def parse_defines(input_file, output_file):
                 outfile.write(f"config {key}\n")
                 outfile.write(f'    int "{key}"\n')
                 outfile.write(f"    depends on {enable_key}")
-                if depends_on:
+                if depends_on and enable_key not in depends_on:
                     outfile.write(f" && {depends_on}")
                 outfile.write("\n")
                 if key in RANGE_MAP:
@@ -130,7 +166,7 @@ def parse_defines(input_file, output_file):
             outfile.write(f"config {key}\n")
             outfile.write(f'    string "{key}"\n')
             outfile.write(f"    depends on {enable_key}")
-            if depends_on:
+            if depends_on and enable_key not in depends_on:
                 outfile.write(f" && {depends_on}")
             outfile.write("\n")
 
@@ -138,7 +174,6 @@ def parse_defines(input_file, output_file):
                 val_str = val.strip('"')
                 outfile.write(f'    default "{val_str}"\n')
             else:
-                # Skip default or provide a simplified fallback
                 outfile.write(f'    # default string skipped due to complexity: {val}\n')
 
             if help_comment:
