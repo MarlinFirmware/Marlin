@@ -72,6 +72,13 @@ Nozzle nozzle;
           do_blocking_move_to_xy(start);
         #endif
       }
+      if (strokes & 1) {
+        #if ENABLED(NOZZLE_CLEAN_NO_Y)
+          do_blocking_move_to_x(end.x);
+        #else
+          do_blocking_move_to_xy(end);
+        #endif
+      }
 
       TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
     }
