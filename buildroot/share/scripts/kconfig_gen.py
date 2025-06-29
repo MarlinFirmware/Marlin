@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-extract_defines.py
+kconfig_gen.py
 
-Convert Marlin's Configuration.h/adv.h defines (even if disabled or conditional)
-into Kconfig entries with ENABLE toggles and conditional `depends on` logic.
+Convert Marlin's Configuration.h/adv.h defines into Kconfig entries.
 
 Supports:
 - #define and //#define
@@ -30,8 +29,8 @@ disabled_if_re = re.compile(r'^\s*#if\s+DISABLED\((\w+)\)')
 int_re = re.compile(r'^-?\d+$')
 
 DEFAULT_INPUTS = [
-    ("Marlin/Configuration.h", "Kconfig"),
-    ("Marlin/Configuration_adv.h", "Kconfig_adv")
+    ("Marlin/Configuration.h", "Kconfig", False),
+    ("Marlin/Configuration_adv.h", "Kconfig_adv", True)  # Disable all adv options
 ]
 
 def kconfig_dep_from_macro(macro, is_not=False):
@@ -39,11 +38,11 @@ def kconfig_dep_from_macro(macro, is_not=False):
     return f"!{enable_macro}" if is_not else enable_macro
 
 def is_complex_string(val):
-    return any(tok in val for tok in ['"', ' ', '(', ')', '+', 'STRINGIFY', 'PREHEAT', '\\n'])
+    return any(tok in val for tok in ['"', " ", "(", ")", "+", "STRINGIFY", "PREHEAT", "\\n"])
 
-def parse_defines(input_file, output_file):
-    with open(input_file, 'r', encoding='utf-8') as infile, \
-         open(output_file, 'w', encoding='utf-8', newline='\n') as outfile:
+def parse_defines(input_file, output_file, disable_all=False):
+    with open(input_file,  "r", encoding="utf-8") as infile, \
+         open(output_file, "w", encoding="utf-8", newline="\n") as outfile:
 
         title = os.path.basename(output_file)
         outfile.write(f"# Auto-generated {title} file\n\n")
@@ -96,6 +95,10 @@ def parse_defines(input_file, output_file):
             val = (m.group("val") or "").strip()
             help_comment = m.group("help")
             is_enabled = m.group("comment") is None
+
+            # Force-disable all defines if requested
+            if disable_all:
+                is_enabled = False
 
             enable_key = f"{key}_ENABLE"
             enable_prompt = f"Enable {key}"
@@ -174,7 +177,7 @@ def parse_defines(input_file, output_file):
                 val_str = val.strip('"')
                 outfile.write(f'    default "{val_str}"\n')
             else:
-                outfile.write(f'    # default string skipped due to complexity: {val}\n')
+                outfile.write(f"    # default string skipped due to complexity: {val}\n")
 
             if help_comment:
                 outfile.write("    help\n      " + help_comment.strip() + "\n")
@@ -184,15 +187,18 @@ def parse_defines(input_file, output_file):
 
 def main():
     if len(sys.argv) > 1:
-        input_files = [(f, f"Kconfig_{os.path.splitext(os.path.basename(f))[0].lower()}") for f in sys.argv[1:]]
+        input_files = [
+            (f, f"Kconfig_{os.path.splitext(os.path.basename(f))[0].lower()}", False)
+            for f in sys.argv[1:]
+        ]
     else:
         input_files = DEFAULT_INPUTS
 
-    for input_file, output_file in input_files:
+    for input_file, output_file, disable_all in input_files:
         if not os.path.exists(input_file):
             print(f"\u26a0\ufe0f  Skipping missing file: {input_file}")
             continue
-        parse_defines(input_file, output_file)
+        parse_defines(input_file, output_file, disable_all=disable_all)
 
 if __name__ == "__main__":
     main()

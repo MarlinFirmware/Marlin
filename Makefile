@@ -112,9 +112,9 @@ validate-boards:
 	@echo "Validating boards.h file"
 	@python $(SCRIPTS_DIR)/validate_boards.py $(BOARDS_FILE) || (echo "\nError: boards.h file is not valid. Please check and correct it.\n" && exit 1)
 
-.PHONY: menuconfig menuconfigadv genconfig
+.PHONY: menukconfig menukconfigadv genkconfig writekconfig
 
-menuconfig:
+menukconfig:
 	@command -v kconfig-mconf >/dev/null 2>&1 && kconfig-mconf Kconfig || \
 	{ \
 	  python3 -c "import kconfiglib" 2>/dev/null && \
@@ -127,7 +127,7 @@ menuconfig:
 	  }; \
 	}
 
-menuconfigadv:
+menukconfigadv:
 	@command -v kconfig-mconf >/dev/null 2>&1 && kconfig-mconf Kconfig_adv || \
 	{ \
 	  python3 -c "import kconfiglib" 2>/dev/null && \
@@ -140,5 +140,8 @@ menuconfigadv:
 	  }; \
 	}
 
-genconfig:
+genkconfig:
 	@python $(SCRIPTS_DIR)/kconfig.py
+
+writekconfig:
+	@python $(SCRIPTS_DIR)/kconfig_write.py
