@@ -210,6 +210,7 @@ class PrintJobRecovery {
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=POWER_LOSS_ZRAISE, const bool raised=false);
 
     #if PIN_EXISTS(POWER_LOSS)
+      static bool power_lost;
       static void outage() {
         static constexpr uint8_t OUTAGE_THRESHOLD = 3;
         static uint8_t outage_counter = 0;
