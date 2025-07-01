@@ -28,30 +28,31 @@
   #include "../../module/motion.h"
 
   /**
-   * G7: Set Workspace Rotation
+   * G68: Set Workspace Rotation
    *
-   * Set the rotation (about Z axis) for the current workspace.
+   * Set the rotation (about Z axis) for the current workspace (begins at 0).
    *
    * Parameters:
    *   P<index>  Workspace index (Optional, default: current)
    *   R<deg>    Rotation angle in degrees (Required)
    *
    * Example:
-   *   G7 R45     ; Rotate current workspace by 45°
-   *   G7 P2 R-30 ; Rotate workspace 2 by -30°
+   *   G68 R45     ; Rotate current workspace by 45°
+   *   G68 P2 R-30 ; Rotate workspace 2 by -30°
+   *   G68 P1      ; Set active workspace to 1 (no rotation)
    *
    * NOTES:
    *   - Only rotation is set. No translation/offset is changed.
    *   - All subsequent moves are rotated by the specified angle.
    */
-  void GcodeSuite::G7() {
-    const int P = parser.seen('P') ? parser.value_int() : active_workspace;
+  void GcodeSuite::G68() {
+    const int P = parser.seenval('P') ? parser.value_int() : active_workspace;
 
-    if (parser.seen('P')) {
+    if (parser.seenval('P')) {
       active_workspace = P;
     }
 
-    if (parser.seen('P') && !parser.seen('R')) {
+    if (parser.seenval('P') && !parser.seenval('R')) {
       // Only P given: set active workspace
       if (P < 0 || P >= MAX_ROTATABLE) {
         SERIAL_ECHOLNPGM("Invalid workspace index.");
@@ -61,7 +62,7 @@
       return;
     }
 
-    if (!parser.seen('R')) {
+    if (!parser.seenval('R')) {
       SERIAL_ECHOLNPGM("Missing R parameter (rotation angle).");
       return;
     }
@@ -72,7 +73,7 @@
       return;
     }
 
-    rotation_angles[P] = r;
+    rotation_angle[P] = r;
     SERIAL_ECHOLN("Rotation for workspace ", P, " set to ", r, " degrees.");
   }
 #endif // ROTATE_WORKSPACE

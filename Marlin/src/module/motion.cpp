@@ -139,7 +139,7 @@ xyze_pos_t destination; // {0}
 
 #if ENABLED(ROTATE_WORKSPACE)
   uint8_t active_workspace = 0;
-  float rotation_angles[MAX_ROTATABLE] = { 0.0f };
+  float rotation_angle[MAX_ROTATABLE] = { 0.0f };
 
   // Helper function to rotate a point by theta degrees
   void rotate_xy(float &x, float &y, float theta_deg) {
@@ -1914,7 +1914,7 @@ void prepare_line_to_destination() {
 
   #if ENABLED(ROTATE_WORKSPACE)
     // Only rotate if angle is nonzero
-    const float theta = rotation_angles[active_workspace];
+    const float theta = rotation_angle[active_workspace];
     if (theta != 0.0f) {
       float x = destination.x, y = destination.y;
       rotate_xy(x, y, theta);

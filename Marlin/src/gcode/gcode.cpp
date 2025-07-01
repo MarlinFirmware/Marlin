@@ -366,10 +366,6 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 6: G6(); break;                                      // G6: Direct Stepper Move
       #endif
 
-      #if ENABLED(ROTATE_WORKSPACE)
-        case 7: G7(); break;                                      // G7: Set Workspace Rotation
-      #endif
-
       #if ENABLED(FWRETRACT)
         case 10: G10(); break;                                    // G10: Retract / Swap Retract
         case 11: G11(); break;                                    // G11: Recover / Swap Recover
@@ -452,6 +448,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if SAVED_POSITIONS
         case 60: G60(); break;                                    // G60:  save current position
         case 61: G61(); break;                                    // G61:  Apply/restore saved coordinates.
+      #endif
+
+      #if ENABLED(ROTATE_WORKSPACE)
+        case 68: G68(); break;                                    // G68: Set Workspace Rotation
       #endif
 
       #if ALL(PTC_PROBE, PTC_BED)
