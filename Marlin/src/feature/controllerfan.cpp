@@ -47,6 +47,27 @@ void ControllerFan::setup() {
   #ifdef CONTROLLER_FAN2_PIN
     SET_OUTPUT(CONTROLLER_FAN2_PIN);
   #endif
+  #ifdef CONTROLLER_FAN3_PIN
+    SET_OUTPUT(CONTROLLER_FAN3_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN4_PIN
+    SET_OUTPUT(CONTROLLER_FAN4_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN5_PIN
+    SET_OUTPUT(CONTROLLER_FAN5_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN6_PIN
+    SET_OUTPUT(CONTROLLER_FAN6_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN7_PIN
+    SET_OUTPUT(CONTROLLER_FAN7_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN8_PIN
+    SET_OUTPUT(CONTROLLER_FAN8_PIN);
+  #endif
+  #ifdef CONTROLLER_FAN9_PIN
+    SET_OUTPUT(CONTROLLER_FAN9_PIN);
+  #endif
   init();
 }
 
@@ -107,19 +128,38 @@ void ControllerFan::update() {
         fan_kick_end = 0;
     #endif
 
+    #define SET_CONTROLLER_FAN(N) do { \
+      if (PWM_PIN(CONTROLLER_FAN##N##_PIN)) hal.set_pwm_duty(pin_t(CONTROLLER_FAN##N##_PIN), speed); \
+      else WRITE(CONTROLLER_FAN##N##_PIN, speed > 0);\
+    } while (0)
+
     #if ENABLED(FAN_SOFT_PWM)
       soft_pwm_speed = speed;
     #else
-      if (PWM_PIN(CONTROLLER_FAN_PIN))
-        hal.set_pwm_duty(pin_t(CONTROLLER_FAN_PIN), speed);
-      else
-        WRITE(CONTROLLER_FAN_PIN, speed > 0);
-
+      SET_CONTROLLER_FAN();
       #ifdef CONTROLLER_FAN2_PIN
-        if (PWM_PIN(CONTROLLER_FAN2_PIN))
-          hal.set_pwm_duty(pin_t(CONTROLLER_FAN2_PIN), speed);
-        else
-          WRITE(CONTROLLER_FAN2_PIN, speed > 0);
+        SET_CONTROLLER_FAN(2);
+      #endif
+      #ifdef CONTROLLER_FAN3_PIN
+        SET_CONTROLLER_FAN(3);
+      #endif
+      #ifdef CONTROLLER_FAN4_PIN
+        SET_CONTROLLER_FAN(4);
+      #endif
+      #ifdef CONTROLLER_FAN5_PIN
+        SET_CONTROLLER_FAN(5);
+      #endif
+      #ifdef CONTROLLER_FAN6_PIN
+        SET_CONTROLLER_FAN(6);
+      #endif
+      #ifdef CONTROLLER_FAN7_PIN
+        SET_CONTROLLER_FAN(7);
+      #endif
+      #ifdef CONTROLLER_FAN8_PIN
+        SET_CONTROLLER_FAN(8);
+      #endif
+      #ifdef CONTROLLER_FAN9_PIN
+        SET_CONTROLLER_FAN(9);
       #endif
     #endif
   }
