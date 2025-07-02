@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if CASE_LIGHT_IS_COLOR_LED
-  #include "leds/leds.h" // for LEDColor
+  #include "leds/leds.h" // for LEDColor_t
 #endif
 
 class CaseLight {
@@ -50,7 +50,7 @@ public:
 
   #if ENABLED(CASE_LIGHT_IS_COLOR_LED)
     private:
-      static LEDColor color;
+      static LEDColor_t color;
   #endif
 };
 

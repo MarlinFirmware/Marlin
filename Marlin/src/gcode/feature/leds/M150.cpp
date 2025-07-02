@@ -80,24 +80,46 @@ void GcodeSuite::M150() {
     #endif
   #endif
 
-  const LEDColor color = LEDColor(
-    parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF,
-    parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF,
-    parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : old_color & 0xFF
-    OPTARG(HAS_WHITE_LED, parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF)
-    OPTARG(NEOPIXEL_LED, parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness)
+  const bool seenR = parser.seen('R');
+  const bool seenU = parser.seen('U');
+  const bool seenB = parser.seen('B');
+  #if HAS_WHITE_LED || HAS_WHITE_LED2
+    const bool seenW = parser.seen('W');
+  #endif
+  #if ENABLED(NEOPIXEL_LED)
+    const bool seenP = parser.seen('P');
+  #endif
+
+  const uint8_t valR = seenR ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF;
+  const uint8_t valU = seenU ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF;
+  const uint8_t valB = seenB ? (parser.has_value() ? parser.value_byte() : 255) :  old_color        & 0xFF;
+  #if HAS_WHITE_LED || HAS_WHITE_LED2
+    const uint8_t valW = seenW ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF;
+  #endif
+  #if ENABLED(NEOPIXEL_LED)
+    const uint8_t valP = seenP ? (parser.has_value() ? parser.value_byte() : 255) : brightness;
+  #endif
+
+  const LEDColor_t color = LEDColor_t(valR, valU, valB
+    OPTARG(HAS_WHITE_LED, valW)
+    OPTARG(NEOPIXEL_LED, valP)
+  );
+
+  const LEDColor2_t color2 = LEDColor2_t(valR, valU, valB
+    OPTARG(HAS_WHITE_LED2, valW)
+    OPTARG(NEOPIXEL_LED, valP)
   );
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
     switch (unit) {
       case 0: leds.set_color(color); return;
-      case 1: leds2.set_color(color); return;
+      case 1: leds2.set_color(color2); return;
     }
   #endif
 
   // If 'S' is not specified use both
   leds.set_color(color);
-  TERN_(NEOPIXEL2_SEPARATE, leds2.set_color(color));
+  TERN_(NEOPIXEL2_SEPARATE, leds2.set_color(color2));
 }
 
 #endif // HAS_COLOR_LEDS

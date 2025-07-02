@@ -55,72 +55,136 @@
 /**
  * LEDcolor type for use with leds.set_color
  */
-typedef struct LEDColor {
-  uint8_t r, g, b
-    OPTARG(HAS_WHITE_LED, w)
-    OPTARG(NEOPIXEL_LED, i)
-  ;
+struct LEDColor_t {
+  // Basic RGB color components
+  uint8_t r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i);
+  // Default constructor - white color
+  LEDColor_t() : r(255), g(255), b(255) OPTARG(HAS_WHITE_LED, w(255)) OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS)){}
 
-  LEDColor() : r(255), g(255), b(255)
-    OPTARG(HAS_WHITE_LED, w(255))
-    OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
-  {}
+  // Copy constructor
+  LEDColor_t(const LEDColor_t&) = default;
 
-  LEDColor(const LEDColor&) = default;
-
-  LEDColor(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
+  // Constructor with individual components
+  LEDColor_t(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
     : r(r), g(g), b(b) OPTARG(HAS_WHITE_LED, w(w)) OPTARG(NEOPIXEL_LED, i(i)) {}
 
-  LEDColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
-    OPTARG(HAS_WHITE_LED, w(rgbw[3]))
-    OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS))
-  {}
+  // Constructor from array
+  LEDColor_t(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
+    OPTARG(HAS_WHITE_LED, w(rgbw[3])) OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS)){}
 
-  LEDColor& operator=(const uint8_t (&rgbw)[4]) {
-    r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
+  // Array assignment operator
+  LEDColor_t& operator=(const uint8_t (&rgbw)[4]) {
+    r = rgbw[0];
+    g = rgbw[1];
+    b = rgbw[2];
     TERN_(HAS_WHITE_LED, w = rgbw[3]);
     return *this;
   }
 
-  bool operator==(const LEDColor &right) {
-    if (this == &right) return true;
-    return 0 == memcmp(this, &right, sizeof(LEDColor));
+  // Comparison operators
+  bool operator==(const LEDColor_t &right) {
+    return (this == &right) || (0 == memcmp(this, &right, sizeof(LEDColor_t)));
   }
 
-  bool operator!=(const LEDColor &right) { return !operator==(right); }
+  bool operator!=(const LEDColor_t &right) {
+    return !operator==(right);
+  }
 
+  // Check if LED is effectively off
   bool is_off() const {
     return 3 > r + g + b + TERN0(HAS_WHITE_LED, w);
   }
-} LEDColor;
+};
+
+
+struct LEDColor2_t {
+  // Basic RGB color components
+  uint8_t r, g, b OPTARG(HAS_WHITE_LED2, w) OPTARG(NEOPIXEL_LED, i);
+  // Default constructor - white color
+  LEDColor2_t() : r(255), g(255), b(255) OPTARG(HAS_WHITE_LED2, w(255)) OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS)){}
+
+  // Copy constructor
+  LEDColor2_t(const LEDColor2_t&) = default;
+
+  // Constructor with individual components
+  LEDColor2_t(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w=0) OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS))
+    : r(r), g(g), b(b) OPTARG(HAS_WHITE_LED2, w(w)) OPTARG(NEOPIXEL_LED, i(i)) {}
+
+  // Constructor from array
+  LEDColor2_t(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
+    OPTARG(HAS_WHITE_LED2, w(rgbw[3])) OPTARG(NEOPIXEL_LED, i(NEOPIXEL_BRIGHTNESS)){}
+
+  // Array assignment operator
+  LEDColor2_t& operator=(const uint8_t (&rgbw)[4]) {
+    r = rgbw[0];
+    g = rgbw[1];
+    b = rgbw[2];
+    TERN_(HAS_WHITE_LED2, w = rgbw[3]);
+    return *this;
+  }
+
+  // Comparison operators
+  bool operator==(const LEDColor2_t &right) {
+    return (this == &right) || (0 == memcmp(this, &right, sizeof(LEDColor_t)));
+  }
+
+  bool operator!=(const LEDColor2_t &right) {
+    return !operator==(right);
+  }
+
+  // Check if LED is effectively off
+  bool is_off() const {
+    return 3 > r + g + b + TERN0(HAS_WHITE_LED2, w);
+  }
+};
 
 /**
  * Color presets
  */
 
-#define LEDColorOff()             LEDColor(  0,   0,   0)
-#define LEDColorRed()             LEDColor(255,   0,   0)
+#define LEDColorOff()             LEDColor_t(  0,   0,   0)
+#define LEDColorRed()             LEDColor_t(255,   0,   0)
 #if ENABLED(LED_COLORS_REDUCE_GREEN)
-  #define LEDColorOrange()        LEDColor(255,  25,   0)
-  #define LEDColorYellow()        LEDColor(255,  75,   0)
+  #define LEDColorOrange()        LEDColor_t(255,  25,   0)
+  #define LEDColorYellow()        LEDColor_t(255,  75,   0)
 #else
-  #define LEDColorOrange()        LEDColor(255,  80,   0)
-  #define LEDColorYellow()        LEDColor(255, 255,   0)
+  #define LEDColorOrange()        LEDColor_t(255,  80,   0)
+  #define LEDColorYellow()        LEDColor_t(255, 255,   0)
 #endif
-#define LEDColorGreen()           LEDColor(  0, 255,   0)
-#define LEDColorBlue()            LEDColor(  0,   0, 255)
-#define LEDColorIndigo()          LEDColor(  0, 255, 255)
-#define LEDColorViolet()          LEDColor(255,   0, 255)
+#define LEDColorGreen()           LEDColor_t(  0, 255,   0)
+#define LEDColorBlue()            LEDColor_t(  0,   0, 255)
+#define LEDColorIndigo()          LEDColor_t(  0, 255, 255)
+#define LEDColorViolet()          LEDColor_t(255,   0, 255)
 #if HAS_WHITE_LED && DISABLED(RGB_LED)
-  #define LEDColorWhite()         LEDColor(  0,   0,   0, 255)
+  #define LEDColorWhite()         LEDColor_t(  0,   0,   0, 255)
 #else
-  #define LEDColorWhite()         LEDColor(255, 255, 255)
+  #define LEDColorWhite()         LEDColor_t(255, 255, 255)
 #endif
+
+#define LEDColorOff2()             LEDColor2_t(  0,   0,   0)
+#define LEDColorRed2()             LEDColor2_t(255,   0,   0)
+#if ENABLED(LED_COLORS_REDUCE_GREEN)
+  #define LEDColorOrange2()        LEDColor2_t(255,  25,   0)
+  #define LEDColorYellow2()        LEDColor2_t(255,  75,   0)
+#else
+  #define LEDColorOrange2()        LEDColor2_t(255,  80,   0)
+  #define LEDColorYellow2()        LEDColor2_t(255, 255,   0)
+#endif
+#define LEDColorGreen2()           LEDColor2_t(  0, 255,   0)
+#define LEDColorBlue2()            LEDColor2_t(  0,   0, 255)
+#define LEDColorIndigo2()          LEDColor2_t(  0, 255, 255)
+#define LEDColorViolet2()          LEDColor2_t(255,   0, 255)
+#if HAS_WHITE_LED2 && DISABLED(RGB_LED)
+  #define LEDColorWhite2()         LEDColor2_t(  0,   0,   0, 255)
+#else
+  #define LEDColorWhite2()         LEDColor2_t(255, 255, 255)
+#endif
+
 
 class LEDLights {
 public:
   #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
-    static LEDColor color; // last non-off color
+    static LEDColor_t color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #else
     static constexpr bool lights_on = true;
@@ -130,7 +194,7 @@ public:
 
   static void setup(); // init()
 
-  static void set_color(const LEDColor &color
+  static void set_color(const LEDColor_t &color
     OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   );
 
@@ -139,7 +203,7 @@ public:
     OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
     OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence=false)
   ) {
-    set_color(LEDColor(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_IS_SEQUENTIAL, isSequence));
+    set_color(LEDColor_t(r, g, b OPTARG(HAS_WHITE_LED, w) OPTARG(NEOPIXEL_LED, i)) OPTARG(NEOPIXEL_IS_SEQUENTIAL, isSequence));
   }
 
   static void set_off()   { set_color(LEDColorOff()); }
@@ -147,7 +211,7 @@ public:
   static void set_white() { set_color(LEDColorWhite()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
-    static const LEDColor defaultLEDColor;
+    static const LEDColor_t defaultLEDColor;
     static void set_default()  { set_color(defaultLEDColor); }
     static void set_red()      { set_color(LEDColorRed()); }
     static void set_orange()   { set_color(LEDColorOrange()); }
@@ -158,7 +222,7 @@ public:
   #endif
 
   #if ENABLED(PRINTER_EVENT_LEDS)
-    static LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
+    static LEDColor_t get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
   #if ENABLED(LED_CONTROL_MENU)
@@ -190,35 +254,35 @@ extern LEDLights leds;
 
     static void setup(); // init()
 
-    static void set_color(const LEDColor &color);
+    static void set_color(const LEDColor2_t &color);
 
     static void set_color(uint8_t r, uint8_t g, uint8_t b
       OPTARG(HAS_WHITE_LED, uint8_t w=0)
       OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
     ) {
-      set_color(LEDColor(r, g, b
+      set_color(LEDColor2_t(r, g, b
         OPTARG(HAS_WHITE_LED, w)
         OPTARG(NEOPIXEL_LED, i)
       ));
     }
 
-    static void set_off()   { set_color(LEDColorOff()); }
-    static void set_green() { set_color(LEDColorGreen()); }
-    static void set_white() { set_color(LEDColorWhite()); }
+    static void set_off()   { set_color(LEDColorOff2()); }
+    static void set_green() { set_color(LEDColorGreen2()); }
+    static void set_white() { set_color(LEDColorWhite2()); }
 
     #if ENABLED(NEO2_COLOR_PRESETS)
-      static const LEDColor defaultLEDColor;
-      static void set_default()  { set_color(defaultLEDColor); }
-      static void set_red()      { set_color(LEDColorRed()); }
-      static void set_orange()   { set_color(LEDColorOrange()); }
-      static void set_yellow()   { set_color(LEDColorYellow()); }
-      static void set_blue()     { set_color(LEDColorBlue()); }
-      static void set_indigo()   { set_color(LEDColorIndigo()); }
-      static void set_violet()   { set_color(LEDColorViolet()); }
+      static const LEDColor2_t defaultLEDColor2;
+      static void set_default()  { set_color(defaultLEDColor2); }
+      static void set_red()      { set_color(LEDColorRed2()); }
+      static void set_orange()   { set_color(LEDColorOrange2()); }
+      static void set_yellow()   { set_color(LEDColorYellow2()); }
+      static void set_blue()     { set_color(LEDColorBlue2()); }
+      static void set_indigo()   { set_color(LEDColorIndigo2()); }
+      static void set_violet()   { set_color(LEDColorViolet2()); }
     #endif
 
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      static LEDColor color; // last non-off color
+      static LEDColor2_t color; // last non-off color
       static bool lights_on; // the last set color was "on"
       static void toggle();  // swap "off" with color
       static void update() { set_color(color); }

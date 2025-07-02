@@ -25,7 +25,6 @@
  * blinkm.h - Control a BlinkM over i2c
  */
 
-struct LEDColor;
-typedef LEDColor LEDColor;
+struct LEDColor_t;
 
-void blinkm_set_led_color(const LEDColor &color);
+void blinkm_set_led_color(const LEDColor_t &color);
