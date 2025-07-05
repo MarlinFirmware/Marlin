@@ -123,6 +123,10 @@ menukconfig:
 	    echo "❌ Could not find a working Kconfig menu system."; \
 	    echo "→ Install with: sudo apt install kconfig-frontends"; \
 	    echo "→ Or with: python3 -m pip install kconfiglib"; \
+		echo; \
+		echo "If you’re using Windows and Python 3.13 or earlier,"; \
+		echo "make sure windows-curses supports it."; \
+	    echo "→ Install with: python3 -m pip install windows-curses"; \
 	    exit 1; \
 	  }; \
 	}
@@ -136,12 +140,16 @@ menukconfigadv:
 	    echo "❌ Could not find a working Kconfig menu system."; \
 	    echo "→ Install with: sudo apt install kconfig-frontends"; \
 	    echo "→ Or with: python3 -m pip install kconfiglib"; \
+		echo; \
+		echo "If you’re using Windows and Python 3.13 or earlier,"; \
+		echo "make sure windows-curses supports it."; \
+	    echo "→ Install with: python3 -m pip install windows-curses"; \
 	    exit 1; \
 	  }; \
 	}
 
 genkconfig:
-	@python $(SCRIPTS_DIR)/kconfig.py
+	@python $(SCRIPTS_DIR)/kconfig_gen.py
 
 writekconfig:
 	@python $(SCRIPTS_DIR)/kconfig_write.py
