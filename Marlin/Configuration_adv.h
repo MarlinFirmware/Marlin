@@ -1,3 +1,4 @@
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -1806,6 +1807,7 @@
     //#define BACKUP_POWER_SUPPLY           // Backup power / UPS to move the steppers on power-loss
     #if ENABLED(BACKUP_POWER_SUPPLY)
       //#define POWER_LOSS_RETRACT_LEN   10 // (mm) Length of filament to retract on fail
+      //#define EVENT_GCODE_BEFORE_KILL "G27P4\nM400" // Executed as last thing before kill. E.g. park nozzle to prevent leakage on print
     #endif
 
     // Enable if Z homing is needed for proper recovery. 99.9% of the time this should be disabled!
