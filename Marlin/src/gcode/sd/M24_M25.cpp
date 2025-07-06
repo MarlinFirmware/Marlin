@@ -28,6 +28,7 @@
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#include "../../module/temperature.h"
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../feature/pause.h"
@@ -56,6 +57,18 @@
  *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
+  #if ENABLED(HEATER_IDLE_HANDLER) && PAUSE_PARK_NOZZLE_TIMEOUT
+    // Re-enable the heaters if they timed out
+    HOTEND_LOOP() {
+      thermalManager.reset_hotend_idle_timer(e);
+    }
+    HOTEND_LOOP() {
+      thermalManager.wait_for_hotend(e);
+    }
+  #endif
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    thermalManager.set_fans_paused(false);
+  #endif
 
   #if DGUS_LCD_UI_MKS
     if ((print_job_timer.isPaused() || print_job_timer.isRunning()) && !parser.seen("ST"))
@@ -123,6 +136,15 @@ void GcodeSuite::M25() {
       #ifdef ACTION_ON_PAUSE
         hostui.pause();
       #endif
+    #endif
+
+    #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+      thermalManager.set_fans_paused(true);
+    #endif
+    #if ENABLED(HEATER_IDLE_HANDLER) && PAUSE_PARK_NOZZLE_TIMEOUT
+      // Start the heater idle timers
+      const millis_t nozzle_timeout = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout);
     #endif
 
   #endif
