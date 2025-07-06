@@ -2249,7 +2249,7 @@ void prepare_line_to_destination() {
     }
 
     #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active && is_home_dir) {
+      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
         planner.synchronize();
         endstops.hit_on_purpose(); // Reset the Z Endstop state
         endstops.z_homing_probing_active = true; // Set the Z Endstop homing state to active
