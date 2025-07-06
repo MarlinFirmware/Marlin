@@ -339,6 +339,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       quickstop_stepper();
       // With backup power a retract and raise can be done now
       retract_and_lift(zraise);
+      #ifdef EVENT_GCODE_BEFORE_KILL
+        PROCESS_SUBCOMMANDS_NOW(F(EVENT_GCODE_BEFORE_KILL));
+      #endif
     #endif
 
     if (TERN0(DEBUG_POWER_LOSS_RECOVERY, simulated)) {
@@ -601,6 +604,10 @@ void PrintJobRecovery::resume() {
   #if ENABLED(SOVOL_SV06_RTS)
     if (rts.print_state) rts.refreshTime();
     rts.start_print_flag = false;
+  #endif
+
+  #ifdef EVENT_GCODE_ON_RESUME
+    PROCESS_SUBCOMMANDS_NOW(F(EVENT_GCODE_ON_RESUME));
   #endif
 }
 
