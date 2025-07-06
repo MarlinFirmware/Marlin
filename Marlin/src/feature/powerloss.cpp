@@ -262,7 +262,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
     info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
 
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
       info.grid_spacing = bedlevel.grid_spacing;
       info.grid_start   = bedlevel.grid_start;
       memcpy(info.z_values, bedlevel.z_values, sizeof(bed_mesh_t));
@@ -484,7 +484,7 @@ void PrintJobRecovery::resume() {
   set_all_homed();
 
   #if HAS_LEVELING
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
       bedlevel.set_grid(info.grid_spacing, info.grid_start);
       memcpy(bedlevel.z_values, info.z_values,  sizeof(bed_mesh_t));
 

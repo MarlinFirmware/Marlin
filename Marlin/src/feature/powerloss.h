@@ -42,7 +42,7 @@
   #include "mixing.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+#if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
   #include "bedlevel/bedlevel.h"
 #endif
 
@@ -149,7 +149,7 @@ typedef struct {
     #endif
   } flag;
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #if ENABLED(POWER_LOSS_SAVE_BILINEAR_MESH)
     xy_pos_t grid_spacing;
     xy_pos_t grid_start;
     bed_mesh_t z_values;
