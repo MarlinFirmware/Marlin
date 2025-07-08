@@ -83,7 +83,8 @@ PrintJobRecovery recovery;
   #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
 #endif
 #ifndef POWER_LOSS_RETRACT_LEN
-  #define POWER_LOSS_RETRACT_LEN 0
+  #define POWER_LOSS_RETRACT_LEN   0
+  #define POWER_LOSS_UNRETRACT_LEN 0
 #endif
 #ifndef POWER_LOSS_PURGE_LEN
   #define POWER_LOSS_PURGE_LEN 0
@@ -548,13 +549,13 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Un-retract if there was a retract at outage
-  #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    PROCESS_SUBCOMMANDS_NOW(F("G1F3000E" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+  #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_UNRETRACT_LEN > 0
+    PROCESS_SUBCOMMANDS_NOW(F("G1F3000E" STRINGIFY(POWER_LOSS_UNRETRACT_LEN)));
   #endif
 
   // Additional purge on resume if configured
   #if POWER_LOSS_PURGE_LEN
-    PROCESS_SUBCOMMANDS_NOW(TS(F("G1F3000E"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN)));
+    PROCESS_SUBCOMMANDS_NOW(TS(F("G1F3000E"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_UNRETRACT_LEN)));
   #endif
 
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
