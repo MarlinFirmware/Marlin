@@ -38,6 +38,10 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP, CLOSEST };
 
 struct mesh_index_pair;
 
+#if DISABLED(VARIABLE_GRID_POINTS)
+  #define MESH_X_DIST (float((MESH_MAX_X) - (MESH_MIN_X)) / (GRID_MAX_CELLS_X))
+  #define MESH_Y_DIST (float((MESH_MAX_Y) - (MESH_MIN_Y)) / (GRID_MAX_CELLS_Y))
+#endif
 #if ENABLED(OPTIMIZED_MESH_STORAGE)
   typedef int16_t mesh_store_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
@@ -112,10 +116,12 @@ public:
   static int8_t storage_slot;
 
   static bed_mesh_t z_values;
-  static xy_uint8_t grid_points;
-  static xy_float_t mesh_dist, mesh_dist_recip;
-  static void refresh_mesh_dist();
-  static void set_grid_points(const xy_uint8_t &gp) { grid_points = gp; refresh_mesh_dist(); }
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static xy_uint8_t grid_points;
+    static xy_float_t mesh_dist, mesh_dist_recip;
+    static void refresh_mesh_dist();
+    static void set_grid_points(const xy_uint8_t &gp) { grid_points = gp; refresh_mesh_dist(); }
+  #endif
 
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
@@ -136,27 +142,27 @@ public:
   FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const_float_t z) { z_values[px][py] = z; }
 
   static int8_t cell_index_x_raw(const_float_t x) {
-    return FLOOR((x - (MESH_MIN_X)) * mesh_dist_recip.x);
+    return FLOOR((x - (MESH_MIN_X)) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST)));
   }
 
   static int8_t cell_index_y_raw(const_float_t y) {
-    return FLOOR((y - (MESH_MIN_Y)) * mesh_dist_recip.y);
+    return FLOOR((y - (MESH_MIN_Y)) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST)));
   }
 
   static bool cell_index_x_valid(const_float_t x) {
-    return WITHIN(cell_index_x_raw(x), 0, GRID_USED_CELLS_X - 1);
+    return WITHIN(cell_index_x_raw(x), 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_X, GRID_MAX_CELLS_X) - 1);
   }
 
   static bool cell_index_y_valid(const_float_t y) {
-    return WITHIN(cell_index_y_raw(y), 0, GRID_USED_CELLS_Y - 1);
+    return WITHIN(cell_index_y_raw(y), 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_Y, GRID_MAX_CELLS_Y) - 1);
   }
 
   static uint8_t cell_index_x(const_float_t x) {
-    return constrain(cell_index_x_raw(x), 0, GRID_USED_CELLS_X - 1);
+    return constrain(cell_index_x_raw(x), 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_X, GRID_MAX_CELLS_X) - 1);
   }
 
   static uint8_t cell_index_y(const_float_t y) {
-    return constrain(cell_index_y_raw(y), 0, GRID_USED_CELLS_Y - 1);
+    return constrain(cell_index_y_raw(y), 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_Y, GRID_MAX_CELLS_Y) - 1);
   }
 
   static xy_uint8_t cell_indexes(const_float_t x, const_float_t y) {
@@ -164,16 +170,16 @@ public:
   }
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
-  static int8_t closest_x_index(const_float_t x, const xy_uint8_t &_grid_points) {
-    const int8_t px = (x - (MESH_MIN_X) + (mesh_dist.x) * 0.5f) * mesh_dist_recip.x;
-    return WITHIN(px, 0, GRID_USED_CELLS_X) ? px : -1;
+  static int8_t closest_x_index(const_float_t x OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_grid_points)) {
+    const int8_t px = (x - (MESH_MIN_X) + (TERN(VARIABLE_GRID_POINTS, mesh_dist.x, MESH_X_DIST)) * 0.5f) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
+    return WITHIN(px, 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_X, GRID_MAX_POINTS_X)) ? px : -1;
   }
-  static int8_t closest_y_index(const_float_t y, const xy_uint8_t &_grid_points) {
-    const int8_t py = (y - (MESH_MIN_Y) + (mesh_dist.y) * 0.5f) * mesh_dist_recip.y;
-    return WITHIN(py, 0, GRID_USED_CELLS_Y) ? py : -1;
+  static int8_t closest_y_index(const_float_t y OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_grid_points)) {
+    const int8_t py = (y - (MESH_MIN_Y) + (TERN(VARIABLE_GRID_POINTS, mesh_dist.y, MESH_Y_DIST)) * 0.5f) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));
+    return WITHIN(py, 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_Y, GRID_MAX_POINTS_Y)) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
-    return { closest_x_index(xy.x, grid_points), closest_y_index(xy.y, grid_points) };
+    return { closest_x_index(xy.x OPTARG(VARIABLE_GRID_POINTS, grid_points)), closest_y_index(xy.y OPTARG(VARIABLE_GRID_POINTS, grid_points)) };
   }
 
   /**
@@ -206,10 +212,10 @@ public:
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
   static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const uint8_t x1_i, const int yi) {
-    if (!WITHIN(x1_i, 0, GRID_USED_CELLS_X) || !WITHIN(yi, 0, GRID_USED_CELLS_Y)) {
+    if (!WITHIN(x1_i, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(yi, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.y, GRID_MAX_POINTS_Y)) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(x1_i, 0, GRID_USED_CELLS_X)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
+        if (WITHIN(x1_i, 0, TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
       }
 
@@ -217,10 +223,10 @@ public:
       return _UBL_OUTER_Z_RAISE;
     }
 
-    const float xratio = (rx0 - get_mesh_x(x1_i)) * mesh_dist_recip.x,
-                z1 = z_values[x1_i][yi];
+    const float xratio = (rx0 - get_mesh_x(x1_i)) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
+    const float z1 = z_values[x1_i][yi];
 
-    return z1 + xratio * (z_values[_MIN(x1_i, grid_points.x - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+    return z1 + xratio * (z_values[_MIN(x1_i, TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
                                                                                   // If it is, it is clamped to the last element of the
                                                                                   // z_values[][] array and no correction is applied.
   }
@@ -229,10 +235,10 @@ public:
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
   static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
-    if (!WITHIN(xi, 0, GRID_USED_CELLS_X) || !WITHIN(y1_i, 0, GRID_USED_CELLS_Y)) {
+    if (!WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, max_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(y1_i, 0, (TERN(VARIABLE_GRID_POINTS, max_points.y, GRID_MAX_POINTS_Y)) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(xi, 0, GRID_USED_CELLS_X)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
+        if (WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, max_points.x, GRID_MAX_POINTS_X)) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 

@@ -26,17 +26,22 @@
 #include "bedlevel.h"
 #include "hilbert_curve.h"
 
-int8_t  to_fix(const int8_t  v) { return v * 2; }
-int8_t  to_int(const int8_t  v) { return v / 2; }
-uint8_t   log2(const uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
-uint8_t  order(const uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
-#define ord order(_MAX(GRID_USED_POINTS_Y, GRID_USED_POINTS_Y))
-#define dim _BV(ord)
+IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) int8_t  to_fix(const int8_t  v) { return v * 2; }
+IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) int8_t  to_int(const int8_t  v) { return v / 2; }
+IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t   log2(const uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
+IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t  order(const uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
+#if ENABLED(VARIABLE_GRID_POINTS)
+  #define ord order(_MAX(GRID_USED_POINTS_Y, GRID_USED_POINTS_Y))
+  #define dim _BV(ord)
+#else
+  constexpr uint8_t ord = order(_MAX(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y));
+  constexpr uint8_t dim = _BV(ord);
+#endif
 
 static inline bool eval_candidate(int8_t x, int8_t y, hilbert_curve::callback_ptr func, void *data) {
   // The print bed likely has fewer points than the full Hilbert
   // curve, so cull unnecessary points
-  return x < (GRID_USED_POINTS_X) && y < (GRID_USED_POINTS_Y) ? func(x, y, data) : false;
+  return x < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) && y < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) ? func(x, y, data) : false;
 }
 
 bool hilbert_curve::hilbert(int8_t x, int8_t y, int8_t xi, int8_t xj, int8_t yi, int8_t yj, uint8_t n, hilbert_curve::callback_ptr func, void *data) {
@@ -102,8 +107,8 @@ bool hilbert_curve::search_from(uint8_t x, uint8_t y, hilbert_curve::callback_pt
  */
 bool hilbert_curve::search_from_closest(const xy_pos_t &pos, hilbert_curve::callback_ptr func, void *data) {
   // Find closest grid intersection
-  const uint8_t grid_x = LROUND(constrain(float(pos.x - (MESH_MIN_X)) / bedlevel.mesh_dist.x, 0, (GRID_USED_POINTS_X) - 1));
-  const uint8_t grid_y = LROUND(constrain(float(pos.y - (MESH_MIN_Y)) / bedlevel.mesh_dist.y, 0, (GRID_USED_POINTS_Y) - 1));
+  const uint8_t grid_x = LROUND(constrain(float(pos.x - (MESH_MIN_X)) / TERN(VARIABLE_GRID_POINTS, bedlevel.mesh_dist.x, MESH_X_DIST), 0, (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 1));
+  const uint8_t grid_y = LROUND(constrain(float(pos.y - (MESH_MIN_Y)) / TERN(VARIABLE_GRID_POINTS, bedlevel.mesh_dist.y, MESH_Y_DIST), 0, (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - 1));
   return search_from(grid_x, grid_y, func, data);
 }
 

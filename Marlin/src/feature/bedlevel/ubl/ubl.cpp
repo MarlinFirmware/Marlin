@@ -65,25 +65,45 @@ int8_t unified_bed_leveling::storage_slot;
 
 float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
-xy_uint8_t unified_bed_leveling::grid_points;
-xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
-           unified_bed_leveling::mesh_dist_recip;
+#if DISABLED(VARIABLE_GRID_POINTS)
+  #define _GRIDPOS(A,N) (MESH_MIN_##A + N * (MESH_##A##_DIST))
 
-void unified_bed_leveling::refresh_mesh_dist() {
-  mesh_dist.set(
-    float((MESH_MAX_X) - (MESH_MIN_X)) / GRID_USED_CELLS_X,
-    float((MESH_MAX_Y) - (MESH_MIN_Y)) / GRID_USED_CELLS_Y
+  const float
+  unified_bed_leveling::_mesh_index_to_xpos[GRID_MAX_POINTS_X] PROGMEM = ARRAY_N(GRID_MAX_POINTS_X,
+    _GRIDPOS(X,  0), _GRIDPOS(X,  1), _GRIDPOS(X,  2), _GRIDPOS(X,  3),
+    _GRIDPOS(X,  4), _GRIDPOS(X,  5), _GRIDPOS(X,  6), _GRIDPOS(X,  7),
+    _GRIDPOS(X,  8), _GRIDPOS(X,  9), _GRIDPOS(X, 10), _GRIDPOS(X, 11),
+    _GRIDPOS(X, 12), _GRIDPOS(X, 13), _GRIDPOS(X, 14), _GRIDPOS(X, 15)
+  ),
+  unified_bed_leveling::_mesh_index_to_ypos[GRID_MAX_POINTS_Y] PROGMEM = ARRAY_N(GRID_MAX_POINTS_Y,
+    _GRIDPOS(Y,  0), _GRIDPOS(Y,  1), _GRIDPOS(Y,  2), _GRIDPOS(Y,  3),
+    _GRIDPOS(Y,  4), _GRIDPOS(Y,  5), _GRIDPOS(Y,  6), _GRIDPOS(Y,  7),
+    _GRIDPOS(Y,  8), _GRIDPOS(Y,  9), _GRIDPOS(Y, 10), _GRIDPOS(Y, 11),
+    _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
   );
-  mesh_dist_recip = mesh_dist.reciprocal();
-}
+#endif
 
-float unified_bed_leveling::get_mesh_x(const uint8_t i) {
-  return (PROBING_MARGIN_LEFT) + i * mesh_dist.x;
-}
+#if ENABLED(VARIABLE_GRID_POINTS)
+  xy_uint8_t unified_bed_leveling::grid_points;
+  xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
+             unified_bed_leveling::mesh_dist_recip;
 
-float unified_bed_leveling::get_mesh_y(const uint8_t i) {
-  return (PROBING_MARGIN_FRONT) + i * mesh_dist.y;
-}
+  void unified_bed_leveling::refresh_mesh_dist() {
+    mesh_dist.set(
+      float((MESH_MAX_X) - (MESH_MIN_X)) / GRID_USED_CELLS_X,
+      float((MESH_MAX_Y) - (MESH_MIN_Y)) / GRID_USED_CELLS_Y
+    );
+    mesh_dist_recip = mesh_dist.reciprocal();
+  }
+
+  float unified_bed_leveling::get_mesh_x(const uint8_t i) {
+    return (PROBING_MARGIN_LEFT) + i * mesh_dist.x;
+  }
+
+  float unified_bed_leveling::get_mesh_y(const uint8_t i) {
+    return (PROBING_MARGIN_FRONT) + i * mesh_dist.y;
+  }
+#endif
 
 volatile int16_t unified_bed_leveling::encoder_diff;
 
@@ -168,8 +188,8 @@ static void serial_echo_column_labels(const uint8_t sp) {
 void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
-  constexpr uint8_t eachsp = 1 + 6 + 1;                  // [-3.567]
-  uint8_t twixt = eachsp * (GRID_USED_POINTS_X) - 9 * 2; // Leading 4sp, Coordinates 9sp each
+  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t eachsp = 1 + 6 + 1;                  // [-3.567]
+  uint8_t twixt = eachsp * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
 
@@ -190,7 +210,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = (GRID_USED_POINTS_Y) - 1; j >= 0; j--) {
+  for (int8_t j = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -200,7 +220,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     }
 
     // Row Values (I indexes)
-    for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i) {
+    for (uint8_t i = 0; i < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); ++i) {
 
       // Opening Brace or Space
       const bool is_current = i == curr.x && j == curr.y;
@@ -217,7 +237,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < (GRID_USED_POINTS_X) - 1) SERIAL_CHAR('\t');
+      if (csv && i < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');
