@@ -139,36 +139,25 @@ xyze_pos_t destination; // {0}
 
 #if ENABLED(ROTATE_WORKSPACE)
   uint8_t active_workspace = 0;
-  float rotation_angle[MAX_ROTATABLE] = { 0.0f };
-  float rotation_origin_x = 0.0;
-  float rotation_origin_y = 0.0;
+  float rotation_center_x = 0.0;
+  float rotation_center_y = 0.0;
 
-  // Helper to apply rotation around center
-  void rotate_xy(float &x, float &y, const float theta_deg) {
-    rotation_origin_x = (X_MIN_POS + X_MAX_POS) * 0.5f;
-    rotation_origin_y = (Y_MIN_POS + Y_MAX_POS) * 0.5f;
-    const float angle_rad = theta_deg * M_PI / 180.0;
-    const float dx = x - rotation_origin_x;
-    const float dy = y - rotation_origin_y;
+  void apply_workspace_rotation() {
+    // Apply translation to origin
+    float temp_x = destination[X_AXIS] - rotation_center_x;
+    float temp_y = destination[Y_AXIS] - rotation_center_y;
 
-    const float new_x = rotation_origin_x + dx * cos(angle_rad) - dy * sin(angle_rad);
-    const float new_y = rotation_origin_y + dx * sin(angle_rad) + dy * cos(angle_rad);
+    const float angle_rad = RADIANS(rotation_angle[active_workspace]);
+    const float cos_angle = cos(angle_rad);
+    const float sin_angle = sin(angle_rad);
 
-    x = new_x;
-    y = new_y;
- }
+    // Apply rotation
+    float rotated_x = temp_x * cos_angle - temp_y * sin_angle;
+    float rotated_y = temp_x * sin_angle + temp_y * cos_angle;
 
-  // Apply inverse transform to interpret G-code in rotated space
-  void inverse_rotate_gcode_coordinates() {
-    rotate_xy(destination[X_AXIS], destination[Y_AXIS], -rotation_angle[active_workspace]);
-
-    // Clamp and warn if out of bounds
-    if (destination[X_AXIS] < X_MIN_POS || destination[X_AXIS] > X_MAX_POS ||
-        destination[Y_AXIS] < Y_MIN_POS || destination[Y_AXIS] > Y_MAX_POS) {
-      SERIAL_ECHOLN("Warning: Transformed position is out of bounds. Clamping to bed size.");
-      destination[X_AXIS] = constrain(destination[X_AXIS], X_MIN_POS, X_MAX_POS);
-      destination[Y_AXIS] = constrain(destination[Y_AXIS], Y_MIN_POS, Y_MAX_POS);
-    }
+    // Apply translation back
+    destination[X_AXIS] = rotated_x + rotation_center_x;
+    destination[Y_AXIS] = rotated_y + rotation_center_y;
   }
 #endif
 
@@ -1933,7 +1922,7 @@ void prepare_line_to_destination() {
   apply_motion_limits(destination);
 
   #if ENABLED(ROTATE_WORKSPACE)
-    inverse_rotate_gcode_coordinates();
+    apply_workspace_rotation();
   #endif
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
@@ -1985,6 +1974,12 @@ void prepare_line_to_destination() {
       line_to_destination_cartesian()
     #endif
   ) return;
+
+  if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_line_to_destination", destination);
+
+  TERN_(HAS_POSITION_MODIFIERS, planner.apply_modifiers(destination));
+
+  planner.buffer_line(destination, MMS_SCALED(feedrate_mm_s));
 
   current_position = destination;
 }

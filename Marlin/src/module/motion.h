@@ -63,9 +63,14 @@ extern xyz_pos_t cartes;
 #endif
 
 #if ENABLED(ROTATE_WORKSPACE)
-  #define MAX_ROTATABLE 9
+  #include "../gcode/gcode.h"
+
   extern uint8_t active_workspace;
-  extern float rotation_angle[MAX_ROTATABLE]; // Store rotation for each workspace
+  extern float rotation_angle[MAX_COORDINATE_SYSTEMS]; // Store rotation for each workspace
+  extern float rotation_center_x;
+  extern float rotation_center_y;
+
+  void apply_workspace_rotation();
 #endif
 
 #if HAS_ABL_NOT_UBL

@@ -37,9 +37,10 @@
    *   R<deg>    Rotation angle in degrees (Required)
    *
    * Example:
-   *   G68 R45     ; Rotate current workspace by 45°
-   *   G68 P2 R-30 ; Rotate workspace 2 by -30°
-   *   G68 P1      ; Set active workspace to 1 (no rotation)
+   *   G68 R45    ; Rotate current workspace by 45°
+   *   G68 R-30   ; Rotate current workspace by -30°
+   *   G68 P2 R90 ; Rotate workspace 2 by 90° around
+   *   G68 P1     ; Set active workspace to 1 (no rotation change)
    *
    * NOTES:
    *   - Only rotation is set. No translation/offset is changed.
@@ -47,33 +48,39 @@
    */
   void GcodeSuite::G68() {
     const int P = parser.seenval('P') ? parser.value_int() : active_workspace;
+    float rotation_angle[MAX_COORDINATE_SYSTEMS] = { 0 };
+    float r_angle = rotation_angle[active_workspace];
 
     if (parser.seenval('P')) {
-      active_workspace = P;
-    }
-
-    if (parser.seenval('P') && !parser.seenval('R')) {
-      // Only P given: set active workspace
-      if (P < 0 || P >= MAX_ROTATABLE) {
+      if (P < 0 || P >= MAX_COORDINATE_SYSTEMS) {
         SERIAL_ECHOLNPGM("Invalid workspace index.");
         return;
       }
+      active_workspace = P;
       SERIAL_ECHOLN("Active workspace set to ", P, ".");
+    }
+
+    if (parser.seenval('P') && !parser.seenval('R')) {
       return;
     }
 
-    if (!parser.seenval('R')) {
+    if (parser.seenval('R')) {
+      // Parse R parameter (rotation angle)
+      r_angle = parser.value_float();
+      rotation_angle[active_workspace] = r_angle;
+
+      float center_x = rotation_center_x;
+      center_x = (X_MIN_POS + X_MAX_POS) * 0.5f;
+      rotation_center_x = center_x;
+
+      float center_y = rotation_center_y;
+      center_y = (Y_MIN_POS + Y_MAX_POS) * 0.5f;
+      rotation_center_y = center_y;
+      SERIAL_ECHOLN("Workspace ", P, " rotation set to: ", r_angle, " deg.");
+    }
+    else {
       SERIAL_ECHOLNPGM("Missing R parameter (rotation angle).");
-      return;
     }
-
-    const float r = parser.value_float();
-    if (P < 0 || P >= MAX_ROTATABLE) {
-      SERIAL_ECHOLNPGM("Invalid workspace index.");
-      return;
-    }
-
-    rotation_angle[P] = r;
-    SERIAL_ECHOLN("Rotation for workspace ", P, " set to ", r, " degrees.");
   }
+
 #endif // ROTATE_WORKSPACE
