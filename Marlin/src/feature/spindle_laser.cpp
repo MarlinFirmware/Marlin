@@ -63,12 +63,18 @@ cutter_power_t SpindleLaser::menuPower = 0,                           // Power v
 
 cutter_frequency_t SpindleLaser::frequency;                           // PWM frequency setting; range: 2K - 50K
 
+uint16_t SpindleLaser::spindle_override;
+bool SpindleLaser::dir_state;
+
 #define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)
 
 /**
  * Init the cutter to a safe OFF state
  */
 void SpindleLaser::init() {
+  spindle_override = 100;
+  dir_state = false;
+  
   #if ENABLED(SPINDLE_SERVO)
     servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #elif PIN_EXISTS(SPINDLE_LASER_ENA)
@@ -100,7 +106,12 @@ void SpindleLaser::init() {
    *
    * @param ocr Power value
    */
-  void SpindleLaser::_set_ocr(const uint8_t ocr) {
+  void SpindleLaser::_set_ocr(const uint8_t unscaledOcr) {
+
+    // applying spindle override
+    uint16_t scaled = static_cast<uint16_t>(unscaledOcr) * spindle_override;
+    uint8_t ocr = scaled > 25500 ? 255 : scaled / 100;
+    
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
     #endif
@@ -181,7 +192,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
    * Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
    */
   void SpindleLaser::set_reverse(const bool reverse) {
-    const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
+    dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
