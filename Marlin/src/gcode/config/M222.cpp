@@ -29,8 +29,6 @@
  * M222: Set/read spindle override (M222 S120)
  */
 
-// KI_MOD_COMPLETE
-
 void GcodeSuite::M222() {
   if (parser.seenval('S')) {
     const uint8_t new_percentage = constrain((uint8_t)parser.value_int(), MIN_SPINDLE_OVERRIDE, MAX_SPINDLE_OVERRIDE);
