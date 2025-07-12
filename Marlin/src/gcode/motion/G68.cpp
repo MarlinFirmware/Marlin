@@ -26,6 +26,7 @@
 
   #include "../gcode.h"
   #include "../../module/motion.h"
+  float rotation_angle[MAX_COORDINATE_SYSTEMS] = { 0 };
 
   /**
    * G68: Set Workspace Rotation
@@ -48,7 +49,6 @@
    */
   void GcodeSuite::G68() {
     const int P = parser.seenval('P') ? parser.value_int() : active_workspace;
-    float rotation_angle[MAX_COORDINATE_SYSTEMS] = { 0 };
     float r_angle = rotation_angle[active_workspace];
 
     if (parser.seenval('P')) {
