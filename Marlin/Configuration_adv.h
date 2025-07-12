@@ -3718,6 +3718,9 @@
     #define SPINDLE_LASER_POWERUP_DELAY   5000 // (ms) Delay to allow the spindle/laser to come up to speed/power
     #define SPINDLE_LASER_POWERDOWN_DELAY 5000 // (ms) Delay to allow the spindle to stop
 
+    #define MIN_SPINDLE_OVERRIDE            10 // (%) Minimum allowed spindle override
+    #define MAX_SPINDLE_OVERRIDE           200 // (%) Maximum allowed spindle override
+
     /**
      * M3/M4 Power Equation
      *
