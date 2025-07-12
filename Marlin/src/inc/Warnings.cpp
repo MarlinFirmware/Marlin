@@ -927,10 +927,10 @@
 #endif
 
 /**
- * User doesn't have or disabled G92?
+ * User doesn't have or disabled M92?
  */
 #if DISABLED(EDITABLE_STEPS_PER_UNIT)
-  #warning "EDITABLE_STEPS_PER_UNIT is required to enable G92 runtime configuration of steps-per-unit."
+  #warning "EDITABLE_STEPS_PER_UNIT is required to enable M92 runtime configuration of steps-per-unit."
 #endif
 
 /**
