@@ -40,7 +40,9 @@
 #include "../../core/debug_out.h"
 
 /**
- * G34 - Align the ends of the X gantry. See https://youtu.be/3jAFQdTk8iw
+ * G34: Mechanical Gantry Calibration
+ *
+ * Align the ends of the X gantry. See https://youtu.be/3jAFQdTk8iw
  *
  * - The carriage moves to GANTRY_CALIBRATION_SAFE_POSITION, also called the “pounce” position.
  * - If possible, the Z stepper current is reduced to the value specified by 'S'
@@ -53,8 +55,8 @@
  * - The machine is re-homed, according to GANTRY_CALIBRATION_COMMANDS_POST.
  *
  * Parameters:
- *  [S<mA>]     - Current value to use for the raise move. (Default: GANTRY_CALIBRATION_CURRENT)
- *  [Z<linear>] - Extra distance past Z_MAX_POS to move the Z axis. (Default: GANTRY_CALIBRATION_EXTRA_HEIGHT)
+ *   S<mA>      Current value to use for the raise move. (Default: GANTRY_CALIBRATION_CURRENT)
+ *   Z<linear>  Extra distance past Z_MAX_POS to move the Z axis. (Default: GANTRY_CALIBRATION_EXTRA_HEIGHT)
  */
 void GcodeSuite::G34() {
 
@@ -95,37 +97,36 @@ void GcodeSuite::G34() {
 
   #if HAS_MOTOR_CURRENT_SPI
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    const uint32_t previous_current = stepper.motor_current_setting[Z_AXIS];
+    const uint32_t previous_current_Z = stepper.motor_current_setting[Z_AXIS];
     stepper.set_digipot_current(Z_AXIS, target_current);
   #elif HAS_MOTOR_CURRENT_PWM
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    const uint32_t previous_current = stepper.motor_current_setting[1]; // Z
+    const uint32_t previous_current_Z = stepper.motor_current_setting[1]; // Z
     stepper.set_digipot_current(1, target_current);
   #elif HAS_MOTOR_CURRENT_DAC
     const float target_current = parser.floatval('S', GANTRY_CALIBRATION_CURRENT);
-    const float previous_current = dac_amps(Z_AXIS, target_current);
+    const float previous_current_Z = dac_amps(Z_AXIS, target_current);
     stepper_dac.set_current_value(Z_AXIS, target_current);
   #elif HAS_MOTOR_CURRENT_I2C
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    previous_current = dac_amps(Z_AXIS);
+    const float previous_current_Z = dac_amps(Z_AXIS);
     digipot_i2c.set_current(Z_AXIS, target_current)
   #elif HAS_TRINAMIC_CONFIG
     const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
-    static uint16_t previous_current_arr[NUM_Z_STEPPERS];
-    #if AXIS_IS_TMC(Z)
-      previous_current_arr[0] = stepperZ.getMilliamps();
+    #if Z_IS_TRINAMIC
+      static uint16_t previous_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(target_current);
     #endif
-    #if AXIS_IS_TMC(Z2)
-      previous_current_arr[1] = stepperZ2.getMilliamps();
+    #if Z2_IS_TRINAMIC
+      static uint16_t previous_current_Z2 = stepperZ2.getMilliamps();
       stepperZ2.rms_current(target_current);
     #endif
-    #if AXIS_IS_TMC(Z3)
-      previous_current_arr[2] = stepperZ3.getMilliamps();
+    #if Z3_IS_TRINAMIC
+      static uint16_t previous_current_Z3 = stepperZ3.getMilliamps();
       stepperZ3.rms_current(target_current);
     #endif
-    #if AXIS_IS_TMC(Z4)
-      previous_current_arr[3] = stepperZ4.getMilliamps();
+    #if Z4_IS_TRINAMIC
+      static uint16_t previous_current_Z4 = stepperZ4.getMilliamps();
       stepperZ4.rms_current(target_current);
     #endif
   #endif
@@ -140,26 +141,18 @@ void GcodeSuite::G34() {
   #endif
 
   #if HAS_MOTOR_CURRENT_SPI
-    stepper.set_digipot_current(Z_AXIS, previous_current);
+    stepper.set_digipot_current(Z_AXIS, previous_current_Z);
   #elif HAS_MOTOR_CURRENT_PWM
-    stepper.set_digipot_current(1, previous_current);
+    stepper.set_digipot_current(1, previous_current_Z);
   #elif HAS_MOTOR_CURRENT_DAC
-    stepper_dac.set_current_value(Z_AXIS, previous_current);
+    stepper_dac.set_current_value(Z_AXIS, previous_current_Z);
   #elif HAS_MOTOR_CURRENT_I2C
-    digipot_i2c.set_current(Z_AXIS, previous_current)
+    digipot_i2c.set_current(Z_AXIS, previous_current_Z)
   #elif HAS_TRINAMIC_CONFIG
-    #if AXIS_IS_TMC(Z)
-      stepperZ.rms_current(previous_current_arr[0]);
-    #endif
-    #if AXIS_IS_TMC(Z2)
-      stepperZ2.rms_current(previous_current_arr[1]);
-    #endif
-    #if AXIS_IS_TMC(Z3)
-      stepperZ3.rms_current(previous_current_arr[2]);
-    #endif
-    #if AXIS_IS_TMC(Z4)
-      stepperZ4.rms_current(previous_current_arr[3]);
-    #endif
+    TERN_(Z_IS_TRINAMIC,  stepperZ.rms_current(previous_current_Z));
+    TERN_(Z2_IS_TRINAMIC, stepperZ2.rms_current(previous_current_Z2));
+    TERN_(Z3_IS_TRINAMIC, stepperZ3.rms_current(previous_current_Z3));
+    TERN_(Z4_IS_TRINAMIC, stepperZ4.rms_current(previous_current_Z4));
   #endif
 
   // Back off end plate, back to normal motion range

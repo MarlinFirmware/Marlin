@@ -85,7 +85,7 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
-uint8_t bmp_public_buf[14 * 1024];
+uint8_t bmp_public_buf[16 * 1024];
 uint8_t public_buf[513];
 
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
@@ -131,30 +131,15 @@ void tft_lvgl_init() {
   // Init TFT first!
   SPI_TFT.spiInit(SPI_FULL_SPEED);
   SPI_TFT.lcdInit();
-
   hal.watchdog_refresh();     // LVGL init takes time
 
-  #if HAS_USB_FLASH_DRIVE
-    uint16_t usb_flash_loop = 1000;
-    #if HAS_MULTI_VOLUME && !HAS_SD_HOST_DRIVE
-      if (IS_SD_INSERTED())
-        card.changeMedia(&card.media_driver_sdcard);
-      else
-        card.changeMedia(&card.media_driver_usbFlash);
-    #endif
-    do {
-      card.media_driver_usbFlash.idle();
-      hal.watchdog_refresh();
-      delay(2);
-    } while (!card.media_driver_usbFlash.isInserted() && usb_flash_loop--);
-    card.mount();
-  #elif HAS_LOGO_IN_FLASH
+  #if HAS_LOGO_IN_FLASH
+    // Leave the boot screen visible for a moment
     delay(1000);
-    hal.watchdog_refresh();
+    hal.watchdog_refresh();     // LVGL init takes time
     delay(1000);
+    hal.watchdog_refresh();     // LVGL init takes time
   #endif
-
-  hal.watchdog_refresh();     // LVGL init takes time
 
   #if HAS_MEDIA
     UpdateAssets();
@@ -164,9 +149,14 @@ void tft_lvgl_init() {
 
   touch.init();
 
+  #if ENABLED(USE_HASH_TABLE)
+    init_img_map();             // Initialize the image address hash table
+    hal.watchdog_refresh();     // Hash table init takes time
+  #endif
+
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); // Initialize the display buffer
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 17); // Initialize the display buffer
 
   lv_disp_drv_t disp_drv;     // Descriptor of a display driver
   lv_disp_drv_init(&disp_drv);    // Basic initialization
@@ -283,8 +273,6 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
     SPI_TFT.tftio.writeSequence((uint16_t*)color_p, width * height);
     lv_disp_flush_ready(disp_drv_p); // Indicate you are ready with the flushing
   #endif
-
-  W25QXX.init(SPI_QUARTER_SPEED);
 }
 
 #if ENABLED(USE_SPI_DMA_TC)
@@ -342,19 +330,25 @@ bool my_mousewheel_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data) {
   return false;       // No more data to read so return false
 }
 
-extern uint8_t currentFlashPage;
+#if HAS_SPI_FLASH_COMPRESSION
+  extern uint8_t currentFlashPage;
+#endif
 
 // spi_flash
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
+  #if HAS_SPI_FLASH_COMPRESSION
+    currentFlashPage = 0;
+  #endif
   if (strcasecmp(last_path_name, path) != 0) {
     pic_read_base_addr = lv_get_pic_addr((uint8_t *)path);
+    // clean lvgl image cache
+    char cache_path_name[30 + 3] = {0};
+    strcat(cache_path_name, "F:/");
+    strcat(cache_path_name, (const char *)last_path_name);
+    lv_img_cache_invalidate_src(cache_path_name);
     strcpy(last_path_name, path);
-  }
-  else {
-    W25QXX.init(SPI_QUARTER_SPEED);
-    currentFlashPage = 0;
   }
   pic_read_addr_offset = pic_read_base_addr;
   return LV_FS_RES_OK;

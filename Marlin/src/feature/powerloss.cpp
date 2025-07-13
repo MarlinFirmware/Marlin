@@ -126,7 +126,7 @@ void PrintJobRecovery::enable(const bool onoff) {
 void PrintJobRecovery::changed() {
   if (!enabled)
     purge();
-  else if (IS_SD_PRINTING())
+  else if (card.isStillPrinting())
     save(true);
   TERN_(EXTENSIBLE_UI, ExtUI::onSetPowerLoss(enabled));
 }
@@ -192,7 +192,7 @@ void PrintJobRecovery::prepare() {
  */
 void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POWER_LOSS_ZRAISE*/, const bool raised/*=false*/) {
 
-  // We don't check IS_SD_PRINTING here so a save may occur during a pause
+  // We don't check isStillPrinting here so a save may occur during a pause
 
   if (TERN0(HAS_LASER_E3S1PRO, laser_device.is_laser_device())) return;
 
@@ -222,7 +222,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Set Head and Foot to matching non-zero values
     if (!++info.valid_head) ++info.valid_head; // non-zero in sequence
-    //if (!IS_SD_PRINTING()) info.valid_head = 0;
+    //if (!card.isStillPrinting()) info.valid_head = 0;
     info.valid_foot = info.valid_head;
 
     // Machine state
@@ -348,7 +348,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
     // Save the current position, distance that Z was (or should be) raised,
     // and a flag whether the raise was already done here.
-    if (IS_SD_PRINTING()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
+    if (card.isStillPrinting()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Tell the LCD about the outage, even though it is about to die
     TERN_(EXTENSIBLE_UI, ExtUI::onPowerLoss());
@@ -442,8 +442,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = resume_pos.z,
-              z_raised = z_print + info.zraise;
+  const float z_print = resume_pos.z;
+
+  #if ANY(Z_HOME_TO_MAX, POWER_LOSS_RECOVER_ZHOME) || DISABLED(BELTPRINTER)
+    const float z_raised = z_print + info.zraise;
+  #endif
 
   //
   // Home the axes that can safely be homed, and
@@ -551,7 +554,7 @@ void PrintJobRecovery::resume() {
     }
   #endif
 
-  // Restore retract and hop state from an active `G10` command
+  // Restore retract and hop state from an active 'G10' command
   #if ENABLED(FWRETRACT)
     EXTRUDER_LOOP() {
       if (info.retract[e] != 0.0) {

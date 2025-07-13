@@ -59,7 +59,7 @@ void MarlinHAL::init() {
   constexpr int cpuFreq = F_CPU;
   UNUSED(cpuFreq);
 
-  #if HAS_MEDIA && DISABLED(SDIO_SUPPORT) && PIN_EXISTS(SD_SS)
+  #if HAS_MEDIA && DISABLED(ONBOARD_SDIO) && PIN_EXISTS(SD_SS)
     OUT_WRITE(SD_SS_PIN, HIGH); // Try to set SD_SS_PIN inactive before any other SPI users start up
   #endif
 
@@ -77,7 +77,7 @@ void MarlinHAL::init() {
 
   HAL_timer_init();
 
-  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+  #if ALL(EMERGENCY_PARSER, USBD_USE_CDC)
     USB_Hook_init();
   #endif
 
@@ -87,7 +87,7 @@ void MarlinHAL::init() {
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
-    delay_ms(1000);                                        // Give OS time to notice
+    delay_ms(1000);                                     // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
