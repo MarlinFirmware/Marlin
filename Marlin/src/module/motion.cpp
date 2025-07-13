@@ -77,7 +77,7 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
-#if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+#if ENABLED(FT_MOTION)
   #include "ft_motion.h"
 #endif
 
@@ -2248,7 +2248,7 @@ void prepare_line_to_destination() {
       #endif
     }
 
-    #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+    #if ENABLED(FT_MOTION)
       if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
         planner.synchronize();
         endstops.hit_on_purpose(); // Reset the Z Endstop state
@@ -2286,7 +2286,7 @@ void prepare_line_to_destination() {
         if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
       #endif
 
-      #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+      #if ENABLED(FT_MOTION)
         if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
           endstops.z_homing_probing_active = false; // Set the Z Endstop homing state to inactive
         }

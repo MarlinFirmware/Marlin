@@ -77,7 +77,7 @@ bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.l
 volatile Endstops::endstop_mask_t Endstops::hit_state;
 Endstops::endstop_mask_t Endstops::live_state = 0;
 
-#if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+#if ENABLED(FT_MOTION)
   bool Endstops::z_homing_probing_active = false;
 #endif
 
@@ -964,7 +964,7 @@ void Endstops::update() {
           if ( TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, z_probe_enabled) // When Z_MIN is the probe, the probe must be enabled
             && TERN1(USE_Z_MIN_PROBE, !z_probe_enabled)                   // When Z_MIN isn't the probe, Z MIN is ignored while probing
           ) {
-            #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+            #if ENABLED(FT_MOTION)
               if (z_homing_probing_active || !ftMotion.cfg.active)
             #endif
               PROCESS_ENDSTOP_Z(MIN);
@@ -982,7 +982,7 @@ void Endstops::update() {
 
         // When closing the gap use the probe trigger state
         #if USE_Z_MIN_PROBE
-          #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+          #if ENABLED(FT_MOTION)
             if (z_probe_enabled && (z_homing_probing_active || !ftMotion.cfg.active)) 
           #else
             if (z_probe_enabled)

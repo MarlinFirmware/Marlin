@@ -98,7 +98,7 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+#if ENABLED(FT_MOTION)
   #include "ft_motion.h"
 #endif
 
@@ -781,7 +781,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
 float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_point/*=Z_PROBE_LOW_POINT*/, const_float_t z_clearance/*=Z_TWEEN_SAFE_CLEARANCE*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+  #if ENABLED(FT_MOTION)
    if (ftMotion.cfg.active) {
       planner.synchronize();
       endstops.hit_on_purpose(); // Reset the Z Endstop state
@@ -937,7 +937,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
 
   #endif
 
-  #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
+  #if ENABLED(FT_MOTION)
     if (ftMotion.cfg.active)
       endstops.z_homing_probing_active = false;
   #endif

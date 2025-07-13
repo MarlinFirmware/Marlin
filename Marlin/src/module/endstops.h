@@ -264,8 +264,8 @@ class Endstops {
       static void enable_z_probe(const bool onoff=true);
     #endif
 
-    #if ENABLED(FT_MOTION) && (ENABLED(BIQU_MICROPROBE_V1) || ENABLED(BIQU_MICROPROBE_V2))
-      static bool z_homing_probing_active; // Flag for Z Homing with the Biqu Microprobe and FT_MOTION
+    #if ENABLED(FT_MOTION)
+      static bool z_homing_probing_active; // Flag for Z Homing with a probe and FT_MOTION
     #endif
 
     // Enable / disable calibration probe checking
