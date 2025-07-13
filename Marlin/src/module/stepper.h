@@ -318,6 +318,12 @@ constexpr ena_mask_t enable_overlap[] = {
 
 #endif // NONLINEAR_EXTRUSION
 
+// Pause resume ramping constants
+#if defined(REALTIME_RAMPING)
+    #define MIN_REALTIME_RAMPING_FACTOR 500
+    #define MAX_REALTIME_RAMPING_FACTOR 10000
+#endif
+
 //
 // Stepper class definition
 //
@@ -328,6 +334,11 @@ class Stepper {
   friend void stepperTask(void *);
 
   public:
+
+    // Pause resume ramping factor
+    #if defined(REALTIME_RAMPING)
+      static volatile uint16_t isr_ramp_factor;
+    #endif
 
     // The minimal step rate ensures calculations stay within limits
     // and avoid the most unreasonably slow step rates.

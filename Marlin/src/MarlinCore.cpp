@@ -785,6 +785,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Manage Heaters (and Watchdog)
   thermalManager.task();
 
+  // Realtime pause/resume ramping loop
+  #if defined(REALTIME_RAMPING)
+    updateSoftStopResume();
+  #endif
+
   // Max7219 heartbeat, animation, etc
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
 

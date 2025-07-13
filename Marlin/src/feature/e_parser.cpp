@@ -207,8 +207,15 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
             case EP_GRBL_STATUS: report_current_position_moving(); break;
-            case EP_GRBL_PAUSE: quickpause_stepper(); break;
-            case EP_GRBL_RESUME: quickresume_stepper(); break;
+
+            #if defined(REALTIME_RAMPING)
+              case EP_GRBL_PAUSE: realtime_ramping_pause_flag = true; break;
+              case EP_GRBL_RESUME: realtime_ramping_resume_flag = true; break;
+            #else
+              case EP_GRBL_PAUSE: quickpause_stepper(); break;
+              case EP_GRBL_RESUME: quickresume_stepper(); break;
+            #endif
+
           #endif
           #if ENABLED(SOFT_RESET_VIA_SERIAL)
             case EP_KILL: hal.reboot(); break;
@@ -221,3 +228,8 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 }
 
 #endif // EMERGENCY_PARSER
+
+#if defined(REALTIME_RAMPING)
+  bool realtime_ramping_pause_flag = false;
+  bool realtime_ramping_resume_flag = false;
+#endif
