@@ -1951,12 +1951,6 @@ void prepare_line_to_destination() {
     #endif
   ) return;
 
-  if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_line_to_destination", destination);
-
-  TERN_(HAS_POSITION_MODIFIERS, planner.apply_modifiers(destination));
-
-  planner.buffer_line(destination, MMS_SCALED(feedrate_mm_s));
-
   current_position = destination;
 }
 
