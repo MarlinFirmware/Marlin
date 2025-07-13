@@ -1897,9 +1897,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 void prepare_line_to_destination() {
   apply_motion_limits(destination);
 
-  #if ENABLED(ROTATE_WORKSPACE)
-    TERN_(ROTATE_WORKSPACE, gcode.apply_workspace_rotation());
-  #endif
+  TERN_(ROTATE_WORKSPACE, gcode.apply_workspace_rotation());
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 
