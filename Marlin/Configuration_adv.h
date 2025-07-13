@@ -2289,22 +2289,6 @@
 
 //#define FAST_BUTTON_POLLING           // Poll buttons at ~1kHz on 8-bit AVR. Set to 'false' for slow polling on 32-bit.
 
-// @section safety
-
-/**
- * The watchdog hardware timer will do a reset and disable all outputs
- * if the firmware gets too overloaded to read the temperature sensors.
- *
- * If you find that watchdog reboot causes your AVR board to hang forever,
- * enable WATCHDOG_RESET_MANUAL to use a custom timer instead of WDTO.
- * NOTE: This method is less reliable as it can only catch hangups while
- * interrupts are enabled.
- */
-#define USE_WATCHDOG
-#if ENABLED(USE_WATCHDOG)
-  //#define WATCHDOG_RESET_MANUAL
-#endif
-
 // @section lcd
 
 /**
@@ -2591,11 +2575,6 @@
  * Preparing your G-code: https://github.com/colinrgodsey/step-daemon
  */
 //#define DIRECT_STEPPING
-
-/**
- * Rotate Workspace
- */
-//#define ROTATE_WORKSPACE
 
 /**
  * G38 Probe Target
@@ -3650,6 +3629,21 @@
 // @section cnc
 
 /**
+ * CNC Coordinate Systems
+ *
+ * Enables G53 and G54-G59.3 commands to select coordinate systems
+ * and G92.1 to reset the workspace to native machine space.
+ */
+//#define CNC_COORDINATE_SYSTEMS
+
+/**
+ * Rotate Workspace
+ *
+ * Enables G68 command to rotate the workspace.
+ */
+//#define ROTATE_WORKSPACE
+
+/**
  * Spindle & Laser control
  *
  * Add the M3, M4, and M5 commands to turn the spindle/laser on and off, and
@@ -3917,6 +3911,20 @@
 // @section safety
 
 /**
+ * The watchdog hardware timer will do a reset and disable all outputs
+ * if the firmware gets too overloaded to read the temperature sensors.
+ *
+ * If you find that watchdog reboot causes your AVR board to hang forever,
+ * enable WATCHDOG_RESET_MANUAL to use a custom timer instead of WDTO.
+ * NOTE: This method is less reliable as it can only catch hangups while
+ * interrupts are enabled.
+ */
+#define USE_WATCHDOG
+#if ENABLED(USE_WATCHDOG)
+  //#define WATCHDOG_RESET_MANUAL
+#endif
+
+/**
  * Stepper Driver Anti-SNAFU Protection
  *
  * If the SAFE_POWER_PIN is defined for your board, Marlin will check
@@ -3924,16 +3932,6 @@
  * Disable protection if your stepper drivers don't support the feature.
  */
 //#define DISABLE_DRIVER_SAFE_POWER_PROTECT
-
-// @section cnc
-
-/**
- * CNC Coordinate Systems
- *
- * Enables G53 and G54-G59.3 commands to select coordinate systems
- * and G92.1 to reset the workspace to native machine space.
- */
-//#define CNC_COORDINATE_SYSTEMS
 
 // @section security
 
