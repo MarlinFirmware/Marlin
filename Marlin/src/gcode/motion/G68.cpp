@@ -26,7 +26,29 @@
 
   #include "../gcode.h"
   #include "../../module/motion.h"
-  float rotation_angle[MAX_COORDINATE_SYSTEMS] = { 0 };
+
+  uint8_t GcodeSuite::active_workspace = 0;
+  float GcodeSuite::rotation_center_x = 0.0;
+  float GcodeSuite::rotation_center_y = 0.0;
+  float GcodeSuite::rotation_angle[MAX_COORDINATE_SYSTEMS] = { 0 };
+
+  void GcodeSuite::apply_workspace_rotation() {
+    // Apply translation to origin
+    float temp_x = destination[X_AXIS] - rotation_center_x;
+    float temp_y = destination[Y_AXIS] - rotation_center_y;
+
+    const float angle_rad = RADIANS(rotation_angle[active_workspace]);
+    const float cos_angle = cos(angle_rad);
+    const float sin_angle = sin(angle_rad);
+
+    // Apply rotation
+    float rotated_x = temp_x * cos_angle - temp_y * sin_angle;
+    float rotated_y = temp_x * sin_angle + temp_y * cos_angle;
+
+    // Apply translation back
+    destination[X_AXIS] = rotated_x + rotation_center_x;
+    destination[Y_AXIS] = rotated_y + rotation_center_y;
+  }
 
   /**
    * G68: Set Workspace Rotation

@@ -137,30 +137,6 @@ xyze_pos_t destination; // {0}
   }
 #endif
 
-#if ENABLED(ROTATE_WORKSPACE)
-  uint8_t active_workspace = 0;
-  float rotation_center_x = 0.0;
-  float rotation_center_y = 0.0;
-
-  void apply_workspace_rotation() {
-    // Apply translation to origin
-    float temp_x = destination[X_AXIS] - rotation_center_x;
-    float temp_y = destination[Y_AXIS] - rotation_center_y;
-
-    const float angle_rad = RADIANS(rotation_angle[active_workspace]);
-    const float cos_angle = cos(angle_rad);
-    const float sin_angle = sin(angle_rad);
-
-    // Apply rotation
-    float rotated_x = temp_x * cos_angle - temp_y * sin_angle;
-    float rotated_y = temp_x * sin_angle + temp_y * cos_angle;
-
-    // Apply translation back
-    destination[X_AXIS] = rotated_x + rotation_center_x;
-    destination[Y_AXIS] = rotated_y + rotation_center_y;
-  }
-#endif
-
 // The feedrate for the current move, often used as the default if
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
@@ -1922,7 +1898,7 @@ void prepare_line_to_destination() {
   apply_motion_limits(destination);
 
   #if ENABLED(ROTATE_WORKSPACE)
-    apply_workspace_rotation();
+    TERN_(ROTATE_WORKSPACE, gcode.apply_workspace_rotation());
   #endif
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)

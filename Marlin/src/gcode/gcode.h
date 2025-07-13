@@ -432,6 +432,14 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
+  #if ENABLED(ROTATE_WORKSPACE)
+    static uint8_t active_workspace;
+    static float rotation_angle[MAX_COORDINATE_SYSTEMS]; // Store rotation for each workspace
+    static float rotation_center_x;
+    static float rotation_center_y;
+    static void apply_workspace_rotation();
+  #endif
+
   static millis_t previous_move_ms, max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
     return max_inactive_time && ELAPSED(ms, previous_move_ms, max_inactive_time);

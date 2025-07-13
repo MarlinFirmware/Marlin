@@ -62,17 +62,6 @@ extern xyz_pos_t cartes;
   extern abce_pos_t delta;
 #endif
 
-#if ENABLED(ROTATE_WORKSPACE)
-  #include "../gcode/gcode.h"
-
-  extern uint8_t active_workspace;
-  extern float rotation_angle[MAX_COORDINATE_SYSTEMS]; // Store rotation for each workspace
-  extern float rotation_center_x;
-  extern float rotation_center_y;
-
-  void apply_workspace_rotation();
-#endif
-
 #if HAS_ABL_NOT_UBL
   extern feedRate_t xy_probe_feedrate_mm_s;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
