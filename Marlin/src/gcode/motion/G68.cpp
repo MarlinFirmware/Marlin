@@ -75,11 +75,11 @@
 
     if (parser.seenval('P')) {
       if (P < 0 || P >= MAX_COORDINATE_SYSTEMS) {
-        SERIAL_ECHOLNPGM("Invalid workspace index.");
+        SERIAL_ECHOLNPGM("G68: Invalid workspace index.");
         return;
       }
       active_workspace = P;
-      SERIAL_ECHOLN("Active workspace set to ", P, ".");
+      SERIAL_ECHOLN("G68: Active workspace set to ", P, ".");
     }
 
     if (parser.seenval('P') && !parser.seenval('R')) {
@@ -87,9 +87,37 @@
     }
 
     if (parser.seenval('R')) {
-      // Parse R parameter (rotation angle)
-      r_angle = parser.value_float();
-      rotation_angle[active_workspace] = r_angle;
+      // Validate rotation angle if DELTA is not enabled
+      #if DISABLED(DELTA)
+        // Parse rotation angle (int)
+        int input_deg = parser.value_int();
+
+        // Check if the input angle is one of the explicitly allowed values:
+        // +/- 90, 180, 270, or 0 degrees.
+        bool is_valid = (
+            input_deg ==    0 ||
+            input_deg ==   90 ||
+            input_deg ==  -90 ||
+            input_deg ==  180 ||
+            input_deg == -180 ||
+            input_deg ==  270 ||
+            input_deg == -270
+        );
+
+        if (!is_valid) {
+            SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 90, 180, 270, or 0 degrees for square beds.");
+            return;
+        }
+
+        r_angle = (float)input_deg;
+      #else
+        // Parse rotation angle (float)
+        r_angle = parser.value_float();
+      #endif
+
+      if (r_angle != rotation_angle[active_workspace]) {
+        rotation_angle[active_workspace] = r_angle;
+      }
 
       float center_x = rotation_center_x;
       center_x = (X_MIN_POS + X_MAX_POS) * 0.5f;
@@ -98,10 +126,10 @@
       float center_y = rotation_center_y;
       center_y = (Y_MIN_POS + Y_MAX_POS) * 0.5f;
       rotation_center_y = center_y;
-      SERIAL_ECHOLN("Workspace ", P, " rotation set to: ", r_angle, " deg.");
+      SERIAL_ECHOLN("G68: Workspace ", P, " rotation set to: ", r_angle, " deg.");
     }
     else {
-      SERIAL_ECHOLNPGM("Missing R parameter (rotation angle).");
+      SERIAL_ECHOLNPGM("G68: Missing R parameter (rotation angle).");
     }
   }
 
