@@ -224,7 +224,7 @@ bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD,
   ) return false;
 
   flag.filenameIsDir = DIR_IS_SUBDIR(&p);               // We know it's a File or Folder
-  setBinFlag(extIsBIN((char *)&p.name[8]));             // List .bin files (a firmware file for flashing)
+  setBinFlag(onlyBin && extIsBIN((char *)&p.name[8]));  // List .bin files (a firmware file for flashing)
 
   return (
     flag.filenameIsDir                                  // All Directories are ok

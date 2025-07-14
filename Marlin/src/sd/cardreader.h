@@ -69,7 +69,7 @@ typedef struct {
        filenameIsDir:1,         // The working item is a directory
        workDirIsRoot:1,         // The working directory is / so there's no parent
        abort_sd_printing:1      // Abort by calling abortSDPrinting() at the main loop()
-       #if DO_LIST_BIN_FILES
+       #if DO_LIST_BIN_FILES || ENABLED(CUSTOM_FIRMWARE_UPLOAD)
          , filenameIsBin:1      // The working item is a BIN file
        #endif
        #if ENABLED(BINARY_FILE_TRANSFER)
@@ -300,8 +300,8 @@ public:
   #endif
 
   // Binary flag for the current file
-  static bool fileIsBinary() { return TERN0(DO_LIST_BIN_FILES, flag.filenameIsBin); }
-  static void setBinFlag(const bool bin) { TERN(DO_LIST_BIN_FILES, flag.filenameIsBin = bin, UNUSED(bin)); }
+  static bool fileIsBinary() { return TERN0(DO_LIST_BIN_FILES || ENABLED(CUSTOM_FIRMWARE_UPLOAD), flag.filenameIsBin); }
+  static void setBinFlag(const bool bin) { TERN(DO_LIST_BIN_FILES || ENABLED(CUSTOM_FIRMWARE_UPLOAD), flag.filenameIsBin = bin, UNUSED(bin)); }
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
