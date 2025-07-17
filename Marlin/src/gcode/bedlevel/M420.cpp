@@ -45,14 +45,14 @@
 /**
  * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
  *
- *   S[bool]   Turns leveling on or off
- *   Z[height] Sets the Z fade height (0 or none to disable)
- *   V[bool]   Verbose - Print the leveling grid
+ *   S<bool>   Turns leveling on or off
+ *   Z<height> Sets the Z fade height (0 or none to disable)
+ *   V<bool>   Verbose - Print the leveling grid
  *
  * With AUTO_BED_LEVELING_UBL only:
  *
- *   L[index]  Load UBL mesh from index (0 is default)
- *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
+ *   L<index>  Load UBL mesh from index (0 is default)
+ *   T<map>    0:Human-readable 1:CSV 2:"LCD" 4:Compact
  *
  * With mesh-based leveling only:
  *

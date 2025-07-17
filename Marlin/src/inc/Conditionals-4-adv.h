@@ -1591,3 +1591,8 @@
   #undef AUTO_REPORT_SD_STATUS
   #define AUTO_REPORT_SD_STATUS
 #endif
+
+// SPI Flash Backup
+#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+  #define SPI_FLASH_BACKUP 1
+#endif

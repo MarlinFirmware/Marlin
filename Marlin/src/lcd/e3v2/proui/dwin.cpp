@@ -2689,7 +2689,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
 #if ENABLED(LIN_ADVANCE)
   #define LA_FDIGITS 3
   void applyLA_K() { planner.set_advance_k(menuData.value / POW(10, LA_FDIGITS)); }
-  void setLA_K() { setPFloatOnClick(0, 10, LA_FDIGITS, applyLA_K); }
+  void setLA_K() { setFloatOnClick(0, 10, LA_FDIGITS, planner.extruder_advance_K[0], applyLA_K); }
 #endif
 
 #if HAS_X_AXIS

@@ -338,7 +338,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1164)
 else ifeq ($(HARDWARE_MOTHERBOARD),1165)
 # XTLW MFF V2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1166)
-
+# E3D Rumba BigBox
+else ifeq ($(HARDWARE_MOTHERBOARD),1167)
 
 #
 # RAMBo and derivatives

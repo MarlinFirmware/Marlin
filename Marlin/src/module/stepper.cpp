@@ -256,17 +256,7 @@ uint32_t Stepper::advance_divisor = 0,
 #endif
 
 #if ENABLED(NONLINEAR_EXTRUSION)
-  ne_coeff_t Stepper::ne;
-  #if NONLINEAR_EXTRUSION_Q24
-    ne_q24_t Stepper::ne_q24;
-  #else
-    ne_q30_t Stepper::ne_q30;
-  #endif
-  // private:
-  #if NONLINEAR_EXTRUSION_Q24
-    int32_t Stepper::ne_edividend;
-    uint32_t Stepper::ne_scale_q24;
-  #endif
+  nonlinear_t Stepper::ne;              // Initialized by settings.load
 #endif
 
 #if HAS_ZV_SHAPING
@@ -1411,7 +1401,7 @@ void Stepper::apply_directions() {
       return (r2 | (uint16_t(r3) << 8)) | (uint32_t(r4) << 16);
     }
 
-  #else
+  #else // !__AVR__
 
     // For all the other 32bit CPUs
     FORCE_INLINE void Stepper::_calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av) {
@@ -1488,7 +1478,9 @@ void Stepper::apply_directions() {
 
       #endif
     }
-  #endif
+
+  #endif // !__AVR__
+
 #endif // S_CURVE_ACCELERATION
 
 /**
@@ -1557,7 +1549,7 @@ void Stepper::isr() {
 
       if (using_ftMotion) {
         ftMotion_stepper();             // Run FTM Stepping
-        
+
         // Define 2.5 msec task for auxiliary functions.
         if (!ftMotion_nextAuxISR) {
           TERN_(BABYSTEPPING, if (babystep.has_steps()) babystepping_isr());
@@ -1566,7 +1558,7 @@ void Stepper::isr() {
 
         // Enable ISRs to reduce latency for higher priority ISRs
         hal.isr_on();
-        
+
         interval = FTM_MIN_TICKS;
         ftMotion_nextAuxISR -= interval;
       }
@@ -2247,11 +2239,11 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 #if NONLINEAR_EXTRUSION_Q24
   void Stepper::calc_nonlinear_e(const uint32_t step_rate) {
-    const uint32_t velocity_q24 = ne_scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
-    int32_t vd_q24 = (((((int64_t)ne_q24.A * velocity_q24) >> 24) * velocity_q24) >> 24) + (((int64_t)ne_q24.B * velocity_q24) >> 24);
+    const uint32_t velocity_q24 = ne.scale_q24 * step_rate; // Scale step_rate first so all intermediate values stay in range of 8.24 fixed point math
+    int32_t vd_q24 = ((((int64_t(ne.q24.A) * velocity_q24) >> 24) * velocity_q24) >> 24) + ((int64_t(ne.q24.B) * velocity_q24) >> 24);
     NOLESS(vd_q24, 0);
 
-    advance_dividend.e = (uint64_t(ne_q24.C + vd_q24) * ne_edividend) >> 24;
+    advance_dividend.e = (uint64_t(ne.q24.C + vd_q24) * ne.edividend) >> 24;
   }
 #endif
 
@@ -2707,7 +2699,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = 0;
 
         // Decide if axis smoothing is possible
-        if (stepper.adaptive_step_smoothing_enabled) {
+        if (adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < min_step_isr_frequency) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
@@ -2834,18 +2826,19 @@ hal_timer_t Stepper::block_phase_isr() {
         acc_step_rate = current_block->initial_rate;
       #endif
 
+      // Calculate Nonlinear Extrusion fixed-point quotients
       #if NONLINEAR_EXTRUSION_Q24
-        ne_edividend = advance_dividend.e;
-        const float scale = (float(ne_edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
-        ne_scale_q24 = _BV32(24) * scale;
-        if (current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
-          ne_q24.A = _BV32(24) * ne.A;
-          ne_q24.B = _BV32(24) * ne.B;
-          ne_q24.C = _BV32(24) * ne.C;
+        ne.edividend = advance_dividend.e;
+        const float scale = (float(ne.edividend) / advance_divisor) * planner.mm_per_step[E_AXIS_N(current_block->extruder)];
+        ne.scale_q24 = _BV32(24) * scale;
+        if (ne.settings.enabled && current_block->direction_bits.e && ANY_AXIS_MOVES(current_block)) {
+          ne.q24.A = _BV32(24) * ne.settings.coeff.A;
+          ne.q24.B = _BV32(24) * ne.settings.coeff.B;
+          ne.q24.C = _BV32(24) * ne.settings.coeff.C;
         }
         else {
-          ne_q24.A = ne_q24.B = 0;
-          ne_q24.C = _BV32(24);
+          ne.q24.A = ne.q24.B = 0;
+          ne.q24.C = _BV32(24);
         }
       #endif
 
@@ -2889,11 +2882,11 @@ hal_timer_t Stepper::block_phase_isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (forward_e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && forward_e && ANY_AXIS_MOVES(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
-            int32_t vd_q30 = ne_q30.A*step_rate*step_rate + ne_q30.B*step_rate;
+            int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
             NOLESS(vd_q30, 0);
-            step_rate = (int64_t(step_rate) * (ne_q30.C + vd_q30)) >> 30;
+            step_rate = (int64_t(step_rate) * (ne.q30.C + vd_q30)) >> 30;
           }
         #endif
 
@@ -2911,7 +2904,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
+      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / (2.0f * (SHAPING_MIN_FREQ)) + 0.5f);
 
       typedef struct {
         xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
@@ -2921,28 +2914,51 @@ hal_timer_t Stepper::block_phase_isr() {
           if (++index == IS_COMPENSATION_BUFFER_SIZE) index = 0;
         }
         FORCE_INLINE xy_long_t past_item(const uint16_t n) {
-          const int16_t i = int16_t(index) - n;
-          return buffer[i >= 0 ? i : i + IS_COMPENSATION_BUFFER_SIZE];
+          int16_t i = int16_t(index) - n;
+          if (i < 0) i += IS_COMPENSATION_BUFFER_SIZE;
+          // The following only happens when IS Freq is set below the minimum
+          // configured at build time ...in which case IS will also misbehave!
+          // Using setters whenever possible prevents values being set too low.
+          if (TERN0(MARLIN_DEV_MODE, i < 0)) return {0, 0};
+          return buffer[i];
         }
       } DelayBuffer;
 
       DelayBuffer delayBuffer;
 
-      xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
-        constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
-        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
+      xy_long_t Stepper::smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
+        constexpr uint32_t adv_ticks_per_stepper_ticks_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / (STEPPER_TIMER_RATE);
+        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
         return delayBuffer.past_item(delay_steps);
       }
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
+    #if ENABLED(S_CURVE_ACCELERATION)
+      int32_t Stepper::calc_bezier_curve(const int32_t v0, const int32_t v1, const uint32_t av, const uint32_t curr_step) {
+        int32_t A = bezier_A, B = bezier_B, C = bezier_C;
+        uint32_t F = bezier_F, AV = bezier_AV;
+
+        _calc_bezier_curve_coeffs(v0, v1, av);
+        uint32_t rate = _eval_bezier_curve(curr_step);
+
+        bezier_A = A; bezier_B = B; bezier_C = C; bezier_F = F; bezier_AV = AV;
+        return rate;
+      }
+    #endif
+
+    int32_t Stepper::smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
-          NOMORE(rate, block->nominal_rate);
+          uint32_t rate;
+          #if ENABLED(S_CURVE_ACCELERATION)
+            rate = calc_bezier_curve(block->initial_rate, block->cruise_rate, block->acceleration_time_inverse, stepper_ticks);
+          #else
+            rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
+            NOMORE(rate, block->nominal_rate);
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->acceleration_time;
@@ -2955,13 +2971,18 @@ hal_timer_t Stepper::block_phase_isr() {
 
         if (stepper_ticks <= block->deceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
-          if (rate < block->cruise_rate) {
-            rate = block->cruise_rate - rate;
-            NOLESS(rate, block->final_rate);
-          }
-          else
-            rate = block->final_rate;
+          uint32_t rate;
+          #if ENABLED(S_CURVE_ACCELERATION)
+            rate = calc_bezier_curve(block->cruise_rate, block->final_rate, block->deceleration_time_inverse, stepper_ticks);
+          #else
+            rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
+            if (rate < block->cruise_rate) {
+              rate = block->cruise_rate - rate;
+              NOLESS(rate, block->final_rate);
+            }
+            else
+              rate = block->final_rate;
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->deceleration_time;
@@ -2995,44 +3016,38 @@ hal_timer_t Stepper::block_phase_isr() {
         ? MULT_Q(30, curr_step_rate, current_block->e_step_ratio_q30)
         : 0;
 
-      int32_t total_step_rate = la_step_rate + planned_step_rate;
-
       #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-        xy_long_t pre_shaping_rate = xy_long_t({0, 0}),
-                  first_pulse_rate = xy_long_t({0, 0});
-        int32_t unshaped_rate_e = total_step_rate;
-        if (current_block) {
-          if (current_block->xy_length_inv_q30 > 0) {
-            unshaped_rate_e = 0;
+        int32_t unshaped_rate_e = la_step_rate + planned_step_rate;
 
-            pre_shaping_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, MULT_Q(30, total_step_rate * current_block->steps.x, current_block->xy_length_inv_q30)),
-              TERN0(INPUT_SHAPING_Y, MULT_Q(30, total_step_rate * current_block->steps.y, current_block->xy_length_inv_q30))
-            });
+        xy_long_t pre_shaping_rate{0}, first_pulse_rate{0};
+        if (current_block && current_block->xy_length_inv_q30 > 0) {
+          pre_shaping_rate = xy_long_t({
+            MULT_Q(30, unshaped_rate_e * current_block->steps.x, current_block->xy_length_inv_q30),
+            MULT_Q(30, unshaped_rate_e * current_block->steps.y, current_block->xy_length_inv_q30)
+          });
+          unshaped_rate_e = 0;
 
-            first_pulse_rate = xy_long_t({
-              TERN0(INPUT_SHAPING_X, (pre_shaping_rate.x * Stepper::shaping_x.factor1) >> 7),
-              TERN0(INPUT_SHAPING_Y, (pre_shaping_rate.y * Stepper::shaping_y.factor1) >> 7)
-            });
-          }
+          first_pulse_rate = xy_long_t({
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
+          });
         }
 
-        const xy_long_t second_pulse_rate = {
-          TERN0(INPUT_SHAPING_X, (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * Stepper::shaping_x.factor2)) >> 7,
-          TERN0(INPUT_SHAPING_Y, (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * Stepper::shaping_y.factor2)) >> 7
-        };
+        const xy_long_t second_pulse_rate = xy_long_t({
+          TERN0(INPUT_SHAPING_X, shaping_x.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_x()).x * shaping_x.factor2) >> 7 : 0),
+          TERN0(INPUT_SHAPING_Y, shaping_y.enabled ? (smooth_lin_adv_lookback(ShapingQueue::get_delay_y()).y * shaping_y.factor2) >> 7 : 0)
+        });
 
         delayBuffer.add(pre_shaping_rate);
 
-        const int32_t x = TERN0(INPUT_SHAPING_X, first_pulse_rate.x + second_pulse_rate.x),
-                      y = TERN0(INPUT_SHAPING_Y, first_pulse_rate.y + second_pulse_rate.y);
+        set_la_interval(unshaped_rate_e + first_pulse_rate.x + second_pulse_rate.x + first_pulse_rate.y + second_pulse_rate.y);
 
-        total_step_rate = unshaped_rate_e + x + y;
+      #else // !INPUT_SHAPING_E_SYNC
 
-      #endif // INPUT_SHAPING_E_SYNC
+        set_la_interval(la_step_rate + planned_step_rate);
 
-      set_la_interval(total_step_rate);
+      #endif
 
       curr_timer_tick += SMOOTH_LIN_ADV_INTERVAL;
       return SMOOTH_LIN_ADV_INTERVAL;
