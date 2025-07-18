@@ -114,7 +114,9 @@ void unified_bed_leveling::reset() {
   set_bed_leveling_enabled(false);
   storage_slot = -1;
   ZERO(z_values);
-  set_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    set_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
+  #endif
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
   #endif
@@ -170,7 +172,7 @@ static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
 
 static void serial_echo_column_labels(const uint8_t sp) {
   SERIAL_ECHO_SP(7);
-  for (uint8_t i = 0; i < GRID_USED_POINTS_X; ++i) {
+  for (uint8_t i = 0; i < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); ++i) {
     if (i < 10) SERIAL_CHAR(' ');
     SERIAL_ECHO(i);
     SERIAL_ECHO_SP(sp);

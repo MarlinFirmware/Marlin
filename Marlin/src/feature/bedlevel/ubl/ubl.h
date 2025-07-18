@@ -62,8 +62,9 @@ typedef struct {
   #endif
 } G29_parameters_t;
 
-class unified_bed_leveling;
-extern unified_bed_leveling bedlevel;
+#if ENABLED(VARIABLE_GRID_POINTS)
+  class unified_bed_leveling;
+#endif
 
 class unified_bed_leveling {
 private:
@@ -126,6 +127,11 @@ public:
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
     static void set_store_from_mesh(const bed_mesh_t &in_values, mesh_store_t &stored_values);
     static void set_mesh_from_store(const mesh_store_t &stored_values, bed_mesh_t &out_values);
+  #endif
+
+  #if DISABLED(VARIABLE_GRID_POINTS)
+    static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
+                       _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
   #endif
 
   #if HAS_MARLINUI_MENU
@@ -295,6 +301,15 @@ public:
   static float get_z_correction(const xy_pos_t &pos) { return get_z_correction(pos.x, pos.y); }
 
   static constexpr float get_z_offset() { return 0.0f; }
+  
+  #if DISABLED(VARIABLE_GRID_POINTS)
+    static float get_mesh_x(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_X) ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
+    }
+    static float get_mesh_y(const uint8_t i) {
+      return i < (GRID_MAX_POINTS_Y) ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
+    }
+  #endif
   #if ENABLED(VARIABLE_GRID_POINTS)
     static float get_mesh_x(const uint8_t i);
     static float get_mesh_y(const uint8_t i);
@@ -312,6 +327,8 @@ public:
   }
 
 }; // class unified_bed_leveling
+
+extern unified_bed_leveling bedlevel;
 
 // Serial with delay shorthand
 #define UBL_SERIAL_ECHO(D, V...) do{ SERIAL_ECHO(V); serial_delay(D); }while(0)
