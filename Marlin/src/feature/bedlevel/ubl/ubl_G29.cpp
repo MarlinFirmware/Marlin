@@ -752,7 +752,7 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const_float_t o
  * G29 P6 C<offset> : Shift Mesh Height by a uniform constant.
  */
 void unified_bed_leveling::shift_mesh_height() {
-  GRID_LOOP(x, y)
+  GRID_LOOP_COND(x, y)
     if (!isnan(z_values[x][y])) {
       z_values[x][y] += param.C_constant;
       TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
@@ -1329,7 +1329,7 @@ mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
       farthest.pos = nearby; // Found an invalid location farther from the defined mesh point
       farthest.distance = d2;
     }
-  } // GRID_LOOP
+  } // GRID_LOOP_COND
 
   if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
     farthest.pos.set(TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) / 2, TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y) / 2);
@@ -1419,7 +1419,7 @@ mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const Mesh
           closest.distance = best_so_far;
         }
       }
-    } // GRID_LOOP
+    } // GRID_LOOP_COND
 
     return closest;
 

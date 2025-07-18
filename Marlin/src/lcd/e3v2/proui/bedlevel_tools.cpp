@@ -86,7 +86,7 @@ bool drawing_mesh = false;
   bool BedLevelTools::createPlaneFromMesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
-    GRID_LOOP(x, y) {
+    GRID_LOOP_COND(x, y) {
       const float z = bedlevel.z_values[x][y];
       if (!isnan(z)) {
         xy_pos_t rpos = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
@@ -102,7 +102,7 @@ bool drawing_mesh = false;
     bedlevel.set_all_mesh_points_to_value(0);
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
-    GRID_LOOP(i, j) {
+    GRID_LOOP_COND(i, j) {
       float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
       if (DEBUGGING(LEVELING)) {
@@ -179,19 +179,19 @@ void BedLevelTools::meshReset() {
 // Accessors
 float BedLevelTools::getMaxValue() {
   float max = -(__FLT_MAX__);
-  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
+  GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
   return max;
 }
 
 float BedLevelTools::getMinValue() {
   float min = __FLT_MAX__;
-  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
+  GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
   return min;
 }
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
-  GRID_LOOP(x, y) {
+  GRID_LOOP_COND(x, y) {
     const float z = bedlevel.z_values[x][y];
     if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
   }
@@ -220,7 +220,7 @@ bool BedLevelTools::meshValidate() {
     }
 
     // Draw value square grid
-    GRID_LOOP(x, y) {
+    GRID_LOOP_COND(x, y) {
       const auto start_x_px = padding_x + x * cell_width_px;
       const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
       const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
@@ -261,7 +261,7 @@ bool BedLevelTools::meshValidate() {
       safe_delay(10);
       LCD_SERIAL.flushTX();
 
-    } // GRID_LOOP
+    } // GRID_LOOP_COND
   }
 
   void BedLevelTools::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead

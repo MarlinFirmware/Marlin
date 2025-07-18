@@ -78,11 +78,7 @@ class TemporaryBedLevelingState {
     /**
      * Print calibration results for plotting or manual frame adjustment.
      */
-    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values
-      #if ENABLED(VARIABLE_GRID_POINTS)
-        , uint8_t print_x=0, uint8_t print_y=0
-      #endif
-    );
+    void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, const float *values OPTARG(VARIABLE_GRID_POINTS, uint8_t print_x=0, uint8_t print_y=0));
 
     #if ENABLED(VARIABLE_GRID_POINTS)
       #define PRINT_2D_ARRAY(X, Y, P, V, M...) print_2d_array(X, Y, P, V, M)

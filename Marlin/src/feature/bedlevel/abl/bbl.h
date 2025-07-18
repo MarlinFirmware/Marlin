@@ -46,10 +46,17 @@ private:
   static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_MAX_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
-    #define ABL_MAX_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+    #if DISABLED(VARIABLE_GRID_POINTS)
+      #define ABL_GRID_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
+      #define ABL_GRID_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+      static float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+    #endif
+    #if ENABLED(VARIABLE_GRID_POINTS)
+      #define ABL_MAX_POINTS_VIRT_X (GRID_MAX_CELLS_X * (BILINEAR_SUBDIVISIONS) + 1)
+      #define ABL_MAX_POINTS_VIRT_Y (GRID_MAX_CELLS_Y * (BILINEAR_SUBDIVISIONS) + 1)
+      static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
+    #endif
 
-    static float z_values_virt[ABL_MAX_POINTS_VIRT_X][ABL_MAX_POINTS_VIRT_Y];
     static xy_pos_t grid_spacing_virt;
     static xy_float_t grid_factor_virt;
     #if ENABLED(VARIABLE_GRID_POINTS)

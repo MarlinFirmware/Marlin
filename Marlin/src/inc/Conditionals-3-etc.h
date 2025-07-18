@@ -622,8 +622,8 @@
 
 #ifdef GRID_MAX_POINTS_X
   #if ALL(AUTO_BED_LEVELING_UBL, VARIABLE_GRID_POINTS)
-    #define GRID_USED_POINTS_X bedlevel.grid_points.x
-    #define GRID_USED_POINTS_Y bedlevel.grid_points.y
+    #define GRID_USED_POINTS_X unified_bed_leveling::grid_points.x
+    #define GRID_USED_POINTS_Y unified_bed_leveling::grid_points.y
   #elif ALL(AUTO_BED_LEVELING_BILINEAR, VARIABLE_GRID_POINTS)
     #define GRID_USED_POINTS_X bedlevel.nr_grid_points.x
     #define GRID_USED_POINTS_Y bedlevel.nr_grid_points.y

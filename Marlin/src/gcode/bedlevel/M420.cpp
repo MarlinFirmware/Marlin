@@ -74,9 +74,9 @@ void GcodeSuite::M420() {
         start.set(x_min, y_min);
         spacing.set((x_max - x_min) / (GRID_MAX_CELLS_X),
                     (y_max - y_min) / (GRID_MAX_CELLS_Y));
-        bedlevel.set_grid(spacing, start);
+        bedlevel.set_grid(spacing, start OPTARG(VARIABLE_GRID_POINTS, bedlevel.nr_grid_points));
       #endif
-      GRID_LOOP(x, y) {
+      GRID_LOOP_COND(x, y) {
         bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
       }
@@ -159,7 +159,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP_COND(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / float(GRID_USED_POINTS);
+            const float zmean = mesh_sum / TERN(VARIABLE_GRID_POINTS, float(GRID_USED_POINTS), float(GRID_MAX_POINTS));
 
           #else // midrange
 
@@ -204,7 +204,12 @@ void GcodeSuite::M420() {
     #else
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          bedlevel.print_leveling_grid();
+          #if ENABLED(VARIABLE_GRID_POINTS)
+            bedlevel.set_grid(bedlevel.grid_spacing, bedlevel.grid_start, bedlevel.nr_grid_points);
+            bedlevel.print_leveling_grid(nullptr, &bedlevel.nr_grid_points);
+          #else
+            bedlevel.print_leveling_grid();
+          #endif
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           bedlevel.report_mesh();
