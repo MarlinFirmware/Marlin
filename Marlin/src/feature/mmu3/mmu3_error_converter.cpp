@@ -251,7 +251,7 @@ namespace MMU3 {
       case ERR_MECHANICAL_LOAD_TO_EXTRUDER_FAILED:
       case ERR_SYSTEM_FILAMENT_EJECTED:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue:    // User solved the serious mechanical problem by hand - there is no other way around
+          case ButtonOperations::Continue: // User solved the serious mechanical problem by hand - there is no other way around
             return Buttons::Middle;
           default:
             break;
@@ -261,9 +261,9 @@ namespace MMU3 {
       case ERR_TEMPERATURE_WARNING_TMC_SELECTOR_TOO_HOT:
       case ERR_TEMPERATURE_WARNING_TMC_IDLER_TOO_HOT:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Continue:    // "Continue"
+          case ButtonOperations::Continue: // "Continue"
             return Buttons::Left;
-          case ButtonOperations::ResetMMU:    // "Reset MMU"
+          case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
           default:
             break;
@@ -299,7 +299,7 @@ namespace MMU3 {
       case ERR_ELECTRICAL_MMU_MCU_POWER_ERROR:
       case ERR_ELECTRICAL_MMU_MCU_UNDERVOLTAGE_VCC:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::ResetMMU:    // "Reset MMU"
+          case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
           default:
             break;
@@ -309,9 +309,9 @@ namespace MMU3 {
       case ERR_CONNECT_COMMUNICATION_ERROR:
       case ERR_SYSTEM_FW_UPDATE_NEEDED:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::DisableMMU:  // "Disable"
+          case ButtonOperations::DisableMMU: // "Disable"
             return Buttons::DisableMMU;
-          case ButtonOperations::ResetMMU:    // "ResetMMU"
+          case ButtonOperations::ResetMMU: // "ResetMMU"
             return Buttons::ResetMMU;
           default:
             break;
@@ -319,9 +319,9 @@ namespace MMU3 {
         break;
       case ERR_SYSTEM_FILAMENT_ALREADY_LOADED:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::Unload:      // "Unload"
+          case ButtonOperations::Unload: // "Unload"
             return Buttons::Left;
-          case ButtonOperations::Continue:    // "Proceed/Continue"
+          case ButtonOperations::Continue: // "Proceed/Continue"
             return Buttons::Right;
           default:
             break;
@@ -330,9 +330,9 @@ namespace MMU3 {
 
       case ERR_SYSTEM_INVALID_TOOL:
         switch (buttonSelectedOperation) {
-          case ButtonOperations::StopPrint:   // "Stop print"
+          case ButtonOperations::StopPrint: // "Stop print"
             return Buttons::StopPrint;
-          case ButtonOperations::ResetMMU:    // "Reset MMU"
+          case ButtonOperations::ResetMMU: // "Reset MMU"
             return Buttons::ResetMMU;
           default:
             break;
