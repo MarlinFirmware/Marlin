@@ -89,10 +89,12 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
-#if ENABLED(DISTINCT_E_FACTORS)
+#if HAS_EXTRUDERS
+  #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
-#else
-  constexpr uint8_t FTMotion::block_extruder_axis;
+  #else
+    constexpr uint8_t FTMotion::block_extruder_axis;
+  #endif
 #endif
 
 // Shaping variables.
@@ -400,8 +402,10 @@ void FTMotion::reset() {
     shaping.zi_idx = 0;
   #endif
 
-  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
-  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
+  #if HAS_EXTRUDERS
+    e_raw_z1 = e_advanced_z1 = 0.0f; // Reset linear advance variables.
+    TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
+  #endif
 
   axis_move_end_ti.reset();
 }
@@ -461,7 +465,9 @@ void FTMotion::init() {
 // Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
-  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
+  #if HAS_EXTRUDERS
+    TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
+  #endif
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
