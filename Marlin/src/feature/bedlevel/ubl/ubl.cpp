@@ -84,7 +84,7 @@ float unified_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 #endif
 
 #if ENABLED(VARIABLE_GRID_POINTS)
-  xy_uint8_t unified_bed_leveling::grid_points;
+  xy_uint8_t unified_bed_leveling::nr_grid_points;
   xy_float_t unified_bed_leveling::mesh_dist,       // Initialized by settings.load
              unified_bed_leveling::mesh_dist_recip;
 
@@ -115,7 +115,7 @@ void unified_bed_leveling::reset() {
   storage_slot = -1;
   ZERO(z_values);
   #if ENABLED(VARIABLE_GRID_POINTS)
-    set_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
+    set_nr_grid_points(xy_uint8_t({ GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y }));
   #endif
   #if ENABLED(EXTENSIBLE_UI)
     GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);

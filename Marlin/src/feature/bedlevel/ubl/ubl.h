@@ -118,10 +118,10 @@ public:
 
   static bed_mesh_t z_values;
   #if ENABLED(VARIABLE_GRID_POINTS)
-    static xy_uint8_t grid_points;
+    static xy_uint8_t nr_grid_points;
     static xy_float_t mesh_dist, mesh_dist_recip;
     static void refresh_mesh_dist();
-    static void set_grid_points(const xy_uint8_t &gp) { grid_points = gp; refresh_mesh_dist(); }
+    static void set_nr_grid_points(const xy_uint8_t &gp) { nr_grid_points = gp; refresh_mesh_dist(); }
   #endif
 
   #if ENABLED(OPTIMIZED_MESH_STORAGE)
@@ -176,16 +176,16 @@ public:
   }
   static xy_uint8_t cell_indexes(const xy_pos_t &xy) { return cell_indexes(xy.x, xy.y); }
 
-  static int8_t closest_x_index(const_float_t x OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_grid_points)) {
+  static int8_t closest_x_index(const_float_t x OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
     const int8_t px = (x - (MESH_MIN_X) + (TERN(VARIABLE_GRID_POINTS, mesh_dist.x, MESH_X_DIST)) * 0.5f) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
     return WITHIN(px, 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_X, GRID_MAX_POINTS_X)) ? px : -1;
   }
-  static int8_t closest_y_index(const_float_t y OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_grid_points)) {
+  static int8_t closest_y_index(const_float_t y OPTARG(VARIABLE_GRID_POINTS, const xy_uint8_t &_nr_grid_points)) {
     const int8_t py = (y - (MESH_MIN_Y) + (TERN(VARIABLE_GRID_POINTS, mesh_dist.y, MESH_Y_DIST)) * 0.5f) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));
     return WITHIN(py, 0, TERN(VARIABLE_GRID_POINTS, GRID_USED_CELLS_Y, GRID_MAX_POINTS_Y)) ? py : -1;
   }
   static xy_int8_t closest_indexes(const xy_pos_t &xy) {
-    return { closest_x_index(xy.x OPTARG(VARIABLE_GRID_POINTS, grid_points)), closest_y_index(xy.y OPTARG(VARIABLE_GRID_POINTS, grid_points)) };
+    return { closest_x_index(xy.x OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)), closest_y_index(xy.y OPTARG(VARIABLE_GRID_POINTS, nr_grid_points)) };
   }
 
   /**
@@ -218,10 +218,10 @@ public:
    * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
    */
   static float z_correction_for_x_on_horizontal_mesh_line(const_float_t rx0, const uint8_t x1_i, const int yi) {
-    if (!WITHIN(x1_i, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(yi, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.y, GRID_MAX_POINTS_Y)) - 1)) {
+    if (!WITHIN(x1_i, 0, (TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(yi, 0, (TERN(VARIABLE_GRID_POINTS, nr_grid_points.y, GRID_MAX_POINTS_Y)) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(x1_i, 0, TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
+        if (WITHIN(x1_i, 0, TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS_X) - 1)) DEBUG_ECHOPGM("yi"); else DEBUG_ECHOPGM("x1_i");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0, ",x1_i=", x1_i, ",yi=", yi, ")");
       }
 
@@ -232,7 +232,7 @@ public:
     const float xratio = (rx0 - get_mesh_x(x1_i)) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST));
     const float z1 = z_values[x1_i][yi];
 
-    return z1 + xratio * (z_values[_MIN(x1_i, TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
+    return z1 + xratio * (z_values[_MIN(x1_i, TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS) - 2) + 1][yi] - z1);  // Don't allow x1_i+1 to be past the end of the array
                                                                                   // If it is, it is clamped to the last element of the
                                                                                   // z_values[][] array and no correction is applied.
   }
@@ -241,10 +241,10 @@ public:
   // See comments above for z_correction_for_x_on_horizontal_mesh_line
   //
   static float z_correction_for_y_on_vertical_mesh_line(const_float_t ry0, const int xi, const int y1_i) {
-    if (!WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(y1_i, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.y, GRID_MAX_POINTS_Y)) - 1)) {
+    if (!WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS_X)) - 1) || !WITHIN(y1_i, 0, (TERN(VARIABLE_GRID_POINTS, nr_grid_points.y, GRID_MAX_POINTS_Y)) - 1)) {
 
       if (DEBUGGING(LEVELING)) {
-        if (WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X)) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
+        if (WITHIN(xi, 0, (TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS_X)) - 1)) DEBUG_ECHOPGM("y1_i"); else DEBUG_ECHOPGM("xi");
         DEBUG_ECHOLNPGM(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0, ", xi=", xi, ", y1_i=", y1_i, ")");
       }
 
@@ -255,7 +255,7 @@ public:
     const float yratio = (ry0 - get_mesh_y(y1_i)) * TERN(VARIABLE_GRID_POINTS, mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));
     const float z1 = z_values[xi][y1_i];
 
-    return z1 + yratio * (z_values[xi][_MIN(y1_i, TERN(VARIABLE_GRID_POINTS, grid_points.y, GRID_MAX_POINTS) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
+    return z1 + yratio * (z_values[xi][_MIN(y1_i, TERN(VARIABLE_GRID_POINTS, nr_grid_points.y, GRID_MAX_POINTS) - 2) + 1] - z1);  // Don't allow y1_i+1 to be past the end of the array
                                                                                   // If it is, it is clamped to the last element of the
                                                                                   // z_values[][] array and no correction is applied.
   }
@@ -278,7 +278,7 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    IF_DISABLED(VARIABLE_GRID_POINTS, const) uint8_t mx = _MIN(cx, TERN(VARIABLE_GRID_POINTS, grid_points.x, GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, TERN(VARIABLE_GRID_POINTS, grid_points.y, GRID_MAX_POINTS_Y) - 2) + 1;
+    IF_DISABLED(VARIABLE_GRID_POINTS, const) uint8_t mx = _MIN(cx, TERN(VARIABLE_GRID_POINTS, nr_grid_points.x, GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, TERN(VARIABLE_GRID_POINTS, nr_grid_points.y, GRID_MAX_POINTS_Y) - 2) + 1;
     IF_DISABLED(VARIABLE_GRID_POINTS, const) float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
                                                    z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
                                                    z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
