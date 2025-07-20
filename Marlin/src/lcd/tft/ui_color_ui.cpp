@@ -522,12 +522,12 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     tft.set_background(COLOR_BACKGROUND);
     tft.add_rectangle(0, 0, UBL_GRID_W, UBL_GRID_H, COLOR_WHITE);
 
-    for (uint16_t x = 0; x < (GRID_MAX_POINTS_X); x++)
-      for (uint16_t y = 0; y < (GRID_MAX_POINTS_Y); y++)
+    for (uint16_t x = 0; x < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)); x++)
+      for (uint16_t y = 0; y < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)); y++)
         if (position_is_reachable({ bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) }))
-          tft.add_bar(1 + (x * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2, UBL_GRID_H - 3 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 2, 2, COLOR_UBL);
+          tft.add_bar(1 + (x * 2 + 1) * (UBL_GRID_W - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) / 2, UBL_GRID_H - 3 - ((y * 2 + 1) * (UBL_GRID_H - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) / 2), 2, 2, COLOR_UBL);
 
-    tft.add_rectangle((x_plot * 2 + 1) * (UBL_GRID_W - 4) / (GRID_MAX_POINTS_X) / 2 - 1, UBL_GRID_H - 5 - ((y_plot * 2 + 1) * (UBL_GRID_H - 4) / (GRID_MAX_POINTS_Y) / 2), 6, 6, COLOR_UBL);
+    tft.add_rectangle((x_plot * 2 + 1) * (UBL_GRID_W - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) / 2 - 1, UBL_GRID_H - 5 - ((y_plot * 2 + 1) * (UBL_GRID_H - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) / 2), 6, 6, COLOR_UBL);
 
     const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                    lpos = pos.asLogical();
@@ -573,8 +573,8 @@ void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, con
     #if ENABLED(TOUCH_SCREEN)
       touch.clear();
       draw_menu_navigation = false;
-      add_control(UBL_GRID_X + UBL_GRID_W + UBL_CONTROL_OFFSET,      UBL_GRID_Y + UBL_CONTROL_OFFSET,                   UBL,  (ENCODER_STEPS_PER_MENU_ITEM) * (GRID_MAX_POINTS_X), imgUp);
-      add_control(UBL_GRID_X + UBL_GRID_W + UBL_CONTROL_OFFSET,      UBL_GRID_Y + UBL_GRID_H - UBL_CONTROL_OFFSET - 32, UBL, -(ENCODER_STEPS_PER_MENU_ITEM) * (GRID_MAX_POINTS_X), imgDown);
+      add_control(UBL_GRID_X + UBL_GRID_W + UBL_CONTROL_OFFSET,      UBL_GRID_Y + UBL_CONTROL_OFFSET,                   UBL,  (ENCODER_STEPS_PER_MENU_ITEM) * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)), imgUp);
+      add_control(UBL_GRID_X + UBL_GRID_W + UBL_CONTROL_OFFSET,      UBL_GRID_Y + UBL_GRID_H - UBL_CONTROL_OFFSET - 32, UBL, -(ENCODER_STEPS_PER_MENU_ITEM) * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)), imgDown);
       add_control(UBL_GRID_X + UBL_CONTROL_OFFSET,                   UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET,      UBL, -(ENCODER_STEPS_PER_MENU_ITEM), imgLeft);
       add_control(UBL_GRID_X + UBL_GRID_W - UBL_CONTROL_OFFSET - 32, UBL_GRID_Y + UBL_GRID_H + UBL_CONTROL_OFFSET,      UBL,   ENCODER_STEPS_PER_MENU_ITEM, imgRight);
 

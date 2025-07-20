@@ -314,10 +314,10 @@ void onSettingsLoaded(const bool success) {
   #if HAS_MESH
     if (ExtUI::getLevelingIsValid()) {
       uint8_t abl_probe_index = 0;
-      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+      for (uint8_t outer = 0; outer < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); outer++)
+        for (uint8_t inner = 0; inner < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); inner++) {
           const bool zig = outer & 1;
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+          const xy_uint8_t point = { uint8_t(zig ? (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) - 1) - inner : inner), outer };
           rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;
         }
@@ -344,10 +344,10 @@ void onPostprocessSettings() {}
     #if HAS_MESH
       if (ExtUI::getLevelingIsValid()) {
         uint8_t abl_probe_index = 0;
-        for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-          for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+        for (uint8_t outer = 0; outer < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); outer++)
+          for (uint8_t inner = 0; inner < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); inner++) {
             const bool zig = outer & 1;
-            const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+            const xy_uint8_t point = { uint8_t(zig ? (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) - 1) - inner : inner), outer };
             rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
             ++abl_probe_index;
           }
@@ -372,10 +372,10 @@ void onPostprocessSettings() {}
         rts.sendData(ExchangePageBase + 64, ExchangepageAddr);
     #if HAS_MESH
       uint8_t abl_probe_index = 0;
-      for (uint8_t outer = 0; outer < GRID_MAX_POINTS_Y; outer++)
-        for (uint8_t inner = 0; inner < GRID_MAX_POINTS_X; inner++) {
+      for (uint8_t outer = 0; outer < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); outer++)
+        for (uint8_t inner = 0; inner < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); inner++) {
           const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_MAX_POINTS_X - 1) - inner : inner), outer };
+          const xy_uint8_t point = { uint8_t(zig ? (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) - 1) - inner : inner), outer };
           if (point.x == xpos && outer == ypos)
             rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;
