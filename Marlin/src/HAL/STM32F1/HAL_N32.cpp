@@ -612,7 +612,7 @@ void ADC_DMA_init() {
  *        n32g452 - end
  ==============================================================================*/
 
-#define NS_PINRT(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPAIR(V); }while(0)
+#define NS_PINRT(V...)       do{ SERIAL_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
 
 // Init the AD in continuous capture mode
 void MarlinHAL::adc_init() {
@@ -622,7 +622,7 @@ void MarlinHAL::adc_init() {
 
   // GPIO settings
   reg_temp = ADC_RCC_APB2PCLKEN;
-  reg_temp |= 0x0f;                 // Make PORT mouth clock
+  reg_temp |= 0x0F;                 // Make PORT mouth clock
   ADC_RCC_APB2PCLKEN = reg_temp;
 
   //reg_temp = NS_GPIOC_PL_CFG;
