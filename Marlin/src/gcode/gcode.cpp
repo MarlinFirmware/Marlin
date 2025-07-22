@@ -100,6 +100,21 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
   xyz_pos_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
+#if ENABLED(SCALE_WORKSPACE)
+  float GcodeSuite::scaling_center_x = 0.0f;
+  float GcodeSuite::scaling_center_y = 0.0f;
+  float GcodeSuite::scaling_center_z = 0.0f;
+  float GcodeSuite::scaling_factor_x = 1.0f;
+  float GcodeSuite::scaling_factor_y = 1.0f;
+  float GcodeSuite::scaling_factor_z = 1.0f;
+#endif
+
+#if ENABLED(ROTATE_WORKSPACE)
+  float GcodeSuite::rotation_center_x = 0.0f;
+  float GcodeSuite::rotation_center_y = 0.0f;
+  float GcodeSuite::rotation_angle = 0.0f;
+#endif
+
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
 void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const bool eol/*=true*/) {
   if (forReplay) return;
@@ -171,18 +186,57 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
+  const float angle_rad = RADIANS(rotation_angle);
+
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       const float v = parser.value_axis_units((AxisEnum)i);
-      if (skip_move)
-        destination[i] = current_position[i];
-      else
-        destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+      if (skip_move) {
+        #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+          raw_destination[i] = current_position[i];
+        #else
+          destination[i] = current_position[i];
+        #endif
+      }
+      else {
+        #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+          raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
+        #else
+          destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        #endif
+      }
     }
-    else
-      destination[i] = current_position[i];
+    else {
+      #if NONE(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+        destination[i] = current_position[i];
+      #endif
+    }
   }
+
+  #if ANY(SCALE_WORKSPACE, ROTATE_WORKPLACE)
+    destination = raw_destination;
+  #endif
+
+  #if ENABLED(SCALE_WORKSPACE)
+    if (!(NEAR(scaling_factor_x, 1.0f) || NEAR(scaling_factor_y, 1.0f) || NEAR(scaling_factor_z, 1.0f))) {
+      destination.x = (raw_destination.x - scaling_center_x) * scaling_factor_x + scaling_center_x;
+      TERN_(HAS_Y_AXIS, destination.y = (raw_destination.y - scaling_center_y) * scaling_factor_y + scaling_center_y);
+      TERN_(HAS_Z_AXIS, destination.z = (raw_destination.z - scaling_center_z) * scaling_factor_z + scaling_center_z);
+    }
+  #endif
+
+  #if ENABLED(ROTATE_WORKSPACE)
+    if (!NEAR_ZERO(rotation_angle)) {
+      const float cos_angle = cos(angle_rad);
+      const float sin_angle = sin(angle_rad);
+      // Apply rotation
+      const float temp_x = destination.x - rotation_center_x;
+      const float temp_y = destination.y - rotation_center_y;
+      destination.x = temp_x * cos_angle - temp_y * sin_angle + rotation_center_x;
+      destination.y = temp_x * sin_angle + temp_y * cos_angle + rotation_center_y;
+    }
+  #endif
 
   #if HAS_EXTRUDERS
     // Get new E position, whether absolute or relative
@@ -435,6 +489,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 42: G42(); break;                                    // G42: Coordinated move to a mesh point
       #endif
 
+      #if ENABLED(SCALE_WORKSPACE)
+        case 50: G50(); break;                                    // G50: Cancel Workspace Scaling
+        case 51: G51(); break;                                    // G51: Set Workspace Scaling
+      #endif
+
       #if ENABLED(CNC_COORDINATE_SYSTEMS)
         case 53: G53(); break;                                    // G53: (prefix) Apply native workspace
         case 54: G54(); break;                                    // G54: Switch to Workspace 1
@@ -452,6 +511,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(ROTATE_WORKSPACE)
         case 68: G68(); break;                                    // G68: Set Workspace Rotation
+        case 69: G69(); break;                                    // G69: Cancel Workspace Rotation
       #endif
 
       #if ALL(PTC_PROBE, PTC_BED)

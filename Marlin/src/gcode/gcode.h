@@ -64,9 +64,12 @@
  * G35  - Read bed corners to help adjust bed screws: T<screw_thread> (Requires ASSISTED_TRAMMING)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G50  - Cancel workspace scaling (Requires SCALE_WORKSPACE)
+ * G51  - Set workspace scaling (Requires SCALE_WORKSPACE)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
  * G61  - Apply/Restore saved coordinates. (Requires SAVED_POSITIONS)
  * G68  - Set Workspace Rotation
+ * G69  - Cancel Workspace Rotation
  * G76  - Calibrate first layer temperature offsets. (Requires PTC_PROBE and PTC_BED)
  * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
@@ -432,12 +435,20 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
+
+  #if ENABLED(SCALE_WORKSPACE)
+    static float scaling_center_x;
+    static float scaling_center_y;
+    static float scaling_center_z;
+    static float scaling_factor_x;
+    static float scaling_factor_y;
+    static float scaling_factor_z;
+  #endif
+
   #if ENABLED(ROTATE_WORKSPACE)
-    static uint8_t active_workspace;
-    static float rotation_angle[MAX_COORDINATE_SYSTEMS]; // Store rotation for each workspace
+    static float rotation_angle;
     static float rotation_center_x;
     static float rotation_center_y;
-    static void apply_workspace_rotation();
   #endif
 
   static millis_t previous_move_ms, max_inactive_time;
@@ -618,7 +629,11 @@ private:
     static void G42();
   #endif
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+  #if ENABLED(SCALE_WORKSPACE)
+    static void G50();
+    static void G51();  
+  #endif
+
     static void G53();
     static void G54();
     static void G55();
@@ -639,6 +654,7 @@ private:
 
   #if ENABLED(ROTATE_WORKSPACE)
     static void G68();
+    static void G69();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)

@@ -37,8 +37,13 @@ inline void report_workspace_plane() {
 }
 
 inline void set_workspace_plane(const GcodeSuite::WorkspacePlane plane) {
-  gcode.workspace_plane = plane;
-  if (DEBUGGING(INFO)) report_workspace_plane();
+  if (!NEAR_ZERO(gcode.rotation_angle)) {
+    SERIAL_ECHOLNPGM("Error: Workspace plane cannnot change while using workspace rotation.");
+  }
+  else {
+    gcode.workspace_plane = plane;
+    if (DEBUGGING(INFO)) report_workspace_plane();
+  }
 }
 
 /**
