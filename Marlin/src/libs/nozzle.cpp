@@ -65,9 +65,9 @@ Nozzle nozzle;
             do_blocking_move_to_x(start.x);
         #else
           if (i & 1)
-            do_blocking_move_to_x(end);
+            do_blocking_move_to_xy(end);
           else
-            do_blocking_move_to_x(start);
+            do_blocking_move_to_xy(start);
         #endif
       }
 
