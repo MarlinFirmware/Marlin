@@ -186,8 +186,6 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
-  const float angle_rad = RADIANS(rotation_angle);
-
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
@@ -214,7 +212,7 @@ void GcodeSuite::get_destination_from_command() {
     }
   }
 
-  #if ANY(SCALE_WORKSPACE, ROTATE_WORKPLACE)
+  #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
     destination = raw_destination;
   #endif
 
@@ -228,8 +226,10 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(ROTATE_WORKSPACE)
     if (!NEAR_ZERO(rotation_angle)) {
+      const float angle_rad = RADIANS(rotation_angle);
       const float cos_angle = cos(angle_rad);
       const float sin_angle = sin(angle_rad);
+
       // Apply rotation
       const float temp_x = destination.x - rotation_center_x;
       const float temp_y = destination.y - rotation_center_y;

@@ -26,24 +26,22 @@
 
   #include "../gcode.h"
   #include "../../module/motion.h"
-  
+
   /**
-   * G51: Set Workspace Scaling
+   * G50: Set Workspace Scaling
    *
    * Scale the current workspace coordinate system.
    *
    * Parameters:
-   *   X<axis units> x coordinate of the scaling center
-   *   Y<axis units> y coordinate of the scaling center
-   *   Z<axis units> z coordinate of the scaling center
-   *   I<scaling factor> scaling factor for X axis
-   *   J<scaling factor> scaling factor for Y axis
-   *   K<scaling factor> scaling factor for Z axis
-   *   P<scaling factor> scaling factor
+   *   X<linear>  X coordinate of the scaling center
+   *   Y<linear>  Y coordinate of the scaling center
+   *   Z<linear>  Z coordinate of the scaling center
+   *   I<float>   scaling factor for X axis
+   *   J<float>   scaling factor for Y axis
+   *   K<float>   scaling factor for Z axis
+   *   P<float>   scaling factor
    */
-
-  void GcodeSuite::G51() {
-  
+  void GcodeSuite::G50() {
     if (parser.seenval('P')) {
       const float scaling_factor = parser.value_float();
       scaling_factor_x = scaling_factor;
@@ -70,7 +68,10 @@
     SERIAL_ECHOLNPGM("Workspace scaling set");
   }
 
-  void GcodeSuite::G50() {
+  /**
+   * G51: Cancel Workspace Scaling
+   */
+  void GcodeSuite::G51() {
     scaling_factor_x = 1.0f;
     scaling_center_x = 0.0f;
     scaling_factor_y = 1.0f;
@@ -81,6 +82,5 @@
     #endif
     SERIAL_ECHOLNPGM("Workspace scaling canceled");
   }
-
 
 #endif // SCALE_WORKSPACE

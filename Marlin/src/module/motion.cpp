@@ -1899,7 +1899,6 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
  * Before exit, current_position is set to destination.
  */
 void prepare_line_to_destination() {
-
   apply_motion_limits(destination);
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)

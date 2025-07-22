@@ -26,49 +26,79 @@
 
   #include "../gcode.h"
   #include "../../module/motion.h"
-  
+
   /**
    * G68: Set Workspace Rotation
    *
    * Set the rotation (about Z axis) for the current workspace (begins at 0).
    *
    * Parameters:
-   *   X<axis units> x coordinate of the rotation center for the current workspace
-   *   Y<axis units> y coordinate of the rotation center for the current workspace
-   *   R<deg>        Rotation angle in degrees (Required)
+   *   X<linear> X coordinate of the rotation center for the current workspace
+   *   Y<linear> Y coordinate of the rotation center for the current workspace
+   *   R<float>  Rotation angle in degrees (Required)
    *
    * Example:
-   *   G68 R45       ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z) 
+   *   G68 R45       ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z)
    *                 ; around current position
    *   G68 R-30      ; Rotate active workspace by -30° around current position
-   *   G68 X0 Y0 R45 ; Rotate active  workspace by 45°C around X0 Y0 (X and Y are specified in the current workspace)
+   *   G68 X0 Y0 R45 ; Rotate active workspace by 45°C around X0 Y0 (X and Y are specified in the current workspace)
    *
    * NOTES:
    *   - Only rotation is set. No translation/offset is changed.
    *   - All subsequent moves are rotated by the specified angle.
    *   - It is an error to change workspace or working plane while workspace rotation is active
-   *     (https://forums.autodesk.com/t5/fusion-manufacture-forum/probing-and-updating-wcs-for-angle/td-p/9487027 , 
+   *     (https://forums.autodesk.com/t5/fusion-manufacture-forum/probing-and-updating-wcs-for-angle/td-p/9487027 ,
    *      https://www.machsupport.com/forum/index.php?topic=43012)
    */
 
   void GcodeSuite::G68() {
-  
+    float input_deg;
+
     if (!parser.seenval('R')) {
-      SERIAL_ECHOLNPGM("Missing R parameter (rotation angle).");
+      SERIAL_ECHOLNPGM("G68: Missing R parameter (rotation angle).");
       return;
     }
     else {
-      rotation_angle = parser.value_float();
+      input_deg = parser.value_float();
     }
-    TERN_(HAS_X_AXIS, rotation_center_x = parser.seenval('X') ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) : current_position.x);
-    TERN_(HAS_Y_AXIS, rotation_center_y = parser.seenval('Y') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) : current_position.y);
-    SERIAL_ECHOLNPGM("Workspace rotation set");
+
+    #if DISABLED(DELTA)
+      // Check if the input angle is one of the explicitly allowed values:
+      // +/- 90, 180, 270, or 0 degrees.
+      bool is_valid = (
+          input_deg ==    0 ||
+          input_deg ==   90 ||
+          input_deg ==  -90 ||
+          input_deg ==  180 ||
+          input_deg == -180 ||
+          input_deg ==  270 ||
+          input_deg == -270
+      );
+
+      if (!is_valid) {
+          SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 90, 180, 270, or 0 degrees for square beds.");
+          return;
+      }
+    #else
+      // Parse rotation angle (float)
+      input_deg = parser.value_float();
+    #endif
+
+    if (input_deg != rotation_angle) {
+      rotation_angle = input_deg;
+      SERIAL_ECHOLNPGM("G68: Workspace rotation set to: ", input_deg, " deg.");
+    }
+
+    rotation_center_x = X_CENTER;
+    TERN_(HAS_Y_AXIS, rotation_center_y = Y_CENTER);
   }
 
+  /**
+   * G69: Cancel Workspace Rotation
+   */
   void GcodeSuite::G69() {
     rotation_angle = 0.0f;
-    SERIAL_ECHOLNPGM("Workspace rotation canceled");
+    SERIAL_ECHOLNPGM("G68: Workspace rotation canceled");
   }
-
 
 #endif // ROTATE_WORKSPACE
