@@ -28,7 +28,22 @@
   #include "../../module/motion.h"
 
   /**
-   * G50: Set Workspace Scaling
+   * G50: Cancel Workspace Scaling
+   */
+  void GcodeSuite::G50() {
+    scaling_factor_x = 1.0f;
+    scaling_center_x = 0.0f;
+    scaling_factor_y = 1.0f;
+    scaling_center_y = 0.0f;
+    #if HAS_Z_AXIS
+      scaling_factor_z = 1.0f;
+      scaling_center_z = 0.0f;
+    #endif
+    SERIAL_ECHOLNPGM("G50: Workspace scaling canceled");
+  }
+
+  /**
+   * G51: Set Workspace Scaling
    *
    * Scale the current workspace coordinate system.
    *
@@ -41,12 +56,13 @@
    *   K<float>   scaling factor for Z axis
    *   P<float>   scaling factor
    */
-  void GcodeSuite::G50() {
+  void GcodeSuite::G51() {
     if (parser.seenval('P')) {
       const float scaling_factor = parser.value_float();
       scaling_factor_x = scaling_factor;
       TERN_(HAS_Y_AXIS, scaling_factor_y = scaling_factor);
       TERN_(HAS_Z_AXIS, scaling_factor_z = scaling_factor);
+      SERIAL_ECHOLNPGM("G51: Workspace scaling set to: ", scaling_factor);
     }
     else {
       if (parser.seenval('I'))
@@ -59,28 +75,30 @@
         if (parser.seenval('K'))
           scaling_factor_z = parser.value_float();
       #endif
+
+      SERIAL_ECHOLNPGM_P(
+        LIST_N(DOUBLE(NUM_AXES),
+          PSTR("G51: Workspace scaling set to: X"), scaling_factor_x,
+          SP_Y_STR, scaling_factor_y,
+          SP_Z_STR, scaling_factor_z
+        )
+      );
     }
 
-    scaling_center_x = parser.seenval('X') ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) : current_position.x;
-    TERN_(HAS_Y_AXIS, scaling_center_y = parser.seenval('Y') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) : current_position.y);
+    rotation_center_x = X_CENTER;
+    TERN_(HAS_Y_AXIS, rotation_center_y = Y_CENTER);
+
+    scaling_center_x = parser.seenval('X') ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) : rotation_center_x;
+    TERN_(HAS_Y_AXIS, scaling_center_y = parser.seenval('Y') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) : rotation_center_y);
     TERN_(HAS_Z_AXIS, scaling_center_z = parser.seenval('Z') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS) : current_position.z);
 
-    SERIAL_ECHOLNPGM("Workspace scaling set");
-  }
-
-  /**
-   * G51: Cancel Workspace Scaling
-   */
-  void GcodeSuite::G51() {
-    scaling_factor_x = 1.0f;
-    scaling_center_x = 0.0f;
-    scaling_factor_y = 1.0f;
-    scaling_center_y = 0.0f;
-    #if HAS_Z_AXIS
-      scaling_factor_z = 1.0f;
-      scaling_center_z = 0.0f;
-    #endif
-    SERIAL_ECHOLNPGM("Workspace scaling canceled");
+    SERIAL_ECHOLNPGM_P(
+      LIST_N(DOUBLE(NUM_AXES),
+        PSTR("G51: Workspace center set to: X"), scaling_center_x,
+        SP_Y_STR, scaling_center_y,
+        SP_Z_STR, scaling_center_z
+      )
+    );
   }
 
 #endif // SCALE_WORKSPACE

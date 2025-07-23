@@ -33,15 +33,14 @@
    * Set the rotation (about Z axis) for the current workspace (begins at 0).
    *
    * Parameters:
-   *   X<linear> X coordinate of the rotation center for the current workspace
-   *   Y<linear> Y coordinate of the rotation center for the current workspace
-   *   R<float>  Rotation angle in degrees (Required)
+   *   X<linear>  X coordinate of the rotation center for the current workspace
+   *   Y<linear>  Y coordinate of the rotation center for the current workspace
+   *   R<float>   Rotation angle in degrees (Required)
    *
    * Example:
-   *   G68 R45       ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z)
-   *                 ; around current position
-   *   G68 R-30      ; Rotate active workspace by -30° around current position
-   *   G68 X0 Y0 R45 ; Rotate active workspace by 45°C around X0 Y0 (X and Y are specified in the current workspace)
+   *   G68 R45  ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z)
+   *   G68 R-30 ; Rotate active workspace by -30°
+   *   G68 R180 ; Rotate active workspace by 180°
    *
    * NOTES:
    *   - Only rotation is set. No translation/offset is changed.
@@ -50,7 +49,6 @@
    *     (https://forums.autodesk.com/t5/fusion-manufacture-forum/probing-and-updating-wcs-for-angle/td-p/9487027 ,
    *      https://www.machsupport.com/forum/index.php?topic=43012)
    */
-
   void GcodeSuite::G68() {
     float input_deg;
 
@@ -62,9 +60,11 @@
       input_deg = parser.value_float();
     }
 
-    #if DISABLED(DELTA)
+    #if ENABLED(LIMIT_ROTATION_ANGLE)
+      //#define USE_45DEG_INCREMENTS // Allow 45-degree increments on square beds
+
       // Check if the input angle is one of the explicitly allowed values:
-      // +/- 90, 180, 270, or 0 degrees.
+      // +/- 45, 90, 135, 180, 225, 270, 315, or 0 degrees.
       bool is_valid = (
           input_deg ==    0 ||
           input_deg ==   90 ||
@@ -73,11 +73,26 @@
           input_deg == -180 ||
           input_deg ==  270 ||
           input_deg == -270
+        #if ENABLED(USE_45DEG_INCREMENTS)
+                            ||
+          input_deg ==   45 ||
+          input_deg ==  -45 ||
+          input_deg ==  135 ||
+          input_deg == -135 ||
+          input_deg ==  225 ||
+          input_deg == -225 ||
+          input_deg ==  315 ||
+          input_deg == -315
+        #endif
       );
 
       if (!is_valid) {
+        #if DISABLED(USE_45DEG_INCREMENTS)
           SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 90, 180, 270, or 0 degrees for square beds.");
-          return;
+        #else
+          SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 45, 90, 135, 180, 225, 270, 315, or 0 degrees for square beds.");
+        #endif
+        return;
       }
     #else
       // Parse rotation angle (float)

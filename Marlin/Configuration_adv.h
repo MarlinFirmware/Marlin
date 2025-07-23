@@ -3637,11 +3637,23 @@
 //#define CNC_COORDINATE_SYSTEMS
 
 /**
+ * Coordinate System Scaling
+ *
+ * Enable G51 to scale and G50 to cancel scaling of the coordinate system.
+ * Mirroring can be achieved by using G51 with negative factors.
+ *
+ */
+//#define SCALE_WORKSPACE
+
+/**
  * Rotate Workspace
  *
- * Enables G68 command to rotate the workspace.
+ * Enable G68 to rotate and G69 to cancel rotation of the workspace.
  */
 //#define ROTATE_WORKSPACE
+#if ENABLED(ROTATE_WORKSPACE) && DISABLED(DELTA)
+  //#define LIMIT_ROTATION_ANGLE // Limit rotation on square beds
+#endif
 
 /**
  * Spindle & Laser control
