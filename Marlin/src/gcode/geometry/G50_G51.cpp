@@ -48,15 +48,18 @@
    * Scale the current workspace coordinate system.
    *
    * Parameters:
-   *   X<linear>  X coordinate of the scaling center
-   *   Y<linear>  Y coordinate of the scaling center
-   *   Z<linear>  Z coordinate of the scaling center
-   *   I<float>   scaling factor for X axis
-   *   J<float>   scaling factor for Y axis
-   *   K<float>   scaling factor for Z axis
-   *   P<float>   scaling factor
+   * X<linear>  X coordinate of the scaling center
+   * Y<linear>  Y coordinate of the scaling center
+   * Z<linear>  Z coordinate of the scaling center
+   * I<float>   scaling factor for X axis
+   * J<float>   scaling factor for Y axis
+   * K<float>   scaling factor for Z axis
+   * P<float>   scaling factor
+   * C<bool>    Use current position for axes (X, Y, Z)
    */
   void GcodeSuite::G51() {
+    bool use_current_pos = parser.seen('C'); // Check if 'C' parameter is present
+
     if (parser.seenval('P')) {
       const float scaling_factor = parser.value_float();
       scaling_factor_x = scaling_factor;
@@ -88,9 +91,54 @@
     rotation_center_x = X_CENTER;
     TERN_(HAS_Y_AXIS, rotation_center_y = Y_CENTER);
 
-    scaling_center_x = parser.seenval('X') ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) : rotation_center_x;
-    TERN_(HAS_Y_AXIS, scaling_center_y = parser.seenval('Y') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) : rotation_center_y);
-    TERN_(HAS_Z_AXIS, scaling_center_z = parser.seenval('Z') ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS) : current_position.z);
+    // X-axis scaling
+    if (use_current_pos && parser.seen('X')) {
+      if (parser.seenval('X')) {
+        SERIAL_ECHOLNPGM("G51: Do not use value for X-axis scaling center with 'C' parameter!");
+        return;
+      }
+      scaling_center_x = current_position.x;
+    }
+    else if (parser.seenval('X')) {
+      scaling_center_x = LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS);
+    }
+    else {
+      scaling_center_x = rotation_center_x;
+    }
+
+    // Y-axis scaling
+    #if HAS_Y_AXIS
+      if (use_current_pos && parser.seen('Y')) {
+        if (parser.seenval('Y')) {
+          SERIAL_ECHOLNPGM("G51: Do not use value for Y-axis scaling center with 'C' parameter!");
+          return;
+        }
+        scaling_center_y = current_position.y;
+      }
+      else if (parser.seenval('Y')) {
+        scaling_center_y = LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS);
+      }
+      else {
+        scaling_center_y = rotation_center_y;
+      }
+    #endif
+
+    // Z-axis scaling
+    #if HAS_Z_AXIS
+      if (use_current_pos && parser.seen('Z')) {
+        if (parser.seenval('Z')) {
+          SERIAL_ECHOLNPGM("G51: Do not use value for Z-axis scaling center with 'C' parameter!");
+          return;
+        }
+        scaling_center_z = current_position.z;
+      }
+      else if (parser.seenval('Z')) {
+        scaling_center_z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
+      }
+      else {
+        scaling_center_z = 0.0f;
+      }
+    #endif
 
     SERIAL_ECHOLNPGM_P(
       LIST_N(DOUBLE(NUM_AXES),
