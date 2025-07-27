@@ -467,18 +467,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               oneOverLength = 1.0f / totalLength;
 
   startPosn = endPosn_prevBlock;
-  const xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
-    current_block->steps.e * planner.mm_per_step[block_extruder_axis] * (current_block->direction_bits.e ? 1 : -1),
-    current_block->steps.x * planner.mm_per_step[X_AXIS] * (current_block->direction_bits.x ? 1 : -1),
-    current_block->steps.y * planner.mm_per_step[Y_AXIS] * (current_block->direction_bits.y ? 1 : -1),
-    current_block->steps.z * planner.mm_per_step[Z_AXIS] * (current_block->direction_bits.z ? 1 : -1),
-    current_block->steps.i * planner.mm_per_step[I_AXIS] * (current_block->direction_bits.i ? 1 : -1),
-    current_block->steps.j * planner.mm_per_step[J_AXIS] * (current_block->direction_bits.j ? 1 : -1),
-    current_block->steps.k * planner.mm_per_step[K_AXIS] * (current_block->direction_bits.k ? 1 : -1),
-    current_block->steps.u * planner.mm_per_step[U_AXIS] * (current_block->direction_bits.u ? 1 : -1),
-    current_block->steps.v * planner.mm_per_step[V_AXIS] * (current_block->direction_bits.v ? 1 : -1),
-    current_block->steps.w * planner.mm_per_step[W_AXIS] * (current_block->direction_bits.w ? 1 : -1)
-  );
+  
+  const xyze_pos_t& moveDist = current_block->dist_mm;
 
   ratio = moveDist * oneOverLength;
 

@@ -266,6 +266,8 @@ typedef struct PlannerBlock {
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
+  xyze_pos_t dist_mm;                       // The distance traveled in mm along each axis
+
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     #if ENABLED(SMOOTH_LIN_ADVANCE)
