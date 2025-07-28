@@ -1078,6 +1078,9 @@ private:
     static void M420();
     static void M420_report(const bool forReplay=true);
     static void M421();
+    #if ENABLED(DYNAMIC_MARGINS)
+      static void M421_report(const bool forReplay=true);
+    #endif
   #endif
 
   #if ENABLED(BACKLASH_GCODE)

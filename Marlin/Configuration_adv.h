@@ -1110,7 +1110,7 @@
 //#define ASSISTED_TRAMMING
 #if ENABLED(ASSISTED_TRAMMING)
 
-  // Define from 3 to 9 points to probe.
+  // Define from 3 to 9 points to probe. Overwritten by "DYNAMIC_MARGINS" if "DYNAMIC_TRAMMING" is enabled.
   #define TRAMMING_POINT_XY { {  20, 20 }, { 180,  20 }, { 180, 180 }, { 20, 180 } }
 
   // Define position names for probe points.
@@ -2448,12 +2448,34 @@
  * should the probe position be modified with M851XY then the
  * probe points will follow. This prevents any change from causing
  * the probe to be unable to reach any points.
+ *
+ * If you enable DYNAMIC_MARGINS PROBING_MARGINs are changeable without recompilation.
+ * They are then bedlevel.margin_l, bedlevel.margin_r, bedlevel.margin_f, bedlevel.margin_b
+ * and can be overwritten with "M421 L50 R50 F50 B50" for a 50mm margin around the bed 
+ * and saved to the EEPROM on runtime. Default values underneath.
+ * Setting manually via gcode respects probe_offsets and the min and max positions
+ * and recalculates if a too low value is set so the probed area is valid.
+ * 
+ * DYNAMIC_MARGINS can be also enabled to be used for the ASSISTED_TRAMMING points with 
+ * #define DYNAMIC_TRAMMING
+ * 
  */
 #if PROBE_SELECTED && !IS_KINEMATIC
-  //#define PROBING_MARGIN_LEFT PROBING_MARGIN
-  //#define PROBING_MARGIN_RIGHT PROBING_MARGIN
-  //#define PROBING_MARGIN_FRONT PROBING_MARGIN
-  //#define PROBING_MARGIN_BACK PROBING_MARGIN
+  //#define DYNAMIC_MARGINS
+  #if ENABLED(DYNAMIC_MARGINS)
+    #if ENABLED(ASSISTED_TRAMMING)
+      //#define DYNAMIC_TRAMMING
+    #endif
+    #define PROBING_MARGIN_LEFT 45
+    #define PROBING_MARGIN_RIGHT 45
+    #define PROBING_MARGIN_FRONT 45
+    #define PROBING_MARGIN_BACK 45
+  #else
+    #define PROBING_MARGIN_LEFT PROBING_MARGIN
+    #define PROBING_MARGIN_RIGHT PROBING_MARGIN
+    #define PROBING_MARGIN_FRONT PROBING_MARGIN
+    #define PROBING_MARGIN_BACK PROBING_MARGIN
+  #endif
 #endif
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)

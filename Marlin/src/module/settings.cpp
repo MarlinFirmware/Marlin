@@ -301,6 +301,9 @@ typedef struct SettingsDataStruct {
   uint8_t grid_max_x, grid_max_y;                       // GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y
   uint16_t grid_check;                                  // Hash to check against X/Y
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
+  #if ENABLED(DYNAMIC_MARGINS)
+    int16_t margin_l, margin_r, margin_f, margin_b;
+  #endif
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bed_mesh_t z_values;                                // G29
   #else
@@ -1102,6 +1105,12 @@ void MarlinSettings::postprocess() {
       #else
         dummyf = 0;
         for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummyf);
+      #endif
+      #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL) && ENABLED(DYNAMIC_MARGINS)
+        EEPROM_WRITE(bedlevel.margin_l);
+        EEPROM_WRITE(bedlevel.margin_r);
+        EEPROM_WRITE(bedlevel.margin_f);
+        EEPROM_WRITE(bedlevel.margin_b);
       #endif
     }
 
@@ -2153,6 +2162,12 @@ void MarlinSettings::postprocess() {
           else // EEPROM data is stale
         #endif // AUTO_BED_LEVELING_BILINEAR
           {
+            #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL) && ENABLED(DYNAMIC_MARGINS)
+              EEPROM_READ(bedlevel.margin_l);
+              EEPROM_READ(bedlevel.margin_r);
+              EEPROM_READ(bedlevel.margin_f);
+              EEPROM_READ(bedlevel.margin_b);
+            #endif
             // Skip past disabled (or stale) Bilinear Grid data
             for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummyf);
           }
@@ -3399,6 +3414,8 @@ void MarlinSettings::reset() {
 
   TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
 
+  TERN_(DYNAMIC_MARGINS, { bedlevel.margin_l = PROBING_MARGIN_LEFT; bedlevel.margin_f = PROBING_MARGIN_FRONT; bedlevel.margin_r = PROBING_MARGIN_RIGHT; bedlevel.margin_b = PROBING_MARGIN_BACK; });
+
   //
   // Case Light Brightness
   //
@@ -3894,6 +3911,10 @@ void MarlinSettings::reset() {
     #if HAS_LEVELING
 
       gcode.M420_report(forReplay);
+
+      #if ENABLED(DYNAMIC_MARGINS)
+        gcode.M421_report(forReplay);
+      #endif
 
       #if ENABLED(MESH_BED_LEVELING)
 

@@ -43,6 +43,9 @@ xy_float_t LevelingBilinear::grid_factor;
 bed_mesh_t LevelingBilinear::z_values;
 xy_pos_t LevelingBilinear::cached_rel;
 xy_int8_t LevelingBilinear::cached_g;
+#if ENABLED(DYNAMIC_MARGINS)
+  int16_t LevelingBilinear::margin_l, LevelingBilinear::margin_r, LevelingBilinear::margin_f, LevelingBilinear::margin_b;
+#endif
 
 /**
  * Extrapolate a single point from its neighbors
