@@ -22,7 +22,7 @@
 #pragma once
 
 #if HOTENDS > 2 || E_STEPPERS > 1
-  #error "Creality RAMPS V252 supports up to 2 hotends and 1 E stepper."
+  #error "Creality V252 supports up to 2 hotends and 1 E stepper."
 #endif
 
 #define BOARD_INFO_NAME "Creality3D V252"
