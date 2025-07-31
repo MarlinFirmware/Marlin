@@ -132,6 +132,7 @@
 #define BOARD_XTLW_MFF_V1             1165  // XTLW MFF V1.0
 #define BOARD_XTLW_MFF_V2             1166  // XTLW MFF V2.0
 #define BOARD_RUMBA_E3D               1167  // E3D Rumba BigBox
+#define BOARD_CREALITY_V252           1168  // Creality CR-10 V2, CR-10 V3
 
 //
 // RAMBo and derivatives
