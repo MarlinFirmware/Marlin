@@ -17,7 +17,11 @@
 import os, subprocess, sys, urllib.request
 from pathlib import Path
 
+DEBUGGING = False
 CONFIG_FILES = ("Configuration.h", "Configuration_adv.h", "_Bootscreen.h", "_Statusscreen.h")
+
+def debug_print(s):
+  if DEBUGGING: print(s)
 
 def get_current_branch():
   try:
@@ -52,10 +56,10 @@ def copy_config_files(branch, config_path, dest_dir):
     src_file = src_dir / fname
     if src_file.exists():
       dest_file = dest_dir / fname
-      print(f"Copying {src_file} to {dest_file}")
+      debug_print(f"Copying {src_file} to {dest_file}")
       dest_file.write_bytes(src_file.read_bytes())
     else:
-      print(f"{fname} not found in {src_dir}")
+      debug_print(f"{fname} not found in {src_dir}")
 
 def fetch_config_files(branch, config_path, dest_dir):
   config_path_url = config_path.replace(' ', '%20')
@@ -65,7 +69,7 @@ def fetch_config_files(branch, config_path, dest_dir):
     url = f"{base_url}/{file}"
     dest_file = dest_dir / file
     if os.getenv('DEBUG', '0') == '1':
-      print(f"Fetching {file} from {url} to {dest_file}")
+      debug_print(f"Fetching {file} from {url} to {dest_file}")
 
     try:
       urllib.request.urlretrieve(url, dest_file)
