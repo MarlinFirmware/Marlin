@@ -101,18 +101,13 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
 #endif
 
 #if ENABLED(SCALE_WORKSPACE)
-  float GcodeSuite::scaling_center_x = 0.0f;
-  float GcodeSuite::scaling_center_y = 0.0f;
-  float GcodeSuite::scaling_center_z = 0.0f;
-  float GcodeSuite::scaling_factor_x = 1.0f;
-  float GcodeSuite::scaling_factor_y = 1.0f;
-  float GcodeSuite::scaling_factor_z = 1.0f;
+  scaling_center_t GcodeSuite::scaling_center;
+  scaling_factor_t GcodeSuite::scaling_factor;
 #endif
 
 #if ENABLED(ROTATE_WORKSPACE)
-  float GcodeSuite::rotation_center_x = 0.0f;
-  float GcodeSuite::rotation_center_y = 0.0f;
-  float GcodeSuite::rotation_angle = 0.0f;
+  float GcodeSuite::rotation_angle; // = 0.0f
+  xy_pos_t GcodeSuite::rotation_center; // = { 0.0f, 0.0f }
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
@@ -217,24 +212,25 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(SCALE_WORKSPACE)
-    if (!(NEAR(scaling_factor_x, 1.0f) || NEAR(scaling_factor_y, 1.0f) || NEAR(scaling_factor_z, 1.0f))) {
-      destination.x = (raw_destination.x - scaling_center_x) * scaling_factor_x + scaling_center_x;
-      TERN_(HAS_Y_AXIS, destination.y = (raw_destination.y - scaling_center_y) * scaling_factor_y + scaling_center_y);
-      TERN_(HAS_Z_AXIS, destination.z = (raw_destination.z - scaling_center_z) * scaling_factor_z + scaling_center_z);
+    if (!(NEAR(scaling_factor.x, 1.0f) || NEAR(scaling_factor.y, 1.0f) || NEAR(scaling_factor.z, 1.0f))) {
+      destination.x = (raw_destination.x - scaling_center.x) * scaling_factor.x + scaling_center.x;
+      TERN_(HAS_Y_AXIS, destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y);
+      TERN_(HAS_Z_AXIS, destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z);
     }
   #endif
 
   #if ENABLED(ROTATE_WORKSPACE)
     if (!NEAR_ZERO(rotation_angle)) {
-      const float angle_rad = RADIANS(rotation_angle);
-      const float cos_angle = cos(angle_rad);
-      const float sin_angle = sin(angle_rad);
+      const float a = RADIANS(rotation_angle),
+                  cos_angle = cosf(a),
+                  sin_angle = sinf(a);
 
       // Apply rotation
-      const float temp_x = destination.x - rotation_center_x;
-      const float temp_y = destination.y - rotation_center_y;
-      destination.x = temp_x * cos_angle - temp_y * sin_angle + rotation_center_x;
-      destination.y = temp_x * sin_angle + temp_y * cos_angle + rotation_center_y;
+      const xy_pos_t temp = xy_pos_t(destination) - rotation_center;
+      destination.set(
+        temp.x * cos_angle - temp.y * sin_angle + rotation_center.x,
+        temp.y * cos_angle + temp.x * sin_angle + rotation_center.y
+      );
     }
   #endif
 

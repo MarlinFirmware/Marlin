@@ -31,15 +31,9 @@
    * G50: Cancel Workspace Scaling
    */
   void GcodeSuite::G50() {
-    scaling_factor_x = 1.0f;
-    scaling_center_x = 0.0f;
-    scaling_factor_y = 1.0f;
-    scaling_center_y = 0.0f;
-    #if HAS_Z_AXIS
-      scaling_factor_z = 1.0f;
-      scaling_center_z = 0.0f;
-    #endif
-    SERIAL_ECHOLNPGM("G50: Workspace scaling canceled");
+    scaling_factor.reset();
+    scaling_center.reset();
+    SERIAL_ECHO_MSG("G50: Workspace scaling canceled");
   }
 
   /**
@@ -61,65 +55,65 @@
     bool use_current_pos = parser.seen('C'); // Check if 'C' parameter is present
 
     if (parser.seenval('P')) {
-      const float scaling_factor = parser.value_float();
-      scaling_factor_x = scaling_factor;
-      TERN_(HAS_Y_AXIS, scaling_factor_y = scaling_factor);
-      TERN_(HAS_Z_AXIS, scaling_factor_z = scaling_factor);
-      SERIAL_ECHOLNPGM("G51: Workspace scaling set to: ", scaling_factor);
+      const float sf = parser.value_float();
+      scaling_factor.x = sf;
+      TERN_(HAS_Y_AXIS, scaling_factor.y = sf);
+      TERN_(HAS_Z_AXIS, scaling_factor.z = sf);
+      SERIAL_ECHO_MSG("G51: Workspace scaling set to: ", sf);
     }
     else {
-      if (parser.seenval('I'))
-        scaling_factor_x = parser.value_float();
+      if (parser.seenval('I')) scaling_factor.x = parser.value_float();
       #if HAS_Y_AXIS
-        if (parser.seenval('J'))
-          scaling_factor_y = parser.value_float();
+        if (parser.seenval('J')) scaling_factor.y = parser.value_float();
       #endif
       #if HAS_Z_AXIS
-        if (parser.seenval('K'))
-          scaling_factor_z = parser.value_float();
+        if (parser.seenval('K')) scaling_factor.z = parser.value_float();
       #endif
 
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
-        LIST_N(DOUBLE(NUM_AXES),
-          PSTR("G51: Workspace scaling set to: X"), scaling_factor_x,
-          SP_Y_STR, scaling_factor_y,
-          SP_Z_STR, scaling_factor_z
-        )
+        PSTR("G51: Workspace scaling set to: X"), scaling_factor.x
+        #if HAS_Y_AXIS
+          , SP_Y_STR, scaling_factor.y
+        #endif
+        #if HAS_Z_AXIS
+          , SP_Z_STR, scaling_factor.z
+        #endif
       );
     }
 
-    rotation_center_x = X_CENTER;
-    TERN_(HAS_Y_AXIS, rotation_center_y = Y_CENTER);
+    rotation_center.x = X_CENTER;
+    TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
 
     // X-axis scaling
     if (use_current_pos && parser.seen('X')) {
       if (parser.seenval('X')) {
-        SERIAL_ECHOLNPGM("G51: Do not use value for X-axis scaling center with 'C' parameter!");
+        SERIAL_ECHO_MSG("G51: Do not use value for X-axis scaling center with 'C' parameter!");
         return;
       }
-      scaling_center_x = current_position.x;
+      scaling_center.x = current_position.x;
     }
     else if (parser.seenval('X')) {
-      scaling_center_x = LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS);
+      scaling_center.x = LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS);
     }
     else {
-      scaling_center_x = rotation_center_x;
+      scaling_center.x = rotation_center.x;
     }
 
     // Y-axis scaling
     #if HAS_Y_AXIS
       if (use_current_pos && parser.seen('Y')) {
         if (parser.seenval('Y')) {
-          SERIAL_ECHOLNPGM("G51: Do not use value for Y-axis scaling center with 'C' parameter!");
+          SERIAL_ECHO_MSG("G51: Do not use value for Y-axis scaling center with 'C' parameter!");
           return;
         }
-        scaling_center_y = current_position.y;
+        scaling_center.y = current_position.y;
       }
       else if (parser.seenval('Y')) {
-        scaling_center_y = LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS);
+        scaling_center.y = LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS);
       }
       else {
-        scaling_center_y = rotation_center_y;
+        scaling_center.y = rotation_center.y;
       }
     #endif
 
@@ -127,25 +121,28 @@
     #if HAS_Z_AXIS
       if (use_current_pos && parser.seen('Z')) {
         if (parser.seenval('Z')) {
-          SERIAL_ECHOLNPGM("G51: Do not use value for Z-axis scaling center with 'C' parameter!");
+          SERIAL_ECHO_MSG("G51: Do not use value for Z-axis scaling center with 'C' parameter!");
           return;
         }
-        scaling_center_z = current_position.z;
+        scaling_center.z = current_position.z;
       }
       else if (parser.seenval('Z')) {
-        scaling_center_z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
+        scaling_center.z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
       }
       else {
-        scaling_center_z = 0.0f;
+        scaling_center.z = 0.0f;
       }
     #endif
 
+    SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-        PSTR("G51: Workspace center set to: X"), scaling_center_x,
-        SP_Y_STR, scaling_center_y,
-        SP_Z_STR, scaling_center_z
-      )
+      PSTR("G51: Workspace center set to: X"), scaling_center.x
+      #if HAS_Y_AXIS
+        , SP_Y_STR, scaling_center.y
+      #endif
+      #if HAS_Z_AXIS
+        , SP_Z_STR, scaling_center.z
+      #endif
     );
   }
 

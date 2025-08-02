@@ -104,8 +104,8 @@
       SERIAL_ECHOLNPGM("G68: Workspace rotation set to: ", input_deg, " deg.");
     }
 
-    rotation_center_x = X_CENTER;
-    TERN_(HAS_Y_AXIS, rotation_center_y = Y_CENTER);
+    rotation_center.x = X_CENTER;
+    TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
   }
 
   /**
