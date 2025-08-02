@@ -27,6 +27,8 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 
+//#define USE_45DEG_INCREMENTS // Allow 45-degree increments on square beds
+
 /**
  * G68: Set Workspace Rotation
  *
@@ -50,38 +52,26 @@
  *      https://www.machsupport.com/forum/index.php?topic=43012)
  */
 void GcodeSuite::G68() {
-  float input_deg;
-
   if (!parser.seenval('R')) {
-    SERIAL_ECHO_MSG("G68: Missing 'R' parameter (rotation angle).");
+    SERIAL_ECHO_MSG("?(R)otation angle is required.");
     return;
   }
-  else {
-    input_deg = parser.value_float();
-  }
+  const float input_deg = parser.value_float();
 
   #if ENABLED(LIMIT_ROTATION_ANGLE)
-    //#define USE_45DEG_INCREMENTS // Allow 45-degree increments on square beds
-
-    // Check if the input angle is allowed
-    const bool is_valid = !(ABS(input_deg) % TERN(USE_45DEG_INCREMENTS, 45, 90));
-    if (!is_valid) {
-      SERIAL_ECHO_MSG("G68: Rotation angle must be a multiple of " TERN(USE_45DEG_INCREMENTS, "45", "90") ".");
+    // Check for a valid input angle
+    if ((ABS(input_deg) % TERN(USE_45DEG_INCREMENTS, 45, 90)) != 0) {
+      SERIAL_ECHO_MSG("?(R)otation must be a multiple of " TERN(USE_45DEG_INCREMENTS, "45", "90") ".");
       return;
     }
-
-  #else // !LIMIT_ROTATION_ANGLE
-
-    // Parse rotation angle (float)
-    input_deg = parser.value_float();
-
   #endif
 
-  if (input_deg != rotation_angle) {
+  //if (input_deg != rotation_angle) {
     rotation_angle = input_deg;
-    SERIAL_ECHO_MSG("G68: Workspace rotation set to: ", input_deg, " deg.");
-  }
+    //SERIAL_ECHO_MSG("G68: Workspace rotation set to ", input_deg, " degrees.");
+  //}
 
+  // Assume the object rotates around the bed center
   rotation_center.x = X_CENTER;
   TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
 }
