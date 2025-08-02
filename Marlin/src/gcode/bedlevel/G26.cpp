@@ -712,7 +712,7 @@ void GcodeSuite::G26() {
     #endif
     float trig_table[A_CNT];
     for (uint8_t i = 0; i < A_CNT; ++i)
-      trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
+      trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cosf(RADIANS(i * A_INT));
 
   #endif // !ARC_SUPPORT
 

@@ -3182,8 +3182,8 @@
   #define SKEW_FACTOR_MIN -1
   #define SKEW_FACTOR_MAX 1
 
-  #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5)
-  #define _SKEW_SIDE(a,b,c) tan(M_PI*0.5-acos((sq(a)-sq(b)-sq(c))/(2*c*b)))
+  #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5f)
+  #define _SKEW_SIDE(a,b,c) tanf(M_PI*0.5-acosf((sq(a)-sq(b)-sq(c))/(2*c*b)))
   #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(float(a),_GET_SIDE(float(a),float(b),float(c)),float(c))
 
   #ifndef XY_SKEW_FACTOR
