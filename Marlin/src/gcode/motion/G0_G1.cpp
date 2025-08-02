@@ -39,12 +39,6 @@
   #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
-extern xyze_pos_t destination;
-
-#if defined(ROTATE_WORKSPACE)
-  extern xyz_pos_t raw_destination;
-#endif
-
 #if ENABLED(VARIABLE_G0_FEEDRATE)
   feedRate_t fast_move_feedrate = MMM_TO_MMS(G0_FEEDRATE);
 #endif

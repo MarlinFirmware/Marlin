@@ -181,10 +181,13 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
+  #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+    static xyz_pos_t raw_destination; // {0}
+  #endif
+
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move) {
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
           raw_destination[i] = current_position[i];
@@ -193,6 +196,7 @@ void GcodeSuite::get_destination_from_command() {
         #endif
       }
       else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
           raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
         #else
@@ -201,7 +205,9 @@ void GcodeSuite::get_destination_from_command() {
       }
     }
     else {
-      #if NONE(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+      #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
+        raw_destination[i] = current_position[i];
+      #else
         destination[i] = current_position[i];
       #endif
     }

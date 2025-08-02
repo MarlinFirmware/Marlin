@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -24,96 +24,74 @@
 
 #if ENABLED(ROTATE_WORKSPACE)
 
-  #include "../gcode.h"
-  #include "../../module/motion.h"
+#include "../gcode.h"
+#include "../../module/motion.h"
 
-  /**
-   * G68: Set Workspace Rotation
-   *
-   * Set the rotation (about Z axis) for the current workspace (begins at 0).
-   *
-   * Parameters:
-   *   X<linear>  X coordinate of the rotation center for the current workspace
-   *   Y<linear>  Y coordinate of the rotation center for the current workspace
-   *   R<float>   Rotation angle in degrees (Required)
-   *
-   * Example:
-   *   G68 R45  ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z)
-   *   G68 R-30 ; Rotate active workspace by -30°
-   *   G68 R180 ; Rotate active workspace by 180°
-   *
-   * NOTES:
-   *   - Only rotation is set. No translation/offset is changed.
-   *   - All subsequent moves are rotated by the specified angle.
-   *   - It is an error to change workspace or working plane while workspace rotation is active
-   *     (https://forums.autodesk.com/t5/fusion-manufacture-forum/probing-and-updating-wcs-for-angle/td-p/9487027 ,
-   *      https://www.machsupport.com/forum/index.php?topic=43012)
-   */
-  void GcodeSuite::G68() {
-    float input_deg;
+/**
+ * G68: Set Workspace Rotation
+ *
+ * Set the rotation (about Z axis) for the current workspace (begins at 0).
+ *
+ * Parameters:
+ *   X<linear>  X coordinate of the rotation center for the current workspace
+ *   Y<linear>  Y coordinate of the rotation center for the current workspace
+ *   R<float>   Rotation angle in degrees (Required)
+ *
+ * Example:
+ *   G68 R45  ; Rotate active workspace by 45° counter-clockwise (when viewed from positive Z)
+ *   G68 R-30 ; Rotate active workspace by -30°
+ *   G68 R180 ; Rotate active workspace by 180°
+ *
+ * NOTES:
+ *   - Only rotation is set. No translation/offset is changed.
+ *   - All subsequent moves are rotated by the specified angle.
+ *   - It is an error to change workspace or working plane while workspace rotation is active
+ *     (https://forums.autodesk.com/t5/fusion-manufacture-forum/probing-and-updating-wcs-for-angle/td-p/9487027 ,
+ *      https://www.machsupport.com/forum/index.php?topic=43012)
+ */
+void GcodeSuite::G68() {
+  float input_deg;
 
-    if (!parser.seenval('R')) {
-      SERIAL_ECHOLNPGM("G68: Missing R parameter (rotation angle).");
+  if (!parser.seenval('R')) {
+    SERIAL_ECHO_MSG("G68: Missing 'R' parameter (rotation angle).");
+    return;
+  }
+  else {
+    input_deg = parser.value_float();
+  }
+
+  #if ENABLED(LIMIT_ROTATION_ANGLE)
+    //#define USE_45DEG_INCREMENTS // Allow 45-degree increments on square beds
+
+    // Check if the input angle is allowed
+    const bool is_valid = !(ABS(input_deg) % TERN(USE_45DEG_INCREMENTS, 45, 90));
+    if (!is_valid) {
+      SERIAL_ECHO_MSG("G68: Rotation angle must be a multiple of " TERN(USE_45DEG_INCREMENTS, "45", "90") ".");
       return;
     }
-    else {
-      input_deg = parser.value_float();
-    }
 
-    #if ENABLED(LIMIT_ROTATION_ANGLE)
-      //#define USE_45DEG_INCREMENTS // Allow 45-degree increments on square beds
+  #else // !LIMIT_ROTATION_ANGLE
 
-      // Check if the input angle is one of the explicitly allowed values:
-      // +/- 45, 90, 135, 180, 225, 270, 315, or 0 degrees.
-      bool is_valid = (
-          input_deg ==    0 ||
-          input_deg ==   90 ||
-          input_deg ==  -90 ||
-          input_deg ==  180 ||
-          input_deg == -180 ||
-          input_deg ==  270 ||
-          input_deg == -270
-        #if ENABLED(USE_45DEG_INCREMENTS)
-                            ||
-          input_deg ==   45 ||
-          input_deg ==  -45 ||
-          input_deg ==  135 ||
-          input_deg == -135 ||
-          input_deg ==  225 ||
-          input_deg == -225 ||
-          input_deg ==  315 ||
-          input_deg == -315
-        #endif
-      );
+    // Parse rotation angle (float)
+    input_deg = parser.value_float();
 
-      if (!is_valid) {
-        #if DISABLED(USE_45DEG_INCREMENTS)
-          SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 90, 180, 270, or 0 degrees for square beds.");
-        #else
-          SERIAL_ECHOLNPGM("G68: Rotation angle must be +/- 45, 90, 135, 180, 225, 270, 315, or 0 degrees for square beds.");
-        #endif
-        return;
-      }
-    #else
-      // Parse rotation angle (float)
-      input_deg = parser.value_float();
-    #endif
+  #endif
 
-    if (input_deg != rotation_angle) {
-      rotation_angle = input_deg;
-      SERIAL_ECHOLNPGM("G68: Workspace rotation set to: ", input_deg, " deg.");
-    }
-
-    rotation_center.x = X_CENTER;
-    TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
+  if (input_deg != rotation_angle) {
+    rotation_angle = input_deg;
+    SERIAL_ECHO_MSG("G68: Workspace rotation set to: ", input_deg, " deg.");
   }
 
-  /**
-   * G69: Cancel Workspace Rotation
-   */
-  void GcodeSuite::G69() {
-    rotation_angle = 0.0f;
-    SERIAL_ECHOLNPGM("G68: Workspace rotation canceled");
-  }
+  rotation_center.x = X_CENTER;
+  TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
+}
+
+/**
+ * G69: Cancel Workspace Rotation
+ */
+void GcodeSuite::G69() {
+  rotation_angle = 0.0f;
+  SERIAL_ECHO_MSG("G68: Workspace rotation canceled");
+}
 
 #endif // ROTATE_WORKSPACE

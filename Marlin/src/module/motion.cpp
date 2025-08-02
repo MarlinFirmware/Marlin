@@ -107,10 +107,6 @@ xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_IN
  */
 xyze_pos_t destination; // {0}
 
-#if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-  xyz_pos_t raw_destination = NUM_AXIS_ARRAY(X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
-#endif
-
 // G60/G61 Position Save and Return
 #if SAVED_POSITIONS
   Flags<SAVED_POSITIONS> did_save_position;
@@ -784,7 +780,7 @@ void get_cartesian_from_steppers() {
     cartes.z = planner.get_axis_position_mm(Z_AXIS);
   #else
     cartes.set(
-      NUM_AXIS_CODE(
+      NUM_AXIS_LIST(
         planner.get_axis_position_mm(X_AXIS),
         planner.get_axis_position_mm(Y_AXIS),
         planner.get_axis_position_mm(Z_AXIS),
