@@ -24,126 +24,117 @@
 
 #if ENABLED(SCALE_WORKSPACE)
 
-  #include "../gcode.h"
-  #include "../../module/motion.h"
+#include "../gcode.h"
+#include "../../module/motion.h"
 
-  /**
-   * G50: Cancel Workspace Scaling
-   */
-  void GcodeSuite::G50() {
-    scaling_factor.reset();
-    scaling_center.reset();
-    SERIAL_ECHO_MSG("G50: Workspace scaling canceled");
+/**
+ * G50: Cancel Workspace Scaling
+ */
+void GcodeSuite::G50() {
+  scaling_factor.reset();
+  scaling_center.reset();
+  SERIAL_ECHO_MSG("G50: Workspace scaling canceled");
+}
+
+/**
+ * G51: Set Workspace Scaling
+ *
+ * Scale the current workspace coordinate system.
+ *
+ * Parameters:
+ * X<linear>  X coordinate of the scaling center
+ * Y<linear>  Y coordinate of the scaling center
+ * Z<linear>  Z coordinate of the scaling center
+ * I<float>   scaling factor for X axis
+ * J<float>   scaling factor for Y axis
+ * K<float>   scaling factor for Z axis
+ * P<float>   scaling factor
+ * C<bool>    Use current position for axes (X, Y, Z)
+ */
+void GcodeSuite::G51() {
+  bool use_current_pos = parser.seen('C'); // Check if 'C' parameter is present
+
+  if (parser.seenval('P')) {
+    const float sf = parser.value_float();
+    scaling_factor.x = sf;
+    TERN_(HAS_Y_AXIS, scaling_factor.y = sf);
+    TERN_(HAS_Z_AXIS, scaling_factor.z = sf);
+    SERIAL_ECHO_MSG("G51: Workspace scaling set to: ", sf);
   }
-
-  /**
-   * G51: Set Workspace Scaling
-   *
-   * Scale the current workspace coordinate system.
-   *
-   * Parameters:
-   * X<linear>  X coordinate of the scaling center
-   * Y<linear>  Y coordinate of the scaling center
-   * Z<linear>  Z coordinate of the scaling center
-   * I<float>   scaling factor for X axis
-   * J<float>   scaling factor for Y axis
-   * K<float>   scaling factor for Z axis
-   * P<float>   scaling factor
-   * C<bool>    Use current position for axes (X, Y, Z)
-   */
-  void GcodeSuite::G51() {
-    bool use_current_pos = parser.seen('C'); // Check if 'C' parameter is present
-
-    if (parser.seenval('P')) {
-      const float sf = parser.value_float();
-      scaling_factor.x = sf;
-      TERN_(HAS_Y_AXIS, scaling_factor.y = sf);
-      TERN_(HAS_Z_AXIS, scaling_factor.z = sf);
-      SERIAL_ECHO_MSG("G51: Workspace scaling set to: ", sf);
-    }
-    else {
-      if (parser.seenval('I')) scaling_factor.x = parser.value_float();
-      #if HAS_Y_AXIS
-        if (parser.seenval('J')) scaling_factor.y = parser.value_float();
-      #endif
-      #if HAS_Z_AXIS
-        if (parser.seenval('K')) scaling_factor.z = parser.value_float();
-      #endif
-
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM_P(
-        PSTR("G51: Workspace scaling set to: X"), scaling_factor.x
-        #if HAS_Y_AXIS
-          , SP_Y_STR, scaling_factor.y
-        #endif
-        #if HAS_Z_AXIS
-          , SP_Z_STR, scaling_factor.z
-        #endif
-      );
-    }
-
-    rotation_center.x = X_CENTER;
-    TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
-
-    // X-axis scaling
-    if (use_current_pos && parser.seen('X')) {
-      if (parser.seenval('X')) {
-        SERIAL_ECHO_MSG("G51: Do not use value for X-axis scaling center with 'C' parameter!");
-        return;
-      }
-      scaling_center.x = current_position.x;
-    }
-    else if (parser.seenval('X')) {
-      scaling_center.x = LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS);
-    }
-    else {
-      scaling_center.x = rotation_center.x;
-    }
-
-    // Y-axis scaling
+  else {
+    if (parser.seenval('I')) scaling_factor.x = parser.value_float();
     #if HAS_Y_AXIS
-      if (use_current_pos && parser.seen('Y')) {
-        if (parser.seenval('Y')) {
-          SERIAL_ECHO_MSG("G51: Do not use value for Y-axis scaling center with 'C' parameter!");
-          return;
-        }
-        scaling_center.y = current_position.y;
-      }
-      else if (parser.seenval('Y')) {
-        scaling_center.y = LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS);
-      }
-      else {
-        scaling_center.y = rotation_center.y;
-      }
+      if (parser.seenval('J')) scaling_factor.y = parser.value_float();
     #endif
-
-    // Z-axis scaling
     #if HAS_Z_AXIS
-      if (use_current_pos && parser.seen('Z')) {
-        if (parser.seenval('Z')) {
-          SERIAL_ECHO_MSG("G51: Do not use value for Z-axis scaling center with 'C' parameter!");
-          return;
-        }
-        scaling_center.z = current_position.z;
-      }
-      else if (parser.seenval('Z')) {
-        scaling_center.z = LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS);
-      }
-      else {
-        scaling_center.z = 0.0f;
-      }
+      if (parser.seenval('K')) scaling_factor.z = parser.value_float();
     #endif
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM_P(
-      PSTR("G51: Workspace center set to: X"), scaling_center.x
+      PSTR("G51: Workspace scaling set to: X"), scaling_factor.x
       #if HAS_Y_AXIS
-        , SP_Y_STR, scaling_center.y
+        , SP_Y_STR, scaling_factor.y
       #endif
       #if HAS_Z_AXIS
-        , SP_Z_STR, scaling_center.z
+        , SP_Z_STR, scaling_factor.z
       #endif
     );
   }
+
+  rotation_center.x = X_CENTER;
+  TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
+
+  // X-axis scaling
+  const bool seenX = parser.seen('X'), hasX = seenX && parser.has_value();
+  if (use_current_pos && hasX) {
+    SERIAL_ECHO_MSG("?(X) cannot have a value when used with 'C'.");
+    return;
+  }
+  scaling_center.x = (
+    use_current_pos && seenX ? current_position.x :
+    hasX ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) :
+    rotation_center.x
+  );
+
+  // Y-axis scaling
+  #if HAS_Y_AXIS
+    const bool seenY = parser.seen('Y'), hasY = seenY && parser.has_value();
+    if (use_current_pos && hasY) {
+      SERIAL_ECHO_MSG("?(Y) cannot have a value when used with 'C'.");
+      return;
+    }
+    scaling_center.y = (
+      use_current_pos && seenY ? current_position.y :
+      hasY ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) :
+      rotation_center.y
+    );
+  #endif
+
+  // Z-axis scaling
+  #if HAS_Z_AXIS
+    const bool seenZ = parser.seen('Z'), hasZ = seenZ && parser.has_value();
+    if (use_current_pos && hasZ) {
+      SERIAL_ECHO_MSG("?(Z) cannot have a value when used with 'C'.");
+      return;
+    }
+    scaling_center.z = (
+      use_current_pos && seenZ ? current_position.z :
+      hasZ ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS) :
+      0.0f
+    );
+  #endif
+
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPGM_P(
+    PSTR("Workspace scaling center X"), scaling_center.x
+    #if HAS_Y_AXIS
+      , SP_Y_STR, scaling_center.y
+    #endif
+    #if HAS_Z_AXIS
+      , SP_Z_STR, scaling_center.z
+    #endif
+  );
+}
 
 #endif // SCALE_WORKSPACE
