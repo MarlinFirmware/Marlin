@@ -62,10 +62,6 @@ typedef struct {
   #endif
 } G29_parameters_t;
 
-#if ENABLED(VARIABLE_GRID_POINTS)
-  class unified_bed_leveling;
-#endif
-
 class unified_bed_leveling {
 private:
 

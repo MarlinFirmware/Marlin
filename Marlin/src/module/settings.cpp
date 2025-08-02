@@ -303,7 +303,7 @@ typedef struct SettingsDataStruct {
   xy_pos_t bilinear_grid_spacing, bilinear_start;       // G29 L F
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     #if ENABLED(VARIABLE_GRID_POINTS)
-      xy_uint8_t bilinear_grid_points;
+      xy_uint8_t nr_grid_points;
     #endif
     bed_mesh_t z_values;                                // G29
   #else
@@ -3180,8 +3180,12 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.nr_grid_points, sizeof(bedlevel.nr_grid_points), &crc)
-                      || persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.nr_grid_points, sizeof(bedlevel.nr_grid_points), &crc)
+                        || persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
+        #else
+          const bool err = persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
+        #endif
         persistentStore.access_finish();
 
         if (err) SERIAL_ECHOLNPGM("?Unable to save mesh data.");
@@ -3215,9 +3219,13 @@ void MarlinSettings::postprocess() {
         #endif
 
         persistentStore.access_start();
-        xy_uint8_t nr_grid_points;
-        bool err = persistentStore.read_data(pos, (uint8_t *)&nr_grid_points, sizeof(nr_grid_points), &crc)
-                || persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
+        #if ENABLED(VARIABLE_GRID_POINTS)
+          xy_uint8_t nr_grid_points;
+          bool err = persistentStore.read_data(pos, (uint8_t *)&nr_grid_points, sizeof(nr_grid_points), &crc)
+                  || persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
+        #else
+          uint16_t err = persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
+        #endif
         persistentStore.access_finish();
 
         #if ENABLED(OPTIMIZED_MESH_STORAGE)
@@ -3243,7 +3251,9 @@ void MarlinSettings::postprocess() {
         if (err)
           SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else {
-          bedlevel.set_nr_grid_points(nr_grid_points);
+          #if ENABLED(VARIABLE_GRID_POINTS)
+            bedlevel.set_nr_grid_points(nr_grid_points);
+          #endif
           DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
         }
 
