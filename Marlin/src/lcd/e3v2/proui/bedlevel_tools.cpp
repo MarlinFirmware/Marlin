@@ -86,7 +86,7 @@ bool drawing_mesh = false;
   bool BedLevelTools::createPlaneFromMesh() {
     struct linear_fit_data lsf_results;
     incremental_LSF_reset(&lsf_results);
-    GRID_LOOP(x, y) {
+    GRID_LOOP_COND(x, y) {
       const float z = bedlevel.z_values[x][y];
       if (!isnan(z)) {
         xy_pos_t rpos = { bedlevel.get_mesh_x(x), bedlevel.get_mesh_y(y) };
@@ -102,7 +102,7 @@ bool drawing_mesh = false;
     bedlevel.set_all_mesh_points_to_value(0);
 
     matrix_3x3 rotation = matrix_3x3::create_look_at(vector_3(lsf_results.A, lsf_results.B, 1));
-    GRID_LOOP(i, j) {
+    GRID_LOOP_COND(i, j) {
       float mx = bedlevel.get_mesh_x(i), my = bedlevel.get_mesh_y(j), mz = bedlevel.z_values[i][j];
 
       if (DEBUGGING(LEVELING)) {
@@ -179,19 +179,19 @@ void BedLevelTools::meshReset() {
 // Accessors
 float BedLevelTools::getMaxValue() {
   float max = -(__FLT_MAX__);
-  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
+  GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOLESS(max, z); }
   return max;
 }
 
 float BedLevelTools::getMinValue() {
   float min = __FLT_MAX__;
-  GRID_LOOP(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
+  GRID_LOOP_COND(x, y) { const float z = bedlevel.z_values[x][y]; if (!isnan(z)) NOMORE(min, z); }
   return min;
 }
 
 // Return 'true' if mesh is good and within LCD limits
 bool BedLevelTools::meshValidate() {
-  GRID_LOOP(x, y) {
+  GRID_LOOP_COND(x, y) {
     const float z = bedlevel.z_values[x][y];
     if (isnan(z) || !WITHIN(z, Z_OFFSET_MIN, Z_OFFSET_MAX)) return false;
   }
@@ -204,26 +204,26 @@ bool BedLevelTools::meshValidate() {
 
   void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
-    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
-                   cell_width_px  = total_width_px / (GRID_MAX_POINTS_X),
-                   cell_height_px = total_width_px / (GRID_MAX_POINTS_Y);
+    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
+    const uint16_t cell_width_px  = total_width_px / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+    const uint16_t cell_height_px = total_width_px / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y));
     const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square
     dwinDrawRectangle(1, COLOR_BG_BLACK, _MAX(0, padding_x - gridline_width), _MAX(0, padding_y_top - gridline_width), padding_x + total_width_px, padding_y_top + total_width_px);
     if (selected >= 0) {
-      const auto selected_y = selected / (GRID_MAX_POINTS_X);
-      const auto selected_x = selected - (GRID_MAX_POINTS_X) * selected_y;
+      const auto selected_y = selected / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+      const auto selected_x = selected - (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) * selected_y;
       const auto start_y_px = padding_y_top + selected_y * cell_height_px;
       const auto start_x_px = padding_x + selected_x * cell_width_px;
       dwinDrawRectangle(1, COLOR_WHITE, _MAX(0, start_x_px - gridline_width), _MAX(0, start_y_px - gridline_width), start_x_px + cell_width_px, start_y_px + cell_height_px);
     }
 
     // Draw value square grid
-    GRID_LOOP(x, y) {
+    GRID_LOOP_COND(x, y) {
       const auto start_x_px = padding_x + x * cell_width_px;
       const auto end_x_px   = start_x_px + cell_width_px - 1 - gridline_width;
-      const auto start_y_px = padding_y_top + ((GRID_MAX_POINTS_Y) - y - 1) * cell_height_px;
+      const auto start_y_px = padding_y_top + ((TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - y - 1) * cell_height_px;
       const auto end_y_px   = start_y_px + cell_height_px - 1 - gridline_width;
       const float z = bedlevel.z_values[x][y];
       const uint16_t color = isnan(z) ? COLOR_GREY : (   // Gray if undefined
@@ -247,7 +247,7 @@ bool BedLevelTools::meshValidate() {
       }
       else {          // has value
         MString<12> msg;
-        constexpr bool is_wide = (GRID_MAX_POINTS_X) >= TERN(TJC_DISPLAY, 8, 10);
+        constexpr bool is_wide = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) >= TERN(TJC_DISPLAY, 8, 10);
         if (is_wide)
           msg.setf(F("%02i"), uint16_t(z * 100) % 100);
         else
@@ -261,7 +261,7 @@ bool BedLevelTools::meshValidate() {
       safe_delay(10);
       LCD_SERIAL.flushTX();
 
-    } // GRID_LOOP
+    } // GRID_LOOP_COND
   }
 
   void BedLevelTools::setMeshViewerStatus() { // TODO: draw gradient with values as a legend instead

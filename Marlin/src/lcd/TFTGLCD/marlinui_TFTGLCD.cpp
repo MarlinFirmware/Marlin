@@ -1117,7 +1117,7 @@ void MarlinUI::draw_status_screen() {
       //print only top left corner. All frame with grid points will be printed by panel
       lcd_moveto(0, 0);
       *fb++ = TLC;   //top left corner - marker for plot parameters
-      *fb = (GRID_MAX_POINTS_X << 4) + GRID_MAX_POINTS_Y; //set mesh size
+      *fb = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) << 4) + TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); //set mesh size
 
       // Print plot position
       lcd_moveto(_LCD_W_POS, 0);

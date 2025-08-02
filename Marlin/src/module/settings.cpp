@@ -3180,7 +3180,7 @@ void MarlinSettings::postprocess() {
 
         // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
-        const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.grid_points, sizeof(bedlevel.grid_points), &crc)
+        const bool err = persistentStore.write_data(pos, (uint8_t *)&bedlevel.nr_grid_points, sizeof(bedlevel.nr_grid_points), &crc)
                       || persistentStore.write_data(pos, src, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
@@ -3215,8 +3215,8 @@ void MarlinSettings::postprocess() {
         #endif
 
         persistentStore.access_start();
-        xy_uint8_t grid_points;
-        bool err = persistentStore.read_data(pos, (uint8_t *)&grid_points, sizeof(grid_points), &crc)
+        xy_uint8_t nr_grid_points;
+        bool err = persistentStore.read_data(pos, (uint8_t *)&nr_grid_points, sizeof(nr_grid_points), &crc)
                 || persistentStore.read_data(pos, dest, MESH_DATA_SIZE, &crc);
         persistentStore.access_finish();
 
@@ -3243,7 +3243,7 @@ void MarlinSettings::postprocess() {
         if (err)
           SERIAL_ECHOLNPGM("?Unable to load mesh data.");
         else {
-          bedlevel.set_grid_points(grid_points);
+          bedlevel.set_nr_grid_points(nr_grid_points);
           DEBUG_ECHOLNPGM("Mesh loaded from slot ", slot);
         }
 

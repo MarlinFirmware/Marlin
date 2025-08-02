@@ -1537,7 +1537,7 @@ void MarlinUI::draw_status_screen() {
                    pixels_per_x_mesh_pnt, pixels_per_y_mesh_pnt,
                    suppress_x_offset = 0, suppress_y_offset = 0;
 
-        const uint8_t y_plot_inv = (GRID_MAX_POINTS_Y) - 1 - y_plot;
+        const uint8_t y_plot_inv = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - 1 - y_plot;
 
         upper_left.column  = 0;
         upper_left.row     = 0;
@@ -1549,8 +1549,8 @@ void MarlinUI::draw_status_screen() {
         x_map_pixels = (HD44780_CHAR_WIDTH) * (MESH_MAP_COLS) - 2;          // Minus 2 because we are drawing a box around the map
         y_map_pixels = (HD44780_CHAR_HEIGHT) * (MESH_MAP_ROWS) - 2;
 
-        pixels_per_x_mesh_pnt = x_map_pixels / (GRID_MAX_POINTS_X);
-        pixels_per_y_mesh_pnt = y_map_pixels / (GRID_MAX_POINTS_Y);
+        pixels_per_x_mesh_pnt = x_map_pixels / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+        pixels_per_y_mesh_pnt = y_map_pixels / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y));
 
         if (pixels_per_x_mesh_pnt >= HD44780_CHAR_WIDTH) {                  // There are only 2 custom characters available, so the X
           pixels_per_x_mesh_pnt = HD44780_CHAR_WIDTH;                       // Size of the mesh point needs to fit within them independent
@@ -1562,11 +1562,11 @@ void MarlinUI::draw_status_screen() {
           suppress_y_offset = 1;                                            // Of where the starting pixel is located.
         }
 
-        x_map_pixels = pixels_per_x_mesh_pnt * (GRID_MAX_POINTS_X);         // Now we have the right number of pixels to make both
-        y_map_pixels = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y);         // Directions fit nicely
+        x_map_pixels = pixels_per_x_mesh_pnt * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));         // Now we have the right number of pixels to make both
+        y_map_pixels = pixels_per_y_mesh_pnt * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y));         // Directions fit nicely
 
-        right_edge   = pixels_per_x_mesh_pnt * (GRID_MAX_POINTS_X) + 1;     // Find location of right edge within the character cell
-        bottom_line  = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 1;     // Find location of bottom line within the character cell
+        right_edge   = pixels_per_x_mesh_pnt * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) + 1;     // Find location of right edge within the character cell
+        bottom_line  = pixels_per_y_mesh_pnt * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) + 1;     // Find location of bottom line within the character cell
 
         n_rows = bottom_line / (HD44780_CHAR_HEIGHT) + 1;
         n_cols = right_edge / (HD44780_CHAR_WIDTH) + 1;
@@ -1585,7 +1585,7 @@ void MarlinUI::draw_status_screen() {
          * If the entire 4th row is not in use, do not put vertical bars all the way down to the bottom of the display
          */
 
-        k = pixels_per_y_mesh_pnt * (GRID_MAX_POINTS_Y) + 2;
+        k = pixels_per_y_mesh_pnt * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) + 2;
         l = (HD44780_CHAR_HEIGHT) * n_rows;
         if (l > k && l - k >= (HD44780_CHAR_HEIGHT) / 2) {
           lcd_put_lchar(0, n_rows - 1, ' ');                                // Box Left edge
@@ -1597,7 +1597,7 @@ void MarlinUI::draw_status_screen() {
         lcd.createChar(CHAR_LINE_TOP, (uint8_t*)&new_char);
 
         clear_custom_char(&new_char);
-        k = (GRID_MAX_POINTS_Y) * pixels_per_y_mesh_pnt + 1;                // Row of pixels for the bottom box line
+        k = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) * pixels_per_y_mesh_pnt + 1;                // Row of pixels for the bottom box line
         l = k % (HD44780_CHAR_HEIGHT);                                      // Row within relevant character cell
         new_char.custom_char_bits[l] = 0b11111U;                            // Char #1 is used for the box bottom line
         lcd.createChar(CHAR_LINE_BOT, (uint8_t*)&new_char);
@@ -1608,7 +1608,7 @@ void MarlinUI::draw_status_screen() {
         lcd.createChar(CHAR_EDGE_L, (uint8_t*)&new_char);
 
         clear_custom_char(&new_char);
-        m = (GRID_MAX_POINTS_X) * pixels_per_x_mesh_pnt + 1;                // Column of pixels for the right box line
+        m = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) * pixels_per_x_mesh_pnt + 1;                // Column of pixels for the right box line
         n = m % (HD44780_CHAR_WIDTH);                                       // Column within relevant character cell
         i = HD44780_CHAR_WIDTH - 1 - n;                                     // Column within relevant character cell (0 on the right)
         for (j = 0; j < HD44780_CHAR_HEIGHT; j++)

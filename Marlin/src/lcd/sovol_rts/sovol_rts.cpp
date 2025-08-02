@@ -245,16 +245,16 @@ void RTS::init() {
     bool zig = false;
     int8_t inStart, inStop, inInc, showcount;
     showcount = 0;
-    for (int8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+    for (int8_t y = 0; y < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); y++) {
       // Away from origin
       if (zig) {
         inStart = 0;
-        inStop = GRID_MAX_POINTS_X;
+        inStop = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X);
         inInc = 1;
       }
       else {
         // Towards origin
-        inStart = GRID_MAX_POINTS_X - 1;
+        inStart = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) - 1;
         inStop = -1;
         inInc = -1;
       }
@@ -1193,16 +1193,16 @@ void RTS::handleData() {
           bool zig = true;
           int8_t inStart, inStop, inInc, showcount;
           showcount = 0;
-          for (int8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+          for (int8_t y = 0; y < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y); y++) {
             // Away from origin
             if (zig) {
               inStart = 0;
-              inStop = GRID_MAX_POINTS_X;
+              inStop = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X);
               inInc = 1;
             }
             else {
               // Towards origin
-              inStart = GRID_MAX_POINTS_X - 1;
+              inStart = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) - 1;
               inStop = -1;
               inInc = -1;
             }

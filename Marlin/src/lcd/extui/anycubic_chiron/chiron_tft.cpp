@@ -870,7 +870,7 @@ void ChironTFT::panelProcess(uint8_t req) {
             TFTSer.println(live_Zoffset);
           }
           else {
-            GRID_LOOP(x, y) {
+            GRID_LOOP_COND(x, y) {
               const xy_uint8_t pos { x, y };
               const float currval = getMeshPoint(pos);
               setMeshPoint(pos, constrain(currval + Zshift, AC_LOWEST_MESHPOINT_VAL, 2));
