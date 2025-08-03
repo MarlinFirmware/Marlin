@@ -61,8 +61,6 @@ private:
     static xy_float_t grid_factor_virt;
     #if ENABLED(VARIABLE_GRID_POINTS)
       static xy_uint_t nr_grid_points_virt;
-    #else
-      static constexpr xy_uint_t nr_grid_points_virt { ABL_MAX_POINTS_VIRT_X, ABL_MAX_POINTS_VIRT_Y };
     #endif
 
     static float virt_coord(const uint8_t x, const uint8_t y);

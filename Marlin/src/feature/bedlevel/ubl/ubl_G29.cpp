@@ -1731,7 +1731,7 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
     SERIAL_ECHOPGM("Extrapolating mesh...");
 
-    const float weight_scaled = weight_factor * _MAX(mesh_dist.x, mesh_dist.y);
+    const float weight_scaled = weight_factor * _MAX(TERN(VARIABLE_GRID_POINTS, mesh_dist.x, MESH_X_DIST), TERN(VARIABLE_GRID_POINTS, mesh_dist.y, MESH_Y_DIST));
 
     GRID_LOOP_COND(jx, jy) if (!isnan(z_values[jx][jy])) SBI(bitmap[jx], jy);
 
