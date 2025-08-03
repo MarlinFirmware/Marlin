@@ -54,7 +54,7 @@ bool PersistentStore::access_start() {
 
   int bytes_read = file.read(HAL_eeprom_data, MARLIN_EEPROM_SIZE);
   if (bytes_read < 0) return false;
-  for (; bytes_read < MARLIN_EEPROM_SIZE; bytes_read++)
+  for (; bytes_read < long(MARLIN_EEPROM_SIZE); bytes_read++)
     HAL_eeprom_data[bytes_read] = 0xFF;
   file.close();
   return true;
