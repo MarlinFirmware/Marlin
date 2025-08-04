@@ -191,7 +191,7 @@ void GcodeSuite::get_destination_from_command() {
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       if (skip_move) {
-        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+        if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
           raw_destination[i] = current_position[i];
         }
         else {
@@ -200,7 +200,7 @@ void GcodeSuite::get_destination_from_command() {
       }
       else {
         const float v = parser.value_axis_units((AxisEnum)i);
-        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+        if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
           raw_destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
         }
         else {
@@ -209,7 +209,7 @@ void GcodeSuite::get_destination_from_command() {
       }
     }
     else {
-      if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+      if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
         raw_destination[i] = current_position[i];
       }
       else {
@@ -219,7 +219,7 @@ void GcodeSuite::get_destination_from_command() {
   }
 
   #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-    if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag))
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
       destination = raw_destination;
   #endif
 
