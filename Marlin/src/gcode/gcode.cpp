@@ -103,11 +103,13 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
 #if ENABLED(SCALE_WORKSPACE)
   scaling_center_t GcodeSuite::scaling_center;
   scaling_factor_t GcodeSuite::scaling_factor;
+  bool GcodeSuite::scaling_flag = false; // true if scaling is active
 #endif
 
 #if ENABLED(ROTATE_WORKSPACE)
   float GcodeSuite::rotation_angle; // = 0.0f
   xy_pos_t GcodeSuite::rotation_center; // = { 0.0f, 0.0f }
+  bool GcodeSuite::rotation_flag = false; // true if rotation is active
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
@@ -190,7 +192,12 @@ void GcodeSuite::get_destination_from_command() {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       if (skip_move) {
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-          raw_destination[i] = current_position[i];
+          if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+            raw_destination[i] = current_position[i];
+          }
+          else {
+            destination[i] = current_position[i];
+          }
         #else
           destination[i] = current_position[i];
         #endif
@@ -198,7 +205,12 @@ void GcodeSuite::get_destination_from_command() {
       else {
         const float v = parser.value_axis_units((AxisEnum)i);
         #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-          raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
+          if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+            raw_destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+          }
+          else {
+            destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+          }
         #else
           destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
         #endif
@@ -206,7 +218,12 @@ void GcodeSuite::get_destination_from_command() {
     }
     else {
       #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-        raw_destination[i] = current_position[i];
+        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+          raw_destination[i] = current_position[i];
+          }
+          else {
+            destination[i] = current_position[i];
+          }
       #else
         destination[i] = current_position[i];
       #endif
@@ -214,19 +231,28 @@ void GcodeSuite::get_destination_from_command() {
   }
 
   #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-    destination = raw_destination;
+    if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag))
+      destination = raw_destination;
   #endif
 
   #if ENABLED(SCALE_WORKSPACE)
-    if (!(NEAR(scaling_factor.x, 1.0f) || NEAR(scaling_factor.y, 1.0f) || NEAR(scaling_factor.z, 1.0f))) {
+    if (scaling_factor.x != 1.0f) {
       destination.x = (raw_destination.x - scaling_center.x) * scaling_factor.x + scaling_center.x;
-      TERN_(HAS_Y_AXIS, destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y);
-      TERN_(HAS_Z_AXIS, destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z);
     }
+    #if HAS_Y_AXIS
+      if (scaling_factor.y != 1.0f) {
+        destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y;
+      }
+    #endif
+    #if HAS_Z_AXIS
+      if (scaling_factor.z != 1.0f) {
+        destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z;
+      }
+    #endif
   #endif
 
   #if ENABLED(ROTATE_WORKSPACE)
-    if (!NEAR_ZERO(rotation_angle)) {
+    if (rotation_angle != 0.0f) {
       const float a = RADIANS(rotation_angle),
                   cos_angle = cosf(a),
                   sin_angle = sinf(a);

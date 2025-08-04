@@ -74,6 +74,8 @@ void GcodeSuite::G68() {
   // Assume the object rotates around the bed center
   rotation_center.x = X_CENTER;
   TERN_(HAS_Y_AXIS, rotation_center.y = Y_CENTER);
+
+  rotation_flag = true; // Set flag to true
 }
 
 /**
@@ -82,6 +84,7 @@ void GcodeSuite::G68() {
 void GcodeSuite::G69() {
   rotation_angle = 0.0f;
   SERIAL_ECHO_MSG("G68: Workspace rotation canceled");
+  rotation_flag = false;
 }
 
 #endif // ROTATE_WORKSPACE

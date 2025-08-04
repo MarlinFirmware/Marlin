@@ -34,6 +34,7 @@ void GcodeSuite::G50() {
   scaling_factor.reset();
   scaling_center.reset();
   SERIAL_ECHO_MSG("G50: Workspace scaling canceled");
+  scaling_flag = false;
 }
 
 /**
@@ -135,6 +136,8 @@ void GcodeSuite::G51() {
       , SP_Z_STR, scaling_center.z
     #endif
   );
+
+  scaling_flag = true; // Set flag to true
 }
 
 #endif // SCALE_WORKSPACE

@@ -384,18 +384,24 @@ extern const char G28_STR[];
 
 #if ENABLED(SCALE_WORKSPACE)
   typedef struct {
-    float x = 0.0f, y = 0.0f;
+    float x = 0.0f;
+    #if HAS_Y_AXIS
+      float y = 0.0f;
+    #endif
     #if HAS_Z_AXIS
       float z = 0.0f;
     #endif
-    void reset() { x = y = TERN_(HAS_Z_AXIS, z =) 0.0f; }
+    void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(HAS_Z_AXIS, z =) 0.0f; }
   } scaling_center_t;
   typedef struct {
-    float x = 1.0f, y = 1.0f;
+    float x = 1.0f;
+    #if HAS_Y_AXIS
+      float y = 1.0f;
+    #endif
     #if HAS_Z_AXIS
       float z = 1.0f;
     #endif
-    void reset() { x = y = TERN_(HAS_Z_AXIS, z =) 1.0f; }
+    void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(HAS_Z_AXIS, z =) 1.0f; }
   } scaling_factor_t;
 #endif
 
@@ -455,11 +461,13 @@ public:
   #if ENABLED(SCALE_WORKSPACE)
     static scaling_center_t scaling_center;
     static scaling_factor_t scaling_factor;
+    static bool scaling_flag;
   #endif
 
   #if ENABLED(ROTATE_WORKSPACE)
     static float rotation_angle;
     static xy_pos_t rotation_center;
+    static bool rotation_flag;
   #endif
 
   static millis_t previous_move_ms, max_inactive_time;
