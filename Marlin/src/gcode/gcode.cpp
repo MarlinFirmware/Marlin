@@ -191,42 +191,30 @@ void GcodeSuite::get_destination_from_command() {
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       if (skip_move) {
-        #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-          if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
-            raw_destination[i] = current_position[i];
-          }
-          else {
-            destination[i] = current_position[i];
-          }
-        #else
+        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+          raw_destination[i] = current_position[i];
+        }
+        else {
           destination[i] = current_position[i];
-        #endif
+        }
       }
       else {
         const float v = parser.value_axis_units((AxisEnum)i);
-        #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-          if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
-            raw_destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-          }
-          else {
-            destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-          }
-        #else
+        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+          raw_destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
+        }
+        else {
           destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-        #endif
+        }
       }
     }
     else {
-      #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-        if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
-          raw_destination[i] = current_position[i];
-          }
-          else {
-            destination[i] = current_position[i];
-          }
-      #else
+      if (TERN_(SCALE_WORKSPACE, scaling_flag) || TERN_(ROTATE_WORKSPACE, rotation_flag)) {
+        raw_destination[i] = current_position[i];
+      }
+      else {
         destination[i] = current_position[i];
-      #endif
+      }
     }
   }
 
@@ -236,19 +224,21 @@ void GcodeSuite::get_destination_from_command() {
   #endif
 
   #if ENABLED(SCALE_WORKSPACE)
-    if (scaling_factor.x != 1.0f) {
-      destination.x = (raw_destination.x - scaling_center.x) * scaling_factor.x + scaling_center.x;
+    if (scaling_flag) {
+      if (scaling_factor.x != 1.0f) {
+        destination.x = (raw_destination.x - scaling_center.x) * scaling_factor.x + scaling_center.x;
+      }
+      #if HAS_Y_AXIS
+        if (scaling_factor.y != 1.0f) {
+          destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y;
+        }
+      #endif
+      #if HAS_Z_AXIS
+        if (scaling_factor.z != 1.0f) {
+          destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z;
+        }
+      #endif
     }
-    #if HAS_Y_AXIS
-      if (scaling_factor.y != 1.0f) {
-        destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y;
-      }
-    #endif
-    #if HAS_Z_AXIS
-      if (scaling_factor.z != 1.0f) {
-        destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z;
-      }
-    #endif
   #endif
 
   #if ENABLED(ROTATE_WORKSPACE)
