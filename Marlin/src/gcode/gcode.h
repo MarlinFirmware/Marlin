@@ -436,19 +436,24 @@ public:
   #endif
 
   #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-    static void inverse_workspace_transformations(xyz_pos_t &point);
-    static void apply_workspace_transformations(xyz_pos_t &point);
+    static void inverse_workspace_transforms(xyz_pos_t &point);
+    static void apply_workspace_transforms(xyz_pos_t &point);
 
     #if ENABLED(SCALE_WORKSPACE)
+      #if HAS_Z_AXIS && Z_MIN_POS != 0
+        #define SCALE_Z_FROM_NONZERO 1
+      #endif
       typedef struct {
         float x = 0.0f;
         #if HAS_Y_AXIS
           float y = 0.0f;
         #endif
-        #if HAS_Z_AXIS
+        #if SCALE_Z_FROM_NONZERO
           float z = 0.0f;
+        #elif HAS_Z_AXIS
+          static constexpr float z = 0.0f;
         #endif
-        void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(HAS_Z_AXIS, z =) 0.0f; }
+        void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(SCALE_Z_FROM_NONZERO, z =) 0.0f; }
       } scaling_center_t;
       typedef struct {
         float x = 1.0f;

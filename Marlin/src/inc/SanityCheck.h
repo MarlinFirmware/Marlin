@@ -3866,7 +3866,7 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif
 
 #if ENABLED(ROTATE_WORKSPACE) && !HAS_Y_AXIS
-  #error "ROTATE_WORKSPACE must have a Y axis."
+  #error "ROTATE_WORKSPACE requires a machine with XY axes."
 #endif
 
 #if !BLOCK_BUFFER_SIZE

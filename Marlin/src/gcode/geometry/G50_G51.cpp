@@ -93,9 +93,11 @@ void GcodeSuite::G51() {
     return;
   }
   scaling_center.x = (
-    use_current_pos && seenX ? current_position.x :
-    hasX ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS) :
-    rotation_center.x
+    (use_current_pos && seenX)
+      ? current_position.x
+      : hasX
+        ? LOGICAL_TO_NATIVE(parser.value_axis_units(X_AXIS), X_AXIS)
+        : rotation_center.x
   );
 
   // Y-axis scaling
@@ -106,23 +108,27 @@ void GcodeSuite::G51() {
       return;
     }
     scaling_center.y = (
-      use_current_pos && seenY ? current_position.y :
-      hasY ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS) :
-      rotation_center.y
+      (use_current_pos && seenY)
+        ? current_position.y
+        : hasY
+          ? LOGICAL_TO_NATIVE(parser.value_axis_units(Y_AXIS), Y_AXIS)
+          : rotation_center.y
     );
   #endif
 
   // Z-axis scaling
-  #if HAS_Z_AXIS
+  #if SCALE_Z_FROM_NONZERO
     const bool seenZ = parser.seen('Z'), hasZ = seenZ && parser.has_value();
     if (use_current_pos && hasZ) {
       SERIAL_ECHO_MSG("?(Z) cannot have a value when used with 'C'.");
       return;
     }
     scaling_center.z = (
-      use_current_pos && seenZ ? current_position.z :
-      hasZ ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS) :
-      0.0f
+      (use_current_pos && seenZ)
+        ? current_position.z
+        : hasZ
+          ? LOGICAL_TO_NATIVE(parser.value_axis_units(Z_AXIS), Z_AXIS)
+          : 0.0f
     );
   #endif
 

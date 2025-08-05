@@ -177,14 +177,11 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-  // Apply the inverse of transformations
-  void GcodeSuite::inverse_workspace_transformations(xyz_pos_t &point) {
-    #if ENABLED(ROTATE_WORKSPACE)
+  // App the inverse of transformations
+  void GcodeSuite::inverse_workspace_transforms(xyz_pos_t &point) {
       // Inverse Rotation
       if (rotation_flag) {
-        const float dx = point.x - rotation_center.x;
-        const float dy = point.y - rotation_center.y;
-
+        const float dx = point.x - rotation_center.x, dy = point.y - rotation_center.y;
         point.x = rotation_center.x + dx * rotation_cos - dy * (-rotation_sin);
         point.y = rotation_center.y + dx * (-rotation_sin) + dy * rotation_cos;
       }
@@ -195,13 +192,14 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
       if (scaling_flag) {
         point.x = scaling_center.x + (point.x - scaling_center.x) / scaling_factor.x;
         TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y);
-        TERN_(HAS_Z_AXIS, point.z = scaling_center.z + (point.z - scaling_center.z) / scaling_factor.z);
-      }
+        #if HAS_Z_AXIS
+          point.z = TERN(SCALE_Z_FROM_NONZERO, scaling_center.z + (point.z - scaling_center.z), point.z) / scaling_fact.z;
+        #endif
     #endif
   }
 
   // Apply forward transformations
-  void GcodeSuite::apply_workspace_transformations(xyz_pos_t &point) {
+  void GcodeSuite::apply_workspace_transforms(xyz_pos_t &point) {
     #if ENABLED(SCALE_WORKSPACE)
       // Apply Scaling transformation
       if (scaling_flag) {
@@ -214,9 +212,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
     #if ENABLED(ROTATE_WORKSPACE)
       // Apply Rotation transformation
       if (rotation_flag) {
-        const float dx = point.x - rotation_center.x;
-        const float dy = point.y - rotation_center.y;
-
+        const float dx = point.x - rotation_center.x, dy = point.y - rotation_center.y;
         point.x = rotation_center.x + dx * rotation_cos - dy * rotation_sin;
         point.y = rotation_center.y + dx * rotation_sin + dy * rotation_cos;
       }
@@ -245,9 +241,8 @@ void GcodeSuite::get_destination_from_command() {
   raw_destination = current_position;
 
   #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) { // Apply inverse transformations
-      inverse_workspace_transformations(raw_destination);
-    }
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) // Apply inverse transformations
+      inverse_workspace_transforms(raw_destination);
   #endif
 
   // Get new XYZ position, whether absolute or relative
@@ -264,9 +259,8 @@ void GcodeSuite::get_destination_from_command() {
   destination = raw_destination;
 
   #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) { // Apply the forward transformations
-      apply_workspace_transformations(destination);
-    }
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) // Apply the forward transformations
+      apply_workspace_transforms(destination);
   #endif
 
   #if HAS_EXTRUDERS
