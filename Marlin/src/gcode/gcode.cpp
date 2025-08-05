@@ -101,8 +101,8 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
 #endif
 
 #if ENABLED(SCALE_WORKSPACE)
-  scaling_center_t GcodeSuite::scaling_center;
-  scaling_factor_t GcodeSuite::scaling_factor;
+  GcodeSuite::scaling_center_t GcodeSuite::scaling_center;
+  GcodeSuite::scaling_factor_t GcodeSuite::scaling_factor;
   bool GcodeSuite::scaling_flag = false; // true if scaling is active
 #endif
 
@@ -194,7 +194,8 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
       // Inverse Scaling
       if (scaling_flag) {
         point.x = scaling_center.x + (point.x - scaling_center.x) / scaling_factor.x;
-        point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y;
+        TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y);
+        TERN_(HAS_Z_AXIS, point.z = scaling_center.z + (point.z - scaling_center.z) / scaling_factor.z);
       }
     #endif
   }
@@ -205,7 +206,8 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
       // Apply Scaling transformation
       if (scaling_flag) {
         point.x = scaling_center.x + (point.x - scaling_center.x) * scaling_factor.x;
-        point.y = scaling_center.y + (point.y - scaling_center.y) * scaling_factor.y;
+        TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) * scaling_factor.y);
+        TERN_(HAS_Z_AXIS, point.z = scaling_center.z + (point.z - scaling_center.z) * scaling_factor.z);
       }
     #endif
 
