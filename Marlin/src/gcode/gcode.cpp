@@ -167,6 +167,58 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
   return -1;
 }
 
+#if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+  // Apply the inverse of transformations
+  void GcodeSuite::inverse_workspace_transformations(xyz_pos_t &point) {
+    #if ENABLED(ROTATE_WORKSPACE)
+      // Inverse Rotation
+      if (rotation_flag) {
+        const float angle_rad = -RADIANS(rotation_angle); // Use negative angle for inverse
+        const float cosA = cos(angle_rad);
+        const float sinA = sin(angle_rad);
+        const float dx = point.x - rotation_center.x;
+        const float dy = point.y - rotation_center.y;
+
+        point.x = rotation_center.x + dx * cosA - dy * sinA;
+        point.y = rotation_center.y + dx * sinA + dy * cosA;
+      }
+    #endif
+
+    #if ENABLED(SCALE_WORKSPACE)
+      // Inverse Scaling
+      if (scaling_flag) {
+        point.x = scaling_center.x + (point.x - scaling_center.x) / scaling_factor.x;
+        point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y;
+      }
+    #endif
+  }
+
+  // Apply forward transformations
+  void GcodeSuite::apply_workspace_transformations(xyz_pos_t &point) {
+    #if ENABLED(SCALE_WORKSPACE)
+      // Apply Scaling transformation
+      if (scaling_flag) {
+        point.x = scaling_center.x + (point.x - scaling_center.x) * scaling_factor.x;
+        point.y = scaling_center.y + (point.y - scaling_center.y) * scaling_factor.y;
+      }
+    #endif
+
+    #if ENABLED(ROTATE_WORKSPACE)
+      // Apply Rotation transformation
+      if (rotation_flag) {
+        const float angle_rad = RADIANS(rotation_angle);
+        const float cosA = cos(angle_rad);
+        const float sinA = sin(angle_rad);
+        const float dx = point.x - rotation_center.x;
+        const float dy = point.y - rotation_center.y;
+
+        point.x = rotation_center.x + dx * cosA - dy * sinA;
+        point.y = rotation_center.y + dx * sinA + dy * cosA;
+      }
+    #endif
+  }
+#endif // ROTATE_WORKSPACE || SCALE_WORKSPACE
+
 /**
  * Set XYZ...E destination and feedrate from the current G-Code command
  *
@@ -176,6 +228,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
  */
 void GcodeSuite::get_destination_from_command() {
   xyze_bool_t seen{false};
+  xyze_pos_t raw_destination;
 
   #if ENABLED(CANCEL_OBJECTS)
     const bool &skip_move = cancelable.state.skipping;
@@ -183,76 +236,37 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
+  // Get the current position in the user's coordinate system
+  raw_destination = current_position;
+
   #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-    static xyz_pos_t raw_destination; // {0}
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) { // Apply inverse transformations
+      inverse_workspace_transformations(raw_destination);
+    }
   #endif
 
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
       if (skip_move) {
-        if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
-          raw_destination[i] = current_position[i];
-        }
-        else {
-          destination[i] = current_position[i];
-        }
+        destination[i] = raw_destination[i];
       }
       else {
         const float v = parser.value_axis_units((AxisEnum)i);
-        if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
-          raw_destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-        }
-        else {
-          destination[i] = axis_is_relative(AxisEnum(i)) ? current_position[i] + v : LOGICAL_TO_NATIVE(v, i);
-        }
+        raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
       }
     }
     else {
-      if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) {
-        raw_destination[i] = current_position[i];
-      }
-      else {
-        destination[i] = current_position[i];
-      }
+      destination[i] = raw_destination[i];
     }
   }
 
+  // Get the final machine destination
+  destination = raw_destination;
+
   #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
-      destination = raw_destination;
-  #endif
-
-  #if ENABLED(SCALE_WORKSPACE)
-    if (scaling_flag) {
-      if (scaling_factor.x != 1.0f) {
-        destination.x = (raw_destination.x - scaling_center.x) * scaling_factor.x + scaling_center.x;
-      }
-      #if HAS_Y_AXIS
-        if (scaling_factor.y != 1.0f) {
-          destination.y = (raw_destination.y - scaling_center.y) * scaling_factor.y + scaling_center.y;
-        }
-      #endif
-      #if HAS_Z_AXIS
-        if (scaling_factor.z != 1.0f) {
-          destination.z = (raw_destination.z - scaling_center.z) * scaling_factor.z + scaling_center.z;
-        }
-      #endif
-    }
-  #endif
-
-  #if ENABLED(ROTATE_WORKSPACE)
-    if (rotation_angle != 0.0f) {
-      const float a = RADIANS(rotation_angle),
-                  cos_angle = cosf(a),
-                  sin_angle = sinf(a);
-
-      // Apply rotation
-      const xy_pos_t temp = xy_pos_t(destination) - rotation_center;
-      destination.set(
-        temp.x * cos_angle - temp.y * sin_angle + rotation_center.x,
-        temp.y * cos_angle + temp.x * sin_angle + rotation_center.y
-      );
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) { // Apply the forward transformations
+      apply_workspace_transformations(destination);
     }
   #endif
 
