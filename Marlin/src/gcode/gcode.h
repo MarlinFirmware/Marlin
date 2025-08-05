@@ -443,7 +443,7 @@ public:
       #if HAS_Z_AXIS && Z_MIN_POS != 0
         #define SCALE_Z_FROM_NONZERO 1
       #endif
-      typedef struct {
+      typedef struct ScalingCenter {
         float x = 0.0f;
         #if HAS_Y_AXIS
           float y = 0.0f;
@@ -455,7 +455,7 @@ public:
         #endif
         void reset() { x = TERN_(HAS_Y_AXIS, y =) TERN_(SCALE_Z_FROM_NONZERO, z =) 0.0f; }
       } scaling_center_t;
-      typedef struct {
+      typedef struct ScalingFactor {
         float x = 1.0f;
         #if HAS_Y_AXIS
           float y = 1.0f;

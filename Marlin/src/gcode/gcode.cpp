@@ -177,8 +177,10 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 }
 
 #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+
   // App the inverse of transformations
   void GcodeSuite::inverse_workspace_transforms(xyz_pos_t &point) {
+    #if ENABLED(ROTATE_WORKSPACE)
       // Inverse Rotation
       if (rotation_flag) {
         const float dx = point.x - rotation_center.x, dy = point.y - rotation_center.y;
@@ -193,7 +195,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
         point.x = scaling_center.x + (point.x - scaling_center.x) / scaling_factor.x;
         TERN_(HAS_Y_AXIS, point.y = scaling_center.y + (point.y - scaling_center.y) / scaling_factor.y);
         #if HAS_Z_AXIS
-          point.z = TERN(SCALE_Z_FROM_NONZERO, scaling_center.z + (point.z - scaling_center.z), point.z) / scaling_fact.z;
+          point.z = TERN(SCALE_Z_FROM_NONZERO, scaling_center.z + (point.z - scaling_center.z), point.z) / scaling_factor.z;
         #endif
     #endif
   }
@@ -218,6 +220,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
       }
     #endif
   }
+
 #endif // ROTATE_WORKSPACE || SCALE_WORKSPACE
 
 /**
