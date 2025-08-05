@@ -251,16 +251,10 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      if (skip_move) {
-        destination[i] = raw_destination[i];
-      }
-      else {
+      if (!skip_move) {
         const float v = parser.value_axis_units((AxisEnum)i);
         raw_destination[i] = axis_is_relative(AxisEnum(i)) ? raw_destination[i] + v : LOGICAL_TO_NATIVE(v, i);
       }
-    }
-    else {
-      destination[i] = raw_destination[i];
     }
   }
 
