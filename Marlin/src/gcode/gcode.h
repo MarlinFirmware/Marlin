@@ -458,16 +458,21 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  #if ENABLED(SCALE_WORKSPACE)
-    static scaling_center_t scaling_center;
-    static scaling_factor_t scaling_factor;
-    static bool scaling_flag;
-  #endif
+  #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
+    static void inverse_workspace_transformations(xyz_pos_t &point);
+    static void apply_workspace_transformations(xyz_pos_t &point);
 
-  #if ENABLED(ROTATE_WORKSPACE)
-    static float rotation_angle;
-    static xy_pos_t rotation_center;
-    static bool rotation_flag;
+    #if ENABLED(SCALE_WORKSPACE)
+      static scaling_center_t scaling_center;
+      static scaling_factor_t scaling_factor;
+      static bool scaling_flag;
+    #endif
+
+    #if ENABLED(ROTATE_WORKSPACE)
+      static float rotation_angle;
+      static xy_pos_t rotation_center;
+      static bool rotation_flag;
+    #endif
   #endif
 
   static millis_t previous_move_ms, max_inactive_time;
@@ -631,11 +636,6 @@ private:
     static void G34();
   #endif
 
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
-    static void M422();
-    static void M422_report(const bool forReplay=true);
-  #endif
-
   #if ENABLED(ASSISTED_TRAMMING)
     static void G35();
   #endif
@@ -663,10 +663,6 @@ private:
     static void G59();
   #endif
 
-  #if ALL(PTC_PROBE, PTC_BED)
-    static void G76();
-  #endif
-
   #if SAVED_POSITIONS
     static void G60();
     static void G61(int8_t slot=-1);
@@ -675,6 +671,10 @@ private:
   #if ENABLED(ROTATE_WORKSPACE)
     static void G68();
     static void G69();
+  #endif
+
+  #if ALL(PTC_PROBE, PTC_BED)
+    static void G76();
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
@@ -825,15 +825,14 @@ private:
 
   #if DISABLED(EMERGENCY_PARSER)
     static void M108();
-    static void M112();
-    static void M410();
-    #if ENABLED(HOST_PROMPT_SUPPORT)
-      static void M876();
-    #endif
   #endif
 
   static void M110();
   static void M111();
+
+  #if DISABLED(EMERGENCY_PARSER)
+    static void M112();
+  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     static void M113();
@@ -853,6 +852,10 @@ private:
   static void M119();
   static void M120();
   static void M121();
+
+  #if HAS_TRINAMIC_CONFIG
+    static void M122();
+  #endif
 
   #if HAS_FANCHECK
     static void M123();
@@ -1113,9 +1116,18 @@ private:
     static void M407();
   #endif
 
+  #if DISABLED(EMERGENCY_PARSER)
+    static void M410();
+  #endif
+
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M413_report(const bool forReplay=true);
   #endif
 
   #if HAS_MULTI_LANGUAGE
@@ -1127,6 +1139,16 @@ private:
     static void M420();
     static void M420_report(const bool forReplay=true);
     static void M421();
+  #endif
+
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    static void M422();
+    static void M422_report(const bool forReplay=true);
+  #endif
+
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    static void M423();
+    static void M423_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
@@ -1254,6 +1276,11 @@ private:
     static void MMU3_report(const bool forReplay=true);
   #endif
 
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    static void M710();
+    static void M710_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(GCODE_REPEAT_MARKERS)
     static void M808();
   #endif
@@ -1290,9 +1317,32 @@ private:
     static void M871();
   #endif
 
+  #if HAS_GCODE_M876
+    static void M876();
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
     static void M900();
     static void M900_report(const bool forReplay=true);
+  #endif
+
+  #if HAS_TRINAMIC_CONFIG
+    static void M906();
+    static void M906_report(const bool forReplay=true);
+  #endif
+
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
+    static void M907();
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+      static void M907_report(const bool forReplay=true);
+    #endif
+  #endif
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
+    static void M908();
+  #endif
+  #if HAS_MOTOR_CURRENT_DAC
+    static void M909();
+    static void M910();
   #endif
 
   #if HAS_TRINAMIC_CONFIG
@@ -1316,20 +1366,6 @@ private:
       static void M920();
       static void M920_report(const bool forReplay=true);
     #endif
-  #endif
-
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
-    static void M907();
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
-      static void M907_report(const bool forReplay=true);
-    #endif
-  #endif
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
-    static void M908();
-  #endif
-  #if HAS_MOTOR_CURRENT_DAC
-    static void M909();
-    static void M910();
   #endif
 
   #if HAS_MEDIA
@@ -1360,14 +1396,7 @@ private:
   static void M999();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    static void M413();
-    static void M413_report(const bool forReplay=true);
     static void M1000();
-  #endif
-
-  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
-    static void M423();
-    static void M423_report(const bool forReplay=true);
   #endif
 
   #if HAS_MEDIA
@@ -1392,11 +1421,6 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
-  #endif
-
-  #if ENABLED(CONTROLLER_FAN_EDITABLE)
-    static void M710();
-    static void M710_report(const bool forReplay=true);
   #endif
 
   static void T(const int8_t tool_index) IF_DISABLED(HAS_TOOLCHANGE, { UNUSED(tool_index); });
