@@ -66,10 +66,8 @@ void GcodeSuite::G68() {
     }
   #endif
 
-  //if (input_deg != rotation_angle) {
-    rotation_angle = input_deg;
-    //SERIAL_ECHO_MSG("G68: Workspace rotation set to ", input_deg, " degrees.");
-  //}
+  gcode.set_rotation_angle(input_deg);
+  SERIAL_ECHO_MSG("G68: Rotation angle set to ", input_deg, " degrees.");
 
   // Assume the object rotates around the bed center
   rotation_center.x = X_CENTER;
@@ -82,7 +80,7 @@ void GcodeSuite::G68() {
  * G69: Cancel Workspace Rotation
  */
 void GcodeSuite::G69() {
-  rotation_angle = 0.0f;
+  gcode.set_rotation_angle(0.0f);
   SERIAL_ECHO_MSG("G68: Workspace rotation canceled");
   rotation_flag = false;
 }

@@ -107,9 +107,18 @@ relative_t GcodeSuite::axis_relative; // Init in constructor
 #endif
 
 #if ENABLED(ROTATE_WORKSPACE)
+  float GcodeSuite::rotation_cos = 1.0f;
+  float GcodeSuite::rotation_sin = 0.0f;
   float GcodeSuite::rotation_angle; // = 0.0f
   xy_pos_t GcodeSuite::rotation_center; // = { 0.0f, 0.0f }
   bool GcodeSuite::rotation_flag = false; // true if rotation is active
+
+  void GcodeSuite::set_rotation_angle(const float angle) {
+    rotation_angle = angle;
+    const float angle_rad = RADIANS(rotation_angle);
+    rotation_cos = cosf(angle_rad);
+    rotation_sin = sinf(angle_rad);
+  }
 #endif
 
 void GcodeSuite::report_echo_start(const bool forReplay) { if (!forReplay) SERIAL_ECHO_START(); }
@@ -173,14 +182,11 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
     #if ENABLED(ROTATE_WORKSPACE)
       // Inverse Rotation
       if (rotation_flag) {
-        const float angle_rad = -RADIANS(rotation_angle); // Use negative angle for inverse
-        const float cosA = cos(angle_rad);
-        const float sinA = sin(angle_rad);
         const float dx = point.x - rotation_center.x;
         const float dy = point.y - rotation_center.y;
 
-        point.x = rotation_center.x + dx * cosA - dy * sinA;
-        point.y = rotation_center.y + dx * sinA + dy * cosA;
+        point.x = rotation_center.x + dx * rotation_cos - dy * (-rotation_sin);
+        point.y = rotation_center.y + dx * (-rotation_sin) + dy * rotation_cos;
       }
     #endif
 
@@ -206,14 +212,11 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
     #if ENABLED(ROTATE_WORKSPACE)
       // Apply Rotation transformation
       if (rotation_flag) {
-        const float angle_rad = RADIANS(rotation_angle);
-        const float cosA = cos(angle_rad);
-        const float sinA = sin(angle_rad);
         const float dx = point.x - rotation_center.x;
         const float dy = point.y - rotation_center.y;
 
-        point.x = rotation_center.x + dx * cosA - dy * sinA;
-        point.y = rotation_center.y + dx * sinA + dy * cosA;
+        point.x = rotation_center.x + dx * rotation_cos - dy * rotation_sin;
+        point.y = rotation_center.y + dx * rotation_sin + dy * rotation_cos;
       }
     #endif
   }

@@ -472,6 +472,7 @@ public:
       static float rotation_angle;
       static xy_pos_t rotation_center;
       static bool rotation_flag;
+      static void set_rotation_angle(const float angle);
     #endif
   #endif
 
@@ -671,6 +672,8 @@ private:
   #if ENABLED(ROTATE_WORKSPACE)
     static void G68();
     static void G69();
+    static float rotation_cos;
+    static float rotation_sin;
   #endif
 
   #if ALL(PTC_PROBE, PTC_BED)
@@ -825,14 +828,12 @@ private:
 
   #if DISABLED(EMERGENCY_PARSER)
     static void M108();
+    static void M112();
+    static void M410();
   #endif
 
   static void M110();
   static void M111();
-
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M112();
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     static void M113();
@@ -852,10 +853,6 @@ private:
   static void M119();
   static void M120();
   static void M121();
-
-  #if HAS_TRINAMIC_CONFIG
-    static void M122();
-  #endif
 
   #if HAS_FANCHECK
     static void M123();
@@ -1116,10 +1113,6 @@ private:
     static void M407();
   #endif
 
-  #if DISABLED(EMERGENCY_PARSER)
-    static void M410();
-  #endif
-
   #if HAS_FILAMENT_SENSOR
     static void M412();
     static void M412_report(const bool forReplay=true);
@@ -1327,25 +1320,6 @@ private:
   #endif
 
   #if HAS_TRINAMIC_CONFIG
-    static void M906();
-    static void M906_report(const bool forReplay=true);
-  #endif
-
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
-    static void M907();
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
-      static void M907_report(const bool forReplay=true);
-    #endif
-  #endif
-  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
-    static void M908();
-  #endif
-  #if HAS_MOTOR_CURRENT_DAC
-    static void M909();
-    static void M910();
-  #endif
-
-  #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
     static void M906_report(const bool forReplay=true);
@@ -1366,6 +1340,20 @@ private:
       static void M920();
       static void M920_report(const bool forReplay=true);
     #endif
+  #endif
+
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM || HAS_MOTOR_CURRENT_I2C || HAS_MOTOR_CURRENT_DAC
+    static void M907();
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+      static void M907_report(const bool forReplay=true);
+    #endif
+  #endif
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_DAC
+    static void M908();
+  #endif
+  #if HAS_MOTOR_CURRENT_DAC
+    static void M909();
+    static void M910();
   #endif
 
   #if HAS_MEDIA
