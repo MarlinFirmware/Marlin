@@ -178,7 +178,7 @@ int8_t GcodeSuite::get_target_e_stepper_from_command(const int8_t dval/*=-1*/) {
 
 #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
 
-  // Apply the inverse of transformations
+  // Apply inverse transformations
   void GcodeSuite::inverse_workspace_transforms(xyz_pos_t &point) {
     #if ENABLED(ROTATE_WORKSPACE)
       // Inverse Rotation
@@ -241,11 +241,11 @@ void GcodeSuite::get_destination_from_command() {
     constexpr bool skip_move = false;
   #endif
 
-  // Get the current position in the user's coordinate system
-  raw_destination = current_position;
+  raw_destination = current_position; // Get the current position
 
   #if ANY(ROTATE_WORKSPACE, SCALE_WORKSPACE)
-    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) // Apply inverse transformations
+    // Apply inverse transformations
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
       inverse_workspace_transforms(raw_destination);
   #endif
 
@@ -259,11 +259,11 @@ void GcodeSuite::get_destination_from_command() {
     }
   }
 
-  // Get the final machine destination
-  destination = raw_destination;
+  destination = raw_destination; // Get the final machine destination
 
   #if ANY(SCALE_WORKSPACE, ROTATE_WORKSPACE)
-    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag)) // Apply the forward transformations
+    // Apply forward transformations
+    if (TERN0(SCALE_WORKSPACE, scaling_flag) || TERN0(ROTATE_WORKSPACE, rotation_flag))
       apply_workspace_transforms(destination);
   #endif
 
@@ -295,8 +295,8 @@ void GcodeSuite::get_destination_from_command() {
       print_job_timer.incFilamentUsed(destination.e - current_position.e);
   #endif
 
-  // Get ABCDHI mixing factors
   #if ALL(MIXING_EXTRUDER, DIRECT_MIXING_IN_G1)
+    // Get ABCDHI mixing factors
     M165();
   #endif
 
