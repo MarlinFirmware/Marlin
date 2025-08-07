@@ -102,10 +102,10 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
-          TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+          IF_ENABLED(HAS_EXTRUDERS, planner.set_flow(0, 100));
+          IF_ENABLED(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
-          TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+          IF_ENABLED(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
       }
@@ -137,15 +137,15 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     }
   #endif
   else if (DIALOG_IS(STORE_EEPROM_TIPS)) {
-    TERN_(EEPROM_SETTINGS, (void)settings.save());
+    IF_ENABLED(EEPROM_SETTINGS, (void)settings.save());
     goto_previous_ui();
   }
   else if (DIALOG_IS(READ_EEPROM_TIPS)) {
-    TERN_(EEPROM_SETTINGS, (void)settings.load());
+    IF_ENABLED(EEPROM_SETTINGS, (void)settings.load());
     goto_previous_ui();
   }
   else if (DIALOG_IS(REVERT_EEPROM_TIPS)) {
-    TERN_(EEPROM_SETTINGS, (void)settings.reset());
+    IF_ENABLED(EEPROM_SETTINGS, (void)settings.reset());
     clear_cur_ui();
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       const bool do_draw_cal = touch_calibration.need_calibration();
@@ -183,7 +183,7 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
 static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   if (DIALOG_IS(PAUSE_MESSAGE_OPTION)) {
-    TERN_(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
+    IF_ENABLED(ADVANCED_PAUSE_FEATURE, pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT);
   }
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT, TYPE_FILAMENT_UNLOAD_HEAT, TYPE_FILAMENT_HEAT_LOAD_COMPLETED, TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)) {
     thermalManager.setTargetHotend(uiCfg.hotendTargetTempBak, uiCfg.extruderIndex);

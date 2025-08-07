@@ -377,7 +377,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       if (msgInitCount) return -1;
       tftio.init();
       tftio.initTFT();
-      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+      IF_ENABLED(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
       u8g_upscale_clear_lcd(u8g, dev, buffer);
       return 0;
 
@@ -412,7 +412,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       for (uint8_t y = 0; y < PAGE_HEIGHT; ++y) {
         uint32_t k = 0;
-        TERN_(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
+        IF_ENABLED(HAS_LCD_IO, buffer = (y & 1) ? bufferB : bufferA);
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
@@ -535,7 +535,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
       str = stage == CALIBRATION_SUCCESS ? GET_TEXT_F(MSG_CALIBRATION_COMPLETED) : GET_TEXT_F(MSG_CALIBRATION_FAILED);
       defer_status_screen(false);
       touch_calibration.calibration_end();
-      TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
+      IF_ENABLED(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
     }
 
     // draw current message

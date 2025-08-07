@@ -28,7 +28,7 @@
 #include "../../../module/stepper.h"
 
 void GcodeSuite::M592_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
   report_heading_etc(forReplay, F(STR_NONLINEAR_EXTRUSION));
   const nonlinear_settings_t &sns = stepper.ne.settings;
   SERIAL_ECHOLNPGM("  M592 S", sns.enabled, " A", sns.coeff.A, " B", sns.coeff.B, " C", sns.coeff.C);

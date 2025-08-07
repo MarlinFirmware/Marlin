@@ -35,7 +35,7 @@ void endstopIRQHandler() {
   bool flag = false;
 
   // Check all irq flags
-  #define CHECK(name) TERN_(USE_##name, flag |= checkIRQFlag(name##_PIN, /*clear*/ true))
+  #define CHECK(name) IF_ENABLED(USE_##name, flag |= checkIRQFlag(name##_PIN, /*clear*/ true))
 
   CHECK(X_MAX);
   CHECK(X_MIN);
@@ -73,7 +73,7 @@ void endstopIRQHandler() {
 // HAL functions
 //
 void setup_endstop_interrupts() {
-  #define SETUP(name) TERN_(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE); setInterruptPriority(name##_PIN, ENDSTOP_IRQ_PRIORITY))
+  #define SETUP(name) IF_ENABLED(USE_##name, attachInterrupt(name##_PIN, endstopIRQHandler, CHANGE); setInterruptPriority(name##_PIN, ENDSTOP_IRQ_PRIORITY))
 
   SETUP(X_MAX);
   SETUP(X_MIN);

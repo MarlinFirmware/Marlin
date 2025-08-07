@@ -607,9 +607,9 @@ void menu_backlash();
         else                                                                                                                                                                  \
           ACTION_ITEM_N(_AXIS(A), MSG_SHAPING_ENABLE_N, []{ stepper.set_shaping_frequency(_AXIS(A), (SHAPING_FREQ_##A) ?: (SHAPING_MIN_FREQ)); ui.refresh(); });
 
-      TERN_(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X))
-      TERN_(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y))
-      TERN_(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z))
+      IF_ENABLED(INPUT_SHAPING_X, SHAPING_MENU_FOR_AXIS(X))
+      IF_ENABLED(INPUT_SHAPING_Y, SHAPING_MENU_FOR_AXIS(Y))
+      IF_ENABLED(INPUT_SHAPING_Z, SHAPING_MENU_FOR_AXIS(Z))
 
       END_MENU();
     }

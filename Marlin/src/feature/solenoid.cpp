@@ -31,7 +31,7 @@
 
 // Used primarily with MANUAL_SOLENOID_CONTROL
 static void set_solenoid(const uint8_t num, const uint8_t state) {
-  #define _SOL_CASE(N) case N: TERN_(HAS_SOLENOID_##N, OUT_WRITE(SOL##N##_PIN, state)); break;
+  #define _SOL_CASE(N) case N: IF_ENABLED(HAS_SOLENOID_##N, OUT_WRITE(SOL##N##_PIN, state)); break;
   switch (num) {
     REPEAT(8, _SOL_CASE)
     default: SERIAL_ECHO_MSG(STR_INVALID_SOLENOID); break;
@@ -48,7 +48,7 @@ void  enable_solenoid(const uint8_t num) { set_solenoid(num, TERN1(PARKING_EXTRU
 void disable_solenoid(const uint8_t num) { set_solenoid(num, TERN0(PARKING_EXTRUDER, !PE_MAGNET_ON_STATE)); }
 
 void disable_all_solenoids() {
-  #define _SOL_DISABLE(N) TERN_(HAS_SOLENOID_##N, disable_solenoid(N));
+  #define _SOL_DISABLE(N) IF_ENABLED(HAS_SOLENOID_##N, disable_solenoid(N));
   REPEAT(8, _SOL_DISABLE)
 }
 

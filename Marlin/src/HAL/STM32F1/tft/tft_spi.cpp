@@ -155,7 +155,7 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
   dataTransferBegin();
   SPIx.dmaSendAsync(data, count, memoryIncrease == DMA_MINC_ENABLE);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  IF_ENABLED(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_SPI::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {

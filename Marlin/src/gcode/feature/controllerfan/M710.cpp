@@ -67,7 +67,7 @@ void GcodeSuite::M710() {
 }
 
 void GcodeSuite::M710_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_CONTROLLER_FAN));
   SERIAL_ECHOLNPGM("  M710"

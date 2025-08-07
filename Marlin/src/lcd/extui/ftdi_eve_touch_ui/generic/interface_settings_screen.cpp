@@ -187,7 +187,7 @@ void InterfaceSettingsScreen::failSafeSettings() {
 }
 
 void InterfaceSettingsScreen::defaultSettings() {
-  TERN_(FTDI_LOCK_SCREEN, LockScreen::passcode = 0);
+  IF_ENABLED(FTDI_LOCK_SCREEN, LockScreen::passcode = 0);
   SoundPlayer::set_volume(255);
   CLCD::set_brightness(255);
   UIData::reset_persistent_data();
@@ -252,7 +252,7 @@ void InterfaceSettingsScreen::loadSettings(const char *buff) {
   for (uint8_t i = 0; i < InterfaceSoundsScreen::NUM_EVENTS; i++)
     InterfaceSoundsScreen::event_sounds[i] = eeprom.event_sounds[i];
 
-  TERN_(TOUCH_UI_DEVELOPER_MENU, StressTestScreen::startupCheck());
+  IF_ENABLED(TOUCH_UI_DEVELOPER_MENU, StressTestScreen::startupCheck());
 }
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE

@@ -78,9 +78,9 @@ void GcodeSuite::M420() {
       #endif
       GRID_LOOP(x, y) {
         bedlevel.z_values[x][y] = 0.001 * random(-200, 200);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
       }
-      TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+      IF_ENABLED(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOPGM(" (", x_min);
       SERIAL_CHAR(','); SERIAL_ECHO(y_min);
@@ -181,9 +181,9 @@ void GcodeSuite::M420() {
             // Subtract the mean from all values
             GRID_LOOP(x, y) {
               bedlevel.z_values[x][y] -= zmean;
-              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+              IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
             }
-            TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+            IF_ENABLED(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
           }
 
         #endif
@@ -245,7 +245,7 @@ void GcodeSuite::M420() {
 }
 
 void GcodeSuite::M420_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(
     TERN(MESH_BED_LEVELING, "Mesh Bed Leveling", TERN(AUTO_BED_LEVELING_UBL, "Unified Bed Leveling", "Auto Bed Leveling"))

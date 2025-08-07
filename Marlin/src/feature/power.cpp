@@ -96,18 +96,18 @@ void Power::power_on() {
 
   OUT_WRITE(PS_ON_PIN, PSU_ACTIVE_STATE);
   #if ENABLED(PSU_OFF_REDUNDANT)
-    OUT_WRITE(PS_ON1_PIN, TERN_(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
+    OUT_WRITE(PS_ON1_PIN, IF_ENABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+  IF_ENABLED(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
 
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
 
   restore_stepper_drivers();
 
-  TERN_(MAX7219_REINIT_ON_POWERUP, max7219.init());
+  IF_ENABLED(MAX7219_REINIT_ON_POWERUP, max7219.init());
 
-  TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
+  IF_ENABLED(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
 
   #ifdef PSU_POWERUP_GCODE
     gcode.process_subcommands_now(F(PSU_POWERUP_GCODE));
@@ -119,7 +119,7 @@ void Power::power_on() {
  * Processes any PSU_POWEROFF_GCODE and makes a PS_OFF_SOUND if enabled.
  */
 void Power::power_off() {
-  TERN_(HAS_SUICIDE, suicide());
+  IF_ENABLED(HAS_SUICIDE, suicide());
 
   if (!psu_on) return;
 
@@ -137,7 +137,7 @@ void Power::power_off() {
   #if ENABLED(PSU_OFF_REDUNDANT)
     OUT_WRITE(PS_ON1_PIN, IF_DISABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+  IF_ENABLED(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
 
   psu_on = false;
 
@@ -179,8 +179,8 @@ void Power::power_off() {
   #endif
 
   void Power::cancelAutoPowerOff() {
-    TERN_(POWER_OFF_TIMER, power_off_time = 0);
-    TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
+    IF_ENABLED(POWER_OFF_TIMER, power_off_time = 0);
+    IF_ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
   }
 
   void Power::checkAutoPowerOff() {

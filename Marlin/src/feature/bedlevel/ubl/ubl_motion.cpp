@@ -174,11 +174,11 @@
         if (dest.y != start.y) {
           if (!inf_normalized_flag) { // fall-through faster than branch
             on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
-            TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+            IF_ENABLED(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
             dest.z = start.z + on_axis_distance * z_normalized_dist;
           }
           else {
-            TERN_(HAS_EXTRUDERS, dest.e = end.e);
+            IF_ENABLED(HAS_EXTRUDERS, dest.e = end.e);
             dest.z = end.z;
           }
 
@@ -225,11 +225,11 @@
         if (dest.x != start.x) {
           if (!inf_normalized_flag) {
             on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
-            TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist); // Based on X or Y because the move is horizontal
+            IF_ENABLED(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist); // Based on X or Y because the move is horizontal
             dest.z = start.z + on_axis_distance * z_normalized_dist;
           }
           else {
-            TERN_(HAS_EXTRUDERS, dest.e = end.e);
+            IF_ENABLED(HAS_EXTRUDERS, dest.e = end.e);
             dest.z = end.z;
           }
 
@@ -280,11 +280,11 @@
 
         if (!inf_normalized_flag) {
           on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
-          TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+          IF_ENABLED(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
           dest.z = start.z + on_axis_distance * z_normalized_dist;
         }
         else {
-          TERN_(HAS_EXTRUDERS, dest.e = end.e);
+          IF_ENABLED(HAS_EXTRUDERS, dest.e = end.e);
           dest.z = end.z;
         }
 
@@ -307,11 +307,11 @@
 
         if (!inf_normalized_flag) {
           on_axis_distance = use_x_dist ? dest.x - start.x : dest.y - start.y;
-          TERN_(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
+          IF_ENABLED(HAS_EXTRUDERS, dest.e = start.e + on_axis_distance * e_normalized_dist);
           dest.z = start.z + on_axis_distance * z_normalized_dist;
         }
         else {
-          TERN_(HAS_EXTRUDERS, dest.e = end.e);
+          IF_ENABLED(HAS_EXTRUDERS, dest.e = end.e);
           dest.z = end.z;
         }
 
@@ -460,7 +460,7 @@
         if (--segments == 0) raw = destination;     // if this is last segment, use destination for exact
 
         const float z_cxcy = (z_cxy0 + z_cxym * cell.y) // interpolated mesh z height along cell.x at cell.y
-          TERN_(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
+          IF_ENABLED(ENABLE_LEVELING_FADE_HEIGHT, * fade_scaling_factor); // apply fade factor to interpolated height
 
         const float oldz = raw.z; raw.z += z_cxcy;
         planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, hints);

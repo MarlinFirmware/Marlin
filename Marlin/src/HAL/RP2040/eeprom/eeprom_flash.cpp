@@ -49,11 +49,11 @@ bool PersistentStore::access_start() {
 
 bool PersistentStore::access_finish() {
   if (eeprom_data_written) {
-    TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+    IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
     hal.isr_off();
     eeprom_buffer_flush();
     hal.isr_on();
-    TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
+    IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
     eeprom_data_written = false;
   }
   return true;

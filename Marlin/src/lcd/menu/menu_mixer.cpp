@@ -71,7 +71,7 @@
       ui.goto_previous_screen();
     }
     else {
-      TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
+      IF_ENABLED(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
     }
   }
 
@@ -120,7 +120,7 @@ static uint8_t v_index;
 
 void _lcd_mixer_select_vtool() {
   mixer.T(v_index);
-  TERN_(HAS_DUAL_MIXING, _lcd_draw_mix(LCD_HEIGHT - 1));
+  IF_ENABLED(HAS_DUAL_MIXING, _lcd_draw_mix(LCD_HEIGHT - 1));
 }
 
 #if CHANNEL_MIX_EDITING
@@ -161,7 +161,7 @@ void lcd_mixer_mix_edit() {
       ui.goto_previous_screen();
     }
 
-    TERN_(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
+    IF_ENABLED(HAS_GRAPHICAL_TFT, tft.draw_edit_screen_buttons());
 
   #else
 

@@ -231,7 +231,7 @@ void SnakeGame::game_screen() {
   frame_start();
 
   // Draw the snake (tail) in green
-  TERN_(IS_DWIN_MARLINUI, set_color(color::GREEN));
+  IF_ENABLED(IS_DWIN_MARLINUI, set_color(color::GREEN));
   #if SNAKE_WH < 2
 
     // At this scale just draw a line
@@ -295,7 +295,7 @@ void SnakeGame::game_screen() {
   #endif
 
   // Draw food in red
-  TERN_(IS_DWIN_MARLINUI, set_color(color::RED));
+  IF_ENABLED(IS_DWIN_MARLINUI, set_color(color::RED));
   const int8_t fy = GAMEY(sdat.foody);
   if (PAGE_CONTAINS(fy, fy + FOOD_WH - 1)) {
     const int8_t fx = GAMEX(sdat.foodx);
@@ -304,7 +304,7 @@ void SnakeGame::game_screen() {
   }
 
   // Draw the playfield border
-  TERN_(IS_DWIN_MARLINUI, set_color(color::WHITE));
+  IF_ENABLED(IS_DWIN_MARLINUI, set_color(color::WHITE));
   draw_frame(BOARD_L - 2, BOARD_T - 2, BOARD_R - BOARD_L + 4, BOARD_B - BOARD_T + 4);
 
   // Draw Score

@@ -33,7 +33,7 @@
  */
 void GcodeSuite::M997() {
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onFirmwareFlash());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onFirmwareFlash());
 
   flashFirmware(parser.intval('S'));
 

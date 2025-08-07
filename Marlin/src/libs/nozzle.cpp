@@ -71,7 +71,7 @@ Nozzle nozzle;
         #endif
       }
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
+      IF_ENABLED(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
     }
   #endif
 
@@ -120,7 +120,7 @@ Nozzle nozzle;
         }
       }
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
+      IF_ENABLED(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
     }
   #endif
 
@@ -151,7 +151,7 @@ Nozzle nozzle;
       // Let's be safe
       do_blocking_move_to_xy(start);
 
-      TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
+      IF_ENABLED(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
     }
   #endif
 
@@ -200,7 +200,7 @@ Nozzle nozzle;
       #define LIMIT_AXIS(A) do{ \
                                            LIMIT( start[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
                                            LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
-        TERN_(NOZZLE_CLEAN_PATTERN_CIRCLE, LIMIT(middle[arrPos].A, soft_endstop.min.A, soft_endstop.max.A)); \
+        IF_ENABLED(NOZZLE_CLEAN_PATTERN_CIRCLE, LIMIT(middle[arrPos].A, soft_endstop.min.A, soft_endstop.max.A)); \
       }while(0)
 
       if (soft_endstop.enabled()) {

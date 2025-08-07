@@ -174,11 +174,11 @@ namespace MMU3 {
   }
 
   void Enable_E0() {
-    stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0));
+    stepper.enable_extruder(IF_ENABLED(HAS_EXTRUDERS, 0));
   }
 
   void Disable_E0() {
-    stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0));
+    stepper.disable_extruder(IF_ENABLED(HAS_EXTRUDERS, 0));
   }
 
   bool xy_are_trusted() {

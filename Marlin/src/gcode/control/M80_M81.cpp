@@ -67,7 +67,7 @@
       OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_STATE);
     #endif
 
-    TERN_(HAS_MARLINUI_MENU, ui.reset_status());
+    IF_ENABLED(HAS_MARLINUI_MENU, ui.reset_status());
   }
 
 #endif // PSU_CONTROL
@@ -88,7 +88,7 @@ void GcodeSuite::M81() {
     ZERO(thermalManager.saved_fan_speed);
   #endif
 
-  TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
+  IF_ENABLED(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
 
   safe_delay(1000); // Wait 1 second before switching off
 

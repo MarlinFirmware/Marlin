@@ -199,10 +199,10 @@ void lv_draw_ready_print() {
       buttonBedstate = lv_big_button_create(scr, "F:/bmp_bed_state.bin", " ", TERN(HAS_MULTI_HOTEND, 340, 210), ICON_POS_Y, event_handler, ID_INFO_BED);
     #endif
 
-    TERN_(HAS_HOTEND, labelExt1 = lv_label_create_empty(scr));
-    TERN_(HAS_MULTI_HOTEND, labelExt2 = lv_label_create_empty(scr));
-    TERN_(HAS_HEATED_BED, labelBed = lv_label_create_empty(scr));
-    TERN_(HAS_FAN, labelFan = lv_label_create_empty(scr));
+    IF_ENABLED(HAS_HOTEND, labelExt1 = lv_label_create_empty(scr));
+    IF_ENABLED(HAS_MULTI_HOTEND, labelExt2 = lv_label_create_empty(scr));
+    IF_ENABLED(HAS_HEATED_BED, labelBed = lv_label_create_empty(scr));
+    IF_ENABLED(HAS_FAN, labelFan = lv_label_create_empty(scr));
 
     lv_temp_refr();
   }

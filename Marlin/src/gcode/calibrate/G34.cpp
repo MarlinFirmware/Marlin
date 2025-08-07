@@ -63,7 +63,7 @@ void GcodeSuite::G34() {
   // Home before the alignment procedure
   home_if_needed();
 
-  TERN_(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
+  IF_ENABLED(HAS_LEVELING, TEMPORARY_BED_LEVELING_STATE(false));
 
   SET_SOFT_ENDSTOP_LOOSE(true);
   TemporaryGlobalEndstopsState unlock_z(false);
@@ -149,10 +149,10 @@ void GcodeSuite::G34() {
   #elif HAS_MOTOR_CURRENT_I2C
     digipot_i2c.set_current(Z_AXIS, previous_current_Z)
   #elif HAS_TRINAMIC_CONFIG
-    TERN_(Z_IS_TRINAMIC,  stepperZ.rms_current(previous_current_Z));
-    TERN_(Z2_IS_TRINAMIC, stepperZ2.rms_current(previous_current_Z2));
-    TERN_(Z3_IS_TRINAMIC, stepperZ3.rms_current(previous_current_Z3));
-    TERN_(Z4_IS_TRINAMIC, stepperZ4.rms_current(previous_current_Z4));
+    IF_ENABLED(Z_IS_TRINAMIC,  stepperZ.rms_current(previous_current_Z));
+    IF_ENABLED(Z2_IS_TRINAMIC, stepperZ2.rms_current(previous_current_Z2));
+    IF_ENABLED(Z3_IS_TRINAMIC, stepperZ3.rms_current(previous_current_Z3));
+    IF_ENABLED(Z4_IS_TRINAMIC, stepperZ4.rms_current(previous_current_Z4));
   #endif
 
   // Back off end plate, back to normal motion range

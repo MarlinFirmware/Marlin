@@ -181,11 +181,11 @@ bool PersistentStore::access_finish() {
           flash_unlocked = true;
         }
 
-        TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+        IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
         hal.isr_off();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
         hal.isr_on();
-        TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
+        IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
           DEBUG_ECHOLNPGM("HAL_FLASHEx_Erase=", status);
           DEBUG_ECHOLNPGM("GetError=", HAL_FLASH_GetError());
@@ -251,11 +251,11 @@ bool PersistentStore::access_finish() {
       // Interrupts during this time can have unpredictable results, such as killing Servo
       // output. Servo output still glitches with interrupts disabled, but recovers after the
       // erase.
-      TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+      IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
       hal.isr_off();
       eeprom_buffer_flush();
       hal.isr_on();
-      TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
+      IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
 
       eeprom_data_written = false;
 

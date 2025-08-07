@@ -130,7 +130,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
         cutter.unitPower > 0 ? 255 : 0
       #endif
     );
-    TERN_(SPINDLE_CHANGE_DIR, cutter.set_reverse(is_M4));
+    IF_ENABLED(SPINDLE_CHANGE_DIR, cutter.set_reverse(is_M4));
   }
 }
 
@@ -150,7 +150,7 @@ void GcodeSuite::M5() {
   cutter.apply_power(0);                          // M5 just kills power, leaving inline mode unchanged
   if (cutter.cutter_mode != CUTTER_MODE_STANDARD) {
     if (parser.seen_test('I')) {
-      TERN_(LASER_FEATURE, cutter.inline_power(cutter.power));
+      IF_ENABLED(LASER_FEATURE, cutter.inline_power(cutter.power));
       cutter.set_enabled(false);                  // Needs to happen while we are in inline mode to clear inline power.
       cutter.cutter_mode = CUTTER_MODE_STANDARD;  // Switch from inline to standard mode.
     }

@@ -144,16 +144,16 @@ void LEDLights::setup() {
       NOLESS(curColor.r, led_pwm);
       NOLESS(curColor.g, led_pwm);
       NOLESS(curColor.b, led_pwm);
-      TERN_(HAS_WHITE_LED, NOLESS(curColor.w, led_pwm));
+      IF_ENABLED(HAS_WHITE_LED, NOLESS(curColor.w, led_pwm));
       PCA9632_set_led_color(curColor);
       delay(RGB_STARTUP_TEST_INNER_MS);
     }
 
   #endif // PCA9632 && RGB_STARTUP_TEST
 
-  TERN_(NEOPIXEL_LED, neo.init());
-  TERN_(PCA9533, PCA9533_init());
-  TERN_(LED_USER_PRESET_STARTUP, set_default());
+  IF_ENABLED(NEOPIXEL_LED, neo.init());
+  IF_ENABLED(PCA9533, PCA9533_init());
+  IF_ENABLED(LED_USER_PRESET_STARTUP, set_default());
 }
 
 void LEDLights::set_color(const LEDColor &incol
@@ -225,8 +225,8 @@ void LEDLights::set_color(const LEDColor &incol
   #endif
 
   // Update I2C LED driver
-  TERN_(PCA9632, PCA9632_set_led_color(incol));
-  TERN_(PCA9533, PCA9533_set_rgb(incol.r, incol.g, incol.b));
+  IF_ENABLED(PCA9632, PCA9632_set_led_color(incol));
+  IF_ENABLED(PCA9533, PCA9533_set_rgb(incol.r, incol.g, incol.b));
 
   #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
@@ -274,7 +274,7 @@ void LEDLights::set_color(const LEDColor &incol
 
   void LEDLights2::setup() {
     neo2.init();
-    TERN_(NEO2_USER_PRESET_STARTUP, set_default());
+    IF_ENABLED(NEO2_USER_PRESET_STARTUP, set_default());
   }
 
   void LEDLights2::set_color(const LEDColor &incol) {

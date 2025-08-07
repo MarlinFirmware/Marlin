@@ -248,7 +248,7 @@ void TFT_FSMC::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t cou
   dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
   dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  IF_ENABLED(TFT_SHARED_IO, while (isBusy()));
 }
 
 void TFT_FSMC::transmit(uint32_t memoryIncrease, uint16_t *data, uint16_t count) {

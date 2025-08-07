@@ -78,7 +78,7 @@ typedef struct LEDColor {
 
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
     r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
-    TERN_(HAS_WHITE_LED, w = rgbw[3]);
+    IF_ENABLED(HAS_WHITE_LED, w = rgbw[3]);
     return *this;
   }
 

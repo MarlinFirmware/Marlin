@@ -449,7 +449,7 @@ bool UIFlashStorage::is_present = false;
         addr = write(addr, buff, nBytes);
         if (nBytes != write_page_size) break;
 
-        TERN_(EXTENSIBLE_UI, ExtUI::yield());
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::yield());
       }
 
       SERIAL_ECHOLNPGM("DONE");
@@ -487,7 +487,7 @@ bool UIFlashStorage::is_present = false;
 
         addr += nBytes;
         if (nBytes != write_page_size) break;
-        TERN_(EXTENSIBLE_UI, ExtUI::yield());
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::yield());
       };
 
       if (verifyOk) {

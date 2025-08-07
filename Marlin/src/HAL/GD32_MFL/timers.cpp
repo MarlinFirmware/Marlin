@@ -185,17 +185,17 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_number) {
 
 // Sets the interrupt priorities for timers used by TMC SW serial and servos.
 void SetTimerInterruptPriorities() {
-  TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIORITY, 0));
-  TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIORITY, 0));
+  IF_ENABLED(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIORITY, 0));
+  IF_ENABLED(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIORITY, 0));
 }
 
 // ------------------------
 // Detect timer conflicts
 // ------------------------
 
-TERN_(HAS_TMC_SW_SERIAL, static constexpr timer::TIMER_Base timer_serial[] = {static_cast<timer::TIMER_Base>(TIMER_SERIAL)});
-TERN_(SPEAKER, static constexpr timer::TIMER_Base timer_tone[] = {static_cast<timer::TIMER_Base>(TIMER_TONE)});
-TERN_(HAS_SERVOS, static constexpr timer::TIMER_Base timer_servo[] = {static_cast<timer::TIMER_Base>(TIMER_SERVO)});
+IF_ENABLED(HAS_TMC_SW_SERIAL, static constexpr timer::TIMER_Base timer_serial[] = {static_cast<timer::TIMER_Base>(TIMER_SERIAL)});
+IF_ENABLED(SPEAKER, static constexpr timer::TIMER_Base timer_tone[] = {static_cast<timer::TIMER_Base>(TIMER_TONE)});
+IF_ENABLED(HAS_SERVOS, static constexpr timer::TIMER_Base timer_servo[] = {static_cast<timer::TIMER_Base>(TIMER_SERVO)});
 
 enum TimerPurpose {
   PURPOSE_SERIAL,

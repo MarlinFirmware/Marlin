@@ -76,7 +76,7 @@ void GcodeSuite::M1001() {
   if (TERN(NO_SD_AUTOSTART, false, card.autofile_check())) return;
 
   // Purge the recovery file...
-  TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+  IF_ENABLED(POWER_LOSS_RECOVERY, recovery.purge());
 
   // Report total print time
   const bool long_print = print_job_timer.duration() > 60;
@@ -86,7 +86,7 @@ void GcodeSuite::M1001() {
   process_subcommands_now(F("M77"));
 
   // Set the progress bar "done" state
-  TERN_(SET_PROGRESS_PERCENT, ui.set_progress_done());
+  IF_ENABLED(SET_PROGRESS_PERCENT, ui.set_progress_done());
 
   // Announce SD file completion
   {
@@ -98,9 +98,9 @@ void GcodeSuite::M1001() {
   #if HAS_LEDS_OFF_FLAG
     if (long_print) {
       printerEventLEDs.onPrintCompleted();
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PRINT_DONE)));
-      TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_PRINT_DONE)));
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(SEC_TO_MS(TERN(HAS_MARLINUI_MENU, PE_LEDS_COMPLETED_TIME, 30))));
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PRINT_DONE)));
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_PRINT_DONE)));
+      IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user_response(SEC_TO_MS(TERN(HAS_MARLINUI_MENU, PE_LEDS_COMPLETED_TIME, 30))));
       printerEventLEDs.onResumeAfterWait();
     }
   #endif
@@ -110,10 +110,10 @@ void GcodeSuite::M1001() {
     process_subcommands_now(F(SD_FINISHED_RELEASECOMMAND));
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onPrintDone());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPrintDone());
 
   // Re-select the last printed file in the UI
-  TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
+  IF_ENABLED(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
 
   #if ENABLED(SOVOL_SV06_RTS)
     rts.sendData(100, PRINT_PROCESS_VP); delay(1);

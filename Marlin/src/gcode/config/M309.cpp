@@ -42,7 +42,7 @@ void GcodeSuite::M309() {
 }
 
 void GcodeSuite::M309_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_CHAMBER_PID));
   SERIAL_ECHOLNPGM("  M309"

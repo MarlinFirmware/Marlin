@@ -205,7 +205,7 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         }
         break;
       case PROMPT_USER_CONTINUE:
-        TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+        IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user = false);
         break;
       case PROMPT_PAUSE_RESUME:
         #if ALL(ADVANCED_PAUSE_FEATURE, HAS_MEDIA)

@@ -238,13 +238,13 @@ public:
   static void selectFileByName(const char * const match);  // (working directory only)
 
   // Print job
-  static void report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto=false));
+  static void report_status(IF_ENABLED(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto=false));
   static void getAbsFilenameInCWD(char *dst);
   static void printSelectedFilename();
   static void openAndPrintFile(const char *name);   // (working directory or full path)
   static void startOrResumeFilePrinting();
-  static void endFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
-  static void abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort=false));
+  static void endFilePrintNow(IF_ENABLED(SD_RESORT, const bool re_sort=false));
+  static void abortFilePrintNow(IF_ENABLED(SD_RESORT, const bool re_sort=false));
   static void fileHasFinished();
   static void abortFilePrintSoon() { flag.abort_sd_printing = isFileOpen(); }
   static void pauseSDPrint()       { flag.sdprinting = false; }
@@ -323,7 +323,7 @@ public:
     //
     // SD Auto Reporting
     //
-    struct AutoReportSD { static void report() { report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, true)); } };
+    struct AutoReportSD { static void report() { report_status(IF_ENABLED(QUIETER_AUTO_REPORT_SD_STATUS, true)); } };
     static AutoReporter<AutoReportSD> auto_reporter;
   #endif
 

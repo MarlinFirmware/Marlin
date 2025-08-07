@@ -157,10 +157,10 @@ void moveAxis(const AxisEnum axis, const int8_t direction) {
     queue.inject_P(G28_STR);
     // Disable touch until home is done
     touch.disable();
-    TERN_(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
-    TERN_(HAS_X_AXIS,    drawAxisValue(X_AXIS));
-    TERN_(HAS_Y_AXIS,    drawAxisValue(Y_AXIS));
-    TERN_(HAS_Z_AXIS,    drawAxisValue(Z_AXIS));
+    IF_ENABLED(HAS_EXTRUDERS, drawAxisValue(E_AXIS));
+    IF_ENABLED(HAS_X_AXIS,    drawAxisValue(X_AXIS));
+    IF_ENABLED(HAS_Y_AXIS,    drawAxisValue(Y_AXIS));
+    IF_ENABLED(HAS_Z_AXIS,    drawAxisValue(Z_AXIS));
   }
 
   void step_size() {
@@ -269,7 +269,7 @@ void drawBtn(const int x, const int y, const char *label, intptr_t data, const M
   else
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
-  TERN_(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
+  IF_ENABLED(TOUCH_SCREEN, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
 
 //
@@ -439,7 +439,7 @@ void MarlinUI::init_lcd() {
   #ifdef EXTRA_FONT_NAME
     tft.add_glyphs(EXTRA_FONT_NAME);
   #endif
-  TERN_(TOUCH_SCREEN, touch.init());
+  IF_ENABLED(TOUCH_SCREEN, touch.init());
   clear_for_drawing();
 }
 

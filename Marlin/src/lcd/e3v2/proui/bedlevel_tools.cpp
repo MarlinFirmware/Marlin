@@ -173,7 +173,7 @@ void BedLevelTools::probeXY() {
 
 void BedLevelTools::meshReset() {
   ZERO(bedlevel.z_values);
-  TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+  IF_ENABLED(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 }
 
 // Accessors

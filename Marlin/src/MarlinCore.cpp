@@ -294,7 +294,7 @@ bool wait_for_heatup = false;
     wait_for_user = true;
     if (ms) ms += millis(); // expire time
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
-      idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
+      idle(IF_ENABLED(ADVANCED_PAUSE_FEATURE, no_sleep));
     wait_for_user = false;
     while (ui.button_pressed()) safe_delay(50);
   }
@@ -359,11 +359,11 @@ bool printingIsPaused() {
 
 void startOrResumeJob() {
   if (!printingIsPaused()) {
-    TERN_(GCODE_REPEAT_MARKERS, repeat.reset());
-    TERN_(CANCEL_OBJECTS, cancelable.reset());
-    TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
-    TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
-    TERN_(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
+    IF_ENABLED(GCODE_REPEAT_MARKERS, repeat.reset());
+    IF_ENABLED(CANCEL_OBJECTS, cancelable.reset());
+    IF_ENABLED(LCD_SHOW_E_TOTAL, e_move_accumulator = 0);
+    IF_ENABLED(SET_REMAINING_TIME, ui.reset_remaining_time());
+    IF_ENABLED(HAS_PRUSA_MMU3, MMU3::operation_statistics.reset_per_print_stats());
   }
   print_job_timer.start();
 }
@@ -372,7 +372,7 @@ void startOrResumeJob() {
 
   inline void abortSDPrinting() {
     IF_DISABLED(NO_SD_AUTOSTART, card.autofile_cancel());
-    card.abortFilePrintNow(TERN_(SD_RESORT, true));
+    card.abortFilePrintNow(IF_ENABLED(SD_RESORT, true));
 
     queue.clear();
     quickstop_stepper();
@@ -385,20 +385,20 @@ void startOrResumeJob() {
 
     wait_for_heatup = false;
 
-    TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+    IF_ENABLED(POWER_LOSS_RECOVERY, recovery.purge());
 
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject(F(EVENT_GCODE_SD_ABORT));
     #endif
 
-    TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
+    IF_ENABLED(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
 
   inline void finishSDPrinting() {
     if (queue.enqueue_one(F("M1001"))) {      // Keep trying until it gets queued
       marlin_state = MarlinState::MF_RUNNING; // Signal to stop trying
-      TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
-      TERN_(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
+      IF_ENABLED(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
+      IF_ENABLED(DGUS_LCD_UI_MKS, screen.sdPrintingFinished());
     }
   }
 
@@ -450,18 +450,18 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           already_shutdown_steppers = true;
 
           // Individual axes will be disabled if configured
-          TERN_(DISABLE_IDLE_X, stepper.disable_axis(X_AXIS));
-          TERN_(DISABLE_IDLE_Y, stepper.disable_axis(Y_AXIS));
-          TERN_(DISABLE_IDLE_Z, stepper.disable_axis(Z_AXIS));
-          TERN_(DISABLE_IDLE_I, stepper.disable_axis(I_AXIS));
-          TERN_(DISABLE_IDLE_J, stepper.disable_axis(J_AXIS));
-          TERN_(DISABLE_IDLE_K, stepper.disable_axis(K_AXIS));
-          TERN_(DISABLE_IDLE_U, stepper.disable_axis(U_AXIS));
-          TERN_(DISABLE_IDLE_V, stepper.disable_axis(V_AXIS));
-          TERN_(DISABLE_IDLE_W, stepper.disable_axis(W_AXIS));
-          TERN_(DISABLE_IDLE_E, stepper.disable_e_steppers());
+          IF_ENABLED(DISABLE_IDLE_X, stepper.disable_axis(X_AXIS));
+          IF_ENABLED(DISABLE_IDLE_Y, stepper.disable_axis(Y_AXIS));
+          IF_ENABLED(DISABLE_IDLE_Z, stepper.disable_axis(Z_AXIS));
+          IF_ENABLED(DISABLE_IDLE_I, stepper.disable_axis(I_AXIS));
+          IF_ENABLED(DISABLE_IDLE_J, stepper.disable_axis(J_AXIS));
+          IF_ENABLED(DISABLE_IDLE_K, stepper.disable_axis(K_AXIS));
+          IF_ENABLED(DISABLE_IDLE_U, stepper.disable_axis(U_AXIS));
+          IF_ENABLED(DISABLE_IDLE_V, stepper.disable_axis(V_AXIS));
+          IF_ENABLED(DISABLE_IDLE_W, stepper.disable_axis(W_AXIS));
+          IF_ENABLED(DISABLE_IDLE_E, stepper.disable_e_steppers());
 
-          TERN_(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
+          IF_ENABLED(AUTO_BED_LEVELING_UBL, bedlevel.steppers_were_disabled());
         }
       }
       else
@@ -536,7 +536,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
           next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;               \
           CODE;                                                        \
           queue.inject(F(BUTTON##N##_GCODE));                          \
-          TERN_(HAS_MARLINUI_MENU, ui.quick_feedback());               \
+          IF_ENABLED(HAS_MARLINUI_MENU, ui.quick_feedback());               \
         }                                                              \
       }                                                                \
     }while(0)
@@ -671,13 +671,13 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     #endif
   #endif
 
-  TERN_(EASYTHREED_UI, easythreed_ui.run());
+  IF_ENABLED(EASYTHREED_UI, easythreed_ui.run());
 
-  TERN_(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
+  IF_ENABLED(USE_CONTROLLER_FAN, controllerFan.update()); // Check if fan should be turned on to cool stepper drivers down
 
-  TERN_(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
+  IF_ENABLED(AUTO_POWER_CONTROL, powerManager.check(!ui.on_status_screen() || printJobOngoing() || printingIsPaused()));
 
-  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
+  IF_ENABLED(HOTEND_IDLE_TIMEOUT, hotend_idle.check());
 
   #if ANY(PSU_CONTROL, AUTO_POWER_CONTROL) && PIN_EXISTS(PS_ON_EDM)
     if ( ELAPSED(ms, powerManager.last_state_change_ms, PS_EDM_RESPONSE)
@@ -718,9 +718,9 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     }
   #endif
 
-  TERN_(TEMP_STAT_LEDS, handle_status_leds());
+  IF_ENABLED(TEMP_STAT_LEDS, handle_status_leds());
 
-  TERN_(MONITOR_DRIVER_STATUS, monitor_tmc_drivers());
+  IF_ENABLED(MONITOR_DRIVER_STATUS, monitor_tmc_drivers());
 
   // Limit check_axes_activity frequency to 10Hz
   static millis_t next_check_axes_ms = 0;
@@ -777,7 +777,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Bed Distance Sensor task
-  TERN_(BD_SENSOR, bdl.process());
+  IF_ENABLED(BD_SENSOR, bdl.process());
 
   // Core Marlin activities
   manage_inactivity(no_stepper_sleep);
@@ -786,13 +786,13 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   thermalManager.task();
 
   // Max7219 heartbeat, animation, etc
-  TERN_(MAX7219_DEBUG, max7219.idle_tasks());
+  IF_ENABLED(MAX7219_DEBUG, max7219.idle_tasks());
 
   // Return if setup() isn't completed
   if (marlin_state == MarlinState::MF_INITIALIZING) goto IDLE_DONE;
 
   // TODO: Still causing errors
-  TERN_(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
+  IF_ENABLED(TOOL_SENSOR, (void)check_tool_sensor_stats(active_extruder, true));
 
   // Handle filament runout sensors
   #if HAS_FILAMENT_SENSOR
@@ -804,7 +804,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   hal.idletask();
 
   // Check network connection
-  TERN_(HAS_ETHERNET, ethernet.check());
+  IF_ENABLED(HAS_ETHERNET, ethernet.check());
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
@@ -818,16 +818,16 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Handle SD Card insert / remove
-  TERN_(HAS_MEDIA, card.manage_media());
+  IF_ENABLED(HAS_MEDIA, card.manage_media());
 
   // Announce Host Keepalive state (if any)
-  TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
+  IF_ENABLED(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
 
   // Update the Print Job Timer state
-  TERN_(PRINTCOUNTER, print_job_timer.tick());
+  IF_ENABLED(PRINTCOUNTER, print_job_timer.tick());
 
   // Update the Beeper queue
-  TERN_(HAS_BEEPER, buzzer.tick());
+  IF_ENABLED(HAS_BEEPER, buzzer.tick());
 
   // Handle UI input / draw events
   #if ENABLED(SOVOL_SV06_RTS)
@@ -853,11 +853,11 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
-      TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
-      TERN_(AUTO_REPORT_FANS, fan_check.auto_reporter.tick());
-      TERN_(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
-      TERN_(AUTO_REPORT_POSITION, position_auto_reporter.tick());
-      TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
+      IF_ENABLED(AUTO_REPORT_TEMPERATURES, thermalManager.auto_reporter.tick());
+      IF_ENABLED(AUTO_REPORT_FANS, fan_check.auto_reporter.tick());
+      IF_ENABLED(AUTO_REPORT_SD_STATUS, card.auto_reporter.tick());
+      IF_ENABLED(AUTO_REPORT_POSITION, position_auto_reporter.tick());
+      IF_ENABLED(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
     }
   #endif
 
@@ -869,7 +869,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Handle Joystick jogging
-  TERN_(POLL_JOG, joystick.inject_jog_moves());
+  IF_ENABLED(POLL_JOG, joystick.inject_jog_moves());
 
   // Async Babystepping via the Emergency Parser
   #if ALL(EP_BABYSTEPPING, EMERGENCY_PARSER)
@@ -877,16 +877,16 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Direct Stepping
-  TERN_(DIRECT_STEPPING, page_manager.write_responses());
+  IF_ENABLED(DIRECT_STEPPING, page_manager.write_responses());
 
   // Update the LVGL interface
-  TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
+  IF_ENABLED(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 
   // Manage Fixed-time Motion Control
-  TERN_(FT_MOTION, ftMotion.loop());
+  IF_ENABLED(FT_MOTION, ftMotion.loop());
 
   IDLE_DONE:
-  TERN_(MARLIN_DEV_MODE, idle_depth--);
+  IF_ENABLED(MARLIN_DEV_MODE, idle_depth--);
 
   return;
 } // idle()
@@ -898,7 +898,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
 void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
-  TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
+  IF_ENABLED(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
 
   // Echo the LCD message to serial for extra context
   if (lcd_error) { SERIAL_ECHO_START(); SERIAL_ECHOLN(lcd_error); }
@@ -909,7 +909,7 @@ void kill(FSTR_P const lcd_error/*=nullptr*/, FSTR_P const lcd_component/*=nullp
     UNUSED(lcd_error); UNUSED(lcd_component);
   #endif
 
-  TERN_(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
+  IF_ENABLED(HAS_TFT_LVGL_UI, lv_draw_error_message(lcd_error));
 
   // "Error:Printer halted. kill() called!"
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
@@ -934,14 +934,14 @@ void minkill(const bool steppers_off/*=false*/) {
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
 
-  TERN_(HAS_CUTTER, cutter.kill());  // Reiterate cutter shutdown
+  IF_ENABLED(HAS_CUTTER, cutter.kill());  // Reiterate cutter shutdown
 
   // Power off all steppers (for M112) or just the E steppers
   steppers_off ? stepper.disable_all_steppers() : stepper.disable_e_steppers();
 
-  TERN_(PSU_CONTROL, powerManager.power_off());
+  IF_ENABLED(PSU_CONTROL, powerManager.power_off());
 
-  TERN_(HAS_SUICIDE, suicide());
+  IF_ENABLED(HAS_SUICIDE, suicide());
 
   #if ANY(HAS_KILL, SOFT_RESET_ON_KILL)
 
@@ -1235,7 +1235,7 @@ void setup() {
     JTAG_DISABLE();
   #endif
 
-  TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
+  IF_ENABLED(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
 
   SETUP_RUN(hal.init());
 
@@ -1330,7 +1330,7 @@ void setup() {
     SETUP_RUN(controllerFan.setup());
   #endif
 
-  TERN_(HAS_FANCHECK, fan_check.init());
+  IF_ENABLED(HAS_FANCHECK, fan_check.init());
 
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
@@ -1385,7 +1385,7 @@ void setup() {
     SETUP_RUN(touchBt.init());
   #endif
 
-  TERN_(HAS_HOME_OFFSET, current_position += home_offset); // Init current position based on home_offset
+  IF_ENABLED(HAS_HOME_OFFSET, current_position += home_offset); // Init current position based on home_offset
 
   sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
 
@@ -1703,7 +1703,7 @@ void setup() {
 
   SETUP_LOG("setup() completed.");
 
-  TERN_(MARLIN_TEST_BUILD, runStartupTests());
+  IF_ENABLED(MARLIN_TEST_BUILD, runStartupTests());
 } // setup()
 
 /**
@@ -1736,9 +1736,9 @@ void loop() {
 
     endstops.event_handler();
 
-    TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
+    IF_ENABLED(HAS_TFT_LVGL_UI, printer_state_polling());
 
-    TERN_(MARLIN_TEST_BUILD, runPeriodicTests());
+    IF_ENABLED(MARLIN_TEST_BUILD, runPeriodicTests());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

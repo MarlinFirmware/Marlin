@@ -119,10 +119,10 @@ void GcodeSuite::M600() {
   if (standardM600)
     ui.pause_show_message(PAUSE_MESSAGE_CHANGING, PAUSE_MODE_PAUSE_PRINT, target_extruder);
 
-  TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_ChangeWait_L, ID_ChangeWait_D)); //given the context it seems this likely should have been pages 6 & 61
+  IF_ENABLED(SOVOL_SV06_RTS, rts.gotoPage(ID_ChangeWait_L, ID_ChangeWait_D)); //given the context it seems this likely should have been pages 6 & 61
 
   // If needed, home before parking for filament change
-  TERN_(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));
+  IF_ENABLED(HOME_BEFORE_FILAMENT_CHANGE, home_if_needed(true));
 
   #if HAS_MULTI_EXTRUDER
     // Change toolhead if specified
@@ -192,7 +192,7 @@ void GcodeSuite::M600() {
       tool_change(active_extruder_before_filament_change);
   #endif
 
-  TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
+  IF_ENABLED(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

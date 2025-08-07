@@ -48,7 +48,7 @@ void GcodeSuite::M206() {
 }
 
 void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(

@@ -44,7 +44,7 @@
 //#define ERR_INCLUDE_TEMP
 
 #define HOTEND_INDEX TERN0(HAS_MULTI_HOTEND, e)
-#define E_NAME TERN_(HAS_MULTI_HOTEND, e)
+#define E_NAME IF_ENABLED(HAS_MULTI_HOTEND, e)
 
 #if HAS_FAN
   #if NUM_REDUNDANT_FANS
@@ -800,10 +800,10 @@ class Temperature {
               fan_update_ms = ms + FAN_CHECK_DURATION;
             fan_check.toggle_measuring();
           #else
-            TERN_(HAS_FANCHECK, fan_check.compute_speed(next_ms - fan_update_ms));
+            IF_ENABLED(HAS_FANCHECK, fan_check.compute_speed(next_ms - fan_update_ms));
             fan_update_ms = next_ms;
           #endif
-          TERN_(HAS_AUTO_FAN, update_autofans()); // Needed as last when HAS_PWMFANCHECK to properly force fan speed
+          IF_ENABLED(HAS_AUTO_FAN, update_autofans()); // Needed as last when HAS_PWMFANCHECK to properly force fan speed
         }
       }
     #endif
@@ -1006,7 +1006,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_hotend_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
+        IF_ENABLED(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, hotend_max_target(ee));
         start_watching_hotend(ee);
       }
@@ -1073,7 +1073,7 @@ class Temperature {
           else if (temp_bed.target == 0)
             start_bed_preheat_time();
         #endif
-        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
+        IF_ENABLED(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
       }
@@ -1352,8 +1352,8 @@ class Temperature {
       #if MAX_TC_COUNT > 1
         #define HAS_MULTI_MAX_TC 1
       #endif
-      #define READ_MAX_TC(N) read_max_tc(TERN_(HAS_MULTI_MAX_TC, N))
-      static raw_adc_t read_max_tc(TERN_(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
+      #define READ_MAX_TC(N) read_max_tc(IF_ENABLED(HAS_MULTI_MAX_TC, N))
+      static raw_adc_t read_max_tc(IF_ENABLED(HAS_MULTI_MAX_TC, const uint8_t hindex=0));
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(BED)
       static raw_adc_t read_max_tc_bed();

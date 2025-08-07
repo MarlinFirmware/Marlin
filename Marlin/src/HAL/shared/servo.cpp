@@ -150,7 +150,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+    IF_ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

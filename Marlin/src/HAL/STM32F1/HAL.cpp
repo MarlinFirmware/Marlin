@@ -171,7 +171,7 @@ void MarlinHAL::adc_init() {
 
 void MarlinHAL::adc_start(const pin_t pin) {
   #define __TCASE(N,I) case N: pin_index = I; break;
-  #define _TCASE(C,N,I) TERN_(C, __TCASE(N, I))
+  #define _TCASE(C,N,I) IF_ENABLED(C, __TCASE(N, I))
   ADCIndex pin_index;
   switch (pin) {
     default: return;
@@ -235,7 +235,7 @@ void flashFirmware(const int16_t) { hal.reboot(); }
   } }
 #endif
 
-TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+IF_ENABLED(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 // ------------------------
 // MarlinHAL class
@@ -256,7 +256,7 @@ void MarlinHAL::init() {
     delay_ms(1000);                                      // Give OS time to notice
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the minimal serial handler
 }
 
 // HAL idle task

@@ -106,7 +106,7 @@ void GcodeSuite::M425() {
 }
 
 void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_BACKLASH_COMPENSATION));
   SERIAL_ECHOLNPGM_P(

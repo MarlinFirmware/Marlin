@@ -211,8 +211,8 @@ void DWINUI::drawFloat(uint8_t bShow, bool signedMode, fontid_t fid, uint16_t co
 //  picID: Icon ID
 //  x/y: Upper-left point
 void DWINUI::iconShow(bool BG, uint8_t icon, uint16_t x, uint16_t y) {
-  const uint8_t libID = ICON TERN_(HAS_CUSTOMICONS, + (icon / 100));
-  const uint8_t picID = icon TERN_(HAS_CUSTOMICONS, % 100);
+  const uint8_t libID = ICON IF_ENABLED(HAS_CUSTOMICONS, + (icon / 100));
+  const uint8_t picID = icon IF_ENABLED(HAS_CUSTOMICONS, % 100);
   dwinIconShow(BG, false, !BG, libID, picID, x, y);
 }
 

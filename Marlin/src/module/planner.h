@@ -366,7 +366,7 @@ typedef struct PlannerSettings {
     #define _EASU(N) _dasu[ALIM(E_AXIS + N, _dasu)],
     static constexpr float axis_steps_per_mm[DISTINCT_AXES] = {
       REPEAT(NUM_AXES, _DASU)
-      TERN_(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
+      IF_ENABLED(HAS_EXTRUDERS, REPEAT(DISTINCT_E, _EASU))
     };
     #undef _EASU
     #undef _DASU
@@ -530,7 +530,7 @@ class Planner {
       static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
         UNUSED(e);
         extruder_advance_K[E_INDEX_N(e)] = k;
-        TERN_(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
+        IF_ENABLED(SMOOTH_LIN_ADVANCE, extruder_advance_K_q27[E_INDEX_N(e)] = k * _BV32(27));
       }
       static float get_advance_k(const uint8_t e=active_extruder) {
         UNUSED(e);
@@ -825,9 +825,9 @@ class Planner {
        * @param leveling  Optional bool whether to include the leveling modifier
        */
       FORCE_INLINE static void apply_modifiers(xyze_pos_t &pos, const bool leveling=ENABLED(PLANNER_LEVELING)) {
-        TERN_(SKEW_CORRECTION, skew(pos));
+        IF_ENABLED(SKEW_CORRECTION, skew(pos));
         if (leveling) apply_leveling(pos);
-        TERN_(FWRETRACT, apply_retract(pos));
+        IF_ENABLED(FWRETRACT, apply_retract(pos));
       }
 
       /**
@@ -838,9 +838,9 @@ class Planner {
        * @param leveling  Optional bool whether to include the leveling modifier
        */
       FORCE_INLINE static void unapply_modifiers(xyze_pos_t &pos, const bool leveling=ENABLED(PLANNER_LEVELING)) {
-        TERN_(FWRETRACT, unapply_retract(pos));
+        IF_ENABLED(FWRETRACT, unapply_retract(pos));
         if (leveling) unapply_leveling(pos);
-        TERN_(SKEW_CORRECTION, unskew(pos));
+        IF_ENABLED(SKEW_CORRECTION, unskew(pos));
       }
     #endif // HAS_POSITION_MODIFIERS
 

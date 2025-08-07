@@ -88,7 +88,7 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    IF_ENABLED(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
@@ -111,16 +111,16 @@
 
     current_position.set(0.0, 0.0);
 
-    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    IF_ENABLED(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       restore_homing_current(Y_AXIS);
     #endif
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
-      TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
-      TERN_(Y_SENSORLESS, tmc_disable_stallguard(stepperY, stealth_states.y));
-      TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
+      IF_ENABLED(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
+      IF_ENABLED(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, stealth_states.x2));
+      IF_ENABLED(Y_SENSORLESS, tmc_disable_stallguard(stepperY, stealth_states.y));
+      IF_ENABLED(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, stealth_states.y2));
     #endif
   }
 
@@ -148,16 +148,16 @@
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
     destination.set(safe_homing_xy, current_position.z);
 
-    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
+    IF_ENABLED(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
     if (position_is_reachable(destination)) {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
       // Free the active extruder for movement
-      TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
+      IF_ENABLED(DUAL_X_CARRIAGE, idex_set_parked(false));
 
-      TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
+      IF_ENABLED(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
@@ -180,7 +180,7 @@
                                );
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = 100;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = 100;
-    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);
+    IF_ENABLED(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = 100);
     #if ENABLED(CLASSIC_JERK)
       motion_state.jerk_state = planner.max_jerk;
       planner.max_jerk.set(0, 0 OPTARG(DELTA, 0));
@@ -192,8 +192,8 @@
   void end_slow_homing(const motion_state_t &motion_state) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = motion_state.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = motion_state.acceleration.y;
-    TERN_(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
-    TERN_(CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
+    IF_ENABLED(DELTA, planner.settings.max_acceleration_mm_per_s2[Z_AXIS] = motion_state.acceleration.z);
+    IF_ENABLED(CLASSIC_JERK, planner.max_jerk = motion_state.jerk_state);
     planner.refresh_acceleration_rates();
   }
 
@@ -255,8 +255,8 @@ void GcodeSuite::G28() {
     set_and_report_grblstate(M_HOMING);
   #endif
 
-  TERN_(DWIN_CREALITY_LCD, dwinHomingStart());
-  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
+  IF_ENABLED(DWIN_CREALITY_LCD, dwinHomingStart());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
 
@@ -278,13 +278,13 @@ void GcodeSuite::G28() {
     #endif
 
     // Cancel any prior G29 session
-    TERN_(PROBE_MANUALLY, g29_in_progress = false);
+    IF_ENABLED(PROBE_MANUALLY, g29_in_progress = false);
 
     // Disable leveling before homing
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+    IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(false));
 
     // Reset to the XY plane
-    TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+    IF_ENABLED(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
     #if ENABLED(IMPROVE_HOMING_RELIABILITY)
       motion_state_t saved_motion_state = begin_slow_homing();
@@ -307,7 +307,7 @@ void GcodeSuite::G28() {
       tool_change(0, true);
     #endif
 
-    TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+    IF_ENABLED(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
     remember_feedrate_scaling_off();
 
@@ -323,7 +323,7 @@ void GcodeSuite::G28() {
 
       home_delta();
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
+      IF_ENABLED(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
     #elif ENABLED(AXEL_TPARA)
 
@@ -402,12 +402,12 @@ void GcodeSuite::G28() {
         }
 
         // Init BLTouch ahead of any lateral motion, even if not homing with the probe
-        TERN_(BLTOUCH, if (may_skate) bltouch.init());
+        IF_ENABLED(BLTOUCH, if (may_skate) bltouch.init());
 
       #endif // HAS_Z_AXIS
 
       // Diagonal move first if both are homing
-      TERN_(QUICK_HOME, if (doX && doY) quick_home_xy());
+      IF_ENABLED(QUICK_HOME, if (doX && doY) quick_home_xy());
 
       #if HAS_Y_AXIS
         // Home Y (before X)
@@ -458,7 +458,7 @@ void GcodeSuite::G28() {
         if (doJ) homeaxis(J_AXIS);
       #endif
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
+      IF_ENABLED(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
 
       #if ENABLED(FOAMCUTTER_XYUV)
 
@@ -517,7 +517,7 @@ void GcodeSuite::G28() {
 
       if (idex_is_duplicating()) {
 
-        TERN_(IMPROVE_HOMING_RELIABILITY, saved_motion_state = begin_slow_homing());
+        IF_ENABLED(IMPROVE_HOMING_RELIABILITY, saved_motion_state = begin_slow_homing());
 
         // Always home the 2nd (right) extruder first
         active_extruder = 1;
@@ -536,7 +536,7 @@ void GcodeSuite::G28() {
         dual_x_carriage_mode = IDEX_saved_mode;
         set_duplication_enabled(IDEX_saved_duplication_state);
 
-        TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
+        IF_ENABLED(IMPROVE_HOMING_RELIABILITY, end_slow_homing(saved_motion_state));
       }
 
     #endif // DUAL_X_CARRIAGE
@@ -544,10 +544,10 @@ void GcodeSuite::G28() {
     endstops.not_homing();
 
     // Clear endstop state for polled stallGuard endstops
-    TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
+    IF_ENABLED(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
     // Move to a height where we can use the full xy-area
-    TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+    IF_ENABLED(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
 
     #if HAS_Z_AXIS
       // Move to the configured Z only if Z was homed to MIN, because machines that
@@ -556,7 +556,7 @@ void GcodeSuite::G28() {
       if (finalRaiseZ) do_move_after_z_homing();
     #endif
 
-    TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
+    IF_ENABLED(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 
     // Restore the active tool after homing
     #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
@@ -577,13 +577,13 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
-  TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
-  TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
+  IF_ENABLED(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
+  IF_ENABLED(DWIN_CREALITY_LCD, dwinHomingDone());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(old_grblstate));
 
   #ifdef EVENT_GCODE_AFTER_HOMING
     gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_HOMING));

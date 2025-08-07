@@ -86,7 +86,7 @@ void TouchCalibration::validate_calibration() {
     SERIAL_ECHOLN(F("#define TOUCH_"), F("OFFSET_X "), calibration.offset_x);
     SERIAL_ECHOLN(F("#define TOUCH_"), F("OFFSET_Y "), calibration.offset_y);
     SERIAL_ECHO(F("#define TOUCH_")); SERIAL_ECHO_TERNARY(calibration.orientation == TOUCH_LANDSCAPE, "ORIENTATION ", "TOUCH_LANDSCAPE", "TOUCH_PORTRAIT", "\n");
-    TERN_(TOUCH_CALIBRATION_AUTO_SAVE, settings.save());
+    IF_ENABLED(TOUCH_CALIBRATION_AUTO_SAVE, settings.save());
   }
 }
 

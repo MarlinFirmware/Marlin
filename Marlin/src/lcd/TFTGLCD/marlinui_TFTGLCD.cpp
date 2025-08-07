@@ -931,10 +931,10 @@ void MarlinUI::draw_status_screen() {
 
   #else
 
-    TERN_(HAS_COOLER, _draw_cooler_status(blink));
-    TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
-    TERN_(I2C_AMMETER, _draw_ammeter_status());
-    TERN_(HAS_CUTTER, _draw_cutter_status());
+    IF_ENABLED(HAS_COOLER, _draw_cooler_status(blink));
+    IF_ENABLED(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+    IF_ENABLED(I2C_AMMETER, _draw_ammeter_status());
+    IF_ENABLED(HAS_CUTTER, _draw_cutter_status());
 
   #endif
 

@@ -170,20 +170,20 @@ static void _lcd_goto_next_corner() {
   void _lcd_draw_probing() {
     if (!ui.should_draw()) return;
 
-    TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
+    IF_ENABLED(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU)); // Set up the font for extra info
 
     MenuItem_static::draw(0, GET_TEXT_F(MSG_PROBING_POINT), SS_INVERT); // "Probing Mesh" heading
 
     uint8_t cy = TERN(TFT_COLOR_UI, 3, LCD_HEIGHT - 1), y = LCD_ROW_Y(cy);
 
     // Enable font background for DWIN
-    TERN_(IS_DWIN_MARLINUI, dwin_font.solid = true);
+    IF_ENABLED(IS_DWIN_MARLINUI, dwin_font.solid = true);
 
     // Display # of good points found vs total needed
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_GOOD_POINTS));
-      TERN_(TFT_COLOR_UI, lcd_moveto(12, cy));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, cy));
       lcd_put_u8str(GOOD_POINTS_TO_STR(good_points));
       lcd_put_u8str(F("/"));
       lcd_put_u8str(GOOD_POINTS_TO_STR(nr_edge_points));
@@ -196,7 +196,7 @@ static void _lcd_goto_next_corner() {
     if (PAGE_CONTAINS(y - (MENU_FONT_HEIGHT), y)) {
       SETCURSOR(TERN(TFT_COLOR_UI, 2, 0), cy);
       lcd_put_u8str(GET_TEXT_F(MSG_BED_TRAMMING_LAST_Z));
-      TERN_(TFT_COLOR_UI, lcd_moveto(12, 2));
+      IF_ENABLED(TFT_COLOR_UI, lcd_moveto(12, 2));
       lcd_put_u8str(LAST_Z_TO_STR(last_z));
     }
   }
@@ -223,8 +223,8 @@ static void _lcd_goto_next_corner() {
         }
       , []{
           tramming_done = true;
-          TERN_(HAS_LEVELING, ui.goto_previous_screen_no_defer());
-          TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
+          IF_ENABLED(HAS_LEVELING, ui.goto_previous_screen_no_defer());
+          IF_ENABLED(NEEDS_PROBE_DEPLOY, probe.stow(true));
         }
       , GET_TEXT_F(MSG_BED_TRAMMING_IN_RANGE)
     );
@@ -233,14 +233,14 @@ static void _lcd_goto_next_corner() {
   // Probe down and return 'true' if the probe triggered
   bool _lcd_bed_tramming_probe(const bool verify=false) {
     if (verify) line_to_z(current_position.z + (BED_TRAMMING_Z_HOP));                 // Do clearance if needed
-    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy());                   // Deploy in LOW SPEED MODE on every probe action
+    IF_ENABLED(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.deploy());                   // Deploy in LOW SPEED MODE on every probe action
     do_blocking_move_to_z(last_z - BED_TRAMMING_PROBE_TOLERANCE, z_probe_slow_mm_s);  // Move down to lower tolerance
     if (TEST(endstops.trigger_state(), Z_MIN_PROBE)) {                                // Probe triggered?
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       sync_plan_position();
 
-      TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
+      IF_ENABLED(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow()); // Stow in LOW SPEED MODE on every trigger
 
       // Triggered outside tolerance range?
       if (ABS(current_position.z - last_z) > BED_TRAMMING_PROBE_TOLERANCE) {
@@ -268,11 +268,11 @@ static void _lcd_goto_next_corner() {
       probe_triggered = PROBE_TRIGGERED();
       if (probe_triggered) {
         endstops.hit_on_purpose();
-        TERN_(BED_TRAMMING_AUDIO_FEEDBACK, BUZZ(200, 600));
+        IF_ENABLED(BED_TRAMMING_AUDIO_FEEDBACK, BUZZ(200, 600));
       }
       idle();
     }
-    TERN_(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow());
+    IF_ENABLED(BLTOUCH, if (!bltouch.high_speed_mode) bltouch.stow());
     ui.goto_screen(_lcd_draw_probing);
     return (probe_triggered);
   }
@@ -289,7 +289,7 @@ static void _lcd_goto_next_corner() {
 
       _lcd_goto_next_corner();                            // Goto corner
 
-      TERN_(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
+      IF_ENABLED(BLTOUCH, if (bltouch.high_speed_mode) bltouch.deploy()); // Deploy in HIGH SPEED MODE
       if (!_lcd_bed_tramming_probe()) {                   // Probe down to tolerance
         if (_lcd_bed_tramming_raise()) {                  // Prompt user to raise bed if needed
           #if ENABLED(BED_TRAMMING_VERIFY_RAISED)         // Verify
@@ -337,11 +337,11 @@ void _lcd_bed_tramming_homing() {
     if (!tramming_done) _lcd_test_corners(); // May set tramming_done
     if (tramming_done) {
       ui.goto_previous_screen_no_defer();
-      TERN_(NEEDS_PROBE_DEPLOY, probe.stow(true));
+      IF_ENABLED(NEEDS_PROBE_DEPLOY, probe.stow(true));
     }
     tramming_done = true;
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
-    TERN_(BLTOUCH, endstops.enable_z_probe(false));
+    IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
+    IF_ENABLED(BLTOUCH, endstops.enable_z_probe(false));
 
   #else // !BED_TRAMMING_USE_PROBE
 
@@ -352,7 +352,7 @@ void _lcd_bed_tramming_homing() {
         , _lcd_goto_next_corner
         , []{
             line_to_z(BED_TRAMMING_Z_HOP); // Raise Z off the bed when done
-            TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
+            IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));
             ui.goto_previous_screen_no_defer();
           }
         , GET_TEXT_F(TERN(BED_TRAMMING_INCLUDE_CENTER, MSG_LEVEL_BED_NEXT_POINT, MSG_NEXT_CORNER))
@@ -378,7 +378,7 @@ void _lcd_bed_tramming_homing() {
 #endif // NEEDS_PROBE_DEPLOY
 
 void _lcd_bed_tramming() {
-  TERN_(BED_TRAMMING_USE_PROBE, tramming_done = false);
+  IF_ENABLED(BED_TRAMMING_USE_PROBE, tramming_done = false);
   ui.defer_status_screen();
   set_all_unhomed();
   queue.inject(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));

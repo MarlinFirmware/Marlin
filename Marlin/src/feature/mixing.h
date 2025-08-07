@@ -99,8 +99,8 @@ class Mixer {
 
   FORCE_INLINE static void T(const uint_fast8_t c) {
     selected_vtool = c;
-    TERN_(GRADIENT_VTOOL, refresh_gradient());
-    TERN_(HAS_DUAL_MIXING, update_mix_from_vtool());
+    IF_ENABLED(GRADIENT_VTOOL, refresh_gradient());
+    IF_ENABLED(HAS_DUAL_MIXING, update_mix_from_vtool());
   }
 
   // Used when dealing with blocks
@@ -161,7 +161,7 @@ class Mixer {
     // Update the virtual tool from an edited mix
     static void update_vtool_from_mix() {
       copy_mix_to_color(color[selected_vtool]);
-      TERN_(GRADIENT_MIX, refresh_gradient());
+      IF_ENABLED(GRADIENT_MIX, refresh_gradient());
       // MIXER_STEPPER_LOOP(i) collector[i] = mix[i];
       // normalize();
     }

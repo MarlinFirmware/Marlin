@@ -38,7 +38,7 @@
    *    L<float>    - Volumetric extruder limit (in mm^3/sec). L0 disables the limit.
    */
   void GcodeSuite::M200() {
-    if (!parser.seen("DST" TERN_(VOLUMETRIC_EXTRUDER_LIMIT, "L")))
+    if (!parser.seen("DST" IF_ENABLED(VOLUMETRIC_EXTRUDER_LIMIT, "L")))
       return M200_report();
 
     const int8_t target_extruder = get_target_extruder_from_command();
@@ -75,7 +75,7 @@
   }
 
   void GcodeSuite::M200_report(const bool forReplay/*=true*/) {
-    TERN_(MARLIN_SMALL_BUILD, return);
+    IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
     if (!forReplay) {
       report_heading(false, F(STR_FILAMENT_SETTINGS), false);
@@ -149,7 +149,7 @@ void GcodeSuite::M201() {
 }
 
 void GcodeSuite::M201_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_MAX_ACCELERATION));
 
@@ -216,7 +216,7 @@ void GcodeSuite::M203() {
 }
 
 void GcodeSuite::M203_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_MAX_FEEDRATES));
 
@@ -278,7 +278,7 @@ void GcodeSuite::M204() {
 }
 
 void GcodeSuite::M204_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_ACCELERATION_P_R_T));
   SERIAL_ECHOLNPGM_P(
@@ -326,7 +326,7 @@ void GcodeSuite::M205() {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
-        TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
+        IF_ENABLED(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
       }
       else
         SERIAL_ERROR_MSG("?J out of range (0.01 to 0.3)");
@@ -354,11 +354,11 @@ void GcodeSuite::M205() {
 }
 
 void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(
     "Advanced (" M205_MIN_SEG_TIME_STR "<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>"
-    TERN_(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
+    IF_ENABLED(HAS_JUNCTION_DEVIATION, " J<junc_dev>")
     #if ENABLED(CLASSIC_JERK)
       NUM_AXIS_GANG(
         " X<max_jerk>", " Y<max_jerk>", " Z<max_jerk>",
@@ -366,7 +366,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
         " " STR_U "<max_jerk>", " " STR_V "<max_jerk>", " " STR_W "<max_jerk>"
       )
     #endif
-    TERN_(HAS_CLASSIC_E_JERK, " E<max_jerk>")
+    IF_ENABLED(HAS_CLASSIC_E_JERK, " E<max_jerk>")
     ")"
   ));
   SERIAL_ECHOLNPGM_P(

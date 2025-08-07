@@ -75,7 +75,7 @@ void Plot::update(const_celsius_float_t value) {
   }
   data.yP = y;
   data.graphpoints++;
-  TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+  IF_ENABLED(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
 }
 
 #endif // PROUI_TUNING_GRAPH

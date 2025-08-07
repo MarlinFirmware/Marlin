@@ -78,9 +78,9 @@ class ProbeTempComp {
     static uint8_t get_index() { return calib_idx; }
     static void reset();
     static void clear_all_offsets() {
-      TERN_(PTC_PROBE, clear_offsets(TSI_PROBE));
-      TERN_(PTC_BED, clear_offsets(TSI_BED));
-      TERN_(PTC_HOTEND, clear_offsets(TSI_EXT));
+      IF_ENABLED(PTC_PROBE, clear_offsets(TSI_PROBE));
+      IF_ENABLED(PTC_BED, clear_offsets(TSI_BED));
+      IF_ENABLED(PTC_HOTEND, clear_offsets(TSI_EXT));
     }
     static bool set_offset(const TempSensorID tsi, const uint8_t idx, const int16_t offset);
     static void print_offsets();

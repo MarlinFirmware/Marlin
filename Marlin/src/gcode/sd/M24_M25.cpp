@@ -77,14 +77,14 @@ void GcodeSuite::M24() {
   if (card.isFileOpen()) {
     card.startOrResumeFilePrinting(); // SD card will now be read for commands
     startOrResumeJob();               // Start (or resume) the print job timer
-    TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+    IF_ENABLED(POWER_LOSS_RECOVERY, recovery.prepare());
   }
 
   #if ENABLED(HOST_ACTION_COMMANDS)
     #ifdef ACTION_ON_RESUME
       hostui.resume();
     #endif
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming SD"), FPSTR(DISMISS_STR)));
+    IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming SD"), FPSTR(DISMISS_STR)));
   #endif
 
   ui.reset_status();
@@ -114,12 +114,12 @@ void GcodeSuite::M25() {
 
     print_job_timer.pause();
 
-    TERN_(DGUS_LCD_UI_MKS, MKS_pause_print_move());
+    IF_ENABLED(DGUS_LCD_UI_MKS, MKS_pause_print_move());
 
     IF_DISABLED(DWIN_CREALITY_LCD, ui.reset_status());
 
     #if ENABLED(HOST_ACTION_COMMANDS)
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("Pause SD"), F("Resume")));
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("Pause SD"), F("Resume")));
       #ifdef ACTION_ON_PAUSE
         hostui.pause();
       #endif

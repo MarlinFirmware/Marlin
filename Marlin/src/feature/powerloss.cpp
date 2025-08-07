@@ -119,7 +119,7 @@ void PrintJobRecovery::changed() {
     purge();
   else if (card.isStillPrinting())
     save(true);
-  TERN_(EXTENSIBLE_UI, ExtUI::onSetPowerLoss(enabled));
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onSetPowerLoss(enabled));
 }
 
 /**
@@ -215,10 +215,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     info.zraise = zraise;
     info.flag.raised = raised;                      // Was Z raised before power-off?
 
-    TERN_(CANCEL_OBJECTS, info.cancel_state = cancelable.state);
-    TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
-    TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
-    TERN_(HAS_WORKSPACE_OFFSET, info.workspace_offset = workspace_offset);
+    IF_ENABLED(CANCEL_OBJECTS, info.cancel_state = cancelable.state);
+    IF_ENABLED(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
+    IF_ENABLED(HAS_HOME_OFFSET, info.home_offset = home_offset);
+    IF_ENABLED(HAS_WORKSPACE_OFFSET, info.workspace_offset = workspace_offset);
     E_TERN_(info.active_extruder = active_extruder);
 
     #if DISABLED(NO_VOLUMETRICS)
@@ -234,18 +234,18 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
       HOTEND_LOOP() info.target_temperature[e] = thermalManager.degTargetHotend(e);
     #endif
 
-    TERN_(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
+    IF_ENABLED(HAS_HEATED_BED, info.target_temperature_bed = thermalManager.degTargetBed());
 
-    TERN_(HAS_HEATED_CHAMBER, info.target_temperature_chamber = thermalManager.degTargetChamber());
+    IF_ENABLED(HAS_HEATED_CHAMBER, info.target_temperature_chamber = thermalManager.degTargetChamber());
 
-    TERN_(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
+    IF_ENABLED(HAS_FAN, COPY(info.fan_speed, thermalManager.fan_speed));
 
     #if HAS_LEVELING
       info.flag.leveling = planner.leveling_active;
       info.fade = TERN0(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height);
     #endif
 
-    TERN_(GRADIENT_MIX, memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient)));
+    IF_ENABLED(GRADIENT_MIX, memcpy(&info.gradient, &mixer.gradient, sizeof(info.gradient)));
 
     #if ENABLED(FWRETRACT)
       COPY(info.retract, fwretract.current_retract);
@@ -310,7 +310,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
    *  - If backup power is available Retract E and Raise Z
    *  - Go to the KILL screen
    */
-  void PrintJobRecovery::_outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated/*=false*/)) {
+  void PrintJobRecovery::_outage(IF_ENABLED(DEBUG_POWER_LOSS_RECOVERY, const bool simulated/*=false*/)) {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
       if (lock) return; // No re-entrance from idle() during retract_and_lift()
@@ -329,7 +329,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
     if (card.isStillPrinting()) save(true, zraise, ENABLED(BACKUP_POWER_SUPPLY));
 
     // Tell the LCD about the outage, even though it is about to die
-    TERN_(EXTENSIBLE_UI, ExtUI::onPowerLoss());
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPowerLoss());
 
     // Disable all heaters to reduce power loss
     thermalManager.disable_all_heaters();
@@ -389,7 +389,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore cold extrusion permission
-  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude = info.flag.allow_cold_extrusion);
+  IF_ENABLED(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude = info.flag.allow_cold_extrusion);
 
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
@@ -413,7 +413,7 @@ void PrintJobRecovery::resume() {
     HOTEND_LOOP() {
       const celsius_t et = _MAX(info.target_temperature[e], 180);
       if (et) {
-        TERN_(HAS_MULTI_HOTEND, PROCESS_SUBCOMMANDS_NOW(TS('T', e, 'S')));
+        IF_ENABLED(HAS_MULTI_HOTEND, PROCESS_SUBCOMMANDS_NOW(TS('T', e, 'S')));
         PROCESS_SUBCOMMANDS_NOW(TS(F("M109S"), et));
       }
     }
@@ -470,7 +470,7 @@ void PrintJobRecovery::resume() {
 
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
-    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(HOMING_Z_WITH_PROBE, - probe.offset_xy);
+    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) IF_ENABLED(HOMING_Z_WITH_PROBE, - probe.offset_xy);
     PROCESS_SUBCOMMANDS_NOW(TS(F("G1F1000X"), p_float_t(p.x, 3), 'Y', p_float_t(p.y, 3), F("\nG28HZ")));
   #endif
 
@@ -513,7 +513,7 @@ void PrintJobRecovery::resume() {
     HOTEND_LOOP() {
       const celsius_t et = info.target_temperature[e];
       if (et) {
-        TERN_(HAS_MULTI_HOTEND, PROCESS_SUBCOMMANDS_NOW(TS('T', e, 'S')));
+        IF_ENABLED(HAS_MULTI_HOTEND, PROCESS_SUBCOMMANDS_NOW(TS('T', e, 'S')));
         PROCESS_SUBCOMMANDS_NOW(TS(F("M109S"), et));
       }
     }
@@ -584,9 +584,9 @@ void PrintJobRecovery::resume() {
     cancelable.set_active_object(); // Sets the status message
   #endif
 
-  TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
-  TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
-  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset = info.workspace_offset);
+  IF_ENABLED(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
+  IF_ENABLED(HAS_HOME_OFFSET, home_offset = info.home_offset);
+  IF_ENABLED(HAS_WORKSPACE_OFFSET, workspace_offset = info.workspace_offset);
 
   // Relative axis modes
   gcode.axis_relative = info.axis_relative;

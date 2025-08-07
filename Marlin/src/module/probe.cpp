@@ -168,8 +168,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
       LCD_MESSAGE(MSG_MANUAL_DEPLOY_TOUCHMI);
       ui.return_to_status();
 
-      TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("Deploy TouchMI")));
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("Deploy TouchMI")));
+      IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user_response());
       ui.reset_status();
       ui.goto_screen(prev_screen);
 
@@ -348,9 +348,9 @@ xyz_pos_t Probe::offset; // Initialized by settings.load
   #endif
 
   void Probe::set_probing_paused(const bool dopause) {
-    TERN_(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
-    TERN_(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
-    TERN_(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
+    IF_ENABLED(PROBING_HEATERS_OFF, thermalManager.pause_heaters(dopause));
+    IF_ENABLED(PROBING_FANS_OFF, thermalManager.set_fans_paused(dopause));
+    IF_ENABLED(PROBING_ESTEPPERS_OFF, if (dopause) stepper.disable_e_steppers());
     #if ENABLED(PROBING_STEPPERS_OFF) && DISABLED(DELTA)
       static uint8_t old_trusted;
       if (dopause) {
@@ -374,7 +374,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
 
     // Start preheating before waiting for user confirmation that the probe is ready.
-    TERN_(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(0, PROBING_BED_TEMP, true));
+    IF_ENABLED(PREHEAT_BEFORE_PROBING, if (deploy) probe.preheat_for_probing(0, PROBING_BED_TEMP, true));
 
     FSTR_P const ds_fstr = deploy ? GET_TEXT_F(MSG_MANUAL_DEPLOY) : GET_TEXT_F(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
@@ -388,20 +388,20 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
       // Wait for the probe to be attached or detached before asking for explicit user confirmation
       // Allow the user to interrupt
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = true);
+      IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user = true);
       while (deploy == PROBE_TRIGGERED() && TERN1(HAS_RESUME_CONTINUE, wait_for_user)) idle_no_sleep();
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
+      IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user = false);
       OKAY_BUZZ();
     }
     #endif
 
-    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
+    IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.continue_prompt(ds_fstr));
     #if ENABLED(DWIN_LCD_PROUI)
       ExtUI::onUserConfirmRequired(ICON_BLTouch, ds_fstr, FPSTR(CONTINUE_STR));
     #elif ENABLED(EXTENSIBLE_UI)
       ExtUI::onUserConfirmRequired(ds_fstr);
     #endif
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user_response());
 
     ui.reset_alert_level();
     //ui.reset_status();
@@ -505,8 +505,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     DEBUG_EOL();
 
     if (!early) {
-      TERN_(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
-      TERN_(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
+      IF_ENABLED(WAIT_FOR_NOZZLE_HEAT, if (hotend_temp > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) thermalManager.wait_for_hotend(0));
+      IF_ENABLED(WAIT_FOR_BED_HEAT,    if (bed_temp    > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) thermalManager.wait_for_bed_heating());
     }
   }
 
@@ -556,7 +556,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
   }
 
   #if ANY(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    if (homing_needed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
+    if (homing_needed_error(IF_ENABLED(Z_PROBE_SLED, _BV(X_AXIS)))) {
       probe_error_stop();
       return true;
     }
@@ -590,7 +590,7 @@ bool Probe::set_deployed(const bool deploy, const bool no_return/*=false*/) {
 
   // If preheating is required before any probing...
   // TODO: Consider skipping this for things like M401, G34, etc.
-  TERN_(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
+  IF_ENABLED(PREHEAT_BEFORE_PROBING, if (deploy) preheat_for_probing(PROBING_NOZZLE_TEMP, PROBING_BED_TEMP));
 
   if (!no_return) do_blocking_move_to(old_xy); // Return to the original location unless handled externally
 
@@ -654,12 +654,12 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
+    IF_ENABLED(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
 
     endstops.enable(true);
   #endif // SENSORLESS_PROBING
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(true));
+  IF_ENABLED(HAS_QUIET_PROBING, set_probing_paused(true));
 
   // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
@@ -678,7 +678,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
     if (probe_triggered) refresh_largest_sensorless_adj();
   #endif
 
-  TERN_(HAS_QUIET_PROBING, set_probing_paused(false));
+  IF_ENABLED(HAS_QUIET_PROBING, set_probing_paused(false));
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
@@ -699,7 +699,7 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
         #endif
       #endif
     }
-    TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
+    IF_ENABLED(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   #endif // SENSORLESS_PROBING
 
   #if ENABLED(BLTOUCH)
@@ -858,7 +858,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Slow Probe:");
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, z_probe_slow_mm_s, sanity_check)) return NAN;
 
-      TERN_(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
+      IF_ENABLED(MEASURE_BACKLASH_WHEN_PROBING, backlash.measure_with_probe());
 
       const float z = DIFF_TERN(HAS_DELTA_SENSORLESS_PROBING, current_position.z, largest_sensorless_adj);
 
@@ -1012,7 +1012,7 @@ float Probe::probe_at_point(
   do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   // Change Z motor current to homing current
-  TERN_(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
+  IF_ENABLED(PROBING_USE_CURRENT_HOME, set_homing_current(Z_AXIS));
 
   float measured_z;
 
@@ -1063,8 +1063,8 @@ float Probe::probe_at_point(
       #endif
     }
     else {
-      TERN_(HAS_PTC, ptc.apply_compensation(measured_z));
-      TERN_(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
+      IF_ENABLED(HAS_PTC, ptc.apply_compensation(measured_z));
+      IF_ENABLED(X_AXIS_TWIST_COMPENSATION, measured_z += xatc.compensation(npos + offset_xy));
       if (verbose_level > 2 || DEBUGGING(LEVELING))
         SERIAL_ECHOLNPGM("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
     }
@@ -1072,7 +1072,7 @@ float Probe::probe_at_point(
   #endif // !BD_SENSOR
 
   // Restore the Z homing current
-  TERN_(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
+  IF_ENABLED(PROBING_USE_CURRENT_HOME, restore_homing_current(Z_AXIS));
 
   return measured_z;
 }
@@ -1090,7 +1090,7 @@ float Probe::probe_at_point(
      */
     STOW_Z_SERVO();
 
-    TERN_(Z_SERVO_DEACTIVATE_AFTER_STOW, servo[Z_PROBE_SERVO_NR].detach());
+    IF_ENABLED(Z_SERVO_DEACTIVATE_AFTER_STOW, servo[Z_PROBE_SERVO_NR].detach());
   }
 
 #endif // HAS_Z_SERVO_PROBE

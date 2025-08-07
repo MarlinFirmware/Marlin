@@ -261,13 +261,13 @@ Planner::Planner() { init(); }
 
 void Planner::init() {
   position.reset();
-  TERN_(HAS_POSITION_FLOAT, position_float.reset());
-  TERN_(IS_KINEMATIC, position_cart.reset());
+  IF_ENABLED(HAS_POSITION_FLOAT, position_float.reset());
+  IF_ENABLED(IS_KINEMATIC, position_cart.reset());
 
   previous_speed.reset();
   previous_nominal_speed = 0;
 
-  TERN_(ABL_PLANAR, bed_level_matrix.set_to_identity());
+  IF_ENABLED(ABL_PLANAR, bed_level_matrix.set_to_identity());
 
   clear_block_buffer();
   delay_before_delivering = 0;
@@ -763,7 +763,7 @@ block_t* Planner::get_current_block() {
     if (block->flag.recalculate) return nullptr;
 
     // We can't be sure how long an active block will take, so don't count it.
-    TERN_(HAS_WIRED_LCD, block_buffer_runtime_us -= block->segment_time_us);
+    IF_ENABLED(HAS_WIRED_LCD, block_buffer_runtime_us -= block->segment_time_us);
 
     // As this block is busy, advance the nonbusy block pointer
     block_buffer_nonbusy = next_block_index(block_buffer_tail);
@@ -773,7 +773,7 @@ block_t* Planner::get_current_block() {
   }
 
   // The queue became empty
-  TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+  IF_ENABLED(HAS_WIRED_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
 
   return nullptr;
 }
@@ -1203,10 +1203,10 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
     #define FAN_SET(F) do{ kickstart_fan(fan_speed, ms, F); _FAN_SET(F); }while(0)
 
     const millis_t ms = millis();
-    TERN_(HAS_FAN0, FAN_SET(0)); TERN_(HAS_FAN1, FAN_SET(1));
-    TERN_(HAS_FAN2, FAN_SET(2)); TERN_(HAS_FAN3, FAN_SET(3));
-    TERN_(HAS_FAN4, FAN_SET(4)); TERN_(HAS_FAN5, FAN_SET(5));
-    TERN_(HAS_FAN6, FAN_SET(6)); TERN_(HAS_FAN7, FAN_SET(7));
+    IF_ENABLED(HAS_FAN0, FAN_SET(0)); IF_ENABLED(HAS_FAN1, FAN_SET(1));
+    IF_ENABLED(HAS_FAN2, FAN_SET(2)); IF_ENABLED(HAS_FAN3, FAN_SET(3));
+    IF_ENABLED(HAS_FAN4, FAN_SET(4)); IF_ENABLED(HAS_FAN5, FAN_SET(5));
+    IF_ENABLED(HAS_FAN6, FAN_SET(6)); IF_ENABLED(HAS_FAN7, FAN_SET(7));
   }
 
   #if FAN_KICKSTART_TIME
@@ -1219,14 +1219,14 @@ void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
       if (fan_speed[f] > FAN_OFF_PWM) {
         const bool first_kick = fan_kick_end[f] == 0 && TERN1(FAN_KICKSTART_LINEAR, fan_speed[f] > set_fan_speed[f]);
         if (first_kick)
-          fan_kick_end[f] = ms + (FAN_KICKSTART_TIME) TERN_(FAN_KICKSTART_LINEAR, * (fan_speed[f] - set_fan_speed[f]) / 255);
+          fan_kick_end[f] = ms + (FAN_KICKSTART_TIME) IF_ENABLED(FAN_KICKSTART_LINEAR, * (fan_speed[f] - set_fan_speed[f]) / 255);
         if (first_kick || PENDING(ms, fan_kick_end[f])) {
           fan_speed[f] = FAN_KICKSTART_POWER;
           return;
         }
       }
       fan_kick_end[f] = 0;
-      TERN_(FAN_KICKSTART_LINEAR, set_fan_speed[f] = fan_speed[f]);
+      IF_ENABLED(FAN_KICKSTART_LINEAR, set_fan_speed[f] = fan_speed[f]);
     }
 
   #endif
@@ -1274,8 +1274,8 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(BARICUDA)
-      TERN_(HAS_HEATER_1, tail_valve_pressure = block->valve_pressure);
-      TERN_(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
+      IF_ENABLED(HAS_HEATER_1, tail_valve_pressure = block->valve_pressure);
+      IF_ENABLED(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
     #endif
 
     #if HAS_DISABLE_AXES
@@ -1298,7 +1298,7 @@ void Planner::check_axes_activity() {
   }
   else {
 
-    TERN_(HAS_CUTTER, if (cutter.cutter_mode == CUTTER_MODE_STANDARD) cutter.refresh());
+    IF_ENABLED(HAS_CUTTER, if (cutter.cutter_mode == CUTTER_MODE_STANDARD) cutter.refresh());
 
     #if HAS_TAIL_FAN_SPEED
       FANS_LOOP(i) {
@@ -1311,8 +1311,8 @@ void Planner::check_axes_activity() {
     #endif
 
     #if ENABLED(BARICUDA)
-      TERN_(HAS_HEATER_1, tail_valve_pressure = baricuda_valve_pressure);
-      TERN_(HAS_HEATER_2, tail_e_to_p_pressure = baricuda_e_to_p_pressure);
+      IF_ENABLED(HAS_HEATER_1, tail_valve_pressure = baricuda_valve_pressure);
+      IF_ENABLED(HAS_HEATER_2, tail_e_to_p_pressure = baricuda_e_to_p_pressure);
     #endif
   }
 
@@ -1338,13 +1338,13 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
+  IF_ENABLED(HAS_TAIL_FAN_SPEED, if (fans_need_update) sync_fan_speeds(tail_fan_speed));
 
-  TERN_(AUTOTEMP, autotemp_task());
+  IF_ENABLED(AUTOTEMP, autotemp_task());
 
   #if ENABLED(BARICUDA)
-    TERN_(HAS_HEATER_1, hal.set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
-    TERN_(HAS_HEATER_2, hal.set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
+    IF_ENABLED(HAS_HEATER_1, hal.set_pwm_duty(pin_t(HEATER_1_PIN), tail_valve_pressure));
+    IF_ENABLED(HAS_HEATER_2, hal.set_pwm_duty(pin_t(HEATER_2_PIN), tail_e_to_p_pressure));
   #endif
 }
 
@@ -1495,8 +1495,8 @@ void Planner::check_axes_activity() {
     else {
       settings.max_acceleration_mm_per_s2[X_AXIS] = saved_motion_state.acceleration.x;
       settings.max_acceleration_mm_per_s2[Y_AXIS] = saved_motion_state.acceleration.y;
-      TERN_(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
-      TERN_(CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
+      IF_ENABLED(DELTA, settings.max_acceleration_mm_per_s2[Z_AXIS] = saved_motion_state.acceleration.z);
+      IF_ENABLED(CLASSIC_JERK, max_jerk = saved_motion_state.jerk_state);
     }
     refresh_acceleration_rates();
   }
@@ -1534,7 +1534,7 @@ void Planner::check_axes_activity() {
         raw.z += bedlevel.get_z_correction(raw);
       #endif
 
-      TERN_(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
+      IF_ENABLED(MESH_BED_LEVELING, raw.z += bedlevel.get_z_offset());
 
     #endif
   }
@@ -1611,7 +1611,7 @@ void Planner::quick_stop() {
 
   delay_before_delivering = TERN0(FT_MOTION, ftMotion.cfg.active) ? BLOCK_DELAY_NONE : BLOCK_DELAY_FOR_1ST_MOVE;
 
-  TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
+  IF_ENABLED(HAS_WIRED_LCD, clear_block_buffer_runtime()); // Clear the accumulated runtime
 
   // Make sure to drop any attempt of queuing moves for 1 second
   cleaning_buffer_counter = TEMP_TIMER_FREQUENCY;
@@ -1630,12 +1630,12 @@ void Planner::quick_stop() {
     // Don't empty buffers or queues
     const bool did_suspend = stepper.suspend();
     if (did_suspend)
-      TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+      IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
   }
 
   // Resume if suspended
   void Planner::quick_resume() {
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(grbl_state_for_marlin_state()));
+    IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(grbl_state_for_marlin_state()));
     stepper.wake_up();
   }
 
@@ -1710,7 +1710,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
   #else
 
     axis_steps = stepper.position(axis);
-    TERN_(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
+    IF_ENABLED(BACKLASH_COMPENSATION, axis_steps -= backlash.get_applied_steps(axis));
 
   #endif
 
@@ -1856,7 +1856,7 @@ bool Planner::_populate_block(
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
           position.e = target.e; // Behave as if the move really took place, but ignore E part
-          TERN_(HAS_POSITION_FLOAT, position_float.e = target_float.e);
+          IF_ENABLED(HAS_POSITION_FLOAT, position_float.e = target_float.e);
           dist.e = 0; // no difference
           SERIAL_ECHO_MSG(STR_ERR_COLD_EXTRUDE_STOP);
         }
@@ -1876,7 +1876,7 @@ bool Planner::_populate_block(
           #endif
           if (ignore_e) {
             position.e = target.e; // Behave as if the move really took place, but ignore E part
-            TERN_(HAS_POSITION_FLOAT, position_float.e = target_float.e);
+            IF_ENABLED(HAS_POSITION_FLOAT, position_float.e = target_float.e);
             dist.e = 0; // no difference
             SERIAL_ECHO_MSG(STR_ERR_LONG_EXTRUDE_STOP);
           }
@@ -1899,7 +1899,7 @@ bool Planner::_populate_block(
   #if CORE_IS_XY
     dm.a  = (dist.a + dist.b > 0);              // Motor A direction
     dm.b  = (CORESIGN(dist.a - dist.b) > 0);    // Motor B direction
-    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
+    IF_ENABLED(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #elif CORE_IS_XZ
     dm.a  = (dist.a + dist.c > 0);              // Motor A direction
     dm.y  = (dist.b > 0);                       // Axis  Y direction
@@ -1911,11 +1911,11 @@ bool Planner::_populate_block(
   #elif ENABLED(MARKFORGED_XY)
     dm.a = (dist.a TERN(MARKFORGED_INVERSE, -, +) dist.b > 0); // Motor A direction
     dm.b = (dist.b > 0);                        // Motor B direction
-    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
+    IF_ENABLED(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #elif ENABLED(MARKFORGED_YX)
     dm.a = (dist.a > 0);                        // Motor A direction
     dm.b = (dist.b TERN(MARKFORGED_INVERSE, -, +) dist.a > 0); // Motor B direction
-    TERN_(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
+    IF_ENABLED(HAS_Z_AXIS, dm.z = (dist.c > 0));     // Axis  Z direction
   #else
     XYZ_CODE(
       dm.x = (dist.a > 0),
@@ -2011,7 +2011,7 @@ bool Planner::_populate_block(
   #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
     dist_mm.head.x = dist.a * mm_per_step[A_AXIS];
     dist_mm.head.y = dist.b * mm_per_step[B_AXIS];
-    TERN_(HAS_Z_AXIS, dist_mm.z = dist.c * mm_per_step[Z_AXIS]);
+    IF_ENABLED(HAS_Z_AXIS, dist_mm.z = dist.c * mm_per_step[Z_AXIS]);
   #endif
   #if CORE_IS_XY
     dist_mm.a      = (dist.a + dist.b) * mm_per_step[A_AXIS];
@@ -2047,9 +2047,9 @@ bool Planner::_populate_block(
     dist_mm.u = dist.u * mm_per_step[U_AXIS], dist_mm.v = dist.v * mm_per_step[V_AXIS], dist_mm.w = dist.w * mm_per_step[W_AXIS]
   );
 
-  TERN_(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
+  IF_ENABLED(HAS_EXTRUDERS, dist_mm.e = esteps_float * mm_per_step[E_AXIS_N(extruder)]);
 
-  TERN_(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
+  IF_ENABLED(LCD_SHOW_E_TOTAL, e_move_accumulator += dist_mm.e);
 
   #if HAS_ROTATIONAL_AXES
     bool cartesian_move = hints.cartesian_move;
@@ -2094,10 +2094,10 @@ bool Planner::_populate_block(
      * A correction function is permitted to add steps to an axis, it
      * should *never* remove steps!
      */
-    TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist, dm, block));
+    IF_ENABLED(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist, dm, block));
   }
 
-  TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
+  IF_ENABLED(HAS_EXTRUDERS, block->steps.e = esteps);
 
   block->step_event_count = (
     #if NUM_AXES
@@ -2114,7 +2114,7 @@ bool Planner::_populate_block(
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  TERN_(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
+  IF_ENABLED(MIXING_EXTRUDER, mixer.populate_block(block->b_color));
 
   #if HAS_FAN
     FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
@@ -2180,7 +2180,7 @@ bool Planner::_populate_block(
   // Enable extruder(s)
   #if HAS_EXTRUDERS
     if (esteps) {
-      TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+      IF_ENABLED(AUTO_POWER_CONTROL, powerManager.power_on());
 
       #if ENABLED(DISABLE_OTHER_EXTRUDERS) // Enable only the selected extruder
 
@@ -2592,7 +2592,7 @@ bool Planner::_populate_block(
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec);
 
         if (TERN0(HINTS_CURVE_RADIUS, hints.curve_radius)) {
-          TERN_(HINTS_CURVE_RADIUS, vmax_junction_sqr = junction_acceleration * hints.curve_radius);
+          IF_ENABLED(HINTS_CURVE_RADIUS, vmax_junction_sqr = junction_acceleration * hints.curve_radius);
         }
         else {
           NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
@@ -2795,8 +2795,8 @@ bool Planner::_populate_block(
     block->start_position = position_float.asLogical();
   #endif
 
-  TERN_(HAS_POSITION_FLOAT, position_float = target_float);
-  TERN_(GRADIENT_MIX, mixer.gradient_control(target_float.z));
+  IF_ENABLED(HAS_POSITION_FLOAT, position_float = target_float);
+  IF_ENABLED(GRADIENT_MIX, mixer.gradient_control(target_float.z));
 
   return true;        // Movement was accepted
 
@@ -2832,7 +2832,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
    * M3-based power setting can be processed inline with a laser power sync block.
    * During active moves cutter.power is processed immediately, otherwise on the next move.
    */
-  TERN_(LASER_POWER_SYNC, block->laser.power = cutter.power);
+  IF_ENABLED(LASER_POWER_SYNC, block->laser.power = cutter.power);
 
   // If this is the first added movement, reload the delay, otherwise, cancel it.
   if (block_buffer_head == block_buffer_tail) {
@@ -2905,7 +2905,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
     // DRYRUN prevents E moves from taking place
     if (DEBUGGING(DRYRUN) || TERN0(CANCEL_OBJECTS, cancelable.state.skipping)) {
       position.e = target.e;
-      TERN_(HAS_POSITION_FLOAT, position_float.e = abce.e);
+      IF_ENABLED(HAS_POSITION_FLOAT, position_float.e = abce.e);
     }
   #endif
 
@@ -2994,7 +2994,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
   xyze_pos_t machine = cart;
-  TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
+  IF_ENABLED(HAS_POSITION_MODIFIERS, apply_modifiers(machine));
 
   #if IS_KINEMATIC
 
@@ -3076,7 +3076,7 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
 
     #endif // POLAR && FEEDRATE_SCALING
 
-    TERN_(HAS_EXTRUDERS, delta.e = machine.e);
+    IF_ENABLED(HAS_EXTRUDERS, delta.e = machine.e);
     if (buffer_segment(delta OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), feedrate, extruder, ph)) {
       position_cart = cart;
       return true;
@@ -3156,8 +3156,8 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
   // When FT Motion is enabled, call synchronize() here instead of generating a sync block
   if (TERN0(FT_MOTION, ftMotion.cfg.active)) synchronize();
 
-  TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
-  TERN_(HAS_POSITION_FLOAT, position_float = abce);
+  IF_ENABLED(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+  IF_ENABLED(HAS_POSITION_FLOAT, position_float = abce);
   position.set(
     LOGICAL_AXIS_LIST(
       LROUND(abce.e * settings.axis_steps_per_mm[E_AXIS_N(active_extruder)]),
@@ -3199,11 +3199,11 @@ void Planner::set_machine_position_mm(const abce_pos_t &abce) {
  */
 void Planner::set_position_mm(const xyze_pos_t &xyze) {
   xyze_pos_t machine = xyze;
-  TERN_(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
+  IF_ENABLED(HAS_POSITION_MODIFIERS, apply_modifiers(machine, true));
   #if IS_KINEMATIC
     position_cart = xyze;
     inverse_kinematics(machine);
-    TERN_(HAS_EXTRUDERS, delta.e = machine.e);
+    IF_ENABLED(HAS_EXTRUDERS, delta.e = machine.e);
     set_machine_position_mm(delta);
   #else
     set_machine_position_mm(machine);
@@ -3217,13 +3217,13 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
    */
   void Planner::set_e_position_mm(const_float_t e) {
     const uint8_t axis_index = E_AXIS_N(active_extruder);
-    TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
+    IF_ENABLED(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
     // Unapply the current retraction before (immediately) setting the planner position
     const float e_new = DIFF_TERN(FWRETRACT, e, fwretract.current_retract[active_extruder]);
     position.e = LROUND(settings.axis_steps_per_mm[axis_index] * e_new);
-    TERN_(HAS_POSITION_FLOAT, position_float.e = e_new);
-    TERN_(IS_KINEMATIC, TERN_(HAS_EXTRUDERS, position_cart.e = e));
+    IF_ENABLED(HAS_POSITION_FLOAT, position_float.e = e_new);
+    IF_ENABLED(IS_KINEMATIC, IF_ENABLED(HAS_EXTRUDERS, position_cart.e = e));
 
     if (has_blocks_queued())
       buffer_sync_block(BLOCK_BIT_SYNC_POSITION);
@@ -3244,7 +3244,7 @@ void Planner::refresh_acceleration_rates() {
       NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   acceleration_long_cutoff = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  TERN_(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
+  IF_ENABLED(HAS_LINEAR_E_JERK, recalculate_max_e_jerk());
 }
 
 /**
@@ -3265,7 +3265,7 @@ void Planner::refresh_positioning() {
 
 // Apply limits to a variable and give a warning if the value was out of range
 inline void limit_and_warn(float &val, const AxisEnum axis, FSTR_P const setting_name, const xyze_float_t &max_limit) {
-  const uint8_t lim_axis = TERN_(HAS_EXTRUDERS, axis > E_AXIS ? E_AXIS :) axis;
+  const uint8_t lim_axis = IF_ENABLED(HAS_EXTRUDERS, axis > E_AXIS ? E_AXIS :) axis;
   const float before = val;
   LIMIT(val, 0.1f, max_limit[lim_axis]);
   if (before != val)

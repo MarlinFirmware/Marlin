@@ -168,9 +168,9 @@ constexpr ena_mask_t enable_overlap[] = {
   typedef hal_timer_t shaping_time_t;
   enum shaping_echo_t { ECHO_NONE = 0, ECHO_FWD = 1, ECHO_BWD = 2 };
   struct shaping_echo_axis_t {
-    TERN_(INPUT_SHAPING_X, shaping_echo_t x:2);
-    TERN_(INPUT_SHAPING_Y, shaping_echo_t y:2);
-    TERN_(INPUT_SHAPING_Z, shaping_echo_t z:2);
+    IF_ENABLED(INPUT_SHAPING_X, shaping_echo_t x:2);
+    IF_ENABLED(INPUT_SHAPING_Y, shaping_echo_t y:2);
+    IF_ENABLED(INPUT_SHAPING_Z, shaping_echo_t z:2);
   };
 
   class ShapingQueue {
@@ -186,21 +186,21 @@ constexpr ena_mask_t enable_overlap[] = {
         static uint16_t head_##AXIS;                                                            \
         static uint16_t _free_count_##AXIS;
 
-      TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_AXIS_VARS(x))
-      TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_AXIS_VARS(y))
-      TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_AXIS_VARS(z))
+      IF_ENABLED(INPUT_SHAPING_X, SHAPING_QUEUE_AXIS_VARS(x))
+      IF_ENABLED(INPUT_SHAPING_Y, SHAPING_QUEUE_AXIS_VARS(y))
+      IF_ENABLED(INPUT_SHAPING_Z, SHAPING_QUEUE_AXIS_VARS(z))
 
     public:
       static void decrement_delays(const shaping_time_t interval) {
         now += interval;
-        TERN_(INPUT_SHAPING_X, if (_peek_x != shaping_time_t(-1)) _peek_x -= interval);
-        TERN_(INPUT_SHAPING_Y, if (_peek_y != shaping_time_t(-1)) _peek_y -= interval);
-        TERN_(INPUT_SHAPING_Z, if (_peek_z != shaping_time_t(-1)) _peek_z -= interval);
+        IF_ENABLED(INPUT_SHAPING_X, if (_peek_x != shaping_time_t(-1)) _peek_x -= interval);
+        IF_ENABLED(INPUT_SHAPING_Y, if (_peek_y != shaping_time_t(-1)) _peek_y -= interval);
+        IF_ENABLED(INPUT_SHAPING_Z, if (_peek_z != shaping_time_t(-1)) _peek_z -= interval);
       }
       static void set_delay(const AxisEnum axis, const shaping_time_t delay) {
-        TERN_(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
-        TERN_(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
-        TERN_(INPUT_SHAPING_Z, if (axis == Z_AXIS) delay_z = delay);
+        IF_ENABLED(INPUT_SHAPING_X, if (axis == X_AXIS) delay_x = delay);
+        IF_ENABLED(INPUT_SHAPING_Y, if (axis == Y_AXIS) delay_y = delay);
+        IF_ENABLED(INPUT_SHAPING_Z, if (axis == Z_AXIS) delay_z = delay);
       }
 
       static void enqueue(const bool x_step, const bool x_forward, const bool y_step, const bool y_forward, const bool z_step, const bool z_forward) {
@@ -218,9 +218,9 @@ constexpr ena_mask_t enable_overlap[] = {
               head_##AXIS = 0;                                           \
           }
 
-        TERN_(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
-        TERN_(INPUT_SHAPING_Y, SHAPING_QUEUE_ENQUEUE(y))
-        TERN_(INPUT_SHAPING_Z, SHAPING_QUEUE_ENQUEUE(z))
+        IF_ENABLED(INPUT_SHAPING_X, SHAPING_QUEUE_ENQUEUE(x))
+        IF_ENABLED(INPUT_SHAPING_Y, SHAPING_QUEUE_ENQUEUE(y))
+        IF_ENABLED(INPUT_SHAPING_Z, SHAPING_QUEUE_ENQUEUE(z))
 
         times[tail] = now;
         if (++tail == shaping_echoes) tail = 0;
@@ -619,7 +619,7 @@ class Stepper {
       current_block = nullptr;
       axis_did_move.reset();
       planner.release_current_block();
-      TERN_(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
+      IF_ENABLED(HAS_ROUGH_LIN_ADVANCE, la_interval = nextAdvanceISR = LA_ADV_NEVER);
     }
 
     // Quickly stop all steppers
@@ -695,7 +695,7 @@ class Stepper {
     }
     static void mark_axis_enabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {
       SBI(axis_enabled.bits, INDEX_OF_AXIS(axis, eindex));
-      TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
+      IF_ENABLED(HAS_Z_AXIS, if (axis == Z_AXIS) z_min_trusted = true);
       // TODO: DELTA should have "Z" state affect all (ABC) motors and treat "XY" on/off as meaningless
     }
     static void mark_axis_disabled(const AxisEnum axis E_OPTARG(const uint8_t eindex=0)) {

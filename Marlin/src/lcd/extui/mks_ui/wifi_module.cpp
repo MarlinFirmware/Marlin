@@ -137,7 +137,7 @@ void wifi_reset() {
 
 void mount_file_sys(const uint8_t disk_type) {
   switch (disk_type) {
-    case FILE_SYS_SD: TERN_(HAS_MEDIA, card.mount()); break;
+    case FILE_SYS_SD: IF_ENABLED(HAS_MEDIA, card.mount()); break;
     case FILE_SYS_USB: break;
   }
 }
@@ -780,7 +780,7 @@ void get_file_list(const char * const path, const bool with_longnames) {
   if (!path) return;
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(HAS_MEDIA, card.mount());
+    IF_ENABLED(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // udisk
@@ -1071,10 +1071,10 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                 if (card.isFileOpen()) {
                   //saved_feedrate_percentage = feedrate_percentage;
                   feedrate_percentage = 100;
-                  TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-                  TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+                  IF_ENABLED(HAS_EXTRUDERS, planner.set_flow(0, 100));
+                  IF_ENABLED(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
-                  TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+                  IF_ENABLED(POWER_LOSS_RECOVERY, recovery.prepare());
                   once_flag = false;
                 }
               }
@@ -1571,7 +1571,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   ZERO(saveFilePath);
 
   if (gCfgItems.fileSysType == FILE_SYS_SD) {
-    TERN_(HAS_MEDIA, card.mount());
+    IF_ENABLED(HAS_MEDIA, card.mount());
   }
   else if (gCfgItems.fileSysType == FILE_SYS_USB) {
     // nothing
@@ -1583,7 +1583,7 @@ static void file_first_msg_handle(const uint8_t * const msg, const uint16_t msgL
   wifiTransError.start_tick = 0;
   wifiTransError.now_tick = 0;
 
-  TERN_(HAS_MEDIA, card.closefile());
+  IF_ENABLED(HAS_MEDIA, card.closefile());
 
   wifi_delay(1000);
 
@@ -1815,7 +1815,7 @@ void stopEspTransfer() {
   if (wifi_link_state == WIFI_TRANS_FILE)
     wifi_link_state = WIFI_CONNECTED;
 
-  TERN_(HAS_MEDIA, card.closefile());
+  IF_ENABLED(HAS_MEDIA, card.closefile());
 
   if (upload_result != 3) {
     wifiTransError.flag = 1;
@@ -1846,9 +1846,9 @@ void stopEspTransfer() {
   W25QXX.init(SPI_QUARTER_SPEED);
 
   // ?? Workaround for SPI / Servo issues ??
-  TERN_(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spiInit(SPI_FULL_SPEED));
-  TERN_(HAS_SERVOS, servo_init());
-  TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
+  IF_ENABLED(HAS_TFT_LVGL_UI_SPI, SPI_TFT.spiInit(SPI_FULL_SPEED));
+  IF_ENABLED(HAS_SERVOS, servo_init());
+  IF_ENABLED(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
 
   if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
 }
@@ -2086,8 +2086,8 @@ void get_wifi_commands() {
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
-                TERN_(ARC_SUPPORT, case 2 ... 3:)
-                TERN_(BEZIER_CURVE_SUPPORT, case 5:)
+                IF_ENABLED(ARC_SUPPORT, case 2 ... 3:)
+                IF_ENABLED(BEZIER_CURVE_SUPPORT, case 5:)
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGE(MSG_STOPPED);
                 break;
@@ -2099,7 +2099,7 @@ void get_wifi_commands() {
           // Process critical commands early
           if (strcmp_P(command, PSTR("M108")) == 0) {
             wait_for_heatup = false;
-            TERN_(HAS_MARLINUI_MENU, wait_for_user = false);
+            IF_ENABLED(HAS_MARLINUI_MENU, wait_for_user = false);
           }
           if (strcmp_P(command, PSTR("M112")) == 0) kill(FPSTR(M112_KILL_STR), nullptr, true);
           if (strcmp_P(command, PSTR("M410")) == 0) quickstop_stepper();

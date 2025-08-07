@@ -100,7 +100,7 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
   #else
     HardwareSerial::begin(baud, config);
     // Replace the IRQ callback with the one we have defined
-    TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
+    IF_ENABLED(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
   #endif
 }
 

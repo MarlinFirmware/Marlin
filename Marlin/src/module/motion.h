@@ -166,9 +166,9 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern xyz_pos_t hotend_offset[HOTENDS];
   void reset_hotend_offsets();
 #elif HOTENDS
-  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t hotend_offset[HOTENDS] = { { IF_ENABLED(HAS_X_AXIS, 0) } };
 #else
-  constexpr xyz_pos_t hotend_offset[1] = { { TERN_(HAS_X_AXIS, 0) } };
+  constexpr xyz_pos_t hotend_offset[1] = { { IF_ENABLED(HAS_X_AXIS, 0) } };
 #endif
 
 #if HAS_SOFTWARE_ENDSTOPS
@@ -184,56 +184,56 @@ inline float home_bump_mm(const AxisEnum axis) {
         if (enabled()) switch (axis) {
           #if HAS_X_AXIS
             case X_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
-              TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+              IF_ENABLED(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
               break;
           #endif
           #if HAS_Y_AXIS
             case Y_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
-              TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+              IF_ENABLED(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
               break;
           #endif
           #if HAS_Z_AXIS
             case Z_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
-              TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+              IF_ENABLED(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
               break;
           #endif
           #if HAS_I_AXIS
             case I_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
-              TERN_(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_I, amin = min.i);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_I, amax = max.i);
               break;
           #endif
           #if HAS_J_AXIS
             case J_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_J, amin = min.j);
-              TERN_(MIN_SOFTWARE_ENDSTOP_J, amax = max.j);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_J, amin = min.j);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_J, amax = max.j);
               break;
           #endif
           #if HAS_K_AXIS
             case K_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_K, amin = min.k);
-              TERN_(MIN_SOFTWARE_ENDSTOP_K, amax = max.k);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_K, amin = min.k);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_K, amax = max.k);
               break;
           #endif
           #if HAS_U_AXIS
             case U_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_U, amin = min.u);
-              TERN_(MIN_SOFTWARE_ENDSTOP_U, amax = max.u);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_U, amin = min.u);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_U, amax = max.u);
               break;
           #endif
           #if HAS_V_AXIS
             case V_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_V, amin = min.v);
-              TERN_(MIN_SOFTWARE_ENDSTOP_V, amax = max.v);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_V, amin = min.v);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_V, amax = max.v);
               break;
           #endif
           #if HAS_W_AXIS
             case W_AXIS:
-              TERN_(MIN_SOFTWARE_ENDSTOP_W, amin = min.w);
-              TERN_(MIN_SOFTWARE_ENDSTOP_W, amax = max.w);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_W, amin = min.w);
+              IF_ENABLED(MIN_SOFTWARE_ENDSTOP_W, amax = max.w);
               break;
           #endif
           default: break;
@@ -470,12 +470,12 @@ void set_axis_is_at_home(const AxisEnum axis);
   inline bool homing_needed_error(main_axes_bits_t=main_axes_mask) { return false; }
 #endif
 
-inline void set_axis_unhomed(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
-inline void set_axis_untrusted(const AxisEnum axis)   { TERN_(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
-inline void set_all_unhomed()                         { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
-inline void set_axis_homed(const AxisEnum axis)       { TERN_(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
-inline void set_axis_trusted(const AxisEnum axis)     { TERN_(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
-inline void set_all_homed()                           { TERN_(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
+inline void set_axis_unhomed(const AxisEnum axis)     { IF_ENABLED(HAS_ENDSTOPS, CBI(axes_homed, axis)); }
+inline void set_axis_untrusted(const AxisEnum axis)   { IF_ENABLED(HAS_ENDSTOPS, CBI(axes_trusted, axis)); }
+inline void set_all_unhomed()                         { IF_ENABLED(HAS_ENDSTOPS, axes_homed = axes_trusted = 0); }
+inline void set_axis_homed(const AxisEnum axis)       { IF_ENABLED(HAS_ENDSTOPS, SBI(axes_homed, axis)); }
+inline void set_axis_trusted(const AxisEnum axis)     { IF_ENABLED(HAS_ENDSTOPS, SBI(axes_trusted, axis)); }
+inline void set_all_homed()                           { IF_ENABLED(HAS_ENDSTOPS, axes_homed = axes_trusted = main_axes_mask); }
 
 inline bool axis_was_homed(const AxisEnum axis)       { return TEST(axes_homed, axis); }
 inline bool axis_is_trusted(const AxisEnum axis)      { return TEST(axes_trusted, axis); }
@@ -578,9 +578,9 @@ void home_if_needed(const bool keeplev=false);
 #else
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry));
+  bool position_is_reachable(IF_ENABLED(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry));
   inline bool position_is_reachable(const xy_pos_t &pos) {
-    return position_is_reachable(TERN_(HAS_X_AXIS, pos.x) OPTARG(HAS_Y_AXIS, pos.y));
+    return position_is_reachable(IF_ENABLED(HAS_X_AXIS, pos.x) OPTARG(HAS_Y_AXIS, pos.y));
   }
 
 #endif

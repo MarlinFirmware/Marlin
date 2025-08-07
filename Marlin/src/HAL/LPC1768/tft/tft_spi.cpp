@@ -149,7 +149,7 @@ void TFT_SPI::transmitDMA(uint32_t memoryIncrease, uint16_t *data, uint16_t coun
   dataTransferBegin(DATASIZE_16BIT);
   SPIx.dmaSendAsync(data, count, memoryIncrease);
 
-  TERN_(TFT_SHARED_IO, while (isBusy()));
+  IF_ENABLED(TFT_SHARED_IO, while (isBusy()));
 }
 
 #endif // HAS_SPI_TFT

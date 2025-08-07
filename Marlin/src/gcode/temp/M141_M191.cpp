@@ -70,7 +70,7 @@ void GcodeSuite::M191() {
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
     thermalManager.setTargetChamber(parser.value_celsius());
-    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(true, false));
+    IF_ENABLED(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(true, false));
   }
   else return;
 

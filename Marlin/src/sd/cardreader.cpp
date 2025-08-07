@@ -172,7 +172,7 @@ CardReader::CardReader() {
   flag.sdprinting = flag.sdprintdone = flag.mounted = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
 
-  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
+  IF_ENABLED(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   IF_DISABLED(NO_SD_AUTOSTART, autofile_cancel());
 
@@ -590,13 +590,13 @@ void CardReader::manage_media() {
 
   if (did_insert) {                 // Media Inserted
 
-    TERN_(HAS_MULTI_VOLUME, ui.refresh());  // Refresh for insert events without messages
+    IF_ENABLED(HAS_MULTI_VOLUME, ui.refresh());  // Refresh for insert events without messages
 
     // Some media is already mounted? Nothing to do.
     if (TERN0(HAS_MULTI_VOLUME, isMounted())) return;
 
     // Prevent re-entry during the following phases
-    TERN_(HAS_MULTI_VOLUME, no_reenter = true);
+    IF_ENABLED(HAS_MULTI_VOLUME, no_reenter = true);
 
     // Try to mount the media (but not at boot if SD_IGNORE_AT_STARTUP)
     if (TERN1(SD_IGNORE_AT_STARTUP, old_stat > MEDIA_BOOT)) {
@@ -617,10 +617,10 @@ void CardReader::manage_media() {
     // If the selected media isn't mounted throw an alert in ui.media_changed
     if (!isMounted()) stat = old_real;
 
-    TERN_(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
+    IF_ENABLED(RESET_STEPPERS_ON_MEDIA_INSERT, reset_stepper_drivers()); // Workaround for Cheetah bug
 
     // Re-enable media detection logic
-    TERN_(HAS_MULTI_VOLUME, no_reenter = false);
+    IF_ENABLED(HAS_MULTI_VOLUME, no_reenter = false);
   }
   else if (
     // Media was removed from the device slot
@@ -633,7 +633,7 @@ void CardReader::manage_media() {
   ) {
     flag.workDirIsRoot = true;          // Return to root on release
     release();
-    //TERN_(HAS_MULTI_VOLUME, prev_stat = INSERT_NONE); // HACK to try mounting any remaining media
+    //IF_ENABLED(HAS_MULTI_VOLUME, prev_stat = INSERT_NONE); // HACK to try mounting any remaining media
   }
   else {
     #if HAS_MULTI_VOLUME
@@ -651,7 +651,7 @@ void CardReader::manage_media() {
     DEBUG_ECHOLNPGM("First mount.");
 
     // Load settings the first time media is inserted (not just during init)
-    TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
+    IF_ENABLED(SDCARD_EEPROM_EMULATION, settings.first_load());
 
     // Check for PLR file. If found skip other procedures!
     if (TERN0(POWER_LOSS_RECOVERY, recovery.check())) return;
@@ -685,7 +685,7 @@ void CardReader::release() {
   nrItems = -1;
   SERIAL_ECHO_MSG(STR_SD_CARD_RELEASED);
 
-  TERN_(NO_SD_DETECT, ui.refresh());
+  IF_ENABLED(NO_SD_DETECT, ui.refresh());
 }
 
 /**
@@ -710,24 +710,24 @@ void CardReader::startOrResumeFilePrinting() {
   if (isMounted()) {
     flag.sdprinting = true;
     flag.sdprintdone = false;
-    TERN_(SD_RESORT, flush_presort());
+    IF_ENABLED(SD_RESORT, flush_presort());
   }
 }
 
 //
 // Run tasks upon finishing or aborting a file print.
 //
-void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
-  TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
-  TERN_(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
+void CardReader::endFilePrintNow(IF_ENABLED(SD_RESORT, const bool re_sort/*=false*/)) {
+  IF_ENABLED(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+  IF_ENABLED(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) myfile.close();
-  TERN_(SD_RESORT, if (re_sort) presort());
+  IF_ENABLED(SD_RESORT, if (re_sort) presort());
 }
 
-void CardReader::abortFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
+void CardReader::abortFilePrintNow(IF_ENABLED(SD_RESORT, const bool re_sort/*=false*/)) {
   flag.sdprinting = flag.sdprintdone = false;
-  endFilePrintNow(TERN_(SD_RESORT, re_sort));
+  endFilePrintNow(IF_ENABLED(SD_RESORT, re_sort));
 }
 
 /**
@@ -794,7 +794,7 @@ void CardReader::openFileRead(const char * const path, const uint8_t subcall_typ
   switch (subcall_type) {
     case 0:      // Starting a new print. "Now fresh file: ..."
       announceOpen(2, path);
-      TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
+      IF_ENABLED(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
       break;
 
     #if HAS_MEDIA_SUBCALLS
@@ -864,7 +864,7 @@ void CardReader::openFileWrite(const char * const path) {
   if (!isMounted()) return;
 
   announceOpen(2, path);
-  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
+  IF_ENABLED(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   abortFilePrintNow();
 
@@ -876,7 +876,7 @@ void CardReader::openFileWrite(const char * const path) {
     if (myfile.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       flag.saving = true;
       selectFileByName(fname);
-      TERN_(EMERGENCY_PARSER, emergency_parser.disable());
+      IF_ENABLED(EMERGENCY_PARSER, emergency_parser.disable());
       echo_write_to_file(fname);
       ui.set_status(fname);
       return;
@@ -930,14 +930,14 @@ void CardReader::removeFile(const char * const name) {
     if (myfile.remove(itsDirPtr, fname)) {
       SERIAL_ECHOLNPGM("File deleted:", fname);
       sdpos = 0;
-      TERN_(SDCARD_SORT_ALPHA, presort());
+      IF_ENABLED(SDCARD_SORT_ALPHA, presort());
     }
     else
       SERIAL_ECHOLNPGM("Deletion failed, File: ", fname, ".");
   #endif
 }
 
-void CardReader::report_status(TERN_(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto/*=false*/)) {
+void CardReader::report_status(IF_ENABLED(QUIETER_AUTO_REPORT_SD_STATUS, const bool isauto/*=false*/)) {
   const bool has_job = isStillPrinting() || isPaused();
 
   #if ENABLED(QUIETER_AUTO_REPORT_SD_STATUS)
@@ -1101,7 +1101,7 @@ void CardReader::closefile(const bool store_location/*=false*/) {
   flag.saving = flag.logging = false;
   sdpos = 0;
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.enable());
+  IF_ENABLED(EMERGENCY_PARSER, emergency_parser.enable());
 
   if (store_location) {
     // TODO: Store printer state, filename, position
@@ -1117,7 +1117,7 @@ void CardReader::selectFileByIndex(const int16_t nr) {
     if (nr < sort_count) {
       strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
-      TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
+      IF_ENABLED(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
       setBinFlag(extIsBIN(strrchr(filename, '.') + 1));
       return;
     }
@@ -1135,7 +1135,7 @@ void CardReader::selectFileByName(const char * const match) {
       if (strcasecmp(match, sortshort[nr]) == 0) {
         strcpy(filename, sortshort[nr]);
         strcpy(longFilename, sortnames[nr]);
-        TERN_(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
+        IF_ENABLED(HAS_FOLDER_SORTING, flag.filenameIsDir = IS_DIR(nr));
         setBinFlag(extIsBIN(strrchr(filename, '.') + 1));
         return;
       }
@@ -1240,7 +1240,7 @@ const char* CardReader::diveToFile(const bool update_cwd, MediaFile* &inDirPtr, 
     workDir = *inDirPtr;
     DEBUG_ECHOLNPGM(" final workDir = ", hex_address(inDirPtr));
     flag.workDirIsRoot = (workDirDepth == 0);
-    TERN_(SDCARD_SORT_ALPHA, presort());
+    IF_ENABLED(SDCARD_SORT_ALPHA, presort());
   }
 
   DEBUG_ECHOLNPGM(" returning string ", atom_ptr ?: "nullptr");
@@ -1259,7 +1259,7 @@ void CardReader::cd(const char * relpath) {
     if (workDirDepth < MAX_DIR_DEPTH)
       workDirParents[workDirDepth++] = workDir;
     nrItems = -1;
-    TERN_(SDCARD_SORT_ALPHA, presort());
+    IF_ENABLED(SDCARD_SORT_ALPHA, presort());
   }
   else
     SERIAL_ECHO_MSG(STR_SD_CANT_ENTER_SUBDIR, relpath);
@@ -1272,7 +1272,7 @@ int8_t CardReader::cdup() {
   if (workDirDepth > 0) {                                               // At least 1 dir has been saved
     nrItems = -1;
     workDir = --workDirDepth ? workDirParents[workDirDepth - 1] : root; // Use parent, or root if none
-    TERN_(SDCARD_SORT_ALPHA, presort());
+    IF_ENABLED(SDCARD_SORT_ALPHA, presort());
   }
   if (!workDirDepth) flag.workDirIsRoot = true;
   return workDirDepth;
@@ -1286,7 +1286,7 @@ void CardReader::cdroot() {
   flag.workDirIsRoot = true;
   workDirDepth = 0;
   nrItems = -1;
-  TERN_(SDCARD_SORT_ALPHA, presort());
+  IF_ENABLED(SDCARD_SORT_ALPHA, presort());
 }
 
 #if ENABLED(SDCARD_SORT_ALPHA)
@@ -1352,7 +1352,7 @@ void CardReader::cdroot() {
       NOMORE(fileCnt, int16_t(SDSORT_LIMIT));
 
       // Sort order is always needed. May be static or dynamic.
-      TERN_(SDSORT_DYNAMIC_RAM, sort_order = new uint8_t[fileCnt]);
+      IF_ENABLED(SDSORT_DYNAMIC_RAM, sort_order = new uint8_t[fileCnt]);
 
       // Use RAM to store the entire directory during pre-sort.
       // SDSORT_LIMIT should be set to prevent over-allocation.
@@ -1468,7 +1468,7 @@ void CardReader::cdroot() {
               // The next o1 is the current o2. No new fetch needed.
               o1 = o2;
               #if DISABLED(SDSORT_USES_RAM)
-                TERN_(HAS_FOLDER_SORTING, dir1 = dir2);
+                IF_ENABLED(HAS_FOLDER_SORTING, dir1 = dir2);
                 strcpy(name1, name2);
               #endif
             }
@@ -1479,7 +1479,7 @@ void CardReader::cdroot() {
         #if ENABLED(SDSORT_USES_RAM) && DISABLED(SDSORT_CACHE_NAMES)
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             for (int16_t i = 0; i < fileCnt; ++i) free(sortnames[i]);
-            TERN_(HAS_FOLDER_SORTING, delete [] isDir);
+            IF_ENABLED(HAS_FOLDER_SORTING, delete [] isDir);
           #endif
         #endif
       }
@@ -1548,7 +1548,7 @@ void CardReader::fileHasFinished() {
     }
   #endif
 
-  endFilePrintNow(TERN_(SD_RESORT, true));
+  endFilePrintNow(IF_ENABLED(SD_RESORT, true));
 
   flag.sdprintdone = true;                    // Stop getting bytes from the SD card
   marlin_state = MarlinState::MF_SD_COMPLETE; // Tell Marlin to enqueue M1001 soon
@@ -1582,7 +1582,7 @@ void CardReader::fileHasFinished() {
     if (jobRecoverFileExists()) {
       recovery.init();
       removeFile(recovery.filename);
-      TERN_(SOVOL_SV06_RTS, poweroff_continue = false);
+      IF_ENABLED(SOVOL_SV06_RTS, poweroff_continue = false);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_ECHOLN(F("Power-loss file delete"), jobRecoverFileExists() ? F(" failed.") : F("d."));
       #endif

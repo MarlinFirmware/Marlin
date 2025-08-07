@@ -114,8 +114,8 @@
     #if PIN_EXISTS(FIL_RUNOUT2)
       mt_det2_sta = LOWSTATE(FIL_RUNOUT2);
     #endif
-    TERN_(USE_X_MIN, endstopx1_min = LOWSTATE(X_MIN));
-    TERN_(USE_X_MAX, endstopx1_max = LOWSTATE(X_MAX));
+    IF_ENABLED(USE_X_MIN, endstopx1_min = LOWSTATE(X_MIN));
+    IF_ENABLED(USE_X_MAX, endstopx1_max = LOWSTATE(X_MAX));
     #if USE_X2_MIN || USE_X2_MAX
       endstopx2_sta = LOWSTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
     #endif
@@ -125,8 +125,8 @@
     #if USE_Y2_MIN || USE_Y2_MAX
       endstopy2_sta = LOWSTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
     #endif
-    TERN_(USE_Z_MIN, endstopz1_min = LOWSTATE(Z_MIN));
-    TERN_(USE_Z_MAX, endstopz1_max = LOWSTATE(Z_MAX));
+    IF_ENABLED(USE_Z_MIN, endstopz1_min = LOWSTATE(Z_MIN));
+    IF_ENABLED(USE_Z_MAX, endstopz1_max = LOWSTATE(Z_MAX));
     #if USE_Z2_MIN || USE_Z2_MAX
       endstopz2_sta = LOWSTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
     #endif
@@ -151,8 +151,8 @@
     #if PIN_EXISTS(FIL_RUNOUT2)
       mt_det2_sta = !LOWSTATE(FIL_RUNOUT2);
     #endif
-    TERN_(USE_X_MIN, endstopx1_min = !LOWSTATE(X_MIN));
-    TERN_(USE_X_MAX, endstopx1_max = !LOWSTATE(X_MAX));
+    IF_ENABLED(USE_X_MIN, endstopx1_min = !LOWSTATE(X_MIN));
+    IF_ENABLED(USE_X_MAX, endstopx1_max = !LOWSTATE(X_MAX));
     #if USE_X2_MIN || USE_X2_MAX
       endstopx2_sta = !LOWSTATE(TERN(USE_X2_MIN, X2_MIN, X2_MAX));
     #endif
@@ -162,8 +162,8 @@
     #if USE_Y2_MIN || USE_Y2_MAX
       endstopy2_sta = !LOWSTATE(TERN(USE_Y2_MIN, Y2_MIN, Y2_MAX));
     #endif
-    TERN_(USE_Z_MIN, endstopz1_min = !LOWSTATE(Z_MIN));
-    TERN_(USE_Z_MAX, endstopz1_max = !LOWSTATE(Z_MAX));
+    IF_ENABLED(USE_Z_MIN, endstopz1_min = !LOWSTATE(Z_MIN));
+    IF_ENABLED(USE_Z_MAX, endstopz1_max = !LOWSTATE(Z_MAX));
     #if USE_Z2_MIN || USE_Z2_MAX
       endstopz2_sta = !LOWSTATE(TERN(USE_Z2_MIN, Z2_MIN, Z2_MAX));
     #endif

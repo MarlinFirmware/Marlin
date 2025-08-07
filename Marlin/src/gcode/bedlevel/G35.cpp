@@ -79,12 +79,12 @@ void GcodeSuite::G35() {
     set_bed_leveling_enabled(false);
   #endif
 
-  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+  IF_ENABLED(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
   probe.use_probing_tool();
 
   // Disable duplication mode on homing
-  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+  IF_ENABLED(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home only Z axis when X and Y is trusted, otherwise all axes, if needed before this procedure
   if (!all_axes_trusted()) process_subcommands_now(F("G28Z"));

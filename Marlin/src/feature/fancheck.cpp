@@ -115,14 +115,14 @@ void FanCheck::compute_speed(uint16_t elapsedTime) {
   uint8_t fan_error_msk = 0;
   for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
     switch (f) {
-      TERN_(HAS_E0_FAN_TACHO, case 0:)
-      TERN_(HAS_E1_FAN_TACHO, case 1:)
-      TERN_(HAS_E2_FAN_TACHO, case 2:)
-      TERN_(HAS_E3_FAN_TACHO, case 3:)
-      TERN_(HAS_E4_FAN_TACHO, case 4:)
-      TERN_(HAS_E5_FAN_TACHO, case 5:)
-      TERN_(HAS_E6_FAN_TACHO, case 6:)
-      TERN_(HAS_E7_FAN_TACHO, case 7:)
+      IF_ENABLED(HAS_E0_FAN_TACHO, case 0:)
+      IF_ENABLED(HAS_E1_FAN_TACHO, case 1:)
+      IF_ENABLED(HAS_E2_FAN_TACHO, case 2:)
+      IF_ENABLED(HAS_E3_FAN_TACHO, case 3:)
+      IF_ENABLED(HAS_E4_FAN_TACHO, case 4:)
+      IF_ENABLED(HAS_E5_FAN_TACHO, case 5:)
+      IF_ENABLED(HAS_E6_FAN_TACHO, case 6:)
+      IF_ENABLED(HAS_E7_FAN_TACHO, case 7:)
         // Compute fan speed
         rps[f] = edge_counter[f] * float(250) / elapsedTime;
         edge_counter[f] = 0;
@@ -179,14 +179,14 @@ void FanCheck::print_fan_states() {
   for (uint8_t s = 0; s < 2; ++s) {
     for (uint8_t f = 0; f < TACHO_COUNT; ++f) {
       switch (f) {
-        TERN_(HAS_E0_FAN_TACHO, case 0:)
-        TERN_(HAS_E1_FAN_TACHO, case 1:)
-        TERN_(HAS_E2_FAN_TACHO, case 2:)
-        TERN_(HAS_E3_FAN_TACHO, case 3:)
-        TERN_(HAS_E4_FAN_TACHO, case 4:)
-        TERN_(HAS_E5_FAN_TACHO, case 5:)
-        TERN_(HAS_E6_FAN_TACHO, case 6:)
-        TERN_(HAS_E7_FAN_TACHO, case 7:)
+        IF_ENABLED(HAS_E0_FAN_TACHO, case 0:)
+        IF_ENABLED(HAS_E1_FAN_TACHO, case 1:)
+        IF_ENABLED(HAS_E2_FAN_TACHO, case 2:)
+        IF_ENABLED(HAS_E3_FAN_TACHO, case 3:)
+        IF_ENABLED(HAS_E4_FAN_TACHO, case 4:)
+        IF_ENABLED(HAS_E5_FAN_TACHO, case 5:)
+        IF_ENABLED(HAS_E6_FAN_TACHO, case 6:)
+        IF_ENABLED(HAS_E7_FAN_TACHO, case 7:)
           SERIAL_ECHOPGM("E", f);
           if (s == 0)
             SERIAL_ECHOPGM(":", 60 * rps[f], " RPM ");

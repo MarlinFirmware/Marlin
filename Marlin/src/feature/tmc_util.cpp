@@ -233,7 +233,7 @@
           data.is_stealth = TEST(ds, STEALTH_bp);
           data.is_standstill = TEST(ds, STST_bp);
         #endif
-        TERN_(HAS_STALLGUARD, data.sg_result_reasonable = false);
+        IF_ENABLED(HAS_STALLGUARD, data.sg_result_reasonable = false);
       #endif
       return data;
     }
@@ -273,8 +273,8 @@
       SERIAL_PRINTLN(data.drv_status, PrintBase::Hex);
       if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
       if (data.is_s2g) SERIAL_ECHOLNPGM("coil short circuit");
-      TERN_(TMC_DEBUG, tmc_report_all());
-      TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
+      IF_ENABLED(TMC_DEBUG, tmc_report_all());
+      IF_ENABLED(SOVOL_SV06_RTS, rts.gotoPage(ID_DriverError_L, ID_DriverError_D));
       kill(F("Driver error"));
     }
   #endif
@@ -382,7 +382,7 @@
     }
 
     if (need_debug_reporting) {
-      TERN_(TMC_DEBUG, report_polled_driver_data(st, data));
+      IF_ENABLED(TMC_DEBUG, report_polled_driver_data(st, data));
     }
 
     return should_step_down;
@@ -411,8 +411,8 @@
         if ( TERN0(X_IS_TRINAMIC, monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting))
           || TERN0(X2_IS_TRINAMIC, monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting))
         ) {
-          TERN_(X_IS_TRINAMIC, step_current_down(stepperX));
-          TERN_(X2_IS_TRINAMIC, step_current_down(stepperX2));
+          IF_ENABLED(X_IS_TRINAMIC, step_current_down(stepperX));
+          IF_ENABLED(X2_IS_TRINAMIC, step_current_down(stepperX2));
         }
       #endif
 
@@ -420,8 +420,8 @@
         if ( TERN0(Y_IS_TRINAMIC, monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting))
           || TERN0(Y2_IS_TRINAMIC, monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting))
         ) {
-          TERN_(Y_IS_TRINAMIC, step_current_down(stepperY));
-          TERN_(Y2_IS_TRINAMIC, step_current_down(stepperY2));
+          IF_ENABLED(Y_IS_TRINAMIC, step_current_down(stepperY));
+          IF_ENABLED(Y2_IS_TRINAMIC, step_current_down(stepperY2));
         }
       #endif
 
@@ -431,10 +431,10 @@
           || TERN0(Z3_IS_TRINAMIC, monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting))
           || TERN0(Z4_IS_TRINAMIC, monitor_tmc_driver(stepperZ4, need_update_error_counters, need_debug_reporting))
         ) {
-          TERN_(Z_IS_TRINAMIC,  step_current_down(stepperZ));
-          TERN_(Z2_IS_TRINAMIC, step_current_down(stepperZ2));
-          TERN_(Z3_IS_TRINAMIC, step_current_down(stepperZ3));
-          TERN_(Z4_IS_TRINAMIC, step_current_down(stepperZ4));
+          IF_ENABLED(Z_IS_TRINAMIC,  step_current_down(stepperZ));
+          IF_ENABLED(Z2_IS_TRINAMIC, step_current_down(stepperZ2));
+          IF_ENABLED(Z3_IS_TRINAMIC, step_current_down(stepperZ3));
+          IF_ENABLED(Z4_IS_TRINAMIC, step_current_down(stepperZ4));
         }
       #endif
 
@@ -463,14 +463,14 @@
           step_current_down(stepperW);
       #endif
 
-      TERN_(E0_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting));
-      TERN_(E1_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting));
-      TERN_(E2_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting));
-      TERN_(E3_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting));
-      TERN_(E4_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting));
-      TERN_(E5_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting));
-      TERN_(E6_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE6, need_update_error_counters, need_debug_reporting));
-      TERN_(E7_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE7, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E0_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E1_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E2_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E3_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E4_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E5_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E6_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE6, need_update_error_counters, need_debug_reporting));
+      IF_ENABLED(E7_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE7, need_update_error_counters, need_debug_reporting));
 
       if (TERN0(TMC_DEBUG, need_debug_reporting)) SERIAL_EOL();
     }
@@ -487,8 +487,8 @@
     void tmc_set_report_interval(const uint16_t update_interval) {
       if ((report_tmc_status_interval = update_interval))
         SERIAL_ECHOLNPGM("axis:pwm_scale"
-          TERN_(HAS_STEALTHCHOP, "/curr_scale")
-          TERN_(HAS_STALLGUARD, "/mech_load")
+          IF_ENABLED(HAS_STEALTHCHOP, "/curr_scale")
+          IF_ENABLED(HAS_STALLGUARD, "/mech_load")
           "|flags|warncount"
         );
     }
@@ -855,38 +855,38 @@
 
   static void tmc_debug_loop(const TMC_debug_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      TERN_(X_IS_TRINAMIC, tmc_status(stepperX, n));
-      TERN_(X2_IS_TRINAMIC, tmc_status(stepperX2, n));
+      IF_ENABLED(X_IS_TRINAMIC, tmc_status(stepperX, n));
+      IF_ENABLED(X2_IS_TRINAMIC, tmc_status(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      TERN_(Y_IS_TRINAMIC, tmc_status(stepperY, n));
-      TERN_(Y2_IS_TRINAMIC, tmc_status(stepperY2, n));
+      IF_ENABLED(Y_IS_TRINAMIC, tmc_status(stepperY, n));
+      IF_ENABLED(Y2_IS_TRINAMIC, tmc_status(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      TERN_(Z_IS_TRINAMIC, tmc_status(stepperZ, n));
-      TERN_(Z2_IS_TRINAMIC, tmc_status(stepperZ2, n));
-      TERN_(Z3_IS_TRINAMIC, tmc_status(stepperZ3, n));
-      TERN_(Z4_IS_TRINAMIC, tmc_status(stepperZ4, n));
+      IF_ENABLED(Z_IS_TRINAMIC, tmc_status(stepperZ, n));
+      IF_ENABLED(Z2_IS_TRINAMIC, tmc_status(stepperZ2, n));
+      IF_ENABLED(Z3_IS_TRINAMIC, tmc_status(stepperZ3, n));
+      IF_ENABLED(Z4_IS_TRINAMIC, tmc_status(stepperZ4, n));
     }
 
-    TERN_(I_IS_TRINAMIC, if (i) tmc_status(stepperI, n));
-    TERN_(J_IS_TRINAMIC, if (j) tmc_status(stepperJ, n));
-    TERN_(K_IS_TRINAMIC, if (k) tmc_status(stepperK, n));
-    TERN_(U_IS_TRINAMIC, if (u) tmc_status(stepperU, n));
-    TERN_(V_IS_TRINAMIC, if (v) tmc_status(stepperV, n));
-    TERN_(W_IS_TRINAMIC, if (w) tmc_status(stepperW, n));
+    IF_ENABLED(I_IS_TRINAMIC, if (i) tmc_status(stepperI, n));
+    IF_ENABLED(J_IS_TRINAMIC, if (j) tmc_status(stepperJ, n));
+    IF_ENABLED(K_IS_TRINAMIC, if (k) tmc_status(stepperK, n));
+    IF_ENABLED(U_IS_TRINAMIC, if (u) tmc_status(stepperU, n));
+    IF_ENABLED(V_IS_TRINAMIC, if (v) tmc_status(stepperV, n));
+    IF_ENABLED(W_IS_TRINAMIC, if (w) tmc_status(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      TERN_(E0_IS_TRINAMIC, tmc_status(stepperE0, n));
-      TERN_(E1_IS_TRINAMIC, tmc_status(stepperE1, n));
-      TERN_(E2_IS_TRINAMIC, tmc_status(stepperE2, n));
-      TERN_(E3_IS_TRINAMIC, tmc_status(stepperE3, n));
-      TERN_(E4_IS_TRINAMIC, tmc_status(stepperE4, n));
-      TERN_(E5_IS_TRINAMIC, tmc_status(stepperE5, n));
-      TERN_(E6_IS_TRINAMIC, tmc_status(stepperE6, n));
-      TERN_(E7_IS_TRINAMIC, tmc_status(stepperE7, n));
+      IF_ENABLED(E0_IS_TRINAMIC, tmc_status(stepperE0, n));
+      IF_ENABLED(E1_IS_TRINAMIC, tmc_status(stepperE1, n));
+      IF_ENABLED(E2_IS_TRINAMIC, tmc_status(stepperE2, n));
+      IF_ENABLED(E3_IS_TRINAMIC, tmc_status(stepperE3, n));
+      IF_ENABLED(E4_IS_TRINAMIC, tmc_status(stepperE4, n));
+      IF_ENABLED(E5_IS_TRINAMIC, tmc_status(stepperE5, n));
+      IF_ENABLED(E6_IS_TRINAMIC, tmc_status(stepperE6, n));
+      IF_ENABLED(E7_IS_TRINAMIC, tmc_status(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -894,38 +894,38 @@
 
   static void drv_status_loop(const TMC_drv_status_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      TERN_(X_IS_TRINAMIC, tmc_parse_drv_status(stepperX, n));
-      TERN_(X2_IS_TRINAMIC, tmc_parse_drv_status(stepperX2, n));
+      IF_ENABLED(X_IS_TRINAMIC, tmc_parse_drv_status(stepperX, n));
+      IF_ENABLED(X2_IS_TRINAMIC, tmc_parse_drv_status(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      TERN_(Y_IS_TRINAMIC, tmc_parse_drv_status(stepperY, n));
-      TERN_(Y2_IS_TRINAMIC, tmc_parse_drv_status(stepperY2, n));
+      IF_ENABLED(Y_IS_TRINAMIC, tmc_parse_drv_status(stepperY, n));
+      IF_ENABLED(Y2_IS_TRINAMIC, tmc_parse_drv_status(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      TERN_(Z_IS_TRINAMIC, tmc_parse_drv_status(stepperZ, n));
-      TERN_(Z2_IS_TRINAMIC, tmc_parse_drv_status(stepperZ2, n));
-      TERN_(Z3_IS_TRINAMIC, tmc_parse_drv_status(stepperZ3, n));
-      TERN_(Z4_IS_TRINAMIC, tmc_parse_drv_status(stepperZ4, n));
+      IF_ENABLED(Z_IS_TRINAMIC, tmc_parse_drv_status(stepperZ, n));
+      IF_ENABLED(Z2_IS_TRINAMIC, tmc_parse_drv_status(stepperZ2, n));
+      IF_ENABLED(Z3_IS_TRINAMIC, tmc_parse_drv_status(stepperZ3, n));
+      IF_ENABLED(Z4_IS_TRINAMIC, tmc_parse_drv_status(stepperZ4, n));
     }
 
-    TERN_(I_IS_TRINAMIC, if (i) tmc_parse_drv_status(stepperI, n));
-    TERN_(J_IS_TRINAMIC, if (j) tmc_parse_drv_status(stepperJ, n));
-    TERN_(K_IS_TRINAMIC, if (k) tmc_parse_drv_status(stepperK, n));
-    TERN_(U_IS_TRINAMIC, if (u) tmc_parse_drv_status(stepperU, n));
-    TERN_(V_IS_TRINAMIC, if (v) tmc_parse_drv_status(stepperV, n));
-    TERN_(W_IS_TRINAMIC, if (w) tmc_parse_drv_status(stepperW, n));
+    IF_ENABLED(I_IS_TRINAMIC, if (i) tmc_parse_drv_status(stepperI, n));
+    IF_ENABLED(J_IS_TRINAMIC, if (j) tmc_parse_drv_status(stepperJ, n));
+    IF_ENABLED(K_IS_TRINAMIC, if (k) tmc_parse_drv_status(stepperK, n));
+    IF_ENABLED(U_IS_TRINAMIC, if (u) tmc_parse_drv_status(stepperU, n));
+    IF_ENABLED(V_IS_TRINAMIC, if (v) tmc_parse_drv_status(stepperV, n));
+    IF_ENABLED(W_IS_TRINAMIC, if (w) tmc_parse_drv_status(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      TERN_(E0_IS_TRINAMIC, tmc_parse_drv_status(stepperE0, n));
-      TERN_(E1_IS_TRINAMIC, tmc_parse_drv_status(stepperE1, n));
-      TERN_(E2_IS_TRINAMIC, tmc_parse_drv_status(stepperE2, n));
-      TERN_(E3_IS_TRINAMIC, tmc_parse_drv_status(stepperE3, n));
-      TERN_(E4_IS_TRINAMIC, tmc_parse_drv_status(stepperE4, n));
-      TERN_(E5_IS_TRINAMIC, tmc_parse_drv_status(stepperE5, n));
-      TERN_(E6_IS_TRINAMIC, tmc_parse_drv_status(stepperE6, n));
-      TERN_(E7_IS_TRINAMIC, tmc_parse_drv_status(stepperE7, n));
+      IF_ENABLED(E0_IS_TRINAMIC, tmc_parse_drv_status(stepperE0, n));
+      IF_ENABLED(E1_IS_TRINAMIC, tmc_parse_drv_status(stepperE1, n));
+      IF_ENABLED(E2_IS_TRINAMIC, tmc_parse_drv_status(stepperE2, n));
+      IF_ENABLED(E3_IS_TRINAMIC, tmc_parse_drv_status(stepperE3, n));
+      IF_ENABLED(E4_IS_TRINAMIC, tmc_parse_drv_status(stepperE4, n));
+      IF_ENABLED(E5_IS_TRINAMIC, tmc_parse_drv_status(stepperE5, n));
+      IF_ENABLED(E6_IS_TRINAMIC, tmc_parse_drv_status(stepperE6, n));
+      IF_ENABLED(E7_IS_TRINAMIC, tmc_parse_drv_status(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -1077,38 +1077,38 @@
 
   static void tmc_get_registers(TMC_get_registers_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      TERN_(X_IS_TRINAMIC, tmc_get_registers(stepperX, n));
-      TERN_(X2_IS_TRINAMIC, tmc_get_registers(stepperX2, n));
+      IF_ENABLED(X_IS_TRINAMIC, tmc_get_registers(stepperX, n));
+      IF_ENABLED(X2_IS_TRINAMIC, tmc_get_registers(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      TERN_(Y_IS_TRINAMIC, tmc_get_registers(stepperY, n));
-      TERN_(Y2_IS_TRINAMIC, tmc_get_registers(stepperY2, n));
+      IF_ENABLED(Y_IS_TRINAMIC, tmc_get_registers(stepperY, n));
+      IF_ENABLED(Y2_IS_TRINAMIC, tmc_get_registers(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      TERN_(Z_IS_TRINAMIC, tmc_get_registers(stepperZ, n));
-      TERN_(Z2_IS_TRINAMIC, tmc_get_registers(stepperZ2, n));
-      TERN_(Z3_IS_TRINAMIC, tmc_get_registers(stepperZ3, n));
-      TERN_(Z4_IS_TRINAMIC, tmc_get_registers(stepperZ4, n));
+      IF_ENABLED(Z_IS_TRINAMIC, tmc_get_registers(stepperZ, n));
+      IF_ENABLED(Z2_IS_TRINAMIC, tmc_get_registers(stepperZ2, n));
+      IF_ENABLED(Z3_IS_TRINAMIC, tmc_get_registers(stepperZ3, n));
+      IF_ENABLED(Z4_IS_TRINAMIC, tmc_get_registers(stepperZ4, n));
     }
 
-    TERN_(I_IS_TRINAMIC, if (i) tmc_get_registers(stepperI, n));
-    TERN_(J_IS_TRINAMIC, if (j) tmc_get_registers(stepperJ, n));
-    TERN_(K_IS_TRINAMIC, if (k) tmc_get_registers(stepperK, n));
-    TERN_(U_IS_TRINAMIC, if (u) tmc_get_registers(stepperU, n));
-    TERN_(V_IS_TRINAMIC, if (v) tmc_get_registers(stepperV, n));
-    TERN_(W_IS_TRINAMIC, if (w) tmc_get_registers(stepperW, n));
+    IF_ENABLED(I_IS_TRINAMIC, if (i) tmc_get_registers(stepperI, n));
+    IF_ENABLED(J_IS_TRINAMIC, if (j) tmc_get_registers(stepperJ, n));
+    IF_ENABLED(K_IS_TRINAMIC, if (k) tmc_get_registers(stepperK, n));
+    IF_ENABLED(U_IS_TRINAMIC, if (u) tmc_get_registers(stepperU, n));
+    IF_ENABLED(V_IS_TRINAMIC, if (v) tmc_get_registers(stepperV, n));
+    IF_ENABLED(W_IS_TRINAMIC, if (w) tmc_get_registers(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      TERN_(E0_IS_TRINAMIC, tmc_get_registers(stepperE0, n));
-      TERN_(E1_IS_TRINAMIC, tmc_get_registers(stepperE1, n));
-      TERN_(E2_IS_TRINAMIC, tmc_get_registers(stepperE2, n));
-      TERN_(E3_IS_TRINAMIC, tmc_get_registers(stepperE3, n));
-      TERN_(E4_IS_TRINAMIC, tmc_get_registers(stepperE4, n));
-      TERN_(E5_IS_TRINAMIC, tmc_get_registers(stepperE5, n));
-      TERN_(E6_IS_TRINAMIC, tmc_get_registers(stepperE6, n));
-      TERN_(E7_IS_TRINAMIC, tmc_get_registers(stepperE7, n));
+      IF_ENABLED(E0_IS_TRINAMIC, tmc_get_registers(stepperE0, n));
+      IF_ENABLED(E1_IS_TRINAMIC, tmc_get_registers(stepperE1, n));
+      IF_ENABLED(E2_IS_TRINAMIC, tmc_get_registers(stepperE2, n));
+      IF_ENABLED(E3_IS_TRINAMIC, tmc_get_registers(stepperE3, n));
+      IF_ENABLED(E4_IS_TRINAMIC, tmc_get_registers(stepperE4, n));
+      IF_ENABLED(E5_IS_TRINAMIC, tmc_get_registers(stepperE5, n));
+      IF_ENABLED(E6_IS_TRINAMIC, tmc_get_registers(stepperE6, n));
+      IF_ENABLED(E7_IS_TRINAMIC, tmc_get_registers(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -1216,38 +1216,38 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS_LC(const bool)) {
   uint8_t axis_connection = 0;
 
   if (TERN0(HAS_X_AXIS, x)) {
-    TERN_(X_IS_TRINAMIC, axis_connection += test_connection(stepperX));
-    TERN_(X2_IS_TRINAMIC, axis_connection += test_connection(stepperX2));
+    IF_ENABLED(X_IS_TRINAMIC, axis_connection += test_connection(stepperX));
+    IF_ENABLED(X2_IS_TRINAMIC, axis_connection += test_connection(stepperX2));
   }
 
   if (TERN0(HAS_Y_AXIS, y)) {
-    TERN_(Y_IS_TRINAMIC, axis_connection += test_connection(stepperY));
-    TERN_(Y2_IS_TRINAMIC, axis_connection += test_connection(stepperY2));
+    IF_ENABLED(Y_IS_TRINAMIC, axis_connection += test_connection(stepperY));
+    IF_ENABLED(Y2_IS_TRINAMIC, axis_connection += test_connection(stepperY2));
   }
 
   if (TERN0(HAS_Z_AXIS, z)) {
-    TERN_(Z_IS_TRINAMIC, axis_connection += test_connection(stepperZ));
-    TERN_(Z2_IS_TRINAMIC, axis_connection += test_connection(stepperZ2));
-    TERN_(Z3_IS_TRINAMIC, axis_connection += test_connection(stepperZ3));
-    TERN_(Z4_IS_TRINAMIC, axis_connection += test_connection(stepperZ4));
+    IF_ENABLED(Z_IS_TRINAMIC, axis_connection += test_connection(stepperZ));
+    IF_ENABLED(Z2_IS_TRINAMIC, axis_connection += test_connection(stepperZ2));
+    IF_ENABLED(Z3_IS_TRINAMIC, axis_connection += test_connection(stepperZ3));
+    IF_ENABLED(Z4_IS_TRINAMIC, axis_connection += test_connection(stepperZ4));
   }
 
-  TERN_(I_IS_TRINAMIC, if (i) axis_connection += test_connection(stepperI));
-  TERN_(J_IS_TRINAMIC, if (j) axis_connection += test_connection(stepperJ));
-  TERN_(K_IS_TRINAMIC, if (k) axis_connection += test_connection(stepperK));
-  TERN_(U_IS_TRINAMIC, if (u) axis_connection += test_connection(stepperU));
-  TERN_(V_IS_TRINAMIC, if (v) axis_connection += test_connection(stepperV));
-  TERN_(W_IS_TRINAMIC, if (w) axis_connection += test_connection(stepperW));
+  IF_ENABLED(I_IS_TRINAMIC, if (i) axis_connection += test_connection(stepperI));
+  IF_ENABLED(J_IS_TRINAMIC, if (j) axis_connection += test_connection(stepperJ));
+  IF_ENABLED(K_IS_TRINAMIC, if (k) axis_connection += test_connection(stepperK));
+  IF_ENABLED(U_IS_TRINAMIC, if (u) axis_connection += test_connection(stepperU));
+  IF_ENABLED(V_IS_TRINAMIC, if (v) axis_connection += test_connection(stepperV));
+  IF_ENABLED(W_IS_TRINAMIC, if (w) axis_connection += test_connection(stepperW));
 
   if (TERN0(HAS_EXTRUDERS, e)) {
-    TERN_(E0_IS_TRINAMIC, axis_connection += test_connection(stepperE0));
-    TERN_(E1_IS_TRINAMIC, axis_connection += test_connection(stepperE1));
-    TERN_(E2_IS_TRINAMIC, axis_connection += test_connection(stepperE2));
-    TERN_(E3_IS_TRINAMIC, axis_connection += test_connection(stepperE3));
-    TERN_(E4_IS_TRINAMIC, axis_connection += test_connection(stepperE4));
-    TERN_(E5_IS_TRINAMIC, axis_connection += test_connection(stepperE5));
-    TERN_(E6_IS_TRINAMIC, axis_connection += test_connection(stepperE6));
-    TERN_(E7_IS_TRINAMIC, axis_connection += test_connection(stepperE7));
+    IF_ENABLED(E0_IS_TRINAMIC, axis_connection += test_connection(stepperE0));
+    IF_ENABLED(E1_IS_TRINAMIC, axis_connection += test_connection(stepperE1));
+    IF_ENABLED(E2_IS_TRINAMIC, axis_connection += test_connection(stepperE2));
+    IF_ENABLED(E3_IS_TRINAMIC, axis_connection += test_connection(stepperE3));
+    IF_ENABLED(E4_IS_TRINAMIC, axis_connection += test_connection(stepperE4));
+    IF_ENABLED(E5_IS_TRINAMIC, axis_connection += test_connection(stepperE5));
+    IF_ENABLED(E6_IS_TRINAMIC, axis_connection += test_connection(stepperE6));
+    IF_ENABLED(E7_IS_TRINAMIC, axis_connection += test_connection(stepperE7));
   }
 
   if (axis_connection) LCD_MESSAGE(MSG_ERROR_TMC);

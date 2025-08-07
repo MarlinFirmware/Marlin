@@ -202,7 +202,7 @@ public:
 
     static bool set_deployed(const bool, const bool=false) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
+    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(IF_ENABLED(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
 
   #endif // !HAS_BED_PROBE
 
@@ -279,10 +279,10 @@ public:
       );
     }
 
-    static float min_x() { return _min_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
-    static float max_x() { return _max_x() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.x)); }
-    static float min_y() { return _min_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
-    static float max_y() { return _max_y() TERN_(NOZZLE_AS_PROBE, TERN_(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float min_x() { return _min_x() IF_ENABLED(NOZZLE_AS_PROBE, IF_ENABLED(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float max_x() { return _max_x() IF_ENABLED(NOZZLE_AS_PROBE, IF_ENABLED(HAS_HOME_OFFSET, - home_offset.x)); }
+    static float min_y() { return _min_y() IF_ENABLED(NOZZLE_AS_PROBE, IF_ENABLED(HAS_HOME_OFFSET, - home_offset.y)); }
+    static float max_y() { return _max_y() IF_ENABLED(NOZZLE_AS_PROBE, IF_ENABLED(HAS_HOME_OFFSET, - home_offset.y)); }
 
     // constexpr helpers used in build-time static_asserts, relying on default probe offsets.
     class build_time {

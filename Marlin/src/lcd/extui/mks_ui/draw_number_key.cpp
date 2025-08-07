@@ -150,11 +150,11 @@ static void disp_key_value() {
       #endif
     #endif
 
-    case Xcurrent: TERN_(X_IS_TRINAMIC, dtostrf(stepperX.getMilliamps(),  1, 1, public_buf_m)); break;
-    case Ycurrent: TERN_(Y_IS_TRINAMIC, dtostrf(stepperY.getMilliamps(),  1, 1, public_buf_m)); break;
-    case Zcurrent: TERN_(Z_IS_TRINAMIC, dtostrf(stepperZ.getMilliamps(),  1, 1, public_buf_m)); break;
-    case E0current: TERN_(E0_IS_TRINAMIC, dtostrf(stepperE0.getMilliamps(), 1, 1, public_buf_m)); break;
-    case E1current: TERN_(E1_IS_TRINAMIC, dtostrf(stepperE1.getMilliamps(), 1, 1, public_buf_m)); break;
+    case Xcurrent: IF_ENABLED(X_IS_TRINAMIC, dtostrf(stepperX.getMilliamps(),  1, 1, public_buf_m)); break;
+    case Ycurrent: IF_ENABLED(Y_IS_TRINAMIC, dtostrf(stepperY.getMilliamps(),  1, 1, public_buf_m)); break;
+    case Zcurrent: IF_ENABLED(Z_IS_TRINAMIC, dtostrf(stepperZ.getMilliamps(),  1, 1, public_buf_m)); break;
+    case E0current: IF_ENABLED(E0_IS_TRINAMIC, dtostrf(stepperE0.getMilliamps(), 1, 1, public_buf_m)); break;
+    case E1current: IF_ENABLED(E1_IS_TRINAMIC, dtostrf(stepperE1.getMilliamps(), 1, 1, public_buf_m)); break;
 
     case pause_pos_x: dtostrf(gCfgItems.pausePosX, 1, 1, public_buf_m); break;
     case pause_pos_y: dtostrf(gCfgItems.pausePosY, 1, 1, public_buf_m); break;
@@ -265,11 +265,11 @@ static void set_value_confirm() {
       case E1step: planner.settings.axis_steps_per_mm[E_AXIS_N(1)] = atof(key_value); planner.refresh_positioning(); break;
     #endif
 
-    case Xcurrent: TERN_(X_IS_TRINAMIC, stepperX.rms_current(atoi(key_value))); break;
-    case Ycurrent: TERN_(Y_IS_TRINAMIC, stepperY.rms_current(atoi(key_value))); break;
-    case Zcurrent: TERN_(Z_IS_TRINAMIC, stepperZ.rms_current(atoi(key_value))); break;
-    case E0current: TERN_(E0_IS_TRINAMIC, stepperE0.rms_current(atoi(key_value))); break;
-    case E1current: TERN_(E1_IS_TRINAMIC, stepperE1.rms_current(atoi(key_value))); break;
+    case Xcurrent: IF_ENABLED(X_IS_TRINAMIC, stepperX.rms_current(atoi(key_value))); break;
+    case Ycurrent: IF_ENABLED(Y_IS_TRINAMIC, stepperY.rms_current(atoi(key_value))); break;
+    case Zcurrent: IF_ENABLED(Z_IS_TRINAMIC, stepperZ.rms_current(atoi(key_value))); break;
+    case E0current: IF_ENABLED(E0_IS_TRINAMIC, stepperE0.rms_current(atoi(key_value))); break;
+    case E1current: IF_ENABLED(E1_IS_TRINAMIC, stepperE1.rms_current(atoi(key_value))); break;
 
     case pause_pos_x: gCfgItems.pausePosX = atof(key_value); update_spi_flash(); break;
     case pause_pos_y: gCfgItems.pausePosY = atof(key_value); update_spi_flash(); break;
@@ -330,10 +330,10 @@ static void set_value_confirm() {
       update_spi_flash();
       break;
 
-    case x_sensitivity: TERN_(X_SENSORLESS, stepperX.homing_threshold(atoi(key_value))); break;
-    case y_sensitivity: TERN_(Y_SENSORLESS, stepperY.homing_threshold(atoi(key_value))); break;
-    case z_sensitivity: TERN_(Z_SENSORLESS, stepperZ.homing_threshold(atoi(key_value))); break;
-    case z2_sensitivity: TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(atoi(key_value))); break;
+    case x_sensitivity: IF_ENABLED(X_SENSORLESS, stepperX.homing_threshold(atoi(key_value))); break;
+    case y_sensitivity: IF_ENABLED(Y_SENSORLESS, stepperY.homing_threshold(atoi(key_value))); break;
+    case z_sensitivity: IF_ENABLED(Z_SENSORLESS, stepperZ.homing_threshold(atoi(key_value))); break;
+    case z2_sensitivity: IF_ENABLED(Z2_SENSORLESS, stepperZ2.homing_threshold(atoi(key_value))); break;
   }
   gcode.process_subcommands_now(F("M500"));
 }

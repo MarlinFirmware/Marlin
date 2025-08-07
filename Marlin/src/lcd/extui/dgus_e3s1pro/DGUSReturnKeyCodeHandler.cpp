@@ -166,7 +166,7 @@ void DGUSReturnKeyCodeHandler::Command_CheckKO(DGUS_VP &vp, void *data) {
     case DGUS_ScreenID::FILAMENTUSEUP:
     case DGUS_ScreenID::FILAMENTLOAD:
       ExtUI::stopPrint();
-      TERN_(HAS_FILAMENT_SENSOR,ExtUI::setFilamentRunoutState(false));
+      IF_ENABLED(HAS_FILAMENT_SENSOR,ExtUI::setFilamentRunoutState(false));
       screen.triggerScreenChange(DGUS_ScreenID::FINISH);
       break;
 

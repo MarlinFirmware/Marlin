@@ -74,7 +74,7 @@ millis_t PrintCounter::lastDuration;
 bool PrintCounter::loaded = false;
 
 millis_t PrintCounter::deltaDuration() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("deltaDuration")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("deltaDuration")));
   millis_t tmp = lastDuration;
   lastDuration = duration();
   return lastDuration - tmp;
@@ -82,7 +82,7 @@ millis_t PrintCounter::deltaDuration() {
 
 #if HAS_EXTRUDERS
   void PrintCounter::incFilamentUsed(float const &amount) {
-    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
+    IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
 
     // Refuses to update data if object is not loaded
     if (!isLoaded()) return;
@@ -92,7 +92,7 @@ millis_t PrintCounter::deltaDuration() {
 #endif
 
 void PrintCounter::initStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
 
   loaded = true;
 
@@ -132,7 +132,7 @@ void PrintCounter::initStats() {
 #endif
 
 void PrintCounter::loadStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("loadStats")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("loadStats")));
 
   // Check if the EEPROM block is initialized
   uint8_t value = 0;
@@ -165,19 +165,19 @@ void PrintCounter::loadStats() {
 }
 
 void PrintCounter::saveStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("saveStats")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("saveStats")));
 
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
 
-  TERN_(PRINTCOUNTER_SYNC, planner.synchronize());
+  IF_ENABLED(PRINTCOUNTER_SYNC, planner.synchronize());
 
   // Saves the struct to EEPROM
   persistentStore.access_start();
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onSettingsStored(true));
 }
 
 #if HAS_SERVICE_INTERVALS
@@ -243,7 +243,7 @@ void PrintCounter::tick() {
   if (ELAPSED(now, update_next)) {
     update_next = now + updateInterval;
 
-    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
+    IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
 
     millis_t delta = deltaDuration();
     data.printTime += delta;
@@ -270,7 +270,7 @@ void PrintCounter::tick() {
 
 // @Override
 bool PrintCounter::start() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("start")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("start")));
 
   bool paused = isPaused();
 
@@ -286,7 +286,7 @@ bool PrintCounter::start() {
 }
 
 bool PrintCounter::_stop(const bool completed) {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
   const bool did_stop = super::stop();
   if (did_stop) {
@@ -303,7 +303,7 @@ bool PrintCounter::_stop(const bool completed) {
 
 // @Override
 void PrintCounter::reset() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
+  IF_ENABLED(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
 
   super::reset();
   lastDuration = 0;

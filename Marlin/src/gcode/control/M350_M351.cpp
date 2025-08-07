@@ -39,7 +39,7 @@
 void GcodeSuite::M350() {
   if (parser.seen('S')) LOOP_DISTINCT_AXES(i) stepper.microstep_mode(i, parser.value_byte());
   LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_mode(i, parser.value_byte());
-  TERN_(HAS_M350_B_PARAM, if (parser.seenval('B')) stepper.microstep_mode(E_AXIS + 1, parser.value_byte()));
+  IF_ENABLED(HAS_M350_B_PARAM, if (parser.seenval('B')) stepper.microstep_mode(E_AXIS + 1, parser.value_byte()));
   stepper.microstep_readings();
 }
 
@@ -54,15 +54,15 @@ void GcodeSuite::M351() {
   if (parser.seenval('S')) switch (parser.value_byte()) {
     case 1:
       LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_ms(i, parser.value_byte(), -1, -1);
-      TERN_(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, bval != 0, -1, -1));
+      IF_ENABLED(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, bval != 0, -1, -1));
       break;
     case 2:
       LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_ms(i, -1, parser.value_byte(), -1);
-      TERN_(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, -1, bval != 0, -1));
+      IF_ENABLED(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, -1, bval != 0, -1));
       break;
     case 3:
       LOOP_LOGICAL_AXES(i) if (parser.seenval(AXIS_CHAR(i))) stepper.microstep_ms(i, -1, -1, parser.value_byte());
-      TERN_(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, -1, -1, bval != 0));
+      IF_ENABLED(HAS_M350_B_PARAM, if (bval >= 0) stepper.microstep_ms(E_AXIS + 1, -1, -1, bval != 0));
       break;
   }
   stepper.microstep_readings();

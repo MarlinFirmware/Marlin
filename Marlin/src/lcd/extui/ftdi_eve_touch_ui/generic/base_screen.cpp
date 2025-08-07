@@ -81,7 +81,7 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  TERN_(HAS_SCREEN_TIMEOUT, last_interaction = millis());
+  IF_ENABLED(HAS_SCREEN_TIMEOUT, last_interaction = millis());
 }
 
 #if HAS_SCREEN_TIMEOUT

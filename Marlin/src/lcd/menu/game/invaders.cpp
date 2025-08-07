@@ -401,39 +401,39 @@ void InvadersGame::game_screen() {
 
   // Draw UFO
   if (idat.ufov && PAGE_UNDER(UFO_H + 2)) {
-    TERN_(IS_DWIN_MARLINUI, set_color(UFO_COLOR));
+    IF_ENABLED(IS_DWIN_MARLINUI, set_color(UFO_COLOR));
     draw_bitmap(idat.ufox, 2, 2, UFO_H, ufo);
   }
 
   // Draw cannon
   if (game_state && PAGE_CONTAINS(CANNON_Y, CANNON_Y + CANNON_H - 1) && (game_state < 2 || (game_state & 0x02))) {
-    TERN_(IS_DWIN_MARLINUI, set_color(CANNON_COLOR));
+    IF_ENABLED(IS_DWIN_MARLINUI, set_color(CANNON_COLOR));
     draw_bitmap(idat.cannon_x, CANNON_Y, 2, CANNON_H, cannon);
   }
 
   // Draw laser
   if (idat.laser.v && PAGE_CONTAINS(idat.laser.y, idat.laser.y + LASER_H - 1)) {
-    TERN_(IS_DWIN_MARLINUI, set_color(LASER_COLOR));
+    IF_ENABLED(IS_DWIN_MARLINUI, set_color(LASER_COLOR));
     draw_vline(idat.laser.x, idat.laser.y, LASER_H);
   }
 
   // Draw invader bullets
   for (uint8_t i = 0; i < COUNT(idat.bullet); ++i) {
     if (idat.bullet[i].v && PAGE_CONTAINS(idat.bullet[i].y - (SHOT_H - 1), idat.bullet[i].y)) {
-      TERN_(IS_DWIN_MARLINUI, set_color(BULLET_COLOR));
+      IF_ENABLED(IS_DWIN_MARLINUI, set_color(BULLET_COLOR));
       draw_vline(idat.bullet[i].x, idat.bullet[i].y - (SHOT_H - 1), SHOT_H);
     }
   }
 
   // Draw explosion
   if (idat.explod.v && PAGE_CONTAINS(idat.explod.y, idat.explod.y + 7 - 1)) {
-    TERN_(IS_DWIN_MARLINUI, set_color(EXPLOSION_COLOR));
+    IF_ENABLED(IS_DWIN_MARLINUI, set_color(EXPLOSION_COLOR));
     draw_bitmap(idat.explod.x, idat.explod.y, 2, 7, explosion);
     --idat.explod.v;
   }
 
   // Everything else is white
-  TERN_(IS_DWIN_MARLINUI, set_color(color::WHITE));
+  IF_ENABLED(IS_DWIN_MARLINUI, set_color(color::WHITE));
 
   // Blink GAME OVER when game is over
   if (!game_state) draw_game_over();
@@ -442,7 +442,7 @@ void InvadersGame::game_screen() {
     // Draw lives
     if (idat.cannons_left)
       for (uint8_t i = 1; i <= idat.cannons_left; ++i) {
-        TERN_(IS_DWIN_MARLINUI, set_color(LIFE_COLOR));
+        IF_ENABLED(IS_DWIN_MARLINUI, set_color(LIFE_COLOR));
         draw_bitmap(GAME_WIDTH - i * (LIFE_W), 6 - (LIFE_H), 1, LIFE_H, life);
       }
 

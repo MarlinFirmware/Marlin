@@ -84,7 +84,7 @@ void MKS_pause_print_move() {
   position_before_pause = current_position;
 
   // Save the current position, the raise amount, and 'already raised'
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, mks_park_pos.z, true));
+  IF_ENABLED(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, mks_park_pos.z, true));
 
   destination.z = _MIN(current_position.z + mks_park_pos.z, Z_MAX_POS);
   prepare_internal_move_to_destination(park_speed_z);
@@ -98,7 +98,7 @@ void MKS_resume_print_move() {
   prepare_internal_move_to_destination(park_speed_xy);
   destination.z = position_before_pause.z;
   prepare_internal_move_to_destination(park_speed_z);
-  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+  IF_ENABLED(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 }
 
 float z_offset_add = 0;

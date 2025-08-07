@@ -334,7 +334,7 @@ void DGUSScreenHandlerMKS::getTurnOffCtrl(DGUS_VP_Variable &var, void *val_ptr) 
 
 void DGUSScreenHandlerMKS::getMinExtrudeTemp(DGUS_VP_Variable &var, void *val_ptr) {
   const uint16_t value = BE16_P(val_ptr);
-  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp = value);
+  IF_ENABLED(PREVENT_COLD_EXTRUSION, thermalManager.extrude_min_temp = value);
   mks_min_extrusion_temp = value;
   settings.save();
 }
@@ -1088,8 +1088,8 @@ void DGUSScreenHandlerMKS::filamentUnload(DGUS_VP_Variable &var, void *val_ptr) 
     }
 
     if (filament_data.action == 0) { // Go back to utility screen
-      TERN_(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
-      TERN_(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
+      IF_ENABLED(HAS_EXTRUDERS, thermalManager.setTargetHotend(e_temp, 0));
+      IF_ENABLED(HAS_MULTI_EXTRUDER, thermalManager.setTargetHotend(e_temp, 1));
       gotoScreen(DGUS_SCREEN_UTILITY);
       return;
     }
@@ -1171,9 +1171,9 @@ bool DGUSScreenHandlerMKS::loop() {
     if (!booted && ELAPSED(ms, TERN(USE_MKS_GREEN_UI, 1000, BOOTSCREEN_TIMEOUT))) {
       booted = true;
       #if USE_SENSORLESS
-        TERN_(X_HAS_STEALTHCHOP, tmc_stall_sens.x = stepperX.homing_threshold());
-        TERN_(Y_HAS_STEALTHCHOP, tmc_stall_sens.y = stepperY.homing_threshold());
-        TERN_(Z_HAS_STEALTHCHOP, tmc_stall_sens.z = stepperZ.homing_threshold());
+        IF_ENABLED(X_HAS_STEALTHCHOP, tmc_stall_sens.x = stepperX.homing_threshold());
+        IF_ENABLED(Y_HAS_STEALTHCHOP, tmc_stall_sens.y = stepperY.homing_threshold());
+        IF_ENABLED(Z_HAS_STEALTHCHOP, tmc_stall_sens.z = stepperZ.homing_threshold());
       #endif
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -1183,7 +1183,7 @@ bool DGUSScreenHandlerMKS::loop() {
 
       extrudeLoadInit();
 
-      TERN_(DGUS_MKS_RUNOUT_SENSOR, runoutInit());
+      IF_ENABLED(DGUS_MKS_RUNOUT_SENSOR, runoutInit());
 
       if (TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
         gotoScreen(DGUS_SCREEN_POWER_LOSS);

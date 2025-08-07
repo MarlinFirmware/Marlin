@@ -58,7 +58,7 @@ void MarlinUI::tft_idle() {
 
   tft.queue.async();
 
-  TERN_(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
+  IF_ENABLED(TOUCH_SCREEN, if (tft.queue.is_empty()) touch.idle()); // Touch driver is not DMA-aware, so only check for touch controls after screen drawing is completed
 }
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -141,7 +141,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater) {
   #endif
   else return;
 
-  TERN_(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H, heater));
+  IF_ENABLED(TOUCH_SCREEN, if (targetTemperature >= 0) touch.add_control(HEATER, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H, heater));
   tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -186,7 +186,7 @@ void draw_heater_status(uint16_t x, uint16_t y, const int8_t heater) {
 }
 
 void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
-  TERN_(TOUCH_SCREEN, touch.add_control(FAN, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H));
+  IF_ENABLED(TOUCH_SCREEN, touch.add_control(FAN, x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H));
   tft.canvas(x, y, TEMP_FAN_CONTROL_W, TEMP_FAN_CONTROL_H);
   tft.set_background(COLOR_BACKGROUND);
 
@@ -209,7 +209,7 @@ void draw_fan_status(uint16_t x, uint16_t y, const bool blink) {
 
 void MarlinUI::draw_status_screen() {
   const bool blink = get_blink();
-  TERN_(TOUCH_SCREEN, touch.clear());
+  IF_ENABLED(TOUCH_SCREEN, touch.clear());
 
   // Statuses of heaters and fans
   for (uint16_t i = 0; i < _MIN(ITEMS_COUNT, MAX_ITEMS); i++) {
@@ -240,7 +240,7 @@ void MarlinUI::draw_status_screen() {
 
   // Coordinates
   #if ENABLED(MOVE_AXIS_SCREEN)
-    TERN_(TOUCH_SCREEN, touch.add_control(MENU_SCREEN, COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H, (intptr_t) ui.move_axis_screen));
+    IF_ENABLED(TOUCH_SCREEN, touch.add_control(MENU_SCREEN, COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H, (intptr_t) ui.move_axis_screen));
   #endif
 
   tft.canvas(COORDINATES_X, COORDINATES_Y, COORDINATES_W, COORDINATES_H);
@@ -302,7 +302,7 @@ void MarlinUI::draw_status_screen() {
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
   tft.add_text(36, tft_string.vcenter(30), color, tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(FEEDRATE, FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H));
+  IF_ENABLED(TOUCH_SCREEN, touch.add_control(FEEDRATE, FEEDRATE_X, FEEDRATE_Y, FEEDRATE_W, FEEDRATE_H));
 
   #if HAS_EXTRUDERS
     // Flow rate
@@ -313,7 +313,7 @@ void MarlinUI::draw_status_screen() {
     tft_string.set(i16tostr3rj(planner.flow_percentage[active_extruder]));
     tft_string.add('%');
     tft.add_text(FLOWRATE_TEXT_X, FLOWRATE_TEXT_Y, color, tft_string);
-    TERN_(TOUCH_SCREEN, touch.add_control(FLOWRATE, FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H, active_extruder));
+    IF_ENABLED(TOUCH_SCREEN, touch.add_control(FLOWRATE, FLOWRATE_X, FLOWRATE_Y, FLOWRATE_W, FLOWRATE_H, active_extruder));
   #endif
 
   #if ENABLED(TOUCH_SCREEN)
@@ -394,7 +394,7 @@ void MarlinUI::draw_status_screen() {
 // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
 void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const value/*=nullptr*/) {
   ui.encoder_direction_normal();
-  TERN_(TOUCH_SCREEN, touch.clear());
+  IF_ENABLED(TOUCH_SCREEN, touch.clear());
 
   uint16_t line = 1;
 
@@ -403,7 +403,7 @@ void MenuEditItemBase::draw_edit_screen(FSTR_P const ftpl, const char * const va
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y, COLOR_MENU_TEXT, tft_string);
 
-  TERN_(AUTO_BED_LEVELING_UBL, if (ui.external_control) line++);  // ftostr52() will overwrite *value so *value has to be displayed first
+  IF_ENABLED(AUTO_BED_LEVELING_UBL, if (ui.external_control) line++);  // ftostr52() will overwrite *value so *value has to be displayed first
 
   menu_line(line);
   tft_string.set(value);

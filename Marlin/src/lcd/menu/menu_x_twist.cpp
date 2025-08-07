@@ -139,7 +139,7 @@ void xatc_wizard_goto_next_point() {
       ui.goto_screen(xatc_wizard_moving);
 
       // Deploy certain probes before starting probing
-      TERN_(BLTOUCH, do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
+      IF_ENABLED(BLTOUCH, do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
 
       xatc.set_enabled(false);
       measured_z = probe.probe_at_point(x, XATC_Y_POSITION, PROBE_PT_STOW);

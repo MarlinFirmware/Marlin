@@ -120,8 +120,8 @@ void menu_configuration();
 
   void _lcd_custom_menu_main_gcode(FSTR_P const fstr) {
     queue.inject(fstr);
-    TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-    TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
+    IF_ENABLED(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    IF_ENABLED(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
   }
 
   void custom_menus_main() {
@@ -358,7 +358,7 @@ void menu_main() {
             if (card.isFlashDriveInserted())
               SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY_USB);
           #else
-            #define M21(T) F("M21" TERN_(HAS_MULTI_VOLUME, T))
+            #define M21(T) F("M21" IF_ENABLED(HAS_MULTI_VOLUME, T))
             if (att_sd)  GCODES_ITEM(MSG_ATTACH_SD,  M21("S")); // M21 S - [Attach SD Card]
             if (att_usb) GCODES_ITEM(MSG_ATTACH_USB, M21("U")); // M21 U - [Attach USB Drive]
           #endif

@@ -38,8 +38,8 @@
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
-    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
-    TERN_(HOST_ACTION_COMMANDS, "H")
+    IF_ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
+    IF_ENABLED(HOST_ACTION_COMMANDS, "H")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
@@ -71,7 +71,7 @@ void GcodeSuite::M412() {
 }
 
 void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
   SERIAL_ECHOLNPGM(

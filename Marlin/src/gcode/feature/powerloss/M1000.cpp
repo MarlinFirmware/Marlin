@@ -90,7 +90,7 @@ void GcodeSuite::M1000() {
       #else
         recovery.cancel();
       #endif
-      TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     }
     else
       recovery.resume();

@@ -80,7 +80,7 @@ void MeshViewer::drawMeshPoint(const uint8_t x, const uint8_t y, const float z) 
 
   const uint16_t color = DWINUI::rainbowInt(v, zmin, zmax);
   DWINUI::drawFillCircle(color, px(x), py(y), r(_MAX(_MIN(v, zmax), zmin)));
-  TERN_(TJC_DISPLAY, delay(100));
+  IF_ENABLED(TJC_DISPLAY, delay(100));
 
   const uint16_t fy = py(y) - fs;
   if (sizex < TERN(TJC_DISPLAY, 8, 9)) {
@@ -135,7 +135,7 @@ void MeshViewer::draw(const bool withsave/*=false*/, const bool redraw/*=true*/)
     DWINUI::drawButton(BTN_Continue, 86, 305);
 
   if (see_mesh) {
-    TERN_(USE_GRID_MESHVIEWER, bedLevelTools.setMeshViewerStatus());
+    IF_ENABLED(USE_GRID_MESHVIEWER, bedLevelTools.setMeshViewerStatus());
   }
   else // TODO: in marlinui.h set_status_and_level was defined to (..., const int8_t level=0); remove ", 0" when pulling other PR
     ui.set_status_and_level(MString<30>(F("Mesh Z min: "), p_float_t(min, 2), F(", max: "), p_float_t(max, 2)), 0);

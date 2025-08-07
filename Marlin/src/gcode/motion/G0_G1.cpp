@@ -48,10 +48,10 @@ extern xyze_pos_t destination;
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
-void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
+void GcodeSuite::G0_G1(IF_ENABLED(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (!MOTION_CONDITIONS) return;
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
   #ifdef G0_FEEDRATE
     feedRate_t old_feedrate;
@@ -117,10 +117,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       planner.synchronize();
       SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
     }
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+    IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   #else
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+    IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   #endif
 
-  TERN_(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
+  IF_ENABLED(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
 }

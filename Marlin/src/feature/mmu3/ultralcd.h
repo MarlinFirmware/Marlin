@@ -48,7 +48,7 @@
 class LcdUpdateDisabler {
   public:
     LcdUpdateDisabler() : m_updateEnabled(ui.lcdDrawUpdate) {
-      TERN_(HAS_WIRED_LCD, ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE);
+      IF_ENABLED(HAS_WIRED_LCD, ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE);
     }
     ~LcdUpdateDisabler() {
       #if HAS_WIRED_LCD

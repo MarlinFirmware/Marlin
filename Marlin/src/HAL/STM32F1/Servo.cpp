@@ -136,7 +136,7 @@ void libServo::move(const int32_t value) {
     angle = constrain(value, minAngle, maxAngle);
     servoWrite(pin, US_TO_COMPARE(ANGLE_TO_US(angle)));
     safe_delay(servo_delay[servoIndex]);
-    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+    IF_ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

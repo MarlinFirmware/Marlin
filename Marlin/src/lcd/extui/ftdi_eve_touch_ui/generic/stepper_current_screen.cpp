@@ -34,16 +34,16 @@ void StepperCurrentScreen::onRedraw(draw_mode_t what) {
   w.precision(0);
   w.units(GET_TEXT_F(MSG_UNITS_MILLIAMP));
   w.heading(GET_TEXT_F(MSG_TMC_CURRENT));
-  TERN_(X_IS_TRINAMIC,  w.color(x_axis) .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisCurrent_mA(X) ) );
-  TERN_(X2_IS_TRINAMIC, w.color(x_axis) .adjuster( 4, GET_TEXT_F(MSG_AXIS_X2), getAxisCurrent_mA(X2)) );
-  TERN_(Y_IS_TRINAMIC,  w.color(y_axis) .adjuster( 6, GET_TEXT_F(MSG_AXIS_Y),  getAxisCurrent_mA(Y) ) );
-  TERN_(Y2_IS_TRINAMIC, w.color(x_axis) .adjuster( 8, GET_TEXT_F(MSG_AXIS_Y2), getAxisCurrent_mA(Y2)) );
-  TERN_(Z_IS_TRINAMIC,  w.color(z_axis) .adjuster(10, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) ) );
-  TERN_(Z2_IS_TRINAMIC, w.color(z_axis) .adjuster(12, GET_TEXT_F(MSG_AXIS_Z2), getAxisCurrent_mA(Z2)) );
-  TERN_(E0_IS_TRINAMIC, w.color(e_axis) .adjuster(14, GET_TEXT_F(TERN(HAS_MULTI_EXTRUDER, MSG_AXIS_E1, MSG_AXIS_E)), getAxisCurrent_mA(E0)) );
-  TERN_(E1_IS_TRINAMIC, w.color(e_axis) .adjuster(16, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1)) );
-  TERN_(E2_IS_TRINAMIC, w.color(e_axis) .adjuster(18, GET_TEXT_F(MSG_AXIS_E3), getAxisCurrent_mA(E2)) );
-  TERN_(E3_IS_TRINAMIC, w.color(e_axis) .adjuster(20, GET_TEXT_F(MSG_AXIS_E4), getAxisCurrent_mA(E3)) );
+  IF_ENABLED(X_IS_TRINAMIC,  w.color(x_axis) .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisCurrent_mA(X) ) );
+  IF_ENABLED(X2_IS_TRINAMIC, w.color(x_axis) .adjuster( 4, GET_TEXT_F(MSG_AXIS_X2), getAxisCurrent_mA(X2)) );
+  IF_ENABLED(Y_IS_TRINAMIC,  w.color(y_axis) .adjuster( 6, GET_TEXT_F(MSG_AXIS_Y),  getAxisCurrent_mA(Y) ) );
+  IF_ENABLED(Y2_IS_TRINAMIC, w.color(x_axis) .adjuster( 8, GET_TEXT_F(MSG_AXIS_Y2), getAxisCurrent_mA(Y2)) );
+  IF_ENABLED(Z_IS_TRINAMIC,  w.color(z_axis) .adjuster(10, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) ) );
+  IF_ENABLED(Z2_IS_TRINAMIC, w.color(z_axis) .adjuster(12, GET_TEXT_F(MSG_AXIS_Z2), getAxisCurrent_mA(Z2)) );
+  IF_ENABLED(E0_IS_TRINAMIC, w.color(e_axis) .adjuster(14, GET_TEXT_F(TERN(HAS_MULTI_EXTRUDER, MSG_AXIS_E1, MSG_AXIS_E)), getAxisCurrent_mA(E0)) );
+  IF_ENABLED(E1_IS_TRINAMIC, w.color(e_axis) .adjuster(16, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1)) );
+  IF_ENABLED(E2_IS_TRINAMIC, w.color(e_axis) .adjuster(18, GET_TEXT_F(MSG_AXIS_E3), getAxisCurrent_mA(E2)) );
+  IF_ENABLED(E3_IS_TRINAMIC, w.color(e_axis) .adjuster(20, GET_TEXT_F(MSG_AXIS_E4), getAxisCurrent_mA(E3)) );
   w.increments();
 }
 

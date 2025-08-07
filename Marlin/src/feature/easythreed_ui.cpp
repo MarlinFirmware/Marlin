@@ -224,7 +224,7 @@ void EasythreedUI::printButton() {
           blink_interval_ms = LED_OFF;                              // Turn off LED
         }
         planner.synchronize();                                      // Wait for commands already in the planner to finish
-        TERN_(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
+        IF_ENABLED(HAS_STEPPER_RESET, disableStepperDrivers());          // Disable all steppers - now!
         print_key_flag = PF_START;                                  // The "Print" button now starts a new print
       }
       break;

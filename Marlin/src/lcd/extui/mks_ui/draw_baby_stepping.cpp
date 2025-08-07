@@ -104,7 +104,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_BABYSTEP_RETURN:
       if (has_adjust_z == 1) {
-        TERN_(EEPROM_SETTINGS, (void)settings.save());
+        IF_ENABLED(EEPROM_SETTINGS, (void)settings.save());
         has_adjust_z = 0;
       }
       goto_previous_ui();

@@ -53,7 +53,7 @@ void GcodeSuite::M401() {
   #endif
 
   probe.deploy(parser.boolval('R'));
-  TERN_(PROBE_TARE, probe.tare());
+  IF_ENABLED(PROBE_TARE, probe.tare());
   report_current_position();
 }
 

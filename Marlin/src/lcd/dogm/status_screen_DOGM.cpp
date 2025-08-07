@@ -584,11 +584,11 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      TERN_(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
-      TERN_(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
+      IF_ENABLED(HAS_X_AXIS, strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x)));
+      IF_ENABLED(HAS_Y_AXIS, strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y)));
     }
 
-    TERN_(HAS_Z_AXIS, strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z)));
+    IF_ENABLED(HAS_Z_AXIS, strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z)));
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filwidth.measured_mm));
@@ -738,19 +738,19 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     // Heated Bed
-    TERN_(DO_DRAW_BED, _draw_bed_status(blink));
+    IF_ENABLED(DO_DRAW_BED, _draw_bed_status(blink));
 
     // Heated Chamber
-    TERN_(DO_DRAW_CHAMBER, _draw_chamber_status());
+    IF_ENABLED(DO_DRAW_CHAMBER, _draw_chamber_status());
 
     // Cooler
-    TERN_(DO_DRAW_COOLER, _draw_cooler_status());
+    IF_ENABLED(DO_DRAW_COOLER, _draw_cooler_status());
 
     // Flowmeter
-    TERN_(DO_DRAW_FLOWMETER, _draw_flowmeter_status());
+    IF_ENABLED(DO_DRAW_FLOWMETER, _draw_flowmeter_status());
 
     // Flowmeter
-    TERN_(DO_DRAW_AMMETER, _draw_ammeter_status());
+    IF_ENABLED(DO_DRAW_AMMETER, _draw_ammeter_status());
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
@@ -868,13 +868,13 @@ void MarlinUI::draw_status_screen() {
           #endif
         }
         else {
-          TERN_(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
-          TERN_(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
+          IF_ENABLED(HAS_X_AXIS, _draw_axis_value(X_AXIS, xstring, blink));
+          IF_ENABLED(HAS_Y_AXIS, _draw_axis_value(Y_AXIS, ystring, blink));
         }
 
       #endif
 
-      TERN_(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, zstring, blink));
+      IF_ENABLED(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, zstring, blink));
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white

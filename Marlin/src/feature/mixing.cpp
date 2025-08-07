@@ -77,7 +77,7 @@ void Mixer::normalize(const uint8_t tool_index) {
     SERIAL_ECHOLNPGM("]");
   #endif
 
-  TERN_(GRADIENT_MIX, refresh_gradient());
+  IF_ENABLED(GRADIENT_MIX, refresh_gradient());
 }
 
 void Mixer::reset_vtools() {
@@ -131,7 +131,7 @@ void Mixer::init() {
     update_mix_from_vtool();
   #endif
 
-  TERN_(GRADIENT_MIX, update_gradient_for_planner_z());
+  IF_ENABLED(GRADIENT_MIX, update_gradient_for_planner_z());
 }
 
 void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=selected_vtool*/, float (&c)[MIXING_STEPPERS]/*=collector*/) {

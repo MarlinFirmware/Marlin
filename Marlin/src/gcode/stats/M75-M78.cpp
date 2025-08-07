@@ -52,7 +52,7 @@ void GcodeSuite::M75() {
  */
 void GcodeSuite::M76() {
   print_job_timer.pause(); // ... ExtUI::onPrintTimerPaused()
-  TERN_(HOST_PAUSE_M76, hostui.pause());
+  IF_ENABLED(HOST_PAUSE_M76, hostui.pause());
 }
 
 /**

@@ -59,7 +59,7 @@ namespace FTDI {
 
     cmd.apply_text_alignment(x, y, w, h, options);
     if (use_utf8) {
-      TERN_(TOUCH_UI_USE_UTF8, draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options));
+      IF_ENABLED(TOUCH_UI_USE_UTF8, draw_utf8_text(cmd, x, y, str, font_size_t::from_romfont(font), options));
     }
     else {
       cmd.CLCD::CommandFifo::text(x, y, font, options);

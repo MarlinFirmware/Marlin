@@ -58,7 +58,7 @@ class libServo: public Servo {
     if (attach(servo_info[servoIndex].Pin.nbr) >= 0) {    // try to reattach
       write(value);
       safe_delay(servo_delay[servoIndex]); // delay to allow servo to reach position
-      TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+      IF_ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
     }
 
   }

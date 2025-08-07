@@ -93,8 +93,8 @@ class FTMotion {
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
-          TERN_(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
-          TERN_(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
+          IF_ENABLED(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
+          IF_ENABLED(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
         #endif
 
         update_shaping_params();

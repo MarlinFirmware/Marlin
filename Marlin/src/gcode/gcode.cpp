@@ -112,7 +112,7 @@ void GcodeSuite::report_heading(const bool forReplay, FSTR_P const fstr, const b
 
 void GcodeSuite::say_units() {
   SERIAL_ECHOLNPGM_P(
-    TERN_(INCH_MODE_SUPPORT, parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :)
+    IF_ENABLED(INCH_MODE_SUPPORT, parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :)
     PSTR(" (mm)")
   );
 }
@@ -204,7 +204,7 @@ void GcodeSuite::get_destination_from_command() {
     const float fr_mm_min = parser.value_linear_units();
     feedrate_mm_s = MMM_TO_MMS(fr_mm_min);
     // Update the cutter feed rate for use by M4 I set inline moves.
-    TERN_(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
+    IF_ENABLED(LASER_FEATURE, cutter.feedrate_mm_m = fr_mm_min);
   }
 
   #if ALL(PRINTCOUNTER, HAS_EXTRUDERS)
@@ -257,7 +257,7 @@ void GcodeSuite::dwell(const millis_t time) {
 #if ENABLED(G29_RETRY_AND_RECOVER)
 
   void GcodeSuite::event_probe_recover() {
-    TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
+    IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.prompt_do(PROMPT_INFO, F("G29 Retrying"), FPSTR(DISMISS_STR)));
     #ifdef ACTION_ON_G29_RECOVER
       hostui.g29_recover();
     #endif
@@ -301,17 +301,17 @@ void GcodeSuite::dwell(const millis_t time) {
 
     if (fail) {
       event_probe_failure();
-      TERN_(G29_HALT_ON_FAILURE, return);
+      IF_ENABLED(G29_HALT_ON_FAILURE, return);
     }
     else {
-      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_end());
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.prompt_end());
       #ifdef G29_SUCCESS_COMMANDS
         process_subcommands_now(F(G29_SUCCESS_COMMANDS));
       #endif
     }
 
-    TERN_(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+    IF_ENABLED(HAS_DWIN_E3V2_BASIC, dwinLevelingDone());
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onLevelingDone());
   }
 
 #endif // G29_RETRY_AND_RECOVER
@@ -320,7 +320,7 @@ void GcodeSuite::dwell(const millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
-  TERN_(HAS_FANCHECK, fan_check.check_deferred_error());
+  IF_ENABLED(HAS_FANCHECK, fan_check.check_deferred_error());
 
   KEEPALIVE_STATE(IN_HANDLER);
 
@@ -350,7 +350,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
     case 'G': switch (parser.codenum) {
 
       case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
-        G0_G1(TERN_(HAS_FAST_MOVES, parser.codenum == 0)); break;
+        G0_G1(IF_ENABLED(HAS_FAST_MOVES, parser.codenum == 0)); break;
 
       #if ENABLED(ARC_SUPPORT)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
@@ -601,7 +601,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         #endif
       #else
         case 108: case 112: case 410:
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)
+        IF_ENABLED(HOST_PROMPT_SUPPORT, case 876:)
         break;
       #endif
 
@@ -686,7 +686,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 115: M115(); break;                                  // M115: Report capabilities
       #endif
 
-      case 117: TERN_(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
+      case 117: IF_ENABLED(HAS_STATUS_MESSAGE, M117()); break;         // M117: Set LCD message text, if possible
 
       case 118: M118(); break;                                    // M118: Display a message in the host console
       case 119: M119(); break;                                    // M119: Report endstop states
@@ -1192,7 +1192,7 @@ void GcodeSuite::process_next_command() {
 
   PORT_REDIRECT(SERIAL_PORTMASK(command.port));
 
-  TERN_(POWER_LOSS_RECOVERY, recovery.queue_index_r = queue.ring_buffer.index_r);
+  IF_ENABLED(POWER_LOSS_RECOVERY, recovery.queue_index_r = queue.ring_buffer.index_r);
 
   if (DEBUGGING(ECHO)) {
     SERIAL_ECHO_START();
@@ -1263,15 +1263,15 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
+          IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+          IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
-          TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
+          IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_HOLD));
           break;
         default:
           break;

@@ -33,11 +33,11 @@
 #include "indirection.h"
 
 void restore_stepper_drivers() {
-  TERN_(HAS_TRINAMIC_CONFIG, restore_trinamic_drivers());
+  IF_ENABLED(HAS_TRINAMIC_CONFIG, restore_trinamic_drivers());
 }
 
 void reset_stepper_drivers() {
-  TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
+  IF_ENABLED(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
 }
 
 #if ENABLED(SOFTWARE_DRIVER_ENABLE)

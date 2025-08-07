@@ -165,7 +165,7 @@ void RTS::onIdle() {
   rts.sendData(getTargetTemp_celsius(BED), BedPreheat);
   rts.sendData(TERN0(HAS_MULTI_HOTEND, getActualTemp_celsius(H1)), e2Temp);
   rts.sendData(TERN0(HAS_MULTI_HOTEND, getTargetTemp_celsius(H1)), e2Preheat);
-  TERN_(HAS_MULTI_HOTEND, rts.sendData(uint8_t(getActiveTool() + 1), ActiveToolVP));
+  IF_ENABLED(HAS_MULTI_HOTEND, rts.sendData(uint8_t(getActiveTool() + 1), ActiveToolVP));
 
   if (awaitingUserConfirm() && (lastPauseMsgState != ExtUI::pauseModeStatus || userConfValidation > 99)) {
     if (ExtUI::pauseModeStatus < PAUSE_MESSAGE_COUNT)
@@ -246,10 +246,10 @@ void RTS::onIdle() {
       break;
   }
 
-  TERN_(HAS_MESH, rts.sendData(getLevelingActive() ? 3 : 2, AutoLevelIcon));
-  TERN_(HAS_FILAMENT_SENSOR, rts.sendData(getFilamentRunoutEnabled() ? 3 : 2, RunoutToggle));
-  TERN_(CASE_LIGHT_ENABLE, rts.sendData(getCaseLightState() ? 3 : 2, LedToggle));
-  TERN_(POWER_LOSS_RECOVERY, rts.sendData(getPowerLossRecoveryEnabled() ? 3 : 2, PowerLossToggle));
+  IF_ENABLED(HAS_MESH, rts.sendData(getLevelingActive() ? 3 : 2, AutoLevelIcon));
+  IF_ENABLED(HAS_FILAMENT_SENSOR, rts.sendData(getFilamentRunoutEnabled() ? 3 : 2, RunoutToggle));
+  IF_ENABLED(CASE_LIGHT_ENABLE, rts.sendData(getCaseLightState() ? 3 : 2, LedToggle));
+  IF_ENABLED(POWER_LOSS_RECOVERY, rts.sendData(getPowerLossRecoveryEnabled() ? 3 : 2, PowerLossToggle));
 
   if (startprogress == 0) {
     startprogress += 25;
@@ -857,7 +857,7 @@ void RTS::handleData() {
           for (uint8_t i = 0; i < FAN_COUNT; i++) setTargetFan_percent(0, (fan_t)i);
         #endif
         setTargetTemp_celsius(0.0, H0);
-        TERN_(HAS_MULTI_HOTEND, setTargetTemp_celsius(0.0, H1));
+        IF_ENABLED(HAS_MULTI_HOTEND, setTargetTemp_celsius(0.0, H1));
         setTargetTemp_celsius(0.0, BED);
         sendData(0, NozzlePreheat); delay_ms(1);
         sendData(0, BedPreheat);    delay_ms(1);
@@ -1143,7 +1143,7 @@ void RTS::handleData() {
         #endif // HAS_BED_PROBE
 
         case 4:   // Assistant Level
-          TERN_(HAS_MESH, setLevelingActive(false));
+          IF_ENABLED(HAS_MESH, setLevelingActive(false));
           injectCommands(isPositionKnown() ? F("G1 F1000 Z0.0") : F("G28\nG1 F1000 Z0.0"));
           waitway = 2;
           sendData(ExchangePageBase + 84, ExchangepageAddr);

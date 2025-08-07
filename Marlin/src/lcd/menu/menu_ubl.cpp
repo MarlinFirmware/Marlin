@@ -81,13 +81,13 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
     bedlevel.encoder_diff = 0;
     IF_DISABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
   }
-  TERN_(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
+  IF_ENABLED(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
 
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(fmsg, ftostr43sign(rounded_f));
-    TERN_(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
-    TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
+    IF_ENABLED(MESH_EDIT_GFX_OVERLAY, ui.zoffset_overlay(rounded_f));
+    IF_ENABLED(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
 
@@ -96,7 +96,7 @@ void _lcd_mesh_fine_tune(FSTR_P const fmsg) {
 // To capture encoder events UBL will also call ui.capture and ui.release.
 //
 void MarlinUI::ubl_mesh_edit_start(const_float_t initial) {
-  TERN_(HAS_GRAPHICAL_TFT, clear_for_drawing());
+  IF_ENABLED(HAS_GRAPHICAL_TFT, clear_for_drawing());
   mesh_edit_accumulator = initial;
   goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT_F(MSG_MESH_EDIT_Z)); });
 }
@@ -193,7 +193,7 @@ void _lcd_ubl_edit_mesh() {
    */
   void _lcd_ubl_validate_custom_mesh() {
     char ubl_lcd_gcode[20];
-    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 TERN_(HAS_HEATED_BED, "B%" PRIi16))
+    sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26CPH%" PRIi16 IF_ENABLED(HAS_HEATED_BED, "B%" PRIi16))
       , custom_hotend_temp
       OPTARG(HAS_HEATED_BED, custom_bed_temp)
     );

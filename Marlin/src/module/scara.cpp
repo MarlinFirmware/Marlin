@@ -216,9 +216,9 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-      TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
-      TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
-      TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
+      IF_ENABLED(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
+      IF_ENABLED(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
+      IF_ENABLED(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
     #endif
 
     //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
@@ -230,20 +230,20 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
 
     // Set the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
+    IF_ENABLED(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
 
     current_position.set(0, 0, max_length(Z_AXIS));
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
 
     // Restore the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
+    IF_ENABLED(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
-      TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
-      TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
-      TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
+      IF_ENABLED(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
+      IF_ENABLED(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
+      IF_ENABLED(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
     #endif
 
     endstops.validate_homing_move();
@@ -304,7 +304,7 @@ void scara_report_positions() {
       , "  Phi:", planner.get_axis_position_degrees(B_AXIS)
       , "  Psi:", planner.get_axis_position_degrees(C_AXIS)
     #else
-      , "  Psi" TERN_(MORGAN_SCARA, "+Theta") ":", planner.get_axis_position_degrees(B_AXIS)
+      , "  Psi" IF_ENABLED(MORGAN_SCARA, "+Theta") ":", planner.get_axis_position_degrees(B_AXIS)
     #endif
   );
   SERIAL_EOL();

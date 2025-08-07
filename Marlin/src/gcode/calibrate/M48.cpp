@@ -112,7 +112,7 @@ void GcodeSuite::M48() {
     set_bed_leveling_enabled(false);
   #endif
 
-  TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
+  IF_ENABLED(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
   // Work with reasonable feedrates
   remember_feedrate_scaling_off();
@@ -280,10 +280,10 @@ void GcodeSuite::M48() {
   restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(was_enabled));
+  IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(was_enabled));
 
   // Re-enable probe temperature correction
-  TERN_(HAS_PTC, ptc.set_enabled(true));
+  IF_ENABLED(HAS_PTC, ptc.set_enabled(true));
 
   report_current_position();
 }

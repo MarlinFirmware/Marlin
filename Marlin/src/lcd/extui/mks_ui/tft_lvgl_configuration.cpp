@@ -144,7 +144,7 @@ void tft_lvgl_init() {
   #if HAS_MEDIA
     UpdateAssets();
     hal.watchdog_refresh();   // LVGL init takes time
-    TERN_(MKS_TEST, mks_test_get());
+    IF_ENABLED(MKS_TEST, mks_test_get());
   #endif
 
   touch.init();
@@ -202,7 +202,7 @@ void tft_lvgl_init() {
 
   systick_attach_callback(SysTick_Callback);
 
-  TERN_(HAS_SPI_FLASH_FONT, init_gb2312_font());
+  IF_ENABLED(HAS_SPI_FLASH_FONT, init_gb2312_font());
 
   tft_style_init();
   filament_pin_setup();
@@ -211,8 +211,8 @@ void tft_lvgl_init() {
     mks_esp_wifi_init();
     mks_wifi_firmware_update();
   #endif
-  TERN_(HAS_SERVOS, servo_init());
-  TERN_(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
+  IF_ENABLED(HAS_SERVOS, servo_init());
+  IF_ENABLED(HAS_Z_SERVO_PROBE, probe.servo_probe_init());
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();

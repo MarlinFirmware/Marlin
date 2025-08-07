@@ -67,7 +67,7 @@ extern uint32_t MSC_SD_Init(uint8_t pdrv);
 
 void SysTick_Callback() { disk_timerproc(); }
 
-TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+IF_ENABLED(POSTMORTEM_DEBUGGING, extern void install_min_serial());
 
 void MarlinHAL::init() {
 
@@ -152,7 +152,7 @@ void MarlinHAL::init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(true);
 
-  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
+  IF_ENABLED(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
@@ -165,7 +165,7 @@ void MarlinHAL::init() {
 
   HAL_timer_init();
 
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 #include "../../sd/cardreader.h"

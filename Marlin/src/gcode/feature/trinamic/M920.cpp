@@ -63,21 +63,21 @@ void GcodeSuite::M920() {
       #if X_HAS_HOME_CURRENT
         case X_AXIS:
           if (index <= 0) homing_current_mA.X = value;
-          TERN_(X2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.X2 = value);
+          IF_ENABLED(X2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.X2 = value);
           break;
       #endif
       #if Y_HAS_HOME_CURRENT
         case Y_AXIS:
           if (index <= 0) homing_current_mA.Y = value;
-          TERN_(Y2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Y2 = value);
+          IF_ENABLED(Y2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Y2 = value);
           break;
       #endif
       #if Z_HAS_HOME_CURRENT
         case Z_AXIS:
           if (index <= 0) homing_current_mA.Z = value;
-          TERN_(Z2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Z2 = value);
-          TERN_(Z3_HAS_HOME_CURRENT, if (index < 0 || index == 2) homing_current_mA.Z3 = value);
-          TERN_(Z4_HAS_HOME_CURRENT, if (index < 0 || index == 3) homing_current_mA.Z4 = value);
+          IF_ENABLED(Z2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Z2 = value);
+          IF_ENABLED(Z3_HAS_HOME_CURRENT, if (index < 0 || index == 2) homing_current_mA.Z3 = value);
+          IF_ENABLED(Z4_HAS_HOME_CURRENT, if (index < 0 || index == 3) homing_current_mA.Z4 = value);
           break;
       #endif
       OPTCODE(I_HAS_HOME_CURRENT, case I_AXIS: homing_current_mA.I = value; break)
@@ -93,7 +93,7 @@ void GcodeSuite::M920() {
 }
 
 void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_HOMING_CURRENT));
 
@@ -109,27 +109,27 @@ void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
     #else
       say_M920(forReplay);
     #endif
-    TERN_(X_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X));
-    TERN_(Y_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y));
-    TERN_(Z_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z));
+    IF_ENABLED(X_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X));
+    IF_ENABLED(Y_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y));
+    IF_ENABLED(Z_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z));
     #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
       SERIAL_EOL();
       say_M920(forReplay);
     #endif
-    TERN_(I_SENSORLESS, SERIAL_ECHOPGM_P(SP_I_STR, homing_current_mA.I));
-    TERN_(J_SENSORLESS, SERIAL_ECHOPGM_P(SP_J_STR, homing_current_mA.J));
-    TERN_(K_SENSORLESS, SERIAL_ECHOPGM_P(SP_K_STR, homing_current_mA.K));
-    TERN_(U_SENSORLESS, SERIAL_ECHOPGM_P(SP_U_STR, homing_current_mA.U));
-    TERN_(V_SENSORLESS, SERIAL_ECHOPGM_P(SP_V_STR, homing_current_mA.V));
-    TERN_(W_SENSORLESS, SERIAL_ECHOPGM_P(SP_W_STR, homing_current_mA.W));
+    IF_ENABLED(I_SENSORLESS, SERIAL_ECHOPGM_P(SP_I_STR, homing_current_mA.I));
+    IF_ENABLED(J_SENSORLESS, SERIAL_ECHOPGM_P(SP_J_STR, homing_current_mA.J));
+    IF_ENABLED(K_SENSORLESS, SERIAL_ECHOPGM_P(SP_K_STR, homing_current_mA.K));
+    IF_ENABLED(U_SENSORLESS, SERIAL_ECHOPGM_P(SP_U_STR, homing_current_mA.U));
+    IF_ENABLED(V_SENSORLESS, SERIAL_ECHOPGM_P(SP_V_STR, homing_current_mA.V));
+    IF_ENABLED(W_SENSORLESS, SERIAL_ECHOPGM_P(SP_W_STR, homing_current_mA.W));
     SERIAL_EOL();
   #endif
 
   #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
     say_M920(forReplay, 1);
-    TERN_(X2_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
-    TERN_(Y2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
-    TERN_(Z2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
+    IF_ENABLED(X2_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
+    IF_ENABLED(Y2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
+    IF_ENABLED(Z2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
     SERIAL_EOL();
   #endif
   #if Z3_SENSORLESS

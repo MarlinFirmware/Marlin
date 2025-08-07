@@ -73,7 +73,7 @@ void MarlinServo::move(servo_angle_t angle) {
 
   write(angle);
   safe_delay(servoDelays[this->channel]);
-  TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+  IF_ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
 }
 
 servo_angle_t MarlinServo::read() {

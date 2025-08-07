@@ -84,19 +84,19 @@
  */
 static void pre_g29_return(const bool retry, const bool did) {
   if (!retry) {
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
+    IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE, false));
   }
   #if DISABLED(G29_RETRY_AND_RECOVER)
     if (!retry || did) {
-      TERN_(DWIN_CREALITY_LCD, dwinLevelingDone());
-      TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+      IF_ENABLED(DWIN_CREALITY_LCD, dwinLevelingDone());
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onLevelingDone());
     }
   #endif
 }
 
 #define G29_RETURN(retry, did) do{ \
   pre_g29_return(TERN0(G29_RETRY_AND_RECOVER, retry), did); \
-  return TERN_(G29_RETRY_AND_RECOVER, retry); \
+  return IF_ENABLED(G29_RETRY_AND_RECOVER, retry); \
 }while(0)
 
 // For manual probing values persist over multiple G29
@@ -228,7 +228,7 @@ G29_TYPE GcodeSuite::G29() {
   DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
 
   // Leveling state is persistent when done manually with multiple G29 commands
-  TERN_(PROBE_MANUALLY, static) G29_State abl;
+  IF_ENABLED(PROBE_MANUALLY, static) G29_State abl;
 
   // Keep powered steppers from timing out
   reset_stepper_timeout();
@@ -273,7 +273,7 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   // Set and report "probing" state to host
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE, false));
 
   #if DISABLED(PROBE_MANUALLY) && FT_MOTION_DISABLE_FOR_PROBING
     FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
@@ -333,7 +333,7 @@ G29_TYPE GcodeSuite::G29() {
           set_bed_leveling_enabled(false);
           bedlevel.z_values[i][j] = rz;
           bedlevel.refresh_bed_level();
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
+          IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
           if (abl.reenable) {
             set_bed_leveling_enabled(true);
             report_current_position();
@@ -444,7 +444,7 @@ G29_TYPE GcodeSuite::G29() {
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
     #endif
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
     if (!faux) {
       remember_feedrate_scaling_off();
@@ -516,7 +516,7 @@ G29_TYPE GcodeSuite::G29() {
         abl.reenable = false;   // Can't re-enable (on error) until the new grid is written
       }
       // Pre-populate local Z values from the stored mesh
-      TERN_(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
+      IF_ENABLED(IS_KINEMATIC, COPY(abl.z_values, bedlevel.z_values));
     #endif
 
   } // !g29_in_progress
@@ -536,7 +536,7 @@ G29_TYPE GcodeSuite::G29() {
       SET_SOFT_ENDSTOP_LOOSE(false);
       set_bed_leveling_enabled(abl.reenable);
       g29_in_progress = false;
-      TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+      IF_ENABLED(LCD_BED_LEVELING, ui.wait_for_move = false);
     }
 
     // Query G29 status
@@ -585,7 +585,7 @@ G29_TYPE GcodeSuite::G29() {
 
         const float newz = abl.measured_z + abl.Z_offset;
         abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM_P(PSTR("Save X"), abl.meshCount.x, SP_Y_STR, abl.meshCount.y, SP_Z_STR, abl.measured_z + abl.Z_offset);
 
@@ -611,7 +611,7 @@ G29_TYPE GcodeSuite::G29() {
 
         abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
 
-        TERN_(AUTO_BED_LEVELING_LINEAR, abl.indexIntoAB[abl.meshCount.x][abl.meshCount.y] = abl.abl_probe_index);
+        IF_ENABLED(AUTO_BED_LEVELING_LINEAR, abl.indexIntoAB[abl.meshCount.x][abl.meshCount.y] = abl.abl_probe_index);
 
         // Keep looping till a reachable point is found
         if (position_is_reachable(abl.probePos)) break;
@@ -702,13 +702,13 @@ G29_TYPE GcodeSuite::G29() {
 
           abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
 
-          TERN_(AUTO_BED_LEVELING_LINEAR, abl.indexIntoAB[abl.meshCount.x][abl.meshCount.y] = ++abl.abl_probe_index); // 0...
+          IF_ENABLED(AUTO_BED_LEVELING_LINEAR, abl.indexIntoAB[abl.meshCount.x][abl.meshCount.y] = ++abl.abl_probe_index); // 0...
 
           // Avoid probing outside the round or hexagonal area
           if (TERN0(IS_KINEMATIC, !probe.can_reach(abl.probePos))) continue;
 
           if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing mesh point ", pt_index, "/", abl.abl_points, ".");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
+          IF_ENABLED(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), int(pt_index), int(abl.abl_points)));
 
           #if ENABLED(BD_SENSOR_PROBE_NO_STOP)
             if (PR_INNER_VAR == inStart) {
@@ -791,7 +791,7 @@ G29_TYPE GcodeSuite::G29() {
 
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
-            TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
+            IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 
             #if ENABLED(SOVOL_SV06_RTS)
               if (pt_index <= GRID_MAX_POINTS) rts.sendData(pt_index, AUTO_BED_LEVEL_ICON_VP);
@@ -813,7 +813,7 @@ G29_TYPE GcodeSuite::G29() {
 
       for (uint8_t i = 0; i < 3; ++i) {
         if (abl.verbose_level) SERIAL_ECHOLNPGM("Probing point ", i + 1, "/3.");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT_F(MSG_PROBING_POINT), int(i + 1)));
+        IF_ENABLED(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT_F(MSG_PROBING_POINT), int(i + 1)));
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
@@ -860,7 +860,7 @@ G29_TYPE GcodeSuite::G29() {
 
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
-    TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+    IF_ENABLED(LCD_BED_LEVELING, ui.wait_for_move = false);
   #endif
 
   // Calculate leveling, print reports, correct the position
@@ -872,7 +872,7 @@ G29_TYPE GcodeSuite::G29() {
       else {
         bedlevel.set_grid(abl.gridSpacing, abl.probe_position_lf);
         COPY(bedlevel.z_values, abl.z_values);
-        TERN_(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
+        IF_ENABLED(IS_KINEMATIC, bedlevel.extrapolate_unprobed_bed_level());
         bedlevel.refresh_bed_level();
 
         bedlevel.print_leveling_grid();
@@ -1008,7 +1008,7 @@ G29_TYPE GcodeSuite::G29() {
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
 
-  TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
+  IF_ENABLED(HAS_BED_PROBE, probe.move_z_after_probing());
 
   #ifdef EVENT_GCODE_AFTER_G29
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("After G29 G-code: ", EVENT_GCODE_AFTER_G29);
@@ -1016,7 +1016,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(F(EVENT_GCODE_AFTER_G29));
   #endif
 
-  TERN_(SOVOL_SV06_RTS, RTS_AutoBedLevelPage());
+  IF_ENABLED(SOVOL_SV06_RTS, RTS_AutoBedLevelPage());
 
   probe.use_probing_tool(false);
 

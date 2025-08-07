@@ -92,9 +92,9 @@ void MarlinUI::push_current_screen() {
     screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items OPTARG(HAS_SCREEN_TIMEOUT, screen_is_sticky()) };
 }
 
-void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
+void MarlinUI::_goto_previous_screen(IF_ENABLED(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
   IF_DISABLED(TURBO_BACK_MENU_ITEM, constexpr bool is_back = false);
-  TERN_(HAS_TOUCH_BUTTONS, on_edit_screen = false);
+  IF_ENABLED(HAS_TOUCH_BUTTONS, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -102,7 +102,7 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
       is_back ? 0 : sh.top_line,
       sh.items
     );
-    defer_status_screen(TERN_(HAS_SCREEN_TIMEOUT, sh.sticky));
+    defer_status_screen(IF_ENABLED(HAS_SCREEN_TIMEOUT, sh.sticky));
   }
   else
     return_to_status();
@@ -115,7 +115,7 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 // All Edit Screens run the same way, but `draw_edit_screen` is implementation-specific
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
   // Reset repeat_delay for Touch Buttons
-  TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  IF_ENABLED(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
   // Constrain ui.encoderPosition to 0 ... maxEditValue (calculated in encoder steps)
   ui.encoderPosition = constrain(int32_t(ui.encoderPosition), 0, maxEditValue);
   // If drawing is flagged then redraw the (whole) edit screen
@@ -143,7 +143,7 @@ void MenuEditItemBase::goto_edit_screen(
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
 ) {
-  TERN_(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
+  IF_ENABLED(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
   ui.push_current_screen();
   ui.refresh();
@@ -173,11 +173,11 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
   thermalManager.set_menu_cold_override(false);
 
-  TERN_(IS_DWIN_MARLINUI, did_first_redraw = false);
+  IF_ENABLED(IS_DWIN_MARLINUI, did_first_redraw = false);
 
-  TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
+  IF_ENABLED(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
-  TERN_(SET_PROGRESS_PERCENT, progress_reset());
+  IF_ENABLED(SET_PROGRESS_PERCENT, progress_reset());
 
   /**
    * Double-click on the status screen is a shortcut for one of these:
@@ -223,7 +223,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
   if (on_status_screen()) {
     defer_status_screen(false);
     clear_menu_history();
-    TERN_(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
+    IF_ENABLED(AUTO_BED_LEVELING_UBL, bedlevel.lcd_map_control = false);
   }
 
   clear_for_drawing();
@@ -236,9 +236,9 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
   refresh(LCDVIEW_CALL_REDRAW_NEXT);
   screen_changed = true;
-  TERN_(HAS_MARLINUI_U8GLIB, drawing_screen = false);
+  IF_ENABLED(HAS_MARLINUI_U8GLIB, drawing_screen = false);
 
-  TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
+  IF_ENABLED(HAS_MARLINUI_MENU, encoder_direction_normal());
   enable_encoder_multiplier(false);
 
   set_selection(false);
@@ -335,7 +335,7 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     if (ui.should_draw()) {
       if (do_probe) {
         MenuEditItemBase::draw_edit_screen(GET_TEXT_F(MSG_BABYSTEP_PROBE_Z), BABYSTEP_TO_STR(probe.offset.z));
-        TERN_(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
+        IF_ENABLED(BABYSTEP_GFX_OVERLAY, ui.zoffset_overlay(probe.offset.z));
       }
       else {
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)

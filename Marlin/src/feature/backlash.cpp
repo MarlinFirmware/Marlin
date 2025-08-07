@@ -104,7 +104,7 @@ void Backlash::add_correction_steps(const xyze_long_t &dist, const AxisBits dm, 
   #endif
 
   LOOP_NUM_AXES(axis) {
-    TERN_(IS_KINEMATIC, sqr_stepper_space_mm += sq(dist[axis] * planner.mm_per_step[axis]));
+    IF_ENABLED(IS_KINEMATIC, sqr_stepper_space_mm += sq(dist[axis] * planner.mm_per_step[axis]));
 
     if (distance_mm[axis]) {
       const bool forward = dm[axis];

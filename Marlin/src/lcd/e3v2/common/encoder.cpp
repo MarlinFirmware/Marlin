@@ -46,7 +46,7 @@ EncoderRate encoderRate;
 
 // TODO: Replace with ui.quick_feedback
 void Encoder_tick() {
-  TERN_(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
+  IF_ENABLED(HAS_BEEPER, if (ui.sound_on) buzzer.click(10));
 }
 
 // Analyze encoder value and return state
@@ -63,7 +63,7 @@ EncoderState encoderReceiveAnalyze() {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+      IF_ENABLED(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
       if (!ui.backlight) {
         ui.refresh_brightness();
         return ENCODER_DIFF_NO;
@@ -111,7 +111,7 @@ EncoderState encoderReceiveAnalyze() {
   }
 
   if (temp_diffState != ENCODER_DIFF_NO) {
-    TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+    IF_ENABLED(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
     if (!ui.backlight) ui.refresh_brightness();
   }
 

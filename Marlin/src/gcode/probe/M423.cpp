@@ -86,7 +86,7 @@ void GcodeSuite::M423() {
 }
 
 void GcodeSuite::M423_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F("X-Twist Correction"));
   SERIAL_ECHOLNPGM("  M423 A", xatc.start, " I", xatc.spacing);

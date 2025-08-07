@@ -170,7 +170,7 @@ void BrickoutGame::game_screen() {
   }
 
   // Everything else is white
-  TERN_(IS_DWIN_MARLINUI, set_color(color::WHITE));
+  IF_ENABLED(IS_DWIN_MARLINUI, set_color(color::WHITE));
 
   // Draw paddle
   if (PAGE_CONTAINS(PADDLE_Y-1, PADDLE_Y)) {

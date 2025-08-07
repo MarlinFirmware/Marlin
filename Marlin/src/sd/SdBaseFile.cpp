@@ -713,7 +713,7 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
                 if (lfnChecksum == pvFat->checksum) {
                   // Set chunk of LFN from VFAT entry into lfnName
                   getLFNName(pvFat, (char *)lfnName, lfnSequenceNumber);
-                  TERN_(UTF_FILENAME_SUPPORT, convertUtf16ToUtf8((char *)lfnName));
+                  IF_ENABLED(UTF_FILENAME_SUPPORT, convertUtf16ToUtf8((char *)lfnName));
                   // LFN found?
                   if (!strncasecmp((char*)dlname, (char*)lfnName, lfnNameLength)) lfnFileFound = true;
                 }
@@ -743,7 +743,7 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
   if (fileFound) {
     // don't open existing file if O_EXCL
     if (oflag & O_EXCL) return false;
-    TERN_(LONG_FILENAME_WRITE_SUPPORT, index &= 0xF);
+    IF_ENABLED(LONG_FILENAME_WRITE_SUPPORT, index &= 0xF);
   }
   else {
     // don't create unless O_CREAT and O_WRITE

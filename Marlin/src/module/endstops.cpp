@@ -242,9 +242,9 @@ void Endstops::init() {
     SET_INPUT(PROBE_ACTIVATION_SWITCH_PIN);
   #endif
 
-  TERN_(PROBE_TARE, probe.tare());
+  IF_ENABLED(PROBE_TARE, probe.tare());
 
-  TERN_(ENDSTOP_INTERRUPTS_FEATURE, setup_endstop_interrupts());
+  IF_ENABLED(ENDSTOP_INTERRUPTS_FEATURE, setup_endstop_interrupts());
 
   // Enable endstops
   enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
@@ -289,7 +289,7 @@ void Endstops::factory_reset() {
 // Called at ~1kHz from Temperature ISR: Poll endstop state if required
 void Endstops::poll() {
 
-  TERN_(PINS_DEBUGGING, run_monitor()); // Report changes in endstop status
+  IF_ENABLED(PINS_DEBUGGING, run_monitor()); // Report changes in endstop status
 
   #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
@@ -320,7 +320,7 @@ void Endstops::not_homing() {
     if (trigger_state())
       hit_on_purpose();
     else {
-      TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
+      IF_ENABLED(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
       kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }
@@ -457,7 +457,7 @@ void Endstops::event_handler() {
 #endif
 
 void __O2 Endstops::report_states() {
-  TERN_(BLTOUCH, bltouch._set_SW_mode());
+  IF_ENABLED(BLTOUCH, bltouch._set_SW_mode());
   SERIAL_ECHOLNPGM(STR_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ_ENDSTOP(S##_PIN) == S##_ENDSTOP_HIT_STATE, F(STR_##S))
   #if USE_X_MIN
@@ -565,8 +565,8 @@ void __O2 Endstops::report_states() {
     print_es_state(!FILAMENT_IS_OUT(), F(STR_FILAMENT));
   #endif
 
-  TERN_(BLTOUCH, bltouch._reset_SW_mode());
-  TERN_(JOYSTICK_DEBUG, joystick.report());
+  IF_ENABLED(BLTOUCH, bltouch._reset_SW_mode());
+  IF_ENABLED(JOYSTICK_DEBUG, joystick.report());
 
 } // Endstops::report_states
 
@@ -1179,15 +1179,15 @@ void Endstops::update() {
   }
 
   void Endstops::clear_endstop_state() {
-    TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
+    IF_ENABLED(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
     #if ALL(X_SPI_SENSORLESS, X_DUAL_ENDSTOPS)
       CBI(live_state, X2_ENDSTOP);
     #endif
-    TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
+    IF_ENABLED(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
     #if ALL(Y_SPI_SENSORLESS, Y_DUAL_ENDSTOPS)
       CBI(live_state, Y2_ENDSTOP);
     #endif
-    TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
+    IF_ENABLED(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
     #if ALL(Z_SPI_SENSORLESS, Z_MULTI_ENDSTOPS)
       CBI(live_state, Z2_ENDSTOP);
       #if NUM_Z_STEPPERS >= 3
@@ -1197,12 +1197,12 @@ void Endstops::update() {
         #endif
       #endif
     #endif
-    TERN_(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
-    TERN_(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));
-    TERN_(K_SPI_SENSORLESS, CBI(live_state, K_ENDSTOP));
-    TERN_(U_SPI_SENSORLESS, CBI(live_state, U_ENDSTOP));
-    TERN_(V_SPI_SENSORLESS, CBI(live_state, V_ENDSTOP));
-    TERN_(W_SPI_SENSORLESS, CBI(live_state, W_ENDSTOP));
+    IF_ENABLED(I_SPI_SENSORLESS, CBI(live_state, I_ENDSTOP));
+    IF_ENABLED(J_SPI_SENSORLESS, CBI(live_state, J_ENDSTOP));
+    IF_ENABLED(K_SPI_SENSORLESS, CBI(live_state, K_ENDSTOP));
+    IF_ENABLED(U_SPI_SENSORLESS, CBI(live_state, U_ENDSTOP));
+    IF_ENABLED(V_SPI_SENSORLESS, CBI(live_state, V_ENDSTOP));
+    IF_ENABLED(W_SPI_SENSORLESS, CBI(live_state, W_ENDSTOP));
   }
 
 #endif // SPI_ENDSTOPS

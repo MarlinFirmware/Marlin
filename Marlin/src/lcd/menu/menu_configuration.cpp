@@ -83,7 +83,7 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_MENU));
+      IF_ENABLED(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_MENU));
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -96,7 +96,7 @@ void menu_advanced_settings();
 
   void _goto_progress_bar_test() {
     ui.goto_screen(screen_progress_bar_test);
-    TERN_(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
+    IF_ENABLED(HAS_MARLINUI_HD44780, ui.set_custom_characters(CHARSET_INFO));
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -466,8 +466,8 @@ void menu_advanced_settings();
 
   void _lcd_custom_menus_configuration_gcode(FSTR_P const fstr) {
     queue.inject(fstr);
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
+    IF_ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    IF_ENABLED(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
   }
 
   void custom_menus_configuration() {

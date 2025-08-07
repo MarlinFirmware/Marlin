@@ -96,7 +96,7 @@ public:
 
   static void begin() {
     adaneo1.begin();
-    TERN_(CONJOINED_NEOPIXEL, adaneo2.begin());
+    IF_ENABLED(CONJOINED_NEOPIXEL, adaneo2.begin());
   }
 
   static void set_pixel_color(const uint16_t n, const uint32_t c) {
@@ -105,18 +105,18 @@ public:
       else adaneo1.setPixelColor(n, c);
     #else
       adaneo1.setPixelColor(n, c);
-      TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
+      IF_ENABLED(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
     #endif
   }
 
   static void set_brightness(const uint8_t b) {
     adaneo1.setBrightness(b);
-    TERN_(CONJOINED_NEOPIXEL, adaneo2.setBrightness(b));
+    IF_ENABLED(CONJOINED_NEOPIXEL, adaneo2.setBrightness(b));
   }
 
   static void show() {
     // Some platforms cannot maintain PWM output when NeoPixel disables interrupts for long durations.
-    TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
+    IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
     adaneo1.show();
     #if PIN_EXISTS(NEOPIXEL2)
       #if CONJOINED_NEOPIXEL
@@ -126,7 +126,7 @@ public:
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
     #endif
-    TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
+    IF_ENABLED(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
   }
 
   // Accessors

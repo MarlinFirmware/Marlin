@@ -74,7 +74,7 @@ void GcodeSuite::G92() {
             if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
               sync_XYZE = true;
             else {
-              TERN_(HAS_EXTRUDERS, sync_E = true);
+              IF_ENABLED(HAS_EXTRUDERS, sync_E = true);
             }
             current_position[i] = parser.value_axis_units((AxisEnum)i);
           }
@@ -103,7 +103,7 @@ void GcodeSuite::G92() {
               if (TERN1(HAS_EXTRUDERS, i != E_AXIS))
                 sync_XYZE = true;
               else {
-                TERN_(HAS_EXTRUDERS, sync_E = true);
+                IF_ENABLED(HAS_EXTRUDERS, sync_E = true);
               }
               current_position[i] = v;                            // ...set Current Position directly (like Marlin 1.0)
             #endif

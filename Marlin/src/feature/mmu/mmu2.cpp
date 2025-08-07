@@ -219,7 +219,7 @@ void MMU2::mmu_loop() {
 
         _enabled = true;
         state = 1;
-        TERN_(HAS_PRUSA_MMU2S, mmu2s_triggered = false);
+        IF_ENABLED(HAS_PRUSA_MMU2S, mmu2s_triggered = false);
       }
       break;
 
@@ -230,7 +230,7 @@ void MMU2::mmu_loop() {
           const int filament = cmd - MMU_CMD_T0;
           DEBUG_ECHOLNPGM("MMU <= T", filament);
           tx_printf(F("T%d\n"), filament);
-          TERN_(MMU2_EXTRUDER_SENSOR, mmu_idl_sens = 1); // enable idler sensor, if any
+          IF_ENABLED(MMU2_EXTRUDER_SENSOR, mmu_idl_sens = 1); // enable idler sensor, if any
           state = 3; // wait for response
         }
         else if (WITHIN(cmd, MMU_CMD_L0, MMU_CMD_L0 + EXTRUDERS - 1)) {
@@ -281,7 +281,7 @@ void MMU2::mmu_loop() {
         state = 2; // wait for response
       }
 
-      TERN_(HAS_PRUSA_MMU2S, check_filament());
+      IF_ENABLED(HAS_PRUSA_MMU2S, check_filament());
       break;
 
     case 2:   // response to command P0
@@ -299,7 +299,7 @@ void MMU2::mmu_loop() {
       else if (ELAPSED(millis(), prev_request, MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
-      TERN_(HAS_PRUSA_MMU2S, check_filament());
+      IF_ENABLED(HAS_PRUSA_MMU2S, check_filament());
       break;
 
     case 3:   // response to mmu commands
@@ -344,7 +344,7 @@ void MMU2::mmu_loop() {
         }
         state = 1;
       }
-      TERN_(HAS_PRUSA_MMU2S, check_filament());
+      IF_ENABLED(HAS_PRUSA_MMU2S, check_filament());
       break;
   }
 }
@@ -983,9 +983,9 @@ bool MMU2::eject_filament(const uint8_t index, const bool recover) {
   if (recover)  {
     LCD_MESSAGE(MSG_MMU2_REMOVE_AND_CLICK);
     mmu2_attn_buzz();
-    TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
-    TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
-    TERN_(HAS_RESUME_CONTINUE, wait_for_user_response());
+    IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_MMU2_EJECT_RECOVER)));
+    IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user_response());
     mmu2_attn_buzz();
 
     command(MMU_CMD_R0);

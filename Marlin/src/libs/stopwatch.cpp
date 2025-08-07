@@ -37,7 +37,7 @@ bool Stopwatch::stop() {
   debug(F("stop"));
 
   if (isRunning() || isPaused()) {
-    TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     state = STOPPED;
     stopTimestamp = millis();
     return true;
@@ -49,7 +49,7 @@ bool Stopwatch::pause() {
   debug(F("pause"));
 
   if (isRunning()) {
-    TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerPaused());
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPrintTimerPaused());
     state = PAUSED;
     stopTimestamp = millis();
     return true;
@@ -60,7 +60,7 @@ bool Stopwatch::pause() {
 bool Stopwatch::start() {
   debug(F("start"));
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStarted());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPrintTimerStarted());
 
   if (!isRunning()) {
     if (isPaused()) accumulator = duration();

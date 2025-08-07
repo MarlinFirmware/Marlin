@@ -51,7 +51,7 @@ void GcodeSuite::M302() {
   const bool seen_S = parser.seen('S');
   if (seen_S) {
     thermalManager.extrude_min_temp = parser.value_celsius();
-    TERN_(EXTENSIBLE_UI, ExtUI::onSetMinExtrusionTemp(thermalManager.extrude_min_temp));
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onSetMinExtrusionTemp(thermalManager.extrude_min_temp));
   }
 
   const bool seen_P = parser.seen('P');

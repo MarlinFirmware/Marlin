@@ -190,7 +190,7 @@
         report_temps(next_temp_report);
 
       // Disable leveling so it won't mess with us
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(false));
 
       for (uint8_t idx = 0; idx <= PTC_BED_COUNT; idx++) {
         thermalManager.setTargetBed(target_bed);
@@ -229,7 +229,7 @@
 
       // Cleanup
       thermalManager.setTargetBed(0);
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(true));
     } // do_bed_cal
 
     /********************************************
@@ -253,7 +253,7 @@
       wait_for_temps(target_bed, target_probe, next_temp_report);
 
       // Disable leveling so it won't mess with us
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(false));
 
       bool timeout = false;
       for (uint8_t idx = 0; idx <= PTC_PROBE_COUNT; idx++) {
@@ -285,7 +285,7 @@
 
       // Cleanup
       thermalManager.setTargetBed(0);
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(true));
 
       SERIAL_ECHOLNPGM("Final compensation values:");
       ptc.print_offsets();
@@ -330,9 +330,9 @@ void GcodeSuite::M871() {
     const int16_t offset_val = parser.value_int();
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
-    const TempSensorID mod = TERN_(PTC_BED,    parser.seen_test('B') ? TSI_BED   :)
-                             TERN_(PTC_HOTEND, parser.seen_test('E') ? TSI_EXT   :)
-                             TERN_(PTC_PROBE,  parser.seen_test('P') ? TSI_PROBE :) TSI_COUNT;
+    const TempSensorID mod = IF_ENABLED(PTC_BED,    parser.seen_test('B') ? TSI_BED   :)
+                             IF_ENABLED(PTC_HOTEND, parser.seen_test('E') ? TSI_EXT   :)
+                             IF_ENABLED(PTC_PROBE,  parser.seen_test('P') ? TSI_PROBE :) TSI_COUNT;
     if (mod == TSI_COUNT)
       SERIAL_ECHOLNPGM("!Invalid sensor.");
     else if (idx > 0 && ptc.set_offset(mod, idx - 1, offset_val))

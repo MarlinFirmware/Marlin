@@ -123,24 +123,24 @@ void GcodeSuite::M919() {
 
       #if X_IS_TRINAMIC || X2_IS_TRINAMIC
         case X_AXIS:
-          TERN_(X_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(X));
-          TERN_(X2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2));
+          IF_ENABLED(X_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(X));
+          IF_ENABLED(X2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(X2));
           break;
       #endif
 
       #if Y_IS_TRINAMIC || Y2_IS_TRINAMIC
         case Y_AXIS:
-          TERN_(Y_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Y));
-          TERN_(Y2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Y2));
+          IF_ENABLED(Y_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Y));
+          IF_ENABLED(Y2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Y2));
           break;
       #endif
 
       #if ANY(Z_IS_TRINAMIC, Z2_IS_TRINAMIC, Z3_IS_TRINAMIC, Z4_IS_TRINAMIC)
         case Z_AXIS:
-          TERN_(Z_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Z));
-          TERN_(Z2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Z2));
-          TERN_(Z3_IS_TRINAMIC, if (index < 0 || index == 2) TMC_SET_CHOPPER_TIME(Z3));
-          TERN_(Z4_IS_TRINAMIC, if (index < 0 || index == 3) TMC_SET_CHOPPER_TIME(Z4));
+          IF_ENABLED(Z_IS_TRINAMIC, if (index <= 0) TMC_SET_CHOPPER_TIME(Z));
+          IF_ENABLED(Z2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CHOPPER_TIME(Z2));
+          IF_ENABLED(Z3_IS_TRINAMIC, if (index < 0 || index == 2) TMC_SET_CHOPPER_TIME(Z3));
+          IF_ENABLED(Z4_IS_TRINAMIC, if (index < 0 || index == 3) TMC_SET_CHOPPER_TIME(Z4));
           break;
       #endif
 
@@ -165,14 +165,14 @@ void GcodeSuite::M919() {
 
       #if HAS_E_CHOPPER
         case E_AXIS: {
-          TERN_(E0_IS_TRINAMIC, if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0));
-          TERN_(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CHOPPER_TIME(E1));
-          TERN_(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CHOPPER_TIME(E2));
-          TERN_(E3_IS_TRINAMIC, if (eindex < 0 || eindex == 3) TMC_SET_CHOPPER_TIME(E3));
-          TERN_(E4_IS_TRINAMIC, if (eindex < 0 || eindex == 4) TMC_SET_CHOPPER_TIME(E4));
-          TERN_(E5_IS_TRINAMIC, if (eindex < 0 || eindex == 5) TMC_SET_CHOPPER_TIME(E5));
-          TERN_(E6_IS_TRINAMIC, if (eindex < 0 || eindex == 6) TMC_SET_CHOPPER_TIME(E6));
-          TERN_(E7_IS_TRINAMIC, if (eindex < 0 || eindex == 7) TMC_SET_CHOPPER_TIME(E7));
+          IF_ENABLED(E0_IS_TRINAMIC, if (eindex <= 0) TMC_SET_CHOPPER_TIME(E0));
+          IF_ENABLED(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CHOPPER_TIME(E1));
+          IF_ENABLED(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CHOPPER_TIME(E2));
+          IF_ENABLED(E3_IS_TRINAMIC, if (eindex < 0 || eindex == 3) TMC_SET_CHOPPER_TIME(E3));
+          IF_ENABLED(E4_IS_TRINAMIC, if (eindex < 0 || eindex == 4) TMC_SET_CHOPPER_TIME(E4));
+          IF_ENABLED(E5_IS_TRINAMIC, if (eindex < 0 || eindex == 5) TMC_SET_CHOPPER_TIME(E5));
+          IF_ENABLED(E6_IS_TRINAMIC, if (eindex < 0 || eindex == 6) TMC_SET_CHOPPER_TIME(E6));
+          IF_ENABLED(E7_IS_TRINAMIC, if (eindex < 0 || eindex == 7) TMC_SET_CHOPPER_TIME(E7));
         } break;
       #endif
     }

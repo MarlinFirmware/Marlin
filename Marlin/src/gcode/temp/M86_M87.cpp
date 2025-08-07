@@ -34,7 +34,7 @@
 #include "../../feature/hotend_idle.h"
 
 void GcodeSuite::M86_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   hotend_idle_settings_t &c = hotend_idle.cfg;
   report_heading_etc(forReplay, F("Hotend Idle Timeout"));

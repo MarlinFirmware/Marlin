@@ -48,7 +48,7 @@ void stepper_driver_backward_check() {
       } \
     }while(0)
 
-  #define TEST_BACKWARD(AXIS, BIT) TERN_(HAS_##AXIS##_ENABLE, _TEST_BACKWARD(AXIS, BIT))
+  #define TEST_BACKWARD(AXIS, BIT) IF_ENABLED(HAS_##AXIS##_ENABLE, _TEST_BACKWARD(AXIS, BIT))
 
   TEST_BACKWARD(X,   0);
   TEST_BACKWARD(X2,  1);
@@ -89,7 +89,7 @@ void stepper_driver_backward_report() {
       stepper_driver_backward_error(axis);
   };
 
-  #define REPORT_BACKWARD(axis, bit) TERN_(HAS_##axis##_ENABLE, _report_if_backward(F(STRINGIFY(axis)), bit))
+  #define REPORT_BACKWARD(axis, bit) IF_ENABLED(HAS_##axis##_ENABLE, _report_if_backward(F(STRINGIFY(axis)), bit))
 
   REPORT_BACKWARD(X,   0);
   REPORT_BACKWARD(X2,  1);

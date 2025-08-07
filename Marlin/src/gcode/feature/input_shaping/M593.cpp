@@ -28,7 +28,7 @@
 #include "../../../module/stepper.h"
 
 void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F("Input Shaping"));
   #if ENABLED(INPUT_SHAPING_X)
@@ -38,7 +38,7 @@ void GcodeSuite::M593_report(const bool forReplay/*=true*/) {
     );
   #endif
   #if ENABLED(INPUT_SHAPING_Y)
-    TERN_(INPUT_SHAPING_X, report_echo_start(forReplay));
+    IF_ENABLED(INPUT_SHAPING_X, report_echo_start(forReplay));
     SERIAL_ECHOLNPGM("  M593 Y"
       " F", stepper.get_shaping_frequency(Y_AXIS),
       " D", stepper.get_shaping_damping_ratio(Y_AXIS)

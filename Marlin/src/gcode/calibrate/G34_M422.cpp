@@ -139,7 +139,7 @@ void GcodeSuite::G34() {
         set_bed_leveling_enabled(false);
       #endif
 
-      TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+      IF_ENABLED(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
 
       probe.use_probing_tool();
 
@@ -148,7 +148,7 @@ void GcodeSuite::G34() {
         gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G34));
       #endif
 
-      TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
+      IF_ENABLED(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
       // Compute a worst-case clearance height to probe from. After the first
       // iteration this will be re-calculated based on the actual bed position
@@ -502,12 +502,12 @@ void GcodeSuite::M422() {
   }
 
   xy_pos_t * const pos_dest = (
-    TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !is_probe_point ? z_stepper_align.stepper_xy :)
+    IF_ENABLED(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !is_probe_point ? z_stepper_align.stepper_xy :)
     z_stepper_align.xy
   );
 
   if (!is_probe_point && TERN1(HAS_Z_STEPPER_ALIGN_STEPPER_XY, !parser.seen_test('W'))) {
-    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S)" TERN_(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required."));
+    SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(S)" IF_ENABLED(HAS_Z_STEPPER_ALIGN_STEPPER_XY, " or (W)") " is required."));
     return;
   }
 
@@ -550,7 +550,7 @@ void GcodeSuite::M422() {
 }
 
 void GcodeSuite::M422_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_Z_AUTO_ALIGN));
   for (uint8_t i = 0; i < NUM_Z_STEPPERS; ++i) {

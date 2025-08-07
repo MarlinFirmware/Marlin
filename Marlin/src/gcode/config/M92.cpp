@@ -48,7 +48,7 @@ void GcodeSuite::M92() {
   if (target_extruder < 0) return;
 
   // No arguments? Show M92 report.
-  if (!parser.seen(STR_AXES_LOGICAL TERN_(MAGIC_NUMBERS_GCODE, "HL")))
+  if (!parser.seen(STR_AXES_LOGICAL IF_ENABLED(MAGIC_NUMBERS_GCODE, "HL")))
     return M92_report(true, target_extruder);
 
   LOOP_LOGICAL_AXES(i) {
@@ -96,7 +96,7 @@ void GcodeSuite::M92() {
 }
 
 void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
   #if NUM_AXES

@@ -109,7 +109,7 @@
     SERIAL_ECHOPGM("Diff:   ");
     report_all_axis_pos(diff);
 
-    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+    IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
   }
 
 #endif // M114_DETAIL
@@ -145,10 +145,10 @@ void GcodeSuite::M114() {
     #endif
   #endif
 
-  TERN_(M114_REALTIME, if (parser.seen_test('R')) return report_real_position());
+  IF_ENABLED(M114_REALTIME, if (parser.seen_test('R')) return report_real_position());
 
-  TERN_(M114_LEGACY, planner.synchronize());
+  IF_ENABLED(M114_LEGACY, planner.synchronize());
   report_current_position_projected();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
 }

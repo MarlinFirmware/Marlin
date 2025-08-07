@@ -91,9 +91,9 @@ void MarlinHAL::init() {
     USB_Hook_init();
   #endif
 
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
+  IF_ENABLED(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection

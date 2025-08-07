@@ -76,7 +76,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_more();
       break;
     case ID_T_RETURN:
-      TERN_(MKS_TEST, current_disp_ui = 1);
+      IF_ENABLED(MKS_TEST, current_disp_ui = 1);
       lv_draw_ready_print();
       break;
   }

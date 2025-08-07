@@ -360,7 +360,7 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.continue_prompt(F("M43 Waiting...")));
       #if ENABLED(EXTENSIBLE_UI)
         ExtUI::onUserConfirmRequired(F("M43 Waiting..."));
       #else
@@ -394,7 +394,7 @@ void GcodeSuite::M43() {
       safe_delay(200);
     }
 
-    TERN_(HAS_RESUME_CONTINUE, ui.reset_status());
+    IF_ENABLED(HAS_RESUME_CONTINUE, ui.reset_status());
   }
   else {
     // Report current state of selected pin(s)

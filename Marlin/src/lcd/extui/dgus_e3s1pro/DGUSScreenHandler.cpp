@@ -320,7 +320,7 @@ void DGUSScreenHandler::meshUpdate(const int8_t xpos, const int8_t ypos) {
 }
 
 void DGUSScreenHandler::printTimerStarted() {
-  TERN_(HAS_FILAMENT_SENSOR, ExtUI::setFilamentRunoutState(false));
+  IF_ENABLED(HAS_FILAMENT_SENSOR, ExtUI::setFilamentRunoutState(false));
   triggerScreenChange(DGUS_ScreenID::PAUSE);
 }
 

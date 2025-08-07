@@ -91,7 +91,7 @@ void SpindleLaser::init() {
   #if ENABLED(AIR_ASSIST)
     OUT_WRITE(AIR_ASSIST_PIN, !AIR_ASSIST_ACTIVE);                    // Init Air Assist OFF
   #endif
-  TERN_(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
+  IF_ENABLED(I2C_AMMETER, ammeter.init());                                 // Init I2C Ammeter
 }
 
 #if ENABLED(SPINDLE_LASER_USE_PWM)
@@ -171,7 +171,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
       WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);
     #endif
     isReadyForUI = false; // Only used for UI display updates.
-    TERN_(SPINDLE_LASER_USE_PWM, ocr_off());
+    IF_ENABLED(SPINDLE_LASER_USE_PWM, ocr_off());
   }
 }
 

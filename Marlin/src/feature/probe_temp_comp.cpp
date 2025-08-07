@@ -66,9 +66,9 @@ float ProbeTempComp::init_measurement; // = 0.0
 bool ProbeTempComp::enabled = true;
 
 void ProbeTempComp::reset() {
-  TERN_(PTC_PROBE, for (uint8_t i = 0; i < PTC_PROBE_COUNT; ++i) z_offsets_probe[i] = z_offsets_probe_default[i]);
-  TERN_(PTC_BED, for (uint8_t i = 0; i < PTC_BED_COUNT; ++i) z_offsets_bed[i] = z_offsets_bed_default[i]);
-  TERN_(PTC_HOTEND, for (uint8_t i = 0; i < PTC_HOTEND_COUNT; ++i) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
+  IF_ENABLED(PTC_PROBE, for (uint8_t i = 0; i < PTC_PROBE_COUNT; ++i) z_offsets_probe[i] = z_offsets_probe_default[i]);
+  IF_ENABLED(PTC_BED, for (uint8_t i = 0; i < PTC_BED_COUNT; ++i) z_offsets_bed[i] = z_offsets_bed_default[i]);
+  IF_ENABLED(PTC_HOTEND, for (uint8_t i = 0; i < PTC_HOTEND_COUNT; ++i) z_offsets_hotend[i] = z_offsets_hotend_default[i]);
 }
 
 void ProbeTempComp::clear_offsets(const TempSensorID tsi) {
@@ -88,7 +88,7 @@ void ProbeTempComp::print_offsets() {
     celsius_t temp = cali_info[s].start_temp;
     for (int16_t i = -1; i < cali_info[s].measurements; ++i) {
       SERIAL_ECHOLN(
-        TERN_(PTC_BED, s == TSI_BED ? F("Bed") :) TERN_(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :) F("Probe"),
+        IF_ENABLED(PTC_BED, s == TSI_BED ? F("Bed") :) IF_ENABLED(PTC_HOTEND, s == TSI_EXT ? F("Extruder") :) F("Probe"),
         F(" temp: "), temp, F("C; Offset: "), i < 0 ? 0.0f : sensor_z_offsets[s][i], F(" um")
       );
       temp += cali_info[s].temp_resolution;
@@ -168,9 +168,9 @@ bool ProbeTempComp::finish_calibration(const TempSensorID tsi) {
 
 void ProbeTempComp::apply_compensation(float &meas_z) {
   if (!enabled) return;
-  TERN_(PTC_BED,    compensate_measurement(TSI_BED,   thermalManager.degBed(),     meas_z));
-  TERN_(PTC_PROBE,  compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   meas_z));
-  TERN_(PTC_HOTEND, compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), meas_z));
+  IF_ENABLED(PTC_BED,    compensate_measurement(TSI_BED,   thermalManager.degBed(),     meas_z));
+  IF_ENABLED(PTC_PROBE,  compensate_measurement(TSI_PROBE, thermalManager.degProbe(),   meas_z));
+  IF_ENABLED(PTC_HOTEND, compensate_measurement(TSI_EXT,   thermalManager.degHotend(0), meas_z));
 }
 
 void ProbeTempComp::compensate_measurement(const TempSensorID tsi, const celsius_t temp, float &meas_z) {

@@ -51,7 +51,7 @@ void MarlinHAL::init() {
     OUT_WRITE(SD_SS_PIN, HIGH);  // Try to set SDSS inactive before any other SPI users start up
   #endif
   usb_task_init();          // Initialize the USB stack
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 void MarlinHAL::init_board() {

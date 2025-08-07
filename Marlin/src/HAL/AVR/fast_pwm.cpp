@@ -187,7 +187,7 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   _SET_CSn(timer, j);
 
   if (is_timer2) {
-    TERN_(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer, 0, res)); // Set OCR2A value (TOP) = res
+    IF_ENABLED(USE_OCR2A_AS_TOP, _SET_OCRnQ(timer, 0, res)); // Set OCR2A value (TOP) = res
   }
   else
     _SET_ICRn(timer, res);                              // Set ICRn value (TOP) = res

@@ -395,13 +395,13 @@ void FTMotion::reset() {
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
-    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
-    TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
+    IF_ENABLED(HAS_X_AXIS, ZERO(shaping.x.d_zi));
+    IF_ENABLED(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
     shaping.zi_idx = 0;
   #endif
 
-  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
-  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
+  IF_ENABLED(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+  IF_ENABLED(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
 }
@@ -461,7 +461,7 @@ void FTMotion::init() {
 // Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
-  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
+  IF_ENABLED(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
@@ -575,7 +575,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
     _SET_MOVE_END(X);
     _SET_MOVE_END(Y);
   #endif
-  TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
+  IF_ENABLED(HAS_Z_AXIS, _SET_MOVE_END(Z));
   SECONDARY_AXIS_MAP(_SET_MOVE_END);
 }
 

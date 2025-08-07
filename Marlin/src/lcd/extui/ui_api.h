@@ -82,7 +82,7 @@ namespace ExtUI {
 
   inline const axis_t axis_to_axis_t(const AxisEnum a) {
     switch (a) {
-      TERN_(HAS_X_AXIS, case X_AXIS:)
+      IF_ENABLED(HAS_X_AXIS, case X_AXIS:)
       default: return X;
       OPTCODE(HAS_Y_AXIS, case Y_AXIS: return Y)
       OPTCODE(HAS_Z_AXIS, case Z_AXIS: return Z)

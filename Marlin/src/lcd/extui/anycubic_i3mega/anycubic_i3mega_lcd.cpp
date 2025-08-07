@@ -48,7 +48,7 @@
 // Append ".gcode" to filename, if requested. Used for some DGUS-clone displays with built-in filter.
 // Filenames are limited to 26 characters, so the actual name for the FILENAME can be 20 characters at most.
 // If a longer string is desired without "extension, use the ALTNAME macro to provide a (longer) alternative.
-#define SPECIAL_MENU_FILENAME(A) A TERN_(ANYCUBIC_LCD_GCODE_EXT, ".gcode")
+#define SPECIAL_MENU_FILENAME(A) A IF_ENABLED(ANYCUBIC_LCD_GCODE_EXT, ".gcode")
 #define SPECIAL_MENU_ALTNAME(A, B) TERN(ANYCUBIC_LCD_GCODE_EXT, A ".gcode", B)
 
 AnycubicTFT anycubicTFT;
@@ -612,7 +612,7 @@ void AnycubicTFT::getCommandFromTFT() {
           break;
 
         case 9: // A9 pause sd print
-          TERN_(HAS_MEDIA, if (isPrintingFromMedia()) pausePrint());
+          IF_ENABLED(HAS_MEDIA, if (isPrintingFromMedia()) pausePrint());
           break;
 
         case 10: // A10 resume sd print
@@ -623,7 +623,7 @@ void AnycubicTFT::getCommandFromTFT() {
           break;
 
         case 11: // A11 STOP SD PRINT
-          TERN_(HAS_MEDIA, stopPrint());
+          IF_ENABLED(HAS_MEDIA, stopPrint());
           break;
 
         case 12: // A12 kill

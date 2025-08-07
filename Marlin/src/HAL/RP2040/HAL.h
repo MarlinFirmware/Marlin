@@ -142,7 +142,7 @@ public:
   static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from idle()
-  static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
+  static void idletask() { IF_ENABLED(HAS_SD_HOST_DRIVE, tuh_task()); }
 
   // Reset
   static uint8_t get_reset_source();

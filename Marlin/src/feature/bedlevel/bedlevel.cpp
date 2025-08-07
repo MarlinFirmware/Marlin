@@ -116,8 +116,8 @@ TemporaryBedLevelingState::TemporaryBedLevelingState(const bool enable) : saved(
 void reset_bed_level() {
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("reset_bed_level");
   IF_DISABLED(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(false));
-  TERN_(HAS_MESH, bedlevel.reset());
-  TERN_(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
+  IF_ENABLED(HAS_MESH, bedlevel.reset());
+  IF_ENABLED(ABL_PLANAR, planner.bed_level_matrix.set_to_identity());
 }
 
 #if ANY(AUTO_BED_LEVELING_BILINEAR, MESH_BED_LEVELING)
@@ -210,7 +210,7 @@ void reset_bed_level() {
       do_blocking_move_to_xy(pos);                // - Move over with no raise, ready for adjustment!
     #endif
 
-    TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
+    IF_ENABLED(LCD_BED_LEVELING, ui.wait_for_move = false);
   }
 
 #endif // MESH_BED_LEVELING || PROBE_MANUALLY

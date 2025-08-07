@@ -40,7 +40,7 @@ void GcodeSuite::M280() {
 
   if (!parser.seenval('P')) return;
 
-  TERN_(POLARGRAPH, planner.synchronize());
+  IF_ENABLED(POLARGRAPH, planner.synchronize());
 
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {

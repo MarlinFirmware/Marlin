@@ -84,7 +84,7 @@ uint8_t TouchButtons::read_buttons() {
       #endif
 
       if (!is_touched) {
-        TERN_(TOUCH_SCREEN_CALIBRATION, no_touch = false);
+        IF_ENABLED(TOUCH_SCREEN_CALIBRATION, no_touch = false);
         return 0;
       }
 

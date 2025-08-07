@@ -1370,7 +1370,7 @@ void hmiMoveDone(const AxisEnum axis) {
       encoderRate.enabled = false;
       #if HAS_BED_PROBE
         probe.offset.z = dwin_zoffset;
-        TERN_(EEPROM_SETTINGS, settings.save());
+        IF_ENABLED(EEPROM_SETTINGS, settings.save());
       #endif
       checkkey = hmiValues.show_mode == -4 ? ID_Prepare : ID_Tune;
       drawEditSignedFloat2(zoff_line, TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, hmiValues.offset_value));
@@ -1946,7 +1946,7 @@ void redrawSDList() {
     for (uint8_t i = 0; i < _MIN(nr_sd_menu_items(), MROWS); ++i)
       drawSDItem(i, i + 1);
 
-    TERN_(SCROLL_LONG_FILENAMES, initSDItemShift());
+    IF_ENABLED(SCROLL_LONG_FILENAMES, initSDItemShift());
   }
   else {
     dwinDrawRectangle(1, COLOR_BG_RED, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
@@ -2218,9 +2218,9 @@ void hmiSelectFile() {
       }
       else {
         moveHighlight(1, select_file.now + MROWS - index_file); // Just move highlight
-        TERN_(SCROLL_LONG_FILENAMES, initShiftName());          // ...and init the shift name
+        IF_ENABLED(SCROLL_LONG_FILENAMES, initShiftName());          // ...and init the shift name
       }
-      TERN_(SCROLL_LONG_FILENAMES, initSDItemShift());
+      IF_ENABLED(SCROLL_LONG_FILENAMES, initSDItemShift());
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && fullCnt) {
@@ -2235,16 +2235,16 @@ void hmiSelectFile() {
         scrollMenu(DWIN_SCROLL_DOWN);
         if (index_file == MROWS) {
           drawBackFirst();
-          TERN_(SCROLL_LONG_FILENAMES, shift_ms = 0);
+          IF_ENABLED(SCROLL_LONG_FILENAMES, shift_ms = 0);
         }
         else
           drawSDItem(itemnum, 0);                               // Draw the item (and init shift name)
       }
       else {
         moveHighlight(-1, select_file.now + MROWS - index_file); // Just move highlight
-        TERN_(SCROLL_LONG_FILENAMES, initShiftName());          // ...and init the shift name
+        IF_ENABLED(SCROLL_LONG_FILENAMES, initShiftName());          // ...and init the shift name
       }
-      TERN_(SCROLL_LONG_FILENAMES, initSDItemShift());        // Reset left. Init timer.
+      IF_ENABLED(SCROLL_LONG_FILENAMES, initSDItemShift());        // Reset left. Init timer.
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
@@ -2416,7 +2416,7 @@ void drawMoveMenu() {
     itemAreaCopy(58, 118, 106, 132, 1);
     itemAreaCopy(109, 118, 157, 132, 2);
     itemAreaCopy(160, 118, 209, 132, 3);
-    TERN_(HAS_HOTEND, itemAreaCopy(212, 118, 253, 131, 4));
+    IF_ENABLED(HAS_HOTEND, itemAreaCopy(212, 118, 253, 131, 4));
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -2429,12 +2429,12 @@ void drawMoveMenu() {
       dwinDrawLabel(1, GET_TEXT_F(MSG_MOVE_X));
       dwinDrawLabel(2, GET_TEXT_F(MSG_MOVE_Y));
       dwinDrawLabel(3, GET_TEXT_F(MSG_MOVE_Z));
-      TERN_(HAS_HOTEND, dwinDrawLabel(4, GET_TEXT_F(MSG_MOVE_E)));
+      IF_ENABLED(HAS_HOTEND, dwinDrawLabel(4, GET_TEXT_F(MSG_MOVE_E)));
     #else
       say_move_en(1); say_x_en(38, 1); // "Move X"
       say_move_en(2); say_y_en(38, 2); // "Move Y"
       say_move_en(3); say_z_en(38, 3); // "Move Z"
-      TERN_(HAS_HOTEND, (say_move_en(4), itemAreaCopy(99, 194, 151, 204, 4, 38))); // "Move Extruder"
+      IF_ENABLED(HAS_HOTEND, (say_move_en(4), itemAreaCopy(99, 194, 151, 204, 4, 38))); // "Move Extruder"
     #endif
   }
 
@@ -2995,9 +2995,9 @@ void hmiAxisMove() {
         hmiFlag.cold_flag = false;
         hmiValues.moveScaled.e = current_position.e * MINUNITMULT;
         drawMoveMenu();
-        TERN_(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
-        TERN_(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
-        TERN_(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
+        IF_ENABLED(HAS_X_AXIS, drawEditFloat3(1, hmiValues.moveScaled.x));
+        IF_ENABLED(HAS_Y_AXIS, drawEditFloat3(2, hmiValues.moveScaled.y));
+        IF_ENABLED(HAS_Z_AXIS, drawEditFloat3(3, hmiValues.moveScaled.z));
         drawEditSignedFloat3(4, 0);
         dwinUpdateLCD();
       }
@@ -4130,7 +4130,7 @@ void eachMomentUpdate() {
       hmiFlag.print_finish = false;
       hmiFlag.done_confirm_flag = true;
 
-      TERN_(POWER_LOSS_RECOVERY, recovery.cancel());
+      IF_ENABLED(POWER_LOSS_RECOVERY, recovery.cancel());
 
       planner.finish_and_disable();
 
@@ -4153,8 +4153,8 @@ void eachMomentUpdate() {
   if (hmiFlag.pause_action && printingIsPaused() && !planner.has_blocks_queued()) {
     hmiFlag.pause_action = false;
     #if ENABLED(PAUSE_HEAT)
-      TERN_(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
-      TERN_(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
+      IF_ENABLED(HAS_HOTEND, resume_hotend_temp = thermalManager.degTargetHotend(0));
+      IF_ENABLED(HAS_HEATED_BED, resume_bed_temp = thermalManager.degTargetBed());
       thermalManager.disable_all_heaters();
     #endif
     queue.inject(F("G1 F1200 X0 Y0"));

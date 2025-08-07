@@ -730,9 +730,9 @@ void MarlinSettings::postprocess() {
 
   // Make sure delta kinematics are updated before refreshing the
   // planner position so the stepper counts will be set correctly.
-  TERN_(DELTA, recalc_delta_settings());
+  IF_ENABLED(DELTA, recalc_delta_settings());
 
-  TERN_(PIDTEMP, thermalManager.updatePID());
+  IF_ENABLED(PIDTEMP, thermalManager.updatePID());
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
@@ -744,19 +744,19 @@ void MarlinSettings::postprocess() {
   // Software endstops depend on home_offset
   LOOP_NUM_AXES(i) update_software_endstops((AxisEnum)i);
 
-  TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
+  IF_ENABLED(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
-  TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+  IF_ENABLED(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
 
-  TERN_(HAS_MOTOR_CURRENT_PWM, stepper.refresh_motor_power());
+  IF_ENABLED(HAS_MOTOR_CURRENT_PWM, stepper.refresh_motor_power());
 
-  TERN_(FWRETRACT, fwretract.refresh_autoretract());
+  IF_ENABLED(FWRETRACT, fwretract.refresh_autoretract());
 
-  TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
+  IF_ENABLED(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
+  IF_ENABLED(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
   // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -767,10 +767,10 @@ void MarlinSettings::postprocess() {
     report_current_position();
 
   // Moved as last update due to interference with NeoPixel init
-  TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
-  TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
-  TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
-  TERN_(HAS_DISPLAY_SLEEP, ui.refresh_screen_timeout());
+  IF_ENABLED(HAS_LCD_CONTRAST, ui.refresh_contrast());
+  IF_ENABLED(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+  IF_ENABLED(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
+  IF_ENABLED(HAS_DISPLAY_SLEEP, ui.refresh_screen_timeout());
 }
 
 #if ALL(PRINTCOUNTER, EEPROM_SETTINGS)
@@ -927,7 +927,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
-      TERN_(CLASSIC_JERK, dummyf = 0.02f);
+      IF_ENABLED(CLASSIC_JERK, dummyf = 0.02f);
       EEPROM_WRITE(TERN(CLASSIC_JERK, dummyf, planner.junction_deviation_mm));
     }
 
@@ -1434,28 +1434,28 @@ void MarlinSettings::postprocess() {
       per_stepper_uint16_t tmc_stepper_current{0};
 
       #if HAS_TRINAMIC_CONFIG
-        TERN_(X_IS_TRINAMIC,  tmc_stepper_current.X =  stepperX.getMilliamps());
-        TERN_(Y_IS_TRINAMIC,  tmc_stepper_current.Y =  stepperY.getMilliamps());
-        TERN_(Z_IS_TRINAMIC,  tmc_stepper_current.Z =  stepperZ.getMilliamps());
-        TERN_(I_IS_TRINAMIC,  tmc_stepper_current.I =  stepperI.getMilliamps());
-        TERN_(J_IS_TRINAMIC,  tmc_stepper_current.J =  stepperJ.getMilliamps());
-        TERN_(K_IS_TRINAMIC,  tmc_stepper_current.K =  stepperK.getMilliamps());
-        TERN_(U_IS_TRINAMIC,  tmc_stepper_current.U =  stepperU.getMilliamps());
-        TERN_(V_IS_TRINAMIC,  tmc_stepper_current.V =  stepperV.getMilliamps());
-        TERN_(W_IS_TRINAMIC,  tmc_stepper_current.W =  stepperW.getMilliamps());
-        TERN_(X2_IS_TRINAMIC, tmc_stepper_current.X2 = stepperX2.getMilliamps());
-        TERN_(Y2_IS_TRINAMIC, tmc_stepper_current.Y2 = stepperY2.getMilliamps());
-        TERN_(Z2_IS_TRINAMIC, tmc_stepper_current.Z2 = stepperZ2.getMilliamps());
-        TERN_(Z3_IS_TRINAMIC, tmc_stepper_current.Z3 = stepperZ3.getMilliamps());
-        TERN_(Z4_IS_TRINAMIC, tmc_stepper_current.Z4 = stepperZ4.getMilliamps());
-        TERN_(E0_IS_TRINAMIC, tmc_stepper_current.E0 = stepperE0.getMilliamps());
-        TERN_(E1_IS_TRINAMIC, tmc_stepper_current.E1 = stepperE1.getMilliamps());
-        TERN_(E2_IS_TRINAMIC, tmc_stepper_current.E2 = stepperE2.getMilliamps());
-        TERN_(E3_IS_TRINAMIC, tmc_stepper_current.E3 = stepperE3.getMilliamps());
-        TERN_(E4_IS_TRINAMIC, tmc_stepper_current.E4 = stepperE4.getMilliamps());
-        TERN_(E5_IS_TRINAMIC, tmc_stepper_current.E5 = stepperE5.getMilliamps());
-        TERN_(E6_IS_TRINAMIC, tmc_stepper_current.E6 = stepperE6.getMilliamps());
-        TERN_(E7_IS_TRINAMIC, tmc_stepper_current.E7 = stepperE7.getMilliamps());
+        IF_ENABLED(X_IS_TRINAMIC,  tmc_stepper_current.X =  stepperX.getMilliamps());
+        IF_ENABLED(Y_IS_TRINAMIC,  tmc_stepper_current.Y =  stepperY.getMilliamps());
+        IF_ENABLED(Z_IS_TRINAMIC,  tmc_stepper_current.Z =  stepperZ.getMilliamps());
+        IF_ENABLED(I_IS_TRINAMIC,  tmc_stepper_current.I =  stepperI.getMilliamps());
+        IF_ENABLED(J_IS_TRINAMIC,  tmc_stepper_current.J =  stepperJ.getMilliamps());
+        IF_ENABLED(K_IS_TRINAMIC,  tmc_stepper_current.K =  stepperK.getMilliamps());
+        IF_ENABLED(U_IS_TRINAMIC,  tmc_stepper_current.U =  stepperU.getMilliamps());
+        IF_ENABLED(V_IS_TRINAMIC,  tmc_stepper_current.V =  stepperV.getMilliamps());
+        IF_ENABLED(W_IS_TRINAMIC,  tmc_stepper_current.W =  stepperW.getMilliamps());
+        IF_ENABLED(X2_IS_TRINAMIC, tmc_stepper_current.X2 = stepperX2.getMilliamps());
+        IF_ENABLED(Y2_IS_TRINAMIC, tmc_stepper_current.Y2 = stepperY2.getMilliamps());
+        IF_ENABLED(Z2_IS_TRINAMIC, tmc_stepper_current.Z2 = stepperZ2.getMilliamps());
+        IF_ENABLED(Z3_IS_TRINAMIC, tmc_stepper_current.Z3 = stepperZ3.getMilliamps());
+        IF_ENABLED(Z4_IS_TRINAMIC, tmc_stepper_current.Z4 = stepperZ4.getMilliamps());
+        IF_ENABLED(E0_IS_TRINAMIC, tmc_stepper_current.E0 = stepperE0.getMilliamps());
+        IF_ENABLED(E1_IS_TRINAMIC, tmc_stepper_current.E1 = stepperE1.getMilliamps());
+        IF_ENABLED(E2_IS_TRINAMIC, tmc_stepper_current.E2 = stepperE2.getMilliamps());
+        IF_ENABLED(E3_IS_TRINAMIC, tmc_stepper_current.E3 = stepperE3.getMilliamps());
+        IF_ENABLED(E4_IS_TRINAMIC, tmc_stepper_current.E4 = stepperE4.getMilliamps());
+        IF_ENABLED(E5_IS_TRINAMIC, tmc_stepper_current.E5 = stepperE5.getMilliamps());
+        IF_ENABLED(E6_IS_TRINAMIC, tmc_stepper_current.E6 = stepperE6.getMilliamps());
+        IF_ENABLED(E7_IS_TRINAMIC, tmc_stepper_current.E7 = stepperE7.getMilliamps());
       #endif
       EEPROM_WRITE(tmc_stepper_current);
     }
@@ -1468,28 +1468,28 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(HYBRID_THRESHOLD)
         per_stepper_uint32_t tmc_hybrid_threshold{0};
-        TERN_(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
-        TERN_(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
-        TERN_(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
-        TERN_(I_HAS_STEALTHCHOP,  tmc_hybrid_threshold.I =  stepperI.get_pwm_thrs());
-        TERN_(J_HAS_STEALTHCHOP,  tmc_hybrid_threshold.J =  stepperJ.get_pwm_thrs());
-        TERN_(K_HAS_STEALTHCHOP,  tmc_hybrid_threshold.K =  stepperK.get_pwm_thrs());
-        TERN_(U_HAS_STEALTHCHOP,  tmc_hybrid_threshold.U =  stepperU.get_pwm_thrs());
-        TERN_(V_HAS_STEALTHCHOP,  tmc_hybrid_threshold.V =  stepperV.get_pwm_thrs());
-        TERN_(W_HAS_STEALTHCHOP,  tmc_hybrid_threshold.W =  stepperW.get_pwm_thrs());
-        TERN_(X2_HAS_STEALTHCHOP, tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs());
-        TERN_(Y2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs());
-        TERN_(Z2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs());
-        TERN_(Z3_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs());
-        TERN_(Z4_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs());
-        TERN_(E0_HAS_STEALTHCHOP, tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs());
-        TERN_(E1_HAS_STEALTHCHOP, tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs());
-        TERN_(E2_HAS_STEALTHCHOP, tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs());
-        TERN_(E3_HAS_STEALTHCHOP, tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs());
-        TERN_(E4_HAS_STEALTHCHOP, tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs());
-        TERN_(E5_HAS_STEALTHCHOP, tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs());
-        TERN_(E6_HAS_STEALTHCHOP, tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs());
-        TERN_(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
+        IF_ENABLED(X_HAS_STEALTHCHOP,  tmc_hybrid_threshold.X =  stepperX.get_pwm_thrs());
+        IF_ENABLED(Y_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Y =  stepperY.get_pwm_thrs());
+        IF_ENABLED(Z_HAS_STEALTHCHOP,  tmc_hybrid_threshold.Z =  stepperZ.get_pwm_thrs());
+        IF_ENABLED(I_HAS_STEALTHCHOP,  tmc_hybrid_threshold.I =  stepperI.get_pwm_thrs());
+        IF_ENABLED(J_HAS_STEALTHCHOP,  tmc_hybrid_threshold.J =  stepperJ.get_pwm_thrs());
+        IF_ENABLED(K_HAS_STEALTHCHOP,  tmc_hybrid_threshold.K =  stepperK.get_pwm_thrs());
+        IF_ENABLED(U_HAS_STEALTHCHOP,  tmc_hybrid_threshold.U =  stepperU.get_pwm_thrs());
+        IF_ENABLED(V_HAS_STEALTHCHOP,  tmc_hybrid_threshold.V =  stepperV.get_pwm_thrs());
+        IF_ENABLED(W_HAS_STEALTHCHOP,  tmc_hybrid_threshold.W =  stepperW.get_pwm_thrs());
+        IF_ENABLED(X2_HAS_STEALTHCHOP, tmc_hybrid_threshold.X2 = stepperX2.get_pwm_thrs());
+        IF_ENABLED(Y2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Y2 = stepperY2.get_pwm_thrs());
+        IF_ENABLED(Z2_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z2 = stepperZ2.get_pwm_thrs());
+        IF_ENABLED(Z3_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z3 = stepperZ3.get_pwm_thrs());
+        IF_ENABLED(Z4_HAS_STEALTHCHOP, tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs());
+        IF_ENABLED(E0_HAS_STEALTHCHOP, tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs());
+        IF_ENABLED(E1_HAS_STEALTHCHOP, tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs());
+        IF_ENABLED(E2_HAS_STEALTHCHOP, tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs());
+        IF_ENABLED(E3_HAS_STEALTHCHOP, tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs());
+        IF_ENABLED(E4_HAS_STEALTHCHOP, tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs());
+        IF_ENABLED(E5_HAS_STEALTHCHOP, tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs());
+        IF_ENABLED(E6_HAS_STEALTHCHOP, tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs());
+        IF_ENABLED(E7_HAS_STEALTHCHOP, tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs());
       #else
         #define _EN_ITEM(N) , .E##N =  30
         const per_stepper_uint32_t tmc_hybrid_threshold = {
@@ -1509,21 +1509,21 @@ void MarlinSettings::postprocess() {
       mot_stepper_int16_t tmc_sgt{0};
       #if USE_SENSORLESS
         NUM_AXIS_CODE(
-          TERN_(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold()),
-          TERN_(Y_SENSORLESS, tmc_sgt.Y = stepperY.homing_threshold()),
-          TERN_(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold()),
-          TERN_(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
-          TERN_(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
-          TERN_(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
-          TERN_(U_SENSORLESS, tmc_sgt.U = stepperU.homing_threshold()),
-          TERN_(V_SENSORLESS, tmc_sgt.V = stepperV.homing_threshold()),
-          TERN_(W_SENSORLESS, tmc_sgt.W = stepperW.homing_threshold())
+          IF_ENABLED(X_SENSORLESS, tmc_sgt.X = stepperX.homing_threshold()),
+          IF_ENABLED(Y_SENSORLESS, tmc_sgt.Y = stepperY.homing_threshold()),
+          IF_ENABLED(Z_SENSORLESS, tmc_sgt.Z = stepperZ.homing_threshold()),
+          IF_ENABLED(I_SENSORLESS, tmc_sgt.I = stepperI.homing_threshold()),
+          IF_ENABLED(J_SENSORLESS, tmc_sgt.J = stepperJ.homing_threshold()),
+          IF_ENABLED(K_SENSORLESS, tmc_sgt.K = stepperK.homing_threshold()),
+          IF_ENABLED(U_SENSORLESS, tmc_sgt.U = stepperU.homing_threshold()),
+          IF_ENABLED(V_SENSORLESS, tmc_sgt.V = stepperV.homing_threshold()),
+          IF_ENABLED(W_SENSORLESS, tmc_sgt.W = stepperW.homing_threshold())
         );
-        TERN_(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
-        TERN_(Y2_SENSORLESS, tmc_sgt.Y2 = stepperY2.homing_threshold());
-        TERN_(Z2_SENSORLESS, tmc_sgt.Z2 = stepperZ2.homing_threshold());
-        TERN_(Z3_SENSORLESS, tmc_sgt.Z3 = stepperZ3.homing_threshold());
-        TERN_(Z4_SENSORLESS, tmc_sgt.Z4 = stepperZ4.homing_threshold());
+        IF_ENABLED(X2_SENSORLESS, tmc_sgt.X2 = stepperX2.homing_threshold());
+        IF_ENABLED(Y2_SENSORLESS, tmc_sgt.Y2 = stepperY2.homing_threshold());
+        IF_ENABLED(Z2_SENSORLESS, tmc_sgt.Z2 = stepperZ2.homing_threshold());
+        IF_ENABLED(Z3_SENSORLESS, tmc_sgt.Z3 = stepperZ3.homing_threshold());
+        IF_ENABLED(Z4_SENSORLESS, tmc_sgt.Z4 = stepperZ4.homing_threshold());
       #endif
       EEPROM_WRITE(tmc_sgt);
     }
@@ -1535,28 +1535,28 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(tmc_stealth_enabled);
 
       per_stepper_bool_t tmc_stealth_enabled = { false };
-      TERN_(X_HAS_STEALTHCHOP,  tmc_stealth_enabled.X  = stepperX.get_stored_stealthChop());
-      TERN_(Y_HAS_STEALTHCHOP,  tmc_stealth_enabled.Y  = stepperY.get_stored_stealthChop());
-      TERN_(Z_HAS_STEALTHCHOP,  tmc_stealth_enabled.Z  = stepperZ.get_stored_stealthChop());
-      TERN_(I_HAS_STEALTHCHOP,  tmc_stealth_enabled.I  = stepperI.get_stored_stealthChop());
-      TERN_(J_HAS_STEALTHCHOP,  tmc_stealth_enabled.J  = stepperJ.get_stored_stealthChop());
-      TERN_(K_HAS_STEALTHCHOP,  tmc_stealth_enabled.K  = stepperK.get_stored_stealthChop());
-      TERN_(U_HAS_STEALTHCHOP,  tmc_stealth_enabled.U  = stepperU.get_stored_stealthChop());
-      TERN_(V_HAS_STEALTHCHOP,  tmc_stealth_enabled.V  = stepperV.get_stored_stealthChop());
-      TERN_(W_HAS_STEALTHCHOP,  tmc_stealth_enabled.W  = stepperW.get_stored_stealthChop());
-      TERN_(X2_HAS_STEALTHCHOP, tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop());
-      TERN_(Y2_HAS_STEALTHCHOP, tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop());
-      TERN_(Z2_HAS_STEALTHCHOP, tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop());
-      TERN_(Z3_HAS_STEALTHCHOP, tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop());
-      TERN_(Z4_HAS_STEALTHCHOP, tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop());
-      TERN_(E0_HAS_STEALTHCHOP, tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop());
-      TERN_(E1_HAS_STEALTHCHOP, tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop());
-      TERN_(E2_HAS_STEALTHCHOP, tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop());
-      TERN_(E3_HAS_STEALTHCHOP, tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop());
-      TERN_(E4_HAS_STEALTHCHOP, tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop());
-      TERN_(E5_HAS_STEALTHCHOP, tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop());
-      TERN_(E6_HAS_STEALTHCHOP, tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop());
-      TERN_(E7_HAS_STEALTHCHOP, tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop());
+      IF_ENABLED(X_HAS_STEALTHCHOP,  tmc_stealth_enabled.X  = stepperX.get_stored_stealthChop());
+      IF_ENABLED(Y_HAS_STEALTHCHOP,  tmc_stealth_enabled.Y  = stepperY.get_stored_stealthChop());
+      IF_ENABLED(Z_HAS_STEALTHCHOP,  tmc_stealth_enabled.Z  = stepperZ.get_stored_stealthChop());
+      IF_ENABLED(I_HAS_STEALTHCHOP,  tmc_stealth_enabled.I  = stepperI.get_stored_stealthChop());
+      IF_ENABLED(J_HAS_STEALTHCHOP,  tmc_stealth_enabled.J  = stepperJ.get_stored_stealthChop());
+      IF_ENABLED(K_HAS_STEALTHCHOP,  tmc_stealth_enabled.K  = stepperK.get_stored_stealthChop());
+      IF_ENABLED(U_HAS_STEALTHCHOP,  tmc_stealth_enabled.U  = stepperU.get_stored_stealthChop());
+      IF_ENABLED(V_HAS_STEALTHCHOP,  tmc_stealth_enabled.V  = stepperV.get_stored_stealthChop());
+      IF_ENABLED(W_HAS_STEALTHCHOP,  tmc_stealth_enabled.W  = stepperW.get_stored_stealthChop());
+      IF_ENABLED(X2_HAS_STEALTHCHOP, tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop());
+      IF_ENABLED(Y2_HAS_STEALTHCHOP, tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop());
+      IF_ENABLED(Z2_HAS_STEALTHCHOP, tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop());
+      IF_ENABLED(Z3_HAS_STEALTHCHOP, tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop());
+      IF_ENABLED(Z4_HAS_STEALTHCHOP, tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop());
+      IF_ENABLED(E0_HAS_STEALTHCHOP, tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop());
+      IF_ENABLED(E1_HAS_STEALTHCHOP, tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop());
+      IF_ENABLED(E2_HAS_STEALTHCHOP, tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop());
+      IF_ENABLED(E3_HAS_STEALTHCHOP, tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop());
+      IF_ENABLED(E4_HAS_STEALTHCHOP, tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop());
+      IF_ENABLED(E5_HAS_STEALTHCHOP, tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop());
+      IF_ENABLED(E6_HAS_STEALTHCHOP, tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop());
+      IF_ENABLED(E7_HAS_STEALTHCHOP, tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop());
       EEPROM_WRITE(tmc_stealth_enabled);
     }
 
@@ -1860,10 +1860,10 @@ void MarlinSettings::postprocess() {
     const bool success = (eeprom_error == ERR_EEPROM_NOERR);
     if (success) {
       LCD_MESSAGE(MSG_SETTINGS_STORED);
-      TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
+      IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_SETTINGS_STORED)));
     }
 
-    TERN_(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onSettingsStored(success));
 
     return success;
   }
@@ -2042,7 +2042,7 @@ void MarlinSettings::postprocess() {
           if (!validating) runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
         #endif
 
-        TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
+        IF_ENABLED(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
@@ -2386,7 +2386,7 @@ void MarlinSettings::postprocess() {
         uint8_t power_monitor_flags;
         _FIELD_TEST(power_monitor_flags);
         EEPROM_READ(power_monitor_flags);
-        TERN_(HAS_POWER_MONITOR, if (!validating) power_monitor.flags = power_monitor_flags);
+        IF_ENABLED(HAS_POWER_MONITOR, if (!validating) power_monitor.flags = power_monitor_flags);
       }
 
       //
@@ -2396,7 +2396,7 @@ void MarlinSettings::postprocess() {
         uint8_t lcd_contrast;
         _FIELD_TEST(lcd_contrast);
         EEPROM_READ(lcd_contrast);
-        TERN_(HAS_LCD_CONTRAST, if (!validating) ui.contrast = lcd_contrast);
+        IF_ENABLED(HAS_LCD_CONTRAST, if (!validating) ui.contrast = lcd_contrast);
       }
 
       //
@@ -2406,7 +2406,7 @@ void MarlinSettings::postprocess() {
         uint8_t lcd_brightness;
         _FIELD_TEST(lcd_brightness);
         EEPROM_READ(lcd_brightness);
-        TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
+        IF_ENABLED(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
       }
 
       //
@@ -2427,7 +2427,7 @@ void MarlinSettings::postprocess() {
         controllerFan_settings_t cfs = { 0 };
         _FIELD_TEST(controllerFan_settings);
         EEPROM_READ(cfs);
-        TERN_(CONTROLLER_FAN_EDITABLE, if (!validating) controllerFan.settings = cfs);
+        IF_ENABLED(CONTROLLER_FAN_EDITABLE, if (!validating) controllerFan.settings = cfs);
       }
 
       //
@@ -2440,8 +2440,8 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(recovery_enabled);
         EEPROM_READ(bed_temp_threshold);
         if (!validating) {
-          TERN_(POWER_LOSS_RECOVERY, recovery.enabled = recovery_enabled);
-          TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = bed_temp_threshold);
+          IF_ENABLED(POWER_LOSS_RECOVERY, recovery.enabled = recovery_enabled);
+          IF_ENABLED(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = bed_temp_threshold);
         }
       }
 
@@ -2458,7 +2458,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(FWRETRACT)
           if (!validating) {
             fwretract.settings = fwretract_settings;
-            TERN_(FWRETRACT_AUTORETRACT, fwretract.autoretract_enabled = autoretract_enabled);
+            IF_ENABLED(FWRETRACT_AUTORETRACT, fwretract.autoretract_enabled = autoretract_enabled);
           }
         #endif
       }
@@ -2520,28 +2520,28 @@ void MarlinSettings::postprocess() {
 
           #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
           if (!validating) {
-            TERN_(X_IS_TRINAMIC,  SET_CURR(X));
-            TERN_(Y_IS_TRINAMIC,  SET_CURR(Y));
-            TERN_(Z_IS_TRINAMIC,  SET_CURR(Z));
-            TERN_(I_IS_TRINAMIC,  SET_CURR(I));
-            TERN_(J_IS_TRINAMIC,  SET_CURR(J));
-            TERN_(K_IS_TRINAMIC,  SET_CURR(K));
-            TERN_(U_IS_TRINAMIC,  SET_CURR(U));
-            TERN_(V_IS_TRINAMIC,  SET_CURR(V));
-            TERN_(W_IS_TRINAMIC,  SET_CURR(W));
-            TERN_(X2_IS_TRINAMIC, SET_CURR(X2));
-            TERN_(Y2_IS_TRINAMIC, SET_CURR(Y2));
-            TERN_(Z2_IS_TRINAMIC, SET_CURR(Z2));
-            TERN_(Z3_IS_TRINAMIC, SET_CURR(Z3));
-            TERN_(Z4_IS_TRINAMIC, SET_CURR(Z4));
-            TERN_(E0_IS_TRINAMIC, SET_CURR(E0));
-            TERN_(E1_IS_TRINAMIC, SET_CURR(E1));
-            TERN_(E2_IS_TRINAMIC, SET_CURR(E2));
-            TERN_(E3_IS_TRINAMIC, SET_CURR(E3));
-            TERN_(E4_IS_TRINAMIC, SET_CURR(E4));
-            TERN_(E5_IS_TRINAMIC, SET_CURR(E5));
-            TERN_(E6_IS_TRINAMIC, SET_CURR(E6));
-            TERN_(E7_IS_TRINAMIC, SET_CURR(E7));
+            IF_ENABLED(X_IS_TRINAMIC,  SET_CURR(X));
+            IF_ENABLED(Y_IS_TRINAMIC,  SET_CURR(Y));
+            IF_ENABLED(Z_IS_TRINAMIC,  SET_CURR(Z));
+            IF_ENABLED(I_IS_TRINAMIC,  SET_CURR(I));
+            IF_ENABLED(J_IS_TRINAMIC,  SET_CURR(J));
+            IF_ENABLED(K_IS_TRINAMIC,  SET_CURR(K));
+            IF_ENABLED(U_IS_TRINAMIC,  SET_CURR(U));
+            IF_ENABLED(V_IS_TRINAMIC,  SET_CURR(V));
+            IF_ENABLED(W_IS_TRINAMIC,  SET_CURR(W));
+            IF_ENABLED(X2_IS_TRINAMIC, SET_CURR(X2));
+            IF_ENABLED(Y2_IS_TRINAMIC, SET_CURR(Y2));
+            IF_ENABLED(Z2_IS_TRINAMIC, SET_CURR(Z2));
+            IF_ENABLED(Z3_IS_TRINAMIC, SET_CURR(Z3));
+            IF_ENABLED(Z4_IS_TRINAMIC, SET_CURR(Z4));
+            IF_ENABLED(E0_IS_TRINAMIC, SET_CURR(E0));
+            IF_ENABLED(E1_IS_TRINAMIC, SET_CURR(E1));
+            IF_ENABLED(E2_IS_TRINAMIC, SET_CURR(E2));
+            IF_ENABLED(E3_IS_TRINAMIC, SET_CURR(E3));
+            IF_ENABLED(E4_IS_TRINAMIC, SET_CURR(E4));
+            IF_ENABLED(E5_IS_TRINAMIC, SET_CURR(E5));
+            IF_ENABLED(E6_IS_TRINAMIC, SET_CURR(E6));
+            IF_ENABLED(E7_IS_TRINAMIC, SET_CURR(E7));
           }
         #endif
       }
@@ -2554,28 +2554,28 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(HYBRID_THRESHOLD)
           if (!validating) {
-            TERN_(X_HAS_STEALTHCHOP,  stepperX.set_pwm_thrs(tmc_hybrid_threshold.X));
-            TERN_(Y_HAS_STEALTHCHOP,  stepperY.set_pwm_thrs(tmc_hybrid_threshold.Y));
-            TERN_(Z_HAS_STEALTHCHOP,  stepperZ.set_pwm_thrs(tmc_hybrid_threshold.Z));
-            TERN_(X2_HAS_STEALTHCHOP, stepperX2.set_pwm_thrs(tmc_hybrid_threshold.X2));
-            TERN_(Y2_HAS_STEALTHCHOP, stepperY2.set_pwm_thrs(tmc_hybrid_threshold.Y2));
-            TERN_(Z2_HAS_STEALTHCHOP, stepperZ2.set_pwm_thrs(tmc_hybrid_threshold.Z2));
-            TERN_(Z3_HAS_STEALTHCHOP, stepperZ3.set_pwm_thrs(tmc_hybrid_threshold.Z3));
-            TERN_(Z4_HAS_STEALTHCHOP, stepperZ4.set_pwm_thrs(tmc_hybrid_threshold.Z4));
-            TERN_(I_HAS_STEALTHCHOP,  stepperI.set_pwm_thrs(tmc_hybrid_threshold.I));
-            TERN_(J_HAS_STEALTHCHOP,  stepperJ.set_pwm_thrs(tmc_hybrid_threshold.J));
-            TERN_(K_HAS_STEALTHCHOP,  stepperK.set_pwm_thrs(tmc_hybrid_threshold.K));
-            TERN_(U_HAS_STEALTHCHOP,  stepperU.set_pwm_thrs(tmc_hybrid_threshold.U));
-            TERN_(V_HAS_STEALTHCHOP,  stepperV.set_pwm_thrs(tmc_hybrid_threshold.V));
-            TERN_(W_HAS_STEALTHCHOP,  stepperW.set_pwm_thrs(tmc_hybrid_threshold.W));
-            TERN_(E0_HAS_STEALTHCHOP, stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0));
-            TERN_(E1_HAS_STEALTHCHOP, stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1));
-            TERN_(E2_HAS_STEALTHCHOP, stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2));
-            TERN_(E3_HAS_STEALTHCHOP, stepperE3.set_pwm_thrs(tmc_hybrid_threshold.E3));
-            TERN_(E4_HAS_STEALTHCHOP, stepperE4.set_pwm_thrs(tmc_hybrid_threshold.E4));
-            TERN_(E5_HAS_STEALTHCHOP, stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5));
-            TERN_(E6_HAS_STEALTHCHOP, stepperE6.set_pwm_thrs(tmc_hybrid_threshold.E6));
-            TERN_(E7_HAS_STEALTHCHOP, stepperE7.set_pwm_thrs(tmc_hybrid_threshold.E7));
+            IF_ENABLED(X_HAS_STEALTHCHOP,  stepperX.set_pwm_thrs(tmc_hybrid_threshold.X));
+            IF_ENABLED(Y_HAS_STEALTHCHOP,  stepperY.set_pwm_thrs(tmc_hybrid_threshold.Y));
+            IF_ENABLED(Z_HAS_STEALTHCHOP,  stepperZ.set_pwm_thrs(tmc_hybrid_threshold.Z));
+            IF_ENABLED(X2_HAS_STEALTHCHOP, stepperX2.set_pwm_thrs(tmc_hybrid_threshold.X2));
+            IF_ENABLED(Y2_HAS_STEALTHCHOP, stepperY2.set_pwm_thrs(tmc_hybrid_threshold.Y2));
+            IF_ENABLED(Z2_HAS_STEALTHCHOP, stepperZ2.set_pwm_thrs(tmc_hybrid_threshold.Z2));
+            IF_ENABLED(Z3_HAS_STEALTHCHOP, stepperZ3.set_pwm_thrs(tmc_hybrid_threshold.Z3));
+            IF_ENABLED(Z4_HAS_STEALTHCHOP, stepperZ4.set_pwm_thrs(tmc_hybrid_threshold.Z4));
+            IF_ENABLED(I_HAS_STEALTHCHOP,  stepperI.set_pwm_thrs(tmc_hybrid_threshold.I));
+            IF_ENABLED(J_HAS_STEALTHCHOP,  stepperJ.set_pwm_thrs(tmc_hybrid_threshold.J));
+            IF_ENABLED(K_HAS_STEALTHCHOP,  stepperK.set_pwm_thrs(tmc_hybrid_threshold.K));
+            IF_ENABLED(U_HAS_STEALTHCHOP,  stepperU.set_pwm_thrs(tmc_hybrid_threshold.U));
+            IF_ENABLED(V_HAS_STEALTHCHOP,  stepperV.set_pwm_thrs(tmc_hybrid_threshold.V));
+            IF_ENABLED(W_HAS_STEALTHCHOP,  stepperW.set_pwm_thrs(tmc_hybrid_threshold.W));
+            IF_ENABLED(E0_HAS_STEALTHCHOP, stepperE0.set_pwm_thrs(tmc_hybrid_threshold.E0));
+            IF_ENABLED(E1_HAS_STEALTHCHOP, stepperE1.set_pwm_thrs(tmc_hybrid_threshold.E1));
+            IF_ENABLED(E2_HAS_STEALTHCHOP, stepperE2.set_pwm_thrs(tmc_hybrid_threshold.E2));
+            IF_ENABLED(E3_HAS_STEALTHCHOP, stepperE3.set_pwm_thrs(tmc_hybrid_threshold.E3));
+            IF_ENABLED(E4_HAS_STEALTHCHOP, stepperE4.set_pwm_thrs(tmc_hybrid_threshold.E4));
+            IF_ENABLED(E5_HAS_STEALTHCHOP, stepperE5.set_pwm_thrs(tmc_hybrid_threshold.E5));
+            IF_ENABLED(E6_HAS_STEALTHCHOP, stepperE6.set_pwm_thrs(tmc_hybrid_threshold.E6));
+            IF_ENABLED(E7_HAS_STEALTHCHOP, stepperE7.set_pwm_thrs(tmc_hybrid_threshold.E7));
           }
         #endif
       }
@@ -2590,21 +2590,21 @@ void MarlinSettings::postprocess() {
         #if USE_SENSORLESS
           if (!validating) {
             NUM_AXIS_CODE(
-              TERN_(X_SENSORLESS, stepperX.homing_threshold(tmc_sgt.X)),
-              TERN_(Y_SENSORLESS, stepperY.homing_threshold(tmc_sgt.Y)),
-              TERN_(Z_SENSORLESS, stepperZ.homing_threshold(tmc_sgt.Z)),
-              TERN_(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
-              TERN_(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
-              TERN_(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
-              TERN_(U_SENSORLESS, stepperU.homing_threshold(tmc_sgt.U)),
-              TERN_(V_SENSORLESS, stepperV.homing_threshold(tmc_sgt.V)),
-              TERN_(W_SENSORLESS, stepperW.homing_threshold(tmc_sgt.W))
+              IF_ENABLED(X_SENSORLESS, stepperX.homing_threshold(tmc_sgt.X)),
+              IF_ENABLED(Y_SENSORLESS, stepperY.homing_threshold(tmc_sgt.Y)),
+              IF_ENABLED(Z_SENSORLESS, stepperZ.homing_threshold(tmc_sgt.Z)),
+              IF_ENABLED(I_SENSORLESS, stepperI.homing_threshold(tmc_sgt.I)),
+              IF_ENABLED(J_SENSORLESS, stepperJ.homing_threshold(tmc_sgt.J)),
+              IF_ENABLED(K_SENSORLESS, stepperK.homing_threshold(tmc_sgt.K)),
+              IF_ENABLED(U_SENSORLESS, stepperU.homing_threshold(tmc_sgt.U)),
+              IF_ENABLED(V_SENSORLESS, stepperV.homing_threshold(tmc_sgt.V)),
+              IF_ENABLED(W_SENSORLESS, stepperW.homing_threshold(tmc_sgt.W))
             );
-            TERN_(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
-            TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
-            TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(tmc_sgt.Z2));
-            TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(tmc_sgt.Z3));
-            TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(tmc_sgt.Z4));
+            IF_ENABLED(X2_SENSORLESS, stepperX2.homing_threshold(tmc_sgt.X2));
+            IF_ENABLED(Y2_SENSORLESS, stepperY2.homing_threshold(tmc_sgt.Y2));
+            IF_ENABLED(Z2_SENSORLESS, stepperZ2.homing_threshold(tmc_sgt.Z2));
+            IF_ENABLED(Z3_SENSORLESS, stepperZ3.homing_threshold(tmc_sgt.Z3));
+            IF_ENABLED(Z4_SENSORLESS, stepperZ4.homing_threshold(tmc_sgt.Z4));
           }
         #endif
       }
@@ -2620,28 +2620,28 @@ void MarlinSettings::postprocess() {
 
           #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
           if (!validating) {
-            TERN_(X_HAS_STEALTHCHOP,  SET_STEPPING_MODE(X));
-            TERN_(Y_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Y));
-            TERN_(Z_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Z));
-            TERN_(I_HAS_STEALTHCHOP,  SET_STEPPING_MODE(I));
-            TERN_(J_HAS_STEALTHCHOP,  SET_STEPPING_MODE(J));
-            TERN_(K_HAS_STEALTHCHOP,  SET_STEPPING_MODE(K));
-            TERN_(U_HAS_STEALTHCHOP,  SET_STEPPING_MODE(U));
-            TERN_(V_HAS_STEALTHCHOP,  SET_STEPPING_MODE(V));
-            TERN_(W_HAS_STEALTHCHOP,  SET_STEPPING_MODE(W));
-            TERN_(X2_HAS_STEALTHCHOP, SET_STEPPING_MODE(X2));
-            TERN_(Y2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Y2));
-            TERN_(Z2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z2));
-            TERN_(Z3_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z3));
-            TERN_(Z4_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z4));
-            TERN_(E0_HAS_STEALTHCHOP, SET_STEPPING_MODE(E0));
-            TERN_(E1_HAS_STEALTHCHOP, SET_STEPPING_MODE(E1));
-            TERN_(E2_HAS_STEALTHCHOP, SET_STEPPING_MODE(E2));
-            TERN_(E3_HAS_STEALTHCHOP, SET_STEPPING_MODE(E3));
-            TERN_(E4_HAS_STEALTHCHOP, SET_STEPPING_MODE(E4));
-            TERN_(E5_HAS_STEALTHCHOP, SET_STEPPING_MODE(E5));
-            TERN_(E6_HAS_STEALTHCHOP, SET_STEPPING_MODE(E6));
-            TERN_(E7_HAS_STEALTHCHOP, SET_STEPPING_MODE(E7));
+            IF_ENABLED(X_HAS_STEALTHCHOP,  SET_STEPPING_MODE(X));
+            IF_ENABLED(Y_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Y));
+            IF_ENABLED(Z_HAS_STEALTHCHOP,  SET_STEPPING_MODE(Z));
+            IF_ENABLED(I_HAS_STEALTHCHOP,  SET_STEPPING_MODE(I));
+            IF_ENABLED(J_HAS_STEALTHCHOP,  SET_STEPPING_MODE(J));
+            IF_ENABLED(K_HAS_STEALTHCHOP,  SET_STEPPING_MODE(K));
+            IF_ENABLED(U_HAS_STEALTHCHOP,  SET_STEPPING_MODE(U));
+            IF_ENABLED(V_HAS_STEALTHCHOP,  SET_STEPPING_MODE(V));
+            IF_ENABLED(W_HAS_STEALTHCHOP,  SET_STEPPING_MODE(W));
+            IF_ENABLED(X2_HAS_STEALTHCHOP, SET_STEPPING_MODE(X2));
+            IF_ENABLED(Y2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Y2));
+            IF_ENABLED(Z2_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z2));
+            IF_ENABLED(Z3_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z3));
+            IF_ENABLED(Z4_HAS_STEALTHCHOP, SET_STEPPING_MODE(Z4));
+            IF_ENABLED(E0_HAS_STEALTHCHOP, SET_STEPPING_MODE(E0));
+            IF_ENABLED(E1_HAS_STEALTHCHOP, SET_STEPPING_MODE(E1));
+            IF_ENABLED(E2_HAS_STEALTHCHOP, SET_STEPPING_MODE(E2));
+            IF_ENABLED(E3_HAS_STEALTHCHOP, SET_STEPPING_MODE(E3));
+            IF_ENABLED(E4_HAS_STEALTHCHOP, SET_STEPPING_MODE(E4));
+            IF_ENABLED(E5_HAS_STEALTHCHOP, SET_STEPPING_MODE(E5));
+            IF_ENABLED(E6_HAS_STEALTHCHOP, SET_STEPPING_MODE(E6));
+            IF_ENABLED(E7_HAS_STEALTHCHOP, SET_STEPPING_MODE(E7));
           }
         #endif
       }
@@ -3000,7 +3000,7 @@ void MarlinSettings::postprocess() {
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, C(')'));
-        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
+        IF_ENABLED(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3050,7 +3050,7 @@ void MarlinSettings::postprocess() {
         break;
       case ERR_EEPROM_CRC:
         DEBUG_WARN_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
+        IF_ENABLED(HOST_EEPROM_CHITCHAT, hostui.notify(GET_TEXT_F(MSG_ERR_EEPROM_CRC)));
         break;
       default: break;
     }
@@ -3110,7 +3110,7 @@ void MarlinSettings::postprocess() {
     if (validate()) {
       const EEPROM_Error err = _load();
       const bool success = (err == ERR_EEPROM_NOERR);
-      TERN_(EXTENSIBLE_UI, ExtUI::onSettingsLoaded(success));
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onSettingsLoaded(success));
       return success;
     }
 
@@ -3267,16 +3267,16 @@ void MarlinSettings::postprocess() {
   void MarlinSettings::load_lcd_state() {
     if (TERN0(EEPROM_SETTINGS, check_version() == ERR_EEPROM_NOERR)) {
       #if ENABLED(EEPROM_SETTINGS)
-        TERN_(HAS_LCD_CONTRAST, load_contrast());
-        TERN_(HAS_LCD_BRIGHTNESS, load_brightness());
+        IF_ENABLED(HAS_LCD_CONTRAST, load_contrast());
+        IF_ENABLED(HAS_LCD_BRIGHTNESS, load_brightness());
       #endif
     }
     else {
-      TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
-      TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+      IF_ENABLED(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
+      IF_ENABLED(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
     }
-    TERN_(HAS_LCD_CONTRAST, ui.refresh_contrast());
-    TERN_(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
+    IF_ENABLED(HAS_LCD_CONTRAST, ui.refresh_contrast());
+    IF_ENABLED(HAS_LCD_BRIGHTNESS, ui.refresh_brightness());
   }
 
 #endif // HAS_EARLY_LCD_SETTINGS
@@ -3331,10 +3331,10 @@ void MarlinSettings::reset() {
     planner.max_jerk.set(
       NUM_AXIS_LIST(DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_IJERK, DEFAULT_JJERK, DEFAULT_KJERK, DEFAULT_UJERK, DEFAULT_VJERK, DEFAULT_WJERK)
     );
-    TERN_(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
+    IF_ENABLED(HAS_CLASSIC_E_JERK, planner.max_jerk.e = DEFAULT_EJERK);
   #endif
 
-  TERN_(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
+  IF_ENABLED(HAS_JUNCTION_DEVIATION, planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM));
 
   //
   // Home Offset
@@ -3348,7 +3348,7 @@ void MarlinSettings::reset() {
   //
   // Hotend Offsets
   //
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  IF_ENABLED(HAS_HOTEND_OFFSET, reset_hotend_offsets());
 
   //
   // Spindle Acceleration
@@ -3364,8 +3364,8 @@ void MarlinSettings::reset() {
   #if HAS_FILAMENT_SENSOR
     runout.enabled = FIL_RUNOUT_ENABLED_DEFAULT;
     runout.reset();
-    TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
-    TERN_(FILAMENT_SWITCH_AND_MOTION,   runout.set_motion_distance(FILAMENT_MOTION_DISTANCE_MM));
+    IF_ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
+    IF_ENABLED(FILAMENT_SWITCH_AND_MOTION,   runout.set_motion_distance(FILAMENT_MOTION_DISTANCE_MM));
   #endif
 
   //
@@ -3412,22 +3412,22 @@ void MarlinSettings::reset() {
     #endif
   #endif
 
-  TERN_(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
+  IF_ENABLED(DWIN_CREALITY_LCD_JYERSUI, jyersDWIN.resetSettings());
 
   //
   // Case Light Brightness
   //
-  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  IF_ENABLED(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // CONFIGURABLE_MACHINE_NAME
   //
-  TERN_(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
+  IF_ENABLED(CONFIGURABLE_MACHINE_NAME, machine_name = PSTR(MACHINE_NAME));
 
   //
   // TOUCH_SCREEN_CALIBRATION
   //
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+  IF_ENABLED(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
 
   //
   // Buzzer enable/disable
@@ -3439,13 +3439,13 @@ void MarlinSettings::reset() {
   //
   // Magnetic Parking Extruder
   //
-  TERN_(MAGNETIC_PARKING_EXTRUDER, mpe_settings_init());
+  IF_ENABLED(MAGNETIC_PARKING_EXTRUDER, mpe_settings_init());
 
   //
   // Global Leveling
   //
-  TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
-  TERN_(HAS_LEVELING, reset_bed_level());
+  IF_ENABLED(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = DEFAULT_LEVELING_FADE_HEIGHT);
+  IF_ENABLED(HAS_LEVELING, reset_bed_level());
 
   //
   // AUTOTEMP
@@ -3459,7 +3459,7 @@ void MarlinSettings::reset() {
   //
   // X Axis Twist Compensation
   //
-  TERN_(X_AXIS_TWIST_COMPENSATION, xatc.reset());
+  IF_ENABLED(X_AXIS_TWIST_COMPENSATION, xatc.reset());
 
   //
   // Nozzle-to-probe Offset
@@ -3477,22 +3477,22 @@ void MarlinSettings::reset() {
   //
   // Z Stepper Auto-alignment points
   //
-  TERN_(Z_STEPPER_AUTO_ALIGN, z_stepper_align.reset_to_default());
+  IF_ENABLED(Z_STEPPER_AUTO_ALIGN, z_stepper_align.reset_to_default());
 
   //
   // Servo Angles
   //
-  TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
+  IF_ENABLED(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
   // Probe Temperature Compensation
   //
-  TERN_(HAS_PTC, ptc.reset());
+  IF_ENABLED(HAS_PTC, ptc.reset());
 
   //
   // BLTouch
   //
-  TERN_(HAS_BLTOUCH_HS_MODE, bltouch.high_speed_mode = BLTOUCH_HS_MODE);
+  IF_ENABLED(HAS_BLTOUCH_HS_MODE, bltouch.high_speed_mode = BLTOUCH_HS_MODE);
 
   //
   // Kinematic Settings (Delta, SCARA, TPARA, Polargraph...)
@@ -3523,7 +3523,7 @@ void MarlinSettings::reset() {
   //
   // Material Presets
   //
-  TERN_(HAS_PREHEAT, ui.reset_material_presets());
+  IF_ENABLED(HAS_PREHEAT, ui.reset_material_presets());
 
   //
   // Temperature Manager
@@ -3533,17 +3533,17 @@ void MarlinSettings::reset() {
   //
   // Power Monitor
   //
-  TERN_(POWER_MONITOR, power_monitor.reset());
+  IF_ENABLED(POWER_MONITOR, power_monitor.reset());
 
   //
   // LCD Contrast
   //
-  TERN_(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
+  IF_ENABLED(HAS_LCD_CONTRAST, ui.contrast = LCD_CONTRAST_DEFAULT);
 
   //
   // LCD Brightness
   //
-  TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+  IF_ENABLED(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
 
   //
   // LCD Backlight / Sleep Timeout
@@ -3559,25 +3559,25 @@ void MarlinSettings::reset() {
   //
   // Controller Fan
   //
-  TERN_(USE_CONTROLLER_FAN, controllerFan.reset());
+  IF_ENABLED(USE_CONTROLLER_FAN, controllerFan.reset());
 
   //
   // Power-Loss Recovery
   //
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.enable(ENABLED(PLR_ENABLED_DEFAULT));
-    TERN_(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
+    IF_ENABLED(HAS_PLR_BED_THRESHOLD, recovery.bed_temp_threshold = PLR_BED_THRESHOLD);
   #endif
 
   //
   // Firmware Retraction
   //
-  TERN_(FWRETRACT, fwretract.reset());
+  IF_ENABLED(FWRETRACT, fwretract.reset());
 
   //
   // Homing Feedrate
   //
-  TERN_(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
+  IF_ENABLED(EDITABLE_HOMING_FEEDRATE, homing_feedrate_mm_m = xyz_feedrate_t(HOMING_FEEDRATE_MM_M));
 
   //
   // TMC Homing Current
@@ -3633,14 +3633,14 @@ void MarlinSettings::reset() {
       EXTRUDER_LOOP() {
         const float k = linAdvanceK[ALIM(e, linAdvanceK)];
         planner.set_advance_k(k, e);
-        TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e));
-        TERN_(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = k);
+        IF_ENABLED(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(linAdvanceTau[ALIM(e, linAdvanceTau)], e));
+        IF_ENABLED(ADVANCE_K_EXTRA, other_extruder_advance_K[e] = k);
       }
 
     #else // !DISTINCT_E_FACTORS
 
       planner.set_advance_k(ADVANCE_K);
-      TERN_(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(ADVANCE_TAU));
+      IF_ENABLED(SMOOTH_LIN_ADVANCE, stepper.set_advance_tau(ADVANCE_TAU));
       #if ENABLED(ADVANCE_K_EXTRA)
         EXTRUDER_LOOP() other_extruder_advance_K[e] = ADVANCE_K;
       #endif
@@ -3677,7 +3677,7 @@ void MarlinSettings::reset() {
   //
   // CNC Coordinate System
   //
-  TERN_(CNC_COORDINATE_SYSTEMS, (void)gcode.select_coordinate_system(-1)); // Go back to machine space
+  IF_ENABLED(CNC_COORDINATE_SYSTEMS, (void)gcode.select_coordinate_system(-1)); // Go back to machine space
 
   //
   // Skew Correction
@@ -3712,12 +3712,12 @@ void MarlinSettings::reset() {
   //
   // Fan tachometer check
   //
-  TERN_(HAS_FANCHECK, fan_check.enabled = true);
+  IF_ENABLED(HAS_FANCHECK, fan_check.enabled = true);
 
   //
   // MKS UI controller
   //
-  TERN_(DGUS_LCD_UI_MKS, MKS_reset_settings());
+  IF_ENABLED(DGUS_LCD_UI_MKS, MKS_reset_settings());
 
   //
   // Model predictive control
@@ -3772,12 +3772,12 @@ void MarlinSettings::reset() {
   //
   // Fixed-Time Motion
   //
-  TERN_(FT_MOTION, ftMotion.set_defaults());
+  IF_ENABLED(FT_MOTION, ftMotion.set_defaults());
 
   //
   // Nonlinear Extrusion
   //
-  TERN_(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
+  IF_ENABLED(NONLINEAR_EXTRUSION, stepper.ne.settings.reset());
 
   //
   // Input Shaping
@@ -3811,17 +3811,17 @@ void MarlinSettings::reset() {
   //
   // Hotend Idle Timeout
   //
-  TERN_(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
+  IF_ENABLED(HOTEND_IDLE_TIMEOUT, hotend_idle.cfg.set_defaults());
 
   postprocess();
 
   #if ANY(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
     FSTR_P const hdsl = F("Hardcoded Default Settings Loaded");
-    TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
+    IF_ENABLED(HOST_EEPROM_CHITCHAT, hostui.notify(hdsl));
     DEBUG_ECHO_START(); DEBUG_ECHOLN(hdsl);
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onFactoryReset());
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onFactoryReset());
 }
 
 #if DISABLED(DISABLE_M503)
@@ -3871,7 +3871,7 @@ void MarlinSettings::reset() {
     //
     // M92 Steps per Unit
     //
-    TERN_(EDITABLE_STEPS_PER_UNIT, gcode.M92_report(forReplay));
+    IF_ENABLED(EDITABLE_STEPS_PER_UNIT, gcode.M92_report(forReplay));
 
     //
     // M203 Maximum feedrates (units/s)
@@ -3896,12 +3896,12 @@ void MarlinSettings::reset() {
     //
     // M206 Home Offset
     //
-    TERN_(HAS_HOME_OFFSET, gcode.M206_report(forReplay));
+    IF_ENABLED(HAS_HOME_OFFSET, gcode.M206_report(forReplay));
 
     //
     // M218 Hotend offsets
     //
-    TERN_(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
+    IF_ENABLED(HAS_HOTEND_OFFSET, gcode.M218_report(forReplay));
 
     //
     // Bed Leveling
@@ -3953,17 +3953,17 @@ void MarlinSettings::reset() {
     //
     // X Axis Twist Compensation
     //
-    TERN_(X_AXIS_TWIST_COMPENSATION, gcode.M423_report(forReplay));
+    IF_ENABLED(X_AXIS_TWIST_COMPENSATION, gcode.M423_report(forReplay));
 
     //
     // Editable Servo Angles
     //
-    TERN_(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
+    IF_ENABLED(EDITABLE_SERVO_ANGLES, gcode.M281_report(forReplay));
 
     //
     // Kinematic Settings
     //
-    TERN_(IS_KINEMATIC, gcode.M665_report(forReplay));
+    IF_ENABLED(IS_KINEMATIC, gcode.M665_report(forReplay));
 
     //
     // M666 Endstops Adjustment
@@ -3975,19 +3975,19 @@ void MarlinSettings::reset() {
     //
     // Z Auto-Align
     //
-    TERN_(Z_STEPPER_AUTO_ALIGN, gcode.M422_report(forReplay));
+    IF_ENABLED(Z_STEPPER_AUTO_ALIGN, gcode.M422_report(forReplay));
 
     //
     // LCD Preheat Settings
     //
-    TERN_(HAS_PREHEAT, gcode.M145_report(forReplay));
+    IF_ENABLED(HAS_PREHEAT, gcode.M145_report(forReplay));
 
     //
     // PID
     //
-    TERN_(PIDTEMP,        gcode.M301_report(forReplay));
-    TERN_(PIDTEMPBED,     gcode.M304_report(forReplay));
-    TERN_(PIDTEMPCHAMBER, gcode.M309_report(forReplay));
+    IF_ENABLED(PIDTEMP,        gcode.M301_report(forReplay));
+    IF_ENABLED(PIDTEMPBED,     gcode.M304_report(forReplay));
+    IF_ENABLED(PIDTEMPCHAMBER, gcode.M309_report(forReplay));
 
     #if HAS_USER_THERMISTORS
       for (uint8_t i = 0; i < USER_THERMISTORS; ++i)
@@ -3997,27 +3997,27 @@ void MarlinSettings::reset() {
     //
     // LCD Contrast
     //
-    TERN_(HAS_LCD_CONTRAST, gcode.M250_report(forReplay));
+    IF_ENABLED(HAS_LCD_CONTRAST, gcode.M250_report(forReplay));
 
     //
     // Display Sleep
     //
-    TERN_(EDITABLE_DISPLAY_TIMEOUT, gcode.M255_report(forReplay));
+    IF_ENABLED(EDITABLE_DISPLAY_TIMEOUT, gcode.M255_report(forReplay));
 
     //
     // LCD Brightness
     //
-    TERN_(HAS_LCD_BRIGHTNESS, gcode.M256_report(forReplay));
+    IF_ENABLED(HAS_LCD_BRIGHTNESS, gcode.M256_report(forReplay));
 
     //
     // Controller Fan
     //
-    TERN_(CONTROLLER_FAN_EDITABLE, gcode.M710_report(forReplay));
+    IF_ENABLED(CONTROLLER_FAN_EDITABLE, gcode.M710_report(forReplay));
 
     //
     // Power-Loss Recovery
     //
-    TERN_(POWER_LOSS_RECOVERY, gcode.M413_report(forReplay));
+    IF_ENABLED(POWER_LOSS_RECOVERY, gcode.M413_report(forReplay));
 
     //
     // Firmware Retraction
@@ -4025,23 +4025,23 @@ void MarlinSettings::reset() {
     #if ENABLED(FWRETRACT)
       gcode.M207_report(forReplay);
       gcode.M208_report(forReplay);
-      TERN_(FWRETRACT_AUTORETRACT, gcode.M209_report(forReplay));
+      IF_ENABLED(FWRETRACT_AUTORETRACT, gcode.M209_report(forReplay));
     #endif
 
     //
     // Homing Feedrate
     //
-    TERN_(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
+    IF_ENABLED(EDITABLE_HOMING_FEEDRATE, gcode.M210_report(forReplay));
 
     //
     // Probe Offset
     //
-    TERN_(HAS_BED_PROBE, gcode.M851_report(forReplay));
+    IF_ENABLED(HAS_BED_PROBE, gcode.M851_report(forReplay));
 
     //
     // Bed Skew Correction
     //
-    TERN_(SKEW_CORRECTION_GCODE, gcode.M852_report(forReplay));
+    IF_ENABLED(SKEW_CORRECTION_GCODE, gcode.M852_report(forReplay));
 
     #if HAS_TRINAMIC_CONFIG
       //
@@ -4052,48 +4052,48 @@ void MarlinSettings::reset() {
       //
       // TMC Hybrid Threshold
       //
-      TERN_(HYBRID_THRESHOLD, gcode.M913_report(forReplay));
+      IF_ENABLED(HYBRID_THRESHOLD, gcode.M913_report(forReplay));
 
       //
       // TMC Sensorless homing thresholds
       //
-      TERN_(USE_SENSORLESS, gcode.M914_report(forReplay));
+      IF_ENABLED(USE_SENSORLESS, gcode.M914_report(forReplay));
     #endif
 
     //
     // TMC Homing Current
     //
-    TERN_(EDITABLE_HOMING_CURRENT, gcode.M920_report(forReplay));
+    IF_ENABLED(EDITABLE_HOMING_CURRENT, gcode.M920_report(forReplay));
 
     //
     // TMC stepping mode
     //
-    TERN_(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
+    IF_ENABLED(HAS_STEALTHCHOP, gcode.M569_report(forReplay));
 
     //
     // Fixed-Time Motion
     //
-    TERN_(FT_MOTION, gcode.M493_report(forReplay));
+    IF_ENABLED(FT_MOTION, gcode.M493_report(forReplay));
 
     //
     // Nonlinear Extrusion
     //
-    TERN_(NONLINEAR_EXTRUSION, gcode.M592_report(forReplay));
+    IF_ENABLED(NONLINEAR_EXTRUSION, gcode.M592_report(forReplay));
 
     //
     // Input Shaping
     //
-    TERN_(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
+    IF_ENABLED(HAS_ZV_SHAPING, gcode.M593_report(forReplay));
 
     //
     // Hotend Idle Timeout
     //
-    TERN_(HOTEND_IDLE_TIMEOUT, gcode.M86_report(forReplay));
+    IF_ENABLED(HOTEND_IDLE_TIMEOUT, gcode.M86_report(forReplay));
 
     //
     // Linear Advance
     //
-    TERN_(LIN_ADVANCE, gcode.M900_report(forReplay));
+    IF_ENABLED(LIN_ADVANCE, gcode.M900_report(forReplay));
 
     //
     // Motor Current (SPI or PWM)
@@ -4105,7 +4105,7 @@ void MarlinSettings::reset() {
     //
     // Advanced Pause filament load & unload lengths
     //
-    TERN_(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
+    IF_ENABLED(CONFIGURE_FILAMENT_CHANGE, gcode.M603_report(forReplay));
 
     //
     // Tool-changing Parameters
@@ -4115,12 +4115,12 @@ void MarlinSettings::reset() {
     //
     // Backlash Compensation
     //
-    TERN_(BACKLASH_GCODE, gcode.M425_report(forReplay));
+    IF_ENABLED(BACKLASH_GCODE, gcode.M425_report(forReplay));
 
     //
     // Filament Runout Sensor
     //
-    TERN_(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
+    IF_ENABLED(HAS_FILAMENT_SENSOR, gcode.M412_report(forReplay));
 
     #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet");
@@ -4131,17 +4131,17 @@ void MarlinSettings::reset() {
       gcode.M554_report(forReplay);
     #endif
 
-    TERN_(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
+    IF_ENABLED(HAS_MULTI_LANGUAGE, gcode.M414_report(forReplay));
 
     //
     // Model predictive control
     //
-    TERN_(MPCTEMP, gcode.M306_report(forReplay));
+    IF_ENABLED(MPCTEMP, gcode.M306_report(forReplay));
 
     //
     // MMU3
     //
-    TERN_(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
+    IF_ENABLED(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
   }
 
 #endif // !DISABLE_M503

@@ -242,7 +242,7 @@ class PrintJobRecovery {
 
     #if PIN_EXISTS(POWER_LOSS) || ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       friend class GcodeSuite;
-      static void _outage(TERN_(DEBUG_POWER_LOSS_RECOVERY, const bool simulated=false));
+      static void _outage(IF_ENABLED(DEBUG_POWER_LOSS_RECOVERY, const bool simulated=false));
     #endif
 };
 

@@ -47,7 +47,7 @@ void GcodeSuite::M111() {
     TERN(DEBUG_FLAGS_GCODE, str_debug_4, nullptr),
     str_debug_8,
     TERN(DEBUG_FLAGS_GCODE, str_debug_16, nullptr),
-    TERN_(DEBUG_LEVELING_FEATURE, str_debug_detail)
+    IF_ENABLED(DEBUG_LEVELING_FEATURE, str_debug_detail)
   };
 
   SERIAL_ECHO_START();

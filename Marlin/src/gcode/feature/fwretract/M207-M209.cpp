@@ -38,7 +38,7 @@
 void GcodeSuite::M207() { fwretract.M207(); }
 
 void GcodeSuite::M207_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_RETRACT_S_F_Z));
   fwretract.M207_report();
@@ -55,7 +55,7 @@ void GcodeSuite::M207_report(const bool forReplay/*=true*/) {
 void GcodeSuite::M208() { fwretract.M208(); }
 
 void GcodeSuite::M208_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_RECOVER_S_F));
   fwretract.M208_report();
@@ -72,7 +72,7 @@ void GcodeSuite::M208_report(const bool forReplay/*=true*/) {
   void GcodeSuite::M209() { fwretract.M209(); }
 
   void GcodeSuite::M209_report(const bool forReplay/*=true*/) {
-    TERN_(MARLIN_SMALL_BUILD, return);
+    IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
     report_heading_etc(forReplay, F(STR_AUTO_RETRACT_S));
     fwretract.M209_report();

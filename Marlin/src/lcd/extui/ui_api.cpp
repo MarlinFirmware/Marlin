@@ -236,7 +236,7 @@ namespace ExtUI {
           case COOLER: return;  // Cooler has no idle timer
         #endif
         default:
-          TERN_(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
+          IF_ENABLED(HAS_HOTEND, thermalManager.reset_hotend_idle_timer(heater - H0));
           break;
       }
     #else
@@ -472,34 +472,34 @@ namespace ExtUI {
 
     void setAxisCurrent_mA(const_float_t mA, const axis_t axis) {
       switch (axis) {
-        case X:  TERN_(X_IS_TRINAMIC,  stepperX.rms_current(constrain(mA, 400, 1500))); break;
-        case Y:  TERN_(Y_IS_TRINAMIC,  stepperY.rms_current(constrain(mA, 400, 1500))); break;
-        case Z:  TERN_(Z_IS_TRINAMIC,  stepperZ.rms_current(constrain(mA, 400, 1500))); break;
-        case I:  TERN_(I_IS_TRINAMIC,  stepperI.rms_current(constrain(mA, 400, 1500))); break;
-        case J:  TERN_(J_IS_TRINAMIC,  stepperJ.rms_current(constrain(mA, 400, 1500))); break;
-        case K:  TERN_(K_IS_TRINAMIC,  stepperK.rms_current(constrain(mA, 400, 1500))); break;
-        case U:  TERN_(U_IS_TRINAMIC,  stepperU.rms_current(constrain(mA, 400, 1500))); break;
-        case V:  TERN_(V_IS_TRINAMIC,  stepperV.rms_current(constrain(mA, 400, 1500))); break;
-        case W:  TERN_(W_IS_TRINAMIC,  stepperW.rms_current(constrain(mA, 400, 1500))); break;
-        case X2: TERN_(X2_IS_TRINAMIC, stepperX2.rms_current(constrain(mA, 400, 1500))); break;
-        case Y2: TERN_(Y2_IS_TRINAMIC, stepperY2.rms_current(constrain(mA, 400, 1500))); break;
-        case Z2: TERN_(Z2_IS_TRINAMIC, stepperZ2.rms_current(constrain(mA, 400, 1500))); break;
-        case Z3: TERN_(Z3_IS_TRINAMIC, stepperZ3.rms_current(constrain(mA, 400, 1500))); break;
-        case Z4: TERN_(Z4_IS_TRINAMIC, stepperZ4.rms_current(constrain(mA, 400, 1500))); break;
+        case X:  IF_ENABLED(X_IS_TRINAMIC,  stepperX.rms_current(constrain(mA, 400, 1500))); break;
+        case Y:  IF_ENABLED(Y_IS_TRINAMIC,  stepperY.rms_current(constrain(mA, 400, 1500))); break;
+        case Z:  IF_ENABLED(Z_IS_TRINAMIC,  stepperZ.rms_current(constrain(mA, 400, 1500))); break;
+        case I:  IF_ENABLED(I_IS_TRINAMIC,  stepperI.rms_current(constrain(mA, 400, 1500))); break;
+        case J:  IF_ENABLED(J_IS_TRINAMIC,  stepperJ.rms_current(constrain(mA, 400, 1500))); break;
+        case K:  IF_ENABLED(K_IS_TRINAMIC,  stepperK.rms_current(constrain(mA, 400, 1500))); break;
+        case U:  IF_ENABLED(U_IS_TRINAMIC,  stepperU.rms_current(constrain(mA, 400, 1500))); break;
+        case V:  IF_ENABLED(V_IS_TRINAMIC,  stepperV.rms_current(constrain(mA, 400, 1500))); break;
+        case W:  IF_ENABLED(W_IS_TRINAMIC,  stepperW.rms_current(constrain(mA, 400, 1500))); break;
+        case X2: IF_ENABLED(X2_IS_TRINAMIC, stepperX2.rms_current(constrain(mA, 400, 1500))); break;
+        case Y2: IF_ENABLED(Y2_IS_TRINAMIC, stepperY2.rms_current(constrain(mA, 400, 1500))); break;
+        case Z2: IF_ENABLED(Z2_IS_TRINAMIC, stepperZ2.rms_current(constrain(mA, 400, 1500))); break;
+        case Z3: IF_ENABLED(Z3_IS_TRINAMIC, stepperZ3.rms_current(constrain(mA, 400, 1500))); break;
+        case Z4: IF_ENABLED(Z4_IS_TRINAMIC, stepperZ4.rms_current(constrain(mA, 400, 1500))); break;
         default: break;
       };
     }
 
     void setAxisCurrent_mA(const_float_t mA, const extruder_t extruder) {
       switch (extruder) {
-        case E0: TERN_(E0_IS_TRINAMIC, stepperE0.rms_current(constrain(mA, 400, 1500))); break;
-        case E1: TERN_(E1_IS_TRINAMIC, stepperE1.rms_current(constrain(mA, 400, 1500))); break;
-        case E2: TERN_(E2_IS_TRINAMIC, stepperE2.rms_current(constrain(mA, 400, 1500))); break;
-        case E3: TERN_(E3_IS_TRINAMIC, stepperE3.rms_current(constrain(mA, 400, 1500))); break;
-        case E4: TERN_(E4_IS_TRINAMIC, stepperE4.rms_current(constrain(mA, 400, 1500))); break;
-        case E5: TERN_(E5_IS_TRINAMIC, stepperE5.rms_current(constrain(mA, 400, 1500))); break;
-        case E6: TERN_(E6_IS_TRINAMIC, stepperE6.rms_current(constrain(mA, 400, 1500))); break;
-        case E7: TERN_(E7_IS_TRINAMIC, stepperE7.rms_current(constrain(mA, 400, 1500))); break;
+        case E0: IF_ENABLED(E0_IS_TRINAMIC, stepperE0.rms_current(constrain(mA, 400, 1500))); break;
+        case E1: IF_ENABLED(E1_IS_TRINAMIC, stepperE1.rms_current(constrain(mA, 400, 1500))); break;
+        case E2: IF_ENABLED(E2_IS_TRINAMIC, stepperE2.rms_current(constrain(mA, 400, 1500))); break;
+        case E3: IF_ENABLED(E3_IS_TRINAMIC, stepperE3.rms_current(constrain(mA, 400, 1500))); break;
+        case E4: IF_ENABLED(E4_IS_TRINAMIC, stepperE4.rms_current(constrain(mA, 400, 1500))); break;
+        case E5: IF_ENABLED(E5_IS_TRINAMIC, stepperE5.rms_current(constrain(mA, 400, 1500))); break;
+        case E6: IF_ENABLED(E6_IS_TRINAMIC, stepperE6.rms_current(constrain(mA, 400, 1500))); break;
+        case E7: IF_ENABLED(E7_IS_TRINAMIC, stepperE7.rms_current(constrain(mA, 400, 1500))); break;
         default: break;
       };
     }
@@ -526,20 +526,20 @@ namespace ExtUI {
 
     void setTMCBumpSensitivity(const_float_t value, const axis_t axis) {
       switch (axis) {
-        case X: TERN_(X_SENSORLESS, stepperX.homing_threshold(value)); break;
-        case Y: TERN_(Y_SENSORLESS, stepperY.homing_threshold(value)); break;
-        case Z: TERN_(Z_SENSORLESS, stepperZ.homing_threshold(value)); break;
-        case I: TERN_(I_SENSORLESS, stepperI.homing_threshold(value)); break;
-        case J: TERN_(J_SENSORLESS, stepperJ.homing_threshold(value)); break;
-        case K: TERN_(K_SENSORLESS, stepperK.homing_threshold(value)); break;
-        case U: TERN_(U_SENSORLESS, stepperU.homing_threshold(value)); break;
-        case V: TERN_(V_SENSORLESS, stepperV.homing_threshold(value)); break;
-        case W: TERN_(W_SENSORLESS, stepperW.homing_threshold(value)); break;
-        case X2: TERN_(X2_SENSORLESS, stepperX2.homing_threshold(value)); break;
-        case Y2: TERN_(Y2_SENSORLESS, stepperY2.homing_threshold(value)); break;
-        case Z2: TERN_(Z2_SENSORLESS, stepperZ2.homing_threshold(value)); break;
-        case Z3: TERN_(Z3_SENSORLESS, stepperZ3.homing_threshold(value)); break;
-        case Z4: TERN_(Z4_SENSORLESS, stepperZ4.homing_threshold(value)); break;
+        case X: IF_ENABLED(X_SENSORLESS, stepperX.homing_threshold(value)); break;
+        case Y: IF_ENABLED(Y_SENSORLESS, stepperY.homing_threshold(value)); break;
+        case Z: IF_ENABLED(Z_SENSORLESS, stepperZ.homing_threshold(value)); break;
+        case I: IF_ENABLED(I_SENSORLESS, stepperI.homing_threshold(value)); break;
+        case J: IF_ENABLED(J_SENSORLESS, stepperJ.homing_threshold(value)); break;
+        case K: IF_ENABLED(K_SENSORLESS, stepperK.homing_threshold(value)); break;
+        case U: IF_ENABLED(U_SENSORLESS, stepperU.homing_threshold(value)); break;
+        case V: IF_ENABLED(V_SENSORLESS, stepperV.homing_threshold(value)); break;
+        case W: IF_ENABLED(W_SENSORLESS, stepperW.homing_threshold(value)); break;
+        case X2: IF_ENABLED(X2_SENSORLESS, stepperX2.homing_threshold(value)); break;
+        case Y2: IF_ENABLED(Y2_SENSORLESS, stepperY2.homing_threshold(value)); break;
+        case Z2: IF_ENABLED(Z2_SENSORLESS, stepperZ2.homing_threshold(value)); break;
+        case Z3: IF_ENABLED(Z3_SENSORLESS, stepperZ3.homing_threshold(value)); break;
+        case Z4: IF_ENABLED(Z4_SENSORLESS, stepperZ4.homing_threshold(value)); break;
         default: break;
       }
       UNUSED(value);
@@ -676,7 +676,7 @@ namespace ExtUI {
 
     void setJunctionDeviation_mm(const_float_t value) {
       planner.junction_deviation_mm = constrain(value, 0.001, 0.3);
-      TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
+      IF_ENABLED(LIN_ADVANCE, planner.recalculate_max_e_jerk());
     }
 
   #else
@@ -767,9 +767,9 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[e][axis] += mm;
 
-          TERN_(HAS_X_AXIS, normalizeNozzleOffset(X));
-          TERN_(HAS_Y_AXIS, normalizeNozzleOffset(Y));
-          TERN_(HAS_Z_AXIS, normalizeNozzleOffset(Z));
+          IF_ENABLED(HAS_X_AXIS, normalizeNozzleOffset(X));
+          IF_ENABLED(HAS_Y_AXIS, normalizeNozzleOffset(Y));
+          IF_ENABLED(HAS_Z_AXIS, normalizeNozzleOffset(Z));
         }
       #else
         UNUSED(linked_nozzles);
@@ -876,7 +876,7 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const_float_t zoff) {
         if (WITHIN(pos.x, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(pos.y, 0, (GRID_MAX_POINTS_Y) - 1)) {
           bedlevel.z_values[pos.x][pos.y] = zoff;
-          TERN_(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
+          IF_ENABLED(ABL_BILINEAR_SUBDIVISION, bedlevel.refresh_bed_level());
         }
       }
 
@@ -1023,7 +1023,7 @@ namespace ExtUI {
   bool awaitingUserConfirm() {
     return TERN0(HAS_RESUME_CONTINUE, wait_for_user) || TERN0(HOST_KEEPALIVE_FEATURE, getHostKeepaliveIsPaused());
   }
-  void setUserConfirmed() { TERN_(HAS_RESUME_CONTINUE, wait_for_user = false); }
+  void setUserConfirmed() { IF_ENABLED(HAS_RESUME_CONTINUE, wait_for_user = false); }
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     void setPauseMenuResponse(PauseMenuResponse response) { pause_menu_response = response; }
@@ -1157,7 +1157,7 @@ namespace ExtUI {
   }
 
   void FileList::upDir() {
-    TERN_(HAS_MEDIA, card.cdup());
+    IF_ENABLED(HAS_MEDIA, card.cdup());
   }
 
   void FileList::changeDir(const char * const dirname) {

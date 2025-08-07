@@ -58,24 +58,24 @@ static void set_stealth_status(const bool enable, const int8_t eindex) {
     switch (i) {
       #if HAS_X_AXIS
         case X_AXIS:
-          TERN_(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(X));
-          TERN_(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(X2));
+          IF_ENABLED(X_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(X));
+          IF_ENABLED(X2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(X2));
           break;
       #endif
 
       #if HAS_Y_AXIS
         case Y_AXIS:
-          TERN_(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(Y));
-          TERN_(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(Y2));
+          IF_ENABLED(Y_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(Y));
+          IF_ENABLED(Y2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(Y2));
           break;
       #endif
 
       #if HAS_Z_AXIS
         case Z_AXIS:
-          TERN_(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(Z));
-          TERN_(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(Z2));
-          TERN_(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_STEALTH(Z3));
-          TERN_(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_STEALTH(Z4));
+          IF_ENABLED(Z_HAS_STEALTHCHOP,  if (index < 0 || index == 0) TMC_SET_STEALTH(Z));
+          IF_ENABLED(Z2_HAS_STEALTHCHOP, if (index < 0 || index == 1) TMC_SET_STEALTH(Z2));
+          IF_ENABLED(Z3_HAS_STEALTHCHOP, if (index < 0 || index == 2) TMC_SET_STEALTH(Z3));
+          IF_ENABLED(Z4_HAS_STEALTHCHOP, if (index < 0 || index == 3) TMC_SET_STEALTH(Z4));
           break;
       #endif
 
@@ -100,14 +100,14 @@ static void set_stealth_status(const bool enable, const int8_t eindex) {
 
       #if E_STEPPERS
         case E_AXIS: {
-          TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_STEALTH(E0));
-          TERN_(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_STEALTH(E1));
-          TERN_(E2_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 2) TMC_SET_STEALTH(E2));
-          TERN_(E3_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 3) TMC_SET_STEALTH(E3));
-          TERN_(E4_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 4) TMC_SET_STEALTH(E4));
-          TERN_(E5_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 5) TMC_SET_STEALTH(E5));
-          TERN_(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_STEALTH(E6));
-          TERN_(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_STEALTH(E7));
+          IF_ENABLED(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_STEALTH(E0));
+          IF_ENABLED(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_STEALTH(E1));
+          IF_ENABLED(E2_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 2) TMC_SET_STEALTH(E2));
+          IF_ENABLED(E3_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 3) TMC_SET_STEALTH(E3));
+          IF_ENABLED(E4_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 4) TMC_SET_STEALTH(E4));
+          IF_ENABLED(E5_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 5) TMC_SET_STEALTH(E5));
+          IF_ENABLED(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_STEALTH(E6));
+          IF_ENABLED(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_STEALTH(E7));
         } break;
       #endif
     }
@@ -155,7 +155,7 @@ void GcodeSuite::M569() {
 }
 
 void GcodeSuite::M569_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_DRIVER_STEPPING_MODE));
 

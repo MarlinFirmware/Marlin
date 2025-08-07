@@ -91,8 +91,8 @@ void GcodeSuite::M907() {
         #if HAS_X_Y_XY_I_J_K_U_V_W
           NUM_AXIS_GANG("X", "Y",, "I", "J", "K", "U", "V", "W")
         #endif
-        TERN_(HAS_MOTOR_CURRENT_PWM_Z, "Z")
-        TERN_(HAS_MOTOR_CURRENT_PWM_E, "E")
+        IF_ENABLED(HAS_MOTOR_CURRENT_PWM_Z, "Z")
+        IF_ENABLED(HAS_MOTOR_CURRENT_PWM_E, "E")
       )) return M907_report();
 
       // S<current> - Set all stepper current to the same value
@@ -173,7 +173,7 @@ void GcodeSuite::M907() {
 #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
   void GcodeSuite::M907_report(const bool forReplay/*=true*/) {
-    TERN_(MARLIN_SMALL_BUILD, return);
+    IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
     report_heading_etc(forReplay, F(STR_STEPPER_MOTOR_CURRENTS));
     #if HAS_MOTOR_CURRENT_PWM
@@ -211,8 +211,8 @@ void GcodeSuite::M907() {
    * M908: Control digital trimpot directly (M908 P<pin> S<current>)
    */
   void GcodeSuite::M908() {
-    TERN_(HAS_MOTOR_CURRENT_SPI, stepper.set_digipot_value_spi(parser.intval('P'), parser.intval('S')));
-    TERN_(HAS_MOTOR_CURRENT_DAC, stepper_dac.set_current_value(parser.byteval('P', -1), parser.ushortval('S', 0)));
+    IF_ENABLED(HAS_MOTOR_CURRENT_SPI, stepper.set_digipot_value_spi(parser.intval('P'), parser.intval('S')));
+    IF_ENABLED(HAS_MOTOR_CURRENT_DAC, stepper_dac.set_current_value(parser.byteval('P', -1), parser.ushortval('S', 0)));
   }
 
   #if HAS_MOTOR_CURRENT_DAC

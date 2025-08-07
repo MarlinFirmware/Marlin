@@ -50,7 +50,7 @@ void GcodeSuite::M301() {
   // default behavior (omitting E parameter) is to update for extruder 0 only
   int8_t e = E_TERN0(parser.byteval('E', -1)); // extruder being updated
 
-  if (!parser.seen("PID" TERN_(PID_EXTRUSION_SCALING, "CL") TERN_(PID_FAN_SCALING, "F")))
+  if (!parser.seen("PID" IF_ENABLED(PID_EXTRUSION_SCALING, "CL") IF_ENABLED(PID_FAN_SCALING, "F")))
     return M301_report(true E_OPTARG(e));
 
   if (e == -1) e = 0;
@@ -78,7 +78,7 @@ void GcodeSuite::M301() {
 }
 
 void GcodeSuite::M301_report(const bool forReplay/*=true*/ E_OPTARG(const int8_t eindex/*=-1*/)) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_HOTEND_PID));
   IF_DISABLED(HAS_MULTI_EXTRUDER, constexpr int8_t eindex = -1);

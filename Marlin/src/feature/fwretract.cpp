@@ -61,7 +61,7 @@ float FWRetract::current_retract[EXTRUDERS],          // Retract value used by p
       FWRetract::current_hop;
 
 void FWRetract::reset() {
-  TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
+  IF_ENABLED(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zraise = RETRACT_ZRAISE;
@@ -169,7 +169,7 @@ void FWRetract::retract(const bool retracting E_OPTARG(bool swapping/*=false*/))
     );
   }
 
-  TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
+  IF_ENABLED(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
 
   retracted.set(active_extruder, retracting);             // Active extruder now retracted / recovered
 
@@ -211,7 +211,7 @@ void FWRetract::M207() {
 }
 
 void FWRetract::M207_report() {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM_P(
       PSTR("  M207 S"), LINEAR_UNIT(settings.retract_length)
@@ -238,7 +238,7 @@ void FWRetract::M208() {
 }
 
 void FWRetract::M208_report() {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   SERIAL_ECHOLNPGM(
       "  M208 S", LINEAR_UNIT(settings.retract_recover_extra)
@@ -262,7 +262,7 @@ void FWRetract::M208_report() {
   }
 
   void FWRetract::M209_report() {
-    TERN_(MARLIN_SMALL_BUILD, return);
+    IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
     SERIAL_ECHOLNPGM("  M209 S", AS_DIGIT(autoretract_enabled));
   }

@@ -45,7 +45,7 @@ void GcodeSuite::G27() {
   // Don't allow nozzle parking without homing first
   if (homing_needed_error()) return;
   nozzle.park(parser.ushortval('P'));
-  TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
+  IF_ENABLED(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
 }
 
 #endif // NOZZLE_PARK_FEATURE

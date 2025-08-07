@@ -87,7 +87,7 @@ void lcd_move_axis(const AxisEnum axis) {
 
 #if E_MANUAL
 
-  static void lcd_move_e(TERN_(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
+  static void lcd_move_e(IF_ENABLED(MULTI_E_MANUAL, const int8_t eindex=active_extruder)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
       if (!ui.manual_move.processing) {
@@ -99,7 +99,7 @@ void lcd_move_axis(const AxisEnum axis) {
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      TERN_(MULTI_E_MANUAL, MenuItemBase::init(eindex));
+      IF_ENABLED(MULTI_E_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT_F(TERN(MULTI_E_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
@@ -143,7 +143,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     if (axis < NUM_AXES)
       STATIC_ITEM_N(axis, MSG_MOVE_N, SS_DEFAULT|SS_INVERT);
     else {
-      TERN_(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
+      IF_ENABLED(MANUAL_E_MOVES_RELATIVE, ui.manual_move.e_origin = current_position.e);
       STATIC_ITEM_N(eindex, MSG_MOVE_EN, SS_DEFAULT|SS_INVERT);
     }
   }
@@ -418,10 +418,10 @@ void menu_move() {
       // For U8G paged rendering check and skip extra string copy
       #if HAS_X_AXIS
         MString<20> shaper_name;
-        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        IF_ENABLED(CACHE_PREV_STRING, int8_t prev_a = -1);
         auto _shaper_name = [&](const AxisEnum a) {
           if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
-            TERN_(CACHE_PREV_STRING, prev_a = a);
+            IF_ENABLED(CACHE_PREV_STRING, prev_a = a);
             shaper_name = get_shaper_name(a);
           }
           return shaper_name;
@@ -429,10 +429,10 @@ void menu_move() {
       #endif
       #if HAS_DYNAMIC_FREQ
         MString<20> dmode;
-        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        IF_ENABLED(CACHE_PREV_STRING, bool got_d = false);
         auto _dmode = [&]{
           if (TERN1(CACHE_PREV_STRING, !got_d)) {
-            TERN_(CACHE_PREV_STRING, got_d = true);
+            IF_ENABLED(CACHE_PREV_STRING, got_d = true);
             dmode = get_dyn_freq_mode_name();
           }
           return dmode;
@@ -503,10 +503,10 @@ void menu_move() {
       // For U8G paged rendering check and skip extra string copy
       #if HAS_X_AXIS
         MString<20> shaper_name;
-        TERN_(CACHE_PREV_STRING, int8_t prev_a = -1);
+        IF_ENABLED(CACHE_PREV_STRING, int8_t prev_a = -1);
         auto _shaper_name = [&](const AxisEnum a) {
           if (TERN1(CACHE_PREV_STRING, a != prev_a)) {
-            TERN_(CACHE_PREV_STRING, prev_a = a);
+            IF_ENABLED(CACHE_PREV_STRING, prev_a = a);
             shaper_name = get_shaper_name(a);
           }
           return shaper_name;
@@ -514,10 +514,10 @@ void menu_move() {
       #endif
       #if HAS_DYNAMIC_FREQ
         MString<20> dmode;
-        TERN_(CACHE_PREV_STRING, bool got_d = false);
+        IF_ENABLED(CACHE_PREV_STRING, bool got_d = false);
         auto _dmode = [&]{
           if (TERN1(CACHE_PREV_STRING, !got_d)) {
-            TERN_(CACHE_PREV_STRING, got_d = true);
+            IF_ENABLED(CACHE_PREV_STRING, got_d = true);
             dmode = get_dyn_freq_mode_name();
           }
           return dmode;

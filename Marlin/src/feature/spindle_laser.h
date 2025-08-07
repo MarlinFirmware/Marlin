@@ -208,7 +208,7 @@ public:
         break;
       case CUTTER_MODE_CONTINUOUS:
       case CUTTER_MODE_DYNAMIC:
-        TERN_(LASER_FEATURE, set_inline_enabled(enable));
+        IF_ENABLED(LASER_FEATURE, set_inline_enabled(enable));
         break;
       case CUTTER_MODE_ERROR: // Error mode, no enable and kill power.
         enable = false;

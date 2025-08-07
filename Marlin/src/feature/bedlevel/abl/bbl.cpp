@@ -79,7 +79,7 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
 
   // Take the average instead of the median
   z_values[x][y] = (a + b + c) / 3.0;
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
 
   // Median is robust (ignores outliers).
   // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
@@ -102,7 +102,7 @@ void LevelingBilinear::reset() {
   grid_spacing.reset();
   GRID_LOOP(x, y) {
     z_values[x][y] = NAN;
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
+    IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
   }
 }
 
@@ -258,7 +258,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
 
 // Refresh after other values have been updated
 void LevelingBilinear::refresh_bed_level() {
-  TERN_(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
+  IF_ENABLED(ABL_BILINEAR_SUBDIVISION, subdivide_mesh());
   cached_rel.x = cached_rel.y = -999.999;
   cached_g.x = cached_g.y = -99;
 }

@@ -133,7 +133,7 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
     #endif
     case 30:
       coolDown();
-      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
+      IF_ENABLED(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
       GOTO_SCREEN(StatusScreen);
       break;
     #ifdef PREHEAT_1_COMMAND

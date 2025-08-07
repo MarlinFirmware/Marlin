@@ -90,7 +90,7 @@ void GcodeSuite::G29() {
     return;
   }
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   int8_t ix, iy;
   ix = iy = 0;
@@ -111,7 +111,7 @@ void GcodeSuite::G29() {
       mbl_probe_index = 0;
       if (!ui.wait_for_move) {
         if (parser.seen_test('N'))
-          queue.inject(F("G28" TERN_(CAN_SET_LEVELING_AFTER_G28, "L0")));
+          queue.inject(F("G28" IF_ENABLED(CAN_SET_LEVELING_AFTER_G28, "L0")));
 
         // Position bed horizontally and Z probe vertically.
         #if HAS_SAFE_BED_LEVELING
@@ -149,7 +149,7 @@ void GcodeSuite::G29() {
 
         queue.inject(F("G29S2"));
 
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onLevelingStart());
 
         return;
       }
@@ -174,7 +174,7 @@ void GcodeSuite::G29() {
       else {
         // Save Z for the previous mesh position
         bedlevel.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, current_position.z));
         SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
@@ -200,7 +200,7 @@ void GcodeSuite::G29() {
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
         SERIAL_ECHOLNPGM("Mesh probing done.");
-        TERN_(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
+        IF_ENABLED(HAS_STATUS_MESSAGE, LCD_MESSAGE(MSG_MESH_DONE));
         OKAY_BUZZ();
 
         home_all_axes();
@@ -212,8 +212,8 @@ void GcodeSuite::G29() {
           planner.synchronize();
         #endif
 
-        TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
-        TERN_(EXTENSIBLE_UI, ExtUI::onLevelingDone());
+        IF_ENABLED(LCD_BED_LEVELING, ui.wait_for_move = false);
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onLevelingDone());
       }
       break;
 
@@ -240,7 +240,7 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('Z')) {
         bedlevel.z_values[ix][iy] = parser.value_linear_units();
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
+        IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, bedlevel.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');
@@ -261,12 +261,12 @@ void GcodeSuite::G29() {
 
   if (state == MeshNext) {
     SERIAL_ECHOLNPGM("MBL G29 point ", _MIN(mbl_probe_index, GRID_MAX_POINTS), " of ", GRID_MAX_POINTS);
-    if (mbl_probe_index > 0) TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
+    if (mbl_probe_index > 0) IF_ENABLED(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_PROBING_POINT), _MIN(mbl_probe_index, GRID_MAX_POINTS), int(GRID_MAX_POINTS)));
   }
 
   report_current_position();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // MESH_BED_LEVELING

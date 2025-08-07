@@ -67,7 +67,7 @@ void GcodeSuite::M413() {
 }
 
 void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_POWER_LOSS_RECOVERY));
   SERIAL_ECHOLNPGM("  M413 S", AS_DIGIT(recovery.enabled)

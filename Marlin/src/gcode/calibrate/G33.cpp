@@ -63,14 +63,14 @@ float lcd_probe_pt(const xy_pos_t &xy);
 
 void ac_home() {
   endstops.enable(true);
-  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
+  IF_ENABLED(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(true));
   home_delta();
-  TERN_(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
+  IF_ENABLED(IMPROVE_HOMING_RELIABILITY, planner.enable_stall_prevention(false));
   endstops.not_homing();
 }
 
 void ac_setup(const bool reset_bed) {
-  TERN_(HAS_BED_PROBE, probe.use_probing_tool());
+  IF_ENABLED(HAS_BED_PROBE, probe.use_probing_tool());
 
   planner.synchronize();
   remember_feedrate_scaling_off();
@@ -81,10 +81,10 @@ void ac_setup(const bool reset_bed) {
 }
 
 void ac_cleanup() {
-  TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
-  TERN_(HAS_BED_PROBE, probe.stow());
+  IF_ENABLED(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
+  IF_ENABLED(HAS_BED_PROBE, probe.stow());
   restore_feedrate_and_scaling();
-  TERN_(HAS_BED_PROBE, probe.use_probing_tool(false));
+  IF_ENABLED(HAS_BED_PROBE, probe.use_probing_tool(false));
 }
 
 void print_signed_float(FSTR_P const prefix, const_float_t f) {
@@ -387,7 +387,7 @@ static float auto_tune_a(const float dcr) {
  */
 void GcodeSuite::G33() {
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_PROBE));
 
   const int8_t probe_points = parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, 0, 10)) {
@@ -406,7 +406,7 @@ void GcodeSuite::G33() {
   #endif
   NOMORE(dcr, PRINTABLE_RADIUS);
   if (parser.seenval('R')) dcr -= _MAX(parser.value_float(), 0.0f);
-  TERN_(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
+  IF_ENABLED(HAS_DELTA_SENSORLESS_PROBING, dcr *= sensorless_radius_factor);
 
   const float calibration_precision = parser.floatval('C', 0.0f);
   if (calibration_precision < 0) {
@@ -677,7 +677,7 @@ void GcodeSuite::G33() {
 
   ac_cleanup();
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
   #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity = { true, true, true };
   #endif

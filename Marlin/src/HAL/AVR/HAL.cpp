@@ -64,7 +64,7 @@ void save_reset_reason() {
 #include "registers.h"
 
 MarlinHAL::MarlinHAL() {
-  TERN_(HAL_AVR_DIRTY_INIT, _ATmega_resetperipherals()); // Clean-wipe the device state.
+  IF_ENABLED(HAL_AVR_DIRTY_INIT, _ATmega_resetperipherals()); // Clean-wipe the device state.
 }
 
 void MarlinHAL::init() {

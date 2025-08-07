@@ -168,7 +168,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
        .cmd (BITMAP_SIZE  (Fan_Icon_Info))
        .icon(ICON_POS(FAN_POS), Fan_Icon_Info, icon_scale);
 
-    TERN_(TOUCH_UI_USE_UTF8, load_utf8_bitmaps(cmd)); // Restore font bitmap handles
+    IF_ENABLED(TOUCH_UI_USE_UTF8, load_utf8_bitmaps(cmd)); // Restore font bitmap handles
   }
 
   if (what & FOREGROUND) {
@@ -560,7 +560,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
       }
       else {
         coolDown();
-        TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
+        IF_ENABLED(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
         GOTO_SCREEN(StatusScreen);
         break;
       }

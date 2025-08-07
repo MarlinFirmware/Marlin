@@ -74,7 +74,7 @@ void libServo::move(const int value) {
   if (attach(0) >= 0) {
     stm32_servo.write(value);
     safe_delay(delay);
-    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
+    IF_ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

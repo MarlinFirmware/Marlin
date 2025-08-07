@@ -70,7 +70,7 @@ void XPT2046::init() {
     SET_INPUT(TOUCH_INT_PIN);
   #endif
 
-  TERN_(TOUCH_BUTTONS_HW_SPI, touch_spi_init(SPI_SPEED_6));
+  IF_ENABLED(TOUCH_BUTTONS_HW_SPI, touch_spi_init(SPI_SPEED_6));
 
   // Read once to enable pendrive status pin
   getRawData(XPT2046_X);
@@ -97,14 +97,14 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
   uint16_t data[3];
 
   dataTransferBegin();
-  TERN_(TOUCH_BUTTONS_HW_SPI, SPIx.begin());
+  IF_ENABLED(TOUCH_BUTTONS_HW_SPI, SPIx.begin());
 
   for (uint16_t i = 0; i < 3 ; i++) {
     IO(coordinate);
     data[i] = (IO() << 4) | (IO() >> 4);
   }
 
-  TERN_(TOUCH_BUTTONS_HW_SPI, SPIx.end());
+  IF_ENABLED(TOUCH_BUTTONS_HW_SPI, SPIx.end());
   dataTransferEnd();
 
   uint16_t delta01 = delta(data[0], data[1]),

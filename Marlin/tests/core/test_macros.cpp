@@ -537,9 +537,9 @@ MARLIN_TEST(macros_options, TERN1) {
   TEST_ASSERT_EQUAL(1, TERN1(OPTION_DISABLED, 0)); // OPTION_DISABLED is disabled, so it should return '1'
 }
 
-MARLIN_TEST(macros_options, TERN_) {
-  TEST_ASSERT_EQUAL(-1, TERN_(OPTION_ENABLED, -)1); // OPTION_ENABLED is enabled, so it should return '1'
-  TEST_ASSERT_EQUAL(1, TERN_(OPTION_DISABLED, -)1); // OPTION_DISABLED is disabled, so it should return nothing
+MARLIN_TEST(macros_options, IF_ENABLED) {
+  TEST_ASSERT_EQUAL(-1, IF_ENABLED(OPTION_ENABLED, -)1); // OPTION_ENABLED is enabled, so it should return '1'
+  TEST_ASSERT_EQUAL(1, IF_ENABLED(OPTION_DISABLED, -)1); // OPTION_DISABLED is disabled, so it should return nothing
 }
 
 MARLIN_TEST(macros_options, IF_DISABLED) {

@@ -144,11 +144,11 @@ class TFilamentMonitor : public FilamentMonitorBase {
     // Give the response a chance to update its counter.
     static void run() {
       if (enabled && !filament_ran_out && should_monitor_runout()) {
-        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
+        IF_ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
         const runout_flags_t runout_flags = response.has_run_out();
-        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
+        IF_ENABLED(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
         #if MULTI_FILAMENT_SENSOR
           #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
             const bool ran_out = bool(runout_flags);  // any sensor triggers
@@ -341,19 +341,19 @@ class FilamentSensorBase {
    */
   class FilamentSensor : public FilamentSensorBase {
     private:
-      TERN_(HAS_FILAMENT_MOTION, static FilamentSensorEncoder encoder_sensor);
-      TERN_(HAS_FILAMENT_SWITCH, static FilamentSensorSwitch switch_sensor);
+      IF_ENABLED(HAS_FILAMENT_MOTION, static FilamentSensorEncoder encoder_sensor);
+      IF_ENABLED(HAS_FILAMENT_SWITCH, static FilamentSensorSwitch switch_sensor);
 
     public:
       // Called from ISR context to indicate a block was completed
       static void block_completed(const block_t * const b) {
-        TERN_(HAS_FILAMENT_MOTION, encoder_sensor.block_completed(b));
-        TERN_(HAS_FILAMENT_SWITCH, switch_sensor.block_completed(b));
+        IF_ENABLED(HAS_FILAMENT_MOTION, encoder_sensor.block_completed(b));
+        IF_ENABLED(HAS_FILAMENT_SWITCH, switch_sensor.block_completed(b));
       }
 
       static void run() {
-        TERN_(HAS_FILAMENT_MOTION, encoder_sensor.run());
-        TERN_(HAS_FILAMENT_SWITCH, switch_sensor.run());
+        IF_ENABLED(HAS_FILAMENT_MOTION, encoder_sensor.run());
+        IF_ENABLED(HAS_FILAMENT_SWITCH, switch_sensor.run());
       }
   };
 

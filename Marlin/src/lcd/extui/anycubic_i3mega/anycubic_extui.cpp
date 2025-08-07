@@ -48,7 +48,7 @@ namespace ExtUI {
   void onMaxTempError(const heater_id_t header_id) {}
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {
-    TERN_(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
+    IF_ENABLED(SPEAKER, ::tone(BEEPER_PIN, frequency, duration));
   }
   void onPrintTimerStarted()  { anycubicTFT.onPrintTimerStarted(); }
   void onPrintTimerPaused()   { anycubicTFT.onPrintTimerPaused(); }

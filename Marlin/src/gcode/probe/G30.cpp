@@ -66,19 +66,19 @@ void GcodeSuite::G30() {
   if (probe.can_reach(probepos)) {
 
     // Disable leveling so the planner won't mess with us
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+    IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(false));
 
     // Disable feedrate scaling so movement speeds are correct
     remember_feedrate_scaling_off();
 
     // With VERBOSE_SINGLE_PROBE home only if needed
-    TERN_(VERBOSE_SINGLE_PROBE, process_subcommands_now(F("G28O")));
+    IF_ENABLED(VERBOSE_SINGLE_PROBE, process_subcommands_now(F("G28O")));
 
     // Raise after based on the 'E' parameter
     const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
 
     // Use 'C' to set Probe Temperature Compensation ON/OFF (on by default)
-    TERN_(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
+    IF_ENABLED(HAS_PTC, ptc.set_enabled(parser.boolval('C', true)));
 
     #if FT_MOTION_DISABLE_FOR_PROBING
       FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for probing
@@ -88,7 +88,7 @@ void GcodeSuite::G30() {
     const float measured_z = probe.probe_at_point(probepos, raise_after);
 
     // After probing always re-enable Probe Temperature Compensation
-    TERN_(HAS_PTC, ptc.set_enabled(true));
+    IF_ENABLED(HAS_PTC, ptc.set_enabled(true));
 
     // Report a good probe result to the host and LCD
     if (!isnan(measured_z)) {
@@ -99,7 +99,7 @@ void GcodeSuite::G30() {
         F(  " Z:"), p_float_t(measured_z, 3)
       );
       msg.echoln();
-      TERN_(VERBOSE_SINGLE_PROBE, ui.set_status(msg));
+      IF_ENABLED(VERBOSE_SINGLE_PROBE, ui.set_status(msg));
     }
 
     // Restore feedrate scaling

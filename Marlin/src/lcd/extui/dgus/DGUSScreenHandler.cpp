@@ -465,7 +465,7 @@ void DGUSScreenHandler::handleSettings(DGUS_VP_Variable &var, void *val_ptr) {
   switch (value) {
     default: break;
     case 1:
-      TERN_(PRINTCOUNTER, print_job_timer.initStats());
+      IF_ENABLED(PRINTCOUNTER, print_job_timer.initStats());
       settings.reset();
       settings.save();
       break;
@@ -588,7 +588,7 @@ void DGUSScreenHandler::handleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
       default:
       switch (var.VP) {
         default: return;
-        case VP_E0_BED_PREHEAT: TERN_(HAS_HOTEND, ui.preheat_all(0)); break;
+        case VP_E0_BED_PREHEAT: IF_ENABLED(HAS_HOTEND, ui.preheat_all(0)); break;
         #if DISABLED(DGUS_LCD_UI_HIPRECY) && HAS_MULTI_HOTEND
           case VP_E1_BED_PREHEAT: ui.preheat_all(1); break;
         #endif

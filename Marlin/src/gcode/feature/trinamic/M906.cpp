@@ -78,24 +78,24 @@ void GcodeSuite::M906() {
     switch (i) {
       #if X_IS_TRINAMIC || X2_IS_TRINAMIC
         case X_AXIS:
-          TERN_(X_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(X));
-          TERN_(X2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(X2));
+          IF_ENABLED(X_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(X));
+          IF_ENABLED(X2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(X2));
           break;
       #endif
 
       #if Y_IS_TRINAMIC || Y2_IS_TRINAMIC
         case Y_AXIS:
-          TERN_(Y_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(Y));
-          TERN_(Y2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(Y2));
+          IF_ENABLED(Y_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(Y));
+          IF_ENABLED(Y2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(Y2));
           break;
       #endif
 
       #if ANY(Z_IS_TRINAMIC, Z2_IS_TRINAMIC, Z3_IS_TRINAMIC, Z4_IS_TRINAMIC)
         case Z_AXIS:
-          TERN_(Z_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(Z));
-          TERN_(Z2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(Z2));
-          TERN_(Z3_IS_TRINAMIC, if (index < 0 || index == 2) TMC_SET_CURRENT(Z3));
-          TERN_(Z4_IS_TRINAMIC, if (index < 0 || index == 3) TMC_SET_CURRENT(Z4));
+          IF_ENABLED(Z_IS_TRINAMIC,  if (index < 0 || index == 0) TMC_SET_CURRENT(Z));
+          IF_ENABLED(Z2_IS_TRINAMIC, if (index < 0 || index == 1) TMC_SET_CURRENT(Z2));
+          IF_ENABLED(Z3_IS_TRINAMIC, if (index < 0 || index == 2) TMC_SET_CURRENT(Z3));
+          IF_ENABLED(Z4_IS_TRINAMIC, if (index < 0 || index == 3) TMC_SET_CURRENT(Z4));
           break;
       #endif
 
@@ -121,47 +121,47 @@ void GcodeSuite::M906() {
       #if ANY(E0_IS_TRINAMIC, E1_IS_TRINAMIC, E2_IS_TRINAMIC, E3_IS_TRINAMIC, E4_IS_TRINAMIC, E5_IS_TRINAMIC, E6_IS_TRINAMIC, E7_IS_TRINAMIC)
         case E_AXIS: {
           const int8_t eindex = get_target_e_stepper_from_command(-2);
-          TERN_(E0_IS_TRINAMIC, if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0));
-          TERN_(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CURRENT(E1));
-          TERN_(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CURRENT(E2));
-          TERN_(E3_IS_TRINAMIC, if (eindex < 0 || eindex == 3) TMC_SET_CURRENT(E3));
-          TERN_(E4_IS_TRINAMIC, if (eindex < 0 || eindex == 4) TMC_SET_CURRENT(E4));
-          TERN_(E5_IS_TRINAMIC, if (eindex < 0 || eindex == 5) TMC_SET_CURRENT(E5));
-          TERN_(E6_IS_TRINAMIC, if (eindex < 0 || eindex == 6) TMC_SET_CURRENT(E6));
-          TERN_(E7_IS_TRINAMIC, if (eindex < 0 || eindex == 7) TMC_SET_CURRENT(E7));
+          IF_ENABLED(E0_IS_TRINAMIC, if (eindex < 0 || eindex == 0) TMC_SET_CURRENT(E0));
+          IF_ENABLED(E1_IS_TRINAMIC, if (eindex < 0 || eindex == 1) TMC_SET_CURRENT(E1));
+          IF_ENABLED(E2_IS_TRINAMIC, if (eindex < 0 || eindex == 2) TMC_SET_CURRENT(E2));
+          IF_ENABLED(E3_IS_TRINAMIC, if (eindex < 0 || eindex == 3) TMC_SET_CURRENT(E3));
+          IF_ENABLED(E4_IS_TRINAMIC, if (eindex < 0 || eindex == 4) TMC_SET_CURRENT(E4));
+          IF_ENABLED(E5_IS_TRINAMIC, if (eindex < 0 || eindex == 5) TMC_SET_CURRENT(E5));
+          IF_ENABLED(E6_IS_TRINAMIC, if (eindex < 0 || eindex == 6) TMC_SET_CURRENT(E6));
+          IF_ENABLED(E7_IS_TRINAMIC, if (eindex < 0 || eindex == 7) TMC_SET_CURRENT(E7));
         } break;
       #endif
     }
   }
 
   if (report) {
-    TERN_(X_IS_TRINAMIC,  TMC_SAY_CURRENT(X));
-    TERN_(X2_IS_TRINAMIC, TMC_SAY_CURRENT(X2));
-    TERN_(Y_IS_TRINAMIC,  TMC_SAY_CURRENT(Y));
-    TERN_(Y2_IS_TRINAMIC, TMC_SAY_CURRENT(Y2));
-    TERN_(Z_IS_TRINAMIC,  TMC_SAY_CURRENT(Z));
-    TERN_(Z2_IS_TRINAMIC, TMC_SAY_CURRENT(Z2));
-    TERN_(Z3_IS_TRINAMIC, TMC_SAY_CURRENT(Z3));
-    TERN_(Z4_IS_TRINAMIC, TMC_SAY_CURRENT(Z4));
-    TERN_(I_IS_TRINAMIC,  TMC_SAY_CURRENT(I));
-    TERN_(J_IS_TRINAMIC,  TMC_SAY_CURRENT(J));
-    TERN_(K_IS_TRINAMIC,  TMC_SAY_CURRENT(K));
-    TERN_(U_IS_TRINAMIC,  TMC_SAY_CURRENT(U));
-    TERN_(V_IS_TRINAMIC,  TMC_SAY_CURRENT(V));
-    TERN_(W_IS_TRINAMIC,  TMC_SAY_CURRENT(W));
-    TERN_(E0_IS_TRINAMIC, TMC_SAY_CURRENT(E0));
-    TERN_(E1_IS_TRINAMIC, TMC_SAY_CURRENT(E1));
-    TERN_(E2_IS_TRINAMIC, TMC_SAY_CURRENT(E2));
-    TERN_(E3_IS_TRINAMIC, TMC_SAY_CURRENT(E3));
-    TERN_(E4_IS_TRINAMIC, TMC_SAY_CURRENT(E4));
-    TERN_(E5_IS_TRINAMIC, TMC_SAY_CURRENT(E5));
-    TERN_(E6_IS_TRINAMIC, TMC_SAY_CURRENT(E6));
-    TERN_(E7_IS_TRINAMIC, TMC_SAY_CURRENT(E7));
+    IF_ENABLED(X_IS_TRINAMIC,  TMC_SAY_CURRENT(X));
+    IF_ENABLED(X2_IS_TRINAMIC, TMC_SAY_CURRENT(X2));
+    IF_ENABLED(Y_IS_TRINAMIC,  TMC_SAY_CURRENT(Y));
+    IF_ENABLED(Y2_IS_TRINAMIC, TMC_SAY_CURRENT(Y2));
+    IF_ENABLED(Z_IS_TRINAMIC,  TMC_SAY_CURRENT(Z));
+    IF_ENABLED(Z2_IS_TRINAMIC, TMC_SAY_CURRENT(Z2));
+    IF_ENABLED(Z3_IS_TRINAMIC, TMC_SAY_CURRENT(Z3));
+    IF_ENABLED(Z4_IS_TRINAMIC, TMC_SAY_CURRENT(Z4));
+    IF_ENABLED(I_IS_TRINAMIC,  TMC_SAY_CURRENT(I));
+    IF_ENABLED(J_IS_TRINAMIC,  TMC_SAY_CURRENT(J));
+    IF_ENABLED(K_IS_TRINAMIC,  TMC_SAY_CURRENT(K));
+    IF_ENABLED(U_IS_TRINAMIC,  TMC_SAY_CURRENT(U));
+    IF_ENABLED(V_IS_TRINAMIC,  TMC_SAY_CURRENT(V));
+    IF_ENABLED(W_IS_TRINAMIC,  TMC_SAY_CURRENT(W));
+    IF_ENABLED(E0_IS_TRINAMIC, TMC_SAY_CURRENT(E0));
+    IF_ENABLED(E1_IS_TRINAMIC, TMC_SAY_CURRENT(E1));
+    IF_ENABLED(E2_IS_TRINAMIC, TMC_SAY_CURRENT(E2));
+    IF_ENABLED(E3_IS_TRINAMIC, TMC_SAY_CURRENT(E3));
+    IF_ENABLED(E4_IS_TRINAMIC, TMC_SAY_CURRENT(E4));
+    IF_ENABLED(E5_IS_TRINAMIC, TMC_SAY_CURRENT(E5));
+    IF_ENABLED(E6_IS_TRINAMIC, TMC_SAY_CURRENT(E6));
+    IF_ENABLED(E7_IS_TRINAMIC, TMC_SAY_CURRENT(E7));
   }
 }
 
 void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F(STR_STEPPER_DRIVER_CURRENT));
 
@@ -172,24 +172,24 @@ void GcodeSuite::M906_report(const bool forReplay/*=true*/) {
 
   #if ANY(X_IS_TRINAMIC, Y_IS_TRINAMIC, Z_IS_TRINAMIC, I_IS_TRINAMIC, J_IS_TRINAMIC, K_IS_TRINAMIC, U_IS_TRINAMIC, V_IS_TRINAMIC, W_IS_TRINAMIC)
     say_M906(forReplay);
-    TERN_(X_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps()));
-    TERN_(Y_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Y_STR, stepperY.getMilliamps()));
-    TERN_(Z_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.getMilliamps()));
-    TERN_(I_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_I_STR, stepperI.getMilliamps()));
-    TERN_(J_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_J_STR, stepperJ.getMilliamps()));
-    TERN_(K_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_K_STR, stepperK.getMilliamps()));
-    TERN_(U_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_U_STR, stepperU.getMilliamps()));
-    TERN_(V_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_V_STR, stepperV.getMilliamps()));
-    TERN_(W_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_W_STR, stepperW.getMilliamps()));
+    IF_ENABLED(X_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_X_STR, stepperX.getMilliamps()));
+    IF_ENABLED(Y_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Y_STR, stepperY.getMilliamps()));
+    IF_ENABLED(Z_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ.getMilliamps()));
+    IF_ENABLED(I_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_I_STR, stepperI.getMilliamps()));
+    IF_ENABLED(J_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_J_STR, stepperJ.getMilliamps()));
+    IF_ENABLED(K_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_K_STR, stepperK.getMilliamps()));
+    IF_ENABLED(U_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_U_STR, stepperU.getMilliamps()));
+    IF_ENABLED(V_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_V_STR, stepperV.getMilliamps()));
+    IF_ENABLED(W_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_W_STR, stepperW.getMilliamps()));
     SERIAL_EOL();
   #endif
 
   #if X2_IS_TRINAMIC || Y2_IS_TRINAMIC || Z2_IS_TRINAMIC
     say_M906(forReplay);
     SERIAL_ECHOPGM(" I1");
-    TERN_(X2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.getMilliamps()));
-    TERN_(Y2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Y_STR, stepperY2.getMilliamps()));
-    TERN_(Z2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ2.getMilliamps()));
+    IF_ENABLED(X2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_X_STR, stepperX2.getMilliamps()));
+    IF_ENABLED(Y2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Y_STR, stepperY2.getMilliamps()));
+    IF_ENABLED(Z2_IS_TRINAMIC, SERIAL_ECHOPGM_P(SP_Z_STR, stepperZ2.getMilliamps()));
     SERIAL_EOL();
   #endif
 

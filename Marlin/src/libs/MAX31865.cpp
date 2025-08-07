@@ -188,7 +188,7 @@ void MAX31865::begin(max31865_numwires_t wires, const_float_t zero_res, const_fl
     else {
       DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
+      IF_ENABLED(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
     }
 
   #else
@@ -220,7 +220,7 @@ void MAX31865::begin(max31865_numwires_t wires, const_float_t zero_res, const_fl
       millis_t now = millis();
       nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
 
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+      IF_ENABLED(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
     }
 
   #endif // MAX31865_USE_AUTO_MODE
@@ -345,7 +345,7 @@ inline uint16_t MAX31865::readRawImmediate() {
     DEBUG_ECHOLNPGM("MAX31865 read fault: ", lastFault);
   }
   else {
-    TERN_(MAX31865_USE_READ_ERROR_DETECTION, const millis_t ms = millis());
+    IF_ENABLED(MAX31865_USE_READ_ERROR_DETECTION, const millis_t ms = millis());
     if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(int(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp, 1000UL))) {
       // If 2 readings within 1s differ too much (~20°C) it's a read error.
       lastFault = 0x01;
@@ -354,7 +354,7 @@ inline uint16_t MAX31865::readRawImmediate() {
     }
     else {
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = ms);
+      IF_ENABLED(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = ms);
     }
   }
 

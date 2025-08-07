@@ -51,11 +51,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_TMC_CURRENT_RETURN: uiCfg.para_ui_page = false; draw_return_ui(); return;
 
-    case ID_TMC_CURRENT_X: TERN_(X_IS_TRINAMIC, value = Xcurrent); break;
-    case ID_TMC_CURRENT_Y: TERN_(Y_IS_TRINAMIC, value = Ycurrent); break;
-    case ID_TMC_CURRENT_Z: TERN_(Z_IS_TRINAMIC, value = Zcurrent); break;
-    case ID_TMC_CURRENT_E0: TERN_(E0_IS_TRINAMIC, value = E0current); break;
-    case ID_TMC_CURRENT_E1: TERN_(E1_IS_TRINAMIC, value = E1current); break;
+    case ID_TMC_CURRENT_X: IF_ENABLED(X_IS_TRINAMIC, value = Xcurrent); break;
+    case ID_TMC_CURRENT_Y: IF_ENABLED(Y_IS_TRINAMIC, value = Ycurrent); break;
+    case ID_TMC_CURRENT_Z: IF_ENABLED(Z_IS_TRINAMIC, value = Zcurrent); break;
+    case ID_TMC_CURRENT_E0: IF_ENABLED(E0_IS_TRINAMIC, value = E0current); break;
+    case ID_TMC_CURRENT_E1: IF_ENABLED(E1_IS_TRINAMIC, value = E1current); break;
 
     case ID_TMC_CURRENT_UP:   uiCfg.para_ui_page = false; lv_draw_tmc_current_settings(); return;
     case ID_TMC_CURRENT_DOWN: uiCfg.para_ui_page = true;  lv_draw_tmc_current_settings(); return;

@@ -96,7 +96,7 @@ void GcodeSuite::M306() {
 }
 
 void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F("Model predictive control"));
   HOTEND_LOOP() {

@@ -131,7 +131,7 @@ void GcodeSuite::M701() {
       tool_change(active_extruder_before_filament_change);
   #endif
 
-  TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
+  IF_ENABLED(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 
   // Show status screen
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);
@@ -237,7 +237,7 @@ void GcodeSuite::M702() {
       tool_change(active_extruder_before_filament_change);
   #endif
 
-  TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
+  IF_ENABLED(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 
   // Show status screen
   ui.pause_show_message(PAUSE_MESSAGE_STATUS);

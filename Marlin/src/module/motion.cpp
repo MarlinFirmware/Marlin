@@ -133,7 +133,7 @@ xyze_pos_t destination; // {0}
     );
     // Transpose from [XYZ][HOTENDS] to [HOTENDS][XYZ]
     HOTEND_LOOP() LOOP_ABC(a) hotend_offset[e][a] = tmp[a][e];
-    TERN_(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
+    IF_ENABLED(DUAL_X_CARRIAGE, hotend_offset[1].x = _MAX(X2_HOME_POS, X2_MAX_POS));
   }
 #endif
 
@@ -200,8 +200,8 @@ xyz_pos_t cartes;
 
 inline void report_more_positions() {
   stepper.report_positions();
-  TERN_(IS_SCARA, scara_report_positions());
-  TERN_(POLAR, polar_report_positions());
+  IF_ENABLED(IS_SCARA, scara_report_positions());
+  IF_ENABLED(POLAR, polar_report_positions());
 }
 
 // Report the logical position for a given machine position
@@ -238,7 +238,7 @@ void report_real_position() {
     cartes.u, cartes.v, cartes.w
   );
 
-  TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
+  IF_ENABLED(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(npos, true));
 
   report_logical_position(npos);
   report_more_positions();
@@ -700,7 +700,7 @@ void report_current_position_projected() {
 #else // CARTESIAN
 
   // Return true if the given position is within the machine bounds.
-  bool position_is_reachable(TERN_(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry)) {
+  bool position_is_reachable(IF_ENABLED(HAS_X_AXIS, const_float_t rx) OPTARG(HAS_Y_AXIS, const_float_t ry)) {
     if (TERN0(HAS_Y_AXIS, !COORDINATE_OKAY(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop))) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
@@ -808,9 +808,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
   xyze_pos_t pos = cartes;
 
-  TERN_(HAS_EXTRUDERS, pos.e = planner.get_axis_position_mm(E_AXIS));
+  IF_ENABLED(HAS_EXTRUDERS, pos.e = planner.get_axis_position_mm(E_AXIS));
 
-  TERN_(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(pos, true));
+  IF_ENABLED(HAS_POSITION_MODIFIERS, planner.unapply_modifiers(pos, true));
 
   if (axis == ALL_AXES_ENUM)
     current_position = pos;
@@ -828,7 +828,7 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 
 #if HAS_EXTRUDERS
   void unscaled_e_move(const_float_t length, const_feedRate_t fr_mm_s) {
-    TERN_(HAS_FILAMENT_SENSOR, runout.reset());
+    IF_ENABLED(HAS_FILAMENT_SENSOR, runout.reset());
     current_position.e += length / planner.e_factor[active_extruder];
     line_to_current_position(fr_mm_s);
     planner.synchronize();
@@ -867,7 +867,7 @@ void _internal_move_to_destination(const_feedRate_t fr_mm_s/*=0.0f*/
 ) {
   REMEMBER(fr, feedrate_mm_s);
   REMEMBER(pct, feedrate_percentage, 100);
-  TERN_(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[active_extruder], 1.0f));
+  IF_ENABLED(HAS_EXTRUDERS, REMEMBER(fac, planner.e_factor[active_extruder], 1.0f));
 
   if (fr_mm_s) feedrate_mm_s = fr_mm_s;
   if (TERN0(IS_KINEMATIC, is_fast))
@@ -977,7 +977,7 @@ void do_blocking_move_to(NUM_AXIS_ARGS_(const_float_t) const_feedRate_t fr_mm_s/
       if (current_position.z < z) { current_position.z = z; line_to_current_position(z_feedrate); }
     #endif
 
-    current_position.set(TERN_(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
+    current_position.set(IF_ENABLED(HAS_X_AXIS, x) OPTARG(HAS_Y_AXIS, y)); line_to_current_position(xy_feedrate);
 
     #if SECONDARY_AXES
       secondary_axis_moves(SECONDARY_AXIS_LIST(i, j, k, u, v, w), fr_mm_s);
@@ -1065,7 +1065,7 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
   void do_z_clearance(const_float_t zclear, const bool with_probe/*=true*/, const bool lower_allowed/*=false*/) {
     UNUSED(with_probe);
     float zdest = zclear;
-    TERN_(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
+    IF_ENABLED(HAS_BED_PROBE, if (with_probe && probe.offset.z < 0) zdest -= probe.offset.z);
     NOMORE(zdest, Z_MAX_POS);
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("do_z_clearance(", zclear, " [", current_position.z, " to ", zdest, "], ", lower_allowed, ")");
     if ((!lower_allowed && zdest < current_position.z) || zdest == current_position.z) return;
@@ -1579,7 +1579,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
     // If the move is very short, check the E move distance
-    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+    IF_ENABLED(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
 
     // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return true;
@@ -1613,8 +1613,8 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
     // Add hints to help optimize the move
     PlannerHints hints(cartesian_mm * inv_segments);
-    TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-    TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+    IF_ENABLED(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
+    IF_ENABLED(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
     /*
     SERIAL_ECHOPGM("mm=", cartesian_mm);
@@ -1670,7 +1670,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
       float cartesian_mm = get_move_distance(diff OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
 
       // If the move is very short, check the E move distance
-      TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
+      IF_ENABLED(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(diff.e));
 
       // No E move either? Game over.
       if (UNEAR_ZERO(cartesian_mm)) return;
@@ -1686,8 +1686,8 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
       // Add hints to help optimize the move
       PlannerHints hints(cartesian_mm * inv_segments);
-      TERN_(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
-      TERN_(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
+      IF_ENABLED(HAS_ROTATIONAL_AXES, hints.cartesian_move = cartes_move);
+      IF_ENABLED(FEEDRATE_SCALING, hints.inv_duration = scaled_fr_mm_s / hints.millimeters);
 
       //SERIAL_ECHOPGM("mm=", cartesian_mm);
       //SERIAL_ECHOLNPGM(" segments=", segments);
@@ -2013,7 +2013,7 @@ void prepare_line_to_destination() {
         #if X_SENSORLESS
           case X_AXIS:
             stealth_states.x = tmc_enable_stallguard(stepperX);
-            TERN_(X2_SENSORLESS, stealth_states.x2 = tmc_enable_stallguard(stepperX2));
+            IF_ENABLED(X2_SENSORLESS, stealth_states.x2 = tmc_enable_stallguard(stepperX2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               stealth_states.y = tmc_enable_stallguard(stepperY);
             #elif CORE_IS_XZ && Z_SENSORLESS
@@ -2024,7 +2024,7 @@ void prepare_line_to_destination() {
         #if Y_SENSORLESS
           case Y_AXIS:
             stealth_states.y = tmc_enable_stallguard(stepperY);
-            TERN_(Y2_SENSORLESS, stealth_states.y2 = tmc_enable_stallguard(stepperY2));
+            IF_ENABLED(Y2_SENSORLESS, stealth_states.y2 = tmc_enable_stallguard(stepperY2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               stealth_states.x = tmc_enable_stallguard(stepperX);
             #elif CORE_IS_YZ && Z_SENSORLESS
@@ -2035,9 +2035,9 @@ void prepare_line_to_destination() {
         #if Z_SENSORLESS
           case Z_AXIS:
             stealth_states.z = tmc_enable_stallguard(stepperZ);
-            TERN_(Z2_SENSORLESS, stealth_states.z2 = tmc_enable_stallguard(stepperZ2));
-            TERN_(Z3_SENSORLESS, stealth_states.z3 = tmc_enable_stallguard(stepperZ3));
-            TERN_(Z4_SENSORLESS, stealth_states.z4 = tmc_enable_stallguard(stepperZ4));
+            IF_ENABLED(Z2_SENSORLESS, stealth_states.z2 = tmc_enable_stallguard(stepperZ2));
+            IF_ENABLED(Z3_SENSORLESS, stealth_states.z3 = tmc_enable_stallguard(stepperZ3));
+            IF_ENABLED(Z4_SENSORLESS, stealth_states.z4 = tmc_enable_stallguard(stepperZ4));
             #if CORE_IS_XZ && X_SENSORLESS
               stealth_states.x = tmc_enable_stallguard(stepperX);
             #elif CORE_IS_YZ && Y_SENSORLESS
@@ -2096,7 +2096,7 @@ void prepare_line_to_destination() {
         default: break;
       }
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_period = millis() + default_sg_guard_duration);
+      IF_ENABLED(IMPROVE_HOMING_RELIABILITY, sg_guard_period = millis() + default_sg_guard_duration);
 
       return stealth_states;
     }
@@ -2107,7 +2107,7 @@ void prepare_line_to_destination() {
         #if X_SENSORLESS
           case X_AXIS:
             tmc_disable_stallguard(stepperX, enable_stealth.x);
-            TERN_(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, enable_stealth.x2));
+            IF_ENABLED(X2_SENSORLESS, tmc_disable_stallguard(stepperX2, enable_stealth.x2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && Y_SENSORLESS
               tmc_disable_stallguard(stepperY, enable_stealth.y);
             #elif CORE_IS_XZ && Z_SENSORLESS
@@ -2118,7 +2118,7 @@ void prepare_line_to_destination() {
         #if Y_SENSORLESS
           case Y_AXIS:
             tmc_disable_stallguard(stepperY, enable_stealth.y);
-            TERN_(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, enable_stealth.y2));
+            IF_ENABLED(Y2_SENSORLESS, tmc_disable_stallguard(stepperY2, enable_stealth.y2));
             #if ANY(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX) && X_SENSORLESS
               tmc_disable_stallguard(stepperX, enable_stealth.x);
             #elif CORE_IS_YZ && Z_SENSORLESS
@@ -2129,9 +2129,9 @@ void prepare_line_to_destination() {
         #if Z_SENSORLESS
           case Z_AXIS:
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
-            TERN_(Z2_SENSORLESS, tmc_disable_stallguard(stepperZ2, enable_stealth.z2));
-            TERN_(Z3_SENSORLESS, tmc_disable_stallguard(stepperZ3, enable_stealth.z3));
-            TERN_(Z4_SENSORLESS, tmc_disable_stallguard(stepperZ4, enable_stealth.z4));
+            IF_ENABLED(Z2_SENSORLESS, tmc_disable_stallguard(stepperZ2, enable_stealth.z2));
+            IF_ENABLED(Z3_SENSORLESS, tmc_disable_stallguard(stepperZ3, enable_stealth.z3));
+            IF_ENABLED(Z4_SENSORLESS, tmc_disable_stallguard(stepperZ4, enable_stealth.z4));
             #if CORE_IS_XZ && X_SENSORLESS
               tmc_disable_stallguard(stepperX, enable_stealth.x);
             #elif CORE_IS_YZ && Y_SENSORLESS
@@ -2232,7 +2232,7 @@ void prepare_line_to_destination() {
           thermalManager.wait_for_hotend_heating(active_extruder);
         #endif
 
-        TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
+        IF_ENABLED(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
       }
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -2299,7 +2299,7 @@ void prepare_line_to_destination() {
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< set_axis_never_homed(", C(AXIS_CHAR(axis)), ")");
 
-    TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
+    IF_ENABLED(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
   }
 
   #ifdef TMC_HOME_PHASE
@@ -2329,7 +2329,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(X);
             phaseCurrent = stepperX.get_microstep_counter();
             effectorBackoutDir = -(X_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_X_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_X_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Y_MICROSTEPS
@@ -2337,7 +2337,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Y);
             phaseCurrent = stepperY.get_microstep_counter();
             effectorBackoutDir = -(Y_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_Y_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_Y_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef Z_MICROSTEPS
@@ -2345,7 +2345,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(Z);
             phaseCurrent = stepperZ.get_microstep_counter();
             effectorBackoutDir = -(Z_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_Z_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_Z_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef I_MICROSTEPS
@@ -2353,7 +2353,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(I);
             phaseCurrent = stepperI.get_microstep_counter();
             effectorBackoutDir = -(I_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_I_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_I_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef J_MICROSTEPS
@@ -2361,7 +2361,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(J);
             phaseCurrent = stepperJ.get_microstep_counter();
             effectorBackoutDir = -(J_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_J_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_J_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef K_MICROSTEPS
@@ -2369,7 +2369,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(K);
             phaseCurrent = stepperK.get_microstep_counter();
             effectorBackoutDir = -(K_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_K_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_K_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef U_MICROSTEPS
@@ -2377,7 +2377,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(U);
             phaseCurrent = stepperU.get_microstep_counter();
             effectorBackoutDir = -(U_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_U_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_U_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef V_MICROSTEPS
@@ -2385,7 +2385,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(V);
             phaseCurrent = stepperV.get_microstep_counter();
             effectorBackoutDir = -(V_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_V_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_V_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         #ifdef W_MICROSTEPS
@@ -2393,7 +2393,7 @@ void prepare_line_to_destination() {
             phasePerUStep = PHASE_PER_MICROSTEP(W);
             phaseCurrent = stepperW.get_microstep_counter();
             effectorBackoutDir = -(W_HOME_DIR);
-            stepperBackoutDir = TERN_(INVERT_W_DIR, -)(-effectorBackoutDir);
+            stepperBackoutDir = IF_ENABLED(INVERT_W_DIR, -)(-effectorBackoutDir);
             break;
         #endif
         default: return;
@@ -2467,9 +2467,9 @@ void prepare_line_to_destination() {
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
       switch (axis) {
-        TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
-        TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
-        TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
+        IF_ENABLED(X_DUAL_ENDSTOPS, case X_AXIS:)
+        IF_ENABLED(Y_DUAL_ENDSTOPS, case Y_AXIS:)
+        IF_ENABLED(Z_MULTI_ENDSTOPS, case Z_AXIS:)
           stepper.set_separate_multi_axis(true);
         default: break;
       }
@@ -2491,14 +2491,14 @@ void prepare_line_to_destination() {
         if (TERN0(PROBE_TARE, probe.tare())) { probe.stow(); return; }
 
         // Tell the Bed Distance Sensor we're Z homing
-        TERN_(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
+        IF_ENABLED(BD_SENSOR, bdl.config_state = BDS_HOMING_Z);
       }
     #endif
 
     //
     // Set a new current for the homed axis motor(s)
     //
-    TERN_(HAS_HOMING_CURRENT, set_homing_current(axis));
+    IF_ENABLED(HAS_HOMING_CURRENT, set_homing_current(axis));
 
     //
     // Back away to prevent an early sensorless trigger
@@ -2715,9 +2715,9 @@ void prepare_line_to_destination() {
       // Reset flags for X, Y, Z motor locking
       switch (axis) {
         default: break;
-        TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
-        TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
-        TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
+        IF_ENABLED(X_DUAL_ENDSTOPS, case X_AXIS:)
+        IF_ENABLED(Y_DUAL_ENDSTOPS, case Y_AXIS:)
+        IF_ENABLED(Z_MULTI_ENDSTOPS, case Z_AXIS:)
           stepper.set_separate_multi_axis(false);
       }
 
@@ -2770,7 +2770,7 @@ void prepare_line_to_destination() {
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        line_to_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
+        line_to_current_position(IF_ENABLED(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
@@ -2793,7 +2793,7 @@ void prepare_line_to_destination() {
     //
     // Restore axis motor(s) current after homing
     //
-    TERN_(HAS_HOMING_CURRENT, restore_homing_current(axis));
+    IF_ENABLED(HAS_HOMING_CURRENT, restore_homing_current(axis));
 
   } // homeaxis()
 
@@ -2850,18 +2850,18 @@ void set_axis_is_at_home(const AxisEnum axis) {
         #else
           current_position.z -= probe.offset.z;
         #endif
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed with PROBE" TERN_(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, " (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)") " ***\n> (M851 Z", probe.offset.z, ")");
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed with PROBE" IF_ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, " (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)") " ***\n> (M851 Z", probe.offset.z, ")");
       #else
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("*** Z homed to ENDSTOP ***");
       #endif
     }
   #endif
 
-  TERN_(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
+  IF_ENABLED(I2C_POSITION_ENCODERS, I2CPEM.homed(axis));
 
-  TERN_(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
+  IF_ENABLED(BABYSTEP_DISPLAY_TOTAL, babystep.reset_total(axis));
 
-  TERN_(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
+  IF_ENABLED(HAS_WORKSPACE_OFFSET, workspace_offset[axis] = 0);
 
   if (DEBUGGING(LEVELING)) {
     #if HAS_HOME_OFFSET

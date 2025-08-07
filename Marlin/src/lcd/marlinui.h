@@ -207,12 +207,12 @@ class MarlinUI {
 public:
 
   MarlinUI() {
-    TERN_(HAS_MARLINUI_MENU, currentScreen = status_screen);
+    IF_ENABLED(HAS_MARLINUI_MENU, currentScreen = status_screen);
   }
 
   static void init();
 
-  static void reinit_lcd() { TERN_(REINIT_NOISY_LCD, init_lcd()); }
+  static void reinit_lcd() { IF_ENABLED(REINIT_NOISY_LCD, init_lcd()); }
 
   #if HAS_WIRED_LCD
     static bool detected();
@@ -240,7 +240,7 @@ public:
   #endif
 
   static void chirp() {
-    TERN_(HAS_CHIRP, TERN(USE_MARLINUI_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
+    IF_ENABLED(HAS_CHIRP, TERN(USE_MARLINUI_BUZZER, buzz, BUZZ)(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ));
   }
 
   #if ENABLED(LCD_HAS_STATUS_INDICATORS)
@@ -506,7 +506,7 @@ public:
 
   // Tell the screen to redraw on the next call
   FORCE_INLINE static void refresh() {
-    TERN_(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+    IF_ENABLED(HAS_WIRED_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
   }
 
   #if HAS_DISPLAY
@@ -655,11 +655,11 @@ public:
     static void reset_material_presets();
     static FSTR_P get_preheat_label(const uint8_t m);
     static void apply_preheat(const uint8_t m, const uint8_t pmask, const uint8_t e=active_extruder);
-    static void preheat_set_fan(const uint8_t m) { TERN_(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
-    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { TERN_(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND), e)); }
+    static void preheat_set_fan(const uint8_t m) { IF_ENABLED(HAS_FAN, apply_preheat(m, _BV(PT_FAN))); }
+    static void preheat_hotend(const uint8_t m, const uint8_t e=active_extruder) { IF_ENABLED(HAS_HOTEND, apply_preheat(m, _BV(PT_HOTEND), e)); }
     static void preheat_hotend_and_fan(const uint8_t m, const uint8_t e=active_extruder) { preheat_hotend(m, e); preheat_set_fan(m); }
-    static void preheat_bed(const uint8_t m) { TERN_(HAS_HEATED_BED, apply_preheat(m, _BV(PT_BED))); }
-    static void preheat_chamber(const uint8_t m) { TERN_(HAS_HEATED_CHAMBER, apply_preheat(m, _BV(PT_CHAMBER))); }
+    static void preheat_bed(const uint8_t m) { IF_ENABLED(HAS_HEATED_BED, apply_preheat(m, _BV(PT_BED))); }
+    static void preheat_chamber(const uint8_t m) { IF_ENABLED(HAS_HEATED_CHAMBER, apply_preheat(m, _BV(PT_CHAMBER))); }
     static void preheat_all(const uint8_t m, const uint8_t e=active_extruder) { apply_preheat(m, PT_ALL, e); }
   #endif
 
@@ -700,9 +700,9 @@ public:
     static void push_current_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
-    static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
-    static void goto_previous_screen() { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, false)); }
-    static void go_back()              { _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, true)); }
+    static void _goto_previous_screen(IF_ENABLED(TURBO_BACK_MENU_ITEM, const bool is_back));
+    static void goto_previous_screen() { _goto_previous_screen(IF_ENABLED(TURBO_BACK_MENU_ITEM, false)); }
+    static void go_back()              { _goto_previous_screen(IF_ENABLED(TURBO_BACK_MENU_ITEM, true)); }
 
     static void return_to_status();
     static bool on_status_screen() { return currentScreen == status_screen; }
@@ -784,7 +784,7 @@ public:
       static void load_settings();
       static void store_settings();
     #endif
-    static void eeprom_alert(const EEPROM_Error) TERN_(EEPROM_AUTO_INIT, {});
+    static void eeprom_alert(const EEPROM_Error) IF_ENABLED(EEPROM_AUTO_INIT, {});
   #endif
 
   //
@@ -864,11 +864,11 @@ public:
     }
 
     FORCE_INLINE static void encoder_direction_menus() {
-      TERN_(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
+      IF_ENABLED(REVERSE_MENU_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
     FORCE_INLINE static void encoder_direction_select() {
-      TERN_(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
+      IF_ENABLED(REVERSE_SELECT_DIRECTION, encoderDirection = -(ENCODERBASE));
     }
 
   #else // !HAS_ENCODER_ACTION

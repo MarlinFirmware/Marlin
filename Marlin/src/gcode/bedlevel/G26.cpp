@@ -325,7 +325,7 @@ typedef struct {
       if (bed_temp > 25) {
         LCD_MESSAGE_MAX(MSG_G26_HEATING_BED);
         ui.quick_feedback();
-        TERN_(HAS_MARLINUI_MENU, ui.capture());
+        IF_ENABLED(HAS_MARLINUI_MENU, ui.capture());
         thermalManager.setTargetBed(bed_temp);
 
         // Wait for the temperature to stabilize
@@ -694,7 +694,7 @@ void GcodeSuite::G26() {
   move_to(destination, 0.0);
   move_to(destination, g26.ooze_amount);
 
-  TERN_(HAS_MARLINUI_MENU, ui.capture());
+  IF_ENABLED(HAS_MARLINUI_MENU, ui.capture());
 
   #if DISABLED(ARC_SUPPORT)
 
@@ -717,13 +717,13 @@ void GcodeSuite::G26() {
   #endif // !ARC_SUPPORT
 
   mesh_index_pair location;
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_START));
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_START));
   do {
     // Find the nearest confluence
     location = g26.find_closest_circle_to_print(g26.continue_with_closest ? xy_pos_t(current_position) : g26.xy_pos);
 
     if (location.valid()) {
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_START));
       const xy_pos_t circle = { bedlevel.get_mesh_x(location.pos.a), bedlevel.get_mesh_y(location.pos.b) };
 
       // If this mesh location is outside the printable radius, skip it.
@@ -840,7 +840,7 @@ void GcodeSuite::G26() {
       g26.connect_neighbor_with_line(location.pos,  0, -1);
       g26.connect_neighbor_with_line(location.pos,  0,  1);
       planner.synchronize();
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_FINISH));
+      IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location.pos, ExtUI::G26_POINT_FINISH));
       if (TERN0(HAS_MARLINUI_MENU, user_canceled())) goto LEAVE;
     }
 
@@ -850,7 +850,7 @@ void GcodeSuite::G26() {
 
   LEAVE:
   LCD_MESSAGE_MIN(MSG_G26_LEAVING);
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
+  IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(location, ExtUI::G26_FINISH));
 
   g26.retract_filament(destination);
   destination.z = Z_CLEARANCE_BETWEEN_PROBES;
@@ -861,10 +861,10 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
-  TERN_(HAS_MARLINUI_MENU, ui.release()); // Give back control of the LCD
+  IF_ENABLED(HAS_MARLINUI_MENU, ui.release()); // Give back control of the LCD
 
   if (!g26.keep_heaters_on) {
-    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
+    IF_ENABLED(HAS_HEATED_BED, thermalManager.setTargetBed(0));
     thermalManager.setTargetHotend(active_extruder, 0);
   }
 }

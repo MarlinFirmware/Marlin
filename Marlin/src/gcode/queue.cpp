@@ -99,8 +99,8 @@ void GCodeQueue::RingBuffer::commit_command(const bool skip_ok
   OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
 ) {
   commands[index_w].skip_ok = skip_ok;
-  TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
-  TERN_(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
+  IF_ENABLED(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
+  IF_ENABLED(POWER_LOSS_RECOVERY, recovery.commit_sdpos(index_w));
   advance_w();
 }
 
@@ -525,8 +525,8 @@ void GCodeQueue::get_serial_commands() {
           if (gpos) {
             switch (strtol(gpos + 1, nullptr, 10)) {
               case 0 ... 1:
-              TERN_(ARC_SUPPORT, case 2 ... 3:)
-              TERN_(BEZIER_CURVE_SUPPORT, case 5:)
+              IF_ENABLED(ARC_SUPPORT, case 2 ... 3:)
+              IF_ENABLED(BEZIER_CURVE_SUPPORT, case 5:)
                 PORT_REDIRECT(SERIAL_PORTMASK(p));     // Reply to the serial port that sent the command
                 SERIAL_ECHOLNPGM(STR_ERR_STOPPED);
                 LCD_MESSAGE(MSG_STOPPED);
@@ -538,7 +538,7 @@ void GCodeQueue::get_serial_commands() {
         #if DISABLED(EMERGENCY_PARSER)
           // Process critical commands early
           if (command[0] == 'M') switch (command[3]) {
-            case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; TERN_(HAS_MARLINUI_MENU, wait_for_user = false); } break;
+            case '8': if (command[2] == '0' && command[1] == '1') { wait_for_heatup = false; IF_ENABLED(HAS_MARLINUI_MENU, wait_for_user = false); } break;
             case '2': if (command[2] == '1' && command[1] == '1') kill(FPSTR(M112_KILL_STR), nullptr, true); break;
             case '0': if (command[1] == '4' && command[2] == '1') quickstop_stepper(); break;
           }
@@ -588,7 +588,7 @@ void GCodeQueue::get_serial_commands() {
         if (!process_line_done(sd_input_state, command.buffer, sd_count)) {
 
           // M808 L saves the sdpos of the next line. M808 loops to a new sdpos.
-          TERN_(GCODE_REPEAT_MARKERS, repeat.early_parse_M808(command.buffer));
+          IF_ENABLED(GCODE_REPEAT_MARKERS, repeat.early_parse_M808(command.buffer));
 
           #if DISABLED(PARK_HEAD_ON_PAUSE)
             // When M25 is non-blocking it can still suspend SD commands
@@ -601,7 +601,7 @@ void GCodeQueue::get_serial_commands() {
           ring_buffer.commit_command(true);
 
           // Prime Power-Loss Recovery for the NEXT commit_command
-          TERN_(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
+          IF_ENABLED(POWER_LOSS_RECOVERY, recovery.cmd_sdpos = card.getIndex());
         }
 
         if (card.eof()) card.fileHasFinished();         // Handle end of file reached
@@ -624,7 +624,7 @@ void GCodeQueue::get_available_commands() {
 
   get_serial_commands();
 
-  TERN_(HAS_MEDIA, get_sdcard_commands());
+  IF_ENABLED(HAS_MEDIA, get_sdcard_commands());
 }
 
 /**

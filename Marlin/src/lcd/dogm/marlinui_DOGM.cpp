@@ -282,7 +282,7 @@ bool MarlinUI::detected() { return true; }
   }
 
   void MarlinUI::show_bootscreen() {
-    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+    IF_ENABLED(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
     show_marlin_bootscreen();
   }
 
@@ -326,7 +326,7 @@ void MarlinUI::init_lcd() {
     WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
-  TERN_(HAS_LCD_CONTRAST, refresh_contrast());
+  IF_ENABLED(HAS_LCD_CONTRAST, refresh_contrast());
 
   #if LCD_SCREEN_ROTATE == 90
     u8g.setRot90();
@@ -363,7 +363,7 @@ void MarlinUI::update_language_font() {
 
 // The kill screen is displayed for unrecoverable conditions
 void MarlinUI::draw_kill_screen() {
-  TERN_(LIGHTWEIGHT_UI, ST7920_Lite_Status_Screen::clear_text_buffer());
+  IF_ENABLED(LIGHTWEIGHT_UI, ST7920_Lite_Status_Screen::clear_text_buffer());
   const u8g_uint_t x = 0, h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {
@@ -589,7 +589,7 @@ void MarlinUI::clear_for_drawing() {
         lcd_put_u8str(value);
       }
     }
-    TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
+    IF_ENABLED(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, FSTR_P const fstr, const bool inv) {

@@ -66,7 +66,7 @@ void MeatPack::reset_state() {
   cmd_is_next = false;
   second_char = 0;
   cmd_count = full_char_count = char_out_count = 0;
-  TERN_(MP_DEBUG, chars_decoded = 0);
+  IF_ENABLED(MP_DEBUG, chars_decoded = 0);
 }
 
 /**

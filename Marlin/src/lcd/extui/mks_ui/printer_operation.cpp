@@ -149,7 +149,7 @@ void printer_state_polling() {
 
   if (uiCfg.print_state == WORKING) filament_check();
 
-  TERN_(MKS_WIFI_MODULE, wifi_looping());
+  IF_ENABLED(MKS_WIFI_MODULE, wifi_looping());
 }
 
 void filament_pin_setup() {

@@ -566,7 +566,7 @@ struct XYval {
   FI XYval<T>& operator= (const XYZEval<T> &rs)   { set(XY_LIST(rs.x, rs.y)); return *this; }
 
   // Override other operators to get intuitive behaviors
-  #define XY_OP(OP) { T(x TERN_(HAS_X_AXIS, OP rs.x)), T(y TERN_(HAS_Y_AXIS, OP rs.y)) }
+  #define XY_OP(OP) { T(x IF_ENABLED(HAS_X_AXIS, OP rs.x)), T(y IF_ENABLED(HAS_Y_AXIS, OP rs.y)) }
   FI constexpr XYval<T> operator+ (const XYval<T>   &rs) const { return { T(x + rs.x), T(y + rs.y) }; }
   FI constexpr XYval<T> operator- (const XYval<T>   &rs) const { return { T(x - rs.x), T(y - rs.y) }; }
   FI constexpr XYval<T> operator* (const XYval<T>   &rs) const { return { T(x * rs.x), T(y * rs.y) }; }

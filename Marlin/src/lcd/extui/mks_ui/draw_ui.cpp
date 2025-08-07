@@ -492,7 +492,7 @@ char *getDispText(int index) {
     case MESHLEVELING_UI:     strcpy(public_buf_l, leveling_menu.title); break;
     case BIND_UI:             strcpy(public_buf_l, cloud_menu.title); break;
     case TOOL_UI:             strcpy(public_buf_l, tool_menu.title); break;
-    case WIFI_LIST_UI:        TERN_(MKS_WIFI_MODULE, strcpy(public_buf_l, list_menu.title)); break;
+    case WIFI_LIST_UI:        IF_ENABLED(MKS_WIFI_MODULE, strcpy(public_buf_l, list_menu.title)); break;
     case MACHINE_PARA_UI:     strcpy(public_buf_l, MachinePara_menu.title); break;
     case BABYSTEP_UI:         strcpy(public_buf_l, operation_menu.babystep); break;
     case EEPROM_SETTINGS_UI:  strcpy(public_buf_l, eeprom_menu.title); break;
@@ -650,10 +650,10 @@ char *creat_title_text() {
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
-          TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
-          TERN_(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
+          IF_ENABLED(HAS_EXTRUDERS, planner.set_flow(0, 100));
+          IF_ENABLED(HAS_MULTI_EXTRUDER, planner.set_flow(1, 100));
           card.startOrResumeFilePrinting();
-          TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+          IF_ENABLED(POWER_LOSS_RECOVERY, recovery.prepare());
           once_flag = false;
         }
         return;
@@ -799,7 +799,7 @@ void GUI_RefreshPage() {
       break;
     case DIALOG_UI:
       filament_dialog_handle();
-      TERN_(MKS_WIFI_MODULE, wifi_scan_handle());
+      IF_ENABLED(MKS_WIFI_MODULE, wifi_scan_handle());
       break;
     case MESHLEVELING_UI: break;
     case HARDWARE_TEST_UI: break;
@@ -945,7 +945,7 @@ void clear_cur_ui() {
     case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
     case STEPS_UI:                    lv_clear_step_settings(); break;
     case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
-    case JERK_UI:                     TERN_(CLASSIC_JERK, lv_clear_jerk_settings()); break;
+    case JERK_UI:                     IF_ENABLED(CLASSIC_JERK, lv_clear_jerk_settings()); break;
     case MOTORDIR_UI:                 break;
     case HOMESPEED_UI:                break;
     case NOZZLE_CONFIG_UI:            break;
@@ -1364,11 +1364,11 @@ void LV_TASK_HANDLER() {
     if (mks_test_flag == 0x1E) mks_hardware_test();
   #endif
 
-  TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
+  IF_ENABLED(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 
   GUI_RefreshPage();
 
-  TERN_(MKS_WIFI_MODULE, get_wifi_commands());
+  IF_ENABLED(MKS_WIFI_MODULE, get_wifi_commands());
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_update_encoder();

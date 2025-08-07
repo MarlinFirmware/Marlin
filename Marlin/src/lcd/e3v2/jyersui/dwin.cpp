@@ -695,7 +695,7 @@ void JyersDWIN::drawPrintScreen() {
   updateStatusBar(true);
   drawPrintProgressBar();
   drawPrintProgressElapsed();
-  TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+  IF_ENABLED(SET_REMAINING_TIME, drawPrintProgressRemain());
   drawPrintFilename(true);
 }
 
@@ -1388,7 +1388,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
           if (draw)
             drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
           else {
-            TERN_(HAS_LEVELING, set_bed_leveling_enabled(level_state));
+            IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(level_state));
             drawMenu(ID_Prepare, PREPARE_MANUALLEVEL);
           }
           break;
@@ -1568,7 +1568,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
             else {
               liveadjust = false;
-              TERN_(HAS_LEVELING, set_bed_leveling_enabled(level_state));
+              IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(level_state));
               drawMenu(ID_Prepare, PREPARE_ZOFFSET);
             }
             break;
@@ -3315,8 +3315,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                   if (thermalManager.degTargetBed() < LEVELING_BED_TEMP)
                     thermalManager.setTargetBed(LEVELING_BED_TEMP);
                 #endif
-                TERN_(HAS_HOTEND, thermalManager.wait_for_hotend(0));
-                TERN_(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
+                IF_ENABLED(HAS_HOTEND, thermalManager.wait_for_hotend(0));
+                IF_ENABLED(HAS_HEATED_BED, thermalManager.wait_for_bed_heating());
               #endif
               popupHandler(Popup_MoveWait);
               mesh_conf.manual_mesh_move();
@@ -3525,7 +3525,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BACK));
             else {
               set_bed_leveling_enabled(level_state);
-              TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
+              IF_ENABLED(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
               drawMenu(ID_Leveling, LEVELING_MANUAL);
             }
             break;
@@ -4007,7 +4007,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_Back, GET_TEXT_F(MSG_BUTTON_CANCEL));
             else {
               thermalManager.setTargetHotend(0, 0);
-              TERN_(HAS_FAN, thermalManager.set_fan_speed(0, 0));
+              IF_ENABLED(HAS_FAN, thermalManager.set_fan_speed(0, 0));
               redrawMenu(false, true, true);
             }
             break;
@@ -4611,7 +4611,7 @@ void JyersDWIN::printScreenControl() {
             wait_for_user = false;
             #if ENABLED(PARK_HEAD_ON_PAUSE)
               card.startOrResumeFilePrinting();
-              TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+              IF_ENABLED(POWER_LOSS_RECOVERY, recovery.prepare());
             #else
               #if HAS_HEATED_BED
                 gcode.process_subcommands_now(TS(F("M140 S"), pausebed));
@@ -4619,13 +4619,13 @@ void JyersDWIN::printScreenControl() {
               #if HAS_EXTRUDERS
                 gcode.process_subcommands_now(TS(F("M109 S"), pausetemp));
               #endif
-              TERN_(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
+              IF_ENABLED(HAS_FAN, thermalManager.fan_speed[0] = pausefan);
               planner.synchronize();
-              TERN_(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
+              IF_ENABLED(HAS_MEDIA, queue.inject(FPSTR(M24_STR)));
             #endif
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, hostui.resume());
+            IF_ENABLED(HOST_ACTION_COMMANDS, hostui.resume());
           }
           drawPrintScreen();
         }
@@ -4667,14 +4667,14 @@ void JyersDWIN::popupControl() {
               planner.synchronize();
             #else
               queue.inject(F("M25"));
-              TERN_(HAS_HOTEND, pausetemp = thermalManager.degTargetHotend(0));
-              TERN_(HAS_HEATED_BED, pausebed = thermalManager.degTargetBed());
-              TERN_(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
+              IF_ENABLED(HAS_HOTEND, pausetemp = thermalManager.degTargetHotend(0));
+              IF_ENABLED(HAS_HEATED_BED, pausebed = thermalManager.degTargetBed());
+              IF_ENABLED(HAS_FAN, pausefan = thermalManager.fan_speed[0]);
               thermalManager.cooldown();
             #endif
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, hostui.pause());
+            IF_ENABLED(HOST_ACTION_COMMANDS, hostui.pause());
           }
         }
         drawPrintScreen();
@@ -4686,7 +4686,7 @@ void JyersDWIN::popupControl() {
             thermalManager.cooldown();
           }
           else {
-            TERN_(HOST_ACTION_COMMANDS, hostui.cancel());
+            IF_ENABLED(HOST_ACTION_COMMANDS, hostui.cancel());
           }
         }
         else
@@ -4705,7 +4705,7 @@ void JyersDWIN::popupControl() {
         case Popup_ETemp:
           if (selection == 0) {
             thermalManager.setTargetHotend(EXTRUDE_MINTEMP, 0);
-            TERN_(HAS_FAN, thermalManager.set_fan_speed(0, MAX_FAN_SPEED));
+            IF_ENABLED(HAS_FAN, thermalManager.set_fan_speed(0, MAX_FAN_SPEED));
             drawMenu(ID_PreheatHotend);
           }
           else
@@ -4902,8 +4902,8 @@ void JyersDWIN::startPrint(const bool sd) {
     }
     else
       strcpy_P(filename, PSTR("Host Print"));
-    TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
-    TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+    IF_ENABLED(SET_PROGRESS_PERCENT, ui.set_progress(0));
+    IF_ENABLED(SET_REMAINING_TIME, ui.set_remaining_time(0));
     drawPrintScreen();
   }
 }
@@ -4912,8 +4912,8 @@ void JyersDWIN::stopPrint() {
   printing = false;
   sdprint = false;
   thermalManager.cooldown();
-  TERN_(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
-  TERN_(SET_REMAINING_TIME, ui.set_remaining_time(0));
+  IF_ENABLED(SET_PROGRESS_PERCENT, ui.set_progress(100 * (PROGRESS_SCALE)));
+  IF_ENABLED(SET_REMAINING_TIME, ui.set_remaining_time(0));
   drawPrintConfirm();
 }
 
@@ -4990,7 +4990,7 @@ void JyersDWIN::screenUpdate() {
     if (process == Proc_Print) {
       drawPrintProgressBar();
       drawPrintProgressElapsed();
-      TERN_(SET_REMAINING_TIME, drawPrintProgressRemain());
+      IF_ENABLED(SET_REMAINING_TIME, drawPrintProgressRemain());
     }
   }
 
@@ -5103,14 +5103,14 @@ void JyersDWIN::audioFeedback(const bool success/*=true*/) {
 }
 
 void JyersDWIN::saveSettings(char * const buff) {
-  TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
+  IF_ENABLED(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = mesh_conf.tilt_grid - 1);
   eeprom_settings.corner_pos = corner_pos * 10;
   memcpy(buff, &eeprom_settings, _MIN(sizeof(eeprom_settings), eeprom_data_size));
 }
 
 void JyersDWIN::loadSettings(const char * const buff) {
   memcpy(&eeprom_settings, buff, _MIN(sizeof(eeprom_settings), eeprom_data_size));
-  TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
+  IF_ENABLED(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   if (eeprom_settings.corner_pos == 0) eeprom_settings.corner_pos = 325;
   corner_pos = eeprom_settings.corner_pos / 10.0f;
   redrawScreen();
@@ -5125,7 +5125,7 @@ void JyersDWIN::loadSettings(const char * const buff) {
 
 void JyersDWIN::resetSettings() {
   eeprom_settings.time_format_textual = false;
-  TERN_(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = 0);
+  IF_ENABLED(AUTO_BED_LEVELING_UBL, eeprom_settings.tilt_grid_size = 0);
   eeprom_settings.corner_pos = 325;
   eeprom_settings.cursor_color = 0;
   eeprom_settings.menu_split_line = 0;
@@ -5138,9 +5138,9 @@ void JyersDWIN::resetSettings() {
   eeprom_settings.status_area_text = 0;
   eeprom_settings.coordinates_text = 0;
   eeprom_settings.coordinates_split_line = 0;
-  TERN_(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
+  IF_ENABLED(AUTO_BED_LEVELING_UBL, mesh_conf.tilt_grid = eeprom_settings.tilt_grid_size + 1);
   corner_pos = eeprom_settings.corner_pos / 10.0f;
-  TERN_(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
+  IF_ENABLED(SOUND_MENU_ITEM, ui.sound_on = ENABLED(SOUND_ON_DEFAULT));
   redrawScreen();
 }
 

@@ -175,7 +175,7 @@ uint8_t get_pin_mode(const pin_t pin) {
     case LL_GPIO_MODE_INPUT: return MODE_PIN_INPUT;
     case LL_GPIO_MODE_OUTPUT: return MODE_PIN_OUTPUT;
     case LL_GPIO_MODE_ALTERNATE: return MODE_PIN_ALT;
-    TERN_(STM32F1xx, case LL_GPIO_MODE_FLOATING:)
+    IF_ENABLED(STM32F1xx, case LL_GPIO_MODE_FLOATING:)
     default: return 0;
   }
 }

@@ -124,8 +124,8 @@ namespace Anycubic {
     command_len = 0;
     printer_state = AC_printer_idle;
     pause_state = AC_paused_idle;
-    TERN_(HAS_HOTEND, hotend_state = AC_heater_off);
-    TERN_(HAS_HEATED_BED, hotbed_state = AC_heater_off);
+    IF_ENABLED(HAS_HOTEND, hotend_state = AC_heater_off);
+    IF_ENABLED(HAS_HEATED_BED, hotbed_state = AC_heater_off);
     file_menu = AC_menu_file;
     set_language(ui_language); // use language stored in EEPROM
 
@@ -191,8 +191,8 @@ namespace Anycubic {
 
     // Periodically update main page
     if ((page_index_now == 121 || page_index_now == 1) && ((millis() % 500) == 0)) {
-      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
       set_brightness();
       delay(1);  // wait for millis() to advance so this clause isn't repeated
     }
@@ -834,7 +834,7 @@ namespace Anycubic {
         return false;
       }
 
-      while (!TFTSer.available()) TERN_(USE_WATCHDOG, hal.watchdog_refresh());
+      while (!TFTSer.available()) IF_ENABLED(USE_WATCHDOG, hal.watchdog_refresh());
 
       data = TFTSer.read();
       // MYSERIAL.write(data );
@@ -1196,8 +1196,8 @@ namespace Anycubic {
       if (PENDING(ms, flash_time)) return;
       flash_time = ms + 1500;
 
-      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
-      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
+      IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
+      IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
     #endif
   }
 
@@ -1258,7 +1258,7 @@ namespace Anycubic {
 
             set_descript_color(COLOR_BLUE);
 
-            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
+            IF_ENABLED(CASE_LIGHT_ENABLE, setCaseLightState(true));
 
             sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
 
@@ -1293,7 +1293,7 @@ namespace Anycubic {
               printer_state = AC_printer_idle;
             }
 
-            TERN_(CASE_LIGHT_ENABLE, setCaseLightState(true));
+            IF_ENABLED(CASE_LIGHT_ENABLE, setCaseLightState(true));
             printFile(filenavigator.filelist.shortFilename());
 
             sendTxtToTFT(MString<17>(filenavigator.filelist.longFilename()), TXT_PRINT_NAME);
@@ -1371,9 +1371,9 @@ namespace Anycubic {
 
       case 4:     // print change param
         changePageOfTFT(PAGE_ADJUST);
-        TERN_(CASE_LIGHT_ENABLE, sendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
-        TERN_(HAS_HOTEND, sendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
-        TERN_(HAS_HEATED_BED, sendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
+        IF_ENABLED(CASE_LIGHT_ENABLE, sendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
+        IF_ENABLED(HAS_HOTEND, sendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
+        IF_ENABLED(HAS_HEATED_BED, sendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
         feedrate_back = getFeedrate_percent();
         sendValueToTFT(uint16_t(feedrate_back), TXT_ADJUST_SPEED);
         flash_time = ms + 1500;
@@ -1405,8 +1405,8 @@ namespace Anycubic {
     // Report Printing Time in minutes
     sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_PRINT_TIME);
 
-    TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
-    TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
+    IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
+    IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
   }
 
   void DgusTFT::page4() {
@@ -1438,12 +1438,12 @@ namespace Anycubic {
 
       case 4:   // print settings
         changePageOfTFT(PAGE_ADJUST);
-        TERN_(CASE_LIGHT_ENABLE, sendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
-        TERN_(HAS_HOTEND, sendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
-        TERN_(HAS_HEATED_BED, sendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
+        IF_ENABLED(CASE_LIGHT_ENABLE, sendValueToTFT(getCaseLightState(), ADDRESS_PRINT_SETTING_LED_STATUS));
+        IF_ENABLED(HAS_HOTEND, sendValueToTFT(uint16_t(getTargetTemp_celsius(E0)), TXT_ADJUST_HOTEND));
+        IF_ENABLED(HAS_HEATED_BED, sendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
         feedrate_back = getFeedrate_percent();
         sendValueToTFT((uint16_t)feedrate_back, TXT_ADJUST_SPEED);
-        TERN_(HAS_FAN, sendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_TARGET));
+        IF_ENABLED(HAS_FAN, sendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_TARGET));
         sendTxtToTFT(ftostr52sprj(getZOffset_mm()) + 3, TXT_LEVEL_OFFSET);
         requestValueFromTFT(TXT_ADJUST_SPEED);  // attempt to make feedrate visible on visit to this page
         break;
@@ -1472,8 +1472,8 @@ namespace Anycubic {
     // Report Printing Time in minutes
     sendTimeToTFT(getProgress_seconds_elapsed() / 60, TXT_PRINT_TIME);
 
-    TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
-    TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
+    IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_PRINT_HOTEND));
+    IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_PRINT_BED));
   }
 
   void DgusTFT::page5() {          // print settings
@@ -1584,10 +1584,10 @@ namespace Anycubic {
       case 6: break;
 
       case 7:
-        TERN_(HAS_HEATED_BED, requestValueFromTFT(TXT_ADJUST_BED));
+        IF_ENABLED(HAS_HEATED_BED, requestValueFromTFT(TXT_ADJUST_BED));
         requestValueFromTFT(TXT_ADJUST_SPEED);
-        TERN_(HAS_HOTEND, requestValueFromTFT(TXT_ADJUST_HOTEND));
-        TERN_(HAS_FAN, requestValueFromTFT(TXT_FAN_SPEED_TARGET));
+        IF_ENABLED(HAS_HOTEND, requestValueFromTFT(TXT_ADJUST_HOTEND));
+        IF_ENABLED(HAS_FAN, requestValueFromTFT(TXT_FAN_SPEED_TARGET));
 
         if (z_change == true) {
           injectCommands(F("M500"));
@@ -1912,8 +1912,8 @@ namespace Anycubic {
       #if HAS_HOTEND || HAS_HEATED_BED
         case 3: {
           changePageOfTFT(PAGE_PREHEAT);
-          TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
-          TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
+          IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
+          IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
         } break;
       #endif
 
@@ -2028,14 +2028,14 @@ namespace Anycubic {
           break;
 
         case 2:         // PLA
-          TERN_(HAS_HOTEND, setTargetTemp_celsius(190, E0));
-          TERN_(HAS_HEATED_BED, setTargetTemp_celsius(60, BED));
+          IF_ENABLED(HAS_HOTEND, setTargetTemp_celsius(190, E0));
+          IF_ENABLED(HAS_HEATED_BED, setTargetTemp_celsius(60, BED));
           changePageOfTFT(PAGE_PREHEAT);
           break;
 
         case 3:         // ABS
-          TERN_(HAS_HOTEND, setTargetTemp_celsius(240, E0));
-          TERN_(HAS_HEATED_BED, setTargetTemp_celsius(100, BED));
+          IF_ENABLED(HAS_HOTEND, setTargetTemp_celsius(240, E0));
+          IF_ENABLED(HAS_HEATED_BED, setTargetTemp_celsius(100, BED));
           changePageOfTFT(PAGE_PREHEAT);
           break;
       }
@@ -2045,8 +2045,8 @@ namespace Anycubic {
       if (PENDING(ms, flash_time)) return;
       flash_time = ms + 1500;
 
-      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
-      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
+      IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
+      IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
     }
 
   #endif // HAS_HOTEND || HAS_HEATED_BED
@@ -2156,7 +2156,7 @@ namespace Anycubic {
       case 0: break;
 
       case 1:          // OK to finish
-        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(false));
+        IF_ENABLED(CASE_LIGHT_ENABLE, setCaseLightState(false));
         changePageOfTFT(PAGE_MAIN);
         break;
 
@@ -2295,7 +2295,7 @@ namespace Anycubic {
       case 0: break;
 
       case 1:        // return
-        TERN_(CASE_LIGHT_ENABLE, setCaseLightState(false));
+        IF_ENABLED(CASE_LIGHT_ENABLE, setCaseLightState(false));
         changePageOfTFT(PAGE_MAIN);
         break;
 
@@ -2403,8 +2403,8 @@ namespace Anycubic {
         if (PENDING(ms, flash_time)) return;
         flash_time = ms + 1500;
 
-        TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-        TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+        IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+        IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
       #endif
 
       if (pop_up_index == 25) {
@@ -2597,8 +2597,8 @@ namespace Anycubic {
         if (PENDING(ms, flash_time)) return;
         flash_time = ms + 1500;
 
-        TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-        TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+        IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+        IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
       #endif
     }
 
@@ -2611,8 +2611,8 @@ namespace Anycubic {
         if (PENDING(ms, flash_time)) return;
         flash_time = ms + 1500;
 
-        TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-        TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+        IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+        IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
       #endif
     }
 
@@ -2766,8 +2766,8 @@ namespace Anycubic {
 
     if (ELAPSED(millis(), temperature_time)) {
       temperature_time = millis() + 1500;
-      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
     }
   }
 
@@ -2796,8 +2796,8 @@ namespace Anycubic {
       if (PENDING(ms, flash_time)) return;
       flash_time = ms + 1500;
 
-      TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
-      TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
+      IF_ENABLED(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
+      IF_ENABLED(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
     #endif
   }
 

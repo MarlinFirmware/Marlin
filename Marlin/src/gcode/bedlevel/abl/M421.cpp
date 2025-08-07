@@ -59,7 +59,7 @@ void GcodeSuite::M421() {
       for (uint8_t x = sx; x <= ex; ++x) {
         for (uint8_t y = sy; y <= ey; ++y) {
           bedlevel.z_values[x][y] = zval + (hasQ ? bedlevel.z_values[x][y] : 0);
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
+          IF_ENABLED(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
         }
       }
       bedlevel.refresh_bed_level();

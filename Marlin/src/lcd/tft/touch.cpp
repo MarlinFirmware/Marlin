@@ -58,10 +58,10 @@ TouchControlType Touch::touch_control_type = NONE;
 #endif
 
 void Touch::init() {
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+  IF_ENABLED(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.init();
-  TERN_(HAS_DISPLAY_SLEEP, wakeUp());
+  IF_ENABLED(HAS_DISPLAY_SLEEP, wakeUp());
   enable();
 }
 
@@ -158,7 +158,7 @@ void Touch::touch(touch_control_t *control) {
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
     case MENU_CLICK:
-      TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
+      IF_ENABLED(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       ui.lcd_clicked = true;
       break;
     case CLICK: ui.lcd_clicked = true; break;
@@ -188,7 +188,7 @@ void Touch::touch(touch_control_t *control) {
         default: // Hotend
           #if HAS_HOTEND
             #define HOTEND_HEATER(N) TERN0(HAS_MULTI_HOTEND, N)
-            TERN_(HAS_MULTI_HOTEND, MenuItemBase::itemIndex = heater);
+            IF_ENABLED(HAS_MULTI_HOTEND, MenuItemBase::itemIndex = heater);
             MenuItem_int3::action(GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_NOZZLE_N, MSG_NOZZLE)),
               &thermalManager.temp_hotend[HOTEND_HEATER(heater)].target, 0, thermalManager.hotend_max_target(HOTEND_HEATER(heater)),
               []{ thermalManager.start_watching_hotend(HOTEND_HEATER(MenuItemBase::itemIndex)); }
@@ -223,7 +223,7 @@ void Touch::touch(touch_control_t *control) {
       static uint8_t fan, fan_speed;
       fan = 0;
       fan_speed = thermalManager.fan_speed[fan];
-      MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); TERN_(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
+      MenuItem_percent::action(GET_TEXT_F(MSG_FIRST_FAN_SPEED), &fan_speed, 0, 255, []{ thermalManager.set_fan_speed(fan, fan_speed); IF_ENABLED(LASER_SYNCHRONOUS_M106_M107, planner.buffer_sync_block(BLOCK_BIT_SYNC_FANS));});
     } break;
 
     case FEEDRATE:

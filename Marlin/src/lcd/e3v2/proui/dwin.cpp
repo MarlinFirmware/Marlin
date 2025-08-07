@@ -623,7 +623,7 @@ void drawPrintProcess() {
   DWINUI::drawIcon(ICON_RemainTime, 150, 171);
   drawPrintProgressBar();
   drawPrintProgressElapsed();
-  TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
+  IF_ENABLED(SHOW_REMAINING_TIME, drawPrintProgressRemain());
   ICON_Tune();
   ICON_ResumeOrPause();
   ICON_Stop();
@@ -635,14 +635,14 @@ void gotoPrintProcess() {
   else {
     checkkey = ID_PrintProcess;
     drawPrintProcess();
-    TERN_(DASH_REDRAW, dwinRedrawDash());
+    IF_ENABLED(DASH_REDRAW, dwinRedrawDash());
   }
   dwinUpdateLCD();
 }
 
 void drawPrintDone() {
-  TERN_(SET_PROGRESS_PERCENT, ui.set_progress_done());
-  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
+  IF_ENABLED(SET_PROGRESS_PERCENT, ui.set_progress_done());
+  IF_ENABLED(SET_REMAINING_TIME, ui.reset_remaining_time());
   title.showCaption(GET_TEXT_F(MSG_PRINT_DONE));
   DWINUI::clearMainArea();
   dwinPrintHeader();
@@ -662,7 +662,7 @@ void drawPrintDone() {
     DWINUI::drawIcon(ICON_PrintTime, 15, 173);
     DWINUI::drawIcon(ICON_RemainTime, 150, 171);
     drawPrintProgressElapsed();
-    TERN_(SHOW_REMAINING_TIME, drawPrintProgressRemain());
+    IF_ENABLED(SHOW_REMAINING_TIME, drawPrintProgressRemain());
     DWINUI::drawButton(BTN_Continue, 86, 273);
   }
 }
@@ -833,9 +833,9 @@ void updateVariable() {
 
   if (isMenu(tuneMenu) || isMenu(temperatureMenu)) {
     // Tune page temperature update
-    TERN_(HAS_HOTEND, if (_new_hotend_target) hotendTargetItem->redraw());
-    TERN_(HAS_HEATED_BED, if (_new_bed_target) bedTargetItem->redraw());
-    TERN_(HAS_FAN, if (_new_fanspeed) fanSpeedItem->redraw());
+    IF_ENABLED(HAS_HOTEND, if (_new_hotend_target) hotendTargetItem->redraw());
+    IF_ENABLED(HAS_HEATED_BED, if (_new_bed_target) bedTargetItem->redraw());
+    IF_ENABLED(HAS_FAN, if (_new_fanspeed) fanSpeedItem->redraw());
   }
 
   // Bottom temperature update
@@ -1033,7 +1033,7 @@ void drawPrintFileMenu() {
         menuItemAdd(onDrawFileName, onClickSDItem);
     }
     updateMenu(fileMenu);
-    TERN_(DASH_REDRAW, dwinRedrawDash());
+    IF_ENABLED(DASH_REDRAW, dwinRedrawDash());
   }
   else {
     if (SET_MENU(fileMenu, MSG_MEDIA_MENU, 1)) BACK_ITEM(gotoMainMenu);
@@ -1041,7 +1041,7 @@ void drawPrintFileMenu() {
     dwinDrawRectangle(1, hmiData.colorAlertBg, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
     DWINUI::drawCenteredString(font12x24, hmiData.colorAlertTxt, MBASE(3), GET_TEXT_F(MSG_MEDIA_NOT_INSERTED));
   }
-  TERN_(SCROLL_LONG_FILENAMES, fileMenuIdle(true));
+  IF_ENABLED(SCROLL_LONG_FILENAMES, fileMenuIdle(true));
 }
 
 //
@@ -1320,17 +1320,17 @@ void eachMomentUpdate() {
     #endif
     #if PROUI_TUNING_GRAPH
       if (checkkey == ID_PIDProcess) {
-        TERN_(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) plot.update(thermalManager.wholeDegHotend(0)));
-        TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) plot.update(thermalManager.wholeDegBed()));
-        TERN_(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) plot.update(thermalManager.wholeDegChamber()));
+        IF_ENABLED(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) plot.update(thermalManager.wholeDegHotend(0)));
+        IF_ENABLED(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) plot.update(thermalManager.wholeDegBed()));
+        IF_ENABLED(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) plot.update(thermalManager.wholeDegChamber()));
       }
-      TERN_(MPCTEMP, if (checkkey == ID_MPCProcess) plot.update(thermalManager.wholeDegHotend(0)));
+      IF_ENABLED(MPCTEMP, if (checkkey == ID_MPCProcess) plot.update(thermalManager.wholeDegHotend(0)));
       #if ENABLED(PROUI_ITEM_PLOT)
         if (checkkey == ID_PlotProcess) {
-          TERN_(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
-          TERN_(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) { plot.update(thermalManager.wholeDegBed()); })
-          TERN_(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) { plot.update(thermalManager.wholeDegChamber()); })
-          TERN_(MPCTEMP, if (hmiValue.tempControl == MPC_STARTED) { plot.update(thermalManager.wholeDegHotend(0)); })
+          IF_ENABLED(PIDTEMP, if (hmiValue.tempControl == PIDTEMP_START) { plot.update(thermalManager.wholeDegHotend(0)); })
+          IF_ENABLED(PIDTEMPBED, if (hmiValue.tempControl == PIDTEMPBED_START) { plot.update(thermalManager.wholeDegBed()); })
+          IF_ENABLED(PIDTEMPCHAMBER, if (hmiValue.tempControl == PIDTEMPCHAMBER_START) { plot.update(thermalManager.wholeDegChamber()); })
+          IF_ENABLED(MPCTEMP, if (hmiValue.tempControl == MPC_STARTED) { plot.update(thermalManager.wholeDegHotend(0)); })
           if (hmiFlag.abort_flag || hmiFlag.pause_flag || print_job_timer.isPaused()) {
             hmiReturnScreen();
           }
@@ -1475,15 +1475,15 @@ void dwinHandleScreen() {
     #if HAS_LOCKSCREEN
       case ID_Locked: hmiLockScreen(); break;
     #endif
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
-    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
+    IF_ENABLED(HAS_ESDIAG, case ID_ESDiagProcess:)
+    IF_ENABLED(PROUI_ITEM_PLOT, case ID_PlotProcess:)
     case ID_PrintDone:
     case ID_WaitResponse: hmiWaitForUser(); break;
 
-    TERN_(HAS_BED_PROBE, case ID_Leveling:)
+    IF_ENABLED(HAS_BED_PROBE, case ID_Leveling:)
     case ID_Homing:
-    TERN_(HAS_PID_HEATING, case ID_PIDProcess:)
-    TERN_(MPCTEMP, case ID_MPCProcess:)
+    IF_ENABLED(HAS_PID_HEATING, case ID_PIDProcess:)
+    IF_ENABLED(MPCTEMP, case ID_MPCProcess:)
     case ID_NothingToDo:
     default: break;
   }
@@ -1491,15 +1491,15 @@ void dwinHandleScreen() {
 
 bool idIsPopUp() {    // If ID is popup...
   switch (checkkey) {
-    TERN_(HAS_BED_PROBE, case ID_Leveling:)
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
+    IF_ENABLED(HAS_BED_PROBE, case ID_Leveling:)
+    IF_ENABLED(HAS_ESDIAG, case ID_ESDiagProcess:)
     case ID_NothingToDo:
     case ID_WaitResponse:
     case ID_Popup:
     case ID_Homing:
-    TERN_(HAS_PID_HEATING, case ID_PIDProcess:)
-    TERN_(MPCTEMP, case ID_MPCProcess:)
-    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
+    IF_ENABLED(HAS_PID_HEATING, case ID_PIDProcess:)
+    IF_ENABLED(MPCTEMP, case ID_MPCProcess:)
+    IF_ENABLED(PROUI_ITEM_PLOT, case ID_PlotProcess:)
       return true;
     default: break;
   }
@@ -1514,9 +1514,9 @@ void hmiSaveProcessID(const uint8_t id) {
     case ID_Popup:
     case ID_WaitResponse:
     case ID_PrintDone:
-    TERN_(HAS_BED_PROBE, case ID_Leveling:)
-    TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
-    TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
+    IF_ENABLED(HAS_BED_PROBE, case ID_Leveling:)
+    IF_ENABLED(HAS_ESDIAG, case ID_ESDiagProcess:)
+    IF_ENABLED(PROUI_ITEM_PLOT, case ID_PlotProcess:)
       wait_for_user = true;
     default: break;
   }
@@ -1563,7 +1563,7 @@ void dwinLevelingStart() {
 }
 
 void dwinLevelingDone() {
-  TERN_(HAS_MESH, gotoMeshViewer(true));
+  IF_ENABLED(HAS_MESH, gotoMeshViewer(true));
 }
 
 #if HAS_MESH
@@ -1677,14 +1677,14 @@ void dwinLevelingDone() {
     }
 
     void drawHPlot() {
-      TERN_(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
-      TERN_(MPCTEMP, dwinDrawPlot(MPC_STARTED));
+      IF_ENABLED(PIDTEMP, dwinDrawPlot(PIDTEMP_START));
+      IF_ENABLED(MPCTEMP, dwinDrawPlot(MPC_STARTED));
     }
     void drawBPlot() {
-      TERN_(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
+      IF_ENABLED(PIDTEMPBED, dwinDrawPlot(PIDTEMPBED_START));
     }
     void drawCPlot() {
-      TERN_(PIDTEMPCHAMBER, dwinDrawPlot(PIDTEMPCHAMBER_START));
+      IF_ENABLED(PIDTEMPCHAMBER, dwinDrawPlot(PIDTEMPCHAMBER_START));
     }
 
   #endif // PROUI_ITEM_PLOT
@@ -1798,9 +1798,9 @@ void dwinLevelingDone() {
 
 // Started a Print Job
 void dwinPrintStarted() {
-  TERN_(HAS_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
-  TERN_(SET_PROGRESS_PERCENT, ui.progress_reset());
-  TERN_(SET_REMAINING_TIME, ui.reset_remaining_time());
+  IF_ENABLED(HAS_GCODE_PREVIEW, if (hostPrinting()) preview.invalidate());
+  IF_ENABLED(SET_PROGRESS_PERCENT, ui.progress_reset());
+  IF_ENABLED(SET_REMAINING_TIME, ui.reset_remaining_time());
   hmiFlag.pause_flag = false;
   hmiFlag.abort_flag = false;
   select_print.reset();
@@ -1820,7 +1820,7 @@ void dwinPrintResume() {
 
 // Ended print job
 void dwinPrintFinished() {
-  TERN_(POWER_LOSS_RECOVERY, if (card.isPrinting()) recovery.cancel());
+  IF_ENABLED(POWER_LOSS_RECOVERY, if (card.isPrinting()) recovery.cancel());
   hmiFlag.abort_flag = false;
   hmiFlag.pause_flag = false;
   wait_for_heatup = false;
@@ -1842,7 +1842,7 @@ void dwinPrintAborted() {
       );
     }
   #endif
-  TERN_(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PRINT_ABORTED)));
+  IF_ENABLED(HOST_PROMPT_SUPPORT, hostui.notify(GET_TEXT_F(MSG_PRINT_ABORTED)));
   dwinPrintFinished();
 }
 
@@ -1877,15 +1877,15 @@ static_assert(ExtUI::eeprom_data_size >= sizeof(hmi_data_t), "Insufficient space
 void dwinSetDataDefaults() {
   dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
-  TERN_(PIDTEMP, hmiData.hotendPIDT = DEF_HOTENDPIDT);
-  TERN_(PIDTEMPBED, hmiData.bedPIDT = DEF_BEDPIDT);
-  TERN_(HAS_PID_HEATING, hmiData.pidCycles = DEF_PIDCYCLES);
+  IF_ENABLED(PIDTEMP, hmiData.hotendPIDT = DEF_HOTENDPIDT);
+  IF_ENABLED(PIDTEMPBED, hmiData.bedPIDT = DEF_BEDPIDT);
+  IF_ENABLED(HAS_PID_HEATING, hmiData.pidCycles = DEF_PIDCYCLES);
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     hmiData.extMinT = EXTRUDE_MINTEMP;
     applyExtMinT();
   #endif
-  TERN_(PREHEAT_BEFORE_LEVELING, hmiData.bedLevT = LEVELING_BED_TEMP);
-  TERN_(BAUD_RATE_GCODE, setBaud250K());
+  IF_ENABLED(PREHEAT_BEFORE_LEVELING, hmiData.bedLevT = LEVELING_BED_TEMP);
+  IF_ENABLED(BAUD_RATE_GCODE, setBaud250K());
   #if ALL(LCD_BED_TRAMMING, HAS_BED_PROBE)
     hmiData.fullManualTramming = DISABLED(BED_TRAMMING_USE_PROBE);
   #endif
@@ -1898,10 +1898,10 @@ void dwinSetDataDefaults() {
     hmiData.zAfterHoming = DEF_Z_AFTER_HOMING;
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    TERN_(LED_COLOR_PRESETS, leds.set_default());
+    IF_ENABLED(LED_COLOR_PRESETS, leds.set_default());
     applyLEDColor();
   #endif
-  TERN_(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
+  IF_ENABLED(HAS_GCODE_PREVIEW, hmiData.enablePreview = true);
 }
 
 void dwinCopySettingsTo(char * const buff) {
@@ -1912,9 +1912,9 @@ void dwinCopySettingsFrom(const char * const buff) {
   memcpy(&hmiData, buff, sizeof(hmi_data_t));
   if (hmiData.colorText == hmiData.colorBackground) dwinSetColorDefaults();
   DWINUI::setColors(hmiData.colorText, hmiData.colorBackground, hmiData.colorStatusBg);
-  TERN_(PREVENT_COLD_EXTRUSION, applyExtMinT());
+  IF_ENABLED(PREVENT_COLD_EXTRUSION, applyExtMinT());
   feedrate_percentage = 100;
-  TERN_(BAUD_RATE_GCODE, hmiSetBaudRate());
+  IF_ENABLED(BAUD_RATE_GCODE, hmiSetBaudRate());
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     leds.set_color(
       hmiData.ledColor.r,
@@ -2031,7 +2031,7 @@ void dwinRedrawScreen() {
     }
   }
   void dwinMeshViewer() {
-    TERN_(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview = false);
+    IF_ENABLED(USE_GRID_MESHVIEWER, bedLevelTools.grid_meshview = false);
     _dwinMeshViewer();
   }
   #if ENABLED(USE_GRID_MESHVIEWER)
@@ -2166,7 +2166,7 @@ void autoHome() { queue.inject_P(G28_STR); }
 
 #if HAS_ZOFFSET_ITEM
 
-  void applyZOffset() { TERN_(EEPROM_SETTINGS, settings.save()); }
+  void applyZOffset() { IF_ENABLED(EEPROM_SETTINGS, settings.save()); }
   void liveZOffset() {
     #if ANY(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
       const_float_t step_zoffset = round((menuData.value / 100.0f) * planner.settings.axis_steps_per_mm[Z_AXIS]) - babystep.accum;
@@ -2184,7 +2184,7 @@ void autoHome() { queue.inject_P(G28_STR); }
     #if ENABLED(Z_SAFE_HOMING)
       gcode.process_subcommands_now(MString<54>(F("G28XYO\nG28Z\nG0F5000X"), Z_SAFE_HOMING_X_POINT, F("Y"), Z_SAFE_HOMING_Y_POINT, F("\nG0Z0F300\nM400")));
     #else
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(false));
       gcode.process_subcommands_now(F("G28Z\nG0Z0F300\nM400"));
     #endif
     ui.reset_status();
@@ -2682,7 +2682,7 @@ void applyMaxAccel() { planner.set_max_acceleration(hmiValue.axis, menuData.valu
     void setMaxJerkE() { hmiValue.axis = E_AXIS; setFloatOnClick(min_jerk_edit_values.e, max_jerk_edit_values.e, UNITFDIGITS, planner.max_jerk.e, applyMaxJerk); }
   #endif
 #elif HAS_JUNCTION_DEVIATION
-  void applyJDmm() { TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk()); }
+  void applyJDmm() { IF_ENABLED(LIN_ADVANCE, planner.recalculate_max_e_jerk()); }
   void setJDmm() { setPFloatOnClick(MIN_JD_MM, MAX_JD_MM, 3, applyJDmm); }
 #endif
 
@@ -3656,10 +3656,10 @@ void drawTuneMenu() {
     checkkey = ID_Menu;
     if (SET_MENU(trinamicConfigMenu, MSG_TMC_DRIVERS, items)) {
       BACK_ITEM(drawAdvancedSettingsMenu);
-      TERN_(X_IS_TRINAMIC, EDIT_ITEM(ICON_TMCXSet, MSG_TMC_ACURRENT, onDrawPIntMenu, setXTMCCurrent, &stepperX.val_mA));
-      TERN_(Y_IS_TRINAMIC, EDIT_ITEM(ICON_TMCYSet, MSG_TMC_BCURRENT, onDrawPIntMenu, setYTMCCurrent, &stepperY.val_mA));
-      TERN_(Z_IS_TRINAMIC, EDIT_ITEM(ICON_TMCZSet, MSG_TMC_CCURRENT, onDrawPIntMenu, setZTMCCurrent, &stepperZ.val_mA));
-      TERN_(E0_IS_TRINAMIC, EDIT_ITEM(ICON_TMCESet, MSG_TMC_ECURRENT, onDrawPIntMenu, setETMCCurrent, &stepperE0.val_mA));
+      IF_ENABLED(X_IS_TRINAMIC, EDIT_ITEM(ICON_TMCXSet, MSG_TMC_ACURRENT, onDrawPIntMenu, setXTMCCurrent, &stepperX.val_mA));
+      IF_ENABLED(Y_IS_TRINAMIC, EDIT_ITEM(ICON_TMCYSet, MSG_TMC_BCURRENT, onDrawPIntMenu, setYTMCCurrent, &stepperY.val_mA));
+      IF_ENABLED(Z_IS_TRINAMIC, EDIT_ITEM(ICON_TMCZSet, MSG_TMC_CCURRENT, onDrawPIntMenu, setZTMCCurrent, &stepperZ.val_mA));
+      IF_ENABLED(E0_IS_TRINAMIC, EDIT_ITEM(ICON_TMCESet, MSG_TMC_ECURRENT, onDrawPIntMenu, setETMCCurrent, &stepperE0.val_mA));
     }
     updateMenu(trinamicConfigMenu);
   }
@@ -4081,11 +4081,11 @@ void drawMaxAccelMenu() {
     void setKp() { setPFloatOnClick(0, 1000, PID_FDIGITS); }
     void applyPIDi() {
       *menuData.floatPtr = scalePID_i(menuData.value / POW(10, PID_FDIGITS));
-      TERN_(PIDTEMP, thermalManager.updatePID());
+      IF_ENABLED(PIDTEMP, thermalManager.updatePID());
     }
     void applyPIDd() {
       *menuData.floatPtr = scalePID_d(menuData.value / POW(10, PID_FDIGITS));
-      TERN_(PIDTEMP, thermalManager.updatePID());
+      IF_ENABLED(PIDTEMP, thermalManager.updatePID());
     }
     void setKi() {
       menuData.floatPtr = (float*)static_cast<MenuItemPtr*>(currentMenu->selectedItem())->value;

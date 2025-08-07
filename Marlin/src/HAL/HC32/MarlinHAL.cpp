@@ -108,21 +108,21 @@ pin_t MarlinHAL::last_adc_pin;
 MarlinHAL::MarlinHAL() {}
 
 void MarlinHAL::watchdog_init() {
-  TERN_(USE_WATCHDOG, WDT.begin(5000)); // Reset on 5 second timeout
+  IF_ENABLED(USE_WATCHDOG, WDT.begin(5000)); // Reset on 5 second timeout
 }
 
 void MarlinHAL::watchdog_refresh() {
-  TERN_(USE_WATCHDOG, WDT.reload());
+  IF_ENABLED(USE_WATCHDOG, WDT.reload());
 }
 
 void MarlinHAL::init() {
   NVIC_SetPriorityGrouping(0x3);
 
   // Print clock frequencies to host serial
-  TERN_(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
+  IF_ENABLED(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
 
   // Register min serial
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial());
 
   // warn if low memory after init
   if (freeMemory() < 1024) {
@@ -185,11 +185,11 @@ uint8_t MarlinHAL::get_reset_source() {
 
   // Map reset cause code to those expected by Marlin
   // - Reset causes are flags, so multiple can be set
-  TERN_(MARLIN_DEV_MODE, printf("-- Reset Cause -- \n"));
+  IF_ENABLED(MARLIN_DEV_MODE, printf("-- Reset Cause -- \n"));
   uint8_t cause = 0;
   #define MAP_CAUSE(from, to)                                     \
     if (rstCause.from == Set) {                                   \
-      TERN_(MARLIN_DEV_MODE, printf(" - " STRINGIFY(from) "\n")); \
+      IF_ENABLED(MARLIN_DEV_MODE, printf(" - " STRINGIFY(from) "\n")); \
       cause |= to;                                                \
     }
 

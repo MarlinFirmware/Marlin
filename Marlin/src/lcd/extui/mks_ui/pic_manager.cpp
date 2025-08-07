@@ -513,7 +513,7 @@ uint32_t picInfoWrite(uint8_t *P_name, uint32_t P_size) {
         do {
           hal.watchdog_refresh();
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
-          TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
+          IF_ENABLED(MARLIN_DEV_MODE, totalSizes += pbr);
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
         } while (pbr >= SPI_FLASH_PageSize);
         SPIFlash.endWrite();

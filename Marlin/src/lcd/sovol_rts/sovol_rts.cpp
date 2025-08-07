@@ -269,8 +269,8 @@ void RTS::init() {
   last_zoffset = zprobe_zoffset = probe.offset.z;
   sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
-  TERN_(HAS_HOTEND, last_target_temperature[0] = thermalManager.degTargetHotend(0));
-  TERN_(HAS_HEATED_BED, last_target_temperature_bed = thermalManager.degTargetBed());
+  IF_ENABLED(HAS_HOTEND, last_target_temperature[0] = thermalManager.degTargetHotend(0));
+  IF_ENABLED(HAS_HEATED_BED, last_target_temperature_bed = thermalManager.degTargetBed());
 
   feedrate_percentage = 100;
   sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
@@ -753,7 +753,7 @@ void RTS::handleData() {
 
           sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
-          TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
+          IF_ENABLED(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
           feedrate_percentage = 100;
           sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
           zprobe_zoffset = last_zoffset;
@@ -887,14 +887,14 @@ void RTS::handleData() {
 
         case 3: // Go to Move Axis
           AxisUnitMode = 1;
-          TERN_(HAS_X_AXIS, sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
-          TERN_(HAS_Y_AXIS, sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
-          TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+          IF_ENABLED(HAS_X_AXIS, sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
+          IF_ENABLED(HAS_Y_AXIS, sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
+          IF_ENABLED(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
           gotoPage(ID_Move10_L, ID_Move10_D);
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
+          IF_ENABLED(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -1056,7 +1056,7 @@ void RTS::handleData() {
     case FilamentCheckKey:
       switch (recdat.data[0]) {
         case 1:
-          TERN_(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? ID_NoFilament_L : ID_Load_L, runout.filament_ran_out ? ID_NoFilament_D : ID_Load_D)); // TODO: add page enum
+          IF_ENABLED(CHECKFILAMENT, gotoPage(runout.filament_ran_out ? ID_NoFilament_L : ID_Load_L, runout.filament_ran_out ? ID_NoFilament_D : ID_Load_D)); // TODO: add page enum
           break;
         case 2:
           gotoPage(ID_Settings_L, ID_Settings_D);
@@ -1159,7 +1159,7 @@ void RTS::handleData() {
           sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
           delay(2);
 
-          TERN_(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
+          IF_ENABLED(BABYSTEPPING, sendData(0, AUTO_BED_LEVEL_ZOFFSET_VP));
 
           feedrate_percentage = 100;
           sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
@@ -1249,10 +1249,10 @@ void RTS::handleData() {
         } break;
 
         case 2: // Speed
-          TERN_(HAS_X_AXIS, sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
-          TERN_(HAS_Y_AXIS, sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
-          TERN_(HAS_Z_AXIS, sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
-          TERN_(HAS_HOTEND, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
+          IF_ENABLED(HAS_X_AXIS, sendData(planner.settings.max_feedrate_mm_s[X_AXIS], Vmax_X_VP));
+          IF_ENABLED(HAS_Y_AXIS, sendData(planner.settings.max_feedrate_mm_s[Y_AXIS], Vmax_Y_VP));
+          IF_ENABLED(HAS_Z_AXIS, sendData(planner.settings.max_feedrate_mm_s[Z_AXIS], Vmax_Z_VP));
+          IF_ENABLED(HAS_HOTEND, sendData(planner.settings.max_feedrate_mm_s[E_AXIS], Vmax_E_VP));
           gotoPage(ID_Velocity_L, ID_Velocity_D);
           break;
 
@@ -1260,9 +1260,9 @@ void RTS::handleData() {
           sendData(planner.settings.acceleration, Accel_VP);
           sendData(planner.settings.travel_acceleration, A_Travel_VP);
 
-          TERN_(HAS_X_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[X_AXIS], Amax_X_VP));
-          TERN_(HAS_Y_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP));
-          TERN_(HAS_Z_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP));
+          IF_ENABLED(HAS_X_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[X_AXIS], Amax_X_VP));
+          IF_ENABLED(HAS_Y_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Y_AXIS], Amax_Y_VP));
+          IF_ENABLED(HAS_Z_AXIS, sendData(planner.settings.max_acceleration_mm_per_s2[Z_AXIS], Amax_Z_VP));
           #if HAS_HOTEND
             sendData(planner.settings.retract_acceleration, A_Retract_VP);
             sendData(planner.settings.max_acceleration_mm_per_s2[E_AXIS], Amax_E_VP);
@@ -1272,19 +1272,19 @@ void RTS::handleData() {
 
         #if ENABLED(CLASSIC_JERK)
           case 4: // Jerk
-            TERN_(HAS_X_AXIS, sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
-            TERN_(HAS_Y_AXIS, sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
-            TERN_(HAS_Z_AXIS, sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
-            TERN_(HAS_HOTEND, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
+            IF_ENABLED(HAS_X_AXIS, sendData(planner.max_jerk.x * 10.0f, Jerk_X_VP));
+            IF_ENABLED(HAS_Y_AXIS, sendData(planner.max_jerk.y * 10.0f, Jerk_Y_VP));
+            IF_ENABLED(HAS_Z_AXIS, sendData(planner.max_jerk.z * 10.0f, Jerk_Z_VP));
+            IF_ENABLED(HAS_HOTEND, sendData(planner.max_jerk.e * 10.0f, Jerk_E_VP));
             gotoPage(ID_Jerk_L, ID_Jerk_D);
             break;
         #endif
 
         case 5: // Steps
-          TERN_(HAS_X_AXIS, sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP));
-          TERN_(HAS_Y_AXIS, sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
-          TERN_(HAS_Z_AXIS, sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
-          TERN_(HAS_HOTEND, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
+          IF_ENABLED(HAS_X_AXIS, sendData(planner.settings.axis_steps_per_mm[X_AXIS] * 10.0f, Steps_X_VP));
+          IF_ENABLED(HAS_Y_AXIS, sendData(planner.settings.axis_steps_per_mm[Y_AXIS] * 10.0f, Steps_Y_VP));
+          IF_ENABLED(HAS_Z_AXIS, sendData(planner.settings.axis_steps_per_mm[Z_AXIS] * 10.0f, Steps_Z_VP));
+          IF_ENABLED(HAS_HOTEND, sendData(planner.settings.axis_steps_per_mm[E_AXIS] * 10.0f, Steps_E_VP));
           gotoPage(ID_Steps_L, ID_Steps_D);
           break;
 
@@ -1397,25 +1397,25 @@ void RTS::handleData() {
       case TMCDriver:
         switch (recdat.data[0]) {
           case 1:  // Current
-            TERN_(X_IS_TRINAMIC, sendData(stepperX.getMilliamps(), Current_X_VP));
-            TERN_(Y_IS_TRINAMIC, sendData(stepperY.getMilliamps(), Current_Y_VP));
-            TERN_(Z_IS_TRINAMIC, sendData(stepperZ.getMilliamps(), Current_Z_VP));
-            TERN_(E0_IS_TRINAMIC, sendData(stepperE0.getMilliamps(), Current_E_VP));
+            IF_ENABLED(X_IS_TRINAMIC, sendData(stepperX.getMilliamps(), Current_X_VP));
+            IF_ENABLED(Y_IS_TRINAMIC, sendData(stepperY.getMilliamps(), Current_Y_VP));
+            IF_ENABLED(Z_IS_TRINAMIC, sendData(stepperZ.getMilliamps(), Current_Z_VP));
+            IF_ENABLED(E0_IS_TRINAMIC, sendData(stepperE0.getMilliamps(), Current_E_VP));
             gotoPage(ID_DriverA_L, ID_DriverA_D);
             break;
 
           case 2:  // Threshold
-            TERN_(X_HAS_STEALTHCHOP,  sendData(stepperX.get_pwm_thrs(), Threshold_X_VP));
-            TERN_(Y_HAS_STEALTHCHOP,  sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP));
-            TERN_(Z_HAS_STEALTHCHOP,  sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP));
-            TERN_(E0_HAS_STEALTHCHOP, sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP));
+            IF_ENABLED(X_HAS_STEALTHCHOP,  sendData(stepperX.get_pwm_thrs(), Threshold_X_VP));
+            IF_ENABLED(Y_HAS_STEALTHCHOP,  sendData(stepperY.get_pwm_thrs(), Threshold_Y_VP));
+            IF_ENABLED(Z_HAS_STEALTHCHOP,  sendData(stepperZ.get_pwm_thrs(), Threshold_Z_VP));
+            IF_ENABLED(E0_HAS_STEALTHCHOP, sendData(stepperE0.get_pwm_thrs(), Threshold_E_VP));
             gotoPage(ID_DriverTrsh_L, ID_DriverTrsh_D);
             break;
 
           #if ENABLED(SENSORLESS_HOMING)
             case 3:  // Sensorless
-              TERN_(X_SENSORLESS, sendData(stepperX.homing_threshold(), Sensorless_X_VP));
-              TERN_(Y_SENSORLESS, sendData(stepperY.homing_threshold(), Sensorless_Y_VP));
+              IF_ENABLED(X_SENSORLESS, sendData(stepperX.homing_threshold(), Sensorless_X_VP));
+              IF_ENABLED(Y_SENSORLESS, sendData(stepperY.homing_threshold(), Sensorless_Y_VP));
               gotoPage(ID_DriverSens_L, ID_DriverSens_D);
               break;
           #endif
@@ -1425,19 +1425,19 @@ void RTS::handleData() {
         }
         break;
 
-      case Current_X:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906X"), int(recdat.data[0])))); break;
-      case Threshold_X:  TERN_(X_HAS_STEALTHCHOP, queue.inject(TS(F("M913X"), int(recdat.data[0])))); break;
-      case Sensorless_X: TERN_(X_SENSORLESS,      queue.inject(TS(F("M914X"), int(recdat.data[0])))); break;
+      case Current_X:    IF_ENABLED(X_IS_TRINAMIC,     queue.inject(TS(F("M906X"), int(recdat.data[0])))); break;
+      case Threshold_X:  IF_ENABLED(X_HAS_STEALTHCHOP, queue.inject(TS(F("M913X"), int(recdat.data[0])))); break;
+      case Sensorless_X: IF_ENABLED(X_SENSORLESS,      queue.inject(TS(F("M914X"), int(recdat.data[0])))); break;
 
-      case Current_Y:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906Y"), int(recdat.data[0])))); break;
-      case Threshold_Y:  TERN_(Y_HAS_STEALTHCHOP, queue.inject(TS(F("M913Y"), int(recdat.data[0])))); break;
-      case Sensorless_Y: TERN_(Y_SENSORLESS,      queue.inject(TS(F("M914Y"), int(recdat.data[0])))); break;
+      case Current_Y:    IF_ENABLED(X_IS_TRINAMIC,     queue.inject(TS(F("M906Y"), int(recdat.data[0])))); break;
+      case Threshold_Y:  IF_ENABLED(Y_HAS_STEALTHCHOP, queue.inject(TS(F("M913Y"), int(recdat.data[0])))); break;
+      case Sensorless_Y: IF_ENABLED(Y_SENSORLESS,      queue.inject(TS(F("M914Y"), int(recdat.data[0])))); break;
 
-      case Current_Z:    TERN_(Z_IS_TRINAMIC,     queue.inject(TS(F("M906Z"), int(recdat.data[0])))); break;
-      case Threshold_Z:  TERN_(Z_HAS_STEALTHCHOP, queue.inject(TS(F("M913Z"), int(recdat.data[0])))); break;
+      case Current_Z:    IF_ENABLED(Z_IS_TRINAMIC,     queue.inject(TS(F("M906Z"), int(recdat.data[0])))); break;
+      case Threshold_Z:  IF_ENABLED(Z_HAS_STEALTHCHOP, queue.inject(TS(F("M913Z"), int(recdat.data[0])))); break;
 
-      case Current_E:    TERN_(AXIS_IS_TMC_E,     queue.inject(TS(F("M906E"), int(recdat.data[0])))); break;
-      case Threshold_E:  TERN_(E_HAS_STEALTHCHOP, queue.inject(TS(F("M913E"), int(recdat.data[0])))); break;
+      case Current_E:    IF_ENABLED(AXIS_IS_TMC_E,     queue.inject(TS(F("M906E"), int(recdat.data[0])))); break;
+      case Threshold_E:  IF_ENABLED(E_HAS_STEALTHCHOP, queue.inject(TS(F("M913E"), int(recdat.data[0])))); break;
 
     #endif // HAS_TRINAMIC_CONFIG
 
@@ -1503,7 +1503,7 @@ void RTS::handleData() {
 
       sendData(uint8_t(card.percentDone()), PRINT_PROCESS_VP);
 
-      TERN_(HAS_BED_PROBE, sendData(probe.offset.z * 100.0f, AUTO_BED_LEVEL_ZOFFSET_VP));
+      IF_ENABLED(HAS_BED_PROBE, sendData(probe.offset.z * 100.0f, AUTO_BED_LEVEL_ZOFFSET_VP));
 
       sendData(feedrate_percentage, PRINT_SPEED_RATE_VP);
       updateTempE0();
@@ -1524,7 +1524,7 @@ void RTS::sendPrinterInfo() {
   sendData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
   char printarea[20] = { '\0' };
   sprintf_P(printarea,
-    PSTR(TERN_(HAS_X_AXIS, "%d x") TERN_(HAS_Y_AXIS, " %d x") TERN_(HAS_Z_AXIS, " %d"))
+    PSTR(IF_ENABLED(HAS_X_AXIS, "%d x") IF_ENABLED(HAS_Y_AXIS, " %d x") IF_ENABLED(HAS_Z_AXIS, " %d"))
     , X_BED_SIZE, Y_BED_SIZE, Z_MAX_POS
   );
   sendData(printarea, PRINTER_PRINTSIZE_TEXT_VP);
@@ -1545,7 +1545,7 @@ void RTS::updateTempBed() {
 }
 
 void RTS::updateFan0() {
-  TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
+  IF_ENABLED(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
 }
 
 void RTS::onIdle() {
@@ -1622,7 +1622,7 @@ void RTS::onIdle() {
     queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
   }
 
-  TERN_(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+  IF_ENABLED(HAS_Z_AXIS, sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
 
   #if HAS_HOTEND
     if (last_target_temperature[0] != thermalManager.degTargetHotend(0))
@@ -1645,7 +1645,7 @@ void RTS::onIdle() {
   #endif
 
   #if HAS_FILAMENT_SENSOR
-    TERN_(CHECKFILAMENT, sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP));
+    IF_ENABLED(CHECKFILAMENT, sendData(!runout.filament_ran_out, CHANGE_FILAMENT_ICON_VP));
   #endif
 }
 
@@ -1685,7 +1685,7 @@ void RTS_Update() {
         rts.sendData(1, Wait_VP);
         rts.gotoPage(ID_Processing_L, ID_Processing_D);
         waitway = 5;
-        TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
+        IF_ENABLED(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false));
       }
       card.pauseSDPrint();
       print_job_timer.pause();
@@ -1735,9 +1735,9 @@ void RTS_MoveAxisHoming() {
     waitway = 0;
   }
 
-  TERN_(HAS_X_AXIS, rts.sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
-  TERN_(HAS_Y_AXIS, rts.sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
-  TERN_(HAS_Z_AXIS, rts.sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
+  IF_ENABLED(HAS_X_AXIS, rts.sendData(current_position.x * 10.0f, AXIS_X_COORD_VP));
+  IF_ENABLED(HAS_Y_AXIS, rts.sendData(current_position.y * 10.0f, AXIS_Y_COORD_VP));
+  IF_ENABLED(HAS_Z_AXIS, rts.sendData(current_position.z * 10.0f, AXIS_Z_COORD_VP));
 }
 
 #endif // SOVOL_SV06_RTS

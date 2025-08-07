@@ -128,7 +128,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
 
-      TERN_(HAS_MEDIA, file_count = search_file());
+      IF_ENABLED(HAS_MEDIA, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage--;
         lv_clear_print_file();
@@ -140,7 +140,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     if (dir_offset[curDirLever].cur_page_last_offset > 0) {
       list_file.Sd_file_cnt    = 0;
       list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
-      TERN_(HAS_MEDIA, file_count = search_file());
+      IF_ENABLED(HAS_MEDIA, file_count = search_file());
       if (file_count != 0) {
         dir_offset[curDirLever].curPage++;
         lv_clear_print_file();
@@ -155,13 +155,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
       if (ch) {
         *ch = 0;
-        TERN_(HAS_MEDIA, card.cdup());
+        IF_ENABLED(HAS_MEDIA, card.cdup());
         dir_offset[curDirLever].curPage               = 0;
         dir_offset[curDirLever].cur_page_first_offset = 0;
         dir_offset[curDirLever].cur_page_last_offset  = 0;
         curDirLever--;
         list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-        TERN_(HAS_MEDIA, file_count = search_file());
+        IF_ENABLED(HAS_MEDIA, file_count = search_file());
         lv_clear_print_file();
         disp_gcode_icon(file_count);
       }
@@ -179,7 +179,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             strcpy(list_file.curDirPath, list_file.file_name[i]);
             curDirLever++;
             list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-            TERN_(HAS_MEDIA, file_count = search_file());
+            IF_ENABLED(HAS_MEDIA, file_count = search_file());
             lv_clear_print_file();
             disp_gcode_icon(file_count);
           }
@@ -433,7 +433,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
   #endif // HAS_MEDIA
 }
 
-void lv_close_gcode_file() {TERN_(HAS_MEDIA, card.closefile());}
+void lv_close_gcode_file() {IF_ENABLED(HAS_MEDIA, card.closefile());}
 
 void lv_gcode_file_seek(uint32_t pos) {
   card.setIndex(pos);

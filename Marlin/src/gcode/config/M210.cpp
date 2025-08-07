@@ -77,7 +77,7 @@ void GcodeSuite::M210() {
 }
 
 void GcodeSuite::M210_report(const bool forReplay/*=true*/) {
-  TERN_(MARLIN_SMALL_BUILD, return);
+  IF_ENABLED(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_HOMING_FEEDRATE));
 

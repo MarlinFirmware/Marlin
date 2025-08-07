@@ -63,10 +63,10 @@ void MarlinHAL::init() {
   SetTimerInterruptPriorities();
 
   // Print clock frequencies to host serial
-  TERN_(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
+  IF_ENABLED(MARLIN_DEV_MODE, HAL_clock_frequencies_dump());
 
   // Register min serial
-  TERN_(POSTMORTEM_DEBUGGING, install_min_serial());
+  IF_ENABLED(POSTMORTEM_DEBUGGING, install_min_serial());
 }
 
 // Returns the reset source based on the flags set in the RCU module

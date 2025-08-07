@@ -514,7 +514,7 @@ void MarlinUI::clear_for_drawing() { clear_lcd(); }
   }
 
   void MarlinUI::show_bootscreen() {
-    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+    IF_ENABLED(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
 
     set_custom_characters(CHARSET_BOOT);
     lcd.clear();
@@ -1015,9 +1015,9 @@ void MarlinUI::draw_status_screen() {
 
       #endif
 
-      TERN_(HAS_COOLER, _draw_cooler_status('*', blink));
-      TERN_(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
-      TERN_(I2C_AMMETER, _draw_ammeter_status());
+      IF_ENABLED(HAS_COOLER, _draw_cooler_status('*', blink));
+      IF_ENABLED(LASER_COOLANT_FLOW_METER, _draw_flowmeter_status());
+      IF_ENABLED(I2C_AMMETER, _draw_ammeter_status());
 
     #endif // LCD_WIDTH >= 20
 
@@ -1028,7 +1028,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH < 20
 
         #if HAS_PRINT_PROGRESS
-          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 1));
+          IF_ENABLED(SHOW_PROGRESS_PERCENT, setPercentPos(0, 1));
           rotate_progress();
         #endif
 
@@ -1088,7 +1088,7 @@ void MarlinUI::draw_status_screen() {
                 _draw_axis_value(X_AXIS, ftostr4sign(lpos.x), blink);
               #endif
               #if HAS_Y_AXIS
-                TERN_(HAS_X_AXIS, lcd_put_u8str(F(" ")));
+                IF_ENABLED(HAS_X_AXIS, lcd_put_u8str(F(" ")));
                 _draw_axis_value(Y_AXIS, ftostr4sign(lpos.y), blink);
               #endif
             }
@@ -1120,7 +1120,7 @@ void MarlinUI::draw_status_screen() {
       #if LCD_WIDTH >= 20
 
         #if HAS_PRINT_PROGRESS
-          TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(6, 2));
+          IF_ENABLED(SHOW_PROGRESS_PERCENT, setPercentPos(6, 2));
           rotate_progress();
         #else
           char c;
@@ -1203,7 +1203,7 @@ void MarlinUI::draw_status_screen() {
       _draw_bed_status(blink);
     #elif HAS_PRINT_PROGRESS
       #define DREW_PRINT_PROGRESS 1
-      TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(0, 2));
+      IF_ENABLED(SHOW_PROGRESS_PERCENT, setPercentPos(0, 2));
       rotate_progress();
     #endif
 
@@ -1211,7 +1211,7 @@ void MarlinUI::draw_status_screen() {
     // All progress strings
     //
     #if HAS_PRINT_PROGRESS && !DREW_PRINT_PROGRESS
-      TERN_(SHOW_PROGRESS_PERCENT, setPercentPos(LCD_WIDTH - 9, 2));
+      IF_ENABLED(SHOW_PROGRESS_PERCENT, setPercentPos(LCD_WIDTH - 9, 2));
       rotate_progress();
     #endif
 

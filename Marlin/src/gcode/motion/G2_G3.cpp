@@ -425,7 +425,7 @@ void plan_arc(
 void GcodeSuite::G2_G3(const bool clockwise) {
   if (!MOTION_CONDITIONS) return;
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_RUNNING));
 
   #if ENABLED(SF_ARC_FIX)
     const bool relative_mode_backup = relative_mode;
@@ -434,7 +434,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
   get_destination_from_command();   // Get X Y [Z[I[J[K...]]]] [E] F (and set cutter power)
 
-  TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
+  IF_ENABLED(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
   ab_float_t arc_offset = { 0, 0 };
   if (parser.seenval('R')) {
@@ -486,7 +486,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
   else
     SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
 
-  TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
+  IF_ENABLED(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
 }
 
 #endif // ARC_SUPPORT

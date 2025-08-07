@@ -107,7 +107,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
     case ID_M_RETURN:
       probe.offset.z = z_offset_backup;
       SET_SOFT_ENDSTOP_LOOSE(false);
-      TERN_(HAS_LEVELING, set_bed_leveling_enabled(mks_leveling_was_active));
+      IF_ENABLED(HAS_LEVELING, set_bed_leveling_enabled(mks_leveling_was_active));
       // On cancel the Z position needs correction
       #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
         set_axis_never_homed(Z_AXIS);

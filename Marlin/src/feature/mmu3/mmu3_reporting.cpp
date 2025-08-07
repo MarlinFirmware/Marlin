@@ -480,7 +480,7 @@ namespace MMU3 {
       }
       else if (result == 2) {
         // Exit error screen and enable lcd updates
-        TERN_(HAS_WIRED_LCD, ui.return_to_status());
+        IF_ENABLED(HAS_WIRED_LCD, ui.return_to_status());
         sound_wait_for_user_reset();
         // Reset the state in case a new error is reported
         is_mmu_error_monitor_active = false;
@@ -490,7 +490,7 @@ namespace MMU3 {
       return; // Always return to loop() to let MMU trigger a call to ReportErrorHook again
     }
     else if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::DISMISS_ERROR_SCREEN) {
-      TERN_(HAS_WIRED_LCD, ui.return_to_status());
+      IF_ENABLED(HAS_WIRED_LCD, ui.return_to_status());
       sound_wait_for_user_reset();
       // Reset the state in case a new error is reported
       is_mmu_error_monitor_active = false;
@@ -544,7 +544,7 @@ namespace MMU3 {
 
   void TryLoadUnloadReporter::DumpToSerial() {
     char buf[LCD_WIDTH + 1];
-    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf));
+    IF_ENABLED(HAS_WIRED_LCD, ui.status_message.copyto(buf));
     for (uint8_t i = 0; i < sizeof(buf); i++) {
       // 0xFF is -1 when converting from unsigned to signed char
       // If the number is negative, that means filament is present
@@ -598,7 +598,7 @@ namespace MMU3 {
   }
 
   void ScreenUpdateEnable() {
-    TERN_(HAS_WIRED_LCD, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
+    IF_ENABLED(HAS_WIRED_LCD, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
   }
 
   void ScreenClear() { ui.clear_lcd(); }

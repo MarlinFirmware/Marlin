@@ -664,7 +664,7 @@ void MarlinHAL::dma_init() {
 
 // HAL initialization task
 void MarlinHAL::init() {
-  TERN_(DMA_IS_REQUIRED, dma_init());
+  IF_ENABLED(DMA_IS_REQUIRED, dma_init());
   #if HAS_MEDIA
     #if HAS_SD_DETECT && SD_CONNECTION_IS(ONBOARD)
       SET_INPUT_PULLUP(SD_DETECT_PIN);

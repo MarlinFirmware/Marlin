@@ -79,7 +79,7 @@ void GCodeParser::reset() {
   string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
-  TERN_(USE_GCODE_SUBCODES, subcode = 0); // No command sub-code
+  IF_ENABLED(USE_GCODE_SUBCODES, subcode = 0); // No command sub-code
   #if ENABLED(FASTER_GCODE_PARSER)
     codebits = 0;                       // No codes yet
     //ZERO(param);                      // No parameters (should be safe to comment out this line)
@@ -123,7 +123,7 @@ void GCodeParser::parse(char *p) {
 
   // Skip N[-0-9] if included in the command line
   if (uppercase(*p) == 'N' && NUMERIC_SIGNED(p[1])) {
-    //TERN_(FASTER_GCODE_PARSER, set('N', p + 1)); // (optional) Set the 'N' parameter value
+    //IF_ENABLED(FASTER_GCODE_PARSER, set('N', p + 1)); // (optional) Set the 'N' parameter value
     p += 2;                  // skip N[-0-9]
     while (NUMERIC(*p)) ++p; // skip [0-9]*
     while (*p == ' ')   ++p; // skip [ ]*
@@ -171,7 +171,7 @@ void GCodeParser::parse(char *p) {
    * With Motion Modes enabled any axis letter can come first.
    */
   switch (letter) {
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':) {
+    case 'G': case 'M': case 'T': IF_ENABLED(MARLIN_DEV_MODE, case 'D':) {
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -210,7 +210,7 @@ void GCodeParser::parse(char *p) {
       do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
 
       // Apply the sign, if any
-      TERN_(SIGNED_CODENUM, codenum *= sign);
+      IF_ENABLED(SIGNED_CODENUM, codenum *= sign);
 
       // Allow for decimal point in command
       #if USE_GCODE_SUBCODES
@@ -229,7 +229,7 @@ void GCodeParser::parse(char *p) {
           && (codenum <= TERN(ARC_SUPPORT, 3, 1) || TERN0(BEZIER_CURVE_SUPPORT, codenum == 5) || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
           motion_mode_codenum = codenum;
-          TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
+          IF_ENABLED(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
         }
       #endif
 
@@ -257,7 +257,7 @@ void GCodeParser::parse(char *p) {
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
-        TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
+        IF_ENABLED(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
         break;
 
@@ -272,11 +272,11 @@ void GCodeParser::parse(char *p) {
 
   // Only use string_arg for these M codes
   if (letter == 'M') switch (codenum) {
-    TERN_(EXPECTED_PRINTER_CHECK, case 16:)
-    TERN_(HAS_MEDIA, case 23: case 28: case 30: case 928:)
-    TERN_(HAS_STATUS_MESSAGE, case 117:)
-    TERN_(HAS_RS485_SERIAL, case 485:)
-    TERN_(GCODE_MACROS, case 810 ... 819:)
+    IF_ENABLED(EXPECTED_PRINTER_CHECK, case 16:)
+    IF_ENABLED(HAS_MEDIA, case 23: case 28: case 30: case 928:)
+    IF_ENABLED(HAS_STATUS_MESSAGE, case 117:)
+    IF_ENABLED(HAS_RS485_SERIAL, case 485:)
+    IF_ENABLED(GCODE_MACROS, case 810 ... 819:)
     case 118:
       string_arg = unescape_string(p);
       return;
@@ -354,7 +354,7 @@ void GCodeParser::parse(char *p) {
 
       if (TERN0(DEBUG_GCODE_PARSER, debug)) SERIAL_EOL();
 
-      TERN_(FASTER_GCODE_PARSER, set(param, valptr)); // Set parameter exists and pointer (nullptr for no value)
+      IF_ENABLED(FASTER_GCODE_PARSER, set(param, valptr)); // Set parameter exists and pointer (nullptr for no value)
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
       string_arg = p - 1;

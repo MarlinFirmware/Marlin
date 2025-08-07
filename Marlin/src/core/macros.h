@@ -184,6 +184,38 @@
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
 
+// Primitives supporting precompiler REPEAT
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
+
+// Defer expansion
+#define EMPTY()
+#define DEFER(M)  M EMPTY()
+#define DEFER2(M) M EMPTY EMPTY()()
+#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
+#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
+
+#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
+#define PROBE() ~, 1                    // Second item will be 1 if this is passed
+#define _NOT_0 PROBE()
+#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
+#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
+
+#define _IF_ELSE(TF) _CAT(_IF_, TF)
+#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
+
+#define _IF_1(V...) V OMIT
+#define _IF_0(...)    EMIT
+
+#define _END_OF_ARGUMENTS_() 0
+#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
+
 // Recognize "true" values: blank, 1, 0x1, true
 #define _ISENA_     ~,1
 #define _ISENA_1    ~,1
@@ -202,27 +234,28 @@
 #define COUNT_ENABLED(V...) DO(ENA,+,V)
 #define MANY(V...)          (COUNT_ENABLED(V) > 1)
 
-// Ternary pre-compiler macros conceal non-emitted content from the compiler
-#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
-#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
-#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
-#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
-#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
-#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
-#define IF_DISABLED(O,A)    TERN(O,,A)
-
 // "Ternary" that emits or omits the given content
 #define EMIT(V...) V
 #define OMIT(...)
-#define TERN_(O,A)          _TERN(_ENA_1(O),OMIT,EMIT)(A) // OPTION ? 'A' : '<nul>'
+
+// Ternary Pre-compiler Macros
+// Conceal non-emitted content from the compiler
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION ? 'A' : 'B'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION ? 'A' : '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION ? 'A' : '1'
+#define IF_ENABLED(O,A)     _TERN(_ENA_1(O),OMIT,EMIT)(A) // OPTION ? 'A' : '<nul>'
+#define IF_DISABLED(O,A)    TERN(O,,A)              // OPTION ?: 'A'
 
 // Macros to conditionally emit array items and function arguments
 #define _OPTITEM(A...)      A,
-#define OPTITEM(O,A...)     TERN_(O,DEFER(_OPTITEM)(A))
+#define OPTITEM(O,A...)     IF_ENABLED(O,DEFER(_OPTITEM)(A))
 #define _OPTARG(A...)       , A
-#define OPTARG(O,A...)      TERN_(O,DEFER(_OPTARG)(A))
+#define OPTARG(O,A...)      IF_ENABLED(O,DEFER(_OPTARG)(A))
 #define _OPTCODE(A)         A;
-#define OPTCODE(O,A)        TERN_(O,DEFER(_OPTCODE)(A))
+#define OPTCODE(O,A)        IF_ENABLED(O,DEFER(_OPTCODE)(A))
 
 // Macros to avoid operations that aren't always optimized away (e.g., 'f + 0.0' and 'f * 1.0').
 // Compiler flags -fno-signed-zeros -ffinite-math-only also cover 'f * 1.0', 'f - f', etc.
@@ -656,20 +689,6 @@
 #define SUB9(N)  SUB4(SUB5(N))
 #define SUB10(N) SUB5(SUB5(N))
 
-//
-// Primitives supporting precompiler REPEAT
-//
-#define FIRST(a,...)     a
-#define SECOND(a,b,...)  b
-#define THIRD(a,b,c,...) c
-
-// Defer expansion
-#define EMPTY()
-#define DEFER(M)  M EMPTY()
-#define DEFER2(M) M EMPTY EMPTY()()
-#define DEFER3(M) M EMPTY EMPTY EMPTY()()()
-#define DEFER4(M) M EMPTY EMPTY EMPTY EMPTY()()()()
-
 // Force define expansion
 #define EVAL(V...)     EVAL16(V)
 #define EVAL4096(V...) EVAL2048(EVAL2048(V))
@@ -685,26 +704,6 @@
 #define EVAL4(V...)    EVAL2(EVAL2(V))
 #define EVAL2(V...)    EVAL1(EVAL1(V))
 #define EVAL1(V...)    V
-
-#define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
-#define PROBE() ~, 1                    // Second item will be 1 if this is passed
-#define _NOT_0 PROBE()
-#define NOT(x) IS_PROBE(_CAT(_NOT_, x)) //   NOT('0') gets '1'. Anything else gets '0'.
-#define _BOOL(x) NOT(NOT(x))            // _BOOL('0') gets '0'. Anything else gets '1'.
-
-#define IF_ELSE(TF) _IF_ELSE(_BOOL(TF))
-#define _IF_ELSE(TF) _CAT(_IF_, TF)
-
-#define _IF_1(V...) V OMIT
-#define _IF_0(...)    EMIT
-
-#define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
-#define _END_OF_ARGUMENTS_() 0
-
-// Simple Inline IF Macros, friendly to use in other macro definitions
-#define IF(O, A, B) ((O) ? (A) : (B))
-#define IF_0(O, A) IF(O, A, 0)
-#define IF_1(O, A) IF(O, A, 1)
 
 //
 // REPEAT core macros. Recurse N times with ascending I.
