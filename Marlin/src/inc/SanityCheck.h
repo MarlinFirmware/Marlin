@@ -1028,8 +1028,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #undef MPC_AUTOTUNE_MENU
   #undef MPC_PTC
 #endif
-#ifdef PID_MAX
-  static_assert(PID_MAX >= 0 && PID_MAX < 256, "PID_MAX must be >= 0 and < 256.");
+#if !WITHIN(PID_MAX, 0, 255)
+  #error "PID_MAX must be an integer from 0 to 255."
 #endif
 
 #if ENABLED(MPC_INCLUDE_FAN)
@@ -1051,8 +1051,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #if ALL(PIDTEMPBED, BED_LIMIT_SWITCHING)
   #error "To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED."
 #endif
-#ifdef MAX_BED_POWER
-  static_assert(MAX_BED_POWER >= 0 && MAX_BED_POWER < 256, "MAX_BED_POWER must be >= 0 and < 256.");
+#if !WITHIN(MAX_BED_POWER, 0, 255)
+  #error "MAX_BED_POWER must be an integer from 0 to 255."
 #endif
 
 // Fan Kickstart power
