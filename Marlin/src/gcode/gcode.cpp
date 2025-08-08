@@ -70,7 +70,7 @@ GcodeSuite gcode;
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extui/ui_api.h"
+  #include "../lcd/extui/ui_api.h" // for ExtUI::onLevelingDone
 #endif
 
 #include "../MarlinCore.h" // for idle, kill
