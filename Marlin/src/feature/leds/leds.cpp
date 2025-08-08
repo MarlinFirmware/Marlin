@@ -163,7 +163,7 @@ void LEDLights::set_color(const LED1Color_t &incol
   #if ENABLED(NEOPIXEL_LED)
 
     const uint32_t neocolor = LEDColorWhite() == incol
-                            ? neo.Color(NEO_WHITE)
+                            ? neo.White()
                             : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED, incol.w));
 
     #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
@@ -279,7 +279,7 @@ void LEDLights::set_color(const LED1Color_t &incol
 
   void LEDLights2::set_color(const LED2Color_t &incol) {
     const uint32_t neocolor = LEDColorWhite2() == incol
-                            ? neo2.Color(NEO2_WHITE)
+                            ? neo2.White()
                             : neo2.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED2, incol.w));
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);

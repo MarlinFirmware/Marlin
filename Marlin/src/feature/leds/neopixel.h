@@ -48,12 +48,6 @@
   #define HAS_WHITE_LED 1
 #endif
 
-#if HAS_WHITE_LED
-  #define NEO_WHITE 0, 0, 0, 255
-#else
-  #define NEO_WHITE 255, 255, 255
-#endif
-
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
@@ -141,8 +135,17 @@ public:
 
   static uint8_t brightness() { return adaneo1.getBrightness(); }
 
-  static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w)) {
+  static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED, uint8_t w=0)) {
     return adaneo1.Color(r, g, b OPTARG(HAS_WHITE_LED, w));
+  }
+  static uint32_t White() {
+    return Color(
+      #if HAS_WHITE_LED
+        0, 0, 0, 255
+      #else
+        255, 255, 255
+      #endif
+    );
   }
 };
 
@@ -152,12 +155,7 @@ extern Marlin_NeoPixel neo;
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
   #if _NEO_IS_RGB(NEOPIXEL2_TYPE)
-    #define NEOPIXEL2_IS_RGB 1
-    #define NEO2_WHITE 255, 255, 255
-  #else
-    #define NEOPIXEL2_IS_RGBW 1
     #define HAS_WHITE_LED2 1      // A white component can be passed for NEOPIXEL2
-    #define NEO2_WHITE 0, 0, 0, 255
   #endif
 
   class Marlin_NeoPixel2 {
@@ -184,8 +182,17 @@ extern Marlin_NeoPixel neo;
     static uint16_t pixels() { return adaneo.numPixels();}
     static uint32_t pixel_color(const uint16_t n) { return adaneo.getPixelColor(n); }
     static uint8_t brightness() { return adaneo.getBrightness(); }
-    static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w)) {
+    static uint32_t Color(uint8_t r, uint8_t g, uint8_t b OPTARG(HAS_WHITE_LED2, uint8_t w=0)) {
       return adaneo.Color(r, g, b OPTARG(HAS_WHITE_LED2, w));
+    }
+    static uint32_t White() {
+      return Color(
+        #if HAS_WHITE_LED2
+          0, 0, 0, 255
+        #else
+          255, 255, 255
+        #endif
+      );
     }
   };
 
