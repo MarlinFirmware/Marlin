@@ -1020,11 +1020,41 @@
   #define HAS_RESUME_CONTINUE 1
 #endif
 
+// Color LEDs (with optional White channel)
+
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
+
+#ifndef NEO_RGB
+  #define NEO_UNDEF
+  #define NEO_RGB 100
+  #define NEO_RBG 101
+  #define NEO_GRB 102
+  #define NEO_GBR 103
+  #define NEO_BRG 104
+  #define NEO_BGR 105
+#endif
+#define _NEO_IS_RGB(N) (N == NEO_RGB || N == NEO_RBG || N == NEO_GRB || N == NEO_GBR || N == NEO_BRG || N == NEO_BGR)
+#if ANY(RGBW_LED, PCA9632_RGBW) || (defined(NEOPIXEL_TYPE) && !_NEO_IS_RGB(NEOPIXEL_TYPE)) || (defined(NEOPIXEL2_TYPE) && !_NEO_IS_RGB(NEOPIXEL2_TYPE))
+  #define HAS_WHITE_LED 1
+#endif
+#if ENABLED(NEOPIXEL2_SEPARATE) && _NEO_IS_RGB(NEOPIXEL2_TYPE)
+  #define HAS_WHITE_LED2 1
+#endif
+#undef _NEO_IS_RGB
+#ifdef NEO_UNDEF
+  #undef NEO_UNDEF
+  #undef NEO_RGB
+  #undef NEO_RBG
+  #undef NEO_GRB
+  #undef NEO_GBR
+  #undef NEO_BRG
+  #undef NEO_BGR
+#endif
+
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif

@@ -42,12 +42,6 @@
 // Defines
 // ------------------------
 
-#define _NEO_IS_RGB(N) (N == NEO_RGB || N == NEO_RBG || N == NEO_GRB || N == NEO_GBR || N == NEO_BRG || N == NEO_BGR)
-
-#if !_NEO_IS_RGB(NEOPIXEL_TYPE)
-  #define HAS_WHITE_LED 1
-#endif
-
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
@@ -154,10 +148,6 @@ extern Marlin_NeoPixel neo;
 // Neo pixel channel 2
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
-  #if _NEO_IS_RGB(NEOPIXEL2_TYPE)
-    #define HAS_WHITE_LED2 1      // A white component can be passed for NEOPIXEL2
-  #endif
-
   class Marlin_NeoPixel2 {
   private:
     static Adafruit_NeoPixel adaneo;
@@ -199,5 +189,3 @@ extern Marlin_NeoPixel neo;
   extern Marlin_NeoPixel2 neo2;
 
 #endif // NEOPIXEL2_SEPARATE
-
-#undef _NEO_IS_RGB
