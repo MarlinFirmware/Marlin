@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_USB_FLASH_DRIVE && DISABLED(USE_UHS3_USB)
+#if ALL(HAS_USB_FLASH_DRIVE, USE_UHS2_USB)
 
 #include "masstorage.h"
 
@@ -1204,4 +1204,4 @@ uint8_t BulkOnly::Read(uint8_t lun __attribute__((unused)), uint32_t addr __attr
   #endif
 }
 
-#endif // HAS_USB_FLASH_DRIVE && !USE_UHS3_USB
+#endif // HAS_USB_FLASH_DRIVE && USE_UHS2_USB

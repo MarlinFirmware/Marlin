@@ -70,7 +70,7 @@ private:
     static void move_z_with_encoder(const_float_t multiplier);
     static float measure_point_with_encoder();
     static float measure_business_card_thickness();
-    static void manually_probe_remaining_mesh(const xy_pos_t&, const_float_t , const_float_t , const bool) __O0;
+    static void manually_probe_remaining_mesh(const xy_pos_t&, const_float_t, const_float_t, const bool) __O0;
     static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) __O0;
   #endif
 

@@ -38,19 +38,19 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_YES                            = _UxGT("SIM");
   LSTR MSG_NO                             = _UxGT("NÃO");
   LSTR MSG_BACK                           = _UxGT("Voltar");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abortando...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Aguardando cartão");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Erro de leitura");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB removido");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB falhou");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB removido");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB falhou");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Fins de curso");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Fins curso");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Config. Avançada");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuração");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Início automático");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Desabilit. motores");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Menu Debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Testar Barra Progres");
@@ -321,14 +321,14 @@ namespace LanguageNarrow_pt_br {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Descarreg. Filamento");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Descarreg. Filamento *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Descarregar Todos");
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Iniciar cartão SD");
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Iniciar flash USB");
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Iniciar cartão SD");
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Iniciar cartão SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Iniciar cartão SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Iniciar flash USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar SD");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Liberar SD");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Início automático");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda fora da mesa");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Fator de Cisalho");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");

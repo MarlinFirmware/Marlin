@@ -59,7 +59,7 @@ char* hex_address(const void * const a) {
 void print_hex_nybble(const uint8_t n)       { SERIAL_CHAR(hex_nybble(n));  }
 void print_hex_byte(const uint8_t b)         { SERIAL_ECHO(hex_byte(b));    }
 void print_hex_word(const uint16_t w)        { SERIAL_ECHO(_hex_word(w));    }
-void print_hex_address(const void * const w) { SERIAL_ECHO(hex_address(w)); }
+void print_hex_address(const void * const a) { SERIAL_ECHO(hex_address(a)); }
 
 void print_hex_long(const uint32_t w, const char delimiter/*='\0'*/, const bool prefix/*=false*/) {
   if (prefix) SERIAL_ECHOPGM("0x");

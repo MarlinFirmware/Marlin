@@ -56,7 +56,7 @@ class WriteSource:
       data.append(0)
     # Combine each two adjacent values into one
     i = iter(data)
-    data = list(map(lambda a, b: a << 4 | b, i ,i))
+    data = list(map(lambda a, b: a << 4 | b, i, i))
     # Pack the data
     data = pack_rle(data)
     # Convert values into hex strings

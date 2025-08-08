@@ -88,7 +88,7 @@ void printer_state_polling() {
   }
 
   if (uiCfg.print_state == RESUMING) {
-    if (IS_SD_PAUSED()) {
+    if (card.isPaused()) {
       if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
         sprintf_P(public_buf_m, PSTR("G1 X%s Y%s"), dtostrf(uiCfg.current_x_position_bak, 1, 1, str_1), dtostrf(uiCfg.current_y_position_bak, 1, 1, str_1));
         gcode.process_subcommands_now(public_buf_m);

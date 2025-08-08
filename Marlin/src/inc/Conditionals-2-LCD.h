@@ -36,12 +36,6 @@
 #if ENABLED(SDSUPPORT)
   #define HAS_MEDIA 1
 #endif
-#if ENABLED(MULTI_VOLUME)
-  #define HAS_MULTI_VOLUME 1
-#endif
-#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
-  #define HAS_USB_FLASH_DRIVE 1
-#endif
 
 //
 // Serial Port Info
@@ -78,7 +72,7 @@
   #define MKS_MINI_12864
 #endif
 
-// MKS_MINI_12864_V3 , BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
+// MKS_MINI_12864_V3, BTT_MINI_12864 and BEEZ_MINI_12864 are nearly identical to FYSETC_MINI_12864_2_1
 #if ANY(MKS_MINI_12864_V3, BTT_MINI_12864, BEEZ_MINI_12864)
   #define FYSETC_MINI_12864_2_1
 #endif
@@ -201,7 +195,7 @@
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_ULTIPANEL 1
-  #define ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -248,7 +242,7 @@
 
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
-  #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
+  #define LCD_RESET_PIN LCD_PINS_D6         // ULTI_CONTROLLER needs a reset pin
   #define STD_ENCODER_PULSES_PER_STEP 4
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #ifndef PCA9632
@@ -667,14 +661,6 @@
 // Slim menu optimizations
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
-#endif
-
-// Flow and feedrate editing
-#if HAS_EXTRUDERS && ANY(HAS_MARLINUI_MENU, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
-  #define HAS_FLOW_EDIT 1
-#endif
-#if ANY(HAS_MARLINUI_MENU, ULTIPANEL_FEEDMULTIPLY, DWIN_CREALITY_LCD, DWIN_LCD_PROUI, MALYAN_LCD, TOUCH_SCREEN)
-  #define HAS_FEEDRATE_EDIT 1
 #endif
 
 /**

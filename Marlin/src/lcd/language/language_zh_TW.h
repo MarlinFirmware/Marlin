@@ -37,19 +37,19 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_YES                            = _UxGT("是"); // "YES"
   LSTR MSG_NO                             = _UxGT("否"); // "NO"
   LSTR MSG_BACK                           = _UxGT("返回"); // "Back"
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("正在中止..."); // "Aborting..."
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("記憶卡已插入"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("記憶卡被拔出"); // "Card removed"
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("等待記憶卡"); // "Waiting for media"
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("記憶卡讀取錯誤"); //"Media read error"
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB裝置已移除"); // "USB device removed"
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB啟動失敗"); // "USB start failed"
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB裝置已移除"); // "USB device removed"
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB啟動失敗"); // "USB start failed"
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("擋塊"); // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("軟體擋塊"); // "Soft Endstops"
   LSTR MSG_MAIN_MENU                      = _UxGT("主選單"); // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("進階設置"); // "Advanced Settings"
   LSTR MSG_CONFIGURATION                  = _UxGT("設置"); //Configuration
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自動開始"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("關閉步進馬達"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("除錯選單"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("進度條測試"); // "Progress Bar Test"
@@ -350,14 +350,14 @@ namespace LanguageNarrow_zh_TW {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("卸載絲料"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("卸載絲料 *"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("卸載全部"); // "Unload All"
-  #if HAS_MULTI_VOLUME
-    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("挂载記憶卡"); // "Attach SD Card"
-    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("挂载隨身碟"); // "Attach USB Drive"
-  #else
-    LSTR MSG_ATTACH_MEDIA                 = _UxGT("連接記憶卡"); // "Attach Media"
-  #endif
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("連接記憶卡"); // "Attach Media"
+  LSTR MSG_ATTACH_SD                      = _UxGT("挂载記憶卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("挂载隨身碟"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更換記憶卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("釋放媒體"); // "Release Media"
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("自動開始"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探針在熱床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因數"); // "Skew Factor"
 
