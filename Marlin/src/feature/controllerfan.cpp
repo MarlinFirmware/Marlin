@@ -44,28 +44,28 @@ uint8_t ControllerFan::speed;
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
-  #ifdef CONTROLLER_FAN2_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN2)
     SET_OUTPUT(CONTROLLER_FAN2_PIN);
   #endif
-  #ifdef CONTROLLER_FAN3_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN3)
     SET_OUTPUT(CONTROLLER_FAN3_PIN);
   #endif
-  #ifdef CONTROLLER_FAN4_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN4)
     SET_OUTPUT(CONTROLLER_FAN4_PIN);
   #endif
-  #ifdef CONTROLLER_FAN5_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN5)
     SET_OUTPUT(CONTROLLER_FAN5_PIN);
   #endif
-  #ifdef CONTROLLER_FAN6_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN6)
     SET_OUTPUT(CONTROLLER_FAN6_PIN);
   #endif
-  #ifdef CONTROLLER_FAN7_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN7)
     SET_OUTPUT(CONTROLLER_FAN7_PIN);
   #endif
-  #ifdef CONTROLLER_FAN8_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN8)
     SET_OUTPUT(CONTROLLER_FAN8_PIN);
   #endif
-  #ifdef CONTROLLER_FAN9_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN9)
     SET_OUTPUT(CONTROLLER_FAN9_PIN);
   #endif
   init();
@@ -94,10 +94,10 @@ void ControllerFan::update() {
       #if ALL(HAS_HEATED_BED, CONTROLLER_FAN_BED_HEATING)
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
-      #ifdef CONTROLLER_FAN_MIN_BOARD_TEMP
+      #if PIN_EXISTS(CONTROLLER_FAN_MIN_BOARD_)
         || thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP
       #endif
-      #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
+      #if PIN_EXISTS(CONTROLLER_FAN_MIN_SOC_)
         || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
       #endif
     ) lastComponentOn = ms; //... set time to NOW so the fan will turn on
@@ -137,28 +137,28 @@ void ControllerFan::update() {
       soft_pwm_speed = speed;
     #else
       SET_CONTROLLER_FAN();
-      #ifdef CONTROLLER_FAN2_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN2)
         SET_CONTROLLER_FAN(2);
       #endif
-      #ifdef CONTROLLER_FAN3_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN3)
         SET_CONTROLLER_FAN(3);
       #endif
-      #ifdef CONTROLLER_FAN4_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN4)
         SET_CONTROLLER_FAN(4);
       #endif
-      #ifdef CONTROLLER_FAN5_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN5)
         SET_CONTROLLER_FAN(5);
       #endif
-      #ifdef CONTROLLER_FAN6_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN6)
         SET_CONTROLLER_FAN(6);
       #endif
-      #ifdef CONTROLLER_FAN7_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN7)
         SET_CONTROLLER_FAN(7);
       #endif
-      #ifdef CONTROLLER_FAN8_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN8)
         SET_CONTROLLER_FAN(8);
       #endif
-      #ifdef CONTROLLER_FAN9_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN9)
         SET_CONTROLLER_FAN(9);
       #endif
     #endif
