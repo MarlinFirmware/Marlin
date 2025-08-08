@@ -144,7 +144,7 @@ static void _lcd_goto_next_corner() {
     }
   }
 
-  float z = current_position.z + (BED_TRAMMING_Z_HOP);
+  float z = _MIN(current_position.z + (BED_TRAMMING_Z_HOP), Z_MAX_POS);
   #if ALL(BED_TRAMMING_USE_PROBE, BLTOUCH)
     z += bltouch.z_extra_clearance();
   #endif

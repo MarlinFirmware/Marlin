@@ -420,8 +420,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = resume_pos.z,
-              z_raised = z_print + info.zraise;
+  const float z_print = resume_pos.z;
+
+  #if ANY(Z_HOME_TO_MAX, POWER_LOSS_RECOVER_ZHOME) || DISABLED(BELTPRINTER)
+    const float z_raised = z_print + info.zraise;
+  #endif
 
   //
   // Home the axes that can safely be homed, and

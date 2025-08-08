@@ -3118,7 +3118,7 @@
 
 //
 // FYSETC variant of the MINI12864 graphic controller with SD support
-// https://wiki.fysetc.com/Mini12864_Panel/
+// https://wiki.fysetc.com/docs/Mini12864Panel
 //
 //#define FYSETC_MINI_12864_X_X    // Type C/D/E/F. No tunable RGB Backlight by default
 //#define FYSETC_MINI_12864_1_2    // Type C/D/E/F. Simple RGB Backlight (always on)
