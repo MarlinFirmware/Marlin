@@ -124,7 +124,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void PCA9632_set_led_color(const LEDColor_t &color) {
+void PCA9632_set_led_color(const LED1Color_t &color) {
   Wire.begin();
   if (!PCA_init) {
     PCA_init = 1;

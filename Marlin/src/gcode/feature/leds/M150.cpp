@@ -100,12 +100,12 @@ void GcodeSuite::M150() {
     const uint8_t valP = seenP ? (parser.has_value() ? parser.value_byte() : 255) : brightness;
   #endif
 
-  const LEDColor_t color = LEDColor_t(valR, valU, valB
+  const LED1Color_t color = LED1Color_t(valR, valU, valB
     OPTARG(HAS_WHITE_LED, valW)
     OPTARG(NEOPIXEL_LED, valP)
   );
 
-  const LEDColor2_t color2 = LEDColor2_t(valR, valU, valB
+  const LED2Color_t color2 = LED2Color_t(valR, valU, valB
     OPTARG(HAS_WHITE_LED2, valW)
     OPTARG(NEOPIXEL_LED, valP)
   );

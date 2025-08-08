@@ -26,9 +26,9 @@
  * Written by Robert Mendon Feb 2017.
  */
 
-struct LEDColor_t;
+struct LED1Color_t;
 
-void PCA9632_set_led_color(const LEDColor_t &color);
+void PCA9632_set_led_color(const LED1Color_t &color);
 
 #if ENABLED(PCA9632_BUZZER)
   #include <stdint.h>

@@ -160,7 +160,7 @@ typedef struct {
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
-    LEDColor_t ledColor = defColorLeds;
+    LED1Color_t ledColor = defColorLeds;
   #endif
   #if HAS_GCODE_PREVIEW
     bool enablePreview = true;
