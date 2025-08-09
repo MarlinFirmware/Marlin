@@ -47,6 +47,13 @@
   #include "pca9632.h"
 #endif
 
+#if ANY(RGBW_LED, PCA9632_RGBW, HAS_WHITE_NEOPIXEL_1)
+  #define HAS_WHITE_LED 1
+#endif
+#if HAS_WHITE_NEOPIXEL_2
+  #define HAS_WHITE_LED2 1
+#endif
+
 /**
  * LEDcolor type for use with leds.set_color
  */
