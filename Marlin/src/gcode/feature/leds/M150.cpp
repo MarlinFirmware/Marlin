@@ -80,24 +80,14 @@ void GcodeSuite::M150() {
     #endif
   #endif
 
-  const bool seenR = parser.seen('R');
-  const bool seenU = parser.seen('U');
-  const bool seenB = parser.seen('B');
+  const uint8_t valR = parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF;
+  const uint8_t valU = parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF;
+  const uint8_t valB = parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) :  old_color        & 0xFF;
   #if HAS_WHITE_LED || HAS_WHITE_LED2
-    const bool seenW = parser.seen('W');
+    const uint8_t valW = parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF;
   #endif
   #if ENABLED(NEOPIXEL_LED)
-    const bool seenP = parser.seen('P');
-  #endif
-
-  const uint8_t valR = seenR ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF;
-  const uint8_t valU = seenU ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF;
-  const uint8_t valB = seenB ? (parser.has_value() ? parser.value_byte() : 255) :  old_color        & 0xFF;
-  #if HAS_WHITE_LED || HAS_WHITE_LED2
-    const uint8_t valW = seenW ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF;
-  #endif
-  #if ENABLED(NEOPIXEL_LED)
-    const uint8_t valP = seenP ? (parser.has_value() ? parser.value_byte() : 255) : brightness;
+    const uint8_t valP = parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness;
   #endif
 
   const LED1Color_t color = LED1Color_t(valR, valU, valB
