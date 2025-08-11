@@ -33,6 +33,8 @@
 #include <stdint.h>
 #include <wirish.h>
 
+#include "../../core/macros.h"  // for PIN_EXISTS
+
 // Number of SPI ports
 #if PIN_EXISTS(BOARD_SPI3_SCK)
   #define BOARD_NR_SPI 3
