@@ -259,11 +259,11 @@ extern LEDLights leds;
     static void set_color(const LED2Color_t &color);
 
     static void set_color(uint8_t r, uint8_t g, uint8_t b
-      OPTARG(HAS_WHITE_LED, uint8_t w=0)
+      OPTARG(HAS_WHITE_LED2, uint8_t w=0)
       OPTARG(NEOPIXEL_LED, uint8_t i=NEOPIXEL_BRIGHTNESS)
     ) {
       set_color(LED2Color_t(r, g, b
-        OPTARG(HAS_WHITE_LED, w)
+        OPTARG(HAS_WHITE_LED2, w)
         OPTARG(NEOPIXEL_LED, i)
       ));
     }

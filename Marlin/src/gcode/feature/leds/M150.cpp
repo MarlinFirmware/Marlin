@@ -105,10 +105,12 @@ void GcodeSuite::M150() {
     OPTARG(NEOPIXEL_LED, valP)
   );
 
-  const LED2Color_t color2 = LED2Color_t(valR, valU, valB
-    OPTARG(HAS_WHITE_LED2, valW)
-    OPTARG(NEOPIXEL_LED, valP)
-  );
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    const LED2Color_t color2 = LED2Color_t(valR, valU, valB
+      OPTARG(HAS_WHITE_LED2, valW)
+      OPTARG(NEOPIXEL_LED, valP)
+    );
+  #endif
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
     switch (unit) {
