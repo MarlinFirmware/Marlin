@@ -76,9 +76,7 @@ struct LED1Color_t {
 
   // Array assignment operator
   LED1Color_t& operator=(const uint8_t (&rgbw)[4]) {
-    r = rgbw[0];
-    g = rgbw[1];
-    b = rgbw[2];
+    r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
     TERN_(HAS_WHITE_LED, w = rgbw[3]);
     return *this;
   }
@@ -118,9 +116,7 @@ struct LED2Color_t {
 
   // Array assignment operator
   LED2Color_t& operator=(const uint8_t (&rgbw)[4]) {
-    r = rgbw[0];
-    g = rgbw[1];
-    b = rgbw[2];
+    r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
     TERN_(HAS_WHITE_LED2, w = rgbw[3]);
     return *this;
   }
@@ -144,42 +140,42 @@ struct LED2Color_t {
  * Color presets
  */
 
-#define LEDColorOff()             LED1Color_t(  0,   0,   0)
-#define LEDColorRed()             LED1Color_t(255,   0,   0)
+#define LEDColorOff()         LED1Color_t(  0,   0,   0)
+#define LEDColorRed()         LED1Color_t(255,   0,   0)
 #if ENABLED(LED_COLORS_REDUCE_GREEN)
-  #define LEDColorOrange()        LED1Color_t(255,  25,   0)
-  #define LEDColorYellow()        LED1Color_t(255,  75,   0)
+  #define LEDColorOrange()    LED1Color_t(255,  25,   0)
+  #define LEDColorYellow()    LED1Color_t(255,  75,   0)
 #else
-  #define LEDColorOrange()        LED1Color_t(255,  80,   0)
-  #define LEDColorYellow()        LED1Color_t(255, 255,   0)
+  #define LEDColorOrange()    LED1Color_t(255,  80,   0)
+  #define LEDColorYellow()    LED1Color_t(255, 255,   0)
 #endif
-#define LEDColorGreen()           LED1Color_t(  0, 255,   0)
-#define LEDColorBlue()            LED1Color_t(  0,   0, 255)
-#define LEDColorIndigo()          LED1Color_t(  0, 255, 255)
-#define LEDColorViolet()          LED1Color_t(255,   0, 255)
+#define LEDColorGreen()       LED1Color_t(  0, 255,   0)
+#define LEDColorBlue()        LED1Color_t(  0,   0, 255)
+#define LEDColorIndigo()      LED1Color_t(  0, 255, 255)
+#define LEDColorViolet()      LED1Color_t(255,   0, 255)
 #if HAS_WHITE_LED && DISABLED(RGB_LED)
-  #define LEDColorWhite()         LED1Color_t(  0,   0,   0, 255)
+  #define LEDColorWhite()     LED1Color_t(  0,   0,   0, 255)
 #else
-  #define LEDColorWhite()         LED1Color_t(255, 255, 255)
+  #define LEDColorWhite()     LED1Color_t(255, 255, 255)
 #endif
 
-#define LEDColorOff2()             LED2Color_t(  0,   0,   0)
-#define LEDColorRed2()             LED2Color_t(255,   0,   0)
+#define LEDColorOff2()        LED2Color_t(  0,   0,   0)
+#define LEDColorRed2()        LED2Color_t(255,   0,   0)
 #if ENABLED(LED_COLORS_REDUCE_GREEN)
-  #define LEDColorOrange2()        LED2Color_t(255,  25,   0)
-  #define LEDColorYellow2()        LED2Color_t(255,  75,   0)
+  #define LEDColorOrange2()   LED2Color_t(255,  25,   0)
+  #define LEDColorYellow2()   LED2Color_t(255,  75,   0)
 #else
-  #define LEDColorOrange2()        LED2Color_t(255,  80,   0)
-  #define LEDColorYellow2()        LED2Color_t(255, 255,   0)
+  #define LEDColorOrange2()   LED2Color_t(255,  80,   0)
+  #define LEDColorYellow2()   LED2Color_t(255, 255,   0)
 #endif
-#define LEDColorGreen2()           LED2Color_t(  0, 255,   0)
-#define LEDColorBlue2()            LED2Color_t(  0,   0, 255)
-#define LEDColorIndigo2()          LED2Color_t(  0, 255, 255)
-#define LEDColorViolet2()          LED2Color_t(255,   0, 255)
+#define LEDColorGreen2()      LED2Color_t(  0, 255,   0)
+#define LEDColorBlue2()       LED2Color_t(  0,   0, 255)
+#define LEDColorIndigo2()     LED2Color_t(  0, 255, 255)
+#define LEDColorViolet2()     LED2Color_t(255,   0, 255)
 #if HAS_WHITE_LED2 && DISABLED(RGB_LED)
-  #define LEDColorWhite2()         LED2Color_t(  0,   0,   0, 255)
+  #define LEDColorWhite2()    LED2Color_t(  0,   0,   0, 255)
 #else
-  #define LEDColorWhite2()         LED2Color_t(255, 255, 255)
+  #define LEDColorWhite2()    LED2Color_t(255, 255, 255)
 #endif
 
 

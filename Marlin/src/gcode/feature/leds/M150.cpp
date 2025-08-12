@@ -80,9 +80,9 @@ void GcodeSuite::M150() {
     #endif
   #endif
 
-  const uint8_t valR = parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF;
-  const uint8_t valU = parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF;
-  const uint8_t valB = parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) :  old_color        & 0xFF;
+  const uint8_t valR = parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 16) & 0xFF,
+                valU = parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >>  8) & 0xFF,
+                valB = parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : old_color & 0xFF;
   #if HAS_WHITE_LED || HAS_WHITE_LED2
     const uint8_t valW = parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : (old_color >> 24) & 0xFF;
   #endif
@@ -90,28 +90,18 @@ void GcodeSuite::M150() {
     const uint8_t valP = parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness;
   #endif
 
-  const LED1Color_t color = LED1Color_t(valR, valU, valB
-    OPTARG(HAS_WHITE_LED, valW)
-    OPTARG(NEOPIXEL_LED, valP)
-  );
+  const LED1Color_t color = LED1Color_t(valR, valU, valB OPTARG(HAS_WHITE_LED, valW) OPTARG(NEOPIXEL_LED, valP) );
 
   #if ENABLED(NEOPIXEL2_SEPARATE)
-    const LED2Color_t color2 = LED2Color_t(valR, valU, valB
-      OPTARG(HAS_WHITE_LED2, valW)
-      OPTARG(NEOPIXEL_LED, valP)
-    );
-  #endif
-
-  #if ENABLED(NEOPIXEL2_SEPARATE)
+    const LED2Color_t color2 = LED2Color_t(valR, valU, valB OPTARG(HAS_WHITE_LED2, valW) OPTARG(NEOPIXEL_LED, valP) );
     switch (unit) {
       case 0: leds.set_color(color); return;
       case 1: leds2.set_color(color2); return;
     }
+    leds2.set_color(color2);  // If 'S' is not specified set both leds2...
   #endif
 
-  // If 'S' is not specified use both
-  leds.set_color(color);
-  TERN_(NEOPIXEL2_SEPARATE, leds2.set_color(color2));
+  leds.set_color(color);      // ...and leds1
 }
 
 #endif // HAS_COLOR_LEDS
