@@ -21,6 +21,9 @@ def parse_config(config_file):
                     continue
                 key, val = key_val
                 macro = key[7:]  # Strip CONFIG_
+                # Skip ENABLE macros
+                if macro.endswith("_ENABLE"):
+                    continue
                 if val == "y":
                     defines.append(f"#define {macro}")
                 elif val == "n":

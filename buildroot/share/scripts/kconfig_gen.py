@@ -45,7 +45,9 @@ CONDITIONAL_FILES = [
 ]
 
 def is_complex_string(val):
-    return any(tok in val for tok in ['"', " ", "(", ")", "+", "STRINGIFY", "PREHEAT", "\\n"])
+    if val.startswith('"') and val.endswith('"'):
+        return '"' in val[1:-1] or '\\n' in val
+    return any(tok in val for tok in [" ", "(", ")", "+", "STRINGIFY", "PREHEAT", "\\n"])
 
 class MacroState:
     def __init__(self):
