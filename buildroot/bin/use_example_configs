@@ -14,7 +14,7 @@
 #       The fallback branch is bugfix-2.1.x.
 #
 
-import os, subprocess, sys, urllib.request
+import os, subprocess, sys, urllib.request, urllib.error
 from pathlib import Path
 
 DEBUGGING = False

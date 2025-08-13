@@ -882,7 +882,7 @@ void Temperature::factory_reset() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const celsius_float_t start_temp = GHV(degChamber(), degBed(), degHotend(heater_id));
-      const LEDColor oldcolor = ONHEATINGSTART();
+      const LED1Color_t oldcolor = ONHEATINGSTART();
     #endif
 
     TERN_(TEMP_TUNING_MAINTAIN_FAN, adaptive_fan_slowing = false);

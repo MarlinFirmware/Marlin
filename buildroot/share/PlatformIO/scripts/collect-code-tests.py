@@ -22,7 +22,7 @@ if pioutil.is_pio_build():
         test_suites = collect_test_suites()
         for path in test_suites:
             name = re.sub(r'^\d+-|\.ini$', '', path.name)
-            targets += [name];
+            targets += [name]
 
             env.AddCustomTarget(
                 name = f"marlin_{name}",
