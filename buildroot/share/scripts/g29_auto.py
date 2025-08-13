@@ -8,30 +8,30 @@
 from __future__ import print_function
 
 # Your G-code file/folder
-folder = '../'
+folder = './'
 my_file = 'test.gcode'
 
-# this is the minimum of G1 instructions which should be between 2 different heights
+# The minimum number of G1 instructions that should be between 2 different heights
 min_g = 3
 
-# maximum number of lines to parse, I don't want to parse the complete file
-# only the first plane is we are interested in
+# Maximum number of lines to parse. We don't want to parse the
+# whole file since we're only interested in the first plane.
 max_g = 100000000
 
 # G29 keyword
 g29_keyword = 'G29'
 
-# output filename
+# Output filename
 output_file = folder + 'g29_' + my_file
-# input filename
+# Input filename
 input_file = folder + my_file
 
-# minimum scan size
+# Minimum scan size
 min_size = 40
 probing_points = 3  # points x points
 max_lines = 1500
 
-# other stuff
+# Other stuff
 min_x = 500
 min_y = min_x
 max_x = -500
@@ -51,11 +51,11 @@ GREEN = '\033[32m'
 RED = '\033[31m'
 RESET = '\033[0m'
 
-# return only G0-G1 lines
+# Return only G0-G1 lines
 def has_g_move(line):
     return line[:2].upper() in ("G0", "G1")
 
-# find position in G move (x,y,z)
+# Find position in G move (x,y,z)
 def find_axis(line, axis):
     found = False
     number = ""
@@ -79,7 +79,7 @@ def find_axis(line, axis):
         return None
 
 
-# save the min or max-values for each axis
+# Save the min or max-values for each axis
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
 
@@ -96,7 +96,7 @@ def set_mima(line):
     return min_x, max_x, min_y, max_y
 
 
-# find z in the code and return it
+# Find z in the code and return it
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
         my_z = find_axis(gcode[i], 'Z')
@@ -109,7 +109,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
     all_z = []
     line_between_z = []
     z_at_line = []
-    # last_z = 0
+    #last_z = 0
     last_i = -1
 
     while len(gcode) > i:
@@ -124,7 +124,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
         z_at_line.append(i)
         temp_line = i - last_i -1
         line_between_z.append(i - last_i - 1)
-        # last_z = z
+        #last_z = z
         last_i = i
         if 0 < end_at_line <= i or temp_line >= min_g:
             #print('break at line {} at height {}'.format(i, z))
@@ -134,7 +134,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
     return all_z, line_between_z, z_at_line
 
 
-# get the lines which should be the first layer
+# Get the lines which should be the first layer
 def get_lines(gcode, minimum):
     i = 0
     all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g)
@@ -168,7 +168,7 @@ for i in range(start, end):
 
 print('x_min:{} x_max:{}\ny_min:{} y_max:{}'.format(min_x, max_x, min_y, max_y))
 
-# resize min/max - values for minimum scan
+# Resize min/max - values for minimum scan
 if max_x - min_x < min_size:
     offset_x = int((min_size - (max_x - min_x)) / 2 + 0.5)  # int round up
     #print('min_x! with {}'.format(int(max_x - min_x)))

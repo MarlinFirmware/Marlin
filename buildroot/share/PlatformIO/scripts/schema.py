@@ -12,12 +12,12 @@ abm/js/schema.js in the MarlinFirmware/AutoBuildMarlin project, which has been e
 evaluate conditions and can determine what options are actually enabled, not just which
 options are uncommented. That will be migrated to this script for standalone migration.
 
-usage: schema.py [-h] [some|json|jsons|group|yml|yaml]
+Usage: schema.py [-h] [some|json|jsons|group|yml|yaml]
 
-Processes Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
-and produces structured output suitable for documentation, tooling, or automated processing.
+Process Marlin firmware configuration files (Configuration.h and Configuration_adv.h)
+to produce structured output suitable for documentation, tooling, or automated processing.
 
-positional arguments:
+Positional arguments:
   some      Generate both JSON and YAML output (schema.json and schema.yml)
   json      Generate JSON output (schema.json)
   jsons     Generate grouped JSON output with wildcard options (schema.json and schema_grouped.json)
@@ -25,7 +25,7 @@ positional arguments:
   yml       Generate YAML output (schema.yml)
   yaml      Same as 'yml'
 
-optional arguments:
+Optional arguments:
   -h, --help  Show this help message and exit
 """
 
