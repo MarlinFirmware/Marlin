@@ -198,7 +198,7 @@ extern hmi_value_t hmiValue;
 
 #if ENABLED(GCODE_MACROS)
   typedef struct {
-    uint8_t slot_edit = 0;
+    uint8_t slot_edit  = 0;
     uint8_t cursor_pos = 0;
     uint8_t char_index = 0;
     char edit_buffer[GCODE_MACROS_SLOT_SIZE + 1] = { 0 };

@@ -3156,7 +3156,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void hmiMacroEditor() {
     static millis_t last_enter_press_ms = 0;
     static bool awaiting_second_press = false;
-    const millis_t DOUBLE_PRESS_WINDOW_MS = 500; // 500ms window for a double press
+    const millis_t DOUBLE_PRESS_WINDOW_MS = 500; // 500ms window double press
 
     EncoderState state = get_encoder_state();
     if (state == ENCODER_DIFF_CW) {
@@ -3167,9 +3167,9 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     else if (state == ENCODER_DIFF_ENTER) {
       millis_t current_ms = millis();
-      // Check if a second press occurred within the time window
+      // Check if a second press occurred
       if (awaiting_second_press && (current_ms - last_enter_press_ms < DOUBLE_PRESS_WINDOW_MS)) {
-        // This is a double press: finish early
+        // If double press, finish early
         hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
         char cmd[80];
         sprintf(cmd, "M81%u %s", hmiMacro.slot_edit, hmiMacro.edit_buffer);
@@ -3190,6 +3190,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
         hmiMacro.char_index = 0; // Reset character index after insertion
       }
     }
+
     // Timeout logic: if a second press is awaited and the time window has passed,
     // we treat the first press as a single press and reset the state.
     if (awaiting_second_press && (millis() - last_enter_press_ms >= DOUBLE_PRESS_WINDOW_MS)) {
