@@ -175,6 +175,10 @@
 hmi_value_t hmiValue;
 hmi_flag_t hmiFlag{0};
 hmi_data_t hmiData;
+#if ENABLED(GCODE_MACROS)
+  hmi_macro_t hmiMacro;
+  const char macroChars[] PROGMEM = " GMABCDEFHIJKLNOPRSTUVWXYZ0123456789.|";
+#endif
 
 enum SelectItem : uint8_t {
   PAGE_PRINT = 0,
@@ -285,6 +289,9 @@ Menu *stepsMenu = nullptr;
 #endif
 #if HAS_TRINAMIC_CONFIG
   Menu *trinamicConfigMenu = nullptr;
+#endif
+#if ENABLED(GCODE_MACROS)
+  Menu *macroMenu = nullptr;
 #endif
 
 // Updatable menuitems pointers
@@ -1475,6 +1482,10 @@ void dwinHandleScreen() {
     #if HAS_LOCKSCREEN
       case ID_Locked: hmiLockScreen(); break;
     #endif
+    #if ENABLED(GCODE_MACROS)
+      case ID_Macros: hmiMacroEditor(); break;
+    #endif
+
     TERN_(HAS_ESDIAG, case ID_ESDiagProcess:)
     TERN_(PROUI_ITEM_PLOT, case ID_PlotProcess:)
     case ID_PrintDone:
@@ -3131,6 +3142,109 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
 
 #endif
 
+#if ENABLED(GCODE_MACROS)
+
+  void drawMacroEditor() {
+    DWINUI::drawString(10, 100, hmiMacro.edit_buffer);
+    // Calculate cursor position once
+    const uint16_t cursor_pos = 10 + hmiMacro.cursor_pos * 8;
+    DWINUI::drawChar(hmiData.colorCursor, cursor_pos, 120, macroChars[hmiMacro.char_index]);
+    DWINUI::drawBox(1, hmiData.colorCursor, {cursor_pos, 120, 18, 16});
+    TERN_(DASH_REDRAW, dwinRedrawDash();)
+  }
+
+  void hmiMacroEditor() {
+    static millis_t last_enter_press_ms = 0;
+    static bool awaiting_second_press = false;
+    const millis_t DOUBLE_PRESS_WINDOW_MS = 500; // 500ms window for a double press
+
+    EncoderState state = get_encoder_state();
+    if (state == ENCODER_DIFF_CW) {
+      hmiMacro.char_index = (hmiMacro.char_index + 1) % (sizeof(macroChars) - 1);
+    }
+    else if (state == ENCODER_DIFF_CCW) {
+      hmiMacro.char_index = (hmiMacro.char_index == 0 ? sizeof(macroChars) - 2 : hmiMacro.char_index - 1);
+    }
+    else if (state == ENCODER_DIFF_ENTER) {
+      millis_t current_ms = millis();
+      // Check if a second press occurred within the time window
+      if (awaiting_second_press && (current_ms - last_enter_press_ms < DOUBLE_PRESS_WINDOW_MS)) {
+        // This is a double press: finish early
+        hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
+        char cmd[80];
+        sprintf(cmd, "M81%u %s", hmiMacro.slot_edit, hmiMacro.edit_buffer);
+        gcode.process_subcommands_now(cmd);
+        #if ENABLED(EEPROM_SETTINGS)
+          gcode.process_subcommands_now(F("M500"));
+        #endif
+        awaiting_second_press = false;
+        hmiReturnScreen();
+        return;
+      }
+      else {
+        awaiting_second_press = true;
+        last_enter_press_ms = current_ms;
+        // Proceed with the single-press action
+        hmiMacro.edit_buffer[hmiMacro.cursor_pos] = macroChars[hmiMacro.char_index];
+        hmiMacro.cursor_pos++;
+        hmiMacro.char_index = 0; // Reset character index after insertion
+      }
+    }
+    // Timeout logic: if a second press is awaited and the time window has passed,
+    // we treat the first press as a single press and reset the state.
+    if (awaiting_second_press && (millis() - last_enter_press_ms >= DOUBLE_PRESS_WINDOW_MS)) {
+      awaiting_second_press = false;
+    }
+
+    if (hmiMacro.cursor_pos >= GCODE_MACROS_SLOT_SIZE) {
+      hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
+      char cmd[80];
+      sprintf(cmd, "M81%u %s", hmiMacro.slot_edit, hmiMacro.edit_buffer);
+      gcode.process_subcommands_now(cmd);
+      #if ENABLED(EEPROM_SETTINGS)
+        gcode.process_subcommands_now(F("M500"));
+      #endif
+      hmiReturnScreen();
+      return;
+    }
+    drawMacroEditor();
+  }
+
+  void runMacro(uint8_t slot) {
+    char cmd[8];
+    sprintf(cmd, "M81%u", slot);
+    gcode.process_subcommands_now(cmd);
+  }
+
+  void editMacro(uint8_t slot) {
+    DWINUI::clearMainArea();
+    char macro_title[20];
+    sprintf(macro_title, "Edit M81%u", hmiMacro.slot_edit);
+    title.showCaption(macro_title);
+    DWINUI::drawString(10, 80, F("Macro:"));
+    hmiMacro.slot_edit = slot;
+    hmiMacro.cursor_pos = 0;
+    hmiMacro.char_index = 0;
+    memset(hmiMacro.edit_buffer, 0, sizeof(hmiMacro.edit_buffer));
+    // HMI_SaveProcessID(ID_Macros);
+    checkkey = ID_Macros;
+    drawMacroEditor();
+  }
+
+  void drawMacroMenu() {
+    checkkey = ID_Menu;
+    if (SET_MENU_F(macroMenu, "Custom Macros", (GCODE_MACROS_SLOTS * 2) + 1)) {
+      BACK_ITEM(drawControlMenu);
+      #define _ITEM_MACRO(N) \
+        MENU_ITEM_F(ICON_File, "Run M81"#N, onDrawMenuItem, []{ (void)runMacro(N); }); \
+        MENU_ITEM_F(ICON_Info, "Edit M81"#N, onDrawMenuItem, []{ (void)editMacro(N); });
+      REPEAT(GCODE_MACROS_SLOTS, _ITEM_MACRO);
+    }
+    updateMenu(macroMenu);
+  }
+
+#endif
+
 // Menu Creation and Drawing functions ======================================================
 
 frame_rect_t selrect(frame_rect_t) {
@@ -3224,11 +3338,15 @@ void drawControlMenu() {
   constexpr uint8_t items = (3
     + COUNT_ENABLED(CASE_LIGHT_MENU, LED_CONTROL_MENU)
     + TERN0(EEPROM_SETTINGS, 3)
+    + ENABLED(GCODE_MACROS)
     + 2
   );
   checkkey = ID_Menu;
   if (SET_MENU_R(controlMenu, selrect({103, 1, 28, 14}), MSG_CONTROL, items)) {
     BACK_ITEM(gotoMainMenu);
+    #if ENABLED(GCODE_MACROS)
+      MENU_ITEM_F(ICON_WriteEEPROM, "Custom Macros", onDrawSubMenu, drawMacroMenu);
+    #endif
     MENU_ITEM(ICON_Temperature, MSG_TEMPERATURE, onDrawTempSubMenu, drawTemperatureMenu);
     MENU_ITEM(ICON_Motion, MSG_MOTION, onDrawMotionSubMenu, drawMotionMenu);
     #if ENABLED(CASE_LIGHT_MENU)
