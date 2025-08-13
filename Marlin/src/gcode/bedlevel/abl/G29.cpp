@@ -156,81 +156,72 @@ public:
 #endif
 
 /**
- * G29: Detailed Z probe, probes the bed at 3 or more points.
- *      Will fail if the printer has not been homed with G28.
+ * G29: Bed Leveling
  *
- * Enhanced G29 Auto Bed Leveling Probe Routine
+ * Enhanced G29 Auto Bed Leveling Probe Routine.
+ * Probes the bed at 3 or more points.
+ * Will fail if the printer has not been homed with G28.
  *
- *  O  Auto-level only if needed
+ * Parameters:
+ *   O  Auto-level only if needed (Optional)
  *
- *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
- *     or alter the bed level data. Useful to check the topology
- *     after a first run of G29.
+ *   D<bool>  Dry-Run mode. Just evaluate the bed Topology -
+ *            Don't apply or alter the bed level data.
+ *            Useful to check the topology after a first run of G29.
  *
- *  J  Jettison current bed leveling data
+ *   J<bool>  Jettison current bed leveling data
  *
- *  V  Set the verbose level (0-4). Example: "G29 V3"
+ *   V<0-4>  Set the verbose level (0-4)
+ *           Example: G29 V3
  *
- * Parameters With LINEAR leveling only:
+ *   With AUTO_BED_LEVELING_LINEAR:
+ *     P<int>  Set the size of the grid that will be probed (P x P points)
+ *             Example: G29 P4
  *
- *  P  Set the size of the grid that will be probed (P x P points).
- *     Example: "G29 P4"
+ *     X<int>  Set the X size of the grid that will be probed (X x Y points)
+ *             Example: G29 X7 Y5
  *
- *  X  Set the X size of the grid that will be probed (X x Y points).
- *     Example: "G29 X7 Y5"
+ *     Y<int>  Set the Y size of the grid that will be probed (X x Y points)
  *
- *  Y  Set the Y size of the grid that will be probed (X x Y points).
+ *     T  Generate a Bed Topology Report
+ *        Example: G29 P5 T - for a detailed report.
+ *        This is useful for manual bed leveling and finding flaws in the bed
+ *        (to assist with part placement).
+ *        Not supported by non-linear delta printer bed leveling.
  *
- *  T  Generate a Bed Topology Report. Example: "G29 P5 T" for a detailed report.
- *     This is useful for manual bed leveling and finding flaws in the bed (to
- *     assist with part placement).
- *     Not supported by non-linear delta printer bed leveling.
+ *   With AUTO_BED_LEVELING_LINEAR and AUTO_BED_LEVELING_BILINEAR:
+ *     S<rate>    Set the XY travel speed between probe points (in units/min)
+ *     H<linear>  Set bounds to a centered square H x H units in size
+ *       -or-
+ *     F<linear>  Set the Front limit of the probing grid
+ *     B<linear>  Set the Back limit of the probing grid
+ *     L<linear>  Set the Left limit of the probing grid
+ *     R<linear>  Set the Right limit of the probing grid
  *
- * Parameters With LINEAR and BILINEAR leveling only:
+ *   With AUTO_BED_LEVELING_BILINEAR:
+ *     Z<float>  Supply additional Z offset to all probe points.
+ *     W<bool>  Write a mesh point. (If G29 is idle.)
+ *       I<index>  Index for mesh point
+ *       J<index>  Index for mesh point
+ *       X<float>  For mesh point, overrides I
+ *       Y<float>  For mesh point, overrides J
+ *       Z<float>  For mesh point. If omitted, uses current position's raw Z
  *
- *  S  Set the XY travel speed between probe points (in units/min)
+ *   With DEBUG_LEVELING_FEATURE:
+ *     C<bool>  Make a totally fake grid with no actual probing.
+ *              For use in testing when no probing is possible.
  *
- *  H  Set bounds to a centered square H x H units in size
+ *   With PROBE_MANUALLY:
+ *     To do manual probing simply repeat G29 until the procedure is complete.
+ *     The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort.
  *
- *     -or-
+ *     Q<bool>  Query leveling and G29 state
+ *     A<bool>  Abort current leveling procedure
  *
- *  F  Set the Front limit of the probing grid
- *  B  Set the Back limit of the probing grid
- *  L  Set the Left limit of the probing grid
- *  R  Set the Right limit of the probing grid
- *
- * Parameters with DEBUG_LEVELING_FEATURE only:
- *
- *  C  Make a totally fake grid with no actual probing.
- *     For use in testing when no probing is possible.
- *
- * Parameters with BILINEAR leveling only:
- *
- *  Z  Supply an additional Z probe offset
- *
- * Extra parameters with PROBE_MANUALLY:
- *
- *  To do manual probing simply repeat G29 until the procedure is complete.
- *  The first G29 accepts parameters. 'G29 Q' for status, 'G29 A' to abort.
- *
- *  Q  Query leveling and G29 state
- *
- *  A  Abort current leveling procedure
- *
- * Extra parameters with BILINEAR only:
- *
- *  W  Write a mesh point. (If G29 is idle.)
- *  I  X index for mesh point
- *  J  Y index for mesh point
- *  X  X for mesh point, overrides I
- *  Y  Y for mesh point, overrides J
- *  Z  Z for mesh point. Otherwise, raw current Z.
- *
- * Without PROBE_MANUALLY:
- *
- *  E  By default G29 will engage the Z probe, test the bed, then disengage.
- *     Include "E" to engage/disengage the Z probe for each sample.
- *     There's no extra effect if you have a fixed Z probe.
+ *   Without PROBE_MANUALLY:
+ *     E<bool>  By default G29 will engage the Z probe, test the bed, then disengage
+ *              Include "E" to engage/disengage the Z probe for each sample.
+ *              There's no extra effect if you have a fixed Z probe.
  */
 G29_TYPE GcodeSuite::G29() {
 
@@ -855,15 +846,15 @@ G29_TYPE GcodeSuite::G29() {
   }
   #endif // !PROBE_MANUALLY
 
-  //
-  // G29 Finishing Code
-  //
-  // Unless this is a dry run, auto bed leveling will
-  // definitely be enabled after this point.
-  //
-  // If code above wants to continue leveling, it should
-  // return or loop before this point.
-  //
+  /**
+   * G29 Finishing Code
+   *
+   * Unless this is a dry run, auto bed leveling will
+   * definitely be enabled after this point.
+   *
+   * If code above wants to continue leveling, it should
+   * return or loop before this point.
+   */
 
   if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
 
@@ -892,12 +883,12 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR leveling calculate matrix, print reports, correct the position
 
       /**
-       * solve the plane equation ax + by + d = z
+       * Solve the plane equation ax + by + d = z
        * A is the matrix with rows [x y 1] for all the probed points
        * B is the vector of the Z positions
-       * the normal vector to the plane is formed by the coefficients of the
+       * The normal vector to the plane is formed by the coefficients of the
        * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-       * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+       * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z).
        */
       struct { float a, b, d; } plane_equation_coefficients;
 

@@ -37,6 +37,34 @@
 
 #define EEPROM_EXCL_ZONE 916,926  // Ender-3S1 STM32F401 Bootloader EEPROM exclusion zone
 
+  /**
+   *                 ------
+   *           PC6  | 1  2 | PB2
+   *  UART2_TX PA2  | 3  4 | PA3 UART2_RX
+   *           PB14   5  6 | PB13
+   *           PB12 | 7  8 | PB15
+   *            GND | 9 10 | 5V
+   *                 ------
+   *                  EXP3
+   */
+
 #define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         PA3
+
+  /**
+   *          ----
+   *     VCC | 1  |
+   *     VCC | 2  |
+   *     GND | 3  |
+   *    PA14 | 4  |
+   *    PA13 | 5  |
+   *     PB1 | 6  |
+   *     PB2 | 7  |
+   *     PA2 | 8  | UART2_TX
+   *     PA3 | 9  | UART2_RX
+   *     GND | 10 |
+   *          ----
+   *   Touch screen Interface
+   */
 
 #include "../stm32f1/pins_CREALITY_V24S1_301.h"

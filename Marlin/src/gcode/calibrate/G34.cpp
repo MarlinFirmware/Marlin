@@ -40,7 +40,9 @@
 #include "../../core/debug_out.h"
 
 /**
- * G34 - Align the ends of the X gantry. See https://youtu.be/3jAFQdTk8iw
+ * G34: Mechanical Gantry Calibration
+ *
+ * Align the ends of the X gantry. See https://youtu.be/3jAFQdTk8iw
  *
  * - The carriage moves to GANTRY_CALIBRATION_SAFE_POSITION, also called the “pounce” position.
  * - If possible, the Z stepper current is reduced to the value specified by 'S'
@@ -53,8 +55,8 @@
  * - The machine is re-homed, according to GANTRY_CALIBRATION_COMMANDS_POST.
  *
  * Parameters:
- *  [S<mA>]     - Current value to use for the raise move. (Default: GANTRY_CALIBRATION_CURRENT)
- *  [Z<linear>] - Extra distance past Z_MAX_POS to move the Z axis. (Default: GANTRY_CALIBRATION_EXTRA_HEIGHT)
+ *   S<mA>      Current value to use for the raise move. (Default: GANTRY_CALIBRATION_CURRENT)
+ *   Z<linear>  Extra distance past Z_MAX_POS to move the Z axis. (Default: GANTRY_CALIBRATION_EXTRA_HEIGHT)
  */
 void GcodeSuite::G34() {
 

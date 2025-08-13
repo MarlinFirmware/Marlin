@@ -2516,7 +2516,7 @@ void itemAdvBedPID(const uint8_t row) {
     }
     else {
       #ifdef USE_STRING_TITLES
-        dwinDrawLabel(row, GET_TEXT_F(MSG_ZPROBE_OFFSETS));
+        dwinDrawLabel(row, GET_TEXT_F(MSG_OUTAGE_RECOVERY));
       #else
         itemAreaCopy(1, 208, 137, 221, row);  // "Power-loss Recovery"
       #endif
