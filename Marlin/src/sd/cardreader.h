@@ -416,7 +416,7 @@ private:
   //
   // Directory items
   //
-  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
+  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool binFiles=false));
   static int16_t countVisibleItems(MediaFile dir);
   static void selectByIndex(MediaFile dir, const int16_t index);
   static void selectByName(MediaFile dir, const char * const match);
