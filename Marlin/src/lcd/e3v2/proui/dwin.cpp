@@ -177,7 +177,7 @@ hmi_flag_t hmiFlag{0};
 hmi_data_t hmiData;
 #if ENABLED(GCODE_MACROS)
   hmi_macro_t hmiMacro;
-  const char macroChars[] PROGMEM = " GMABCDEFHIJKLNOPRSTUVWXYZ0123456789.|";
+  static const char macroChars[] PROGMEM = " GMABCDEFHIJKLNOPQRSTUVWXYZ0123456789.|";
 #endif
 
 enum SelectItem : uint8_t {
@@ -3156,7 +3156,6 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   void hmiMacroEditor() {
     static millis_t last_enter_press_ms = 0;
     static bool awaiting_second_press = false;
-    const millis_t DOUBLE_PRESS_WINDOW_MS = 500; // 500ms window double press
 
     EncoderState state = get_encoder_state();
     if (state == ENCODER_DIFF_CW) {
@@ -3168,7 +3167,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     else if (state == ENCODER_DIFF_ENTER) {
       millis_t current_ms = millis();
       // Check if a second press occurred
-      if (awaiting_second_press && (current_ms - last_enter_press_ms < DOUBLE_PRESS_WINDOW_MS)) {
+      if (awaiting_second_press && (current_ms - last_enter_press_ms < DWIN_VAR_UPDATE_INTERVAL)) {
         // If double press, finish early
         hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
         char cmd[80];
@@ -3193,7 +3192,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
 
     // Timeout logic: if a second press is awaited and the time window has passed,
     // we treat the first press as a single press and reset the state.
-    if (awaiting_second_press && (millis() - last_enter_press_ms >= DOUBLE_PRESS_WINDOW_MS)) {
+    if (awaiting_second_press && (millis() - last_enter_press_ms >= DWIN_VAR_UPDATE_INTERVAL)) {
       awaiting_second_press = false;
     }
 
