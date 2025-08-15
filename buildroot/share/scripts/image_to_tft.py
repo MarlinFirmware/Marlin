@@ -20,7 +20,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-# Generate Marlin TFT Images from bitmaps/PNG/JPG
+"""
+image_to_tft.py
+
+Generate Marlin TFT Images from bitmaps/PNG/JPG
+"""
 
 import sys, struct
 from PIL import Image

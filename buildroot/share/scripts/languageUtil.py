@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-#
-# languageUtil.py
-#
+"""
+languageUtil.py
+"""
 
 # A dictionary to contain language names
 LANGNAME = {

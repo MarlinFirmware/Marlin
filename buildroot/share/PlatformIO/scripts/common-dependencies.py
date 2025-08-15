@@ -1,7 +1,9 @@
-#
-# common-dependencies.py
-# Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
-#
+"""
+common-dependencies.py
+
+Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
+"""
+
 import pioutil
 if pioutil.is_pio_build():
 

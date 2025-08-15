@@ -51,10 +51,23 @@ if download:
     exit(0)
 
 lines = csvdata.splitlines()
-print(lines)
 reader = csv.reader(lines, delimiter=',')
+header = next(reader)
+languages = header[1:]
+
+# Process each row
+for row in reader:
+    name = row[0]
+    print(f"--- {name} ---")
+    for i, translation in enumerate(row[1:]):
+        # Only print the translation if it's not empty
+        if translation:
+            language = languages[i]
+            print(f"  {language}: {translation}")
+    print()
+
 gothead = False
-columns = ['']
+columns = []
 numcols = 0
 strings_per_lang = {}
 for row in reader:
@@ -78,7 +91,7 @@ for row in reader:
     for i in range(1, numcols):
         str_key = row[i]
         if str_key:
-            col = columns[i]
+            col = columns[i-1]
             strings_per_lang[col['lang']][col['style']][name] = str_key
 
 # Create a folder for the imported language outfiles
@@ -135,7 +148,7 @@ f = None
 gotlang = {}
 for i in range(1, numcols):
     #if i > 6: break # Testing
-    col = columns[i]
+    col = columns[i-1]
     lang, style = col['lang'], col['style']
 
     # If we haven't already opened a file for this language, do so now

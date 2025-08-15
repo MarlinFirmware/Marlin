@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+get_test_targets.py
+
 Extract the builds used in Github CI, so that we can run them locally
 """
 import yaml

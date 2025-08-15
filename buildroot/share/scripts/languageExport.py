@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-'''
-languageExport.py [--single]
+"""
+languageExport.py
+
+Usage: languageExport.py [--single]
 
 Export LCD language strings to CSV files for easier translation.
 Use languageImport.py to import CSV into the language files.
 
-Use --single to export all languages to a single CSV file.
-'''
+Use '--single' to export all languages to a single CSV file.
+"""
 
 import re
 from pathlib import Path

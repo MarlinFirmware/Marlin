@@ -138,7 +138,7 @@ class WriteDataStructure:
     def command(self, type, x, y):
         if type == "M":
             self.push(0xFFFF)
-        x, y = self.bounds.scale(x,y)
+        x, y = self.bounds.scale(x, y)
         self.push(x * 0xFFFE)
         self.push(y * 0xFFFE)
 
@@ -211,15 +211,15 @@ class SVGParser(HTMLParser):
 
     def eat_token(self, regex):
         """Looks for a token at the start of self.d.
-             If found, the token is removed."""
-        self.m = re.match(regex,self.d)
+        If found, the token is removed."""
+        self.m = re.match(regex, self.d)
         if self.m:
-            self.d = self.d[self.m.end():]
+            self.d = self.d[self.m.end() :]
         return self.m
 
     def process_svg_path_data(self, id, d):
         """Breaks up the "d" attribute into individual commands
-             and calls "process_svg_path_data_cmd" for each"""
+        and calls "process_svg_path_data_cmd" for each"""
 
         self.d = d
         while (self.d):
@@ -267,9 +267,9 @@ class SVGParser(HTMLParser):
                 return value
 
     def layer_matches(self):
-        """ Are we in the correct layer?"""
+        """Are we in the correct layer?"""
         if not self.args.layer:
-                return True
+            return True
         for l in self.groups:
             if l and l.find(self.args.layer) != -1:
                 return True
