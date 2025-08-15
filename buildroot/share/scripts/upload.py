@@ -12,7 +12,7 @@ def Upload(source, target, env):
     #-------#
     # Debug #
     #-------#
-    Debug = False                # Set to True to enable script debug
+    Debug = False  # Set to True to enable script debug
     def debugPrint(data):
         if Debug: print(f"[Debug]: {data}")
 
@@ -106,9 +106,9 @@ def Upload(source, target, env):
                 Space = 0
                 Space = FWFile.find(' ')
                 if Space >= 0: Space = FWFile.find(' ', Space + 1)
-                if Space >= 0: FWFile = FWFile[Space + 1:]
+                if Space >= 0: FWFile = FWFile[Space + 1 :]
             if not '/' in FWFile and '.BIN' in FWFile.upper():
-                Firmwares.append(FWFile[:FWFile.upper().index('.BIN') + 4])
+                Firmwares.append(FWFile[: FWFile.upper().index('.BIN') + 4])
         return Firmwares
 
     def _RemoveFirmwareFile(FirmwareFile):
@@ -181,16 +181,16 @@ def Upload(source, target, env):
     if upload_compression:
         if sys.version_info[0] > 2:
             try:
-               import heatshrink2
+                import heatshrink2
             except ImportError:
-               print("Installing 'heatshrink2' python module...")
-               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
+                print("Installing 'heatshrink2' python module...")
+                env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
         else:
             try:
-               import heatshrink
+                import heatshrink
             except ImportError:
-               print("Installing 'heatshrink' python module...")
-               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
+                print("Installing 'heatshrink' python module...")
+                env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
 
     try:
 
@@ -249,7 +249,7 @@ def Upload(source, target, env):
                     print(f'Found: {FirmwareFile}')
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1:len(FirmwareFiles)-2], marlin_long_filename_host_support)   # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1 : len(FirmwareFiles) - 2], marlin_long_filename_host_support)  # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
                 print('No old firmware files to delete')
             else:

@@ -1,9 +1,14 @@
 #!/usr/bin/env python
+"""
+g29_auto.py
 
-# This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin
-# It will analyze the first 2 layers and return the maximum size for this part
-# Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
-# The new file will be created in the same folder.
+This file is for preprocessing G-code and the new G29 Auto bed leveling from Marlin.
+It will analyze the first 2 layers and return the maximum size for this part.
+Then it will be replaced with g29_keyword = ';MarlinG29Script' with the new G29 LRFB.
+The new file will be created in the same folder.
+
+For 'my_file' and 'folder', replace './' with the directory and 'test.gcode' with your file.
+"""
 
 from __future__ import print_function
 
@@ -122,7 +127,7 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
 
         all_z.append(z)
         z_at_line.append(i)
-        temp_line = i - last_i -1
+        temp_line = i - last_i - 1
         line_between_z.append(i - last_i - 1)
         #last_z = z
         last_i = i

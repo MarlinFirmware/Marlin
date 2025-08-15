@@ -1,7 +1,9 @@
-#
-# chitu_crypt.py
-# Customizations for Chitu boards
-#
+"""
+chitu_crypt.py
+
+Customizations for Chitu boards
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     import struct, uuid, marlin

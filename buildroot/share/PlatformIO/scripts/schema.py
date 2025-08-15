@@ -201,12 +201,12 @@ def extract_files(filekey):
                 # - The line starts with '======' so just skip it.
                 #
                 def use_comment(c, opt, sec, bufref):
-                    '''
+                    """
                     c       - The comment line to parse
                     opt     - Options JSON string to return (if not updated)
                     sec     - Section to return (if not updated)
                     bufref  - The comment buffer to add to
-                    '''
+                    """
                     sc = c.strip()                      # Strip for special patterns
                     if sc.startswith(':'):              # If the comment starts with : then it has magic JSON
                         d = sc[1:].strip()              # Strip the leading : and spaces

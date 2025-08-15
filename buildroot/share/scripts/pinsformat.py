@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-Formatter script for pins_MYPINS.h files
+pinsformat.py
 
-usage: pinsformat.py [infile] [outfile]
+Formatter script for pins_MYPINS.h files.
 
-With no parameters convert STDIN to STDOUT
+Usage: pinsformat.py [-h] [-v] [infile] [outfile]
+
+With no parameters convert STDIN to STDOUT.
 """
 
 import sys, re, argparse
@@ -220,7 +222,7 @@ def process_text(txt):
         r = defPatt.match(line)
         if r == None: return False
         logmsg("def:", line)
-        line = f'{r[1]} {r[3]} '
+        line = f'{r[1]} {r[3]}'
         line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
         if r[5]: line = rpad(line, col_comment - 1) + ' ' + r[5]
         d['line'] = line
@@ -266,16 +268,16 @@ def process_text(txt):
             # Comments in column 50
             line = rpad('', col_comment) + (r[1] if r else '')
 
-        elif trySkip1(wDict):   pass  #define SKIP_ME
-        elif tryPindef(wDict):  pass  #define MY_PIN [pin]
-        elif tryNoPin(wDict):   pass  #define MY_PIN -1
-        elif trySkip2(wDict):   pass  #define SKIP_ME_TOO
-        elif trySkip3(wDict):   pass  #else|endif
-        elif tryAlias(wDict):   pass  #define ALIAS OTHER
-        elif trySwitch(wDict):  pass  #define SWITCH
-        elif tryDef(wDict):     pass  #define ...
-        elif tryUndef(wDict):   pass  #undef ...
-        elif tryCond(wDict):    pass  #if|ifdef|ifndef|elif ...
+        elif trySkip1(wDict):  pass  #define SKIP_ME
+        elif tryPindef(wDict): pass  #define MY_PIN [pin]
+        elif tryNoPin(wDict):  pass  #define MY_PIN -1
+        elif trySkip2(wDict):  pass  #define SKIP_ME_TOO
+        elif trySkip3(wDict):  pass  #else|endif
+        elif tryAlias(wDict):  pass  #define ALIAS OTHER
+        elif trySwitch(wDict): pass  #define SWITCH
+        elif tryDef(wDict):    pass  #define ...
+        elif tryUndef(wDict):  pass  #undef ...
+        elif tryCond(wDict):   pass  #if|ifdef|ifndef|elif ...
 
         out += wDict['line'].rstrip() + '\n'
 

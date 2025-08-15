@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-#
-# Utility to compress Marlin RGB565 TFT data to RLE16 format.
-# Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
-#
-# Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
-#
+"""
+rle16_compress_cpp_image_data.py
+
+Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
+
+Utility to compress Marlin RGB565 TFT data to RLE16 format.
+Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
+"""
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):

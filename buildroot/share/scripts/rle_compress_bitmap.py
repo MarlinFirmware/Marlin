@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-#
-# Bitwise RLE compress a Marlin mono DOGM bitmap.
-# Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
-# Output: A new file with the original and compressed data.
-#
-# Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
-#
+"""
+rle_compress_bitmap.py
+
+Bitwise RLE compress a Marlin mono DOGM bitmap.
+
+Usage: rle_compress_bitmap.py INPUT_FILE OUTPUT_FILE
+
+Input: An existing Marlin Marlin mono DOGM bitmap .cpp or .h file.
+Output: A new file with the original and compressed data.
+"""
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
@@ -154,7 +158,7 @@ def addCompressedData(input_file, output_file):
 
         print("\nDecoded RLE data:")
         pretty = [ '{0:08b}'.format(v) for v in decoded ]
-        rows = [pretty[i:i+bytewidth] for i in range(0, len(pretty), bytewidth)]
+        rows = [pretty[i : i + bytewidth] for i in range(0, len(pretty), bytewidth)]
         for row in rows: print(f"{''.join(row)}")
 
         return decoded
@@ -162,7 +166,7 @@ def addCompressedData(input_file, output_file):
     def rle_emit(ofile, arrname, rledata, rawsize, isext):
 
         outstr = ''
-        rows = [ rledata[i:i+16] for i in range(0, len(rledata), 16) ]
+        rows = [ rledata[i : i + 16] for i in range(0, len(rledata), 16) ]
         for i in range(0, len(rows)):
             rows[i] = [ '0x{0:02X}'.format(v) for v in rows[i] ]
             outstr += f"  {', '.join(rows[i])},\n"

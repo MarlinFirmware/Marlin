@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-#
-# buildroot/share/scripts/validate_boards.py
-# Assert standards for boards.h and pins.h
-#
+"""
+validate_boards.py
+
+Assert standards for boards.h and pins.h
+"""
 
 import sys, re
 
