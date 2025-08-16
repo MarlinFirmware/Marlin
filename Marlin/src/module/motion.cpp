@@ -208,14 +208,12 @@ inline void report_more_positions() {
 inline void report_logical_position(const xyze_pos_t &rpos) {
   const xyze_pos_t lpos = rpos.asLogical();
   #if NUM_AXES
-    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
+    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+      SP_E_LBL, lpos.e,
          X_LBL, lpos.x,  SP_Y_LBL, lpos.y,  SP_Z_LBL, lpos.z,
       SP_I_LBL, lpos.i,  SP_J_LBL, lpos.j,  SP_K_LBL, lpos.k,
       SP_U_LBL, lpos.u,  SP_V_LBL, lpos.v,  SP_W_LBL, lpos.w
     ));
-  #endif
-  #if HAS_EXTRUDERS
-    SERIAL_ECHOPGM_P(SP_E_LBL, lpos.e);
   #endif
 }
 

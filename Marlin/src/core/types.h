@@ -71,7 +71,7 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
 #define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
-#define LOGICAL_AXIS_PAIRED_LIST(EA,EB,V...) LIST_N(DOUBLE(LOGICAL_AXES), V) LIST_ITEM_E(EA) LIST_ITEM_E(EB)
+#define LOGICAL_AXIS_PAIRED_LIST(EA,EB,V...) NUM_AXIS_PAIRED_LIST(V) LIST_ITEM_E(EA) LIST_ITEM_E(EB)
 
 #if NUM_AXES
   #define NUM_AXES_SEP ,

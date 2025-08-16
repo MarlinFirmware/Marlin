@@ -35,14 +35,12 @@ bool report_stored_position(const uint8_t slot) {
   const xyze_pos_t &pos = stored_position[slot];
   SERIAL_ECHO(STR_SAVED_POSITION, slot, C(':'));
   #if NUM_AXES
-    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
+    SERIAL_ECHOPGM_P(LOGICAL_AXIS_PAIRED_LIST(
+      SP_E_LBL, pos.e,
       SP_X_LBL, pos.x, SP_Y_LBL, pos.y, SP_Z_LBL, pos.z,
       SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
       SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
     ));
-  #endif
-  #if HAS_EXTRUDERS
-    SERIAL_ECHOPGM_P(SP_E_LBL, pos.e);
   #endif
   SERIAL_EOL();
   return true;
