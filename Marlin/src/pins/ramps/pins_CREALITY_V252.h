@@ -35,4 +35,3 @@
 // Based on RAMPS CREALITY
 //
 #include "pins_RAMPS_CREALITY.h"
-
