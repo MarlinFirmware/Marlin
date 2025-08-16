@@ -60,6 +60,10 @@ extern const char M23_STR[], M24_STR[];
   #include "Sd2Card.h"
 #endif
 
+#if ANY(DO_LIST_BIN_FILES, CUSTOM_FIRMWARE_UPLOAD)
+  #define MEDIA_SUPPORT_BIN_FILES 1
+#endif
+
 typedef struct {
   bool saving:1,                // Receiving a G-code file or logging commands during a print
        logging:1,               // Log enqueued commands to the open file. See GCodeQueue::advance()
@@ -69,7 +73,7 @@ typedef struct {
        filenameIsDir:1,         // The working item is a directory
        workDirIsRoot:1,         // The working directory is / so there's no parent
        abort_sd_printing:1      // Abort by calling abortSDPrinting() at the main loop()
-       #if DO_LIST_BIN_FILES
+       #if MEDIA_SUPPORT_BIN_FILES
          , filenameIsBin:1      // The working item is a BIN file
        #endif
        #if ENABLED(BINARY_FILE_TRANSFER)
@@ -300,8 +304,8 @@ public:
   #endif
 
   // Binary flag for the current file
-  static bool fileIsBinary() { return TERN0(DO_LIST_BIN_FILES, flag.filenameIsBin); }
-  static void setBinFlag(const bool bin) { TERN(DO_LIST_BIN_FILES, flag.filenameIsBin = bin, UNUSED(bin)); }
+  static bool fileIsBinary() { return TERN0(MEDIA_SUPPORT_BIN_FILES, flag.filenameIsBin); }
+  static void setBinFlag(const bool bin) { TERN(MEDIA_SUPPORT_BIN_FILES, flag.filenameIsBin = bin, UNUSED(bin)); }
 
   // Current Working Dir - Set by cd, cdup, cdroot, and diveToFile(true, ...)
   static char* getWorkDirName()  { workDir.getDosName(filename); return filename; }
@@ -412,7 +416,7 @@ private:
   //
   // Directory items
   //
-  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin=false));
+  static bool is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool binFiles=false));
   static int16_t countVisibleItems(MediaFile dir);
   static void selectByIndex(MediaFile dir, const int16_t index);
   static void selectByName(MediaFile dir, const char * const match);
