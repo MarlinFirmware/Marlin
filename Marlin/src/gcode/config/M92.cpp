@@ -101,7 +101,7 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
   report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
   #if NUM_AXES
     #define PRINT_EOL
-    SERIAL_ECHOPGM_P(LIST_N(DOUBLE(NUM_AXES),
+    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
       PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),

@@ -53,7 +53,7 @@ void GcodeSuite::M206_report(const bool forReplay/*=true*/) {
   report_heading_etc(forReplay, F(STR_HOME_OFFSET));
   SERIAL_ECHOLNPGM_P(
     #if IS_CARTESIAN
-      LIST_N(DOUBLE(NUM_AXES),
+      NUM_AXIS_PAIRED_LIST(
         PSTR("  M206 X"), LINEAR_UNIT(home_offset.x),
         SP_Y_STR, LINEAR_UNIT(home_offset.y),
         SP_Z_STR, LINEAR_UNIT(home_offset.z),

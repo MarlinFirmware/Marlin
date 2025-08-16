@@ -89,12 +89,10 @@ xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
-#if HAS_EXTRUDERS
-  #if ENABLED(DISTINCT_E_FACTORS)
+#if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
-  #else
-    constexpr uint8_t FTMotion::block_extruder_axis;
-  #endif
+#elif HAS_EXTRUDERS
+  constexpr uint8_t FTMotion::block_extruder_axis;
 #endif
 
 // Shaping variables.

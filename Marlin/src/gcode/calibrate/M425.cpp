@@ -115,7 +115,7 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
     #if NUM_AXES
-      , LIST_N(DOUBLE(NUM_AXES),
+      , NUM_AXIS_PAIRED_LIST(
           SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
           SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
           SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
