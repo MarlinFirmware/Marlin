@@ -463,9 +463,7 @@ void FTMotion::init() {
 // Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
-  #if HAS_EXTRUDERS
-    TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
-  #endif
+  TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS_N(current_block->extruder));
 
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
