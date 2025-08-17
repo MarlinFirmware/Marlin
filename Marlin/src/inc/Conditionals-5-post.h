@@ -2487,9 +2487,37 @@
 #undef NEED_HIT_STATE
 #undef PCAT
 
+#if TEMP_SENSOR_BED
+  #define HAS_HEATED_BED 1
+#endif
+
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
+
+// Unused ADC pins can be omitted
+#if NONE(KEEP_ADC_PINS_AROUND, PINS_DEBUGGING, MARLIN_DEV_MODE)
+  #if !HAS_HEATED_BED
+    #undef TEMP_BED_PIN
+  #endif
+  #if !HAS_TEMP_CHAMBER
+    #undef TEMP_CHAMBER_PIN
+  #endif
+  #if !HAS_TEMP_PROBE
+    #undef TEMP_PROBE_PIN
+  #endif
+  #if !HAS_TEMP_COOLER
+    #undef TEMP_COOLER_PIN
+  #endif
+  #if !HAS_TEMP_BOARD
+    #undef TEMP_BOARD_PIN
+  #endif
+  #if DISABLED(FILAMENT_WIDTH_SENSOR)
+    #undef FILWIDTH_PIN
+    #undef FILWIDTH2_PIN
+  #endif
+#endif
+
 #define HAS_ADC_TEST(P) (TEMP_SENSOR(P) && PIN_EXISTS(TEMP_##P) && !TEMP_SENSOR_IS_MAX_TC(P) && !TEMP_SENSOR_##P##_IS_DUMMY)
 #if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
@@ -2515,11 +2543,8 @@
 #if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
-#if TEMP_SENSOR_BED
-  #define HAS_HEATED_BED 1
-  #if HAS_ADC_TEST(BED)
-    #define HAS_TEMP_ADC_BED 1
-  #endif
+#if HAS_HEATED_BED && HAS_ADC_TEST(BED)
+  #define HAS_TEMP_ADC_BED 1
 #endif
 #if HAS_ADC_TEST(PROBE)
   #define HAS_TEMP_ADC_PROBE 1
@@ -2538,6 +2563,12 @@
 #endif
 #if HAS_ADC_TEST(REDUNDANT)
   #define HAS_TEMP_ADC_REDUNDANT 1
+#endif
+#if PIN_EXISTS(FILWIDTH_PIN)
+  #define HAS_FILWIDTH_ADC 1
+#endif
+#if PIN_EXISTS(FILWIDTH2_PIN)
+  #define HAS_FILWIDTH2_ADC 1
 #endif
 
 #define HAS_TEMP(N) (TEMP_SENSOR_IS_MAX_TC(N) || HAS_TEMP_ADC_##N || TEMP_SENSOR_##N##_IS_DUMMY)
