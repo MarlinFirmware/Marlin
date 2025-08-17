@@ -558,11 +558,11 @@ constexpr pin_t sensitive_dio[] PROGMEM = {
   #endif
 
   #if TEMP_SENSOR_COOLER && PIN_EXISTS(TEMP_COOLER)
-    #if PIN_EXISTS(COOLER_AUTO_FAN)
-      COOLER_AUTO_FAN_PIN,
-    #endif
     #if PIN_EXISTS(COOLER)
       COOLER_PIN,
+    #endif
+    #if PIN_EXISTS(COOLER_AUTO_FAN)
+      COOLER_AUTO_FAN_PIN,
     #endif
   #endif
 

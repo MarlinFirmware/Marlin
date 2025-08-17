@@ -133,9 +133,9 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  * Heated Bed requirements
  */
 #if HAS_HEATED_BED
-  #if !HAS_TEMP_BED
+  #if !PIN_EXISTS(TEMP_BED)
     #error "The Heated Bed requires a TEMP_BED_PIN or Thermocouple."
-  #elif !HAS_HEATER_BED
+  #elif !PIN_EXISTS(HEATER_BED)
     #error "The Heated Bed requires HEATER_BED_PIN."
   #endif
 #endif
