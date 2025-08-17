@@ -1425,10 +1425,9 @@
   #endif
 #endif
 
-//
-// Trinamic Stepper Drivers
-//
-
+/**
+ * Trinamic Stepper Drivers
+ */
 #if HAS_TRINAMIC_CONFIG
   #if ANY(STEALTHCHOP_E, STEALTHCHOP_XY, STEALTHCHOP_Z, STEALTHCHOP_I, STEALTHCHOP_J, STEALTHCHOP_K, STEALTHCHOP_U, STEALTHCHOP_V, STEALTHCHOP_W)
     #define STEALTHCHOP_ENABLED 1
@@ -1847,9 +1846,9 @@
   #undef SENSORLESS_BACKOFF_MM
 #endif
 
-//
-// Set USING_HW_SERIALn flags for used Serial Ports
-//
+/**
+ * Set USING_HW_SERIALn flags for used Serial Ports
+ */
 
 // Flag the indexed hardware serial ports in use
 #define SERIAL_IN_USE(N) (   (defined(SERIAL_PORT)       && N == SERIAL_PORT) \
@@ -2487,10 +2486,9 @@
 #undef NEED_HIT_STATE
 #undef PCAT
 
-//
-// ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
-//
-
+/**
+ * ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
+ */
 #if TEMP_SENSOR(0)
   #define HAS_TEMP_HOTEND 1
 #endif
@@ -2610,9 +2608,9 @@
   #endif
 #endif
 
-//
-// Heater Outputs
-//
+/**
+ * Heater Outputs
+ */
 #if PIN_EXISTS(HEATER_0)
   #define HAS_HEATER_0 1
 #endif
