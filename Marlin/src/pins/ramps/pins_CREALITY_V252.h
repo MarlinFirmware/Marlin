@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,16 +21,17 @@
  */
 #pragma once
 
-/**
- * Driver for the Philips PCA9632 LED driver.
- * Written by Robert Mendon Feb 2017.
- */
-
-struct LED1Color_t;
-
-void PCA9632_set_led_color(const LED1Color_t &color);
-
-#if ENABLED(PCA9632_BUZZER)
-  #include <stdint.h>
-  void PCA9632_buzz(const long, const uint16_t=0);
+#if HOTENDS > 2 || E_STEPPERS > 1
+  #error "Creality V252 supports up to 2 hotends and 1 E stepper."
 #endif
+
+#define BOARD_INFO_NAME "Creality3D V252"
+
+#if !AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_E0(TMC2208_STANDALONE)
+  #error "Creality V252 requires TMC2208_STANDALONE for X,Y,Z and E."
+#endif
+
+//
+// Based on RAMPS CREALITY
+//
+#include "pins_RAMPS_CREALITY.h"
