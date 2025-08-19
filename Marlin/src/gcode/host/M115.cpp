@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#define FW_BUILD_TIME __DATE__ __TIME__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -79,25 +78,22 @@ void GcodeSuite::M115() {
     TERN_(IS_CARTESIAN, "Cartesian") \
     TERN_(BELTPRINTER, " BELTPRINTER")
 
-  SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
-    " " DETAILED_BUILD_VERSION " (" FW_BUILD_TIME ")"
-    " SOURCE_CODE_URL:" SOURCE_CODE_URL
-    " PROTOCOL_VERSION:" PROTOCOL_VERSION
-    " MACHINE_TYPE:" MACHINE_NAME
-    " KINEMATICS:" MACHINE_KINEMATICS
-    " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
-    #if NUM_AXES != XYZ
-      " AXIS_COUNT:" STRINGIFY(NUM_AXES)
-    #endif
-    #if defined(MACHINE_UUID) || ENABLED(HAS_STM32_UID)
-      " UUID:"
-    #endif
-    #ifdef MACHINE_UUID
-      MACHINE_UUID
-    #endif
-  );
+  SERIAL_ECHOLNPGM("FIRMWARE_NAME: Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")");
+  SERIAL_ECHOLNPGM("SOURCE_CODE_URL: " SOURCE_CODE_URL);
+  SERIAL_ECHOLNPGM("PROTOCOL_VERSION: " PROTOCOL_VERSION);
+  SERIAL_ECHOLNPGM("MACHINE_TYPE: " MACHINE_NAME);
+  SERIAL_ECHOLNPGM("KINEMATICS: " MACHINE_KINEMATICS);
+  SERIAL_ECHOPGM("EXTRUDER_COUNT: " STRINGIFY(EXTRUDERS));
+  SERIAL_EOL();
+  #if NUM_AXES != XYZ
+    SERIAL_ECHOPGM("AXIS_COUNT: " STRINGIFY(NUM_AXES));
+    SERIAL_EOL();
+  #endif
+  #ifdef MACHINE_UUID
+    SERIAL_ECHOPGM("UUID: " MACHINE_UUID);
+  #elif !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
+    SERIAL_ECHO(F("UUID: "));
 
-  #if !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
     /**
      * STM32-based devices have a 96-bit CPU device serial number.
      * Used by LumenPnP / OpenPNP to keep track of unique hardware/configurations.
