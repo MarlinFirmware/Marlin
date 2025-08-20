@@ -91,7 +91,8 @@ void GcodeSuite::M115() {
   #endif
   #ifdef MACHINE_UUID
     SERIAL_ECHOPGM("UUID: " MACHINE_UUID);
-  #elif !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
+    SERIAL_EOL();
+  #elif ENABLED(HAS_STM32_UID)
     SERIAL_ECHO(F("UUID: "));
 
     /**
@@ -111,9 +112,9 @@ void GcodeSuite::M115() {
         if (i <= 3) SERIAL_CHAR('-');
       }
     #endif
+  
+    SERIAL_EOL();
   #endif
-
-  SERIAL_EOL();
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
