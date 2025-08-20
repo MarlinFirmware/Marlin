@@ -124,6 +124,10 @@ if pioutil.is_pio_build():
         # Give warnings on every build
         #
         rm_ofile("inc", "Warnings")
+
+        #
+        # Renew date/time
+        #
         rm_ofile("gcode/host", "M115")
 
         #
