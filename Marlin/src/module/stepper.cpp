@@ -3534,15 +3534,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   #if NUM_AXES
-    SERIAL_ECHOLNPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-        TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-        TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
-        TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-      )
-    );
+    SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
+      SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+      SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+    ));
   #endif
 }
 

@@ -105,33 +105,34 @@
 #define BOARD_TRIGORILLA_14_11        1138  //   ... Rev 1.1 (new servo pin order)
 #define BOARD_RAMPS_ENDER_4           1139  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1140  // Creality: CR10S, CR20, CR-X
-#define BOARD_DAGOMA_F5               1141  // Dagoma F5
-#define BOARD_DAGOMA_D6               1142  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
-#define BOARD_FYSETC_F6_13            1143  // FYSETC F6 1.3
-#define BOARD_FYSETC_F6_14            1144  // FYSETC F6 1.4
-#define BOARD_DUPLICATOR_I3_PLUS      1145  // Wanhao Duplicator i3 Plus
-#define BOARD_VORON                   1146  // VORON Design
-#define BOARD_TRONXY_V3_1_0           1147  // Tronxy TRONXY-V3-1.0
-#define BOARD_Z_BOLT_X_SERIES         1148  // Z-Bolt X Series
-#define BOARD_TT_OSCAR                1149  // TT OSCAR
-#define BOARD_TANGO                   1150  // BIQU Tango V1
-#define BOARD_MKS_GEN_L_V2            1151  // MKS GEN L V2
-#define BOARD_MKS_GEN_L_V21           1152  // MKS GEN L V2.1
-#define BOARD_COPYMASTER_3D           1153  // Copymaster 3D
-#define BOARD_ORTUR_4                 1154  // Ortur 4
-#define BOARD_TENLOG_D3_HERO          1155  // Tenlog D3 Hero IDEX printer
-#define BOARD_TENLOG_MB1_V23          1156  // Tenlog D3, D5, D6 IDEX Printer
-#define BOARD_RAMPS_S_12_EEFB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
-#define BOARD_RAMPS_S_12_EEEB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
-#define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
-#define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
-#define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
-#define BOARD_PXMALION_CORE_I3        1162  // Pxmalion Core I3
-#define BOARD_PANOWIN_CUTLASS         1163  // Panowin Cutlass (as found in the Panowin F1)
-#define BOARD_KODAMA_BARDO            1164  // Kodama Bardo V1.x (as found in the Kodama Trinus)
-#define BOARD_XTLW_MFF_V1             1165  // XTLW MFF V1.0
-#define BOARD_XTLW_MFF_V2             1166  // XTLW MFF V2.0
-#define BOARD_RUMBA_E3D               1167  // E3D Rumba BigBox
+#define BOARD_CREALITY_V252           1141  // Creality CR-10 V2, CR-10 V3
+#define BOARD_DAGOMA_F5               1142  // Dagoma F5
+#define BOARD_DAGOMA_D6               1143  // Dagoma D6 (as found in the Dagoma DiscoUltimate V2 TMC)
+#define BOARD_FYSETC_F6_13            1144  // FYSETC F6 1.3
+#define BOARD_FYSETC_F6_14            1145  // FYSETC F6 1.4
+#define BOARD_DUPLICATOR_I3_PLUS      1146  // Wanhao Duplicator i3 Plus
+#define BOARD_VORON                   1147  // VORON Design
+#define BOARD_TRONXY_V3_1_0           1148  // Tronxy TRONXY-V3-1.0
+#define BOARD_Z_BOLT_X_SERIES         1149  // Z-Bolt X Series
+#define BOARD_TT_OSCAR                1150  // TT OSCAR
+#define BOARD_TANGO                   1151  // BIQU Tango V1
+#define BOARD_MKS_GEN_L_V2            1152  // MKS GEN L V2
+#define BOARD_MKS_GEN_L_V21           1153  // MKS GEN L V2.1
+#define BOARD_COPYMASTER_3D           1154  // Copymaster 3D
+#define BOARD_ORTUR_4                 1155  // Ortur 4
+#define BOARD_TENLOG_D3_HERO          1156  // Tenlog D3 Hero IDEX printer
+#define BOARD_TENLOG_MB1_V23          1157  // Tenlog D3, D5, D6 IDEX Printer
+#define BOARD_RAMPS_S_12_EEFB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_RAMPS_S_12_EEEB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
+#define BOARD_RAMPS_S_12_EFFB         1160  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
+#define BOARD_LONGER3D_LK1_PRO        1161  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
+#define BOARD_LONGER3D_LKx_PRO        1162  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
+#define BOARD_PXMALION_CORE_I3        1163  // Pxmalion Core I3
+#define BOARD_PANOWIN_CUTLASS         1164  // Panowin Cutlass (as found in the Panowin F1)
+#define BOARD_KODAMA_BARDO            1165  // Kodama Bardo V1.x (as found in the Kodama Trinus)
+#define BOARD_XTLW_MFF_V1             1166  // XTLW MFF V1.0
+#define BOARD_XTLW_MFF_V2             1167  // XTLW MFF V2.0
+#define BOARD_RUMBA_E3D               1168  // E3D Rumba BigBox
 
 //
 // RAMBo and derivatives
