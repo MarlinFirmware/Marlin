@@ -2712,6 +2712,86 @@ hal_timer_t Stepper::block_phase_isr() {
       // Based on the oversampling factor, do the calculations
       step_event_count = current_block->step_event_count << oversampling_factor;
 
+      #if ENABLED(DIFFERENTIAL_EXTRUDER)
+        // X and E work together as a differential mechanism: 
+        //  When X and E move in the same direction they move the print carriage,
+        //  and when X and E move in opposite directions they cause extrusion.
+
+        // NOTE: All calculations performed per block, preserving Bresenham timing coordination
+        if (current_block->steps.x > 0 || current_block->steps.e > 0) {
+          // Calculate signed step counts based on directions
+          int32_t x_signed_steps;
+          if (current_block->direction_bits[X_AXIS]) {
+            x_signed_steps = current_block->steps.x;
+          } else {
+            x_signed_steps = -(int32_t)current_block->steps.x;
+          }
+          int32_t e_signed_steps;
+          if (current_block->direction_bits[E_AXIS]) {
+            e_signed_steps = current_block->steps.e;
+          } else {
+            e_signed_steps = -(int32_t)current_block->steps.e;
+          }
+
+          #if ENABLED(BALANCED_DIFFERENTIAL_EXTRUDER)
+            // BALANCED DIFFERENTIAL EXTRUDER: X stepper drives one loop belt
+            //  and E stepper drives another loop belt. Two belts mesh at the extruder
+            // X stepper: X - E/2 (carriage movement - half extrusion)
+            // E stepper: X + E/2 (carriage movement + half extrusion)
+            // Net extrusion: (X + E/2) - (X - E/2) = E
+            // (This will work great once I figure out what to do when E/2 is not integer!)
+
+            // Split extrusion 50/50 between X and E steppers
+             int32_t half_e_steps = e_signed_steps / 2;
+          
+            // X stepper: X movement - half E extrusion
+             int32_t new_x_steps = x_signed_steps - half_e_steps;
+             current_block->steps.x = abs(new_x_steps);
+
+            // Update direction bit for X axis
+             if (new_x_steps >= 0) {
+               current_block->direction_bits.x = true;   // Forwards
+             } else {
+               current_block->direction_bits.x = false;  // Backwards
+             }
+
+            // E stepper: X movement + half E extrusion  
+             int32_t new_e_steps = x_signed_steps + half_e_steps;
+             current_block->steps.e = abs(new_e_steps);
+
+            // Update direction bit for E axis
+             if (new_e_steps >= 0) {
+               current_block->direction_bits.e = true;   // Forwards
+             } else {
+               current_block->direction_bits.e = false;  // Backwards
+             }
+          #else         
+            // SIMPLE SINGLE-LOOP DIFFERENTIAL EXTRUDER: X stepper drives the carriage as usual,
+            //  whilst E stepper drives a loop belt that's meshed around the extruder.
+            // X stepper: X only (carriage movement)
+            // E stepper: X + E  (carriage movement + extrusion)
+            // Net extrusion: (X + E) - X = E
+           
+            // Calculate net E steps (X movement + extrusion)
+             int32_t net_e_steps = x_signed_steps + e_signed_steps;
+           
+            // Update the block with new E step count
+             current_block->steps.e = abs(net_e_steps);
+ 
+            // Update direction bit for E axis
+             if (net_e_steps >= 0) {
+               current_block->direction_bits.e = true;   // Forwards
+             } else {
+               current_block->direction_bits.e = false;  // Backwards
+             }
+          #endif
+
+          // NOTE: DO NOT modify the step_event_count! This would change XYZ timing!
+          // Bresenham distributes X and E steps over the time base.
+
+        }
+      #endif
+      
       // Initialize Bresenham delta errors to 1/2
       delta_error = -int32_t(step_event_count);
       TERN_(HAS_ROUGH_LIN_ADVANCE, la_delta_error = delta_error);
