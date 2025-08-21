@@ -917,6 +917,21 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * Differential Extruder requirements
+ */
+#if ENABLED(DIFFERENTIAL_EXTRUDER)
+  #if EXTRUDERS != 1
+    #error "DIFFERENTIAL EXTRUDER currently works with only one extruder (EXTRUDERS = 1)."
+  #endif
+  #if !IS_FULL_CARTESIAN
+    #error "DIFFERENTIAL EXTRUDER requires regular Cartesian kinematics (i3/reprap only. No COREXY, DELTA, SCARA, etc.)"
+  #endif
+  #ifndef CPU_32_BIT
+      #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU"
+  #endif
+#endif
+
+/**
  * Generic Switching Toolhead requirements
  */
 #if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
