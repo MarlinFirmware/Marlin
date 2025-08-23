@@ -92,7 +92,7 @@ Once the entry and exit power values are determined, the values are divided into
     trap step power incr_decr = ( cruize power - entry_exit ) / accel_decel_steps
 
 The trap steps are incremented or decremented during each accel or decel step until the block is complete.
-Step power is either cumulatively added or subtracted during trapeziod ramp progressions.
+Step power is either cumulatively added or subtracted during trapezoid ramp progressions.
 
 #### Planner Code:
 
