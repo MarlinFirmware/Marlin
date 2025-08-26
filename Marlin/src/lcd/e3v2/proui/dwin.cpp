@@ -2942,6 +2942,23 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   onDrawSubMenu(menuitem, line);
 }
 
+void onDrawSpeed(MenuItem* menuitem, int8_t line) {
+  if (hmiIsChinese())
+    menuitem->setFrame(1, 173, 133, 228, 147);
+  onDrawSubMenu(menuitem, line);
+}
+
+#if ENABLED(CLASSIC_JERK)
+  void onDrawJerk(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 200, 147);
+      dwinFrameAreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
+      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
+    }
+    onDrawSubMenu(menuitem, line);
+  }
+#endif
+
 #if HAS_X_AXIS
   void onDrawMaxAccelX(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
@@ -2951,6 +2968,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedX(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));   // X
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkX(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_Y_AXIS
@@ -2962,6 +2999,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedY(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));       // Y
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkY(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_Z_AXIS
@@ -2973,6 +3030,26 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
+
+  void onDrawMaxSpeedZ(MenuItem* menuitem, int8_t line) {
+    if (hmiIsChinese()) {
+      menuitem->setFrame(1, 173, 133, 228, 147);
+      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);  // Z
+    }
+    onDrawPFloatMenu(menuitem, line);
+  }
+
+  #if ENABLED(CLASSIC_JERK)
+    void onDrawMaxJerkZ(MenuItem* menuitem, int8_t line) {
+      if (hmiIsChinese()) {
+        menuitem->setFrame(1, 173, 133, 200, 147);
+        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
+        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
+        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
+      }
+      onDrawPFloatMenu(menuitem, line);
+    }
+  #endif
 #endif
 
 #if HAS_HOTEND
@@ -2984,45 +3061,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     }
     onDrawPInt32Menu(menuitem, line);
   }
-#endif
 
-void onDrawSpeed(MenuItem* menuitem, int8_t line) {
-  if (hmiIsChinese())
-    menuitem->setFrame(1, 173, 133, 228, 147);
-  onDrawSubMenu(menuitem, line);
-}
-
-#if HAS_X_AXIS
-  void onDrawMaxSpeedX(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(line));   // X
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Y_AXIS
-  void onDrawMaxSpeedY(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(line));       // Y
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_Z_AXIS
-  void onDrawMaxSpeedZ(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 228, 147);
-      dwinFrameAreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(line) + 3);  // Z
-    }
-    onDrawPFloatMenu(menuitem, line);
-  }
-#endif
-
-#if HAS_HOTEND
   void onDrawMaxSpeedE(MenuItem* menuitem, int8_t line) {
     if (hmiIsChinese()) {
       menuitem->setFrame(1, 173, 133, 228, 147);
@@ -3030,57 +3069,8 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
     }
     onDrawPFloatMenu(menuitem, line);
   }
-#endif
 
-#if ENABLED(CLASSIC_JERK)
-
-  void onDrawJerk(MenuItem* menuitem, int8_t line) {
-    if (hmiIsChinese()) {
-      menuitem->setFrame(1, 173, 133, 200, 147);
-      dwinFrameAreaCopy(1, 1, 180, 28, 192, LBLX + 27, MBASE(line) + 1);  // ...
-      dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 54, MBASE(line));   // ...Jerk
-    }
-    onDrawSubMenu(menuitem, line);
-  }
-
-  #if HAS_X_AXIS
-    void onDrawMaxJerkX(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1, 229, 133, 236, 147, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Y_AXIS
-    void onDrawMaxJerkY(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1,   1, 150,   7, 160, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_Z_AXIS
-    void onDrawMaxJerkZ(MenuItem* menuitem, int8_t line) {
-      if (hmiIsChinese()) {
-        menuitem->setFrame(1, 173, 133, 200, 147);
-        dwinFrameAreaCopy(1,   1, 180,  28, 192, LBLX + 27, MBASE(line));
-        dwinFrameAreaCopy(1, 202, 133, 228, 147, LBLX + 53, MBASE(line));
-        dwinFrameAreaCopy(1,   9, 150,  16, 160, LBLX + 83, MBASE(line));
-      }
-      onDrawPFloatMenu(menuitem, line);
-    }
-  #endif
-
-  #if HAS_HOTEND
-
+  #if ENABLED(CLASSIC_JERK)
     void onDrawMaxJerkE(MenuItem* menuitem, int8_t line) {
       if (hmiIsChinese()) {
         menuitem->setFrame(1, 173, 133, 200, 147);
@@ -3090,10 +3080,8 @@ void onDrawSpeed(MenuItem* menuitem, int8_t line) {
       }
       onDrawPFloatMenu(menuitem, line);
     }
-
   #endif
-
-#endif // CLASSIC_JERK
+#endif
 
 // Menu Creation and Drawing functions ======================================================
 
