@@ -1102,33 +1102,15 @@
   #if DEFAULT_ACCELERATION_SPINDLE
     #define HAS_SPINDLE_ACCELERATION 1
   #endif
+#endif
 
-  #if !defined(MIN_SPINDLE_OVERRIDE)
+#if ENABLED(SPINDLE_FEATURE)
+  #ifndef MIN_SPINDLE_OVERRIDE
     #define MIN_SPINDLE_OVERRIDE 10
   #endif
-  #if !defined(MAX_SPINDLE_OVERRIDE)
-    #define MIN_SPINDLE_OVERRIDE 255
-  #endif
-
-  #if MIN_SPINDLE_OVERRIDE < 1
-    #undef MIN_SPINDLE_OVERRIDE
-    #define MIN_SPINDLE_OVERRIDE 1
-  #endif
-  #if MIN_SPINDLE_OVERRIDE > 100
-    #undef MIN_SPINDLE_OVERRIDE
-    #define MIN_SPINDLE_OVERRIDE 100
-  #endif
-
-  #if MAX_SPINDLE_OVERRIDE < 100
-    #undef MAX_SPINDLE_OVERRIDE
-    #define MAX_SPINDLE_OVERRIDE 100
-  #endif
-
-  #if MAX_SPINDLE_OVERRIDE > 255
-    #undef MAX_SPINDLE_OVERRIDE
+  #ifndef MAX_SPINDLE_OVERRIDE
     #define MAX_SPINDLE_OVERRIDE 255
   #endif
-
 #endif
 
 #if !defined(__AVR__) || !defined(USBCON)

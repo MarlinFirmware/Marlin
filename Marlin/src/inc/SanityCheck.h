@@ -4155,7 +4155,16 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(LASER_SAFETY_TIMEOUT_MS < (DEFAULT_STEPPER_TIMEOUT_SEC) * 1000UL, "LASER_SAFETY_TIMEOUT_MS must be less than DEFAULT_STEPPER_TIMEOUT_SEC (" STRINGIFY(DEFAULT_STEPPER_TIMEOUT_SEC) " seconds)");
   #endif
 
-#endif
+  #if ENABLED(SPINDLE_FEATURE)
+    #if !WITHIN(MIN_SPINDLE_OVERRIDE, 1, 100)
+      #error "MIN_SPINDLE_OVERRIDE must be an integer power value from 1 to 100."
+    #elif !WITHIN(MAX_SPINDLE_OVERRIDE, 100, 255)
+      #error "MAX_SPINDLE_OVERRIDE must be an integer power value from 100 to 255."
+    #elif MAX_SPINDLE_OVERRIDE < MIN_SPINDLE_OVERRIDE
+      #error "MAX_SPINDLE_OVERRIDE must be >= MIN_SPINDLE_OVERRIDE."
+    #endif
+  #endif
+#endif // HAS_CUTTER
 
 #if ENABLED(COOLANT_CONTROL)
   #if NONE(COOLANT_MIST, COOLANT_FLOOD)

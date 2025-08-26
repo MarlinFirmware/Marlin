@@ -786,7 +786,7 @@ void idle(const bool no_stepper_sleep/*=false*/) {
   thermalManager.task();
 
   // Realtime pause/resume ramping loop
-  #if defined(REALTIME_RAMPING)
+  #if ENABLED(REALTIME_RAMPING)
     updateSoftStopResume();
   #endif
 

@@ -63,8 +63,9 @@ cutter_power_t SpindleLaser::menuPower = 0,                           // Power v
 
 cutter_frequency_t SpindleLaser::frequency;                           // PWM frequency setting; range: 2K - 50K
 
-uint16_t SpindleLaser::spindle_override;
-bool SpindleLaser::dir_state;
+#if ENABLED(SPINDLE_FEATURE)
+  uint16_t SpindleLaser::spindle_override;                            // M222 Power Override for the Spindle
+#endif
 
 #define SPINDLE_LASER_PWM_OFF TERN(SPINDLE_LASER_PWM_INVERT, 255, 0)
 
@@ -72,9 +73,7 @@ bool SpindleLaser::dir_state;
  * Init the cutter to a safe OFF state
  */
 void SpindleLaser::init() {
-  spindle_override = 100;
-  dir_state = false;
-  
+  TERN_(SPINDLE_FEATURE, spindle_override = 100);
   #if ENABLED(SPINDLE_SERVO)
     servo[SPINDLE_SERVO_NR].move(SPINDLE_SERVO_MIN);
   #elif PIN_EXISTS(SPINDLE_LASER_ENA)
@@ -108,9 +107,13 @@ void SpindleLaser::init() {
    */
   void SpindleLaser::_set_ocr(const uint8_t unscaledOcr) {
 
-    // applying spindle override
-    uint16_t scaled = static_cast<uint16_t>(unscaledOcr) * spindle_override;
-    uint8_t ocr = scaled > 25500 ? 255 : scaled / 100;
+    // Apply spindle override
+    const uint16_t scaled = MUL_TERN(static_cast<uint16_t>(unscaledOcr), spindle_override);
+    #if ENABLED(SPINDLE_FEATURE)
+      const uint8_t ocr = scaled > 25500 ? 255 : scaled / 100;
+    #else
+      const uint8_t ocr = scaled > 255 ? 255 : scaled;
+    #endif
     
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
@@ -192,7 +195,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
    * Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
    */
   void SpindleLaser::set_reverse(const bool reverse) {
-    dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
+    const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }

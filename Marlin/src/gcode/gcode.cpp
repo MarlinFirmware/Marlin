@@ -486,7 +486,6 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 3: M3_M4(false); break;                              // M3: Turn ON Laser | Spindle (clockwise), set Power | Speed
         case 4: M3_M4(true ); break;                              // M4: Turn ON Laser | Spindle (counter-clockwise), set Power | Speed
         case 5:         M5(); break;                              // M5: Turn OFF Laser | Spindle
-        case 222:     M222(); break;                              // M222: Spindle override
       #endif
 
       #if ENABLED(COOLANT_MIST)
@@ -765,6 +764,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if HAS_EXTRUDERS
         case 221: M221(); break;                                  // M221: Set Flow Percentage
+      #endif
+
+      #if ENABLED(SPINDLE_FEATURE)
+        case 222: M222(); break;                                  // M222: Spindle override
       #endif
 
       #if ENABLED(DIRECT_PIN_CONTROL)

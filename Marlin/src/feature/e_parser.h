@@ -85,7 +85,6 @@ private:
 
 extern EmergencyParser emergency_parser;
 
-#if defined(REALTIME_RAMPING)
-  extern bool realtime_ramping_pause_flag;
-  extern bool realtime_ramping_resume_flag;
+#if ENABLED(REALTIME_RAMPING)
+  extern bool realtime_ramping_pause_flag, realtime_ramping_resume_flag;
 #endif

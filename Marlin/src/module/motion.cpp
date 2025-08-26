@@ -77,7 +77,7 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
-#if defined(REALTIME_RAMPING)
+#if ENABLED(REALTIME_RAMPING)
   #include "../feature/e_parser.h"
 #endif
 
@@ -2886,82 +2886,78 @@ void set_axis_is_at_home(const AxisEnum axis) {
 #endif
 
 
-#if defined(REALTIME_RAMPING)
+#if ENABLED(REALTIME_RAMPING)
+  static bool smooth_motion_flag = false;
+  static millis_t smooth_motion_start = 0;
+  static bool smooth_stopped_flag = false;
 
-static bool smooth_motion_flag = false;
-static unsigned long smooth_motion_start = 0;
-static bool smooth_stopped_flag = false;
-
-
-void realtime_soft_stop() {
-  if (!smooth_motion_flag) {
-    smooth_motion_flag = true;
-    stepper.isr_ramp_factor = MAX_REALTIME_RAMPING_FACTOR;
-    smooth_motion_start = millis();
-  }
-
-  if (stepper.isr_ramp_factor <= MIN_REALTIME_RAMPING_FACTOR) {
-    stepper.isr_ramp_factor = MIN_REALTIME_RAMPING_FACTOR;
-    smooth_motion_flag = false;
-    realtime_ramping_pause_flag = false;
-    smooth_stopped_flag = true;
-    quickpause_stepper();
-    set_and_report_grblstate(M_HOLD);
-    return;
-  }
-
-  const millis_t smooth_now = millis();
-  if (smooth_now - smooth_motion_start >= REALTIME_RAMPING_STEP_DURATION) {
-    stepper.isr_ramp_factor -= REALTIME_RAMPING_STEP;
-    smooth_motion_start = smooth_now;
-  }
-}
-
-
-void realtime_soft_resume() {
-  if (!smooth_motion_flag) {
-    smooth_motion_flag = true;
-    stepper.isr_ramp_factor = MIN_REALTIME_RAMPING_FACTOR;
-    smooth_motion_start = millis();
-
-    if (!stepper.is_awake())
-      stepper.wake_up();
-
-    if (stepper.axis_is_moving(X_AXIS) ||
-        stepper.axis_is_moving(Y_AXIS) ||
-        stepper.axis_is_moving(Z_AXIS) ||
-        stepper.axis_is_moving(E0_AXIS)) {
-      set_and_report_grblstate(M_RUNNING);
+  void realtime_soft_stop() {
+    if (!smooth_motion_flag) {
+      smooth_motion_flag = true;
+      stepper.isr_ramp_factor = MAX_REALTIME_RAMPING_FACTOR;
+      smooth_motion_start = millis();
     }
-    else {
-      set_and_report_grblstate(M_IDLE);
+
+    if (stepper.isr_ramp_factor <= MIN_REALTIME_RAMPING_FACTOR) {
+      stepper.isr_ramp_factor = MIN_REALTIME_RAMPING_FACTOR;
+      smooth_motion_flag = false;
+      realtime_ramping_pause_flag = false;
+      smooth_stopped_flag = true;
+      quickpause_stepper();
+      set_and_report_grblstate(M_HOLD);
+      return;
+    }
+
+    const millis_t smooth_now = millis();
+    if (smooth_now - smooth_motion_start >= REALTIME_RAMPING_STEP_DURATION) {
+      stepper.isr_ramp_factor -= REALTIME_RAMPING_STEP;
+      smooth_motion_start = smooth_now;
     }
   }
 
-  if (stepper.isr_ramp_factor >= MAX_REALTIME_RAMPING_FACTOR) {
-    stepper.isr_ramp_factor = MAX_REALTIME_RAMPING_FACTOR;
-    smooth_motion_flag = false;
-    realtime_ramping_resume_flag = false;
-    return;
+  void realtime_soft_resume() {
+    if (!smooth_motion_flag) {
+      smooth_motion_flag = true;
+      stepper.isr_ramp_factor = MIN_REALTIME_RAMPING_FACTOR;
+      smooth_motion_start = millis();
+
+      if (!stepper.is_awake()) stepper.wake_up();
+
+      if ( TERN1(HAS_X_AXIS, stepper.axis_is_moving(X_AXIS))
+        || TERN1(HAS_Y_AXIS, stepper.axis_is_moving(Y_AXIS))
+        || TERN1(HAS_Z_AXIS, stepper.axis_is_moving(Z_AXIS))
+        || TERN1(HAS_EXTRUDERS, stepper.axis_is_moving(E_AXIS))
+      ) {
+        set_and_report_grblstate(M_RUNNING);
+      }
+      else {
+        set_and_report_grblstate(M_IDLE);
+      }
+    }
+
+    if (stepper.isr_ramp_factor >= MAX_REALTIME_RAMPING_FACTOR) {
+      stepper.isr_ramp_factor = MAX_REALTIME_RAMPING_FACTOR;
+      smooth_motion_flag = false;
+      realtime_ramping_resume_flag = false;
+      return;
+    }
+
+    const millis_t smooth_now = millis();
+
+    if (smooth_now - smooth_motion_start >= REALTIME_RAMPING_STEP_DURATION) {
+      stepper.isr_ramp_factor += REALTIME_RAMPING_STEP;
+      smooth_motion_start = smooth_now;
+    }
   }
 
-  const millis_t smooth_now = millis();
-
-  if (smooth_now - smooth_motion_start >= REALTIME_RAMPING_STEP_DURATION) {
-    stepper.isr_ramp_factor += REALTIME_RAMPING_STEP;
-    smooth_motion_start = smooth_now;
-  }
-}
-
-
-void updateSoftStopResume()
-{
-  if (realtime_ramping_pause_flag) {
+  void updateSoftStopResume() {
+    if (realtime_ramping_pause_flag) {
       realtime_ramping_resume_flag = false; // Prioritize pause in case of a conflict
       realtime_soft_stop();
-  } else if (realtime_ramping_resume_flag) {
+    }
+    else if (realtime_ramping_resume_flag) {
       realtime_soft_resume();
     }
-}
+  }
 
-#endif
+#endif // REALTIME_RAMPING

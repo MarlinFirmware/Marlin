@@ -150,7 +150,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if defined(REALTIME_RAMPING)
+#if ENABLED(REALTIME_RAMPING)
   volatile uint16_t Stepper::isr_ramp_factor;
 #endif
 
@@ -1717,16 +1717,16 @@ void Stepper::isr() {
   // Now 'next_isr_ticks' contains the period to the next Stepper ISR - And we are
   // sure that the time has not arrived yet - Warrantied by the scheduler
 
-  // Set the next ISR to fire at the proper time
-  #if defined(REALTIME_RAMPING)
-    if(isr_ramp_factor!=MAX_REALTIME_RAMPING_FACTOR)
-      {
-        // scaling the ISR frequency by isr_ramp_factor
-        uint32_t temp_isr_ticks = (uint32_t)next_isr_ticks * 10000UL / isr_ramp_factor;
-        LIMIT(temp_isr_ticks, 0U, 65535);
-        next_isr_ticks = (hal_timer_t)temp_isr_ticks;
-      }
+  #if ENABLED(REALTIME_RAMPING)
+    if (isr_ramp_factor != MAX_REALTIME_RAMPING_FACTOR) {
+      // Scale the ISR frequency by isr_ramp_factor
+      uint32_t temp_isr_ticks = (uint32_t)next_isr_ticks * 10000UL / isr_ramp_factor;
+      //LIMIT(temp_isr_ticks, 0U, 65535);
+      next_isr_ticks = (hal_timer_t)temp_isr_ticks;
+    }
   #endif
+
+  // Set the next ISR to fire at the proper time
   HAL_timer_set_compare(MF_TIMER_STEP, next_isr_ticks);
 
   // Don't forget to finally reenable interrupts on non-AVR.
@@ -3148,7 +3148,7 @@ bool Stepper::is_block_busy(const block_t * const block) {
 
 void Stepper::init() {
 
-  #if defined(REALTIME_RAMPING)
+  #if ENABLED(REALTIME_RAMPING)
     isr_ramp_factor = MAX_REALTIME_RAMPING_FACTOR;
   #endif
 

@@ -2751,16 +2751,16 @@
   //#define FULL_REPORT_TO_HOST_FEATURE   // Auto-report the machine status like Grbl CNC
 
   /**
- * If enabled, P000 and R000 commands will apply ramping.
- *
- * REALTIME_RAMPING_STEP determines the ramping resolution.
- * Acceptable values: 125, 250, or 500.
- *
- * REALTIME_RAMPING_STEP_DURATION controls how quickly the stop is executed.
- * Valid range: 1 to 10 — lower values result in faster stops.
- */
+   * If enabled, P000 and R000 commands will apply ramping.
+   *
+   * REALTIME_RAMPING_STEP determines the ramping resolution.
+   * Acceptable values: 125, 250, or 500.
+   *
+   * REALTIME_RAMPING_STEP_DURATION controls how quickly the stop is executed.
+   * Valid range: 1 to 10 — lower values result in faster stops.
+   */
   //#define REALTIME_RAMPING
-  #if defined(REALTIME_RAMPING)
+  #if ENABLED(REALTIME_RAMPING)
     #define REALTIME_RAMPING_STEP 125
     #define REALTIME_RAMPING_STEP_DURATION 5
   #endif
