@@ -112,7 +112,7 @@ void GcodeSuite::M115() {
         if (i <= 3) SERIAL_CHAR('-');
       }
     #endif
-  
+
     SERIAL_EOL();
   #endif
 
