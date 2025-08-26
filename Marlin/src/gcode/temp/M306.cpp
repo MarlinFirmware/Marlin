@@ -65,7 +65,7 @@ void GcodeSuite::M306() {
         default: tuning_type = Temperature::MPCTuningType::AUTO; break;
       }
       if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
-        SERIAL_ECHOLNPGM("Aymptotic tuning not available for PTC hotends");
+        SERIAL_ECHOLNPGM("Asymptotic tuning not available for PTC hotends");
       else {
         LCD_MESSAGE(MSG_MPC_AUTOTUNE);
         thermalManager.MPC_autotune(e, tuning_type);
