@@ -112,7 +112,7 @@ def main(argv):
         elif opt == "--rp":
             rp = int(arg)
         elif opt == "--t1":
-            arg = arg.split(':')
+            arg = arg.split(":")
             t1 = float(arg[0])
             r1 = float(arg[1])
         elif opt == "--t2":
