@@ -91,7 +91,7 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
-#else
+#elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
 #endif
 
@@ -400,7 +400,7 @@ void FTMotion::reset() {
     shaping.zi_idx = 0;
   #endif
 
-  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);
+  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
@@ -582,25 +582,27 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 // Generate data points of the trajectory.
 void FTMotion::makeVector() {
   do {
-    float accel_k = 0.0f;                                 // (mm/s^2) Acceleration K factor
     float tau = (makeVector_idx + 1) * (FTM_TS);          // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
+    #if HAS_EXTRUDERS
+      float accel_k = 0.0f;                               // (mm/s^2) Acceleration K factor
+    #endif
 
     if (makeVector_idx < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
-      accel_k = accel_P;                                  // (mm/s^2) Acceleration K factor from Accel phase
+      TERN_(HAS_EXTRUDERS, accel_k = accel_P);            // (mm/s^2) Acceleration K factor from Accel phase
     }
     else if (makeVector_idx < (N1 + N2)) {
       // Coasting phase
       dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
-      //accel_k = 0.0f;
+      //TERN_(HAS_EXTRUDERS, accel_k = 0.0f);
     }
     else {
       // Deceleration phase
       tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
       dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
-      accel_k = decel_P;                                  // (mm/s^2) Acceleration K factor from Decel phase
+      TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
     #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPosn.q + ratio.q * dist;

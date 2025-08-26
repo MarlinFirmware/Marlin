@@ -1020,11 +1020,14 @@
   #define HAS_RESUME_CONTINUE 1
 #endif
 
+// Color LEDs (with optional White channel)
+
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
+
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
