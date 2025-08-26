@@ -50,12 +50,18 @@ void GcodeSuite::M412() {
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      if (parser.seenval('M')) runout.set_motion_distance(parser.value_linear_units());
+    #endif
   }
   else {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM("Filament runout ", ON_OFF(runout.enabled));
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(), "mm");
+    #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      SERIAL_ECHOPGM(" ; Motion distance ", runout.motion_distance(), "mm");
     #endif
     #if ENABLED(HOST_ACTION_COMMANDS)
       SERIAL_ECHOPGM(" ; Host handling ", ON_OFF(runout.host_handling));
@@ -72,6 +78,9 @@ void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
     "  M412 S", runout.enabled
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       , " D", LINEAR_UNIT(runout.runout_distance())
+    #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      , " M", LINEAR_UNIT(runout.motion_distance())
     #endif
     , " ; Sensor ", ON_OFF(runout.enabled)
   );

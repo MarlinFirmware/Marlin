@@ -29,12 +29,15 @@
 #include "../../gcode.h"
 
 /**
- * M430: Enable/disable current LCD display
- *       With no parameters report the system current draw (in Amps)
+ * M430: Power Monitor
  *
- *  I[bool] - Set Display of current on the LCD
- *  V[bool] - Set Display of voltage on the LCD
- *  W[bool] - Set Display of power on the LCD
+ * Enable/disable power monitor on LCD display.
+ *
+ * Parameters:
+ *   None     Report the system current draw in Amps/Volts/Watts
+ *   I<bool>  Display current (A) on the LCD
+ *   V<bool>  Display voltage (V) on the LCD
+ *   W<bool>  Display power/watts (W) on the LCD
  */
 void GcodeSuite::M430() {
   bool do_report = true;

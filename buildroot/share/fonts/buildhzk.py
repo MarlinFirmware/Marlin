@@ -47,6 +47,11 @@ def marlin_font_hzk():
             with open(f[2], 'rb') as file:
                 print(f'{f[0]}x{f[1]}')
                 font = bdflib.reader.read_bdf(file)
+
+                if font is None:
+                    print(f'Failed to read font from {f[2]}')
+                    continue  # Skip this font and move to the next one
+
                 for glyph in range(128):
                     bits = glyph_bits(f[0], f[1], font, glyph)
                     glyph_bytes = math.ceil(f[0]/8)
@@ -58,6 +63,7 @@ def marlin_font_hzk():
                         except OverflowError:
                             print('Overflow')
                             print(f'{glyph}')
-                            print(font[glyph])
+                            if font and glyph in font: print(font[glyph])
+                            else: print(f'Glyph {glyph} not found in the font or font is None')
                             for b in bits: print(f'{b:0{f[0]}b}')
                             return
