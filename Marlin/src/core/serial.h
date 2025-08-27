@@ -185,7 +185,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 //                   all the odd loose string elements as PROGMEM strings.
 //
 
-// Print up to 20 pairs of values. Odd elements must be literal strings.
+// Print pairs of values. Odd elements must be literal strings.
 #define __SEP_N(N,V...)           _SEP_##N(V)
 #define _SEP_N(N,V...)            __SEP_N(N,V)
 #define _SEP_N_REF()              _SEP_N
@@ -194,7 +194,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM(V...)      do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values followed by newline. Odd elements must be literal strings.
+// Print pairs of values followed by newline. Odd elements must be literal strings.
 #define __SELP_N(N,V...)          _SELP_##N(V)
 #define _SELP_N(N,V...)           __SELP_N(N,V)
 #define _SELP_N_REF()             _SELP_N
@@ -203,7 +203,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOLNPGM(V...)    do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values. Odd elements must be PSTR pointers.
+// Print pairs of values. Odd elements must be PSTR pointers.
 #define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
 #define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
 #define _SEP_N_P_REF()            _SEP_N_P
@@ -212,7 +212,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SEP_3_P(p,v,V...)        _SEP_2_P(p,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM_P(V...)    do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values followed by newline. Odd elements must be PSTR pointers.
+// Print pairs of values followed by newline. Odd elements must be PSTR pointers.
 #define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
 #define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
 #define _SELP_N_P_REF()           _SELP_N_P

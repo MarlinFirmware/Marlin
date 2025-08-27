@@ -2304,7 +2304,7 @@ void setMoveZ() { hmiValue.axis = Z_AXIS; setPFloatOnClick(Z_MIN_POS, Z_MAX_POS,
   #if HAS_COLOR_LEDS
     bool enableLiveLedColor = true;
     void applyLEDColor() {
-      hmiData.ledColor = LEDColor( {leds.color.r, leds.color.g, leds.color.b OPTARG(HAS_WHITE_LED, hmiData.ledColor.w) } );
+      hmiData.ledColor = LED1Color_t(leds.color.r, leds.color.g, leds.color.b OPTARG(HAS_WHITE_LED, hmiData.ledColor.w));
       if (!enableLiveLedColor) leds.update();
     }
     void liveLEDColor(uint8_t *color) { *color = menuData.value; if (enableLiveLedColor) leds.update(); }
