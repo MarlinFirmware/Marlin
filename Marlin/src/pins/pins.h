@@ -177,6 +177,8 @@
   #include "ramps/pins_RAMPS_ENDER_4.h"             // ATmega2560                           env:mega2560
 #elif MB(RAMPS_CREALITY)
   #include "ramps/pins_RAMPS_CREALITY.h"            // ATmega2560                           env:mega2560
+#elif MB(CREALITY_V252)
+  #include "ramps/pins_CREALITY_V252.h"             // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_F5)
   #include "ramps/pins_DAGOMA_F5.h"                 // ATmega2560                           env:mega2560
 #elif MB(DAGOMA_D6)
@@ -225,8 +227,6 @@
   #include "ramps/pins_XTLW_MFF_V2.h"               // ATmega2560                           env:mega2560
 #elif MB(RUMBA_E3D)
   #include "ramps/pins_RUMBA_E3D.h"                 // ATmega2560                           env:mega2560
-#elif MB(CREALITY_V252)
-  #include "ramps/pins_CREALITY_V252.h"             // ATmega2560                           env:mega2560
 
 //
 // RAMBo and derivatives
