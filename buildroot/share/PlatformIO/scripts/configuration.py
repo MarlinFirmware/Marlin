@@ -4,7 +4,7 @@
 # Apply options from config.ini to the existing Configuration headers
 #
 
-import re, shutil, configparser, datetime
+import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
@@ -145,8 +145,6 @@ def fetch_example(url):
     else:
         blab("Couldn't find curl or wget", -1)
         return False
-
-    import os
 
     # Reset configurations to default
     os.system("git checkout HEAD Marlin/*.h")

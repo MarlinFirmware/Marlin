@@ -152,8 +152,8 @@
   #include "feature/encoder_i2c.h"
 #endif
 
-#if (HAS_TRINAMIC_CONFIG || HAS_TMC_SPI) && DISABLED(PSU_DEFAULT_OFF)
-  #include "feature/tmc_util.h"
+#if HAS_TRINAMIC_CONFIG
+  #include "module/stepper/trinamic.h"
 #endif
 
 #if HAS_CUTTER
