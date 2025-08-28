@@ -14,6 +14,7 @@
 #
 # To view a copy of the GNU General Public License, go to the following
 # location: <https://www.gnu.org/licenses/>.
+
 from __future__ import print_function
 from PIL import Image
 import argparse, textwrap, os, sys, zlib

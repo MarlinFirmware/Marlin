@@ -67,7 +67,7 @@ def image2bin(image, output_file, transparency):
 if len(sys.argv) <= 2:
     print("Utility to export a image in Marlin TFT friendly format.")
     print("It will dump a raw bin RGB565 image or create a CPP file with an array of 16 bit image pixels.")
-    print("usage: gen-tft-image.py INPUT_IMAGE.(png|bmp|jpg) OUTPUT_FILE.(cpp|bin) [--transparency]")
+    print("Usage: gen-tft-image.py INPUT_IMAGE.(png|bmp|jpg) OUTPUT_FILE.(cpp|bin) [--transparency]")
     print("Authors: rhapsodyv, thinkyhead")
     exit(1)
 
