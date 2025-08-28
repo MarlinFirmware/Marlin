@@ -556,7 +556,12 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
-  #define _SET_MOVE_END(A) do{ if ( moveDist[_AXIS(A)]) { axis_move_end_ti.A = move_end_ti; axis_move_dir.A = ( moveDist[_AXIS(A)] > 0); } }while(0);
+  #define _SET_MOVE_END(A) do{ \
+    if (moveDist[_AXIS(A)]) { \
+      axis_move_end_ti.A = move_end_ti; \
+      axis_move_dir.A = (moveDist[_AXIS(A)] > 0); \
+    } \
+  }while(0);
 
   LOGICAL_AXIS_MAP(_SET_MOVE_END);
 }
