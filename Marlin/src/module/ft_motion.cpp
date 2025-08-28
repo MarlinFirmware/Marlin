@@ -467,7 +467,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               oneOverLength = 1.0f / totalLength;
 
   startPosn = endPosn_prevBlock;
-  
+
   const xyze_pos_t& moveDist = current_block->dist_mm;
 
   ratio = moveDist * oneOverLength;
@@ -557,9 +557,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
   #define _SET_MOVE_END(A) do{ \
-    if (moveDist[_AXIS(A)]) { \
+    if (moveDist.A) { \
       axis_move_end_ti.A = move_end_ti; \
-      axis_move_dir.A = (moveDist[_AXIS(A)] > 0); \
+      axis_move_dir.A = moveDist.A > 0; \
     } \
   }while(0);
 
