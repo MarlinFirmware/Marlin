@@ -96,29 +96,29 @@ Step power is either cumulatively added or subtracted during trapeziod ramp prog
 
 #### Planner Code:
 
-   ```
-   if (block->laser.power > 0) {
-      NOLESS(block->laser.power, laser_power_floor);
-      block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
-      block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
-      float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
-      NOLESS(laser_pwr, laser_power_floor);
-      block->laser.trap_ramp_exit_decr = (block->laser.power - laser_pwr) / decelerate_steps;
-   ```
+```
+if (block->laser.power > 0) {
+   NOLESS(block->laser.power, laser_power_floor);
+   block->laser.trap_ramp_active_pwr = (block->laser.power - laser_power_floor) * (initial_rate / float(block->nominal_rate)) + laser_power_floor;
+   block->laser.trap_ramp_entry_incr = (block->laser.power - block->laser.trap_ramp_active_pwr) / accelerate_steps;
+   float laser_pwr = block->laser.power * (final_rate / float(block->nominal_rate));
+   NOLESS(laser_pwr, laser_power_floor);
+   block->laser.trap_ramp_exit_decr = (block->laser.power - laser_pwr) / decelerate_steps;
+```
 
 #### Stepper Code:
 
-   ```
-   if (current_block->laser.trap_ramp_entry_incr > 0) {
-      cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
-      current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr;
-   ```
+```
+if (current_block->laser.trap_ramp_entry_incr > 0) {
+   cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
+   current_block->laser.trap_ramp_active_pwr += current_block->laser.trap_ramp_entry_incr;
+```
 
-   ```
-   if (current_block->laser.trap_ramp_exit_decr > 0) {
-      current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr;
-      cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
-   ```
+```
+if (current_block->laser.trap_ramp_exit_decr > 0) {
+   current_block->laser.trap_ramp_active_pwr -= current_block->laser.trap_ramp_exit_decr;
+   cutter.apply_power(current_block->laser.trap_ramp_active_pwr);
+```
 
 ### Dynamic Inline Calculations
 
