@@ -2903,10 +2903,10 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
       if (!stepper.is_awake()) stepper.wake_up();
 
-      if ( TERN1(HAS_X_AXIS, stepper.axis_is_moving(X_AXIS))
-        || TERN1(HAS_Y_AXIS, stepper.axis_is_moving(Y_AXIS))
-        || TERN1(HAS_Z_AXIS, stepper.axis_is_moving(Z_AXIS))
-        || TERN1(HAS_EXTRUDERS, stepper.axis_is_moving(E_AXIS))
+      if ( TERN0(HAS_X_AXIS, stepper.axis_is_moving(X_AXIS))
+        || TERN0(HAS_Y_AXIS, stepper.axis_is_moving(Y_AXIS))
+        || TERN0(HAS_Z_AXIS, stepper.axis_is_moving(Z_AXIS))
+        || TERN0(HAS_EXTRUDERS, stepper.axis_is_moving(E_AXIS))
       ) {
         set_and_report_grblstate(M_RUNNING);
       }

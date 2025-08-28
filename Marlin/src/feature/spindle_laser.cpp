@@ -108,7 +108,7 @@ void SpindleLaser::init() {
   void SpindleLaser::_set_ocr(const uint8_t unscaledOcr) {
 
     // Apply spindle override
-    const uint16_t scaled = MUL_TERN(static_cast<uint16_t>(unscaledOcr), spindle_override);
+    const uint16_t scaled = MUL_TERN1(static_cast<uint16_t>(unscaledOcr), spindle_override);
     #if ENABLED(SPINDLE_FEATURE)
       const uint8_t ocr = scaled > 25500 ? 255 : scaled / 100;
     #else
