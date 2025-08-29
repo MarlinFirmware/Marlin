@@ -69,17 +69,21 @@ void lv_draw_motor_settings() {
   scr = lv_screen_create(MOTOR_SETTINGS_UI, machine_menu.MotorConfTitle);
 
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
-    lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index++);
+    lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index);
+    index++;
   #endif
 
   #if USE_SENSORLESS
-    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index++);
+    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index);
+    index++;
   #endif
 
   #if HAS_TRINAMIC_CONFIG
-    lv_screen_menu_item(scr, machine_menu.TMCcurrentConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_TMC_CURRENT, index++);
+    lv_screen_menu_item(scr, machine_menu.TMCcurrentConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_TMC_CURRENT, index);
+    index++;
     #if HAS_STEALTHCHOP
-      lv_screen_menu_item(scr, machine_menu.TMCStepModeConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_STEP_MODE, index++);
+      lv_screen_menu_item(scr, machine_menu.TMCStepModeConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_STEP_MODE, index);
+      index++;
     #endif
   #endif
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_MOTOR_RETURN, true);

@@ -188,7 +188,7 @@ echo "Building example $CONFIG..."
 # If doing many builds get a list of all environment names,
 # which also gives us the number of environments.
 if ((MANY)); then
-  ENVLIST=$(mfenvs) # BOARD_NAME_STRING (1234): [ env1 env2 env3 ... ]
+  ENVLIST=$(mfenvs -n) # BOARD_NAME_STRING (1234): [ env1 env2 env3 ... ]
   ENVLIST=${ENVLIST##*: [ }
   ENVARRAY=(${ENVLIST% ]})
   ENVCOUNT=${#ENVARRAY[*]}
@@ -236,7 +236,7 @@ while ((1)); do
     fi
 
     # When building many, create sub-folders for each build env name
-    if [[ -n $MANY && $ENVCOUNT -gt 1 ]]; then
+    if [[ -n $MANY ]]; then
       ENV=${ENVARRAY[BUILDINDEX-1]}
       ARCENVSUB="$ARCSUB/$ENV"
     else

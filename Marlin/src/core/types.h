@@ -70,6 +70,9 @@ template <class L, class R> struct IF<true, L, R> { typedef L type; };
 #define LOGICAL_AXIS_MAP_LC(F)     MAP(F, LOGICAL_AXIS_NAMES_LC)
 #define STR_AXES_LOGICAL           LOGICAL_AXIS_GANG("E", "X", "Y", "Z", STR_I, STR_J, STR_K, STR_U, STR_V, STR_W)
 
+#define NUM_AXIS_PAIRED_LIST(V...)           LIST_N(DOUBLE(NUM_AXES), V)
+#define LOGICAL_AXIS_PAIRED_LIST(EA,EB,V...) NUM_AXIS_PAIRED_LIST(V) LIST_ITEM_E(EA) LIST_ITEM_E(EB)
+
 #if NUM_AXES
   #define NUM_AXES_SEP ,
   #define MAIN_AXIS_MAP(F)    MAP(F, MAIN_AXIS_NAMES)
@@ -354,7 +357,7 @@ typedef float feedRate_t;
 
 //
 // celsius_t is the native unit of temperature. Signed to handle a disconnected thermistor value (-14).
-// For more resolition (e.g., for a chocolate printer) this may later be changed to Celsius x 100
+// For more resolution (e.g., for a chocolate printer) this may later be changed to Celsius x 100
 //
 typedef uint16_t raw_adc_t;
 typedef int16_t celsius_t;

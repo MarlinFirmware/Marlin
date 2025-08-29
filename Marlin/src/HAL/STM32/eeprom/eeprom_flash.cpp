@@ -125,13 +125,13 @@ bool PersistentStore::access_start() {
       }
       if (current_slot == -1) {
         // We didn't find anything, so we'll just initialize to empty
-        for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = EMPTY_UINT8;
+        for (int i = 0; i < long(MARLIN_EEPROM_SIZE); i++) ram_eeprom[i] = EMPTY_UINT8;
         current_slot = EEPROM_SLOTS;
       }
       else {
         // load current settings
         uint8_t *eeprom_data = (uint8_t *)SLOT_ADDRESS(current_slot);
-        for (int i = 0; i < MARLIN_EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
+        for (int i = 0; i < long(MARLIN_EEPROM_SIZE); i++) ram_eeprom[i] = eeprom_data[i];
         DEBUG_ECHOLNPGM("EEPROM loaded from slot ", current_slot, ".");
       }
       eeprom_data_written = false;

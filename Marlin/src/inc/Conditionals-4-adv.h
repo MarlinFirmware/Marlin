@@ -1020,11 +1020,14 @@
   #define HAS_RESUME_CONTINUE 1
 #endif
 
+// Color LEDs (with optional White channel)
+
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
 #else
   #undef LED_POWEROFF_TIMEOUT
 #endif
+
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, HAS_MEDIA)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
@@ -1590,4 +1593,9 @@
   #endif
   #undef AUTO_REPORT_SD_STATUS
   #define AUTO_REPORT_SD_STATUS
+#endif
+
+// SPI Flash Backup
+#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+  #define SPI_FLASH_BACKUP 1
 #endif
