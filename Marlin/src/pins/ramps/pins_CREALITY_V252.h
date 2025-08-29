@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,25 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#if HOTENDS > 2 || E_STEPPERS > 1
+  #error "Creality V252 supports up to 2 hotends and 1 E stepper."
+#endif
 
-#if HAS_MEDIA
+#define BOARD_INFO_NAME "Creality3D V252"
 
-#include "../gcode.h"
-#include "../../sd/cardreader.h"
+#if !AXIS_DRIVER_TYPE_X(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_Y(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_Z(TMC2208_STANDALONE) || !AXIS_DRIVER_TYPE_E0(TMC2208_STANDALONE)
+  #error "Creality V252 requires TMC2208_STANDALONE for X,Y,Z and E."
+#endif
 
-/**
- * M26: Set Media File current index
- *
- * Set the next read position for the open file.
- *
- * Parameters:
- *   S<pos>  Next file read position to set
- */
-void GcodeSuite::M26() {
-  if (card.isMounted() && parser.seenval('S'))
-    card.setIndex(parser.value_long());
-}
-
-#endif // HAS_MEDIA
+//
+// Based on RAMPS CREALITY
+//
+#include "pins_RAMPS_CREALITY.h"

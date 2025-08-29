@@ -28,7 +28,7 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M21: Init SD Card
+ * M21: Mount Media
  *
  * With MULTI_VOLUME:
  *  P0 or S - Change to the SD Card and mount it
@@ -46,7 +46,7 @@ void GcodeSuite::M21() {
 }
 
 /**
- * M22: Release SD Card
+ * M22: Release Media
  */
 void GcodeSuite::M22() {
   if (!card.isStillPrinting()) card.release();
