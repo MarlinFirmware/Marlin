@@ -122,6 +122,8 @@ class TFilamentMonitor : public FilamentMonitorBase {
       static void filament_motion_present(const uint8_t extruder) {
         response.filament_motion_present(extruder);
       }
+      static float& motion_distance() { return response.motion_distance_mm; }
+      static void set_motion_distance(const_float_t mm) { response.motion_distance_mm = mm; }
     #endif
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
@@ -380,7 +382,7 @@ class FilamentSensorBase {
       static float runout_distance_mm;
 
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        static constexpr float motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
+        static float motion_distance_mm;
       #endif
 
       static void set_ignore_motion(const bool ignore=true) { ignore_motion = ignore; }

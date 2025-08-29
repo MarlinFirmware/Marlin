@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
+"""
+Formatter script for pins_MYPINS.h files
 
-#
-# Formatter script for pins_MYPINS.h files
-#
-# Usage: pinsformat.py [infile] [outfile]
-#
-# With no parameters convert STDIN to STDOUT
-#
+usage: pinsformat.py [infile] [outfile]
 
-import sys, re
+With no parameters convert STDIN to STDOUT
+"""
+
+import sys, re, argparse
 
 do_log = False
 def logmsg(msg, line):
@@ -46,14 +45,21 @@ ppad = [ 3, 4, 5, 5 ]
 definePinPatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+?_PIN\s+({mstr})\s*(//.*)?$')
 
 def format_pins(argv):
-    src_file = 'stdin'
-    dst_file = None
+    parser = argparse.ArgumentParser(description="Formatter script for pins_MYPINS.h files")
+    parser.add_argument('infile', nargs='?', default=None, help="Input file to read from. If not provided, reads from stdin.")
+    parser.add_argument('outfile', nargs='?', default=None, help="Output file to write to. If not provided, writes to stdout.")
+    parser.add_argument('-v', action='store_true', help="Enable logging.")
+
+    args = parser.parse_args(argv)
+
+    src_file = args.infile or 'stdin'
+    dst_file = args.outfile or None
 
     scnt = 0
     for arg in argv:
         if arg == '-v':
             global do_log
-            do_log = True
+            do_log = args.v or True
         elif scnt == 0:
             # Get a source file if specified. Default destination is the same file
             src_file = dst_file = arg
@@ -258,7 +264,7 @@ def process_text(txt):
 
         if wDict['check_comment_next']:
             # Comments in column 50
-            line = rpad('', col_comment) + r[1]
+            line = rpad('', col_comment) + (r[1] if r else '')
 
         elif trySkip1(wDict):   pass  #define SKIP_ME
         elif tryPindef(wDict):  pass  #define MY_PIN [pin]

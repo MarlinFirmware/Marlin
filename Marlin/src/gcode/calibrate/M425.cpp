@@ -109,25 +109,26 @@ void GcodeSuite::M425_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_BACKLASH_COMPENSATION));
-  SERIAL_ECHOLNPGM_P(
+  SERIAL_ECHOPGM_P(
     PSTR("  M425 F"), backlash.get_correction()
     #ifdef BACKLASH_SMOOTHING_MM
       , PSTR(" S"), LINEAR_UNIT(backlash.get_smoothing_mm())
     #endif
-    #if NUM_AXES
-      , LIST_N(DOUBLE(NUM_AXES),
-          SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
-          SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
-          SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
-          SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
-          SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
-          SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
-          SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
-          SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
-          SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
-        )
-    #endif
   );
+  #if NUM_AXES
+    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
+      SP_X_STR, LINEAR_UNIT(backlash.get_distance_mm(X_AXIS)),
+      SP_Y_STR, LINEAR_UNIT(backlash.get_distance_mm(Y_AXIS)),
+      SP_Z_STR, LINEAR_UNIT(backlash.get_distance_mm(Z_AXIS)),
+      SP_I_STR, I_AXIS_UNIT(backlash.get_distance_mm(I_AXIS)),
+      SP_J_STR, J_AXIS_UNIT(backlash.get_distance_mm(J_AXIS)),
+      SP_K_STR, K_AXIS_UNIT(backlash.get_distance_mm(K_AXIS)),
+      SP_U_STR, U_AXIS_UNIT(backlash.get_distance_mm(U_AXIS)),
+      SP_V_STR, V_AXIS_UNIT(backlash.get_distance_mm(V_AXIS)),
+      SP_W_STR, W_AXIS_UNIT(backlash.get_distance_mm(W_AXIS))
+    ));
+  #endif
+  SERIAL_EOL();
 }
 
 #endif // BACKLASH_GCODE

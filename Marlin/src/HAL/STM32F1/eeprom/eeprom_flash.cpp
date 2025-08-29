@@ -81,7 +81,7 @@ bool PersistentStore::access_finish() {
     if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
 
     const uint16_t *source = reinterpret_cast<const uint16_t*>(ram_eeprom);
-    for (size_t i = 0; i < MARLIN_EEPROM_SIZE; i += 2, ++source) {
+    for (size_t i = 0; i < long(MARLIN_EEPROM_SIZE); i += 2, ++source) {
       if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *source) != FLASH_COMPLETE)
         ACCESS_FINISHED(false);
     }
