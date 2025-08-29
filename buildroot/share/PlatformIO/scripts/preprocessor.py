@@ -1,6 +1,7 @@
-#
-# preprocessor.py
-#
+"""
+preprocessor.py
+"""
+
 import subprocess
 
 nocache = 1

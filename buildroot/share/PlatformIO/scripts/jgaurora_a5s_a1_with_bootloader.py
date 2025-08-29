@@ -1,7 +1,9 @@
-#
-# jgaurora_a5s_a1_with_bootloader.py
-# Customizations for env:jgaurora_a5s_a1
-#
+"""
+jgaurora_a5s_a1_with_bootloader.py
+
+Customizations for env:jgaurora_a5s_a1
+"""
+
 import pioutil
 if pioutil.is_pio_build():
 

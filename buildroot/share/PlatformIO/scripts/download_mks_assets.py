@@ -1,7 +1,9 @@
-#
-# download_mks_assets.py
-# Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
-#
+"""
+download_mks_assets.py
+
+Added by HAS_TFT_LVGL_UI to download assets from Makerbase repo
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     import requests, zipfile, tempfile, shutil

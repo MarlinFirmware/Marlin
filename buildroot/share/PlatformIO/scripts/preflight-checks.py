@@ -1,7 +1,9 @@
-#
-# preflight-checks.py
-# Check for common issues prior to compiling
-#
+"""
+preflight-checks.py
+
+Check for common issues prior to compiling
+"""
+
 import pioutil
 if pioutil.is_pio_build():
 

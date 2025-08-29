@@ -1,7 +1,9 @@
-#
-# marlin.py
-# Helper module with some commonly-used functions
-#
+"""
+marlin.py
+
+Helper module with some commonly-used functions
+"""
+
 import shutil
 from pathlib import Path
 
