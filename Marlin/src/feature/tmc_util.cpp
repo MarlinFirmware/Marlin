@@ -290,12 +290,13 @@
     SString<50>(F(" driver overtemperature warning! ("), st.getMilliamps(), F("mA)")).echoln();
   }
 
-  template<typename TMC>
-  void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
-    const uint32_t pwm_scale = get_pwm_scale(st);
-    st.printLabel();
-    SString<60> report(':', pwm_scale);
-    #if ENABLED(TMC_DEBUG)
+  #if ENABLED(TMC_DEBUG)
+
+    template<typename TMC>
+    void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
+      const uint32_t pwm_scale = get_pwm_scale(st);
+      st.printLabel();
+      SString<60> report(':', pwm_scale);
       #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
@@ -306,22 +307,21 @@
         else
           report += '-';
       #endif
-    #endif
-    report += '|';
-    if (st.error_count)       report += 'E'; // Error
-    if (data.is_ot)           report += 'O'; // Over-temperature
-    if (data.is_otpw)         report += 'W'; // over-temperature pre-Warning
-    #if ENABLED(TMC_DEBUG)
+      report += '|';
+      if (st.error_count)     report += 'E'; // Error
+      if (data.is_ot)         report += 'O'; // Over-temperature
+      if (data.is_otpw)       report += 'W'; // over-temperature pre-Warning
       if (data.is_stall)      report += 'G'; // stallGuard
       if (data.is_stealth)    report += 'T'; // stealthChop
       if (data.is_standstill) report += 'I'; // standstIll
-    #endif
-    if (st.flag_otpw)         report += 'F'; // otpw Flag
-    report += '|';
-    if (st.otpw_count > 0)    report += st.otpw_count;
-    report += '\t';
-    report.echo();
-  }
+      if (st.flag_otpw)       report += 'F'; // otpw Flag
+      report += '|';
+      if (st.otpw_count > 0)  report += st.otpw_count;
+      report += '\t';
+      report.echo();
+    }
+
+  #endif // TMC_DEBUG
 
   #if CURRENT_STEP_DOWN > 0
 

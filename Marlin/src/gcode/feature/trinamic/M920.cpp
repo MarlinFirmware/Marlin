@@ -40,44 +40,44 @@
  * M920: Set Homing Current for one or more axes
  *
  * Parameters:
- *   X[current]  - Homing Current to use for X axis stepper(s)
- *   Y[current]  - Homing Current to use for Y axis stepper(s)
- *   Z[current]  - Homing Current to use for Z axis stepper(s)
- *   A[current]  - Homing Current to use for A axis stepper(s)
- *   B[current]  - Homing Current to use for B axis stepper(s)
- *   C[current]  - Homing Current to use for C axis stepper(s)
- *   U[current]  - Homing Current to use for U axis stepper(s)
- *   V[current]  - Homing Current to use for V axis stepper(s)
- *   W[current]  - Homing Current to use for W axis stepper(s)
+ *   X<current>  - Homing Current to use for X axis stepper(s)
+ *   Y<current>  - Homing Current to use for Y axis stepper(s)
+ *   Z<current>  - Homing Current to use for Z axis stepper(s)
+ *   A<current>  - Homing Current to use for A axis stepper(s)
+ *   B<current>  - Homing Current to use for B axis stepper(s)
+ *   C<current>  - Homing Current to use for C axis stepper(s)
+ *   U<current>  - Homing Current to use for U axis stepper(s)
+ *   V<current>  - Homing Current to use for V axis stepper(s)
+ *   W<current>  - Homing Current to use for W axis stepper(s)
  *
  *   I<index>    - For multi-stepper axes, the zero-based index of the stepper to modify in each axis.
  *                 If omitted all steppers of each axis will be set to the given axis current.
  */
 void GcodeSuite::M920() {
   bool report = true;
-  const uint8_t index = parser.byteval(I_PARAM);
+  const int8_t index = parser.intval(I_PARAM, -1);
   LOOP_NUM_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
     const int16_t value = parser.value_int();
     report = false;
     switch (i) {
       #if X_HAS_HOME_CURRENT
         case X_AXIS:
-          if (index < 1) homing_current_mA.X = value;
-          TERN_(X2_HAS_HOME_CURRENT, if (!index || index == 1) homing_current_mA.X2 = value);
+          if (index <= 0) homing_current_mA.X = value;
+          TERN_(X2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.X2 = value);
           break;
       #endif
       #if Y_HAS_HOME_CURRENT
         case Y_AXIS:
-          if (index < 1) homing_current_mA.Y = value;
-          TERN_(Y2_HAS_HOME_CURRENT, if (!index || index == 1) homing_current_mA.Y2 = value);
+          if (index <= 0) homing_current_mA.Y = value;
+          TERN_(Y2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Y2 = value);
           break;
       #endif
       #if Z_HAS_HOME_CURRENT
         case Z_AXIS:
-          if (index < 1) homing_current_mA.Z = value;
-          TERN_(Z2_HAS_HOME_CURRENT, if (!index || index == 1) homing_current_mA.Z2 = value);
-          TERN_(Z3_HAS_HOME_CURRENT, if (!index || index == 2) homing_current_mA.Z3 = value);
-          TERN_(Z4_HAS_HOME_CURRENT, if (!index || index == 3) homing_current_mA.Z4 = value);
+          if (index <= 0) homing_current_mA.Z = value;
+          TERN_(Z2_HAS_HOME_CURRENT, if (index < 0 || index == 1) homing_current_mA.Z2 = value);
+          TERN_(Z3_HAS_HOME_CURRENT, if (index < 0 || index == 2) homing_current_mA.Z3 = value);
+          TERN_(Z4_HAS_HOME_CURRENT, if (index < 0 || index == 3) homing_current_mA.Z4 = value);
           break;
       #endif
       OPTCODE(I_HAS_HOME_CURRENT, case I_AXIS: homing_current_mA.I = value; break)
@@ -97,7 +97,7 @@ void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
 
   report_heading(forReplay, F(STR_HOMING_CURRENT));
 
-  auto say_M920 = [](const bool forReplay, int16_t index=-1) {
+  auto say_M920 = [](const bool forReplay, int8_t index=-1) {
     report_echo_start(forReplay);
     SERIAL_ECHOPGM("  M920");
     if (index >= 0) SERIAL_ECHOPGM(" " I_PARAM_STR, index);
@@ -113,6 +113,7 @@ void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
     TERN_(Y_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y));
     TERN_(Z_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z));
     #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
+      SERIAL_EOL();
       say_M920(forReplay);
     #endif
     TERN_(I_SENSORLESS, SERIAL_ECHOPGM_P(SP_I_STR, homing_current_mA.I));

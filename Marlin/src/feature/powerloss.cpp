@@ -420,8 +420,11 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Interpret the saved Z according to flags
-  const float z_print = resume_pos.z,
-              z_raised = z_print + info.zraise;
+  const float z_print = resume_pos.z;
+
+  #if ANY(Z_HOME_TO_MAX, POWER_LOSS_RECOVER_ZHOME) || DISABLED(BELTPRINTER)
+    const float z_raised = z_print + info.zraise;
+  #endif
 
   //
   // Home the axes that can safely be homed, and
@@ -482,7 +485,7 @@ void PrintJobRecovery::resume() {
 
     #if !HOMING_Z_DOWN
       // The physical Z was adjusted at power-off so undo the M420S1 correction to Z with G92.9.
-      PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9Z"), p_float_t(z_now, 1)));
+      PROCESS_SUBCOMMANDS_NOW(TS(F("G92.9Z"), p_float_t(z_now, 3)));
     #endif
   #endif
 

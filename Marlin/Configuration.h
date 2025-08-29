@@ -3118,7 +3118,7 @@
 
 //
 // FYSETC variant of the MINI12864 graphic controller with SD support
-// https://wiki.fysetc.com/Mini12864_Panel/
+// https://wiki.fysetc.com/docs/Mini12864Panel
 //
 //#define FYSETC_MINI_12864_X_X    // Type C/D/E/F. No tunable RGB Backlight by default
 //#define FYSETC_MINI_12864_1_2    // Type C/D/E/F. Simple RGB Backlight (always on)
@@ -3513,6 +3513,11 @@
 //#define DWIN_CREALITY_LCD_JYERSUI   // Jyers UI by Jacob Myers
 //#define DWIN_MARLINUI_PORTRAIT      // MarlinUI (portrait orientation)
 //#define DWIN_MARLINUI_LANDSCAPE     // MarlinUI (landscape orientation)
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  //#define USE_STRING_HEADINGS       // Use string headings for Creality UI instead of images
+  //#define USE_STRING_TITLES         // Use string titles for Creality UI instead of images
+#endif
 
 //
 // Touch Screen Settings
