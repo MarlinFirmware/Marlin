@@ -41,8 +41,8 @@ if pioutil.is_pio_build():
     #
     if 'encrypt_mks' in board_keys:
 
-        # Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt_mks
         def encrypt(source, target, env):
+            """Encrypt ${PROGNAME}.bin and save it with the name given in build.encrypt_mks."""
             marlin.encrypt_mks(source, target, env, board.get("build.encrypt_mks"))
 
         if board.get("build.encrypt_mks") != "":

@@ -16,7 +16,7 @@ def enabled_defines(filepath):
 
     Output:
     Each entry is a dictionary with a 'name' and a 'section' key. We end up with:
-        { MOTHERBOARD: { name: "MOTHERBOARD", section: "hardware" }, ... }
+        {MOTHERBOARD: {name: "MOTHERBOARD", section: "hardware"}, ...}
 
     TODO: Drop the 'name' key as redundant. For now it's useful for debugging.
 
@@ -59,7 +59,7 @@ def enabled_defines(filepath):
         if sline[:7] == "#define":
             # Extract the key here (we don't care about the value)
             kv = sline[8:].strip().split()
-            outdict[kv[0]] = { 'name':kv[0], 'section': section }
+            outdict[kv[0]] = {'name':kv[0], 'section': section}
     return outdict
 
 # Compute the SHA256 hash of a file
@@ -129,7 +129,7 @@ def compute_build_signature(env):
     conf_defines = {}
     conf_names = []
     for hpath in header_paths:
-        # Get defines in the form of { name: { name:..., section:... }, ... }
+        # Get defines in the form of {name: {name:..., section:...}, ...}
         defines = enabled_defines(hpath)
         # Get all unique define names into a flat array
         conf_names += defines.keys()
@@ -180,7 +180,7 @@ def compute_build_signature(env):
 
     # And we only care about defines that (most likely) came from the config files
     # Build a dictionary of dictionaries with keys: 'name', 'section', 'value'
-    # { 'file1': { 'option': { 'name':'option', 'section':..., 'value':... }, ... }, 'file2': { ... } }
+    # {'file1': {'option': {'name':'option', 'section':..., 'value':...}, ...}, 'file2': {...}}
     real_config = {}
     for header in conf_defines:
         real_config[header] = {}
@@ -188,7 +188,7 @@ def compute_build_signature(env):
             if key in conf_defines[header]:
                 if key[0:2] == '__': continue
                 val = cleaned_build_defines[key]
-                real_config[header][key] = { 'file':header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
+                real_config[header][key] = {'file':header, 'name': key, 'value': val, 'section': conf_defines[header][key]['section']}
 
     def tryint(key):
         try: return int(build_defines[key])
@@ -223,7 +223,7 @@ def compute_build_signature(env):
         # Start with a preferred @section ordering
         preorder = ('test','custom','info','machine','eeprom','stepper drivers','multi stepper','idex','extruder','geometry','homing','kinematics','motion','motion control','endstops','filament runout sensors','probe type','probes','bltouch','leveling','temperature','hotend temp','mpctemp','pid temp','mpc temp','bed temp','chamber temp','fans','tool change','advanced pause','calibrate','calibration','media','lcd','lights','caselight','interface','custom main menu','custom config menu','custom buttons','develop','debug matrix','delta','scara','tpara','polar','polargraph','cnc','nozzle park','nozzle clean','gcode','serial','host','filament width','i2c encoders','i2cbus','joystick','multi-material','nanodlp','network','photo','power','psu control','reporting','safety','security','servos','stats','tmc/config','tmc/hybrid','tmc/serial','tmc/smart','tmc/spi','tmc/stallguard','tmc/status','tmc/stealthchop','tmc/tmc26x','units','volumetrics','extras')
 
-        sections = { key:{} for key in preorder }
+        sections = {key:{} for key in preorder}
 
         # Group options by schema @section
         for header in real_config:
@@ -283,7 +283,7 @@ def compute_build_signature(env):
 
         config_ini = build_path / 'config.ini'
         with config_ini.open('w', encoding='utf-8') as outfile:
-            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+            filegrp = {'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced'}
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -374,7 +374,7 @@ f'''#
 
         config_h = Path('Marlin', 'Config-export.h')
         with config_h.open('w') as outfile:
-            filegrp = { 'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced' }
+            filegrp = {'Configuration.h':'config:basic', 'Configuration_adv.h':'config:advanced'}
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
 

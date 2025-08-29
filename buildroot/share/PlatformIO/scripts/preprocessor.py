@@ -10,13 +10,10 @@ def blab(str):
     if verbose:
         print(str)
 
-################################################################################
-#
-# Invoke GCC to run the preprocessor and extract enabled features
-#
 preprocessor_cache = {}
 
 def run_preprocessor(env, fn=None):
+    """Invoke GCC to run the preprocessor and extract enabled features."""
     filename = fn or 'buildroot/share/PlatformIO/scripts/common-dependencies.h'
     if filename in preprocessor_cache:
         return preprocessor_cache[filename]
@@ -49,11 +46,8 @@ def run_preprocessor(env, fn=None):
     return define_list
 
 
-################################################################################
-#
-# Find a compiler, considering the OS
-#
 def search_compiler(env):
+    """Find a compiler, considering the OS."""
     global nocache
 
     from pathlib import Path, PurePath

@@ -1,8 +1,6 @@
-import argparse, sys, os, time, random, serial
+import argparse, sys, os, time, random, serial, MarlinBinaryProtocol
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
-
-import MarlinBinaryProtocol
 
 #-----------------#
 # Upload Callback #
@@ -55,7 +53,7 @@ def Upload(source, target, env):
         debugPrint('OK')
 
     def _Send(data):
-        debugPrint(f'>> {data}')
+        debugPrint(f">> {data}")
         strdata = bytearray(data, 'utf8') + b'\n'
         port.write(strdata)
         time.sleep(0.010)
@@ -68,7 +66,7 @@ def Upload(source, target, env):
             try:
                 clean_response = Resp.decode('utf8').rstrip().lstrip()
                 clean_responses.append(clean_response)
-                debugPrint(f'<< {clean_response}')
+                debugPrint(f"<< {clean_response}")
             except:
                 pass
         return clean_responses
@@ -127,9 +125,8 @@ def Upload(source, target, env):
         time.sleep(1)
         # Remount SD card
         _CheckSDCard()
-        print(' OK' if _RemoveFirmwareFile(FirmwareFile) else ' Error!')
+        print(" OK" if _RemoveFirmwareFile(FirmwareFile) else " Error!")
         _ClosePort()
-
 
     #---------------------#
     # Callback Entrypoint #
@@ -199,29 +196,29 @@ def Upload(source, target, env):
 
         # Dump some debug info
         if Debug:
-            print('Upload using:')
-            print('---- Marlin -----------------------------------')
-            print(f' PIOENV                      : {marlin_pioenv}')
-            print(f' SHORT_BUILD_VERSION         : {marlin_short_build_version}')
-            print(f' STRING_CONFIG_H_AUTHOR      : {marlin_string_config_h_author}')
-            print(f' MOTHERBOARD                 : {marlin_motherboard}')
-            print(f' BOARD_INFO_NAME             : {marlin_board_info_name}')
-            print(f' CUSTOM_BUILD_FLAGS          : {marlin_board_custom_build_flags}')
-            print(f' FIRMWARE_BIN                : {marlin_firmware_bin}')
-            print(f' LONG_FILENAME_HOST_SUPPORT  : {marlin_long_filename_host_support}')
-            print(f' LONG_FILENAME_WRITE_SUPPORT : {marlin_longname_write}')
-            print(f' CUSTOM_FIRMWARE_UPLOAD      : {marlin_custom_firmware_upload}')
-            print('---- Upload parameters ------------------------')
-            print(f' Source                      : {upload_firmware_source_path}')
-            print(f' Target                      : {upload_firmware_target_name}')
-            print(f' Port                        : {upload_port} @ {upload_speed} baudrate')
-            print(f' Timeout                     : {upload_timeout}')
-            print(f' Block size                  : {upload_blocksize}')
-            print(f' Compression                 : {upload_compression}')
-            print(f' Error ratio                 : {upload_error_ratio}')
-            print(f' Test                        : {upload_test}')
-            print(f' Reset                       : {upload_reset}')
-            print('-----------------------------------------------')
+            print("Upload using:")
+            print("---- Marlin -----------------------------------")
+            print(f" PIOENV                      : {marlin_pioenv}")
+            print(f" SHORT_BUILD_VERSION         : {marlin_short_build_version}")
+            print(f" STRING_CONFIG_H_AUTHOR      : {marlin_string_config_h_author}")
+            print(f" MOTHERBOARD                 : {marlin_motherboard}")
+            print(f" BOARD_INFO_NAME             : {marlin_board_info_name}")
+            print(f" CUSTOM_BUILD_FLAGS          : {marlin_board_custom_build_flags}")
+            print(f" FIRMWARE_BIN                : {marlin_firmware_bin}")
+            print(f" LONG_FILENAME_HOST_SUPPORT  : {marlin_long_filename_host_support}")
+            print(f" LONG_FILENAME_WRITE_SUPPORT : {marlin_longname_write}")
+            print(f" CUSTOM_FIRMWARE_UPLOAD      : {marlin_custom_firmware_upload}")
+            print("---- Upload parameters ------------------------")
+            print(f" Source                      : {upload_firmware_source_path}")
+            print(f" Target                      : {upload_firmware_target_name}")
+            print(f" Port                        : {upload_port} @ {upload_speed} baudrate")
+            print(f" Timeout                     : {upload_timeout}")
+            print(f" Block size                  : {upload_blocksize}")
+            print(f" Compression                 : {upload_compression}")
+            print(f" Error ratio                 : {upload_error_ratio}")
+            print(f" Test                        : {upload_test}")
+            print(f" Reset                       : {upload_reset}")
+            print("-----------------------------------------------")
 
         # Custom implementations based on board parameters
         # Generate a new 8.3 random filename
@@ -246,17 +243,20 @@ def Upload(source, target, env):
             FirmwareFiles = _GetFirmwareFiles(marlin_long_filename_host_support)
             if Debug:
                 for FirmwareFile in FirmwareFiles:
-                    print(f'Found: {FirmwareFile}')
+                    print(f"Found: {FirmwareFile}")
 
             # Get all 1st level firmware files (to remove)
-            OldFirmwareFiles = _FilterFirmwareFiles(FirmwareFiles[1 : len(FirmwareFiles) - 2], marlin_long_filename_host_support)  # Skip header and footers of list
+            OldFirmwareFiles = _FilterFirmwareFiles(
+                FirmwareFiles[1 : len(FirmwareFiles) - 2],
+                marlin_long_filename_host_support
+            )  # Skip header and footers of list
             if len(OldFirmwareFiles) == 0:
-                print('No old firmware files to delete')
+                print("No old firmware files to delete")
             else:
                 print(f"Remove {len(OldFirmwareFiles)} old firmware file{'s' if len(OldFirmwareFiles) != 1 else ''}:")
                 for OldFirmwareFile in OldFirmwareFiles:
                     print(f" -Removing- '{OldFirmwareFile}'...")
-                    print(' OK' if _RemoveFirmwareFile(OldFirmwareFile) else ' Error!')
+                    print(" OK" if _RemoveFirmwareFile(OldFirmwareFile) else " Error!")
 
             # Close serial
             _ClosePort()
@@ -268,22 +268,33 @@ def Upload(source, target, env):
 
         # Upload firmware file
         debugPrint(f"Copy '{upload_firmware_source_path}' --> '{upload_firmware_target_name}'")
-        protocol = MarlinBinaryProtocol.Protocol(upload_port, upload_speed, upload_blocksize, float(upload_error_ratio), int(upload_timeout))
+        protocol = MarlinBinaryProtocol.Protocol(
+            upload_port,
+            upload_speed,
+            upload_blocksize,
+            float(upload_error_ratio),
+            int(upload_timeout)
+        )
         #echologger = MarlinBinaryProtocol.EchoProtocol(protocol)
         protocol.connect()
         # Mark the rollback (delete broken transfer) from this point on
         rollback = True
         filetransfer = MarlinBinaryProtocol.FileTransferProtocol(protocol)
-        transferOK = filetransfer.copy(upload_firmware_source_path, upload_firmware_target_name, upload_compression, upload_test)
+        transferOK = filetransfer.copy(
+            upload_firmware_source_path,
+            upload_firmware_target_name,
+            upload_compression,
+            upload_test
+        )
         protocol.disconnect()
 
         # Notify upload completed
         protocol.send_ascii('M117 Firmware uploaded' if transferOK else 'M117 Firmware upload failed')
 
         # Remount SD card
-        print('Wait for SD card release...')
+        print("Wait for SD card release...")
         time.sleep(1)
-        print('Remount SD card')
+        print("Remount SD card")
         protocol.send_ascii('M21')
 
         # Transfer failed?
@@ -293,15 +304,15 @@ def Upload(source, target, env):
         else:
             # Trigger firmware update
             if upload_reset:
-                print('Trigger firmware update...')
+                print("Trigger firmware update...")
                 protocol.send_ascii('M997', True)
             protocol.shutdown()
 
-        print('Firmware update completed' if transferOK else 'Firmware update failed')
+        print("Firmware update completed" if transferOK else 'Firmware update failed')
         return 0 if transferOK else -1
 
     except KeyboardInterrupt:
-        print('Aborted by user')
+        print("Aborted by user")
         if filetransfer: filetransfer.abort()
         if protocol:
             protocol.disconnect()
@@ -312,7 +323,7 @@ def Upload(source, target, env):
 
     except serial.SerialException as se:
         # This exception is raised only for send_ascii data (not for binary transfer)
-        print(f'Serial excepion: {se}, transfer aborted')
+        print(f"Serial excepion: {se}, transfer aborted")
         if protocol:
             protocol.disconnect()
             protocol.shutdown()
@@ -321,7 +332,7 @@ def Upload(source, target, env):
         raise Exception(se)
 
     except MarlinBinaryProtocol.FatalError:
-        print('Too many retries, transfer aborted')
+        print("Too many retries, transfer aborted")
         if protocol:
             protocol.disconnect()
             protocol.shutdown()
@@ -336,7 +347,7 @@ def Upload(source, target, env):
             protocol.shutdown()
         _RollbackUpload(upload_firmware_target_name)
         _ClosePort()
-        print('Firmware not updated')
+        print("Firmware not updated")
         raise
 
 # Attach custom upload callback

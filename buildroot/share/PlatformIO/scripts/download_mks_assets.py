@@ -16,7 +16,7 @@ if pioutil.is_pio_build():
     def download_mks_assets():
         print("Downloading MKS Assets for TFT_LVGL_UI")
         r = requests.get(url, stream=True)
-        # the user may have a very clean workspace,
+        # The user may have a very clean workspace,
         # so create the PROJECT_LIBDEPS_DIR directory if not exits
         if not deps_path.exists():
             deps_path.mkdir()
