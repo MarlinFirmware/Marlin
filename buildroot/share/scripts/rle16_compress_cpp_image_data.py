@@ -11,15 +11,15 @@ Reads the existing Marlin RGB565 cpp file and generates a new file with the addi
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
-    ofile = open(output_file, 'wt')
+    ofile = open(output_file, "wt")
 
     c_data_section = False
-    c_skip_data = False
-    c_footer = False
-    raw_data = []
-    rle_value = []
-    rle_count = []
-    arrname = ''
+    c_skip_data    = False
+    c_footer       = False
+    raw_data       = []
+    rle_value      = []
+    rle_count      = []
+    arrname        = ''
 
     line = input_file.readline()
     while line:
@@ -32,7 +32,7 @@ def addCompressedData(input_file, output_file):
             c_footer = True
 
         if c_data_section:
-            cleaned = re.sub(r"\s|,|\n", "", line)
+            cleaned = re.sub(r'\s|,|\n', '', line)
             as_list = cleaned.split("0x")
             as_list.pop(0)
             raw_data += [int(x, 16) for x in as_list]
@@ -50,14 +50,14 @@ def addCompressedData(input_file, output_file):
 
     input_file.close()
 
-    #
-    # RLE16 (run length 16) encoding
-    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
-    # - Each sequence begins with a count byte N.
-    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
-    #   - Otherwise it repeats the following word N + 1 times.
-    # - Each RGB565 word is stored in MSB / LSB order.
-    #
+    """
+    RLE16 (run length 16) encoding
+    Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
+    - Each sequence begins with a count byte N.
+      - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
+      - Otherwise it repeats the following word N + 1 times.
+    - Each RGB565 word is stored in MSB / LSB order.
+    """
     def rle_encode(data):
         warn = "This may take a while" if len(data) > 300000 else ""
         print("Compressing image data...", warn)

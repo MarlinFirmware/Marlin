@@ -66,10 +66,10 @@ def boards_checks(argv):
         if number != last_number + 1:
             if int(number / 100) != int(last_number / 100):
                 if number % 100 != 0 and number < 9900:
-                    err(board, f'is {number} (should be {group * 100}?)')
+                    err(board, f"is {number} (should be {group * 100}?)")
                     ERRS += 1
             elif number > 1040:
-                err(board, f'is {number} but previous board is {last_number}')
+                err(board, f"is {number} but previous board is {last_number}")
                 ERRS += 1
         if not comment:
             err(board, ' has no comment')
@@ -78,7 +78,7 @@ def boards_checks(argv):
             cshor = bshort(board)
             cbore = cshor.replace('_', '')
             if comment == board or comment == cshor or comment == cbore:
-                warn(board, f'comment needs more detail')
+                warn(board, f"comment needs more detail")
         last_number = number
         last_group = number % 100
 
@@ -104,26 +104,26 @@ def boards_checks(argv):
     boards_boards = [b[0] for b in boards]
     if set(pins_boards) != set(boards_boards):
         ERRS += 1
-        print(f'[ERROR] Boards in pins.h do not match boards.h')
+        print(f"[ERROR] Boards in pins.h do not match boards.h")
         # Show the differences only
         for b in boards:
             if b[0] not in pins_boards:
-                print(f'   pins.h missing: {b[0]}')
+                print(f"   pins.h missing: {b[0]}")
         for b in pins_boards:
             if b not in boards_boards:
-                print(f' boards.h missing: {b}')
+                print(f" boards.h missing: {b}")
 
     # Check that boards_boards and pins_boards are in the same order
     for i in range(len(boards_boards)):
         if boards_boards[i] != pins_boards[i]:
             ERRS += 1
-            print(f'[ERROR] Non-matching boards order in pins.h. Expected {bshort(boards_boards[i])} but got {bshort(pins_boards[i])}')
+            print(f"[ERROR] Non-matching boards order in pins.h. Expected {bshort(boards_boards[i])} but got {bshort(pins_boards[i])}")
             break
 
     return ERRS
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ERR_COUNT = boards_checks(sys.argv[1:])
     if ERR_COUNT:
-        print(f'\nFound {ERR_COUNT} errors')
+        print(f"\nFound {ERR_COUNT} errors")
         sys.exit(1)

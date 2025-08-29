@@ -24,8 +24,10 @@ if pioutil.is_pio_build():
             input_file[i] = encryptByte(input_file[i])
         output_file.write(input_file)
 
-    # Encrypt ${PROGNAME}.bin and save it with the name given in build.crypt_lerdge
     def encrypt(source, target, env):
+        """
+        Encrypt ${PROGNAME}.bin and save it with the name given in build.crypt_lerdge
+        """
         fwpath = target[0].path
         enname = board.get("build.crypt_lerdge")
         print("Encrypting %s to %s" % (fwpath, enname))

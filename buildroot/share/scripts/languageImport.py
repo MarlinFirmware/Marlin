@@ -20,16 +20,16 @@ import sys, re, requests, csv, datetime
 #from languageUtil import namebyid
 
 LANGHOME = "Marlin/src/lcd/language"
-OUTDIR = 'out-language'
+OUTDIR = "out-language"
 
 # Get the file path from the command line
 FILEPATH = sys.argv[1] if len(sys.argv) > 1 else None
 
-download = FILEPATH == 'download'
+download = FILEPATH == "download"
 
 if not FILEPATH or download:
     SHEETID = "12yiy-kS84ajKFm7oQIrC4CF8ZWeu9pAR4zrgxH4ruk4"
-    FILEPATH = 'https://docs.google.com/spreadsheet/ccc?key=%s&output=csv' % SHEETID
+    FILEPATH = "https://docs.google.com/spreadsheet/ccc?key=%s&output=csv" % SHEETID
 
 if FILEPATH.startswith('http'):
     response = requests.get(FILEPATH)

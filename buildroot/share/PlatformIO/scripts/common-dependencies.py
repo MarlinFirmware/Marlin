@@ -120,9 +120,11 @@ if pioutil.is_pio_build():
         proj = env.GetProjectConfig()
         proj.set("env:" + env['PIOENV'], field, value)
 
-    # All unused libs should be ignored so that if a library
-    # exists in .pio/lib_deps it will not break compilation.
     def force_ignore_unused_libs():
+        """
+        All unused libs should be ignored so that if a library
+        exists in .pio/lib_deps it will not break compilation.
+        """
         env_libs = get_all_env_libs()
         known_libs = get_all_known_libs()
         diff = (list(set(known_libs) - set(env_libs)))
@@ -265,10 +267,8 @@ if pioutil.is_pio_build():
 
         #blab("Final build_src_filter: " + build_src_filter, 3)
 
-    #
-    # Use the compiler to get a list of all enabled features
-    #
     def load_marlin_features():
+        """Use the compiler to get a list of all enabled features."""
         if 'MARLIN_FEATURES' in env:
             return
 
@@ -282,10 +282,8 @@ if pioutil.is_pio_build():
             marlin_features[feature] = definition
         env['MARLIN_FEATURES'] = marlin_features
 
-    #
-    # Return True if a matching feature is enabled
-    #
     def MarlinHas(env, feature):
+        """Return True if a matching feature is enabled."""
         load_marlin_features()
         r = re.compile('^' + feature + '$', re.IGNORECASE)
         found = list(filter(r.match, env['MARLIN_FEATURES']))

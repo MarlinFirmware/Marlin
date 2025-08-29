@@ -22,16 +22,16 @@ def replace_define(field, value):
             env['CPPDEFINES'].remove(define)
     env['CPPDEFINES'].append((field, value))
 
-# Relocate the firmware to a new address, such as "0x08005000"
 def relocate_firmware(address):
+    """Relocate the firmware to a new address, such as "0x08005000"."""
     replace_define("VECT_TAB_ADDR", address)
 
-# Relocate the vector table with a new offset
 def relocate_vtab(address):
+    """Relocate the vector table with a new offset."""
     replace_define("VECT_TAB_OFFSET", address)
 
-# Replace the existing -Wl,-T with the given ldscript path
 def custom_ld_script(ldname):
+    """Replace the existing -Wl,-T with the given ldscript path."""
     apath = str(Path("buildroot/share/PlatformIO/ldscripts", ldname).resolve())
     for i, flag in enumerate(env["LINKFLAGS"]):
         if "-Wl,-T" in flag:
@@ -39,9 +39,11 @@ def custom_ld_script(ldname):
         elif flag == "-T":
             env["LINKFLAGS"][i + 1] = apath
 
-# Encrypt ${PROGNAME}.bin and save it with a new name. This applies (mostly) to MKS boards
-# This PostAction is set up by offset_and_rename.py for envs with 'build.encrypt_mks'.
 def encrypt_mks(source, target, env, new_name):
+    """
+    Encrypt ${PROGNAME}.bin and save it with a new name. This applies (mostly) to MKS boards
+    This PostAction is set up by offset_and_rename.py for envs with 'build.encrypt_mks'.
+    """
     import sys
 
     key = [0xA3, 0xBD, 0xAD, 0x0D, 0x41, 0x11, 0xBB, 0x8D, 0xDC, 0x80, 0x2D, 0xD0, 0xD2, 0xC4, 0x9B, 0x1E, 0x26, 0xEB, 0xE3, 0x33, 0x4A, 0x15, 0xE4, 0x0A, 0xB3, 0xB1, 0x3C, 0x93, 0xBB, 0xAF, 0xF7, 0x3E]

@@ -41,9 +41,7 @@ def set(file_path, define_name, value):
     return False
 
 def add(file_path, define_name, value=""):
-    """
-    Insert a define on the first blank line in a file.
-    """
+    """Insert a define on the first blank line in a file."""
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
 

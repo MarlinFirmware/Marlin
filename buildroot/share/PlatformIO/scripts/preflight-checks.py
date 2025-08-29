@@ -50,7 +50,7 @@ if pioutil.is_pio_build():
         return False
 
     def sanity_check_target():
-        # Sanity checks:
+        """Sanity checks."""
         if 'PIOENV' not in env:
             raise SystemExit("Error: PIOENV is not defined. This script is intended to be used with PlatformIO")
 
@@ -109,10 +109,8 @@ if pioutil.is_pio_build():
                     err = "ERROR: Config files found in directory %s. Please move them into the Marlin subfolder." % p
                     raise SystemExit(err)
 
-        #
-        # Find the name.cpp.o or name.o and remove it
-        #
         def rm_ofile(subdir, name):
+            """Find the name.cpp.o or name.o and remove it."""
             build_dir = Path(env['PROJECT_BUILD_DIR'], build_env)
             for outdir in (build_dir, build_dir / "debug"):
                 for ext in (".cpp.o", ".o"):

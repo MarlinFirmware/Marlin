@@ -82,7 +82,7 @@ def format_pins(argv):
         with open(src_file, 'r', encoding='utf-8') as rf: file_text = rf.read()
 
     if len(file_text) == 0:
-        print('No text to process')
+        print("No text to process")
         return
 
     # Read from file or STDIN until it terminates
@@ -284,5 +284,5 @@ def process_text(txt):
     return re.sub('\n\n$', '\n', re.sub(r'\n\n+', '\n\n', out))
 
 # Python standard startup for command line with arguments
-if __name__ == '__main__':
+if __name__ == "__main__":
     format_pins(sys.argv[1:])
