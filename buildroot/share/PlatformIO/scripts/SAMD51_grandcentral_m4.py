@@ -1,7 +1,9 @@
-#
-# SAMD51_grandcentral_m4.py
-# Customizations for env:SAMD51_grandcentral_m4
-#
+"""
+SAMD51_grandcentral_m4.py
+
+Customizations for env:SAMD51_grandcentral_m4
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, isfile

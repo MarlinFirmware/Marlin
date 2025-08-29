@@ -1,6 +1,7 @@
-#
-# STM32F103RC_fysetc.py
-#
+"""
+STM32F103RC_fysetc.py
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     from os.path import join, expandvars

@@ -1,6 +1,7 @@
-#
-# STM32F1_create_variant.py
-#
+"""
+STM32F1_create_variant.py
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     from pathlib import Path

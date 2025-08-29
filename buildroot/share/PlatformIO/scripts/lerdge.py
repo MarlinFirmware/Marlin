@@ -1,10 +1,12 @@
-#
-# lerdge.py
-# Customizations for Lerdge build environments:
-#   env:LERDGEX  env:LERDGEX_usb_flash_drive
-#   env:LERDGES  env:LERDGES_usb_flash_drive
-#   env:LERDGEK  env:LERDGEK_usb_flash_drive
-#
+"""
+lerdge.py
+
+Customizations for Lerdge build environments:
+  env:LERDGEX  env:LERDGEX_usb_flash_drive
+  env:LERDGES  env:LERDGES_usb_flash_drive
+  env:LERDGEK  env:LERDGEK_usb_flash_drive
+"""
+
 import pioutil
 if pioutil.is_pio_build():
     import os, marlin

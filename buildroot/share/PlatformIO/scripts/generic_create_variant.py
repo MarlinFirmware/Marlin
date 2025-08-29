@@ -1,10 +1,11 @@
-#
-# generic_create_variant.py
-#
-# Copy one of the variants from buildroot/platformio/variants into
-# the appropriate framework variants folder, so that its contents
-# will be picked up by PlatformIO just like any other variant.
-#
+"""
+generic_create_variant.py
+
+Copy one of the variants from buildroot/platformio/variants into
+the appropriate framework variants folder, so that its contents
+will be picked up by PlatformIO just like any other variant.
+"""
+
 import pioutil, re
 
 marlin_variant_pattern = re.compile("marlin_.*")

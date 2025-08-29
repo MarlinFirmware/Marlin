@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-#
-# STM32F1_build_flags.py
-# Add build_flags for the base STM32F1_maple environment (stm32f1-maple.ini)
-#
+"""
+STM32F1_build_flags.py
+
+Add build_flags for the base STM32F1_maple environment (stm32f1-maple.ini)
+"""
+
 from __future__ import print_function
 import sys
 

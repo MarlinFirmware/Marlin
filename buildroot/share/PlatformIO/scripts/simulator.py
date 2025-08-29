@@ -1,7 +1,8 @@
-#
-# simulator.py
-# PlatformIO pre: script for simulator builds
-#
+"""
+simulator.py
+
+PlatformIO pre: script for simulator builds
+"""
 
 import pioutil
 if pioutil.is_pio_build():

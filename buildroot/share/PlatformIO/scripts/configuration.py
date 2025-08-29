@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-#
-# configuration.py
-# Apply options from config.ini to the existing Configuration headers
-#
+"""
+configuration.py
+
+Apply options from config.ini to the existing Configuration headers
+"""
+
 import re, os, shutil, configparser, datetime
 from pathlib import Path
 
