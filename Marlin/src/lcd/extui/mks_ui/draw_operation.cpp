@@ -126,10 +126,10 @@ void lv_draw_operation() {
   scr = lv_screen_create(OPERATE_UI);
 
   // Create image buttons
-  lv_obj_t *buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_V, titleHeight, event_handler, ID_O_PRE_HEAT);
-  lv_obj_t *buttonFilament = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_O_FILAMENT);
-  lv_obj_t *buttonFan      = lv_imgbtn_create(scr, "F:/bmp_fan.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_O_FAN);
-  buttonPowerOff = lv_imgbtn_create(scr, gCfgItems.finish_power_off ? "F:/bmp_auto_off.bin" : "F:/bmp_manual_off.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_O_POWER_OFF);
+  lv_obj_t *buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_W, titleHeight, event_handler, ID_O_PRE_HEAT);
+  lv_obj_t *buttonFilament = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin", BTN_SIZE_X + INTERVAL_W * 2, titleHeight, event_handler, ID_O_FILAMENT);
+  lv_obj_t *buttonFan      = lv_imgbtn_create(scr, "F:/bmp_fan.bin", BTN_SIZE_X * 2 + INTERVAL_W * 3, titleHeight, event_handler, ID_O_FAN);
+  buttonPowerOff = lv_imgbtn_create(scr, gCfgItems.finish_power_off ? "F:/bmp_auto_off.bin" : "F:/bmp_manual_off.bin", BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_O_POWER_OFF);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
@@ -141,8 +141,8 @@ void lv_draw_operation() {
   #endif
 
   if (uiCfg.print_state != WORKING) {
-    buttonExtrusion = lv_imgbtn_create(scr, "F:/bmp_extrude_opr.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_EXTRUCT);
-    buttonMove      = lv_imgbtn_create(scr, "F:/bmp_move_opr.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_MOV);
+    buttonExtrusion = lv_imgbtn_create(scr, "F:/bmp_extrude_opr.bin", INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_O_EXTRUCT);
+    buttonMove      = lv_imgbtn_create(scr, "F:/bmp_move_opr.bin", BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_O_MOV);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
         lv_group_add_obj(g, buttonExtrusion);
@@ -151,8 +151,8 @@ void lv_draw_operation() {
     #endif
   }
   else {
-    buttonSpeed    = lv_imgbtn_create(scr, "F:/bmp_speed.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_SPEED);
-    buttonBabyStep = lv_imgbtn_create(scr, "F:/bmp_mov.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_BABY_STEP);
+    buttonSpeed    = lv_imgbtn_create(scr, "F:/bmp_speed.bin", INTERVAL_W, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_O_SPEED);
+    buttonBabyStep = lv_imgbtn_create(scr, "F:/bmp_mov.bin", BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_O_BABY_STEP);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
         lv_group_add_obj(g, buttonSpeed);
@@ -161,7 +161,7 @@ void lv_draw_operation() {
     #endif
   }
 
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_RETURN);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_O_RETURN);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);

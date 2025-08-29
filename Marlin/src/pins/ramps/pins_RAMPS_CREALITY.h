@@ -27,7 +27,9 @@
   #error "Creality RAMPS supports up to 2 hotends / E steppers."
 #endif
 
-#define BOARD_INFO_NAME "Creality3D RAMPS"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Creality3D RAMPS"
+#endif
 
 //#define CR2020_INDUSTRIAL_SERIES                // Use layout specific to CR2020
 

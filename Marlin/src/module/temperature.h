@@ -118,8 +118,11 @@ enum ADCSensorState : char {
   #if HAS_JOY_ADC_Z
     PrepareJoy_Z, MeasureJoy_Z,
   #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #if HAS_FILWIDTH_ADC
     Prepare_FILWIDTH, Measure_FILWIDTH,
+  #endif
+  #if HAS_FILWIDTH2_ADC
+    Prepare_FILWIDTH2, Measure_FILWIDTH2,
   #endif
   #if ENABLED(POWER_MONITOR_CURRENT)
     Prepare_POWER_MONITOR_CURRENT,
@@ -386,6 +389,10 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     static bool e_paused;               // Pause E filament permm tracking
     static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
+    #if ENABLED(MPC_PTC)
+      float heater_alpha;               // M306 L
+      float heater_reftemp;             // M306 Q
+    #endif
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A

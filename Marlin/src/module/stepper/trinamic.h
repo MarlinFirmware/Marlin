@@ -108,6 +108,10 @@
   #define CHOPPER_TIMING_E CHOPPER_TIMING
 #endif
 
+#if HAS_TMC_SPI
+  void tmc_init_cs_pins();
+#endif
+
 #if HAS_TMC_UART
   void tmc_serial_begin();
 #endif
