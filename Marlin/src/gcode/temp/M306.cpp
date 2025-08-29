@@ -64,9 +64,13 @@ void GcodeSuite::M306() {
         case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
         default: tuning_type = Temperature::MPCTuningType::AUTO; break;
       }
-      LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-      thermalManager.MPC_autotune(e, tuning_type);
-      ui.reset_status();
+      if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
+        SERIAL_ECHOLNPGM("Aymptotic tuning not avaiable for PTC hotends");
+      else {
+        LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+        thermalManager.MPC_autotune(e, tuning_type);
+        ui.reset_status();
+      }
       return;
     }
   #endif
@@ -74,6 +78,10 @@ void GcodeSuite::M306() {
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
     if (parser.seenval('P')) mpc.heater_power = parser.value_float();
+    #if ENABLED(MPC_PTC)
+      if (parser.seenval('L')) mpc.heater_alpha = parser.value_float();
+      if (parser.seenval('Q')) mpc.heater_reftemp = parser.value_float();
+    #endif
     if (parser.seenval('C')) mpc.block_heat_capacity = parser.value_float();
     if (parser.seenval('R')) mpc.sensor_responsiveness = parser.value_float();
     if (parser.seenval('A')) mpc.ambient_xfer_coeff_fan0 = parser.value_float();
@@ -94,16 +102,20 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   HOTEND_LOOP() {
     report_echo_start(forReplay);
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
-    SERIAL_ECHOPGM("  M306 E", e,
+    SERIAL_ECHOLNPGM("  M306 E", e,
                          " P", p_float_t(mpc.heater_power, 2),
+                         #if ENABLED(MPC_PTC)
+                           " L", p_float_t(mpc.heater_alpha, 4),
+                           " Q", p_float_t(mpc.heater_reftemp, 2),
+                         #endif
                          " C", p_float_t(mpc.block_heat_capacity, 2),
                          " R", p_float_t(mpc.sensor_responsiveness, 4),
-                         " A", p_float_t(mpc.ambient_xfer_coeff_fan0, 4)
+                         " A", p_float_t(mpc.ambient_xfer_coeff_fan0, 4),
+                         #if ENABLED(MPC_INCLUDE_FAN)
+                           " F", p_float_t(mpc.fanCoefficient(), 4),
+                         #endif
+                         " H", p_float_t(mpc.filament_heat_capacity_permm, 4)
     );
-    #if ENABLED(MPC_INCLUDE_FAN)
-      SERIAL_ECHOPGM(" F", p_float_t(mpc.fanCoefficient(), 4));
-    #endif
-    SERIAL_ECHOLNPGM(" H", p_float_t(mpc.filament_heat_capacity_permm, 4));
   }
 }
 

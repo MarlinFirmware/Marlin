@@ -474,7 +474,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/
+        // From https://wiki.fysetc.com/docs/Mini12864Panel
 
         // TO TEST
         //#define DOGLCD_A0                   16
