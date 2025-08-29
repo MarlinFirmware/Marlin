@@ -1826,7 +1826,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           hotend_pid[ee].debug(temp_hotend[ee].celsius, pid_output, F("E"), ee);
       #endif
 
-    // #elif ENABLED(MPCTEMP)
+    #elif ENABLED(MPCTEMP)
 
       MPCHeaterInfo &hotend = temp_hotend[ee];
       MPC_t &mpc = hotend.mpc;
