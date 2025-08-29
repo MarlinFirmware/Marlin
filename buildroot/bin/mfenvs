@@ -1,35 +1,59 @@
 #!/usr/bin/env bash
 #
-#  mfenvs   Print the current board and environment information
-#           Use -n to remove "*_xfer" environments from the list.
-#           Output -> "SHORT_NAME (###): [ env1 env2 env3 ... ]"
+# mfenvs - Print the current board and environment information
+#          Use -n to remove "*_xfer" environments from the list.
+#          Output -> "SHORT_NAME (###): [ env1 env2 env3 ... ]"
 #
 
-[[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
-which pio >/dev/null || { echo "Make sure 'pio' is in your execution PATH." ; exit 1 ;  }
+# Validate working directory
+if [[ ! -d Marlin/src ]]; then
+    echo "Please 'cd' to the Marlin repo root."
+    exit 1
+fi
 
-errout() { echo -e "\033[0;31m$1\033[0m" ; }
+# Use 'command -v' for dependency checks
+if ! command -v pio &>/dev/null; then
+    echo "Make sure 'pio' is in your execution PATH."
+    exit 1
+fi
 
+# Error and debug helpers
+errout() { echo -e "\033[0;31m$1\033[0m"; }
+
+# Determine system type
 case $(uname | tr '[:upper:]' '[:lower:]') in
+  win*|msys*|cygwin*|mingw*) SYS='win' ;;
   darwin) SYS='mac' ;;
   *linux) SYS='lin' ;;
-    win*) SYS='win' ;;
-   msys*) SYS='win' ;;
- cygwin*) SYS='win' ;;
-  mingw*) SYS='win' ;;
-       *) SYS='uni' ;;
+  *) SYS='uni' ;;
 esac
 
-ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
-MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
-[[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
-[[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
-BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
-BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
-[[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
-ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | sed -E "s/(env|$SYS)://" ) )
-[[ "$1" = "-n" ]] && ENVS=( $(printf "%s\n" "${ENVS[@]}" | grep -v "_xfer$") )
-[[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
-ECOUNT=${#ENVS[*]}
-[[ $ECOUNT == 1 ]] && EOUT=$ENVS || EOUT="${ENVS[@]}"
-echo "$MB ($BNUM): [ $EOUT ]"
+# Find motherboard and board number
+MB=$(grep -E '^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]' Marlin/Configuration.h 2>/dev/null | awk '{sub(/^BOARD_/, "", $3); print $3}')
+if [[ -z $MB ]]; then
+    MB=$(grep -E '^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]' Marlin/Config.h 2>/dev/null | awk '{sub(/^BOARD_/, "", $3); print $3}')
+fi
+if [[ -z $MB ]]; then
+    errout "Error - Can't read MOTHERBOARD setting."
+    exit 1
+fi
+
+BNUM=$(grep -Eo "\bBOARD_$MB\s+[0-9]+" "Marlin/src/core/boards.h" | awk '{print $2}')
+if [[ -z $BNUM ]]; then
+    errout "Error - Can't find BOARD_$MB in core/boards.h."
+    exit 1
+fi
+
+# Find and filter environments
+readarray -t ENVS < <(grep -EA1 "MB(.*$MB.*)" "Marlin/src/pins/pins.h" | grep -Eo "(env|$SYS):[^ ]+" | sed -E "s/(env|$SYS)://" | sort -u)
+
+if [[ "$1" == "-n" ]]; then
+    ENVS=($(printf "%s\n" "${ENVS[@]}" | grep -v "_xfer$"))
+fi
+
+if [[ ${#ENVS[@]} -eq 0 ]]; then
+    errout "Error - Can't find target(s) for $MB ($BNUM)."
+    exit 1
+fi
+
+echo "$MB ($BNUM): [ ${ENVS[*]} ]"

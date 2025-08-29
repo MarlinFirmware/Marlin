@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-#  mftest                             Select a test to apply and build
-#  mftest -b [#]                      Build the auto-detected environment
-#  mftest -u [#]                      Upload the auto-detected environment
-#  mftest -tname -n# [-y]             Set config options and optionally build a test
+#  mftest                  Select a test to apply and build
+#  mftest -b [#]           Build the auto-detected environment
+#  mftest -u [#]           Upload the auto-detected environment
+#  mftest -tname -n# [-y]  Set config options and optionally build a test
 #
 
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
@@ -22,7 +22,7 @@ Usage: mftest [-a|--autobuild]
        mftest [-t|--env=<env|index>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
        mftest [-u|--autoupload] [-n|--num=<num>]
 
-OPTIONS
+Optional arguments:
   -a --autobuild   PIO Build using the MOTHERBOARD environment.
   -d --default     Restore to defaults before applying configs.
   -h --help        Print this help.
@@ -150,13 +150,10 @@ if ((AUTO_BUILD)); then
   # List environments that apply to the current MOTHERBOARD.
   #
   case $(uname | tr '[:upper:]' '[:lower:]') in
+    win*|msys*|cygwin*|mingw*) SYS='win' ;;
     darwin) SYS='mac' ;;
     *linux) SYS='lin' ;;
-      win*) SYS='win' ;;
-     msys*) SYS='win' ;;
-   cygwin*) SYS='win' ;;
-    mingw*) SYS='win' ;;
-         *) SYS='uni' ;;
+    *) SYS='uni' ;;
   esac
   echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
 
