@@ -8,7 +8,7 @@ import pioutil
 if pioutil.is_pio_build():
 
     import os, re, fnmatch, glob
-    srcfilepattern = re.compile(r".*[.](cpp|c)$")
+    srcfilepattern = re.compile(r'.*[.](cpp|c)$')
     marlinbasedir = os.path.join(os.getcwd(), "Marlin/")
     env = pioutil.env
 
@@ -223,7 +223,7 @@ if pioutil.is_pio_build():
                     # Add all the things from the pattern by GLOB.
                     def srepl(matchi):
                         g0 = matchi.group(0)
-                        return r"**" + g0[1:]
+                        return r'**' + g0[1:]
 
                     gpattern = re.sub(r'[*]($|[^*])', srepl, plain)
                     gpattern = os.path.join(marlinbasedir, gpattern)
