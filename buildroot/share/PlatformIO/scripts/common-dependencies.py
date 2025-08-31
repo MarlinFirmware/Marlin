@@ -42,6 +42,7 @@ if pioutil.is_pio_build():
             exit(1)
         except:
             print("Can't detect PlatformIO Version")
+            exit(1)
 
     def blab(str, level=1):
         if verbose >= level:
