@@ -35,7 +35,7 @@ class ReadTimeout(Exception):
     pass
 class FatalError(Exception):
     pass
-class SycronisationError(Exception):
+class SynchronizationError(Exception):
     pass
 class PayloadOverflow(Exception):
     pass
@@ -276,7 +276,7 @@ class Protocol(object):
         except ValueError:
             return
         if packet_id != self.sync:
-            raise SycronisationError()
+            raise SynchronizationError()
         self.sync = (self.sync + 1) % 256
         self.packet_status = 1
 
@@ -286,7 +286,7 @@ class Protocol(object):
         if not self.syncronised:
             print("Retrying syncronisation")
         elif packet_id != self.sync:
-            raise SycronisationError()
+            raise SynchronizationError()
 
     def response_stream_sync(self, data):
         sync, max_block_size, protocol_version = data.split(',')
