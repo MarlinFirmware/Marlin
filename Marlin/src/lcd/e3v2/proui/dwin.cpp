@@ -177,7 +177,7 @@ hmi_flag_t hmiFlag{0};
 hmi_data_t hmiData;
 #if ENABLED(GCODE_MACROS)
   hmi_macro_t hmiMacro;
-  static const char macroChars[] PROGMEM = " GMABCDEFHIJKLNOPQRSTUVWXYZ0123456789.|";
+  static const char macroChars[] PROGMEM = " GM0123456789.XYZABCDEFHIJKLNOPQRSTUVW|";
 #endif
 
 enum SelectItem : uint8_t {
