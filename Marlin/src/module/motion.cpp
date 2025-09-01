@@ -359,7 +359,7 @@ void report_current_position_projected() {
       can_reach = HYPOT(rx, ry) <= PRINTABLE_RADIUS;
 
       #if ENABLED(POLAR_CRANE)
-        can_reach = can_reach && HYPOT(rx, ry) > POLAR_CENTER_OFFSET;
+        can_reach = can_reach && HYPOT(rx, ry) > home_offset.x;
       #endif
     #endif
 
