@@ -54,11 +54,11 @@ if pioutil.is_pio_build():
     mf = env["MARLIN_FEATURES"]
 
     # Get the largest defined buffer sizes for RX or TX, using defaults for undefined
-    rxBuf = getBufferSize("RX", 128)
-    txBuf = getBufferSize("TX",  64)
+    rx_Buf = getBufferSize("RX", 128)
+    tx_Buf = getBufferSize("TX",  64)
 
     # Provide serial buffer sizes to the stm32duino platform
-    tryAddFlag("SERIAL_RX_BUFFER_SIZE", rxBuf)
-    tryAddFlag("SERIAL_TX_BUFFER_SIZE", txBuf)
-    tryAddFlag("USART_RX_BUF_SIZE", rxBuf)
-    tryAddFlag("USART_TX_BUF_SIZE", txBuf)
+    tryAddFlag("SERIAL_RX_BUFFER_SIZE", rx_Buf)
+    tryAddFlag("SERIAL_TX_BUFFER_SIZE", tx_Buf)
+    tryAddFlag("USART_RX_BUF_SIZE", rx_Buf)
+    tryAddFlag("USART_TX_BUF_SIZE", tx_Buf)
