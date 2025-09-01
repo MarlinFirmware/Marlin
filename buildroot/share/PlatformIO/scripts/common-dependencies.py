@@ -44,9 +44,9 @@ if pioutil.is_pio_build():
             print("Can't detect PlatformIO Version")
             exit(1)
 
-    def blab(str, level=1):
+    def blab(msg, level=1):
         if verbose >= level:
-            print("[deps] %s" % str)
+            print("[deps] %s" % msg)
 
     def add_to_feat_cnf(feature, flines):
 
