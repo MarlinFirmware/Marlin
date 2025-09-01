@@ -9,8 +9,9 @@ import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
-def blab(str, level=1):
-    if verbose >= level: print(f"[config] {str}")
+
+def blab(msg, level=1):
+    if verbose >= level: print(f"[config] {msg}")
 
 def config_path(cpath):
     return Path("Marlin", cpath)
