@@ -3150,12 +3150,14 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     const uint16_t cursor_pos = 10 + hmiMacro.cursor_pos * 8;
     DWINUI::drawChar(hmiData.colorCursor, cursor_pos, 120, macroChars[hmiMacro.char_index]);
     DWINUI::drawBox(1, hmiData.colorCursor, {cursor_pos, 120, 18, 16});
+    dwinUpdateLCD();
     TERN_(DASH_REDRAW, dwinRedrawDash();)
   }
 
   void hmiMacroEditor() {
     static millis_t last_enter_press_ms = 0;
     static bool awaiting_second_press = false;
+    Draw_MacroEditor();
 
     EncoderState state = get_encoder_state();
     if (state == ENCODER_DIFF_CW) {
@@ -3207,7 +3209,8 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
       hmiReturnScreen();
       return;
     }
-    drawMacroEditor();
+    dwinUpdateLCD();
+    TERN_(DASH_REDRAW, dwinRedrawDash();)
   }
 
   void runMacro(uint8_t slot) {
@@ -3218,16 +3221,16 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
 
   void editMacro(uint8_t slot) {
     DWINUI::clearMainArea();
-    char macro_title[20];
-    sprintf(macro_title, "Edit M81%u", hmiMacro.slot_edit);
-    title.showCaption(macro_title);
+    char title[20];
+    sprintf(title, "Edit M81%u", hmiMacro.slot_edit);
+    title.showCaption(title);
     DWINUI::drawString(10, 80, F("Macro:"));
     hmiMacro.slot_edit = slot;
     hmiMacro.cursor_pos = 0;
     hmiMacro.char_index = 0;
     memset(hmiMacro.edit_buffer, 0, sizeof(hmiMacro.edit_buffer));
-    // HMI_SaveProcessID(ID_Macros);
-    checkkey = ID_Macros;
+    HMI_SaveProcessID(ID_Macros);
+    //checkkey = ID_Macros;
     drawMacroEditor();
   }
 
