@@ -27,7 +27,7 @@
  * This board definition is to facilitate support for a Filament Extrusion
  * devices, used to convert waste plastic into 3D printable filament.
  * This board is NOT a general 3D printing controller; it is NOT supported
- * as a toolboard via CAN bus (as it was originally designed) or any device
+ * as a toolboard via CANBUS (as it was originally designed) or any device
  * that requires kinematics.
  */
 
@@ -44,9 +44,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #endif
 
 //#define USES_DIAG_JUMPERS
@@ -147,6 +147,3 @@
   #define BTN_EN2                           PB5
   #define BTN_ENC                           PB6
 #endif
-
-#define CAN_RX                              PB0
-#define CAN_TX                              PB1

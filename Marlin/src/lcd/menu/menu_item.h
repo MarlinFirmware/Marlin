@@ -191,7 +191,7 @@ class MenuItem_bool : public MenuEditItemBase {
       draw(sel, row, fstr, pget());
     }
     static void action(FSTR_P const fstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr) {
-      *ptr ^= true; ui.refresh();
+      FLIP(*ptr); ui.refresh();
       if (callbackFunc) (*callbackFunc)();
     }
 };
@@ -225,6 +225,9 @@ class MenuItem_bool : public MenuEditItemBase {
  * To avoid repetition and side-effects, function calls for testing menu item conditions
  * should be done before the menu loop (START_MENU / START_SCREEN).
  */
+
+// CAUTION! When using menu items in a lambda or sub-function always use:
+#define INJECT_MENU_ITEMS(FN) { FN; if (ui.screen_changed) return; }
 
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
@@ -276,6 +279,14 @@ class MenuItem_bool : public MenuEditItemBase {
  *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::action(flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
  *     MenuItem_int3::draw(sel, row, flabel, &feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX)
+ *
+ * Variants use standard suffixes. N:Number Index, S:C-string for substitution, F:F-string label, f:F-string for substitution
+ * _MENU_ITEM_F(TYPE, V...)              Item with optional data
+ * _MENU_ITEM_N_S_F(TYPE, N, S, V...)    Item with index value, C-string, and optional data
+ * _MENU_ITEM_N_f_F(TYPE, N, f, V...)    Item with index value and F-string
+ * _MENU_ITEM_N_F(TYPE, N, V...)         Item with index value
+ * _MENU_ITEM_S_F(TYPE, S, V...)         Item with a unique string
+ * _MENU_ITEM_f_F(TYPE, f, V...)         Item with a unique F-string
  */
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -358,20 +369,24 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_ITEM_INNER_F(FLABEL, V...) do{           \
+#define STATIC_SKIP() do{ \
   if (_skipStatic && encoderLine <= _thisItemNr) {      \
     ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
     ++encoderLine;                                      \
   }                                                     \
-  if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V);     \
-} while(0)
+}while(0)
+
+#define STATIC_ITEM_INNER_F(FLABEL, V...) do{       \
+  STATIC_SKIP();                                    \
+  if (ui.should_draw())                             \
+    MenuItem_static::draw(_lcdLineNr, FLABEL, ##V); \
+}while(0)
 
 #define STATIC_ITEM_F(FLABEL, V...) do{ \
   if (MY_LINE())                        \
     STATIC_ITEM_INNER_F(FLABEL, ##V);   \
   NEXT_ITEM();                          \
-} while(0)
+}while(0)
 
 #define STATIC_ITEM_N_F(N, FLABEL, V...) do{ \
   if (MY_LINE()) {                           \
@@ -381,13 +396,23 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                               \
 }while(0)
 
+#define STATIC_ITEM_N_F_C(N, FLABEL, CSTR, V...) do{ \
+  if (MY_LINE()) {                                   \
+    MenuItemBase::init(N, CSTR);                     \
+    STATIC_ITEM_INNER_F(FLABEL, ##V);                \
+  }                                                  \
+  NEXT_ITEM();                                       \
+}while(0)
+
+#define STATIC_ITEM_C(CSTR, V...) STATIC_ITEM_N_F_C(0, F("$"), CSTR, ##V)
+
 // PSTRING_ITEM is like STATIC_ITEM
 // but also takes a PSTR and style.
 
 #define PSTRING_ITEM_F_P(FLABEL, PVAL, STYL) do{ \
   constexpr int m = 20;                          \
   char msg[m + 1];                               \
-  if (_menuLineNr == _thisItemNr) {              \
+  if (MY_LINE()) {                               \
     msg[0] = ':'; msg[1] = ' ';                  \
     strlcpy_P(msg + 2, PVAL, m - 1);             \
     if (msg[m - 1] & 0x80) msg[m - 1] = '\0';    \
@@ -396,8 +421,7 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define PSTRING_ITEM_N_F_P(N, V...) do{ \
-  if (_menuLineNr == _thisItemNr)       \
-    MenuItemBase::init(N);              \
+  if (MY_LINE()) MenuItemBase::init(N); \
   PSTRING_ITEM_F_P(V);                  \
 }while(0)
 

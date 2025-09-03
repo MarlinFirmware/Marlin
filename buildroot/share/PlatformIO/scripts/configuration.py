@@ -3,7 +3,7 @@
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
-import re, shutil, configparser, datetime
+import re, os, shutil, configparser, datetime
 from pathlib import Path
 
 verbose = 0
@@ -28,7 +28,10 @@ def apply_opt(name, val, conf=None):
     # 7: Option value
     # 8: Whitespace after value
     # 9: End comment
-    regex = re.compile(rf'^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$', re.IGNORECASE)
+    regex = re.compile(
+        rf"^(\s*)(//\s*)?(#define\s+)({name}\b)(\s?)(\s*)(.*?)(\s*)(//.*)?$",
+        re.IGNORECASE
+    )
 
     # Find and enable and/or update all matches
     for file in ("Configuration.h", "Configuration_adv.h"):
@@ -141,8 +144,6 @@ def fetch_example(url):
     else:
         blab("Couldn't find curl or wget", -1)
         return False
-
-    import os
 
     # Reset configurations to default
     os.system("git checkout HEAD Marlin/*.h")

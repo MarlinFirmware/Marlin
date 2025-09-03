@@ -12,11 +12,11 @@ def logmsg(msg, line):
 
 # Print a formatted error
 def err(board, msg):
-  print(f'[ERROR] {board:30} {msg}')
+    print(f"[ERROR] {board:30} {msg}")
 
 # Print a formatted warning
 def warn(board, msg):
-  print(f'[WARNING] {board:30} {msg}')
+    print(f"[WARNING] {board:30} {msg}")
 
 def bshort(board):
     return board.replace('BOARD_', '')
@@ -40,7 +40,7 @@ def boards_checks(argv):
     logmsg('Checking boards file:', src_file)
 
     # Open the file
-    with open(src_file, 'r') as f:
+    with open(src_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     # Get the board names and numbers
@@ -85,7 +85,7 @@ def boards_checks(argv):
     # Validate that pins.h has all the boards mentioned in it
     #
     pins_boards = []
-    with open('Marlin/src/pins/pins.h', 'r') as f:
+    with open('Marlin/src/pins/pins.h', 'r', encoding='utf-8') as f:
         lines = f.readlines()
         if_count = 0
         for line in lines:
@@ -119,7 +119,7 @@ def boards_checks(argv):
             print(f'[ERROR] Non-matching boards order in pins.h. Expected {bshort(boards_boards[i])} but got {bshort(pins_boards[i])}')
             break
 
-    return ERRS;
+    return ERRS
 
 if __name__ == '__main__':
     ERR_COUNT = boards_checks(sys.argv[1:])

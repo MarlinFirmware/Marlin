@@ -41,23 +41,23 @@ namespace LanguageNarrow_cz {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Czech");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" připraven.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" připraven.");
   LSTR MSG_YES                            = _UxGT("ANO");
   LSTR MSG_NO                             = _UxGT("NE");
   LSTR MSG_BACK                           = _UxGT("Zpět");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Rušení...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Médium vloženo");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Médium vyjmuto");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Čekání na médium");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Chyba čtení média");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB odstraněno");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Chyba USB");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB odstraněno");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Chyba USB");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopy"); // max 8 znaku
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstopy");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hlavní nabídka");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Další nastavení");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfigurace");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Uvolnit motory");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Nabídka ladění");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test uk. průběhu");
@@ -360,8 +360,12 @@ namespace LanguageNarrow_cz {
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunout vše");
 
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načíst médium");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Načíst SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Načíst USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vyměnit médium");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Vysunout médium");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Faktor zkosení");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -529,7 +533,8 @@ namespace LanguageNarrow_cz {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridní práh");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Domů bez senzorů");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim kroků");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop povolen");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" za:");
   LSTR MSG_BACKLASH                       = _UxGT("Vůle");

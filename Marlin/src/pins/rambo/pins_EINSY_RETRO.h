@@ -53,29 +53,20 @@
 // SERVO0_PIN and Z_MIN_PIN configuration for BLTOUCH sensor when combined with SENSORLESS_HOMING.
 //
 
-#if DISABLED(SENSORLESS_HOMING)
+#if ENABLED(SENSORLESS_HOMING)
 
-  #define X_MIN_PIN                           12  // X-
-  #define Y_MIN_PIN                           11  // Y-
-  #define X_MAX_PIN                           81  // X+
-  #define Y_MAX_PIN                           57  // Y+
-
-#else
-
+  #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_TO_MIN
-    #define X_MIN_PIN                 X_DIAG_PIN
-    #define X_MAX_PIN                         81  // X+
+    #define X_OTHR_PIN                        81  // X+
   #else
-    #define X_MIN_PIN                         12  // X-
-    #define X_MAX_PIN                 X_DIAG_PIN
+    #define X_OTHR_PIN                        12  // X-
   #endif
 
+  #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_TO_MIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN
-    #define Y_MAX_PIN                         57  // Y+
+    #define Y_OTHR_PIN                        57  // Y+
   #else
-    #define Y_MIN_PIN                         11  // Y-
-    #define Y_MAX_PIN                 Y_DIAG_PIN
+    #define Y_OTHR_PIN                        11  // Y-
   #endif
 
   #if ENABLED(BLTOUCH)
@@ -83,9 +74,16 @@
     #define SERVO0_PIN                        10  // Z-
   #endif
 
+#else
+
+  #define X_MIN_PIN                           12  // X-
+  #define Y_MIN_PIN                           11  // Y-
+  #define X_MAX_PIN                           81  // X+
+  #define Y_MAX_PIN                           57  // Y+
+
 #endif
 
-#define Z_MAX_PIN                              7
+#define Z_MAX_PIN                              7  // Z+
 #ifndef Z_MIN_PIN
   #define Z_MIN_PIN                           10  // Z-
 #endif
@@ -94,7 +92,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     10
+  #define Z_MIN_PROBE_PIN                     10  // Z-
 #endif
 
 //
@@ -141,7 +139,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN

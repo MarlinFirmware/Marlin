@@ -24,6 +24,12 @@
 
 #if HAS_TRINAMIC_CONFIG
 
+/**
+ * feature/tmc_util.cpp - Functions for debugging Trinamic stepper drivers.
+ * The main entry point is `tmc_report_all` which is called by M122 to collect
+ * and report diagnostic information about each enabled TMC driver.
+ */
+
 #include "tmc_util.h"
 #include "../MarlinCore.h"
 
@@ -41,6 +47,10 @@
   #if ENABLED(MONITOR_DRIVER_STATUS)
     static uint16_t report_tmc_status_interval; // = 0
   #endif
+#endif
+
+#if ENABLED(EDITABLE_HOMING_CURRENT)
+  homing_current_t homing_current_mA;
 #endif
 
 /**
@@ -68,7 +78,7 @@
          #endif
       ;
     #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         uint8_t cs_actual;
       #endif
       #if HAS_STALLGUARD
@@ -79,9 +89,7 @@
 
   #if HAS_TMCX1X0
 
-    #if ENABLED(TMC_DEBUG)
-      static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
-    #endif
+    static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
 
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
@@ -138,11 +146,68 @@
 
   #endif // HAS_TMCX1X0
 
+  #if HAS_DRIVER(TMC2240)
+
+    static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+
+    static TMC_driver_data get_driver_data(TMC2240Stepper &st) {
+      constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
+      constexpr uint32_t S2G_bm = 0x18000000;
+      #if ENABLED(TMC_DEBUG)
+        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
+        constexpr uint8_t STEALTH_bp = 14;
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STALL_GUARD_bp = 24;
+        constexpr uint8_t STST_bp = 31;
+      #endif
+      TMC_driver_data data;
+      const auto ds = data.drv_status = st.DRV_STATUS();
+      #ifdef __AVR__
+
+        // 8-bit optimization saves up to 70 bytes of PROGMEM per axis
+        uint8_t spart;
+        #if ENABLED(TMC_DEBUG)
+          data.sg_result = ds & SG_RESULT_bm;
+          spart = ds >> 8;
+          data.is_stealth = TEST(spart, STEALTH_bp - 8);
+          spart = ds >> 16;
+          data.cs_actual = spart & (CS_ACTUAL_bm >> 16);
+        #endif
+        spart = ds >> 24;
+        data.is_ot = TEST(spart, OT_bp - 24);
+        data.is_otpw = TEST(spart, OTPW_bp - 24);
+        data.is_s2g = !!(spart & (S2G_bm >> 24));
+        #if ENABLED(TMC_DEBUG)
+          data.is_stall = TEST(spart, STALL_GUARD_bp - 24);
+          data.is_standstill = TEST(spart, STST_bp - 24);
+          data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
+        #endif
+
+      #else // !__AVR__
+
+        data.is_ot = TEST(ds, OT_bp);
+        data.is_otpw = TEST(ds, OTPW_bp);
+        data.is_s2g = !!(ds & S2G_bm);
+        #if ENABLED(TMC_DEBUG)
+          constexpr uint8_t CS_ACTUAL_sb = 16;
+          data.sg_result = ds & SG_RESULT_bm;
+          data.is_stealth = TEST(ds, STEALTH_bp);
+          data.cs_actual = (ds & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
+          data.is_stall = TEST(ds, STALL_GUARD_bp);
+          data.is_standstill = TEST(ds, STST_bp);
+          data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
+        #endif
+
+      #endif // !__AVR__
+
+      return data;
+    }
+
+  #endif // TMC2240
+
   #if HAS_TMC220x
 
-    #if ENABLED(TMC_DEBUG)
-      static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
-    #endif
+    static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
 
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
@@ -177,9 +242,7 @@
 
   #if HAS_DRIVER(TMC2660)
 
-    #if ENABLED(TMC_DEBUG)
-      static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
-    #endif
+    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
 
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;
@@ -227,13 +290,14 @@
     SString<50>(F(" driver overtemperature warning! ("), st.getMilliamps(), F("mA)")).echoln();
   }
 
-  template<typename TMC>
-  void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
-    const uint32_t pwm_scale = get_pwm_scale(st);
-    st.printLabel();
-    SString<60> report(':', pwm_scale);
-    #if ENABLED(TMC_DEBUG)
-      #if HAS_TMCX1X0 || HAS_TMC220x
+  #if ENABLED(TMC_DEBUG)
+
+    template<typename TMC>
+    void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
+      const uint32_t pwm_scale = get_pwm_scale(st);
+      st.printLabel();
+      SString<60> report(':', pwm_scale);
+      #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
       #if HAS_STALLGUARD
@@ -243,22 +307,21 @@
         else
           report += '-';
       #endif
-    #endif
-    report += '|';
-    if (st.error_count)       report += 'E'; // Error
-    if (data.is_ot)           report += 'O'; // Over-temperature
-    if (data.is_otpw)         report += 'W'; // over-temperature pre-Warning
-    #if ENABLED(TMC_DEBUG)
+      report += '|';
+      if (st.error_count)     report += 'E'; // Error
+      if (data.is_ot)         report += 'O'; // Over-temperature
+      if (data.is_otpw)       report += 'W'; // over-temperature pre-Warning
       if (data.is_stall)      report += 'G'; // stallGuard
       if (data.is_stealth)    report += 'T'; // stealthChop
       if (data.is_standstill) report += 'I'; // standstIll
-    #endif
-    if (st.flag_otpw)         report += 'F'; // otpw Flag
-    report += '|';
-    if (st.otpw_count > 0)    report += st.otpw_count;
-    report += '\t';
-    report.echo();
-  }
+      if (st.flag_otpw)       report += 'F'; // otpw Flag
+      report += '|';
+      if (st.otpw_count > 0)  report += st.otpw_count;
+      report += '\t';
+      report.echo();
+    }
+
+  #endif // TMC_DEBUG
 
   #if CURRENT_STEP_DOWN > 0
 
@@ -318,9 +381,9 @@
       else if (st.otpw_count > 0) st.otpw_count = 0;
     }
 
-    #if ENABLED(TMC_DEBUG)
-      if (need_debug_reporting) report_polled_driver_data(st, data);
-    #endif
+    if (need_debug_reporting) {
+      TERN_(TMC_DEBUG, report_polled_driver_data(st, data));
+    }
 
     return should_step_down;
   }
@@ -344,127 +407,70 @@
 
     if (need_update_error_counters || need_debug_reporting) {
 
-      #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2)
-      {
-        bool result = false;
-        #if AXIS_IS_TMC(X)
-          if (monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        #if AXIS_IS_TMC(X2)
-          if (monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        if (result) {
-          #if AXIS_IS_TMC(X)
-            step_current_down(stepperX);
-          #endif
-          #if AXIS_IS_TMC(X2)
-            step_current_down(stepperX2);
-          #endif
+      #if X_IS_TRINAMIC || X2_IS_TRINAMIC
+        if ( TERN0(X_IS_TRINAMIC, monitor_tmc_driver(stepperX, need_update_error_counters, need_debug_reporting))
+          || TERN0(X2_IS_TRINAMIC, monitor_tmc_driver(stepperX2, need_update_error_counters, need_debug_reporting))
+        ) {
+          TERN_(X_IS_TRINAMIC, step_current_down(stepperX));
+          TERN_(X2_IS_TRINAMIC, step_current_down(stepperX2));
         }
-      }
       #endif
 
-      #if AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2)
-      {
-        bool result = false;
-        #if AXIS_IS_TMC(Y)
-          if (monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          if (monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        if (result) {
-          #if AXIS_IS_TMC(Y)
-            step_current_down(stepperY);
-          #endif
-          #if AXIS_IS_TMC(Y2)
-            step_current_down(stepperY2);
-          #endif
+      #if Y_IS_TRINAMIC || Y2_IS_TRINAMIC
+        if ( TERN0(Y_IS_TRINAMIC, monitor_tmc_driver(stepperY, need_update_error_counters, need_debug_reporting))
+          || TERN0(Y2_IS_TRINAMIC, monitor_tmc_driver(stepperY2, need_update_error_counters, need_debug_reporting))
+        ) {
+          TERN_(Y_IS_TRINAMIC, step_current_down(stepperY));
+          TERN_(Y2_IS_TRINAMIC, step_current_down(stepperY2));
         }
-      }
       #endif
 
-      #if AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
-      {
-        bool result = false;
-        #if AXIS_IS_TMC(Z)
-          if (monitor_tmc_driver(stepperZ, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          if (monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          if (monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        #if AXIS_IS_TMC(Z4)
-          if (monitor_tmc_driver(stepperZ4, need_update_error_counters, need_debug_reporting)) result = true;
-        #endif
-        if (result) {
-          #if AXIS_IS_TMC(Z)
-            step_current_down(stepperZ);
-          #endif
-          #if AXIS_IS_TMC(Z2)
-            step_current_down(stepperZ2);
-          #endif
-          #if AXIS_IS_TMC(Z3)
-            step_current_down(stepperZ3);
-          #endif
-          #if AXIS_IS_TMC(Z4)
-            step_current_down(stepperZ4);
-          #endif
+      #if ANY(Z_IS_TRINAMIC, Z2_IS_TRINAMIC, Z3_IS_TRINAMIC, Z4_IS_TRINAMIC)
+        if ( TERN0(Z_IS_TRINAMIC,  monitor_tmc_driver(stepperZ,  need_update_error_counters, need_debug_reporting))
+          || TERN0(Z2_IS_TRINAMIC, monitor_tmc_driver(stepperZ2, need_update_error_counters, need_debug_reporting))
+          || TERN0(Z3_IS_TRINAMIC, monitor_tmc_driver(stepperZ3, need_update_error_counters, need_debug_reporting))
+          || TERN0(Z4_IS_TRINAMIC, monitor_tmc_driver(stepperZ4, need_update_error_counters, need_debug_reporting))
+        ) {
+          TERN_(Z_IS_TRINAMIC,  step_current_down(stepperZ));
+          TERN_(Z2_IS_TRINAMIC, step_current_down(stepperZ2));
+          TERN_(Z3_IS_TRINAMIC, step_current_down(stepperZ3));
+          TERN_(Z4_IS_TRINAMIC, step_current_down(stepperZ4));
         }
-      }
       #endif
 
-      #if AXIS_IS_TMC(I)
+      #if I_IS_TRINAMIC
         if (monitor_tmc_driver(stepperI, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperI);
       #endif
-      #if AXIS_IS_TMC(J)
+      #if J_IS_TRINAMIC
         if (monitor_tmc_driver(stepperJ, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperJ);
       #endif
-      #if AXIS_IS_TMC(K)
+      #if K_IS_TRINAMIC
         if (monitor_tmc_driver(stepperK, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperK);
       #endif
-      #if AXIS_IS_TMC(U)
+      #if U_IS_TRINAMIC
         if (monitor_tmc_driver(stepperU, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperU);
       #endif
-      #if AXIS_IS_TMC(V)
+      #if V_IS_TRINAMIC
         if (monitor_tmc_driver(stepperV, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperV);
       #endif
-      #if AXIS_IS_TMC(W)
+      #if W_IS_TRINAMIC
         if (monitor_tmc_driver(stepperW, need_update_error_counters, need_debug_reporting))
           step_current_down(stepperW);
       #endif
 
-      #if AXIS_IS_TMC(E0)
-        (void)monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E1)
-        (void)monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E2)
-        (void)monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E3)
-        (void)monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E4)
-        (void)monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E5)
-        (void)monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E6)
-        (void)monitor_tmc_driver(stepperE6, need_update_error_counters, need_debug_reporting);
-      #endif
-      #if AXIS_IS_TMC(E7)
-        (void)monitor_tmc_driver(stepperE7, need_update_error_counters, need_debug_reporting);
-      #endif
+      TERN_(E0_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE0, need_update_error_counters, need_debug_reporting));
+      TERN_(E1_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE1, need_update_error_counters, need_debug_reporting));
+      TERN_(E2_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE2, need_update_error_counters, need_debug_reporting));
+      TERN_(E3_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE3, need_update_error_counters, need_debug_reporting));
+      TERN_(E4_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE4, need_update_error_counters, need_debug_reporting));
+      TERN_(E5_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE5, need_update_error_counters, need_debug_reporting));
+      TERN_(E6_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE6, need_update_error_counters, need_debug_reporting));
+      TERN_(E7_IS_TRINAMIC, (void)monitor_tmc_driver(stepperE7, need_update_error_counters, need_debug_reporting));
 
       if (TERN0(TMC_DEBUG, need_debug_reporting)) SERIAL_EOL();
     }
@@ -510,7 +516,7 @@
     TMC_TSTEP,
     TMC_TPWMTHRS,
     TMC_TPWMTHRS_MMS,
-    TMC_OTPW,
+    TMC_DEBUG_OTPW,
     TMC_OTPW_TRIGGERED,
     TMC_TOFF,
     TMC_TBL,
@@ -518,7 +524,12 @@
     TMC_HSTRT,
     TMC_SGT,
     TMC_MSCNT,
-    TMC_INTERPOLATE
+    TMC_INTERPOLATE,
+    TMC_VAIN,
+    TMC_VSUPPLY,
+    TMC_TEMP,
+    TMC_OVERTEMP,
+    TMC_OVERVOLT_THD
   };
   enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
@@ -562,24 +573,49 @@
     TMC_GET_DRVCTRL,
     TMC_GET_DRVSTATUS,
     TMC_GET_SGCSCONF,
-    TMC_GET_SMARTEN
+    TMC_GET_SMARTEN,
+    TMC_GET_SG4_THRS,
+    TMC_GET_SG4_RESULT
   };
 
   template<class TMC>
   static void print_vsense(TMC &st) { SERIAL_ECHO(st.vsense() ? F("1=.18") : F("0=.325")); }
+  #if HAS_DRIVER(TMC2160)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+  #if HAS_DRIVER(TMC5160)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+  #if HAS_DRIVER(TMC2240)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_vsense(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+
+  template <typename TMC>
+  void print_cs_actual(TMC &st) { SERIAL_ECHO(st.cs_actual(), F("/31")); }
+  #if HAS_DRIVER(TMC2240)
+    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+    void print_cs_actual(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+  #endif
+
+  static void print_true_or_false(const bool tf) { SERIAL_ECHO(TRUE_FALSE(tf)); }
 
   #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC5130)
+    // Additional tmc_status fields for 2130/5130 and related drivers
     static void _tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_ECHO(st.PWM_SCALE()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.en_pwm_mode()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
   #endif
   #if HAS_TMCX1X0
+    // Additional tmc_parse_drv_status fields for 2130 and related drivers
     static void _tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('*'); break;
@@ -592,25 +628,18 @@
   #endif
 
   #if HAS_DRIVER(TMC2160) || HAS_DRIVER(TMC5160)
-    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-    void print_vsense(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
-
-    template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
-    void print_vsense(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
-
+    // Additional tmc_status fields for 2160/5160 and related drivers
     static void _tmc_status(TMC2160Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_PWM_SCALE: SERIAL_ECHO(st.PWM_SCALE()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
-        case TMC_GLOBAL_SCALER:
-          {
-            const uint16_t value = st.GLOBAL_SCALER();
-            SERIAL_ECHO(value ?: 256);
-            SERIAL_ECHOPGM("/256");
-          }
-          break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_STEALTHCHOP: print_true_or_false(st.en_pwm_mode()); break;
+        case TMC_GLOBAL_SCALER: {
+          const uint16_t value = st.GLOBAL_SCALER();
+          SERIAL_ECHO(value ?: 256);
+          SERIAL_ECHOPGM("/256");
+        } break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
@@ -618,32 +647,37 @@
 
   #if HAS_TMC220x
 
+    // Additional tmc_status fields for 2208/2224/2209 drivers
     static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {
+        // PWM_SCALE
         case TMC_PWM_SCALE_SUM: SERIAL_ECHO(st.pwm_scale_sum()); break;
         case TMC_PWM_SCALE_AUTO: SERIAL_ECHO(st.pwm_scale_auto()); break;
+        // PWM_AUTO
         case TMC_PWM_OFS_AUTO: SERIAL_ECHO(st.pwm_ofs_auto()); break;
         case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
-        case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        // CHOPCONF
+        case TMC_STEALTHCHOP: print_true_or_false(st.stealth()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
 
     #if HAS_DRIVER(TMC2209)
+      // Additional tmc_status fields for 2209 drivers
       template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
       static void _tmc_status(TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_debug_enum i) {
         switch (i) {
           case TMC_SGT:       SERIAL_ECHO(st.SGTHRS()); break;
           case TMC_UART_ADDR: SERIAL_ECHO(st.get_address()); break;
           default:
-            TMC2208Stepper *parent = &st;
-            _tmc_status(*parent, i);
+            _tmc_status(static_cast<TMC2208Stepper &>(st), i);
             break;
         }
       }
     #endif
 
+    // Additional tmc_parse_drv_status fields for 2208/2224/2209 drivers
     static void _tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
       switch (i) {
         case TMC_T157: if (st.t157()) SERIAL_CHAR('*'); break;
@@ -658,53 +692,99 @@
     }
 
     #if HAS_DRIVER(TMC2209)
+      // Additional tmc_parse_drv_status fields for 2209 drivers
       static void _tmc_parse_drv_status(TMC2209Stepper &st, const TMC_drv_status_enum i) {
         switch (i) {
           case TMC_SG_RESULT: SERIAL_ECHO(st.SG_RESULT()); break;
-          default:            _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i); break;
+          default:
+            _tmc_parse_drv_status(static_cast<TMC2208Stepper &>(st), i);
+            break;
         }
       }
     #endif
 
   #endif // HAS_TMC220x
 
+  #if HAS_DRIVER(TMC2240)
+
+    // Additional tmc_parse_drv_status fields for 2240 drivers
+    static void _tmc_parse_drv_status(TMC2240Stepper &st, const TMC_drv_status_enum i) {
+      switch (i) {
+        case TMC_S2VSA:         if (st.s2vsa())      SERIAL_CHAR('*'); break;
+        case TMC_S2VSB:         if (st.s2vsb())      SERIAL_CHAR('*'); break;
+        case TMC_STEALTHCHOP:   print_true_or_false(st.stealth());     break;
+        case TMC_FSACTIVE:      if (st.fsactive())   SERIAL_CHAR('*'); break;
+        case TMC_DRV_CS_ACTUAL: if (st.CS_ACTUAL())  SERIAL_CHAR('*'); break;
+        case TMC_STALLGUARD:    if (st.stallguard()) SERIAL_CHAR('*'); break;
+        case TMC_OT:            if (st.ot())         SERIAL_CHAR('*'); break;
+        case TMC_SG_RESULT:     SERIAL_ECHO(st.SG_RESULT());           break;
+        default: break; // other...
+      }
+    }
+
+    // Additional tmc_status fields for 2240 drivers
+    static void _tmc_status(TMC2240Stepper &st, const TMC_debug_enum i) {
+      switch (i) {
+        // PWM_SCALE
+        case TMC_PWM_SCALE_SUM: SERIAL_ECHO(st.pwm_scale_sum()); break;
+        case TMC_PWM_SCALE_AUTO: SERIAL_ECHO(st.pwm_scale_auto()); break;
+        // PWM_AUTO
+        case TMC_PWM_OFS_AUTO: SERIAL_ECHO(st.pwm_ofs_auto()); break;
+        case TMC_PWM_GRAD_AUTO: SERIAL_ECHO(st.pwm_grad_auto()); break;
+        // CHOPCONF
+        case TMC_STEALTHCHOP: print_true_or_false(st.stealth()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
+        case TMC_VAIN: SERIAL_ECHO(st.get_ain_voltage()); break;
+        case TMC_VSUPPLY: SERIAL_ECHO(st.get_vsupply_voltage()); break;
+        case TMC_TEMP: SERIAL_ECHO(st.get_chip_temperature()); break;
+        case TMC_OVERTEMP: SERIAL_ECHO(st.get_overtemp_prewarn_celsius()); break;
+        case TMC_OVERVOLT_THD: SERIAL_ECHO(st.get_overvoltage_threshold_voltage()); break;
+        default: break;
+      }
+    }
+
+  #endif // TMC2240
+
   #if HAS_DRIVER(TMC2660)
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
     static void _tmc_status(TMC2660Stepper &st, const TMC_debug_enum i) {
       switch (i) {
-        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
+        case TMC_INTERPOLATE: print_true_or_false(st.intpol()); break;
         default: break;
       }
     }
   #endif
 
   template <typename TMC>
+  void print_tstep(TMC &st) {
+    const uint32_t tstep_value = st.TSTEP();
+    if (tstep_value != 0xFFFFF)
+      SERIAL_ECHO(tstep_value);
+    else
+      SERIAL_ECHOPGM("max");
+  }
+  void print_tstep(TMC2660Stepper &st) { }
+
+  template <typename TMC>
+  void print_blank_time(TMC &st) { SERIAL_ECHO(st.blank_time()); }
+  template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
+  void print_blank_time(TMCMarlin<TMC2240Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &) { }
+
+  template <typename TMC>
   static void tmc_status(TMC &st, const TMC_debug_enum i) {
     SERIAL_CHAR('\t');
     switch (i) {
       case TMC_CODES: st.printLabel(); break;
-      case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
+      case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
       case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
-      case TMC_IRUN:
-        SERIAL_ECHO(st.irun());
-        SERIAL_ECHOPGM("/31");
-        break;
-      case TMC_IHOLD:
-        SERIAL_ECHO(st.ihold());
-        SERIAL_ECHOPGM("/31");
-        break;
-      case TMC_CS_ACTUAL:
-        SERIAL_ECHO(st.cs_actual());
-        SERIAL_ECHOPGM("/31");
-        break;
+      case TMC_IRUN: SERIAL_ECHO(st.irun()); SERIAL_ECHOPGM("/31"); break;
+      case TMC_IHOLD: SERIAL_ECHO(st.ihold()); SERIAL_ECHOPGM("/31"); break;
+      case TMC_CS_ACTUAL: print_cs_actual(st); break;
       case TMC_VSENSE: print_vsense(st); break;
       case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-      case TMC_TSTEP: {
-        const uint32_t tstep_value = st.TSTEP();
-        if (tstep_value != 0xFFFFF) SERIAL_ECHO(tstep_value); else SERIAL_ECHOPGM("max");
-      } break;
+      case TMC_TSTEP: print_tstep(st); break;
       #if ENABLED(HYBRID_THRESHOLD)
         case TMC_TPWMTHRS: SERIAL_ECHO(uint32_t(st.TPWMTHRS())); break;
         case TMC_TPWMTHRS_MMS: {
@@ -712,12 +792,12 @@
           if (tpwmthrs_val) SERIAL_ECHO(tpwmthrs_val); else SERIAL_CHAR('-');
         } break;
       #endif
-      case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
+      case TMC_DEBUG_OTPW: print_true_or_false(st.otpw()); break;
       #if ENABLED(MONITOR_DRIVER_STATUS)
-        case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
+        case TMC_OTPW_TRIGGERED: print_true_or_false(st.getOTPW()); break;
       #endif
       case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
-      case TMC_TBL: SERIAL_ECHO(st.blank_time()); break;
+      case TMC_TBL: print_blank_time(st); break;
       case TMC_HEND: SERIAL_ECHO(st.hysteresis_end()); break;
       case TMC_HSTRT: SERIAL_ECHO(st.hysteresis_start()); break;
       case TMC_MSCNT: SERIAL_ECHO(st.get_microstep_counter()); break;
@@ -731,132 +811,82 @@
       SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
-        case TMC_ENABLED: serialprint_truefalse(st.isEnabled()); break;
+        case TMC_ENABLED: print_true_or_false(st.isEnabled()); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
         case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
         case TMC_MAX_CURRENT: SERIAL_ECHO(p_float_t(st.rms_current() * 1.41, 0)); break;
-        case TMC_IRUN:
-          SERIAL_ECHO(st.cs());
-          SERIAL_ECHOPGM("/31");
-          break;
+        case TMC_IRUN: SERIAL_ECHO(st.cs()); SERIAL_ECHOPGM("/31"); break;
         case TMC_VSENSE: SERIAL_ECHO(st.vsense() ? F("1=.165") : F("0=.310")); break;
         case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
-        //case TMC_OTPW: serialprint_truefalse(st.otpw()); break;
-        //case TMC_OTPW_TRIGGERED: serialprint_truefalse(st.getOTPW()); break;
+        //case TMC_DEBUG_OTPW: print_true_or_false(st.otpw()); break;
+        //case TMC_OTPW_TRIGGERED: print_true_or_false(st.getOTPW()); break;
         case TMC_SGT: SERIAL_ECHO(st.sgt()); break;
         case TMC_TOFF: SERIAL_ECHO(st.toff()); break;
-        case TMC_TBL: SERIAL_ECHO(st.blank_time()); break;
+        case TMC_TBL: print_blank_time(st); break;
         case TMC_HEND: SERIAL_ECHO(st.hysteresis_end()); break;
         case TMC_HSTRT: SERIAL_ECHO(st.hysteresis_start()); break;
-        default: break;
+        default: _tmc_status(st, i); break;
       }
     }
-  #endif
+  #endif // TMC2660
 
   template <typename TMC>
   static void tmc_parse_drv_status(TMC &st, const TMC_drv_status_enum i) {
     SERIAL_CHAR('\t');
     switch (i) {
-      case TMC_DRV_CODES:     st.printLabel();  break;
-      case TMC_STST:          if (!st.stst())   SERIAL_CHAR('*'); break;
-      case TMC_OLB:           if (st.olb())     SERIAL_CHAR('*'); break;
-      case TMC_OLA:           if (st.ola())     SERIAL_CHAR('*'); break;
-      case TMC_S2GB:          if (st.s2gb())    SERIAL_CHAR('*'); break;
-      case TMC_S2GA:          if (st.s2ga())    SERIAL_CHAR('*'); break;
-      case TMC_DRV_OTPW:      if (st.otpw())    SERIAL_CHAR('*'); break;
-      case TMC_OT:            if (st.ot())      SERIAL_CHAR('*'); break;
+      case TMC_DRV_CODES: st.printLabel();  break;
+      case TMC_STST:      if (!st.stst()) SERIAL_CHAR('*'); break;
+      case TMC_OLB:       if (st.olb())   SERIAL_CHAR('*'); break;
+      case TMC_OLA:       if (st.ola())   SERIAL_CHAR('*'); break;
+      case TMC_S2GB:      if (st.s2gb())  SERIAL_CHAR('*'); break;
+      case TMC_S2GA:      if (st.s2ga())  SERIAL_CHAR('*'); break;
+      case TMC_DRV_OTPW:  if (st.otpw())  SERIAL_CHAR('*'); break;
+      case TMC_OT:        if (st.ot())    SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
-        SERIAL_CHAR('\t');
-        st.printLabel();
-        SERIAL_CHAR('\t');
-        print_hex_long(drv_status, ':', true);
+        SERIAL_CHAR('\t'); st.printLabel();
+        SERIAL_CHAR('\t'); print_hex_long(drv_status, ':', true);
         if (drv_status == 0xFFFFFFFF || drv_status == 0) SERIAL_ECHOPGM("\t Bad response!");
         SERIAL_EOL();
-        break;
-      }
+      } break;
       default: _tmc_parse_drv_status(st, i); break;
     }
   }
 
   static void tmc_debug_loop(const TMC_debug_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      #if AXIS_IS_TMC(X)
-        tmc_status(stepperX, n);
-      #endif
-      #if AXIS_IS_TMC(X2)
-        tmc_status(stepperX2, n);
-      #endif
+      TERN_(X_IS_TRINAMIC, tmc_status(stepperX, n));
+      TERN_(X2_IS_TRINAMIC, tmc_status(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      #if AXIS_IS_TMC(Y)
-        tmc_status(stepperY, n);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_status(stepperY2, n);
-      #endif
+      TERN_(Y_IS_TRINAMIC, tmc_status(stepperY, n));
+      TERN_(Y2_IS_TRINAMIC, tmc_status(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      #if AXIS_IS_TMC(Z)
-        tmc_status(stepperZ, n);
-      #endif
-      #if AXIS_IS_TMC(Z2)
-        tmc_status(stepperZ2, n);
-      #endif
-      #if AXIS_IS_TMC(Z3)
-        tmc_status(stepperZ3, n);
-      #endif
-      #if AXIS_IS_TMC(Z4)
-        tmc_status(stepperZ4, n);
-      #endif
+      TERN_(Z_IS_TRINAMIC, tmc_status(stepperZ, n));
+      TERN_(Z2_IS_TRINAMIC, tmc_status(stepperZ2, n));
+      TERN_(Z3_IS_TRINAMIC, tmc_status(stepperZ3, n));
+      TERN_(Z4_IS_TRINAMIC, tmc_status(stepperZ4, n));
     }
 
-    #if AXIS_IS_TMC(I)
-      if (i) tmc_status(stepperI, n);
-    #endif
-    #if AXIS_IS_TMC(J)
-      if (j) tmc_status(stepperJ, n);
-    #endif
-    #if AXIS_IS_TMC(K)
-      if (k) tmc_status(stepperK, n);
-    #endif
-    #if AXIS_IS_TMC(U)
-      if (u) tmc_status(stepperU, n);
-    #endif
-    #if AXIS_IS_TMC(V)
-      if (v) tmc_status(stepperV, n);
-    #endif
-    #if AXIS_IS_TMC(W)
-      if (w) tmc_status(stepperW, n);
-    #endif
+    TERN_(I_IS_TRINAMIC, if (i) tmc_status(stepperI, n));
+    TERN_(J_IS_TRINAMIC, if (j) tmc_status(stepperJ, n));
+    TERN_(K_IS_TRINAMIC, if (k) tmc_status(stepperK, n));
+    TERN_(U_IS_TRINAMIC, if (u) tmc_status(stepperU, n));
+    TERN_(V_IS_TRINAMIC, if (v) tmc_status(stepperV, n));
+    TERN_(W_IS_TRINAMIC, if (w) tmc_status(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      #if AXIS_IS_TMC(E0)
-        tmc_status(stepperE0, n);
-      #endif
-      #if AXIS_IS_TMC(E1)
-        tmc_status(stepperE1, n);
-      #endif
-      #if AXIS_IS_TMC(E2)
-        tmc_status(stepperE2, n);
-      #endif
-      #if AXIS_IS_TMC(E3)
-        tmc_status(stepperE3, n);
-      #endif
-      #if AXIS_IS_TMC(E4)
-        tmc_status(stepperE4, n);
-      #endif
-      #if AXIS_IS_TMC(E5)
-        tmc_status(stepperE5, n);
-      #endif
-      #if AXIS_IS_TMC(E6)
-        tmc_status(stepperE6, n);
-      #endif
-      #if AXIS_IS_TMC(E7)
-        tmc_status(stepperE7, n);
-      #endif
+      TERN_(E0_IS_TRINAMIC, tmc_status(stepperE0, n));
+      TERN_(E1_IS_TRINAMIC, tmc_status(stepperE1, n));
+      TERN_(E2_IS_TRINAMIC, tmc_status(stepperE2, n));
+      TERN_(E3_IS_TRINAMIC, tmc_status(stepperE3, n));
+      TERN_(E4_IS_TRINAMIC, tmc_status(stepperE4, n));
+      TERN_(E5_IS_TRINAMIC, tmc_status(stepperE5, n));
+      TERN_(E6_IS_TRINAMIC, tmc_status(stepperE6, n));
+      TERN_(E7_IS_TRINAMIC, tmc_status(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -864,82 +894,38 @@
 
   static void drv_status_loop(const TMC_drv_status_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      #if AXIS_IS_TMC(X)
-        tmc_parse_drv_status(stepperX, n);
-      #endif
-      #if AXIS_IS_TMC(X2)
-        tmc_parse_drv_status(stepperX2, n);
-      #endif
+      TERN_(X_IS_TRINAMIC, tmc_parse_drv_status(stepperX, n));
+      TERN_(X2_IS_TRINAMIC, tmc_parse_drv_status(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      #if AXIS_IS_TMC(Y)
-        tmc_parse_drv_status(stepperY, n);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_parse_drv_status(stepperY2, n);
-      #endif
+      TERN_(Y_IS_TRINAMIC, tmc_parse_drv_status(stepperY, n));
+      TERN_(Y2_IS_TRINAMIC, tmc_parse_drv_status(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      #if AXIS_IS_TMC(Z)
-        tmc_parse_drv_status(stepperZ, n);
-      #endif
-      #if AXIS_IS_TMC(Z2)
-        tmc_parse_drv_status(stepperZ2, n);
-      #endif
-      #if AXIS_IS_TMC(Z3)
-        tmc_parse_drv_status(stepperZ3, n);
-      #endif
-      #if AXIS_IS_TMC(Z4)
-        tmc_parse_drv_status(stepperZ4, n);
-      #endif
+      TERN_(Z_IS_TRINAMIC, tmc_parse_drv_status(stepperZ, n));
+      TERN_(Z2_IS_TRINAMIC, tmc_parse_drv_status(stepperZ2, n));
+      TERN_(Z3_IS_TRINAMIC, tmc_parse_drv_status(stepperZ3, n));
+      TERN_(Z4_IS_TRINAMIC, tmc_parse_drv_status(stepperZ4, n));
     }
 
-    #if AXIS_IS_TMC(I)
-      if (i) tmc_parse_drv_status(stepperI, n);
-    #endif
-    #if AXIS_IS_TMC(J)
-      if (j) tmc_parse_drv_status(stepperJ, n);
-    #endif
-    #if AXIS_IS_TMC(K)
-      if (k) tmc_parse_drv_status(stepperK, n);
-    #endif
-    #if AXIS_IS_TMC(U)
-      if (u) tmc_parse_drv_status(stepperU, n);
-    #endif
-    #if AXIS_IS_TMC(V)
-      if (v) tmc_parse_drv_status(stepperV, n);
-    #endif
-    #if AXIS_IS_TMC(W)
-      if (w) tmc_parse_drv_status(stepperW, n);
-    #endif
+    TERN_(I_IS_TRINAMIC, if (i) tmc_parse_drv_status(stepperI, n));
+    TERN_(J_IS_TRINAMIC, if (j) tmc_parse_drv_status(stepperJ, n));
+    TERN_(K_IS_TRINAMIC, if (k) tmc_parse_drv_status(stepperK, n));
+    TERN_(U_IS_TRINAMIC, if (u) tmc_parse_drv_status(stepperU, n));
+    TERN_(V_IS_TRINAMIC, if (v) tmc_parse_drv_status(stepperV, n));
+    TERN_(W_IS_TRINAMIC, if (w) tmc_parse_drv_status(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      #if AXIS_IS_TMC(E0)
-        tmc_parse_drv_status(stepperE0, n);
-      #endif
-      #if AXIS_IS_TMC(E1)
-        tmc_parse_drv_status(stepperE1, n);
-      #endif
-      #if AXIS_IS_TMC(E2)
-        tmc_parse_drv_status(stepperE2, n);
-      #endif
-      #if AXIS_IS_TMC(E3)
-        tmc_parse_drv_status(stepperE3, n);
-      #endif
-      #if AXIS_IS_TMC(E4)
-        tmc_parse_drv_status(stepperE4, n);
-      #endif
-      #if AXIS_IS_TMC(E5)
-        tmc_parse_drv_status(stepperE5, n);
-      #endif
-      #if AXIS_IS_TMC(E6)
-        tmc_parse_drv_status(stepperE6, n);
-      #endif
-      #if AXIS_IS_TMC(E7)
-        tmc_parse_drv_status(stepperE7, n);
-      #endif
+      TERN_(E0_IS_TRINAMIC, tmc_parse_drv_status(stepperE0, n));
+      TERN_(E1_IS_TRINAMIC, tmc_parse_drv_status(stepperE1, n));
+      TERN_(E2_IS_TRINAMIC, tmc_parse_drv_status(stepperE2, n));
+      TERN_(E3_IS_TRINAMIC, tmc_parse_drv_status(stepperE3, n));
+      TERN_(E4_IS_TRINAMIC, tmc_parse_drv_status(stepperE4, n));
+      TERN_(E5_IS_TRINAMIC, tmc_parse_drv_status(stepperE5, n));
+      TERN_(E6_IS_TRINAMIC, tmc_parse_drv_status(stepperE6, n));
+      TERN_(E7_IS_TRINAMIC, tmc_parse_drv_status(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -977,7 +963,7 @@
     TMC_REPORT("tstep\t",            TMC_TSTEP);
     TMC_REPORT("PWM thresh.",        TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
-    TMC_REPORT("OT prewarn",         TMC_OTPW);
+    TMC_REPORT("OT prewarn",         TMC_DEBUG_OTPW);
     #if ENABLED(MONITOR_DRIVER_STATUS)
       TMC_REPORT("triggered\n OTP\t", TMC_OTPW_TRIGGERED);
     #endif
@@ -995,11 +981,12 @@
     TMC_REPORT(" -start\t",          TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
     TMC_REPORT("uStep count",        TMC_MSCNT);
+
     DRV_REPORT("DRVSTATUS",          TMC_DRV_CODES);
-    #if HAS_TMCX1X0 || HAS_TMC220x
+    #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
       DRV_REPORT("sg_result",        TMC_SG_RESULT);
     #endif
-    #if HAS_TMCX1X0
+    #if HAS_TMCX1X0_OR_2240
       DRV_REPORT("stallguard",       TMC_STALLGUARD);
       DRV_REPORT("fsactive",         TMC_FSACTIVE);
     #endif
@@ -1015,30 +1002,40 @@
       DRV_REPORT("150C\t",           TMC_T150);
       DRV_REPORT("143C\t",           TMC_T143);
       DRV_REPORT("120C\t",           TMC_T120);
+    #endif
+    #if HAS_TMC220x || HAS_DRIVER(TMC2240)
       DRV_REPORT("s2vsa\t",          TMC_S2VSA);
       DRV_REPORT("s2vsb\t",          TMC_S2VSB);
     #endif
-    DRV_REPORT("Driver registers:\n",TMC_DRV_STATUS_HEX);
+    DRV_REPORT("Driver registers:\n", TMC_DRV_STATUS_HEX);
+    #if HAS_DRIVER(TMC2240)
+      TMC_REPORT("Analog in (v)",    TMC_VAIN);
+      TMC_REPORT("Supply (v)",       TMC_VSUPPLY);
+      TMC_REPORT("Temp (°C)",        TMC_TEMP);
+      TMC_REPORT("OT pre warn (°C)", TMC_OVERTEMP);
+      TMC_REPORT("OV theshold (v)",  TMC_OVERVOLT_THD);
+    #endif
     SERIAL_EOL();
   }
 
   #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_long(st.REG_CASE(), ':'); break
 
-  #if HAS_TMCX1X0
-    static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
-      switch (i) {
-        PRINT_TMC_REGISTER(TCOOLTHRS);
-        PRINT_TMC_REGISTER(THIGH);
-        PRINT_TMC_REGISTER(COOLCONF);
-        default: SERIAL_CHAR('\t'); break;
-      }
-    }
-  #endif
-  #if HAS_TMC220x
-    static void tmc_get_ic_registers(TMC2208Stepper, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
-  #endif
-
   #if HAS_TRINAMIC_CONFIG
+
+    template<class TMC>
+    static void tmc_get_ic_registers(TMC &, const TMC_get_registers_enum) { SERIAL_CHAR('\t'); }
+
+    #if HAS_TMCX1X0
+      static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
+        switch (i) {
+          PRINT_TMC_REGISTER(TCOOLTHRS);
+          PRINT_TMC_REGISTER(THIGH);
+          PRINT_TMC_REGISTER(COOLCONF);
+          default: SERIAL_CHAR('\t'); break;
+        }
+      }
+    #endif
+
     template<class TMC>
     static void tmc_get_registers(TMC &st, const TMC_get_registers_enum i) {
       switch (i) {
@@ -1058,7 +1055,9 @@
       }
       SERIAL_CHAR('\t');
     }
-  #endif
+
+  #endif // HAS_TRINAMIC_CONFIG
+
   #if HAS_DRIVER(TMC2660)
     template <char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
     static void tmc_get_registers(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> &st, const TMC_get_registers_enum i) {
@@ -1078,82 +1077,38 @@
 
   static void tmc_get_registers(TMC_get_registers_enum n OPTARGS_LOGICAL(const bool)) {
     if (TERN0(HAS_X_AXIS, x)) {
-      #if AXIS_IS_TMC(X)
-        tmc_get_registers(stepperX, n);
-      #endif
-      #if AXIS_IS_TMC(X2)
-        tmc_get_registers(stepperX2, n);
-      #endif
+      TERN_(X_IS_TRINAMIC, tmc_get_registers(stepperX, n));
+      TERN_(X2_IS_TRINAMIC, tmc_get_registers(stepperX2, n));
     }
 
     if (TERN0(HAS_Y_AXIS, y)) {
-      #if AXIS_IS_TMC(Y)
-        tmc_get_registers(stepperY, n);
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_get_registers(stepperY2, n);
-      #endif
+      TERN_(Y_IS_TRINAMIC, tmc_get_registers(stepperY, n));
+      TERN_(Y2_IS_TRINAMIC, tmc_get_registers(stepperY2, n));
     }
 
     if (TERN0(HAS_Z_AXIS, z)) {
-      #if AXIS_IS_TMC(Z)
-        tmc_get_registers(stepperZ, n);
-      #endif
-      #if AXIS_IS_TMC(Z2)
-        tmc_get_registers(stepperZ2, n);
-      #endif
-      #if AXIS_IS_TMC(Z3)
-        tmc_get_registers(stepperZ3, n);
-      #endif
-      #if AXIS_IS_TMC(Z4)
-        tmc_get_registers(stepperZ4, n);
-      #endif
+      TERN_(Z_IS_TRINAMIC, tmc_get_registers(stepperZ, n));
+      TERN_(Z2_IS_TRINAMIC, tmc_get_registers(stepperZ2, n));
+      TERN_(Z3_IS_TRINAMIC, tmc_get_registers(stepperZ3, n));
+      TERN_(Z4_IS_TRINAMIC, tmc_get_registers(stepperZ4, n));
     }
 
-    #if AXIS_IS_TMC(I)
-      if (i) tmc_get_registers(stepperI, n);
-    #endif
-    #if AXIS_IS_TMC(J)
-      if (j) tmc_get_registers(stepperJ, n);
-    #endif
-    #if AXIS_IS_TMC(K)
-      if (k) tmc_get_registers(stepperK, n);
-    #endif
-    #if AXIS_IS_TMC(U)
-      if (u) tmc_get_registers(stepperU, n);
-    #endif
-    #if AXIS_IS_TMC(V)
-      if (v) tmc_get_registers(stepperV, n);
-    #endif
-    #if AXIS_IS_TMC(W)
-      if (w) tmc_get_registers(stepperW, n);
-    #endif
+    TERN_(I_IS_TRINAMIC, if (i) tmc_get_registers(stepperI, n));
+    TERN_(J_IS_TRINAMIC, if (j) tmc_get_registers(stepperJ, n));
+    TERN_(K_IS_TRINAMIC, if (k) tmc_get_registers(stepperK, n));
+    TERN_(U_IS_TRINAMIC, if (u) tmc_get_registers(stepperU, n));
+    TERN_(V_IS_TRINAMIC, if (v) tmc_get_registers(stepperV, n));
+    TERN_(W_IS_TRINAMIC, if (w) tmc_get_registers(stepperW, n));
 
     if (TERN0(HAS_EXTRUDERS, e)) {
-      #if AXIS_IS_TMC(E0)
-        tmc_get_registers(stepperE0, n);
-      #endif
-      #if AXIS_IS_TMC(E1)
-        tmc_get_registers(stepperE1, n);
-      #endif
-      #if AXIS_IS_TMC(E2)
-        tmc_get_registers(stepperE2, n);
-      #endif
-      #if AXIS_IS_TMC(E3)
-        tmc_get_registers(stepperE3, n);
-      #endif
-      #if AXIS_IS_TMC(E4)
-        tmc_get_registers(stepperE4, n);
-      #endif
-      #if AXIS_IS_TMC(E5)
-        tmc_get_registers(stepperE5, n);
-      #endif
-      #if AXIS_IS_TMC(E6)
-        tmc_get_registers(stepperE6, n);
-      #endif
-      #if AXIS_IS_TMC(E7)
-        tmc_get_registers(stepperE7, n);
-      #endif
+      TERN_(E0_IS_TRINAMIC, tmc_get_registers(stepperE0, n));
+      TERN_(E1_IS_TRINAMIC, tmc_get_registers(stepperE1, n));
+      TERN_(E2_IS_TRINAMIC, tmc_get_registers(stepperE2, n));
+      TERN_(E3_IS_TRINAMIC, tmc_get_registers(stepperE3, n));
+      TERN_(E4_IS_TRINAMIC, tmc_get_registers(stepperE4, n));
+      TERN_(E5_IS_TRINAMIC, tmc_get_registers(stepperE5, n));
+      TERN_(E6_IS_TRINAMIC, tmc_get_registers(stepperE6, n));
+      TERN_(E7_IS_TRINAMIC, tmc_get_registers(stepperE7, n));
     }
 
     SERIAL_EOL();
@@ -1210,11 +1165,29 @@
     st.TCOOLTHRS(0);
   }
 
+  bool tmc_enable_stallguard(TMC2240Stepper &st) {
+    const bool stealthchop_was_enabled = st.en_pwm_mode();
+
+    // TODO: Use StallGuard4 when stealthChop is enabled
+    //       and leave stealthChop state unchanged.
+
+    st.TCOOLTHRS(0xFFFFF);
+    st.en_pwm_mode(false);
+    st.diag0_stall(true);
+
+    return stealthchop_was_enabled;
+  }
+  void tmc_disable_stallguard(TMC2240Stepper &st, const bool restore_stealth) {
+    st.TCOOLTHRS(0);
+    st.en_pwm_mode(restore_stealth);
+    st.diag0_stall(false);
+  }
+
   bool tmc_enable_stallguard(TMC2660Stepper) {
     // TODO
     return false;
   }
-  void tmc_disable_stallguard(TMC2660Stepper, const bool) {};
+  void tmc_disable_stallguard(TMC2660Stepper, const bool) { }
 
 #endif // USE_SENSORLESS
 
@@ -1243,157 +1216,41 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS_LC(const bool)) {
   uint8_t axis_connection = 0;
 
   if (TERN0(HAS_X_AXIS, x)) {
-    #if AXIS_IS_TMC(X)
-      axis_connection += test_connection(stepperX);
-    #endif
-    #if AXIS_IS_TMC(X2)
-      axis_connection += test_connection(stepperX2);
-    #endif
+    TERN_(X_IS_TRINAMIC, axis_connection += test_connection(stepperX));
+    TERN_(X2_IS_TRINAMIC, axis_connection += test_connection(stepperX2));
   }
 
   if (TERN0(HAS_Y_AXIS, y)) {
-    #if AXIS_IS_TMC(Y)
-      axis_connection += test_connection(stepperY);
-    #endif
-    #if AXIS_IS_TMC(Y2)
-      axis_connection += test_connection(stepperY2);
-    #endif
+    TERN_(Y_IS_TRINAMIC, axis_connection += test_connection(stepperY));
+    TERN_(Y2_IS_TRINAMIC, axis_connection += test_connection(stepperY2));
   }
 
   if (TERN0(HAS_Z_AXIS, z)) {
-    #if AXIS_IS_TMC(Z)
-      axis_connection += test_connection(stepperZ);
-    #endif
-    #if AXIS_IS_TMC(Z2)
-      axis_connection += test_connection(stepperZ2);
-    #endif
-    #if AXIS_IS_TMC(Z3)
-      axis_connection += test_connection(stepperZ3);
-    #endif
-    #if AXIS_IS_TMC(Z4)
-      axis_connection += test_connection(stepperZ4);
-    #endif
+    TERN_(Z_IS_TRINAMIC, axis_connection += test_connection(stepperZ));
+    TERN_(Z2_IS_TRINAMIC, axis_connection += test_connection(stepperZ2));
+    TERN_(Z3_IS_TRINAMIC, axis_connection += test_connection(stepperZ3));
+    TERN_(Z4_IS_TRINAMIC, axis_connection += test_connection(stepperZ4));
   }
 
-  #if AXIS_IS_TMC(I)
-    if (i) axis_connection += test_connection(stepperI);
-  #endif
-  #if AXIS_IS_TMC(J)
-    if (j) axis_connection += test_connection(stepperJ);
-  #endif
-  #if AXIS_IS_TMC(K)
-    if (k) axis_connection += test_connection(stepperK);
-  #endif
-  #if AXIS_IS_TMC(U)
-    if (u) axis_connection += test_connection(stepperU);
-  #endif
-  #if AXIS_IS_TMC(V)
-    if (v) axis_connection += test_connection(stepperV);
-  #endif
-  #if AXIS_IS_TMC(W)
-    if (w) axis_connection += test_connection(stepperW);
-  #endif
+  TERN_(I_IS_TRINAMIC, if (i) axis_connection += test_connection(stepperI));
+  TERN_(J_IS_TRINAMIC, if (j) axis_connection += test_connection(stepperJ));
+  TERN_(K_IS_TRINAMIC, if (k) axis_connection += test_connection(stepperK));
+  TERN_(U_IS_TRINAMIC, if (u) axis_connection += test_connection(stepperU));
+  TERN_(V_IS_TRINAMIC, if (v) axis_connection += test_connection(stepperV));
+  TERN_(W_IS_TRINAMIC, if (w) axis_connection += test_connection(stepperW));
 
   if (TERN0(HAS_EXTRUDERS, e)) {
-    #if AXIS_IS_TMC(E0)
-      axis_connection += test_connection(stepperE0);
-    #endif
-    #if AXIS_IS_TMC(E1)
-      axis_connection += test_connection(stepperE1);
-    #endif
-    #if AXIS_IS_TMC(E2)
-      axis_connection += test_connection(stepperE2);
-    #endif
-    #if AXIS_IS_TMC(E3)
-      axis_connection += test_connection(stepperE3);
-    #endif
-    #if AXIS_IS_TMC(E4)
-      axis_connection += test_connection(stepperE4);
-    #endif
-    #if AXIS_IS_TMC(E5)
-      axis_connection += test_connection(stepperE5);
-    #endif
-    #if AXIS_IS_TMC(E6)
-      axis_connection += test_connection(stepperE6);
-    #endif
-    #if AXIS_IS_TMC(E7)
-      axis_connection += test_connection(stepperE7);
-    #endif
+    TERN_(E0_IS_TRINAMIC, axis_connection += test_connection(stepperE0));
+    TERN_(E1_IS_TRINAMIC, axis_connection += test_connection(stepperE1));
+    TERN_(E2_IS_TRINAMIC, axis_connection += test_connection(stepperE2));
+    TERN_(E3_IS_TRINAMIC, axis_connection += test_connection(stepperE3));
+    TERN_(E4_IS_TRINAMIC, axis_connection += test_connection(stepperE4));
+    TERN_(E5_IS_TRINAMIC, axis_connection += test_connection(stepperE5));
+    TERN_(E6_IS_TRINAMIC, axis_connection += test_connection(stepperE6));
+    TERN_(E7_IS_TRINAMIC, axis_connection += test_connection(stepperE7));
   }
 
   if (axis_connection) LCD_MESSAGE(MSG_ERROR_TMC);
 }
 
 #endif // HAS_TRINAMIC_CONFIG
-
-#if HAS_TMC_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
-  void tmc_init_cs_pins() {
-    #if AXIS_HAS_SPI(X)
-      SET_CS_PIN(X);
-    #endif
-    #if AXIS_HAS_SPI(Y)
-      SET_CS_PIN(Y);
-    #endif
-    #if AXIS_HAS_SPI(Z)
-      SET_CS_PIN(Z);
-    #endif
-    #if AXIS_HAS_SPI(X2)
-      SET_CS_PIN(X2);
-    #endif
-    #if AXIS_HAS_SPI(Y2)
-      SET_CS_PIN(Y2);
-    #endif
-    #if AXIS_HAS_SPI(Z2)
-      SET_CS_PIN(Z2);
-    #endif
-    #if AXIS_HAS_SPI(Z3)
-      SET_CS_PIN(Z3);
-    #endif
-    #if AXIS_HAS_SPI(Z4)
-      SET_CS_PIN(Z4);
-    #endif
-    #if AXIS_HAS_SPI(I)
-      SET_CS_PIN(I);
-    #endif
-    #if AXIS_HAS_SPI(J)
-      SET_CS_PIN(J);
-    #endif
-    #if AXIS_HAS_SPI(K)
-      SET_CS_PIN(K);
-    #endif
-    #if AXIS_HAS_SPI(U)
-      SET_CS_PIN(U);
-    #endif
-    #if AXIS_HAS_SPI(V)
-      SET_CS_PIN(V);
-    #endif
-    #if AXIS_HAS_SPI(W)
-      SET_CS_PIN(W);
-    #endif
-    #if AXIS_HAS_SPI(E0)
-      SET_CS_PIN(E0);
-    #endif
-    #if AXIS_HAS_SPI(E1)
-      SET_CS_PIN(E1);
-    #endif
-    #if AXIS_HAS_SPI(E2)
-      SET_CS_PIN(E2);
-    #endif
-    #if AXIS_HAS_SPI(E3)
-      SET_CS_PIN(E3);
-    #endif
-    #if AXIS_HAS_SPI(E4)
-      SET_CS_PIN(E4);
-    #endif
-    #if AXIS_HAS_SPI(E5)
-      SET_CS_PIN(E5);
-    #endif
-    #if AXIS_HAS_SPI(E6)
-      SET_CS_PIN(E6);
-    #endif
-    #if AXIS_HAS_SPI(E7)
-      SET_CS_PIN(E7);
-    #endif
-  }
-#endif // HAS_TMC_SPI

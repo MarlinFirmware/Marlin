@@ -66,24 +66,14 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-#else
-  #define X_STOP_PIN                        PE7   // X-STOP
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                  X_DIAG_PIN  // X-STOP
 #endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-#else
-  #define Y_STOP_PIN                        PE8   // Y-STOP
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-STOP
 #endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PE9   // Z-STOP
-  #endif
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
 
 //
@@ -252,8 +242,7 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
@@ -473,7 +462,7 @@
     #define LCD_READ_ID                     0xD3
     #define LCD_USE_DMA_SPI
 
-    #define TFT_BUFFER_SIZE                14400
+    #define TFT_BUFFER_WORDS               14400
 
   #endif
 
@@ -481,15 +470,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 //#define POWER_MONITOR_VOLTAGE_PIN         PC3

@@ -26,7 +26,6 @@
  */
 
 #include "dwin_lcd.h"
-#include "../common/dwin_set.h"
 #include "../common/dwin_font.h"
 #include "../common/dwin_color.h"
 #include "../common/encoder.h"
@@ -35,7 +34,8 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-//#define DWIN_CREALITY_LCD_CUSTOM_ICONS
+#define DWIN_CREALITY_LCD_STD_ICONS
+#include "../common/dwin_set.h"
 
 enum processID : uint8_t {
   Proc_Main, Proc_Print, Proc_Menu, Proc_Value, Proc_Option,
@@ -120,34 +120,6 @@ enum menuID : uint8_t {
   ID_PreheatHotend
 };
 
-// Custom icons
-#if ENABLED(DWIN_CREALITY_LCD_CUSTOM_ICONS)
-  // index of every custom icon should be >= CUSTOM_ICON_START
-  #define CUSTOM_ICON_START         ICON_Checkbox_F
-  #define ICON_Checkbox_F           200
-  #define ICON_Checkbox_T           201
-  #define ICON_Fade                 202
-  #define ICON_Mesh                 203
-  #define ICON_Tilt                 204
-  #define ICON_Brightness           205
-  #define ICON_AxisD                249
-  #define ICON_AxisBR               250
-  #define ICON_AxisTR               251
-  #define ICON_AxisBL               252
-  #define ICON_AxisTL               253
-  #define ICON_AxisC                254
-#else
-  #define ICON_Fade                 ICON_Version
-  #define ICON_Mesh                 ICON_Version
-  #define ICON_Tilt                 ICON_Version
-  #define ICON_Brightness           ICON_Version
-  #define ICON_AxisD                ICON_Axis
-  #define ICON_AxisBR               ICON_Axis
-  #define ICON_AxisTR               ICON_Axis
-  #define ICON_AxisBL               ICON_Axis
-  #define ICON_AxisTL               ICON_Axis
-  #define ICON_AxisC                ICON_Axis
-#endif
 
 enum colorID : uint8_t {
   Default, White, Green, Cyan, Blue, Magenta, Red, Orange, Yellow, Brown, Black

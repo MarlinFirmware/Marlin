@@ -127,9 +127,9 @@ NEOPIXEL           ?= 0
 # on GCC versions:
 #   https://www.avrfreaks.net/comment/1789106#comment-1789106
 
-CC_MAJ:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC__ | cut -f3 -d\ )
-CC_MIN:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_MINOR__ | cut -f3 -d\ )
-CC_PATCHLEVEL:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_PATCHLEVEL__ | cut -f3 -d\ )
+CC_MAJ:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC__ | cut -f3 -d' ' )
+CC_MIN:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_MINOR__ | cut -f3 -d' ' )
+CC_PATCHLEVEL:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_PATCHLEVEL__ | cut -f3 -d' ' )
 CC_VER:=$(shell echo $$(( $(CC_MAJ) * 10000 + $(CC_MIN) * 100 + $(CC_PATCHLEVEL) )))
 ifeq ($(shell test $(CC_VER) -lt 40901 && echo 1),1)
   $(warning This GCC version $(CC_VER) is likely broken. Enabling relocation workaround.)
@@ -338,7 +338,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1164)
 else ifeq ($(HARDWARE_MOTHERBOARD),1165)
 # XTLW MFF V2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1166)
-
+# E3D Rumba BigBox
+else ifeq ($(HARDWARE_MOTHERBOARD),1167)
 
 #
 # RAMBo and derivatives
@@ -798,10 +799,10 @@ endif
 
 ifeq ($(TMC), 1)
   LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp \
-    CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp \
-    DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp \
-    SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp \
-    TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
+    CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp DRVSTATUS.cpp \
+    GLOBAL_SCALER.cpp SLAVECONF.cpp IOIN.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp \
+    SHORT_CONF.cpp SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp \
+    TMC2209Stepper.cpp TMC2240Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
@@ -868,8 +869,8 @@ else ifeq ($(HARDWARE_VARIANT), archim)
 endif
 
 # Add all the source directories as include directories too
-CINCS = ${addprefix -I ,${VPATH}}
-CXXINCS = ${addprefix -I ,${VPATH}}
+CINCS = ${addprefix -I, ${VPATH}}
+CXXINCS = ${addprefix -I, ${VPATH}}
 
 # Silence warnings for library code (won't work for .h files, unfortunately)
 LIBWARN = -w -Wno-packed-bitfield-compat

@@ -33,7 +33,7 @@ namespace LanguageNarrow_ko_KR {
   constexpr uint8_t CHARSIZE              = 1;
   LSTR LANGUAGE                           = _UxGT("Korean");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" 준비.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" 준비.");
   LSTR MSG_BACK                           = _UxGT("뒤로");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("카드 삽입됨");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("카드 제거됨");
@@ -42,7 +42,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_MAIN_MENU                      = _UxGT("뒤로");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("고급 설정");
   LSTR MSG_CONFIGURATION                  = _UxGT("설정");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("자동 시작");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("자동 시작");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("모터 정지");
   LSTR MSG_DEBUG_MENU                     = _UxGT("디버깅 메뉴");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("프로그레스바 테스트");

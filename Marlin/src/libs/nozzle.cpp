@@ -51,25 +51,23 @@ Nozzle nozzle;
         const xyz_pos_t oldpos = current_position;
       #endif
 
-      // Move to the starting point
-      #if ENABLED(NOZZLE_CLEAN_NO_Z)
-        #if ENABLED(NOZZLE_CLEAN_NO_Y)
-          do_blocking_move_to_x(start.x);
-        #else
-          do_blocking_move_to_xy(start);
-        #endif
-      #else
+      // Move Z (and XY) to the starting point, if needed
+      #if DISABLED(NOZZLE_CLEAN_NO_Z)
         do_blocking_move_to(start);
       #endif
 
-      // Start the stroke pattern
-      for (uint8_t i = 0; i < strokes >> 1; ++i) {
+      // Run the stroke pattern
+      for (uint8_t i = 0; i <= strokes; ++i) {
         #if ENABLED(NOZZLE_CLEAN_NO_Y)
-          do_blocking_move_to_x(end.x);
-          do_blocking_move_to_x(start.x);
+          if (i & 1)
+            do_blocking_move_to_x(end.x);
+          else
+            do_blocking_move_to_x(start.x);
         #else
-          do_blocking_move_to_xy(end);
-          do_blocking_move_to_xy(start);
+          if (i & 1)
+            do_blocking_move_to_xy(end);
+          else
+            do_blocking_move_to_xy(start);
         #endif
       }
 
@@ -189,12 +187,12 @@ Nozzle nozzle;
         #if ENABLED(NOZZLE_CLEAN_HEATUP)
           SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
           thermalManager.setTargetHotend(NOZZLE_CLEAN_MIN_TEMP, arrPos);
-          thermalManager.wait_for_hotend(arrPos);
         #else
           SERIAL_ECHOLNPGM("Nozzle too cold - Skipping wipe");
           return;
         #endif
       }
+      thermalManager.wait_for_hotend(arrPos);
     #endif
 
     #if HAS_SOFTWARE_ENDSTOPS

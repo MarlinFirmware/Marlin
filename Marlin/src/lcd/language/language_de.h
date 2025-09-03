@@ -34,28 +34,28 @@ namespace LanguageNarrow_de {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Deutsch");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" bereit");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" bereit");
   LSTR MSG_YES                            = _UxGT("JA");
   LSTR MSG_NO                             = _UxGT("NEIN");
   LSTR MSG_HIGH                           = _UxGT("HOCH");
   LSTR MSG_LOW                            = _UxGT("RUNTER");
   LSTR MSG_BACK                           = _UxGT("Zurück");
   LSTR MSG_ERROR                          = _UxGT("Fehler");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abbruch...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Medium erkannt");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Medium entfernt");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Warten auf Medium");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("Medium Init fehlgesch.");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Medium Lesefehler");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Gerät entfernt");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Start fehlge.");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Gerät entfernt");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB Start fehlge.");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall überschritten");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstopp"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Software-Endstopp");
   LSTR MSG_MAIN_MENU                      = _UxGT("Hauptmenü");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Erw. Einstellungen");
   LSTR MSG_CONFIGURATION                  = _UxGT("Konfiguration");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
   LSTR MSG_DEBUG_MENU                     = _UxGT("Debug-Menü");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Statusbalken-Test");
@@ -493,9 +493,14 @@ namespace LanguageNarrow_de {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filament entladen");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filament entladen *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Alles entladen");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medium initial."); // Manually initialize the SD-card via user interface
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD initial.");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB initial.");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medium getauscht"); // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medium freigeben"); // if Marlin gets confused - M22
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z-Sonde außerhalb");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Korrekturfaktor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -714,7 +719,8 @@ namespace LanguageNarrow_de {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid threshold");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorloses Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Schrittmodus");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop einsch.");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" im:");
   LSTR MSG_BACKLASH                       = _UxGT("Spiel");

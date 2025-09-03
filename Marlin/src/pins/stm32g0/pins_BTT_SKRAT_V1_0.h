@@ -50,9 +50,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 //
@@ -79,61 +79,18 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                       PF4   // E0_DET
-  #else
-    #define X_MIN_PIN                       PF4   // E0_DET
-  #endif
-#elif ENABLED(X_DUAL_ENDSTOPS)
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                       PB5   // X-STOP
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                       PF4   // E0_DET
-  #endif
-#else
-  #define X_STOP_PIN                        PB5   // X-STOP
+#ifndef X_STOP_PIN
+  #define X_STOP_PIN                  X_DIAG_PIN  // X-STOP
 #endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                       PF5   // E1_DET
-  #else
-    #define Y_MIN_PIN                       PF5   // E1_DET
-  #endif
-#elif ENABLED(Y_DUAL_ENDSTOPS)
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                       PC1   // Y-STOP
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                       PF5   // E1_DET
-  #endif
-#else
-  #define Y_STOP_PIN                        PC1   // Y-STOP
+#ifndef Y_STOP_PIN
+  #define Y_STOP_PIN                  Y_DIAG_PIN  // Y-STOP
 #endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                       PE12  // PWR_DET
-  #else
-    #define Z_MIN_PIN                       PE12  // PWR_DET
-  #endif
-#elif ENABLED(Z_MULTI_ENDSTOPS)
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                       PC0   // Z-STOP
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                       PE12  // PWR_DET
-  #endif
-#else
-  #ifndef Z_STOP_PIN
-    #define Z_STOP_PIN                      PC0   // Z-STOP
-  #endif
+#ifndef Z_STOP_PIN
+  #define Z_STOP_PIN                  Z_DIAG_PIN  // Z-STOP
 #endif
+#define X_OTHR_PIN                          PF4   // E0_DET
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // E1_DET
+#define Z_OTHR_PIN                          PE12  // PWR_DET
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -309,16 +266,18 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN                   PF10
-  #define Y_SERIAL_TX_PIN                   PD4
-  #define Z_SERIAL_TX_PIN                   PC8
-  #define E0_SERIAL_TX_PIN                  PD8
-  #define E1_SERIAL_TX_PIN                  PB11
+  //#define X_SERIAL_TX_PIN                 PF10
+  //#define Y_SERIAL_TX_PIN                 PD4
+  //#define Z_SERIAL_TX_PIN                 PC8
+  //#define E0_SERIAL_TX_PIN                PD8
+  //#define E1_SERIAL_TX_PIN                PB11
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
+  //#ifndef TMC_BAUD_RATE
+  //  #define TMC_BAUD_RATE                19200
+  //#endif
+
+  #error "UART-based drivers are not supported on this board."
 
 #endif
 
@@ -378,7 +337,6 @@
 #define ONBOARD_SD_CS_PIN                   PB8   // Chip select for "System" SD card
 
 #define ENABLE_SPI1
-#define SDSS                   ONBOARD_SD_CS_PIN
 #define SD_SS_PIN              ONBOARD_SD_CS_PIN
 #define SD_SCK_PIN                          PA5
 #define SD_MISO_PIN                         PA6
@@ -517,15 +475,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 #if HAS_SPI_TFT
