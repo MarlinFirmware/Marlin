@@ -1416,6 +1416,16 @@
 //#define USE_PROBE_FOR_Z_HOMING
 
 /**
+ * For machines with Z endstops and BLTOUCH sensors working together.
+ * Enable this option to home with BLTOUCH probe after Z endstop homing.
+ * This allows "Z Probe Offset" changes to take effect immediately without 
+ * having to rebuild bed leveling mesh. Usefull for Z_MULTI_ENDSTOPS 
+ * machines where enstops are needed to sync the Z motors.
+ * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
+ */
+#define USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP
+
+/**
  * Z_MIN_PROBE_PIN
  *
  * Override this pin only if the probe cannot be connected to
