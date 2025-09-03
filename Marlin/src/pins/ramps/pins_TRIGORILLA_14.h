@@ -120,11 +120,13 @@
   #define Y_STOP_PIN                          42  // AUX (1)
   #define Z_STOP_PIN                          43  // AUX (2)
   #ifndef Z2_STOP_PIN
-    #define Z2_STOP_PIN                       18  // Z-
+     #define X_MAX_PIN                        18  //12LABS added, was missing
+     #define Z2_STOP_PIN                      18  // Z-
   #endif
 
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2  // X+
+    #define Y_MAX_PIN                          2  // X+ used for BLTOUCH, 12LABS added, was missing
   #endif
 
   #define CONTROLLER_FAN_PIN            FAN1_PIN
