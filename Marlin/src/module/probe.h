@@ -52,7 +52,7 @@
 #if ENABLED(BD_SENSOR)
   #define PROBE_READ() bdp_state
 #elif ENABLED(CAN_HOST)
-  #define PROBE_READ() bool(CAN_host_get_iostate() & CAN_ID_PROBE_MASK)
+  #define PROBE_READ() bool(CAN_host_get_iostate() & CAN_ID_PROBE_BIT_MASK)
 #elif USE_Z_MIN_PROBE
   #define PROBE_READ() READ(Z_MIN_PROBE_PIN)
 #else

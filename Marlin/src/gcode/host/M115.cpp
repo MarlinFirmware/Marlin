@@ -35,7 +35,7 @@
   #include "../../feature/caselight.h"
 #endif
 
-#if ENABLED(CAN_TOOLHEAD)
+#if ANY(CAN_HOST, CAN_TOOLHEAD)
   #include "../../HAL/shared/CAN.h"
 #endif
 
