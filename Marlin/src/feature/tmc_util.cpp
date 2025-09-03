@@ -24,6 +24,12 @@
 
 #if HAS_TRINAMIC_CONFIG
 
+/**
+ * feature/tmc_util.cpp - Functions for debugging Trinamic stepper drivers.
+ * The main entry point is `tmc_report_all` which is called by M122 to collect
+ * and report diagnostic information about each enabled TMC driver.
+ */
+
 #include "tmc_util.h"
 #include "../MarlinCore.h"
 
@@ -284,12 +290,13 @@
     SString<50>(F(" driver overtemperature warning! ("), st.getMilliamps(), F("mA)")).echoln();
   }
 
-  template<typename TMC>
-  void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
-    const uint32_t pwm_scale = get_pwm_scale(st);
-    st.printLabel();
-    SString<60> report(':', pwm_scale);
-    #if ENABLED(TMC_DEBUG)
+  #if ENABLED(TMC_DEBUG)
+
+    template<typename TMC>
+    void report_polled_driver_data(TMC &st, const TMC_driver_data &data) {
+      const uint32_t pwm_scale = get_pwm_scale(st);
+      st.printLabel();
+      SString<60> report(':', pwm_scale);
       #if HAS_TMCX1X0_OR_2240 || HAS_TMC220x
         report.append('/', data.cs_actual);
       #endif
@@ -300,22 +307,21 @@
         else
           report += '-';
       #endif
-    #endif
-    report += '|';
-    if (st.error_count)       report += 'E'; // Error
-    if (data.is_ot)           report += 'O'; // Over-temperature
-    if (data.is_otpw)         report += 'W'; // over-temperature pre-Warning
-    #if ENABLED(TMC_DEBUG)
+      report += '|';
+      if (st.error_count)     report += 'E'; // Error
+      if (data.is_ot)         report += 'O'; // Over-temperature
+      if (data.is_otpw)       report += 'W'; // over-temperature pre-Warning
       if (data.is_stall)      report += 'G'; // stallGuard
       if (data.is_stealth)    report += 'T'; // stealthChop
       if (data.is_standstill) report += 'I'; // standstIll
-    #endif
-    if (st.flag_otpw)         report += 'F'; // otpw Flag
-    report += '|';
-    if (st.otpw_count > 0)    report += st.otpw_count;
-    report += '\t';
-    report.echo();
-  }
+      if (st.flag_otpw)       report += 'F'; // otpw Flag
+      report += '|';
+      if (st.otpw_count > 0)  report += st.otpw_count;
+      report += '\t';
+      report.echo();
+    }
+
+  #endif // TMC_DEBUG
 
   #if CURRENT_STEP_DOWN > 0
 
@@ -710,14 +716,8 @@
         case TMC_FSACTIVE:      if (st.fsactive())   SERIAL_CHAR('*'); break;
         case TMC_DRV_CS_ACTUAL: if (st.CS_ACTUAL())  SERIAL_CHAR('*'); break;
         case TMC_STALLGUARD:    if (st.stallguard()) SERIAL_CHAR('*'); break;
-        //case TMC_OT:          if (st.ot())         SERIAL_CHAR('*'); break;
-        case TMC_DEBUG_OTPW:    print_true_or_false(st.otpw());        break;
-        //case TMC_S2GA:        if (st.s2ga())       SERIAL_CHAR('*'); break;
-        //case TMC_S2GB:        if (st.s2gb())       SERIAL_CHAR('*'); break;
-        //case TMC_OLA:         if (st.ola())        SERIAL_CHAR('*'); break;
-        //case TMC_OLB:         if (st.olb())        SERIAL_CHAR('*'); break;
+        case TMC_OT:            if (st.ot())         SERIAL_CHAR('*'); break;
         case TMC_SG_RESULT:     SERIAL_ECHO(st.SG_RESULT());           break;
-        case TMC_STST:          if (!st.stst())      SERIAL_CHAR('*'); break;
         default: break; // other...
       }
     }
@@ -844,7 +844,8 @@
       case TMC_OT:        if (st.ot())    SERIAL_CHAR('*'); break;
       case TMC_DRV_STATUS_HEX: {
         const uint32_t drv_status = st.DRV_STATUS();
-        SERIAL_CHAR('\t'); st.printLabel(); SERIAL_CHAR('\t'); print_hex_long(drv_status, ':', true);
+        SERIAL_CHAR('\t'); st.printLabel();
+        SERIAL_CHAR('\t'); print_hex_long(drv_status, ':', true);
         if (drv_status == 0xFFFFFFFF || drv_status == 0) SERIAL_ECHOPGM("\t Bad response!");
         SERIAL_EOL();
       } break;
@@ -1167,6 +1168,9 @@
   bool tmc_enable_stallguard(TMC2240Stepper &st) {
     const bool stealthchop_was_enabled = st.en_pwm_mode();
 
+    // TODO: Use StallGuard4 when stealthChop is enabled
+    //       and leave stealthChop state unchanged.
+
     st.TCOOLTHRS(0xFFFFF);
     st.en_pwm_mode(false);
     st.diag0_stall(true);
@@ -1250,75 +1254,3 @@ void test_tmc_connection(LOGICAL_AXIS_ARGS_LC(const bool)) {
 }
 
 #endif // HAS_TRINAMIC_CONFIG
-
-#if HAS_TMC_SPI
-  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
-  void tmc_init_cs_pins() {
-    #if AXIS_HAS_SPI(X)
-      SET_CS_PIN(X);
-    #endif
-    #if AXIS_HAS_SPI(Y)
-      SET_CS_PIN(Y);
-    #endif
-    #if AXIS_HAS_SPI(Z)
-      SET_CS_PIN(Z);
-    #endif
-    #if AXIS_HAS_SPI(X2)
-      SET_CS_PIN(X2);
-    #endif
-    #if AXIS_HAS_SPI(Y2)
-      SET_CS_PIN(Y2);
-    #endif
-    #if AXIS_HAS_SPI(Z2)
-      SET_CS_PIN(Z2);
-    #endif
-    #if AXIS_HAS_SPI(Z3)
-      SET_CS_PIN(Z3);
-    #endif
-    #if AXIS_HAS_SPI(Z4)
-      SET_CS_PIN(Z4);
-    #endif
-    #if AXIS_HAS_SPI(I)
-      SET_CS_PIN(I);
-    #endif
-    #if AXIS_HAS_SPI(J)
-      SET_CS_PIN(J);
-    #endif
-    #if AXIS_HAS_SPI(K)
-      SET_CS_PIN(K);
-    #endif
-    #if AXIS_HAS_SPI(U)
-      SET_CS_PIN(U);
-    #endif
-    #if AXIS_HAS_SPI(V)
-      SET_CS_PIN(V);
-    #endif
-    #if AXIS_HAS_SPI(W)
-      SET_CS_PIN(W);
-    #endif
-    #if AXIS_HAS_SPI(E0)
-      SET_CS_PIN(E0);
-    #endif
-    #if AXIS_HAS_SPI(E1)
-      SET_CS_PIN(E1);
-    #endif
-    #if AXIS_HAS_SPI(E2)
-      SET_CS_PIN(E2);
-    #endif
-    #if AXIS_HAS_SPI(E3)
-      SET_CS_PIN(E3);
-    #endif
-    #if AXIS_HAS_SPI(E4)
-      SET_CS_PIN(E4);
-    #endif
-    #if AXIS_HAS_SPI(E5)
-      SET_CS_PIN(E5);
-    #endif
-    #if AXIS_HAS_SPI(E6)
-      SET_CS_PIN(E6);
-    #endif
-    #if AXIS_HAS_SPI(E7)
-      SET_CS_PIN(E7);
-    #endif
-  }
-#endif // HAS_TMC_SPI

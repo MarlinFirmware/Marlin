@@ -2882,7 +2882,7 @@ hal_timer_t Stepper::block_phase_isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (forward_e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && forward_e && ANY_AXIS_MOVES(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
             NOLESS(vd_q30, 0);
@@ -3534,15 +3534,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   #if NUM_AXES
-    SERIAL_ECHOLNPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-        TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-        TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
-        TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-      )
-    );
+    SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
+      SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+      SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+    ));
   #endif
 }
 
