@@ -1421,7 +1421,6 @@
  * This allows "Z Probe Offset" changes to take effect immediately without 
  * having to rebuild bed leveling mesh. Usefull for Z_MULTI_ENDSTOPS 
  * machines where enstops are needed to sync the Z motors.
- * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
 #define USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP
 
