@@ -28,6 +28,10 @@
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
+#if ENABLED(CAN_TOOLHEAD)
+  #include "../../HAL/shared/CAN.h"
+#endif
+
 /**
  * M306: MPC settings and autotune
  *
@@ -56,24 +60,45 @@ void GcodeSuite::M306() {
   }
 
   #if ENABLED(MPC_AUTOTUNE)
+
     if (parser.seen_test('T')) {
-      Temperature::MPCTuningType tuning_type;
-      const uint8_t type = parser.byteval('S', 0);
-      switch (type) {
-        case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
-        case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
-        default: tuning_type = Temperature::MPCTuningType::AUTO; break;
-      }
-      if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
-        SERIAL_ECHOLNPGM("Aymptotic tuning not avaiable for PTC hotends");
-      else {
-        LCD_MESSAGE(MSG_MPC_AUTOTUNE);
-        thermalManager.MPC_autotune(e, tuning_type);
-        ui.reset_status();
-      }
+
+      #if ENABLED(CAN_HOST)
+
+        // Execute MPC autotune on toolhead
+        SERIAL_ECHOLNPGM(
+          ">>> Forwarding M306 to toolhead\n"
+          ">>> Store MPC setup in the host Configuration.h or use M500\n"
+          ">>> MPC heater power is: ", p_float_t(MPC_HEATER_POWER, 1), " Watts\n"
+          ">>> Please wait for the auto tune results..."
+        );
+
+      #else // !CAN_HOST
+
+        Temperature::MPCTuningType tuning_type;
+        const uint8_t type = parser.byteval('S', 0);
+        switch (type) {
+          case 1: tuning_type = Temperature::MPCTuningType::FORCE_DIFFERENTIAL; break;
+          case 2: tuning_type = Temperature::MPCTuningType::FORCE_ASYMPTOTIC; break;
+          default: tuning_type = Temperature::MPCTuningType::AUTO; break;
+        }
+        if (TERN0(MPC_PTC, tuning_type == Temperature::MPCTuningType::FORCE_ASYMPTOTIC))
+          SERIAL_ECHOLNPGM("Aymptotic tuning not avaiable for PTC hotends");
+        else {
+          LCD_MESSAGE(MSG_MPC_AUTOTUNE);
+          thermalManager.MPC_autotune(e, tuning_type);
+          ui.reset_status();
+        }
+
+        TERN_(CAN_TOOLHEAD, M306_report(true)); // Report MPC autotune results to CAN host
+
+      #endif // !CAN_HOST
+
       return;
-    }
-  #endif
+
+    } // seen(T)
+
+  #endif // MPC_AUTOTUNE
 
   if (parser.seen("ACFPRH")) {
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
@@ -99,6 +124,10 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading(forReplay, F("Model predictive control"));
+
+  // MPC Autotune info
+  if (TERN0(CAN_HOST, forReplay)) SERIAL_ECHOLNPGM(">>> Host M306 MPC settings:");
+
   HOTEND_LOOP() {
     report_echo_start(forReplay);
     MPC_t &mpc = thermalManager.temp_hotend[e].mpc;
@@ -117,6 +146,25 @@ void GcodeSuite::M306_report(const bool forReplay/*=true*/) {
                          " H", p_float_t(mpc.filament_heat_capacity_permm, 4)
     );
   }
+
+  #if ENABLED(CAN_TOOLHEAD) // Report M306 Autotune results to host
+    if (forReplay) {
+      MPC_t &mpc = thermalManager.temp_hotend[0].mpc;
+      CAN_toolhead_send_string(
+        MString<100>(
+          F("M306 E0 P"), p_float_t(mpc.heater_power, 2),
+          F(" C"),        p_float_t(mpc.block_heat_capacity, 2),
+          F(" R"),        p_float_t(mpc.sensor_responsiveness, 4),
+          F(" A"),        p_float_t(mpc.ambient_xfer_coeff_fan0, 4),
+          #if ENABLED(MPC_INCLUDE_FAN)
+            F(" F"),      p_float_t(mpc.fanCoefficient(), 4),
+          #endif
+          F(" H"),        p_float_t(mpc.filament_heat_capacity_permm, 4)
+        )
+      );
+    }
+  #endif // CAN_TOOLHEAD
+
 }
 
 #endif // MPCTEMP

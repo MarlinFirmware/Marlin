@@ -65,6 +65,10 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(CAN_TOOLHEAD)
+  #include "../HAL/shared/CAN.h"
+#endif
+
 #define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -81,10 +85,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   bool Endstops::bdp_state; // = false
   #if HOMING_Z_WITH_PROBE
     #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
   #endif
-#else
+#elif ALL(CAN_HOST, HAS_BED_PROBE) // Read virtual CAN IO probe status if needed
+  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? PROBE_READ() : READ(P))
+#endif
+#ifndef READ_ENDSTOP
   #define READ_ENDSTOP(P) READ(P)
 #endif
 
@@ -700,6 +705,8 @@ void Endstops::update() {
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
       UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
+    // Forward endstop interrupt to host
+    TERN_(CAN_TOOLHEAD, CAN_toolhead_send_update(false)); // Send Virtual IO update without temperature report
   #endif
 
   #if USE_Z_MAX

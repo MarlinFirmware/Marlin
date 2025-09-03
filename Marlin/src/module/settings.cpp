@@ -90,6 +90,10 @@
   #include "../lcd/e3v2/jyersui/dwin.h"
 #endif
 
+#if ENABLED(CAN_HOST)
+  #include "../HAL/shared/CAN.h"
+#endif
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../feature/host_actions.h"
 #endif
@@ -757,6 +761,8 @@ void MarlinSettings::postprocess() {
   TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
+
+  TERN_(CAN_HOST, CAN_host_send_setup()); // Update toolhead settings
 
   // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position

@@ -33,6 +33,10 @@
 #include "pause.h" // for did_pause_print
 #include "../MarlinCore.h" // for printingIsActive()
 
+#if ENABLED(CAN_HOST)
+  #include "../HAL/shared/CAN.h"
+#endif
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -53,7 +57,11 @@
   #define HAS_FILAMENT_SWITCH 1
 #endif
 
-#define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
+#if ENABLED(CAN_HOST)
+  #define FILAMENT_IS_OUT(N...) (bool(CAN_host_get_iostate() & CAN_ID_FILAMENT_BIT_MASK) == FIL_RUNOUT##N##_STATE) // CAN Virtual Filament Runout pin
+#else
+  #define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
+#endif
 
 typedef Flags<
           #if NUM_MOTION_SENSORS > NUM_RUNOUT_SENSORS
@@ -218,7 +226,11 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout pin states
     static uint8_t poll_runout_pins() {
-      #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
+      #if ENABLED(CAN_HOST) // Only one runout sensor is supported
+        #define _OR_RUNOUT(N) | (bool(CAN_host_get_iostate() & CAN_ID_FILAMENT_BIT_MASK) ? _BV((N) - 1) : 0)
+      #else
+        #define _OR_RUNOUT(N) | (READ(FIL_RUNOUT##N##_PIN) ? _BV((N) - 1) : 0)
+      #endif
       return (0 REPEAT_1(NUM_RUNOUT_SENSORS, _OR_RUNOUT));
       #undef _OR_RUNOUT
     }

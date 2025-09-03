@@ -35,6 +35,10 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if ANY(CAN_HOST, CAN_TOOLHEAD)
+  #include "../../HAL/shared/CAN.h"
+#endif
+
 #if !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
   #include "../../libs/hex_print.h"
 #endif
@@ -77,6 +81,10 @@ void GcodeSuite::M115() {
     TERN_(IS_SCARA, "SCARA") \
     TERN_(IS_CARTESIAN, "Cartesian") \
     TERN_(BELTPRINTER, " BELTPRINTER")
+
+  #if ENABLED(CAN_TOOLHEAD)
+    CAN_toolhead_send_string(TS("FIRMWARE ", __DATE__, " ", __TIME__, "  Thermistor=", TEMP_SENSOR_0));
+  #endif
 
   SERIAL_ECHOPGM("FIRMWARE_NAME:Marlin"
     " " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ")"
