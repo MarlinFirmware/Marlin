@@ -44,7 +44,7 @@ uint8_t ControllerFan::speed;
 
 void ControllerFan::setup() {
   SET_OUTPUT(CONTROLLER_FAN_PIN);
-  #ifdef CONTROLLER_FAN2_PIN
+  #if PIN_EXISTS(CONTROLLER_FAN2)
     SET_OUTPUT(CONTROLLER_FAN2_PIN);
   #endif
   init();
@@ -87,7 +87,7 @@ void ControllerFan::update() {
      *  - If System is on idle and idle fan speed settings is activated.
      */
     set_fan_speed(
-      settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn + SEC_TO_MS(settings.duration))
+      settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn, SEC_TO_MS(settings.duration))
       ? settings.active_speed : settings.idle_speed
     );
 
@@ -115,7 +115,7 @@ void ControllerFan::update() {
       else
         WRITE(CONTROLLER_FAN_PIN, speed > 0);
 
-      #ifdef CONTROLLER_FAN2_PIN
+      #if PIN_EXISTS(CONTROLLER_FAN2)
         if (PWM_PIN(CONTROLLER_FAN2_PIN))
           hal.set_pwm_duty(pin_t(CONTROLLER_FAN2_PIN), speed);
         else

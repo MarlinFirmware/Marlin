@@ -33,7 +33,7 @@ namespace LanguageNarrow_zh_CN {
   constexpr uint8_t CHARSIZE              = 3;
   LSTR LANGUAGE                           = _UxGT("Simplified Chinese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT("已就绪."); // " ready."
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT("已就绪."); // " ready."
   LSTR MSG_MARLIN                         = _UxGT("马林");
   LSTR MSG_YES                            = _UxGT("是");
   LSTR MSG_NO                             = _UxGT("否");
@@ -41,20 +41,20 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_LOW                            = _UxGT("低");
   LSTR MSG_BACK                           = _UxGT("返回"); // ”Back“
   LSTR MSG_ERROR                          = _UxGT("错误");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("存储卡中止...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("存储卡已插入"); // "Card inserted"
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("存储卡被拔出"); // "Card removed"
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("等待存储器");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("卡读卡器错误");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB设备已弹出");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB读取失败");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB设备已弹出");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB读取失败");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("子响应溢出");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("挡块"); // "Endstops" // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("软挡块");
   LSTR MSG_MAIN_MENU                      = _UxGT("主菜单"); // "Main"
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("高级设置");
   LSTR MSG_CONFIGURATION                  = _UxGT("配置");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("自动开始"); // "Autostart"
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("关闭步进电机"); // "Disable steppers"
   LSTR MSG_DEBUG_MENU                     = _UxGT("调试菜单"); // "Debug Menu"
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("进度条测试"); // "Progress Bar Test"
@@ -398,9 +398,14 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("卸载丝料"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("卸载丝料 *"); // "Unload filament"
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("卸载全部"); // "Unload All"
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("初始化存储卡"); // "Init. SD card"
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_SD                      = _UxGT("挂载存储卡"); // "Attach SD Card"
+  LSTR MSG_ATTACH_USB                     = _UxGT("挂载U盘"); // "Attach USB Drive"
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("更换存储卡"); // "Change SD card"
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("释放存储卡");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("自动开始"); // "Autostart"
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z探针在热床之外"); // "Z probe out. bed" Z probe is not within the physical limits
   LSTR MSG_SKEW_FACTOR                    = _UxGT("偏斜因数"); // "Skew Factor"
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch"); // "BLTouch"
@@ -575,7 +580,8 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("混合阈值");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("无感回零");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("步进模式");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop已使能");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop已使能");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("复位");
   LSTR MSG_SERVICE_IN                     = _UxGT(" 在:");
   LSTR MSG_BACKLASH                       = _UxGT("回差");

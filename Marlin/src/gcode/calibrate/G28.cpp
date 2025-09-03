@@ -52,6 +52,10 @@
   #include "../../feature/bltouch.h"
 #endif
 
+#if FT_MOTION_DISABLE_FOR_PROBING
+  #include "../../module/ft_motion.h"
+#endif
+
 #include "../../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -84,10 +88,8 @@
                 fr_mm_s = HYPOT(minfr, minfr);
 
     // Set homing current to X and Y axis if defined
-    #if HAS_CURRENT_HOME(X)
-      set_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, set_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       set_homing_current(Y_AXIS);
     #endif
 
@@ -109,10 +111,8 @@
 
     current_position.set(0.0, 0.0);
 
-    #if HAS_CURRENT_HOME(X)
-      restore_homing_current(X_AXIS);
-    #endif
-    #if HAS_CURRENT_HOME(Y) && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+    TERN_(X_HAS_HOME_CURRENT, restore_homing_current(X_AXIS));
+    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
       restore_homing_current(Y_AXIS);
     #endif
 
@@ -129,6 +129,11 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+
+    #if FT_MOTION_DISABLE_FOR_PROBING
+      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
+    #endif
+
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
@@ -284,6 +289,10 @@ void GcodeSuite::G28() {
       motion_state_t saved_motion_state = begin_slow_homing();
     #endif
 
+    #if FT_MOTION_DISABLE_FOR_PROBING
+      FTMotionDisableInScope FT_Disabler; // Disable Fixed-Time Motion for homing
+    #endif
+
     // Always home with tool 0 active
     #if HAS_MULTI_HOTEND
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -291,7 +300,8 @@ void GcodeSuite::G28() {
       #endif
       // PARKING_EXTRUDER homing requires different handling of movement / solenoid activation, depending on the side of homing
       #if ENABLED(PARKING_EXTRUDER)
-        const bool pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, X_HOME_DIR + 1 == old_tool_index * 2);
+        const bool homed_towards_tool = old_tool_index == TERN(X_HOME_TO_MIN, 0, 1),
+                   pe_final_change_must_unpark = parking_extruder_unpark_after_homing(old_tool_index, homed_towards_tool);
       #endif
       tool_change(0, true);
     #endif

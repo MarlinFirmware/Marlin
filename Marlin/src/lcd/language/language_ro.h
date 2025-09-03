@@ -35,24 +35,24 @@ namespace LanguageNarrow_ro {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Romanian");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Pregatit.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Pregatit.");
   LSTR MSG_YES                            = _UxGT("DA");
   LSTR MSG_NO                             = _UxGT("NU");
   LSTR MSG_BACK                           = _UxGT("Inapoi");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Abandon...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Media Introdus");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Media Inlaturat");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("Astept Media");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Eroare Citire Media");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("Dispozitiv USB Inlaturat");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("Pornire USB Esuata");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("Dispozitiv USB Inlaturat");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("Pornire USB Esuata");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Eroare:Subcall Overflow");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Principal");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Setari Avansate");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configurare");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Autostart");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Dezactivare Motoare");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Meniu Debug");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Test Bara Progres");
@@ -388,9 +388,14 @@ namespace LanguageNarrow_ro {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Scoatere Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Scoatere Filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Scoate Tot");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare Media");
+
+  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Atasare card SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Atasare card SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Atasare FD USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Inlocuire Media");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Eliberare Media");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Autostart");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Skew Factor");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -565,7 +570,8 @@ namespace LanguageNarrow_ro {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Enabled");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Reset");
   LSTR MSG_SERVICE_IN                     = _UxGT(" in:");
   LSTR MSG_BACKLASH                       = _UxGT("Backlash");

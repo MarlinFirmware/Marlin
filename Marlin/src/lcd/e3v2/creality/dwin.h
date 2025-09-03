@@ -53,6 +53,9 @@ enum processID : uint8_t {
   #endif
   ID_MaxSpeed, ID_MaxSpeedValue,
   ID_MaxAcceleration, ID_MaxAccelerationValue,
+  #if HAS_SPINDLE_ACCELERATION
+    ID_SpindleAccelerationValue,
+  #endif
   ID_MaxJerk, ID_MaxJerkValue,
   ID_Step, ID_StepValue,
   ID_HomeOff, ID_HomeOffX, ID_HomeOffY, ID_HomeOffZ,
@@ -105,6 +108,9 @@ typedef struct {
   int16_t printSpeed    = 100;
   float maxFeedSpeed    = 0;
   float maxAcceleration = 0;
+  #if HAS_SPINDLE_ACCELERATION
+    float spindleAcceleration = 0;
+  #endif
   float maxJerkScaled   = 0;
   float maxStepScaled   = 0;
   float offset_value    = 0;
@@ -203,6 +209,9 @@ void hmiPrintSpeed();
 
 void hmiMaxFeedspeedXYZE();
 void hmiMaxAccelerationXYZE();
+#if HAS_SPINDLE_ACCELERATION
+  void hmiSpindleAcceleration();
+#endif
 void hmiMaxJerkXYZE();
 #if ENABLED(EDITABLE_STEPS_PER_UNIT)
   void hmiStepXYZE();

@@ -37,7 +37,7 @@ namespace LanguageNarrow_pt {
   constexpr uint8_t CHARSIZE              = 2;
   LSTR LANGUAGE                           = _UxGT("Portuguese");
 
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" pronta.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" pronta.");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("Cartão inserido");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("Cartão removido");
   LSTR MSG_MAIN_MENU                      = _UxGT("Menu principal");
@@ -142,8 +142,12 @@ namespace LanguageNarrow_pt {
   LSTR MSG_AUTORETRACT                    = _UxGT(" Auto-Retract");
   LSTR MSG_FILAMENTCHANGE                 = _UxGT("Trocar filamento");
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Trocar filamento *");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Inici. cartão SD");
+  LSTR MSG_ATTACH_SD                      = _UxGT("Inici. cartão SD");
+  LSTR MSG_ATTACH_USB                     = _UxGT("Inici. flash USB");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Trocar cartão SD");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sensor fora/base");
   LSTR MSG_ZPROBE_XOFFSET                 = _UxGT("Desvio X");
   LSTR MSG_ZPROBE_YOFFSET                 = _UxGT("Desvio Y");

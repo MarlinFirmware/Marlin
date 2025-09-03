@@ -85,16 +85,11 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
   bool Endstops::bdp_state; // = false
   #if HOMING_Z_WITH_PROBE
     #define READ_ENDSTOP(P) ((P == TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN_PIN, Z_MIN_PROBE_PIN)) ? bdp_state : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
   #endif
-#elif ENABLED(CAN_HOST) // Read virtual CAN IO probe status if needed
-  #if HAS_BED_PROBE
-    #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? PROBE_READ() : READ(P))
-  #else
-    #define READ_ENDSTOP(P) READ(P)
-  #endif
-#else
+#elif ALL(CAN_HOST, HAS_BED_PROBE) // Read virtual CAN IO probe status if needed
+  #define READ_ENDSTOP(P) ((P == Z_MIN_PIN) ? PROBE_READ() : READ(P))
+#endif
+#ifndef READ_ENDSTOP
   #define READ_ENDSTOP(P) READ(P)
 #endif
 
@@ -260,6 +255,41 @@ void Endstops::init() {
   enable_globally(ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT));
 
 } // Endstops::init
+
+void Endstops::factory_reset() {
+  #if ENABLED(X_DUAL_ENDSTOPS)
+    #ifndef X2_ENDSTOP_ADJUSTMENT
+      #define X2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.x2_endstop_adj = X2_ENDSTOP_ADJUSTMENT;
+  #endif
+
+  #if ENABLED(Y_DUAL_ENDSTOPS)
+    #ifndef Y2_ENDSTOP_ADJUSTMENT
+      #define Y2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.y2_endstop_adj = Y2_ENDSTOP_ADJUSTMENT;
+  #endif
+
+  #if ENABLED(Z_MULTI_ENDSTOPS)
+    #ifndef Z2_ENDSTOP_ADJUSTMENT
+      #define Z2_ENDSTOP_ADJUSTMENT 0
+    #endif
+    endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
+    #if NUM_Z_STEPPERS >= 3
+      #ifndef Z3_ENDSTOP_ADJUSTMENT
+        #define Z3_ENDSTOP_ADJUSTMENT 0
+      #endif
+      endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
+    #endif
+    #if NUM_Z_STEPPERS >= 4
+      #ifndef Z4_ENDSTOP_ADJUSTMENT
+        #define Z4_ENDSTOP_ADJUSTMENT 0
+      #endif
+      endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
+    #endif
+  #endif
+}
 
 // Called at ~1kHz from Temperature ISR: Poll endstop state if required
 void Endstops::poll() {
@@ -529,18 +559,12 @@ void __O2 Endstops::report_states() {
     print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
   #endif
   #if MULTI_FILAMENT_SENSOR
-    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
-    for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
-      pin_t pin;
-      uint8_t state;
-      switch (i) {
-        default: continue;
-        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
-      }
-      SERIAL_ECHOPGM(STR_FILAMENT);
-      if (i > 1) SERIAL_CHAR(' ', '0' + i);
-      print_es_state(extDigitalRead(pin) != state);
-    }
+    #define _CASE_RUNOUT(N) do{ \
+      SERIAL_ECHO(F(STR_FILAMENT)); \
+      if ((N) > 1) SERIAL_CHAR(' ', '0' + char(N)); \
+      print_es_state(!FILAMENT_IS_OUT(N)); \
+    }while(0);
+    REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
     print_es_state(!FILAMENT_IS_OUT(), F(STR_FILAMENT));
@@ -681,11 +705,8 @@ void Endstops::update() {
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
       UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));
-
-    #if ENABLED(CAN_TOOLHEAD) // Forward endstop interrupt to host
-      CAN_toolhead_send_update(false); // Send Virtual IO update without temperature report
-    #endif
-
+    // Forward endstop interrupt to host
+    TERN_(CAN_TOOLHEAD, CAN_toolhead_send_update(false)); // Send Virtual IO update without temperature report
   #endif
 
   #if USE_Z_MAX

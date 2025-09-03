@@ -36,9 +36,9 @@
   #ifndef FLASH_EEPROM_EMULATION
     #define FLASH_EEPROM_EMULATION
   #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
 // Avoid conflict with TIMER_TONE
@@ -65,59 +65,12 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
-  #if X_HOME_TO_MIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // MIN4
-  #else
-    #define X_MIN_PIN                E0_DIAG_PIN  // MIN4
-  #endif
-#elif NEEDS_X_MINMAX
-  #ifndef X_MIN_PIN
-    #define X_MIN_PIN                 X_DIAG_PIN  // MIN1
-  #endif
-  #ifndef X_MAX_PIN
-    #define X_MAX_PIN                E0_DIAG_PIN  // MIN4
-  #endif
-#else
-  #define X_STOP_PIN                  X_DIAG_PIN  // MIN1
-#endif
-
-#ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
-  #if Y_HOME_TO_MIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // MIN5
-  #else
-    #define Y_MIN_PIN                E1_DIAG_PIN  // MIN5
-  #endif
-#elif NEEDS_Y_MINMAX
-  #ifndef Y_MIN_PIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN  // MIN2
-  #endif
-  #ifndef Y_MAX_PIN
-    #define Y_MAX_PIN                E1_DIAG_PIN  // MIN5
-  #endif
-#else
-  #define Y_STOP_PIN                  Y_DIAG_PIN  // MIN2
-#endif
-
-#ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
-  #if Z_HOME_TO_MIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // MIN6
-  #else
-    #define Z_MIN_PIN                E2_DIAG_PIN  // MIN6
-  #endif
-#elif NEEDS_Z_MINMAX
-  #ifndef Z_MIN_PIN
-    #define Z_MIN_PIN                 Z_DIAG_PIN  // MIN3
-  #endif
-  #ifndef Z_MAX_PIN
-    #define Z_MAX_PIN                E2_DIAG_PIN  // MIN6
-  #endif
-#else
-  #define Z_STOP_PIN                  Z_DIAG_PIN  // MIN3
-#endif
+#define X_STOP_PIN                    X_DIAG_PIN  // MIN1
+#define Y_STOP_PIN                    Y_DIAG_PIN  // MIN2
+#define Z_STOP_PIN                    Z_DIAG_PIN  // MIN3
+#define X_OTHR_PIN                   E0_DIAG_PIN  // MIN4
+#define Y_OTHR_PIN                   E1_DIAG_PIN  // MIN5
+#define Z_OTHR_PIN                   E2_DIAG_PIN  // MIN6
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -387,16 +340,14 @@
   #elif SD_DETECT_STATE == LOW
     #error "BOARD_BTT_KRAKEN_V1_0 onboard SD requires SD_DETECT_STATE set to HIGH."
   #endif
-  #define SDSS                              PB12
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                         PB12
   #define SD_SCK_PIN                        PB13
   #define SD_MISO_PIN                       PB14
   #define SD_MOSI_PIN                       PB15
   #define SD_DETECT_PIN                     PE15
   #define SOFTWARE_SPI
 #elif SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN

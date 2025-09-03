@@ -45,30 +45,30 @@ namespace LanguageNarrow_tr {
   LSTR LANGUAGE                           = _UxGT("Turkish");
 
   // These strings should be translated
-  LSTR WELCOME_MSG                        = MACHINE_NAME _UxGT(" Hazır.");
+  LSTR WELCOME_MSG                        = MACHINE_NAME_SUBST _UxGT(" Hazır.");
   LSTR MSG_YES                            = _UxGT("EVET");
   LSTR MSG_NO                             = _UxGT("HAYIR");
   LSTR MSG_HIGH                           = _UxGT("YÜKSEK");
   LSTR MSG_LOW                            = _UxGT("DÜŞÜK");
   LSTR MSG_BACK                           = _UxGT("Geri");
   LSTR MSG_ERROR                          = _UxGT("Hata");
+
   LSTR MSG_MEDIA_ABORTING                 = _UxGT("Durduruluyor...");
   LSTR MSG_MEDIA_INSERTED                 = _UxGT("SD K. Yerleştirildi.");
   LSTR MSG_MEDIA_REMOVED                  = _UxGT("SD Kart Çıkarıldı.");
-  LSTR MSG_MEDIA_WAITING                  = _UxGT("SD Kart Bekleniyor");
   LSTR MSG_MEDIA_INIT_FAIL                = _UxGT("SD K. Başlatma Hatası");
   LSTR MSG_MEDIA_READ_ERROR               = _UxGT("Kart Okuma Hatası");
-  LSTR MSG_MEDIA_USB_REMOVED              = _UxGT("USB Çıkarıldı");
-  LSTR MSG_MEDIA_USB_FAILED               = _UxGT("USB Başlat. Hatası");
+  LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB Çıkarıldı");
+  LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB Başlat. Hatası");
   LSTR MSG_MEDIA_SORT                     = _UxGT("Medyayı Sırala");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("Medyayı Güncelle");
   LSTR MSG_KILL_SUBCALL_OVERFLOW          = _UxGT("Subcall Overflow");
+
   LSTR MSG_LCD_ENDSTOPS                   = _UxGT("Endstops"); // Max length 8 characters
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_MAIN_MENU                      = _UxGT("Ana");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Gelişmiş Ayarlar");
   LSTR MSG_CONFIGURATION                  = _UxGT("Yapılandırma");
-  LSTR MSG_RUN_AUTO_FILES                 = _UxGT("Oto. Başlat");
   LSTR MSG_DISABLE_STEPPERS               = _UxGT("Motorları Durdur");
   LSTR MSG_DEBUG_MENU                     = _UxGT("Hata Ayıklama");
   LSTR MSG_PROGRESS_BAR_TEST              = _UxGT("Durum Çubuğu Testi");
@@ -550,11 +550,14 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
+
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("SD Kartı takın");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("USB Sürücüyü takın");
+  LSTR MSG_ATTACH_SD                      = _UxGT("SD Kartı takın");
+  LSTR MSG_ATTACH_USB                     = _UxGT("USB Sürücüyü takın");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
+  LSTR MSG_RUN_AUTOFILES                  = _UxGT("Oto. Başlat");
+
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");
   LSTR MSG_SKEW_FACTOR                    = _UxGT("Çarpıklık Faktörü");
   LSTR MSG_BLTOUCH                        = _UxGT("BLTouch");
@@ -784,7 +787,8 @@ namespace LanguageNarrow_tr {
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrit Eşiği");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensörsüz Sıfırlama");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Adım Modu");
-  LSTR MSG_TMC_STEALTH_ENABLED            = _UxGT("StealthChop Aktif");
+  LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
+
   LSTR MSG_SERVICE_RESET                  = _UxGT("Resetle");
   LSTR MSG_SERVICE_IN                     = _UxGT(" içinde:");
   LSTR MSG_BACKLASH                       = _UxGT("Ters Tepki");
@@ -792,7 +796,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_BACKLASH_SMOOTHING             = _UxGT("Yumuşatma");
 
   LSTR MSG_FIXED_TIME_MOTION              = _UxGT("Sabit Zamanlı Hareket");
-  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu:");
+  LSTR MSG_FTM_CMPN_MODE                  = _UxGT("@ Telafi Modu: $");
   LSTR MSG_FTM_ZV                         = _UxGT("ZV");
   LSTR MSG_FTM_ZVD                        = _UxGT("ZVD");
   LSTR MSG_FTM_ZVDD                       = _UxGT("ZVDD");
@@ -803,7 +807,7 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
-  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu:");
+  LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Modu: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");
   LSTR MSG_FTM_BASE_FREQ_N                = _UxGT("@ Base Freq.");
@@ -887,7 +891,6 @@ namespace LanguageNarrow_tr {
 namespace LanguageWide_tr {
   using namespace LanguageNarrow_tr;
   #if LCD_WIDTH >= 20 || HAS_DWIN_E3V2
-    LSTR MSG_LIVE_MOVE                    = _UxGT("Canlı Hareket");
     LSTR MSG_HOST_START_PRINT             = _UxGT("Host Baskıyı başlat");
     LSTR MSG_PRINTING_OBJECT              = _UxGT("Yazdırma Nesnesi");
     LSTR MSG_CANCEL_OBJECT                = _UxGT("Nesneyi İptal Et");

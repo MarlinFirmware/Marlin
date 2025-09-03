@@ -480,32 +480,30 @@ void Max7219::register_setup() {
 #if MAX7219_INIT_TEST
 
   uint8_t test_mode = 0;
-  millis_t next_patt_ms;
   bool patt_on;
 
   #if MAX7219_INIT_TEST == 2
 
     #define MAX7219_LEDS (MAX7219_X_LEDS * MAX7219_Y_LEDS)
 
-    constexpr millis_t pattern_delay = 4;
-
-    int8_t spiralx, spiraly, spiral_dir;
+    xy_int8_t spiral;
+    int8_t spiral_dir;
     uvalue_t(MAX7219_LEDS) spiral_count;
 
-    void Max7219::test_pattern() {
-      constexpr int8_t way[][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
-      led_set(spiralx, spiraly, patt_on);
-      const int8_t x = spiralx + way[spiral_dir][0], y = spiraly + way[spiral_dir][1];
-      if (!WITHIN(x, 0, MAX7219_X_LEDS - 1) || !WITHIN(y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(x, y) == patt_on)
+    void Max7219::run_test_pattern() {
+      constexpr xy_int8_t way[] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
+      led_set(spiral.x, spiral.y, patt_on);
+      const xy_int8_t xy = spiral + way[spiral_dir];
+      if (!WITHIN(xy.x, 0, MAX7219_X_LEDS - 1) || !WITHIN(xy.y, 0, MAX7219_Y_LEDS - 1) || BIT_7219(xy.x, xy.y) == patt_on)
         spiral_dir = (spiral_dir + 1) & 0x3;
-      spiralx += way[spiral_dir][0];
-      spiraly += way[spiral_dir][1];
+      spiral += way[spiral_dir];
       if (!spiral_count--) {
         if (!patt_on)
           test_mode = 0;
         else {
           spiral_count = MAX7219_LEDS;
-          spiralx = spiraly = spiral_dir = 0;
+          spiral.reset();
+          spiral_dir = 0;
           patt_on = false;
         }
       }
@@ -516,7 +514,11 @@ void Max7219::register_setup() {
     constexpr millis_t pattern_delay = 20;
     int8_t sweep_count, sweepx, sweep_dir;
 
-    void Max7219::test_pattern() {
+    void Max7219::run_test_pattern() {
+      static millis_t next_pattern_ms = 0;
+      const millis_t ms = millis();
+      if (PENDING(ms, next_pattern_ms)) return;
+      next_pattern_ms = ms + pattern_delay;
       set_column(sweepx, patt_on ? 0xFFFFFFFF : 0x00000000);
       sweepx += sweep_dir;
       if (!WITHIN(sweepx, 0, MAX7219_X_LEDS - 1)) {
@@ -526,27 +528,21 @@ void Max7219::register_setup() {
         }
         else
           sweepx -= MAX7219_X_LEDS * sweep_dir;
-        patt_on ^= true;
-        next_patt_ms += 100;
+        FLIP(patt_on);
+        next_pattern_ms += 100;
         if (++test_mode > 4) test_mode = 0;
       }
     }
 
   #endif
 
-  void Max7219::run_test_pattern() {
-    const millis_t ms = millis();
-    if (PENDING(ms, next_patt_ms)) return;
-    next_patt_ms = ms + pattern_delay;
-    test_pattern();
-  }
-
   void Max7219::start_test_pattern() {
     clear();
     test_mode = 1;
     patt_on = true;
     #if MAX7219_INIT_TEST == 2
-      spiralx = spiraly = spiral_dir = 0;
+      spiral.reset();
+      spiral_dir = 0;
       spiral_count = MAX7219_LEDS;
     #else
       sweep_dir = 1;
@@ -761,7 +757,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_MULTISTEPPING
     static uint8_t last_multistepping = 0;
-    const uint8_t multistepping = Stepper::steps_per_isr;
+    const uint8_t multistepping = stepper.steps_per_isr;
     if (multistepping != last_multistepping) {
       static uint8_t log2_old = 0;
       uint8_t log2_new = 0;
@@ -774,7 +770,7 @@ void Max7219::idle_tasks() {
 
   #ifdef MAX7219_DEBUG_SLOWDOWN
     static uint8_t last_slowdown_count = 0;
-    const uint8_t slowdown_count = Planner::slowdown_count;
+    const uint8_t slowdown_count = planner.slowdown_count;
     if (slowdown_count != last_slowdown_count) {
       mark16(MAX7219_DEBUG_SLOWDOWN, last_slowdown_count, slowdown_count, &row_change_mask);
       last_slowdown_count = slowdown_count;

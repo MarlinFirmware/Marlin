@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -93,7 +93,7 @@
 #define CAN_ERROR_MSG_INVALID_BAUDRATE               "Incorrect CAN baudrate"
 
 void CAN_host_idle();                                // CAN idle task
-void CAN_host_send_setup(bool change_status);        // Send configuration to toolhead
+void CAN_host_send_setup(const bool change_status=false);  // Send configuration to toolhead
 uint32_t CAN_host_get_iostate();                     // Read the CAN virtual IO state
 HAL_StatusTypeDef CAN_host_start();                  // Start the CAN device
 HAL_StatusTypeDef CAN_host_stop();                   // Stop the CAN device
@@ -101,6 +101,6 @@ HAL_StatusTypeDef CAN_host_send_gcode();             // Send Gcode to the toolhe
 HAL_StatusTypeDef CAN_host_send_gcode_2params(uint32_t Gcode_type, uint32_t Gcode_no, uint32_t parameter1, float value1, uint32_t parameter2, float value2);
 
 HAL_StatusTypeDef CAN_toolhead_start();              // Start the CAN device
-void CAN_toolhead_send_update(bool tempUpdate);      // Send an IO and temp update to the host
+void CAN_toolhead_send_update(const bool tempUpdate); // Send an IO and temp update to the host
 void CAN_toolhead_send_string(const char * message); // Send CAN string to host
-void CAN_toolhead_idle();   
+void CAN_toolhead_idle();

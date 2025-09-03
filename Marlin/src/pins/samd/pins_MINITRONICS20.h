@@ -44,7 +44,7 @@
  */
 //#define FLASH_EEPROM_EMULATION
 //#define I2C_EEPROM                              // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE                   500  // 4000 bytes
+#define MARLIN_EEPROM_SIZE                  500U  // 4000 bytes
 
 //This its another option to emulate an EEPROM, but its more efficient to dont loose the data the first One.
 //#define SDCARD_EEPROM_EMULATION
@@ -128,7 +128,7 @@
 #endif
 
 // Verify that drivers match the hardware
-#if (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(DRV8825)) || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(DRV8825)) || (HAS_Z_AXIS && !AXIS_DRIVER_TYPE_Z(DRV8825)) || (HAS_EXTRUDER && !AXIS_DRIVER_TYPE_E0(DRV8825))
+#if (HAS_X_AXIS && !AXIS_DRIVER_TYPE_X(DRV8825)) || (HAS_Y_AXIS && !AXIS_DRIVER_TYPE_Y(DRV8825)) || (HAS_Z_AXIS && !AXIS_DRIVER_TYPE_Z(DRV8825)) || (HAS_EXTRUDERS && !AXIS_DRIVER_TYPE_E0(DRV8825))
   #error "Minitronics v2.0 has hard-wired DRV8825 drivers. Comment out this line to continue."
 #endif
 
@@ -313,7 +313,7 @@
       //#define BTN_EN1                       47
       //#define BTN_EN2              EXP2_03_PIN
       //#define BTN_ENC                       32
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define KILL_PIN             EXP1_01_PIN
       //#undef LCD_PINS_EN                        // not used, causes false pin conflict report
 
@@ -324,7 +324,7 @@
       //#define BTN_EN2              EXP2_05_PIN
       //#define BTN_ENC                       -1
 
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define SD_DETECT_PIN        EXP2_10_PIN
 
     #elif ANY(VIKI2, miniVIKI)
@@ -358,7 +358,7 @@
       //#define BTN_EN2              EXP1_06_PIN
       //#define BTN_ENC                       31
 
-      //#define LCD_SDSS                    SDSS
+      //#define LCD_SDSS_PIN           SD_SS_PIN
       //#define SD_DETECT_PIN        EXP2_10_PIN
       //#define KILL_PIN             EXP1_01_PIN
 
@@ -500,7 +500,7 @@
 // SD Support
 //
 
-#define SDSS                                   2
+#define SD_SS_PIN                              2
 #undef SD_DETECT_PIN
 #define SD_DETECT_PIN                         22
 
@@ -519,19 +519,19 @@
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
-    #define X_SLAVE_ADDRESS                  0
+    #define X_SLAVE_ADDRESS                    0
   #endif
   #ifndef Y_SLAVE_ADDRESS
-    #define Y_SLAVE_ADDRESS                  1
+    #define Y_SLAVE_ADDRESS                    1
   #endif
   #ifndef Z_SLAVE_ADDRESS
-    #define Z_SLAVE_ADDRESS                  2
+    #define Z_SLAVE_ADDRESS                    2
   #endif
   #ifndef E0_SLAVE_ADDRESS
-    #define E0_SLAVE_ADDRESS                 3
+    #define E0_SLAVE_ADDRESS                   3
   #endif
   #ifndef E1_SLAVE_ADDRESS
-    #define E1_SLAVE_ADDRESS                 0
+    #define E1_SLAVE_ADDRESS                   0
   #endif
   static_assert(X_SLAVE_ADDRESS == 0, "X_SLAVE_ADDRESS must be 0 for BOARD_MINITRONICS20.");
   static_assert(Y_SLAVE_ADDRESS == 1, "Y_SLAVE_ADDRESS must be 1 for BOARD_MINITRONICS20.");

@@ -108,16 +108,19 @@
 #endif
 
 //
-// SPI pins for TMC2130 stepper drivers
+// SPI pins for TMC2130, TMC2160, TMC2240, TMC2660, TMC5130, or TMC5160 stepper drivers
 //
-#ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
-#endif
-#ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
-#endif
-#ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+#if HAS_TMC_SPI
+  #define TMC_USE_SW_SPI
+  #ifndef TMC_SPI_MOSI
+    #define TMC_SPI_MOSI                    PB15
+  #endif
+  #ifndef TMC_SPI_MISO
+    #define TMC_SPI_MISO                    PB14
+  #endif
+  #ifndef TMC_SPI_SCK
+    #define TMC_SPI_SCK                     PB13
+  #endif
 #endif
 
 #if HAS_TMC_UART
@@ -227,8 +230,6 @@
 #define SD_SS_PIN                    EXP2_04_PIN  // SPI1 SSEL
 #define SD_MISO_PIN                  EXP2_01_PIN  // SPI1 MISO
 #define SD_MOSI_PIN                  EXP2_06_PIN  // SPI1 MOSI
-
-#define SDSS                         EXP2_04_PIN
 
 //
 // LCD / Controller
