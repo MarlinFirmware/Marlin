@@ -131,7 +131,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                              4
+#define SDSS                                   4
 #define LED_PIN                               13
 
 /**

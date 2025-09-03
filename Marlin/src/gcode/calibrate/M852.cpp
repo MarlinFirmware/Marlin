@@ -28,16 +28,12 @@
 #include "../../module/planner.h"
 
 /**
- * M852: Bed Skew Compensation
+ * M852: Get or set the machine skew factors. Reports current values with no arguments.
  *
- * Get or set the machine skew factors; correct for misalignment
- *
- * Parameters:
- *   None          Report current values
- *   S<xy_factor>  Alias for 'I'
- *   I<xy_factor>  New XY skew factor
- *   J<xz_factor>  New XZ skew factor
- *   K<yz_factor>  New YZ skew factor
+ *  S[xy_factor] - Alias for 'I'
+ *  I[xy_factor] - New XY skew factor
+ *  J[xz_factor] - New XZ skew factor
+ *  K[yz_factor] - New YZ skew factor
  */
 void GcodeSuite::M852() {
   if (!parser.seen("SIJK")) return M852_report();

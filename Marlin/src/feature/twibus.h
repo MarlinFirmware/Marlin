@@ -64,7 +64,7 @@ class TWIBus {
   private:
     /**
      * @brief Number of bytes on buffer
-     * @details Number of bytes in the buffer waiting to be flushed to the bus
+     * @description Number of bytes in the buffer waiting to be flushed to the bus
      */
     uint8_t buffer_s = 0;
 
@@ -77,7 +77,7 @@ class TWIBus {
   public:
     /**
      * @brief Target device address
-     * @details The target device address. Persists until changed.
+     * @description The target device address. Persists until changed.
      */
     uint8_t addr = 0;
 

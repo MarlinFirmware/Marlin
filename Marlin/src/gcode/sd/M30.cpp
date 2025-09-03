@@ -28,10 +28,7 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M30: Delete Media File
- *
- * Parameters:
- *   <filename>  The filename of the file to delete
+ * M30 <filename>: Delete SD Card file
  */
 void GcodeSuite::M30() {
   if (card.isMounted()) {

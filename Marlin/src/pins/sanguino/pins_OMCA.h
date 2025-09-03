@@ -123,7 +123,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             11
+#define SDSS                                  11
 
 #define I2C_SCL_PIN                           16
 #define I2C_SDA_PIN                           17

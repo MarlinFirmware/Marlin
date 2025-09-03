@@ -27,7 +27,6 @@
 
 void lv_draw_gcode(bool clear = false);
 void lv_clear_gcode();
-void disp_gcode_output();
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

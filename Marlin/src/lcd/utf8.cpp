@@ -31,6 +31,8 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if HAS_UTF8_UTILS
+
 #include "../inc/MarlinConfig.h"
 
 #if HAS_WIRED_LCD
@@ -202,3 +204,5 @@ uint8_t utf8_byte_pos_by_char_num(const char *pstart, const uint8_t charnum) {
 uint8_t utf8_byte_pos_by_char_num_P(PGM_P pstart, const uint8_t charnum) {
   return utf8_byte_pos_by_char_num_cb(pstart, read_byte_rom, charnum);
 }
+
+#endif // HAS_UTF8_UTILS

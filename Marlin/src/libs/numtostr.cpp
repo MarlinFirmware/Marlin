@@ -25,9 +25,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/utility.h"
 
-#if !ARDUINO_ARCH_ESP32
-  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#endif
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 
 constexpr char DIGIT(const uint8_t n) { return '0' + n; }
 
@@ -406,8 +404,8 @@ inline const char* ftostrX2rj(const_float_t f, const int index=1) {
     case 1: conv[1] = RJDIGIT(i, 100000);
     case 2: conv[2] = RJDIGIT(i, 10000);
     case 3: conv[3] = RJDIGIT(i, 1000);
+    case 4: conv[4] = RJDIGIT(i, 100);
   }
-  conv[4] = DIGIMOD(i, 100);
   conv[5] = '.';
   conv[6] = DIGIMOD(i, 10);
   conv[7] = DIGIMOD(i, 1);

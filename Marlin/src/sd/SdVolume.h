@@ -34,7 +34,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_USB_FLASH_DRIVE
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
 #endif
 

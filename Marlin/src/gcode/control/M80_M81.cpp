@@ -38,7 +38,7 @@
   #include "../../feature/powerloss.h"
 #endif
 
-#if ANY(HAS_SUICIDE, CONFIGURABLE_MACHINE_NAME)
+#if HAS_SUICIDE
   #include "../../MarlinCore.h"
 #endif
 
@@ -92,11 +92,7 @@ void GcodeSuite::M81() {
 
   safe_delay(1000); // Wait 1 second before switching off
 
-  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-    ui.set_status(&MString<30>(&machine_name, ' ', F(STR_OFF), '.'));
-  #else
-    LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
-  #endif
+  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
 
   bool delayed_power_off = false;
 

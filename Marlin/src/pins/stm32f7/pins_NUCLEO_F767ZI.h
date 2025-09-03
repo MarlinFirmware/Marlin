@@ -167,6 +167,7 @@
 #define SD_MISO_PIN                         PA6
 #define SD_MOSI_PIN                         PA7
 #define SD_SS_PIN                           PA4
+#define SDSS                                PA4
 
 #define LED_PIN                         LED_BLUE
 

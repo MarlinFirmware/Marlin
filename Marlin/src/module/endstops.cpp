@@ -261,41 +261,6 @@ void Endstops::init() {
 
 } // Endstops::init
 
-void Endstops::factory_reset() {
-  #if ENABLED(X_DUAL_ENDSTOPS)
-    #ifndef X2_ENDSTOP_ADJUSTMENT
-      #define X2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.x2_endstop_adj = X2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Y_DUAL_ENDSTOPS)
-    #ifndef Y2_ENDSTOP_ADJUSTMENT
-      #define Y2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.y2_endstop_adj = Y2_ENDSTOP_ADJUSTMENT;
-  #endif
-
-  #if ENABLED(Z_MULTI_ENDSTOPS)
-    #ifndef Z2_ENDSTOP_ADJUSTMENT
-      #define Z2_ENDSTOP_ADJUSTMENT 0
-    #endif
-    endstops.z2_endstop_adj = Z2_ENDSTOP_ADJUSTMENT;
-    #if NUM_Z_STEPPERS >= 3
-      #ifndef Z3_ENDSTOP_ADJUSTMENT
-        #define Z3_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z3_endstop_adj = Z3_ENDSTOP_ADJUSTMENT;
-    #endif
-    #if NUM_Z_STEPPERS >= 4
-      #ifndef Z4_ENDSTOP_ADJUSTMENT
-        #define Z4_ENDSTOP_ADJUSTMENT 0
-      #endif
-      endstops.z4_endstop_adj = Z4_ENDSTOP_ADJUSTMENT;
-    #endif
-  #endif
-}
-
 // Called at ~1kHz from Temperature ISR: Poll endstop state if required
 void Endstops::poll() {
 
@@ -564,12 +529,18 @@ void __O2 Endstops::report_states() {
     print_es_state(READ(CALIBRATION_PIN) != CALIBRATION_PIN_INVERTING, F(STR_CALIBRATION));
   #endif
   #if MULTI_FILAMENT_SENSOR
-    #define _CASE_RUNOUT(N) do{ \
-      SERIAL_ECHO(F(STR_FILAMENT)); \
-      if ((N) > 1) SERIAL_CHAR(' ', '0' + char(N)); \
-      print_es_state(!FILAMENT_IS_OUT(N)); \
-    }while(0);
-    REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
+    #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
+    for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; ++i) {
+      pin_t pin;
+      uint8_t state;
+      switch (i) {
+        default: continue;
+        REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_RUNOUT)
+      }
+      SERIAL_ECHOPGM(STR_FILAMENT);
+      if (i > 1) SERIAL_CHAR(' ', '0' + i);
+      print_es_state(extDigitalRead(pin) != state);
+    }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
     print_es_state(!FILAMENT_IS_OUT(), F(STR_FILAMENT));

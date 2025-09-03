@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_USB_FLASH_DRIVE, USE_UHS2_USB)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && DISABLED(USE_UHS3_USB)
 
 #include "Usb.h"
 
@@ -125,4 +125,4 @@ void E_Notify(double d, int lvl) {
 
 #endif // DEBUG_USB_HOST
 
-#endif // HAS_USB_FLASH_DRIVE && USE_UHS2_USB
+#endif // USB_FLASH_DRIVE_SUPPORT

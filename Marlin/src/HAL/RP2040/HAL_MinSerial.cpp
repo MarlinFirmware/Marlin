@@ -29,6 +29,7 @@
 
 #include "../shared/HAL_MinSerial.h"
 
+
 static void TXBegin() {
   #if !WITHIN(SERIAL_PORT, -1, 2)
     #warning "Using POSTMORTEM_DEBUGGING requires a physical U(S)ART hardware in case of severe error."

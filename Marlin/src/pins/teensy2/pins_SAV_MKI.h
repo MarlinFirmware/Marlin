@@ -122,7 +122,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             20  // B0
+#define SDSS                                  20  // B0
 
 // Extension header pin mapping
 // ----------------------------

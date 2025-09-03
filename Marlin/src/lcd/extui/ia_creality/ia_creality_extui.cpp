@@ -233,11 +233,13 @@ void onUserConfirmRequired(const char *const msg) {
 }
 
 // For fancy LCDs include an icon ID, message, and translated button title
-void onUserConfirmRequired(const int, const char * const cstr, FSTR_P const) {
+void onUserConfirmRequired(const int icon, const char * const cstr, FSTR_P const fBtn) {
   onUserConfirmRequired(cstr);
+  UNUSED(icon); UNUSED(fBtn);
 }
-void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
+void onUserConfirmRequired(const int icon, FSTR_P const fstr, FSTR_P const fBtn) {
   onUserConfirmRequired(fstr);
+  UNUSED(icon); UNUSED(fBtn);
 }
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -250,15 +252,9 @@ void onUserConfirmRequired(const int, FSTR_P const fstr, FSTR_P const) {
   }
 #endif
 
-static constexpr int16_t STATUS_MESSAGE_SIZE = 20;
-
-void clearStatus() {
-  for (int16_t j = 0; j < STATUS_MESSAGE_SIZE; j++) // Clear old message
+void onStatusChanged(const char *const statMsg) {
+  for (int16_t j = 0; j < 20; j++) // Clear old message
     rts.sendData(' ', StatusMessageString + j);
-}
-
-void onStatusChanged(const char * const statMsg) {
-  clearStatus();
   rts.sendData(statMsg, StatusMessageString);
 }
 

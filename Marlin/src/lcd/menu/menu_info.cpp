@@ -30,10 +30,6 @@
 
 #include "menu_item.h"
 
-#if ENABLED(CONFIGURABLE_MACHINE_NAME)
-  #include "../../MarlinCore.h"
-#endif
-
 #if HAS_GAMES
   #include "game/game.h"
 #endif
@@ -250,11 +246,7 @@ void menu_info_board() {
     STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
-    #if ENABLED(CONFIGURABLE_MACHINE_NAME)
-      STATIC_ITEM_C(&machine_name, SS_DEFAULT|SS_INVERT);         // My3DPrinter
-    #else
-      STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);       // My3DPrinter
-    #endif
+    STATIC_ITEM_F(F(MACHINE_NAME), SS_DEFAULT|SS_INVERT);         // My3DPrinter
     STATIC_ITEM_F(F(WEBSITE_URL));                                // www.my3dprinter.com
     PSTRING_ITEM(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER); // Extruders: 2
     #if HAS_LEVELING
@@ -269,18 +261,6 @@ void menu_info_board() {
     END_SCREEN();
   }
 
-#endif
-
-//
-// "Build Info" submenu
-//
-#if ENABLED(BUILD_INFO_MENU_ITEM)
-  void menu_info_build() {
-    if (ui.use_click()) return ui.go_back();
-    START_SCREEN();
-    STATIC_ITEM_F(F(__DATE__ " " __TIME__));                      // YYYY-MM-DD HH:MM
-    END_SCREEN();
-  }
 #endif
 
 //
@@ -324,10 +304,6 @@ void menu_info() {
       #endif
     );
   }
-  #endif
-
-  #if ENABLED(BUILD_INFO_MENU_ITEM)
-    SUBMENU(MSG_INFO_BUILD, menu_info_build);               // Build Info >
   #endif
 
   END_MENU();

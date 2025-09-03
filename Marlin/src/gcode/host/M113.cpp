@@ -29,9 +29,7 @@
 /**
  * M113: Get or set Host Keepalive interval (0 to disable)
  *
- * Parameters:
- *   None        Report current keepalive interval
- *   S<seconds>  Set the keepalive interval (0-60)
+ *   S<seconds> Optional. Set the keepalive interval.
  */
 void GcodeSuite::M113() {
 

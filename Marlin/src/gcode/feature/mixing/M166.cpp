@@ -40,23 +40,19 @@ inline void echo_zt(const int t, const_float_t z) {
 }
 
 /**
- * M166: Gradient Mix
+ * M166: Set a simple gradient mix for a two-component mixer
+ *       based on the Geeetech A10M implementation by Jone Liu.
  *
- * Set a simple gradient mix for a two-component mixer
- * based on the Geeetech A10M implementation by Jone Liu.
+ *   S[bool]  - Enable / disable gradients
+ *   A[float] - Starting Z for the gradient
+ *   Z[float] - Ending Z for the gradient. (Must be greater than the starting Z.)
+ *   I[index] - V-Tool to use as the starting mix.
+ *   J[index] - V-Tool to use as the ending mix.
  *
- * Parameters:
- *   S<bool>   Enable / disable gradients
- *   A<float>  Starting Z for the gradient
- *   Z<float>  Ending Z for the gradient. (Must be greater than the starting Z.)
- *   I<index>  V-Tool to use as the starting mix
- *   J<index>  V-Tool to use as the ending mix
- *   T<index>  A V-Tool index to use as an alias for the Gradient (Requires GRADIENT_VTOOL)
- *   T         T with no index clears the setting
- *             NOTE: This can match the I or J value.
+ *   T[index] - A V-Tool index to use as an alias for the Gradient (Requires GRADIENT_VTOOL)
+ *              T with no index clears the setting. Note: This can match the I or J value.
  *
- * Example:
- *   M166 S1 A0 Z20 I0 J1
+ * Example: M166 S1 A0 Z20 I0 J1
  */
 void GcodeSuite::M166() {
   if (parser.seenval('A')) mixer.gradient.start_z = parser.value_float();
@@ -72,7 +68,8 @@ void GcodeSuite::M166() {
 
   mixer.refresh_gradient();
 
-  SERIAL_ECHOPGM("Gradient Mix ", ON_OFF(mixer.gradient.enabled));
+  SERIAL_ECHOPGM("Gradient Mix ");
+  serialprint_onoff(mixer.gradient.enabled);
   if (mixer.gradient.enabled) {
 
     #if ENABLED(GRADIENT_VTOOL)

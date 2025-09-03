@@ -39,7 +39,7 @@
 
 #if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
 #endif
 
 //
@@ -135,7 +135,7 @@
 //
 // Misc functions
 //
-#define SD_SS_PIN                           PE7
+#define SDSS                                PE7
 #define LED_PIN                             PB7   // Heart beat
 #define PS_ON_PIN                           PA10
 #define KILL_PIN                            PA8
@@ -149,7 +149,7 @@
 
 #if ENABLED(FYSETC_MINI_12864)
   //
-  // See https://wiki.fysetc.com/docs/Mini12864Panel
+  // See https://wiki.fysetc.com/Mini12864_Panel/
   //
   #define DOGLCD_A0                         PE9
   #define DOGLCD_CS                         PE8

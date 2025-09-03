@@ -154,8 +154,10 @@ void safe_delay(millis_t ms) {
           const float rz = bedlevel.get_z_correction(current_position);
           SERIAL_ECHO(ftostr43sign(rz, '+'));
           #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            if (planner.z_fade_height)
-              SERIAL_ECHO(F(" ("), ftostr43sign(rz * planner.fade_scaling_factor_for_z(current_position.z), '+'), C(')'));
+            if (planner.z_fade_height) {
+              SERIAL_ECHOPGM(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(current_position.z), '+'));
+              SERIAL_CHAR(')');
+            }
           #endif
         #endif
       }
@@ -174,7 +176,10 @@ void safe_delay(millis_t ms) {
         SERIAL_ECHOPGM("MBL Adjustment Z", ftostr43sign(z_offset + z_correction, '+'));
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           if (planner.z_fade_height) {
-            SERIAL_ECHO(F(" ("), ftostr43sign(z_offset + z_correction * planner.fade_scaling_factor_for_z(current_position.z), '+'), C(')'));
+            SERIAL_ECHOPGM(" (", ftostr43sign(
+              z_offset + z_correction * planner.fade_scaling_factor_for_z(current_position.z), '+'
+            ));
+            SERIAL_CHAR(')');
           }
         #endif
       }

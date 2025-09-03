@@ -21,7 +21,6 @@
  */
 #pragma once
 
-#include <CDCSerial.h>
 #include <HardwareSerial.h>
 #include <WString.h>
 
@@ -30,18 +29,6 @@
   #include "../../feature/e_parser.h"
 #endif
 #include "../../core/serial_hook.h"
-
-typedef ForwardSerial1Class< decltype(UsbSerial) > DefaultSerial1;
-extern DefaultSerial1 USBSerial;
-
-#define SERIAL_INDEX_MIN 0
-#define SERIAL_INDEX_MAX 3
-#define USB_SERIAL_PORT(...) USBSerial
-#include "../shared/serial_ports.h"
-
-#if defined(LCD_SERIAL_PORT) && ANY(HAS_DGUS_LCD, EXTENSIBLE_UI)
-  #define LCD_SERIAL_TX_BUFFER_FREE() LCD_SERIAL.available()
-#endif
 
 class MarlinSerial : public HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE> {
 public:

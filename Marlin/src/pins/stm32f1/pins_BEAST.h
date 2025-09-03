@@ -77,7 +77,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                           PA15
+#define SDSS                                PA15
 #define LED_PIN                             PB2
 
 //

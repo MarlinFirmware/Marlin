@@ -41,8 +41,6 @@
 #endif
 #define BOARD_WEBSITE_URL      "www.creality.com"
 
-#define BOARD_LCD_SERIAL_PORT 2
-
 //
 // EEPROM
 //
@@ -62,8 +60,6 @@
 //
 // Limit Switches
 //
-#define X_DIAG_PIN                          PB10
-#define Y_DIAG_PIN                          PB11
 #ifndef Z_STOP_PIN
   #define Z_STOP_PIN                        PC14
 #endif
@@ -81,18 +77,23 @@
 #define HEATER_BED_PIN                      PB2   // HOT BED
 #define FAN1_PIN                            PC1   // extruder fan
 
+//
+// Steppers
+//
 #if HAS_TMC_UART
-  // Software serial
-  #define X_SERIAL_TX_PIN                   PB12
-  #define Y_SERIAL_TX_PIN                   PB13
-  #define Z_SERIAL_TX_PIN                   PB14
-  #define E0_SERIAL_TX_PIN                  PB15
 
   // Reduce baud rate to improve software serial reliability
-  #ifndef TMC_BAUD_RATE
-    #define TMC_BAUD_RATE                  19200
-  #endif
-#endif
+  #define TMC_BAUD_RATE 19200
+
+  // Software serial
+  #define X_SERIAL_TX_PIN                   PB12
+  #define X_DIAG_PIN                        PB10
+
+  #define Y_SERIAL_TX_PIN                   PB13
+  #define Y_DIAG_PIN                        PB11
+
+  #define Z_SERIAL_TX_PIN                   PB14
+#endif // HAS_TMC_UART
 
 //
 // SD Card

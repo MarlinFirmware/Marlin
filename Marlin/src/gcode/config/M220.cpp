@@ -24,15 +24,16 @@
 #include "../../module/motion.h"
 
 /**
- * M220: Set Feedrate Percentage
+ * M220: Set speed percentage factor, aka "Feed Rate"
  *
- * Parameters:
- *   None        Report the current speed percentage factor
- *   S<percent>  Set the feed rate percentage factor
+ * Parameters
+ *   S<percent> : Set the feed rate percentage factor
  *
- *   For MMU2 and MMU2S devices:
- *     B<flag>  Back up the current factor
- *     R<flag>  Restore the last-saved factor
+ * Report the current speed percentage factor if no parameter is specified
+ *
+ * For MMU2 and MMU2S devices...
+ *   B : Flag to back up the current factor
+ *   R : Flag to restore the last-saved factor
  */
 void GcodeSuite::M220() {
   if (!parser.seen_any()) {

@@ -35,15 +35,15 @@
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
-  const LED1Color_t LEDLights::defaultLEDColor {
+  const LEDColor LEDLights::defaultLEDColor = LEDColor(
     LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE
     OPTARG(HAS_WHITE_LED, LED_USER_PRESET_WHITE)
     OPTARG(NEOPIXEL_LED, LED_USER_PRESET_BRIGHTNESS)
-  };
+  );
 #endif
 
 #if ANY(LED_CONTROL_MENU, PRINTER_EVENT_LEDS, CASE_LIGHT_IS_COLOR_LED)
-  LED1Color_t LEDLights::color;
+  LEDColor LEDLights::color;
   bool LEDLights::lights_on;
 #endif
 
@@ -101,7 +101,7 @@ void LEDLights::setup() {
     constexpr int8_t led_pin_count = TERN(HAS_WHITE_LED, 4, 3);
 
     // Startup animation
-    LED1Color_t curColor = LEDColorOff();
+    LEDColor curColor = LEDColorOff();
     PCA9632_set_led_color(curColor);      // blackout
     delay(200);
 
@@ -156,15 +156,15 @@ void LEDLights::setup() {
   TERN_(LED_USER_PRESET_STARTUP, set_default());
 }
 
-void LEDLights::set_color(const LED1Color_t &incol
+void LEDLights::set_color(const LEDColor &incol
   OPTARG(NEOPIXEL_IS_SEQUENTIAL, bool isSequence/*=false*/)
 ) {
 
   #if ENABLED(NEOPIXEL_LED)
 
     const uint32_t neocolor = LEDColorWhite() == incol
-                            ? neo.White()
-                            : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_NEOPIXEL_1, incol.w));
+                            ? neo.Color(NEO_WHITE)
+                            : neo.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED, incol.w));
 
     #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
       static uint16_t nextLed = 0;
@@ -258,7 +258,7 @@ void LEDLights::set_color(const LED1Color_t &incol
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
   #if ENABLED(NEO2_COLOR_PRESETS)
-    const LED2Color_t LEDLights2::defaultLEDColor2 = LED2Color_t(
+    const LEDColor LEDLights2::defaultLEDColor = LEDColor(
       NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE
       OPTARG(HAS_WHITE_LED2, NEO2_USER_PRESET_WHITE)
       OPTARG(NEOPIXEL_LED, NEO2_USER_PRESET_BRIGHTNESS)
@@ -266,7 +266,7 @@ void LEDLights::set_color(const LED1Color_t &incol
   #endif
 
   #if ENABLED(LED_CONTROL_MENU)
-    LED2Color_t LEDLights2::color;
+    LEDColor LEDLights2::color;
     bool LEDLights2::lights_on;
   #endif
 
@@ -277,10 +277,10 @@ void LEDLights::set_color(const LED1Color_t &incol
     TERN_(NEO2_USER_PRESET_STARTUP, set_default());
   }
 
-  void LEDLights2::set_color(const LED2Color_t &incol) {
-    const uint32_t neocolor = LEDColorWhite2() == incol
-                            ? neo2.White()
-                            : neo2.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_NEOPIXEL_2, incol.w));
+  void LEDLights2::set_color(const LEDColor &incol) {
+    const uint32_t neocolor = LEDColorWhite() == incol
+                            ? neo2.Color(NEO2_WHITE)
+                            : neo2.Color(incol.r, incol.g, incol.b OPTARG(HAS_WHITE_LED2, incol.w));
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
 

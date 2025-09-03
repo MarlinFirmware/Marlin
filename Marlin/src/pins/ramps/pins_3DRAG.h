@@ -74,7 +74,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             25
+#define SDSS                                  25
 
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header

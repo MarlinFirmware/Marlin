@@ -74,10 +74,11 @@ extern "C" {
 
 // Time functions
 extern "C" void delay(const int ms);
+void _delay_ms(const int ms);
 void delayMicroseconds(unsigned long);
-unsigned long millis();
+uint32_t millis();
 
-// IO functions
+//IO functions
 void pinMode(const pin_t, const uint8_t);
 void digitalWrite(pin_t, uint8_t);
 bool digitalRead(pin_t);

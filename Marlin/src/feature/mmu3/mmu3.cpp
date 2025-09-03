@@ -456,7 +456,7 @@ namespace MMU3 {
     if (slot != extruder) {
       if (
         //findaDetectsFilament()
-        //!card.isStillPrinting() && !usb_timer.running()
+        //!IS_SD_PRINTING() && !usb_timer.running()
         !marlin_printingIsActive()
       ) {
         // If Tcodes are used manually through the serial

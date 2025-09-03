@@ -58,11 +58,9 @@
 #endif
 
 /**
- * M115: Firmware Info
- *
- * Capabilities string and extended capabilities report.
- * If a capability is not reported, hosts should assume
- * the capability is not present.
+ * M115: Capabilities string and extended capabilities report
+ *       If a capability is not reported, hosts should assume
+ *       the capability is not present.
  *
  * NOTE: Always make sure to add new capabilities to the RepRap Wiki
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
@@ -204,7 +202,7 @@ void GcodeSuite::M115() {
 
     // MULTI_VOLUME (M21 S/M21 U)
     #if HAS_MEDIA
-      cap_line(F("MULTI_VOLUME"), ENABLED(HAS_MULTI_VOLUME));
+      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
     #endif
 
     // REPEAT (M808)
@@ -271,13 +269,13 @@ void GcodeSuite::M115() {
         "area:{"
           "full:{"
             "min:{"
-              NUM_AXIS_PAIRED_LIST(
+              LIST_N(DOUBLE(NUM_AXES),
                  "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
                 ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
                 ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
               ),
             "},max:{"
-              NUM_AXIS_PAIRED_LIST(
+              LIST_N(DOUBLE(NUM_AXES),
                  "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
                 ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
                 ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
@@ -288,13 +286,13 @@ void GcodeSuite::M115() {
       SERIAL_ECHOLNPGM(
           "work:{"
             "min:{"
-              NUM_AXIS_PAIRED_LIST(
+              LIST_N(DOUBLE(NUM_AXES),
                  "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
                 ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
                 ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
               ),
             "},max:{"
-              NUM_AXIS_PAIRED_LIST(
+              LIST_N(DOUBLE(NUM_AXES),
                  "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
                 ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
                 ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w

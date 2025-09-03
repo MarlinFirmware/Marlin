@@ -118,11 +118,8 @@ enum ADCSensorState : char {
   #if HAS_JOY_ADC_Z
     PrepareJoy_Z, MeasureJoy_Z,
   #endif
-  #if HAS_FILWIDTH_ADC
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH, Measure_FILWIDTH,
-  #endif
-  #if HAS_FILWIDTH2_ADC
-    Prepare_FILWIDTH2, Measure_FILWIDTH2,
   #endif
   #if ENABLED(POWER_MONITOR_CURRENT)
     Prepare_POWER_MONITOR_CURRENT,
@@ -176,7 +173,7 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
   struct PID_t {
     protected:
       bool pid_reset = true;
-      float temp_dState = 0;
+      float temp_iState = 0.0f, temp_dState = 0.0f;
       float work_p = 0, work_i = 0, work_d = 0;
 
     public:
@@ -220,14 +217,17 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
         }
         else {
           if (pid_reset) {
-            work_i = 0;
-            work_d = 0;
             pid_reset = false;
+            temp_iState = 0.0;
+            work_d = 0.0;
           }
 
+          const float max_power_over_i_gain = float(MAX_POW) / Ki - float(MIN_POW);
+          temp_iState = constrain(temp_iState + pid_error, 0, max_power_over_i_gain);
+
           work_p = Kp * pid_error;
-          work_i = constrain(work_i + Ki * pid_error, 0, float(MAX_POW - MIN_POW));
-          work_d += (Kd * (temp_dState - current) - work_d) * PID_K2;
+          work_i = Ki * temp_iState;
+          work_d = work_d + PID_K2 * (Kd * (temp_dState - current) - work_d);
 
           output_pow = constrain(work_p + work_i + work_d + float(MIN_POW), 0, MAX_POW);
         }
@@ -367,13 +367,13 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 
   typedef
     #if ALL(PID_EXTRUSION_SCALING, PID_FAN_SCALING)
-      PIDCF_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDCF_t<0, PID_MAX, LPQ_MAX_LEN, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #elif ENABLED(PID_EXTRUSION_SCALING)
-      PIDC_t<MIN_POWER, PID_MAX, LPQ_MAX_LEN>
+      PIDC_t<0, PID_MAX, LPQ_MAX_LEN>
     #elif ENABLED(PID_FAN_SCALING)
-      PIDF_t<MIN_POWER, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
+      PIDF_t<0, PID_MAX, PID_FAN_SCALING_MIN_SPEED, PID_FAN_SCALING_LIN_FACTOR>
     #else
-      PID_t<MIN_POWER, PID_MAX>
+      PID_t<0, PID_MAX>
     #endif
   hotend_pid_t;
 
@@ -389,10 +389,6 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
     static bool e_paused;               // Pause E filament permm tracking
     static int32_t e_position;          // For E tracking
     float heater_power;                 // M306 P
-    #if ENABLED(MPC_PTC)
-      float heater_alpha;               // M306 L
-      float heater_reftemp;             // M306 Q
-    #endif
     float block_heat_capacity;          // M306 C
     float sensor_responsiveness;        // M306 R
     float ambient_xfer_coeff_fan0;      // M306 A
@@ -817,12 +813,14 @@ class Temperature {
 
   public:
     /**
-     * Static (class) methods
+     * Instance Methods
      */
 
-    static void init();
+    void init();
 
-    static void factory_reset();
+    /**
+     * Static (class) methods
+     */
 
     #if HAS_USER_THERMISTORS
       static user_thermistor_t user_thermistor[USER_THERMISTORS];
@@ -1334,6 +1332,10 @@ class Temperature {
       static void set_heating_message(const uint8_t e, const bool isM104=false);
     #else
       static void set_heating_message(const uint8_t, const bool=false) {}
+    #endif
+
+    #if HAS_MARLINUI_MENU && HAS_TEMPERATURE && HAS_PREHEAT
+      static void lcd_preheat(const uint8_t e, const int8_t indh, const int8_t indb);
     #endif
 
   private:

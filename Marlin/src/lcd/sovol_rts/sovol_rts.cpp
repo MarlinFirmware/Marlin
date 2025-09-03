@@ -122,6 +122,7 @@ bool card_insert_st;
 bool sd_printing;
 
 int16_t fan_speed;
+char cmd[MAX_CMD_SIZE + 16];
 
 inline void RTS_line_to_current(const AxisEnum axis) {
   if (!planner.is_full())
@@ -171,7 +172,7 @@ void RTS::sdCardInit() {
       // Clear the file name displayed in the print interface
       sendData(0, PRINT_FILE_TEXT_VP + j);
     }
-    lcd_sd_status = card.isInserted();
+    lcd_sd_status = IS_SD_INSERTED();
   }
   else {
     // Clean all filename Icons
@@ -186,7 +187,7 @@ bool RTS::sdDetected() {
   static bool state = false, stable = false, was_present = false;
   static millis_t stable_ms = 0;
 
-  const bool present = card.isInserted();
+  const bool present = IS_SD_INSERTED();
   if (present != was_present)
     stable = false;
   else if (!stable) {
@@ -258,7 +259,7 @@ void RTS::init() {
         inStop = -1;
         inInc = -1;
       }
-      FLIP(zig);
+      zig ^= true;
       for (int8_t x = inStart; x != inStop; x += inInc) {
         sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
         showcount++;
@@ -520,7 +521,7 @@ void RTS::sdCardStop() {
   thermalManager.zero_fan_speeds();
   wait_for_heatup = wait_for_user = false;
   poweroff_continue = false;
-  #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
+  #if ALL(SDSUPPORT, POWER_LOSS_RECOVERY)
     if (card.flag.mounted) card.removeJobRecoveryFile();
   #endif
   #ifdef EVENT_GCODE_SD_STOP
@@ -894,7 +895,7 @@ void RTS::handleData() {
           break;
 
         case 4: // Go to Advanced Settings
-          TERN_(LIN_ADVANCE, sendData(planner.get_advance_k() * 100, Advance_K_VP));
+          TERN_(LIN_ADVANCE, sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP));
           gotoPage(ID_AdvWarn_L, ID_AdvWarn_D);
           break;
 
@@ -1093,7 +1094,7 @@ void RTS::handleData() {
           thermalManager.disable_all_heaters();
           print_job_timer.reset();
 
-          #if ALL(HAS_MEDIA, POWER_LOSS_RECOVERY)
+          #if ALL(SDSUPPORT, POWER_LOSS_RECOVERY)
             if (card.flag.mounted) {
               card.removeJobRecoveryFile();
               recovery.info.valid_head = 0;
@@ -1206,7 +1207,7 @@ void RTS::handleData() {
               inStop = -1;
               inInc = -1;
             }
-            FLIP(zig);
+            zig ^= true;
             for (int8_t x = inStart; x != inStop; x += inInc) {
               sendData(bedlevel.z_values[x][y] * 100, AUTO_BED_LEVEL_1POINT_VP + showcount * 2);
               showcount++;
@@ -1292,7 +1293,7 @@ void RTS::handleData() {
 
         #if ENABLED(LIN_ADVANCE)
           case 7: // Confirm
-            sendData(planner.get_advance_k() * 100, Advance_K_VP);
+            sendData(planner.extruder_advance_K[0] * 100, Advance_K_VP);
             gotoPage(ID_Advanced_L, ID_Advanced_D);
             break;
         #endif
@@ -1312,9 +1313,9 @@ void RTS::handleData() {
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      case Hot_Bed_P: thermalManager.temp_bed.pid.set_Kp(float(recdat.data[0]) / 100.0f); break;
-      case Hot_Bed_I: thermalManager.temp_bed.pid.set_Ki(float(recdat.data[0]) * 8.0f / 10000.0f); break;
-      case Hot_Bed_D: thermalManager.temp_bed.pid.set_Kd(float(recdat.data[0]) / 0.8f); break;
+      case Hot_Bed_P: thermalManager.temp_bed.pid.Kp = float(recdat.data[0]) / 100.0f; break;
+      case Hot_Bed_I: thermalManager.temp_bed.pid.Ki = float(recdat.data[0]) * 8.0f / 10000.0f; break;
+      case Hot_Bed_D: thermalManager.temp_bed.pid.Kd = float(recdat.data[0]) / 0.8f; break;
     #endif
 
     #if HAS_X_AXIS
@@ -1350,7 +1351,7 @@ void RTS::handleData() {
       #endif
       case A_Retract: planner.settings.retract_acceleration = recdat.data[0]; break;
       #if ENABLED(LIN_ADVANCE)
-        case Advance_K: planner.set_advance_k(float(recdat.data[0]) / 100.0f); break;
+        case Advance_K: planner.extruder_advance_K[0] = float(recdat.data[0]) / 100.0f; break;
       #endif
     #endif
     case Accel: planner.settings.acceleration = recdat.data[0]; break;
@@ -1397,10 +1398,18 @@ void RTS::handleData() {
       case TMCDriver:
         switch (recdat.data[0]) {
           case 1:  // Current
-            TERN_(X_IS_TRINAMIC, sendData(stepperX.getMilliamps(), Current_X_VP));
-            TERN_(Y_IS_TRINAMIC, sendData(stepperY.getMilliamps(), Current_Y_VP));
-            TERN_(Z_IS_TRINAMIC, sendData(stepperZ.getMilliamps(), Current_Z_VP));
-            TERN_(E0_IS_TRINAMIC, sendData(stepperE0.getMilliamps(), Current_E_VP));
+            #if AXIS_IS_TMC(X)
+              sendData(stepperX.getMilliamps(), Current_X_VP);
+            #endif
+            #if AXIS_IS_TMC(Y)
+              sendData(stepperY.getMilliamps(), Current_Y_VP);
+            #endif
+            #if AXIS_IS_TMC(Z)
+              sendData(stepperZ.getMilliamps(), Current_Z_VP);
+            #endif
+            #if AXIS_IS_TMC(E0)
+              sendData(stepperE0.getMilliamps(), Current_E_VP);
+            #endif
             gotoPage(ID_DriverA_L, ID_DriverA_D);
             break;
 
@@ -1425,19 +1434,39 @@ void RTS::handleData() {
         }
         break;
 
-      case Current_X:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906X"), int(recdat.data[0])))); break;
-      case Threshold_X:  TERN_(X_HAS_STEALTHCHOP, queue.inject(TS(F("M913X"), int(recdat.data[0])))); break;
-      case Sensorless_X: TERN_(X_SENSORLESS,      queue.inject(TS(F("M914X"), int(recdat.data[0])))); break;
+      #if AXIS_IS_TMC(X)
+        case Current_X:    sprintf_P(cmd, PSTR("M906 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if X_HAS_STEALTHCHOP
+        case Threshold_X:  sprintf_P(cmd, PSTR("M913 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if X_SENSORLESS
+        case Sensorless_X: sprintf_P(cmd, PSTR("M914 X%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
 
-      case Current_Y:    TERN_(X_IS_TRINAMIC,     queue.inject(TS(F("M906Y"), int(recdat.data[0])))); break;
-      case Threshold_Y:  TERN_(Y_HAS_STEALTHCHOP, queue.inject(TS(F("M913Y"), int(recdat.data[0])))); break;
-      case Sensorless_Y: TERN_(Y_SENSORLESS,      queue.inject(TS(F("M914Y"), int(recdat.data[0])))); break;
+      #if AXIS_IS_TMC(Y)
+        case Current_Y:    sprintf_P(cmd, PSTR("M906 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Y_HAS_STEALTHCHOP
+        case Threshold_Y:  sprintf_P(cmd, PSTR("M913 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Y_SENSORLESS
+        case Sensorless_Y: sprintf_P(cmd, PSTR("M914 Y%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
 
-      case Current_Z:    TERN_(Z_IS_TRINAMIC,     queue.inject(TS(F("M906Z"), int(recdat.data[0])))); break;
-      case Threshold_Z:  TERN_(Z_HAS_STEALTHCHOP, queue.inject(TS(F("M913Z"), int(recdat.data[0])))); break;
+      #if AXIS_IS_TMC(Z)
+        case Current_Z:    sprintf_P(cmd, PSTR("M906 Z%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if Z_HAS_STEALTHCHOP
+        case Threshold_Z:  sprintf_P(cmd, PSTR("M913 Z%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
 
-      case Current_E:    TERN_(AXIS_IS_TMC_E,     queue.inject(TS(F("M906E"), int(recdat.data[0])))); break;
-      case Threshold_E:  TERN_(E_HAS_STEALTHCHOP, queue.inject(TS(F("M913E"), int(recdat.data[0])))); break;
+      #if AXIS_IS_TMC(E0)
+        case Current_E:   sprintf_P(cmd, PSTR("M906 E%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
+      #if E0_HAS_STEALTHCHOP
+        case Threshold_E: sprintf_P(cmd, PSTR("M913 E%i"), recdat.data[0]); queue.inject(cmd); break;
+      #endif
 
     #endif // HAS_TRINAMIC_CONFIG
 
@@ -1485,7 +1514,7 @@ void RTS::handleData() {
       sendData(cardRec.display_filename[cardRec.recordcount], PRINT_FILE_TEXT_VP);
 
       // Represents to update file list
-      if (update_sd && lcd_sd_status && card.isInserted()) {
+      if (update_sd && lcd_sd_status && IS_SD_INSERTED()) {
         for (uint16_t i = 0; i < cardRec.Filesum; i++) {
           delay(3);
           sendData(cardRec.display_filename[i], cardRec.addr[i]);
@@ -1654,8 +1683,8 @@ void RTS_Update() {
   // Check the status of card
   rts.sdCardUpdate();
 
-  sd_printing = card.isStillPrinting();
-  card_insert_st = card.isInserted();
+  sd_printing = IS_SD_PRINTING();
+  card_insert_st = IS_SD_INSERTED();
 
   if (!card_insert_st && sd_printing) {
     rts.gotoPage(ID_MediaFail_L, ID_MediaFail_D);

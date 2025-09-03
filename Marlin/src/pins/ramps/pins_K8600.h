@@ -54,7 +54,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             25
+#define SDSS                                  25
 #define CASE_LIGHT_PIN                         7
 
 //

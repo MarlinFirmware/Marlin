@@ -49,57 +49,59 @@ static void gcodes_M704_M705_M706(uint16_t gcode) {
 }
 
 /**
- * M704: Preload to MMU
+ * ### M704 - Preload to MMU
+ * #### Usage
  *
- * Usage:
  *   M704 [ P ]
  *
- * Parameters:
- *   P<index>  Index of slot (zero based, 0-4, i.e., T0 and T4)
+ * #### Parameters
+ * - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
  */
 void GcodeSuite::M704() {
   gcodes_M704_M705_M706(704);
 }
 
 /**
- * M705: Eject Filament
+ * ### M705 - Eject filament
+ * #### Usage
  *
- * Usage:
  *   M705 [ P ]
  *
- * Parameters:
- *   P<index> Index of slot (zero based, 0-4, i.e., T0 and T4)
+ * #### Parameters
+ * - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
  */
 void GcodeSuite::M705() {
   gcodes_M704_M705_M706(705);
 }
 
-/**
- * M706: Cut Filament
+/*!
+ * ### M706 - Cut filament
+ * #### Usage
  *
- * Usage:
  *   M706 [ P ]
  *
- * Parameters:
- *   P<index>  Index of slot (zero based, 0-4, i.e., T0 and T4)
+ * #### Parameters
+ * - `P` - n index of slot (zero based, so 0-4 like T0 and T4)
  */
 void GcodeSuite::M706() {
   gcodes_M704_M705_M706(706);
 }
 
 /**
- * M707: Read from MMU Register
+ * ### M707 - Read from MMU register
+ * #### Usage
  *
- * Usage:
  *   M707 [ A ]
  *
- * Parameters:
- *   A<hex>  Address of register in hexidecimal
+ * #### Parameters
+ * - `A` - Address of register in hexidecimal.
  *
- * Example:
- *   M707 A0x1b - Read a 8bit integer from register 0x1b and prints the result onto the serial line.
+ * #### Example
+ *
+ * M707 A0x1b - Read a 8bit integer from register 0x1b and prints the result onto the serial line.
  *
  * Does nothing if the A parameter is not present or if MMU is not enabled.
+ *
  */
 void GcodeSuite::M707() {
   if (mmu3.enabled() && parser.seenval('A')) {
@@ -109,17 +111,17 @@ void GcodeSuite::M707() {
 }
 
 /**
- * M708: Write to MMU Register
+ * ### M708 - Write to MMU register
+ * #### Usage
  *
- * Usage:
  *   M708 [ A | X ]
  *
- * Parameters:
- *   A<hex>  Address of register in hexidecimal
- *   X<int>  Data to write (16-bit integer). Default value 0
+ * #### Parameters
+ * - `A` - Address of register in hexidecimal.
+ * - `X` - Data to write (16-bit integer). Default value 0.
  *
- * Example:
- *   M708 A0x1b X05 - Write to register 0x1b the value 05.
+ * #### Example
+ * M708 A0x1b X05 - Write to register 0x1b the value 05.
  *
  * Does nothing if A parameter is missing or if MMU is not enabled.
  */
@@ -135,26 +137,27 @@ void GcodeSuite::M708() {
 }
 
 /**
- * M709: MMU Power & Reset
+ * ### M709 - MMU power & reset
+ * The MK3S cannot not power off the MMU, but we can en- and disable the MMU.
  *
- * The MK3S cannot not power off the MMU, but we can enable/disable the MMU.
  * The new state of the MMU is stored in printer's EEPROM.
- * (i.e., If you disable the MMU via M709, it will not be activated after the printer resets.)
+ * i.e., If you disable the MMU via M709, it will not be activated after the printer resets.
+ * Usage
  *
- * Usage:
  *   M709 [ S | X ]
  *
- * Parameters:
- *   X<int>   Reset MMU (0:soft reset | 1:hardware reset | 42: erase MMU eeprom)
- *   S<bool>  Enable/Disable the MMU (1=ON | 0=OFF)
+ * Parameters
+ * - `X` - Reset MMU (0:soft reset | 1:hardware reset | 42: erase MMU eeprom)
+ * - `S` - En-/disable the MMU (0:off | 1:on)
  *
- * Examples:
- *   M709 X0  ; Issue an X0 command via communication into the MMU (soft reset)
- *   M709 X1  ; Toggle the MMU's reset pin (hardware reset)
- *   M709 X42 ; Erase MMU EEPROM
- *   M709 S1  ; Enable MMU
- *   M709 S0  ; Disable MMU
- *   M709     ; Serial message if enabled/disabled
+ * Examples
+ *
+ *  M709 X0   ; issue an X0 command via communication into the MMU (soft reset)
+ *  M709 X1   ; toggle the MMU's reset pin (hardware reset)
+ *  M709 X42  ; erase MMU EEPROM
+ *  M709 S1   ; enable MMU
+ *  M709 S0   ; disable MMU
+ *  M709      ; Serial message if en- or disabled
  */
 void GcodeSuite::M709() {
   if (parser.seenval('S')) {
@@ -182,12 +185,13 @@ void GcodeSuite::M709() {
 void GcodeSuite::MMU3_report(const bool forReplay/*=true*/) {
   using namespace MMU3;
   report_heading(forReplay, F("MMU3 Operational Stats"));
-  SERIAL_ECHOLNPGM("  MMU                ", ON_OFF(mmu3.mmu_hw_enabled));
-  SERIAL_ECHOLNPGM("  Stealth Mode       ", ON_OFF(mmu3.stealth_mode));
+  SERIAL_ECHOPGM("  MMU                "); serialprintln_onoff(mmu3.mmu_hw_enabled);
+  SERIAL_ECHOPGM("  Stealth Mode       "); serialprintln_onoff(mmu3.stealth_mode);
   #if ENABLED(MMU3_HAS_CUTTER)
-    SERIAL_ECHOLNPGM("  Cutter             ", ON_OFF(mmu3.cutter_mode != 0));
+    SERIAL_ECHOPGM("  Cutter             ");
+    serialprintln_onoff(mmu3.cutter_mode != 0);
   #endif
-  SERIAL_ECHOLNPGM("  SpoolJoin          ", ON_OFF(spooljoin.enabled));
+  SERIAL_ECHOPGM("  SpoolJoin          "); serialprintln_onoff(spooljoin.enabled);
   SERIAL_ECHOLNPGM("  Tool Changes       ", operation_statistics.tool_change_counter);
   SERIAL_ECHOLNPGM("  Total Tool Changes ", operation_statistics.tool_change_total_counter);
   SERIAL_ECHOLNPGM("  Fails              ", operation_statistics.fail_num);

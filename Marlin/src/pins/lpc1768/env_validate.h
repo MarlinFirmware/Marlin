@@ -22,17 +22,12 @@
 #ifndef ENV_VALIDATE_H
 #define ENV_VALIDATE_H
 
-#if NOT_TARGET(MCU_LPC1768, MCU_LPC1769)
-  #if ENABLED(ALLOW_LPC1768_OR_9)
-    #error "Oops! Make sure you have the LPC1768 or LPC1769 environment selected in your IDE."
-  #elif ENABLED(REQUIRE_LPC1769)
-    #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-  #else
-    #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
-  #endif
+#if ENABLED(REQUIRE_LPC1769) && NOT_TARGET(MCU_LPC1769)
+  #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
+#elif DISABLED(REQUIRE_LPC1769) && NOT_TARGET(MCU_LPC1768)
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#undef ALLOW_LPC1768_OR_9
 #undef REQUIRE_LPC1769
 
-#endif // ENV_VALIDATE_H
+#endif

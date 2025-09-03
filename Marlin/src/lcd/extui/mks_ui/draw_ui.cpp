@@ -71,7 +71,6 @@ uint32_t size = 809;
 uint16_t row;
 bool temps_update_flag;
 uint8_t printing_rate_update_flag;
-bool gcode_output_update_flag;
 
 extern bool once_flag;
 extern uint8_t sel_id;
@@ -579,7 +578,7 @@ char *creat_title_text() {
         update_spi_flash();
       }
       card.closefile();
-    #endif // HAS_MEDIA
+    #endif
   }
 
   void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
@@ -662,27 +661,27 @@ char *creat_title_text() {
   }
 
   void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
-    static constexpr uint16_t draw_col_count = 40; // Number of rows displayed each time, determines the size of bmp_public_buf
-    static constexpr int draw_count = 200 / draw_col_count; // Total number of times to be displayed
-    static constexpr uint32_t pixel_count = (DEFAULT_VIEW_MAX_SIZE) / draw_count; // Number of pixels read per time (uint8_t)
+    int index;
     int y_off = 0;
-    for (int index = 0; index < draw_count; index++) { // 200*200
+    W25QXX.init(SPI_QUARTER_SPEED);
+    for (index = 0; index < 10; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
-          flash_view_Read(bmp_public_buf, pixel_count); // 16k
+          flash_view_Read(bmp_public_buf, 8000); // 20k
         }
         else {
-          default_view_Read(bmp_public_buf, pixel_count); // 16k
+          default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
         }
       #else
-        default_view_Read(bmp_public_buf, pixel_count); // 8k
+        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
       #endif
 
-      SPI_TFT.setWindow(xpos_pixel, y_off * draw_col_count + ypos_pixel, 200, draw_col_count); // 200 * draw_col_count
-      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), uint16_t(pixel_count / 2));
+      SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+      SPI_TFT.tftio.writeSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
       y_off++;
     }
+    W25QXX.init(SPI_QUARTER_SPEED);
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
@@ -700,7 +699,6 @@ char *creat_title_text() {
       }
     #endif
   }
-
 #endif // HAS_GCODE_PREVIEW
 
 void print_time_run() {
@@ -866,13 +864,6 @@ void GUI_RefreshPage() {
       }
       break;
 
-    case GCODE_UI:
-      if (gcode_output_update_flag) {
-        gcode_output_update_flag = false;
-        disp_gcode_output();
-      }
-      break;
-
     default: break;
   }
 
@@ -975,7 +966,7 @@ void clear_cur_ui() {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
     #endif
-    #if HAS_MULTI_VOLUME
+    #if ENABLED(MULTI_VOLUME)
       case MEDIA_SELECT_UI:           lv_clear_media_select(); break;
     #endif
     default: break;
@@ -1144,9 +1135,9 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title) {
   // title
   lv_obj_t *titleLabel = nullptr;
   if (!title)
-    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, creat_title_text());
+    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
   else if (title[0] != '\0')
-    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, title);
+    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
   if (titleLabel)
     lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
@@ -1340,6 +1331,19 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
   lv_imgbtn_set_src_both(btn, curValue ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
   lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
 }
+
+#if HAS_MEDIA
+
+  void sd_detection() {
+    static bool last_sd_status;
+    const bool sd_status = IS_SD_INSERTED();
+    if (sd_status != last_sd_status) {
+      last_sd_status = sd_status;
+      if (sd_status) card.mount(); else card.release();
+    }
+  }
+
+#endif
 
 void lv_ex_line(lv_obj_t *line, lv_point_t *points) {
   // Copy the previous line and apply the new style

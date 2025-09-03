@@ -30,24 +30,21 @@
 #include "../../../lcd/marlinui.h"
 
 /**
- * M413: Power-loss Recovery
- *
- * Enable/Disable power-loss recovery
+ * M413: Enable / Disable power-loss recovery
  *
  * Parameters
- *   None     Report power-loss recovery state
- *   S<bool>  Flag to enable/disable
- *            If omitted, report current state.
+ *   S[bool] - Flag to enable / disable.
+ *             If omitted, report current state.
  *
  * With PLR_BED_THRESHOLD:
- *   B<temp>  Bed Temperature above which recovery will proceed without asking permission.
+ *   B         Bed Temperature above which recovery will proceed without asking permission.
  */
 void GcodeSuite::M413() {
 
-  if (!parser.seen_any()) return M413_report();
-
   if (parser.seen('S'))
     recovery.enable(parser.value_bool());
+  else
+    M413_report();
 
   #if HAS_PLR_BED_THRESHOLD
     if (parser.seenval('B'))
@@ -70,12 +67,13 @@ void GcodeSuite::M413_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_POWER_LOSS_RECOVERY));
-  SERIAL_ECHOLNPGM("  M413 S", AS_DIGIT(recovery.enabled)
+  SERIAL_ECHOPGM("  M413 S", AS_DIGIT(recovery.enabled)
     #if HAS_PLR_BED_THRESHOLD
       , " B", recovery.bed_temp_threshold
     #endif
-    , " ; ", ON_OFF(recovery.enabled)
   );
+  SERIAL_ECHO(" ; ");
+  serialprintln_onoff(recovery.enabled);
 }
 
 #endif // POWER_LOSS_RECOVERY

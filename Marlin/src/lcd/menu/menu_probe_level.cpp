@@ -44,9 +44,11 @@
   #include "../../feature/babystep.h"
 #endif
 
-#if ALL(TOUCH_SCREEN, HAS_GRAPHICAL_TFT)
+#if HAS_GRAPHICAL_TFT
   #include "../tft/tft.h"
-  #include "../tft/touch.h"
+  #if ENABLED(TOUCH_SCREEN)
+    #include "../tft/touch.h"
+  #endif
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) && ANY(PROBE_MANUALLY, MESH_BED_LEVELING)

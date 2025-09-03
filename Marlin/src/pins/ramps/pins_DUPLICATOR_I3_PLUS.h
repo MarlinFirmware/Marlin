@@ -77,7 +77,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             53  // PB0 / SS
+#define SDSS                                  53  // PB0 / SS
 #define LED_PIN                               13  // PB7 / PWM13
 
 #define SD_MISO_PIN                           50  // PB3

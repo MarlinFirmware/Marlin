@@ -37,11 +37,11 @@
 #include "i2s.h"
 
 #if ENABLED(WIFISUPPORT)
-  #include "wifi/WebSocketSerial.h"
+  #include "WebSocketSerial.h"
 #endif
 
 #if ENABLED(ESP3D_WIFISUPPORT)
-  #include <esp3dlib.h>
+  #include "esp3dlib.h"
 #endif
 
 #include "FlushableHardwareSerial.h"
@@ -165,6 +165,8 @@ int freeMemory();
 
 #pragma GCC diagnostic pop
 
+void _delay_ms(const int ms);
+
 // ------------------------
 // MarlinHAL Class
 // ------------------------
@@ -192,7 +194,7 @@ public:
   static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
   static void isr_off() { portENTER_CRITICAL(&spinlock); }
 
-  static void delay_ms(const int ms) { delay(ms); }
+  static void delay_ms(const int ms) { _delay_ms(ms); }
 
   // Tasks, called from idle()
   static void idletask();

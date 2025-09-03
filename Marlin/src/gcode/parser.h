@@ -97,8 +97,6 @@ public:
     FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
 
-  FORCE_INLINE static bool has_string() { return string_arg && string_arg[0]; }
-
   #if ENABLED(DEBUG_GCODE_PARSER)
     static void debug();
   #endif
@@ -134,8 +132,11 @@ public:
       SBI32(codebits, ind);                      // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
-        if (codenum == 800)
-          SERIAL_ECHOLNPGM("Set bit ", ind, " of codebits (", _hex_long(codebits), ") | param = ", param[ind]);
+        if (codenum == 800) {
+          SERIAL_ECHOPGM("Set bit ", ind, " of codebits (", hex_address((void*)(codebits >> 16)));
+          print_hex_word((uint16_t)(codebits & 0xFFFF));
+          SERIAL_ECHOLNPGM(") | param = ", param[ind]);
+        }
       #endif
     }
 
@@ -148,7 +149,7 @@ public:
       if (b) {
         if (param[ind]) {
           char * const ptr = command_ptr + param[ind];
-          value_ptr = (valid_number(ptr) || TERN0(GCODE_QUOTED_STRINGS, *(ptr - 1) == '"')) ? ptr : nullptr;
+          value_ptr = valid_number(ptr) ? ptr : nullptr;
         }
         else
           value_ptr = nullptr;

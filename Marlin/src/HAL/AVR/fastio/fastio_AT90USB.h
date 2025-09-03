@@ -363,11 +363,8 @@
 #define AIO7_PWM    0
 #define AIO7_DDR    DDRF
 
-//-- 46-47 are not supported by Teensyduino
-//-- Don't use Arduino functions (pinMode, digitalWrite, etc.) on these pins
-#define PIN_E2   46
-#define PIN_E3   47
-
+//-- Begin not supported by Teensyduino
+//-- don't use Arduino functions on these pins pinMode/digitalWrite/etc
 #define DIO46_PIN   PINE2
 #define DIO46_RPORT PINE
 #define DIO46_WPORT PORTE
@@ -380,7 +377,10 @@
 #define DIO47_PWM   0
 #define DIO47_DDR   DDRE
 
-//--
+#define TEENSY_E2   46
+#define TEENSY_E3   47
+
+//-- end not supported by Teensyduino
 
 #undef PA0
 #define PA0_PIN     PINA0

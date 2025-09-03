@@ -28,7 +28,7 @@
 
 #include "macros.h"
 
-#if HAS_USB_FLASH_DRIVE
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   ////////////////////////////////////////////////////////////////////////////////
   /* Added by Bill Greiman to speed up mass storage initialization with USB
    * flash drives and simple USB hard drives.
@@ -65,7 +65,7 @@
  * For example Serial3.
  */
 #ifndef USB_HOST_SERIAL
-  #if HAS_USB_FLASH_DRIVE
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     #define USB_HOST_SERIAL MYSERIAL1
   #else
     #define USB_HOST_SERIAL Serial

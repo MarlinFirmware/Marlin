@@ -33,14 +33,12 @@
 #include <stdint.h>
 #include <wirish.h>
 
-#include "../../core/macros.h"  // for PIN_EXISTS
-
 // Number of SPI ports
-#if PIN_EXISTS(BOARD_SPI3_SCK)
+#ifdef BOARD_SPI3_SCK_PIN
   #define BOARD_NR_SPI 3
-#elif PIN_EXISTS(BOARD_SPI2_SCK)
+#elif defined(BOARD_SPI2_SCK_PIN)
   #define BOARD_NR_SPI 2
-#elif PIN_EXISTS(BOARD_SPI1_SCK)
+#elif defined(BOARD_SPI1_SCK_PIN)
   #define BOARD_NR_SPI 1
 #endif
 

@@ -84,7 +84,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             11
+#define SDSS                                  11
 #define LED_PIN                               13
 #define SOL1_PIN                              16
 #define SOL2_PIN                              17

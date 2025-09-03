@@ -37,8 +37,6 @@
   #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
-#define BOARD_LCD_SERIAL_PORT 1
-
 //
 // Onboard crystal oscillator
 //
@@ -67,9 +65,9 @@
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE              0x800U // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE               0x800 // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE              0x800U // 2K
+  #define MARLIN_EEPROM_SIZE               0x800 // 2K
 #endif
 
 //

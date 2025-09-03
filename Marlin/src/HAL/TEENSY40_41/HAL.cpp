@@ -39,20 +39,18 @@
 
 #define _IMPLEMENT_SERIAL(X) DefaultSerial##X MSerial##X(false, Serial##X)
 #define IMPLEMENT_SERIAL(X)  _IMPLEMENT_SERIAL(X)
-#if WITHIN(SERIAL_PORT, SERIAL_INDEX_MIN, SERIAL_INDEX_MAX)
+#if WITHIN(SERIAL_PORT, 0, 8)
   IMPLEMENT_SERIAL(SERIAL_PORT);
 #endif
-#if defined(SERIAL_PORT_2) && WITHIN(SERIAL_PORT_2, SERIAL_INDEX_MIN, SERIAL_INDEX_MAX)
-  IMPLEMENT_SERIAL(SERIAL_PORT_2);
+#ifdef SERIAL_PORT_2
+  #if WITHIN(SERIAL_PORT_2, 0, 8)
+    IMPLEMENT_SERIAL(SERIAL_PORT_2);
+  #endif
 #endif
-#if defined(SERIAL_PORT_3) && WITHIN(SERIAL_PORT_3, SERIAL_INDEX_MIN, SERIAL_INDEX_MAX)
-  IMPLEMENT_SERIAL(SERIAL_PORT_3);
-#endif
-#if defined(MMU_SERIAL_PORT) && WITHIN(MMU_SERIAL_PORT, SERIAL_INDEX_MIN, SERIAL_INDEX_MAX)
-  IMPLEMENT_SERIAL(MMU_SERIAL_PORT);
-#endif
-#if defined(LCD_SERIAL_PORT) && WITHIN(LCD_SERIAL_PORT, SERIAL_INDEX_MIN, SERIAL_INDEX_MAX)
-  IMPLEMENT_SERIAL(LCD_SERIAL_PORT);
+#ifdef SERIAL_PORT_3
+  #if WITHIN(SERIAL_PORT_3, 0, 8)
+    IMPLEMENT_SERIAL(SERIAL_PORT_3);
+  #endif
 #endif
 USBSerialType USBSerial(false, SerialUSB);
 
@@ -204,13 +202,18 @@ uint16_t MarlinHAL::adc_value() {
 // Free Memory Accessor
 // ------------------------
 
-extern "C" {
-  // Reference for Teensy 4.x: https://forum.pjrc.com/index.php?threads/how-to-display-free-ram.33443/#post-275013
-  extern unsigned long _heap_end;
-  extern char *__brkval;
+#define __bss_end _ebss
 
+extern "C" {
+  extern char __bss_end;
+  extern char __heap_start;
+  extern void* __brkval;
+
+  // Doesn't work on Teensy 4.x
   uint32_t freeMemory() {
-    return (char *)&_heap_end - __brkval;
+    uint32_t free_memory;
+    free_memory = ((uint32_t)&free_memory) - (((uint32_t)__brkval) ?: ((uint32_t)&__bss_end));
+    return free_memory;
   }
 }
 

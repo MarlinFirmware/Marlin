@@ -121,7 +121,7 @@
 //
 // Misc. Functions
 //
-#define SD_SS_PIN                             53
+#define SDSS                                  53
 #define LED_PIN                               13
 #if !MB(MINIRAMBO_10A)
   #define CASE_LIGHT_PIN                       9
