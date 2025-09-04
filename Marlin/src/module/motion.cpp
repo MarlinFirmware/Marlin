@@ -2552,7 +2552,8 @@ void prepare_line_to_destination() {
     // When homing Z with probe respect probe clearance
     const bool use_probe_bump = ( axis == Z_AXIS && z_homing_use_probe && home_bump_mm(axis) );
     const float bump = axis_home_dir * (
-      use_probe_bump ? _MAX( ((z_homing_use_probe)?Z_CLEARANCE_BETWEEN_PROBES:0) , home_bump_mm(axis)) : home_bump_mm(axis)
+      //use_probe_bump ? _MAX( ((z_homing_use_probe)?Z_CLEARANCE_BETWEEN_PROBES:0) , home_bump_mm(axis)) : home_bump_mm(axis)
+      use_probe_bump ? _MAX(TERN0(Z_CLEARANCE_BETWEEN_PROBES,Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
     );
 
     //
