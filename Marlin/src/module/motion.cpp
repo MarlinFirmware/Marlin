@@ -94,6 +94,8 @@ bool relative_mode; // = false
 //Z homing mode, false=UseEndStop, true=UseProbe
 #if HOMING_Z_WITH_PROBE || Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
 bool z_homing_use_probe = TERN0(HOMING_Z_WITH_PROBE, 1); //initial state
+#else
+#define z_homing_use_probe 0
 #endif
 
 /**
@@ -2213,6 +2215,7 @@ void prepare_line_to_destination() {
 
     if (is_home_dir) {
 
+      #if HOMING_Z_WITH_PROBE || Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
       if (axis == Z_AXIS && z_homing_use_probe) {
         #if ALL(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
           // Wait for bed to heat back up between probing points
@@ -2226,6 +2229,7 @@ void prepare_line_to_destination() {
 
         TERN_(HAS_QUIET_PROBING, if (final_approach) probe.set_probing_paused(true));
       }
+      #endif
 
       // Disable stealthChop if used. Enable diag1 pin on driver.
       #if ENABLED(SENSORLESS_HOMING)
