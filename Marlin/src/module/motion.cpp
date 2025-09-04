@@ -1064,10 +1064,12 @@ void do_blocking_move_to(const xyze_pos_t &raw, const_feedRate_t fr_mm_s/*=0.0f*
     #ifdef Z_POST_CLEARANCE
       do_z_clearance(
         Z_POST_CLEARANCE,
-        ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled),
+		ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled), //original code
+        //(ALL(HOMING_Z_WITH_PROBE, HAS_STOWABLE_PROBE) || (ENABLED(BLTOUCH) && ENABLED(Z_MULTI_ENDSTOPS))) && TERN0(HAS_BED_PROBE, endstops.z_probe_enabled), //12LABS modified for do_probe_for_z_homing compatability
         true
       );
-    #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
+    //#elif ENABLED(USE_PROBE_FOR_Z_HOMING) || (ENABLED(BLTOUCH) && ENABLED(Z_MULTI_ENDSTOPS)) //12LABS modified
+    #elif ENABLED(USE_PROBE_FOR_Z_HOMING) //original
       probe.move_z_after_probing();
     #endif
   }
@@ -2233,9 +2235,11 @@ void prepare_line_to_destination() {
     #else
       // Get the ABC or XYZ positions in mm
       abce_pos_t target = planner.get_axis_positions_mm();
+      if(DEBUGGING(LEVELING)){ DEBUG_ECHOLNPGM("stage 1"); }
 
       target[axis] = 0;                         // Set the single homing axis to 0
       planner.set_machine_position_mm(target);  // Update the machine position
+      if(DEBUGGING(LEVELING)){ DEBUG_ECHOLNPGM("stage 2"); }
 
       #if HAS_DIST_MM_ARG
         const xyze_float_t cart_dist_mm{0};
@@ -2244,13 +2248,15 @@ void prepare_line_to_destination() {
       // Set delta/cartesian axes directly
       target[axis] = distance;                  // The move will be towards the endstop
       planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), home_fr_mm_s, active_extruder);
+      if(DEBUGGING(LEVELING)){ DEBUG_ECHOLNPGM("stage 3"); }
     #endif
 
-    planner.synchronize();
+    planner.synchronize(); //freezing here when trying to home Z twice will happen if probe.stow() is never called
+    if(DEBUGGING(LEVELING)){ DEBUG_ECHOLNPGM("stage 4"); }
 
     if (is_home_dir) {
 
-      #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
+      #if HAS_QUIET_PROBING //#if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING //12LABS modified for do_probe_for_z_homing compatability
         if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
       #endif
 
@@ -2414,8 +2420,8 @@ void prepare_line_to_destination() {
    * Some machines require multiple Z endstops to sync
    * the Z motors properly.
    *
-   * USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP
-   * in Configuration.h will enable this function.
+   * USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP will
+   * enable this function.
    * 
    * This allows "Z Probe Offset" changes take effect
    * without having to rebuild any bed leveling meshes.
@@ -2436,7 +2442,7 @@ void prepare_line_to_destination() {
 //This is nessesary so that "Z Probe Offset" will actually adjust the nozzle to probe offset
 //otherwise "Z Probe Offset" has no effect with AUTO_BED_LEVELING_BILINEAR
 //AUTO_BED_LEVELING_UBL works without this function, but after adjusting "Z Probe Offset" you have to rebuild the mesh, very anoying
-#if MANY(USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP, BLTOUCH, Z_MULTI_ENDSTOPS)
+#if ALL(USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP, BLTOUCH) && ENABLED(Z_MULTI_ENDSTOPS)
 void do_probe_for_z_homing() {
     if (DEBUGGING(LEVELING)){ DEBUG_ECHOLNPGM(">>> do_probe_for_z_homing");}
 
@@ -2524,7 +2530,7 @@ void do_probe_for_z_homing() {
     DEBUG_ECHOLNPGM("<<< do_probe_for_z_homing");
   }
 }
-#endif  
+#endif
 
   /**
    * Home an individual "raw axis" to its endstop.
@@ -2536,7 +2542,6 @@ void do_probe_for_z_homing() {
    * Kinematic robots should wait till all axes are homed
    * before updating the current position.
    */
-
   void homeaxis(const AxisEnum axis) {
 
     #if ANY(MORGAN_SCARA, MP_SCARA)
@@ -2633,6 +2638,7 @@ void do_probe_for_z_homing() {
     const float move_length = 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
     do_homing_move(axis, move_length, 0.0, !use_probe_bump);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("STAGE B");
 
     // If a second homing move is configured...
     if (bump) {
@@ -2845,10 +2851,10 @@ void do_probe_for_z_homing() {
         do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
       }
 
-    #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX
+    #else // CARTESIAN / CORE / MARKFORGED_XY / MARKFORGED_YX --HERE--
 
 	  //handle probe Z homing after endstop homing if enabled
-      #if MANY(USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP, BLTOUCH, Z_MULTI_ENDSTOPS)
+      #if ALL(USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP, BLTOUCH) && ENABLED(Z_MULTI_ENDSTOPS)
 		if(axis == Z_AXIS){ do_probe_for_z_homing();} //subtracts probe.offset.z from Z
 		else{ //not Z_AXIS
 		  set_axis_is_at_home(axis); //this subtracts probe.offset.z only if HOMING_Z_WITH_PROBE is enabled and Z_AXIS
@@ -2860,7 +2866,7 @@ void do_probe_for_z_homing() {
 		  sync_plan_position(); 	  
 		  destination[axis] = current_position[axis];	  
 	  #endif
-
+      
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
 
     #endif
@@ -2949,7 +2955,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
    */
   #if HAS_BED_PROBE && Z_HOME_TO_MIN
     if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
+      #if HOMING_Z_WITH_PROBE  //12LABS note; probe.offset.z is not applied if BLTOUCH && Z_MULTI_ENDSTOPS is enabled, do_probe_for_z_homing will handle that senario
         #if ENABLED(BD_SENSOR)
           safe_delay(100);
           current_position.z = bdl.read();
