@@ -94,9 +94,10 @@ bool relative_mode; // = false
 //Z homing mode, false=UseEndStop, true=UseProbe
 #if HOMING_Z_WITH_PROBE || Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
 bool z_homing_use_probe = TERN0(HOMING_Z_WITH_PROBE, 1); //initial state
-#define MAY_PROBE 1 //HOMING_Z_WITH_PROBE or Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP is enabled
+//#define MAY_PROBE 1 //HOMING_Z_WITH_PROBE or Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP is enabled
 #else
 #define z_homing_use_probe 0
+#define z_probe_fast_mm_s  0  //since this is not defined, define it to 0
 #endif
 
 /**
@@ -2454,8 +2455,8 @@ void prepare_line_to_destination() {
     z_homing_use_probe = 1;
     #elif Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
     z_homing_use_probe = 0; //use Z endstop first, then use probe after that
+    repeat_func:
     #endif
-    repeat_func:    
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
@@ -2554,7 +2555,12 @@ void prepare_line_to_destination() {
     const bool use_probe_bump = ( axis == Z_AXIS && z_homing_use_probe && home_bump_mm(axis) );
     const float bump = axis_home_dir * (
       //use_probe_bump ? _MAX( ((z_homing_use_probe)?Z_CLEARANCE_BETWEEN_PROBES:0) , home_bump_mm(axis)) : home_bump_mm(axis)
-      use_probe_bump ? _MAX(TERN0(Z_CLEARANCE_BETWEEN_PROBES,Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
+      //use_probe_bump ? _MAX(TERN0(Z_CLEARANCE_BETWEEN_PROBES,Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
+      #if HOMING_Z_WITH_PROBE || USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP
+      use_probe_bump ? _MAX( ((z_homing_use_probe)?Z_CLEARANCE_BETWEEN_PROBES:0) , home_bump_mm(axis)) : home_bump_mm(axis)
+      #else
+      home_bump_mm(axis)
+      #endif
     );
 
     //
@@ -2572,8 +2578,8 @@ void prepare_line_to_destination() {
 
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      //do_homing_move(axis, -bump, ( (axis == Z_AXIS && z_homing_use_probe)? z_probe_fast_mm_s : 0 ) , false);
-      do_homing_move(axis, -bump, TERN0(MAY_PROBE, ((axis == Z_AXIS && z_homing_use_probe) ? z_probe_fast_mm_s : 0)), false);
+      do_homing_move(axis, -bump, ( (axis == Z_AXIS && z_homing_use_probe)? z_probe_fast_mm_s : 0 ) , false);
+      //do_homing_move(axis, -bump, TERN0(MAY_PROBE, ((axis == Z_AXIS && z_homing_use_probe) ? z_probe_fast_mm_s : 0)), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
 
@@ -2792,14 +2798,16 @@ void prepare_line_to_destination() {
     #endif
 
     // Put away the Z probe. Return early if it fails.
+    #if HOMING_Z_WITH_PROBE || USE_PROBE_FOR_Z_HOMING_AFTER_Z_ENDSTOP
     if(axis == Z_AXIS && z_homing_use_probe && probe.stow()) return;
+    #endif
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
-        //line_to_current_position( (axis == Z_AXIS && z_homing_use_probe)? z_probe_fast_mm_s : homing_feedrate(axis) );
-        line_to_current_position(TERN_(MAY_PROBE, (axis == Z_AXIS && z_homing_use_probe) ? z_probe_fast_mm_s :) homing_feedrate(axis));
+        line_to_current_position( (axis == Z_AXIS && z_homing_use_probe)? z_probe_fast_mm_s : homing_feedrate(axis) );
+        //line_to_current_position(TERN_(MAY_PROBE, (axis == Z_AXIS && z_homing_use_probe) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
