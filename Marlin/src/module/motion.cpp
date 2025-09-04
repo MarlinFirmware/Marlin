@@ -97,7 +97,7 @@ bool z_homing_use_probe = TERN0(HOMING_Z_WITH_PROBE, 1); //initial state
 #define MAY_PROBE 1 //HOMING_Z_WITH_PROBE or Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP is enabled
 #else
 #define z_homing_use_probe 0
-//#define z_probe_fast_mm_s  0  //since this is not defined, define it to 0
+//#define z_probe_fast_mm_s  0  //variable only exist if a probe exist
 #endif
 
 /**
@@ -2807,7 +2807,7 @@ void prepare_line_to_destination() {
       if (endstop_backoff[axis]) {
         current_position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
         //line_to_current_position( (axis == Z_AXIS && z_homing_use_probe)? z_probe_fast_mm_s : homing_feedrate(axis) );
-        line_to_current_position( TERN(MAY_PROBE,(axis == Z_AXIS && z_homing_use_probe)?z_probe_fast_mm_s:homing_feedrate(axis)), homing_feedrate(axis) );
+        line_to_current_position( TERN(MAY_PROBE, (axis == Z_AXIS && z_homing_use_probe)?z_probe_fast_mm_s:homing_feedrate(axis) , homing_feedrate(axis) ) );
 
         #if ENABLED(SENSORLESS_HOMING)
           planner.synchronize();
