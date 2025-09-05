@@ -458,6 +458,9 @@ void set_axis_is_at_home(const AxisEnum axis);
    *   Cleared whenever a stepper powers off, potentially losing its position.
    */
   extern main_axes_bits_t axes_homed, axes_trusted;
+#ifdef Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
+  void homeZwithProbe();
+#endif
   void homeaxis(const AxisEnum axis);
   void set_axis_never_homed(const AxisEnum axis);
   main_axes_bits_t axes_should_home(main_axes_bits_t axes_mask=main_axes_mask);
