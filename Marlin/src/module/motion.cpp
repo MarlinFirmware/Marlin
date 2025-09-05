@@ -2414,7 +2414,8 @@ void prepare_line_to_destination() {
    * function. Performs homing with probe after Z endstop
    * homing.
    */
-  
+
+#ifdef Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP  
 void homeZwithProbe(){
 
 	if(DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe Homing Begin");
@@ -2579,6 +2580,7 @@ void homeZwithProbe(){
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Probe Homing Done");
 
   } // homeZwithProbe()
+#endif
 
   /**
    * Home an individual "raw axis" to its endstop.
