@@ -148,7 +148,7 @@
     constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
     destination.set(safe_homing_xy, current_position.z);
 
-    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
+    TERN_(Z_CAN_HOME_WITH_PROBE, destination -= probe.offset_xy);
 
     if (position_is_reachable(destination)) {
 
@@ -386,7 +386,7 @@ void GcodeSuite::G28() {
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("R0 = No Z raise");
         }
         else {
-          bool with_probe = ENABLED(HOMING_Z_WITH_PROBE);
+          bool with_probe = ENABLED(Z_CAN_HOME_WITH_PROBE);
           // Raise above the current Z (which should be synced in the planner)
           // The "height" for Z is a coordinate. But if Z is not trusted/homed make it relative.
           if (seenR || !(z_min_trusted || axis_should_home(Z_AXIS))) {
