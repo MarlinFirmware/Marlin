@@ -38,7 +38,7 @@ mpatt = [ r'-?\d{1,3}', r'P[A-I]\d+', r'P\d_\d+', r'Pin[A-Z]\d\b' ]
 mstr = '|'.join(mpatt)
 mexpr = [ re.compile(f'^{m}$') for m in mpatt ]
 
-# Corrsponding padding for each pattern
+# Corresponding padding for each pattern
 ppad = [ 3, 4, 5, 5 ]
 
 # Match a define line
