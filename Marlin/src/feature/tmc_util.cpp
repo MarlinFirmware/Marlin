@@ -1013,7 +1013,7 @@
       TMC_REPORT("Supply (v)",       TMC_VSUPPLY);
       TMC_REPORT("Temp (°C)",        TMC_TEMP);
       TMC_REPORT("OT pre warn (°C)", TMC_OVERTEMP);
-      TMC_REPORT("OV theshold (v)",  TMC_OVERVOLT_THD);
+      TMC_REPORT("OV threshold (v)", TMC_OVERVOLT_THD);
     #endif
     SERIAL_EOL();
   }

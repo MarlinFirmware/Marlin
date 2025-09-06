@@ -93,7 +93,7 @@
    */
   //#define E0_HARDWARE_SERIAL MSerial4
 
-  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
+  // This is the stable default value after testing, but, higher UART rates could be configured, remember to test the Steppers with the M122 command to check if everything works.
   //#define TMC_BAUD_RATE 250000
 
   #define E0_SERIAL_TX_PIN                  PA15
