@@ -1418,8 +1418,8 @@
 /**
  * For machines with Z endstops and BLTOUCH sensors working together.
  * Enable this option to home with BLTOUCH probe after Z endstop homing.
- * This allows "Z Probe Offset" changes to take effect immediately without 
- * having to rebuild bed leveling mesh. Usefull for Z_MULTI_ENDSTOPS 
+ * This allows "Z Probe Offset" changes to take effect immediately without
+ * having to rebuild bed leveling mesh. Usefull for Z_MULTI_ENDSTOPS
  * machines where enstops are needed to sync the Z motors.
  * Requires a physical Probe (using nozzle as probe not supported)
  * Requires Z_CLEARANCE_DEPLOY_PROBE value if Z_SAFE_HOMING is not enabled.
@@ -2040,7 +2040,7 @@
   // Commands to execute on filament runout.
   // With multiple runout sensors use the %c placeholder for the current tool in commands (e.g., "M600 T%c")
   // NOTE: After 'M412 H1' the host handles filament runout and this script does not apply.
-  #define FILAMENT_RUNOUT_SCRIPT " " //example "M600" which requires ADVANCED_PAUSE_FEATURE feature
+  #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
