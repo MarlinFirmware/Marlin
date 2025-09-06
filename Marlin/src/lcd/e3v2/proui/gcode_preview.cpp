@@ -115,9 +115,8 @@ bool Preview::hasPreview() {
   uint8_t nbyte = 1;
   while (!fileprop.thumbstart && nbyte > 0 && indx < 4 * sizeof(buf)) {
     nbyte = card.read(buf, sizeof(buf) - 1);
-    if (nbyte < 0) break;
-    buf[nbyte] = '\0';
-    if (nbyte > 0) {
+    if (nbyte >= 0) {
+      buf[nbyte] = '\0';
       getValue(buf, PSTR(";TIME:"), fileprop.time);
       getValue(buf, PSTR(";Filament used:"), fileprop.filament);
       getValue(buf, PSTR(";Layer height:"), fileprop.layer);
@@ -143,6 +142,8 @@ bool Preview::hasPreview() {
         card.setIndex(indx);
       }
     }
+    else
+      break;
   }
 
   if (!fileprop.thumbstart) {

@@ -341,7 +341,7 @@ int8_t SdBaseFile::lsPrintNext(const uint8_t flags, const uint8_t indent) {
   uint8_t w = 0;
 
   while (1) {
-    int16_t r = read(&dir, sizeof(dir));
+    const int16_t r = read(&dir, sizeof(dir));
     if (r < 0) return -1;
     if (r != sizeof(dir)) return 0;
     if (dir.name[0] == DIR_NAME_FREE) return 0;
@@ -1349,7 +1349,7 @@ bool SdBaseFile::printName() {
  */
 int16_t SdBaseFile::read() {
   uint8_t b = 0;
-  int16_t r = read(&b, 1);
+  const int16_t r = read(&b, 1);
   if (r != 1) return -1;
   return static_cast<int16_t>(b);
 }
