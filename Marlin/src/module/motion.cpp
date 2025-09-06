@@ -2228,11 +2228,11 @@ void prepare_line_to_destination() {
       #endif
     }
 
-    #if ENABLED(FT_MOTION)
-      if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
+    #if ALL(FT_MOTION, HOMING_Z_WITH_PROBE)
+      REMEMBER(ezhpa, endstops.z_homing_probing_active, axis == Z_AXIS);
+      if (axis == Z_AXIS && ftMotion.cfg.active) {
         planner.synchronize();
         endstops.hit_on_purpose(); // Reset the Z Endstop state
-        endstops.z_homing_probing_active = true; // Set the Z Endstop homing state to active
       }
     #endif
 
@@ -2264,12 +2264,6 @@ void prepare_line_to_destination() {
 
       #if HOMING_Z_WITH_PROBE && HAS_QUIET_PROBING
         if (axis == Z_AXIS && final_approach) probe.set_probing_paused(false);
-      #endif
-
-      #if ENABLED(FT_MOTION)
-        if (axis == Z_AXIS && TERN0(HOMING_Z_WITH_PROBE, true) && ftMotion.cfg.active) {
-          endstops.z_homing_probing_active = false; // Set the Z Endstop homing state to inactive
-        }
       #endif
 
       endstops.validate_homing_move();
