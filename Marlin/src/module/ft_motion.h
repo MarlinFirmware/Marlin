@@ -39,6 +39,9 @@
 
 typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+  bool probing = false;                                   // Do extra work during Z probing
+
+  bool should_process_zprobe() { return probing || !active; }
 
   #if HAS_FTM_SHAPING
     ft_shaped_shaper_t shaper =                           // Shaper type

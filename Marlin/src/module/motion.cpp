@@ -77,7 +77,7 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
-#if ENABLED(FT_MOTION)
+#if ALL(FT_MOTION, HOMING_Z_WITH_PROBE)
   #include "ft_motion.h"
 #endif
 
@@ -2229,8 +2229,8 @@ void prepare_line_to_destination() {
     }
 
     #if ALL(FT_MOTION, HOMING_Z_WITH_PROBE)
-      REMEMBER(ezhpa, endstops.z_homing_probing_active, axis == Z_AXIS);
-      if (axis == Z_AXIS && ftMotion.cfg.active) {
+      REMEMBER(ftmcp, ftMotion.cfg.probing, axis == Z_AXIS);
+      if (ftMotion.cfg.active && axis == Z_AXIS) {
         planner.synchronize();
         endstops.hit_on_purpose(); // Reset the Z Endstop state
       }

@@ -264,10 +264,6 @@ class Endstops {
       static void enable_z_probe(const bool onoff=true);
     #endif
 
-    #if ENABLED(FT_MOTION)
-      static bool z_homing_probing_active; // Flag for Z Homing with a probe and FT_MOTION
-    #endif
-
     // Enable / disable calibration probe checking
     #if ENABLED(CALIBRATION_GCODE)
       static volatile bool calibration_probe_enabled;

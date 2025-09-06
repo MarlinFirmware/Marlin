@@ -782,7 +782,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const_float_t z_min_p
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   #if ENABLED(FT_MOTION)
-    REMEMBER(ezhpa, endstops.z_homing_probing_active, true);
+    REMEMBER(ftmcp, ftMotion.cfg.probing, true);
     if (ftMotion.cfg.active) {
       planner.synchronize();
       endstops.hit_on_purpose(); // Reset the Z Endstop state
