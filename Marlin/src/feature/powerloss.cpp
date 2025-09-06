@@ -62,7 +62,7 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #include "../module/printcounter.h"
 #include "../module/temperature.h"
 
-#if HOMING_Z_WITH_PROBE
+#if Z_CAN_HOME_WITH_PROBE
   #include "../module/probe.h"
 #endif
 
@@ -470,7 +470,7 @@ void PrintJobRecovery::resume() {
 
   #if HOMING_Z_DOWN
     // Move to a safe XY position and home Z while avoiding the print.
-    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(HOMING_Z_WITH_PROBE, - probe.offset_xy);
+    const xy_pos_t p = xy_pos_t(POWER_LOSS_ZHOME_POS) TERN_(Z_CAN_HOME_WITH_PROBE, - probe.offset_xy);
     PROCESS_SUBCOMMANDS_NOW(TS(F("G1F1000X"), p_float_t(p.x, 3), 'Y', p_float_t(p.y, 3), F("\nG28HZ")));
   #endif
 
