@@ -115,7 +115,7 @@ namespace protocol {
 
   // A response message - responses are being sent from the MMU into the printer as a response to a request message.
   struct ResponseMsg {
-    RequestMsg request; //!< response is always preceeded by the request message
+    RequestMsg request; //!< response is always preceded by the request message
     ResponseMsgParamCodes paramCode; //!< code of the parameter
     uint16_t paramValue; //!< value of the parameter
 
@@ -157,7 +157,7 @@ namespace protocol {
 
   // Protocol class is responsible for creating/decoding messages in Rx/Tx buffer
   //
-  // Beware - in the decoding more, it is meant to be a statefull instance which works through public methods
+  // Beware - in the decoding more, it is meant to be a stateful instance which works through public methods
   // processing one input byte per call.
   class Protocol {
   public:
@@ -186,11 +186,11 @@ namespace protocol {
     static uint8_t EncodeWriteRequest(uint8_t address, uint16_t value, uint8_t *txbuff);
 
     // @return the maximum byte length necessary to encode a request message
-    // Beneficial in case of pre-allocating a buffer for enconding a RequestMsg.
+    // Beneficial in case of pre-allocating a buffer for encoding a RequestMsg.
     static constexpr uint8_t MaxRequestSize() { return 13; }
 
     // @return the maximum byte length necessary to encode a response message
-    // Beneficial in case of pre-allocating a buffer for enconding a ResponseMsg.
+    // Beneficial in case of pre-allocating a buffer for encoding a ResponseMsg.
     static constexpr uint8_t MaxResponseSize() { return 14; }
 
     // Encode generic response Command Accepted or Rejected
