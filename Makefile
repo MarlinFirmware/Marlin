@@ -87,7 +87,26 @@ unit-test-all-local-docker:
 	@if ! $(CONTAINER_RT_BIN) images -q $(CONTAINER_IMAGE) > /dev/null ; then $(MAKE) setup-local-docker ; fi
 	$(CONTAINER_RT_BIN) run $(CONTAINER_RT_OPTS)  $(CONTAINER_IMAGE) make unit-test-all-local
 
+USERNAME := $(shell whoami)
+USER_ID  := $(shell id -u)
+GROUP_ID := $(shell id -g)
+
+.PHONY: setup-local-docker setup-local-docker-old
+
 setup-local-docker:
+	@echo "Building marlin-dev Docker image..."
+	$(CONTAINER_RT_BIN) build -t $(CONTAINER_IMAGE) \
+	  --build-arg USERNAME=$(USERNAME) \
+	  --build-arg USER_ID=$(USER_ID) \
+	  --build-arg GROUP_ID=$(GROUP_ID) \
+	  -f docker/Dockerfile .
+	@echo
+	@echo "To run all tests in Docker:"
+	@echo "  make tests-all-local-docker"
+	@echo "To run a single test in Docker:"
+	@echo "  make tests-single-local-docker TEST_TARGET=mega2560"
+
+setup-local-docker-old:
 	$(CONTAINER_RT_BIN) buildx build -t $(CONTAINER_IMAGE) -f docker/Dockerfile .
 
 PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
