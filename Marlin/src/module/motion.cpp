@@ -2441,7 +2441,7 @@ void prepare_line_to_destination() {
     while(0);
     #endif
 
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")  z_homing_use_probe=", z_homing_use_probe);
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
     const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? TOOL_X_HOME_DIR(active_extruder) : home_dir(axis);
