@@ -115,12 +115,12 @@
     void powerOn();
 
     // Read from a MMU register (See gcode M707)
-    // @param address Address of register in hexidecimal
+    // @param address Address of register in hexadecimal
     // @return true upon success
     bool readRegister(uint8_t address);
 
     // Write from a MMU register (See gcode M708)
-    // @param address Address of register in hexidecimal
+    // @param address Address of register in hexadecimal
     // @param data Data to write to register
     // @return true upon success
     bool writeRegister(uint8_t address, uint16_t data);
@@ -204,7 +204,7 @@
     ErrorCode getLastErrorCode() const { return lastErrorCode; }
 
     // @return the version of the connected MMU FW.
-    // In the future we'll return the trully detected FW version
+    // In the future we'll return the truly detected FW version
     Version getMMUFWVersion() const {
       if (state() == xState::Active) {
         return { logic.mmuFwVersionMajor(), logic.mmuFwVersionMinor(), logic.mmuFwVersionRevision() };
