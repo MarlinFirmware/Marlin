@@ -125,7 +125,6 @@
 
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2  // X+
-    #define Y_MAX_PIN                          2  // X+ used for BLTOUCH, added, was missing
   #endif
 
   #define CONTROLLER_FAN_PIN            FAN1_PIN
