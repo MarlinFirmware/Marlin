@@ -2865,8 +2865,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
   }
 #endif
 
-
 #if ENABLED(REALTIME_RAMPING)
+
   static bool smooth_motion_flag = false;
   static millis_t smooth_motion_start = 0;
   static bool smooth_stopped_flag = false;

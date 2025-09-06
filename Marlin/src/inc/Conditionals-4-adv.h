@@ -1107,15 +1107,6 @@
   #endif
 #endif
 
-#if ENABLED(SPINDLE_FEATURE)
-  #ifndef MIN_SPINDLE_OVERRIDE
-    #define MIN_SPINDLE_OVERRIDE 10
-  #endif
-  #ifndef MAX_SPINDLE_OVERRIDE
-    #define MAX_SPINDLE_OVERRIDE 255
-  #endif
-#endif
-
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1

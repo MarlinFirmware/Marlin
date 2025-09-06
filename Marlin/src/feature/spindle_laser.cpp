@@ -108,13 +108,9 @@ void SpindleLaser::init() {
   void SpindleLaser::_set_ocr(const uint8_t unscaledOcr) {
 
     // Apply spindle override
-    const uint16_t scaled = MUL_TERN1(static_cast<uint16_t>(unscaledOcr), spindle_override);
-    #if ENABLED(SPINDLE_FEATURE)
-      const uint8_t ocr = scaled > 25500 ? 255 : scaled / 100;
-    #else
-      const uint8_t ocr = scaled > 255 ? 255 : scaled;
-    #endif
-    
+    const uint16_t scaled = MUL_TERN(static_cast<uint16_t>(unscaledOcr), spindle_override);
+    const uint8_t ocr = TERN(SPINDLE_FEATURE, scaled > 25500 ? 255 : scaled / 100, scaled > 255 ? 255 : scaled);
+
     #if ENABLED(HAL_CAN_SET_PWM_FREQ) && SPINDLE_LASER_FREQUENCY
       hal.set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), frequency);
     #endif
