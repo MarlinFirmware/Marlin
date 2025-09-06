@@ -53,15 +53,15 @@ AxisBits FTMotion::axis_move_dir;
 xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
 xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for fixed time trajectory window.
 
-bool FTMotion::blockProcRdy = false;            // Set when new block data is loaded from stepper module into FTM, ...
-                                                // ... and reset when block is completely converted to FTM trajectory.
-bool FTMotion::batchRdy = false;                // Indicates a batch of the fixed time trajectory...
-                                                // ... has been generated, is now available in the upper -
+bool FTMotion::isBlockInProgress = false;       // Set when new block data is loaded from stepper module into FTM,
+                                                // and reset when block is completely converted to FTM trajectory.
+bool FTMotion::isTrajBufferFull = false;        // Indicates a batch of the fixed time trajectory
+                                                // has been generated, is now available in the upper -
                                                 // batch of traj.x[], y, z ... e vectors, and is ready to be
                                                 // post processed, if applicable, then interpolated. Reset when the
                                                 // data has been shifted out.
-bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed...
-                                                // ... if applicable, and is ready to be converted to step commands.
+bool FTMotion::isTrajBufferPostProcessed = false;   // Indicates the batch is done being post processed
+                                                    // and is ready to be converted to step commands.
 
 // Trapezoid data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
@@ -81,11 +81,14 @@ uint32_t FTMotion::N1,                          // Number of data points in the 
 uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
 
 // Make vector variables.
-uint32_t FTMotion::makeVector_idx = 0,          // Index of fixed time trajectory generation of the overall block.
-         FTMotion::makeVector_batchIdx = 0;     // Index of fixed time trajectory generation within the batch.
+uint32_t FTMotion::traj_consumeIdx = 0,         // Index of fixed time trajectory generation of the overall block.
+         FTMotion::traj_produceIdx = 0;         // Index of fixed time trajectory generation within the batch.
 
 // Interpolation variables.
 xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
+xyze_long_t FTMotion::step_error_q10 = { 0 };   // fractional remainder in q10.21 format
+xyze_float_t FTMotion::last_consumed_traj_point = { 0 };  // The last point before current (i.e traj[traj_consumeIdx - 1])
+
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
@@ -141,7 +144,7 @@ void FTMotion::loop() {
     stepper.abort_current_block = false;  // Abort finished.
   }
 
-  while (!blockProcRdy && (stepper.current_block = planner.get_current_block())) {
+  while (!isBlockInProgress && (stepper.current_block = planner.get_current_block())) {
     if (stepper.current_block->is_sync()) {     // Sync block?
       if (stepper.current_block->is_sync_pos()) // Position sync? Set the position.
         stepper._set_position(stepper.current_block->position);
@@ -156,6 +159,7 @@ void FTMotion::loop() {
     // triggered endstop, which shortly marks the block for discard.
     endstops.update();
 
+    isBlockInProgress = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
       stepper.last_direction_bits.hx = stepper.current_block->direction_bits.hx;
@@ -168,22 +172,19 @@ void FTMotion::loop() {
     #endif
   }
 
-  if (blockProcRdy) {
-
-    if (!batchRdy) makeVector(); // may clear blockProcRdy
-
-    // Check if the block has been completely converted:
-    if (!blockProcRdy) {
+  if (isBlockInProgress) {
+    if (!isTrajBufferFull) generateTrajectoryPointsFromBlock(); 
+    if (!isBlockInProgress) {
       discard_planner_block_protected();
-      if (!batchRdy && !planner.has_blocks_queued()) {
+      if (!isTrajBufferFull && !planner.has_blocks_queued()) {
         runoutBlock();
-        makeVector(); // Additional call to guarantee batchRdy is set this loop.
+        generateTrajectoryPointsFromBlock(); // Additional call to guarantee isTrajBufferFull is set this loop.
       }
     }
   }
 
   // FBS / post processing.
-  if (batchRdy && !batchRdyForInterp) {
+  if (isTrajBufferFull && !isTrajBufferPostProcessed) {
 
     // Call Ulendo FBS here.
 
@@ -200,23 +201,23 @@ void FTMotion::loop() {
     #endif
 
     // ... data is ready in trajMod.
-    batchRdyForInterp = true;
+    isTrajBufferPostProcessed = true;
 
-    batchRdy = false; // Clear so makeVector() can resume generating points.
+    isTrajBufferFull = false; // Clear so generateTrajectoryPointsFromBlock() can resume generating points.
   }
 
   // Interpolation (generation of step commands from fixed time trajectory).
-  while (batchRdyForInterp
+  while (isTrajBufferPostProcessed
     && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))) {
-    convertToSteps(interpIdx);
+    generateStepsFromTrajectory(interpIdx);
     if (++interpIdx == FTM_BATCH_SIZE) {
-      batchRdyForInterp = false;
+      isTrajBufferPostProcessed = false;
       interpIdx = 0;
     }
   }
 
   // Report busy status to planner.
-  busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
+  busy = (stepperCmdBuffHasData || isBlockInProgress || isTrajBufferFull || isTrajBufferPostProcessed);
 
 }
 
@@ -380,14 +381,16 @@ void FTMotion::reset() {
 
   traj.reset();
 
-  blockProcRdy = batchRdy = batchRdyForInterp = false;
+  isBlockInProgress = isTrajBufferFull = isTrajBufferPostProcessed = false;
 
   endPos_prevBlock.reset();
 
-  makeVector_idx = 0;
-  makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
+  traj_consumeIdx = 0;
+  traj_produceIdx = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
 
   steps.reset();
+  step_error_q10.reset();
+  last_consumed_traj_point.reset();
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
@@ -429,7 +432,7 @@ void FTMotion::runoutBlock() {
   startPos = endPos_prevBlock;
   ratio.reset();
 
-  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - makeVector_batchIdx;
+  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - traj_produceIdx;
 
   // This line or function is to be modified for FBS use; do not optimize out.
   const int32_t n_to_settle_shaper = num_samples_shaper_settle();
@@ -439,7 +442,7 @@ void FTMotion::runoutBlock() {
 
   max_intervals =  PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
 
-  blockProcRdy = true;
+  isBlockInProgress = true;
 }
 
 // Auxiliary function to get number of step commands in the buffer.
@@ -463,16 +466,14 @@ void FTMotion::loadBlockData(block_t * const current_block) {
               oneOverLength = 1.0f / totalLength;
 
   startPos = endPos_prevBlock;
-
   const xyze_pos_t& moveDist = current_block->dist_mm;
-
   ratio = moveDist * oneOverLength;
 
-  const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
+  const float steps_per_mm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
 
-  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
+  f_s = steps_per_mm * current_block->initial_rate;              // (steps/s) Start feedrate
 
-  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
+  const float f_e = steps_per_mm * current_block->final_rate;    // (steps/s) End feedrate
 
   /* Keep for comprehension
   const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
@@ -563,20 +564,20 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 }
 
 // Generate data points of the trajectory.
-void FTMotion::makeVector() {
+void FTMotion::generateTrajectoryPointsFromBlock() {
   do {
-    float tau = (makeVector_idx + 1) * (FTM_TS);          // (s) Time since start of block
+    float tau = (traj_consumeIdx + 1) * (FTM_TS);          // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
     #if HAS_EXTRUDERS
       float accel_k = 0.0f;                               // (mm/s^2) Acceleration K factor
     #endif
 
-    if (makeVector_idx < N1) {
+    if (traj_consumeIdx < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
       TERN_(HAS_EXTRUDERS, accel_k = accel_P);            // (mm/s^2) Acceleration K factor from Accel phase
     }
-    else if (makeVector_idx < (N1 + N2)) {
+    else if (traj_consumeIdx < (N1 + N2)) {
       // Coasting phase
       dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
       //TERN_(HAS_EXTRUDERS, accel_k = 0.0f);
@@ -588,17 +589,17 @@ void FTMotion::makeVector() {
       TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
-    #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPos.q + ratio.q * dist;
+    #define _SET_TRAJ(q) traj.q[traj_produceIdx] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
     #if HAS_EXTRUDERS
       if (cfg.linearAdvEna) {
-        float dedt_adj = (traj.e[makeVector_batchIdx] - e_raw_z1) * (FTM_FS);
+        float dedt_adj = (traj.e[traj_produceIdx] - e_raw_z1) * (FTM_FS);
         if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
 
-        e_raw_z1 = traj.e[makeVector_batchIdx];
+        e_raw_z1 = traj.e[traj_produceIdx];
         e_advanced_z1 += dedt_adj * (FTM_TS);
-        traj.e[makeVector_batchIdx] = e_advanced_z1;
+        traj.e[traj_produceIdx] = e_advanced_z1;
       }
     #endif
 
@@ -609,7 +610,7 @@ void FTMotion::makeVector() {
       #if HAS_DYNAMIC_FREQ_MM
         case dynFreqMode_Z_BASED: {
           static float oldz = 0.0f;
-          const float z = traj.z[makeVector_batchIdx];
+          const float z = traj.z[traj_produceIdx];
           if (z != oldz) { // Only update if Z changed.
             oldz = z;
             #if HAS_X_AXIS
@@ -629,10 +630,10 @@ void FTMotion::makeVector() {
           // Update constantly. The optimization done for Z value makes
           // less sense for E, as E is expected to constantly change.
           #if HAS_X_AXIS
-            shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[makeVector_batchIdx], cfg.zeta.x);
+            shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_produceIdx], cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[makeVector_batchIdx], cfg.zeta.y);
+            shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_produceIdx], cfg.zeta.y);
           #endif
           break;
       #endif
@@ -644,22 +645,22 @@ void FTMotion::makeVector() {
     #if HAS_FTM_SHAPING
       #if HAS_X_AXIS
         if (shaping.x.ena) {
-          shaping.x.d_zi[shaping.zi_idx] = traj.x[makeVector_batchIdx];
-          traj.x[makeVector_batchIdx] *= shaping.x.Ai[0];
+          shaping.x.d_zi[shaping.zi_idx] = traj.x[traj_produceIdx];
+          traj.x[traj_produceIdx] *= shaping.x.Ai[0];
           for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
             const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-            traj.x[makeVector_batchIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+            traj.x[traj_produceIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
           }
         }
       #endif
 
       #if HAS_Y_AXIS
         if (shaping.y.ena) {
-          shaping.y.d_zi[shaping.zi_idx] = traj.y[makeVector_batchIdx];
-          traj.y[makeVector_batchIdx] *= shaping.y.Ai[0];
+          shaping.y.d_zi[shaping.zi_idx] = traj.y[traj_produceIdx];
+          traj.y[traj_produceIdx] *= shaping.y.Ai[0];
           for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
             const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-            traj.y[makeVector_batchIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+            traj.y[traj_produceIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
           }
         }
       #endif
@@ -667,86 +668,59 @@ void FTMotion::makeVector() {
     #endif // HAS_FTM_SHAPING
 
     // Filled up the queue with regular and shaped steps
-    if (++makeVector_batchIdx == FTM_WINDOW_SIZE) {
-      makeVector_batchIdx = BATCH_SIDX_IN_WINDOW;
-      batchRdy = true;
+    if (++traj_produceIdx == FTM_WINDOW_SIZE) {
+      traj_produceIdx = BATCH_SIDX_IN_WINDOW;
+      isTrajBufferFull = true;
     }
 
-    if (++makeVector_idx == max_intervals) {
-      blockProcRdy = false;
-      makeVector_idx = 0;
+    if (++traj_consumeIdx == max_intervals) {
+      isBlockInProgress = false;
+      traj_consumeIdx = 0;
     }
-  } while (blockProcRdy && !batchRdy);
+  } while (isBlockInProgress && !isTrajBufferFull);
 }
 
-/**
- * Convert to steps
- * - Commands are written in a bitmask with step and dir as single bits.
- * - Tests for delta are moved outside the loop.
- * - Two functions are used for command computation with an array of function pointers.
- */
-static void (*command_set[LOGICAL_AXES])(int32_t&, int32_t&, ft_command_t&, int32_t, int32_t);
+// Interpolates a single trajectory data point into stepper commands.
+void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
+  #define TOSTEPS_q10(A, B)                                                    \
+    int32_t((trajMod.A[idx] - last_consumed_traj_point.A) *                       \
+            planner.settings.axis_steps_per_mm[B] * (1 << 10))
+  xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
+    TOSTEPS_q10(e, block_extruder_axis),
+    TOSTEPS_q10(x, X_AXIS), TOSTEPS_q10(y, Y_AXIS), TOSTEPS_q10(z, Z_AXIS),
+    TOSTEPS_q10(i, I_AXIS), TOSTEPS_q10(j, J_AXIS), TOSTEPS_q10(k, K_AXIS),
+    TOSTEPS_q10(u, U_AXIS), TOSTEPS_q10(v, V_AXIS), TOSTEPS_q10(w, W_AXIS)
+  );
+  #define SET_LAST(A) last_consumed_traj_point.A = trajMod.A[idx];
+  LOGICAL_AXIS_MAP(SET_LAST)
 
-static void command_set_pos(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
-  if (e < FTM_CTS_COMPARE_VAL) return;
-  s++;
-  b |= bd | bs;
-  e -= FTM_STEPS_PER_UNIT_TIME;
-}
+  const int32_t denom_q10 = (FTM_STEPS_PER_UNIT_TIME) << 10;
 
-static void command_set_neg(int32_t &e, int32_t &s, ft_command_t &b, int32_t bd, int32_t bs) {
-  if (e > -(FTM_CTS_COMPARE_VAL)) return;
-  s--;
-  b |= bs;
-  e += FTM_STEPS_PER_UNIT_TIME;
-}
-
-// Interpolates single data point to stepper commands.
-void FTMotion::convertToSteps(const uint32_t idx) {
-  xyze_long_t err_P = { 0 };
-
-  //#define STEPS_ROUNDING
-  #if ENABLED(STEPS_ROUNDING)
-    #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] + (trajMod.A[idx] < 0.0f ? -0.5f : 0.5f))
-    const xyze_long_t steps_tar = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, block_extruder_axis), // May be eliminated if guaranteed positive.
-      TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-      TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-      TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-    );
-    xyze_long_t delta = steps_tar - steps;
-  #else
-    #define TOSTEPS(A,B) int32_t(trajMod.A[idx] * planner.settings.axis_steps_per_mm[B]) - steps.A
-    xyze_long_t delta = LOGICAL_AXIS_ARRAY(
-      TOSTEPS(e, block_extruder_axis),
-      TOSTEPS(x, X_AXIS), TOSTEPS(y, Y_AXIS), TOSTEPS(z, Z_AXIS),
-      TOSTEPS(i, I_AXIS), TOSTEPS(j, J_AXIS), TOSTEPS(k, K_AXIS),
-      TOSTEPS(u, U_AXIS), TOSTEPS(v, V_AXIS), TOSTEPS(w, W_AXIS)
-    );
-  #endif
-
-  #define _COMMAND_SET(AXIS) command_set[_AXIS(AXIS)] = delta[_AXIS(AXIS)] >= 0 ? command_set_pos : command_set_neg;
-  LOGICAL_AXIS_MAP(_COMMAND_SET);
-
-  for (uint32_t i = 0U; i < (FTM_STEPS_PER_UNIT_TIME); i++) {
-
-    ft_command_t &cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
-
-    // Init all step/dir bits to 0 (defaulting to reverse/negative motion)
+  for (uint32_t i = 0; i < (uint32_t)FTM_STEPS_PER_UNIT_TIME; i++) {
+    ft_command_t& cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
     cmd = 0;
+    step_error_q10 += delta_q10;
 
-    // Accumulate the errors for all axes
-    err_P += delta;
+  #define RUN_AXIS(A)                                                          \
+    do {                                                                       \
+      if (step_error_q10.A >= denom_q10) {                                     \
+        steps.A++;                                                             \
+        cmd |= _BV(FT_BIT_DIR_##A) | _BV(FT_BIT_STEP_##A);                     \
+        step_error_q10.A -= denom_q10;                                         \
+      }                                                                        \
+      if (step_error_q10.A <= -denom_q10) {                                    \
+        steps.A--;                                                             \
+        cmd |= _BV(FT_BIT_STEP_##A); /* neg dir implicit */                    \
+        step_error_q10.A += denom_q10;                                         \
+      }                                                                        \
+    } while (0);
 
-    // Set up step/dir bits for all axes
-    #define _COMMAND_RUN(A) command_set[_AXIS(A)](err_P.A, steps.A, cmd, _BV(FT_BIT_DIR_##A), _BV(FT_BIT_STEP_##A));
-    LOGICAL_AXIS_MAP(_COMMAND_RUN);
+    LOGICAL_AXIS_MAP(RUN_AXIS)
 
-    // Next circular buffer index
-    if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
+    if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE)) {
       stepperCmdBuff_produceIdx = 0;
-
-  } // FTM_STEPS_PER_UNIT_TIME loop
+    }
+  }
 }
 
 #endif // FT_MOTION

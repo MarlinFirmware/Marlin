@@ -141,8 +141,8 @@ class FTMotion {
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
 
-    static bool blockProcRdy;
-    static bool batchRdy, batchRdyForInterp;
+    static bool isBlockInProgress;
+    static bool isTrajBufferFull, isTrajBufferPostProcessed;
 
     // Trapezoid data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
@@ -160,14 +160,16 @@ class FTMotion {
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
-    // Make vector variables.
-    static uint32_t makeVector_idx,
-                    makeVector_batchIdx;
+    // generateTrajectoryPointsFromBlock variables.
+    static uint32_t traj_consumeIdx,
+                    traj_produceIdx;
 
     // Interpolation variables.
     static uint32_t interpIdx;
 
     static xyze_long_t steps;
+    static xyze_long_t step_error_q10; 
+    static xyze_float_t last_consumed_traj_point; 
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
@@ -214,8 +216,8 @@ class FTMotion {
     static void runoutBlock();
     static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
-    static void makeVector();
-    static void convertToSteps(const uint32_t idx);
+    static void generateTrajectoryPointsFromBlock();
+    static void generateStepsFromTrajectory(const uint32_t idx);
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
 
