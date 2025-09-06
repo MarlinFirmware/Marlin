@@ -53,7 +53,7 @@
  *    Q_STEP_INIT()     Q_STEP_WRITE(S)     Q_STEP_READ()
  *
  *  Steppers may not have an enable state or may be enabled by other methods
- *  beyond a single pin (SOFTWARE_DRIVER_ENABLE) so these can be overriden:
+ *  beyond a single pin (SOFTWARE_DRIVER_ENABLE) so these can be overridden:
  *    ENABLE_STEPPER_Q() DISABLE_STEPPER_Q()
  *
  * Axis Stepper Control (X Y Z I J K U V W)

@@ -27,7 +27,7 @@
  * This board definition is to facilitate support for a Filament Extrusion
  * devices, used to convert waste plastic into 3D printable filament.
  * This board is NOT a general 3D printing controller; it is NOT supported
- * as a toolboard via CAN bus (as it was originally designed) or any device
+ * as a toolboard via CANBUS (as it was originally designed) or any device
  * that requires kinematics.
  */
 
@@ -93,7 +93,7 @@
    */
   //#define E0_HARDWARE_SERIAL MSerial4
 
-  // This is the stable default value after testing, but, higher UART rates could be configured, remeber to test the Steppers with the M122 command to check if everything works.
+  // This is the stable default value after testing, but, higher UART rates could be configured, remember to test the Steppers with the M122 command to check if everything works.
   //#define TMC_BAUD_RATE 250000
 
   #define E0_SERIAL_TX_PIN                  PA15
@@ -109,12 +109,6 @@
   #endif
   static_assert(E0_SLAVE_ADDRESS == 0, "E0_SLAVE_ADDRESS must be 0 for BOARD_BTT_EBB42_V1_1.");
 #endif
-
-//
-// CAN bus
-//
-#define CAN_RX_PIN                          PB0
-#define CAN_TX_PIN                          PB1
 
 //
 // Temperature Sensors
@@ -147,6 +141,7 @@
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
   #define BTN_EN1                           PB7
   #define BTN_EN2                           PB5

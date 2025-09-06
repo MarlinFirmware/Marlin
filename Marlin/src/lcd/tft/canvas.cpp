@@ -162,7 +162,7 @@ void Canvas::addImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors)
           rle_state.dsty = dsty;
           rle_state.srcx = srcx;
           rle_state.srcy = srcy;
-          rle_state.rle_offset = bytedata - (uint8_t *)images[image].data;; // Keep these for skipping full RLE decode on future iteratons
+          rle_state.rle_offset = bytedata - (uint8_t *)images[image].data;; // Keep these for skipping full RLE decode on future iterations
         }
 
         uint8_t count = *bytedata++;                // Get the count byte

@@ -58,7 +58,6 @@
 #else
   #define PROBE_READ() READ(Z_MIN_PIN)
 #endif
-
 #if USE_Z_MIN_PROBE
   #define PROBE_HIT_STATE Z_MIN_PROBE_ENDSTOP_HIT_STATE
 #else

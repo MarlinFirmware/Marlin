@@ -43,7 +43,6 @@
 //#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
 #define I2C_EEPROM                                // Need use jumpers set i2c for EEPROM
 #define MARLIN_EEPROM_SIZE               0x1000U  // 4K
-
 #define I2C_SCL_PIN                         PB8   // I2C_SCL and CAN_RX
 #define I2C_SDA_PIN                         PB9   // I2C_SDA and CAN_TX
 

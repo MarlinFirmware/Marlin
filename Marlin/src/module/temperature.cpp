@@ -3573,7 +3573,6 @@ void Temperature::disable_all_heaters() {
       setTargetHotend(0, e);
       temp_hotend[e].soft_pwm_amount = 0;
     }
-
   #endif
 
   #if HAS_TEMP_HOTEND
