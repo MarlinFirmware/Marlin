@@ -321,9 +321,7 @@ def extract_files(filekey):
                         continue
 
                     def atomize(s):
-                        """
-                        Parenthesize the given expression if needed.
-                        """
+                        """Parenthesize the given expression if needed."""
                         if s == '' \
                         or re.match(r'^[A-Za-z0-9_]*(\([^)]+\))?$', s) \
                         or re.match(r'^[A-Za-z0-9_]+ == \d+?$', s):
@@ -462,7 +460,7 @@ def extract_files(filekey):
 # Extract the current configuration files in the form of a structured schema.
 #
 def extract():
-    """List of files to process, with shorthand"""
+    """List of files to process, with shorthand."""
     return extract_files({'Configuration.h':'basic', 'Configuration_adv.h':'advanced'})
 
 def dump_json(schema:dict, jpath:Path):
@@ -473,7 +471,7 @@ def dump_yaml(schema:dict, ypath:Path):
     import yaml
 
     def str_literal_representer(dumper, data):
-        """Custom representer for all multi-line strings"""
+        """Custom representer for all multi-line strings."""
         if '\n' in data:  # Check for multi-line strings
             # Add a newline to trigger '|+'
             if not data.endswith('\n'): data += '\n'
