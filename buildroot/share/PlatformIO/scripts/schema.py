@@ -69,7 +69,8 @@ def find_grouping(gdict, filekey, sectkey, optkey, pindex):
 
 def group_options(schema):
     """
-    Build a list of potential groups. Only those with multiple items will be grouped.
+    Build a list of potential groups. 
+    Only those with multiple items will be grouped.
     """
     for pindex in range(10, -1, -1):
         found_groups = {}
@@ -90,9 +91,7 @@ def group_options(schema):
             del found_groups[kkey]
 
 def load_boards():
-    """
-    Extract all board names from boards.h
-    """
+    """Extract all board names from boards.h"""
     bpath = Path("Marlin/src/core/boards.h")
     if bpath.is_file():
         with bpath.open(encoding='utf-8') as bfile:
@@ -132,12 +131,12 @@ def extract_files(filekey):
 
     # Parsing states
     class Parse:
-        NORMAL          = 0  # No condition yet
-        BLOCK_COMMENT   = 1  # Looking for the end of the block comment
-        EOL_COMMENT     = 2  # EOL comment started, maybe add the next comment?
-        SLASH_COMMENT   = 3  # Block-like comment, starting with aligned //
-        GET_SENSORS     = 4  # Gathering temperature sensor options
-        ERROR           = 9  # Syntax error
+        NORMAL        = 0  # No condition yet
+        BLOCK_COMMENT = 1  # Looking for the end of the block comment
+        EOL_COMMENT   = 2  # EOL comment started, maybe add the next comment?
+        SLASH_COMMENT = 3  # Block-like comment, starting with aligned //
+        GET_SENSORS   = 4  # Gathering temperature sensor options
+        ERROR         = 9  # Syntax error
 
     # A JSON object to store the data
     sch_out = {key:{} for key in filekey.values()}
@@ -153,16 +152,16 @@ def extract_files(filekey):
     # Loop through files and parse them line by line
     for fn, fk in filekey.items():
         with Path("Marlin", fn).open(encoding='utf-8') as fileobj:
-            section = 'none'        # Current Settings section
-            line_number = 0         # Counter for the line number of the file
-            conditions = []         # Create a condition stack for the current file
-            comment_buff = []       # A temporary buffer for comments
-            prev_comment = ''       # Copy before reset for an EOL comment
-            options_json = ''       # A buffer for the most recent options JSON found
-            eol_options = False     # The options came from end of line, so only apply once
-            join_line = False       # A flag that the line should be joined with the previous one
-            line = ''               # A line buffer to handle \ continuation
-            last_added_ref = {}     # Reference to the last added item
+            section = 'none'     # Current Settings section
+            line_number = 0      # Counter for the line number of the file
+            conditions = []      # Create a condition stack for the current file
+            comment_buff = []    # A temporary buffer for comments
+            prev_comment = ''    # Copy before reset for an EOL comment
+            options_json = ''    # A buffer for the most recent options JSON found
+            eol_options = False  # The options came from end of line, so only apply once
+            join_line = False    # A flag that the line should be joined with the previous one
+            line = ''            # A line buffer to handle \ continuation
+            last_added_ref = {}  # Reference to the last added item
 
             # Loop through the lines in the file
             for the_line in fileobj.readlines():
@@ -171,9 +170,9 @@ def extract_files(filekey):
                 # Clean the line for easier parsing
                 the_line = the_line.strip()
 
-                if join_line:   # A previous line is being made longer
+                if join_line:  # A previous line is being made longer
                     line += (' ' if line else '') + the_line
-                else:           # Otherwise, start the line anew
+                else:          # Otherwise, start the line anew
                     line, line_start = the_line, line_number
 
                 # If the resulting line ends with a \, don't process now.
@@ -225,13 +224,13 @@ def extract_files(filekey):
                             opt, cmt = sc[1 : cbr + 1].strip(), sc[cbr + 1 :].strip()
                             if cmt != '': bufref.append(cmt)
                         else:
-                            opt = sc[1:].strip()        # Some literal value not in a JSON container?
+                            opt = sc[1:].strip()  # Some literal value not in a JSON container?
                     else:
-                        m = re.match(r'@section\s*(.+)', sc) # Start a new section?
+                        m = re.match(r'@section\s*(.+)', sc)  # Start a new section?
                         if m:
                             sec = m[1]
                         elif not sc.startswith('========'):
-                            bufref.append(c)            # Anything else is part of the comment
+                            bufref.append(c)  # Anything else is part of the comment
                     return opt, sec
 
                 # For slash comments, capture consecutive slash comments.
@@ -463,9 +462,7 @@ def extract_files(filekey):
 # Extract the current configuration files in the form of a structured schema.
 #
 def extract():
-    """
-    List of files to process, with shorthand
-    """
+    """List of files to process, with shorthand"""
     return extract_files({'Configuration.h':'basic', 'Configuration_adv.h':'advanced'})
 
 def dump_json(schema:dict, jpath:Path):
@@ -476,9 +473,7 @@ def dump_yaml(schema:dict, ypath:Path):
     import yaml
 
     def str_literal_representer(dumper, data):
-        """
-        Custom representer for all multi-line strings
-        """
+        """Custom representer for all multi-line strings"""
         if '\n' in data:  # Check for multi-line strings
             # Add a newline to trigger '|+'
             if not data.endswith('\n'): data += '\n'
