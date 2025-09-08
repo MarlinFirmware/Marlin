@@ -681,16 +681,17 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 } // generateTrajectoryPointsFromBlock
 
 /**
- * Interpolate a single trajectory data point into stepper commands.
+ * @brief Interpolate a single trajectory data point into stepper commands.
  * @param idx The index of the trajectory point to convert.
- * This function calculates the required stepper movements for each axis
- * based on the difference between the current and previous trajectory points,
- * and fills the stepper command buffer with the appropriate step and direction bits.
+ *
+ * Calculate the required stepper movements for each axis based on the
+ * difference between the current and previous trajectory points.
+ * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
  */
 void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
   #define TOSTEPS_q10(A, B) \
     int32_t((trajMod.A[idx] - prev_traj_point.A) * \
-            planner.settings.axis_steps_per_mm[B] * (1 << 10))
+            planner.settings.axis_steps_per_mm[B] * _BV(10))
   xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
     TOSTEPS_q10(e, block_extruder_axis),
     TOSTEPS_q10(x, X_AXIS), TOSTEPS_q10(y, Y_AXIS), TOSTEPS_q10(z, Z_AXIS),
@@ -700,32 +701,39 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
 
   // Remember this trajectory point for the next call
   #define SET_PREV(A) prev_traj_point.A = trajMod.A[idx];
-  LOGICAL_AXIS_MAP(SET_PREV)
+  LOGICAL_AXIS_MAP(SET_PREV);
 
-  const int32_t denom_q10 = (FTM_STEPS_PER_UNIT_TIME) << 10;
+  // Fixed-point denominator for step accumulation
+  constexpr int32_t denom_q10 = (FTM_STEPS_PER_UNIT_TIME) << 10;
 
+  // 1. Subtract one whole step from the accumulated distance
+  // 2. Accumulate one positive or negative step
+  // 3. Set the step and direction bits for the stepper command
   #define RUN_AXIS(A)                                       \
     do {                                                    \
       if (step_error_q10.A >= denom_q10) {                  \
+        step_error_q10.A -= denom_q10;                      \
         steps.A++;                                          \
         cmd |= _BV(FT_BIT_DIR_##A) | _BV(FT_BIT_STEP_##A);  \
-        step_error_q10.A -= denom_q10;                      \
       }                                                     \
       if (step_error_q10.A <= -denom_q10) {                 \
+        step_error_q10.A += denom_q10;                      \
         steps.A--;                                          \
         cmd |= _BV(FT_BIT_STEP_##A); /* neg dir implicit */ \
-        step_error_q10.A += denom_q10;                      \
       }                                                     \
     } while (0);
 
-  for (uint32_t i = 0; i < (uint32_t)FTM_STEPS_PER_UNIT_TIME; i++) {
+  for (uint32_t i = 0; i < uint32_t(FTM_STEPS_PER_UNIT_TIME); i++) {
+    // Reference the next stepper command in the circular buffer
     ft_command_t& cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
+
+    // Init the command to no STEP (Reverse DIR)
     cmd = 0;
 
-    // Accumulate the errors for all axes
+    // Accumulate the "error" for all axes according the fixed-point distance
     step_error_q10 += delta_q10;
 
-    // Set up step/dir bits for all axes
+    // Where the error has accumulated whole axis steps, add them to the command
     LOGICAL_AXIS_MAP(RUN_AXIS);
 
     // Next circular buffer index
