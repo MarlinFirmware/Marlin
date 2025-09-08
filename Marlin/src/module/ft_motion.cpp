@@ -689,11 +689,11 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
  * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
  */
 void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
-  // Round to nearest (lrintf) to avoid truncation’s sign bias.
-  // Truncating toward zero drops the first small increment after a direction flip,
+  // Round to nearest to avoid truncation’s sign bias.
+  // Merely truncating drops the first small increment after a direction flip,
   // which shows up as a missing step. Rounding prevents that.
   #define TOSTEPS_q10(A, B) \
-    lrintf((trajMod.A[idx] - prev_traj_point.A) * \
+    LROUND((trajMod.A[idx] - prev_traj_point.A) * \
             planner.settings.axis_steps_per_mm[B] * _BV(10))
   xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
     TOSTEPS_q10(e, block_extruder_axis),
