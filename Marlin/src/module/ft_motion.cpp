@@ -86,8 +86,8 @@ uint32_t FTMotion::traj_consumeIdx = 0,         // Index of fixed time trajector
 
 // Interpolation variables.
 xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
-xyze_long_t FTMotion::step_error_q10 = { 0 };   // fractional remainder in q10.21 format
-xyze_float_t FTMotion::last_consumed_traj_point = { 0 };  // The last point before current (i.e., traj[traj_consumeIdx - 1])
+xyze_long_t FTMotion::step_error_q10 = { 0 };   // Fractional remainder in q10.21 format
+xyze_float_t FTMotion::prev_traj_point = { 0 }; // Last-added trajectory point (i.e., traj[traj_consumeIdx - 1])
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
@@ -391,7 +391,7 @@ void FTMotion::reset() {
 
   steps.reset();
   step_error_q10.reset();
-  last_consumed_traj_point.reset();
+  prev_traj_point.reset();
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
@@ -673,7 +673,6 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       traj_produceIdx = BATCH_SIDX_IN_WINDOW;
       batchRdy = true;
     }
-
     if (++traj_consumeIdx == max_intervals) {
       blockProcRdy = false;
       traj_consumeIdx = 0;
@@ -690,7 +689,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
  */
 void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
   #define TOSTEPS_q10(A, B) \
-    int32_t((trajMod.A[idx] - last_consumed_traj_point.A) *  \
+    int32_t((trajMod.A[idx] - prev_traj_point.A) * \
             planner.settings.axis_steps_per_mm[B] * (1 << 10))
   xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
     TOSTEPS_q10(e, block_extruder_axis),
@@ -698,8 +697,10 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
     TOSTEPS_q10(i, I_AXIS), TOSTEPS_q10(j, J_AXIS), TOSTEPS_q10(k, K_AXIS),
     TOSTEPS_q10(u, U_AXIS), TOSTEPS_q10(v, V_AXIS), TOSTEPS_q10(w, W_AXIS)
   );
-  #define SET_LAST(A) last_consumed_traj_point.A = trajMod.A[idx];
-  LOGICAL_AXIS_MAP(SET_LAST)
+
+  // Remember this trajectory point for the next call
+  #define SET_PREV(A) prev_traj_point.A = trajMod.A[idx];
+  LOGICAL_AXIS_MAP(SET_PREV)
 
   const int32_t denom_q10 = (FTM_STEPS_PER_UNIT_TIME) << 10;
 
@@ -720,8 +721,14 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
   for (uint32_t i = 0; i < (uint32_t)FTM_STEPS_PER_UNIT_TIME; i++) {
     ft_command_t& cmd = stepperCmdBuff[stepperCmdBuff_produceIdx];
     cmd = 0;
+
+    // Accumulate the errors for all axes
     step_error_q10 += delta_q10;
+
+    // Set up step/dir bits for all axes
     LOGICAL_AXIS_MAP(RUN_AXIS);
+
+    // Next circular buffer index
     if (++stepperCmdBuff_produceIdx == (FTM_STEPPERCMD_BUFF_SIZE))
       stepperCmdBuff_produceIdx = 0;
   }
