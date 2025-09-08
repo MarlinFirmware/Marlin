@@ -142,7 +142,7 @@ class FTMotion {
     static xyze_trajectoryMod_t trajMod;
 
     static bool blockProcRdy;
-    static bool isTrajBufferFull, isTrajBufferPostProcessed;
+    static bool batchRdy, batchRdyForInterp;
 
     // Trapezoid data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block

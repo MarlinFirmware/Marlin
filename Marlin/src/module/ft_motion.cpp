@@ -53,15 +53,15 @@ AxisBits FTMotion::axis_move_dir;
 xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
 xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for fixed time trajectory window.
 
-bool FTMotion::blockProcRdy = false;            // Set when new block data is loaded from stepper module into FTM,
-                                                // and reset when block is completely converted to FTM trajectory.
-bool FTMotion::isTrajBufferFull = false;        // Indicates a batch of the fixed time trajectory
-                                                // has been generated, is now available in the upper -
+bool FTMotion::blockProcRdy = false;            // Set when new block data is loaded from stepper module into FTM, ...
+                                                // ... and reset when block is completely converted to FTM trajectory.
+bool FTMotion::batchRdy = false;                // Indicates a batch of the fixed time trajectory...
+                                                // ... has been generated, is now available in the upper -
                                                 // batch of traj.x[], y, z ... e vectors, and is ready to be
                                                 // post processed, if applicable, then interpolated. Reset when the
                                                 // data has been shifted out.
-bool FTMotion::isTrajBufferPostProcessed = false;   // Indicates the batch is done being post processed
-                                                    // and is ready to be converted to step commands.
+bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed...
+                                                // ... if applicable, and is ready to be converted to step commands.
 
 // Trapezoid data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
@@ -171,18 +171,21 @@ void FTMotion::loop() {
   }
 
   if (blockProcRdy) {
-    if (!isTrajBufferFull) generateTrajectoryPointsFromBlock(); // may clear blockProcRdy
+
+    if (!batchRdy) generateTrajectoryPointsFromBlock(); // may clear blockProcRdy
+
+    // Check if the block has been completely converted:
     if (!blockProcRdy) {
       discard_planner_block_protected();
-      if (!isTrajBufferFull && !planner.has_blocks_queued()) {
+      if (!batchRdy && !planner.has_blocks_queued()) {
         runoutBlock();
-        generateTrajectoryPointsFromBlock(); // Additional call to guarantee isTrajBufferFull is set this loop.
+        generateTrajectoryPointsFromBlock(); // Additional call to guarantee batchRdy is set this loop.
       }
     }
   }
 
   // FBS / post processing.
-  if (isTrajBufferFull && !isTrajBufferPostProcessed) {
+  if (batchRdy && !batchRdyForInterp) {
 
     // Call Ulendo FBS here.
 
@@ -199,23 +202,23 @@ void FTMotion::loop() {
     #endif
 
     // ... data is ready in trajMod.
-    isTrajBufferPostProcessed = true;
+    batchRdyForInterp = true;
 
-    isTrajBufferFull = false; // Clear so generateTrajectoryPointsFromBlock() can resume generating points.
+    batchRdy = false; // Clear so generateTrajectoryPointsFromBlock() can resume generating points.
   }
 
   // Interpolation (generation of step commands from fixed time trajectory).
-  while (isTrajBufferPostProcessed
+  while (batchRdyForInterp
     && (stepperCmdBuffItems() < (FTM_STEPPERCMD_BUFF_SIZE) - (FTM_STEPS_PER_UNIT_TIME))) {
     generateStepsFromTrajectory(interpIdx);
     if (++interpIdx == FTM_BATCH_SIZE) {
-      isTrajBufferPostProcessed = false;
+      batchRdyForInterp = false;
       interpIdx = 0;
     }
   }
 
   // Report busy status to planner.
-  busy = (stepperCmdBuffHasData || blockProcRdy || isTrajBufferFull || isTrajBufferPostProcessed);
+  busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
 
 }
 
@@ -379,7 +382,7 @@ void FTMotion::reset() {
 
   traj.reset();
 
-  blockProcRdy = isTrajBufferFull = isTrajBufferPostProcessed = false;
+  blockProcRdy = batchRdy = batchRdyForInterp = false;
 
   endPos_prevBlock.reset();
 
@@ -467,11 +470,11 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const xyze_pos_t& moveDist = current_block->dist_mm;
   ratio = moveDist * oneOverLength;
 
-  const float steps_per_mm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
+  const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
 
-  f_s = steps_per_mm * current_block->initial_rate;              // (steps/s) Start feedrate
+  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
 
-  const float f_e = steps_per_mm * current_block->final_rate;    // (steps/s) End feedrate
+  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
 
   /* Keep for comprehension
   const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
@@ -668,14 +671,14 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     // Filled up the queue with regular and shaped steps
     if (++traj_produceIdx == FTM_WINDOW_SIZE) {
       traj_produceIdx = BATCH_SIDX_IN_WINDOW;
-      isTrajBufferFull = true;
+      batchRdy = true;
     }
 
     if (++traj_consumeIdx == max_intervals) {
       blockProcRdy = false;
       traj_consumeIdx = 0;
     }
-  } while (blockProcRdy && !isTrajBufferFull);
+  } while (blockProcRdy && !batchRdy);
 } // generateTrajectoryPointsFromBlock
 
 /**
