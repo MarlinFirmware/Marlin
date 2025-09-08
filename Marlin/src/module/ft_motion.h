@@ -169,7 +169,6 @@ class FTMotion {
 
     static xyze_long_t steps;
     static xyze_long_t step_error_q10;
-    static xyze_float_t prev_traj_point;
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index

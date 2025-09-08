@@ -87,7 +87,6 @@ uint32_t FTMotion::traj_consumeIdx = 0,         // Index of fixed time trajector
 // Interpolation variables.
 xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
 xyze_long_t FTMotion::step_error_q10 = { 0 };   // Fractional remainder in q10.21 format
-xyze_float_t FTMotion::prev_traj_point = { 0 }; // Last-added trajectory point (i.e., traj[traj_consumeIdx - 1])
 
 uint32_t FTMotion::interpIdx = 0;               // Index of current data point being interpolated.
 
@@ -391,7 +390,6 @@ void FTMotion::reset() {
 
   steps.reset();
   step_error_q10.reset();
-  prev_traj_point.reset();
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
@@ -689,22 +687,24 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
  * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
  */
 void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
-  // Round to nearest to avoid truncation’s sign bias.
-  // Merely truncating drops the first small increment after a direction flip,
-  // which shows up as a missing step. Rounding prevents that.
-  #define TOSTEPS_q10(A, B) \
-    LROUND((trajMod.A[idx] - prev_traj_point.A) * \
-            planner.settings.axis_steps_per_mm[B] * _BV(10))
+  constexpr float INV_FTM_STEPS_PER_UNIT_TIME = (1.0 / FTM_STEPS_PER_UNIT_TIME);
+
+  // q10 per-stepper-slot increment toward this sample’s target step count.
+  // (traj*spm - steps) = steps still due by the end of this UNIT_TIME.
+  // Convert to q10 (×2^10), then subtract the current accumulator error: step_error_q10 / FTM_STEPS_PER_UNIT_TIME.
+  // Over FTM_STEPS_PER_UNIT_TIME stepper-slots this sums to the exact target (no drift).
+  // Any fraction of a step that may remain will be accounted for by the next UNIT_TIME
+  #define TOSTEPS_q10(A, B) int32_t( \
+      (trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] - steps.A) * _BV(10) - \
+      step_error_q10.A * INV_FTM_STEPS_PER_UNIT_TIME \
+    )
+
   xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
     TOSTEPS_q10(e, block_extruder_axis),
     TOSTEPS_q10(x, X_AXIS), TOSTEPS_q10(y, Y_AXIS), TOSTEPS_q10(z, Z_AXIS),
     TOSTEPS_q10(i, I_AXIS), TOSTEPS_q10(j, J_AXIS), TOSTEPS_q10(k, K_AXIS),
     TOSTEPS_q10(u, U_AXIS), TOSTEPS_q10(v, V_AXIS), TOSTEPS_q10(w, W_AXIS)
   );
-
-  // Remember this trajectory point for the next call
-  #define SET_PREV(A) prev_traj_point.A = trajMod.A[idx];
-  LOGICAL_AXIS_MAP(SET_PREV);
 
   // Fixed-point denominator for step accumulation
   constexpr int32_t denom_q10 = (FTM_STEPS_PER_UNIT_TIME) << 10;
