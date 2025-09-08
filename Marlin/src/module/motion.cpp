@@ -85,8 +85,10 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
-#if Z_CAN_HOME_WITH_PROBE
-  bool z_homing_use_probe = TERN0(HOMING_Z_WITH_PROBE,1); //set initial state
+#if HOMING_Z_WITH_PROBE
+  #define z_homing_use_probe 1
+#elif Z_CAN_HOME_WITH_PROBE
+  bool z_homing_use_probe = 0; //set initial state
 #endif
 
 /**
@@ -2436,7 +2438,6 @@ void prepare_line_to_destination() {
     #endif
 
     #if ENABLED(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP)
-    bool is_repeating=0; //are we doing a function repeat for probe homing?
     repeat_func:
     while(0);
     #endif
@@ -2456,7 +2457,7 @@ void prepare_line_to_destination() {
 
     // Set flags for X, Y, Z motor locking
     #if HAS_EXTRA_ENDSTOPS
-    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, if(!is_repeating){ ) //only do this if function not in repeat mode
+    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, if(!z_homing_use_probe){ ) //only do this if NOT using probe
       switch (axis) {
         TERN_(X_DUAL_ENDSTOPS, case X_AXIS:)
         TERN_(Y_DUAL_ENDSTOPS, case Y_AXIS:)
@@ -2464,7 +2465,7 @@ void prepare_line_to_destination() {
           stepper.set_separate_multi_axis(true);
         default: break;
       }
-    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, } ) //end... if(!is_repeating){
+    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, } ) //end... if(!z_homing_use_probe){
     #endif
 
     //
@@ -2581,7 +2582,7 @@ void prepare_line_to_destination() {
     #endif
 
     #if HAS_EXTRA_ENDSTOPS
-    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, if(!is_repeating){ ) //only do this if function not in repeat mode
+    TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, if(!z_homing_use_probe){ ) //only do this if Not using probe
       const bool pos_dir = axis_home_dir > 0;
       #if ENABLED(X_DUAL_ENDSTOPS)
         if (axis == X_AXIS) {
@@ -2713,7 +2714,7 @@ void prepare_line_to_destination() {
         TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
           stepper.set_separate_multi_axis(false);
       }
-	TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, } ) //end... if(!is_repeating){
+	TERN_(Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP, } ) //end... if(!z_homing_use_probe){
     #endif // HAS_EXTRA_ENDSTOPS
 
     #ifdef TMC_HOME_PHASE
@@ -2808,11 +2809,9 @@ void prepare_line_to_destination() {
 				do_blocking_move_to_xy(destination);
 			#endif    		   
 			z_homing_use_probe = 1; //do Z probe homing now
-			is_repeating = 1;       //function is in repeat mode
 			goto repeat_func;
 		}else{ //Z probe homing just completed
 			z_homing_use_probe = 0; //reset state variable, next call will home Z endstop
-			is_repeating = 0;       //function no longer in repeating mode
 		}
 	}
     #endif //end Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
