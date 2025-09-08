@@ -141,7 +141,7 @@ class FTMotion {
     static xyze_trajectory_t traj;
     static xyze_trajectoryMod_t trajMod;
 
-    static bool isBlockInProgress;
+    static bool blockProcRdy;
     static bool isTrajBufferFull, isTrajBufferPostProcessed;
 
     // Trapezoid data variables.
