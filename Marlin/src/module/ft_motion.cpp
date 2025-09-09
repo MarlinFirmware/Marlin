@@ -105,6 +105,9 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
     #if HAS_Y_AXIS
       , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
+    #if HAS_Z_AXIS
+      , z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+    #endif
   };
 #endif
 
@@ -369,6 +372,12 @@ void FTMotion::loop() {
         shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y, cfg.zeta.y);
       }
     #endif
+    #if HAS_Z_AXIS
+      if ((shaping.z.ena = AXIS_HAS_SHAPER(Z))) {
+        shaping.z.set_axis_shaping_A(cfg.shaper.z, cfg.zeta.z, cfg.vtol.z);
+        shaping.z.set_axis_shaping_N(cfg.shaper.z, cfg.baseFreq.z, cfg.zeta.z);
+      }
+    #endif
   }
 
 #endif // HAS_FTM_SHAPING
@@ -394,6 +403,7 @@ void FTMotion::reset() {
   #if HAS_FTM_SHAPING
     TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
     TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
+    TERN_(HAS_Z_AXIS, ZERO(shaping.z.d_zi));
     shaping.zi_idx = 0;
   #endif
 
@@ -659,6 +669,16 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
             const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
             traj.y[traj_idx_set] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+          }
+        }
+      #endif
+      #if HAS_Z_AXIS
+        if (shaping.z.ena) {
+          shaping.z.d_zi[shaping.zi_idx] = traj.z[traj_idx_set];
+          traj.z[traj_idx_set] *= shaping.z.Ai[0];
+          for (uint32_t i = 1U; i <= shaping.z.max_i; i++) {
+            const uint32_t udiffz = shaping.zi_idx - shaping.z.Ni[i];
+            traj.z[traj_idx_set] += shaping.z.Ai[i] * shaping.z.d_zi[shaping.z.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffz : udiffz];
           }
         }
       #endif
