@@ -247,7 +247,7 @@ G29_TYPE GcodeSuite::G29() {
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     bool do_init = parser.seenval('P');
     float init_val = 0.0f;
-    if (do_init){
+    if (do_init) {
       init_val = RAW_Z_POSITION(parser.value_linear_units());
       if (!WITHIN(init_val, -10, 10)) {
         SERIAL_ERROR_MSG("Bad initialization value");
@@ -274,8 +274,14 @@ G29_TYPE GcodeSuite::G29() {
   if (parser.seen_test('N'))
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    const bool seen_w = parser.seen_test('W');
+  #else
+    constexpr bool seen_w = false;
+  #endif
+
   // Don't allow auto-leveling without homing first
-  if (!faux || homing_needed_error()) G29_RETURN(false, false);
+  if (!seen_w && !faux && homing_needed_error()) G29_RETURN(false, false);
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -315,7 +321,6 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      const bool seen_w = parser.seen_test('W');
       if (seen_w) {
         if (!leveling_is_valid()) {
           SERIAL_ERROR_MSG("No bilinear grid");
@@ -357,10 +362,6 @@ G29_TYPE GcodeSuite::G29() {
         }
         G29_RETURN(false, false);
       } // parser.seen_test('W')
-
-    #else
-
-      constexpr bool seen_w = false;
 
     #endif
 
@@ -1033,6 +1034,10 @@ G29_TYPE GcodeSuite::G29() {
 
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
+
+  // Return here if we merely initialized for a with value (bilinear G29 P<value>)
+  // No need to do the after G29 gcode or the other stuff
+  if (do_init) G29_RETURN(false, true);
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 
