@@ -242,11 +242,26 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false, false);
   #endif
 
+  // P = populate grid with specified Z value
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    bool do_init = parser.seenval('P');
+    float init_val = 0.0f;
+    if (do_init){
+      init_val = RAW_Z_POSITION(parser.value_linear_units());
+      if (!WITHIN(init_val, -10, 10)) {
+        SERIAL_ERROR_MSG("Bad initialization value");
+        G29_RETURN(false, false);
+      }
+    }
+  #else
+    constexpr bool do_init = false;
+  #endif
+
   // A = Abort manual probing
   // C<bool> = Generate fake probe points (DEBUG_LEVELING_FEATURE)
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen_test('A')),
          no_action = seenA || seenQ,
-              faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
+         faux = (ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action) || do_init;
 
   // O = Don't level if leveling is already active
   if (!no_action && planner.leveling_active && parser.boolval('O')) {
@@ -715,7 +730,11 @@ G29_TYPE GcodeSuite::G29() {
               char tmp_1[32];
 
               // move to the start point of new line
-              abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+              if (faux)
+                abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
+              else
+                abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+              
               // Go to the end of the row/column ... and back up by one
               // TODO: Why not just use... PR_INNER_VAR = inStop - inInc
               for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc);
@@ -768,7 +787,10 @@ G29_TYPE GcodeSuite::G29() {
 
           #else // !BD_SENSOR_PROBE_NO_STOP
 
-            abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+            if (faux)
+              abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
+            else
+              abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
           #endif
 
@@ -817,7 +839,10 @@ G29_TYPE GcodeSuite::G29() {
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
-        abl.measured_z = faux ? 0.001 * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+        if (faux)
+          abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
+        else
+          abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
         if (isnan(abl.measured_z)) {
           set_bed_leveling_enabled(abl.reenable);
           break;
