@@ -180,7 +180,7 @@ class FTMotion {
         bool ena = false;                 // Enabled indication.
         float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
         float Ai[5];                      // Shaping gain vector.
-        uint32_t Ni[5];                   // Shaping time index vector.
+        int32_t Ni[5];                    // Shaping time index vector.
         uint32_t max_i;                   // Vector length for the selected shaper.
 
         void set_axis_shaping_N(const ftMotionShaper_t shaper, const_float_t f, const_float_t zeta);    // Sets the gains used by shaping functions.

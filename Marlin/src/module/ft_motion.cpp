@@ -318,14 +318,16 @@ void FTMotion::loop() {
       }
       break;
 
-      default:
-        ZERO(Ai);
-        max_i = 0;
+      case ftMotionShaper_NONE:
+        max_i = 0U;
+        Ai[0] = 1.0f; // no echoes so all the impulse is appliled in the first tap
+      break;
     }
 
   }
 
   // Refresh the indices used by shaping functions.
+  // Ai[] must be precomputed (if zeta or vtol change, call set_axis_shaping_A first)
   void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const_float_t f, const_float_t zeta) {
     // Note that protections are omitted for DBZ and for index exceeding array length.
     const float df = sqrt ( 1.f - sq(zeta) );
@@ -355,7 +357,23 @@ void FTMotion::loop() {
         Ni[1] = round((0.375f / f / df) * (FTM_FS));
         Ni[2] = Ni[1] + Ni[1];
         break;
-      default: ZERO(Ni);
+      case ftMotionShaper_NONE:
+        // No echoes.
+        // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also corectly be 0
+        break; 
+    }
+
+    // group delay in samples (i.e how much does shaping delays the axis): sum(Ai * Ni[i]);
+    // skipping i=0 since the uncompensated delay of the first impulse is always zero, so Ai[0] * Ni[0] == 0 
+    float centroid = 0.0f;
+    for (uint8_t i = 1; i <= max_i; ++i) centroid += Ai[i] * Ni[i];
+    
+    Ni[0] = -round(centroid);
+
+    for (uint8_t i = 1; i <= max_i; ++i) {
+      // The resulting echo index can be negative, this is ok because it will be offset
+      // by the max delay of all axes before it is used.
+      Ni[i] += Ni[0];
     }
   }
 
@@ -639,17 +657,25 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       default: break;
     }
 
+    uint32_t max_delay = _MAX(
+      TERN(HAS_X_AXIS, - shaping.x.Ni[0], 0),
+      TERN(HAS_Y_AXIS, - shaping.y.Ni[0], 0),
+      TERN(HAS_Z_AXIS, - shaping.z.Ni[0], 0)
+    );
     // Apply shaping if active on each axis
     #if HAS_FTM_SHAPING
       #define SHAPE(AXIS) \
-        if (shaping.AXIS.ena) { \
-          shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
-          traj.AXIS[traj_idx_set] *= shaping.AXIS.Ai[0]; \
-          for (uint32_t i = 1U; i <= shaping.AXIS.max_i; i++) { \
-            const uint32_t udiff = shaping.zi_idx - shaping.AXIS.Ni[i]; \
-            traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[shaping.AXIS.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiff : udiff]; \
-          } \
-        } 
+        shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
+        traj.AXIS[traj_idx_set] = 0; \
+        for (uint32_t i = 0; i <= shaping.AXIS.max_i; i++) { \
+          /* delay is always positive since Ni[i] = echo_index - delay + max_delay */ \
+          /* where echo_index > 0 and delay ≤ max_delay */ \
+          const uint32_t delay = max_delay + shaping.AXIS.Ni[i]; \
+          int32_t udiff = shaping.zi_idx - delay; \
+          if (udiff < 0) udiff += FTM_ZMAX; \
+          traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[udiff]; \
+        }
+
       TERN_(HAS_X_AXIS, SHAPE(x));
       TERN_(HAS_Y_AXIS, SHAPE(y));
       TERN_(HAS_Z_AXIS, SHAPE(z));
