@@ -206,6 +206,7 @@ public:
  *       X<float>  For mesh point, overrides I
  *       Y<float>  For mesh point, overrides J
  *       Z<float>  For mesh point. If omitted, uses current position's raw Z
+ *     P<float>  Populate the mesh with a specified Z value.
  *
  *   With DEBUG_LEVELING_FEATURE:
  *     C<bool>  Make a totally fake grid with no actual probing.
