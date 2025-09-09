@@ -274,7 +274,7 @@ G29_TYPE GcodeSuite::G29() {
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
   // Don't allow auto-leveling without homing first
-  if (homing_needed_error()) G29_RETURN(false, false);
+  if (!faux || homing_needed_error()) G29_RETURN(false, false);
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
