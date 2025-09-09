@@ -69,7 +69,7 @@ def find_grouping(gdict, filekey, sectkey, optkey, pindex):
 
 def group_options(schema):
     """
-    Build a list of potential groups. 
+    Build a list of potential groups.
     Only those with multiple items will be grouped.
     """
     for pindex in range(10, -1, -1):
@@ -380,7 +380,7 @@ def extract_files(filekey):
                         value_type = \
                              'switch'  if val == '' \
                         else 'int'     if re.match(r'^[-+]?\s*\d+$', val) \
-                        else 'ints'    if re.match(r'^([-+]?\s*\d+)(\s*,\s*[-+]?\s*\d+)+$', val) \
+                        else 'ints'    if re.match(r'^[-+]?\s*\d+(?:\s*,\s*[-+]?\s*\d+)+$', val) \
                         else 'floats'  if re.match(rf'({flt}(\s*,\s*{flt})+)', val) \
                         else 'float'   if re.match(f'^({flt})$', val) \
                         else 'string'  if val[0] == '"' \
@@ -388,7 +388,7 @@ def extract_files(filekey):
                         else 'bool'    if val in ('true', 'false') \
                         else 'state'   if val in ('HIGH', 'LOW') \
                         else 'enum'    if re.match(r'^[A-Za-z0-9_]{3,}$', val) \
-                        else 'int[]'   if re.match(r'^{\s*[-+]?\s*\d+(\s*,\s*[-+]?\s*\d+)*\s*}$', val) \
+                        else 'int[]'   if re.match(r'^{\s*[-+]?\s*\d+(?:\s*,\s*[-+]?\s*\d+)*\s*}$', val) \
                         else 'float[]' if re.match(r'^{{\s*{flt}(\s*,\s*{flt})*\s*}}$', val) \
                         else 'array'   if val[0] == '{' \
                         else ''
