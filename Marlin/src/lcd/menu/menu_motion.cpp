@@ -380,6 +380,24 @@ void menu_move() {
     END_MENU();
   }
 
+  inline void menu_ftm_shaper_z() {
+    const ftMotionShaper_t shaper = ftMotion.cfg.shaper.z;
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+
+    if (shaper != ftMotionShaper_NONE)   ACTION_ITEM(MSG_LCD_OFF,  []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_NONE); });
+    if (shaper != ftMotionShaper_ZV)     ACTION_ITEM(MSG_FTM_ZV,   []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_ZV); });
+    if (shaper != ftMotionShaper_ZVD)    ACTION_ITEM(MSG_FTM_ZVD,  []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_ZVD); });
+    if (shaper != ftMotionShaper_ZVDD)   ACTION_ITEM(MSG_FTM_ZVDD, []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_ZVDD); });
+    if (shaper != ftMotionShaper_ZVDDD)  ACTION_ITEM(MSG_FTM_ZVDDD,[]{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_ZVDDD); });
+    if (shaper != ftMotionShaper_EI)     ACTION_ITEM(MSG_FTM_EI,   []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_EI); });
+    if (shaper != ftMotionShaper_2HEI)   ACTION_ITEM(MSG_FTM_2HEI, []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_2HEI); });
+    if (shaper != ftMotionShaper_3HEI)   ACTION_ITEM(MSG_FTM_3HEI, []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_3HEI); });
+    if (shaper != ftMotionShaper_MZV)    ACTION_ITEM(MSG_FTM_MZV,  []{ ftm_menu_set_shaper(Z_AXIS, ftMotionShaper_MZV); });
+
+    END_MENU();
+  }
+
   #if HAS_DYNAMIC_FREQ
 
     void menu_ftm_dyn_mode() {
@@ -472,6 +490,16 @@ void menu_move() {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
           if (AXIS_HAS_EISHAPER(Y))
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
+          }
+      #endif
+      #if HAS_Z_AXIS
+        SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_z);
+
+        if (AXIS_HAS_SHAPER(Z)) {
+          EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.z, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
+          EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_ZETA_N, &c.zeta.z, 0.0f, 1.0f, ftMotion.update_shaping_params);
+          if (AXIS_HAS_EISHAPER(Z))
+            EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_VTOL_N, &c.vtol.z, 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
 
@@ -483,6 +511,9 @@ void menu_move() {
           #endif
           #if HAS_Y_AXIS
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.y, 0.0f, 20.0f);
+          #endif
+          #if HAS_Z_AXIS
+            EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.z, 0.0f, 20.0f);
           #endif
         }
       #endif
@@ -540,6 +571,9 @@ void menu_move() {
     #endif
     #if HAS_Y_AXIS
       SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
+    #endif
+    #if HAS_Z_AXIS
+      SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_z);
     #endif
     #if HAS_DYNAMIC_FREQ
       SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
