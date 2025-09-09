@@ -40,6 +40,13 @@
 #define MARLIN_EEPROM_SIZE               0x2000U  // 8K (24C64)
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   PD3
+#endif
+
+//
 // Servos
 //
 #define SERVO0_PIN                          PB11  // BLTOUCH
