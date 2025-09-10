@@ -28,7 +28,7 @@
  *  (not affiliated with Anycubic, Ltd.)
  *
  * The AC panel wants files in block of 4 and can only display a flat list
- * This library allows full folder traversal or flat file display and supports both standerd and new style panels.
+ * This library allows full folder traversal or flat file display and supports both standard and new style panels.
  *
  * ## Old Style TFT panel
  * Supported chars     {}[]-+=_"$%^&*()~<>|
