@@ -920,7 +920,9 @@ void ST7920_Lite_Status_Screen::update(const bool forceUpdate) {
   cs();
   update_indicators(forceUpdate);
   update_status_or_position(forceUpdate);
-  update_progress(forceUpdate);
+  #if HAS_PRINT_PROGRESS
+    update_progress(forceUpdate);
+  #endif
   ncs();
 }
 

@@ -71,13 +71,13 @@ static uint8_t SPI_speed = 0;
 
 static uint8_t swSpiTransfer(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin) {
   for (uint8_t i = 0; i < 8; i++) {
-    WRITE_PIN(mosi_pin, !!(b & 0x80));
+    WRITE_PIN(sck_pin, LOW);
     DELAY_CYCLES(SPI_SPEED);
-    WRITE_PIN(sck_pin, HIGH);
+    WRITE_PIN(mosi_pin, !!(b & 0x80));
     DELAY_CYCLES(SPI_SPEED);
     b <<= 1;
     if (miso_pin >= 0 && READ_PIN(miso_pin)) b |= 1;
-    WRITE_PIN(sck_pin, LOW);
+    WRITE_PIN(sck_pin, HIGH);
     DELAY_CYCLES(SPI_SPEED);
   }
   return b;
@@ -168,6 +168,40 @@ uint8_t u8g_com_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void 
 #ifdef __cplusplus
   }
 #endif
+
+#if ENABLED(LIGHTWEIGHT_UI)
+
+  #define ST7920_CS()              { WRITE(LCD_PINS_RS, HIGH); }
+  #define ST7920_NCS()             { WRITE(LCD_PINS_RS, LOW); }
+  #define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xF8); }
+  #define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xFA); }
+  #define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xF0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4U)); }
+
+  #define ST7920_DAT(V) !!((V) & 0x80)
+
+  #define ST7920_SND_BIT do{             \
+    WRITE(LCD_PINS_D4, LOW);             \
+    WRITE(LCD_PINS_EN, ST7920_DAT(val)); \
+    WRITE(LCD_PINS_D4, HIGH);            \
+    val <<= 1; }while(0)
+
+  void ST7920_SWSPI_SND_8BIT(uint8_t val) {
+    ST7920_SND_BIT; // 1
+    ST7920_SND_BIT; // 2
+    ST7920_SND_BIT; // 3
+    ST7920_SND_BIT; // 4
+    ST7920_SND_BIT; // 5
+    ST7920_SND_BIT; // 6
+    ST7920_SND_BIT; // 7
+    ST7920_SND_BIT; // 8
+  }
+
+  void ST7920_cs()                          { ST7920_CS(); }
+  void ST7920_ncs()                         { ST7920_NCS(); }
+  void ST7920_set_cmd()                     { ST7920_SET_CMD(); }
+  void ST7920_set_dat()                     { ST7920_SET_DAT(); }
+  void ST7920_write_byte(const uint8_t val) { ST7920_WRITE_BYTE(val); }
+#endif // LIGHTWEIGHT_UI
 
 #endif // IS_U8GLIB_ST7920
 #endif // __PLAT_NATIVE_SIM__
