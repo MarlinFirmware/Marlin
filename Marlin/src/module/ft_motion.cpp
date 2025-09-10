@@ -689,7 +689,7 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
   constexpr float INV_FTM_STEPS_PER_UNIT_TIME = 1.0f / (FTM_STEPS_PER_UNIT_TIME);
 
   // q10 per-stepper-slot increment toward this sample’s target step count.
-  // (traj*spm - steps) = steps still due by the end of this UNIT_TIME.
+  // (traj * steps_per_mm - steps) = steps still due at the start of this UNIT_TIME.
   // Convert to q10 (×2^10), then subtract the current accumulator error: step_error_q10 / FTM_STEPS_PER_UNIT_TIME.
   // Over FTM_STEPS_PER_UNIT_TIME stepper-slots this sums to the exact target (no drift).
   // Any fraction of a step that may remain will be accounted for by the next UNIT_TIME
