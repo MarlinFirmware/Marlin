@@ -290,17 +290,17 @@ void MarlinUI::draw_status_screen() {
     );
   }
 
-  uint16_t hx = STATUS_HEATERS_X;
+  uint16_t shx = STATUS_HEATERS_X;
   #if HAS_HOTEND
-    _draw_heater_status(H_E0, hx, STATUS_HEATERS_Y);
-    hx += STATUS_HEATERS_XSPACE;
+    _draw_heater_status(H_E0, shx, STATUS_HEATERS_Y);
+    shx += STATUS_HEATERS_XSPACE;
   #endif
   #if HAS_MULTI_HOTEND
-    _draw_heater_status(H_E1, hx, STATUS_HEATERS_Y);
-    hx += STATUS_HEATERS_XSPACE;
+    _draw_heater_status(H_E1, shx, STATUS_HEATERS_Y);
+    shx += STATUS_HEATERS_XSPACE;
   #endif
   #if HAS_HEATED_BED
-    _draw_heater_status(H_BED, hx, STATUS_HEATERS_Y);
+    _draw_heater_status(H_BED, shx, STATUS_HEATERS_Y);
   #endif
   #if HAS_FAN
     _draw_fan_status(LCD_PIXEL_WIDTH - STATUS_CHR_WIDTH * 5, STATUS_FAN_Y);
