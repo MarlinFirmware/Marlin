@@ -113,7 +113,7 @@ class FTMotion {
     static int32_t stepperCmdBuff_produceIdx,             // Index of next stepper command write to the buffer.
                    stepperCmdBuff_consumeIdx;             // Index of next stepper command read from the buffer.
 
-    static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
+    static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
 
     static XYZEval<millis_t> axis_move_end_ti;
     static AxisBits axis_move_dir;
@@ -145,9 +145,9 @@ class FTMotion {
     static bool batchRdy, batchRdyForInterp;
 
     // Trapezoid data variables.
-    static xyze_pos_t   startPosn,          // (mm) Start position of block
-                        endPosn_prevBlock;  // (mm) End position of previous block
-    static xyze_float_t ratio;              // (ratio) Axis move ratio of block
+    static xyze_pos_t   startPos,         // (mm) Start position of block
+                        endPos_prevBlock; // (mm) End position of previous block
+    static xyze_float_t ratio;            // (ratio) Axis move ratio of block
     static float accel_P, decel_P,
                  F_P,
                  f_s,
