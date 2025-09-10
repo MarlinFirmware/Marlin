@@ -53,15 +53,14 @@ AxisBits FTMotion::axis_move_dir;
 xyze_trajectory_t    FTMotion::traj;            // = {0.0f} Storage for fixed-time-based trajectory.
 xyze_trajectoryMod_t FTMotion::trajMod;         // = {0.0f} Storage for fixed time trajectory window.
 
-bool FTMotion::blockProcRdy = false;            // Set when new block data is loaded from stepper module into FTM, ...
-                                                // ... and reset when block is completely converted to FTM trajectory.
-bool FTMotion::batchRdy = false;                // Indicates a batch of the fixed time trajectory...
-                                                // ... has been generated, is now available in the upper -
-                                                // batch of traj.x[], y, z ... e vectors, and is ready to be
-                                                // post processed, if applicable, then interpolated. Reset when the
-                                                // data has been shifted out.
-bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed...
-                                                // ... if applicable, and is ready to be converted to step commands.
+bool FTMotion::blockProcRdy = false;            // Set when new block data is loaded from stepper module into FTM,
+                                                //  and reset when block is completely converted to FTM trajectory.
+bool FTMotion::batchRdy = false;                // Indicates a batch of the fixed time trajectory has been
+                                                //  generated, is now available in the upper-batch of traj.A[], and
+                                                //  is ready to be post-processed (if applicable) and interpolated.
+                                                //  Reset once the data has been shifted out.
+bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed
+                                                //  (if applicable) and is ready to be converted to step commands.
 
 // Trapezoid data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
@@ -687,7 +686,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
  * Add up to one stepper command to the buffer with STEP/DIR bits for all axes.
  */
 void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
-  constexpr float INV_FTM_STEPS_PER_UNIT_TIME = (1.0 / FTM_STEPS_PER_UNIT_TIME);
+  constexpr float INV_FTM_STEPS_PER_UNIT_TIME = 1.0f / (FTM_STEPS_PER_UNIT_TIME);
 
   // q10 per-stepper-slot increment toward this sample’s target step count.
   // (traj*spm - steps) = steps still due by the end of this UNIT_TIME.
@@ -695,9 +694,8 @@ void FTMotion::generateStepsFromTrajectory(const uint32_t idx) {
   // Over FTM_STEPS_PER_UNIT_TIME stepper-slots this sums to the exact target (no drift).
   // Any fraction of a step that may remain will be accounted for by the next UNIT_TIME
   #define TOSTEPS_q10(A, B) int32_t( \
-      (trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] - steps.A) * _BV(10) - \
-      step_error_q10.A * INV_FTM_STEPS_PER_UNIT_TIME \
-    )
+    (trajMod.A[idx] * planner.settings.axis_steps_per_mm[B] - steps.A) * _BV(10) \
+     - step_error_q10.A * INV_FTM_STEPS_PER_UNIT_TIME )
 
   xyze_long_t delta_q10 = LOGICAL_AXIS_ARRAY(
     TOSTEPS_q10(e, block_extruder_axis),
