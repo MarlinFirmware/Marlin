@@ -2097,6 +2097,8 @@ bool Planner::_populate_block(
     TERN_(BACKLASH_COMPENSATION, backlash.add_correction_steps(dist, dm, block));
   }
 
+  TERN_(FT_MOTION, block->dist_mm = dist_mm); // Store the distance for all axes in mm for this block
+
   TERN_(HAS_EXTRUDERS, block->steps.e = esteps);
 
   block->step_event_count = (
