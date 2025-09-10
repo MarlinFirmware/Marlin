@@ -8,6 +8,7 @@ help:
 	@echo "Tasks for local development:"
 	@echo "make marlin                    : Build Marlin for the configured board"
 	@echo "make format-pins -j            : Reformat all pins files (-j for parallel execution)"
+	@echo "make validate-lines -j         : Validate line endings, fails on trailing whitespace, etc."
 	@echo "make validate-pins -j          : Validate all pins files, fails if any require reformatting"
 	@echo "make validate-boards -j        : Validate boards.h and pins.h for standards compliance"
 	@echo "make tests-single-ci           : Run a single test from inside the CI"
@@ -95,7 +96,7 @@ PINS := $(shell find Marlin/src/pins -mindepth 2 -name '*.h')
 .PHONY: $(PINS) format-pins validate-pins
 
 $(PINS): %:
-	@echo "Formatting $@"
+	@echo "Formatting pins $@"
 	@python $(SCRIPTS_DIR)/pinsformat.py $< $@
 
 format-pins: $(PINS)
@@ -103,6 +104,17 @@ format-pins: $(PINS)
 validate-pins: format-pins
 	@echo "Validating pins files"
 	@git diff --exit-code || (git status && echo "\nError: Pins files are not formatted correctly. Run \"make format-pins\" to fix.\n" && exit 1)
+
+.PHONY: format-lines validate-lines
+
+format-lines:
+	@echo "Formatting all sources"
+	@python $(SCRIPTS_DIR)/linesformat.py buildroot
+	@python $(SCRIPTS_DIR)/linesformat.py Marlin
+
+validate-lines:
+	@echo "Validating text formatting"
+	@npx prettier --check . --editorconfig --object-wrap preserve
 
 BOARDS_FILE := Marlin/src/core/boards.h
 

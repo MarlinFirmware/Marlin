@@ -1162,7 +1162,7 @@ namespace MMU3 {
               //
               // Instead of doing a very long extrude as in PrusaFirmware,
               // Marlin's own MMU2s code has a better approach to this by spinning
-              // the extruder indefinitelly...
+              // the extruder indefinitely...
               //
               // this ensures that while the MMU is pushing the filament,
               // the extruder will keep rotating, preventing the filament to hit
