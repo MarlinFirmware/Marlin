@@ -8,18 +8,18 @@ name: CI - Validate Pins Files
 on:
   pull_request:
     branches:
-    - bugfix-2.1.x
+      - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
     paths:
-    - 'Marlin/src/pins/*/**'
+      - "Marlin/src/pins/*/**"
   push:
     branches:
-    - bugfix-2.1.x
+      - bugfix-2.1.x
     # Cannot be enabled on 2.1.x until it contains the unit test framework
     #- 2.1.x
     paths:
-    - 'Marlin/src/pins/*/**'
+      - "Marlin/src/pins/*/**"
 
 jobs:
   validate_pins_files:
@@ -29,23 +29,23 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Check out the PR
-      uses: actions/checkout@v4
+      - name: Check out the PR
+        uses: actions/checkout@v4
 
-    - name: Cache pip
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-pins-v1
-        restore-keys: |
-          ${{ runner.os }}-pip-pins-
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-validation-v1
+          restore-keys: |
+            ${{ runner.os }}-pip-validation-
 
-    - name: Select Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
+      - name: Select Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          architecture: "x64"
 
-    - name: Validate all pins files
-      run: |
-        make validate-pins -j
+      - name: Validate all pins files
+        run: |
+          make validate-pins -j

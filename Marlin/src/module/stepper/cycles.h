@@ -38,7 +38,7 @@
    * ...as measured on an LPC1768 with a scope and converted to cycles.
    * Not applicable to other 32-bit processors, but as long as others
    * take longer, pulses will be longer. For example the SKR Pro
-   * (stm32f407zgt6) requires ~60 cyles.
+   * (stm32f407zgt6) requires ~60 cycles.
    */
   constexpr uint32_t timer_read_add_and_store_cycles = 34UL;
 

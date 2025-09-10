@@ -46,7 +46,7 @@ ft_command_t FTMotion::stepperCmdBuff[FTM_STEPPERCMD_BUFF_SIZE] = {0U}; // Stepp
 int32_t FTMotion::stepperCmdBuff_produceIdx = 0, // Index of next stepper command write to the buffer.
         FTMotion::stepperCmdBuff_consumeIdx = 0; // Index of next stepper command read from the buffer.
 
-bool FTMotion::sts_stepperBusy = false;         // The stepper buffer has items and is in use.
+bool FTMotion::stepperCmdBuffHasData = false;   // The stepper buffer has items and is in use.
 
 XYZEval<millis_t> FTMotion::axis_move_end_ti = { 0 };
 AxisBits FTMotion::axis_move_dir;
@@ -68,9 +68,9 @@ bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done b
                                                 // ... if applicable, and is ready to be converted to step commands.
 
 // Trapezoid data variables.
-xyze_pos_t   FTMotion::startPosn,                     // (mm) Start position of block
-             FTMotion::endPosn_prevBlock = { 0.0f };  // (mm) End position of previous block
-xyze_float_t FTMotion::ratio;                         // (ratio) Axis move ratio of block
+xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
+             FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
+xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
 float FTMotion::accel_P,                        // Acceleration prime of block. [mm/sec/sec]
       FTMotion::decel_P,                        // Deceleration prime of block. [mm/sec/sec]
       FTMotion::F_P,                            // Feedrate prime of block. [mm/sec]
@@ -139,7 +139,7 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
   if (stepper.abort_current_block) {
-    if (sts_stepperBusy) return;          // Wait until motion buffers are emptied
+    if (stepperCmdBuffHasData) return;          // Wait until motion buffers are emptied
     discard_planner_block_protected();
     reset();
     stepper.abort_current_block = false;  // Abort finished.
@@ -153,13 +153,13 @@ void FTMotion::loop() {
       continue;
     }
     loadBlockData(stepper.current_block);
+    blockProcRdy = true;
 
     // If the endstop is already pressed, endstop interrupts won't invoke
     // endstop_triggered and the move will grind. So check here for a
     // triggered endstop, which shortly marks the block for discard.
     endstops.update();
 
-    blockProcRdy = true;
     // Some kinematics track axis motion in HX, HY, HZ
     #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY, MARKFORGED_YX)
       stepper.last_direction_bits.hx = stepper.current_block->direction_bits.hx;
@@ -174,18 +174,14 @@ void FTMotion::loop() {
 
   if (blockProcRdy) {
 
-    if (!batchRdy) makeVector(); // Caution: Do not consolidate checks on blockProcRdy/batchRdy, as they are written by makeVector().
-    // When makeVector is finished: either blockProcRdy has been set false (because the block is
-    // done being processed) or batchRdy is set true, or both.
+    if (!batchRdy) makeVector(); // may clear blockProcRdy
 
     // Check if the block has been completely converted:
     if (!blockProcRdy) {
       discard_planner_block_protected();
-
-      // Check if the block needs to be runout:
       if (!batchRdy && !planner.has_blocks_queued()) {
         runoutBlock();
-        makeVector(); // Do an additional makeVector call to guarantee batchRdy set this loop.
+        makeVector(); // Additional call to guarantee batchRdy is set this loop.
       }
     }
   }
@@ -224,7 +220,7 @@ void FTMotion::loop() {
   }
 
   // Report busy status to planner.
-  busy = (sts_stepperBusy || blockProcRdy || batchRdy || batchRdyForInterp);
+  busy = (stepperCmdBuffHasData || blockProcRdy || batchRdy || batchRdyForInterp);
 
 }
 
@@ -390,7 +386,7 @@ void FTMotion::reset() {
 
   blockProcRdy = batchRdy = batchRdyForInterp = false;
 
-  endPosn_prevBlock.reset();
+  endPos_prevBlock.reset();
 
   makeVector_idx = 0;
   makeVector_batchIdx = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
@@ -428,13 +424,13 @@ void FTMotion::discard_planner_block_protected() {
 /**
  * Set up a pseudo block to allow motion to settle and buffers to empty.
  * Called when the planner has one block left. The buffers will be filled
- * with the last commanded position by setting the startPosn block variable to
+ * with the last commanded position by setting the startPos block variable to
  * the last position of the previous block and all ratios to zero such that no
  * axes' positions are incremented.
  */
 void FTMotion::runoutBlock() {
 
-  startPosn = endPosn_prevBlock;
+  startPos = endPos_prevBlock;
   ratio.reset();
 
   const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - makeVector_batchIdx;
@@ -470,19 +466,9 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const float totalLength = current_block->millimeters,
               oneOverLength = 1.0f / totalLength;
 
-  startPosn = endPosn_prevBlock;
-  const xyze_pos_t moveDist = LOGICAL_AXIS_ARRAY(
-    current_block->steps.e * planner.mm_per_step[block_extruder_axis] * (current_block->direction_bits.e ? 1 : -1),
-    current_block->steps.x * planner.mm_per_step[X_AXIS] * (current_block->direction_bits.x ? 1 : -1),
-    current_block->steps.y * planner.mm_per_step[Y_AXIS] * (current_block->direction_bits.y ? 1 : -1),
-    current_block->steps.z * planner.mm_per_step[Z_AXIS] * (current_block->direction_bits.z ? 1 : -1),
-    current_block->steps.i * planner.mm_per_step[I_AXIS] * (current_block->direction_bits.i ? 1 : -1),
-    current_block->steps.j * planner.mm_per_step[J_AXIS] * (current_block->direction_bits.j ? 1 : -1),
-    current_block->steps.k * planner.mm_per_step[K_AXIS] * (current_block->direction_bits.k ? 1 : -1),
-    current_block->steps.u * planner.mm_per_step[U_AXIS] * (current_block->direction_bits.u ? 1 : -1),
-    current_block->steps.v * planner.mm_per_step[V_AXIS] * (current_block->direction_bits.v ? 1 : -1),
-    current_block->steps.w * planner.mm_per_step[W_AXIS] * (current_block->direction_bits.w ? 1 : -1)
-  );
+  startPos = endPos_prevBlock;
+
+  const xyze_pos_t& moveDist = current_block->dist_mm;
 
   ratio = moveDist * oneOverLength;
 
@@ -565,22 +551,19 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   // Accel + Coasting + Decel datapoints
   max_intervals = N1 + N2 + N3;
 
-  endPosn_prevBlock += moveDist;
+  endPos_prevBlock += moveDist;
 
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
-  #define __SET_MOVE_END(A,V) do{ if (V) { axis_move_end_ti.A = move_end_ti; axis_move_dir.A = (V > 0); } }while(0);
-  #define _SET_MOVE_END(A) __SET_MOVE_END(A, moveDist[_AXIS(A)])
-  #if CORE_IS_XY
-    __SET_MOVE_END(X, moveDist.x + moveDist.y);
-    __SET_MOVE_END(Y, moveDist.x - moveDist.y);
-  #else
-    _SET_MOVE_END(X);
-    _SET_MOVE_END(Y);
-  #endif
-  TERN_(HAS_Z_AXIS, _SET_MOVE_END(Z));
-  SECONDARY_AXIS_MAP(_SET_MOVE_END);
+  #define _SET_MOVE_END(A) do{ \
+    if (moveDist.A) { \
+      axis_move_end_ti.A = move_end_ti; \
+      axis_move_dir.A = moveDist.A > 0; \
+    } \
+  }while(0);
+
+  LOGICAL_AXIS_MAP(_SET_MOVE_END);
 }
 
 // Generate data points of the trajectory.
@@ -609,7 +592,7 @@ void FTMotion::makeVector() {
       TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
-    #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPosn.q + ratio.q * dist;
+    #define _SET_TRAJ(q) traj.q[makeVector_batchIdx] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
     #if HAS_EXTRUDERS
