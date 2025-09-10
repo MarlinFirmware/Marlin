@@ -32,7 +32,7 @@
 
 namespace MMU3 {
 
-  // Can be used to block printer's filament sensor handling - to avoid errorneous injecting of M600
+  // Can be used to block printer's filament sensor handling - to avoid erroneous injecting of M600
   // while doing a toolchange with the MMU
   // In case of "no filament sensor" these methods default to an empty implementation
   class FSensorBlockRunout {
