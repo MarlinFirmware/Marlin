@@ -112,7 +112,7 @@ void MarlinHAL::reboot() { watchdog_reboot(0, 0, 1); }
 
   void MarlinHAL::watchdog_init() {
     #if DISABLED(DISABLE_WATCHDOG_INIT)
-      static_assert(WDT_TIMEOUT_US > 1000, "WDT Timout is too small, aborting");
+      static_assert(WDT_TIMEOUT_US > 1000, "WDT Timeout is too small, aborting");
       watchdog_enable(WDT_TIMEOUT_US/1000, true);
     #endif
   }
