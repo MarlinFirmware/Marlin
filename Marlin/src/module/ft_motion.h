@@ -42,13 +42,13 @@ typedef struct FTConfig {
 
   #if HAS_FTM_SHAPING
     ft_shaped_shaper_t shaper =                           // Shaper type
-      { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y, FTM_DEFAULT_SHAPER_Z) };
+      { SHAPED_ELEM(FTM_DEFAULT_SHAPER_X, FTM_DEFAULT_SHAPER_Y, FTM_DEFAULT_SHAPER_Z, FTM_DEFAULT_SHAPER_E) };
     ft_shaped_float_t baseFreq =                          // Base frequency. [Hz]
-      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y, FTM_SHAPING_DEFAULT_FREQ_Z) };
+      { SHAPED_ELEM(FTM_SHAPING_DEFAULT_FREQ_X, FTM_SHAPING_DEFAULT_FREQ_Y, FTM_SHAPING_DEFAULT_FREQ_Z, FTM_SHAPING_DEFAULT_FREQ_E) };
     ft_shaped_float_t zeta =                              // Damping factor
-      { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z) };
+      { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E) };
     ft_shaped_float_t vtol =                              // Vibration Level
-      { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z) };
+      { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E) };
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -86,12 +86,14 @@ class FTMotion {
         TERN_(HAS_X_AXIS, SET_CGF_DEFAULTS(x, X));
         TERN_(HAS_Y_AXIS, SET_CGF_DEFAULTS(y, Y));
         TERN_(HAS_Z_AXIS, SET_CGF_DEFAULTS(z, Z));
+        TERN_(HAS_EXTRUDERS, SET_CGF_DEFAULTS(e, E));
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
           TERN_(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
           TERN_(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
           TERN_(HAS_Z_AXIS, cfg.dynFreqK.z = 0.0f);
+          TERN_(HAS_EXTRUDERS, cfg.dynFreqK.e = 0.0f);
         #endif
 
         update_shaping_params();
@@ -193,6 +195,7 @@ class FTMotion {
         TERN_(HAS_X_AXIS, axis_shaping_t x);
         TERN_(HAS_Y_AXIS, axis_shaping_t y);
         TERN_(HAS_Z_AXIS, axis_shaping_t z);
+        TERN_(HAS_EXTRUDERS, axis_shaping_t e);
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
@@ -212,7 +215,14 @@ class FTMotion {
     static void generateTrajectoryPointsFromBlock();
     static void generateStepsFromTrajectory(const uint32_t idx);
 
-    FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena || shaping.z.ena ) ? FTM_ZMAX : 0; }
+    FORCE_INLINE static int32_t num_samples_shaper_settle() {
+      return (
+        TERN0(HAS_X_AXIS, shaping.x.ena) ||
+        TERN0(HAS_Y_AXIS, shaping.y.ena) ||
+        TERN0(HAS_Z_AXIS, shaping.z.ena) ||
+        TERN0(HAS_EXTRUDERS, shaping.e.ena)
+       ) ? FTM_ZMAX : 0;
+    }
 
 }; // class FTMotion
 
