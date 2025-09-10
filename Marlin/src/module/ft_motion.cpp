@@ -80,8 +80,8 @@ uint32_t FTMotion::N1,                          // Number of data points in the 
 uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
 
 // Make vector variables.
-uint32_t FTMotion::traj_consumeIdx = 0,         // Index of fixed time trajectory generation of the overall block.
-         FTMotion::traj_produceIdx = 0;         // Index of fixed time trajectory generation within the batch.
+uint32_t FTMotion::traj_idx_get = 0,            // Index of fixed time trajectory generation of the overall block.
+         FTMotion::traj_idx_set = 0;            // Index of fixed time trajectory generation within the batch.
 
 // Interpolation variables.
 xyze_long_t FTMotion::steps = { 0 };            // Step count accumulator.
@@ -384,8 +384,8 @@ void FTMotion::reset() {
 
   endPos_prevBlock.reset();
 
-  traj_consumeIdx = 0;
-  traj_produceIdx = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
+  traj_idx_get = 0;
+  traj_idx_set = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
 
   steps.reset();
   step_error_q10.reset();
@@ -430,7 +430,7 @@ void FTMotion::runoutBlock() {
   startPos = endPos_prevBlock;
   ratio.reset();
 
-  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - traj_produceIdx;
+  const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - traj_idx_set;
 
   // This line or function is to be modified for FBS use; do not optimize out.
   const int32_t n_to_settle_shaper = num_samples_shaper_settle();
@@ -564,18 +564,18 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 // Generate data points of the trajectory.
 void FTMotion::generateTrajectoryPointsFromBlock() {
   do {
-    float tau = (traj_consumeIdx + 1) * (FTM_TS);         // (s) Time since start of block
+    float tau = (traj_idx_get + 1) * (FTM_TS);            // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
     #if HAS_EXTRUDERS
       float accel_k = 0.0f;                               // (mm/s^2) Acceleration K factor
     #endif
 
-    if (traj_consumeIdx < N1) {
+    if (traj_idx_get < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
       TERN_(HAS_EXTRUDERS, accel_k = accel_P);            // (mm/s^2) Acceleration K factor from Accel phase
     }
-    else if (traj_consumeIdx < (N1 + N2)) {
+    else if (traj_idx_get < (N1 + N2)) {
       // Coasting phase
       dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
       //TERN_(HAS_EXTRUDERS, accel_k = 0.0f);
@@ -587,17 +587,17 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
-    #define _SET_TRAJ(q) traj.q[traj_produceIdx] = startPos.q + ratio.q * dist;
+    #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
     #if HAS_EXTRUDERS
       if (cfg.linearAdvEna) {
-        float dedt_adj = (traj.e[traj_produceIdx] - e_raw_z1) * (FTM_FS);
+        float dedt_adj = (traj.e[traj_idx_set] - e_raw_z1) * (FTM_FS);
         if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
 
-        e_raw_z1 = traj.e[traj_produceIdx];
+        e_raw_z1 = traj.e[traj_idx_set];
         e_advanced_z1 += dedt_adj * (FTM_TS);
-        traj.e[traj_produceIdx] = e_advanced_z1;
+        traj.e[traj_idx_set] = e_advanced_z1;
       }
     #endif
 
@@ -608,7 +608,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       #if HAS_DYNAMIC_FREQ_MM
         case dynFreqMode_Z_BASED: {
           static float oldz = 0.0f;
-          const float z = traj.z[traj_produceIdx];
+          const float z = traj.z[traj_idx_set];
           if (z != oldz) { // Only update if Z changed.
             oldz = z;
             #if HAS_X_AXIS
@@ -628,10 +628,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           // Update constantly. The optimization done for Z value makes
           // less sense for E, as E is expected to constantly change.
           #if HAS_X_AXIS
-            shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_produceIdx], cfg.zeta.x);
+            shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x + cfg.dynFreqK.x * traj.e[traj_idx_set], cfg.zeta.x);
           #endif
           #if HAS_Y_AXIS
-            shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_produceIdx], cfg.zeta.y);
+            shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y + cfg.dynFreqK.y * traj.e[traj_idx_set], cfg.zeta.y);
           #endif
           break;
       #endif
@@ -643,22 +643,22 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     #if HAS_FTM_SHAPING
       #if HAS_X_AXIS
         if (shaping.x.ena) {
-          shaping.x.d_zi[shaping.zi_idx] = traj.x[traj_produceIdx];
-          traj.x[traj_produceIdx] *= shaping.x.Ai[0];
+          shaping.x.d_zi[shaping.zi_idx] = traj.x[traj_idx_set];
+          traj.x[traj_idx_set] *= shaping.x.Ai[0];
           for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
             const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-            traj.x[traj_produceIdx] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
+            traj.x[traj_idx_set] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
           }
         }
       #endif
 
       #if HAS_Y_AXIS
         if (shaping.y.ena) {
-          shaping.y.d_zi[shaping.zi_idx] = traj.y[traj_produceIdx];
-          traj.y[traj_produceIdx] *= shaping.y.Ai[0];
+          shaping.y.d_zi[shaping.zi_idx] = traj.y[traj_idx_set];
+          traj.y[traj_idx_set] *= shaping.y.Ai[0];
           for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
             const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-            traj.y[traj_produceIdx] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
+            traj.y[traj_idx_set] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
           }
         }
       #endif
@@ -666,13 +666,13 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     #endif // HAS_FTM_SHAPING
 
     // Filled up the queue with regular and shaped steps
-    if (++traj_produceIdx == FTM_WINDOW_SIZE) {
-      traj_produceIdx = BATCH_SIDX_IN_WINDOW;
+    if (++traj_idx_set == FTM_WINDOW_SIZE) {
+      traj_idx_set = BATCH_SIDX_IN_WINDOW;
       batchRdy = true;
     }
-    if (++traj_consumeIdx == max_intervals) {
+    if (++traj_idx_get == max_intervals) {
       blockProcRdy = false;
-      traj_consumeIdx = 0;
+      traj_idx_get = 0;
     }
   } while (blockProcRdy && !batchRdy);
 } // generateTrajectoryPointsFromBlock

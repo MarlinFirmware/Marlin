@@ -161,8 +161,8 @@ class FTMotion {
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
     // generateTrajectoryPointsFromBlock variables.
-    static uint32_t traj_consumeIdx,
-                    traj_produceIdx;
+    static uint32_t traj_idx_get,
+                    traj_idx_set;
 
     // Interpolation variables.
     static uint32_t interpIdx;
