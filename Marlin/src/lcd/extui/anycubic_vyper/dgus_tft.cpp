@@ -496,7 +496,7 @@ namespace Anycubic {
       #endif
       case AC_printer_printing:
       case AC_printer_paused:
-        // Heater timout, send acknowledgement
+        // Heater timeout, send acknowledgement
         if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           tftSendLn(AC_msg_paused); // enable continue button

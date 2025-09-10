@@ -131,7 +131,7 @@ uint16_t MarlinHAL::adc_result;
 
 #include <STM32ADC.h>
 
-// Init the AD in continuous capture mode
+// Init the ADC in continuous capture mode
 void MarlinHAL::adc_init() {
   static const uint8_t adc_pins[] = {
     OPTITEM(HAS_TEMP_ADC_0,         TEMP_0_PIN               )

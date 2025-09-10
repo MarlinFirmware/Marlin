@@ -309,7 +309,7 @@ void plan_arc(
     // a) is <= any configured maximum speed,
     // b) does not require centripetal force greater than any configured maximum acceleration,
     // c) is <= nominal speed,
-    // d) allows the print head to stop in the remining length of the curve within all configured maximum accelerations.
+    // d) allows the print head to stop in the remaining length of the curve within all configured maximum accelerations.
     // The last has to be calculated every time through the loop.
     const float limiting_accel = _MIN(planner.settings.max_acceleration_mm_per_s2[axis_p], planner.settings.max_acceleration_mm_per_s2[axis_q]),
                 limiting_speed = _MIN(planner.settings.max_feedrate_mm_s[axis_p], planner.settings.max_feedrate_mm_s[axis_q]),
