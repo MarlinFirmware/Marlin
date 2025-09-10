@@ -42,13 +42,15 @@ These tools must be run from a terminal with access to an installed Python 3 and
 
 Pillow is most easily installed with pip:
 
-  python3 -m pip install pillow
+```sh
+python3 -m pip install pillow
+```
 
 ## Examples
 
 These tools process an `.ICO` file that you specify. The safest method is to create a folder and copy your `.ICO` file there. For example:
 
-```
+```sh
   $ mkdir hackicons
   $ cp 7.ICO hackicons
   $ cd hackicons
@@ -61,11 +63,13 @@ The following explanations will refer back to this layout.
 If you want to edit the individual icons stored in an ICO file (or add more images) you'll first need to extract all the images from the archive using `splitIco.py`.
 
 #### Usage:
-```
+
+```sh
 splitIco.py #.ICO foldername
 ```
 
 #### Splitting .ICO FIle In Windows:
+
 - Create `Split-ICO.bat` file in this folder with the following code:
   - `for /f %%f in ('dir *.ICO /B /O:-D') do splitico.py %%f %%f-icons`
 - Paste `.ICO` file into this folder
@@ -99,11 +103,13 @@ Once the individual JPEG files have been saved they can be edited using common g
 If you want to create an ICO file you'll need to use `makeIco.py`.
 
 #### Usage:
-```
+
+```sh
 makeIco.py foldername #.ICO
 ```
 
 #### Making .ICO FIle In Windows:
+
 - Create `Make-ICO.bat` file in this folder with the following code:
   - ```
     setlocal enabledelayedexpansion
