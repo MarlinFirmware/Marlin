@@ -114,7 +114,7 @@ typedef enum : uint16_t {
 } err_num_t;
 
 // Avr gcc has serious trouble understanding static data structures in PROGMEM
-// and inadvertedly falls back to copying the whole structure into RAM (which is obviously unwanted).
+// and inadvertently falls back to copying the whole structure into RAM (which is obviously unwanted).
 // But since this file ought to be generated in the future from yaml prescription,
 // it really makes no difference if there are "nice" data structures or plain arrays.
 static const constexpr err_num_t errorCodes[] PROGMEM = {

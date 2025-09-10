@@ -73,7 +73,7 @@ public:
   // Interrupt handler
   void handle_interrupts();
 
-  // Varaible stored parameters
+  // Variable stored parameters
   auto get_scr(uint16_t rca, uint32_t* scr) -> SDIO_Error_Type;
   auto store_cid() -> SDIO_Error_Type;
   auto store_csd() -> SDIO_Error_Type;
