@@ -483,7 +483,7 @@ inline void manage_inactivity(const bool no_stepper_sleep=false) {
     // Check if the kill button was pressed and wait to ensure the signal is not noise
     // typically caused by poor insulation and grounding on LCD cables.
     // Lower numbers here will increase response time and therefore safety rating.
-    // It is recommended to set this as low as possibe without false triggers.
+    // It is recommended to set this as low as possible without false triggers.
     // -------------------------------------------------------------------------------
     #ifndef KILL_DELAY
       #define KILL_DELAY 250
