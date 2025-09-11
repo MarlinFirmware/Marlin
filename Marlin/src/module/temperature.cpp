@@ -473,7 +473,6 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
    * Set the print fan speed for a target extruder
    */
   void Temperature::set_fan_speed(uint8_t fan, uint16_t speed) {
-
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
@@ -681,7 +680,6 @@ volatile bool Temperature::raw_temps_ready = false;
    * TODO: Allow tuning routines to call idle() for more complete keepalive.
    */
   bool Temperature::tuning_idle(const millis_t &ms) {
-
     // Run HAL idle tasks
     hal.idletask();
 
@@ -712,9 +710,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 void Temperature::factory_reset() {
-  //
   // Hotend PID
-  //
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       constexpr float defKp[] =
@@ -774,21 +770,15 @@ void Temperature::factory_reset() {
     }
   #endif // PIDTEMP
 
-  //
   // PID Extrusion Scaling
-  //
   TERN_(PID_EXTRUSION_SCALING, lpq_len = 20); // Default last-position-queue size
 
-  //
   // Heated Bed PID
-  //
   #if ENABLED(PIDTEMPBED)
     temp_bed.pid.set(DEFAULT_bedKp, DEFAULT_bedKi, DEFAULT_bedKd);
   #endif
 
-  //
   // Heated Chamber PID
-  //
   #if ENABLED(PIDTEMPCHAMBER)
     temp_chamber.pid.set(DEFAULT_chamberKp, DEFAULT_chamberKi, DEFAULT_chamberKd);
   #endif
@@ -900,7 +890,6 @@ void Temperature::factory_reset() {
 
       // If a new sample has arrived process things
       if (temp_ready) {
-
         // Get the current temperature and constrain it
         current_temp = GHV(degChamber(), degBed(), degHotend(heater_id));
         NOLESS(maxT, current_temp);
@@ -1532,11 +1521,11 @@ int16_t Temperature::getHeaterPower(const heater_id_t heater_id) {
         SBI(fanState, pgm_read_byte(&fanBit[COOLER_FAN_INDEX]));
     #endif
 
-    #define _UPDATE_AUTO_FAN(P,D,A) do{                   \
-      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)           \
+    #define _UPDATE_AUTO_FAN(P,D,A) do{                       \
+      if (PWM_PIN(P##_AUTO_FAN_PIN) && A < 255)               \
         hal.set_pwm_duty(pin_t(P##_AUTO_FAN_PIN), D ? A : 0); \
-      else                                                \
-        WRITE(P##_AUTO_FAN_PIN, D);                       \
+      else                                                    \
+        WRITE(P##_AUTO_FAN_PIN, D);                           \
     }while(0)
 
     uint8_t fanDone = 0;
@@ -1653,7 +1642,7 @@ void Temperature::_temp_error(
 
     #if HAS_TEMP_REDUNDANT
       if (heater_id == H_REDUNDANT) {
-        SERIAL_ECHOPGM(STR_REDUNDANT); // print redundant and cascade to print target, too.
+        SERIAL_ECHOPGM(STR_REDUNDANT); // Print redundant and cascade to print target, too.
         real_heater_id = (heater_id_t)HEATER_ID(TEMP_SENSOR_REDUNDANT_TARGET);
       }
     #endif
@@ -1675,7 +1664,7 @@ void Temperature::_temp_error(
     #endif
   }
 
-  disable_all_heaters(); // always disable (even for bogus temp)
+  disable_all_heaters(); // Always disable (even for bogus temp)
   hal.watchdog_refresh();
 
   #if HAS_BOGUS_TEMPERATURE_GRACE_PERIOD
@@ -2305,7 +2294,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
     static bool flag_cooler_state; // = false
 
     if (cooler.enabled) {
-      flag_cooler_state = true; // used to allow M106 fan control when cooler is disabled
+      flag_cooler_state = true; // Used to allow M106 fan control when cooler is disabled
       if (temp_cooler.target == 0) temp_cooler.target = COOLER_MIN_TARGET;
       if (ELAPSED(ms, next_cooler_check_ms)) {
         next_cooler_check_ms = ms + COOLER_CHECK_INTERVAL;
@@ -2568,11 +2557,10 @@ void Temperature::task() {
   }
 
   celsius_float_t Temperature::user_thermistor_to_deg_c(const uint8_t t_index, const raw_adc_t raw) {
-
     if (!WITHIN(t_index, 0, COUNT(user_thermistor) - 1)) return 25;
 
     user_thermistor_t &t = user_thermistor[t_index];
-    if (t.pre_calc) { // pre-calculate some variables
+    if (t.pre_calc) { // Pre-calculate some variables
       t.pre_calc     = false;
       t.res_25_recip = 1.0f / t.res_25;
       t.res_25_log   = logf(t.res_25);
@@ -2583,7 +2571,7 @@ void Temperature::task() {
 
     // Maximum ADC value .. take into account the over sampling
     constexpr raw_adc_t adc_max = MAX_RAW_THERMISTOR_VALUE;
-    const raw_adc_t adc_raw = constrain(raw, 1, adc_max - 1); // constrain to prevent divide-by-zero
+    const raw_adc_t adc_raw = constrain(raw, 1, adc_max - 1); // Constrain to prevent divide-by-zero
 
     const float adc_inverse = (adc_max - adc_raw) - 0.5f,
                 resistance = t.series_res * (adc_raw + 0.5f) / adc_inverse,
@@ -2896,7 +2884,6 @@ void Temperature::task() {
  * 4 seconds then something has gone afoul and the machine will be reset.
  */
 void Temperature::updateTemperaturesFromRawValues() {
-
   hal.watchdog_refresh(); // Reset because raw_temps_ready was set by the interrupt
 
   #if TEMP_SENSOR_IS_MAX_TC(0)
@@ -3012,7 +2999,6 @@ void Temperature::updateTemperaturesFromRawValues() {
  *  - Init temp_range[], used for catching min/maxtemp
  */
 void Temperature::init() {
-
   TERN_(PROBING_HEATERS_OFF, paused_for_probing = false);
 
   // Init (and disable) SPI thermocouples
@@ -3438,13 +3424,13 @@ void Temperature::init() {
         #define VARIANCE_WINDOW period_seconds
       #endif
 
-      if (state == TRMalfunction) { // temperature invariance may continue, regardless of heater state
-        variance += ABS(current - last_temp); // no need for detection window now, a single change in variance is enough
+      if (state == TRMalfunction) { // Temperature invariance may continue, regardless of heater state
+        variance += ABS(current - last_temp); // No need for detection window now, a single change in variance is enough
         last_temp = current;
         if (!NEAR_ZERO(variance)) {
           variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
           variance = 0.0;
-          state = TRStable; // resume from where we detected the problem
+          state = TRStable; // Resume from where we detected the problem
         }
       }
     #endif
@@ -3474,7 +3460,6 @@ void Temperature::init() {
 
       // While the temperature is stable watch for a bad temperature
       case TRStable: {
-
         const celsius_float_t rdiff = running_temp - current;
 
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
@@ -3551,7 +3536,6 @@ void Temperature::init() {
 #endif // HAS_THERMAL_PROTECTION
 
 void Temperature::disable_all_heaters() {
-
   // Disable autotemp, unpause and reset everything
   TERN_(AUTOTEMP, planner.autotemp.enabled = false);
   TERN_(PROBING_HEATERS_OFF, pause_heaters(false));
@@ -3938,7 +3922,6 @@ void Temperature::disable_all_heaters() {
  * Applies all the accumulators to the current raw temperatures.
  */
 void Temperature::update_raw_temperatures() {
-
   // TODO: can this be collapsed into a HOTEND_LOOP()?
   #if HAS_TEMP_ADC_0 && !TEMP_SENSOR_IS_MAX_TC(0)
     temp_hotend[0].update();
@@ -3981,7 +3964,6 @@ void Temperature::update_raw_temperatures() {
  * Reset all the ADC accumulators for another round of updates.
  */
 void Temperature::readings_ready() {
-
   // Update raw values only if they're not already set.
   if (!raw_temps_ready) {
     update_raw_temperatures();
@@ -4067,7 +4049,6 @@ public:
  *  - Planner clean buffer
  */
 void Temperature::isr() {
-
   // Shut down the laser if steppers are inactive for > LASER_SAFETY_TIMEOUT_MS ms
   #if LASER_SAFETY_TIMEOUT_MS > 0
     if (cutter.last_power_applied && ELAPSED(millis(), gcode.previous_move_ms + (LASER_SAFETY_TIMEOUT_MS))) {
@@ -4134,18 +4115,15 @@ void Temperature::isr() {
         #define _PWM_MOD_E(N) _PWM_MOD(N,soft_pwm_hotend[N],temp_hotend[N]);
         REPEAT(HOTENDS, _PWM_MOD_E);
       #endif
-
       #if HAS_HEATED_BED
         _PWM_MOD(BED, soft_pwm_bed, temp_bed);
         #if ENABLED(PELTIER_BED)
           WRITE_PELTIER_DIR(temp_bed.peltier_dir_heating);
         #endif
       #endif
-
       #if HAS_HEATED_CHAMBER
         _PWM_MOD(CHAMBER, soft_pwm_chamber, temp_chamber);
       #endif
-
       #if HAS_COOLER
         _PWM_MOD(COOLER, soft_pwm_cooler, temp_cooler);
       #endif
@@ -4161,7 +4139,6 @@ void Temperature::isr() {
           spcf = (spcf & pwm_mask) + (soft_pwm_amount_fan[N] >> 1); \
           WRITE_FAN(N, spcf > pwm_mask ? HIGH : LOW);               \
         }while(0)
-
         #if HAS_FAN0
           _FAN_PWM(0);
         #endif
@@ -4186,23 +4163,22 @@ void Temperature::isr() {
         #if HAS_FAN7
           _FAN_PWM(7);
         #endif
+
       #endif
     }
     else {
+
       #define _PWM_LOW(N,S) do{ if (S.count <= pwm_count_tmp) WRITE_HEATER_##N(LOW); }while(0)
       #if HAS_HOTEND
         #define _PWM_LOW_E(N) _PWM_LOW(N, soft_pwm_hotend[N]);
         REPEAT(HOTENDS, _PWM_LOW_E);
       #endif
-
       #if HAS_HEATED_BED
         _PWM_LOW(BED, soft_pwm_bed);
       #endif
-
       #if HAS_HEATED_CHAMBER
         _PWM_LOW(CHAMBER, soft_pwm_chamber);
       #endif
-
       #if HAS_COOLER
         _PWM_LOW(COOLER, soft_pwm_cooler);
       #endif
@@ -4267,15 +4243,12 @@ void Temperature::isr() {
         #define _SLOW_PWM_E(N) _SLOW_PWM(N, soft_pwm_hotend[N], temp_hotend[N]);
         REPEAT(HOTENDS, _SLOW_PWM_E);
       #endif
-
       #if HAS_HEATED_BED
         _SLOW_PWM(BED, soft_pwm_bed, temp_bed);
       #endif
-
       #if HAS_HEATED_CHAMBER
         _SLOW_PWM(CHAMBER, soft_pwm_chamber, temp_chamber);
       #endif
-
       #if HAS_COOLER
         _SLOW_PWM(COOLER, soft_pwm_cooler, temp_cooler);
       #endif
@@ -4286,15 +4259,12 @@ void Temperature::isr() {
       #define _PWM_OFF_E(N) _PWM_OFF(N, soft_pwm_hotend[N]);
       REPEAT(HOTENDS, _PWM_OFF_E);
     #endif
-
     #if HAS_HEATED_BED
       _PWM_OFF(BED, soft_pwm_bed);
     #endif
-
     #if HAS_HEATED_CHAMBER
       _PWM_OFF(CHAMBER, soft_pwm_chamber);
     #endif
-
     #if HAS_COOLER
       _PWM_OFF(COOLER, soft_pwm_cooler, temp_cooler);
     #endif
@@ -4425,7 +4395,7 @@ void Temperature::isr() {
       if (extra_loops > 0) {
         if (delay_count == 0) delay_count = extra_loops;  // Init this delay
         if (--delay_count)                                // While delaying...
-          next_sensor_state = SensorsReady;               // retain this state (else, next state will be 0)
+          next_sensor_state = SensorsReady;               // Retain this state (else, next state will be 0)
         break;
       }
       else {
@@ -5053,7 +5023,6 @@ void Temperature::isr() {
     #endif
 
     bool Temperature::wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling/*=true*/) {
-
       const bool wants_to_cool = isProbeAboveTemp(target_temp),
                  will_wait = !(wants_to_cool && no_wait_for_cooling);
       if (will_wait)
@@ -5067,7 +5036,6 @@ void Temperature::isr() {
       millis_t next_temp_ms = 0, next_delta_check_ms = 0;
       wait_for_heatup = true;
       while (will_wait && wait_for_heatup) {
-
         // Print Temp Reading every 10 seconds while heating up.
         millis_t now = millis();
         if (!next_temp_ms || ELAPSED(now, next_temp_ms)) {

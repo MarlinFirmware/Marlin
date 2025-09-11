@@ -915,7 +915,6 @@ void Stepper::apply_directions() {
 
     // For AVR we use assembly to maximize speed
     void Stepper::_calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av) {
-
       // Store advance
       bezier_AV = av;
 
@@ -1017,7 +1016,6 @@ void Stepper::apply_directions() {
     }
 
     FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
-
       // If dealing with the first step, save expensive computing and return the initial speed
       if (!curr_step)
         return bezier_F;
@@ -1514,7 +1512,6 @@ HAL_STEP_TIMER_ISR() {
 #endif
 
 void Stepper::isr() {
-
   static hal_timer_t nextMainISR = 0;  // Interval until the next main Stepper Pulse phase (0 = Now)
 
   #if ENABLED(SMOOTH_LIN_ADVANCE)
@@ -1542,7 +1539,6 @@ void Stepper::isr() {
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
-
     hal_timer_t interval = 0;
 
     #if ENABLED(FT_MOTION)
@@ -1566,7 +1562,6 @@ void Stepper::isr() {
     #endif
 
     if (!using_ftMotion) {
-
       TERN_(HAS_ZV_SHAPING, shaping_isr());               // Do Shaper stepping, if needed
 
       if (!nextMainISR) pulse_phase_isr();                // 0 = Do coordinated axes Stepper pulses
@@ -1738,7 +1733,6 @@ void Stepper::isr() {
  * is to keep pulse timing as regular as possible.
  */
 void Stepper::pulse_phase_isr() {
-
   // If we must abort the current block, do so!
   if (abort_current_block) {
     abort_current_block = false;
@@ -1865,7 +1859,6 @@ void Stepper::pulse_phase_isr() {
     #if ENABLED(DIRECT_STEPPING)
       // Direct stepping is currently not ready for HAS_I_AXIS
       if (is_page) {
-
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
           #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{      \
@@ -2204,7 +2197,6 @@ void Stepper::pulse_phase_isr() {
 
 // Calculate timer interval, with all limits applied.
 hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
-
   #ifdef CPU_32_BIT
 
     // A fast processor can just do integer division
@@ -2249,7 +2241,6 @@ hal_timer_t Stepper::calc_timer_interval(uint32_t step_rate) {
 
 // Get the timer interval and the number of loops to perform per tick
 hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
-
   #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
 
     #if MULTISTEPPING_LIMIT == 1
@@ -2307,7 +2298,6 @@ hal_timer_t Stepper::calc_multistep_timer_interval(uint32_t step_rate) {
 
 // Method to get all moving axes (for proper endstop handling)
 void Stepper::set_axis_moved_for_current_block() {
-
   #if IS_CORE
     // Define conditions for checking endstops
     #define S_(N) current_block->steps[CORE_AXIS_##N]
@@ -2630,13 +2620,10 @@ hal_timer_t Stepper::block_phase_isr() {
   // If there is no current block at this point, attempt to pop one from the buffer
   // and prepare its movement
   if (!current_block) {
-
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
-
       // Run through all sync blocks
       while (current_block->is_sync()) {
-
         // Set laser power
         #if ENABLED(LASER_POWER_SYNC)
           if (cutter.cutter_mode == CUTTER_MODE_CONTINUOUS) {
@@ -3148,20 +3135,20 @@ void Stepper::init() {
   TERN_(HAS_MICROSTEPS, microstep_init());
 
   // Init Dir Pins
-  TERN_(HAS_X_DIR,  X_DIR_INIT());
+  TERN_(HAS_X_DIR,   X_DIR_INIT());
   TERN_(HAS_X2_DIR, X2_DIR_INIT());
-  TERN_(HAS_Y_DIR,  Y_DIR_INIT());
+  TERN_(HAS_Y_DIR,   Y_DIR_INIT());
   TERN_(HAS_Y2_DIR, Y2_DIR_INIT());
-  TERN_(HAS_Z_DIR,  Z_DIR_INIT());
+  TERN_(HAS_Z_DIR,   Z_DIR_INIT());
   TERN_(HAS_Z2_DIR, Z2_DIR_INIT());
   TERN_(HAS_Z3_DIR, Z3_DIR_INIT());
   TERN_(HAS_Z4_DIR, Z4_DIR_INIT());
-  TERN_(HAS_I_DIR,  I_DIR_INIT());
-  TERN_(HAS_J_DIR,  J_DIR_INIT());
-  TERN_(HAS_K_DIR,  K_DIR_INIT());
-  TERN_(HAS_U_DIR,  U_DIR_INIT());
-  TERN_(HAS_V_DIR,  V_DIR_INIT());
-  TERN_(HAS_W_DIR,  W_DIR_INIT());
+  TERN_(HAS_I_DIR,   I_DIR_INIT());
+  TERN_(HAS_J_DIR,   J_DIR_INIT());
+  TERN_(HAS_K_DIR,   K_DIR_INIT());
+  TERN_(HAS_U_DIR,   U_DIR_INIT());
+  TERN_(HAS_V_DIR,   V_DIR_INIT());
+  TERN_(HAS_W_DIR,   W_DIR_INIT());
   TERN_(HAS_E0_DIR, E0_DIR_INIT());
   TERN_(HAS_E1_DIR, E1_DIR_INIT());
   TERN_(HAS_E2_DIR, E2_DIR_INIT());
@@ -3200,8 +3187,8 @@ void Stepper::init() {
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
   #define _DISABLE_AXIS(AXIS) DISABLE_AXIS_## AXIS()
 
-  #define AXIS_INIT(AXIS, PIN) \
-    _STEP_INIT(AXIS); \
+  #define AXIS_INIT(AXIS, PIN)            \
+    _STEP_INIT(AXIS);                     \
     _WRITE_STEP(AXIS, !_STEP_STATE(PIN)); \
     _DISABLE_AXIS(AXIS)
 
@@ -3315,13 +3302,13 @@ void Stepper::init() {
     hal.isr_off();
 
     const shaping_time_t delay = freq ? float(uint32_t(STEPPER_TIMER_RATE) / 2) / freq : shaping_time_t(-1);
-    #define SHAPING_SET_FREQ_FOR_AXIS(AXISN, AXISL)                                 \
-      if (axis == AXISN) {                                                          \
-        ShapingQueue::set_delay(AXISN, delay);                                      \
-        shaping_##AXISL.frequency = freq;                                           \
-        shaping_##AXISL.enabled = !!freq;                                           \
-        shaping_##AXISL.delta_error = 0;                                            \
-        shaping_##AXISL.last_block_end_pos = count_position.AXISL;                  \
+    #define SHAPING_SET_FREQ_FOR_AXIS(AXISN, AXISL)                \
+      if (axis == AXISN) {                                         \
+        ShapingQueue::set_delay(AXISN, delay);                     \
+        shaping_##AXISL.frequency = freq;                          \
+        shaping_##AXISL.enabled = !!freq;                          \
+        shaping_##AXISL.delta_error = 0;                           \
+        shaping_##AXISL.last_block_end_pos = count_position.AXISL; \
       }
 
     TERN_(INPUT_SHAPING_X, SHAPING_SET_FREQ_FOR_AXIS(X_AXIS, x))
@@ -3486,8 +3473,7 @@ void Stepper::set_axis_position(const AxisEnum a, const int32_t &v) {
  * must ensure the move is properly canceled before the ISR resumes.
  */
 void Stepper::endstop_triggered(const AxisEnum axis) {
-
-  ATOMIC_SECTION_START();   // Suspend the Stepper ISR on all platforms
+  ATOMIC_SECTION_START(); // Suspend the Stepper ISR on all platforms
 
   endstops_trigsteps[axis] = (
     #if IS_CORE
@@ -3511,7 +3497,7 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
   // Discard the rest of the move if there is a current block
   quick_stop();
 
-  ATOMIC_SECTION_END();     // Suspend the Stepper ISR on all platforms
+  ATOMIC_SECTION_END(); // Suspend the Stepper ISR on all platforms
 }
 
 // Return the "triggered" position for an axis (that hit an endstop)
@@ -3563,7 +3549,6 @@ void Stepper::report_positions() {
    * - Apply STEP/DIR along with any delays required. A command may be empty, with no STEP/DIR.
    */
   void Stepper::ftMotion_stepper() {
-
     // Check if the buffer is empty.
     ftMotion.stepperCmdBuffHasData = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
     if (!ftMotion.stepperCmdBuffHasData) return;
@@ -3738,7 +3723,6 @@ void Stepper::report_positions() {
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void Stepper::do_babystep(const AxisEnum axis, const bool direction) {
-
     IF_DISABLED(BABYSTEPPING, cli());
 
     switch (axis) {
@@ -3775,9 +3759,7 @@ void Stepper::report_positions() {
           BABYSTEP_CORE(Y, Z, direction, ENABLED(BABYSTEP_INVERT_Z), (CORESIGN(1)<0));
         #elif DISABLED(DELTA)
           BABYSTEP_AXIS(Z, direction, ENABLED(BABYSTEP_INVERT_Z));
-
         #else // DELTA
-
           const bool z_direction = TERN_(BABYSTEP_INVERT_Z, !) direction;
 
           enable_axis(A_AXIS); enable_axis(B_AXIS); enable_axis(C_AXIS);
@@ -3812,7 +3794,6 @@ void Stepper::report_positions() {
           Z_DIR_WRITE(old_fwd[C_AXIS]);
 
           EXTRA_DIR_WAIT_AFTER();
-
         #endif
 
       } break;

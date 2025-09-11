@@ -168,7 +168,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
         compensationmultiplier;
 
   inline void magnetic_parking_extruder_tool_change(const uint8_t new_tool) {
-
     const float oldx = current_position.x,
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
                 offsetcompensation = TERN0(HAS_HOTEND_OFFSET, hotend_offset[active_extruder].x * mpe_settings.compensation_factor);
@@ -291,7 +290,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
   inline void parking_extruder_tool_change(const uint8_t new_tool, bool no_move) {
     if (!no_move) {
-
       constexpr float parkingposx[] = PARKING_EXTRUDER_PARKING_X;
 
       #if HAS_HOTEND_OFFSET
@@ -840,7 +838,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * @param no_move Flag indicating no moves should take place
    */
   inline void dualx_tool_change(const uint8_t new_tool, bool &no_move) {
-
     DEBUG_ECHOPGM("Dual X Carriage Mode ");
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE: DEBUG_ECHOLNPGM("FULL_CONTROL"); break;
@@ -1026,7 +1023,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
    * Raise Z, move the ToolChange_Park if enabled, prime the extruder, move back.
    */
   void tool_change_prime() {
-
     DEBUG_SECTION(tcp, "tool_change_prime", true);
 
     if (!too_cold(active_extruder)) {
@@ -1108,7 +1104,6 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
-
   if (TERN0(MAGNETIC_SWITCHING_TOOLHEAD, new_tool == active_extruder))
     return;
 
@@ -1529,7 +1524,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
   #include "../core/debug_out.h"
 
   bool extruder_migration() {
-
     if (thermalManager.targetTooColdToExtrude(active_extruder)) {
       DEBUG_ECHOLNPGM("Migration Source Too Cold");
       return false;

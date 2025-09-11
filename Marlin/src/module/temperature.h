@@ -449,7 +449,7 @@ typedef struct HeaterInfo : public TempInfo {
 // A heater with PID stabilization
 template<typename T>
 struct PIDHeaterInfo : public HeaterInfo {
-  T pid;  // Initialized by settings.load
+  T pid; // Initialized by settings.load
 };
 
 #if ENABLED(MPCTEMP)
@@ -541,8 +541,8 @@ typedef struct { raw_adc_t raw_min, raw_max; } temp_raw_range_t;
 // Temperature sensor read value ranges
 typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_range_t;
 
-#define THERMISTOR_ABS_ZERO_C           -273.15f  // bbbbrrrrr cold !
-#define THERMISTOR_RESISTANCE_NOMINAL_C 25.0f     // mmmmm comfortable
+#define THERMISTOR_ABS_ZERO_C           -273.15f // bbbbrrrrr cold !
+#define THERMISTOR_RESISTANCE_NOMINAL_C 25.0f    // mmmmm comfortable
 
 #if HAS_USER_THERMISTORS
 
@@ -604,7 +604,6 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 #endif
 
 class Temperature {
-
   public:
 
     #if HAS_HOTEND
