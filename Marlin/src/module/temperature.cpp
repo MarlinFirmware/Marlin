@@ -2354,7 +2354,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
 void Temperature::task() {
   if (marlin_state == MarlinState::MF_INITIALIZING) return hal.watchdog_refresh(); // If Marlin isn't started, at least reset the watchdog!
 
-  static bool no_reentry = false;  // Prevent recursion
+  static bool no_reentry = false; // Prevent recursion
   if (no_reentry) return;
   REMEMBER(mh, no_reentry, true);
 
@@ -2367,7 +2367,7 @@ void Temperature::task() {
     }
 
     #if HAS_MEDIA
-      if (emergency_parser.sd_abort_by_M524) { // abort SD print immediately
+      if (emergency_parser.sd_abort_by_M524) { // Abort SD print immediately
         emergency_parser.sd_abort_by_M524 = false;
         card.flag.abort_sd_printing = true;
         gcode.process_subcommands_now(F("M524"));
@@ -3614,9 +3614,9 @@ void Temperature::disable_all_heaters() {
   void Temperature::pause_heaters(const bool p) {
     if (p != paused_for_probing) {
       paused_for_probing = p;
-      if (p) {
-        HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
+      if (p) { // Timeout immediately
+        HOTEND_LOOP() heater_idle[e].expire();
+        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire());
       }
       else {
         HOTEND_LOOP() reset_hotend_idle_timer(e);
@@ -3640,7 +3640,7 @@ void Temperature::disable_all_heaters() {
         setTargetHotend(singlenozzle_temp[new_tool], 0);
         TERN_(AUTOTEMP, planner.autotemp_update());
         set_heating_message(0);
-        (void)wait_for_hotend(0, false);  // Wait for heating or cooling
+        (void)wait_for_hotend(0, false); // Wait for heating or cooling
       }
     #endif
   }
@@ -3736,8 +3736,8 @@ void Temperature::disable_all_heaters() {
         spiInit(MAX_TC_SPEED_BITS);
       #endif
 
-      MAXTC_CS_WRITE(LOW);  // Enable MAXTC
-      DELAY_NS(100);        // Ensure 100ns delay
+      MAXTC_CS_WRITE(LOW); // Enable MAXTC
+      DELAY_NS(100);       // Ensure 100ns delay
 
       // Read a big-endian temperature value without using a library
       for (uint8_t i = sizeof(max_tc_temp); i--;) {
@@ -3745,7 +3745,7 @@ void Temperature::disable_all_heaters() {
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
 
-      MAXTC_CS_WRITE(HIGH);  // Disable MAXTC
+      MAXTC_CS_WRITE(HIGH); // Disable MAXTC
     #else
       #if HAS_MAX6675_LIBRARY
         MAX6675 &max6675ref = THERMO_SEL(max6675_0, max6675_1, max6675_2);
@@ -3859,8 +3859,8 @@ void Temperature::disable_all_heaters() {
         spiInit(BED_MAX_TC_SPEED_BITS);
       #endif
 
-      WRITE(TEMP_BED_CS_PIN, LOW);  // Enable MAXTC
-      DELAY_NS(100);        // Ensure 100ns delay
+      WRITE(TEMP_BED_CS_PIN, LOW); // Enable MAXTC
+      DELAY_NS(100);               // Ensure 100ns delay
 
       // Read a big-endian temperature value without using a library
       for (uint8_t i = sizeof(max_tc_temp); i--;) {
@@ -3868,7 +3868,7 @@ void Temperature::disable_all_heaters() {
         if (i > 0) max_tc_temp <<= 8; // shift left if not the last byte
       }
 
-      WRITE(TEMP_BED_CS_PIN, HIGH);  // Disable MAXTC
+      WRITE(TEMP_BED_CS_PIN, HIGH); // Disable MAXTC
 
     #elif ALL(TEMP_SENSOR_BED_IS_MAX6675, HAS_MAX6675_LIBRARY)
       MAX6675 &max6675ref = max6675_BED;
@@ -4423,21 +4423,21 @@ void Temperature::isr() {
       constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - (int8_t)SensorsReady;
       static uint8_t delay_count = 0;
       if (extra_loops > 0) {
-        if (delay_count == 0) delay_count = extra_loops;  // Init this delay
-        if (--delay_count)                                // While delaying...
-          next_sensor_state = SensorsReady;               // retain this state (else, next state will be 0)
+        if (delay_count == 0) delay_count = extra_loops; // Init this delay
+        if (--delay_count)                               // While delaying,
+          next_sensor_state = SensorsReady;              // retain this state (else, next state will be 0)
         break;
       }
       else {
-        adc_sensor_state = StartSampling;                 // Fall-through to start sampling
+        adc_sensor_state = StartSampling;                // Fall-through to start sampling
         next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
       }
     }
 
     #pragma GCC diagnostic pop
 
-    case StartSampling:                                   // Start of sampling loops. Do updates/checks.
-      if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+    case StartSampling:                   // Start of sampling loops. Do updates/checks.
+      if (++temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
         temp_count = 0;
         readings_ready();
       }
@@ -4582,14 +4582,14 @@ void Temperature::isr() {
       case Prepare_ADC_KEY: hal.adc_start(ADC_KEYPAD_PIN); break;
       case Measure_ADC_KEY:
         if (!hal.adc_ready())
-          next_sensor_state = adc_sensor_state; // redo this state
+          next_sensor_state = adc_sensor_state; // Redo this state
         else if (ADCKey_count < ADC_BUTTON_DEBOUNCE_DELAY) {
           raw_ADCKey_value = hal.adc_value();
           if (raw_ADCKey_value <= 900UL * HAL_ADC_RANGE / 1024UL) {
             NOMORE(current_ADCKey_raw, raw_ADCKey_value);
             ADCKey_count++;
           }
-          else { //ADC Key release
+          else { // ADC Key release
             if (ADCKey_count > 0) ADCKey_count++; else ADCKey_pressed = false;
             if (ADCKey_pressed) {
               ADCKey_count = 0;
@@ -4603,14 +4603,14 @@ void Temperature::isr() {
 
     case StartupDelay: break;
 
-  } // switch(adc_sensor_state)
+  } // switch (adc_sensor_state)
 
   // Go to the next state
   adc_sensor_state = next_sensor_state;
 
-  //
-  // Additional ~1kHz Tasks
-  //
+  /**
+   * Additional ~1kHz Tasks
+   */
 
   // Check fan tachometers
   TERN_(HAS_FANCHECK, fan_check.update_tachometers());
@@ -4883,15 +4883,14 @@ void Temperature::isr() {
         wait_for_heatup = false;
         #if ENABLED(DWIN_CREALITY_LCD)
           hmiFlag.heat_flag = 0;
-          duration_t elapsed = print_job_timer.duration();  // Print timer
+          duration_t elapsed = print_job_timer.duration(); // Print timer
           dwin_heat_time = elapsed.value;
         #elif ENABLED(SOVOL_SV06_RTS)
           update_time_value = RTS_UPDATE_VALUE;
           if (card.isStillPrinting()) rts.refreshTime();
           rts.start_print_flag = false;
-        #else
-          ui.reset_status();
         #endif
+        ui.reset_status();
         TERN_(PRINTER_EVENT_LEDS, printerEventLEDs.onHeatingDone());
         return true;
       }
@@ -5223,7 +5222,6 @@ void Temperature::isr() {
     #endif
 
     bool Temperature::wait_for_cooler(const bool no_wait_for_cooling/*=true*/) {
-
       #if TEMP_COOLER_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         bool first_loop = true;
