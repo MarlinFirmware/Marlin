@@ -360,24 +360,14 @@ void FTMotion::loop() {
   }
 
   void FTMotion::update_shaping_params() {
-    #if HAS_X_AXIS
-      if ((shaping.x.ena = AXIS_HAS_SHAPER(X))) {
-        shaping.x.set_axis_shaping_A(cfg.shaper.x, cfg.zeta.x, cfg.vtol.x);
-        shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x, cfg.zeta.x);
-      }
-    #endif
-    #if HAS_Y_AXIS
-      if ((shaping.y.ena = AXIS_HAS_SHAPER(Y))) {
-        shaping.y.set_axis_shaping_A(cfg.shaper.y, cfg.zeta.y, cfg.vtol.y);
-        shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y, cfg.zeta.y);
-      }
-    #endif
-    #if HAS_Z_AXIS
-      if ((shaping.z.ena = AXIS_HAS_SHAPER(Z))) {
-        shaping.z.set_axis_shaping_A(cfg.shaper.z, cfg.zeta.z, cfg.vtol.z);
-        shaping.z.set_axis_shaping_N(cfg.shaper.z, cfg.baseFreq.z, cfg.zeta.z);
-      }
-    #endif
+    #define UPDATE_SHAPER(axis) \
+      shaping.axis.ena = ftMotion.cfg.shaper.axis != ftMotionShaper_NONE; \
+      shaping.axis.set_axis_shaping_A(cfg.shaper.axis, cfg.zeta.axis, cfg.vtol.axis); \
+      shaping.axis.set_axis_shaping_N(cfg.shaper.axis, cfg.baseFreq.axis, cfg.zeta.axis);
+    
+    TERN_(HAS_X_AXIS, UPDATE_SHAPER(x));
+    TERN_(HAS_Y_AXIS, UPDATE_SHAPER(y));
+    TERN_(HAS_Z_AXIS, UPDATE_SHAPER(z));
   }
 
 #endif // HAS_FTM_SHAPING
@@ -651,37 +641,19 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
     // Apply shaping if active on each axis
     #if HAS_FTM_SHAPING
-      #if HAS_X_AXIS
-        if (shaping.x.ena) {
-          shaping.x.d_zi[shaping.zi_idx] = traj.x[traj_idx_set];
-          traj.x[traj_idx_set] *= shaping.x.Ai[0];
-          for (uint32_t i = 1U; i <= shaping.x.max_i; i++) {
-            const uint32_t udiffx = shaping.zi_idx - shaping.x.Ni[i];
-            traj.x[traj_idx_set] += shaping.x.Ai[i] * shaping.x.d_zi[shaping.x.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffx : udiffx];
-          }
-        }
-      #endif
+      #define SHAPE(AXIS) \
+        if (shaping.AXIS.ena) { \
+          shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
+          traj.AXIS[traj_idx_set] *= shaping.AXIS.Ai[0]; \
+          for (uint32_t i = 1U; i <= shaping.AXIS.max_i; i++) { \
+            const uint32_t udiff = shaping.zi_idx - shaping.AXIS.Ni[i]; \
+            traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[shaping.AXIS.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiff : udiff]; \
+          } \
+        } 
+      TERN_(HAS_X_AXIS, SHAPE(x));
+      TERN_(HAS_Y_AXIS, SHAPE(y));
+      TERN_(HAS_Z_AXIS, SHAPE(z));
 
-      #if HAS_Y_AXIS
-        if (shaping.y.ena) {
-          shaping.y.d_zi[shaping.zi_idx] = traj.y[traj_idx_set];
-          traj.y[traj_idx_set] *= shaping.y.Ai[0];
-          for (uint32_t i = 1U; i <= shaping.y.max_i; i++) {
-            const uint32_t udiffy = shaping.zi_idx - shaping.y.Ni[i];
-            traj.y[traj_idx_set] += shaping.y.Ai[i] * shaping.y.d_zi[shaping.y.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffy : udiffy];
-          }
-        }
-      #endif
-      #if HAS_Z_AXIS
-        if (shaping.z.ena) {
-          shaping.z.d_zi[shaping.zi_idx] = traj.z[traj_idx_set];
-          traj.z[traj_idx_set] *= shaping.z.Ai[0];
-          for (uint32_t i = 1U; i <= shaping.z.max_i; i++) {
-            const uint32_t udiffz = shaping.zi_idx - shaping.z.Ni[i];
-            traj.z[traj_idx_set] += shaping.z.Ai[i] * shaping.z.d_zi[shaping.z.Ni[i] > shaping.zi_idx ? (FTM_ZMAX) + udiffz : udiffz];
-          }
-        }
-      #endif
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
     #endif // HAS_FTM_SHAPING
 

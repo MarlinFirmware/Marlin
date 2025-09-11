@@ -77,26 +77,15 @@ class FTMotion {
 
       #if HAS_FTM_SHAPING
 
-        #if HAS_X_AXIS
-          cfg.shaper.x = FTM_DEFAULT_SHAPER_X;
-          cfg.baseFreq.x = FTM_SHAPING_DEFAULT_FREQ_X;
-          cfg.zeta.x = FTM_SHAPING_ZETA_X;
-          cfg.vtol.x = FTM_SHAPING_V_TOL_X;
-        #endif
+        #define SET_CGF_DEFAULTS(axis, AXIS) \
+          cfg.shaper.axis = FTM_DEFAULT_SHAPER_##AXIS; \
+          cfg.baseFreq.axis = FTM_SHAPING_DEFAULT_FREQ_##AXIS; \
+          cfg.zeta.axis = FTM_SHAPING_ZETA_##AXIS; \
+          cfg.vtol.axis = FTM_SHAPING_V_TOL_##AXIS;
 
-        #if HAS_Y_AXIS
-          cfg.shaper.y = FTM_DEFAULT_SHAPER_Y;
-          cfg.baseFreq.y = FTM_SHAPING_DEFAULT_FREQ_Y;
-          cfg.zeta.y = FTM_SHAPING_ZETA_Y;
-          cfg.vtol.y = FTM_SHAPING_V_TOL_Y;
-        #endif
-
-        #if HAS_Z_AXIS
-          cfg.shaper.z = FTM_DEFAULT_SHAPER_Z;
-          cfg.baseFreq.z = FTM_SHAPING_DEFAULT_FREQ_Z;
-          cfg.zeta.z = FTM_SHAPING_ZETA_Z;
-          cfg.vtol.z = FTM_SHAPING_V_TOL_Z;
-        #endif
+        TERN_(HAS_X_AXIS, SET_CGF_DEFAULTS(x, X));
+        TERN_(HAS_Y_AXIS, SET_CGF_DEFAULTS(y, Y));
+        TERN_(HAS_Z_AXIS, SET_CGF_DEFAULTS(z, Z));
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
