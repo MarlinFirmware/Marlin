@@ -201,7 +201,7 @@ static void timer_default_config(timer_dev *dev) {
     switch (dev->type) {
     case TIMER_ADVANCED:
         regs->BDTR = TIMER_BDTR_MOE | TIMER_BDTR_LOCK_OFF;
-        // fall-through
+        // Fallthrough
     case TIMER_GENERAL:
         timer_set_reload(dev, full_overflow);
         for (uint8 channel = 1; channel <= 4; channel++) {
@@ -211,7 +211,7 @@ static void timer_default_config(timer_dev *dev) {
                                   TIMER_OC_PE);
             }
         }
-        // fall-through
+        // Fallthrough
     case TIMER_BASIC:
         break;
     }

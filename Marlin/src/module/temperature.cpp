@@ -3527,7 +3527,7 @@ void Temperature::init() {
         else if (PENDING(now, timer)) break;
         state = TRRunaway;
 
-      } // fall through
+      } // Fallthrough
 
       case TRRunaway:
         TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillRunaway_L, ID_KillRunaway_D));
@@ -4429,7 +4429,7 @@ void Temperature::isr() {
         break;
       }
       else {
-        adc_sensor_state = StartSampling;                 // Fall-through to start sampling
+        adc_sensor_state = StartSampling;                 // Fallthrough to start sampling
         next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
       }
     }

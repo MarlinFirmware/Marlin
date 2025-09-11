@@ -1717,7 +1717,7 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
         #else
           /**
            * For MBL and ABL-BILINEAR only segment moves when X or Y are involved.
-           * Otherwise fall through to do a direct single move.
+           * Otherwise fallthrough to do a direct single move.
            */
           if (xy_pos_t(current_position) != xy_pos_t(destination)) {
             #if ENABLED(MESH_BED_LEVELING)
