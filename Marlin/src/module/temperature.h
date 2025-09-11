@@ -791,7 +791,7 @@ class Temperature {
       static millis_t fan_update_ms;
 
       static void manage_extruder_fans(millis_t ms) {
-        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+        if (ELAPSED(ms, fan_update_ms)) { // Only need to check fan state very infrequently
           const millis_t next_ms = ms + fan_update_interval_ms;
           #if HAS_PWMFANCHECK
             #define FAN_CHECK_DURATION 100
@@ -977,9 +977,9 @@ class Temperature {
       #endif
     #endif
 
-    //high level conversion routines, for use outside of temperature.cpp
-    //inline so that there is no performance decrease.
-    //deg=degreeCelsius
+    // High level conversion routines, for use outside of temperature.cpp
+    // inline so that there is no performance decrease.
+    // deg=degreeCelsius
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
@@ -1055,13 +1055,13 @@ class Temperature {
     #if HAS_HEATED_BED
 
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBedTemp()  { return temp_bed.getraw(); }
+        static raw_adc_t rawBedTemp() { return temp_bed.getraw(); }
       #endif
-      static celsius_float_t degBed()  { return temp_bed.celsius; }
-      static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
-      static celsius_t degTargetBed()  { return temp_bed.target; }
-      static bool isHeatingBed()       { return temp_bed.target > temp_bed.celsius; }
-      static bool isCoolingBed()       { return temp_bed.target < temp_bed.celsius; }
+      static celsius_float_t degBed() { return temp_bed.celsius; }
+      static celsius_t wholeDegBed()  { return static_cast<celsius_t>(degBed() + 0.5f); }
+      static celsius_t degTargetBed() { return temp_bed.target; }
+      static bool isHeatingBed()      { return temp_bed.target > temp_bed.celsius; }
+      static bool isCoolingBed()      { return temp_bed.target < temp_bed.celsius; }
       static bool degBedNear(const celsius_t temp) {
         return ABS(wholeDegBed() - temp) < (TEMP_BED_HYSTERESIS);
       }
@@ -1093,10 +1093,10 @@ class Temperature {
 
     #if HAS_TEMP_PROBE
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawProbeTemp()  { return temp_probe.getraw(); }
+        static raw_adc_t rawProbeTemp() { return temp_probe.getraw(); }
       #endif
-      static celsius_float_t degProbe()  { return temp_probe.celsius; }
-      static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
+      static celsius_float_t degProbe() { return temp_probe.celsius; }
+      static celsius_t wholeDegProbe()  { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
       static bool isProbeAboveTemp(const celsius_t target_temp) { return wholeDegProbe() > target_temp; }
       static bool wait_for_probe(const celsius_t target_temp, bool no_wait_for_cooling=true);
@@ -1104,14 +1104,14 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawChamberTemp()    { return temp_chamber.getraw(); }
+        static raw_adc_t rawChamberTemp()   { return temp_chamber.getraw(); }
       #endif
-      static celsius_float_t degChamber()    { return temp_chamber.celsius; }
-      static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
+      static celsius_float_t degChamber()   { return temp_chamber.celsius; }
+      static celsius_t wholeDegChamber()    { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
-        static celsius_t degTargetChamber()  { return temp_chamber.target; }
-        static bool isHeatingChamber()       { return temp_chamber.target > temp_chamber.celsius; }
-        static bool isCoolingChamber()       { return temp_chamber.target < temp_chamber.celsius; }
+        static celsius_t degTargetChamber() { return temp_chamber.target; }
+        static bool isHeatingChamber()      { return temp_chamber.target > temp_chamber.celsius; }
+        static bool isCoolingChamber()      { return temp_chamber.target < temp_chamber.celsius; }
         static bool wait_for_chamber(const bool no_wait_for_cooling=true);
         static void manage_heated_chamber(const millis_t &ms);
       #endif
@@ -1143,18 +1143,18 @@ class Temperature {
 
     #if HAS_TEMP_BOARD
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBoardTemp()  { return temp_board.getraw(); }
+        static raw_adc_t rawBoardTemp() { return temp_board.getraw(); }
       #endif
-      static celsius_float_t degBoard()  { return temp_board.celsius; }
-      static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
+      static celsius_float_t degBoard() { return temp_board.celsius; }
+      static celsius_t wholeDegBoard()  { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_SOC
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
+        static raw_adc_t rawSocTemp() { return temp_soc.getraw(); }
       #endif
-      static celsius_float_t degSoc()    { return temp_soc.celsius; }
-      static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
+      static celsius_float_t degSoc() { return temp_soc.celsius; }
+      static celsius_t wholeDegSoc()  { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT
@@ -1251,14 +1251,14 @@ class Temperature {
           MeasurementState measure_heatup();
           MeasurementState measure_transfer();
 
-          celsius_float_t get_ambient_temp() { return ambient_temp; }
+          celsius_float_t get_ambient_temp()       { return ambient_temp; }
           celsius_float_t get_last_measured_temp() { return current_temp; }
 
-          float get_elapsed_heating_time() { return elapsed_heating_time; }
-          float get_sample_1_time() { return t1_time; }
-          static float get_sample_1_temp() { return temp_samples[0]; }
-          static float get_sample_2_temp() { return temp_samples[(sample_count - 1) >> 1]; }
-          static float get_sample_3_temp() { return temp_samples[sample_count - 1]; }
+          float get_elapsed_heating_time()   { return elapsed_heating_time; }
+          float get_sample_1_time()          { return t1_time; }
+          static float get_sample_1_temp()   { return temp_samples[0]; }
+          static float get_sample_2_temp()   { return temp_samples[(sample_count - 1) >> 1]; }
+          static float get_sample_3_temp()   { return temp_samples[sample_count - 1]; }
           static float get_sample_interval() { return sample_distance * (sample_count >> 1); }
 
           static celsius_float_t get_temp_fastest() { return temp_fastest; }
