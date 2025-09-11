@@ -174,6 +174,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
   #if HAS_EXTRUDERS
     SERIAL_ECHOPGM(" P", c.linearAdvEna, " K", c.linearAdvK);
   #endif
+  SERIAL_ECHOPGM(" G", c.axis_sync_enabled);
   SERIAL_EOL();
 }
 
@@ -199,6 +200,8 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    P<bool> Enable (1) or Disable (0) Linear Advance pressure control
  *
  *    K<gain> Set Linear Advance gain
+ *
+ *    G<bool> Enable (1) or Disable (0) axis synchronization.
  *
  *    D<mode> Set Dynamic Frequency mode
  *       0: DISABLED
@@ -295,6 +298,15 @@ void GcodeSuite::M493() {
     }
 
   #endif // HAS_EXTRUDERS
+
+  // Parse 'G' axis synchronization parameter.
+  if (parser.seen('G')) {
+    const bool enabled = parser.value_bool();
+    if (enabled != ftMotion.cfg.axis_sync_enabled) {
+      ftMotion.cfg.axis_sync_enabled = enabled;
+      flag.report = true;
+    }
+  }
 
   #if HAS_DYNAMIC_FREQ
 

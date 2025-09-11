@@ -936,6 +936,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_MZV                        = _UxGT("MZV");
   //LSTR MSG_FTM_ULENDO_FBS               = _UxGT("Ulendo FBS");
   //LSTR MSG_FTM_DISCTF                   = _UxGT("DISCTF");
+  LSTR MSG_FTM_AXIS_SYNC                  = _UxGT("Axis Sync");
   LSTR MSG_FTM_DYN_MODE                   = _UxGT("DF Mode: $");
   LSTR MSG_FTM_Z_BASED                    = _UxGT("Z-based");
   LSTR MSG_FTM_MASS_BASED                 = _UxGT("Mass-based");

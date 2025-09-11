@@ -662,17 +662,21 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       default: break;
     }
 
-    uint32_t max_delay = _MAX(
-      TERN0(HAS_X_AXIS, - shaping.x.Ni[0]),
-      TERN0(HAS_Y_AXIS, - shaping.y.Ni[0]),
-      TERN0(HAS_Z_AXIS, - shaping.z.Ni[0]),
-      TERN0(HAS_EXTRUDERS, - shaping.e.Ni[0])
-    );
+    uint32_t max_delay;
+    if (ftMotion.cfg.axis_sync_enabled){
+      max_delay = _MAX(
+        TERN0(HAS_X_AXIS, - shaping.x.Ni[0]),
+        TERN0(HAS_Y_AXIS, - shaping.y.Ni[0]),
+        TERN0(HAS_Z_AXIS, - shaping.z.Ni[0]),
+        TERN0(HAS_EXTRUDERS, - shaping.e.Ni[0])
+      );
+    }
     // Apply shaping if active on each axis
     #if HAS_FTM_SHAPING
       #define SHAPE(AXIS) \
         shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
         traj.AXIS[traj_idx_set] = 0; \
+        if (!ftMotion.cfg.axis_sync_enabled) max_delay = -shaping.AXIS.Ni[0]; \
         for (uint32_t i = 0; i <= shaping.AXIS.max_i; i++) { \
           /* delay is always positive since Ni[i] = echo_index - shaper_delay + max_delay */ \
           /* where echo_index > 0 and shaper_delay ≤ max_delay */ \

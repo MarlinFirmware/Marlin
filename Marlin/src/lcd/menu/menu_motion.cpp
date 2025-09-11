@@ -472,6 +472,7 @@ void menu_move() {
         if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
           EDIT_ITEM(float62, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 1000.0f);
       #endif
+      EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
     }
     END_MENU();
   }

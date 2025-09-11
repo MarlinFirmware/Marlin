@@ -39,6 +39,7 @@
 
 typedef struct FTConfig {
   bool active = ENABLED(FTM_IS_DEFAULT_MOTION);           // Active (else standard motion)
+  bool axis_sync_enabled = true;                          // Axis synchronization enabled
 
   #if HAS_FTM_SHAPING
     ft_shaped_shaper_t shaper =                           // Shaper type
