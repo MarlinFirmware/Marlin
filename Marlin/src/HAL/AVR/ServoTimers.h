@@ -76,7 +76,7 @@
   // everything else
 #endif
 
-typedef enum {
+typedef enum : uint8_t {
   #ifdef _useTimer1
     _timer1,
   #endif

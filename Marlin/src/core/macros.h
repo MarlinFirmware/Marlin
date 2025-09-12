@@ -446,22 +446,22 @@
 
     // test if type is integral
     template<typename>  struct _is_integral { enum { value = false }; };
-    template<>          struct _is_integral<unsigned char> { enum { value = true }; };
-    template<>          struct _is_integral<unsigned short> { enum { value = true }; };
-    template<>          struct _is_integral<unsigned int> { enum { value = true }; };
-    template<>          struct _is_integral<unsigned long> { enum { value = true }; };
-    template<>          struct _is_integral<unsigned long long> { enum { value = true }; };
-    template<>          struct _is_integral<char> { enum { value = true }; };
-    template<>          struct _is_integral<short> { enum { value = true }; };
-    template<>          struct _is_integral<int> { enum { value = true }; };
-    template<>          struct _is_integral<long> { enum { value = true }; };
-    template<>          struct _is_integral<long long> { enum { value = true }; };
+    template<>          struct _is_integral<unsigned char> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<unsigned short> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<unsigned int> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<unsigned long> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<unsigned long long> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<char> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<short> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<int> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<long> { enum : uint8_t { value = true }; };
+    template<>          struct _is_integral<long long> { enum : uint8_t { value = true }; };
     template<typename T> struct is_integral : public _is_integral<typename remove_cv<T>::type> {};
   }
 
   // enum type check and regression to its underlying integral.
   namespace Private {
-    template<typename T> struct is_enum { enum { value = __is_enum(T) }; };
+    template<typename T> struct is_enum { enum : uint8_t { value = __is_enum(T) }; };
 
     template<typename T, bool = is_enum<T>::value>  struct _underlying_type { using type = __underlying_type(T); };
     template<typename T>                            struct _underlying_type<T, false> { };
@@ -476,7 +476,7 @@
       template <typename Type, typename Yes=char, typename No=long> struct HasMember_ ## Member { \
         template <typename C> static Yes& test( decltype(&C::Member) ) ; \
         template <typename C> static No& test(...); \
-        enum { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
+        enum : uint8_t { value = sizeof(test<Type>(0)) == sizeof(Yes) }; }; \
     }
 
   // Call the method if it exists, but do nothing if it does not. The method is detected at compile time.

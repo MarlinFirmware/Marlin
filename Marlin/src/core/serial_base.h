@@ -50,7 +50,7 @@ struct serial_index_t {
 // In order to catch usage errors in code, we make the base to encode number explicit
 // If given a number (and not this enum), the compiler will reject the overload, falling back to the (double, digit) version
 // We don't want hidden conversion of the first parameter to double, so it has to be as hard to do for the compiler as creating this enum
-enum class PrintBase {
+enum class PrintBase : uint8_t {
   Dec = 10,
   Hex = 16,
   Oct = 8,
@@ -58,7 +58,7 @@ enum class PrintBase {
 };
 
 // A simple feature list enumeration
-enum class SerialFeature {
+enum class SerialFeature : uint8_t {
   None                = 0x00,
   MeatPack            = 0x01,   //!< Enabled when Meatpack is present
   BinaryFileTransfer  = 0x02,   //!< Enabled for BinaryFile transfer support (in the future)

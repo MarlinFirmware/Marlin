@@ -110,7 +110,7 @@
 /**
  * Planner block flags as boolean bit fields
  */
-enum BlockFlagBit {
+enum BlockFlagBit : uint8_t {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 

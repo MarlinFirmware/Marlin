@@ -209,7 +209,7 @@
       static ring_buffer_pos_t get_tx_buffer_free();
     #endif
 
-    enum { HasEmergencyParser = Cfg::EMERGENCYPARSER };
+    enum : uint8_t { HasEmergencyParser = Cfg::EMERGENCYPARSER };
     static bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
     FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
