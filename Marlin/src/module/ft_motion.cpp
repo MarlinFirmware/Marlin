@@ -114,6 +114,23 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
   };
 #endif
 
+#if ENABLED(FTM_SMOOTHING)
+  FTMotion::smoothing_t FTMotion::smoothing = {
+    #if HAS_X_AXIS
+      x:{ { 0.0f }, 0.0f, 0 } // smoothing_pass[], alpha, delay_samples
+    #endif
+    #if HAS_Y_AXIS
+      , y:{ { 0.0f }, 0.0f, 0 } // smoothing_pass[], alpha, delay_samples
+    #endif
+    #if HAS_Z_AXIS
+      , z:{ { 0.0f }, 0.0f, 0 } // smoothing_pass[], alpha, delay_samples
+    #endif
+    #if HAS_EXTRUDERS
+      , e:{ { 0.0f }, 0.0f, 0 } // smoothing_pass[], alpha, delay_samples
+    #endif
+  };
+#endif
+
 #if HAS_EXTRUDERS
   // Linear advance variables.
   float FTMotion::e_raw_z1 = 0.0f;        // (ms) Unit delay of raw extruder position.
@@ -377,6 +394,17 @@ void FTMotion::loop() {
       // The resulting echo index can be negative, this is ok because it will be offset
       // by the max delay of all axes before it is used.
       Ni[i] += Ni[0];
+    }
+  }
+
+  // Set smoothing time and recalculate alpha and delay.
+  void FTMotion::AxisSmoothing::set_smoothing_time(const_float_t s_time) {
+    if (s_time > 0.001f) {
+      alpha = 1.0f - expf(- (FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
+      delay_samples = s_time * FTM_FS;
+    } else {
+      alpha = 0.0f;
+      delay_samples = 0;
     }
   }
 
@@ -661,38 +689,66 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
       default: break;
     }
+    uint32_t max_total_delay = 0;
 
-    uint32_t max_delay;
-    if (ftMotion.cfg.axis_sync_enabled){
-      max_delay = _MAX(
-        TERN0(HAS_X_AXIS, - shaping.x.Ni[0]),
-        TERN0(HAS_Y_AXIS, - shaping.y.Ni[0]),
-        TERN0(HAS_Z_AXIS, - shaping.z.Ni[0]),
-        TERN0(HAS_EXTRUDERS, - shaping.e.Ni[0])
+    #if ENABLED(FTM_SMOOTHING)
+      #define SMOOTHEN(AXIS) /* Approximate gaussian smoothing via chained EMAs */ \
+        if (smoothing.AXIS.alpha > 0.0f) { \
+          float smooth_val = traj.AXIS[traj_idx_set]; \
+          for (uint8_t _i = 0; _i < FTM_SMOOTHING_ORDER; ++_i) { \
+            smoothing.AXIS.smoothing_pass[_i] += (smooth_val - smoothing.AXIS.smoothing_pass[_i]) * smoothing.AXIS.alpha; \
+            smooth_val = smoothing.AXIS.smoothing_pass[_i]; \
+          } \
+          traj.AXIS[traj_idx_set] = smooth_val; \
+        } 
+
+      TERN_(HAS_X_AXIS, SMOOTHEN(x));
+      TERN_(HAS_Y_AXIS, SMOOTHEN(y));
+      TERN_(HAS_Z_AXIS, SMOOTHEN(z));
+      TERN_(HAS_EXTRUDERS, SMOOTHEN(e));
+
+      max_total_delay += _MAX(
+        TERN0(HAS_X_AXIS, smoothing.x.delay_samples),
+        TERN0(HAS_Y_AXIS, smoothing.y.delay_samples),
+        TERN0(HAS_Z_AXIS, smoothing.z.delay_samples),
+        TERN0(HAS_EXTRUDERS, smoothing.e.delay_samples)
       );
-    }
-    // Apply shaping if active on each axis
+    #endif
+
     #if HAS_FTM_SHAPING
+      if (ftMotion.cfg.axis_sync_enabled) {
+        max_total_delay += _MAX(
+          TERN0(HAS_X_AXIS, - shaping.x.Ni[0]),
+          TERN0(HAS_Y_AXIS, - shaping.y.Ni[0]),
+          TERN0(HAS_Z_AXIS, - shaping.z.Ni[0]),
+          TERN0(HAS_EXTRUDERS, - shaping.e.Ni[0])
+        );
+      }
+    // Apply shaping if active on each axis
       #define SHAPE(AXIS) \
         do { \
+          uint32_t group_delay = max_total_delay; \
+          TERN0(FTM_SMOOTHING, group_delay -= smoothing.AXIS.delay_samples); \
+          if (!ftMotion.cfg.axis_sync_enabled) group_delay = -shaping.AXIS.Ni[0]; \
+          /* α=1−exp(−(dt / (τ / order))) */ \
           shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
           traj.AXIS[traj_idx_set] = 0; \
-          uint32_t max_local_delay = max_delay; \
-          if (!ftMotion.cfg.axis_sync_enabled) max_local_delay = -shaping.AXIS.Ni[0]; \
+          /* TODO: FIX IN DELAY COMPENSATION, MAX_DELAY SHOULDN'T BE CHANGED INSIDE! */ \
           for (uint32_t i = 0; i <= shaping.AXIS.max_i; i++) { \
             /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
             /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
-            const uint32_t echo_delay = max_local_delay + shaping.AXIS.Ni[i]; \
+            const uint32_t echo_delay = group_delay + shaping.AXIS.Ni[i]; \
             int32_t udiff = shaping.zi_idx - echo_delay; \
             if (udiff < 0) udiff += FTM_ZMAX; \
             traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[udiff]; \
           } \
-        } while (0)
+        } while (0);
+      
       TERN_(HAS_X_AXIS, SHAPE(x));
       TERN_(HAS_Y_AXIS, SHAPE(y));
       TERN_(HAS_Z_AXIS, SHAPE(z));
       TERN_(HAS_EXTRUDERS, SHAPE(e));
-
+      
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
     #endif // HAS_FTM_SHAPING
 

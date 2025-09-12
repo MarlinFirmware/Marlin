@@ -50,6 +50,7 @@ typedef struct FTConfig {
       { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E) };
     ft_shaped_float_t vtol =                              // Vibration Level
       { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E) };
+    ft_shaped_float_t smoothingTime;                    // Smoothing time. [s]
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -82,7 +83,7 @@ class FTMotion {
           cfg.shaper.axis = FTM_DEFAULT_SHAPER_##AXIS; \
           cfg.baseFreq.axis = FTM_SHAPING_DEFAULT_FREQ_##AXIS; \
           cfg.zeta.axis = FTM_SHAPING_ZETA_##AXIS; \
-          cfg.vtol.axis = FTM_SHAPING_V_TOL_##AXIS;
+          cfg.vtol.axis = FTM_SHAPING_V_TOL_##AXIS; 
 
         TERN_(HAS_X_AXIS, SET_CGF_DEFAULTS(x, X));
         TERN_(HAS_Y_AXIS, SET_CGF_DEFAULTS(y, Y));
@@ -100,6 +101,13 @@ class FTMotion {
         update_shaping_params();
 
       #endif // HAS_FTM_SHAPING
+
+      #if ENABLED(FTM_SMOOTHING)
+        TERN_(HAS_X_AXIS, set_smoothing_time(X_AXIS, FTM_SMOOTHING_TIME_X));
+        TERN_(HAS_Y_AXIS, set_smoothing_time(Y_AXIS, FTM_SMOOTHING_TIME_Y));
+        TERN_(HAS_Z_AXIS, set_smoothing_time(Z_AXIS, FTM_SMOOTHING_TIME_Z));
+        TERN_(HAS_EXTRUDERS, set_smoothing_time(E_AXIS, FTM_SMOOTHING_TIME_E));
+      #endif
 
       #if HAS_EXTRUDERS
         cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
@@ -126,6 +134,16 @@ class FTMotion {
       // Refresh gains and indices used by shaping functions.
       static void update_shaping_params(void);
     #endif
+
+    #if ENABLED(FTM_SMOOTHING)
+      // Setters for smoothingTime that update alpha and delay
+      static void set_smoothing_time(uint8_t axis, const_float_t s_time) {
+        if (axis == X_AXIS) smoothing.x.set_smoothing_time(cfg.smoothingTime.x = s_time);
+        if (axis == Y_AXIS) smoothing.y.set_smoothing_time(cfg.smoothingTime.y = s_time);
+        if (axis == Z_AXIS) smoothing.z.set_smoothing_time(cfg.smoothingTime.z = s_time);
+        if (axis == E_AXIS) smoothing.e.set_smoothing_time(cfg.smoothingTime.e = s_time);
+      }
+    #endif  
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
@@ -176,9 +194,29 @@ class FTMotion {
       static constexpr uint8_t block_extruder_axis = E_AXIS;
     #endif
 
+    // Smoothing variables.
+    #if HAS_FTM_SHAPING
+      typedef struct AxisSmoothing {
+        float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
+        float alpha = 0.0f;               // Pre-calculated alpha for smoothing.
+        uint32_t delay_samples = 0;       // Pre-calculated delay in samples for smoothing.
+
+        void set_smoothing_time(const_float_t s_time); // Sets smoothing time and recalculates alpha and delay.
+      } axis_smoothing_t;
+
+    #endif
+    #if ENABLED(FTM_SMOOTHING)
+      typedef struct Smoothing {
+        TERN_(HAS_X_AXIS, axis_smoothing_t x);
+        TERN_(HAS_Y_AXIS, axis_smoothing_t y);
+        TERN_(HAS_Z_AXIS, axis_smoothing_t z);
+        TERN_(HAS_EXTRUDERS, axis_smoothing_t e);
+      } smoothing_t;
+      static smoothing_t smoothing; // Smoothing data
+    #endif
+
     // Shaping variables.
     #if HAS_FTM_SHAPING
-
       typedef struct AxisShaping {
         bool ena = false;                 // Enabled indication.
         float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector.
@@ -200,7 +238,6 @@ class FTMotion {
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
-
     #endif // HAS_FTM_SHAPING
 
     // Linear advance variables.

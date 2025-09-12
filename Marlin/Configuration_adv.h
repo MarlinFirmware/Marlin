@@ -1169,6 +1169,18 @@
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
   #define FTM_SHAPING_V_TOL_Z           0.05f     // Vibration tolerance used by EI input shapers for Z axis
   #define FTM_SHAPING_V_TOL_E           0.05f     // Vibration tolerance used by EI input shapers for E axis
+  
+  #define FTM_SMOOTHING                           // Smoothing can reduce artifacts and make steppers quieter on sharp corners,
+                                                  // but too much will round corners.
+  #ifdef FTM_SMOOTHING
+    #define FTM_MAX_SMOOTHING_TIME      0.05f     // Maximum smoothing time (seconds), higher consumes more RAM.
+                                                  // Increase smoothing time to reduce jerky motion / noises.
+                                                  // Setting it to 0 disables it for the axis. 
+    #define FTM_SMOOTHING_TIME_X        0.00f     // (s) Smoothing time for X axis. Zero means disabled.
+    #define FTM_SMOOTHING_TIME_Y        0.00f     // (s) Smoothing time for Y axis
+    #define FTM_SMOOTHING_TIME_Z        0.00f     // (s) Smoothing time for Z axis
+    #define FTM_SMOOTHING_TIME_E        0.02f     // (s) Smoothing time for E axis. Also smoothens linear advance and can make curve surfaces smoother too.
+  #endif
 
   //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
 
@@ -1184,7 +1196,6 @@
   #endif
 
   #define FTM_FS                     1000         // (Hz) Frequency for trajectory generation. (Reciprocal of FTM_TS)
-  #define FTM_TS                        0.001f    // (s) Time step for trajectory generation. (Reciprocal of FTM_FS)
 
   #if DISABLED(COREXY)
     #define FTM_STEPPER_FS          20000         // (Hz) Frequency for stepper I/O update
@@ -1199,17 +1210,7 @@
     #define FTM_STEPPERCMD_BUFF_SIZE 6000
   #endif
 
-  #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
-  #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
-
-  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
-  #define FTM_RATIO (FTM_FS / FTM_MIN_SHAPE_FREQ) // Factor for use in FTM_ZMAX. DON'T CHANGE.
-  #define FTM_ZMAX (FTM_RATIO * 2)                // Maximum delays for shaping functions (even numbers only!)
-                                                  // Calculate as:
-                                                  //   ZV       : FTM_RATIO / 2
-                                                  //   ZVD, MZV : FTM_RATIO
-                                                  //   2HEI     : FTM_RATIO * 3 / 2
-                                                  //   3HEI     : FTM_RATIO * 2
+  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency, lower consumes more RAM  
 #endif // FT_MOTION
 
 /**
