@@ -38,7 +38,7 @@
   #include "game/game.h"
 #endif
 
-#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[22]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM(MSG, VALUE, STYL) do{ char msg[22]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #if ENABLED(PRINTCOUNTER)
 
