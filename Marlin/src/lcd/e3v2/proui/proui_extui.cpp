@@ -89,8 +89,7 @@ namespace ExtUI {
   void onPrintTimerStopped() {}
 
   #if HAS_FILAMENT_SENSOR
-    void onFilamentRunout(const extruder_t extruder) {
-      UNUSED(extruder);
+    void onFilamentRunout(const extruder_t) {
       dwinFilamentRunout();
     }
   #endif
