@@ -176,6 +176,7 @@ class FTMotion {
       static uint8_t block_extruder_axis;  // Cached extruder axis index
     #elif HAS_EXTRUDERS
       static constexpr uint8_t block_extruder_axis = E_AXIS;
+      static bool use_advance_lead;
     #endif
 
     // Shaping variables.
@@ -209,7 +210,7 @@ class FTMotion {
 
     // Linear advance variables.
     #if HAS_EXTRUDERS
-      static float e_raw_z1, e_advanced_z1;
+      static float prev_traj_e;
     #endif
 
     // Private methods

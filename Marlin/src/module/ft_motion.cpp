@@ -93,6 +93,7 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
+  bool FTMotion::use_advance_lead;
 #endif
 
 // Shaping variables.
@@ -110,8 +111,7 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
 
 #if HAS_EXTRUDERS
   // Linear advance variables.
-  float FTMotion::e_raw_z1 = 0.0f;        // (ms) Unit delay of raw extruder position.
-  float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
+  float FTMotion::prev_traj_e = 0.0f;        // (ms) Unit delay of raw extruder position.
 #endif
 
 constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); // Batch start index in window.
@@ -388,7 +388,7 @@ void FTMotion::reset() {
     shaping.zi_idx = 0;
   #endif
 
-  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);  // Reset linear advance variables.
+  TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
@@ -539,6 +539,23 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPos_prevBlock += moveDist;
 
+  //
+  #if HAS_EXTRUDERS
+   /**
+     * Use LIN_ADVANCE for blocks if all these are true:
+     * moveDist.e > 0                   : This is a print move.
+     * cfg.linearAdvK > 0               : There is an advance factor set.
+     * moveDist.e / totalLength < 3.0f  : Check for unusual high e_D ratio to detect if a retract move was 
+                                          combined with the last print move due to min. steps per segment.
+                                          Never execute this with advance!
+                                          This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
+                                          and no one will print 100mm wide lines using 3mm filament or
+                                          35mm wide lines using 1.75mm filament.
+     */
+    use_advance_lead = moveDist.e > 0 && cfg.linearAdvK > 0 && moveDist.e / totalLength < 3.0f;
+  #endif
+  //
+
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
@@ -557,14 +574,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
   do {
     float tau = (traj_idx_get + 1) * (FTM_TS);            // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
-    #if HAS_EXTRUDERS
-      float accel_k = 0.0f;                               // (mm/s^2) Acceleration K factor
-    #endif
-
+    
     if (traj_idx_get < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
-      TERN_(HAS_EXTRUDERS, accel_k = accel_P);            // (mm/s^2) Acceleration K factor from Accel phase
     }
     else if (traj_idx_get < (N1 + N2)) {
       // Coasting phase
@@ -575,7 +588,6 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       // Deceleration phase
       tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
       dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
-      TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
     #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
@@ -583,12 +595,13 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
     #if HAS_EXTRUDERS
       if (cfg.linearAdvEna) {
-        float dedt_adj = (traj.e[traj_idx_set] - e_raw_z1) * (FTM_FS);
-        if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
-
-        e_raw_z1 = traj.e[traj_idx_set];
-        e_advanced_z1 += dedt_adj * (FTM_TS);
-        traj.e[traj_idx_set] = e_advanced_z1;
+        float traj_e = traj.e[traj_idx_set];
+        if (use_advance_lead) {
+          // don't apply LA to retract/unretract blocks
+          float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
+          traj.e[traj_idx_set] += e_rate * cfg.linearAdvK;
+        }
+        prev_traj_e = traj_e;
       }
     #endif
 
