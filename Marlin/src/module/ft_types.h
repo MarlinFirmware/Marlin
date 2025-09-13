@@ -41,8 +41,8 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_HAS_SHAPER(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
-#define AXIS_HAS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
+#define AXIS_IS_SHAPING(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
+#define AXIS_IS_EISHAPING(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
@@ -58,12 +58,14 @@ enum {
   FT_BIT_COUNT
 };
 
+typedef bits_t(FT_BIT_COUNT) ft_command_t;
+
 #if HAS_FTM_SHAPING
   #define NUM_AXES_SHAPED TERN(HAS_EXTRUDERS, 4, TERN(HAS_Z_AXIS, 3, TERN(HAS_Y_AXIS, 2, 1)))
   #define SHAPED_ELEM(A, B, C, D) A OPTARG(HAS_Y_AXIS, B) OPTARG(HAS_Z_AXIS, C) OPTARG(HAS_Z_AXIS, D)
 #else
   #define NUM_AXES_SHAPED 0
-  #define SHAPED_ELEM(A, B, C, D)
+  #define SHAPED_ELEM(A,B,C,D)
 #endif
 
 template<typename T>
@@ -80,4 +82,3 @@ typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
-typedef bits_t(FT_BIT_COUNT) ft_command_t;

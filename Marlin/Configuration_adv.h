@@ -1169,13 +1169,13 @@
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
   #define FTM_SHAPING_V_TOL_Z           0.05f     // Vibration tolerance used by EI input shapers for Z axis
   #define FTM_SHAPING_V_TOL_E           0.05f     // Vibration tolerance used by EI input shapers for E axis
-  
+
   #define FTM_SMOOTHING                           // Smoothing can reduce artifacts and make steppers quieter on sharp corners,
                                                   // but too much will round corners.
   #ifdef FTM_SMOOTHING
     #define FTM_MAX_SMOOTHING_TIME      0.05f     // Maximum smoothing time (seconds), higher consumes more RAM.
                                                   // Increase smoothing time to reduce jerky motion / noises.
-                                                  // Setting it to 0 disables it for the axis. 
+                                                  // Setting it to 0 disables it for the axis.
     #define FTM_SMOOTHING_TIME_X        0.00f     // (s) Smoothing time for X axis. Zero means disabled.
     #define FTM_SMOOTHING_TIME_Y        0.00f     // (s) Smoothing time for Y axis
     #define FTM_SMOOTHING_TIME_Z        0.00f     // (s) Smoothing time for Z axis
@@ -1210,7 +1210,7 @@
     #define FTM_STEPPERCMD_BUFF_SIZE 6000
   #endif
 
-  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency, lower consumes more RAM  
+  #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency, lower consumes more RAM
 #endif // FT_MOTION
 
 /**
