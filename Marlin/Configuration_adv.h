@@ -1150,36 +1150,40 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
   #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
-  #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
-  #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
-  #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
-  #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
-  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f      // (Hz) Default peak frequency used by input shapers
+
   #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
   #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
-  #define FTM_SHAPING_ZETA_Z            0.03f     // Zeta used by input shapers for Z axis
-  #define FTM_SHAPING_ZETA_E            0.03f     // Zeta used by input shapers for E axis
 
+  #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
+  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
   #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
+
+  #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
+
+  #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Z            0.03f     // Zeta used by input shapers for Z axis
   #define FTM_SHAPING_V_TOL_Z           0.05f     // Vibration tolerance used by EI input shapers for Z axis
+
+  #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
+  #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_E            0.03f     // Zeta used by input shapers for E axis
   #define FTM_SHAPING_V_TOL_E           0.05f     // Vibration tolerance used by EI input shapers for E axis
 
-  #define FTM_SMOOTHING                           // Smoothing can reduce artifacts and make steppers quieter on sharp corners,
-                                                  // but too much will round corners.
-  #ifdef FTM_SMOOTHING
+  //#define FTM_SMOOTHING                         // Smoothing can reduce artifacts and make steppers quieter
+                                                  // on sharp corners, but too much will round corners.
+  #if ENABLED(FTM_SMOOTHING)
     #define FTM_MAX_SMOOTHING_TIME      0.05f     // Maximum smoothing time (seconds), higher consumes more RAM.
                                                   // Increase smoothing time to reduce jerky motion / noises.
                                                   // Setting it to 0 disables it for the axis.
     #define FTM_SMOOTHING_TIME_X        0.00f     // (s) Smoothing time for X axis. Zero means disabled.
     #define FTM_SMOOTHING_TIME_Y        0.00f     // (s) Smoothing time for Y axis
     #define FTM_SMOOTHING_TIME_Z        0.00f     // (s) Smoothing time for Z axis
-    #define FTM_SMOOTHING_TIME_E        0.02f     // (s) Smoothing time for E axis. Also smoothens linear advance and can make curve surfaces smoother too.
+    #define FTM_SMOOTHING_TIME_E        0.02f     // (s) Smoothing time for E axis. Affects Linear Advance to make curved surfaces smoother.
   #endif
 
   //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
