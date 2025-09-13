@@ -138,10 +138,10 @@ class FTMotion {
     #if ENABLED(FTM_SMOOTHING)
       // Setters for smoothingTime that update alpha and delay
       static void set_smoothing_time(uint8_t axis, const_float_t s_time) {
-        if (axis == X_AXIS) smoothing.x.set_smoothing_time(cfg.smoothingTime.x = s_time);
-        if (axis == Y_AXIS) smoothing.y.set_smoothing_time(cfg.smoothingTime.y = s_time);
-        if (axis == Z_AXIS) smoothing.z.set_smoothing_time(cfg.smoothingTime.z = s_time);
-        if (axis == E_AXIS) smoothing.e.set_smoothing_time(cfg.smoothingTime.e = s_time);
+        TERN_(HAS_X_AXIS, if (axis == X_AXIS) smoothing.x.set_smoothing_time(cfg.smoothingTime.x = s_time));
+        TERN_(HAS_Y_AXIS, if (axis == Y_AXIS) smoothing.y.set_smoothing_time(cfg.smoothingTime.y = s_time));
+        TERN_(HAS_Z_AXIS, if (axis == Z_AXIS) smoothing.z.set_smoothing_time(cfg.smoothingTime.z = s_time));
+        TERN_(HAS_EXTRUDERS, if (axis == E_AXIS) smoothing.e.set_smoothing_time(cfg.smoothingTime.e = s_time));
       }
     #endif  
 
