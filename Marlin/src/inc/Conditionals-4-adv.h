@@ -1519,6 +1519,12 @@
   #if HAS_X_AXIS
     #define HAS_FTM_SHAPING 1
   #endif
+  #if !HAS_Z_AXIS
+    #undef FTM_SHAPER_Z
+  #endif
+  #if !HAS_EXTRUDERS
+    #undef FTM_SHAPER_E
+  #endif
   #if ENABLED(FTM_UNIFIED_BWS)
     #define FTM_WINDOW_SIZE FTM_BW_SIZE
     #define FTM_BATCH_SIZE  FTM_BW_SIZE

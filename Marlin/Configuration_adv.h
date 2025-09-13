@@ -1164,11 +1164,13 @@
   #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
 
+  //#define FTM_SHAPER_Z                          // Include Z shaping support
   #define FTM_DEFAULT_SHAPER_Z      ftMotionShaper_NONE // Default shaper mode on Z axis
   #define FTM_SHAPING_DEFAULT_FREQ_Z   21.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_SHAPING_ZETA_Z            0.03f     // Zeta used by input shapers for Z axis
   #define FTM_SHAPING_V_TOL_Z           0.05f     // Vibration tolerance used by EI input shapers for Z axis
 
+  //#define FTM_SHAPER_E                          // Include E shaping support
   #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
   #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_SHAPING_ZETA_E            0.03f     // Zeta used by input shapers for E axis

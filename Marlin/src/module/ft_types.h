@@ -61,8 +61,8 @@ enum {
 typedef bits_t(FT_BIT_COUNT) ft_command_t;
 
 #if HAS_FTM_SHAPING
-  #define NUM_AXES_SHAPED TERN(HAS_EXTRUDERS, 4, TERN(HAS_Z_AXIS, 3, TERN(HAS_Y_AXIS, 2, 1)))
-  #define SHAPED_ELEM(A, B, C, D) A OPTARG(HAS_Y_AXIS, B) OPTARG(HAS_Z_AXIS, C) OPTARG(HAS_Z_AXIS, D)
+  #define NUM_AXES_SHAPED COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS, FTM_SHAPER_Z, FTM_SHAPER_E)
+  #define SHAPED_ELEM(A,B,C,D) A OPTARG(HAS_Y_AXIS, B) OPTARG(FTM_SHAPER_Z, C) OPTARG(FTM_SHAPER_E, D)
 #else
   #define NUM_AXES_SHAPED 0
   #define SHAPED_ELEM(A,B,C,D)
@@ -75,10 +75,32 @@ struct FTShapedAxes {
     struct { T SHAPED_ELEM(x, y, z, e); };
     T val[NUM_AXES_SHAPED];
   };
-  T& operator[](int i) { return val[i]; }
+  T& operator[](const int i) {
+    return val[i
+      #if DISABLED(FTM_SHAPER_Z) && ENABLED(FTM_SHAPER_E)
+        - (i == E_AXIS)
+      #endif
+    ];
+  }
 };
 
 typedef FTShapedAxes<float>            ft_shaped_float_t;
 typedef FTShapedAxes<ftMotionShaper_t> ft_shaped_shaper_t;
 typedef FTShapedAxes<dynFreqMode_t>    ft_shaped_dfm_t;
 
+#if ENABLED(FTM_SMOOTHING)
+  typedef struct FTSmoothedAxes {
+    #if HAS_X_AXIS
+      float x;
+    #endif
+    #if HAS_Y_AXIS
+      float y;
+    #endif
+    #if HAS_Z_AXIS
+      float z;
+    #endif
+    #if HAS_EXTRUDERS
+      float e;
+    #endif
+  } ft_smoothed_float_t;
+#endif

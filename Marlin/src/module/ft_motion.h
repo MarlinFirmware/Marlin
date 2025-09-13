@@ -50,7 +50,7 @@ typedef struct FTConfig {
       { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E) };
     ft_shaped_float_t vtol =                              // Vibration Level
       { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E) };
-    ft_shaped_float_t smoothingTime;                    // Smoothing time. [s]
+    ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -87,17 +87,18 @@ class FTMotion {
           cfg.zeta.A     = FTM_SHAPING_ZETA_##A; \
           cfg.vtol.A     = FTM_SHAPING_V_TOL_##A;
 
-        TERN_(HAS_X_AXIS, SET_CGF_DEFAULTS(x, X));
-        TERN_(HAS_Y_AXIS, SET_CGF_DEFAULTS(y, Y));
-        TERN_(HAS_Z_AXIS, SET_CGF_DEFAULTS(z, Z));
-        TERN_(HAS_EXTRUDERS, SET_CGF_DEFAULTS(e, E));
+        TERN_(HAS_X_AXIS,    SET_CGF_DEFAULTS(X));
+        TERN_(HAS_Y_AXIS,    SET_CGF_DEFAULTS(Y));
+        TERN_(FTM_SHAPER_Z,  SET_CGF_DEFAULTS(Z));
+        TERN_(FTM_SHAPER_E,  SET_CGF_DEFAULTS(E));
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;
-          TERN_(HAS_X_AXIS, cfg.dynFreqK.x = 0.0f);
-          TERN_(HAS_Y_AXIS, cfg.dynFreqK.y = 0.0f);
-          TERN_(HAS_Z_AXIS, cfg.dynFreqK.z = 0.0f);
-          TERN_(HAS_EXTRUDERS, cfg.dynFreqK.e = 0.0f);
+          //ZERO(cfg.dynFreqK);
+          TERN_(HAS_X_AXIS,   cfg.dynFreqK.x = 0.0f);
+          TERN_(HAS_Y_AXIS,   cfg.dynFreqK.y = 0.0f);
+          TERN_(FTM_SHAPER_Z, cfg.dynFreqK.z = 0.0f);
+          TERN_(FTM_SHAPER_E, cfg.dynFreqK.e = 0.0f);
         #endif
 
         update_shaping_params();
@@ -235,10 +236,10 @@ class FTMotion {
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
-        TERN_(HAS_X_AXIS, axis_shaping_t x);
-        TERN_(HAS_Y_AXIS, axis_shaping_t y);
-        TERN_(HAS_Z_AXIS, axis_shaping_t z);
-        TERN_(HAS_EXTRUDERS, axis_shaping_t e);
+        TERN_(HAS_X_AXIS,   axis_shaping_t x);
+        TERN_(HAS_Y_AXIS,   axis_shaping_t y);
+        TERN_(FTM_SHAPER_Z, axis_shaping_t z);
+        TERN_(FTM_SHAPER_E, axis_shaping_t e);
       } shaping_t;
 
       static shaping_t shaping; // Shaping data

@@ -58,7 +58,7 @@ void say_shaping() {
   #if HAS_Y_AXIS
     if (AXIS_IS_SHAPING(Y)) say_shaper_type(Y_AXIS, sep, STEPPER_B_NAME);
   #endif
-  #if HAS_Z_AXIS
+  #if ENABLED(FTM_SHAPER_Z)
     if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME);
   #endif
   SERIAL_ECHOLNPGM(")");
@@ -137,10 +137,10 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
     #if HAS_Y_AXIS
       , " B", c.baseFreq.y
     #endif
-    #if HAS_Z_AXIS
+    #if ENABLED(FTM_SHAPER_Z)
       , " C", c.baseFreq.z
     #endif
-    #if HAS_EXTRUDERS
+    #if ENABLED(FTM_SHAPER_E)
       , " E", c.baseFreq.e
     #endif
 
@@ -152,10 +152,10 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
       #if HAS_Y_AXIS
         , " H", c.dynFreqK.y
       #endif
-      #if HAS_Z_AXIS
+      #if ENABLED(FTM_SHAPER_Z)
         , " L", c.dynFreqK.z
       #endif
-      #if HAS_EXTRUDERS
+      #if ENABLED(FTM_SHAPER_E)
         , " O", c.dynFreqK.z
       #endif
     #endif
@@ -249,7 +249,7 @@ void GcodeSuite::M493() {
     }
   }
 
-  #if HAS_X_AXIS || HAS_Y_AXIS || HAS_Z_AXIS
+  #if ANY(HAS_X_AXIS, HAS_Y_AXIS, FTM_SHAPER_Z, FTM_SHAPER_E)
 
     auto set_shaper = [&](const AxisEnum axis, const char c) {
       const ftMotionShaper_t newsh = (ftMotionShaper_t)parser.value_byte();
@@ -279,11 +279,11 @@ void GcodeSuite::M493() {
     #if HAS_Y_AXIS
       if (parser.seenval('Y') && set_shaper(Y_AXIS, 'Y')) return;  // Parse 'Y' mode parameter
     #endif
-    #if HAS_Z_AXIS
+    #if ENABLED(FTM_SHAPER_Z)
       if (parser.seenval('Z') && set_shaper(Z_AXIS, 'Z')) return;  // Parse 'Z' mode parameter
     #endif
 
-  #endif // HAS_X_AXIS || HAS_Y_AXIS || HAS_Z_AXIS
+  #endif // HAS_X_AXIS || HAS_Y_AXIS || FTM_SHAPER_Z || FTM_SHAPER_E
 
   #if HAS_EXTRUDERS
 
@@ -474,7 +474,7 @@ void GcodeSuite::M493() {
 
   #endif // HAS_Y_AXIS
 
-  #if HAS_Z_AXIS
+  #if ENABLED(FTM_SHAPER_Z)
 
     // Parse frequency parameter (Z axis).
     if (parser.seenval('C')) {
@@ -533,14 +533,15 @@ void GcodeSuite::M493() {
         SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " vtol parameter.");
     }
 
-  #endif // HAS_Z_AXIS
+  #endif // FTM_SHAPER_Z
 
   #if ENABLED(FTM_SMOOTHING)
+
     #if HAS_X_AXIS
-      // Parse smoothing time parameter (X axis).
+      // Parse X axis smoothing time parameter.
       if (parser.seenval('T')) {
         const float val = parser.value_float();
-        if (val >= 0.0f && val <= FTM_MAX_SMOOTHING_TIME) {
+        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
           ftMotion.set_smoothing_time(X_AXIS, val);
           flag.report = true;
         }
@@ -550,10 +551,10 @@ void GcodeSuite::M493() {
     #endif
 
     #if HAS_Y_AXIS
-      // Parse smoothing time parameter (Y axis).
+      // Parse Y axis smoothing time parameter.
       if (parser.seenval('U')) {
         const float val = parser.value_float();
-        if (val >= 0.0f && val <= FTM_MAX_SMOOTHING_TIME) {
+        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
           ftMotion.set_smoothing_time(Y_AXIS, val);
           flag.report = true;
         }
@@ -563,10 +564,10 @@ void GcodeSuite::M493() {
     #endif
 
     #if HAS_Z_AXIS
-      // Parse smoothing time parameter (Z axis).
+      // Parse Z axis smoothing time parameter.
       if (parser.seenval('V')) {
         const float val = parser.value_float();
-        if (val >= 0.0f && val <= FTM_MAX_SMOOTHING_TIME) {
+        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
           ftMotion.set_smoothing_time(Z_AXIS, val);
           flag.report = true;
         }
@@ -576,10 +577,10 @@ void GcodeSuite::M493() {
     #endif
 
     #if HAS_EXTRUDERS
-      // Parse smoothing time parameter (E axis).
+      // Parse E axis smoothing time parameter.
       if (parser.seenval('W')) {
         const float val = parser.value_float();
-        if (val >= 0.0f && val <= FTM_MAX_SMOOTHING_TIME) {
+        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
           ftMotion.set_smoothing_time(E_AXIS, val);
           flag.report = true;
         }

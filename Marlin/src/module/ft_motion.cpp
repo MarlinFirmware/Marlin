@@ -105,10 +105,10 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
     #if HAS_Y_AXIS
       , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
-    #if HAS_Z_AXIS
+    #if ENABLED(FTM_SHAPER_Z)
       , z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
-    #if HAS_EXTRUDERS
+    #if ENABLED(FTM_SHAPER_E)
       , e:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
   };
@@ -406,10 +406,10 @@ void FTMotion::loop() {
       shaping.A.set_axis_shaping_A(cfg.shaper.A, cfg.zeta.A, cfg.vtol.A); \
       shaping.A.set_axis_shaping_N(cfg.shaper.A, cfg.baseFreq.A, cfg.zeta.A);
 
-    TERN_(HAS_X_AXIS, UPDATE_SHAPER(x));
-    TERN_(HAS_Y_AXIS, UPDATE_SHAPER(y));
-    TERN_(HAS_Z_AXIS, UPDATE_SHAPER(z));
-    TERN_(HAS_EXTRUDERS, UPDATE_SHAPER(e));
+    TERN_(HAS_X_AXIS,   UPDATE_SHAPER(x));
+    TERN_(HAS_Y_AXIS,   UPDATE_SHAPER(y));
+    TERN_(FTM_SHAPER_Z, UPDATE_SHAPER(z));
+    TERN_(FTM_SHAPER_E, UPDATE_SHAPER(e));
   }
 
 #endif // HAS_FTM_SHAPING
@@ -433,10 +433,10 @@ void FTMotion::reset() {
   interpIdx = 0;
 
   #if HAS_FTM_SHAPING
-    TERN_(HAS_X_AXIS, ZERO(shaping.x.d_zi));
-    TERN_(HAS_Y_AXIS, ZERO(shaping.y.d_zi));
-    TERN_(HAS_Z_AXIS, ZERO(shaping.z.d_zi));
-    TERN_(HAS_EXTRUDERS, ZERO(shaping.e.d_zi));
+    TERN_(HAS_X_AXIS,   ZERO(shaping.x.d_zi));
+    TERN_(HAS_Y_AXIS,   ZERO(shaping.y.d_zi));
+    TERN_(FTM_SHAPER_Z, ZERO(shaping.z.d_zi));
+    TERN_(FTM_SHAPER_E, ZERO(shaping.e.d_zi));
     shaping.zi_idx = 0;
   #endif
 
@@ -712,10 +712,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
 
       if (ftMotion.cfg.axis_sync_enabled) {
         max_total_delay -= _MIN(
-          TERN0(HAS_X_AXIS,    shaping.x.Ni[0]),
-          TERN0(HAS_Y_AXIS,    shaping.y.Ni[0]),
-          TERN0(HAS_Z_AXIS,    shaping.z.Ni[0]),
-          TERN0(HAS_EXTRUDERS, shaping.e.Ni[0])
+          TERN0(HAS_X_AXIS,   shaping.x.Ni[0]),
+          TERN0(HAS_Y_AXIS,   shaping.y.Ni[0]),
+          TERN0(FTM_SHAPER_Z, shaping.z.Ni[0]),
+          TERN0(FTM_SHAPER_E, shaping.e.Ni[0])
         );
       }
 
@@ -739,10 +739,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           } \
         } while (0)
 
-      TERN_(HAS_X_AXIS, SHAPE(x));
-      TERN_(HAS_Y_AXIS, SHAPE(y));
-      TERN_(HAS_Z_AXIS, SHAPE(z));
-      TERN_(HAS_EXTRUDERS, SHAPE(e));
+      TERN_(HAS_X_AXIS,   SHAPE(x));
+      TERN_(HAS_Y_AXIS,   SHAPE(y));
+      TERN_(FTM_SHAPER_Z, SHAPE(z));
+      TERN_(FTM_SHAPER_E, SHAPE(e));
 
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
 
