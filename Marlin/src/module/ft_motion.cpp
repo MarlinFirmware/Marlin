@@ -674,18 +674,20 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     // Apply shaping if active on each axis
     #if HAS_FTM_SHAPING
       #define SHAPE(AXIS) \
-        shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
-        traj.AXIS[traj_idx_set] = 0; \
-        if (!ftMotion.cfg.axis_sync_enabled) max_delay = -shaping.AXIS.Ni[0]; \
-        for (uint32_t i = 0; i <= shaping.AXIS.max_i; i++) { \
-          /* delay is always positive since Ni[i] = echo_index - shaper_delay + max_delay */ \
-          /* where echo_index > 0 and shaper_delay ≤ max_delay */ \
-          const uint32_t delay = max_delay + shaping.AXIS.Ni[i]; \
-          int32_t udiff = shaping.zi_idx - delay; \
-          if (udiff < 0) udiff += FTM_ZMAX; \
-          traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[udiff]; \
-        }
-
+        do { \
+          shaping.AXIS.d_zi[shaping.zi_idx] = traj.AXIS[traj_idx_set]; \
+          traj.AXIS[traj_idx_set] = 0; \
+          uint32_t max_local_delay = max_delay; \
+          if (!ftMotion.cfg.axis_sync_enabled) max_local_delay = -shaping.AXIS.Ni[0]; \
+          for (uint32_t i = 0; i <= shaping.AXIS.max_i; i++) { \
+            /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
+            /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
+            const uint32_t echo_delay = max_local_delay + shaping.AXIS.Ni[i]; \
+            int32_t udiff = shaping.zi_idx - echo_delay; \
+            if (udiff < 0) udiff += FTM_ZMAX; \
+            traj.AXIS[traj_idx_set] += shaping.AXIS.Ai[i] * shaping.AXIS.d_zi[udiff]; \
+          } \
+        } while (0)
       TERN_(HAS_X_AXIS, SHAPE(x));
       TERN_(HAS_Y_AXIS, SHAPE(y));
       TERN_(HAS_Z_AXIS, SHAPE(z));
