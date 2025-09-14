@@ -159,7 +159,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
         , " L", c.dynFreqK.z
       #endif
       #if ENABLED(FTM_SHAPER_E)
-        , " O", c.dynFreqK.z
+        , " O", c.dynFreqK.e
       #endif
     #endif
 

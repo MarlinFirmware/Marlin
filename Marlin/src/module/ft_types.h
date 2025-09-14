@@ -75,12 +75,30 @@ struct FTShapedAxes {
     struct { T SHAPED_ELEM(x, y, z, e); };
     T val[NUM_AXES_SHAPED];
   };
-  T& operator[](const int i) {
-    return val[i
-      #if DISABLED(FTM_SHAPER_Z) && ENABLED(FTM_SHAPER_E)
-        - (i == E_AXIS)
-      #endif
-    ];
+  T& operator[](const int axis) {
+    return val[axis_to_index(axis)];
+  }
+
+private:
+  static constexpr int axis_to_index(int axis) {
+    int idx = 0;
+    #if HAS_X_AXIS
+      if (axis == X_AXIS) return idx;
+      idx++;
+    #endif
+    #if HAS_Y_AXIS
+      if (axis == Y_AXIS) return idx;
+      idx++;
+    #endif
+    #if FTM_SHAPER_Z
+      if (axis == Z_AXIS) return idx;
+      idx++;
+    #endif
+    #if FTM_SHAPER_E
+      if (axis == E_AXIS) return idx;
+      idx++;
+    #endif
+    return -1; // Invalid axis
   }
 };
 
