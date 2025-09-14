@@ -263,13 +263,13 @@ void GcodeSuite::M115() {
         "area:{"
           "full:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
                 ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
                 ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
                 ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
                 ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
@@ -280,13 +280,13 @@ void GcodeSuite::M115() {
       SERIAL_ECHOLNPGM(
           "work:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
                 ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
                 ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
                 ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
                 ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w

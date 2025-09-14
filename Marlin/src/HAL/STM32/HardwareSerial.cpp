@@ -209,7 +209,7 @@ HAL_HardwareSerial::HAL_HardwareSerial(void *peripheral) {
     }
   #endif
 
-  else { // else get the pins of the first peripheral occurence in PinMap
+  else { // else get the pins of the first peripheral occurrence in PinMap
     _serial.pin_rx = pinmap_pin(peripheral, PinMap_UART_RX);
     _serial.pin_tx = pinmap_pin(peripheral, PinMap_UART_TX);
   }

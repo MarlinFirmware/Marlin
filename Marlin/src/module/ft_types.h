@@ -41,15 +41,15 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_HAS_SHAPER(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
-#define AXIS_HAS_EISHAPER(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
+#define AXIS_IS_SHAPING(A)   (ftMotion.cfg.shaper[_AXIS(A)] != ftMotionShaper_NONE)
+#define AXIS_IS_EISHAPING(A) WITHIN(ftMotion.cfg.shaper[_AXIS(A)], ftMotionShaper_EI, ftMotionShaper_3HEI)
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;
 
 // TODO: Convert ft_command_t to a struct with bitfields instead of using a primitive type
 enum {
-  LIST_N(DOUBLE(LOGICAL_AXES),
+  LOGICAL_AXIS_PAIRED_LIST(
     FT_BIT_DIR_E, FT_BIT_STEP_E,
     FT_BIT_DIR_X, FT_BIT_STEP_X, FT_BIT_DIR_Y, FT_BIT_STEP_Y, FT_BIT_DIR_Z, FT_BIT_STEP_Z,
     FT_BIT_DIR_I, FT_BIT_STEP_I, FT_BIT_DIR_J, FT_BIT_STEP_J, FT_BIT_DIR_K, FT_BIT_STEP_K,
