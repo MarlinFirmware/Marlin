@@ -122,10 +122,10 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
     #if HAS_Y_AXIS
       y:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
     #endif
-    #if ENABLED(FTM_SHAPER_Z)
+    #if HAS_Z_AXIS
       z:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
     #endif
-    #if ENABLED(FTM_SHAPER_E)
+    #if HAS_EXTRUDERS
       e:{ { 0.0f }, 0.0f, 0 }   // smoothing_pass[], alpha, delay_samples
     #endif
   };
@@ -370,7 +370,7 @@ void FTMotion::loop() {
         break;
       case ftMotionShaper_NONE:
         // No echoes.
-        // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also corectly be 0
+        // max_i is set to 0 by set_axis_shaping_A, so delay centroid (Ni[0]) will also correctly be 0
         break;
     }
 

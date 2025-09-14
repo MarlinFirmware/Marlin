@@ -50,7 +50,10 @@ typedef struct FTConfig {
       { SHAPED_ELEM(FTM_SHAPING_ZETA_X, FTM_SHAPING_ZETA_Y, FTM_SHAPING_ZETA_Z, FTM_SHAPING_ZETA_E) };
     ft_shaped_float_t vtol =                              // Vibration Level
       { SHAPED_ELEM(FTM_SHAPING_V_TOL_X, FTM_SHAPING_V_TOL_Y, FTM_SHAPING_V_TOL_Z, FTM_SHAPING_V_TOL_E) };
-    ft_smoothed_float_t smoothingTime;                    // Smoothing time. [s]
+
+    #if ENABLED(FTM_SMOOTHING)
+      ft_smoothed_float_t smoothingTime;                  // Smoothing time. [s]
+    #endif
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
@@ -81,16 +84,16 @@ class FTMotion {
 
       #if HAS_FTM_SHAPING
 
-        #define SET_CGF_DEFAULTS(A) \
+        #define SET_CFG_DEFAULTS(A) \
           cfg.shaper.A   = FTM_DEFAULT_SHAPER_##A; \
           cfg.baseFreq.A = FTM_SHAPING_DEFAULT_FREQ_##A; \
           cfg.zeta.A     = FTM_SHAPING_ZETA_##A; \
           cfg.vtol.A     = FTM_SHAPING_V_TOL_##A;
 
-        TERN_(HAS_X_AXIS,    SET_CGF_DEFAULTS(X));
-        TERN_(HAS_Y_AXIS,    SET_CGF_DEFAULTS(Y));
-        TERN_(FTM_SHAPER_Z,  SET_CGF_DEFAULTS(Z));
-        TERN_(FTM_SHAPER_E,  SET_CGF_DEFAULTS(E));
+        TERN_(HAS_X_AXIS,    SET_CFG_DEFAULTS(X));
+        TERN_(HAS_Y_AXIS,    SET_CFG_DEFAULTS(Y));
+        TERN_(FTM_SHAPER_Z,  SET_CFG_DEFAULTS(Z));
+        TERN_(FTM_SHAPER_E,  SET_CFG_DEFAULTS(E));
 
         #if HAS_DYNAMIC_FREQ
           cfg.dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE;

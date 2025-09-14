@@ -4595,10 +4595,10 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
     static_assert(FTM_DEFAULT_DYNFREQ_MODE != dynFreqMode_MASS_BASED, "dynFreqMode_MASS_BASED requires an X axis and an extruder.");
   #endif
   #if ENABLED(FTM_SMOOTHING)
-    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_X, "FTM_SMOOTHING_TIME_X needs to be smaller or equal to FTM_MAX_SMOOTHING_TIME.");
-    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_Y, "FTM_SMOOTHING_TIME_Y needs to be smaller or equal to FTM_MAX_SMOOTHING_TIME.");
-    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_Z, "FTM_SMOOTHING_TIME_Z needs to be smaller or equal to FTM_MAX_SMOOTHING_TIME.");
-    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_E, "FTM_SMOOTHING_TIME_E needs to be smaller or equal to FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_X, "FTM_SMOOTHING_TIME_X must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_Y, "FTM_SMOOTHING_TIME_Y must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_Z, "FTM_SMOOTHING_TIME_Z must be <= FTM_MAX_SMOOTHING_TIME.");
+    static_assert(FTM_MAX_SMOOTHING_TIME >= FTM_SMOOTHING_TIME_E, "FTM_SMOOTHING_TIME_E must be <= FTM_MAX_SMOOTHING_TIME.");
   #endif
 #endif
 

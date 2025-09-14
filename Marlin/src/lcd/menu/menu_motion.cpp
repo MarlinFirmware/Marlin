@@ -338,8 +338,8 @@ void menu_move() {
     }
   #endif
 
-  void ftm_menu_set_shaper(ft_shaped_shaper_t &outShaper, const ftMotionShaper_t s) {
-    ftMotion.cfg.shaper[axis] = s;
+  void ftm_menu_set_shaper(ftMotionShaper_t &outShaper, const ftMotionShaper_t s) {
+    outShaper = s;
     ftMotion.update_shaping_params();
     ui.go_back();
   }
@@ -361,14 +361,10 @@ void menu_move() {
       END_MENU(); \
     }
 
-  MENU_FTM_SHAPER(X);
-  MENU_FTM_SHAPER(Y);
-  #if ENABLED(FTM_SHAPER_Z)
-    MENU_FTM_SHAPER(Z);
-  #endif
-  #if ENABLED(FTM_SHAPER_E)
-    MENU_FTM_SHAPER(E);
-  #endif
+  MENU_FTM_SHAPER(x);
+  MENU_FTM_SHAPER(y);
+  TERN_(FTM_SHAPER_Z, MENU_FTM_SHAPER(z));
+  TERN_(FTM_SHAPER_E, MENU_FTM_SHAPER(e));
 
   #if HAS_DYNAMIC_FREQ
 
@@ -453,9 +449,10 @@ void menu_move() {
             EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
         }
 
-      TERN_(HAS_X_AXIS, SHAPER_MENU_ITEM(X));
-      TERN_(HAS_Y_AXIS, SHAPER_MENU_ITEM(Y));
-      TERN_(HAS_Z_AXIS, SHAPER_MENU_ITEM(Z));
+      TERN_(HAS_X_AXIS,   SHAPER_MENU_ITEM(X));
+      TERN_(HAS_Y_AXIS,   SHAPER_MENU_ITEM(Y));
+      TERN_(FTM_SHAPER_Z, SHAPER_MENU_ITEM(Z));
+      TERN_(FTM_SHAPER_E, SHAPER_MENU_ITEM(E));
 
       #if HAS_DYNAMIC_FREQ
         SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
@@ -466,8 +463,11 @@ void menu_move() {
           #if HAS_Y_AXIS
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.y, 0.0f, 20.0f);
           #endif
-          #if HAS_Z_AXIS
+          #if ENABLED(FTM_SHAPER_Z)
             EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.z, 0.0f, 20.0f);
+          #endif
+          #if ENABLED(FTM_SHAPER_E)
+            EDIT_ITEM_FAST_N(float42_52, E_AXIS, MSG_FTM_DFREQ_K_N, &c.dynFreqK.e, 0.0f, 20.0f);
           #endif
         }
       #endif
@@ -547,8 +547,11 @@ void menu_move() {
     #if HAS_Y_AXIS
       SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
     #endif
-    #if HAS_Z_AXIS
+    #if ENABLED(FTM_SHAPER_Z)
       SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_z);
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      SUBMENU_N_S(E_AXIS, _shaper_name(E_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_e);
     #endif
     #if HAS_DYNAMIC_FREQ
       SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);
