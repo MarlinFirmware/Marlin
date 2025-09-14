@@ -103,13 +103,13 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
       , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
     #if HAS_Y_AXIS
-      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
     #if ENABLED(FTM_SHAPER_Z)
-      , z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , z:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
     #if ENABLED(FTM_SHAPER_E)
-      , e:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , e:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
   };
 #endif
@@ -120,13 +120,13 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
       x:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
     #endif
     #if HAS_Y_AXIS
-      y:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
+      y:{ { 0.0f }, 0.0f, 0 },
     #endif
     #if HAS_Z_AXIS
-      z:{ { 0.0f }, 0.0f, 0 },  // smoothing_pass[], alpha, delay_samples
+      z:{ { 0.0f }, 0.0f, 0 },
     #endif
     #if HAS_EXTRUDERS
-      e:{ { 0.0f }, 0.0f, 0 }   // smoothing_pass[], alpha, delay_samples
+      e:{ { 0.0f }, 0.0f, 0 }
     #endif
   };
 #endif
