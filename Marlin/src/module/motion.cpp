@@ -77,10 +77,6 @@
   #include "../feature/bedlevel/bdl/bdl.h"
 #endif
 
-#if ALL(FT_MOTION, HOMING_Z_WITH_PROBE)
-  #include "ft_motion.h"
-#endif
-
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false
 
@@ -2227,14 +2223,6 @@ void prepare_line_to_destination() {
         #endif
       #endif
     }
-
-    #if ALL(FT_MOTION, HOMING_Z_WITH_PROBE)
-      REMEMBER(ftmcp, ftMotion.cfg.probing, axis == Z_AXIS);
-      if (ftMotion.cfg.active && axis == Z_AXIS) {
-        planner.synchronize();
-        endstops.hit_on_purpose(); // Reset the Z Endstop state
-      }
-    #endif
 
     #if ANY(MORGAN_SCARA, MP_SCARA)
       // Tell the planner the axis is at 0
