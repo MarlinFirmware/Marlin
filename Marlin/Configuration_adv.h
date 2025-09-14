@@ -1185,7 +1185,9 @@
     #define FTM_SMOOTHING_TIME_X        0.00f     // (s) Smoothing time for X axis. Zero means disabled.
     #define FTM_SMOOTHING_TIME_Y        0.00f     // (s) Smoothing time for Y axis
     #define FTM_SMOOTHING_TIME_Z        0.00f     // (s) Smoothing time for Z axis
-    #define FTM_SMOOTHING_TIME_E        0.02f     // (s) Smoothing time for E axis. Affects Linear Advance to make curved surfaces smoother.
+    #define FTM_SMOOTHING_TIME_E        0.02f     // (s) Smoothing time for E axis. Prevents noise/skipping from
+                                                  // linear advance by smoothing out acceleration peaks.
+                                                  // Can also make curved surfaces smoother.
   #endif
 
   //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
