@@ -366,6 +366,9 @@ void menu_move() {
   #if ENABLED(FTM_SHAPER_Z)
     MENU_FTM_SHAPER(Z);
   #endif
+  #if ENABLED(FTM_SHAPER_E)
+    MENU_FTM_SHAPER(E);
+  #endif
 
   #if HAS_DYNAMIC_FREQ
 

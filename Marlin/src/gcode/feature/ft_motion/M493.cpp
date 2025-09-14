@@ -61,6 +61,9 @@ void say_shaping() {
   #if ENABLED(FTM_SHAPER_Z)
     if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME);
   #endif
+  #if ENABLED(FTM_SHAPER_E)
+    if (AXIS_IS_SHAPING(E)) say_shaper_type(E_AXIS, sep, 'E');
+  #endif
   SERIAL_ECHOLNPGM(")");
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED),
@@ -68,7 +71,7 @@ void say_shaping() {
              dynamic = z_based || g_based;
 
   // FT Dynamic Frequency Mode
-  if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z)) {
+  if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
     #if HAS_DYNAMIC_FREQ
       SERIAL_ECHOPGM("Dynamic Frequency Mode ");
       switch (ftMotion.cfg.dynFreqMode) {
@@ -281,6 +284,9 @@ void GcodeSuite::M493() {
     #endif
     #if ENABLED(FTM_SHAPER_Z)
       if (parser.seenval('Z') && set_shaper(Z_AXIS, 'Z')) return;  // Parse 'Z' mode parameter
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      if (parser.seenval('E') && set_shaper(E_AXIS, 'E')) return;  // Parse 'E' mode parameter
     #endif
 
   #endif // HAS_X_AXIS || HAS_Y_AXIS || FTM_SHAPER_Z || FTM_SHAPER_E
