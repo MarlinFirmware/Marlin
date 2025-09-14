@@ -361,10 +361,10 @@ void menu_move() {
       END_MENU(); \
     }
 
-  MENU_FTM_SHAPER(x);
-  MENU_FTM_SHAPER(y);
-  TERN_(FTM_SHAPER_Z, MENU_FTM_SHAPER(z));
-  TERN_(FTM_SHAPER_E, MENU_FTM_SHAPER(e));
+  MENU_FTM_SHAPER(X);
+  MENU_FTM_SHAPER(Y);
+  TERN_(FTM_SHAPER_Z, MENU_FTM_SHAPER(Z));
+  TERN_(FTM_SHAPER_E, MENU_FTM_SHAPER(E));
 
   #if HAS_DYNAMIC_FREQ
 
@@ -441,7 +441,7 @@ void menu_move() {
     // Show only when FT Motion is active (or optionally always show)
     if (c.active || ENABLED(FT_MOTION_NO_MENU_TOGGLE)) {
       #define SHAPER_MENU_ITEM(A) \
-        SUBMENU_N_S(A, _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
+        SUBMENU_N_S(_AXIS(A), _shaper_name(_AXIS(A)), MSG_FTM_CMPN_MODE, menu_ftm_shaper_##A); \
         if (AXIS_IS_SHAPING(A)) { \
           EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_BASE_FREQ_N, &c.baseFreq.A, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params); \
           EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_ZETA_N, &c.zeta.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
@@ -542,16 +542,16 @@ void menu_move() {
     BACK_ITEM(MSG_TUNE);
 
     #if HAS_X_AXIS
-      SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
+      SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_X);
     #endif
     #if HAS_Y_AXIS
-      SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
+      SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_Y);
     #endif
     #if ENABLED(FTM_SHAPER_Z)
-      SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_z);
+      SUBMENU_N_S(Z_AXIS, _shaper_name(Z_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_Z);
     #endif
     #if ENABLED(FTM_SHAPER_E)
-      SUBMENU_N_S(E_AXIS, _shaper_name(E_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_e);
+      SUBMENU_N_S(E_AXIS, _shaper_name(E_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_E);
     #endif
     #if HAS_DYNAMIC_FREQ
       SUBMENU_S(_dmode(), MSG_FTM_DYN_MODE, menu_ftm_dyn_mode);

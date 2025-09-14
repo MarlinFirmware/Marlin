@@ -41,8 +41,8 @@ enum dynFreqMode_t : uint8_t {
   dynFreqMode_MASS_BASED = 2
 };
 
-#define AXIS_IS_SHAPING(A)    TERN0(HAS_##A##_AXIS, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
-#define AXIS_IS_EISHAPING(A)  TERN0(HAS_##A##_AXIS, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
+#define AXIS_IS_SHAPING(A)    TERN0(FTM_SHAPER_##A, (ftMotion.cfg.shaper.A != ftMotionShaper_NONE))
+#define AXIS_IS_EISHAPING(A)  TERN0(FTM_SHAPER_##A, WITHIN(ftMotion.cfg.shaper.A, ftMotionShaper_EI, ftMotionShaper_3HEI))
 
 typedef struct XYZEarray<float, FTM_WINDOW_SIZE> xyze_trajectory_t;
 typedef struct XYZEarray<float, FTM_BATCH_SIZE> xyze_trajectoryMod_t;

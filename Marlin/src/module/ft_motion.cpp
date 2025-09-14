@@ -377,15 +377,13 @@ void FTMotion::loop() {
     // Group delay in samples (i.e., Axis delay caused by shaping): sum(Ai * Ni[i]).
     // Skipping i=0 since the uncompensated delay of the first impulse is always zero, so Ai[0] * Ni[0] == 0
     float centroid = 0.0f;
-    for (uint8_t i = 1; i <= max_i; ++i) centroid += Ai[i] * Ni[i];
+    for (uint8_t i = 1; i <= max_i; ++i) centroid -= Ai[i] * Ni[i];
 
-    Ni[0] = -round(centroid);
+    Ni[0] = round(centroid);
 
-    for (uint8_t i = 1; i <= max_i; ++i) {
-      // The resulting echo index can be negative, this is ok because it will be offset
-      // by the max delay of all axes before it is used.
-      Ni[i] += Ni[0];
-    }
+    // The resulting echo index can be negative, this is ok because it will be offset
+    // by the max delay of all axes before it is used.
+    for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
   }
 
   // Set smoothing time and recalculate alpha and delay.

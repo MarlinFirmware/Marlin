@@ -1518,6 +1518,10 @@
 #if ENABLED(FT_MOTION)
   #if HAS_X_AXIS
     #define HAS_FTM_SHAPING 1
+    #define FTM_SHAPER_X
+  #endif
+  #if HAS_Y_AXIS
+    #define FTM_SHAPER_Y
   #endif
   #if !HAS_Z_AXIS
     #undef FTM_SHAPER_Z
