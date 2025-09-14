@@ -726,7 +726,6 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
           /* α=1−exp(−(dt / (τ / order))) */ \
           shaping.A.d_zi[shaping.zi_idx] = traj.A[traj_idx_set]; \
           traj.A[traj_idx_set] = 0; \
-          /* TODO: FIX IN DELAY COMPENSATION, MAX_DELAY SHOULDN'T BE CHANGED INSIDE! */ \
           for (uint32_t i = 0; i <= shaping.A.max_i; i++) { \
             /* echo_delay is always positive since Ni[i] = echo_relative_delay - group_delay + max_total_delay */ \
             /* where echo_relative_delay > 0 and group_delay ≤ max_total_delay */ \
