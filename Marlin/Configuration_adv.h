@@ -1179,9 +1179,8 @@
   //#define FTM_SMOOTHING                         // Smoothing can reduce artifacts and make steppers quieter
                                                   // on sharp corners, but too much will round corners.
   #if ENABLED(FTM_SMOOTHING)
-    #define FTM_MAX_SMOOTHING_TIME      0.05f     // Maximum smoothing time (seconds), higher consumes more RAM.
-                                                  // Increase smoothing time to reduce jerky motion / noises.
-                                                  // Setting it to 0 disables it for the axis.
+    #define FTM_MAX_SMOOTHING_TIME      0.10f     // Maximum smoothing time (seconds), higher consumes more RAM.
+                                                  // Increase smoothing time to reduce jerky motion, ghosting and noises.
     #define FTM_SMOOTHING_TIME_X        0.00f     // (s) Smoothing time for X axis. Zero means disabled.
     #define FTM_SMOOTHING_TIME_Y        0.00f     // (s) Smoothing time for Y axis
     #define FTM_SMOOTHING_TIME_Z        0.00f     // (s) Smoothing time for Z axis
