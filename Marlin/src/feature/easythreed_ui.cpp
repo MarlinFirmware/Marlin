@@ -131,7 +131,7 @@ void EasythreedUI::loadButton() {
       break;
 
     case FS_PROCEED: {
-      // Feed or Retract just once. Hard abort all moves and return to idle on swicth release.
+      // Feed or Retract just once. Hard abort all moves and return to idle on switch release.
       static bool flag = false;
       if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         flag = false;                                               // Restore flag to false
