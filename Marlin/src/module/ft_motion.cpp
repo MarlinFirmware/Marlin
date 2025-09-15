@@ -552,7 +552,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
                                           and no one will print 100mm wide lines using 3mm filament or
                                           35mm wide lines using 1.75mm filament.
      */
-    use_advance_lead = moveDist.e > 0 && cfg.linearAdvK > 0 && moveDist.e / totalLength < 3.0f;
+    use_advance_lead = moveDist.e > 0 && cfg.linearAdvK > 0 &&
+      moveDist.e / (SQRT(sq(moveDist.x) + sq(moveDist.y) + sq(moveDist.z))) < 3.0f;
   #endif
   //
 
