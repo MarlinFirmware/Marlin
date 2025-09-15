@@ -200,13 +200,15 @@ public:
  *
  *   With AUTO_BED_LEVELING_BILINEAR:
  *     Z<float>  Supply additional Z offset to all probe points.
- *     W<bool>  Write a mesh point. (If G29 is idle.)
- *       I<index>  Index for mesh point
- *       J<index>  Index for mesh point
- *       X<float>  For mesh point, overrides I
- *       Y<float>  For mesh point, overrides J
- *       Z<float>  For mesh point. If omitted, uses current position's raw Z
- *     P<float>  Populate the mesh with a specified Z value.
+ *     W<bool>   Write a mesh point. (If G29 is idle.)
+ *                 I<index>  Index for mesh point
+ *                 J<index>  Index for mesh point
+ *                 X<float>  For mesh point, overrides I
+ *                 Y<float>  For mesh point, overrides J
+ *                 Z<float>  For mesh point. If omitted, uses current position's raw Z
+ *
+ *   With ABL_BILINEAR_G29_P_FILL_MESH
+ *     P<float>  Populate the mesh with a specified Z value
  *
  *   With DEBUG_LEVELING_FEATURE:
  *     C<bool>  Make a totally fake grid with no actual probing.
@@ -243,30 +245,89 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false, false);
   #endif
 
-  // P = populate grid with specified Z value
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    bool do_init = parser.seenval('P');
-    float init_val = 0.0f;
-    if (do_init) {
-      init_val = RAW_Z_POSITION(parser.value_linear_units());
-      if (!WITHIN(init_val, -10, 10)) {
-        SERIAL_ERROR_MSG("Bad initialization value");
+  // W = Write a mesh point (below)
+  const bool seenW = TERN0(AUTO_BED_LEVELING_BILINEAR, parser.seen_test('W'));
+  if (seenW && g29_in_progress) {
+    SERIAL_WARN_MSG("(W) ignored.");
+    G29_RETURN(false, false);
+  }
+
+  // J = Jettison bed leveling data
+  const bool seenJ = !seenW && parser.seen_test('J');
+  if (seenJ) {
+    if (g29_in_progress) {
+      SERIAL_WARN_MSG("(J) ignored.");
+      G29_RETURN(false, false);
+    }
+    else
+      reset_bed_level();
+  }
+
+  // P = Populate the mesh with a specified value
+  #if ENABLED(ABL_BILINEAR_G29_P_FILL_MESH)
+    if (parser.seenval('P')) {
+      const float init_val = parser.value_linear_units();
+      if (!WITHIN(init_val, -10.0f, 10.0f)) {
+        SERIAL_WARN_MSG("(P) value out of range (-10-10).\n");
         G29_RETURN(false, false);
       }
+      bedlevel.fill(init_val);
     }
-  #else
-    constexpr bool do_init = false;
-    constexpr float init_val = 0.0f;
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    if (seenW) {
+
+      const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position.z;
+      if (!WITHIN(rz, -10, 10)) {
+        SERIAL_ERROR_MSG("(W) value out of range (-10-10).");
+        G29_RETURN(false, false);
+      }
+
+      const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
+                  ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
+      int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
+
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
+      if (!isnan(rx) && !isnan(ry)) {
+        // Get nearest i / j from rx / ry
+        i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
+        j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
+        LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
+        LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
+      }
+
+      #pragma GCC diagnostic pop
+
+      if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
+        set_bed_leveling_enabled(false);
+        bedlevel.z_values[i][j] = rz;
+        bedlevel.refresh_bed_level();
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
+        if (!leveling_is_valid()) SERIAL_WARN_MSG("Bilinear grid is invalid.");
+        if (abl.reenable) {
+          set_bed_leveling_enabled(true);
+          report_current_position();
+        }
+      }
+
+      G29_RETURN(false, false);
+
+    } // seenW
+
   #endif
 
   // A = Abort manual probing
   // C<bool> = Generate fake probe points (DEBUG_LEVELING_FEATURE)
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen_test('A')),
          no_action = seenA || seenQ,
-              faux = (ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action) || do_init;
+              faux = (ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action);
 
   // O = Don't level if leveling is already active
-  if (!no_action && planner.leveling_active && parser.boolval('O')) {
+  if (parser.boolval('O') && !no_action && planner.leveling_active) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip");
     G29_RETURN(false, false);
   }
@@ -275,14 +336,8 @@ G29_TYPE GcodeSuite::G29() {
   if (parser.seen_test('N'))
     process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    const bool seen_w = parser.seen_test('W');
-  #else
-    constexpr bool seen_w = false;
-  #endif
-
   // Don't allow auto-leveling without homing first
-  if (!seen_w && !faux && homing_needed_error()) G29_RETURN(false, false);
+  if (!faux && homing_needed_error()) G29_RETURN(false, false);
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
@@ -319,58 +374,6 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     abl.reenable = planner.leveling_active;
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
-      if (seen_w) {
-        if (!leveling_is_valid()) {
-          SERIAL_ERROR_MSG("No bilinear grid");
-          G29_RETURN(false, false);
-        }
-
-        const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position.z;
-        if (!WITHIN(rz, -10, 10)) {
-          SERIAL_ERROR_MSG("Bad Z value");
-          G29_RETURN(false, false);
-        }
-
-        const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
-                    ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
-        int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
-
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-
-        if (!isnan(rx) && !isnan(ry)) {
-          // Get nearest i / j from rx / ry
-          i = (rx - bedlevel.grid_start.x) / bedlevel.grid_spacing.x + 0.5f;
-          j = (ry - bedlevel.grid_start.y) / bedlevel.grid_spacing.y + 0.5f;
-          LIMIT(i, 0, (GRID_MAX_POINTS_X) - 1);
-          LIMIT(j, 0, (GRID_MAX_POINTS_Y) - 1);
-        }
-
-        #pragma GCC diagnostic pop
-
-        if (WITHIN(i, 0, (GRID_MAX_POINTS_X) - 1) && WITHIN(j, 0, (GRID_MAX_POINTS_Y) - 1)) {
-          set_bed_leveling_enabled(false);
-          bedlevel.z_values[i][j] = rz;
-          bedlevel.refresh_bed_level();
-          TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(i, j, rz));
-          if (abl.reenable) {
-            set_bed_leveling_enabled(true);
-            report_current_position();
-          }
-        }
-        G29_RETURN(false, false);
-      } // parser.seen_test('W')
-
-    #endif
-
-    // Jettison bed leveling data
-    if (!seen_w && parser.seen_test('J')) {
-      reset_bed_level();
-      G29_RETURN(false, false);
-    }
 
     abl.verbose_level = parser.intval('V');
     if (!WITHIN(abl.verbose_level, 0, 4)) {
@@ -732,12 +735,9 @@ G29_TYPE GcodeSuite::G29() {
             if (PR_INNER_VAR == inStart) {
               char tmp_1[32];
 
-              // move to the start point of new line
-              if (faux)
-                abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
-              else
-                abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
-              
+              // Move to the start point of new line
+              abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+
               // Go to the end of the row/column ... and back up by one
               // TODO: Why not just use... PR_INNER_VAR = inStop - inInc
               for (PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc);
@@ -790,10 +790,7 @@ G29_TYPE GcodeSuite::G29() {
 
           #else // !BD_SENSOR_PROBE_NO_STOP
 
-            if (faux)
-              abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
-            else
-              abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+            abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
 
           #endif
 
@@ -842,10 +839,7 @@ G29_TYPE GcodeSuite::G29() {
 
         // Retain the last probe position
         abl.probePos = xy_pos_t(points[i]);
-        if (faux)
-          abl.measured_z = do_init ? init_val : 0.001f * random(-100, 101);
-        else
-          abl.measured_z = probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
+        abl.measured_z = faux ? 0.001f * random(-100, 101) : probe.probe_at_point(abl.probePos, raise_after, abl.verbose_level);
         if (isnan(abl.measured_z)) {
           set_bed_leveling_enabled(abl.reenable);
           break;
@@ -1035,10 +1029,6 @@ G29_TYPE GcodeSuite::G29() {
 
   // Restore state after probing
   if (!faux) restore_feedrate_and_scaling();
-
-  // Return here if we merely initialized for a with value (bilinear G29 P<value>)
-  // No need to do the after G29 gcode or the other stuff
-  if (do_init) G29_RETURN(false, true);
 
   TERN_(HAS_BED_PROBE, probe.move_z_after_probing());
 

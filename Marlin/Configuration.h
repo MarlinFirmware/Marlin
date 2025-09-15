@@ -2233,6 +2233,9 @@
       #define BILINEAR_SUBDIVISIONS 3
     #endif
 
+    // Add 'G29 P' to fill the mesh with a single value
+    //#define ABL_BILINEAR_G29_P_FILL_MESH
+
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
