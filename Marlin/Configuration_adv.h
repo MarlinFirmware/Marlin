@@ -1143,7 +1143,7 @@
 
 /**
  * Fixed-time-based Motion Control -- BETA FEATURE
- * Enable/disable and set parameters with G-code M493.
+ * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
 //#define FT_MOTION
@@ -1171,6 +1171,7 @@
   #define FTM_SHAPING_V_TOL_Z           0.05f     // Vibration tolerance used by EI input shapers for Z axis
 
   //#define FTM_SHAPER_E                          // Include E shaping support
+                                                  // Required to synchronise extruder with XYZ (better quality)
   #define FTM_DEFAULT_SHAPER_E      ftMotionShaper_NONE // Default shaper mode on Extruder axis
   #define FTM_SHAPING_DEFAULT_FREQ_E   21.0f      // (Hz) Default peak frequency used by input shapers
   #define FTM_SHAPING_ZETA_E            0.03f     // Zeta used by input shapers for E axis
@@ -1189,7 +1190,7 @@
                                                   // Can also make curved surfaces smoother.
   #endif
 
-  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
+  //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 and M494 parameters
 
   /**
    * Advanced configuration

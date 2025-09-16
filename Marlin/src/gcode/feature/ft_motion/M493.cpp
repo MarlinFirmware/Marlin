@@ -169,20 +169,6 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
       , " P", c.linearAdvEna, " K", c.linearAdvK
     #endif
 
-    #if ENABLED(FTM_SMOOTHING)
-      #if HAS_X_AXIS
-        , " T", c.smoothingTime.x
-      #endif
-      #if HAS_Y_AXIS
-        , " U", c.smoothingTime.y
-      #endif
-      #if HAS_Z_AXIS
-        , " V", c.smoothingTime.z
-      #endif
-      #if HAS_EXTRUDERS
-        , " W", c.smoothingTime.e
-      #endif
-    #endif
   );
 }
 
@@ -239,11 +225,6 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    ?<flt>  Set E damping ratio
  *    ?<flt>  Set E vibration tolerance
  *
- * With FTM_SMOOTHING:
- *    T<time> Set smoothing time for the X axis
- *    U<time> Set smoothing time for the Y axis
- *    V<time> Set smoothing time for the Z axis
- *    W<time> Set smoothing time for the E axis
  */
 void GcodeSuite::M493() {
   struct { bool update:1, report:1; } flag = { false };
@@ -610,62 +591,6 @@ void GcodeSuite::M493() {
     }
 
   #endif // FTM_SHAPER_E
-
-  #if ENABLED(FTM_SMOOTHING)
-
-    #if HAS_X_AXIS
-      // Parse X axis smoothing time parameter.
-      if (parser.seenval('T')) {
-        const float val = parser.value_float();
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-          ftMotion.set_smoothing_time(X_AXIS, val);
-          flag.report = true;
-        }
-        else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_A_NAME), " smoothing time [", C('T'), "] value.");
-      }
-    #endif
-
-    #if HAS_Y_AXIS
-      // Parse Y axis smoothing time parameter.
-      if (parser.seenval('U')) {
-        const float val = parser.value_float();
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-          ftMotion.set_smoothing_time(Y_AXIS, val);
-          flag.report = true;
-        }
-        else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_B_NAME), " smoothing time [", C('U'), "] value.");
-      }
-    #endif
-
-    #if HAS_Z_AXIS
-      // Parse Z axis smoothing time parameter.
-      if (parser.seenval('V')) {
-        const float val = parser.value_float();
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-          ftMotion.set_smoothing_time(Z_AXIS, val);
-          flag.report = true;
-        }
-        else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " smoothing time [", C('V'), "] value.");
-      }
-    #endif
-
-    #if HAS_EXTRUDERS
-      // Parse E axis smoothing time parameter.
-      if (parser.seenval('W')) {
-        const float val = parser.value_float();
-        if (WITHIN(val, 0.0f, FTM_MAX_SMOOTHING_TIME)) {
-          ftMotion.set_smoothing_time(E_AXIS, val);
-          flag.report = true;
-        }
-        else
-          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " smoothing time [", C('W'), "] value.");
-      }
-    #endif
-
-  #endif // FTM_SMOOTHING
 
   if (flag.update) ftMotion.update_shaping_params();
 
