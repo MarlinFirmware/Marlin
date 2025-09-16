@@ -90,11 +90,11 @@ private:
       if (axis == Y_AXIS) return idx;
       idx++;
     #endif
-    #if FTM_SHAPER_Z
+    #if ENABLED(FTM_SHAPER_Z)
       if (axis == Z_AXIS) return idx;
       idx++;
     #endif
-    #if FTM_SHAPER_E
+    #if ENABLED(FTM_SHAPER_E)
       if (axis == E_AXIS) return idx;
       idx++;
     #endif
