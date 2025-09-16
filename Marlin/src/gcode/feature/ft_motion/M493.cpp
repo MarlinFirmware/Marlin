@@ -179,8 +179,8 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       0: Fixed-Time Motion OFF (Standard Motion)
  *       1: Fixed-Time Motion ON
  *
- *    X/Y<mode> Set the vibration compensator [input shaper] mode for X / Y axis.
- *              Users / slicers must remember to set the mode for both axes!
+ *    X/Y/Z/E<mode> Set the vibration compensator [input shaper] mode for an axis.
+ *              Users / slicers must remember to set the mode for all relevant axes!
  *       0: NONE  : No input shaper
  *       1: ZV    : Zero Vibration
  *       2: ZVD   : Zero Vibration and Derivative
@@ -213,17 +213,16 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *    R<flt>  Set Y vibration tolerance
  *
  * With FTM_SHAPING_Z:
- *    Z<mode> Set Z Input Shaper mode
  *    C<Hz>   Set Z static/base frequency
  *    L<Hz>   Set Z frequency scaling
  *    O<flt>  Set Z damping ratio
- *    ?<flt>  Set Z vibration tolerance
+ *    M<flt>  Set Z vibration tolerance
  *
  * With FTM_SHAPING_E:
- *    E<Hz>   Set E static/base frequency
- *    ?<Hz>   Set E frequency scaling
- *    ?<flt>  Set E damping ratio
- *    ?<flt>  Set E vibration tolerance
+ *    W<Hz>   Set E static/base frequency
+ *    O<Hz>   Set E frequency scaling
+ *    U<flt>  Set E damping ratio
+ *    V<flt>  Set E vibration tolerance
  *
  */
 void GcodeSuite::M493() {
@@ -500,7 +499,7 @@ void GcodeSuite::M493() {
     #endif
 
     // Parse Z zeta parameter
-    if (parser.seenval('?')) {
+    if (parser.seenval('O')) {
       const float val = parser.value_float();
       if (AXIS_IS_SHAPING(Z)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
@@ -508,14 +507,14 @@ void GcodeSuite::M493() {
           flag.update = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " zeta [", C('?'), "] value."); // Zeta out of range
+          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " zeta [", C('O'), "] value."); // Zeta out of range
       }
       else
         SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " zeta parameter.");
     }
 
     // Parse Z vtol parameter
-    if (parser.seenval('?')) {
+    if (parser.seenval('M')) {
       const float val = parser.value_float();
       if (AXIS_IS_EISHAPING(Z)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
@@ -523,7 +522,7 @@ void GcodeSuite::M493() {
           flag.update = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " vtol [", C('?'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("?Invalid ", C(STEPPER_C_NAME), " vtol [", C('M'), "] value."); // VTol out of range.
       }
       else
         SERIAL_ECHOLNPGM("?Wrong mode for ", C(STEPPER_C_NAME), " vtol parameter.");
@@ -534,7 +533,7 @@ void GcodeSuite::M493() {
   #if ENABLED(FTM_SHAPER_E)
 
     // Parse E frequency parameter
-    if (parser.seenval('E')) {
+    if (parser.seenval('W')) {
       if (AXIS_IS_SHAPING(E)) {
         const float val = parser.value_float();
         if (WITHIN(val, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2)) {
@@ -542,26 +541,26 @@ void GcodeSuite::M493() {
           flag.update = flag.report = true;
         }
         else // Frequency out of range.
-          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " frequency [", C('E'), "] value.");
+          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " frequency [", C('W'), "] value.");
       }
       else // Mode doesn't use frequency.
-        SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('E'), "] frequency.");
+        SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('W'), "] frequency.");
     }
 
     #if HAS_DYNAMIC_FREQ
       // Parse E frequency scaling parameter
-      if (parser.seenval('?')) {
+      if (parser.seenval('O')) {
         if (modeUsesDynFreq) {
           ftMotion.cfg.dynFreqK.e = parser.value_float();
           flag.report = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('?'), "] frequency scaling.");
+          SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " [", C('O'), "] frequency scaling.");
       }
     #endif
 
     // Parse E zeta parameter
-    if (parser.seenval('?')) {
+    if (parser.seenval('U')) {
       const float val = parser.value_float();
       if (AXIS_IS_SHAPING(E)) {
         if (WITHIN(val, 0.01f, 1.0f)) {
@@ -569,14 +568,14 @@ void GcodeSuite::M493() {
           flag.update = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " zeta [", C('?'), "] value."); // Zeta out of range
+          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " zeta [", C('U'), "] value."); // Zeta out of range
       }
       else
         SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " zeta parameter.");
     }
 
     // Parse E vtol parameter
-    if (parser.seenval('?')) {
+    if (parser.seenval('V')) {
       const float val = parser.value_float();
       if (AXIS_IS_EISHAPING(E)) {
         if (WITHIN(val, 0.00f, 1.0f)) {
@@ -584,7 +583,7 @@ void GcodeSuite::M493() {
           flag.update = true;
         }
         else
-          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " vtol [", C('?'), "] value."); // VTol out of range.
+          SERIAL_ECHOLNPGM("?Invalid ", C('E'), " vtol [", C('V'), "] value."); // VTol out of range.
       }
       else
         SERIAL_ECHOLNPGM("?Wrong mode for ", C('E'), " vtol parameter.");
