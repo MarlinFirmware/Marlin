@@ -169,14 +169,14 @@ class FTMotion {
     static xyze_pos_t   startPos,         // (mm) Start position of block
                         endPos_prevBlock; // (mm) End position of previous block
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
-    static float accel_P, decel_P,
-                 F_P,
-                 f_s,
-                 s_1e,
-                 s_2e;
+    static float accel,
+                 nominal_speed,
+                 initial_speed,
+                 pos_before_coast,
+                 pos_after_coast;
 
-    static uint32_t N1, N2, N3;
-    static uint32_t max_intervals;
+    static float T1, T2, T3;
+    static float tau;
 
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;

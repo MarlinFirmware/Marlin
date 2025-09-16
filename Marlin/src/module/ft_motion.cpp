@@ -66,18 +66,16 @@ bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done b
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
-float FTMotion::accel_P,                        // Acceleration prime of block. [mm/sec/sec]
-      FTMotion::decel_P,                        // Deceleration prime of block. [mm/sec/sec]
-      FTMotion::F_P,                            // Feedrate prime of block. [mm/sec]
-      FTMotion::f_s,                            // Starting feedrate of block. [mm/sec]
-      FTMotion::s_1e,                           // Position after acceleration phase of block.
-      FTMotion::s_2e;                           // Position after acceleration and coasting phase of block.
+float FTMotion::accel,                              // Acceleration of block. [mm/sec/sec]
+      FTMotion::nominal_speed,                      // Peak feedrate of block. [mm/sec]
+      FTMotion::initial_speed,                      // Starting feedrate of block. [mm/sec]
+      FTMotion::pos_before_coast,                    // Position after acceleration phase of block.
+      FTMotion::pos_after_coast;                   // Position after acceleration and coasting phase of block.
 
-uint32_t FTMotion::N1,                          // Number of data points in the acceleration phase.
-         FTMotion::N2,                          // Number of data points in the coasting phase.
-         FTMotion::N3;                          // Number of data points in the deceleration phase.
-
-uint32_t FTMotion::max_intervals;               // Total number of data points that will be generated from block.
+float    FTMotion::T1,                          // Duration of acceleration phase. [s]
+         FTMotion::T2,                          // Duration of coasting phase. [s]
+         FTMotion::T3;                          // Duration of deceleration phase. [s]
+float    FTMotion::tau;                //
 
 // Make vector variables.
 uint32_t FTMotion::traj_idx_get = 0,            // Index of fixed time trajectory generation of the overall block.
@@ -445,7 +443,7 @@ void FTMotion::reset() {
   blockProcRdy = batchRdy = batchRdyForInterp = false;
 
   endPos_prevBlock.reset();
-
+  tau = 0;
   traj_idx_get = 0;
   traj_idx_set = TERN(FTM_UNIFIED_BWS, 0, _MIN(BATCH_SIDX_IN_WINDOW, FTM_BATCH_SIZE));
 
@@ -492,7 +490,6 @@ void FTMotion::discard_planner_block_protected() {
 void FTMotion::runoutBlock() {
 
   startPos = endPos_prevBlock;
-  ratio.reset();
 
   const int32_t n_to_fill_batch = (FTM_WINDOW_SIZE) - traj_idx_set;
 
@@ -500,11 +497,14 @@ void FTMotion::runoutBlock() {
   const int32_t n_to_settle_shaper = num_samples_shaper_settle();
 
   const int32_t n_diff = n_to_settle_shaper - n_to_fill_batch,
-                n_to_fill_batch_after_settling = n_diff > 0 ? (FTM_BATCH_SIZE) - (n_diff % (FTM_BATCH_SIZE)) : -n_diff;
+  n_to_fill_batch_after_settling = n_diff > 0 ? (FTM_BATCH_SIZE) - (n_diff % (FTM_BATCH_SIZE)) : -n_diff;
 
-  max_intervals =  PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
-
-  blockProcRdy = true;
+  ratio.reset();
+  uint32_t max_intervals = PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
+  const float reminder_from_last_block = - tau;
+  T1 = T2 = 0;
+  T3 = max_intervals * FTM_TS + reminder_from_last_block;
+  blockProcRdy = true; // since ratio is 0, the trajectory positions won't advance in any axis
 }
 
 // Auxiliary function to get number of step commands in the buffer.
@@ -532,90 +532,43 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   const xyze_pos_t& moveDist = current_block->dist_mm;
   ratio = moveDist * oneOverLength;
 
-  const float spm = totalLength / current_block->step_event_count;  // (steps/mm) Distance for each step
+  const float mm_per_step = totalLength / current_block->step_event_count;  // (mm/step) Distance for each step
 
-  f_s = spm * current_block->initial_rate;              // (steps/s) Start feedrate
+  initial_speed = mm_per_step * current_block->initial_rate;              // (mm/s) Start feedrate
 
-  const float f_e = spm * current_block->final_rate;    // (steps/s) End feedrate
+  const float final_speed = mm_per_step * current_block->final_rate;    // (mm/s) End feedrate
 
-  /* Keep for comprehension
-  const float a = current_block->acceleration,          // (mm/s^2) Same magnitude for acceleration or deceleration
-              oneby2a = 1.0f / (2.0f * a),              // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-              oneby2d = -oneby2a;                       // (s/mm) Time to accelerate or decelerate one mm (i.e., oneby2a * 2
-  const float fsSqByTwoA = sq(f_s) * oneby2a,           // (mm) Distance to accelerate from start speed to nominal speed
-              feSqByTwoD = sq(f_e) * oneby2d;           // (mm) Distance to decelerate from nominal speed to end speed
+  accel = current_block->acceleration;
+  const float one_over_accel = 1.0f / accel;
 
-  float F_n = current_block->nominal_speed;             // (mm/s) Speed we hope to achieve, if possible
-  const float fdiff = feSqByTwoD - fsSqByTwoA,          // (mm) Coasting distance if nominal speed is reached
-              odiff = oneby2a - oneby2d,                // (i.e., oneby2a * 2) (mm/s) Change in speed for one second of acceleration
-              ldiff = totalLength - fdiff;              // (mm) Distance to travel if nominal speed is reached
+  nominal_speed = current_block->nominal_speed;
 
-  float T2 = (1.0f / F_n) * (ldiff - odiff * sq(F_n));  // (s) Coasting duration after nominal speed reached
+  const float ldiff = totalLength + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
+
+  T2 = ldiff / nominal_speed - one_over_accel * nominal_speed;
   if (T2 < 0.0f) {
     T2 = 0.0f;
-    F_n = SQRT(ldiff / odiff);                          // Clip by intersection if nominal speed can't be reached.
+    nominal_speed = SQRT(ldiff * accel);
   }
 
-  const float T1 = (F_n - f_s) / a,                     // (s) Accel Time = difference in feedrate over acceleration
-              T3 = (F_n - f_e) / a;                     // (s) Decel Time = difference in feedrate over acceleration
-  */
-
-  const float accel = current_block->acceleration,
-              oneOverAccel = 1.0f / accel;
-
-  float F_n = current_block->nominal_speed;
-  const float ldiff = totalLength + 0.5f * oneOverAccel * (sq(f_s) + sq(f_e));
-
-  float T2 = ldiff / F_n - oneOverAccel * F_n;
-  if (T2 < 0.0f) {
-    T2 = 0.0f;
-    F_n = SQRT(ldiff * accel);
-  }
-
-  const float T1 = (F_n - f_s) * oneOverAccel,
-              T3 = (F_n - f_e) * oneOverAccel;
-
-  N1 = CEIL(T1 * (FTM_FS));         // Accel datapoints based on Hz frequency
-  N2 = CEIL(T2 * (FTM_FS));         // Coast
-  N3 = CEIL(T3 * (FTM_FS));         // Decel
-
-  const float T1_P = N1 * (FTM_TS), // (s) Accel datapoints x timestep resolution
-              T2_P = N2 * (FTM_TS), // (s) Coast
-              T3_P = N3 * (FTM_TS); // (s) Decel
-
-  /**
-   * Calculate the reachable feedrate at the end of the accel phase.
-   *  totalLength is the total distance to travel in mm
-   *  f_s        : (mm/s) Starting feedrate
-   *  f_e        : (mm/s) Ending feedrate
-   *  T1_P       : (sec) Time spent accelerating
-   *  T2_P       : (sec) Time spent coasting
-   *  T3_P       : (sec) Time spent decelerating
-   *  f_s * T1_P : (mm) Distance traveled during the accel phase
-   *  f_e * T3_P : (mm) Distance traveled during the decel phase
-   */
-  const float adist = f_s * T1_P;
-  F_P = (2.0f * totalLength - adist - f_e * T3_P) / (T1_P + 2.0f * T2_P + T3_P); // (mm/s) Feedrate at the end of the accel phase
-
-  // Calculate the acceleration and deceleration rates
-  accel_P = N1 ? ((F_P - f_s) / T1_P) : 0.0f;
-
-  decel_P = (f_e - F_P) / T3_P;
+  T1 = (nominal_speed - initial_speed) * one_over_accel;
+  T3 = (nominal_speed - final_speed) * one_over_accel;
 
   // Calculate the distance traveled during the accel phase
-  s_1e = adist + 0.5f * accel_P * sq(T1_P);
+  pos_before_coast = initial_speed * T1 + 0.5f * accel * sq(T1);
 
-  // Calculate the distance traveled during the decel phase
-  s_2e = s_1e + F_P * T2_P;
+  // Calculate the distance traveled during the coast phase
+  pos_after_coast = pos_before_coast + nominal_speed * T2;
 
-  // Accel + Coasting + Decel datapoints
-  max_intervals = N1 + N2 + N3;
+  // Accel + Coasting + Decel + datapoints
+  const float reminder_from_last_block = - tau;
 
   endPos_prevBlock += moveDist;
 
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
   // Watch endstops until the move ends
+  uint32_t max_intervals = ceil((T1 + T2 + T3 + reminder_from_last_block) * FTM_FS);
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
   #define _SET_MOVE_END(A) do{ \
@@ -631,22 +584,20 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 // Generate data points of the trajectory.
 void FTMotion::generateTrajectoryPointsFromBlock() {
   do {
-    float tau = (traj_idx_get + 1) * (FTM_TS);            // (s) Time since start of block
-    float dist = 0.0f;                                    // (mm) Distance traveled
-
-    if (traj_idx_get < N1) {
+    tau += FTM_TS;                // (s) Time since start of block
+                                  // If the end of the last block doesn't exactly land on a trajectory index,
+                                  // tau can start negative, but it always holds that `tau > -FTM_TS`
+    float dist = 0.0f;            // (mm) Distance traveled
+    if (tau < T1) {
       // Acceleration phase
-      dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
-    }
-    else if (traj_idx_get < (N1 + N2)) {
+      dist = (initial_speed * tau) + (0.5f * accel * sq(tau));
+    } else if (tau <= (T1 + T2)) {
       // Coasting phase
-      dist = s_1e + F_P * (tau - N1 * (FTM_TS));          // (mm) Distance traveled for coasting phase since start of block
-      //TERN_(HAS_EXTRUDERS, accel_k = 0.0f);
-    }
-    else {
+      dist = pos_before_coast + nominal_speed * (tau - T1);
+    } else {
       // Deceleration phase
-      tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
-      dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
+      const float tau_decel = tau - (T1 + T2);
+      dist = pos_after_coast + nominal_speed * tau_decel - 0.5f * accel * sq(tau_decel);
     }
 
     #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
@@ -772,9 +723,12 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       traj_idx_set = BATCH_SIDX_IN_WINDOW;
       batchRdy = true;
     }
-    if (++traj_idx_get == max_intervals) {
+    traj_idx_get++;
+    if (tau + FTM_TS > T1+T2+T3) {
+      // the next iteration will fall beyond this block
       blockProcRdy = false;
       traj_idx_get = 0;
+      tau -= T1 + T2 + T3;
     }
   } while (blockProcRdy && !batchRdy);
 } // generateTrajectoryPointsFromBlock
