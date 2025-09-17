@@ -864,7 +864,7 @@
     #elif ENABLED(MINIPANEL)
 
       #ifndef BEEPER_PIN
-        #define BEEPER_PIN           AUX2_08_PIN
+        #define BEEPER_PIN               AUX2_08
       #endif
       #define LCD_BACKLIGHT_PIN          AUX2_10
 

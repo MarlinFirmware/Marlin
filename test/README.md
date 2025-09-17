@@ -1,6 +1,7 @@
 # Testing Marlin
 
 Marlin included two types of automated tests:
+
 - [Build Tests](../buildroot/tests) to catch syntax and code build errors.
 - Unit Tests (this folder) to catch implementation errors.
 
@@ -21,15 +22,19 @@ Generally speaking, the types of errors caught by unit tests are most often caug
 ### Unit test FAQ
 
 #### Q: Isn't writing unit tests a lot of work?
+
 A: Yes, and it can be especially difficult with existing code that wasn't designed for unit testing. Some common sense should be used to decide where to employ unit testing, and at what level to perform it. While unit testing takes effort, it pays dividends in preventing regressions, and helping to pinpoint the source of failures when they do occur.
 
 #### Q: Will this make refactoring harder?
+
 A: Yes and No. Of course if you refactor code that unit tests use directly, it will have to be reworked as well. It actually can make refactoring more efficient, by providing assurance that the mechanism still works as intended.
 
 #### Q: How can I debug one of these failing unit tests?
+
 A: That's a great question, without a known immediate answer. It is likely possible to debug them interactively through PlatformIO, but that can at times take some creativity to configure. Unit tests are generally extremely small, so even without interactive debugging it can get you fairly close to the cause of the problem.
 
 ### Unit test architecture
+
 We are currently using [PlatformIO unit tests](https://docs.platformio.org/en/latest/plus/unit-testing.html).
 
 Since Marlin only compiles code required by the configuration, a separate test binary must be generated for any configuration change. The following process is used to unit test a variety of configurations:

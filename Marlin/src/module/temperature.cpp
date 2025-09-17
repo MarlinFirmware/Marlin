@@ -3220,7 +3220,8 @@ void Temperature::init() {
   TERN_(HAS_TEMP_ADC_BOARD,     hal.adc_enable(TEMP_BOARD_PIN));
   TERN_(HAS_TEMP_ADC_SOC,       hal.adc_enable(TEMP_SOC_PIN));
   TERN_(HAS_TEMP_ADC_REDUNDANT, hal.adc_enable(TEMP_REDUNDANT_PIN));
-  TERN_(FILAMENT_WIDTH_SENSOR,  hal.adc_enable(FILWIDTH_PIN));
+  TERN_(HAS_FILWIDTH_ADC,       hal.adc_enable(FILWIDTH_PIN));
+  TERN_(HAS_FILWIDTH2_ADC,      hal.adc_enable(FILWIDTH2_PIN));
   TERN_(HAS_ADC_BUTTONS,        hal.adc_enable(ADC_KEYPAD_PIN));
   TERN_(POWER_MONITOR_CURRENT,  hal.adc_enable(POWER_MONITOR_CURRENT_PIN));
   TERN_(POWER_MONITOR_VOLTAGE,  hal.adc_enable(POWER_MONITOR_VOLTAGE_PIN));
@@ -4517,11 +4518,25 @@ void Temperature::isr() {
       case MeasureTemp_7: ACCUMULATE_ADC(temp_hotend[7]); break;
     #endif
 
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    #if HAS_FILWIDTH_ADC
       case Prepare_FILWIDTH: hal.adc_start(FILWIDTH_PIN); break;
       case Measure_FILWIDTH:
-        if (!hal.adc_ready()) next_sensor_state = adc_sensor_state; // Redo this state
-        else filwidth.accumulate(hal.adc_value());
+        if (!hal.adc_ready())
+          next_sensor_state = adc_sensor_state; // Redo this state
+        else {
+          TERN_(FILAMENT_WIDTH_SENSOR, filwidth.accumulate(hal.adc_value()));
+        }
+      break;
+    #endif
+
+    #if HAS_FILWIDTH2_ADC
+      case Prepare_FILWIDTH2: hal.adc_start(FILWIDTH2_PIN); break;
+      case Measure_FILWIDTH2:
+        if (!hal.adc_ready())
+          next_sensor_state = adc_sensor_state; // Redo this state
+        else {
+          TERN_(FILAMENT_WIDTH_SENSOR, filwidth.accumulate(hal.adc_value()));
+        }
       break;
     #endif
 

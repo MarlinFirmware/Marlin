@@ -94,10 +94,10 @@ void ControllerFan::update() {
       #if ALL(HAS_HEATED_BED, CONTROLLER_FAN_BED_HEATING)
         || thermalManager.temp_bed.soft_pwm_amount > 0
       #endif
-      #if PIN_EXISTS(CONTROLLER_FAN_MIN_BOARD_)
+      #ifdef CONTROLLER_FAN_MIN_BOARD_TEMP
         || thermalManager.wholeDegBoard() >= CONTROLLER_FAN_MIN_BOARD_TEMP
       #endif
-      #if PIN_EXISTS(CONTROLLER_FAN_MIN_SOC_)
+      #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
         || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
       #endif
     ) lastComponentOn = ms; //... set time to NOW so the fan will turn on

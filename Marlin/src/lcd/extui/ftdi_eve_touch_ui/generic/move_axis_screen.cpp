@@ -75,7 +75,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
   #endif
   w.increments();
   #ifdef PARKING_COMMAND_GCODE
-    if (!ExtUI::isPrinting()) { // making sure the Tool Head Swap Position is not avalible while printing
+    if (!ExtUI::isPrinting()) { // making sure the Tool Head Swap Position is not available while printing
       cmd.font(font_medium)
         .colors(normal_btn)
         .tag(25).button(BTN_POS(1,(7+EXTRUDERS)), BTN_SIZE(13,1), GET_TEXT_F(MSG_TOOL_HEAD_SWAP));
