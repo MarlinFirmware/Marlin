@@ -960,7 +960,7 @@ void Endstops::update() {
           if ( TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, z_probe_enabled) // When Z_MIN is the probe, the probe must be enabled
             && TERN1(USE_Z_MIN_PROBE, !z_probe_enabled)                   // When Z_MIN isn't the probe, Z MIN is ignored while probing
           ) {
-              PROCESS_ENDSTOP_Z(MIN);
+            PROCESS_ENDSTOP_Z(MIN);
             #if   CORE_DIAG(XZ, X, MIN)
               PROCESS_CORE_ENDSTOP(X,MIN,Z,MIN);
             #elif CORE_DIAG(XZ, X, MAX)
@@ -975,8 +975,7 @@ void Endstops::update() {
 
         // When closing the gap use the probe trigger state
         #if USE_Z_MIN_PROBE
-          if (z_probe_enabled)
-            PROCESS_ENDSTOP(Z, MIN_PROBE);
+          if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN_PROBE);
         #endif
       }
       else {
