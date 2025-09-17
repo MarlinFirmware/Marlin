@@ -56,12 +56,14 @@ typedef struct FTConfig {
     #else
       static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
     #endif
+
   #endif // HAS_FTM_SHAPING
 
   #if HAS_EXTRUDERS
     bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
     float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
+
 } ft_config_t;
 
 class FTMotion {
@@ -160,14 +162,15 @@ class FTMotion {
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
-    // Make vector variables.
-    static uint32_t makeVector_idx,
-                    makeVector_batchIdx;
+    // generateTrajectoryPointsFromBlock variables.
+    static uint32_t traj_idx_get,
+                    traj_idx_set;
 
     // Interpolation variables.
     static uint32_t interpIdx;
 
     static xyze_long_t steps;
+    static xyze_long_t step_error_q10;
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
@@ -214,8 +217,8 @@ class FTMotion {
     static void runoutBlock();
     static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
-    static void makeVector();
-    static void convertToSteps(const uint32_t idx);
+    static void generateTrajectoryPointsFromBlock();
+    static void generateStepsFromTrajectory(const uint32_t idx);
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
 
