@@ -3007,7 +3007,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
+        // Approximate Gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
