@@ -126,6 +126,12 @@ if pioutil.is_pio_build():
         rm_ofile("inc", "Warnings")
 
         #
+        # Renew date/time
+        #
+        rm_ofile("gcode/host", "M115")
+        rm_ofile("lcd/menu", "menu_info")
+
+        #
         # Rebuild 'settings.cpp' for EEPROM_INIT_NOW
         #
         if 'EEPROM_INIT_NOW' in env['MARLIN_FEATURES']:
