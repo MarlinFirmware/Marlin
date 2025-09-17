@@ -539,7 +539,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPos_prevBlock += moveDist;
 
-  #if HAS_EXTRUDERS
+  #if FTM_HAS_LIN_ADVANCE
     use_advance_lead = current_block->use_advance_lead;
   #endif
 
@@ -580,7 +580,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
-    #if HAS_EXTRUDERS
+    #if FTM_HAS_LIN_ADVANCE
       if (cfg.linearAdvEna) {
         float traj_e = traj.e[traj_idx_set];
         if (use_advance_lead) {
