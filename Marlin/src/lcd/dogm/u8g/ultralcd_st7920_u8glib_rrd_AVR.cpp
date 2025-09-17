@@ -91,24 +91,17 @@
   #define ST7920_DAT(V) ((V) & 0x80)
 #endif
 
-#define ST7920_SND_BIT do{ \
+#define ST7920_SND_BIT(...) do{ \
   WRITE(ST7920_CLK_PIN, LOW);             ST7920_DELAY_1; \
   WRITE(ST7920_DAT_PIN, ST7920_DAT(val)); ST7920_DELAY_2; \
   WRITE(ST7920_CLK_PIN, HIGH);            ST7920_DELAY_3; \
-  val <<= 1; }while(0)
+  val <<= 1; }while(0);
 
 // Optimize this code with -O3
 #pragma GCC optimize (3)
 
 void ST7920_SWSPI_SND_8BIT(uint8_t val) {
-  ST7920_SND_BIT; // 1
-  ST7920_SND_BIT; // 2
-  ST7920_SND_BIT; // 3
-  ST7920_SND_BIT; // 4
-  ST7920_SND_BIT; // 5
-  ST7920_SND_BIT; // 6
-  ST7920_SND_BIT; // 7
-  ST7920_SND_BIT; // 8
+  REPEAT(8, ST7920_SND_BIT);
 }
 
 uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
