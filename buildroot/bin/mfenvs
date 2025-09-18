@@ -25,7 +25,7 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
   win*|msys*|cygwin*|mingw*) SYS='win' ;;
   darwin) SYS='mac' ;;
   *linux) SYS='lin' ;;
-  *) SYS='uni' ;;
+       *) SYS='uni' ;;
 esac
 
 # Find motherboard and board number
