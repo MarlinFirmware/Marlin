@@ -205,7 +205,7 @@ if ((AUTO_BUILD)); then
     fi
     TARGET="${ENVS[$CHOICE-1]}"
     if [[ $MB == 'SIMULATED' && $TARGET == 'linux_native' ]]; then
-      TARGET="simulator_linux_release" # Skip the linux_native environment
+      TARGET="simulator_linux_release"  # Skip the linux_native environment
     fi
     echo "Selected $TARGET"
   fi

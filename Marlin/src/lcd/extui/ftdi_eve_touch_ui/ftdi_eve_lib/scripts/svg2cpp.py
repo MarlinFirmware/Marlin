@@ -100,7 +100,7 @@ class ComputeBoundingBox:
         y -= self.y_min
         x /= self.x_max - self.x_min
         y /= self.y_max - self.y_min
-        #y = 1 - y # Flip upside down
+        #y = 1 - y  # Flip upside down
         return (x, y)
 
     def path_finished(self, id):

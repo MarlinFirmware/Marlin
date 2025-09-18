@@ -91,14 +91,14 @@ for row in reader:
     for i in range(1, numcols):
         str_key = row[i]
         if str_key:
-            col = columns[i-1]
+            col = columns[i - 1]
             strings_per_lang[col['lang']][col['style']][name] = str_key
 
 # Create a folder for the imported language outfiles
 from pathlib import Path
 Path.mkdir(Path(OUTDIR), exist_ok=True)
 
-FILEHEADER = '''
+FILEHEADER = """
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -137,7 +137,7 @@ FILEHEADER = '''
  *   @ displays an axis name such as XYZUVW, or E for an extruder
  */
 
-'''
+"""
 
 # Iterate over the languages which correspond to the columns
 # The columns are assumed to be grouped by language in the order Narrow, Wide, Tall
@@ -147,8 +147,8 @@ FILEHEADER = '''
 f = None
 gotlang = {}
 for i in range(1, numcols):
-    #if i > 6: break # Testing
-    col = columns[i-1]
+    #if i > 6: break  # Testing
+    col = columns[i - 1]
     lang, style = col['lang'], col['style']
 
     # If we haven't already opened a file for this language, do so now
@@ -223,7 +223,7 @@ for i in range(1, numcols):
 
     if style == 'Wide' or style == 'Tall': f.write('  #endif\n')
 
-    f.write('}\n') # End namespace
+    f.write('}\n')  # End namespace
 
     # Assume the 'Tall' namespace comes last
     if style == 'Tall': f.write('\nnamespace Language_%s {\n  using namespace LanguageTall_%s;\n}\n' % (lang, lang))

@@ -23,7 +23,7 @@ def glyph_bits(size_x, size_y, font, glyph_ord):
             v = row
             rpad = size_x - glyph.bbW
             if rpad < 0: rpad = 0
-            if glyph.bbW > size_x: v = v >> (glyph.bbW - size_x) # some glyphs are actually too wide to fit!
+            if glyph.bbW > size_x: v = v >> (glyph.bbW - size_x)  # Some glyphs are actually too wide to fit!
             v = v << (glyph_bytes * 8) - size_x + rpad
             v = v >> glyph.bbX
             bits[y + desc + glyph.bbY] |= v

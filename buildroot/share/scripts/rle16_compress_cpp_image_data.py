@@ -91,7 +91,7 @@ def addCompressedData(input_file, output_file):
 
     def append_byte(data, byte, cols=240):
         if data == '': data = '  '
-        data += ('0x{0:02X}, '.format(byte)) # 6 characters
+        data += ('0x{0:02X}, '.format(byte))  # 6 characters
         if len(data) % (cols * 6 + 2) == 0: data = data.rstrip() + "\n  "
         return data
 
