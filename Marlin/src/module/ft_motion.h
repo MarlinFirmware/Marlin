@@ -22,10 +22,16 @@
 #pragma once
 
 #include "../inc/MarlinConfigPre.h" // Access the top level configurations.
-#include "../module/planner.h"      // Access block type from planner.
-#include "../module/stepper.h"      // For stepper motion and direction
+#include "planner.h"      // Access block type from planner.
+#include "stepper.h"      // For stepper motion and direction
 
 #include "ft_types.h"
+#include "ft_motion/trajectory_generator.h"
+#include "ft_motion/poly3_trajectory_generator.h"
+#include "ft_motion/poly5_trajectory_generator.h"
+#include "ft_motion/poly7_trajectory_generator.h"
+#include "ft_motion/poly6_scurve_trajectory_generator.h"
+class TrapezoidalTrajectoryGenerator;
 
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
@@ -150,6 +156,10 @@ class FTMotion {
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.
 
+    // Trajectory generator selection
+    static void setTrajectoryType(TrajectoryType type);
+    static TrajectoryType getTrajectoryType() { return trajectoryType; }
+
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) {
       return cfg.active ? PENDING(millis(), axis_move_end_ti[axis]) : stepper.axis_is_moving(axis);
     }
@@ -165,18 +175,20 @@ class FTMotion {
     static bool blockProcRdy;
     static bool batchRdy, batchRdyForInterp;
 
-    // Trapezoid data variables.
+    // Block data variables.
     static xyze_pos_t   startPos,         // (mm) Start position of block
                         endPos_prevBlock; // (mm) End position of previous block
     static xyze_float_t ratio;            // (ratio) Axis move ratio of block
-    static float accel,
-                 nominal_speed,
-                 initial_speed,
-                 pos_before_coast,
-                 pos_after_coast;
+    static float tau;                     // (s) Time since start of block
 
-    static float T1, T2, T3;
-    static float tau;
+    // Trajectory generators
+    static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
+    static Poly3TrajectoryGenerator poly3Generator;
+    static Poly5TrajectoryGenerator poly5Generator;
+    static Poly7TrajectoryGenerator poly7Generator;
+    static Poly6ScurveTrajectoryGenerator poly6ScurveGenerator;
+    static TrajectoryGenerator* currentGenerator;
+    static TrajectoryType trajectoryType;
 
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;

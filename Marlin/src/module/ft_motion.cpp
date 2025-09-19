@@ -25,6 +25,11 @@
 #if ENABLED(FT_MOTION)
 
 #include "ft_motion.h"
+#include "ft_motion/trapezoidal_trajectory_generator.h"
+#include "ft_motion/poly3_trajectory_generator.h"
+#include "ft_motion/poly5_trajectory_generator.h"
+#include "ft_motion/poly7_trajectory_generator.h"
+#include "ft_motion/poly6_scurve_trajectory_generator.h"
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
 
@@ -62,20 +67,20 @@ bool FTMotion::batchRdy = false;                // Indicates a batch of the fixe
 bool FTMotion::batchRdyForInterp = false;       // Indicates the batch is done being post processed
                                                 //  (if applicable) and is ready to be converted to step commands.
 
-// Trapezoid data variables.
+// Block data variables.
 xyze_pos_t   FTMotion::startPos,                    // (mm) Start position of block
              FTMotion::endPos_prevBlock = { 0.0f }; // (mm) End position of previous block
 xyze_float_t FTMotion::ratio;                       // (ratio) Axis move ratio of block
-float FTMotion::accel,                              // Acceleration of block. [mm/sec/sec]
-      FTMotion::nominal_speed,                      // Peak feedrate of block. [mm/sec]
-      FTMotion::initial_speed,                      // Starting feedrate of block. [mm/sec]
-      FTMotion::pos_before_coast,                    // Position after acceleration phase of block.
-      FTMotion::pos_after_coast;                   // Position after acceleration and coasting phase of block.
+float FTMotion::tau = 0.0f;                         // (s) Time since start of block
 
-float    FTMotion::T1,                          // Duration of acceleration phase. [s]
-         FTMotion::T2,                          // Duration of coasting phase. [s]
-         FTMotion::T3;                          // Duration of deceleration phase. [s]
-float    FTMotion::tau;                //
+// Trajectory generators
+TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
+Poly3TrajectoryGenerator FTMotion::poly3Generator;
+Poly5TrajectoryGenerator FTMotion::poly5Generator;
+Poly7TrajectoryGenerator FTMotion::poly7Generator;
+Poly6ScurveTrajectoryGenerator FTMotion::poly6ScurveGenerator;
+TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
+TrajectoryType FTMotion::trajectoryType = TrajectoryType::TRAPEZOIDAL;
 
 // Make vector variables.
 uint32_t FTMotion::traj_idx_get = 0,            // Index of fixed time trajectory generation of the overall block.
@@ -502,8 +507,11 @@ void FTMotion::runoutBlock() {
   ratio.reset();
   uint32_t max_intervals = PROP_BATCHES * (FTM_BATCH_SIZE) + n_to_settle_shaper + n_to_fill_batch_after_settling;
   const float reminder_from_last_block = - tau;
-  T1 = T2 = 0;
-  T3 = max_intervals * FTM_TS + reminder_from_last_block;
+  const float total_duration = max_intervals * FTM_TS + reminder_from_last_block;
+
+  // Plan a zero-motion trajectory for runout
+  currentGenerator->planRunout(total_duration);
+
   blockProcRdy = true; // since ratio is 0, the trajectory positions won't advance in any axis
 }
 
@@ -520,6 +528,36 @@ void FTMotion::init() {
   reset(); // Precautionary.
 }
 
+// Set trajectory generator type
+void FTMotion::setTrajectoryType(TrajectoryType type) {
+  trajectoryType = type;
+
+  switch (type) {
+    case TrajectoryType::TRAPEZOIDAL:
+      currentGenerator = &trapezoidalGenerator;
+      break;
+    case TrajectoryType::POLY3:
+      currentGenerator = &poly3Generator;
+      break;
+    case TrajectoryType::POLY5:
+      currentGenerator = &poly5Generator;
+      break;
+    case TrajectoryType::POLY7:
+      currentGenerator = &poly7Generator;
+      break;
+    case TrajectoryType::S_CURVE:
+      currentGenerator = &poly6ScurveGenerator;
+      break;
+    default:
+      currentGenerator = &trapezoidalGenerator;
+      trajectoryType = TrajectoryType::TRAPEZOIDAL;
+      break;
+  }
+
+  // Reset the selected generator
+  currentGenerator->reset();
+}
+
 // Load / convert block data from planner to fixed-time control variables.
 void FTMotion::loadBlockData(block_t * const current_block) {
   // Cache the extruder index for this block
@@ -534,31 +572,13 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   const float mm_per_step = totalLength / current_block->step_event_count;  // (mm/step) Distance for each step
 
-  initial_speed = mm_per_step * current_block->initial_rate;              // (mm/s) Start feedrate
-
+  const float initial_speed = mm_per_step * current_block->initial_rate;              // (mm/s) Start feedrate
   const float final_speed = mm_per_step * current_block->final_rate;    // (mm/s) End feedrate
+  const float accel = current_block->acceleration;
+  const float nominal_speed = current_block->nominal_speed;
 
-  accel = current_block->acceleration;
-  const float one_over_accel = 1.0f / accel;
-
-  nominal_speed = current_block->nominal_speed;
-
-  const float ldiff = totalLength + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
-
-  T2 = ldiff / nominal_speed - one_over_accel * nominal_speed;
-  if (T2 < 0.0f) {
-    T2 = 0.0f;
-    nominal_speed = SQRT(ldiff * accel);
-  }
-
-  T1 = (nominal_speed - initial_speed) * one_over_accel;
-  T3 = (nominal_speed - final_speed) * one_over_accel;
-
-  // Calculate the distance traveled during the accel phase
-  pos_before_coast = initial_speed * T1 + 0.5f * accel * sq(T1);
-
-  // Calculate the distance traveled during the coast phase
-  pos_after_coast = pos_before_coast + nominal_speed * T2;
+  // Plan the trajectory using the trajectory generator
+  currentGenerator->plan(initial_speed, final_speed, accel, nominal_speed, totalLength);
 
   // Accel + Coasting + Decel + datapoints
   const float reminder_from_last_block = - tau;
@@ -568,7 +588,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
   TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
   // Watch endstops until the move ends
-  uint32_t max_intervals = ceil((T1 + T2 + T3 + reminder_from_last_block) * FTM_FS);
+  const float total_duration = currentGenerator->getTotalDuration();
+  uint32_t max_intervals = ceil((total_duration + reminder_from_last_block) * FTM_FS);
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
   #define _SET_MOVE_END(A) do{ \
@@ -587,18 +608,9 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
     tau += FTM_TS;                // (s) Time since start of block
                                   // If the end of the last block doesn't exactly land on a trajectory index,
                                   // tau can start negative, but it always holds that `tau > -FTM_TS`
-    float dist = 0.0f;            // (mm) Distance traveled
-    if (tau < T1) {
-      // Acceleration phase
-      dist = (initial_speed * tau) + (0.5f * accel * sq(tau));
-    } else if (tau <= (T1 + T2)) {
-      // Coasting phase
-      dist = pos_before_coast + nominal_speed * (tau - T1);
-    } else {
-      // Deceleration phase
-      const float tau_decel = tau - (T1 + T2);
-      dist = pos_after_coast + nominal_speed * tau_decel - 0.5f * accel * sq(tau_decel);
-    }
+
+    // Get distance from trajectory generator
+    const float dist = currentGenerator->getDistanceAtTime(tau);
 
     #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
@@ -724,11 +736,12 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       batchRdy = true;
     }
     traj_idx_get++;
-    if (tau + FTM_TS > T1+T2+T3) {
+    const float total_duration = currentGenerator->getTotalDuration();
+    if (tau + FTM_TS > total_duration) {
       // the next iteration will fall beyond this block
       blockProcRdy = false;
       traj_idx_get = 0;
-      tau -= T1 + T2 + T3;
+      tau -= total_duration;
     }
   } while (blockProcRdy && !batchRdy);
 } // generateTrajectoryPointsFromBlock

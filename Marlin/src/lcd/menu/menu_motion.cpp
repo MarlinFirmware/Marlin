@@ -327,6 +327,17 @@ void menu_move() {
     }
   }
 
+  FSTR_P get_trajectory_name() {
+    switch (ftMotion.getTrajectoryType()) {
+      default:
+      case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
+      case TrajectoryType::POLY3:       return GET_TEXT_F(MSG_FTM_POLY3);
+      case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
+      case TrajectoryType::POLY7:       return GET_TEXT_F(MSG_FTM_POLY7);
+      case TrajectoryType::S_CURVE:     return GET_TEXT_F(MSG_FTM_SCURVE);
+    }
+  }
+
   #if HAS_DYNAMIC_FREQ
     FSTR_P get_dyn_freq_mode_name() {
       switch (ftMotion.cfg.dynFreqMode) {
@@ -365,6 +376,18 @@ void menu_move() {
   MENU_FTM_SHAPER(Y);
   TERN_(FTM_SHAPER_Z, MENU_FTM_SHAPER(Z));
   TERN_(FTM_SHAPER_E, MENU_FTM_SHAPER(E));
+
+  void menu_ftm_trajectory_generator() {
+    const TrajectoryType current_type = ftMotion.getTrajectoryType();
+    START_MENU();
+    BACK_ITEM(MSG_FIXED_TIME_MOTION);
+    if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
+    if (current_type != TrajectoryType::POLY3)       ACTION_ITEM(MSG_FTM_POLY3,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY3);        ui.go_back(); });
+    if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
+    if (current_type != TrajectoryType::POLY7)       ACTION_ITEM(MSG_FTM_POLY7,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY7);        ui.go_back(); });
+    if (current_type != TrajectoryType::S_CURVE)     ACTION_ITEM(MSG_FTM_SCURVE,      []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::S_CURVE);      ui.go_back(); });
+    END_MENU();
+  }
 
   #if HAS_DYNAMIC_FREQ
 
@@ -424,9 +447,19 @@ void menu_move() {
           return dmode;
         };
       #endif
+      MString<20> traj_name;
+      TERN_(CACHE_PREV_STRING, bool got_t = false);
+      auto _traj_name = [&]{
+        if (TERN1(CACHE_PREV_STRING, !got_t)) {
+          TERN_(CACHE_PREV_STRING, got_t = true);
+          traj_name = get_trajectory_name();
+        }
+        return traj_name;
+      };
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
       auto _dmode = []{ return get_dyn_freq_mode_name(); };
+      auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
     START_MENU();
@@ -479,7 +512,6 @@ void menu_move() {
       #endif
 
       EDIT_ITEM(bool, MSG_FTM_AXIS_SYNC, &c.axis_sync_enabled);
-
       #if ENABLED(FTM_SMOOTHING)
         #if HAS_X_AXIS
           editable.decimal = c.smoothingTime.x;
