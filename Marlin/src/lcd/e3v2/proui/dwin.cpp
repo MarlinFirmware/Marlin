@@ -178,6 +178,8 @@ hmi_data_t hmiData;
 #if ENABLED(GCODE_MACROS)
   hmi_macro_t hmiMacro;
   static const char macroChars[] PROGMEM = " GM0123456789.XYZABCDEFHIJKLNOPQRSTUVW|";
+  char hmi_macro_data[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {};
+  char run_labels[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 20] = {};
 #endif
 
 enum SelectItem : uint8_t {
@@ -3154,9 +3156,6 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
   }
 
   void macroEncoder(EncoderState encoder_diffState) {
-    static millis_t last_enter_press_ms = 0;
-    static bool awaiting_second_press = false;
-
     switch (encoder_diffState) {
       case ENCODER_DIFF_CW:
         hmiMacro.char_index = (hmiMacro.char_index + 1) % (sizeof(macroChars) - 1);
@@ -3165,41 +3164,38 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
         hmiMacro.char_index = (hmiMacro.char_index == 0 ? sizeof(macroChars) - 2 : hmiMacro.char_index - 1);
         break;
       case ENCODER_DIFF_ENTER: {
-        millis_t current_ms = millis();
-        // Check if a second press occurred
-        if (awaiting_second_press && (current_ms - last_enter_press_ms < DWIN_VAR_UPDATE_INTERVAL)) {
-          // If double press, finish early
+        char selectedChar = macroChars[hmiMacro.char_index];
+
+        // Check if the selected character is the end-and-save character.
+        if (selectedChar == '=') {
           hmiMacro.edit_buffer[hmiMacro.cursor_pos] = '\0';
+
+          // Build and process the G-code command.
           char cmd[80];
           sprintf(cmd, "M81%u %s", hmiMacro.slot_edit, hmiMacro.edit_buffer);
           gcode.process_subcommands_now(cmd);
           #if ENABLED(EEPROM_SETTINGS)
             gcode.process_subcommands_now(F("M500"));
           #endif
-          awaiting_second_press = false;
+
+          // Copy the edited buffer to the permanent storage array.
+          memcpy(hmi_macro_data[hmiMacro.slot_edit], hmiMacro.edit_buffer, sizeof(hmiMacro.edit_buffer));
+
+          // UI updates and return.
           DWINUI::clearMainArea();
           hmiReturnScreen();
           ReDrawMenu();
           return;
         }
         else {
-          awaiting_second_press = true;
-          last_enter_press_ms = current_ms;
-          // Proceed with the single-press action
-          hmiMacro.edit_buffer[hmiMacro.cursor_pos] = macroChars[hmiMacro.char_index];
+          hmiMacro.edit_buffer[hmiMacro.cursor_pos] = selectedChar;
           hmiMacro.cursor_pos++;
-          hmiMacro.char_index = 0; // Reset character index after insertion
+          hmiMacro.char_index = 0; // Reset character index for next selection
         }
       }
         break;
       default:
         break;
-    }
-
-    // Timeout logic: if a second press is awaited and the time window has passed,
-    // we treat the first press as a single press and reset the state.
-    if (awaiting_second_press && (millis() - last_enter_press_ms >= DWIN_VAR_UPDATE_INTERVAL)) {
-      awaiting_second_press = false;
     }
 
     drawMacroEditor();
@@ -3230,6 +3226,7 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     title.showCaption(draw_title);
     DWINUI::clearMainArea();
     DWINUI::drawString(10, 80, F("Macro:"));
+    DWINUI::drawString(10, 160, F("Select  =  to save and exit"));
     drawMacroEditor();
   }
 
@@ -3237,6 +3234,14 @@ void onDrawAcc(MenuItem* menuitem, int8_t line) {
     checkkey = ID_Menu;
     if (SET_MENU_F(macroMenu, "Custom Macros", (GCODE_MACROS_SLOTS * 2) + 1)) {
       BACK_ITEM(drawControlMenu);
+      for (uint8_t i = 0; i < GCODE_MACROS_SLOTS; i++) {
+        const char* gcode_str = hmi_macro_data[i];
+        if (gcode_str[0] != '\0') {
+          sprintf_P(run_labels[i], PSTR("Run M81%u (%s)"), i, hmi_macro_data[i]);
+        } else {
+          sprintf_P(run_labels[i], PSTR("Run M81%u"), i);
+        }
+      }
       #define _ITEM_MACRO(N) \
         MENU_ITEM_F(ICON_File, "Run M81"#N, onDrawMenuItem, []{ (void)runMacro(N); }); \
         MENU_ITEM_F(ICON_Info, "Edit M81"#N, onDrawMenuItem, []{ (void)editMacro(N); });
