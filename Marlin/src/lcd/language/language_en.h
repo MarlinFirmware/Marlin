@@ -492,7 +492,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidal");
   LSTR MSG_FTM_POLY5                      = _UxGT("5th Order");
   LSTR MSG_FTM_POLY6                      = _UxGT("6th Order");
-  LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory");
+  LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory: $");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filament *");
   LSTR MSG_VOLUMETRIC_ENABLED             = _UxGT("E in mm") SUPERSCRIPT_THREE;
