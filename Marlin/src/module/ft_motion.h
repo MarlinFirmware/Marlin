@@ -28,7 +28,7 @@
 #include "ft_types.h"
 #include "ft_motion/trajectory_generator.h"
 #include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly6_scurve_trajectory_generator.h"
+#include "ft_motion/poly6_trajectory_generator.h"
 class TrapezoidalTrajectoryGenerator;
 
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
@@ -182,7 +182,7 @@ class FTMotion {
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
     static Poly5TrajectoryGenerator poly5Generator;
-    static Poly6ScurveTrajectoryGenerator poly6ScurveGenerator;
+    static Poly6TrajectoryGenerator poly6Generator;
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;
 
