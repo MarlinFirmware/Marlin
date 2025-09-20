@@ -535,7 +535,7 @@ void FTMotion::setTrajectoryType(TrajectoryType type) {
     case TrajectoryType::POLY5:
       currentGenerator = &poly5Generator;
       break;
-    case TrajectoryType::S_CURVE:
+    case TrajectoryType::POLY6:
       currentGenerator = &poly6Generator;
       break;
     default:

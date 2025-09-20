@@ -72,5 +72,5 @@ protected:
 enum class TrajectoryType : uint8_t {
   TRAPEZOIDAL = 0,
   POLY5 = 1,
-  S_CURVE = 2
+  POLY6 = 2
 };

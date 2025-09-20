@@ -332,7 +332,7 @@ void menu_move() {
       default:
       case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
       case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-      case TrajectoryType::S_CURVE:     return GET_TEXT_F(MSG_FTM_SCURVE);
+      case TrajectoryType::POLY6:       return GET_TEXT_F(MSG_FTM_POLY6);
     }
   }
 
@@ -381,7 +381,7 @@ void menu_move() {
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
     if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
     if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-    if (current_type != TrajectoryType::S_CURVE)     ACTION_ITEM(MSG_FTM_SCURVE,      []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::S_CURVE);      ui.go_back(); });
+    if (current_type != TrajectoryType::POLY6)       ACTION_ITEM(MSG_FTM_POLY6,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY6);        ui.go_back(); });
     END_MENU();
   }
 
