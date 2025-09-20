@@ -521,12 +521,13 @@ int32_t FTMotion::stepperCmdBuffItems() {
 void FTMotion::init() {
   update_shaping_params();
   TERN_(FTM_SMOOTHING, update_smoothing_params());
+  setTrajectoryType(cfg.trajectory_type);
   reset(); // Precautionary.
 }
 
 // Set trajectory generator type
 void FTMotion::setTrajectoryType(TrajectoryType type) {
-  trajectoryType = type;
+  cfg.trajectory_type = trajectoryType = type;
 
   switch (type) {
     case TrajectoryType::TRAPEZOIDAL:
@@ -540,7 +541,7 @@ void FTMotion::setTrajectoryType(TrajectoryType type) {
       break;
     default:
       currentGenerator = &trapezoidalGenerator;
-      trajectoryType = TrajectoryType::TRAPEZOIDAL;
+      cfg.trajectory_type = trajectoryType = TrajectoryType::TRAPEZOIDAL;
       break;
   }
 

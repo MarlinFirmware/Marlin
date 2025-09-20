@@ -73,6 +73,7 @@ typedef struct FTConfig {
     float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
 
+  TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL; // Trajectory generator type
 } ft_config_t;
 
 class FTMotion {
@@ -123,6 +124,8 @@ class FTMotion {
         cfg.linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
+
+      setTrajectoryType(TrajectoryType::FTM_TRYJECTORY_TYPE);
 
       reset();
     }
