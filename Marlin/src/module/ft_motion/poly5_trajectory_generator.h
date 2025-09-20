@@ -31,12 +31,11 @@ public:
 
   void plan(float initial_speed, float final_speed, float acceration, float nominal_speed, float distance) override {
     this->initial_speed = initial_speed;
-    this->final_speed = final_speed;
     this->nominal_speed = nominal_speed;
 
     // Calculate timing phases using the same logic as trapezoidal generator
     const float one_over_acc = 1.0f / acceration;
-    const float ldiff = distance + 0.5f * one_over_acc * (this->initial_speed * this->initial_speed + this->final_speed * this->final_speed);
+    const float ldiff = distance + 0.5f * one_over_acc * (sq(this->initial_speed) + sq(final_speed));
 
     T2 = ldiff / this->nominal_speed - one_over_acc * this->nominal_speed;
     if (T2 < 0.0f) {
@@ -45,7 +44,7 @@ public:
     }
 
     T1 = (this->nominal_speed - this->initial_speed) * one_over_acc;
-    T3 = (this->nominal_speed - this->final_speed) * one_over_acc;
+    T3 = (this->nominal_speed - final_speed) * one_over_acc;
 
     const float d1 = (this->initial_speed + this->nominal_speed) * T1 * 0.5f;
     const float T1_2 = T1 * T1;
@@ -64,7 +63,7 @@ public:
     pos_after_coast = pos_before_coast + this->nominal_speed * T2;
 
     // Deceration phase
-    const float d3 = (this->nominal_speed + this->final_speed) * T3 * 0.5f;
+    const float d3 = (this->nominal_speed + final_speed) * T3 * 0.5f;
     const float T3_2 = T3 * T3;
     const float T3_3 = T3_2 * T3;
     const float T3_4 = T3_3 * T3;
@@ -72,9 +71,9 @@ public:
     dec_c0 = 0.0f;
     dec_c1 = this->nominal_speed;
     dec_c2 = 0.0f;
-    dec_c3 = (10.0f * d3 - (6.0f * this->nominal_speed + 4.0f * this->final_speed) * T3) / T3_3;
-    dec_c4 = (15.0f * d3 - (8.0f * this->nominal_speed + 7.0f * this->final_speed) * T3) / -T3_4;
-    dec_c5 = (6.0f * d3 - 3.0f * (this->nominal_speed + this->final_speed) * T3) / T3_5;
+    dec_c3 = (10.0f * d3 - (6.0f * this->nominal_speed + 4.0f * final_speed) * T3) / T3_3;
+    dec_c4 = (15.0f * d3 - (8.0f * this->nominal_speed + 7.0f * final_speed) * T3) / -T3_4;
+    dec_c5 = (6.0f * d3 - 3.0f * (this->nominal_speed + final_speed) * T3) / T3_5;
   }
 
   void planRunout(float duration) override {
@@ -90,12 +89,9 @@ public:
         // Coasting phase
         return pos_before_coast + this->nominal_speed * (t - T1);
     }
-    if (t <= (T1 + T2 + T3)) {
-        // Deceration phase
-        const float tau = t - (T1 + T2);
-        return pos_after_coast + dec_c0 + tau * (dec_c1 + tau * (dec_c2 + tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5))));
-    }
-    return pos_after_coast + (this->nominal_speed + this->final_speed) * T3 * 0.5f; // End position
+    // Deceration phase
+    const float tau = t - (T1 + T2);
+    return pos_after_coast + dec_c0 + tau * (dec_c1 + tau * (dec_c2 + tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5))));
   }
 
   float getTotalDuration() const override { return T1 + T2 + T3; }
@@ -104,7 +100,7 @@ public:
     acc_c0 = acc_c1 = acc_c2 = acc_c3 = acc_c4 = acc_c5 = 0.0f;
     dec_c0 = dec_c1 = dec_c2 = dec_c3 = dec_c4 = dec_c5 = 0.0f;
     T1 = T2 = T3 = 0.0f;
-    initial_speed = nominal_speed = final_speed = 0.0f;
+    initial_speed = nominal_speed = 0.0f;
     pos_before_coast = pos_after_coast = 0.0f;
   }
 
@@ -115,6 +111,6 @@ private:
   float dec_c0 = 0.0f, dec_c1 = 0.0f, dec_c2 = 0.0f, dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f;
   // timestamps of each phase
   float T1 = 0.0f, T2 = 0.0f, T3 = 0.0f;
-  float initial_speed = 0.0f, nominal_speed = 0.0f, final_speed = 0.0f;
+  float initial_speed = 0.0f, nominal_speed = 0.0f;
   float pos_before_coast = 0.0f, pos_after_coast = 0.0f;
 };
