@@ -26,9 +26,7 @@
 
 #include "ft_motion.h"
 #include "ft_motion/trapezoidal_trajectory_generator.h"
-#include "ft_motion/poly3_trajectory_generator.h"
 #include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly7_trajectory_generator.h"
 #include "ft_motion/poly6_scurve_trajectory_generator.h"
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
@@ -75,9 +73,7 @@ float FTMotion::tau = 0.0f;                         // (s) Time since start of b
 
 // Trajectory generators
 TrapezoidalTrajectoryGenerator FTMotion::trapezoidalGenerator;
-Poly3TrajectoryGenerator FTMotion::poly3Generator;
 Poly5TrajectoryGenerator FTMotion::poly5Generator;
-Poly7TrajectoryGenerator FTMotion::poly7Generator;
 Poly6ScurveTrajectoryGenerator FTMotion::poly6ScurveGenerator;
 TrajectoryGenerator* FTMotion::currentGenerator = &FTMotion::trapezoidalGenerator;
 TrajectoryType FTMotion::trajectoryType = TrajectoryType::TRAPEZOIDAL;
@@ -536,14 +532,8 @@ void FTMotion::setTrajectoryType(TrajectoryType type) {
     case TrajectoryType::TRAPEZOIDAL:
       currentGenerator = &trapezoidalGenerator;
       break;
-    case TrajectoryType::POLY3:
-      currentGenerator = &poly3Generator;
-      break;
     case TrajectoryType::POLY5:
       currentGenerator = &poly5Generator;
-      break;
-    case TrajectoryType::POLY7:
-      currentGenerator = &poly7Generator;
       break;
     case TrajectoryType::S_CURVE:
       currentGenerator = &poly6ScurveGenerator;

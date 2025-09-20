@@ -27,9 +27,7 @@
 
 #include "ft_types.h"
 #include "ft_motion/trajectory_generator.h"
-#include "ft_motion/poly3_trajectory_generator.h"
 #include "ft_motion/poly5_trajectory_generator.h"
-#include "ft_motion/poly7_trajectory_generator.h"
 #include "ft_motion/poly6_scurve_trajectory_generator.h"
 class TrapezoidalTrajectoryGenerator;
 
@@ -183,9 +181,7 @@ class FTMotion {
 
     // Trajectory generators
     static TrapezoidalTrajectoryGenerator trapezoidalGenerator;
-    static Poly3TrajectoryGenerator poly3Generator;
     static Poly5TrajectoryGenerator poly5Generator;
-    static Poly7TrajectoryGenerator poly7Generator;
     static Poly6ScurveTrajectoryGenerator poly6ScurveGenerator;
     static TrajectoryGenerator* currentGenerator;
     static TrajectoryType trajectoryType;

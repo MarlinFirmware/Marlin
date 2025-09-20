@@ -490,9 +490,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TEMPERATURE                    = _UxGT("Temperature");
   LSTR MSG_MOTION                         = _UxGT("Motion");
   LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidal");
-  LSTR MSG_FTM_POLY3                      = _UxGT("3rd Order");
   LSTR MSG_FTM_POLY5                      = _UxGT("5th Order");
-  LSTR MSG_FTM_POLY7                      = _UxGT("7th Order");
   LSTR MSG_FTM_SCURVE                     = _UxGT("S-Curve");
   LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory");
   LSTR MSG_FILAMENT                       = _UxGT("Filament");

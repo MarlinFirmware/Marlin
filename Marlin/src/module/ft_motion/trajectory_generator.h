@@ -23,17 +23,6 @@
 /**
  * Base class for trajectory generators.
  * Provides a zero-cost abstraction for different trajectory generation algorithms.
-    | Feature | Trapezoidal | Poly3 | Poly5 | S-Curve (Poly6) | Poly7 |
-    | :--- | :--- | :--- | :--- | :--- | :--- |
-    | **Position Order** | 2nd (piecewise) | 3rd | 5th | 6th | 7th |
-    | **Constraints** | `p(0)=0` `p(T)=d` `v(0)=vᵢ` `v(T)=vₒ` `a(t)=const` | `p(0)=0` `p(T)=d` `v(0)=vᵢ` `v(T)=vₒ` | `p(0)=0` `p(T)=d` `v(0)=vᵢ` `v(T)=vₒ` `a(0)=0` `a(T)=0` | `p(0)=0` `p(T)=d` `v(0)=vᵢ` `v(T)=vₒ` `a(0)=0` `a(T)=0` `j(0)=0` `j(T)=0` | `p(0)=0` `p(T)=d` `v(0)=vᵢ` `v(T)=vₒ` `a(0)=0` `a(T)=0` `j(0)=0` `j(T)=0` |
-    | **Velocity** | Continuous | Continuous | Continuous | Continuous | Continuous |
-    | **Acceleration** | Discontinuous | Discontinuous | Continuous | Continuous | Continuous |
-    | **Jerk** | Infinite | Infinite | Discontinuous | Continuous | Continuous |
-    | **Snap** | Infinite | Infinite | Infinite | Discontinuous | Continuous |
-    | **Peak Accel.** | **1.0x** (0%) | **2.0x** (+100%) | **1.95x** (+95%) | **1.875x** (+87.5%) | **2.1875x** (+118.75%) |
-    | **"Smoothness"** | Basic | Smooth | Very Smooth | Extremely Smooth | Smoothest |
-
  */
 class TrajectoryGenerator {
 public:
@@ -82,8 +71,6 @@ protected:
  */
 enum class TrajectoryType : uint8_t {
   TRAPEZOIDAL = 0,
-  POLY3 = 1,
-  POLY5 = 2,
-  POLY7 = 3,
-  S_CURVE = 4
+  POLY5 = 1,
+  S_CURVE = 2
 };

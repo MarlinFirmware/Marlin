@@ -331,9 +331,7 @@ void menu_move() {
     switch (ftMotion.getTrajectoryType()) {
       default:
       case TrajectoryType::TRAPEZOIDAL: return GET_TEXT_F(MSG_FTM_TRAPEZOIDAL);
-      case TrajectoryType::POLY3:       return GET_TEXT_F(MSG_FTM_POLY3);
       case TrajectoryType::POLY5:       return GET_TEXT_F(MSG_FTM_POLY5);
-      case TrajectoryType::POLY7:       return GET_TEXT_F(MSG_FTM_POLY7);
       case TrajectoryType::S_CURVE:     return GET_TEXT_F(MSG_FTM_SCURVE);
     }
   }
@@ -382,9 +380,7 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_FIXED_TIME_MOTION);
     if (current_type != TrajectoryType::TRAPEZOIDAL) ACTION_ITEM(MSG_FTM_TRAPEZOIDAL, []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::TRAPEZOIDAL);  ui.go_back(); });
-    if (current_type != TrajectoryType::POLY3)       ACTION_ITEM(MSG_FTM_POLY3,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY3);        ui.go_back(); });
     if (current_type != TrajectoryType::POLY5)       ACTION_ITEM(MSG_FTM_POLY5,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY5);        ui.go_back(); });
-    if (current_type != TrajectoryType::POLY7)       ACTION_ITEM(MSG_FTM_POLY7,       []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::POLY7);        ui.go_back(); });
     if (current_type != TrajectoryType::S_CURVE)     ACTION_ITEM(MSG_FTM_SCURVE,      []{ planner.synchronize(); ftMotion.setTrajectoryType(TrajectoryType::S_CURVE);      ui.go_back(); });
     END_MENU();
   }
