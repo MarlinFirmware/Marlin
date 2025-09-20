@@ -24,6 +24,8 @@
 /**
  * 5th order polynomial trajectory generator.
  * Provides smooth acceration with continuous velocity, acceration, and jerk.
+ * Acceleration starts and ends at zero, jerk, snap and crackle are such that
+ * the distance and phase durations match those of a trapezoidal profile.
  */
 class Poly5TrajectoryGenerator : public TrajectoryGenerator {
 public:
@@ -51,9 +53,9 @@ public:
     const float T1_3 = T1_2 * T1;
     const float T1_4 = T1_3 * T1;
     const float T1_5 = T1_4 * T1;
-    acc_c0 = 0.0f;
+    // acc_c0 = 0.0f; // initial position is zero
     acc_c1 = this->initial_speed;
-    acc_c2 = 0.0f;
+    // acc_c2 = 0.0f; // initial acceleration is zero
     acc_c3 = (10.0f * d1 - (6.0f * this->initial_speed + 4.0f * this->nominal_speed) * T1) / T1_3;
     acc_c4 = (15.0f * d1 - (8.0f * this->initial_speed + 7.0f * this->nominal_speed) * T1) / -T1_4;
     acc_c5 = (6.0f * d1 - 3.0f * (this->initial_speed + this->nominal_speed) * T1) / T1_5;
@@ -68,9 +70,9 @@ public:
     const float T3_3 = T3_2 * T3;
     const float T3_4 = T3_3 * T3;
     const float T3_5 = T3_4 * T3;
-    dec_c0 = 0.0f;
+    // dec_c0 = 0.0f; // initial position is zero
     dec_c1 = this->nominal_speed;
-    dec_c2 = 0.0f;
+    // dec_c2 = 0.0f; // initial acceleration is zero
     dec_c3 = (10.0f * d3 - (6.0f * this->nominal_speed + 4.0f * final_speed) * T3) / T3_3;
     dec_c4 = (15.0f * d3 - (8.0f * this->nominal_speed + 7.0f * final_speed) * T3) / -T3_4;
     dec_c5 = (6.0f * d3 - 3.0f * (this->nominal_speed + final_speed) * T3) / T3_5;
@@ -84,31 +86,32 @@ public:
   float getDistanceAtTime(float t) const override {
     if (t < T1) {
         // Acceration phase
-        return acc_c0 + t * (acc_c1 + t * (acc_c2 + t * (acc_c3 + t * (acc_c4 + t * acc_c5))));
+        return t * (acc_c1 + t * t * (acc_c3 + t * (acc_c4 + t * acc_c5)));
     } else if (t <= (T1 + T2)) {
         // Coasting phase
         return pos_before_coast + this->nominal_speed * (t - T1);
     }
     // Deceration phase
     const float tau = t - (T1 + T2);
-    return pos_after_coast + dec_c0 + tau * (dec_c1 + tau * (dec_c2 + tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5))));
+    return pos_after_coast + tau * (dec_c1 + tau * tau * (dec_c3 + tau * (dec_c4 + tau * dec_c5)));
   }
 
   float getTotalDuration() const override { return T1 + T2 + T3; }
 
   void reset() override {
-    acc_c0 = acc_c1 = acc_c2 = acc_c3 = acc_c4 = acc_c5 = 0.0f;
-    dec_c0 = dec_c1 = dec_c2 = dec_c3 = dec_c4 = dec_c5 = 0.0f;
+    acc_c1 = acc_c3 = acc_c4 = acc_c5 = 0.0f;
+    dec_c1 = dec_c3 = dec_c4 = dec_c5 = 0.0f;
     T1 = T2 = T3 = 0.0f;
     initial_speed = nominal_speed = 0.0f;
     pos_before_coast = pos_after_coast = 0.0f;
   }
 
 private:
+  // c1: initial velocity, c3: jerk, c4: snap, c5: crackle
   // acceleration coefficients
-  float acc_c0 = 0.0f, acc_c1 = 0.0f, acc_c2 = 0.0f, acc_c3 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f;
+  float acc_c1 = 0.0f, acc_c3 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f;
   // deceleration coefficients
-  float dec_c0 = 0.0f, dec_c1 = 0.0f, dec_c2 = 0.0f, dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f;
+  float dec_c1 = 0.0f, dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f;
   // timestamps of each phase
   float T1 = 0.0f, T2 = 0.0f, T3 = 0.0f;
   float initial_speed = 0.0f, nominal_speed = 0.0f;
