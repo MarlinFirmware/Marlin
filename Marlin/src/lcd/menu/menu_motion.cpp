@@ -312,7 +312,7 @@ void menu_move() {
 
   #include "../../module/ft_motion.h"
 
-  FSTR_P get_shaper_name(const AxisEnum axis=X_AXIS) {
+  FSTR_P get_shaper_name(const AxisEnum axis) {
     switch (ftMotion.cfg.shaper[axis]) {
       default: return nullptr;
       case ftMotionShaper_NONE:  return GET_TEXT_F(MSG_LCD_OFF);
@@ -457,20 +457,20 @@ void menu_move() {
       #if HAS_X_AXIS
         SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_x);
 
-        if (AXIS_HAS_SHAPER(X)) {
+        if (AXIS_IS_SHAPING(X)) {
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.x, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_ZETA_N, &c.zeta.x, 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if (AXIS_HAS_EISHAPER(X))
+          if (AXIS_IS_EISHAPING(X))
             EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_FTM_VTOL_N, &c.vtol.x, 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
       #if HAS_Y_AXIS
         SUBMENU_N_S(Y_AXIS, _shaper_name(Y_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_y);
 
-        if (AXIS_HAS_SHAPER(Y)) {
+        if (AXIS_IS_SHAPING(Y)) {
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_BASE_FREQ_N, &c.baseFreq.y, FTM_MIN_SHAPE_FREQ, (FTM_FS) / 2, ftMotion.update_shaping_params);
           EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_ZETA_N, &c.zeta.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
-          if (AXIS_HAS_EISHAPER(Y))
+          if (AXIS_IS_EISHAPING(Y))
             EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_FTM_VTOL_N, &c.vtol.y, 0.0f, 1.0f, ftMotion.update_shaping_params);
         }
       #endif
