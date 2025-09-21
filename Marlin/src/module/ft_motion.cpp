@@ -104,14 +104,14 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
       , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
     #if HAS_Y_AXIS
-      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
   };
 #endif
 
 #if HAS_EXTRUDERS
   // Linear advance variables.
-  float FTMotion::prev_traj_e = 0.0f;        // (ms) Unit delay of raw extruder position.
+  float FTMotion::prev_traj_e = 0.0f;     // (ms) Unit delay of raw extruder position.
 #endif
 
 constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); // Batch start index in window.
@@ -539,9 +539,7 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPos_prevBlock += moveDist;
 
-  #if FTM_HAS_LIN_ADVANCE
-    use_advance_lead = current_block->use_advance_lead;
-  #endif
+  TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
 
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
@@ -584,7 +582,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       if (cfg.linearAdvEna) {
         float traj_e = traj.e[traj_idx_set];
         if (use_advance_lead) {
-          // don't apply LA to retract/unretract blocks
+          // Don't apply LA to retract/unretract blocks
           float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
           traj.e[traj_idx_set] += e_rate * cfg.linearAdvK;
         }

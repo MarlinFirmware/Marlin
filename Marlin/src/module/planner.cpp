@@ -2447,7 +2447,7 @@ bool Planner::_populate_block(
           block->use_advance_lead = use_advance_lead;
         #endif
       }
-    #endif // ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
