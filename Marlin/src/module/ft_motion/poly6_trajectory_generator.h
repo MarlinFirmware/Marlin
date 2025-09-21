@@ -24,9 +24,8 @@
 
 /**
  * 6th order S-Curve trajectory generator.
- * Provides a smooth, jerk-limited motion profile that matches the classic
- * Marlin S-Curve implementation.
- * Acceleration and jerk start and end at zero, snap, crackle and pop are such that
+ * Provides continuous snap, resulting in smooth jerk.
+ * Acceleration and jerk start and end at zero. The snap, crackle, and pop are such that
  * the distance and phase durations match those of a trapezoidal profile.
  */
 class Poly6TrajectoryGenerator : public TrajectoryGenerator {

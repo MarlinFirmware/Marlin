@@ -23,7 +23,8 @@
 
 /**
  * Trapezoidal trajectory generator.
- * Implements a trapezoidal velocity profile with acceleration, constant velocity, and deceleration phases.
+ * Provides continuous velocity, but acceleration is discontinuous.
+ * Implements a trapezoidal velocity profile with acceleration, cruise, and deceleration phases.
  */
 class TrapezoidalTrajectoryGenerator : public TrajectoryGenerator {
 public:

@@ -23,8 +23,8 @@
 
 /**
  * 5th order polynomial trajectory generator.
- * Provides smooth acceration with continuous velocity, acceration, and jerk.
- * Acceleration starts and ends at zero, jerk, snap and crackle are such that
+ * Provides continuous jerk, resulting in smooth acceleration.
+ * Acceleration starts and ends at zero. The jerk, snap, and crackle are such that
  * the distance and phase durations match those of a trapezoidal profile.
  */
 class Poly5TrajectoryGenerator : public TrajectoryGenerator {
