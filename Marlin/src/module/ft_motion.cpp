@@ -595,6 +595,17 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
 // Generate data points of the trajectory.
 void FTMotion::generateTrajectoryPointsFromBlock() {
+  const float total_duration = currentGenerator->getTotalDuration();
+  if (tau + FTM_TS > total_duration) {
+    // TODO: refactor code so this thing is not twice.
+    // the reason of it being in the beginning, is that a block can be so short that it has
+    // zero trajectories.
+    // the next iteration will fall beyond this block
+    blockProcRdy = false;
+    traj_idx_get = 0;
+    tau -= total_duration;
+    return;
+  }
   do {
     tau += FTM_TS;                // (s) Time since start of block
                                   // If the end of the last block doesn't exactly land on a trajectory index,
@@ -727,7 +738,6 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       batchRdy = true;
     }
     traj_idx_get++;
-    const float total_duration = currentGenerator->getTotalDuration();
     if (tau + FTM_TS > total_duration) {
       // the next iteration will fall beyond this block
       blockProcRdy = false;
