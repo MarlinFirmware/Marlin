@@ -532,6 +532,7 @@ void menu_move() {
 
   void menu_tune_ft_motion() {
     // Define stuff ahead of the menu loop
+    ft_config_t &c = ftMotion.cfg;
     #ifdef __AVR__
       // Copy Flash strings to RAM for C-string substitution
       // For U8G paged rendering check and skip extra string copy
@@ -557,18 +558,25 @@ void menu_move() {
           return dmode;
         };
       #endif
+      MString<20> traj_name;
+      TERN_(CACHE_PREV_STRING, bool got_t = false);
+      auto _traj_name = [&]{
+        if (TERN1(CACHE_PREV_STRING, !got_t)) {
+          TERN_(CACHE_PREV_STRING, got_t = true);
+          traj_name = get_trajectory_name();
+        }
+        return traj_name;
+      };
     #else
       auto _shaper_name = [](const AxisEnum a) { return get_shaper_name(a); };
       auto _dmode = []{ return get_dyn_freq_mode_name(); };
-    #endif
-
-    #if HAS_EXTRUDERS
-      ft_config_t &c = ftMotion.cfg;
+      auto _traj_name = []{ return get_trajectory_name(); };
     #endif
 
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
+    SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
     #if HAS_X_AXIS
       SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_X);
     #endif
@@ -588,6 +596,24 @@ void menu_move() {
       EDIT_ITEM(bool, MSG_LINEAR_ADVANCE, &c.linearAdvEna);
       if (c.linearAdvEna || ENABLED(FT_MOTION_NO_MENU_TOGGLE))
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &c.linearAdvK, 0.0f, 10.0f);
+    #endif
+    #if ENABLED(FTM_SMOOTHING)
+      #if HAS_X_AXIS
+        editable.decimal = c.smoothingTime.x;
+        EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(X_AXIS, editable.decimal); });
+      #endif
+      #if HAS_Y_AXIS
+        editable.decimal = c.smoothingTime.y;
+        EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Y_AXIS, editable.decimal); });
+      #endif
+      #if HAS_Z_AXIS
+        editable.decimal = c.smoothingTime.z;
+        EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(Z_AXIS, editable.decimal); });
+      #endif
+      #if HAS_EXTRUDERS
+        editable.decimal = c.smoothingTime.e;
+        EDIT_ITEM_FAST_N(float43, E_AXIS, MSG_FTM_SMOOTH_TIME_N, &editable.decimal, 0.0f, FTM_MAX_SMOOTHING_TIME, []{ ftMotion.set_smoothing_time(E_AXIS, editable.decimal); });
+      #endif
     #endif
 
     END_MENU();
