@@ -349,7 +349,7 @@
 #endif
 
 #if ALL(FT_MOTION, HAS_EXTRUDERS)
-  #define HAS_FTM_LIN_ADVANCE 1
+  #define FTM_HAS_LIN_ADVANCE 1
 #endif
 
 // Some displays can toggle Adaptive Step Smoothing.

@@ -2432,7 +2432,7 @@ bool Planner::_populate_block(
           use_advance_lead = false;
         else {
           #if HAS_ROUGH_LIN_ADVANCE
-            const bool limit_accel = TERN1(HAS_FTM_LIN_ADVANCE, !ftMotion.cfg.active);
+            const bool limit_accel = TERN1(FTM_HAS_LIN_ADVANCE, !ftMotion.cfg.active);
             if (limit_accel) {
               // Scale E acceleration so that it will be possible to jump to the advance speed.
               const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
