@@ -348,6 +348,10 @@
   #define HAS_ROUGH_LIN_ADVANCE 1
 #endif
 
+#if ALL(FT_MOTION, HAS_EXTRUDERS)
+  #define HAS_FTM_LIN_ADVANCE 1
+#endif
+
 // Some displays can toggle Adaptive Step Smoothing.
 // The state is saved to EEPROM.
 // In future this may be added to a G-code such as M205 A.
