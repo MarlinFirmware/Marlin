@@ -1,3 +1,7 @@
+"""
+upload.py
+"""
+
 import argparse, sys, os, time, random, serial, MarlinBinaryProtocol
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
@@ -110,7 +114,7 @@ def Upload(source, target, env):
         return Firmwares
 
     def _RemoveFirmwareFile(FirmwareFile):
-        _Send(f'M30 /{FirmwareFile}')
+        _Send(f"M30 /{FirmwareFile}")
         Responses = _Recv()
         Removed = len(Responses) >= 1 and any('File deleted' in r for r in Responses)
         if not Removed:

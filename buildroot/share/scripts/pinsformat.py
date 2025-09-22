@@ -36,12 +36,12 @@ def concat_with_space(s1, s2):
     return s1 + s2
 
 # Pin patterns
-mpatt = [ r'-?\d{1,3}', r'P[A-I]\d+', r'P\d_\d+', r'Pin[A-Z]\d\b' ]
+mpatt = [r'-?\d{1,3}', r'P[A-I]\d+', r'P\d_\d+', r'Pin[A-Z]\d\b']
 mstr = '|'.join(mpatt)
-mexpr = [ re.compile(f'^{m}$') for m in mpatt ]
+mexpr = [re.compile(f'^{m}$') for m in mpatt]
 
 # Corresponding padding for each pattern
-ppad = [ 3, 4, 5, 5 ]
+ppad = [3, 4, 5, 5]
 
 # Match a define line
 definePinPatt = re.compile(rf'^\s*(//)?#define\s+[A-Z_][A-Z0-9_]+?_PIN\s+({mstr})\s*(//.*)?$')
@@ -96,7 +96,7 @@ def format_pins(argv):
 def get_pin_pattern(txt):
     r = ''
     m = 0
-    match_count = [ 0, 0, 0, 0 ]
+    match_count = [0, 0, 0, 0]
 
     # Find the most common matching pattern
     match_threshold = 5
@@ -109,7 +109,7 @@ def get_pin_pattern(txt):
             if not p.match(r[2]): continue
             match_count[ind] += 1
             if match_count[ind] >= match_threshold:
-                return { 'match': mpatt[ind], 'pad':ppad[ind] }
+                return {'match': mpatt[ind], 'pad':ppad[ind]}
     return None
 
 def process_text(txt):
@@ -255,7 +255,7 @@ def process_text(txt):
         return True
 
     out = ''
-    wDict = { 'check_comment_next': False }
+    wDict = {'check_comment_next': False}
 
     # Transform each line and add it to the output
     for line in txt.split('\n'):

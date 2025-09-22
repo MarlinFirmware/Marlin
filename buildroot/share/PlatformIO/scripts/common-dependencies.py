@@ -82,7 +82,7 @@ if pioutil.is_pio_build():
         for key in ProjectConfig().items('features'):
             feature = key[0].upper()
             if not feature in FEATURE_CONFIG:
-                FEATURE_CONFIG[feature] = { 'lib_deps': [] }
+                FEATURE_CONFIG[feature] = {'lib_deps': []}
             add_to_feat_cnf(feature, key[1])
 
         # Add options matching custom_marlin.MY_OPTION to the pile
@@ -97,7 +97,7 @@ if pioutil.is_pio_build():
                     val = None
                 if val:
                     opt = mat[1].upper()
-                    blab("%s.custom_marlin.%s = '%s'" % ( env['PIOENV'], opt, val ), 2)
+                    blab("%s.custom_marlin.%s = '%s'" % (env['PIOENV'], opt, val), 2)
                     add_to_feat_cnf(opt, val)
 
     def get_all_known_libs():
@@ -128,7 +128,7 @@ if pioutil.is_pio_build():
         """
         env_libs = get_all_env_libs()
         known_libs = get_all_known_libs()
-        diff = (list(set(known_libs) - set(env_libs)))
+        diff = list(set(known_libs) - set(env_libs))
         lib_ignore = env.GetProjectOption('lib_ignore') + diff
         blab("Ignore libraries: %s" % lib_ignore)
         set_env_field('lib_ignore', lib_ignore)
@@ -174,7 +174,7 @@ if pioutil.is_pio_build():
             if 'build_flags' in feat:
                 f = feat['build_flags']
                 blab("========== Adding build_flags for %s: %s" % (feature, f), 2)
-                new_flags = env.GetProjectOption('build_flags') + [ f ]
+                new_flags = env.GetProjectOption('build_flags') + [f]
                 env.Replace(BUILD_FLAGS=new_flags)
 
             if 'extra_scripts' in feat:
@@ -259,7 +259,7 @@ if pioutil.is_pio_build():
                     cur_srcs = set(filter(filt, cur_srcs))
         # Transform the resulting set into a string.
         for x in cur_srcs:
-            if build_src_filter != "": build_src_filter += ' '
+            if build_src_filter != "": build_src_filter += " "
             build_src_filter += "+<" + x + ">"
 
         # Update in PlatformIO
@@ -294,7 +294,7 @@ if pioutil.is_pio_build():
         if len(found):
             for f in found:
                 val = env['MARLIN_FEATURES'][f]
-                if val in [ '', '1', 'true' ]:
+                if val in ['', '1', 'true']:
                     some_on = True
                 elif val in env['MARLIN_FEATURES']:
                     some_on = env.MarlinHas(val)

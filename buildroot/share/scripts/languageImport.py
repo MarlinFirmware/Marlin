@@ -82,7 +82,7 @@ for row in reader:
             elms = row[i].split(' ')
             lang = elms[0]
             style = ('Wide' if elms[-1] == '(wide)' else 'Tall' if elms[-1] == '(tall)' else 'Narrow')
-            columns.append({ 'lang': lang, 'style': style })
+            columns.append({'lang': lang, 'style': style})
             if not lang in strings_per_lang: strings_per_lang[lang] = {}
             if not style in strings_per_lang[lang]: strings_per_lang[lang][style] = {}
         continue

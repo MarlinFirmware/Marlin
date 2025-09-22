@@ -79,7 +79,7 @@ def group_options(schema):
                 for optkey in s:
                     find_grouping(found_groups, filekey, sectkey, optkey, pindex)
 
-        fkeys = [ k for k in found_groups.keys() ]
+        fkeys = [k for k in found_groups.keys()]
         for kkey in fkeys:
             items = found_groups[kkey]
             if len(items) > 1:
@@ -253,7 +253,7 @@ def extract_files(filekey):
 
                         # Temperature sensors are done
                         if state == Parse.GET_SENSORS:
-                            options_json = f'[ {options_json[:-2]} ]'
+                            options_json = f'[{options_json[:-2]}]'
                         state = Parse.NORMAL
 
                     # Strip the leading '* ' from block comments
@@ -341,7 +341,7 @@ def extract_files(filekey):
                     iselif, iselse = cparts[0] == '#elif', cparts[0] == '#else'
                     if iselif or iselse or cparts[0] == '#endif':
                         if not conditions:
-                            raise Exception(f'no #if block at line {line_number}')
+                            raise Exception(f"no #if block at line {line_number}")
 
                         # Pop the last condition-array from the stack
                         prev = conditions.pop()
@@ -445,8 +445,8 @@ def extract_files(filekey):
                         # If define has already been seen...
                         if define_name in sch_out[fk][section]:
                             info = sch_out[fk][section][define_name]
-                            if isinstance(info, dict): info = [ info ]  # Convert a single dict into a list
-                            info.append(define_info)                    # Add to the list
+                            if isinstance(info, dict): info = [info]  # Convert a single dict into a list
+                            info.append(define_info)                  # Add to the list
                         else:
                             # Add the define dict with name as key
                             sch_out[fk][section][define_name] = define_info

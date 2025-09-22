@@ -174,7 +174,7 @@ def compute_build_signature(env):
         # Remove all keys ending by "_T_DECLARED" as it's a copy of extraneous system stuff
         if key.endswith("_T_DECLARED"): continue
         # Remove keys that are not in the #define list in the Configuration list
-        if key not in conf_names + [ 'DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE' ]: continue
+        if key not in conf_names + ['DETAILED_BUILD_VERSION', 'STRING_DISTRIBUTION_DATE']: continue
         # Add to a new dictionary for simplicity
         cleaned_build_defines[key] = build_defines[key]
 
@@ -264,7 +264,7 @@ def compute_build_signature(env):
                         sections[sect][name] = ddict
 
             # Get all sections as a list of strings, with spaces and dashes replaced by underscores
-            long_list = [ re.sub(r'[- ]+', '_', x).lower() for x in sections.keys() ]
+            long_list = [re.sub(r'[- ]+', '_', x).lower() for x in sections.keys()]
             # Make comma-separated lists of sections with 64 characters or less
             sec_lines = []
             while len(long_list):
@@ -288,7 +288,7 @@ def compute_build_signature(env):
             dt_string = datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
             outfile.write(
-f'''#
+f"""#
 # Marlin Firmware
 # config.ini - Options to apply before the build
 #
@@ -335,7 +335,7 @@ f'''#
 #
 {sec_list}
 {ini_fmt.format('ini_config_vers', vers)}
-'''         )
+"""         )
 
             if extended_dump:
 
@@ -357,7 +357,7 @@ f'''#
 
                 # Standard export just dumps config:basic and config:advanced sections
                 for header in real_config:
-                    outfile.write(f'\n[{filegrp[header]}]\n')
+                    outfile.write(f"\n[{filegrp[header]}]\n")
                     opts = real_config[header]
                     opts_keys = sorted(opts.keys(), key=lambda x: optsort(x, optorder))
                     for name in opts_keys:
@@ -378,13 +378,13 @@ f'''#
             vers = build_defines["CONFIGURATION_H_VERSION"]
             dt_string = datetime.utcnow().strftime("%Y-%m-%d at %H:%M:%S")
 
-            out_text = f'''/**
+            out_text = f"""/**
  * Config.h - Marlin Firmware distilled configuration
  * Usage: Place this file in the 'Marlin' folder with the name 'Config.h'.
  *
  * Exported by Marlin build on {dt_string}.
  */
-'''
+"""
 
             subs = (('Bltouch','BLTouch'),('hchop','hChop'),('Eeprom','EEPROM'),('Gcode','G-code'),('lguard','lGuard'),('Idex','IDEX'),('Lcd','LCD'),('Mpc','MPC'),('Pid','PID'),('Psu','PSU'),('Scara','SCARA'),('Spi','SPI'),('Tmc','TMC'),('Tpara','TPARA'))
             define_fmt = '#define {0:40} {1}'
@@ -407,7 +407,7 @@ f'''#
             else:
                 # Dump config options in just two sections, by file
                 for header in real_config:
-                    out_text += f'\n/**\n * Overrides for {header}\n */\n'
+                    out_text += f"\n/**\n * Overrides for {header}\n */\n"
                     opts = real_config[header]
                     opts_keys = sorted(opts.keys(), key=lambda x: optsort(x, optorder))
                     for name in opts_keys:
