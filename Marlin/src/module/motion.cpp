@@ -97,7 +97,12 @@ bool relative_mode; // = false
   #define Z_INIT_POS Z_HOME_POS
 #endif
 
+#if ENABLED(AXEL_TPARA)
+// For TPARA asume it starts at ground position (Shoulder horizontal 90°, Elbow vertical facing down 90°) + offsets Tool and - Workspace offset
+xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, Y_HOME_POS +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
+#else  
 xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
+#endif
 
 /**
  * Cartesian Destination
@@ -1543,11 +1548,14 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
 
     const xyze_float_t diff = destination - current_position;
 
-    // If the move is only in Z/E don't split up the move
-    if (!diff.x && !diff.y) {
-      planner.buffer_line(destination, scaled_fr_mm_s);
-      return false; // caller will update current_position
-    }
+    // For TPARA always split up the move, then skip next code
+    #if DISABLED(AXEL_TPARA)
+      // For DELTA/SCARA if the move is only in Z/E don't split up the move
+      if (!diff.x && !diff.y) {
+        planner.buffer_line(destination, scaled_fr_mm_s);
+        return false; // caller will update current_position
+      }
+    #endif
 
     // Fail if attempting move outside printable radius
     if (!position_is_reachable(destination)) return true;
@@ -2794,6 +2802,10 @@ void prepare_line_to_destination() {
  * SCARA should wait until all XY homing is done before setting the XY
  * current_position to home, because neither X nor Y is at home until
  * both are at home. Z can however be homed individually.
+ * 
+ * TPARA should wait until all YZ homing is done before setting the YZ
+ * current_position to home, because neither Y nor Z is at home until
+ * both are at home. X can however be homed individually.
  *
  * Callers must sync the planner position after calling this!
  */
@@ -2814,6 +2826,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
+  #elif ENABLED(AXEL_TPARA)
+    current_position[axis] = base_home_pos(axis) + tool_offset[axis] - robot_workspace_offset [axis] ;
   #else
     current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif

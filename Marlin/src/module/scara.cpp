@@ -177,12 +177,83 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   }
 
 #elif ENABLED(AXEL_TPARA)
+  // TPARA offset relative to the origin of the robot
+  static constexpr xyz_pos_t robot_shoulder_offset = { 0, 0, TPARA_SHOULDER_AXIS_HEIGHT };
+  // Workspace offset relative to the origin of the robot
+  constexpr xyz_pos_t robot_workspace_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
+  // Tool offset relative to the tool center point of the robot
+  constexpr xyz_pos_t tool_offset = { TPARA_TCP_OFFSET_X, TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_Z };
+  // Tool offset in cylindrical coordinates (r, phi, z)
+  static const xyz_pos_t tool_offset_cyl = { SQRT(sq(TPARA_TCP_OFFSET_X) + sq(TPARA_TCP_OFFSET_Y)) , ATAN2(TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_X), TPARA_TCP_OFFSET_Z };
+ 
+  // xyz_pos_t home_t_w_offset = tool_offset - robot_workspace_offset ; 
+
+// Remove offset for calculation with trigonometric
+// Tool offset coordinates are recalculated for each angle
+xyz_pos_t remove_offset(const xyz_pos_t &raw) {    
+  // We should apply a rotation matrix, but is too costly 
+  const float r2 = raw.x * raw.x + raw.y * raw.y;
+  xyz_pos_t tool_offset_rotated;
+  if (r2 < 1e-6f) {
+      // avoid zero div
+      tool_offset_rotated.x = tool_offset_cyl.x;
+      tool_offset_rotated.y = 0.0f;
+      tool_offset_rotated.z = tool_offset_cyl.z;
+
+  } else {
+
+    const float inv_r = 1.0f / sqrtf(r2);
+
+    tool_offset_rotated.x = tool_offset_cyl.x * raw.x * inv_r;
+    tool_offset_rotated.y = tool_offset_cyl.x * raw.y * inv_r;
+    tool_offset_rotated.z = tool_offset_cyl.z; 
+
+  }
+
 
   static constexpr xyz_pos_t robot_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
 
+
+  return raw + robot_workspace_offset - robot_shoulder_offset - tool_offset_rotated;
+}
+
+// Apply tool and workspace offset to robot flange pose, take in account that the tool offset must be rotated 
+xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {    
+  // We should apply a rotation matrix, but is too costly 
+  const float r2 = rpose.x * rpose.x + rpose.y * rpose.y;
+  xyz_pos_t tool_offset_rotated;
+  if (r2 < 1e-6f) {
+      // avoid zero div
+      tool_offset_rotated.x = tool_offset_cyl.x;
+      tool_offset_rotated.y = 0.0f;
+      tool_offset_rotated.z = tool_offset_cyl.z;
+
+  } else {
+
+    const float inv_r = 1.0f / sqrtf(r2);
+
+    tool_offset_rotated.x = tool_offset_cyl.x * rpose.x * inv_r;
+    tool_offset_rotated.y = tool_offset_cyl.x * rpose.y * inv_r;
+    tool_offset_rotated.z = tool_offset_cyl.z; 
+
+  }
+
+  return rpose - robot_workspace_offset + tool_offset_rotated;
+}
+
+
+
+  /**
+ * Set an axis' current position to its home position (after homing).
+ *
+ * TPARA should wait until all YZ homing is done before setting the YZ
+ * current_position to home, because neither Y nor Z is at home until
+ * both are at home.
+ *
+ */
   void scara_set_axis_is_at_home(const AxisEnum axis) {
-    if (axis == Z_AXIS)
-      current_position.z = Z_HOME_POS;
+      // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home pose
+      xyz_pos_t homeposition = { X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, Y_HOME_POS +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z};
     else {
       xyz_pos_t homeposition = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
       //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
@@ -204,6 +275,8 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
                 y = r  * sin(RADIANS(a)),
                 rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
 
+    const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ; 
+    cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
     cartes = robot_offset + xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) });
   }
 
@@ -232,9 +305,19 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     // Set the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
 
+    // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length 
+    xyz_pos_t raw_homing_pose_dir = {1, 0, max_length(Z_AXIS)}; 
+
+    xyz_pos_t homing_pose_dir = apply_T_W_offset(raw_homing_pose_dir);
+
+    current_position.set(homing_pose_dir.x, homing_pose_dir.y, homing_pose_dir.z);
+
     current_position.set(0, 0, max_length(Z_AXIS));
+
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
+
+
 
     // Restore the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
@@ -250,9 +333,9 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
     // At least one motor has reached its endstop.
     // Now re-home each motor separately.
-    homeaxis(A_AXIS);
     homeaxis(C_AXIS);
     homeaxis(B_AXIS);
+    homeaxis(A_AXIS);
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
@@ -263,32 +346,36 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
     sync_plan_position();
   }
 
-  void inverse_kinematics(const xyz_pos_t &raw) {
-    const xyz_pos_t spos = raw - robot_offset;
 
-    const float RXY = SQRT(HYPOT2(spos.x, spos.y)),
-                RHO2 = NORMSQ(spos.x, spos.y, spos.z),
+
+void inverse_kinematics(const xyz_pos_t &raw) {
+    // Remove offsets to calculate with trigonometric
+    const xyz_pos_t tpos = remove_offset(raw); //raw + robot_workspace_offset - robot_shoulder_offset - tool_offset_rotated;
+
+    const float RXY = SQRT(HYPOT2(tpos.x, tpos.y)),
+                RHO_2 = NORMSQ(tpos.x, tpos.y, tpos.z),
                 //RHO = SQRT(RHO2),
-                LSS = L1_2 + L2_2,
-                LM = 2.0f * L1 * L2,
+                LSS = L1_2 + L2_2,  // L1^2 + L2^2 , LSS : Lenght square sum
+                LM = 2.0f * L1 * L2, // Length multiplication and doubled
 
-                CG = (LSS - RHO2) / LM,
-                SG = SQRT(1 - POW(CG, 2)), // Method 2
-                K1 = L1 - L2 * CG,
-                K2 = L2 * SG,
+                // Method 2
+                CG = (LSS - RHO_2) / LM, // cosine of gamma
+                SG = SQRT(1 - POW(CG, 2)),  // sine of gamma
+                K1 = L1 - L2 * CG,  // K1 projection
+                K2 = L2 * SG,  // K2 projection
 
-                // Angle of Body Joint
-                THETA = ATAN2(spos.y, spos.x),
+                // Angle of Body/base Joint
+                THETA = ATAN2(tpos.y, tpos.x),
 
-                // Angle of Elbow Joint
+                // Angle of Elbow Joint, between L1 and L2
                 //GAMMA = ACOS(CG),
                 GAMMA = ATAN2(SG, CG), // Method 2
 
-                // Angle of Shoulder Joint, elevation angle measured from horizontal (r+)
-                //PHI = asin(spos.z/RHO) + asin(L2 * sin(GAMMA) / RHO),
-                PHI = ATAN2(spos.z, RXY) + ATAN2(K2, K1),   // Method 2
+                // Angle of Shoulder Joint, elevation angle measured from horizontal plane XY (r+)
+                //PHI = asin(tpos.z/RHO) + asin(L2 * sin(GAMMA) / RHO),
+                PHI = ATAN2(tpos.z, RXY) + ATAN2(K2, K1),   // Method 2
 
-                // Elbow motor angle measured from horizontal, same frame as shoulder  (r+)
+                // Elbow motor angle measured from horizontal, same reference frame as shoulder angle (r+)
                 PSI = PHI + GAMMA;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
@@ -299,11 +386,12 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 #endif
 
 void scara_report_positions() {
-  SERIAL_ECHOLNPGM("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
     #if ENABLED(AXEL_TPARA)
-      , "  Phi:", planner.get_axis_position_degrees(B_AXIS)
-      , "  Psi:", planner.get_axis_position_degrees(C_AXIS)
+      SERIAL_ECHOLNPGM(">TPARA Theta: ", planner.get_axis_position_degrees(A_AXIS)
+      , " Phi: ", planner.get_axis_position_degrees(B_AXIS)
+      , " Psi: ", planner.get_axis_position_degrees(C_AXIS)
     #else
+      SERIAL_ECHOLNPGM("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
       , "  Psi" TERN_(MORGAN_SCARA, "+Theta") ":", planner.get_axis_position_degrees(B_AXIS)
     #endif
   );
