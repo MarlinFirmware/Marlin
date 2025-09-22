@@ -272,11 +272,11 @@ if __name__ == "__main__":
     #
     import sys
     args = sys.argv[1:]
-    if len(args) > 0:
-        if args[0].endswith('.ini'):
+    if args:
+        if args[0].endswith(".ini"):
             ini_file = args[0]
         else:
-            print("Usage: %s <.ini file>" % os.path.basename(sys.argv[0]))
+            print(f"usage: {os.path.basename(sys.argv[0])} <.ini file>")
     else:
         ini_file = config_path('config.ini')
 

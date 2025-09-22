@@ -86,7 +86,7 @@ if pioutil.is_pio_build():
         if conf_modified:
             raise SystemExit('WARNING: Configuration files needed an update to remove incompatible items. Try the build again to use the updated files.')
 
-        if len(env['MARLIN_FEATURES']) == 0:
+        if not env['MARLIN_FEATURES']:
             raise SystemExit("Error: Failed to parse Marlin features. See previous error messages.")
 
         build_env = env['PIOENV']

@@ -250,7 +250,7 @@ def Upload(source, target, env):
                 FirmwareFiles[1 : len(FirmwareFiles) - 2],
                 marlin_long_filename_host_support
             )  # Skip header and footers of list
-            if len(OldFirmwareFiles) == 0:
+            if not OldFirmwareFiles:
                 print("No old firmware files to delete")
             else:
                 print(f"Remove {len(OldFirmwareFiles)} old firmware file{'s' if len(OldFirmwareFiles) != 1 else ''}:")

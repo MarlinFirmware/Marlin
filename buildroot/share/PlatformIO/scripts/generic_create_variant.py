@@ -26,7 +26,7 @@ if pioutil.is_pio_build():
     # Remove all tool items from platform_packages
     platform_packages = [x for x in platform_packages if not x.startswith("platformio/tool-")]
 
-    if len(platform_packages) == 0:
+    if not platform_packages:
         framewords = {
             "Ststm32Platform": "framework-arduinoststm32",
             "AtmelavrPlatform": "framework-arduino-avr"

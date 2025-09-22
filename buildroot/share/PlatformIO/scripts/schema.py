@@ -340,7 +340,7 @@ def extract_files(filekey):
                     cparts = line.split()
                     iselif, iselse = cparts[0] == '#elif', cparts[0] == '#else'
                     if iselif or iselse or cparts[0] == '#endif':
-                        if len(conditions) == 0:
+                        if not conditions:
                             raise Exception(f'no #if block at line {line_number}')
 
                         # Pop the last condition-array from the stack
@@ -495,7 +495,7 @@ def main():
         # Get the command line arguments after the script name
         import sys
         args = sys.argv[1:]
-        if len(args) == 0: args = ['some']
+        if not args: args = ['some']
 
         # Does the given array intersect at all with args?
         def inargs(c):

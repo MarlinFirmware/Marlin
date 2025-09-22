@@ -167,7 +167,7 @@ if pioutil.is_pio_build():
                         del deps_to_add[name]
 
                 # Is there anything left?
-                if len(deps_to_add) > 0:
+                if deps_to_add:
                     # Only add the missing dependencies
                     set_env_field('lib_deps', deps + list(deps_to_add.values()))
 

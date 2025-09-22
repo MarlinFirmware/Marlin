@@ -18,7 +18,7 @@ if pioutil.is_pio_build():
     # In-line command with arguments
     UPLOAD_TOOL="stm32flash"
     platform = env.PioPlatform()
-    if platform.get_package_dir("tool-stm32duino") != None:
+    if platform.get_package_dir("tool-stm32duino") is not None:
         UPLOAD_TOOL=expandvars("\"" + join(platform.get_package_dir("tool-stm32duino"),"stm32flash","stm32flash") + "\"")
 
     env.Replace(

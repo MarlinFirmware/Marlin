@@ -120,7 +120,7 @@ def addCompressedData(input_file, output_file):
         print("Compressing image data...", warn)
         isext = False
         encoded, isext = try_encode(data, isext)
-        if len(encoded) == 0:
+        if not encoded:
             encoded, isext = try_encode(data, True)
         return encoded, isext
 

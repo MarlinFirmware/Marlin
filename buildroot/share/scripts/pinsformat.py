@@ -81,7 +81,7 @@ def format_pins(argv):
         # Open and read the file src_file
         with open(src_file, 'r', encoding='utf-8') as rf: file_text = rf.read()
 
-    if len(file_text) == 0:
+    if not file_text:
         print("No text to process")
         return
 
@@ -102,7 +102,7 @@ def get_pin_pattern(txt):
     match_threshold = 5
     for line in txt.split('\n'):
         r = definePinPatt.match(line)
-        if r == None: continue
+        if r is None: continue
         ind = -1
         for p in mexpr:
             ind += 1
@@ -113,9 +113,9 @@ def get_pin_pattern(txt):
     return None
 
 def process_text(txt):
-    if len(txt) == 0: return '(no text)'
+    if not txt: return '(no text)'
     patt = get_pin_pattern(txt)
-    if patt == None: return txt
+    if patt is None: return txt
 
     pmatch = patt['match']
     pindefPatt = re.compile(rf'^(\s*(//)?#define)\s+([A-Z_][A-Z0-9_]+)\s+({pmatch})\s*(//.*)?$')
@@ -137,7 +137,7 @@ def process_text(txt):
     # #define SKIP_ME
     #
     def trySkip1(d):
-        if skipPatt1.match(d['line']) == None: return False
+        if skipPatt1.match(d['line']) is None: return False
         logmsg("skip:", d['line'])
         return True
 
@@ -147,7 +147,7 @@ def process_text(txt):
     def tryPindef(d):
         line = d['line']
         r = pindefPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("pin:", line)
         pinnum = r[4] if r[4][0] == 'P' else lpad(r[4], patt['pad'])
         line = f'{r[1]} {r[3]}'
@@ -162,7 +162,7 @@ def process_text(txt):
     def tryNoPin(d):
         line = d['line']
         r = noPinPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("pin -1:", line)
         line = f'{r[1]} {r[3]}'
         line = concat_with_space(rpad(line, col_value_lj), '-1')
@@ -174,7 +174,7 @@ def process_text(txt):
     # #define SKIP_ME_TOO
     #
     def trySkip2(d):
-        if skipPatt2.match( d['line']) == None: return False
+        if skipPatt2.match(d['line']) is None: return False
         logmsg("skip:", d['line'])
         return True
 
@@ -182,7 +182,7 @@ def process_text(txt):
     # #else|endif
     #
     def trySkip3(d):
-        if skipPatt3.match( d['line']) == None: return False
+        if skipPatt3.match(d['line']) is None: return False
         logmsg("skip:", d['line'])
         return True
 
@@ -192,7 +192,7 @@ def process_text(txt):
     def tryAlias(d):
         line = d['line']
         r = aliasPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("alias:", line)
         line = f'{r[1]} {r[3]}'
         line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
@@ -206,7 +206,7 @@ def process_text(txt):
     def trySwitch(d):
         line = d['line']
         r = switchPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("switch:", line)
         line = f'{r[1]} {r[3]}'
         if r[4]: line = concat_with_space(rpad(line, col_comment), r[4])
@@ -220,7 +220,7 @@ def process_text(txt):
     def tryDef(d):
         line = d['line']
         r = defPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("def:", line)
         line = f'{r[1]} {r[3]}'
         line = concat_with_space(line, lpad(r[4], col_value_rj + 1 - len(line)))
@@ -234,7 +234,7 @@ def process_text(txt):
     def tryUndef(d):
         line = d['line']
         r = undefPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("undef:", line)
         line = f'{r[1]} {r[3]}'
         if r[4]: line = concat_with_space(rpad(line, col_comment), r[4])
@@ -247,7 +247,7 @@ def process_text(txt):
     def tryCond(d):
         line = d['line']
         r = condPatt.match(line)
-        if r == None: return False
+        if r is None: return False
         logmsg("cond:", line)
         line = concat_with_space(rpad(r[1], col_comment), r[5])
         d['line'] = line
@@ -262,7 +262,7 @@ def process_text(txt):
         wDict['line'] = line
         if wDict['check_comment_next']:
             r = commPatt.match(line)
-            wDict['check_comment_next'] = (r != None)
+            wDict['check_comment_next'] = (r is not None)
 
         if wDict['check_comment_next']:
             # Comments in column 50
