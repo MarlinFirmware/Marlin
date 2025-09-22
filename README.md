@@ -141,6 +141,7 @@ The Issue Queue is reserved for Bug Reports and Feature Requests. Please use the
 - RepRap.org [Marlin Forum](//forums.reprap.org/list.php?415)
 - Facebook Group ["Marlin Firmware for 3D Printers"](//www.facebook.com/groups/3Dtechtalk/)
 - [Marlin Configuration](//www.youtube.com/results?search_query=marlin+configuration) on YouTube
+- Devin DeepWiki MarlinFirmware/Marlin (https://deepwiki.com/MarlinFirmware/Marlin) - Devin AI answers your Marlin code questions 
 
 ## Contributing Patches
 
