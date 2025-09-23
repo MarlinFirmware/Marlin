@@ -234,7 +234,7 @@ float Planner::previous_nominal_speed;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
-#if ENABLED(LIN_ADVANCE)
+#if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t Planner::extruder_advance_K_q27[DISTINCT_E];

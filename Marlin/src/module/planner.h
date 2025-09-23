@@ -321,7 +321,7 @@ typedef struct PlannerBlock {
 
 } block_t;
 
-#if ANY(LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
+#if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
   #define HAS_POSITION_FLOAT 1
 #endif
 
@@ -530,7 +530,7 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ENABLED(LIN_ADVANCE)
+    #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
       static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
         UNUSED(e);
