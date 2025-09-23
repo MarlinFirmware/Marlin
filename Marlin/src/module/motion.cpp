@@ -2804,7 +2804,7 @@ void prepare_line_to_destination() {
  * SCARA should wait until all XY homing is done before setting the XY
  * current_position to home, because neither X nor Y is at home until
  * both are at home. Z can however be homed individually.
- * 
+ *
  * TPARA should wait until all YZ homing is done before setting the YZ
  * current_position to home, because neither Y nor Z is at home until
  * both are at home. X can however be homed individually.

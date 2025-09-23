@@ -185,64 +185,55 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
   constexpr xyz_pos_t tool_offset = { TPARA_TCP_OFFSET_X, TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_Z };
   // Tool offset in cylindrical coordinates (r, phi, z)
   static const xyz_pos_t tool_offset_cyl = { SQRT(sq(TPARA_TCP_OFFSET_X) + sq(TPARA_TCP_OFFSET_Y)) , ATAN2(TPARA_TCP_OFFSET_Y, TPARA_TCP_OFFSET_X), TPARA_TCP_OFFSET_Z };
- 
-  // xyz_pos_t home_t_w_offset = tool_offset - robot_workspace_offset ; 
 
-// Remove offset for calculation with trigonometric
-// Tool offset coordinates are recalculated for each angle
-xyz_pos_t remove_W_T_offset(const xyz_pos_t &raw) {    
+  //xyz_pos_t home_t_w_offset = tool_offset - robot_workspace_offset;
+
+  // Remove offset for calculation with trigonometric
+  // Tool offset coordinates are recalculated for each angle
+  xyz_pos_t remove_W_T_offset(const xyz_pos_t &raw) {
   xyz_pos_t toolhead_absolute = raw + robot_workspace_offset; // Remove workspace offset first, so we can use trigonometrics relative to robot reference frame (otherwise a negative raw position would "mirror/invert" the tool offset)
 
   // We should apply a rotation matrix, but is too costly to calculate sin and cos
   const float r2 = HYPOT2(toolhead_absolute.x, toolhead_absolute.y);
   xyz_pos_t tool_offset_rotated;
-  if (r2 < 1e-6f) {
-      // avoid zero div
-      tool_offset_rotated.x = tool_offset_cyl.x;
-      tool_offset_rotated.y = 0.0f;
-      tool_offset_rotated.z = tool_offset_cyl.z;
-
-  } else {
-
+  if (UNEAR_ZERO(r2)) {
+    // avoid zero div
+    tool_offset_rotated.x = tool_offset_cyl.x;
+    tool_offset_rotated.y = 0.0f;
+    tool_offset_rotated.z = tool_offset_cyl.z;
+  }
+  else {
     const float inv_r = 1.0f / sqrtf(r2);
-
     tool_offset_rotated.x = tool_offset_cyl.x * toolhead_absolute.x * inv_r;  // Equivalent to tool_offset_cyl.x * cos(atan2(toolhead_absolute.y, toolhead_absolute.x))
     tool_offset_rotated.y = tool_offset_cyl.x * toolhead_absolute.y * inv_r;  // Equivalent to tool_offset_cyl.x * sin(atan2(toolhead_absolute.y, toolhead_absolute.x))
-    tool_offset_rotated.z = tool_offset_cyl.z; 
-
+    tool_offset_rotated.z = tool_offset_cyl.z;
   }
-
 
   return toolhead_absolute - tool_offset_rotated; // Returns the real robot pose without tool or workspace offset
 }
 
-// Apply tool and workspace offset to robot flange pose, take in account that the tool offset must be rotated 
-xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {    
-  // We should apply a rotation matrix, but is too costly 
+// Apply tool and workspace offset to robot flange pose, accounting for the rotated tool offset
+xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
+  // We should apply a rotation matrix, but it's too costly
   const float r2 = rpose.x * rpose.x + rpose.y * rpose.y;
   xyz_pos_t tool_offset_rotated;
-  if (r2 < 1e-6f) {
-      // avoid zero div
-      tool_offset_rotated.x = tool_offset_cyl.x;
-      tool_offset_rotated.y = 0.0f;
-      tool_offset_rotated.z = tool_offset_cyl.z;
-
-  } else {
-
+  if (UNEAR_ZERO(r2)) {
+    // avoid zero div
+    tool_offset_rotated.x = tool_offset_cyl.x;
+    tool_offset_rotated.y = 0.0f;
+    tool_offset_rotated.z = tool_offset_cyl.z;
+  }
+  else {
     const float inv_r = 1.0f / sqrtf(r2);
-
     tool_offset_rotated.x = tool_offset_cyl.x * rpose.x * inv_r;
     tool_offset_rotated.y = tool_offset_cyl.x * rpose.y * inv_r;
-    tool_offset_rotated.z = tool_offset_cyl.z; 
-
+    tool_offset_rotated.z = tool_offset_cyl.z;
   }
 
   return rpose + tool_offset_rotated - robot_workspace_offset;
 }
 
-
-
-  /**
+/**
  * Set an axis' current position to its home position (after homing).
  *
  * TPARA should wait until all YZ homing is done before setting the YZ
@@ -274,7 +265,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
                 y = r  * sin(RADIANS(a)),
                 rho2 = L1_2 + L2_2 - 2.0f * L1 * L2 * cos(RADIANS(w));
 
-    const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ; 
+    const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
     cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
     cartes = robot_offset + xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) });
   }
@@ -304,19 +295,16 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     // Set the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
 
-    // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length 
-    xyz_pos_t raw_homing_pose_dir = {1, 0, max_length(Z_AXIS)}; 
+    // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
+    // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to max_length
+    xyz_pos_t raw_homing_pose_dir = { 1, 0, max_length(Z_AXIS) };
 
     xyz_pos_t homing_pose_dir = apply_T_W_offset(raw_homing_pose_dir);
-
     current_position.set(homing_pose_dir.x, homing_pose_dir.y, homing_pose_dir.z);
 
     current_position.set(0, 0, max_length(Z_AXIS));
-
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
-
-
 
     // Restore the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
@@ -345,11 +333,9 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     sync_plan_position();
   }
 
-
-
-void inverse_kinematics(const xyz_pos_t &raw) {
+  void inverse_kinematics(const xyz_pos_t &raw) {
     // Remove offsets to calculate with trigonometric
-    const xyz_pos_t tpos = remove_W_T_offset(raw) - robot_shoulder_offset; //raw + robot_workspace_offset  - tool_offset_rotated - robot_shoulder_offset; 
+    const xyz_pos_t tpos = remove_W_T_offset(raw) - robot_shoulder_offset; //raw + robot_workspace_offset  - tool_offset_rotated - robot_shoulder_offset;
     // IK, Refer to TPARA analysis
     const float RXY = SQRT(HYPOT2(tpos.x, tpos.y)),
                 RHO_2 = NORMSQ(tpos.x, tpos.y, tpos.z),
@@ -385,12 +371,13 @@ void inverse_kinematics(const xyz_pos_t &raw) {
 #endif
 
 void scara_report_positions() {
+  SERIAL_ECHOLNPGM(
     #if ENABLED(AXEL_TPARA)
-      SERIAL_ECHOLNPGM(">TPARA Theta: ", planner.get_axis_position_degrees(A_AXIS)
-      , " Phi: ", planner.get_axis_position_degrees(B_AXIS)
-      , " Psi: ", planner.get_axis_position_degrees(C_AXIS)
+        "TPARA Theta: ", planner.get_axis_position_degrees(A_AXIS)
+      , " Phi: ",         planner.get_axis_position_degrees(B_AXIS)
+      , " Psi: ",         planner.get_axis_position_degrees(C_AXIS)
     #else
-      SERIAL_ECHOLNPGM("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS)
+        "SCARA Theta:",                            planner.get_axis_position_degrees(A_AXIS)
       , "  Psi" TERN_(MORGAN_SCARA, "+Theta") ":", planner.get_axis_position_degrees(B_AXIS)
     #endif
   );
