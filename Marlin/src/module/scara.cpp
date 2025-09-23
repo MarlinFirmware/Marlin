@@ -311,12 +311,8 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     current_position.set(homing_pose_dir.x, homing_pose_dir.y, homing_pose_dir.z);
 
-    current_position.set(0, 0, max_length(Z_AXIS));
-
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
-
-
 
     // Restore the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
