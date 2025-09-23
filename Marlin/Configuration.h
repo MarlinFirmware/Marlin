@@ -2397,9 +2397,9 @@
  * Tool and Workspace home should be calculated with their respective offset
  */
 
-#define MANUAL_X_HOME_POS  28.75  // was -60  Absolute from robot origin Axis: measured from shoulder axis to tool holder axis in home position 31.66-4.82/2-0.5 ~ 28.75
-#define MANUAL_Y_HOME_POS   0
-#define MANUAL_Z_HOME_POS 250.00  // was 247.35 182   Absolute from robot origin Axis: measured from tool holder axis to floor
+#define MANUAL_X_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X  // was -60  Absolute from robot origin Axis: measured from shoulder axis to tool holder axis in home position 31.66-4.82/2-0.5 ~ 28.75
+#define MANUAL_Y_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y
+#define MANUAL_Z_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z  // was 247.35 182   Absolute from robot origin Axis: measured from tool holder axis to floor
 //#define MANUAL_I_HOME_POS 0
 //#define MANUAL_J_HOME_POS 0
 //#define MANUAL_K_HOME_POS 0
