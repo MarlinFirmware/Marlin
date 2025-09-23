@@ -183,14 +183,7 @@ xyz_pos_t cartes;
 #if HAS_HOME_OFFSET
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
-
-
-  #if ENABLED(AXEL_TPARA) // home offset are applied only on cartesian so this is useless here
-    xyz_pos_t home_offset = { TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z  };
-  #else
-    xyz_pos_t home_offset{0};
-  #endif
-
+  xyz_pos_t home_offset{0};
 
 #endif
 #if HAS_WORKSPACE_OFFSET
@@ -2850,9 +2843,6 @@ void set_axis_is_at_home(const AxisEnum axis) {
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
-  #elif ENABLED(AXEL_TPARA)
-    current_position[axis] = base_home_pos(axis) + tool_offset[axis] - robot_workspace_offset [axis] ;
-    SERIAL_ECHOLNPGM(" Axis: ", axis,", ",  "home_offset ", home_offset[axis], " curr pos ", current_position[axis]);
   #else
     current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
