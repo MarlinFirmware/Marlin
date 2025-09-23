@@ -294,7 +294,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     // SERIAL_ECHOLNPGM("Reset and sync position to the asumed start pose of the robot" );
     // Set the asumed start pose of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle 
-    const xyz_pos_t asumed_intial_pose = {L2, 0, max_length(Z_AXIS)}; 
+    const xyz_pos_t asumed_intial_pose = {L2, 0, 0}; 
     xyz_pos_t intial_pose_w_offset = apply_T_W_offset(asumed_intial_pose);
  
     current_position.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
