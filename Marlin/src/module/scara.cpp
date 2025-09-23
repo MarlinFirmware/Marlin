@@ -229,7 +229,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     tool_offset_rotated.y = tool_offset_cyl.x * rpose.y * inv_r;
     tool_offset_rotated.z = tool_offset_cyl.z;
   }
-  SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
+  // SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
 
   return rpose + tool_offset_rotated - robot_workspace_offset;
 }
@@ -246,27 +246,27 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot pose
       xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
 
-      SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", axis );
-      //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
-      SERIAL_ECHOLNPGM("Home: ", homeposition.x, ",", homeposition.y, ",", homeposition.z);
-      SERIAL_ECHOLNPGM("Pos before IK: ", current_position.x, ",", current_position.y, ",", current_position.z);
-      SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+      // SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", axis );
+      // DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
+      // SERIAL_ECHOLNPGM("Home: ", homeposition.x, ",", homeposition.y, ",", homeposition.z);
+      // SERIAL_ECHOLNPGM("Pos before IK: ", current_position.x, ",", current_position.y, ",", current_position.z);
+      // SERIAL_ECHOLNPGM("Angles Before: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
       inverse_kinematics(homeposition);
-      SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+      // SERIAL_ECHOLNPGM("Angles After IK: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
       forward_kinematics(delta.a, delta.b, delta.c);
       current_position[axis] = cartes[axis];
 
-      SERIAL_ECHOLNPGM("Curr Pos after FK: ", current_position.x, ",", current_position.y, ",", current_position.z);
-      SERIAL_ECHOLNPGM("Cartes after FK: ", cartes.x, ",", cartes.y, ",", cartes.z);
-      //DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
+      // SERIAL_ECHOLNPGM("Curr Pos after FK: ", current_position.x, ",", current_position.y, ",", current_position.z);
+      // SERIAL_ECHOLNPGM("Cartes after FK: ", cartes.x, ",", cartes.y, ",", cartes.z);
+      // DEBUG_ECHOLNPGM_P(PSTR("Cartesian X"), current_position.x, SP_Y_LBL, current_position.y);
       update_software_endstops(axis);
 
-      SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
-      SERIAL_ECHOLNPGM("Final Pos: ", current_position.x, ",", current_position.y, ",", current_position.z);
-      SERIAL_ECHOLNPGM("Robot Offsets Shoulder:", robot_shoulder_offset.x, "," , robot_shoulder_offset.y,"," , robot_shoulder_offset.z);
-      SERIAL_ECHOLNPGM("Robot Offsets Tool:", tool_offset.x, "," , tool_offset.y,"," , tool_offset.z);
-      SERIAL_ECHOLNPGM("Robot Offsets Workspace:", robot_workspace_offset.x, "," , robot_workspace_offset.y,"," , robot_workspace_offset.z);
-      SERIAL_EOL();
+      // SERIAL_ECHOLNPGM("Final Angles: Theta: ", delta.a, " Phi: ", delta.b, " Psi: ", delta.c);
+      // SERIAL_ECHOLNPGM("Final Pos: ", current_position.x, ",", current_position.y, ",", current_position.z);
+      // SERIAL_ECHOLNPGM("Robot Offsets Shoulder:", robot_shoulder_offset.x, "," , robot_shoulder_offset.y,"," , robot_shoulder_offset.z);
+      // SERIAL_ECHOLNPGM("Robot Offsets Tool:", tool_offset.x, "," , tool_offset.y,"," , tool_offset.z);
+      // SERIAL_ECHOLNPGM("Robot Offsets Workspace:", robot_workspace_offset.x, "," , robot_workspace_offset.y,"," , robot_workspace_offset.z);
+      // SERIAL_EOL();
 
   }
 
@@ -281,8 +281,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     const xyz_pos_t calculated_fk = xyz_pos_t({ x, y, SQRT(rho2 - sq(x) - sq(y)) }) ;
     cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
-    SERIAL_ECHOLNPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c , " Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z, " Workspace X:", cartes.x, " Y:", cartes.y, " Z:", cartes.z);
-    SERIAL_EOL(); 
+    // SERIAL_ECHOLNPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c , " Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z, " Workspace X:", cartes.x, " Y:", cartes.y, " Z:", cartes.z);
     
   }
 
@@ -341,8 +340,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       homeaxis(B_AXIS);
       homeaxis(A_AXIS);
   
-      SERIAL_ECHOLNPGM("current_position After Homeaxis: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
-      SERIAL_EOL();      
+      // SERIAL_ECHOLNPGM("current_position After Homeaxis: ", current_position.x, ", ", current_position.y, ", ", current_position.z);     
     
     #else 
       homeaxis(A_AXIS);
@@ -356,8 +354,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     // give the impression that they are the same.
     LOOP_NUM_AXES(i) set_axis_is_at_home((AxisEnum)i);
 
-    SERIAL_ECHOLNPGM("Sync_plan_position after home");
-    SERIAL_EOL();         
+    // SERIAL_ECHOLNPGM("Sync_plan_position after home");      
     sync_plan_position();
   }
 
@@ -393,7 +390,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
     
-    SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pose(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
+    // SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pose(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
  
   }
 
