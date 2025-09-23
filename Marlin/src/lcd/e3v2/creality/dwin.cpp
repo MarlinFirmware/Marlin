@@ -3363,11 +3363,11 @@ void drawMaxAccelMenu() {
       dwinFrameTitleCopy(144, 16, 46, 11);    // "Acceleration"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, F(MSG_AMAX_A));
-      dwinDrawLabel(2, F(MSG_AMAX_B));
-      dwinDrawLabel(3, F(MSG_AMAX_C));
+      dwinDrawLabel(1, GET_TEXT_F(MSG_AMAX_A));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_AMAX_B));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_AMAX_C));
       #if HAS_HOTEND
-        dwinDrawLabel(4, F(MSG_AMAX_E));
+        dwinDrawLabel(4, GET_TEXT_F(MSG_AMAX_E));
       #endif
     #else
       say_max_accel_en(1); say_x_en(112, 1);    // "Max Acceleration X"
