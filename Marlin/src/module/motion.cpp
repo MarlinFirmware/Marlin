@@ -165,7 +165,7 @@ xyz_pos_t cartes;
   #if HAS_SCARA_OFFSET
     abc_pos_t scara_home_offset;
   #endif
-
+  // If it does not have software endstops, use the printable radius
   #if HAS_SOFTWARE_ENDSTOPS
     float delta_max_radius, delta_max_radius_2;
   #elif IS_SCARA
@@ -188,7 +188,15 @@ xyz_pos_t cartes;
 #if HAS_HOME_OFFSET
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
-  xyz_pos_t home_offset{0};
+
+
+  #if ENABLED(AXEL_TPARA) // home offset are applied only on cartesian so this is useless here
+    xyz_pos_t home_offset = { TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z  };
+  #else
+    xyz_pos_t home_offset{0};
+  #endif
+
+
 #endif
 #if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
@@ -738,6 +746,8 @@ void quickstop_stepper() {
 void sync_plan_position() {
   if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
   planner.set_position_mm(current_position);
+  SERIAL_ECHOLNPGM("Sync_plan_position: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
+  SERIAL_EOL();   
 }
 
 #if HAS_EXTRUDERS
@@ -829,6 +839,9 @@ void line_to_current_position(const_feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
    */
   void prepare_fast_move_to_destination(const_feedRate_t scaled_fr_mm_s/*=MMS_SCALED(feedrate_mm_s)*/) {
     if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_fast_move_to_destination", destination);
+
+    SERIAL_ECHOLNPGM("Prepare fast move to destination: ", destination.x , ",", destination.y,  ",", destination.z, "," , destination.e);
+    SERIAL_EOL();     
 
     #if UBL_SEGMENTED
       // UBL segmented line will do Z-only moves in single segment
@@ -1272,7 +1285,8 @@ void restore_feedrate_and_scaling() {
    * radius within the set software endstops.
    */
   void apply_motion_limits(xyz_pos_t &target) {
-
+    SERIAL_ECHOLNPGM("Motion limits input: ", target.x, ", ", target.y, ", ", target.z);
+    SERIAL_EOL();     
     if (!soft_endstop._enabled) return;
 
     #if IS_KINEMATIC
@@ -1299,6 +1313,8 @@ void restore_feedrate_and_scaling() {
       #else
         if (TERN1(IS_SCARA, axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS))) {
           const float dist_2 = HYPOT2(target.x - offs.x, target.y - offs.y);
+          SERIAL_ECHOLNPGM("Motion limits data: dist_2:", dist_2, " delta_max_radius_2: ", delta_max_radius_2);
+          SERIAL_EOL();           
           if (dist_2 > delta_max_radius_2)
             target *= float(delta_max_radius / SQRT(dist_2)); // 200 / 300 = 0.66
         }
@@ -1549,6 +1565,14 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
     const float scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
     const xyze_float_t diff = destination - current_position;
+
+    SERIAL_ECHOPGM("Destination: ", destination.x, " , ", destination.y, " , ", destination.z, " , ", destination.e);
+    SERIAL_EOL();    
+    SERIAL_ECHOPGM("Current pos: ", current_position.x, " , ", current_position.y, " , ", current_position.z, " , ", current_position.e);
+    SERIAL_EOL();    
+    SERIAL_ECHOPGM("Difference : ", diff.x, " , ", diff.y, " , ", diff.z, " , ", diff.e);
+    SERIAL_EOL();    
+
 
     // For TPARA always split up the move, then skip next code
     #if DISABLED(AXEL_TPARA)
@@ -1886,6 +1910,9 @@ float get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXES, bool 
  */
 void prepare_line_to_destination() {
   apply_motion_limits(destination);
+
+  SERIAL_ECHOLNPGM(">TPARA Prepare line to destination: ", destination.x , " , ", destination.y,  " , ", destination.z, " , " , destination.e);
+  SERIAL_EOL();    
 
   #if ANY(PREVENT_COLD_EXTRUSION, PREVENT_LENGTHY_EXTRUDE)
 
@@ -2830,6 +2857,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
     current_position[axis] = (axis == Z_AXIS) ? DIFF_TERN(HAS_BED_PROBE, delta_height, probe.offset.z) : base_home_pos(axis);
   #elif ENABLED(AXEL_TPARA)
     current_position[axis] = base_home_pos(axis) + tool_offset[axis] - robot_workspace_offset [axis] ;
+    SERIAL_ECHOLNPGM(" Axis: ", axis,", ",  "home_offset ", home_offset[axis], " curr pos ", current_position[axis]);
   #else
     current_position[axis] = SUM_TERN(HAS_HOME_OFFSET, base_home_pos(axis), home_offset[axis]);
   #endif
