@@ -2408,36 +2408,38 @@ bool Planner::_populate_block(
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
-       * Use LIN_ADVANCE for blocks if all these are true:
-       *
-       * esteps                       : This is a print move, because we checked for A, B, C steps before.
-       *
-       * extruder_advance_K[extruder] : There is an advance factor set for this extruder.
-       *
-       * dm.e                         : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * Apply Linear/Pressure Advance for blocks when:
+       *  !!esteps : This is a print move, because we checked for A, B, C steps before.
+       *  !!dm.e   : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * ...then...
+       *  !!advanceK : There is an Advance K set so Linear/Pressure Advance is active.
+       *               Check the appropriate K value for Standard or Fixed-Time Motion.
        */
-      const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
-      const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) extruder_advance_K[E_INDEX_N(extruder)];
-      use_adv_lead = esteps && advK && dm.e;
+      if (esteps && dm.e) {
+        const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
+        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) extruder_advance_K[E_INDEX_N(extruder)];
+        if (advK) {
+          float e_D_ratio = (target_float.e - position_float.e) /
+            TERN(IS_KINEMATIC, block->millimeters,
+              SQRT(sq(target_float.x - position_float.x)
+                 + sq(target_float.y - position_float.y)
+                 + sq(target_float.z - position_float.z))
+            );
 
-      if (use_adv_lead) {
-        float e_D_ratio = (target_float.e - position_float.e) /
-          TERN(IS_KINEMATIC, block->millimeters,
-            SQRT(sq(target_float.x - position_float.x)
-               + sq(target_float.y - position_float.y)
-               + sq(target_float.z - position_float.z))
-          );
-
-        // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
-        // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
-        if (e_D_ratio > 3.0f)
-          use_adv_lead = false;
-        else if (TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
-          // Scale E acceleration so that it will be possible to jump to the advance speed.
-          const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2) {
-            accel = max_accel_steps_per_s2;
-            if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+          // Stay below an unusually high e_D ratio, a retract move combined with the last print move (due to min steps per segment).
+          //   Never execute this with advance!
+          // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
+          //   and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
+          use_adv_lead = e_D_ratio <= 3.0f;
+          if (use_adv_lead) {
+            if (TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
+              // Scale E acceleration so that it will be possible to jump to the advance speed.
+              const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
+              if (accel > max_accel_steps_per_s2) {
+                accel = max_accel_steps_per_s2;
+                if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+              }
+            }
           }
         }
         #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
