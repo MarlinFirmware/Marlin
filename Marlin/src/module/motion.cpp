@@ -85,24 +85,34 @@ bool relative_mode; // = false
   bool z_min_trusted; // = false
 #endif
 
+// Warn for unexpected TPARA home position
+#if ENABLED(AXEL_TPARA)
+  #if X_HOME_POS != L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X
+    #warning "X_HOME_POS should be equal to (L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)."
+  #endif
+  #if Y_HOME_POS !=  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y
+    #warning "Y_HOME_POS should be equal to (TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
+  #endif
+  #if Z_HOME_POS !=  TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z
+    #warning "Z_HOME_POS should be equal to (TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
+  #endif
+#endif
+
 /**
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-#ifdef Z_IDLE_HEIGHT
-  #define Z_INIT_POS Z_IDLE_HEIGHT
-#else
-  #define Z_INIT_POS Z_HOME_POS
-#endif
-
-#if ENABLED(AXEL_TPARA)
-// For TPARA asume it starts at ground position (Shoulder horizontal 90°, Elbow vertical facing down 90°: L2,0,0 ) + offsets Tool and - Workspace offset
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, 0 +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, 0 + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
-#else  
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
-#endif
+xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0,
+  X_HOME_POS, Y_HOME_POS,
+  #ifdef Z_IDLE_HEIGHT
+    Z_IDLE_HEIGHT
+  #else
+    Z_HOME_POS
+  #endif
+  , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS
+);
 
 /**
  * Cartesian Destination
