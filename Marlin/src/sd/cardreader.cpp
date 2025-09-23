@@ -1374,7 +1374,7 @@ void CardReader::cdroot() {
       return false;
     #endif
   }
-
+#include <utility>
   // Quicksort partition function.
   int16_t CardReader::_partition(uint8_t* arr, int16_t low, int16_t high) {
     int16_t pivotIndex = arr[high];
@@ -1383,10 +1383,20 @@ void CardReader::cdroot() {
     for (int16_t j = low; j <= high - 1; j++) {
         if (_sort_cmp_files(arr[j], pivotIndex)) {
             i++;
-            std::swap(arr[i], arr[j]);
+            // Manual swap
+            uint8_t temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+            // std::swap gives an error here
+            // std::swap(arr[i], arr[j]);
         }
     }
-    std::swap(arr[i + 1], arr[high]);
+    // Manual swap
+    uint8_t temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+    // std::swap gives an error here
+    // std::swap(arr[i + 1], arr[high]);
     return (i + 1);
   }
 
