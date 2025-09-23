@@ -251,8 +251,8 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
  *
  */
   void scara_set_axis_is_at_home(const AxisEnum axis) {
-      // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home pose
-      xyz_pos_t homeposition = { X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, Y_HOME_POS +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z};
+      // Home position should be arm end position -+ offsets (+ tool offset - workspace offset), measured at home robot pose
+      xyz_pos_t homeposition = { X_HOME_POS , Y_HOME_POS , Z_HOME_POS };
 
       SERIAL_ECHOLNPGM("TPARA Set axis is at home: ", axis );
       //DEBUG_ECHOLNPGM_P(PSTR("homeposition X"), homeposition.x, SP_Y_LBL, homeposition.y, SP_Z_LBL, homeposition.z);
