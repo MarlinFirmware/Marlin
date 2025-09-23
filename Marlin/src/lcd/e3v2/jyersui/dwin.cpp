@@ -3013,7 +3013,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
 
             case PROBE_XOFFSET:
               if (draw) {
-                drawMenuItem(row, ICON_StepX, F("Probe X Offset"));
+                drawMenuItem(row, ICON_StepX, GET_TEXT_F(MSG_ZPROBE_XOFFSET));
                 drawFloat(probe.offset.x, row, false, 10);
               }
               else
@@ -3021,7 +3021,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               break;
             case PROBE_YOFFSET:
               if (draw) {
-                drawMenuItem(row, ICON_StepY, F("Probe Y Offset"));
+                drawMenuItem(row, ICON_StepY, GET_TEXT_F(MSG_ZPROBE_YOFFSET));
                 drawFloat(probe.offset.y, row, false, 10);
               }
               else
@@ -4144,7 +4144,7 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
       case ID_ZOffset:      return liveadjust ? GET_TEXT_F(MSG_BABYSTEP_PROBE_Z) : GET_TEXT_F(MSG_ZPROBE_ZOFFSET);
     #endif
     #if HAS_PREHEAT
-      case ID_Preheat:      return F("Preheat");
+      case ID_Preheat:      return GET_TEXT_F(MSG_PREHEAT);
     #endif
     #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       case ID_ChangeFilament: return GET_TEXT_F(MSG_FILAMENTCHANGE);
@@ -4204,10 +4204,10 @@ FSTR_P JyersDWIN::getMenuTitle(const uint8_t menu) {
       case ID_LevelView:    return GET_TEXT_F(MSG_MESH_VIEW);
       case ID_LevelSettings: return F("Leveling Settings");
       case ID_MeshViewer:   return GET_TEXT_F(MSG_MESH_VIEW);
-      case ID_LevelManual:  return F("Manual Tuning");
+      case ID_LevelManual:  return GET_TEXT_F(MSG_MANUAL_LEVELING);
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && !HAS_BED_PROBE
-      case ID_UBLMesh:      return F("UBL Bed Leveling");
+      case ID_UBLMesh:      return GET_TEXT_F(MSG_UBL_LEVELING);
     #endif
     #if ENABLED(PROBE_MANUALLY)
       case ID_ManualMesh:   return GET_TEXT_F(MSG_MANUAL_LEVELING);
@@ -4711,7 +4711,7 @@ void JyersDWIN::popupControl() {
         case Popup_ManualProbing:
           if (selection == 0) {
             const float dif = probe.probe_at_point(current_position.x, current_position.y, PROBE_PT_STOW, 0, false) - corner_avg;
-            updateStatus(TS(F("Corner is "), p_float_t(abs(dif), 3), "mm ", dif > 0 ? F("high") : F("low")));
+            updateStatus(TS(F("Corner is "), p_float_t(abs(dif), 3), "mm ", dif > 0 ? GET_TEXT_F(MSG_HIGH) : GET_TEXT_F(MSG_LOW)));
           }
           else {
             redrawMenu(true, true, false);
@@ -5137,7 +5137,7 @@ void JyersDWIN::resetSettings() {
 //
 
 void MarlinUI::kill_screen(FSTR_P const error, FSTR_P const) {
-  jyersDWIN.drawPopup(F("Printer Kill Reason:"), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
+  jyersDWIN.drawPopup(GET_TEXT_F(MSG_PRINTER_KILLED), error, F("Restart Required"), Proc_Wait, ICON_BLTouch);
 }
 
 void MarlinUI::update() { jyersDWIN.update(); }
