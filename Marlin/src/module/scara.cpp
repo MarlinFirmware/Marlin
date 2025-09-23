@@ -212,8 +212,6 @@ xyz_pos_t remove_W_T_offset(const xyz_pos_t &raw) {
 
   }
 
-  SERIAL_ECHOLNPGM(" Tool_offset_rotated(x,y,z) ", tool_offset_rotated.x, ",", tool_offset_rotated.y, ",", tool_offset_rotated.z );
-
   return toolhead_absolute - tool_offset_rotated; // Returns the real robot pose without tool or workspace offset
 }
 
@@ -298,21 +296,19 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
   void home_TPARA() {
-    SERIAL_ECHOLNPGM("Homing" );
-    // Init the current position of all carriages to 0,0,0
-    SERIAL_ECHOLNPGM("Reset and sync position to 0,0,0" );
+    // First Init the current position of all carriages to 0,0,0
     current_position.reset();
     destination.reset();
     sync_plan_position();
 
-    // SERIAL_ECHOLNPGM("Reset and sync position to the start pose of the robot" );
-    // current_position.x = L2  ;  // L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X 
-    // current_position.y = 0 ;  // Y_HOME_POS +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y 
-    // current_position.z = 0 ; // Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z
-    // destination.x = L2   ;  
-    // destination.y = 0 ; 
-    // destination.z = 0 ;     
-    // sync_plan_position();
+    // SERIAL_ECHOLNPGM("Reset and sync position to the asumed start pose of the robot" );
+    // Set the asumed start pose of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle 
+    const xyz_pos_t asumed_intial_pose = {L2, 0, max_length(Z_AXIS)}; 
+    xyz_pos_t intial_pose_w_offset = apply_T_W_offset(asumed_intial_pose);
+ 
+    current_position.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
+    destination.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
+    sync_plan_position();
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -320,14 +316,6 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
       TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
       TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
     #endif
-
-    //const int x_axis_home_dir = TOOL_X_HOME_DIR(active_extruder);
-
-    //const xy_pos_t pos { max_length(X_AXIS), max_length(Y_AXIS) };
-    //const float mlz = max_length(X_AXIS),
-
-    // Move all carriages together linearly until an endstop is hit.
-    //do_blocking_move_to_xy_z(pos, mlz, homing_feedrate(Z_AXIS));
 
     // Set the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, set_homing_current(Z_AXIS));
@@ -339,15 +327,8 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     current_position.set(homing_pose_dir.x, homing_pose_dir.y, homing_pose_dir.z);
 
-    SERIAL_ECHOLNPGM("Current_position Before sync: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
-    SERIAL_EOL();  
-
     line_to_current_position(homing_feedrate(Z_AXIS));
     planner.synchronize();
-
-
-    SERIAL_ECHOLNPGM("current_position After sync: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
-    SERIAL_EOL();  
 
     // Restore the homing current for all motors
     TERN_(HAS_HOMING_CURRENT, restore_homing_current(Z_AXIS));
@@ -391,8 +372,6 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     SERIAL_EOL();         
     sync_plan_position();
   }
-
-
 
 void inverse_kinematics(const xyz_pos_t &raw) {
     // Remove offsets to calculate with trigonometric

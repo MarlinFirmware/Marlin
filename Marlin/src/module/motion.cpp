@@ -97,12 +97,7 @@ bool relative_mode; // = false
   #define Z_INIT_POS Z_HOME_POS
 #endif
 
-#if ENABLED(AXEL_TPARA)
-// For TPARA asume it starts at ground position (Shoulder horizontal 90°, Elbow vertical facing down 90°: L2,0,0 ) + offsets Tool and - Workspace offset
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, 0 +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, 0 + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
-#else  
 xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
-#endif
 
 /**
  * Cartesian Destination
