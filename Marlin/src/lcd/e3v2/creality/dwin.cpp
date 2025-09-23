@@ -457,7 +457,7 @@ void drawBackFirst(const bool is_sel=true) {
 //
 #define CASE_BACK          0
 
-#define MOTION_CASE_RATE   1
+#define MOTION_CASE_SPEED  1
 #define MOTION_CASE_ACCEL  2
 #define MOTION_CASE_JERK   (MOTION_CASE_ACCEL + ENABLED(CLASSIC_JERK))
 #define MOTION_CASE_STEPS  (MOTION_CASE_JERK + 1)
@@ -526,7 +526,7 @@ void say_speed_en(const uint16_t inset, const uint8_t row) {
   itemAreaCopy(133, 119, 172, 132, row, inset);  // "Speed"
 }
 void say_max_accel_en(const uint8_t row) {
-   say_max_en(row);                               // "Max"
+   say_max_en(row);                              // "Max"
    itemAreaCopy(  0, 135,  79, 145, row, 30);    // "Acceleration"
 }
 void say_max_jerk_speed_en(const uint8_t row) {
@@ -999,8 +999,8 @@ void drawMotionMenu() {
   clearMainWindow();
 
   if (hmiIsChinese()) {
-    dwinFrameTitleCopy(1, 16, 28, 13);                        // "Motion"
-    itemAreaCopy(173, 133, 228, 147, MOTION_CASE_RATE);        // Max speed
+    dwinFrameTitleCopy(1, 16, 28, 13);                         // "Motion"
+    itemAreaCopy(173, 133, 228, 147, MOTION_CASE_SPEED);       // Max speed
     itemAreaCopy(173, 133, 200, 147, MOTION_CASE_ACCEL);       // Max...
     itemAreaCopy(28, 149, 69, 161, MOTION_CASE_ACCEL, 30, 1);  // ...Acceleration
     #if ENABLED(CLASSIC_JERK)
@@ -1017,14 +1017,14 @@ void drawMotionMenu() {
       dwinFrameTitleCopy(144, 16, 46, 11);                            // "Motion"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(MOTION_CASE_RATE, F("Feedrate"));                 // "Feedrate"
+      dwinDrawLabel(MOTION_CASE_SPEED, GET_TEXT_F(MSG_SPEED));        // "Speed"
       dwinDrawLabel(MOTION_CASE_ACCEL, GET_TEXT_F(MSG_ACCELERATION)); // "Acceleration"
       #if ENABLED(CLASSIC_JERK)
         dwinDrawLabel(MOTION_CASE_JERK, GET_TEXT_F(MSG_JERK));        // "Jerk"
       #endif
       dwinDrawLabel(MOTION_CASE_STEPS, GET_TEXT_F(MSG_STEPS_PER_MM)); // "Steps/mm"
     #else
-      say_max_en(MOTION_CASE_RATE); say_speed_en(30, MOTION_CASE_RATE); // "Max Speed"
+      say_max_en(MOTION_CASE_SPEED); say_speed_en(30, MOTION_CASE_SPEED); // "Max Speed"
       say_max_accel_en(MOTION_CASE_ACCEL);                              // "Max Acceleration"
       #if ENABLED(CLASSIC_JERK)
         say_max_en(MOTION_CASE_JERK); say_jerk_en(MOTION_CASE_JERK);    // "Max Jerk"
@@ -1038,7 +1038,7 @@ void drawMotionMenu() {
 
   uint8_t i = 0;
   #define _MOTION_ICON(N) drawMenuLine(++i, ICON_MaxSpeed + (N) - 1)
-  _MOTION_ICON(MOTION_CASE_RATE); drawMoreIcon(i);
+  _MOTION_ICON(MOTION_CASE_SPEED); drawMoreIcon(i);
   _MOTION_ICON(MOTION_CASE_ACCEL); drawMoreIcon(i);
   #if ENABLED(CLASSIC_JERK)
     _MOTION_ICON(MOTION_CASE_JERK); drawMoreIcon(i);
@@ -2827,9 +2827,9 @@ void drawTemperatureMenu() {
         dwinDrawLabel(TEMP_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
       #endif
       #if HAS_PREHEAT
-        dwinDrawLabel(TEMP_CASE_PLA, F(PREHEAT_1_LABEL " Preheat Settings"));
+        dwinDrawLabel(TEMP_CASE_PLA, GET_TEXT_F(MSG_PREHEAT_1_SETTINGS));
         #if PREHEAT_COUNT > 1
-          dwinDrawLabel(TEMP_CASE_ABS, F(PREHEAT_2_LABEL " Preheat Settings"));
+          dwinDrawLabel(TEMP_CASE_ABS, F("Preheat " PREHEAT_2_LABEL " Settings"));
         #endif
       #endif
     #else
@@ -3134,14 +3134,14 @@ void hmiTemperature() {
           }
           else {
             #ifdef USE_STRING_HEADINGS
-              drawTitle(F(PREHEAT_1_LABEL " Settings")); // TODO: GET_TEXT_F
+              drawTitle(GET_TEXT_F(MSG_PREHEAT_1_SETTINGS));
             #else
               dwinFrameTitleCopy(56, 15, 85, 14);                      // "Temperature"  TODO: "PLA Settings"
             #endif
             #ifdef USE_STRING_TITLES
-              dwinDrawLabel(PREHEAT_CASE_TEMP, F("Nozzle Temp"));
+              dwinDrawLabel(PREHEAT_CASE_TEMP, GET_TEXT_F(MSG_TEMP_NOZZLE));
               #if HAS_HEATED_BED
-                dwinDrawLabel(PREHEAT_CASE_BED, F("Bed Temp"));
+                dwinDrawLabel(PREHEAT_CASE_BED, GET_TEXT_F(MSG_TEMP_BED));
               #endif
               #if HAS_FAN
                 dwinDrawLabel(PREHEAT_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
@@ -3220,9 +3220,9 @@ void hmiTemperature() {
               dwinFrameTitleCopy(56, 15, 85, 14);                        // "Temperature"  TODO: "ABS Settings"
             #endif
             #ifdef USE_STRING_TITLES
-              dwinDrawLabel(PREHEAT_CASE_TEMP, F("Nozzle Temp"));
+              dwinDrawLabel(PREHEAT_CASE_TEMP, GET_TEXT_F(MSG_TEMP_NOZZLE));
               #if HAS_HEATED_BED
-                dwinDrawLabel(PREHEAT_CASE_BED, F("Bed Temp"));
+                dwinDrawLabel(PREHEAT_CASE_BED, GET_TEXT_F(MSG_TEMP_BED));
               #endif
               #if HAS_FAN
                 dwinDrawLabel(PREHEAT_CASE_FAN, GET_TEXT_F(MSG_FAN_SPEED));
@@ -3301,14 +3301,14 @@ void drawMaxAccelMenu() {
     #ifdef USE_STRING_HEADINGS
       drawTitle(GET_TEXT_F(MSG_ACCELERATION));
     #else
-      dwinFrameTitleCopy(144, 16, 46, 11);      // "Acceleration"
+      dwinFrameTitleCopy(144, 16, 46, 11);          // "Acceleration"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, F("Max Accel X"));
-      dwinDrawLabel(2, F("Max Accel Y"));
-      dwinDrawLabel(3, F("Max Accel Z"));
+      dwinDrawLabel(1, GET_TEXT_F(MSG_AMAX_A));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_AMAX_A));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_AMAX_A));
       #if HAS_HOTEND
-        dwinDrawLabel(4, F("Max Accel E"));
+        dwinDrawLabel(4, GET_TEXT_F(MSG_AMAX_A));
       #endif
     #else
       say_max_accel_en(1); say_x_en(112, 1);    // "Max Acceleration X"
@@ -3352,7 +3352,7 @@ void drawStepsMenu() {
     #ifdef USE_STRING_HEADINGS
       drawTitle(GET_TEXT_F(MSG_STEPS_PER_MM));
     #else
-      dwinFrameTitleCopy(144, 16, 46, 11);          // "Steps per mm"
+      dwinFrameTitleCopy(144, 16, 46, 11);         // "Steps per mm"
     #endif
     #ifdef USE_STRING_TITLES
       dwinDrawLabel(1, GET_TEXT_F(MSG_A_STEPS));
@@ -3405,16 +3405,16 @@ void drawMaxSpeedMenu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      drawTitle(F("Max Speed (mm/s)")); // TODO: GET_TEXT_F
+      drawTitle(GET_TEXT_F(MSG_MAX_SPEED));
     #else
-      dwinFrameTitleCopy(144, 16, 46, 11);                    // "Max Speed (mm/s)"
+      dwinFrameTitleCopy(144, 16, 46, 11); // "Max Speed (mm/s)"
     #endif
     #ifdef USE_STRING_TITLES
-      dwinDrawLabel(1, F("Max Feedrate X"));
-      dwinDrawLabel(2, F("Max Feedrate Y"));
-      dwinDrawLabel(3, F("Max Feedrate Z"));
+      dwinDrawLabel(1, GET_TEXT_F(MSG_VMAX_A));
+      dwinDrawLabel(2, GET_TEXT_F(MSG_VMAX_B));
+      dwinDrawLabel(3, GET_TEXT_F(MSG_VMAX_C));
       #if HAS_HOTEND
-        dwinDrawLabel(4, F("Max Feedrate E"));
+        dwinDrawLabel(4, GET_TEXT_F(MSG_VMAX_E));
       #endif
     #else
       say_max_en(1); say_speed_en(30, 1); say_x_en(73, 1);    // "Max Speed X"
@@ -3527,7 +3527,7 @@ void hmiMotion() {
         select_step.reset();
         drawStepsMenu();
         break;
-      case MOTION_CASE_RATE:
+      case MOTION_CASE_SPEED:
         checkkey = ID_MaxSpeed;
         select_speed.reset();
         drawMaxSpeedMenu();
@@ -4058,7 +4058,7 @@ void hmiMaxSpeed() {
     }
     else { // Back
       checkkey = ID_Motion;
-      select_motion.now = MOTION_CASE_RATE;
+      select_motion.now = MOTION_CASE_SPEED;
       drawMotionMenu();
     }
   }
