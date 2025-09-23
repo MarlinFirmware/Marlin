@@ -328,9 +328,9 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     // At least one motor has reached its endstop.
     // Now re-home each motor separately.
+    homeaxis(A_AXIS);
     homeaxis(C_AXIS);
     homeaxis(B_AXIS);
-    homeaxis(A_AXIS);
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
