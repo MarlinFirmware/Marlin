@@ -136,7 +136,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "TPARA: Ftobler Robot Arm"
+#define CUSTOM_MACHINE_NAME "TPARA"
 //#define CONFIGURABLE_MACHINE_NAME // Add G-code M550 to set/report the machine name
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -1121,13 +1121,19 @@
   // Height of the Shoulder axis (pivot) relative to the tower floor
   #define TPARA_SHOULDER_AXIS_HEIGHT 135.0     // (mm)
 
+  // This is the position of the last linkage relative to the arm origin (intersection of the base axis and floor) when in the home position (endstops triggered), aka machine home position
+  #define TPARA_ARM_X_HOME_POS   28.75  // was -60  Absolute from robot origin Axis: measured from shoulder axis to tool holder axis in home position 31.66-4.82/2-0.5 ~ 28.75
+  #define TPARA_ARM_Y_HOME_POS   0
+  #define TPARA_ARM_Z_HOME_POS 250.00  // was 247.35 182   Absolute from robot origin Axis: measured from tool holder axis to floor
+
+
   // TPARA Workspace offset relative to the tower (position of workspace origin relative to robot Tower origin )
   // This needs to be reasonably accurate as it defines the printbed position in the TPARA space.
   #define TPARA_OFFSET_X    100.0     // (mm)  
   #define TPARA_OFFSET_Y      0.0     // (mm)  
   #define TPARA_OFFSET_Z      0.0     // (mm)
 
-  // TPARA tool offset, relative to the tool moving frame origin, (TCP: tool center point) of the robot, 
+  // TPARA tool connection point offset, relative to the tool moving frame origin which is in the last linkage axis, (TCP: tool center/conection point) of the robot, 
   // the plane of measured offset must be alligned with home position plane 
   #define TPARA_TCP_OFFSET_X    27.0     // (mm) Tool flange: 27 (distance from pivot to bolt holes), extruder tool: 50.0, 
   #define TPARA_TCP_OFFSET_Y     0.0     // (mm)
