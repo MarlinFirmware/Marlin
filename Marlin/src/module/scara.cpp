@@ -190,9 +190,11 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
 
 // Remove offset for calculation with trigonometric
 // Tool offset coordinates are recalculated for each angle
-xyz_pos_t remove_offset(const xyz_pos_t &raw) {    
-  // We should apply a rotation matrix, but is too costly 
-  const float r2 = raw.x * raw.x + raw.y * raw.y;
+xyz_pos_t remove_W_T_offset(const xyz_pos_t &raw) {    
+  xyz_pos_t toolhead_absolute = raw + robot_workspace_offset; // Remove workspace offset first, so we can use trigonometrics relative to robot reference frame (otherwise a negative raw position would "mirror/invert" the tool offset)
+
+  // We should apply a rotation matrix, but is too costly to calculate sin and cos
+  const float r2 = HYPOT2(toolhead_absolute.x, toolhead_absolute.y);
   xyz_pos_t tool_offset_rotated;
   if (r2 < 1e-6f) {
       // avoid zero div
@@ -204,17 +206,14 @@ xyz_pos_t remove_offset(const xyz_pos_t &raw) {
 
     const float inv_r = 1.0f / sqrtf(r2);
 
-    tool_offset_rotated.x = tool_offset_cyl.x * raw.x * inv_r;
-    tool_offset_rotated.y = tool_offset_cyl.x * raw.y * inv_r;
+    tool_offset_rotated.x = tool_offset_cyl.x * toolhead_absolute.x * inv_r;  // Equivalent to tool_offset_cyl.x * cos(atan2(toolhead_absolute.y, toolhead_absolute.x))
+    tool_offset_rotated.y = tool_offset_cyl.x * toolhead_absolute.y * inv_r;  // Equivalent to tool_offset_cyl.x * sin(atan2(toolhead_absolute.y, toolhead_absolute.x))
     tool_offset_rotated.z = tool_offset_cyl.z; 
 
   }
 
 
-  static constexpr xyz_pos_t robot_offset = { TPARA_OFFSET_X, TPARA_OFFSET_Y, TPARA_OFFSET_Z };
-
-
-  return raw + robot_workspace_offset - robot_shoulder_offset - tool_offset_rotated;
+  return toolhead_absolute - tool_offset_rotated; // Returns the real robot pose without tool or workspace offset
 }
 
 // Apply tool and workspace offset to robot flange pose, take in account that the tool offset must be rotated 
@@ -238,7 +237,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
   }
 
-  return rpose - robot_workspace_offset + tool_offset_rotated;
+  return rpose + tool_offset_rotated - robot_workspace_offset;
 }
 
 
@@ -350,8 +349,8 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
 void inverse_kinematics(const xyz_pos_t &raw) {
     // Remove offsets to calculate with trigonometric
-    const xyz_pos_t tpos = remove_offset(raw); //raw + robot_workspace_offset - robot_shoulder_offset - tool_offset_rotated;
-
+    const xyz_pos_t tpos = remove_W_T_offset(raw) - robot_shoulder_offset; //raw + robot_workspace_offset  - tool_offset_rotated - robot_shoulder_offset; 
+    // IK, Refer to TPARA analysis
     const float RXY = SQRT(HYPOT2(tpos.x, tpos.y)),
                 RHO_2 = NORMSQ(tpos.x, tpos.y, tpos.z),
                 //RHO = SQRT(RHO2),

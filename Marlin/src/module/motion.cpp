@@ -98,8 +98,8 @@ bool relative_mode; // = false
 #endif
 
 #if ENABLED(AXEL_TPARA)
-// For TPARA asume it starts at ground position (Shoulder horizontal 90°, Elbow vertical facing down 90°) + offsets Tool and - Workspace offset
-xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, Y_HOME_POS +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
+// For TPARA asume it starts at ground position (Shoulder horizontal 90°, Elbow vertical facing down 90°: L2,0,0 ) + offsets Tool and - Workspace offset
+xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, L2 + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X, 0 +  TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y, 0 + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z , I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
 #else  
 xyze_pos_t current_position = LOGICAL_AXIS_ARRAY(0, X_HOME_POS, Y_HOME_POS, Z_INIT_POS, I_HOME_POS, J_HOME_POS, K_HOME_POS, U_HOME_POS, V_HOME_POS, W_HOME_POS);
 #endif
@@ -643,12 +643,14 @@ void report_current_position_projected() {
       can_reach = HYPOT2(rx, ry) <= sq(PRINTABLE_RADIUS - inset + fslop);
 
     #elif ENABLED(AXEL_TPARA)
-
-      const float R2 = HYPOT2(rx - TPARA_OFFSET_X, ry - TPARA_OFFSET_Y);
+      // To Do: a custom check, as reach depends also on Z destination
+      // As we are 3D printing asume destination Z is the same current Z
+      // For now whe use the max reach of the arm
+      const float R2 = HYPOT2(rx + TPARA_OFFSET_X, ry + TPARA_OFFSET_Y);
       can_reach = (
-        R2 <= sq(L1 + L2) - inset
+        R2 <= PRINTABLE_RADIUS_2 - inset
         #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
+          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R + TPARA_TCP_OFFSET_X)
         #endif
       );
 
