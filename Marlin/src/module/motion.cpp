@@ -86,17 +86,17 @@ bool relative_mode; // = false
 #endif
 
 // Warn for unexpected TPARA home position
-#if ENABLED(AXEL_TPARA)
-  #if X_HOME_POS != TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X
-    #warning "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)."
-  #endif
-  #if Y_HOME_POS != TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y
-    #warning "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
-  #endif
-  #if Z_HOME_POS != TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z
-    #warning "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
-  #endif
-#endif
+// #if ENABLED(AXEL_TPARA)
+//   #if X_HOME_POS != TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X
+//     #warning "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)."
+//   #endif
+//   #if Y_HOME_POS != TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y
+//     #warning "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
+//   #endif
+//   #if Z_HOME_POS != TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z
+//     #warning "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
+//   #endif
+// #endif
 
 /**
  * Cartesian Current Position
