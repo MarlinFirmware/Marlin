@@ -21,6 +21,7 @@
  */
 #pragma once
 
+
 /**
  * Configuration.h
  *
@@ -61,7 +62,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Original author or contributor.
+#define STRING_CONFIG_H_AUTHOR "(Axel Sepúlveda)" // Original author or contributor.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 // @section machine
@@ -124,11 +125,18 @@
   //#define RS485_BUS_BUFFER_SIZE 128
 #endif
 
+// Enable CAN bus support and protocol
+//#define CAN_HOST
+//#define CAN_TOOLHEAD
+#if ANY(CAN_HOST, CAN_TOOLHEAD)
+  //#define CAN_DEBUG
+#endif
+
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "TPARA"
 //#define CONFIGURABLE_MACHINE_NAME // Add G-code M550 to set/report the machine name
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -224,7 +232,7 @@
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -407,7 +415,7 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-//#define PSU_CONTROL
+#define PSU_CONTROL
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
@@ -576,7 +584,7 @@
 #define TEMP_SENSOR_5 0
 #define TEMP_SENSOR_6 0
 #define TEMP_SENSOR_7 0
-#define TEMP_SENSOR_BED 1
+#define TEMP_SENSOR_BED 0
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 #define TEMP_SENSOR_COOLER 0
@@ -607,13 +615,13 @@
 #endif
 
 #if HAS_E_TEMP_SENSOR
-  #define TEMP_RESIDENCY_TIME         10  // (seconds) Time to wait for hotend to "settle" in M109
+  #define TEMP_RESIDENCY_TIME          3  // (seconds) Time to wait for hotend to "settle" in M109
   #define TEMP_WINDOW                  1  // (°C) Temperature proximity for the "temperature reached" timer
   #define TEMP_HYSTERESIS              3  // (°C) Temperature proximity considered "close enough" to the target
 #endif
 
 #if TEMP_SENSOR_BED
-  #define TEMP_BED_RESIDENCY_TIME     10  // (seconds) Time to wait for bed to "settle" in M190
+  #define TEMP_BED_RESIDENCY_TIME      0  // (seconds) Time to wait for bed to "settle" in M190
   #define TEMP_BED_WINDOW              1  // (°C) Temperature proximity for the "temperature reached" timer
   #define TEMP_BED_HYSTERESIS          3  // (°C) Temperature proximity considered "close enough" to the target
 #endif
@@ -665,7 +673,7 @@
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
 #define BED_MAXTEMP      150
-#define CHAMBER_MAXTEMP  60
+#define CHAMBER_MAXTEMP   60
 
 /**
  * Thermal Overshoot
@@ -703,16 +711,17 @@
   //#define PID_PARAMS_PER_HOTEND // Use separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with G-code: M301 E[extruder number, 0-2]
 
+  // Merlin Hotend: From Autotune
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify up to one value per hotend here, according to your setup.
     // If there are fewer values, the last one applies to the remaining hotends.
-    #define DEFAULT_Kp_LIST {  22.20,  22.20 }
-    #define DEFAULT_Ki_LIST {   1.08,   1.08 }
-    #define DEFAULT_Kd_LIST { 114.00, 114.00 }
+    #define DEFAULT_Kp_LIST {  24.50,  24.50 }
+    #define DEFAULT_Ki_LIST {   1.72,   1.72 }
+    #define DEFAULT_Kd_LIST {  87.73,  87.73 }
   #else
-    #define DEFAULT_Kp  22.20
-    #define DEFAULT_Ki   1.08
-    #define DEFAULT_Kd 114.00
+    #define DEFAULT_Kp  24.50
+    #define DEFAULT_Ki   1.72
+    #define DEFAULT_Kd  87.73
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
@@ -801,18 +810,18 @@
  *
  * With this option disabled, bang-bang will be used. BED_LIMIT_SWITCHING enables hysteresis.
  */
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0   // Min power to improve PID stability (0..MAX_BED_POWER).
                               // Get the power from the temperature report ('M105' => B@:nnn) and try P*2-20 to P*2-10.
   //#define PID_BED_DEBUG     // Print Bed PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
-  // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define DEFAULT_bedKp  10.00
-  #define DEFAULT_bedKi   0.023
-  #define DEFAULT_bedKd 305.4
+  // 12v Heatbed Mk3 12V in parallel
+  // from pidautotune
+  #define DEFAULT_bedKp 630.14
+  #define DEFAULT_bedKi 121.71
+  #define DEFAULT_bedKd 815.64
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #else
@@ -1100,25 +1109,45 @@
 // @section tpara
 
 // Enable for TPARA kinematics and configure below
-//#define AXEL_TPARA
+#define AXEL_TPARA
 #if ENABLED(AXEL_TPARA)
   #define DEBUG_TPARA_KINEMATICS
   #define DEFAULT_SEGMENTS_PER_SECOND 200
 
   // Length of inner and outer support arms. Measure arm lengths precisely.
-  #define TPARA_LINKAGE_1 120     // (mm)
-  #define TPARA_LINKAGE_2 120     // (mm)
+  #define TPARA_LINKAGE_1 120.0     // (mm)
+  #define TPARA_LINKAGE_2 120.0     // (mm)
 
-  // TPARA tower offset (position of Tower relative to bed zero position)
+  // Height of the Shoulder axis (pivot) relative to the tower floor
+  #define TPARA_SHOULDER_AXIS_HEIGHT 135.0     // (mm)
+
+  // This is the position of the last linkage relative to the arm origin (intersection of the base axis and floor) when in the home position (endstops triggered), aka machine home position
+  #define TPARA_ARM_X_HOME_POS   28.75  // was -60  Absolute from robot origin Axis: measured from shoulder axis to tool holder axis in home position 31.66-4.82/2-0.5 ~ 28.75
+  #define TPARA_ARM_Y_HOME_POS   0
+  #define TPARA_ARM_Z_HOME_POS 250.00  // was 247.35 182   Absolute from robot origin Axis: measured from tool holder axis to floor
+
+
+  // TPARA Workspace offset relative to the tower (position of workspace origin relative to robot Tower origin )
   // This needs to be reasonably accurate as it defines the printbed position in the TPARA space.
-  #define TPARA_OFFSET_X    0     // (mm)
-  #define TPARA_OFFSET_Y    0     // (mm)
-  #define TPARA_OFFSET_Z    0     // (mm)
+  #define TPARA_OFFSET_X    100.0     // (mm)  
+  #define TPARA_OFFSET_Y      0.0     // (mm)  
+  #define TPARA_OFFSET_Z      0.0     // (mm)
+
+  // TPARA tool connection point offset, relative to the tool moving frame origin which is in the last linkage axis, (TCP: tool center/conection point) of the robot, 
+  // the plane of measured offset must be alligned with home position plane 
+  #define TPARA_TCP_OFFSET_X    27.0     // (mm) Tool flange: 27 (distance from pivot to bolt holes), extruder tool: 50.0, 
+  #define TPARA_TCP_OFFSET_Y     0.0     // (mm)
+  #define TPARA_TCP_OFFSET_Z   -35.0     // (mm) -35 is safe for testing with no tool, Tool flange (bottom): -6 (caution as Z 0 posiion will crash second linkage to the floor ), extruder tool (depends on extruder): -65.0
 
   #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
 
+  #define INVERT_HOMING_AXIS_ORDER 1  // Need to invert homing axis order, to avoid tool or linkage crashes
+
   // Radius around the center where the arm cannot reach
-  #define MIDDLE_DEAD_ZONE_R   0  // (mm)
+  #define MIDDLE_DEAD_ZONE_R   100  // (mm)
+
+  // (degrees) Max angle between L1 and L2
+  #define TPARA_MAX_L1L2_ANGLE 140.0f      
 #endif
 
 // @section polar
@@ -1184,8 +1213,17 @@
 #define ENDSTOPPULLUPS
 #if DISABLED(ENDSTOPPULLUPS)
   // Disable ENDSTOPPULLUPS to set pullups individually
+  //#define ENDSTOPPULLUP_XMAX
+  //#define ENDSTOPPULLUP_YMAX
+  //#define ENDSTOPPULLUP_ZMAX  // open pin, inverted
+  //#define ENDSTOPPULLUP_IMAX
+  //#define ENDSTOPPULLUP_JMAX
+  //#define ENDSTOPPULLUP_KMAX
+  //#define ENDSTOPPULLUP_UMAX
+  //#define ENDSTOPPULLUP_VMAX
+  //#define ENDSTOPPULLUP_WMAX
   //#define ENDSTOPPULLUP_XMIN
-  //#define ENDSTOPPULLUP_YMIN
+  //#define ENDSTOPPULLUP_YMIN  // open pin, inverted
   //#define ENDSTOPPULLUP_ZMIN
   //#define ENDSTOPPULLUP_IMIN
   //#define ENDSTOPPULLUP_JMIN
@@ -1193,15 +1231,6 @@
   //#define ENDSTOPPULLUP_UMIN
   //#define ENDSTOPPULLUP_VMIN
   //#define ENDSTOPPULLUP_WMIN
-  //#define ENDSTOPPULLUP_XMAX
-  //#define ENDSTOPPULLUP_YMAX
-  //#define ENDSTOPPULLUP_ZMAX
-  //#define ENDSTOPPULLUP_IMAX
-  //#define ENDSTOPPULLUP_JMAX
-  //#define ENDSTOPPULLUP_KMAX
-  //#define ENDSTOPPULLUP_UMAX
-  //#define ENDSTOPPULLUP_VMAX
-  //#define ENDSTOPPULLUP_WMAX
   //#define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
@@ -1234,12 +1263,12 @@
  * Endstop "Hit" State
  * Set to the state (HIGH or LOW) that applies to each endstop.
  */
-#define X_MIN_ENDSTOP_HIT_STATE HIGH
-#define X_MAX_ENDSTOP_HIT_STATE HIGH
-#define Y_MIN_ENDSTOP_HIT_STATE HIGH
-#define Y_MAX_ENDSTOP_HIT_STATE HIGH
-#define Z_MIN_ENDSTOP_HIT_STATE HIGH
-#define Z_MAX_ENDSTOP_HIT_STATE HIGH
+#define X_MIN_ENDSTOP_HIT_STATE LOW
+#define X_MAX_ENDSTOP_HIT_STATE LOW
+#define Y_MIN_ENDSTOP_HIT_STATE LOW
+#define Y_MAX_ENDSTOP_HIT_STATE LOW
+#define Z_MIN_ENDSTOP_HIT_STATE LOW
+#define Z_MAX_ENDSTOP_HIT_STATE LOW
 #define I_MIN_ENDSTOP_HIT_STATE HIGH
 #define I_MAX_ENDSTOP_HIT_STATE HIGH
 #define J_MIN_ENDSTOP_HIT_STATE HIGH
@@ -1252,7 +1281,7 @@
 #define V_MAX_ENDSTOP_HIT_STATE HIGH
 #define W_MIN_ENDSTOP_HIT_STATE HIGH
 #define W_MAX_ENDSTOP_HIT_STATE HIGH
-#define Z_MIN_PROBE_ENDSTOP_HIT_STATE HIGH
+#define Z_MIN_PROBE_ENDSTOP_HIT_STATE LOW
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -1273,7 +1302,7 @@
 //#define ENDSTOP_NOISE_THRESHOLD 2
 
 // Check for stuck or disconnected endstops during homing moves.
-//#define DETECT_BROKEN_ENDSTOP
+#define DETECT_BROKEN_ENDSTOP
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -1299,8 +1328,14 @@
  * Default Axis Steps Per Unit (linear=steps/mm, rotational=steps/°)
  * Override with M92 (when enabled below)
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
+ * 
+ * TPARA only uses angles, units are (steps/degree)
+ * 200 steps per 360 deg rev * [32 (DRV8825) or 16 (A4988) microsteps] * 32:9 gear ratio
+ * 200/360*32*32/9 = 63.2098765 ~ 63.21
+ * 200/360*16*32/9 = 31,6049382 ~ 31.60
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 31.60, 31.60, 31.60, 200 }  // default steps per unit for TPARA
 
 /**
  * Enable support for M92. Disable to save at least ~530 bytes of flash.
@@ -1312,7 +1347,7 @@
  * Override with M203
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1325,7 +1360,7 @@
  * Override with M201
  *                                      X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 500, 500, 500, 1000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1340,9 +1375,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -1352,12 +1387,12 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-//#define CLASSIC_JERK
+#define CLASSIC_JERK
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0
-  #define DEFAULT_YJERK 10.0
-  #define DEFAULT_ZJERK  0.3
-  #define DEFAULT_EJERK  5.0
+  #define DEFAULT_XJERK  5.0
+  #define DEFAULT_YJERK  5.0
+  #define DEFAULT_ZJERK  5.0
+  #define DEFAULT_EJERK  3.0
   //#define DEFAULT_IJERK  0.3
   //#define DEFAULT_JJERK  0.3
   //#define DEFAULT_KJERK  0.3
@@ -1381,7 +1416,7 @@
  *   https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.013 // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.025 // (mm) Distance from real junction edge
   #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
@@ -1659,7 +1694,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { -25, -29, -12.35 }
 
 // Enable and set to use a specific tool for probing. Disable to allow any tool.
 #define PROBING_TOOL 0
@@ -1676,7 +1711,7 @@
 #define XY_PROBE_FEEDRATE    (133*60) // (mm/min)
 
 // Feedrate for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_FEEDRATE_FAST  (4*60) // (mm/min)
+#define Z_PROBE_FEEDRATE_FAST (10*60) // (mm/min)
 
 // Feedrate for the "accurate" probe of each point
 #define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2) // (mm/min)
@@ -1744,7 +1779,7 @@
  * Example: 'M851 Z-5' with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: 'M851 Z+1' with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // (mm) Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   15 // (mm) Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // (mm) Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // (mm) Z Clearance between multiple probes
 #define Z_PROBE_ERROR_TOLERANCE     3 // (mm) Tolerance for early trigger (<= -probe.offset.z + ZPET)
@@ -1831,9 +1866,9 @@
 // @section motion
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR true
 //#define INVERT_I_DIR false
 //#define INVERT_J_DIR false
 //#define INVERT_K_DIR false
@@ -1874,10 +1909,12 @@
 //#define EVENT_GCODE_AFTER_HOMING "M300 P440 S200"  // Commands to run after G28 (and move to XY_AFTER_HOMING)
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
+// For TPARA robot, A (base),B(shoulder),C(elbow):
+// A:[1=CCW, -1=CW], B & C:[1 = Decrease Radius and Up, -1=Increase Radius and up]
 // :[-1,1]
 #define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define Y_HOME_DIR 1
+#define Z_HOME_DIR 1
 //#define I_HOME_DIR -1
 //#define J_HOME_DIR -1
 //#define K_HOME_DIR -1
@@ -1912,7 +1949,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define Z_MAX_POS 295
 //#define I_MIN_POS 0
 //#define I_MAX_POS 50
 //#define J_MIN_POS 0
@@ -1933,10 +1970,11 @@
  * - Individual axes can be disabled, if desired.
  * - X and Y only apply to Cartesian robots.
  * - Use 'M211' to set software endstops on/off or report current state
+ * - For delta, SCARA or TPARA should be disabled? so limits are calculated from printable radius -> may we have both ?
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-#define MIN_SOFTWARE_ENDSTOPS
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -1950,7 +1988,7 @@
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
-#define MAX_SOFTWARE_ENDSTOPS
+//#define MAX_SOFTWARE_ENDSTOPS
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
@@ -2166,7 +2204,7 @@
  * Turn on with the command 'M111 S32'.
  * NOTE: Requires a lot of flash!
  */
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
   // Set a height for the start of manual adjustment
@@ -2183,6 +2221,12 @@
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
   #endif
+
+  /**
+   * Add Z offset (M424 Z) that applies to all moves at the planner level.
+   * This Z offset will be automatically set to the middle value with G29.
+   */
+  //#define GLOBAL_MESH_Z_OFFSET
 
   /**
    * For Cartesian machines, instead of dividing moves on mesh boundaries,
@@ -2345,11 +2389,19 @@
 // The center of the bed is at (X=0, Y=0)
 //#define BED_CENTER_AT_0_0
 
-// Manually set the home position. Leave these undefined for automatic settings.
-// For DELTA this is the top-center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS 0
-//#define MANUAL_Y_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 0
+
+/**
+ * Manually set the home position. Leave these undefined for automatic settings.
+ * 
+ * For DELTA this is the top-center of the Cartesian print volume.
+ * 
+ * For TPARA this is the position of the tool holder relative to the arm origin (intersection of the base axis and floor) when in the home position (endstops triggered), aka machine home position.
+ * Tool and Workspace home should be calculated with their respective offset
+ */
+
+#define MANUAL_X_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X  // was -60  Absolute from robot origin Axis: measured from shoulder axis to tool holder axis in home position 31.66-4.82/2-0.5 ~ 28.75
+#define MANUAL_Y_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y
+#define MANUAL_Z_HOME_POS  TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z  // was 247.35 182   Absolute from robot origin Axis: measured from tool holder axis to floor
 //#define MANUAL_I_HOME_POS 0
 //#define MANUAL_J_HOME_POS 0
 //#define MANUAL_K_HOME_POS 0
@@ -2373,7 +2425,7 @@
 #endif
 
 // Homing speeds (linear=mm/min, rotational=°/min)
-#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }
+#define HOMING_FEEDRATE_MM_M { (10*60), (10*60), (10*60) }
 
 // Edit homing feedrates with M210 and MarlinUI menu items
 //#define EDITABLE_HOMING_FEEDRATE
@@ -2496,13 +2548,13 @@
 #define PREHEAT_1_TEMP_HOTEND 180
 #define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_TEMP_CHAMBER 35
-#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "ABS"
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_BED    100
 #define PREHEAT_2_TEMP_CHAMBER 35
-#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
 
 /**
  * @section nozzle park
@@ -2699,7 +2751,7 @@
  * SD Card support is disabled by default. If your controller has an SD slot,
  * you must uncomment the following option or it won't work.
  */
-//#define SDSUPPORT
+#define SDSUPPORT
 
 /**
  * SD CARD: ENABLE CRC
@@ -2793,7 +2845,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -3031,7 +3083,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // K.3D Full Graphic Smart Controller
@@ -3275,13 +3327,16 @@
  *  - Download https://github.com/CrealityOfficial/Ender-3S1/archive/3S1_Plus_Screen.zip
  *  - Copy the downloaded DWIN_SET folder to the SD card.
  *
+ * CREALITY_TOUCH
+ *  - CR-6 OEM touch screen. A DWIN display with touch.
+ *
  * Flash display with DGUS Displays for Marlin:
  *  - Format the SD card to FAT32 with an allocation size of 4kb.
  *  - Download files as specified for your type of display.
  *  - Plug the microSD card into the back of the display.
  *  - Boot the display and wait for the update to complete.
  *
- * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO' ]
+ * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CREALITY_TOUCH' ]
  */
 //#define DGUS_LCD_UI ORIGIN
 #if DGUS_UI_IS(MKS)
@@ -3329,6 +3384,12 @@
 // 320x240 Nextion 2.8" serial TFT Resistive Touch Screen NX3224T028
 //
 //#define NEXTION_TFT
+
+//
+// PanelDue touch controller by Escher3D
+// http://escher3d.com/pages/order/products/product2.php
+//
+//#define PANELDUE
 
 //
 // Third-party or vendor-customized controller interfaces.
