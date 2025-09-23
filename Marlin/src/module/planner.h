@@ -270,9 +270,8 @@ typedef struct PlannerBlock {
     xyze_pos_t dist_mm;                     // The distance traveled in mm along each axis
   #endif
 
-  // Advance extrusion
   #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
-    bool use_advance_lead;
+    bool use_advance_lead;                  // Linear / Pressure Advance extrusion
   #endif
 
   #if ENABLED(LIN_ADVANCE)

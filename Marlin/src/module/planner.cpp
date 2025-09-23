@@ -2380,7 +2380,7 @@ bool Planner::_populate_block(
   block->steps_per_mm = steps_per_mm;
   uint32_t accel;
   #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
-    bool use_advance_lead = false;
+    bool use_adv_lead = false;
   #endif
   if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
     accel = CEIL(settings.retract_acceleration * steps_per_mm);   // Convert to: acceleration steps/sec^2
@@ -2416,9 +2416,11 @@ bool Planner::_populate_block(
        *
        * dm.e                         : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
-      use_advance_lead = esteps && extruder_advance_K[E_INDEX_N(extruder)] && dm.e;
+      const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
+      const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) extruder_advance_K[E_INDEX_N(extruder)];
+      use_adv_lead = esteps && advK && dm.e;
 
-      if (use_advance_lead) {
+      if (use_adv_lead) {
         float e_D_ratio = (target_float.e - position_float.e) /
           TERN(IS_KINEMATIC, block->millimeters,
             SQRT(sq(target_float.x - position_float.x)
@@ -2429,22 +2431,17 @@ bool Planner::_populate_block(
         // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
         // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
         if (e_D_ratio > 3.0f)
-          use_advance_lead = false;
-        else {
-          #if HAS_ROUGH_LIN_ADVANCE
-            const bool limit_accel = TERN1(FTM_HAS_LIN_ADVANCE, !ftMotion.cfg.active);
-            if (limit_accel) {
-              // Scale E acceleration so that it will be possible to jump to the advance speed.
-              const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-              if (accel > max_accel_steps_per_s2) {
-                accel = max_accel_steps_per_s2;
-                if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
-              }
-            }
-          #endif
+          use_adv_lead = false;
+        else if (TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
+          // Scale E acceleration so that it will be possible to jump to the advance speed.
+          const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
+          if (accel > max_accel_steps_per_s2) {
+            accel = max_accel_steps_per_s2;
+            if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+          }
         }
         #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
-          block->use_advance_lead = use_advance_lead;
+          block->use_advance_lead = use_adv_lead;
         #endif
       }
     #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
@@ -2476,7 +2473,7 @@ bool Planner::_populate_block(
   #if HAS_ROUGH_LIN_ADVANCE
     block->la_advance_rate = 0;
     block->la_scaling = 0;
-    if (use_advance_lead) {
+    if (use_adv_lead) {
       // The Bresenham algorithm will convert this step rate into extruder steps
       block->la_advance_rate = extruder_advance_K[E_INDEX_N(extruder)] * block->acceleration_steps_per_s2;
 
