@@ -142,13 +142,10 @@ class FTMotion {
     #endif
 
     #if ENABLED(FTM_SMOOTHING)
+      // Refresh alpha and delay samples used by smoothing functions.
+      static void update_smoothing_params();
       // Setters for smoothingTime that update alpha and delay
-      static void set_smoothing_time(uint8_t axis, const_float_t s_time) {
-        TERN_(HAS_X_AXIS,    if (axis == X_AXIS) smoothing.x.set_smoothing_time(cfg.smoothingTime.x = s_time));
-        TERN_(HAS_Y_AXIS,    if (axis == Y_AXIS) smoothing.y.set_smoothing_time(cfg.smoothingTime.y = s_time));
-        TERN_(HAS_Z_AXIS,    if (axis == Z_AXIS) smoothing.z.set_smoothing_time(cfg.smoothingTime.z = s_time));
-        TERN_(HAS_EXTRUDERS, if (axis == E_AXIS) smoothing.e.set_smoothing_time(cfg.smoothingTime.e = s_time));
-      }
+      static void set_smoothing_time(uint8_t axis, const_float_t s_time);
     #endif
 
     static void reset();                                  // Reset all states of the fixed time conversion to defaults.

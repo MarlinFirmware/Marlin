@@ -412,6 +412,27 @@ void FTMotion::loop() {
 
 #endif // HAS_FTM_SHAPING
 
+#if ENABLED(FTM_SMOOTHING)
+
+  void FTMotion::update_smoothing_params() {
+    TERN_(HAS_X_AXIS, smoothing.x.set_smoothing_time(cfg.smoothingTime.x));
+    TERN_(HAS_Y_AXIS, smoothing.y.set_smoothing_time(cfg.smoothingTime.y));
+    TERN_(HAS_Z_AXIS, smoothing.z.set_smoothing_time(cfg.smoothingTime.z));
+    TERN_(HAS_EXTRUDERS, smoothing.e.set_smoothing_time(cfg.smoothingTime.e));
+  }
+
+  void FTMotion::set_smoothing_time(uint8_t axis, const_float_t s_time) {
+    switch (axis) {
+      TERN_(HAS_X_AXIS, case X_AXIS: cfg.smoothingTime.x = s_time; break;)
+      TERN_(HAS_Y_AXIS, case Y_AXIS: cfg.smoothingTime.y = s_time; break;)
+      TERN_(HAS_Z_AXIS, case Z_AXIS: cfg.smoothingTime.z = s_time; break;)
+      TERN_(HAS_EXTRUDERS, case E_AXIS: cfg.smoothingTime.e = s_time; break;)
+    }
+    update_smoothing_params();
+  }
+
+#endif // FTM_SMOOTHING
+
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
 
@@ -493,6 +514,7 @@ int32_t FTMotion::stepperCmdBuffItems() {
 // Initializes storage variables before startup.
 void FTMotion::init() {
   update_shaping_params();
+  TERN_(FTM_SMOOTHING, update_smoothing_params());
   reset(); // Precautionary.
 }
 
