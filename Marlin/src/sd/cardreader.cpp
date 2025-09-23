@@ -1374,7 +1374,7 @@ void CardReader::cdroot() {
       return false;
     #endif
   }
-#include <utility>
+
   // Quicksort partition function.
   int16_t CardReader::_partition(uint8_t* arr, int16_t low, int16_t high) {
     int16_t pivotIndex = arr[high];
