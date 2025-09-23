@@ -284,10 +284,14 @@
 /**
  * SCARA cannot use SLOWDOWN and requires QUICKHOME
  * Printable radius assumes joints can fully extend
+ * 
+ * TPARA cannot use SLOWDOWN nor QUICKHOME
+ * Printable radius assumes joints can't fully extend
  */
 #if IS_SCARA
-  #if ENABLED(AXEL_TPARA)
-    #define PRINTABLE_RADIUS (TPARA_LINKAGE_1 + TPARA_LINKAGE_2)
+  #if ENABLED(AXEL_TPARA)    
+    #define PRINTABLE_RADIUS_2 HYPOT2(TPARA_LINKAGE_1, TPARA_LINKAGE_2) - 2*TPARA_LINKAGE_1* TPARA_LINKAGE_2 * cosf(TPARA_MAX_L1L2_ANGLE)
+    #define PRINTABLE_RADIUS SQRT(PRINTABLE_RADIUS_2)
   #else
     #define QUICK_HOME
     #define PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
