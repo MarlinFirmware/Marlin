@@ -1141,6 +1141,8 @@
 
   #define FEEDRATE_SCALING        // Convert XY feedrate from mm/s to degrees/s on the fly
 
+  #define INVERT_HOMING_AXIS_ORDER 1  // Need to invert homing axis order, to avoid tool or linkage crashes
+
   // Radius around the center where the arm cannot reach
   #define MIDDLE_DEAD_ZONE_R   100  // (mm)
 
