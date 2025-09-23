@@ -402,6 +402,11 @@ private:
 
     #endif // SDSORT_USES_RAM
 
+    static void flush_presort();
+    static bool _sort_cmp_files(const int16_t o1, const int16_t o2);
+    static int16_t _partition(uint8_t* arr, int16_t low, int16_t high);
+    static void _quicksort(uint8_t* arr, int16_t low, int16_t high);
+
   #endif // SDCARD_SORT_ALPHA
 
   //
@@ -424,10 +429,6 @@ private:
     MediaFile parent, const char * const prepend, const uint8_t lsflags
     OPTARG(LONG_FILENAME_HOST_SUPPORT, const char * const prependLong=nullptr)
   );
-
-  #if ENABLED(SDCARD_SORT_ALPHA)
-    static void flush_presort();
-  #endif
 };
 
 #else // !HAS_MEDIA
