@@ -89,7 +89,9 @@
 
   #if HAS_TMCX1X0
 
-    static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
@@ -148,7 +150,9 @@
 
   #if HAS_DRIVER(TMC2240)
 
-    static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2240Stepper &st) { return st.PWM_SCALE(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2240Stepper &st) {
       constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
@@ -207,7 +211,9 @@
 
   #if HAS_TMC220x
 
-    static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
@@ -242,7 +248,9 @@
 
   #if HAS_DRIVER(TMC2660)
 
-    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    #endif
 
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;

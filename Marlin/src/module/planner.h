@@ -271,10 +271,12 @@ typedef struct PlannerBlock {
   #endif
 
   // Advance extrusion
+  #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    bool use_advance_lead;
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      bool use_advance_lead;
-    #else
+    #if HAS_ROUGH_LIN_ADVANCE
       uint32_t la_advance_rate;             // The rate at which steps are added whilst accelerating
       uint8_t  la_scaling;                  // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
       uint16_t max_adv_steps,               // Max advance steps to get cruising speed pressure

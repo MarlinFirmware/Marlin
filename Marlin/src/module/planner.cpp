@@ -2379,7 +2379,7 @@ bool Planner::_populate_block(
   const float steps_per_mm = block->step_event_count * inverse_millimeters;
   block->steps_per_mm = steps_per_mm;
   uint32_t accel;
-  #if ENABLED(LIN_ADVANCE)
+  #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
     bool use_advance_lead = false;
   #endif
   if (!ANY_AXIS_MOVES(block)) {                                   // Is this a retract / recover move?
@@ -2403,7 +2403,7 @@ bool Planner::_populate_block(
     // Start with print or travel acceleration
     accel = CEIL((esteps ? settings.acceleration : settings.travel_acceleration) * steps_per_mm);
 
-    #if ENABLED(LIN_ADVANCE)
+    #if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
       // Linear advance is currently not ready for HAS_I_AXIS
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
@@ -2432,16 +2432,22 @@ bool Planner::_populate_block(
           use_advance_lead = false;
         else {
           #if HAS_ROUGH_LIN_ADVANCE
-            // Scale E acceleration so that it will be possible to jump to the advance speed.
-            const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
-            if (accel > max_accel_steps_per_s2) {
-              accel = max_accel_steps_per_s2;
-              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+            const bool limit_accel = TERN1(HAS_FTM_LIN_ADVANCE, !ftMotion.cfg.active);
+            if (limit_accel) {
+              // Scale E acceleration so that it will be possible to jump to the advance speed.
+              const uint32_t max_accel_steps_per_s2 = MAX_E_JERK(extruder) / (extruder_advance_K[E_INDEX_N(extruder)] * e_D_ratio) * steps_per_mm;
+              if (accel > max_accel_steps_per_s2) {
+                accel = max_accel_steps_per_s2;
+                if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
+              }
             }
           #endif
         }
+        #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+          block->use_advance_lead = use_advance_lead;
+        #endif
       }
-    #endif // LIN_ADVANCE
+    #endif // LIN_ADVANCE || FTM_HAS_LIN_ADVANCE
 
     // Limit acceleration per axis
     if (block->step_event_count <= acceleration_long_cutoff) {
@@ -2484,7 +2490,6 @@ bool Planner::_populate_block(
           SERIAL_ECHOLNPGM("eISR running at > 10kHz: ", block->la_advance_rate);
     }
   #elif ENABLED(SMOOTH_LIN_ADVANCE)
-    block->use_advance_lead = use_advance_lead;
     const uint32_t ratio = (uint64_t(block->steps.e) * _BV32(30)) / block->step_event_count;
     block->e_step_ratio_q30 = block->direction_bits.e ? ratio : -ratio;
 
