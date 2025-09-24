@@ -93,6 +93,7 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
   uint8_t FTMotion::block_extruder_axis;        // Cached E Axis from last-fetched block
 #elif HAS_EXTRUDERS
   constexpr uint8_t FTMotion::block_extruder_axis;
+  bool FTMotion::use_advance_lead;
 #endif
 
 // Shaping variables.
@@ -103,15 +104,14 @@ uint32_t FTMotion::interpIdx = 0;               // Index of current data point b
       , x:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
     #endif
     #if HAS_Y_AXIS
-      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 } // ena, d_zi[], Ai[], Ni[], max_i
+      , y:{ false, { 0.0f }, { 0.0f }, { 0 }, 0 }
     #endif
   };
 #endif
 
 #if HAS_EXTRUDERS
   // Linear advance variables.
-  float FTMotion::e_raw_z1 = 0.0f;        // (ms) Unit delay of raw extruder position.
-  float FTMotion::e_advanced_z1 = 0.0f;   // (ms) Unit delay of advanced extruder position.
+  float FTMotion::prev_traj_e = 0.0f;     // (ms) Unit delay of raw extruder position.
 #endif
 
 constexpr uint32_t BATCH_SIDX_IN_WINDOW = (FTM_WINDOW_SIZE) - (FTM_BATCH_SIZE); // Batch start index in window.
@@ -269,11 +269,8 @@ void FTMotion::loop() {
         Ai[2] = Ai[0] * K2;
 
         const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2]);
-        for (uint32_t i = 0U; i < 3U; i++) {
-          Ai[i] *= adj;
-        }
-      }
-      break;
+        for (uint32_t i = 0; i < 3U; i++) Ai[i] *= adj;
+      } break;
 
       case ftMotionShaper_2HEI: {
         max_i = 3U;
@@ -285,11 +282,8 @@ void FTMotion::loop() {
         Ai[3] = Ai[0] * K3;
 
         const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3]);
-        for (uint32_t i = 0U; i < 4U; i++) {
-          Ai[i] *= adj;
-        }
-      }
-      break;
+        for (uint32_t i = 0; i < 4U; i++) Ai[i] *= adj;
+      } break;
 
       case ftMotionShaper_3HEI: {
         max_i = 4U;
@@ -300,11 +294,8 @@ void FTMotion::loop() {
         Ai[4] = Ai[0] * K4;
 
         const float adj = 1.0f / (Ai[0] + Ai[1] + Ai[2] + Ai[3] + Ai[4]);
-        for (uint32_t i = 0U; i < 5U; i++) {
-          Ai[i] *= adj;
-        }
-      }
-      break;
+        for (uint32_t i = 0; i < 5U; i++) Ai[i] *= adj;
+      } break;
 
       case ftMotionShaper_MZV: {
         max_i = 2U;
@@ -358,13 +349,13 @@ void FTMotion::loop() {
 
   void FTMotion::update_shaping_params() {
     #if HAS_X_AXIS
-      if ((shaping.x.ena = AXIS_HAS_SHAPER(X))) {
+      if ((shaping.x.ena = AXIS_IS_SHAPING(X))) {
         shaping.x.set_axis_shaping_A(cfg.shaper.x, cfg.zeta.x, cfg.vtol.x);
         shaping.x.set_axis_shaping_N(cfg.shaper.x, cfg.baseFreq.x, cfg.zeta.x);
       }
     #endif
     #if HAS_Y_AXIS
-      if ((shaping.y.ena = AXIS_HAS_SHAPER(Y))) {
+      if ((shaping.y.ena = AXIS_IS_SHAPING(Y))) {
         shaping.y.set_axis_shaping_A(cfg.shaper.y, cfg.zeta.y, cfg.vtol.y);
         shaping.y.set_axis_shaping_N(cfg.shaper.y, cfg.baseFreq.y, cfg.zeta.y);
       }
@@ -397,7 +388,7 @@ void FTMotion::reset() {
     shaping.zi_idx = 0;
   #endif
 
-  TERN_(HAS_EXTRUDERS, e_raw_z1 = e_advanced_z1 = 0.0f);  // Reset linear advance variables.
+  TERN_(HAS_EXTRUDERS, prev_traj_e = 0.0f);  // Reset linear advance variables.
   TERN_(DISTINCT_E_FACTORS, block_extruder_axis = E_AXIS);
 
   axis_move_end_ti.reset();
@@ -548,6 +539,8 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
   endPos_prevBlock += moveDist;
 
+  TERN_(FTM_HAS_LIN_ADVANCE, use_advance_lead = current_block->use_advance_lead);
+
   // Watch endstops until the move ends
   const millis_t move_end_ti = millis() + SEC_TO_MS((FTM_TS) * float(max_intervals + num_samples_shaper_settle() + ((PROP_BATCHES) + 1) * (FTM_BATCH_SIZE)) + (float(FTM_STEPPERCMD_BUFF_SIZE) / float(FTM_STEPPER_FS)));
 
@@ -566,14 +559,10 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
   do {
     float tau = (traj_idx_get + 1) * (FTM_TS);            // (s) Time since start of block
     float dist = 0.0f;                                    // (mm) Distance traveled
-    #if HAS_EXTRUDERS
-      float accel_k = 0.0f;                               // (mm/s^2) Acceleration K factor
-    #endif
 
     if (traj_idx_get < N1) {
       // Acceleration phase
       dist = (f_s * tau) + (0.5f * accel_P * sq(tau));    // (mm) Distance traveled for acceleration phase since start of block
-      TERN_(HAS_EXTRUDERS, accel_k = accel_P);            // (mm/s^2) Acceleration K factor from Accel phase
     }
     else if (traj_idx_get < (N1 + N2)) {
       // Coasting phase
@@ -584,20 +573,20 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
       // Deceleration phase
       tau -= (N1 + N2) * (FTM_TS);                        // (s) Time since start of decel phase
       dist = s_2e + F_P * tau + 0.5f * decel_P * sq(tau); // (mm) Distance traveled for deceleration phase since start of block
-      TERN_(HAS_EXTRUDERS, accel_k = decel_P);            // (mm/s^2) Acceleration K factor from Decel phase
     }
 
     #define _SET_TRAJ(q) traj.q[traj_idx_set] = startPos.q + ratio.q * dist;
     LOGICAL_AXIS_MAP_LC(_SET_TRAJ);
 
-    #if HAS_EXTRUDERS
+    #if FTM_HAS_LIN_ADVANCE
       if (cfg.linearAdvEna) {
-        float dedt_adj = (traj.e[traj_idx_set] - e_raw_z1) * (FTM_FS);
-        if (ratio.e > 0.0f) dedt_adj += accel_k * cfg.linearAdvK * 0.0001f;
-
-        e_raw_z1 = traj.e[traj_idx_set];
-        e_advanced_z1 += dedt_adj * (FTM_TS);
-        traj.e[traj_idx_set] = e_advanced_z1;
+        float traj_e = traj.e[traj_idx_set];
+        if (use_advance_lead) {
+          // Don't apply LA to retract/unretract blocks
+          float e_rate = (traj_e - prev_traj_e) * (FTM_FS);
+          traj.e[traj_idx_set] += e_rate * cfg.linearAdvK;
+        }
+        prev_traj_e = traj_e;
       }
     #endif
 
@@ -663,6 +652,7 @@ void FTMotion::generateTrajectoryPointsFromBlock() {
         }
       #endif
       if (++shaping.zi_idx == (FTM_ZMAX)) shaping.zi_idx = 0;
+
     #endif // HAS_FTM_SHAPING
 
     // Filled up the queue with regular and shaped steps
