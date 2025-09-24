@@ -31,7 +31,7 @@ def write_opt_file(conf, outpath='Marlin/apply_config.sh'):
             if key in ('__INITIAL_HASH', 'VERSION'): continue
 
             # Other keys are assumed to be configs
-            if not type(val) is dict:
+            if not isinstance(val, dict):
                 continue
 
             # Write config commands to the script file
