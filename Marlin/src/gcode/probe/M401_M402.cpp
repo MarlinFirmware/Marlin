@@ -57,6 +57,19 @@ void GcodeSuite::M401() {
   report_current_position();
 }
 
+void GcodeSuite::M401_report(const bool forReplay/*=true*/) {
+  #if HAS_BLTOUCH_HS_MODE
+  if (!forReplay) {
+    report_heading_etc(forReplay, F("BLTouch HS mode"));
+    SERIAL_ECHOPGM_P(
+      PSTR("  M401 S"), bltouch.high_speed_mode,
+      PSTR("; "), ON_OFF(bltouch.high_speed_mode)
+    );
+    SERIAL_EOL();
+  }
+  #endif
+}
+
 /**
  * M402: Deactivate and stow the Z probe
  *  R<bool> Remain in place after stowing (and before deactivating) the probe
