@@ -21,7 +21,7 @@
  */
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ALL(FT_MOTION, FTM_SMOOTHING)
+#if ENABLED(FTM_SMOOTHING)
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"
@@ -131,4 +131,4 @@ void GcodeSuite::M494() {
   if (report) say_smoothing();
 }
 
-#endif // FT_MOTION && FTM_SMOOTHING
+#endif // FTM_SMOOTHING
