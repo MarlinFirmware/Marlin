@@ -249,7 +249,7 @@ void GcodeSuite::M493() {
     // Pressure control (linear advance) gain parameter.
     if (parser.seenval('K')) {
       const float val = parser.value_float();
-      if (val >= 0.0f) {
+      if (WITHIN(val, 0.0f, 10.0f)) {
         ftMotion.cfg.linearAdvK = val;
         flag.report = true;
       }
