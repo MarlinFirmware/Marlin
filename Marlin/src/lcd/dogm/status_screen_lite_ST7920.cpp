@@ -478,13 +478,7 @@ void ST7920_Lite_Status_Screen::draw_fan_icon(const bool whichIcon) {
 }
 
 void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool heating) {
-  set_ddram_address(
-    #if HOTENDS == 1
-      DDRAM_LINE_2
-    #else
-      DDRAM_LINE_3
-    #endif
-  );
+  set_ddram_address((HOTENDS < 2) ? DDRAM_LINE_2 : DDRAM_LINE_3);
   begin_data();
   if (heating)
     write_word(whichIcon ? CGRAM_ICON_1_WORD : CGRAM_ICON_2_WORD);
@@ -920,7 +914,7 @@ void ST7920_Lite_Status_Screen::update(const bool forceUpdate) {
   cs();
   update_indicators(forceUpdate);
   update_status_or_position(forceUpdate);
-  update_progress(forceUpdate);
+  TERN_(HAS_PRINT_PROGRESS, update_progress(forceUpdate));
   ncs();
 }
 

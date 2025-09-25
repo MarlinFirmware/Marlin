@@ -56,12 +56,14 @@ typedef struct FTConfig {
     #else
       static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
     #endif
+
   #endif // HAS_FTM_SHAPING
 
   #if HAS_EXTRUDERS
     bool linearAdvEna = FTM_LINEAR_ADV_DEFAULT_ENA;       // Linear advance enable configuration.
     float linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;          // Linear advance gain.
   #endif
+
 } ft_config_t;
 
 class FTMotion {
@@ -113,7 +115,7 @@ class FTMotion {
     static int32_t stepperCmdBuff_produceIdx,             // Index of next stepper command write to the buffer.
                    stepperCmdBuff_consumeIdx;             // Index of next stepper command read from the buffer.
 
-    static bool sts_stepperBusy;                          // The stepper buffer has items and is in use.
+    static bool stepperCmdBuffHasData;                    // The stepper buffer has items and is in use.
 
     static XYZEval<millis_t> axis_move_end_ti;
     static AxisBits axis_move_dir;
@@ -145,9 +147,9 @@ class FTMotion {
     static bool batchRdy, batchRdyForInterp;
 
     // Trapezoid data variables.
-    static xyze_pos_t   startPosn,          // (mm) Start position of block
-                        endPosn_prevBlock;  // (mm) End position of previous block
-    static xyze_float_t ratio;              // (ratio) Axis move ratio of block
+    static xyze_pos_t   startPos,         // (mm) Start position of block
+                        endPos_prevBlock; // (mm) End position of previous block
+    static xyze_float_t ratio;            // (ratio) Axis move ratio of block
     static float accel_P, decel_P,
                  F_P,
                  f_s,
@@ -160,19 +162,21 @@ class FTMotion {
     // Number of batches needed to propagate the current trajectory to the stepper.
     static constexpr uint32_t PROP_BATCHES = CEIL((FTM_WINDOW_SIZE) / (FTM_BATCH_SIZE)) - 1;
 
-    // Make vector variables.
-    static uint32_t makeVector_idx,
-                    makeVector_batchIdx;
+    // generateTrajectoryPointsFromBlock variables.
+    static uint32_t traj_idx_get,
+                    traj_idx_set;
 
     // Interpolation variables.
     static uint32_t interpIdx;
 
     static xyze_long_t steps;
+    static xyze_long_t step_error_q10;
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t block_extruder_axis;  // Cached extruder axis index
     #elif HAS_EXTRUDERS
       static constexpr uint8_t block_extruder_axis = E_AXIS;
+      static bool use_advance_lead;
     #endif
 
     // Shaping variables.
@@ -206,7 +210,7 @@ class FTMotion {
 
     // Linear advance variables.
     #if HAS_EXTRUDERS
-      static float e_raw_z1, e_advanced_z1;
+      static float prev_traj_e;
     #endif
 
     // Private methods
@@ -214,8 +218,8 @@ class FTMotion {
     static void runoutBlock();
     static int32_t stepperCmdBuffItems();
     static void loadBlockData(block_t *const current_block);
-    static void makeVector();
-    static void convertToSteps(const uint32_t idx);
+    static void generateTrajectoryPointsFromBlock();
+    static void generateStepsFromTrajectory(const uint32_t idx);
 
     FORCE_INLINE static int32_t num_samples_shaper_settle() { return ( shaping.x.ena || shaping.y.ena ) ? FTM_ZMAX : 0; }
 

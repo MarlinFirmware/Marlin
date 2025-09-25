@@ -3020,7 +3020,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
+        // Approximate Gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
@@ -3582,8 +3582,8 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
-    if (!ftMotion.sts_stepperBusy) return;
+    ftMotion.stepperCmdBuffHasData = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
+    if (!ftMotion.stepperCmdBuffHasData) return;
 
     // "Pop" one command from current motion buffer
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];
