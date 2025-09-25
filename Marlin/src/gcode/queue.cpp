@@ -672,7 +672,7 @@ void GCodeQueue::advance() {
         card.closefile();
         SERIAL_ECHOLNPGM(STR_FILE_SAVED);
 
-        #if !ALL(__AVR__, USBCON)
+        #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPGM("Dropped bytes: ", MYSERIAL1.dropped());
           #endif

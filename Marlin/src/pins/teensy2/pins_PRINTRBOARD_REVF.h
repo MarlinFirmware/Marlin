@@ -72,7 +72,7 @@
 
 #include "env_validate.h"
 
-#if NONE(__MARLIN_DEPS__, USBCON)
+#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
   #error "USBCON should be defined by the platform for this board."
 #endif
 
