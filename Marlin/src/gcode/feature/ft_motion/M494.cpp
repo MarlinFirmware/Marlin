@@ -19,8 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../../inc/MarlinConfig.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ALL(FT_MOTION, FTM_SMOOTHING)
 
@@ -68,7 +67,7 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
 /**
  * M494: Set Fixed-time Motion Control Smoothing parameters
  *
- * With FTM_SMOOTHING:
+ * Parameters:
  *    X<time> Set smoothing time for the X axis
  *    Y<time> Set smoothing time for the Y axis
  *    Z<time> Set smoothing time for the Z axis
