@@ -1191,6 +1191,13 @@
                                                 //     smoothing acceleration peaks, which may also smooth curved surfaces.
   #endif
 
+  #define FTM_TRYJECTORY_TYPE       TRAPEZOIDAL   // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
+                                                  // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+                                                  // POLY5:       Continuous Jerk. Peak acceleration is 1.5x the nominal setting.
+                                                  // POLY6:       Continuous Snap (aka S_CURVE). Peak acceleration is 2x the nominal setting.
+                                                  // POLY5 and 6 not only reduce resonances without rounding corners, but also
+                                                  // reduce extruder strain due to linear advance.
+
   /**
    * Advanced configuration
    */
