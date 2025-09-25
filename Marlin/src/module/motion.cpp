@@ -88,17 +88,14 @@ bool relative_mode; // = false
 // Warn for unexpected TPARA home position
 #if ENABLED(AXEL_TPARA)
   static_assert(
-      ABS(X_HOME_POS - (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)) < 0.01f,
-      "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)"
-  );
+    ABS(X_HOME_POS - (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)) < 0.01f,
+    "X_HOME_POS should be equal to (TPARA_ARM_X_HOME_POS + TPARA_TCP_OFFSET_X - TPARA_OFFSET_X)");
   static_assert(
-      ABS(Y_HOME_POS - (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)) < 0.01f,
-      "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)."
-  );
+    ABS(Y_HOME_POS - (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y)) < 0.01f,
+    "Y_HOME_POS should be equal to (TPARA_ARM_Y_HOME_POS + TPARA_TCP_OFFSET_Y - TPARA_OFFSET_Y).");
   static_assert(
-      ABS(Z_HOME_POS - (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)) < 0.01f,
-      "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)."
-  );
+    ABS(Z_HOME_POS - (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z)) < 0.01f,
+    "Z_HOME_POS should be equal to (TPARA_ARM_Z_HOME_POS + TPARA_TCP_OFFSET_Z - TPARA_OFFSET_Z).");
 #endif
 
 /**
@@ -202,8 +199,8 @@ xyz_pos_t cartes;
   // This offset is added to the configured home position.
   // Set by M206, M428, or menu item. Saved to EEPROM.
   xyz_pos_t home_offset{0};
-
 #endif
+
 #if HAS_WORKSPACE_OFFSET
   // The above two are combined to save on computes
   xyz_pos_t workspace_offset{0};
