@@ -234,7 +234,7 @@ float Planner::previous_nominal_speed;
   int32_t Planner::xy_freq_min_interval_us = LROUND(1000000.0f / (XY_FREQUENCY_LIMIT));
 #endif
 
-#if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+#if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_K[DISTINCT_E]; // Initialized by settings.load
   #if ENABLED(SMOOTH_LIN_ADVANCE)
     uint32_t Planner::extruder_advance_K_q27[DISTINCT_E];
@@ -2417,7 +2417,7 @@ bool Planner::_populate_block(
        */
       if (esteps && dm.e) {
         const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
-        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) extruder_advance_K[E_INDEX_N(extruder)];
+        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) TERN0(LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
             TERN(IS_KINEMATIC, block->millimeters,
