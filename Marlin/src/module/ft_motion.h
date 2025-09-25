@@ -198,31 +198,8 @@ class FTMotion {
       static bool use_advance_lead;
     #endif
 
-    // Smoothing variables.
     #if HAS_FTM_SHAPING
-      typedef struct AxisSmoothing {
-        float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
-        float alpha = 0.0f;               // Pre-calculated alpha for smoothing.
-        uint32_t delay_samples = 0;       // Pre-calculated delay in samples for smoothing.
-
-        void set_smoothing_time(const_float_t s_time); // Sets smoothing time and recalculates alpha and delay.
-      } axis_smoothing_t;
-
-    #endif
-
-    #if ENABLED(FTM_SMOOTHING)
-      typedef struct Smoothing {
-        TERN_(HAS_X_AXIS,    axis_smoothing_t x);
-        TERN_(HAS_Y_AXIS,    axis_smoothing_t y);
-        TERN_(HAS_Z_AXIS,    axis_smoothing_t z);
-        TERN_(HAS_EXTRUDERS, axis_smoothing_t e);
-      } smoothing_t;
-      static smoothing_t smoothing;       // Smoothing data
-    #endif
-
-    // Shaping variables.
-    #if HAS_FTM_SHAPING
-
+      // Shaping data
       typedef struct AxisShaping {
         bool ena = false;                 // Enabled indication
         float d_zi[FTM_ZMAX] = { 0.0f };  // Data point delay vector
@@ -237,15 +214,34 @@ class FTMotion {
 
       typedef struct Shaping {
         uint32_t zi_idx;           // Index of storage in the data point delay vectors.
-        TERN_(HAS_X_AXIS,   axis_shaping_t x);
-        TERN_(HAS_Y_AXIS,   axis_shaping_t y);
-        TERN_(FTM_SHAPER_Z, axis_shaping_t z);
-        TERN_(FTM_SHAPER_E, axis_shaping_t e);
+        OPTCODE(HAS_X_AXIS,   axis_shaping_t x)
+        OPTCODE(HAS_Y_AXIS,   axis_shaping_t y)
+        OPTCODE(FTM_SHAPER_Z, axis_shaping_t z)
+        OPTCODE(FTM_SHAPER_E, axis_shaping_t e)
       } shaping_t;
 
       static shaping_t shaping; // Shaping data
 
     #endif // HAS_FTM_SHAPING
+
+    #if ENABLED(FTM_SMOOTHING)
+      // Smoothing data for each axis
+      typedef struct AxisSmoothing {
+        float smoothing_pass[FTM_SMOOTHING_ORDER] = { 0.0f }; // Last value of each of the exponential smoothing passes
+        float alpha = 0.0f;               // Pre-calculated alpha for smoothing.
+        uint32_t delay_samples = 0;       // Pre-calculated delay in samples for smoothing.
+        void set_smoothing_time(const_float_t s_time); // Set smoothing time, recalculate alpha and delay.
+      } axis_smoothing_t;
+
+      // Smoothing data for XYZE axes
+      typedef struct Smoothing {
+        OPTCODE(HAS_X_AXIS,    axis_smoothing_t x)
+        OPTCODE(HAS_Y_AXIS,    axis_smoothing_t y)
+        OPTCODE(HAS_Z_AXIS,    axis_smoothing_t z)
+        OPTCODE(HAS_EXTRUDERS, axis_smoothing_t e)
+      } smoothing_t;
+      static smoothing_t smoothing;       // Smoothing data
+    #endif
 
     // Linear advance variables.
     #if HAS_EXTRUDERS

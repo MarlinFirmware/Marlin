@@ -386,17 +386,19 @@ void FTMotion::loop() {
     for (uint8_t i = 1; i <= max_i; ++i) Ni[i] += Ni[0];
   }
 
-  // Set smoothing time and recalculate alpha and delay.
-  void FTMotion::AxisSmoothing::set_smoothing_time(const_float_t s_time) {
-    if (s_time > 0.001f) {
-      alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
-      delay_samples = s_time * FTM_FS;
+  #if ENABLED(FTM_SMOOTHING)
+    // Set smoothing time and recalculate alpha and delay.
+    void FTMotion::AxisSmoothing::set_smoothing_time(const_float_t s_time) {
+      if (s_time > 0.001f) {
+        alpha = 1.0f - expf(-(FTM_TS) * (FTM_SMOOTHING_ORDER) / s_time );
+        delay_samples = s_time * FTM_FS;
+      }
+      else {
+        alpha = 0.0f;
+        delay_samples = 0;
+      }
     }
-    else {
-      alpha = 0.0f;
-      delay_samples = 0;
-    }
-  }
+  #endif
 
   void FTMotion::update_shaping_params() {
     #define UPDATE_SHAPER(A) \
