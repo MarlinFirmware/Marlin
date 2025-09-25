@@ -403,10 +403,10 @@ private:
     #endif // SDSORT_USES_RAM
 
     static void flush_presort();
-    static bool _sort_cmp_files(const int16_t o1, const int16_t o2);
-    static int16_t _partition(uint8_t* arr, int16_t low, int16_t high);
-    static void _quicksort(uint8_t* arr, int16_t low, int16_t high);
-
+    static bool sort_cmp_files(const int16_t o1, const int16_t o2);
+    static int16_t partition(uint8_t* arr, int16_t low, int16_t high);
+    static void quicksort(uint8_t* arr, int16_t low, int16_t high);
+    static void bubblesort(uint8_t* arr, int16_t fileCnt);
   #endif // SDCARD_SORT_ALPHA
 
   //
