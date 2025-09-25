@@ -530,7 +530,7 @@ class Planner {
       static constexpr bool leveling_active = false;
     #endif
 
-    #if ANY(LIN_ADVANCE)
+    #if ENABLED(LIN_ADVANCE)
       static float extruder_advance_K[DISTINCT_E];
       static void set_advance_k(const_float_t k, const uint8_t e=active_extruder) {
         UNUSED(e);
