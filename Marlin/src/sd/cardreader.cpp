@@ -1426,6 +1426,10 @@ void CardReader::cdroot() {
         bool didSwap = false;
         int16_t o1 = arr[0];
         #if DISABLED(SDSORT_USES_RAM)
+          // By default re-read the names from SD for every compare
+          // retaining only two filenames at a time. This is very
+          // slow but is safest and uses minimal RAM.
+          char name1[LONG_FILENAME_LENGTH];
           selectFileByIndex(o1);              // Pre-fetch the first entry and save it
           strcpy(name1, longest_filename());  // so the loop only needs one fetch
           #if HAS_FOLDER_SORTING
@@ -1541,13 +1545,6 @@ void CardReader::cdroot() {
             uint8_t isDir[(fileCnt + 7) >> 3];        // Use stack in this scope
           #endif
         #endif
-
-      #else // !SDSORT_USES_RAM
-
-        // By default re-read the names from SD for every compare
-        // retaining only two filenames at a time. This is very
-        // slow but is safest and uses minimal RAM.
-        char name1[LONG_FILENAME_LENGTH];
 
       #endif
 
