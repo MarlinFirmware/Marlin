@@ -282,7 +282,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     cartes = calculated_fk + robot_shoulder_offset + tool_offset - robot_workspace_offset;
 
     // SERIAL_ECHOLNPGM("TPARA FK Theta:", a, " Phi: ", b, " Psi: ", c , " Calculated X':", calculated_fk.x, " Y':", calculated_fk.y, " Z':", calculated_fk.z, " Workspace X:", cartes.x, " Y:", cartes.y, " Z:", cartes.z);
-    
+
   }
 
   // Home YZ together, then X (or all at once). Based on quick_home_xy & home_delta
@@ -293,10 +293,10 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     sync_plan_position();
 
     // SERIAL_ECHOLNPGM("Reset and sync position to the asumed start pose of the robot" );
-    // Set the asumed start pose of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle 
-    const xyz_pos_t asumed_intial_pose = {L2, 0, 0}; 
+    // Set the asumed start pose of the robot for homing, so it home ZY axis at same time preserving the B and C motor angle
+    const xyz_pos_t asumed_intial_pose = {L2, 0, 0};
     xyz_pos_t intial_pose_w_offset = apply_T_W_offset(asumed_intial_pose);
- 
+
     current_position.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
     destination.set(intial_pose_w_offset.x, intial_pose_w_offset.y, intial_pose_w_offset.z);
     sync_plan_position();
@@ -354,7 +354,7 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
     // give the impression that they are the same.
     LOOP_NUM_AXES(i) set_axis_is_at_home((AxisEnum)i);
 
-    // SERIAL_ECHOLNPGM("Sync_plan_position after home");      
+    // SERIAL_ECHOLNPGM("Sync_plan_position after home");
     sync_plan_position();
   }
 
@@ -389,9 +389,9 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
                 PSI = PHI + GAMMA;
 
     delta.set(DEGREES(THETA), DEGREES(PHI), DEGREES(PSI));
-    
+
     // SERIAL_ECHOLNPGM(" TPARA IK raw(x,y,z) ", raw.x, ",", raw.y, ",", raw.z, " Robot pose(x,y,z) ", tpos.x, ",", tpos.y, ",", tpos.z + robot_shoulder_offset.z, " Rho^2=", RHO_2, " Theta=", THETA*RAD_TO_DEG, " Phi=", PHI*RAD_TO_DEG, " Psi=", PSI*RAD_TO_DEG, " Gamma=", GAMMA*RAD_TO_DEG);
- 
+
   }
 
 #endif
