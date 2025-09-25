@@ -1438,7 +1438,7 @@ void CardReader::cdroot() {
           #if HAS_FOLDER_SORTING
             bool dir1 = flag.filenameIsDir;
           #endif
-          if (i & 0x7 == 0) hal.watchdog_refresh();
+          if ((i & 0x7) == 7) hal.watchdog_refresh();
         #endif
 
         for (int16_t j = 0; j < i; ++j) {
@@ -1466,7 +1466,7 @@ void CardReader::cdroot() {
             selectFileByIndex(o2);
             const bool dir2 = flag.filenameIsDir;
             char * const name2 = longest_filename(); // use the string in-place
-            if (i & 0x7 == 0) hal.watchdog_refresh()
+            if ((i & 0x7) == 7) hal.watchdog_refresh()
           #endif
 
           // Sort the current pair according to settings.
@@ -1514,7 +1514,7 @@ void CardReader::cdroot() {
     // Throw away old sort index
     flush_presort();
 
-    const int16_t fileCnt = get_num_items();
+    int16_t fileCnt = get_num_items();
 
     // Sorting may be turned off
     if (TERN0(SDSORT_GCODE, sort_alpha == AS_OFF)) return;
@@ -1573,7 +1573,7 @@ void CardReader::cdroot() {
               if (flag.filenameIsDir) SBI(isDir[ind], bit);
             #endif
           #endif
-          if (i & 0x7 == 7) hal.watchdog_refresh();
+          if ((i & 0x7) == 7) hal.watchdog_refresh();
         }
 
         // Sorting Algorithm
