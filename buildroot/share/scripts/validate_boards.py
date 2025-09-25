@@ -55,7 +55,7 @@ def boards_checks(argv):
     #
     # Examine boards.h to check the formatting of the file
     #
-    last_number, last_groun = (-1, -1)
+    last_number, last_group = (-1, -1)
 
     for board, number, comment in boards:
         logmsg('Checking:', board)

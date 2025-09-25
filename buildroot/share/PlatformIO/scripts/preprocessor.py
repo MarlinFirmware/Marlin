@@ -37,7 +37,6 @@ def run_preprocessor(env, fn=None):
 
     cmd += ['-D__MARLIN_DEPS__', '-w', '-dM', '-E', '-x', 'c++', filename]
     blab(' '.join(cmd))
-
     try:
         define_list = subprocess.check_output(cmd).splitlines()
     except:
