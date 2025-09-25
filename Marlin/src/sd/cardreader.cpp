@@ -1333,70 +1333,58 @@ void CardReader::cdroot() {
       const bool sort = strcasecmp(n1, n2) > 0;
       return (TERN(SDSORT_GCODE, sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
     };
+
     #if ENABLED(SDSORT_USES_RAM)
-      if (
-        #if HAS_FOLDER_SORTING
-          #if ENABLED(SDSORT_GCODE)
-            card.sort_folders ? (IS_DIR(o1) == IS_DIR(o2) ? _sort_cmp_file(card.sortnames[o1], card.sortnames[o2]) : IS_DIR(card.sort_folders > 0 ? o1 : o2)) : _sort_cmp_file(card.sortnames[o1], card.sortnames[o2])
-          #else
-            (IS_DIR(o1) == IS_DIR(o2) ? _sort_cmp_file(card.sortnames[o1], card.sortnames[o2]) : IS_DIR(SDSORT_FOLDERS > 0 ? o1 : o2))
-          #endif
-        #else
-          _sort_cmp_file(card.sortnames[o1], card.sortnames[o2])
-        #endif
-      ) {
-        return true;
-      }
-      return false;
+      const bool dir1 = IS_DIR(o1);
+      const bool dir2 = IS_DIR(o2);
+      const char* name1 = card.sortnames[o1];
+      const char* name2 = card.sortnames[o2];
     #else // !SDSORT_USES_RAM
       // Re-read names for comparison. This is the least RAM-intensive method.
       card.selectFileByIndex(o1);
-      char name1[LONG_FILENAME_LENGTH];
-      strcpy(name1, card.longest_filename());
+      char name1_buffer[LONG_FILENAME_LENGTH];
+      strcpy(name1_buffer, card.longest_filename());
+      const char* name1 = name1_buffer;
       const bool dir1 = card.flag.filenameIsDir;
 
       card.selectFileByIndex(o2);
       const char* name2 = card.longest_filename();
       const bool dir2 = card.flag.filenameIsDir;
-      if (
-        #if HAS_FOLDER_SORTING
-          #if ENABLED(SDSORT_GCODE)
-            card.sort_folders ? ((dir1 == dir2) ? _sort_cmp_file(name1, name2) : (card.sort_folders > 0 ? dir1 : !dir1)) : _sort_cmp_file(name1, name2)
-          #else
-            ((dir1 == dir2) ? _sort_cmp_file(name1, name2) : (SDSORT_FOLDERS > 0 ? dir1 : !dir1))
-          #endif
-        #else
-          _sort_cmp_file(name1, name2)
-        #endif
-      ) {
-        return true;
-      }
-      return false;
     #endif
+
+    #if HAS_FOLDER_SORTING
+      #if ENABLED(SDSORT_GCODE)
+        if (card.sort_folders) {
+          if (dir1 != dir2) {
+            return (card.sort_folders > 0) ? dir1 : !dir1;
+          }
+        }
+      #else
+        if (dir1 != dir2) {
+          return (SDSORT_FOLDERS > 0) ? dir1 : !dir1;
+        }
+      #endif
+    #endif
+
+    return _sort_cmp_file(name1, name2);
   }
 
-  // Quicksort partition function.
   int16_t CardReader::_partition(uint8_t* arr, int16_t low, int16_t high) {
     int16_t pivotIndex = arr[high];
     int16_t i = (low - 1);
 
-    for (int16_t j = low; j <= high - 1; j++) {
-        if (_sort_cmp_files(arr[j], pivotIndex)) {
-            i++;
-            // Manual swap
-            uint8_t temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-            // std::swap gives an error here
-            // std::swap(arr[i], arr[j]);
-        }
+    for (int16_t j = low; j < high; j++) {
+      if (_sort_cmp_files(arr[j], pivotIndex)) {
+        i++;
+        uint8_t temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+      }
     }
     // Manual swap
     uint8_t temp = arr[i + 1];
     arr[i + 1] = arr[high];
     arr[high] = temp;
-    // std::swap gives an error here
-    // std::swap(arr[i + 1], arr[high]);
     return (i + 1);
   }
 
