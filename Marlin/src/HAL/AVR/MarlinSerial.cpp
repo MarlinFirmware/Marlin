@@ -645,7 +645,7 @@ MSerialT1 customizedSerial1(MSerialT1::HasEmergencyParser);
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
 // For AT90USB targets use the UART for BT interfacing
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if ALL(USBCON, BLUETOOTH)
   MSerialBT bluetoothSerial(false);
 #endif
 

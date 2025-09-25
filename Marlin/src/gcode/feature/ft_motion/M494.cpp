@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(FT_MOTION) && ENABLED(FTM_SMOOTHING)
+#if ALL(FT_MOTION, FTM_SMOOTHING)
 
 #include "../../gcode.h"
 #include "../../../module/ft_motion.h"

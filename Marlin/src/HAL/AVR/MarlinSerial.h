@@ -284,7 +284,7 @@
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if ALL(USBCON, BLUETOOTH)
   typedef Serial1Class<HardwareSerial> MSerialBT;
   extern MSerialBT bluetoothSerial;
 #endif

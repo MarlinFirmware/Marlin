@@ -64,7 +64,7 @@ void GcodeSuite::M111() {
   }
   else {
     SERIAL_ECHOPGM(STR_DEBUG_OFF);
-    #if !(defined(__AVR__) && defined(USBCON))
+    #if !ALL(__AVR__, USBCON)
       #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
         SERIAL_ECHOPGM("\nBuffer Overruns: ", MYSERIAL1.buffer_overruns());
       #endif
