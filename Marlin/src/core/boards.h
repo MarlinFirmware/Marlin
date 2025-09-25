@@ -185,6 +185,7 @@
 #define BOARD_MALYAN_M180             1332  // Malyan M180 Mainboard Version 2 (no display function, direct G-code only)
 #define BOARD_PROTONEER_CNC_SHIELD_V3 1333  // Mega controller & Protoneer CNC Shield V3.00
 #define BOARD_WEEDO_62A               1334  // WEEDO 62A board (TINA2, Monoprice Cadet, etc.)
+#define BOARD_WANHAO_D9               1335  // Wanhao D9 MK2
 
 //
 // ATmega1281, ATmega2561
