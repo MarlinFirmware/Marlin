@@ -335,18 +335,12 @@ xyz_pos_t apply_T_W_offset(const xyz_pos_t &rpose) {
 
     // At least one motor has reached its endstop.
     // Now re-home each motor separately.
-    #if ENABLED (INVERT_HOMING_AXIS_ORDER) 
-      homeaxis(C_AXIS);
-      homeaxis(B_AXIS);
-      homeaxis(A_AXIS);
-  
-      // SERIAL_ECHOLNPGM("current_position After Homeaxis: ", current_position.x, ", ", current_position.y, ", ", current_position.z);     
-    
-    #else 
-      homeaxis(A_AXIS);
-      homeaxis(B_AXIS);
-      homeaxis(C_AXIS);
-    #endif
+    TERN_(HOME_Z_FIRST, homeaxis(C_AXIS));
+    homeaxis(TERN(HOME_Y_BEFORE_X, B_AXIS, A_AXIS));
+    homeaxis(TERN(HOME_Y_BEFORE_X, A_AXIS, B_AXIS));
+    IF_DISABLED(HOME_Z_FIRST, homeaxis(C_AXIS));
+
+    //SERIAL_ECHOLNPGM("current_position After Homeaxis: ", current_position.x, ", ", current_position.y, ", ", current_position.z);
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
