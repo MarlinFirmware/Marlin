@@ -1328,6 +1328,7 @@ void CardReader::cdroot() {
   #endif
 
   #if ENABLED(SDSORT_QUICK)
+
     // Quick Sort
     bool CardReader::sort_cmp_files(const int16_t o1, const int16_t o2) {
       auto _sort_cmp_file = [](const char *const n1, const char *const n2) -> bool {
@@ -1419,7 +1420,9 @@ void CardReader::cdroot() {
         }
       }
     }
-  #else
+
+  #else // !SDSORT_QUICK
+
     // Bubble Sort
     void CardReader::bubblesort(uint8_t* arr, int16_t fileCnt) {
       for (int16_t i = fileCnt; --i;) {
@@ -1435,6 +1438,7 @@ void CardReader::cdroot() {
           #if HAS_FOLDER_SORTING
             bool dir1 = flag.filenameIsDir;
           #endif
+          if (i & 0x7 == 0) hal.watchdog_refresh();
         #endif
 
         for (int16_t j = 0; j < i; ++j) {
@@ -1462,7 +1466,8 @@ void CardReader::cdroot() {
             selectFileByIndex(o2);
             const bool dir2 = flag.filenameIsDir;
             char * const name2 = longest_filename(); // use the string in-place
-          #endif // !SDSORT_USES_RAM
+            if (i & 0x7 == 0) hal.watchdog_refresh()
+          #endif
 
           // Sort the current pair according to settings.
           if (
@@ -1494,7 +1499,8 @@ void CardReader::cdroot() {
         if (!didSwap) break;
       }
     }
-  #endif // SDSORT_QUICK
+
+  #endif // !SDSORT_QUICK
 
   /**
    * Read all the files and produce a sort key
@@ -1508,7 +1514,7 @@ void CardReader::cdroot() {
     // Throw away old sort index
     flush_presort();
 
-    int16_t fileCnt = get_num_items();
+    const int16_t fileCnt = get_num_items();
 
     // Sorting may be turned off
     if (TERN0(SDSORT_GCODE, sort_alpha == AS_OFF)) return;
@@ -1567,6 +1573,7 @@ void CardReader::cdroot() {
               if (flag.filenameIsDir) SBI(isDir[ind], bit);
             #endif
           #endif
+          if (i & 0x7 == 7) hal.watchdog_refresh();
         }
 
         // Sorting Algorithm
