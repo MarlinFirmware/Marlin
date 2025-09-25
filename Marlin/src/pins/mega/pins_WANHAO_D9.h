@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2025 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -33,7 +33,7 @@
 #endif
 
 #define BOARD_INFO_NAME      "Wanhao D9 MK2"
-#define DEFAULT_MACHINE_NAME "Wanhao D9 MK2"
+#define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #define BOARD_WEBSITE_URL    "wanhao.store"
 
 #define LARGE_FLASH true
@@ -41,9 +41,15 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                             54
-#define Y_MIN_PIN                             24
-#define Z_MIN_PIN                              6
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                           54
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN                           24
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                            6
+#endif
 
 //
 // Steppers
@@ -101,29 +107,35 @@
 //
 // Filament Runout Sensor
 //
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                       8
 #endif
 
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
-  #define LCD_PINS_RS                         37
-  #define LCD_PINS_ENABLE                     36
-  #define LCD_PINS_D4                         34
-  #define LCD_PINS_D5                         35
-  #define LCD_PINS_D6                         32
-  #define LCD_PINS_D7                         33
-  #define BEEPER_PIN                          27
-  #define BTN_EN1                             29
-  #define BTN_EN2                             28
-  #define BTN_ENC                             30
-#endif
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                          27  // EXP1-1
+
+  #define LCD_PINS_RS                         37  // EXP1-4
+  #define LCD_PINS_EN                         36  // EXP1-8
+
+  #define LCD_PINS_D4                         34  // EXP1-4
+  #define LCD_PINS_D5                         35  // EXP1-6
+  #define LCD_PINS_D6                         32  // EXP1-7
+  #define LCD_PINS_D7                         33  // EXP1-8
+
+  #define BTN_ENC                             30  // EXP1-2
+  #define BTN_EN1                             29  // EXP1-3 or EXP2-3
+  #define BTN_EN2                             28  // EXP1-5 or EXP2-5
+#endif // HAS_WIRED_LCD
 
 //
 // Power Loss Recovery
 //
-#ifdef FYS_SAFE_PRINT_BREAK
-  #define POW_BREAK_CHECK_PIN                 63
+#ifndef POWER_LOSS_PIN
+  #define POWER_LOSS_PIN                      63
+#endif
+#ifndef POWER_LOSS_STATE
+  #define POWER_LOSS_STATE                   LOW
 #endif
