@@ -126,6 +126,12 @@ if pioutil.is_pio_build():
         rm_ofile("inc", "Warnings")
 
         #
+        # Renew date/time
+        #
+        rm_ofile("gcode/host", "M115")
+        rm_ofile("lcd/menu", "menu_info")
+
+        #
         # Rebuild 'settings.cpp' for EEPROM_INIT_NOW
         #
         if 'EEPROM_INIT_NOW' in env['MARLIN_FEATURES']:
@@ -136,7 +142,7 @@ if pioutil.is_pio_build():
         #
         mixedin = []
         p = project_dir / "Marlin/src/lcd/dogm"
-        for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h" ]:
+        for f in [ "ultralcd_DOGM.cpp", "ultralcd_DOGM.h", "u8g_dev_ssd1306_sh1106_128x64_I2C.cpp", "u8g_dev_ssd1309_12864.cpp", "u8g_dev_st7565_64128n_HAL.cpp", "u8g_dev_st7920_128x64_HAL.cpp", "u8g_dev_tft_upscale_from_128x64.cpp", "u8g_dev_uc1701_mini12864_HAL.cpp", "ultralcd_st7920_u8glib_rrd_AVR.cpp" ]:
             if (p / f).is_file():
                 mixedin += [ f ]
         p = project_dir / "Marlin/src/feature/bedlevel/abl"

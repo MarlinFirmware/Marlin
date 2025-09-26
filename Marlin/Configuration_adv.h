@@ -1081,11 +1081,26 @@
   #define G34_MAX_GRADE              5    // (%) Maximum incline that G34 will handle
   #define Z_STEPPER_ALIGN_ITERATIONS 5    // Number of iterations to apply during alignment
   #define Z_STEPPER_ALIGN_ACC        0.02 // Stop iterating early if the accuracy is better than this
+
   #define RESTORE_LEVELING_AFTER_G34      // Restore leveling after G34 is done?
+
   // After G34, re-home Z (G28 Z) or just calculate it from the last probe heights?
   // Re-homing might be more precise in reproducing the actual 'G28 Z' homing height, especially on an uneven bed.
   #define HOME_AFTER_G34
-#endif
+
+  /**
+   * Commands to execute at the start of G34 probing,
+   * after switching to the PROBING_TOOL.
+   */
+  //#define EVENT_GCODE_BEFORE_G34 "M300 P440 S200"
+
+  /**
+   * Commands to execute at the end of G34 probing.
+   * Useful to retract or move the Z probe out of the way.
+   */
+  //#define EVENT_GCODE_AFTER_G34 "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+
+#endif // Z_STEPPER_AUTO_ALIGN
 
 /**
  * Assisted Tramming
@@ -1135,16 +1150,18 @@
 #if ENABLED(FT_MOTION)
   //#define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
   #define FTM_DEFAULT_DYNFREQ_MODE dynFreqMode_DISABLED // Default mode of dynamic frequency calculation. (DISABLED, Z_BASED, MASS_BASED)
-  #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
-  #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
-  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
-  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
+
   #define FTM_LINEAR_ADV_DEFAULT_ENA   false      // Default linear advance enable (true) or disable (false)
   #define FTM_LINEAR_ADV_DEFAULT_K      0.0f      // Default linear advance gain. (Acceleration-based scaling factor.)
-  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
-  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
 
+  #define FTM_DEFAULT_SHAPER_X      ftMotionShaper_NONE // Default shaper mode on X axis (NONE, ZV, ZVD, ZVDD, ZVDDD, EI, 2HEI, 3HEI, MZV)
+  #define FTM_SHAPING_DEFAULT_FREQ_X   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_X            0.1f      // Zeta used by input shapers for X axis
   #define FTM_SHAPING_V_TOL_X           0.05f     // Vibration tolerance used by EI input shapers for X axis
+
+  #define FTM_DEFAULT_SHAPER_Y      ftMotionShaper_NONE // Default shaper mode on Y axis
+  #define FTM_SHAPING_DEFAULT_FREQ_Y   37.0f      // (Hz) Default peak frequency used by input shapers
+  #define FTM_SHAPING_ZETA_Y            0.1f      // Zeta used by input shapers for Y axis
   #define FTM_SHAPING_V_TOL_Y           0.05f     // Vibration tolerance used by EI input shapers for Y axis
 
   //#define FT_MOTION_MENU                        // Provide a MarlinUI menu to set M493 parameters
@@ -1177,7 +1194,6 @@
   #endif
 
   #define FTM_STEPS_PER_UNIT_TIME (FTM_STEPPER_FS / FTM_FS)       // Interpolated stepper commands per unit time
-  #define FTM_CTS_COMPARE_VAL (FTM_STEPS_PER_UNIT_TIME / 2)       // Comparison value used in interpolation algorithm
   #define FTM_MIN_TICKS ((STEPPER_TIMER_RATE) / (FTM_STEPPER_FS)) // Minimum stepper ticks between steps
 
   #define FTM_MIN_SHAPE_FREQ           10         // Minimum shaping frequency
@@ -1188,7 +1204,7 @@
                                                   //   ZVD, MZV : FTM_RATIO
                                                   //   2HEI     : FTM_RATIO * 3 / 2
                                                   //   3HEI     : FTM_RATIO * 2
-#endif
+#endif // FT_MOTION
 
 /**
  * Input Shaping
@@ -1394,7 +1410,7 @@
  * Multi-stepping sends steps in bursts to reduce MCU usage for high step-rates.
  * This allows higher feedrates than the MCU could otherwise support.
  */
-#define MULTISTEPPING_LIMIT   16  //: [1, 2, 4, 8, 16, 32, 64, 128]
+#define MULTISTEPPING_LIMIT   16  // :[1, 2, 4, 8, 16, 32, 64, 128]
 
 /**
  * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
@@ -3031,12 +3047,11 @@
   #define INTERPOLATE      true
 
   #if HAS_DRIVER(TMC2240)
-    #define TMC2240_CURRENT_RANGE   1   // RMS: { 0:'690mA', 1:'1410mA', 2:'2120mA', 3:'2110mA' }
-                                        // PEAK:{ 0:'1A', 1:'2A', 2:'3A', 3:'3A' }
-                                        // Determines max current. Lower is more internal current resolution. Higher runs cooler.
-    #define TMC2240_Rref        12000   // ('rref', 12000, minval=12000, maxval=60000)
-    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/us', 1:'200V/us', 2:'400V/us', 3:'800V/us' }
-                                        // Lower is more silent. Higher runs cooler.
+    #define TMC2240_RREF        12000   // (Ω) 12000 .. 60000. (FLY TMC2240 = 12300)
+    // Max Current. Lower for more internal resolution. Raise to run cooler.
+    #define TMC2240_CURRENT_RANGE   1   // :{ 0:'RMS=690mA PEAK=1A', 1:'RMS=1410mA PEAK=2A', 2:'RMS=2120mA PEAK=3A', 3:'RMS=2110mA PEAK=3A' }
+    // Slope Control: Lower is more silent. Higher runs cooler.
+    #define TMC2240_SLOPE_CONTROL   0   // :{ 0:'100V/µs', 1:'200V/µs', 2:'400V/µs', 3:'800V/µs' }
   #endif
 
   #if AXIS_IS_TMC_CONFIG(X)
@@ -3467,7 +3482,7 @@
    * X/Y/Z_STALL_SENSITIVITY is the default stall threshold.
    * Use M914 X Y Z to set the stall threshold at runtime:
    *
-   *  Sensitivity  TMC2209/2240   Others
+   *  Sensitivity  TMC2209        Others
    *    HIGHEST        255         -64    (Too sensitive => False positive)
    *    LOWEST          0           63    (Too insensitive => No trigger)
    *
@@ -3486,7 +3501,7 @@
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
 
   #if ANY(SENSORLESS_HOMING, SENSORLESS_PROBING)
-    // TMC2209/2240: 0...255. TMC2130: -64...63
+    // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  8
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  8
@@ -3503,6 +3518,7 @@
     //#define W_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130, TMC2240, and TMC5160
     //#define IMPROVE_HOMING_RELIABILITY
+    //#define SENSORLESS_STALLGUARD_DELAY   0 // (ms) Delay to allow drivers to settle
   #endif
 
   // @section tmc/config
@@ -4002,7 +4018,7 @@
 #endif
 
 /**
- * M115 - Report capabilites. Disable to save ~1150 bytes of flash.
+ * M115 - Report capabilities. Disable to save ~1150 bytes of flash.
  *        Some hosts (and serial TFT displays) rely on this feature.
  */
 #define CAPABILITIES_REPORT

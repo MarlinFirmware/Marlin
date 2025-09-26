@@ -1144,9 +1144,9 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char *title) {
   // title
   lv_obj_t *titleLabel = nullptr;
   if (!title)
-    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
+    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, creat_title_text());
   else if (title[0] != '\0')
-    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
+    titleLabel = lv_label_create(scr, TITLE_POS_X, TITLE_POS_Y, title);
   if (titleLabel)
     lv_obj_set_style(titleLabel, &tft_style_label_rel);
 

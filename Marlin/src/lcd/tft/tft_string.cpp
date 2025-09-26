@@ -122,7 +122,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
 }
 
 glyph_t *TFT_String::glyph(uint16_t character) {
-  if (character == 0x2026) character = 0x0a;  /* character 0x2026 "…" is remaped to 0x0a and should be part of symbols font */
+  if (character == 0x2026) character = 0x0a;  /* character 0x2026 "…" is remapped to 0x0a and should be part of symbols font */
   if (character < 0x00ff) return glyphs[character] ?: glyphs['?'];    /* Use '?' for unknown glyphs */
 
   #if EXTRA_GLYPHS

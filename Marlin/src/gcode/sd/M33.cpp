@@ -28,7 +28,9 @@
 #include "../../sd/cardreader.h"
 
 /**
- * M33: Get the long full path of a file or folder
+ * M33: Get Long Path
+ *
+ * Get the long full path of a file or folder
  *
  * Parameters:
  *   <dospath> Case-insensitive DOS-style path to a file or folder
