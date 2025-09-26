@@ -251,7 +251,7 @@ inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR
 }
 
 template<typename T>
-inline void SERIAL_ECHO_NUM(T num, int digits) {
+inline void SERIAL_ECHO_NUM(T num, const uint8_t digits) {
   switch (digits) {
     case 6: if (num < 100000) SERIAL_CHAR(' ');
     case 5: if (num < 10000)  SERIAL_CHAR(' ');
