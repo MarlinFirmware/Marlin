@@ -528,7 +528,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = (GRID_PREF_POINTS_Y - 1) - y_plot; // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = GRID_PREF_POINTS_Y - 1 - y_plot; // The origin is typically in the lower right corner.  We need to
                                                                     // invert the Y to get it to plot in the right location.
 
       const dwin_coord_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;

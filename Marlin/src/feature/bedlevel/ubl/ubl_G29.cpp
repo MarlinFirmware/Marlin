@@ -780,8 +780,8 @@ void unified_bed_leveling::shift_mesh_height(const float zoffs) {
     do {
       if (do_ubl_mesh_map) display_map(param.T_map_type);
 
-      const grid_count_t point_num = (GRID_PREF_POINTS - count) + 1;
-      SERIAL_ECHOLNPGM("Probing mesh point ", point_num, "/", GRID_PREF_POINTS, ".");
+      const grid_count_t point_num = GRID_PREF_POINTS - count + 1;
+      SERIAL_ECHOLN(F("Probing mesh point "), point_num, C('/'), GRID_PREF_POINTS, C('.'));
       TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_PROBING_POINT), point_num, int(GRID_PREF_POINTS)));
       TERN_(HAS_BACKLIGHT_TIMEOUT, ui.refresh_backlight_timeout());
 
@@ -1545,7 +1545,7 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
 
       for (uint8_t i = 0; i < 3; ++i) {
         SERIAL_ECHOLNPGM("Tilting mesh (", i + 1, "/3)");
-        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT_F(MSG_LCD_TILTING_MESH), i + 1));
+        TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/3"), GET_TEXT(MSG_LCD_TILTING_MESH), i + 1));
 
         measured_z = probe.probe_at_point(points[i], i < 2 ? PROBE_PT_RAISE : PROBE_PT_LAST_STOW, param.V_verbosity);
         if ((abort_flag = isnan(measured_z))) break;
@@ -1601,7 +1601,7 @@ typedef struct { uint8_t sx, ex, sy, ey; bool yfirst; } smart_fill_info;
           #endif
 
           SERIAL_ECHOLNPGM("Tilting mesh point ", point_num, "/", total_points, "\n");
-          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT_F(MSG_LCD_TILTING_MESH), point_num, total_points));
+          TERN_(HAS_STATUS_MESSAGE, ui.status_printf(0, F(S_FMT " %i/%i"), GET_TEXT(MSG_LCD_TILTING_MESH), point_num, total_points));
 
           measured_z = probe.probe_at_point(rpos, parser.seen_test('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, param.V_verbosity); // TODO: Needs error handling
 

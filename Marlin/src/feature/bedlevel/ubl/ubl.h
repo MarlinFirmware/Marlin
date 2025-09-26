@@ -274,12 +274,11 @@ public:
         return UBL_Z_RAISE_WHEN_OFF_MESH;
     #endif
 
-    IF_DISABLED(VARIABLE_GRID_POINTS, const)
-    uint8_t mx = _MIN(cx, GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 2) + 1, my = _MIN(cy, GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 2) + 1;
-    IF_DISABLED(VARIABLE_GRID_POINTS, const)
-    float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
-          z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
-          z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
+    GRID_CONST uint8_t mx = _MIN(cx, GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 2) + 1,
+                       my = _MIN(cy, GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 2) + 1;
+    GRID_CONST float x0 = get_mesh_x(cx), x1 = get_mesh_x(cx + 1),
+                     z1 = calc_z0(rx0, x0, z_values[cx][cy], x1, z_values[mx][cy]),
+                     z2 = calc_z0(rx0, x0, z_values[cx][my], x1, z_values[mx][my]);
     float z0 = calc_z0(ry0, get_mesh_y(cy), z1, get_mesh_y(cy + 1), z2);
 
     if (isnan(z0)) { // If part of the Mesh is undefined, it will show up as NAN

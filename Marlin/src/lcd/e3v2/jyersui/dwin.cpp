@@ -3549,8 +3549,8 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             if (draw)
               drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
             else {
-              if (mesh_conf.mesh_x != (GRID_PREF_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_PREF_POINTS_Y - 1)) {
-                if ((mesh_conf.mesh_x == (GRID_PREF_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1) {
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
                   mesh_conf.mesh_y++;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x++;
@@ -3643,14 +3643,14 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case UBL_M_NEXT:
             if (draw) {
-              if (mesh_conf.mesh_x != (GRID_PREF_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_PREF_POINTS_Y - 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1)
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
               else
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_UBL_SAVE_MESH));
             }
             else {
-              if (mesh_conf.mesh_x != (GRID_PREF_POINTS_X - 1) || mesh_conf.mesh_y != (GRID_PREF_POINTS_Y - 1)) {
-                if ((mesh_conf.mesh_x == (GRID_PREF_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
+              if (mesh_conf.mesh_x != GRID_PREF_POINTS_X - 1 || mesh_conf.mesh_y != GRID_PREF_POINTS_Y - 1) {
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 0) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 1))
                   mesh_conf.mesh_y++;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x++;
@@ -3671,7 +3671,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
               drawMenuItem(row, ICON_More, F("Previous Point"));
             else {
               if (mesh_conf.mesh_x != 0 || mesh_conf.mesh_y != 0) {
-                if ((mesh_conf.mesh_x == (GRID_PREF_POINTS_X - 1) && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0))
+                if ((mesh_conf.mesh_x == GRID_PREF_POINTS_X - 1 && mesh_conf.mesh_y % 2 == 1) || (mesh_conf.mesh_x == 0 && mesh_conf.mesh_y % 2 == 0))
                   mesh_conf.mesh_y--;
                 else if (mesh_conf.mesh_y % 2 == 0)
                   mesh_conf.mesh_x--;
@@ -3744,7 +3744,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
             break;
           case MMESH_NEXT:
             if (draw) {
-              if (gridpoint < GRID_VAL(GRID_USED_POINTS, GRID_PREF_POINTS))
+              if (gridpoint < GRID_VAL(GRID_USED_POINTS, GRID_MAX_POINTS))
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_LEVEL_BED_NEXT_POINT));
               else
                 drawMenuItem(row, ICON_More, GET_TEXT_F(MSG_UBL_SAVE_MESH));

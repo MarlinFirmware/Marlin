@@ -439,20 +439,20 @@
       const float z_xmy0 = (z_x1y0 - z_x0y0) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST)), // z slope per x along y0 (lower left to lower right)
                   z_xmy1 = (z_x1y1 - z_x0y1) * GRID_VAL(mesh_dist_recip.x, RECIPROCAL(MESH_X_DIST)); // z slope per x along y1 (upper left to upper right)
 
-            float z_cxy0 = z_x0y0 + z_xmy0 * cell.x;    // z height along y0 at cell.x (changes for each cell.x in cell)
+            float z_cxy0 = z_x0y0 + z_xmy0 * cell.x;        // z height along y0 at cell.x (changes for each cell.x in cell)
 
-      const float z_cxy1 = z_x0y1 + z_xmy1 * cell.x,    // z height along y1 at cell.x
-                  z_cxyd = z_cxy1 - z_cxy0;             // z height difference along cell.x from y0 to y1
+      const float z_cxy1 = z_x0y1 + z_xmy1 * cell.x,        // z height along y1 at cell.x
+                  z_cxyd = z_cxy1 - z_cxy0;                 // z height difference along cell.x from y0 to y1
 
             float z_cxym = z_cxyd * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST));  // z slope per y along cell.x from pos.y to y1 (changes for each cell.x in cell)
 
-      //    float z_cxcy = z_cxy0 + z_cxym * cell.y;    // interpolated mesh z height along cell.x at cell.y (do inside the segment loop)
+      //    float z_cxcy = z_cxy0 + z_cxym * cell.y;        // interpolated mesh z height along cell.x at cell.y (do inside the segment loop)
 
       // As subsequent segments step through this cell, the z_cxy0 intercept will change
       // and the z_cxym slope will change, both as a function of cell.x within the cell, and
       // each change by a constant for fixed segment lengths.
 
-      const float z_sxy0 = z_xmy0 * diff.x,                                 // per-segment adjustment to z_cxy0
+      const float z_sxy0 = z_xmy0 * diff.x,                 // per-segment adjustment to z_cxy0
                   z_sxym = (z_xmy1 - z_xmy0) * GRID_VAL(mesh_dist_recip.y, RECIPROCAL(MESH_Y_DIST)) * diff.x;  // per-segment adjustment to z_cxym
 
       for (;;) {  // for all segments within this mesh cell

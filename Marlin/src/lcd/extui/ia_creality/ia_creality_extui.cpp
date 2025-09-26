@@ -317,7 +317,7 @@ void onSettingsLoaded(const bool success) {
       for (uint8_t outer = 0; outer < GRID_PREF_POINTS_Y; outer++)
         for (uint8_t inner = 0; inner < GRID_PREF_POINTS_X; inner++) {
           const bool zig = outer & 1;
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_PREF_POINTS_X - 1) - inner : inner), outer };
+          const xy_uint8_t point = { uint8_t(zig ? GRID_PREF_POINTS_X - 1 - inner : inner), outer };
           rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;
         }
@@ -347,7 +347,7 @@ void onPostprocessSettings() {}
         for (uint8_t outer = 0; outer < GRID_PREF_POINTS_Y; outer++)
           for (uint8_t inner = 0; inner < GRID_PREF_POINTS_X; inner++) {
             const bool zig = outer & 1;
-            const xy_uint8_t point = { uint8_t(zig ? (GRID_PREF_POINTS_X - 1) - inner : inner), outer };
+            const xy_uint8_t point = { uint8_t(zig ? GRID_PREF_POINTS_X - 1 - inner : inner), outer };
             rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
             ++abl_probe_index;
           }
@@ -375,7 +375,7 @@ void onPostprocessSettings() {}
       for (uint8_t outer = 0; outer < GRID_PREF_POINTS_Y; outer++)
         for (uint8_t inner = 0; inner < GRID_PREF_POINTS_X; inner++) {
           const bool zig = outer & 1; // != ((PR_OUTER_END) & 1);
-          const xy_uint8_t point = { uint8_t(zig ? (GRID_PREF_POINTS_X - 1) - inner : inner), outer };
+          const xy_uint8_t point = { uint8_t(zig ? GRID_PREF_POINTS_X - 1 - inner : inner), outer };
           if (point.x == xpos && outer == ypos)
             rts.sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + (abl_probe_index * 2));
           ++abl_probe_index;

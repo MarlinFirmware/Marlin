@@ -62,7 +62,7 @@
 
 BedLevelTools bedLevelTools;
 
-#if ENABLED(USE_GRID_MESHVIEWER)
+#if USE_GRID_MESHVIEWER
   bool BedLevelTools::grid_meshview = false;
   bool BedLevelTools::viewer_print_value = false;
 #endif
@@ -198,15 +198,15 @@ bool BedLevelTools::meshValidate() {
   return true;
 }
 
-#if ENABLED(USE_GRID_MESHVIEWER)
+#if USE_GRID_MESHVIEWER
 
   constexpr uint8_t meshfont = TERN(TJC_DISPLAY, font8x16, font6x12);
 
   void BedLevelTools::drawBedMesh(int16_t selected/*=-1*/, uint8_t gridline_width/*=1*/, uint16_t padding_x/*=8*/, uint16_t padding_y_top/*=(40 + 53 - 7)*/) {
     drawing_mesh = true;
-    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x;
-    const uint16_t cell_width_px  = total_width_px / GRID_PREF_POINTS_X;
-    const uint16_t cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
+    const uint16_t total_width_px = DWIN_WIDTH - padding_x - padding_x,
+                   cell_width_px  = total_width_px / GRID_PREF_POINTS_X,
+                   cell_height_px = total_width_px / GRID_PREF_POINTS_Y;
     const float v_max = abs(getMaxValue()), v_min = abs(getMinValue()), rmax = _MAX(v_min, v_max);
 
     // Clear background from previous selection and select new square

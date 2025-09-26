@@ -127,19 +127,18 @@ void LevelingBilinear::extrapolate_unprobed_bed_level() {
   #ifdef HALF_IN_X
     constexpr uint8_t ctrx2 = 0, xend = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 1;
   #else
-    IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t
-      ctrx1 = (GRID_VAL((nr_grid_points.x - 1), GRID_MAX_CELLS_X)) / 2, // left-of-center
-      ctrx2 = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) / 2,       // right-of-center
+    GRID_CONSTEXPR uint8_t
+      ctrx1 = GRID_VAL(nr_grid_points.x - 1, GRID_MAX_CELLS_X) / 2, // left-of-center
+      ctrx2 = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) / 2,    // right-of-center
       xend = ctrx1;
   #endif
 
   #ifdef HALF_IN_Y
     constexpr uint8_t ctry2 = 0, yend = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) - 1;
   #else
-    IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t
-      ctry1 = (GRID_VAL((nr_grid_points.y - 1), GRID_MAX_CELLS_Y)) / 2, // top-of-center
-      ctry2 = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) / 2,       // bottom-of-center
-      yend = ctry1;
+    GRID_CONSTEXPR uint8_t ctry1 = GRID_VAL(nr_grid_points.y - 1, GRID_MAX_CELLS_Y) / 2,  // top-of-center
+                           ctry2 = GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) / 2,     // bottom-of-center
+                           yend = ctry1;
   #endif
 
   for (uint8_t xo = 0; xo <= xend; ++xo)
@@ -211,7 +210,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float LevelingBilinear::virt_coord(const uint8_t x, const uint8_t y) {
     uint8_t ep = 0, ip = 1;
-    if (x > (GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) + 1) || y > (GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) + 1)) {
+    if (x > GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) + 1 || y > GRID_VAL(nr_grid_points.y, GRID_MAX_POINTS_Y) + 1) {
       // The requested point requires extrapolating two points beyond the mesh.
       // These values are only requested for the edges of the mesh, which are always an actual mesh point,
       // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
@@ -219,7 +218,7 @@ void LevelingBilinear::print_leveling_grid(const bed_mesh_t* _z_values/*=nullptr
       // making this function more complex by extrapolating two points.
       return 0.0;
     }
-    if (!x || x == GRID_VAL((nr_grid_points.x + 2), ABL_TEMP_POINTS_X) - 1) {
+    if (!x || x == GRID_VAL(nr_grid_points.x + 2, ABL_TEMP_POINTS_X) - 1) {
       if (x) {
         ep = GRID_VAL(nr_grid_points.x, GRID_MAX_POINTS_X) - 1;
         ip = GRID_VAL(nr_grid_points.x - 1, GRID_MAX_CELLS_X) - 1;

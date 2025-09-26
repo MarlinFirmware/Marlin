@@ -1063,7 +1063,7 @@ void RTS::handleData() {
             for (uint8_t outer = 0; outer < GRID_PREF_POINTS_Y; outer++)
               for (uint8_t inner = 0; inner < GRID_PREF_POINTS_X; inner++) {
                 const bool zig = outer & 1;
-                const xy_uint8_t point = { uint8_t(zig ? (GRID_PREF_POINTS_X - 1) - inner : inner), outer };
+                const xy_uint8_t point = { uint8_t(zig ? GRID_PREF_POINTS_X - 1 - inner : inner), outer };
                 sendData(ExtUI::getMeshPoint(point) * 1000, AutolevelVal + abl_probe_index * 2);
                 ++abl_probe_index;
               }

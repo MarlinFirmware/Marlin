@@ -27,8 +27,7 @@
 using namespace FTDI;
 
 void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t opts, float autoscale_max, uint8_t highlightedTag, mesh_getter_ptr func, void *data) {
-  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t rows = GRID_PREF_POINTS_Y;
-  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t cols = GRID_PREF_POINTS_X;
+  GRID_CONSTEXPR uint8_t rows = GRID_PREF_POINTS_Y, cols = GRID_PREF_POINTS_X;
 
   #define VALUE(X,Y)  (func ? func(X,Y,data) : 0)
   #define ISVAL(X,Y)  (func ? !isnan(VALUE(X,Y)) : true)

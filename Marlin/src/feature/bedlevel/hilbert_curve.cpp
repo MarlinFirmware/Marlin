@@ -26,10 +26,10 @@
 #include "bedlevel.h"
 #include "hilbert_curve.h"
 
-IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) int8_t  to_fix(const int8_t  v) { return v * 2; }
-IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) int8_t  to_int(const int8_t  v) { return v / 2; }
-IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t   log2(const uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
-IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t  order(const uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
+GRID_CONSTEXPR int8_t  to_fix(const int8_t  v) { return v * 2; }
+GRID_CONSTEXPR int8_t  to_int(const int8_t  v) { return v / 2; }
+GRID_CONSTEXPR uint8_t   log2(const uint8_t n) { return (n > 1) ? 1 + log2(uint8_t(n >> 1)) : 0; }
+GRID_CONSTEXPR uint8_t  order(const uint8_t n) { return uint8_t(log2(uint8_t(n - 1))) + 1; }
 #if ENABLED(VARIABLE_GRID_POINTS)
   #define ord order(_MAX(GRID_USED_POINTS_Y, GRID_USED_POINTS_Y))
   #define dim _BV(ord)
