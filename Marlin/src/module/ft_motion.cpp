@@ -135,7 +135,6 @@ void FTMotion::loop() {
    * 4. Signal ready for new block.
    */
   if (stepper.abort_current_block) {
-    if (stepperCmdBuffHasData) return;          // Wait until motion buffers are emptied
     discard_planner_block_protected();
     reset();
     stepper.abort_current_block = false;  // Abort finished.
