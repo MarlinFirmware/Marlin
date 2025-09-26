@@ -120,8 +120,8 @@
   #define Y_STOP_PIN                          42  // AUX (1)
   #define Z_STOP_PIN                          43  // AUX (2)
   #ifndef Z2_STOP_PIN
-     #define X_MAX_PIN                        18  //if X_MAX_PIN not defined same as Z2_STOP_PIN homing sensor trigger state is "Inverted".
-     #define Z2_STOP_PIN                      18  // Z-
+    #define X_MAX_PIN                         18  // If X_MAX_PIN != Z2_STOP_PIN homing sensor trigger state is "Inverted".
+    #define Z2_STOP_PIN                       18  // Z-
   #endif
 
   #ifndef Z_MIN_PROBE_PIN
