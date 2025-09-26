@@ -223,7 +223,7 @@ void FTMotion::loop() {
 #if HAS_FTM_SHAPING
 
   // Refresh the gains used by shaping functions.
-  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const_float_t zeta, const_float_t vtol) {
+  void FTMotion::AxisShaping::set_axis_shaping_A(const ftMotionShaper_t shaper, const float zeta, const float vtol) {
 
     const float K = exp(-zeta * M_PI / sqrt(1.f - sq(zeta))),
                 K2 = sq(K),
@@ -314,7 +314,7 @@ void FTMotion::loop() {
   }
 
   // Refresh the indices used by shaping functions.
-  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const_float_t f, const_float_t zeta) {
+  void FTMotion::AxisShaping::set_axis_shaping_N(const ftMotionShaper_t shaper, const float f, const float zeta) {
     // Note that protections are omitted for DBZ and for index exceeding array length.
     const float df = sqrt ( 1.f - sq(zeta) );
     switch (shaper) {

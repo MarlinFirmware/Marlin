@@ -49,7 +49,7 @@ struct ProgStr {
   constexpr explicit operator bool() const { return ptr != nullptr; }
 };
 
-static void config_prefix(ProgStr name, ProgStr pref=nullptr, int8_t ind=-1) {
+static void config_prefix(ProgStr name, ProgStr pref=nullptr, const int8_t ind=-1) {
   SERIAL_ECHOPGM("Config:");
   if (pref) SERIAL_ECHOPGM_P(static_cast<PGM_P>(pref));
   if (ind >= 0) { SERIAL_ECHO(ind); SERIAL_CHAR(':'); }
@@ -57,15 +57,16 @@ static void config_prefix(ProgStr name, ProgStr pref=nullptr, int8_t ind=-1) {
 }
 
 template<typename T>
-static void config_line(ProgStr name, const T val, ProgStr pref=nullptr, int8_t ind=-1) {
+static void config_line(ProgStr name, const T val, ProgStr pref=nullptr, const int8_t ind=-1) {
   config_prefix(name, pref, ind);
   SERIAL_ECHOLN(val);
 }
 
 template<typename T>
-static void config_line_e(int8_t e, ProgStr name, const T val) {
+static void config_line_e(const int8_t e, ProgStr name, const T val) {
   config_line(name, val, PSTR("Extr."), e + 1);
 }
+
 /**
  * M360: Report Firmware configuration
  *       in RepRapFirmware-compatible format

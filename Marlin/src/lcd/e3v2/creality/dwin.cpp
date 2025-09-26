@@ -3676,7 +3676,7 @@ void hmiAdvSet() {
     dwinUpdateLCD();
   }
 
-  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const_float_t lo, const_float_t hi) {
+  void hmiHomeOffN(const AxisEnum axis, float &posScaled, const float lo, const float hi) {
     EncoderState encoder_diffState = encoderReceiveAnalyze();
     if (encoder_diffState == ENCODER_DIFF_NO) return;
 

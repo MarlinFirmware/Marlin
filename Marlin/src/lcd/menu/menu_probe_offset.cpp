@@ -39,13 +39,13 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-void _goto_manual_move_z(const_float_t);
+void _goto_manual_move_z(const float);
 
 // Global storage - TODO: Keep wizard/process data in a 'ui.scratch' union.
 float z_offset_backup, calculated_z_offset, z_offset_ref;
 
 // "Done" - Set the offset, re-enable leveling, go back to the previous screen.
-void set_offset_and_go_back(const_float_t z) {
+void set_offset_and_go_back(const float z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(menu_leveling_was_active));

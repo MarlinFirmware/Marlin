@@ -61,7 +61,7 @@ public:
 
   static bool can_babystep(const AxisEnum axis);
   static void add_steps(const AxisEnum axis, const int16_t distance);
-  static void add_mm(const AxisEnum axis, const_float_t mm);
+  static void add_mm(const AxisEnum axis, const float mm);
 
   #if ENABLED(EP_BABYSTEPPING)
     // Step Z for M293 / M294
@@ -79,7 +79,7 @@ public:
   #endif // EP_BABYSTEPPING
 
   #if ENABLED(BD_SENSOR)
-    static void set_mm(const AxisEnum axis, const_float_t mm);
+    static void set_mm(const AxisEnum axis, const float mm);
   #endif
 
   static bool has_steps() {

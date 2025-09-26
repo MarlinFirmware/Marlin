@@ -270,7 +270,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
 
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
-    void PrintJobRecovery::retract_and_lift(const_float_t zraise) {
+    void PrintJobRecovery::retract_and_lift(const float zraise) {
       #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
 
         gcode.set_relative_mode(true);  // Use relative coordinates

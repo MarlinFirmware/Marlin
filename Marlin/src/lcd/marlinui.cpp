@@ -1996,7 +1996,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
   }
 
   #if ANY(BABYSTEP_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
-    void MarlinUI::zoffset_overlay(const_float_t zvalue) {
+    void MarlinUI::zoffset_overlay(const float zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
       static float old_zvalue;

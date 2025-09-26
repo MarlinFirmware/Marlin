@@ -33,10 +33,10 @@ namespace MMU3 {
   // - Unify implementation among MK3 and Buddy FW
   // - Enable unit testing of MMU top layer
 
-  void extruder_move(const_float_t distance, const_float_t feedRate_mm_s, const bool sync=true);
-  void extruder_schedule_turning(const_float_t feedRate_mm_s);
+  void extruder_move(const float distance, const float feedRate_mm_s, const bool sync=true);
+  void extruder_schedule_turning(const float feedRate_mm_s);
 
-  float move_raise_z(const_float_t delta);
+  float move_raise_z(const float delta);
 
   void planner_abort_queued_moves();
   void planner_synchronize();

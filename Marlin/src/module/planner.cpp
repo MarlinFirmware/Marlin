@@ -799,7 +799,7 @@ block_t* Planner::get_future_block(const uint8_t offset) {
  * NOT BUSY and it is marked as RECALCULATE. That WARRANTIES the Stepper ISR
  * is not and will not use the block while we modify it.
  */
-void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t entry_speed, const_float_t exit_speed) {
+void Planner::calculate_trapezoid_for_block(block_t * const block, const float entry_speed, const float exit_speed) {
 
   const float spmm = block->steps_per_mm;
   uint32_t initial_rate = entry_speed ? LROUND(entry_speed * spmm) : block->initial_rate,
@@ -1006,7 +1006,7 @@ void Planner::calculate_trapezoid_for_block(block_t * const block, const_float_t
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
 // Returns true if it could increase the current block's entry speed.
-bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const_float_t safe_exit_speed_sqr) {
+bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const next, const float safe_exit_speed_sqr) {
   // We need to recalculate only for the last block added or if next->entry_speed_sqr changed.
   if (!next || next->flag.recalculate) {
     // And only if we're not already at max entry speed.
@@ -1045,7 +1045,7 @@ bool Planner::reverse_pass_kernel(block_t * const current, const block_t * const
  * coarsely maximizes the entry speeds starting from last block.
  * Requires there's at least one block with flag.recalculate in the buffer.
  */
-void Planner::reverse_pass(const_float_t safe_exit_speed_sqr) {
+void Planner::reverse_pass(const float safe_exit_speed_sqr) {
   // Initialize block index to the last block in the planner buffer.
   // This last block will have flag.recalculate set.
   uint8_t block_index = prev_block_index(block_buffer_head);
@@ -1107,7 +1107,7 @@ void Planner::forward_pass_kernel(const block_t * const previous, block_t * cons
  * Do the forward pass and recalculate the trapezoid speed profiles for all blocks in the plan
  * according to entry/exit speeds.
  */
-void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
+void Planner::recalculate_trapezoids(const float safe_exit_speed_sqr) {
   // Start with the block that's about to execute or is executing.
   uint8_t block_index = block_buffer_tail,
           head_block_index = block_buffer_head;
@@ -1182,7 +1182,7 @@ void Planner::recalculate_trapezoids(const_float_t safe_exit_speed_sqr) {
 }
 
 // Requires there's at least one block with flag.recalculate in the buffer
-void Planner::recalculate(const_float_t safe_exit_speed_sqr) {
+void Planner::recalculate(const float safe_exit_speed_sqr) {
   reverse_pass(safe_exit_speed_sqr);
   // The forward pass is done as part of recalculate_trapezoids()
   recalculate_trapezoids(safe_exit_speed_sqr);
@@ -1421,7 +1421,7 @@ void Planner::check_axes_activity() {
    * This is the reciprocal of the circular cross-section area.
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
-  inline float calculate_volumetric_multiplier(const_float_t diameter) {
+  inline float calculate_volumetric_multiplier(const float diameter) {
     return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5f) : 1;
   }
 
@@ -2417,7 +2417,7 @@ bool Planner::_populate_block(
        */
       if (esteps && dm.e) {
         const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
-        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) extruder_advance_K[E_INDEX_N(extruder)];
+        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) TERN0(LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
             TERN(IS_KINEMATIC, block->millimeters,
@@ -2870,7 +2870,7 @@ void Planner::buffer_sync_block(const BlockFlagBit sync_flag/*=BLOCK_BIT_SYNC_PO
  */
 bool Planner::buffer_segment(const abce_pos_t &abce
   OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
-  , const_feedRate_t fr_mm_s
+  , const feedRate_t fr_mm_s
   , const uint8_t extruder/*=active_extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
@@ -2995,7 +2995,7 @@ bool Planner::buffer_segment(const abce_pos_t &abce
  * @param extruder  Optional target extruder (otherwise active_extruder)
  * @param hints     Optional parameters to aid planner calculations
  */
-bool Planner::buffer_line(const xyze_pos_t &cart, const_feedRate_t fr_mm_s
+bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
   , const uint8_t extruder/*=active_extruder*/
   , const PlannerHints &hints/*=PlannerHints()*/
 ) {
@@ -3221,7 +3221,7 @@ void Planner::set_position_mm(const xyze_pos_t &xyze) {
   /**
    * Special setter for planner E position (also setting E stepper position).
    */
-  void Planner::set_e_position_mm(const_float_t e) {
+  void Planner::set_e_position_mm(const float e) {
     const uint8_t axis_index = E_AXIS_N(active_extruder);
     TERN_(DISTINCT_E_FACTORS, last_extruder = active_extruder);
 
