@@ -2417,7 +2417,9 @@ bool Planner::_populate_block(
        */
       if (esteps && dm.e) {
         const bool ftm_active = TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.active);
-        const float advK = TERN_(FTM_HAS_LIN_ADVANCE, ftm_active ? ftMotion.cfg.linearAdvK :) TERN0(LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
+        const float advK = ftm_active
+          ? TERN0(FTM_HAS_LIN_ADVANCE, ftMotion.cfg.linearAdvK)
+          : TERN0(HAS_ROUGH_LIN_ADVANCE, extruder_advance_K[E_INDEX_N(extruder)]);
         if (advK) {
           float e_D_ratio = (target_float.e - position_float.e) /
             TERN(IS_KINEMATIC, block->millimeters,
@@ -2431,14 +2433,12 @@ bool Planner::_populate_block(
           // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
           //   and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
           use_adv_lead = e_D_ratio <= 3.0f;
-          if (use_adv_lead) {
-            if (TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
-              // Scale E acceleration so that it will be possible to jump to the advance speed.
-              const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
-              if (accel > max_accel_steps_per_s2) {
-                accel = max_accel_steps_per_s2;
-                if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
-              }
+          if (use_adv_lead && TERN0(HAS_ROUGH_LIN_ADVANCE, !ftm_active)) {
+            // For Standard Motion LA: Scale E acceleration so it'll be possible to jump to the advance speed
+            const uint32_t max_accel_steps_per_s2 = (MAX_E_JERK(extruder) / (advK * e_D_ratio)) * steps_per_mm;
+            if (accel > max_accel_steps_per_s2) {
+              accel = max_accel_steps_per_s2;
+              if (TERN0(LA_DEBUG, DEBUGGING(INFO))) SERIAL_ECHOLNPGM("Acceleration limited.");
             }
           }
         }
