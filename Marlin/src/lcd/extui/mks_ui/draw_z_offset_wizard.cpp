@@ -159,21 +159,21 @@ void lv_draw_z_offset_wizard() {
 
   scr = lv_screen_create(Z_OFFSET_WIZARD_UI, machine_menu.LevelingZoffsetTitle);
 
-  lv_obj_t *buttonXI = lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, INTERVAL_V, titleHeight, event_handler, ID_M_Z_P);
+  lv_obj_t *buttonXI = lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, INTERVAL_W, titleHeight, event_handler, ID_M_Z_P);
   lv_obj_clear_protect(buttonXI, LV_PROTECT_FOLLOW);
-  lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_Z_N);
+  lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_M_Z_N);
 
   // button with image and label changed dynamically by disp_move_dist
-  buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_M_STEP);
+  buttonV = lv_imgbtn_create(scr, nullptr, BTN_SIZE_X * 3 + INTERVAL_W * 4, titleHeight, event_handler, ID_M_STEP);
   labelV = lv_label_create_empty(buttonV);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonV);
   #endif
 
   // save and back
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_save, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_SAVE);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_save, BTN_SIZE_X * 2 + INTERVAL_W * 3, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_M_SAVE);
   // cancel and back
-  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_RETURN);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_SIZE_X * 3 + INTERVAL_W * 4, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_M_RETURN);
 
   // We need to patch the title to leave some space on the right for displaying the status
   lv_obj_t * z_offset_ref_title = lv_obj_get_child_back(scr, nullptr);
@@ -183,7 +183,7 @@ void lv_draw_z_offset_wizard() {
   // We need to patch the Z Offset to leave some space in the middle for displaying the status
   lv_obj_t * title= lv_obj_get_child_back(scr, nullptr);
   if (title != nullptr) lv_obj_set_width(title, TFT_WIDTH - 101);
-  labelP = lv_label_create(scr, TFT_WIDTH - 100, TITLE_YPOS, "Z:0.0mm");
+  labelP = lv_label_create(scr, TFT_WIDTH - 100, TITLE_POS_Y, "Z:0.0mm");
 
   if (labelP != nullptr)
     updatePosTask = lv_task_create(refresh_wizard_pos, 300, LV_TASK_PRIO_LOWEST, 0);

@@ -1401,7 +1401,7 @@ void Stepper::apply_directions() {
       return (r2 | (uint16_t(r3) << 8)) | (uint32_t(r4) << 16);
     }
 
-  #else
+  #else // !__AVR__
 
     // For all the other 32bit CPUs
     FORCE_INLINE void Stepper::_calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av) {
@@ -1478,7 +1478,9 @@ void Stepper::apply_directions() {
 
       #endif
     }
-  #endif
+
+  #endif // !__AVR__
+
 #endif // S_CURVE_ACCELERATION
 
 /**
@@ -2472,7 +2474,7 @@ hal_timer_t Stepper::block_phase_isr() {
          *  isPowered - True when a move is powered.
          *  isEnabled - laser power is active.
          *
-         * Laser power variables are calulated and stored in this block by the planner code.
+         * Laser power variables are calculated and stored in this block by the planner code.
          *  trap_ramp_active_pwr - the active power in this block across accel or decel trap steps.
          *  trap_ramp_entry_incr - holds the precalculated value to increase the current power per accel step.
          */
@@ -2697,7 +2699,7 @@ hal_timer_t Stepper::block_phase_isr() {
         oversampling_factor = 0;
 
         // Decide if axis smoothing is possible
-        if (stepper.adaptive_step_smoothing_enabled) {
+        if (adaptive_step_smoothing_enabled) {
           uint32_t max_rate = current_block->nominal_rate;  // Get the step event rate
           while (max_rate < min_step_isr_frequency) {       // As long as more ISRs are possible...
             max_rate <<= 1;                                 // Try to double the rate
@@ -2880,7 +2882,7 @@ hal_timer_t Stepper::block_phase_isr() {
         const bool forward_e = step_rate > 0;
 
         #if ENABLED(NONLINEAR_EXTRUSION)
-          if (forward_e && ANY_AXIS_MOVES(current_block)) {
+          if (ne.settings.enabled && forward_e && ANY_AXIS_MOVES(current_block)) {
             // Maximum polynomial value is just above 1, like 1.05..1.2, less than 2 anyway, so we can use 30 bits for fractional part
             int32_t vd_q30 = ne.q30.A * sq(step_rate) + ne.q30.B * step_rate;
             NOLESS(vd_q30, 0);
@@ -2902,7 +2904,7 @@ hal_timer_t Stepper::block_phase_isr() {
 
     #if ENABLED(INPUT_SHAPING_E_SYNC)
 
-      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / float(SHAPING_MIN_FREQ) / 2.0f + 0.5f);
+      constexpr uint16_t IS_COMPENSATION_BUFFER_SIZE = uint16_t(float(SMOOTH_LIN_ADV_HZ) / (2.0f * (SHAPING_MIN_FREQ)) + 0.5f);
 
       typedef struct {
         xy_long_t buffer[IS_COMPENSATION_BUFFER_SIZE];
@@ -2924,21 +2926,39 @@ hal_timer_t Stepper::block_phase_isr() {
 
       DelayBuffer delayBuffer;
 
-      xy_long_t smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
-        constexpr uint32_t ADV_TICKS_PER_STEPPER_TICKS_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / STEPPER_TIMER_RATE;
-        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, ADV_TICKS_PER_STEPPER_TICKS_Q30);
+      xy_long_t Stepper::smooth_lin_adv_lookback(const shaping_time_t stepper_ticks) {
+        constexpr uint32_t adv_ticks_per_stepper_ticks_Q30 = (uint64_t(SMOOTH_LIN_ADV_HZ) * _BV32(30)) / (STEPPER_TIMER_RATE);
+        const uint16_t delay_steps = MULT_Q(30, stepper_ticks, adv_ticks_per_stepper_ticks_Q30);
         return delayBuffer.past_item(delay_steps);
       }
 
     #endif // INPUT_SHAPING_E_SYNC
 
-    int32_t smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
+    #if ENABLED(S_CURVE_ACCELERATION)
+      int32_t Stepper::calc_bezier_curve(const int32_t v0, const int32_t v1, const uint32_t av, const uint32_t curr_step) {
+        int32_t A = bezier_A, B = bezier_B, C = bezier_C;
+        uint32_t F = bezier_F, AV = bezier_AV;
+
+        _calc_bezier_curve_coeffs(v0, v1, av);
+        uint32_t rate = _eval_bezier_curve(curr_step);
+
+        bezier_A = A; bezier_B = B; bezier_C = C; bezier_F = F; bezier_AV = AV;
+        return rate;
+      }
+    #endif
+
+    int32_t Stepper::smooth_lin_adv_lookahead(uint32_t stepper_ticks) {
       for (uint8_t i = 0; block_t *block = planner.get_future_block(i); i++) {
         if (block->is_sync()) continue;
         if (stepper_ticks <= block->acceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
-          NOMORE(rate, block->nominal_rate);
+          uint32_t rate;
+          #if ENABLED(S_CURVE_ACCELERATION)
+            rate = calc_bezier_curve(block->initial_rate, block->cruise_rate, block->acceleration_time_inverse, stepper_ticks);
+          #else
+            rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate) + block->initial_rate;
+            NOMORE(rate, block->nominal_rate);
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->acceleration_time;
@@ -2951,13 +2971,18 @@ hal_timer_t Stepper::block_phase_isr() {
 
         if (stepper_ticks <= block->deceleration_time) {
           if (!block->use_advance_lead) return 0;
-          uint32_t rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
-          if (rate < block->cruise_rate) {
-            rate = block->cruise_rate - rate;
-            NOLESS(rate, block->final_rate);
-          }
-          else
-            rate = block->final_rate;
+          uint32_t rate;
+          #if ENABLED(S_CURVE_ACCELERATION)
+            rate = calc_bezier_curve(block->cruise_rate, block->final_rate, block->deceleration_time_inverse, stepper_ticks);
+          #else
+            rate = STEP_MULTIPLY(stepper_ticks, block->acceleration_rate);
+            if (rate < block->cruise_rate) {
+              rate = block->cruise_rate - rate;
+              NOLESS(rate, block->final_rate);
+            }
+            else
+              rate = block->final_rate;
+          #endif
           return MULT_Q(30, rate, block->e_step_ratio_q30);
         }
         stepper_ticks -= block->deceleration_time;
@@ -2982,7 +3007,7 @@ hal_timer_t Stepper::block_phase_isr() {
       static int32_t smoothed_vals[SMOOTH_LIN_ADV_EXP_ORDER] = {0};
 
       for (uint8_t i = 0; i < SMOOTH_LIN_ADV_EXP_ORDER; i++) {
-        // Approximate gaussian smoothing via higher order exponential smoothing
+        // Approximate Gaussian smoothing via higher order exponential smoothing
         smoothed_vals[i] += MULT_Q(30, la_step_rate - smoothed_vals[i], extruder_advance_alpha_q30[E_INDEX_N(active_extruder)]);
         la_step_rate = smoothed_vals[i];
       }
@@ -3251,7 +3276,7 @@ void Stepper::init() {
    * Calculate a fixed point factor to apply to the signal and its echo
    * when shaping an axis.
    */
-  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const_float_t zeta) {
+  void Stepper::set_shaping_damping_ratio(const AxisEnum axis, const float zeta) {
     // From the damping ratio, get a factor that can be applied to advance_dividend for fixed-point maths.
     // For ZV, we use amplitudes 1/(1+K) and K/(1+K) where K = exp(-zeta * π / sqrt(1.0f - zeta * zeta))
     // which can be converted to 1:7 fixed point with an excellent fit with a 3rd-order polynomial.
@@ -3282,7 +3307,7 @@ void Stepper::init() {
     return -1;
   }
 
-  void Stepper::set_shaping_frequency(const AxisEnum axis, const_float_t freq) {
+  void Stepper::set_shaping_frequency(const AxisEnum axis, const float freq) {
     // enabling or disabling shaping whilst moving can result in lost steps
     planner.synchronize();
 
@@ -3509,15 +3534,13 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
   #if NUM_AXES
-    SERIAL_ECHOLNPGM_P(
-      LIST_N(DOUBLE(NUM_AXES),
-        TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
-        TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
-        TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
-        SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
-        SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
-      )
-    );
+    SERIAL_ECHOLNPGM_P(NUM_AXIS_PAIRED_LIST(
+      TERN(SAYS_A, PSTR(STR_COUNT_A), PSTR(STR_COUNT_X)), pos.x,
+      TERN(SAYS_B, PSTR("B:"), SP_Y_LBL), pos.y,
+      TERN(SAYS_C, PSTR("C:"), SP_Z_LBL), pos.z,
+      SP_I_LBL, pos.i, SP_J_LBL, pos.j, SP_K_LBL, pos.k,
+      SP_U_LBL, pos.u, SP_V_LBL, pos.v, SP_W_LBL, pos.w
+    ));
   #endif
 }
 
@@ -3542,8 +3565,8 @@ void Stepper::report_positions() {
   void Stepper::ftMotion_stepper() {
 
     // Check if the buffer is empty.
-    ftMotion.sts_stepperBusy = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
-    if (!ftMotion.sts_stepperBusy) return;
+    ftMotion.stepperCmdBuffHasData = (ftMotion.stepperCmdBuff_produceIdx != ftMotion.stepperCmdBuff_consumeIdx);
+    if (!ftMotion.stepperCmdBuffHasData) return;
 
     // "Pop" one command from current motion buffer
     const ft_command_t command = ftMotion.stepperCmdBuff[ftMotion.stepperCmdBuff_consumeIdx];

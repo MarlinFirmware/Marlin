@@ -54,12 +54,12 @@ void Babystep::step_axis(const AxisEnum axis) {
   }
 }
 
-void Babystep::add_mm(const AxisEnum axis, const_float_t mm) {
+void Babystep::add_mm(const AxisEnum axis, const float mm) {
   add_steps(axis, mm * planner.settings.axis_steps_per_mm[axis]);
 }
 
 #if ENABLED(BD_SENSOR)
-  void Babystep::set_mm(const AxisEnum axis, const_float_t mm) {
+  void Babystep::set_mm(const AxisEnum axis, const float mm) {
     //if (DISABLED(BABYSTEP_WITHOUT_HOMING) && axis_should_home(axis)) return;
     const int16_t distance = mm * planner.settings.axis_steps_per_mm[axis];
     accum = distance; // Count up babysteps for the UI

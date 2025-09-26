@@ -523,7 +523,7 @@ static bool udd_ep_interrupt(void);
  * \internal
  * \brief Function called by UOTGHS interrupt to manage USB Device interrupts
  *
- * USB Device interrupt events are splited in three parts:
+ * USB Device interrupt events are split in three parts:
  * - USB line events (SOF, reset, suspend, resume, wakeup)
  * - control endpoint events (setup reception, end of data transfer, underflow, overflow, stall)
  * - bulk/interrupt/isochronous endpoints events (end of data transfer)
@@ -1567,7 +1567,7 @@ static void udd_ctrl_out_received(void)
 							udd_ctrl_payload_buf_cnt))) {
 		// End of reception because it is a short packet
 		// Before send ZLP, call intermediate callback
-		// in case of data receiv generate a stall
+		// in case of data receive generate a stall
 		udd_g_ctrlreq.payload_size = udd_ctrl_payload_buf_cnt;
 		if (NULL != udd_g_ctrlreq.over_under_run) {
 			if (!udd_g_ctrlreq.over_under_run()) {
@@ -1808,7 +1808,7 @@ static void udd_ep_trans_done(udd_ep_id_t ep)
 	}
 
 	if (ptr_job->buf_cnt != ptr_job->buf_size) {
-		// Need to send or receiv other data
+		// Need to send or receive other data
 		next_trans = ptr_job->buf_size - ptr_job->buf_cnt;
 
 		if (UDD_ENDPOINT_MAX_TRANS < next_trans) {

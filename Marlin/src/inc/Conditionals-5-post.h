@@ -2493,6 +2493,59 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
+
+#if TEMP_SENSOR(0)
+  #define HAS_TEMP_HOTEND 1
+#endif
+#if TEMP_SENSOR(BED)
+  #define HAS_HEATED_BED 1
+  #define HAS_TEMP_BED 1
+#endif
+#if TEMP_SENSOR(CHAMBER)
+  #define HAS_TEMP_CHAMBER 1
+#endif
+#if TEMP_SENSOR(PROBE)
+  #define HAS_TEMP_PROBE 1
+#endif
+#if TEMP_SENSOR(COOLER)
+  #define HAS_TEMP_COOLER 1
+#endif
+#if TEMP_SENSOR(BOARD)
+  #define HAS_TEMP_BOARD 1
+#endif
+#if TEMP_SENSOR(SOC)
+  #define HAS_TEMP_SOC 1
+#endif
+#if TEMP_SENSOR(REDUNDANT)
+  #define HAS_TEMP_REDUNDANT 1
+#endif
+
+// Unused ADC pins can be omitted
+#if ANY(KEEP_ADC_PINS_AROUND, PINS_DEBUGGING, MARLIN_DEV_MODE)
+  #if !HAS_TEMP_HOTEND
+    #undef TEMP_0_PIN
+  #endif
+  #if !HAS_HEATED_BED
+    #undef TEMP_BED_PIN
+  #endif
+  #if !HAS_TEMP_CHAMBER
+    #undef TEMP_CHAMBER_PIN
+  #endif
+  #if !HAS_TEMP_PROBE
+    #undef TEMP_PROBE_PIN
+  #endif
+  #if !HAS_TEMP_COOLER
+    #undef TEMP_COOLER_PIN
+  #endif
+  #if !HAS_TEMP_BOARD
+    #undef TEMP_BOARD_PIN
+  #endif
+  #if DISABLED(FILAMENT_WIDTH_SENSOR)
+    #undef FILWIDTH_PIN
+    #undef FILWIDTH2_PIN
+  #endif
+#endif
+
 #define HAS_ADC_TEST(P) (TEMP_SENSOR(P) && PIN_EXISTS(TEMP_##P) && !TEMP_SENSOR_IS_MAX_TC(P) && !TEMP_SENSOR_##P##_IS_DUMMY)
 #if HOTENDS > 0 && HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
@@ -2518,11 +2571,8 @@
 #if HOTENDS > 7 && HAS_ADC_TEST(7)
   #define HAS_TEMP_ADC_7 1
 #endif
-#if TEMP_SENSOR_BED
-  #define HAS_HEATED_BED 1
-  #if HAS_ADC_TEST(BED)
-    #define HAS_TEMP_ADC_BED 1
-  #endif
+#if HAS_HEATED_BED && HAS_ADC_TEST(BED)
+  #define HAS_TEMP_ADC_BED 1
 #endif
 #if HAS_ADC_TEST(PROBE)
   #define HAS_TEMP_ADC_PROBE 1
@@ -2542,31 +2592,11 @@
 #if HAS_ADC_TEST(REDUNDANT)
   #define HAS_TEMP_ADC_REDUNDANT 1
 #endif
-
-#define HAS_TEMP(N) (TEMP_SENSOR_IS_MAX_TC(N) || HAS_TEMP_ADC_##N || TEMP_SENSOR_##N##_IS_DUMMY)
-#if HAS_HOTEND && HAS_TEMP(0)
-  #define HAS_TEMP_HOTEND 1
+#if PIN_EXISTS(FILWIDTH_PIN)
+  #define HAS_FILWIDTH_ADC 1
 #endif
-#if HAS_TEMP(BED)
-  #define HAS_TEMP_BED 1
-#endif
-#if HAS_TEMP(CHAMBER)
-  #define HAS_TEMP_CHAMBER 1
-#endif
-#if HAS_TEMP(PROBE)
-  #define HAS_TEMP_PROBE 1
-#endif
-#if HAS_TEMP(COOLER)
-  #define HAS_TEMP_COOLER 1
-#endif
-#if HAS_TEMP(BOARD)
-  #define HAS_TEMP_BOARD 1
-#endif
-#if HAS_TEMP(SOC)
-  #define HAS_TEMP_SOC 1
-#endif
-#if HAS_TEMP(REDUNDANT)
-  #define HAS_TEMP_REDUNDANT 1
+#if PIN_EXISTS(FILWIDTH2_PIN)
+  #define HAS_FILWIDTH2_ADC 1
 #endif
 
 #if ENABLED(JOYSTICK)
@@ -2584,7 +2614,9 @@
   #endif
 #endif
 
-// Heaters
+//
+// Heater Outputs
+//
 #if PIN_EXISTS(HEATER_0)
   #define HAS_HEATER_0 1
 #endif
@@ -3595,4 +3627,9 @@
 // Flag whether hex_print.cpp is needed
 #if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID)
   #define NEED_HEX_PRINT 1
+#endif
+
+// SPI Flash Backup
+#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
+  #define SPI_FLASH_BACKUP 1
 #endif

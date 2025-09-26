@@ -1,0 +1,40 @@
+#
+# ci-validate-lines.yml
+# Validate that all text files are unchanged by linesformat.py
+#
+
+name: CI - Validate Source Files
+
+on:
+  pull_request:
+    branches:
+      - bugfix-2.1.x
+      - 2.1.x
+  push:
+    branches:
+      - bugfix-2.1.x
+      - 2.1.x
+
+jobs:
+  validate_source_files:
+    name: Validate Source Files
+    if: github.repository == 'MarlinFirmware/Marlin'
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out the PR
+        uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-lines-v1
+          restore-keys: |
+            ${{ runner.os }}-npm-lines-
+
+      - name: Validate text file formatting
+        run: |
+          npm install --save-dev prettier
+          make validate-lines -j
