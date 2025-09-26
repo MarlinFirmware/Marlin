@@ -922,8 +922,13 @@
 /**
  * Fixed-Time Motion
  */
-#if ALL(FT_MOTION, I2S_STEPPER_STREAM)
-  #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+#if ENABLED(FT_MOTION)
+  #if ENABLED(I2S_STEPPER_STREAM)
+    #warning "FT_MOTION has not been tested with I2S_STEPPER_STREAM."
+  #endif
+  #if HAS_BED_PROBE && DELAY_BEFORE_PROBING <= 25
+    #warning "A longer DELAY_BEFORE_PROBING is recommended when using a probe with FT_MOTION."
+  #endif
 #endif
 
 /**
