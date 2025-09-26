@@ -21,96 +21,52 @@
 #include "trajectory_generator.h"
 #include <math.h>
 
-
 /**
  * 6th order S-Curve trajectory generator.
- * Provides continuous snap, resulting in smooth jerk.
- * Acceleration and jerk start and end at zero. The snap, crackle, and pop are such that
- * the distance and phase durations match those of a trapezoidal profile.
+ * Applies a sextic (position) only to accel/decel phases, coast is flat.
+ * - T1/T2/T3 exactly match trapezoid timings
+ * - a(mid-phase) = overshoot * a_max (accel)  and  = -overshoot * a_max (decel)
+ * - v,a start/end at 0 within each phase; joins are continuous.
  */
 class Poly6TrajectoryGenerator : public TrajectoryGenerator {
 public:
-  Poly6TrajectoryGenerator() = default;
+  Poly6TrajectoryGenerator();
 
-  void plan(float initial_speed, float final_speed, float acceleration, float nominal_speed, float distance) override {
-    this->initial_speed = initial_speed;
-    this->nominal_speed = nominal_speed;
+  void plan(const float initial_speed, const float final_speed, const float acceleration, float nominal_speed, const float distance) override;
 
-    // Calculate timing phases using the same logic as trapezoidal generator
-    const float one_over_accel = 1.0f / acceleration;
-    const float ldiff = distance + 0.5f * one_over_accel * (sq(this->initial_speed) + sq(final_speed));
+  void planRunout(const float duration) override;
 
-    T2 = ldiff / this->nominal_speed - one_over_accel * this->nominal_speed;
-    if (T2 < 0.0f) {
-      T2 = 0.0f;
-      this->nominal_speed = sqrtf(ldiff * acceleration);
-    }
+  float getDistanceAtTime(const float t) const override;
 
-    T1 = (this->nominal_speed - this->initial_speed) * one_over_accel;
-    T3 = (this->nominal_speed - final_speed) * one_over_accel;
+  float getTotalDuration() const override;
 
-    // Acceleration phase (5th-order velocity -> 6th-order position)
-    // v(t) = (v_f - v_i) * (6t^5 - 15t^4 + 10t^3) + v_i
-    // s(t) = ∫v(t)dt = (v_f - v_i) * (t^6 - 3t^5 + (10/4)t^4) + v_i*t
-    const float dv1 = this->nominal_speed - this->initial_speed;
-    // acc_c0 = 0.0f; // initial position is zero
-    acc_c1 = this->initial_speed;
-    // acc_c2 = 0.0f; // initial acceleration is zero
-    // acc_c3 = 0.0f; // initial jerk is zero
-    acc_c4 = dv1 * 2.5f / (T1 * T1 * T1);
-    acc_c5 = dv1 * -3.0f / (T1 * T1 * T1 * T1);
-    acc_c6 = dv1 * 1.0f / (T1 * T1 * T1 * T1 * T1);
-    pos_before_coast = (this->initial_speed + this->nominal_speed) * T1 * 0.5f;
-
-    // Coast phase
-    pos_after_coast = pos_before_coast + this->nominal_speed * T2;
-
-    // Deceleration phase
-    const float dv2 = final_speed - this->nominal_speed;
-    // dec_c0 = 0.0f; // initial position is zero
-    dec_c1 = this->nominal_speed;
-    // dec_c2 = 0.0f; // initial acceleration is zero
-    // dec_c3 = 0.0f; // initial jerk is zero
-    dec_c4 = dv2 * 2.5f / (T3 * T3 * T3);
-    dec_c5 = dv2 * -3.0f / (T3 * T3 * T3 * T3);
-    dec_c6 = dv2 * 1.0f / (T3 * T3 * T3 * T3 * T3);
-  }
-
-  void planRunout(float duration) override {
-    reset();
-    T2 = duration;
-  }
-
-  float getDistanceAtTime(float t) const override {
-    if (t < T1) {
-        // Acceleration phase
-        return t * (acc_c1 + t * t * t * (acc_c4 + t * (acc_c5 + t * acc_c6)));
-    } else if (t <= (T1 + T2)) {
-        // Coasting phase
-        return pos_before_coast + this->nominal_speed * (t - T1);
-    }
-    // Deceleration phase
-    const float tau = t - (T1 + T2);
-    return pos_after_coast + tau * (dec_c1 + tau * tau * tau * (dec_c4 + tau * (dec_c5 + tau * dec_c6)));
-  }
-
-  float getTotalDuration() const override { return T1 + T2 + T3; }
-
-  void reset() override {
-    acc_c1 = acc_c4 = acc_c5 = acc_c6 = 0.0f;
-    dec_c1 = dec_c4 = dec_c5 = dec_c6 = 0.0f;
-    T1 = T2 = T3 = 0.0f;
-    initial_speed = nominal_speed = 0.0f;
-    pos_before_coast = pos_after_coast = 0.0f;
-  }
+  void reset() override;
 
 private:
-  // c1: initial velocity, c4: snap, c5: crackle, c6: pop
-  // acceleration coefficients
-  float acc_c1 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f, acc_c6 = 0.0f;
-  // deceleration coefficients
-  float dec_c1 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f, dec_c6 = 0.0f;
+  // ===== Utilities (position domain) =====
+  // Base quintic in position (end accel = 0): s5(u) = s0 + v0*Ts*u + c3 u^3 + c4 u^4 + c5 u^5
+  static inline float s5_u(const float s0, const float v0, const float Ts,
+                           const float c3, const float c4, const float c5, const float u) {
+    const float u2=u * u, u3=u2 * u, u4=u3 * u, u5=u4 * u;
+    return s0 + v0 * Ts * u + c3 * u3 + c4 * u4 + c5 * u5;
+  }
+  static inline float s5pp_u(const float c3, const float c4, const float c5, const float u) {
+    // d^2/du^2 (c3 u^3 + c4 u^4 + c5 u^5) = 6a u + 12 c4 u^2 + 20 c5 u^3
+    return 6.0f * c3 * u + 12.0f * c4 * u * u + 20.0f * c5 * u * u * u;
+  }
+
+  // Shape term K(u) = u^3(1-u)^3 added in position with scalar c
+  static inline float K_u(const float /*s0*/, const float /*v0*/, const float /*Ts*/, const float u) {
+    const float um1 = 1.0f - u;
+    return (u * u * u) * (um1 * um1 * um1);
+  }
+
+  // Timings and kinematics
   float T1 = 0.0f, T2 = 0.0f, T3 = 0.0f;
   float initial_speed = 0.0f, nominal_speed = 0.0f;
   float pos_before_coast = 0.0f, pos_after_coast = 0.0f;
+
+  // New phase polynomials
+  float acc_c3 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f, acc_c6 = 0.0f;
+  float dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f, dec_c6 = 0.0f;
 };

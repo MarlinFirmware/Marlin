@@ -27,9 +27,9 @@
 
 #include "ft_types.h"
 #include "ft_motion/trajectory_generator.h"
+#include "ft_motion/trapezoidal_trajectory_generator.h"
 #include "ft_motion/poly5_trajectory_generator.h"
 #include "ft_motion/poly6_trajectory_generator.h"
-class TrapezoidalTrajectoryGenerator;
 
 #if HAS_X_AXIS && (HAS_Z_AXIS || HAS_EXTRUDERS)
   #define HAS_DYNAMIC_FREQ 1
@@ -74,6 +74,7 @@ typedef struct FTConfig {
   #endif
 
   TrajectoryType trajectory_type = TrajectoryType::TRAPEZOIDAL; // Trajectory generator type
+  float poly6_acceleration_overshoot; // Overshoot factor for Poly6 (1.25 to 2.0)
 } ft_config_t;
 
 class FTMotion {
@@ -125,7 +126,9 @@ class FTMotion {
         cfg.linearAdvK = FTM_LINEAR_ADV_DEFAULT_K;
       #endif
 
-      setTrajectoryType(TrajectoryType::FTM_TRYJECTORY_TYPE);
+      cfg.poly6_acceleration_overshoot = FTM_POLY6_ACCELERATION_OVERSHOOT;
+
+      setTrajectoryType(TrajectoryType::TRAPEZOIDAL);
 
       reset();
     }

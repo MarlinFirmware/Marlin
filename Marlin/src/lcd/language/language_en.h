@@ -949,6 +949,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_ZETA_N                     = _UxGT("@ Damping");
   LSTR MSG_FTM_VTOL_N                     = _UxGT("@ Vib. Level");
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
+  LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
 
   LSTR MSG_LEVEL_X_AXIS                   = _UxGT("Level X Axis");
   LSTR MSG_AUTO_CALIBRATE                 = _UxGT("Auto Calibrate");
