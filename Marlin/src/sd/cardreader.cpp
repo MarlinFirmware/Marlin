@@ -1447,7 +1447,7 @@ void CardReader::cdroot() {
           // Compare names from the array or just the two buffered names
           auto _sort_cmp_file = [](char * const n1, char * const n2) -> bool {
             const bool sort = strcasecmp(n1, n2) > 0;
-            return (TERN(SDSORT_GCODE, card.sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
+            return (TERN(SDSORT_GCODE, sort_alpha == AS_REV, ENABLED(SDSORT_REVERSE))) ? !sort : sort;
           };
           #define _SORT_CMP_FILE() _sort_cmp_file(TERN(SDSORT_USES_RAM, sortnames[o1], name1), TERN(SDSORT_USES_RAM, sortnames[o2], name2))
 
