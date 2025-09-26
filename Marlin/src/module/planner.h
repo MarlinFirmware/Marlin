@@ -45,7 +45,7 @@
 
 #if ENABLED(SMOOTH_LIN_ADVANCE)
   #define SMOOTH_LIN_ADV_EXP_ORDER 5  // Closest to Gaussian smoothing between 3 and 7
-  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / SMOOTH_LIN_ADV_HZ) // Hz
+  #define SMOOTH_LIN_ADV_INTERVAL (STEPPER_TIMER_RATE / (SMOOTH_LIN_ADV_HZ)) // Hz
 #endif
 
 #include "motion.h"
@@ -266,11 +266,16 @@ typedef struct PlannerBlock {
 
   AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
 
-  // Advance extrusion
+  #if ENABLED(FT_MOTION)
+    xyze_pos_t dist_mm;                     // The distance traveled in mm along each axis
+  #endif
+
+  #if ANY(SMOOTH_LIN_ADVANCE, FTM_HAS_LIN_ADVANCE)
+    bool use_advance_lead;                  // Linear / Pressure Advance extrusion
+  #endif
+
   #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(SMOOTH_LIN_ADVANCE)
-      bool use_advance_lead;
-    #else
+    #if HAS_ROUGH_LIN_ADVANCE
       uint32_t la_advance_rate;             // The rate at which steps are added whilst accelerating
       uint8_t  la_scaling;                  // Scale ISR frequency down and step frequency up by 2 ^ la_scaling
       uint16_t max_adv_steps,               // Max advance steps to get cruising speed pressure
@@ -316,7 +321,7 @@ typedef struct PlannerBlock {
 
 } block_t;
 
-#if ANY(LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
+#if ANY(LIN_ADVANCE, FTM_HAS_LIN_ADVANCE, FEEDRATE_SCALING, GRADIENT_MIX, LCD_SHOW_E_TOTAL, POWER_LOSS_RECOVERY)
   #define HAS_POSITION_FLOAT 1
 #endif
 
@@ -542,7 +547,7 @@ class Planner {
           return extruder_advance_K_q27[E_INDEX_N(e)];
         }
       #endif
-    #endif
+    #endif // LIN_ADVANCE
 
     /**
      * The current position of the tool in absolute steps

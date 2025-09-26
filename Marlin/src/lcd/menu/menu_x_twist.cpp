@@ -159,7 +159,7 @@ void xatc_wizard_goto_next_point() {
     z_offset /= XATC_MAX_POINTS;
 
     // Subtract the average from the values found with this wizard.
-    // This way they are indipendent from the z-offset
+    // This way they are independent from the z-offset
     for (uint8_t i = 0; i < XATC_MAX_POINTS; ++i) xatc.z_offset[i] -= z_offset;
 
     ui.goto_screen(xatc_wizard_update_z_offset);

@@ -68,7 +68,7 @@
 #ifndef PCA9632_BLU
   #define PCA9632_BLU 0x04
 #endif
-#if HAS_WHITE_LED && !defined(PCA9632_WHT)
+#if ENABLED(PCA9632_RGBW) && !defined(PCA9632_WHT)
   #define PCA9632_WHT 0x06
 #endif
 
@@ -124,7 +124,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void PCA9632_set_led_color(const LEDColor &color) {
+void PCA9632_set_led_color(const LED1Color_t &color) {
   Wire.begin();
   if (!PCA_init) {
     PCA_init = 1;
@@ -135,10 +135,7 @@ void PCA9632_set_led_color(const LEDColor &color) {
   const byte LEDOUT = (color.r ? LED_PWM << PCA9632_RED : 0)
                     | (color.g ? LED_PWM << PCA9632_GRN : 0)
                     | (color.b ? LED_PWM << PCA9632_BLU : 0)
-                    #if ENABLED(PCA9632_RGBW)
-                      | (color.w ? LED_PWM << PCA9632_WHT : 0)
-                    #endif
-                    ;
+                    | (TERN0(PCA9632_RGBW, color.w ? LED_PWM << PCA9632_WHT : 0));
 
   PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b
     OPTARG(PCA9632_RGBW, color.w)

@@ -122,6 +122,8 @@ class TFilamentMonitor : public FilamentMonitorBase {
       static void filament_motion_present(const uint8_t extruder) {
         response.filament_motion_present(extruder);
       }
+      static float& motion_distance() { return response.motion_distance_mm; }
+      static void set_motion_distance(const_float_t mm) { response.motion_distance_mm = mm; }
     #endif
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
@@ -141,38 +143,37 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
     // Give the response a chance to update its counter.
     static void run() {
-      if (enabled && !filament_ran_out && should_monitor_runout()) {
-        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
-        response.run();
-        sensor.run();
-        const runout_flags_t runout_flags = response.has_run_out();
-        TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
-        #if MULTI_FILAMENT_SENSOR
-          #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
-            const bool ran_out = bool(runout_flags);  // any sensor triggers
-            uint8_t extruder = 0;
-            if (ran_out) while (!runout_flags.test(extruder)) extruder++;
-          #else
-            const bool ran_out = runout_flags[active_extruder];  // suppress non active extruders
-            uint8_t extruder = active_extruder;
-          #endif
+      if (!enabled || filament_ran_out || !should_monitor_runout()) return;
+      TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
+      response.run();
+      sensor.run();
+      const runout_flags_t runout_flags = response.has_run_out();
+      TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
+      #if MULTI_FILAMENT_SENSOR
+        #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
+          const bool ran_out = bool(runout_flags);  // any sensor triggers
+          uint8_t extruder = 0;
+          if (ran_out) while (!runout_flags.test(extruder)) extruder++;
         #else
-          const bool ran_out = bool(runout_flags);
+          const bool ran_out = runout_flags[active_extruder];  // suppress non active extruders
           uint8_t extruder = active_extruder;
         #endif
+      #else
+        const bool ran_out = bool(runout_flags);
+        uint8_t extruder = active_extruder;
+      #endif
 
-        if (ran_out) {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-            SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i = 0; i < 8; ++i) SERIAL_CHAR('0' + char(runout_flags[i]));
-            SERIAL_ECHOLNPGM(" -> ", extruder, " RUN OUT");
-          #endif
+      if (!ran_out) return;
 
-          filament_ran_out = true;
-          event_filament_runout(extruder);
-          planner.synchronize();
-        }
-      }
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+        SERIAL_ECHOPGM("Runout Sensors: ");
+        for (uint8_t i = 0; i < 8; ++i) SERIAL_CHAR('0' + char(runout_flags[i]));
+        SERIAL_ECHOLNPGM(" -> ", extruder, " RUN OUT");
+      #endif
+
+      filament_ran_out = true;
+      event_filament_runout(extruder);
+      planner.synchronize();
     }
 
     // Reset after a filament runout or upon resuming a job
@@ -380,7 +381,7 @@ class FilamentSensorBase {
       static float runout_distance_mm;
 
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-        static constexpr float motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
+        static float motion_distance_mm;
       #endif
 
       static void set_ignore_motion(const bool ignore=true) { ignore_motion = ignore; }
@@ -390,6 +391,7 @@ class FilamentSensorBase {
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
           for (uint8_t i = 0; i < NUM_MOTION_SENSORS; ++i) filament_motion_present(i);
         #endif
+        set_ignore_motion(false);
       }
 
       static void run() {
@@ -482,7 +484,7 @@ class FilamentSensorBase {
       static void init_for_restart(const bool onoff=true) {
         UNUSED(onoff);
         #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
-          reset();
+          reset(); // also calls set_ignore_motion(false)
           set_ignore_motion(!onoff);
         #endif
       }
