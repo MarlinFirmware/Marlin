@@ -95,15 +95,16 @@ void GcodeSuite::M920() {
 void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
-  report_heading(forReplay, F(STR_HOMING_CURRENT));
-
-  auto say_M920 = [](const bool forReplay, int8_t index=-1) {
-    report_echo_start(forReplay);
-    SERIAL_ECHOPGM("  M920");
-    if (index >= 0) SERIAL_ECHOPGM(" " I_PARAM_STR, index);
-  };
-
   #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
+
+    report_heading(forReplay, F(STR_HOMING_CURRENT));
+
+    auto say_M920 = [](const bool forReplay, int8_t index=-1) {
+      report_echo_start(forReplay);
+      SERIAL_ECHOPGM("  M920");
+      if (index >= 0) SERIAL_ECHOPGM(" " I_PARAM_STR, index);
+    };
+
     #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS || Z3_SENSORLESS || Z4_SENSORLESS
       say_M920(forReplay, 0);
     #else
@@ -123,23 +124,26 @@ void GcodeSuite::M920_report(const bool forReplay/*=true*/) {
     TERN_(V_SENSORLESS, SERIAL_ECHOPGM_P(SP_V_STR, homing_current_mA.V));
     TERN_(W_SENSORLESS, SERIAL_ECHOPGM_P(SP_W_STR, homing_current_mA.W));
     SERIAL_EOL();
-  #endif
 
-  #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
-    say_M920(forReplay, 1);
-    TERN_(X2_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
-    TERN_(Y2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
-    TERN_(Z2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
-    SERIAL_EOL();
-  #endif
-  #if Z3_SENSORLESS
-    say_M920(forReplay, 2);
-    SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z3);
-  #endif
-  #if Z4_SENSORLESS
-    say_M920(forReplay, 3);
-    SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z4);
-  #endif
+    #if X2_SENSORLESS || Y2_SENSORLESS || Z2_SENSORLESS
+      say_M920(forReplay, 1);
+      TERN_(X2_SENSORLESS, SERIAL_ECHOPGM_P(SP_X_STR, homing_current_mA.X2));
+      TERN_(Y2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Y_STR, homing_current_mA.Y2));
+      TERN_(Z2_SENSORLESS, SERIAL_ECHOPGM_P(SP_Z_STR, homing_current_mA.Z2));
+      SERIAL_EOL();
+    #endif
+
+    #if Z3_SENSORLESS
+      say_M920(forReplay, 2);
+      SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z3);
+    #endif
+
+    #if Z4_SENSORLESS
+      say_M920(forReplay, 3);
+      SERIAL_ECHOLNPGM(" Z", homing_current_mA.Z4);
+    #endif
+
+  #endif // X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
 }
 
 #endif // EDITABLE_HOMING_CURRENT

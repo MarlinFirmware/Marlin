@@ -100,7 +100,7 @@ public:
       #if HAS_PROBE_XY_OFFSET
         // Return true if the both nozzle and the probe can reach the given point.
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
-        static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
+        static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
           if (probe_relative) {
             return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
                 && position_is_reachable(rx, ry, PROBING_MARGIN);            // Can the probe also go near there?
@@ -111,7 +111,7 @@ public:
           }
         }
       #else
-        static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) {
+        static bool can_reach(const float rx, const float ry, const bool=true) {
           return position_is_reachable(rx, ry)
               && position_is_reachable(rx, ry, PROBING_MARGIN);
         }
@@ -119,7 +119,7 @@ public:
 
     #else // !IS_KINEMATIC
 
-      static bool obstacle_check(const_float_t rx, const_float_t ry) {
+      static bool obstacle_check(const float rx, const float ry) {
         #if ENABLED(AVOID_OBSTACLES)
           #ifdef OBSTACLE1
             constexpr float obst1[] = OBSTACLE1;
@@ -152,7 +152,7 @@ public:
        * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
        *          nozzle must be be able to reach +10,-10.
        */
-      static bool can_reach(const_float_t rx, const_float_t ry, const bool probe_relative=true) {
+      static bool can_reach(const float rx, const float ry, const bool probe_relative=true) {
         if (probe_relative) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
               && COORDINATE_OKAY(rx, min_x() - fslop, max_x() + fslop)
@@ -172,14 +172,14 @@ public:
     #endif // !IS_KINEMATIC
 
     static float probe_at_point(
-      const_float_t      rx,
-      const_float_t      ry,
+      const float        rx,
+      const float        ry,
       const ProbePtRaise raise_after        = PROBE_PT_NONE,
       const uint8_t      verbose_level      = 0,
       const bool         probe_relative     = true,
       const bool         sanity_check       = true,
-      const_float_t      z_min_point        = Z_PROBE_LOW_POINT,
-      const_float_t      z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
+      const float        z_min_point        = Z_PROBE_LOW_POINT,
+      const float        z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
       const bool         raise_after_is_rel = false
     );
 
@@ -189,8 +189,8 @@ public:
       const uint8_t      verbose_level      = 0,
       const bool         probe_relative     = true,
       const bool         sanity_check       = true,
-      const_float_t      z_min_point        = Z_PROBE_LOW_POINT,
-      const_float_t      z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
+      const float        z_min_point        = Z_PROBE_LOW_POINT,
+      const float        z_clearance        = Z_TWEEN_SAFE_CLEARANCE,
       const bool         raise_after_is_rel = false
     ) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check, z_min_point, z_clearance, raise_after_is_rel);
@@ -202,7 +202,7 @@ public:
 
     static bool set_deployed(const bool, const bool=false) { return false; }
 
-    static bool can_reach(const_float_t rx, const_float_t ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
+    static bool can_reach(const float rx, const float ry, const bool=true) { return position_is_reachable(TERN_(HAS_X_AXIS, rx) OPTARG(HAS_Y_AXIS, ry)); }
 
   #endif // !HAS_BED_PROBE
 
@@ -356,14 +356,14 @@ public:
 
   // Basic functions for Sensorless Homing and Probing
   #if HAS_DELTA_SENSORLESS_PROBING
-    static void set_offset_sensorless_adj(const_float_t sz);
+    static void set_offset_sensorless_adj(const float sz);
     static void refresh_largest_sensorless_adj();
   #endif
 
 private:
   #if HAS_BED_PROBE
-    static bool probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s);
-    static float run_z_probe(const bool sanity_check=true, const_float_t z_min_point=Z_PROBE_LOW_POINT, const_float_t z_clearance=Z_TWEEN_SAFE_CLEARANCE);
+    static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
+    static float run_z_probe(const bool sanity_check=true, const float z_min_point=Z_PROBE_LOW_POINT, const float z_clearance=Z_TWEEN_SAFE_CLEARANCE);
   #endif
 };
 

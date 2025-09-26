@@ -242,7 +242,7 @@
 
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
-  #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
+  #define LCD_RESET_PIN LCD_PINS_D6         // ULTI_CONTROLLER needs a reset pin
   #define STD_ENCODER_PULSES_PER_STEP 4
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #ifndef PCA9632
@@ -308,15 +308,15 @@
 
 #endif
 
-#if ANY(FYSETC_MINI_12864, MKS_MINI_12864)
-  #define U8G_SPI_USE_MODE_3 1
-#endif
-
 // ST7920-based graphical displays
 #if ANY(IS_RRD_FG_SC, LCD_FOR_MELZI, SILVER_GATE_GLCD_CONTROLLER)
   #define DOGLCD
   #define IS_U8GLIB_ST7920 1
   #define IS_RRD_SC 1
+#endif
+
+#if ANY(FYSETC_MINI_12864, MKS_MINI_12864) || ALL(__PLAT_NATIVE_SIM__, IS_U8GLIB_ST7920)
+  #define U8G_SPI_USE_MODE_3 1
 #endif
 
 // ST7565 / 64128N graphical displays

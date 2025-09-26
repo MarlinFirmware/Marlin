@@ -554,7 +554,7 @@ void RTS::sendData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAdd
   sendData();
 }
 
-void RTS::sendData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const float f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   int16_t n = f;
   if (cmd == VarAddr_W) {
     snddat.data[0] = n;
