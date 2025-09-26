@@ -638,13 +638,13 @@ void MarlinUI::clear_for_drawing() {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      u8g_uint_t x_map_pixels = (MAP_MAX_PIXELS_X - 4) / sq(GRID_PREF_POINTS_X);
-      u8g_uint_t y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / sq(GRID_PREF_POINTS_Y);
+      u8g_uint_t x_map_pixels = (MAP_MAX_PIXELS_X - 4) / sq(GRID_PREF_POINTS_X),
+                 y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / sq(GRID_PREF_POINTS_Y),
 
-      u8g_uint_t pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X;
-      u8g_uint_t pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y;
+                 pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
+                 pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
 
-      u8g_uint_t x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
+                 x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
                  y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
 
       // Clear the Mesh Map
@@ -670,8 +670,8 @@ void MarlinUI::clear_for_drawing() {
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = GRID_PREF_POINTS_Y - 1 - y_plot;  // The origin is typically in the lower right corner.  We need to
-                                                                    // invert the Y to get it to plot in the right location.
+      const uint8_t y_plot_inv = GRID_PREF_POINTS_Y - 1 - y_plot; // The origin is typically in the lower right corner.  We need to
+                                                                  // invert the Y to get it to plot in the right location.
 
       const u8g_uint_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
       if (PAGE_CONTAINS(by, by + pixels_per_y_mesh_pnt))

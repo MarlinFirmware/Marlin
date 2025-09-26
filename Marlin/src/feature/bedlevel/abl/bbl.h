@@ -31,7 +31,12 @@ class LevelingBilinear {
 public:
   static bed_mesh_t z_values;
   static xy_pos_t grid_spacing, grid_start;
-  static GRID_CONSTEXPR xy_uint8_t nr_grid_points IF_DISABLED(VARIABLE_GRID_POINTS, { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y });
+
+  #if ENABLED(VARIABLE_GRID_POINTS)
+    static xy_uint8_t nr_grid_points;
+  #else
+    static constexpr xy_uint8_t nr_grid_points { GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y };
+  #endif
 
 private:
   static xy_float_t grid_factor;

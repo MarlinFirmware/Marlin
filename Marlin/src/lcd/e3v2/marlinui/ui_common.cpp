@@ -510,14 +510,14 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      dwin_coord_t x_map_pixels = (MAP_MAX_PIXELS_X - 4) / GRID_PREF_POINTS_X * GRID_PREF_POINTS_X;
-      dwin_coord_t y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / GRID_PREF_POINTS_Y * GRID_PREF_POINTS_Y;
+      dwin_coord_t  x_map_pixels = (MAP_MAX_PIXELS_X - 4) / GRID_PREF_POINTS_X * GRID_PREF_POINTS_X,
+                    y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / GRID_PREF_POINTS_Y * GRID_PREF_POINTS_Y,
 
-      pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
-      pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
+                    pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
+                    pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
 
-      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
-      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
+                    x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
+                    y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
 
       // Clear the Mesh Map
 
@@ -529,7 +529,7 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Fill in the Specified Mesh Point
 
       const uint8_t y_plot_inv = GRID_PREF_POINTS_Y - 1 - y_plot; // The origin is typically in the lower right corner.  We need to
-                                                                    // invert the Y to get it to plot in the right location.
+                                                                  // invert the Y to get it to plot in the right location.
 
       const dwin_coord_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
       dwinDrawRectangle(1, COLOR_SELECT,

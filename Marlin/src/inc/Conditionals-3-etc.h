@@ -649,7 +649,7 @@
 
   #define GRID_LOOP(A,B)      for (uint8_t A = 0; A < (GRID_MAX_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_MAX_POINTS_Y); ++B)
   #define GRID_LOOP_USED(A,B) for (uint8_t A = 0; A < (GRID_USED_POINTS_X); ++A) for (uint8_t B = 0; B < (GRID_USED_POINTS_Y); ++B)
-  #define GRID_LOOP_COND(x, y) GRID_VAL(GRID_LOOP_USED, GRID_LOOP)(x, y)
+  #define GRID_LOOP_COND(x, y) TERN(VARIABLE_GRID_POINTS, GRID_LOOP_USED, GRID_LOOP)(x, y)
 
 #endif // GRID_MAX_POINTS_X
 
