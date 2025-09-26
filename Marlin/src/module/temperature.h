@@ -118,8 +118,11 @@ enum ADCSensorState : char {
   #if HAS_JOY_ADC_Z
     PrepareJoy_Z, MeasureJoy_Z,
   #endif
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #if HAS_FILWIDTH_ADC
     Prepare_FILWIDTH, Measure_FILWIDTH,
+  #endif
+  #if HAS_FILWIDTH2_ADC
+    Prepare_FILWIDTH2, Measure_FILWIDTH2,
   #endif
   #if ENABLED(POWER_MONITOR_CURRENT)
     Prepare_POWER_MONITOR_CURRENT,

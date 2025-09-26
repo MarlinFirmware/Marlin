@@ -97,7 +97,7 @@ The update rules for the error on each step may also be cast into ε' form. Cons
 ε = ε + m - 1
 ```
 
- Multiplying through by Δx yields:
+Multiplying through by Δx yields:
 
 ```
 ε.Δx = ε.Δx + Δy
@@ -111,7 +111,7 @@ Which is in ε' form:
 ε' = ε' + Δy - Δx
 ```
 
-Using this new ``error'' value, ε'  with the new test and update equations gives Bresenham's integer-only line drawing algorithm:
+Using this new ``error'' value, ε' with the new test and update equations gives Bresenham's integer-only line drawing algorithm:
 
 ```
 ε' = 0, y = y[1]
@@ -125,7 +125,7 @@ for x = x1 to x2 do
 endfor
 ```
 
-It is a Integer only algorithm - hence efficient (fast). And the Multiplication by 2 can be implemented by left-shift.  0 <= m <= 1
+It is a Integer only algorithm - hence efficient (fast). And the Multiplication by 2 can be implemented by left-shift. 0 <= m <= 1
 
 ### Oversampling Bresenham algorithm:
 
@@ -170,12 +170,14 @@ y + ε + m/r < y + 0.5
 Once we did the decision, then the error update conditions are:
 
 Decision A:
+
 ```
 ε[new] = y + ε + m/r - y
 ε[new] = ε + m/r                                [2]
 ```
 
 Decision B:
+
 ```
 ε[new] = y + ε + m/r - (y+1)
 ε[new] = ε + m/r - 1                            [3]

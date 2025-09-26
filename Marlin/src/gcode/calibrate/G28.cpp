@@ -200,11 +200,12 @@
 #endif // IMPROVE_HOMING_RELIABILITY
 
 /**
- * G28: Home all axes according to settings
+ * G28: Auto Home
  *
- * Parameters
+ * Home all axes according to settings
  *
- *  None  Home to all axes with no parameters.
+ * Parameters:
+ *  None  Home all axes
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
@@ -216,7 +217,7 @@
  *            fail with position unreachable due to probe/nozzle offset.  This
  *            can be used to avoid a model.
  *
- * Cartesian/SCARA parameters
+ * Cartesian/SCARA parameters:
  *
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop

@@ -209,11 +209,11 @@ inline bool extIsBIN(char *ext) {
 //
 // Return 'true' if the item is a folder, G-code file or Binary file
 //
-bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool onlyBin/*=false*/)) {
+bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD, const bool binFiles/*=false*/)) {
   //uint8_t pn0 = p.name[0];
 
   #if DISABLED(CUSTOM_FIRMWARE_UPLOAD)
-    constexpr bool onlyBin = false;
+    constexpr bool binFiles = false;
   #endif
 
   if ( (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
@@ -228,9 +228,9 @@ bool CardReader::is_visible_entity(const dir_t &p OPTARG(CUSTOM_FIRMWARE_UPLOAD,
 
   return (
     flag.filenameIsDir                                  // All Directories are ok
-    || fileIsBinary()                                   // BIN files are accepted
-    || (!onlyBin && p.name[8] == 'G'
-                 && p.name[9] != '~')                   // Non-backup *.G* files are accepted
+    || ( binFiles && fileIsBinary())                    // BIN files are accepted
+    || (!binFiles && p.name[8] == 'G'
+                  && p.name[9] != '~')                  // Non-backup *.G* files are accepted
   );
 }
 
@@ -292,7 +292,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
     const bool includeLong = TEST(lsflags, LS_LONG_FILENAME);
   #endif
   #if ENABLED(CUSTOM_FIRMWARE_UPLOAD)
-    const bool onlyBin = TEST(lsflags, LS_ONLY_BIN);
+    const bool binFiles = TEST(lsflags, LS_ONLY_BIN);
   #endif
   UNUSED(lsflags);
   dir_t p;
@@ -328,7 +328,7 @@ void CardReader::printListing(MediaFile parent, const char * const prepend, cons
         return;
       }
     }
-    else if (is_visible_entity(p OPTARG(CUSTOM_FIRMWARE_UPLOAD, onlyBin))) {
+    else if (is_visible_entity(p OPTARG(CUSTOM_FIRMWARE_UPLOAD, binFiles))) {
       if (prepend) SERIAL_ECHO(prepend, C('/'));
       SERIAL_ECHO(createFilename(filename, p), C(' '), p.fileSize);
       if (includeTime) {

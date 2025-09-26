@@ -154,6 +154,82 @@ enum StealthIndex : uint8_t {
   TMC_SPI_DEFINE_E(7);
 #endif
 
+#if HAS_TMC_SPI
+
+  // Init CS pins (active-low) for TMC SPI drivers.
+  #define INIT_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+
+  void tmc_init_cs_pins() {
+    #if AXIS_HAS_SPI(X)
+      INIT_CS_PIN(X);
+    #endif
+    #if AXIS_HAS_SPI(Y)
+      INIT_CS_PIN(Y);
+    #endif
+    #if AXIS_HAS_SPI(Z)
+      INIT_CS_PIN(Z);
+    #endif
+    #if AXIS_HAS_SPI(X2)
+      INIT_CS_PIN(X2);
+    #endif
+    #if AXIS_HAS_SPI(Y2)
+      INIT_CS_PIN(Y2);
+    #endif
+    #if AXIS_HAS_SPI(Z2)
+      INIT_CS_PIN(Z2);
+    #endif
+    #if AXIS_HAS_SPI(Z3)
+      INIT_CS_PIN(Z3);
+    #endif
+    #if AXIS_HAS_SPI(Z4)
+      INIT_CS_PIN(Z4);
+    #endif
+    #if AXIS_HAS_SPI(I)
+      INIT_CS_PIN(I);
+    #endif
+    #if AXIS_HAS_SPI(J)
+      INIT_CS_PIN(J);
+    #endif
+    #if AXIS_HAS_SPI(K)
+      INIT_CS_PIN(K);
+    #endif
+    #if AXIS_HAS_SPI(U)
+      INIT_CS_PIN(U);
+    #endif
+    #if AXIS_HAS_SPI(V)
+      INIT_CS_PIN(V);
+    #endif
+    #if AXIS_HAS_SPI(W)
+      INIT_CS_PIN(W);
+    #endif
+    #if AXIS_HAS_SPI(E0)
+      INIT_CS_PIN(E0);
+    #endif
+    #if AXIS_HAS_SPI(E1)
+      INIT_CS_PIN(E1);
+    #endif
+    #if AXIS_HAS_SPI(E2)
+      INIT_CS_PIN(E2);
+    #endif
+    #if AXIS_HAS_SPI(E3)
+      INIT_CS_PIN(E3);
+    #endif
+    #if AXIS_HAS_SPI(E4)
+      INIT_CS_PIN(E4);
+    #endif
+    #if AXIS_HAS_SPI(E5)
+      INIT_CS_PIN(E5);
+    #endif
+    #if AXIS_HAS_SPI(E6)
+      INIT_CS_PIN(E6);
+    #endif
+    #if AXIS_HAS_SPI(E7)
+      INIT_CS_PIN(E7);
+    #endif
+  }
+
+#endif // HAS_TMC_SPI
+
 #ifndef TMC_BAUD_RATE
   // Reduce baud rate for boards not already overriding TMC_BAUD_RATE for software serial.
   // Testing has shown that 115200 is not 100% reliable on AVR platforms, occasionally
@@ -313,6 +389,7 @@ enum StealthIndex : uint8_t {
 // TMC2208/2209 Driver objects and inits
 //
 #if HAS_TMC_UART
+
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
@@ -685,7 +762,8 @@ enum StealthIndex : uint8_t {
       #endif
     #endif
   }
-#endif
+
+#endif // HAS_TMC_UART
 
 #if HAS_DRIVER(TMC2208)
   template<char AXIS_LETTER, char DRIVER_ID, AxisEnum AXIS_ID>
