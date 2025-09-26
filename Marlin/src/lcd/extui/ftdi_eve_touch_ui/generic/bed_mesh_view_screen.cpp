@@ -93,7 +93,7 @@ void BedMeshViewScreen::onRedraw(draw_mode_t what) {
   }
 
   if (what & FOREGROUND) {
-    const float progress = sq(float(mydata.count) / TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS, GRID_MAX_POINTS));
+    const float progress = sq(float(mydata.count) / GRID_PREF_POINTS);
     if (progress >= 1.0)
       drawHighlightedPointValue();
     drawMeshForeground(cmd, INSET_POS(MESH_POS), meshGetter, nullptr, pointToTag(mydata.highlight.x, mydata.highlight.y), progress);

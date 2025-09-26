@@ -510,14 +510,14 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
-      dwin_coord_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X))) * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
-      dwin_coord_t y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)))) * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)),
+      dwin_coord_t x_map_pixels = (MAP_MAX_PIXELS_X - 4) / GRID_PREF_POINTS_X * GRID_PREF_POINTS_X;
+      dwin_coord_t y_map_pixels = (MAP_MAX_PIXELS_Y - 4) / GRID_PREF_POINTS_Y * GRID_PREF_POINTS_Y;
 
-              pixels_per_x_mesh_pnt = x_map_pixels / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)),
-              pixels_per_y_mesh_pnt = y_map_pixels / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)),
+      pixels_per_x_mesh_pnt = x_map_pixels / GRID_PREF_POINTS_X,
+      pixels_per_y_mesh_pnt = y_map_pixels / GRID_PREF_POINTS_Y,
 
-              x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
-              y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
+      x_offset = MAP_UPPER_LEFT_CORNER_X + 1 + (MAP_MAX_PIXELS_X - x_map_pixels - 2) / 2,
+      y_offset = MAP_UPPER_LEFT_CORNER_Y + 1 + (MAP_MAX_PIXELS_Y - y_map_pixels - 2) / 2;
 
       // Clear the Mesh Map
 
@@ -528,7 +528,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
       // Fill in the Specified Mesh Point
 
-      const uint8_t y_plot_inv = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y) - 1) - y_plot;  // The origin is typically in the lower right corner.  We need to
+      const uint8_t y_plot_inv = (GRID_PREF_POINTS_Y - 1) - y_plot; // The origin is typically in the lower right corner.  We need to
                                                                     // invert the Y to get it to plot in the right location.
 
       const dwin_coord_t by = y_offset + y_plot_inv * pixels_per_y_mesh_pnt;
@@ -540,8 +540,8 @@ void MarlinUI::draw_status_message(const bool blink) {
       // Display Mesh Point Locations
       const dwin_coord_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             dwin_coord_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
-      for (uint8_t j = 0; j < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)); j++, y += pixels_per_y_mesh_pnt)
-        for (uint8_t i = 0, x = sx; i < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)); i++, x += pixels_per_x_mesh_pnt)
+      for (uint8_t j = 0; j < GRID_PREF_POINTS_Y; j++, y += pixels_per_y_mesh_pnt)
+        for (uint8_t i = 0, x = sx; i < GRID_PREF_POINTS_X; i++, x += pixels_per_x_mesh_pnt)
           dwinDrawPoint(COLOR_WHITE, 1, 1, x, y);
 
       // Put Relevant Text on Display

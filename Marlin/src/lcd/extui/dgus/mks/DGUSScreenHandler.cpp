@@ -501,7 +501,7 @@ void DGUSScreenHandlerMKS::meshLevel(DGUS_VP_Variable &var, void *val_ptr) {
         break;
 
       case 2:
-        if (mesh_point_count == TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS,  GRID_MAX_POINTS)) { // The first point
+        if (mesh_point_count == GRID_PREF_POINTS) { // The first point
           queue.enqueue_now(F("G28\nG29S1"));
           mesh_point_count--;
 

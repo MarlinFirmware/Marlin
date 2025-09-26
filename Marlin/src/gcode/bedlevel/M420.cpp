@@ -81,7 +81,7 @@ void GcodeSuite::M420() {
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, bedlevel.z_values[x][y]));
       }
       TERN_(AUTO_BED_LEVELING_BILINEAR, bedlevel.refresh_bed_level());
-      SERIAL_ECHOPGM("Simulated " STRINGIFY(TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) "x" STRINGIFY(TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) " mesh ");
+      SERIAL_ECHOPGM("Simulated " STRINGIFYGRID_PREF_POINTS_X "x" STRINGIFYGRID_PREF_POINTS_Y " mesh ");
       SERIAL_ECHOPGM(" (", x_min);
       SERIAL_CHAR(','); SERIAL_ECHO(y_min);
       SERIAL_ECHOPGM(")-(", x_max);
@@ -159,7 +159,7 @@ void GcodeSuite::M420() {
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
             GRID_LOOP_COND(x, y) mesh_sum += bedlevel.z_values[x][y];
-            const float zmean = mesh_sum / TERN(VARIABLE_GRID_POINTS, float(GRID_USED_POINTS), float(GRID_MAX_POINTS));
+            const float zmean = mesh_sum / float(GRID_VAL(GRID_USED_POINTS, GRID_MAX_POINTS));
 
           #else // midrange
 

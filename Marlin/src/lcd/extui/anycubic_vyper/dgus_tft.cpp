@@ -562,7 +562,7 @@ namespace Anycubic {
           // If probing completes ok save the mesh and park
           // Ignore the custom machine name
           if (strcmp_P(msg + strlen(MACHINE_NAME), MARLIN_msg_ready) == 0) {
-            if (probe_cnt == TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS, GRID_MAX_POINTS)) {
+            if (probe_cnt == GRID_PREF_POINTS) {
               probe_cnt = 0;
               injectCommands(F("M500"));    // G27 park nozzle
               //changePageOfTFT(PAGE_PreLEVEL);

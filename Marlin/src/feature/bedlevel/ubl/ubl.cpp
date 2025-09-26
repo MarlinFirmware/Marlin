@@ -172,7 +172,7 @@ static void serial_echo_xy(const uint8_t sp, const int16_t x, const int16_t y) {
 
 static void serial_echo_column_labels(const uint8_t sp) {
   SERIAL_ECHO_SP(7);
-  for (uint8_t i = 0; i < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); ++i) {
+  for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i) {
     if (i < 10) SERIAL_CHAR(' ');
     SERIAL_ECHO(i);
     SERIAL_ECHO_SP(sp);
@@ -191,7 +191,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const bool was = gcode.set_autoreport_paused(true);
 
   IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t eachsp = 1 + 6 + 1;                  // [-3.567]
-  uint8_t twixt = eachsp * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 9 * 2; // Leading 4sp, Coordinates 9sp each
+  uint8_t twixt = eachsp * GRID_PREF_POINTS_X - 9 * 2; // Leading 4sp, Coordinates 9sp each
 
   const bool human = !(map_type & 0x3), csv = map_type == 1, lcd = map_type == 2, comp = map_type & 0x4;
 
@@ -212,7 +212,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
   const xy_int8_t curr = closest_indexes(xy_pos_t(current_position) + probe.offset_xy);
 
   if (!lcd) SERIAL_EOL();
-  for (int8_t j = (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - 1; j >= 0; j--) {
+  for (int8_t j = GRID_PREF_POINTS_Y - 1; j >= 0; j--) {
 
     // Row Label (J index)
     if (human) {
@@ -222,7 +222,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
     }
 
     // Row Values (I indexes)
-    for (uint8_t i = 0; i < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X); ++i) {
+    for (uint8_t i = 0; i < GRID_PREF_POINTS_X; ++i) {
 
       // Opening Brace or Space
       const bool is_current = i == curr.x && j == curr.y;
@@ -239,7 +239,7 @@ void unified_bed_leveling::display_map(const uint8_t map_type) {
         if (human && f >= 0) SERIAL_CHAR(f > 0 ? '+' : ' ');  // Display sign also for positive numbers (' ' for 0)
         SERIAL_ECHO(p_float_t(f, 3));                         // Positive: 5 digits, Negative: 6 digits
       }
-      if (csv && i < (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 1) SERIAL_CHAR('\t');
+      if (csv && i < GRID_PREF_POINTS_X - 1) SERIAL_CHAR('\t');
 
       // Closing Brace or Space
       if (human) SERIAL_CHAR(is_current ? ']' : ' ');

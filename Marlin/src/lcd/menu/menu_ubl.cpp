@@ -414,7 +414,7 @@ void ubl_map_move_to_xy() {
 }
 
 inline int32_t grid_index(const uint8_t x, const uint8_t y) {
-  return (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) * y + x;
+  return GRID_PREF_POINTS_X * y + x;
 }
 
 /**
@@ -446,11 +446,11 @@ void ubl_map_screen() {
     do {
       // Now, keep the encoder position within range
       if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS, GRID_MAX_POINTS));
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN0(TOUCH_SCREEN, ui.encoderPosition - GRID_PREF_POINTS);
 
       // Draw the grid point based on the encoder
-      x = ui.encoderPosition % (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
-      y = ui.encoderPosition / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+      x = ui.encoderPosition % GRID_PREF_POINTS_X;
+      y = ui.encoderPosition / GRID_PREF_POINTS_X;
 
       // Validate if needed
       #if IS_KINEMATIC
@@ -464,8 +464,8 @@ void ubl_map_screen() {
     #if IS_KINEMATIC
       n_edit_pts = 9; // TODO: Delta accessible edit points
     #else
-      const bool xc = WITHIN(x, 1, (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) - 2);
-      const bool yc = WITHIN(y, 1, (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y)) - 2);
+      const bool xc = WITHIN(x, 1, GRID_PREF_POINTS_X - 2);
+      const bool yc = WITHIN(y, 1, GRID_PREF_POINTS_Y - 2);
       n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
     #endif
 
@@ -475,8 +475,8 @@ void ubl_map_screen() {
   }
 
   // Draw the grid point based on the encoder
-  x = ui.encoderPosition % (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
-  y = ui.encoderPosition / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+  x = ui.encoderPosition % GRID_PREF_POINTS_X;
+  y = ui.encoderPosition / GRID_PREF_POINTS_X;
 
   if (ui.should_draw()) ui.ubl_plot(x, y);
 

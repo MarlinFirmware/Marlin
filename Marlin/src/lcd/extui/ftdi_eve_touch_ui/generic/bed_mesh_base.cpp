@@ -27,8 +27,8 @@
 using namespace FTDI;
 
 void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t opts, float autoscale_max, uint8_t highlightedTag, mesh_getter_ptr func, void *data) {
-  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t rows = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y);
-  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t cols = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X);
+  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t rows = GRID_PREF_POINTS_Y;
+  IF_DISABLED(VARIABLE_GRID_POINTS, constexpr) uint8_t cols = GRID_PREF_POINTS_X;
 
   #define VALUE(X,Y)  (func ? func(X,Y,data) : 0)
   #define ISVAL(X,Y)  (func ? !isnan(VALUE(X,Y)) : true)
@@ -194,13 +194,13 @@ void BedMeshBase::_drawMesh(CommandProcessor &cmd, int16_t x, int16_t y, int16_t
 }
 
 uint8_t BedMeshBase::pointToTag(uint8_t x, uint8_t y) {
-  return x >= 0 && x < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X) && y >= 0 && y < TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_Y, GRID_MAX_POINTS_Y) ? y * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) + x + 10 : 0;
+  return x >= 0 && x < GRID_PREF_POINTS_X && y >= 0 && y < GRID_PREF_POINTS_Y ? y * GRID_PREF_POINTS_X + x + 10 : 0;
 }
 
 bool BedMeshBase::tagToPoint(uint8_t tag, xy_uint8_t &pt) {
   if (tag < 10) return false;
-  pt.x = (tag - 10) % (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
-  pt.y = (tag - 10) / (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X));
+  pt.x = (tag - 10) % GRID_PREF_POINTS_X;
+  pt.y = (tag - 10) / GRID_PREF_POINTS_X;
   return true;
 }
 

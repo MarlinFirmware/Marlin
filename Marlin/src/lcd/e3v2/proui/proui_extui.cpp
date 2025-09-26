@@ -164,8 +164,8 @@ namespace ExtUI {
 
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      const int16_t pts = TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS, GRID_MAX_POINTS),
-                    idx = ypos * (TERN(VARIABLE_GRID_POINTS, GRID_USED_POINTS_X, GRID_MAX_POINTS_X)) + xpos;
+      const int16_t pts = GRID_PREF_POINTS,
+                    idx = ypos * GRID_PREF_POINTS_X + xpos;
       dwinMeshUpdate(_MIN(idx, pts), pts, zval);
       dwinRedrawScreen();
     }
