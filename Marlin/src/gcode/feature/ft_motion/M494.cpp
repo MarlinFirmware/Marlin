@@ -47,7 +47,7 @@ void GcodeSuite::M494_report(const bool forReplay/*=true*/) {
 
   report_heading_etc(forReplay, F("FTM Smoothing"));
   const ft_config_t &c = ftMotion.cfg;
-  SERIAL_ECHOLN(F("  M494"),
+  SERIAL_ECHOLN(F("  M494")
     #if HAS_X_AXIS
       , F(" X"), c.smoothingTime.x
     #endif
