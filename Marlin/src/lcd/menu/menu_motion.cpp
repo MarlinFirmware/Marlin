@@ -477,7 +477,10 @@ void menu_move() {
           if (AXIS_IS_EISHAPING(A)) \
             EDIT_ITEM_FAST_N(float42_52, _AXIS(A), MSG_FTM_VTOL_N, &c.vtol.A, 0.0f, 1.0f, ftMotion.update_shaping_params); \
         }
-
+      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+      }
       TERN_(HAS_X_AXIS,   SHAPER_MENU_ITEM(X));
       TERN_(HAS_Y_AXIS,   SHAPER_MENU_ITEM(Y));
       TERN_(FTM_SHAPER_Z, SHAPER_MENU_ITEM(Z));
@@ -576,10 +579,10 @@ void menu_move() {
     START_MENU();
     BACK_ITEM(MSG_TUNE);
 
-      SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
-      if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
-        EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
-      }
+    SUBMENU_S(_traj_name(), MSG_FTM_TRAJECTORY, menu_ftm_trajectory_generator);
+    if (ftMotion.getTrajectoryType() == TrajectoryType::POLY6) {
+      EDIT_ITEM(float42_52, MSG_FTM_POLY6_OVERSHOOT, &c.poly6_acceleration_overshoot, 1.25f, 1.875f);
+    }
     #if HAS_X_AXIS
       SUBMENU_N_S(X_AXIS, _shaper_name(X_AXIS), MSG_FTM_CMPN_MODE, menu_ftm_shaper_X);
     #endif

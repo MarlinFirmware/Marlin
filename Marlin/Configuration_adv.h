@@ -1193,8 +1193,8 @@
 
   #define FTM_TRYJECTORY_TYPE       TRAPEZOIDAL   // Block acceleration profile (TRAPEZOIDAL, POLY5, POLY6)
                                                   // TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
-                                                  // POLY5:       Continuous Jerk. Peak acceleration is 1.5x the nominal setting. (cheaper than POLY6)
-                                                  // POLY6:       Continuous Snap (aka S_CURVE). Peak acceleration of between 1.25 and 1.875.
+                                                  // POLY5:       Like POLY6 with 1.5x but cpu cheaper.
+                                                  // POLY6:       Continuous Acceleration (aka S_CURVE).
                                                   // POLY trajectories not only reduce resonances without rounding corners, but also
                                                   // reduce extruder strain due to linear advance.
 

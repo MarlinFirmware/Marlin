@@ -71,7 +71,7 @@ void Poly6TrajectoryGenerator::plan(const float initial_speed, const float final
     // a5_mid = s5''(0.5)/Ts^2
     const float a5_mid = s5pp_u(acc_c3, acc_c4, acc_c5, 0.5f) / (Ts*Ts);
     const float a_mid_target = ftMotion.cfg.poly6_acceleration_overshoot * acceleration;
-    // c chosen so that (s5''(0.5)+c5*K''(0.5))/Ts^2 == a_mid_target
+    // c chosen so that (s5''(0.5)+c5*K''(0.5))/Ts^2 == a_mid_target, meaning at half the acc/decc phase
     acc_c6 = (Ts*Ts) * (a_mid_target - a5_mid) / Kpp_mid;
   }
 
