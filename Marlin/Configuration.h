@@ -1424,7 +1424,7 @@
  * Requires a physical Probe (using nozzle as probe not supported)
  * Requires Z_CLEARANCE_DEPLOY_PROBE value if Z_SAFE_HOMING is not enabled.
  */
-//#define Z_HOMING_WITH_PROBE_AFTER_Z_ENDSTOP
+//#define REHOME_Z_WITH_PROBE
 
 /**
  * Z_MIN_PROBE_PIN
