@@ -2446,8 +2446,9 @@ void prepare_line_to_destination() {
     // Homing Z with a probe? Raise Z (maybe) and deploy the Z probe.
     // Return early if probe deployment fails.
     //
+    const bool now_probe_homing = TERN0(Z_CAN_HOME_WITH_PROBE, axis == Z_AXIS && z_homing_use_probe);
     #if Z_CAN_HOME_WITH_PROBE
-      if (axis == Z_AXIS && z_homing_use_probe && probe.deploy()) { probe.stow(); return; }
+      if (now_probe_homing && probe.deploy()) { probe.stow(); return; }
     #endif
 
     // Set flags for X, Y, Z motor locking
@@ -2467,7 +2468,7 @@ void prepare_line_to_destination() {
     // Deploy BLTouch or tare the probe just before probing
     //
     #if Z_CAN_HOME_WITH_PROBE
-      if (axis == Z_AXIS && z_homing_use_probe) {
+      if (now_probe_homing) {
 
         #if ENABLED(BLTOUCH)
           // BLTouch was deployed above, but get the alarm state.
@@ -2513,7 +2514,7 @@ void prepare_line_to_destination() {
 
     // Determine if a homing bump will be done and the bumps distance
     // When homing Z with probe respect probe clearance
-    const bool use_probe_bump = TERN0(Z_CAN_HOME_WITH_PROBE, axis == Z_AXIS && z_homing_use_probe && home_bump_mm(axis));
+    const bool use_probe_bump = now_probe_homing && home_bump_mm(axis);
     const float bump = axis_home_dir * (
       use_probe_bump ? _MAX(TERN0(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
     );
@@ -2528,12 +2529,12 @@ void prepare_line_to_destination() {
     // If a second homing move is configured...
     if (bump) {
       #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && z_homing_use_probe && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
+        if (now_probe_homing && !bltouch.high_speed_mode) bltouch.stow(); // Intermediate STOW (in LOW SPEED MODE)
       #endif
 
       // Move away from the endstop by the axis HOMING_BUMP_MM
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move Away: ", -bump, "mm");
-      do_homing_move(axis, -bump, TERN0(Z_CAN_HOME_WITH_PROBE, (axis == Z_AXIS ? z_probe_fast_mm_s : 0)), false);
+      do_homing_move(axis, -bump, TERN0(Z_CAN_HOME_WITH_PROBE, (now_probe_homing ? z_probe_fast_mm_s : 0)), false);
 
       #if ENABLED(DETECT_BROKEN_ENDSTOP)
 
@@ -2560,7 +2561,7 @@ void prepare_line_to_destination() {
       #endif // DETECT_BROKEN_ENDSTOP
 
       #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
-        if (axis == Z_AXIS && z_homing_use_probe && !bltouch.high_speed_mode && bltouch.deploy()) {
+        if (now_probe_homing && !bltouch.high_speed_mode && bltouch.deploy()) {
           bltouch.stow();
           return; // Intermediate DEPLOY (in LOW SPEED MODE)
         }
@@ -2573,7 +2574,7 @@ void prepare_line_to_destination() {
     }
 
     #if ALL(Z_CAN_HOME_WITH_PROBE, BLTOUCH)
-      if (axis == Z_AXIS && z_homing_use_probe) bltouch.stow(); // The final STOW
+      if (now_probe_homing) bltouch.stow(); // The final STOW
     #endif
 
     #if HAS_EXTRA_ENDSTOPS
@@ -2753,11 +2754,11 @@ void prepare_line_to_destination() {
     #endif
 
     #if ALL(BD_SENSOR, Z_CAN_HOME_WITH_PROBE)
-      if (axis == Z_AXIS && z_homing_use_probe) bdl.config_state = BDS_IDLE;
+      if (now_probe_homing) bdl.config_state = BDS_IDLE;
     #endif
 
     // Put away the Z probe. Return early if it fails.
-    if (TERN0(Z_CAN_HOME_WITH_PROBE, axis == Z_AXIS && z_homing_use_probe && probe.stow())) return;
+    if (TERN0(Z_CAN_HOME_WITH_PROBE, now_probe_homing && probe.stow())) return;
 
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
