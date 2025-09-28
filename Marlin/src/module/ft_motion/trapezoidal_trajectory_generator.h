@@ -21,6 +21,9 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfig.h"
+#if ENABLED(FT_MOTION)
+
 #include "trajectory_generator.h"
 #include <math.h>
 
@@ -96,3 +99,5 @@ private:
   float pos_before_coast = 0.0f; // Position after acceleration phase [mm]
   float pos_after_coast = 0.0f;  // Position after acceleration and coasting phase [mm]
 };
+
+#endif

@@ -21,6 +21,9 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfig.h"
+#if ENABLED(FT_MOTION)
+
 #include "trajectory_generator.h"
 #include <math.h>
 
@@ -73,3 +76,5 @@ private:
   float acc_c3 = 0.0f, acc_c4 = 0.0f, acc_c5 = 0.0f, acc_c6 = 0.0f;
   float dec_c3 = 0.0f, dec_c4 = 0.0f, dec_c5 = 0.0f, dec_c6 = 0.0f;
 };
+
+#endif
