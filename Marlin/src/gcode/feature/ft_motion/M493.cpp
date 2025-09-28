@@ -50,28 +50,32 @@ void say_shaping() {
   SERIAL_ECHO_TERNARY(ftMotion.cfg.active, "Fixed-Time Motion ", "en", "dis", "abled");
 
   // FT Shaping
+  const bool is_shaping = AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E);
   bool sep = false;
-  SERIAL_ECHOPGM(" (");
-  #if HAS_X_AXIS
-    if (AXIS_IS_SHAPING(X)) say_shaper_type(X_AXIS, sep, STEPPER_A_NAME);
-  #endif
-  #if HAS_Y_AXIS
-    if (AXIS_IS_SHAPING(Y)) say_shaper_type(Y_AXIS, sep, STEPPER_B_NAME);
-  #endif
-  #if ENABLED(FTM_SHAPER_Z)
-    if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME);
-  #endif
-  #if ENABLED(FTM_SHAPER_E)
-    if (AXIS_IS_SHAPING(E)) say_shaper_type(E_AXIS, sep, 'E');
-  #endif
-  SERIAL_ECHOLNPGM(")");
+  if (is_shaping) {
+    SERIAL_ECHOPGM(" (");
+    #if HAS_X_AXIS
+      if (AXIS_IS_SHAPING(X)) say_shaper_type(X_AXIS, sep, STEPPER_A_NAME);
+    #endif
+    #if HAS_Y_AXIS
+      if (AXIS_IS_SHAPING(Y)) say_shaper_type(Y_AXIS, sep, STEPPER_B_NAME);
+    #endif
+    #if ENABLED(FTM_SHAPER_Z)
+      if (AXIS_IS_SHAPING(Z)) say_shaper_type(Z_AXIS, sep, STEPPER_C_NAME);
+    #endif
+    #if ENABLED(FTM_SHAPER_E)
+      if (AXIS_IS_SHAPING(E)) say_shaper_type(E_AXIS, sep, 'E');
+    #endif
+    SERIAL_CHAR(')');
+  }
+  SERIAL_EOL();
 
   const bool z_based = TERN0(HAS_DYNAMIC_FREQ_MM, ftMotion.cfg.dynFreqMode == dynFreqMode_Z_BASED),
              g_based = TERN0(HAS_DYNAMIC_FREQ_G,  ftMotion.cfg.dynFreqMode == dynFreqMode_MASS_BASED),
              dynamic = z_based || g_based;
 
   // FT Dynamic Frequency Mode
-  if (AXIS_IS_SHAPING(X) || AXIS_IS_SHAPING(Y) || AXIS_IS_SHAPING(Z) || AXIS_IS_SHAPING(E)) {
+  if (is_shaping) {
     #if HAS_DYNAMIC_FREQ
       SERIAL_ECHOPGM("Dynamic Frequency Mode ");
       switch (ftMotion.cfg.dynFreqMode) {
@@ -119,11 +123,10 @@ void say_shaping() {
   }
 
   #if HAS_EXTRUDERS
-    SERIAL_ECHO_TERNARY(ftMotion.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
-    if (ftMotion.cfg.linearAdvEna)
+    if (ftMotion.cfg.active) {
+      SERIAL_ECHO_TERNARY(ftMotion.cfg.linearAdvEna, "Linear Advance ", "en", "dis", "abled");
       SERIAL_ECHOLNPGM(". Gain: ", ftMotion.cfg.linearAdvK);
-    else
-      SERIAL_EOL();
+    }
   #endif
 }
 
@@ -287,7 +290,6 @@ void GcodeSuite::M493() {
       const bool val = parser.value_bool();
       ftMotion.cfg.linearAdvEna = val;
       flag.report = true;
-      SERIAL_ECHO_TERNARY(val, "Linear Advance ", "en", "dis", "abled.\n");
     }
 
     // Pressure control (linear advance) gain parameter.
