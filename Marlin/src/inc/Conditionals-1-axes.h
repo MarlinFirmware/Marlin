@@ -45,6 +45,7 @@
  */
 #if EXTRUDERS
   #define HAS_EXTRUDERS 1
+  #define HAS_E_AXIS 1
   #if EXTRUDERS > 1
     #define HAS_MULTI_EXTRUDER 1
   #endif
