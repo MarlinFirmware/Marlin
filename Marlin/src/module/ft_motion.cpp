@@ -365,7 +365,7 @@ void FTMotion::loop() {
 
 // Reset all trajectory processing variables.
 void FTMotion::reset() {
-  const bool did_suspend = stepper.suspend();c
+  const bool did_suspend = stepper.suspend();
   stepperCmdBuff_produceIdx = stepperCmdBuff_consumeIdx = 0;
 
   traj.reset();
