@@ -2109,35 +2109,11 @@
 //#define MESH_BED_LEVELING
 
 /**
- * When a level probe is fitted but not used for homing, enabling USE_PROBE_FOR_MESH_REF will avoid a level mesh
- * being created with an unwanted offset between the fixed Z endstop/Homing Switch and probe trigger height. The
- * probe Z offset menu option is removed from the level sub menu, as entering a Z offset there would shift the mesh
- * and the Homeing position giving confusing status values for Z. It is recomended not to enter a Z offset value in
- * the probe offset section of config.h for the same reason.
- *
- * If no Z offsets are entered elsewhere the status screen will always show the actual Z possition. e.g when homing
- * the Z status will show 0 at the Home position, unless the height of the fixed Z stop/Homeing switch above the bed
- * has been set by the HOME_SWITCH_TO_BED_OFFSET_MENU option while creating a level mesh. In which case the Home
- * position will show as that height. The printer will move down to the print height when printing starts and Z status
- * will show the first layer height. The Nozzle will follow the mesh and baby stepping can be used to temporarily lower
- * or raise the nozzle to adjust first layer squish.
- *
- * If your Z stop/Homeing switch has a fine adjustment capability, the HOME_SWITCH_TO_BED_OFFSET_MENU menu option can be
- * left at zero or disabled. Using the paper pinch test and setting the Z stop/Homeing switch position works just as well.
+ * Base the Probe Z Offset on a trustworthy Z endstop
+ * Requires the Z axis to be homed with an endstop.
+ * Use 'M206 Z' to adjust the Z endstop to match the height at bed center.
  */
-#if DISABLED(USE_PROBE_FOR_Z_HOMING)
-  #if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT)
-    //#define USE_PROBE_FOR_MESH_REF
-    #if ENABLED(USE_PROBE_FOR_MESH_REF)
-      /**
-       * HOME_SWITCH_TO_BED_OFFSET_MENU enables a menu option called "Home Offset Z" to adjust the Z offset between
-       * the Fixed Z endstop/Homing switch and the bed. This offset is only used to adjust the level mesh down
-       * to the Zero plane (Bed) as the mesh is created, so a new level mesh must be created when if it is changed to apply it.
-       */
-      //#define HOME_SWITCH_TO_BED_OFFSET_MENU
-    #endif
-  #endif
-#endif
+//#define AUTO_Z_PROBE_OFFSET
 
 /**
  * Commands to execute at the start of G29 probing,

@@ -35,10 +35,6 @@
   bool g29_in_progress = false;
 #endif
 
-#if ENABLED(USE_PROBE_FOR_MESH_REF)
-  float mesh_zero_ref_offset = 0;  // declared in gcode.h as external so it can be set in menu_probe_level.cpp
-#endif
-
 #if ENABLED(LCD_BED_LEVELING)
   #include "../../lcd/marlinui.h"
 #endif

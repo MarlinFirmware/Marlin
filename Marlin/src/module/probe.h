@@ -354,6 +354,10 @@ public:
     static bool tare();
   #endif
 
+  #if ENABLED(AUTO_Z_PROBE_OFFSET)
+    static bool probe_to_obtain_z_offset();
+  #endif
+
   // Basic functions for Sensorless Homing and Probing
   #if HAS_DELTA_SENSORLESS_PROBING
     static void set_offset_sensorless_adj(const_float_t sz);

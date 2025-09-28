@@ -263,24 +263,9 @@ G29_TYPE GcodeSuite::G29() {
     G29_RETURN(false, false);
   }
 
-  #if ENABLED(USE_PROBE_FOR_MESH_REF)
-    // Send 'N' to force homing before G29 (internal only)
-    if (parser.seen_test('N')){
-      process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
-    }
-    else {
-      process_subcommands_now(F("G28L0 X Y"));  // Home X and Y only
-    }
-    // Set the probe trigger height as Z home before leveling
-    probe.probe_at_point(current_position, PROBE_PT_NONE,0 ,false ,true, Z_PROBE_LOW_POINT, Z_TWEEN_SAFE_CLEARANCE, false);
-    set_axis_is_at_home(Z_AXIS);
-    sync_plan_position();
-  #else
-    // Send 'N' to force homing before G29 (internal only)
-    if (parser.seen_test('N')){
-      process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
-    }
-  #endif
+  // Send 'N' to force homing before G29 (internal only)
+  if (parser.seen_test('N'))
+    process_subcommands_now(TERN(CAN_SET_LEVELING_AFTER_G28, F("G28L0"), FPSTR(G28_STR)));
 
   // Don't allow auto-leveling without homing first
   if (homing_needed_error()) G29_RETURN(false, false);
@@ -313,6 +298,10 @@ G29_TYPE GcodeSuite::G29() {
     #ifdef EVENT_GCODE_BEFORE_G29
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Before G29 G-code: ", EVENT_GCODE_BEFORE_G29);
       gcode.process_subcommands_now(F(EVENT_GCODE_BEFORE_G29));
+    #endif
+
+    #if ENABLED(AUTO_Z_PROBE_OFFSET)
+      (void)probe.probe_to_obtain_z_offset();
     #endif
 
     #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
@@ -607,7 +596,7 @@ G29_TYPE GcodeSuite::G29() {
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-        const float newz = abl.measured_z + TERN(USE_PROBE_FOR_MESH_REF, mesh_zero_ref_offset, abl.Z_offset);
+        const float newz = abl.measured_z + abl.Z_offset;
         abl.z_values[abl.meshCount.x][abl.meshCount.y] = newz;
         TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, newz));
 
@@ -813,8 +802,7 @@ G29_TYPE GcodeSuite::G29() {
 
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-            const float z = abl.measured_z + TERN(USE_PROBE_FOR_MESH_REF, mesh_zero_ref_offset, abl.Z_offset);
-
+            const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
 

@@ -734,6 +734,25 @@ bool Probe::probe_down_to_z(const_float_t z, const_feedRate_t fr_mm_s) {
   }
 #endif
 
+#if ENABLED(AUTO_Z_PROBE_OFFSET)
+
+  // Determine the probe.offset.z based on the trusted Z0
+  // Return 'true' on error condition.
+  bool Probe::probe_to_obtain_z_offset() {
+    use_probing_tool();
+    do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
+    const xy_pos_t ref_xy = {
+      TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_X_POINT, X_CENTER),
+      TERN(Z_SAFE_HOMING, Z_SAFE_HOMING_Y_POINT, Y_CENTER)
+    };
+    const float zval = probe_at_point(ref_xy, PROBE_PT_RAISE);
+    if (zval == NAN) return true;
+    offset.z = -zval;
+    return false;
+  }
+
+#endif // AUTO_Z_PROBE_OFFSET
+
 /**
  * @brief Probe at the current XY (possibly more than once) to find the bed Z.
  *

@@ -33,10 +33,6 @@
   constexpr bool g29_in_progress = false;
 #endif
 
-#if ENABLED(USE_PROBE_FOR_MESH_REF)
-  extern float mesh_zero_ref_offset;
-#endif
-
 bool leveling_is_valid();
 void set_bed_leveling_enabled(const bool enable=true);
 void reset_bed_level();
