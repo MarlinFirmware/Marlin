@@ -615,16 +615,16 @@ void FTMotion::loadBlockData(block_t * const current_block) {
 
    #if FTM_HAS_LIN_ADVANCE
     /**
-    * Use LIN_ADVANCE for blocks if all these are true:
-    * moveDist.e > 0                   : This is a print move.
-    * cfg.linearAdvK > 0               : There is an advance factor set.
-    * moveDist.e / totalLength < 3.0f  : Check for unusual high e_D ratio to detect if a retract move was
-                                        combined with the last print move due to min. steps per segment.
-                                        Never execute this with advance!
-                                        This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
-                                        and no one will print 100mm wide lines using 3mm filament or
-                                        35mm wide lines using 1.75mm filament.
-    */
+     * Use LIN_ADVANCE for blocks if all these are true:
+     * moveDist.e > 0                   : This is a print move.
+     * cfg.linearAdvK > 0               : There is an advance factor set.
+     * moveDist.e / totalLength < 3.0f  : Check for unusual high e_D ratio to detect if a retract move was
+     *                                   combined with the last print move due to min. steps per segment.
+     *                                   Never execute this with advance!
+     *                                   This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm
+     *                                   and no one will print 100mm wide lines using 3mm filament or
+     *                                   35mm wide lines using 1.75mm filament.
+     */
     use_advance_lead = moveDist.e > 0 && cfg.linearAdvK > 0 &&
                        moveDist.e / (SQRT(sq(moveDist.x) + sq(moveDist.y) + sq(moveDist.z))) < 3.0f;
   #endif
